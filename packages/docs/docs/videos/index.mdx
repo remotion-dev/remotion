@@ -12,9 +12,7 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return (
-    <OffthreadVideo src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
-  );
+  return <OffthreadVideo src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />;
 };
 ```
 
@@ -52,9 +50,7 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return (
-    <OffthreadVideo src={staticFile('video.mp4')} startFrom={60} endAt={120} />
-  );
+  return <OffthreadVideo src={staticFile('video.mp4')} startFrom={60} endAt={120} />;
 };
 ```
 

@@ -2,7 +2,7 @@
 image: /generated/articles-docs-dynamic-import.png
 title: Webpack dynamic imports
 id: webpack-dynamic-imports
-crumb: "Knowledge Base"
+crumb: 'Knowledge Base'
 ---
 
 A common need in Remotion is to import assets from dynamic paths. This means that sometimes you don't know the exact path of an asset that should be imported upfront and you want to calculate it during runtime.
@@ -12,11 +12,11 @@ This can become an unexpected hurdle in Webpack. On this page we collect some ti
 Take this scenario for an example:
 
 ```tsx twoslash
-import { Img, useCurrentFrame } from "remotion";
+import {Img, useCurrentFrame} from 'remotion';
 
 export const DynamicImports: React.FC = () => {
   const frame = useCurrentFrame();
-  const img = "./assets/image" + frame + ".png";
+  const img = './assets/image' + frame + '.png';
   return <Img src={require(img)} />;
 };
 ```
@@ -43,11 +43,11 @@ While the example at the top did not work, Webpack is smart enough to do so if y
 The following **does** work:
 
 ```tsx twoslash
-import { Img, useCurrentFrame } from "remotion";
+import {Img, useCurrentFrame} from 'remotion';
 
 export const DynamicImports: React.FC = () => {
   const frame = useCurrentFrame();
-  return <Img src={require("./assets/image" + frame + ".png")} />;
+  return <Img src={require('./assets/image' + frame + '.png')} />;
 };
 ```
 
@@ -58,7 +58,7 @@ Please read [the Webpack documentation page](https://webpack.js.org/api/module-m
 Let's imagine a scenario where the asset that should be imported is completely unknown and will be read at runtime, for example through an [input prop](/docs/get-input-props):
 
 ```tsx twoslash
-import { getInputProps, Img } from "remotion";
+import {getInputProps, Img} from 'remotion';
 
 const DynamicAsset: React.FC = () => {
   const inputProps = getInputProps(); // {"imageSrc": "./assets/img0.png"}
@@ -70,12 +70,12 @@ This cannot work because Webpack has no idea which assets it has to bundle. Ther
 Like above, you can force Webpack to bundle the whole assets folder by putting an expression inside the `require()` statement:
 
 ```tsx twoslash
-import { getInputProps, Img } from "remotion";
+import {getInputProps, Img} from 'remotion';
 
 const DynamicAsset: React.FC = () => {
   const inputProps = getInputProps(); // {"imageSrc": "img0.png"}
   // Works!
-  return <Img src={require(("./assets/" + inputProps.imageSrc) as string)} />;
+  return <Img src={require(('./assets/' + inputProps.imageSrc) as string)} />;
 };
 ```
 

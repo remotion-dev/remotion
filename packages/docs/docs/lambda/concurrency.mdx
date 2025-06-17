@@ -2,7 +2,7 @@
 image: /generated/articles-docs-lambda-concurrency.png
 id: concurrency
 title: Concurrency
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
 Remotion Lambda is a highly concurrent distributed video rendering system. That means that the video rendering work is split up across many Lambda functions. How many Lambda functions exactly can be defined by you, or you let Remotions defaults decide.
@@ -28,12 +28,12 @@ The following chart shows how the `framesPerLambda` and the implied concurrency 
 The code for determining the `framesPerLambda` parameter is:
 
 ```tsx twoslash
-import { interpolate } from "remotion";
+import {interpolate} from 'remotion';
 
 const bestFramesPerLambdaParam = (frameCount: number) => {
   // Between 0 and 10 minutes (at 30fps), interpolate the concurrency from 75 to 150
   const concurrency = interpolate(frameCount, [0, 18000], [75, 150], {
-    extrapolateRight: "clamp",
+    extrapolateRight: 'clamp',
   });
 
   // At least have 20 as a `framesPerLambda` value
@@ -46,9 +46,9 @@ const bestFramesPerLambdaParam = (frameCount: number) => {
 };
 ```
 
-import {ConcurrencyCalculator} from '../../components/Concurrency'
+import {ConcurrencyCalculator} from '../../components/Concurrency';
 
-<ConcurrencyCalculator/>
+<ConcurrencyCalculator />
 
 ## Concurrency limits
 

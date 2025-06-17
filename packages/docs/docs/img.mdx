@@ -2,7 +2,7 @@
 image: /generated/articles-docs-img.png
 title: <Img>
 id: img
-crumb: "API"
+crumb: 'API'
 ---
 
 The `<Img>` tag can be used like a regular `<img>` HTML tag.
@@ -16,12 +16,12 @@ If you use `<Img>`, Remotion will ensure that the image is loaded before renderi
 [Put an image into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.
 
 ```tsx twoslash
-import { AbsoluteFill, Img, staticFile } from "remotion";
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Img src={staticFile("hi.png")} />
+      <Img src={staticFile('hi.png')} />
     </AbsoluteFill>
   );
 };
@@ -30,12 +30,12 @@ export const MyComp: React.FC = () => {
 You can also load a remote image:
 
 ```tsx twoslash
-import { AbsoluteFill, Img } from "remotion";
+import {AbsoluteFill, Img} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Img src={"https://picsum.photos/200/300"} />
+      <Img src={'https://picsum.photos/200/300'} />
     </AbsoluteFill>
   );
 };
@@ -46,13 +46,13 @@ export const MyComp: React.FC = () => {
 To use the `<Img>` tag in a resilient way, handle the error that occurs when an image can not be loaded:
 
 ```tsx twoslash
-import { AbsoluteFill, Img, staticFile } from "remotion";
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
       <Img
-        src={staticFile("hi.png")}
+        src={staticFile('hi.png')}
         onError={(event) => {
           // Handle image loading error here
         }}

@@ -1,9 +1,9 @@
 ---
 image: /generated/articles-docs-media-playback-error.png
 id: media-playback-error
-title: "Could not play video/audio with src"
+title: 'Could not play video/audio with src'
 sidebar_label: Media playback error
-crumb: "Troubleshooting"
+crumb: 'Troubleshooting'
 ---
 
 The following error may occur in your Remotion project during development or while rendering:
@@ -60,18 +60,15 @@ The error message might contain `error creating media player`, appearing if too 
 First check that you are not accidentially creating an infite render loop. For example, changing the `key` frequently will re-create the video tag on every frame:
 
 ```tsx twoslash
-const uuidv4 = () => "";
+const uuidv4 = () => '';
 
 // ---cut---
-import { Video } from "remotion";
+import {Video} from 'remotion';
 
 export default function SBSVideo() {
   return (
     <>
-      {[
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-      ].map((video, i) => {
+      {['https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'].map((video, i) => {
         return <Video key={uuidv4()} src={video} />;
       })}
     </>

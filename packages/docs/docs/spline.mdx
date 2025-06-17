@@ -148,11 +148,7 @@ const frame = 0;
 const fps = 30;
 // ---cut---
 
-const constantRotation = interpolate(
-  frame,
-  [0, durationInFrames],
-  [0, Math.PI * 6],
-);
+const constantRotation = interpolate(frame, [0, durationInFrames], [0, Math.PI * 6]);
 
 const entranceAnimation = spring({
   frame,

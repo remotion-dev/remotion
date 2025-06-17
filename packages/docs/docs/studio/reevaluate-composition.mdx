@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-studio-reevaluate-composition.png
 title: reevaluateComposition()
-crumb: "@remotion/studio"
+crumb: '@remotion/studio'
 ---
 
 # reevaluateComposition()<AvailableFrom v="4.0.167"/>
@@ -17,14 +17,14 @@ This is useful if the function relies on:
 ## Example
 
 ```tsx twoslash title="Re-run calculateMetadata() on the currently selected composition"
-import React, { useCallback } from "react";
-import { reevaluateComposition } from "@remotion/studio";
+import React, {useCallback} from 'react';
+import {reevaluateComposition} from '@remotion/studio';
 
 export const ReevaluateCompositionComp: React.FC = () => {
   const reevaluate = useCallback(async () => {
     reevaluateComposition();
 
-    console.log("Re-evaluated!");
+    console.log('Re-evaluated!');
   }, []);
 
   return <button onClick={reevaluate}>Re-evaluate</button>;

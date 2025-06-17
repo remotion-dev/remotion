@@ -72,7 +72,7 @@ await parseMedia({
   controller,
   onVideoTrack: () => {
     return async () => {
-      const result = await controller.simulateSeek(3); 
+      const result = await controller.simulateSeek(3);
       console.log(result); // { "type": "do-seek", byte: 5763, timeInSeconds: 0 }
     };
   },

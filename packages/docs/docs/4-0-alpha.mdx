@@ -2,7 +2,7 @@
 image: /generated/articles-docs-4-0-alpha.png
 id: 4-0-alpha
 title: v4.0 Alpha
-crumb: "Version Upgrade"
+crumb: 'Version Upgrade'
 ---
 
 Remotion 4.0 has now been released. This page has been archived.
@@ -33,22 +33,24 @@ Make sure the versions don't have a `^` character in front of it.
 
 Most important breaking changes:
 
-<Step>1</Step> The config file must now import the config like the following:<br/>
+<Step>1</Step> The config file must now import the config like the following:
+<br />
 
 ```ts
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 ```
 
-<Step>2</Step> Also in the config file:<br/>
+<Step>2</Step> Also in the config file:
+<br />
 
 ```ts
-Config.setImageFormat("jpeg");
+Config.setImageFormat('jpeg');
 ```
 
 has been replaced with
 
 ```ts
-Config.setVideoImageFormat("jpeg");
+Config.setVideoImageFormat('jpeg');
 ```
 
 See how to migrate: [Migration guide](/docs/4-0-migration)

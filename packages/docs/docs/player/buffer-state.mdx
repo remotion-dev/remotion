@@ -159,10 +159,7 @@ By default, Remotion will display the following UI based on the state of the pla
   When in State <InlineStep>1</InlineStep> a Pause button is shown. <br />
 </p>
 <p>
-  When in State <InlineStep>2</InlineStep> at first a Pause button, then after{' '}
-  <a href="#indicating-buffering-in-the-ui">a delay</a>, a{' '}
-  <a href="/docs/player/buffer-state#indicating-buffering-in-the-ui">customizable spinner</a>{' '}
-  is shown.
+  When in State <InlineStep>2</InlineStep> at first a Pause button, then after <a href="#indicating-buffering-in-the-ui">a delay</a>, a <a href="/docs/player/buffer-state#indicating-buffering-in-the-ui">customizable spinner</a> is shown.
 </p>
 
 <p>Otherwise, the Play button is shown.</p>
@@ -210,16 +207,7 @@ export const App: React.FC = () => {
     };
   }, [setBuffering]);
 
-  return (
-    <Player
-      ref={playerRef}
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-    />
-  );
+  return <Player ref={playerRef} component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} />;
 };
 ```
 
@@ -284,27 +272,15 @@ import {Player, RenderPlayPauseButton} from '@remotion/player';
 import {useCallback} from 'react';
 
 export const App: React.FC = () => {
-  const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
-    ({playing, isBuffering}) => {
-      if (playing && isBuffering) {
-        return <MySpinner />;
-      }
+  const renderPlayPauseButton: RenderPlayPauseButton = useCallback(({playing, isBuffering}) => {
+    if (playing && isBuffering) {
+      return <MySpinner />;
+    }
 
-      return null;
-    },
-    [],
-  );
+    return null;
+  }, []);
 
-  return (
-    <Player
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      renderPlayPauseButton={renderPlayPauseButton}
-    />
-  );
+  return <Player component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} renderPlayPauseButton={renderPlayPauseButton} />;
 };
 ```
 
@@ -335,17 +311,7 @@ const MyApp: React.FC = () => {
     return null;
   }, []);
 
-  return (
-    <Player
-      fps={30}
-      component={Component}
-      durationInFrames={100}
-      compositionWidth={1080}
-      compositionHeight={1080}
-      renderPoster={renderPoster}
-      showPosterWhenBuffering
-    />
-  );
+  return <Player fps={30} component={Component} durationInFrames={100} compositionWidth={1080} compositionHeight={1080} renderPoster={renderPoster} showPosterWhenBuffering />;
 };
 ```
 

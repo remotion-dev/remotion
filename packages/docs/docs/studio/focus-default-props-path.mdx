@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-studio-focus-default-props-path.png
 title: focusDefaultPropsPath()
-crumb: "@remotion/studio"
+crumb: '@remotion/studio'
 ---
 
 # focusDefaultPropsPath()<AvailableFrom v="4.0.165"/>
@@ -13,7 +13,7 @@ Scrolls to a specific field in the default props editor.
 For the following Zod schema:
 
 ```tsx twoslash title="schema.ts"
-import { z } from "zod";
+import {z} from 'zod';
 
 const MySchema = z.object({
   array: z.array(
@@ -27,10 +27,10 @@ const MySchema = z.object({
 Call `focusDefaultPropsPath()` with the path to the field you want to focus on:
 
 ```tsx twoslash title="MyComp.tsx"
-import { focusDefaultPropsPath } from "@remotion/studio";
+import {focusDefaultPropsPath} from '@remotion/studio';
 
 focusDefaultPropsPath({
-  path: ["array", 0, "subfield"],
+  path: ['array', 0, 'subfield'],
 });
 ```
 

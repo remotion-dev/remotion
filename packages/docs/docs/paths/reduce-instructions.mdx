@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-paths-reduce-instructions.png
 title: reduceInstructions()
-crumb: "@remotion/paths"
+crumb: '@remotion/paths'
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package. Available from v3.3.40_
@@ -19,11 +19,11 @@ This is useful if you want to manually edit a path and want to make sure it's as
 Note that this may result in a longer path.
 
 ```ts twoslash
-import { reduceInstructions, ReducedInstruction } from "@remotion/paths";
+import {reduceInstructions, ReducedInstruction} from '@remotion/paths';
 
 const simplified: ReducedInstruction[] = reduceInstructions([
-  { type: "m", dx: 10, dy: 10 },
-  { type: "h", dx: 100 },
+  {type: 'm', dx: 10, dy: 10},
+  {type: 'h', dx: 100},
 ]);
 
 /*
@@ -39,7 +39,7 @@ const simplified: ReducedInstruction[] = reduceInstructions([
 If you want a type which includes only reduced instructions, you can import the `ReducedInstruction` type.
 
 ```ts twoslash
-import { ReducedInstruction } from "@remotion/paths";
+import {ReducedInstruction} from '@remotion/paths';
 ```
 
 ## See also

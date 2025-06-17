@@ -2,13 +2,13 @@
 image: /generated/articles-docs-random.png
 id: random
 title: random()
-crumb: "API"
+crumb: 'API'
 ---
 
 The `random()` API will give deterministic pseudorandom values between `0` and `1`. Unlike the `Math.random()` function, Remotions function takes in a seed which can be a `number` or a `string`. If the seed is the same, the output is always the same.
 
 ```ts twoslash
-import { random } from "remotion";
+import {random} from 'remotion';
 
 const rand = random(1); // 0.07301638228818774
 const rand2 = random(1); // still 0.07301638228818774

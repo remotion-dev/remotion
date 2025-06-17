@@ -10,62 +10,47 @@ You will have to do less re-takes due to mistakes and having multiple scenes all
 If this is unfeasible and you already have a long recording that you would like to split after the fact, you can use the following script:
 
 ```tsx title="cut.ts"
-import { $ } from "bun";
-import { existsSync, readdirSync, renameSync, rmSync } from "fs";
-import { join } from "path";
-import {
-  ALTERNATIVE1_PREFIX,
-  ALTERNATIVE2_PREFIX,
-  CAPTIONS_PREFIX,
-  DISPLAY_PREFIX,
-  WEBCAM_PREFIX,
-} from "./config/cameras";
+import {$} from 'bun';
+import {existsSync, readdirSync, renameSync, rmSync} from 'fs';
+import {join} from 'path';
+import {ALTERNATIVE1_PREFIX, ALTERNATIVE2_PREFIX, CAPTIONS_PREFIX, DISPLAY_PREFIX, WEBCAM_PREFIX} from './config/cameras';
 
 const compositionId = process.argv[2];
 if (!compositionId) {
-  throw new Error("Expected composition ID as first argument");
+  throw new Error('Expected composition ID as first argument');
 }
 
-console.log("Composition ID", compositionId);
+console.log('Composition ID', compositionId);
 const timestamp = process.argv[3];
 if (!timestamp) {
-  throw new Error("Expected timestamp as second argument");
+  throw new Error('Expected timestamp as second argument');
 }
 
 const trimPoint = process.argv[4];
 if (!trimPoint) {
-  throw new Error("Expected trim point as third argument");
+  throw new Error('Expected trim point as third argument');
 }
 
-console.log("Timestamp", timestamp);
-console.log("Trim point", trimPoint);
+console.log('Timestamp', timestamp);
+console.log('Trim point', trimPoint);
 
-const folder = join("public", compositionId);
+const folder = join('public', compositionId);
 const files = readdirSync(folder);
 
 const webcamFile = files.find((f) => f.startsWith(`webcam${timestamp}`));
 
 if (!webcamFile) {
-  throw new Error(
-    `Expected file ${compositionId}/webcam${timestamp}.* to exist`,
-  );
+  throw new Error(`Expected file ${compositionId}/webcam${timestamp}.* to exist`);
 }
 
 const webcamTimestamp = webcamFile.match(/\d{1,14}/g)?.[0] ?? null;
 
 if (!webcamTimestamp) {
-  throw new Error(
-    `Expected file ${compositionId}/webcam${timestamp}.* to have timestamp ${timestamp}`,
-  );
+  throw new Error(`Expected file ${compositionId}/webcam${timestamp}.* to have timestamp ${timestamp}`);
 }
 
 const allFilesWithTimestamp = files.filter((f) => {
-  return (
-    f.startsWith(`${WEBCAM_PREFIX}${timestamp}`) ||
-    f.startsWith(`${DISPLAY_PREFIX}${timestamp}`) ||
-    f.startsWith(`${ALTERNATIVE1_PREFIX}${timestamp}.mp4`) ||
-    f.startsWith(`${ALTERNATIVE2_PREFIX}${timestamp}.mp4`)
-  );
+  return f.startsWith(`${WEBCAM_PREFIX}${timestamp}`) || f.startsWith(`${DISPLAY_PREFIX}${timestamp}`) || f.startsWith(`${ALTERNATIVE1_PREFIX}${timestamp}.mp4`) || f.startsWith(`${ALTERNATIVE2_PREFIX}${timestamp}.mp4`);
 });
 
 const allTimestamps = [
@@ -76,30 +61,19 @@ const allTimestamps = [
   ),
 ];
 
-const timestampBefore = Number(
-  allTimestamps.filter((t) => Number(t) < Number(webcamTimestamp) ?? null) ??
-    "0",
-);
+const timestampBefore = Number(allTimestamps.filter((t) => Number(t) < Number(webcamTimestamp) ?? null) ?? '0');
 
-const newTimestamp =
-  (Number(webcamTimestamp) - timestampBefore) / 2 + timestampBefore;
+const newTimestamp = (Number(webcamTimestamp) - timestampBefore) / 2 + timestampBefore;
 
 for (const file of allFilesWithTimestamp) {
-  const newFile = file.replace(
-    new RegExp(`${webcamTimestamp}`),
-    String(newTimestamp),
-  );
+  const newFile = file.replace(new RegExp(`${webcamTimestamp}`), String(newTimestamp));
 
   // Create video before trim point
-  await $`bunx ffmpeg -i ${file} -t ${trimPoint} -c:v copy -c:a copy ${newFile}`.cwd(
-    folder,
-  );
+  await $`bunx ffmpeg -i ${file} -t ${trimPoint} -c:v copy -c:a copy ${newFile}`.cwd(folder);
 
   // Create video after trim point
   const temporaryFile = `temp-${newFile}`;
-  await $`bunx ffmpeg -ss ${trimPoint} -accurate_seek -i ${file} ${temporaryFile}`.cwd(
-    folder,
-  );
+  await $`bunx ffmpeg -ss ${trimPoint} -accurate_seek -i ${file} ${temporaryFile}`.cwd(folder);
   rmSync(join(folder, file));
   renameSync(join(folder, temporaryFile), join(folder, file));
 }

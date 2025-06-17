@@ -19,7 +19,7 @@ Use it if you:
 <Step>2</Step> want to transform the props passed to the composition, for example to do <a href="/docs/data-fetching">data fetching</a>
 </div>
 <div>
-<Step>3</Step> want to add a per-composition default codec
+<Step>3</Step> want to add per-composition default render settings (codec, image format, pixel format)
 </div>
 <div>
 <Step>4</Step> want to run code once, before the actual render starts.
@@ -58,6 +58,10 @@ const calculateMetadata: CalculateMetadataFunction<MyComponentProps> = ({props, 
     props,
     // or add per-composition default codec
     defaultCodec: 'h264',
+    // or add per-composition default image format for video rendering
+    defaultVideoImageFormat: 'png',
+    // or add per-composition default pixel format
+    defaultPixelFormat: 'yuva420p',
   };
 };
 
@@ -96,8 +100,12 @@ The function must return an pure JSON-serializable object, which can contain the
 - `fps` _optional_: The frames per second of the composition
 - `defaultCodec` _optional_: The default codec to use for the composition.
 - `defaultOutName` _optional_: The default output name when rendering (without file extension) <AvailableFrom v="4.0.268" />
+- `defaultVideoImageFormat` _optional_: The default image format to use when rendering frames for video. Either `'png'`, `'jpeg'`, or `'none'`. <AvailableFrom v="4.0.315" />
+- `defaultPixelFormat` _optional_: The default pixel format to use for the composition. One of `'yuv420p'`, `'yuva420p'`, `'yuv422p'`, `'yuv444p'`, `'yuv420p10le'`, `'yuv422p10le'`, `'yuv444p10le'`, `'yuva444p10le'`. <AvailableFrom v="4.0.315" />
 
 If you return a field, it will take precendence over the props directly passed to the composition. The defaultCodec returned will have a higher priority than the config file, but less priority than explicitly passing the option to renderMedia() i.e. the composition will be rendered with this codec if nothing with higher priority was specified.
+
+The same priority rules apply to `defaultVideoImageFormat` and `defaultPixelFormat` - they will be used as fallbacks if not explicitly specified in the render options.
 
 The function may be `async`.
 

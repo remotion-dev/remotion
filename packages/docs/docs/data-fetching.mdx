@@ -2,7 +2,7 @@
 image: /generated/articles-docs-data-fetching.png
 id: data-fetching
 title: Data fetching
-crumb: "How to"
+crumb: 'How to'
 ---
 
 In Remotion, you may fetch data from an API to use it in your video. On this page, we document recipes and best practices.
@@ -20,7 +20,7 @@ The data being fetched using `calculateMetadata()` must be JSON-serializable. Th
 Pass a callback function which takes the untransformed `props`, and return an object with the new props.
 
 ```tsx twoslash title="src/Root.tsx"
-import { Composition } from "remotion";
+import {Composition} from 'remotion';
 
 type ApiResponse = {
   title: string;
@@ -43,10 +43,10 @@ export const Root: React.FC = () => {
       width={1920}
       height={1080}
       defaultProps={{
-        id: "1",
+        id: '1',
         data: null,
       }}
-      calculateMetadata={async ({ props }) => {
+      calculateMetadata={async ({props}) => {
         const data = await fetch(`https://example.com/api/${props.id}`);
         const json = await data.json();
 
@@ -79,9 +79,9 @@ type MyCompProps = {
   data: ApiResponse | null;
 };
 
-const MyComp: React.FC<MyCompProps> = ({ data }) => {
+const MyComp: React.FC<MyCompProps> = ({data}) => {
   if (data === null) {
-    throw new Error("Data was not fetched");
+    throw new Error('Data was not fetched');
   }
 
   return <div>{data.title}</div>;
@@ -103,17 +103,15 @@ type MyCompProps = {
 };
 
 // ---cut---
-import { CalculateMetadataFunction } from "remotion";
+import {CalculateMetadataFunction} from 'remotion';
 
-export const calculateMyCompMetadata: CalculateMetadataFunction<
-  MyCompProps
-> = ({ props }) => {
+export const calculateMyCompMetadata: CalculateMetadataFunction<MyCompProps> = ({props}) => {
   return {
     props: {
       ...props,
       data: {
-        title: "Hello world",
-        description: "This is a description",
+        title: 'Hello world',
+        description: 'This is a description',
       },
     },
   };
@@ -127,10 +125,10 @@ export const MyComp: React.FC<MyCompProps> = () => null;
 Here is an example of how you could define a schema, a component and a fetcher function in the same file:
 
 ```tsx twoslash title="MyComp.tsx"
-import { CalculateMetadataFunction } from "remotion";
-import { z } from "zod";
+import {CalculateMetadataFunction} from 'remotion';
+import {z} from 'zod';
 
-const apiResponse = z.object({ title: z.string(), description: z.string() });
+const apiResponse = z.object({title: z.string(), description: z.string()});
 
 export const myCompSchema = z.object({
   id: z.string(),
@@ -139,9 +137,7 @@ export const myCompSchema = z.object({
 
 type Props = z.infer<typeof myCompSchema>;
 
-export const calcMyCompMetadata: CalculateMetadataFunction<Props> = async ({
-  props,
-}) => {
+export const calcMyCompMetadata: CalculateMetadataFunction<Props> = async ({props}) => {
   const data = await fetch(`https://example.com/api/${props.id}`);
   const json = await data.json();
 
@@ -153,9 +149,9 @@ export const calcMyCompMetadata: CalculateMetadataFunction<Props> = async ({
   };
 };
 
-export const MyComp: React.FC<Props> = ({ data }) => {
+export const MyComp: React.FC<Props> = ({data}) => {
   if (data === null) {
-    throw new Error("Data was not fetched");
+    throw new Error('Data was not fetched');
   }
 
   return <div>{data.title}</div>;
@@ -165,11 +161,11 @@ export const MyComp: React.FC<Props> = ({ data }) => {
 ```tsx twoslash title="src/Root.tsx"
 // @filename: src/MyComp.tsx
 // organize-imports-ignore
-import React from "react";
-import { CalculateMetadataFunction } from "remotion";
-import { z } from "zod";
+import React from 'react';
+import {CalculateMetadataFunction} from 'remotion';
+import {z} from 'zod';
 
-const apiResponse = z.object({ title: z.string(), description: z.string() });
+const apiResponse = z.object({title: z.string(), description: z.string()});
 
 export const myCompSchema = z.object({
   id: z.string(),
@@ -178,9 +174,7 @@ export const myCompSchema = z.object({
 
 type Props = z.infer<typeof myCompSchema>;
 
-export const calcMyCompMetadata: CalculateMetadataFunction<Props> = async ({
-  props,
-}) => {
+export const calcMyCompMetadata: CalculateMetadataFunction<Props> = async ({props}) => {
   const data = await fetch(`https://example.com/api/${props.id}`);
   const json = await data.json();
 
@@ -192,9 +186,9 @@ export const calcMyCompMetadata: CalculateMetadataFunction<Props> = async ({
   };
 };
 
-export const MyComp: React.FC<Props> = ({ data }) => {
+export const MyComp: React.FC<Props> = ({data}) => {
   if (data === null) {
-    throw new Error("Data was not fetched");
+    throw new Error('Data was not fetched');
   }
 
   return <div>{data.title}</div>;
@@ -202,9 +196,9 @@ export const MyComp: React.FC<Props> = ({ data }) => {
 
 // @filename: src/Root.tsx
 // ---cut---
-import React from "react";
-import { Composition } from "remotion";
-import { MyComp, calcMyCompMetadata, myCompSchema } from "./MyComp";
+import React from 'react';
+import {Composition} from 'remotion';
+import {MyComp, calcMyCompMetadata, myCompSchema} from './MyComp';
 
 export const Root = () => {
   return (
@@ -216,7 +210,7 @@ export const Root = () => {
       width={1920}
       height={1080}
       defaultProps={{
-        id: "1",
+        id: '1',
         data: null,
       }}
       schema={myCompSchema}
@@ -233,15 +227,13 @@ By implementing this pattern, The `id` in the [props editor](/docs/visual-editin
 You may set the `durationInFrames`, `fps`, `width` and `height` by returning those keys in the callback function:
 
 ```tsx twoslash
-import { CalculateMetadataFunction } from "remotion";
+import {CalculateMetadataFunction} from 'remotion';
 
 type MyCompProps = {
   durationInSeconds: number;
 };
 
-export const calculateMyCompMetadata: CalculateMetadataFunction<
-  MyCompProps
-> = ({ props }) => {
+export const calculateMyCompMetadata: CalculateMetadataFunction<MyCompProps> = ({props}) => {
   const fps = 30;
   const durationInSeconds = props.durationInSeconds;
 
@@ -261,7 +253,7 @@ It is a good practice to cancel requests which are stale using the `abortSignal`
 
 ```tsx twoslash title="src/MyComp.tsx" {3-6}
 // ---cut---
-import type { CalculateMetadataFunction } from "remotion";
+import type {CalculateMetadataFunction} from 'remotion';
 
 type ApiResponse = {
   title: string;
@@ -273,9 +265,7 @@ type MyCompProps = {
 };
 
 // ---cut---
-export const calculateMyCompMetadata: CalculateMetadataFunction<
-  MyCompProps
-> = async ({ props, abortSignal }) => {
+export const calculateMyCompMetadata: CalculateMetadataFunction<MyCompProps> = async ({props, abortSignal}) => {
   const data = await fetch(`https://example.com/api/${props.id}`, {
     signal: abortSignal,
   });
@@ -299,7 +289,7 @@ This `abortSignal` is created by Remotion using the [`AbortController`](https://
 If you are making requests to an expensive API, you might want to only fire a request after the user has stopped typing for a while. You may use the following function for doing so:
 
 ```tsx twoslash title="src/wait-for-no-input.ts"
-import { getRemotionEnvironment } from "remotion";
+import {getRemotionEnvironment} from 'remotion';
 export const waitForNoInput = (signal: AbortSignal, ms: number) => {
   // Don't wait during rendering
   if (getRemotionEnvironment().isRendering) {
@@ -307,13 +297,13 @@ export const waitForNoInput = (signal: AbortSignal, ms: number) => {
   }
 
   if (signal.aborted) {
-    return Promise.reject(new Error("stale"));
+    return Promise.reject(new Error('stale'));
   }
 
   return Promise.race<void>([
     new Promise<void>((_, reject) => {
-      signal.addEventListener("abort", () => {
-        reject(new Error("stale"));
+      signal.addEventListener('abort', () => {
+        reject(new Error('stale'));
       });
     }),
     new Promise<void>((resolve) => {
@@ -326,7 +316,7 @@ export const waitForNoInput = (signal: AbortSignal, ms: number) => {
 ```
 
 ```tsx twoslash title="src/MyComp.tsx" {4}
-import { CalculateMetadataFunction, getRemotionEnvironment } from "remotion";
+import {CalculateMetadataFunction, getRemotionEnvironment} from 'remotion';
 
 const waitForNoInput = (signal: AbortSignal, ms: number) => {
   // Don't wait during rendering
@@ -335,13 +325,13 @@ const waitForNoInput = (signal: AbortSignal, ms: number) => {
   }
 
   if (signal.aborted) {
-    return Promise.reject(new Error("stale"));
+    return Promise.reject(new Error('stale'));
   }
 
   return Promise.race<void>([
     new Promise<void>((_, reject) => {
-      signal.addEventListener("abort", () => {
-        reject(new Error("stale"));
+      signal.addEventListener('abort', () => {
+        reject(new Error('stale'));
       });
     }),
     new Promise<void>((resolve) => {
@@ -362,9 +352,7 @@ type MyCompProps = {
 };
 
 // ---cut---
-export const calculateMyCompMetadata: CalculateMetadataFunction<
-  MyCompProps
-> = async ({ props, abortSignal }) => {
+export const calculateMyCompMetadata: CalculateMetadataFunction<MyCompProps> = async ({props, abortSignal}) => {
   await waitForNoInput(abortSignal, 750);
   const data = await fetch(`https://example.com/api/${props.id}`, {
     signal: abortSignal,
@@ -399,8 +387,8 @@ Use this approach to load assets which are not JSON serializable or if you are u
 Call [`delayRender()`](/docs/delay-render) as soon as possible, for example when initializing the state inside your component.
 
 ```tsx twoslash
-import { useCallback, useEffect, useState } from "react";
-import { cancelRender, continueRender, delayRender } from "remotion";
+import {useCallback, useEffect, useState} from 'react';
+import {cancelRender, continueRender, delayRender} from 'remotion';
 
 export const MyComp = () => {
   const [data, setData] = useState(null);
@@ -408,7 +396,7 @@ export const MyComp = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const response = await fetch("http://example.com/api");
+      const response = await fetch('http://example.com/api');
       const json = await response.json();
       setData(json);
 
@@ -422,13 +410,7 @@ export const MyComp = () => {
     fetchData();
   }, [fetchData]);
 
-  return (
-    <div>
-      {data ? (
-        <div>This video has data from an API! {JSON.stringify(data)}</div>
-      ) : null}
-    </div>
-  );
+  return <div>{data ? <div>This video has data from an API! {JSON.stringify(data)}</div> : null}</div>;
 };
 ```
 
@@ -445,10 +427,11 @@ During rendering, multiple headless browser tabs are opened to speed up renderin
 In Remotion Lambda, the [rendering concurrency](/docs/lambda/concurrency) may be up to 200x.  
 This means that if you are fetching data inside your component, the data fetching will be performed many times.
 
-<Step>1</Step> Prefer fetching the data before rendering if possible. <br/>
-<Step>2</Step> Ensure you are entitled to a high request rate without running into a rate limit.<br/>
-<Step>3</Step> The data returned by the API must be the same on all threads, otherwise <a href="/docs/flickering">flickering</a> may occur. <br/>
-<Step>4</Step> Make sure to not have <code>frame</code> as a dependency of the <code>useEffect()</code>, directly or indirectly, otherwise data will be fetched every frame leading to slowdown and potentially running into rate limits. <br/>
+<Step>1</Step> Prefer fetching the data before rendering if possible. <br />
+<Step>2</Step> Ensure you are entitled to a high request rate without running into a rate limit.
+<br />
+<Step>3</Step> The data returned by the API must be the same on all threads, otherwise <a href="/docs/flickering">flickering</a> may occur. <br />
+<Step>4</Step> Make sure to not have <code>frame</code> as a dependency of the <code>useEffect()</code>, directly or indirectly, otherwise data will be fetched every frame leading to slowdown and potentially running into rate limits. <br />
 
 ## See also
 

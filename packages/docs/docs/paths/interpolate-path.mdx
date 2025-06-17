@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-paths-interpolate-path.png
 title: interpolatePath()
-crumb: "@remotion/paths"
+crumb: '@remotion/paths'
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package._
@@ -16,9 +16,9 @@ Interpolates between two SVG paths. The function takes three arguments:
 - `secondPath`, which must be a valid SVG path.
 
 ```tsx twoslash
-import { interpolatePath } from "@remotion/paths";
+import {interpolatePath} from '@remotion/paths';
 
-const interpolated = interpolatePath(0.5, "M 0 0 L 100 0", "M 100 0 L 0 0");
+const interpolated = interpolatePath(0.5, 'M 0 0 L 100 0', 'M 100 0 L 0 0');
 console.log(interpolated); // "M 50 0 L 50 0"
 ```
 

@@ -1,6 +1,6 @@
 ---
 image: /generated/articles-docs-transitions-use-transition-progress.png
-crumb: "@remotion/transitions"
+crumb: '@remotion/transitions'
 sidebar_label: useTransitionProgress()
 title: useTransitionProgress()
 ---
@@ -14,9 +14,9 @@ It is meant to be used together with the [`none()`](/docs/transitions/presentati
 ## Example
 
 ```tsx twoslash title="useTransitionProgress()"
-import { useTransitionProgress } from "@remotion/transitions";
-import { linearTiming, TransitionSeries } from "@remotion/transitions";
-import { none } from "@remotion/transitions/none";
+import {useTransitionProgress} from '@remotion/transitions';
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {none} from '@remotion/transitions/none';
 
 const A: React.FC = () => {
   const progress = useTransitionProgress();
@@ -52,10 +52,7 @@ const Transition: React.FC = () => {
         <TransitionSeries.Sequence durationInFrames={40}>
           <A />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition
-          presentation={none()}
-          timing={linearTiming({ durationInFrames: 30 })}
-        />
+        <TransitionSeries.Transition presentation={none()} timing={linearTiming({durationInFrames: 30})} />
         <TransitionSeries.Sequence durationInFrames={60}>
           <B />
         </TransitionSeries.Sequence>

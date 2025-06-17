@@ -2,8 +2,8 @@
 image: /generated/articles-docs-preload-preload-font.png
 id: preload-font
 slug: preload-font
-title: "preloadFont()"
-crumb: "@remotion/preload"
+title: 'preloadFont()'
+crumb: '@remotion/preload'
 ---
 
 _This function is part of the [`@remotion/preload`](/docs/preload) package._
@@ -17,11 +17,9 @@ An alternative to `preloadFont()` is the [`prefetch()`](/docs/prefetch) API. See
 ## Usage
 
 ```tsx twoslash
-import { preloadFont } from "@remotion/preload";
+import {preloadFont} from '@remotion/preload';
 
-const unpreload = preloadFont(
-  "https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmYUtfBxc4AMP6lbBP.woff2"
-);
+const unpreload = preloadFont('https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmYUtfBxc4AMP6lbBP.woff2');
 
 // If you want to un-preload the font later
 unpreload();
@@ -42,11 +40,10 @@ If the resource does not support CORS, `resolveRedirect()` will fail. If the res
 This snippet tries to preload a font on a best-effort basis. If the redirect cannot be resolved, it tries to preload the original URL.
 
 ```tsx twoslash
-import { preloadFont, resolveRedirect } from "@remotion/preload";
+import {preloadFont, resolveRedirect} from '@remotion/preload';
 
 // This code gets executed immediately once the page loads
-let urlToLoad =
-  "https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmYUtfBxc4AMP6lbBP.woff2";
+let urlToLoad = 'https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmYUtfBxc4AMP6lbBP.woff2';
 
 resolveRedirect(urlToLoad)
   .then((resolved) => {
@@ -55,7 +52,7 @@ resolveRedirect(urlToLoad)
   })
   .catch((err) => {
     // Was unable to resolve redirect e.g. due to no CORS support
-    console.log("Could not resolve redirect", err);
+    console.log('Could not resolve redirect', err);
   })
   .finally(() => {
     // In either case, we try to preload the original or resolved URL
@@ -68,7 +65,7 @@ const MyComp: React.FC = () => {
 
   // If the component mounted immediately, this will be the original URL.
   // In that case preloading is ineffective anyway.
-  return <div style={{ fontFamily: "Roboto" }}></div>;
+  return <div style={{fontFamily: 'Roboto'}}></div>;
 };
 ```
 

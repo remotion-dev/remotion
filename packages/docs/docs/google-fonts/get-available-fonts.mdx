@@ -1,10 +1,10 @@
 ---
 image: /generated/articles-docs-google-fonts-get-available-fonts.png
 title: getAvailableFonts()
-crumb: "@remotion/google-fonts"
+crumb: '@remotion/google-fonts'
 ---
 
-import {AvailableFonts} from '../../components/AvailableFonts'
+import {AvailableFonts} from '../../components/AvailableFonts';
 
 _Part of the [`@remotion/google-fonts`](/docs/google-fonts) package_
 
@@ -14,7 +14,7 @@ From v3.3.64 on, the font can be loaded individually by calling `.load()` if you
 ## Usage
 
 ```ts twoslash
-import { getAvailableFonts } from "@remotion/google-fonts";
+import {getAvailableFonts} from '@remotion/google-fonts';
 
 console.log(getAvailableFonts());
 ```
@@ -22,19 +22,19 @@ console.log(getAvailableFonts());
 ```ts title="Structure (shortened)"
 [
   {
-    fontFamily: "ABeeZee",
-    importName: "ABeeZee",
-    load: () => import("./ABeeZee"), // Available from v3.3.64
+    fontFamily: 'ABeeZee',
+    importName: 'ABeeZee',
+    load: () => import('./ABeeZee'), // Available from v3.3.64
   },
   {
-    fontFamily: "Abel",
-    importName: "Abel",
-    load: () => import("./Abel"),
+    fontFamily: 'Abel',
+    importName: 'Abel',
+    load: () => import('./Abel'),
   },
   {
-    fontFamily: "Abhaya Libre",
-    importName: "AbhayaLibre",
-    load: () => import("./AbhayaLibre"),
+    fontFamily: 'Abhaya Libre',
+    importName: 'AbhayaLibre',
+    load: () => import('./AbhayaLibre'),
   },
 ];
 ```

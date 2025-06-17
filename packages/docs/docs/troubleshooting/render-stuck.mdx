@@ -3,7 +3,7 @@ image: /generated/articles-docs-troubleshooting-render-stuck.png
 id: stuck-render
 title: Debugging stuck renders
 sidebar_label: Stuck renders
-crumb: "Troubleshooting"
+crumb: 'Troubleshooting'
 ---
 
 If your render is stuck, proceed as follows:
@@ -13,7 +13,7 @@ If your render is stuck, proceed as follows:
 If the `delayRender()` timeout is too big and does not resolve, a render may get stuck indefinitely without an error message.
 
 This issue may be more confusing on Remotion Lambda, whose runtime also has a timeout.  
-If the `delayRender()` timeout is bigger than the Lambda function timeout, the Lambda function will first time out without the `delayRender()` call failing first, leading to no error message.  
+If the `delayRender()` timeout is bigger than the Lambda function timeout, the Lambda function will first time out without the `delayRender()` call failing first, leading to no error message.
 
 To debug the issue:
 

@@ -2,7 +2,7 @@
 image: /generated/articles-docs-non-seekable-media.png
 id: non-seekable-media
 title: Non-seekable media
-crumb: "Troubleshooting"
+crumb: 'Troubleshooting'
 ---
 
 If you see the following error in the console:
@@ -19,7 +19,8 @@ Please see https://remotion.dev/docs/non-seekable-media for assistance.
 
 This error could occur due to one of two reasons:
 
-<Step>1</Step> A video or audio has entered the video while not being preloaded. <br/><br/>
+<Step>1</Step> A video or audio has entered the video while not being preloaded. <br />
+<br />
 
 Most commonly this happens when an audio has been replaced while the video is playing, for example due to user input changing. You can fix this by first [preloading the assets](/docs/player/preloading) before you mount them in an audio tag - for this the assets need to support CORS.
 
@@ -27,7 +28,7 @@ Most commonly this happens when an audio has been replaced while the video is pl
 const setAudioUrl = (url: string) => {};
 // ---cut---
 
-import { prefetch, staticFile } from "remotion";
+import {prefetch, staticFile} from 'remotion';
 
 const MyComp = () => {
   return (
@@ -40,9 +41,9 @@ const MyComp = () => {
           });
       }}
     >
-      <option value={staticFile("sample.mp3")}>Audio 0</option>
-      <option value={staticFile("sample2.mp3")}>Audio 1</option>
-      <option value={staticFile("sample3.mp3")}>Audio 2</option>
+      <option value={staticFile('sample.mp3')}>Audio 0</option>
+      <option value={staticFile('sample2.mp3')}>Audio 1</option>
+      <option value={staticFile('sample3.mp3')}>Audio 2</option>
     </select>
   );
 };

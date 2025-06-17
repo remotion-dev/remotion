@@ -1,10 +1,10 @@
 ---
 image: /generated/articles-docs-shapes-make-polygon.png
 title: makePolygon()
-crumb: "@remotion/shapes"
+crumb: '@remotion/shapes'
 ---
 
-import {MakeShapeSeeAlso, ShapeOptions, MakeShapeReturnType} from "../../components/shapes/shapes-info"
+import {MakeShapeSeeAlso, ShapeOptions, MakeShapeReturnType} from '../../components/shapes/shapes-info';
 
 _Part of the [`@remotion/shapes`](/docs/shapes) package._
 
@@ -13,9 +13,9 @@ Generates a polygon SVG path.
 ## Example
 
 ```tsx twoslash title="polygon.ts"
-import { makePolygon } from "@remotion/shapes";
+import {makePolygon} from '@remotion/shapes';
 
-const { path, width, height, transformOrigin, instructions } = makePolygon({
+const {path, width, height, transformOrigin, instructions} = makePolygon({
   points: 5,
   radius: 80,
 });
@@ -29,12 +29,12 @@ console.log(instructions); // '[{type: "M"}, ...]'
 
 ## Arguments
 
-<ShapeOptions shape="polygon"/>
+<ShapeOptions shape="polygon" />
 
 ## Return type
 
-<MakeShapeReturnType shape="polygon"/>
+<MakeShapeReturnType shape="polygon" />
 
 ## See also
 
-<MakeShapeSeeAlso shape="polygon"/>
+<MakeShapeSeeAlso shape="polygon" />

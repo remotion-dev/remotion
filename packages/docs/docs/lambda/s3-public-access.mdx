@@ -44,14 +44,11 @@ npx remotion upgrade
 Note: When you upgrade Remotion, you will need to deploy new functions as well.
 :::
 
-<Step>2</Step> change your policies to give your user the <code>s3:PutBucketOwnershipControls</code> and <code>s3:PutBucketPublicAccessBlock</code> permission. The easiest way
-is to copy the following user policy: <br />
+<Step>2</Step> change your policies to give your user the <code>s3:PutBucketOwnershipControls</code> and <code>s3:PutBucketPublicAccessBlock</code> permission. The easiest way is to copy the following user policy: <br />
 <br />
 
 <details>
-  <summary>
-    Show full user permissions JSON file for latest Remotion Lambda version
-  </summary>
+  <summary>Show full user permissions JSON file for latest Remotion Lambda version</summary>
   <UserPolicy />
 </details>
 
@@ -61,14 +58,11 @@ Go to the [Users](https://us-east-1.console.aws.amazon.com/iamv2/home?region=us-
 
 You can verify that it worked by running `npx remotion lambda policies validate`.
 
-<Step>3</Step> Redeploy your functions. You don't need to delete your old functions
-as it might cause downtime for your application. <br />
+<Step>3</Step> Redeploy your functions. You don't need to delete your old functions as it might cause downtime for your application. <br />
 
-<Step>4</Step> As a reminder, you also need to redeploy your site when you upgrade
-to a higher Remotion version. <br />
+<Step>4</Step> As a reminder, you also need to redeploy your site when you upgrade to a higher Remotion version. <br />
 
-<Step>5</Step> If any values are hardcoded, update the function and site name in
-your application code.
+<Step>5</Step> If any values are hardcoded, update the function and site name in your application code.
 
 ## Questions?
 

@@ -2,8 +2,8 @@
 image: /generated/articles-docs-preload-preload-image.png
 id: preload-image
 slug: preload-image
-title: "preloadImage()"
-crumb: "@remotion/preload"
+title: 'preloadImage()'
+crumb: '@remotion/preload'
 ---
 
 _This function is part of the [`@remotion/preload`](/docs/preload) package._
@@ -17,11 +17,9 @@ An alternative to `preloadImage()` is the [`prefetch()`](/docs/prefetch) API. Se
 ## Usage
 
 ```tsx twoslash
-import { preloadImage } from "@remotion/preload";
+import {preloadImage} from '@remotion/preload';
 
-const unpreload = preloadImage(
-  "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80"
-);
+const unpreload = preloadImage('https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80');
 
 // If you want to un-preload the image later
 unpreload();
@@ -42,12 +40,11 @@ If the resource does not support CORS, `resolveRedirect()` will fail. If the res
 This snippet tries to preload a image on a best-effort basis. If the redirect cannot be resolved, it tries to preload the original URL.
 
 ```tsx twoslash
-import { preloadImage, resolveRedirect } from "@remotion/preload";
-import { Img } from "remotion";
+import {preloadImage, resolveRedirect} from '@remotion/preload';
+import {Img} from 'remotion';
 
 // This code gets executed immediately once the page loads
-let urlToLoad =
-  "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80";
+let urlToLoad = 'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80';
 
 resolveRedirect(urlToLoad)
   .then((resolved) => {
@@ -56,7 +53,7 @@ resolveRedirect(urlToLoad)
   })
   .catch((err) => {
     // Was unable to resolve redirect e.g. due to no CORS support
-    console.log("Could not resolve redirect", err);
+    console.log('Could not resolve redirect', err);
   })
   .finally(() => {
     // In either case, we try to preload the original or resolved URL

@@ -2,7 +2,7 @@
 image: /generated/articles-docs-cloudrun-light-client.png
 sidebar_label: Light client
 title: Light client
-crumb: "Cloud Run"
+crumb: 'Cloud Run'
 ---
 
 _available from v4.0.84_
@@ -12,23 +12,9 @@ The following methods and types can be imported from `@remotion/cloudrun/client`
 ```tsx twoslash
 // organize-imports-ignore
 // ---cut---
-import {
-  deleteService,
-  deleteSite,
-  getOrCreateBucket,
-  getRegions,
-  getServiceInfo,
-  getServices,
-  getSites,
-  renderMediaOnCloudrun,
-  renderStillOnCloudrun,
-  speculateServiceName,
-} from "@remotion/cloudrun/client";
+import {deleteService, deleteSite, getOrCreateBucket, getRegions, getServiceInfo, getServices, getSites, renderMediaOnCloudrun, renderStillOnCloudrun, speculateServiceName} from '@remotion/cloudrun/client';
 
-import type {
-  RenderMediaOnCloudrunInput,
-  RenderStillOnCloudrunInput,
-} from "@remotion/cloudrun/client";
+import type {RenderMediaOnCloudrunInput, RenderStillOnCloudrunInput} from '@remotion/cloudrun/client';
 ```
 
 These functions don't have any dependencies on our renderer and can be bundled for example with ESBuild or Webpack (like is the case for example in Next.js).

@@ -2,10 +2,10 @@
 image: /generated/articles-docs-legacy-babel-loader.png
 title: Using legacy Babel transpilation
 id: legacy-babel
-crumb: "How To"
+crumb: 'How To'
 ---
 
-import Tabs from "@theme/Tabs";
+import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 In Remotion 2.0, the traditional transpilation of Javascript and Typescript using the `babel-loader` has been replaced by the faster `esbuild-loader` by default.
@@ -51,9 +51,9 @@ yarn add babel-loader @babel/preset-env @babel/preset-react
 </Tabs>
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 // ---cut---
-import { replaceLoadersWithBabel } from "@remotion/babel-loader";
+import {replaceLoadersWithBabel} from '@remotion/babel-loader';
 
 Config.overrideWebpackConfig((currentConfiguration) => {
   return replaceLoadersWithBabel(currentConfiguration);
@@ -66,16 +66,16 @@ When using the Node.JS APIs - [`bundle()`](/docs/bundle) for SSR or [`deploySite
 
 ```ts twoslash title="my-script.js"
 // @filename: ./src/webpack-override.ts
-import { WebpackOverrideFn } from "@remotion/bundler";
+import {WebpackOverrideFn} from '@remotion/bundler';
 export const webpackOverride: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // @target: esnext
 // ---cut---
-import { bundle } from "@remotion/bundler";
-import { replaceLoadersWithBabel } from "@remotion/babel-loader";
+import {bundle} from '@remotion/bundler';
+import {replaceLoadersWithBabel} from '@remotion/babel-loader';
 
 await bundle({
-  entryPoint: require.resolve("./src/index.ts"),
+  entryPoint: require.resolve('./src/index.ts'),
   webpackOverride: (config) => replaceLoadersWithBabel(config),
 });
 ```

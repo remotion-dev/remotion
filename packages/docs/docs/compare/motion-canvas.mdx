@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-compare-motion-canvas.png
 title: How does Remotion compare to Motion Canvas?
-crumb: "FAQ"
+crumb: 'FAQ'
 sidebar_label: Difference to Motion Canvas
 ---
 
@@ -26,21 +26,14 @@ Remotions programming style can be described as "declarative" and "keyframe-base
 Here is an identical animation (Red circle turning into an orange one, then jumping to the right using a spring animation) in Remotion and Motion Canvas:
 
 ```tsx twoslash title="Remotion Implementation"
-import {
-  AbsoluteFill,
-  interpolate,
-  interpolateColors,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from "remotion";
+import {AbsoluteFill, interpolate, interpolateColors, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const {fps} = useVideoConfig();
 
   const colorChange = interpolate(frame, [0, 60], [0, 1], {
-    extrapolateRight: "clamp",
+    extrapolateRight: 'clamp',
   });
 
   const spr = spring({
@@ -52,8 +45,8 @@ export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
       <div
@@ -61,11 +54,7 @@ export const MyComp: React.FC = () => {
           width: 200,
           height: 200,
           borderRadius: 100,
-          backgroundColor: interpolateColors(
-            colorChange,
-            [0, 1],
-            ["#e6a700", "#e13238"],
-          ),
+          backgroundColor: interpolateColors(colorChange, [0, 1], ['#e6a700', '#e13238']),
           transform: `translateX(${translateX}px)`,
         }}
       />
@@ -75,17 +64,17 @@ export const MyComp: React.FC = () => {
 ```
 
 ```tsx title="Motion Canvas Implementation"
-import { makeScene2D } from "@motion-canvas/2d";
-import { Circle } from "@motion-canvas/2d/lib/components";
-import { SmoothSpring, spring } from "@motion-canvas/core/lib/tweening";
-import { createRef } from "@motion-canvas/core/lib/utils";
+import {makeScene2D} from '@motion-canvas/2d';
+import {Circle} from '@motion-canvas/2d/lib/components';
+import {SmoothSpring, spring} from '@motion-canvas/core/lib/tweening';
+import {createRef} from '@motion-canvas/core/lib/utils';
 
 export default makeScene2D(function* (view) {
   const circle = createRef<Circle>();
 
-  view.add(<Circle ref={circle} size={200} fill={"#e6a700"} />);
+  view.add(<Circle ref={circle} size={200} fill={'#e6a700'} />);
 
-  yield* circle().fill("#e13238", 2);
+  yield* circle().fill('#e13238', 2);
   yield* spring(SmoothSpring, 0, 300, (value) => circle().position.x(value));
 });
 ```

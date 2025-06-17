@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-paths-get-point-at-length.png
 title: getPointAtLength()
-crumb: "@remotion/paths"
+crumb: '@remotion/paths'
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package._
@@ -12,18 +12,18 @@ The first argument is an SVG path, the second one is the length at which the poi
 An object containing `x` and `y` is returned if the path is valid:
 
 ```tsx twoslash
-import { getPointAtLength } from "@remotion/paths";
+import {getPointAtLength} from '@remotion/paths';
 
-const point = getPointAtLength("M 0 0 L 100 0", 50);
+const point = getPointAtLength('M 0 0 L 100 0', 50);
 console.log(point); // { x: 50, y: 0 }
 ```
 
 The function will throw if the path is invalid:
 
 ```tsx twoslash
-import { getPointAtLength } from "@remotion/paths";
+import {getPointAtLength} from '@remotion/paths';
 // ---cut---
-getPointAtLength("remotion", 50); // Error: Malformed path data: ...
+getPointAtLength('remotion', 50); // Error: Malformed path data: ...
 ```
 
 ## Example: Getting the middle point of a path
@@ -31,9 +31,9 @@ getPointAtLength("remotion", 50); // Error: Malformed path data: ...
 Use [`getLength()`](/docs/paths/get-length) to get the total length of a path and then multiply it with a number between 0 and 1 to get any point on the path. For example, `length * 0.5` to get the coordinates in the middle of the path.
 
 ```tsx twoslash
-import { getLength, getPointAtLength } from "@remotion/paths";
+import {getLength, getPointAtLength} from '@remotion/paths';
 
-const path = "M 0 0 L 100 0";
+const path = 'M 0 0 L 100 0';
 const length = getLength(path);
 const point = getPointAtLength(path, length * 0.5);
 

@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-studio-watch-public-folder.png
 title: watchPublicFolder()
-crumb: "@remotion/studio"
+crumb: '@remotion/studio'
 ---
 
 # watchPublicFolder()<AvailableFrom v="4.0.154"/>
@@ -15,11 +15,11 @@ This feature is only available within the Remotion Studio environment. In the Pl
 ## Example
 
 ```tsx twoslash title="example.tsx"
-import { StaticFile, watchPublicFolder } from "@remotion/studio";
+import {StaticFile, watchPublicFolder} from '@remotion/studio';
 
 // Watch for changes in a specific static file
-const { cancel } = watchPublicFolder((newFiles: StaticFile[]) => {
-  console.log("The public folder now contains:", newFiles);
+const {cancel} = watchPublicFolder((newFiles: StaticFile[]) => {
+  console.log('The public folder now contains:', newFiles);
 });
 
 // To stop watching for changes, call the cancel function

@@ -23,9 +23,7 @@ If you want to display a component that synchronizes with the time of the player
 import {CallbackListener, PlayerRef} from '@remotion/player';
 import {useCallback, useSyncExternalStore} from 'react';
 
-export const useCurrentPlayerFrame = (
-  ref: React.RefObject<PlayerRef | null>,
-) => {
+export const useCurrentPlayerFrame = (ref: React.RefObject<PlayerRef | null>) => {
   const subscribe = useCallback(
     (onStoreChange: () => void) => {
       const {current} = ref;
@@ -78,14 +76,7 @@ export const App: React.FC = () => {
 
   return (
     <>
-      <Player
-        ref={playerRef}
-        component={MyVideo}
-        durationInFrames={120}
-        compositionWidth={1920}
-        compositionHeight={1080}
-        fps={30}
-      />
+      <Player ref={playerRef} component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} />
       <TimeDisplay playerRef={playerRef} />
     </>
   );
@@ -99,9 +90,7 @@ This is how a component could access the current time:
 import {CallbackListener, PlayerRef} from '@remotion/player';
 import {useCallback, useSyncExternalStore} from 'react';
 
-export const useCurrentPlayerFrame = (
-  ref: React.RefObject<PlayerRef | null>,
-) => {
+export const useCurrentPlayerFrame = (ref: React.RefObject<PlayerRef | null>) => {
   const subscribe = useCallback(
     (onStoreChange: (newVal: number) => void) => {
       const {current} = ref;

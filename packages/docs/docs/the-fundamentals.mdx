@@ -85,16 +85,7 @@ import {Composition} from 'remotion';
 // ---cut---
 
 export const RemotionRoot: React.FC = () => {
-  return (
-    <Composition
-      id="MyComposition"
-      durationInFrames={150}
-      fps={30}
-      width={1920}
-      height={1080}
-      component={MyComposition}
-    />
-  );
+  return <Composition id="MyComposition" durationInFrames={150} fps={30} width={1920} height={1080} component={MyComposition} />;
 };
 ```
 

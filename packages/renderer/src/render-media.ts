@@ -939,7 +939,10 @@ export const renderMedia = ({
 		everyNthFrame: everyNthFrame ?? 1,
 		ffmpegOverride: ffmpegOverride ?? undefined,
 		frameRange: frameRange ?? null,
-		imageFormat: imageFormat ?? DEFAULT_VIDEO_IMAGE_FORMAT,
+		imageFormat:
+			imageFormat ??
+			composition.defaultVideoImageFormat ??
+			DEFAULT_VIDEO_IMAGE_FORMAT,
 		serializedInputPropsWithCustomSchema:
 			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
@@ -955,7 +958,8 @@ export const renderMedia = ({
 		onStart: onStart ?? (() => undefined),
 		outputLocation: outputLocation ?? null,
 		overwrite: overwrite ?? DEFAULT_OVERWRITE,
-		pixelFormat: pixelFormat ?? DEFAULT_PIXEL_FORMAT,
+		pixelFormat:
+			pixelFormat ?? composition.defaultPixelFormat ?? DEFAULT_PIXEL_FORMAT,
 		port: port ?? null,
 		puppeteerInstance: puppeteerInstance ?? undefined,
 		scale: scale ?? 1,

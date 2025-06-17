@@ -1,27 +1,27 @@
 ---
 image: /generated/articles-docs-transitions-timings-springtiming.png
-crumb: "@remotion/transitions - Timings"
-title: "springTiming()"
+crumb: '@remotion/transitions - Timings'
+title: 'springTiming()'
 ---
 
 A timing function for [`<TransitionSeries>`](/docs/transitions/transitionseries) based on [`spring()`](/docs/spring).
 
 ```tsx twoslash title="SlideTransition.tsx"
-import { AbsoluteFill } from "remotion";
+import {AbsoluteFill} from 'remotion';
 
 const Letter: React.FC<{
   children: React.ReactNode;
   color: string;
-}> = ({ children, color }) => {
+}> = ({children, color}) => {
   return (
     <AbsoluteFill
       style={{
         backgroundColor: color,
         opacity: 0.9,
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
         fontSize: 200,
-        color: "white",
+        color: 'white',
       }}
     >
       {children}
@@ -29,8 +29,8 @@ const Letter: React.FC<{
   );
 };
 // ---cut---
-import { springTiming, TransitionSeries } from "@remotion/transitions";
-import { slide } from "@remotion/transitions/slide";
+import {springTiming, TransitionSeries} from '@remotion/transitions';
+import {slide} from '@remotion/transitions/slide';
 
 const BasicTransition = () => {
   return (

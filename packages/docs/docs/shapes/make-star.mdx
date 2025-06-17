@@ -1,10 +1,10 @@
 ---
 image: /generated/articles-docs-shapes-make-star.png
 title: makeStar()
-crumb: "@remotion/shapes"
+crumb: '@remotion/shapes'
 ---
 
-import {MakeShapeSeeAlso, ShapeOptions, MakeShapeReturnType} from "../../components/shapes/shapes-info"
+import {MakeShapeSeeAlso, ShapeOptions, MakeShapeReturnType} from '../../components/shapes/shapes-info';
 
 _Part of the [`@remotion/shapes`](/docs/shapes) package._
 
@@ -13,9 +13,9 @@ Generates an star SVG path.
 ## Example
 
 ```tsx twoslash title="star.ts"
-import { makeStar } from "@remotion/shapes";
+import {makeStar} from '@remotion/shapes';
 
-const { path, width, height, transformOrigin, instructions } = makeStar({
+const {path, width, height, transformOrigin, instructions} = makeStar({
   innerRadius: 200,
   outerRadius: 150,
   points: 5,
@@ -30,12 +30,12 @@ console.log(instructions); // '[{type: "M"}, ...]'
 
 ## Arguments
 
-<ShapeOptions shape="star"/>
+<ShapeOptions shape="star" />
 
 ## Return type
 
-<MakeShapeReturnType shape="star"/>
+<MakeShapeReturnType shape="star" />
 
 ## See also
 
-<MakeShapeSeeAlso shape="star"/>
+<MakeShapeSeeAlso shape="star" />

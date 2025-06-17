@@ -3,7 +3,7 @@ image: /generated/articles-docs-troubleshooting-defaultprops-too-big.png
 id: defaultprops-too-big
 sidebar_label: defaultProps too big
 title: defaultProps too big - could not serialize
-crumb: "Troubleshooting"
+crumb: 'Troubleshooting'
 ---
 
 If you experience an error during rendering:
@@ -36,20 +36,14 @@ Avoid passing huge data payloads to `defaultProps`. Instead, derive the big data
 Example:
 
 ```tsx twoslash title="❌ Avoid - big data chunk as defaultProps"
-import { AudioData, getAudioData } from "@remotion/media-utils";
-import { useEffect, useState } from "react";
-import {
-  cancelRender,
-  Composition,
-  continueRender,
-  delayRender,
-  staticFile,
-} from "remotion";
+import {AudioData, getAudioData} from '@remotion/media-utils';
+import {useEffect, useState} from 'react';
+import {cancelRender, Composition, continueRender, delayRender, staticFile} from 'remotion';
 
 // MyComp.tsx
 const MyComp: React.FC<{
   audioData: AudioData | null;
-}> = ({ audioData }) => {
+}> = ({audioData}) => {
   return null;
 };
 
@@ -59,7 +53,7 @@ const RemotionRoot = () => {
   const [handle] = useState(() => delayRender());
 
   useEffect(() => {
-    getAudioData(staticFile("audio.mp3"))
+    getAudioData(staticFile('audio.mp3'))
       .then((data) => {
         setAudioData(data);
         continueRender(handle);
@@ -88,18 +82,12 @@ const RemotionRoot = () => {
 This can lead to problems because the `audioData` variable can become very big since it contains raw data about the waveform, and Remotion needs to serialize this data into a string, which is slow and can lead to this error. Instead, pass the audio URL and do the audio data fetching inside the component:
 
 ```tsx twoslash title="✅ Do - Fetch data inside composition"
-import { getAudioData } from "@remotion/media-utils";
-import { useEffect, useState } from "react";
-import {
-  cancelRender,
-  Composition,
-  continueRender,
-  delayRender,
-  staticFile,
-} from "remotion";
+import {getAudioData} from '@remotion/media-utils';
+import {useEffect, useState} from 'react';
+import {cancelRender, Composition, continueRender, delayRender, staticFile} from 'remotion';
 
 // MyComp.tsx
-const MyComp: React.FC<{ src: string }> = ({ src }) => {
+const MyComp: React.FC<{src: string}> = ({src}) => {
   const [audioData, setAudioData] = useState<any>(undefined);
   const [handle] = useState(() => delayRender());
 
@@ -128,7 +116,7 @@ const RemotionRoot = () => {
       fps={1080}
       component={MyComp}
       defaultProps={{
-        src: staticFile("audio.mp3"),
+        src: staticFile('audio.mp3'),
       }}
     />
   );

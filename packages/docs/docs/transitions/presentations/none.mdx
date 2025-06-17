@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-transitions-presentations-none.png
-crumb: "@remotion/transitions - Presentations"
-title: "none()"
+crumb: '@remotion/transitions - Presentations'
+title: 'none()'
 ---
 
 # none()<AvailableFrom v="4.0.177"/>
@@ -14,21 +14,21 @@ Instead, you control the visual effect by using the [`useTransitionProgress()`](
 ## Example
 
 ```tsx twoslash title="NoneTransition.tsx"
-import { AbsoluteFill } from "remotion";
+import {AbsoluteFill} from 'remotion';
 
 const Letter: React.FC<{
   children: React.ReactNode;
   color: string;
-}> = ({ children, color }) => {
+}> = ({children, color}) => {
   return (
     <AbsoluteFill
       style={{
         backgroundColor: color,
         opacity: 0.9,
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
         fontSize: 200,
-        color: "white",
+        color: 'white',
       }}
     >
       {children}
@@ -36,8 +36,8 @@ const Letter: React.FC<{
   );
 };
 // ---cut---
-import { linearTiming, TransitionSeries } from "@remotion/transitions";
-import { none } from "@remotion/transitions/none";
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {none} from '@remotion/transitions/none';
 
 const BasicTransition = () => {
   return (
@@ -45,10 +45,7 @@ const BasicTransition = () => {
       <TransitionSeries.Sequence durationInFrames={40}>
         <Letter color="#0b84f3">A</Letter>
       </TransitionSeries.Sequence>
-      <TransitionSeries.Transition
-        presentation={none()}
-        timing={linearTiming({ durationInFrames: 30 })}
-      />
+      <TransitionSeries.Transition presentation={none()} timing={linearTiming({durationInFrames: 30})} />
       <TransitionSeries.Sequence durationInFrames={60}>
         <Letter color="pink">B</Letter>
       </TransitionSeries.Sequence>

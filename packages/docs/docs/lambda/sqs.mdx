@@ -104,16 +104,7 @@ The `remotion-executionrole-policy` is referenced from [here](https://github.com
 const renderFunctionLambdaRole = new Role(this, 'remotionSQSLambdaRole', {
   roleName: 'remotionSQSLambdaRole',
   assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
-  managedPolicies: [
-    ManagedPolicy.fromAwsManagedPolicyName(
-      'service-role/AWSLambdaBasicExecutionRole',
-    ),
-    ManagedPolicy.fromManagedPolicyName(
-      this,
-      'remotion-executionrole-policy',
-      'remotion-executionrole-policy',
-    ),
-  ],
+  managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'), ManagedPolicy.fromManagedPolicyName(this, 'remotion-executionrole-policy', 'remotion-executionrole-policy')],
 });
 ```
 
@@ -285,11 +276,7 @@ const remotionQueue = new sqs.Queue(this, 'queue', {
   // 👇 create the apiIntegrationRole role
   const apiIntegrationRole = new IAM.Role(this, 'api-integration-role', {
     assumedBy: new IAM.ServicePrincipal('lambda.amazonaws.com'),
-    managedPolicies: [
-      ManagedPolicy.fromAwsManagedPolicyName(
-        'service-role/AWSLambdaBasicExecutionRole',
-      ),
-    ],
+    managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole')],
   });
   ```
 
@@ -300,16 +287,7 @@ const remotionQueue = new sqs.Queue(this, 'queue', {
   const renderFunctionLambdaRole = new Role(this, 'remotionSQSLambdaRole', {
     roleName: 'remotionSQSLambdaRole',
     assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
-    managedPolicies: [
-      ManagedPolicy.fromAwsManagedPolicyName(
-        'service-role/AWSLambdaBasicExecutionRole',
-      ),
-      ManagedPolicy.fromManagedPolicyName(
-        this,
-        'remotion-executionrole-policy',
-        'remotion-executionrole-policy',
-      ),
-    ],
+    managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'), ManagedPolicy.fromManagedPolicyName(this, 'remotion-executionrole-policy', 'remotion-executionrole-policy')],
   });
   ```
 

@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-fonts-api-load-font.png
 title: loadFont()
-crumb: "@remotion/fonts"
+crumb: '@remotion/fonts'
 ---
 
 # loadFont()<AvailableFrom v="4.0.165" />
@@ -14,19 +14,19 @@ Automatically blocks the render until the font is ready.
 ## Usage
 
 ```tsx twoslash title="MyComp.tsx"
-import { loadFont } from "@remotion/fonts";
-import { AbsoluteFill, staticFile } from "remotion";
+import {loadFont} from '@remotion/fonts';
+import {AbsoluteFill, staticFile} from 'remotion';
 
 loadFont({
-  family: "Bangers",
-  url: staticFile("bangers.ttf"),
-}).then(() => console.log("Font loaded!"));
+  family: 'Bangers',
+  url: staticFile('bangers.ttf'),
+}).then(() => console.log('Font loaded!'));
 
 export const GoogleFontsExample: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        fontFamily: "Bangers",
+        fontFamily: 'Bangers',
       }}
     >
       <h1>Local Font</h1>

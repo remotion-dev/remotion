@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-paths-get-bounding-box.png
 title: getBoundingBox()
-crumb: "@remotion/paths"
+crumb: '@remotion/paths'
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package. Available from v3.3.40_
@@ -11,11 +11,9 @@ Returns the bounding box of the given path, suitable for calculating the `viewBo
 The bounding box is the smallest rectangle which can contain the shape in full.
 
 ```tsx twoslash title="get-bounding-box.ts"
-import { getBoundingBox } from "@remotion/paths";
+import {getBoundingBox} from '@remotion/paths';
 
-const boundingBox = getBoundingBox(
-  "M 35,50 a 25,25,0,1,1,50,0 a 25,25,0,1,1,-50,0"
-);
+const boundingBox = getBoundingBox('M 35,50 a 25,25,0,1,1,50,0 a 25,25,0,1,1,-50,0');
 // { x1: 35, x2: 85, y1: 24.999999999999993, y2: 75 };
 ```
 
@@ -38,7 +36,7 @@ Includes the following properties:
 In TypeScript, you can get the shape of the return value by importing the `BoundingBox` type:
 
 ```ts twoslash
-import type { BoundingBox } from "@remotion/paths";
+import type {BoundingBox} from '@remotion/paths';
 ```
 
 ## See also

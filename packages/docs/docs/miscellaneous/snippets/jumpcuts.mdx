@@ -10,12 +10,7 @@ Use the following snippet to skip certain sections of a video, without re-mounti
 
 ```tsx twoslash
 import React, {useMemo} from 'react';
-import {
-  CalculateMetadataFunction,
-  OffthreadVideo,
-  staticFile,
-  useCurrentFrame,
-} from 'remotion';
+import {CalculateMetadataFunction, OffthreadVideo, staticFile, useCurrentFrame} from 'remotion';
 
 const fps = 30;
 
@@ -40,9 +35,7 @@ type Props = {
   sections: Section[];
 };
 
-export const calculateMetadata: CalculateMetadataFunction<Props> = ({
-  props,
-}) => {
+export const calculateMetadata: CalculateMetadataFunction<Props> = ({props}) => {
   const durationInFrames = props.sections.reduce((acc, section) => {
     return acc + section.endAt - section.startFrom;
   }, 0);

@@ -1,9 +1,9 @@
 ---
 image: /generated/articles-docs-player-player-examples.png
 id: examples
-sidebar_label: "Examples"
-title: "Examples for @remotion/player"
-crumb: "@remotion/player"
+sidebar_label: 'Examples'
+title: 'Examples for @remotion/player'
+crumb: '@remotion/player'
 ---
 
 ## Bare example
@@ -15,19 +15,11 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Player } from "@remotion/player";
-import { MyVideo } from "./remotion/MyVideo";
+import {Player} from '@remotion/player';
+import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
-  return (
-    <Player
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-    />
-  );
+  return <Player component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} />;
 };
 ```
 
@@ -40,20 +32,11 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Player } from "@remotion/player";
-import { MyVideo } from "./remotion/MyVideo";
+import {Player} from '@remotion/player';
+import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
-  return (
-    <Player
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      controls
-    />
-  );
+  return <Player component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} controls />;
 };
 ```
 
@@ -66,21 +49,11 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Player } from "@remotion/player";
-import { MyVideo } from "./remotion/MyVideo";
+import {Player} from '@remotion/player';
+import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
-  return (
-    <Player
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      controls
-      loop
-    />
-  );
+  return <Player component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} controls loop />;
 };
 ```
 
@@ -93,8 +66,8 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Player } from "@remotion/player";
-import { MyVideo } from "./remotion/MyVideo";
+import {Player} from '@remotion/player';
+import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
   return (
@@ -128,8 +101,8 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Player } from "@remotion/player";
-import { MyVideo } from "./remotion/MyVideo";
+import {Player} from '@remotion/player';
+import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
   return (
@@ -164,31 +137,22 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Player, PlayerRef } from "@remotion/player";
-import { useCallback, useRef } from "react";
-import { MyVideo } from "./remotion/MyVideo";
+import {Player, PlayerRef} from '@remotion/player';
+import {useCallback, useRef} from 'react';
+import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
   const playerRef = useRef<PlayerRef>(null);
 
   const seekToMiddle = useCallback(() => {
-    const { current } = playerRef;
+    const {current} = playerRef;
     if (!current) {
       return;
     }
     current.seekTo(60);
   }, []);
 
-  return (
-    <Player
-      ref={playerRef}
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-    />
-  );
+  return <Player ref={playerRef} component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} />;
 };
 ```
 
@@ -201,38 +165,29 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Player, PlayerRef } from "@remotion/player";
-import { useEffect, useRef } from "react";
-import { MyVideo } from "./remotion/MyVideo";
+import {Player, PlayerRef} from '@remotion/player';
+import {useEffect, useRef} from 'react';
+import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
   const playerRef = useRef<PlayerRef>(null);
 
   useEffect(() => {
-    const { current } = playerRef;
+    const {current} = playerRef;
     if (!current) {
       return;
     }
 
     const listener = () => {
-      console.log("paused");
+      console.log('paused');
     };
-    current.addEventListener("pause", listener);
+    current.addEventListener('pause', listener);
     return () => {
-      current.removeEventListener("pause", listener);
+      current.removeEventListener('pause', listener);
     };
   }, []);
 
-  return (
-    <Player
-      ref={playerRef}
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-    />
-  );
+  return <Player ref={playerRef} component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} />;
 };
 ```
 
@@ -245,29 +200,20 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Player } from "@remotion/player";
-import { useState, useMemo } from "react";
-import { MyVideo } from "./remotion/MyVideo";
+import {Player} from '@remotion/player';
+import {useState, useMemo} from 'react';
+import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
   // Connect the state to a text field
-  const [text, setText] = useState("world");
+  const [text, setText] = useState('world');
   const inputProps = useMemo(() => {
     return {
       text,
     };
   }, [text]);
 
-  return (
-    <Player
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      inputProps={inputProps}
-    />
-  );
+  return <Player component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} inputProps={inputProps} />;
 };
 ```
 
@@ -280,22 +226,11 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Player } from "@remotion/player";
-import { MyVideo } from "./remotion/MyVideo";
+import {Player} from '@remotion/player';
+import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
-  return (
-    <Player
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      loop
-      inFrame={30}
-      outFrame={60}
-    />
-  );
+  return <Player component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} loop inFrame={30} outFrame={60} />;
 };
 ```
 
@@ -308,24 +243,15 @@ export default () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import { Player } from "@remotion/player";
-import { useCallback } from "react";
+import {Player} from '@remotion/player';
+import {useCallback} from 'react';
 
 export const App: React.FC = () => {
   const lazyComponent = useCallback(() => {
-    return import("./remotion/MyVideo");
+    return import('./remotion/MyVideo');
   }, []);
 
-  return (
-    <Player
-      lazyComponent={lazyComponent}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      loop
-    />
-  );
+  return <Player lazyComponent={lazyComponent} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} loop />;
 };
 ```
 

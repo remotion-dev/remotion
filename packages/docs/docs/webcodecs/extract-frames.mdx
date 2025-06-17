@@ -49,16 +49,12 @@ const canvasHeight = 80;
 
 const timestamps: ExtractFramesTimestampsInSecondsFn = async ({track}) => {
   const aspectRatio = track.width / track.height;
-  const amountOfFramesFit = Math.ceil(
-    canvasWidth / (canvasHeight * aspectRatio),
-  );
+  const amountOfFramesFit = Math.ceil(canvasWidth / (canvasHeight * aspectRatio));
   const timestampsInSeconds: number[] = [];
   const segmentDuration = toSeconds - fromSeconds;
 
   for (let i = 0; i < amountOfFramesFit; i++) {
-    timestampsInSeconds.push(
-      fromSeconds + (segmentDuration / amountOfFramesFit) * (i + 0.5),
-    );
+    timestampsInSeconds.push(fromSeconds + (segmentDuration / amountOfFramesFit) * (i + 0.5));
   }
 
   return timestampsInSeconds;
@@ -72,7 +68,6 @@ For this you need currently to make another [`parseMedia()`](/docs/media-parser/
 
 A callback that will be called with the frame at the given timestamp.  
 Each frame is a [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) object that can for example be drawn to a canvas.
-
 
 ### `acknowledgeRemotionLicense?`
 

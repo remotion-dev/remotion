@@ -2,33 +2,33 @@
 image: /generated/articles-docs-transitions.png
 id: transitioning
 title: Transitions
-crumb: "Techniques"
+crumb: 'Techniques'
 ---
 
 # Transitions<AvailableFrom v="4.0.59"/>
 
-import { TransitionsDuration } from "../components/TransitionsDuration";
-import { Presentations } from "../components/TableOfContents/transitions/presentations";
-import { Timings } from "../components/TableOfContents/transitions/timings";
+import {TransitionsDuration} from '../components/TransitionsDuration';
+import {Presentations} from '../components/TableOfContents/transitions/presentations';
+import {Timings} from '../components/TableOfContents/transitions/timings';
 
 To transition between two types of absolutely positioned content, you can use the [`<TransitionSeries>`](/docs/transitions/transitionseries) component.
 
 ```tsx twoslash title="SlideTransition.tsx"
-import { AbsoluteFill } from "remotion";
+import {AbsoluteFill} from 'remotion';
 
 const Letter: React.FC<{
   children: React.ReactNode;
   color: string;
-}> = ({ children, color }) => {
+}> = ({children, color}) => {
   return (
     <AbsoluteFill
       style={{
         backgroundColor: color,
         opacity: 0.9,
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
         fontSize: 200,
-        color: "white",
+        color: 'white',
       }}
     >
       {children}
@@ -36,8 +36,8 @@ const Letter: React.FC<{
   );
 };
 // ---cut---
-import { linearTiming, TransitionSeries } from "@remotion/transitions";
-import { slide } from "@remotion/transitions/slide";
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {slide} from '@remotion/transitions/slide';
 
 const BasicTransition = () => {
   return (
@@ -45,10 +45,7 @@ const BasicTransition = () => {
       <TransitionSeries.Sequence durationInFrames={40}>
         <Letter color="#0b84f3">A</Letter>
       </TransitionSeries.Sequence>
-      <TransitionSeries.Transition
-        presentation={slide()}
-        timing={linearTiming({ durationInFrames: 30 })}
-      />
+      <TransitionSeries.Transition presentation={slide()} timing={linearTiming({durationInFrames: 30})} />
       <TransitionSeries.Sequence durationInFrames={60}>
         <Letter color="pink">B</Letter>
       </TransitionSeries.Sequence>
@@ -93,15 +90,14 @@ See here how to include [audio effects](/docs/transitions/audio-transitions) in 
 You can get the duration of a transition by calling `getDurationInFrames()` on the timing:
 
 ```tsx twoslash title="Assuming a framerate of 30fps"
-import { springTiming } from "@remotion/transitions";
+import {springTiming} from '@remotion/transitions';
 
-springTiming({ config: { damping: 200 } }).getDurationInFrames({ fps: 30 }); // 23
+springTiming({config: {damping: 200}}).getDurationInFrames({fps: 30}); // 23
 ```
 
 ## Rules
 
-<Step>1</Step> It is forbidden to have a transition that is longer than the duration
-of the previous or next sequence. <br />
+<Step>1</Step> It is forbidden to have a transition that is longer than the duration of the previous or next sequence. <br />
 <Step>2</Step> There can be no two transitions next to each other. <br />
 <Step>3</Step> There must be at least one sequence before or after a transition.
 

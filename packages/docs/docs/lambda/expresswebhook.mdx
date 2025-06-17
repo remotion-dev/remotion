@@ -47,16 +47,16 @@ const handler = expressWebhook({
   secret: 'mysecret',
   testing: true,
   extraHeaders: {
-    region: "south-asia"
+    region: 'south-asia',
   },
   onSuccess: () => console.log('Rendering Completed Successfully'),
   onError: () => console.log('Something went wrong while rendering'),
   onTimeout: () => console.log('Timeout occured while rendering'),
-})
+});
 
-router.post("/webhook", jsonParser, handler);
+router.post('/webhook', jsonParser, handler);
 
-router.options("/webhook", jsonParser, handler);
+router.options('/webhook', jsonParser, handler);
 ```
 
 See [Webhooks](/docs/lambda/webhooks) for a detailed example.

@@ -1,10 +1,10 @@
 ---
 image: /generated/articles-docs-shapes-triangle.png
 title: <Triangle />
-crumb: "@remotion/shapes"
+crumb: '@remotion/shapes'
 ---
 
-import {ShapeSeeAlso, ShapeOptions} from "../../components/shapes/shapes-info"
+import {ShapeSeeAlso, ShapeOptions} from '../../components/shapes/shapes-info';
 
 _Part of the [` @remotion/shapes`](/docs/shapes) package._
 
@@ -17,16 +17,16 @@ Renders an SVG element containing a triangle with same length on all sides.
 ## Example
 
 ```tsx twoslash title="src/Triangle.tsx"
-import { Triangle } from "@remotion/shapes";
-import { AbsoluteFill } from "remotion";
+import {Triangle} from '@remotion/shapes';
+import {AbsoluteFill} from 'remotion';
 
 export const MyComposition = () => {
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "white",
-        justifyContent: "center",
-        alignItems: "center",
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
       <Triangle length={100} fill="red" direction="left" />
@@ -41,4 +41,4 @@ export const MyComposition = () => {
 
 ## See also
 
-<ShapeSeeAlso shape="triangle"/>
+<ShapeSeeAlso shape="triangle" />

@@ -33,9 +33,7 @@ const Title: React.FC<{title: string}> = ({title}) => {
     extrapolateRight: 'clamp',
   });
 
-  return (
-    <div style={{opacity, textAlign: 'center', fontSize: '7em'}}>{title}</div>
-  );
+  return <div style={{opacity, textAlign: 'center', fontSize: '7em'}}>{title}</div>;
 };
 
 export const MyVideo = () => {

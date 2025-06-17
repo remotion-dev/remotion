@@ -33,21 +33,21 @@ Then register the track in `config/sounds.ts`.
 
 ```tsx filename="config/sounds.ts"
 export const music = z.enum([
-  "previous",
-  "none",
-  "somesong",
+  'previous',
+  'none',
+  'somesong',
   // You can give your song any label. This is the name you will see in the editor.
-  "<your-song-label>",
+  '<your-song-label>',
 ]);
 
 export const getAudioSource = (track: Music) => {
-  if (track === "somesong") {
-    return staticFile("sounds/soundtrack1.mp3");
+  if (track === 'somesong') {
+    return staticFile('sounds/soundtrack1.mp3');
   }
 
   // Add your track here. The label has to match the one you added above.
-  if (track === "<your-song-label>") {
-    return staticFile("sounds/<actual-asset-name>");
+  if (track === '<your-song-label>') {
+    return staticFile('sounds/<actual-asset-name>');
   }
 };
 ```

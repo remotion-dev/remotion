@@ -415,3 +415,38 @@ test('should resolve props correctly with no calculateMetadata()', async () => {
 		c: 'd',
 	});
 });
+
+test('calculateMetadata should support defaultVideoImageFormat and defaultPixelFormat', async () => {
+	const resolved = await resolveVideoConfig({
+		calculateMetadata: () => ({
+			defaultVideoImageFormat: 'png' as const,
+			defaultPixelFormat: 'yuva420p' as const,
+		}),
+		compositionDurationInFrames: 100,
+		compositionFps: 30,
+		compositionHeight: 1080,
+		compositionId: 'test',
+		compositionWidth: 1920,
+		originalProps: {},
+		signal: new AbortController().signal,
+		defaultProps: {},
+	});
+	expect(resolved.defaultVideoImageFormat).toBe('png');
+	expect(resolved.defaultPixelFormat).toBe('yuva420p');
+});
+
+test('calculateMetadata should default null for image format fields when not specified', async () => {
+	const resolved = await resolveVideoConfig({
+		calculateMetadata: () => ({}),
+		compositionDurationInFrames: 100,
+		compositionFps: 30,
+		compositionHeight: 1080,
+		compositionId: 'test',
+		compositionWidth: 1920,
+		originalProps: {},
+		signal: new AbortController().signal,
+		defaultProps: {},
+	});
+	expect(resolved.defaultVideoImageFormat).toBe(null);
+	expect(resolved.defaultPixelFormat).toBe(null);
+});

@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-paths-parse-path.png
 title: parsePath()
-crumb: "@remotion/paths"
+crumb: '@remotion/paths'
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package. Available from v3.3.40_
@@ -9,9 +9,9 @@ _Part of the [`@remotion/paths`](/docs/paths) package. Available from v3.3.40_
 Parses an SVG string path into an array of `Instruction`'s.
 
 ```tsx twoslash title="reset-path.ts"
-import { parsePath } from "@remotion/paths";
+import {parsePath} from '@remotion/paths';
 
-const newPath = parsePath("M 10 10 L 20 20");
+const newPath = parsePath('M 10 10 L 20 20');
 
 /*
   [
@@ -28,7 +28,7 @@ This function will throw if the SVG path is invalid.
 An array of `Instruction`'s. The `Instruction` type can also be imported from `@remotion/paths`:
 
 ```ts twoslash
-import type { Instruction } from "@remotion/paths";
+import type {Instruction} from '@remotion/paths';
 ```
 
 The type has the following shape:
@@ -36,25 +36,25 @@ The type has the following shape:
 ```ts twoslash
 export type Instruction =
   | {
-      type: "M";
+      type: 'M';
       x: number;
       y: number;
     }
   | {
-      type: "L";
+      type: 'L';
       x: number;
       y: number;
     }
   | {
-      type: "H";
+      type: 'H';
       x: number;
     }
   | {
-      type: "V";
+      type: 'V';
       y: number;
     }
   | {
-      type: "C";
+      type: 'C';
       cp1x: number;
       cp1y: number;
       cp2x: number;
@@ -63,26 +63,26 @@ export type Instruction =
       y: number;
     }
   | {
-      type: "S";
+      type: 'S';
       cpx: number;
       cpy: number;
       x: number;
       y: number;
     }
   | {
-      type: "Q";
+      type: 'Q';
       cpx: number;
       cpy: number;
       x: number;
       y: number;
     }
   | {
-      type: "T";
+      type: 'T';
       x: number;
       y: number;
     }
   | {
-      type: "A";
+      type: 'A';
       rx: number;
       ry: number;
       xAxisRotation: number;
@@ -92,25 +92,25 @@ export type Instruction =
       y: number;
     }
   | {
-      type: "m";
+      type: 'm';
       dx: number;
       dy: number;
     }
   | {
-      type: "l";
+      type: 'l';
       dx: number;
       dy: number;
     }
   | {
-      type: "h";
+      type: 'h';
       dx: number;
     }
   | {
-      type: "v";
+      type: 'v';
       dy: number;
     }
   | {
-      type: "c";
+      type: 'c';
       cp1dx: number;
       cp1dy: number;
       cp2dx: number;
@@ -119,26 +119,26 @@ export type Instruction =
       dy: number;
     }
   | {
-      type: "s";
+      type: 's';
       cpdx: number;
       cpdy: number;
       dx: number;
       dy: number;
     }
   | {
-      type: "q";
+      type: 'q';
       cpdx: number;
       cpdy: number;
       dx: number;
       dy: number;
     }
   | {
-      type: "t";
+      type: 't';
       dx: number;
       dy: number;
     }
   | {
-      type: "a";
+      type: 'a';
       rx: number;
       ry: number;
       xAxisRotation: number;
@@ -148,10 +148,10 @@ export type Instruction =
       dy: number;
     }
   | {
-      type: "Z";
+      type: 'Z';
     }
   | {
-      type: "z";
+      type: 'z';
     };
 ```
 

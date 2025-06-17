@@ -60,9 +60,7 @@ export const SpeedSegments = () => {
   const frame = useCurrentFrame();
   const accumulated = accumulateSegments();
 
-  const currentSegment = accumulated.find(
-    (segment) => frame > segment.start && frame <= segment.end,
-  );
+  const currentSegment = accumulated.find((segment) => frame > segment.start && frame <= segment.end);
 
   if (!currentSegment) {
     return;
