@@ -84,6 +84,9 @@ const InnerRecordingView: React.FC<{
   const [preferPortrait, setPreferPortrait] = useState(false);
 
   const initialMirrorState = useMemo(() => {
+    if (prefix !== WEBCAM_PREFIX) {
+      return false;
+    }
     // Default to mirrored for webcam, but respect user's saved preference
     const savedPreference = localStorage.getItem(mirrorLocalStorageKey);
     if (savedPreference !== null) {
