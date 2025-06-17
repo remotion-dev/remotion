@@ -17,7 +17,8 @@
     "jsx": "react-jsx",
     "strictNullChecks": true,
     "alwaysStrict": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true
   },
   "include": [
     "src",
@@ -28,5 +29,6 @@
     "studio.ts",
     "tests"
   ],
+  "exclude": ["remotion.config.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

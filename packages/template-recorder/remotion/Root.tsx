@@ -4,7 +4,7 @@ import { GoToRecorder } from "./GoToRecorder";
 import { Main } from "./Main";
 import { calcMetadata } from "./calculate-metadata/calc-metadata";
 
-export const Root = () => {
+export const RemotionRoot = () => {
   return (
     <>
       <Composition

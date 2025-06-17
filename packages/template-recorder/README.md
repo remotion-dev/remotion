@@ -16,3 +16,29 @@ View documentation at: [remotion.dev/recorder](https://remotion.dev/recorder)
 ## License
 
 Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
+
+## Commands
+
+**Install Dependencies**
+
+```console
+npm install
+```
+
+**Start Preview**
+
+```console
+npm run dev
+```
+
+**Render video**
+
+```console
+npx remotion render
+```
+
+**Upgrade Remotion**
+
+```console
+npx remotion upgrade
+```

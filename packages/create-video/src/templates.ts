@@ -165,6 +165,27 @@ export const FEATURED_TEMPLATES: Template[] = [
 		allowEnableTailwind: true,
 	},
 	{
+		homePageLabel: 'Recorder',
+		shortName: 'Recorder',
+		org: 'remotion-dev',
+		repoName: 'recorder',
+		description: 'A video production tool built entirely in JavaScript',
+		longerDescription:
+			'The Remotion Recorder is a video production tool that allows you to record webcam and screen content, generate captions, add music, end-to-end in JavaScript. <a href="https://remotion.dev/recorder">See docs</a>',
+		promoVideo: {
+			muxId: '2A4z88QNjBTbxziIKqbI7IKLUO9iuaMp6UTZUBOItx00', // This would need a real promo video mux ID
+			height: 1080,
+			width: 1080,
+		},
+		cliId: 'recorder' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-recorder',
+		allowEnableTailwind: false,
+	},
+	{
 		homePageLabel: 'JavaScript',
 		shortName: 'Hello World (JavaScript)',
 		org: 'remotion-dev',
@@ -464,27 +485,6 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: 'template-tiktok',
-		allowEnableTailwind: true,
-	},
-	{
-		homePageLabel: 'Recorder',
-		shortName: 'Recorder',
-		org: 'remotion-dev',
-		repoName: 'recorder',
-		description: 'A video production tool built entirely in JavaScript',
-		longerDescription:
-			'The Remotion Recorder is a video production tool that allows you to record webcam and screen content, generate captions, add music, and create professional videos.',
-		promoVideo: {
-			muxId: 'placeholder', // This would need a real promo video mux ID
-			height: 1080,
-			width: 1920,
-		},
-		cliId: 'recorder' as const,
-		type: 'video' as const,
-		defaultBranch: 'main',
-		featuredOnHomePage: null,
-		previewURL: null,
-		templateInMonorepo: 'template-recorder',
 		allowEnableTailwind: true,
 	},
 ].filter(truthy);

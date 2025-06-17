@@ -62,11 +62,6 @@
 			"dependsOn": ["^make"],
 			"outputLogs": "new-only"
 		},
-		"@remotion/docs#make": {
-			"outputs": [],
-			"dependsOn": [],
-			"outputLogs": "new-only"
-		},
 		"@remotion/fig-autocomplete#make": {
 			"outputs": ["src"],
 			"dependsOn": ["^make"],

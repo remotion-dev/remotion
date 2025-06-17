@@ -7,6 +7,7 @@ import {JSIcon} from './icons/js';
 import {MusicIcon} from './icons/music';
 import {NextIcon} from './icons/next';
 import {OverlayIcon} from './icons/overlay';
+import {Recorder} from './icons/recorder';
 import {RemixIcon} from './icons/remix';
 import {RenderServerIcon} from './icons/render-server';
 import {SkiaIcon} from './icons/skia';
@@ -138,6 +139,10 @@ export const IconForTemplate: React.FC<{
 
 	if (template.cliId === 'overlay') {
 		return <OverlayIcon style={{height: scale * 42}} />;
+	}
+
+	if (template.cliId === 'recorder') {
+		return <Recorder style={{height: scale * 36}} />;
 	}
 
 	if (
