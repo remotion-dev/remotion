@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-plugin"
 	},
 	"name": "@remotion/eslint-plugin",
-	"version": "4.0.314",
+	"version": "4.0.315",
 	"description": "Rules for writing Remotion code",
 	"scripts": {
 		"test": "vitest --run",

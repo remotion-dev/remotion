@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-server"
 	},
 	"name": "@remotion/studio-server",
-	"version": "4.0.314",
+	"version": "4.0.315",
 	"description": "Run a Remotion Studio with a server backend",
 	"main": "dist",
 	"sideEffects": false,

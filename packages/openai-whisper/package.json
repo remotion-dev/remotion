@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/openai-whisper"
 	},
 	"name": "@remotion/openai-whisper",
-	"version": "4.0.314",
+	"version": "4.0.315",
 	"description": "Work with the output of the OpenAI Whisper API",
 	"main": "dist/index.js",
 	"sideEffects": false,

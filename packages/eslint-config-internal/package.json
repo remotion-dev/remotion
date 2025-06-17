@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config-internal"
 	},
 	"name": "@remotion/eslint-config-internal",
-	"version": "4.0.314",
+	"version": "4.0.315",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"main": "dist/index.js",
 	"scripts": {
