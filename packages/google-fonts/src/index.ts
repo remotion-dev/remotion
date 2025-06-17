@@ -41,11 +41,6 @@ export type GoogleFont = {
 
 export const getAvailableFonts = () => [
 	{
-		fontFamily: '42dot Sans',
-		importName: '42dotSans',
-		load: () => import('./42dotSans') as Promise<GoogleFont>,
-	},
-	{
 		fontFamily: 'ABeeZee',
 		importName: 'ABeeZee',
 		load: () => import('./ABeeZee') as Promise<GoogleFont>,
@@ -1571,6 +1566,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Chilanka') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Chiron Sung HK',
+		importName: 'ChironSungHK',
+		load: () => import('./ChironSungHK') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Chivo',
 		importName: 'Chivo',
 		load: () => import('./Chivo') as Promise<GoogleFont>,
@@ -3086,6 +3086,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./HubotSans') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Huninn',
+		importName: 'Huninn',
+		load: () => import('./Huninn') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Hurricane',
 		importName: 'Hurricane',
 		load: () => import('./Hurricane') as Promise<GoogleFont>,
@@ -3821,6 +3826,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Kurale') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'LXGW Marker Gothic',
+		importName: 'LXGWMarkerGothic',
+		load: () => import('./LXGWMarkerGothic') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'LXGW WenKai Mono TC',
 		importName: 'LXGWWenKaiMonoTC',
 		load: () => import('./LXGWWenKaiMonoTC') as Promise<GoogleFont>,
@@ -4364,6 +4374,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Marvel',
 		importName: 'Marvel',
 		load: () => import('./Marvel') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Matangi',
+		importName: 'Matangi',
+		load: () => import('./Matangi') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Mate',
@@ -8385,6 +8400,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Vujahday Script',
 		importName: 'VujahdayScript',
 		load: () => import('./VujahdayScript') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'WDXL Lubrifont JP N',
+		importName: 'WDXLLubrifontJPN',
+		load: () => import('./WDXLLubrifontJPN') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'WDXL Lubrifont SC',
+		importName: 'WDXLLubrifontSC',
+		load: () => import('./WDXLLubrifontSC') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'WDXL Lubrifont TC',

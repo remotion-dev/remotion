@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rock ThreeD',
 	importName: 'Rock3D',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Rock+3D:ital,wght@0,400',
 	unicodeRanges: {
 		'[3]':
@@ -59,53 +59,53 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'[3]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.3.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.3.woff2',
 				'[54]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.54.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.54.woff2',
 				'[59]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.59.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.59.woff2',
 				'[61]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.61.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.61.woff2',
 				'[74]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.74.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.74.woff2',
 				'[79]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.79.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.79.woff2',
 				'[86]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.86.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.86.woff2',
 				'[89]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.89.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.89.woff2',
 				'[91]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.91.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.91.woff2',
 				'[97]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.97.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.97.woff2',
 				'[102]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.102.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.102.woff2',
 				'[105]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.105.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.105.woff2',
 				'[106]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.106.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.106.woff2',
 				'[107]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.107.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.107.woff2',
 				'[110]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.110.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.110.woff2',
 				'[111]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.111.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.111.woff2',
 				'[113]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.113.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.113.woff2',
 				'[114]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.114.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.114.woff2',
 				'[115]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.115.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.115.woff2',
 				'[116]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.116.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.116.woff2',
 				'[117]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.117.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.117.woff2',
 				'[118]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.118.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.118.woff2',
 				'[119]':
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.119.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651513HP0RvBurInEPKbVv8qr6QgLv7skLMI.119.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rock3d/v11/yYLp0hrL0PCo651553OtwA.woff2',
+					'https://fonts.gstatic.com/s/rock3d/v12/yYLp0hrL0PCo651553OtwA.woff2',
 			},
 		},
 	},
