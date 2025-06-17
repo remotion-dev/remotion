@@ -15,6 +15,8 @@ export const makeMockCompositionManagerContext =
 				props: {},
 				defaultCodec: null,
 				defaultOutName: null,
+				defaultPixelFormat: null,
+				defaultVideoImageFormat: null,
 			},
 			folders: [],
 			compositions: [
