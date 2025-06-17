@@ -181,7 +181,7 @@
 			"path": "./packages/template-stargazer"
 		},
 		{
-			"path": "./packages/template-recorder/tsconfig.json"
+			"path": "./packages/template-recorder"
 		},
 		{
 			"path": "./packages/studio"
