@@ -2,7 +2,7 @@
 
 There are multiple folders in the `packages` folder, which correspond to the packages in the monorepo.
 
-The **package name** for each folder is `@remotion/[folder-name]`, except for the `core` package, which has the package name `remotion`.
+The **package name** for each folder is `@remotion/[folder-name]`, except for the `core` package, which has the package name `remotion`, and for `create-video`, which has the package name `create-video`.
 
 ## Build instructions
 
