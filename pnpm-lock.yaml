@@ -111,8 +111,8 @@ importers:
         specifier: 5.0.8
         version: 5.0.8(typescript@5.8.2)
       lottie-web:
-        specifier: 5.12.2
-        version: 5.12.2
+        specifier: 5.13.0
+        version: 5.13.0
       react:
         specifier: 19.0.0
         version: 19.0.0
@@ -744,8 +744,8 @@ importers:
         specifier: ^7.0.2
         version: 7.0.4
       lottie-web:
-        specifier: ^5.12.2
-        version: 5.12.2
+        specifier: 5.13.0
+        version: 5.13.0
       mux-embed:
         specifier: ^4.16.0
         version: 4.16.0
@@ -1116,8 +1116,8 @@ importers:
         specifier: ^0.14.17
         version: 0.14.17
       lottie-web:
-        specifier: 5.12.2
-        version: 5.12.2
+        specifier: 5.13.0
+        version: 5.13.0
       opentype.js:
         specifier: ^1.3.4
         version: 1.3.4
@@ -1584,9 +1584,6 @@ importers:
 
   packages/lottie:
     dependencies:
-      lottie-web:
-        specifier: ^5
-        version: 5.12.2
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -1597,6 +1594,9 @@ importers:
       eslint:
         specifier: 9.19.0
         version: 9.19.0
+      lottie-web:
+        specifier: 5.13.0
+        version: 5.13.0
       react:
         specifier: 19.0.0
         version: 19.0.0
@@ -23258,9 +23258,8 @@ packages:
     dependencies:
       js-tokens: 4.0.0
 
-  /lottie-web@5.12.2:
-    resolution: {integrity: sha512-uvhvYPC8kGPjXT3MyKMrL3JitEAmDMp30lVkuq/590Mw9ok6pWcFCwXJveo0t5uqYw1UREQHofD+jVpdjBv8wg==}
-    dev: false
+  /lottie-web@5.13.0:
+    resolution: {integrity: sha512-+gfBXl6sxXMPe8tKQm7qzLnUy5DUPJPKIyRHwtpCpyUEYjHYRJC/5gjUvdkuO2c3JllrPtHXH5UJJK8LRYl5yQ==}
 
   /loupe@2.3.7:
     resolution: {integrity: sha512-zSMINGVYkdpYSOBmLi0D1Uo7JU9nVdQKrHxC8eYlV+9YKK9WePqAlL7lSlorG/U2Fw1w0hTBmaa/jrQ3UbPHtA==}
