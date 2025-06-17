@@ -1,6 +1,7 @@
 import React, {useCallback, useState} from 'react';
 import {BlueButton} from './layout/Button';
 import {Spacer} from './Spacer';
+import {SectionTitle} from './VideoAppsTitle';
 
 export const NewsletterButton: React.FC<{}> = () => {
 	const [email, setEmail] = useState('');
@@ -45,17 +46,17 @@ export const NewsletterButton: React.FC<{}> = () => {
 			<div className="flex flex-col">
 				<div className={'w-full'}>
 					<div className={'flex flex-col flex-1'}>
-						<div className={'text-2xl font-bold fontbrand'}>Newsletter</div>
+						<SectionTitle>Newsletter</SectionTitle>
 						<form
 							onSubmit={handleSubmit}
 							style={{
 								width: '100%',
 							}}
 						>
-							<p className="leading-snug mt-1 text-muted fontbrand">
+							<div className={'fontbrand text-center mb-10 -mt-4'}>
 								Read about new features and noteworthy updates we have made on
-								Remotion once in a while.
-							</p>
+								Remotion once in a while.{' '}
+							</div>
 
 							<input
 								className="w-full dark:bg-[#121212] rounded-lg border-effect border-black outline-none px-3 py-3 fontbrand text-lg box-border focus:border-brand"
