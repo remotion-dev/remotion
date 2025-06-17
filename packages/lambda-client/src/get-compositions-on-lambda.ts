@@ -28,7 +28,7 @@ export type GetCompositionsOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 	forcePathStyle?: boolean;
-	requestHandler?: RequestHandler;
+	requestHandler?: RequestHandler | null;
 } & Partial<
 	ToOptions<typeof BrowserSafeApis.optionsMap.getCompositionsOnLambda>
 >;
