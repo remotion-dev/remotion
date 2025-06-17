@@ -36,11 +36,11 @@ const decoder = createAudioDecoder({
 ## Differences to `AudioDecoder`
 
 - Samples with a `codec` of `pcm-s16` are accepted and passed through, even if the `AudioDecoder` object does not exist or support it.
-- Two new methods are added: [`.waitForQueueToBeLessThan()`](#waitforqueuetobelessthan) and [`.waitForFinish()`](#waitforfinish).
+- Two new methods are added: [`.waitForQueueToBeLessThan()`](#waitforqueuetobelessthan) and `.waitForFinish()`.
 - The [`dequeue`](https://developer.mozilla.org/en-US/docs/Web/API/AudioDecoder/dequeue_event) event is not supported as it is not reliable across browsers.
-- In addition to [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk), [`EncodedAudioChunkInit`](https://www.w3.org/TR/webcodecs/#dictdef-encodedaudiochunkinit) objects are also accepted for [`.decode()`](#decode).
+- In addition to [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk), [`EncodedAudioChunkInit`](https://www.w3.org/TR/webcodecs/#dictdef-encodedaudiochunkinit) objects are also accepted for `.decode()`.
 - A [`webcodecsController()`](/docs/webcodecs/webcodecs-controller) instance can be passed in to the function, allowing for decoding to be paused, resumed and aborted.
-- [`.decode()`](#decode) is async, and returns a promise, allowing for a halt if the decoder is paused.
+- `.decode()` is async, and returns a promise, allowing for a halt if the decoder is paused.
 - Only samples with a size of 16 bytes or more are actually being input, [to avoid a bug in Chrome](https://github.com/remotion-dev/remotion/blob/c7f18a85bcb1bc58d3811efcd9e68c96ff38ccae/packages/webcodecs/src/create-audio-decoder.ts#L121-L129).
 - A [`logLevel`](#loglevel) can be passed in to the function, allowing the queue to be debugged.
 - The [`onFrame`](#onframe) callback is being awaited. When rejected, the error lands in the [`onError`](#onerror) callback. When resolved, only then the queue size counter will be decreased.
