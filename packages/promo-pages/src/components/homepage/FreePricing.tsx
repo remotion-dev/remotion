@@ -137,6 +137,11 @@ const SEAT_PRICE = 25;
 const RENDER_UNIT_PRICE = 10;
 const WEBCODECS_UNIT_PRICE = 10;
 
+const icon: React.CSSProperties = {
+	height: 16,
+	marginLeft: 4,
+};
+
 export const CompanyPricing: React.FC = () => {
 	const [devSeatCount, setDevSeatCount] = React.useState(1);
 	const [cloudRenders, setCloudRenders] = React.useState(1000);
@@ -184,7 +189,11 @@ export const CompanyPricing: React.FC = () => {
 				</div>
 				<div style={{flex: 3}} className="hidden md:block" />
 				<div className="flex flex-row items-center justify-between mt-3 md:mt-0">
-					<Counter count={devSeatCount} setCount={setDevSeatCount} minCount={1} />
+					<Counter
+						count={devSeatCount}
+						setCount={setDevSeatCount}
+						minCount={1}
+					/>
 					<SmallPriceTag>
 						$
 						{new Intl.NumberFormat('en-US', {
@@ -196,15 +205,13 @@ export const CompanyPricing: React.FC = () => {
 			<div style={{height: 14}} />
 			<div className={'flex flex-col md:flex-row md:items-center'}>
 				<div style={textUnitWrapper}>
-					<div className={'fontbrand font-bold text-lg'}>
-						Server renders
-					</div>
+					<div className={'fontbrand font-bold text-lg'}>Server renders</div>
 					<div className={'text-muted fontbrand text-sm'}>
 						<a
 							href="https://www.remotion.dev/docs/compare-ssr"
 							className="underline underline-offset-4 text-inherit"
 						>
-							Self-hosted renders per month
+							Renders per month (self-hosted)
 						</a>
 					</div>
 				</div>
@@ -235,7 +242,7 @@ export const CompanyPricing: React.FC = () => {
 							className="underline underline-offset-4 text-inherit"
 							href="https://remotion.dev/webcodecs"
 						>
-							Client-side video creations
+							Client-side video creations per month
 						</a>
 					</div>
 				</div>
@@ -265,6 +272,31 @@ export const CompanyPricing: React.FC = () => {
 					>
 						The minimum is $100 per month
 					</BottomInfo>
+				</div>
+			</div>
+			<div className={'flex flex-row justify-end mt-4'}>
+				<div
+					style={{
+						...textUnitWrapper,
+						alignItems: 'flex-end',
+					}}
+				>
+					<a
+						href="https://remotion.pro/dashboard"
+						className="font-brand text-brand flex flex-row items-center gap-1 no-underline"
+					>
+						Buy now{' '}
+						<svg
+							style={icon}
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 448 512"
+						>
+							<path
+								fill="currentColor"
+								d="M438.6 278.6l-160 160C272.4 444.9 264.2 448 256 448s-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L338.8 288H32C14.33 288 .0016 273.7 .0016 256S14.33 224 32 224h306.8l-105.4-105.4c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l160 160C451.1 245.9 451.1 266.1 438.6 278.6z"
+							/>
+						</svg>
+					</a>
 				</div>
 			</div>
 		</Container>
