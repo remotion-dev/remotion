@@ -5,6 +5,7 @@ import {useVideoConfig} from 'remotion';
 import type {FrameDatabaseKey} from '../../helpers/frame-database';
 import {
 	aspectRatioCache,
+	clearOldFrames,
 	frameDatabase,
 	getAspectRatioFromCache,
 	getTimestampFromFrameDatabaseKey,
@@ -189,14 +190,16 @@ const fillWithCachedFrames = ({
 		if (
 			alreadyFilled &&
 			Math.abs(alreadyFilled - timestamp) <=
-				Math.abs(frame.timestamp - timestamp)
+				Math.abs(frame.frame.timestamp - timestamp)
 		) {
 			continue;
 		}
 
+		frame.lastUsed = Date.now();
+
 		drawSlot({
 			ctx,
-			frame,
+			frame: frame.frame,
 			filledSlots,
 			visualizationWidth,
 			timestamp,
@@ -304,6 +307,8 @@ export const TimelineVideoInfo: React.FC<{
 			});
 		}
 
+		clearOldFrames();
+
 		current.appendChild(canvas);
 
 		const controller = new AbortController();
@@ -348,10 +353,13 @@ export const TimelineVideoInfo: React.FC<{
 
 				const existingFrame = frameDatabase.get(databaseKey);
 				if (existingFrame) {
-					existingFrame.close();
+					existingFrame.frame.close();
 				}
 
-				frameDatabase.set(databaseKey, transformed);
+				frameDatabase.set(databaseKey, {
+					frame: transformed,
+					lastUsed: Date.now(),
+				});
 				if (aspectRatio.current === null) {
 					throw new Error('Aspect ratio is not set');
 				}
@@ -390,6 +398,9 @@ export const TimelineVideoInfo: React.FC<{
 				}
 
 				setError(e);
+			})
+			.finally(() => {
+				clearOldFrames();
 			});
 
 		return () => {
