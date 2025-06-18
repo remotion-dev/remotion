@@ -6,6 +6,7 @@ import DownloadModel from './downloadModel';
 import TranscribeAudio from './transcribeAudio';
 import MainTitle from './MainTitle';
 import Info from './info';
+import type { TranscriptionJson } from '@remotion/whisper-web';
 
 function VBarrier() {
   return (
@@ -19,8 +20,8 @@ function VBarrier() {
 function App() {
   const [transcriptionCompleted, setTranscriptionCompleted] = useState(false);
   const [modelDownloading, setModelDownloading] = useState(false);
-  const [result, setResult] = useState<any>(null)
-  const [file, setFile] = useState<any>(null);
+  const [result, setResult] = useState<TranscriptionJson | null>(null)
+  const [file, setFile] = useState<File | null>(null);
 
   return (
 

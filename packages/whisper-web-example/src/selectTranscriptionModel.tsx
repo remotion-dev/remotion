@@ -29,6 +29,7 @@ export default function SelectTranscriptionModel({ loadingLoadedModels, modelDow
         };
         loader()
 
+    // eslint-disable-next-line
     }, [modelDownloading])
     return (
         <select onChange={(e) => setModelForTranscription(e.target.value as DownloadWhisperModelParams["model"])} disabled={loadingLoadedModels || transcribing}>

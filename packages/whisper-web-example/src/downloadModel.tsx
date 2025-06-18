@@ -2,7 +2,7 @@ import { downloadWhisperModel,  type DownloadWhisperModelParams } from "@remotio
 import {  useState } from "react";
 
 export default function DownloadModel({ setDownloadingModel }: { setDownloadingModel: (downloading: boolean) => void }) {
-    let modelOptions: DownloadWhisperModelParams["model"][] = [
+    const modelOptions: DownloadWhisperModelParams["model"][] = [
         "tiny.en",
         "tiny",
         "small",

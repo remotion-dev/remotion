@@ -12,7 +12,7 @@ export default function TranscribeAudio({
     setResult: (result: TranscriptionJson | null) => void,
     setTranscriptionCompleted: (completed: boolean) => void,
     setFile: (file: File) => void,
-    file: File,
+    file: File | null,
     modelDownloading: boolean
 }) {
     const fileref = useRef<HTMLInputElement>(null)
@@ -22,7 +22,6 @@ export default function TranscribeAudio({
     const [transcribing, setTranscribing] = useState(false);
     const [progress, setProgress] = useState(0);
     useEffect(()=>{
-        console.log(modelForTranscription)
     }, [modelForTranscription])
     useEffect(() => {
         //sync the file between two input sources
