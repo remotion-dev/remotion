@@ -1,8 +1,8 @@
 import React, {useMemo} from 'react';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
+	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
-	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
@@ -24,13 +24,6 @@ export const TimelineTracks: React.FC<{
 	readonly timeline: TrackWithHash[];
 	readonly hasBeenCut: boolean;
 }> = ({timeline, hasBeenCut}) => {
-	const inner: React.CSSProperties = useMemo(() => {
-		return {
-			height: TIMELINE_LAYER_HEIGHT,
-			marginBottom: TIMELINE_ITEM_BORDER_BOTTOM,
-		};
-	}, []);
-
 	const timelineStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...timelineContent,
@@ -48,7 +41,15 @@ export const TimelineTracks: React.FC<{
 					}
 
 					return (
-						<div key={track.sequence.id} style={inner}>
+						<div
+							key={track.sequence.id}
+							style={{
+								height: getTimelineLayerHeight(
+									track.sequence.type === 'video' ? 'video' : 'other',
+								),
+								marginBottom: TIMELINE_ITEM_BORDER_BOTTOM,
+							}}
+						>
 							<TimelineSequence s={track.sequence} />
 						</div>
 					);
