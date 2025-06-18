@@ -108,6 +108,8 @@ export const hasBeenAborted = (
 	return (
 		error instanceof MediaParserAbortError ||
 		// On worker it is not the same instance, but same name
-		(error as Error).name === 'MediaParserAbortError'
+		(error as Error).name === 'MediaParserAbortError' ||
+		// fetch gives BodyStreamBuffer was aborted
+		(error as Error).name === 'AbortError'
 	);
 };

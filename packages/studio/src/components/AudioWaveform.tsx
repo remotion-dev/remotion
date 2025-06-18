@@ -40,7 +40,6 @@ export const AudioWaveform: React.FC<{
 	readonly visualizationWidth: number;
 	readonly startFrom: number;
 	readonly durationInFrames: number;
-	readonly setMaxMediaDuration: React.Dispatch<React.SetStateAction<number>>;
 	readonly volume: string | number;
 	readonly doesVolumeChange: boolean;
 	readonly playbackRate: number;
@@ -49,7 +48,6 @@ export const AudioWaveform: React.FC<{
 	startFrom,
 	durationInFrames,
 	visualizationWidth,
-	setMaxMediaDuration,
 	volume,
 	doesVolumeChange,
 	playbackRate,
@@ -111,7 +109,6 @@ export const AudioWaveform: React.FC<{
 		getAudioData(src)
 			.then((data) => {
 				if (mountState.current.isMounted) {
-					setMaxMediaDuration(Math.floor(data.durationInSeconds * vidConf.fps));
 					setMetadata(data);
 				}
 			})
@@ -120,7 +117,7 @@ export const AudioWaveform: React.FC<{
 					setError(err);
 				}
 			});
-	}, [setMaxMediaDuration, src, vidConf.fps]);
+	}, [src, vidConf.fps]);
 
 	const normalized = useMemo(() => {
 		if (!metadata || metadata.numberOfChannels === 0) {
