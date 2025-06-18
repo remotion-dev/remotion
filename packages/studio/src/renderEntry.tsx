@@ -236,6 +236,9 @@ const renderContent = (Root: React.FC) => {
 					width: bundleMode.compositionWidth,
 					defaultCodec: bundleMode.compositionDefaultCodec,
 					defaultOutName: bundleMode.compositionDefaultOutName,
+					defaultPixelFormat: bundleMode.compositionDefaultPixelFormat,
+					defaultVideoImageFormat:
+						bundleMode.compositionDefaultVideoImageFormat,
 				}}
 			>
 				<Root />
