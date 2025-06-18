@@ -1,7 +1,13 @@
 import {hasBeenAborted, WEBCODECS_TIMESCALE} from '@remotion/media-parser';
 import {extractFrames, WebCodecsInternals} from '@remotion/webcodecs';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useVideoConfig} from 'remotion';
+import type {FrameDatabaseKey} from '../../helpers/frame-database';
+import {
+	frameDatabase,
+	getTimestampFromFrameDatabaseKey,
+	makeFrameDatabaseKey,
+} from '../../helpers/frame-database';
 import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
 
 const HEIGHT = TIMELINE_LAYER_HEIGHT - 2;
@@ -47,13 +53,11 @@ const calculateTimestampSlots = ({
 
 const createSlots = ({
 	filledSlots,
-	frameDatabase,
 	visualizationWidth,
 	fromSeconds,
 	toSeconds,
 }: {
 	filledSlots: Map<number, number | undefined>;
-	frameDatabase: Map<number, VideoFrame>;
 	visualizationWidth: number;
 	fromSeconds: number;
 	toSeconds: number;
@@ -86,12 +90,10 @@ const createSlots = ({
 
 const fillWithCachedFrames = ({
 	ctx,
-	frameDatabase,
 	visualizationWidth,
 	filledSlots,
 }: {
 	ctx: CanvasRenderingContext2D;
-	frameDatabase: Map<number, VideoFrame>;
 	visualizationWidth: number;
 	filledSlots: Map<number, number | undefined>;
 }) => {
@@ -100,10 +102,12 @@ const fillWithCachedFrames = ({
 
 	for (let i = 0; i < filledSlots.size; i++) {
 		const timestamp = targets[i];
-		let bestKey: number | undefined;
+		let bestKey: FrameDatabaseKey | undefined;
 		let bestDistance = Infinity;
 		for (const key of keys) {
-			const distance = Math.abs(key - timestamp);
+			const distance = Math.abs(
+				getTimestampFromFrameDatabaseKey(key) - timestamp,
+			);
 			if (distance < bestDistance) {
 				bestDistance = distance;
 				bestKey = key;
@@ -163,6 +167,7 @@ const fillFrameWhereItFits = ({
 			continue;
 		}
 
+		console.log('draw');
 		ctx.drawImage(frame, (i / filledSlots.size) * visualizationWidth, 0);
 		filledSlots.set(slot, frame.timestamp);
 	}
@@ -178,8 +183,6 @@ export const TimelineVideoInfo: React.FC<{
 	const ref = useRef<HTMLDivElement>(null);
 	const [error, setError] = useState<Error | null>(null);
 
-	const frameDatabase = useMemo<Map<number, VideoFrame>>(() => new Map(), []);
-
 	useEffect(() => {
 		if (error) {
 			return;
@@ -189,6 +192,8 @@ export const TimelineVideoInfo: React.FC<{
 		if (!current) {
 			return;
 		}
+
+		console.log('TimelineVideoInfo', frameDatabase);
 
 		const canvas = document.createElement('canvas');
 		canvas.width = visualizationWidth;
@@ -206,7 +211,6 @@ export const TimelineVideoInfo: React.FC<{
 
 		createSlots({
 			filledSlots,
-			frameDatabase,
 			visualizationWidth,
 			fromSeconds,
 			toSeconds,
@@ -214,7 +218,6 @@ export const TimelineVideoInfo: React.FC<{
 
 		fillWithCachedFrames({
 			ctx,
-			frameDatabase,
 			visualizationWidth,
 			filledSlots,
 		});
@@ -223,6 +226,7 @@ export const TimelineVideoInfo: React.FC<{
 
 		const controller = new AbortController();
 
+		console.log('extracting', fromSeconds, toSeconds);
 		extractFrames({
 			acknowledgeRemotionLicense: true,
 			timestampsInSeconds: ({track}) => {
@@ -243,6 +247,7 @@ export const TimelineVideoInfo: React.FC<{
 			},
 			src,
 			onFrame: (frame) => {
+				console.log('onFrame', frame.timestamp);
 				const scale = HEIGHT / frame.displayHeight;
 
 				const transformed = WebCodecsInternals.rotateAndResizeVideoFrame({
@@ -259,15 +264,16 @@ export const TimelineVideoInfo: React.FC<{
 					frame.close();
 				}
 
-				const existingFrame = frameDatabase.get(transformed.timestamp);
+				const databaseKey = makeFrameDatabaseKey(src, transformed.timestamp);
+
+				const existingFrame = frameDatabase.get(databaseKey);
 				if (existingFrame) {
 					existingFrame.close();
 				}
 
-				frameDatabase.set(transformed.timestamp, transformed);
+				frameDatabase.set(databaseKey, transformed);
 				createSlots({
 					filledSlots,
-					frameDatabase,
 					fromSeconds,
 					toSeconds,
 					visualizationWidth,
@@ -284,7 +290,6 @@ export const TimelineVideoInfo: React.FC<{
 			.then(() => {
 				fillWithCachedFrames({
 					ctx,
-					frameDatabase,
 					visualizationWidth,
 					filledSlots,
 				});
@@ -301,26 +306,7 @@ export const TimelineVideoInfo: React.FC<{
 			controller.abort();
 			current.removeChild(canvas);
 		};
-	}, [
-		durationInFrames,
-		error,
-		fps,
-		frameDatabase,
-		src,
-		startFrom,
-		visualizationWidth,
-	]);
-
-	useEffect(() => {
-		return () => {
-			const entries = Array.from(frameDatabase.entries());
-			for (const [, frame] of entries) {
-				frame.close();
-			}
-
-			frameDatabase.clear();
-		};
-	}, [frameDatabase]);
+	}, [durationInFrames, error, fps, src, startFrom, visualizationWidth]);
 
 	return <div ref={ref} style={containerStyle} />;
 };
