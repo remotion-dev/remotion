@@ -16,6 +16,7 @@ import {
 	fadePresentationDemo,
 	flipPresentationDemo,
 	heartDemo,
+	irisPresentationDemo,
 	noiseDemo,
 	nonePresentationDemo,
 	opacityDemo,
@@ -65,6 +66,7 @@ const demos: DemoType[] = [
 	customPresentationDemo,
 	customTimingDemo,
 	clockWipePresentationDemo,
+	irisPresentationDemo,
 	cubePresentationDemo,
 	animationMathDemo,
 ];
