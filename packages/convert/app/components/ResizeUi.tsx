@@ -21,7 +21,7 @@ const NumberInput: React.FC<{
 				min="2"
 				value={value}
 				step={requireTwoStep ? 2 : 1}
-				className="border-2 border-black border-b-4 w-20 text-center rounded font-brand h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none active:border-brand focus:border-brand active:text-brand focus:text-brand outline-none"
+				className="border-2 border-black border-b-4 w-20 text-center rounded font-brand h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none active:border-brand focus:border-brand active:text-brand focus:text-brand outline-hidden"
 				onFocus={() => {
 					ref.current?.select();
 					onFocus();

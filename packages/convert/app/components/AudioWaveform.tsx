@@ -17,7 +17,7 @@ export const AudioWaveForm: React.FC<{readonly bars: number[]}> = ({bars}) => {
 			style={{
 				height: THUMBNAIL_HEIGHT,
 			}}
-			className="bg-slate-100 border-b-2 border-black justify-center items-center flex flex-row gap-[1px]"
+			className="bg-slate-100 border-b-2 border-black justify-center items-center flex flex-row gap-px"
 		>
 			{padded.map((bar, i) => {
 				const height = ((bar ?? 0) / 255) * 40;
