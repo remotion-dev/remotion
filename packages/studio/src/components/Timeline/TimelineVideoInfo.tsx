@@ -274,6 +274,8 @@ export const TimelineVideoInfo: React.FC<{
 			return;
 		}
 
+		const controller = new AbortController();
+
 		const canvas = document.createElement('canvas');
 		canvas.width = visualizationWidth;
 		canvas.height = HEIGHT;
@@ -281,6 +283,8 @@ export const TimelineVideoInfo: React.FC<{
 		if (!ctx) {
 			return;
 		}
+
+		current.appendChild(canvas);
 
 		// desired-timestamp -> filled-timestamp
 		const filledSlots = new Map<number, number | undefined>();
@@ -305,13 +309,18 @@ export const TimelineVideoInfo: React.FC<{
 				segmentDuration: toSeconds - fromSeconds,
 				fromSeconds,
 			});
+
+			const unfilled = Array.from(filledSlots.keys()).filter(
+				(timestamp) => !filledSlots.get(timestamp),
+			);
+
+			// Don't extract frames if all slots are filled
+			if (unfilled.length === 0) {
+				return;
+			}
 		}
 
 		clearOldFrames();
-
-		current.appendChild(canvas);
-
-		const controller = new AbortController();
 
 		extractFrames({
 			acknowledgeRemotionLicense: true,
