@@ -3,6 +3,7 @@ import {
 	mediaParserController,
 	parseMedia,
 } from '@remotion/media-parser';
+import {getVideoMetadata} from '@remotion/media-utils';
 import {useEffect, useState} from 'react';
 import type {TSequence} from 'remotion';
 
@@ -48,6 +49,16 @@ export const useMaxMediaDuration = (s: TSequence, fps: number) => {
 			if (hasBeenAborted(e)) {
 				return;
 			}
+
+			// In case of CORS errors, fall back to getVideoMetadata
+			getVideoMetadata(src)
+				.then((metadata) => {
+					const durationOrInfinity = metadata.durationInSeconds ?? Infinity;
+
+					cache.set(src, Math.floor(durationOrInfinity * fps));
+					setMaxMediaDuration(Math.floor(durationOrInfinity * fps));
+				})
+				.catch(() => {});
 
 			throw e;
 		});
