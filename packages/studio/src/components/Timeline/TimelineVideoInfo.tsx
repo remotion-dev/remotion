@@ -69,9 +69,11 @@ const calculateTimestampSlots = ({
 
 	const timestampTargets: number[] = [];
 	for (let i = 0; i < framesFitInWidth + 1; i++) {
-		const target = fromSeconds + durationOfOneFrame * (i + 0.5);
+		const target =
+			fromSeconds * WEBCODECS_TIMESCALE + durationOfOneFrame * (i + 0.5);
 		const snappedToDuration =
-			Math.round(fixRounding(target / durationOfOneFrame)) * durationOfOneFrame;
+			(Math.round(fixRounding(target / durationOfOneFrame)) - 1) *
+			durationOfOneFrame;
 
 		timestampTargets.push(snappedToDuration);
 	}
@@ -119,7 +121,6 @@ const drawSlot = ({
 }: {
 	frame: VideoFrame;
 	ctx: CanvasRenderingContext2D;
-	i: number;
 	filledSlots: Map<number, number | undefined>;
 	visualizationWidth: number;
 	timestamp: number;
@@ -135,7 +136,6 @@ const drawSlot = ({
 	const relativeTimestamp = timestamp - fromSeconds * WEBCODECS_TIMESCALE;
 	const frameIndex = relativeTimestamp / durationOfOneFrame;
 	const left = Math.round(frameIndex * frame.displayWidth); // round to avoid antialiasing
-	console.log({frameIndex, left});
 
 	ctx.drawImage(frame, left, 0);
 	filledSlots.set(timestamp, frame.timestamp);
@@ -161,8 +161,7 @@ const fillWithCachedFrames = ({
 	);
 	const targets = Array.from(filledSlots.keys());
 
-	for (let i = 0; i < filledSlots.size; i++) {
-		const timestamp = targets[i];
+	for (const timestamp of targets) {
 		let bestKey: FrameDatabaseKey | undefined;
 		let bestDistance = Infinity;
 		for (const key of keys) {
@@ -198,7 +197,6 @@ const fillWithCachedFrames = ({
 		drawSlot({
 			ctx,
 			frame,
-			i,
 			filledSlots,
 			visualizationWidth,
 			timestamp,
@@ -243,7 +241,6 @@ const fillFrameWhereItFits = ({
 		drawSlot({
 			ctx,
 			frame,
-			i,
 			filledSlots,
 			visualizationWidth,
 			timestamp: slot,
