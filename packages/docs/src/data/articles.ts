@@ -5496,6 +5496,15 @@ export const articles = [
 		slug: 'transitions/presentations/index',
 	},
 	{
+		id: 'transitions/presentations/iris',
+		title: 'iris()',
+		relativePath: 'docs/transitions/presentations/iris.mdx',
+		compId: 'articles-docs-transitions-presentations-iris',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/iris',
+	},
+	{
 		id: 'transitions/presentations/none',
 		title: 'none()',
 		relativePath: 'docs/transitions/presentations/none.mdx',
