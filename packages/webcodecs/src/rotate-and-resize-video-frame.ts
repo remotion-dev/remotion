@@ -16,8 +16,8 @@ export const rotateAndResizeVideoFrame = ({
 }: {
 	frame: VideoFrame;
 	rotation: number;
-	needsToBeMultipleOfTwo?: boolean;
 	resizeOperation: ResizeOperation | null;
+	needsToBeMultipleOfTwo?: boolean;
 }) => {
 	const normalized = ((rotation % 360) + 360) % 360;
 

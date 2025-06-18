@@ -6,7 +6,7 @@ slug: /webcodecs/rotate-and-resize-video-frame
 crumb: '@remotion/webcodecs'
 ---
 
-# rotateAndResizeVideoFrame()<AvailableFrom v="4.0.315"/>
+# rotateAndResizeVideoFrame()<AvailableFrom v="4.0.316"/>
 
 _Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
 
@@ -17,7 +17,8 @@ import {LicenseDisclaimer} from './LicenseDisclaimer';
   <LicenseDisclaimer />
 </details>
 
-Rotates and resizes a [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) object. Returns a new [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) object with the applied transformations.
+Resizes and/or rotates a [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) object.  
+Returns a new [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) object with the applied transformations, or the original frame if no transformations are applied.
 
 ```tsx twoslash title="Rotating a video frame by 90 degrees"
 import {rotateAndResizeVideoFrame} from '@remotion/webcodecs';
@@ -82,13 +83,16 @@ The rotation angle in degrees. Only multiples of 90 degrees are supported (0, 90
 
 ### `resizeOperation`
 
-A resize operation to apply to the frame, or `null` if no resizing is needed. See [`ResizeOperation`](/docs/webcodecs/resizing) for available options.
+A resize operation to apply to the frame, or `null` if no resizing is needed.  
+See: [Resize modes](/docs/webcodecs/resize-a-video#resize-modes) for available options.
 
 ### `needsToBeMultipleOfTwo?`
 
 _optional, default: `false`_
 
-Whether the resulting dimensions should be multiples of 2. This is often required for certain video codecs. If `true`, the dimensions will be rounded down to the nearest even number.
+Whether the resulting dimensions should be multiples of 2.  
+This is often required if encoding to a codec like H.264.  
+If `true`, the dimensions will be rounded down to the nearest even number.
 
 ## Behavior
 
@@ -134,13 +138,6 @@ if (transformedFrame !== originalFrame) {
 // transformedFrame.close();
 ```
 
-## Error handling
-
-- Throws an error if the rotation is not a multiple of 90 degrees.
-- Throws an error if the 2D rendering context cannot be created.
-
 ## See also
 
-- [`ResizeOperation`](/docs/webcodecs/resizing) - Available resize operations
-- [Rotate a video](/docs/webcodecs/rotate-a-video) - Guide on rotating videos
-- [`convertMedia()`](/docs/webcodecs/convert-media) - Convert entire videos with rotation and resizing
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/rotate-and-resize-video-frame.ts)
