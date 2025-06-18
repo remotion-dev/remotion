@@ -26,7 +26,7 @@ test('rotateAndResizeVideoFrame - throws error for invalid rotation', () => {
 });
 
 test('rotateAndResizeVideoFrame - accepts optional needsToBeMultipleOfTwo parameter', () => {
-	// Mock VideoFrame that's sufficient for this test  
+	// Mock VideoFrame that's sufficient for this test
 	const mockFrame = {
 		displayWidth: 100,
 		displayHeight: 200,

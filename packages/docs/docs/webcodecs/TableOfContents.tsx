@@ -126,6 +126,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'extractFrames()'}</strong>
 					<div>Extract frames from a video at specific timestamps.</div>
 				</TOCItem>
+				<TOCItem link="/docs/webcodecs/rotate-and-resize-video-frame">
+					<strong>{'rotateAndResizeVideoFrame()'}</strong>
+					<div>Rotate and resize a video frame.</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);
