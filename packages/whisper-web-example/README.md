@@ -1,0 +1,1 @@
+# Whisper Web: Remotion package for audio transcription in browser
