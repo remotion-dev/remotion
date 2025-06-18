@@ -82,7 +82,7 @@
 		"copy-text-to-clipboard": "^2",
 		"create-video": "workspace:*",
 		"hls.js": "^0.14.17",
-		"lottie-web": "^5.12.2",
+		"lottie-web": "5.13.0",
 		"mux-embed": "^4.16.0",
 		"plyr": "^3.7.3",
 		"polished": "4.1.2",
