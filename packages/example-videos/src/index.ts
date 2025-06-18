@@ -130,6 +130,12 @@ export const exampleVideos = {
 		'videos',
 		'problematic-fragmented.m4a',
 	),
+	waveFormatExtensible: path.join(
+		__dirname,
+		'..',
+		'videos',
+		'wave-format-extensible.wav',
+	),
 };
 
 export {

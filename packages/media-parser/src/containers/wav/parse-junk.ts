@@ -1,6 +1,5 @@
 import {Log} from '../../log';
 import type {ParseResult} from '../../parse-result';
-import {makeSkip} from '../../skip';
 import type {ParserState} from '../../state/parser-state';
 
 export const parseJunk = ({
@@ -13,6 +12,7 @@ export const parseJunk = ({
 
 	Log.trace(state.logLevel, `Skipping JUNK chunk of size ${ckSize}`);
 
-	// Skip over the JUNK chunk data
-	return Promise.resolve(makeSkip(iterator.counter.getOffset() + ckSize));
+	iterator.discard(ckSize);
+
+	return Promise.resolve(null);
 };
