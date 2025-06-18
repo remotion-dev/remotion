@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
 import {BLUE} from '../../helpers/colors';
@@ -6,7 +6,8 @@ import {
 	SEQUENCE_BORDER_WIDTH,
 	getTimelineSequenceLayout,
 } from '../../helpers/get-timeline-sequence-layout';
-import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
+import {getTimelineLayerHeight} from '../../helpers/timeline-layout';
+import {useMaxMediaDuration} from '../../helpers/use-max-media-duration';
 import {AudioWaveform} from '../AudioWaveform';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
@@ -35,9 +36,10 @@ const Inner: React.FC<{
 	// If a duration is 1, it is essentially a still and it should have width 0
 	// Some compositions may not be longer than their media duration,
 	// if that is the case, it needs to be asynchronously determined
-	const [maxMediaDuration, setMaxMediaDuration] = useState(Infinity);
 
 	const video = Internals.useVideo();
+
+	const maxMediaDuration = useMaxMediaDuration(s, video?.fps ?? 30);
 
 	if (!video) {
 		throw new TypeError('Expected video config');
@@ -80,7 +82,7 @@ const Inner: React.FC<{
 			border: SEQUENCE_BORDER_WIDTH + 'px solid rgba(255, 255, 255, 0.2)',
 			borderRadius: 2,
 			position: 'absolute',
-			height: TIMELINE_LAYER_HEIGHT,
+			height: getTimelineLayerHeight(s.type === 'video' ? 'video' : 'other'),
 			marginLeft,
 			width,
 			color: 'white',
@@ -88,6 +90,10 @@ const Inner: React.FC<{
 			opacity: isInRange ? 1 : 0.5,
 		};
 	}, [isInRange, marginLeft, s.type, width]);
+
+	if (maxMediaDuration === null) {
+		return null;
+	}
 
 	return (
 		<div key={s.id} style={style} title={s.displayName}>
@@ -116,7 +122,6 @@ const Inner: React.FC<{
 					startFrom={s.startMediaFrom}
 					durationInFrames={s.duration}
 					volume={s.volume}
-					setMaxMediaDuration={setMaxMediaDuration}
 					playbackRate={s.playbackRate}
 				/>
 			) : null}
