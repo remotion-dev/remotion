@@ -156,14 +156,14 @@ export const Probe: React.FC<{
 							)}
 						</CardTitle>
 						{error ? (
-							<CardDescription className="!mt-0 text-red-500">
+							<CardDescription className="mt-0! text-red-500">
 								Failed to parse media:
 								<br />
 								{error.message}
 							</CardDescription>
 						) : null}
 						<CardDescription
-							className={clsx('!mt-0 truncate', styles['fade-in'])}
+							className={clsx('mt-0! truncate', styles['fade-in'])}
 						>
 							{done ? (
 								<SourceLabel src={src} />
