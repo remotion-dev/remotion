@@ -5,6 +5,7 @@ import {
 	CustomTransitionDemo,
 	FadeDemo,
 	FlipDemo,
+	IrisDemo,
 	NoneDemo,
 	SlideDemo,
 	SlideDemoLongDurationRest,
@@ -697,6 +698,17 @@ export const clockWipePresentationDemo: DemoType = {
 	durationInFrames: 60,
 	fps: 30,
 	id: 'clock-wipe',
+	autoPlay: true,
+	options: [],
+};
+
+export const irisPresentationDemo: DemoType = {
+	comp: IrisDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'iris',
 	autoPlay: true,
 	options: [],
 };
