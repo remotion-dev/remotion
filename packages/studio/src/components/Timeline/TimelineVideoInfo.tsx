@@ -324,7 +324,10 @@ export const TimelineVideoInfo: React.FC<{
 
 			// Don't extract frames if all slots are filled
 			if (unfilled.length === 0) {
-				return;
+				return () => {
+					current.removeChild(canvas);
+					clearOldFrames();
+				};
 			}
 		}
 
