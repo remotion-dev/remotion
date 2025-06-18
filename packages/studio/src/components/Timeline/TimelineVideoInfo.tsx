@@ -4,6 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useVideoConfig} from 'remotion';
 import type {FrameDatabaseKey} from '../../helpers/frame-database';
 import {
+	aspectRatioCache,
 	frameDatabase,
 	getAspectRatioFromCache,
 	getTimestampFromFrameDatabaseKey,
@@ -26,6 +27,27 @@ const containerStyle: React.CSSProperties = {
 
 const MAX_TIME_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
 
+const getDurationOfOneFrame = ({
+	visualizationWidth,
+	aspectRatio,
+	segmentDuration,
+}: {
+	visualizationWidth: number;
+	aspectRatio: number;
+	segmentDuration: number;
+}) => {
+	const framesFitInWidthUnrounded = visualizationWidth / (HEIGHT * aspectRatio);
+	return (segmentDuration / framesFitInWidthUnrounded) * WEBCODECS_TIMESCALE;
+};
+
+const fixRounding = (value: number) => {
+	if (value % 1 >= 0.49999999) {
+		return Math.ceil(value);
+	}
+
+	return Math.floor(value);
+};
+
 const calculateTimestampSlots = ({
 	visualizationWidth,
 	fromSeconds,
@@ -37,16 +59,21 @@ const calculateTimestampSlots = ({
 	segmentDuration: number;
 	aspectRatio: number;
 }) => {
-	const framesFitInWidth = Math.ceil(
-		visualizationWidth / (HEIGHT * aspectRatio),
-	);
+	const framesFitInWidthUnrounded = visualizationWidth / (HEIGHT * aspectRatio);
+	const framesFitInWidth = Math.ceil(framesFitInWidthUnrounded);
+	const durationOfOneFrame = getDurationOfOneFrame({
+		visualizationWidth,
+		aspectRatio,
+		segmentDuration,
+	});
+
 	const timestampTargets: number[] = [];
-	for (let i = 0; i < framesFitInWidth; i++) {
-		timestampTargets.push(
-			fromSeconds +
-				((segmentDuration * WEBCODECS_TIMESCALE) / framesFitInWidth) *
-					(i + 0.5),
-		);
+	for (let i = 0; i < framesFitInWidth + 1; i++) {
+		const target = fromSeconds + durationOfOneFrame * (i + 0.5);
+		const snappedToDuration =
+			Math.round(fixRounding(target / durationOfOneFrame)) * durationOfOneFrame;
+
+		timestampTargets.push(snappedToDuration);
 	}
 
 	return timestampTargets;
@@ -65,10 +92,6 @@ const ensureSlots = ({
 	toSeconds: number;
 	aspectRatio: number;
 }) => {
-	if (filledSlots.size > 0) {
-		return;
-	}
-
 	const segmentDuration = toSeconds - fromSeconds;
 
 	const timestampTargets = calculateTimestampSlots({
@@ -85,16 +108,53 @@ const ensureSlots = ({
 	}
 };
 
+const drawSlot = ({
+	frame,
+	ctx,
+	filledSlots,
+	visualizationWidth,
+	timestamp,
+	segmentDuration,
+	fromSeconds,
+}: {
+	frame: VideoFrame;
+	ctx: CanvasRenderingContext2D;
+	i: number;
+	filledSlots: Map<number, number | undefined>;
+	visualizationWidth: number;
+	timestamp: number;
+	segmentDuration: number;
+	fromSeconds: number;
+}) => {
+	const durationOfOneFrame = getDurationOfOneFrame({
+		visualizationWidth,
+		aspectRatio: frame.displayWidth / frame.displayHeight,
+		segmentDuration,
+	});
+
+	const relativeTimestamp = timestamp - fromSeconds * WEBCODECS_TIMESCALE;
+	const frameIndex = relativeTimestamp / durationOfOneFrame;
+	const left = Math.round(frameIndex * frame.displayWidth); // round to avoid antialiasing
+	console.log({frameIndex, left});
+
+	ctx.drawImage(frame, left, 0);
+	filledSlots.set(timestamp, frame.timestamp);
+};
+
 const fillWithCachedFrames = ({
 	ctx,
 	visualizationWidth,
 	filledSlots,
 	src,
+	segmentDuration,
+	fromSeconds,
 }: {
 	ctx: CanvasRenderingContext2D;
 	visualizationWidth: number;
 	filledSlots: Map<number, number | undefined>;
 	src: string;
+	segmentDuration: number;
+	fromSeconds: number;
 }) => {
 	const keys = Array.from(frameDatabase.keys()).filter((k) =>
 		k.startsWith(src),
@@ -135,8 +195,16 @@ const fillWithCachedFrames = ({
 			continue;
 		}
 
-		ctx.drawImage(frame, (i / filledSlots.size) * visualizationWidth, 0);
-		filledSlots.set(timestamp, frame.timestamp);
+		drawSlot({
+			ctx,
+			frame,
+			i,
+			filledSlots,
+			visualizationWidth,
+			timestamp,
+			segmentDuration,
+			fromSeconds,
+		});
 	}
 };
 
@@ -145,11 +213,15 @@ const fillFrameWhereItFits = ({
 	filledSlots,
 	ctx,
 	visualizationWidth,
+	segmentDuration,
+	fromSeconds,
 }: {
 	frame: VideoFrame;
 	filledSlots: Map<number, number | undefined>;
 	ctx: CanvasRenderingContext2D;
 	visualizationWidth: number;
+	segmentDuration: number;
+	fromSeconds: number;
 }) => {
 	const slots = Array.from(filledSlots.keys());
 
@@ -168,8 +240,16 @@ const fillFrameWhereItFits = ({
 			continue;
 		}
 
-		ctx.drawImage(frame, (i / filledSlots.size) * visualizationWidth, 0);
-		filledSlots.set(slot, frame.timestamp);
+		drawSlot({
+			ctx,
+			frame,
+			i,
+			filledSlots,
+			visualizationWidth,
+			timestamp: slot,
+			segmentDuration,
+			fromSeconds,
+		});
 	}
 };
 
@@ -222,6 +302,8 @@ export const TimelineVideoInfo: React.FC<{
 				visualizationWidth,
 				filledSlots,
 				src,
+				segmentDuration: toSeconds - fromSeconds,
+				fromSeconds,
 			});
 		}
 
@@ -232,8 +314,8 @@ export const TimelineVideoInfo: React.FC<{
 		extractFrames({
 			acknowledgeRemotionLicense: true,
 			timestampsInSeconds: ({track}) => {
-				aspectRatio.current =
-					track.displayAspectWidth / track.displayAspectHeight;
+				aspectRatio.current = track.width / track.height;
+				aspectRatioCache.set(src, aspectRatio.current);
 
 				ensureSlots({
 					filledSlots,
@@ -289,6 +371,8 @@ export const TimelineVideoInfo: React.FC<{
 					filledSlots,
 					visualizationWidth,
 					frame: transformed,
+					segmentDuration: toSeconds - fromSeconds,
+					fromSeconds,
 				});
 			},
 			signal: controller.signal,
@@ -299,6 +383,8 @@ export const TimelineVideoInfo: React.FC<{
 					visualizationWidth,
 					filledSlots,
 					src,
+					segmentDuration: toSeconds - fromSeconds,
+					fromSeconds,
 				});
 			})
 			.catch((e) => {

@@ -8,6 +8,7 @@ export const makeFrameDatabaseKey = (
 ): FrameDatabaseKey => `${src}-${timestamp}` as FrameDatabaseKey;
 
 export const frameDatabase: Map<FrameDatabaseKey, VideoFrame> = new Map();
+export const aspectRatioCache: Map<string, number> = new Map();
 
 export const getTimestampFromFrameDatabaseKey = (key: FrameDatabaseKey) => {
 	const split = key.split('-');
@@ -15,15 +16,9 @@ export const getTimestampFromFrameDatabaseKey = (key: FrameDatabaseKey) => {
 };
 
 export const getAspectRatioFromCache = (src: string) => {
-	// find any key that has the same src and is before the timestamp
-	const keys = frameDatabase.keys();
-	for (const key of keys) {
-		if (key.startsWith(src)) {
-			const value = frameDatabase.get(key);
-			if (value) {
-				return value.displayWidth / value.displayHeight;
-			}
-		}
+	const cached = aspectRatioCache.get(src);
+	if (cached) {
+		return cached;
 	}
 
 	return null;
