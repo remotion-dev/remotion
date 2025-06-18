@@ -5,6 +5,7 @@ import {parseData} from './parse-data';
 import {parseFmt} from './parse-fmt';
 import {parseHeader} from './parse-header';
 import {parseId3} from './parse-id3';
+import {parseJunk} from './parse-junk';
 import {parseList} from './parse-list';
 import {parseMediaSection} from './parse-media-section';
 
@@ -37,6 +38,10 @@ export const parseWav = (state: ParserState): Promise<ParseResult> => {
 
 	if (type === 'id3' || type === 'ID3') {
 		return parseId3({state});
+	}
+
+	if (type === 'JUNK' || type === 'FLLR') {
+		return parseJunk({state});
 	}
 
 	if (type === '\u0000') {

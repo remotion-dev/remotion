@@ -29,6 +29,6 @@
     "studio.ts",
     "tests"
   ],
-  "exclude": ["remotion.config.ts"],
+  "exclude": ["remotion.config.ts", "vite.config.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -35,11 +35,11 @@ const decoder = createVideoDecoder({
 
 ## Differences to `VideoDecoder`
 
-- Two new methods are added: [`.waitForQueueToBeLessThan()`](#waitforqueuetobelessthan) and [`.waitForFinish()`](#waitforfinish).
+- Two new methods are added: [`.waitForQueueToBeLessThan()`](#waitforqueuetobelessthan) and `.waitForFinish()`.
 - The [`dequeue`](https://developer.mozilla.org/en-US/docs/Web/API/VideoDecoder/dequeue_event) event is not supported as it is not reliable across browsers.
-- In addition to [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk), [`EncodedVideoChunkInit`](https://www.w3.org/TR/webcodecs/#dictdef-encodedvideochunkinit) objects are also accepted for [`.decode()`](#decode).
+- In addition to [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk), [`EncodedVideoChunkInit`](https://www.w3.org/TR/webcodecs/#dictdef-encodedvideochunkinit) objects are also accepted for `.decode()`.
 - A [`webcodecsController()`](/docs/webcodecs/webcodecs-controller) instance can be passed in to the function, allowing for decoding to be paused, resumed and aborted.
-- [`.decode()`](#decode) is async, and returns a promise, allowing for a halt if the decoder is paused.
+- `.decode()` is async, and returns a promise, allowing for a halt if the decoder is paused.
 - A [`logLevel`](#loglevel) can be passed in to the function, allowing the queue to be debugged.
 - The [`onFrame`](#onframe) callback is being awaited. When rejected, the error lands in the [`onError`](#onerror) callback. When resolved, only then the queue size counter will be decreased.
 
