@@ -706,7 +706,7 @@ export const irisPresentationDemo: DemoType = {
 	comp: IrisDemo,
 	compHeight: 280,
 	compWidth: 540,
-	durationInFrames: 60,
+	durationInFrames: 90,
 	fps: 30,
 	id: 'iris',
 	autoPlay: true,

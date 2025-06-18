@@ -6,7 +6,11 @@ import type {
 	TransitionPresentation,
 	TransitionTiming,
 } from '@remotion/transitions';
-import {TransitionSeries, springTiming} from '@remotion/transitions';
+import {
+	TransitionSeries,
+	linearTiming,
+	springTiming,
+} from '@remotion/transitions';
 import {clockWipe} from '@remotion/transitions/clock-wipe';
 import {fade} from '@remotion/transitions/fade';
 import type {FlipDirection} from '@remotion/transitions/flip';
@@ -161,6 +165,7 @@ export const IrisDemo: React.FC<{}> = () => {
 	return (
 		<SampleTransition
 			effect={iris({width, height})}
+			transition={linearTiming({durationInFrames: 30})}
 			durationRestThreshold={0.001}
 		/>
 	);
