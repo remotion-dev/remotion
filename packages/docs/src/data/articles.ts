@@ -6190,6 +6190,15 @@ export const articles = [
 		slug: 'webcodecs/resize-a-video',
 	},
 	{
+		id: 'rotate-and-resize-video-frame',
+		title: 'rotateAndResizeVideoFrame()',
+		relativePath: 'docs/webcodecs/rotate-and-resize-video-frame.mdx',
+		compId: 'articles-docs-webcodecs-rotate-and-resize-video-frame',
+		crumb: '@remotion/webcodecs',
+		noAi: false,
+		slug: 'webcodecs/rotate-and-resize-video-frame',
+	},
+	{
 		id: 'rotate-a-video',
 		title: 'Rotate a video',
 		relativePath: 'docs/webcodecs/rotation.mdx',

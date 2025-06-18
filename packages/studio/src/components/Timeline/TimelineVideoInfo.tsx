@@ -1,5 +1,5 @@
 import {hasBeenAborted, WEBCODECS_TIMESCALE} from '@remotion/media-parser';
-import {extractFrames, WebCodecsInternals} from '@remotion/webcodecs';
+import {extractFrames, rotateAndResizeVideoFrame} from '@remotion/webcodecs';
 import React, {useEffect, useRef, useState} from 'react';
 import {useVideoConfig} from 'remotion';
 import type {FrameDatabaseKey} from '../../helpers/frame-database';
@@ -355,7 +355,7 @@ export const TimelineVideoInfo: React.FC<{
 			onFrame: (frame) => {
 				const scale = (HEIGHT / frame.displayHeight) * window.devicePixelRatio;
 
-				const transformed = WebCodecsInternals.rotateAndResizeVideoFrame({
+				const transformed = rotateAndResizeVideoFrame({
 					frame,
 					resizeOperation: {
 						mode: 'scale',

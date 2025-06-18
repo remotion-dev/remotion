@@ -690,6 +690,7 @@ module.exports = {
 				'webcodecs/create-audio-decoder',
 				'webcodecs/create-video-decoder',
 				'webcodecs/extract-frames',
+				'webcodecs/rotate-and-resize-video-frame',
 			],
 		},
 		{
