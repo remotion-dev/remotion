@@ -92,11 +92,47 @@ Whether the resulting dimensions should be multiples of 2. This is often require
 
 ## Behavior
 
-- If no rotation and no resize operation is specified, the original frame is returned unchanged.
-- Rotation is applied first, then resizing.
-- For 90° and 270° rotations, the width and height are swapped.
-- The function creates a new `VideoFrame` using an `OffscreenCanvas` for the transformation.
-- The original frame is not modified or closed - you need to manage its lifecycle separately.
+The function returns the **original frame** unchanged in these cases:
+
+- No rotation (0°) and no resize operation is specified
+- No rotation (0°) and resize operation results in the same dimensions
+
+Otherwise, it returns a **new `VideoFrame`** object:
+
+- When rotation is applied (90°, 180°, 270°, etc.)
+- When resizing changes the dimensions
+- When both rotation and resizing are applied
+
+Additional behavior notes:
+
+- Rotation is applied first, then resizing
+- For 90° and 270° rotations, the width and height are swapped
+- The function creates a new `VideoFrame` using an `OffscreenCanvas` for the transformation
+
+## Memory Management
+
+**Important**: You are responsible for closing `VideoFrame` objects to prevent memory leaks. Since this function may return either the original frame or a new frame, you should check if a new frame was created before closing the original:
+
+```tsx twoslash title="Proper memory cleanup"
+import {rotateAndResizeVideoFrame} from '@remotion/webcodecs';
+
+// Assume you have a VideoFrame object
+declare const originalFrame: VideoFrame;
+
+const transformedFrame = rotateAndResizeVideoFrame({
+  frame: originalFrame,
+  rotation: 90,
+  resizeOperation: null,
+});
+
+// Only close the original frame if a new one was created
+if (transformedFrame !== originalFrame) {
+  originalFrame.close();
+}
+
+// Remember to also close the transformed frame when you're done with it
+// transformedFrame.close();
+```
 
 ## Error handling
 
