@@ -6,7 +6,7 @@ import {
 	SEQUENCE_BORDER_WIDTH,
 	getTimelineSequenceLayout,
 } from '../../helpers/get-timeline-sequence-layout';
-import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
+import {getTimelineLayerHeight} from '../../helpers/timeline-layout';
 import {useMaxMediaDuration} from '../../helpers/use-max-media-duration';
 import {AudioWaveform} from '../AudioWaveform';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
@@ -82,7 +82,7 @@ const Inner: React.FC<{
 			border: SEQUENCE_BORDER_WIDTH + 'px solid rgba(255, 255, 255, 0.2)',
 			borderRadius: 2,
 			position: 'absolute',
-			height: TIMELINE_LAYER_HEIGHT,
+			height: getTimelineLayerHeight(s.type === 'video' ? 'video' : 'other'),
 			marginLeft,
 			width,
 			color: 'white',

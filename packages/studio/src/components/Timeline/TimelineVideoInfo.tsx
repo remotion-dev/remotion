@@ -11,9 +11,9 @@ import {
 	getTimestampFromFrameDatabaseKey,
 	makeFrameDatabaseKey,
 } from '../../helpers/frame-database';
-import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
+import {getTimelineLayerHeight} from '../../helpers/timeline-layout';
 
-const HEIGHT = TIMELINE_LAYER_HEIGHT - 2;
+const HEIGHT = getTimelineLayerHeight('video') - 2;
 
 const containerStyle: React.CSSProperties = {
 	height: HEIGHT,
@@ -136,9 +136,17 @@ const drawSlot = ({
 
 	const relativeTimestamp = timestamp - fromSeconds * WEBCODECS_TIMESCALE;
 	const frameIndex = relativeTimestamp / durationOfOneFrame;
-	const left = Math.round(frameIndex * frame.displayWidth); // round to avoid antialiasing
+	const left = Math.floor(
+		(frameIndex * frame.displayWidth) / window.devicePixelRatio,
+	); // round to avoid antialiasing
 
-	ctx.drawImage(frame, left, 0);
+	ctx.drawImage(
+		frame,
+		left,
+		0,
+		frame.displayWidth / window.devicePixelRatio,
+		frame.displayHeight / window.devicePixelRatio,
+	);
 	filledSlots.set(timestamp, frame.timestamp);
 };
 
@@ -342,7 +350,7 @@ export const TimelineVideoInfo: React.FC<{
 			},
 			src,
 			onFrame: (frame) => {
-				const scale = HEIGHT / frame.displayHeight;
+				const scale = (HEIGHT / frame.displayHeight) * window.devicePixelRatio;
 
 				const transformed = WebCodecsInternals.rotateAndResizeVideoFrame({
 					frame,
