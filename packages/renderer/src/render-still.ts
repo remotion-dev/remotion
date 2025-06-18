@@ -16,7 +16,7 @@ import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {onlyArtifact} from './filter-asset-types';
 import {findRemotionRoot} from './find-closest-package-json';
-import type {StillImageFormat} from './image-format';
+import type {StillImageFormat, VideoImageFormat} from './image-format';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
 	validateStillImageFormat,
@@ -30,6 +30,7 @@ import {internalOpenBrowser} from './open-browser';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import {DEFAULT_OVERWRITE} from './overwrite';
+import type {PixelFormat} from './pixel-format';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -275,6 +276,8 @@ const innerRenderStill = async ({
 			width: number,
 			defaultCodec: Codec,
 			defaultOutName: string | null,
+			defaultVideoImageFormat: VideoImageFormat | null,
+			defaultPixelFormat: PixelFormat | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -286,6 +289,8 @@ const innerRenderStill = async ({
 				compositionWidth: width,
 				compositionDefaultCodec: defaultCodec,
 				compositionDefaultOutName: defaultOutName,
+				compositionDefaultVideoImageFormat: defaultVideoImageFormat,
+				compositionDefaultPixelFormat: defaultPixelFormat,
 			});
 		},
 		args: [
@@ -297,6 +302,8 @@ const innerRenderStill = async ({
 			composition.width,
 			composition.defaultCodec,
 			composition.defaultOutName,
+			composition.defaultVideoImageFormat,
+			composition.defaultPixelFormat,
 		],
 		frame: null,
 		page,

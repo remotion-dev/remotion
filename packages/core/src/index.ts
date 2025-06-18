@@ -14,6 +14,7 @@ import {useIsPlayer} from './is-player.js';
 import type {LogLevel} from './log.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import {Null} from './Null.js';
+import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import {Sequence} from './Sequence.js';
 import type {VideoConfig} from './video-config.js';
 
@@ -90,6 +91,8 @@ export type BundleCompositionState = {
 	compositionFps: number;
 	compositionDefaultCodec: Codec;
 	compositionDefaultOutName: string | null;
+	compositionDefaultVideoImageFormat: VideoImageFormat | null;
+	compositionDefaultPixelFormat: PixelFormat | null;
 };
 
 export type BundleIndexState = {
@@ -143,6 +146,7 @@ export {
 } from './no-react';
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
+export type {PixelFormat, VideoImageFormat} from './render-types.js';
 export {
 	AbsoluteFillLayout,
 	LayoutAndStyle,

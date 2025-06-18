@@ -99,8 +99,8 @@ export type InternalRenderMediaOptions = {
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	crf: number | null;
-	imageFormat: VideoImageFormat;
-	pixelFormat: PixelFormat;
+	imageFormat: VideoImageFormat | null;
+	pixelFormat: PixelFormat | null;
 	envVariables: Record<string, string>;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
@@ -202,7 +202,7 @@ const internalRenderMediaRaw = ({
 	crf,
 	composition,
 	serializedInputPropsWithCustomSchema,
-	pixelFormat,
+	pixelFormat: userPixelFormat,
 	codec,
 	envVariables,
 	frameRange,
@@ -254,6 +254,9 @@ const internalRenderMediaRaw = ({
 	chromeMode,
 	offthreadVideoThreads,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
+	const pixelFormat =
+		userPixelFormat ?? composition.defaultPixelFormat ?? DEFAULT_PIXEL_FORMAT;
+
 	if (repro) {
 		enableRepro({
 			serveUrl,
@@ -406,7 +409,9 @@ const internalRenderMediaRaw = ({
 
 	const imageFormat: VideoImageFormat = isAudioCodec(codec)
 		? 'none'
-		: provisionalImageFormat;
+		: (provisionalImageFormat ??
+			composition.defaultVideoImageFormat ??
+			DEFAULT_VIDEO_IMAGE_FORMAT);
 
 	validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
@@ -939,7 +944,7 @@ export const renderMedia = ({
 		everyNthFrame: everyNthFrame ?? 1,
 		ffmpegOverride: ffmpegOverride ?? undefined,
 		frameRange: frameRange ?? null,
-		imageFormat: imageFormat ?? DEFAULT_VIDEO_IMAGE_FORMAT,
+		imageFormat: imageFormat ?? null,
 		serializedInputPropsWithCustomSchema:
 			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
@@ -955,7 +960,7 @@ export const renderMedia = ({
 		onStart: onStart ?? (() => undefined),
 		outputLocation: outputLocation ?? null,
 		overwrite: overwrite ?? DEFAULT_OVERWRITE,
-		pixelFormat: pixelFormat ?? DEFAULT_PIXEL_FORMAT,
+		pixelFormat: pixelFormat ?? null,
 		port: port ?? null,
 		puppeteerInstance: puppeteerInstance ?? undefined,
 		scale: scale ?? 1,
