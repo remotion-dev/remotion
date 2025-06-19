@@ -1,13 +1,11 @@
 import {test, expect} from 'bun:test';
 import {createMedia} from '../create-media';
 import {bufferWriter} from '../writers/buffer';
+import {makeProgressTracker} from '../create/progress-tracker';
 
 test('createMedia should support mp3 container', async () => {
 	const writer = bufferWriter;
-	const progressTracker = {
-		updateTrackProgress: () => {},
-		registerTrack: () => {},
-	};
+	const progressTracker = makeProgressTracker();
 
 	const mediaFn = await createMedia({
 		container: 'mp3',
@@ -35,6 +33,7 @@ test('createMedia should support mp3 container', async () => {
 		sampleRate: 44100,
 		numberOfChannels: 2,
 		timescale: 44100,
+		codecPrivate: null,
 	});
 
 	expect(trackResult.trackNumber).toBe(1);
