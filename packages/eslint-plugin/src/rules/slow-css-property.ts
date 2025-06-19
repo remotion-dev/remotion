@@ -13,6 +13,7 @@ const SlowCssProperty = [
 ].join('\n');
 
 const slowCssProperties = new Set(['boxShadow', 'textShadow', 'filter']);
+const slowCssPropertiesKebab = new Set(['box-shadow', 'text-shadow', 'filter']);
 
 export default createRule<Options, MessageIds>({
 	name: 'slow-css-property',
@@ -32,11 +33,26 @@ export default createRule<Options, MessageIds>({
 	create: (context) => {
 		return {
 			Property: (node) => {
-				if (node.key.type !== 'Identifier') {
+				let propertyName: string | undefined;
+
+				if (node.key.type === 'Identifier') {
+					propertyName = node.key.name;
+				} else if (
+					node.key.type === 'Literal' &&
+					typeof node.key.value === 'string'
+				) {
+					propertyName = node.key.value;
+				}
+
+				if (!propertyName) {
 					return;
 				}
 
-				if (slowCssProperties.has(node.key.name)) {
+				const isSlowProperty =
+					slowCssProperties.has(propertyName) ||
+					slowCssPropertiesKebab.has(propertyName);
+
+				if (isSlowProperty) {
 					context.report({
 						messageId: 'SlowCssProperty',
 						node,
