@@ -1,0 +1,55 @@
+{
+	"name": "@remotion/spring-editor",
+	"version": "4.0.317",
+	"private": true,
+	"sideEffects": false,
+	"type": "module",
+	"scripts": {
+		"build": "vite build",
+		"dev": "vite",
+		"preview": "vite preview",
+		"make": "vite build",
+		"typecheck": "tsc",
+		"lint": "tsc && eslint --cache --cache-location ./node_modules/.cache/eslint src"
+	},
+	"dependencies": {
+		"@radix-ui/react-checkbox": "^1.1.2",
+		"@radix-ui/react-label": "^2.1.0",
+		"@radix-ui/react-slot": "^1.1.0",
+		"@radix-ui/react-slider": "^1.2.2",
+		"@radix-ui/react-tabs": "^1.1.1",
+		"@remotion/layout-utils": "workspace:*",
+		"@remotion/player": "workspace:*",
+		"class-variance-authority": "^0.7.0",
+		"clsx": "2.1.1",
+		"lucide-react": "^0.439.0",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"react-hot-toast": "^2.4.1",
+		"remotion": "workspace:*",
+		"shikiji": "^0.6.10",
+		"tailwind-merge": "2.5.2",
+		"tailwindcss-animate": "^1.0.7"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@tailwindcss/postcss": "^4.1.10",
+		"@types/react": "19.0.0",
+		"@types/react-dom": "19.0.0",
+		"@vitejs/plugin-react": "^4.5.2",
+		"autoprefixer": "^10.4.20",
+		"eslint": "9.19.0",
+		"postcss": "8.4.47",
+		"tailwindcss": "4.1.10",
+		"typescript": "5.8.2",
+		"vite": "5.4.19"
+	},
+	"engines": {
+		"node": ">=20.0.0"
+	},
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/spring-editor"
+	},
+	"homepage": "https://springs.remotion.dev",
+	"description": "Visual editor for spring animations - springs.remotion.dev"
+}

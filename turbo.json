@@ -93,6 +93,11 @@
 			"dependsOn": ["^make"],
 			"outputs": ["spa-dist"],
 			"outputLogs": "new-only"
+		},
+		"@remotion/spring-editor#make": {
+			"dependsOn": ["^make"],
+			"outputs": ["build"],
+			"outputLogs": "new-only"
 		}
 	}
 }
