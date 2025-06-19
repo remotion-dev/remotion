@@ -5992,6 +5992,15 @@ export const articles = [
 		slug: 'watchstaticfile',
 	},
 	{
+		id: 'buffer-writer',
+		title: 'bufferWriter',
+		relativePath: 'docs/webcodecs/buffer-writer.mdx',
+		compId: 'articles-docs-webcodecs-buffer-writer',
+		crumb: '@remotion/webcodecs',
+		noAi: false,
+		slug: 'webcodecs/buffer-writer',
+	},
+	{
 		id: 'can-copy-audio-track',
 		title: 'canCopyAudioTrack()',
 		relativePath: 'docs/webcodecs/can-copy-audio-track.mdx',
@@ -6224,6 +6233,15 @@ export const articles = [
 		crumb: '@remotion/webcodecs',
 		noAi: false,
 		slug: 'webcodecs/track-transformation',
+	},
+	{
+		id: 'web-fs-writer',
+		title: 'webFsWriter',
+		relativePath: 'docs/webcodecs/web-fs-writer.mdx',
+		compId: 'articles-docs-webcodecs-web-fs-writer',
+		crumb: '@remotion/webcodecs',
+		noAi: false,
+		slug: 'webcodecs/web-fs-writer',
 	},
 	{
 		id: 'webcodecs-controller',

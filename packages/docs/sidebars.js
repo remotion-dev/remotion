@@ -691,6 +691,8 @@ module.exports = {
 				'webcodecs/create-video-decoder',
 				'webcodecs/extract-frames',
 				'webcodecs/rotate-and-resize-video-frame',
+				'webcodecs/web-fs-writer',
+				'webcodecs/buffer-writer',
 			],
 		},
 		{
