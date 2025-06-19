@@ -1,7 +1,7 @@
 import type {ConvertMediaContainer} from './get-available-containers';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const availableAudioCodecs = ['opus', 'aac', 'wav'] as const;
+const availableAudioCodecs = ['opus', 'aac', 'wav', 'mp3'] as const;
 export const getAvailableAudioCodecs = ({
 	container,
 }: {
@@ -17,6 +17,10 @@ export const getAvailableAudioCodecs = ({
 
 	if (container === 'wav') {
 		return ['wav'];
+	}
+
+	if (container === 'mp3') {
+		return ['mp3'];
 	}
 
 	throw new Error(`Unsupported container: ${container satisfies never}`);

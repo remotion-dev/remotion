@@ -18,5 +18,9 @@ export const getDefaultAudioCodec = ({
 		return 'wav';
 	}
 
+	if (container === 'mp3') {
+		return 'mp3';
+	}
+
 	throw new Error(`Unhandled container: ${container satisfies never}`);
 };

@@ -45,5 +45,9 @@ export const canCopyAudioTrack = ({
 		return false;
 	}
 
+	if (outputContainer === 'mp3') {
+		return false; // MP3 requires encoding, no direct copy
+	}
+
 	throw new Error(`Unhandled container: ${outputContainer satisfies never}`);
 };

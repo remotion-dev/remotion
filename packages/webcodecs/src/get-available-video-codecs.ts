@@ -20,5 +20,9 @@ export const getAvailableVideoCodecs = ({
 		return [];
 	}
 
+	if (container === 'mp3') {
+		return []; // MP3 doesn't support video
+	}
+
 	throw new Error(`Unsupported container: ${container satisfies never}`);
 };

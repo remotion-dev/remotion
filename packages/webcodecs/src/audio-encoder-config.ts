@@ -13,6 +13,10 @@ const getCodecString = (audioCodec: ConvertMediaAudioCodec) => {
 		return 'wav-should-not-to-into-audio-encoder';
 	}
 
+	if (audioCodec === 'mp3') {
+		return 'mp3-should-not-go-into-audio-encoder';
+	}
+
 	throw new Error(`Unsupported audio codec: ${audioCodec satisfies never}`);
 };
 

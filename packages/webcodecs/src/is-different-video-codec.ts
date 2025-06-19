@@ -56,5 +56,9 @@ export const isSameAudioCodec = ({
 		);
 	}
 
+	if (outputCodec === 'mp3') {
+		return inputAudioCodec === 'mp3';
+	}
+
 	throw new Error(`Unsupported output codec: ${outputCodec satisfies never}`);
 };

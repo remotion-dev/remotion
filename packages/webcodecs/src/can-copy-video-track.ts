@@ -75,5 +75,9 @@ export const canCopyVideoTrack = ({
 		return false;
 	}
 
+	if (outputContainer === 'mp3') {
+		return false; // MP3 doesn't support video tracks
+	}
+
 	throw new Error(`Unhandled codec: ${outputContainer satisfies never}`);
 };
