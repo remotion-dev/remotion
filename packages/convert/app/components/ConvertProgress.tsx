@@ -4,6 +4,7 @@ import type {
 } from '@remotion/webcodecs';
 import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
+import {formatElapsedTime} from '~/lib/format-elapsed-time';
 import {formatSeconds} from '~/lib/format-seconds';
 import {getNewName} from '~/lib/generate-new-name';
 import {
@@ -27,6 +28,8 @@ export const ConvertProgress: React.FC<{
 	readonly isReencoding: boolean;
 	readonly isAudioOnly: boolean;
 	readonly bars: number[];
+	readonly startTime?: number;
+	readonly completedTime?: number;
 }> = ({
 	state,
 	name,
@@ -36,6 +39,8 @@ export const ConvertProgress: React.FC<{
 	isReencoding,
 	duration,
 	isAudioOnly,
+	startTime,
+	completedTime,
 }) => {
 	const progress = done
 		? 1
@@ -91,6 +96,19 @@ export const ConvertProgress: React.FC<{
 					<span>{formatSeconds(state.millisecondsWritten / 1000)}</span>
 					{' • '}
 					<span>{formatBytes(state.bytesWritten)}</span>
+					{startTime && (
+						<>
+							{' • '}
+							<span>
+								Time:{' '}
+								{formatElapsedTime(
+									done && completedTime
+										? completedTime - startTime
+										: Date.now() - startTime,
+								)}
+							</span>
+						</>
+					)}
 				</div>
 			</div>
 		</Card>
