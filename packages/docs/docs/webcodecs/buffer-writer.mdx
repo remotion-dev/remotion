@@ -52,7 +52,7 @@ try {
     writer: bufferWriter,
   });
 } catch (error) {
-  if (error.message.includes('Could not create buffer writer')) {
+  if ((error as Error).message.includes('Could not create buffer writer')) {
     // Handle case where ArrayBuffer cannot be resized further
     console.log('File too large for buffer writer, consider using webFsWriter');
   }
