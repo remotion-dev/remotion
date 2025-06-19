@@ -19,8 +19,8 @@ export default function Info(){
                 display: 'flex',
                 gap: 10
             }}>
-                <a>View Source Code</a>
-                <a>Read Documentation</a>
+                <a href="https://github.com/remotion-dev/remotion/tree/main/packages/whisper-web-example">View Source Code</a>
+                <a href="https://www.remotion.dev/docs/whisper-web/">Read Documentation</a>
             </div>
         </div>
     )
