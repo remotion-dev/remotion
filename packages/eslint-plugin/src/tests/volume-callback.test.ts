@@ -48,6 +48,26 @@ export const Re = () => {
   );
 }
           `,
+		`
+import {Video} from 'remotion';
+
+const getVolume = (f) => f / 30;
+
+export const Re = () => {
+  return (
+    <Video volume={getVolume} />
+  );
+}
+          `,
+		`
+import {Audio} from 'remotion';
+
+export const Re = () => {
+  return (
+    <Audio volume={function(f) { return f / 30; }} />
+  );
+}
+          `,
 	],
 	invalid: [
 		{
@@ -77,6 +97,24 @@ export const Re = () => {
 
   return (
     <Audio volume={frame / 20} />
+  );
+}
+      `,
+			errors: [
+				{
+					messageId: 'VolumeCallback',
+				},
+			],
+		},
+		{
+			code: `
+import {Video, useCurrentFrame} from 'remotion';
+
+export const Re = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <Video volume={frame + 5} />
   );
 }
       `,
