@@ -56,18 +56,6 @@ if (canUse) {
 }
 ```
 
-## Advantages
-
-- **Memory efficient**: Data is written directly to disk instead of being kept in memory
-- **Large file support**: Can handle very large output files that wouldn't fit in memory
-- **Automatic cleanup**: Temporary files are automatically cleaned up
-
-## Disadvantages
-
-- **Browser support**: Only works in browsers with File System Access API support
-- **Permission prompts**: May require user permission in some browsers
-- **Debugging**: Harder to inspect intermediate results compared to in-memory writers
-
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/writers/web-fs.ts)
