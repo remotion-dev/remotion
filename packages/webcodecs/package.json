@@ -63,12 +63,7 @@
 			"module": "./dist/esm/buffer.mjs",
 			"import": "./dist/esm/buffer.mjs"
 		},
-		"./node": {
-			"types": "./dist/writers/node.d.ts",
-			"require": "./dist/writers/node.js",
-			"module": "./dist/esm/node.mjs",
-			"import": "./dist/esm/node.mjs"
-		},
+
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -76,9 +71,7 @@
 			"web-fs": [
 				"dist/writers/web-fs.d.ts"
 			],
-			"node": [
-				"dist/writers/node.d.ts"
-			],
+
 			"buffer": [
 				"dist/writers/buffer.d.ts"
 			]

@@ -130,6 +130,17 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'rotateAndResizeVideoFrame()'}</strong>
 					<div>Rotate and resize a video frame.</div>
 				</TOCItem>
+				<TOCItem link="/docs/webcodecs/web-fs-writer">
+					<strong>{'webFsWriter'}</strong>
+					<div>
+						Writer that saves to browser file system using File System Access
+						API.
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/buffer-writer">
+					<strong>{'bufferWriter'}</strong>
+					<div>Writer that saves to an in-memory resizable ArrayBuffer.</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);
