@@ -3,7 +3,7 @@ import React from 'react';
 import {TestStateDisplay} from '~/components/tests/TestStateDisplay';
 import {Button} from '~/components/ui/button';
 import type {TestStructure} from './test-structure';
-import { useTest} from './test-structure';
+import {useTest} from './test-structure';
 
 export const TestComponent: React.FC<{
 	readonly test: TestStructure;
