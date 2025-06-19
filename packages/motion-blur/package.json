@@ -12,6 +12,7 @@
 	"scripts": {
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
+		"test": "bun test src",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Matt McGillivray, Ilija Boshkov <ilija@codechem.com>, Jonny Burger <jonny@remotion.dev>",
