@@ -15,6 +15,29 @@ const SlowCssProperty = [
 const slowCssProperties = new Set(['boxShadow', 'textShadow', 'filter']);
 const slowCssPropertiesKebab = new Set(['box-shadow', 'text-shadow', 'filter']);
 
+// Tailwind classes that correspond to slow CSS properties
+const slowTailwindClasses = [
+	// Shadow classes (box-shadow)
+	/\bshadow-(?:sm|md|lg|xl|2xl|inner|none|\w+)\b/,
+	/\bshadow-\w+(?:\/\d+)?\b/, // Custom shadow colors
+	// Filter classes
+	/\bblur-(?:none|sm|md|lg|xl|2xl|3xl|\w+)\b/,
+	/\bbrightness-\d+\b/,
+	/\bcontrast-\d+\b/,
+	/\bdrop-shadow-(?:sm|md|lg|xl|2xl|none|\w+)\b/,
+	/\bgrayscale(?:-\d+)?\b/,
+	/\bhue-rotate-\d+\b/,
+	/\binvert(?:-\d+)?\b/,
+	/\bsaturate-\d+\b/,
+	/\bsepia(?:-\d+)?\b/,
+	// Text shadow (custom utilities)
+	/\btext-shadow-\w+\b/,
+];
+
+function containsSlowTailwindClass(classString: string): boolean {
+	return slowTailwindClasses.some((pattern) => pattern.test(classString));
+}
+
 export default createRule<Options, MessageIds>({
 	name: 'slow-css-property',
 	meta: {
@@ -57,6 +80,44 @@ export default createRule<Options, MessageIds>({
 						messageId: 'SlowCssProperty',
 						node,
 					});
+				}
+			},
+			JSXAttribute: (node) => {
+				if (
+					node.name.type === 'JSXIdentifier' &&
+					node.name.name === 'className' &&
+					node.value
+				) {
+					let classString: string | undefined;
+
+					if (
+						node.value.type === 'Literal' &&
+						typeof node.value.value === 'string'
+					) {
+						classString = node.value.value;
+					} else if (
+						node.value.type === 'JSXExpressionContainer' &&
+						node.value.expression.type === 'Literal' &&
+						typeof node.value.expression.value === 'string'
+					) {
+						classString = node.value.expression.value;
+					} else if (
+						node.value.type === 'JSXExpressionContainer' &&
+						node.value.expression.type === 'TemplateLiteral'
+					) {
+						// For template literals, check all string parts
+						const templateLiteral = node.value.expression;
+						classString = templateLiteral.quasis
+							.map((q) => q.value.cooked || q.value.raw)
+							.join(' ');
+					}
+
+					if (classString && containsSlowTailwindClass(classString)) {
+						context.report({
+							messageId: 'SlowCssProperty',
+							node,
+						});
+					}
 				}
 			},
 		};
