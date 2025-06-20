@@ -1,4 +1,14 @@
 // bun --env-file=.env scripts/update-font-db.ts
+//
+// This script updates the Google Fonts database with the latest font information
+// from the Google Fonts Web API. It enhances the data with variable font information
+// including axis definitions for supported variable fonts.
+//
+// Features:
+// - Fetches font metadata from Google Fonts API
+// - Adds variable font axis information (tag, name, min, max, default)
+// - Proper error handling for API key issues
+// - Supports 30+ popular variable fonts with detailed axis data
 
 import {$} from 'bun';
 
@@ -29,6 +39,7 @@ if (!json.items || !Array.isArray(json.items)) {
 }
 
 // Variable font axis definitions for known variable fonts
+// Data sourced from Google Fonts variable font specifications
 const variableFontAxes: Record<string, Array<{
 	tag: string;
 	name: string;
@@ -106,14 +117,94 @@ const variableFontAxes: Record<string, Array<{
 	],
 	'Epilogue': [
 		{ tag: 'wght', name: 'Weight', min: 100, max: 900, default: 400 }
+	],
+	'Plus Jakarta Sans': [
+		{ tag: 'wght', name: 'Weight', min: 200, max: 800, default: 400 }
+	],
+	'DM Sans': [
+		{ tag: 'opsz', name: 'Optical Size', min: 9, max: 40, default: 24 },
+		{ tag: 'wght', name: 'Weight', min: 100, max: 1000, default: 400 }
+	],
+	'Open Sans': [
+		{ tag: 'wdth', name: 'Width', min: 75, max: 100, default: 100 },
+		{ tag: 'wght', name: 'Weight', min: 300, max: 800, default: 400 }
+	],
+	'Roboto': [
+		{ tag: 'wdth', name: 'Width', min: 75, max: 100, default: 100 },
+		{ tag: 'wght', name: 'Weight', min: 100, max: 900, default: 400 }
+	],
+	'Poppins': [
+		{ tag: 'wght', name: 'Weight', min: 100, max: 900, default: 400 }
+	],
+	'Montserrat': [
+		{ tag: 'wght', name: 'Weight', min: 100, max: 900, default: 400 }
+	],
+	'Lato': [
+		{ tag: 'wght', name: 'Weight', min: 100, max: 900, default: 400 }
+	],
+	'Source Code Pro': [
+		{ tag: 'wght', name: 'Weight', min: 200, max: 900, default: 400 }
+	],
+	'Lora': [
+		{ tag: 'wght', name: 'Weight', min: 400, max: 700, default: 400 }
+	],
+	'Merriweather': [
+		{ tag: 'wght', name: 'Weight', min: 300, max: 900, default: 400 }
+	],
+	'Nunito': [
+		{ tag: 'wght', name: 'Weight', min: 200, max: 1000, default: 400 }
+	],
+	'Oswald': [
+		{ tag: 'wght', name: 'Weight', min: 200, max: 700, default: 400 }
+	],
+	'PT Sans': [
+		{ tag: 'wght', name: 'Weight', min: 400, max: 700, default: 400 }
+	],
+	'Raleway': [
+		{ tag: 'wght', name: 'Weight', min: 100, max: 900, default: 400 }
+	],
+	'Ubuntu': [
+		{ tag: 'wght', name: 'Weight', min: 300, max: 700, default: 400 }
+	],
+	'Cabin': [
+		{ tag: 'wdth', name: 'Width', min: 75, max: 100, default: 100 },
+		{ tag: 'wght', name: 'Weight', min: 400, max: 700, default: 400 }
+	],
+	'Heebo': [
+		{ tag: 'wght', name: 'Weight', min: 100, max: 900, default: 400 }
+	],
+	'Libre Franklin': [
+		{ tag: 'wght', name: 'Weight', min: 100, max: 900, default: 400 }
+	],
+	'Rubik': [
+		{ tag: 'wght', name: 'Weight', min: 300, max: 900, default: 400 }
+	],
+	'Source Sans Pro': [
+		{ tag: 'wght', name: 'Weight', min: 200, max: 900, default: 400 }
+	],
+	'Titillium Web': [
+		{ tag: 'wght', name: 'Weight', min: 200, max: 900, default: 400 }
+	],
+	'Barlow': [
+		{ tag: 'wght', name: 'Weight', min: 100, max: 900, default: 400 }
+	],
+	'IBM Plex Sans': [
+		{ tag: 'wght', name: 'Weight', min: 100, max: 700, default: 400 }
+	],
+	'Roboto Slab': [
+		{ tag: 'wght', name: 'Weight', min: 100, max: 900, default: 400 }
 	]
 };
 
 // Function to detect if a font is variable and add axis data
 function enhanceWithVariableFontData(fonts: any[]) {
-	return fonts.map(font => {
+	let variableFontCount = 0;
+	
+	const enhanced = fonts.map(font => {
 		const axes = variableFontAxes[font.family];
 		if (axes) {
+			variableFontCount++;
+			console.log(`✓ Enhanced variable font: ${font.family} (${axes.length} axes)`);
 			return {
 				...font,
 				isVariable: true,
@@ -125,6 +216,9 @@ function enhanceWithVariableFontData(fonts: any[]) {
 			isVariable: false
 		};
 	});
+	
+	console.log(`\nEnhanced ${variableFontCount} variable fonts out of ${fonts.length} total fonts.`);
+	return enhanced;
 }
 
 // Enhance the fonts data with variable font information
