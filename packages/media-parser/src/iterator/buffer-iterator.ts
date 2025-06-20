@@ -15,8 +15,8 @@ export const getArrayBufferIterator = (
 ) => {
 	const counter = makeOffsetCounter(0);
 	const {
-		uintArray,
-		view,
+		getUint8Array,
+		getView,
 		addData,
 		destroy,
 		removeBytesRead,
@@ -35,7 +35,7 @@ export const getArrayBufferIterator = (
 	};
 
 	const getSlice = (amount: number) => {
-		const value = uintArray.slice(
+		const value = getUint8Array().slice(
 			counter.getDiscardedOffset(),
 			counter.getDiscardedOffset() + amount,
 		);
@@ -81,7 +81,7 @@ export const getArrayBufferIterator = (
 	};
 
 	const getUint8 = () => {
-		const val = view.getUint8(counter.getDiscardedOffset());
+		const val = getView().getUint8(counter.getDiscardedOffset());
 		counter.increment(1);
 
 		return val;
@@ -150,13 +150,13 @@ export const getArrayBufferIterator = (
 	};
 
 	const getUint32 = () => {
-		const val = view.getUint32(counter.getDiscardedOffset());
+		const val = getView().getUint32(counter.getDiscardedOffset());
 		counter.increment(4);
 		return val;
 	};
 
 	const getSyncSafeInt32 = () => {
-		const val = view.getUint32(counter.getDiscardedOffset());
+		const val = getView().getUint32(counter.getDiscardedOffset());
 		counter.increment(4);
 
 		return (
@@ -168,13 +168,19 @@ export const getArrayBufferIterator = (
 	};
 
 	const getUint64 = (littleEndian = false) => {
-		const val = view.getBigUint64(counter.getDiscardedOffset(), littleEndian);
+		const val = getView().getBigUint64(
+			counter.getDiscardedOffset(),
+			littleEndian,
+		);
 		counter.increment(8);
 		return val;
 	};
 
 	const getInt64 = (littleEndian = false) => {
-		const val = view.getBigInt64(counter.getDiscardedOffset(), littleEndian);
+		const val = getView().getBigInt64(
+			counter.getDiscardedOffset(),
+			littleEndian,
+		);
 		counter.increment(8);
 		return val;
 	};
@@ -194,25 +200,25 @@ export const getArrayBufferIterator = (
 	};
 
 	const getUint32Le = () => {
-		const val = view.getUint32(counter.getDiscardedOffset(), true);
+		const val = getView().getUint32(counter.getDiscardedOffset(), true);
 		counter.increment(4);
 		return val;
 	};
 
 	const getInt32Le = () => {
-		const val = view.getInt32(counter.getDiscardedOffset(), true);
+		const val = getView().getInt32(counter.getDiscardedOffset(), true);
 		counter.increment(4);
 		return val;
 	};
 
 	const getInt32 = () => {
-		const val = view.getInt32(counter.getDiscardedOffset());
+		const val = getView().getInt32(counter.getDiscardedOffset());
 		counter.increment(4);
 		return val;
 	};
 
 	const bytesRemaining = () => {
-		return uintArray.byteLength - counter.getDiscardedOffset();
+		return getUint8Array().byteLength - counter.getDiscardedOffset();
 	};
 
 	const readExpGolomb = () => {
@@ -367,7 +373,7 @@ export const getArrayBufferIterator = (
 			return new TextDecoder().decode(atom);
 		},
 		detectFileType: () => {
-			return detectFileType(uintArray);
+			return detectFileType(getUint8Array());
 		},
 		getPaddedFourByteNumber,
 		getMatroskaSegmentId: (): string | null => {
@@ -492,36 +498,36 @@ export const getArrayBufferIterator = (
 			return actualValue;
 		},
 		getInt8: () => {
-			const val = view.getInt8(counter.getDiscardedOffset());
+			const val = getView().getInt8(counter.getDiscardedOffset());
 			counter.increment(1);
 			return val;
 		},
 		getUint16: () => {
-			const val = view.getUint16(counter.getDiscardedOffset());
+			const val = getView().getUint16(counter.getDiscardedOffset());
 			counter.increment(2);
 			return val;
 		},
 		getUint16Le: () => {
-			const val = view.getUint16(counter.getDiscardedOffset(), true);
+			const val = getView().getUint16(counter.getDiscardedOffset(), true);
 			counter.increment(2);
 			return val;
 		},
 		getUint24: () => {
-			const val1 = view.getUint8(counter.getDiscardedOffset());
-			const val2 = view.getUint8(counter.getDiscardedOffset() + 1);
-			const val3 = view.getUint8(counter.getDiscardedOffset() + 2);
+			const val1 = getView().getUint8(counter.getDiscardedOffset());
+			const val2 = getView().getUint8(counter.getDiscardedOffset() + 1);
+			const val3 = getView().getUint8(counter.getDiscardedOffset() + 2);
 			counter.increment(3);
 			return (val1 << 16) | (val2 << 8) | val3;
 		},
 		getInt24: () => {
-			const val1 = view.getInt8(counter.getDiscardedOffset());
-			const val2 = view.getUint8(counter.getDiscardedOffset() + 1);
-			const val3 = view.getUint8(counter.getDiscardedOffset() + 2);
+			const val1 = getView().getInt8(counter.getDiscardedOffset());
+			const val2 = getView().getUint8(counter.getDiscardedOffset() + 1);
+			const val3 = getView().getUint8(counter.getDiscardedOffset() + 2);
 			counter.increment(3);
 			return (val1 << 16) | (val2 << 8) | val3;
 		},
 		getInt16: () => {
-			const val = view.getInt16(counter.getDiscardedOffset());
+			const val = getView().getInt16(counter.getDiscardedOffset());
 			counter.increment(2);
 			return val;
 		},
@@ -580,13 +586,13 @@ export const getArrayBufferIterator = (
 			};
 		},
 		getFloat64: () => {
-			const val = view.getFloat64(counter.getDiscardedOffset());
+			const val = getView().getFloat64(counter.getDiscardedOffset());
 			counter.increment(8);
 			return val;
 		},
 		readUntilNullTerminator,
 		getFloat32: () => {
-			const val = view.getFloat32(counter.getDiscardedOffset());
+			const val = getView().getFloat32(counter.getDiscardedOffset());
 			counter.increment(4);
 			return val;
 		},

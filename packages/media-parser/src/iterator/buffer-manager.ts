@@ -39,13 +39,12 @@ export const bufferManager = ({
 		);
 	}
 
-	let uintArray = new Uint8Array(buf.buffer);
-	uintArray.set(initialData);
+	buf.uintarray.set(initialData);
 
-	let view = new DataView(uintArray.buffer);
+	let view = new DataView(buf.uintarray.buffer);
 
 	const destroy = () => {
-		uintArray = new Uint8Array(0);
+		buf.uintarray = new Uint8Array(0);
 		buf.resize(0);
 	};
 
@@ -66,12 +65,12 @@ export const bufferManager = ({
 		counter.discardBytes(bytesToRemove);
 
 		const removedData =
-			mode === 'download' ? uintArray.slice(0, bytesToRemove) : null;
+			mode === 'download' ? buf.uintarray.slice(0, bytesToRemove) : null;
 
-		const newData = uintArray.slice(bytesToRemove);
-		uintArray.set(newData);
+		const newData = buf.uintarray.slice(bytesToRemove);
+		buf.uintarray.set(newData);
 		buf.resize(newData.byteLength);
-		view = new DataView(uintArray.buffer);
+		view = new DataView(buf.uintarray.buffer);
 
 		return {bytesRemoved: bytesToRemove, removedData};
 	};
@@ -107,16 +106,16 @@ export const bufferManager = ({
 		}
 
 		buf.resize(newLength);
-		uintArray = new Uint8Array(buf.buffer);
-		uintArray.set(newData, oldLength);
-		view = new DataView(uintArray.buffer);
+		buf.uintarray = new Uint8Array(buf.buffer);
+		buf.uintarray.set(newData, oldLength);
+		view = new DataView(buf.uintarray.buffer);
 	};
 
 	const replaceData = (newData: Uint8Array, seekTo: number) => {
 		buf.resize(newData.byteLength);
-		uintArray = new Uint8Array(buf.buffer);
-		uintArray.set(newData);
-		view = new DataView(uintArray.buffer);
+		buf.uintarray = new Uint8Array(buf.buffer);
+		buf.uintarray.set(newData);
+		view = new DataView(buf.uintarray.buffer);
 		counter.setDiscardedOffset(seekTo);
 		// reset counter to 0
 		counter.decrement(counter.getOffset());
@@ -125,8 +124,8 @@ export const bufferManager = ({
 	};
 
 	return {
-		view,
-		uintArray,
+		getView: () => view,
+		getUint8Array: () => buf.uintarray,
 		destroy,
 		addData,
 		skipTo,

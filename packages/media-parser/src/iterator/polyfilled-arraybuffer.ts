@@ -1,8 +1,10 @@
 export class ResizableBuffer {
 	buffer: ArrayBuffer;
+	uintarray: Uint8Array;
 
 	constructor(buffer: ArrayBuffer) {
 		this.buffer = buffer;
+		this.uintarray = new Uint8Array(buffer);
 	}
 
 	resize(newLength: number) {
@@ -17,6 +19,7 @@ export class ResizableBuffer {
 				),
 			);
 			this.buffer = newBuffer;
+			this.uintarray = new Uint8Array(newBuffer);
 		}
 	}
 }
