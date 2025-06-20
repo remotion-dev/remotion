@@ -14,18 +14,21 @@ const Transcribe = () => {
 		<>
 			<div className="h-8 lg:h-0 lg:w-8" />
 			<div className="w-full lg:w-[350px]">
-				<DownloadModel setDownloadingModel={setModelDownloading} />
-				<TranscribeAudio
-					{...{
-						setFile,
-						setResult,
-						modelDownloading,
-						file,
-						setTranscriptionCompleted,
-					}}
-				/>
-				{transcriptionCompleted && result && (
-					<Display audio={file} result={result} />
+				{transcriptionCompleted && result ? (
+					<Display result={result} />
+				) : (
+					<>
+						<DownloadModel setDownloadingModel={setModelDownloading} />
+						<TranscribeAudio
+							{...{
+								setFile,
+								setResult,
+								modelDownloading,
+								file,
+								setTranscriptionCompleted,
+							}}
+						/>
+					</>
 				)}
 			</div>
 		</>
