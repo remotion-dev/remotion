@@ -29,7 +29,7 @@ export default function Info() {
 					gap: 10,
 				}}
 			>
-				<a href="https://github.com/remotion-dev/remotion/tree/main/packages/whisper-web-example">
+				<a href="https://github.com/remotion-dev/remotion/tree/main/packages/convert">
 					View Source Code
 				</a>
 				<a href="https://www.remotion.dev/docs/whisper-web/">

@@ -4,6 +4,7 @@
 	"private": true,
 	"sideEffects": false,
 	"type": "module",
+	"author": "Jonny Burger <jonny@remotion.dev>, Hunain Ahmed <junaidhunain6@gmail.com>",
 	"scripts": {
 		"build-page": "remix vite:build",
 		"build-spa": "remix vite:build -c vite-spa.config.ts && bun build-service-worker.ts",
