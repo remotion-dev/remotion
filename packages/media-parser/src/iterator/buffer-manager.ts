@@ -1,3 +1,5 @@
+import type {MediaParserLogLevel} from '../log';
+import {Log} from '../log';
 import type {ParseMediaMode} from '../options';
 import type {OffsetCounter} from './offset-counter';
 import {ResizableBuffer} from './polyfilled-arraybuffer';
@@ -27,15 +29,18 @@ export const bufferManager = ({
 	initialData,
 	maxBytes,
 	counter,
+	logLevel,
 }: {
 	initialData: Uint8Array;
 	maxBytes: number;
 	counter: OffsetCounter;
+	logLevel: MediaParserLogLevel;
 }) => {
 	const buf = makeBufferWithMaxBytes(initialData, maxBytes);
 	if (!buf.buffer.resize) {
-		console.warn(
-			'`ArrayBuffer.resize` is not supported in this Runtime. Using slow polyfull',
+		Log.warn(
+			logLevel,
+			'`ArrayBuffer.resize` is not supported in this Runtime. Using slow polyfill.',
 		);
 	}
 

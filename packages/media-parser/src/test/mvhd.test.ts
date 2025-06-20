@@ -64,7 +64,11 @@ test('Should be able to parse a MVHD box correctly', () => {
 		0, 0, 0, 2,
 	]);
 
-	const iterator = getArrayBufferIterator(buffer, buffer.length);
+	const iterator = getArrayBufferIterator({
+		initialData: buffer,
+		maxBytes: buffer.length,
+		logLevel: 'error',
+	});
 	iterator.discard(8);
 
 	const mvhd = parseMvhd({

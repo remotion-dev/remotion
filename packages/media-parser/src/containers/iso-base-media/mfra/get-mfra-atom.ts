@@ -30,7 +30,11 @@ export const getMfraAtom = async ({
 		prefetchCache,
 	});
 
-	const iterator = getArrayBufferIterator(new Uint8Array(), parentSize);
+	const iterator = getArrayBufferIterator({
+		initialData: new Uint8Array(),
+		maxBytes: parentSize,
+		logLevel: 'error',
+	});
 	while (true) {
 		const res = await result.reader.reader.read();
 		if (res.value) {
