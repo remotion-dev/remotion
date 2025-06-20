@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.317",
+	"version": "4.0.318",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -63,7 +63,6 @@
 			"module": "./dist/esm/buffer.mjs",
 			"import": "./dist/esm/buffer.mjs"
 		},
-
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -71,7 +70,6 @@
 			"web-fs": [
 				"dist/writers/web-fs.d.ts"
 			],
-
 			"buffer": [
 				"dist/writers/buffer.d.ts"
 			]
