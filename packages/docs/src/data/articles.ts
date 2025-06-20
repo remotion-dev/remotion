@@ -6271,6 +6271,15 @@ export const articles = [
 		slug: 'whisper-web/download-whisper-model',
 	},
 	{
+		id: 'whisper-web/get-available-models',
+		title: 'getAvailableModels()',
+		relativePath: 'docs/whisper-web/get-available-models.mdx',
+		compId: 'articles-docs-whisper-web-get-available-models',
+		crumb: '@remotion/whisper-web',
+		noAi: false,
+		slug: 'whisper-web/get-available-models',
+	},
+	{
 		id: 'whisper-web/get-loaded-models',
 		title: 'getLoadedModels()',
 		relativePath: 'docs/whisper-web/get-loaded-models.mdx',

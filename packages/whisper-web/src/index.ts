@@ -12,6 +12,10 @@ import type {
 	DownloadWhisperModelResult,
 	downloadWhisperModel as originalDownloadWhisperModel,
 } from './download-whisper-model';
+import type {
+	AvailableModel,
+	getAvailableModels as originalGetAvailableModels,
+} from './get-available-models';
 import type {getLoadedModels as originalGetLoadedModels} from './get-loaded-models';
 import type {
 	resampleTo16Khz as originalResampleTo16Khz,
@@ -42,6 +46,12 @@ export const getLoadedModels: typeof originalGetLoadedModels = () => {
 	);
 };
 
+export const getAvailableModels: typeof originalGetAvailableModels = () => {
+	throw new Error(
+		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-web.',
+	);
+};
+
 export const deleteModel: typeof originalDeleteModel = () => {
 	throw new Error(
 		'Loading this module from CommonJS is not supported. Load the ESM version of @remotion/whisper-web.',
@@ -67,6 +77,7 @@ export const toCaptions: typeof originalToCaptions = () => {
 };
 
 export type {
+	AvailableModel,
 	CanUseWhisperWebResult,
 	DownloadWhisperModelOnProgress,
 	DownloadWhisperModelParams,
