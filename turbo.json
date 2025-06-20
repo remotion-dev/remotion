@@ -32,6 +32,11 @@
 			"outputs": [".docusaurus", "build", "node_modules/.cache/twoslash"],
 			"outputLogs": "new-only"
 		},
+		"@remotion/whisper-web-example#build": {
+			"dependsOn": ["^make"],
+			"outputs": ["dist"],
+			"outputLogs": "new-only"
+		},
 		"test": {
 			"dependsOn": ["^make", "make"],
 			"outputs": [],

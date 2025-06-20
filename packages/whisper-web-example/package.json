@@ -1,5 +1,5 @@
 {
-	"name": "whisper-web-example",
+	"name": "@remotion/whisper-web-example",
 	"private": true,
 	"version": "4.0.317",
 	"type": "module",
