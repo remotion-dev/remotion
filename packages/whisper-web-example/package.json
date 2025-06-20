@@ -16,6 +16,7 @@
 		"react-dom": "19.0.0"
 	},
 	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
 		"@types/react": "19.0.0",
 		"@types/react-dom": "19.0.0",
 		"@vitejs/plugin-react": "4.1.0",

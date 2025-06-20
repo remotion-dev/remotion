@@ -3700,6 +3700,9 @@ importers:
         specifier: 19.0.0
         version: 19.0.0(react@19.0.0)
     devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       '@types/react':
         specifier: 19.0.0
         version: 19.0.0
