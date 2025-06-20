@@ -1,14 +1,18 @@
-import App from '~/components/transcribe/App';
+import {Main} from '~/components/Main';
+import type {RouteAction} from '~/seo';
 
-const Main = () => {
-	return <App />;
+const action: RouteAction = {
+	type: 'transcribe',
 };
 
-export default Main;
+const Index = () => {
+	return <Main routeAction={action} />;
+};
 
-/* comment this out for development
-export const headers: HeadersFunction = ({}) => ({
+export default Index;
+
+import type {HeadersFunction} from '@remix-run/node';
+export const headers: HeadersFunction = () => ({
 	'Cross-Origin-Embedder-Policy': 'require-corp',
 	'Cross-Origin-Opener-Policy': 'same-origin',
 });
-*/

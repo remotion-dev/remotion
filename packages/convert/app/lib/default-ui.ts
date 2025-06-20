@@ -45,6 +45,10 @@ export const defaultRotateOrMirorState = (
 		return null;
 	}
 
+	if (action.type === 'transcribe') {
+		return null;
+	}
+
 	throw new Error(
 		'Rotate is not enabled by default ' + (action satisfies never),
 	);
@@ -88,6 +92,10 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 	}
 
 	if (action.type === 'report') {
+		return true;
+	}
+
+	if (action.type === 'transcribe') {
 		return true;
 	}
 
@@ -149,7 +157,8 @@ export const getOrderOfSections = (
 	if (
 		action.type === 'generic-resize' ||
 		action.type === 'resize-format' ||
-		action.type === 'report'
+		action.type === 'report' ||
+		action.type === 'transcribe'
 	) {
 		return {
 			resize: 0,
