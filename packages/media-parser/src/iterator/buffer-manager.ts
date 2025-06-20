@@ -1,5 +1,6 @@
 import type {ParseMediaMode} from '../options';
 import type {OffsetCounter} from './offset-counter';
+import {ResizableBuffer} from './polyfilled-arraybuffer';
 
 const makeBufferWithMaxBytes = (initialData: Uint8Array, maxBytes: number) => {
 	const maxByteLength = Math.min(maxBytes, 2 ** 31);
@@ -7,13 +8,15 @@ const makeBufferWithMaxBytes = (initialData: Uint8Array, maxBytes: number) => {
 		const buf = new ArrayBuffer(initialData.byteLength, {
 			maxByteLength,
 		});
-		return buf;
+		return new ResizableBuffer(buf);
 	} catch (e) {
 		// Cloudflare Workers have a limit of 128MB max array buffer size
 		if (e instanceof RangeError && maxBytes > 2 ** 27) {
-			return new ArrayBuffer(initialData.byteLength, {
-				maxByteLength: 2 ** 27,
-			});
+			return new ResizableBuffer(
+				new ArrayBuffer(initialData.byteLength, {
+					maxByteLength: 2 ** 27,
+				}),
+			);
 		}
 
 		throw e;
@@ -30,13 +33,13 @@ export const bufferManager = ({
 	counter: OffsetCounter;
 }) => {
 	const buf = makeBufferWithMaxBytes(initialData, maxBytes);
-	if (!buf.resize) {
-		throw new Error(
-			'`ArrayBuffer.resize` is not supported in this Runtime. On the server: Use at least Node.js 20 or Bun. In the browser: Chrome 111, Edge 111, Safari 16.4, Firefox 128, Opera 111',
+	if (!buf.buffer.resize) {
+		console.warn(
+			'`ArrayBuffer.resize` is not supported in this Runtime. Using slow polyfull',
 		);
 	}
 
-	let uintArray = new Uint8Array(buf);
+	let uintArray = new Uint8Array(buf.buffer);
 	uintArray.set(initialData);
 
 	let view = new DataView(uintArray.buffer);
@@ -91,7 +94,7 @@ export const bufferManager = ({
 	};
 
 	const addData = (newData: Uint8Array) => {
-		const oldLength = buf.byteLength;
+		const oldLength = buf.buffer.byteLength;
 		const newLength = oldLength + newData.byteLength;
 		if (newLength < oldLength) {
 			throw new Error('Cannot decrement size');
@@ -104,14 +107,14 @@ export const bufferManager = ({
 		}
 
 		buf.resize(newLength);
-		uintArray = new Uint8Array(buf);
+		uintArray = new Uint8Array(buf.buffer);
 		uintArray.set(newData, oldLength);
 		view = new DataView(uintArray.buffer);
 	};
 
 	const replaceData = (newData: Uint8Array, seekTo: number) => {
 		buf.resize(newData.byteLength);
-		uintArray = new Uint8Array(buf);
+		uintArray = new Uint8Array(buf.buffer);
 		uintArray.set(newData);
 		view = new DataView(uintArray.buffer);
 		counter.setDiscardedOffset(seekTo);
