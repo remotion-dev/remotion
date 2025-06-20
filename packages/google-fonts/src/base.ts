@@ -29,24 +29,46 @@ export const withResolvers = function <T>() {
 	return {promise, resolve: resolve!, reject: reject!};
 };
 
-const loadFontFaceOrTimeoutAfter20Seconds = (fontFace: FontFace) => {
+const loadFontFaceOrTimeoutAfter20Seconds = (
+	fontFace: FontFace,
+	signal?: AbortSignal,
+) => {
 	const timeout = withResolvers();
 
 	const int = setTimeout(() => {
 		timeout.reject(new Error('Timed out loading Google Font'));
 	}, 18_000);
 
-	return Promise.race([
-		fontFace.load().then(() => {
-			clearTimeout(int);
-		}),
-		timeout.promise,
-	]);
+	// If signal is already aborted, reject immediately
+	if (signal?.aborted) {
+		clearTimeout(int);
+		return Promise.reject(new Error('Font loading was cancelled'));
+	}
+
+	const fontLoadPromise = fontFace.load().then(() => {
+		clearTimeout(int);
+	});
+
+	const promises = [fontLoadPromise, timeout.promise];
+
+	// Create a promise that rejects when the signal is aborted
+	if (signal) {
+		const abortPromise = new Promise((_, reject) => {
+			signal.addEventListener('abort', () => {
+				clearTimeout(int);
+				reject(new Error('Font loading was cancelled'));
+			});
+		});
+		promises.push(abortPromise);
+	}
+
+	return Promise.race(promises);
 };
 
 type FontLoadOptions = {
 	document?: Document;
 	ignoreTooManyRequestsWarning?: boolean;
+	controller?: AbortController;
 };
 
 type V4Options = FontLoadOptions & {
@@ -172,7 +194,10 @@ export const loadFonts = (
 						return;
 					}
 
-					const promise = loadFontFaceOrTimeoutAfter20Seconds(fontFace)
+					const promise = loadFontFaceOrTimeoutAfter20Seconds(
+						fontFace,
+						options?.controller?.signal,
+					)
 						.then(() => {
 							(options?.document ?? document).fonts.add(fontFace);
 							continueRender(handle);
@@ -180,6 +205,12 @@ export const loadFonts = (
 						.catch((err) => {
 							//  Mark font as not loaded
 							loadedFonts[fontKey] = undefined;
+
+							// If it's a cancellation error, don't retry
+							if (err.message === 'Font loading was cancelled') {
+								throw err;
+							}
+
 							if (attempts === 0) {
 								throw err;
 							} else {

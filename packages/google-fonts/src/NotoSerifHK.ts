@@ -2012,6 +2012,7 @@ export const loadFont = <T extends keyof Variants>(
 		subsets?: Variants[T]['subsets'][];
 		document?: Document;
 		ignoreTooManyRequestsWarning?: boolean;
+		controller?: AbortController;
 	},
 ) => {
 	return loadFonts(getInfo(), style, options);
