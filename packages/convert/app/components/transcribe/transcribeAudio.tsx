@@ -6,6 +6,7 @@ import {
 	type TranscriptionJson,
 } from '@remotion/whisper-web';
 import {useEffect, useRef, useState} from 'react';
+import {Button} from '../ui/button';
 import SelectTranscriptionModel from './selectTranscriptionModel';
 
 export default function TranscribeAudio({
@@ -29,6 +30,7 @@ export default function TranscribeAudio({
 	>(undefined);
 	const [transcribing, setTranscribing] = useState(false);
 	const [progress, setProgress] = useState(0);
+
 	useEffect(() => {}, [modelForTranscription]);
 	useEffect(() => {
 		// sync the file between two input sources
@@ -46,7 +48,6 @@ export default function TranscribeAudio({
 	return (
 		<div
 			style={{
-				display: 'flex',
 				gap: 15,
 				alignItems: 'center',
 			}}
@@ -110,7 +111,7 @@ export default function TranscribeAudio({
 					loadingLoadedModels={loadingLoadedModels}
 				/>
 
-				<button
+				<Button
 					type="button"
 					disabled={
 						modelDownloading ||
@@ -119,7 +120,8 @@ export default function TranscribeAudio({
 						!file ||
 						loadingLoadedModels
 					}
-					style={{background: '#0b84f3'}}
+					className="block w-full"
+					variant="brand"
 					onClick={() => {
 						if (!modelForTranscription) return;
 						setTranscribing(true);
@@ -138,7 +140,7 @@ export default function TranscribeAudio({
 					}}
 				>
 					Transcribe
-				</button>
+				</Button>
 				{transcribing && <progress max={1} value={progress} />}
 			</div>
 		</div>

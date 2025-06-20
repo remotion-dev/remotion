@@ -12,16 +12,8 @@ const Transcribe = () => {
 
 	return (
 		<>
-			<div
-				style={{
-					padding: 15,
-					left: 20,
-					borderRadius: 15,
-					gap: 30,
-					alignItems: 'center',
-					top: 20,
-				}}
-			>
+			<div className="h-8 lg:h-0 lg:w-8" />
+			<div className="w-full lg:w-[350px]">
 				<DownloadModel setDownloadingModel={setModelDownloading} />
 				<TranscribeAudio
 					{...{
@@ -32,8 +24,10 @@ const Transcribe = () => {
 						setTranscriptionCompleted,
 					}}
 				/>
+				{transcriptionCompleted && result && (
+					<Display audio={file} result={result} />
+				)}
 			</div>
-			{transcriptionCompleted && <Display audio={file} result={result} />}
 		</>
 	);
 };
