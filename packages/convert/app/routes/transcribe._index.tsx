@@ -1,4 +1,3 @@
-import type {HeadersFunction} from '@remix-run/node';
 import App from '~/components/transcribe/App';
 
 const Main = () => {
@@ -7,12 +6,9 @@ const Main = () => {
 
 export default Main;
 
-export const headers: HeadersFunction = ({
-	actionHeaders,
-	errorHeaders,
-	loaderHeaders,
-	parentHeaders,
-}) => ({
+/* comment this out for development
+export const headers: HeadersFunction = ({}) => ({
 	'Cross-Origin-Embedder-Policy': 'require-corp',
 	'Cross-Origin-Opener-Policy': 'same-origin',
 });
+*/
