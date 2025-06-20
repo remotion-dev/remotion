@@ -2,6 +2,7 @@ import {Log} from '../../log';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {parseData} from './parse-data';
+import {parseFact} from './parse-fact';
 import {parseFmt} from './parse-fmt';
 import {parseHeader} from './parse-header';
 import {parseId3} from './parse-id3';
@@ -42,6 +43,10 @@ export const parseWav = (state: ParserState): Promise<ParseResult> => {
 
 	if (type === 'JUNK' || type === 'FLLR') {
 		return parseJunk({state});
+	}
+
+	if (type === 'fact') {
+		return parseFact({state});
 	}
 
 	if (type === '\u0000') {

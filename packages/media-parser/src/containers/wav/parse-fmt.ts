@@ -2,6 +2,7 @@ import type {ParseResult} from '../../parse-result';
 import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
 import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
+import {subformatIsIeeeFloat, subformatIsPcm} from './subformats';
 import type {WavFmt} from './types';
 
 const CHANNELS: {[bit: number]: string} = {
@@ -104,15 +105,12 @@ export const parseFmt = async ({
 			);
 		}
 
-		for (let i = 0; i < 16; i++) {
-			if (
-				subFormat[i] !==
-				[1, 0, 0, 0, 0, 0, 16, 0, 128, 0, 0, 170, 0, 56, 155, 113][i]
-			) {
-				throw new Error(
-					`Only supporting WAVE with PCM audio format, but got subformat ${subFormat[i]}`,
-				);
-			}
+		if (subformatIsPcm(subFormat)) {
+			// is pcm
+		} else if (subformatIsIeeeFloat(subFormat)) {
+			// is ieee float
+		} else {
+			throw new Error(`Unsupported subformat: ${subFormat}`);
 		}
 
 		const channels = getChannelsFromMask(channelMask);
