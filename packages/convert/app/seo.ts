@@ -57,6 +57,9 @@ export type RouteAction =
 	  }
 	| {
 			type: 'generic-probe';
+	  }
+	| {
+			type: 'transcribe';
 	  };
 
 export const getHeaderTitle = (routeAction: RouteAction) => {
@@ -98,6 +101,10 @@ export const getHeaderTitle = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'report') {
 		return `Report bad videos to Remotion`;
+	}
+
+	if (routeAction.type === 'transcribe') {
+		return 'Fast video and audio transcription in the browser';
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
@@ -142,6 +149,10 @@ export const getPageTitle = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'report') {
 		return `Report bad videos to Remotion`;
+	}
+
+	if (routeAction.type === 'transcribe') {
+		return `Online Audio and Video Transcriber - Remotion Convert`;
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
@@ -194,6 +205,10 @@ export const getDescription = (routeAction: RouteAction) => {
 		return `Report bad videos to Remotion. We will investigate and fix them.`;
 	}
 
+	if (routeAction.type === 'transcribe') {
+		return `A free and local online audio and video transcriber, powered by Whisper. No upload required, no watermarks, no limits.`;
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
@@ -236,6 +251,10 @@ export const makeSlug = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'resize-format') {
 		return `/resize/${routeAction.format}`;
+	}
+
+	if (routeAction.type === 'transcribe') {
+		return '/transcribe';
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);

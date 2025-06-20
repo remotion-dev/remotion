@@ -4,6 +4,7 @@
 	"private": true,
 	"sideEffects": false,
 	"type": "module",
+	"author": "Jonny Burger <jonny@remotion.dev>, Hunain Ahmed <junaidhunain6@gmail.com>",
 	"scripts": {
 		"build-page": "remix vite:build",
 		"build-spa": "remix vite:build -c vite-spa.config.ts && bun build-service-worker.ts",
@@ -24,7 +25,9 @@
 		"@remix-run/node": "^2.15.2",
 		"@remix-run/react": "^2.15.2",
 		"@remix-run/serve": "^2.15.2",
+		"@remotion/captions": "workspace:*",
 		"@remotion/media-parser": "workspace:*",
+		"@remotion/whisper-web": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
 		"@vercel/remix": "^2.15.2",

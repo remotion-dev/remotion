@@ -77,5 +77,4 @@ export const listOfRemotionPackages = [
 	'@remotion/compositor',
 	'@remotion/example-videos',
 	'@remotion/whisper-web',
-	'@remotion/whisper-web-example',
 ];
