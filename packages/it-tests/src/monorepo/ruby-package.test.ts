@@ -20,6 +20,7 @@ test('Set the right version for Ruby in version.rb', () => {
 beforeAll(() => {
 	execSync('bundle install', {
 		cwd: rubySdk,
+		stdio: 'ignore',
 	});
 });
 
@@ -45,6 +46,7 @@ test('Render progress payload', () => {
 		'bundle exec ruby lib/remotion_lambda/render_progress_payload_spec.rb',
 		{
 			cwd: rubySdk,
+			stdio: 'pipe',
 		},
 	).toString();
 	const nativeVersion = LambdaClientInternals.getRenderProgressPayload({
