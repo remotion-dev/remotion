@@ -3,19 +3,55 @@ import {Log} from '../log';
 import type {ParseMediaMode} from '../options';
 import type {OffsetCounter} from './offset-counter';
 
-const makeBufferWithMaxBytes = (initialLength: number, maxBytes: number) => {
+type BufAndMethods = {
+	getBuffer: () => ArrayBuffer;
+	resize: (newLength: number) => void;
+	byteLength: () => number;
+};
+
+const makeBufferWithMaxBytes = ({
+	initialLength,
+	maxBytes,
+	fixedSizeBuffer,
+}: {
+	initialLength: number;
+	maxBytes: number;
+	fixedSizeBuffer: number | null;
+}): BufAndMethods => {
 	const maxByteLength = Math.min(maxBytes, 2 ** 31);
+
+	if (fixedSizeBuffer) {
+		const buf = new ArrayBuffer(fixedSizeBuffer);
+		let length = initialLength;
+		return {
+			getBuffer: () => buf.slice(0, length),
+			resize: (newLength: number) => {
+				length = newLength;
+			},
+			byteLength: () => length,
+		};
+	}
+
 	try {
 		const buf = new ArrayBuffer(initialLength, {
 			maxByteLength,
 		});
-		return buf;
+		return {
+			getBuffer: () => buf,
+			resize: (len) => buf.resize(len),
+			byteLength: () => buf.byteLength,
+		};
 	} catch (e) {
 		// Cloudflare Workers have a limit of 128MB max array buffer size
 		if (e instanceof RangeError && maxBytes > 2 ** 27) {
-			return new ArrayBuffer(initialLength, {
+			const newBuf = new ArrayBuffer(initialLength, {
 				maxByteLength: 2 ** 27,
 			});
+			return {
+				getBuffer: () => newBuf,
+				resize: (len) => newBuf.resize(len),
+				byteLength: () => newBuf.byteLength,
+			};
 		}
 
 		throw e;
@@ -37,10 +73,12 @@ export const bufferManager = ({
 	logLevel: MediaParserLogLevel;
 	checkResize: boolean;
 }) => {
-	const buf = makeBufferWithMaxBytes(
-		useFixedSizeBuffer ?? initialData.byteLength,
+	const buf = makeBufferWithMaxBytes({
+		initialLength: initialData.byteLength,
 		maxBytes,
-	);
+		fixedSizeBuffer: useFixedSizeBuffer,
+	});
+
 	if (checkResize) {
 		if (!buf.resize && useFixedSizeBuffer === null) {
 			throw new Error(
@@ -53,7 +91,10 @@ export const bufferManager = ({
 			);
 		}
 
-		if ((buf as unknown as {resize?: boolean}).resize && useFixedSizeBuffer) {
+		if (
+			(buf.getBuffer() as unknown as {resize?: boolean}).resize &&
+			useFixedSizeBuffer
+		) {
 			Log.warn(
 				logLevel,
 				'`ArrayBuffer.resize` is supported in this Runtime, but you are using `useFixedSizeBuffer`. This is not necessary.',
@@ -61,16 +102,14 @@ export const bufferManager = ({
 		}
 	}
 
-	let uintArray = new Uint8Array(buf);
+	let uintArray = new Uint8Array(buf.getBuffer());
 	uintArray.set(initialData);
 
 	let view = new DataView(uintArray.buffer);
 
 	const destroy = () => {
 		uintArray = new Uint8Array(0);
-		if (buf.resize) {
-			buf.resize(0);
-		}
+		buf.resize(0);
 	};
 
 	const flushBytesRead = (force: boolean, mode: ParseMediaMode) => {
@@ -94,9 +133,7 @@ export const bufferManager = ({
 
 		const newData = uintArray.slice(bytesToRemove);
 		uintArray.set(newData);
-		if (buf.resize) {
-			buf.resize(newData.byteLength);
-		}
+		buf.resize(newData.byteLength);
 
 		view = new DataView(uintArray.buffer);
 
@@ -121,8 +158,9 @@ export const bufferManager = ({
 	};
 
 	const addData = (newData: Uint8Array) => {
-		const oldLength = buf.byteLength;
+		const oldLength = buf.byteLength();
 		const newLength = oldLength + newData.byteLength;
+
 		if (newLength < oldLength) {
 			throw new Error('Cannot decrement size');
 		}
@@ -133,21 +171,17 @@ export const bufferManager = ({
 			);
 		}
 
-		if (buf.resize) {
-			buf.resize(newLength);
-		}
+		buf.resize(newLength);
 
-		uintArray = new Uint8Array(buf);
+		uintArray = new Uint8Array(buf.getBuffer());
 		uintArray.set(newData, oldLength);
 		view = new DataView(uintArray.buffer);
 	};
 
 	const replaceData = (newData: Uint8Array, seekTo: number) => {
-		if (buf.resize) {
-			buf.resize(newData.byteLength);
-		}
+		buf.resize(newData.byteLength);
 
-		uintArray = new Uint8Array(buf);
+		uintArray = new Uint8Array(buf.getBuffer());
 		uintArray.set(newData);
 		view = new DataView(uintArray.buffer);
 		counter.setDiscardedOffset(seekTo);
@@ -158,8 +192,8 @@ export const bufferManager = ({
 	};
 
 	return {
-		view,
-		uintArray,
+		getView: () => view,
+		getUint8Array: () => uintArray,
 		destroy,
 		addData,
 		skipTo,

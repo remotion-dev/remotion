@@ -14,6 +14,7 @@ import type {ParserState} from './state/parser-state';
 
 export const initVideo = async ({state}: {state: ParserState}) => {
 	const fileType = state.iterator.detectFileType();
+
 	const {mimeType, name, contentLength} = state;
 
 	if (fileType.type === 'riff') {
