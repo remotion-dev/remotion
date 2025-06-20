@@ -1,19 +1,14 @@
-import {toCaptions, type TranscriptionJson} from '@remotion/whisper-web';
-import {useMemo} from 'react';
+import type {Caption} from '@remotion/captions';
 import {Card} from '../ui/card';
 
-export default function Display({
-	result,
-}: {
-	readonly result: TranscriptionJson;
-}) {
-	const remotionCaptions = useMemo(() => {
-		return toCaptions({whisperWebOutput: result!});
-	}, [result]);
+export default function Display({result}: {readonly result: Caption[]}) {
+	if (result.length === 0) {
+		return null;
+	}
 
 	return (
 		<Card>
-			{remotionCaptions.captions.map((c, i) => {
+			{result.map((c) => {
 				return (
 					<div key={c.text} className="border-b border-b-black py-2">
 						<div className="px-3">

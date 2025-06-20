@@ -1,8 +1,8 @@
 import type {Caption} from '@remotion/captions';
-import type {TranscriptionJson} from './result';
+import type {TranscriptionItemWithTimestamp, TranscriptionJson} from './result';
 
 type ToCaptionsInput = {
-	whisperWebOutput: TranscriptionJson;
+	whisperWebOutput: TranscriptionJson | TranscriptionItemWithTimestamp[];
 };
 
 type ToCaptionsOutput = {
@@ -10,7 +10,10 @@ type ToCaptionsOutput = {
 };
 
 export const toCaptions = (input: ToCaptionsInput): ToCaptionsOutput => {
-	const {transcription} = input.whisperWebOutput;
+	const transcription =
+		'transcription' in input.whisperWebOutput
+			? input.whisperWebOutput.transcription
+			: input.whisperWebOutput;
 
 	const captions: Caption[] = [];
 

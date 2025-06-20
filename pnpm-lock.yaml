@@ -394,6 +394,9 @@ importers:
       '@remix-run/serve':
         specifier: ^2.15.2
         version: 2.15.2(typescript@5.8.2)
+      '@remotion/captions':
+        specifier: workspace:*
+        version: link:../captions
       '@remotion/media-parser':
         specifier: workspace:*
         version: link:../media-parser

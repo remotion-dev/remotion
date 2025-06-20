@@ -1,148 +1,158 @@
-/* eslint-disable no-console */
-import {
-	resampleTo16Khz,
-	transcribe,
-	type DownloadWhisperModelParams,
-	type TranscriptionJson,
+import type {Caption} from '@remotion/captions';
+import type {
+	DownloadWhisperModelProgress,
+	WhisperWebModel,
 } from '@remotion/whisper-web';
-import {useEffect, useRef, useState} from 'react';
+import {
+	downloadWhisperModel,
+	resampleTo16Khz,
+	toCaptions,
+	transcribe,
+} from '@remotion/whisper-web';
+import {useCallback, useState} from 'react';
+import type {Source} from '~/lib/convert-state';
+import {formatBytes} from '~/lib/format-bytes';
 import {Button} from '../ui/button';
-import SelectTranscriptionModel from './selectTranscriptionModel';
+import {Card} from '../ui/card';
+
+const sourceToBlob = (source: Source) => {
+	if (source.type === 'file') {
+		return source.file;
+	}
+
+	return fetch(source.url).then((r) => r.blob());
+};
 
 export default function TranscribeAudio({
 	setResult,
 	setTranscriptionCompleted,
-	setFile,
-	file,
-	modelDownloading,
+	source,
+	selectedModel,
+	setTranscribing,
+	transcribing,
+	name,
 }: {
-	readonly setResult: (result: TranscriptionJson | null) => void;
+	readonly setResult: React.Dispatch<React.SetStateAction<Caption[]>>;
 	readonly setTranscriptionCompleted: (completed: boolean) => void;
-	readonly setFile: (file: File) => void;
-	readonly file: File | null;
-	readonly modelDownloading: boolean;
+	readonly source: Source;
+	readonly selectedModel: WhisperWebModel;
+	readonly setTranscribing: (transcribing: boolean) => void;
+	readonly transcribing: boolean;
+	readonly name: string;
 }) {
-	const fileref = useRef<HTMLInputElement>(null);
-	const [waveForm, setWaveForm] = useState<Float32Array>(new Float32Array());
-	const [loadingLoadedModels, setLoadingLoadedModels] = useState(false);
-	const [modelForTranscription, setModelForTranscription] = useState<
-		DownloadWhisperModelParams['model'] | undefined
-	>(undefined);
-	const [transcribing, setTranscribing] = useState(false);
 	const [progress, setProgress] = useState(0);
+	const [modelDownloadProgress, setModelDownloadProgress] =
+		useState<DownloadWhisperModelProgress | null>(null);
 
-	useEffect(() => {}, [modelForTranscription]);
-	useEffect(() => {
-		// sync the file between two input sources
-		if (!file || !fileref?.current) {
-			return;
-		}
+	const onClick = useCallback(async () => {
+		setTranscribing(true);
 
-		if (file && fileref.current.files && fileref.current.files.length === 0) {
-			const dataTransfer = new DataTransfer();
-			dataTransfer.items.add(file);
-			fileref.current.files = dataTransfer.files;
-		}
-	}, [fileref, file]);
+		const waveform = await resampleTo16Khz({
+			file: await sourceToBlob(source),
+		});
+
+		await downloadWhisperModel({
+			model: selectedModel,
+			onProgress: (whisperProgress) =>
+				setModelDownloadProgress(whisperProgress),
+		});
+
+		transcribe({
+			channelWaveform: waveform,
+			model: selectedModel,
+			threads: 9,
+			onTranscriptionChunk: (e) => {
+				setResult((r) => {
+					const captions = toCaptions({whisperWebOutput: e});
+					return [...(r ?? []), ...captions.captions];
+				});
+			},
+			onProgress: (p) => setProgress(p),
+		}).then(() => {
+			setTranscribing(false);
+			setTranscriptionCompleted(true);
+			setProgress(0);
+		});
+	}, [
+		selectedModel,
+		source,
+		setResult,
+		setTranscribing,
+		setTranscriptionCompleted,
+		setProgress,
+	]);
 
 	return (
-		<div
-			style={{
-				gap: 15,
-				alignItems: 'center',
-			}}
-		>
-			<div
-				style={{
-					display: 'flex',
-					flexFlow: 'column',
-					gap: 10,
-				}}
-			>
-				<input
-					ref={fileref}
-					type="file"
-					onChange={(ch: React.ChangeEvent<HTMLInputElement>) => {
-						setResult(null);
-						setTranscriptionCompleted(false);
-						const _file = ch.target?.files?.[0];
-						if (_file) {
-							setFile(_file);
-							resampleTo16Khz({
-								file: _file,
-
-								onProgress: (e) => console.log(e),
-							}).then((waveform) => setWaveForm(waveform));
-						}
-					}}
-				/>
-
-				<div
-					onDrop={(e) => {
-						e.preventDefault();
-						setResult(null);
-						setTranscriptionCompleted(false);
-						const _file = e.dataTransfer.files?.[0];
-						if (_file) {
-							setFile(_file);
-							resampleTo16Khz({
-								file: _file,
-
-								onProgress: (err) => console.log(err),
-							}).then((waveform) => setWaveForm(waveform));
-						}
-					}}
-					onDragOver={(e) => e.preventDefault()}
-					style={{
-						border: '2px dashed rgb(230, 230, 230, 0.5)',
-						padding: 2,
-						marginBottom: 8,
-					}}
-				>
-					{file ? `Selected file: ${file.name}` : 'Drop here'}
-				</div>
-			</div>
-			<div style={{display: 'grid', gridAutoFlow: 'row', gap: 10}}>
-				<SelectTranscriptionModel
-					transcribing={transcribing}
-					modelDownloading={modelDownloading}
-					setModelForTranscription={setModelForTranscription}
-					setLoadingLoadedModels={setLoadingLoadedModels}
-					loadingLoadedModels={loadingLoadedModels}
-				/>
-
+		<div>
+			{transcribing ? (
+				<>
+					{modelDownloadProgress ? (
+						<Card className="overflow-hidden">
+							<>
+								<div className="h-5 overflow-hidden">
+									{modelDownloadProgress ? (
+										<div
+											className="w-[50%] h-5 bg-brand"
+											style={{
+												width:
+													(modelDownloadProgress.progress ?? 0) * 100 + '%',
+											}}
+										/>
+									) : null}
+								</div>
+								<div className="border-b-2 border-black" />
+								<div className="p-2">
+									<div>
+										<strong className="font-brand ">
+											Downloading model {selectedModel}
+										</strong>
+									</div>
+									<div className="tabular-nums text-muted-foreground font-brand text-sm">
+										<span>
+											{Math.round(modelDownloadProgress.progress * 100)}%{' '}
+											{formatBytes(modelDownloadProgress.downloadedBytes)}
+										</span>
+									</div>
+								</div>
+							</>
+						</Card>
+					) : null}
+					<div className="h-4" />
+					<Card className="overflow-hidden">
+						<>
+							<div className="h-5 overflow-hidden">
+								{progress ? (
+									<div
+										className="w-[50%] h-5 bg-brand"
+										style={{
+											width: (progress ?? 0) * 100 + '%',
+										}}
+									/>
+								) : null}
+							</div>
+							<div className="border-b-2 border-black" />
+							<div className="p-2">
+								<div>
+									<strong className="font-brand ">Transcribing {name}</strong>
+								</div>
+								<div className="tabular-nums text-muted-foreground font-brand text-sm">
+									<span>{Math.round(progress * 100)}%</span>
+								</div>
+							</div>
+						</>
+					</Card>
+				</>
+			) : (
 				<Button
 					type="button"
-					disabled={
-						modelDownloading ||
-						!modelForTranscription ||
-						transcribing ||
-						!file ||
-						loadingLoadedModels
-					}
+					disabled={transcribing}
 					className="block w-full"
 					variant="brand"
-					onClick={() => {
-						if (!modelForTranscription) return;
-						setTranscribing(true);
-						transcribe({
-							channelWaveform: waveForm,
-							model: modelForTranscription,
-							threads: 9,
-							onTranscriptionChunk: (e) => console.log(e),
-							onProgress: (p) => setProgress(p),
-						}).then((result) => {
-							setResult(result);
-							setTranscribing(false);
-							setTranscriptionCompleted(true);
-							setProgress(0);
-						});
-					}}
+					onClick={onClick}
 				>
 					Transcribe
 				</Button>
-				{transcribing && <progress max={1} value={progress} />}
-			</div>
+			)}
 		</div>
 	);
 }

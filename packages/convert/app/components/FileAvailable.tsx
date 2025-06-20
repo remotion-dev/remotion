@@ -125,7 +125,9 @@ export const FileAvailable: React.FC<{
 							</div>
 						</>
 					) : null}
-					{routeAction.type === 'transcribe' ? <Transcribe /> : null}
+					{routeAction.type === 'transcribe' ? (
+						<Transcribe src={src} name={probeResult.name ?? ''} />
+					) : null}
 				</div>
 				<div className="h-16" />
 				<Footer routeAction={routeAction} />
