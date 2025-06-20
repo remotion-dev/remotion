@@ -1,0 +1,28 @@
+html {
+	background-color: rgb(36, 36, 36) !important;
+}
+
+body {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 2rem;
+	text-align: center;
+	color-scheme: dark;
+	background-color: rgb(36, 36, 36) !important;
+	color: rgba(255, 255, 255, 0.87) !important;
+}
+
+button:disabled {
+	cursor: default !important;
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+		background-color: rgb(36, 36, 36) !important;
+		color: rgba(255, 255, 255, 0.87) !important;
+	}
+}
+
+a {
+	cursor: pointer;
+}

@@ -25,6 +25,7 @@
 		"@remix-run/react": "^2.15.2",
 		"@remix-run/serve": "^2.15.2",
 		"@remotion/media-parser": "workspace:*",
+		"@remotion/whisper-web": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
 		"@vercel/remix": "^2.15.2",

@@ -403,6 +403,9 @@ importers:
       '@remotion/webcodecs':
         specifier: workspace:*
         version: link:../webcodecs
+      '@remotion/whisper-web':
+        specifier: workspace:*
+        version: link:../whisper-web
       '@vercel/remix':
         specifier: ^2.15.2
         version: 2.15.2(@remix-run/dev@2.15.2)(@remix-run/node@2.15.2)(@remix-run/server-runtime@2.15.2)(react-dom@19.0.0)(react@19.0.0)

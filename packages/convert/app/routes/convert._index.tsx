@@ -8,5 +8,3 @@ const action: RouteAction = {
 const Index = () => {
 	return <Main routeAction={action} />;
 };
-
-export default Index;
