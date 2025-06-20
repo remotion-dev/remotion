@@ -74,7 +74,7 @@ const addAvcToTrackAndActivateTrackIfNecessary = async ({
 		return;
 	}
 
-	const parsed = parseAvc(partialVideoSample.data, avcState);
+	const parsed = parseAvc(partialVideoSample.data, avcState, logLevel);
 	for (const parse of parsed) {
 		if (parse.type === 'avc-profile') {
 			webmState.setAvcProfileForTrackNumber(trackNumber, parse);
@@ -125,7 +125,13 @@ export const getSampleFromBlock = async ({
 	onVideoTrack: MediaParserOnVideoTrack | null;
 	avcState: AvcState;
 }): Promise<SampleResult> => {
-	const iterator = getArrayBufferIterator(ebml.value, ebml.value.length);
+	const iterator = getArrayBufferIterator({
+		initialData: ebml.value,
+		maxBytes: ebml.value.length,
+		logLevel,
+		useFixedSizeBuffer: null,
+		checkResize: false,
+	});
 	const trackNumber = iterator.getVint();
 	if (trackNumber === null) {
 		throw new Error('Not enough data to get track number, should not happen');

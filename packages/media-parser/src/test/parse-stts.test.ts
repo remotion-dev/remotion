@@ -11,7 +11,13 @@ const buffer = new Uint8Array([
 ]);
 
 test('Should parse stts box', () => {
-	const iterator = getArrayBufferIterator(buffer, buffer.length);
+	const iterator = getArrayBufferIterator({
+		initialData: buffer,
+		maxBytes: buffer.length,
+		logLevel: 'info',
+		useFixedSizeBuffer: null,
+		checkResize: false,
+	});
 	iterator.counter.increment(8);
 	const result = parseStts({
 		data: iterator,

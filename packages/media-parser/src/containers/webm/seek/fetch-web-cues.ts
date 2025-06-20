@@ -37,7 +37,13 @@ export const fetchWebmCues = async ({
 	}
 
 	result.reader.abort();
-	const iterator = getArrayBufferIterator(value, value.length);
+	const iterator = getArrayBufferIterator({
+		initialData: value,
+		maxBytes: value.length,
+		logLevel,
+		useFixedSizeBuffer: null,
+		checkResize: false,
+	});
 	const segment = await expectSegment({
 		iterator,
 		logLevel,

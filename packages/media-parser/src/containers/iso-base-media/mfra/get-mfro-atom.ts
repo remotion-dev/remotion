@@ -34,7 +34,13 @@ export const getMfroAtom = async ({
 	}
 
 	result.reader.abort();
-	const iterator = getArrayBufferIterator(value, value.length);
+	const iterator = getArrayBufferIterator({
+		initialData: value,
+		maxBytes: value.length,
+		logLevel,
+		useFixedSizeBuffer: null,
+		checkResize: false,
+	});
 	const size = iterator.getUint32();
 	if (size !== 16) {
 		iterator.destroy();

@@ -27,7 +27,7 @@ export const handleChunk = async ({
 		const samplesPerSecond = strh.rate / strh.scale;
 
 		const data = iterator.getSlice(ckSize);
-		const infos = parseAvc(data, state.avc);
+		const infos = parseAvc(data, state.avc, state.logLevel);
 		const keyOrDelta = getKeyFrameOrDeltaFromAvcInfo(infos);
 		const info = infos.find(
 			(i) => i.type === 'keyframe' || i.type === 'delta-frame',

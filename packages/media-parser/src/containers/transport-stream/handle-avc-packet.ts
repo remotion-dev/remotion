@@ -46,7 +46,7 @@ export const handleAvcPacket = async ({
 	makeSamplesStartAtZero: boolean;
 	avcState: AvcState;
 }) => {
-	const avc = parseAvc(streamBuffer.getBuffer(), avcState);
+	const avc = parseAvc(streamBuffer.getBuffer(), avcState, logLevel);
 	const isTrackRegistered = sampleCallbacks.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});

@@ -168,6 +168,7 @@ export const processBox = async ({
 			box: parseColorParameterBox({
 				iterator,
 				size: boxSize,
+				logLevel,
 			}),
 		};
 	}
@@ -177,6 +178,7 @@ export const processBox = async ({
 			iterator,
 			offset: fileOffset,
 			size: boxSize,
+			logLevel,
 		});
 
 		if (!onlyIfMoovAtomExpected) {

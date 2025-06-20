@@ -169,6 +169,13 @@ See [Seeking Hints](/docs/media-parser/seeking-hints) for more information.
 One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
 Default value: `"info"`, which logs only important information.
 
+### `useFixedSizeBuffer?`<AvailableFrom v="4.0.318" />
+
+_number_
+
+Experimental option: Instead of using a resizeable buffer, pre-allocate a fixed size buffer in memory.  
+Use this for runtimes that don't support `ArrayBuffer.resize()` (like React Native).
+
 ### `acknowledgeRemotionLicense?`
 
 Acknowledge the [Remotion License](https://remotion.dev/license) to make the console message disappear.

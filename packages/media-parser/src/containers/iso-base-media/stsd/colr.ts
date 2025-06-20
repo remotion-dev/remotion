@@ -1,4 +1,5 @@
 import type {BufferIterator} from '../../../iterator/buffer-iterator';
+import type {MediaParserLogLevel} from '../../../log';
 import type {IccProfile} from '../parse-icc-profile';
 import {parseIccProfile} from '../parse-icc-profile';
 
@@ -23,9 +24,11 @@ export type ColorParameterBox = {
 export const parseColorParameterBox = ({
 	iterator,
 	size,
+	logLevel,
 }: {
 	iterator: BufferIterator;
 	size: number;
+	logLevel: MediaParserLogLevel;
 }): ColorParameterBox => {
 	const byteString = iterator.getByteString(4, false);
 
@@ -69,7 +72,7 @@ export const parseColorParameterBox = ({
 			type: 'colr-box',
 			colorType: 'icc-profile',
 			profile,
-			parsed: parseIccProfile(profile),
+			parsed: parseIccProfile(profile, logLevel),
 		};
 	}
 

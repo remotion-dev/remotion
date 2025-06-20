@@ -3,6 +3,7 @@
 
 import type {BufferIterator} from '../../iterator/buffer-iterator';
 import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
+import type {MediaParserLogLevel} from '../../log';
 import type {AvcState} from '../../state/avc/avc-state';
 import type {
 	MediaParserAvcDeltaFrameInfo,
@@ -315,8 +316,18 @@ const findEnd = (buffer: Uint8Array) => {
 	return null;
 };
 
-const inspect = (buffer: Uint8Array, avcState: AvcState): AvcInfo | null => {
-	const iterator = getArrayBufferIterator(buffer, buffer.byteLength);
+const inspect = (
+	buffer: Uint8Array,
+	avcState: AvcState,
+	logLevel: MediaParserLogLevel,
+): AvcInfo | null => {
+	const iterator = getArrayBufferIterator({
+		initialData: buffer,
+		maxBytes: buffer.byteLength,
+		logLevel,
+		useFixedSizeBuffer: null,
+		checkResize: false,
+	});
 	iterator.startReadingBits();
 	iterator.getBits(1); // forbidden_zero_bit
 	const nal_ref_idc = iterator.getBits(2); // nal_ref_idc
@@ -416,7 +427,11 @@ const inspect = (buffer: Uint8Array, avcState: AvcState): AvcInfo | null => {
 };
 
 // https://stackoverflow.com/questions/24884827/possible-locations-for-sequence-picture-parameter-sets-for-h-264-stream
-export const parseAvc = (buffer: Uint8Array, avcState: AvcState): AvcInfo[] => {
+export const parseAvc = (
+	buffer: Uint8Array,
+	avcState: AvcState,
+	logLevel: MediaParserLogLevel,
+): AvcInfo[] => {
 	let zeroesInARow = 0;
 	const infos: AvcInfo[] = [];
 
@@ -430,7 +445,7 @@ export const parseAvc = (buffer: Uint8Array, avcState: AvcState): AvcInfo[] => {
 
 		if (zeroesInARow >= 2 && val === 1) {
 			zeroesInARow = 0;
-			const info = inspect(buffer.slice(i + 1, i + 100), avcState);
+			const info = inspect(buffer.slice(i + 1, i + 100), avcState, logLevel);
 			if (info) {
 				infos.push(info);
 				if (info.type === 'keyframe' || info.type === 'delta-frame') {

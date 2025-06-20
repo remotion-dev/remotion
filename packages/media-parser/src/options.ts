@@ -234,6 +234,7 @@ export type SerializeableOptionalParseMediaParams<
 	m3uPlaylistContext: M3uPlaylistContext | null;
 	makeSamplesStartAtZero: boolean;
 	seekingHints: SeekingHints | null;
+	useFixedSizeBuffer: number | null;
 };
 
 type OptionalParseMediaParams<F extends Options<ParseMediaFields>> =

@@ -42,10 +42,13 @@ export const fetchIdx1 = async ({
 		throw new Error('Content length is null');
 	}
 
-	const iterator = getArrayBufferIterator(
-		new Uint8Array(),
-		contentLength - position + 1,
-	);
+	const iterator = getArrayBufferIterator({
+		initialData: new Uint8Array(),
+		maxBytes: contentLength - position + 1,
+		logLevel,
+		useFixedSizeBuffer: null,
+		checkResize: false,
+	});
 	while (true) {
 		const res = await result.reader.reader.read();
 		if (res.value) {

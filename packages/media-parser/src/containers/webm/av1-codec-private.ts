@@ -5,7 +5,13 @@ export const parseAv1PrivateData = (
 	data: Uint8Array,
 	colrAtom: ColorParameterBox | null,
 ) => {
-	const iterator = getArrayBufferIterator(data, data.byteLength);
+	const iterator = getArrayBufferIterator({
+		initialData: data,
+		maxBytes: data.byteLength,
+		logLevel: 'info',
+		useFixedSizeBuffer: null,
+		checkResize: false,
+	});
 	iterator.startReadingBits();
 	if (iterator.getBits(1) !== 1) {
 		iterator.destroy();

@@ -1,4 +1,5 @@
 import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
+import type {MediaParserLogLevel} from '../../log';
 
 type Point = {
 	x: number;
@@ -37,8 +38,17 @@ type Entry = {
 	offset: number;
 };
 
-export const parseIccProfile = (data: Uint8Array): IccProfile => {
-	const iterator = getArrayBufferIterator(data, data.length);
+export const parseIccProfile = (
+	data: Uint8Array,
+	logLevel: MediaParserLogLevel,
+): IccProfile => {
+	const iterator = getArrayBufferIterator({
+		initialData: data,
+		maxBytes: data.length,
+		logLevel,
+		useFixedSizeBuffer: null,
+		checkResize: false,
+	});
 	const size = iterator.getUint32();
 	if (size !== data.length) {
 		throw new Error('Invalid ICC profile size');
@@ -96,7 +106,13 @@ export const parseIccProfile = (data: Uint8Array): IccProfile => {
 			entry.tag === 'bXYZ' ||
 			entry.tag === 'wtpt'
 		) {
-			const it = getArrayBufferIterator(found, found.length);
+			const it = getArrayBufferIterator({
+				initialData: found,
+				maxBytes: found.length,
+				logLevel,
+				useFixedSizeBuffer: null,
+				checkResize: false,
+			});
 			it.discard(4);
 
 			const x = it.getInt32() / 65536;

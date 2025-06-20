@@ -9,7 +9,13 @@ export const readAdtsHeader = (buffer: Uint8Array) => {
 		return null;
 	}
 
-	const iterator = getArrayBufferIterator(buffer, buffer.byteLength);
+	const iterator = getArrayBufferIterator({
+		initialData: buffer,
+		maxBytes: buffer.byteLength,
+		logLevel: 'info',
+		useFixedSizeBuffer: null,
+		checkResize: false,
+	});
 
 	iterator.startReadingBits();
 	const bits = iterator.getBits(12);

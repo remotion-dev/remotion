@@ -72,21 +72,26 @@ export const getMoovAtom = async ({
 			}
 		: null;
 
-	const iterator: BufferIterator = getArrayBufferIterator(
-		new Uint8Array([]),
-		state.contentLength - endOfMdat,
-	);
+	let data = new Uint8Array([]);
 
 	while (true) {
 		const result = await reader.reader.read();
 		if (result.value) {
-			iterator.addData(result.value);
+			data = new Uint8Array([...data, ...result.value]);
 		}
 
 		if (result.done) {
 			break;
 		}
 	}
+
+	const iterator: BufferIterator = getArrayBufferIterator({
+		initialData: data,
+		maxBytes: data.length,
+		logLevel: state.logLevel,
+		useFixedSizeBuffer: null,
+		checkResize: false,
+	});
 
 	const boxes: IsoBaseMediaBox[] = [];
 

@@ -42,6 +42,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	m3uPlaylistContext,
 	makeSamplesStartAtZero,
 	seekingHints,
+	useFixedSizeBuffer,
 	...more
 }: InternalParseMediaOptions<F>) {
 	if (!src) {
@@ -115,6 +116,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 		initialReaderInstance: readerInstance,
 		makeSamplesStartAtZero,
 		prefetchCache,
+		useFixedSizeBuffer,
 	});
 
 	if (seekingHints) {

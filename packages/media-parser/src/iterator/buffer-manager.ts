@@ -1,17 +1,19 @@
+import type {MediaParserLogLevel} from '../log';
+import {Log} from '../log';
 import type {ParseMediaMode} from '../options';
 import type {OffsetCounter} from './offset-counter';
 
-const makeBufferWithMaxBytes = (initialData: Uint8Array, maxBytes: number) => {
+const makeBufferWithMaxBytes = (initialLength: number, maxBytes: number) => {
 	const maxByteLength = Math.min(maxBytes, 2 ** 31);
 	try {
-		const buf = new ArrayBuffer(initialData.byteLength, {
+		const buf = new ArrayBuffer(initialLength, {
 			maxByteLength,
 		});
 		return buf;
 	} catch (e) {
 		// Cloudflare Workers have a limit of 128MB max array buffer size
 		if (e instanceof RangeError && maxBytes > 2 ** 27) {
-			return new ArrayBuffer(initialData.byteLength, {
+			return new ArrayBuffer(initialLength, {
 				maxByteLength: 2 ** 27,
 			});
 		}
@@ -24,16 +26,39 @@ export const bufferManager = ({
 	initialData,
 	maxBytes,
 	counter,
+	useFixedSizeBuffer,
+	logLevel,
+	checkResize,
 }: {
 	initialData: Uint8Array;
 	maxBytes: number;
 	counter: OffsetCounter;
+	useFixedSizeBuffer: number | null;
+	logLevel: MediaParserLogLevel;
+	checkResize: boolean;
 }) => {
-	const buf = makeBufferWithMaxBytes(initialData, maxBytes);
-	if (!buf.resize) {
-		throw new Error(
-			'`ArrayBuffer.resize` is not supported in this Runtime. On the server: Use at least Node.js 20 or Bun. In the browser: Chrome 111, Edge 111, Safari 16.4, Firefox 128, Opera 111',
-		);
+	const buf = makeBufferWithMaxBytes(
+		useFixedSizeBuffer ?? initialData.byteLength,
+		maxBytes,
+	);
+	if (checkResize) {
+		if (!buf.resize && useFixedSizeBuffer === null) {
+			throw new Error(
+				[
+					'`ArrayBuffer.resize` is not supported in this Runtime.',
+					'On the server: Use at least Node.js 20 or Bun.',
+					'In the browser: Chrome 111, Edge 111, Safari 16.4, Firefox 128, Opera 111',
+					'Bypass this error by setting `useFixedSizeBuffer` to the size of the buffer you want to use.',
+				].join('\n'),
+			);
+		}
+
+		if ((buf as unknown as {resize?: boolean}).resize && useFixedSizeBuffer) {
+			Log.warn(
+				logLevel,
+				'`ArrayBuffer.resize` is supported in this Runtime, but you are using `useFixedSizeBuffer`. This is not necessary.',
+			);
+		}
 	}
 
 	let uintArray = new Uint8Array(buf);
@@ -43,7 +68,9 @@ export const bufferManager = ({
 
 	const destroy = () => {
 		uintArray = new Uint8Array(0);
-		buf.resize(0);
+		if (buf.resize) {
+			buf.resize(0);
+		}
 	};
 
 	const flushBytesRead = (force: boolean, mode: ParseMediaMode) => {
@@ -67,7 +94,10 @@ export const bufferManager = ({
 
 		const newData = uintArray.slice(bytesToRemove);
 		uintArray.set(newData);
-		buf.resize(newData.byteLength);
+		if (buf.resize) {
+			buf.resize(newData.byteLength);
+		}
+
 		view = new DataView(uintArray.buffer);
 
 		return {bytesRemoved: bytesToRemove, removedData};
@@ -103,14 +133,20 @@ export const bufferManager = ({
 			);
 		}
 
-		buf.resize(newLength);
+		if (buf.resize) {
+			buf.resize(newLength);
+		}
+
 		uintArray = new Uint8Array(buf);
 		uintArray.set(newData, oldLength);
 		view = new DataView(uintArray.buffer);
 	};
 
 	const replaceData = (newData: Uint8Array, seekTo: number) => {
-		buf.resize(newData.byteLength);
+		if (buf.resize) {
+			buf.resize(newData.byteLength);
+		}
+
 		uintArray = new Uint8Array(buf);
 		uintArray.set(newData);
 		view = new DataView(uintArray.buffer);

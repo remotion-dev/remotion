@@ -5,14 +5,24 @@ import {
 	knownIdsWithTwoLength,
 } from '../containers/webm/segments/all-segments';
 import {detectFileType} from '../file-types';
+import type {MediaParserLogLevel} from '../log';
 import {Log} from '../log';
 import {bufferManager} from './buffer-manager';
 import {makeOffsetCounter} from './offset-counter';
 
-export const getArrayBufferIterator = (
-	initialData: Uint8Array,
-	maxBytes: number,
-) => {
+export const getArrayBufferIterator = ({
+	checkResize,
+	initialData,
+	maxBytes,
+	logLevel,
+	useFixedSizeBuffer,
+}: {
+	initialData: Uint8Array;
+	maxBytes: number;
+	logLevel: MediaParserLogLevel;
+	useFixedSizeBuffer: number | null;
+	checkResize: boolean;
+}) => {
 	const counter = makeOffsetCounter(0);
 	const {
 		uintArray,
@@ -22,7 +32,14 @@ export const getArrayBufferIterator = (
 		removeBytesRead,
 		skipTo,
 		replaceData,
-	} = bufferManager({initialData, maxBytes, counter});
+	} = bufferManager({
+		initialData,
+		maxBytes,
+		counter,
+		useFixedSizeBuffer,
+		logLevel,
+		checkResize,
+	});
 
 	const startCheckpoint = () => {
 		const checkpoint = counter.getOffset();
