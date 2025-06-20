@@ -16,7 +16,7 @@
 			]
 		},
 		{
-			"source": "/transcribe",
+			"source": "/transcribe(.*)",
 			"headers": [
 				{
 					"key": "Cross-Origin-Embedder-Policy",
