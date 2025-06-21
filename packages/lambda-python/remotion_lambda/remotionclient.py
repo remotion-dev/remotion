@@ -401,3 +401,77 @@ class RemotionClient:
             render_progress.__dict__.update(progress_response)
             return render_progress
         return None
+
+
+class AsyncRemotionClient(RemotionClient):
+    """An async client for non-blocking interactions with the Remotion service."""
+
+    async def _invoke_lambda_async(self, function_name, payload):
+        """
+        Invoke Lambda function asynchronously (fire-and-forget).
+
+        Uses InvocationType='Event' for non-blocking execution.
+        Returns None since async invocations don't wait for results.
+        """
+        client = self._create_lambda_client()
+        try:
+            response = client.invoke(
+                FunctionName=function_name,
+                Payload=payload,
+                InvocationType='Event'  # This makes it async/non-blocking
+            )
+            # For async invocations, we only get the invocation response, not the function result
+            # Check for immediate invocation errors
+            if response.get('FunctionError'):
+                raise ValueError(f"Lambda invocation failed: {response.get('FunctionError')}")
+
+        except Exception as e:
+            # Handle different types of boto3 exceptions
+            error_message = str(e)
+            if 'ResourceNotFoundException' in error_message or 'does not exist' in error_message:
+                raise ValueError(
+                    f"The function {function_name} does not exist.") from e
+            if 'InvalidRequestContentException' in error_message or 'invalid' in error_message.lower():
+                raise ValueError("The request content is invalid.") from e
+            if 'RequestTooLargeException' in error_message or 'too large' in error_message.lower():
+                raise ValueError("The request payload is too large.") from e
+            if 'ServiceException' in error_message:
+                raise ValueError(
+                    f"An internal service error occurred: {str(e)}") from e
+            raise ValueError(f"An unexpected error occurred: {str(e)}") from e
+
+    async def render_media_on_lambda_async(
+        self, render_params: RenderMediaParams
+    ) -> None:
+        """
+        Render media using AWS Lambda asynchronously (fire-and-forget).
+
+        Args:
+            render_params (RenderMediaParams): Render parameters.
+
+        Returns:
+            None: The function returns immediately after triggering the Lambda function.
+                  Use get_render_progress() to check the status of the render.
+        """
+        params = self.construct_render_request(
+            render_params, render_type="video-or-audio")
+        await self._invoke_lambda_async(
+            function_name=self.function_name, payload=params)
+
+    async def render_still_on_lambda_async(
+        self, render_params: RenderStillParams
+    ) -> None:
+        """
+        Render still using AWS Lambda asynchronously (fire-and-forget).
+
+        Args:
+            render_params (RenderStillParams): Render parameters.
+
+        Returns:
+            None: The function returns immediately after triggering the Lambda function.
+                  Use get_render_progress() to check the status of the render.
+        """
+        params = self.construct_render_request(
+            render_params, render_type='still')
+        await self._invoke_lambda_async(
+            function_name=self.function_name, payload=params)

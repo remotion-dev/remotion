@@ -10,5 +10,5 @@ from .models import (
 
 
 )
-from .remotionclient import RemotionClient
+from .remotionclient import RemotionClient, AsyncRemotionClient
 from .version import VERSION
