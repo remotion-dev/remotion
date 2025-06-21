@@ -10,7 +10,7 @@ import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateMediaProps} from '../validate-media-props.js';
-import {validateStartFromProps} from '../validate-start-from-props.js';
+import {validateMediaTrimProps, resolveTrimProps} from '../validate-start-from-props.js';
 import {DurationsContext} from '../video/duration-state.js';
 import {AudioForPreview} from './AudioForPreview.js';
 import {AudioForRendering} from './AudioForRendering.js';
@@ -31,6 +31,8 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {
 		startFrom,
 		endAt,
+		trimLeft,
+		trimRight,
 		name,
 		stack,
 		pauseWhenBuffering,
@@ -99,10 +101,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			<Loop
 				layout="none"
 				durationInFrames={calculateLoopDuration({
-					endAt,
+					endAt: trimRight ?? endAt,
 					mediaDuration: duration,
 					playbackRate: props.playbackRate ?? 1,
-					startFrom,
+					startFrom: trimLeft ?? startFrom,
 				})}
 			>
 				<Audio
@@ -114,17 +116,16 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
-		validateStartFromProps(startFrom, endAt);
+	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined' || typeof trimLeft !== 'undefined' || typeof trimRight !== 'undefined') {
+		validateMediaTrimProps(startFrom, endAt, trimLeft, trimRight);
 
-		const startFromFrameNo = startFrom ?? 0;
-		const endAtFrameNo = endAt ?? Infinity;
+		const {trimLeftValue, trimRightValue} = resolveTrimProps(startFrom, endAt, trimLeft, trimRight);
 		return (
 			<Sequence
 				layout="none"
-				from={0 - startFromFrameNo}
+				from={0 - trimLeftValue}
 				showInTimeline={false}
-				durationInFrames={endAtFrameNo}
+				durationInFrames={trimRightValue}
 				name={name}
 			>
 				<Audio

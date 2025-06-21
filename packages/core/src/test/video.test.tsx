@@ -43,3 +43,51 @@ test('It should render Video with startFrom and endAt props', () => {
 		),
 	).not.toThrow();
 });
+
+test('It should render Video with trimLeft props', () => {
+	expect(() =>
+		render(
+			<WrapSequenceContext>
+				<Video src="test" trimLeft={10} />
+			</WrapSequenceContext>,
+		),
+	).not.toThrow();
+});
+test('It should render Video with trimRight props', () => {
+	expect(() =>
+		render(
+			<WrapSequenceContext>
+				<Video src="test" trimRight={10} />
+			</WrapSequenceContext>,
+		),
+	).not.toThrow();
+});
+test('It should render Video with trimLeft and trimRight props', () => {
+	expect(() =>
+		render(
+			<WrapSequenceContext>
+				<Video src="test" trimLeft={10} trimRight={15} />
+			</WrapSequenceContext>,
+		),
+	).not.toThrow();
+});
+
+test('It should throw when both startFrom and trimLeft are provided', () => {
+	expect(() =>
+		render(
+			<WrapSequenceContext>
+				<Video src="test" startFrom={10} trimLeft={5} />
+			</WrapSequenceContext>,
+		),
+	).toThrow(/Cannot use both startFrom and trimLeft props/);
+});
+
+test('It should throw when both endAt and trimRight are provided', () => {
+	expect(() =>
+		render(
+			<WrapSequenceContext>
+				<Video src="test" endAt={15} trimRight={20} />
+			</WrapSequenceContext>,
+		),
+	).toThrow(/Cannot use both endAt and trimRight props/);
+});

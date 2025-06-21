@@ -42,3 +42,91 @@ export const validateStartFromProps = (
 		throw new TypeError('endAt prop must be greater than startFrom prop.');
 	}
 };
+
+export const validateTrimProps = (
+	trimLeft: number | undefined,
+	trimRight: number | undefined,
+) => {
+	if (typeof trimLeft !== 'undefined') {
+		if (typeof trimLeft !== 'number') {
+			throw new TypeError(
+				`type of trimLeft prop must be a number, instead got type ${typeof trimLeft}.`,
+			);
+		}
+
+		if (isNaN(trimLeft) || trimLeft === Infinity) {
+			throw new TypeError('trimLeft prop can not be NaN or Infinity.');
+		}
+
+		if (trimLeft < 0) {
+			throw new TypeError(
+				`trimLeft must be greater than equal to 0 instead got ${trimLeft}.`,
+			);
+		}
+	}
+
+	if (typeof trimRight !== 'undefined') {
+		if (typeof trimRight !== 'number') {
+			throw new TypeError(
+				`type of trimRight prop must be a number, instead got type ${typeof trimRight}.`,
+			);
+		}
+
+		if (isNaN(trimRight)) {
+			throw new TypeError('trimRight prop can not be NaN.');
+		}
+
+		if (trimRight <= 0) {
+			throw new TypeError(
+				`trimRight must be a positive number, instead got ${trimRight}.`,
+			);
+		}
+	}
+
+	if ((trimRight as number) < (trimLeft as number)) {
+		throw new TypeError('trimRight prop must be greater than trimLeft prop.');
+	}
+};
+
+export const validateMediaTrimProps = (
+	startFrom: number | undefined,
+	endAt: number | undefined,
+	trimLeft: number | undefined,
+	trimRight: number | undefined,
+) => {
+	// Check for conflicting props
+	if (typeof startFrom !== 'undefined' && typeof trimLeft !== 'undefined') {
+		throw new TypeError(
+			'Cannot use both startFrom and trimLeft props. Use trimLeft instead as startFrom is deprecated.',
+		);
+	}
+
+	if (typeof endAt !== 'undefined' && typeof trimRight !== 'undefined') {
+		throw new TypeError(
+			'Cannot use both endAt and trimRight props. Use trimRight instead as endAt is deprecated.',
+		);
+	}
+
+	// Validate using the appropriate validation function
+	const hasNewProps = typeof trimLeft !== 'undefined' || typeof trimRight !== 'undefined';
+	const hasOldProps = typeof startFrom !== 'undefined' || typeof endAt !== 'undefined';
+
+	if (hasNewProps) {
+		validateTrimProps(trimLeft, trimRight);
+	} else if (hasOldProps) {
+		validateStartFromProps(startFrom, endAt);
+	}
+};
+
+export const resolveTrimProps = (
+	startFrom: number | undefined,
+	endAt: number | undefined,
+	trimLeft: number | undefined,
+	trimRight: number | undefined,
+): {trimLeftValue: number; trimRightValue: number} => {
+	// Use new props if available, otherwise fall back to old props
+	const trimLeftValue = trimLeft ?? startFrom ?? 0;
+	const trimRightValue = trimRight ?? endAt ?? Infinity;
+	
+	return {trimLeftValue, trimRightValue};
+};

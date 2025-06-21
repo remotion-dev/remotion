@@ -2,8 +2,22 @@ import type {VolumeProp} from '../volume-prop.js';
 import type {LoopVolumeCurveBehavior} from './use-audio-frame.js';
 
 export type RemotionMainAudioProps = {
+	/**
+	 * @deprecated Use `trimLeft` instead
+	 */
 	startFrom?: number;
+	/**
+	 * @deprecated Use `trimRight` instead
+	 */
 	endAt?: number;
+	/**
+	 * Trim the audio from the left (start). Replaces the deprecated `startFrom` prop.
+	 */
+	trimLeft?: number;
+	/**
+	 * Trim the audio from the right (end). Replaces the deprecated `endAt` prop.
+	 */
+	trimRight?: number;
 };
 
 export type NativeAudioProps = Omit<
