@@ -1,0 +1,291 @@
+---
+title: Importing Captions
+crumb: 'Captions Guide'
+---
+
+# Importing Captions
+
+If you already have captions in existing formats, you can easily import them into Remotion. This guide covers the most common scenarios for importing caption data.
+
+## From SRT Files
+
+SubRip (.srt) files are one of the most common caption formats. Remotion provides the [`parseSrt()`](/docs/captions/parse-srt) function to convert SRT content into an array of [`Caption`](/docs/captions/caption) objects.
+
+### Using fetch() with SRT files
+
+Here's how to fetch and parse an SRT file:
+
+```tsx twoslash title="Import SRT from URL or static file"
+import React from 'react';
+import {parseSrt} from '@remotion/captions';
+import {delayRender, continueRender, staticFile} from 'remotion';
+import type {Caption} from '@remotion/captions';
+
+export const MyComposition: React.FC = () => {
+  const [captions, setCaptions] = React.useState<Caption[]>([]);
+  const [handle] = React.useState(() => delayRender());
+
+  React.useEffect(() => {
+    // Option 1: Fetch from a static file in your public folder
+    fetch(staticFile('captions.srt'))
+      .then((response) => response.text())
+      .then((srtContent) => {
+        const {captions} = parseSrt({input: srtContent});
+        setCaptions(captions);
+        continueRender(handle);
+      })
+      .catch((error) => {
+        console.error('Error loading captions:', error);
+        continueRender(handle);
+      });
+
+    // Option 2: Fetch from external URL
+    // fetch('https://example.com/captions.srt')
+    //   .then((response) => response.text())
+    //   .then((srtContent) => {
+    //     const {captions} = parseSrt({input: srtContent});
+    //     setCaptions(captions);
+    //     continueRender(handle);
+    //   });
+  }, [handle]);
+
+  return (
+    <div>
+      {/* Render your video content with captions */}
+      {captions.map((caption, index) => (
+        <div key={index}>
+          {caption.text} ({caption.startMs}ms - {caption.endMs}ms)
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+### Parsing SRT content directly
+
+If you have SRT content as a string (e.g., embedded in your code or from an API), you can parse it directly:
+
+```tsx twoslash title="Parse SRT content directly"
+import {parseSrt} from '@remotion/captions';
+
+const srtContent = `
+1
+00:00:00,000 --> 00:00:02,500
+Welcome to our video!
+
+2
+00:00:03,000 --> 00:00:06,000
+This is how you add captions.
+
+3
+00:00:07,000 --> 00:00:10,500
+Thanks for watching!
+`.trim();
+
+const {captions} = parseSrt({input: srtContent});
+
+console.log(captions);
+/*
+[
+  {
+    text: "Welcome to our video!",
+    startMs: 0,
+    endMs: 2500,
+    timestampMs: 1250,
+    confidence: 1
+  },
+  {
+    text: "This is how you add captions.",
+    startMs: 3000,
+    endMs: 6000,
+    timestampMs: 4500,
+    confidence: 1
+  },
+  {
+    text: "Thanks for watching!",
+    startMs: 7000,
+    endMs: 10500,
+    timestampMs: 8750,
+    confidence: 1
+  }
+]
+*/
+```
+
+## From JSON Files
+
+If your captions are stored in JSON format as an array of [`Caption`](/docs/captions/caption) objects, you can import them directly:
+
+```tsx twoslash title="Import JSON captions"
+import React from 'react';
+import {delayRender, continueRender, staticFile} from 'remotion';
+import type {Caption} from '@remotion/captions';
+
+export const MyComposition: React.FC = () => {
+  const [captions, setCaptions] = React.useState<Caption[]>([]);
+  const [handle] = React.useState(() => delayRender());
+
+  React.useEffect(() => {
+    fetch(staticFile('captions.json'))
+      .then((response) => response.json())
+      .then((captionData: Caption[]) => {
+        setCaptions(captionData);
+        continueRender(handle);
+      })
+      .catch((error) => {
+        console.error('Error loading captions:', error);
+        continueRender(handle);
+      });
+  }, [handle]);
+
+  return <div>{/* Render your video content with captions */}</div>;
+};
+```
+
+### Expected JSON format
+
+Your JSON file should contain an array of Caption objects:
+
+```json title="captions.json"
+[
+  {
+    "text": "Welcome to our video!",
+    "startMs": 0,
+    "endMs": 2500,
+    "timestampMs": 1250,
+    "confidence": 1
+  },
+  {
+    "text": "This is how you add captions.",
+    "startMs": 3000,
+    "endMs": 6000,
+    "timestampMs": 4500,
+    "confidence": 1
+  }
+]
+```
+
+## From Other Formats
+
+If your captions are in a different format, you'll need to transform them into the [`Caption`](/docs/captions/caption) type. Here's an example for a custom format:
+
+```tsx twoslash title="Transform custom format to Captions"
+import type {Caption} from '@remotion/captions';
+
+// Example: Converting from a custom format
+interface CustomCaption {
+  subtitle: string;
+  start_time: number; // in seconds
+  end_time: number; // in seconds
+}
+
+const customCaptions: CustomCaption[] = [
+  {
+    subtitle: 'Hello world!',
+    start_time: 1.5,
+    end_time: 3.8,
+  },
+];
+
+// Convert to Remotion Caption format
+const remotionCaptions: Caption[] = customCaptions.map((custom) => ({
+  text: custom.subtitle,
+  startMs: custom.start_time * 1000, // Convert seconds to milliseconds
+  endMs: custom.end_time * 1000, // Convert seconds to milliseconds
+  timestampMs: ((custom.start_time + custom.end_time) / 2) * 1000, // Calculate midpoint
+  confidence: 1, // Default confidence
+}));
+```
+
+## Error Handling
+
+When importing captions, always implement proper error handling:
+
+```tsx twoslash title="Robust caption loading with error handling"
+import React from 'react';
+import {parseSrt} from '@remotion/captions';
+import {delayRender, continueRender, staticFile} from 'remotion';
+import type {Caption} from '@remotion/captions';
+
+export const MyComposition: React.FC = () => {
+  const [captions, setCaptions] = React.useState<Caption[]>([]);
+  const [error, setError] = React.useState<string | null>(null);
+  const [handle] = React.useState(() => delayRender());
+
+  React.useEffect(() => {
+    const loadCaptions = async () => {
+      try {
+        const response = await fetch(staticFile('captions.srt'));
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch captions: ${response.status}`);
+        }
+
+        const srtContent = await response.text();
+
+        if (!srtContent.trim()) {
+          throw new Error('Caption file is empty');
+        }
+
+        const {captions} = parseSrt({input: srtContent});
+
+        if (captions.length === 0) {
+          console.warn('No captions found in the file');
+        }
+
+        setCaptions(captions);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        setError(errorMessage);
+        console.error('Error loading captions:', errorMessage);
+      } finally {
+        continueRender(handle);
+      }
+    };
+
+    loadCaptions();
+  }, [handle]);
+
+  if (error) {
+    return <div>Error loading captions: {error}</div>;
+  }
+
+  return <div>{/* Render your video content with captions */}</div>;
+};
+```
+
+## Performance Considerations
+
+### Preloading Captions
+
+For better performance, consider preloading captions using Remotion's [`preloadAudio()`](/docs/preload/preload-audio) pattern:
+
+```tsx twoslash title="Preload captions for better performance"
+import {delayRender, continueRender} from 'remotion';
+import {parseSrt} from '@remotion/captions';
+
+// In a separate utility file
+export const preloadCaptions = (src: string) => {
+  const handle = delayRender('Loading captions');
+
+  return fetch(src)
+    .then((response) => response.text())
+    .then((srtContent) => {
+      const {captions} = parseSrt({input: srtContent});
+      continueRender(handle);
+      return captions;
+    })
+    .catch((error) => {
+      continueRender(handle);
+      throw error;
+    });
+};
+```
+
+## See Also
+
+- [`parseSrt()`](/docs/captions/parse-srt) - Parse SRT files into Caption objects
+- [`Caption`](/docs/captions/caption) - The Caption type definition
+- [Generating Captions](/docs/captions-guide/generating) - Generate captions from audio
+- [`@remotion/captions`](/docs/captions) - Core caption utilities

@@ -1,0 +1,328 @@
+---
+title: Generating Captions
+crumb: 'Captions Guide'
+---
+
+# Generating Captions
+
+Remotion offers multiple approaches for automatically generating captions from audio. This guide covers the three official Whisper packages and how to create custom caption generation solutions.
+
+## Overview of Options
+
+Remotion provides three packages for generating captions from audio, each with different strengths:
+
+| Package                                                      | Best For                      | Runs On      | Performance | Setup Complexity |
+| ------------------------------------------------------------ | ----------------------------- | ------------ | ----------- | ---------------- |
+| [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp) | Server-side, highest accuracy | Server/Local | Fast        | Medium           |
+| [`@remotion/whisper-web`](/docs/whisper-web)                 | Browser-based, client-side    | Browser      | Medium      | High             |
+| [`@remotion/openai-whisper`](/docs/openai-whisper)           | Cloud-based, no setup         | Cloud API    | Fast        | Low              |
+
+## Option 1: Local Transcription with Whisper.cpp
+
+[`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp) provides local, high-quality transcription using the popular Whisper.cpp implementation.
+
+### Installation and Setup
+
+```bash
+npm install @remotion/install-whisper-cpp
+```
+
+### Example Usage
+
+```tsx twoslash title="Generate captions with Whisper.cpp"
+import path from 'path';
+import {installWhisperCpp, downloadWhisperModel, transcribe, toCaptions} from '@remotion/install-whisper-cpp';
+
+// One-time setup: install Whisper.cpp and download a model
+const whisperPath = path.join(process.cwd(), 'whisper.cpp');
+
+await installWhisperCpp({
+  to: whisperPath,
+  version: '1.5.5', // Latest supported version
+});
+
+await downloadWhisperModel({
+  model: 'medium.en', // Choose based on your needs
+  folder: whisperPath,
+});
+
+// Convert audio to required format (16kHz WAV)
+// You may need to do this with ffmpeg first:
+// ffmpeg -i input.mp4 -ar 16000 -ac 1 output.wav
+
+// Transcribe the audio
+const whisperOutput = await transcribe({
+  inputPath: '/path/to/audio.wav',
+  whisperPath,
+  whisperCppVersion: '1.5.5',
+  model: 'medium.en',
+  tokenLevelTimestamps: true, // Recommended for better timing
+});
+
+// Convert to Remotion Caption format
+const {captions} = toCaptions({
+  whisperCppOutput: whisperOutput,
+});
+
+console.log(captions);
+/*
+[
+  {
+    text: "Hello",
+    startMs: 100,
+    endMs: 500,
+    timestampMs: 300,
+    confidence: 0.95
+  },
+  // ... more captions
+]
+*/
+```
+
+### Available Models
+
+- `tiny.en`, `tiny` - Fastest, lowest accuracy
+- `base.en`, `base` - Good balance of speed and accuracy
+- `small.en`, `small` - Better accuracy, slower
+- `medium.en`, `medium` - High accuracy, recommended
+- `large-v1`, `large-v2`, `large-v3` - Highest accuracy, slowest
+
+## Option 2: Browser-based Transcription
+
+[`@remotion/whisper-web`](/docs/whisper-web) allows you to generate captions directly in the browser using WebAssembly.
+
+### Installation and Setup
+
+```bash
+npm install @remotion/whisper-web
+```
+
+:::warning
+Requires `SharedArrayBuffer` support. See [configuration requirements](/docs/whisper-web#required-configuration).
+:::
+
+### Example Usage
+
+```tsx twoslash title="Generate captions in the browser"
+import {transcribe, canUseWhisperWeb, resampleTo16Khz, downloadWhisperModel, toCaptions} from '@remotion/whisper-web';
+
+const file = new File([], 'audio.wav'); // Your audio file
+const modelToUse = 'tiny.en';
+
+// Check if browser supports Whisper Web
+const {supported, detailedReason} = await canUseWhisperWeb(modelToUse);
+if (!supported) {
+  throw new Error(`Whisper Web not supported: ${detailedReason}`);
+}
+
+// Download the model (cached after first download)
+await downloadWhisperModel({
+  model: modelToUse,
+  onProgress: ({progress}) => {
+    console.log(`Downloading model: ${Math.round(progress * 100)}%`);
+  },
+});
+
+// Resample audio to 16kHz (required format)
+const channelWaveform = await resampleTo16Khz({
+  file,
+  onProgress: (progress) => {
+    console.log(`Resampling: ${Math.round(progress * 100)}%`);
+  },
+});
+
+// Transcribe the audio
+const whisperWebOutput = await transcribe({
+  channelWaveform,
+  model: modelToUse,
+  onProgress: (progress) => {
+    console.log(`Transcribing: ${Math.round(progress * 100)}%`);
+  },
+});
+
+// Convert to Remotion Caption format
+const {captions} = toCaptions({
+  whisperWebOutput,
+});
+```
+
+## Option 3: OpenAI Whisper API
+
+[`@remotion/openai-whisper`](/docs/openai-whisper) integrates with OpenAI's cloud-based Whisper API for easy, high-quality transcription.
+
+### Installation and Setup
+
+```bash
+npm install @remotion/openai-whisper
+```
+
+### Example Usage
+
+```tsx twoslash title="Generate captions with OpenAI Whisper API"
+import {openAiWhisperApiToCaptions} from '@remotion/openai-whisper';
+
+// First, call the OpenAI Whisper API
+const openAiResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    'Content-Type': 'multipart/form-data',
+  },
+  body: formData, // Include your audio file and parameters
+});
+
+const openAiData = await openAiResponse.json();
+
+// Convert OpenAI response to Remotion Caption format
+const {captions} = openAiWhisperApiToCaptions({
+  whisperApiResponse: openAiData,
+});
+```
+
+For a complete OpenAI API integration example, see the [OpenAI Whisper documentation](/docs/openai-whisper).
+
+## Custom Caption Generation
+
+If the built-in options don't meet your needs, you can create custom caption generation by following the [`Caption`](/docs/captions/caption) type structure:
+
+```tsx twoslash title="Custom caption generation"
+import type {Caption} from '@remotion/captions';
+
+// Example: Create captions from a custom transcription service
+interface CustomTranscriptionResult {
+  text: string;
+  start_time: number; // seconds
+  end_time: number; // seconds
+  confidence: number;
+}
+
+function convertToRemotionCaptions(customResults: CustomTranscriptionResult[]): Caption[] {
+  return customResults.map((result) => ({
+    text: result.text,
+    startMs: Math.round(result.start_time * 1000),
+    endMs: Math.round(result.end_time * 1000),
+    timestampMs: Math.round(((result.start_time + result.end_time) / 2) * 1000),
+    confidence: result.confidence,
+  }));
+}
+
+// Example: Generate captions manually
+function createManualCaptions(): Caption[] {
+  return [
+    {
+      text: 'Welcome to our presentation',
+      startMs: 0,
+      endMs: 2000,
+      timestampMs: 1000,
+      confidence: 1, // Manual captions can have full confidence
+    },
+    {
+      text: "Today we'll cover three topics",
+      startMs: 2500,
+      endMs: 5000,
+      timestampMs: 3750,
+      confidence: 1,
+    },
+    // ... more captions
+  ];
+}
+```
+
+## Best Practices
+
+### Choosing the Right Package
+
+**Use `@remotion/install-whisper-cpp` when:**
+
+- You need the highest transcription accuracy
+- You're rendering on a server or local machine
+- You can handle the setup complexity
+- Performance is important
+
+**Use `@remotion/whisper-web` when:**
+
+- You need client-side transcription
+- Users will generate captions in the browser
+- You want to avoid server costs
+- Your deployment supports `SharedArrayBuffer`
+
+**Use `@remotion/openai-whisper` when:**
+
+- You want the easiest setup
+- You're okay with API costs
+- You need reliable cloud infrastructure
+- You don't want to manage models locally
+
+### Performance Tips
+
+1. **Choose appropriate models**: Larger models are more accurate but slower
+2. **Preprocess audio**: Convert to 16kHz WAV format beforehand when possible
+3. **Cache results**: Store generated captions to avoid re-transcription
+4. **Use token-level timestamps**: Enable for better timing precision
+
+### Quality Improvements
+
+```tsx twoslash title="Improve caption quality with post-processing"
+import type {Caption} from '@remotion/captions';
+
+function improveCaptionQuality(captions: Caption[]): Caption[] {
+  return (
+    captions
+      // Filter out very short or low-confidence captions
+      .filter((caption) => caption.text.trim().length > 2 && (caption.confidence === null || caption.confidence > 0.7))
+      // Clean up common transcription artifacts
+      .map((caption) => ({
+        ...caption,
+        text: caption.text
+          .replace(/\s+/g, ' ') // Normalize whitespace
+          .replace(/^\W+|\W+$/g, '') // Remove leading/trailing punctuation
+          .trim(),
+      }))
+      // Ensure minimum duration
+      .map((caption) => ({
+        ...caption,
+        endMs: Math.max(caption.endMs, caption.startMs + 500), // Minimum 500ms
+      }))
+  );
+}
+```
+
+## Error Handling
+
+```tsx twoslash title="Robust caption generation with error handling"
+import {transcribe, toCaptions} from '@remotion/install-whisper-cpp';
+
+async function generateCaptionsWithErrorHandling(audioPath: string) {
+  try {
+    const whisperOutput = await transcribe({
+      inputPath: audioPath,
+      whisperPath: './whisper.cpp',
+      whisperCppVersion: '1.5.5',
+      model: 'medium.en',
+      tokenLevelTimestamps: true,
+    });
+
+    const {captions} = toCaptions({whisperCppOutput: whisperOutput});
+
+    if (captions.length === 0) {
+      console.warn('No captions generated from audio');
+      return [];
+    }
+
+    return captions;
+  } catch (error) {
+    console.error('Caption generation failed:', error);
+
+    // Fallback: return empty captions or throw
+    return [];
+  }
+}
+```
+
+## See Also
+
+- [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp) - Local transcription
+- [`@remotion/whisper-web`](/docs/whisper-web) - Browser transcription
+- [`@remotion/openai-whisper`](/docs/openai-whisper) - OpenAI API integration
+- [`Caption`](/docs/captions/caption) - Caption type definition
+- [Importing Captions](/docs/captions-guide/importing) - Import existing captions

@@ -1,0 +1,81 @@
+---
+title: Working with Captions
+crumb: 'Captions Guide'
+sidebar_label: Overview
+---
+
+# Working with Captions
+
+Captions (also known as subtitles) are essential for making videos accessible and engaging. Remotion provides a comprehensive ecosystem for working with captions, from importing existing ones to generating new ones.
+
+## The Caption Type
+
+At the heart of Remotion's caption system is the [`Caption`](/docs/captions/caption) type from [`@remotion/captions`](/docs/captions). This standardized data structure allows different caption operations to work together seamlessly:
+
+```tsx twoslash
+import type {Caption} from '@remotion/captions';
+
+const exampleCaption: Caption = {
+  text: 'Hello, world!',
+  startMs: 1000, // Start time in milliseconds
+  endMs: 3000, // End time in milliseconds
+  timestampMs: 2000, // Single timestamp (optional)
+  confidence: 0.95, // Confidence score (optional)
+};
+```
+
+## Two Main Approaches
+
+There are two primary ways to work with captions in Remotion:
+
+### 1. Importing Existing Captions
+
+If you already have captions in formats like SRT files or JSON arrays, you can import and use them directly in your videos.
+
+[**Learn about importing captions →**](/docs/captions-guide/importing)
+
+### 2. Generating Captions
+
+You can automatically generate captions from audio using one of Remotion's transcription packages, or create them manually following the Caption type structure.
+
+[**Learn about generating captions →**](/docs/captions-guide/generating)
+
+## Caption Packages
+
+Remotion's caption ecosystem includes several packages:
+
+- **[`@remotion/captions`](/docs/captions)** - Core caption utilities (parsing, serializing, formatting)
+- **[`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)** - Local transcription using Whisper.cpp
+- **[`@remotion/whisper-web`](/docs/whisper-web)** - Browser-based transcription using WebAssembly
+- **[`@remotion/openai-whisper`](/docs/openai-whisper)** - Integration with OpenAI's Whisper API
+
+## What You Can Do
+
+With Remotion's caption system, you can:
+
+- **Import** captions from SRT files or JSON data
+- **Generate** captions automatically from audio using AI transcription
+- **Format** captions for different display styles (like TikTok-style captions)
+- **Parse and serialize** between different caption formats
+- **Render** captions directly in your Remotion videos
+
+## Getting Started
+
+Choose your path based on your needs:
+
+- **I have existing captions** → [Importing Captions](/docs/captions-guide/importing)
+- **I need to generate captions from audio** → [Generating Captions](/docs/captions-guide/generating)
+- **I want to see examples** → [Examples](/docs/captions-guide/examples)
+
+## Next Steps
+
+<div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '2rem'}}>
+  <a href="/docs/captions-guide/importing" style={{textDecoration: 'none', padding: '1rem', border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px', flex: '1', minWidth: '200px'}}>
+    <strong>→ Importing Captions</strong>
+    <div style={{color: 'var(--ifm-color-emphasis-700)', marginTop: '0.5rem'}}>Learn how to import existing SRT files and JSON caption data</div>
+  </a>
+  <a href="/docs/captions-guide/generating" style={{textDecoration: 'none', padding: '1rem', border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px', flex: '1', minWidth: '200px'}}>
+    <strong>→ Generating Captions</strong>
+    <div style={{color: 'var(--ifm-color-emphasis-700)', marginTop: '0.5rem'}}>Explore automatic caption generation with AI transcription</div>
+  </a>
+</div>

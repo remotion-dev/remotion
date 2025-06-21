@@ -835,6 +835,19 @@ module.exports = {
 		},
 		{
 			type: 'category',
+			label: 'Captions',
+			link: {
+				type: 'doc',
+				id: 'captions-guide/index',
+			},
+			items: [
+				'captions-guide/importing',
+				'captions-guide/generating',
+				'captions-guide/examples',
+			],
+		},
+		{
+			type: 'category',
 			label: 'Parameterized videos',
 			link: {
 				type: 'doc',
