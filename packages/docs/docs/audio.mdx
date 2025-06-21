@@ -62,9 +62,39 @@ Controls the `frame` which is returned when using the [`volume`](#volume) callba
 
 Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
 
-### `startFrom?` / `endAt?`
+### `trimLeft?` / `trimRight?`<AvailableFrom v="4.0.319"/>
 
-`<Audio>` has two more helper props you can use:
+`<Audio>` has two helper props you can use to trim audio:
+
+- `trimLeft` will remove a portion of the audio at the beginning (left side)
+- `trimRight` will remove a portion of the audio at the end (right side)
+
+In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
+
+By passing `trimLeft={60}`, the playback starts immediately, but with the first 2 seconds of the audio trimmed away.  
+By passing `trimRight={120}`, any audio after the 4 second mark in the file will be trimmed away.
+
+The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
+
+```tsx twoslash
+import {AbsoluteFill, Audio, staticFile} from 'remotion';
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile('audio.mp3')} trimLeft={60} trimRight={120} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `startFrom?` / `endAt?` <DeprecatedBlock>
+
+:::note Deprecated
+These props are deprecated in favor of [`trimLeft`](#trimleft--trimright) and [`trimRight`](#trimleft--trimright). They will continue to work but you cannot use them together with the new props.
+:::
+
+`<Audio>` has two helper props you can use:
 
 - `startFrom` will remove a portion of the audio at the beginning
 - `endAt` will remove a portion of the audio at the end
@@ -87,6 +117,8 @@ export const MyVideo = () => {
   );
 };
 ```
+
+</DeprecatedBlock>
 
 ### `playbackRate?`<AvailableFrom v="2.2.0"/>
 

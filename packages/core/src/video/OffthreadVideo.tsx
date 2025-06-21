@@ -2,7 +2,7 @@ import React, {useCallback} from 'react';
 import {Sequence} from '../Sequence.js';
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {validateMediaProps} from '../validate-media-props.js';
-import {validateStartFromProps} from '../validate-start-from-props.js';
+import {validateMediaTrimProps, resolveTrimProps} from '../validate-start-from-props.js';
 import {OffthreadVideoForRendering} from './OffthreadVideoForRendering.js';
 import {VideoForPreview} from './VideoForPreview.js';
 import type {RemotionOffthreadVideoProps} from './props.js';
@@ -19,6 +19,8 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (
 	const {
 		startFrom,
 		endAt,
+		trimLeft,
+		trimRight,
 		name,
 		pauseWhenBuffering,
 		stack,
@@ -43,17 +45,16 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (
 		);
 	}
 
-	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
-		validateStartFromProps(startFrom, endAt);
+	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined' || typeof trimLeft !== 'undefined' || typeof trimRight !== 'undefined') {
+		validateMediaTrimProps(startFrom, endAt, trimLeft, trimRight);
 
-		const startFromFrameNo = startFrom ?? 0;
-		const endAtFrameNo = endAt ?? Infinity;
+		const {trimLeftValue, trimRightValue} = resolveTrimProps(startFrom, endAt, trimLeft, trimRight);
 		return (
 			<Sequence
 				layout="none"
-				from={0 - startFromFrameNo}
+				from={0 - trimLeftValue}
 				showInTimeline={false}
-				durationInFrames={endAtFrameNo}
+				durationInFrames={trimRightValue}
 				name={name}
 			>
 				<OffthreadVideo
