@@ -103,7 +103,7 @@ export const EnterpriseLicense: React.FC = () => {
 			<PricingBulletPoint text="Custom terms, billing and pricing" checked />
 			<PricingBulletPoint text="Compliance forms" checked />
 			<PricingBulletPoint text="Prioritized feature requests" checked />
-			<PricingBulletPoint text="Private support channel" checked />
+			<PricingBulletPoint text="Private Slack or Discord" checked />
 			<PricingBulletPoint text="Monthly consulting session" checked />
 			<div style={{height: 30}} />
 			<div className={'flex flex-row justify-end'}>
