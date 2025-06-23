@@ -46,6 +46,10 @@ function getChromeDownloadUrl({
 	chromeMode: ChromeMode;
 }): string {
 	if (platform === 'linux-arm64') {
+		if (chromeMode === 'chrome-for-testing') {
+			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
+		}
+
 		return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
 	}
 
