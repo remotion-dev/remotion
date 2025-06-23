@@ -34,6 +34,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-turbo-
       - name: Install
-        run: pnpm i --frozen-lockfile
+        run: bun i
       - name: Build
-        run: pnpm run build
+        run: bun run build

@@ -57,7 +57,7 @@ jobs:
         with:
           bun-version: 1.2.16
       - name: Install
-        run: pnpm i --frozen-lockfile
+        run: bun i
       - name: Cache turbo build setup
         uses: actions/cache@v4
         with:
