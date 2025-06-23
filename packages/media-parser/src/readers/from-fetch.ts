@@ -151,6 +151,12 @@ export const makeFetchRequest = async ({
 		? parseContentRange(contentRange)
 		: null;
 
+	if (!res.ok) {
+		throw new Error(
+			`Server returned status code ${res.status} for ${resolvedUrl} and range ${requestedRange}`,
+		);
+	}
+
 	const {supportsContentRange} = validateContentRangeAndDetectIfSupported({
 		requestedRange,
 		parsedContentRange,
@@ -164,15 +170,6 @@ export const makeFetchRequest = async ({
 				ownController.abort(new MediaParserAbortError('Aborted by user'));
 			},
 			{once: true},
-		);
-	}
-
-	if (
-		res.status.toString().startsWith('4') ||
-		res.status.toString().startsWith('5')
-	) {
-		throw new Error(
-			`Server returned status code ${res.status} for ${resolvedUrl} and range ${requestedRange}`,
 		);
 	}
 
