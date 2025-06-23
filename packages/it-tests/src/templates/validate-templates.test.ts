@@ -45,7 +45,7 @@ describe('Templates should be valid', () => {
 				expect(body.dependencies['@types/web']).toInclude('0.0.166');
 			}
 
-			expect(body.devDependencies.prettier).toMatch('3.3.3');
+			expect(body.devDependencies.prettier).toMatch('3.6.0');
 			expect(body.private).toBe(true);
 			expect(body.name).toStartWith('template-');
 
