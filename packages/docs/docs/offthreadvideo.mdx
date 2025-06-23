@@ -56,6 +56,8 @@ By passing `endAt={120}`, any video after the 4 second mark in the file will be 
 
 The video will play the range from `00:02:00` to `00:04:00`, meaning the video will play for 2 seconds.
 
+For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
+
 ```tsx twoslash
 import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
 
@@ -81,7 +83,7 @@ If set to `false` (_default_), frames will be extracted as bitmap (BMP), which i
 
 ### `volume?`
 
-Allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/using-audio#controlling-volume) guide to learn how to use it.
+Allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/audio/volume) guide to learn how to use it.
 
 ```tsx twoslash title="Example using static volume"
 import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
@@ -109,10 +111,8 @@ export const MyComposition = () => {
 };
 ```
 
-:::note
-On iOS Safari, it's not possible to granularly change the volume of a media tag.  
-Only values `0` and `1` will be respected by the browser.
-:::
+By default, volumes between 0 and 1 are supported, where in iOS Safari, the volume is always 1.  
+See [Volume Limitations](/docs/audio/volume#limitations) for more information.
 
 ### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.142" />
 
@@ -136,11 +136,6 @@ export const MyComposition = () => {
   );
 };
 ```
-
-### `allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />
-
-Make values for [`volume`](/docs/video#volume) greater than `1` result in amplification during renders.  
-During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
 
 ### `name?`<AvailableFrom v="4.0.71"/>
 
@@ -197,11 +192,6 @@ export const MyComposition = () => {
 
 In the [Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
-### `allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />
-
-Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
-During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
-
 ### `toneFrequency?`<AvailableFrom v="4.0.47"/>
 
 Adjust the pitch of the audio - will only be applied during rendering.
@@ -255,12 +245,23 @@ Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/
 One of `"anonymous"`, `"use-credentials"` or `undefined`.  
 Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
 
+### `useWebAudioApi?`<AvailableFrom v="4.0.306" />
+
+Enable the [Web Audio API](/docs/audio/volume#limitations) for the video tag.
+
 ### ~~`imageFormat` <AvailableFrom v="3.0.22" />~~
 
 _removed in v4.0.0_
 
 Either `jpeg` or `png`. Default `jpeg`.  
 With `png`, transparent videos (VP8, VP9, ProRes) can be displayed, however it is around 40% slower, with VP8 videos being [much slower](/docs/slow-method-to-extract-frame).
+
+### ~`allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />~
+
+Deprecated since v4.0.279: This prop intended to opt into setting the volume to a value higher than one, even though it would only apply during render.
+
+The option does not make sense anymore, because it is now possible to set the volume higher than `1`.  
+To prevent synthetic amplification, set a volume not higher than 1.
 
 ### Other props
 
@@ -280,17 +281,7 @@ You can use the following `<LoopableOffthreadVideo>` component that uses [`@remo
 ```tsx twoslash title="src/LoopableOffthreadVideo.tsx"
 import {mediaParserController, parseMedia} from '@remotion/media-parser';
 import React, {useEffect, useState} from 'react';
-import {
-  cancelRender,
-  continueRender,
-  delayRender,
-  getRemotionEnvironment,
-  Loop,
-  OffthreadVideo,
-  RemotionOffthreadVideoProps,
-  useVideoConfig,
-  Video
-} from 'remotion';
+import {cancelRender, continueRender, delayRender, getRemotionEnvironment, Loop, OffthreadVideo, RemotionOffthreadVideoProps, useVideoConfig, Video} from 'remotion';
 
 const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
   const [duration, setDuration] = useState<number | null>(null);
@@ -328,7 +319,7 @@ const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
 
   return (
     <Loop durationInFrames={Math.floor(duration * fps)}>
-      <OffthreadVideo {...props} />;
+      <OffthreadVideo {...props} />
     </Loop>
   );
 };

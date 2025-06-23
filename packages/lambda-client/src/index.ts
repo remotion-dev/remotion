@@ -48,6 +48,7 @@ import {
 	internalRenderMediaOnLambdaRaw,
 	renderMediaOnLambdaOptionalToRequired,
 } from './render-media-on-lambda';
+import {internalRenderStillOnLambda} from './render-still-on-lambda';
 import {runtimePreferenceOptions} from './runtime-preference';
 import {innerSpeculateFunctionName} from './speculate-function-name';
 import {validateAwsRegion} from './validate-aws-region';
@@ -104,6 +105,7 @@ export {
 	speculateFunctionName,
 	type SpeculateFunctionNameInput,
 } from './speculate-function-name';
+export type {RequestHandler} from './types';
 export {validateWebhookSignature} from './validate-webhook-signature';
 
 export const LambdaClientInternals = {
@@ -142,6 +144,7 @@ export const LambdaClientInternals = {
 	validateServeUrl,
 	getEnvVariable,
 	internalRenderMediaOnLambdaRaw,
+	internalRenderStillOnLambda,
 	cleanItems,
 	makeLambdaRenderStillPayload,
 	getRenderProgressPayload,

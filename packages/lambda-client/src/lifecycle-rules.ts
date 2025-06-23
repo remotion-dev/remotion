@@ -8,17 +8,20 @@ import type {AwsProvider} from './aws-provider';
 import {getS3Client} from './get-s3-client';
 import {getLifeCycleRules} from './lifecycle';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 const createLCRules = async ({
 	bucketName,
 	region,
 	customCredentials,
 	forcePathStyle,
+	requestHandler,
 }: {
 	bucketName: string;
 	region: AwsRegion;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
 }) => {
 	const lcRules = getLifeCycleRules();
 	// create the lifecyle rules
@@ -30,9 +33,12 @@ const createLCRules = async ({
 		createCommandInput,
 	);
 	try {
-		await getS3Client({region, customCredentials, forcePathStyle}).send(
-			createCommand,
-		);
+		await getS3Client({
+			region,
+			customCredentials,
+			forcePathStyle,
+			requestHandler,
+		}).send(createCommand);
 	} catch (err) {
 		if ((err as Error).stack?.includes('AccessDenied')) {
 			throw new Error(
@@ -47,19 +53,24 @@ const deleteLCRules = async ({
 	region,
 	customCredentials,
 	forcePathStyle,
+	requestHandler,
 }: {
 	bucketName: string;
 	region: AwsRegion;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
 }) => {
 	const deleteCommandInput = deleteLifeCycleInput({
 		bucketName,
 	});
 	try {
-		await getS3Client({region, customCredentials, forcePathStyle}).send(
-			new DeleteBucketLifecycleCommand(deleteCommandInput),
-		);
+		await getS3Client({
+			region,
+			customCredentials,
+			forcePathStyle,
+			requestHandler,
+		}).send(new DeleteBucketLifecycleCommand(deleteCommandInput));
 	} catch (err) {
 		if ((err as Error).stack?.includes('AccessDenied')) {
 			throw new Error(
@@ -75,12 +86,14 @@ export const applyLifeCyleOperation = async ({
 	region,
 	customCredentials,
 	forcePathStyle,
+	requestHandler,
 }: {
 	enableFolderExpiry: boolean | null;
 	bucketName: string;
 	region: AwsRegion;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
 }) => {
 	if (enableFolderExpiry === null) {
 		return;
@@ -92,6 +105,7 @@ export const applyLifeCyleOperation = async ({
 			region,
 			customCredentials,
 			forcePathStyle,
+			requestHandler,
 		});
 	} else {
 		await deleteLCRules({
@@ -99,6 +113,7 @@ export const applyLifeCyleOperation = async ({
 			region,
 			customCredentials,
 			forcePathStyle,
+			requestHandler,
 		});
 	}
 };

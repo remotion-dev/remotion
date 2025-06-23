@@ -7,6 +7,7 @@ import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {cloudrunDeleteFile, cloudrunLs} from '../functions/helpers/io';
+import type {Privacy} from '../shared/constants';
 import {getSitesKey} from '../shared/constants';
 import {getStorageDiffOperations} from '../shared/get-storage-operations';
 import {makeStorageServeUrl} from '../shared/make-storage-url';
@@ -32,6 +33,7 @@ type Options = {
 type OptionalParameters = {
 	siteName: string;
 	options: Options;
+	privacy: Privacy;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.deploySiteCloudRun>;
 
 export type RawDeploySiteInput = {
@@ -64,6 +66,7 @@ export const internalDeploySiteRaw = async ({
 	bucketName,
 	siteName,
 	options,
+	privacy,
 }: RawDeploySiteInput): DeploySiteOutput => {
 	validateBucketName(bucketName, {mustStartWithRemotion: true});
 
@@ -98,6 +101,7 @@ export const internalDeploySiteRaw = async ({
 			onPublicDirCopyProgress: () => undefined,
 			onSymlinkDetected: () => undefined,
 			outDir: null,
+			audioLatencyHint: null,
 		}),
 	]);
 
@@ -114,6 +118,7 @@ export const internalDeploySiteRaw = async ({
 			onProgress: options?.onUploadProgress ?? (() => undefined),
 			keyPrefix: subFolder,
 			toUpload,
+			privacy: privacy ?? 'public',
 		}),
 		Promise.all(
 			toDelete.map((d) => {
@@ -149,5 +154,6 @@ export const deploySite = (input: DeploySiteInput): DeploySiteOutput => {
 		logLevel: 'info',
 		options: input.options ?? {},
 		siteName: input.siteName ?? randomHash(),
+		privacy: input?.privacy ?? 'public',
 	});
 };

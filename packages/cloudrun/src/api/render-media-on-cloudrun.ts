@@ -13,6 +13,7 @@ import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {z} from 'zod';
+import type {Privacy} from '../defaults';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayload,
@@ -37,11 +38,11 @@ type InternalRenderMediaOnCloudrun = {
 	serveUrl: string;
 	composition: string;
 	inputProps: Record<string, unknown>;
-	privacy: 'public' | 'private' | undefined;
+	privacy: Privacy | undefined;
 	forceBucketName: string | undefined;
 	outName: string | undefined;
 	updateRenderProgress:
-		| ((progress: number, error?: boolean) => void)
+		| ((progress: number, error: boolean) => void)
 		| undefined;
 	codec: CloudrunCodec;
 	audioCodec: AudioCodec | undefined;
@@ -65,6 +66,8 @@ type InternalRenderMediaOnCloudrun = {
 	renderStatusWebhook: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>;
 
+export type UpdateRenderProgress = (progress: number, error: boolean) => void;
+
 export type RenderMediaOnCloudrunInput = {
 	region: GcpRegion;
 	serveUrl: string;
@@ -74,10 +77,10 @@ export type RenderMediaOnCloudrunInput = {
 	cloudRunUrl?: string;
 	serviceName?: string;
 	inputProps?: Record<string, unknown>;
-	privacy?: 'public' | 'private';
+	privacy?: Privacy;
 	forceBucketName?: string;
 	outName?: string;
-	updateRenderProgress?: (progress: number, error?: boolean) => void;
+	updateRenderProgress?: UpdateRenderProgress;
 	audioCodec?: AudioCodec;
 	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
@@ -163,7 +166,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		serveUrl,
 		codec: actualCodec,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},
@@ -187,7 +190,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		chromiumOptions,
 		muted: muted ?? false,
 		outputBucket,
-		privacy,
+		privacy: privacy ?? 'public',
 		outName,
 		forceWidth,
 		forceHeight,
@@ -250,7 +253,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 			if (parsedData.response) {
 				response = parsedData.response;
 			} else if (parsedData.onProgress) {
-				updateRenderProgress?.(parsedData.onProgress);
+				updateRenderProgress?.(parsedData.onProgress, false);
 			}
 
 			if (parsedData.type === 'error') {

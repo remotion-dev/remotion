@@ -16,6 +16,7 @@ const layout: React.CSSProperties = {
 	margin: 'auto',
 	paddingLeft: 16,
 	paddingRight: 16,
+	paddingTop: 30,
 };
 
 const header: React.CSSProperties = {
@@ -244,11 +245,7 @@ export default () => {
 					</div>
 				</a>
 				{expert.videocall ? (
-					<a
-						style={socialLink}
-						href={`https://cal.com/${expert.videocall}`}
-						target={'_blank'}
-					>
+					<a style={socialLink} href={expert.videocall} target={'_blank'}>
 						<div style={socialRow}>
 							<div style={socialIconContainer}>
 								<svg

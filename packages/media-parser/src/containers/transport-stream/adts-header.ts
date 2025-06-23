@@ -2,14 +2,18 @@ import {
 	createAacCodecPrivate,
 	getSampleRateFromSampleFrequencyIndex,
 } from '../../aac-codecprivate';
-import {getArrayBufferIterator} from '../../buffer-iterator';
+import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 
 export const readAdtsHeader = (buffer: Uint8Array) => {
 	if (buffer.byteLength < 9) {
 		return null;
 	}
 
-	const iterator = getArrayBufferIterator(buffer, buffer.byteLength);
+	const iterator = getArrayBufferIterator({
+		initialData: buffer,
+		maxBytes: buffer.byteLength,
+		logLevel: 'error',
+	});
 
 	iterator.startReadingBits();
 	const bits = iterator.getBits(12);

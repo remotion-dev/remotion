@@ -1,6 +1,9 @@
-import type {AllOptions, Options, ParseMediaFields} from '../options';
+import type {AllOptions, Options, ParseMediaFields} from '../fields';
 
-const needsSamples: Record<keyof Options<ParseMediaFields>, boolean> = {
+export const fieldsNeedSamplesMap: Record<
+	keyof Options<ParseMediaFields>,
+	boolean
+> = {
 	slowDurationInSeconds: true,
 	slowFps: true,
 	slowKeyframes: true,
@@ -15,7 +18,7 @@ const needsSamples: Record<keyof Options<ParseMediaFields>, boolean> = {
 	name: false,
 	rotation: false,
 	size: false,
-	structure: false,
+	slowStructure: false,
 	tracks: false,
 	unrotatedDimensions: false,
 	videoCodec: false,
@@ -40,5 +43,30 @@ export const needsToIterateOverSamples = ({
 }) => {
 	const keys = Object.keys(fields ?? {}) as (keyof Options<ParseMediaFields>)[];
 	const selectedKeys = keys.filter((k) => fields[k]);
-	return selectedKeys.some((k) => needsSamples[k] && !emittedFields[k]);
+
+	return selectedKeys.some((k) => fieldsNeedSamplesMap[k] && !emittedFields[k]);
+};
+
+// For duration, we only need the first and last sample
+const fieldsNeedEverySampleMap: Record<
+	keyof Options<ParseMediaFields>,
+	boolean
+> = {
+	...fieldsNeedSamplesMap,
+	slowDurationInSeconds: false,
+};
+
+export const needsToIterateOverEverySample = ({
+	fields,
+	emittedFields,
+}: {
+	fields: Options<ParseMediaFields>;
+	emittedFields: AllOptions<ParseMediaFields>;
+}) => {
+	const keys = Object.keys(fields ?? {}) as (keyof Options<ParseMediaFields>)[];
+	const selectedKeys = keys.filter((k) => fields[k]);
+
+	return selectedKeys.some(
+		(k) => fieldsNeedEverySampleMap[k] && !emittedFields[k],
+	);
 };

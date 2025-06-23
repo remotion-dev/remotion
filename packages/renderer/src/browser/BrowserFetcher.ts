@@ -29,9 +29,10 @@ import {ChromeMode} from '../options/chrome-mode';
 import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
 import {getDownloadsCacheDir} from './get-download-destination';
 
-const TESTED_VERSION = '123.0.6312.86';
-// https://github.com/microsoft/playwright/tree/v1.42.0
-const PLAYWRIGHT_VERSION = '1105'; // 123.0.6312.4
+const TESTED_VERSION = '134.0.6998.35';
+// https://github.com/microsoft/playwright/tree/v1.51.0
+// packages/playwright-core/browsers.json
+const PLAYWRIGHT_VERSION = '1161'; // 134.0.6998.35
 
 type Platform = 'linux64' | 'linux-arm64' | 'mac-x64' | 'mac-arm64' | 'win64';
 
@@ -46,11 +47,10 @@ function getChromeDownloadUrl({
 }): string {
 	if (platform === 'linux-arm64') {
 		if (chromeMode === 'chrome-for-testing') {
-			throw new Error(
-				`chromeMode: 'chrome-for-testing' is not supported on platform linux-arm64`,
-			);
+			return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
 		}
-		return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-linux-arm64.zip`;
+
+		return `https://playwright.azureedge.net/builds/chromium/${version ?? PLAYWRIGHT_VERSION}/chromium-headless-shell-linux-arm64.zip`;
 	}
 
 	if (chromeMode === 'headless-shell') {
@@ -233,7 +233,9 @@ const getExecutablePath = (chromeMode: ChromeMode) => {
 			`chrome-headless-shell-${platform}`,
 			platform === 'win64'
 				? 'chrome-headless-shell.exe'
-				: 'chrome-headless-shell',
+				: platform === 'linux-arm64'
+					? 'headless_shell'
+					: 'chrome-headless-shell',
 		);
 	}
 
@@ -250,6 +252,7 @@ export const getRevisionInfo = (
 
 	const url = getChromeDownloadUrl({platform, version: null, chromeMode});
 	const local = fs.existsSync(folderPath);
+
 	return {
 		executablePath,
 		folderPath,

@@ -18,8 +18,11 @@ export type AwsProvider = {
 		vpcSecurityGroupIds: string;
 		runtimePreference: RuntimePreference;
 	};
+	storageClass: StorageClass;
+	requestHandler: RequestHandler | null | undefined;
 };
 
+import type {StorageClass} from '@aws-sdk/client-s3';
 import type {ProviderSpecifics} from '@remotion/serverless-client';
 import {expiryDays} from '@remotion/serverless-client';
 import {EventEmitter} from 'node:events';
@@ -47,6 +50,7 @@ import {parseFunctionName} from './parse-function-name';
 import {randomHashImplementation} from './random-hash';
 import {lambdaReadFileImplementation} from './read-file';
 import type {RuntimePreference} from './runtime-preference';
+import type {RequestHandler} from './types';
 import {lambdaWriteFileImplementation} from './write-file';
 
 if (

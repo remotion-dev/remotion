@@ -1,8 +1,8 @@
+import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
 import {
 	getArrayBufferIterator,
 	type BufferIterator,
-} from '../../buffer-iterator';
-import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
+} from '../../iterator/buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {getBlockSize} from './get-block-size';
@@ -91,7 +91,11 @@ const emitSample = async ({
 	data: Uint8Array;
 	offset: number;
 }) => {
-	const iterator = getArrayBufferIterator(data, null);
+	const iterator = getArrayBufferIterator({
+		initialData: data,
+		maxBytes: data.length,
+		logLevel: 'error',
+	});
 	const parsed = parseFrameHeader({iterator, state});
 	if (!parsed) {
 		throw new Error('Invalid CRC');
@@ -100,7 +104,7 @@ const emitSample = async ({
 	const {blockSize, num, sampleRate} = parsed;
 
 	const duration = blockSize / sampleRate;
-	const structure = state.getFlacStructure();
+	const structure = state.structure.getFlacStructure();
 	const streamInfo = structure.boxes.find(
 		(box) => box.type === 'flac-streaminfo',
 	);
@@ -113,24 +117,28 @@ const emitSample = async ({
 	}
 
 	const timestamp = (num * streamInfo.maximumBlockSize) / streamInfo.sampleRate;
+	state.flac.audioSamples.addSample({
+		timeInSeconds: timestamp,
+		offset,
+		durationInSeconds: duration,
+	});
 
-	await state.callbacks.onAudioSample(
-		0,
-		convertAudioOrVideoSampleToWebCodecsTimestamps(
-			{
-				data,
-				duration,
-				cts: timestamp,
-				dts: timestamp,
-				timestamp,
-				type: 'key',
-				offset,
-				timescale: 1_000_000,
-				trackId: 0,
-			},
-			1,
-		),
-	);
+	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+		sample: {
+			data,
+			duration,
+			decodingTimestamp: timestamp,
+			timestamp,
+			type: 'key',
+			offset,
+		},
+		timescale: 1,
+	});
+
+	await state.callbacks.onAudioSample({
+		audioSample,
+		trackId: 0,
+	});
 
 	iterator.destroy();
 };
@@ -173,7 +181,7 @@ export const parseFlacFrame = async ({
 
 	iterator.stopReadingBits();
 
-	const structure = state.getFlacStructure();
+	const structure = state.structure.getFlacStructure();
 
 	const minimumFrameSize =
 		structure.boxes.find((b) => b.type === 'flac-streaminfo')

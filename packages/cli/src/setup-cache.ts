@@ -30,6 +30,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	bufferStateDelayInMilliseconds,
 	maxTimelineTracks,
 	publicPath,
+	audioLatencyHint,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -48,6 +49,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	bufferStateDelayInMilliseconds: number | null;
 	maxTimelineTracks: number | null;
 	publicPath: string | null;
+	audioLatencyHint: AudioContextLatencyCategory | null;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -87,6 +89,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		bufferStateDelayInMilliseconds,
 		maxTimelineTracks,
 		publicPath,
+		audioLatencyHint,
 	});
 
 	return {
@@ -110,6 +113,7 @@ export const bundleOnCli = async ({
 	maxTimelineTracks,
 	bufferStateDelayInMilliseconds,
 	publicPath,
+	audioLatencyHint,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -128,6 +132,7 @@ export const bundleOnCli = async ({
 	maxTimelineTracks: number | null;
 	bufferStateDelayInMilliseconds: number | null;
 	publicPath: string | null;
+	audioLatencyHint: AudioContextLatencyCategory | null;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -248,6 +253,7 @@ export const bundleOnCli = async ({
 		ignoreRegisterRootWarning: false,
 		maxTimelineTracks,
 		bufferStateDelayInMilliseconds,
+		audioLatencyHint,
 	});
 
 	bundlingState = {

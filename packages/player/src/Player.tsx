@@ -73,6 +73,7 @@ export type PlayerProps<
 	readonly showPosterWhenEnded?: boolean;
 	readonly showPosterWhenUnplayed?: boolean;
 	readonly showPosterWhenBuffering?: boolean;
+	readonly showPosterWhenBufferingAndPaused?: boolean;
 	readonly inFrame?: number | null;
 	readonly outFrame?: number | null;
 	readonly initiallyShowControls?: number | boolean;
@@ -93,6 +94,8 @@ export type PlayerProps<
 	readonly logLevel?: LogLevel;
 	readonly noSuspense?: boolean;
 	readonly acknowledgeRemotionLicense?: boolean;
+	readonly audioLatencyHint?: AudioContextLatencyCategory;
+	readonly volumePersistenceKey?: string;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -138,6 +141,7 @@ const PlayerFn = <
 		showPosterWhenEnded,
 		showPosterWhenPaused,
 		showPosterWhenBuffering,
+		showPosterWhenBufferingAndPaused,
 		initialFrame,
 		renderPoster,
 		inFrame,
@@ -159,6 +163,8 @@ const PlayerFn = <
 		logLevel = 'info',
 		noSuspense,
 		acknowledgeRemotionLicense,
+		audioLatencyHint = 'interactive',
+		volumePersistenceKey,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
@@ -402,6 +408,8 @@ const PlayerFn = <
 				numberOfSharedAudioTags={numberOfSharedAudioTags}
 				initiallyMuted={initiallyMuted}
 				logLevel={logLevel}
+				audioLatencyHint={audioLatencyHint}
+				volumePersistenceKey={volumePersistenceKey}
 			>
 				<Internals.Timeline.SetTimelineContext.Provider
 					value={setTimelineContextValue}
@@ -433,6 +441,9 @@ const PlayerFn = <
 							showPosterWhenEnded={Boolean(showPosterWhenEnded)}
 							showPosterWhenPaused={Boolean(showPosterWhenPaused)}
 							showPosterWhenBuffering={Boolean(showPosterWhenBuffering)}
+							showPosterWhenBufferingAndPaused={Boolean(
+								showPosterWhenBufferingAndPaused,
+							)}
 							renderPoster={renderPoster}
 							inFrame={inFrame ?? null}
 							outFrame={outFrame ?? null}

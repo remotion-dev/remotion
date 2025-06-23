@@ -177,6 +177,10 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 				Buffer.concat(stderrChunks).toString('utf-8') +
 				new TextDecoder('utf-8').decode(getOutputBuffer());
 			runningStatus = {type: 'quit-with-error', error: errorMessage, signal};
+			Log.verbose(
+				{indent, logLevel},
+				`Compositor exited with code ${code} and signal ${signal}`,
+			);
 
 			const error =
 				code === null
@@ -287,7 +291,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 								runningStatus.signal
 									? ` with signal ${runningStatus.signal}`
 									: ''
-							}: ${runningStatus.error}`,
+							}: ${runningStatus.error.trim()}`,
 						),
 					);
 					return;

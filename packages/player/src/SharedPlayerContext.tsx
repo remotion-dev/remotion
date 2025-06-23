@@ -26,6 +26,8 @@ export const SharedPlayerContexts: React.FC<{
 	readonly numberOfSharedAudioTags: number;
 	readonly initiallyMuted: boolean;
 	readonly logLevel: LogLevel;
+	readonly audioLatencyHint: AudioContextLatencyCategory;
+	readonly volumePersistenceKey?: string;
 }> = ({
 	children,
 	timelineContext,
@@ -37,6 +39,8 @@ export const SharedPlayerContexts: React.FC<{
 	numberOfSharedAudioTags,
 	initiallyMuted,
 	logLevel,
+	audioLatencyHint,
+	volumePersistenceKey,
 }) => {
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		const context: CompositionManagerContext = {
@@ -66,7 +70,7 @@ export const SharedPlayerContexts: React.FC<{
 
 	const [mediaMuted, setMediaMuted] = useState<boolean>(() => initiallyMuted);
 	const [mediaVolume, setMediaVolume] = useState<number>(() =>
-		getPreferredVolume(),
+		getPreferredVolume(volumePersistenceKey ?? null),
 	);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
@@ -79,9 +83,9 @@ export const SharedPlayerContexts: React.FC<{
 	const setMediaVolumeAndPersist = useCallback(
 		(vol: number) => {
 			setMediaVolume(vol);
-			persistVolume(vol, logLevel);
+			persistVolume(vol, logLevel, volumePersistenceKey ?? null);
 		},
-		[logLevel],
+		[logLevel, volumePersistenceKey],
 	);
 
 	const setMediaVolumeContextValue = useMemo((): SetMediaVolumeContextValue => {
@@ -117,6 +121,7 @@ export const SharedPlayerContexts: React.FC<{
 											<Internals.SharedAudioContextProvider
 												numberOfAudioTags={numberOfSharedAudioTags}
 												component={component}
+												audioLatencyHint={audioLatencyHint}
 											>
 												<Internals.BufferingProvider>
 													{children}

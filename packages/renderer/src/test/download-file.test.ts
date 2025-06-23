@@ -46,5 +46,9 @@ test('Should fail to download invalid files', async () => {
 			indent: false,
 			logLevel: 'info',
 		}),
-	).toThrow(typeof Bun === 'undefined' ? /ENOTFOUND/ : /Unable to connect/);
+	).toThrow(
+		typeof Bun === 'undefined'
+			? /ENOTFOUND/
+			: /(Unable to connect)|ECONNREFUSED/,
+	);
 });

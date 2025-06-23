@@ -46,6 +46,11 @@ export const createCodecSpecificData = (
 ) => {
 	if (track.type === 'video') {
 		if (track.codec === 'h264') {
+			// May not have it initially
+			if (!track.codecPrivate) {
+				return new Uint8Array([]);
+			}
+
 			return createAvc1Data({
 				avccBox: createAvccBox(track.codecPrivate),
 				compressorName: 'WebCodecs',
@@ -60,6 +65,11 @@ export const createCodecSpecificData = (
 		}
 
 		if (track.codec === 'h265') {
+			// May not have it initially
+			if (!track.codecPrivate) {
+				return new Uint8Array([]);
+			}
+
 			return createHvc1Data({
 				hvccBox: createHvccBox(track.codecPrivate),
 				compressorName: 'WebCodecs',

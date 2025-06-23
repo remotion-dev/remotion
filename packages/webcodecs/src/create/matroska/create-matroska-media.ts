@@ -1,4 +1,7 @@
-import type {AudioOrVideoSample} from '@remotion/media-parser';
+import type {
+	MediaParserAudioSample,
+	MediaParserVideoSample,
+} from '@remotion/media-parser';
 import {MediaParserInternals} from '@remotion/media-parser';
 import type {MakeTrackAudio, MakeTrackVideo} from '../make-track-info';
 import type {MediaFn, MediaFnGeneratorInput} from '../media-fn';
@@ -135,7 +138,7 @@ export const createMatroskaMedia = async ({
 		chunk,
 		isVideo,
 	}: {
-		chunk: AudioOrVideoSample;
+		chunk: MediaParserAudioSample | MediaParserVideoSample;
 		isVideo: boolean;
 	}) => {
 		// In Safari, samples can arrive out of order, e.g public/bigbuckbunny.mp4
@@ -143,7 +146,7 @@ export const createMatroskaMedia = async ({
 		// to allow for timestamps to be lower than the previous one
 
 		progressTracker.setPossibleLowestTimestamp(
-			Math.min(chunk.timestamp, chunk.cts ?? Infinity, chunk.dts ?? Infinity),
+			Math.min(chunk.timestamp, chunk.decodingTimestamp ?? Infinity),
 		);
 
 		const smallestProgress = progressTracker.getSmallestProgress();
@@ -178,7 +181,7 @@ export const createMatroskaMedia = async ({
 		trackNumber,
 		isVideo,
 	}: {
-		chunk: AudioOrVideoSample;
+		chunk: MediaParserAudioSample | MediaParserVideoSample;
 		trackNumber: number;
 		isVideo: boolean;
 	}) => {
@@ -243,7 +246,7 @@ export const createMatroskaMedia = async ({
 				}
 			});
 		},
-		getBlob: async () => {
+		getBlob: () => {
 			return w.getBlob();
 		},
 		remove: async () => {
@@ -271,13 +274,18 @@ export const createMatroskaMedia = async ({
 		async waitForFinish() {
 			await Promise.all(waitForFinishPromises.map((p) => p()));
 			await operationProm.current;
-			seeks.push({
-				hexString: matroskaElements.Cues,
-				byte: w.getWrittenByteCount() - seekHeadOffset,
-			});
+
+			const cuesBytes = createMatroskaCues(cues);
+			if (cuesBytes) {
+				seeks.push({
+					hexString: matroskaElements.Cues,
+					byte: w.getWrittenByteCount() - seekHeadOffset,
+				});
+				await w.write(cuesBytes.bytes);
+			}
+
 			await updateSeekWrite();
 
-			await w.write(createMatroskaCues(cues).bytes);
 			const segmentSize =
 				w.getWrittenByteCount() -
 				segmentOffset -

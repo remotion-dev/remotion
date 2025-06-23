@@ -192,6 +192,22 @@ test('playbackRate of undefined should be okay', () => {
 	expect(true).toBe(true);
 });
 
+test('volumePersistenceKey of string should be okay', () => {
+	render(
+		<Player
+			compositionWidth={500}
+			compositionHeight={400}
+			fps={30}
+			durationInFrames={500}
+			component={HelloWorld}
+			controls
+			showVolumeControls
+			volumePersistenceKey="custom-key"
+		/>,
+	);
+	expect(true).toBe(true);
+});
+
 test('passing in <Composition /> instance should not be possible', () => {
 	expect(() => {
 		render(

@@ -19,7 +19,6 @@ export {
 	type CustomCredentials,
 	type CustomCredentialsWithoutSensitiveData,
 	type DeleteAfter,
-	type DownloadBehavior,
 	type OutNameInput,
 	type OutNameInputWithoutCredentials,
 	type OutNameOutput,
@@ -53,7 +52,7 @@ export type {
 export type {BrowserSafeApis} from '@remotion/renderer/client';
 export {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 export {makeStreamer, makeStreamPayloadMessage} from '@remotion/streaming';
-export type {VideoConfig} from 'remotion/no-react';
+export type {DownloadBehavior, VideoConfig} from 'remotion/no-react';
 export {VERSION} from 'remotion/version';
 export {Await} from './await';
 export {calculateChunkTimes} from './calculate-chunk-times';
@@ -118,7 +117,7 @@ export {interpolate, random};
 
 export const {
 	ENABLE_V5_BREAKING_CHANGES,
-	serializeJSONWithDate,
+	serializeJSONWithSpecialTypes,
 	validateFps,
 	validateDimension,
 	validateDurationInFrames,

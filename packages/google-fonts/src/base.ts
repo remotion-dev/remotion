@@ -1,4 +1,5 @@
 import {continueRender, delayRender} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 
 const loadedFonts: Record<string, Promise<void> | undefined> = {};
 
@@ -9,6 +10,54 @@ export type FontInfo = {
 	url: string;
 	unicodeRanges: Record<string, string>;
 	fonts: Record<string, Record<string, Record<string, string>>>;
+};
+
+interface WithResolvers<T> {
+	promise: Promise<T>;
+	resolve: (value: T | PromiseLike<T>) => void;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	reject: (reason?: any) => void;
+}
+
+export const withResolvers = function <T>() {
+	let resolve: WithResolvers<T>['resolve'];
+	let reject: WithResolvers<T>['reject'];
+	const promise = new Promise<T>((res, rej) => {
+		resolve = res;
+		reject = rej;
+	});
+	return {promise, resolve: resolve!, reject: reject!};
+};
+
+const loadFontFaceOrTimeoutAfter20Seconds = (fontFace: FontFace) => {
+	const timeout = withResolvers();
+
+	const int = setTimeout(() => {
+		timeout.reject(new Error('Timed out loading Google Font'));
+	}, 18_000);
+
+	return Promise.race([
+		fontFace.load().then(() => {
+			clearTimeout(int);
+		}),
+		timeout.promise,
+	]);
+};
+
+type FontLoadOptions = {
+	document?: Document;
+	ignoreTooManyRequestsWarning?: boolean;
+};
+
+type V4Options = FontLoadOptions & {
+	weights?: string[];
+	subsets?: string[];
+};
+
+// weights and subsets are required in v5
+type V5Options = FontLoadOptions & {
+	weights: string[];
+	subsets: string[];
 };
 
 /**
@@ -22,19 +71,35 @@ export type FontInfo = {
 export const loadFonts = (
 	meta: FontInfo,
 	style?: string,
-	options?: {
-		weights?: string[];
-		subsets?: string[];
-		document?: Document;
-	},
+	options?: typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? V5Options
+		: V4Options,
 ): {
 	fontFamily: FontInfo['fontFamily'];
 	fonts: FontInfo['fonts'];
 	unicodeRanges: FontInfo['unicodeRanges'];
 	waitUntilDone: () => Promise<undefined>;
 } => {
+	const weightsAndSubsetsAreSpecified =
+		Array.isArray(options?.weights) &&
+		Array.isArray(options?.subsets) &&
+		options.weights.length > 0 &&
+		options.subsets.length > 0;
+
+	if (
+		NoReactInternals.ENABLE_V5_BREAKING_CHANGES &&
+		!weightsAndSubsetsAreSpecified
+	) {
+		throw new Error(
+			'Loading Google Fonts without specifying weights and subsets is not supported in Remotion v5. Please specify the weights and subsets you need.',
+		);
+	}
+
 	const promises: Promise<void>[] = [];
 	const styles = style ? [style] : Object.keys(meta.fonts);
+
+	let fontsLoaded = 0;
+
 	for (const style of styles) {
 		// Don't load fonts on server
 		if (typeof FontFace === 'undefined') {
@@ -74,14 +139,18 @@ export const loadFonts = (
 					continue;
 				}
 
-				const handle = delayRender(
-					`Fetching ${meta.fontFamily} font ${JSON.stringify({
-						style,
-						weight,
-						subset,
-					})}`,
-					{timeoutInMilliseconds: 60000},
-				);
+				const baseLabel = `Fetching ${meta.fontFamily} font ${JSON.stringify({
+					style,
+					weight,
+					subset,
+				})}`;
+
+				const label = weightsAndSubsetsAreSpecified
+					? baseLabel
+					: `${baseLabel}. This might be caused by loading too many font variations. Read more: https://www.remotion.dev/docs/troubleshooting/font-loading-errors#render-timeout-when-loading-google-fonts`;
+
+				const handle = delayRender(label, {timeoutInMilliseconds: 60000});
+				fontsLoaded++;
 
 				//  Create font-face
 				const fontFace = new FontFace(
@@ -98,8 +167,12 @@ export const loadFonts = (
 
 				const tryToLoad = () => {
 					//  Load font-face
-					const promise = fontFace
-						.load()
+					if (fontFace.status === 'loaded') {
+						continueRender(handle);
+						return;
+					}
+
+					const promise = loadFontFaceOrTimeoutAfter20Seconds(fontFace)
 						.then(() => {
 							(options?.document ?? document).fonts.add(fontFace);
 							continueRender(handle);
@@ -123,6 +196,12 @@ export const loadFonts = (
 
 				tryToLoad();
 			}
+		}
+
+		if (fontsLoaded > 20) {
+			console.warn(
+				`Made ${fontsLoaded} network requests to load fonts for ${meta.fontFamily}. Consider loading fewer weights and subsets by passing options to loadFont(). Disable this warning by passing "ignoreTooManyRequestsWarning: true" to "options".`,
+			);
 		}
 	}
 

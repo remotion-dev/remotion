@@ -16,6 +16,7 @@ export type FontInfo = {
 	url: string;
 	unicodeRanges: Record<string, string>;
 	fonts: Record<string, Record<string, Record<string, string>>>;
+	subsets: string[];
 };
 
 export type GoogleFont = {
@@ -105,6 +106,16 @@ export const getAvailableFonts = () => [
 		load: () => import('./AdventPro') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Afacad',
+		importName: 'Afacad',
+		load: () => import('./Afacad') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Afacad Flux',
+		importName: 'AfacadFlux',
+		load: () => import('./AfacadFlux') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Agbalumo',
 		importName: 'Agbalumo',
 		load: () => import('./Agbalumo') as Promise<GoogleFont>,
@@ -113,6 +124,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Agdasima',
 		importName: 'Agdasima',
 		load: () => import('./Agdasima') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Agu Display',
+		importName: 'AguDisplay',
+		load: () => import('./AguDisplay') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Aguafina Script',
@@ -305,6 +321,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./AlumniSansPinstripe') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Alumni Sans SC',
+		importName: 'AlumniSansSC',
+		load: () => import('./AlumniSansSC') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Amarante',
 		importName: 'Amarante',
 		load: () => import('./Amarante') as Promise<GoogleFont>,
@@ -348,6 +369,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Anaheim',
 		importName: 'Anaheim',
 		load: () => import('./Anaheim') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Ancizar Sans',
+		importName: 'AncizarSans',
+		load: () => import('./AncizarSans') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Ancizar Serif',
+		importName: 'AncizarSerif',
+		load: () => import('./AncizarSerif') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Andada Pro',
@@ -415,6 +446,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Angkor') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Annapurna SIL',
+		importName: 'AnnapurnaSIL',
+		load: () => import('./AnnapurnaSIL') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Annie Use Your Telescope',
 		importName: 'AnnieUseYourTelescope',
 		load: () => import('./AnnieUseYourTelescope') as Promise<GoogleFont>,
@@ -423,6 +459,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Anonymous Pro',
 		importName: 'AnonymousPro',
 		load: () => import('./AnonymousPro') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Anta',
+		importName: 'Anta',
+		load: () => import('./Anta') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Antic',
@@ -443,6 +484,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Anton',
 		importName: 'Anton',
 		load: () => import('./Anton') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Anton SC',
+		importName: 'AntonSC',
+		load: () => import('./AntonSC') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Antonio',
@@ -540,6 +586,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Arsenal') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Arsenal SC',
+		importName: 'ArsenalSC',
+		load: () => import('./ArsenalSC') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Artifika',
 		importName: 'Artifika',
 		load: () => import('./Artifika') as Promise<GoogleFont>,
@@ -580,6 +631,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Assistant') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Asta Sans',
+		importName: 'AstaSans',
+		load: () => import('./AstaSans') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Astloch',
 		importName: 'Astloch',
 		load: () => import('./Astloch') as Promise<GoogleFont>,
@@ -598,6 +654,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Atkinson Hyperlegible',
 		importName: 'AtkinsonHyperlegible',
 		load: () => import('./AtkinsonHyperlegible') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Atkinson Hyperlegible Mono',
+		importName: 'AtkinsonHyperlegibleMono',
+		load: () => import('./AtkinsonHyperlegibleMono') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Atkinson Hyperlegible Next',
+		importName: 'AtkinsonHyperlegibleNext',
+		load: () => import('./AtkinsonHyperlegibleNext') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Atma',
@@ -703,6 +769,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Bad Script',
 		importName: 'BadScript',
 		load: () => import('./BadScript') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Badeen Display',
+		importName: 'BadeenDisplay',
+		load: () => import('./BadeenDisplay') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Bagel Fat One',
@@ -835,6 +906,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Baskervville') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Baskervville SC',
+		importName: 'BaskervvilleSC',
+		load: () => import('./BaskervvilleSC') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Battambang',
 		importName: 'Battambang',
 		load: () => import('./Battambang') as Promise<GoogleFont>,
@@ -863,6 +939,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Bebas Neue',
 		importName: 'BebasNeue',
 		load: () => import('./BebasNeue') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Beiruti',
+		importName: 'Beiruti',
+		load: () => import('./Beiruti') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Belanosima',
@@ -935,34 +1016,19 @@ export const getAvailableFonts = () => [
 		load: () => import('./BhuTukaExpandedOne') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'Big Shoulders Display',
-		importName: 'BigShouldersDisplay',
-		load: () => import('./BigShouldersDisplay') as Promise<GoogleFont>,
+		fontFamily: 'Big Shoulders',
+		importName: 'BigShoulders',
+		load: () => import('./BigShoulders') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'Big Shoulders Inline Display',
-		importName: 'BigShouldersInlineDisplay',
-		load: () => import('./BigShouldersInlineDisplay') as Promise<GoogleFont>,
+		fontFamily: 'Big Shoulders Inline',
+		importName: 'BigShouldersInline',
+		load: () => import('./BigShouldersInline') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'Big Shoulders Inline Text',
-		importName: 'BigShouldersInlineText',
-		load: () => import('./BigShouldersInlineText') as Promise<GoogleFont>,
-	},
-	{
-		fontFamily: 'Big Shoulders Stencil Display',
-		importName: 'BigShouldersStencilDisplay',
-		load: () => import('./BigShouldersStencilDisplay') as Promise<GoogleFont>,
-	},
-	{
-		fontFamily: 'Big Shoulders Stencil Text',
-		importName: 'BigShouldersStencilText',
-		load: () => import('./BigShouldersStencilText') as Promise<GoogleFont>,
-	},
-	{
-		fontFamily: 'Big Shoulders Text',
-		importName: 'BigShouldersText',
-		load: () => import('./BigShouldersText') as Promise<GoogleFont>,
+		fontFamily: 'Big Shoulders Stencil',
+		importName: 'BigShouldersStencil',
+		load: () => import('./BigShouldersStencil') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Bigelow Rules',
@@ -1055,14 +1121,29 @@ export const getAvailableFonts = () => [
 		load: () => import('./BodoniModa') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Bodoni Moda SC',
+		importName: 'BodoniModaSC',
+		load: () => import('./BodoniModaSC') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Bokor',
 		importName: 'Bokor',
 		load: () => import('./Bokor') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Boldonse',
+		importName: 'Boldonse',
+		load: () => import('./Boldonse') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Bona Nova',
 		importName: 'BonaNova',
 		load: () => import('./BonaNova') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bona Nova SC',
+		importName: 'BonaNovaSC',
+		load: () => import('./BonaNovaSC') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Bonbon',
@@ -1180,6 +1261,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./BungeeSpice') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Bungee Tint',
+		importName: 'BungeeTint',
+		load: () => import('./BungeeTint') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Butcherman',
 		importName: 'Butcherman',
 		load: () => import('./Butcherman') as Promise<GoogleFont>,
@@ -1188,6 +1274,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Butterfly Kids',
 		importName: 'ButterflyKids',
 		load: () => import('./ButterflyKids') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bytesized',
+		importName: 'Bytesized',
+		load: () => import('./Bytesized') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Cabin',
@@ -1203,6 +1294,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Cabin Sketch',
 		importName: 'CabinSketch',
 		load: () => import('./CabinSketch') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Cactus Classical Serif',
+		importName: 'CactusClassicalSerif',
+		load: () => import('./CactusClassicalSerif') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Caesar Dressing',
@@ -1223,6 +1319,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Cairo Play',
 		importName: 'CairoPlay',
 		load: () => import('./CairoPlay') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Cal Sans',
+		importName: 'CalSans',
+		load: () => import('./CalSans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Caladea',
@@ -1318,6 +1419,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Carter One',
 		importName: 'CarterOne',
 		load: () => import('./CarterOne') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Cascadia Code',
+		importName: 'CascadiaCode',
+		load: () => import('./CascadiaCode') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Cascadia Mono',
+		importName: 'CascadiaMono',
+		load: () => import('./CascadiaMono') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Castoro',
@@ -1455,6 +1566,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Chilanka') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Chiron Sung HK',
+		importName: 'ChironSungHK',
+		load: () => import('./ChironSungHK') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Chivo',
 		importName: 'Chivo',
 		load: () => import('./Chivo') as Promise<GoogleFont>,
@@ -1463,6 +1579,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Chivo Mono',
 		importName: 'ChivoMono',
 		load: () => import('./ChivoMono') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Chocolate Classical Sans',
+		importName: 'ChocolateClassicalSans',
+		load: () => import('./ChocolateClassicalSans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Chokokutai',
@@ -1535,6 +1656,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./ComicNeue') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Comic Relief',
+		importName: 'ComicRelief',
+		load: () => import('./ComicRelief') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Coming Soon',
 		importName: 'ComingSoon',
 		load: () => import('./ComingSoon') as Promise<GoogleFont>,
@@ -1583,6 +1709,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Copse',
 		importName: 'Copse',
 		load: () => import('./Copse') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Coral Pixels',
+		importName: 'CoralPixels',
+		load: () => import('./CoralPixels') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Corben',
@@ -1740,6 +1871,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./DancingScript') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Danfo',
+		importName: 'Danfo',
+		load: () => import('./Danfo') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Dangrek',
 		importName: 'Dangrek',
 		load: () => import('./Dangrek') as Promise<GoogleFont>,
@@ -1885,6 +2021,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./DotGothic16') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Doto',
+		importName: 'Doto',
+		load: () => import('./Doto') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Dr Sugiyama',
 		importName: 'DrSugiyama',
 		load: () => import('./DrSugiyama') as Promise<GoogleFont>,
@@ -1935,9 +2076,44 @@ export const getAvailableFonts = () => [
 		load: () => import('./Eczar') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Edu AU VIC WA NT Arrows',
+		importName: 'EduAUVICWANTArrows',
+		load: () => import('./EduAUVICWANTArrows') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu AU VIC WA NT Dots',
+		importName: 'EduAUVICWANTDots',
+		load: () => import('./EduAUVICWANTDots') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu AU VIC WA NT Guides',
+		importName: 'EduAUVICWANTGuides',
+		load: () => import('./EduAUVICWANTGuides') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu AU VIC WA NT Hand',
+		importName: 'EduAUVICWANTHand',
+		load: () => import('./EduAUVICWANTHand') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu AU VIC WA NT Pre',
+		importName: 'EduAUVICWANTPre',
+		load: () => import('./EduAUVICWANTPre') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu NSW ACT Cursive',
+		importName: 'EduNSWACTCursive',
+		load: () => import('./EduNSWACTCursive') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Edu NSW ACT Foundation',
 		importName: 'EduNSWACTFoundation',
 		load: () => import('./EduNSWACTFoundation') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu NSW ACT Hand Pre',
+		importName: 'EduNSWACTHandPre',
+		load: () => import('./EduNSWACTHandPre') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Edu QLD Beginner',
@@ -1945,9 +2121,19 @@ export const getAvailableFonts = () => [
 		load: () => import('./EduQLDBeginner') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Edu QLD Hand',
+		importName: 'EduQLDHand',
+		load: () => import('./EduQLDHand') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Edu SA Beginner',
 		importName: 'EduSABeginner',
 		load: () => import('./EduSABeginner') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu SA Hand',
+		importName: 'EduSAHand',
+		load: () => import('./EduSAHand') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Edu TAS Beginner',
@@ -1958,6 +2144,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Edu VIC WA NT Beginner',
 		importName: 'EduVICWANTBeginner',
 		load: () => import('./EduVICWANTBeginner') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu VIC WA NT Hand',
+		importName: 'EduVICWANTHand',
+		load: () => import('./EduVICWANTHand') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu VIC WA NT Hand Pre',
+		importName: 'EduVICWANTHandPre',
+		load: () => import('./EduVICWANTHandPre') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'El Messiri',
@@ -2070,6 +2266,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Ewert') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Exile',
+		importName: 'Exile',
+		load: () => import('./Exile') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Exo',
 		importName: 'Exo',
 		load: () => import('./Exo') as Promise<GoogleFont>,
@@ -2088,6 +2289,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Explora',
 		importName: 'Explora',
 		load: () => import('./Explora') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Faculty Glyphic',
+		importName: 'FacultyGlyphic',
+		load: () => import('./FacultyGlyphic') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Fahkwang',
@@ -2310,6 +2516,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Freehand') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Freeman',
+		importName: 'Freeman',
+		load: () => import('./Freeman') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Fresca',
 		importName: 'Fresca',
 		load: () => import('./Fresca') as Promise<GoogleFont>,
@@ -2335,6 +2546,21 @@ export const getAvailableFonts = () => [
 		load: () => import('./Fuggles') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Funnel Display',
+		importName: 'FunnelDisplay',
+		load: () => import('./FunnelDisplay') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Funnel Sans',
+		importName: 'FunnelSans',
+		load: () => import('./FunnelSans') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Fustat',
+		importName: 'Fustat',
+		load: () => import('./Fustat') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Fuzzy Bubbles',
 		importName: 'FuzzyBubbles',
 		load: () => import('./FuzzyBubbles') as Promise<GoogleFont>,
@@ -2348,6 +2574,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'GFS Neohellenic',
 		importName: 'GFSNeohellenic',
 		load: () => import('./GFSNeohellenic') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Ga Maamli',
+		importName: 'GaMaamli',
+		load: () => import('./GaMaamli') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Gabarito',
@@ -2410,6 +2641,16 @@ export const getAvailableFonts = () => [
 		load: () => import('./Gayathri') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Geist',
+		importName: 'Geist',
+		load: () => import('./Geist') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Geist Mono',
+		importName: 'GeistMono',
+		load: () => import('./GeistMono') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Gelasio',
 		importName: 'Gelasio',
 		load: () => import('./Gelasio') as Promise<GoogleFont>,
@@ -2468,6 +2709,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Gideon Roman',
 		importName: 'GideonRoman',
 		load: () => import('./GideonRoman') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Gidole',
+		importName: 'Gidole',
+		load: () => import('./Gidole') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Gidugu',
@@ -2735,6 +2981,16 @@ export const getAvailableFonts = () => [
 		load: () => import('./HeadlandOne') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Hedvig Letters Sans',
+		importName: 'HedvigLettersSans',
+		load: () => import('./HedvigLettersSans') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Hedvig Letters Serif',
+		importName: 'HedvigLettersSerif',
+		load: () => import('./HedvigLettersSerif') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Heebo',
 		importName: 'Heebo',
 		load: () => import('./Heebo') as Promise<GoogleFont>,
@@ -2780,6 +3036,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./HindMadurai') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Hind Mysuru',
+		importName: 'HindMysuru',
+		load: () => import('./HindMysuru') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Hind Siliguri',
 		importName: 'HindSiliguri',
 		load: () => import('./HindSiliguri') as Promise<GoogleFont>,
@@ -2805,9 +3066,29 @@ export const getAvailableFonts = () => [
 		load: () => import('./Homenaje') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Honk',
+		importName: 'Honk',
+		load: () => import('./Honk') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Host Grotesk',
+		importName: 'HostGrotesk',
+		load: () => import('./HostGrotesk') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Hubballi',
 		importName: 'Hubballi',
 		load: () => import('./Hubballi') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Hubot Sans',
+		importName: 'HubotSans',
+		load: () => import('./HubotSans') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Huninn',
+		importName: 'Huninn',
+		load: () => import('./Huninn') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Hurricane',
@@ -2918,6 +3199,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'IM Fell Great Primer SC',
 		importName: 'IMFellGreatPrimerSC',
 		load: () => import('./IMFellGreatPrimerSC') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Iansui',
+		importName: 'Iansui',
+		load: () => import('./Iansui') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Ibarra Real Nova',
@@ -3050,6 +3336,36 @@ export const getAvailableFonts = () => [
 		load: () => import('./Itim') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Jacquard 12',
+		importName: 'Jacquard12',
+		load: () => import('./Jacquard12') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jacquard 12 Charted',
+		importName: 'Jacquard12Charted',
+		load: () => import('./Jacquard12Charted') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jacquard 24',
+		importName: 'Jacquard24',
+		load: () => import('./Jacquard24') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jacquard 24 Charted',
+		importName: 'Jacquard24Charted',
+		load: () => import('./Jacquard24Charted') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jacquarda Bastarda 9',
+		importName: 'JacquardaBastarda9',
+		load: () => import('./JacquardaBastarda9') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jacquarda Bastarda 9 Charted',
+		importName: 'JacquardaBastarda9Charted',
+		load: () => import('./JacquardaBastarda9Charted') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Jacques Francois',
 		importName: 'JacquesFrancois',
 		load: () => import('./JacquesFrancois') as Promise<GoogleFont>,
@@ -3060,9 +3376,64 @@ export const getAvailableFonts = () => [
 		load: () => import('./JacquesFrancoisShadow') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Jaini',
+		importName: 'Jaini',
+		load: () => import('./Jaini') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jaini Purva',
+		importName: 'JainiPurva',
+		load: () => import('./JainiPurva') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Jaldi',
 		importName: 'Jaldi',
 		load: () => import('./Jaldi') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jaro',
+		importName: 'Jaro',
+		load: () => import('./Jaro') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jersey 10',
+		importName: 'Jersey10',
+		load: () => import('./Jersey10') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jersey 10 Charted',
+		importName: 'Jersey10Charted',
+		load: () => import('./Jersey10Charted') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jersey 15',
+		importName: 'Jersey15',
+		load: () => import('./Jersey15') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jersey 15 Charted',
+		importName: 'Jersey15Charted',
+		load: () => import('./Jersey15Charted') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jersey 20',
+		importName: 'Jersey20',
+		load: () => import('./Jersey20') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jersey 20 Charted',
+		importName: 'Jersey20Charted',
+		load: () => import('./Jersey20Charted') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jersey 25',
+		importName: 'Jersey25',
+		load: () => import('./Jersey25') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Jersey 25 Charted',
+		importName: 'Jersey25Charted',
+		load: () => import('./Jersey25Charted') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'JetBrains Mono',
@@ -3200,9 +3571,24 @@ export const getAvailableFonts = () => [
 		load: () => import('./Kalam') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Kalnia',
+		importName: 'Kalnia',
+		load: () => import('./Kalnia') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Kalnia Glaze',
+		importName: 'KalniaGlaze',
+		load: () => import('./KalniaGlaze') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Kameron',
 		importName: 'Kameron',
 		load: () => import('./Kameron') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Kanchenjunga',
+		importName: 'Kanchenjunga',
+		load: () => import('./Kanchenjunga') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Kanit',
@@ -3215,6 +3601,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./KantumruyPro') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Kapakana',
+		importName: 'Kapakana',
+		load: () => import('./Kapakana') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Karantina',
 		importName: 'Karantina',
 		load: () => import('./Karantina') as Promise<GoogleFont>,
@@ -3223,6 +3614,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Karla',
 		importName: 'Karla',
 		load: () => import('./Karla') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Karla Tamil Inclined',
+		importName: 'KarlaTamilInclined',
+		load: () => import('./KarlaTamilInclined') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Karla Tamil Upright',
+		importName: 'KarlaTamilUpright',
+		load: () => import('./KarlaTamilUpright') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Karma',
@@ -3330,6 +3731,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Kodchasan') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Kode Mono',
+		importName: 'KodeMono',
+		load: () => import('./KodeMono') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Koh Santepheap',
 		importName: 'KohSantepheap',
 		load: () => import('./KohSantepheap') as Promise<GoogleFont>,
@@ -3418,6 +3824,21 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Kurale',
 		importName: 'Kurale',
 		load: () => import('./Kurale') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'LXGW Marker Gothic',
+		importName: 'LXGWMarkerGothic',
+		load: () => import('./LXGWMarkerGothic') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'LXGW WenKai Mono TC',
+		importName: 'LXGWWenKaiMonoTC',
+		load: () => import('./LXGWWenKaiMonoTC') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'LXGW WenKai TC',
+		importName: 'LXGWWenKaiTC',
+		load: () => import('./LXGWWenKaiTC') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'La Belle Aurore',
@@ -3655,6 +4076,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./LisuBosa') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Liter',
+		importName: 'Liter',
+		load: () => import('./Liter') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Literata',
 		importName: 'Literata',
 		load: () => import('./Literata') as Promise<GoogleFont>,
@@ -3820,6 +4246,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Mada') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Madimi One',
+		importName: 'MadimiOne',
+		load: () => import('./MadimiOne') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Magra',
 		importName: 'Magra',
 		load: () => import('./Magra') as Promise<GoogleFont>,
@@ -3853,6 +4284,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Mallanna',
 		importName: 'Mallanna',
 		load: () => import('./Mallanna') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Maname',
+		importName: 'Maname',
+		load: () => import('./Maname') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Mandali',
@@ -3940,6 +4376,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Marvel') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Matangi',
+		importName: 'Matangi',
+		load: () => import('./Matangi') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Mate',
 		importName: 'Mate',
 		load: () => import('./Mate') as Promise<GoogleFont>,
@@ -3948,6 +4389,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Mate SC',
 		importName: 'MateSC',
 		load: () => import('./MateSC') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Matemasie',
+		importName: 'Matemasie',
+		load: () => import('./Matemasie') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Maven Pro',
@@ -4040,6 +4486,16 @@ export const getAvailableFonts = () => [
 		load: () => import('./Michroma') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Micro 5',
+		importName: 'Micro5',
+		load: () => import('./Micro5') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Micro 5 Charted',
+		importName: 'Micro5Charted',
+		load: () => import('./Micro5Charted') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Milonga',
 		importName: 'Milonga',
 		load: () => import('./Milonga') as Promise<GoogleFont>,
@@ -4110,6 +4566,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./ModernAntiqua') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Moderustic',
+		importName: 'Moderustic',
+		load: () => import('./Moderustic') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Mogra',
 		importName: 'Mogra',
 		load: () => import('./Mogra') as Promise<GoogleFont>,
@@ -4135,6 +4596,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Molle') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Mona Sans',
+		importName: 'MonaSans',
+		load: () => import('./MonaSans') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Monda',
 		importName: 'Monda',
 		load: () => import('./Monda') as Promise<GoogleFont>,
@@ -4143,6 +4609,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Monofett',
 		importName: 'Monofett',
 		load: () => import('./Monofett') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Monomakh',
+		importName: 'Monomakh',
+		load: () => import('./Monomakh') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Monomaniac One',
@@ -4190,9 +4661,9 @@ export const getAvailableFonts = () => [
 		load: () => import('./MontserratAlternates') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'Montserrat Subrayada',
-		importName: 'MontserratSubrayada',
-		load: () => import('./MontserratSubrayada') as Promise<GoogleFont>,
+		fontFamily: 'Montserrat Underline',
+		importName: 'MontserratUnderline',
+		load: () => import('./MontserratUnderline') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Moo Lah Lah',
@@ -4320,6 +4791,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Nabla') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Namdhinggo',
+		importName: 'Namdhinggo',
+		load: () => import('./Namdhinggo') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Nanum Brush Script',
 		importName: 'NanumBrushScript',
 		load: () => import('./NanumBrushScript') as Promise<GoogleFont>,
@@ -4350,6 +4826,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Narnoor') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'National Park',
+		importName: 'NationalPark',
+		load: () => import('./NationalPark') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Neonderthaw',
 		importName: 'Neonderthaw',
 		load: () => import('./Neonderthaw') as Promise<GoogleFont>,
@@ -4368,6 +4849,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Neuton',
 		importName: 'Neuton',
 		load: () => import('./Neuton') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'New Amsterdam',
+		importName: 'NewAmsterdam',
+		load: () => import('./NewAmsterdam') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'New Rocker',
@@ -5046,7 +5532,7 @@ export const getAvailableFonts = () => [
 		load: () => import('./NotoSansPauCinHau') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'Noto Sans Phags Pa',
+		fontFamily: 'Noto Sans PhagsPa',
 		importName: 'NotoSansPhagsPa',
 		load: () => import('./NotoSansPhagsPa') as Promise<GoogleFont>,
 	},
@@ -5306,6 +5792,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./NotoSerifDisplay') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Noto Serif Dives Akuru',
+		importName: 'NotoSerifDivesAkuru',
+		load: () => import('./NotoSerifDivesAkuru') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Noto Serif Dogra',
 		importName: 'NotoSerifDogra',
 		load: () => import('./NotoSerifDogra') as Promise<GoogleFont>,
@@ -5344,6 +5835,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Noto Serif Hebrew',
 		importName: 'NotoSerifHebrew',
 		load: () => import('./NotoSerifHebrew') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Noto Serif Hentaigana',
+		importName: 'NotoSerifHentaigana',
+		load: () => import('./NotoSerifHentaigana') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Noto Serif JP',
@@ -5456,6 +5952,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./NotoSerifTibetan') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Noto Serif Todhri',
+		importName: 'NotoSerifTodhri',
+		load: () => import('./NotoSerifTodhri') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Noto Serif Toto',
 		importName: 'NotoSerifToto',
 		load: () => import('./NotoSerifToto') as Promise<GoogleFont>,
@@ -5474,6 +5975,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Noto Traditional Nushu',
 		importName: 'NotoTraditionalNushu',
 		load: () => import('./NotoTraditionalNushu') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Noto Znamenny Musical Notation',
+		importName: 'NotoZnamennyMusicalNotation',
+		load: () => import('./NotoZnamennyMusicalNotation') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Nova Cut',
@@ -5554,6 +6060,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Oi',
 		importName: 'Oi',
 		load: () => import('./Oi') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Ojuju',
+		importName: 'Ojuju',
+		load: () => import('./Ojuju') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Old Standard TT',
@@ -5761,6 +6272,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Parisienne') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Parkinsans',
+		importName: 'Parkinsans',
+		load: () => import('./Parkinsans') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Passero One',
 		importName: 'PasseroOne',
 		load: () => import('./PasseroOne') as Promise<GoogleFont>,
@@ -5846,6 +6362,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Petrona') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Phetsarath',
+		importName: 'Phetsarath',
+		load: () => import('./Phetsarath') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Philosopher',
 		importName: 'Philosopher',
 		load: () => import('./Philosopher') as Promise<GoogleFont>,
@@ -5886,6 +6407,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Plaster') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Platypi',
+		importName: 'Platypi',
+		load: () => import('./Platypi') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Play',
 		importName: 'Play',
 		load: () => import('./Play') as Promise<GoogleFont>,
@@ -5916,14 +6442,44 @@ export const getAvailableFonts = () => [
 		load: () => import('./PlaypenSans') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Playpen Sans Arabic',
+		importName: 'PlaypenSansArabic',
+		load: () => import('./PlaypenSansArabic') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Playpen Sans Deva',
+		importName: 'PlaypenSansDeva',
+		load: () => import('./PlaypenSansDeva') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Playpen Sans Hebrew',
+		importName: 'PlaypenSansHebrew',
+		load: () => import('./PlaypenSansHebrew') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Playpen Sans Thai',
+		importName: 'PlaypenSansThai',
+		load: () => import('./PlaypenSansThai') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Plus Jakarta Sans',
 		importName: 'PlusJakartaSans',
 		load: () => import('./PlusJakartaSans') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Pochaevsk',
+		importName: 'Pochaevsk',
+		load: () => import('./Pochaevsk') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Podkova',
 		importName: 'Podkova',
 		load: () => import('./Podkova') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Poetsen One',
+		importName: 'PoetsenOne',
+		load: () => import('./PoetsenOne') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Poiret One',
@@ -5949,6 +6505,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Pompiere',
 		importName: 'Pompiere',
 		load: () => import('./Pompiere') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Ponnala',
+		importName: 'Ponnala',
+		load: () => import('./Ponnala') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Ponomar',
+		importName: 'Ponomar',
+		load: () => import('./Ponomar') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Pontano Sans',
@@ -6029,6 +6595,26 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Prosto One',
 		importName: 'ProstoOne',
 		load: () => import('./ProstoOne') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Protest Guerrilla',
+		importName: 'ProtestGuerrilla',
+		load: () => import('./ProtestGuerrilla') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Protest Revolution',
+		importName: 'ProtestRevolution',
+		load: () => import('./ProtestRevolution') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Protest Riot',
+		importName: 'ProtestRiot',
+		load: () => import('./ProtestRiot') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Protest Strike',
+		importName: 'ProtestStrike',
+		load: () => import('./ProtestStrike') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Proza Libre',
@@ -6119,6 +6705,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Radio Canada',
 		importName: 'RadioCanada',
 		load: () => import('./RadioCanada') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Radio Canada Big',
+		importName: 'RadioCanadaBig',
+		load: () => import('./RadioCanadaBig') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Radley',
@@ -6241,6 +6832,21 @@ export const getAvailableFonts = () => [
 		load: () => import('./RedactedScript') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Reddit Mono',
+		importName: 'RedditMono',
+		load: () => import('./RedditMono') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Reddit Sans',
+		importName: 'RedditSans',
+		load: () => import('./RedditSans') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Reddit Sans Condensed',
+		importName: 'RedditSansCondensed',
+		load: () => import('./RedditSansCondensed') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Redressed',
 		importName: 'Redressed',
 		load: () => import('./Redressed') as Promise<GoogleFont>,
@@ -6269,6 +6875,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Reggae One',
 		importName: 'ReggaeOne',
 		load: () => import('./ReggaeOne') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Rethink Sans',
+		importName: 'RethinkSans',
+		load: () => import('./RethinkSans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Revalia',
@@ -6411,6 +7022,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./RubikBeastly') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Rubik Broken Fax',
+		importName: 'RubikBrokenFax',
+		load: () => import('./RubikBrokenFax') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Rubik Bubbles',
 		importName: 'RubikBubbles',
 		load: () => import('./RubikBubbles') as Promise<GoogleFont>,
@@ -6431,6 +7047,16 @@ export const getAvailableFonts = () => [
 		load: () => import('./RubikDistressed') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Rubik Doodle Shadow',
+		importName: 'RubikDoodleShadow',
+		load: () => import('./RubikDoodleShadow') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Rubik Doodle Triangles',
+		importName: 'RubikDoodleTriangles',
+		load: () => import('./RubikDoodleTriangles') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Rubik Gemstones',
 		importName: 'RubikGemstones',
 		load: () => import('./RubikGemstones') as Promise<GoogleFont>,
@@ -6441,9 +7067,24 @@ export const getAvailableFonts = () => [
 		load: () => import('./RubikGlitch') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Rubik Glitch Pop',
+		importName: 'RubikGlitchPop',
+		load: () => import('./RubikGlitchPop') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Rubik Iso',
 		importName: 'RubikIso',
 		load: () => import('./RubikIso') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Rubik Lines',
+		importName: 'RubikLines',
+		load: () => import('./RubikLines') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Rubik Maps',
+		importName: 'RubikMaps',
+		load: () => import('./RubikMaps') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Rubik Marker Hatch',
@@ -6479,6 +7120,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Rubik Puddles',
 		importName: 'RubikPuddles',
 		load: () => import('./RubikPuddles') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Rubik Scribble',
+		importName: 'RubikScribble',
+		load: () => import('./RubikScribble') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Rubik Spray Paint',
@@ -6556,6 +7202,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./STIXTwoText') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'SUSE',
+		importName: 'SUSE',
+		load: () => import('./SUSE') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Sacramento',
 		importName: 'Sacramento',
 		load: () => import('./Sacramento') as Promise<GoogleFont>,
@@ -6611,6 +7262,16 @@ export const getAvailableFonts = () => [
 		load: () => import('./Sancreek') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Sankofa Display',
+		importName: 'SankofaDisplay',
+		load: () => import('./SankofaDisplay') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Sansation',
+		importName: 'Sansation',
+		load: () => import('./Sansation') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Sansita',
 		importName: 'Sansita',
 		load: () => import('./Sansita') as Promise<GoogleFont>,
@@ -6649,6 +7310,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Satisfy',
 		importName: 'Satisfy',
 		load: () => import('./Satisfy') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Savate',
+		importName: 'Savate',
+		load: () => import('./Savate') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Sawarabi Gothic',
@@ -6696,6 +7362,16 @@ export const getAvailableFonts = () => [
 		load: () => import('./SecularOne') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Sedan',
+		importName: 'Sedan',
+		load: () => import('./Sedan') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Sedan SC',
+		importName: 'SedanSC',
+		load: () => import('./SedanSC') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Sedgwick Ave',
 		importName: 'SedgwickAve',
 		load: () => import('./SedgwickAve') as Promise<GoogleFont>,
@@ -6734,6 +7410,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Shadows Into Light Two',
 		importName: 'ShadowsIntoLightTwo',
 		load: () => import('./ShadowsIntoLightTwo') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Shafarik',
+		importName: 'Shafarik',
+		load: () => import('./Shafarik') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Shalimar',
@@ -6859,6 +7540,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Six Caps',
 		importName: 'SixCaps',
 		load: () => import('./SixCaps') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Sixtyfour',
+		importName: 'Sixtyfour',
+		load: () => import('./Sixtyfour') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Sixtyfour Convergence',
+		importName: 'SixtyfourConvergence',
+		load: () => import('./SixtyfourConvergence') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Skranji',
@@ -6991,6 +7682,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./SortsMillGoudy') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Sour Gummy',
+		importName: 'SourGummy',
+		load: () => import('./SourGummy') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Source Code Pro',
 		importName: 'SourceCodePro',
 		load: () => import('./SourceCodePro') as Promise<GoogleFont>,
@@ -7019,6 +7715,21 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Special Elite',
 		importName: 'SpecialElite',
 		load: () => import('./SpecialElite') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Special Gothic',
+		importName: 'SpecialGothic',
+		load: () => import('./SpecialGothic') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Special Gothic Condensed One',
+		importName: 'SpecialGothicCondensedOne',
+		load: () => import('./SpecialGothicCondensedOne') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Special Gothic Expanded One',
+		importName: 'SpecialGothicExpandedOne',
+		load: () => import('./SpecialGothicExpandedOne') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Spectral',
@@ -7226,6 +7937,16 @@ export const getAvailableFonts = () => [
 		load: () => import('./SyneTactile') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Tac One',
+		importName: 'TacOne',
+		load: () => import('./TacOne') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Tagesschrift',
+		importName: 'Tagesschrift',
+		load: () => import('./Tagesschrift') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Tai Heritage Pro',
 		importName: 'TaiHeritagePro',
 		load: () => import('./TaiHeritagePro') as Promise<GoogleFont>,
@@ -7259,6 +7980,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Taviraj',
 		importName: 'Taviraj',
 		load: () => import('./Taviraj') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Teachers',
+		importName: 'Teachers',
+		load: () => import('./Teachers') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Teko',
@@ -7346,6 +8072,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Tinos') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Tiny5',
+		importName: 'Tiny5',
+		load: () => import('./Tiny5') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Tiro Bangla',
 		importName: 'TiroBangla',
 		load: () => import('./TiroBangla') as Promise<GoogleFont>,
@@ -7416,6 +8147,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./TrainOne') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Triodion',
+		importName: 'Triodion',
+		load: () => import('./Triodion') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Trirong',
 		importName: 'Trirong',
 		load: () => import('./Trirong') as Promise<GoogleFont>,
@@ -7451,6 +8187,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./TsukimiRounded') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Tuffy',
+		importName: 'Tuffy',
+		load: () => import('./Tuffy') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Tulpen One',
 		importName: 'TulpenOne',
 		load: () => import('./TulpenOne') as Promise<GoogleFont>,
@@ -7479,6 +8220,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Ubuntu Mono',
 		importName: 'UbuntuMono',
 		load: () => import('./UbuntuMono') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Ubuntu Sans',
+		importName: 'UbuntuSans',
+		load: () => import('./UbuntuSans') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Ubuntu Sans Mono',
+		importName: 'UbuntuSansMono',
+		load: () => import('./UbuntuSansMono') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Uchen',
@@ -7651,6 +8402,21 @@ export const getAvailableFonts = () => [
 		load: () => import('./VujahdayScript') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'WDXL Lubrifont JP N',
+		importName: 'WDXLLubrifontJPN',
+		load: () => import('./WDXLLubrifontJPN') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'WDXL Lubrifont SC',
+		importName: 'WDXLLubrifontSC',
+		load: () => import('./WDXLLubrifontSC') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'WDXL Lubrifont TC',
+		importName: 'WDXLLubrifontTC',
+		load: () => import('./WDXLLubrifontTC') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Waiting for the Sunrise',
 		importName: 'WaitingfortheSunrise',
 		load: () => import('./WaitingfortheSunrise') as Promise<GoogleFont>,
@@ -7701,9 +8467,24 @@ export const getAvailableFonts = () => [
 		load: () => import('./WindSong') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Winky Rough',
+		importName: 'WinkyRough',
+		load: () => import('./WinkyRough') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Winky Sans',
+		importName: 'WinkySans',
+		load: () => import('./WinkySans') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Wire One',
 		importName: 'WireOne',
 		load: () => import('./WireOne') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Wittgenstein',
+		importName: 'Wittgenstein',
+		load: () => import('./Wittgenstein') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Wix Madefor Display',
@@ -7719,6 +8500,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Work Sans',
 		importName: 'WorkSans',
 		load: () => import('./WorkSans') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Workbench',
+		importName: 'Workbench',
+		load: () => import('./Workbench') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Xanh Mono',
@@ -7739,6 +8525,26 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Yantramanav',
 		importName: 'Yantramanav',
 		load: () => import('./Yantramanav') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Yarndings 12',
+		importName: 'Yarndings12',
+		load: () => import('./Yarndings12') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Yarndings 12 Charted',
+		importName: 'Yarndings12Charted',
+		load: () => import('./Yarndings12Charted') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Yarndings 20',
+		importName: 'Yarndings20',
+		load: () => import('./Yarndings20') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Yarndings 20 Charted',
+		importName: 'Yarndings20Charted',
+		load: () => import('./Yarndings20Charted') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Yatra One',
@@ -7844,6 +8650,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'ZCOOL XiaoWei',
 		importName: 'ZCOOLXiaoWei',
 		load: () => import('./ZCOOLXiaoWei') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Zain',
+		importName: 'Zain',
+		load: () => import('./Zain') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Zen Antique',

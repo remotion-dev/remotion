@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import {FastAverageColor} from 'fast-average-color';
 import React, {useCallback, useImperativeHandle, useRef, useState} from 'react';
 import {useIsNarrow} from '~/lib/is-narrow';
@@ -109,7 +110,10 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 
 	return (
 		<div
-			className="border-b-2 border-black overflow-hidden bg-slate-100"
+			className={clsx(
+				isNarrow && smallThumbOnMobile ? 'border-r-2' : 'border-b-2',
+				'border-black overflow-hidden bg-slate-100',
+			)}
 			// +2 to account for border
 			style={{height: THUMBNAIL_HEIGHT * scale + 2}}
 		>

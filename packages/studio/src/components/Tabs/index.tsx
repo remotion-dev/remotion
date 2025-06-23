@@ -31,13 +31,15 @@ export const Tabs: React.FC<{
 const selectorButton: React.CSSProperties = {
 	border: 'none',
 	flex: 1,
-	padding: 8,
+	padding: 4,
+	height: 40,
 	paddingLeft: 16,
 	display: 'flex',
 	flexDirection: 'row',
 	fontSize: 14,
 	color: 'inherit',
 	alignItems: 'center',
+	cursor: 'default',
 };
 
 export const Tab: React.FC<{

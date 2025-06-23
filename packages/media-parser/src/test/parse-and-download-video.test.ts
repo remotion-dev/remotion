@@ -1,8 +1,8 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {existsSync, statSync, unlinkSync} from 'node:fs';
+import {mediaParserController} from '../controller/media-parser-controller';
 import {downloadAndParseMedia} from '../download-and-parse-media';
-import {mediaParserController} from '../media-parser-controller';
 import {nodeReader} from '../readers/from-node';
 import {nodeWriter} from '../writers/node';
 
@@ -106,7 +106,7 @@ test('should be able to continue on error', () => {
 			onError: () => ({action: 'download'}),
 			acknowledgeRemotionLicense: true,
 		}),
-	).rejects.toThrow('GIF files are not yet supported');
+	).rejects.toThrow('Image files are not supported');
 	expect(existsSync('jkl.gif')).toBe(true);
 	unlinkSync('jkl.gif');
 });

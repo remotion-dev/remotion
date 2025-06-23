@@ -91,6 +91,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		propsType: 'input-props',
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
 	});
 
 	const logOptions: LogOptions = {
@@ -218,6 +219,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
 		skipPutAcl: false,
+		requestHandler: null,
 	});
 
 	registerCleanupTask(() => {
@@ -366,6 +368,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
+			requestHandler: null,
 		});
 		if (output) {
 			throw new TypeError(
@@ -414,9 +417,11 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				region,
 				privacy: params.privacy,
 				expectedBucketOwner: options.expectedBucketOwner,
-				downloadBehavior: params.downloadBehavior,
+				downloadBehavior: artifact.downloadBehavior ?? params.downloadBehavior,
 				customCredentials,
 				forcePathStyle: params.forcePathStyle,
+				storageClass: params.storageClass,
+				requestHandler: null,
 			})
 			.then(() => {
 				RenderInternals.Log.info(
@@ -469,6 +474,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				onArtifact,
 				providerSpecifics,
 				insideFunctionSpecifics,
+				requestHandler: null,
 			});
 		}),
 	);
@@ -477,7 +483,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		bucketName: params.bucketName,
 		renderId: params.renderId,
 		expectedBucketOwner: options.expectedBucketOwner,
-		numberOfFrames: frameCount.length,
+		numberOfFrames: comp.durationInFrames,
 		audioCodec: params.audioCodec,
 		chunkCount: chunks.length,
 		codec: params.codec,
@@ -504,6 +510,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
 		insideFunctionSpecifics,
+		everyNthFrame: params.everyNthFrame,
+		frameRange: params.frameRange,
+		storageClass: params.storageClass,
+		requestHandler: null,
 	});
 
 	return postRenderData;
@@ -521,9 +531,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
-}): Promise<{
-	type: 'success';
-}> => {
+}): Promise<void> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
@@ -695,9 +703,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		sendTelemetryEvent(params.apiKey ?? null, params.logLevel);
 
 		if (!params.webhook || webhookInvoked) {
-			return {
-				type: 'success',
-			};
+			return;
 		}
 
 		try {
@@ -752,10 +758,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		}
 
 		runCleanupTasks();
-
-		return {
-			type: 'success',
-		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			throw err;
@@ -844,8 +846,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 				);
 			}
 		}
-
-		throw err;
 	} finally {
 		if (instance) {
 			insideFunctionSpecifics.forgetBrowserEventLoop({

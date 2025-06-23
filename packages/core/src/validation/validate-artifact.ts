@@ -37,5 +37,10 @@ export const validateRenderAsset = (artifact: TRenderAsset) => {
 	}
 
 	validateArtifactFilename(artifact.filename);
+
+	if (artifact.contentType === 'thumbnail') {
+		return;
+	}
+
 	validateContent(artifact.content);
 };

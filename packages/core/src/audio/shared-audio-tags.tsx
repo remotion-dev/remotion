@@ -12,6 +12,9 @@ import React, {
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import type {RemotionAudioProps} from './props.js';
+import type {SharedElementSourceNode} from './shared-element-source-node.js';
+import {makeSharedElementSourceNode} from './shared-element-source-node.js';
+import {useSingletonAudioContext} from './use-audio-context.js';
 
 /**
  * This functionality of Remotion will keep a certain amount
@@ -30,21 +33,29 @@ type AudioElem = {
 	props: RemotionAudioProps;
 	el: React.RefObject<HTMLAudioElement | null>;
 	audioId: string;
+	mediaElementSourceNode: SharedElementSourceNode | null;
+	premounting: boolean;
 };
 
 const EMPTY_AUDIO =
 	'data:audio/mp3;base64,/+MYxAAJcAV8AAgAABn//////+/gQ5BAMA+D4Pg+BAQBAEAwD4Pg+D4EBAEAQDAPg++hYBH///hUFQVBUFREDQNHmf///////+MYxBUGkAGIMAAAAP/29Xt6lUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxDUAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
 
 type SharedContext = {
-	registerAudio: (aud: RemotionAudioProps, audioId: string) => AudioElem;
+	registerAudio: (options: {
+		aud: RemotionAudioProps;
+		audioId: string;
+		premounting: boolean;
+	}) => AudioElem;
 	unregisterAudio: (id: number) => void;
 	updateAudio: (options: {
 		id: number;
 		aud: RemotionAudioProps;
 		audioId: string;
+		premounting: boolean;
 	}) => void;
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
+	audioContext: AudioContext | null;
 };
 
 const compareProps = (
@@ -92,6 +103,12 @@ const didPropChange = (key: string, newProp: unknown, prevProp: unknown) => {
 	return true;
 };
 
+type Ref = {
+	id: number;
+	ref: React.RefObject<HTMLAudioElement | null>;
+	mediaElementSourceNode: SharedElementSourceNode | null;
+};
+
 export const SharedAudioContext = createContext<SharedContext | null>(null);
 
 export const SharedAudioContextProvider: React.FC<{
@@ -100,7 +117,8 @@ export const SharedAudioContextProvider: React.FC<{
 	readonly component: LazyExoticComponent<
 		ComponentType<Record<string, unknown>>
 	> | null;
-}> = ({children, numberOfAudioTags, component}) => {
+	readonly audioLatencyHint: AudioContextLatencyCategory;
+}> = ({children, numberOfAudioTags, component, audioLatencyHint}) => {
 	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
@@ -110,11 +128,23 @@ export const SharedAudioContextProvider: React.FC<{
 		);
 	}
 
+	const logLevel = useLogLevel();
+	const audioContext = useSingletonAudioContext(logLevel, audioLatencyHint);
 	const refs = useMemo(() => {
-		return new Array(numberOfAudioTags).fill(true).map(() => {
-			return {id: Math.random(), ref: createRef<HTMLAudioElement>()};
+		return new Array(numberOfAudioTags).fill(true).map((): Ref => {
+			const ref = createRef<HTMLAudioElement>();
+			return {
+				id: Math.random(),
+				ref,
+				mediaElementSourceNode: audioContext
+					? makeSharedElementSourceNode({
+							audioContext,
+							ref,
+						})
+					: null,
+			};
 		});
-	}, [numberOfAudioTags]);
+	}, [audioContext, numberOfAudioTags]);
 
 	const takenAudios = useRef<(false | number)[]>(
 		new Array(numberOfAudioTags).fill(false),
@@ -150,7 +180,12 @@ export const SharedAudioContextProvider: React.FC<{
 	}, [refs]);
 
 	const registerAudio = useCallback(
-		(aud: RemotionAudioProps, audioId: string) => {
+		(options: {
+			aud: RemotionAudioProps;
+			audioId: string;
+			premounting: boolean;
+		}) => {
+			const {aud, audioId, premounting} = options;
 			const found = audios.current?.find((a) => a.audioId === audioId);
 			if (found) {
 				return found;
@@ -165,7 +200,7 @@ export const SharedAudioContextProvider: React.FC<{
 				);
 			}
 
-			const {id, ref} = refs[firstFreeAudio];
+			const {id, ref, mediaElementSourceNode} = refs[firstFreeAudio];
 			const cloned = [...takenAudios.current];
 			cloned[firstFreeAudio] = id;
 			takenAudios.current = cloned;
@@ -175,6 +210,8 @@ export const SharedAudioContextProvider: React.FC<{
 				id,
 				el: ref,
 				audioId,
+				mediaElementSourceNode,
+				premounting,
 			};
 			audios.current?.push(newElem);
 			rerenderAudios();
@@ -206,16 +243,19 @@ export const SharedAudioContextProvider: React.FC<{
 			aud,
 			audioId,
 			id,
+			premounting,
 		}: {
 			id: number;
 			aud: RemotionAudioProps;
 			audioId: string;
+			premounting: boolean;
 		}) => {
 			let changed = false;
 
 			audios.current = audios.current?.map((prevA): AudioElem => {
 				if (prevA.id === id) {
-					const isTheSame = compareProps(aud, prevA.props);
+					const isTheSame =
+						compareProps(aud, prevA.props) && prevA.premounting === premounting;
 					if (isTheSame) {
 						return prevA;
 					}
@@ -224,6 +264,7 @@ export const SharedAudioContextProvider: React.FC<{
 					return {
 						...prevA,
 						props: aud,
+						premounting,
 						audioId,
 					};
 				}
@@ -238,11 +279,15 @@ export const SharedAudioContextProvider: React.FC<{
 		[rerenderAudios],
 	);
 
-	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
 
 	const playAllAudios = useCallback(() => {
 		refs.forEach((ref) => {
+			const audio = audios.current.find((a) => a.el === ref.ref);
+			if (audio?.premounting) {
+				return;
+			}
+
 			playAndHandleNotAllowedError({
 				mediaRef: ref.ref,
 				mediaType: 'audio',
@@ -252,7 +297,8 @@ export const SharedAudioContextProvider: React.FC<{
 				reason: 'playing all audios',
 			});
 		});
-	}, [logLevel, mountTime, refs]);
+		audioContext?.resume();
+	}, [audioContext, logLevel, mountTime, refs]);
 
 	const value: SharedContext = useMemo(() => {
 		return {
@@ -261,6 +307,7 @@ export const SharedAudioContextProvider: React.FC<{
 			updateAudio,
 			playAllAudios,
 			numberOfAudioTags,
+			audioContext,
 		};
 	}, [
 		numberOfAudioTags,
@@ -268,6 +315,7 @@ export const SharedAudioContextProvider: React.FC<{
 		registerAudio,
 		unregisterAudio,
 		updateAudio,
+		audioContext,
 	]);
 
 	// Fixing a bug: In React, if a component is unmounted using useInsertionEffect, then
@@ -305,7 +353,15 @@ export const SharedAudioContextProvider: React.FC<{
 	);
 };
 
-export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
+export const useSharedAudio = ({
+	aud,
+	audioId,
+	premounting,
+}: {
+	aud: RemotionAudioProps;
+	audioId: string;
+	premounting: boolean;
+}) => {
 	const ctx = useContext(SharedAudioContext);
 
 	/**
@@ -313,14 +369,24 @@ export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 	 */
 	const [elem] = useState((): AudioElem => {
 		if (ctx && ctx.numberOfAudioTags > 0) {
-			return ctx.registerAudio(aud, audioId);
+			return ctx.registerAudio({aud, audioId, premounting});
 		}
 
+		const el = React.createRef<HTMLAudioElement>();
+		const mediaElementSourceNode = ctx?.audioContext
+			? makeSharedElementSourceNode({
+					audioContext: ctx.audioContext,
+					ref: el,
+				})
+			: null;
+
 		return {
-			el: React.createRef<HTMLAudioElement>(),
+			el,
 			id: Math.random(),
 			props: aud,
 			audioId,
+			mediaElementSourceNode,
+			premounting,
 		};
 	});
 
@@ -336,9 +402,9 @@ export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 	if (typeof document !== 'undefined') {
 		effectToUse(() => {
 			if (ctx && ctx.numberOfAudioTags > 0) {
-				ctx.updateAudio({id: elem.id, aud, audioId});
+				ctx.updateAudio({id: elem.id, aud, audioId, premounting});
 			}
-		}, [aud, ctx, elem.id, audioId]);
+		}, [aud, ctx, elem.id, audioId, premounting]);
 
 		effectToUse(() => {
 			return () => {

@@ -1,4 +1,4 @@
-import type {VideoTrack} from '@remotion/media-parser';
+import type {MediaParserVideoTrack} from '@remotion/media-parser';
 import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import type {ResizeOperation} from './resizing/mode';
 import {calculateNewDimensionsFromRotateAndScale} from './rotation';
@@ -12,7 +12,7 @@ export const canReencodeVideoTrack = async ({
 	rotate,
 }: {
 	videoCodec: ConvertMediaVideoCodec;
-	track: VideoTrack;
+	track: MediaParserVideoTrack;
 	resizeOperation: ResizeOperation | null;
 	rotate: number | null;
 }) => {
@@ -20,7 +20,7 @@ export const canReencodeVideoTrack = async ({
 		height: track.displayAspectHeight,
 		resizeOperation,
 		rotation: rotate ?? 0,
-		videoCodec,
+		needsToBeMultipleOfTwo: videoCodec === 'h264',
 		width: track.displayAspectWidth,
 	});
 	const videoEncoderConfig = await getVideoEncoderConfig({

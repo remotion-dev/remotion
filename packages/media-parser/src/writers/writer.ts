@@ -1,4 +1,4 @@
-import type {LogLevel} from '../log';
+import type {MediaParserLogLevel} from '../log';
 
 export type Writer = {
 	write: (arr: Uint8Array) => Promise<void>;
@@ -12,7 +12,7 @@ export type Writer = {
 export type CreateContent = (options: {
 	filename: string;
 	mimeType: string;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 }) => Promise<Writer>;
 
 export type WriterInterface = {

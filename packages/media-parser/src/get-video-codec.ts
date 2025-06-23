@@ -1,3 +1,4 @@
+import type {MediaParserCodecData} from './codec-data';
 import {
 	getMatrixCoefficientsFromIndex,
 	getPrimariesFromIndex,
@@ -15,23 +16,25 @@ import {
 import {
 	getHasTracks,
 	getTracks,
+	type MediaParserAdvancedColor,
 	type MediaParserVideoCodec,
-	type VideoTrackColorParams,
 } from './get-tracks';
 import type {ParserState} from './state/parser-state';
 
 export const getVideoCodec = (
 	state: ParserState,
 ): MediaParserVideoCodec | null => {
-	const track = getTracks(state);
-	return track.videoTracks[0]?.codecWithoutConfig ?? null;
+	const track = getTracks(state, true);
+	return track.find((t) => t.type === 'video')?.codecEnum ?? null;
 };
 
 export const hasVideoCodec = (state: ParserState): boolean => {
-	return getHasTracks(state);
+	return getHasTracks(state, true);
 };
 
-export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {
+export const getVideoPrivateData = (
+	trakBox: TrakBox,
+): MediaParserCodecData | null => {
 	const videoSample = getStsdVideoConfig(trakBox);
 	const avccBox = getAvccBox(trakBox);
 	const hvccBox = getHvccBox(trakBox);
@@ -42,15 +45,15 @@ export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {
 	}
 
 	if (avccBox) {
-		return avccBox.privateData;
+		return {type: 'avc-sps-pps', data: avccBox.privateData};
 	}
 
 	if (hvccBox) {
-		return hvccBox.privateData;
+		return {type: 'hvcc-data', data: hvccBox.privateData};
 	}
 
 	if (av1cBox) {
-		return av1cBox.privateData;
+		return {type: 'av1c-data', data: av1cBox.privateData};
 	}
 
 	return null;
@@ -58,7 +61,7 @@ export const getVideoPrivateData = (trakBox: TrakBox): Uint8Array | null => {
 
 export const getIsoBmColrConfig = (
 	trakBox: TrakBox,
-): VideoTrackColorParams | null => {
+): MediaParserAdvancedColor | null => {
 	const videoSample = getStsdVideoConfig(trakBox);
 	if (!videoSample) {
 		return null;
@@ -77,11 +80,9 @@ export const getIsoBmColrConfig = (
 	// https://github.com/bbc/qtff-parameter-editor
 	return {
 		fullRange: colrAtom.fullRangeFlag,
-		matrixCoefficients: getMatrixCoefficientsFromIndex(colrAtom.matrixIndex),
+		matrix: getMatrixCoefficientsFromIndex(colrAtom.matrixIndex),
 		primaries: getPrimariesFromIndex(colrAtom.primaries),
-		transferCharacteristics: getTransferCharacteristicsFromIndex(
-			colrAtom.transfer,
-		),
+		transfer: getTransferCharacteristicsFromIndex(colrAtom.transfer),
 	};
 };
 

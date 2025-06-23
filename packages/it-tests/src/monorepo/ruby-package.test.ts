@@ -20,6 +20,7 @@ test('Set the right version for Ruby in version.rb', () => {
 beforeAll(() => {
 	execSync('bundle install', {
 		cwd: rubySdk,
+		stdio: 'ignore',
 	});
 });
 
@@ -45,6 +46,7 @@ test('Render progress payload', () => {
 		'bundle exec ruby lib/remotion_lambda/render_progress_payload_spec.rb',
 		{
 			cwd: rubySdk,
+			stdio: 'pipe',
 		},
 	).toString();
 	const nativeVersion = LambdaClientInternals.getRenderProgressPayload({
@@ -133,6 +135,8 @@ test('Render Media payload', async () => {
 				Author: 'Lunar',
 			},
 			apiKey: null,
+			storageClass: null,
+			requestHandler: null,
 		});
 
 	expect(JSON.parse(output)).toEqual(nativeVersion);
@@ -173,11 +177,11 @@ test('Render Still payload', async () => {
 			frame: 0,
 			indent: false,
 			onInit: () => undefined,
-			dumpBrowserLogs: false,
-			quality: undefined,
 			forcePathStyle: false,
 			apiKey: null,
 			offthreadVideoThreads: null,
+			storageClass: null,
+			requestHandler: null,
 		});
 
 	expect(JSON.parse(output)).toEqual({...nativeVersion, streamed: false});

@@ -13,6 +13,7 @@ def get_render_still_on_lambda_payload(
   image_format: "jpeg",
   input_props: {},
   jpeg_quality: 80,
+  storage_class: nil,
   log_level: "info",
   max_retries: 1,
   metadata: {},
@@ -44,9 +45,9 @@ payload = {
       payload: JSON.generate(input_props)
     },
     jpegQuality: jpeg_quality,
+    storageClass: storage_class,
     logLevel: log_level,
     maxRetries: max_retries,
-    offthreadVideoCacheSizeInBytes: offthread_video_threads,
     offthreadVideoCacheSizeInBytes: offthread_video_cache_size_in_bytes,
     offthreadVideoThreads: offthread_video_threads,
     outName: out_name,

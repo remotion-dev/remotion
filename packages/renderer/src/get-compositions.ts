@@ -123,6 +123,8 @@ const innerGetCompositions = async ({
 			id,
 			defaultCodec,
 			defaultOutName,
+			defaultVideoImageFormat,
+			defaultPixelFormat,
 		} = r;
 
 		return {
@@ -131,14 +133,16 @@ const innerGetCompositions = async ({
 			height,
 			fps,
 			durationInFrames,
-			props: NoReactInternals.deserializeJSONWithCustomFields(
+			props: NoReactInternals.deserializeJSONWithSpecialTypes(
 				r.serializedResolvedPropsWithCustomSchema,
 			),
-			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				r.serializedDefaultPropsWithCustomSchema,
 			),
 			defaultCodec,
 			defaultOutName,
+			defaultVideoImageFormat,
+			defaultPixelFormat,
 		};
 	});
 };
@@ -290,7 +294,7 @@ export const getCompositions = (
 		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps ?? {},
 				indent: undefined,
 				staticBase: null,

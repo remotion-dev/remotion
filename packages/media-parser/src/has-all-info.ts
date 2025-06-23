@@ -1,4 +1,5 @@
 import {m3uHasStreams} from './containers/m3u/get-streams';
+import type {Options, ParseMediaFields} from './fields';
 import {hasAudioCodec} from './get-audio-codec';
 import {hasContainer} from './get-container';
 import {hasDimensions} from './get-dimensions';
@@ -11,27 +12,25 @@ import {hasSampleRate} from './get-sample-rate';
 import {getHasTracks} from './get-tracks';
 import {hasVideoCodec} from './get-video-codec';
 import {hasMetadata} from './metadata/get-metadata';
-import type {AllParseMediaFields, Options, ParseMediaFields} from './options';
+import type {AllParseMediaFields} from './options';
 import {maySkipVideoData} from './state/may-skip-video-data';
 import type {ParserState} from './state/parser-state';
 
 export const getAvailableInfo = ({
-	fieldsToFetch,
 	state,
 }: {
-	fieldsToFetch: Options<ParseMediaFields>;
 	state: ParserState;
 }): Record<keyof Options<ParseMediaFields>, boolean> => {
-	const keys = Object.entries(fieldsToFetch).filter(([, value]) => value) as [
+	const keys = Object.entries(state.fields).filter(([, value]) => value) as [
 		keyof Options<ParseMediaFields>,
 		boolean,
 	][];
 
-	const structure = state.getStructureOrNull();
+	const structure = state.structure.getStructureOrNull();
 
 	const infos = keys.map(([_key]) => {
 		const key = _key as keyof Options<AllParseMediaFields>;
-		if (key === 'structure') {
+		if (key === 'slowStructure') {
 			return false;
 		}
 
@@ -40,7 +39,8 @@ export const getAvailableInfo = ({
 		}
 
 		if (key === 'slowDurationInSeconds') {
-			return Boolean(structure && hasSlowDuration(state));
+			const res = Boolean(structure && hasSlowDuration(state));
+			return res;
 		}
 
 		if (
@@ -73,7 +73,7 @@ export const getAvailableInfo = ({
 		}
 
 		if (key === 'tracks') {
-			return Boolean(structure && getHasTracks(state));
+			return Boolean(structure && getHasTracks(state, true));
 		}
 
 		if (key === 'keyframes') {
@@ -125,7 +125,11 @@ export const getAvailableInfo = ({
 			return m3uHasStreams(state);
 		}
 
-		throw new Error(`Unknown key: ${key satisfies never}`);
+		throw new Error(
+			`Unknown field passed: ${key satisfies never}. Available fields: ${Object.keys(
+				state.fields,
+			).join(', ')}`,
+		);
 	});
 
 	const entries: [keyof Options<ParseMediaFields>, boolean][] = [];
@@ -141,15 +145,8 @@ export const getAvailableInfo = ({
 	>;
 };
 
-export const hasAllInfo = ({
-	fields,
-	state,
-}: {
-	fields: Options<ParseMediaFields>;
-	state: ParserState;
-}) => {
+export const hasAllInfo = ({state}: {state: ParserState}) => {
 	const availableInfo = getAvailableInfo({
-		fieldsToFetch: fields ?? {},
 		state,
 	});
 

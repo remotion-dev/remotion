@@ -224,9 +224,10 @@ const renderContent = (Root: React.FC) => {
 			<Internals.RemotionRoot
 				logLevel={window.remotion_logLevel}
 				numberOfAudioTags={0}
+				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 				onlyRenderComposition={bundleMode.compositionName}
 				currentCompositionMetadata={{
-					props: NoReactInternals.deserializeJSONWithCustomFields(
+					props: NoReactInternals.deserializeJSONWithSpecialTypes(
 						bundleMode.serializedResolvedPropsWithSchema,
 					),
 					durationInFrames: bundleMode.compositionDurationInFrames,
@@ -235,6 +236,9 @@ const renderContent = (Root: React.FC) => {
 					width: bundleMode.compositionWidth,
 					defaultCodec: bundleMode.compositionDefaultCodec,
 					defaultOutName: bundleMode.compositionDefaultOutName,
+					defaultVideoImageFormat:
+						bundleMode.compositionDefaultVideoImageFormat,
+					defaultPixelFormat: bundleMode.compositionDefaultPixelFormat,
 				}}
 			>
 				<Root />
@@ -252,6 +256,7 @@ const renderContent = (Root: React.FC) => {
 				numberOfAudioTags={0}
 				onlyRenderComposition={null}
 				currentCompositionMetadata={null}
+				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 			>
 				<Root />
 			</Internals.RemotionRoot>
@@ -379,13 +384,13 @@ if (typeof window !== 'undefined') {
 				return {
 					...data,
 					serializedResolvedPropsWithCustomSchema:
-						NoReactInternals.serializeJSONWithDate({
+						NoReactInternals.serializeJSONWithSpecialTypes({
 							data: props,
 							indent: undefined,
 							staticBase: null,
 						}).serializedString,
 					serializedDefaultPropsWithCustomSchema:
-						NoReactInternals.serializeJSONWithDate({
+						NoReactInternals.serializeJSONWithSpecialTypes({
 							data: defaultProps,
 							indent: undefined,
 							staticBase: null,
@@ -444,13 +449,13 @@ if (typeof window !== 'undefined') {
 		return {
 			...data,
 			serializedResolvedPropsWithCustomSchema:
-				NoReactInternals.serializeJSONWithDate({
+				NoReactInternals.serializeJSONWithSpecialTypes({
 					data: props,
 					indent: undefined,
 					staticBase: null,
 				}).serializedString,
 			serializedDefaultPropsWithCustomSchema:
-				NoReactInternals.serializeJSONWithDate({
+				NoReactInternals.serializeJSONWithSpecialTypes({
 					data: defaultProps,
 					indent: undefined,
 					staticBase: null,

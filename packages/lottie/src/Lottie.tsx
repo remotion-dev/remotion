@@ -43,6 +43,14 @@ export const Lottie = ({
 	const [handle] = useState(() =>
 		delayRender('Waiting for Lottie animation to load'),
 	);
+
+	// If component unmounts, continue the render
+	useEffect(() => {
+		return () => {
+			continueRender(handle);
+		};
+	}, [handle]);
+
 	const frame = useCurrentFrame();
 	currentFrameRef.current = frame;
 

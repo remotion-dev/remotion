@@ -33,10 +33,12 @@ import {
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 
+import type {StorageClass} from '@aws-sdk/client-s3';
 import {validateWebhook} from '@remotion/serverless-client';
 import type {GetRenderProgressInput} from './get-render-progress';
 import type {AwsRegion} from './regions';
 import type {RenderStillOnLambdaNonNullInput} from './render-still-on-lambda';
+import type {RequestHandler} from './types';
 import {validateLambdaCodec} from './validate-lambda-codec';
 import {validateServeUrl} from './validate-serveurl';
 
@@ -84,6 +86,8 @@ export type InnerRenderMediaOnLambdaInput = {
 	indent: boolean;
 	forcePathStyle: boolean;
 	metadata: Record<string, string> | null;
+	storageClass: StorageClass | null;
+	requestHandler: RequestHandler | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
@@ -132,6 +136,8 @@ export const makeLambdaRenderMediaPayload = async ({
 	metadata,
 	apiKey,
 	offthreadVideoThreads,
+	storageClass,
+	requestHandler,
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
@@ -165,6 +171,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: privacy === 'no-acl',
+		requestHandler: requestHandler ?? null,
 	});
 	return {
 		rendererFunctionName,
@@ -213,6 +220,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		metadata: metadata ?? null,
 		apiKey: apiKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		storageClass: storageClass ?? null,
 	};
 };
 
@@ -239,7 +247,6 @@ export const makeLambdaRenderStillPayload = async ({
 	inputProps,
 	imageFormat,
 	envVariables,
-	quality,
 	jpegQuality,
 	region,
 	maxRetries,
@@ -259,15 +266,11 @@ export const makeLambdaRenderStillPayload = async ({
 	deleteAfter,
 	forcePathStyle,
 	apiKey,
+	storageClass,
+	requestHandler,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
-	if (quality) {
-		throw new Error(
-			'The `quality` option is deprecated. Use `jpegQuality` instead.',
-		);
-	}
-
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
 	const serializedInputProps = await compressInputProps({
@@ -286,6 +289,7 @@ export const makeLambdaRenderStillPayload = async ({
 		providerSpecifics: awsImplementation,
 		forcePathStyle,
 		skipPutAcl: privacy === 'no-acl',
+		requestHandler,
 	});
 
 	return {
@@ -316,5 +320,6 @@ export const makeLambdaRenderStillPayload = async ({
 		forcePathStyle,
 		apiKey: apiKey ?? null,
 		offthreadVideoThreads: null,
+		storageClass: storageClass ?? null,
 	};
 };

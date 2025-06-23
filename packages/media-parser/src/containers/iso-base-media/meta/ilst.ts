@@ -1,8 +1,8 @@
-import type {BufferIterator} from '../../../buffer-iterator';
+import type {BufferIterator} from '../../../iterator/buffer-iterator';
 import type {BaseBox} from '../base-type';
 
 type IlstEntry = {
-	index: number;
+	index: string;
 	wellKnownType: number;
 	type: string;
 	value: Value;
@@ -110,9 +110,24 @@ export const parseIlstBox = ({
 	while (iterator.counter.getOffset() < size + offset) {
 		// metadata size
 		const metadataSize = iterator.getUint32();
-		const index = iterator.getUint32();
-		// "skip" as a number
-		if (index === 1936419184) {
+		const index = iterator.getAtom();
+
+		// this can be of a different type
+		if (!index.startsWith('�') && !index.startsWith('\u0000')) {
+			// "skip" as a number
+			if (index === 'skip') {
+				iterator.discard(metadataSize - 8);
+				continue;
+			}
+
+			// "----" atom in m4a files
+			// iTunes adds it for .m4a files
+			// not very interesting data, so we don't parse them
+			if (index === '----') {
+				iterator.discard(metadataSize - 8);
+				continue;
+			}
+
 			iterator.discard(metadataSize - 8);
 			continue;
 		}
@@ -120,6 +135,7 @@ export const parseIlstBox = ({
 		const innerSize = iterator.getUint32();
 		const type = iterator.getAtom();
 		const typeIndicator = iterator.getUint8();
+
 		if (typeIndicator !== 0) {
 			throw new Error('Expected type indicator to be 0');
 		}

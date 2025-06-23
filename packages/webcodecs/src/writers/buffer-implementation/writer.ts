@@ -1,6 +1,9 @@
-import type {CreateContent, Writer} from '@remotion/media-parser';
+import type {MediaParserInternalTypes} from '@remotion/media-parser';
 
-export const createContent: CreateContent = ({filename, mimeType}) => {
+export const createContent: MediaParserInternalTypes['CreateContent'] = ({
+	filename,
+	mimeType,
+}) => {
 	const buf = new ArrayBuffer(0, {
 		// TODO: Educate that the buffer is limited to 2GB
 		maxByteLength: 2_000_000_000,
@@ -26,7 +29,7 @@ export const createContent: CreateContent = ({filename, mimeType}) => {
 
 	let removed = false;
 
-	const writer: Writer = {
+	const writer: MediaParserInternalTypes['Writer'] = {
 		write: (arr: Uint8Array) => {
 			writPromise = writPromise.then(() => write(arr));
 			return writPromise;
@@ -45,7 +48,6 @@ export const createContent: CreateContent = ({filename, mimeType}) => {
 		getBlob() {
 			const arr = new Uint8Array(buf);
 			return Promise.resolve(
-				// TODO: Unhardcode MIME type and file name
 				new File([arr.slice()], filename, {type: mimeType}),
 			);
 		},

@@ -15,6 +15,9 @@ const config = (mode) => ({
 	projectName: 'remotion', // Usually your repo name.
 	future: {
 		experimental_faster: true,
+		v4: {
+			removeLegacyPostBuildHeadAttribute: true,
+		},
 	},
 	themeConfig: {
 		algolia: {
@@ -49,31 +52,49 @@ const config = (mode) => ({
 						}
 					: null,
 				{
-					to: 'https://www.remotion.pro/license',
-					label: 'Pricing',
+					type: 'dropdown',
+					label: 'Products',
 					position: 'left',
+					items: [
+						{to: '/player', label: 'Player'},
+						{to: '/lambda', label: 'Lambda'},
+						{to: '/docs/media-parser', label: 'Media Parser'},
+						{to: '/docs/webcodecs', label: 'WebCodecs'},
+						{to: '/docs/recorder', label: 'Recorder'},
+						{to: '/docs/timeline', label: 'Timeline'},
+					],
 				},
 				{
 					type: 'dropdown',
-					label: 'More',
+					label: 'Resources',
 					position: 'left',
 					items: [
+						{to: 'learn', label: 'Learn'},
 						{
 							to: '/docs/resources',
 							label: 'Resources',
 						},
-						{to: 'showcase', label: 'Showcase'},
-						{to: 'success-stories', label: 'Success Stories'},
 						{to: 'blog', label: 'Blog'},
-						{to: 'learn', label: 'Learn'},
-						{to: 'experts', label: 'Experts'},
-						{to: 'https://remotion.pro/store', label: 'Store'},
-						{to: '/docs/support', label: 'Support'},
+						{to: 'showcase', label: 'Showcase'},
 						{to: 'https://convert.remotion.dev', label: 'Convert a video'},
+						{to: '/docs/support', label: 'Support'},
+					],
+				},
+				{
+					type: 'dropdown',
+					label: 'Commercial',
+					position: 'left',
+					items: [
+						{to: 'https://remotion.pro/license', label: 'License + Pricing'},
+						{to: 'https://remotion.pro/store', label: 'Store'},
+						{to: 'success-stories', label: 'Success Stories'},
+						{to: 'experts', label: 'Experts'},
 						{to: 'about', label: 'About us'},
+						{to: '/docs/investors', label: 'Investors'},
 						{to: 'contact', label: 'Contact us'},
 					],
 				},
+
 				{
 					href: 'https://github.com/remotion-dev/remotion',
 					position: 'right',

@@ -16,9 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.2.5
+          node-version: 20
+          cache: "pnpm"
+      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@v2.0.2
+        with:
+          bun-version: 1.2.16
       - name: Install
         run: bun i
       - name: Cache turbo build setup
@@ -39,6 +43,35 @@ jobs:
         timeout-minutes: 10
         run: |
           cd packages/lambda && bun test src/test/integration --run
+  webcodecs-tests:
+    runs-on: macos-latest
+    name: Webcodecs tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: "8.10.2"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+      - uses: oven-sh/setup-bun@v2.0.1
+        with:
+          bun-version: 1.2.16
+      - name: Install
+        run: pnpm i --frozen-lockfile
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+      - name: Install deps
+        run: cd packages/webcodecs && bunx playwright install --with-deps
+      - name: Test Webcodecs
+        run: |
+          bun run testwebcodecs
   ssr-tests:
     runs-on: ubuntu-latest
     name: SSR integration
@@ -53,9 +86,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 16
-      - uses: oven-sh/setup-bun@v2
+          cache: "pnpm"
+
+      - uses: oven-sh/setup-bun@v2.0.2
         with:
-          bun-version: 1.2.5
+          bun-version: 1.2.16
       - name: Install
         run: bun i
       - name: Setup Python
@@ -94,9 +129,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - uses: oven-sh/setup-bun@v2
+          cache: "pnpm"
+
+      - uses: oven-sh/setup-bun@v2.0.2
         with:
-          bun-version: 1.2.5
+          bun-version: 1.2.16
       - name: Install
         run: bun i
         env:
@@ -116,7 +153,7 @@ jobs:
             node_version: 16
           - os: windows-latest
             node_version: 16
-          - os: macos-latest
+          - os: macos-13
             node_version: 16
           - os: macos-14
             node_version: 16
@@ -128,6 +165,9 @@ jobs:
         if: matrix.os == 'macos-14'
         with:
           go-version: "1.20"
+      - uses: pnpm/action-setup@v3
+        with:
+          version: "8.10.2"
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node_version }}
@@ -138,9 +178,9 @@ jobs:
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-turbo-
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@v2.0.2
         with:
-          bun-version: 1.2.5
+          bun-version: 1.2.16
       - name: Install
         run: bun i --verbose
       - name: Build & Test

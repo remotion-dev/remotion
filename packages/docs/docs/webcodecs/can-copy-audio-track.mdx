@@ -30,11 +30,14 @@ const {tracks, container} = await parseMedia({
   },
 });
 
-for (const track of tracks.audioTracks) {
+const audioTracks = tracks.filter((t) => t.type === 'audio');
+
+for (const track of audioTracks) {
   canCopyAudioTrack({
-    inputCodec: track.codecWithoutConfig,
+    inputCodec: track.codecEnum,
     outputContainer: 'webm',
     inputContainer: container,
+    outputAudioCodec: null,
   }); // bool
 }
 ```
@@ -49,9 +52,10 @@ await convertMedia({
   audioCodec: 'opus',
   onAudioTrack: async ({track, outputContainer, inputContainer}) => {
     const canCopy = canCopyAudioTrack({
-      inputCodec: track.codecWithoutConfig,
+      inputCodec: track.codecEnum,
       outputContainer,
       inputContainer,
+      outputAudioCodec: null,
     });
 
     if (canCopy) {
@@ -83,6 +87,12 @@ The container format of the input media.
 _string_ <TsType type="ConvertMediaContainer" source="@remotion/webcodecs" />
 
 The container format of the output media.
+
+### `outputAudioCodec`
+
+_string | null_ <TsType type="ConvertMediaAudioCodec" source="@remotion/webcodecs" />
+
+The desired audio codec of the output media. If `null`, it means you don't care about the audio codec as long as it can be copied.
 
 ## Return value
 

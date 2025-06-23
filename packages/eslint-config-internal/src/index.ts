@@ -30,6 +30,7 @@ export const remotionFlatConfig = ({
 			ecmaFeatures: {
 				jsx: true,
 			},
+			projectService: false,
 		},
 	},
 	settings: react

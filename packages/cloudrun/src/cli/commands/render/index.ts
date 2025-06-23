@@ -166,7 +166,7 @@ export const renderCommand = async (
 				width,
 				server: await server,
 				serializedInputPropsWithCustomSchema:
-					NoReactInternals.serializeJSONWithDate({
+					NoReactInternals.serializeJSONWithSpecialTypes({
 						data: inputProps,
 						indent: undefined,
 						staticBase: null,
@@ -296,7 +296,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		inputProps,
 		codec: codec as CloudrunCodec,
 		forceBucketName,
-		privacy,
+		privacy: parsedCloudrunCli.privacy ?? 'public',
 		outName,
 		updateRenderProgress,
 		jpegQuality,

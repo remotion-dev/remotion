@@ -35,6 +35,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 	onArtifact,
 	providerSpecifics,
 	insideFunctionSpecifics,
+	requestHandler,
 }: {
 	payload: ServerlessPayload<Provider>;
 	functionName: string;
@@ -45,6 +46,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	requestHandler: Provider['requestHandler'] | null;
 }) => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -71,7 +73,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 					outdir,
 					`chunk:${String(payload.chunk).padStart(8, '0')}:video`,
 				);
-				writeFileSync(filename, message.payload);
+				writeFileSync(filename, new Uint8Array(message.payload));
 				files.push(filename);
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
@@ -87,7 +89,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 					`chunk:${String(payload.chunk).padStart(8, '0')}:audio`,
 				);
 
-				writeFileSync(filename, message.payload);
+				writeFileSync(filename, new Uint8Array(message.payload));
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
 					`Received audio chunk for chunk ${payload.chunk}`,
@@ -172,6 +174,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 				timeoutInTest: 12000,
 				type: ServerlessRoutines.renderer,
 				receivedStreamingPayload,
+				requestHandler,
 			})
 			.then(() => {
 				resolve({
@@ -203,6 +206,7 @@ export const streamRendererFunctionWithRetry = async <
 	onArtifact,
 	providerSpecifics,
 	insideFunctionSpecifics,
+	requestHandler,
 }: {
 	payload: ServerlessPayload<Provider>;
 	functionName: string;
@@ -213,6 +217,7 @@ export const streamRendererFunctionWithRetry = async <
 	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
+	requestHandler: Provider['requestHandler'] | null;
 }): Promise<unknown> => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -228,6 +233,7 @@ export const streamRendererFunctionWithRetry = async <
 		onArtifact,
 		providerSpecifics,
 		insideFunctionSpecifics,
+		requestHandler,
 	});
 
 	if (result.type === 'error') {
@@ -255,6 +261,7 @@ export const streamRendererFunctionWithRetry = async <
 			onArtifact,
 			providerSpecifics,
 			insideFunctionSpecifics,
+			requestHandler,
 		});
 	}
 };

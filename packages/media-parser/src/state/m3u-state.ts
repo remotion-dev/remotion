@@ -3,10 +3,13 @@ import type {
 	M3uStream,
 } from '../containers/m3u/get-streams';
 import {sampleSorter} from '../containers/m3u/sample-sorter';
-import type {LogLevel} from '../log';
+import type {MediaParserLogLevel} from '../log';
 import {Log} from '../log';
 import type {IsoBaseMediaStructure} from '../parse-result';
-import type {OnAudioSample, OnVideoSample} from '../webcodec-sample-types';
+import type {
+	MediaParserOnAudioSample,
+	MediaParserOnVideoSample,
+} from '../webcodec-sample-types';
 
 export type M3uStreamOrInitialUrl =
 	| {
@@ -18,23 +21,32 @@ export type M3uStreamOrInitialUrl =
 			url: string;
 	  };
 
-export type ExistingM3uRun = {
-	continue: () => Promise<ExistingM3uRun | null>;
+export type M3uRun = {
+	continue: () => Promise<M3uRun | null>;
 	abort: () => void;
 };
 
-export const m3uState = (logLevel: LogLevel) => {
+type M3uSeek = {
+	targetTime: number;
+};
+
+export const m3uState = (logLevel: MediaParserLogLevel) => {
 	let selectedMainPlaylist: M3uStreamOrInitialUrl | null = null;
 	let associatedPlaylists: M3uAssociatedPlaylist[] | null = null;
-	const hasEmittedVideoTrack: Record<string, null | OnVideoSample> = {};
-	const hasEmittedAudioTrack: Record<string, null | OnAudioSample> = {};
+	const hasEmittedVideoTrack: Record<string, null | MediaParserOnVideoSample> =
+		{};
+	const hasEmittedAudioTrack: Record<string, null | MediaParserOnAudioSample> =
+		{};
 	const hasEmittedDoneWithTracks: Record<string, boolean> = {};
 	let hasFinishedManifest = false;
+
+	const seekToSecondsToProcess: Record<string, M3uSeek | null> = {};
+	const nextSeekShouldSubtractChunks: Record<string, number> = {};
 
 	let readyToIterateOverM3u = false;
 	const allChunksProcessed: Record<string, boolean> = {};
 
-	const m3uStreamRuns: Record<string, ExistingM3uRun> = {};
+	const m3uStreamRuns: Record<string, M3uRun> = {};
 	const tracksDone: Record<string, boolean> = {};
 
 	const getMainPlaylistUrl = () => {
@@ -77,7 +89,10 @@ export const m3uState = (logLevel: LogLevel) => {
 			selectedMainPlaylist = stream;
 		},
 		getSelectedMainPlaylist: () => selectedMainPlaylist,
-		setHasEmittedVideoTrack: (src: string, callback: OnVideoSample | null) => {
+		setHasEmittedVideoTrack: (
+			src: string,
+			callback: MediaParserOnVideoSample | null,
+		) => {
 			hasEmittedVideoTrack[src] = callback;
 		},
 		hasEmittedVideoTrack: (src: string) => {
@@ -88,7 +103,10 @@ export const m3uState = (logLevel: LogLevel) => {
 
 			return value;
 		},
-		setHasEmittedAudioTrack: (src: string, callback: OnAudioSample | null) => {
+		setHasEmittedAudioTrack: (
+			src: string,
+			callback: MediaParserOnAudioSample | null,
+		) => {
 			hasEmittedAudioTrack[src] = callback;
 		},
 		hasEmittedAudioTrack: (src: string) => {
@@ -111,6 +129,11 @@ export const m3uState = (logLevel: LogLevel) => {
 		setAllChunksProcessed: (src: string) => {
 			allChunksProcessed[src] = true;
 		},
+		clearAllChunksProcessed: () => {
+			Object.keys(allChunksProcessed).forEach((key) => {
+				delete allChunksProcessed[key];
+			});
+		},
 		getAllChunksProcessedForPlaylist,
 		getAllChunksProcessedOverall: () => {
 			if (!selectedMainPlaylist) {
@@ -124,7 +147,7 @@ export const m3uState = (logLevel: LogLevel) => {
 			hasFinishedManifest = true;
 		},
 		hasFinishedManifest: () => hasFinishedManifest,
-		setM3uStreamRun: (playlistUrl: string, run: ExistingM3uRun | null) => {
+		setM3uStreamRun: (playlistUrl: string, run: M3uRun | null) => {
 			if (!run) {
 				delete m3uStreamRuns[playlistUrl];
 				return;
@@ -139,6 +162,11 @@ export const m3uState = (logLevel: LogLevel) => {
 		},
 		getTrackDone: (playlistUrl: string) => {
 			return tracksDone[playlistUrl];
+		},
+		clearTracksDone: () => {
+			Object.keys(tracksDone).forEach((key) => {
+				delete tracksDone[key];
+			});
 		},
 		getM3uStreamRun: (playlistUrl: string) =>
 			m3uStreamRuns[playlistUrl] ?? null,
@@ -161,6 +189,19 @@ export const m3uState = (logLevel: LogLevel) => {
 		sampleSorter: sampleSorter({logLevel, getAllChunksProcessedForPlaylist}),
 		setMp4HeaderSegment,
 		getMp4HeaderSegment,
+		setSeekToSecondsToProcess: (
+			playlistUrl: string,
+			m3uSeek: M3uSeek | null,
+		) => {
+			seekToSecondsToProcess[playlistUrl] = m3uSeek;
+		},
+		getSeekToSecondsToProcess: (playlistUrl: string) =>
+			seekToSecondsToProcess[playlistUrl] ?? null,
+		setNextSeekShouldSubtractChunks: (playlistUrl: string, chunks: number) => {
+			nextSeekShouldSubtractChunks[playlistUrl] = chunks;
+		},
+		getNextSeekShouldSubtractChunks: (playlistUrl: string) =>
+			nextSeekShouldSubtractChunks[playlistUrl] ?? 0,
 	};
 };
 

@@ -86,7 +86,7 @@ export const SchemaLabel: React.FC<{
 					onPointerLeave={onClickablePointerLeave}
 					type="button"
 					onClick={handleClick}
-					style={{border: 'none', marginLeft: -6}}
+					style={{border: 'none', padding: 0}}
 				>
 					{labelContent}
 				</button>

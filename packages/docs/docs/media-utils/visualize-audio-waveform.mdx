@@ -73,6 +73,12 @@ Example: Your video has an `fps` of 30, and you pass 15 as the `frame` on `visua
 
 The amount of seconds the audio is offset, pass this parameter if you are using [`useWindowedAudioData()`](/docs/use-windowed-audio-data).
 
+### `normalize?`<AvailableFrom v="4.0.280" />
+
+_boolean_
+
+Default `false`. If set to `true`, then the wave data gets scaled so that the biggest value is `1`.
+
 ## Return value
 
 `number[]`
@@ -188,7 +194,7 @@ const waveform = visualizeAudioWaveform({
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/visualize-audio-waveform.ts)
-- [Audio visualization](/docs/audio-visualization)
+- [Audio visualization](/docs/audio/visualization)
 - [`useAudioData()`](/docs/use-audio-data)
 - [`getAudioData()`](/docs/get-audio-data)
 - [`<Audio/>`](/docs/audio)

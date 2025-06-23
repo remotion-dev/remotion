@@ -115,6 +115,8 @@ export const renderVideoFlow = async ({
 	metadata,
 	hardwareAcceleration,
 	chromeMode,
+	audioLatencyHint,
+	imageSequencePattern,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -172,6 +174,8 @@ export const renderVideoFlow = async ({
 	metadata: Record<string, string> | null;
 	hardwareAcceleration: HardwareAccelerationOption;
 	chromeMode: ChromeMode;
+	audioLatencyHint: AudioContextLatencyCategory | null;
+	imageSequencePattern: string | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
@@ -287,6 +291,7 @@ export const renderVideoFlow = async ({
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
 			publicPath,
+			audioLatencyHint,
 		},
 	);
 
@@ -518,7 +523,7 @@ export const renderVideoFlow = async ({
 			onFrameBuffer: null,
 			logLevel,
 			serializedResolvedPropsWithCustomSchema:
-				NoReactInternals.serializeJSONWithDate({
+				NoReactInternals.serializeJSONWithSpecialTypes({
 					indent: undefined,
 					staticBase: null,
 					data: config.props,
@@ -532,9 +537,10 @@ export const renderVideoFlow = async ({
 			onBrowserDownload,
 			onArtifact,
 			chromeMode,
+			imageSequencePattern,
 		});
 
-		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
+		Log.info({indent, logLevel}, chalk.blue(`\n▶ ${absoluteOutputFile}`));
 		return;
 	}
 
@@ -608,7 +614,7 @@ export const renderVideoFlow = async ({
 		onBrowserLog: null,
 		onStart: () => undefined,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: config.props,
 				indent: undefined,
 				staticBase: null,

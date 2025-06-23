@@ -183,7 +183,8 @@ code {
 	}
 }
 
-.pro-item a::after {
+.pro-item > div > a::after,
+.pro-item > a::after {
 	content: 'Paid';
 	font-size: 12px;
 	opacity: 0.7;
@@ -194,6 +195,7 @@ code {
 	padding-bottom: 1px;
 	margin-left: 6px;
 	border-radius: 4px;
+	transform: none !important;
 }
 
 .header-github-link::before {

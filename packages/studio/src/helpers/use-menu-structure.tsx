@@ -2,6 +2,7 @@ import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {restartStudio} from '../api/restart-studio';
+import {askAiModalRef} from '../components/AskAiModal';
 import type {Menu} from '../components/Menu/MenuItem';
 import type {
 	ComboboxValue,
@@ -623,6 +624,20 @@ export const useMenuStructure = (
 				label: 'Tools',
 				leaveLeftPadding: false,
 				items: [
+					{
+						id: 'ask-ai',
+						value: 'ask-ai',
+						label: 'Ask AI',
+						onClick: () => {
+							closeMenu();
+							askAiModalRef.current?.toggle();
+						},
+						leftItem: null,
+						keyHint: `${cmdOrCtrlCharacter}+I`,
+						subMenu: null,
+						type: 'item' as const,
+						quickSwitcherLabel: 'Ask AI',
+					},
 					'EyeDropper' in window
 						? {
 								id: 'color-picker',

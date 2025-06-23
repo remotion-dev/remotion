@@ -10,8 +10,8 @@ test('m3u8 stream selection 1', async () => {
 		},
 		selectM3uStream: ({streams}) => {
 			called = true;
-			expect(streams[1].resolution?.width).toBe(1280);
-			expect(streams[1].resolution?.height).toBe(720);
+			expect(streams[1].dimensions?.width).toBe(1280);
+			expect(streams[1].dimensions?.height).toBe(720);
 			return streams[1].id;
 		},
 		acknowledgeRemotionLicense: true,

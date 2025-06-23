@@ -3,9 +3,11 @@ import type {LogLevel} from './log';
 import {playbackLogging} from './playback-logging';
 import {useBufferState} from './use-buffer-state';
 
-const isWebkit = () => {
-	const isAppleWebKit = /AppleWebKit/.test(window.navigator.userAgent);
-	return isAppleWebKit;
+const isSafariWebkit = () => {
+	const isSafari = /^((?!chrome|android).)*safari/i.test(
+		window.navigator.userAgent,
+	);
+	return isSafari;
 };
 
 export const useBufferUntilFirstFrame = ({
@@ -42,18 +44,23 @@ export const useBufferUntilFirstFrame = ({
 				return;
 			}
 
-			playbackLogging({
-				logLevel,
-				message: `Checking if should buffer until first frame, ${current.readyState}`,
-				mountTime,
-				tag: 'buffer',
-			});
-
-			if (current.readyState >= current.HAVE_ENOUGH_DATA && !isWebkit()) {
+			if (current.readyState >= current.HAVE_FUTURE_DATA && !isSafariWebkit()) {
+				playbackLogging({
+					logLevel,
+					message: `Not using buffer until first frame, because readyState is ${current.readyState} and is not Safari or Desktop Chrome`,
+					mountTime,
+					tag: 'buffer',
+				});
 				return;
 			}
 
 			if (!current.requestVideoFrameCallback) {
+				playbackLogging({
+					logLevel,
+					message: `Not using buffer until first frame, because requestVideoFrameCallback is not supported`,
+					mountTime,
+					tag: 'buffer',
+				});
 				return;
 			}
 

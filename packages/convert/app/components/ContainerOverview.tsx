@@ -1,8 +1,8 @@
 import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
 import type {
-	Dimensions,
 	MediaParserAudioCodec,
 	MediaParserContainer,
+	MediaParserDimensions,
 	MediaParserLocation,
 	MediaParserMetadataEntry,
 	MediaParserVideoCodec,
@@ -19,7 +19,7 @@ import {MetadataDisplay} from './MetadataTable';
 import {Skeleton} from './ui/skeleton';
 
 export const ContainerOverview: React.FC<{
-	readonly dimensions: Dimensions | null | undefined;
+	readonly dimensions: MediaParserDimensions | null | undefined;
 	readonly durationInSeconds: number | null | undefined;
 	readonly videoCodec: MediaParserVideoCodec | null;
 	readonly audioCodec: MediaParserAudioCodec | null | undefined;
@@ -30,6 +30,7 @@ export const ContainerOverview: React.FC<{
 	readonly metadata: MediaParserMetadataEntry[] | null;
 	readonly location: MediaParserLocation | null;
 	readonly isAudioOnly: boolean;
+	readonly sampleRate: number | null;
 }> = ({
 	container,
 	dimensions,
@@ -42,6 +43,7 @@ export const ContainerOverview: React.FC<{
 	metadata,
 	location,
 	isAudioOnly,
+	sampleRate,
 }) => {
 	return (
 		<Table className="table-fixed">
@@ -134,6 +136,12 @@ export const ContainerOverview: React.FC<{
 						)}
 					</TableCell>
 				</TableRow>
+				{sampleRate !== null ? (
+					<TableRow>
+						<TableCell className="font-brand">Sample Rate</TableCell>
+						<TableCell className="text-right">{sampleRate} Hz</TableCell>
+					</TableRow>
+				) : null}
 				{isAudioOnly ? null : (
 					<TableRow>
 						<TableCell className="font-brand">HDR</TableCell>

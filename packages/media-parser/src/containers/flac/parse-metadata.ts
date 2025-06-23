@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import type {FlacVorbisComment} from './types';
@@ -32,7 +32,7 @@ export const parseVorbisComment = ({
 		box.fields.push({key: key.toLowerCase(), value, trackId: null});
 	}
 
-	state.getFlacStructure().boxes.push(box);
+	state.structure.getFlacStructure().boxes.push(box);
 
 	expectNoMoreBytes();
 

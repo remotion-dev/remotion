@@ -2,7 +2,7 @@
 image: /generated/articles-docs-lambda-custom-layers.png
 title: Custom Layers
 slug: custom-layers
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
 import Tabs from '@theme/Tabs';
@@ -27,22 +27,22 @@ Consider using our layer options before creating a custom stack:
 
 With the default option (`--runtime-preference=cjk` or no option):
 
-| Item         | Size   |
-|--------------|--------|
-| chromium     | 188 MB   |
+| Item         | Size     |
+| ------------ | -------- |
+| chromium     | 196 MB   |
 | emoji-google | 9.9 MB   |
 | fonts        | 1.9 MB   |
 | cjk          | 16 MB    |
-| **Total**    | 215.8 MB |
+| **Total**    | 223.8 MB |
 
 With the option [`--runtime-preference=apple-emojis`](/docs/lambda/deployfunction#runtimepreference):
 
-| Item         | Size   |
-|--------------|--------|
-| chromium     | 188 MB   |
-| emoji-apple  | 45 MB    |
-| fonts        | 1.9 MB   |
-| **Total**    | 235.9 MB |
+| Item        | Size     |
+| ----------- | -------- |
+| chromium    | 196 MB   |
+| emoji-apple | 45 MB    |
+| fonts       | 1.9 MB   |
+| **Total**   | 242.9 MB |
 
 :::note
 Note that by enabling the Apple Emojis, to stay under the 250 MB limit, support for CJK (Chinese, Japanese, Korean) characters will be removed.  
@@ -128,10 +128,7 @@ Before you can update a function via the Node.JS APIs, you need to [add another 
   {
     "Sid": "UpdateFunction",
     "Effect": "Allow",
-    "Action": [
-      "lambda:GetFunctionConfiguration",
-      "lambda:UpdateFunctionConfiguration"
-    ],
+    "Action": ["lambda:GetFunctionConfiguration", "lambda:UpdateFunctionConfiguration"],
     "Resource": ["arn:aws:lambda:*:*:function:remotion-render-*"]
   },
   {
@@ -146,17 +143,17 @@ Before you can update a function via the Node.JS APIs, you need to [add another 
 Given a region, function name, layer to remove and layer to add, you can use the following snippet to update a function with custom layers
 
 ```ts
-import { AwsRegion, getAwsClient } from "@remotion/lambda";
+import {AwsRegion, getAwsClient} from '@remotion/lambda';
 
 // Customize these parameters
-const REGION: AwsRegion = "us-east-1";
-const FUNCTION_NAME = "remotion-render-2022-06-02-mem3000mb-disk2048mb-120sec";
+const REGION: AwsRegion = 'us-east-1';
+const FUNCTION_NAME = 'remotion-render-2022-06-02-mem3000mb-disk2048mb-120sec';
 const LAYER_TO_REMOVE = /fonts/;
-const LAYER_TO_ADD = "arn:aws:lambda:us-east-1:1234567891:layer:apple-emoji:1";
+const LAYER_TO_ADD = 'arn:aws:lambda:us-east-1:1234567891:layer:apple-emoji:1';
 
-const { client, sdk } = getAwsClient({
+const {client, sdk} = getAwsClient({
   region: REGION,
-  service: "lambda",
+  service: 'lambda',
 });
 
 const fnConfig = await client.send(
@@ -172,12 +169,7 @@ if (!fnConfig) {
 await client.send(
   new sdk.UpdateFunctionConfigurationCommand({
     FunctionName: FUNCTION_NAME,
-    Layers: [
-      ...(fnConfig.Layers ?? [])
-        .filter((l) => !l.Arn?.match(LAYER_TO_REMOVE))
-        .map((l) => l.Arn as string),
-      LAYER_TO_ADD,
-    ],
+    Layers: [...(fnConfig.Layers ?? []).filter((l) => !l.Arn?.match(LAYER_TO_REMOVE)).map((l) => l.Arn as string), LAYER_TO_ADD],
   }),
 );
 ```

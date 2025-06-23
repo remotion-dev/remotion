@@ -1,4 +1,5 @@
 import {getRemotionEnvironment} from 'remotion';
+import type {ZodTypesType} from '../components/get-zod-if-possible';
 import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import {callUpdateDefaultPropsApi} from '../components/RenderQueue/actions';
 import type {UpdateDefaultPropsFunction} from './helpers/calc-new-props';
@@ -32,6 +33,10 @@ export const saveDefaultProps = async ({
 	}
 
 	const z = await import('zod');
+	let zodTypes: ZodTypesType | null = null;
+	try {
+		zodTypes = await import('@remotion/zod-types');
+	} catch {}
 
 	const {generatedDefaultProps, composition} = calcNewProps(
 		compositionId,
@@ -41,7 +46,14 @@ export const saveDefaultProps = async ({
 	const res = await callUpdateDefaultPropsApi(
 		compositionId,
 		generatedDefaultProps,
-		composition.schema ? extractEnumJsonPaths(composition.schema, z, []) : [],
+		composition.schema
+			? extractEnumJsonPaths({
+					schema: composition.schema,
+					zodRuntime: z,
+					currentPath: [],
+					zodTypes,
+				})
+			: [],
 	);
 
 	if (res.success) {

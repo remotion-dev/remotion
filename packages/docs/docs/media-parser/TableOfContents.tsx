@@ -20,6 +20,10 @@ export const MediaParserGuideTableOfContents: React.FC = () => {
 						Efficently use <code>parseMedia()</code>
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/media-parser/samples">
+					<strong>Extract samples</strong>
+					<div>Extract video and audio samples from a media file</div>
+				</TOCItem>
 				<TOCItem link="/docs/media-parser/readers">
 					<strong>Readers</strong>
 					<div>Read from a variety of sources</div>
@@ -27,6 +31,10 @@ export const MediaParserGuideTableOfContents: React.FC = () => {
 				<TOCItem link="/docs/media-parser/pause-resume-abort">
 					<strong>Pause, resume and abort</strong>
 					<div>Steer the parsing process</div>
+				</TOCItem>
+				<TOCItem link="/docs/media-parser/seeking">
+					<strong>Seeking</strong>
+					<div>Seek to a different position in a media file</div>
 				</TOCItem>
 				<TOCItem link="/docs/media-parser/format-support">
 					<strong>Format support</strong>
@@ -41,7 +49,7 @@ export const MediaParserGuideTableOfContents: React.FC = () => {
 					<div>Get embedded tags from video files</div>
 				</TOCItem>
 				<TOCItem link="/docs/media-parser/workers">
-					<strong>Parsing on Web Workers</strong>
+					<strong>Web Workers</strong>
 					<div>Parse a media file in the browser on a separate thread.</div>
 				</TOCItem>
 				<TOCItem link="/docs/media-parser/download-and-parse">
@@ -95,6 +103,13 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'hasBeenAborted()'}</strong>
 					<div>Determine from an error if the parsing has been aborted.</div>
 				</TOCItem>
+				<TOCItem link="/docs/media-parser/webcodecs-timescale">
+					<strong>{'WEBCODECS_TIMESCALE'}</strong>
+					<div>
+						The global timescale (<code>1_000_000</code>) of WebCodecs as a
+						constant.
+					</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);
@@ -133,6 +148,19 @@ export const WritersTableOfContents: React.FC = () => {
 				<TOCItem link="/docs/media-parser/node-writer">
 					<strong>{'nodeWriter'}</strong>
 					<div>Write a file to the local file system using Node.</div>
+				</TOCItem>
+			</Grid>
+		</div>
+	);
+};
+
+export const TypesTableOfContents: React.FC = () => {
+	return (
+		<div>
+			<Grid>
+				<TOCItem link="/docs/media-parser/types">
+					<strong>{'TypeScript types'}</strong>
+					<div>Reference for the types returned by Media Parser.</div>
 				</TOCItem>
 			</Grid>
 		</div>

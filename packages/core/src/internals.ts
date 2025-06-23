@@ -1,3 +1,4 @@
+import {createRef} from 'react';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -43,7 +44,7 @@ import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
 import {Log} from './log.js';
-import {NonceContext} from './nonce.js';
+import {NonceContext, SetNonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -106,6 +107,13 @@ import {
 	useRemotionContexts,
 } from './wrap-remotion-context.js';
 
+// needs to be in core package so gets deduplicated in studio
+const compositionSelectorRef = createRef<{
+	expandComposition: (compName: string) => void;
+	selectComposition: (compName: string) => void;
+	toggleFolder: (folderName: string, parentName: string | null) => void;
+}>();
+
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
@@ -148,6 +156,7 @@ export const Internals = {
 	EditorPropsContext,
 	usePreload,
 	NonceContext,
+	SetNonceContext,
 	resolveVideoConfig,
 	useResolvedVideoConfig,
 	resolveCompositionsRef,
@@ -174,6 +183,7 @@ export const Internals = {
 	useLogLevel,
 	playbackLogging,
 	timeValueRef,
+	compositionSelectorRef,
 } as const;
 
 export type {

@@ -10,19 +10,36 @@ import type {
 	InsideFunctionSpecifics,
 	InvokeWebhookParams,
 } from '@remotion/serverless';
+import {Log} from '../cli/log';
 import {mockBundleSite} from './mocks/mock-bundle-site';
 import {mockCreateFunction} from './mocks/mock-create-function';
 import {mockReadDirectory} from './mocks/mock-read-dir';
 import {mockUploadDir} from './mocks/upload-dir';
 
-export const getBrowserInstance: GetBrowserInstance = async () => {
-	return {instance: await openBrowser('chrome'), configurationString: 'chrome'};
+const browsersOpen: Map<string, boolean> = new Map();
+export const getBrowserInstance: GetBrowserInstance = async ({
+	logLevel,
+	indent,
+}) => {
+	const instance = await openBrowser('chrome', {logLevel});
+	browsersOpen.set(instance.id, true);
+	Log.verbose(
+		{logLevel, indent},
+		`Opening new browser instance ${instance.id}. ${browsersOpen.size} browsers open`,
+	);
+	return {instance, configurationString: 'chrome'};
 };
 
 const paramsArray: InvokeWebhookParams[] = [];
 
 export const mockServerImplementation: InsideFunctionSpecifics<AwsProvider> = {
 	forgetBrowserEventLoop: ({launchedBrowser}) => {
+		browsersOpen.delete(launchedBrowser.instance.id);
+
+		Log.verbose(
+			{logLevel: 'verbose', indent: false},
+			`Closing browser instance ${launchedBrowser.instance.id}. ${browsersOpen.size} browsers open`,
+		);
 		launchedBrowser.instance.close({silent: false});
 	},
 	getCurrentRegionInFunction: () => 'eu-central-1',

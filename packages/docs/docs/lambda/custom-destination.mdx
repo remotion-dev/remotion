@@ -45,7 +45,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
 
 If you like to use this feature:
 
-- You must extend the [default Remotion policy](/docs/lambda/permissions) to allow read and write access to that bucket.
+- You must extend the [default Remotion role policy](/docs/lambda/permissions) (not user policy) to allow read and write access to that bucket.
 - The bucket must be in the same region.
 - When calling APIs such as [`downloadMedia()`](/docs/lambda/downloadmedia) or [`getRenderProgress()`](/docs/lambda/getrenderprogress), you must pass the `bucketName` where the site resides in, not the bucket where the video gets saved.
 - The `key` must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`
@@ -59,8 +59,24 @@ _Available from v3.2.23_
 
 You can upload the file to another S3-compatible provider.
 
-- List of working providers (non-exhaustive): [Supabase](/docs/lambda/supabase), [Cloudflare](/docs/lambda/r2), DigitalOcean Spaces
-- List of unsupported providers (non-exhaustive): Azure Blob Storage (not S3 compatible)
+- List of working providers (non-exhaustive):
+
+  - ✅ [Supabase](/docs/lambda/supabase)
+  - ✅ [Cloudflare](/docs/lambda/r2)
+  - ✅ DigitalOcean Spaces
+  - ✅ Google Cloud Storage  
+    Notes about Google Cloud Storage:
+
+    - GCP does support allowing underscores for bucket names, but we validate against it. Do not use underscores in your bucket name.
+    - The bucket needs to have uniform access control and NOT fine-grained access.
+    - To get your `accessKeyId` and `secretAccessKey`, create a service account that has Cloud Storage read + write permissions. Then run the following command:
+
+    ```sh
+    gcloud storage hmac create insert_google_service_account_email --project=insert_project_id
+    ```
+
+- List of unsupported providers (non-exhaustive):
+  - Azure Blob Storage (not S3 compatible)
 
 You must pass an `outName` [as specified above](#customizing-the-output-bucket) and also provide an `s3OutputProvider` like in the example below.
 
@@ -108,8 +124,8 @@ If you plan on saving to another bucket on AWS S3 and would like to use differen
 {
   "s3OutputProvider": {
     "endpoint": "https://s3.us-west-1.amazonaws.com",
-    "accessKeyId": "<DIGITAL_OCEAN_ACCESS_KEY_ID>",
-    "secretAccessKey": "<DIGITAL_OCEAN_SECRET_ACCESS_KEY>",
+    "accessKeyId": "<AWS_ACCESS_KEY_ID>",
+    "secretAccessKey": "<AWS_SECRET_ACCESS_KEY>",
     "region": "us-west-1"
   }
 }

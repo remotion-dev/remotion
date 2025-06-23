@@ -1,8 +1,13 @@
 // https://www.itu.int/rec/T-REC-H.264-202408-I/en
 // Page 455
 
-import type {BufferIterator} from '../../buffer-iterator';
-import {getArrayBufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
+import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
+import type {AvcState} from '../../state/avc/avc-state';
+import type {
+	MediaParserAvcDeltaFrameInfo,
+	MediaParserAvcKeyframeInfo,
+} from '../../webcodec-sample-types';
 
 const Extended_SAR = 255;
 
@@ -17,6 +22,52 @@ type VuiParameters = {
 	matrix_coefficients: number | null;
 	chroma_sample_loc_type_top_field: number | null;
 	chroma_sample_loc_type_bottom_field: number | null;
+};
+
+const getPoc = (
+	iterator: BufferIterator,
+	sps: SpsInfo,
+	avcState: AvcState,
+	isReferencePicture: boolean,
+) => {
+	const {pic_order_cnt_type, log2_max_pic_order_cnt_lsb_minus4} = sps;
+	if (pic_order_cnt_type !== 0) {
+		return null;
+	}
+
+	const prevPicOrderCntLsb = avcState.getPrevPicOrderCntLsb();
+	const prevPicOrderCntMsb = avcState.getPrevPicOrderCntMsb();
+
+	if (log2_max_pic_order_cnt_lsb_minus4 === null) {
+		throw new Error('log2_max_pic_order_cnt_lsb_minus4 is null');
+	}
+
+	const max_pic_order_cnt_lsb = 2 ** (log2_max_pic_order_cnt_lsb_minus4 + 4);
+	const pic_order_cnt_lsb = iterator.getBits(
+		log2_max_pic_order_cnt_lsb_minus4 + 4,
+	);
+	let picOrderCntMsb;
+	if (
+		pic_order_cnt_lsb < prevPicOrderCntLsb &&
+		prevPicOrderCntLsb - pic_order_cnt_lsb >= max_pic_order_cnt_lsb / 2
+	) {
+		picOrderCntMsb = prevPicOrderCntMsb + max_pic_order_cnt_lsb;
+	} else if (
+		pic_order_cnt_lsb > prevPicOrderCntLsb &&
+		pic_order_cnt_lsb - prevPicOrderCntLsb > max_pic_order_cnt_lsb / 2
+	) {
+		picOrderCntMsb = prevPicOrderCntMsb - max_pic_order_cnt_lsb;
+	} else {
+		picOrderCntMsb = prevPicOrderCntMsb;
+	}
+
+	const poc = picOrderCntMsb + pic_order_cnt_lsb;
+	if (isReferencePicture) {
+		avcState.setPrevPicOrderCntLsb(pic_order_cnt_lsb);
+		avcState.setPrevPicOrderCntMsb(picOrderCntMsb);
+	}
+
+	return poc;
 };
 
 const readVuiParameters = (iterator: BufferIterator): VuiParameters => {
@@ -86,7 +137,7 @@ export type SpsInfo = {
 	bit_depth_luma_minus8: number | null;
 	bit_depth_chroma_minus8: number | null;
 	qpprime_y_zero_transform_bypass_flag: number | null;
-	log2_max_frame_num_minus4: number | null;
+	log2_max_frame_num_minus4: number;
 	log2_max_pic_order_cnt_lsb_minus4: number | null;
 	max_num_ref_frames: number | null;
 	gaps_in_frame_num_value_allowed_flag: number | null;
@@ -99,6 +150,7 @@ export type SpsInfo = {
 	frame_crop_top_offset: number | null;
 	frame_crop_bottom_offset: number | null;
 	vui_parameters: VuiParameters | null;
+	pic_order_cnt_type: number;
 };
 
 const readSps = (iterator: BufferIterator): SpsInfo => {
@@ -222,6 +274,7 @@ const readSps = (iterator: BufferIterator): SpsInfo => {
 		frame_crop_top_offset,
 		mb_adaptive_frame_field_flag,
 		vui_parameters,
+		pic_order_cnt_type,
 	};
 };
 
@@ -239,12 +292,8 @@ export type AvcPPs = {
 export type AvcInfo =
 	| AvcProfileInfo
 	| AvcPPs
-	| {
-			type: 'keyframe';
-	  }
-	| {
-			type: 'delta-frame';
-	  };
+	| MediaParserAvcKeyframeInfo
+	| MediaParserAvcDeltaFrameInfo;
 
 const findEnd = (buffer: Uint8Array) => {
 	let zeroesInARow = 0;
@@ -266,17 +315,29 @@ const findEnd = (buffer: Uint8Array) => {
 	return null;
 };
 
-const inspect = (buffer: Uint8Array): AvcInfo | null => {
-	const iterator = getArrayBufferIterator(buffer, buffer.byteLength);
+const inspect = (buffer: Uint8Array, avcState: AvcState): AvcInfo | null => {
+	const iterator = getArrayBufferIterator({
+		initialData: buffer,
+		maxBytes: buffer.byteLength,
+		logLevel: 'error',
+	});
 	iterator.startReadingBits();
-	iterator.getBits(1);
-	iterator.getBits(2);
-	const type = iterator.getBits(5);
-	iterator.stopReadingBits();
+	iterator.getBits(1); // forbidden_zero_bit
+	const nal_ref_idc = iterator.getBits(2); // nal_ref_idc
+	const isReferencePicture = nal_ref_idc !== 0;
+
+	const type = iterator.getBits(5); // nal_unit_type
 	if (type === 7) {
+		iterator.stopReadingBits();
+
 		const end = findEnd(buffer);
 		const data = readSps(iterator);
 		const sps = buffer.slice(0, end === null ? Infinity : end);
+		avcState.setSps(data);
+		if (isReferencePicture) {
+			avcState.setPrevPicOrderCntLsb(0);
+			avcState.setPrevPicOrderCntMsb(0);
+		}
 
 		return {
 			spsData: data,
@@ -286,15 +347,40 @@ const inspect = (buffer: Uint8Array): AvcInfo | null => {
 	}
 
 	if (type === 5) {
+		avcState.setPrevPicOrderCntLsb(0);
+		avcState.setPrevPicOrderCntMsb(0);
+		iterator.readExpGolomb(); // ignore first_mb_in_slice
+		iterator.readExpGolomb(); // slice_type
+		iterator.readExpGolomb(); // pic_parameter_set_id
+		const sps = avcState.getSps();
+		if (!sps) {
+			throw new Error('SPS not found');
+		}
+
+		const numberOfBitsForFrameNum = sps.log2_max_frame_num_minus4 + 4;
+		iterator.getBits(numberOfBitsForFrameNum); // frame_num
+		iterator.readExpGolomb(); // idr_pic_id
+
+		const {pic_order_cnt_type} = sps;
+
+		let poc: number | null = null;
+		if (pic_order_cnt_type === 0) {
+			poc = getPoc(iterator, sps, avcState, isReferencePicture);
+		}
+
+		iterator.stopReadingBits();
+
 		return {
 			type: 'keyframe',
+			poc,
 		};
 	}
 
 	if (type === 8) {
+		iterator.stopReadingBits();
+
 		const end = findEnd(buffer);
 		const pps = buffer.slice(0, end === null ? Infinity : end);
-
 		return {
 			type: 'avc-pps',
 			pps,
@@ -302,8 +388,30 @@ const inspect = (buffer: Uint8Array): AvcInfo | null => {
 	}
 
 	if (type === 1) {
+		iterator.readExpGolomb(); // ignore first_mb_in_slice
+		const slice_type = iterator.readExpGolomb();
+		const isBidirectionalFrame = slice_type === 6;
+		iterator.readExpGolomb(); // pic_parameter_set_id
+		const sps = avcState.getSps();
+		if (!sps) {
+			throw new Error('SPS not found');
+		}
+
+		const numberOfBitsForFrameNum = sps.log2_max_frame_num_minus4 + 4;
+		iterator.getBits(numberOfBitsForFrameNum); // frame_num
+		const {pic_order_cnt_type} = sps;
+
+		let poc: number | null = null;
+		if (pic_order_cnt_type === 0) {
+			poc = getPoc(iterator, sps, avcState, isReferencePicture);
+		}
+
+		iterator.stopReadingBits();
+
 		return {
 			type: 'delta-frame',
+			isBidirectionalFrame,
+			poc,
 		};
 	}
 
@@ -312,7 +420,7 @@ const inspect = (buffer: Uint8Array): AvcInfo | null => {
 };
 
 // https://stackoverflow.com/questions/24884827/possible-locations-for-sequence-picture-parameter-sets-for-h-264-stream
-export const parseAvc = (buffer: Uint8Array): AvcInfo[] => {
+export const parseAvc = (buffer: Uint8Array, avcState: AvcState): AvcInfo[] => {
 	let zeroesInARow = 0;
 	const infos: AvcInfo[] = [];
 
@@ -326,7 +434,7 @@ export const parseAvc = (buffer: Uint8Array): AvcInfo[] => {
 
 		if (zeroesInARow >= 2 && val === 1) {
 			zeroesInARow = 0;
-			const info = inspect(buffer.slice(i + 1, i + 100));
+			const info = inspect(buffer.slice(i + 1, i + 100), avcState);
 			if (info) {
 				infos.push(info);
 				if (info.type === 'keyframe' || info.type === 'delta-frame') {

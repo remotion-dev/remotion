@@ -201,6 +201,8 @@ const makeTopRow = (overall: RenderProgress) => {
 	return CliInternals.chalk.gray(str);
 };
 
+const ARTIFACTS_SHOWN = 5;
+
 export const makeArtifactProgress = <Provider extends CloudProvider>(
 	artifactProgress: ReceivedArtifact<Provider>[],
 ) => {
@@ -208,7 +210,8 @@ export const makeArtifactProgress = <Provider extends CloudProvider>(
 		return null;
 	}
 
-	return artifactProgress
+	const artifacts = artifactProgress
+		.slice(0, ARTIFACTS_SHOWN)
 		.map((artifact) => {
 			return [
 				// TODO: Whitelabel S3
@@ -216,7 +219,7 @@ export const makeArtifactProgress = <Provider extends CloudProvider>(
 				CliInternals.chalk.blue(
 					CliInternals.makeHyperlink({
 						url: artifact.s3Url,
-						fallback: artifact.filename,
+						fallback: artifact.s3Key,
 						text: artifact.s3Key,
 					}),
 				),
@@ -227,6 +230,18 @@ export const makeArtifactProgress = <Provider extends CloudProvider>(
 		})
 		.filter(truthy)
 		.join('\n');
+
+	const moreSizeCombined = artifactProgress
+		.slice(ARTIFACTS_SHOWN)
+		.reduce((acc, artifact) => acc + artifact.sizeInBytes, 0);
+
+	const more =
+		artifactProgress.length > ARTIFACTS_SHOWN
+			? CliInternals.chalk.gray(
+					`${' '.repeat(CliInternals.LABEL_WIDTH)} ${artifactProgress.length - ARTIFACTS_SHOWN} more artifact${artifactProgress.length - ARTIFACTS_SHOWN === 1 ? '' : 's'} ${CliInternals.formatBytes(moreSizeCombined)}`,
+				)
+			: null;
+	return [artifacts, more].filter(truthy).join('\n');
 };
 
 export const makeProgressString = ({

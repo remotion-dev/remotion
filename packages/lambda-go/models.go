@@ -42,6 +42,7 @@ type RemotionOptions struct {
 	ApiKey                         interface{}            `json:"apiKey"`
 	BucketName                     interface{}            `json:"bucketName"`
 	AudioCodec                     interface{}            `json:"audioCodec"`
+	StorageClass                   interface{}            `json:"storageClass"`
 	ForceBucketName                string                 `json:"forceBucketName"`
 	Gl                             string                 `json:"gl"`
 	X264Preset                     interface{}            `json:"x264Preset"`
@@ -93,11 +94,11 @@ type renderInternalOptions struct {
 	ApiKey                         interface{}            `json:"apiKey"`
 	BucketName                     interface{}            `json:"bucketName"`
 	AudioCodec                     interface{}            `json:"audioCodec"`
-
-	ForceBucketName string      `json:"forceBucketName,omitempty"`
-	Gl              *string     `json:"gl,omitempty"`
-	X264Preset      interface{} `json:"x264Preset"`
-	DeleteAfter     *string     `json:"deleteAfter"`
+	StorageClass                   interface{}            `json:"storageClass"`
+	ForceBucketName                string                 `json:"forceBucketName,omitempty"`
+	Gl                             *string                `json:"gl,omitempty"`
+	X264Preset                     interface{}            `json:"x264Preset"`
+	DeleteAfter                    *string                `json:"deleteAfter"`
 }
 
 type RawInvokeResponse struct {
@@ -129,25 +130,49 @@ type renderProgressInternalConfig struct {
 	LogLevel   string `json:"logLevel" validate:"required"`
 }
 
+type FileNameAndSize struct {
+	Name string `json:"name"`
+	Size int    `json:"size"`
+}
+
+type TmpDir struct {
+	Files []FileNameAndSize `json:"files"`
+	Total int               `json:"total"`
+}
+
+type FunctionErrorInfo struct {
+	Type          string  `json:"type"`
+	Message       string  `json:"message"`
+	Name          string  `json:"name"`
+	Stack         string  `json:"stack"`
+	Frame         *int    `json:"frame,omitempty"`
+	Chunk         *int    `json:"chunk,omitempty"`
+	IsFatal       bool    `json:"isFatal"`
+	Attempt       int     `json:"attempt"`
+	WillRetry     bool    `json:"willRetry"`
+	TotalAttempts int     `json:"totalAttempts"`
+	TmpDir        *TmpDir `json:"tmpDir,omitempty"`
+}
+
 type RenderProgress struct {
-	OverallProgress          float64         `json:"overallProgress"`
-	Chunks                   int             `json:"chunks"`
-	Done                     bool            `json:"done"`
-	EncodingStatus           *EncodingStatus `json:"encodingStatus,omitempty"`
-	Costs                    *Costs          `json:"costs,omitempty"`
-	RenderId                 string          `json:"renderId"`
-	RenderMetadata           *RenderMetadata `json:"renderMetadata,omitempty"`
-	OutputFile               *string         `json:"outputFile,omitempty"`
-	OutKey                   *string         `json:"outKey,omitempty"`
-	TimeToFinish             *int            `json:"timeToFinish,omitempty"`
-	Errors                   []string        `json:"errors,omitempty"`
-	FatalErrorEncountered    bool            `json:"fatalErrorEncountered"`
-	CurrentTime              int64           `json:"currentTime"`
-	RenderSize               int64           `json:"renderSize"`
-	OutputSizeInBytes        *int64          `json:"outputSizeInBytes,omitempty"`
-	LambdasInvoked           int             `json:"lambdasInvoked"`
-	FramesRendered           *int            `json:"framesRendered,omitempty"`
-	MostExpensiveFrameRanges []FrameRange    `json:"mostExpensiveFrameRanges,omitempty"`
+	OverallProgress          float64             `json:"overallProgress"`
+	Chunks                   int                 `json:"chunks"`
+	Done                     bool                `json:"done"`
+	EncodingStatus           *EncodingStatus     `json:"encodingStatus,omitempty"`
+	Costs                    *Costs              `json:"costs,omitempty"`
+	RenderId                 string              `json:"renderId"`
+	RenderMetadata           *RenderMetadata     `json:"renderMetadata,omitempty"`
+	OutputFile               *string             `json:"outputFile,omitempty"`
+	OutKey                   *string             `json:"outKey,omitempty"`
+	TimeToFinish             *int                `json:"timeToFinish,omitempty"`
+	Errors                   []FunctionErrorInfo `json:"errors,omitempty"`
+	FatalErrorEncountered    bool                `json:"fatalErrorEncountered"`
+	CurrentTime              int64               `json:"currentTime"`
+	RenderSize               int64               `json:"renderSize"`
+	OutputSizeInBytes        *int64              `json:"outputSizeInBytes,omitempty"`
+	LambdasInvoked           int                 `json:"lambdasInvoked"`
+	FramesRendered           *int                `json:"framesRendered,omitempty"`
+	MostExpensiveFrameRanges []FrameRange        `json:"mostExpensiveFrameRanges,omitempty"`
 }
 
 type EncodingStatus struct {

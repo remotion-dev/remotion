@@ -4,8 +4,10 @@ import {Blank} from '../icons/blank';
 import {CodeHike} from '../icons/code-hike';
 import {Cubes} from '../icons/cubes';
 import {JSIcon} from '../icons/js';
+import {MusicIcon} from '../icons/music';
 import {NextIcon} from '../icons/next';
 import {OverlayIcon} from '../icons/overlay';
+import {Recorder} from '../icons/recorder';
 import {ReactRouterIcon} from '../icons/remix';
 import {SkiaIcon} from '../icons/skia';
 import {Stargazer} from '../icons/stargazer';
@@ -110,6 +112,16 @@ export const IconForTemplate: React.FC<{
 		);
 	}
 
+	if (template.cliId === 'music-visualization') {
+		return (
+			<MusicIcon
+				style={{
+					height: scale * 32,
+				}}
+			/>
+		);
+	}
+
 	if (template.cliId === 'react-router') {
 		return (
 			<ReactRouterIcon
@@ -122,6 +134,10 @@ export const IconForTemplate: React.FC<{
 
 	if (template.cliId === 'overlay') {
 		return <OverlayIcon style={{height: scale * 42}} />;
+	}
+
+	if (template.cliId === 'recorder') {
+		return <Recorder style={{height: scale * 36}} />;
 	}
 
 	if (

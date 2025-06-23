@@ -55,6 +55,8 @@ const container: React.CSSProperties = {
 const style: React.CSSProperties = {
 	width: '100%',
 	height: '100%',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const getClientXWithScroll = (x: number) => {

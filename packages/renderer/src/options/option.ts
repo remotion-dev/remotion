@@ -5,7 +5,7 @@ export type RemotionOption<SsrName extends string, Type> = {
 	cliFlag: string;
 	ssrName: SsrName | null;
 	description: (mode: 'ssr' | 'cli') => React.ReactNode;
-	docLink: string;
+	docLink: string | null;
 	type: Type;
 	getValue: (
 		values: {commandLine: Record<string, unknown>},

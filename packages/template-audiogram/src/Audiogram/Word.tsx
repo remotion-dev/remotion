@@ -33,10 +33,10 @@ export const Word: React.FC<{
   const style: React.CSSProperties = useMemo(() => {
     return {
       display: "inline-block",
+      whiteSpace: "pre",
       opacity,
       translate: `0 ${translateY}em`,
       color: transcriptionColor,
-      whiteSpace: "pre",
     };
   }, [opacity, transcriptionColor, translateY]);
 

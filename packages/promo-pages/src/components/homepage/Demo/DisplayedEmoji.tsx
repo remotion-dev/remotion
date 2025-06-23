@@ -19,6 +19,9 @@ export const DisplayedEmoji: React.FC<{
 }> = ({emoji}) => {
 	const [data, setData] = useState<Data | null>(null);
 	const {durationInFrames, fps} = useVideoConfig();
+	const [browser, setBrowser] = useState<boolean>(
+		typeof document !== 'undefined',
+	);
 
 	const src = useMemo(() => {
 		if (emoji === 'melting') {
@@ -40,10 +43,13 @@ export const DisplayedEmoji: React.FC<{
 
 	useEffect(() => {
 		Promise.all([
-			import('@remotion/lottie'),
 			fetch(src).then((res) => res.json()),
+			import('@remotion/lottie').then(({Lottie, getLottieMetadata}) => ({
+				Lottie,
+				getLottieMetadata,
+			})),
 		])
-			.then(([{Lottie, getLottieMetadata}, json]) => {
+			.then(([json, {Lottie, getLottieMetadata}]) => {
 				setData({
 					Lottie,
 					duration: getLottieMetadata(json)?.durationInSeconds as number,
@@ -55,6 +61,16 @@ export const DisplayedEmoji: React.FC<{
 				cancelRender(err);
 			});
 	}, [handle, src]);
+
+	useEffect(() => {
+		if (typeof document !== 'undefined') {
+			setBrowser(true);
+		}
+	}, []);
+
+	if (!browser) {
+		return null;
+	}
 
 	if (!data) {
 		return null;

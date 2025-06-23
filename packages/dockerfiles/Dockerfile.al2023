@@ -18,6 +18,8 @@ RUN yum install -y \
   alsa-lib \ 
   nss \ 
   dbus \
+  pango \
+  cups-libs \
   at-spi2-core \
   atk \
   at-spi2-atk

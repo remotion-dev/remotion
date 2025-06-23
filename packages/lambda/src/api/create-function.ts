@@ -10,6 +10,7 @@ import {
 	PutRuntimeManagementConfigCommand,
 	TagResourceCommand,
 } from '@aws-sdk/client-lambda';
+import type {RequestHandler} from '@remotion/lambda-client';
 import {
 	LambdaClientInternals,
 	type AwsRegion,
@@ -41,6 +42,7 @@ export const createFunction = async ({
 	vpcSubnetIds,
 	vpcSecurityGroupIds,
 	runtimePreference,
+	requestHandler,
 }: {
 	createCloudWatchLogGroup: boolean;
 	region: AwsRegion;
@@ -58,6 +60,7 @@ export const createFunction = async ({
 	vpcSubnetIds: string;
 	vpcSecurityGroupIds: string;
 	runtimePreference: RuntimePreference;
+	requestHandler: RequestHandler | null;
 }): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
 		RenderInternals.Log.verbose(
@@ -65,7 +68,10 @@ export const createFunction = async ({
 			'Creating CloudWatch group',
 		);
 		try {
-			await LambdaClientInternals.getCloudWatchLogsClient(region).send(
+			await LambdaClientInternals.getCloudWatchLogsClient(
+				region,
+				requestHandler,
+			).send(
 				new CreateLogGroupCommand({
 					logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
 				}),
@@ -90,7 +96,10 @@ export const createFunction = async ({
 			{indent: false, logLevel},
 			'Adding retention policy to the CloudWatch group',
 		);
-		await LambdaClientInternals.getCloudWatchLogsClient(region).send(
+		await LambdaClientInternals.getCloudWatchLogsClient(
+			region,
+			requestHandler,
+		).send(
 			new PutRetentionPolicyCommand({
 				logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
 				retentionInDays,
@@ -140,10 +149,14 @@ export const createFunction = async ({
 	}
 
 	const {FunctionName, FunctionArn} =
-		await LambdaClientInternals.getLambdaClient(region).send(
+		await LambdaClientInternals.getLambdaClient(
+			region,
+			undefined,
+			requestHandler,
+		).send(
 			new CreateFunctionCommand({
 				Code: {
-					ZipFile: readFileSync(zipFile),
+					ZipFile: new Uint8Array(readFileSync(zipFile)),
 				},
 				FunctionName: functionName,
 				Handler: 'index.handler',
@@ -169,7 +182,11 @@ export const createFunction = async ({
 	);
 
 	try {
-		await LambdaClientInternals.getLambdaClient(region).send(
+		await LambdaClientInternals.getLambdaClient(
+			region,
+			undefined,
+			requestHandler,
+		).send(
 			new TagResourceCommand({
 				Resource: FunctionArn,
 				Tags: {
@@ -197,7 +214,11 @@ export const createFunction = async ({
 		{indent: false, logLevel},
 		'Disabling function retries (Remotion handles retries itself)...',
 	);
-	await LambdaClientInternals.getLambdaClient(region).send(
+	await LambdaClientInternals.getLambdaClient(
+		region,
+		undefined,
+		requestHandler,
+	).send(
 		new PutFunctionEventInvokeConfigCommand({
 			MaximumRetryAttempts: 0,
 			FunctionName,
@@ -215,7 +236,11 @@ export const createFunction = async ({
 	let state = 'Pending';
 
 	while (state === 'Pending') {
-		const getFn = await LambdaClientInternals.getLambdaClient(region).send(
+		const getFn = await LambdaClientInternals.getLambdaClient(
+			region,
+			undefined,
+			requestHandler,
+		).send(
 			new GetFunctionCommand({
 				FunctionName,
 			}),
@@ -238,7 +263,11 @@ export const createFunction = async ({
 
 	const RuntimeVersionArn = `arn:aws:lambda:${region}::runtime:da57c20c4b965d5b75540f6865a35fc8030358e33ec44ecfed33e90901a27a72`;
 	try {
-		await LambdaClientInternals.getLambdaClient(region).send(
+		await LambdaClientInternals.getLambdaClient(
+			region,
+			undefined,
+			requestHandler,
+		).send(
 			new PutRuntimeManagementConfigCommand({
 				FunctionName,
 				UpdateRuntimeOn: 'Manual',

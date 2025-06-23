@@ -1,17 +1,13 @@
-import type {BufferIterator} from '../../../buffer-iterator';
+import type {BufferIterator} from '../../../iterator/buffer-iterator';
 import type {BaseBox} from '../base-type';
-
-type StscEntry = {
-	firstChunk: number;
-	samplesPerChunk: number;
-};
 
 export interface StscBox extends BaseBox {
 	type: 'stsc-box';
 	version: number;
 	flags: number[];
 	entryCount: number;
-	entries: StscEntry[];
+	// firstChunk -> samplesPerChunk
+	entries: Map<number, number>;
 }
 
 export const parseStsc = ({
@@ -31,7 +27,7 @@ export const parseStsc = ({
 	const flags = iterator.getSlice(3);
 	const entryCount = iterator.getUint32();
 
-	const entries: StscEntry[] = [];
+	const entries: Map<number, number> = new Map();
 
 	for (let i = 0; i < entryCount; i++) {
 		const firstChunk = iterator.getUint32();
@@ -43,10 +39,7 @@ export const parseStsc = ({
 			);
 		}
 
-		entries.push({
-			firstChunk,
-			samplesPerChunk,
-		});
+		entries.set(firstChunk, samplesPerChunk);
 	}
 
 	return {

@@ -14,6 +14,7 @@ import {useIsPlayer} from './is-player.js';
 import type {LogLevel} from './log.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import {Null} from './Null.js';
+import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import {Sequence} from './Sequence.js';
 import type {VideoConfig} from './video-config.js';
 
@@ -49,6 +50,7 @@ declare global {
 		remotion_editorName: string | null;
 		remotion_ignoreFastRefreshUpdate: number | null;
 		remotion_numberOfAudioTags: number;
+		remotion_audioLatencyHint: AudioContextLatencyCategory | undefined;
 		remotion_logLevel: LogLevel;
 		remotion_projectName: string;
 		remotion_cwd: string;
@@ -89,6 +91,8 @@ export type BundleCompositionState = {
 	compositionFps: number;
 	compositionDefaultCodec: Codec;
 	compositionDefaultOutName: string | null;
+	compositionDefaultVideoImageFormat: VideoImageFormat | null;
+	compositionDefaultPixelFormat: PixelFormat | null;
 };
 
 export type BundleIndexState = {
@@ -120,6 +124,7 @@ export {
 export type {CanvasContent} from './CompositionManagerContext.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
+export {DownloadBehavior} from './download-behavior.js';
 export * from './easing.js';
 export * from './Folder.js';
 export * from './freeze.js';
@@ -141,6 +146,7 @@ export {
 } from './no-react';
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
+export type {PixelFormat, VideoImageFormat} from './render-types.js';
 export {
 	AbsoluteFillLayout,
 	LayoutAndStyle,

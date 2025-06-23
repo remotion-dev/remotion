@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 
 export const parseID3V1 = (iterator: BufferIterator) => {
 	if (iterator.bytesRemaining() < 128) {

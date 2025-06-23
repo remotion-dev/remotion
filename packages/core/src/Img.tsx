@@ -7,8 +7,10 @@ import React, {
 	useRef,
 } from 'react';
 import {SequenceContext} from './SequenceContext.js';
+import type {IsExact} from './audio/props.js';
 import {cancelRender} from './cancel-render.js';
 import {continueRender, delayRender} from './delay-render.js';
+import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
 import {useBufferState} from './use-buffer-state.js';
 
@@ -16,13 +18,15 @@ function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
 }
 
-export type ImgProps = Omit<
+type NativeImgProps = Omit<
 	React.DetailedHTMLProps<
 		React.ImgHTMLAttributes<HTMLImageElement>,
 		HTMLImageElement
 	>,
 	'src'
-> & {
+>;
+
+export type ImgProps = NativeImgProps & {
 	readonly maxRetries?: number;
 	readonly pauseWhenLoading?: boolean;
 	readonly delayRenderRetries?: number;
@@ -30,6 +34,8 @@ export type ImgProps = Omit<
 	readonly onImageFrame?: (imgelement: HTMLImageElement) => void;
 	readonly src: string;
 };
+
+type Expected = Omit<NativeImgProps, 'onError' | 'src' | 'crossOrigin'>;
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
@@ -43,6 +49,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		onImageFrame,
+		crossOrigin,
 		...props
 	},
 	ref,
@@ -54,6 +61,12 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 
 	if (!src) {
 		throw new Error('No "src" prop was passed to <Img>.');
+	}
+
+	const _propsValid: IsExact<typeof props, Expected> = true;
+
+	if (!_propsValid) {
+		throw new Error('typecheck error');
 	}
 
 	useImperativeHandle(ref, () => {
@@ -68,6 +81,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		}
 
 		const currentSrc = imageRef.current.src;
+
 		setTimeout(() => {
 			if (!imageRef.current) {
 				// Component has been unmounted, do not retry
@@ -221,8 +235,20 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		]);
 	}
 
+	const crossOriginValue = getCrossOriginValue({
+		crossOrigin,
+		requestsVideoFrame: false,
+	});
+
 	// src gets set once we've loaded and decoded the image.
-	return <img {...props} ref={imageRef} onError={didGetError} />;
+	return (
+		<img
+			{...props}
+			ref={imageRef}
+			crossOrigin={crossOriginValue}
+			onError={didGetError}
+		/>
+	);
 };
 
 /*

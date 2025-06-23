@@ -89,6 +89,7 @@ class RenderParams
         ?int    $offthreadVideoCacheSizeInBytes = null,
         ?int    $offthreadVideoThreads = null,
         ?string $audioCodec = null,
+        ?string $storageClass = null,
         ?int    $framesPerLambda = null,
         ?string $rendererFunctionName = null,
         ?string $proResProfile = null,
@@ -141,6 +142,7 @@ class RenderParams
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
         $this->offthreadVideoThreads = $offthreadVideoThreads;
         $this->audioCodec = $audioCodec;
+        $this->storageClass = $storageClass;
         $this->framesPerLambda = $framesPerLambda;
         $this->rendererFunctionName = $rendererFunctionName;
         $this->proResProfile = $proResProfile;
@@ -193,6 +195,7 @@ class RenderParams
             'offthreadVideoThreads' => $this->getOffthreadVideoThreads(),
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
+            'storageClass' => $this->getStorageClass(),
             'x264Preset' => $this->getX264Preset(),
             'deleteAfter' => $this->getDeleteAfter(),
             'forcePathStyle' => $this->getForcePathStyle(),
@@ -309,6 +312,25 @@ class RenderParams
         return $this;
     }
 
+    /**
+     * Get the value of storageClass
+     */
+    public function getStorageClass()
+    {
+        return $this->storageClass;
+    }
+
+    /**
+     * Set the value of storageClass
+     *
+     * @return  self
+     */
+    public function setStorageClass($storageClass)
+    {
+        $this->storageClass = $storageClass;
+
+        return $this;
+    }
     /**
      * Get the value of data
      */

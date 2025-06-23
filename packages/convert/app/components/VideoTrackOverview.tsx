@@ -3,7 +3,7 @@ import type {
 	MediaParserKeyframe,
 	MediaParserLocation,
 	MediaParserMetadataEntry,
-	VideoTrack,
+	MediaParserVideoTrack,
 } from '@remotion/media-parser';
 import React from 'react';
 import {renderHumanReadableVideoCodec} from '~/lib/render-codec-label';
@@ -11,7 +11,7 @@ import {KeyframesInfo} from './KeyframesInfo';
 import {MetadataDisplay} from './MetadataTable';
 
 export const VideoTrackOverview: React.FC<{
-	readonly track: VideoTrack;
+	readonly track: MediaParserVideoTrack;
 	readonly metadata: MediaParserMetadataEntry[] | null;
 	readonly location: MediaParserLocation | null;
 	readonly keyframes: MediaParserKeyframe[] | null;
@@ -27,7 +27,7 @@ export const VideoTrackOverview: React.FC<{
 				<TableRow>
 					<TableCell className="font-brand">Codec</TableCell>
 					<TableCell className="text-right">
-						{renderHumanReadableVideoCodec(track.codecWithoutConfig)}
+						{renderHumanReadableVideoCodec(track.codecEnum)}
 					</TableCell>
 				</TableRow>
 				<TableRow>
@@ -42,7 +42,9 @@ export const VideoTrackOverview: React.FC<{
 				</TableRow>
 				<TableRow>
 					<TableCell className="font-brand">Timescale</TableCell>
-					<TableCell className="text-right">{track.timescale}</TableCell>
+					<TableCell className="text-right">
+						{track.originalTimescale}
+					</TableCell>
 				</TableRow>
 				<TableRow>
 					<TableCell className="font-brand">Sample Aspect Ratio</TableCell>
@@ -71,13 +73,13 @@ export const VideoTrackOverview: React.FC<{
 				<TableRow>
 					<TableCell className="font-brand">Color Primaries</TableCell>
 					<TableCell className="text-right">
-						{track.color.primaries ?? 'N/A'}
+						{track.colorSpace.primaries ?? 'N/A'}
 					</TableCell>
 				</TableRow>
 				<TableRow>
 					<TableCell className="font-brand">Color Matrix</TableCell>
 					<TableCell className="text-right">
-						{track.color.matrixCoefficients ?? 'N/A'}
+						{track.colorSpace.matrix ?? 'N/A'}
 					</TableCell>
 				</TableRow>
 				<TableRow>
@@ -85,15 +87,15 @@ export const VideoTrackOverview: React.FC<{
 						Color Transfer Characteristics
 					</TableCell>
 					<TableCell className="text-right">
-						{track.color.transferCharacteristics ?? 'N/A'}
+						{track.colorSpace.transfer ?? 'N/A'}
 					</TableCell>
 				</TableRow>
 				<TableRow>
 					<TableCell className="font-brand">Color Full Range</TableCell>
 					<TableCell className="text-right">
-						{track.color.fullRange
+						{track.colorSpace.fullRange
 							? 'Yes'
-							: track.color.fullRange === false
+							: track.colorSpace.fullRange === false
 								? 'No'
 								: 'N/A'}
 					</TableCell>

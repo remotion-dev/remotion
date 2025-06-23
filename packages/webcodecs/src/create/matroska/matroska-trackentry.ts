@@ -1,7 +1,7 @@
 import type {
+	MediaParserAdvancedColor,
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
-	VideoTrackColorParams,
 } from '@remotion/media-parser';
 import type {MakeTrackAudio, MakeTrackVideo} from '../make-track-info';
 import {makeMatroskaColorBytes} from './color';
@@ -13,7 +13,7 @@ export const makeMatroskaVideoBytes = ({
 	width,
 	height,
 }: {
-	color: VideoTrackColorParams;
+	color: MediaParserAdvancedColor;
 	width: number;
 	height: number;
 }) => {
@@ -152,11 +152,6 @@ export const makeMatroskaAudioTrackEntryBytes = ({
 				minVintWidth: null,
 			},
 			{
-				type: 'TrackUID',
-				value: '0x188FEB95C8EFABA',
-				minVintWidth: null,
-			},
-			{
 				type: 'TrackType',
 				value: {
 					value: 2,
@@ -164,7 +159,6 @@ export const makeMatroskaAudioTrackEntryBytes = ({
 				},
 				minVintWidth: null,
 			},
-
 			{
 				type: 'CodecID',
 				value: makeAudioCodecId(codec),
@@ -232,31 +226,11 @@ export const makeMatroskaVideoTrackEntryBytes = ({
 				minVintWidth: null,
 			},
 			{
-				type: 'TrackUID',
-				value: '0xab2171012bb9020a',
-				minVintWidth: null,
-			},
-			{
-				type: 'FlagLacing',
-				value: {
-					value: 0,
-					byteLength: null,
-				},
-				minVintWidth: null,
-			},
-			{
 				type: 'Language',
 				value: 'und',
 				minVintWidth: null,
 			},
-			{
-				type: 'FlagDefault',
-				value: {
-					value: 0,
-					byteLength: null,
-				},
-				minVintWidth: null,
-			},
+
 			{
 				type: 'CodecID',
 				value: makeVideoCodecId(codec),

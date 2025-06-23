@@ -36,52 +36,52 @@ import type {MediaParserMetadataEntry} from './get-metadata';
 	12.	©des - Description
 	▪	Hex: A9 64 65 73
  */
-const mapToKey = (index: number) => {
-	if (index === 0xa9415254) {
+const mapToKey = (index: string) => {
+	if (index === '�ART') {
 		return 'artist';
 	}
 
-	if (index === 0xa9616c62) {
+	if (index === '�alb') {
 		return 'album';
 	}
 
-	if (index === 0xa9636d74) {
+	if (index === '�cmt') {
 		return 'comment';
 	}
 
-	if (index === 0xa9646179) {
+	if (index === '�day') {
 		return 'releaseDate';
 	}
 
-	if (index === 0xa967656e) {
+	if (index === '�gen') {
 		return 'genre';
 	}
 
-	if (index === 0xa96e616d) {
+	if (index === '�nam') {
 		return 'title';
 	}
 
-	if (index === 0xa9746f6f) {
+	if (index === '�too') {
 		return 'encoder';
 	}
 
-	if (index === 0xa9777274) {
+	if (index === '�wrt') {
 		return 'writer';
 	}
 
-	if (index === 0xa9637079) {
+	if (index === '�cpy') {
 		return 'copyright';
 	}
 
-	if (index === 0xa9646972) {
+	if (index === '�dir') {
 		return 'director';
 	}
 
-	if (index === 0xa9707264) {
+	if (index === '�prd') {
 		return 'producer';
 	}
 
-	if (index === 0xa9646573) {
+	if (index === '�des') {
 		return 'description';
 	}
 
@@ -150,7 +150,12 @@ export const parseIsoMetaBox = (
 export const getMetadataFromIsoBase = (
 	state: ParserState,
 ): MediaParserMetadataEntry[] => {
-	const moov = getMoovBoxFromState(state);
+	const moov = getMoovBoxFromState({
+		structureState: state.structure,
+		isoState: state.iso,
+		mp4HeaderSegment: state.m3uPlaylistContext?.mp4HeaderSegment ?? null,
+		mayUsePrecomputed: true,
+	});
 	if (!moov) {
 		return [];
 	}

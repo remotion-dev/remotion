@@ -99,8 +99,8 @@ export type InternalRenderMediaOptions = {
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	crf: number | null;
-	imageFormat: VideoImageFormat;
-	pixelFormat: PixelFormat;
+	imageFormat: VideoImageFormat | null;
+	pixelFormat: PixelFormat | null;
 	envVariables: Record<string, string>;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
@@ -185,6 +185,7 @@ export type RenderMediaOptions = Prettify<{
 	binariesDirectory?: string | null;
 	onArtifact?: OnArtifact;
 	metadata?: Record<string, string> | null;
+	compositionStart?: number;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -201,7 +202,7 @@ const internalRenderMediaRaw = ({
 	crf,
 	composition,
 	serializedInputPropsWithCustomSchema,
-	pixelFormat,
+	pixelFormat: userPixelFormat,
 	codec,
 	envVariables,
 	frameRange,
@@ -253,6 +254,9 @@ const internalRenderMediaRaw = ({
 	chromeMode,
 	offthreadVideoThreads,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
+	const pixelFormat =
+		userPixelFormat ?? composition.defaultPixelFormat ?? DEFAULT_PIXEL_FORMAT;
+
 	if (repro) {
 		enableRepro({
 			serveUrl,
@@ -405,7 +409,9 @@ const internalRenderMediaRaw = ({
 
 	const imageFormat: VideoImageFormat = isAudioCodec(codec)
 		? 'none'
-		: provisionalImageFormat;
+		: (provisionalImageFormat ??
+			composition.defaultVideoImageFormat ??
+			DEFAULT_VIDEO_IMAGE_FORMAT);
 
 	validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
@@ -427,7 +433,7 @@ const internalRenderMediaRaw = ({
 		onCtrlCExit(`Delete ${workingDir}`, () => deleteDirectory(workingDir));
 	}
 
-	validateEvenDimensionsWithCodec({
+	const {actualWidth, actualHeight} = validateEvenDimensionsWithCodec({
 		codec,
 		height: composition.height,
 		scale,
@@ -484,8 +490,8 @@ const internalRenderMediaRaw = ({
 	const createPrestitcherIfNecessary = () => {
 		if (preEncodedFileLocation) {
 			preStitcher = prespawnFfmpeg({
-				width: composition.width * scale,
-				height: composition.height * scale,
+				width: actualWidth,
+				height: actualHeight,
 				fps,
 				outputLocation: preEncodedFileLocation,
 				pixelFormat,
@@ -677,6 +683,7 @@ const internalRenderMediaRaw = ({
 					onBrowserDownload,
 					onArtifact,
 					chromeMode,
+					imageSequencePattern: null,
 				});
 
 				return renderFramesProc;
@@ -701,8 +708,8 @@ const internalRenderMediaRaw = ({
 
 				const stitchStart = Date.now();
 				return internalStitchFramesToVideo({
-					width: composition.width * scale,
-					height: composition.height * scale,
+					width: actualWidth,
+					height: actualHeight,
 					fps,
 					outputLocation: absoluteOutputLocation,
 					preEncodedFileLocation,
@@ -905,6 +912,7 @@ export const renderMedia = ({
 	hardwareAcceleration,
 	chromeMode,
 	offthreadVideoThreads,
+	compositionStart,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -936,9 +944,9 @@ export const renderMedia = ({
 		everyNthFrame: everyNthFrame ?? 1,
 		ffmpegOverride: ffmpegOverride ?? undefined,
 		frameRange: frameRange ?? null,
-		imageFormat: imageFormat ?? DEFAULT_VIDEO_IMAGE_FORMAT,
+		imageFormat: imageFormat ?? null,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},
@@ -952,7 +960,7 @@ export const renderMedia = ({
 		onStart: onStart ?? (() => undefined),
 		outputLocation: outputLocation ?? null,
 		overwrite: overwrite ?? DEFAULT_OVERWRITE,
-		pixelFormat: pixelFormat ?? DEFAULT_PIXEL_FORMAT,
+		pixelFormat: pixelFormat ?? null,
 		port: port ?? null,
 		puppeteerInstance: puppeteerInstance ?? undefined,
 		scale: scale ?? 1,
@@ -966,7 +974,7 @@ export const renderMedia = ({
 		onCtrlCExit: () => undefined,
 		server: undefined,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: composition.props ?? {},
@@ -987,8 +995,7 @@ export const renderMedia = ({
 			}),
 		onArtifact: onArtifact ?? null,
 		metadata: metadata ?? null,
-		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
-		compositionStart: 0,
+		compositionStart: compositionStart ?? 0,
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
 	});

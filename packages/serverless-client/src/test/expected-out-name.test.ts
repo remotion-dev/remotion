@@ -12,6 +12,8 @@ type MockProvider = {
 		s3Url: string;
 	};
 	creationFunctionOptions: {};
+	storageClass: string;
+	requestHandler: null;
 };
 
 const testRenderMetadata: RenderMetadata<MockProvider> = {

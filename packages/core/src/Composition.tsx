@@ -8,7 +8,10 @@ import {
 } from './CanUseRemotionHooks.js';
 import {CompositionSetters} from './CompositionManagerContext.js';
 import {FolderContext} from './Folder.js';
-import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
+import {
+	PROPS_UPDATED_EXTERNALLY,
+	useResolvedVideoConfig,
+} from './ResolveCompositionConfig.js';
 import type {Codec} from './codec.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
@@ -18,6 +21,7 @@ import {Loading} from './loading-indicator.js';
 import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
+import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
@@ -41,6 +45,8 @@ export type CalcMetadataReturnType<T extends Record<string, unknown>> = {
 	props?: T;
 	defaultCodec?: Codec;
 	defaultOutName?: string;
+	defaultVideoImageFormat?: VideoImageFormat;
+	defaultPixelFormat?: PixelFormat;
 };
 
 export type CalculateMetadataFunction<T extends Record<string, unknown>> =
@@ -168,6 +174,7 @@ const InnerComposition = <
 
 		validateCompositionId(id);
 		validateDefaultAndInputProps(defaultProps, 'defaultProps', id);
+
 		registerComposition<Schema, Props>({
 			durationInFrames: durationInFrames ?? undefined,
 			fps: fps ?? undefined,
@@ -205,11 +212,25 @@ const InnerComposition = <
 		unregisterComposition,
 	]);
 
+	useEffect(() => {
+		window.dispatchEvent(
+			new CustomEvent<{resetUnsaved: string | null}>(PROPS_UPDATED_EXTERNALLY, {
+				detail: {
+					resetUnsaved: id,
+				},
+			}),
+		);
+	}, [defaultProps, id]);
+
 	const resolved = useResolvedVideoConfig(id);
 
 	if (environment.isStudio && video && video.component === lazy) {
 		const Comp = lazy;
-		if (resolved === null || resolved.type !== 'success') {
+		if (
+			resolved === null ||
+			(resolved.type !== 'success' &&
+				resolved.type !== 'success-and-refreshing')
+		) {
 			return null;
 		}
 
@@ -230,7 +251,11 @@ const InnerComposition = <
 
 	if (environment.isRendering && video && video.component === lazy) {
 		const Comp = lazy;
-		if (resolved === null || resolved.type !== 'success') {
+		if (
+			resolved === null ||
+			(resolved.type !== 'success' &&
+				resolved.type !== 'success-and-refreshing')
+		) {
 			return null;
 		}
 

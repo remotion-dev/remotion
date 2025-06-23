@@ -38,6 +38,7 @@ const {
 	mutedOption,
 	videoCodecOption,
 	colorSpaceOption,
+	disallowParallelEncodingOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
@@ -288,6 +289,7 @@ export const benchmarkCommand = async (
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
 			publicPath,
+			audioLatencyHint: null,
 		});
 
 	registerCleanupJob(`Deleting bundle`, () => cleanupBundle());
@@ -295,7 +297,7 @@ export const benchmarkCommand = async (
 	const puppeteerInstance = await browserInstance;
 
 	const serializedInputPropsWithCustomSchema =
-		NoReactInternals.serializeJSONWithDate({
+		NoReactInternals.serializeJSONWithSpecialTypes({
 			data: inputProps ?? {},
 			indent: undefined,
 			staticBase: null,
@@ -376,6 +378,9 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
+	const disallowParallelEncoding = disallowParallelEncodingOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -471,7 +476,7 @@ export const benchmarkCommand = async (
 					concurrency: con,
 					audioCodec: null,
 					cancelSignal: undefined,
-					disallowParallelEncoding: false,
+					disallowParallelEncoding,
 					indent: false,
 					onBrowserLog: null,
 					onCtrlCExit: () => undefined,
@@ -480,7 +485,7 @@ export const benchmarkCommand = async (
 					preferLossless: false,
 					server: undefined,
 					serializedResolvedPropsWithCustomSchema:
-						NoReactInternals.serializeJSONWithDate({
+						NoReactInternals.serializeJSONWithSpecialTypes({
 							data: composition.props,
 							indent: undefined,
 							staticBase: null,

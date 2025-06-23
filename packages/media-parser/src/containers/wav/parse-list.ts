@@ -26,10 +26,12 @@ export const parseList = ({
 		// Padding
 		// https://discord.com/channels/809501355504959528/1308803317480292482/1343979547246333983
 		// Indie_Hacker_Podcast (2).wav
-		if (remainingBytes() < 4) {
-			iterator.discard(remainingBytes());
-			break;
+		const byte = iterator.getUint8();
+		if (byte === 0) {
+			continue;
 		}
+
+		iterator.counter.decrement(1);
 
 		const key = iterator.getByteString(4, false);
 		const size = iterator.getUint32Le();
@@ -46,7 +48,7 @@ export const parseList = ({
 		metadata,
 	};
 
-	state.getWavStructure().boxes.push(wavList);
+	state.structure.getWavStructure().boxes.push(wavList);
 
 	box.expectNoMoreBytes();
 

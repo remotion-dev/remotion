@@ -1,31 +1,41 @@
-import type {LogLevel} from '../../log';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import type {
-	AudioOrVideoSample,
-	OnAudioSample,
-	OnVideoSample,
+	MediaParserAudioSample,
+	MediaParserOnAudioSample,
+	MediaParserOnVideoSample,
+	MediaParserVideoSample,
 } from '../../webcodec-sample-types';
 
 export const sampleSorter = ({
 	logLevel,
 	getAllChunksProcessedForPlaylist,
 }: {
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	getAllChunksProcessedForPlaylist: (src: string) => boolean;
 }) => {
 	const streamsWithTracks: string[] = [];
-	const audioCallbacks: Record<string, OnAudioSample> = {};
-	const videoCallbacks: Record<string, OnVideoSample> = {};
-	const latestSample: Record<string, number> = {};
+	const audioCallbacks: Record<string, MediaParserOnAudioSample> = {};
+	const videoCallbacks: Record<string, MediaParserOnVideoSample> = {};
+	let latestSample: Record<string, number> = {};
 
 	return {
+		clearSamples: () => {
+			latestSample = {};
+		},
 		addToStreamWithTrack: (src: string) => {
 			streamsWithTracks.push(src);
 		},
-		addVideoStreamToConsider: (src: string, callback: OnVideoSample) => {
+		addVideoStreamToConsider: (
+			src: string,
+			callback: MediaParserOnVideoSample,
+		) => {
 			videoCallbacks[src] = callback;
 		},
-		addAudioStreamToConsider: (src: string, callback: OnAudioSample) => {
+		addAudioStreamToConsider: (
+			src: string,
+			callback: MediaParserOnAudioSample,
+		) => {
 			audioCallbacks[src] = callback;
 		},
 		hasAudioStreamToConsider: (src: string) => {
@@ -34,22 +44,22 @@ export const sampleSorter = ({
 		hasVideoStreamToConsider: (src: string) => {
 			return Boolean(videoCallbacks[src]);
 		},
-		addAudioSample: async (src: string, sample: AudioOrVideoSample) => {
+		addAudioSample: async (src: string, sample: MediaParserAudioSample) => {
 			const callback = audioCallbacks[src];
 			if (!callback) {
 				throw new Error('No callback found for audio sample');
 			}
 
-			latestSample[src] = sample.dts;
+			latestSample[src] = sample.decodingTimestamp;
 			await callback(sample);
 		},
-		addVideoSample: async (src: string, sample: AudioOrVideoSample) => {
+		addVideoSample: async (src: string, sample: MediaParserVideoSample) => {
 			const callback = videoCallbacks[src];
 			if (!callback) {
 				throw new Error('No callback found for video sample.');
 			}
 
-			latestSample[src] = sample.dts;
+			latestSample[src] = sample.decodingTimestamp;
 			await callback(sample);
 		},
 		getNextStreamToRun: (streams: string[]) => {

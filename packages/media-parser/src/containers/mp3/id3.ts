@@ -82,7 +82,7 @@ export const parseId3 = ({state}: {state: ParserState}) => {
 		}
 	}
 
-	state.getMp3Structure().boxes.push({
+	state.structure.getMp3Structure().boxes.push({
 		type: 'id3-header',
 		flags,
 		size,

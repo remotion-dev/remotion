@@ -1,6 +1,6 @@
 // https://en.wikipedia.org/wiki/Program-specific_information
 
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {TransportStreamPATBox, TransportStreamSdtBox} from './boxes';
 import {discardRestOfPacket} from './discard-rest-of-packet';
 

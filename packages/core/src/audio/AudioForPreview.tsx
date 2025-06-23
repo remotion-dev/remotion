@@ -9,21 +9,20 @@ import React, {
 } from 'react';
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
+import {getCrossOriginValue} from '../get-cross-origin-value.js';
+import {useLogLevel} from '../log-level-context.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
+import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
-import {
-	DEFAULT_ACCEPTABLE_TIMESHIFT,
-	useMediaPlayback,
-} from '../use-media-playback.js';
-import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
+import {useMediaPlayback} from '../use-media-playback.js';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
 import {evaluateVolume} from '../volume-prop.js';
-import type {RemotionAudioProps} from './props.js';
-import {useSharedAudio} from './shared-audio-tags.js';
+import type {IsExact, NativeAudioProps, RemotionAudioProps} from './props.js';
+import {SharedAudioContext, useSharedAudio} from './shared-audio-tags.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForPreviewProps = RemotionAudioProps & {
@@ -49,6 +48,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
+	const logLevel = useLogLevel();
+
 	const {
 		volume,
 		muted,
@@ -66,8 +67,23 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		loopVolumeCurveBehavior,
 		stack,
+		crossOrigin,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		toneFrequency,
+		useWebAudioApi,
 		...nativeProps
 	} = props;
+
+	// Typecheck that we are not accidentially passing unrecognized props
+	// to the DOM
+	const _propsValid: IsExact<
+		typeof nativeProps,
+		Omit<NativeAudioProps, 'crossOrigin' | 'src' | 'name' | 'muted'>
+	> = true;
+	if (!_propsValid) {
+		throw new Error('typecheck error');
+	}
 
 	const [mediaVolume] = useMediaVolumeState();
 	const [mediaMuted] = useMediaMutedState();
@@ -94,7 +110,11 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		frame: volumePropFrame,
 		volume,
 		mediaVolume,
-		allowAmplificationDuringRender: false,
+	});
+
+	const crossOriginValue = getCrossOriginValue({
+		crossOrigin,
+		requestsVideoFrame: false,
 	});
 
 	const propsToPass = useMemo((): RemotionAudioProps => {
@@ -103,6 +123,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 				muted || mediaMuted || isSequenceHidden || userPreferredVolume <= 0,
 			src: preloadedSrc,
 			loop: _remotionInternalNativeLoopPassed,
+			crossOrigin: crossOriginValue,
 			...nativeProps,
 		};
 	}, [
@@ -113,6 +134,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		nativeProps,
 		preloadedSrc,
 		userPreferredVolume,
+		crossOriginValue,
 	]);
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time deterministic. We use it to combat strict mode issues.
@@ -133,13 +155,15 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		],
 	);
 
-	const audioRef = useSharedAudio(propsToPass, id).el;
+	const context = useContext(SharedAudioContext);
+	if (!context) {
+		throw new Error('SharedAudioContext not found');
+	}
 
-	useSyncVolumeWithMediaTag({
-		volumePropFrame,
-		volume,
-		mediaVolume,
-		mediaRef: audioRef,
+	const {el: audioRef, mediaElementSourceNode} = useSharedAudio({
+		aud: propsToPass,
+		audioId: id,
+		premounting: Boolean(sequenceContext?.premounting),
 	});
 
 	useMediaInTimeline({
@@ -158,17 +182,26 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(sequenceContext?.premounting),
 	});
 
+	// putting playback before useVolume
+	// because volume looks at playbackrate
 	useMediaPlayback({
 		mediaRef: audioRef,
 		src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
 		onlyWarnForMediaSeekingError: false,
-		acceptableTimeshift:
-			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
+		acceptableTimeshift: acceptableTimeShiftInSeconds ?? null,
 		isPremounting: Boolean(sequenceContext?.premounting),
 		pauseWhenBuffering,
 		onAutoPlayError: null,
+	});
+
+	useVolume({
+		logLevel,
+		mediaRef: audioRef,
+		source: mediaElementSourceNode,
+		volume: userPreferredVolume,
+		shouldUseWebAudioApi: useWebAudioApi ?? false,
 	});
 
 	useImperativeHandle(ref, () => {
@@ -204,7 +237,14 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		return null;
 	}
 
-	return <audio ref={audioRef} preload="metadata" {...propsToPass} />;
+	return (
+		<audio
+			ref={audioRef}
+			preload="metadata"
+			crossOrigin={crossOriginValue}
+			{...propsToPass}
+		/>
+	);
 };
 
 export const AudioForPreview = forwardRef(

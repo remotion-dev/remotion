@@ -1,5 +1,4 @@
 import {IoEventEmitter} from '../create/event-emitter';
-import type {ProgressTracker} from '../create/progress-tracker';
 import {withResolvers} from '../create/with-resolvers';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
@@ -9,61 +8,43 @@ import {makeTimeoutPromise} from './make-timeout-promise';
 export const makeIoSynchronizer = ({
 	logLevel,
 	label,
-	progress,
+	controller,
 }: {
 	logLevel: LogLevel;
 	label: string;
-	progress: ProgressTracker;
+	controller: WebCodecsController | null;
 }) => {
 	const eventEmitter = new IoEventEmitter();
 
 	let lastInput = 0;
-	let lastInputKeyframe = 0;
 	let lastOutput = 0;
 	let inputsSinceLastOutput = 0;
 	let inputs: number[] = [];
-	let keyframes: number[] = [];
+	let resolvers: ((value: void | PromiseLike<void>) => void)[] = [];
 
-	// Once WebCodecs emits items, the user has to handle them
-	// Let's keep count of how many items are unprocessed
-	let _unprocessed = 0;
-
-	const getUnprocessed = () => _unprocessed;
-
-	const getUnemittedItems = () => {
+	const getQueuedItems = () => {
 		inputs = inputs.filter(
-			(input) => Math.floor(input) > Math.floor(lastOutput),
+			// In chrome, the last output sometimes shifts the timestamp by 1 macrosecond - allowing this to happen
+			(input) => Math.floor(input) > Math.floor(lastOutput) + 1,
 		);
 		return inputs.length;
-	};
-
-	const getUnemittedKeyframes = () => {
-		keyframes = keyframes.filter(
-			(keyframe) => Math.floor(keyframe) > Math.floor(lastOutput),
-		);
-		return keyframes.length;
 	};
 
 	const printState = (prefix: string) => {
 		Log.trace(
 			logLevel,
-			`[${label}] ${prefix}, state: Last input = ${lastInput} Last input keyframe = ${lastInputKeyframe} Last output = ${lastOutput} Inputs since last output = ${inputsSinceLastOutput}, Queue = ${getUnemittedItems()} (${getUnemittedKeyframes()} keyframes), Unprocessed = ${getUnprocessed()}`,
+			`[${label}] ${prefix}, state: Last input = ${lastInput} Last output = ${lastOutput} Inputs since last output = ${inputsSinceLastOutput}, Queue = ${getQueuedItems()}`,
 		);
 	};
 
-	const inputItem = (timestamp: number, keyFrame: boolean) => {
+	const inputItem = (timestamp: number) => {
 		lastInput = timestamp;
-		if (keyFrame) {
-			lastInputKeyframe = timestamp;
-			keyframes.push(timestamp);
-		}
 
 		inputsSinceLastOutput++;
 		inputs.push(timestamp);
 
 		eventEmitter.dispatchEvent('input', {
 			timestamp,
-			keyFrame,
 		});
 		printState('Input item');
 	};
@@ -74,7 +55,6 @@ export const makeIoSynchronizer = ({
 		eventEmitter.dispatchEvent('output', {
 			timestamp,
 		});
-		_unprocessed++;
 
 		printState('Got output');
 	};
@@ -84,97 +64,83 @@ export const makeIoSynchronizer = ({
 		const on = () => {
 			eventEmitter.removeEventListener('output', on);
 			resolve();
+			resolvers = resolvers.filter((resolver) => resolver !== resolve);
 		};
 
 		eventEmitter.addEventListener('output', on);
+		resolvers.push(resolve);
 		return promise;
 	};
 
-	const waitForProcessed = () => {
-		const {promise, resolve} = withResolvers<void>();
-		const on = () => {
-			eventEmitter.removeEventListener('processed', on);
-			resolve();
-		};
-
-		eventEmitter.addEventListener('processed', on);
-		return promise;
+	const makeErrorBanner = () => {
+		return [
+			`Waited too long for ${label} to finish:`,
+			`${getQueuedItems()} queued items`,
+			`inputs: ${JSON.stringify(inputs)}`,
+			`last output: ${lastOutput}`,
+		];
 	};
 
-	const waitFor = async ({
-		unprocessed,
-		unemitted,
-		minimumProgress,
-		controller,
-	}: {
-		unemitted: number;
-		unprocessed: number;
-		minimumProgress: number | null;
-		controller: WebCodecsController;
-	}) => {
-		await controller._internals.checkForAbortAndPause();
+	const waitForQueueSize = async (queueSize: number) => {
+		if (getQueuedItems() <= queueSize) {
+			return Promise.resolve();
+		}
 
 		const {timeoutPromise, clear} = makeTimeoutPromise({
 			label: () =>
 				[
-					`Waited too long for ${label} to finish:`,
-					`${getUnemittedItems()} unemitted items`,
-					`${getUnprocessed()} unprocessed items: ${JSON.stringify(_unprocessed)}`,
-					`smallest progress: ${progress.getSmallestProgress()}`,
-					`inputs: ${JSON.stringify(inputs)}`,
-					`last output: ${lastOutput}`,
-					`wanted: ${unemitted} unemitted items, ${unprocessed} unprocessed items, minimum progress ${minimumProgress}`,
+					...makeErrorBanner(),
+					`wanted: <${queueSize} queued items`,
+					`Report this at https://remotion.dev/report`,
 				].join('\n'),
 			ms: 10000,
 			controller,
 		});
-		controller._internals.signal.addEventListener('abort', clear);
+
+		if (controller) {
+			controller._internals._mediaParserController._internals.signal.addEventListener(
+				'abort',
+				clear,
+			);
+		}
 
 		await Promise.race([
 			timeoutPromise,
-			Promise.all([
-				(async () => {
-					while (getUnemittedItems() > unemitted) {
-						await waitForOutput();
-					}
-				})(),
-				(async () => {
-					while (getUnprocessed() > unprocessed) {
-						await waitForProcessed();
-					}
-				})(),
-				minimumProgress === null || progress.getSmallestProgress() === null
-					? Promise.resolve()
-					: (async () => {
-							while (progress.getSmallestProgress() < minimumProgress) {
-								await progress.waitForProgress();
-							}
-						})(),
-			]),
+			(async () => {
+				while (getQueuedItems() > queueSize) {
+					await waitForOutput();
+				}
+			})(),
 		]).finally(() => clear());
-		controller._internals.signal.removeEventListener('abort', clear);
+
+		if (controller) {
+			controller._internals._mediaParserController._internals.signal.removeEventListener(
+				'abort',
+				clear,
+			);
+		}
 	};
 
-	const waitForFinish = async (controller: WebCodecsController) => {
-		await waitFor({
-			unprocessed: 0,
-			unemitted: 0,
-			minimumProgress: null,
-			controller,
+	const clearQueue = () => {
+		inputs.length = 0;
+		lastInput = 0;
+		lastOutput = 0;
+		inputsSinceLastOutput = 0;
+
+		resolvers.forEach((resolver) => {
+			return resolver();
 		});
-	};
+		resolvers.length = 0;
 
-	const onProcessed = () => {
-		eventEmitter.dispatchEvent('processed', {});
-		_unprocessed--;
+		inputs.length = 0;
 	};
 
 	return {
 		inputItem,
 		onOutput,
-		waitFor,
-		waitForFinish,
-		onProcessed,
-		getUnprocessed,
+		waitForQueueSize,
+		clearQueue,
 	};
 };
+
+export type IoSynchronizer = ReturnType<typeof makeIoSynchronizer>;

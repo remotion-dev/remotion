@@ -5,6 +5,7 @@ def get_render_media_on_lambda_payload(
   codec:,
   audio_bitrate: nil,
   audio_codec: nil,
+  storage_class: nil,
   color_space: nil,
   composition: nil,
   concurrency_per_lambda: 1,
@@ -50,6 +51,7 @@ def get_render_media_on_lambda_payload(
 payload = {
     audioBitrate: audio_bitrate,
     audioCodec: audio_codec,
+    storageClass: storage_class,
     codec: codec,
     colorSpace: color_space,
     composition: composition,

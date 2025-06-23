@@ -1,4 +1,4 @@
-import type {LogLevel} from './log';
+import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
 
 let warningShown = false;
@@ -9,7 +9,7 @@ export const warnIfRemotionLicenseNotAcknowledged = ({
 	apiName,
 }: {
 	acknowledgeRemotionLicense: boolean;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	apiName: string;
 }) => {
 	if (acknowledgeRemotionLicense) {
@@ -23,10 +23,6 @@ export const warnIfRemotionLicenseNotAcknowledged = ({
 	warningShown = true;
 	Log.warn(
 		logLevel,
-		'Note: Some companies are required to obtain a license to use @remotion/media-parser. See: https://remotion.dev/license',
-	);
-	Log.warn(
-		logLevel,
-		`Pass \`acknowledgeRemotionLicense: true\` to \`${apiName}\` function to make this message disappear.`,
+		`Note: Some companies are required to obtain a license to use @remotion/media-parser. See: https://remotion.dev/license\nPass \`acknowledgeRemotionLicense: true\` to \`${apiName}\` function to make this message disappear.`,
 	);
 };

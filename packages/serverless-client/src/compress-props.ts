@@ -22,7 +22,7 @@ export const serializeOrThrow = (
 	propsType: PropsType,
 ) => {
 	try {
-		const payload = NoReactInternals.serializeJSONWithDate({
+		const payload = NoReactInternals.serializeJSONWithSpecialTypes({
 			indent: undefined,
 			staticBase: null,
 			data: inputProps,
@@ -76,6 +76,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	forcePathStyle,
 	skipPutAcl,
+	requestHandler,
 }: {
 	stringifiedInputProps: string;
 	region: Provider['region'];
@@ -85,6 +86,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
 	skipPutAcl: boolean;
+	requestHandler: Provider['requestHandler'] | undefined;
 }): Promise<SerializedInputProps> => {
 	const hash = providerSpecifics.randomHash();
 
@@ -99,6 +101,7 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 					providerSpecifics,
 					forcePathStyle,
 					skipPutAcl,
+					requestHandler,
 				})
 			).bucketName;
 
@@ -112,6 +115,8 @@ export const compressInputProps = async <Provider extends CloudProvider>({
 			key: makeKey(propsType, hash),
 			privacy: 'private',
 			forcePathStyle,
+			storageClass: null,
+			requestHandler,
 		});
 
 		return {
@@ -135,6 +140,7 @@ export const decompressInputProps = async <Provider extends CloudProvider>({
 	propsType,
 	providerSpecifics,
 	forcePathStyle,
+	requestHandler,
 }: {
 	serialized: SerializedInputProps;
 	region: Provider['region'];
@@ -143,6 +149,7 @@ export const decompressInputProps = async <Provider extends CloudProvider>({
 	propsType: PropsType;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 }): Promise<string> => {
 	if (serialized.type === 'payload') {
 		return serialized.payload;
@@ -155,6 +162,7 @@ export const decompressInputProps = async <Provider extends CloudProvider>({
 			key: makeKey(propsType, serialized.hash),
 			region,
 			forcePathStyle,
+			requestHandler,
 		});
 
 		const body = await streamToString(response);

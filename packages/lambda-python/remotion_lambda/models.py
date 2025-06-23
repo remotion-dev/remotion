@@ -8,6 +8,7 @@ from .version import VERSION
 
 # pylint: disable=too-many-instance-attributes
 
+RenderType = Union[Literal["video-or-audio"], Literal["still"]]
 
 class ValidStillImageFormats(str, Enum):
     """
@@ -19,10 +20,10 @@ class ValidStillImageFormats(str, Enum):
         PDF: Represents the PDF format for images.
         WEBP: Represents the WEBP image format.
     """
-    PNG: str = 'png'
-    JPEG: str = 'jpeg'
-    PDF: str = 'pdf'
-    WEBP: str = 'webp'
+    PNG = 'png'
+    JPEG = 'jpeg'
+    PDF = 'pdf'
+    WEBP = 'webp'
 
 
 class Privacy(str, Enum):
@@ -33,9 +34,9 @@ class Privacy(str, Enum):
         PUBLIC: Indicates a public setting.
         PRIVATE: Indicates a private setting.
     """
-    PUBLIC: str = 'public'
-    PRIVATE: str = 'private'
-    NO_ACL: str = 'no-acl'
+    PUBLIC = 'public'
+    PRIVATE = 'private'
+    NO_ACL = 'no-acl'
 
 
 class LogLevel(str, Enum):
@@ -65,11 +66,11 @@ class OpenGlRenderer(str, Enum):
         SWIFTSHADER: Represents the SWIFTSHADER OpenGL renderer.
         VULKAN: Represents the VULKAN OpenGL renderer.
     """
-    SWANGLE: str = 'swangle'
-    ANGLE: str = 'angle'
-    EGL: str = 'egl'
-    SWIFTSHADER: str = 'swiftshader'
-    VULKAN: str = 'vulkan'
+    SWANGLE = 'swangle'
+    ANGLE = 'angle'
+    EGL = 'egl'
+    SWIFTSHADER = 'swiftshader'
+    VULKAN = 'vulkan'
 
 
 @dataclass
@@ -203,7 +204,7 @@ class RenderProgressParams:
         """
         Convert instance attributes to a dictionary for serialization.
         """
-        parameters = {
+        parameters: dict[str, Any] = {
             'renderId': self.render_id,
             'bucketName': self.bucket_name,
             'type': 'status',
@@ -301,7 +302,7 @@ class RenderMediaParams:
     number_of_gif_loops: Optional[int] = 0
     concurrency_per_lambda: Optional[int] = 1
     download_behavior: Optional[Union[PlayInBrowser, ShouldDownload]] = field(
-        default_factory=lambda: {'type': 'play-in-browser'})
+        default_factory=lambda: PlayInBrowser(type='play-in-browser'))
     muted: bool = False
     overwrite: bool = False
     force_path_style: Optional[bool] = None
@@ -314,6 +315,7 @@ class RenderMediaParams:
     force_width: Optional[int] = None
     api_key: Optional[str] = None
     audio_codec: Optional[str] = None
+    storage_class: Optional[str] = None
     renderer_function_name: Optional[str] = None
     pro_res_profile: Optional[str] = None
     x264_preset: Optional[str] = None
@@ -336,6 +338,7 @@ class RenderMediaParams:
             'imageFormat': self.image_format,
             'maxRetries': self.max_retries,
             'jpegQuality': self.jpeg_quality,
+            'storageClass': self.storage_class,
             'envVariables': self.env_variables,
             'metadata': self.metadata,
             'privacy': self.privacy,
@@ -427,6 +430,7 @@ class RenderStillParams:
                                     'type': 'play-in-browser'})
     force_width: Optional[int] = None
     api_key: Optional[int] = None
+    storage_class: Optional[str] = None
     force_height: Optional[int] = None
     force_bucket_name: Optional[str] = None
     dump_browser_logs: Optional[bool] = None
@@ -466,6 +470,7 @@ class RenderStillParams:
             'maxRetries': self.max_retries,
             'envVariables': self.env_variables if self.env_variables is not None else {},
             'jpegQuality': self.jpeg_quality,
+            'storageClass': self.storage_class,
             'frame': self.frame,
             'logLevel': self.log_level,
             'outName': self.out_name,

@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {getArrayBufferIterator} from '../buffer-iterator';
 import {parseStsc} from '../containers/iso-base-media/stsd/stsc';
+import {getArrayBufferIterator} from '../iterator/buffer-iterator';
 
 test('Parse stsc box', () => {
 	const buffer = Uint8Array.from([
@@ -11,7 +11,11 @@ test('Parse stsc box', () => {
 		0, 0, 1, 0, 0, 0, 1,
 	]);
 
-	const iterator = getArrayBufferIterator(buffer, null);
+	const iterator = getArrayBufferIterator({
+		initialData: buffer,
+		maxBytes: buffer.length,
+		logLevel: 'error',
+	});
 	iterator.counter.increment(8);
 	const result = parseStsc({
 		iterator,
@@ -26,16 +30,10 @@ test('Parse stsc box', () => {
 		type: 'stsc-box',
 		version: 0,
 		entryCount: 2,
-		entries: [
-			{
-				firstChunk: 1,
-				samplesPerChunk: 2,
-			},
-			{
-				firstChunk: 2,
-				samplesPerChunk: 1,
-			},
-		],
+		entries: new Map([
+			[1, 2],
+			[2, 1],
+		]),
 	});
 });
 
@@ -51,7 +49,11 @@ test('Parse stsc box 2', () => {
 		0, 0, 0, 1,
 	]);
 
-	const iterator = getArrayBufferIterator(buffer, null);
+	const iterator = getArrayBufferIterator({
+		initialData: buffer,
+		maxBytes: buffer.length,
+		logLevel: 'error',
+	});
 	iterator.counter.increment(8);
 	const result = parseStsc({
 		iterator,
@@ -66,39 +68,15 @@ test('Parse stsc box 2', () => {
 		type: 'stsc-box',
 		version: 0,
 		entryCount: 8,
-		entries: [
-			{
-				firstChunk: 1,
-				samplesPerChunk: 1,
-			},
-			{
-				firstChunk: 2,
-				samplesPerChunk: 2,
-			},
-			{
-				firstChunk: 3,
-				samplesPerChunk: 1,
-			},
-			{
-				firstChunk: 4,
-				samplesPerChunk: 2,
-			},
-			{
-				firstChunk: 5,
-				samplesPerChunk: 1,
-			},
-			{
-				firstChunk: 7,
-				samplesPerChunk: 2,
-			},
-			{
-				firstChunk: 8,
-				samplesPerChunk: 1,
-			},
-			{
-				firstChunk: 9,
-				samplesPerChunk: 4,
-			},
-		],
+		entries: new Map([
+			[1, 1],
+			[2, 2],
+			[3, 1],
+			[4, 2],
+			[5, 1],
+			[7, 2],
+			[8, 1],
+			[9, 4],
+		]),
 	});
 });

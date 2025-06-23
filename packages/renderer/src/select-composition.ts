@@ -143,8 +143,16 @@ const innerSelectComposition = async ({
 		ReturnType<typeof window.remotion_calculateComposition>
 	>;
 
-	const {width, durationInFrames, fps, height, defaultCodec, defaultOutName} =
-		res;
+	const {
+		width,
+		durationInFrames,
+		fps,
+		height,
+		defaultCodec,
+		defaultOutName,
+		defaultVideoImageFormat,
+		defaultPixelFormat,
+	} = res;
 	return {
 		metadata: {
 			id,
@@ -152,14 +160,16 @@ const innerSelectComposition = async ({
 			height,
 			fps,
 			durationInFrames,
-			props: NoReactInternals.deserializeJSONWithCustomFields(
+			props: NoReactInternals.deserializeJSONWithSpecialTypes(
 				res.serializedResolvedPropsWithCustomSchema,
 			),
-			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				res.serializedDefaultPropsWithCustomSchema,
 			),
 			defaultCodec,
 			defaultOutName,
+			defaultVideoImageFormat,
+			defaultPixelFormat,
 		},
 		propsSize: size,
 	};
@@ -313,7 +323,7 @@ export const selectComposition = async (
 	} = options;
 
 	const indent = false;
-	const logLevel = (passedLogLevel ?? verbose) ? 'verbose' : 'info';
+	const logLevel = passedLogLevel ?? (verbose ? 'verbose' : 'info');
 
 	const data = await internalSelectComposition({
 		id,
@@ -322,7 +332,7 @@ export const selectComposition = async (
 		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},

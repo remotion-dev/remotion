@@ -296,7 +296,7 @@ export const setPropsAndEnv = async (params: SetPropsAndEnv) => {
 					reject(
 						new Error(
 							[
-								`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser.`,
+								`Timed out after ${params.timeoutInMilliseconds}ms while setting up the headless browser.`,
 								'This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding.',
 								process.platform === 'linux'
 									? 'Make sure you have installed the Linux depdendencies: https://www.remotion.dev/docs/miscellaneous/linux-dependencies'

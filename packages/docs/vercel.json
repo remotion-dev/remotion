@@ -14,6 +14,19 @@
 					"value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
 				}
 			]
+		},
+		{
+			"source": "/transcribe(.*)",
+			"headers": [
+				{
+					"key": "Cross-Origin-Embedder-Policy",
+					"value": "require-corp"
+				},
+				{
+					"key": "Cross-Origin-Opener-Policy",
+					"value": "same-origin"
+				}
+			]
 		}
 	],
 	"redirects": [
@@ -233,6 +246,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/ask-in-public",
+			"destination": "https://www.remotion.dev/docs/ask-in-public",
+			"permanent": false
+		},
+		{
 			"source": "/native",
 			"destination": "https://remotion.dev/docs/react-native",
 			"permanent": false
@@ -275,11 +293,6 @@
 		{
 			"source": "/repro",
 			"destination": "https://stackblitz.com/fork/github/remotion-dev/template-helloworld",
-			"permanent": false
-		},
-		{
-			"source": "/docs/timeline",
-			"destination": "/docs/studio",
 			"permanent": false
 		},
 		{
@@ -358,6 +371,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/docs/audio-visualization",
+			"destination": "/docs/audio/visualization",
+			"permanent": false
+		},
+		{
 			"source": "/recorder",
 			"destination": "/docs/recorder",
 			"permanent": false
@@ -410,6 +428,11 @@
 		{
 			"source": "/system-prompt",
 			"destination": "/docs/ai/system-prompt",
+			"permanent": false
+		},
+		{
+			"source": "/investors",
+			"destination": "/docs/investors",
 			"permanent": false
 		}
 	]

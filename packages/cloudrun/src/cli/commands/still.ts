@@ -123,7 +123,7 @@ export const stillCommand = async (
 				chromiumOptions,
 				envVariables,
 				serializedInputPropsWithCustomSchema:
-					NoReactInternals.serializeJSONWithDate({
+					NoReactInternals.serializeJSONWithSpecialTypes({
 						data: inputProps,
 						indent: undefined,
 						staticBase: null,
@@ -215,7 +215,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		inputProps,
 		imageFormat,
 		composition,
-		privacy,
+		privacy: privacy ?? 'public',
 		envVariables,
 		frame: stillFrame,
 		jpegQuality,

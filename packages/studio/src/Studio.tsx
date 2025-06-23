@@ -35,6 +35,7 @@ export const Studio: React.FC<{
 			numberOfAudioTags={window.remotion_numberOfAudioTags}
 			onlyRenderComposition={null}
 			currentCompositionMetadata={null}
+			audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 		>
 			<EditorContexts readOnlyStudio={readOnly}>
 				<Editor readOnlyStudio={readOnly} Root={rootComponent} />

@@ -6,7 +6,7 @@ import type {ParserState} from './state/parser-state';
 export const getKeyframes = (
 	state: ParserState,
 ): MediaParserKeyframe[] | null => {
-	const structure = state.getStructure();
+	const structure = state.structure.getStructure();
 
 	if (structure.type === 'iso-base-media') {
 		return getKeyframesFromIsoBaseMedia(state);
@@ -16,9 +16,9 @@ export const getKeyframes = (
 };
 
 export const hasKeyframes = (parserState: ParserState) => {
-	const structure = parserState.getStructure();
+	const structure = parserState.structure.getStructure();
 	if (structure.type === 'iso-base-media') {
-		return getHasTracks(parserState);
+		return getHasTracks(parserState, true);
 	}
 
 	// Has, but will be null

@@ -11,7 +11,7 @@
   "repository": {},
   "license": "UNLICENSED",
   "dependencies": {
-    "@react-three/fiber": "9.0.0-rc.6",
+    "@react-three/fiber": "9.1.2",
     "@remotion/cli": "workspace:*",
     "@remotion/media-utils": "workspace:*",
     "@remotion/three": "workspace:*",
@@ -29,7 +29,7 @@
     "@types/web": "0.0.166",
     "eslint": "9.19.0",
     "prettier": "3.3.3",
-    "typescript": "5.5.4"
+    "typescript": "5.8.2"
   },
   "private": true
 }

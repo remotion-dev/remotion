@@ -69,7 +69,13 @@ export const ResolveCompositionConfig: React.FC<
 		useState<string | null>(null);
 	const {compositions, canvasContent, currentCompositionMetadata} =
 		useContext(CompositionManager);
-	const {fastRefreshes} = useContext(NonceContext);
+	const {fastRefreshes, manualRefreshes} = useContext(NonceContext);
+
+	// don't do anything, this component should should re-render if the value changes
+	if (manualRefreshes) {
+		/** */
+	}
+
 	const selectedComposition = useMemo(() => {
 		return compositions.find(
 			(c) =>
@@ -345,23 +351,6 @@ export const ResolveCompositionConfig: React.FC<
 	]);
 
 	useEffect(() => {
-		if (shouldIgnoreUpdate) {
-			// We already have the current state, we just saved it back
-			// to the file
-			return;
-		}
-
-		window.dispatchEvent(
-			new CustomEvent<{resetUnsaved: boolean}>(PROPS_UPDATED_EXTERNALLY, {
-				detail: {
-					resetUnsaved: true,
-				},
-			}),
-		);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [fastRefreshes]);
-
-	useEffect(() => {
 		if (renderModalComposition && !isTheSame) {
 			const combinedProps = {
 				...(renderModalComposition.defaultProps ?? {}),
@@ -496,6 +485,8 @@ export const useResolvedVideoConfig = (
 					},
 					defaultCodec: null,
 					defaultOutName: null,
+					defaultVideoImageFormat: null,
+					defaultPixelFormat: null,
 				},
 			};
 		}

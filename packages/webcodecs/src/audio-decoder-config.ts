@@ -5,6 +5,10 @@ export const getAudioDecoderConfig = async (
 		return config;
 	}
 
+	if (config.codec === 'pcm-s24') {
+		return config;
+	}
+
 	if (typeof AudioDecoder === 'undefined') {
 		return null;
 	}

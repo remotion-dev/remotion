@@ -21,7 +21,7 @@ test(
 			frameRange: [0, 9],
 			imageFormat: 'png',
 			framesPerLambda: 5,
-			logLevel: 'error',
+			logLevel: 'verbose',
 			region: 'eu-central-1',
 			outName: 'out.webm',
 			pixelFormat: 'yuva420p',
@@ -57,6 +57,7 @@ test(
 			expectedBucketOwner: 'abc',
 			prefix: rendersPrefix(renderId),
 			forcePathStyle: false,
+			requestHandler: null,
 		});
 
 		expect(files.length).toBe(2);
@@ -75,6 +76,7 @@ test(
 			expectedBucketOwner: 'abc',
 			prefix: rendersPrefix(renderId),
 			forcePathStyle: false,
+			requestHandler: null,
 		});
 
 		RenderInternals.deleteDirectory(tmpdir);

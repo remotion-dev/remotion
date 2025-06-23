@@ -1,0 +1,31 @@
+---
+image: /generated/articles-docs-audio-trimming.png
+title: Trimming Audio
+sidebar_label: Trimming Audio
+id: trimming
+crumb: 'Audio'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+The [`<Audio />`](/docs/audio) tag supports the [`startFrom`](/docs/audio#startfrom--endat) and [`endAt`](/docs/audio#startfrom--endat) props.  
+With it, you can trim off parts of the audio.
+
+```tsx twoslash {8} title="MyComp.tsx"
+import {AbsoluteFill, Audio, staticFile, useVideoConfig} from 'remotion';
+
+export const MyComposition = () => {
+  const {fps} = useVideoConfig();
+
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile('audio.mp3')} startFrom={2 * fps} endAt={4 * fps} />
+    </AbsoluteFill>
+  );
+};
+```
+
+This will result the audio to play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
+
+The audio will still play immediately at the beginning - to see how to shift the audio to appear later in the composition, see the [next article](/docs/audio/delaying).

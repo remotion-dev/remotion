@@ -55,16 +55,18 @@ const makeLayerPublic = async () => {
 			const layerName = `remotion-binaries-${layer}-arm64`;
 			const {Version, LayerArn} = await LambdaClientInternals.getLambdaClient(
 				region,
+				undefined,
+				null,
 			).send(
 				new PublishLayerVersionCommand({
 					Content: {
 						S3Bucket: getBucketName(region),
-						S3Key: `remotion-layer-${layer}-v12-arm64.zip`,
+						S3Key: `remotion-layer-${layer}-v14-arm64.zip`,
 					},
 					LayerName: layerName,
 					LicenseInfo:
 						layer === 'chromium'
-							? 'Chromium 123.0.6312.86, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
+							? 'Chromium 133.0.6943.141, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
 							: layer === 'emoji-apple'
 								? 'Apple Emojis (https://github.com/samuelngs/apple-emoji-linux). For educational purposes only - Apple is a trademark of Apple Inc., registered in the U.S. and other countries.'
 								: layer === 'emoji-google'
@@ -76,7 +78,11 @@ const makeLayerPublic = async () => {
 					Description: VERSION,
 				}),
 			);
-			await LambdaClientInternals.getLambdaClient(region).send(
+			await LambdaClientInternals.getLambdaClient(
+				region,
+				undefined,
+				undefined,
+			).send(
 				new AddLayerVersionPermissionCommand({
 					Action: 'lambda:GetLayerVersion',
 					LayerName: layerName,

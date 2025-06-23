@@ -1,4 +1,4 @@
-import type {SamplePosition} from '@remotion/media-parser';
+import type {MediaParserInternalTypes} from '@remotion/media-parser';
 import {combineUint8Arrays} from '../../../../../matroska/matroska-utils';
 import {
 	addSize,
@@ -22,17 +22,22 @@ const makeEntry = (entry: Entry) => {
 	]);
 };
 
-export const createSttsAtom = (samplePositions: SamplePosition[]) => {
+export const createSttsAtom = (
+	samplePositions: MediaParserInternalTypes['SamplePosition'][],
+) => {
 	let lastDuration: null | number = null;
 
 	const durations = samplePositions.map((_, i, a) => {
 		// TODO: Why does 0 appear here?
 		if (a[i].duration === undefined || a[i].duration === 0) {
 			if (a[i + 1] === undefined) {
-				return a[i].dts - (a[i - 1]?.dts ?? a[i].dts);
+				return (
+					a[i].decodingTimestamp -
+					(a[i - 1]?.decodingTimestamp ?? a[i].decodingTimestamp)
+				);
 			}
 
-			return a[i + 1].dts - a[i].dts;
+			return a[i + 1].decodingTimestamp - a[i].decodingTimestamp;
 		}
 
 		return a[i].duration;

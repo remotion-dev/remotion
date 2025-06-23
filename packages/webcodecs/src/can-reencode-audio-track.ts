@@ -1,4 +1,4 @@
-import type {AudioTrack} from '@remotion/media-parser';
+import type {MediaParserAudioTrack} from '@remotion/media-parser';
 import {getAudioDecoderConfig} from './audio-decoder-config';
 import {getAudioEncoderConfig} from './audio-encoder-config';
 import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
@@ -7,10 +7,12 @@ export const canReencodeAudioTrack = async ({
 	track,
 	audioCodec,
 	bitrate,
+	sampleRate,
 }: {
-	track: AudioTrack;
+	track: MediaParserAudioTrack;
 	audioCodec: ConvertMediaAudioCodec;
 	bitrate: number;
+	sampleRate: number | null;
 }): Promise<boolean> => {
 	const audioDecoderConfig = await getAudioDecoderConfig(track);
 	if (audioCodec === 'wav' && audioDecoderConfig) {
@@ -20,7 +22,7 @@ export const canReencodeAudioTrack = async ({
 	const audioEncoderConfig = await getAudioEncoderConfig({
 		codec: audioCodec,
 		numberOfChannels: track.numberOfChannels,
-		sampleRate: track.sampleRate,
+		sampleRate: sampleRate ?? track.sampleRate,
 		bitrate,
 	});
 

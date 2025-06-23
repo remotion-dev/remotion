@@ -1,14 +1,15 @@
 import type {
-	Dimensions,
-	LogLevel,
 	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
+	MediaParserController,
+	MediaParserDimensions,
 	MediaParserEmbeddedImage,
 	MediaParserKeyframe,
 	MediaParserLocation,
+	MediaParserLogLevel,
 	MediaParserMetadataEntry,
-	MediaParserTracks,
+	MediaParserTrack,
 	MediaParserVideoCodec,
 	ParseMediaOnProgress,
 } from '@remotion/media-parser';
@@ -25,7 +26,7 @@ export const useProbe = ({
 	onProgress,
 }: {
 	src: Source;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onProgress: ParseMediaOnProgress;
 }) => {
 	const [audioCodec, setAudioCodec] = useState<
@@ -36,11 +37,11 @@ export const useProbe = ({
 	const [durationInSeconds, setDurationInSeconds] = useState<
 		number | null | undefined
 	>(undefined);
-	const [dimensions, setDimensions] = useState<Dimensions | undefined | null>(
-		undefined,
-	);
+	const [dimensions, setDimensions] = useState<
+		MediaParserDimensions | undefined | null
+	>(undefined);
 	const [unrotatedDimensions, setUnrotatedDimensions] =
-		useState<Dimensions | null>(null);
+		useState<MediaParserDimensions | null>(null);
 	const [name, setName] = useState<string | null>(null);
 	const [videoCodec, setVideoCodec] = useState<
 		MediaParserVideoCodec | undefined | null
@@ -51,18 +52,22 @@ export const useProbe = ({
 		null,
 	);
 	const [location, setLocation] = useState<MediaParserLocation | null>(null);
-	const [tracks, setTracks] = useState<MediaParserTracks | null>(null);
+	const [tracks, setTracks] = useState<MediaParserTrack[] | null>(null);
 	const [container, setContainer] = useState<MediaParserContainer | null>(null);
 	const [keyframes, setKeyframes] = useState<MediaParserKeyframe[] | null>(
 		null,
 	);
+	const [sampleRate, setSampleRate] = useState<number | null>(null);
 	const [images, setImages] = useState<MediaParserEmbeddedImage[] | null>(null);
 	const [m3u, setM3u] = useState<M3uStream[] | null>(null);
 	const [done, setDone] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
 
+	const [controller] = useState<MediaParserController>(() =>
+		mediaParserController(),
+	);
+
 	const getStart = useCallback(() => {
-		const controller = mediaParserController();
 		parseMediaOnWebWorker({
 			logLevel,
 			src: src.type === 'file' ? src.file : src.url,
@@ -116,9 +121,13 @@ export const useProbe = ({
 			onKeyframes: (k) => {
 				setKeyframes(k);
 			},
+			onSampleRate(s) {
+				setSampleRate(s);
+			},
 			onImages: (i) => {
 				setImages(i);
 			},
+			acknowledgeRemotionLicense: true,
 		})
 			.then(() => {})
 			.catch((err) => {
@@ -144,7 +153,7 @@ export const useProbe = ({
 			});
 
 		return controller;
-	}, [src, logLevel, onProgress]);
+	}, [src, logLevel, onProgress, controller]);
 
 	useEffect(() => {
 		const start = getStart();
@@ -174,6 +183,8 @@ export const useProbe = ({
 			unrotatedDimensions,
 			images,
 			m3u,
+			controller,
+			sampleRate,
 		};
 	}, [
 		tracks,
@@ -195,5 +206,7 @@ export const useProbe = ({
 		unrotatedDimensions,
 		images,
 		m3u,
+		controller,
+		sampleRate,
 	]);
 };

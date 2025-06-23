@@ -18,6 +18,7 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	currentRegion,
 	providerSpecifics,
 	forcePathStyle,
+	requestHandler,
 }: {
 	region: Provider['region'];
 	renderMetadata: RenderMetadata<Provider>;
@@ -26,6 +27,7 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 	currentRegion: Provider['region'];
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 }): Promise<OutputFileMetadata | null> => {
 	if (!renderMetadata) {
 		throw new Error('unexpectedly did not get renderMetadata');
@@ -45,6 +47,7 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 			region,
 			customCredentials,
 			forcePathStyle,
+			requestHandler,
 		});
 		return {
 			url: providerSpecifics.getOutputUrl({
@@ -69,7 +72,8 @@ export const findOutputFileInBucket = async <Provider extends CloudProvider>({
 					customCredentials?.endpoint
 						? `(S3 Endpoint = ${customCredentials?.endpoint})`
 						: ''
-				}. The Lambda role must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`,
+				} - got a 403 error when heading the file. Check your credentials and permissions. The Lambda role must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`,
+				{cause: err},
 			);
 		}
 

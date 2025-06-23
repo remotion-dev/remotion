@@ -258,7 +258,7 @@ export const rules = ({react}: {react: boolean}) => {
 				},
 			},
 		],
-		'constructor-super': 'error',
+		'constructor-super': 'off',
 		'no-class-assign': 'error',
 		'no-const-assign': 'error',
 		'no-dupe-class-members': 'error',
@@ -485,15 +485,7 @@ export const rules = ({react}: {react: boolean}) => {
 					'react/no-unused-prop-types': react ? 'off' : undefined,
 					'react/button-has-type': react ? 'error' : undefined,
 					'react/default-props-match-prop-types': react ? 'error' : undefined,
-					'react/function-component-definition': react
-						? [
-								'error',
-								{
-									namedComponents: 'arrow-function',
-									unnamedComponents: 'arrow-function',
-								},
-							]
-						: undefined,
+					'react/function-component-definition': 'off',
 					'react/jsx-child-element-spacing': 'off',
 					'react/jsx-closing-bracket-location': 'off',
 					'react/jsx-closing-tag-location': 'off',

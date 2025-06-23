@@ -14,6 +14,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {DownloadBehavior} from 'remotion';
 import type {ExpensiveChunk} from './most-expensive-chunks';
 import type {ChunkRetry, CloudProvider, ReceivedArtifact} from './types';
 import type {EnhancedErrorInfo} from './write-error-to-storage';
@@ -83,15 +84,6 @@ export const serverlessCodecs = [
 
 export type ServerlessCodec = (typeof serverlessCodecs)[number];
 export type Privacy = 'public' | 'private' | 'no-acl';
-
-export type DownloadBehavior =
-	| {
-			type: 'play-in-browser';
-	  }
-	| {
-			type: 'download';
-			fileName: string | null;
-	  };
 
 type Prettify<T> = {
 	[K in keyof T]: T[K];
@@ -166,6 +158,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	forcePathStyle: boolean;
 	metadata: Record<string, string> | null;
 	apiKey: string | null;
+	storageClass: Provider['storageClass'] | null;
 };
 
 export type ServerlessPayloads<Provider extends CloudProvider> = {
@@ -221,6 +214,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		forcePathStyle: boolean;
 		metadata: Record<string, string> | null;
 		apiKey: string | null;
+		storageClass: Provider['storageClass'] | null;
 	};
 	status: ServerlessStatusPayload<Provider>;
 	renderer: {
@@ -301,6 +295,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		streamed: boolean;
 		forcePathStyle: boolean;
 		apiKey: string | null;
+		storageClass: Provider['storageClass'] | null;
 	};
 	compositions: {
 		type: ServerlessRoutines.compositions;
@@ -402,6 +397,5 @@ export const MAX_FUNCTIONS_PER_RENDER = 200;
 export const MINIMUM_FRAMES_PER_FUNCTIONS = 4;
 
 export const REMOTION_CONCATENATED_TOKEN = 'remotion-concatenated-token';
-export const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
 
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';

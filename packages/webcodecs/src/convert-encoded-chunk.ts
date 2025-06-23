@@ -1,9 +1,13 @@
-import type {AudioOrVideoSample} from '@remotion/media-parser';
+import type {
+	MediaParserAudioSample,
+	MediaParserVideoSample,
+} from '@remotion/media-parser';
 
-export const convertEncodedChunk = (
+export const convertEncodedChunk = <
+	T extends MediaParserAudioSample | MediaParserVideoSample,
+>(
 	chunk: EncodedAudioChunk | EncodedVideoChunk,
-	trackId: number,
-): AudioOrVideoSample => {
+): T => {
 	const arr = new Uint8Array(chunk.byteLength);
 	chunk.copyTo(arr);
 
@@ -12,10 +16,7 @@ export const convertEncodedChunk = (
 		duration: chunk.duration ?? undefined,
 		timestamp: chunk.timestamp,
 		type: chunk.type,
-		cts: chunk.timestamp,
-		dts: chunk.timestamp,
-		trackId,
+		decodingTimestamp: chunk.timestamp,
 		offset: 0,
-		timescale: 1_000_000,
-	};
+	} as T;
 };

@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type {
-	Ebml,
-	EbmlValue,
-	FloatWithSize,
-	PossibleEbml,
-	Prettify,
-	UintWithSize,
+	_InternalEbmlValue,
+	MediaParserInternalTypes,
 } from '@remotion/media-parser';
 import {MediaParserInternals} from '@remotion/media-parser';
+
+type Prettify<T> = {
+	[K in keyof T]: T[K];
+} & {};
 
 export const getIdForName = (name: string): EbmlMapKey => {
 	const value = Object.entries(MediaParserInternals.matroskaElements).find(
@@ -29,7 +29,7 @@ function putUintDynamic(number: number, minimumLength: number | null) {
 
 	// Calculate the minimum number of bytes needed to store the integer
 	const length = Math.max(
-		minimumLength ?? 0,
+		minimumLength ?? 1,
 		Math.ceil(Math.log2(number + 1) / 8),
 	);
 	const bytes = new Uint8Array(length);
@@ -52,7 +52,6 @@ const makeFromStructure = (
 	const arrays: Uint8Array[] = [];
 
 	const struct = MediaParserInternals.ebmlMap[getIdForName(fields.type)];
-
 	if (struct.type === 'uint8array') {
 		return {
 			bytes: fields.value as Uint8Array,
@@ -63,7 +62,7 @@ const makeFromStructure = (
 	if (struct.type === 'children') {
 		const children: OffsetAndChildren[] = [];
 		let bytesWritten = 0;
-		for (const item of fields.value as PossibleEbml[]) {
+		for (const item of fields.value as MediaParserInternalTypes['PossibleEbml'][]) {
 			const {bytes, offsets} = makeMatroskaBytes(item);
 			arrays.push(bytes);
 			children.push(incrementOffsetAndChildren(offsets, bytesWritten));
@@ -90,8 +89,8 @@ const makeFromStructure = (
 	if (struct.type === 'uint') {
 		return {
 			bytes: putUintDynamic(
-				(fields.value as UintWithSize).value,
-				(fields.value as UintWithSize).byteLength,
+				(fields.value as MediaParserInternalTypes['UintWithSize']).value,
+				(fields.value as MediaParserInternalTypes['UintWithSize']).byteLength,
 			),
 			offsets: {
 				children: [],
@@ -120,7 +119,7 @@ const makeFromStructure = (
 	}
 
 	if (struct.type === 'float') {
-		const value = fields.value as FloatWithSize;
+		const value = fields.value as MediaParserInternalTypes['FloatWithSize'];
 		if (value.size === '32') {
 			const dataView = new DataView(new ArrayBuffer(4));
 			dataView.setFloat32(0, value.value);
@@ -210,15 +209,16 @@ export type BytesAndOffset = {
 	offsets: OffsetAndChildren;
 };
 
-export type EbmlValueOrUint8Array<T extends Ebml> =
+export type EbmlValueOrUint8Array<T extends MediaParserInternalTypes['Ebml']> =
 	| Uint8Array
-	| EbmlValue<T, PossibleEbmlOrUint8Array>;
+	| _InternalEbmlValue<T, PossibleEbmlOrUint8Array>;
 
-export type EbmlParsedOrUint8Array<T extends Ebml> = {
-	type: T['name'];
-	value: EbmlValueOrUint8Array<T>;
-	minVintWidth: number | null;
-};
+export type EbmlParsedOrUint8Array<T extends MediaParserInternalTypes['Ebml']> =
+	{
+		type: T['name'];
+		value: EbmlValueOrUint8Array<T>;
+		minVintWidth: number | null;
+	};
 
 // https://github.com/Vanilagy/webm-muxer/blob/main/src/ebml.ts#L101
 

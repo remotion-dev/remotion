@@ -8,7 +8,10 @@ import {
 import React, { useMemo } from "react";
 import { loadFont } from "@remotion/google-fonts/Roboto";
 
-const { fontFamily } = loadFont();
+const { fontFamily } = loadFont("normal", {
+  subsets: ["latin"],
+  weights: ["400", "700"],
+});
 
 const title: React.CSSProperties = {
   fontFamily,

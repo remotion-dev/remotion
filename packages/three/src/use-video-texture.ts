@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import type {Video} from 'remotion';
 import {continueRender, delayRender, useCurrentFrame} from 'remotion';
 import type {VideoTexture} from 'three/src/textures/VideoTexture';
@@ -33,6 +33,7 @@ export const useVideoTexture = (
 
 		return delayRender(`Waiting for texture in useVideoTexture() to be loaded`);
 	});
+
 	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
 	const [vidText] = useState(
 		() => import('three/src/textures/VideoTexture.js'),
@@ -52,6 +53,7 @@ export const useVideoTexture = (
 				}
 
 				const vt = new VideoTexture(videoRef.current);
+
 				videoRef.current.width = videoRef.current.videoWidth;
 				videoRef.current.height = videoRef.current.videoHeight;
 				setVideoTexture(vt);
@@ -62,7 +64,7 @@ export const useVideoTexture = (
 			});
 	}, [loaded, vidText, videoRef]);
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if (!videoRef.current) {
 			return;
 		}
@@ -99,6 +101,14 @@ export const useVideoTexture = (
 
 		current.requestVideoFrameCallback(ready);
 	}, [frame, loaded, videoRef]);
+
+	useEffect(() => {
+		// Clean up on unmount
+
+		return () => {
+			continueRender(loaded);
+		};
+	}, [loaded]);
 
 	if (
 		typeof HTMLVideoElement === 'undefined' ||

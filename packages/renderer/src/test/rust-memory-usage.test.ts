@@ -117,7 +117,7 @@ test(
 			tone_mapped: false,
 		});
 	},
-	{timeout: 10000},
+	{timeout: 15000},
 );
 
 test('Should respect the maximum frame cache limit', async () => {

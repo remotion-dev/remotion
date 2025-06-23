@@ -1,4 +1,9 @@
-import type {VideoTrackColorParams} from '../../get-tracks';
+import type {MediaParserAdvancedColor} from '../../get-tracks';
+import {
+	getMatrixCoefficientsFromIndex,
+	getPrimariesFromIndex,
+	getTransferCharacteristicsFromIndex,
+} from '../avc/color';
 import type {ColourSegment} from './segments/all-segments';
 import {
 	getMatrixCoefficientsSegment,
@@ -9,7 +14,7 @@ import {
 
 export const parseColorSegment = (
 	colourSegment: ColourSegment,
-): VideoTrackColorParams => {
+): MediaParserAdvancedColor => {
 	const transferCharacteristics =
 		getTransferCharacteristicsSegment(colourSegment);
 	const matrixCoefficients = getMatrixCoefficientsSegment(colourSegment);
@@ -17,33 +22,13 @@ export const parseColorSegment = (
 	const range = getRangeSegment(colourSegment);
 
 	return {
-		transferCharacteristics: transferCharacteristics
-			? transferCharacteristics.value.value === 1
-				? 'bt709'
-				: transferCharacteristics.value.value === 6
-					? 'smpte170m'
-					: transferCharacteristics.value.value === 13
-						? 'iec61966-2-1'
-						: null
+		transfer: transferCharacteristics
+			? getTransferCharacteristicsFromIndex(transferCharacteristics.value.value)
 			: null,
-		matrixCoefficients: matrixCoefficients
-			? matrixCoefficients.value.value === 1
-				? 'bt709'
-				: matrixCoefficients.value.value === 6
-					? 'smpte170m'
-					: matrixCoefficients.value.value === 5
-						? 'bt470bg'
-						: null
+		matrix: matrixCoefficients
+			? getMatrixCoefficientsFromIndex(matrixCoefficients.value.value)
 			: null,
-		primaries: primaries
-			? primaries.value.value === 1
-				? 'bt709'
-				: primaries.value.value === 6
-					? 'smpte170m'
-					: primaries.value.value === 5
-						? 'bt470bg'
-						: null
-			: null,
+		primaries: primaries ? getPrimariesFromIndex(primaries.value.value) : null,
 		fullRange:
 			transferCharacteristics?.value.value && matrixCoefficients?.value.value
 				? null

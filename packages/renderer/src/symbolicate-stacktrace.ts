@@ -31,8 +31,8 @@ function extractSourceMapUrl(fileContents: string): string | null {
 
 export const getSourceMapFromRemoteUrl = async (url: string) => {
 	if (!url.endsWith('.js.map')) {
-		throw new Error(
-			`The URL ${url} does not seem to be a valid source map URL.`,
+		return Promise.reject(
+			new Error(`The URL ${url} does not seem to be a valid source map URL.`),
 		);
 	}
 
@@ -84,17 +84,25 @@ const getSourceMap = (
 };
 
 const fetchUrl = async (url: string) => {
-	const res = await readFile(url);
+	const {request, response} = await readFile(url);
 
 	return new Promise<string>((resolve, reject) => {
 		let downloaded = '';
-		res.on('data', (d) => {
+		response.on('data', (d) => {
 			downloaded += d;
 		});
-		res.on('end', () => {
+		response.on('end', () => {
+			request.destroy();
+			response.destroy();
+
 			resolve(downloaded);
 		});
-		res.on('error', (err) => reject(err));
+		response.on('error', (err) => {
+			request.destroy();
+			response.destroy();
+
+			return reject(err);
+		});
 	});
 };
 
@@ -183,7 +191,8 @@ export const symbolicateFromSources = (
 
 			return symbolicateStackFrame(frame, map);
 		})
-		.filter(truthy);
+		.filter(truthy)
+		.filter((f) => f.originalScriptCode !== null);
 };
 
 export const symbolicateStackFrame = (

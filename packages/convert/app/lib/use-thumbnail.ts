@@ -1,4 +1,4 @@
-import type {LogLevel} from '@remotion/media-parser';
+import type {MediaParserLogLevel} from '@remotion/media-parser';
 import {mediaParserController} from '@remotion/media-parser';
 import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
@@ -13,7 +13,7 @@ export const useThumbnailAndWaveform = ({
 	onWaveformBars,
 }: {
 	src: Source;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onVideoThumbnail: (videoFrame: VideoFrame) => Promise<void>;
 	onWaveformBars: (bars: number[]) => void;
 	onDone: () => void;
@@ -35,10 +35,13 @@ export const useThumbnailAndWaveform = ({
 
 		const controller = mediaParserController();
 
+		let videoDecoder: VideoDecoder | undefined;
+
 		parseMediaOnWebWorker({
 			controller,
 			src: src.type === 'file' ? src.file : src.url,
 			logLevel,
+			acknowledgeRemotionLicense: true,
 			onDurationInSeconds: (dur) => {
 				if (dur !== null) {
 					waveform.setDuration(dur);
@@ -55,20 +58,7 @@ export const useThumbnailAndWaveform = ({
 
 				hasStartedWaveform.current = true;
 
-				const decoder = new AudioDecoder({
-					output(frame) {
-						waveform.add(frame);
-						frame.close();
-					},
-					error: (error) => {
-						// eslint-disable-next-line no-console
-						console.log(error);
-						setError(error);
-						controller.abort();
-					},
-				});
-
-				if (track.codecWithoutConfig === 'pcm-s16') {
+				if (track.codecEnum === 'pcm-s16') {
 					return (sample) => {
 						waveform.add(
 							new AudioData({
@@ -83,6 +73,19 @@ export const useThumbnailAndWaveform = ({
 						);
 					};
 				}
+
+				const decoder = new AudioDecoder({
+					output(frame) {
+						waveform.add(frame);
+						frame.close();
+					},
+					error: (error) => {
+						// eslint-disable-next-line no-console
+						console.log(error);
+						setError(error);
+						controller.abort();
+					},
+				});
 
 				if (!(await AudioDecoder.isConfigSupported(track)).supported) {
 					controller.abort();
@@ -108,7 +111,7 @@ export const useThumbnailAndWaveform = ({
 					container !== 'm3u8';
 				const framesToGet = onlyKeyframes ? 3 : 30;
 
-				const decoder = new VideoDecoder({
+				videoDecoder = new VideoDecoder({
 					error: (error) => {
 						// eslint-disable-next-line no-console
 						console.log(error);
@@ -137,7 +140,7 @@ export const useThumbnailAndWaveform = ({
 					return null;
 				}
 
-				decoder.configure(track);
+				videoDecoder.configure(track);
 
 				return (sample) => {
 					if (sample.type !== 'key' && onlyKeyframes) {
@@ -145,10 +148,10 @@ export const useThumbnailAndWaveform = ({
 					}
 
 					if (sample.type === 'key') {
-						decoder.flush();
+						videoDecoder!.flush();
 					}
 
-					decoder.decode(new EncodedVideoChunk(sample));
+					videoDecoder!.decode(new EncodedVideoChunk(sample));
 				};
 			},
 		})
@@ -171,6 +174,7 @@ export const useThumbnailAndWaveform = ({
 				setError(err2 as Error);
 			})
 			.then(() => {
+				videoDecoder?.flush();
 				hasEnoughData();
 			});
 

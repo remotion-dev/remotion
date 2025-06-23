@@ -103,8 +103,13 @@ export const continueRender = (handle: number): void => {
 	handles = handles.filter((h) => {
 		if (h === handle) {
 			if (getRemotionEnvironment().isRendering) {
-				clearTimeout(window.remotion_delayRenderTimeouts[handle].timeout);
-				const {label, startTime} = window.remotion_delayRenderTimeouts[handle];
+				if (!window.remotion_delayRenderTimeouts[handle]) {
+					return false;
+				}
+
+				const {label, startTime, timeout} =
+					window.remotion_delayRenderTimeouts[handle];
+				clearTimeout(timeout);
 				const message = [
 					label ? `delayRender() "${label}"` : 'A delayRender()',
 					DELAY_RENDER_CLEAR_TOKEN,

@@ -1,4 +1,4 @@
-import type {Options, ParseMediaFields} from '../options';
+import type {Options, ParseMediaFields} from '../fields';
 import type {MediaParserStructureUnstable} from '../parse-result';
 import type {StructureState} from './structure';
 
@@ -7,10 +7,10 @@ export const needsTracksForField = ({
 	structure,
 }: {
 	field: keyof Options<ParseMediaFields>;
-	structure: MediaParserStructureUnstable;
+	structure: MediaParserStructureUnstable | null;
 }) => {
 	if (field === 'dimensions') {
-		if (structure.type === 'riff') {
+		if (structure?.type === 'riff') {
 			return false;
 		}
 
@@ -25,7 +25,7 @@ export const needsTracksForField = ({
 		field === 'fps' ||
 		field === 'isHdr' ||
 		field === 'rotation' ||
-		field === 'structure' ||
+		field === 'slowStructure' ||
 		field === 'tracks' ||
 		field === 'unrotatedDimensions' ||
 		field === 'videoCodec' ||
@@ -68,19 +68,29 @@ export const makeCanSkipTracksState = ({
 	fields: Options<ParseMediaFields>;
 	structure: StructureState;
 }) => {
+	const doFieldsNeedTracks = () => {
+		const keys = Object.keys(
+			fields ?? {},
+		) as (keyof Options<ParseMediaFields>)[];
+
+		const selectedKeys = keys.filter((k) => fields[k]);
+
+		return selectedKeys.some((k) =>
+			needsTracksForField({
+				field: k,
+				structure: structure.getStructureOrNull(),
+			}),
+		);
+	};
+
 	return {
+		doFieldsNeedTracks,
 		canSkipTracks: () => {
 			if (hasAudioTrackHandlers || hasVideoTrackHandlers) {
 				return false;
 			}
 
-			const keys = Object.keys(
-				fields ?? {},
-			) as (keyof Options<ParseMediaFields>)[];
-			const selectedKeys = keys.filter((k) => fields[k]);
-			return !selectedKeys.some((k) =>
-				needsTracksForField({field: k, structure: structure.getStructure()}),
-			);
+			return !doFieldsNeedTracks();
 		},
 	};
 };

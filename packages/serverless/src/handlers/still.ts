@@ -18,7 +18,7 @@ import {
 	getExpectedOutName,
 	internalGetOrCreateBucket,
 	overallProgressKey,
-	serializeJSONWithDate,
+	serializeJSONWithSpecialTypes,
 	ServerlessRoutines,
 	validateDownloadBehavior,
 	validateOutname,
@@ -109,6 +109,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
 			skipPutAcl: false,
+			requestHandler: null,
 		}).then((b) => b.bucketName);
 
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
@@ -125,6 +126,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		propsType: 'input-props',
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
 	});
 
 	const serveUrl = providerSpecifics.convertToServeUrl({
@@ -223,6 +225,8 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		downloadBehavior: null,
 		customCredentials: null,
 		forcePathStyle: params.forcePathStyle,
+		storageClass: null,
+		requestHandler: null,
 	});
 
 	const onBrowserDownload = () => {
@@ -270,6 +274,8 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 				downloadBehavior: params.downloadBehavior,
 				customCredentials,
 				forcePathStyle: params.forcePathStyle,
+				storageClass: params.storageClass,
+				requestHandler: null,
 			})
 			.then(() => {
 				RenderInternals.Log.info(
@@ -312,7 +318,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		port: null,
 		server,
 		logLevel: params.logLevel,
-		serializedResolvedPropsWithCustomSchema: serializeJSONWithDate({
+		serializedResolvedPropsWithCustomSchema: serializeJSONWithSpecialTypes({
 			indent: undefined,
 			staticBase: null,
 			data: composition.props,
@@ -337,6 +343,8 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		downloadBehavior: params.downloadBehavior,
 		customCredentials,
 		forcePathStyle: params.forcePathStyle,
+		storageClass: params.storageClass,
+		requestHandler: null,
 	});
 
 	await Promise.all([

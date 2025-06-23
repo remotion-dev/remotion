@@ -9,23 +9,26 @@ import React, {
 } from 'react';
 import {SequenceContext} from '../SequenceContext.js';
 import {SequenceVisibilityToggleContext} from '../SequenceManager.js';
+import type {IsExact} from '../audio/props.js';
+import {SharedAudioContext} from '../audio/shared-audio-tags.js';
+import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
+import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
+import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
-import {
-	DEFAULT_ACCEPTABLE_TIMESHIFT,
-	useMediaPlayback,
-} from '../use-media-playback.js';
-import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
+import {useMediaPlayback} from '../use-media-playback.js';
 import {useVideoConfig} from '../use-video-config.js';
+import {VERSION} from '../version.js';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
+import {evaluateVolume} from '../volume-prop.js';
 import {useEmitVideoFrame} from './emit-video-frame.js';
-import type {OnVideoFrame, RemotionVideoProps} from './props';
+import type {NativeVideoProps, OnVideoFrame, RemotionVideoProps} from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
 type VideoForPreviewProps = RemotionVideoProps & {
@@ -39,11 +42,31 @@ type VideoForPreviewProps = RemotionVideoProps & {
 	readonly crossOrigin?: '' | 'anonymous' | 'use-credentials';
 };
 
+type Expected = Omit<
+	NativeVideoProps,
+	'crossOrigin' | 'src' | 'name' | 'muted' | 'style'
+>;
+
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
 	VideoForPreviewProps
 > = (props, ref) => {
+	const context = useContext(SharedAudioContext);
+	if (!context) {
+		throw new Error('SharedAudioContext not found');
+	}
+
 	const videoRef = useRef<HTMLVideoElement | null>(null);
+	const sharedSource = useMemo(() => {
+		if (!context.audioContext) {
+			return null;
+		}
+
+		return makeSharedElementSourceNode({
+			audioContext: context.audioContext,
+			ref: videoRef,
+		});
+	}, [context.audioContext]);
 
 	const {
 		volume,
@@ -67,8 +90,18 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		onAutoPlayError,
 		onVideoFrame,
 		crossOrigin,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		allowAmplificationDuringRender,
+		useWebAudioApi,
 		...nativeProps
 	} = props;
+
+	const _propsValid: IsExact<typeof nativeProps, Expected> = true;
+
+	if (!_propsValid) {
+		throw new Error('typecheck error');
+	}
 
 	const volumePropFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
@@ -91,6 +124,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	const [mediaVolume] = useMediaVolumeState();
 	const [mediaMuted] = useMediaMutedState();
 
+	const userPreferredVolume = evaluateVolume({
+		frame: volumePropFrame,
+		volume,
+		mediaVolume,
+	});
+
 	useMediaInTimeline({
 		mediaRef: videoRef,
 		volume,
@@ -107,24 +146,26 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(parentSequence?.premounting),
 	});
 
-	useSyncVolumeWithMediaTag({
-		volumePropFrame,
-		volume,
-		mediaVolume,
-		mediaRef: videoRef,
-	});
-
+	// putting playback before useVolume
+	// because volume looks at playbackrate
 	useMediaPlayback({
 		mediaRef: videoRef,
 		src,
 		mediaType: 'video',
 		playbackRate: props.playbackRate ?? 1,
 		onlyWarnForMediaSeekingError,
-		acceptableTimeshift:
-			acceptableTimeShiftInSeconds ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
+		acceptableTimeshift: acceptableTimeShiftInSeconds ?? null,
 		isPremounting: Boolean(parentSequence?.premounting),
 		pauseWhenBuffering,
 		onAutoPlayError: onAutoPlayError ?? null,
+	});
+
+	useVolume({
+		logLevel,
+		mediaRef: videoRef,
+		volume: userPreferredVolume,
+		source: sharedSource,
+		shouldUseWebAudioApi: useWebAudioApi ?? false,
 	});
 
 	const actualFrom = parentSequence ? parentSequence.relativeFrom : 0;
@@ -132,8 +173,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		? Math.min(parentSequence.durationInFrames, durationInFrames)
 		: durationInFrames;
 
+	const preloadedSrc = usePreload(src as string);
+
 	const actualSrc = useAppendVideoFragment({
-		actualSrc: usePreload(src as string),
+		actualSrc: preloadedSrc,
 		actualFrom,
 		duration,
 		fps,
@@ -146,7 +189,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	useState(() =>
 		playbackLogging({
 			logLevel,
-			message: `Mounting video with source = ${actualSrc}`,
+			message: `Mounting video with source = ${actualSrc}, v=${VERSION}, user agent=${
+				typeof navigator === 'undefined' ? 'server' : navigator.userAgent
+			}`,
 			tag: 'video',
 			mountTime,
 		}),
@@ -250,13 +295,17 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [isSequenceHidden, style]);
 
-	const crossOriginValue =
-		crossOrigin ?? (onVideoFrame ? 'anonymous' : undefined);
+	const crossOriginValue = getCrossOriginValue({
+		crossOrigin,
+		requestsVideoFrame: Boolean(onVideoFrame),
+	});
 
 	return (
 		<video
 			ref={videoRef}
-			muted={muted || mediaMuted}
+			muted={
+				muted || mediaMuted || isSequenceHidden || userPreferredVolume <= 0
+			}
 			playsInline
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}

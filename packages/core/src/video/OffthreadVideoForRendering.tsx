@@ -25,14 +25,16 @@ import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {getExpectedMediaFrameUncorrected} from './get-current-time.js';
 import {getOffthreadVideoSource} from './offthread-video-source.js';
-import type {OffthreadVideoProps} from './props.js';
+import type {RemotionOffthreadVideoProps} from './props.js';
 
 type SrcAndHandle = {
 	src: string;
 	handle: ReturnType<typeof delayRender>;
 };
 
-export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
+export const OffthreadVideoForRendering: React.FC<
+	RemotionOffthreadVideoProps
+> = ({
 	onError,
 	volume: volumeProp,
 	playbackRate,
@@ -92,7 +94,6 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		volume: volumeProp,
 		frame: volumePropsFrame,
 		mediaVolume: 1,
-		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
 
 	useEffect(() => {
@@ -120,7 +121,6 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			volume,
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
-			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 			toneFrequency: toneFrequency ?? null,
 			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
 		});
@@ -136,7 +136,6 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		frame,
 		absoluteFrame,
 		playbackRate,
-		allowAmplificationDuringRender,
 		toneFrequency,
 		sequenceContext?.relativeFrom,
 	]);

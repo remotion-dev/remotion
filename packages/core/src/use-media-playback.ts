@@ -1,10 +1,17 @@
 import type {RefObject} from 'react';
-import {useCallback, useContext, useEffect, useRef} from 'react';
+import {
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {BufferingContextReact, useIsPlayerBuffering} from './buffering.js';
 import {useLogLevel, useMountTime} from './log-level-context.js';
 import {Log} from './log.js';
+import {useCurrentTimeOfMediaTagWithUpdateTimeStamp} from './media-tag-current-time-timestamp.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import {playbackLogging} from './playback-logging.js';
 import {seek} from './seek.js';
@@ -19,8 +26,6 @@ import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js'
 import {useVideoConfig} from './use-video-config.js';
 import {getMediaTime} from './video/get-current-time.js';
 import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media.js';
-
-export const DEFAULT_ACCEPTABLE_TIMESHIFT = 0.45;
 
 export const useMediaPlayback = ({
 	mediaRef,
@@ -38,7 +43,7 @@ export const useMediaPlayback = ({
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
 	onlyWarnForMediaSeekingError: boolean;
-	acceptableTimeshift: number;
+	acceptableTimeshift: number | null;
 	pauseWhenBuffering: boolean;
 	isPremounting: boolean;
 	onAutoPlayError: null | (() => void);
@@ -68,6 +73,10 @@ export const useMediaPlayback = ({
 			return;
 		}
 
+		if (isVariableFpsVideoMap.current[src]) {
+			return;
+		}
+
 		Log.verbose(
 			logLevel,
 			`Detected ${src} as a variable FPS video. Disabling buffering while seeking.`,
@@ -76,12 +85,15 @@ export const useMediaPlayback = ({
 		isVariableFpsVideoMap.current[src] = true;
 	}, [logLevel, src]);
 
-	const currentTime = useRequestVideoCallbackTime({
+	const rvcCurrentTime = useRequestVideoCallbackTime({
 		mediaRef,
 		mediaType,
 		lastSeek,
 		onVariableFpsVideoDetected,
 	});
+
+	const mediaTagCurrentTime =
+		useCurrentTimeOfMediaTagWithUpdateTimeStamp(mediaRef);
 
 	const desiredUnclampedTime = getMediaTime({
 		frame,
@@ -96,6 +108,7 @@ export const useMediaPlayback = ({
 		isPremounting,
 		logLevel,
 		mountTime,
+		src: src ?? null,
 	});
 
 	const {bufferUntilFirstFrame, isBuffering} = useBufferUntilFirstFrame({
@@ -109,16 +122,25 @@ export const useMediaPlayback = ({
 
 	const playbackRate = localPlaybackRate * globalPlaybackRate;
 
-	// For short audio, a lower acceptable time shift is used
 	const acceptableTimeShiftButLessThanDuration = (() => {
+		// In Safari, it seems to lag behind mostly around ~0.4 seconds
+		const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_NORMAL_PLAYBACK = 0.45;
+
+		// If there is amplification, the acceptable timeshift is higher
+		const DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION =
+			DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_NORMAL_PLAYBACK + 0.2;
+
+		const defaultAcceptableTimeshift =
+			DEFAULT_ACCEPTABLE_TIMESHIFT_WITH_AMPLIFICATION;
+		// For short audio, a lower acceptable time shift is used
 		if (mediaRef.current?.duration) {
 			return Math.min(
 				mediaRef.current.duration,
-				acceptableTimeshift ?? DEFAULT_ACCEPTABLE_TIMESHIFT,
+				acceptableTimeshift ?? defaultAcceptableTimeshift,
 			);
 		}
 
-		return acceptableTimeshift;
+		return acceptableTimeshift ?? defaultAcceptableTimeshift;
 	})();
 
 	const isPlayerBuffering = useIsPlayerBuffering(buffering);
@@ -141,7 +163,8 @@ export const useMediaPlayback = ({
 
 		const isMediaTagBufferingOrStalled = isMediaTagBuffering || isBuffering();
 
-		if (isPlayerBuffering && !isMediaTagBufferingOrStalled) {
+		const playerBufferingNotStateButLive = buffering.buffering.current;
+		if (playerBufferingNotStateButLive && !isMediaTagBufferingOrStalled) {
 			playbackLogging({
 				logLevel,
 				tag: 'pause',
@@ -153,6 +176,7 @@ export const useMediaPlayback = ({
 	}, [
 		isBuffering,
 		isMediaTagBuffering,
+		buffering,
 		isPlayerBuffering,
 		isPremounting,
 		logLevel,
@@ -161,6 +185,18 @@ export const useMediaPlayback = ({
 		mountTime,
 		playing,
 	]);
+
+	// This must be a useLayoutEffect, because afterwards, useVolume() looks at the playbackRate
+	// and it is also in a useLayoutEffect.
+	useLayoutEffect(() => {
+		const playbackRateToSet = Math.max(0, playbackRate);
+		if (
+			mediaRef.current &&
+			mediaRef.current.playbackRate !== playbackRateToSet
+		) {
+			mediaRef.current.playbackRate = playbackRateToSet;
+		}
+	}, [mediaRef, playbackRate]);
 
 	useEffect(() => {
 		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
@@ -174,27 +210,29 @@ export const useMediaPlayback = ({
 			);
 		}
 
-		const playbackRateToSet = Math.max(0, playbackRate);
-		if (mediaRef.current.playbackRate !== playbackRateToSet) {
-			mediaRef.current.playbackRate = playbackRateToSet;
-		}
-
 		const {duration} = mediaRef.current;
 		const shouldBeTime =
 			!Number.isNaN(duration) && Number.isFinite(duration)
 				? Math.min(duration, desiredUnclampedTime)
 				: desiredUnclampedTime;
 
-		const mediaTagTime = mediaRef.current.currentTime;
-		const rvcTime = currentTime.current ?? null;
+		const mediaTagTime = mediaTagCurrentTime.current.time;
+		const rvcTime = rvcCurrentTime.current?.time ?? null;
 
 		const isVariableFpsVideo = isVariableFpsVideoMap.current[src];
 
 		const timeShiftMediaTag = Math.abs(shouldBeTime - mediaTagTime);
 		const timeShiftRvcTag = rvcTime ? Math.abs(shouldBeTime - rvcTime) : null;
+
+		const mostRecentTimeshift =
+			rvcCurrentTime.current?.lastUpdate &&
+			rvcCurrentTime.current.time > mediaTagCurrentTime.current.lastUpdate
+				? (timeShiftRvcTag as number)
+				: timeShiftMediaTag;
+
 		const timeShift =
 			timeShiftRvcTag && !isVariableFpsVideo
-				? timeShiftRvcTag
+				? mostRecentTimeshift
 				: timeShiftMediaTag;
 
 		if (
@@ -240,7 +278,7 @@ export const useMediaPlayback = ({
 			return;
 		}
 
-		const seekThreshold = playing ? 0.15 : 0.00001;
+		const seekThreshold = playing ? 0.15 : 0.01;
 
 		// Only perform a seek if the time is not already the same.
 		// Chrome rounds to 6 digits, so 0.033333333 -> 0.033333,
@@ -306,7 +344,7 @@ export const useMediaPlayback = ({
 		acceptableTimeShiftButLessThanDuration,
 		bufferUntilFirstFrame,
 		buffering.buffering,
-		currentTime,
+		rvcCurrentTime,
 		logLevel,
 		desiredUnclampedTime,
 		isBuffering,
@@ -321,5 +359,6 @@ export const useMediaPlayback = ({
 		isPremounting,
 		pauseWhenBuffering,
 		mountTime,
+		mediaTagCurrentTime,
 	]);
 };

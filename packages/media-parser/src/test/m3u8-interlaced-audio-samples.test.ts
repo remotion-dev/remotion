@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
+import {mediaParserController} from '../controller/media-parser-controller';
 import {hasBeenAborted} from '../errors';
-import {mediaParserController} from '../media-parser-controller';
 import {parseMedia} from '../parse-media';
 
 test('should be able to select between audio tracks', async () => {
@@ -21,7 +21,7 @@ test('should be able to select between audio tracks', async () => {
 		onAudioTrack: () => {
 			return (sample) => {
 				audioSamples++;
-				if (sample.dts === 896000) {
+				if (sample.decodingTimestamp === 896000) {
 					controller.abort();
 				}
 			};
@@ -44,7 +44,10 @@ test('should ensure unique track IDs', async () => {
 			return associatedPlaylists;
 		},
 	});
-	expect(tracks.videoTracks[0].trackId).toBe(258);
-	expect(tracks.audioTracks[0].trackId).toBe(257);
-	expect(tracks.audioTracks[1].trackId).toBe(259);
+	const vidTracks = tracks.filter((t) => t.type === 'video');
+	const audTracks = tracks.filter((t) => t.type === 'audio');
+
+	expect(vidTracks[0].trackId).toBe(258);
+	expect(audTracks[0].trackId).toBe(257);
+	expect(audTracks[1].trackId).toBe(259);
 });

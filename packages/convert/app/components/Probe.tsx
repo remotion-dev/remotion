@@ -100,6 +100,7 @@ export const Probe: React.FC<{
 		location,
 		keyframes,
 		images,
+		sampleRate,
 	} = probeResult;
 
 	const onClick = useCallback(() => {
@@ -107,12 +108,7 @@ export const Probe: React.FC<{
 	}, [setProbeDetails]);
 
 	const sortedTracks = useMemo(
-		() =>
-			tracks
-				? [...tracks.audioTracks, ...tracks.videoTracks].sort(
-						(a, b) => a.trackId - b.trackId,
-					)
-				: [],
+		() => (tracks ? tracks.slice().sort((a, b) => a.trackId - b.trackId) : []),
 		[tracks],
 	);
 
@@ -160,14 +156,14 @@ export const Probe: React.FC<{
 							)}
 						</CardTitle>
 						{error ? (
-							<CardDescription className="!mt-0 text-red-500">
+							<CardDescription className="mt-0! text-red-500">
 								Failed to parse media:
 								<br />
 								{error.message}
 							</CardDescription>
 						) : null}
 						<CardDescription
-							className={clsx('!mt-0 truncate', styles['fade-in'])}
+							className={clsx('mt-0! truncate', styles['fade-in'])}
 						>
 							{done ? (
 								<SourceLabel src={src} />
@@ -204,6 +200,7 @@ export const Probe: React.FC<{
 									metadata={metadata}
 									isHdr={isHdr}
 									location={location}
+									sampleRate={sampleRate}
 								/>
 							) : selectedTrack.type === 'video' ? (
 								<VideoTrackOverview

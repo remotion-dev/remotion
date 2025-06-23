@@ -1,7 +1,9 @@
+import type {BufferIterator} from '../../../iterator/buffer-iterator';
+import type {MediaParserLogLevel} from '../../../log';
 import type {AnySegment} from '../../../parse-result';
-import type {ParserState} from '../../../state/parser-state';
 import type {BaseBox} from '../base-type';
 import {getIsoBaseMediaChildren} from '../get-children';
+import type {OnlyIfMoovAtomExpected} from '../process-box';
 
 export interface MoovBox extends BaseBox {
 	type: 'moov-box';
@@ -11,15 +13,24 @@ export interface MoovBox extends BaseBox {
 export const parseMoov = async ({
 	offset,
 	size,
-	state,
+	onlyIfMoovAtomExpected,
+	iterator,
+	logLevel,
+	contentLength,
 }: {
 	offset: number;
 	size: number;
-	state: ParserState;
+	onlyIfMoovAtomExpected: OnlyIfMoovAtomExpected;
+	iterator: BufferIterator;
+	logLevel: MediaParserLogLevel;
+	contentLength: number;
 }): Promise<MoovBox> => {
 	const children = await getIsoBaseMediaChildren({
-		state,
+		onlyIfMoovAtomExpected,
 		size: size - 8,
+		iterator,
+		logLevel,
+		contentLength,
 	});
 
 	return {

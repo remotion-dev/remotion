@@ -7,6 +7,7 @@ import {KeybindingContextProvider} from '../state/keybindings';
 import {PreviewSizeProvider} from '../state/preview-size';
 
 import {SidebarContextProvider} from '../state/sidebar';
+import {VisualControlsProvider} from '../visual-controls/VisualControls';
 import {CheckerboardProvider} from './CheckerboardProvider';
 import {ZodProvider} from './get-zod-if-possible';
 import {MediaVolumeProvider} from './MediaVolumeProvider';
@@ -23,39 +24,41 @@ export const EditorContexts: React.FC<{
 }> = ({children, readOnlyStudio}) => {
 	return (
 		<ZodProvider>
-			<PreviewServerConnection readOnlyStudio={readOnlyStudio}>
-				<RenderQueueContextProvider>
-					<KeybindingContextProvider>
-						<CheckerboardProvider>
-							<ZoomGesturesProvider>
-								<ShowRulersProvider>
-									<ShowGuidesProvider>
-										<PreviewSizeProvider>
-											<ModalsProvider>
-												<MediaVolumeProvider>
-													<PlayerInternals.PlayerEmitterProvider
-														currentPlaybackRate={null}
-													>
-														<SidebarContextProvider>
-															<FolderContextProvider>
-																<HighestZIndexProvider>
-																	<SetTimelineInOutProvider>
-																		{children}
-																	</SetTimelineInOutProvider>
-																</HighestZIndexProvider>
-															</FolderContextProvider>
-														</SidebarContextProvider>
-													</PlayerInternals.PlayerEmitterProvider>
-												</MediaVolumeProvider>
-											</ModalsProvider>
-										</PreviewSizeProvider>
-									</ShowGuidesProvider>
-								</ShowRulersProvider>
-							</ZoomGesturesProvider>
-						</CheckerboardProvider>
-					</KeybindingContextProvider>
-				</RenderQueueContextProvider>
-			</PreviewServerConnection>
+			<VisualControlsProvider>
+				<PreviewServerConnection readOnlyStudio={readOnlyStudio}>
+					<RenderQueueContextProvider>
+						<KeybindingContextProvider>
+							<CheckerboardProvider>
+								<ZoomGesturesProvider>
+									<ShowRulersProvider>
+										<ShowGuidesProvider>
+											<PreviewSizeProvider>
+												<ModalsProvider>
+													<MediaVolumeProvider>
+														<PlayerInternals.PlayerEmitterProvider
+															currentPlaybackRate={null}
+														>
+															<SidebarContextProvider>
+																<FolderContextProvider>
+																	<HighestZIndexProvider>
+																		<SetTimelineInOutProvider>
+																			{children}
+																		</SetTimelineInOutProvider>
+																	</HighestZIndexProvider>
+																</FolderContextProvider>
+															</SidebarContextProvider>
+														</PlayerInternals.PlayerEmitterProvider>
+													</MediaVolumeProvider>
+												</ModalsProvider>
+											</PreviewSizeProvider>
+										</ShowGuidesProvider>
+									</ShowRulersProvider>
+								</ZoomGesturesProvider>
+							</CheckerboardProvider>
+						</KeybindingContextProvider>
+					</RenderQueueContextProvider>
+				</PreviewServerConnection>
+			</VisualControlsProvider>
 		</ZodProvider>
 	);
 };

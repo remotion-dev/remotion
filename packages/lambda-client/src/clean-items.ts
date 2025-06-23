@@ -14,6 +14,7 @@ export const cleanItems = <Provider extends CloudProvider>({
 	list,
 	providerSpecifics,
 	forcePathStyle,
+	requestHandler,
 }: {
 	bucket: string;
 	region: Provider['region'];
@@ -22,6 +23,7 @@ export const cleanItems = <Provider extends CloudProvider>({
 	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 }) => {
 	return Promise.all(
 		list.map((object) =>
@@ -36,6 +38,7 @@ export const cleanItems = <Provider extends CloudProvider>({
 					region,
 					customCredentials: null,
 					forcePathStyle,
+					requestHandler,
 				});
 				onAfterItemDeleted({
 					bucketName: bucket,

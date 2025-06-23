@@ -1,0 +1,10 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "dist"
+	},
+	"include": ["src", "main.d.ts"],
+	"exclude": ["src/index.module.ts"],
+	"references": [{"path": "../captions"}]
+}

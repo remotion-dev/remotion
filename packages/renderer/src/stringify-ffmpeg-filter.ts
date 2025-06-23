@@ -58,6 +58,7 @@ export const getActualTrimLeft = ({
 	maxTrim: number | null;
 } => {
 	const sinceStart = asset.trimLeft - asset.audioStartFrame;
+
 	if (!seamless) {
 		return {
 			trimLeft:
@@ -215,12 +216,13 @@ export const stringifyFfmpegFilter = ({
 		volume,
 		fps,
 		trimLeft: actualTrimLeft,
-		allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
 	});
 
 	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;
 
-	const padStart = startInVideoSeconds + presentationTimeOffsetInSeconds;
+	const padStart =
+		startInVideoSeconds +
+		(asset.trimLeft === 0 ? presentationTimeOffsetInSeconds : 0);
 
 	// Set as few filters as possible, as combining them can create noise
 	return {

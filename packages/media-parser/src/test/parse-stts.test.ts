@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {getArrayBufferIterator} from '../buffer-iterator';
 import {parseStts} from '../containers/iso-base-media/stsd/stts';
+import {getArrayBufferIterator} from '../iterator/buffer-iterator';
 
 const buffer = new Uint8Array([
 	// mock header
@@ -11,7 +11,11 @@ const buffer = new Uint8Array([
 ]);
 
 test('Should parse stts box', () => {
-	const iterator = getArrayBufferIterator(buffer, null);
+	const iterator = getArrayBufferIterator({
+		initialData: buffer,
+		maxBytes: buffer.length,
+		logLevel: 'error',
+	});
 	iterator.counter.increment(8);
 	const result = parseStts({
 		data: iterator,

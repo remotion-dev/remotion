@@ -1,4 +1,4 @@
-import type {SamplePosition} from '@remotion/media-parser';
+import type {MediaParserInternalTypes} from '@remotion/media-parser';
 import {truthy} from '../../../../../truthy';
 import {combineUint8Arrays} from '../../../../matroska/matroska-utils';
 import {addSize, stringsToUint8Array} from '../../../primitives';
@@ -15,7 +15,7 @@ export const createStbl = ({
 	codecSpecificData,
 	isVideo,
 }: {
-	samplePositions: SamplePosition[];
+	samplePositions: MediaParserInternalTypes['SamplePosition'][];
 	codecSpecificData: Uint8Array;
 	isVideo: boolean;
 }) => {
@@ -26,7 +26,9 @@ export const createStbl = ({
 	// For the other tables, there doesn't seem to be a requirement for them to be sorted
 
 	// -> ordering the sample positions by dts
-	const sorted = samplePositions.slice().sort((a, b) => a.dts - b.dts);
+	const sorted = samplePositions
+		.slice()
+		.sort((a, b) => a.decodingTimestamp - b.decodingTimestamp);
 
 	return addSize(
 		combineUint8Arrays(

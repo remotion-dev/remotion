@@ -67,14 +67,22 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 
 		let finishEventSent = false;
 
+		let closeConnection = () => undefined;
+
 		readFile(url)
-			.then((res) => {
-				const contentDisposition = res.headers['content-disposition'] ?? null;
-				const contentType = res.headers['content-type'] ?? null;
+			.then(({response, request}) => {
+				closeConnection = () => {
+					request.destroy();
+					response.destroy();
+				};
+
+				const contentDisposition =
+					response.headers['content-disposition'] ?? null;
+				const contentType = response.headers['content-type'] ?? null;
 				const to = toFn(contentDisposition, contentType);
 				ensureOutputDirectory(to);
 
-				const sizeHeader = res.headers['content-length'];
+				const sizeHeader = response.headers['content-length'];
 
 				const totalSize =
 					typeof sizeHeader === 'undefined' ? null : Number(sizeHeader);
@@ -101,9 +109,13 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 					return resolveAndFlag({sizeInBytes: downloaded, to});
 				});
 				writeStream.on('error', (err) => rejectAndFlag(err));
-				res.on('error', (err) => rejectAndFlag(err));
-				res.pipe(writeStream).on('error', (err) => rejectAndFlag(err));
-				res.on('data', (d) => {
+				response.on('error', (err) => {
+					closeConnection();
+
+					rejectAndFlag(err);
+				});
+				response.pipe(writeStream).on('error', (err) => rejectAndFlag(err));
+				response.on('data', (d) => {
 					refreshTimeout();
 					downloaded += d.length;
 					refreshTimeout();
@@ -117,7 +129,7 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 						finishEventSent = true;
 					}
 				});
-				res.on('close', () => {
+				response.on('close', () => {
 					if (totalSize !== null && downloaded !== totalSize) {
 						rejectAndFlag(
 							new Error(
@@ -127,6 +139,7 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 					}
 
 					writeStream.close();
+					closeConnection();
 				});
 			})
 			.catch((err) => {

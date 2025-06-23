@@ -1,10 +1,16 @@
 import type {AnySegment, IsoBaseMediaStructure} from '../../parse-result';
-import type {ParserState} from '../../state/parser-state';
+import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
+import type {MoofBox} from '../../state/iso-base-media/precomputed-moof';
+import {toMoofBox} from '../../state/iso-base-media/precomputed-moof';
+import type {StructureState} from '../../state/structure';
 import type {IsoBaseMediaBox, RegularBox} from './base-media-box';
+import type {ElstBox} from './elst';
 import type {FtypBox} from './ftyp';
 import type {MdhdBox} from './mdhd';
+import type {TfraBox} from './mfra/tfra';
 import type {MoovBox} from './moov/moov';
-import type {MvhdBox} from './mvhd';
+import type {MvhdBox} from './moov/mvhd';
+import type {TrexBox} from './moov/trex';
 import type {CttsBox} from './stsd/ctts';
 import type {StcoBox} from './stsd/stco';
 import type {StscBox} from './stsd/stsc';
@@ -38,28 +44,37 @@ export const getMoovFromFromIsoStructure = (
 	return moovBox;
 };
 
-export const getMoovBoxFromState = (state: ParserState): MoovBox | null => {
-	const got = state.iso.moov.getMoovBox();
+export const getMoovBoxFromState = ({
+	structureState,
+	isoState,
+	mp4HeaderSegment,
+	mayUsePrecomputed,
+}: {
+	structureState: StructureState;
+	isoState: IsoBaseMediaState;
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	mayUsePrecomputed: boolean;
+}): MoovBox | null => {
+	const got = isoState.moov.getMoovBoxAndPrecomputed();
 
-	if (got) {
-		return got;
+	if (got && (mayUsePrecomputed || !got.precomputed)) {
+		return got.moovBox;
 	}
 
-	const a = state.mp4HeaderSegment;
-	if (a) {
-		return getMoovFromFromIsoStructure(a);
+	if (mp4HeaderSegment) {
+		return getMoovFromFromIsoStructure(mp4HeaderSegment);
 	}
 
-	const structure = state.getIsoStructure();
+	const structure = structureState.getIsoStructure();
 
 	return getMoovFromFromIsoStructure(structure);
 };
 
-export const getMoofBoxes = (main: AnySegment[]): IsoBaseMediaBox[] => {
+export const getMoofBoxes = (main: AnySegment[]): MoofBox[] => {
 	const moofBoxes = main.filter(
 		(s) => s.type === 'regular-box' && s.boxType === 'moof',
 	);
-	return moofBoxes as IsoBaseMediaBox[];
+	return (moofBoxes as IsoBaseMediaBox[]).map((m) => toMoofBox(m));
 };
 
 export const getMvhdBox = (moovBox: MoovBox): MvhdBox | null => {
@@ -294,4 +309,83 @@ export const getTrunBoxes = (segment: IsoBaseMediaBox): TrunBox[] => {
 	const trunBoxes = segment.children.filter((c) => c.type === 'trun-box');
 
 	return trunBoxes as TrunBox[];
+};
+
+export const getMvexBox = (moovAtom: MoovBox): RegularBox | null => {
+	const mvexBox = moovAtom.children.find(
+		(s) => s.type === 'regular-box' && s.boxType === 'mvex',
+	);
+
+	if (!mvexBox || mvexBox.type !== 'regular-box') {
+		return null;
+	}
+
+	return mvexBox;
+};
+
+export const getTrexBoxes = (moovAtom: MoovBox): TrexBox[] => {
+	const mvexBox = getMvexBox(moovAtom);
+	if (!mvexBox) {
+		return [];
+	}
+
+	const trexBoxes = mvexBox.children.filter((c) => c.type === 'trex-box');
+
+	return trexBoxes as TrexBox[];
+};
+
+export const getTfraBoxesFromMfraBoxChildren = (
+	mfraBoxChildren: IsoBaseMediaBox[],
+): TfraBox[] => {
+	const tfraBoxes = mfraBoxChildren.filter(
+		(b) => b.type === 'tfra-box',
+	) as TfraBox[];
+
+	return tfraBoxes;
+};
+
+export const getTfraBoxes = (structure: IsoBaseMediaBox[]): TfraBox[] => {
+	const mfraBox = structure.find(
+		(b) => b.type === 'regular-box' && b.boxType === 'mfra',
+	) as RegularBox | null;
+
+	if (!mfraBox) {
+		return [];
+	}
+
+	return getTfraBoxesFromMfraBoxChildren(mfraBox.children);
+};
+
+export const getTrakBoxByTrackId = (
+	moovBox: MoovBox,
+	trackId: number,
+): TrakBox | null => {
+	const trakBoxes = getTraks(moovBox);
+
+	return (
+		trakBoxes.find((t) => {
+			const tkhd = getTkhdBox(t);
+			if (!tkhd) {
+				return false;
+			}
+
+			return tkhd.trackId === trackId;
+		}) ?? null
+	);
+};
+
+export const getElstBox = (trakBox: TrakBox): ElstBox | null => {
+	const edtsBox = trakBox.children.find(
+		(s) => s.type === 'regular-box' && s.boxType === 'edts',
+	) as RegularBox | null;
+
+	if (!edtsBox || edtsBox.type !== 'regular-box') {
+		return null;
+	}
+
+	const elstBox = edtsBox.children.find(
+		(s) => s.type === 'elst-box',
+	) as ElstBox | null;
+
+	return elstBox;
 };
