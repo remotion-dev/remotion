@@ -22,7 +22,7 @@ describe('Render correctly with props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} startFrom={10} />
+					<Audio src="test" volume={1} trimLeft={10} />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
@@ -32,7 +32,7 @@ describe('Render correctly with props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} endAt={10} />
+					<Audio src="test" volume={1} trimRight={10} />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
@@ -42,7 +42,7 @@ describe('Render correctly with props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} startFrom={10} endAt={20} />
+					<Audio src="test" volume={1} trimLeft={10} trimRight={20} />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
@@ -52,7 +52,7 @@ describe('Render correctly with props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} startFrom={10} endAt={20} loop />
+					<Audio src="test" volume={1} trimLeft={10} trimRight={20} loop />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();

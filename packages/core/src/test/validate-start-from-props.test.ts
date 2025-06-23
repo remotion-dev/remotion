@@ -1,5 +1,9 @@
 import {describe, test} from 'bun:test';
-import {validateStartFromProps, validateTrimProps, validateMediaTrimProps} from '../validate-start-from-props.js';
+import {
+	validateMediaTrimProps,
+	validateStartFromProps,
+	validateTrimProps,
+} from '../validate-start-from-props.js';
 import {expectToThrow} from './expect-to-throw.js';
 
 describe('ValidateStartFrom props should throw', () => {
@@ -127,21 +131,39 @@ describe('ValidateTrim props should throw', () => {
 describe('ValidateMediaTrim props should throw on conflicts', () => {
 	test('It should throw if both startFrom and trimLeft are provided', () => {
 		expectToThrow(
-			() => validateMediaTrimProps(10, undefined, 5, undefined),
+			() =>
+				validateMediaTrimProps({
+					startFrom: 10,
+					endAt: undefined,
+					trimLeft: 5,
+					trimRight: undefined,
+				}),
 			/Cannot use both startFrom and trimLeft props. Use trimLeft instead as startFrom is deprecated./,
 		);
 	});
 
 	test('It should throw if both endAt and trimRight are provided', () => {
 		expectToThrow(
-			() => validateMediaTrimProps(undefined, 20, undefined, 15),
+			() =>
+				validateMediaTrimProps({
+					startFrom: undefined,
+					endAt: 20,
+					trimLeft: undefined,
+					trimRight: 15,
+				}),
 			/Cannot use both endAt and trimRight props. Use trimRight instead as endAt is deprecated./,
 		);
 	});
 
 	test('It should throw if all props are provided', () => {
 		expectToThrow(
-			() => validateMediaTrimProps(10, 20, 5, 15),
+			() =>
+				validateMediaTrimProps({
+					startFrom: 10,
+					endAt: 20,
+					trimLeft: 5,
+					trimRight: 15,
+				}),
 			/Cannot use both startFrom and trimLeft props. Use trimLeft instead as startFrom is deprecated./,
 		);
 	});

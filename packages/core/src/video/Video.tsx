@@ -9,7 +9,10 @@ import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateMediaProps} from '../validate-media-props.js';
-import {validateMediaTrimProps, resolveTrimProps} from '../validate-start-from-props.js';
+import {
+	resolveTrimProps,
+	validateMediaTrimProps,
+} from '../validate-start-from-props.js';
 import {VideoForPreview} from './VideoForPreview.js';
 import {VideoForRendering} from './VideoForRendering.js';
 import {DurationsContext} from './duration-state.js';
@@ -71,6 +74,14 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		durations[getAbsoluteSrc(preloadedSrc)] ??
 		durations[getAbsoluteSrc(props.src)];
 
+	validateMediaTrimProps({startFrom, endAt, trimLeft, trimRight});
+	const {trimLeftValue, trimRightValue} = resolveTrimProps({
+		startFrom,
+		endAt,
+		trimLeft,
+		trimRight,
+	});
+
 	if (loop && durationFetched !== undefined) {
 		if (!Number.isFinite(durationFetched)) {
 			return (
@@ -87,10 +98,10 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		return (
 			<Loop
 				durationInFrames={calculateLoopDuration({
-					endAt: trimRight ?? endAt,
+					endAt: trimRightValue ?? undefined,
 					mediaDuration,
 					playbackRate: props.playbackRate ?? 1,
-					startFrom: trimLeft ?? startFrom,
+					startFrom: trimLeftValue ?? undefined,
 				})}
 				layout="none"
 				name={name}
@@ -104,14 +115,14 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined' || typeof trimLeft !== 'undefined' || typeof trimRight !== 'undefined') {
-		validateMediaTrimProps(startFrom, endAt, trimLeft, trimRight);
-
-		const {trimLeftValue, trimRightValue} = resolveTrimProps(startFrom, endAt, trimLeft, trimRight);
+	if (
+		typeof trimLeftValue !== 'undefined' ||
+		typeof trimRightValue !== 'undefined'
+	) {
 		return (
 			<Sequence
 				layout="none"
-				from={0 - trimLeftValue}
+				from={0 - (trimLeftValue ?? 0)}
 				showInTimeline={false}
 				durationInFrames={trimRightValue}
 				name={name}

@@ -4,19 +4,19 @@ import type {VolumeProp} from '../volume-prop.js';
 
 export type RemotionMainVideoProps = {
 	/**
-	 * @deprecated Use `trimLeft` instead
+	 * @deprecated `startFrom` was renamed to `trimLeft`
 	 */
 	startFrom?: number;
 	/**
-	 * @deprecated Use `trimRight` instead
+	 * @deprecated `endAt` was renamed to `trimRight`
 	 */
 	endAt?: number;
 	/**
-	 * Trim the video from the left (start). Replaces the deprecated `startFrom` prop.
+	 * Trim of th e video from the left (start) in frames.
 	 */
 	trimLeft?: number;
 	/**
-	 * Trim the video from the right (end). Replaces the deprecated `endAt` prop.
+	 * Trim of the video from the right (end) in frames.
 	 */
 	trimRight?: number;
 	/**

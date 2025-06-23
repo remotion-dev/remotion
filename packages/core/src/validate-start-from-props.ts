@@ -88,12 +88,17 @@ export const validateTrimProps = (
 	}
 };
 
-export const validateMediaTrimProps = (
-	startFrom: number | undefined,
-	endAt: number | undefined,
-	trimLeft: number | undefined,
-	trimRight: number | undefined,
-) => {
+export const validateMediaTrimProps = ({
+	startFrom,
+	endAt,
+	trimLeft,
+	trimRight,
+}: {
+	startFrom: number | undefined;
+	endAt: number | undefined;
+	trimLeft: number | undefined;
+	trimRight: number | undefined;
+}) => {
 	// Check for conflicting props
 	if (typeof startFrom !== 'undefined' && typeof trimLeft !== 'undefined') {
 		throw new TypeError(
@@ -108,8 +113,10 @@ export const validateMediaTrimProps = (
 	}
 
 	// Validate using the appropriate validation function
-	const hasNewProps = typeof trimLeft !== 'undefined' || typeof trimRight !== 'undefined';
-	const hasOldProps = typeof startFrom !== 'undefined' || typeof endAt !== 'undefined';
+	const hasNewProps =
+		typeof trimLeft !== 'undefined' || typeof trimRight !== 'undefined';
+	const hasOldProps =
+		typeof startFrom !== 'undefined' || typeof endAt !== 'undefined';
 
 	if (hasNewProps) {
 		validateTrimProps(trimLeft, trimRight);
@@ -118,15 +125,20 @@ export const validateMediaTrimProps = (
 	}
 };
 
-export const resolveTrimProps = (
-	startFrom: number | undefined,
-	endAt: number | undefined,
-	trimLeft: number | undefined,
-	trimRight: number | undefined,
-): {trimLeftValue: number; trimRightValue: number} => {
+export const resolveTrimProps = ({
+	startFrom,
+	endAt,
+	trimLeft,
+	trimRight,
+}: {
+	startFrom: number | undefined;
+	endAt: number | undefined;
+	trimLeft: number | undefined;
+	trimRight: number | undefined;
+}): {trimLeftValue: number; trimRightValue: number} => {
 	// Use new props if available, otherwise fall back to old props
 	const trimLeftValue = trimLeft ?? startFrom ?? 0;
 	const trimRightValue = trimRight ?? endAt ?? Infinity;
-	
+
 	return {trimLeftValue, trimRightValue};
 };
