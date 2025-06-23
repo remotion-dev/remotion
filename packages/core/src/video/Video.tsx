@@ -9,7 +9,10 @@ import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateMediaProps} from '../validate-media-props.js';
-import {validateStartFromProps} from '../validate-start-from-props.js';
+import {
+	resolveTrimProps,
+	validateMediaTrimProps,
+} from '../validate-start-from-props.js';
 import {VideoForPreview} from './VideoForPreview.js';
 import {VideoForRendering} from './VideoForRendering.js';
 import {DurationsContext} from './duration-state.js';
@@ -28,6 +31,8 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	const {
 		startFrom,
 		endAt,
+		trimBefore,
+		trimAfter,
 		name,
 		pauseWhenBuffering,
 		stack,
@@ -69,6 +74,14 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		durations[getAbsoluteSrc(preloadedSrc)] ??
 		durations[getAbsoluteSrc(props.src)];
 
+	validateMediaTrimProps({startFrom, endAt, trimBefore, trimAfter});
+	const {trimBeforeValue, trimAfterValue} = resolveTrimProps({
+		startFrom,
+		endAt,
+		trimBefore,
+		trimAfter,
+	});
+
 	if (loop && durationFetched !== undefined) {
 		if (!Number.isFinite(durationFetched)) {
 			return (
@@ -85,10 +98,10 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		return (
 			<Loop
 				durationInFrames={calculateLoopDuration({
-					endAt,
+					endAt: trimAfterValue ?? undefined,
 					mediaDuration,
 					playbackRate: props.playbackRate ?? 1,
-					startFrom,
+					startFrom: trimBeforeValue ?? undefined,
 				})}
 				layout="none"
 				name={name}
@@ -102,17 +115,16 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
-		validateStartFromProps(startFrom, endAt);
-
-		const startFromFrameNo = startFrom ?? 0;
-		const endAtFrameNo = endAt ?? Infinity;
+	if (
+		typeof trimBeforeValue !== 'undefined' ||
+		typeof trimAfterValue !== 'undefined'
+	) {
 		return (
 			<Sequence
 				layout="none"
-				from={0 - startFromFrameNo}
+				from={0 - (trimBeforeValue ?? 0)}
 				showInTimeline={false}
-				durationInFrames={endAtFrameNo}
+				durationInFrames={trimAfterValue}
 				name={name}
 			>
 				<Video
