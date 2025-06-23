@@ -1125,8 +1125,8 @@ importers:
         specifier: ^4.0.5
         version: 4.3.1
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       react:
         specifier: 19.0.0
         version: 19.0.0
@@ -1175,7 +1175,7 @@ importers:
         version: 9.19.0
       prettier-plugin-organize-imports:
         specifier: 3.2.4
-        version: 3.2.4(prettier@3.3.3)(typescript@5.8.2)
+        version: 3.2.4(prettier@3.6.0)(typescript@5.8.2)
       sharp:
         specifier: 0.32.6
         version: 0.32.6
@@ -1261,8 +1261,8 @@ importers:
         specifier: 8.4.47
         version: 8.4.47
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
 
   packages/install-whisper-cpp:
     dependencies:
@@ -27611,23 +27611,6 @@ packages:
       typescript: 5.8.2
     dev: true
 
-  /prettier-plugin-organize-imports@3.2.4(prettier@3.3.3)(typescript@5.8.2):
-    resolution: {integrity: sha512-6m8WBhIp0dfwu0SkgfOxJqh+HpdyfqSSLfKKRZSFbDuEQXDDndb8fTpRWkUrX/uBenkex3MgnVk0J3b3Y5byog==}
-    peerDependencies:
-      '@volar/vue-language-plugin-pug': ^1.0.4
-      '@volar/vue-typescript': ^1.0.4
-      prettier: '>=2.0'
-      typescript: '>=2.9'
-    peerDependenciesMeta:
-      '@volar/vue-language-plugin-pug':
-        optional: true
-      '@volar/vue-typescript':
-        optional: true
-    dependencies:
-      prettier: 3.3.3
-      typescript: 5.8.2
-    dev: true
-
   /prettier-plugin-organize-imports@3.2.4(prettier@3.6.0)(typescript@5.8.2):
     resolution: {integrity: sha512-6m8WBhIp0dfwu0SkgfOxJqh+HpdyfqSSLfKKRZSFbDuEQXDDndb8fTpRWkUrX/uBenkex3MgnVk0J3b3Y5byog==}
     peerDependencies:
@@ -27650,16 +27633,10 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  /prettier@3.3.3:
-    resolution: {integrity: sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew==}
-    engines: {node: '>=14'}
-    hasBin: true
-
   /prettier@3.6.0:
     resolution: {integrity: sha512-ujSB9uXHJKzM/2GBuE0hBOUgC77CN3Bnpqa+g80bkv3T3A93wL/xlzDATHhnhkzifz/UE2SNOvmbTz5hSkDlHw==}
     engines: {node: '>=14'}
     hasBin: true
-    dev: true
 
   /pretty-error@4.0.0:
     resolution: {integrity: sha512-AoJ5YMAcXKYxKhuJGdcvse+Voc6v1RgnsR3nWcYU7q4t6z0Q6T86sv5Zq8VIRbOWWFpvdGE83LtdSMNd+6Y0xw==}
