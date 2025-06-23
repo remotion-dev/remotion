@@ -11,7 +11,7 @@
 	],
 	"scripts": {
 		"lint": "eslint src",
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"make": "tsc -d"
 	},
 	"bugs": {

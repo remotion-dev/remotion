@@ -10,7 +10,7 @@
 		"testssr": "bun test src/ssr src/bundle src/webcodecs src/templates src/monorepo --timeout 40000",
 		"testlambda": "exit 0",
 		"lint": "tsc -d",
-		"formatting": "prettier src --check"
+		"formatting": "prettier --experimental-cli src --check"
 	},
 	"private": true,
 	"devDependencies": {

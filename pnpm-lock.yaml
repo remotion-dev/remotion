@@ -31,11 +31,11 @@ importers:
         specifier: 19.0.0
         version: 19.0.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       prettier-plugin-organize-imports:
         specifier: 3.2.4
-        version: 3.2.4(prettier@3.3.3)(typescript@5.8.2)
+        version: 3.2.4(prettier@3.6.0)(typescript@5.8.2)
 
   packages/ai-improvements:
     dependencies:
@@ -1125,8 +1125,8 @@ importers:
         specifier: ^4.0.5
         version: 4.3.1
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       react:
         specifier: 19.0.0
         version: 19.0.0
@@ -1175,7 +1175,7 @@ importers:
         version: 9.19.0
       prettier-plugin-organize-imports:
         specifier: 3.2.4
-        version: 3.2.4(prettier@3.3.3)(typescript@5.8.2)
+        version: 3.2.4(prettier@3.6.0)(typescript@5.8.2)
       sharp:
         specifier: 0.32.6
         version: 0.32.6
@@ -1261,8 +1261,8 @@ importers:
         specifier: 8.4.47
         version: 8.4.47
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
 
   packages/install-whisper-cpp:
     dependencies:
@@ -2339,8 +2339,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -2373,8 +2373,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -2431,8 +2431,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -2471,8 +2471,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -2502,8 +2502,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
 
   packages/template-music-visualization:
     dependencies:
@@ -2548,8 +2548,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -2627,8 +2627,8 @@ importers:
         specifier: 15.1.6
         version: 15.1.6(eslint@9.19.0)(typescript@5.8.2)
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -2718,8 +2718,8 @@ importers:
         specifier: 8.4.47
         version: 8.4.47
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       tailwindcss:
         specifier: 4.0.3
         version: 4.0.3
@@ -2797,8 +2797,8 @@ importers:
         specifier: 15.1.6
         version: 15.1.6(eslint@9.19.0)(typescript@5.8.2)
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -2834,8 +2834,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -2934,8 +2934,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       tsx:
         specifier: 4.19.3
         version: 4.19.3
@@ -3082,11 +3082,11 @@ importers:
         specifier: 8.4.31
         version: 8.4.31
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       prettier-plugin-organize-imports:
         specifier: 3.2.3
-        version: 3.2.3(prettier@3.3.3)(typescript@5.8.2)
+        version: 3.2.3(prettier@3.6.0)(typescript@5.8.2)
       tailwindcss:
         specifier: 3.3.5
         version: 3.3.5
@@ -3146,8 +3146,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       tsx:
         specifier: 4.19.3
         version: 4.19.3
@@ -3195,8 +3195,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -3235,8 +3235,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -3308,8 +3308,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -3363,8 +3363,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -3418,8 +3418,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -3473,8 +3473,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       tsx:
         specifier: 4.19.3
         version: 4.19.3
@@ -3555,8 +3555,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       prettier:
-        specifier: 3.3.3
-        version: 3.3.3
+        specifier: 3.6.0
+        version: 3.6.0
       tsx:
         specifier: 4.19.3
         version: 4.19.3
@@ -27594,7 +27594,7 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  /prettier-plugin-organize-imports@3.2.3(prettier@3.3.3)(typescript@5.8.2):
+  /prettier-plugin-organize-imports@3.2.3(prettier@3.6.0)(typescript@5.8.2):
     resolution: {integrity: sha512-KFvk8C/zGyvUaE3RvxN2MhCLwzV6OBbFSkwZ2OamCrs9ZY4i5L77jQ/w4UmUr+lqX8qbaqVq6bZZkApn+IgJSg==}
     peerDependencies:
       '@volar/vue-language-plugin-pug': ^1.0.4
@@ -27607,11 +27607,11 @@ packages:
       '@volar/vue-typescript':
         optional: true
     dependencies:
-      prettier: 3.3.3
+      prettier: 3.6.0
       typescript: 5.8.2
     dev: true
 
-  /prettier-plugin-organize-imports@3.2.4(prettier@3.3.3)(typescript@5.8.2):
+  /prettier-plugin-organize-imports@3.2.4(prettier@3.6.0)(typescript@5.8.2):
     resolution: {integrity: sha512-6m8WBhIp0dfwu0SkgfOxJqh+HpdyfqSSLfKKRZSFbDuEQXDDndb8fTpRWkUrX/uBenkex3MgnVk0J3b3Y5byog==}
     peerDependencies:
       '@volar/vue-language-plugin-pug': ^1.0.4
@@ -27624,7 +27624,7 @@ packages:
       '@volar/vue-typescript':
         optional: true
     dependencies:
-      prettier: 3.3.3
+      prettier: 3.6.0
       typescript: 5.8.2
     dev: true
 
@@ -27633,8 +27633,8 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  /prettier@3.3.3:
-    resolution: {integrity: sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew==}
+  /prettier@3.6.0:
+    resolution: {integrity: sha512-ujSB9uXHJKzM/2GBuE0hBOUgC77CN3Bnpqa+g80bkv3T3A93wL/xlzDATHhnhkzifz/UE2SNOvmbTz5hSkDlHw==}
     engines: {node: '>=14'}
     hasBin: true
 
