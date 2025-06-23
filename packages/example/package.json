@@ -12,7 +12,7 @@
 		"dist"
 	],
 	"scripts": {
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"dev": "remotion studio --props src/my-props.json",
 		"start-bun": "PATCH_BUN_DEVELOPMENT=true bun --bun remotion studio",
 		"start-js": "remotion preview src/entry.jsx",

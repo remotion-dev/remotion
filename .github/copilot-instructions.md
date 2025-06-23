@@ -8,7 +8,7 @@ The **package name** for each folder is `@remotion/[folder-name]`, except for th
 
 - `pnpm` is the package manager for the project.
 - To build the project after you made changes, run `bunx turbo make --filter="[package-name]"` and only include the package you are working on. Refer to package naming convention above. For example, the command to build the package in `packages/shapes` is `bunx turbo make --filter="@remotion/shapes"`.
-- After making code changes, run `bunx prettier src --write` to format the code. Do not run the formatted on the docs.
+- After making code changes, run `bunx prettier --experimental-cli src --write` to format the code. Do not run the formatted on the docs.
 
 ## Documentation
 
