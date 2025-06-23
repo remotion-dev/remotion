@@ -1,19 +1,16 @@
-import type {Caption} from '@remotion/captions';
-import type {
-	DownloadWhisperModelProgress,
-	WhisperWebModel,
-} from '@remotion/whisper-web';
+import type {WhisperWebModel} from '@remotion/whisper-web';
 import {
 	downloadWhisperModel,
 	resampleTo16Khz,
 	toCaptions,
 	transcribe,
 } from '@remotion/whisper-web';
-import {useCallback, useState} from 'react';
+import {useCallback} from 'react';
 import type {Source} from '~/lib/convert-state';
 import {formatBytes} from '~/lib/format-bytes';
 import {Button} from '../ui/button';
 import {Card} from '../ui/card';
+import type {TranscriptionState} from './state';
 
 const sourceToBlob = (source: Source) => {
 	if (source.type === 'file') {
@@ -24,28 +21,22 @@ const sourceToBlob = (source: Source) => {
 };
 
 export default function TranscribeAudio({
-	setResult,
-	setTranscriptionCompleted,
 	source,
 	selectedModel,
-	setTranscribing,
-	transcribing,
 	name,
+	state,
+	setState,
 }: {
-	readonly setResult: React.Dispatch<React.SetStateAction<Caption[]>>;
-	readonly setTranscriptionCompleted: (completed: boolean) => void;
 	readonly source: Source;
 	readonly selectedModel: WhisperWebModel;
-	readonly setTranscribing: (transcribing: boolean) => void;
-	readonly transcribing: boolean;
 	readonly name: string;
+	readonly state: TranscriptionState;
+	readonly setState: React.Dispatch<React.SetStateAction<TranscriptionState>>;
 }) {
-	const [progress, setProgress] = useState(0);
-	const [modelDownloadProgress, setModelDownloadProgress] =
-		useState<DownloadWhisperModelProgress | null>(null);
-
 	const onClick = useCallback(async () => {
-		setTranscribing(true);
+		setState(() => ({
+			type: 'initializing',
+		}));
 
 		const waveform = await resampleTo16Khz({
 			file: await sourceToBlob(source),
@@ -54,105 +45,125 @@ export default function TranscribeAudio({
 		await downloadWhisperModel({
 			model: selectedModel,
 			onProgress: (whisperProgress) =>
-				setModelDownloadProgress(whisperProgress),
+				setState(() => ({
+					type: 'downloading-model',
+					progress: whisperProgress,
+				})),
 		});
+
+		setState(() => ({
+			type: 'transcribing',
+			result: [],
+			progress: 0,
+		}));
 
 		transcribe({
 			channelWaveform: waveform,
 			model: selectedModel,
 			threads: 9,
 			onTranscriptionChunk: (e) => {
-				setResult((r) => {
-					const captions = toCaptions({whisperWebOutput: e});
-					return [...(r ?? []), ...captions.captions];
-				});
+				setState((prevState) => ({
+					type: 'transcribing',
+					result: [
+						...(prevState.type === 'transcribing' || prevState.type === 'done'
+							? prevState.result
+							: []),
+						...toCaptions({whisperWebOutput: e}).captions,
+					],
+					progress: 0,
+				}));
 			},
-			onProgress: (p) => setProgress(p),
+			onProgress: (p) =>
+				setState((prevState) => {
+					if (prevState.type !== 'transcribing') {
+						return prevState;
+					}
+
+					return {
+						type: 'transcribing',
+						result: prevState.result,
+						progress: p,
+					};
+				}),
 		}).then(() => {
-			setTranscribing(false);
-			setTranscriptionCompleted(true);
-			setProgress(0);
+			setState((prevState) => {
+				if (prevState.type !== 'transcribing') {
+					return prevState;
+				}
+
+				return {
+					type: 'done',
+					result: prevState.result,
+				};
+			});
 		});
-	}, [
-		selectedModel,
-		source,
-		setResult,
-		setTranscribing,
-		setTranscriptionCompleted,
-		setProgress,
-	]);
+	}, [selectedModel, source, setState]);
 
 	return (
 		<div>
-			{transcribing ? (
-				<>
-					{modelDownloadProgress ? (
-						<Card className="overflow-hidden">
-							<>
-								<div className="h-5 overflow-hidden">
-									{modelDownloadProgress ? (
-										<div
-											className="w-[50%] h-5 bg-brand"
-											style={{
-												width:
-													(modelDownloadProgress.progress ?? 0) * 100 + '%',
-											}}
-										/>
-									) : null}
-								</div>
-								<div className="border-b-2 border-black" />
-								<div className="p-2">
-									<div>
-										<strong className="font-brand ">
-											Downloading model {selectedModel}
-										</strong>
-									</div>
-									<div className="tabular-nums text-muted-foreground font-brand text-sm">
-										<span>
-											{Math.round(modelDownloadProgress.progress * 100)}%{' '}
-											{formatBytes(modelDownloadProgress.downloadedBytes)}
-										</span>
-									</div>
-								</div>
-							</>
-						</Card>
-					) : null}
-					<div className="h-4" />
-					<Card className="overflow-hidden">
-						<>
-							<div className="h-5 overflow-hidden">
-								{progress ? (
-									<div
-										className="w-[50%] h-5 bg-brand"
-										style={{
-											width: (progress ?? 0) * 100 + '%',
-										}}
-									/>
-								) : null}
+			{state.type === 'downloading-model' ? (
+				<Card className="overflow-hidden">
+					<>
+						<div className="h-5 overflow-hidden">
+							<div
+								className="w-[50%] h-5 bg-brand"
+								style={{
+									width: (state.progress.progress ?? 0) * 100 + '%',
+								}}
+							/>
+						</div>
+						<div className="border-b-2 border-black" />
+						<div className="p-2">
+							<div>
+								<strong className="font-brand ">
+									Downloading model {selectedModel}
+								</strong>
 							</div>
-							<div className="border-b-2 border-black" />
-							<div className="p-2">
-								<div>
-									<strong className="font-brand ">Transcribing {name}</strong>
-								</div>
-								<div className="tabular-nums text-muted-foreground font-brand text-sm">
-									<span>{Math.round(progress * 100)}%</span>
-								</div>
+							<div className="tabular-nums text-muted-foreground font-brand text-sm">
+								<span>
+									{Math.round(state.progress.progress * 100)}%{' '}
+									{formatBytes(state.progress.downloadedBytes)}
+								</span>
 							</div>
-						</>
-					</Card>
-				</>
-			) : (
+						</div>
+					</>
+				</Card>
+			) : null}
+			{state.type === 'transcribing' ? (
+				<Card className="overflow-hidden">
+					<>
+						<div className="h-5 overflow-hidden">
+							<div
+								className="w-[50%] h-5 bg-brand"
+								style={{
+									width: (state.progress ?? 0) * 100 + '%',
+								}}
+							/>
+						</div>
+						<div className="border-b-2 border-black" />
+						<div className="p-2">
+							<div>
+								<strong className="font-brand ">Transcribing {name}</strong>
+							</div>
+							<div className="tabular-nums text-muted-foreground font-brand text-sm">
+								<span>{Math.round(state.progress * 100)}%</span>
+							</div>
+						</div>
+					</>
+				</Card>
+			) : null}
+			{state.type === 'idle' || state.type === 'initializing' ? (
 				<Button
 					type="button"
-					disabled={transcribing}
-					className="block w-full"
+					className="block w-full disabled:opacity-50"
 					variant="brand"
+					disabled={state.type === 'initializing'}
 					onClick={onClick}
+					data-disabled={state.type === 'initializing'}
 				>
-					Transcribe
+					{state.type === 'initializing' ? 'Initializing...' : 'Transcribe'}
 				</Button>
-			)}
+			) : null}
 		</div>
 	);
 }

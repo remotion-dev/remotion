@@ -1,18 +1,16 @@
 import type {DownloadWhisperModelParams} from '@remotion/whisper-web';
 import React, {useState} from 'react';
 import type {Source} from '~/lib/convert-state';
-import type {Caption} from '../../../../captions/dist';
 import Display from './display';
 import DownloadModel from './downloadModel';
+import type {TranscriptionState} from './state';
 import TranscribeAudio from './transcribeAudio';
 
 const Transcribe: React.FC<{
 	readonly src: Source;
 	readonly name: string;
 }> = ({src, name}) => {
-	const [, setTranscriptionCompleted] = useState(false);
-	const [result, setResult] = useState<Caption[]>([]);
-	const [transcribing, setTranscribing] = useState(false);
+	const [state, setState] = useState<TranscriptionState>({type: 'idle'});
 
 	const [selectedModel, setSelectedModel] =
 		useState<DownloadWhisperModelParams['model']>('small.en');
@@ -21,25 +19,27 @@ const Transcribe: React.FC<{
 		<>
 			<div className="h-8 lg:h-0 lg:w-8" />
 			<div className="w-full lg:w-[350px]">
-				{transcribing ? null : (
+				{state.type === 'idle' || state.type === 'initializing' ? (
 					<>
 						<DownloadModel
 							selectedModel={selectedModel}
 							setSelectedModel={setSelectedModel}
+							disabled={state.type === 'initializing'}
 						/>
 						<div className="h-4" />
 					</>
-				)}
+				) : null}
 				<TranscribeAudio
 					source={src}
-					setResult={setResult}
-					setTranscriptionCompleted={setTranscriptionCompleted}
 					selectedModel={selectedModel}
-					setTranscribing={setTranscribing}
-					transcribing={transcribing}
 					name={name}
+					state={state}
+					setState={setState}
 				/>
-				{result ? <Display result={result} /> : null}
+				<div className="h-4" />
+				{state.type === 'done' || state.type === 'transcribing' ? (
+					<Display result={state.result} />
+				) : null}
 			</div>
 		</>
 	);
