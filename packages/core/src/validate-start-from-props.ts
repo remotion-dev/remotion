@@ -135,10 +135,13 @@ export const resolveTrimProps = ({
 	endAt: number | undefined;
 	trimBefore: number | undefined;
 	trimAfter: number | undefined;
-}): {trimBeforeValue: number; trimAfterValue: number} => {
+}): {
+	trimBeforeValue: number | undefined;
+	trimAfterValue: number | undefined;
+} => {
 	// Use new props if available, otherwise fall back to old props
-	const trimBeforeValue = trimBefore ?? startFrom ?? 0;
-	const trimAfterValue = trimAfter ?? endAt ?? Infinity;
+	const trimBeforeValue = trimBefore ?? startFrom ?? undefined;
+	const trimAfterValue = trimAfter ?? endAt ?? undefined;
 
 	return {trimBeforeValue, trimAfterValue};
 };
