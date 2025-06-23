@@ -48,53 +48,53 @@ describe('OffthreadVideo render correctly with props', () => {
 		).not.toThrow();
 	});
 
-	test('It should render OffthreadVideo with trimLeft props', () => {
+	test('It should render OffthreadVideo with trimBefore props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<OffthreadVideo src="test" trimLeft={10} />
+					<OffthreadVideo src="test" trimBefore={10} />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
 	});
 
-	test('It should render OffthreadVideo with trimRight props', () => {
+	test('It should render OffthreadVideo with trimAfter props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<OffthreadVideo src="test" trimRight={10} />
+					<OffthreadVideo src="test" trimAfter={10} />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
 	});
 
-	test('It should render OffthreadVideo with trimLeft and trimRight props', () => {
+	test('It should render OffthreadVideo with trimBefore and trimAfter props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<OffthreadVideo src="test" trimLeft={10} trimRight={20} />
+					<OffthreadVideo src="test" trimBefore={10} trimAfter={20} />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
 	});
 
-	test('It should throw when both startFrom and trimLeft are provided', () => {
+	test('It should throw when both startFrom and trimBefore are provided', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<OffthreadVideo src="test" startFrom={10} trimLeft={5} />
+					<OffthreadVideo src="test" startFrom={10} trimBefore={5} />
 				</WrapSequenceContext>,
 			),
-		).toThrow(/Cannot use both startFrom and trimLeft props/);
+		).toThrow(/Cannot use both startFrom and trimBefore props/);
 	});
 
-	test('It should throw when both endAt and trimRight are provided', () => {
+	test('It should throw when both endAt and trimAfter are provided', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<OffthreadVideo src="test" endAt={15} trimRight={20} />
+					<OffthreadVideo src="test" endAt={15} trimAfter={20} />
 				</WrapSequenceContext>,
 			),
-		).toThrow(/Cannot use both endAt and trimRight props/);
+		).toThrow(/Cannot use both endAt and trimAfter props/);
 	});
 });

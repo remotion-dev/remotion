@@ -44,50 +44,50 @@ test('It should render Video with startFrom and endAt props', () => {
 	).not.toThrow();
 });
 
-test('It should render Video with trimLeft props', () => {
+test('It should render Video with trimBefore props', () => {
 	expect(() =>
 		render(
 			<WrapSequenceContext>
-				<Video src="test" trimLeft={10} />
+				<Video src="test" trimBefore={10} />
 			</WrapSequenceContext>,
 		),
 	).not.toThrow();
 });
-test('It should render Video with trimRight props', () => {
+test('It should render Video with trimAfter props', () => {
 	expect(() =>
 		render(
 			<WrapSequenceContext>
-				<Video src="test" trimRight={10} />
+				<Video src="test" trimAfter={10} />
 			</WrapSequenceContext>,
 		),
 	).not.toThrow();
 });
-test('It should render Video with trimLeft and trimRight props', () => {
+test('It should render Video with trimBefore and trimAfter props', () => {
 	expect(() =>
 		render(
 			<WrapSequenceContext>
-				<Video src="test" trimLeft={10} trimRight={15} />
+				<Video src="test" trimBefore={10} trimAfter={15} />
 			</WrapSequenceContext>,
 		),
 	).not.toThrow();
 });
 
-test('It should throw when both startFrom and trimLeft are provided', () => {
+test('It should throw when both startFrom and trimBefore are provided', () => {
 	expect(() =>
 		render(
 			<WrapSequenceContext>
-				<Video src="test" startFrom={10} trimLeft={5} />
+				<Video src="test" startFrom={10} trimBefore={5} />
 			</WrapSequenceContext>,
 		),
-	).toThrow(/Cannot use both startFrom and trimLeft props/);
+	).toThrow(/Cannot use both startFrom and trimBefore props/);
 });
 
-test('It should throw when both endAt and trimRight are provided', () => {
+test('It should throw when both endAt and trimAfter are provided', () => {
 	expect(() =>
 		render(
 			<WrapSequenceContext>
-				<Video src="test" endAt={15} trimRight={20} />
+				<Video src="test" endAt={15} trimAfter={20} />
 			</WrapSequenceContext>,
 		),
-	).toThrow(/Cannot use both endAt and trimRight props/);
+	).toThrow(/Cannot use both endAt and trimAfter props/);
 });

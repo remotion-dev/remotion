@@ -45,14 +45,14 @@ export const MyComposition = () => {
 
 The URL of the video to be rendered. Can be a remote URL or a local file referenced with [`staticFile()`](/docs/staticfile).
 
-### `trimLeft?`<AvailableFrom v="4.0.319"/>
+### `trimBefore?`<AvailableFrom v="4.0.319"/>
 
 Will remove a portion of the video at the beginning (left side).
 
 In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
 
-By passing `trimLeft={60}`, the playback starts immediately, but with the first 2 seconds of the video trimmed away.  
-By passing `trimRight={120}`, any video after the 4 second mark in the file will be trimmed away.
+By passing `trimBefore={60}`, the playback starts immediately, but with the first 2 seconds of the video trimmed away.  
+By passing `trimAfter={120}`, any video after the 4 second mark in the file will be trimmed away.
 
 The video will play the range from `00:02:00` to `00:04:00`, meaning the video will play for 2 seconds.
 
@@ -65,20 +65,20 @@ import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <OffthreadVideo src={staticFile('video.webm')} trimLeft={60} trimRight={120} />
+      <OffthreadVideo src={staticFile('video.webm')} trimBefore={60} trimAfter={120} />
     </AbsoluteFill>
   );
 };
 ```
 
-### `trimRight?`<AvailableFrom v="4.0.319"/>
+### `trimAfter?`<AvailableFrom v="4.0.319"/>
 
-Removes a portion of the video at the end (right side). See [`trimLeft`](/docs/offthreadvideo#trimleft) for an explanation.
+Removes a portion of the video at the end (right side). See [`trimBefore`](/docs/offthreadvideo#trimbefore) for an explanation.
 
 ### `startFrom?` <DeprecatedBlock>
 
 :::note Deprecated
-This prop is deprecated in favor of [`trimLeft`](#trimleft). It will continue to work but you cannot use it together with the new prop.
+This prop is deprecated in favor of [`trimBefore`](#trimbefore). It will continue to work but you cannot use it together with the new prop.
 :::
 
 Will remove a portion of the video at the beginning.
@@ -110,7 +110,7 @@ export const MyComposition = () => {
 ### `endAt?` <DeprecatedBlock>
 
 :::note Deprecated
-This prop is deprecated in favor of [`trimRight`](#trimright). It will continue to work but you cannot use it together with the new prop.
+This prop is deprecated in favor of [`trimAfter`](#trimafter). It will continue to work but you cannot use it together with the new prop.
 :::
 
 Removes a portion of the video at the end. See [`startFrom`](/docs/offthreadvideo#startfrom) for an explanation.

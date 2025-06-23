@@ -44,82 +44,82 @@ export const validateStartFromProps = (
 };
 
 export const validateTrimProps = (
-	trimLeft: number | undefined,
-	trimRight: number | undefined,
+	trimBefore: number | undefined,
+	trimAfter: number | undefined,
 ) => {
-	if (typeof trimLeft !== 'undefined') {
-		if (typeof trimLeft !== 'number') {
+	if (typeof trimBefore !== 'undefined') {
+		if (typeof trimBefore !== 'number') {
 			throw new TypeError(
-				`type of trimLeft prop must be a number, instead got type ${typeof trimLeft}.`,
+				`type of trimBefore prop must be a number, instead got type ${typeof trimBefore}.`,
 			);
 		}
 
-		if (isNaN(trimLeft) || trimLeft === Infinity) {
-			throw new TypeError('trimLeft prop can not be NaN or Infinity.');
+		if (isNaN(trimBefore) || trimBefore === Infinity) {
+			throw new TypeError('trimBefore prop can not be NaN or Infinity.');
 		}
 
-		if (trimLeft < 0) {
+		if (trimBefore < 0) {
 			throw new TypeError(
-				`trimLeft must be greater than equal to 0 instead got ${trimLeft}.`,
-			);
-		}
-	}
-
-	if (typeof trimRight !== 'undefined') {
-		if (typeof trimRight !== 'number') {
-			throw new TypeError(
-				`type of trimRight prop must be a number, instead got type ${typeof trimRight}.`,
-			);
-		}
-
-		if (isNaN(trimRight)) {
-			throw new TypeError('trimRight prop can not be NaN.');
-		}
-
-		if (trimRight <= 0) {
-			throw new TypeError(
-				`trimRight must be a positive number, instead got ${trimRight}.`,
+				`trimBefore must be greater than equal to 0 instead got ${trimBefore}.`,
 			);
 		}
 	}
 
-	if ((trimRight as number) < (trimLeft as number)) {
-		throw new TypeError('trimRight prop must be greater than trimLeft prop.');
+	if (typeof trimAfter !== 'undefined') {
+		if (typeof trimAfter !== 'number') {
+			throw new TypeError(
+				`type of trimAfter prop must be a number, instead got type ${typeof trimAfter}.`,
+			);
+		}
+
+		if (isNaN(trimAfter)) {
+			throw new TypeError('trimAfter prop can not be NaN.');
+		}
+
+		if (trimAfter <= 0) {
+			throw new TypeError(
+				`trimAfter must be a positive number, instead got ${trimAfter}.`,
+			);
+		}
+	}
+
+	if ((trimAfter as number) < (trimBefore as number)) {
+		throw new TypeError('trimAfter prop must be greater than trimBefore prop.');
 	}
 };
 
 export const validateMediaTrimProps = ({
 	startFrom,
 	endAt,
-	trimLeft,
-	trimRight,
+	trimBefore,
+	trimAfter,
 }: {
 	startFrom: number | undefined;
 	endAt: number | undefined;
-	trimLeft: number | undefined;
-	trimRight: number | undefined;
+	trimBefore: number | undefined;
+	trimAfter: number | undefined;
 }) => {
 	// Check for conflicting props
-	if (typeof startFrom !== 'undefined' && typeof trimLeft !== 'undefined') {
+	if (typeof startFrom !== 'undefined' && typeof trimBefore !== 'undefined') {
 		throw new TypeError(
-			'Cannot use both startFrom and trimLeft props. Use trimLeft instead as startFrom is deprecated.',
+			'Cannot use both startFrom and trimBefore props. Use trimBefore instead as startFrom is deprecated.',
 		);
 	}
 
-	if (typeof endAt !== 'undefined' && typeof trimRight !== 'undefined') {
+	if (typeof endAt !== 'undefined' && typeof trimAfter !== 'undefined') {
 		throw new TypeError(
-			'Cannot use both endAt and trimRight props. Use trimRight instead as endAt is deprecated.',
+			'Cannot use both endAt and trimAfter props. Use trimAfter instead as endAt is deprecated.',
 		);
 	}
 
 	// Validate using the appropriate validation function
 	const hasNewProps =
-		typeof trimLeft !== 'undefined' || typeof trimRight !== 'undefined';
+		typeof trimBefore !== 'undefined' || typeof trimAfter !== 'undefined';
 	const hasOldProps =
 		typeof startFrom !== 'undefined' || typeof endAt !== 'undefined';
 
 	if (hasNewProps) {
-		validateTrimProps(trimLeft, trimRight);
+		validateTrimProps(trimBefore, trimAfter);
 	} else if (hasOldProps) {
 		validateStartFromProps(startFrom, endAt);
 	}
@@ -128,17 +128,17 @@ export const validateMediaTrimProps = ({
 export const resolveTrimProps = ({
 	startFrom,
 	endAt,
-	trimLeft,
-	trimRight,
+	trimBefore,
+	trimAfter,
 }: {
 	startFrom: number | undefined;
 	endAt: number | undefined;
-	trimLeft: number | undefined;
-	trimRight: number | undefined;
-}): {trimLeftValue: number; trimRightValue: number} => {
+	trimBefore: number | undefined;
+	trimAfter: number | undefined;
+}): {trimBeforeValue: number; trimAfterValue: number} => {
 	// Use new props if available, otherwise fall back to old props
-	const trimLeftValue = trimLeft ?? startFrom ?? 0;
-	const trimRightValue = trimRight ?? endAt ?? Infinity;
+	const trimBeforeValue = trimBefore ?? startFrom ?? 0;
+	const trimAfterValue = trimAfter ?? endAt ?? Infinity;
 
-	return {trimLeftValue, trimRightValue};
+	return {trimBeforeValue, trimAfterValue};
 };

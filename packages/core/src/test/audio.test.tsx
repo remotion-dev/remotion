@@ -22,7 +22,7 @@ describe('Render correctly with props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} trimLeft={10} />
+					<Audio src="test" volume={1} trimBefore={10} />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
@@ -32,7 +32,7 @@ describe('Render correctly with props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} trimRight={10} />
+					<Audio src="test" volume={1} trimAfter={10} />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
@@ -42,7 +42,7 @@ describe('Render correctly with props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} trimLeft={10} trimRight={20} />
+					<Audio src="test" volume={1} trimBefore={10} trimAfter={20} />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
@@ -52,69 +52,69 @@ describe('Render correctly with props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} trimLeft={10} trimRight={20} loop />
+					<Audio src="test" volume={1} trimBefore={10} trimAfter={20} loop />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
 	});
 
-	test('It should render Audio with trimLeft props', () => {
+	test('It should render Audio with trimBefore props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} trimLeft={10} />
+					<Audio src="test" volume={1} trimBefore={10} />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
 	});
 
-	test('It should render Audio with trimRight props', () => {
+	test('It should render Audio with trimAfter props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} trimRight={10} />
+					<Audio src="test" volume={1} trimAfter={10} />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
 	});
 
-	test('It should render Audio with trimLeft and trimRight props', () => {
+	test('It should render Audio with trimBefore and trimAfter props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} trimLeft={10} trimRight={20} />
+					<Audio src="test" volume={1} trimBefore={10} trimAfter={20} />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
 	});
 
-	test('It should render Audio with loop, trimLeft and trimRight props', () => {
+	test('It should render Audio with loop, trimBefore and trimAfter props', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} trimLeft={10} trimRight={20} loop />
+					<Audio src="test" volume={1} trimBefore={10} trimAfter={20} loop />
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
 	});
 
-	test('It should throw when both startFrom and trimLeft are provided', () => {
+	test('It should throw when both startFrom and trimBefore are provided', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} startFrom={10} trimLeft={5} />
+					<Audio src="test" volume={1} startFrom={10} trimBefore={5} />
 				</WrapSequenceContext>,
 			),
-		).toThrow(/Cannot use both startFrom and trimLeft props/);
+		).toThrow(/Cannot use both startFrom and trimBefore props/);
 	});
 
-	test('It should throw when both endAt and trimRight are provided', () => {
+	test('It should throw when both endAt and trimAfter are provided', () => {
 		expect(() =>
 			render(
 				<WrapSequenceContext>
-					<Audio src="test" volume={1} endAt={15} trimRight={20} />
+					<Audio src="test" volume={1} endAt={15} trimAfter={20} />
 				</WrapSequenceContext>,
 			),
-		).toThrow(/Cannot use both endAt and trimRight props/);
+		).toThrow(/Cannot use both endAt and trimAfter props/);
 	});
 });

@@ -31,8 +31,8 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	const {
 		startFrom,
 		endAt,
-		trimLeft,
-		trimRight,
+		trimBefore,
+		trimAfter,
 		name,
 		pauseWhenBuffering,
 		stack,
@@ -74,12 +74,12 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		durations[getAbsoluteSrc(preloadedSrc)] ??
 		durations[getAbsoluteSrc(props.src)];
 
-	validateMediaTrimProps({startFrom, endAt, trimLeft, trimRight});
-	const {trimLeftValue, trimRightValue} = resolveTrimProps({
+	validateMediaTrimProps({startFrom, endAt, trimBefore, trimAfter});
+	const {trimBeforeValue, trimAfterValue} = resolveTrimProps({
 		startFrom,
 		endAt,
-		trimLeft,
-		trimRight,
+		trimBefore,
+		trimAfter,
 	});
 
 	if (loop && durationFetched !== undefined) {
@@ -98,10 +98,10 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		return (
 			<Loop
 				durationInFrames={calculateLoopDuration({
-					endAt: trimRightValue ?? undefined,
+					endAt: trimAfterValue ?? undefined,
 					mediaDuration,
 					playbackRate: props.playbackRate ?? 1,
-					startFrom: trimLeftValue ?? undefined,
+					startFrom: trimBeforeValue ?? undefined,
 				})}
 				layout="none"
 				name={name}
@@ -116,15 +116,15 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	if (
-		typeof trimLeftValue !== 'undefined' ||
-		typeof trimRightValue !== 'undefined'
+		typeof trimBeforeValue !== 'undefined' ||
+		typeof trimAfterValue !== 'undefined'
 	) {
 		return (
 			<Sequence
 				layout="none"
-				from={0 - (trimLeftValue ?? 0)}
+				from={0 - (trimBeforeValue ?? 0)}
 				showInTimeline={false}
-				durationInFrames={trimRightValue}
+				durationInFrames={trimAfterValue}
 				name={name}
 			>
 				<Video

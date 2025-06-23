@@ -68,90 +68,90 @@ describe('ValidateStartFrom props should throw', () => {
 });
 
 describe('ValidateTrim props should throw', () => {
-	describe('Throw with invalid trimLeft prop', () => {
-		test('It should throw if trimLeft prop is negative', () => {
+	describe('Throw with invalid trimBefore prop', () => {
+		test('It should throw if trimBefore prop is negative', () => {
 			expectToThrow(
 				() => validateTrimProps(-40, 1),
-				/trimLeft must be greater than equal to 0 instead got -40./,
+				/trimBefore must be greater than equal to 0 instead got -40./,
 			);
 		});
-		test('It should throw if trimLeft is not a number', () => {
+		test('It should throw if trimBefore is not a number', () => {
 			expectToThrow(
 				// @ts-expect-error
 				() => validateTrimProps('10', 20),
-				/type of trimLeft prop must be a number, instead got type string./,
+				/type of trimBefore prop must be a number, instead got type string./,
 			);
 		});
-		test('It should throw if trimLeft is NaN', () => {
+		test('It should throw if trimBefore is NaN', () => {
 			expectToThrow(
 				() => validateTrimProps(NaN, 20),
-				/trimLeft prop can not be NaN or Infinity./,
+				/trimBefore prop can not be NaN or Infinity./,
 			);
 		});
-		test('It should throw if trimLeft is Infinity', () => {
+		test('It should throw if trimBefore is Infinity', () => {
 			expectToThrow(
 				() => validateTrimProps(Infinity, 20),
-				/trimLeft prop can not be NaN or Infinity./,
+				/trimBefore prop can not be NaN or Infinity./,
 			);
 		});
 	});
 
-	describe('Throw with invalid trimRight prop', () => {
-		test('It should throw if trimRight prop is negative', () => {
+	describe('Throw with invalid trimAfter prop', () => {
+		test('It should throw if trimAfter prop is negative', () => {
 			expectToThrow(
 				() => validateTrimProps(0, -40),
-				/trimRight must be a positive number, instead got -40./,
+				/trimAfter must be a positive number, instead got -40./,
 			);
 		});
 
-		test('It should throw if trimRight is less than trimLeft', () => {
+		test('It should throw if trimAfter is less than trimBefore', () => {
 			expectToThrow(
 				() => validateTrimProps(10, 1),
-				/trimRight prop must be greater than trimLeft prop./,
+				/trimAfter prop must be greater than trimBefore prop./,
 			);
 		});
 
-		test('It should throw if trimRight is not a number', () => {
+		test('It should throw if trimAfter is not a number', () => {
 			expectToThrow(
 				// @ts-expect-error
 				() => validateTrimProps(10, '20'),
-				/type of trimRight prop must be a number, instead got type string./,
+				/type of trimAfter prop must be a number, instead got type string./,
 			);
 		});
 
-		test('It should throw if trimRight is NaN', () => {
+		test('It should throw if trimAfter is NaN', () => {
 			expectToThrow(
 				() => validateTrimProps(10, NaN),
-				/trimRight prop can not be NaN./,
+				/trimAfter prop can not be NaN./,
 			);
 		});
 	});
 });
 
 describe('ValidateMediaTrim props should throw on conflicts', () => {
-	test('It should throw if both startFrom and trimLeft are provided', () => {
+	test('It should throw if both startFrom and trimBefore are provided', () => {
 		expectToThrow(
 			() =>
 				validateMediaTrimProps({
 					startFrom: 10,
 					endAt: undefined,
-					trimLeft: 5,
-					trimRight: undefined,
+					trimBefore: 5,
+					trimAfter: undefined,
 				}),
-			/Cannot use both startFrom and trimLeft props. Use trimLeft instead as startFrom is deprecated./,
+			/Cannot use both startFrom and trimBefore props. Use trimBefore instead as startFrom is deprecated./,
 		);
 	});
 
-	test('It should throw if both endAt and trimRight are provided', () => {
+	test('It should throw if both endAt and trimAfter are provided', () => {
 		expectToThrow(
 			() =>
 				validateMediaTrimProps({
 					startFrom: undefined,
 					endAt: 20,
-					trimLeft: undefined,
-					trimRight: 15,
+					trimBefore: undefined,
+					trimAfter: 15,
 				}),
-			/Cannot use both endAt and trimRight props. Use trimRight instead as endAt is deprecated./,
+			/Cannot use both endAt and trimAfter props. Use trimAfter instead as endAt is deprecated./,
 		);
 	});
 
@@ -161,10 +161,10 @@ describe('ValidateMediaTrim props should throw on conflicts', () => {
 				validateMediaTrimProps({
 					startFrom: 10,
 					endAt: 20,
-					trimLeft: 5,
-					trimRight: 15,
+					trimBefore: 5,
+					trimAfter: 15,
 				}),
-			/Cannot use both startFrom and trimLeft props. Use trimLeft instead as startFrom is deprecated./,
+			/Cannot use both startFrom and trimBefore props. Use trimBefore instead as startFrom is deprecated./,
 		);
 	});
 });

@@ -34,8 +34,8 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {
 		startFrom,
 		endAt,
-		trimLeft,
-		trimRight,
+		trimBefore,
+		trimAfter,
 		name,
 		stack,
 		pauseWhenBuffering,
@@ -87,13 +87,13 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		durations[getAbsoluteSrc(preloadedSrc)] ??
 		durations[getAbsoluteSrc(props.src)];
 
-	validateMediaTrimProps({startFrom, endAt, trimLeft, trimRight});
+	validateMediaTrimProps({startFrom, endAt, trimBefore, trimAfter});
 
-	const {trimLeftValue, trimRightValue} = resolveTrimProps({
+	const {trimBeforeValue, trimAfterValue} = resolveTrimProps({
 		startFrom,
 		endAt,
-		trimLeft,
-		trimRight,
+		trimBefore,
+		trimAfter,
 	});
 
 	if (loop && durationFetched !== undefined) {
@@ -113,10 +113,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			<Loop
 				layout="none"
 				durationInFrames={calculateLoopDuration({
-					endAt: trimRightValue ?? endAt,
+					endAt: trimAfterValue ?? endAt,
 					mediaDuration: duration,
 					playbackRate: props.playbackRate ?? 1,
-					startFrom: trimLeftValue ?? startFrom,
+					startFrom: trimBeforeValue ?? startFrom,
 				})}
 			>
 				<Audio
@@ -129,15 +129,15 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	if (
-		typeof trimLeftValue !== 'undefined' ||
-		typeof trimRightValue !== 'undefined'
+		typeof trimBeforeValue !== 'undefined' ||
+		typeof trimAfterValue !== 'undefined'
 	) {
 		return (
 			<Sequence
 				layout="none"
-				from={0 - (trimLeftValue ?? 0)}
+				from={0 - (trimBeforeValue ?? 0)}
 				showInTimeline={false}
-				durationInFrames={trimRightValue}
+				durationInFrames={trimAfterValue}
 				name={name}
 			>
 				<Audio

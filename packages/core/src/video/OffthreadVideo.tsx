@@ -22,8 +22,8 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (
 	const {
 		startFrom,
 		endAt,
-		trimLeft,
-		trimRight,
+		trimBefore,
+		trimAfter,
 		name,
 		pauseWhenBuffering,
 		stack,
@@ -48,25 +48,25 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (
 		);
 	}
 
-	validateMediaTrimProps({startFrom, endAt, trimLeft, trimRight});
+	validateMediaTrimProps({startFrom, endAt, trimBefore, trimAfter});
 
-	const {trimLeftValue, trimRightValue} = resolveTrimProps({
+	const {trimBeforeValue, trimAfterValue} = resolveTrimProps({
 		startFrom,
 		endAt,
-		trimLeft,
-		trimRight,
+		trimBefore,
+		trimAfter,
 	});
 
 	if (
-		typeof trimLeftValue !== 'undefined' ||
-		typeof trimRightValue !== 'undefined'
+		typeof trimBeforeValue !== 'undefined' ||
+		typeof trimAfterValue !== 'undefined'
 	) {
 		return (
 			<Sequence
 				layout="none"
-				from={0 - (trimLeftValue ?? 0)}
+				from={0 - (trimBeforeValue ?? 0)}
 				showInTimeline={false}
-				durationInFrames={trimRightValue}
+				durationInFrames={trimAfterValue}
 				name={name}
 			>
 				<OffthreadVideo
