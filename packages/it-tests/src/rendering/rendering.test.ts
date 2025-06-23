@@ -482,49 +482,29 @@ test(
 	async () => {
 		const audio = path.join(process.cwd(), '..', 'example', 'audio.wav');
 
-	const randomDuration = Math.round(Math.random() * 18 + 2);
-	const props = JSON.stringify({duration: randomDuration, offthread: true});
-	const cwd = path.join(process.cwd(), '..', 'example');
-	await Bun.file(path.join(cwd, 'props.json')).write(props);
-	const task = await execa(
-		'bun',
-		[
-			'x',
-			'remotion',
-			'render',
-			'build',
-			'dynamic-duration',
-			`--props`,
-			'props.json',
-			'--separate-audio-to',
-			'audio.wav',
-			outputPath,
-		],
-		{
-			cwd: path.join(process.cwd(), '..', 'example'),
-		},
-	);
-	await Bun.file(path.join(cwd, 'props.json')).delete();
-
-	expect(task.exitCode).toBe(0);
-	expect(fs.existsSync(outputPath)).toBe(true);
-
-	const info = await RenderInternals.callFf({
-		bin: 'ffprobe',
-		args: [outputPath],
-		indent: false,
-		logLevel: 'info',
-		binariesDirectory: null,
-		cancelSignal: undefined,
-	});
-	const data = info.stderr;
-	expect(data).toContain('Video: h264');
-	const expectedDuration = (randomDuration / 30).toFixed(2);
-	expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
-	if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
-		expect(data).toContain(
-			`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt709, progressive)`,
+		const randomDuration = Math.round(Math.random() * 18 + 2);
+		const props = JSON.stringify({duration: randomDuration, offthread: true});
+		const cwd = path.join(process.cwd(), '..', 'example');
+		await Bun.file(path.join(cwd, 'props.json')).write(props);
+		const task = await execa(
+			'bun',
+			[
+				'x',
+				'remotion',
+				'render',
+				'build',
+				'dynamic-duration',
+				`--props`,
+				'props.json',
+				'--separate-audio-to',
+				'audio.wav',
+				outputPath,
+			],
+			{
+				cwd: path.join(process.cwd(), '..', 'example'),
+			},
 		);
+		await Bun.file(path.join(cwd, 'props.json')).delete();
 
 		expect(task.exitCode).toBe(0);
 		expect(fs.existsSync(outputPath)).toBe(true);
@@ -545,27 +525,48 @@ test(
 			expect(data).toContain(
 				`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt709, progressive)`,
 			);
-		} else {
-			expect(data).toContain(
-				`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuvj420p(pc, bt470bg/unknown/unknown, progressive)`,
+
+			expect(task.exitCode).toBe(0);
+			expect(fs.existsSync(outputPath)).toBe(true);
+
+			const info = await RenderInternals.callFf({
+				bin: 'ffprobe',
+				args: [outputPath],
+				indent: false,
+				logLevel: 'info',
+				binariesDirectory: null,
+				cancelSignal: undefined,
+			});
+			const data = info.stderr;
+			expect(data).toContain('Video: h264');
+			const expectedDuration = (randomDuration / 30).toFixed(2);
+			expect(data).toContain(`Duration: 00:00:0${expectedDuration}`);
+			if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+				expect(data).toContain(
+					`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt709, progressive)`,
+				);
+			} else {
+				expect(data).toContain(
+					`Stream #0:0[0x1](und): Video: h264 (avc1 / 0x31637661), yuvj420p(pc, bt470bg/unknown/unknown, progressive)`,
+				);
+			}
+
+			fs.unlinkSync(outputPath);
+
+			const audioInfo = await RenderInternals.callFf({
+				bin: 'ffprobe',
+				args: [audio],
+				indent: false,
+				logLevel: 'info',
+				binariesDirectory: null,
+				cancelSignal: undefined,
+			});
+			const audioData = audioInfo.stderr;
+			expect(audioData).toContain(
+				'  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, 2 channels, s16',
 			);
+			fs.unlinkSync(audio);
 		}
-
-		fs.unlinkSync(outputPath);
-
-		const audioInfo = await RenderInternals.callFf({
-			bin: 'ffprobe',
-			args: [audio],
-			indent: false,
-			logLevel: 'info',
-			binariesDirectory: null,
-			cancelSignal: undefined,
-		});
-		const audioData = audioInfo.stderr;
-		expect(audioData).toContain(
-			'  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, 2 channels, s16',
-		);
-		fs.unlinkSync(audio);
 	},
 	{timeout: 20000},
 );
