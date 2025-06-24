@@ -14,7 +14,7 @@ The **package name** for each folder is `@remotion/[folder-name]`, except for th
 
 Any new features or settings should be documented in the `packages/docs` folder.
 
-- Add new pages to the sidebar: `packages/docs/sidebars.js`.
+- Add new pages to the sidebar: `packages/docs/sidebars.ts`.
 - When creating a new page or duplicating an existing page, don't add the `image:` tag to the frontmatter at first. Instead, run `cd package/docs && bun render-cards.mjs` afterwards to generate and automatically add the `image:` tag. Commit the created image and the changed frontmatter.
 - Usually, there is a TableOfContents.tsx file in the folder of the documentaiton for the package. Add it there as well if there is a table of contents.
 

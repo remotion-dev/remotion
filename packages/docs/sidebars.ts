@@ -1,4 +1,6 @@
-module.exports = {
+import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
+
+const sidebars: SidebarsConfig = {
 	apiSidebar: [
 		'api',
 		{
@@ -1407,3 +1409,5 @@ module.exports = {
 		},
 	],
 };
+
+export default sidebars;
