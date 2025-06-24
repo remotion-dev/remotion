@@ -78,6 +78,7 @@ import {wrapWithErrorHandling} from './wrap-with-error-handling';
 export type StitchingState = 'encoding' | 'muxing';
 
 const SLOWEST_FRAME_COUNT = 10;
+const MAX_RECENT_FRAME_TIMINGS = 50;
 
 export type SlowFrame = {frame: number; time: number};
 
@@ -323,6 +324,7 @@ const internalRenderMediaRaw = ({
 	let cancelled = false;
 	let renderEstimatedTime = 0;
 	let totalTimeSpentOnFrames = 0;
+	const recentFrameTimings: number[] = [];
 
 	const renderStart = Date.now();
 
@@ -606,9 +608,20 @@ const internalRenderMediaRaw = ({
 					) => {
 						renderedFrames = frame;
 
-						totalTimeSpentOnFrames += timeToRenderInMilliseconds;
-						const newAverage = totalTimeSpentOnFrames / renderedFrames;
+						// Track recent frame timings (at most 50)
+						recentFrameTimings.push(timeToRenderInMilliseconds);
+						if (recentFrameTimings.length > MAX_RECENT_FRAME_TIMINGS) {
+							recentFrameTimings.shift();
+						}
 
+						// Calculate average using only recent timings for better estimation
+						const recentTimingsSum = recentFrameTimings.reduce(
+							(sum, time) => sum + time,
+							0,
+						);
+						const newAverage = recentTimingsSum / recentFrameTimings.length;
+
+						totalTimeSpentOnFrames += timeToRenderInMilliseconds;
 						const remainingFrames = totalFramesToRender - renderedFrames;
 
 						// Get estimated time by multiplying the avarage render time by the remaining frames
