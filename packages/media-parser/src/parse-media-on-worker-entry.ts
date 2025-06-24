@@ -174,6 +174,8 @@ export const parseMediaOnWorkerImplementation = async <
 		MediaParserOnAudioSample | MediaParserOnVideoSample
 	> = {};
 
+	const trackDoneCallbacks: Record<number, () => void> = {};
+
 	function onMessage(message: MessageEvent) {
 		const data = message.data as WorkerResponsePayload;
 		if (data.type === 'response-done') {
@@ -415,9 +417,15 @@ export const parseMediaOnWorkerImplementation = async <
 							);
 						}
 
-						await callback(data.payload.value);
+						const trackDoneCallback = await callback(data.payload.value);
+						if (trackDoneCallback) {
+							trackDoneCallbacks[data.payload.trackId] = trackDoneCallback;
+						}
 
-						return {payloadType: 'void'};
+						return {
+							payloadType: 'on-sample-response',
+							registeredTrackDoneCallback: Boolean(trackDoneCallback),
+						};
 					}
 
 					if (data.payload.callbackType === 'on-video-sample') {
@@ -428,8 +436,26 @@ export const parseMediaOnWorkerImplementation = async <
 							);
 						}
 
-						await callback(data.payload.value);
+						const trackDoneCallback = await callback(data.payload.value);
+						if (trackDoneCallback) {
+							trackDoneCallbacks[data.payload.trackId] = trackDoneCallback;
+						}
 
+						return {
+							payloadType: 'on-sample-response',
+							registeredTrackDoneCallback: Boolean(trackDoneCallback),
+						};
+					}
+
+					if (data.payload.callbackType === 'track-done') {
+						const trackDoneCallback = trackDoneCallbacks[data.payload.trackId];
+						if (!trackDoneCallback) {
+							throw new Error(
+								`No track done callback registered for track ${data.payload.trackId}`,
+							);
+						}
+
+						trackDoneCallback();
 						return {payloadType: 'void'};
 					}
 
