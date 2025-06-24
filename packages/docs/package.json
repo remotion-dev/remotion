@@ -30,7 +30,6 @@
 		"@docusaurus/faster": "3.8.1",
 		"@docusaurus/types": "3.8.1",
 		"@mdx-js/react": "3.0.1",
-		"@remotion-dev/cube-presentation": "https://www.remotion.pro/pkg/cube-transition/1.0.2/docs",
 		"@remotion/svg-3d-engine": "workspace:*",
 		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/animation-utils": "workspace:*",
