@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  caniuse-lite: 1.0.30001690
+  caniuse-lite: 1.0.30001724
 
 importers:
 
@@ -17695,7 +17695,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.25.0
-      caniuse-lite: 1.0.30001690
+      caniuse-lite: 1.0.30001724
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.1
@@ -17711,7 +17711,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.25.0
-      caniuse-lite: 1.0.30001690
+      caniuse-lite: 1.0.30001724
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.1
@@ -17726,7 +17726,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.25.0
-      caniuse-lite: 1.0.30001690
+      caniuse-lite: 1.0.30001724
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.1
@@ -17742,7 +17742,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.25.0
-      caniuse-lite: 1.0.30001690
+      caniuse-lite: 1.0.30001724
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.1
@@ -17758,7 +17758,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.25.0
-      caniuse-lite: 1.0.30001690
+      caniuse-lite: 1.0.30001724
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.1
@@ -18126,7 +18126,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001690
+      caniuse-lite: 1.0.30001724
       electron-to-chromium: 1.5.167
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.25.0)
@@ -18314,13 +18314,13 @@ packages:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
     dependencies:
       browserslist: 4.25.0
-      caniuse-lite: 1.0.30001690
+      caniuse-lite: 1.0.30001724
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
     dev: false
 
-  /caniuse-lite@1.0.30001690:
-    resolution: {integrity: sha512-5ExiE3qQN6oF8Clf8ifIDcMRCRE/dMGcETG/XGMD8/XiXm6HXQgQTh1yZYLXXpSOsEUlJm1Xr7kGULZTuGtP/w==}
+  /caniuse-lite@1.0.30001724:
+    resolution: {integrity: sha512-WqJo7p0TbHDOythNTqYujmaJTvtYRZrjpP8TCvH6Vb9CYJerJNKamKzIWOM4BkQatWj9H2lYulpdAQNBe7QhNA==}
 
   /canvaskit-wasm@0.40.0:
     resolution: {integrity: sha512-Od2o+ZmoEw9PBdN/yCGvzfu0WVqlufBPEWNG452wY7E9aT8RBE+ChpZF526doOlg7zumO4iCS+RAeht4P0Gbpw==}
@@ -24949,7 +24949,7 @@ packages:
       '@swc/counter': 0.1.3
       '@swc/helpers': 0.5.15
       busboy: 1.6.0
-      caniuse-lite: 1.0.30001690
+      caniuse-lite: 1.0.30001724
       postcss: 8.4.31
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)

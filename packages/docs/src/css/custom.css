@@ -72,9 +72,10 @@ h6 {
 	--ifm-color-primary-lighter: #2f96f6;
 	--ifm-color-primary-lightest: #53a9f7;
 	--ifm-code-font-size: 100%;
-	--ifm-font-family-base: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
-		Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica,
-		Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+	--ifm-font-family-base:
+		system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans,
+		sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif,
+		'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 	--ifm-font-size-base: 16px;
 }
 
