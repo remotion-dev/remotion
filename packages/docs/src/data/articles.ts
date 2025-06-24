@@ -1260,6 +1260,15 @@ export const articles = [
 		slug: 'easing',
 	},
 	{
+		id: 'features',
+		title: 'Editor Starter – Features',
+		relativePath: 'docs/editor-starter/features.mdx',
+		compId: 'articles-docs-editor-starter-features',
+		crumb: null,
+		noAi: false,
+		slug: 'editor-starter/features',
+	},
+	{
 		id: 'enable-scss/enable-scss',
 		title: 'enableScss()',
 		relativePath: 'docs/enable-scss/enable-scss.mdx',

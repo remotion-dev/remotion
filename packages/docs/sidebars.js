@@ -1324,6 +1324,16 @@ module.exports = {
 			],
 		},
 		{
+			type: 'category',
+			label: 'Editor Starter',
+			className: 'wip-item',
+			link: {
+				type: 'doc',
+				id: 'editor-starter/features',
+			},
+			items: ['editor-starter/features'],
+		},
+		{
 			type: 'link',
 			href: '/docs/recorder',
 			label: 'Recorder',
