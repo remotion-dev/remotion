@@ -1,9 +1,6 @@
-/**
- *
- * @param {"complete" | "new-doc"} mode
- * @returns
- */
-const config = (mode) => ({
+import type {Config} from '@docusaurus/types';
+
+const config: Config = {
 	title: 'Remotion | Make videos programmatically',
 	tagline: 'Make videos programmatically',
 	url: 'https://www.remotion.dev',
@@ -38,19 +35,16 @@ const config = (mode) => ({
 					to: '/docs',
 					label: 'Docs',
 					position: 'left',
-					type: mode === 'complete' ? 'docSidebar' : 'doc',
-					docId: mode === 'complete' ? undefined : 'new-doc',
-					sidebarId: mode === 'complete' ? 'mainSidebar' : undefined,
+					type: 'docSidebar',
+					sidebarId: 'mainSidebar',
 				},
-				mode === 'complete'
-					? {
-							to: '/docs/api',
-							label: 'API',
-							position: 'left',
-							type: 'docSidebar',
-							sidebarId: 'apiSidebar',
-						}
-					: null,
+				{
+					to: '/docs/api',
+					label: 'API',
+					position: 'left',
+					type: 'docSidebar',
+					sidebarId: 'apiSidebar',
+				},
 				{
 					type: 'dropdown',
 					label: 'Products',
@@ -212,12 +206,10 @@ const config = (mode) => ({
 							label: 'Contact us',
 							to: 'contact',
 						},
-						mode === 'complete'
-							? {
-									label: 'Blog',
-									to: 'blog',
-								}
-							: null,
+						{
+							label: 'Blog',
+							to: 'blog',
+						},
 						{
 							label: 'Success Stories',
 							to: 'success-stories',
@@ -252,15 +244,14 @@ const config = (mode) => ({
 	},
 	presets: [
 		[
-			'@docusaurus/preset-classic',
+			'classic',
 			{
 				gtag: {
 					trackingID: 'G-Z6B254S5Q4',
 				},
 				docs: {
-					path: mode === 'complete' ? 'docs' : 'new-docs',
-					sidebarPath:
-						mode === 'complete' ? require.resolve('./sidebars.js') : undefined,
+					path: 'docs',
+					sidebarPath: './sidebars.ts',
 					editUrl:
 						'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
 					showLastUpdateTime: true,
@@ -268,8 +259,6 @@ const config = (mode) => ({
 				blog: {
 					onInlineAuthors: 'ignore',
 					onUntruncatedBlogPosts: 'ignore',
-					path:
-						mode === 'complete' ? undefined : 'intentionally-not-existing-path',
 					showReadingTime: true,
 					// Please change this to your repo.
 					editUrl:
@@ -291,55 +280,51 @@ const config = (mode) => ({
 			},
 		],
 	],
-	plugins:
-		mode === 'complete'
-			? [
-					[
-						'@docusaurus/plugin-content-blog',
-						{
-							/**
-							 * Required for any multi-instance plugin
-							 */
-							id: 'success-stories',
-							/**
-							 * URL route for the blog section of your site.
-							 * *DO NOT* include a trailing slash.
-							 */
-							routeBasePath: 'success-stories',
-							/**
-							 * Path to data on filesystem relative to site dir.
-							 */
-							path: './success-stories',
-							blogSidebarTitle: 'Success stories',
-							onUntruncatedBlogPosts: 'ignore',
-							onInlineAuthors: 'ignore',
-						},
-					],
-					[
-						'@docusaurus/plugin-content-blog',
-						{
-							/**
-							 * Required for any multi-instance plugin
-							 */
-							id: 'learn',
-							/**
-							 * URL route for the blog section of your site.
-							 * *DO NOT* include a trailing slash.
-							 */
-							routeBasePath: 'learn',
-							/**
-							 * Path to data on filesystem relative to site dir.
-							 */
-							path: './learn',
-							blogSidebarTitle: 'Learn',
-							onUntruncatedBlogPosts: 'ignore',
-							onInlineAuthors: 'ignore',
-						},
-					],
-					'./route-plugin',
-				]
-			: [],
-});
+	plugins: [
+		[
+			'@docusaurus/plugin-content-blog',
+			{
+				/**
+				 * Required for any multi-instance plugin
+				 */
+				id: 'success-stories',
+				/**
+				 * URL route for the blog section of your site.
+				 * *DO NOT* include a trailing slash.
+				 */
+				routeBasePath: 'success-stories',
+				/**
+				 * Path to data on filesystem relative to site dir.
+				 */
+				path: './success-stories',
+				blogSidebarTitle: 'Success stories',
+				onUntruncatedBlogPosts: 'ignore',
+				onInlineAuthors: 'ignore',
+			},
+		],
+		[
+			'@docusaurus/plugin-content-blog',
+			{
+				/**
+				 * Required for any multi-instance plugin
+				 */
+				id: 'learn',
+				/**
+				 * URL route for the blog section of your site.
+				 * *DO NOT* include a trailing slash.
+				 */
+				routeBasePath: 'learn',
+				/**
+				 * Path to data on filesystem relative to site dir.
+				 */
+				path: './learn',
+				blogSidebarTitle: 'Learn',
+				onUntruncatedBlogPosts: 'ignore',
+				onInlineAuthors: 'ignore',
+			},
+		],
+		'./route-plugin',
+	],
+};
 
-module.exports = config('complete');
-module.exports.customFields = {config};
+export default config;
