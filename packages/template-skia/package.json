@@ -26,7 +26,7 @@
     "@types/dom-webcodecs": "0.1.11",
     "@types/web": "0.0.166",
     "eslint": "9.19.0",
-    "prettier": "3.3.3",
+    "prettier": "3.6.0",
     "typescript": "5.8.2"
   },
   "private": true

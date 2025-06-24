@@ -8,7 +8,7 @@
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"testlambda": "exit 0",
 		"test": "bun test src/test/unit",

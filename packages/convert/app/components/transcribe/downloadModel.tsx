@@ -20,11 +20,13 @@ import {
 export default function DownloadModel({
 	selectedModel,
 	setSelectedModel,
+	disabled,
 }: {
 	readonly selectedModel: DownloadWhisperModelParams['model'];
 	readonly setSelectedModel: (
 		model: DownloadWhisperModelParams['model'],
 	) => void;
+	readonly disabled: boolean;
 }) {
 	const [loadedModels, setLoadedModels] = useState<WhisperWebModel[]>([]);
 	const availableModels = getAvailableModels();
@@ -60,6 +62,7 @@ export default function DownloadModel({
 				<div className="grid w-full max-w-sm items-center gap-1.5">
 					<Label htmlFor="model">Whisper model</Label>
 					<Select
+						disabled={disabled}
 						value={selectedModel}
 						onValueChange={(v) =>
 							setSelectedModel(v as DownloadWhisperModelParams['model'])
@@ -73,29 +76,31 @@ export default function DownloadModel({
 								{availableModels.map(({name, downloadSize}) => {
 									const isLoaded = loadedModels.includes(name);
 									return (
-										<SelectItem key={name} value={name}>
-											<div className="flex w-full items-center justify-between">
-												<div className="flex flex-col">
-													<span className="font-medium">{name}</span>
-													<span className="text-xs text-muted-foreground">
-														{formatBytes(downloadSize)}
-													</span>
+										<div key={name} className="flex w-full">
+											<SelectItem value={name} className="flex w-full">
+												<div className="flex w-full justify-between">
+													<div className="text-left">
+														<div className="font-medium">{name}</div>
+														<div className="text-xs text-muted-foreground">
+															{formatBytes(downloadSize)}
+														</div>
+													</div>
 												</div>
-												{isLoaded && (
-													<button
-														type="button"
-														className="ml-2 rounded bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
-														onClick={(e) => {
-															e.preventDefault();
-															e.stopPropagation();
-															handleDeleteModel(name);
-														}}
-													>
-														Delete
-													</button>
-												)}
-											</div>
-										</SelectItem>
+											</SelectItem>{' '}
+											{isLoaded && (
+												<button
+													type="button"
+													className="rounded text-red-500 px-2 py-1 text-xs hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-1"
+													onClick={(e) => {
+														e.preventDefault();
+														e.stopPropagation();
+														handleDeleteModel(name);
+													}}
+												>
+													Delete
+												</button>
+											)}
+										</div>
 									);
 								})}
 							</SelectGroup>
