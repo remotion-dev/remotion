@@ -135,6 +135,10 @@ const internalExtractFrames = ({
 						controller.abort();
 					}
 				}
+
+				return async () => {
+					await decoder.flush();
+				};
 			};
 		},
 	})

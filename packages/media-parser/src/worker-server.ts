@@ -401,11 +401,26 @@ const startParsing = async (
 						}
 
 						return async (sample) => {
-							await executeCallback({
+							const audioSampleRes = await executeCallback({
 								callbackType: 'on-audio-sample',
 								value: sample,
 								trackId: params.track.trackId,
 							});
+
+							if (audioSampleRes.payloadType !== 'on-sample-response') {
+								throw new Error('Invalid response from callback');
+							}
+
+							if (!audioSampleRes.registeredTrackDoneCallback) {
+								return;
+							}
+
+							return async () => {
+								await executeCallback({
+									callbackType: 'track-done',
+									trackId: params.track.trackId,
+								});
+							};
 						};
 					}
 				: null,
@@ -425,11 +440,26 @@ const startParsing = async (
 						}
 
 						return async (sample) => {
-							await executeCallback({
+							const videoSampleRes = await executeCallback({
 								callbackType: 'on-video-sample',
 								value: sample,
 								trackId: params.track.trackId,
 							});
+
+							if (videoSampleRes.payloadType !== 'on-sample-response') {
+								throw new Error('Invalid response from callback');
+							}
+
+							if (!videoSampleRes.registeredTrackDoneCallback) {
+								return;
+							}
+
+							return async () => {
+								await executeCallback({
+									callbackType: 'track-done',
+									trackId: params.track.trackId,
+								});
+							};
 						};
 					}
 				: null,
