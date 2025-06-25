@@ -323,7 +323,6 @@ const internalRenderMediaRaw = ({
 	let encodedDoneIn: number | null = null;
 	let cancelled = false;
 	let renderEstimatedTime = 0;
-	let totalTimeSpentOnFrames = 0;
 	const recentFrameTimings: number[] = [];
 
 	const renderStart = Date.now();
