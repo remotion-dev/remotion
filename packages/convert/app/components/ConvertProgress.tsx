@@ -11,7 +11,7 @@ import {
 	useAddOutputFilenameToTitle,
 	useAddProgressToTitle,
 } from '~/lib/title-context';
-import {AudioWaveForm} from './AudioWaveform';
+import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
 import {Card} from './ui/card';
 import {Skeleton} from './ui/skeleton';
 import type {VideoThumbnailRef} from './VideoThumbnail';
@@ -82,7 +82,9 @@ export const ConvertProgress: React.FC<{
 					) : null}
 				</>
 			) : duration && isAudioOnly ? (
-				<AudioWaveForm bars={bars} />
+				<AudioWaveformContainer>
+					<AudioWaveForm bars={bars} />
+				</AudioWaveformContainer>
 			) : null}
 			<div className="p-2">
 				<div>
