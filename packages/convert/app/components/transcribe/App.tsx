@@ -13,7 +13,7 @@ const Transcribe: React.FC<{
 	const [state, setState] = useState<TranscriptionState>({type: 'idle'});
 
 	const [selectedModel, setSelectedModel] =
-		useState<DownloadWhisperModelParams['model']>('small.en');
+		useState<DownloadWhisperModelParams['model']>('tiny.en');
 
 	return (
 		<>
@@ -36,7 +36,7 @@ const Transcribe: React.FC<{
 					state={state}
 					setState={setState}
 				/>
-				<div className="h-4" />
+				{state.type === 'transcribing' ? <div className="h-4" /> : null}
 				{state.type === 'done' || state.type === 'transcribing' ? (
 					<Display result={state.result} />
 				) : null}
