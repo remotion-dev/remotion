@@ -1,13 +1,11 @@
 import {loadFonts} from './base';
 
 export const getInfo = () => ({
-	fontFamily: 'Gurajada',
-	importName: 'Gurajada',
-	version: 'v22',
-	url: 'https://fonts.googleapis.com/css2?family=Gurajada:ital,wght@0,400',
+	fontFamily: 'Libertinus Mono',
+	importName: 'LibertinusMono',
+	version: 'v1',
+	url: 'https://fonts.googleapis.com/css2?family=Libertinus+Mono:ital,wght@0,400',
 	unicodeRanges: {
-		telugu:
-			'U+0951-0952, U+0964-0965, U+0C00-0C7F, U+1CDA, U+1CF2, U+200C-200D, U+25CC',
 		'latin-ext':
 			'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
 		latin:
@@ -16,24 +14,22 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				telugu:
-					'https://fonts.gstatic.com/s/gurajada/v22/FwZY7-Qx308m-l-0Ke6b6MmTpA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gurajada/v22/FwZY7-Qx308m-l-0Ke6J6MmTpA.woff2',
+					'https://fonts.gstatic.com/s/libertinusmono/v1/_gPg1RnxrjY_TDm97ApTqwneJJFjqRt2URM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gurajada/v22/FwZY7-Qx308m-l-0Ke6H6Mk.woff2',
+					'https://fonts.gstatic.com/s/libertinusmono/v1/_gPg1RnxrjY_TDm97ApTqwneJJFjpxt2.woff2',
 			},
 		},
 	},
-	subsets: ['latin', 'latin-ext', 'telugu'],
+	subsets: ['latin', 'latin-ext'],
 });
 
-export const fontFamily = 'Gurajada' as const;
+export const fontFamily = 'Libertinus Mono' as const;
 
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin' | 'latin-ext' | 'telugu';
+		subsets: 'latin' | 'latin-ext';
 	};
 };
 

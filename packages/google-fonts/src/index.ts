@@ -1076,6 +1076,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Biryani') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Bitcount Grid Double',
+		importName: 'BitcountGridDouble',
+		load: () => import('./BitcountGridDouble') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Bitter',
 		importName: 'Bitter',
 		load: () => import('./Bitter') as Promise<GoogleFont>,
@@ -1564,6 +1569,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Chilanka',
 		importName: 'Chilanka',
 		load: () => import('./Chilanka') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Chiron Hei HK',
+		importName: 'ChironHeiHK',
+		load: () => import('./ChironHeiHK') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Chiron Sung HK',
@@ -3976,6 +3986,16 @@ export const getAvailableFonts = () => [
 		load: () => import('./LexendZetta') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Libertinus Math',
+		importName: 'LibertinusMath',
+		load: () => import('./LibertinusMath') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Libertinus Mono',
+		importName: 'LibertinusMono',
+		load: () => import('./LibertinusMono') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Libre Barcode 128',
 		importName: 'LibreBarcode128',
 		load: () => import('./LibreBarcode128') as Promise<GoogleFont>,
@@ -4316,6 +4336,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Manuale') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Manufacturing Consent',
+		importName: 'ManufacturingConsent',
+		load: () => import('./ManufacturingConsent') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Marcellus',
 		importName: 'Marcellus',
 		load: () => import('./Marcellus') as Promise<GoogleFont>,
@@ -4439,6 +4464,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Meie Script',
 		importName: 'MeieScript',
 		load: () => import('./MeieScript') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Menbere',
+		importName: 'Menbere',
+		load: () => import('./Menbere') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Meow Script',
@@ -6265,6 +6295,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Paprika',
 		importName: 'Paprika',
 		load: () => import('./Paprika') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Parastoo',
+		importName: 'Parastoo',
+		load: () => import('./Parastoo') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Parisienne',
@@ -8285,6 +8320,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Unna',
 		importName: 'Unna',
 		load: () => import('./Unna') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'UoqMunThenKhung',
+		importName: 'UoqMunThenKhung',
+		load: () => import('./UoqMunThenKhung') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Updock',

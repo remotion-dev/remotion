@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Italiana',
 	importName: 'Italiana',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Italiana:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/italiana/v20/QldNNTtLsx4E__B0XQmWaXw.woff2',
+					'https://fonts.gstatic.com/s/italiana/v21/QldNNTtLsx4E__B0XQmWaXw.woff2',
 			},
 		},
 	},

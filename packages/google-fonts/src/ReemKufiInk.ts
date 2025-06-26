@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Reem Kufi Ink',
 	importName: 'ReemKufiInk',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Reem+Kufi+Ink:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -19,13 +19,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/reemkufiink/v10/oPWJ_kJmmu8hCvB9iFumxZSndjxXQ0SXnkk.woff2',
+					'https://fonts.gstatic.com/s/reemkufiink/v11/oPWJ_kJmmu8hCvB9iFumxZSndjxXQ0SXnkk.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/reemkufiink/v10/oPWJ_kJmmu8hCvB9iFumxZSndjZXQ0SXnkk.woff2',
+					'https://fonts.gstatic.com/s/reemkufiink/v11/oPWJ_kJmmu8hCvB9iFumxZSndjZXQ0SXnkk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/reemkufiink/v10/oPWJ_kJmmu8hCvB9iFumxZSndjdXQ0SXnkk.woff2',
+					'https://fonts.gstatic.com/s/reemkufiink/v11/oPWJ_kJmmu8hCvB9iFumxZSndjdXQ0SXnkk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/reemkufiink/v10/oPWJ_kJmmu8hCvB9iFumxZSndjlXQyyU.woff2',
+					'https://fonts.gstatic.com/s/reemkufiink/v11/oPWJ_kJmmu8hCvB9iFumxZSndjlXQyyU.woff2',
 			},
 		},
 	},
