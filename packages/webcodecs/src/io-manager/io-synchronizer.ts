@@ -83,7 +83,7 @@ export const makeIoSynchronizer = ({
 
 	const waitForQueueSize = async (queueSize: number) => {
 		if (getQueuedItems() <= queueSize) {
-			return Promise.resolve();
+			return Promise.resolve(false);
 		}
 
 		const {timeoutPromise, clear} = makeTimeoutPromise({
@@ -104,7 +104,7 @@ export const makeIoSynchronizer = ({
 			);
 		}
 
-		await Promise.race([
+		const cancelled = await Promise.race([
 			timeoutPromise,
 			(async () => {
 				while (getQueuedItems() > queueSize) {
@@ -119,6 +119,8 @@ export const makeIoSynchronizer = ({
 				clear,
 			);
 		}
+
+		return cancelled;
 	};
 
 	const clearQueue = () => {
