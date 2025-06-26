@@ -27,6 +27,8 @@ import {
 	compressInputProps,
 	getNeedsToUpload,
 	serializeOrThrow,
+	shouldIgnoreConcurrency,
+	validateConcurrency,
 	validateDownloadBehavior,
 	validateFramesPerFunction,
 } from '@remotion/serverless-client';
@@ -58,6 +60,8 @@ export type InnerRenderMediaOnLambdaInput = {
 	jpegQuality: number;
 	maxRetries: number;
 	framesPerLambda: number | null;
+	concurrency: number | null;
+	durationInFrames: number | undefined;
 	logLevel: LogLevel;
 	frameRange: FrameRange | null;
 	outName: OutNameInput<AwsProvider> | null;
@@ -92,6 +96,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	rendererFunctionName,
 	frameRange,
 	framesPerLambda,
+	concurrency,
 	forceBucketName: bucketName,
 	codec,
 	composition,
@@ -135,6 +140,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	apiKey,
 	offthreadVideoThreads,
 	storageClass,
+	durationInFrames,
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
@@ -142,10 +148,27 @@ export const makeLambdaRenderMediaPayload = async ({
 	validateServeUrl(serveUrl);
 	validateFramesPerFunction({
 		framesPerFunction: framesPerLambda ?? null,
-		durationInFrames: 1,
+		durationInFrames: durationInFrames ?? 1,
+	});
+	validateConcurrency({
+		concurrency: concurrency ?? null,
+		framesPerFunction: framesPerLambda ?? null,
+		durationInFrames: durationInFrames ?? 1,
 	});
 	validateDownloadBehavior(downloadBehavior);
 	validateWebhook(webhook);
+
+	// Check if concurrency should be ignored (would result in framesPerLambda < 4)
+	let finalConcurrency = concurrency;
+	if (
+		concurrency !== null &&
+		concurrency !== undefined &&
+		durationInFrames !== undefined
+	) {
+		if (shouldIgnoreConcurrency({concurrency, durationInFrames})) {
+			finalConcurrency = null;
+		}
+	}
 
 	const stringifiedInputProps = serializeOrThrow(
 		inputProps ?? {},
@@ -172,6 +195,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	return {
 		rendererFunctionName,
 		framesPerLambda,
+		concurrency: finalConcurrency,
 		composition,
 		serveUrl,
 		inputProps: serialized,

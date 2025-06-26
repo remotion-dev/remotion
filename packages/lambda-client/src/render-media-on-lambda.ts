@@ -50,6 +50,8 @@ export type RenderMediaOnLambdaInput = {
 	jpegQuality?: number;
 	maxRetries?: number;
 	framesPerLambda?: number;
+	concurrency?: number;
+	durationInFrames?: number;
 	frameRange?: FrameRange;
 	outName?: OutNameInput<AwsProvider>;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
@@ -152,6 +154,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		colorSpace: options.colorSpace ?? null,
 		composition: options.composition,
 		concurrencyPerLambda: options.concurrencyPerLambda ?? 1,
+		concurrency: options.concurrency ?? null,
 		crf: options.crf,
 		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
 		envVariables: options.envVariables ?? {},
@@ -161,6 +164,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		forceWidth: options.forceWidth ?? null,
 		frameRange: options.frameRange ?? null,
 		framesPerLambda: options.framesPerLambda ?? null,
+		durationInFrames: options.durationInFrames ?? undefined,
 		functionName: options.functionName,
 		imageFormat: options.imageFormat ?? 'jpeg',
 		inputProps: options.inputProps ?? {},

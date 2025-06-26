@@ -25,6 +25,7 @@ type LambdaCommandLineOptions = {
 	[BrowserSafeApis.options.enableLambdaInsights.cliFlag]: boolean;
 	['max-retries']?: number;
 	['frames-per-lambda']?: number;
+	['concurrency']?: number;
 	['concurrency-per-lambda']?: number;
 	['out-name']: string | undefined;
 	['custom-role-arn']: string | undefined;

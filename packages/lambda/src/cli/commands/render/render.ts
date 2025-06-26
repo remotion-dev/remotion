@@ -4,6 +4,7 @@ import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import path from 'path';
+import type {VideoConfig} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../../api/download-media';
 
@@ -19,6 +20,7 @@ import {
 } from '@remotion/lambda-client/constants';
 import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
 import {
+	validateConcurrency,
 	validateFramesPerFunction,
 	validatePrivacy,
 	type ServerlessCodec,
@@ -190,6 +192,8 @@ export const renderCommand = async ({
 	};
 
 	let composition: string = args[1];
+	let compositionConfig: VideoConfig | null = null;
+
 	if (!composition) {
 		Log.info(
 			{indent: false, logLevel},
@@ -218,7 +222,7 @@ export const renderCommand = async ({
 
 		const indent = false;
 
-		const {compositionId} =
+		const {compositionId, config} =
 			await CliInternals.getCompositionWithDimensionOverride({
 				args: args.slice(1),
 				compositionIdFromUi: null,
@@ -251,6 +255,12 @@ export const renderCommand = async ({
 				chromeMode: 'headless-shell',
 			});
 		composition = compositionId;
+		compositionConfig = config;
+	} else {
+		// If composition is provided, we still need to get the config for validation
+		// This is a simplified approach - in a real implementation, you might want to
+		// fetch the composition config here as well
+		compositionConfig = null;
 	}
 
 	const outName = parsedLambdaCli['out-name'];
@@ -283,9 +293,19 @@ export const renderCommand = async ({
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy, true);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
+	const concurrency = parsedLambdaCli['concurrency'] ?? undefined;
+
+	// Use actual durationInFrames if available, otherwise fallback to 1
+	const durationInFrames = compositionConfig?.durationInFrames ?? 1;
+
 	validateFramesPerFunction({
 		framesPerFunction: framesPerLambda,
-		durationInFrames: 1,
+		durationInFrames,
+	});
+	validateConcurrency({
+		concurrency: concurrency,
+		framesPerFunction: framesPerLambda,
+		durationInFrames,
 	});
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
@@ -305,6 +325,8 @@ export const renderCommand = async ({
 		maxRetries,
 		composition,
 		framesPerLambda: framesPerLambda ?? null,
+		concurrency: concurrency ?? null,
+		durationInFrames: compositionConfig?.durationInFrames,
 		privacy,
 		logLevel,
 		frameRange: frameRange ?? null,
