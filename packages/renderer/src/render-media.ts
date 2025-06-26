@@ -620,7 +620,6 @@ const internalRenderMediaRaw = ({
 						);
 						const newAverage = recentTimingsSum / recentFrameTimings.length;
 
-						totalTimeSpentOnFrames += timeToRenderInMilliseconds;
 						const remainingFrames = totalFramesToRender - renderedFrames;
 
 						// Get estimated time by multiplying the avarage render time by the remaining frames
