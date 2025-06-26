@@ -62,7 +62,11 @@ const buffer = Uint8Array.from([
 ]);
 
 test('Should be able to parse a TKHD box', () => {
-	const iterator = MediaParserInternals.getArrayBufferIterator(buffer, null);
+	const iterator = MediaParserInternals.getArrayBufferIterator({
+		initialData: buffer,
+		maxBytes: buffer.length,
+		logLevel: 'error',
+	});
 	iterator.discard(8);
 	const mvhd = MediaParserInternals.parseTkhd({
 		iterator,
@@ -123,7 +127,11 @@ const buffer2 = new Uint8Array([
 ]);
 
 test('Should be able to parse a TKHD box 2', () => {
-	const iterator = MediaParserInternals.getArrayBufferIterator(buffer2, null);
+	const iterator = MediaParserInternals.getArrayBufferIterator({
+		initialData: buffer2,
+		maxBytes: buffer2.length,
+		logLevel: 'error',
+	});
 	iterator.discard(8);
 	const mvhd = MediaParserInternals.parseTkhd({
 		iterator,

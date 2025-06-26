@@ -35,11 +35,11 @@ const decoder = createVideoDecoder({
 
 ## Differences to `VideoDecoder`
 
-- Two new methods are added: [`.waitForQueueToBeLessThan()`](#waitforqueuetobelessthanqueue-size-number) and [`.waitForFinish()`](#waitforfinish).
+- Two new methods are added: [`.waitForQueueToBeLessThan()`](#waitforqueuetobelessthan) and `.waitForFinish()`.
 - The [`dequeue`](https://developer.mozilla.org/en-US/docs/Web/API/VideoDecoder/dequeue_event) event is not supported as it is not reliable across browsers.
-- In addition to [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk), [`EncodedVideoChunkInit`](https://www.w3.org/TR/webcodecs/#dictdef-encodedvideochunkinit) objects are also accepted for [`.decode()`](#decode).
+- In addition to [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk), [`EncodedVideoChunkInit`](https://www.w3.org/TR/webcodecs/#dictdef-encodedvideochunkinit) objects are also accepted for `.decode()`.
 - A [`webcodecsController()`](/docs/webcodecs/webcodecs-controller) instance can be passed in to the function, allowing for decoding to be paused, resumed and aborted.
-- [`.decode()`](#decode) is async, and returns a promise, allowing for a halt if the decoder is paused.
+- `.decode()` is async, and returns a promise, allowing for a halt if the decoder is paused.
 - A [`logLevel`](#loglevel) can be passed in to the function, allowing the queue to be debugged.
 - The [`onFrame`](#onframe) callback is being awaited. When rejected, the error lands in the [`onError`](#onerror) callback. When resolved, only then the queue size counter will be decreased.
 
@@ -86,7 +86,9 @@ Default value: `"info"`, which logs only important information.
 
 Returns an object with the following properties:
 
-### `waitForQueueToBeLessThan(queueSize: number)`
+### `waitForQueueToBeLessThan()`
+
+Pass a number to wait for the queue to be less than the given number.
 
 A promise that resolves when the queue size is less than the given number.  
 The queue is only decremented when the[ `onFrame`](#onframe) callback resolves.
@@ -102,6 +104,14 @@ Clears the queue and resets the decoder. Same as [`VideoDecoder.reset()`](https:
 ### `close()`
 
 Closes the decoder. Same as [`AudioDecoder.close()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioDecoder/close).
+
+### `checkReset()`<AvailableFrom v="4.0.312" />
+
+Returns a handle with a `wasReset()` function. If the decoder was reset inbetween the call to `.checkReset()` and the call to `wasReset()`, `wasReset()` will return `true`. See [below](#checking-if-the-decoder-was-reset) for an example.
+
+### `getMostRecentSampleInput()`<AvailableFrom v="4.0.312" />
+
+Return the `.timestamp` of the most recently input sample. 
 
 ## Example usage with `@remotion/media-parser`
 
@@ -127,6 +137,50 @@ await parseMedia({
         // Called when the track is done
         await decoder.flush();
         decoder.close();
+      };
+    };
+  },
+});
+```
+
+## Checking if the decoder was reset
+
+A potential race condition you may face is that `decoder.reset()` is called while a sample is waiting for the queue to be less than a certain number. Use `.checkReset()` to check if the decoder was reset after any asynchronous operation, and abort the processing of the sample if needed.
+
+```tsx twoslash title="Check if the decoder was reset"
+import {parseMedia} from '@remotion/media-parser';
+import {createVideoDecoder} from '@remotion/webcodecs';
+
+await parseMedia({
+  src: 'https://parser.media/video.mp4',
+  onVideoTrack: ({track, container}) => {
+    const decoder = createVideoDecoder({
+      track,
+      onFrame: console.log,
+      onError: console.error,
+    });
+
+    return async (sample) => {
+      const {wasReset} = decoder.checkReset();
+
+      await decoder.waitForQueueToBeLessThan(10);
+      if (wasReset()) {
+        return
+      }
+
+      await decoder.decode(sample);
+      if (wasReset()) {
+        return;
+      }
+
+      return async () => {
+        if (wasReset()) {
+          return;
+        }
+
+        // Called when the track is done
+        await decoder.flush();
+        decoder.close()
       };
     };
   },

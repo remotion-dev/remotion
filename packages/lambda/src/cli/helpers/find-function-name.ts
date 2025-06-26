@@ -40,7 +40,7 @@ export const findFunctionName = async ({
 		if (!compatibleFunctionExists) {
 			Log.warn(
 				{indent: false, logLevel},
-				`Function "${cliFlag}" does not match naming convention ${LambdaClientInternals.innerSpeculateFunctionName({diskSizeInMb: '[disk]', memorySizeInMb: '[memory]', timeoutInSeconds: '[timeout]'})}.`,
+				`The name passed to --function-name "${cliFlag}" does not match the naming convention this version of the CLI expects: ${LambdaClientInternals.innerSpeculateFunctionName({diskSizeInMb: '[disk]', memorySizeInMb: '[memory]', timeoutInSeconds: '[timeout]'})}.`,
 			);
 			Log.warn(
 				{indent: false, logLevel},
@@ -55,7 +55,7 @@ export const findFunctionName = async ({
 
 				Log.info(
 					logOptions,
-					'Prefer using one of those functions by passing their name to  `--function-name` or removing it entirely.',
+					'Prefer using one of those functions by passing their name to `--function-name` or removing it entirely.',
 				);
 			}
 		}

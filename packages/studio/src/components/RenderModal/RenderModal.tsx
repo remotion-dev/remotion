@@ -1361,6 +1361,8 @@ const RenderModal: React.FC<
 							setEncodingBufferSize={setEncodingBufferSize}
 							encodingMaxRate={encodingMaxRate}
 							setEncodingMaxRate={setEncodingMaxRate}
+							compositionWidth={resolvedComposition.width}
+							compositionHeight={resolvedComposition.height}
 						/>
 					) : tab === 'audio' ? (
 						<RenderModalAudio

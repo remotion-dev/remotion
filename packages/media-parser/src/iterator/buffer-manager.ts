@@ -1,34 +1,55 @@
+import type {MediaParserLogLevel} from '../log';
+import {Log} from '../log';
 import type {ParseMediaMode} from '../options';
 import type {OffsetCounter} from './offset-counter';
+import {ResizableBuffer} from './polyfilled-arraybuffer';
+
+const makeBufferWithMaxBytes = (initialData: Uint8Array, maxBytes: number) => {
+	const maxByteLength = Math.min(maxBytes, 2 ** 31);
+	try {
+		const buf = new ArrayBuffer(initialData.byteLength, {
+			maxByteLength,
+		});
+		return new ResizableBuffer(buf);
+	} catch (e) {
+		// Cloudflare Workers have a limit of 128MB max array buffer size
+		if (e instanceof RangeError && maxBytes > 2 ** 27) {
+			return new ResizableBuffer(
+				new ArrayBuffer(initialData.byteLength, {
+					maxByteLength: 2 ** 27,
+				}),
+			);
+		}
+
+		throw e;
+	}
+};
 
 export const bufferManager = ({
 	initialData,
 	maxBytes,
 	counter,
+	logLevel,
 }: {
 	initialData: Uint8Array;
-	maxBytes: number | null;
+	maxBytes: number;
 	counter: OffsetCounter;
+	logLevel: MediaParserLogLevel;
 }) => {
-	const buf = new ArrayBuffer(initialData.byteLength, {
-		maxByteLength:
-			maxBytes === null
-				? initialData.byteLength
-				: Math.min(maxBytes as number, 2 ** 31),
-	});
-	if (!buf.resize) {
-		throw new Error(
-			'`ArrayBuffer.resize` is not supported in this Runtime. On the server: Use at least Node.js 20 or Bun. In the browser: Chrome 111, Edge 111, Safari 16.4, Firefox 128, Opera 111',
+	const buf = makeBufferWithMaxBytes(initialData, maxBytes);
+	if (!buf.buffer.resize) {
+		Log.warn(
+			logLevel,
+			'`ArrayBuffer.resize` is not supported in this Runtime. Using slow polyfill.',
 		);
 	}
 
-	let uintArray = new Uint8Array(buf);
-	uintArray.set(initialData);
+	buf.uintarray.set(initialData);
 
-	let view = new DataView(uintArray.buffer);
+	let view = new DataView(buf.uintarray.buffer);
 
 	const destroy = () => {
-		uintArray = new Uint8Array(0);
+		buf.uintarray = new Uint8Array(0);
 		buf.resize(0);
 	};
 
@@ -49,12 +70,12 @@ export const bufferManager = ({
 		counter.discardBytes(bytesToRemove);
 
 		const removedData =
-			mode === 'download' ? uintArray.slice(0, bytesToRemove) : null;
+			mode === 'download' ? buf.uintarray.slice(0, bytesToRemove) : null;
 
-		const newData = uintArray.slice(bytesToRemove);
-		uintArray.set(newData);
+		const newData = buf.uintarray.slice(bytesToRemove);
+		buf.uintarray.set(newData);
 		buf.resize(newData.byteLength);
-		view = new DataView(uintArray.buffer);
+		view = new DataView(buf.uintarray.buffer);
 
 		return {bytesRemoved: bytesToRemove, removedData};
 	};
@@ -77,7 +98,7 @@ export const bufferManager = ({
 	};
 
 	const addData = (newData: Uint8Array) => {
-		const oldLength = buf.byteLength;
+		const oldLength = buf.buffer.byteLength;
 		const newLength = oldLength + newData.byteLength;
 		if (newLength < oldLength) {
 			throw new Error('Cannot decrement size');
@@ -90,16 +111,16 @@ export const bufferManager = ({
 		}
 
 		buf.resize(newLength);
-		uintArray = new Uint8Array(buf);
-		uintArray.set(newData, oldLength);
-		view = new DataView(uintArray.buffer);
+		buf.uintarray = new Uint8Array(buf.buffer);
+		buf.uintarray.set(newData, oldLength);
+		view = new DataView(buf.uintarray.buffer);
 	};
 
 	const replaceData = (newData: Uint8Array, seekTo: number) => {
 		buf.resize(newData.byteLength);
-		uintArray = new Uint8Array(buf);
-		uintArray.set(newData);
-		view = new DataView(uintArray.buffer);
+		buf.uintarray = new Uint8Array(buf.buffer);
+		buf.uintarray.set(newData);
+		view = new DataView(buf.uintarray.buffer);
 		counter.setDiscardedOffset(seekTo);
 		// reset counter to 0
 		counter.decrement(counter.getOffset());
@@ -108,8 +129,8 @@ export const bufferManager = ({
 	};
 
 	return {
-		view,
-		uintArray,
+		getView: () => view,
+		getUint8Array: () => buf.uintarray,
 		destroy,
 		addData,
 		skipTo,

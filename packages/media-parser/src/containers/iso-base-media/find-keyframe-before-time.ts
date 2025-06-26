@@ -58,5 +58,5 @@ export const findKeyframeBeforeTime = ({
 		return null;
 	}
 
-	return videoSample.offset;
+	return videoSample;
 };

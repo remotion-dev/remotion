@@ -19,6 +19,7 @@ import {
 	getMoovBoxFromState,
 	getTkhdBox,
 	getTrakBoxByTrackId,
+	getTrexBoxes,
 } from './traversal';
 
 export const getSeekingByteFromFragmentedMp4 = async ({
@@ -82,6 +83,7 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 			moofBoxes: info.moofBoxes,
 			tkhdBox,
 			isComplete,
+			trexBoxes: getTrexBoxes(moov),
 		});
 
 	Log.trace(
@@ -116,7 +118,10 @@ export const getSeekingByteFromFragmentedMp4 = async ({
 			if (kf) {
 				return {
 					type: 'do-seek',
-					byte: kf,
+					byte: kf.offset,
+					timeInSeconds:
+						Math.min(kf.decodingTimestamp, kf.timestamp) /
+						firstTrack.originalTimescale,
 				};
 			}
 		}

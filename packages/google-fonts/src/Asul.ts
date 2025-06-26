@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Asul',
 	importName: 'Asul',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Asul:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		latin:
@@ -12,11 +12,11 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				latin: 'https://fonts.gstatic.com/s/asul/v21/VuJ-dNjKxYr42fQPXQ.woff2',
+				latin: 'https://fonts.gstatic.com/s/asul/v22/VuJ-dNjKxYr42fQPXQ.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/asul/v21/VuJxdNjKxYr40U8qSKHdOQ.woff2',
+					'https://fonts.gstatic.com/s/asul/v22/VuJxdNjKxYr40U8qSKHdOQ.woff2',
 			},
 		},
 	},

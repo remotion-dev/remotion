@@ -31,7 +31,7 @@ import type {StructureState} from './state/structure';
 import type {TransportStreamState} from './state/transport-stream/transport-stream';
 import {type MediaSectionState} from './state/video-section';
 
-const turnSeekIntoByte = async ({
+export const turnSeekIntoByte = async ({
 	seek,
 	mediaSectionState,
 	logLevel,
@@ -328,4 +328,5 @@ export type SeekResolution =
 	| {
 			type: 'do-seek';
 			byte: number;
+			timeInSeconds: number;
 	  };

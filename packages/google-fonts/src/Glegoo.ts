@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Glegoo',
 	importName: 'Glegoo',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Glegoo:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/glegoo/v16/_Xmt-HQyrTKWaw25jaOYMI8.woff2',
+					'https://fonts.gstatic.com/s/glegoo/v17/_Xmt-HQyrTKWaw25jaOYMI8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/glegoo/v16/_Xmt-HQyrTKWaw25gqOYMI8.woff2',
+					'https://fonts.gstatic.com/s/glegoo/v17/_Xmt-HQyrTKWaw25gqOYMI8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/glegoo/v16/_Xmt-HQyrTKWaw25jKOY.woff2',
+					'https://fonts.gstatic.com/s/glegoo/v17/_Xmt-HQyrTKWaw25jKOY.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/glegoo/v16/_Xmu-HQyrTKWaw2xN4aNDq5o_ik.woff2',
+					'https://fonts.gstatic.com/s/glegoo/v17/_Xmu-HQyrTKWaw2xN4aNDq5o_ik.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/glegoo/v16/_Xmu-HQyrTKWaw2xN4aNAa5o_ik.woff2',
+					'https://fonts.gstatic.com/s/glegoo/v17/_Xmu-HQyrTKWaw2xN4aNAa5o_ik.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/glegoo/v16/_Xmu-HQyrTKWaw2xN4aND65o.woff2',
+					'https://fonts.gstatic.com/s/glegoo/v17/_Xmu-HQyrTKWaw2xN4aND65o.woff2',
 			},
 		},
 	},

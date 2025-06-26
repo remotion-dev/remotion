@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Passion One',
 	importName: 'PassionOne',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Passion+One:ital,wght@0,400;0,700;0,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,21 +15,21 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/passionone/v18/PbynFmL8HhTPqbjUzux3JEuf9lvQ6Q.woff2',
+					'https://fonts.gstatic.com/s/passionone/v19/PbynFmL8HhTPqbjUzux3JEuf9lvQ6Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/passionone/v18/PbynFmL8HhTPqbjUzux3JEuR9ls.woff2',
+					'https://fonts.gstatic.com/s/passionone/v19/PbynFmL8HhTPqbjUzux3JEuR9ls.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/passionone/v18/Pby6FmL8HhTPqbjUzux3JEMq007hyJcsuA.woff2',
+					'https://fonts.gstatic.com/s/passionone/v19/Pby6FmL8HhTPqbjUzux3JEMq007hyJcsuA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/passionone/v18/Pby6FmL8HhTPqbjUzux3JEMq007vyJc.woff2',
+					'https://fonts.gstatic.com/s/passionone/v19/Pby6FmL8HhTPqbjUzux3JEMq007vyJc.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/passionone/v18/Pby6FmL8HhTPqbjUzux3JEMS0U7hyJcsuA.woff2',
+					'https://fonts.gstatic.com/s/passionone/v19/Pby6FmL8HhTPqbjUzux3JEMS0U7hyJcsuA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/passionone/v18/Pby6FmL8HhTPqbjUzux3JEMS0U7vyJc.woff2',
+					'https://fonts.gstatic.com/s/passionone/v19/Pby6FmL8HhTPqbjUzux3JEMS0U7vyJc.woff2',
 			},
 		},
 	},

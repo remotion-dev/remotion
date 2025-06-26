@@ -351,7 +351,7 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 		return `Rendered ${progress.rendering.frames}/${progress.rendering.totalFrames}${etaString}`;
 	}
 
-	return `Stitched ${progress.stitching.frames}/${progress.stitching.totalFrames}`;
+	return `Encoded ${progress.stitching.frames}/${progress.stitching.totalFrames}`;
 };
 
 export const printFact =

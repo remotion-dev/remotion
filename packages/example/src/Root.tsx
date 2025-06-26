@@ -127,9 +127,11 @@ import {Empty} from './Empty';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
+import {PrintProps} from './PrintProps';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
+import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
 import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
@@ -422,6 +424,14 @@ export const Index: React.FC = () => {
 					durationInFrames={10}
 				/>
 				<Composition
+					id="print-props"
+					component={PrintProps}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
+				/>
+				<Composition
 					id="transition-rounding"
 					component={TransitionRounding}
 					width={1080}
@@ -600,6 +610,17 @@ export const Index: React.FC = () => {
 					schema={fitTextSchema}
 					defaultProps={{
 						line: 'Test',
+					}}
+				/>
+				<Still
+					id="FitTextOnNLines"
+					component={FitTextOnNLines}
+					width={1300}
+					height={350}
+					schema={fitTextOnNLinesSchema}
+					defaultProps={{
+						line: 'No matter how much text I am adding, the text always fits on 2 lines and there is corner rounding like on TikTok.',
+						maxLines: 2,
 					}}
 				/>
 				<Composition

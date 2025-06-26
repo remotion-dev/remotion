@@ -30,6 +30,7 @@ export const sitesRmallSubcommand = async (
 				providerSpecifics: implementation,
 				forcePathStyle: false,
 				skipPutAcl: false,
+				requestHandler: null,
 			})
 		).bucketName;
 

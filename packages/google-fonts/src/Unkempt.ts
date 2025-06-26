@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Unkempt',
 	importName: 'Unkempt',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Unkempt:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		latin:
@@ -13,11 +13,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/unkempt/v21/2EbnL-Z2DFZue0DSeYEV8g.woff2',
+					'https://fonts.gstatic.com/s/unkempt/v22/2EbnL-Z2DFZue0DSeYEV8g.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/unkempt/v21/2EbiL-Z2DFZue0DScTow5zK5qg.woff2',
+					'https://fonts.gstatic.com/s/unkempt/v22/2EbiL-Z2DFZue0DScTow5zK5qg.woff2',
 			},
 		},
 	},

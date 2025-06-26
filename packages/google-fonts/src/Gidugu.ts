@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gidugu',
 	importName: 'Gidugu',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Gidugu:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/gidugu/v26/L0x8DFMkk1Uf6w3hp_qndSk.woff2',
+					'https://fonts.gstatic.com/s/gidugu/v27/L0x8DFMkk1Uf6w3hp_qndSk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gidugu/v26/L0x8DFMkk1Uf6w3htfqndSk.woff2',
+					'https://fonts.gstatic.com/s/gidugu/v27/L0x8DFMkk1Uf6w3htfqndSk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gidugu/v26/L0x8DFMkk1Uf6w3hu_qn.woff2',
+					'https://fonts.gstatic.com/s/gidugu/v27/L0x8DFMkk1Uf6w3hu_qn.woff2',
 			},
 		},
 	},

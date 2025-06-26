@@ -6,6 +6,7 @@ import {
 	getMoovBoxFromState,
 	getTfraBoxes,
 	getTrakBoxByTrackId,
+	getTrexBoxes,
 } from '../../containers/iso-base-media/traversal';
 import type {SamplePosition} from '../../get-sample-positions';
 import type {
@@ -78,6 +79,7 @@ export const calculateFlatSamples = ({
 			trakBox,
 			moofBoxes: relevantMoofBox ? [relevantMoofBox] : [],
 			moofComplete,
+			trexBoxes: getTrexBoxes(moov),
 		});
 
 		return samplePositions.map((samplePosition) => {

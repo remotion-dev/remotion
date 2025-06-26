@@ -41,11 +41,6 @@ export type GoogleFont = {
 
 export const getAvailableFonts = () => [
 	{
-		fontFamily: '42dot Sans',
-		importName: '42dotSans',
-		load: () => import('./42dotSans') as Promise<GoogleFont>,
-	},
-	{
 		fontFamily: 'ABeeZee',
 		importName: 'ABeeZee',
 		load: () => import('./ABeeZee') as Promise<GoogleFont>,
@@ -324,6 +319,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Alumni Sans Pinstripe',
 		importName: 'AlumniSansPinstripe',
 		load: () => import('./AlumniSansPinstripe') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Alumni Sans SC',
+		importName: 'AlumniSansSC',
+		load: () => import('./AlumniSansSC') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Amarante',
@@ -629,6 +629,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Assistant',
 		importName: 'Assistant',
 		load: () => import('./Assistant') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Asta Sans',
+		importName: 'AstaSans',
+		load: () => import('./AstaSans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Astloch',
@@ -1069,6 +1074,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Biryani',
 		importName: 'Biryani',
 		load: () => import('./Biryani') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bitcount Grid Double',
+		importName: 'BitcountGridDouble',
+		load: () => import('./BitcountGridDouble') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Bitter',
@@ -1559,6 +1569,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Chilanka',
 		importName: 'Chilanka',
 		load: () => import('./Chilanka') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Chiron Hei HK',
+		importName: 'ChironHeiHK',
+		load: () => import('./ChironHeiHK') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Chiron Sung HK',
+		importName: 'ChironSungHK',
+		load: () => import('./ChironSungHK') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Chivo',
@@ -2091,9 +2111,19 @@ export const getAvailableFonts = () => [
 		load: () => import('./EduAUVICWANTPre') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Edu NSW ACT Cursive',
+		importName: 'EduNSWACTCursive',
+		load: () => import('./EduNSWACTCursive') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Edu NSW ACT Foundation',
 		importName: 'EduNSWACTFoundation',
 		load: () => import('./EduNSWACTFoundation') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu NSW ACT Hand Pre',
+		importName: 'EduNSWACTHandPre',
+		load: () => import('./EduNSWACTHandPre') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Edu QLD Beginner',
@@ -2101,9 +2131,19 @@ export const getAvailableFonts = () => [
 		load: () => import('./EduQLDBeginner') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Edu QLD Hand',
+		importName: 'EduQLDHand',
+		load: () => import('./EduQLDHand') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Edu SA Beginner',
 		importName: 'EduSABeginner',
 		load: () => import('./EduSABeginner') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu SA Hand',
+		importName: 'EduSAHand',
+		load: () => import('./EduSAHand') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Edu TAS Beginner',
@@ -2114,6 +2154,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Edu VIC WA NT Beginner',
 		importName: 'EduVICWANTBeginner',
 		load: () => import('./EduVICWANTBeginner') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu VIC WA NT Hand',
+		importName: 'EduVICWANTHand',
+		load: () => import('./EduVICWANTHand') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Edu VIC WA NT Hand Pre',
+		importName: 'EduVICWANTHandPre',
+		load: () => import('./EduVICWANTHandPre') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'El Messiri',
@@ -3046,6 +3096,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./HubotSans') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Huninn',
+		importName: 'Huninn',
+		load: () => import('./Huninn') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Hurricane',
 		importName: 'Hurricane',
 		load: () => import('./Hurricane') as Promise<GoogleFont>,
@@ -3781,6 +3836,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Kurale') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'LXGW Marker Gothic',
+		importName: 'LXGWMarkerGothic',
+		load: () => import('./LXGWMarkerGothic') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'LXGW WenKai Mono TC',
 		importName: 'LXGWWenKaiMonoTC',
 		load: () => import('./LXGWWenKaiMonoTC') as Promise<GoogleFont>,
@@ -3924,6 +3984,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Lexend Zetta',
 		importName: 'LexendZetta',
 		load: () => import('./LexendZetta') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Libertinus Math',
+		importName: 'LibertinusMath',
+		load: () => import('./LibertinusMath') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Libertinus Mono',
+		importName: 'LibertinusMono',
+		load: () => import('./LibertinusMono') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Libre Barcode 128',
@@ -4266,6 +4336,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Manuale') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Manufacturing Consent',
+		importName: 'ManufacturingConsent',
+		load: () => import('./ManufacturingConsent') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Marcellus',
 		importName: 'Marcellus',
 		load: () => import('./Marcellus') as Promise<GoogleFont>,
@@ -4326,6 +4401,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Marvel') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Matangi',
+		importName: 'Matangi',
+		load: () => import('./Matangi') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Mate',
 		importName: 'Mate',
 		load: () => import('./Mate') as Promise<GoogleFont>,
@@ -4384,6 +4464,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Meie Script',
 		importName: 'MeieScript',
 		load: () => import('./MeieScript') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Menbere',
+		importName: 'Menbere',
+		load: () => import('./Menbere') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Meow Script',
@@ -6212,6 +6297,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Paprika') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Parastoo',
+		importName: 'Parastoo',
+		load: () => import('./Parastoo') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Parisienne',
 		importName: 'Parisienne',
 		load: () => import('./Parisienne') as Promise<GoogleFont>,
@@ -7257,6 +7347,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Satisfy') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Savate',
+		importName: 'Savate',
+		load: () => import('./Savate') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Sawarabi Gothic',
 		importName: 'SawarabiGothic',
 		load: () => import('./SawarabiGothic') as Promise<GoogleFont>,
@@ -8227,6 +8322,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Unna') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'UoqMunThenKhung',
+		importName: 'UoqMunThenKhung',
+		load: () => import('./UoqMunThenKhung') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Updock',
 		importName: 'Updock',
 		load: () => import('./Updock') as Promise<GoogleFont>,
@@ -8340,6 +8440,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Vujahday Script',
 		importName: 'VujahdayScript',
 		load: () => import('./VujahdayScript') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'WDXL Lubrifont JP N',
+		importName: 'WDXLLubrifontJPN',
+		load: () => import('./WDXLLubrifontJPN') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'WDXL Lubrifont SC',
+		importName: 'WDXLLubrifontSC',
+		load: () => import('./WDXLLubrifontSC') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'WDXL Lubrifont TC',

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Erica One',
 	importName: 'EricaOne',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Erica+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ericaone/v27/WBLnrEXccV9VGrOKmGDFUkXNFME.woff2',
+					'https://fonts.gstatic.com/s/ericaone/v28/WBLnrEXccV9VGrOKmGDFUkXNFME.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ericaone/v27/WBLnrEXccV9VGrOKmGDFXEXN.woff2',
+					'https://fonts.gstatic.com/s/ericaone/v28/WBLnrEXccV9VGrOKmGDFXEXN.woff2',
 			},
 		},
 	},

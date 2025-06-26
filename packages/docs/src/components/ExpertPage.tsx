@@ -245,11 +245,7 @@ export default () => {
 					</div>
 				</a>
 				{expert.videocall ? (
-					<a
-						style={socialLink}
-						href={`https://cal.com/${expert.videocall}`}
-						target={'_blank'}
-					>
+					<a style={socialLink} href={expert.videocall} target={'_blank'}>
 						<div style={socialRow}>
 							<div style={socialIconContainer}>
 								<svg

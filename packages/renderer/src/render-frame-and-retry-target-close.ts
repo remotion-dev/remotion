@@ -50,6 +50,7 @@ export const renderFrameAndRetryTargetClose = async ({
 	onFrameBuffer,
 	onFrameUpdate,
 	nextFrameToRender,
+	imageSequencePattern,
 }: {
 	retriesLeft: number;
 	attempt: number;
@@ -88,6 +89,7 @@ export const renderFrameAndRetryTargetClose = async ({
 				timeToRenderInMilliseconds: number,
 		  ) => void);
 	nextFrameToRender: NextFrameToRender;
+	imageSequencePattern: string | null;
 }): Promise<void> => {
 	const currentPool = await poolPromise;
 
@@ -129,6 +131,7 @@ export const renderFrameAndRetryTargetClose = async ({
 				nextFrameToRender,
 				frame,
 				page: freePage,
+				imageSequencePattern,
 			}),
 			new Promise((_, reject) => {
 				cancelSignal?.(() => {
@@ -211,6 +214,7 @@ export const renderFrameAndRetryTargetClose = async ({
 				onFrameBuffer,
 				onFrameUpdate,
 				nextFrameToRender,
+				imageSequencePattern,
 			});
 		}
 
@@ -264,6 +268,7 @@ export const renderFrameAndRetryTargetClose = async ({
 			onFrameBuffer,
 			onFrameUpdate,
 			nextFrameToRender,
+			imageSequencePattern,
 		});
 	}
 };

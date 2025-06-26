@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Averia Sans Libre',
 	importName: 'AveriaSansLibre',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Averia+Sans+Libre:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700',
 	unicodeRanges: {
 		latin:
@@ -13,29 +13,29 @@ export const getInfo = () => ({
 		italic: {
 			'300': {
 				latin:
-					'https://fonts.gstatic.com/s/averiasanslibre/v19/ga6caxZG_G5OvCf_rt7FH3B6BHLMEdVLKisSH5DdKg.woff2',
+					'https://fonts.gstatic.com/s/averiasanslibre/v20/ga6caxZG_G5OvCf_rt7FH3B6BHLMEdVLKisSH5DdKg.woff2',
 			},
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/averiasanslibre/v19/ga6RaxZG_G5OvCf_rt7FH3B6BHLMEdVLIoAwCg.woff2',
+					'https://fonts.gstatic.com/s/averiasanslibre/v20/ga6RaxZG_G5OvCf_rt7FH3B6BHLMEdVLIoAwCg.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/averiasanslibre/v19/ga6caxZG_G5OvCf_rt7FH3B6BHLMEdVLKjsVH5DdKg.woff2',
+					'https://fonts.gstatic.com/s/averiasanslibre/v20/ga6caxZG_G5OvCf_rt7FH3B6BHLMEdVLKjsVH5DdKg.woff2',
 			},
 		},
 		normal: {
 			'300': {
 				latin:
-					'https://fonts.gstatic.com/s/averiasanslibre/v19/ga6SaxZG_G5OvCf_rt7FH3B6BHLMEd3lMJcXL5I.woff2',
+					'https://fonts.gstatic.com/s/averiasanslibre/v20/ga6SaxZG_G5OvCf_rt7FH3B6BHLMEd3lMJcXL5I.woff2',
 			},
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/averiasanslibre/v19/ga6XaxZG_G5OvCf_rt7FH3B6BHLMEdVOEoI.woff2',
+					'https://fonts.gstatic.com/s/averiasanslibre/v20/ga6XaxZG_G5OvCf_rt7FH3B6BHLMEdVOEoI.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/averiasanslibre/v19/ga6SaxZG_G5OvCf_rt7FH3B6BHLMEd31N5cXL5I.woff2',
+					'https://fonts.gstatic.com/s/averiasanslibre/v20/ga6SaxZG_G5OvCf_rt7FH3B6BHLMEd31N5cXL5I.woff2',
 			},
 		},
 	},

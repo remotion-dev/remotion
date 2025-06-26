@@ -103,6 +103,7 @@ const {
 	mutedOption,
 	videoCodecOption,
 	colorSpaceOption,
+	disallowParallelEncodingOption,
 	deleteAfterOption,
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
@@ -125,6 +126,7 @@ const {
 	hardwareAccelerationOption,
 	audioLatencyHintOption,
 	enableCrossSiteIsolationOption,
+	imageSequencePatternOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -462,6 +464,15 @@ declare global {
 		readonly setColorSpace: (colorSpace: ColorSpace) => void;
 
 		/**
+		 * Disallows the renderer from doing rendering frames and encoding at the same time.
+		 * This makes the rendering process more memory-efficient, but possibly slower.
+		 * Default: false
+		 */
+		readonly setDisallowParallelEncoding: (
+			disallowParallelEncoding: boolean,
+		) => void;
+
+		/**
 		 * Removes the --single-process flag that gets passed to
 			Chromium on Linux by default. This will make the render faster because
 			multiple processes can be used, but may cause issues with some Linux
@@ -500,6 +511,11 @@ declare global {
 		 * Prefer lossless audio encoding. Default: false
 		 */
 		readonly setPublicPath: (publicPath: string | null) => void;
+		/**
+		 * Set the pattern for naming image sequence files. Supports [frame] and [ext] replacements.
+		 * @param pattern The pattern string, e.g. 'frame_[frame].[ext]'.
+		 */
+		readonly setImageSequencePattern: (pattern: string | null) => void;
 	}
 }
 
@@ -667,6 +683,7 @@ export const Config: FlatConfig = {
 	},
 	setDeleteAfter: deleteAfterOption.setConfig,
 	setColorSpace: colorSpaceOption.setConfig,
+	setDisallowParallelEncoding: disallowParallelEncodingOption.setConfig,
 	setBeepOnFinish: beepOnFinishOption.setConfig,
 	setEnableFolderExpiry: folderExpiryOption.setConfig,
 	setRepro: reproOption.setConfig,
@@ -674,6 +691,7 @@ export const Config: FlatConfig = {
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
 	setPreferLosslessAudio: preferLosslessOption.setConfig,
 	setPublicPath: publicPathOption.setConfig,
+	setImageSequencePattern: imageSequencePatternOption.setConfig,
 	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
 };

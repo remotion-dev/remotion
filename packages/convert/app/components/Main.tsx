@@ -35,7 +35,11 @@ export const Main: React.FC<{
 						setSrc={setSrc}
 					/>
 				) : (
-					<PickFile setSrc={setSrc} title={getHeaderTitle(routeAction)} />
+					<PickFile
+						action={routeAction}
+						setSrc={setSrc}
+						title={getHeaderTitle(routeAction)}
+					/>
 				)}
 			</div>
 			<GlobalApisInConsole />

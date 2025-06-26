@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Belanosima',
 	importName: 'Belanosima',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Belanosima:ital,wght@0,400;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,21 +15,21 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/belanosima/v3/3y9k6bI8ejDo_3MfCDSL9AlRFkJB.woff2',
+					'https://fonts.gstatic.com/s/belanosima/v4/3y9k6bI8ejDo_3MfCDSL9AlRFkJB.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/belanosima/v3/3y9k6bI8ejDo_3MfCDSL9AdRFg.woff2',
+					'https://fonts.gstatic.com/s/belanosima/v4/3y9k6bI8ejDo_3MfCDSL9AdRFg.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/belanosima/v3/3y9n6bI8ejDo_3MfCDSL_Nh1A3Ngnqcd.woff2',
+					'https://fonts.gstatic.com/s/belanosima/v4/3y9n6bI8ejDo_3MfCDSL_Nh1A3Ngnqcd.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/belanosima/v3/3y9n6bI8ejDo_3MfCDSL_Nh1A31gng.woff2',
+					'https://fonts.gstatic.com/s/belanosima/v4/3y9n6bI8ejDo_3MfCDSL_Nh1A31gng.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/belanosima/v3/3y9n6bI8ejDo_3MfCDSL_Lx0A3Ngnqcd.woff2',
+					'https://fonts.gstatic.com/s/belanosima/v4/3y9n6bI8ejDo_3MfCDSL_Lx0A3Ngnqcd.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/belanosima/v3/3y9n6bI8ejDo_3MfCDSL_Lx0A31gng.woff2',
+					'https://fonts.gstatic.com/s/belanosima/v4/3y9n6bI8ejDo_3MfCDSL_Lx0A31gng.woff2',
 			},
 		},
 	},

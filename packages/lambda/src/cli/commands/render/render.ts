@@ -369,6 +369,7 @@ export const renderCommand = async ({
 		apiKey:
 			parsedLambdaCli[BrowserSafeApis.options.apiKeyOption.cliFlag] ?? null,
 		storageClass: parsedLambdaCli['storage-class'] ?? null,
+		requestHandler: null,
 	});
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({

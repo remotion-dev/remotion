@@ -127,6 +127,7 @@ class Semantic
 				},
 				apiKey: null,
 				storageClass: null,
+				requestHandler: null,
 			});
 		const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 		const parsedJson = JSON.parse(jsonOutput);

@@ -48,7 +48,7 @@
     "@types/react-dom": "19.0.0",
     "dotenv": "16.0.3",
     "eslint": "9.19.0",
-    "prettier": "3.3.3",
+    "prettier": "3.6.0",
     "tsx": "4.19.3",
     "typescript": "5.8.2"
   }

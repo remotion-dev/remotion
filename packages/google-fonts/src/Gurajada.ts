@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gurajada',
 	importName: 'Gurajada',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Gurajada:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/gurajada/v21/FwZY7-Qx308m-l-0Ke6b6MmTpA.woff2',
+					'https://fonts.gstatic.com/s/gurajada/v22/FwZY7-Qx308m-l-0Ke6b6MmTpA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gurajada/v21/FwZY7-Qx308m-l-0Ke6J6MmTpA.woff2',
+					'https://fonts.gstatic.com/s/gurajada/v22/FwZY7-Qx308m-l-0Ke6J6MmTpA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gurajada/v21/FwZY7-Qx308m-l-0Ke6H6Mk.woff2',
+					'https://fonts.gstatic.com/s/gurajada/v22/FwZY7-Qx308m-l-0Ke6H6Mk.woff2',
 			},
 		},
 	},

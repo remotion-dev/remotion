@@ -25,7 +25,8 @@ import {parseHdlr} from './meta/hdlr';
 import {parseIlstBox} from './meta/ilst';
 import {parseTfraBox} from './mfra/tfra';
 import {parseMoov} from './moov/moov';
-import {parseMvhd} from './mvhd';
+import {parseMvhd} from './moov/mvhd';
+import {parseTrex} from './moov/trex';
 import {parseAv1C} from './stsd/av1c';
 import {parseAvcc} from './stsd/avcc';
 import {parseColorParameterBox} from './stsd/colr';
@@ -502,6 +503,13 @@ export const processBox = async ({
 		};
 	}
 
+	if (boxType === 'trex') {
+		return {
+			type: 'box',
+			box: await parseTrex({iterator, offset: fileOffset, size: boxSize}),
+		};
+	}
+
 	if (boxType === 'moof') {
 		await onlyIfMoovAtomExpected?.isoState?.mfra.triggerLoad();
 	}
@@ -518,6 +526,7 @@ export const processBox = async ({
 		boxType === 'traf' ||
 		boxType === 'mfra' ||
 		boxType === 'edts' ||
+		boxType === 'mvex' ||
 		boxType === 'stsb'
 	) {
 		const children = await getIsoBaseMediaChildren({
@@ -541,6 +550,8 @@ export const processBox = async ({
 	}
 
 	iterator.discard(boxSize - 8);
+
+	Log.verbose(logLevel, 'Unknown ISO Base Media Box:', boxType);
 
 	return {
 		type: 'box',

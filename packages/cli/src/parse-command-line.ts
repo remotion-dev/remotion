@@ -17,6 +17,7 @@ import {parsedCli} from './parsed-cli';
 const {
 	beepOnFinishOption,
 	colorSpaceOption,
+	disallowParallelEncodingOption,
 	offthreadVideoCacheSizeInBytesOption,
 	encodingBufferSizeOption,
 	encodingMaxRateOption,
@@ -51,6 +52,9 @@ export type CommandLineOptions = {
 		typeof offthreadVideoCacheSizeInBytesOption
 	>;
 	[colorSpaceOption.cliFlag]: TypeOfOption<typeof colorSpaceOption>;
+	[disallowParallelEncodingOption.cliFlag]: TypeOfOption<
+		typeof disallowParallelEncodingOption
+	>;
 	[beepOnFinishOption.cliFlag]: TypeOfOption<typeof beepOnFinishOption>;
 	version: string;
 	codec: Codec;
@@ -107,6 +111,7 @@ export type CommandLineOptions = {
 		typeof enableMultiprocessOnLinuxOption
 	>;
 	repro: boolean;
+	'image-sequence-pattern': string;
 };
 
 export const parseCommandLine = () => {

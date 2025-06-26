@@ -16,7 +16,7 @@
     "@types/node": "20.12.14",
     "@types/react": "19.0.0",
     "eslint": "9.19.0",
-    "prettier": "3.3.3",
+    "prettier": "3.6.0",
     "tsx": "4.19.3",
     "typescript": "5.8.2"
   },

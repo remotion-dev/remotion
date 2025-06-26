@@ -69,10 +69,10 @@ We're calling the machine which orchestrates the render the "main routine".
   - NOT with audio codec `aac` (which would be default and recommended),
 - Then:
   - set the [`audioCodec`](/docs/renderer/render-media#audiocodec) to `pcm-16` instead of the audio codec.
-  - set the [`forSeamlessAacConcatenation`](/docs/renderer/render-media#forseamlessaaconcatenation) option to `false`.
+  - set the [`forSeamlessAacConcatenation`](/docs/renderer/render-media#forseamlessaacconcatenation) option to `false`.
 - Else:
   - Set the [`audioCodec`](/docs/renderer/render-media#audiocodec) to the same value you would pass to a regular [`renderMedia()`](/docs/renderer/render-media) call, which might be `null`.
-  - set the [`forSeamlessAacConcatenation`](/docs/renderer/render-media#forseamlessaaconcatenation) option to `true`.
+  - set the [`forSeamlessAacConcatenation`](/docs/renderer/render-media#forseamlessaacconcatenation) option to `true`.
 - If you are rendering audio, use the [`separateAudioTo`](/docs/renderer/render-media#separateaudioto) option to render the audio to a separate file.
 - Handle [artifacts](/docs/artifacts) if desired and store them somewhere, or send them to the main routine.
 - The parameters [`concurrency`](/docs/renderer/render-media#concurrency) and [`offthreadVideoThreads`](/docs/renderer/render-media#offthreadvideothreads) may be adjusted if desired, but leaving the defaults is also fine.
@@ -92,7 +92,7 @@ Collect all the audio and video chunks. Once you have all of them, you can call 
 - [`codec`](/docs/renderer/combine-chunks#codec): The final codec of the media. If you want to render `h264`, you should now pass `h264`, not `h264-ts`.
 - [`framesPerChunk`](/docs/renderer/combine-chunks#framesperchunk): The amount of frames that were rendered per chunk. The `everyNthFrame` option will be applied only afterwards, so don't calculate it in.
 - [`fps`](/docs/renderer/combine-chunks#fps): Must be the value of `fps` that you got from [`selectComposition`](/docs/renderer/select-composition).
-- [`preferLossless`](/docs/renderer/combine-chunks#preferlossless): Pass it here as well if you passed it to [`renderMedia()`](/docs/renderer/render-media#preferlossless).
+- [`preferLossless`](/docs/renderer/combine-chunks#preferlossless): Pass it here as well if you passed it to `renderMedia()`.
 - [`compositionDurationInFrames`](/docs/renderer/combine-chunks#compositiondurationinframes): The total duration of the composition, taken from [`selectComposition()`](/docs/renderer/select-composition). Pass the full duration even if you are only rendering a portion of it.
 - [`frameRange`](/docs/renderer/combine-chunks#framerange): If you only rendered a portion of a composition, then you must pass that exact frame range here as well. Remember that frame ranges start at `0`, and end at `durationInFrames - 1`. Passing values too small or too big will cause an error to be thrown.
 

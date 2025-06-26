@@ -17,5 +17,6 @@ export const getOrCreateBucket = (
 		providerSpecifics: LambdaClientInternals.awsImplementation,
 		forcePathStyle: false,
 		skipPutAcl: false,
+		requestHandler: options.requestHandler ?? null,
 	});
 };

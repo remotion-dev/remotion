@@ -37,7 +37,7 @@ for (const track of audioTracks) {
     inputCodec: track.codecEnum,
     outputContainer: 'webm',
     inputContainer: container,
-    outputAudioCodec: null
+    outputAudioCodec: null,
   }); // bool
 }
 ```
@@ -55,6 +55,7 @@ await convertMedia({
       inputCodec: track.codecEnum,
       outputContainer,
       inputContainer,
+      outputAudioCodec: null,
     });
 
     if (canCopy) {

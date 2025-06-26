@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tulpen One',
 	importName: 'TulpenOne',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Tulpen+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/tulpenone/v25/dFa6ZfeC474skLgesc0Cajo6_Q.woff2',
+					'https://fonts.gstatic.com/s/tulpenone/v26/dFa6ZfeC474skLgesc0Cajo6_Q.woff2',
 			},
 		},
 	},

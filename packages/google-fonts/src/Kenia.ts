@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kenia',
 	importName: 'Kenia',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Kenia:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/kenia/v28/jizURE5PuHQH9pCJP0A.woff2',
+					'https://fonts.gstatic.com/s/kenia/v29/jizURE5PuHQH9pCJP0A.woff2',
 			},
 		},
 	},

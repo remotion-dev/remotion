@@ -1,5 +1,6 @@
 import {MediaParserAbortError} from '../errors';
 import type {SeekingHints} from '../seeking-hints';
+import type {SeekResolution} from '../work-on-seek-request';
 import {MediaParserEmitter} from './emitter';
 import type {PauseSignal} from './pause-signal';
 import {makePauseSignal} from './pause-signal';
@@ -14,6 +15,7 @@ export type MediaParserController = {
 	pause: PauseSignal['pause'];
 	resume: PauseSignal['resume'];
 	seek: SeekSignal['seek'];
+	simulateSeek: (seekInSeconds: number) => Promise<SeekResolution>;
 	addEventListener: MediaParserEmitter['addEventListener'];
 	removeEventListener: MediaParserEmitter['removeEventListener'];
 	getSeekingHints: () => Promise<SeekingHints | null>;
@@ -28,6 +30,9 @@ export type MediaParserController = {
 		performedSeeksSignal: PerformedSeeksSignal;
 		attachSeekingHintResolution: (
 			callback: () => Promise<SeekingHints | null>,
+		) => void;
+		attachSimulateSeekResolution: (
+			callback: (seekInSeconds: number) => Promise<SeekResolution>,
 		) => void;
 	};
 };
@@ -53,6 +58,9 @@ export const mediaParserController = (): MediaParserController => {
 	};
 
 	let seekingHintResolution: (() => Promise<SeekingHints | null>) | null = null;
+	let simulateSeekResolution:
+		| ((seekInSeconds: number) => Promise<SeekResolution>)
+		| null = null;
 
 	const getSeekingHints = () => {
 		if (!seekingHintResolution) {
@@ -62,6 +70,16 @@ export const mediaParserController = (): MediaParserController => {
 		}
 
 		return seekingHintResolution();
+	};
+
+	const simulateSeek = (seekInSeconds: number) => {
+		if (!simulateSeekResolution) {
+			throw new Error(
+				'The mediaParserController() was not yet used in a parseMedia() call',
+			);
+		}
+
+		return simulateSeekResolution(seekInSeconds);
 	};
 
 	const attachSeekingHintResolution = (
@@ -76,6 +94,18 @@ export const mediaParserController = (): MediaParserController => {
 		seekingHintResolution = callback;
 	};
 
+	const attachSimulateSeekResolution = (
+		callback: (seekInSeconds: number) => Promise<SeekResolution>,
+	) => {
+		if (simulateSeekResolution) {
+			throw new Error(
+				'The mediaParserController() was used in multiple parseMedia() calls. Create a separate controller for each call.',
+			);
+		}
+
+		simulateSeekResolution = callback;
+	};
+
 	return {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		abort: (reason?: any) => {
@@ -83,6 +113,7 @@ export const mediaParserController = (): MediaParserController => {
 			emitter.dispatchAbort(reason);
 		},
 		seek: seekSignal.seek,
+		simulateSeek,
 		pause: pauseSignal.pause,
 		resume: pauseSignal.resume,
 		addEventListener: emitter.addEventListener,
@@ -95,6 +126,7 @@ export const mediaParserController = (): MediaParserController => {
 			markAsReadyToEmitEvents: emitter.markAsReady,
 			performedSeeksSignal,
 			attachSeekingHintResolution,
+			attachSimulateSeekResolution,
 		},
 	};
 };

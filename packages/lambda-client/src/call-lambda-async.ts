@@ -23,7 +23,11 @@ export const callFunctionAsyncImplementation = async <
 		);
 	}
 
-	const result = await getLambdaClient(region as AwsRegion, timeoutInTest).send(
+	const result = await getLambdaClient(
+		region as AwsRegion,
+		timeoutInTest,
+		null,
+	).send(
 		new InvokeCommand({
 			FunctionName: functionName,
 			Payload: stringifiedPayload,

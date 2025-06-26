@@ -66,6 +66,8 @@ export const RenderModalPicture: React.FC<{
 	readonly setEncodingMaxRate: React.Dispatch<
 		React.SetStateAction<string | null>
 	>;
+	readonly compositionWidth: number;
+	readonly compositionHeight: number;
 }> = ({
 	renderMode,
 	scale,
@@ -92,6 +94,8 @@ export const RenderModalPicture: React.FC<{
 	encodingMaxRate,
 	setEncodingBufferSize,
 	setEncodingMaxRate,
+	compositionWidth,
+	compositionHeight,
 }) => {
 	const colorSpaceOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.validColorSpaces.map((option) => {
@@ -294,7 +298,12 @@ export const RenderModalPicture: React.FC<{
 				</>
 			) : null}
 			{renderMode === 'video' ? <RenderModalHr /> : null}
-			<ScaleSetting scale={scale} setScale={setScale} />
+			<ScaleSetting
+				scale={scale}
+				setScale={setScale}
+				compositionWidth={compositionWidth}
+				compositionHeight={compositionHeight}
+			/>
 			{renderMode === 'video' ? <RenderModalHr /> : null}
 			{renderMode === 'video' ? (
 				<div style={optionRow}>

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.311",
+	"version": "4.0.320",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -12,7 +12,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"scripts": {
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"test": "bun test src/test",
 		"testwebcodecs": "playwright test src/it-tests",
@@ -63,21 +63,12 @@
 			"module": "./dist/esm/buffer.mjs",
 			"import": "./dist/esm/buffer.mjs"
 		},
-		"./node": {
-			"types": "./dist/writers/node.d.ts",
-			"require": "./dist/writers/node.js",
-			"module": "./dist/esm/node.mjs",
-			"import": "./dist/esm/node.mjs"
-		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
 		">=1.0": {
 			"web-fs": [
 				"dist/writers/web-fs.d.ts"
-			],
-			"node": [
-				"dist/writers/node.d.ts"
 			],
 			"buffer": [
 				"dist/writers/buffer.d.ts"
