@@ -60,6 +60,7 @@ export const mergeChunksAndFinishRender = async <
 	everyNthFrame: number;
 	frameRange: FrameRange | null;
 	storageClass: Provider['storageClass'] | null;
+	requestHandler: Provider['requestHandler'] | null;
 }): Promise<PostRenderData<Provider>> => {
 	const onProgress: CombineChunksOnProgress = ({frames: framesEncoded}) => {
 		options.overallProgress.setCombinedFrames(framesEncoded);
@@ -115,6 +116,7 @@ export const mergeChunksAndFinishRender = async <
 		customCredentials: options.customCredentials,
 		forcePathStyle: options.forcePathStyle,
 		storageClass: options.storageClass,
+		requestHandler: options.requestHandler,
 	});
 
 	writeToBucket.end();

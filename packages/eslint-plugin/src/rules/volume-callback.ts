@@ -67,6 +67,12 @@ export default createRule<Options, MessageIds>({
 				if (expression.type === 'ArrowFunctionExpression') {
 					return;
 				}
+				if (expression.type === 'FunctionExpression') {
+					return;
+				}
+				if (expression.type === 'Identifier') {
+					return;
+				}
 
 				context.report({
 					messageId: 'VolumeCallback',

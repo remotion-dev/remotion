@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Almendra SC',
 	importName: 'AlmendraSC',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Almendra+SC:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/almendrasc/v29/Iure6Yx284eebowr7hbyTaZOrLQ.woff2',
+					'https://fonts.gstatic.com/s/almendrasc/v30/Iure6Yx284eebowr7hbyTaZOrLQ.woff2',
 			},
 		},
 	},

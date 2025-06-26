@@ -10,6 +10,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>canUseWhisperWeb()</strong>
 					<div>Check if the browser supports this Whisper package</div>
 				</TOCItem>
+				<TOCItem link="/docs/whisper-web/get-available-models">
+					<strong>getAvailableModels()</strong>
+					<div>Get a list of all available Whisper models with their download sizes</div>
+				</TOCItem>
 				<TOCItem link="/docs/whisper-web/download-whisper-model">
 					<strong>downloadWhisperModel()</strong>
 					<div>Download a Whisper model in browser</div>

@@ -78,6 +78,7 @@ import {wrapWithErrorHandling} from './wrap-with-error-handling';
 export type StitchingState = 'encoding' | 'muxing';
 
 const SLOWEST_FRAME_COUNT = 10;
+const MAX_RECENT_FRAME_TIMINGS = 50;
 
 export type SlowFrame = {frame: number; time: number};
 
@@ -99,8 +100,8 @@ export type InternalRenderMediaOptions = {
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	crf: number | null;
-	imageFormat: VideoImageFormat;
-	pixelFormat: PixelFormat;
+	imageFormat: VideoImageFormat | null;
+	pixelFormat: PixelFormat | null;
 	envVariables: Record<string, string>;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
@@ -202,7 +203,7 @@ const internalRenderMediaRaw = ({
 	crf,
 	composition,
 	serializedInputPropsWithCustomSchema,
-	pixelFormat,
+	pixelFormat: userPixelFormat,
 	codec,
 	envVariables,
 	frameRange,
@@ -254,6 +255,9 @@ const internalRenderMediaRaw = ({
 	chromeMode,
 	offthreadVideoThreads,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
+	const pixelFormat =
+		userPixelFormat ?? composition.defaultPixelFormat ?? DEFAULT_PIXEL_FORMAT;
+
 	if (repro) {
 		enableRepro({
 			serveUrl,
@@ -319,7 +323,7 @@ const internalRenderMediaRaw = ({
 	let encodedDoneIn: number | null = null;
 	let cancelled = false;
 	let renderEstimatedTime = 0;
-	let totalTimeSpentOnFrames = 0;
+	const recentFrameTimings: number[] = [];
 
 	const renderStart = Date.now();
 
@@ -406,7 +410,9 @@ const internalRenderMediaRaw = ({
 
 	const imageFormat: VideoImageFormat = isAudioCodec(codec)
 		? 'none'
-		: provisionalImageFormat;
+		: (provisionalImageFormat ??
+			composition.defaultVideoImageFormat ??
+			DEFAULT_VIDEO_IMAGE_FORMAT);
 
 	validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
@@ -601,8 +607,18 @@ const internalRenderMediaRaw = ({
 					) => {
 						renderedFrames = frame;
 
-						totalTimeSpentOnFrames += timeToRenderInMilliseconds;
-						const newAverage = totalTimeSpentOnFrames / renderedFrames;
+						// Track recent frame timings (at most 50)
+						recentFrameTimings.push(timeToRenderInMilliseconds);
+						if (recentFrameTimings.length > MAX_RECENT_FRAME_TIMINGS) {
+							recentFrameTimings.shift();
+						}
+
+						// Calculate average using only recent timings for better estimation
+						const recentTimingsSum = recentFrameTimings.reduce(
+							(sum, time) => sum + time,
+							0,
+						);
+						const newAverage = recentTimingsSum / recentFrameTimings.length;
 
 						const remainingFrames = totalFramesToRender - renderedFrames;
 
@@ -678,6 +694,7 @@ const internalRenderMediaRaw = ({
 					onBrowserDownload,
 					onArtifact,
 					chromeMode,
+					imageSequencePattern: null,
 				});
 
 				return renderFramesProc;
@@ -938,7 +955,7 @@ export const renderMedia = ({
 		everyNthFrame: everyNthFrame ?? 1,
 		ffmpegOverride: ffmpegOverride ?? undefined,
 		frameRange: frameRange ?? null,
-		imageFormat: imageFormat ?? DEFAULT_VIDEO_IMAGE_FORMAT,
+		imageFormat: imageFormat ?? null,
 		serializedInputPropsWithCustomSchema:
 			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
@@ -954,7 +971,7 @@ export const renderMedia = ({
 		onStart: onStart ?? (() => undefined),
 		outputLocation: outputLocation ?? null,
 		overwrite: overwrite ?? DEFAULT_OVERWRITE,
-		pixelFormat: pixelFormat ?? DEFAULT_PIXEL_FORMAT,
+		pixelFormat: pixelFormat ?? null,
 		port: port ?? null,
 		puppeteerInstance: puppeteerInstance ?? undefined,
 		scale: scale ?? 1,

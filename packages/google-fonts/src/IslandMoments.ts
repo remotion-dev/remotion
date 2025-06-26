@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Island Moments',
 	importName: 'IslandMoments',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Island+Moments:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/islandmoments/v6/NaPBcZfVGvBdxIt7Ar0qzkXJF9TOKIlrZw.woff2',
+					'https://fonts.gstatic.com/s/islandmoments/v7/NaPBcZfVGvBdxIt7Ar0qzkXJF9TOKIlrZw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/islandmoments/v6/NaPBcZfVGvBdxIt7Ar0qzkXJF9TPKIlrZw.woff2',
+					'https://fonts.gstatic.com/s/islandmoments/v7/NaPBcZfVGvBdxIt7Ar0qzkXJF9TPKIlrZw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/islandmoments/v6/NaPBcZfVGvBdxIt7Ar0qzkXJF9TBKIk.woff2',
+					'https://fonts.gstatic.com/s/islandmoments/v7/NaPBcZfVGvBdxIt7Ar0qzkXJF9TBKIk.woff2',
 			},
 		},
 	},

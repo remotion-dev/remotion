@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rock Salt',
 	importName: 'RockSalt',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Rock+Salt:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/rocksalt/v22/MwQ0bhv11fWD6QsAVOZrt0M6.woff2',
+					'https://fonts.gstatic.com/s/rocksalt/v23/MwQ0bhv11fWD6QsAVOZrt0M6.woff2',
 			},
 		},
 	},

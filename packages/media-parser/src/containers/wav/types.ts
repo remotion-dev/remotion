@@ -23,12 +23,17 @@ export type WavId3 = {
 	type: 'wav-id3';
 };
 
+export type WavFact = {
+	type: 'wav-fact';
+	numberOfSamplesPerChannel: number;
+};
+
 export type WavData = {
 	type: 'wav-data';
 	dataSize: number;
 };
 
-type WavBox = WavHeader | WavFmt | WavList | WavId3 | WavData;
+type WavBox = WavHeader | WavFmt | WavList | WavId3 | WavData | WavFact;
 
 export type WavStructure = {
 	type: 'wav';

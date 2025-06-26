@@ -72,7 +72,9 @@ export const useElementSize = (
 			}
 
 			const probableCssParentScale =
-				contentRect.width === 0 ? 1 : newSize[0].width / contentRect.width;
+				contentRect.width === 0 || contentRect.width === 0
+					? 1
+					: newSize[0].width / contentRect.width;
 
 			const width = options.shouldApplyCssTransforms
 				? newSize[0].width

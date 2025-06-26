@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Space Mono',
 	importName: 'SpaceMono',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		vietnamese:
@@ -17,37 +17,37 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/spacemono/v15/i7dNIFZifjKcF5UAWdDRYERMSHK_IwU.woff2',
+					'https://fonts.gstatic.com/s/spacemono/v16/i7dNIFZifjKcF5UAWdDRYERMSHK_IwU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/spacemono/v15/i7dNIFZifjKcF5UAWdDRYERMSXK_IwU.woff2',
+					'https://fonts.gstatic.com/s/spacemono/v16/i7dNIFZifjKcF5UAWdDRYERMSXK_IwU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/spacemono/v15/i7dNIFZifjKcF5UAWdDRYERMR3K_.woff2',
+					'https://fonts.gstatic.com/s/spacemono/v16/i7dNIFZifjKcF5UAWdDRYERMR3K_.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/spacemono/v15/i7dSIFZifjKcF5UAWdDRYERE_FeqEySRV3U.woff2',
+					'https://fonts.gstatic.com/s/spacemono/v16/i7dSIFZifjKcF5UAWdDRYERE_FeqEySRV3U.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/spacemono/v15/i7dSIFZifjKcF5UAWdDRYERE_FeqEiSRV3U.woff2',
+					'https://fonts.gstatic.com/s/spacemono/v16/i7dSIFZifjKcF5UAWdDRYERE_FeqEiSRV3U.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/spacemono/v15/i7dSIFZifjKcF5UAWdDRYERE_FeqHCSR.woff2',
+					'https://fonts.gstatic.com/s/spacemono/v16/i7dSIFZifjKcF5UAWdDRYERE_FeqHCSR.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/spacemono/v15/i7dPIFZifjKcF5UAWdDRYE58RWq7.woff2',
+					'https://fonts.gstatic.com/s/spacemono/v16/i7dPIFZifjKcF5UAWdDRYE58RWq7.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/spacemono/v15/i7dPIFZifjKcF5UAWdDRYE98RWq7.woff2',
+					'https://fonts.gstatic.com/s/spacemono/v16/i7dPIFZifjKcF5UAWdDRYE98RWq7.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/spacemono/v15/i7dPIFZifjKcF5UAWdDRYEF8RQ.woff2',
+					'https://fonts.gstatic.com/s/spacemono/v16/i7dPIFZifjKcF5UAWdDRYEF8RQ.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/spacemono/v15/i7dMIFZifjKcF5UAWdDRaPpZUFqaHjyV.woff2',
+					'https://fonts.gstatic.com/s/spacemono/v16/i7dMIFZifjKcF5UAWdDRaPpZUFqaHjyV.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/spacemono/v15/i7dMIFZifjKcF5UAWdDRaPpZUFuaHjyV.woff2',
+					'https://fonts.gstatic.com/s/spacemono/v16/i7dMIFZifjKcF5UAWdDRaPpZUFuaHjyV.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/spacemono/v15/i7dMIFZifjKcF5UAWdDRaPpZUFWaHg.woff2',
+					'https://fonts.gstatic.com/s/spacemono/v16/i7dMIFZifjKcF5UAWdDRaPpZUFWaHg.woff2',
 			},
 		},
 	},

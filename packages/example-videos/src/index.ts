@@ -124,6 +124,18 @@ export const exampleVideos = {
 		'fragmented-mp4-with-no-duration-metadata.mp4',
 	),
 	m4a: path.join(__dirname, '..', 'videos', 'voice-note.m4a'),
+	problematicFragmentedM4a: path.join(
+		__dirname,
+		'..',
+		'videos',
+		'problematic-fragmented.m4a',
+	),
+	waveFormatExtensible: path.join(
+		__dirname,
+		'..',
+		'videos',
+		'wave-format-extensible.wav',
+	),
 };
 
 export {

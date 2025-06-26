@@ -49,6 +49,7 @@ test('Should make muted render audio', async () => {
 		expectedBucketOwner: 'abc',
 		prefix: rendersPrefix(renderId),
 		forcePathStyle: false,
+		requestHandler: null,
 	});
 
 	expect(files.length).toBe(2);
@@ -67,6 +68,7 @@ test('Should make muted render audio', async () => {
 		expectedBucketOwner: 'abc',
 		prefix: rendersPrefix(renderId),
 		forcePathStyle: false,
+		requestHandler: null,
 	});
 
 	expect(expectFiles.length).toBe(0);

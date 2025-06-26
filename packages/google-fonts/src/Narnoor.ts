@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Narnoor',
 	importName: 'Narnoor',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Narnoor:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		'gunjala-gondi': 'U+0964-0965, U+200C-200D, U+25CC, U+11D60-11DAF',
@@ -19,58 +19,58 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'gunjala-gondi':
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf9MaFWuVo-UTyP9FmhYVkH.woff2',
-				math: 'https://fonts.gstatic.com/s/narnoor/v8/cIf9MaFWuVo-UTyP9FKhYVkH.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf9MaFWuVo-UTyP9FmhYVkH.woff2',
+				math: 'https://fonts.gstatic.com/s/narnoor/v9/cIf9MaFWuVo-UTyP9FKhYVkH.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf9MaFWuVo-UTyP9EChYVkH.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf9MaFWuVo-UTyP9EChYVkH.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf9MaFWuVo-UTyP9CChYVkH.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf9MaFWuVo-UTyP9CChYVkH.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf9MaFWuVo-UTyP9C6hYQ.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf9MaFWuVo-UTyP9C6hYQ.woff2',
 			},
 			'500': {
 				'gunjala-gondi':
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_N2CdBEmnbJk.woff2',
-				math: 'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_N2CdBomnbJk.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_N2CdBEmnbJk.woff2',
+				math: 'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_N2CdBomnbJk.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_N2CdAgmnbJk.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_N2CdAgmnbJk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_N2CdGgmnbJk.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_N2CdGgmnbJk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_N2CdGYmnQ.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_N2CdGYmnQ.woff2',
 			},
 			'600': {
 				'gunjala-gondi':
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_PGFdBEmnbJk.woff2',
-				math: 'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_PGFdBomnbJk.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_PGFdBEmnbJk.woff2',
+				math: 'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_PGFdBomnbJk.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_PGFdAgmnbJk.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_PGFdAgmnbJk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_PGFdGgmnbJk.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_PGFdGgmnbJk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_PGFdGYmnQ.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_PGFdGYmnQ.woff2',
 			},
 			'700': {
 				'gunjala-gondi':
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_JWEdBEmnbJk.woff2',
-				math: 'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_JWEdBomnbJk.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_JWEdBEmnbJk.woff2',
+				math: 'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_JWEdBomnbJk.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_JWEdAgmnbJk.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_JWEdAgmnbJk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_JWEdGgmnbJk.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_JWEdGgmnbJk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_JWEdGYmnQ.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_JWEdGYmnQ.woff2',
 			},
 			'800': {
 				'gunjala-gondi':
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_ImHdBEmnbJk.woff2',
-				math: 'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_ImHdBomnbJk.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_ImHdBEmnbJk.woff2',
+				math: 'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_ImHdBomnbJk.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_ImHdAgmnbJk.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_ImHdAgmnbJk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_ImHdGgmnbJk.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_ImHdGgmnbJk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/narnoor/v8/cIf4MaFWuVo-UTyP_ImHdGYmnQ.woff2',
+					'https://fonts.gstatic.com/s/narnoor/v9/cIf4MaFWuVo-UTyP_ImHdGYmnQ.woff2',
 			},
 		},
 	},

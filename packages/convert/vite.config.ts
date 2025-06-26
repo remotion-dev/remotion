@@ -22,9 +22,19 @@ export default defineConfig({
 		}),
 		tsconfigPaths(),
 	],
+	optimizeDeps: {
+		// turn off dependency optimization: https://github.com/vitejs/vite/issues/11672#issuecomment-1397855641
+		exclude: ['@remotion/whisper-web'],
+	},
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, './app'),
+		},
+	},
+	server: {
+		headers: {
+			'Cross-Origin-Embedder-Policy': 'require-corp',
+			'Cross-Origin-Opener-Policy': 'same-origin',
 		},
 	},
 });

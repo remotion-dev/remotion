@@ -32,6 +32,8 @@ beforeAll(() => {
 		props: {},
 		defaultCodec: null,
 		defaultOutName: null,
+		defaultVideoImageFormat: null,
+		defaultPixelFormat: null,
 	}));
 });
 afterAll(() => {

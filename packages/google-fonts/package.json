@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.311",
+	"version": "4.0.319",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -11,7 +11,7 @@
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"generate": "bun --env-file=.env scripts/update-font-db.ts",
 		"prepublishOnly": "bun run generate",
-		"formatting": "prettier src --check"
+		"formatting": "prettier --experimental-cli src --check"
 	},
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
@@ -21,7 +21,7 @@
 		"@types/css-font-loading-module": "0.0.14",
 		"@types/prettier": "^2.7.1",
 		"postcss": "8.4.47",
-		"prettier": "3.3.3"
+		"prettier": "3.6.0"
 	},
 	"files": [
 		"dist"
@@ -29,9 +29,6 @@
 	"types": "dist/cjs/index.d.ts",
 	"typesVersions": {
 		">=1.0": {
-			"42dotSans": [
-				"dist/cjs/42dotSans.d.ts"
-			],
 			"ABeeZee": [
 				"dist/cjs/ABeeZee.d.ts"
 			],
@@ -199,6 +196,9 @@
 			],
 			"AlumniSansPinstripe": [
 				"dist/cjs/AlumniSansPinstripe.d.ts"
+			],
+			"AlumniSansSC": [
+				"dist/cjs/AlumniSansSC.d.ts"
 			],
 			"Amarante": [
 				"dist/cjs/Amarante.d.ts"
@@ -382,6 +382,9 @@
 			],
 			"Assistant": [
 				"dist/cjs/Assistant.d.ts"
+			],
+			"AstaSans": [
+				"dist/cjs/AstaSans.d.ts"
 			],
 			"Astloch": [
 				"dist/cjs/Astloch.d.ts"
@@ -941,6 +944,9 @@
 			"Chilanka": [
 				"dist/cjs/Chilanka.d.ts"
 			],
+			"ChironSungHK": [
+				"dist/cjs/ChironSungHK.d.ts"
+			],
 			"Chivo": [
 				"dist/cjs/Chivo.d.ts"
 			],
@@ -1259,20 +1265,38 @@
 			"EduAUVICWANTPre": [
 				"dist/cjs/EduAUVICWANTPre.d.ts"
 			],
+			"EduNSWACTCursive": [
+				"dist/cjs/EduNSWACTCursive.d.ts"
+			],
 			"EduNSWACTFoundation": [
 				"dist/cjs/EduNSWACTFoundation.d.ts"
+			],
+			"EduNSWACTHandPre": [
+				"dist/cjs/EduNSWACTHandPre.d.ts"
 			],
 			"EduQLDBeginner": [
 				"dist/cjs/EduQLDBeginner.d.ts"
 			],
+			"EduQLDHand": [
+				"dist/cjs/EduQLDHand.d.ts"
+			],
 			"EduSABeginner": [
 				"dist/cjs/EduSABeginner.d.ts"
+			],
+			"EduSAHand": [
+				"dist/cjs/EduSAHand.d.ts"
 			],
 			"EduTASBeginner": [
 				"dist/cjs/EduTASBeginner.d.ts"
 			],
 			"EduVICWANTBeginner": [
 				"dist/cjs/EduVICWANTBeginner.d.ts"
+			],
+			"EduVICWANTHand": [
+				"dist/cjs/EduVICWANTHand.d.ts"
+			],
+			"EduVICWANTHandPre": [
+				"dist/cjs/EduVICWANTHandPre.d.ts"
 			],
 			"ElMessiri": [
 				"dist/cjs/ElMessiri.d.ts"
@@ -1832,6 +1856,9 @@
 			"HubotSans": [
 				"dist/cjs/HubotSans.d.ts"
 			],
+			"Huninn": [
+				"dist/cjs/Huninn.d.ts"
+			],
 			"Hurricane": [
 				"dist/cjs/Hurricane.d.ts"
 			],
@@ -2273,6 +2300,9 @@
 			"Kurale": [
 				"dist/cjs/Kurale.d.ts"
 			],
+			"LXGWMarkerGothic": [
+				"dist/cjs/LXGWMarkerGothic.d.ts"
+			],
 			"LXGWWenKaiMonoTC": [
 				"dist/cjs/LXGWWenKaiMonoTC.d.ts"
 			],
@@ -2599,6 +2629,9 @@
 			],
 			"Marvel": [
 				"dist/cjs/Marvel.d.ts"
+			],
+			"Matangi": [
+				"dist/cjs/Matangi.d.ts"
 			],
 			"Mate": [
 				"dist/cjs/Mate.d.ts"
@@ -4358,6 +4391,9 @@
 			"Satisfy": [
 				"dist/cjs/Satisfy.d.ts"
 			],
+			"Savate": [
+				"dist/cjs/Savate.d.ts"
+			],
 			"SawarabiGothic": [
 				"dist/cjs/SawarabiGothic.d.ts"
 			],
@@ -5008,6 +5044,12 @@
 			],
 			"VujahdayScript": [
 				"dist/cjs/VujahdayScript.d.ts"
+			],
+			"WDXLLubrifontJPN": [
+				"dist/cjs/WDXLLubrifontJPN.d.ts"
+			],
+			"WDXLLubrifontSC": [
+				"dist/cjs/WDXLLubrifontSC.d.ts"
 			],
 			"WDXLLubrifontTC": [
 				"dist/cjs/WDXLLubrifontTC.d.ts"

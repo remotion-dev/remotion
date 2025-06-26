@@ -21,11 +21,14 @@ export type ConvertState =
 			type: 'in-progress';
 			controller: WebCodecsController;
 			state: ConvertMediaProgress;
+			startTime: number;
 	  }
 	| {
 			type: 'done';
 			download: () => Promise<Blob>;
 			state: ConvertMediaProgress;
+			startTime: number;
+			completedTime: number;
 	  }
 	| {
 			type: 'error';

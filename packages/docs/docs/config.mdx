@@ -350,6 +350,18 @@ Config.setMuted(true);
 
 The [command line flag](/docs/cli/render#--muted) `--muted` will take precedence over this option.
 
+## `setDisallowParallelEncoding()`<AvailableFrom v="4.0.315" />
+
+Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower. Default `false`.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDisallowParallelEncoding(true);
+```
+
+The [command line flag](/docs/cli/render#--disallow-parallel-encoding) `--disallow-parallel-encoding` will take precedence over this option.
+
 ## `setEnforceAudioTrack()`<AvailableFrom v="3.2.1" />
 
 Render a silent audio track if there would be none otherwise. Default `false`.
@@ -686,7 +698,7 @@ import {Config} from '@remotion/cli/config';
 Config.setAudioLatencyHint('interactive');
 ```
 
-The [command line flag](/docs/cli/render#--audio-latency-hint) `--audio-latency-hint` will take precedence over this option.
+The `--audio-latency-hint` command line flag will take precedence over this option.
 
 ## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
@@ -969,3 +981,21 @@ The old way is deprecated, but will work for the foreseeable future.
 ## See also
 
 - [Encoding guide](/docs/encoding)
+
+### setImageSequencePattern(pattern)
+
+Set the pattern for naming image sequence files when rendering an image sequence.
+
+- `[frame]` will be replaced with the zero-padded frame number (e.g. 0001, 0002, ...)
+- `[ext]` will be replaced with the image format extension (e.g. jpeg, png)
+
+**Example:**
+
+```js
+// remotion.config.ts
+import {Config} from 'remotion';
+
+Config.setImageSequencePattern('frame_[frame]_custom.[ext]');
+```
+
+This will produce files like `frame_0001_custom.jpeg`, `frame_0002_custom.jpeg`, ...

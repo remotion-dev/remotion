@@ -100,6 +100,10 @@ const shouldKeepSameContainerByDefault = (action: RouteAction) => {
 		return true;
 	}
 
+	if (action.type === 'transcribe') {
+		return false;
+	}
+
 	throw new Error(`Unhandled action type: ${action satisfies never}`);
 };
 

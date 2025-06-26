@@ -101,5 +101,6 @@ export const processVideoJob = async ({
 		chromeMode: job.chromeMode,
 		offthreadVideoThreads: job.offthreadVideoThreads,
 		audioLatencyHint: null,
+		imageSequencePattern: null,
 	});
 };

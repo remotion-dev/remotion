@@ -27,14 +27,14 @@ export const googleFonts: Font[] = ${JSON.stringify(json.items, null, 2)};
 `.trimStart();
 
 await Bun.write(__dirname + '/google-fonts.ts', contents);
-await $`bunx prettier --write ${__dirname}/google-fonts.ts`;
+await $`bunx prettier --experimental-cli --write ${__dirname}/google-fonts.ts`;
 
 const packageJson = JSON.parse(await Bun.file('package.json').text());
 packageJson.typesVersions['>=1.0'] = {};
 await Bun.write('package.json', JSON.stringify(packageJson, null, 2));
 
 await $`bun scripts/generate.ts && bun scripts/generate-index.ts`;
-await $`bunx prettier --write src`;
+await $`bunx prettier --experimental-cli --write src`;
 await $`bun run make`;
 await $`bun ensure-generation.ts`;
 

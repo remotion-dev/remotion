@@ -91,6 +91,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		propsType: 'input-props',
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
 	});
 
 	const logOptions: LogOptions = {
@@ -218,6 +219,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
 		skipPutAcl: false,
+		requestHandler: null,
 	});
 
 	registerCleanupTask(() => {
@@ -366,6 +368,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
+			requestHandler: null,
 		});
 		if (output) {
 			throw new TypeError(
@@ -418,6 +421,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				customCredentials,
 				forcePathStyle: params.forcePathStyle,
 				storageClass: params.storageClass,
+				requestHandler: null,
 			})
 			.then(() => {
 				RenderInternals.Log.info(
@@ -470,6 +474,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				onArtifact,
 				providerSpecifics,
 				insideFunctionSpecifics,
+				requestHandler: null,
 			});
 		}),
 	);
@@ -508,6 +513,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		everyNthFrame: params.everyNthFrame,
 		frameRange: params.frameRange,
 		storageClass: params.storageClass,
+		requestHandler: null,
 	});
 
 	return postRenderData;

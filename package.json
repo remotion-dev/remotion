@@ -33,7 +33,7 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"caniuse-lite": "1.0.30001690"
+			"caniuse-lite": "1.0.30001724"
 		}
 	},
 	"devDependencies": {
@@ -41,11 +41,11 @@
 		"@types/deno": "2.0.0",
 		"@types/react": "19.0.0",
 		"@types/react-dom": "19.0.0",
-		"prettier": "3.3.3",
+		"prettier": "3.6.0",
 		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"dependencies": {
-		"turbo": "2.4.4",
+		"turbo": "2.5.4",
 		"typescript": "5.8.2"
 	},
 	"packageManager": "pnpm@8.10.2"

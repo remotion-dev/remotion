@@ -9,6 +9,7 @@ import {crfOption} from './crf';
 import {enableCrossSiteIsolationOption} from './cross-site-isolation';
 import {deleteAfterOption} from './delete-after';
 import {disableGitSourceOption} from './disable-git-source';
+import {disallowParallelEncodingOption} from './disallow-parallel-encoding';
 import {enableLambdaInsights} from './enable-lambda-insights';
 import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
@@ -19,6 +20,7 @@ import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenatio
 import {glOption} from './gl';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
+import {imageSequencePatternOption} from './image-sequence-pattern';
 import {jpegQualityOption} from './jpeg-quality';
 import {audioLatencyHintOption} from './latency-hint';
 import {logLevelOption} from './log-level';
@@ -58,6 +60,7 @@ export const allOptions = {
 	webhookCustomDataOption,
 	colorSpaceOption,
 	deleteAfterOption,
+	disallowParallelEncodingOption,
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
@@ -87,6 +90,7 @@ export const allOptions = {
 	apiKeyOption,
 	audioLatencyHintOption,
 	enableCrossSiteIsolationOption,
+	imageSequencePatternOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

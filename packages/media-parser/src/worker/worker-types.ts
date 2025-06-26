@@ -333,6 +333,10 @@ export type ResponseCallbackPayload =
 			trackId: number;
 	  }
 	| {
+			callbackType: 'track-done';
+			trackId: number;
+	  }
+	| {
 			callbackType: 'm3u-associated-playlists-selection';
 			value: SelectM3uAssociatedPlaylistsFnOptions;
 	  };
@@ -362,6 +366,10 @@ export type AcknowledgePayload =
 	| {
 			payloadType: 'on-video-track-response';
 			registeredCallback: boolean;
+	  }
+	| {
+			payloadType: 'on-sample-response';
+			registeredTrackDoneCallback: boolean;
 	  };
 
 export type AcknowledgeCallback = {

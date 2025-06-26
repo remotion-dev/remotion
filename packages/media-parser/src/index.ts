@@ -1,6 +1,6 @@
 import {createAacCodecPrivate} from './aac-codecprivate';
 import {parseFtyp} from './containers/iso-base-media/ftyp';
-import {parseMvhd} from './containers/iso-base-media/mvhd';
+import {parseMvhd} from './containers/iso-base-media/moov/mvhd';
 import {processIsoFormatBox} from './containers/iso-base-media/stsd/samples';
 import {parseStsd} from './containers/iso-base-media/stsd/stsd';
 import {parseTkhd} from './containers/iso-base-media/tkhd';

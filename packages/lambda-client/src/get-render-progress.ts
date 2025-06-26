@@ -5,6 +5,7 @@ import type {RenderProgress} from './constants';
 import {getRenderProgressPayload} from './make-lambda-payload';
 import {parseFunctionName} from './parse-function-name';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export type GetRenderProgressInput = {
 	functionName: string;
@@ -15,6 +16,7 @@ export type GetRenderProgressInput = {
 	s3OutputProvider?: CustomCredentials<AwsProvider>;
 	forcePathStyle?: boolean;
 	skipLambdaInvocation?: boolean;
+	requestHandler?: RequestHandler;
 };
 
 /*
@@ -47,6 +49,7 @@ export const getRenderProgress = async (
 			memorySizeInMb: parsed.memorySizeInMb,
 			timeoutInMilliseconds: parsed.timeoutInSeconds * 1000,
 			functionName: input.functionName,
+			requestHandler: input.requestHandler,
 		});
 	}
 
@@ -57,6 +60,7 @@ export const getRenderProgress = async (
 			payload: getRenderProgressPayload(input),
 			region: input.region,
 			timeoutInTest: 120000,
+			requestHandler: input.requestHandler,
 		});
 	return result;
 };

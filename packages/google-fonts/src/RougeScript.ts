@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rouge Script',
 	importName: 'RougeScript',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Rouge+Script:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/rougescript/v18/LYjFdGbiklMoCIQOw1Ep3S4_U__a.woff2',
+					'https://fonts.gstatic.com/s/rougescript/v19/LYjFdGbiklMoCIQOw1Ep3S4_U__a.woff2',
 			},
 		},
 	},

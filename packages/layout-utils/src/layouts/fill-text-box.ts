@@ -59,6 +59,7 @@ export const fillTextBox = ({
 					fontWeight,
 					fontSize,
 					letterSpacing,
+					textTransform,
 					fontVariantNumeric,
 				});
 
@@ -76,6 +77,7 @@ export const fillTextBox = ({
 					fontWeight,
 					fontSize,
 					letterSpacing,
+					textTransform,
 					fontVariantNumeric,
 				},
 			];

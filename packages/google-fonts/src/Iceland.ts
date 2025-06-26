@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Iceland',
 	importName: 'Iceland',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Iceland:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/iceland/v20/rax9HiuFsdMNOnWPaKtMAQ.woff2',
+					'https://fonts.gstatic.com/s/iceland/v21/rax9HiuFsdMNOnWPaKtMAQ.woff2',
 			},
 		},
 	},

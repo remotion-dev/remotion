@@ -15,6 +15,17 @@ export const parseMediaOnWebWorker: ParseMediaOnWorker = <
 		);
 	}
 
+	if (import.meta.url.includes('.vite/deps')) {
+		const err = [
+			'Detected Vite pre-bundling, which will break the worker.',
+			'Please add the following to your vite.config.js:',
+			'  optimizeDeps: {',
+			'    exclude: ["@remotion/media-parser/worker"]',
+			'  }',
+		].join('\n');
+		throw new Error(err);
+	}
+
 	const worker = new Worker(new URL('./worker-web-entry.mjs', import.meta.url));
 
 	return parseMediaOnWorkerImplementation(

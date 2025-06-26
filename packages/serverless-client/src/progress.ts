@@ -27,6 +27,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 	providerSpecifics,
 	forcePathStyle,
 	functionName,
+	requestHandler,
 }: {
 	bucketName: string;
 	renderId: string;
@@ -38,6 +39,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
 	functionName: string;
+	requestHandler: Provider['requestHandler'] | null;
 }): Promise<GenericRenderProgress<Provider>> => {
 	const overallProgress = await getOverallProgressFromStorage({
 		renderId,
@@ -46,6 +48,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 		region,
 		providerSpecifics,
 		forcePathStyle,
+		requestHandler,
 	});
 
 	if (overallProgress.postRenderData) {

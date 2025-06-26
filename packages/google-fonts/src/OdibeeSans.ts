@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Odibee Sans',
 	importName: 'OdibeeSans',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Odibee+Sans:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/odibeesans/v18/neIPzCSooYAho6WvjeToRbk1cJA.woff2',
+					'https://fonts.gstatic.com/s/odibeesans/v19/neIPzCSooYAho6WvjeToRbk1cJA.woff2',
 			},
 		},
 	},

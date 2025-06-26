@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Staatliches',
 	importName: 'Staatliches',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Staatliches:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/staatliches/v13/HI_OiY8KO6hCsQSoAPmtMYeVvpCNOw.woff2',
+					'https://fonts.gstatic.com/s/staatliches/v14/HI_OiY8KO6hCsQSoAPmtMYeVvpCNOw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/staatliches/v13/HI_OiY8KO6hCsQSoAPmtMYebvpA.woff2',
+					'https://fonts.gstatic.com/s/staatliches/v14/HI_OiY8KO6hCsQSoAPmtMYebvpA.woff2',
 			},
 		},
 	},

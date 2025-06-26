@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Warnes',
 	importName: 'Warnes',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Warnes:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/warnes/v27/pONn1hc0GsW6sW5-ryq3k6I.woff2',
+					'https://fonts.gstatic.com/s/warnes/v28/pONn1hc0GsW6sW5-ryq3k6I.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/warnes/v27/pONn1hc0GsW6sW5-oSq3.woff2',
+					'https://fonts.gstatic.com/s/warnes/v28/pONn1hc0GsW6sW5-oSq3.woff2',
 			},
 		},
 	},

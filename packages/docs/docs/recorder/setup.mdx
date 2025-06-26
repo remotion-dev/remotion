@@ -5,15 +5,59 @@ sidebar_label: Get started
 crumb: Recorder
 ---
 
-# Setup
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
+# Setup
 
 ## 1. Fork and clone
 
-[Create a fork](https://github.com/remotion-dev/recorder/fork) of the `remotion-dev/recorder` repository.  
-Clone the repository using `git clone` and `cd` into the directory.
+Scaffold a new Remotion Recorder project:
 
-Then, clone your fork to get the project locally.
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'bun', value: 'bun', },
+{ label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
+
+```bash title="Use npm as the package manager"
+npx create-video@latest --recorder
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash title="Use pnpm as the package manager"
+pnpm create video --recorder
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash title="Use Yarn as the package manager"
+yarn create video --recorder
+```
+
+  </TabItem>
+
+  <TabItem value="bun">
+
+```bash title="Use Bun as the package manager and runtime"
+bun create video --recorder
+```
+
+:::note
+Bun as a runtime is mostly supported. [Read more here](/docs/bun).
+:::
+
+  </TabItem>
+</Tabs>
 
 ## 2. Install Bun
 
@@ -49,5 +93,5 @@ bun sub.ts
 Once done, you are ready to start the Remotion Recorder:
 
 ```bash
-bun start
+bun run dev
 ```

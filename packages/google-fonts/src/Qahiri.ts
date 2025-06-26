@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Qahiri',
 	importName: 'Qahiri',
-	version: 'v9',
+	version: 'v10',
 	url: 'https://fonts.googleapis.com/css2?family=Qahiri:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/qahiri/v9/tsssAp1RZy0C_hGeUXqgnnk.woff2',
+					'https://fonts.gstatic.com/s/qahiri/v10/tsssAp1RZy0C_hGeUXqgnnk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/qahiri/v9/tsssAp1RZy0C_hGeVHqg.woff2',
+					'https://fonts.gstatic.com/s/qahiri/v10/tsssAp1RZy0C_hGeVHqg.woff2',
 			},
 		},
 	},

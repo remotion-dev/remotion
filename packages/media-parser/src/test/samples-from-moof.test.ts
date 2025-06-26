@@ -2208,6 +2208,7 @@ if (process.platform !== 'win32') {
 		const samples = getSamplesFromMoof({
 			moofBox: toMoofBox(defaultSamples),
 			trackId: 1,
+			trexBoxes: [],
 		});
 
 		const firstSamples = samples.slice(0, 16);
@@ -2409,6 +2410,7 @@ if (process.platform !== 'win32') {
 	test('Should be able to parse audio sample positions from a moof atom', () => {
 		const samplesFromMoof = getSamplesFromMoof({
 			moofBox: toMoofBox(defaultSamples),
+			trexBoxes: [],
 			trackId: 2,
 		});
 

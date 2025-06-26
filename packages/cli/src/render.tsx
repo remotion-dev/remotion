@@ -21,6 +21,7 @@ const {
 	enforceAudioOption,
 	mutedOption,
 	colorSpaceOption,
+	disallowParallelEncodingOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
@@ -41,6 +42,7 @@ const {
 	chromeModeOption,
 	offthreadVideoThreadsOption,
 	audioLatencyHintOption,
+	imageSequencePatternOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -127,6 +129,9 @@ export const render = async (
 	const colorSpace = colorSpaceOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const disallowParallelEncoding = disallowParallelEncodingOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const crf = shouldOutputImageSequence
 		? null
 		: crfOption.getValue({commandLine: parsedCli}).value;
@@ -189,6 +194,9 @@ export const render = async (
 	const audioLatencyHint = audioLatencyHintOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const imageSequencePattern = imageSequencePatternOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	await renderVideoFlow({
 		fullEntryPoint,
@@ -242,7 +250,7 @@ export const render = async (
 		encodingBufferSize,
 		numberOfGifLoops,
 		audioCodec,
-		disallowParallelEncoding: false,
+		disallowParallelEncoding,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		repro,
@@ -255,5 +263,6 @@ export const render = async (
 		chromeMode,
 		offthreadVideoThreads,
 		audioLatencyHint,
+		imageSequencePattern,
 	});
 };

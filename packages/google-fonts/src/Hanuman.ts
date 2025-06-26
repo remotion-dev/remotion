@@ -3,8 +3,8 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hanuman',
 	importName: 'Hanuman',
-	version: 'v23',
-	url: 'https://fonts.googleapis.com/css2?family=Hanuman:ital,wght@0,100;0,300;0,400;0,700;0,900',
+	version: 'v24',
+	url: 'https://fonts.googleapis.com/css2?family=Hanuman:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
 		latin:
@@ -14,33 +14,57 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				khmer:
-					'https://fonts.gstatic.com/s/hanuman/v23/VuJzdNvD15HhpJJBQMLtMKljWRo.woff2',
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKrdObFn.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hanuman/v23/VuJzdNvD15HhpJJBQMLtO6lj.woff2',
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKHdOQ.woff2',
+			},
+			'200': {
+				khmer:
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKrdObFn.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKHdOQ.woff2',
 			},
 			'300': {
 				khmer:
-					'https://fonts.gstatic.com/s/hanuman/v23/VuJ0dNvD15HhpJJBQAr_LIVGZCNc.woff2',
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKrdObFn.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hanuman/v23/VuJ0dNvD15HhpJJBQAr_LI5GZA.woff2',
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKHdOQ.woff2',
 			},
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/hanuman/v23/VuJxdNvD15HhpJJBSKrdObFn.woff2',
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKrdObFn.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hanuman/v23/VuJxdNvD15HhpJJBSKHdOQ.woff2',
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKHdOQ.woff2',
+			},
+			'500': {
+				khmer:
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKrdObFn.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKHdOQ.woff2',
+			},
+			'600': {
+				khmer:
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKrdObFn.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKHdOQ.woff2',
 			},
 			'700': {
 				khmer:
-					'https://fonts.gstatic.com/s/hanuman/v23/VuJ0dNvD15HhpJJBQBr4LIVGZCNc.woff2',
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKrdObFn.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hanuman/v23/VuJ0dNvD15HhpJJBQBr4LI5GZA.woff2',
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKHdOQ.woff2',
+			},
+			'800': {
+				khmer:
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKrdObFn.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKHdOQ.woff2',
 			},
 			'900': {
 				khmer:
-					'https://fonts.gstatic.com/s/hanuman/v23/VuJ0dNvD15HhpJJBQCL6LIVGZCNc.woff2',
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKrdObFn.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hanuman/v23/VuJ0dNvD15HhpJJBQCL6LI5GZA.woff2',
+					'https://fonts.gstatic.com/s/hanuman/v24/VuJxdNvD15HhpJJBSKHdOQ.woff2',
 			},
 		},
 	},
@@ -51,7 +75,16 @@ export const fontFamily = 'Hanuman' as const;
 
 type Variants = {
 	normal: {
-		weights: '100' | '300' | '400' | '700' | '900';
+		weights:
+			| '100'
+			| '200'
+			| '300'
+			| '400'
+			| '500'
+			| '600'
+			| '700'
+			| '800'
+			| '900';
 		subsets: 'khmer' | 'latin';
 	};
 };

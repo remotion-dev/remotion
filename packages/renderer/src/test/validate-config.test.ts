@@ -16,6 +16,8 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					props: {},
 					defaultCodec: null,
 					defaultOutName: null,
+					defaultVideoImageFormat: null,
+					defaultPixelFormat: null,
 				},
 			}),
 		).toThrow(
@@ -36,6 +38,8 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					props: {},
 					defaultCodec: null,
 					defaultOutName: null,
+					defaultVideoImageFormat: null,
+					defaultPixelFormat: null,
 				},
 			}),
 		).toThrow(
@@ -56,6 +60,8 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					props: {},
 					defaultCodec: null,
 					defaultOutName: null,
+					defaultVideoImageFormat: null,
+					defaultPixelFormat: null,
 				},
 			}),
 		).toThrow(
@@ -76,6 +82,8 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					props: {},
 					defaultCodec: null,
 					defaultOutName: null,
+					defaultVideoImageFormat: null,
+					defaultPixelFormat: null,
 				},
 			}),
 		).toThrow(

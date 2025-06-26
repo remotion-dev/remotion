@@ -105,10 +105,11 @@ export const makeParserState = ({
 	let skippedBytes: number = 0;
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
 
-	const iterator: BufferIterator = getArrayBufferIterator(
-		new Uint8Array([]),
-		contentLength,
-	);
+	const iterator: BufferIterator = getArrayBufferIterator({
+		initialData: new Uint8Array([]),
+		maxBytes: contentLength,
+		logLevel,
+	});
 
 	const increaseSkippedBytes = (bytes: number) => {
 		skippedBytes += bytes;

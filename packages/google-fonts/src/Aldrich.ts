@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Aldrich',
 	importName: 'Aldrich',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Aldrich:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/aldrich/v21/MCoTzAn-1s3IGyJMVacY3w.woff2',
+					'https://fonts.gstatic.com/s/aldrich/v22/MCoTzAn-1s3IGyJMVacY3w.woff2',
 			},
 		},
 	},

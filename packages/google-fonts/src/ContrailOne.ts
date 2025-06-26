@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Contrail One',
 	importName: 'ContrailOne',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Contrail+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/contrailone/v19/eLGbP-j_JA-kG0_Zo51noaftYkHs.woff2',
+					'https://fonts.gstatic.com/s/contrailone/v20/eLGbP-j_JA-kG0_Zo51noaftYkHs.woff2',
 			},
 		},
 	},

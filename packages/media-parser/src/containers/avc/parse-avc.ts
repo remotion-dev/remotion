@@ -316,7 +316,11 @@ const findEnd = (buffer: Uint8Array) => {
 };
 
 const inspect = (buffer: Uint8Array, avcState: AvcState): AvcInfo | null => {
-	const iterator = getArrayBufferIterator(buffer, buffer.byteLength);
+	const iterator = getArrayBufferIterator({
+		initialData: buffer,
+		maxBytes: buffer.byteLength,
+		logLevel: 'error',
+	});
 	iterator.startReadingBits();
 	iterator.getBits(1); // forbidden_zero_bit
 	const nal_ref_idc = iterator.getBits(2); // nal_ref_idc

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Risque',
 	importName: 'Risque',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Risque:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/risque/v22/VdGfAZUfHosahXxYAEwUNJ8.woff2',
+					'https://fonts.gstatic.com/s/risque/v23/VdGfAZUfHosahXxYAEwUNJ8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/risque/v22/VdGfAZUfHosahXxYDkwU.woff2',
+					'https://fonts.gstatic.com/s/risque/v23/VdGfAZUfHosahXxYDkwU.woff2',
 			},
 		},
 	},

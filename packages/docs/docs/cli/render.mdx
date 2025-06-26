@@ -51,6 +51,17 @@ Inline JSON string isn't supported on Windows shells because it removes the `"` 
 
 [`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setvideoimageformat) The default image format is `jpeg` since v1.1.
 
+### `--image-sequence-pattern` <AvailableFrom v="4.0.313" />
+
+[Pattern for naming image sequence files. Supports `[frame]` for the zero-padded frame number and `[ext]` for the file extension.]
+
+**Example:**
+
+```bash
+npx remotion render ... --sequence --image-sequence-pattern='frame_[frame]_custom.[ext]'
+# Produces: frame_0001_custom.jpeg, frame_0002_custom.jpeg, ...
+```
+
 ### `--config`<AvailableFrom v="1.2.0" />
 
 Specify a location for the Remotion config file.
@@ -144,6 +155,10 @@ For example only every second frame, every third frame and so on. Only works for
 ### `--enforce-audio-track`<AvailableFrom v="3.2.1" />
 
 [Render a silent audio track if there wouldn't be one otherwise.](/docs/cli/render#--enforce-audio-track).
+
+### `--disallow-parallel-encoding`<AvailableFrom v="4.0.315" />
+
+Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
 
 ### `--number-of-gif-loops`<AvailableFrom v="3.1.0" />
 

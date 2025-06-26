@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Birthstone',
 	importName: 'Birthstone',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Birthstone:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/birthstone/v14/8AtsGs2xO4yLRhy87sv_LLHzjCfZ.woff2',
+					'https://fonts.gstatic.com/s/birthstone/v15/8AtsGs2xO4yLRhy87sv_LLHzjCfZ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/birthstone/v14/8AtsGs2xO4yLRhy87sv_LLDzjCfZ.woff2',
+					'https://fonts.gstatic.com/s/birthstone/v15/8AtsGs2xO4yLRhy87sv_LLDzjCfZ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/birthstone/v14/8AtsGs2xO4yLRhy87sv_LL7zjA.woff2',
+					'https://fonts.gstatic.com/s/birthstone/v15/8AtsGs2xO4yLRhy87sv_LL7zjA.woff2',
 			},
 		},
 	},

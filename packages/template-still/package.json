@@ -37,7 +37,7 @@
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
     "eslint": "9.19.0",
-    "prettier": "3.3.3",
+    "prettier": "3.6.0",
     "bun": "1.1.30",
     "typescript": "5.8.2"
   },

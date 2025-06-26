@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Geostar Fill',
 	importName: 'GeostarFill',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Geostar+Fill:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/geostarfill/v26/AMOWz4SWuWiXFfjEohxQ9osEVFi3.woff2',
+					'https://fonts.gstatic.com/s/geostarfill/v27/AMOWz4SWuWiXFfjEohxQ9osEVFi3.woff2',
 			},
 		},
 	},

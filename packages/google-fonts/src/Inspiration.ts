@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Inspiration',
 	importName: 'Inspiration',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Inspiration:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/inspiration/v6/x3dkckPPZa6L4wIg5cZOEsoOlyvVBA.woff2',
+					'https://fonts.gstatic.com/s/inspiration/v7/x3dkckPPZa6L4wIg5cZOEsoOlyvVBA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inspiration/v6/x3dkckPPZa6L4wIg5cZOEsoPlyvVBA.woff2',
+					'https://fonts.gstatic.com/s/inspiration/v7/x3dkckPPZa6L4wIg5cZOEsoPlyvVBA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inspiration/v6/x3dkckPPZa6L4wIg5cZOEsoBlys.woff2',
+					'https://fonts.gstatic.com/s/inspiration/v7/x3dkckPPZa6L4wIg5cZOEsoBlys.woff2',
 			},
 		},
 	},

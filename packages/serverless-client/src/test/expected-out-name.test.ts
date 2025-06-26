@@ -13,6 +13,7 @@ type MockProvider = {
 	};
 	creationFunctionOptions: {};
 	storageClass: string;
+	requestHandler: null;
 };
 
 const testRenderMetadata: RenderMetadata<MockProvider> = {
