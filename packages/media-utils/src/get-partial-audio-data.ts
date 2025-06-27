@@ -165,16 +165,20 @@ export const getPartialAudioData = async ({
 						throw new Error('No audio decoder found');
 					}
 
+					const fromSecondsWithBuffer =
+						fromSeconds === 0 ? fromSeconds : fromSeconds + BUFFER_IN_SECONDS;
+					const toSecondsWithBuffer = toSeconds - BUFFER_IN_SECONDS;
+
 					// Convert timestamp using the track's timescale
 					const time = sample.timestamp / track.timescale;
 
 					// Skip samples that are before our requested start time (with buffer)
-					if (time < fromSeconds - BUFFER_IN_SECONDS) {
+					if (time < fromSecondsWithBuffer) {
 						return;
 					}
 
 					// Stop immediately when we reach our target time (with buffer)
-					if (time >= toSeconds + BUFFER_IN_SECONDS) {
+					if (time >= toSecondsWithBuffer) {
 						// wait until decoder is done
 						audioDecoder.flush().then(() => {
 							audioDecoder.close();
