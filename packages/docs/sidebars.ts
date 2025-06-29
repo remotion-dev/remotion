@@ -1261,6 +1261,7 @@ const sidebars: SidebarsConfig = {
 				'bun',
 				'deno',
 				'standalone',
+				'miscellaneous/cloudflare-containers-example',
 				'miscellaneous/emojis',
 				'miscellaneous/cross-origin-isolation',
 				'media-fragments',
