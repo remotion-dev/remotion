@@ -1,0 +1,243 @@
+---
+title: 'Deploying a Renderer to Cloudflare Containers'
+sidebar_label: 'Cloudflare Containers'
+crumb: 'Cloudflare Containers'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+This guide provides a complete walkthrough for deploying a Remotion rendering service on [Cloudflare Containers](https://developers.cloudflare.com/containers/). The final rendered videos will be uploaded to a [Cloudflare R2](https://developers.cloudflare.com/r2/) bucket for persistent storage.
+
+## Prerequisites
+
+- A working Remotion project (e.g., from `npm create video`).
+- A [Cloudflare account](https://dash.cloudflare.com/sign-up).
+- The [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/) installed (`npm i -g wrangler`) and authenticated (`wrangler login`).
+- An R2 bucket created in your Cloudflare dashboard.
+- Your R2 bucket's "Public access" URL enabled. In your bucket's settings, click "Allow Access" and copy the public URL (e.g., `https://pub-xxxxxxxx.r2.dev`).
+
+## Step 1: Add Dependencies
+
+Your server will need `express` to handle HTTP requests and the `@aws-sdk/client-s3` package to communicate with the S3-compatible R2 API.
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm install express @aws-sdk/client-s3
+```
+
+</TabItem>
+
+<TabItem value="pnpm">
+
+```bash
+pnpm add express @aws-sdk/client-s3
+```
+
+</TabItem>
+<TabItem value="yarn">
+
+```bash
+yarn add express @aws-sdk/client-s3
+```
+
+</TabItem>
+
+</Tabs>
+
+## Step 2: Create a Dockerfile
+
+Create a Dockerfile in your project's root directory. This file defines the container image, installing all necessary system dependencies for Remotion's browser rendering.
+
+```dockerfile title="Dockerfile"
+# Use a Node.js base image. Bullseye has the required libraries.
+FROM node:18-bullseye-slim
+
+# Install system dependencies needed for Chromium
+RUN apt-get update && apt-get install -y \
+    ca-certificates fonts-liberation libasound2 libatk-bridge2.0-0 libatk1.0-0 \
+    libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 \
+    libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 \
+    libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 \
+    libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 lsb-release \
+    wget xdg-utils --no-install-recommends
+
+# Set up the working directory
+WORKDIR /app
+
+# Copy dependency manifests
+COPY package.json yarn.lock* ./
+
+# Install project dependencies
+RUN yarn install --frozen-lockfile
+
+# Copy the rest of your project source code
+COPY . .
+
+# Tell Remotion where to find the system-installed Chromium.
+ENV REMOTION_CHROME_BINARY=/usr/bin/google-chrome-stable
+
+# The command to start the server
+CMD ["node", "server.js"]
+```
+
+## Step 3: Create the Render Server
+
+Create a server.js file in your root. This Express server will handle render requests, orchestrate the render with Remotion, upload the result to R2, and return the public URL.
+
+```javascript title="server.js"
+import { renderMedia, getCompositions } from '@remotion/renderer';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import express from 'express';
+import fs from 'fs/promises';
+import path from 'path';
+
+const app = express();
+app.use(express.json());
+
+const port = process.env.PORT || 8080;
+
+// These environment variables will be set in wrangler.toml
+const BUCKET_NAME = process.env.R2_BUCKET_NAME;
+const BUCKET_PUBLIC_URL = process.env.R2_PUBLIC_URL;
+const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
+
+const s3 = new S3Client({
+    region: 'auto',
+    endpoint: `https://${ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    // Credentials are not needed when running in the Cloudflare environment
+    // as they are automatically provided by the R2 binding.
+});
+
+app.post('/render', async (req, res) => {
+    const { compositionId, inputProps } = req.body;
+    const outputLocation = path.join('/tmp', `out-${Date.now()}.mp4`);
+
+    try {
+        if (!compositionId) {
+            return res.status(400).send({ message: '`compositionId` is required.' });
+        }
+        if (!BUCKET_NAME || !ACCOUNT_ID || !BUCKET_PUBLIC_URL) {
+            throw new Error('Server is missing R2 environment variables.');
+        }
+
+        const compositions = await getCompositions({ entryPoint: './src/index.ts' });
+        const composition = compositions.find((c) => c.id === compositionId);
+        if (!composition) {
+            return res.status(404).send({ message: `Composition '${compositionId}' not found.` });
+        }
+        
+        console.log('Starting render...');
+        await renderMedia({ composition, inputProps, codec: 'h264', outputLocation });
+        console.log('Render finished.');
+
+        const fileBuffer = await fs.readFile(outputLocation);
+        const objectKey = `renders/${path.basename(outputLocation)}`;
+
+        console.log(`Uploading to R2 bucket: ${BUCKET_NAME}`);
+        await s3.send(
+            new PutObjectCommand({
+                Bucket: BUCKET_NAME,
+                Key: objectKey,
+                Body: fileBuffer,
+                ContentType: 'video/mp4',
+            })
+        );
+        console.log('Upload complete.');
+
+        const publicUrl = `${BUCKET_PUBLIC_URL}/${objectKey}`;
+        res.status(200).send({ outputUrl: publicUrl });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: 'Error rendering video.', error: err.message });
+    } finally {
+        // Clean up the temporary file from the container's filesystem
+        if (await fs.stat(outputLocation).catch(() => null)) {
+            await fs.unlink(outputLocation);
+        }
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Renderer server listening on port ${port}`);
+});
+```
+
+## Step 4: Configure wrangler.toml
+
+The wrangler.toml file configures your Cloudflare service. Create it in your root. We will define environment variables and bind our R2 bucket, which securely grants the container access.
+
+```toml title="wrangler.toml"
+name = "remotion-renderer-service"
+
+# Define environment variables for the container
+[vars]
+R2_BUCKET_NAME = "your-r2-bucket-name" # The name of your R2 bucket
+R2_PUBLIC_URL = "https://pub-xxxxxxxx.r2.dev" # The public URL for your bucket
+CLOUDFLARE_ACCOUNT_ID = "your-account-id" # Find this in your Cloudflare dashboard
+
+# Add an R2 binding to grant access
+[[r2_buckets]]
+binding = "R2_BUCKET" # This name is conventional but not used directly in the server.js
+bucket_name = "your-r2-bucket-name"
+```
+
+:::note
+You must replace the placeholder values for R2_BUCKET_NAME, R2_PUBLIC_URL, and CLOUDFLARE_ACCOUNT_ID with your actual values.
+:::
+
+## Step 5: Deploy
+
+With all files in place, deploy the service from your terminal.
+
+```bash
+wrangler deploy
+```
+
+Wrangler will build the Docker image, push it to Cloudflare, and deploy your service. It will then output your service's public URL.
+
+```bash title="Deployment Output (example)"
+✅ Successfully deployed my-remotion-renderer (9.34s)
+ 🔗 https://remotion-renderer-service.your-subdomain.workers.dev
+```
+
+## Step 6: Trigger a Render
+
+Send a POST request to your service's /render endpoint. Replace YOUR_SERVICE_URL with the URL from the deployment output.
+
+```bash
+curl -X POST https://YOUR_SERVICE_URL/render \
+-H "Content-Type: application/json" \
+-d '{
+  "compositionId": "HelloWorld",
+  "inputProps": {
+    "titleText": "Hello from Cloudflare Containers!",
+    "titleColor": "#0B5394"
+  }
+}'
+```
+
+### Response
+
+If successful, the API will respond with a JSON object containing the public URL of your video, hosted on R2.
+
+```json title="Example Response"
+{
+  "outputUrl": "https://pub-xxxxxxxx.r2.dev/renders/out-1678886400000.mp4"
+}
+```
+
+That's it! You can now use this endpoint to programmatically render videos on demand.
+
+:::warning
+The deployed endpoint is public by default. For production use, you should implement an authentication mechanism (e.g., a secret token in the request header) to secure your rendering API and prevent unauthorized use.
+:::
