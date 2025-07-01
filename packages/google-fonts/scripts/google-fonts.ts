@@ -25272,6 +25272,20 @@ export const googleFonts: Font[] = [
 		menu: 'https://fonts.gstatic.com/s/notosanssundanese/v27/FwZw7_84xUkosG2xJo2gm7nFwSLQkdymq2mkz3Gz1_b6ctxpNOHDgTo.woff2',
 	},
 	{
+		family: 'Noto Sans Sunuwar',
+		variants: ['regular'],
+		subsets: ['latin', 'latin-ext', 'sunuwar'],
+		version: 'v1',
+		lastModified: '2025-06-26',
+		files: {
+			regular:
+				'https://fonts.gstatic.com/s/notosanssunuwar/v1/FwZB7_04xUkosG2xJo2gm7nF0DTfho_Gu2akOrkv.woff2',
+		},
+		category: 'sans-serif',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/notosanssunuwar/v1/FwZB7_04xUkosG2xJo2gm7nF0DTfhr_CsWc.woff2',
+	},
+	{
 		family: 'Noto Sans Syloti Nagri',
 		variants: ['regular'],
 		subsets: ['latin', 'latin-ext', 'syloti-nagri'],

@@ -5647,6 +5647,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./NotoSansSundanese') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Noto Sans Sunuwar',
+		importName: 'NotoSansSunuwar',
+		load: () => import('./NotoSansSunuwar') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Noto Sans Syloti Nagri',
 		importName: 'NotoSansSylotiNagri',
 		load: () => import('./NotoSansSylotiNagri') as Promise<GoogleFont>,
