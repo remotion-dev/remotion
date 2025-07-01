@@ -124,6 +124,8 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		internalParams.ConcurrencyPerLambda = options.ConcurrencyPerLambda
 	}
 
+	internalParams.Concurrency = options.Concurrency
+
 	if options.TimeoutInMilliseconds == 0 {
 		internalParams.TimeoutInMilliseconds = 30000
 	} else {
