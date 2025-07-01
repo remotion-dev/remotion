@@ -903,6 +903,7 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/cloud-gpu-docker',
 				'compare-ssr',
 				'distributed-rendering',
+				'cloudflare-containers',
 			],
 		},
 		{
@@ -1261,7 +1262,6 @@ const sidebars: SidebarsConfig = {
 				'bun',
 				'deno',
 				'standalone',
-				'miscellaneous/cloudflare-containers-example',
 				'miscellaneous/emojis',
 				'miscellaneous/cross-origin-isolation',
 				'media-fragments',

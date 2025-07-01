@@ -666,6 +666,15 @@ export const articles = [
 		slug: 'clipper',
 	},
 	{
+		id: 'cloudflare-containers',
+		title: 'Deploying a Renderer to Cloudflare Containers',
+		relativePath: 'docs/cloudflare-containers.mdx',
+		compId: 'articles-docs-cloudflare-containers',
+		crumb: 'Server-side rendering',
+		noAi: false,
+		slug: 'cloudflare-containers',
+	},
+	{
 		id: 'cloudrun',
 		title: '@remotion/cloudrun',
 		relativePath: 'docs/cloudrun.mdx',
@@ -3121,6 +3130,15 @@ export const articles = [
 		crumb: 'FAQ',
 		noAi: false,
 		slug: 'miscellaneous/cloud-gpu',
+	},
+	{
+		id: 'miscellaneous/cloudflare-containers',
+		title: 'Deploying a Renderer to Cloudflare Containers',
+		relativePath: 'docs/miscellaneous/cloudflare-containers.mdx',
+		compId: 'articles-docs-miscellaneous-cloudflare-containers',
+		crumb: 'Server-side rendering',
+		noAi: false,
+		slug: 'miscellaneous/cloudflare-containers',
 	},
 	{
 		id: 'cross-origin-isolation',
