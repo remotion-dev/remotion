@@ -11,7 +11,7 @@ type AudioDecoderConfig = {
 	codecPrivate: MediaParserCodecData | null;
 };
 
-// Example video:	'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/riverside.mp4';
+// Example video:	'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/riverside.mp4';
 // This video has `numberOfChannels = 2`, but the actual number of channels is `1` according to Codec Private.
 // Therefore, prioritizing Codec Private over `numberOfChannels`.
 export const getActualDecoderParameters = ({
