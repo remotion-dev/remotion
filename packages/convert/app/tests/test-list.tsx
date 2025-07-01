@@ -5,7 +5,7 @@ import {addTestWatcher, isSafari, makeProgressReporter} from './test-structure';
 
 const basicMp4ToWebM = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/bigbuckbunny.mp4';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/bigbuckbunny.mp4';
 
 	return addTestWatcher({
 		name: 'Basic MP4 to WebM',
@@ -22,7 +22,7 @@ const basicMp4ToWebM = (): TestStructure => {
 
 const av1WebmToMp4 = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/av1-bbb.webm';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/av1-bbb.webm';
 
 	return addTestWatcher({
 		name: 'AV1 WebM to MP4',
@@ -57,7 +57,7 @@ const av1WebmToMp4H265 = (): TestStructure => {
 
 const weirdMp4aConfig = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/riverside.mp4';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/riverside.mp4';
 
 	return addTestWatcher({
 		name: 'weird mp4a config',
@@ -76,7 +76,7 @@ const weirdMp4aConfig = (): TestStructure => {
 
 const convertToWav = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/riverside.mp4';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/riverside.mp4';
 
 	return addTestWatcher({
 		name: 'convert to wav',
@@ -211,7 +211,7 @@ const offsetTimestamps = (): TestStructure => {
 
 const transportStream = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/transportstream.ts';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/transportstream.ts';
 
 	return addTestWatcher({
 		name: 'Convert a .ts file to .webm',

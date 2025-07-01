@@ -8,12 +8,11 @@ dotenv.config({
 });
 
 export const remoteExampleVideos = {
-	mp4av1:
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/mp4-av1.mp4',
+	mp4av1: 'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/mp4-av1.mp4',
 	fragmentedMoofTrickyDuration:
 		'https://remotion-video-submissions.s3.ap-northeast-1.amazonaws.com/6048e3e4-ffbb-43a5-b6b5-75643365646a',
 	webmNoCodecPrivate:
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/webm-no-codecprivate.webm',
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/webm-no-codecprivate.webm',
 	tsKeyframes:
 		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/ts-keyframes.ts',
 	largeStsd:

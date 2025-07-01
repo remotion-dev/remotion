@@ -44,7 +44,7 @@ test(
 	'should be able to parse and download remote video',
 	async () => {
 		const {size} = await downloadAndParseMedia({
-			src: 'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/transportstream.ts',
+			src: 'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/transportstream.ts',
 			fields: {
 				size: true,
 			},
@@ -100,7 +100,7 @@ test('should be able to continue on error', () => {
 	const controller = mediaParserController();
 	expect(
 		downloadAndParseMedia({
-			src: 'https://remotion-assets.s3.eu-central-1.amazonaws.com/jkl.gif',
+			src: 'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/jkl.gif',
 			controller,
 			writer: nodeWriter('jkl.gif'),
 			onError: () => ({action: 'download'}),

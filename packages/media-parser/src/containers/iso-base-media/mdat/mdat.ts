@@ -202,7 +202,7 @@ export const parseMdatSection = async (
 	}
 
 	if (samplesWithIndex.track.type === 'video') {
-		// https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/sei_checkpoint.mp4
+		// https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/sei_checkpoint.mp4
 		// Position in file 0x0001aba615
 		// https://github.com/remotion-dev/remotion/issues/4680
 		// In Chrome, we may not treat recovery points as keyframes
