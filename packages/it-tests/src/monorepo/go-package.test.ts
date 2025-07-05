@@ -44,7 +44,6 @@ test(
 				concurrencyPerLambda: 1,
 				concurrency: null,
 				crf: undefined,
-				durationInFrames: 1,
 				deleteAfter: null,
 				downloadBehavior: {type: 'play-in-browser'},
 				envVariables: {},

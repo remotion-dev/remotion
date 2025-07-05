@@ -89,7 +89,6 @@ test('Render Media payload', async () => {
 			colorSpace: null,
 			concurrencyPerLambda: 1,
 			concurrency: null,
-			durationInFrames: 1,
 			crf: undefined,
 			deleteAfter: null,
 			downloadBehavior: {
