@@ -326,7 +326,6 @@ export const renderCommand = async ({
 		composition,
 		framesPerLambda: framesPerLambda ?? null,
 		concurrency: concurrency ?? null,
-		durationInFrames: compositionConfig?.durationInFrames,
 		privacy,
 		logLevel,
 		frameRange: frameRange ?? null,

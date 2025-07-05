@@ -170,6 +170,7 @@ test(
 				envVariables: {},
 				frameRange: [0, 10],
 				framesPerFunction: 8,
+				concurrency: null,
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',

@@ -26,6 +26,8 @@ import {
 	MAX_FUNCTIONS_PER_RENDER,
 	serializeOrThrow,
 	ServerlessRoutines,
+	shouldIgnoreConcurrency,
+	validateConcurrency,
 	validateFramesPerFunction,
 	validateOutname,
 	validatePrivacy,
@@ -145,6 +147,28 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	RenderInternals.validateBitrate(params.audioBitrate, 'audioBitrate');
 	RenderInternals.validateBitrate(params.videoBitrate, 'videoBitrate');
 
+	// Now that we have the real duration, validate concurrency
+	if (params.concurrency !== null && params.concurrency !== undefined) {
+		validateConcurrency({
+			concurrency: params.concurrency,
+			framesPerFunction: params.framesPerFunction,
+			durationInFrames: comp.durationInFrames,
+		});
+	}
+
+	// Check if concurrency should be ignored
+	let finalConcurrency = params.concurrency;
+	if (finalConcurrency !== null && finalConcurrency !== undefined) {
+		if (
+			shouldIgnoreConcurrency({
+				concurrency: finalConcurrency,
+				durationInFrames: comp.durationInFrames,
+			})
+		) {
+			finalConcurrency = null;
+		}
+	}
+
 	RenderInternals.validateConcurrency({
 		value: params.concurrencyPerFunction,
 		setting: 'concurrencyPerLambda',
@@ -162,8 +186,12 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.everyNthFrame,
 	);
 
-	const framesPerLambda =
+	let framesPerLambda =
 		params.framesPerFunction ?? bestFramesPerFunctionParam(frameCount.length);
+
+	if (finalConcurrency) {
+		framesPerLambda = Math.ceil(frameCount.length / finalConcurrency);
+	}
 
 	validateFramesPerFunction({
 		framesPerFunction: framesPerLambda,

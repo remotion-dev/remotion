@@ -52,7 +52,6 @@ export type RenderMediaOnLambdaInput = {
 	maxRetries?: number;
 	framesPerLambda?: number;
 	concurrency?: number;
-	durationInFrames?: number;
 	frameRange?: FrameRange;
 	outName?: OutNameInput<AwsProvider>;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
@@ -167,7 +166,6 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		forceWidth: options.forceWidth ?? null,
 		frameRange: options.frameRange ?? null,
 		framesPerLambda: options.framesPerLambda ?? null,
-		durationInFrames: options.durationInFrames ?? undefined,
 		functionName: options.functionName,
 		imageFormat: options.imageFormat ?? 'jpeg',
 		inputProps: options.inputProps ?? {},

@@ -82,6 +82,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 	const payload: ServerlessPayload<Provider> = {
 		type: ServerlessRoutines.launch,
 		framesPerFunction: params.framesPerLambda,
+		concurrency: params.concurrency,
 		composition: params.composition,
 		serveUrl: realServeUrl,
 		inputProps: params.inputProps,

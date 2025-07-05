@@ -174,6 +174,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		serveUrl: string;
 		composition: string;
 		framesPerFunction: number | null;
+		concurrency: number | null;
 		bucketName: string;
 		inputProps: SerializedInputProps;
 		renderId: string;
