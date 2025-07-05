@@ -58,7 +58,7 @@ export const sitesCreateSubcommand = async (
 		Log.info({indent: false, logLevel});
 		Log.info(
 			{indent: false, logLevel},
-			`${BINARY_NAME} deploy <entry-file.ts>`,
+			`${BINARY_NAME} lambda sites create <entry-file.ts>`,
 		);
 		quit(1);
 		return;
