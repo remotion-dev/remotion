@@ -78,7 +78,11 @@ const Component: React.FC<{
 		<>
 			<Series>
 				{sources.map((src, index) => (
-					<Series.Sequence durationInFrames={100} layout="none" key={index}>
+					<Series.Sequence
+						durationInFrames={durations[index] * fps}
+						layout="none"
+						key={index}
+					>
 						<OffthreadVideo src={src} />
 					</Series.Sequence>
 				))}
