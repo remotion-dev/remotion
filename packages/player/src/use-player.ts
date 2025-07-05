@@ -3,7 +3,6 @@ import {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import type {PlayerEmitter} from './event-emitter.js';
-import {useFrameImperative} from './use-frame-imperative.js';
 
 type UsePlayerMethods = {
 	frameBack: (frames: number) => void;
@@ -195,8 +194,6 @@ export const usePlayer = (): UsePlayerMethods => {
 		[videoId, imperativePlaying, lastFrame, setFrame],
 	);
 
-	const getCurrentFrame = useFrameImperative();
-
 	const toggle = useCallback(
 		(e?: SyntheticEvent | PointerEvent) => {
 			if (imperativePlaying.current) {
@@ -219,12 +216,11 @@ export const usePlayer = (): UsePlayerMethods => {
 			pause,
 			seek,
 			isFirstFrame,
-			getCurrentFrame,
+			getCurrentFrame: () => frameRef.current,
 			isPlaying: () => imperativePlaying.current,
 			isBuffering: () => buffering.current,
 			pauseAndReturnToPlayStart,
 			hasPlayed,
-			remotionInternal_currentFrameRef: frameRef,
 			toggle,
 		};
 	}, [
@@ -232,7 +228,6 @@ export const usePlayer = (): UsePlayerMethods => {
 		emitter,
 		frameBack,
 		frameForward,
-		getCurrentFrame,
 		hasPlayed,
 		imperativePlaying,
 		isFirstFrame,
