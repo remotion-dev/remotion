@@ -42,6 +42,7 @@ test(
 				chromiumOptions: {},
 				colorSpace: null,
 				concurrencyPerLambda: 1,
+				concurrency: null,
 				crf: undefined,
 				deleteAfter: null,
 				downloadBehavior: {type: 'play-in-browser'},

@@ -63,6 +63,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			chromiumOptions: {},
 			colorSpace: null,
 			concurrencyPerLambda: 1,
+			concurrency: null,
 			crf: undefined,
 			deleteAfter: null,
 			downloadBehavior: {

@@ -16,6 +16,7 @@ test('Should fail when using an incompatible version', async () => {
 				envVariables: {},
 				frameRange: [0, 12],
 				framesPerFunction: 8,
+				concurrency: null,
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',

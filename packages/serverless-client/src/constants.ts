@@ -117,6 +117,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	serveUrl: string;
 	composition: string;
 	framesPerLambda: number | null;
+	concurrency: number | null;
 	inputProps: SerializedInputProps;
 	codec: ServerlessCodec;
 	audioCodec: AudioCodec | null;
@@ -173,6 +174,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		serveUrl: string;
 		composition: string;
 		framesPerFunction: number | null;
+		concurrency: number | null;
 		bucketName: string;
 		inputProps: SerializedInputProps;
 		renderId: string;

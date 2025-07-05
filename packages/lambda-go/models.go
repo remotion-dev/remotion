@@ -25,6 +25,7 @@ type RemotionOptions struct {
 	EveryNthFrame                  int                    `json:"everyNthFrame"`
 	NumberOfGifLoops               int                    `json:"numberOfGifLoops"`
 	ConcurrencyPerLambda           int                    `json:"concurrencyPerLambda"`
+	Concurrency                    *int                   `json:"concurrency"`
 	DownloadBehavior               map[string]interface{} `json:"downloadBehavior"`
 	Muted                          bool                   `json:"muted"`
 	PreferLossless                 bool                   `json:"preferLossless"`
@@ -76,6 +77,7 @@ type renderInternalOptions struct {
 	EveryNthFrame                  int                    `json:"everyNthFrame"`
 	NumberOfGifLoops               int                    `json:"numberOfGifLoops"`
 	ConcurrencyPerLambda           int                    `json:"concurrencyPerLambda"`
+	Concurrency                    *int                   `json:"concurrency"`
 	DownloadBehavior               map[string]interface{} `json:"downloadBehavior"`
 	Muted                          bool                   `json:"muted"`
 	PreferLossless                 bool                   `json:"preferLossless"`
