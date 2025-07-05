@@ -904,6 +904,7 @@ const sidebars: SidebarsConfig = {
 				'compare-ssr',
 				'distributed-rendering',
 				'cloudflare-containers',
+				'azure-container-apps',
 			],
 		},
 		{
