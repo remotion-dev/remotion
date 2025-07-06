@@ -23,7 +23,7 @@ import {
 	selectPackageManager,
 } from './pkg-managers';
 import {resolveProjectRoot} from './resolve-project-root';
-import {selectTemplate} from './select-template';
+import {getDirectoryArgument, selectTemplate} from './select-template';
 import {yesOrNo} from './yesno';
 
 const gitExists = (commandToCheck: string, argsToCheck: string[]) => {
@@ -82,7 +82,18 @@ const getGitStatus = async (root: string): Promise<void> => {
 
 export const init = async () => {
 	Log.info(`Welcome to ${chalk.blue('Remotion')}!`);
-	const {projectRoot, folderName} = await resolveProjectRoot();
+
+	// Get directory argument if provided
+	const directoryArgument = getDirectoryArgument();
+
+	// Select template first
+	const selectedTemplate = await selectTemplate();
+
+	// Then resolve project root with template info and directory argument
+	const {projectRoot, folderName} = await resolveProjectRoot({
+		directoryArgument,
+		selectedTemplate,
+	});
 	Log.info();
 
 	const result = await checkGitAvailability(projectRoot, 'git', ['--version']);
@@ -107,8 +118,6 @@ export const init = async () => {
 	}
 
 	const latestRemotionVersionPromise = getLatestRemotionVersion();
-
-	const selectedTemplate = await selectTemplate();
 
 	const shouldOverrideTailwind = selectedTemplate.allowEnableTailwind
 		? await askTailwind()
