@@ -5,18 +5,20 @@ sidebar_label: 'Azure Container Apps'
 crumb: 'Server-side rendering'
 ---
 
-This guide provides a walkthrough for deploying Remotion rendering service with basic render queuing on [Azure Container Apps](https://azure.microsoft.com/en-us/products/container-apps).
+:::note
+This guide has been contributed by the community and has not yet been tested by the Remotion team.
+:::
 
+This guide provides a walkthrough for deploying Remotion rendering service with basic render queuing on [Azure Container Apps](https://azure.microsoft.com/en-us/products/container-apps).
 
 ## Prerequisites
 
 - A working Remotion project (e.g., from `npm create video`) with provision to use [Docker](https://www.docker.com/).
 - An [Azure account](https://azure.microsoft.com/en-au/pricing/purchase-options/azure-account).
-- A basic understanding of [Docker](https://www.docker.com/) and having it installed on your system is required. 
+- A basic understanding of [Docker](https://www.docker.com/) and having it installed on your system is required.
 - The [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/?view=azure-cli-latest) installed, authenticated (`azure login`) and a subscription is selected after authentication.
 - The Azure account is provisioned to use GPU on `Azure Container Apps`, if not, request [here](https://aka.ms/aca/gpus-request-access).
-- A [docker hub account](https://www.docker.com/get-started/) to host the docker image and  authenticate (`docker login`).
-
+- A [docker hub account](https://www.docker.com/get-started/) to host the docker image and authenticate (`docker login`).
 
 ## Step 1: Pick a project
 
@@ -26,7 +28,7 @@ For simplicity, we'll use [remotion-gpu](https://github.com/alexfernandez803/rem
 
 From the project directory, build the Docker image and push it to Docker Hub with your account, specifying an image name and version tag. The `image-name` is `remotion-docker-gpu` and `version` is `1.0.0`.
 
-```bash 
+```bash
 docker build -t your-dockerhub-username/remotion-docker-gpu:1.0.0 .
 ```
 
@@ -38,7 +40,7 @@ docker push your-dockerhub-username/remotion-docker-gpu:1.0.0
 
 ## Step 4: Set environment variables
 
-Set the environment variables for the `azure cli`  
+Set the environment variables for the `azure cli`
 
 ```bash title="set evironment variables"
 CONTAINER_IMAGE="docker.io/your-dockerhub-username/remotion-docker-gpu:1.0.0"
@@ -49,11 +51,12 @@ CONTAINER_APP_NAME="<CONTAINER_APP_NAME>"
 WORKLOAD_PROFILE_NAME="NC8as-T4"
 WORKLOAD_PROFILE_TYPE="Consumption-GPU-NC8as-T4"
 ```
-### Variable representation
-- `CONTAINER_IMAGE` represents the `docker.io` domain and docker image.
-- `LOCATION` represents the region where the GPU is allocated. 
-- `WORKLOAD_PROFILE_NAME` and `WORKLOAD_PROFILE_TYPE` are constant variables from Azure [documentation](https://learn.microsoft.com/en-us/azure/container-apps/gpu-image-generation?pivots=azure-cli) representing GPU family to use.
 
+### Variable representation
+
+- `CONTAINER_IMAGE` represents the `docker.io` domain and docker image.
+- `LOCATION` represents the region where the GPU is allocated.
+- `WORKLOAD_PROFILE_NAME` and `WORKLOAD_PROFILE_TYPE` are constant variables from Azure [documentation](https://learn.microsoft.com/en-us/azure/container-apps/gpu-image-generation?pivots=azure-cli) representing GPU family to use.
 
 ## Step 5: Create the resource group
 
@@ -63,7 +66,6 @@ az group create \
   --location $LOCATION \
   --query "properties.provisioningState"
 ```
-
 
 ## Step 6: Register insights for monitoring
 
@@ -135,7 +137,7 @@ If successful, the API will respond with `JSON` containing the `jobId` which can
 
 ```json title="Example Response"
 {
-  "jobId":"955338f6-2607-48bd-bedb-6d4c98f7b4dc"
+  "jobId": "955338f6-2607-48bd-bedb-6d4c98f7b4dc"
 }
 ```
 
@@ -144,34 +146,34 @@ If successful, the API will respond with `JSON` containing the `jobId` which can
 Send a GET request to the get the render status, replace `YOUR_SERVICE_URL` with the URL from the deployment output and the `jobId` from the render request output.
 
 ```bash
-curl  {YOUR_SERVICE_URL}/renders/{jobId} 
+curl  {YOUR_SERVICE_URL}/renders/{jobId}
 ```
 
 ### Response
+
 ```json title="Example Response"
 {
-  "status":"completed",
-  "videoUrl":"/renders/955338f6-2607-48bd-bedb-6d4c98f7b4dc.mp4",
-  "data":{"titleText":"Hello, world!"}
+  "status": "completed",
+  "videoUrl": "/renders/955338f6-2607-48bd-bedb-6d4c98f7b4dc.mp4",
+  "data": {"titleText": "Hello, world!"}
 }
 ```
 
-If `status` is `completed`, combine `YOUR_SERVICE_URL` and the `video_url` response to generate the download link (`https://remotion-gpu.grayocean-24741fc9.australiaeast.azurecontainerapps.io/renders/955338f6-2607-48bd-bedb-6d4c98f7b4dc.mp4`).  
-
+If `status` is `completed`, combine `YOUR_SERVICE_URL` and the `video_url` response to generate the download link (`https://remotion-gpu.grayocean-24741fc9.australiaeast.azurecontainerapps.io/renders/955338f6-2607-48bd-bedb-6d4c98f7b4dc.mp4`).
 
 ## Step 12: (`Optional`) Delete the resource group
 
 ```bash
 az group delete --name $RESOURCE_GROUP
 ```
-This will delete all the resource inside the resource group including application container.
 
+This will delete all the resource inside the resource group including application container.
 
 :::warning
 Cost: This implementation does not include cost management. Refer to Azure pricing documentation for usage estimates. Use at your own risk.
 Performance: Generated videos may appear blurry. GPU acceleration is configured in the project [config](https://github.com/alexfernandez803/remotion-azure/blob/main/remotion.config.ts#L6), but actual GPU utilization has not been confirmed.
 :::
 
-
 ## See also
+
 - [Cloudflare Containers](/docs/cloudflare-containers)
