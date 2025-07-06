@@ -9,6 +9,7 @@ use ffmpeg_next::{
 
 use crate::{
     errors::ErrorWithBacktrace,
+    fix_dimensions,
     global_printer::_print_verbose,
     image::get_png_data,
     max_cache_size,
@@ -107,6 +108,7 @@ impl ScalableFrame {
                         let data = d.clone();
                         planes.push(data);
                     }
+
                     format = video.format();
 
                     linesize = unsafe { (*video.as_ptr()).linesize };
@@ -125,6 +127,7 @@ impl ScalableFrame {
 
                 let bitmap =
                     scale_and_make_bitmap(&frame, planes, format, linesize, self.transparent)?;
+
                 self.rgb_frame = Some(RgbFrame { data: bitmap });
                 self.native_frame = None;
                 let size_after = self.get_size();
@@ -238,10 +241,18 @@ pub fn scale_and_make_bitmap(
         false => Pixel::BGR24,
     };
 
-    let mut scaler = Context::get(
+    let (fixed_width, fixed_height) = fix_dimensions::get_dimensions_from_planes(
         src_format,
+        &planes,
+        &linesize,
         native_frame.original_width,
         native_frame.original_height,
+    )?;
+
+    let mut scaler = Context::get(
+        src_format,
+        fixed_width,
+        fixed_height,
         dst_format,
         native_frame.scaled_width,
         native_frame.scaled_height,
@@ -274,8 +285,8 @@ pub fn scale_and_make_bitmap(
     let mut scaled = Video::empty();
     scaler.run(
         src_format,
-        native_frame.original_width,
-        native_frame.original_height,
+        fixed_width,
+        fixed_height,
         ptr,
         linesize.as_ptr(),
         &mut scaled,
