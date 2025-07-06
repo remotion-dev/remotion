@@ -42,7 +42,7 @@ docker push your-dockerhub-username/remotion-docker-gpu:1.0.0
 
 Set the environment variables for the `azure cli`
 
-```bash title="set evironment variables"
+```bash title="Set environment variables"
 CONTAINER_IMAGE="docker.io/your-dockerhub-username/remotion-docker-gpu:1.0.0"
 RESOURCE_GROUP="<RESOURCE_GROUP>"
 ENVIRONMENT_NAME="<ENVIRONMENT_NAME>"
@@ -110,7 +110,7 @@ az containerapp create \
   --query properties.configuration.ingress.fqdn
 ```
 
-`Azure CLI` will deploy the image to `Azure Container Apps` when completed will provide a url which accepts `HTTP` request.
+`Azure CLI` will deploy the image to `Azure Container Apps` and when completed will provide a URL which accepts `HTTP` requests.
 
 ```bash title="Deployment Output (example)"
 Container app created. Access your app at https://remotion-gpu.grayocean-24741fc9.australiaeast.azurecontainerapps.io/
@@ -143,7 +143,7 @@ If successful, the API will respond with `JSON` containing the `jobId` which can
 
 ## Step 11: Get render status
 
-Send a GET request to the get the render status, replace `YOUR_SERVICE_URL` with the URL from the deployment output and the `jobId` from the render request output.
+Send a GET request to get the render status, replace `YOUR_SERVICE_URL` with the URL from the deployment output and the `jobId` from the render request output.
 
 ```bash
 curl  {YOUR_SERVICE_URL}/renders/{jobId}
@@ -159,7 +159,7 @@ curl  {YOUR_SERVICE_URL}/renders/{jobId}
 }
 ```
 
-If `status` is `completed`, combine `YOUR_SERVICE_URL` and the `video_url` response to generate the download link (`https://remotion-gpu.grayocean-24741fc9.australiaeast.azurecontainerapps.io/renders/955338f6-2607-48bd-bedb-6d4c98f7b4dc.mp4`).
+If `status` is `completed`, combine `YOUR_SERVICE_URL` and the `videoUrl` response to generate the download link (`https://remotion-gpu.grayocean-24741fc9.australiaeast.azurecontainerapps.io/renders/955338f6-2607-48bd-bedb-6d4c98f7b4dc.mp4`).
 
 ## Step 12: (`Optional`) Delete the resource group
 
@@ -167,7 +167,7 @@ If `status` is `completed`, combine `YOUR_SERVICE_URL` and the `video_url` respo
 az group delete --name $RESOURCE_GROUP
 ```
 
-This will delete all the resource inside the resource group including application container.
+This will delete all the resources inside the resource group including the application container.
 
 :::warning
 Cost: This implementation does not include cost management. Refer to Azure pricing documentation for usage estimates. Use at your own risk.
