@@ -52,5 +52,6 @@ pub fn get_dimensions_from_planes(
         ));
     }
 
-    Ok((y_width, y_height))
+    // Believe the original width, but do not allow overflow
+    Ok((y_width.min(original_width), y_height.min(original_height)))
 }
