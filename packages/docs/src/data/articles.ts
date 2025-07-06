@@ -370,7 +370,7 @@ export const articles = [
 	},
 	{
 		id: 'azure-container-apps',
-		title: 'Deploying a Renderer to Azure Container Apps',
+		title: 'Deploying to Azure Container Apps',
 		relativePath: 'docs/azure-container-apps.mdx',
 		compId: 'articles-docs-azure-container-apps',
 		crumb: 'Server-side rendering',
