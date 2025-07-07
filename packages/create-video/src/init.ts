@@ -88,6 +88,7 @@ export const init = async () => {
 
 	// Select template first
 	const selectedTemplate = await selectTemplate();
+	Log.info(`Selected ${chalk.blue(selectedTemplate.shortName)}.`);
 
 	// Then resolve project root with template info and directory argument
 	const {projectRoot, folderName} = await resolveProjectRoot({
@@ -169,11 +170,7 @@ export const init = async () => {
 		: relativeToCurrent;
 
 	Log.info();
-	Log.info(
-		`Copied ${chalk.blue(
-			selectedTemplate.shortName,
-		)} to ${chalk.blue(cdToFolder)}.`,
-	);
+	Log.info(`Copied to ${chalk.blue(cdToFolder)}.`);
 	Log.info();
 
 	Log.info('Get started by running:');
@@ -184,11 +181,11 @@ export const init = async () => {
 	Log.info('To render a video, run:');
 	Log.info(' ' + chalk.blue(getRenderCommand(pkgManager)));
 	Log.info('');
+	Log.info();
+	await openInEditorFlow(projectRoot);
 	Log.info(
 		'Docs to get you started:',
 		chalk.underline('https://www.remotion.dev/docs/the-fundamentals'),
 	);
-	Log.info();
-	await openInEditorFlow(projectRoot);
 	Log.info('Enjoy Remotion!');
 };
