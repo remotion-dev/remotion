@@ -59,6 +59,7 @@ export const calculateJumpMarks = (
 
 	const allSamplesSortedByOffset = samplePositionTracks
 		.flat(1)
+		.filter((s) => s.track.type === 'audio' || s.track.type === 'video')
 		.sort((a, b) => a.samplePosition.offset - b.samplePosition.offset);
 
 	let indexToVisit = 0;

@@ -903,6 +903,8 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/cloud-gpu-docker',
 				'compare-ssr',
 				'distributed-rendering',
+				'cloudflare-containers',
+				'azure-container-apps',
 			],
 		},
 		{

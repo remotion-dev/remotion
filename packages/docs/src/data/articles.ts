@@ -369,6 +369,15 @@ export const articles = [
 		slug: 'audio-buffer-to-data-url',
 	},
 	{
+		id: 'azure-container-apps',
+		title: 'Deploying to Azure Container Apps',
+		relativePath: 'docs/azure-container-apps.mdx',
+		compId: 'articles-docs-azure-container-apps',
+		crumb: 'Server-side rendering',
+		noAi: false,
+		slug: 'azure-container-apps',
+	},
+	{
 		id: 'brownfield',
 		title: 'Installing Remotion in an existing project',
 		relativePath: 'docs/brownfield-installation.mdx',
@@ -664,6 +673,15 @@ export const articles = [
 		crumb: 'Experimental API',
 		noAi: false,
 		slug: 'clipper',
+	},
+	{
+		id: 'cloudflare-containers',
+		title: 'Deploying to Cloudflare Containers',
+		relativePath: 'docs/cloudflare-containers.mdx',
+		compId: 'articles-docs-cloudflare-containers',
+		crumb: 'Server-side rendering',
+		noAi: false,
+		slug: 'cloudflare-containers',
 	},
 	{
 		id: 'cloudrun',

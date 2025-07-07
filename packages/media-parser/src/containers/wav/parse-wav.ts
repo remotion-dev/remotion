@@ -18,10 +18,10 @@ export const parseWav = (state: ParserState): Promise<ParseResult> => {
 		return parseMediaSection({state});
 	}
 
-	const type = iterator.getByteString(4, false);
+	const type = iterator.getByteString(4, false).toLowerCase();
 	Log.trace(state.logLevel, `Processing box type ${type}`);
 
-	if (type === 'RIFF') {
+	if (type === 'riff') {
 		return parseHeader({state});
 	}
 
@@ -33,15 +33,15 @@ export const parseWav = (state: ParserState): Promise<ParseResult> => {
 		return parseData({state});
 	}
 
-	if (type === 'LIST') {
+	if (type === 'list') {
 		return parseList({state});
 	}
 
-	if (type === 'id3' || type === 'ID3') {
+	if (type === 'id3') {
 		return parseId3({state});
 	}
 
-	if (type === 'JUNK' || type === 'FLLR') {
+	if (type === 'junk' || type === 'fllr') {
 		return parseJunk({state});
 	}
 
