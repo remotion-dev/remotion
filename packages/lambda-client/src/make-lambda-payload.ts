@@ -28,7 +28,6 @@ import {
 	getNeedsToUpload,
 	serializeOrThrow,
 	validateDownloadBehavior,
-	validateFramesPerFunction,
 } from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
@@ -59,6 +58,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	jpegQuality: number;
 	maxRetries: number;
 	framesPerLambda: number | null;
+	concurrency: number | null;
 	logLevel: LogLevel;
 	frameRange: FrameRange | null;
 	outName: OutNameInput<AwsProvider> | null;
@@ -94,6 +94,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	rendererFunctionName,
 	frameRange,
 	framesPerLambda,
+	concurrency,
 	forceBucketName: bucketName,
 	codec,
 	composition,
@@ -143,10 +144,6 @@ export const makeLambdaRenderMediaPayload = async ({
 > => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
-	validateFramesPerFunction({
-		framesPerFunction: framesPerLambda ?? null,
-		durationInFrames: 1,
-	});
 	validateDownloadBehavior(downloadBehavior);
 	validateWebhook(webhook);
 
@@ -176,6 +173,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	return {
 		rendererFunctionName,
 		framesPerLambda,
+		concurrency,
 		composition,
 		serveUrl,
 		inputProps: serialized,

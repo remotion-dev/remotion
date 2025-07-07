@@ -67,6 +67,21 @@ Minimum value: <MinimumFramesPerLambda />
 The `framesPerLambda` parameter cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
 :::
 
+### `concurrency?`<AvailableFrom v="4.0.322" />
+
+_optional_
+
+Specify the number of Lambda functions to use for rendering. This is an alternative to `framesPerLambda` that allows you to set the concurrency directly without needing to know the video duration.
+
+The concurrency is defined as `frameCount / framesPerLambda`. Remotion will automatically calculate the appropriate `framesPerLambda` value based on your concurrency setting.
+
+Maximum value: 200  
+Minimum value: Depends on video length (must result in `framesPerLambda >= 4`)
+
+:::note
+Cannot be used together with `framesPerLambda`. Use only one of them.
+:::
+
 ### `frameRange?`
 
 _number | [number, number] - optional_

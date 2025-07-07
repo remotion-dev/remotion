@@ -30,7 +30,6 @@ import {
 	validateOutname,
 	validatePrivacy,
 } from '@remotion/serverless-client';
-import {bestFramesPerFunctionParam} from '../best-frames-per-function-param';
 import {cleanupProps} from '../cleanup-props';
 import {findOutputFileInBucket} from '../find-output-file-in-bucket';
 import type {LaunchedBrowser} from '../get-browser-instance';
@@ -162,12 +161,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.everyNthFrame,
 	);
 
-	const framesPerLambda =
-		params.framesPerFunction ?? bestFramesPerFunctionParam(frameCount.length);
-
-	validateFramesPerFunction({
-		framesPerFunction: framesPerLambda,
+	const framesPerLambda = validateFramesPerFunction({
+		framesPerFunction: params.framesPerFunction,
 		durationInFrames: frameCount.length,
+		concurrency: params.concurrency,
 	});
 
 	validateOutname({
