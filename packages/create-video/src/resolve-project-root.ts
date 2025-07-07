@@ -6,6 +6,7 @@ import {Log} from './log';
 import {mkdirp} from './mkdirp';
 import prompts from './prompts';
 import {isTmpFlagSelected} from './select-template';
+import type {Template} from './templates';
 import {validateName} from './validate-name';
 
 function assertValidName(folderName: string) {
@@ -35,7 +36,10 @@ function assertFolderEmptyAsync(projectRoot: string): {exists: boolean} {
 	return {exists: false};
 }
 
-export const resolveProjectRoot = async (): Promise<{
+export const resolveProjectRoot = async (options?: {
+	directoryArgument?: string | null;
+	selectedTemplate?: Template;
+}): Promise<{
 	projectRoot: string;
 	folderName: string;
 }> => {
@@ -50,29 +54,42 @@ export const resolveProjectRoot = async (): Promise<{
 
 	let projectName = '';
 
-	try {
-		const {answer} = await prompts({
-			type: 'text',
-			name: 'answer',
-			message: 'What would you like to name your video?',
-			initial: 'my-video',
-			validate: (name) => {
-				const validation = validateName(path.basename(path.resolve(name)));
-				if (typeof validation === 'string') {
-					return 'Invalid project name: ' + validation;
-				}
-
-				return true;
-			},
-		});
-
-		if (typeof answer === 'string') {
-			projectName = answer.trim();
+	// If a directory argument was provided, use it directly
+	if (options?.directoryArgument) {
+		projectName = options.directoryArgument;
+	} else {
+		// Print selected template info before prompting for directory
+		if (options?.selectedTemplate) {
+			Log.info(
+				`Selected template: ${chalk.blue(options.selectedTemplate.shortName)}`,
+			);
+			Log.info();
 		}
-	} catch (error) {
-		// Handle the aborted message in a custom way.
-		if ((error as {code: string}).code !== 'ABORTED') {
-			throw error;
+
+		try {
+			const {answer} = await prompts({
+				type: 'text',
+				name: 'answer',
+				message: 'Directory to create your project',
+				initial: 'my-video',
+				validate: (name) => {
+					const validation = validateName(path.basename(path.resolve(name)));
+					if (typeof validation === 'string') {
+						return 'Invalid project name: ' + validation;
+					}
+
+					return true;
+				},
+			});
+
+			if (typeof answer === 'string') {
+				projectName = answer.trim();
+			}
+		} catch (error) {
+			// Handle the aborted message in a custom way.
+			if ((error as {code: string}).code !== 'ABORTED') {
+				throw error;
+			}
 		}
 	}
 
@@ -84,7 +101,7 @@ export const resolveProjectRoot = async (): Promise<{
 	mkdirp(projectRoot);
 
 	if (assertFolderEmptyAsync(projectRoot).exists) {
-		return resolveProjectRoot();
+		return resolveProjectRoot(options);
 	}
 
 	return {projectRoot, folderName};
