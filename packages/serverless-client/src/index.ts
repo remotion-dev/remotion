@@ -33,10 +33,6 @@ export {
 	SerializedArtifact,
 } from './serialize-artifact';
 
-export {
-	shouldIgnoreConcurrency,
-	validateConcurrency,
-} from './validate-concurrency';
 export {validateDownloadBehavior} from './validate-download-behavior';
 export {validateFramesPerFunction} from './validate-frames-per-function';
 
