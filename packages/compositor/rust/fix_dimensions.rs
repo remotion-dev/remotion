@@ -25,33 +25,6 @@ pub fn get_dimensions_from_planes(
     let y_height = planes[0].len() as u32 / linesizes[0] as u32;
     let y_width = linesizes[0] as u32;
 
-    let u_height = planes[1].len() as u32 / linesizes[1] as u32;
-    let u_width = linesizes[1] as u32;
-
-    let v_height = planes[2].len() as u32 / linesizes[2] as u32;
-    let v_width = linesizes[2] as u32;
-
-    // For YUV420P, U and V planes should be half the size of Y plane
-    let expected_u_width = y_width / 2;
-    let expected_u_height = y_height / 2;
-    let expected_v_width = y_width / 2;
-    let expected_v_height = y_height / 2;
-
-    // Verify all planes have consistent dimensions
-    if u_width != expected_u_width || u_height != expected_u_height {
-        return Err(std::io::Error::new(
-            ErrorKind::Other,
-            "U plane dimensions mismatch",
-        ));
-    }
-
-    if v_width != expected_v_width || v_height != expected_v_height {
-        return Err(std::io::Error::new(
-            ErrorKind::Other,
-            "V plane dimensions mismatch",
-        ));
-    }
-
     // Believe the original width, but do not allow overflow
     Ok((y_width.min(original_width), y_height.min(original_height)))
 }
