@@ -83,7 +83,7 @@ export const Counter: React.FC<CounterProps> = ({
 
 					const inputValue = parseInt(e.target.value, 10);
 					const validValue = Math.max(inputValue, minCount);
-					
+
 					// For steps > 1, round to the nearest valid step
 					if (step > 1) {
 						const roundedValue = Math.round(validValue / step) * step;
@@ -96,7 +96,7 @@ export const Counter: React.FC<CounterProps> = ({
 			<div className="flex flex-col ml-3 h-full">
 				<button
 					type="button"
-					className="border-0 border-l-2 border-l-solid border-b-2 flex-1 border-text"
+					className="border-0 border-l-2 border-l-solid border-b-2 flex-1 border-text border-b-[var(--box-stroke)] border-l-[var(--box-stroke)]"
 					style={{
 						...buttonContainer,
 					}}
@@ -106,7 +106,7 @@ export const Counter: React.FC<CounterProps> = ({
 				</button>
 				<button
 					type="button"
-					className="border-0 border-l-2 border-l-solid flex-1 border-text"
+					className="border-0 border-l-2 border-l-solid flex-1 border-text  border-l-[var(--box-stroke)]"
 					style={{
 						...buttonContainer,
 					}}
