@@ -81,6 +81,10 @@ Check `video-preview.tsx` and `App.tsx` for implementation examples.
 The `TimelineProvider` includes an `onChange` callback that fires whenever the timeline state changes (adding/removing tracks, moving items, etc.). Use this to save the editor state to your backend:
 
 ```tsx
+type TimelineState = {
+  tracks: TrackType[];
+}
+
 function VideoEditor() {
   const saveToServer = async (state: TimelineState) => {
     try {
