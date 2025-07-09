@@ -4086,11 +4086,6 @@ export const getAvailableFonts = () => [
 		load: () => import('./LindenHill') as Promise<GoogleFont>,
 	},
 	{
-		fontFamily: 'Linefont',
-		importName: 'Linefont',
-		load: () => import('./Linefont') as Promise<GoogleFont>,
-	},
-	{
 		fontFamily: 'Lisu Bosa',
 		importName: 'LisuBosa',
 		load: () => import('./LisuBosa') as Promise<GoogleFont>,

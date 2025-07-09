@@ -2456,9 +2456,6 @@
 			"LindenHill": [
 				"dist/cjs/LindenHill.d.ts"
 			],
-			"Linefont": [
-				"dist/cjs/Linefont.d.ts"
-			],
 			"LisuBosa": [
 				"dist/cjs/LisuBosa.d.ts"
 			],
