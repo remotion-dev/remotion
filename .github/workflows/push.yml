@@ -187,5 +187,6 @@ jobs:
       - name: Install
         run: pnpm i --frozen-lockfile
       - name: Build & Test
+        timeout-minutes: 30
         run: |
           pnpm run ci
