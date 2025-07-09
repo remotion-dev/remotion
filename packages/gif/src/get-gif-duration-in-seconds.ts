@@ -5,6 +5,7 @@ import {parseGif, parseWithWorker} from './react-tools';
 import {resolveGifSource} from './resolve-gif-source';
 
 const calcDuration = (parsed: GifState) => {
+	console.log(parsed);
 	return (
 		parsed.delays.reduce((sum: number, delay: number) => sum + delay, 0) / 1000
 	);
