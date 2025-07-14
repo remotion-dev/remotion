@@ -130,6 +130,7 @@ const transcribeToTemporaryFile = async ({
 	splitOnWord,
 	signal,
 	onProgress,
+	flashAttention,
 	additionalArgs
 }: {
 	fileToTranscribe: string;
@@ -146,6 +147,7 @@ const transcribeToTemporaryFile = async ({
 	splitOnWord: boolean | null;
 	signal: AbortSignal | null;
 	onProgress: TranscribeOnProgress | null;
+	flashAttention?: boolean;
 	additionalArgs?: AdditionalArgs;
 }): Promise<{
 	outputPath: string;
@@ -176,6 +178,7 @@ const transcribeToTemporaryFile = async ({
 		translate ? '-tr' : null,
 		language ? ['-l', language.toLowerCase()] : null,
 		splitOnWord ? ['--split-on-word', splitOnWord] : null,
+		flashAttention ? ['--flash-attn', 'true'] : null,
 		...(additionalArgs ?? []),
 	]
 		.flat(1)
@@ -277,6 +280,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	splitOnWord,
 	signal,
 	onProgress,
+	flashAttention,
 	additionalArgs,
 }: {
 	inputPath: string;
@@ -292,6 +296,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	splitOnWord?: boolean;
 	signal?: AbortSignal;
 	onProgress?: TranscribeOnProgress;
+	flashAttention?: boolean;
 	additionalArgs?: AdditionalArgs;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
 	if (!existsSync(whisperPath)) {
@@ -327,6 +332,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		signal: signal ?? null,
 		splitOnWord: splitOnWord ?? null,
 		onProgress: onProgress ?? null,
+		flashAttention,
 		additionalArgs,
 	});
 
