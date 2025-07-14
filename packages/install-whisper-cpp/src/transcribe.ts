@@ -65,6 +65,8 @@ type Result = {
 	language: string;
 };
 
+type AdditionalArgs = string[] | [string, string][];
+
 export type TranscriptionJson<WithTokenLevelTimestamp extends boolean> = {
 	systeminfo: string;
 	model: Model;
@@ -128,6 +130,7 @@ const transcribeToTemporaryFile = async ({
 	splitOnWord,
 	signal,
 	onProgress,
+	additionalArgs
 }: {
 	fileToTranscribe: string;
 	whisperPath: string;
@@ -143,6 +146,7 @@ const transcribeToTemporaryFile = async ({
 	splitOnWord: boolean | null;
 	signal: AbortSignal | null;
 	onProgress: TranscribeOnProgress | null;
+	additionalArgs?: AdditionalArgs;
 }): Promise<{
 	outputPath: string;
 }> => {
@@ -172,6 +176,7 @@ const transcribeToTemporaryFile = async ({
 		translate ? '-tr' : null,
 		language ? ['-l', language.toLowerCase()] : null,
 		splitOnWord ? ['--split-on-word', splitOnWord] : null,
+		...(additionalArgs ?? []),
 	]
 		.flat(1)
 		.filter(Boolean) as string[];
@@ -272,6 +277,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	splitOnWord,
 	signal,
 	onProgress,
+	additionalArgs,
 }: {
 	inputPath: string;
 	whisperPath: string;
@@ -286,6 +292,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	splitOnWord?: boolean;
 	signal?: AbortSignal;
 	onProgress?: TranscribeOnProgress;
+	additionalArgs?: AdditionalArgs;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
@@ -320,6 +327,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		signal: signal ?? null,
 		splitOnWord: splitOnWord ?? null,
 		onProgress: onProgress ?? null,
+		additionalArgs,
 	});
 
 	const json = (await readJson(
