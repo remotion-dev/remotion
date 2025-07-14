@@ -74,13 +74,7 @@ Use the following component like you would `<Sequence>`:
 
 ```tsx twoslash title="PremountedSequence.tsx"
 import React, {forwardRef, useMemo} from 'react';
-import {
-  Freeze,
-  getRemotionEnvironment,
-  Sequence,
-  SequenceProps,
-  useCurrentFrame,
-} from 'remotion';
+import {Freeze, getRemotionEnvironment, Sequence, SequenceProps, useCurrentFrame} from 'remotion';
 
 export type PremountedSequenceProps = SequenceProps & {
   premountFor: number;
@@ -99,36 +93,24 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
   }
 
   const {style: passedStyle, from = 0, ...otherProps} = props;
-  const active =
-    frame < from &&
-    frame >= from - premountFor &&
-    !getRemotionEnvironment().isRendering;
+  const active = frame < from && frame >= from - premountFor && !getRemotionEnvironment().isRendering;
 
   const style: React.CSSProperties = useMemo(() => {
     return {
       ...passedStyle,
       opacity: active ? 0 : 1,
-      // @ts-expect-error Only in the docs - it will not give a type error in a Remotion project
       pointerEvents: active ? 'none' : (passedStyle?.pointerEvents ?? 'auto'),
     };
   }, [active, passedStyle]);
 
   return (
     <Freeze frame={from} active={active}>
-      <Sequence
-        ref={ref}
-        name={`<PremountedSequence premountFor={${premountFor}}>`}
-        from={from}
-        style={style}
-        {...otherProps}
-      />
+      <Sequence ref={ref} name={`<PremountedSequence premountFor={${premountFor}}>`} from={from} style={style} {...otherProps} />
     </Freeze>
   );
 };
 
-export const PremountedSequence = forwardRef(
-  PremountedSequenceRefForwardingFunction,
-);
+export const PremountedSequence = forwardRef(PremountedSequenceRefForwardingFunction);
 ```
 
 :::note

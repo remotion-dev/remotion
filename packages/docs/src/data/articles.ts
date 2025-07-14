@@ -1279,12 +1279,21 @@ export const articles = [
 	},
 	{
 		id: 'features',
-		title: 'Editor Starter – Features',
+		title: 'Features',
 		relativePath: 'docs/editor-starter/features.mdx',
 		compId: 'articles-docs-editor-starter-features',
 		crumb: null,
 		noAi: false,
 		slug: 'editor-starter/features',
+	},
+	{
+		id: 'undo-redo',
+		title: 'Undo and Redo',
+		relativePath: 'docs/editor-starter/undo-and-redo.mdx',
+		compId: 'articles-docs-editor-starter-undo-and-redo',
+		crumb: null,
+		noAi: false,
+		slug: 'editor-starter/undo-redo',
 	},
 	{
 		id: 'enable-scss/enable-scss',
