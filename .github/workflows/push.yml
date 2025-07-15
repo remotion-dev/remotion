@@ -159,8 +159,6 @@ jobs:
             node_version: 16
           - os: windows-latest
             node_version: 16
-          - os: macos-13
-            node_version: 16
           - os: macos-14
             node_version: 16
           - os: ubuntu-latest
