@@ -26,11 +26,16 @@ import {Spacing} from '../../layout';
 import {getOriginalLocationFromStack} from './get-stack';
 import {getOriginalSourceAttribution} from './source-attribution';
 
+const publicPath =
+	window.remotion_publicPath === '/' ? '' : window.remotion_publicPath;
+
+const withoutSlashInTheEnd = publicPath.endsWith('/')
+	? publicPath.slice(0, -1)
+	: publicPath;
+
 // @ts-expect-error
 SourceMapConsumer.initialize({
-	'lib/mappings.wasm':
-		(window.remotion_publicPath === '/' ? '' : window.remotion_publicPath) +
-		SOURCE_MAP_ENDPOINT,
+	'lib/mappings.wasm': withoutSlashInTheEnd + SOURCE_MAP_ENDPOINT,
 });
 
 export const TimelineStack: React.FC<{
