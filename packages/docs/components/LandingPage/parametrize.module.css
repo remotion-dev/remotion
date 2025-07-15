@@ -1,39 +1,39 @@
 .parametrizerow {
-  display: flex;
-  flex-direction: row;
-  text-align: left;
-  align-items: center;
+	display: flex;
+	flex-direction: row;
+	text-align: left;
+	align-items: center;
 }
 
 @media screen and (max-width: 900px) {
-  .parametrizerow {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+	.parametrizerow {
+		flex-direction: column;
+		align-items: flex-start;
+	}
 }
 
 .parametrizetitle {
-  font-size: 2.5em;
-  font-weight: 700;
-  line-height: 1.1;
-  text-align: left;
+	font-size: 2.5em;
+	font-weight: 700;
+	line-height: 1.1;
+	text-align: left;
 }
 
 .parametrizegradient {
-  color: var(--ifm-color-primary);
+	color: var(--ifm-color-primary);
 }
 
 .parametrizeinput {
-  appearance: none;
-  color: var(--text-color);
-  padding: 13px;
-  font-family: inherit;
-  border: 2px solid var(--ifm-code-background);
-  border-radius: 6px;
-  background-color: transparent;
-  outline: none;
+	appearance: none;
+	color: var(--text-color);
+	padding: 13px;
+	font-family: inherit;
+	border: 2px solid var(--ifm-code-background);
+	border-radius: 6px;
+	background-color: transparent;
+	outline: none;
 }
 
 .parametrizeinput:focus {
-  border-color: var(--ifm-tabs-color-active);
+	border-color: var(--ifm-tabs-color-active);
 }

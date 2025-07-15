@@ -32,7 +32,7 @@ const AcceleratedVideo: React.FC = () => {
 	return (
 		<Sequence from={frame}>
 			<Video
-				startFrom={Math.round(remappedFrame)}
+				trimBefore={Math.round(remappedFrame)}
 				playbackRate={speedFunction(frame)}
 				src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#disable"
 			/>
