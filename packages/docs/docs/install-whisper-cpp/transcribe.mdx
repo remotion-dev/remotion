@@ -126,6 +126,21 @@ const onProgress: TranscribeOnProgress = (progress) => {
 };
 ```
 
+### `flashAttention?`<AvailableFrom v="v4.0.324" />
+
+Boolean value, enable flash attention.
+
+### `additionalArgs?`<AvailableFrom v="v4.0.324" />
+
+Additional args to be passed to whisper, in an array. The array can contain strings or string pairs, like
+
+```js
+transcribe({
+  ...,
+  additionalArgs: ['-tdrz', ['--max-len', '1']]
+})
+```
+
 ## Return value
 
 ### `TranscriptionJson`
