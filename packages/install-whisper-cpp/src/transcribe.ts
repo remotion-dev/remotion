@@ -131,7 +131,7 @@ const transcribeToTemporaryFile = async ({
 	signal,
 	onProgress,
 	flashAttention,
-	additionalArgs
+	additionalArgs,
 }: {
 	fileToTranscribe: string;
 	whisperPath: string;
