@@ -1335,7 +1335,11 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'editor-starter/features',
 			},
-			items: ['editor-starter/features', 'editor-starter/undo-redo'],
+			items: [
+				'editor-starter/features',
+				'editor-starter/undo-redo',
+				'editor-starter/backend-routes',
+			],
 		},
 		{
 			type: 'link',

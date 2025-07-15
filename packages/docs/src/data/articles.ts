@@ -1278,6 +1278,15 @@ export const articles = [
 		slug: 'easing',
 	},
 	{
+		id: 'backend-routes',
+		title: 'Backend routes',
+		relativePath: 'docs/editor-starter/backend-routes.mdx',
+		compId: 'articles-docs-editor-starter-backend-routes',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/backend-routes',
+	},
+	{
 		id: 'features',
 		title: 'Features',
 		relativePath: 'docs/editor-starter/features.mdx',
