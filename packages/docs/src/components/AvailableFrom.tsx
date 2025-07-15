@@ -28,7 +28,7 @@ export const AvailableFrom: React.FC<{
 	}
 
 	if (v.startsWith('v')) {
-		throw new Error('do not include v');
+		v = v.slice(1);
 	}
 
 	return (
