@@ -21,6 +21,7 @@
 		"@google-cloud/storage": "7.15.2",
 		"@google-cloud/resource-manager": "5.3.1",
 		"@google-cloud/logging": "11.2.0",
+		"minimist": "1.2.6",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/renderer": "workspace:*",

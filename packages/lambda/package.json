@@ -28,6 +28,7 @@
 		"@aws-sdk/client-cloudwatch-logs": "3.787.0",
 		"@aws-sdk/client-service-quotas": "3.787.0",
 		"@aws-sdk/lib-storage": "3.787.0",
+		"minimist": "1.2.6",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/lambda-client": "workspace:*",

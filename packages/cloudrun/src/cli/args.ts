@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-
+import minimist from 'minimist';
 import type {Privacy} from '../defaults';
 import type {GcpRegion} from '../pricing/gcp-regions';
 
@@ -22,11 +22,13 @@ type servicesCommandLineOptions = {
 	['render-id-override']: string;
 };
 
-export const parsedCloudrunCli =
-	CliInternals.minimist<servicesCommandLineOptions>(process.argv.slice(2), {
+export const parsedCloudrunCli = minimist<servicesCommandLineOptions>(
+	process.argv.slice(2),
+	{
 		boolean: CliInternals.BooleanFlags,
 		string: ['_'],
-	});
+	},
+);
 
 export const forceFlagProvided =
 	parsedCloudrunCli.f ||
