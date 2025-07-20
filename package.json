@@ -48,7 +48,7 @@
 		"turbo": "2.5.4",
 		"typescript": "5.8.2"
 	},
-	"packageManager": "bun@1.2.16",
+	"packageManager": "bun@1.2.19",
 	"workspaces": {
 		"packages": [
 			"packages/*"

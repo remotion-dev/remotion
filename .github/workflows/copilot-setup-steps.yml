@@ -25,7 +25,7 @@ jobs:
           node-version: 20
       - uses: oven-sh/setup-bun@v2.0.2
         with:
-          bun-version: 1.2.16
+          bun-version: 1.2.19
       - name: Cache turbo build setup
         uses: actions/cache@v4
         with:
