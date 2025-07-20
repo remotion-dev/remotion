@@ -1,4 +1,5 @@
 import type {Socket} from 'net';
+import type {IncomingMessage, ServerResponse} from 'node:http';
 import http from 'node:http';
 import type {DownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
@@ -41,29 +42,31 @@ export const serveStatic = async (
 
 	const connections: Record<string, Socket> = {};
 
-	const server = http.createServer((request, response) => {
-		if (request.url?.startsWith('/proxy')) {
-			return offthreadRequest(request, response);
-		}
-
-		if (path === null) {
-			response.writeHead(404);
-			response.end('Server only supports /proxy');
-			return;
-		}
-
-		serveHandler(request, response, {
-			public: path,
-		}).catch(() => {
-			if (!response.headersSent) {
-				response.writeHead(500);
+	const server = http.createServer(
+		(request: IncomingMessage, response: ServerResponse) => {
+			if (request.url?.startsWith('/proxy')) {
+				return offthreadRequest(request, response);
 			}
 
-			response.end('Error serving file');
-		});
-	});
+			if (path === null) {
+				response.writeHead(404);
+				response.end('Server only supports /proxy');
+				return;
+			}
 
-	server.on('connection', (conn) => {
+			serveHandler(request, response, {
+				public: path,
+			}).catch(() => {
+				if (!response.headersSent) {
+					response.writeHead(500);
+				}
+
+				response.end('Error serving file');
+			});
+		},
+	);
+
+	server.on('connection', (conn: Socket) => {
 		let key;
 		// Bun 1.0.43 fails on this
 		try {
@@ -101,7 +104,7 @@ export const serveStatic = async (
 							resolve(port);
 							return unlock();
 						});
-						server.on('error', (err) => {
+						server.on('error', (err: Error) => {
 							unlock();
 							reject(err);
 						});
@@ -135,7 +138,7 @@ export const serveStatic = async (
 					}),
 					new Promise<void>((resolve, reject) => {
 						destroyConnections();
-						server.close((err) => {
+						server.close((err: Error) => {
 							if (err) {
 								if (
 									(err as Error & {code: string}).code ===
