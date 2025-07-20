@@ -13,9 +13,9 @@ const getUrl = (line: string) => {
 const parseFontFace = (block: string) => {
 	const lines = block.split('\n');
 
-	const subset = (lines.find((line) => line.trim().startsWith('/*')) as string)
-		.match(/\/\*(.*)\*\//)![1]
-		.trim();
+	const ss = lines.find((line) => line.trim().startsWith('/*')) as string;
+
+	const preliminarySubset = ss ? ss.match(/\/\*(.*)\*\//)![1].trim() : null;
 	const fontFamily = getValue(
 		lines.find((line) => line.trim().startsWith('font-family')) as string,
 	);
@@ -32,6 +32,9 @@ const parseFontFace = (block: string) => {
 	const style = getValue(
 		lines.find((line) => line.trim().startsWith('font-style')) as string,
 	);
+
+	const subset =
+		preliminarySubset ?? '[' + src?.match(/\.([0-9]+)\.woff/)![1] + ']';
 
 	if (!weight) throw Error('no weight');
 	if (!subset) throw Error('no subset');
@@ -71,14 +74,17 @@ export const extractInfoFromCss = ({
 	let unicodeRanges: Record<string, string> = {};
 	let fonts: Record<string, Record<string, Record<string, string>>> = {};
 
-	while (remainingContents.match(/\/\*(.*)/)) {
-		const startIndex = remainingContents.indexOf('/*');
-		const endIndex = remainingContents.substring(startIndex + 2).indexOf('/*');
+	while (
+		remainingContents.match(/^\/\*(.*)/) ||
+		remainingContents.match(/^\@font-face/)
+	) {
+		const startIndex = 0;
+		const endIndex = remainingContents.indexOf('}');
 		const extractedContents = remainingContents.substring(
 			startIndex,
 			endIndex === -1 ? Infinity : endIndex + 2,
 		);
-		remainingContents = remainingContents.substring(endIndex + 2);
+		remainingContents = remainingContents.substring(endIndex + 2).trim();
 		const {subset, unicodeRange, style, src, weight} =
 			parseFontFace(extractedContents);
 

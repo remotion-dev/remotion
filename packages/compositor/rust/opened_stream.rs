@@ -161,7 +161,7 @@ impl OpenedStream {
         target_position: i64,
         time_base: Rational,
         one_frame_in_time_base: i64,
-        threshold: i64,
+        _threshold: i64,
         tone_mapped: bool,
         frame_cache_manager: &mut FrameCacheManager,
         thread_index: usize,
@@ -450,8 +450,10 @@ impl OpenedStream {
             }
         }
 
+        // Allow a lot of threshold here, because otherwise we would crash.
+        // Better to have a frame with a lot of deviation than to crash.
         let final_frame = frame_cache_manager
-            .get_cache_item_id(&self.src, &self.original_src, self.transparent, tone_mapped, target_position, threshold)?;
+            .get_cache_item_id(&self.src, &self.original_src, self.transparent, tone_mapped, target_position, 1000000000, true)?;
 
         if final_frame.is_none() {
             return Err(std::io::Error::new(

@@ -136,6 +136,7 @@ export const exampleVideos = {
 		'videos',
 		'wave-format-extensible.wav',
 	),
+	junk: path.join(__dirname, '..', 'videos', 'junk.wav'),
 };
 
 export {

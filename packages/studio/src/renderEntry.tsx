@@ -323,6 +323,11 @@ if (typeof window !== 'undefined') {
 				window.remotion_logLevel,
 				'defaultProps are too big to serialize - trying to find the problematic composition...',
 			);
+			Internals.Log.warn(
+				window.remotion_logLevel,
+				'Serialization:',
+				compositions,
+			);
 			for (const comp of compositions) {
 				if (!getCanSerializeDefaultProps(comp)) {
 					throw new Error(

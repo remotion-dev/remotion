@@ -11,9 +11,17 @@ type Options = {
 
 const parsed = minimist<Options>(process.argv.slice(2), {
 	boolean: [...FEATURED_TEMPLATES.map((f) => f.cliId), 'tmp'],
+	string: ['_'],
 });
 
 export const isTmpFlagSelected = () => parsed.tmp;
+
+export const getPositionalArguments = () => parsed._;
+
+export const getDirectoryArgument = (): string | null => {
+	const positionalArgs = getPositionalArguments();
+	return positionalArgs.length > 0 ? positionalArgs[0] || null : null;
+};
 
 export const selectTemplate = async () => {
 	const isFlagSelected = FEATURED_TEMPLATES.find((f) => {

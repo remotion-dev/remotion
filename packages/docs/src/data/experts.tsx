@@ -507,11 +507,14 @@ export const experts: Expert[] = [
 		description: (
 			<div>
 				Full-stack engineer with 10+ years experience. I built{' '}
-				<a target={'_blank'} href="https://reactvideoeditor.com">
+				<a
+					target={'_blank'}
+					href="https://reactvideoeditor.com?utm_source=remotion"
+				>
 					React Video Editor
 				</a>{' '}
 				and{' '}
-				<a target={'_blank'} href="https://clippkit.com">
+				<a target={'_blank'} href="https://clippkit.com?utm_source=remotion">
 					Clippkit
 				</a>
 				.<br />I can help with anything Remotion-related, or just be a reliable

@@ -109,13 +109,12 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return calculateContainerStyle({
-			canvasSize,
 			config,
 			layout,
 			scale,
 			overflowVisible,
 		});
-	}, [canvasSize, config, layout, overflowVisible, scale]);
+	}, [config, layout, overflowVisible, scale]);
 
 	const onError = useCallback(
 		(error: Error) => {

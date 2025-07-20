@@ -107,6 +107,7 @@ const internalExtractFrames = ({
 				const nextTimestampWeWant = timestampTargets[0];
 
 				if (sample.type === 'key') {
+					await decoder.flush();
 					queued.length = 0;
 				}
 
@@ -135,6 +136,10 @@ const internalExtractFrames = ({
 						controller.abort();
 					}
 				}
+
+				return async () => {
+					await decoder.flush();
+				};
 			};
 		},
 	})

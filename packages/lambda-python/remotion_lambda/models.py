@@ -301,6 +301,7 @@ class RenderMediaParams:
     every_nth_frame: Optional[int] = 1
     number_of_gif_loops: Optional[int] = 0
     concurrency_per_lambda: Optional[int] = 1
+    concurrency: Optional[int] = None
     download_behavior: Optional[Union[PlayInBrowser, ShouldDownload]] = field(
         default_factory=lambda: PlayInBrowser(type='play-in-browser'))
     muted: bool = False
@@ -331,6 +332,7 @@ class RenderMediaParams:
         parameters = {
             'rendererFunctionName': self.renderer_function_name,
             'framesPerLambda': self.frames_per_lambda,
+            'concurrency': self.concurrency,
             'composition': self.composition,
             'serveUrl': self.serve_url,
             'inputProps': self.private_serialized_input_props,

@@ -1,4 +1,6 @@
-module.exports = {
+import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
+
+const sidebars: SidebarsConfig = {
 	apiSidebar: [
 		'api',
 		{
@@ -901,6 +903,8 @@ module.exports = {
 				'miscellaneous/cloud-gpu-docker',
 				'compare-ssr',
 				'distributed-rendering',
+				'cloudflare-containers',
+				'azure-container-apps',
 			],
 		},
 		{
@@ -1324,6 +1328,20 @@ module.exports = {
 			],
 		},
 		{
+			type: 'category',
+			label: 'Editor Starter',
+			className: 'wip-item',
+			link: {
+				type: 'doc',
+				id: 'editor-starter/features',
+			},
+			items: [
+				'editor-starter/features',
+				'editor-starter/undo-redo',
+				'editor-starter/backend-routes',
+			],
+		},
+		{
 			type: 'link',
 			href: '/docs/recorder',
 			label: 'Recorder',
@@ -1397,3 +1415,5 @@ module.exports = {
 		},
 	],
 };
+
+export default sidebars;

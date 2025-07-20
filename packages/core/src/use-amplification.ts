@@ -60,51 +60,54 @@ export const useVolume = ({
 
 	const {audioContext} = sharedAudioContext;
 
-	useLayoutEffect(() => {
-		if (!audioContext) {
-			return;
-		}
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			if (!audioContext) {
+				return;
+			}
 
-		if (!mediaRef.current) {
-			return;
-		}
+			if (!mediaRef.current) {
+				return;
+			}
 
-		if (!shouldUseWebAudioApi) {
-			return;
-		}
+			if (!shouldUseWebAudioApi) {
+				return;
+			}
 
-		// [1]
-		if (mediaRef.current.playbackRate !== 1 && isSafari()) {
-			warnSafariOnce(logLevel);
-			return;
-		}
+			// [1]
+			if (mediaRef.current.playbackRate !== 1 && isSafari()) {
+				warnSafariOnce(logLevel);
+				return;
+			}
 
-		if (!source) {
-			return;
-		}
+			if (!source) {
+				return;
+			}
 
-		const gainNode = new GainNode(audioContext, {
-			gain: currentVolumeRef.current,
-		});
+			const gainNode = new GainNode(audioContext, {
+				gain: currentVolumeRef.current,
+			});
 
-		source.attemptToConnect();
-		source.get().connect(gainNode);
-		gainNode.connect(audioContext.destination);
-		audioStuffRef.current = {
-			gainNode,
-		};
+			source.attemptToConnect();
+			source.get().connect(gainNode);
+			gainNode.connect(audioContext.destination);
+			audioStuffRef.current = {
+				gainNode,
+			};
 
-		Log.trace(
-			logLevel,
-			`Starting to amplify ${mediaRef.current?.src}. Gain = ${currentVolumeRef.current}, playbackRate = ${mediaRef.current?.playbackRate}`,
-		);
+			Log.trace(
+				logLevel,
+				`Starting to amplify ${mediaRef.current?.src}. Gain = ${currentVolumeRef.current}, playbackRate = ${mediaRef.current?.playbackRate}`,
+			);
 
-		return () => {
-			audioStuffRef.current = null;
-			gainNode.disconnect();
-			source.get().disconnect();
-		};
-	}, [logLevel, mediaRef, audioContext, source, shouldUseWebAudioApi]);
+			return () => {
+				audioStuffRef.current = null;
+				gainNode.disconnect();
+				source.get().disconnect();
+			};
+		}, [logLevel, mediaRef, audioContext, source, shouldUseWebAudioApi]);
+	}
 
 	if (audioStuffRef.current) {
 		const valueToSet = volume;

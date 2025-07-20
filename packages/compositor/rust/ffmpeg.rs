@@ -39,6 +39,7 @@ pub fn extract_frame(
             tone_mapped,
             position,
             threshold - 1,
+            false,
         ),
         Ok(None) => Ok(None),
         Err(err) => return Err(err),

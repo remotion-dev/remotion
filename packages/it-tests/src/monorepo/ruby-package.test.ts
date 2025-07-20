@@ -88,6 +88,7 @@ test('Render Media payload', async () => {
 			chromiumOptions: {},
 			colorSpace: null,
 			concurrencyPerLambda: 1,
+			concurrency: null,
 			crf: undefined,
 			deleteAfter: null,
 			downloadBehavior: {

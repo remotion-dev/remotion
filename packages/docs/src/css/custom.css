@@ -199,6 +199,21 @@ code {
 	transform: none !important;
 }
 
+.wip-item > div > a::after,
+.wip-item > a::after {
+	content: 'Coming Soon';
+	font-size: 12px;
+	opacity: 0.7;
+	border: 1px solid;
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	margin-left: 6px;
+	border-radius: 4px;
+	transform: none !important;
+}
+
 .header-github-link::before {
 	content: '';
 	width: 22px;

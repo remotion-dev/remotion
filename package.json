@@ -33,7 +33,7 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"caniuse-lite": "1.0.30001690"
+			"caniuse-lite": "1.0.30001724"
 		}
 	},
 	"devDependencies": {

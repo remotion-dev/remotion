@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.318",
+	"version": "4.0.324",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -650,6 +650,9 @@
 			"Biryani": [
 				"dist/cjs/Biryani.d.ts"
 			],
+			"BitcountGridDouble": [
+				"dist/cjs/BitcountGridDouble.d.ts"
+			],
 			"Bitter": [
 				"dist/cjs/Bitter.d.ts"
 			],
@@ -943,6 +946,9 @@
 			],
 			"Chilanka": [
 				"dist/cjs/Chilanka.d.ts"
+			],
+			"ChironHeiHK": [
+				"dist/cjs/ChironHeiHK.d.ts"
 			],
 			"ChironSungHK": [
 				"dist/cjs/ChironSungHK.d.ts"
@@ -2390,6 +2396,12 @@
 			"LexendZetta": [
 				"dist/cjs/LexendZetta.d.ts"
 			],
+			"LibertinusMath": [
+				"dist/cjs/LibertinusMath.d.ts"
+			],
+			"LibertinusMono": [
+				"dist/cjs/LibertinusMono.d.ts"
+			],
 			"LibreBarcode128": [
 				"dist/cjs/LibreBarcode128.d.ts"
 			],
@@ -2443,9 +2455,6 @@
 			],
 			"LindenHill": [
 				"dist/cjs/LindenHill.d.ts"
-			],
-			"Linefont": [
-				"dist/cjs/Linefont.d.ts"
 			],
 			"LisuBosa": [
 				"dist/cjs/LisuBosa.d.ts"
@@ -2594,6 +2603,9 @@
 			"Manuale": [
 				"dist/cjs/Manuale.d.ts"
 			],
+			"ManufacturingConsent": [
+				"dist/cjs/ManufacturingConsent.d.ts"
+			],
 			"Marcellus": [
 				"dist/cjs/Marcellus.d.ts"
 			],
@@ -2668,6 +2680,9 @@
 			],
 			"MeieScript": [
 				"dist/cjs/MeieScript.d.ts"
+			],
+			"Menbere": [
+				"dist/cjs/Menbere.d.ts"
 			],
 			"MeowScript": [
 				"dist/cjs/MeowScript.d.ts"
@@ -3374,6 +3389,9 @@
 			"NotoSansSundanese": [
 				"dist/cjs/NotoSansSundanese.d.ts"
 			],
+			"NotoSansSunuwar": [
+				"dist/cjs/NotoSansSunuwar.d.ts"
+			],
 			"NotoSansSylotiNagri": [
 				"dist/cjs/NotoSansSylotiNagri.d.ts"
 			],
@@ -3763,6 +3781,9 @@
 			],
 			"Paprika": [
 				"dist/cjs/Paprika.d.ts"
+			],
+			"Parastoo": [
+				"dist/cjs/Parastoo.d.ts"
 			],
 			"Parisienne": [
 				"dist/cjs/Parisienne.d.ts"
@@ -4975,6 +4996,9 @@
 			],
 			"Unna": [
 				"dist/cjs/Unna.d.ts"
+			],
+			"UoqMunThenKhung": [
+				"dist/cjs/UoqMunThenKhung.d.ts"
 			],
 			"Updock": [
 				"dist/cjs/Updock.d.ts"
