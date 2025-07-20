@@ -118,12 +118,6 @@ export const Presentations: React.FC<{
 
 			<TOCItem link="/docs/transitions/presentations/cube">
 				<div style={row}>
-					<PresentationPreview
-						durationRestThreshold={0.001}
-						effect={cube({
-							direction: 'from-left',
-						})}
-					/>
 					<div style={{flex: 1, marginLeft: 10}}>
 						<strong>
 							<code>{'cube()'}</code>
