@@ -138,7 +138,7 @@ export const serveStatic = async (
 					}),
 					new Promise<void>((resolve, reject) => {
 						destroyConnections();
-						server.close((err: Error) => {
+						server.close((err?: Error | undefined) => {
 							if (err) {
 								if (
 									(err as Error & {code: string}).code ===
