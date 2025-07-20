@@ -47,9 +47,6 @@ jobs:
     name: Webcodecs tests
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
-        with:
-          version: "8.10.2"
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -157,9 +154,6 @@ jobs:
         if: matrix.os == 'macos-14'
         with:
           go-version: "1.20"
-      - uses: pnpm/action-setup@v3
-        with:
-          version: "8.10.2"
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node_version }}
