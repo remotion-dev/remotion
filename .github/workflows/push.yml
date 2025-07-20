@@ -174,7 +174,7 @@ jobs:
         with:
           bun-version: 1.2.19
       - name: Install
-        run: bun i --verbose
+        run: bun i
       - name: Build & Test
         timeout-minutes: 30
         run: |
