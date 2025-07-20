@@ -32,7 +32,7 @@
 		"@types/react-dom": "19.0.0",
 		"plyr": "3.7.3",
 		"eslint": "9.19.0",
-		"eslint-config-next": "15.4.2",
+		"eslint-config-next": "15.1.6",
 		"postcss": "8.4.47",
 		"@tailwindcss/vite": "4.0.0",
 		"tailwindcss-scoped-preflight": "3.4.10",
