@@ -7,7 +7,7 @@ import type {
 	RenderDefaults,
 	RenderJob,
 } from '@remotion/studio-shared';
-import type {IncomingMessage} from 'node:http';
+import type {IncomingMessage, ServerResponse} from 'node:http';
 import http from 'node:http';
 import {handleRoutes} from '../routes';
 import type {QueueMethods} from './api-types';
@@ -68,69 +68,71 @@ export const startServer = async (options: {
 
 	const liveEventsServer = makeLiveEventsRouter(options.logLevel);
 
-	const server = http.createServer((request, response) => {
-		if (options.enableCrossSiteIsolation) {
-			response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-			response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-		}
+	const server = http.createServer(
+		(request: IncomingMessage, response: ServerResponse) => {
+			if (options.enableCrossSiteIsolation) {
+				response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+				response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+			}
 
-		new Promise<void>((resolve) => {
-			wdmMiddleware(request as IncomingMessage, response, () => {
-				resolve();
-			});
-		})
-			.then(() => {
-				return new Promise<void>((resolve) => {
-					whm(request as IncomingMessage, response, () => {
-						resolve();
+			new Promise<void>((resolve) => {
+				wdmMiddleware(request as IncomingMessage, response, () => {
+					resolve();
+				});
+			})
+				.then(() => {
+					return new Promise<void>((resolve) => {
+						whm(request as IncomingMessage, response, () => {
+							resolve();
+						});
 					});
-				});
-			})
-			.then(() => {
-				return handleRoutes({
-					staticHash: options.staticHash,
-					staticHashPrefix: options.staticHashPrefix,
-					outputHash: options.outputHash,
-					outputHashPrefix: options.outputHashPrefix,
-					request: request as IncomingMessage,
-					response,
-					liveEventsServer,
-					getCurrentInputProps: options.getCurrentInputProps,
-					getEnvVariables: options.getEnvVariables,
-					remotionRoot: options.remotionRoot,
-					entryPoint: options.userDefinedComponent,
-					publicDir: options.publicDir,
-					logLevel: options.logLevel,
-					getRenderQueue: options.getRenderQueue,
-					getRenderDefaults: options.getRenderDefaults,
-					numberOfAudioTags: options.numberOfAudioTags,
-					queueMethods: options.queueMethods,
-					gitSource: options.gitSource,
-					binariesDirectory: options.binariesDirectory,
-					audioLatencyHint: options.audioLatencyHint,
-					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
-				});
-			})
-			.catch((err) => {
-				RenderInternals.Log.error(
-					{indent: false, logLevel: options.logLevel},
-					`Error while calling ${request.url}`,
-					err,
-				);
-				if (!response.headersSent) {
-					response.setHeader('content-type', 'application/json');
-					response.writeHead(500);
-				}
-
-				if (!response.writableEnded) {
-					response.end(
-						JSON.stringify({
-							err: (err as Error).message,
-						}),
+				})
+				.then(() => {
+					return handleRoutes({
+						staticHash: options.staticHash,
+						staticHashPrefix: options.staticHashPrefix,
+						outputHash: options.outputHash,
+						outputHashPrefix: options.outputHashPrefix,
+						request: request as IncomingMessage,
+						response,
+						liveEventsServer,
+						getCurrentInputProps: options.getCurrentInputProps,
+						getEnvVariables: options.getEnvVariables,
+						remotionRoot: options.remotionRoot,
+						entryPoint: options.userDefinedComponent,
+						publicDir: options.publicDir,
+						logLevel: options.logLevel,
+						getRenderQueue: options.getRenderQueue,
+						getRenderDefaults: options.getRenderDefaults,
+						numberOfAudioTags: options.numberOfAudioTags,
+						queueMethods: options.queueMethods,
+						gitSource: options.gitSource,
+						binariesDirectory: options.binariesDirectory,
+						audioLatencyHint: options.audioLatencyHint,
+						enableCrossSiteIsolation: options.enableCrossSiteIsolation,
+					});
+				})
+				.catch((err) => {
+					RenderInternals.Log.error(
+						{indent: false, logLevel: options.logLevel},
+						`Error while calling ${request.url}`,
+						err,
 					);
-				}
-			});
-	});
+					if (!response.headersSent) {
+						response.setHeader('content-type', 'application/json');
+						response.writeHead(500);
+					}
+
+					if (!response.writableEnded) {
+						response.end(
+							JSON.stringify({
+								err: (err as Error).message,
+							}),
+						);
+					}
+				});
+		},
+	);
 
 	const desiredPort =
 		options?.port ??
@@ -163,7 +165,7 @@ export const startServer = async (options: {
 							resolve(port);
 							return unlockPort();
 						});
-						server.on('error', (err) => {
+						server.on('error', (err: Error) => {
 							reject(err);
 						});
 					})
