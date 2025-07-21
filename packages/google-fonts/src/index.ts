@@ -1076,9 +1076,34 @@ export const getAvailableFonts = () => [
 		load: () => import('./Biryani') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Bitcount',
+		importName: 'Bitcount',
+		load: () => import('./Bitcount') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Bitcount Grid Double',
 		importName: 'BitcountGridDouble',
 		load: () => import('./BitcountGridDouble') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bitcount Grid Single',
+		importName: 'BitcountGridSingle',
+		load: () => import('./BitcountGridSingle') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bitcount Prop Double',
+		importName: 'BitcountPropDouble',
+		load: () => import('./BitcountPropDouble') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bitcount Prop Single',
+		importName: 'BitcountPropSingle',
+		load: () => import('./BitcountPropSingle') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bitcount Single',
+		importName: 'BitcountSingle',
+		load: () => import('./BitcountSingle') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Bitter',
@@ -3304,6 +3329,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Instrument Serif',
 		importName: 'InstrumentSerif',
 		load: () => import('./InstrumentSerif') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Intel One Mono',
+		importName: 'IntelOneMono',
+		load: () => import('./IntelOneMono') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Inter',
