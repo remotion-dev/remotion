@@ -21,6 +21,7 @@ import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
 	readonly onDuration: (src: string, durationInSeconds: number) => void;
+	readonly onNativeError: React.ReactEventHandler<HTMLAudioElement>;
 };
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -39,7 +40,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalNativeLoopPassed,
 		acceptableTimeShiftInSeconds,
 		name,
-		onError,
+		onNativeError,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		loopVolumeCurveBehavior,
@@ -181,7 +182,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		return null;
 	}
 
-	return <audio ref={audioRef} {...nativeProps} />;
+	return <audio ref={audioRef} {...nativeProps} onError={onNativeError} />;
 };
 
 export const AudioForRendering = forwardRef(
