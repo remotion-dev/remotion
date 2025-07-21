@@ -60,6 +60,7 @@ describe('Register and unregister asset', () => {
 			muted: false,
 			volume: 50,
 			onDuration: mock(),
+			onNativeError: mock(),
 		};
 		const {unmount} = render(
 			<CanUseRemotionHooksProvider>
@@ -80,6 +81,7 @@ describe('Register and unregister asset', () => {
 			muted: false,
 			volume: 50,
 			onDuration: mock(),
+			onNativeError: mock(),
 		};
 		expectToThrow(() => {
 			render(
