@@ -19,7 +19,7 @@ export const rotateAndResizeVideoFrame = ({
 	resizeOperation: ResizeOperation | null;
 	needsToBeMultipleOfTwo?: boolean;
 }) => {
-	const normalized = ((rotation % 360) + 360) % 360;
+	const normalized = normalizeVideoRotation(rotation);
 
 	// No resize, no rotation
 	if (normalized === 0 && resizeOperation === null) {
@@ -56,16 +56,22 @@ export const rotateAndResizeVideoFrame = ({
 	canvas.width = width;
 	canvas.height = height;
 
-	if (normalized === 90) {
+	// @ts-expect-error
+	const frameRotation: number = frame.rotation ?? 0;
+	const canvasRotationToApply = normalizeVideoRotation(
+		normalized + frameRotation,
+	);
+
+	if (canvasRotationToApply === 90) {
 		ctx.translate(width, 0);
-	} else if (normalized === 180) {
+	} else if (canvasRotationToApply === 180) {
 		ctx.translate(width, height);
-	} else if (normalized === 270) {
+	} else if (canvasRotationToApply === 270) {
 		ctx.translate(0, height);
 	}
 
-	if (normalized !== 0) {
-		ctx.rotate(normalized * (Math.PI / 180));
+	if (canvasRotationToApply !== 0) {
+		ctx.rotate(canvasRotationToApply * (Math.PI / 180));
 	}
 
 	if (frame.displayHeight !== height || frame.displayWidth !== width) {
