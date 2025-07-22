@@ -7,10 +7,11 @@ export const THUMBNAIL_HEIGHT = Math.round((350 / 16) * 9);
 
 type Props = {
 	readonly smallThumbOnMobile: boolean;
-	readonly rotation: number;
 	readonly mirrorHorizontal: boolean;
 	readonly mirrorVertical: boolean;
 	readonly initialReveal: boolean;
+	readonly userRotation: number;
+	readonly frameRotation: number;
 };
 
 export type VideoThumbnailRef = {
@@ -28,48 +29,62 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 > = (
 	{
 		smallThumbOnMobile,
-		rotation,
 		mirrorHorizontal,
 		mirrorVertical,
 		initialReveal,
+		frameRotation,
+		userRotation,
 	},
 	forwardedRef,
 ) => {
 	const ref = useRef<HTMLCanvasElement>(null);
 
 	const [color, setColor] = useState<string>('transparent');
-	const [dimensions, setDimensions] = useState<{width: number}>({width: 350});
+	const [dimensions, setDimensions] = useState<{
+		width: number;
+		frameRotation: number;
+	}>({width: 350, frameRotation: 0});
 	const [reveal, setReveal] = useState(initialReveal);
 	const [drawn, setDrawn] = useState(false);
 
 	const onChangeListeners = useRef<(() => void)[]>([]);
 
-	const drawThumbnail = useCallback((unrotatedVideoFrame: VideoFrame) => {
-		const scaleRatio = THUMBNAIL_HEIGHT / unrotatedVideoFrame.displayHeight;
-		const w = Math.round(unrotatedVideoFrame.displayWidth * scaleRatio);
-		setDimensions({width: w});
+	const drawThumbnail = useCallback(
+		(unrotatedVideoFrame: VideoFrame) => {
+			const scaleRatio = THUMBNAIL_HEIGHT / unrotatedVideoFrame.displayHeight;
+			const w = Math.round(unrotatedVideoFrame.displayWidth * scaleRatio);
+			const alreadyRotated =
+				// @ts-expect-error
+				typeof unrotatedVideoFrame.rotation !== 'undefined';
 
-		const canvas = ref.current;
-		if (!canvas) {
-			return;
-		}
+			setDimensions({
+				width: w,
+				frameRotation: alreadyRotated ? 0 : frameRotation,
+			});
 
-		canvas.width = w;
-		const twoDContext = canvas.getContext('2d');
-		if (!twoDContext) {
-			return;
-		}
-
-		twoDContext.drawImage(unrotatedVideoFrame, 0, 0, w, THUMBNAIL_HEIGHT);
-		setColor((c) => {
-			if (c !== 'transparent') {
-				return c;
+			const canvas = ref.current;
+			if (!canvas) {
+				return;
 			}
 
-			return new FastAverageColor().getColor(canvas).hex;
-		});
-		setDrawn(true);
-	}, []);
+			canvas.width = w;
+			const twoDContext = canvas.getContext('2d');
+			if (!twoDContext) {
+				return;
+			}
+
+			twoDContext.drawImage(unrotatedVideoFrame, 0, 0, w, THUMBNAIL_HEIGHT);
+			setColor((c) => {
+				if (c !== 'transparent') {
+					return c;
+				}
+
+				return new FastAverageColor().getColor(canvas).hex;
+			});
+			setDrawn(true);
+		},
+		[frameRotation],
+	);
 
 	useImperativeHandle(
 		forwardedRef,
@@ -103,6 +118,8 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 	const isNarrow = useIsNarrow();
 
 	const scale = isNarrow && smallThumbOnMobile ? 0.5 : 1;
+	const rotation = userRotation - (dimensions.frameRotation ?? 0);
+
 	const scaleTransform =
 		rotation % 90 === 0 && rotation % 180 !== 0
 			? THUMBNAIL_HEIGHT / dimensions.width

@@ -450,8 +450,8 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10
       '@types/dom-webcodecs':
-        specifier: 0.1.11
-        version: 0.1.11
+        specifier: 0.1.15
+        version: 0.1.15
       eslint:
         specifier: 9.19.0
         version: 9.19.0
@@ -483,8 +483,8 @@ importers:
         specifier: 16.1.0
         version: 16.1.0(@testing-library/dom@10.4.0)(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0)(react@19.0.0)
       '@types/dom-webcodecs':
-        specifier: 0.1.11
-        version: 0.1.11
+        specifier: 0.1.15
+        version: 0.1.15
       eslint:
         specifier: 9.19.0
         version: 9.19.0
@@ -814,8 +814,8 @@ importers:
         specifier: 3.6.0
         version: 3.6.0(react-dom@18.3.1)(react@18.3.1)
       '@types/dom-webcodecs':
-        specifier: 0.1.11
-        version: 0.1.11
+        specifier: 0.1.15
+        version: 0.1.15
       '@typescript/twoslash':
         specifier: 3.2.1
         version: 3.2.1
@@ -1168,8 +1168,8 @@ importers:
         version: 3.22.3
     devDependencies:
       '@types/dom-webcodecs':
-        specifier: 0.1.11
-        version: 0.1.11
+        specifier: 0.1.15
+        version: 0.1.15
       eslint:
         specifier: 9.19.0
         version: 9.19.0
@@ -3186,8 +3186,8 @@ importers:
         specifier: workspace:*
         version: link:../eslint-config-flat
       '@types/dom-webcodecs':
-        specifier: 0.1.11
-        version: 0.1.11
+        specifier: 0.1.15
+        version: 0.1.15
       '@types/web':
         specifier: 0.0.166
         version: 0.0.166
@@ -3669,8 +3669,8 @@ importers:
         specifier: workspace:*
         version: link:../example-videos
       '@types/dom-webcodecs':
-        specifier: 0.1.11
-        version: 0.1.11
+        specifier: 0.1.15
+        version: 0.1.15
       eslint:
         specifier: 9.19.0
         version: 9.19.0
@@ -15909,8 +15909,8 @@ packages:
     resolution: {integrity: sha512-JwJc6MRVy5xnOUKUgzgGRZA/DOZO14x+4B4hJNZ8c4T5Cs+U00ca62RJHXaj4F9NWZoorKT2PxW5Cq+ENT+E7w==}
     dev: true
 
-  /@types/dom-webcodecs@0.1.11:
-    resolution: {integrity: sha512-yPEZ3z7EohrmOxbk/QTAa0yonMFkNkjnVXqbGb7D4rMr+F1dGQ8ZUFxXkyLLJuiICPejZ0AZE9Rrk9wUCczx4A==}
+  /@types/dom-webcodecs@0.1.15:
+    resolution: {integrity: sha512-omOlCPvTWyPm4ZE5bZUhlSvnHM2ZWM2U+1cPiYFL/e8aV5O9MouELp+L4dMKNTON0nTeHqEg+KWDfFQMY5Wkaw==}
 
   /@types/draco3d@1.4.2:
     resolution: {integrity: sha512-goh23EGr6CLV6aKPwN1p8kBD/7tT5V/bLpToSbarKrwVejqNrspVrv8DhliteYkkhZYrlq/fwKZRRUzH4XN88w==}

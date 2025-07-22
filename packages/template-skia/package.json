@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
-    "@types/dom-webcodecs": "0.1.11",
+    "@types/dom-webcodecs": "0.1.15",
     "@types/web": "0.0.166",
     "eslint": "9.19.0",
     "prettier": "3.6.0",

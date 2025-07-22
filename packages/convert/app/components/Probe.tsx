@@ -145,10 +145,11 @@ export const Probe: React.FC<{
 						<VideoThumbnail
 							ref={videoThumbnailRef}
 							smallThumbOnMobile
-							rotation={userRotation - (rotation ?? 0)}
 							mirrorHorizontal={mirrorHorizontal}
 							mirrorVertical={mirrorVertical}
 							initialReveal={false}
+							frameRotation={rotation ?? 0}
+							userRotation={userRotation}
 						/>
 					)}
 					<CardHeader className="p-3 lg:p-4 w-full">
