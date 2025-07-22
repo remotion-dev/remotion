@@ -32,7 +32,7 @@
 	},
 	"peerDependencies": {},
 	"devDependencies": {
-		"@types/dom-webcodecs": "0.1.15",
+		"@types/dom-webcodecs": "0.1.11",
 		"@remotion/example-videos": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"playwright": "1.51.1",
