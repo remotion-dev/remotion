@@ -123,12 +123,9 @@ export const CodecVideoForRendering: React.FC<
 
     extractFrames({
       src,
-      timestampsInSeconds: async ({track}) =>  {
-        if(!track.fps){
-          return [];
-        }
-        console.log(`called for frame ${frame} with timestamp ${frame/track.fps}`)
-        return [frame/track.fps]
+      timestampsInSeconds: async () =>  {
+        console.log(`called for frame ${frame} with timestamp ${frame/videoConfig.fps}`)
+        return [frame/videoConfig.fps]
       },
       onFrame:  (extractedFrame) => {
         console.log("successfully extracted the frame " + frame);

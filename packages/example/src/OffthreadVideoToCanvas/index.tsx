@@ -46,12 +46,9 @@ export const OffthreadVideoToCanvas: React.FC = () => {
 				<CodecVideo
 					// muted
 					// style={{opacity: 0}}
-					src={staticFile('vid1.mp4')}
+					src={staticFile('framer.webm')}
 					// onVideoFrame={onVideoFrame}
 				/>
-			{/* <AbsoluteFill>
-				<canvas ref={canvas} width={width} height={height} />
-			</AbsoluteFill> */}
 		</AbsoluteFill>
 	);
 };
