@@ -280,6 +280,8 @@ const internalRenderMediaRaw = ({
 	});
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
+	validateBitrate(encodingMaxRate, 'encodingMaxRate');
+	validateBitrate(encodingBufferSize, 'encodingBufferSize');
 
 	validateSelectedCodecAndProResCombination({
 		codec,
