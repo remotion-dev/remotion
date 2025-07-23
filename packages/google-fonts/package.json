@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.324",
+	"version": "4.0.325",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -650,8 +650,23 @@
 			"Biryani": [
 				"dist/cjs/Biryani.d.ts"
 			],
+			"Bitcount": [
+				"dist/cjs/Bitcount.d.ts"
+			],
 			"BitcountGridDouble": [
 				"dist/cjs/BitcountGridDouble.d.ts"
+			],
+			"BitcountGridSingle": [
+				"dist/cjs/BitcountGridSingle.d.ts"
+			],
+			"BitcountPropDouble": [
+				"dist/cjs/BitcountPropDouble.d.ts"
+			],
+			"BitcountPropSingle": [
+				"dist/cjs/BitcountPropSingle.d.ts"
+			],
+			"BitcountSingle": [
+				"dist/cjs/BitcountSingle.d.ts"
 			],
 			"Bitter": [
 				"dist/cjs/Bitter.d.ts"
@@ -1987,6 +2002,9 @@
 			],
 			"InstrumentSerif": [
 				"dist/cjs/InstrumentSerif.d.ts"
+			],
+			"IntelOneMono": [
+				"dist/cjs/IntelOneMono.d.ts"
 			],
 			"Inter": [
 				"dist/cjs/Inter.d.ts"

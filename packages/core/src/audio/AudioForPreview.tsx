@@ -1,3 +1,4 @@
+import type {AudioHTMLAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
@@ -33,6 +34,7 @@ type AudioForPreviewProps = RemotionAudioProps & {
 	readonly _remotionInternalStack: string | null;
 	readonly showInTimeline: boolean;
 	readonly stack?: string | undefined;
+	readonly onNativeError: React.ReactEventHandler<HTMLAudioElement>;
 };
 
 const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
@@ -72,6 +74,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		delayRenderTimeoutInMilliseconds,
 		toneFrequency,
 		useWebAudioApi,
+		onError,
+		onNativeError,
 		...nativeProps
 	} = props;
 
@@ -117,7 +121,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		requestsVideoFrame: false,
 	});
 
-	const propsToPass = useMemo((): RemotionAudioProps => {
+	const propsToPass = useMemo((): AudioHTMLAttributes<HTMLAudioElement> => {
 		return {
 			muted:
 				muted || mediaMuted || isSequenceHidden || userPreferredVolume <= 0,

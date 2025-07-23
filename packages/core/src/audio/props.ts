@@ -25,7 +25,13 @@ export type NativeAudioProps = Omit<
 		React.AudioHTMLAttributes<HTMLAudioElement>,
 		HTMLAudioElement
 	>,
-	'autoPlay' | 'controls' | 'onEnded' | 'nonce' | 'onResize' | 'onResizeCapture'
+	| 'autoPlay'
+	| 'controls'
+	| 'onEnded'
+	| 'nonce'
+	| 'onResize'
+	| 'onResizeCapture'
+	| 'onError'
 >;
 
 export type RemotionAudioProps = NativeAudioProps & {
@@ -46,6 +52,7 @@ export type RemotionAudioProps = NativeAudioProps & {
 	delayRenderTimeoutInMilliseconds?: number;
 	delayRenderRetries?: number;
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
+	onError?: (err: Error) => void;
 };
 
 type IsNever<T> = [T] extends [never] ? true : false;

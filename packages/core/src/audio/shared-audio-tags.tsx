@@ -1,4 +1,8 @@
-import type {ComponentType, LazyExoticComponent} from 'react';
+import type {
+	AudioHTMLAttributes,
+	ComponentType,
+	LazyExoticComponent,
+} from 'react';
 import React, {
 	createContext,
 	createRef,
@@ -11,7 +15,6 @@ import React, {
 } from 'react';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
-import type {RemotionAudioProps} from './props.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
 import {useSingletonAudioContext} from './use-audio-context.js';
@@ -30,7 +33,7 @@ import {useSingletonAudioContext} from './use-audio-context.js';
 
 type AudioElem = {
 	id: number;
-	props: RemotionAudioProps;
+	props: AudioHTMLAttributes<HTMLAudioElement>;
 	el: React.RefObject<HTMLAudioElement | null>;
 	audioId: string;
 	mediaElementSourceNode: SharedElementSourceNode | null;
@@ -42,14 +45,14 @@ const EMPTY_AUDIO =
 
 type SharedContext = {
 	registerAudio: (options: {
-		aud: RemotionAudioProps;
+		aud: AudioHTMLAttributes<HTMLAudioElement>;
 		audioId: string;
 		premounting: boolean;
 	}) => AudioElem;
 	unregisterAudio: (id: number) => void;
 	updateAudio: (options: {
 		id: number;
-		aud: RemotionAudioProps;
+		aud: AudioHTMLAttributes<HTMLAudioElement>;
 		audioId: string;
 		premounting: boolean;
 	}) => void;
@@ -181,7 +184,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const registerAudio = useCallback(
 		(options: {
-			aud: RemotionAudioProps;
+			aud: AudioHTMLAttributes<HTMLAudioElement>;
 			audioId: string;
 			premounting: boolean;
 		}) => {
@@ -246,7 +249,7 @@ export const SharedAudioContextProvider: React.FC<{
 			premounting,
 		}: {
 			id: number;
-			aud: RemotionAudioProps;
+			aud: AudioHTMLAttributes<HTMLAudioElement>;
 			audioId: string;
 			premounting: boolean;
 		}) => {
@@ -255,7 +258,10 @@ export const SharedAudioContextProvider: React.FC<{
 			audios.current = audios.current?.map((prevA): AudioElem => {
 				if (prevA.id === id) {
 					const isTheSame =
-						compareProps(aud, prevA.props) && prevA.premounting === premounting;
+						compareProps(
+							aud as Record<string, unknown>,
+							prevA.props as Record<string, unknown>,
+						) && prevA.premounting === premounting;
 					if (isTheSame) {
 						return prevA;
 					}
@@ -358,7 +364,7 @@ export const useSharedAudio = ({
 	audioId,
 	premounting,
 }: {
-	aud: RemotionAudioProps;
+	aud: AudioHTMLAttributes<HTMLAudioElement>;
 	audioId: string;
 	premounting: boolean;
 }) => {

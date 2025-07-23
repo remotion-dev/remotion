@@ -4935,6 +4935,46 @@ export const googleFonts: Font[] = [
 		menu: 'https://fonts.gstatic.com/s/biryani/v14/hv-WlzNxIFoO84YdfU0TPA.woff2',
 	},
 	{
+		family: 'Bitcount',
+		variants: [
+			'100',
+			'200',
+			'300',
+			'regular',
+			'500',
+			'600',
+			'700',
+			'800',
+			'900',
+		],
+		subsets: ['latin', 'latin-ext'],
+		version: 'v1',
+		lastModified: '2025-07-16',
+		files: {
+			'100':
+				'https://fonts.gstatic.com/s/bitcount/v1/ijxXs53kQsE1Y5J-lI1wubXnlQH-1-E1LhaU1dJRZZaHU0slfybi9GQwiTv06bjtugLjdPqK3d9XKDqRc2jrJlC4ZRsgxqxP-aVoJVvr06dyZBdg54o.woff2',
+			'200':
+				'https://fonts.gstatic.com/s/bitcount/v1/ijxXs53kQsE1Y5J-lI1wubXnlQH-1-E1LhaU1dJRZZaHU0slfybi9GQwiTv06bjtugLjdPqK3d9XKDqRc2jrJlC4ZRsgxqxP-aVoJdvq06dyZBdg54o.woff2',
+			'300':
+				'https://fonts.gstatic.com/s/bitcount/v1/ijxXs53kQsE1Y5J-lI1wubXnlQH-1-E1LhaU1dJRZZaHU0slfybi9GQwiTv06bjtugLjdPqK3d9XKDqRc2jrJlC4ZRsgxqxP-aVoJQXq06dyZBdg54o.woff2',
+			'500':
+				'https://fonts.gstatic.com/s/bitcount/v1/ijxXs53kQsE1Y5J-lI1wubXnlQH-1-E1LhaU1dJRZZaHU0slfybi9GQwiTv06bjtugLjdPqK3d9XKDqRc2jrJlC4ZRsgxqxP-aVoJWnq06dyZBdg54o.woff2',
+			'600':
+				'https://fonts.gstatic.com/s/bitcount/v1/ijxXs53kQsE1Y5J-lI1wubXnlQH-1-E1LhaU1dJRZZaHU0slfybi9GQwiTv06bjtugLjdPqK3d9XKDqRc2jrJlC4ZRsgxqxP-aVoJYXt06dyZBdg54o.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/bitcount/v1/ijxXs53kQsE1Y5J-lI1wubXnlQH-1-E1LhaU1dJRZZaHU0slfybi9GQwiTv06bjtugLjdPqK3d9XKDqRc2jrJlC4ZRsgxqxP-aVoJbzt06dyZBdg54o.woff2',
+			'800':
+				'https://fonts.gstatic.com/s/bitcount/v1/ijxXs53kQsE1Y5J-lI1wubXnlQH-1-E1LhaU1dJRZZaHU0slfybi9GQwiTv06bjtugLjdPqK3d9XKDqRc2jrJlC4ZRsgxqxP-aVoJdvt06dyZBdg54o.woff2',
+			'900':
+				'https://fonts.gstatic.com/s/bitcount/v1/ijxXs53kQsE1Y5J-lI1wubXnlQH-1-E1LhaU1dJRZZaHU0slfybi9GQwiTv06bjtugLjdPqK3d9XKDqRc2jrJlC4ZRsgxqxP-aVoJfLt06dyZBdg54o.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/bitcount/v1/ijxXs53kQsE1Y5J-lI1wubXnlQH-1-E1LhaU1dJRZZaHU0slfybi9GQwiTv06bjtugLjdPqK3d9XKDqRc2jrJlC4ZRsgxqxP-aVoJVvq06dyZBdg54o.woff2',
+		},
+		category: 'display',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/bitcount/v1/ijxXs53kQsE1Y5J-lI1wubXnlQH-1-E1LhaU1dJRZZaHU0slfybi9GQwiTv06bjtugLjdPqK3d9XKDqRc2jrJlC4ZRsgxqxP-aVoJVvq46N4ZQ.woff2',
+	},
+	{
 		family: 'Bitcount Grid Double',
 		variants: [
 			'100',
@@ -4973,6 +5013,166 @@ export const googleFonts: Font[] = [
 		category: 'display',
 		kind: 'webfonts#webfont',
 		menu: 'https://fonts.gstatic.com/s/bitcountgriddouble/v1/WBK7rFjbakJVFOargiWSKQysDITG_S0VtG0x3HD2FYHVdlZI-rLlahmEAPp8wjYMvkPq48MVQo5RQf2svjnxa5Anx8-Y-pHdkVb0ByRHaxzbXaLbA9wfZDxkSZAdig.woff2',
+	},
+	{
+		family: 'Bitcount Grid Single',
+		variants: [
+			'100',
+			'200',
+			'300',
+			'regular',
+			'500',
+			'600',
+			'700',
+			'800',
+			'900',
+		],
+		subsets: ['latin', 'latin-ext'],
+		version: 'v1',
+		lastModified: '2025-07-16',
+		files: {
+			'100':
+				'https://fonts.gstatic.com/s/bitcountgridsingle/v1/cY8bfi2OU1tLpjaqQveNvbC2qfsuQPDVASHjTcBszBsXfC5C9kAKu8QoqnfqMiS4gVij5yxO41San7UnNMBH-Y9u33JUGFdHpUYahAAdbgvnnHmmgUGanohqZUcNrmJ9z94.woff2',
+			'200':
+				'https://fonts.gstatic.com/s/bitcountgridsingle/v1/cY8bfi2OU1tLpjaqQveNvbC2qfsuQPDVASHjTcBszBsXfC5C9kAKu8QoqnfqMiS4gVij5yxO41San7UnNMBH-Y9u33JUGFdHpUYahAAdbgvnnHmmgUGanghrZUcNrmJ9z94.woff2',
+			'300':
+				'https://fonts.gstatic.com/s/bitcountgridsingle/v1/cY8bfi2OU1tLpjaqQveNvbC2qfsuQPDVASHjTcBszBsXfC5C9kAKu8QoqnfqMiS4gVij5yxO41San7UnNMBH-Y9u33JUGFdHpUYahAAdbgvnnHmmgUGantZrZUcNrmJ9z94.woff2',
+			'500':
+				'https://fonts.gstatic.com/s/bitcountgridsingle/v1/cY8bfi2OU1tLpjaqQveNvbC2qfsuQPDVASHjTcBszBsXfC5C9kAKu8QoqnfqMiS4gVij5yxO41San7UnNMBH-Y9u33JUGFdHpUYahAAdbgvnnHmmgUGanrprZUcNrmJ9z94.woff2',
+			'600':
+				'https://fonts.gstatic.com/s/bitcountgridsingle/v1/cY8bfi2OU1tLpjaqQveNvbC2qfsuQPDVASHjTcBszBsXfC5C9kAKu8QoqnfqMiS4gVij5yxO41San7UnNMBH-Y9u33JUGFdHpUYahAAdbgvnnHmmgUGanlZsZUcNrmJ9z94.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/bitcountgridsingle/v1/cY8bfi2OU1tLpjaqQveNvbC2qfsuQPDVASHjTcBszBsXfC5C9kAKu8QoqnfqMiS4gVij5yxO41San7UnNMBH-Y9u33JUGFdHpUYahAAdbgvnnHmmgUGanm9sZUcNrmJ9z94.woff2',
+			'800':
+				'https://fonts.gstatic.com/s/bitcountgridsingle/v1/cY8bfi2OU1tLpjaqQveNvbC2qfsuQPDVASHjTcBszBsXfC5C9kAKu8QoqnfqMiS4gVij5yxO41San7UnNMBH-Y9u33JUGFdHpUYahAAdbgvnnHmmgUGanghsZUcNrmJ9z94.woff2',
+			'900':
+				'https://fonts.gstatic.com/s/bitcountgridsingle/v1/cY8bfi2OU1tLpjaqQveNvbC2qfsuQPDVASHjTcBszBsXfC5C9kAKu8QoqnfqMiS4gVij5yxO41San7UnNMBH-Y9u33JUGFdHpUYahAAdbgvnnHmmgUGaniFsZUcNrmJ9z94.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/bitcountgridsingle/v1/cY8bfi2OU1tLpjaqQveNvbC2qfsuQPDVASHjTcBszBsXfC5C9kAKu8QoqnfqMiS4gVij5yxO41San7UnNMBH-Y9u33JUGFdHpUYahAAdbgvnnHmmgUGanohrZUcNrmJ9z94.woff2',
+		},
+		category: 'display',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/bitcountgridsingle/v1/cY8bfi2OU1tLpjaqQveNvbC2qfsuQPDVASHjTcBszBsXfC5C9kAKu8QoqnfqMiS4gVij5yxO41San7UnNMBH-Y9u33JUGFdHpUYahAAdbgvnnHmmgUGanohrVUMHrw.woff2',
+	},
+	{
+		family: 'Bitcount Prop Double',
+		variants: [
+			'100',
+			'200',
+			'300',
+			'regular',
+			'500',
+			'600',
+			'700',
+			'800',
+			'900',
+		],
+		subsets: ['latin', 'latin-ext'],
+		version: 'v1',
+		lastModified: '2025-07-16',
+		files: {
+			'100':
+				'https://fonts.gstatic.com/s/bitcountpropdouble/v1/K2EvfY5Wn-tBSVxaDL6DUOXQJ26dEAnh698zMFjGZaPCtbJHl1TFmDKfGe4_bKUh3sC1Q7DxZ5-3PQRHsSZEX9ctiFN1ZosZvKyl3LzeFmQvK5hIm0nBWck5Kxp1m1YFsiM.woff2',
+			'200':
+				'https://fonts.gstatic.com/s/bitcountpropdouble/v1/K2EvfY5Wn-tBSVxaDL6DUOXQJ26dEAnh698zMFjGZaPCtbJHl1TFmDKfGe4_bKUh3sC1Q7DxZ5-3PQRHsSZEX9ctiFN1ZosZvKyl3LzeFmQvK5hIm0nBWUk4Kxp1m1YFsiM.woff2',
+			'300':
+				'https://fonts.gstatic.com/s/bitcountpropdouble/v1/K2EvfY5Wn-tBSVxaDL6DUOXQJ26dEAnh698zMFjGZaPCtbJHl1TFmDKfGe4_bKUh3sC1Q7DxZ5-3PQRHsSZEX9ctiFN1ZosZvKyl3LzeFmQvK5hIm0nBWZc4Kxp1m1YFsiM.woff2',
+			'500':
+				'https://fonts.gstatic.com/s/bitcountpropdouble/v1/K2EvfY5Wn-tBSVxaDL6DUOXQJ26dEAnh698zMFjGZaPCtbJHl1TFmDKfGe4_bKUh3sC1Q7DxZ5-3PQRHsSZEX9ctiFN1ZosZvKyl3LzeFmQvK5hIm0nBWfs4Kxp1m1YFsiM.woff2',
+			'600':
+				'https://fonts.gstatic.com/s/bitcountpropdouble/v1/K2EvfY5Wn-tBSVxaDL6DUOXQJ26dEAnh698zMFjGZaPCtbJHl1TFmDKfGe4_bKUh3sC1Q7DxZ5-3PQRHsSZEX9ctiFN1ZosZvKyl3LzeFmQvK5hIm0nBWRc_Kxp1m1YFsiM.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/bitcountpropdouble/v1/K2EvfY5Wn-tBSVxaDL6DUOXQJ26dEAnh698zMFjGZaPCtbJHl1TFmDKfGe4_bKUh3sC1Q7DxZ5-3PQRHsSZEX9ctiFN1ZosZvKyl3LzeFmQvK5hIm0nBWS4_Kxp1m1YFsiM.woff2',
+			'800':
+				'https://fonts.gstatic.com/s/bitcountpropdouble/v1/K2EvfY5Wn-tBSVxaDL6DUOXQJ26dEAnh698zMFjGZaPCtbJHl1TFmDKfGe4_bKUh3sC1Q7DxZ5-3PQRHsSZEX9ctiFN1ZosZvKyl3LzeFmQvK5hIm0nBWUk_Kxp1m1YFsiM.woff2',
+			'900':
+				'https://fonts.gstatic.com/s/bitcountpropdouble/v1/K2EvfY5Wn-tBSVxaDL6DUOXQJ26dEAnh698zMFjGZaPCtbJHl1TFmDKfGe4_bKUh3sC1Q7DxZ5-3PQRHsSZEX9ctiFN1ZosZvKyl3LzeFmQvK5hIm0nBWWA_Kxp1m1YFsiM.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/bitcountpropdouble/v1/K2EvfY5Wn-tBSVxaDL6DUOXQJ26dEAnh698zMFjGZaPCtbJHl1TFmDKfGe4_bKUh3sC1Q7DxZ5-3PQRHsSZEX9ctiFN1ZosZvKyl3LzeFmQvK5hIm0nBWck4Kxp1m1YFsiM.woff2',
+		},
+		category: 'display',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/bitcountpropdouble/v1/K2EvfY5Wn-tBSVxaDL6DUOXQJ26dEAnh698zMFjGZaPCtbJHl1TFmDKfGe4_bKUh3sC1Q7DxZ5-3PQRHsSZEX9ctiFN1ZosZvKyl3LzeFmQvK5hIm0nBWck4Gx5_mg.woff2',
+	},
+	{
+		family: 'Bitcount Prop Single',
+		variants: [
+			'100',
+			'200',
+			'300',
+			'regular',
+			'500',
+			'600',
+			'700',
+			'800',
+			'900',
+		],
+		subsets: ['latin', 'latin-ext'],
+		version: 'v1',
+		lastModified: '2025-07-16',
+		files: {
+			'100':
+				'https://fonts.gstatic.com/s/bitcountpropsingle/v1/-W-gXIv9SyXT0xz0E9pIHCxbW8ZMGEVdhz4VoumsGFhzYseFqK9f_KOwYjYsHSocfu1DlxztzQH877SgJ2SUzQ4SJdODLz0JoLU3vXFrqXQooCdbs921GXZkLGAYg0NjZiU.woff2',
+			'200':
+				'https://fonts.gstatic.com/s/bitcountpropsingle/v1/-W-gXIv9SyXT0xz0E9pIHCxbW8ZMGEVdhz4VoumsGFhzYseFqK9f_KOwYjYsHSocfu1DlxztzQH877SgJ2SUzQ4SJdODLz0JoLU3vXFrqXQooCdbs921GfZlLGAYg0NjZiU.woff2',
+			'300':
+				'https://fonts.gstatic.com/s/bitcountpropsingle/v1/-W-gXIv9SyXT0xz0E9pIHCxbW8ZMGEVdhz4VoumsGFhzYseFqK9f_KOwYjYsHSocfu1DlxztzQH877SgJ2SUzQ4SJdODLz0JoLU3vXFrqXQooCdbs921GShlLGAYg0NjZiU.woff2',
+			'500':
+				'https://fonts.gstatic.com/s/bitcountpropsingle/v1/-W-gXIv9SyXT0xz0E9pIHCxbW8ZMGEVdhz4VoumsGFhzYseFqK9f_KOwYjYsHSocfu1DlxztzQH877SgJ2SUzQ4SJdODLz0JoLU3vXFrqXQooCdbs921GURlLGAYg0NjZiU.woff2',
+			'600':
+				'https://fonts.gstatic.com/s/bitcountpropsingle/v1/-W-gXIv9SyXT0xz0E9pIHCxbW8ZMGEVdhz4VoumsGFhzYseFqK9f_KOwYjYsHSocfu1DlxztzQH877SgJ2SUzQ4SJdODLz0JoLU3vXFrqXQooCdbs921GahiLGAYg0NjZiU.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/bitcountpropsingle/v1/-W-gXIv9SyXT0xz0E9pIHCxbW8ZMGEVdhz4VoumsGFhzYseFqK9f_KOwYjYsHSocfu1DlxztzQH877SgJ2SUzQ4SJdODLz0JoLU3vXFrqXQooCdbs921GZFiLGAYg0NjZiU.woff2',
+			'800':
+				'https://fonts.gstatic.com/s/bitcountpropsingle/v1/-W-gXIv9SyXT0xz0E9pIHCxbW8ZMGEVdhz4VoumsGFhzYseFqK9f_KOwYjYsHSocfu1DlxztzQH877SgJ2SUzQ4SJdODLz0JoLU3vXFrqXQooCdbs921GfZiLGAYg0NjZiU.woff2',
+			'900':
+				'https://fonts.gstatic.com/s/bitcountpropsingle/v1/-W-gXIv9SyXT0xz0E9pIHCxbW8ZMGEVdhz4VoumsGFhzYseFqK9f_KOwYjYsHSocfu1DlxztzQH877SgJ2SUzQ4SJdODLz0JoLU3vXFrqXQooCdbs921Gd9iLGAYg0NjZiU.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/bitcountpropsingle/v1/-W-gXIv9SyXT0xz0E9pIHCxbW8ZMGEVdhz4VoumsGFhzYseFqK9f_KOwYjYsHSocfu1DlxztzQH877SgJ2SUzQ4SJdODLz0JoLU3vXFrqXQooCdbs921GXZlLGAYg0NjZiU.woff2',
+		},
+		category: 'display',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/bitcountpropsingle/v1/-W-gXIv9SyXT0xz0E9pIHCxbW8ZMGEVdhz4VoumsGFhzYseFqK9f_KOwYjYsHSocfu1DlxztzQH877SgJ2SUzQ4SJdODLz0JoLU3vXFrqXQooCdbs921GXZlHGQSgg.woff2',
+	},
+	{
+		family: 'Bitcount Single',
+		variants: [
+			'100',
+			'200',
+			'300',
+			'regular',
+			'500',
+			'600',
+			'700',
+			'800',
+			'900',
+		],
+		subsets: ['latin', 'latin-ext'],
+		version: 'v1',
+		lastModified: '2025-07-16',
+		files: {
+			'100':
+				'https://fonts.gstatic.com/s/bitcountsingle/v1/or25Q6T72-iP2RY6OLSkb95a817cjULDyyhvb6tTxCxtAOObpH9NnfLjSWiXv_OGqtjRD0BNzrItMZWC-9SK8R6EpA2l9RAyOs8BbxT7gd3xw8jKC4tdzXjwevWm.woff2',
+			'200':
+				'https://fonts.gstatic.com/s/bitcountsingle/v1/or25Q6T72-iP2RY6OLSkb95a817cjULDyyhvb6tTxCxtAOObpH9NnfLjSWiXv_OGqtjRD0BNzrItMZWC-9SK8R6EpA2l9RAyOs8BbxT7gd3xw8hKCotdzXjwevWm.woff2',
+			'300':
+				'https://fonts.gstatic.com/s/bitcountsingle/v1/or25Q6T72-iP2RY6OLSkb95a817cjULDyyhvb6tTxCxtAOObpH9NnfLjSWiXv_OGqtjRD0BNzrItMZWC-9SK8R6EpA2l9RAyOs8BbxT7gd3xw8iUCotdzXjwevWm.woff2',
+			'500':
+				'https://fonts.gstatic.com/s/bitcountsingle/v1/or25Q6T72-iP2RY6OLSkb95a817cjULDyyhvb6tTxCxtAOObpH9NnfLjSWiXv_OGqtjRD0BNzrItMZWC-9SK8R6EpA2l9RAyOs8BbxT7gd3xw8j4CotdzXjwevWm.woff2',
+			'600':
+				'https://fonts.gstatic.com/s/bitcountsingle/v1/or25Q6T72-iP2RY6OLSkb95a817cjULDyyhvb6tTxCxtAOObpH9NnfLjSWiXv_OGqtjRD0BNzrItMZWC-9SK8R6EpA2l9RAyOs8BbxT7gd3xw8gUDYtdzXjwevWm.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/bitcountsingle/v1/or25Q6T72-iP2RY6OLSkb95a817cjULDyyhvb6tTxCxtAOObpH9NnfLjSWiXv_OGqtjRD0BNzrItMZWC-9SK8R6EpA2l9RAyOs8BbxT7gd3xw8gtDYtdzXjwevWm.woff2',
+			'800':
+				'https://fonts.gstatic.com/s/bitcountsingle/v1/or25Q6T72-iP2RY6OLSkb95a817cjULDyyhvb6tTxCxtAOObpH9NnfLjSWiXv_OGqtjRD0BNzrItMZWC-9SK8R6EpA2l9RAyOs8BbxT7gd3xw8hKDYtdzXjwevWm.woff2',
+			'900':
+				'https://fonts.gstatic.com/s/bitcountsingle/v1/or25Q6T72-iP2RY6OLSkb95a817cjULDyyhvb6tTxCxtAOObpH9NnfLjSWiXv_OGqtjRD0BNzrItMZWC-9SK8R6EpA2l9RAyOs8BbxT7gd3xw8hjDYtdzXjwevWm.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/bitcountsingle/v1/or25Q6T72-iP2RY6OLSkb95a817cjULDyyhvb6tTxCxtAOObpH9NnfLjSWiXv_OGqtjRD0BNzrItMZWC-9SK8R6EpA2l9RAyOs8BbxT7gd3xw8jKCotdzXjwevWm.woff2',
+		},
+		category: 'display',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/bitcountsingle/v1/or25Q6T72-iP2RY6OLSkb95a817cjULDyyhvb6tTxCxtAOObpH9NnfLjSWiXv_OGqtjRD0BNzrItMZWC-9SK8R6EpA2l9RAyOs8BbxT7gd3xw8jKCrtZx3k.woff2',
 	},
 	{
 		family: 'Bitter',
@@ -5845,15 +6045,15 @@ export const googleFonts: Font[] = [
 			'latin-ext',
 			'vietnamese',
 		],
-		version: 'v12',
-		lastModified: '2025-06-25',
+		version: 'v13',
+		lastModified: '2025-07-16',
 		files: {
 			regular:
-				'https://fonts.gstatic.com/s/cactusclassicalserif/v12/sZlVdQ6K-zJOCzUaS90zMNN-Ep-OoC8dZr0JFuVIFX-pv-E.woff2',
+				'https://fonts.gstatic.com/s/cactusclassicalserif/v13/sZlVdQ6K-zJOCzUaS90zMNN-Ep-OoC8dZr0JFuVIFX-pv-E.woff2',
 		},
 		category: 'serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/cactusclassicalserif/v12/sZlVdQ6K-zJOCzUaS90zMNN-Ep-OoC8dZr0JJuFCFA.woff2',
+		menu: 'https://fonts.gstatic.com/s/cactusclassicalserif/v13/sZlVdQ6K-zJOCzUaS90zMNN-Ep-OoC8dZr0JJuFCFA.woff2',
 	},
 	{
 		family: 'Caesar Dressing',
@@ -14886,6 +15086,49 @@ export const googleFonts: Font[] = [
 		menu: 'https://fonts.gstatic.com/s/instrumentserif/v4/jizBRFtNs2ka5fXjeivQ4LroWlx-6zMTjg.woff2',
 	},
 	{
+		family: 'Intel One Mono',
+		variants: [
+			'300',
+			'300italic',
+			'regular',
+			'italic',
+			'500',
+			'500italic',
+			'600',
+			'600italic',
+			'700',
+			'700italic',
+		],
+		subsets: ['latin', 'latin-ext', 'symbols2', 'vietnamese'],
+		version: 'v2',
+		lastModified: '2025-07-16',
+		files: {
+			'300':
+				'https://fonts.gstatic.com/s/intelonemono/v2/P5sWzZuLY8Lb_G1RikFkwPjBvuM8LXucmoHDSAMg__cRmT9TMr2nYA.woff2',
+			'500':
+				'https://fonts.gstatic.com/s/intelonemono/v2/P5sWzZuLY8Lb_G1RikFkwPjBvuM8LXucmoHDSAMgk_cRmT9TMr2nYA.woff2',
+			'600':
+				'https://fonts.gstatic.com/s/intelonemono/v2/P5sWzZuLY8Lb_G1RikFkwPjBvuM8LXucmoHDSAMgf_ARmT9TMr2nYA.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/intelonemono/v2/P5sWzZuLY8Lb_G1RikFkwPjBvuM8LXucmoHDSAMgRvARmT9TMr2nYA.woff2',
+			'300italic':
+				'https://fonts.gstatic.com/s/intelonemono/v2/P5sUzZuLY8Lb_G1RikFkwPjBvsk1H4RE8-pZ5gQ1abSn3zVSELi3YD27.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/intelonemono/v2/P5sWzZuLY8Lb_G1RikFkwPjBvuM8LXucmoHDSAMgofcRmT9TMr2nYA.woff2',
+			italic:
+				'https://fonts.gstatic.com/s/intelonemono/v2/P5sUzZuLY8Lb_G1RikFkwPjBvsk1H4RE8-pZ5gQ1abT53zVSELi3YD27.woff2',
+			'500italic':
+				'https://fonts.gstatic.com/s/intelonemono/v2/P5sUzZuLY8Lb_G1RikFkwPjBvsk1H4RE8-pZ5gQ1abTL3zVSELi3YD27.woff2',
+			'600italic':
+				'https://fonts.gstatic.com/s/intelonemono/v2/P5sUzZuLY8Lb_G1RikFkwPjBvsk1H4RE8-pZ5gQ1abQn2DVSELi3YD27.woff2',
+			'700italic':
+				'https://fonts.gstatic.com/s/intelonemono/v2/P5sUzZuLY8Lb_G1RikFkwPjBvsk1H4RE8-pZ5gQ1abQe2DVSELi3YD27.woff2',
+		},
+		category: 'monospace',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/intelonemono/v2/P5sWzZuLY8Lb_G1RikFkwPjBvuM8LXucmoHDSAMgofchnTVS.woff2',
+	},
+	{
 		family: 'Inter',
 		variants: [
 			'100',
@@ -19987,79 +20230,79 @@ export const googleFonts: Font[] = [
 		family: 'Material Symbols Outlined',
 		variants: ['100', '200', '300', 'regular', '500', '600', '700'],
 		subsets: ['latin'],
-		version: 'v257',
-		lastModified: '2025-07-03',
+		version: 'v266',
+		lastModified: '2025-07-16',
 		files: {
 			'100':
-				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v257/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCvHeejbd5zrTgt.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v266/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCvHeejbd5zrTgt.woff2',
 			'200':
-				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v257/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDAvHOejbd5zrTgt.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v266/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDAvHOejbd5zrTgt.woff2',
 			'300':
-				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v257/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDDxHOejbd5zrTgt.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v266/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDDxHOejbd5zrTgt.woff2',
 			'500':
-				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v257/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCdHOejbd5zrTgt.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v266/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCdHOejbd5zrTgt.woff2',
 			'600':
-				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v257/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDBxG-ejbd5zrTgt.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v266/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDBxG-ejbd5zrTgt.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v257/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDBIG-ejbd5zrTgt.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v266/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDBIG-ejbd5zrTgt.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v257/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCvHOejbd5zrTgt.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsoutlined/v266/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCvHOejbd5zrTgt.woff2',
 		},
 		category: 'monospace',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/materialsymbolsoutlined/v257/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCvHNenZ98.woff2',
+		menu: 'https://fonts.gstatic.com/s/materialsymbolsoutlined/v266/kJF1BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzByHX9rA6RzaxHMPdY43zj-jCxv3fzvRNU22ZXGJpEpjC_1v-p_4MrImHCIJIZrDCvHNenZ98.woff2',
 	},
 	{
 		family: 'Material Symbols Rounded',
 		variants: ['100', '200', '300', 'regular', '500', '600', '700'],
 		subsets: ['latin'],
-		version: 'v258',
-		lastModified: '2025-07-03',
+		version: 'v267',
+		lastModified: '2025-07-16',
 		files: {
 			'100':
-				'https://fonts.gstatic.com/s/materialsymbolsrounded/v258/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rIekXxeJKJBjAa8.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsrounded/v267/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rIekXxeJKJBjAa8.woff2',
 			'200':
-				'https://fonts.gstatic.com/s/materialsymbolsrounded/v258/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rAelXxeJKJBjAa8.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsrounded/v267/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rAelXxeJKJBjAa8.woff2',
 			'300':
-				'https://fonts.gstatic.com/s/materialsymbolsrounded/v258/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rNmlXxeJKJBjAa8.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsrounded/v267/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rNmlXxeJKJBjAa8.woff2',
 			'500':
-				'https://fonts.gstatic.com/s/materialsymbolsrounded/v258/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rLWlXxeJKJBjAa8.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsrounded/v267/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rLWlXxeJKJBjAa8.woff2',
 			'600':
-				'https://fonts.gstatic.com/s/materialsymbolsrounded/v258/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rFmiXxeJKJBjAa8.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsrounded/v267/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rFmiXxeJKJBjAa8.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/materialsymbolsrounded/v258/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rGCiXxeJKJBjAa8.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsrounded/v267/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rGCiXxeJKJBjAa8.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/materialsymbolsrounded/v258/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rIelXxeJKJBjAa8.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolsrounded/v267/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rIelXxeJKJBjAa8.woff2',
 		},
 		category: 'monospace',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/materialsymbolsrounded/v258/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rIelbxODKQ.woff2',
+		menu: 'https://fonts.gstatic.com/s/materialsymbolsrounded/v267/syl0-zNym6YjUruM-QrEh7-nyTnjDwKNJ_190FjpZIvDmUSVOK7BDB_Qb9vUSzq3wzLK-P0J-V_Zs-QtQth3-jOcbTCVpeRL2w5rwZu2rIelbxODKQ.woff2',
 	},
 	{
 		family: 'Material Symbols Sharp',
 		variants: ['100', '200', '300', 'regular', '500', '600', '700'],
 		subsets: ['latin'],
-		version: 'v254',
-		lastModified: '2025-07-03',
+		version: 'v263',
+		lastModified: '2025-07-16',
 		files: {
 			'100':
-				'https://fonts.gstatic.com/s/materialsymbolssharp/v254/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxOLozCLJ1H7-knk.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolssharp/v263/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxOLozCLJ1H7-knk.woff2',
 			'200':
-				'https://fonts.gstatic.com/s/materialsymbolssharp/v254/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxMLojCLJ1H7-knk.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolssharp/v263/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxMLojCLJ1H7-knk.woff2',
 			'300':
-				'https://fonts.gstatic.com/s/materialsymbolssharp/v254/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxPVojCLJ1H7-knk.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolssharp/v263/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxPVojCLJ1H7-knk.woff2',
 			'500':
-				'https://fonts.gstatic.com/s/materialsymbolssharp/v254/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxO5ojCLJ1H7-knk.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolssharp/v263/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxO5ojCLJ1H7-knk.woff2',
 			'600':
-				'https://fonts.gstatic.com/s/materialsymbolssharp/v254/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxNVpTCLJ1H7-knk.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolssharp/v263/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxNVpTCLJ1H7-knk.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/materialsymbolssharp/v254/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxNspTCLJ1H7-knk.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolssharp/v263/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxNspTCLJ1H7-knk.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/materialsymbolssharp/v254/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxOLojCLJ1H7-knk.woff2',
+				'https://fonts.gstatic.com/s/materialsymbolssharp/v263/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxOLojCLJ1H7-knk.woff2',
 		},
 		category: 'monospace',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/materialsymbolssharp/v254/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxOLogCPLVA.woff2',
+		menu: 'https://fonts.gstatic.com/s/materialsymbolssharp/v263/gNNBW2J8Roq16WD5tFNRaeLQk6-SHQ_R00k4c2_whPnoY9ruReaU4bHmz74m0ZkGH-VBYe1x0TV6x4yFH8F-H5OdzEL3sVTgJtfbYxOLogCPLVA.woff2',
 	},
 	{
 		family: 'Maven Pro',
