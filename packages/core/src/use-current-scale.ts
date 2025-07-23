@@ -67,7 +67,16 @@ export const calculateScale = ({
 
 	const ratio = Math.min(heightRatio, widthRatio);
 
-	return previewSize === 'auto' ? ratio : Number(previewSize);
+	if (previewSize === 'auto') {
+		// Container may be 0x0 because it doesn't have any content yet.
+		if (ratio === 0) {
+			return 1;
+		}
+
+		return ratio;
+	}
+
+	return Number(previewSize);
 };
 
 /*
