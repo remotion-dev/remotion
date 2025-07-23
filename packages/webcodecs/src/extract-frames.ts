@@ -1,4 +1,5 @@
 import type {
+	MediaParserContainer,
 	MediaParserLogLevel,
 	MediaParserVideoSample,
 	MediaParserVideoTrack,
@@ -15,6 +16,7 @@ import {withResolvers} from './create/with-resolvers';
 
 export type ExtractFramesTimestampsInSecondsFn = (options: {
 	track: MediaParserVideoTrack;
+	container: MediaParserContainer
 	durationInSeconds: number | null;
 }) => Promise<number[]> | number[];
 
@@ -53,14 +55,18 @@ const internalExtractFrames = ({
 		acknowledgeRemotionLicense,
 		controller,
 		logLevel,
+		fields: {
+			container: true
+		},
 		onDurationInSeconds(durationInSeconds) {
 			dur = durationInSeconds;
 		},
-		onVideoTrack: async ({track}) => {
+		onVideoTrack: async ({track, container}) => {
 			const timestampTargetsUnsorted =
 				typeof timestampsInSeconds === 'function'
 					? await timestampsInSeconds({
 							track,
+							container,
 							durationInSeconds: dur,
 						})
 					: timestampsInSeconds;

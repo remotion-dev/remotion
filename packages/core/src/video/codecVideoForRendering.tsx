@@ -1,4 +1,4 @@
-import React, {  useLayoutEffect, useRef } from 'react';
+import React, {  useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {extractFrames} from '@remotion/webcodecs'
 import type {RemotionOffthreadVideoProps} from './props.js';
 import { useUnsafeVideoConfig } from '../use-unsafe-video-config.js';
@@ -23,7 +23,7 @@ export const CodecVideoForRendering: React.FC<
   delayRenderRetries,
   delayRenderTimeoutInMilliseconds,
   //call when a frame of the video, i.e. img is rendered
-  // onVideoFrame,
+  onVideoFrame,
   // // Remove crossOrigin prop during rendering
   // // https://discord.com/channels/809501355504959528/844143007183667220/1311639632496033813
   // crossOrigin,
@@ -39,6 +39,7 @@ export const CodecVideoForRendering: React.FC<
   // const sequenceContext = useContext(SequenceContext);
   // const mediaStartsAt = useMediaStartsAt();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [activeHandler,setActiveHandler] = useState<any>(null)
   // const [frames, setframes] = useState<VideoFrame[]>([]);
   const frame = useCurrentFrame();
 
@@ -120,25 +121,48 @@ export const CodecVideoForRendering: React.FC<
       retries: delayRenderRetries ?? undefined,
       timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
     });
+    console.log(`new handle created ${newHandle}`)
 
     extractFrames({
       src,
-      timestampsInSeconds: async () =>  {
-        console.log(`called for frame ${frame} with timestamp ${frame/videoConfig.fps}`)
-        return [frame/videoConfig.fps]
+      timestampsInSeconds: async ({ container}) =>  {
+        let fps = videoConfig.fps;
+        let timestamp; //milisecond precision
+        if(container === "mp4"){
+          //we want the frame one ms ahead, because the timsestamps of mp4 frames show they act this way
+          //also,experiment show that it should be rounded to the nearest ms
+          timestamp =  Math.round(((frame+1)/fps)*1000 + 1)/1000;
+        }else{
+          timestamp =  Math.round(((frame)/fps)*1000)/1000;
+        }
+        console.log(`called for frame ${frame} with timestamp ${timestamp}`)
+        return [timestamp]
       },
       onFrame:  (extractedFrame) => {
         console.log("successfully extracted the frame " + frame);
+        console.log(extractedFrame)
         //render the canvas
         canvasRef.current?.getContext("2d")?.drawImage(extractedFrame,0, 0);
+        onVideoFrame?.(extractedFrame)
         extractedFrame.close()
         //continue render  
-        continueRender(newHandle)
+        setActiveHandler(newHandle)
       },
     })
 
     
   },[frame])
+
+
+useEffect(() => {
+  if (activeHandler !== null) {
+    console.log(`active handler changed, new value: ${activeHandler}`)
+    requestAnimationFrame(() => {
+      console.log(`Frame ${frame} drawn and painted, continuing render`);
+      continueRender(activeHandler);
+    });
+  }
+}, [activeHandler]);
 
   return (
     <canvas width={videoConfig.width} height={videoConfig.height} ref={canvasRef} />

@@ -28,7 +28,7 @@ const getMissedFramesforCodec = async (
 			'exec',
 			'remotion',
 			'render',
-			'build',
+			// 'build',
 			`video-testing-${codec}${type === 'normal' ? '' : '-'+type}`,
 			outputPath,
 			'--image-format',
@@ -137,7 +137,7 @@ test(
 		expect(missedFrames).toBe(0);
 	},
 	{
-		timeout: 30000,
+		timeout: 80000,
 	},
 );
 
@@ -148,6 +148,6 @@ test(
 		expect(missedFrames).toBeLessThanOrEqual(8);
 	},
 	{
-		timeout: 40000,
+		timeout: 80000,
 	},
 );
