@@ -110,6 +110,8 @@ import {
 	useRemotionContexts,
 } from './wrap-remotion-context.js';
 import { VideoForPreview } from './video/VideoForPreview.js';
+import { useCurrentFrame } from './use-current-frame.js';
+import { continueRender, delayRender } from './delay-render.js';
 
 // needs to be in core package so gets deduplicated in studio
 const compositionSelectorRef = createRef<{
@@ -123,6 +125,9 @@ const compositionSelectorRef = createRef<{
 export const Internals = {
 	useUnsafeVideoConfig,
 	Timeline: TimelinePosition,
+	useCurrentFrame,
+	delayRender,
+	continueRender,
 	validateMediaProps,
 	resolveTrimProps,
 	validateMediaTrimProps,
