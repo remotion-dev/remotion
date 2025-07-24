@@ -121,4 +121,5 @@ export const {
 	validateFps,
 	validateDimension,
 	validateDurationInFrames,
+	validateCodec,
 } = NoReactInternals;
