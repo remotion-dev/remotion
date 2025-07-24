@@ -3064,17 +3064,17 @@ importers:
         specifier: 19.0.0
         version: 19.0.0
       '@types/web':
-        specifier: 0.0.166
-        version: 0.0.166
+        specifier: 0.0.187
+        version: 0.0.187
       '@types/webrtc':
         specifier: 0.0.44
         version: 0.0.44
       '@vitejs/plugin-react':
         specifier: 4.1.0
-        version: 4.1.0(vite@7.0.6)
+        version: 4.1.0(vite@5.4.19)
       '@vitejs/plugin-react-swc':
         specifier: 3.0.0
-        version: 3.0.0(vite@7.0.6)
+        version: 3.0.0(vite@5.4.19)
       autoprefixer:
         specifier: 10.4.16
         version: 10.4.16(postcss@8.4.31)
@@ -3094,8 +3094,8 @@ importers:
         specifier: 5.8.2
         version: 5.8.2
       vite:
-        specifier: 7.0.6
-        version: 7.0.6
+        specifier: 5.4.19
+        version: 5.4.19(@types/node@20.12.14)
 
   packages/template-render-server:
     dependencies:
@@ -16366,6 +16366,10 @@ packages:
   /@types/web@0.0.166:
     resolution: {integrity: sha512-qvY/TzK1WuxfeACL3Zzw+gMivGiIynRKH98nLET7ACzTRTX8CWMA6LQJ9WayIHvTBU1JeFCBRIBjsxhGz4TfHQ==}
 
+  /@types/web@0.0.187:
+    resolution: {integrity: sha512-PNvOlIo9AkUA8dvdqJHrvvIZG40Qi37QHNyl1qOD1m/4Lj+2thAtwJM2N9UmtGBtkhb3x9mP/6JlXYtQcZ3uFg==}
+    dev: true
+
   /@types/webrtc@0.0.44:
     resolution: {integrity: sha512-4BJZdzrApNFeuXgucyqs24k69f7oti3wUcGEbFbaV08QBh7yEe3tnRRuYXlyXJNXiumpZujiZqUZZ2/gMSeO0g==}
     dev: true
@@ -16981,18 +16985,18 @@ packages:
       ts-morph: 12.0.0
     dev: false
 
-  /@vitejs/plugin-react-swc@3.0.0(vite@7.0.6):
+  /@vitejs/plugin-react-swc@3.0.0(vite@5.4.19):
     resolution: {integrity: sha512-vYlodz/mjYRbxMGbHzDgR8aPR+z8n7K/enWkyBGH096xrL2DIPCuTvQVRYPTXGyy6wO7OFiMxZ3r4nKQD1sH0A==}
     peerDependencies:
       vite: ^4.0.0
     dependencies:
       '@swc/core': 1.12.1
-      vite: 7.0.6
+      vite: 5.4.19(@types/node@20.12.14)
     transitivePeerDependencies:
       - '@swc/helpers'
     dev: true
 
-  /@vitejs/plugin-react@4.1.0(vite@7.0.6):
+  /@vitejs/plugin-react@4.1.0(vite@5.4.19):
     resolution: {integrity: sha512-rM0SqazU9iqPUraQ2JlIvReeaxOoRj6n+PzB1C0cBzIbd8qP336nC39/R9yPi3wVcah7E7j/kdU1uCUqMEU4OQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -17003,7 +17007,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.23.2)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 7.0.6
+      vite: 5.4.19(@types/node@20.12.14)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -21010,17 +21014,6 @@ packages:
     resolution: {integrity: sha512-cE1qsB/VwyQozZ+q1dGxR8LBYNZeofhEdUNGSMbQD3Gw2lAzX9Zb3uIU6Ebc/Fmyjo9AWWfnn0AUCHqtevs/8g==}
     dependencies:
       pend: 1.2.0
-
-  /fdir@6.4.6(picomatch@4.0.3):
-    resolution: {integrity: sha512-hiFoqpyZcfNm1yc4u8oWCf9A2c4D3QjCrks3zmoVKVxpQRzmPNar1hUJcBG2RQHvEVGDN+Jm81ZheVLAQMK6+w==}
-    peerDependencies:
-      picomatch: ^3 || ^4
-    peerDependenciesMeta:
-      picomatch:
-        optional: true
-    dependencies:
-      picomatch: 4.0.3
-    dev: true
 
   /feed@4.2.2:
     resolution: {integrity: sha512-u5/sxGfiMfZNtJ3OvQpXcvotFpYkL0n9u9mM2vkui2nGo8b4wvDkJ8gAkYqbA8QpGyFCv3RK0Z+Iv+9veCS9bQ==}
@@ -25633,11 +25626,6 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /picomatch@4.0.3:
-    resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
-    engines: {node: '>=12'}
-    dev: true
-
   /pidtree@0.6.0:
     resolution: {integrity: sha512-eG2dWTVw5bzqGRztnHExczNxt5VGsE6OwTeCG3fdUf9KBsZzO3R5OIIIzWR+iZA0NtZ+RDVdaoE2dK1cn6jH4g==}
     engines: {node: '>=0.10'}
@@ -27564,15 +27552,6 @@ packages:
       picocolors: 1.1.1
       source-map-js: 1.2.1
     dev: false
-
-  /postcss@8.5.6:
-    resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
-    engines: {node: ^10 || ^12 || >=14}
-    dependencies:
-      nanoid: 3.3.11
-      picocolors: 1.1.1
-      source-map-js: 1.2.1
-    dev: true
 
   /potpack@1.0.1:
     resolution: {integrity: sha512-15vItUAbViaYrmaB/Pbw7z6qX2xENbFSTA7Ii4tgbPtasxm5v6ryKhKtL91tpWovDJzTiZqdwzhcFBCwiMVdVw==}
@@ -30267,14 +30246,6 @@ packages:
     resolution: {integrity: sha512-WiCJLEECkO18gwqIp6+hJg0//p23HXp4S+gGtAKu3mI2F2/sXC4FvHvXvB0zJVVaTPhx1/tOwdbRsa1sOBIKqQ==}
     dev: false
 
-  /tinyglobby@0.2.14:
-    resolution: {integrity: sha512-tX5e7OM1HnYr2+a2C/4V0htOcSQcoSTH9KgJnVvNm5zm/cyEWKJ7j7YutsH9CxMdtOkkLFy2AHrMci9IM8IPZQ==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      fdir: 6.4.6(picomatch@4.0.3)
-      picomatch: 4.0.3
-    dev: true
-
   /tinypool@0.5.0:
     resolution: {integrity: sha512-paHQtnrlS1QZYKF/GnLoOM/DN9fqaGOFbCbxzAhwniySnzl9Ebk8w73/dd34DAhe/obUbPAOldTyYXQZxnPBPQ==}
     engines: {node: '>=14.0.0'}
@@ -31425,56 +31396,6 @@ packages:
     optionalDependencies:
       fsevents: 2.3.3
     dev: false
-
-  /vite@7.0.6:
-    resolution: {integrity: sha512-MHFiOENNBd+Bd9uvc8GEsIzdkn1JxMmEeYX35tI3fv0sJBUTfW5tQsoaOwuY4KhBI09A3dUJ/DXf2yxPVPUceg==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': ^20.19.0 || >=22.12.0
-      jiti: '>=1.21.0'
-      less: ^4.0.0
-      lightningcss: ^1.21.0
-      sass: ^1.70.0
-      sass-embedded: ^1.70.0
-      stylus: '>=0.54.8'
-      sugarss: ^5.0.0
-      terser: ^5.16.0
-      tsx: ^4.8.1
-      yaml: ^2.4.2
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      jiti:
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      sass-embedded:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-      tsx:
-        optional: true
-      yaml:
-        optional: true
-    dependencies:
-      esbuild: 0.25.0
-      fdir: 6.4.6(picomatch@4.0.3)
-      picomatch: 4.0.3
-      postcss: 8.5.6
-      rollup: 4.40.1
-      tinyglobby: 0.2.14
-    optionalDependencies:
-      fsevents: 2.3.3
-    dev: true
 
   /vitefu@1.0.4(vite@6.0.3):
     resolution: {integrity: sha512-y6zEE3PQf6uu/Mt6DTJ9ih+kyJLr4XcSgHR2zUkM8SWDhuixEJxfJ6CZGMHh1Ec3vPLoEA0IHU5oWzVqw8ulow==}
