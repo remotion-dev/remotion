@@ -78,9 +78,11 @@ export const parseLoop = async ({
 				await triggerInfoEmit(state);
 
 				await state.controller._internals.checkForAbortAndPause();
+				const parseLoopStart = Date.now();
 				const result = await runParseIteration({
 					state,
 				});
+				state.timings.timeInParseLoop += Date.now() - parseLoopStart;
 
 				if (result !== null && result.action === 'fetch-more-data') {
 					Log.verbose(
