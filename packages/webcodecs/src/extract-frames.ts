@@ -16,7 +16,7 @@ import {withResolvers} from './create/with-resolvers';
 
 export type ExtractFramesTimestampsInSecondsFn = (options: {
 	track: MediaParserVideoTrack;
-	container: MediaParserContainer
+	container: MediaParserContainer;
 	durationInSeconds: number | null;
 }) => Promise<number[]> | number[];
 
@@ -55,9 +55,6 @@ const internalExtractFrames = ({
 		acknowledgeRemotionLicense,
 		controller,
 		logLevel,
-		fields: {
-			container: true
-		},
 		onDurationInSeconds(durationInSeconds) {
 			dur = durationInSeconds;
 		},
