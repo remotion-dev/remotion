@@ -3,7 +3,6 @@ import {getHasTracks} from '../../../get-tracks';
 import {Log} from '../../../log';
 import type {FetchMoreData, Skip} from '../../../skip';
 import {makeFetchMoreData, makeSkip} from '../../../skip';
-import type {FlatSample} from '../../../state/iso-base-media/cached-sample-positions';
 import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
 import {
 	getLastMoofBox,
@@ -85,23 +84,28 @@ export const parseMdatSection = async (
 		state.callbacks.tracks.setIsDone(state.logLevel);
 
 		state.structure.getIsoStructure().boxes.push(moov);
+
 		return parseMdatSection(state);
 	}
 
 	if (!state.iso.flatSamples.getSamples(mediaSection.start)) {
-		const flattedSamples = calculateFlatSamples({
+		const {
+			flatSamples: flatSamplesMap,
+			offsets,
+			trackIds,
+		} = calculateFlatSamples({
 			state,
 			mediaSectionStart: mediaSection.start,
 		});
 
-		const calcedJumpMarks = calculateJumpMarks(flattedSamples, endOfMdat);
+		const calcedJumpMarks = calculateJumpMarks({
+			sampleMap: flatSamplesMap,
+			offsetsSorted: offsets,
+			trackIds,
+			endOfMdat,
+		});
+
 		state.iso.flatSamples.setJumpMarks(mediaSection.start, calcedJumpMarks);
-
-		const flatSamplesMap = new Map<number, FlatSample>();
-		for (const sample of flattedSamples.flat(1)) {
-			flatSamplesMap.set(sample.samplePosition.offset, sample);
-		}
-
 		state.iso.flatSamples.setSamples(mediaSection.start, flatSamplesMap);
 	}
 
@@ -110,6 +114,7 @@ export const parseMdatSection = async (
 	const {iterator} = state;
 
 	const samplesWithIndex = flatSamples.get(iterator.counter.getOffset());
+
 	if (!samplesWithIndex) {
 		// There are various reasons why in mdat we find weird stuff:
 		// - iphonevideo.hevc has a fake hoov atom which is not mapped

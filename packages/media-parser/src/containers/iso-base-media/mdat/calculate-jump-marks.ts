@@ -7,7 +7,10 @@
   the overall progress is stuck.
 */
 
-import type {MinimalFlatSampleForTesting} from '../../../state/iso-base-media/cached-sample-positions';
+import type {
+	FlatSample,
+	MinimalFlatSampleForTesting,
+} from '../../../state/iso-base-media/cached-sample-positions';
 
 // In WebCodecs, we require the tracks to deviate by at most 10 seconds
 // Therefore, we need to emit them to be less than 10 seconds apart
@@ -23,11 +26,13 @@ const getKey = (samplePositionTrack: MinimalFlatSampleForTesting) => {
 };
 
 const findBestJump = ({
-	allSamplesSortedByOffset,
+	sampleMap,
+	offsetsSorted,
 	visited,
 	progresses,
 }: {
-	allSamplesSortedByOffset: MinimalFlatSampleForTesting[];
+	sampleMap: Map<number, FlatSample>;
+	offsetsSorted: number[];
 	visited: Set<string>;
 	progresses: Record<number, number>;
 }) => {
@@ -37,30 +42,33 @@ const findBestJump = ({
 		([, progress]) => progress === minProgress,
 	)?.[0];
 
-	const firstSampleAboveMinProgress = allSamplesSortedByOffset.findIndex(
-		(sample) =>
-			sample.track.trackId === Number(trackNumberWithLowestProgress) &&
-			!visited.has(getKey(sample)),
+	const firstSampleAboveMinProgress = offsetsSorted.findIndex(
+		(offset) =>
+			sampleMap.get(offset)!.track.trackId ===
+				Number(trackNumberWithLowestProgress) &&
+			!visited.has(getKey(sampleMap.get(offset)!)),
 	);
 
 	return firstSampleAboveMinProgress;
 };
 
-export const calculateJumpMarks = (
-	samplePositionTracks: MinimalFlatSampleForTesting[][],
-	endOfMdat: number,
-) => {
+export const calculateJumpMarks = ({
+	sampleMap,
+	offsetsSorted,
+	trackIds,
+	endOfMdat,
+}: {
+	sampleMap: Map<number, FlatSample>;
+	offsetsSorted: number[];
+	trackIds: number[];
+	endOfMdat: number;
+}) => {
 	const progresses: Record<number, number> = {};
-	for (const track of samplePositionTracks) {
-		progresses[track[0].track.trackId] = 0;
+	for (const trackId of trackIds) {
+		progresses[trackId] = 0;
 	}
 
 	const jumpMarks: JumpMark[] = [];
-
-	const allSamplesSortedByOffset = samplePositionTracks
-		.flat(1)
-		.filter((s) => s.track.type === 'audio' || s.track.type === 'video')
-		.sort((a, b) => a.samplePosition.offset - b.samplePosition.offset);
 
 	let indexToVisit = 0;
 
@@ -70,7 +78,7 @@ export const calculateJumpMarks = (
 
 	const increaseIndex = () => {
 		indexToVisit++;
-		if (indexToVisit >= allSamplesSortedByOffset.length) {
+		if (indexToVisit >= offsetsSorted.length) {
 			rollOverToProcess = true;
 			indexToVisit = 0;
 		}
@@ -89,9 +97,7 @@ export const calculateJumpMarks = (
 
 		const jumpMark: JumpMark = {
 			afterSampleWithOffset: lastVisitedSample.samplePosition.offset,
-			jumpToOffset:
-				allSamplesSortedByOffset[firstSampleAboveMinProgress].samplePosition
-					.offset,
+			jumpToOffset: offsetsSorted[firstSampleAboveMinProgress],
 		};
 
 		indexToVisit = firstSampleAboveMinProgress;
@@ -100,20 +106,20 @@ export const calculateJumpMarks = (
 	};
 
 	const addFinalJumpIfNecessary = () => {
-		if (indexToVisit === allSamplesSortedByOffset.length - 1) {
+		if (indexToVisit === offsetsSorted.length - 1) {
 			return;
 		}
 
 		jumpMarks.push({
-			afterSampleWithOffset:
-				allSamplesSortedByOffset[indexToVisit].samplePosition.offset,
+			afterSampleWithOffset: offsetsSorted[indexToVisit],
 			jumpToOffset: endOfMdat,
 		});
 	};
 
 	const considerJump = () => {
 		const firstSampleAboveMinProgress = findBestJump({
-			allSamplesSortedByOffset,
+			sampleMap,
+			offsetsSorted,
 			visited,
 			progresses,
 		});
@@ -127,7 +133,7 @@ export const calculateJumpMarks = (
 		} else {
 			while (true) {
 				increaseIndex();
-				if (!visited.has(getKey(allSamplesSortedByOffset[indexToVisit]))) {
+				if (!visited.has(getKey(sampleMap.get(offsetsSorted[indexToVisit])!))) {
 					break;
 				}
 			}
@@ -135,7 +141,7 @@ export const calculateJumpMarks = (
 	};
 
 	while (true) {
-		const currentSamplePosition = allSamplesSortedByOffset[indexToVisit];
+		const currentSamplePosition = sampleMap.get(offsetsSorted[indexToVisit])!;
 
 		const sampleKey = getKey(currentSamplePosition);
 		if (visited.has(sampleKey)) {
@@ -159,7 +165,7 @@ export const calculateJumpMarks = (
 
 		lastVisitedSample = currentSamplePosition;
 
-		if (visited.size === allSamplesSortedByOffset.length) {
+		if (visited.size === offsetsSorted.length) {
 			addFinalJumpIfNecessary();
 			break;
 		}
@@ -177,7 +183,7 @@ export const calculateJumpMarks = (
 
 		const spread = maxProgress - minProgress;
 
-		if (visited.size === allSamplesSortedByOffset.length) {
+		if (visited.size === offsetsSorted.length) {
 			addFinalJumpIfNecessary();
 			break;
 		}

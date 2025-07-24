@@ -14566,7 +14566,10 @@ const flatSamples: MinimalFlatSampleForTesting[][] = [
 ];
 
 test('calculate jump marks', () => {
-	const jumpMarks = calculateJumpMarks(flatSamples, 120989485);
+	const jumpMarks = calculateJumpMarks({
+		sampleMap: flatSamples,
+		offsetsSorted: 120989485,
+	});
 	expect(jumpMarks).toEqual([
 		{
 			afterSampleWithOffset: 27_655_256,
