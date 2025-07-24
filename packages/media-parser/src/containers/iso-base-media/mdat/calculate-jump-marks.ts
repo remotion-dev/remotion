@@ -7,10 +7,7 @@
   the overall progress is stuck.
 */
 
-import type {
-	FlatSample,
-	MinimalFlatSampleForTesting,
-} from '../../../state/iso-base-media/cached-sample-positions';
+import type {MinimalFlatSampleForTesting} from '../../../state/iso-base-media/cached-sample-positions';
 
 // In WebCodecs, we require the tracks to deviate by at most 10 seconds
 // Therefore, we need to emit them to be less than 10 seconds apart
@@ -31,7 +28,7 @@ const findBestJump = ({
 	visited,
 	progresses,
 }: {
-	sampleMap: Map<number, FlatSample>;
+	sampleMap: Map<number, MinimalFlatSampleForTesting>;
 	offsetsSorted: number[];
 	visited: Set<string>;
 	progresses: Record<number, number>;
@@ -58,7 +55,7 @@ export const calculateJumpMarks = ({
 	trackIds,
 	endOfMdat,
 }: {
-	sampleMap: Map<number, FlatSample>;
+	sampleMap: Map<number, MinimalFlatSampleForTesting>;
 	offsetsSorted: number[];
 	trackIds: number[];
 	endOfMdat: number;
