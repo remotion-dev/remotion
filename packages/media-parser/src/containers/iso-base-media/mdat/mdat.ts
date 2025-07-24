@@ -114,7 +114,7 @@ export const parseMdatSection = async (
 		// There are various reasons why in mdat we find weird stuff:
 		// - iphonevideo.hevc has a fake hoov atom which is not mapped
 		// - corrupted.mp4 has a corrupt table
-		const offsets = Object.keys(flatSamples).map(Number);
+		const offsets = Array.from(flatSamples.keys());
 
 		const nextSample_ = offsets
 			.filter((s) => s > iterator.counter.getOffset())
