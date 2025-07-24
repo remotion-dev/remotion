@@ -93,14 +93,15 @@ export const calculateFlatSamples = ({
 };
 
 export const cachedSamplePositionsState = () => {
-	const cachedForMdatStart: Record<string, FlatSample[]> = {};
+	// offset -> flat sample
+	const cachedForMdatStart: Record<string, Map<number, FlatSample>> = {};
 	const jumpMarksForMdatStart: Record<string, JumpMark[]> = {};
 
 	return {
-		getSamples: (mdatStart: number) => {
+		getSamples: (mdatStart: number): Map<number, FlatSample> | null => {
 			return cachedForMdatStart[mdatStart] ?? null;
 		},
-		setSamples: (mdatStart: number, samples: FlatSample[]) => {
+		setSamples: (mdatStart: number, samples: Map<number, FlatSample>) => {
 			cachedForMdatStart[mdatStart] = samples;
 		},
 		setJumpMarks: (mdatStart: number, marks: JumpMark[]) => {

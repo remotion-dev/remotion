@@ -96,32 +96,31 @@ export const parseMdatSection = async (
 
 		const calcedJumpMarks = calculateJumpMarks(flattedSamples, endOfMdat);
 		state.iso.flatSamples.setJumpMarks(mediaSection.start, calcedJumpMarks);
-		state.iso.flatSamples.setSamples(
-			mediaSection.start,
-			flattedSamples.flat(1),
-		);
+
+		const flatSamplesMap = new Map<number, FlatSample>();
+		for (const sample of flattedSamples.flat(1)) {
+			flatSamplesMap.set(sample.samplePosition.offset, sample);
+		}
+
+		state.iso.flatSamples.setSamples(mediaSection.start, flatSamplesMap);
 	}
 
-	const flatSamples = state.iso.flatSamples.getSamples(
-		mediaSection.start,
-	) as FlatSample[];
+	const flatSamples = state.iso.flatSamples.getSamples(mediaSection.start)!;
 	const jumpMarks = state.iso.flatSamples.getJumpMarks(mediaSection.start);
 	const {iterator} = state;
 
-	const samplesWithIndex = flatSamples.find((sample) => {
-		return sample.samplePosition.offset === iterator.counter.getOffset();
-	});
+	const samplesWithIndex = flatSamples.get(iterator.counter.getOffset());
 	if (!samplesWithIndex) {
 		// There are various reasons why in mdat we find weird stuff:
 		// - iphonevideo.hevc has a fake hoov atom which is not mapped
 		// - corrupted.mp4 has a corrupt table
-		const nextSample_ = flatSamples
-			.filter((s) => s.samplePosition.offset > iterator.counter.getOffset())
-			.sort((a, b) => a.samplePosition.offset - b.samplePosition.offset)[0];
+		const offsets = Object.keys(flatSamples).map(Number);
+
+		const nextSample_ = offsets
+			.filter((s) => s > iterator.counter.getOffset())
+			.sort((a, b) => a - b)[0];
 		if (nextSample_) {
-			iterator.discard(
-				nextSample_.samplePosition.offset - iterator.counter.getOffset(),
-			);
+			iterator.discard(nextSample_ - iterator.counter.getOffset());
 			return null;
 		}
 
