@@ -53,6 +53,8 @@ import {getRoot, waitForRoot} from './register-root.js';
 import {RemotionRoot} from './RemotionRoot.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
+import {validateMediaProps} from './validate-media-props.js'
+import {resolveTrimProps, validateMediaTrimProps} from './validate-start-from-props.js'
 import {
 	PROPS_UPDATED_EXTERNALLY,
 	ResolveCompositionConfig,
@@ -84,6 +86,7 @@ import {useLazyComponent} from './use-lazy-component.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
 import {validateRenderAsset} from './validation/validate-artifact.js';
+import type {RemotionOffthreadVideoProps} from './video/props'
 import {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
@@ -106,6 +109,7 @@ import {
 	RemotionContextProvider,
 	useRemotionContexts,
 } from './wrap-remotion-context.js';
+import { VideoForPreview } from './video/VideoForPreview.js';
 
 // needs to be in core package so gets deduplicated in studio
 const compositionSelectorRef = createRef<{
@@ -119,12 +123,16 @@ const compositionSelectorRef = createRef<{
 export const Internals = {
 	useUnsafeVideoConfig,
 	Timeline: TimelinePosition,
+	validateMediaProps,
+	resolveTrimProps,
+	validateMediaTrimProps,
 	CompositionManager,
 	CompositionSetters,
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 	RemotionRoot,
 	useVideo,
+	VideoForPreview,
 	getRoot,
 	useMediaVolumeState,
 	useMediaMutedState,
@@ -187,6 +195,7 @@ export const Internals = {
 } as const;
 
 export type {
+	RemotionOffthreadVideoProps,
 	CompositionManagerContext,
 	CompProps,
 	LoggingContextValue,

@@ -1,4 +1,4 @@
-import { CodecVideo } from '@remotion/video';
+import { NewVideo } from '../../../new-video/dist';
 import {
 	OffthreadVideo,
 	Sequence,
@@ -17,7 +17,7 @@ export const VideoTesting: React.FC<{
 
 	let Comp;
 	if (type === 'codec'){
-		Comp = CodecVideo
+		Comp = NewVideo
 	}else if(type === 'offthread'){
 		Comp = OffthreadVideo
 	}else{

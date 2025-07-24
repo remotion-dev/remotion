@@ -24,9 +24,6 @@
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
-	"dependencies": {
-		"@remotion/webcodecs": "workspace:*"
-	},
 	"devDependencies": {
 		"@testing-library/react": "16.1.0",
 		"@testing-library/dom": "10.4.0",

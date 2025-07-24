@@ -136,11 +136,6 @@ export * from './internals.js';
 export {interpolateColors} from './interpolate-colors.js';
 export {LogLevel} from './log.js';
 export {Loop} from './loop/index.js';
-export {validateMediaProps} from './validate-media-props.js'
-export {resolveTrimProps, validateMediaTrimProps} from './validate-start-from-props.js'
-export {VideoForPreview} from './video/VideoForPreview.js'
-export {OffthreadVideoForRendering} from './video/OffthreadVideoForRendering.js'
-export {CodecVideoForRendering} from './video/codecVideoForRendering.js'
 export {
 	EasingFunction,
 	ExtrapolateType,
@@ -164,8 +159,6 @@ export * from './spring/index.js';
 export {staticFile} from './static-file.js';
 export * from './Still.js';
 export type {PlayableMediaTag} from './timeline-position-state.js';
-export {useUnsafeVideoConfig} from './use-unsafe-video-config.js'
-export type {RemotionOffthreadVideoProps} from './video/props.js'
 export {useBufferState} from './use-buffer-state';
 export {useCurrentFrame} from './use-current-frame.js';
 export {
