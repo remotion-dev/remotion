@@ -12710,6 +12710,67 @@ export const googleFonts: Font[] = [
 		menu: 'https://fonts.gstatic.com/s/golostext/v6/q5uXsoe9Lv5t7Meb31EcOR9UdVTNs822plVRRT5dGL4.woff2',
 	},
 	{
+		family: 'Google Sans Code',
+		variants: [
+			'300',
+			'regular',
+			'500',
+			'600',
+			'700',
+			'800',
+			'300italic',
+			'italic',
+			'500italic',
+			'600italic',
+			'700italic',
+			'800italic',
+		],
+		subsets: [
+			'adlam',
+			'canadian-aboriginal',
+			'cherokee',
+			'latin',
+			'latin-ext',
+			'math',
+			'old-permic',
+			'symbols',
+			'symbols2',
+			'syriac',
+			'vietnamese',
+		],
+		version: 'v11',
+		lastModified: '2025-07-23',
+		files: {
+			'300':
+				'https://fonts.gstatic.com/s/googlesanscode/v11/pxiSyogzv91QhV44Z_GQBHsGf5PuckJMXr41HfVaiXE_ggF7-rWcgmBz.woff2',
+			'500':
+				'https://fonts.gstatic.com/s/googlesanscode/v11/pxiSyogzv91QhV44Z_GQBHsGf5PuckJMXr41HfVaiXFTggF7-rWcgmBz.woff2',
+			'600':
+				'https://fonts.gstatic.com/s/googlesanscode/v11/pxiSyogzv91QhV44Z_GQBHsGf5PuckJMXr41HfVaiXG_hQF7-rWcgmBz.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/googlesanscode/v11/pxiSyogzv91QhV44Z_GQBHsGf5PuckJMXr41HfVaiXGGhQF7-rWcgmBz.woff2',
+			'800':
+				'https://fonts.gstatic.com/s/googlesanscode/v11/pxiSyogzv91QhV44Z_GQBHsGf5PuckJMXr41HfVaiXHhhQF7-rWcgmBz.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/googlesanscode/v11/pxiSyogzv91QhV44Z_GQBHsGf5PuckJMXr41HfVaiXFhggF7-rWcgmBz.woff2',
+			'300italic':
+				'https://fonts.gstatic.com/s/googlesanscode/v11/pxisyogzv91QhV44Z_GQBHsGf5PuWEt-oWZcdm_0jmSpwbc98LS-h3BzvSU.woff2',
+			italic:
+				'https://fonts.gstatic.com/s/googlesanscode/v11/pxisyogzv91QhV44Z_GQBHsGf5PuWEt-oWZcdm_0jmSpwek98LS-h3BzvSU.woff2',
+			'500italic':
+				'https://fonts.gstatic.com/s/googlesanscode/v11/pxisyogzv91QhV44Z_GQBHsGf5PuWEt-oWZcdm_0jmSpwds98LS-h3BzvSU.woff2',
+			'600italic':
+				'https://fonts.gstatic.com/s/googlesanscode/v11/pxisyogzv91QhV44Z_GQBHsGf5PuWEt-oWZcdm_0jmSpwTc68LS-h3BzvSU.woff2',
+			'700italic':
+				'https://fonts.gstatic.com/s/googlesanscode/v11/pxisyogzv91QhV44Z_GQBHsGf5PuWEt-oWZcdm_0jmSpwQ468LS-h3BzvSU.woff2',
+			'800italic':
+				'https://fonts.gstatic.com/s/googlesanscode/v11/pxisyogzv91QhV44Z_GQBHsGf5PuWEt-oWZcdm_0jmSpwWk68LS-h3BzvSU.woff2',
+		},
+		category: 'monospace',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/googlesanscode/v11/pxiSyogzv91QhV44Z_GQBHsGf5PuckJMXr41HfVaiXFhgjF_8LQ.woff2',
+	},
+	{
 		family: 'Gorditas',
 		variants: ['regular', '700'],
 		subsets: ['latin'],
