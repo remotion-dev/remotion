@@ -37,7 +37,7 @@
 		}
 	},
 	"devDependencies": {
-		"@types/bun": "1.2.8",
+		"@types/bun": "1.2.19",
 		"@types/deno": "2.0.0",
 		"@types/react": "19.0.0",
 		"@types/react-dom": "19.0.0",
@@ -48,5 +48,10 @@
 		"turbo": "2.5.4",
 		"typescript": "5.8.2"
 	},
-	"packageManager": "pnpm@8.10.2"
+	"packageManager": "bun@1.2.19",
+	"workspaces": {
+		"packages": [
+			"packages/*"
+		]
+	}
 }

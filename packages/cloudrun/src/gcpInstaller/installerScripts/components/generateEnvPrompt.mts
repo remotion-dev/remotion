@@ -4,7 +4,9 @@ import {colorCode} from './colorCodes.mjs';
 export function generateEnvPrompt() {
 	return new Promise((resolve) => {
 		const rl = readline.createInterface({
+			// @ts-expect-error
 			input: process.stdin,
+			// @ts-expect-error
 			output: process.stdout,
 		});
 

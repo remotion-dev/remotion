@@ -8,7 +8,6 @@
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",
-		"test": "bun test src",
 		"lint": "eslint src",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},

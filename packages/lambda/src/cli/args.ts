@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
+import minimist from 'minimist';
 import type {AwsRegion, DeleteAfter, RuntimePreference} from '../client';
 
 import {StorageClass} from '@aws-sdk/client-s3';
@@ -46,7 +47,7 @@ type LambdaCommandLineOptions = {
 	['storage-class']: StorageClass | undefined;
 };
 
-export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(
+export const parsedLambdaCli = minimist<LambdaCommandLineOptions>(
 	process.argv.slice(2),
 	{
 		boolean: CliInternals.BooleanFlags,
