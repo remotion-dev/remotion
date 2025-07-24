@@ -1,14 +1,18 @@
 import React, {useCallback} from 'react';
-import { getRemotionEnvironment, Internals, RemotionOffthreadVideoProps, Sequence } from 'remotion'
-import { NewVideoForRendering } from './newVideoForRendering';
-const {validateMediaTrimProps, resolveTrimProps, validateMediaProps, VideoForPreview} = Internals
+import type {RemotionOffthreadVideoProps} from 'remotion';
+import {getRemotionEnvironment, Internals, Sequence} from 'remotion';
+import {NewVideoForRendering} from './newVideoForRendering';
+const {
+	validateMediaTrimProps,
+	resolveTrimProps,
+	validateMediaProps,
+	VideoForPreview,
+} = Internals;
 /*
  * @description This method uses extractFrames() under the hood to reliably and accurately render video codecs.
  * @see [Documentation](https://www.remotion.dev/docs/newvideo)
  */
-export const NewVideo: React.FC<RemotionOffthreadVideoProps> = (
-	props,
-) => {
+export const NewVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
 	// Should only destruct `startFrom` and `endAt` from props,
 	// rest gets drilled down
 	const {

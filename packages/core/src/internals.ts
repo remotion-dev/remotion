@@ -1,9 +1,13 @@
 import {createRef} from 'react';
+import {getAbsoluteSrc} from './absolute-src.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
 } from './audio/shared-audio-tags.js';
-import {useFrameForVolumeProp, useMediaStartsAt} from './audio/use-audio-frame.js';
+import {
+	useFrameForVolumeProp,
+	useMediaStartsAt,
+} from './audio/use-audio-frame.js';
 import {BufferingContextReact, BufferingProvider} from './buffering.js';
 import {
 	CanUseRemotionHooks,
@@ -83,6 +87,11 @@ import {
 import {useLazyComponent} from './use-lazy-component.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
+import {validateMediaProps} from './validate-media-props.js';
+import {
+	resolveTrimProps,
+	validateMediaTrimProps,
+} from './validate-start-from-props.js';
 import {validateRenderAsset} from './validation/validate-artifact.js';
 import {
 	invalidCompositionErrorMessage,
@@ -90,6 +99,7 @@ import {
 } from './validation/validate-composition-id.js';
 import {DurationsContextProvider} from './video/duration-state.js';
 import {isIosSafari} from './video/video-fragment.js';
+import {VideoForPreview} from './video/VideoForPreview.js';
 import type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
@@ -100,17 +110,13 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from './volume-position-state.js';
+import {evaluateVolume} from './volume-prop.js';
 import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
 import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
 } from './wrap-remotion-context.js';
-import { resolveTrimProps, validateMediaTrimProps } from './validate-start-from-props.js';
-import { validateMediaProps } from './validate-media-props.js';
-import { VideoForPreview } from './video/VideoForPreview.js';
-import { evaluateVolume } from './volume-prop.js';
-import { getAbsoluteSrc } from './absolute-src.js';
 
 // needs to be in core package so gets deduplicated in studio
 const compositionSelectorRef = createRef<{

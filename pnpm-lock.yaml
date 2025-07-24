@@ -469,10 +469,6 @@ importers:
         version: 4.3.2(typescript@5.8.2)(vite@5.4.19)
 
   packages/core:
-    dependencies:
-      '@remotion/webcodecs':
-        specifier: workspace:*
-        version: link:../webcodecs
     devDependencies:
       '@happy-dom/global-registrator':
         specifier: 14.5.1
@@ -1079,7 +1075,7 @@ importers:
         version: link:../transitions
       '@remotion/video':
         specifier: workspace:*
-        version: link:../video
+        version: link:../new-video
       '@remotion/webcodecs':
         specifier: workspace:*
         version: link:../webcodecs
@@ -1669,6 +1665,28 @@ importers:
 
   packages/motion-blur:
     dependencies:
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 9.19.0
+        version: 9.19.0
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+
+  packages/new-video:
+    dependencies:
+      '@remotion/webcodecs':
+        specifier: workspace:*
+        version: link:../webcodecs
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -3647,28 +3665,6 @@ importers:
       '@remotion/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      eslint:
-        specifier: 9.19.0
-        version: 9.19.0
-      react:
-        specifier: 19.0.0
-        version: 19.0.0
-      react-dom:
-        specifier: 19.0.0
-        version: 19.0.0(react@19.0.0)
-
-  packages/video:
-    dependencies:
-      '@remotion/webcodecs':
-        specifier: workspace:*
-        version: link:../webcodecs
-      remotion:
-        specifier: workspace:*
-        version: link:../core
-    devDependencies:
-      '@remotion/eslint-config-internal':
-        specifier: workspace:*
-        version: link:../eslint-config-internal
       eslint:
         specifier: 9.19.0
         version: 9.19.0

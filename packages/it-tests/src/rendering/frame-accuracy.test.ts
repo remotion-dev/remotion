@@ -21,7 +21,6 @@ const getMissedFramesforCodec = async (
 
 	// render the VideoTesting example (which contains the Framer composition embedded with <Video>) to an image
 	// sequence which can be checked for accuracy
-	console.log(`video-testing-${codec}${type === 'normal' ? '' : '-'+type}`)
 	await execa(
 		'pnpm',
 		[
@@ -29,7 +28,7 @@ const getMissedFramesforCodec = async (
 			'remotion',
 			'render',
 			// 'build',
-			`video-testing-${codec}${type === 'normal' ? '' : '-'+type}`,
+			`video-testing-${codec}${type === 'normal' ? '' : '-' + type}`,
 			outputPath,
 			'--image-format',
 			'png',
