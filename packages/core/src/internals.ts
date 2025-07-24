@@ -3,7 +3,7 @@ import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
 } from './audio/shared-audio-tags.js';
-import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {useFrameForVolumeProp, useMediaStartsAt} from './audio/use-audio-frame.js';
 import {BufferingContextReact, BufferingProvider} from './buffering.js';
 import {
 	CanUseRemotionHooks,
@@ -109,6 +109,8 @@ import {
 import { resolveTrimProps, validateMediaTrimProps } from './validate-start-from-props.js';
 import { validateMediaProps } from './validate-media-props.js';
 import { VideoForPreview } from './video/VideoForPreview.js';
+import { evaluateVolume } from './volume-prop.js';
+import { getAbsoluteSrc } from './absolute-src.js';
 
 // needs to be in core package so gets deduplicated in studio
 const compositionSelectorRef = createRef<{
@@ -121,6 +123,10 @@ const compositionSelectorRef = createRef<{
 // API and are less likely to use it
 export const Internals = {
 	useUnsafeVideoConfig,
+	useFrameForVolumeProp,
+	useTimelinePosition: TimelinePosition.useTimelinePosition,
+	evaluateVolume,
+	getAbsoluteSrc,
 	Timeline: TimelinePosition,
 	validateMediaTrimProps,
 	validateMediaProps,
