@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {BlobSource, EncodedPacketSink, Input, MP4} from 'mediabunny';
 import {nodeReader} from '../node';
 import {parseMedia} from '../parse-media';
