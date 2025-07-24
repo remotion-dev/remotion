@@ -136,7 +136,7 @@ test(
 		expect(missedFrames).toBe(0);
 	},
 	{
-		timeout: 80000,
+		timeout: 30000,
 	},
 );
 
@@ -144,9 +144,9 @@ test(
 	'should render correct frames from embedded videos - MP4 codec video',
 	async () => {
 		const missedFrames = await getMissedFramesforCodec('mp4', 'codec');
-		expect(missedFrames).toBeLessThanOrEqual(8);
+		expect(missedFrames).toBeLessThanOrEqual(4);
 	},
 	{
-		timeout: 80000,
+		timeout: 40000,
 	},
 );
