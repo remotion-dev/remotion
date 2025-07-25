@@ -340,6 +340,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		rendererFunctionName:
 			params.rendererFunctionName ??
 			insideFunctionSpecifics.getCurrentFunctionName(),
+		scale: params.scale,
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName({

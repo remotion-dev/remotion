@@ -207,9 +207,10 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		functionName: insideFunctionSpecifics.getCurrentFunctionName(),
 		rendererFunctionName: insideFunctionSpecifics.getCurrentFunctionName(),
 		dimensions: {
-			height: composition.height * (params.scale ?? 1),
-			width: composition.width * (params.scale ?? 1),
+			height: composition.height * params.scale,
+			width: composition.width * params.scale,
 		},
+		scale: params.scale,
 	};
 
 	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds);
