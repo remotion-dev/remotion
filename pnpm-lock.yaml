@@ -1640,6 +1640,9 @@ importers:
       eslint:
         specifier: 9.19.0
         version: 9.19.0
+      mediabunny:
+        specifier: 1.3.0
+        version: 1.3.0
 
   packages/media-utils:
     dependencies:
@@ -15909,8 +15912,18 @@ packages:
     resolution: {integrity: sha512-JwJc6MRVy5xnOUKUgzgGRZA/DOZO14x+4B4hJNZ8c4T5Cs+U00ca62RJHXaj4F9NWZoorKT2PxW5Cq+ENT+E7w==}
     dev: true
 
+  /@types/dom-mediacapture-transform@0.1.11:
+    resolution: {integrity: sha512-Y2p+nGf1bF2XMttBnsVPHUWzRRZzqUoJAKmiP10b5umnO6DDrWI0BrGDJy1pOHoOULVmGSfFNkQrAlC5dcj6nQ==}
+    dependencies:
+      '@types/dom-webcodecs': 0.1.11
+    dev: true
+
   /@types/dom-webcodecs@0.1.11:
     resolution: {integrity: sha512-yPEZ3z7EohrmOxbk/QTAa0yonMFkNkjnVXqbGb7D4rMr+F1dGQ8ZUFxXkyLLJuiICPejZ0AZE9Rrk9wUCczx4A==}
+
+  /@types/dom-webcodecs@0.1.15:
+    resolution: {integrity: sha512-omOlCPvTWyPm4ZE5bZUhlSvnHM2ZWM2U+1cPiYFL/e8aV5O9MouELp+L4dMKNTON0nTeHqEg+KWDfFQMY5Wkaw==}
+    dev: true
 
   /@types/draco3d@1.4.2:
     resolution: {integrity: sha512-goh23EGr6CLV6aKPwN1p8kBD/7tT5V/bLpToSbarKrwVejqNrspVrv8DhliteYkkhZYrlq/fwKZRRUzH4XN88w==}
@@ -23994,6 +24007,13 @@ packages:
     resolution: {integrity: sha512-aisnrDP4GNe06UcKFnV5bfMNPBUw4jsLGaWwWfnH3v02GnBuXX2MCVn5RbrWo0j3pczUilYblq7fQ7Nw2t5XKw==}
     engines: {node: '>= 0.8'}
     dev: false
+
+  /mediabunny@1.3.0:
+    resolution: {integrity: sha512-mPFCtF2g1Iqsc4gNjuPCnlITsth72qXpUWqs4hHzmunnrY2rTRTqhkAQZZwoEQiMPYV6objnYDG6rcVhsRd8wQ==}
+    dependencies:
+      '@types/dom-mediacapture-transform': 0.1.11
+      '@types/dom-webcodecs': 0.1.15
+    dev: true
 
   /memfs@3.4.3:
     resolution: {integrity: sha512-eivjfi7Ahr6eQTn44nvTnR60e4a1Fs1Via2kCR5lHo/kyNoiMWaXCNJ/GpSd0ilXas2JSOl9B5FTIhflXu0hlg==}
