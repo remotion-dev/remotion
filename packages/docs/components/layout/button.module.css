@@ -1,18 +1,18 @@
 .buttoncontainer {
-  border-radius: 8px;
-  font-weight: bold;
-  appearance: none;
-  border: 2px solid black;
-  border-bottom: 4px solid black;
-  font: inherit;
-  font-weight: bold;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.1s;
+	border-radius: 8px;
+	font-weight: bold;
+	appearance: none;
+	border: 2px solid black;
+	border-bottom: 4px solid black;
+	font: inherit;
+	font-weight: bold;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.1s;
 }
 
 .buttoncontainer:not([disabled]):hover {
-  background-color: var(--hover-color) !important;
+	background-color: var(--hover-color) !important;
 }

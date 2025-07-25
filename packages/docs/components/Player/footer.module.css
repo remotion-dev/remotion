@@ -1,14 +1,14 @@
 .title {
-  font-size: 2em;
+	font-size: 2em;
 }
 
 .footerrow {
-  display: flex;
-  flex-direction: row;
+	display: flex;
+	flex-direction: row;
 }
 
 @media (max-width: 1000px) {
-  .footerrow {
-    flex-direction: column;
-  }
+	.footerrow {
+		flex-direction: column;
+	}
 }

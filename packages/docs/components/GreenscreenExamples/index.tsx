@@ -82,7 +82,7 @@ export const VideoOnCanvas: React.FC = () => {
 				<OffthreadVideo
 					onVideoFrame={onVideoFrame}
 					style={{opacity: 0}}
-					startFrom={300}
+					trimBefore={300}
 					src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 				/>
 			</AbsoluteFill>
