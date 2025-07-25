@@ -163,7 +163,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'promo-pages': null,
 	'svg-3d-engine': '3D SVG extrusion effects',
 	'serverless-client': null,
-	'new-video': 'Experimental tag for reliable and accurate rendering',
+	'new-video': 'Experimental tag for reliable and accurate video embedding',
 };
 export const installableMap: {[key in Pkgs]: boolean} = {
 	'svg-3d-engine': false,

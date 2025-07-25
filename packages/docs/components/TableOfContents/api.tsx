@@ -1,5 +1,6 @@
 import React from 'react';
 import {TableOfContents as AnimatedEmojiTableOfContents} from '../../docs/animated-emoji/TableOfContents';
+import { TableOfContents as NewVideoTableOfContents } from '../../docs/new-video/table-of-contents';
 import {TableOfContents as CaptionsTableOfContents} from '../../docs/captions/TableOfContents';
 import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-scss/TableOfContents';
 import {TableOfContents as FontsTableOfContents} from '../../docs/fonts-api/TableOfContents';
@@ -59,6 +60,11 @@ export const TableOfContents: React.FC = () => {
 				etc.
 			</p>
 			<RemotionTableOfContents />
+						<h2>@remotion/new-video</h2>
+			<p>
+				The experimental <code>&lt;NewVideo /&gt;</code> for embedding videos.
+			</p>
+			<NewVideoTableOfContents />
 			<h2>@remotion/bundler</h2>
 			<p>Create a Webpack bundle from Node.JS </p>
 			<BundlerTableOfContents />

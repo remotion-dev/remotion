@@ -1,4 +1,4 @@
-import {NewVideo} from '@remotion/video';
+import {NewVideo} from '@remotion/new-video';
 import {AbsoluteFill, staticFile} from 'remotion';
 
 export const LongVideo: React.FC = () => {

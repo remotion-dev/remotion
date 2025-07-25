@@ -175,6 +175,17 @@ const sidebars: SidebarsConfig = {
 				'watchstaticfile',
 			],
 		},
+						{
+			type: 'category',
+			label: '@remotion/new-video',
+			link: {
+				type: 'doc',
+				id: 'new-video/index',
+			},
+			items: [
+				'new-video/index'
+			],
+		},
 		{
 			type: 'category',
 			label: '@remotion/bundler',

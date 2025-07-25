@@ -1,5 +1,5 @@
 {
-	"name": "@remotion/video",
+	"name": "@remotion/new-video",
 	"version": "4.0.325",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -46,5 +46,5 @@
 		},
 		"./package.json": "./package.json"
 	},
-	"description": "Experimental tag for reliable and accurate rendering"
+	"description": "Experimental tag for reliable and accurate video embedding"
 }

@@ -647,6 +647,9 @@ importers:
       '@remotion/motion-blur':
         specifier: workspace:*
         version: link:../motion-blur
+      '@remotion/new-video':
+        specifier: workspace:*
+        version: link:../new-video
       '@remotion/noise':
         specifier: workspace:*
         version: link:../noise
@@ -1034,6 +1037,9 @@ importers:
       '@remotion/motion-blur':
         specifier: workspace:*
         version: link:../motion-blur
+      '@remotion/new-video':
+        specifier: workspace:*
+        version: link:../new-video
       '@remotion/noise':
         specifier: workspace:*
         version: link:../noise
@@ -1073,9 +1079,6 @@ importers:
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions
-      '@remotion/video':
-        specifier: workspace:*
-        version: link:../new-video
       '@remotion/webcodecs':
         specifier: workspace:*
         version: link:../webcodecs
