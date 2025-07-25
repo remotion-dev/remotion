@@ -124,6 +124,7 @@ import {
 } from './Compose/WhatIsRemotion';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
+import {LongVideo} from './longVideoNoFlicker/longVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {OffthreadRemoteSeries} from './OffthreadRemoteVideo/OffthreadRemoteSeries';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
@@ -698,7 +699,15 @@ export const Index: React.FC = () => {
 					fps={30}
 					height={1080}
 					width={1080}
-					durationInFrames={100}
+					durationInFrames={30}
+				/>
+				<Composition
+					id="longVideo"
+					component={LongVideo}
+					fps={30}
+					height={720}
+					width={1280}
+					durationInFrames={30 * 25}
 				/>
 				<Composition
 					id="video-testing-webm"
