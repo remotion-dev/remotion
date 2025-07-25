@@ -34,6 +34,7 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/media-parser.svg?style=flat&color=black&label=@remotion/media-parser)](https://npmcharts.com/compare/@remotion/media-parser?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/media-utils.svg?style=flat&color=black&label=@remotion/media-utils)](https://npmcharts.com/compare/@remotion/media-utils?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/motion-blur.svg?style=flat&color=black&label=@remotion/motion-blur)](https://npmcharts.com/compare/@remotion/motion-blur?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/new-video.svg?style=flat&color=black&label=@remotion/new-video)](https://npmcharts.com/compare/@remotion/new-video?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/noise.svg?style=flat&color=black&label=@remotion/noise)](https://npmcharts.com/compare/@remotion/noise?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/openai-whisper.svg?style=flat&color=black&label=@remotion/openai-whisper)](https://npmcharts.com/compare/@remotion/openai-whisper?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/paths.svg?style=flat&color=black&label=@remotion/paths)](https://npmcharts.com/compare/@remotion/paths?minimal=true)  

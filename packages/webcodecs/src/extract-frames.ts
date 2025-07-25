@@ -70,8 +70,10 @@ const internalExtractFrames = ({
 
 			const timestampTargets = timestampTargetsUnsorted.sort((a, b) => a - b);
 
-			if(timestampTargets.length === 0){
-				throw new Error("expected at least one timestamp to extract but found zero")
+			if (timestampTargets.length === 0) {
+				throw new Error(
+					'expected at least one timestamp to extract but found zero',
+				);
 			}
 
 			controller.seek(timestampTargets[0]);

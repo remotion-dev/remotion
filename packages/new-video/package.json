@@ -1,10 +1,14 @@
 {
 	"name": "@remotion/video",
-	"version": "4.0.324",
+	"version": "4.0.325",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/new-video"
+	},
 	"sideEffects": false,
+	"author": "Hunain Ahmed <junaidhunain6@gmail.com>",
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
@@ -42,5 +46,5 @@
 		},
 		"./package.json": "./package.json"
 	},
-	"description": "off thread video"
+	"description": "Experimental tag for reliable and accurate rendering"
 }
