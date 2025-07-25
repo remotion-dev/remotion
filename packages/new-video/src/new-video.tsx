@@ -10,7 +10,7 @@ const {
 } = Internals;
 /*
  * @description This method uses extractFrames() under the hood to reliably and accurately render video codecs.
- * @see [Documentation](https://www.remotion.dev/docs/newvideo)
+ * @see [Documentation](https://www.remotion.dev/docs/new-video)
  */
 export const NewVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
 	// Should only destruct `startFrom` and `endAt` from props,

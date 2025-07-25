@@ -699,7 +699,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					height={1080}
 					width={1080}
-					durationInFrames={30}
+					durationInFrames={100}
 				/>
 				<Composition
 					id="longVideo"
