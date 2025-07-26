@@ -1,0 +1,67 @@
+---
+image: /generated/articles-docs-editor-starter-asset-uploads.png
+title: Asset uploads
+sidebar_label: Asset uploads
+id: asset-uploads
+crumb: Editor Starter
+---
+
+If the user drops in any image, audio, video or GIF, you can configure them to be uploaded to an S3 bucket.
+
+## Setup
+
+- Visit the [S3 console](https://us-east-1.console.aws.amazon.com/s3/home?region=us-east-1).
+- Create a new bucket.
+  - Uncheck the "Block all public access" checkbox.
+  - Disable ACL - if you don't do this, you will get a 400 error when later uploading assets.
+- In the bucket settings, go to the "Permissions" tab and enter the following policy into the "CORS" section:
+
+```json
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["PUT"],
+    "AllowedOrigins": ["*"],
+    "ExposeHeaders": [],
+    "MaxAgeSeconds": 3000
+  }
+]
+```
+
+- Go to [IAM -> "Users"](https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-1#/users) in the AWS console.
+- Create a new user with all settings left as default.
+- Click "Add permissions -> Add inline policy" and add the following policy:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Presign",
+      "Effect": "Allow",
+      "Action": ["s3:PutObject", "s3:PutObjectAcl"],
+      "Resource": ["arn:aws:s3:::YOUR_BUCKET_NAME/*"]
+    }
+  ]
+}
+```
+
+:::note
+Make sure to replace `YOUR_BUCKET_NAME` with the name of your bucket.
+:::
+
+- Click "Security credentials".
+- Click "Create access key". Select "CLI" as use case.
+- Save your access key and secret access key.
+
+In your `.env` file, fill now the following variables:
+
+```txt
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=
+AWS_BUCKET_NAME=
+```
+
+Now, restart the Editor Starter.  
+When you drop in an asset, it should be uploaded to the S3 bucket!

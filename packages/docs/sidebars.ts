@@ -1337,6 +1337,8 @@ const sidebars: SidebarsConfig = {
 				id: 'editor-starter/features',
 			},
 			items: [
+				'editor-starter/setup',
+				'editor-starter/asset-uploads',
 				'editor-starter/features',
 				'editor-starter/undo-redo',
 				'editor-starter/backend-routes',

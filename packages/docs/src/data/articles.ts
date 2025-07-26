@@ -1278,6 +1278,15 @@ export const articles = [
 		slug: 'easing',
 	},
 	{
+		id: 'asset-uploads',
+		title: 'Asset uploads',
+		relativePath: 'docs/editor-starter/asset-uploads.mdx',
+		compId: 'articles-docs-editor-starter-asset-uploads',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/asset-uploads',
+	},
+	{
 		id: 'backend-routes',
 		title: 'Backend routes',
 		relativePath: 'docs/editor-starter/backend-routes.mdx',
@@ -1294,6 +1303,15 @@ export const articles = [
 		crumb: 'Editor Starter',
 		noAi: false,
 		slug: 'editor-starter/features',
+	},
+	{
+		id: 'setup',
+		title: 'Setup',
+		relativePath: 'docs/editor-starter/setup.mdx',
+		compId: 'articles-docs-editor-starter-setup',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/setup',
 	},
 	{
 		id: 'undo-redo',
