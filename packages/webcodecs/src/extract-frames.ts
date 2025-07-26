@@ -1,4 +1,5 @@
 import type {
+	MediaParserContainer,
 	MediaParserLogLevel,
 	MediaParserVideoSample,
 	MediaParserVideoTrack,
@@ -15,6 +16,7 @@ import {withResolvers} from './create/with-resolvers';
 
 export type ExtractFramesTimestampsInSecondsFn = (options: {
 	track: MediaParserVideoTrack;
+	container: MediaParserContainer;
 	durationInSeconds: number | null;
 }) => Promise<number[]> | number[];
 
@@ -56,16 +58,23 @@ const internalExtractFrames = ({
 		onDurationInSeconds(durationInSeconds) {
 			dur = durationInSeconds;
 		},
-		onVideoTrack: async ({track}) => {
+		onVideoTrack: async ({track, container}) => {
 			const timestampTargetsUnsorted =
 				typeof timestampsInSeconds === 'function'
 					? await timestampsInSeconds({
 							track,
+							container,
 							durationInSeconds: dur,
 						})
 					: timestampsInSeconds;
 
 			const timestampTargets = timestampTargetsUnsorted.sort((a, b) => a - b);
+
+			if (timestampTargets.length === 0) {
+				throw new Error(
+					'expected at least one timestamp to extract but found zero',
+				);
+			}
 
 			controller.seek(timestampTargets[0]);
 

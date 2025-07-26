@@ -34,6 +34,7 @@
 		"@remotion/svg-3d-engine": "workspace:*",
 		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/animation-utils": "workspace:*",
+		"@remotion/new-video": "workspace:*",
 		"@remotion/babel-loader": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",

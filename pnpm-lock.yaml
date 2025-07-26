@@ -647,6 +647,9 @@ importers:
       '@remotion/motion-blur':
         specifier: workspace:*
         version: link:../motion-blur
+      '@remotion/new-video':
+        specifier: workspace:*
+        version: link:../new-video
       '@remotion/noise':
         specifier: workspace:*
         version: link:../noise
@@ -1034,6 +1037,9 @@ importers:
       '@remotion/motion-blur':
         specifier: workspace:*
         version: link:../motion-blur
+      '@remotion/new-video':
+        specifier: workspace:*
+        version: link:../new-video
       '@remotion/noise':
         specifier: workspace:*
         version: link:../noise
@@ -1665,6 +1671,28 @@ importers:
 
   packages/motion-blur:
     dependencies:
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 9.19.0
+        version: 9.19.0
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+
+  packages/new-video:
+    dependencies:
+      '@remotion/webcodecs':
+        specifier: workspace:*
+        version: link:../webcodecs
       remotion:
         specifier: workspace:*
         version: link:../core
