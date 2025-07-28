@@ -369,6 +369,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/editor-starter",
+			"destination": "/docs/editor-starter",
+			"permanent": false
+		},
+		{
 			"source": "/docs/system-prompt",
 			"destination": "/docs/ai/system-prompt",
 			"permanent": false
