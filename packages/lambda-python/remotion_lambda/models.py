@@ -1,7 +1,7 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught,invalid-name
 
 from enum import Enum
-from typing import Optional, List, Dict, Any, Union, Literal
+from typing import Optional, Dict, Any, Union, Literal
 from dataclasses import dataclass, field
 from .version import VERSION
 
