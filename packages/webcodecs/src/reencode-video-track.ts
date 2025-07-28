@@ -10,7 +10,7 @@ import {createVideoDecoder} from './create-video-decoder';
 import type {MediaFn} from './create/media-fn';
 import type {ProgressTracker} from './create/progress-tracker';
 import {Log} from './log';
-import {onFrame} from './on-frame';
+import {processFrame} from './on-frame';
 import type {VideoOperation} from './on-video-track-handler';
 import {processingQueue} from './processing-queue';
 import {calculateNewDimensionsFromRotateAndScale} from './rotation';
@@ -52,7 +52,7 @@ export const reencodeVideoTrack = async ({
 		);
 	}
 
-	const rotation = (videoOperation.rotate ?? rotate) - track.rotation;
+	const rotation = (videoOperation.rotate ?? rotate) + track.rotation;
 
 	const {height: newHeight, width: newWidth} =
 		calculateNewDimensionsFromRotateAndScale({
@@ -154,7 +154,7 @@ export const reencodeVideoTrack = async ({
 		onOutput: async (frame) => {
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
-			const processedFrame = await onFrame({
+			const processedFrame = await processFrame({
 				frame,
 				track,
 				onVideoFrame,
