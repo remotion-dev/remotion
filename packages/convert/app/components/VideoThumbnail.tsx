@@ -7,7 +7,8 @@ export const THUMBNAIL_HEIGHT = Math.round((350 / 16) * 9);
 
 type Props = {
 	readonly smallThumbOnMobile: boolean;
-	readonly rotation: number;
+	readonly userRotation: number;
+	readonly trackRotation: number | null;
 	readonly mirrorHorizontal: boolean;
 	readonly mirrorVertical: boolean;
 	readonly initialReveal: boolean;
@@ -28,7 +29,8 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 > = (
 	{
 		smallThumbOnMobile,
-		rotation,
+		userRotation,
+		trackRotation,
 		mirrorHorizontal,
 		mirrorVertical,
 		initialReveal,
@@ -41,6 +43,7 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 	const [dimensions, setDimensions] = useState<{width: number}>({width: 350});
 	const [reveal, setReveal] = useState(initialReveal);
 	const [drawn, setDrawn] = useState(false);
+	const [needsRotation, setNeedsRotation] = useState(false);
 
 	const onChangeListeners = useRef<(() => void)[]>([]);
 
@@ -69,6 +72,7 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 			return new FastAverageColor().getColor(canvas).hex;
 		});
 		setDrawn(true);
+		setNeedsRotation(!('rotation' in unrotatedVideoFrame));
 	}, []);
 
 	useImperativeHandle(
@@ -103,6 +107,10 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 	const isNarrow = useIsNarrow();
 
 	const scale = isNarrow && smallThumbOnMobile ? 0.5 : 1;
+
+	const rotation =
+		userRotation - (needsRotation ? 0 - (trackRotation ?? 0) : 0);
+
 	const scaleTransform =
 		rotation % 90 === 0 && rotation % 180 !== 0
 			? THUMBNAIL_HEIGHT / dimensions.width

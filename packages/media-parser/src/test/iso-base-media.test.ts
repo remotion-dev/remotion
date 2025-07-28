@@ -52,7 +52,7 @@ if (process.platform !== 'win32') {
 		expect(result.tracks.find((t) => t.type === 'video')?.codec).toBe(
 			'hvc1.2.4.L150.b0',
 		);
-		expect(result.rotation).toBe(-90);
+		expect(result.rotation).toBe(90);
 		expect(result.unrotatedDimensions).toEqual({
 			height: 2160,
 			width: 3840,
