@@ -5,7 +5,7 @@ from .models import (
     RenderStillParams, RenderStillResponse, CostsInfo,
     Privacy, ValidStillImageFormats, LogLevel, OpenGlRenderer,
     ChromiumOptions, CustomCredentialsWithoutSensitiveData, CustomCredentials,
-    OutNameInputObject, PlayInBrowser, Download, DeleteAfter,
+    OutNameInputObject, PlayInBrowser, DeleteAfter,
     Webhook
 
 
