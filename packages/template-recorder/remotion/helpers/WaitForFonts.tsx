@@ -10,7 +10,9 @@ export const WaitForFonts: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const [handle] = useState(() => delayRender());
+  const [handle] = useState(() =>
+    delayRender("Waiting for fonts to be loaded"),
+  );
 
   useEffect(() => {
     const delay = delayRender("Waiting for fonts to be loaded");
