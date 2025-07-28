@@ -261,7 +261,7 @@ class RenderMediaParams:
     """
     Parameters for video rendering.
     """
-    input_props:  Optional[Dict[str, Any]] = None
+    input_props: Optional[Dict[str, Any]] = None
     bucket_name: Optional[str] = None
     region: Optional[str] = None
     out_name: Optional[Union[str, OutNameInputObject]] = None
