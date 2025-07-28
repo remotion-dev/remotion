@@ -21,8 +21,12 @@ export const rotateAndResizeVideoFrame = ({
 }) => {
 	const normalized = normalizeVideoRotation(rotation);
 
+	// In Chrome, there is "rotation", but we cannot put frames with VideoEncoder if they have a rotation.
+	// We have to draw them to a canvas and make a new frame without video rotation.
+	const mustProcess = 'rotation' in frame && frame.rotation !== 0;
+
 	// No resize, no rotation
-	if (normalized === 0 && resizeOperation === null) {
+	if (normalized === 0 && resizeOperation === null && !mustProcess) {
 		return frame;
 	}
 
@@ -30,7 +34,7 @@ export const rotateAndResizeVideoFrame = ({
 		throw new Error('Only 90 degree rotations are supported');
 	}
 
-	const {height, width} = calculateNewDimensionsFromRotateAndScale({
+	const tentativeDimensions = calculateNewDimensionsFromRotateAndScale({
 		height: frame.displayHeight,
 		width: frame.displayWidth,
 		rotation,
@@ -41,11 +45,26 @@ export const rotateAndResizeVideoFrame = ({
 	// No rotation, and resize turned out to be same dimensions
 	if (
 		normalized === 0 &&
-		height === frame.displayHeight &&
-		width === frame.displayWidth
+		tentativeDimensions.height === frame.displayHeight &&
+		tentativeDimensions.width === frame.displayWidth &&
+		!mustProcess
 	) {
 		return frame;
 	}
+
+	// @ts-expect-error
+	const frameRotation: number = frame.rotation ?? 0;
+	const canvasRotationToApply = normalizeVideoRotation(
+		normalized - frameRotation,
+	);
+
+	const {width, height} = calculateNewDimensionsFromRotateAndScale({
+		height: frame.displayHeight,
+		width: frame.displayWidth,
+		rotation: canvasRotationToApply,
+		needsToBeMultipleOfTwo,
+		resizeOperation,
+	});
 
 	const canvas = new OffscreenCanvas(width, height);
 	const ctx = canvas.getContext('2d');
@@ -55,12 +74,6 @@ export const rotateAndResizeVideoFrame = ({
 
 	canvas.width = width;
 	canvas.height = height;
-
-	// @ts-expect-error
-	const frameRotation: number = frame.rotation ?? 0;
-	const canvasRotationToApply = normalizeVideoRotation(
-		normalized + frameRotation,
-	);
 
 	if (canvasRotationToApply === 90) {
 		ctx.translate(width, 0);
@@ -77,7 +90,7 @@ export const rotateAndResizeVideoFrame = ({
 	if (frame.displayHeight !== height || frame.displayWidth !== width) {
 		const dimensionsAfterRotate = calculateNewDimensionsFromRotate({
 			height: frame.displayHeight,
-			rotation,
+			rotation: canvasRotationToApply,
 			width: frame.displayWidth,
 		});
 		ctx.scale(
