@@ -59,6 +59,7 @@ export const ConvertProgress: React.FC<{
 				<>
 					<VideoThumbnail
 						ref={convertProgressRef}
+						trackRotation={null}
 						initialReveal
 						smallThumbOnMobile={false}
 						userRotation={0}
