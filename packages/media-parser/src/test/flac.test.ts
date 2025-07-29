@@ -96,6 +96,7 @@ test('parse flac', async () => {
 			originalTimescale: WEBCODECS_TIMESCALE,
 			trackId: 0,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		},
 	]);
 	expect(samples).toBe(213);

@@ -100,6 +100,7 @@ test('AVI file', async () => {
 			type: 'audio',
 			startInSeconds: 0,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		},
 	]);
 	expect(tracks.filter((t) => t.type === 'video')).toEqual([
@@ -192,6 +193,7 @@ test('AVI file', async () => {
 			type: 'video',
 			width: 480,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		},
 	]);
 	expect(slowStructure).toEqual({

@@ -33,6 +33,7 @@ import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {mediaParserAdvancedColorToWebCodecsColor} from './color-to-webcodecs-colors';
 import {getActualDecoderParameters} from './get-actual-number-of-channels';
 import {getVideoCodecFromIsoTrak} from './get-video-codec-from-iso-track';
+import {findTrackMediaTimeOffsetInTrackTimescale} from './mdat/get-editlist';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox, getVideoDescriptors} from './traversal';
 
@@ -92,6 +93,10 @@ export const makeBaseMediaTrack = (
 			codecEnum,
 			startInSeconds: startTimeInSeconds,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale:
+				findTrackMediaTimeOffsetInTrackTimescale({
+					trakBox,
+				}),
 		};
 	}
 
@@ -103,6 +108,10 @@ export const makeBaseMediaTrack = (
 			trakBox,
 			startInSeconds: startTimeInSeconds,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale:
+				findTrackMediaTimeOffsetInTrackTimescale({
+					trakBox,
+				}),
 		};
 	}
 
@@ -163,6 +172,10 @@ export const makeBaseMediaTrack = (
 		fps: getFpsFromMp4TrakBox(trakBox),
 		startInSeconds: startTimeInSeconds,
 		timescale: WEBCODECS_TIMESCALE,
+		trackMediaTimeOffsetInTrackTimescale:
+			findTrackMediaTimeOffsetInTrackTimescale({
+				trakBox,
+			}),
 	};
 	return track;
 };

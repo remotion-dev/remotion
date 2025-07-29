@@ -55,6 +55,7 @@ test('Transport stream', async () => {
 				numberOfChannels: 2,
 				sampleRate: 48000,
 				timescale: WEBCODECS_TIMESCALE,
+				trackMediaTimeOffsetInTrackTimescale: 0,
 			});
 			return (sample) => {
 				expect(sample.data[0]).toBe(255);
@@ -156,6 +157,7 @@ test('Transport stream', async () => {
 					transfer: 'hlg',
 				},
 				timescale: WEBCODECS_TIMESCALE,
+				trackMediaTimeOffsetInTrackTimescale: 0,
 			});
 			return (sample) => {
 				h264File = combineUint8Arrays([h264File, sample.data]);

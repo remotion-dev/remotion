@@ -23,14 +23,14 @@ test('should be able to seek forward and then backwards', async () => {
 					samples++;
 
 					if (samples === 1) {
-						expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(10.5);
+						expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(
+							10.416666666666666,
+						);
 						controller.seek(0);
 					}
 
 					if (samples === 2) {
-						expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(
-							0.08333333333333333,
-						);
+						expect(sample.timestamp / WEBCODECS_TIMESCALE).toBe(0);
 						controller.abort();
 					}
 				};
@@ -39,7 +39,10 @@ test('should be able to seek forward and then backwards', async () => {
 		});
 		throw new Error('should not complete');
 	} catch (err) {
-		expect(hasBeenAborted(err)).toBe(true);
+		if (!hasBeenAborted(err)) {
+			throw err;
+		}
+
 		expect(samples).toBe(2);
 	}
 });

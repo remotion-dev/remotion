@@ -99,6 +99,7 @@ export const handleAvcPacket = async ({
 			advancedColor,
 			startInSeconds: 0,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		};
 
 		await registerVideoTrack({
