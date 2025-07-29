@@ -165,6 +165,7 @@ const internalExtractFrames = ({
 				}
 
 				return async () => {
+					await doProcess();
 					await decoder.flush();
 				};
 			};
