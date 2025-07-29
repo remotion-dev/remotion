@@ -5,7 +5,6 @@ import React, {
 	useLayoutEffect,
 	useMemo,
 	useRef,
-	useState,
 } from 'react';
 import {
 	continueRender,
@@ -48,7 +47,6 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
-	const [activeHandler, setActiveHandler] = useState<number | null>(null);
 	const frame = useCurrentFrame();
 	const volumePropsFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
@@ -149,7 +147,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 				onVideoFrame?.(extractedFrame);
 				extractedFrame.close();
-				setActiveHandler(newHandle);
+				continueRender(newHandle);
 			},
 		});
 	}, [
@@ -161,14 +159,6 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 	]);
-
-	useEffect(() => {
-		if (activeHandler !== null) {
-			requestAnimationFrame(() => {
-				continueRender(activeHandler);
-			});
-		}
-	}, [activeHandler]);
 
 	return (
 		<canvas
