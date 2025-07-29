@@ -78,8 +78,8 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-OffthreadVideo has a "startFrom" prop that trims the left side of a video by a number of frames.
-OffthreadVideo has a "endAt" prop that limits how long a video is shown.
+OffthreadVideo has a "trimBefoer" prop that trims the left side of a video by a number of frames.
+OffthreadVideo has a "trimAfter" prop that limits how long a video is shown.
 OffthreadVideo has a "volume" prop that sets the volume of the video. It accepts values between 0 and 1.
 
 If an non-animated image is included In the component it should use the "<Img>" tag.
