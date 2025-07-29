@@ -376,6 +376,7 @@ export const getTrack = ({
 			fps: null,
 			startInSeconds: 0,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		};
 	}
 
@@ -407,6 +408,7 @@ export const getTrack = ({
 			}),
 			startInSeconds: 0,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		};
 	}
 

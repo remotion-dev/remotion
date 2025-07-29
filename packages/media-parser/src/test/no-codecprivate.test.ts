@@ -53,5 +53,6 @@ test('webm with h264 and no codecprivate', async () => {
 			transfer: 'bt709',
 		},
 		timescale: WEBCODECS_TIMESCALE,
+		trackMediaTimeOffsetInTrackTimescale: 0,
 	});
 });

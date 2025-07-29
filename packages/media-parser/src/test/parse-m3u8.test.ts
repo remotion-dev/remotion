@@ -107,6 +107,7 @@ test('parse m3u8', async () => {
 			trackId: 256,
 			width: 1000,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		},
 	]);
 	expect(tracks.filter((t) => t.type === 'audio')).toEqual([
@@ -122,6 +123,7 @@ test('parse m3u8', async () => {
 			trackId: 257,
 			type: 'audio',
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		},
 	]);
 	expect(audioCodec).toBe('aac');

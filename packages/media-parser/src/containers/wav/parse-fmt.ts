@@ -130,6 +130,7 @@ export const parseFmt = async ({
 			trackId: 0,
 			startInSeconds: 0,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		},
 		container: 'wav',
 		registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,

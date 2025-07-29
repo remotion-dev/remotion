@@ -1,4 +1,5 @@
 import {expect, test} from '@playwright/test';
+import {WEBCODECS_TIMESCALE} from '@remotion/media-parser';
 import path from 'path';
 import type {ViteDevServer} from 'vite';
 import {createServer} from 'vite';
@@ -10,7 +11,7 @@ test.beforeAll(async () => {
 		root: path.resolve(
 			// @ts-expect-error
 			new URL('.', import.meta.url).pathname,
-			'extract-frames',
+			'extract-frames-accuracy',
 		),
 		logLevel: 'silent',
 		build: {},
@@ -24,18 +25,14 @@ test.afterAll(async () => {
 	}
 });
 
-test.describe('Vite app', () => {
+test.describe('Should return correct frame even when it is out of order', () => {
 	test('should execute vite script and set window property', async ({page}) => {
 		await page.goto(
 			'http://localhost:' + (viteServer?.config.server.port ?? 5173),
 		);
 
-		await page.waitForFunction(() => (window as any).videoFrames?.length === 5);
+		await page.waitForFunction(() => (window as any).videoFrames?.length === 1);
 		const value = await page.evaluate(() => (window as any).videoFrames);
-		expect(value[0]).toBe(0);
-		expect(value[1] === 1000000 || value[1] === 1120000).toBe(true);
-		expect(value[2] === 2000000 || value[2] === 2080000).toBe(true);
-		expect(value[3] === 3000000 || value[3] === 3040000).toBe(true);
-		expect(value[4]).toBe(4_000_000);
+		expect(value[0]).toBe(Math.floor((11 / 30) * WEBCODECS_TIMESCALE));
 	});
 });

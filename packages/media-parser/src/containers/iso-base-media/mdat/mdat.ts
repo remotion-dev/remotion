@@ -14,6 +14,7 @@ import {
 } from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
 import {getCurrentMediaSection} from '../../../state/video-section';
+import {WEBCODECS_TIMESCALE} from '../../../webcodecs-timescale';
 import {getMoovAtom} from '../get-moov-atom';
 import {calculateJumpMarks} from './calculate-jump-marks';
 import {postprocessBytes} from './postprocess-bytes';
@@ -175,10 +176,23 @@ export const parseMdatSection = async (
 		bigEndian,
 		chunkSize,
 	} = samplesWithIndex.samplePosition;
-	const {originalTimescale, startInSeconds} = samplesWithIndex.track;
+	const {
+		originalTimescale,
+		startInSeconds,
+		trackMediaTimeOffsetInTrackTimescale,
+		timescale: trackTimescale,
+	} = samplesWithIndex.track;
 
-	const cts = rawCts + startInSeconds * originalTimescale;
-	const dts = rawDts + startInSeconds * originalTimescale;
+	const cts =
+		rawCts +
+		startInSeconds * originalTimescale -
+		(trackMediaTimeOffsetInTrackTimescale / trackTimescale) *
+			WEBCODECS_TIMESCALE;
+	const dts =
+		rawDts +
+		startInSeconds * originalTimescale -
+		(trackMediaTimeOffsetInTrackTimescale / trackTimescale) *
+			WEBCODECS_TIMESCALE;
 
 	const bytes = postprocessBytes({
 		bytes: iterator.getSlice(samplesWithIndex.samplePosition.size),
