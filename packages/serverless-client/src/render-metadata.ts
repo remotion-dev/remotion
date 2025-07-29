@@ -57,4 +57,5 @@ export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
 	downloadBehavior: DownloadBehavior;
 	metadata: Record<string, string> | null;
 	dimensions: Dimensions;
+	scale: number;
 };

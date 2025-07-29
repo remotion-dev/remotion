@@ -81,37 +81,11 @@ Removes a portion of the video at the end (right side). See [`trimBefore`](/docs
 This prop has been renamed to [`trimBefore`](#trimbefore) in 4.0.319. It will continue to work but you cannot use it together with the new prop.
 :::
 
-Will remove a portion of the video at the beginning.
-
-In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
-
-By passing `startFrom={60}`, the playback starts immediately, but with the first 2 seconds of the video trimmed away.  
-By passing `endAt={120}`, any video after the 4 second mark in the file will be trimmed away.
-
-The video will play the range from `00:02:00` to `00:04:00`, meaning the video will play for 2 seconds.
-
-For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
-
-```tsx twoslash
-import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
-
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <OffthreadVideo src={staticFile('video.webm')} startFrom={60} endAt={120} />
-    </AbsoluteFill>
-  );
-};
-```
-
 ### ~~`endAt?`~~
 
 :::note Deprecated
 This prop has been renamed to [`trimAfter`](#trimafter) in 4.0.319. It will continue to work but you cannot use it together with the new prop.
 :::
-
-Removes a portion of the video at the end. See [`startFrom`](/docs/offthreadvideo#startfrom) for an explanation.
 
 ### `transparent?`<AvailableFrom v="4.0.0" />
 

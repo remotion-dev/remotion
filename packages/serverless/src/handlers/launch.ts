@@ -2,7 +2,7 @@
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 
-import {VERSION} from '@remotion/serverless-client';
+import {validateCodec, VERSION} from '@remotion/serverless-client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {type EventEmitter} from 'node:events';
 import {join} from 'path';
@@ -174,6 +174,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		separateAudioTo: null,
 		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
 	});
+	validateCodec(params.codec, 'renderMediaOnLambda', 'codec');
 	validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
@@ -339,6 +340,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		rendererFunctionName:
 			params.rendererFunctionName ??
 			insideFunctionSpecifics.getCurrentFunctionName(),
+		scale: params.scale,
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName({

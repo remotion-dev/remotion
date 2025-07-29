@@ -15,7 +15,7 @@ export const CaptionOverlay: React.FC<{
   trimStart: number;
 }> = ({ children, file, theme, trimStart }) => {
   const [captions, setCaptions] = useState<Caption[] | null>(null);
-  const [handle] = useState(() => delayRender());
+  const [handle] = useState(() => delayRender("Waiting for captions "));
 
   const [subEditorOpen, setSubEditorOpen] = useState<Caption | false>(false);
   const [changeStatus, setChangeStatus] = useState<

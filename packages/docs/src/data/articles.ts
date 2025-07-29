@@ -1278,6 +1278,15 @@ export const articles = [
 		slug: 'easing',
 	},
 	{
+		id: 'asset-uploads',
+		title: 'Asset uploads',
+		relativePath: 'docs/editor-starter/asset-uploads.mdx',
+		compId: 'articles-docs-editor-starter-asset-uploads',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/asset-uploads',
+	},
+	{
 		id: 'backend-routes',
 		title: 'Backend routes',
 		relativePath: 'docs/editor-starter/backend-routes.mdx',
@@ -1294,6 +1303,15 @@ export const articles = [
 		crumb: 'Editor Starter',
 		noAi: false,
 		slug: 'editor-starter/features',
+	},
+	{
+		id: 'setup',
+		title: 'Setup',
+		relativePath: 'docs/editor-starter/setup.mdx',
+		compId: 'articles-docs-editor-starter-setup',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/setup',
 	},
 	{
 		id: 'undo-redo',
@@ -6215,6 +6233,15 @@ export const articles = [
 		crumb: '@remotion/webcodecs',
 		noAi: false,
 		slug: 'webcodecs/get-default-video-codec',
+	},
+	{
+		id: 'webcodecs/get-partial-audio-data',
+		title: 'getPartialAudioData()',
+		relativePath: 'docs/webcodecs/get-partial-audio-data.mdx',
+		compId: 'articles-docs-webcodecs-get-partial-audio-data',
+		crumb: '@remotion/webcodecs',
+		noAi: false,
+		slug: 'webcodecs/get-partial-audio-data',
 	},
 	{
 		id: 'webcodecs/index',

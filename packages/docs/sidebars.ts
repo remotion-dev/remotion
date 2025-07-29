@@ -1,3 +1,4 @@
+// @ts-expect-error
 import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 
 const sidebars: SidebarsConfig = {
@@ -1346,6 +1347,8 @@ const sidebars: SidebarsConfig = {
 				id: 'editor-starter/features',
 			},
 			items: [
+				'editor-starter/setup',
+				'editor-starter/asset-uploads',
 				'editor-starter/features',
 				'editor-starter/undo-redo',
 				'editor-starter/backend-routes',

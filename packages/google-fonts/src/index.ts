@@ -2821,6 +2821,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./GolosText') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Google Sans Code',
+		importName: 'GoogleSansCode',
+		load: () => import('./GoogleSansCode') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Gorditas',
 		importName: 'Gorditas',
 		load: () => import('./Gorditas') as Promise<GoogleFont>,

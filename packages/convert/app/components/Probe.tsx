@@ -94,8 +94,8 @@ export const Probe: React.FC<{
 		videoCodec,
 		durationInSeconds,
 		isHdr,
-		rotation,
 		done,
+		rotation,
 		error,
 		metadata,
 		location,
@@ -145,7 +145,8 @@ export const Probe: React.FC<{
 						<VideoThumbnail
 							ref={videoThumbnailRef}
 							smallThumbOnMobile
-							rotation={userRotation - (rotation ?? 0)}
+							userRotation={userRotation}
+							trackRotation={rotation}
 							mirrorHorizontal={mirrorHorizontal}
 							mirrorVertical={mirrorVertical}
 							initialReveal={false}

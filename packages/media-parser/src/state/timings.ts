@@ -5,6 +5,7 @@ export const timingsState = () => {
 		timeSeeking: 0,
 		timeCheckingIfDone: 0,
 		timeFreeingData: 0,
+		timeInParseLoop: 0,
 	};
 };
 

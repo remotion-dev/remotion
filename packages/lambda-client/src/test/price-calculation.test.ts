@@ -44,6 +44,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 				height: 1080,
 				width: 1920,
 			},
+			scale: 1,
 		},
 		diskSizeInMb: 512,
 		functionsInvoked: 1,

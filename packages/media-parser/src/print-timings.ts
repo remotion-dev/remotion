@@ -19,4 +19,8 @@ export const printTimings = (state: ParserState) => {
 		state.logLevel,
 		`Time freeing data: ${state.timings.timeFreeingData}ms`,
 	);
+	Log.verbose(
+		state.logLevel,
+		`Time in parse loop: ${state.timings.timeInParseLoop}ms`,
+	);
 };

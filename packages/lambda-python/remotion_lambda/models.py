@@ -1,7 +1,7 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught,invalid-name
 
 from enum import Enum
-from typing import Optional, List, Dict, Any, Union, Literal
+from typing import Optional, Dict, Any, Union, Literal
 from dataclasses import dataclass, field
 from .version import VERSION
 
@@ -148,19 +148,6 @@ class OutNameInputObject:
     s3_output_provider: Optional[CustomCredentials] = None
 
 
-@dataclass
-class Download:
-    """
-    Represents the behavior to download content.
-
-    Attributes:
-        type (str): The type of download action.
-        file_name (Optional[str]): The name of the file to be downloaded, if specified.
-    """
-    type: str
-    fileName: Optional[str]
-
-
 class DeleteAfter(Enum):
     """
     Enumeration for specifying the time period after which an item should be deleted.
@@ -274,7 +261,7 @@ class RenderMediaParams:
     """
     Parameters for video rendering.
     """
-    input_props: Optional[List] = None
+    input_props: Optional[Dict[str, Any]] = None
     bucket_name: Optional[str] = None
     region: Optional[str] = None
     out_name: Optional[Union[str, OutNameInputObject]] = None
@@ -428,8 +415,7 @@ class RenderStillParams:
     timeout_in_milliseconds: Optional[int] = 30000
     chromium_options: Optional[ChromiumOptions] = None
     scale: Optional[float] = 1
-    download_behavior: Dict = field(default_factory=lambda: {
-                                    'type': 'play-in-browser'})
+    download_behavior: Dict = field(default_factory=lambda: PlayInBrowser(type='play-in-browser'))
     force_width: Optional[int] = None
     api_key: Optional[int] = None
     storage_class: Optional[str] = None
@@ -478,7 +464,7 @@ class RenderStillParams:
             'outName': self.out_name,
             'chromiumOptions': self.chromium_options if self.chromium_options is not None else {},
             'scale': self.scale,
-            'downloadBehavior': self.download_behavior or {'type': 'play-in-browser'},
+            'downloadBehavior': self.download_behavior or PlayInBrowser(type='play-in-browser'),
             'forceWidth': self.force_width,
             'apiKey': self.api_key,
             'forceHeight': self.force_height,

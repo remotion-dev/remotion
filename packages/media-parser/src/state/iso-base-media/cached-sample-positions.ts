@@ -41,7 +41,11 @@ export const calculateFlatSamples = ({
 }: {
 	state: ParserState;
 	mediaSectionStart: number;
-}) => {
+}): {
+	flatSamples: Map<number, FlatSample>;
+	offsets: number[];
+	trackIds: number[];
+} => {
 	const tracks = getTracks(state, true);
 
 	const moofBoxes = getMoofBoxes(state.structure.getIsoStructure().boxes);
@@ -68,7 +72,11 @@ export const calculateFlatSamples = ({
 		throw new Error('No moov box found');
 	}
 
-	const flatSamples = tracks.map((track) => {
+	const offsets: number[] = [];
+	const trackIds: number[] = [];
+	const map = new Map<number, FlatSample>();
+
+	for (const track of tracks) {
 		const trakBox = getTrakBoxByTrackId(moov, track.trackId);
 
 		if (!trakBox) {
@@ -82,25 +90,32 @@ export const calculateFlatSamples = ({
 			trexBoxes: getTrexBoxes(moov),
 		});
 
-		return samplePositions.map((samplePosition) => {
-			return {
+		trackIds.push(track.trackId);
+
+		for (const samplePosition of samplePositions) {
+			offsets.push(samplePosition.offset);
+			map.set(samplePosition.offset, {
 				track,
 				samplePosition,
-			};
-		});
-	});
-	return flatSamples;
+			});
+		}
+	}
+
+	offsets.sort((a, b) => a - b);
+
+	return {flatSamples: map, offsets, trackIds};
 };
 
 export const cachedSamplePositionsState = () => {
-	const cachedForMdatStart: Record<string, FlatSample[]> = {};
+	// offset -> flat sample
+	const cachedForMdatStart: Record<string, Map<number, FlatSample>> = {};
 	const jumpMarksForMdatStart: Record<string, JumpMark[]> = {};
 
 	return {
-		getSamples: (mdatStart: number) => {
+		getSamples: (mdatStart: number): Map<number, FlatSample> | null => {
 			return cachedForMdatStart[mdatStart] ?? null;
 		},
-		setSamples: (mdatStart: number, samples: FlatSample[]) => {
+		setSamples: (mdatStart: number, samples: Map<number, FlatSample>) => {
 			cachedForMdatStart[mdatStart] = samples;
 		},
 		setJumpMarks: (mdatStart: number, marks: JumpMark[]) => {

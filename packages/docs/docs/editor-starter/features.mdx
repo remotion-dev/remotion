@@ -6,71 +6,263 @@ id: features
 crumb: Editor Starter
 ---
 
-This is a list of features that are available in the [Editor Starter](https://remotion.pro/editor-starter).
+This is a list of features that are available in the [Editor Starter](https://remotion.pro/editor-starter).  
+Many features are behind feature flags, which can be enabled or disabled by switching the flags in [`src/flags.ts`](https://github.com/remotion-dev/editor-starter/blob/main/src/flags.ts).
 
 ## Timeline
 
-- Multiple tracks
-  - Plus button to add a new track
-- Time ticks
-- Zoom slider
-- Draggable playhead
-  - Dragging the playhead to the edge will scroll the timeline
-- Filmstrip thumbnails (`FEATURE_FILMSTRIP`)
-- Drop asset to add new layer
-  - Detection of item type
+The timeline allows you to see a overview of the content and to scrub through the video.  
+Items are organized in "tracks", allowing multiple items to be placed at the same time and to allow for controlling how they overlap.
 
-## Layer controls
+### Draggable playhead
 
-- Layer alignment controls
-  - Left, vertical center, right
-  - Top, horizontal center, bottom
-- Position controls
-- Size controls
-- Border radius control (`FEATURE_BORDER_RADIUS_CONTROL`)
-- Opacity control (`FEATURE_OPACITY_CONTROL`)
-- Text alignment controls
-- Font controls
-  - Font family
-    - Dropdown with font previews
-  - Font size
-- Fill control
+Pressing and dragging on the time ticks allows you to move the playhead and therefore the position of the video.  
+If you drag the playhead to the edge of the timeline, the timeline will scroll.
+
+### Zoom slider
+
+Feature flag: [`FEATURE_TIMELINE_ZOOM_SLIDER`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_TIMELINE_ZOOM_SLIDER&type=code)
+
+Displays a slider at the right of the toolbar allowing to zoom in and out of the timeline.
+
+### Filmstrip thumbnails
+
+Feature flag: [`FEATURE_FILMSTRIP`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_FILMSTRIP&type=code)
+
+For video items, preview images are displayed on the timeline.
+
+### Extend handles
+
+You can drag on either side of an item to extend or shrink the item.
+
+### Audio waveform
+
+Feature flag: [`FEATURE_WAVEFORM`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_WAVEFORM&type=code)
+
+Video and audio items display a waveform at the bottom of the timeline.
+
+### Volume control
+
+TODO
+
+### Dropping assets
+
+An asset (image, video, audio, GIF) can be dropped on the timeline to import it and add a new layer.  
+The item type is detected by [Remotion Media Parser](/docs/media-parser/foreign-file-types) and an appropriate item is created.
+
+### Fade in and out
+
+TODO
+
+### Drag and dropping
+
+TODO
+
+### Automatic duration
+
+TODO
+
+### Multi-select
+
+TODO
+
+### Splitting items
+
+## Inspector
+
+On the right side of the screen, an inspector is displayed which allows for editing the properties of the selected item.  
+The following features are available
+
+### Composition inspector
+
+If no item is selected, controls for the whole composition are displayed: Setting the dimensions and triggering a render.
+
+### Layer alignment
+
+Feature flag: [`FEATURE_ALIGNMENT_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_ALIGNMENT_CONTROL&type=code)
+
+Buttons for aligning the item to the left, vertical center, right, top, horizontal center, bottom.
+
+### Position controls
+
+Feature flag: [`FEATURE_POSITION_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_POSITION_CONTROL&type=code)
+
+Allows setting the precise X and Y position of the item.
+
+### Dimensions controls
+
+Feature flag: [`FEATURE_DIMENSIONS_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_DIMENSIONS_CONTROL&type=code)
+
+Allows setting the width and height of the item.
+
+### Border radius control
+
+Feature flag: [`FEATURE_BORDER_RADIUS_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_BORDER_RADIUS_CONTROL&type=code)
+
+Allows setting the border radius of the item.
+
+### Opacity control
+
+Feature flag: [`FEATURE_OPACITY_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_OPACITY_CONTROL&type=code)
+
+Allows setting the opacity of the item.
+
+### Text alignment
+
+Feature flag: [`FEATURE_TEXT_ALIGNMENT_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_TEXT_ALIGNMENT_CONTROL&type=code)
+
+Allows setting the text alignment of the item (left, center, right).
+
+### Font family
+
+Feature flag: [`FEATURE_FONT_FAMILY_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_FONT_FAMILY_CONTROL&type=code)
+
+Allows setting the font family of the item.
+
+### Font style
+
+TODO
+
+### Font size
+
+Feature flag: [`FEATURE_TEXT_FONT_SIZE_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_TEXT_FONT_SIZE_CONTROL&type=code)
+
+Allows setting the font size of the item.
+
+### Text value
+
+TODO
+
+### Color
+
+TODO
+
+### Rotation
+
+Feature flags: [`FEATURE_ROTATION_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_ROTATION_CONTROL&type=code) and [`FEATURE_ROTATE_90_DEGREES_BUTTON`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_ROTATE_90_DEGREES_BUTTON&type=code)
+
+### Line height
+
+TODO
+
+### Letter spacing
+
+TODO
+
+### Right to left
+
+TODO
+
+### Playback speed
+
+TODO
+
+### Volume
+
+TODO
+
+### Fade in and out
 
 ## Playback
 
-- Play / Pause
-  - Keyboard shortcut `Space`
-  - Play / Pause button
-- Current time indicator
-- Fullscreen button (`FEATURE_FULLSCREEN_BUTTON`)
-- Mute button
-- Loop button
+### Play / Pause button
+
+TODO
+
+### Current time indicator
+
+TODO
+
+### Fullscreen button
+
+TODO
+
+### Mute button
+
+TODO
+
+### Loop
+
+TODO
 
 ## Canvas
 
-- Click to select item
-  - Layer Size indicator
-  - Drag selected item to reposition it
-  - Drag corners of selected item to resize
-- Drop asset to add new layer
-  - Detection of item type
-  - Upload to S3
-    - Progress indicator
-      - Circular
-      - File size indicator
-- Zoom
-  - Fit video to viewport
-  - Pinch to zoom
-  - Ctrl + mouse wheel to zoom
-  - Plus and minus buttons
-  - Keyboard shortcuts `+` and `-` to zoom in and out
-  - Keyboard shortcut `0` to reset zoom
+### Click to select
 
-## Item types
+TODO
 
-- Text
-- Solid (`FEATURE_SOLID_ITEM`)
-- Video
-- Audio
-- Image
-- GIF
+### Move and resize
+
+TODO
+
+### Shift axis lock
+
+### Multiple selection
+
+TODO
+
+### Marquee selection
+
+TODO
+
+### Dropping assets
+
+TODO
+
+### Zoom
+
+TODO
+
+### Pinch to zoom / Ctrl + mouse wheel to zoom
+
+TODO
+
+### Plus and minus buttons
+
+TODO
+
+### Keyboard shortcuts
+
+TODO
+
+### Copy and paste
+
+TODO
+
+## Behaviors
+
+### Cut, copy, paste, duplicate
+
+TODO
+
+### Save and load
+
+TODO
+
+### Asset uploads
+
+TODO
+
+### Undo and redo
+
+TODO
+
+### Asset caching
+
+TODO
+
+## Rendering
+
+### Remotion integration
+
+TODO
+
+### Render button
+
+TODO
+
+## Captioning
+
+### OpenAI Whisper integration
+
+TODO

@@ -14566,7 +14566,21 @@ const flatSamples: MinimalFlatSampleForTesting[][] = [
 ];
 
 test('calculate jump marks', () => {
-	const jumpMarks = calculateJumpMarks(flatSamples, 120989485);
+	const offsetsSorted = flatSamples
+		.flat(1)
+		.map((s) => s.samplePosition.offset)
+		.sort((a, b) => a - b);
+	const sampleMap = new Map<number, MinimalFlatSampleForTesting>();
+	for (const sample of flatSamples.flat(1)) {
+		sampleMap.set(sample.samplePosition.offset, sample);
+	}
+
+	const jumpMarks = calculateJumpMarks({
+		sampleMap,
+		offsetsSorted,
+		endOfMdat: 120989485,
+		trackIds: [1],
+	});
 	expect(jumpMarks).toEqual([
 		{
 			afterSampleWithOffset: 27_655_256,
