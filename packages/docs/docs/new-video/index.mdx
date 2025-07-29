@@ -14,7 +14,7 @@ This component imports and displays a video, similar to [`<OffthreadVideo/>`](/d
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {NewVideo} from '@remotion/video';
+import {experimental_NewVideo as NewVideo} from '@remotion/video';
 
 export const MyVideo = () => {
   return (
@@ -29,7 +29,7 @@ You can load a video from an URL as well:
 
 ```tsx twoslash
 import {AbsoluteFill} from 'remotion';
-import {NewVideo} from '@remotion/video';
+import {experimental_NewVideo as NewVideo} from '@remotion/video';
 // ---cut---
 export const MyComposition = () => {
   return (
@@ -61,7 +61,7 @@ For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {NewVideo} from '@remotion/video';
+import {experimental_NewVideo as NewVideo} from '@remotion/video';
 
 // ---cut---
 export const MyComposition = () => {
@@ -96,7 +96,7 @@ For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {NewVideo} from '@remotion/video';
+import {experimental_NewVideo as NewVideo} from '@remotion/video';
 
 // ---cut---
 export const MyComposition = () => {
@@ -122,7 +122,7 @@ Allows you to control the volume for the whole track or change it on a per-frame
 
 ```tsx twoslash title="Example using static volume"
 import {AbsoluteFill, staticFile} from 'remotion';
-import {NewVideo} from '@remotion/video';
+import {experimental_NewVideo as NewVideo} from '@remotion/video';
 
 // ---cut---
 export const MyComposition = () => {
@@ -136,7 +136,7 @@ export const MyComposition = () => {
 
 ```tsx twoslash title="Example of a ramp up over 100 frames"
 import {AbsoluteFill, interpolate, staticFile} from 'remotion';
-import {NewVideo} from '@remotion/video';
+import {experimental_NewVideo as NewVideo} from '@remotion/video';
 
 // ---cut---
 export const MyComposition = () => {
@@ -198,7 +198,7 @@ While Remotion doesn't limit the range of possible playback speeds, in developme
 
 ```tsx twoslash title="Example of a video playing twice as fast"
 import {AbsoluteFill, staticFile} from 'remotion';
-import {NewVideo} from '@remotion/video';
+import {experimental_NewVideo as NewVideo} from '@remotion/video';
 
 // ---cut---
 export const MyComposition = () => {
@@ -216,7 +216,7 @@ You can drop the audio of the video by adding a `muted` prop:
 
 ```tsx twoslash title="Example of a muted video"
 import {AbsoluteFill, OffthreadVideo} from 'remotion';
-import {NewVideo} from '@remotion/video';
+import {experimental_NewVideo as NewVideo} from '@remotion/video';
 // ---cut---
 export const MyComposition = () => {
   return (
