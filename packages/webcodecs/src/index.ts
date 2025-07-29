@@ -36,6 +36,10 @@ export {getAvailableVideoCodecs} from './get-available-video-codecs';
 export type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 export {getDefaultAudioCodec} from './get-default-audio-codec';
 export {getDefaultVideoCodec} from './get-default-video-codec';
+export {
+	getPartialAudioData,
+	GetPartialAudioDataProps,
+} from './get-partial-audio-data';
 export type {
 	AudioOperation,
 	ConvertMediaOnAudioTrackHandler,
