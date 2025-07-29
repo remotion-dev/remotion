@@ -138,15 +138,10 @@ export const NewVideoForRendering: React.FC<RemotionOffthreadVideoProps> = ({
 		extractFrames({
 			src,
 			// eslint-disable-next-line require-await
-			timestampsInSeconds: async ({container}) => {
+			timestampsInSeconds: async () => {
 				const actualFPS = playbackRate ? fps / playbackRate : fps;
-				let timestamp;
-				if (container === 'mp4') {
-					timestamp = Math.round(((frame + 1) / actualFPS) * 1000 + 1) / 1000;
-				} else {
-					timestamp = Math.round((frame / actualFPS) * 1000) / 1000;
-				}
 
+				const timestamp = Math.round((frame / actualFPS) * 1000) / 1000;
 				return [timestamp];
 			},
 			onFrame: (extractedFrame) => {

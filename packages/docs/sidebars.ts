@@ -175,16 +175,14 @@ const sidebars: SidebarsConfig = {
 				'watchstaticfile',
 			],
 		},
-						{
+		{
 			type: 'category',
-			label: '@remotion/new-video',
+			label: '@remotion/video',
 			link: {
 				type: 'doc',
-				id: 'new-video/index',
+				id: 'video/index',
 			},
-			items: [
-				'new-video/index'
-			],
+			items: ['video/index'],
 		},
 		{
 			type: 'category',

@@ -1,5 +1,4 @@
 ---
-image: /generated/articles-docs-new-video-index.png
 title: '<NewVideo>'
 crumb: 'API'
 ---
@@ -8,13 +7,13 @@ crumb: 'API'
 **Experimental Tag**: This tag is currently under development and experimental phase, which means that it can still be used but the API is unstable.
 :::
 
-This component imports and displays a video, similar to [`<OffthreadVideo/>`](/docs/offthreadvideo) but during rendering, extracts the exact frame from the video using [`extractFrames()`](/docs/webcodecs/extract-frames) and displays it in a `<canvas>` tag, this ensures that the video is rendered with high accuracy and supports a wide range of codecs more reliably, significantly reducing the [flickering issues](/docs/flickering). 
+This component imports and displays a video, similar to [`<OffthreadVideo/>`](/docs/offthreadvideo) but during rendering, extracts the exact frame from the video using [`extractFrames()`](/docs/webcodecs/extract-frames) and displays it in a `<canvas>` tag, this ensures that the video is rendered with high accuracy and supports a wide range of codecs more reliably, significantly reducing the [flickering issues](/docs/flickering).
 
 ## Example
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {NewVideo} from '@remotion/new-video'
+import {NewVideo} from '@remotion/video';
 
 export const MyVideo = () => {
   return (
@@ -29,7 +28,7 @@ You can load a video from an URL as well:
 
 ```tsx twoslash
 import {AbsoluteFill} from 'remotion';
-import {NewVideo} from '@remotion/new-video'
+import {NewVideo} from '@remotion/video';
 // ---cut---
 export const MyComposition = () => {
   return (
@@ -61,7 +60,7 @@ For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {NewVideo} from '@remotion/new-video'
+import {NewVideo} from '@remotion/video';
 
 // ---cut---
 export const MyComposition = () => {
@@ -75,7 +74,7 @@ export const MyComposition = () => {
 
 ### `trimAfter?`<AvailableFrom v="4.0.319"/>
 
-Removes a portion of the video at the end (right side). See [`trimBefore`](/docs/new-video#trimbefore) for an explanation.
+Removes a portion of the video at the end (right side). See [`trimBefore`](/docs/video#trimbefore) for an explanation.
 
 ### ~~`startFrom?`~~
 
@@ -96,7 +95,7 @@ For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {NewVideo} from '@remotion/new-video';
+import {NewVideo} from '@remotion/video';
 
 // ---cut---
 export const MyComposition = () => {
@@ -114,7 +113,7 @@ export const MyComposition = () => {
 This prop has been renamed to [`trimAfter`](#trimafter) in 4.0.319. It will continue to work but you cannot use it together with the new prop.
 :::
 
-Removes a portion of the video at the end. See [`startFrom`](/docs/new-video#startfrom) for an explanation.
+Removes a portion of the video at the end. See [`startFrom`](/docs/video#startfrom) for an explanation.
 
 ### `volume?`
 
@@ -122,7 +121,7 @@ Allows you to control the volume for the whole track or change it on a per-frame
 
 ```tsx twoslash title="Example using static volume"
 import {AbsoluteFill, staticFile} from 'remotion';
-import {NewVideo} from '@remotion/new-video'
+import {NewVideo} from '@remotion/video';
 
 // ---cut---
 export const MyComposition = () => {
@@ -136,7 +135,7 @@ export const MyComposition = () => {
 
 ```tsx twoslash title="Example of a ramp up over 100 frames"
 import {AbsoluteFill, interpolate, staticFile} from 'remotion';
-import {NewVideo} from '@remotion/new-video';
+import {NewVideo} from '@remotion/video';
 
 // ---cut---
 export const MyComposition = () => {
@@ -198,8 +197,7 @@ While Remotion doesn't limit the range of possible playback speeds, in developme
 
 ```tsx twoslash title="Example of a video playing twice as fast"
 import {AbsoluteFill, staticFile} from 'remotion';
-import {NewVideo} from '@remotion/new-video';
-
+import {NewVideo} from '@remotion/video';
 
 // ---cut---
 export const MyComposition = () => {
@@ -217,7 +215,7 @@ You can drop the audio of the video by adding a `muted` prop:
 
 ```tsx twoslash title="Example of a muted video"
 import {AbsoluteFill, OffthreadVideo} from 'remotion';
-import {NewVideo} from '@remotion/new-video';
+import {NewVideo} from '@remotion/video';
 // ---cut---
 export const MyComposition = () => {
   return (
@@ -243,7 +241,6 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 ### `pauseWhenBuffering?`<AvailableFrom v="4.0.111"/>
 
 If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
-
 
 ### `showInTimeline?`<AvailableFrom v="4.0.122"/>
 
@@ -295,9 +292,8 @@ Deprecated since v4.0.279: This prop intended to opt into setting the volume to 
 The option does not make sense anymore, because it is now possible to set the volume higher than `1`.  
 To prevent synthetic amplification, set a volume not higher than 1.
 
-
 ## See also
 
-- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/new-video/src/new-video.tsx)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/video/src/video.tsx)
 - [`<Video />`](/docs/video)
 - [`<OffthreadVideo>`](/docs/offthreadvideo)

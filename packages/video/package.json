@@ -1,11 +1,11 @@
 {
-	"name": "@remotion/new-video",
+	"name": "@remotion/video",
 	"version": "4.0.325",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/new-video"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/video"
 	},
 	"sideEffects": false,
 	"author": "Hunain Ahmed <junaidhunain6@gmail.com>",

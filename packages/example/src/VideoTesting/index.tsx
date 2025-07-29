@@ -1,3 +1,4 @@
+import {NewVideo} from '@remotion/video';
 import {
 	OffthreadVideo,
 	Sequence,
@@ -5,7 +6,6 @@ import {
 	useVideoConfig,
 	Video,
 } from 'remotion';
-import {NewVideo} from '../../../new-video/dist';
 
 export const VideoTesting: React.FC<{
 	codec: 'mp4' | 'webm';

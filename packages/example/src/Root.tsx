@@ -124,7 +124,7 @@ import {
 } from './Compose/WhatIsRemotion';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
-import {LongVideo} from './longVideoNoFlicker/longVideo';
+import {NewVideoExample} from './NewVideo/NewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {OffthreadRemoteSeries} from './OffthreadRemoteVideo/OffthreadRemoteSeries';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
@@ -703,7 +703,7 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="longVideo"
-					component={LongVideo}
+					component={NewVideoExample}
 					fps={30}
 					height={720}
 					width={1280}

@@ -76,7 +76,7 @@ export const packages = [
 	'compositor',
 	'example-videos',
 	'whisper-web',
-	'new-video',
+	'video',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
@@ -163,7 +163,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'promo-pages': null,
 	'svg-3d-engine': '3D SVG extrusion effects',
 	'serverless-client': null,
-	'new-video': 'Experimental tag for reliable and accurate video embedding',
+	video: 'Experimental tag for reliable and accurate video embedding',
 };
 export const installableMap: {[key in Pkgs]: boolean} = {
 	'svg-3d-engine': false,
@@ -243,7 +243,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'openai-whisper': true,
 	compositor: false,
 	'example-videos': false,
-	'new-video': false,
+	video: false,
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -327,5 +327,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'example-videos': null,
 	'promo-pages': null,
 	'svg-3d-engine': null,
-	'new-video': null,
+	video: null,
 };

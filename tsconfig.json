@@ -233,6 +233,9 @@
 		},
 		{
 			"path": "./packages/zod-types"
+		},
+		{
+			"path": "./packages/video"
 		}
 	]
 }
