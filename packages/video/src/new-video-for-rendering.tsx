@@ -7,7 +7,6 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {RemotionOffthreadVideoProps} from 'remotion';
 import {
 	continueRender,
 	delayRender,
@@ -15,6 +14,7 @@ import {
 	random,
 	useCurrentFrame,
 } from 'remotion';
+import type {NewVideoProps} from './props';
 const {
 	useUnsafeVideoConfig,
 	SequenceContext,
@@ -25,7 +25,7 @@ const {
 	evaluateVolume,
 } = Internals;
 
-export const NewVideoForRendering: React.FC<RemotionOffthreadVideoProps> = ({
+export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	volume: volumeProp,
 	playbackRate,
 	src,

@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
-import type {RemotionOffthreadVideoProps} from 'remotion';
 import {getRemotionEnvironment, Internals, Sequence} from 'remotion';
 import {NewVideoForRendering} from './new-video-for-rendering';
+import type {NewVideoProps} from './props';
 
 const {
 	validateMediaTrimProps,
@@ -10,12 +10,10 @@ const {
 	VideoForPreview,
 } = Internals;
 
-export const NewVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
+export const NewVideo: React.FC<NewVideoProps> = (props) => {
 	// Should only destruct `startFrom` and `endAt` from props,
 	// rest gets drilled down
 	const {
-		startFrom,
-		endAt,
 		trimBefore,
 		trimAfter,
 		name,
@@ -36,17 +34,16 @@ export const NewVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
 		);
 	}
 
-	if (props.imageFormat) {
-		throw new TypeError(
-			`The \`<NewVideo>\` tag does no longer accept \`imageFormat\`. Use the \`transparent\` prop if you want to render a transparent video.`,
-		);
-	}
-
-	validateMediaTrimProps({startFrom, endAt, trimBefore, trimAfter});
+	validateMediaTrimProps({
+		startFrom: undefined,
+		endAt: undefined,
+		trimBefore,
+		trimAfter,
+	});
 
 	const {trimBeforeValue, trimAfterValue} = resolveTrimProps({
-		startFrom,
-		endAt,
+		startFrom: undefined,
+		endAt: undefined,
 		trimBefore,
 		trimAfter,
 	});
@@ -78,8 +75,6 @@ export const NewVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
 	}
 
 	const {
-		transparent,
-		toneMapped,
 		onAutoPlayError,
 		onVideoFrame,
 		crossOrigin,

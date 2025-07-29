@@ -175,15 +175,7 @@ const sidebars: SidebarsConfig = {
 				'watchstaticfile',
 			],
 		},
-		{
-			type: 'category',
-			label: '@remotion/video',
-			link: {
-				type: 'doc',
-				id: 'video/index',
-			},
-			items: ['video/index'],
-		},
+
 		{
 			type: 'category',
 			label: '@remotion/bundler',
@@ -778,6 +770,15 @@ const sidebars: SidebarsConfig = {
 				id: 'licensing/index',
 			},
 			items: ['licensing/register-usage-point', 'licensing/get-usage'],
+		},
+		{
+			type: 'category',
+			label: '@remotion/video',
+			link: {
+				type: 'doc',
+				id: 'new-video/index',
+			},
+			items: ['new-video/index'],
 		},
 	],
 	mainSidebar: [
