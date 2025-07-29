@@ -30,9 +30,8 @@ test.describe('Should return correct frame even when it is out of order', () => 
 		page,
 	}, testInfo) => {
 		if (testInfo.project.name === 'webkit') {
-			test.skip(
-				'Tolerating Webkit frame inaccuracy for now, this will be needed for browser rendering',
-			);
+			// 				'Tolerating Webkit frame inaccuracy for now, this will be needed for browser rendering',
+			test.skip();
 			return;
 		}
 		await page.goto(
