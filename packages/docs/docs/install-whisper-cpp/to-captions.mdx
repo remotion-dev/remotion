@@ -13,15 +13,15 @@ import {toCaptions, transcribe} from '@remotion/install-whisper-cpp';
 import path from 'path';
 
 const whisperCppOutput = await transcribe({
-  inputPath: '/path/to/audio.wav',
-  whisperPath: path.join(process.cwd(), 'whisper.cpp'),
-  whisperCppVersion: '1.5.5',
-  model: 'medium.en',
-  tokenLevelTimestamps: true,
+	inputPath: '/path/to/audio.wav',
+	whisperPath: path.join(process.cwd(), 'whisper.cpp'),
+	whisperCppVersion: '1.5.5',
+	model: 'medium.en',
+	tokenLevelTimestamps: true,
 });
 
 const {captions} = toCaptions({
-  whisperCppOutput,
+	whisperCppOutput,
 });
 
 console.log(captions); /*

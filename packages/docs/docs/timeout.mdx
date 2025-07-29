@@ -3,7 +3,7 @@ image: /generated/articles-docs-timeout.png
 id: timeout
 title: Debugging timeouts
 sidebar_label: Timeouts
-crumb: "Troubleshooting"
+crumb: 'Troubleshooting'
 ---
 
 The following error:
@@ -77,11 +77,11 @@ You can increase the default timeout:
 If you encounter a timeout and don't know where it came from, you can add a label as a parameter:
 
 ```tsx twoslash
-import { delayRender } from "remotion";
+import {delayRender} from 'remotion';
 
 // ---cut---
 
-delayRender("Fetching data from API...");
+delayRender('Fetching data from API...');
 ```
 
 If the call times out, the label will be referenced in the error message:
@@ -89,7 +89,6 @@ If the call times out, the label will be referenced in the error message:
 ```
 Uncaught Error: A delayRender() "Fetching data from API..." was called but not cleared after 28000ms. See https://remotion.dev/docs/timeout for help. The delayRender was called
 ```
-
 
 ## See also
 

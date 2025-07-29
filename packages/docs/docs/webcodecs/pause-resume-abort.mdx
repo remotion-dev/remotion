@@ -19,16 +19,16 @@ import {webcodecsController, convertMedia} from '@remotion/webcodecs';
 const controller = webcodecsController();
 
 convertMedia({
-  src: 'https://www.w3schools.com/html/mov_bbb.mp4',
-  container: 'webm',
-  controller,
+	src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+	container: 'webm',
+	controller,
 })
-  .then(() => {
-    console.log('Finished downloading');
-  })
-  .catch((err) => {
-    console.error('Error downloading', err);
-  });
+	.then(() => {
+		console.log('Finished downloading');
+	})
+	.catch((err) => {
+		console.error('Error downloading', err);
+	});
 
 // Wait 1 sec, pause, wait 1 sec, resume
 await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -45,16 +45,16 @@ import {webcodecsController, convertMedia} from '@remotion/webcodecs';
 const controller = webcodecsController();
 
 convertMedia({
-  src: 'https://www.w3schools.com/html/mov_bbb.mp4',
-  container: 'webm',
-  controller,
+	src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+	container: 'webm',
+	controller,
 })
-  .then(() => {
-    console.log('Finished parsing');
-  })
-  .catch((err) => {
-    console.error('Error parsing', err);
-  });
+	.then(() => {
+		console.log('Finished parsing');
+	})
+	.catch((err) => {
+		console.error('Error parsing', err);
+	});
 
 // Cancel after 10 seconds
 await new Promise((resolve) => setTimeout(resolve, 10_000));
@@ -72,20 +72,20 @@ import {webcodecsController, convertMedia} from '@remotion/webcodecs';
 const controller = webcodecsController();
 
 const promise = convertMedia({
-  src: 'https://www.w3schools.com/html/mov_bbb.mp4',
-  container: 'webm',
-  controller,
+	src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+	container: 'webm',
+	controller,
 })
-  .then(() => {
-    console.log('Finished conversion');
-  })
-  .catch((err) => {
-    if (hasBeenAborted(err)) {
-      console.log('Conversion was cancelled');
-    } else {
-      console.error('Error converting', err);
-    }
-  });
+	.then(() => {
+		console.log('Finished conversion');
+	})
+	.catch((err) => {
+		if (hasBeenAborted(err)) {
+			console.log('Conversion was cancelled');
+		} else {
+			console.error('Error converting', err);
+		}
+	});
 ```
 
 ## See also

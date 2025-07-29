@@ -16,23 +16,23 @@ const outputLocation = '/path/to/frames';
 import {renderMedia, selectComposition} from '@remotion/renderer';
 
 const inputProps = {
-  titleText: 'Hello World',
+	titleText: 'Hello World',
 };
 
 const composition = await selectComposition({
-  serveUrl,
-  id: 'my-video',
-  inputProps,
+	serveUrl,
+	id: 'my-video',
+	inputProps,
 });
 
 // ---cut---
 
 await renderMedia({
-  composition,
-  serveUrl,
-  codec: 'h264',
-  outputLocation,
-  inputProps,
+	composition,
+	serveUrl,
+	codec: 'h264',
+	outputLocation,
+	inputProps,
 });
 ```
 
@@ -239,17 +239,17 @@ Callback function that gets called once the renderer has prepared to start rende
 import {OnStartData} from '@remotion/renderer';
 
 const onStart = ({
-  frameCount,
-  parallelEncoding, // available from v4.0.52
-  resolvedConcurrency, // available from v4.0.180
+	frameCount,
+	parallelEncoding, // available from v4.0.52
+	resolvedConcurrency, // available from v4.0.180
 }: OnStartData) => {
-  console.log(`Beginning to render ${frameCount}.`);
+	console.log(`Beginning to render ${frameCount}.`);
 
-  if (parallelEncoding) {
-    console.log('Parallel encoding is enabled.');
-  }
+	if (parallelEncoding) {
+		console.log('Parallel encoding is enabled.');
+	}
 
-  console.log(`Using concurrency: ${resolvedConcurrency}`);
+	console.log(`Using concurrency: ${resolvedConcurrency}`);
 };
 ```
 
@@ -263,33 +263,39 @@ React to render progress. The following callback function is similar to how Remo
 import {RenderMediaOnProgress} from '@remotion/renderer';
 
 const onProgress: RenderMediaOnProgress = ({progress}) => {
-  console.log(`Rendering is ${progress * 100}% complete`);
+	console.log(`Rendering is ${progress * 100}% complete`);
 };
 ```
 
 ```tsx twoslash title="Advanced example - Fine-grained progress values"
 import {RenderMediaOnProgress} from '@remotion/renderer';
 
-const onProgress: RenderMediaOnProgress = ({renderedFrames, encodedFrames, encodedDoneIn, renderedDoneIn, stitchStage}) => {
-  if (stitchStage === 'encoding') {
-    // First pass, parallel rendering of frames and encoding into video
-    console.log('Encoding...');
-  } else if (stitchStage === 'muxing') {
-    // Second pass, adding audio to the video
-    console.log('Muxing audio...');
-  }
-  // Amount of frames rendered into images
-  console.log(`${renderedFrames} rendered`);
-  // Amount of frame encoded into a video
-  console.log(`${encodedFrames} encoded`);
-  // Time to create images of all frames
-  if (renderedDoneIn !== null) {
-    console.log(`Rendered in ${renderedDoneIn}ms`);
-  }
-  // Time to encode video from images
-  if (encodedDoneIn !== null) {
-    console.log(`Encoded in ${encodedDoneIn}ms`);
-  }
+const onProgress: RenderMediaOnProgress = ({
+	renderedFrames,
+	encodedFrames,
+	encodedDoneIn,
+	renderedDoneIn,
+	stitchStage,
+}) => {
+	if (stitchStage === 'encoding') {
+		// First pass, parallel rendering of frames and encoding into video
+		console.log('Encoding...');
+	} else if (stitchStage === 'muxing') {
+		// Second pass, adding audio to the video
+		console.log('Muxing audio...');
+	}
+	// Amount of frames rendered into images
+	console.log(`${renderedFrames} rendered`);
+	// Amount of frame encoded into a video
+	console.log(`${encodedFrames} encoded`);
+	// Time to create images of all frames
+	if (renderedDoneIn !== null) {
+		console.log(`Rendered in ${renderedDoneIn}ms`);
+	}
+	// Time to encode video from images
+	if (encodedDoneIn !== null) {
+		console.log(`Encoded in ${encodedDoneIn}ms`);
+	}
 };
 ```
 
@@ -307,16 +313,16 @@ If an audio (or a video with sound) is included in your project, Remotion needs 
 import {RenderMediaOnDownload} from '@remotion/renderer';
 
 const onDownload: RenderMediaOnDownload = (src) => {
-  console.log(`Downloading ${src}...`);
-  return ({percent, downloaded, totalSize}) => {
-    // percent and totalSize can be `null` if the downloaded resource
-    // does not have a `Content-Length` header
-    if (percent === null) {
-      console.log(`${downloaded} bytes downloaded`);
-    } else {
-      console.log(`${Math.round(percent * 100)}% done)`);
-    }
-  };
+	console.log(`Downloading ${src}...`);
+	return ({percent, downloaded, totalSize}) => {
+		// percent and totalSize can be `null` if the downloaded resource
+		// does not have a `Content-Length` header
+		if (percent === null) {
+			console.log(`${downloaded} bytes downloaded`);
+		} else {
+			console.log(`${Math.round(percent * 100)}% done)`);
+		}
+	};
 };
 ```
 
@@ -342,10 +348,10 @@ Catch a console message being printed. Example:
 import {BrowserLog} from '@remotion/renderer';
 
 const onBrowserLog = (log: BrowserLog) => {
-  // `type` is the console.* method: `log`, `warn`, `error`, etc.
-  console.log(`[${log.type}]`);
-  console.log(log.text);
-  console.log(`at ${log.stackTrace}`);
+	// `type` is the console.* method: `log`, `warn`, `error`, etc.
+	console.log(`[${log.type}]`);
+	console.log(log.text);
+	console.log(`at ${log.stackTrace}`);
 };
 ```
 
@@ -415,8 +421,8 @@ Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-
 import type {FfmpegOverrideFn} from '@remotion/renderer';
 
 const ffmpegOverride: FfmpegOverrideFn = ({type, args}) => {
-  console.log(type); // "stitcher" | "pre-stitcher
-  return [...args, '-vf', 'eq=brightness=0:saturation=1'];
+	console.log(type); // "stitcher" | "pre-stitcher
+	return [...args, '-vf', 'eq=brightness=0:saturation=1'];
 };
 ```
 

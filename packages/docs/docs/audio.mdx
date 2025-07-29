@@ -17,11 +17,11 @@ Using this component, you can add audio to your video. All audio formats which a
 import {AbsoluteFill, Audio, staticFile} from 'remotion';
 
 export const MyVideo = () => {
-  return (
-    <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Audio src={staticFile('audio.mp3')} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -33,11 +33,11 @@ The component also accepts a `volume` props which allows you to control the volu
 import {AbsoluteFill, Audio, staticFile} from 'remotion';
 
 export const MyVideo = () => {
-  return (
-    <AbsoluteFill>
-      <Audio volume={0.5} src={staticFile('background.mp3')} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Audio volume={0.5} src={staticFile('background.mp3')} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -45,11 +45,16 @@ export const MyVideo = () => {
 import {AbsoluteFill, Audio, interpolate, staticFile} from 'remotion';
 
 export const MyVideo = () => {
-  return (
-    <AbsoluteFill>
-      <Audio volume={(f) => interpolate(f, [0, 30], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('voice.mp3')} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Audio
+				volume={(f) =>
+					interpolate(f, [0, 30], [0, 1], {extrapolateLeft: 'clamp'})
+				}
+				src={staticFile('voice.mp3')}
+			/>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -80,11 +85,11 @@ The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio w
 import {AbsoluteFill, Audio, staticFile} from 'remotion';
 
 export const MyVideo = () => {
-  return (
-    <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} trimBefore={60} trimAfter={120} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Audio src={staticFile('audio.mp3')} trimBefore={60} trimAfter={120} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -104,11 +109,11 @@ While Remotion doesn't limit the range of possible playback speeds, in developme
 import {AbsoluteFill, Audio, staticFile} from 'remotion';
 
 export const MyVideo = () => {
-  return (
-    <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} playbackRate={2} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Audio src={staticFile('audio.mp3')} playbackRate={2} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -120,12 +125,12 @@ The `muted` prop will be respected. It will lead to no audio being played while 
 import {AbsoluteFill, Audio, staticFile, useCurrentFrame} from 'remotion';
 
 export const MyVideo = () => {
-  const frame = useCurrentFrame();
-  return (
-    <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} muted={frame < 30} />
-    </AbsoluteFill>
-  );
+	const frame = useCurrentFrame();
+	return (
+		<AbsoluteFill>
+			<Audio src={staticFile('audio.mp3')} muted={frame < 30} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -143,12 +148,12 @@ You can use the `loop` prop to loop audio.
 import {AbsoluteFill, Audio, staticFile, useCurrentFrame} from 'remotion';
 
 export const MyVideo = () => {
-  const frame = useCurrentFrame();
-  return (
-    <AbsoluteFill>
-      <Audio loop src={staticFile('audio.mp3')} />
-    </AbsoluteFill>
-  );
+	const frame = useCurrentFrame();
+	return (
+		<AbsoluteFill>
+			<Audio loop src={staticFile('audio.mp3')} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -203,18 +208,18 @@ To prevent synthetic amplification, set a volume not higher than 1.
 - [`<Video />`](/docs/video)
 
 <Credits
-  contributors={[
-    {
-      username: 'JonnyBurger',
-      contribution: 'Implementation',
-    },
-    {
-      username: 'evoxf1',
-      contribution: (
-        <>
-          <code>toneFrequency</code> prop
-        </>
-      ),
-    },
-  ]}
+	contributors={[
+		{
+			username: 'JonnyBurger',
+			contribution: 'Implementation',
+		},
+		{
+			username: 'evoxf1',
+			contribution: (
+				<>
+					<code>toneFrequency</code> prop
+				</>
+			),
+		},
+	]}
 />

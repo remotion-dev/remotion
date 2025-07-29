@@ -16,7 +16,7 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('transparent.webm')} transparent />;
+	return <OffthreadVideo src={staticFile('transparent.webm')} transparent />;
 };
 ```
 
@@ -29,14 +29,14 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return (
-    <OffthreadVideo
-      src={staticFile('nottransparent.mp4')}
-      style={{
-        mixBlendMode: 'screen',
-      }}
-    />
-  );
+	return (
+		<OffthreadVideo
+			src={staticFile('nottransparent.mp4')}
+			style={{
+				mixBlendMode: 'screen',
+			}}
+		/>
+	);
 };
 ```
 

@@ -157,7 +157,12 @@ The [@remotion/renderer](/docs/renderer) `ImageFormat` Type got replaced by the 
 - `getParts()` has been removed. Use [`getSubpaths()`](/docs/paths/get-subpaths) instead:
 
 ```tsx twoslash title="paths.ts"
-import {getLength, getPointAtLength, getSubpaths, getTangentAtLength} from '@remotion/paths';
+import {
+	getLength,
+	getPointAtLength,
+	getSubpaths,
+	getTangentAtLength,
+} from '@remotion/paths';
 
 const path = 'M 0 0 L 100 100';
 const parts = getSubpaths(path[0]);
@@ -228,16 +233,16 @@ If you are using `react-native-web`, override the Webpack config like this to re
 import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((config) => {
-  return {
-    ...config,
-    resolve: {
-      ...config.resolve,
-      alias: {
-        ...config.resolve?.alias,
-        'react-native$': 'react-native-web',
-      },
-    },
-  };
+	return {
+		...config,
+		resolve: {
+			...config.resolve,
+			alias: {
+				...config.resolve?.alias,
+				'react-native$': 'react-native-web',
+			},
+		},
+	};
 });
 ```
 
@@ -257,9 +262,9 @@ If you need a type for a generic composition, you can use the new `AnyCompositio
 import {AnyComposition} from 'remotion';
 
 const composition: AnyComposition = {
-  width: 1920,
-  height: 1080,
-  // ...
+	width: 1920,
+	height: 1080,
+	// ...
 };
 ```
 
@@ -281,14 +286,20 @@ The following code now gives a type error:
 
 ```tsx
 interface MyProps {
-  title: string;
+	title: string;
 }
 
 const Hi = (props: MyProps) => {
-  return <div>{props.title}</div>;
+	return <div>{props.title}</div>;
 };
 
-<Still component={Hi} id="interface-props" defaultProps={{title: 'hi'}} height={1080} width={1080} />;
+<Still
+	component={Hi}
+	id="interface-props"
+	defaultProps={{title: 'hi'}}
+	height={1080}
+	width={1080}
+/>;
 ```
 
 This is because props must now be an object and satisfy the shape `Record<string, unknown>`.  
@@ -296,7 +307,7 @@ This is because props must now be an object and satisfy the shape `Record<string
 
 ```tsx
 type MyProps = {
-  title: string;
+	title: string;
 };
 ```
 
@@ -314,35 +325,35 @@ If you register a composition with a component that requires some props, you now
 import {renderMedia} from '@remotion/renderer';
 
 const options = {
-  codec: 'h264',
-  serveUrl: 'https://example.com',
+	codec: 'h264',
+	serveUrl: 'https://example.com',
 } as const;
 
 const composition = {
-  width: 1920,
-  height: 1080,
-  fps: 30,
-  durationInFrames: 30 * 5,
-  id: 'comp-name',
-  defaultProps: {},
-  defaultCodec: null,
-  defaultOutName: null,
-  defaultVideoImageFormat: null,
-  defaultPixelFormat: null,
+	width: 1920,
+	height: 1080,
+	fps: 30,
+	durationInFrames: 30 * 5,
+	id: 'comp-name',
+	defaultProps: {},
+	defaultCodec: null,
+	defaultOutName: null,
+	defaultVideoImageFormat: null,
+	defaultPixelFormat: null,
 } as const;
 
 // ---cut---
 await renderMedia({
-  ...options,
-  composition: {
-    ...composition,
-    props: {
-      title: 'Hello world',
-    },
-  },
-  inputProps: {
-    title: 'Hi there',
-  },
+	...options,
+	composition: {
+		...composition,
+		props: {
+			title: 'Hello world',
+		},
+	},
+	inputProps: {
+		title: 'Hi there',
+	},
 });
 ```
 

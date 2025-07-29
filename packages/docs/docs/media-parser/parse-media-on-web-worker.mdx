@@ -18,11 +18,11 @@ The only difference in API is that the [`reader`](/docs/media-parser/parse-media
 import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 
 const result = await parseMediaOnWebWorker({
-  src: 'https://parser.media/video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
+	src: 'https://parser.media/video.mp4',
+	fields: {
+		durationInSeconds: true,
+		dimensions: true,
+	},
 });
 
 console.log(result.durationInSeconds); // 10

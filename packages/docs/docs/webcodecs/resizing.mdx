@@ -12,13 +12,13 @@ import {LicenseDisclaimer} from './LicenseDisclaimer';
 import {UnstableDisclaimer} from './UnstableDisclaimer';
 
 <details>
-  <summary>💼 Important License Disclaimer</summary>
-  <LicenseDisclaimer />
+	<summary>💼 Important License Disclaimer</summary>
+	<LicenseDisclaimer />
 </details>
 
 <details>
-  <summary>🚧 Unstable API</summary>
-  <UnstableDisclaimer />
+	<summary>🚧 Unstable API</summary>
+	<UnstableDisclaimer />
 </details>
 
 ## Simple Example
@@ -27,12 +27,12 @@ import {UnstableDisclaimer} from './UnstableDisclaimer';
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'mp4',
-  resize: {
-    mode: 'max-height',
-    maxHeight: 480,
-  },
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'mp4',
+	resize: {
+		mode: 'max-height',
+		maxHeight: 480,
+	},
 });
 ```
 
@@ -46,8 +46,8 @@ For the [`resize`](/docs/webcodecs/convert-media#resize) value, you can specify 
 import {ResizeOperation} from '@remotion/webcodecs';
 
 const resize: ResizeOperation = {
-  mode: 'max-height',
-  maxHeight: 480,
+	mode: 'max-height',
+	maxHeight: 480,
 };
 ```
 
@@ -59,8 +59,8 @@ Scales a video down so it is at most `maxHeight` pixels tall.
 import {ResizeOperation} from '@remotion/webcodecs';
 
 const resize: ResizeOperation = {
-  mode: 'max-width',
-  maxWidth: 640,
+	mode: 'max-width',
+	maxWidth: 640,
 };
 ```
 
@@ -72,8 +72,8 @@ Scales a video down so it is at most `maxWidth` pixels wide.
 import {ResizeOperation} from '@remotion/webcodecs';
 
 const resize: ResizeOperation = {
-  mode: 'width',
-  width: 640,
+	mode: 'width',
+	width: 640,
 };
 ```
 
@@ -85,8 +85,8 @@ Scales a video to exactly `width` pixels wide.
 import {ResizeOperation} from '@remotion/webcodecs';
 
 const resize: ResizeOperation = {
-  mode: 'height',
-  height: 480,
+	mode: 'height',
+	height: 480,
 };
 ```
 
@@ -98,9 +98,9 @@ Scales a video to exactly `height` pixels tall.
 import {ResizeOperation} from '@remotion/webcodecs';
 
 const resize: ResizeOperation = {
-  mode: 'max-height-width',
-  maxHeight: 480,
-  maxWidth: 640,
+	mode: 'max-height-width',
+	maxHeight: 480,
+	maxWidth: 640,
 };
 ```
 
@@ -113,8 +113,8 @@ The video will be scaled down to the biggest size that fits both constraints.
 import {ResizeOperation} from '@remotion/webcodecs';
 
 const resize: ResizeOperation = {
-  mode: 'scale',
-  scale: 0.5,
+	mode: 'scale',
+	scale: 0.5,
 };
 ```
 

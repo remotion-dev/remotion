@@ -7,8 +7,7 @@ slug: /media-parser/webcodecs
 crumb: '@remotion/media-parser'
 ---
 
-[`parseMedia()`](/docs/media-parser/parse-media) is able to extract tracks and samples from audio and video in a format that is suitable for usage with WebCodecs APIs.  
-
+[`parseMedia()`](/docs/media-parser/parse-media) is able to extract tracks and samples from audio and video in a format that is suitable for usage with WebCodecs APIs.
 
 ## Minimal example
 
@@ -16,24 +15,29 @@ The following snippet is a basic, non-production ready example of how to use `pa
 
 ```tsx twoslash title="Reading video frames"
 // ⚠️ Simple, but non-production ready example
-import {parseMedia, MediaParserOnAudioTrack, MediaParserOnVideoTrack} from '@remotion/media-parser';
+import {
+	parseMedia,
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from '@remotion/media-parser';
 
 const result = await parseMedia({
-  src: 'https://parser.media/video.mp4',
-  onVideoTrack: ({track}) => {
-    const decoder = new VideoDecoder({
-      output: console.log,
-      error: console.error,
-    });
+	src: 'https://parser.media/video.mp4',
+	onVideoTrack: ({track}) => {
+		const decoder = new VideoDecoder({
+			output: console.log,
+			error: console.error,
+		});
 
-    decoder.configure(track);
+		decoder.configure(track);
 
-    return (sample) => {
-      decoder.decode(new EncodedVideoChunk(sample));
-    };
-  },
+		return (sample) => {
+			decoder.decode(new EncodedVideoChunk(sample));
+		};
+	},
 });
 ```
+
 ## The importance of queueing
 
 import {WebCodecsQueueing} from './WebCodecsQueueing';
@@ -51,7 +55,6 @@ Since this will cause memory to build up, it will negatively impact the performa
 It makes sense to connect the whole pipeline together and throttle each step so it does not perform faster than the next step.  
 In the example above, six queues are required to be managed, with each one of them malfunctioning causing memory to run away.
 
-
 ## How Remotion helps you work with WebCodecs
 
 Since handling queueing correctly is a challenging task, we offer helpers that help you work with WebCodecs.
@@ -59,10 +62,8 @@ Since handling queueing correctly is a challenging task, we offer helpers that h
 Remotion's primitives are designed to offer you functionality to implement queueing in a sensible way:
 
 - In [`parseMedia()`](/docs/media-parser/parse-media), callbacks are asnychronous, and as long as they don't resolve, the parsing process will not continue.
-- The helper functions [`createAudioDecoder()`](/docs/webcodecs/create-audio-decoder) and [`createVideoDecoder()`](/docs/webcodecs/create-video-decoder) offer you a helper method `waitForQueueToBeLessThan()` which you can await.  
+- The helper functions [`createAudioDecoder()`](/docs/webcodecs/create-audio-decoder) and [`createVideoDecoder()`](/docs/webcodecs/create-video-decoder) offer you a helper method `waitForQueueToBeLessThan()` which you can await.
 - For processing video and audio frames as well as encoding video and audio, we don't offer helpers yet, but hope to do so soon.
-
-
 
 ## Practical considerations
 
@@ -78,30 +79,33 @@ You can opt to skip a track by returning `null` from the callback.
 
 ```tsx twoslash title="Rejecting samples"
 // @noErrors
-import type {MediaParserOnAudioTrack, MediaParserOnVideoTrack} from '@remotion/media-parser';
+import type {
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from '@remotion/media-parser';
 
 const onVideoTrack: MediaParserOnVideoTrack = ({track}) => {
-  if (typeof VideoDecoder === 'undefined') {
-    return null;
-  }
+	if (typeof VideoDecoder === 'undefined') {
+		return null;
+	}
 
-  const videoDecoder = new VideoDecoder({
-    output: console.log,
-    error: console.error,
-  });
-  // ...
+	const videoDecoder = new VideoDecoder({
+		output: console.log,
+		error: console.error,
+	});
+	// ...
 };
 
 const onAudioTrack: MediaParserOnAudioTrack = ({track}) => {
-  if (typeof AudioDecoder === 'undefined') {
-    return null;
-  }
+	if (typeof AudioDecoder === 'undefined') {
+		return null;
+	}
 
-  const audioDecoder = new AudioDecoder({
-    output: console.log,
-    error: console.error,
-  });
-  // ...
+	const audioDecoder = new AudioDecoder({
+		output: console.log,
+		error: console.error,
+	});
+	// ...
 };
 ```
 
@@ -113,42 +117,43 @@ These are async APIs, fortunately `onAudioTrack` and `onVideoTrack` allow async 
 
 ```tsx twoslash title="Checking if the browser supports the codec"
 // @noErrors
-import type {MediaParserOnAudioTrack, MediaParserOnVideoTrack} from '@remotion/media-parser';
+import type {
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from '@remotion/media-parser';
 
 const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
-  const videoDecoder = new VideoDecoder({
-    output: console.log,
-    error: console.error,
-  });
+	const videoDecoder = new VideoDecoder({
+		output: console.log,
+		error: console.error,
+	});
 
-  const {supported} = await VideoDecoder.isConfigSupported(track);
-  if (!supported) {
-    return null;
-  }
+	const {supported} = await VideoDecoder.isConfigSupported(track);
+	if (!supported) {
+		return null;
+	}
 
-  // ...
+	// ...
 };
 
 const onAudioTrack: MediaParserOnAudioTrack = async ({track}) => {
-  const audioDecoder = new AudioDecoder({
-    output: console.log,
-    error: console.error,
-  });
+	const audioDecoder = new AudioDecoder({
+		output: console.log,
+		error: console.error,
+	});
 
-  const {supported} = await AudioDecoder.isConfigSupported(track);
-  if (!supported) {
-    return null;
-  }
+	const {supported} = await AudioDecoder.isConfigSupported(track);
+	if (!supported) {
+		return null;
+	}
 
-  // ...
+	// ...
 };
 ```
 
 :::note
 Perform these checks in addition to the previously mentioned ones.
 :::
-
-
 
 ### Error handling
 
@@ -161,16 +166,16 @@ If the decoder is in `"closed"` state, you should stop passing them to VideoDeco
 import type {MediaParserOnVideoTrack} from '@remotion/media-parser';
 
 const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
-  const videoDecoder = new VideoDecoder({
-    output: console.log,
-    error: console.error,
-  });
+	const videoDecoder = new VideoDecoder({
+		output: console.log,
+		error: console.error,
+	});
 
-  return async (sample) => {
-    if (videoDecoder.state === 'closed') {
-      return;
-    }
-  };
+	return async (sample) => {
+		if (videoDecoder.state === 'closed') {
+			return;
+		}
+	};
 };
 ```
 
@@ -179,7 +184,6 @@ const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
 - The same logic goes for `AudioDecoder`.
 - You should still perform the checks previously mentioned, but they are omitted from this example.  
   :::
-
 
 ### Handling rotation
 
@@ -193,8 +197,8 @@ Fortunately `parseMedia()` returns the rotation of the track:
 import type {MediaParserOnVideoTrack} from '@remotion/media-parser';
 
 const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
-  console.log(track.rotation); // -90
-  return null;
+	console.log(track.rotation); // -90
+	return null;
 };
 ```
 
@@ -209,18 +213,18 @@ In an extreme case, it is possible that you stumble opon a video that has three 
 import type {MediaParserOnVideoTrack} from '@remotion/media-parser';
 
 const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
-  console.log(track);
-  // {
-  //   codedWidth: 1440,
-  //   codedHeight: 1080,
-  //   displayAspectWidth: 1920,
-  //   displayAspectHeight: 1080,
-  //   width: 1080,
-  //   height: 1900,
-  //   ...
-  // }
+	console.log(track);
+	// {
+	//   codedWidth: 1440,
+	//   codedHeight: 1080,
+	//   displayAspectWidth: 1920,
+	//   displayAspectHeight: 1080,
+	//   width: 1080,
+	//   height: 1900,
+	//   ...
+	// }
 
-  return null;
+	return null;
 };
 ```
 

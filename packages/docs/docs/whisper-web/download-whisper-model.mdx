@@ -16,10 +16,10 @@ Downloads a Whisper model into IndexedDB.
 import {downloadWhisperModel} from '@remotion/whisper-web';
 
 const {alreadyDownloaded} = await downloadWhisperModel({
-  model: 'tiny.en',
-  onProgress: (progress) => {
-    console.log(progress);
-  },
+	model: 'tiny.en',
+	onProgress: (progress) => {
+		console.log(progress);
+	},
 });
 ```
 
@@ -34,10 +34,17 @@ The model to download. Possible values: `tiny`, `tiny.en`, `base`, `base.en`, `s
 Act upon download progress. This is the function signature:
 
 ```tsx twoslash
-import {DownloadWhisperModelOnProgress, DownloadWhisperModelProgress} from '@remotion/whisper-web';
+import {
+	DownloadWhisperModelOnProgress,
+	DownloadWhisperModelProgress,
+} from '@remotion/whisper-web';
 
-const onProgress: DownloadWhisperModelOnProgress = ({progress, totalBytes, downloadedBytes}: DownloadWhisperModelProgress) => {
-  console.log({progress, totalBytes, downloadedBytes});
+const onProgress: DownloadWhisperModelOnProgress = ({
+	progress,
+	totalBytes,
+	downloadedBytes,
+}: DownloadWhisperModelProgress) => {
+	console.log({progress, totalBytes, downloadedBytes});
 };
 ```
 

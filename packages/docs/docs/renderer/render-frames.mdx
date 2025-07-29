@@ -38,17 +38,17 @@ Callback function that gets called once the renderer has prepared to start rende
 import {OnStartData} from '@remotion/renderer';
 
 const onStart = ({
-  frameCount,
-  parallelEncoding, // available from v4.0.52
-  resolvedConcurrency, // available from v4.0.180
+	frameCount,
+	parallelEncoding, // available from v4.0.52
+	resolvedConcurrency, // available from v4.0.180
 }: OnStartData) => {
-  console.log(`Beginning to render ${frameCount}.`);
+	console.log(`Beginning to render ${frameCount}.`);
 
-  if (parallelEncoding) {
-    console.log('Parallel encoding is enabled.');
-  }
+	if (parallelEncoding) {
+		console.log('Parallel encoding is enabled.');
+	}
 
-  console.log(`Using concurrency: ${resolvedConcurrency}`);
+	console.log(`Using concurrency: ${resolvedConcurrency}`);
 };
 ```
 
@@ -61,14 +61,18 @@ In `v3.0.0`, a second argument was added: `frame`, returning the frame number th
 In `v3.2.30`, a third argument was rendered: `timeToRenderInMilliseconds`, describing the time it took to render that frame in milliseconds.
 
 ```ts twoslash
-const onFrameUpdate = (framesRendered: number, frame: number, timeToRenderInMilliseconds: number) => {
-  console.log(`${framesRendered} frames rendered.`);
+const onFrameUpdate = (
+	framesRendered: number,
+	frame: number,
+	timeToRenderInMilliseconds: number,
+) => {
+	console.log(`${framesRendered} frames rendered.`);
 
-  // From v3.0.0
-  console.log(`${frame} was just rendered.`);
+	// From v3.0.0
+	console.log(`${frame} was just rendered.`);
 
-  // From v3.2.30
-  console.log(`It took ${timeToRenderInMilliseconds}ms to render that frame.`);
+	// From v3.2.30
+	console.log(`It took ${timeToRenderInMilliseconds}ms to render that frame.`);
 };
 ```
 
@@ -108,8 +112,8 @@ Default: `element-[frame].[ext]`
 
 ```js
 renderFrames({
-  ...otherOptions,
-  imageSequencePattern: 'frame_[frame]_custom.[ext]',
+	...otherOptions,
+	imageSequencePattern: 'frame_[frame]_custom.[ext]',
 });
 // Produces: frame_0001_custom.jpeg, frame_0002_custom.jpeg, ...
 ```
@@ -185,39 +189,60 @@ Gets called when your project calls `console.log` or another method from console
 
 ```tsx twoslash
 interface ConsoleMessageLocation {
-  /**
-   * URL of the resource if known or `undefined` otherwise.
-   */
-  url?: string;
-  /**
-   * 0-based line number in the resource if known or `undefined` otherwise.
-   */
-  lineNumber?: number;
-  /**
-   * 0-based column number in the resource if known or `undefined` otherwise.
-   */
-  columnNumber?: number;
+	/**
+	 * URL of the resource if known or `undefined` otherwise.
+	 */
+	url?: string;
+	/**
+	 * 0-based line number in the resource if known or `undefined` otherwise.
+	 */
+	lineNumber?: number;
+	/**
+	 * 0-based column number in the resource if known or `undefined` otherwise.
+	 */
+	columnNumber?: number;
 }
 
 type BrowserLog = {
-  text: string;
-  stackTrace: ConsoleMessageLocation[];
-  type: 'log' | 'debug' | 'info' | 'error' | 'warning' | 'dir' | 'dirxml' | 'table' | 'trace' | 'clear' | 'startGroup' | 'startGroupCollapsed' | 'endGroup' | 'assert' | 'profile' | 'profileEnd' | 'count' | 'timeEnd' | 'verbose';
+	text: string;
+	stackTrace: ConsoleMessageLocation[];
+	type:
+		| 'log'
+		| 'debug'
+		| 'info'
+		| 'error'
+		| 'warning'
+		| 'dir'
+		| 'dirxml'
+		| 'table'
+		| 'trace'
+		| 'clear'
+		| 'startGroup'
+		| 'startGroupCollapsed'
+		| 'endGroup'
+		| 'assert'
+		| 'profile'
+		| 'profileEnd'
+		| 'count'
+		| 'timeEnd'
+		| 'verbose';
 };
 
-const renderFrames = (options: {onBrowserLog?: (log: BrowserLog) => void}) => {};
+const renderFrames = (options: {
+	onBrowserLog?: (log: BrowserLog) => void;
+}) => {};
 // ---cut---
 renderFrames({
-  onBrowserLog: (info) => {
-    console.log(`${info.type}: ${info.text}`);
-    console.log(
-      info.stackTrace
-        .map((stack) => {
-          return `  ${stack.url}:${stack.lineNumber}:${stack.columnNumber}`;
-        })
-        .join('\n'),
-    );
-  },
+	onBrowserLog: (info) => {
+		console.log(`${info.type}: ${info.text}`);
+		console.log(
+			info.stackTrace
+				.map((stack) => {
+					return `  ${stack.url}:${stack.lineNumber}:${stack.columnNumber}`;
+				})
+				.join('\n'),
+		);
+	},
 });
 ```
 

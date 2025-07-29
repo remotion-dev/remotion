@@ -38,7 +38,9 @@ The image height, in pixels (px).
 ```ts twoslash
 import {getImageDimensions} from '@remotion/media-utils';
 
-const {width, height} = await getImageDimensions('https://example.com/remote-image.png');
+const {width, height} = await getImageDimensions(
+	'https://example.com/remote-image.png',
+);
 console.log(width, height);
 ```
 

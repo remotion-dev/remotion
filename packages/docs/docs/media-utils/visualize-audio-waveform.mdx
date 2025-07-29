@@ -14,9 +14,20 @@ This function takes in `AudioData` (for example fetched by [`useAudioData()`](/d
 This function is suitable for visualizing voice. For visualizing music, use [`visualizeAudio()`](/docs/visualize-audio)
 
 ```tsx twoslash title="Usage"
-import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform, AudioData} from '@remotion/media-utils';
+import {
+	createSmoothSvgPath,
+	useAudioData,
+	visualizeAudioWaveform,
+	AudioData,
+} from '@remotion/media-utils';
 import React from 'react';
-import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
+import {
+	AbsoluteFill,
+	Audio,
+	useCurrentFrame,
+	useVideoConfig,
+	staticFile,
+} from 'remotion';
 
 const frame = useCurrentFrame();
 const audioData = useAudioData(staticFile('podcast.wav')) as AudioData;
@@ -24,11 +35,11 @@ const {fps} = useVideoConfig();
 
 // ---cut---
 const waveform = visualizeAudioWaveform({
-  fps,
-  frame,
-  audioData,
-  numberOfSamples: 16,
-  windowInSeconds: 1 / fps,
+	fps,
+	frame,
+	audioData,
+	numberOfSamples: 16,
+	windowInSeconds: 1 / fps,
 });
 ```
 
@@ -92,48 +103,63 @@ The array is of length defined by the `numberOfSamples` parameter.
 ### Basic example
 
 ```tsx twoslash
-import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform} from '@remotion/media-utils';
+import {
+	createSmoothSvgPath,
+	useAudioData,
+	visualizeAudioWaveform,
+} from '@remotion/media-utils';
 import React from 'react';
-import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
+import {
+	AbsoluteFill,
+	Audio,
+	useCurrentFrame,
+	useVideoConfig,
+	staticFile,
+} from 'remotion';
 
 const height = 300;
 
 const BaseExample: React.FC = () => {
-  const frame = useCurrentFrame();
-  const audioDataVoice = useAudioData(staticFile('podcast.wav'));
-  const {width, fps} = useVideoConfig();
+	const frame = useCurrentFrame();
+	const audioDataVoice = useAudioData(staticFile('podcast.wav'));
+	const {width, fps} = useVideoConfig();
 
-  if (!audioDataVoice) {
-    return null;
-  }
+	if (!audioDataVoice) {
+		return null;
+	}
 
-  const waveform = visualizeAudioWaveform({
-    fps,
-    frame,
-    audioData: audioDataVoice,
-    numberOfSamples: 32,
-    windowInSeconds: 1 / fps,
-  });
+	const waveform = visualizeAudioWaveform({
+		fps,
+		frame,
+		audioData: audioDataVoice,
+		numberOfSamples: 32,
+		windowInSeconds: 1 / fps,
+	});
 
-  const p = createSmoothSvgPath({
-    points: waveform.map((x, i) => {
-      return {
-        x: (i / (waveform.length - 1)) * width,
-        y: (x - 0.5) * height + height / 2,
-      };
-    }),
-  });
+	const p = createSmoothSvgPath({
+		points: waveform.map((x, i) => {
+			return {
+				x: (i / (waveform.length - 1)) * width,
+				y: (x - 0.5) * height + height / 2,
+			};
+		}),
+	});
 
-  return (
-    <div style={{flex: 1}}>
-      <Audio src={staticFile('podcast.wav')} />
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-        <svg style={{backgroundColor: ' #0B84F3'}} viewBox={`0 0 ${width} ${height}`} width={width} height={height}>
-          <path stroke="white" fill="none" strokeWidth={10} d={p as string} />
-        </svg>
-      </AbsoluteFill>
-    </div>
-  );
+	return (
+		<div style={{flex: 1}}>
+			<Audio src={staticFile('podcast.wav')} />
+			<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+				<svg
+					style={{backgroundColor: ' #0B84F3'}}
+					viewBox={`0 0 ${width} ${height}`}
+					width={width}
+					height={height}
+				>
+					<path stroke="white" fill="none" strokeWidth={10} d={p as string} />
+				</svg>
+			</AbsoluteFill>
+		</div>
+	);
 };
 ```
 
@@ -145,9 +171,20 @@ const BaseExample: React.FC = () => {
 By increasing the `windowInSeconds` by tenfold, the audiogram starts moving to the right:
 
 ```tsx twoslash {6}
-import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform, AudioData} from '@remotion/media-utils';
+import {
+	createSmoothSvgPath,
+	useAudioData,
+	visualizeAudioWaveform,
+	AudioData,
+} from '@remotion/media-utils';
 import React from 'react';
-import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
+import {
+	AbsoluteFill,
+	Audio,
+	useCurrentFrame,
+	useVideoConfig,
+	staticFile,
+} from 'remotion';
 
 const frame = useCurrentFrame();
 const audioDataVoice = useAudioData(staticFile('podcast.wav')) as AudioData;
@@ -155,11 +192,11 @@ const {fps} = useVideoConfig();
 
 // ---cut---
 const waveform = visualizeAudioWaveform({
-  fps,
-  frame,
-  audioData: audioDataVoice,
-  numberOfSamples: 32,
-  windowInSeconds: 10 / fps,
+	fps,
+	frame,
+	audioData: audioDataVoice,
+	numberOfSamples: 32,
+	windowInSeconds: 10 / fps,
 });
 ```
 
@@ -171,9 +208,20 @@ const waveform = visualizeAudioWaveform({
 By only calculating the waveform every third frame, we make the waveform calmer and generate a cool effect:
 
 ```tsx twoslash {3}
-import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform, AudioData} from '@remotion/media-utils';
+import {
+	createSmoothSvgPath,
+	useAudioData,
+	visualizeAudioWaveform,
+	AudioData,
+} from '@remotion/media-utils';
 import React from 'react';
-import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
+import {
+	AbsoluteFill,
+	Audio,
+	useCurrentFrame,
+	useVideoConfig,
+	staticFile,
+} from 'remotion';
 
 const frame = useCurrentFrame();
 const audioDataVoice = useAudioData(staticFile('podcast.wav')) as AudioData;
@@ -181,11 +229,11 @@ const {fps} = useVideoConfig();
 
 // ---cut---
 const waveform = visualizeAudioWaveform({
-  fps,
-  frame: Math.round(frame / 3) * 3,
-  audioData: audioDataVoice,
-  numberOfSamples: 32,
-  windowInSeconds: 10 / fps,
+	fps,
+	frame: Math.round(frame / 3) * 3,
+	audioData: audioDataVoice,
+	numberOfSamples: 32,
+	windowInSeconds: 10 / fps,
 });
 ```
 

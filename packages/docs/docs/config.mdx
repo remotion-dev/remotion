@@ -31,11 +31,11 @@ Allows you to insert your custom Webpack config. [See the page about custom Webp
 import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.overrideWebpackConfig((currentConfiguration) => {
-  // Return a new Webpack configuration
-  return {
-    ...currentConfiguration,
-    // new configuration
-  };
+	// Return a new Webpack configuration
+	return {
+		...currentConfiguration,
+		// new configuration
+	};
 });
 ```
 
@@ -817,12 +817,23 @@ Modifies the FFmpeg command that Remotion uses under the hood. It works reducer-
 import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.overrideFfmpegCommand(({args}) => {
-  // Define the custom FFmpeg options as an array of strings
-  const customFfmpegOptions = ['-profile:v', 'main', '-video_track_timescale', '90000', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-strict', 'experimental'];
-  // The customFfmpegOptions are inserted before the last element to ensure
-  // they appear before the ffmpeg's output path
-  args.splice(args.length - 1, 0, ...customFfmpegOptions);
-  return args;
+	// Define the custom FFmpeg options as an array of strings
+	const customFfmpegOptions = [
+		'-profile:v',
+		'main',
+		'-video_track_timescale',
+		'90000',
+		'-color_primaries',
+		'bt709',
+		'-color_trc',
+		'bt709',
+		'-strict',
+		'experimental',
+	];
+	// The customFfmpegOptions are inserted before the last element to ensure
+	// they appear before the ffmpeg's output path
+	args.splice(args.length - 1, 0, ...customFfmpegOptions);
+	return args;
 });
 ```
 
@@ -953,8 +964,8 @@ export const enableSass: WebpackOverrideFn = (c) => c;
 import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig(async (currentConfiguration) => {
-  const {enableSass} = await import('./src/enable-sass');
-  return enableSass(currentConfiguration);
+	const {enableSass} = await import('./src/enable-sass');
+	return enableSass(currentConfiguration);
 });
 ```
 

@@ -184,33 +184,38 @@ More values may be added in the future, this would not be considered a breaking 
 ## `MediaParserVideoTrack`
 
 ```tsx twoslash
-import {MediaParserVideoCodec, MediaParserCodecData, MediaParserSampleAspectRatio, MediaParserAdvancedColor} from '@remotion/media-parser';
+import {
+	MediaParserVideoCodec,
+	MediaParserCodecData,
+	MediaParserSampleAspectRatio,
+	MediaParserAdvancedColor,
+} from '@remotion/media-parser';
 
 export type MediaParserVideoTrack = {
-  // WebCodecs
-  codec: string;
-  description: Uint8Array | undefined;
-  colorSpace: VideoColorSpaceInit;
-  codedWidth: number;
-  codedHeight: number;
-  displayAspectWidth: number;
-  displayAspectHeight: number;
-  // Non-WebCodecs
-  type: 'video';
-  trackId: number;
-  codecEnum: MediaParserVideoCodec;
-  codecData: MediaParserCodecData | null;
-  sampleAspectRatio: MediaParserSampleAspectRatio;
-  width: number;
-  height: number;
-  rotation: number;
-  fps: number | null;
-  timescale: number;
-  advancedColor: MediaParserAdvancedColor;
-  m3uStreamFormat: 'ts' | 'mp4' | null;
-  // When the track starts in seconds - can be non-zero for MP4 containers.
-  // You don't need to account for it, as the samples will already be offset by this amount.
-  startInSeconds: number;
+	// WebCodecs
+	codec: string;
+	description: Uint8Array | undefined;
+	colorSpace: VideoColorSpaceInit;
+	codedWidth: number;
+	codedHeight: number;
+	displayAspectWidth: number;
+	displayAspectHeight: number;
+	// Non-WebCodecs
+	type: 'video';
+	trackId: number;
+	codecEnum: MediaParserVideoCodec;
+	codecData: MediaParserCodecData | null;
+	sampleAspectRatio: MediaParserSampleAspectRatio;
+	width: number;
+	height: number;
+	rotation: number;
+	fps: number | null;
+	timescale: number;
+	advancedColor: MediaParserAdvancedColor;
+	m3uStreamFormat: 'ts' | 'mp4' | null;
+	// When the track starts in seconds - can be non-zero for MP4 containers.
+	// You don't need to account for it, as the samples will already be offset by this amount.
+	startInSeconds: number;
 };
 ```
 
@@ -315,4 +320,3 @@ import type {M3uAssociatedPlaylist} from '@remotion/media-parser';
 import type {SeekResolution} from '@remotion/media-parser';
 //                ^?
 ```
-

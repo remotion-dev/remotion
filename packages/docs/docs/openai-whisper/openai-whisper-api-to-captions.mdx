@@ -20,11 +20,11 @@ import {openAiWhisperApiToCaptions} from '@remotion/openai-whisper';
 const openai = new OpenAI();
 
 const transcription = await openai.audio.transcriptions.create({
-  file: fs.createReadStream('audio.mp3'),
-  model: 'whisper-1',
-  response_format: 'verbose_json',
-  prompt: 'Hello, welcome to my lecture.',
-  timestamp_granularities: ['word'],
+	file: fs.createReadStream('audio.mp3'),
+	model: 'whisper-1',
+	response_format: 'verbose_json',
+	prompt: 'Hello, welcome to my lecture.',
+	timestamp_granularities: ['word'],
 });
 
 const {captions} = openAiWhisperApiToCaptions({transcription});

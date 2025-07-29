@@ -32,29 +32,34 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import {renderMediaOnLambda} from 'npm:@remotion/lambda-client@4.0.265';
 
 Deno.serve(async (req) => {
-  const {props} = await req.json();
+	const {props} = await req.json();
 
-  try {
-    const response = await renderMediaOnLambda({
-      serveUrl: 'https://remotion-helloworld.vercel.app',
-      composition: 'HelloWorld',
-      codec: 'h264',
-      // FIXME: Replace with your AWS region
-      region: 'eu-central-1',
-      // FIXME: Add your function specs here
-      functionName: speculateFunctionName({
-        memorySizeInMb: 2048,
-        diskSizeInMb: 2048,
-        timeoutInSeconds: 120,
-      }),
-      inputProps: props,
-    });
+	try {
+		const response = await renderMediaOnLambda({
+			serveUrl: 'https://remotion-helloworld.vercel.app',
+			composition: 'HelloWorld',
+			codec: 'h264',
+			// FIXME: Replace with your AWS region
+			region: 'eu-central-1',
+			// FIXME: Add your function specs here
+			functionName: speculateFunctionName({
+				memorySizeInMb: 2048,
+				diskSizeInMb: 2048,
+				timeoutInSeconds: 120,
+			}),
+			inputProps: props,
+		});
 
-    return new Response(JSON.stringify(response), {headers: {'Content-Type': 'application/json'}});
-  } catch (error) {
-    console.error(error);
-    return new Response(JSON.stringify({error: (error as Error).message}), {headers: {'Content-Type': 'application/json'}, status: 500});
-  }
+		return new Response(JSON.stringify(response), {
+			headers: {'Content-Type': 'application/json'},
+		});
+	} catch (error) {
+		console.error(error);
+		return new Response(JSON.stringify({error: (error as Error).message}), {
+			headers: {'Content-Type': 'application/json'},
+			status: 500,
+		});
+	}
 });
 ```
 
@@ -67,37 +72,40 @@ Create a Supabase Storage bucket and set the environment variables `SUPABASE_ACC
 Use an [`s3OutputProvider`](/docs/lambda/custom-destination#saving-to-another-cloud) to store the rendered video in Supabase Storage:
 
 ```tsx twoslash
-import {renderMediaOnLambda, speculateFunctionName} from '@remotion/lambda-client';
+import {
+	renderMediaOnLambda,
+	speculateFunctionName,
+} from '@remotion/lambda-client';
 
 // ---cut---
 const {bucketName, renderId, cloudWatchMainLogs} = await renderMediaOnLambda({
-  serveUrl: 'https://remotion-helloworld.vercel.app',
-  // FIXME: Add your function specs here
-  functionName: speculateFunctionName({
-    diskSizeInMb: 2048,
-    memorySizeInMb: 2048,
-    timeoutInSeconds: 120,
-  }),
-  composition: 'HelloWorld',
-  // FIXME: Replace with your AWS region
-  region: 'eu-central-1',
-  codec: 'h264',
-  outName: {
-    // FIXME: Use the bucket name from your Supabase Storage settings
-    bucketName: 'remotion-test-bucket',
-    key: 'out.mp4',
-    s3OutputProvider: {
-      // FIXME: Use the endpoint from your Supabase Storage settings
-      endpoint: 'https://kudbuxgvpedqabsivqjz.supabase.co/storage/v1/s3',
-      // FIXME: Use the Access Key from your Supabase Storage settings
-      accessKeyId: process.env.SUPABASE_ACCESS_KEY_ID ?? '',
-      // FIXME: Use the Secret Access Key from your Supabase Storage settings
-      secretAccessKey: process.env.SUPABASE_SECRET_ACCESS_KEY ?? '',
-      // FIXME: Use the region from your Supabase Storage settings
-      region: 'eu-central-1',
-      forcePathStyle: true,
-    },
-  },
+	serveUrl: 'https://remotion-helloworld.vercel.app',
+	// FIXME: Add your function specs here
+	functionName: speculateFunctionName({
+		diskSizeInMb: 2048,
+		memorySizeInMb: 2048,
+		timeoutInSeconds: 120,
+	}),
+	composition: 'HelloWorld',
+	// FIXME: Replace with your AWS region
+	region: 'eu-central-1',
+	codec: 'h264',
+	outName: {
+		// FIXME: Use the bucket name from your Supabase Storage settings
+		bucketName: 'remotion-test-bucket',
+		key: 'out.mp4',
+		s3OutputProvider: {
+			// FIXME: Use the endpoint from your Supabase Storage settings
+			endpoint: 'https://kudbuxgvpedqabsivqjz.supabase.co/storage/v1/s3',
+			// FIXME: Use the Access Key from your Supabase Storage settings
+			accessKeyId: process.env.SUPABASE_ACCESS_KEY_ID ?? '',
+			// FIXME: Use the Secret Access Key from your Supabase Storage settings
+			secretAccessKey: process.env.SUPABASE_SECRET_ACCESS_KEY ?? '',
+			// FIXME: Use the region from your Supabase Storage settings
+			region: 'eu-central-1',
+			forcePathStyle: true,
+		},
+	},
 });
 ```
 

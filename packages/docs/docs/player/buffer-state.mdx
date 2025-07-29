@@ -30,21 +30,21 @@ import React from 'react';
 import {useBufferState} from 'remotion';
 
 const MyComp: React.FC = () => {
-  const buffer = useBufferState();
+	const buffer = useBufferState();
 
-  React.useEffect(() => {
-    const delayHandle = buffer.delayPlayback();
+	React.useEffect(() => {
+		const delayHandle = buffer.delayPlayback();
 
-    setTimeout(() => {
-      delayHandle.unblock();
-    }, 5000);
+		setTimeout(() => {
+			delayHandle.unblock();
+		}, 5000);
 
-    return () => {
-      delayHandle.unblock();
-    };
-  }, []);
+		return () => {
+			delayHandle.unblock();
+		};
+	}, []);
 
-  return null;
+	return null;
 };
 ```
 
@@ -63,16 +63,16 @@ import React, {useState} from 'react';
 import {useBufferState} from 'remotion';
 
 const MyComp: React.FC = () => {
-  const buffer = useBufferState();
-  const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
+	const buffer = useBufferState();
+	const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
 
-  React.useEffect(() => {
-    setTimeout(() => {
-      delayHandle.unblock();
-    }, 5000);
-  }, []);
+	React.useEffect(() => {
+		setTimeout(() => {
+			delayHandle.unblock();
+		}, 5000);
+	}, []);
 
-  return <></>;
+	return <></>;
 };
 ```
 
@@ -87,20 +87,20 @@ import React, {useState} from 'react';
 import {useBufferState} from 'remotion';
 
 const MyComp: React.FC = () => {
-  const buffer = useBufferState();
-  const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
+	const buffer = useBufferState();
+	const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
 
-  React.useEffect(() => {
-    setTimeout(() => {
-      delayHandle.unblock();
-    }, 5000);
+	React.useEffect(() => {
+		setTimeout(() => {
+			delayHandle.unblock();
+		}, 5000);
 
-    return () => {
-      delayHandle.unblock();
-    };
-  }, []);
+		return () => {
+			delayHandle.unblock();
+		};
+	}, []);
 
-  return <></>;
+	return <></>;
 };
 ```
 
@@ -116,23 +116,23 @@ import React from 'react';
 import {useBufferState, delayRender, continueRender} from 'remotion';
 
 const MyComp: React.FC = () => {
-  const buffer = useBufferState();
-  const [handle] = React.useState(() => delayRender());
+	const buffer = useBufferState();
+	const [handle] = React.useState(() => delayRender());
 
-  React.useEffect(() => {
-    const delayHandle = buffer.delayPlayback();
+	React.useEffect(() => {
+		const delayHandle = buffer.delayPlayback();
 
-    setTimeout(() => {
-      delayHandle.unblock();
-      continueRender(handle);
-    }, 5000);
+		setTimeout(() => {
+			delayHandle.unblock();
+			continueRender(handle);
+		}, 5000);
 
-    return () => {
-      delayHandle.unblock();
-    };
-  }, []);
+		return () => {
+			delayHandle.unblock();
+		};
+	}, []);
 
-  return <></>;
+	return <></>;
 };
 ```
 
@@ -156,13 +156,15 @@ Only in state <InlineStep>1</InlineStep> the time moves forward.
 By default, Remotion will display the following UI based on the state of the player:
 
 <p>
-  When in State <InlineStep>1</InlineStep> a Pause button is shown. <br />
+	When in State <InlineStep>1</InlineStep> a Pause button is shown. <br />
 </p>
 <p>
-  When in State <InlineStep>2</InlineStep> at first a Pause button, then after{' '}
-  <a href="#indicating-buffering-in-the-ui">a delay</a>, a{' '}
-  <a href="/docs/player/buffer-state#indicating-buffering-in-the-ui">customizable spinner</a>{' '}
-  is shown.
+	When in State <InlineStep>2</InlineStep> at first a Pause button, then after{' '}
+	<a href="#indicating-buffering-in-the-ui">a delay</a>, a{' '}
+	<a href="/docs/player/buffer-state#indicating-buffering-in-the-ui">
+		customizable spinner
+	</a>{' '}
+	is shown.
 </p>
 
 <p>Otherwise, the Play button is shown.</p>
@@ -186,40 +188,40 @@ import {useEffect, useRef, useState} from 'react';
 import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
-  const playerRef = useRef<PlayerRef>(null);
-  const [buffering, setBuffering] = useState(false);
+	const playerRef = useRef<PlayerRef>(null);
+	const [buffering, setBuffering] = useState(false);
 
-  useEffect(() => {
-    const {current} = playerRef;
-    if (!current) {
-      return;
-    }
+	useEffect(() => {
+		const {current} = playerRef;
+		if (!current) {
+			return;
+		}
 
-    const onBuffering = () => {
-      setBuffering(true);
-    };
-    const onResume = () => {
-      setBuffering(false);
-    };
+		const onBuffering = () => {
+			setBuffering(true);
+		};
+		const onResume = () => {
+			setBuffering(false);
+		};
 
-    current.addEventListener('waiting', onBuffering);
-    current.addEventListener('resume', onResume);
-    return () => {
-      current.removeEventListener('waiting', onBuffering);
-      current.removeEventListener('resume', onResume);
-    };
-  }, [setBuffering]);
+		current.addEventListener('waiting', onBuffering);
+		current.addEventListener('resume', onResume);
+		return () => {
+			current.removeEventListener('waiting', onBuffering);
+			current.removeEventListener('resume', onResume);
+		};
+	}, [setBuffering]);
 
-  return (
-    <Player
-      ref={playerRef}
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-    />
-  );
+	return (
+		<Player
+			ref={playerRef}
+			component={MyVideo}
+			durationInFrames={120}
+			compositionWidth={1920}
+			compositionHeight={1080}
+			fps={30}
+		/>
+	);
 };
 ```
 
@@ -251,16 +253,16 @@ import {useEffect, useRef, useState} from 'react';
 import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
-  return (
-    <Player
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      bufferStateDelayInMilliseconds={1000} // Or set to `0` to immediately show the spinner
-    />
-  );
+	return (
+		<Player
+			component={MyVideo}
+			durationInFrames={120}
+			compositionWidth={1920}
+			compositionHeight={1080}
+			fps={30}
+			bufferStateDelayInMilliseconds={1000} // Or set to `0` to immediately show the spinner
+		/>
+	);
 };
 ```
 
@@ -284,27 +286,27 @@ import {Player, RenderPlayPauseButton} from '@remotion/player';
 import {useCallback} from 'react';
 
 export const App: React.FC = () => {
-  const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
-    ({playing, isBuffering}) => {
-      if (playing && isBuffering) {
-        return <MySpinner />;
-      }
+	const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
+		({playing, isBuffering}) => {
+			if (playing && isBuffering) {
+				return <MySpinner />;
+			}
 
-      return null;
-    },
-    [],
-  );
+			return null;
+		},
+		[],
+	);
 
-  return (
-    <Player
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      renderPlayPauseButton={renderPlayPauseButton}
-    />
-  );
+	return (
+		<Player
+			component={MyVideo}
+			durationInFrames={120}
+			compositionWidth={1920}
+			compositionHeight={1080}
+			fps={30}
+			renderPlayPauseButton={renderPlayPauseButton}
+		/>
+	);
 };
 ```
 
@@ -323,29 +325,29 @@ import type {RenderPoster} from '@remotion/player';
 import {Player} from '@remotion/player';
 
 const MyApp: React.FC = () => {
-  const renderPoster: RenderPoster = useCallback(({isBuffering}) => {
-    if (isBuffering) {
-      return (
-        <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-          <Spinner />
-        </AbsoluteFill>
-      );
-    }
+	const renderPoster: RenderPoster = useCallback(({isBuffering}) => {
+		if (isBuffering) {
+			return (
+				<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+					<Spinner />
+				</AbsoluteFill>
+			);
+		}
 
-    return null;
-  }, []);
+		return null;
+	}, []);
 
-  return (
-    <Player
-      fps={30}
-      component={Component}
-      durationInFrames={100}
-      compositionWidth={1080}
-      compositionHeight={1080}
-      renderPoster={renderPoster}
-      showPosterWhenBuffering
-    />
-  );
+	return (
+		<Player
+			fps={30}
+			component={Component}
+			durationInFrames={100}
+			compositionWidth={1080}
+			compositionHeight={1080}
+			renderPoster={renderPoster}
+			showPosterWhenBuffering
+		/>
+	);
 };
 ```
 

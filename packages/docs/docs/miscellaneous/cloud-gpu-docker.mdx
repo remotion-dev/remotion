@@ -25,7 +25,9 @@ We recommend to first follow these instructions and make changes once you have a
 
 ## Setup EC2 for Docker with GPU
 
-<Step>1</Step> Follow the instructions for <a href="/docs/miscellaneous/cloud-gpu">GPUs on EC2</a>. You can skip installing Chrome, Node.js and cloning the repo to render a video.
+<Step>1</Step> Follow the instructions for
+<a href="/docs/miscellaneous/cloud-gpu">GPUs on EC2</a>. You can skip installing
+Chrome, Node.js and cloning the repo to render a video.
 
 <Step>2</Step> Install NVIDIA Container toolkit:
 
@@ -65,7 +67,9 @@ sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 ```
 
-<Step>5</Step> Create two files, <code>Dockerfile</code> and <code>entrypoint.sh</code>. You can for example create them using the <code>nano ./file-to-create</code> command. Use <kbd>Ctrl</kbd>
+<Step>5</Step> Create two files, <code>Dockerfile</code> and
+<code>entrypoint.sh</code>. You can for example create them using the
+<code>nano ./file-to-create</code> command. Use <kbd>Ctrl</kbd>
 <kbd>X</kbd> to save and quit. <br />
 
 ```bash title="Dockerfile"
@@ -108,14 +112,14 @@ Use the [`npx remotion gpu`](/docs/cli/gpu) command to get the output of `chrome
 - [Using the GPU](/docs/gpu)
 
 <Credits
-  contributors={[
-    {
-      username: 'UmungoBungo',
-      contribution: 'Workflow author',
-    },
-    {
-      username: 'kaf-lamed-beyt',
-      contribution: 'Writeup',
-    },
-  ]}
+	contributors={[
+		{
+			username: 'UmungoBungo',
+			contribution: 'Workflow author',
+		},
+		{
+			username: 'kaf-lamed-beyt',
+			contribution: 'Writeup',
+		},
+	]}
 />

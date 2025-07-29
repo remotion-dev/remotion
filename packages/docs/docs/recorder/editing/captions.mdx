@@ -17,26 +17,26 @@ changes you made into the JSON file containing your captions.
 <br />
 <br />
 
-<Step>2</Step>You can directly edit your JSON files located at <code>
-  public/[your-composition-id]
-</code> in your project with an editor of your choice.
+<Step>2</Step>You can directly edit your JSON files located at
+<code>public/[your-composition-id]</code> in your project with an editor of your
+choice.
 <br />
 <br />
-<Step>3</Step>If the AI makes the same mistake multiple times, you can also remap
-words programatically inside the <code>config/autocorrect.ts</code> file by adding
-logic inside the <code>autocorrectWord</code> function. For example:
+<Step>3</Step>If the AI makes the same mistake multiple times, you can also
+remap words programatically inside the <code>config/autocorrect.ts</code> file
+by adding logic inside the <code>autocorrectWord</code> function. For example:
 
 ```tsx
 const autocorrectWord = (word: Word): Word => {
-  // Replace a single word with another one
-  if (word.word === " github") {
-    return {
-      ...word,
-      word: word.word.replace("github", " GitHub"),
-    };
-  }
+	// Replace a single word with another one
+	if (word.word === ' github') {
+		return {
+			...word,
+			word: word.word.replace('github', ' GitHub'),
+		};
+	}
 
-  return word;
+	return word;
 };
 ```
 

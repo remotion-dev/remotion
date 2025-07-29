@@ -19,22 +19,25 @@ We recommend using this function for visualizing audio with a long duraiton.
 Remote audio files need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 
 <details>
-  <summary>More info</summary>
-  <ul>
-    <li>
-      Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
-    </li>
-    <li>
-      You can use{' '}
-      <a href="/docs/get-audio-duration-in-seconds">
-        <code>getAudioDurationInSeconds()</code>
-      </a>{' '}
-      without the audio needing CORS.
-    </li>
-    <li>
-      You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
-    </li>
-  </ul>
+	<summary>More info</summary>
+	<ul>
+		<li>
+			Remotion's origin is usually <code>http://localhost:3000</code>, but it
+			may be different if rendering on Lambda or the port is busy.
+		</li>
+		<li>
+			You can use{' '}
+			<a href="/docs/get-audio-duration-in-seconds">
+				<code>getAudioDurationInSeconds()</code>
+			</a>{' '}
+			without the audio needing CORS.
+		</li>
+		<li>
+			You can{' '}
+			<a href="/docs/chromium-flags#--disable-web-security">disable CORS</a>{' '}
+			during renders.
+		</li>
+	</ul>
 </details>
 :::
 
@@ -46,28 +49,28 @@ import {useWindowedAudioData, visualizeAudio} from '@remotion/media-utils';
 import {staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const MyComponent: React.FC = () => {
-  const {fps} = useVideoConfig();
-  const frame = useCurrentFrame();
-  const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
-    src: staticFile('podcast.wav'),
-    frame,
-    fps,
-    windowInSeconds: 10,
-  });
+	const {fps} = useVideoConfig();
+	const frame = useCurrentFrame();
+	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
+		src: staticFile('podcast.wav'),
+		frame,
+		fps,
+		windowInSeconds: 10,
+	});
 
-  if (!audioData) {
-    return null;
-  }
+	if (!audioData) {
+		return null;
+	}
 
-  const visualization = visualizeAudio({
-    fps,
-    frame,
-    audioData,
-    numberOfSamples: 16,
-    dataOffsetInSeconds,
-  });
+	const visualization = visualizeAudio({
+		fps,
+		frame,
+		audioData,
+		numberOfSamples: 16,
+		dataOffsetInSeconds,
+	});
 
-  return null;
+	return null;
 };
 ```
 

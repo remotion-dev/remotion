@@ -16,12 +16,12 @@ import {parseMedia} from '@remotion/media-parser';
 import {nodeReader} from '@remotion/media-parser/node';
 
 const result = await parseMedia({
-  src: '/Users/jonnyburger/Downloads/my-video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
-  reader: nodeReader,
+	src: '/Users/jonnyburger/Downloads/my-video.mp4',
+	fields: {
+		durationInSeconds: true,
+		dimensions: true,
+	},
+	reader: nodeReader,
 });
 ```
 

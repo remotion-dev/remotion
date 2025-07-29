@@ -11,22 +11,22 @@ The matrix has to be a square matrix, for example a 2x2, 3x3, 4x4, etc.
 
 ```tsx
 const myCompSchema = z.object({
-  matrix: zMatrix(),
+	matrix: zMatrix(),
 });
 
 // Two-dimensional matrix
 myCompSchema.parse({
-  matrix: [0, 1, 1, 0],
+	matrix: [0, 1, 1, 0],
 });
 
 // Three-dimensional matrix
 myCompSchema.parse({
-  matrix: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+	matrix: [1, 0, 0, 0, 1, 0, 0, 0, 1],
 });
 
 // Four-dimensional matrix
 myCompSchema.parse({
-  matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+	matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
 });
 ```
 

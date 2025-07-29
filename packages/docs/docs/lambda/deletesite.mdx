@@ -20,16 +20,16 @@ import {AwsRegion, deleteSite, getSites} from '@remotion/lambda';
 const region: AwsRegion = 'eu-central-1';
 
 const {sites} = await getSites({
-  region,
+	region,
 });
 
 for (const site of sites) {
-  await deleteSite({
-    bucketName: site.bucketName,
-    siteName: site.id,
-    region,
-  });
-  console.log(`Site ${site.id} deleted.`);
+	await deleteSite({
+		bucketName: site.bucketName,
+		siteName: site.id,
+		region,
+	});
+	console.log(`Site ${site.id} deleted.`);
 }
 ```
 

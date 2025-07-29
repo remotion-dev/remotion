@@ -10,9 +10,12 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 <ExperimentalBadge>
-  <p>
-    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
-  </p>
+	<p>
+		Cloud Run is in{' '}
+		<a href="/docs/cloudrun/status">
+			Alpha status and not actively being developed.
+		</a>
+	</p>
 </ExperimentalBadge>
 
 ## 1. Install `@remotion/cloudrun`
@@ -105,8 +108,8 @@ import {deployService} from '@remotion/cloudrun';
 
 // ---cut---
 const deployResult = await deployService({
-  projectID: 'my-remotion-project',
-  region: 'us-east1',
+	projectID: 'my-remotion-project',
+	region: 'us-east1',
 });
 ```
 
@@ -150,7 +153,7 @@ import path from 'path';
 import {deploySite, getOrCreateBucket} from '@remotion/cloudrun';
 
 const {bucketName} = await getOrCreateBucket({
-  region: 'us-east1',
+	region: 'us-east1',
 });
 ```
 
@@ -161,13 +164,13 @@ import path from 'path';
 import {deploySite, getOrCreateBucket} from '@remotion/cloudrun';
 
 const {bucketName} = await getOrCreateBucket({
-  region: 'us-east1',
+	region: 'us-east1',
 });
 // ---cut---
 const {serveUrl} = await deploySite({
-  bucketName,
-  entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
-  siteName: 'my-video',
+	bucketName,
+	entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
+	siteName: 'my-video',
 });
 ```
 
@@ -293,8 +296,8 @@ You already have the service name from a previous step. But since you only need 
 import {getServices, renderMediaOnCloudrun} from '@remotion/cloudrun/client';
 
 const services = await getServices({
-  region: 'us-east1',
-  compatibleOnly: true,
+	region: 'us-east1',
+	compatibleOnly: true,
 });
 
 const serviceName = services[0].serviceName;
@@ -310,18 +313,18 @@ const updateRenderProgress = (progress: number) => {};
 // ---cut---
 
 const result = await renderMediaOnCloudrun({
-  serviceName,
-  region: 'us-east1',
-  serveUrl: url,
-  composition: 'HelloWorld',
-  inputProps: {},
-  codec: 'h264',
-  updateRenderProgress,
+	serviceName,
+	region: 'us-east1',
+	serveUrl: url,
+	composition: 'HelloWorld',
+	inputProps: {},
+	codec: 'h264',
+	updateRenderProgress,
 });
 
 if (result.type === 'success') {
-  console.log(result.bucketName);
-  console.log(result.renderId);
+	console.log(result.bucketName);
+	console.log(result.renderId);
 }
 ```
 
@@ -342,8 +345,8 @@ You already have the service name from a previous step. But since you only need 
 import {getServices, renderStillOnCloudrun} from '@remotion/cloudrun';
 
 const services = await getServices({
-  region: 'us-east1',
-  compatibleOnly: true,
+	region: 'us-east1',
+	compatibleOnly: true,
 });
 
 const serviceName = services[0].serviceName;
@@ -359,17 +362,17 @@ const serviceName = 'string';
 // ---cut---
 
 const result = await renderStillOnCloudrun({
-  serviceName,
-  region: 'us-east1',
-  serveUrl: url,
-  composition: 'HelloWorld',
-  inputProps: {},
-  imageFormat: 'jpeg',
+	serviceName,
+	region: 'us-east1',
+	serveUrl: url,
+	composition: 'HelloWorld',
+	inputProps: {},
+	imageFormat: 'jpeg',
 });
 
 if (result.type === 'success') {
-  console.log(result.bucketName);
-  console.log(result.renderId);
+	console.log(result.bucketName);
+	console.log(result.renderId);
 }
 ```
 

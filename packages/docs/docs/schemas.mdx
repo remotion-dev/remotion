@@ -22,8 +22,8 @@ To define a schema for your props, use [`z.object()`](https://zod.dev/?id=object
 import {z} from 'zod';
 
 export const myCompSchema = z.object({
-  propOne: z.string(),
-  propTwo: z.string(),
+	propOne: z.string(),
+	propTwo: z.string(),
 });
 ```
 
@@ -33,16 +33,19 @@ Using `z.infer()`, you can turn the schema into a type:
 import {z} from 'zod';
 
 export const myCompSchema = z.object({
-  propOne: z.string(),
-  propTwo: z.string(),
+	propOne: z.string(),
+	propTwo: z.string(),
 });
 // ---cut---
-export const MyComp: React.FC<z.infer<typeof myCompSchema>> = ({propOne, propTwo}) => {
-  return (
-    <div>
-      props: {propOne}, {propTwo}
-    </div>
-  );
+export const MyComp: React.FC<z.infer<typeof myCompSchema>> = ({
+	propOne,
+	propTwo,
+}) => {
+	return (
+		<div>
+			props: {propOne}, {propTwo}
+		</div>
+	);
 };
 ```
 
@@ -56,17 +59,20 @@ import React from 'react';
 import {z} from 'zod';
 
 export const myCompSchema = z.object({
-  propOne: z.string(),
-  propTwo: z.string(),
+	propOne: z.string(),
+	propTwo: z.string(),
 });
 
-export const MyComponent: React.FC<z.infer<typeof myCompSchema>> = ({propOne, propTwo}) => {
-  return (
-    <div>
-      <h1>{propOne}</h1>
-      <h2>{propTwo}</h2>
-    </div>
-  );
+export const MyComponent: React.FC<z.infer<typeof myCompSchema>> = ({
+	propOne,
+	propTwo,
+}) => {
+	return (
+		<div>
+			<h1>{propOne}</h1>
+			<h2>{propTwo}</h2>
+		</div>
+	);
 };
 
 // @filename: Root.tsx
@@ -77,21 +83,21 @@ import {Composition} from 'remotion';
 import {MyComponent, myCompSchema} from './MyComponent';
 
 export const RemotionRoot: React.FC = () => {
-  return (
-    <Composition
-      id="my-video"
-      component={MyComponent}
-      durationInFrames={100}
-      fps={30}
-      width={1920}
-      height={1080}
-      schema={myCompSchema}
-      defaultProps={{
-        propOne: 'Hello World',
-        propTwo: 'Welcome to Remotion',
-      }}
-    />
-  );
+	return (
+		<Composition
+			id="my-video"
+			component={MyComponent}
+			durationInFrames={100}
+			fps={30}
+			width={1920}
+			height={1080}
+			schema={myCompSchema}
+			defaultProps={{
+				propOne: 'Hello World',
+				propTwo: 'Welcome to Remotion',
+			}}
+		/>
+	);
 };
 ```
 

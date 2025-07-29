@@ -21,11 +21,11 @@ All the props that the native `<video>` element accepts (except `autoplay` and `
 import {AbsoluteFill, staticFile, Video} from 'remotion';
 
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Video src={staticFile('video.webm')} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Video src={staticFile('video.webm')} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -35,11 +35,11 @@ You can load a video from an URL as well:
 import {AbsoluteFill, Video} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -67,11 +67,11 @@ import {AbsoluteFill, staticFile, Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Video src={staticFile('video.webm')} trimBefore={60} trimAfter={120} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Video src={staticFile('video.webm')} trimBefore={60} trimAfter={120} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -100,11 +100,14 @@ import {AbsoluteFill, staticFile, Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Video src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Video
+				src={staticFile('video.webm')}
+				style={{height: 720, width: 1280}}
+			/>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -117,11 +120,11 @@ import {AbsoluteFill, staticFile, Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Video volume={0.5} src={staticFile('video.webm')} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Video volume={0.5} src={staticFile('video.webm')} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -130,11 +133,16 @@ import {AbsoluteFill, interpolate, staticFile, Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Video volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('video.webm')} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Video
+				volume={(f) =>
+					interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp'})
+				}
+				src={staticFile('video.webm')}
+			/>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -162,11 +170,11 @@ import {AbsoluteFill, staticFile, Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Video playbackRate={2} src={staticFile('video.webm')} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Video playbackRate={2} src={staticFile('video.webm')} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -178,11 +186,14 @@ You can drop the audio of the video by adding a `muted` prop:
 import {AbsoluteFill, Video} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Video muted src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Video
+				muted
+				src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+			/>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -196,11 +207,14 @@ Makes the video loop indefinitely.
 import {AbsoluteFill, Video} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Video loop src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Video
+				loop
+				src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+			/>
+		</AbsoluteFill>
+	);
 };
 ```
 

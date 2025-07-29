@@ -7,9 +7,12 @@ crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-  <p>
-    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
-  </p>
+	<p>
+		Cloud Run is in{' '}
+		<a href="/docs/cloudrun/status">
+			Alpha status and not actively being developed.
+		</a>
+	</p>
 </ExperimentalBadge>
 
 Speculate the name of the Cloud Run service that will be created by [deployService()](/docs/cloudrun/deployservice) or its CLI equivalent, [`npx remotion cloudrun services deploy`](/docs/cloudrun/cli/services). This could be useful in cases when the configuration of the Cloud Run service is known in advance, and the name of the service is needed.
@@ -44,9 +47,9 @@ remotion--3-3-96--mem2gi--cpu1-0--t-1900
 import {speculateServiceName} from '@remotion/cloudrun';
 
 const speculatedServiceName = speculateServiceName({
-  memoryLimit: '2Gi',
-  cpuLimit: '2',
-  timeoutSeconds: 300,
+	memoryLimit: '2Gi',
+	cpuLimit: '2',
+	timeoutSeconds: 300,
 });
 
 console.log(speculatedServiceName); // remotion--3-3-96--mem2gi--cpu2-0--t-300

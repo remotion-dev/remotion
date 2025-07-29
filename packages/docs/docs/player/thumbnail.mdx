@@ -20,19 +20,19 @@ import {Thumbnail} from '@remotion/player';
 import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
-  return (
-    <Thumbnail
-      component={MyVideo}
-      compositionWidth={600}
-      compositionHeight={600}
-      frameToDisplay={30}
-      durationInFrames={120}
-      fps={30}
-      inputProps={{
-        title: 'Foo',
-      }}
-    />
-  );
+	return (
+		<Thumbnail
+			component={MyVideo}
+			compositionWidth={600}
+			compositionHeight={600}
+			frameToDisplay={30}
+			durationInFrames={120}
+			fps={30}
+			inputProps={{
+				title: 'Foo',
+			}}
+		/>
+	);
 };
 ```
 
@@ -107,16 +107,26 @@ const Component: React.FC = () => null;
 // ---cut---
 
 const MyApp: React.FC = () => {
-  // `RenderLoading` type can be imported from "@remotion/player"
-  const renderLoading: RenderLoading = useCallback(({height, width}) => {
-    return (
-      <AbsoluteFill style={{backgroundColor: 'gray'}}>
-        Loading thumbnail ({height}x{width})
-      </AbsoluteFill>
-    );
-  }, []);
+	// `RenderLoading` type can be imported from "@remotion/player"
+	const renderLoading: RenderLoading = useCallback(({height, width}) => {
+		return (
+			<AbsoluteFill style={{backgroundColor: 'gray'}}>
+				Loading thumbnail ({height}x{width})
+			</AbsoluteFill>
+		);
+	}, []);
 
-  return <Thumbnail fps={30} component={Component} durationInFrames={100} compositionWidth={1080} compositionHeight={1080} frameToDisplay={30} renderLoading={renderLoading} />;
+	return (
+		<Thumbnail
+			fps={30}
+			component={Component}
+			durationInFrames={100}
+			compositionWidth={1080}
+			compositionHeight={1080}
+			frameToDisplay={30}
+			renderLoading={renderLoading}
+		/>
+	);
 };
 ```
 
@@ -171,26 +181,26 @@ import {useEffect, useRef} from 'react';
 import {MyComposition} from './MyComposition';
 
 const MyComp: React.FC = () => {
-  const thumbnailRef = useRef<ThumbnailRef>(null);
+	const thumbnailRef = useRef<ThumbnailRef>(null);
 
-  useEffect(() => {
-    if (thumbnailRef.current) {
-      console.log(thumbnailRef.current.getScale());
-    }
-  }, []);
+	useEffect(() => {
+		if (thumbnailRef.current) {
+			console.log(thumbnailRef.current.getScale());
+		}
+	}, []);
 
-  return (
-    <Thumbnail
-      ref={thumbnailRef}
-      durationInFrames={30}
-      compositionWidth={1080}
-      compositionHeight={1080}
-      fps={30}
-      frameToDisplay={30}
-      component={MyComposition}
-      // Many other optional props are available.
-    />
-  );
+	return (
+		<Thumbnail
+			ref={thumbnailRef}
+			durationInFrames={30}
+			compositionWidth={1080}
+			compositionHeight={1080}
+			fps={30}
+			frameToDisplay={30}
+			component={MyComposition}
+			// Many other optional props are available.
+		/>
+	);
 };
 ```
 
@@ -207,22 +217,22 @@ import {useEffect, useRef} from 'react';
 const thumbnailRef = useRef<ThumbnailRef>(null);
 
 useEffect(() => {
-  if (!thumbnailRef.current) {
-    return;
-  }
-  const container = thumbnailRef.current.getContainerNode();
-  if (!container) {
-    return;
-  }
+	if (!thumbnailRef.current) {
+		return;
+	}
+	const container = thumbnailRef.current.getContainerNode();
+	if (!container) {
+		return;
+	}
 
-  const onClick = () => {
-    console.log('thumbnail got clicked');
-  };
+	const onClick = () => {
+		console.log('thumbnail got clicked');
+	};
 
-  container.addEventListener('click', onClick);
-  return () => {
-    container.removeEventListener('click', onClick);
-  };
+	container.addEventListener('click', onClick);
+	return () => {
+		container.removeEventListener('click', onClick);
+	};
 }, []);
 ```
 
@@ -249,13 +259,13 @@ import {useEffect, useRef} from 'react';
 const thumbnailRef = useRef<ThumbnailRef>(null);
 
 useEffect(() => {
-  if (!thumbnailRef.current) {
-    return;
-  }
+	if (!thumbnailRef.current) {
+		return;
+	}
 
-  thumbnailRef.current.addEventListener('error', (e) => {
-    console.log('error', e.detail.error);
-  });
+	thumbnailRef.current.addEventListener('error', (e) => {
+		console.log('error', e.detail.error);
+	});
 }, []);
 ```
 
@@ -271,7 +281,7 @@ import {useRef} from 'react';
 const ref = useRef<ThumbnailRef>(null);
 // ---cut---
 ref.current?.addEventListener('error', (e) => {
-  console.log('error ', e.detail.error); // error [Error: undefined is not a function]
+	console.log('error ', e.detail.error); // error [Error: undefined is not a function]
 });
 ```
 
@@ -298,10 +308,10 @@ See: [`<Player>` -> Handling errors](/docs/player/player#handling-errors)
 - [`<Player>`](/docs/player)
 
 <Credits
-  contributors={[
-    {
-      username: 'Slashgear',
-      contribution: 'Implementation',
-    },
-  ]}
+	contributors={[
+		{
+			username: 'Slashgear',
+			contribution: 'Implementation',
+		},
+	]}
 />

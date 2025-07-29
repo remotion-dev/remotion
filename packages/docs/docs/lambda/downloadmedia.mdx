@@ -14,13 +14,15 @@ If you want to let the user download a result to their machine, use [`renderMedi
 import {downloadMedia} from '@remotion/lambda';
 
 const {outputPath, sizeInBytes} = await downloadMedia({
-  bucketName: 'remotionlambda-r42fs9fk',
-  region: 'us-east-1',
-  renderId: '8hfxlw',
-  outPath: 'out.mp4',
-  onProgress: ({totalSize, downloaded, percent}) => {
-    console.log(`Download progress: ${totalSize}/${downloaded} bytes (${(percent * 100).toFixed(0)}%)`);
-  },
+	bucketName: 'remotionlambda-r42fs9fk',
+	region: 'us-east-1',
+	renderId: '8hfxlw',
+	outPath: 'out.mp4',
+	onProgress: ({totalSize, downloaded, percent}) => {
+		console.log(
+			`Download progress: ${totalSize}/${downloaded} bytes (${(percent * 100).toFixed(0)}%)`,
+		);
+	},
 });
 
 console.log(outputPath); // "/Users/yourname/remotion-project/out.mp4"

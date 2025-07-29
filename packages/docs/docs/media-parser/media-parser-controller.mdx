@@ -16,8 +16,8 @@ import {mediaParserController, parseMedia} from '@remotion/media-parser';
 const controller = mediaParserController();
 
 parseMedia({
-  src: 'https://www.w3schools.com/html/mov_bbb.mp4',
-  controller,
+	src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+	controller,
 });
 
 // Pause
@@ -74,11 +74,11 @@ import {mediaParserController, parseMedia} from '@remotion/media-parser';
 const controller = mediaParserController();
 
 const onPause = () => {
-  console.log('Paused');
+	console.log('Paused');
 };
 
 const onResume = () => {
-  console.log('Resumed');
+	console.log('Resumed');
 };
 
 controller.addEventListener('pause', onPause);

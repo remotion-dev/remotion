@@ -53,10 +53,10 @@ import {convertMedia} from '@remotion/webcodecs';
 const blob = new Blob([], {type: 'video/webm'});
 
 await convertMedia({
-  src: blob,
-  container: 'mp4',
-  videoCodec: 'h264',
-  audioCodec: 'aac',
+	src: blob,
+	container: 'mp4',
+	videoCodec: 'h264',
+	audioCodec: 'aac',
 });
 ```
 
@@ -64,12 +64,12 @@ import {LicenseDisclaimer} from './LicenseDisclaimer';
 import {UnstableDisclaimer} from './UnstableDisclaimer';
 
 <details>
-  <summary>💼 Important License Disclaimer about `@remotion/webcodecs`</summary>
-  <LicenseDisclaimer />
+	<summary>💼 Important License Disclaimer about `@remotion/webcodecs`</summary>
+	<LicenseDisclaimer />
 </details>
 <details>
-  <summary>🚧 Unstable API</summary>
-  <UnstableDisclaimer />
+	<summary>🚧 Unstable API</summary>
+	<UnstableDisclaimer />
 </details>
 
 ## Re-muxing using `@remotion/webcodecs`
@@ -83,20 +83,20 @@ import {convertMedia} from '@remotion/webcodecs';
 const blob = new Blob([], {type: 'video/webm'});
 
 await convertMedia({
-  src: blob,
-  container: 'webm',
+	src: blob,
+	container: 'webm',
 });
 ```
 
 [`convertMedia()`](/docs/webcodecs/convert-media) will move the metadata and seek information to the beginning of the video.
 
 <details>
-  <summary>💼 Important License Disclaimer about `@remotion/webcodecs`</summary>
-  <LicenseDisclaimer />
+	<summary>💼 Important License Disclaimer about `@remotion/webcodecs`</summary>
+	<LicenseDisclaimer />
 </details>
 <details>
-  <summary>🚧 Unstable API</summary>
-  <UnstableDisclaimer />
+	<summary>🚧 Unstable API</summary>
+	<UnstableDisclaimer />
 </details>
 
 ## Sample application

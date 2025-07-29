@@ -22,8 +22,8 @@ The minimum amount of configuration is to only specify a [`src`](/docs/webcodecs
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
 });
 ```
 
@@ -37,10 +37,10 @@ You can use the [`videoCodec`](/docs/webcodecs/convert-media#videocodec) and [`a
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
-  videoCodec: 'vp8',
-  audioCodec: 'opus',
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
+	videoCodec: 'vp8',
+	audioCodec: 'opus',
 });
 ```
 
@@ -52,16 +52,16 @@ With the [`onVideoTrack`](/docs/webcodecs/convert-media#onvideotrack) and [`onAu
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
-  audioCodec: 'opus',
-  onVideoTrack: ({track}) => {
-    if (track.codecEnum === 'vp8') {
-      return {type: 'copy'};
-    }
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
+	audioCodec: 'opus',
+	onVideoTrack: ({track}) => {
+		if (track.codecEnum === 'vp8') {
+			return {type: 'copy'};
+		}
 
-    return {type: 'reencode', videoCodec: 'vp8'};
-  },
+		return {type: 'reencode', videoCodec: 'vp8'};
+	},
 });
 ```
 
@@ -91,16 +91,16 @@ To check if it is possible to return `{"type": "copy"}`, you can use `canCopyTra
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
-  audioCodec: 'opus',
-  onVideoTrack: ({track, inputContainer, outputContainer, canCopyTrack}) => {
-    if (canCopyTrack) {
-      return {type: 'copy'};
-    }
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
+	audioCodec: 'opus',
+	onVideoTrack: ({track, inputContainer, outputContainer, canCopyTrack}) => {
+		if (canCopyTrack) {
+			return {type: 'copy'};
+		}
 
-    return {type: 'reencode', videoCodec: 'vp8'};
-  },
+		return {type: 'reencode', videoCodec: 'vp8'};
+	},
 });
 ```
 
@@ -114,23 +114,23 @@ To check if it is possible to return `{"type": "reencode"}`, you can use the [`c
 import {convertMedia, canReencodeVideoTrack} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
-  audioCodec: 'opus',
-  onVideoTrack: async ({track}) => {
-    const canReencode = await canReencodeVideoTrack({
-      videoCodec: 'vp8',
-      track,
-      resizeOperation: null,
-      rotate: 0,
-    });
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
+	audioCodec: 'opus',
+	onVideoTrack: async ({track}) => {
+		const canReencode = await canReencodeVideoTrack({
+			videoCodec: 'vp8',
+			track,
+			resizeOperation: null,
+			rotate: 0,
+		});
 
-    if (canReencode) {
-      return {type: 'reencode', videoCodec: 'vp8'};
-    }
+		if (canReencode) {
+			return {type: 'reencode', videoCodec: 'vp8'};
+		}
 
-    return {type: 'drop'};
-  },
+		return {type: 'drop'};
+	},
 });
 ```
 
@@ -149,10 +149,10 @@ Use [`parseMedia()`](/docs/media-parser/parse-media) to get video and audio trac
 import {parseMedia} from '@remotion/media-parser';
 
 const {tracks} = await parseMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  fields: {
-    tracks: true,
-  },
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	fields: {
+		tracks: true,
+	},
 });
 ```
 
@@ -173,15 +173,15 @@ If you only want to override part of the logic, you can return the default resol
 import {convertMedia, defaultOnAudioTrackHandler} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
-  onAudioTrack: (params) => {
-    // Custom logic for handling video tracks
-    // ...
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
+	onAudioTrack: (params) => {
+		// Custom logic for handling video tracks
+		// ...
 
-    // Fall back to the default behavior
-    return defaultOnAudioTrackHandler(params);
-  },
+		// Fall back to the default behavior
+		return defaultOnAudioTrackHandler(params);
+	},
 });
 ```
 

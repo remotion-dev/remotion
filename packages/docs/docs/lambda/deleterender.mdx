@@ -12,9 +12,9 @@ Deletes a rendered video, audio or still and its associated metada.
 import {deleteRender} from '@remotion/lambda';
 
 const {freedBytes} = await deleteRender({
-  bucketName: 'remotionlambda-r42fs9fk',
-  region: 'us-east-1',
-  renderId: '8hfxlw',
+	bucketName: 'remotionlambda-r42fs9fk',
+	region: 'us-east-1',
+	renderId: '8hfxlw',
 });
 
 console.log(freedBytes); // 21249541

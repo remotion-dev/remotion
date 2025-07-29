@@ -125,18 +125,21 @@ Before you can update a function via the Node.JS APIs, you need to [add another 
 
 ```json
 [
-  {
-    "Sid": "UpdateFunction",
-    "Effect": "Allow",
-    "Action": ["lambda:GetFunctionConfiguration", "lambda:UpdateFunctionConfiguration"],
-    "Resource": ["arn:aws:lambda:*:*:function:remotion-render-*"]
-  },
-  {
-    "Sid": "GetOwnLayerVersion",
-    "Effect": "Allow",
-    "Action": ["lambda:GetLayerVersion"],
-    "Resource": ["*"]
-  }
+	{
+		"Sid": "UpdateFunction",
+		"Effect": "Allow",
+		"Action": [
+			"lambda:GetFunctionConfiguration",
+			"lambda:UpdateFunctionConfiguration"
+		],
+		"Resource": ["arn:aws:lambda:*:*:function:remotion-render-*"]
+	},
+	{
+		"Sid": "GetOwnLayerVersion",
+		"Effect": "Allow",
+		"Action": ["lambda:GetLayerVersion"],
+		"Resource": ["*"]
+	}
 ]
 ```
 
@@ -152,25 +155,30 @@ const LAYER_TO_REMOVE = /fonts/;
 const LAYER_TO_ADD = 'arn:aws:lambda:us-east-1:1234567891:layer:apple-emoji:1';
 
 const {client, sdk} = getAwsClient({
-  region: REGION,
-  service: 'lambda',
+	region: REGION,
+	service: 'lambda',
 });
 
 const fnConfig = await client.send(
-  new sdk.GetFunctionConfigurationCommand({
-    FunctionName: FUNCTION_NAME,
-  }),
+	new sdk.GetFunctionConfigurationCommand({
+		FunctionName: FUNCTION_NAME,
+	}),
 );
 
 if (!fnConfig) {
-  throw new Error(`Function ${FUNCTION_NAME} not deployed`);
+	throw new Error(`Function ${FUNCTION_NAME} not deployed`);
 }
 
 await client.send(
-  new sdk.UpdateFunctionConfigurationCommand({
-    FunctionName: FUNCTION_NAME,
-    Layers: [...(fnConfig.Layers ?? []).filter((l) => !l.Arn?.match(LAYER_TO_REMOVE)).map((l) => l.Arn as string), LAYER_TO_ADD],
-  }),
+	new sdk.UpdateFunctionConfigurationCommand({
+		FunctionName: FUNCTION_NAME,
+		Layers: [
+			...(fnConfig.Layers ?? [])
+				.filter((l) => !l.Arn?.match(LAYER_TO_REMOVE))
+				.map((l) => l.Arn as string),
+			LAYER_TO_ADD,
+		],
+	}),
 );
 ```
 

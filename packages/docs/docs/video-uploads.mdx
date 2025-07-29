@@ -13,21 +13,21 @@ We have a component which returns a [`<OffthreadVideo>`](/docs/offthreadvideo) t
 
 ```tsx twoslash title="MyComposition.tsx"
 const upload = async (file: File) => {
-  return 'https://example.com';
+	return 'https://example.com';
 };
 // ---cut---
 import {AbsoluteFill, OffthreadVideo} from 'remotion';
 
 type VideoProps = {
-  videoURL: string;
+	videoURL: string;
 };
 
 export const MyComponent: React.FC<VideoProps> = ({videoURL}) => {
-  return (
-    <AbsoluteFill>
-      <OffthreadVideo src={videoURL} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<OffthreadVideo src={videoURL} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -38,10 +38,10 @@ As soon as a file is fully uploaded to the cloud, the URL will be set and can be
 ```tsx twoslash title="App.tsx"
 import {useCallback} from 'react';
 const MyComposition: React.FC<{videoUrl: string | null}> = (URL) => {
-  return null;
+	return null;
 };
 const upload = async (file: File) => {
-  return 'https://exampleName.s3.examplesRegion.amazonaws.com';
+	return 'https://exampleName.s3.examplesRegion.amazonaws.com';
 };
 
 // ---cut---
@@ -49,27 +49,39 @@ import {Player} from '@remotion/player';
 import {useState} from 'react';
 
 export const RemotionPlayer: React.FC = () => {
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+	const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
-  const handleChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files === null) {
-      return;
-    }
+	const handleChange = useCallback(
+		async (event: React.ChangeEvent<HTMLInputElement>) => {
+			if (event.target.files === null) {
+				return;
+			}
 
-    const file = event.target.files[0];
-    //upload is an example function  & returns a URL when a file is uploaded on the cloud.
-    const cloudURL = await upload(file);
-    // E.g., cloudURL = https://exampleBucketName.s3.ExampleAwsRegion.amazonaws.com
-    setVideoUrl(cloudURL);
-  }, []);
+			const file = event.target.files[0];
+			//upload is an example function  & returns a URL when a file is uploaded on the cloud.
+			const cloudURL = await upload(file);
+			// E.g., cloudURL = https://exampleBucketName.s3.ExampleAwsRegion.amazonaws.com
+			setVideoUrl(cloudURL);
+		},
+		[],
+	);
 
-  return (
-    <div>
-      {videoUrl === null ? null : <Player component={MyComposition} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} inputProps={{videoUrl}} />}
+	return (
+		<div>
+			{videoUrl === null ? null : (
+				<Player
+					component={MyComposition}
+					durationInFrames={120}
+					compositionWidth={1920}
+					compositionHeight={1080}
+					fps={30}
+					inputProps={{videoUrl}}
+				/>
+			)}
 
-      <input type="file" onChange={handleChange} />
-    </div>
-  );
+			<input type="file" onChange={handleChange} />
+		</div>
+	);
 };
 ```
 
@@ -81,11 +93,11 @@ When we start the upload of the file, we can create a blob URL using `URL.create
 
 ```tsx twoslash title="App.tsx"
 const MyComposition: React.FC<{videoUrl: string}> = ({videoUrl}) => {
-  return null;
+	return null;
 };
 
 const upload = async (file: File) => {
-  return 'https://example.com';
+	return 'https://example.com';
 };
 
 // ---cut---
@@ -93,38 +105,50 @@ import {Player} from '@remotion/player';
 import {useCallback, useState} from 'react';
 
 type VideoState =
-  | {
-      type: 'empty';
-    }
-  | {
-      type: 'blob' | 'cloud';
-      url: string;
-    };
+	| {
+			type: 'empty';
+	  }
+	| {
+			type: 'blob' | 'cloud';
+			url: string;
+	  };
 
 export const RemotionPlayer: React.FC = () => {
-  const [videoState, setVideoState] = useState<VideoState>({
-    type: 'empty',
-  });
+	const [videoState, setVideoState] = useState<VideoState>({
+		type: 'empty',
+	});
 
-  const handleChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files === null) {
-      return;
-    }
+	const handleChange = useCallback(
+		async (event: React.ChangeEvent<HTMLInputElement>) => {
+			if (event.target.files === null) {
+				return;
+			}
 
-    const file = event.target.files[0];
-    const blobUrl = URL.createObjectURL(file);
-    setVideoState({type: 'blob', url: blobUrl});
-    const cloudUrl = await upload(file);
-    setVideoState({type: 'cloud', url: cloudUrl});
-    URL.revokeObjectURL(blobUrl);
-  }, []);
+			const file = event.target.files[0];
+			const blobUrl = URL.createObjectURL(file);
+			setVideoState({type: 'blob', url: blobUrl});
+			const cloudUrl = await upload(file);
+			setVideoState({type: 'cloud', url: cloudUrl});
+			URL.revokeObjectURL(blobUrl);
+		},
+		[],
+	);
 
-  return (
-    <div>
-      {videoState.type !== 'empty' ? <Player component={MyComposition} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} inputProps={{videoUrl: videoState.url}} /> : null}
-      <input type="file" onChange={handleChange} />
-    </div>
-  );
+	return (
+		<div>
+			{videoState.type !== 'empty' ? (
+				<Player
+					component={MyComposition}
+					durationInFrames={120}
+					compositionWidth={1920}
+					compositionHeight={1080}
+					fps={30}
+					inputProps={{videoUrl: videoState.url}}
+				/>
+			) : null}
+			<input type="file" onChange={handleChange} />
+		</div>
+	);
 };
 ```
 

@@ -19,13 +19,13 @@ import {parseMedia} from '@remotion/media-parser';
 import {universalReader} from '@remotion/media-parser/universal';
 
 const result = await parseMedia({
-  // Or a File, or a URL
-  src: '/Users/jonnyburger/Downloads/my-video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
-  reader: universalReader,
+	// Or a File, or a URL
+	src: '/Users/jonnyburger/Downloads/my-video.mp4',
+	fields: {
+		durationInSeconds: true,
+		dimensions: true,
+	},
+	reader: universalReader,
 });
 ```
 

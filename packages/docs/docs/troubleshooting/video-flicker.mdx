@@ -12,16 +12,16 @@ Consider the following markup:
 import {AbsoluteFill, Sequence, OffthreadVideo} from 'remotion';
 
 const MyComponent: React.FC = () => {
-  return (
-    <AbsoluteFill>
-      <Sequence from={0} durationInFrames={120}>
-        <OffthreadVideo src="https://example.com/video1.mp4" />
-      </Sequence>
-      <Sequence from={120} durationInFrames={120}>
-        <OffthreadVideo src="https://example.com/video2.mp4" />
-      </Sequence>
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Sequence from={0} durationInFrames={120}>
+				<OffthreadVideo src="https://example.com/video1.mp4" />
+			</Sequence>
+			<Sequence from={120} durationInFrames={120}>
+				<OffthreadVideo src="https://example.com/video2.mp4" />
+			</Sequence>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -37,7 +37,8 @@ This effect is only happening in the Remotion Studio and the Remotion Player, an
 
 ### Option 2: Pause the `<Player />` when media is buffering
 
-<strong style={{color: 'var(--ifm-color-primary)'}}>Recommended</strong>: This will become the default behavior in Remotion 5.0
+<strong style={{color: 'var(--ifm-color-primary)'}}>Recommended</strong>: This
+will become the default behavior in Remotion 5.0
 
 You may want to pause the `<Player>` temporarily to allow loading of the assets and resume once the assets are ready for playback.
 
@@ -45,7 +46,8 @@ You can do so by adding a `pauseWhenBuffering` prop to your [`<OffthreadVideo>`]
 
 ### Option 3: Premounting the video<AvailableFrom v="4.0.140"/>
 
-<strong style={{color: 'var(--ifm-color-primary)'}}>Recommended</strong>: This is the most effective solution.
+<strong style={{color: 'var(--ifm-color-primary)'}}>Recommended</strong>: This
+is the most effective solution.
 
 You can mount a sequence a few frames earlier than when it starts to appear.  
 This will give it time to load before it is visible to the user, which can help to avoid flickering.
@@ -66,7 +68,8 @@ The signal that you give to the browser may be ignored, for example if the devic
 
 ### Option 5: Prefetching as blob URL to more aggressively avoid network request
 
-<strong>Not recommended</strong>: Memory intensive, and only useful if prefetched before the Player is mounted, and often misused.
+<strong>Not recommended</strong>: Memory intensive, and only useful if
+prefetched before the Player is mounted, and often misused.
 
 By [prefetching](/docs/prefetch) an asset, it will be downloaded and cached into memory.  
 Unlike preloading, you force the browser to download the asset, however, you can only use the loaded asset once it has fully downloaded.
@@ -82,7 +85,8 @@ Even a preloaded asset or prefetched needs to be mounted in the DOM and be decod
 
 ### Option 6: Prefetching as Base64 to avoid network request and local HTTP server
 
-<strong>Not recommended</strong>: Same drawbacks as prefetching, but with an additional performance hit, especially for large assets.
+<strong>Not recommended</strong>: Same drawbacks as prefetching, but with an
+additional performance hit, especially for large assets.
 
 In Safari prefetching as described in Option <InlineStep>5</InlineStep> is not enough, since the Blob URL will be saved to disk and a slight delay may still occur even if the asset is pre-saved.
 

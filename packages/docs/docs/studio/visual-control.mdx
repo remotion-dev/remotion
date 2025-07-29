@@ -22,9 +22,9 @@ Consider you have a value `rotation` that you want to find the optimal value for
 import {useVideoConfig} from 'remotion';
 
 const MyComp: React.FC = () => {
-  const rotation = 180;
+	const rotation = 180;
 
-  return <div style={{rotate: `${rotation}deg`}}>Hello</div>;
+	return <div style={{rotate: `${rotation}deg`}}>Hello</div>;
 };
 ```
 
@@ -34,9 +34,9 @@ Instead of changing the value of `rotation` in the code, you can create a contro
 import {visualControl} from '@remotion/studio';
 
 const MyComp: React.FC = () => {
-  const rotation = visualControl('rotation', 180);
+	const rotation = visualControl('rotation', 180);
 
-  return <div style={{rotate: `${rotation}deg`}}>Hello</div>;
+	return <div style={{rotate: `${rotation}deg`}}>Hello</div>;
 };
 ```
 
@@ -61,15 +61,15 @@ import {visualControl} from '@remotion/studio';
 import {z} from 'zod';
 
 const data = visualControl(
-  'my-data',
-  {
-    rotation: 180,
-    text: 'Hello',
-  },
-  z.object({
-    rotation: z.number(),
-    text: z.string(),
-  }),
+	'my-data',
+	{
+		rotation: 180,
+		text: 'Hello',
+	},
+	z.object({
+		rotation: z.number(),
+		text: z.string(),
+	}),
 );
 ```
 
@@ -100,7 +100,9 @@ See: [`zMatrix()`](/docs/zod-types/z-matrix)
 
 ## Important to know
 
-<Step>1</Step> The saving feature works only if the first argument of the `visualControl()` function is static, because static analysis is performed on the source file. The following will not work:
+<Step>1</Step> The saving feature works only if the first argument of the
+`visualControl()` function is static, because static analysis is performed on
+the source file. The following will not work:
 
 ```tsx twoslash title="❌ This is not possible"
 import {visualControl} from '@remotion/studio';
@@ -116,9 +118,11 @@ const idOutside = 'rotation-my-data';
 const dataOutside = visualControl(idOutside, 180);
 ```
 
-<Step>2</Step> At the moment, unsaved values are not applied when rendering the video, even if the preview shows them. Save the values before rendering.
+<Step>2</Step> At the moment, unsaved values are not applied when rendering the
+video, even if the preview shows them. Save the values before rendering.
 
-<Step>3</Step> Controls may not be automatically remove themselves when you remove them from your code.{' '}
+<Step>3</Step> Controls may not be automatically remove themselves when you
+remove them from your code.
 
 ## See also
 

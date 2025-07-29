@@ -86,9 +86,11 @@ The above code will deploy the bundled Remotion Studio to a branch `gh-pages`.
 The --public-path flag for `npx remotion bundle` is available only from remotion version `4.0.127`
 :::
 
-<Step>3</Step> Go to the settings of your repository (github.com/[username]/[repo]/settings/pages) <br />
+<Step>3</Step> Go to the settings of your repository
+(github.com/[username]/[repo]/settings/pages) <br />
 
-<Step>4</Step> In the Branch section, select the <code>gh-pages</code> branch and click save.
+<Step>4</Step> In the Branch section, select the <code>gh-pages</code> branch
+and click save.
 
 ## Rendering from a URL
 
@@ -127,22 +129,22 @@ import {renderMedia, selectComposition} from '@remotion/renderer';
 
 // ---cut---
 const inputProps = {
-  titleText: 'Hello World',
+	titleText: 'Hello World',
 };
 
 const serveUrl = 'https://remotion-helloworld.vercel.app';
 
 const composition = await selectComposition({
-  serveUrl,
-  id: 'HelloWorld',
-  inputProps,
+	serveUrl,
+	id: 'HelloWorld',
+	inputProps,
 });
 
 await renderMedia({
-  composition,
-  serveUrl,
-  codec: 'h264',
-  inputProps,
+	composition,
+	serveUrl,
+	codec: 'h264',
+	inputProps,
 });
 ```
 
@@ -161,14 +163,14 @@ npx remotion lambda render https://remotion-helloworld.vercel.app HelloWorld --p
 import {renderMediaOnLambda} from '@remotion/lambda/client';
 
 const {bucketName, renderId} = await renderMediaOnLambda({
-  region: 'us-east-1',
-  functionName: 'remotion-render-bds9aab',
-  composition: 'HelloWorld',
-  serveUrl: 'https://remotion-helloworld.vercel.app',
-  codec: 'h264',
-  inputProps: {
-    titleText: 'Hello World',
-  },
+	region: 'us-east-1',
+	functionName: 'remotion-render-bds9aab',
+	composition: 'HelloWorld',
+	serveUrl: 'https://remotion-helloworld.vercel.app',
+	codec: 'h264',
+	inputProps: {
+		titleText: 'Hello World',
+	},
 });
 ```
 
@@ -187,19 +189,19 @@ npx remotion cloudrun render https://remotion-helloworld.vercel.app HelloWorld -
 import {renderMediaOnCloudrun} from '@remotion/cloudrun/client';
 
 const result = await renderMediaOnCloudrun({
-  region: 'us-east1',
-  serviceName: 'remotion-render-bds9aab',
-  composition: 'HelloWorld',
-  serveUrl: 'https://remotion-helloworld.vercel.app',
-  codec: 'h264',
-  inputProps: {
-    titleText: 'Hello World!',
-  },
+	region: 'us-east1',
+	serviceName: 'remotion-render-bds9aab',
+	composition: 'HelloWorld',
+	serveUrl: 'https://remotion-helloworld.vercel.app',
+	codec: 'h264',
+	inputProps: {
+		titleText: 'Hello World!',
+	},
 });
 
 if (result.type === 'success') {
-  console.log(result.bucketName);
-  console.log(result.renderId);
+	console.log(result.bucketName);
+	console.log(result.renderId);
 }
 ```
 

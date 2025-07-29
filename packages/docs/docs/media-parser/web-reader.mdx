@@ -17,13 +17,13 @@ import {parseMedia} from '@remotion/media-parser';
 import {webReader} from '@remotion/media-parser/web';
 
 const result = await parseMedia({
-  // Or a `File`
-  src: 'https://parser.media/video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
-  reader: webReader,
+	// Or a `File`
+	src: 'https://parser.media/video.mp4',
+	fields: {
+		durationInSeconds: true,
+		dimensions: true,
+	},
+	reader: webReader,
 });
 ```
 

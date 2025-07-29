@@ -38,19 +38,19 @@ import {PlayerRef} from '@remotion/player';
 import {useRef} from 'react';
 
 export const App: React.FC = () => {
-  const ref = useRef<PlayerRef>(null);
+	const ref = useRef<PlayerRef>(null);
 
-  return (
-    <button
-      onClickCapture={(e) => {
-        const {current} = ref;
-        // Pass the event to .play() or .toggle()
-        current?.play(e);
-      }}
-    >
-      Play
-    </button>
-  );
+	return (
+		<button
+			onClickCapture={(e) => {
+				const {current} = ref;
+				// Pass the event to .play() or .toggle()
+				current?.play(e);
+			}}
+		>
+			Play
+		</button>
+	);
 };
 ```
 
@@ -65,26 +65,26 @@ Consider the following scenario:
 
 ```tsx twoslash
 import {
-  AbsoluteFill,
-  Audio,
-  OffthreadVideo,
-  Sequence,
-  staticFile,
+	AbsoluteFill,
+	Audio,
+	OffthreadVideo,
+	Sequence,
+	staticFile,
 } from 'remotion';
 
 // ---cut---
 export const MyComp = () => {
-  return (
-    <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} />
-      <Sequence from={120}>
-        <Audio src={staticFile('audio2.mp3')} />
-      </Sequence>
-      <Sequence from={120}>
-        <OffthreadVideo src={staticFile('video.mp4')} />
-      </Sequence>
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Audio src={staticFile('audio.mp3')} />
+			<Sequence from={120}>
+				<Audio src={staticFile('audio2.mp3')} />
+			</Sequence>
+			<Sequence from={120}>
+				<OffthreadVideo src={staticFile('video.mp4')} />
+			</Sequence>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -117,16 +117,16 @@ import {OffthreadVideo, staticFile} from 'remotion';
 import type {PlayerRef} from '@remotion/player';
 
 export const MyComp: React.FC<{
-  playerRef: React.RefObject<PlayerRef>;
+	playerRef: React.RefObject<PlayerRef>;
 }> = ({playerRef}) => {
-  return (
-    <OffthreadVideo
-      src={staticFile('video.mp4')}
-      onAutoPlayError={() => {
-        playerRef.current?.pause();
-      }}
-    />
-  );
+	return (
+		<OffthreadVideo
+			src={staticFile('video.mp4')}
+			onAutoPlayError={() => {
+				playerRef.current?.pause();
+			}}
+		/>
+	);
 };
 ```
 

@@ -17,11 +17,11 @@ This component was designed to combat limitations of the default `<Video>` eleme
 import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
 
 export const MyVideo = () => {
-  return (
-    <AbsoluteFill>
-      <OffthreadVideo src={staticFile('video.webm')} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<OffthreadVideo src={staticFile('video.webm')} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -31,11 +31,11 @@ You can load a video from an URL as well:
 import {AbsoluteFill, OffthreadVideo} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <OffthreadVideo src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<OffthreadVideo src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -63,11 +63,15 @@ import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <OffthreadVideo src={staticFile('video.webm')} trimBefore={60} trimAfter={120} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<OffthreadVideo
+				src={staticFile('video.webm')}
+				trimBefore={60}
+				trimAfter={120}
+			/>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -102,11 +106,11 @@ import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <OffthreadVideo volume={0.5} src={staticFile('video.webm')} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<OffthreadVideo volume={0.5} src={staticFile('video.webm')} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -115,11 +119,16 @@ import {AbsoluteFill, interpolate, staticFile, OffthreadVideo} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <OffthreadVideo volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('video.webm')} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<OffthreadVideo
+				volume={(f) =>
+					interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp'})
+				}
+				src={staticFile('video.webm')}
+			/>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -141,11 +150,11 @@ import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Img src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Img src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -176,11 +185,11 @@ import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <OffthreadVideo playbackRate={2} src={staticFile('video.webm')} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<OffthreadVideo playbackRate={2} src={staticFile('video.webm')} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -192,11 +201,14 @@ You can drop the audio of the video by adding a `muted` prop:
 import {AbsoluteFill, OffthreadVideo} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <OffthreadVideo muted src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<OffthreadVideo
+				muted
+				src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+			/>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -293,63 +305,73 @@ You can use the following `<LoopableOffthreadVideo>` component that uses [`@remo
 ```tsx twoslash title="src/LoopableOffthreadVideo.tsx"
 import {mediaParserController, parseMedia} from '@remotion/media-parser';
 import React, {useEffect, useState} from 'react';
-import {cancelRender, continueRender, delayRender, getRemotionEnvironment, Loop, OffthreadVideo, RemotionOffthreadVideoProps, useVideoConfig, Video} from 'remotion';
+import {
+	cancelRender,
+	continueRender,
+	delayRender,
+	getRemotionEnvironment,
+	Loop,
+	OffthreadVideo,
+	RemotionOffthreadVideoProps,
+	useVideoConfig,
+	Video,
+} from 'remotion';
 
 const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
-  const [duration, setDuration] = useState<number | null>(null);
-  const [handle] = useState(() => delayRender());
-  const {fps} = useVideoConfig();
+	const [duration, setDuration] = useState<number | null>(null);
+	const [handle] = useState(() => delayRender());
+	const {fps} = useVideoConfig();
 
-  useEffect(() => {
-    const controller = mediaParserController();
+	useEffect(() => {
+		const controller = mediaParserController();
 
-    parseMedia({
-      src: props.src,
-      acknowledgeRemotionLicense: true,
-      controller,
-      fields: {
-        slowDurationInSeconds: true,
-      },
-    })
-      .then(({slowDurationInSeconds}) => {
-        setDuration(slowDurationInSeconds);
-        continueRender(handle);
-      })
-      .catch((err) => {
-        cancelRender(err);
-      });
+		parseMedia({
+			src: props.src,
+			acknowledgeRemotionLicense: true,
+			controller,
+			fields: {
+				slowDurationInSeconds: true,
+			},
+		})
+			.then(({slowDurationInSeconds}) => {
+				setDuration(slowDurationInSeconds);
+				continueRender(handle);
+			})
+			.catch((err) => {
+				cancelRender(err);
+			});
 
-    return () => {
-      continueRender(handle);
-      controller.abort();
-    };
-  }, [handle, props.src]);
+		return () => {
+			continueRender(handle);
+			controller.abort();
+		};
+	}, [handle, props.src]);
 
-  if (duration === null) {
-    return null;
-  }
+	if (duration === null) {
+		return null;
+	}
 
-  return (
-    <Loop durationInFrames={Math.floor(duration * fps)}>
-      <OffthreadVideo {...props} />
-    </Loop>
-  );
+	return (
+		<Loop durationInFrames={Math.floor(duration * fps)}>
+			<OffthreadVideo {...props} />
+		</Loop>
+	);
 };
 
 export const LoopableOffthreadVideo: React.FC<
-  RemotionOffthreadVideoProps & {
-    loop?: boolean;
-  }
+	RemotionOffthreadVideoProps & {
+		loop?: boolean;
+	}
 > = ({loop, ...props}) => {
-  if (getRemotionEnvironment().isRendering) {
-    if (loop) {
-      return <LoopedOffthreadVideo {...props} />;
-    }
+	if (getRemotionEnvironment().isRendering) {
+		if (loop) {
+			return <LoopedOffthreadVideo {...props} />;
+		}
 
-    return <OffthreadVideo {...props} />;
-  }
+		return <OffthreadVideo {...props} />;
+	}
 
-  return <Video loop={loop} {...props}></Video>;
+	return <Video loop={loop} {...props}></Video>;
 };
 ```
 

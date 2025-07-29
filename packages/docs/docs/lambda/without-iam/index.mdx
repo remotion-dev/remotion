@@ -34,8 +34,10 @@ The steps below provide authorization for the Lambda function to execute `render
 - Click on JSON
 - Copy the JSON policy template below:
   <details>
-    <summary>Show full role permissions JSON file for latest Remotion Lambda version</summary>
-    <UserPolicy />
+  	<summary>
+  		Show full role permissions JSON file for latest Remotion Lambda version
+  	</summary>
+  	<UserPolicy />
   </details>
 - Click next. On the tags page, you don't need to fill in anything. Click next again.
 - Give the policy the name `remotion-executionrole-policy`. The other fields can be left as they are.
@@ -76,15 +78,16 @@ Use the `outName` property to select a different bucket. See: [Custom output des
 import {renderMediaOnLambda} from '@remotion/lambda/client';
 
 const {bucketName, renderId} = await renderMediaOnLambda({
-  region: 'us-east-1',
-  functionName: 'remotion-render-bds9aab',
-  composition: 'MyVideo',
-  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
-  codec: 'h264',
-  outName: {
-    key: 'my-output',
-    bucketName: 'output-bucket',
-  },
+	region: 'us-east-1',
+	functionName: 'remotion-render-bds9aab',
+	composition: 'MyVideo',
+	serveUrl:
+		'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+	codec: 'h264',
+	outName: {
+		key: 'my-output',
+		bucketName: 'output-bucket',
+	},
 });
 ```
 
@@ -108,14 +111,14 @@ Add a policy statement similar to the one below, which is defining the bucket La
 
 ```json
 {
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": ["s3:PutObject"],
-      "Resource": ["arn:aws:s3:::{bucketname}", "arn:aws:s3:::{bucketname}/*"],
-      "Effect": "Allow"
-    }
-  ]
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Action": ["s3:PutObject"],
+			"Resource": ["arn:aws:s3:::{bucketname}", "arn:aws:s3:::{bucketname}/*"],
+			"Effect": "Allow"
+		}
+	]
 }
 ```
 

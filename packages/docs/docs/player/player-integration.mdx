@@ -87,7 +87,7 @@ Your composition (`remotion/MyComp.tsx` in the example) could look for example l
 
 ```tsx twoslash
 export const MyComp: React.FC<{text: string}> = ({text}) => {
-  return <div>Hello {text}!</div>;
+	return <div>Hello {text}!</div>;
 };
 ```
 
@@ -104,11 +104,19 @@ import {Composition} from 'remotion';
 import {MyComp} from './MyComp';
 
 export const MyVideo = () => {
-  return (
-    <>
-      <Composition component={MyComp} durationInFrames={120} width={1920} height={1080} fps={30} id="my-comp" defaultProps={{text: 'World'}} />
-    </>
-  );
+	return (
+		<>
+			<Composition
+				component={MyComp}
+				durationInFrames={120}
+				width={1920}
+				height={1080}
+				fps={30}
+				id="my-comp"
+				defaultProps={{text: 'World'}}
+			/>
+		</>
+	);
 };
 ```
 
@@ -164,21 +172,21 @@ import {Player} from '@remotion/player';
 import {MyComp} from './remotion/MyComp';
 
 export const App: React.FC = () => {
-  return (
-    <Player
-      component={MyComp}
-      inputProps={{text: 'World'}}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      style={{
-        width: 1280,
-        height: 720,
-      }}
-      controls
-    />
-  );
+	return (
+		<Player
+			component={MyComp}
+			inputProps={{text: 'World'}}
+			durationInFrames={120}
+			compositionWidth={1920}
+			compositionHeight={1080}
+			fps={30}
+			style={{
+				width: 1280,
+				height: 720,
+			}}
+			controls
+		/>
+	);
 };
 ```
 
@@ -196,7 +204,9 @@ In any Node.JS context, you can call [`bundle()`](/docs/bundle) to bundle your v
 import path from 'path';
 import {bundle} from '@remotion/bundler';
 
-const bundled = await bundle(path.join(process.cwd(), 'src', 'remotion', 'index.ts'));
+const bundled = await bundle(
+	path.join(process.cwd(), 'src', 'remotion', 'index.ts'),
+);
 ```
 
 See [Server-side rendering](/docs/ssr) for a full example.

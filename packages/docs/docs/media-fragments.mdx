@@ -15,13 +15,13 @@ For example, the following Remotion code:
 import {Sequence, OffthreadVideo, useVideoConfig} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  const {fps} = useVideoConfig();
+	const {fps} = useVideoConfig();
 
-  return (
-    <Sequence from={2 * fps} durationInFrames={4 * fps}>
-      <OffthreadVideo src="https://example.com/bbb.mp4" />
-    </Sequence>
-  );
+	return (
+		<Sequence from={2 * fps} durationInFrames={4 * fps}>
+			<OffthreadVideo src="https://example.com/bbb.mp4" />
+		</Sequence>
+	);
 };
 ```
 
@@ -47,13 +47,13 @@ You can disable Remotion appending media fragments by appending your own hash:
 import {Sequence, OffthreadVideo, useVideoConfig} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  const {fps} = useVideoConfig();
+	const {fps} = useVideoConfig();
 
-  return (
-    <Sequence from={2 * fps} durationInFrames={4 * fps}>
-      <OffthreadVideo src="https://example.com/bbb.mp4#disable" />
-    </Sequence>
-  );
+	return (
+		<Sequence from={2 * fps} durationInFrames={4 * fps}>
+			<OffthreadVideo src="https://example.com/bbb.mp4#disable" />
+		</Sequence>
+	);
 };
 ```
 

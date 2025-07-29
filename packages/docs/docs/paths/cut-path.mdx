@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-paths-cut-path.png
 title: cutPath()
-crumb: "@remotion/paths"
+crumb: '@remotion/paths'
 ---
 
 _Part of the [`@remotion/paths`](/docs/paths) package._
@@ -9,9 +9,9 @@ _Part of the [`@remotion/paths`](/docs/paths) package._
 Cuts an SVG path at a specified length, returning the portion from the start to that length.
 
 ```tsx twoslash
-import { cutPath } from "@remotion/paths";
+import {cutPath} from '@remotion/paths';
 
-const path = "M 0 0 L 100 0 L 100 100";
+const path = 'M 0 0 L 100 0 L 100 100';
 const cutAtLength = cutPath(path, 50);
 console.log(cutAtLength); // "M 0 0 L 50 0"
 ```
@@ -43,9 +43,9 @@ A string representing the cut path from the start to the specified length.
 ### Cutting a simple line
 
 ```tsx twoslash
-import { cutPath } from "@remotion/paths";
+import {cutPath} from '@remotion/paths';
 
-const simpleLine = "M 0 0 L 100 0";
+const simpleLine = 'M 0 0 L 100 0';
 const halfLine = cutPath(simpleLine, 50);
 console.log(halfLine); // "M 0 0 L 50 0"
 ```
@@ -53,9 +53,9 @@ console.log(halfLine); // "M 0 0 L 50 0"
 ### Cutting a path with curves
 
 ```tsx twoslash
-import { cutPath } from "@remotion/paths";
+import {cutPath} from '@remotion/paths';
 
-const curvePath = "M 0 0 C 50 0 50 50 100 50";
+const curvePath = 'M 0 0 C 50 0 50 50 100 50';
 const cutCurve = cutPath(curvePath, 30);
 console.log(cutCurve); // "M 0 0 C 30 0 30 15 60 15" (approximate)
 ```
@@ -63,9 +63,9 @@ console.log(cutCurve); // "M 0 0 C 30 0 30 15 60 15" (approximate)
 ### Handling edge cases
 
 ```tsx twoslash
-import { cutPath } from "@remotion/paths";
+import {cutPath} from '@remotion/paths';
 
-const path = "M 0 0 L 100 0";
+const path = 'M 0 0 L 100 0';
 
 // Length greater than path length
 const fullPath = cutPath(path, 200);

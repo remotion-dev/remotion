@@ -53,18 +53,21 @@ Nothing is written to the undo stack when the identity of the `undoableState` ob
 This may require you to add additional checks to your state update functions to return the same object if nothing has changed.
 
 ```ts title="Preventing an identity change"
-export const markAsDragging = (state: EditorState, itemId: string): EditorState => {
-  return changeItem(state, itemId, (item) => {
-    if (item.isDragging) {
-      // The item would not change, so we return the original object
-      return item;
-    }
+export const markAsDragging = (
+	state: EditorState,
+	itemId: string,
+): EditorState => {
+	return changeItem(state, itemId, (item) => {
+		if (item.isDragging) {
+			// The item would not change, so we return the original object
+			return item;
+		}
 
-    return {
-      ...item,
-      isDragging: true,
-    };
-  });
+		return {
+			...item,
+			isDragging: true,
+		};
+	});
 };
 ```
 

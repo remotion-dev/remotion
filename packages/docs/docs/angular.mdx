@@ -88,11 +88,11 @@ To enable JSX support in Angular, update the `tsconfig.json` file by setting `"j
 
 ```json title="tsconfig.json"
 {
-  "compilerOptions": {
-    "jsx": "react",
-    "skipLibCheck": true // Recommended to avoid errors with certain libraries
-    // other options
-  }
+	"compilerOptions": {
+		"jsx": "react",
+		"skipLibCheck": true // Recommended to avoid errors with certain libraries
+		// other options
+	}
 }
 ```
 
@@ -109,18 +109,18 @@ To embed Remotion components in Angular, create a **wrapper component**:
 
 ```tsx title="PlayerViewWrapper.tsx"
 import {
-  AfterViewInit,
-  Component,
-  effect,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  Output,
-  signal,
-  Signal,
-  ViewChild,
-  WritableSignal,
+	AfterViewInit,
+	Component,
+	effect,
+	ElementRef,
+	EventEmitter,
+	Input,
+	OnDestroy,
+	Output,
+	signal,
+	Signal,
+	ViewChild,
+	WritableSignal,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterOutlet} from '@angular/router';
@@ -133,60 +133,60 @@ import {z} from 'zod';
 const rootDomID: string = 'reactCounterWrapperId';
 
 @Component({
-  selector: 'app-player-view',
-  standalone: true,
-  imports: [CommonModule, RouterOutlet],
-  template: ` <div id="${rootDomID}" #${rootDomID}></div>`,
+	selector: 'app-player-view',
+	standalone: true,
+	imports: [CommonModule, RouterOutlet],
+	template: ` <div id="${rootDomID}" #${rootDomID}></div>`,
 })
 export class PlayerViewWrapper implements AfterViewInit, OnDestroy {
-  @ViewChild(rootDomID, {static: false}) containerRef: ElementRef | undefined;
-  @Input({required: true}) data: Signal<z.infer<typeof myCompSchema>> = signal({
-    titleText: 'Welcome to Remotion',
-    titleColor: '#000000',
-    logoColor1: '#91EAE4',
-    logoColor2: '#86A8E7',
-  });
-  @Output() onPaused = new EventEmitter<void>();
-  playerRef: WritableSignal<PlayerRef | undefined> = signal(undefined);
+	@ViewChild(rootDomID, {static: false}) containerRef: ElementRef | undefined;
+	@Input({required: true}) data: Signal<z.infer<typeof myCompSchema>> = signal({
+		titleText: 'Welcome to Remotion',
+		titleColor: '#000000',
+		logoColor1: '#91EAE4',
+		logoColor2: '#86A8E7',
+	});
+	@Output() onPaused = new EventEmitter<void>();
+	playerRef: WritableSignal<PlayerRef | undefined> = signal(undefined);
 
-  private root?: Root;
+	private root?: Root;
 
-  constructor() {
-    effect(() => {
-      this.render();
-    });
-  }
+	constructor() {
+		effect(() => {
+			this.render();
+		});
+	}
 
-  ngAfterViewInit() {
-    this.root = createRoot(this.getRootDomNode());
-    this.render();
-    this.playerRef()?.play();
-  }
+	ngAfterViewInit() {
+		this.root = createRoot(this.getRootDomNode());
+		this.render();
+		this.playerRef()?.play();
+	}
 
-  ngOnDestroy(): void {
-    this.root?.unmount();
-  }
+	ngOnDestroy(): void {
+		this.root?.unmount();
+	}
 
-  private getRootDomNode() {
-    if (!this.containerRef || !this.containerRef.nativeElement) {
-      throw new Error('Cannot get root element. This should not happen.');
-    }
-    return this.containerRef.nativeElement;
-  }
+	private getRootDomNode() {
+		if (!this.containerRef || !this.containerRef.nativeElement) {
+			throw new Error('Cannot get root element. This should not happen.');
+		}
+		return this.containerRef.nativeElement;
+	}
 
-  protected render() {
-    if (!this.containerRef || !this.containerRef.nativeElement) {
-      return;
-    }
+	protected render() {
+		if (!this.containerRef || !this.containerRef.nativeElement) {
+			return;
+		}
 
-    this.root?.render(
-      <PlayerView
-        playerRefInstance={this.playerRef}
-        data={this.data()}
-        onPaused={() => this.onPaused.emit()}
-      />,
-    );
-  }
+		this.root?.render(
+			<PlayerView
+				playerRefInstance={this.playerRef}
+				data={this.data()}
+				onPaused={() => this.onPaused.emit()}
+			/>,
+		);
+	}
 }
 ```
 
@@ -210,35 +210,35 @@ import {zColor} from '@remotion/zod-types';
 import {WritableSignal} from '@angular/core';
 
 export const PlayerView: React.FC<{
-  data: z.infer<typeof myCompSchema>;
-  playerRefInstance: WritableSignal<PlayerRef | undefined>;
-  onPaused?: () => void;
+	data: z.infer<typeof myCompSchema>;
+	playerRefInstance: WritableSignal<PlayerRef | undefined>;
+	onPaused?: () => void;
 }> = ({data, playerRefInstance, onPaused}) => {
-  const playerRef: React.RefObject<PlayerRef> = React.createRef();
+	const playerRef: React.RefObject<PlayerRef> = React.createRef();
 
-  useEffect(() => {
-    if (playerRef.current) {
-      playerRefInstance.set(playerRef.current);
+	useEffect(() => {
+		if (playerRef.current) {
+			playerRefInstance.set(playerRef.current);
 
-      // add callback when player pauses
-      playerRef.current.addEventListener('pause', () => {
-        onPaused?.();
-      });
-    }
-  }, []);
+			// add callback when player pauses
+			playerRef.current.addEventListener('pause', () => {
+				onPaused?.();
+			});
+		}
+	}, []);
 
-  return (
-    <Player
-      ref={playerRef}
-      component={HelloWorld}
-      durationInFrames={150}
-      fps={30}
-      compositionHeight={1080}
-      compositionWidth={1920}
-      inputProps={data}
-      controls
-    />
-  );
+	return (
+		<Player
+			ref={playerRef}
+			component={HelloWorld}
+			durationInFrames={150}
+			fps={30}
+			compositionHeight={1080}
+			compositionWidth={1920}
+			inputProps={data}
+			controls
+		/>
+	);
 };
 ```
 
@@ -261,10 +261,10 @@ You're now able to use the [`API`](/docs/player/player) of the player via `this.
 - [Integration into Vue.js](/docs/vue)
 
 <Credits
-  contributors={[
-    {
-      username: 'dothem1337',
-      contribution: 'Author',
-    },
-  ]}
+	contributors={[
+		{
+			username: 'dothem1337',
+			contribution: 'Author',
+		},
+	]}
 />

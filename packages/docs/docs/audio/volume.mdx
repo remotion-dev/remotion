@@ -17,12 +17,12 @@ The simplest way is to pass a number between `0` and `1`.
 import {Audio, staticFile, AbsoluteFill} from 'remotion';
 
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <div>Hello World!</div>
-      <Audio src={staticFile('audio.mp3')} volume={0.5} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<div>Hello World!</div>
+			<Audio src={staticFile('audio.mp3')} volume={0.5} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -31,16 +31,27 @@ export const MyComposition = () => {
 You can also change volume over time by passing in a function that takes a frame number and returns the volume.
 
 ```tsx twoslash {8}
-import {AbsoluteFill, Audio, interpolate, staticFile, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	Audio,
+	interpolate,
+	staticFile,
+	useVideoConfig,
+} from 'remotion';
 
 export const MyComposition = () => {
-  const {fps} = useVideoConfig();
+	const {fps} = useVideoConfig();
 
-  return (
-    <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} volume={(f) => interpolate(f, [0, 1 * fps], [0, 1], {extrapolateLeft: 'clamp'})} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Audio
+				src={staticFile('audio.mp3')}
+				volume={(f) =>
+					interpolate(f, [0, 1 * fps], [0, 1], {extrapolateLeft: 'clamp'})
+				}
+			/>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -67,12 +78,25 @@ You can work around these limitations by enabling the Web Audio API for your [`<
 import {Audio, staticFile, AbsoluteFill} from 'remotion';
 // ---cut---
 
-<Audio src="https://parser.media/audio.wav" volume={2} useWebAudioApi crossOrigin="anonymous" />;
+<Audio
+	src="https://parser.media/audio.wav"
+	volume={2}
+	useWebAudioApi
+	crossOrigin="anonymous"
+/>;
 ```
 
 However, this comes with two caveats:
 
 <div>
-<div><Step error>1</Step> You must set the `crossOrigin` prop to `anonymous` and the audio must support CORS.</div>
-<div><Step error>2</Step> On Safari, you cannot combine it with [`playbackRate`](/docs/audio#playbackrate). If you do, the volume will be ignored.</div>
-</div><br/>
+	<div>
+		<Step error>1</Step> You must set the `crossOrigin` prop to `anonymous` and
+		the audio must support CORS.
+	</div>
+	<div>
+		<Step error>2</Step> On Safari, you cannot combine it with
+		[`playbackRate`](/docs/audio#playbackrate). If you do, the volume will be
+		ignored.
+	</div>
+</div>
+<br />

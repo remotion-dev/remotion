@@ -7,9 +7,12 @@ crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-  <p>
-    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
-  </p>
+	<p>
+		Cloud Run is in{' '}
+		<a href="/docs/cloudrun/status">
+			Alpha status and not actively being developed.
+		</a>
+	</p>
 </ExperimentalBadge>
 
 Creates a [GCP Cloud Run](https://cloud.google.com/run) service in your GCP project that will be able to render a video in the cloud.
@@ -22,11 +25,11 @@ If a service with the same Remotion version, memory limit, cpu limit and timeout
 import {deployService} from '@remotion/cloudrun';
 
 const {shortName} = await deployService({
-  memoryLimit: '2Gi',
-  cpuLimit: '2.0',
-  timeoutSeconds: 500,
-  projectID: 'my-remotion-project',
-  region: 'us-east1',
+	memoryLimit: '2Gi',
+	cpuLimit: '2.0',
+	timeoutSeconds: 500,
+	projectID: 'my-remotion-project',
+	region: 'us-east1',
 });
 console.log(shortName);
 ```

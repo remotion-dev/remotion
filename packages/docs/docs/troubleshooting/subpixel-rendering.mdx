@@ -19,37 +19,40 @@ To counter this effect, you can render your text with:
 Notice the difference in this 200x100 video:
 
 <video
-  src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/smooth-text.mp4"
-  playsInline
-  muted
-  autoPlay
-  loop
-  style={{
-    width: '100%',
-    border: '2px solid var(--text-color)',
-    borderRadius: 4,
-  }}
+	src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/smooth-text.mp4"
+	playsInline
+	muted
+	autoPlay
+	loop
+	style={{
+		width: '100%',
+		border: '2px solid var(--text-color)',
+		borderRadius: 4,
+	}}
 />
 <br />
 
 ```tsx title="Left side of the video"
 <div
-  style={{
-    transform: 'translateY(' + interpolate(frame, [0, 200], [0, 50]) + 'px)',
-  }}
+	style={{
+		transform: 'translateY(' + interpolate(frame, [0, 200], [0, 50]) + 'px)',
+	}}
 >
-  hi there
+	hi there
 </div>
 ```
 
 ```tsx title="Right side of the video"
 <div
-  style={{
-    transform: 'perspective(100px) translateY(' + interpolate(frame, [0, 200], [0, 50]) + 'px)',
-    willChange: 'transform',
-  }}
+	style={{
+		transform:
+			'perspective(100px) translateY(' +
+			interpolate(frame, [0, 200], [0, 50]) +
+			'px)',
+		willChange: 'transform',
+	}}
 >
-  hi there
+	hi there
 </div>
 ```
 

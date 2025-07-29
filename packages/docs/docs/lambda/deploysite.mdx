@@ -19,18 +19,25 @@ import {deploySite} from '@remotion/lambda';
 import path from 'path';
 
 const {serveUrl} = await deploySite({
-  entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
-  bucketName: 'remotionlambda-c7fsl3d',
-  region: 'us-east-1',
-  options: {
-    onBundleProgress: (progress) => {
-      // Progress is between 0 and 100
-      console.log(`Bundle progress: ${progress}%`);
-    },
-    onUploadProgress: ({totalFiles, filesUploaded, totalSize, sizeUploaded}) => {
-      console.log(`Upload progress: Total files ${totalFiles}, Files uploaded ${filesUploaded}, Total size ${totalSize}, Size uploaded ${sizeUploaded}`);
-    },
-  },
+	entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
+	bucketName: 'remotionlambda-c7fsl3d',
+	region: 'us-east-1',
+	options: {
+		onBundleProgress: (progress) => {
+			// Progress is between 0 and 100
+			console.log(`Bundle progress: ${progress}%`);
+		},
+		onUploadProgress: ({
+			totalFiles,
+			filesUploaded,
+			totalSize,
+			sizeUploaded,
+		}) => {
+			console.log(
+				`Upload progress: Total files ${totalFiles}, Files uploaded ${filesUploaded}, Total size ${totalSize}, Size uploaded ${sizeUploaded}`,
+			);
+		},
+	},
 });
 console.log(serveUrl);
 ```
@@ -133,7 +140,6 @@ An object with the following values:
 - `serveUrl` _(string)_: An URL such as `https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html`.
 
   You can use this "Serve URL" to render a video on Remotion Lambda using:
-
   - The [`npx remotion lambda render`](/docs/lambda/cli/render) and [`npx remotion lambda still`](/docs/lambda/cli/still) commands
   - The [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) functions.
   - Locally using the [`renderMedia()`](/docs/renderer/render-media) and [`renderStill()`](/docs/renderer/render-still) functions.

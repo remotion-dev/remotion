@@ -36,51 +36,60 @@ To use `@remotion/whisper-web` with Vite, you need to make two important changes
 import {defineConfig} from 'vite';
 
 export default defineConfig({
-  optimizeDeps: {
-    // turn off dependency optimization: https://github.com/vitejs/vite/issues/11672#issuecomment-1397855641
-    exclude: ['@remotion/whisper-web'],
-  },
-  // required by SharedArrayBuffer
-  server: {
-    headers: {
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin',
-    },
-  },
-  // ...
+	optimizeDeps: {
+		// turn off dependency optimization: https://github.com/vitejs/vite/issues/11672#issuecomment-1397855641
+		exclude: ['@remotion/whisper-web'],
+	},
+	// required by SharedArrayBuffer
+	server: {
+		headers: {
+			'Cross-Origin-Embedder-Policy': 'require-corp',
+			'Cross-Origin-Opener-Policy': 'same-origin',
+		},
+	},
+	// ...
 });
 ```
 
 ## Example usage
 
 ```tsx twoslash title="Transcribing with @remotion/whisper-web"
-import {transcribe, canUseWhisperWeb, resampleTo16Khz, downloadWhisperModel} from '@remotion/whisper-web';
+import {
+	transcribe,
+	canUseWhisperWeb,
+	resampleTo16Khz,
+	downloadWhisperModel,
+} from '@remotion/whisper-web';
 
 const file = new File([], 'audio.wav');
 const modelToUse = 'tiny.en';
 
 const {supported, detailedReason} = await canUseWhisperWeb(modelToUse);
 if (!supported) {
-  throw new Error(`Whisper Web is not supported in this environment: ${detailedReason}`);
+	throw new Error(
+		`Whisper Web is not supported in this environment: ${detailedReason}`,
+	);
 }
 
 console.log('Downloading model...');
 await downloadWhisperModel({
-  model: modelToUse,
-  onProgress: ({progress}) => console.log(`Downloading model (${Math.round(progress * 100)}%)...`),
+	model: modelToUse,
+	onProgress: ({progress}) =>
+		console.log(`Downloading model (${Math.round(progress * 100)}%)...`),
 });
 
 console.log('Resampling audio...');
 const channelWaveform = await resampleTo16Khz({
-  file,
-  onProgress: (p) => console.log(`Resampling audio (${Math.round(p * 100)}%)...`),
+	file,
+	onProgress: (p) =>
+		console.log(`Resampling audio (${Math.round(p * 100)}%)...`),
 });
 
 console.log('Transcribing...');
 const {transcription} = await transcribe({
-  channelWaveform,
-  model: modelToUse,
-  onProgress: (p) => console.log(`Transcribing (${Math.round(p * 100)}%)...`),
+	channelWaveform,
+	model: modelToUse,
+	onProgress: (p) => console.log(`Transcribing (${Math.round(p * 100)}%)...`),
 });
 
 console.log(transcription.map((t) => t.text).join(' '));

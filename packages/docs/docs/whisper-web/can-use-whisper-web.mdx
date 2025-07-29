@@ -24,31 +24,31 @@ import {canUseWhisperWeb, type WhisperWebModel} from '@remotion/whisper-web';
 import {useState, useEffect} from 'react';
 
 export default function MyComponent() {
-  const [supported, setSupported] = useState<boolean | null>(null);
-  const [reason, setReason] = useState<string | undefined>(undefined);
+	const [supported, setSupported] = useState<boolean | null>(null);
+	const [reason, setReason] = useState<string | undefined>(undefined);
 
-  useEffect(() => {
-    const checkSupport = async () => {
-      const modelToUse: WhisperWebModel = 'tiny.en'; // Or any other model
-      const result = await canUseWhisperWeb(modelToUse);
-      setSupported(result.supported);
-      if (!result.supported) {
-        setReason(result.detailedReason ?? result.reason);
-      }
-    };
+	useEffect(() => {
+		const checkSupport = async () => {
+			const modelToUse: WhisperWebModel = 'tiny.en'; // Or any other model
+			const result = await canUseWhisperWeb(modelToUse);
+			setSupported(result.supported);
+			if (!result.supported) {
+				setReason(result.detailedReason ?? result.reason);
+			}
+		};
 
-    checkSupport();
-  }, []);
+		checkSupport();
+	}, []);
 
-  if (supported === null) {
-    return <p>Checking if Whisper Web can be used...</p>;
-  }
+	if (supported === null) {
+		return <p>Checking if Whisper Web can be used...</p>;
+	}
 
-  if (supported) {
-    return <p>Can use Whisper Web!</p>;
-  }
+	if (supported) {
+		return <p>Can use Whisper Web!</p>;
+	}
 
-  return <p>Using Whisper Web is not possible: {reason}</p>;
+	return <p>Using Whisper Web is not possible: {reason}</p>;
 }
 ```
 
@@ -91,7 +91,6 @@ If `supported` is `false`, this field may contain a more detailed, human-readabl
 ## Important considerations
 
 - **Cross-Origin Isolation:** For `SharedArrayBuffer` to work, which is required by `@remotion/whisper-web`, the page must be served with specific HTTP headers:
-
   - `Cross-Origin-Opener-Policy: same-origin`
   - `Cross-Origin-Embedder-Policy: require-corp`
     Ensure your server is configured to send these headers. See [MDN documentation on `crossOriginIsolated`](https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated) for more details.

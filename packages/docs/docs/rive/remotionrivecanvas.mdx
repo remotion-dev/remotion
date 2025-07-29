@@ -15,7 +15,7 @@ This component can render a [Rive](https://rive.app/) animation so it synchroniz
 import {RemotionRiveCanvas} from '@remotion/rive';
 
 function App() {
-  return <RemotionRiveCanvas src="https://example.com/myAnimation.riv" />;
+	return <RemotionRiveCanvas src="https://example.com/myAnimation.riv" />;
 }
 ```
 
@@ -64,51 +64,51 @@ import {FileAsset, ImageAsset} from '@rive-app/canvas-advanced';
 import {decodeImage} from '@rive-app/react-canvas';
 
 export const MyComp: React.FC = () => {
-  const assetLoader = useCallback((asset: FileAsset, bytes: Uint8Array) => {
-    console.log('Asset properties to query', {
-      name: asset.name,
-      fileExtension: asset.fileExtension,
-      cdnUuid: asset.cdnUuid,
-      isFont: asset.isFont,
-      isImage: asset.isImage,
-      isAudio: asset.isAudio,
-      bytes,
-    });
+	const assetLoader = useCallback((asset: FileAsset, bytes: Uint8Array) => {
+		console.log('Asset properties to query', {
+			name: asset.name,
+			fileExtension: asset.fileExtension,
+			cdnUuid: asset.cdnUuid,
+			isFont: asset.isFont,
+			isImage: asset.isImage,
+			isAudio: asset.isAudio,
+			bytes,
+		});
 
-    // If the asset has a `cdnUuid`, return false to let the runtime handle
-    // loading it in from a CDN. Or if there are bytes found for the asset
-    // (aka, it was embedded), return false as there's no work needed here
-    if (asset.cdnUuid.length > 0 || bytes.length > 0) {
-      return false;
-    }
+		// If the asset has a `cdnUuid`, return false to let the runtime handle
+		// loading it in from a CDN. Or if there are bytes found for the asset
+		// (aka, it was embedded), return false as there's no work needed here
+		if (asset.cdnUuid.length > 0 || bytes.length > 0) {
+			return false;
+		}
 
-    if (asset.isImage) {
-      fetch('https://picsum.photos/300/500').then(async (res) => {
-        console.log('doing this');
-        const image = await decodeImage(
-          new Uint8Array(await res.arrayBuffer()),
-        );
+		if (asset.isImage) {
+			fetch('https://picsum.photos/300/500').then(async (res) => {
+				console.log('doing this');
+				const image = await decodeImage(
+					new Uint8Array(await res.arrayBuffer()),
+				);
 
-        (asset as ImageAsset).setRenderImage(image);
+				(asset as ImageAsset).setRenderImage(image);
 
-        // You could maintain a reference and update the image dynamically at any time.
-        // But be sure to call unref to release any references when no longer needed.
-        // This allows the engine to clean it up when it is not used by any more animations.
-        image.unref();
-      });
+				// You could maintain a reference and update the image dynamically at any time.
+				// But be sure to call unref to release any references when no longer needed.
+				// This allows the engine to clean it up when it is not used by any more animations.
+				image.unref();
+			});
 
-      return true;
-    }
+			return true;
+		}
 
-    return false;
-  }, []);
+		return false;
+	}, []);
 
-  return (
-    <RemotionRiveCanvas
-      src="https://example.com/myAnimation.riv"
-      assetLoader={assetLoader}
-    />
-  );
+	return (
+		<RemotionRiveCanvas
+			src="https://example.com/myAnimation.riv"
+			assetLoader={assetLoader}
+		/>
+	);
 };
 ```
 
@@ -121,25 +121,25 @@ import {RemotionRiveCanvas, RiveCanvasRef} from '@remotion/rive';
 import {useEffect} from 'react';
 
 const MyComp: React.FC = () => {
-  const canvasRef = React.useRef<RiveCanvasRef>(null);
+	const canvasRef = React.useRef<RiveCanvasRef>(null);
 
-  useEffect(() => {
-    if (!canvasRef.current) {
-      return;
-    }
+	useEffect(() => {
+		if (!canvasRef.current) {
+			return;
+		}
 
-    canvasRef.current.getAnimationInstance(); // import("@rive-app/canvas-advanced").LinearAnimationInstance
-    canvasRef.current.getArtboard(); // import("@rive-app/canvas-advanced").Artboard
-    canvasRef.current.getRenderer(); // import("@rive-app/canvas-advanced").CanvasRenderer
-    canvasRef.current.getCanvas(); // import("@rive-app/canvas-advanced").RiveCanvas
-  }, [canvasRef]);
+		canvasRef.current.getAnimationInstance(); // import("@rive-app/canvas-advanced").LinearAnimationInstance
+		canvasRef.current.getArtboard(); // import("@rive-app/canvas-advanced").Artboard
+		canvasRef.current.getRenderer(); // import("@rive-app/canvas-advanced").CanvasRenderer
+		canvasRef.current.getCanvas(); // import("@rive-app/canvas-advanced").RiveCanvas
+	}, [canvasRef]);
 
-  return (
-    <RemotionRiveCanvas
-      src="https://example.com/myAnimation.riv"
-      ref={canvasRef}
-    />
-  );
+	return (
+		<RemotionRiveCanvas
+			src="https://example.com/myAnimation.riv"
+			ref={canvasRef}
+		/>
+	);
 };
 ```
 
@@ -173,18 +173,18 @@ import {useCallback} from 'react';
 
 // Make sure to wrap your onLoad handler on `useCallback` to avoid re-rendering this component every single time
 const onLoadHandler = useCallback((file: File) => {
-  const artboard = file.defaultArtboard();
-  const textRun = artboard.textRun('city');
-  textRun.text = 'Tokyo';
+	const artboard = file.defaultArtboard();
+	const textRun = artboard.textRun('city');
+	textRun.text = 'Tokyo';
 }, []);
 
 function App() {
-  return (
-    <RemotionRiveCanvas
-      src="https://example.com/myAnimation.riv"
-      onLoad={onLoadHandler}
-    />
-  );
+	return (
+		<RemotionRiveCanvas
+			src="https://example.com/myAnimation.riv"
+			onLoad={onLoadHandler}
+		/>
+	);
 }
 ```
 

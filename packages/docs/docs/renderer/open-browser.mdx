@@ -11,12 +11,12 @@ Opens a Chrome or Chromium browser instance. By reusing an instance across [`ren
 
 ```ts
 const openBrowser: (
-  browser: Browser,
-  options: {
-    shouldDumpIo?: boolean;
-    browserExecutable?: string | null;
-    chromiumOptions?: ChromiumOptions;
-  },
+	browser: Browser,
+	options: {
+		shouldDumpIo?: boolean;
+		browserExecutable?: string | null;
+		chromiumOptions?: ChromiumOptions;
+	},
 ) => Promise<puppeteer.Browser>;
 ```
 

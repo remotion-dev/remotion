@@ -11,25 +11,25 @@ This can be setup in the [`config/endcard.ts`](https://github.com/remotion-dev/r
 
 ```tsx filename="Example configuration.tsx"
 export const channels: {
-  [key in Channel]: ChannelConfig & {
-    isLinkedInBusinessPage: boolean;
-  };
+	[key in Channel]: ChannelConfig & {
+		isLinkedInBusinessPage: boolean;
+	};
 } = {
-  jonny: {
-    instagram: null,
-    linkedin: "Jonny Burger",
-    x: "@JNYBGR",
-    youtube: "/JonnyBurger",
-    discord: null,
-    isLinkedInBusinessPage: false,
-  },
-  remotion: {
-    instagram: "@remotion",
-    linkedin: "Remotion",
-    x: "@remotion",
-    youtube: "@remotion_dev",
-    discord: null,
-    isLinkedInBusinessPage: true,
-  },
+	jonny: {
+		instagram: null,
+		linkedin: 'Jonny Burger',
+		x: '@JNYBGR',
+		youtube: '/JonnyBurger',
+		discord: null,
+		isLinkedInBusinessPage: false,
+	},
+	remotion: {
+		instagram: '@remotion',
+		linkedin: 'Remotion',
+		x: '@remotion',
+		youtube: '@remotion_dev',
+		discord: null,
+		isLinkedInBusinessPage: true,
+	},
 };
 ```

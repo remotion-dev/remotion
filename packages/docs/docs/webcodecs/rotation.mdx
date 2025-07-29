@@ -12,13 +12,13 @@ import {LicenseDisclaimer} from './LicenseDisclaimer';
 import {UnstableDisclaimer} from './UnstableDisclaimer';
 
 <details>
-  <summary>💼 Important License Disclaimer</summary>
-  <LicenseDisclaimer />
+	<summary>💼 Important License Disclaimer</summary>
+	<LicenseDisclaimer />
 </details>
 
 <details>
-  <summary>🚧 Unstable API</summary>
-  <UnstableDisclaimer />
+	<summary>🚧 Unstable API</summary>
+	<UnstableDisclaimer />
 </details>
 
 ## Simple Example
@@ -27,9 +27,9 @@ import {UnstableDisclaimer} from './UnstableDisclaimer';
 import {convertMedia} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
-  rotate: 90,
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
+	rotate: 90,
 });
 ```
 
@@ -51,20 +51,20 @@ The rotations will negate each other, and [`convertMedia()`](/docs/webcodecs/con
 import {convertMedia, defaultOnVideoTrackHandler} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
-  onVideoTrack: async (params) => {
-    const action = await defaultOnVideoTrackHandler(params);
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
+	onVideoTrack: async (params) => {
+		const action = await defaultOnVideoTrackHandler(params);
 
-    if (action.type !== 'reencode') {
-      return action;
-    }
+		if (action.type !== 'reencode') {
+			return action;
+		}
 
-    return {
-      ...action,
-      rotate: params.track.rotation,
-    };
-  },
+		return {
+			...action,
+			rotate: params.track.rotation,
+		};
+	},
 });
 ```
 

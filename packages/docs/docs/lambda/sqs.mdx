@@ -102,18 +102,18 @@ The `remotion-executionrole-policy` is referenced from [here](https://github.com
 ```ts
 // 👇 Create a role with custom name
 const renderFunctionLambdaRole = new Role(this, 'remotionSQSLambdaRole', {
-  roleName: 'remotionSQSLambdaRole',
-  assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
-  managedPolicies: [
-    ManagedPolicy.fromAwsManagedPolicyName(
-      'service-role/AWSLambdaBasicExecutionRole',
-    ),
-    ManagedPolicy.fromManagedPolicyName(
-      this,
-      'remotion-executionrole-policy',
-      'remotion-executionrole-policy',
-    ),
-  ],
+	roleName: 'remotionSQSLambdaRole',
+	assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
+	managedPolicies: [
+		ManagedPolicy.fromAwsManagedPolicyName(
+			'service-role/AWSLambdaBasicExecutionRole',
+		),
+		ManagedPolicy.fromManagedPolicyName(
+			this,
+			'remotion-executionrole-policy',
+			'remotion-executionrole-policy',
+		),
+	],
 });
 ```
 
@@ -274,8 +274,8 @@ From [CDK stack code](https://github.com/alexfernandez803/remotion-serverless/bl
 ```js title="create queue"
 // 👇 create the queue
 const remotionQueue = new sqs.Queue(this, 'queue', {
-  encryption: sqs.QueueEncryption.KMS_MANAGED,
-  queueName: 'remotion_queue',
+	encryption: sqs.QueueEncryption.KMS_MANAGED,
+	queueName: 'remotion_queue',
 });
 ```
 
@@ -284,12 +284,12 @@ const remotionQueue = new sqs.Queue(this, 'queue', {
   ```js title="apiIntegrationRole"
   // 👇 create the apiIntegrationRole role
   const apiIntegrationRole = new IAM.Role(this, 'api-integration-role', {
-    assumedBy: new IAM.ServicePrincipal('lambda.amazonaws.com'),
-    managedPolicies: [
-      ManagedPolicy.fromAwsManagedPolicyName(
-        'service-role/AWSLambdaBasicExecutionRole',
-      ),
-    ],
+  	assumedBy: new IAM.ServicePrincipal('lambda.amazonaws.com'),
+  	managedPolicies: [
+  		ManagedPolicy.fromAwsManagedPolicyName(
+  			'service-role/AWSLambdaBasicExecutionRole',
+  		),
+  	],
   });
   ```
 
@@ -298,18 +298,18 @@ const remotionQueue = new sqs.Queue(this, 'queue', {
   ```js title="remotionSQSLambdaRole"
   // 👇 create a role with custom name
   const renderFunctionLambdaRole = new Role(this, 'remotionSQSLambdaRole', {
-    roleName: 'remotionSQSLambdaRole',
-    assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
-    managedPolicies: [
-      ManagedPolicy.fromAwsManagedPolicyName(
-        'service-role/AWSLambdaBasicExecutionRole',
-      ),
-      ManagedPolicy.fromManagedPolicyName(
-        this,
-        'remotion-executionrole-policy',
-        'remotion-executionrole-policy',
-      ),
-    ],
+  	roleName: 'remotionSQSLambdaRole',
+  	assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
+  	managedPolicies: [
+  		ManagedPolicy.fromAwsManagedPolicyName(
+  			'service-role/AWSLambdaBasicExecutionRole',
+  		),
+  		ManagedPolicy.fromManagedPolicyName(
+  			this,
+  			'remotion-executionrole-policy',
+  			'remotion-executionrole-policy',
+  		),
+  	],
   });
   ```
 
@@ -326,11 +326,11 @@ const remotionQueue = new sqs.Queue(this, 'queue', {
 
   ```js title="Listen to queue"
   remotionRenderFunction.addEventSource(
-    new SqsEventSource(remotionQueue, {
-      batchSize: 1,
-      maxBatchingWindow: Duration.minutes(5),
-      reportBatchItemFailures: true, // default to false
-    }),
+  	new SqsEventSource(remotionQueue, {
+  		batchSize: 1,
+  		maxBatchingWindow: Duration.minutes(5),
+  		reportBatchItemFailures: true, // default to false
+  	}),
   );
   ```
 

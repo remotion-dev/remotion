@@ -18,26 +18,26 @@ const fontFamily = 'Arial';
 const fontWeight = 'bold';
 
 const {fontSize, lines} = fitTextOnNLines({
-  text,
-  maxBoxWidth: width,
-  maxLines,
-  fontFamily: fontFamily,
-  fontWeight: fontWeight,
-  textTransform: 'uppercase',
-  maxFontSize: 80,
+	text,
+	maxBoxWidth: width,
+	maxLines,
+	fontFamily: fontFamily,
+	fontWeight: fontWeight,
+	textTransform: 'uppercase',
+	maxFontSize: 80,
 });
 
 // Example markup:
 <div
-  style={{
-    fontSize,
-    width,
-    fontFamily,
-    fontWeight,
-    textTransform: 'uppercase',
-  }}
+	style={{
+		fontSize,
+		width,
+		fontFamily,
+		fontWeight,
+		textTransform: 'uppercase',
+	}}
 >
-  {text}
+	{text}
 </div>;
 ```
 
@@ -121,8 +121,6 @@ _number, optional_
 
 The maximum font size (in pixels) that the text is allowed to reach. If not specified, defaults to 2000.
 
-
-
 ## Return value
 
 An object with the following properties:
@@ -153,39 +151,39 @@ const fontFamily = 'Helvetica';
 const fontWeight = 'bold';
 
 export const FitTextOnNLines: React.FC<{text: string}> = ({text}) => {
-  const {fontSize, lines} = fitTextOnNLines({
-    fontFamily,
-    text,
-    maxBoxWidth: boxWidth,
-    maxLines,
-    fontWeight,
-    maxFontSize: 80,
-  });
+	const {fontSize, lines} = fitTextOnNLines({
+		fontFamily,
+		text,
+		maxBoxWidth: boxWidth,
+		maxLines,
+		fontWeight,
+		maxFontSize: 80,
+	});
 
-  return (
-    <AbsoluteFill
-      style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white',
-      }}
-    >
-      <div
-        style={{
-          width: boxWidth,
-          outline: '1px dashed rgba(0, 0, 0, 0.5)',
-          height: 100,
-          fontSize,
-          fontWeight,
-          fontFamily,
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        {text}
-      </div>
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill
+			style={{
+				justifyContent: 'center',
+				alignItems: 'center',
+				backgroundColor: 'white',
+			}}
+		>
+			<div
+				style={{
+					width: boxWidth,
+					outline: '1px dashed rgba(0, 0, 0, 0.5)',
+					height: 100,
+					fontSize,
+					fontWeight,
+					fontFamily,
+					display: 'flex',
+					alignItems: 'center',
+				}}
+			>
+				{text}
+			</div>
+		</AbsoluteFill>
+	);
 };
 ```
 

@@ -16,11 +16,11 @@ Add an [`<Audio/>`](/docs/audio) tag to your component to add sound to it.
 import {AbsoluteFill, Audio, staticFile} from 'remotion';
 
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Audio src={staticFile('audio.mp3')} />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -30,11 +30,11 @@ You can also add remote audio by passing a URL:
 import {AbsoluteFill, Audio} from 'remotion';
 
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Audio src="https://example.com/audio.mp3" />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Audio src="https://example.com/audio.mp3" />
+		</AbsoluteFill>
+	);
 };
 ```
 

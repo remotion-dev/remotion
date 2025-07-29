@@ -17,10 +17,14 @@ The same principles apply as for audio - you may [trim](/docs/audio/trimming), [
 import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <OffthreadVideo src={staticFile('video.mp4')} playbackRate={2} volume={0.5} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<OffthreadVideo
+				src={staticFile('video.mp4')}
+				playbackRate={2}
+				volume={0.5}
+			/>
+		</AbsoluteFill>
+	);
 };
 ```

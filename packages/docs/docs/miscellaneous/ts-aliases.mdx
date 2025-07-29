@@ -24,11 +24,11 @@ and your tsconfig.json has the following `paths`:
 
 ```json
 {
-  "compilerOptions": {
-    "paths": {
-      "lib/*": ["./src/lib/*"]
-    }
-  }
+	"compilerOptions": {
+		"paths": {
+			"lib/*": ["./src/lib/*"]
+		}
+	}
 }
 ```
 
@@ -39,16 +39,16 @@ import path from 'path';
 import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((config) => {
-  return {
-    ...config,
-    resolve: {
-      ...config.resolve,
-      alias: {
-        ...(config.resolve?.alias ?? {}),
-        lib: path.join(process.cwd(), 'src', 'lib'),
-      },
-    },
-  };
+	return {
+		...config,
+		resolve: {
+			...config.resolve,
+			alias: {
+				...(config.resolve?.alias ?? {}),
+				lib: path.join(process.cwd(), 'src', 'lib'),
+			},
+		},
+	};
 });
 ```
 
@@ -63,13 +63,13 @@ import {Config} from '@remotion/cli/config';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 
 Config.overrideWebpackConfig((config) => {
-  return {
-    ...config,
-    resolve: {
-      ...config.resolve,
-      plugins: [...(config.resolve?.plugins ?? []), new TsconfigPathsPlugin()],
-    },
-  };
+	return {
+		...config,
+		resolve: {
+			...config.resolve,
+			plugins: [...(config.resolve?.plugins ?? []), new TsconfigPathsPlugin()],
+		},
+	};
 });
 ```
 

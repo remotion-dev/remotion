@@ -9,7 +9,12 @@ crumb: 'Lambda'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-<YouTube minutes={18} href="https://www.youtube.com/watch?v=kFVd3KnfwYY" thumb="https://i.ytimg.com/vi/kFVd3KnfwYY/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLCJOz2mu_A24NvjFQGm6GjUVssnUQ" title="How to set up Remotion Lambda" />
+<YouTube
+	minutes={18}
+	href="https://www.youtube.com/watch?v=kFVd3KnfwYY"
+	thumb="https://i.ytimg.com/vi/kFVd3KnfwYY/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLCJOz2mu_A24NvjFQGm6GjUVssnUQ"
+	title="How to set up Remotion Lambda"
+/>
 
 ## 1. Install `@remotion/lambda`
 
@@ -110,10 +115,10 @@ import {deployFunction} from '@remotion/lambda';
 
 // ---cut---
 const {functionName} = await deployFunction({
-  region: 'us-east-1',
-  timeoutInSeconds: 120,
-  memorySizeInMb: 2048,
-  createCloudWatchLogGroup: true,
+	region: 'us-east-1',
+	timeoutInSeconds: 120,
+	memorySizeInMb: 2048,
+	createCloudWatchLogGroup: true,
 });
 ```
 
@@ -155,7 +160,7 @@ import path from 'path';
 import {deploySite, getOrCreateBucket} from '@remotion/lambda';
 
 const {bucketName} = await getOrCreateBucket({
-  region: 'us-east-1',
+	region: 'us-east-1',
 });
 ```
 
@@ -166,14 +171,14 @@ import path from 'path';
 import {deploySite, getOrCreateBucket} from '@remotion/lambda';
 
 const {bucketName} = await getOrCreateBucket({
-  region: 'us-east-1',
+	region: 'us-east-1',
 });
 // ---cut---
 const {serveUrl} = await deploySite({
-  bucketName,
-  entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
-  region: 'us-east-1',
-  siteName: 'my-video',
+	bucketName,
+	entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
+	region: 'us-east-1',
+	siteName: 'my-video',
 });
 ```
 
@@ -217,11 +222,15 @@ Progress will be printed until the video finished rendering. Congrats! You rende
 You already have the function name from a previous step. But since you only need to deploy a function once, it's useful to retrieve the name of your deployed function programmatically before rendering a video in case your Node.JS program restarts. We can call [`getFunctions()`](/docs/lambda/getfunctions) with the `compatibleOnly` flag to get only functions with a matching version.
 
 ```ts twoslash
-import {getFunctions, renderMediaOnLambda, getRenderProgress} from '@remotion/lambda/client';
+import {
+	getFunctions,
+	renderMediaOnLambda,
+	getRenderProgress,
+} from '@remotion/lambda/client';
 
 const functions = await getFunctions({
-  region: 'us-east-1',
-  compatibleOnly: true,
+	region: 'us-east-1',
+	compatibleOnly: true,
 });
 
 const functionName = functions[0].functionName;
@@ -230,73 +239,81 @@ const functionName = functions[0].functionName;
 We can now trigger a render using the [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) function.
 
 ```ts twoslash
-import {getFunctions, renderMediaOnLambda, getRenderProgress} from '@remotion/lambda/client';
+import {
+	getFunctions,
+	renderMediaOnLambda,
+	getRenderProgress,
+} from '@remotion/lambda/client';
 
 const url = 'string';
 const functions = await getFunctions({
-  region: 'us-east-1',
-  compatibleOnly: true,
+	region: 'us-east-1',
+	compatibleOnly: true,
 });
 
 const functionName = functions[0].functionName;
 // ---cut---
 
 const {renderId, bucketName} = await renderMediaOnLambda({
-  region: 'us-east-1',
-  functionName,
-  serveUrl: url,
-  composition: 'HelloWorld',
-  inputProps: {},
-  codec: 'h264',
-  imageFormat: 'jpeg',
-  maxRetries: 1,
-  framesPerLambda: 20,
-  privacy: 'public',
+	region: 'us-east-1',
+	functionName,
+	serveUrl: url,
+	composition: 'HelloWorld',
+	inputProps: {},
+	codec: 'h264',
+	imageFormat: 'jpeg',
+	maxRetries: 1,
+	framesPerLambda: 20,
+	privacy: 'public',
 });
 ```
 
 The render will now run and after a while the video will be available in your S3 bucket. You can at any time get the status of the video render by calling [`getRenderProgress()`](/docs/lambda/getrenderprogress).
 
 ```ts twoslash
-import {getFunctions, renderMediaOnLambda, getRenderProgress} from '@remotion/lambda/client';
+import {
+	getFunctions,
+	renderMediaOnLambda,
+	getRenderProgress,
+} from '@remotion/lambda/client';
 
 const url = 'string';
 const functions = await getFunctions({
-  region: 'us-east-1',
-  compatibleOnly: true,
+	region: 'us-east-1',
+	compatibleOnly: true,
 });
 
 const functionName = functions[0].functionName;
 
 const {renderId, bucketName} = await renderMediaOnLambda({
-  region: 'us-east-1',
-  functionName,
-  serveUrl: url,
-  composition: 'HelloWorld',
-  inputProps: {},
-  codec: 'h264',
-  imageFormat: 'jpeg',
-  maxRetries: 1,
-  framesPerLambda: 20,
-  privacy: 'public',
+	region: 'us-east-1',
+	functionName,
+	serveUrl: url,
+	composition: 'HelloWorld',
+	inputProps: {},
+	codec: 'h264',
+	imageFormat: 'jpeg',
+	maxRetries: 1,
+	framesPerLambda: 20,
+	privacy: 'public',
 });
 // ---cut---
 while (true) {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  const progress = await getRenderProgress({
-    renderId,
-    bucketName,
-    functionName,
-    region: 'us-east-1',
-  });
-  if (progress.done) {
-    console.log('Render finished!', progress.outputFile);
-    process.exit(0);
-  }
-  if (progress.fatalErrorEncountered) {
-    console.error('Error enountered', progress.errors);
-    process.exit(1);
-  }
+	await new Promise((resolve) => setTimeout(resolve, 1000));
+	const progress = await getRenderProgress({
+		renderId,
+		bucketName,
+		functionName,
+		region: 'us-east-1',
+	});
+	if (progress.done) {
+		console.log('Render finished!', progress.outputFile);
+		process.exit(0);
+	}
+	if (progress.fatalErrorEncountered) {
+		console.error('Error enountered', progress.errors);
+		process.exit(1);
+	}
 }
 ```
 

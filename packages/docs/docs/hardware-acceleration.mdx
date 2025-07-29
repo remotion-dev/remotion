@@ -32,24 +32,24 @@ const outputLocation = '/path/to/frames';
 import {renderMedia, selectComposition} from '@remotion/renderer';
 
 const inputProps = {
-  titleText: 'Hello World',
+	titleText: 'Hello World',
 };
 
 const composition = await selectComposition({
-  serveUrl,
-  id: 'my-video',
-  inputProps,
+	serveUrl,
+	id: 'my-video',
+	inputProps,
 });
 
 // ---cut---
 
 await renderMedia({
-  composition,
-  serveUrl,
-  codec: 'prores',
-  outputLocation,
-  inputProps,
-  hardwareAcceleration: 'if-possible',
+	composition,
+	serveUrl,
+	codec: 'prores',
+	outputLocation,
+	inputProps,
+	hardwareAcceleration: 'if-possible',
 });
 ```
 

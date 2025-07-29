@@ -72,31 +72,33 @@ import {useAudioData, visualizeAudio} from '@remotion/media-utils';
 import {Audio, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const MyComponent: React.FC = () => {
-  const frame = useCurrentFrame();
-  const {width, height, fps} = useVideoConfig();
-  const audioData = useAudioData(staticFile('music.mp3'));
+	const frame = useCurrentFrame();
+	const {width, height, fps} = useVideoConfig();
+	const audioData = useAudioData(staticFile('music.mp3'));
 
-  if (!audioData) {
-    return null;
-  }
+	if (!audioData) {
+		return null;
+	}
 
-  const visualization = visualizeAudio({
-    fps,
-    frame,
-    audioData,
-    numberOfSamples: 16,
-  }); // [0.22, 0.1, 0.01, 0.01, 0.01, 0.02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	const visualization = visualizeAudio({
+		fps,
+		frame,
+		audioData,
+		numberOfSamples: 16,
+	}); // [0.22, 0.1, 0.01, 0.01, 0.01, 0.02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-  // Render a bar chart for each frequency, the higher the amplitude,
-  // the longer the bar
-  return (
-    <div>
-      <Audio src={staticFile('music.mp3')} />
-      {visualization.map((v) => {
-        return <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />;
-      })}
-    </div>
-  );
+	// Render a bar chart for each frequency, the higher the amplitude,
+	// the longer the bar
+	return (
+		<div>
+			<Audio src={staticFile('music.mp3')} />
+			{visualization.map((v) => {
+				return (
+					<div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />
+				);
+			})}
+		</div>
+	);
 };
 ```
 
@@ -107,17 +109,17 @@ A logarithmic representation of the audio will look more appealing than a linear
 ```tsx twoslash
 import {visualizeAudio} from '@remotion/media-utils';
 const params = {
-  audioData: {
-    channelWaveforms: [],
-    sampleRate: 0,
-    durationInSeconds: 0,
-    numberOfChannels: 0,
-    resultId: '',
-    isRemote: true,
-  },
-  frame: 0,
-  fps: 0,
-  numberOfSamples: 0,
+	audioData: {
+		channelWaveforms: [],
+		sampleRate: 0,
+		durationInSeconds: 0,
+		numberOfChannels: 0,
+		resultId: '',
+		isRemote: true,
+	},
+	frame: 0,
+	fps: 0,
+	numberOfSamples: 0,
 };
 // ---cut---
 /**
@@ -136,13 +138,13 @@ const minDb = -100;
 const maxDb = -30;
 
 const amplitudes = frequencyData.map((value) => {
-  // convert to decibels (will be in the range `-Infinity` to `0`)
-  const db = 20 * Math.log10(value);
+	// convert to decibels (will be in the range `-Infinity` to `0`)
+	const db = 20 * Math.log10(value);
 
-  // scale to fit between min and max
-  const scaled = (db - minDb) / (maxDb - minDb);
+	// scale to fit between min and max
+	const scaled = (db - minDb) / (maxDb - minDb);
 
-  return scaled;
+	return scaled;
 });
 ```
 

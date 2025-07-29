@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-compare-motion-canvas.png
 title: How does Remotion compare to Motion Canvas?
-crumb: "FAQ"
+crumb: 'FAQ'
 sidebar_label: Difference to Motion Canvas
 ---
 
@@ -27,66 +27,66 @@ Here is an identical animation (Red circle turning into an orange one, then jump
 
 ```tsx twoslash title="Remotion Implementation"
 import {
-  AbsoluteFill,
-  interpolate,
-  interpolateColors,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from "remotion";
+	AbsoluteFill,
+	interpolate,
+	interpolateColors,
+	spring,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
 
-  const colorChange = interpolate(frame, [0, 60], [0, 1], {
-    extrapolateRight: "clamp",
-  });
+	const colorChange = interpolate(frame, [0, 60], [0, 1], {
+		extrapolateRight: 'clamp',
+	});
 
-  const spr = spring({
-    fps,
-    frame: frame - 60,
-  });
-  const translateX = interpolate(spr, [0, 1], [0, 300]);
+	const spr = spring({
+		fps,
+		frame: frame - 60,
+	});
+	const translateX = interpolate(spr, [0, 1], [0, 300]);
 
-  return (
-    <AbsoluteFill
-      style={{
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <div
-        style={{
-          width: 200,
-          height: 200,
-          borderRadius: 100,
-          backgroundColor: interpolateColors(
-            colorChange,
-            [0, 1],
-            ["#e6a700", "#e13238"],
-          ),
-          transform: `translateX(${translateX}px)`,
-        }}
-      />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill
+			style={{
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}
+		>
+			<div
+				style={{
+					width: 200,
+					height: 200,
+					borderRadius: 100,
+					backgroundColor: interpolateColors(
+						colorChange,
+						[0, 1],
+						['#e6a700', '#e13238'],
+					),
+					transform: `translateX(${translateX}px)`,
+				}}
+			/>
+		</AbsoluteFill>
+	);
 };
 ```
 
 ```tsx title="Motion Canvas Implementation"
-import { makeScene2D } from "@motion-canvas/2d";
-import { Circle } from "@motion-canvas/2d/lib/components";
-import { SmoothSpring, spring } from "@motion-canvas/core/lib/tweening";
-import { createRef } from "@motion-canvas/core/lib/utils";
+import {makeScene2D} from '@motion-canvas/2d';
+import {Circle} from '@motion-canvas/2d/lib/components';
+import {SmoothSpring, spring} from '@motion-canvas/core/lib/tweening';
+import {createRef} from '@motion-canvas/core/lib/utils';
 
 export default makeScene2D(function* (view) {
-  const circle = createRef<Circle>();
+	const circle = createRef<Circle>();
 
-  view.add(<Circle ref={circle} size={200} fill={"#e6a700"} />);
+	view.add(<Circle ref={circle} size={200} fill={'#e6a700'} />);
 
-  yield* circle().fill("#e13238", 2);
-  yield* spring(SmoothSpring, 0, 300, (value) => circle().position.x(value));
+	yield* circle().fill('#e13238', 2);
+	yield* spring(SmoothSpring, 0, 300, (value) => circle().position.x(value));
 });
 ```
 

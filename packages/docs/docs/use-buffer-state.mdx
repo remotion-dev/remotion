@@ -2,7 +2,7 @@
 image: /generated/articles-docs-use-buffer-state.png
 title: useBufferState()
 id: use-buffer-state
-crumb: "API"
+crumb: 'API'
 ---
 
 _available from 4.0.111_
@@ -10,25 +10,25 @@ _available from 4.0.111_
 You can use this hook inside your [composition](/docs/terminology/composition) to retrieve functions that can inform the Player that your component is currently loading data.
 
 ```tsx twoslash title="MyComp.tsx"
-import React from "react";
-import { useBufferState } from "remotion";
+import React from 'react';
+import {useBufferState} from 'remotion';
 
 const MyComp: React.FC = () => {
-  const buffer = useBufferState();
+	const buffer = useBufferState();
 
-  React.useEffect(() => {
-    const delayHandle = buffer.delayPlayback();
+	React.useEffect(() => {
+		const delayHandle = buffer.delayPlayback();
 
-    setTimeout(() => {
-      delayHandle.unblock();
-    }, 5000);
+		setTimeout(() => {
+			delayHandle.unblock();
+		}, 5000);
 
-    return () => {
-      delayHandle.unblock();
-    };
-  }, []);
+		return () => {
+			delayHandle.unblock();
+		};
+	}, []);
 
-  return <></>;
+	return <></>;
 };
 ```
 
@@ -48,20 +48,20 @@ The user might seek to a different portion of the video which is immediately ava
 Use the cleanup function of <code>useEffect()</code> to clear the handle when your component is unmounted.
 
 ```tsx twoslash title="❌ Causes problems with React strict mode"
-import React, { useState } from "react";
-import { useBufferState } from "remotion";
+import React, {useState} from 'react';
+import {useBufferState} from 'remotion';
 
 const MyComp: React.FC = () => {
-  const buffer = useBufferState();
-  const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
+	const buffer = useBufferState();
+	const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
 
-  React.useEffect(() => {
-    setTimeout(() => {
-      delayHandle.unblock();
-    }, 5000);
-  }, []);
+	React.useEffect(() => {
+		setTimeout(() => {
+			delayHandle.unblock();
+		}, 5000);
+	}, []);
 
-  return <></>;
+	return <></>;
 };
 ```
 
@@ -70,24 +70,24 @@ const MyComp: React.FC = () => {
 While the following implementation works in production, it fails in development if you are inside React Strict mode, because the `useState()` hook is called twice, which causes the first invocation of the buffer to never be cleared and the video to buffer forever.
 
 ```tsx twoslash title="❌ Doesn't clear the buffer handle when seeking to a different portion of a video"
-import React, { useState } from "react";
-import { useBufferState } from "remotion";
+import React, {useState} from 'react';
+import {useBufferState} from 'remotion';
 
 const MyComp: React.FC = () => {
-  const buffer = useBufferState();
-  const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
+	const buffer = useBufferState();
+	const [delayHandle] = useState(() => buffer.delayPlayback()); // 💥
 
-  React.useEffect(() => {
-    setTimeout(() => {
-      delayHandle.unblock();
-    }, 5000);
+	React.useEffect(() => {
+		setTimeout(() => {
+			delayHandle.unblock();
+		}, 5000);
 
-    return () => {
-      delayHandle.unblock();
-    };
-  }, []);
+		return () => {
+			delayHandle.unblock();
+		};
+	}, []);
 
-  return <></>;
+	return <></>;
 };
 ```
 
@@ -98,27 +98,27 @@ const MyComp: React.FC = () => {
 If you are loading data, you might want to both delay the screenshotting of your component during rendering and start a buffering state during Preview, in which case you need to use both APIs together.
 
 ```tsx twoslash title="Using delayRender() and delayPlayback() together"
-import React from "react";
-import { useBufferState, delayRender, continueRender } from "remotion";
+import React from 'react';
+import {useBufferState, delayRender, continueRender} from 'remotion';
 
 const MyComp: React.FC = () => {
-  const buffer = useBufferState();
-  const [handle] = React.useState(() => delayRender());
+	const buffer = useBufferState();
+	const [handle] = React.useState(() => delayRender());
 
-  React.useEffect(() => {
-    const delayHandle = buffer.delayPlayback();
+	React.useEffect(() => {
+		const delayHandle = buffer.delayPlayback();
 
-    setTimeout(() => {
-      delayHandle.unblock();
-      continueRender(handle);
-    }, 5000);
+		setTimeout(() => {
+			delayHandle.unblock();
+			continueRender(handle);
+		}, 5000);
 
-    return () => {
-      delayHandle.unblock();
-    };
-  }, []);
+		return () => {
+			delayHandle.unblock();
+		};
+	}, []);
 
-  return <></>;
+	return <></>;
 };
 ```
 

@@ -12,25 +12,25 @@ import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {CameraMotionBlur} from '@remotion/motion-blur';
 
 export const MyComp = () => {
-  const frame = useCurrentFrame();
+	const frame = useCurrentFrame();
 
-  return (
-    <AbsoluteFill>
-      <CameraMotionBlur>
-        <AbsoluteFill
-          style={{
-            backgroundColor: 'red',
-            justifyContent: 'center',
-            alignItems: 'center',
-            color: 'white',
-            fontSize: frame,
-          }}
-        >
-          A
-        </AbsoluteFill>
-      </CameraMotionBlur>
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<CameraMotionBlur>
+				<AbsoluteFill
+					style={{
+						backgroundColor: 'red',
+						justifyContent: 'center',
+						alignItems: 'center',
+						color: 'white',
+						fontSize: frame,
+					}}
+				>
+					A
+				</AbsoluteFill>
+			</CameraMotionBlur>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -41,31 +41,31 @@ import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {CameraMotionBlur} from '@remotion/motion-blur';
 
 const A: React.FC = () => {
-  const frame = useCurrentFrame();
+	const frame = useCurrentFrame();
 
-  return (
-    <AbsoluteFill
-      style={{
-        backgroundColor: 'red',
-        justifyContent: 'center',
-        alignItems: 'center',
-        color: 'white',
-        fontSize: frame,
-      }}
-    >
-      A
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundColor: 'red',
+				justifyContent: 'center',
+				alignItems: 'center',
+				color: 'white',
+				fontSize: frame,
+			}}
+		>
+			A
+		</AbsoluteFill>
+	);
 };
 
 export const MyComp = () => {
-  return (
-    <AbsoluteFill>
-      <CameraMotionBlur>
-        <A />
-      </CameraMotionBlur>
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<CameraMotionBlur>
+				<A />
+			</CameraMotionBlur>
+		</AbsoluteFill>
+	);
 };
 ```
 

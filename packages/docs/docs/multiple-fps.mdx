@@ -20,8 +20,8 @@ const frame = useCurrentFrame();
 // ---cut---
 // Animate from second 1 to second 2
 const animationProgress = interpolate(frame, [30, 60], [0, 1], {
-  extrapolateLeft: 'clamp',
-  extrapolateRight: 'clamp',
+	extrapolateLeft: 'clamp',
+	extrapolateRight: 'clamp',
 });
 ```
 
@@ -34,8 +34,8 @@ const frame = useCurrentFrame();
 // Animate from second 1 to second 2
 const {fps} = useVideoConfig();
 const animationProgress = interpolate(frame, [1 * fps, 2 * fps], [0, 1], {
-  extrapolateLeft: 'clamp',
-  extrapolateRight: 'clamp',
+	extrapolateLeft: 'clamp',
+	extrapolateRight: 'clamp',
 });
 ```
 
@@ -49,7 +49,7 @@ const {fps, durationInFrames} = useVideoConfig();
 // ---cut---
 // Show for 3 seconds
 <Sequence durationInFrames={3 * fps}>
-  <div />
+	<div />
 </Sequence>;
 ```
 
@@ -61,10 +61,10 @@ const frame = useCurrentFrame();
 const {fps} = useVideoConfig();
 // ---cut---
 const animationProgress = spring({
-  frame,
-  fps,
-  durationInFrames: 2 * fps,
-  delay: 1 * fps,
+	frame,
+	fps,
+	durationInFrames: 2 * fps,
+	delay: 1 * fps,
 });
 ```
 
@@ -76,30 +76,30 @@ Here is how you could switch the `fps` of a [`<Composition>`](/docs/composition)
 import {Composition, useCurrentFrame, useVideoConfig} from 'remotion';
 
 const VariableFps: React.FC<{
-  frameRate: '30fps' | '60fps';
+	frameRate: '30fps' | '60fps';
 }> = () => {
-  const {fps} = useVideoConfig();
-  return <div>{fps} FPS</div>;
+	const {fps} = useVideoConfig();
+	return <div>{fps} FPS</div>;
 };
 
 export const Root: React.FC = () => {
-  return (
-    <Composition
-      id="VariableFps"
-      component={VariableFps}
-      width={1080}
-      height={1080}
-      durationInFrames={100}
-      calculateMetadata={({props}) => {
-        return {
-          fps: props.frameRate === '60fps' ? 60 : 30,
-        };
-      }}
-      defaultProps={{
-        frameRate: '30fps',
-      }}
-    />
-  );
+	return (
+		<Composition
+			id="VariableFps"
+			component={VariableFps}
+			width={1080}
+			height={1080}
+			durationInFrames={100}
+			calculateMetadata={({props}) => {
+				return {
+					fps: props.frameRate === '60fps' ? 60 : 30,
+				};
+			}}
+			defaultProps={{
+				frameRate: '30fps',
+			}}
+		/>
+	);
 };
 ```
 

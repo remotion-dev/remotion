@@ -19,18 +19,23 @@ Install Whisper `1.5.5` (the latest version at the time of writing that we find 
 
 ```tsx twoslash title="install-whisper.cpp"
 import path from 'path';
-import {downloadWhisperModel, installWhisperCpp, transcribe, convertToCaptions} from '@remotion/install-whisper-cpp';
+import {
+	downloadWhisperModel,
+	installWhisperCpp,
+	transcribe,
+	convertToCaptions,
+} from '@remotion/install-whisper-cpp';
 
 const to = path.join(process.cwd(), 'whisper.cpp');
 
 await installWhisperCpp({
-  to,
-  version: '1.5.5',
+	to,
+	version: '1.5.5',
 });
 
 await downloadWhisperModel({
-  model: 'medium.en',
-  folder: to,
+	model: 'medium.en',
+	folder: to,
 });
 
 // Convert the audio to a 16KHz wav file first if needed:
@@ -38,25 +43,25 @@ await downloadWhisperModel({
 // execSync('ffmpeg -i /path/to/audio.mp4 -ar 16000 /path/to/audio.wav -y');
 
 const {transcription} = await transcribe({
-  model: 'medium.en',
-  whisperPath: to,
-  whisperCppVersion: '1.5.5',
-  inputPath: '/path/to/audio.wav',
-  tokenLevelTimestamps: true,
+	model: 'medium.en',
+	whisperPath: to,
+	whisperCppVersion: '1.5.5',
+	inputPath: '/path/to/audio.wav',
+	tokenLevelTimestamps: true,
 });
 
 for (const token of transcription) {
-  console.log(token.timestamps.from, token.timestamps.to, token.text);
+	console.log(token.timestamps.from, token.timestamps.to, token.text);
 }
 
 // Optional: Apply our recommended postprocessing
 const {captions} = convertToCaptions({
-  transcription,
-  combineTokensWithinMilliseconds: 200,
+	transcription,
+	combineTokensWithinMilliseconds: 200,
 });
 
 for (const line of captions) {
-  console.log(line.text, line.startInSeconds);
+	console.log(line.text, line.startInSeconds);
 }
 ```
 

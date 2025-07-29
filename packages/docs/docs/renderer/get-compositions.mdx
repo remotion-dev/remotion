@@ -12,7 +12,10 @@ Gets a list of compositions defined in a Remotion project based on a [Remotion B
 For every compositions their [`calculateMetadata()`](/docs/composition#calculatemetadata) function is evaluated. If you just want to evaluate one composition that you want to render, use [`selectComposition()`](/docs/renderer/select-composition).
 
 ```ts
-const getCompositions: (serveUrlOrWebpackUrl: string, options?: GetCompositionsConfig) => Promise<TComposition[]>;
+const getCompositions: (
+	serveUrlOrWebpackUrl: string,
+	options?: GetCompositionsConfig,
+) => Promise<TComposition[]>;
 ```
 
 ## Arguments
@@ -61,40 +64,61 @@ Gets called when your project calls `console.log` or another method from console
 
 ```tsx twoslash
 interface ConsoleMessageLocation {
-  /**
-   * URL of the resource if known or `undefined` otherwise.
-   */
-  url?: string;
-  /**
-   * 0-based line number in the resource if known or `undefined` otherwise.
-   */
-  lineNumber?: number;
-  /**
-   * 0-based column number in the resource if known or `undefined` otherwise.
-   */
-  columnNumber?: number;
+	/**
+	 * URL of the resource if known or `undefined` otherwise.
+	 */
+	url?: string;
+	/**
+	 * 0-based line number in the resource if known or `undefined` otherwise.
+	 */
+	lineNumber?: number;
+	/**
+	 * 0-based column number in the resource if known or `undefined` otherwise.
+	 */
+	columnNumber?: number;
 }
 
 type BrowserLog = {
-  text: string;
-  stackTrace: ConsoleMessageLocation[];
-  type: 'log' | 'debug' | 'info' | 'error' | 'warning' | 'dir' | 'dirxml' | 'table' | 'trace' | 'clear' | 'startGroup' | 'startGroupCollapsed' | 'endGroup' | 'assert' | 'profile' | 'profileEnd' | 'count' | 'timeEnd' | 'verbose';
+	text: string;
+	stackTrace: ConsoleMessageLocation[];
+	type:
+		| 'log'
+		| 'debug'
+		| 'info'
+		| 'error'
+		| 'warning'
+		| 'dir'
+		| 'dirxml'
+		| 'table'
+		| 'trace'
+		| 'clear'
+		| 'startGroup'
+		| 'startGroupCollapsed'
+		| 'endGroup'
+		| 'assert'
+		| 'profile'
+		| 'profileEnd'
+		| 'count'
+		| 'timeEnd'
+		| 'verbose';
 };
 
-const getCompositions = (options: {onBrowserLog?: (log: BrowserLog) => void}) => {};
+const getCompositions = (options: {
+	onBrowserLog?: (log: BrowserLog) => void;
+}) => {};
 // ---cut---
 getCompositions({
-  // ...
-  onBrowserLog: (info) => {
-    console.log(`${info.type}: ${info.text}`);
-    console.log(
-      info.stackTrace
-        .map((stack) => {
-          return `  ${stack.url}:${stack.lineNumber}:${stack.columnNumber}`;
-        })
-        .join('\n'),
-    );
-  },
+	// ...
+	onBrowserLog: (info) => {
+		console.log(`${info.type}: ${info.text}`);
+		console.log(
+			info.stackTrace
+				.map((stack) => {
+					return `  ${stack.url}:${stack.lineNumber}:${stack.columnNumber}`;
+				})
+				.join('\n'),
+		);
+	},
 });
 ```
 
@@ -154,24 +178,24 @@ Returns a promise that resolves to an array of available compositions. Example v
 
 ```ts twoslash
 [
-  {
-    id: 'HelloWorld',
-    width: 1920,
-    height: 1080,
-    fps: 30,
-    durationInFrames: 120,
-    defaultProps: {
-      title: 'Hello World',
-    },
-  },
-  {
-    id: 'Title',
-    width: 1080,
-    height: 1080,
-    fps: 30,
-    durationInFrames: 90,
-    defaultProps: undefined,
-  },
+	{
+		id: 'HelloWorld',
+		width: 1920,
+		height: 1080,
+		fps: 30,
+		durationInFrames: 120,
+		defaultProps: {
+			title: 'Hello World',
+		},
+	},
+	{
+		id: 'Title',
+		width: 1080,
+		height: 1080,
+		fps: 30,
+		durationInFrames: 90,
+		defaultProps: undefined,
+	},
 ];
 ```
 

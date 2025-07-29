@@ -15,16 +15,25 @@ You may pass in the [`muted`](/docs/audio#muted) prop to [`<Audio>`](/docs/audio
 When [`muted`](/docs/audio#muted) is true, audio will be omitted at that time. In the following example, we are muting the track between seconds 2 and 4.
 
 ```tsx twoslash {9}
-import {AbsoluteFill, Audio, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	Audio,
+	staticFile,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 export const MyComposition = () => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
 
-  return (
-    <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} muted={frame >= 2 * fps && frame <= 4 * fps} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Audio
+				src={staticFile('audio.mp3')}
+				muted={frame >= 2 * fps && frame <= 4 * fps}
+			/>
+		</AbsoluteFill>
+	);
 };
 ```

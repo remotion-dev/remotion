@@ -25,17 +25,18 @@ import {resampleTo16Khz} from '@remotion/whisper-web';
 const file = new File([], 'audio.wav');
 
 const channelWaveform = await resampleTo16Khz({
-  file,
-  onProgress: (p) => console.log(`Resampling audio (${Math.round(p * 100)}%)...`),
+	file,
+	onProgress: (p) =>
+		console.log(`Resampling audio (${Math.round(p * 100)}%)...`),
 });
 
 // ---cut---
 import {transcribe} from '@remotion/whisper-web';
 
 const {transcription} = await transcribe({
-  channelWaveform,
-  model: 'tiny.en',
-  onProgress: (p) => console.log(`Transcribing (${Math.round(p * 100)}%)...`),
+	channelWaveform,
+	model: 'tiny.en',
+	onProgress: (p) => console.log(`Transcribing (${Math.round(p * 100)}%)...`),
 });
 
 console.log(transcription.map((t) => t.text).join(' '));
@@ -75,7 +76,7 @@ Optional. Act upon transcription progress. The `progress` value is a number betw
 // @noErrors
 // ---cut---
 const onProgress = (progress: number) => {
-  console.log(`Transcription progress: ${Math.round(progress * 100)}%`);
+	console.log(`Transcription progress: ${Math.round(progress * 100)}%`);
 };
 ```
 

@@ -2,8 +2,8 @@
 image: /generated/articles-docs-preload-preload-audio.png
 id: preload-audio
 slug: preload-audio
-title: "preloadAudio()"
-crumb: "@remotion/preload"
+title: 'preloadAudio()'
+crumb: '@remotion/preload'
 ---
 
 _This function is part of the [`@remotion/preload`](/docs/preload) package._
@@ -17,10 +17,10 @@ An alternative to `preloadAudio()` is the [`prefetch()`](/docs/prefetch) API. Se
 ## Usage
 
 ```tsx twoslash
-import { preloadAudio } from "@remotion/preload";
+import {preloadAudio} from '@remotion/preload';
 
 const unpreload = preloadAudio(
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+	'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
 );
 
 // If you want to un-preload the audio later
@@ -43,33 +43,33 @@ If the resource does not support CORS, `resolveRedirect()` will fail. If the res
 This snippet tries to preload a audio on a best-effort basis. If the redirect cannot be resolved, it tries to preload the original URL.
 
 ```tsx twoslash
-import { preloadAudio, resolveRedirect } from "@remotion/preload";
-import { Audio } from "remotion";
+import {preloadAudio, resolveRedirect} from '@remotion/preload';
+import {Audio} from 'remotion';
 
 // This code gets executed immediately once the page loads
-let urlToLoad = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+let urlToLoad = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
 
 resolveRedirect(urlToLoad)
-  .then((resolved) => {
-    // Was able to resolve a redirect, setting this as the audio to load
-    urlToLoad = resolved;
-  })
-  .catch((err) => {
-    // Was unable to resolve redirect e.g. due to no CORS support
-    console.log("Could not resolve redirect", err);
-  })
-  .finally(() => {
-    // In either case, we try to preload the original or resolved URL
-    preloadAudio(urlToLoad);
-  });
+	.then((resolved) => {
+		// Was able to resolve a redirect, setting this as the audio to load
+		urlToLoad = resolved;
+	})
+	.catch((err) => {
+		// Was unable to resolve redirect e.g. due to no CORS support
+		console.log('Could not resolve redirect', err);
+	})
+	.finally(() => {
+		// In either case, we try to preload the original or resolved URL
+		preloadAudio(urlToLoad);
+	});
 
 // This code only executes once the component gets mounted
 const MyComp: React.FC = () => {
-  // If the component did not mount immediately, this will be the resolved URL.
+	// If the component did not mount immediately, this will be the resolved URL.
 
-  // If the component mounted immediately, this will be the original URL.
-  // In that case preloading is ineffective anyway.
-  return <Audio src={urlToLoad}></Audio>;
+	// If the component mounted immediately, this will be the original URL.
+	// In that case preloading is ineffective anyway.
+	return <Audio src={urlToLoad}></Audio>;
 };
 ```
 

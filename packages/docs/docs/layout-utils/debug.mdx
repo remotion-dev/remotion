@@ -18,33 +18,33 @@ zoom level.<br/>
 import {AbsoluteFill} from 'remotion';
 
 const MyComp: React.FC = () => {
-  const fontSize = 100;
-  const fontWeight = 'bold';
-  const fontFamily = 'Roboto';
-  const text = 'Hello World ';
-  const letterSpacing = undefined;
-  const fontVariantNumeric = undefined;
-  const textTransform = undefined;
+	const fontSize = 100;
+	const fontWeight = 'bold';
+	const fontFamily = 'Roboto';
+	const text = 'Hello World ';
+	const letterSpacing = undefined;
+	const fontVariantNumeric = undefined;
+	const textTransform = undefined;
 
-  return (
-    <AbsoluteFill>
-      <div
-        id="remotion-measurer"
-        style={{
-          display: 'inline-block',
-          whiteSpace: 'pre',
-          fontSize,
-          fontWeight,
-          fontFamily,
-          letterSpacing,
-          fontVariantNumeric,
-          textTransform,
-        }}
-      >
-        {text}
-      </div>
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<div
+				id="remotion-measurer"
+				style={{
+					display: 'inline-block',
+					whiteSpace: 'pre',
+					fontSize,
+					fontWeight,
+					fontFamily,
+					letterSpacing,
+					fontVariantNumeric,
+					textTransform,
+				}}
+			>
+				{text}
+			</div>
+		</AbsoluteFill>
+	);
 };
 ```
 

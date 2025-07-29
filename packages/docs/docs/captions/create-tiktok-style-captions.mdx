@@ -21,39 +21,39 @@ This API expects the whitespace to be included in the `text` field **before each
 import {createTikTokStyleCaptions, Caption} from '@remotion/captions';
 
 const captions: Caption[] = [
-  {
-    text: 'Using',
-    startMs: 40,
-    endMs: 300,
-    timestampMs: 200,
-    confidence: null,
-  },
-  {
-    text: " Remotion's",
-    startMs: 300,
-    endMs: 900,
-    timestampMs: 440,
-    confidence: null,
-  },
-  {
-    text: ' TikTok',
-    startMs: 900,
-    endMs: 1260,
-    timestampMs: 1080,
-    confidence: null,
-  },
-  {
-    text: ' template,',
-    startMs: 1260,
-    endMs: 1950,
-    timestampMs: 1600,
-    confidence: null,
-  },
+	{
+		text: 'Using',
+		startMs: 40,
+		endMs: 300,
+		timestampMs: 200,
+		confidence: null,
+	},
+	{
+		text: " Remotion's",
+		startMs: 300,
+		endMs: 900,
+		timestampMs: 440,
+		confidence: null,
+	},
+	{
+		text: ' TikTok',
+		startMs: 900,
+		endMs: 1260,
+		timestampMs: 1080,
+		confidence: null,
+	},
+	{
+		text: ' template,',
+		startMs: 1260,
+		endMs: 1950,
+		timestampMs: 1600,
+		confidence: null,
+	},
 ];
 
 const {pages} = createTikTokStyleCaptions({
-  captions,
-  combineTokensWithinMilliseconds: 1200,
+	captions,
+	combineTokensWithinMilliseconds: 1200,
 });
 
 /* pages: [

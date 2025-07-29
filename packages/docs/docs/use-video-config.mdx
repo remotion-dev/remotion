@@ -2,7 +2,7 @@
 image: /generated/articles-docs-use-video-config.png
 title: useVideoConfig()
 id: use-video-config
-crumb: "API"
+crumb: 'API'
 ---
 
 With this hook, you can retrieve some info about the composition you are in.
@@ -10,17 +10,17 @@ With this hook, you can retrieve some info about the composition you are in.
 ## Example
 
 ```tsx twoslash
-import React from "react";
-import { useVideoConfig } from "remotion";
+import React from 'react';
+import {useVideoConfig} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  const { width, height, fps, durationInFrames } = useVideoConfig();
-  console.log(width); // 1920
-  console.log(height); // 1080
-  console.log(fps); // 30;
-  console.log(durationInFrames); // 300
+	const {width, height, fps, durationInFrames} = useVideoConfig();
+	console.log(width); // 1920
+	console.log(height); // 1080
+	console.log(fps); // 30;
+	console.log(durationInFrames); // 300
 
-  return <div>Hello World!</div>;
+	return <div>Hello World!</div>;
 };
 ```
 

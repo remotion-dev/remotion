@@ -31,36 +31,37 @@ You'll receive an outline of how to build a timeline, canvas, captioning and exp
 <img src="/img/timelineitems.png" />
 <br />
 <br />
-<Step>1</Step> Define a TypeScript type <code>Item</code> defining the different item types. Create another one for defining the shape of a <code>Track</code>:
+<Step>1</Step> Define a TypeScript type <code>Item</code> defining the different
+item types. Create another one for defining the shape of a <code>Track</code>:
 
 ```tsx twoslash title="types.ts"
 type BaseItem = {
-  from: number;
-  durationInFrames: number;
-  id: string;
+	from: number;
+	durationInFrames: number;
+	id: string;
 };
 
 export type SolidItem = BaseItem & {
-  type: 'solid';
-  color: string;
+	type: 'solid';
+	color: string;
 };
 
 export type TextItem = BaseItem & {
-  type: 'text';
-  text: string;
-  color: string;
+	type: 'text';
+	text: string;
+	color: string;
 };
 
 export type VideoItem = BaseItem & {
-  type: 'video';
-  src: string;
+	type: 'video';
+	src: string;
 };
 
 export type Item = SolidItem | TextItem | VideoItem;
 
 export type Track = {
-  name: string;
-  items: Item[];
+	name: string;
+	items: Item[];
 };
 ```
 
@@ -69,32 +70,32 @@ export type Track = {
 ```tsx twoslash title="remotion/Main.tsx"
 // @filename: types.ts
 type BaseItem = {
-  from: number;
-  durationInFrames: number;
-  id: string;
+	from: number;
+	durationInFrames: number;
+	id: string;
 };
 
 export type SolidItem = BaseItem & {
-  type: 'solid';
-  color: string;
+	type: 'solid';
+	color: string;
 };
 
 export type TextItem = BaseItem & {
-  type: 'text';
-  text: string;
-  color: string;
+	type: 'text';
+	text: string;
+	color: string;
 };
 
 export type VideoItem = BaseItem & {
-  type: 'video';
-  src: string;
+	type: 'video';
+	src: string;
 };
 
 export type Item = SolidItem | TextItem | VideoItem;
 
 export type Track = {
-  name: string;
-  items: Item[];
+	name: string;
+	items: Item[];
 };
 
 // @filename: Main.tsx
@@ -104,49 +105,53 @@ import React from 'react';
 import {AbsoluteFill, Sequence, OffthreadVideo} from 'remotion';
 
 const ItemComp: React.FC<{
-  item: Item;
+	item: Item;
 }> = ({item}) => {
-  if (item.type === 'solid') {
-    return <AbsoluteFill style={{backgroundColor: item.color}} />;
-  }
+	if (item.type === 'solid') {
+		return <AbsoluteFill style={{backgroundColor: item.color}} />;
+	}
 
-  if (item.type === 'text') {
-    return <h1>{item.text}</h1>;
-  }
+	if (item.type === 'text') {
+		return <h1>{item.text}</h1>;
+	}
 
-  if (item.type === 'video') {
-    return <OffthreadVideo src={item.src} />;
-  }
+	if (item.type === 'video') {
+		return <OffthreadVideo src={item.src} />;
+	}
 
-  throw new Error(`Unknown item type: ${JSON.stringify(item)}`);
+	throw new Error(`Unknown item type: ${JSON.stringify(item)}`);
 };
 
 const Track: React.FC<{
-  track: Track;
+	track: Track;
 }> = ({track}) => {
-  return (
-    <AbsoluteFill>
-      {track.items.map((item) => {
-        return (
-          <Sequence key={item.id} from={item.from} durationInFrames={item.durationInFrames}>
-            <ItemComp item={item} />
-          </Sequence>
-        );
-      })}
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			{track.items.map((item) => {
+				return (
+					<Sequence
+						key={item.id}
+						from={item.from}
+						durationInFrames={item.durationInFrames}
+					>
+						<ItemComp item={item} />
+					</Sequence>
+				);
+			})}
+		</AbsoluteFill>
+	);
 };
 
 export const Main: React.FC<{
-  tracks: Track[];
+	tracks: Track[];
 }> = ({tracks}) => {
-  return (
-    <AbsoluteFill>
-      {tracks.map((track) => {
-        return <Track track={track} key={track.name} />;
-      })}
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			{tracks.map((track) => {
+				return <Track track={track} key={track.name} />;
+			})}
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -154,7 +159,7 @@ export const Main: React.FC<{
 In CSS, the elements that are rendered at the bottom appear at the top. See: [Layers](/docs/layers)
 :::
 
-<Step>3</Step> Keep a state of tracks each containing an array of items.{' '}
+<Step>3</Step> Keep a state of tracks each containing an array of items.
 
 Render
 a [`<Player />`](/docs/player/player) component and pass the `tracks` as [`inputProps`](/docs/player/player#inputprops).
@@ -162,40 +167,40 @@ a [`<Player />`](/docs/player/player) component and pass the `tracks` as [`input
 ```tsx twoslash title="Editor.tsx"
 // @filename: types.ts
 type BaseItem = {
-  from: number;
-  durationInFrames: number;
+	from: number;
+	durationInFrames: number;
 };
 
 export type SolidItem = BaseItem & {
-  type: 'shape';
-  color: string;
+	type: 'shape';
+	color: string;
 };
 
 export type TextItem = BaseItem & {
-  type: 'text';
-  text: string;
-  color: string;
+	type: 'text';
+	text: string;
+	color: string;
 };
 
 export type VideoItem = BaseItem & {
-  type: 'video';
-  src: string;
+	type: 'video';
+	src: string;
 };
 
 export type Item = SolidItem | TextItem | VideoItem;
 
 export type Track = {
-  name: string;
-  items: Item[];
+	name: string;
+	items: Item[];
 };
 
 // @filename: remotion/Main.tsx
 import React from 'react';
 import type {Track} from '../types';
 export const Main: React.FC<{
-  tracks: Track[];
+	tracks: Track[];
 }> = ({tracks}) => {
-  return null;
+	return null;
 };
 
 // @filename: Editor.tsx
@@ -206,31 +211,40 @@ import type {Item} from './types';
 import {Main} from './remotion/Main';
 
 type Track = {
-  name: string;
-  items: Item[];
+	name: string;
+	items: Item[];
 };
 
 export const Editor = () => {
-  const [tracks, setTracks] = useState<Track[]>([
-    {name: 'Track 1', items: []},
-    {name: 'Track 2', items: []},
-  ]);
+	const [tracks, setTracks] = useState<Track[]>([
+		{name: 'Track 1', items: []},
+		{name: 'Track 2', items: []},
+	]);
 
-  const inputProps = useMemo(() => {
-    return {
-      tracks,
-    };
-  }, [tracks]);
+	const inputProps = useMemo(() => {
+		return {
+			tracks,
+		};
+	}, [tracks]);
 
-  return (
-    <>
-      <Player component={Main} fps={30} inputProps={inputProps} durationInFrames={600} compositionWidth={1280} compositionHeight={720} />
-    </>
-  );
+	return (
+		<>
+			<Player
+				component={Main}
+				fps={30}
+				inputProps={inputProps}
+				durationInFrames={600}
+				compositionWidth={1280}
+				compositionHeight={720}
+			/>
+		</>
+	);
 };
 ```
 
-<Step>4</Step> Build a timeline component: You now have access to the <code>tracks</code> state and can update it using the <code>setTracks</code> function.
+<Step>4</Step> Build a timeline component: You now have access to the
+<code>tracks</code> state and can update it using the <code>setTracks</code>
+function.
 
 We do not currently provide samples how to build a timeline component, since everybody has different needs and styling preferences.
 
@@ -244,36 +258,43 @@ import {Player} from '@remotion/player';
 import {useState, useMemo} from 'react';
 
 const Main: React.FC<{
-  tracks: Track[];
+	tracks: Track[];
 }> = ({tracks}) => {
-  return null;
+	return null;
 };
 
 const Timeline: React.FC<{
-  tracks: Track[];
-  setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
+	tracks: Track[];
+	setTracks: React.Dispatch<React.SetStateAction<Track[]>>;
 }> = () => {
-  return null;
+	return null;
 };
 // ---cut---
 const Editor: React.FC = () => {
-  const [tracks, setTracks] = useState<Track[]>([
-    {name: 'Track 1', items: []},
-    {name: 'Track 2', items: []},
-  ]);
+	const [tracks, setTracks] = useState<Track[]>([
+		{name: 'Track 1', items: []},
+		{name: 'Track 2', items: []},
+	]);
 
-  const inputProps = useMemo(() => {
-    return {
-      tracks,
-    };
-  }, [tracks]);
+	const inputProps = useMemo(() => {
+		return {
+			tracks,
+		};
+	}, [tracks]);
 
-  return (
-    <>
-      <Player component={Main} fps={30} inputProps={inputProps} durationInFrames={600} compositionWidth={1280} compositionHeight={720} />
-      <Timeline tracks={tracks} setTracks={setTracks} />
-    </>
-  );
+	return (
+		<>
+			<Player
+				component={Main}
+				fps={30}
+				inputProps={inputProps}
+				durationInFrames={600}
+				compositionWidth={1280}
+				compositionHeight={720}
+			/>
+			<Timeline tracks={tracks} setTracks={setTracks} />
+		</>
+	);
 };
 ```
 

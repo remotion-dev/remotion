@@ -2,16 +2,16 @@
 image: /generated/articles-docs-miscellaneous-absolute-paths.png
 sidebar_label: Absolute paths
 title: Files with absolute paths
-crumb: "FAQ"
+crumb: 'FAQ'
 ---
 
 Why is it not possible to use absolute paths to require assets?
 
 ```tsx title="This does not work"
-import { Img } from "remotion";
+import {Img} from 'remotion';
 
 const MyComp: React.FC = () => {
-  return <Img src="C://Users/Joe/Documents/image.png" />;
+	return <Img src="C://Users/Joe/Documents/image.png" />;
 };
 ```
 

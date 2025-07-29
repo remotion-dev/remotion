@@ -23,25 +23,25 @@ import {loadFont, fontFamily} from '@remotion/google-fonts/Inter';
 const {waitUntilDone} = loadFont('normal');
 
 const MyComp: React.FC = () => {
-  const [dimensions, setDimensions] = useState<Dimensions | null>(null);
+	const [dimensions, setDimensions] = useState<Dimensions | null>(null);
 
-  useEffect(() => {
-    // Wait until the font is loaded before measuring text
-    waitUntilDone().then(() => {
-      const measurement = measureText({
-        fontFamily: fontFamily,
-        fontSize: 14,
-        fontWeight: '400',
-        text: 'Hello world',
-      });
+	useEffect(() => {
+		// Wait until the font is loaded before measuring text
+		waitUntilDone().then(() => {
+			const measurement = measureText({
+				fontFamily: fontFamily,
+				fontSize: 14,
+				fontWeight: '400',
+				text: 'Hello world',
+			});
 
-      // We don't need to use delayRender() here, because
-      // font loading from @remotion/google-fonts is already wrapped in it
-      setDimensions(measurement);
-    });
-  }, []);
+			// We don't need to use delayRender() here, because
+			// font loading from @remotion/google-fonts is already wrapped in it
+			setDimensions(measurement);
+		});
+	}, []);
 
-  return null;
+	return null;
 };
 ```
 
@@ -53,9 +53,15 @@ It keeps the code clean by exposing a high-order component which only mounts its
 A file is defined which loads some fonts:
 
 ```tsx twoslash title="fonts.ts"
-import {fontFamily as regularFont, loadFont as loadRegular} from '@remotion/google-fonts/Inter';
+import {
+	fontFamily as regularFont,
+	loadFont as loadRegular,
+} from '@remotion/google-fonts/Inter';
 
-import {fontFamily as monospaceFont, loadFont as loadMonospace} from '@remotion/google-fonts/RobotoMono';
+import {
+	fontFamily as monospaceFont,
+	loadFont as loadMonospace,
+} from '@remotion/google-fonts/RobotoMono';
 
 import {cancelRender, continueRender, delayRender} from 'remotion';
 
@@ -63,24 +69,30 @@ const regular = loadRegular();
 const monospace = loadMonospace();
 
 export const waitForFonts = async () => {
-  await regular.waitUntilDone();
-  await monospace.waitUntilDone();
+	await regular.waitUntilDone();
+	await monospace.waitUntilDone();
 };
 
 const delay = delayRender('Loading fonts');
 
 waitForFonts()
-  .then(() => continueRender(delay))
-  .catch((err) => cancelRender(err));
+	.then(() => continueRender(delay))
+	.catch((err) => cancelRender(err));
 ```
 
 Then a higher order component is defined which only renders it's children when the font is loaded:
 
 ```tsx twoslash title="WaitForFonts.tsx"
 // @filename: fonts.ts
-import {fontFamily as regularFont, loadFont as loadRegular} from '@remotion/google-fonts/Inter';
+import {
+	fontFamily as regularFont,
+	loadFont as loadRegular,
+} from '@remotion/google-fonts/Inter';
 
-import {fontFamily as monospaceFont, loadFont as loadMonospace} from '@remotion/google-fonts/RobotoMono';
+import {
+	fontFamily as monospaceFont,
+	loadFont as loadMonospace,
+} from '@remotion/google-fonts/RobotoMono';
 
 import {cancelRender, continueRender, delayRender} from 'remotion';
 
@@ -88,15 +100,15 @@ export const regular = loadRegular();
 const monospace = loadMonospace();
 
 export const waitForFonts = async () => {
-  await regular.waitUntilDone();
-  await monospace.waitUntilDone();
+	await regular.waitUntilDone();
+	await monospace.waitUntilDone();
 };
 
 const delay = delayRender('Loading fonts');
 
 waitForFonts()
-  .then(() => continueRender(delay))
-  .catch((err) => cancelRender(err));
+	.then(() => continueRender(delay))
+	.catch((err) => cancelRender(err));
 
 // @filename: WaitForFonts.tsx
 // ---cut---
@@ -105,36 +117,36 @@ import {cancelRender, continueRender, delayRender} from 'remotion';
 import {waitForFonts} from './fonts';
 
 export const WaitForFonts: React.FC<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }> = ({children}) => {
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-  const [handle] = useState(() => delayRender('<WaitForFonts> component'));
+	const [fontsLoaded, setFontsLoaded] = useState(false);
+	const [handle] = useState(() => delayRender('<WaitForFonts> component'));
 
-  useEffect(() => {
-    return () => {
-      continueRender(handle);
-    };
-  }, [handle]);
+	useEffect(() => {
+		return () => {
+			continueRender(handle);
+		};
+	}, [handle]);
 
-  useEffect(() => {
-    const delay = delayRender('Waiting for fonts to be loaded');
+	useEffect(() => {
+		const delay = delayRender('Waiting for fonts to be loaded');
 
-    waitForFonts()
-      .then(() => {
-        continueRender(handle);
-        continueRender(delay);
-        setFontsLoaded(true);
-      })
-      .catch((err) => {
-        cancelRender(err);
-      });
-  }, [fontsLoaded, handle]);
+		waitForFonts()
+			.then(() => {
+				continueRender(handle);
+				continueRender(delay);
+				setFontsLoaded(true);
+			})
+			.catch((err) => {
+				cancelRender(err);
+			});
+	}, [fontsLoaded, handle]);
 
-  if (!fontsLoaded) {
-    return null;
-  }
+	if (!fontsLoaded) {
+		return null;
+	}
 
-  return <>{children}</>;
+	return <>{children}</>;
 };
 ```
 
@@ -146,10 +158,10 @@ export const regular = 'Inter';
 
 // @filename: WaitForFonts.tsx
 export const WaitForFonts: React.FC<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }> = ({children}) => {
-  // ...
-  return children;
+	// ...
+	return children;
 };
 
 // @filename: MyComp.tsx
@@ -160,23 +172,23 @@ import {WaitForFonts} from './WaitForFonts';
 import {measureText} from '@remotion/layout-utils';
 
 const MyCompInner: React.FC = () => {
-  // Safe to call measureText() here
-  const measurement = measureText({
-    fontFamily: regular,
-    fontSize: 14,
-    fontWeight: '400',
-    text: 'Hello world',
-  });
+	// Safe to call measureText() here
+	const measurement = measureText({
+		fontFamily: regular,
+		fontSize: 14,
+		fontWeight: '400',
+		text: 'Hello world',
+	});
 
-  return null;
+	return null;
 };
 
 export const MyComp: React.FC = () => {
-  return (
-    <WaitForFonts>
-      <MyCompInner />
-    </WaitForFonts>
-  );
+	return (
+		<WaitForFonts>
+			<MyCompInner />
+		</WaitForFonts>
+	);
 };
 ```
 
@@ -207,10 +219,10 @@ const fontSize = 16;
 
 // Use the variable in the measurement function:
 measureText({
-  text,
-  fontFamily,
-  fontWeight,
-  fontSize,
+	text,
+	fontFamily,
+	fontWeight,
+	fontSize,
 });
 
 // As well as in markup

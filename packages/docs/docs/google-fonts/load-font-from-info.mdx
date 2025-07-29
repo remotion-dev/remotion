@@ -22,7 +22,7 @@ import {getInfo} from '@remotion/google-fonts/InterTight';
 import {loadFontFromInfo} from '@remotion/google-fonts/from-info';
 
 const loadInfoFromServer = () => {
-  return Promise.resolve(getInfo());
+	return Promise.resolve(getInfo());
 };
 
 // ---cut---
@@ -43,8 +43,8 @@ import {getInfo} from '@remotion/google-fonts/InterTight';
 import {loadFontFromInfo} from '@remotion/google-fonts/from-info';
 
 const {waitUntilDone} = loadFontFromInfo(getInfo(), 'normal', {
-  weights: ['400'],
-  subsets: ['latin'],
+	weights: ['400'],
+	subsets: ['latin'],
 });
 ```
 

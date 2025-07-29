@@ -16,23 +16,23 @@ A presentation where the next scene is revealed through a circular mask that exp
 import {AbsoluteFill} from 'remotion';
 
 const Letter: React.FC<{
-  children: React.ReactNode;
-  color: string;
+	children: React.ReactNode;
+	color: string;
 }> = ({children, color}) => {
-  return (
-    <AbsoluteFill
-      style={{
-        backgroundColor: color,
-        opacity: 0.9,
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: 200,
-        color: 'white',
-      }}
-    >
-      {children}
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundColor: color,
+				opacity: 0.9,
+				justifyContent: 'center',
+				alignItems: 'center',
+				fontSize: 200,
+				color: 'white',
+			}}
+		>
+			{children}
+		</AbsoluteFill>
+	);
 };
 // ---cut---
 import {linearTiming, TransitionSeries} from '@remotion/transitions';
@@ -40,19 +40,22 @@ import {iris} from '@remotion/transitions/iris';
 import {useVideoConfig} from 'remotion';
 
 const BasicTransition = () => {
-  const {width, height} = useVideoConfig();
+	const {width, height} = useVideoConfig();
 
-  return (
-    <TransitionSeries>
-      <TransitionSeries.Sequence durationInFrames={40}>
-        <Letter color="#0b84f3">A</Letter>
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition presentation={iris({width, height})} timing={linearTiming({durationInFrames: 30})} />
-      <TransitionSeries.Sequence durationInFrames={60}>
-        <Letter color="pink">B</Letter>
-      </TransitionSeries.Sequence>
-    </TransitionSeries>
-  );
+	return (
+		<TransitionSeries>
+			<TransitionSeries.Sequence durationInFrames={40}>
+				<Letter color="#0b84f3">A</Letter>
+			</TransitionSeries.Sequence>
+			<TransitionSeries.Transition
+				presentation={iris({width, height})}
+				timing={linearTiming({durationInFrames: 30})}
+			/>
+			<TransitionSeries.Sequence durationInFrames={60}>
+				<Letter color="pink">B</Letter>
+			</TransitionSeries.Sequence>
+		</TransitionSeries>
+	);
 };
 ```
 

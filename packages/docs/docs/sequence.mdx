@@ -24,41 +24,41 @@ export const Outro = () => <></>;
 // ---cut---
 
 const MyTrailer = () => {
-  return (
-    <>
-      <Sequence durationInFrames={30}>
-        <Intro />
-      </Sequence>
-      <Sequence from={30} durationInFrames={30}>
-        <Clip />
-      </Sequence>
-      <Sequence from={60}>
-        <Outro />
-      </Sequence>
-    </>
-  );
+	return (
+		<>
+			<Sequence durationInFrames={30}>
+				<Intro />
+			</Sequence>
+			<Sequence from={30} durationInFrames={30}>
+				<Clip />
+			</Sequence>
+			<Sequence from={60}>
+				<Outro />
+			</Sequence>
+		</>
+	);
 };
 ```
 
 <sub>
-  <em>
-    <code>&lt;Intro&gt;</code>
-  </em>{' '}
-  will show from frame 0-29.
+	<em>
+		<code>&lt;Intro&gt;</code>
+	</em>{' '}
+	will show from frame 0-29.
 </sub>
 <br />
 <sub>
-  <em>
-    <code>&lt;Clip&gt;</code>
-  </em>{' '}
-  will show from frame 30 on until frame 59.
+	<em>
+		<code>&lt;Clip&gt;</code>
+	</em>{' '}
+	will show from frame 30 on until frame 59.
 </sub>
 <br />
 <sub>
-  <em>
-    <code>&lt;Outro&gt;</code>
-  </em>{' '}
-  will show from frame 60 on until the end of the composition.
+	<em>
+		<code>&lt;Outro&gt;</code>
+	</em>{' '}
+	will show from frame 60 on until the end of the composition.
 </sub>
 <br />
 <br />
@@ -71,23 +71,25 @@ import {Sequence, useCurrentFrame} from 'remotion';
 const Intro = () => <div>{useCurrentFrame()}</div>;
 
 const MyTrailer = () => {
-  return (
-    <>
-      <Intro />
-      <Sequence from={30}>
-        <Intro />
-      </Sequence>
-    </>
-  );
+	return (
+		<>
+			<Intro />
+			<Sequence from={30}>
+				<Intro />
+			</Sequence>
+		</>
+	);
 };
 ```
 
 <sub>
-  At frame <code>0</code>, this would render <code>&lt;div&gt;0&lt;/div&gt;</code>.
+	At frame <code>0</code>, this would render{' '}
+	<code>&lt;div&gt;0&lt;/div&gt;</code>.
 </sub>
 <br />
 <sub>
-  At frame <code>30</code>, this would render <code>&lt;div&gt;30&lt;/div&gt;&lt;div&gt;0&lt;/div&gt;</code>.
+	At frame <code>30</code>, this would render{' '}
+	<code>&lt;div&gt;30&lt;/div&gt;&lt;div&gt;0&lt;/div&gt;</code>.
 </sub>
 <br />
 <br />
@@ -113,7 +115,7 @@ All the examples below are based on the following animation of a blue square:
 // @include: example-BlueSquare
 // ---cut---
 const MyVideo = () => {
-  return <BlueSquare />;
+	return <BlueSquare />;
 };
 ```
 
@@ -129,11 +131,11 @@ If you would like to delay the content by say 30 frames, you can wrap it in <br/
 import {Sequence} from 'remotion';
 // ---cut---
 const MyVideo = () => {
-  return (
-    <Sequence from={30}>
-      <BlueSquare />
-    </Sequence>
-  );
+	return (
+		<Sequence from={30}>
+			<BlueSquare />
+		</Sequence>
+	);
 };
 ```
 
@@ -149,11 +151,11 @@ Wrap your component in a `<Sequence>` with a finite `durationInFrames` prop to m
 import {Sequence} from 'remotion';
 // ---cut---
 const ClipExample: React.FC = () => {
-  return (
-    <Sequence durationInFrames={45}>
-      <BlueSquare />
-    </Sequence>
-  );
+	return (
+		<Sequence durationInFrames={45}>
+			<BlueSquare />
+		</Sequence>
+	);
 };
 ```
 
@@ -167,11 +169,11 @@ By shifting the time backwards, the animation has already progressed by 15 frame
 
 ```tsx title="trim-start.tsx"
 const TrimStartExample: React.FC = () => {
-  return (
-    <Sequence from={-15}>
-      <BlueSquare />
-    </Sequence>
-  );
+	return (
+		<Sequence from={-15}>
+			<BlueSquare />
+		</Sequence>
+	);
 };
 ```
 
@@ -189,13 +191,13 @@ To the outer one we pass a positive value `from={30}` to then shift it forwards 
 import {Sequence} from 'remotion';
 // ---cut---
 const TrimAndDelayExample: React.FC = () => {
-  return (
-    <Sequence from={30}>
-      <Sequence from={-15}>
-        <BlueSquare />
-      </Sequence>
-    </Sequence>
-  );
+	return (
+		<Sequence from={30}>
+			<Sequence from={-15}>
+				<BlueSquare />
+			</Sequence>
+		</Sequence>
+	);
 };
 ```
 
@@ -288,12 +290,12 @@ import {Sequence} from 'remotion';
 const content = <div>Hello, World</div>;
 // ---cut---
 const MyComp = () => {
-  const ref = useRef<HTMLDivElement>(null);
-  return (
-    <Sequence from={10} ref={ref}>
-      {content}
-    </Sequence>
-  );
+	const ref = useRef<HTMLDivElement>(null);
+	return (
+		<Sequence from={10} ref={ref}>
+			{content}
+		</Sequence>
+	);
 };
 ```
 

@@ -18,11 +18,11 @@ This works in the browser as well as in Node.js and Bun.
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
-  src: 'https://parser.media/video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
+	src: 'https://parser.media/video.mp4',
+	fields: {
+		durationInSeconds: true,
+		dimensions: true,
+	},
 });
 
 console.log(result.durationInSeconds); // 10
@@ -39,12 +39,12 @@ import {parseMedia} from '@remotion/media-parser';
 import {nodeReader} from '@remotion/media-parser/node';
 
 const result = await parseMedia({
-  src: '/tmp/video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
-  reader: nodeReader,
+	src: '/tmp/video.mp4',
+	fields: {
+		durationInSeconds: true,
+		dimensions: true,
+	},
+	reader: nodeReader,
 });
 
 console.log(result.durationInSeconds); // 10
@@ -62,11 +62,11 @@ import {parseMedia} from '@remotion/media-parser';
 const file = new File([], 'video.mp4');
 
 const result = await parseMedia({
-  src: file,
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
+	src: file,
+	fields: {
+		durationInSeconds: true,
+		dimensions: true,
+	},
 });
 
 console.log(result.durationInSeconds); // 10
@@ -85,14 +85,14 @@ See [Available Fields](/docs/media-parser/fields) for a complete list.
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
-  src: 'https://parser.media/video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
-  onDurationInSeconds: (durationInSeconds) => {
-    console.log(durationInSeconds); // 10
-  },
+	src: 'https://parser.media/video.mp4',
+	fields: {
+		durationInSeconds: true,
+		dimensions: true,
+	},
+	onDurationInSeconds: (durationInSeconds) => {
+		console.log(durationInSeconds); // 10
+	},
 });
 
 console.log(result.dimensions); // {width: 1920, height: 1080}

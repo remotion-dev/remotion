@@ -7,9 +7,12 @@ crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-  <p>
-    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
-  </p>
+	<p>
+		Cloud Run is in{' '}
+		<a href="/docs/cloudrun/status">
+			Alpha status and not actively being developed.
+		</a>
+	</p>
 </ExperimentalBadge>
 
 Gets information about a service given its name and region.
@@ -24,8 +27,8 @@ To deploy a service, use [`deployService()`](/docs/cloudrun/deployservice).
 import {getServiceInfo} from '@remotion/cloudrun/client';
 
 const info = await getServiceInfo({
-  region: 'us-east1',
-  serviceName: 'remotion--3-3-82--mem512mi--cpu1-0--t-500',
+	region: 'us-east1',
+	serviceName: 'remotion--3-3-82--mem512mi--cpu1-0--t-500',
 });
 console.log(info.serviceName); // remotion--3-3-82--mem512mi--cpu1-0--t-500
 console.log(info.timeoutInSeconds); // 500

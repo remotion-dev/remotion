@@ -17,16 +17,16 @@ import React from 'react';
 import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return (
-    <AbsoluteFill>
-      <AbsoluteFill>
-        <Img src={staticFile('bg.png')} />
-      </AbsoluteFill>
-      <AbsoluteFill>
-        <h1>This text appears on top of the video!</h1>
-      </AbsoluteFill>
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<AbsoluteFill>
+				<Img src={staticFile('bg.png')} />
+			</AbsoluteFill>
+			<AbsoluteFill>
+				<h1>This text appears on top of the video!</h1>
+			</AbsoluteFill>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -39,16 +39,16 @@ import React from 'react';
 import {AbsoluteFill, Img, staticFile, Sequence} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return (
-    <AbsoluteFill>
-      <Sequence>
-        <Img src={staticFile('bg.png')} />
-      </Sequence>
-      <Sequence from={60} durationInFrames={40}>
-        <h1>This text appears after 60 frames!</h1>
-      </Sequence>
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Sequence>
+				<Img src={staticFile('bg.png')} />
+			</Sequence>
+			<Sequence from={60} durationInFrames={40}>
+				<h1>This text appears after 60 frames!</h1>
+			</Sequence>
+		</AbsoluteFill>
+	);
 };
 ```
 

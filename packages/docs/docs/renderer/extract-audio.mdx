@@ -22,11 +22,14 @@ import {extractAudio, getVideoMetadata} from '@remotion/renderer';
 const videoSource = resolve(process.cwd(), '/Users/john/path-to-video.mp4');
 
 const videoMetadata = await getVideoMetadata(videoSource);
-const audioOutput = resolve(process.cwd(), `./output-audio-path.${videoMetadata.audioFileExtension}`);
+const audioOutput = resolve(
+	process.cwd(),
+	`./output-audio-path.${videoMetadata.audioFileExtension}`,
+);
 
 await extractAudio({
-  videoSource,
-  audioOutput,
+	videoSource,
+	audioOutput,
 });
 ```
 

@@ -108,7 +108,7 @@ import {Config} from '@remotion/cli/config';
 import {enableTailwind} from '@remotion/tailwind-v4';
 
 Config.overrideWebpackConfig((currentConfiguration) => {
-  return enableTailwind(currentConfiguration);
+	return enableTailwind(currentConfiguration);
 });
 ```
 
@@ -201,7 +201,7 @@ import {Config} from '@remotion/cli/config';
 import {enableTailwind} from '@remotion/tailwind';
 
 Config.overrideWebpackConfig((currentConfiguration) => {
-  return enableTailwind(currentConfiguration);
+	return enableTailwind(currentConfiguration);
 });
 ```
 
@@ -230,11 +230,11 @@ import './style.css';
 ```js title="tailwind.config.js"
 /* eslint-env node */
 module.exports = {
-  content: ['./src/**/*.{ts,tsx}'],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
+	content: ['./src/**/*.{ts,tsx}'],
+	theme: {
+		extend: {},
+	},
+	plugins: [],
 };
 ```
 

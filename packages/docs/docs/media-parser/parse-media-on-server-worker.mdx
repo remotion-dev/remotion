@@ -20,11 +20,11 @@ We do not test against Deno's `Worker` implementation.
 import {parseMediaOnServerWorker} from '@remotion/media-parser/server-worker';
 
 const result = await parseMediaOnServerWorker({
-  src: '/tmp/video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
+	src: '/tmp/video.mp4',
+	fields: {
+		durationInSeconds: true,
+		dimensions: true,
+	},
 });
 
 console.log(result.durationInSeconds); // 10

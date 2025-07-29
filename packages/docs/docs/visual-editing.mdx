@@ -6,7 +6,12 @@ sidebar_label: Visual editing
 crumb: 'How To'
 ---
 
-<YouTube minutes={6} href="https://www.youtube.com/watch?v=NX9YTOsLGpQ" thumb="https://i.ytimg.com/vi/NX9YTOsLGpQ/hq720.jpg" title="Visual editing" />
+<YouTube
+	minutes={6}
+	href="https://www.youtube.com/watch?v=NX9YTOsLGpQ"
+	thumb="https://i.ytimg.com/vi/NX9YTOsLGpQ/hq720.jpg"
+	title="Visual editing"
+/>
 
 You can edit the default props of a component visually, first register a [`schema`](/docs/composition#schema) with your [`<Composition>`](/docs/composition).
 
@@ -55,17 +60,20 @@ import React from 'react';
 import {z} from 'zod';
 
 export const myCompSchema = z.object({
-  propOne: z.string(),
-  propTwo: z.string(),
+	propOne: z.string(),
+	propTwo: z.string(),
 });
 
-export const MyComponent: React.FC<z.infer<typeof myCompSchema>> = ({propOne, propTwo}) => {
-  return (
-    <div>
-      <h1>{propOne}</h1>
-      <h2>{propTwo}</h2>
-    </div>
-  );
+export const MyComponent: React.FC<z.infer<typeof myCompSchema>> = ({
+	propOne,
+	propTwo,
+}) => {
+	return (
+		<div>
+			<h1>{propOne}</h1>
+			<h2>{propTwo}</h2>
+		</div>
+	);
 };
 
 // @filename: Root.tsx
@@ -76,21 +84,21 @@ import {Composition} from 'remotion';
 import {MyComponent, myCompSchema} from './MyComponent';
 
 export const RemotionRoot: React.FC = () => {
-  return (
-    <Composition
-      id="my-video"
-      component={MyComponent}
-      durationInFrames={100}
-      fps={30}
-      width={1920}
-      height={1080}
-      schema={myCompSchema}
-      defaultProps={{
-        propOne: 'Hello World',
-        propTwo: 'Welcome to Remotion',
-      }}
-    />
-  );
+	return (
+		<Composition
+			id="my-video"
+			component={MyComponent}
+			durationInFrames={100}
+			fps={30}
+			width={1920}
+			height={1080}
+			schema={myCompSchema}
+			defaultProps={{
+				propOne: 'Hello World',
+				propTwo: 'Welcome to Remotion',
+			}}
+		/>
+	);
 };
 ```
 

@@ -7,16 +7,21 @@ crumb: 'Converting Remotion Projects'
 
 If you have a React app that uses the [`<Player>`](/docs/player/player) component, you can turn it also into a Remotion project without having to create a new repository. This will enable you to:
 
-<Step>1</Step> Use the <a href="/docs/studio/">Remotion Studio</a><br />
-<Step>2</Step> Render videos locally<br />
-<Step>2</Step> Create a <a href="/docs/terminology/bundle">
-  Remotion Bundle
-</a> that allows rendering in the cloud
+<Step>1</Step> Use the <a href="/docs/studio/">Remotion Studio</a>
+<br />
+<Step>2</Step> Render videos locally
+<br />
+<Step>2</Step> Create a <a href="/docs/terminology/bundle">Remotion Bundle</a>
+that allows rendering in the cloud
 
 ## Instructions
 
-<Step>1</Step> Ensure that you don't already have a Studio installed - in the following
-templates, the Studio is already installed and can be started using the command <a href="/docs/cli/studio"><code>npx remotion studio</code></a>
+<Step>1</Step> Ensure that you don't already have a Studio installed - in the
+following templates, the Studio is already installed and can be started using
+the command
+<a href="/docs/cli/studio">
+	<code>npx remotion studio</code>
+</a>
 :<br />
 
 - [Next.js (App dir)](/templates/next)
@@ -29,13 +34,13 @@ templates, the Studio is already installed and can be started using the command 
 <Installation pkg="@remotion/cli" />
 <br />
 
-<Step>3</Step> Make a new folder <code>remotion</code> and add these two files in
-it:
+<Step>3</Step> Make a new folder <code>remotion</code> and add these two files
+in it:
 
 ```tsx twoslash title="remotion/Root.tsx"
 // @filename: Composition.tsx
 export const MyComposition: React.FC = () => {
-  return null;
+	return null;
 };
 // @filename: Root.tsx
 // ---cut---
@@ -44,19 +49,19 @@ import {Composition} from 'remotion';
 import {MyComposition} from './Composition';
 
 export const RemotionRoot: React.FC = () => {
-  return (
-    <>
-      <Composition
-        id="Empty"
-        // Import the component and add the properties you had in the `<Player>` before
-        component={MyComposition}
-        durationInFrames={60}
-        fps={30}
-        width={1280}
-        height={720}
-      />
-    </>
-  );
+	return (
+		<>
+			<Composition
+				id="Empty"
+				// Import the component and add the properties you had in the `<Player>` before
+				component={MyComposition}
+				durationInFrames={60}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+		</>
+	);
 };
 ```
 

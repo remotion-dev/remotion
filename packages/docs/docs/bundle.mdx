@@ -21,9 +21,9 @@ import path from 'path';
 import {bundle} from '@remotion/bundler';
 
 const serveUrl = await bundle({
-  entryPoint: path.join(process.cwd(), './src/index.ts'),
-  // If you have a webpack override in remotion.config.ts, pass it here as well.
-  webpackOverride: (config) => config,
+	entryPoint: path.join(process.cwd(), './src/index.ts'),
+	// If you have a webpack override in remotion.config.ts, pass it here as well.
+	webpackOverride: (config) => config,
 });
 ```
 
@@ -39,7 +39,7 @@ A callback function that notifies about the progress of the Webpack bundling. Pa
 
 ```ts twoslash
 const onProgress = (progress: number) => {
-  console.log(`Webpack bundling progress: ${progress}%`);
+	console.log(`Webpack bundling progress: ${progress}%`);
 };
 ```
 
@@ -53,10 +53,10 @@ A function to override the webpack config reducer-style. Takes a function which 
 import {WebpackOverrideFn} from '@remotion/bundler';
 // ---cut---
 const webpackOverride: WebpackOverrideFn = (webpackConfig) => {
-  return {
-    ...webpackConfig,
-    // Override properties
-  };
+	return {
+		...webpackConfig,
+		// Override properties
+	};
 };
 ```
 
@@ -110,16 +110,16 @@ Remotion versions earlier than v3.2.17 had the following function signature inst
 
 ```ts
 const bundle: (
-  entryPoint: string,
-  onProgress?: (progress: number) => void,
-  options?: {
-    webpackOverride?: WebpackOverrideFn;
-    outDir?: string;
-    enableCaching?: boolean;
-    publicPath?: string;
-    rootDir?: string;
-    publicDir?: string | null;
-  },
+	entryPoint: string,
+	onProgress?: (progress: number) => void,
+	options?: {
+		webpackOverride?: WebpackOverrideFn;
+		outDir?: string;
+		enableCaching?: boolean;
+		publicPath?: string;
+		rootDir?: string;
+		publicDir?: string | null;
+	},
 ) => Promise<string>;
 ```
 
@@ -127,7 +127,7 @@ Example:
 
 ```ts
 await bundle('src/index.ts', () => console.log(progress * 100 + '% done'), {
-  webpackOverride,
+	webpackOverride,
 });
 ```
 

@@ -34,12 +34,12 @@ You can observe mounting, loading, seeking and buffering events of media by addi
 
 ```tsx twoslash title='Adding logLevel="trace" to the Player'
 const otherProps = {
-  compositionHeight: 1080,
-  compositionWidth: 1920,
-  inputProps: {},
-  component: () => null,
-  fps: 30,
-  durationInFrames: 100,
+	compositionHeight: 1080,
+	compositionWidth: 1920,
+	inputProps: {},
+	component: () => null,
+	fps: 30,
+	durationInFrames: 100,
 };
 
 // ---cut---
@@ -47,7 +47,7 @@ import React from 'react';
 import {Player} from '@remotion/player';
 
 export const MyApp: React.FC = () => {
-  return <Player {...otherProps} logLevel="trace" />;
+	return <Player {...otherProps} logLevel="trace" />;
 };
 ```
 
@@ -63,7 +63,7 @@ const src = 'https://example.com';
 import {prefetch} from 'remotion';
 
 prefetch(src, {
-  logLevel: 'trace',
+	logLevel: 'trace',
 });
 ```
 
@@ -73,17 +73,24 @@ We have implemented exact logging of relevant events so in order to improve how 
 We are encouraging you to file feedback. If you would like to report feedback, please:
 
 <div>
-  <Step>1</Step> <span>Ensure you are at least on v4.0.302 of Remotion. Previous versions had known bugs.</span>
+	<Step>1</Step>{' '}
+	<span>
+		Ensure you are at least on v4.0.302 of Remotion. Previous versions had known
+		bugs.
+	</span>
 </div>
 <div>
-  <Step>2</Step>{' '}
-  <span>
-    <a href="#enable-logging">ensure you are using the best practices described above.</a>
-  </span>
+	<Step>2</Step>{' '}
+	<span>
+		<a href="#enable-logging">
+			ensure you are using the best practices described above.
+		</a>
+	</span>
 </div>
 <div>
-  <Step>3</Step>
-  <a href="#enable-logging">enable logging</a> and send all logs during playback alongside your report.
+	<Step>3</Step>
+	<a href="#enable-logging">enable logging</a> and send all logs during playback
+	alongside your report.
 </div>
 
 ## See also

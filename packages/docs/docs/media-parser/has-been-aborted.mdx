@@ -15,15 +15,15 @@ Check if a media file download has been aborted.
 import {parseMedia, hasBeenAborted} from '@remotion/media-parser';
 
 try {
-  await parseMedia({
-    src: 'https://www.w3schools.com/html/mov_bbb.mp4',
-  });
+	await parseMedia({
+		src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+	});
 } catch (e) {
-  if (hasBeenAborted(e)) {
-    console.log('Has been aborted by user / developer');
-  } else {
-    console.error('Download failed', e);
-  }
+	if (hasBeenAborted(e)) {
+		console.log('Has been aborted by user / developer');
+	} else {
+		console.error('Download failed', e);
+	}
 }
 ```
 

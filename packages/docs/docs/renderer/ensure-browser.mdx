@@ -19,16 +19,16 @@ await ensureBrowser();
 import {ensureBrowser} from '@remotion/renderer';
 
 await ensureBrowser({
-  onBrowserDownload: () => {
-    console.log('Downloading browser');
+	onBrowserDownload: () => {
+		console.log('Downloading browser');
 
-    return {
-      version: '134.0.6998.35',
-      onProgress: ({percent}) => {
-        console.log(`${Math.round(percent * 100)}% downloaded`);
-      },
-    };
-  },
+		return {
+			version: '134.0.6998.35',
+			onProgress: ({percent}) => {
+				console.log(`${Math.round(percent * 100)}% downloaded`);
+			},
+		};
+	},
 });
 ```
 
@@ -56,24 +56,32 @@ Specify a specific version of Chrome that should be used and hook into the downl
 See the example below for the function signature.
 
 ```tsx twoslash title="init.ts"
-import {ensureBrowser, OnBrowserDownload, DownloadBrowserProgressFn} from '@remotion/renderer';
+import {
+	ensureBrowser,
+	OnBrowserDownload,
+	DownloadBrowserProgressFn,
+} from '@remotion/renderer';
 
-const onProgress: DownloadBrowserProgressFn = ({percent, downloadedBytes, totalSizeInBytes}) => {
-  console.log(`${Math.round(percent * 100)}% downloaded`);
+const onProgress: DownloadBrowserProgressFn = ({
+	percent,
+	downloadedBytes,
+	totalSizeInBytes,
+}) => {
+	console.log(`${Math.round(percent * 100)}% downloaded`);
 };
 
 const onBrowserDownload: OnBrowserDownload = () => {
-  console.log('Downloading browser');
+	console.log('Downloading browser');
 
-  return {
-    // Pass `null` to use Remotion's recommendation.
-    version: '134.0.6998.35',
-    onProgress,
-  };
+	return {
+		// Pass `null` to use Remotion's recommendation.
+		version: '134.0.6998.35',
+		onProgress,
+	};
 };
 
 await ensureBrowser({
-  onBrowserDownload,
+	onBrowserDownload,
 });
 ```
 

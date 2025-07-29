@@ -12,8 +12,8 @@ import {LicenseDisclaimer} from './LicenseDisclaimer';
 import {UnstableDisclaimer} from './UnstableDisclaimer';
 
 <details>
-  <summary>💼 Important License Disclaimer</summary>
-  <LicenseDisclaimer />
+	<summary>💼 Important License Disclaimer</summary>
+	<LicenseDisclaimer />
 </details>
 
 The following input formats are supported:
@@ -53,8 +53,8 @@ Install the `@remotion/webcodecs` and `@remotion/media-parser` packages:
 <Installation pkg="@remotion/webcodecs @remotion/media-parser" />
 <br />
 <details>
-  <summary>🚧 Unstable API</summary>
-  <UnstableDisclaimer />
+	<summary>🚧 Unstable API</summary>
+	<UnstableDisclaimer />
 </details>
 
 ## Basic conversions
@@ -67,8 +67,8 @@ Install the `@remotion/webcodecs` and `@remotion/media-parser` packages:
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
 });
 
 const blob = await result.save();
@@ -83,8 +83,8 @@ import {convertMedia} from '@remotion/webcodecs';
 const file = new File([], 'video.mp4');
 
 const result = await convertMedia({
-  src: file,
-  container: 'webm',
+	src: file,
+	container: 'webm',
 });
 
 const blob = await result.save();
@@ -98,10 +98,10 @@ You can specify the output codec by passing the [`videoCodec`](/docs/webcodecs/c
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
-  videoCodec: 'vp9',
-  audioCodec: 'opus',
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
+	videoCodec: 'vp9',
+	audioCodec: 'opus',
 });
 
 const blob = await result.save();
@@ -117,8 +117,8 @@ The `convertMedia()` function returns a result object with a `save()` method tha
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
 });
 
 const blob = await result.save();
@@ -140,8 +140,8 @@ URL.revokeObjectURL(url);
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
 });
 
 const blob = await result.save();
@@ -151,8 +151,8 @@ const formData = new FormData();
 formData.append('video', blob, 'converted-video.webm');
 
 await fetch('/api/upload', {
-  method: 'POST',
-  body: formData,
+	method: 'POST',
+	body: formData,
 });
 ```
 
@@ -162,8 +162,8 @@ await fetch('/api/upload', {
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
 });
 
 const blob = await result.save();

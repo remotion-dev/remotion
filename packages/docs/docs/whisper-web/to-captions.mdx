@@ -14,16 +14,16 @@ import {toCaptions, transcribe, resampleTo16Khz} from '@remotion/whisper-web';
 const file = new File([], 'audio.wav');
 
 const channelWaveform = await resampleTo16Khz({
-  file,
+	file,
 });
 
 const whisperWebOutput = await transcribe({
-  channelWaveform,
-  model: 'tiny.en',
+	channelWaveform,
+	model: 'tiny.en',
 });
 
 const {captions} = toCaptions({
-  whisperWebOutput,
+	whisperWebOutput,
 });
 
 console.log(captions); /*

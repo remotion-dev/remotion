@@ -39,35 +39,38 @@ The request body has the following structure:
 
 ```ts
 type StaticWebhookPayload = {
-  renderId: string;
-  expectedBucketOwner: string;
-  bucketName: string;
-  customData: Record<string, unknown> | null;
+	renderId: string;
+	expectedBucketOwner: string;
+	bucketName: string;
+	customData: Record<string, unknown> | null;
 };
 
 export type WebhookErrorPayload = StaticWebhookPayload & {
-  type: 'error';
-  errors: {
-    message: string;
-    name: string;
-    stack: string;
-  }[];
+	type: 'error';
+	errors: {
+		message: string;
+		name: string;
+		stack: string;
+	}[];
 };
 
 export type WebhookSuccessPayload = StaticWebhookPayload & {
-  type: 'success';
-  lambdaErrors: EnhancedErrorInfo[];
-  outputUrl: string | undefined;
-  outputFile: string | undefined;
-  timeToFinish: number | undefined;
-  costs: AfterRenderCost;
+	type: 'success';
+	lambdaErrors: EnhancedErrorInfo[];
+	outputUrl: string | undefined;
+	outputFile: string | undefined;
+	timeToFinish: number | undefined;
+	costs: AfterRenderCost;
 };
 
 export type WebhookTimeoutPayload = StaticWebhookPayload & {
-  type: 'timeout';
+	type: 'timeout';
 };
 
-export type WebhookPayload = WebhookErrorPayload | WebhookSuccessPayload | WebhookTimeoutPayload;
+export type WebhookPayload =
+	| WebhookErrorPayload
+	| WebhookSuccessPayload
+	| WebhookTimeoutPayload;
 ```
 
 The fields [`renderId`](/docs/lambda/rendermediaonlambda#renderid), [`bucketName`](/docs/lambda/rendermediaonlambda#bucketname) will be returned [just like they are returned by `renderMediaOnLambda()` itself](/docs/lambda/rendermediaonlambda#return-value).
@@ -153,11 +156,11 @@ const router = express();
 const jsonParser = bodyParser.json();
 
 const handler = expressWebhook({
-  secret: 'mysecret',
-  testing: ENABLE_TESTING,
-  onSuccess: ({renderId}) => console.log('Finished render', renderId),
-  onTimeout: ({renderId}) => console.log('Time out', renderId),
-  onError: ({renderId}) => console.log('Error', renderId),
+	secret: 'mysecret',
+	testing: ENABLE_TESTING,
+	onSuccess: ({renderId}) => console.log('Finished render', renderId),
+	onTimeout: ({renderId}) => console.log('Time out', renderId),
+	onError: ({renderId}) => console.log('Error', renderId),
 });
 
 router.post('/webhook', jsonParser, handler);
@@ -165,7 +168,7 @@ router.post('/webhook', jsonParser, handler);
 router.options('/webhook', jsonParser, handler);
 
 router.listen(3000, () => {
-  console.log('Server is running on port 3000');
+	console.log('Server is running on port 3000');
 });
 ```
 
@@ -180,42 +183,45 @@ const router = express();
 const jsonParser = bodyParser.json();
 
 const handler = (req, res) => {
-  //  add headers to enable  testing
-  const ENABLE_TESTING = true;
+	//  add headers to enable  testing
+	const ENABLE_TESTING = true;
 
-  if (ENABLE_TESTING) {
-    res.setHeader('Access-Control-Allow-Origin', 'https://www.remotion.dev');
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
-    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode');
-  }
+	if (ENABLE_TESTING) {
+		res.setHeader('Access-Control-Allow-Origin', 'https://www.remotion.dev');
+		res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
+		res.setHeader(
+			'Access-Control-Allow-Headers',
+			'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode',
+		);
+	}
 
-  // dont go forward if just testing
-  if (req.method === 'OPTIONS') {
-    // custom code to handle OPTIONS request
-    // logger(req).info('OPTIONS request received');
-    res.status(200).end();
-    return;
-  }
+	// dont go forward if just testing
+	if (req.method === 'OPTIONS') {
+		// custom code to handle OPTIONS request
+		// logger(req).info('OPTIONS request received');
+		res.status(200).end();
+		return;
+	}
 
-  // validate the webhook signature
-  validateWebhookSignature({
-    signatureHeader: req.header('X-Remotion-Signature'),
-    body: req.body,
-    secret: 'mysecret',
-  });
+	// validate the webhook signature
+	validateWebhookSignature({
+		signatureHeader: req.header('X-Remotion-Signature'),
+		body: req.body,
+		secret: 'mysecret',
+	});
 
-  //  custom logic
-  const payload = req.body;
-  if (payload.type === 'success') {
-    //success logic here
-  } else if (payload.type === 'error') {
-    //error logic here
-  } else if (payload.type === 'timeout') {
-    //timeout logic here
-  }
+	//  custom logic
+	const payload = req.body;
+	if (payload.type === 'success') {
+		//success logic here
+	} else if (payload.type === 'error') {
+		//error logic here
+	} else if (payload.type === 'timeout') {
+		//timeout logic here
+	}
 
-  // send response
-  res.status(200).json({success: true});
+	// send response
+	res.status(200).json({success: true});
 };
 
 router.post('/webhook', jsonParser, handler);
@@ -223,7 +229,7 @@ router.post('/webhook', jsonParser, handler);
 router.options('/webhook', jsonParser, handler);
 
 router.listen(3000, () => {
-  console.log('Server is running on port 3000');
+	console.log('Server is running on port 3000');
 });
 ```
 
@@ -238,12 +244,12 @@ const ENABLE_TESTING = false;
 import {appRouterWebhook} from '@remotion/lambda/client';
 
 export const POST = appRouterWebhook({
-  secret: 'mysecret',
-  // Enable testing through the tool below
-  testing: ENABLE_TESTING,
-  onSuccess: ({renderId}) => console.log('Finished render', renderId),
-  onTimeout: ({renderId}) => console.log('Time out', renderId),
-  onError: ({renderId}) => console.log('Error', renderId),
+	secret: 'mysecret',
+	// Enable testing through the tool below
+	testing: ENABLE_TESTING,
+	onSuccess: ({renderId}) => console.log('Finished render', renderId),
+	onTimeout: ({renderId}) => console.log('Time out', renderId),
+	onError: ({renderId}) => console.log('Error', renderId),
 });
 
 export const OPTIONS = POST;
@@ -261,12 +267,12 @@ const ENABLE_TESTING = false;
 import {pagesRouterWebhook} from '@remotion/lambda/client';
 
 const handler = pagesRouterWebhook({
-  secret: 'mysecret',
-  // Enable testing through the tool below
-  testing: ENABLE_TESTING,
-  onSuccess: ({renderId}) => console.log('Finished render', renderId),
-  onTimeout: ({renderId}) => console.log('Time out', renderId),
-  onError: ({renderId}) => console.log('Error', renderId),
+	secret: 'mysecret',
+	// Enable testing through the tool below
+	testing: ENABLE_TESTING,
+	onSuccess: ({renderId}) => console.log('Finished render', renderId),
+	onTimeout: ({renderId}) => console.log('Time out', renderId),
+	onError: ({renderId}) => console.log('Error', renderId),
 });
 export default handler;
 ```

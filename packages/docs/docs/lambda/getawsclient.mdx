@@ -17,28 +17,28 @@ import {Readable} from 'stream';
 const bucketName = 'remotionlambda-d9mafgx';
 
 const getFileAsBuffer = async () => {
-  const progress = await getRenderProgress({
-    renderId: 'd7nlc2y',
-    bucketName: 'remotionlambda-d9mafgx',
-    functionName: 'remotion-render-la8ffw',
-    region: 'us-east-1',
-  });
+	const progress = await getRenderProgress({
+		renderId: 'd7nlc2y',
+		bucketName: 'remotionlambda-d9mafgx',
+		functionName: 'remotion-render-la8ffw',
+		region: 'us-east-1',
+	});
 
-  if (!progress.outKey) {
-    // Video not yet rendered
-    return;
-  }
+	if (!progress.outKey) {
+		// Video not yet rendered
+		return;
+	}
 
-  const {client, sdk} = getAwsClient({region: 'us-east-1', service: 's3'});
+	const {client, sdk} = getAwsClient({region: 'us-east-1', service: 's3'});
 
-  const data = client.send(
-    new sdk.GetObjectCommand({
-      Bucket: bucketName,
-      Key: progress.outKey,
-    }),
-  );
+	const data = client.send(
+		new sdk.GetObjectCommand({
+			Bucket: bucketName,
+			Key: progress.outKey,
+		}),
+	);
 
-  return data.Body as Readable;
+	return data.Body as Readable;
 };
 ```
 
@@ -51,18 +51,18 @@ import {getAwsClient} from '@remotion/lambda/client';
 const {client, sdk} = getAwsClient({region: 'us-east-1', service: 's3'});
 
 client.send(
-  new sdk.PutBucketCorsCommand({
-    Bucket: '[bucket-name]',
-    CORSConfiguration: {
-      CORSRules: [
-        {
-          AllowedMethods: ['GET', 'HEAD'],
-          AllowedHeaders: ['*'],
-          AllowedOrigins: ['*'],
-        },
-      ],
-    },
-  }),
+	new sdk.PutBucketCorsCommand({
+		Bucket: '[bucket-name]',
+		CORSConfiguration: {
+			CORSRules: [
+				{
+					AllowedMethods: ['GET', 'HEAD'],
+					AllowedHeaders: ['*'],
+					AllowedOrigins: ['*'],
+				},
+			],
+		},
+	}),
 );
 ```
 
@@ -84,11 +84,11 @@ Allows you to connect to another cloud provider, useful if you [render your outp
 
 ```ts
 type CustomCredentials = {
-  endpoint: string;
-  accessKeyId: string | null;
-  secretAccessKey: string | null;
-  region?: string;
-  forcePathStyle?: boolean;
+	endpoint: string;
+	accessKeyId: string | null;
+	secretAccessKey: string | null;
+	region?: string;
+	forcePathStyle?: boolean;
 };
 ```
 

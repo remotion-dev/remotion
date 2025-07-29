@@ -23,29 +23,29 @@ import {getCompositions, renderStill} from '@remotion/renderer';
 const compositionId = 'HelloWorld';
 
 const bundleLocation = await bundle({
-  entryPoint: require.resolve('./src/index.ts'),
+	entryPoint: require.resolve('./src/index.ts'),
 });
 
 const comps = await getCompositions(bundleLocation, {
-  inputProps: {
-    custom: 'data',
-  },
+	inputProps: {
+		custom: 'data',
+	},
 });
 const composition = comps.find((c) => c.id === compositionId);
 
 if (!composition) {
-  throw new Error(`No composition with the ID ${compositionId} found`);
+	throw new Error(`No composition with the ID ${compositionId} found`);
 }
 
 // ---cut---
 
 await renderStill({
-  composition,
-  serveUrl: bundleLocation,
-  output: '/tmp/still.png',
-  inputProps: {
-    custom: 'data',
-  },
+	composition,
+	serveUrl: bundleLocation,
+	output: '/tmp/still.png',
+	inputProps: {
+		custom: 'data',
+	},
 });
 ```
 

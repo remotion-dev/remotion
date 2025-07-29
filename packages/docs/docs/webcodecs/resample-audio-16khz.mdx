@@ -17,39 +17,39 @@ You can use [`convertMedia()`](/docs/webcodecs/convert-media) to convert any of 
 import {LicenseDisclaimer} from './LicenseDisclaimer';
 
 <details>
-  <summary>💼 Important `@remotion/webcodecs` License Disclaimer</summary>
-  <LicenseDisclaimer />
+	<summary>💼 Important `@remotion/webcodecs` License Disclaimer</summary>
+	<LicenseDisclaimer />
 </details>
 
 ```tsx twoslash title="Resample audio to 16kHz"
 import {convertMedia, canReencodeAudioTrack} from '@remotion/webcodecs';
 
 const output = await convertMedia({
-  src: 'https://example.com/input.mp4',
-  container: 'wav',
-  onAudioTrack: async ({track}) => {
-    if (
-      await canReencodeAudioTrack({
-        audioCodec: 'wav',
-        track,
-        // Ignore this, bitrate is not used for WAV files
-        bitrate: 128000,
-        sampleRate: 16000,
-      })
-    ) {
-      return {
-        type: 'reencode',
-        audioCodec: 'wav',
-        bitrate: 128000,
-        sampleRate: 16000,
-      };
-    }
+	src: 'https://example.com/input.mp4',
+	container: 'wav',
+	onAudioTrack: async ({track}) => {
+		if (
+			await canReencodeAudioTrack({
+				audioCodec: 'wav',
+				track,
+				// Ignore this, bitrate is not used for WAV files
+				bitrate: 128000,
+				sampleRate: 16000,
+			})
+		) {
+			return {
+				type: 'reencode',
+				audioCodec: 'wav',
+				bitrate: 128000,
+				sampleRate: 16000,
+			};
+		}
 
-    // If this conversion is not supported, return an error
-    return {
-      type: 'fail',
-    };
-  },
+		// If this conversion is not supported, return an error
+		return {
+			type: 'fail',
+		};
+	},
 });
 
 const blob = await output.save(); // returns a `Blob`

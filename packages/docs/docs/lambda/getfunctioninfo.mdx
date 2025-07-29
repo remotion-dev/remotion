@@ -18,8 +18,8 @@ To deploy a function, use [`deployFunction()`](/docs/lambda/deployfunction).
 import {getFunctionInfo} from '@remotion/lambda';
 
 const info = await getFunctionInfo({
-  functionName: 'remotion-render-d7nd2a9f',
-  region: 'eu-central-1',
+	functionName: 'remotion-render-d7nd2a9f',
+	region: 'eu-central-1',
 });
 console.log(info.functionName); // remotion-render-d7nd2a9f
 console.log(info.memorySizeInMb); // 1500

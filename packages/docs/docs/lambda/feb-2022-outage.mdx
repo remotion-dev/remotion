@@ -31,11 +31,11 @@ Via Node.JS:
 import {deployFunction} from '@remotion/lambda';
 
 const {functionName} = await deployFunction({
-  region: 'us-east-1',
-  timeoutInSeconds: 120,
-  memorySizeInMb: 1024,
-  createCloudWatchLogGroup: true,
-  architecture: 'x86_64',
+	region: 'us-east-1',
+	timeoutInSeconds: 120,
+	memorySizeInMb: 1024,
+	createCloudWatchLogGroup: true,
+	architecture: 'x86_64',
 });
 console.log(functionName);
 ```

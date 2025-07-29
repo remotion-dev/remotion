@@ -26,7 +26,7 @@ Emitting artifacts is not currently supported by `@remotion/cloudrun`.
 // @filename: subtitles.tsx
 
 export const generateSubtitles = () => {
-  return ``;
+	return ``;
 };
 // @filename: MyComp.tsx
 // ---cut---
@@ -35,18 +35,29 @@ import {Artifact, useCurrentFrame} from 'remotion';
 import {generateSubtitles} from './subtitles';
 
 export const MyComp: React.FC = () => {
-  const frame = useCurrentFrame();
-  return <>{frame === 0 ? <Artifact filename="captions.srt" content={generateSubtitles()} /> : null}</>;
+	const frame = useCurrentFrame();
+	return (
+		<>
+			{frame === 0 ? (
+				<Artifact filename="captions.srt" content={generateSubtitles()} />
+			) : null}
+		</>
+	);
 };
 ```
 
 ## Rules of artifacts
 
-<Step>1</Step> The asset should only be rendered for one single frame of the video. Otherwise, the asset will get emitted multiple times. <br />
+<Step>1</Step> The asset should only be rendered for one single frame of the
+video. Otherwise, the asset will get emitted multiple times. <br />
 
-<Step>2</Step> It is possible to emit multiple assets, but they may not have the same filename. <br />
+<Step>2</Step> It is possible to emit multiple assets, but they may not have the
+same filename. <br />
 
-<Step>3</Step> For the <code>content</code> prop it is possible to pass a <code>string</code>, or a <code>Uint8Array</code> for binary data. Passing an <code>Uint8Array</code> should not be considered faster due to it having to be serialized.
+<Step>3</Step> For the <code>content</code> prop it is possible to pass a
+<code>string</code>, or a <code>Uint8Array</code> for binary data. Passing an
+<code>Uint8Array</code> should not be considered faster due to it having to be
+serialized.
 
 ## Emitting thumbnails<AvailableFrom v="4.0.290" />
 
@@ -56,14 +67,23 @@ You can emit the image data of the current frame as an artifact.
 import {Artifact, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  const frame = useCurrentFrame();
-  return <>{frame === 0 ? <Artifact content={Artifact.Thumbnail} filename="thumbnail.jpeg" /> : null}</>;
+	const frame = useCurrentFrame();
+	return (
+		<>
+			{frame === 0 ? (
+				<Artifact content={Artifact.Thumbnail} filename="thumbnail.jpeg" />
+			) : null}
+		</>
+	);
 };
 ```
 
-<Step>1</Step> The [`content`](/docs/artifact#content) prop should be set to [`Artifact.Thumbnail`](/docs/artifact#artifactthumbnail). <br />
+<Step>1</Step> The [`content`](/docs/artifact#content) prop should be set to
+[`Artifact.Thumbnail`](/docs/artifact#artifactthumbnail). <br />
 
-<Step>2</Step> The [`imageFormat`](/docs/renderer/render-media#imageformat) setting determines the format of the image. The extension you pass is meaningless. <br />
+<Step>2</Step> The [`imageFormat`](/docs/renderer/render-media#imageformat)
+setting determines the format of the image. The extension you pass is
+meaningless. <br />
 
 <Step>3</Step> The other rules of artifacts still apply. <br />
 
@@ -81,17 +101,17 @@ Use the [`onArtifact`](/docs/renderer/render-media#onartifact) callback to recei
 import type {VideoConfig} from 'remotion';
 
 const composition: VideoConfig = {
-  width: 100,
-  height: 100,
-  fps: 30,
-  defaultProps: {},
-  props: {},
-  defaultCodec: null,
-  defaultOutName: null,
-  defaultVideoImageFormat: null,
-  defaultPixelFormat: null,
-  id: 'hi',
-  durationInFrames: 100,
+	width: 100,
+	height: 100,
+	fps: 30,
+	defaultProps: {},
+	props: {},
+	defaultCodec: null,
+	defaultOutName: null,
+	defaultVideoImageFormat: null,
+	defaultPixelFormat: null,
+	id: 'hi',
+	durationInFrames: 100,
 };
 const serveUrl = 'http://localhost:8080';
 const inputProps = {};
@@ -100,20 +120,20 @@ import fs from 'fs';
 import {renderMedia, OnArtifact} from '@remotion/renderer';
 
 const onArtifact: OnArtifact = (artifact) => {
-  console.log(artifact.filename); // string
-  console.log(artifact.content); // string | Uint8Array
-  console.log(artifact.frame); // number, frame in the composition which emitted this
+	console.log(artifact.filename); // string
+	console.log(artifact.content); // string | Uint8Array
+	console.log(artifact.frame); // number, frame in the composition which emitted this
 
-  // Example action: Write the artifact to disk
-  fs.writeFileSync(artifact.filename, artifact.content);
+	// Example action: Write the artifact to disk
+	fs.writeFileSync(artifact.filename, artifact.content);
 };
 
 await renderMedia({
-  composition,
-  serveUrl,
-  onArtifact,
-  codec: 'h264',
-  inputProps,
+	composition,
+	serveUrl,
+	onArtifact,
+	codec: 'h264',
+	inputProps,
 });
 ```
 
@@ -134,17 +154,17 @@ You can obtain a list of currently received assets from [`getRenderProgress()`](
 import {getRenderProgress} from '@remotion/lambda/client';
 
 const renderProgress = await getRenderProgress({
-  renderId: 'hi',
-  functionName: 'hi',
-  bucketName: 'hi',
-  region: 'eu-central-1',
+	renderId: 'hi',
+	functionName: 'hi',
+	bucketName: 'hi',
+	region: 'eu-central-1',
 });
 
 for (const artifact of renderProgress.artifacts) {
-  console.log(artifact.filename); // "hello-world.txt"
-  console.log(artifact.sizeInBytes); // 12
-  console.log(artifact.s3Url); // "https://s3.eu-central-1.amazonaws.com/remotion-lambda-abcdef/renders/abcdef/artifacts/hello-world.txt"
-  console.log(artifact.s3Key); // "renders/abcdef/artifacts/hello-world.txt"
+	console.log(artifact.filename); // "hello-world.txt"
+	console.log(artifact.sizeInBytes); // 12
+	console.log(artifact.s3Url); // "https://s3.eu-central-1.amazonaws.com/remotion-lambda-abcdef/renders/abcdef/artifacts/hello-world.txt"
+	console.log(artifact.s3Key); // "renders/abcdef/artifacts/hello-world.txt"
 }
 ```
 
@@ -167,20 +187,20 @@ const region = 'eu-central-1' as const;
 import {renderStillOnLambda} from '@remotion/lambda/client';
 
 const stillResponse = await renderStillOnLambda({
-  functionName,
-  region,
-  serveUrl,
-  composition,
-  inputProps,
-  imageFormat,
-  privacy,
+	functionName,
+	region,
+	serveUrl,
+	composition,
+	inputProps,
+	imageFormat,
+	privacy,
 });
 
 for (const artifact of stillResponse.artifacts) {
-  console.log(artifact.filename); // "hello-world.txt"
-  console.log(artifact.sizeInBytes); // 12
-  console.log(artifact.s3Url); // "https://s3.eu-central-1.amazonaws.com/remotion-lambda-abcdef/renders/abcdef/artifacts/hello-world.txt"
-  console.log(artifact.s3Key); // "renders/abcdef/artifacts/hello-world.txt"
+	console.log(artifact.filename); // "hello-world.txt"
+	console.log(artifact.sizeInBytes); // 12
+	console.log(artifact.s3Url); // "https://s3.eu-central-1.amazonaws.com/remotion-lambda-abcdef/renders/abcdef/artifacts/hello-world.txt"
+	console.log(artifact.s3Key); // "renders/abcdef/artifacts/hello-world.txt"
 }
 ```
 

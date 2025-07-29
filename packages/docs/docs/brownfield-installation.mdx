@@ -23,14 +23,14 @@ Create a new folder for the Remotion files. It can be anywhere and assume any na
 
 ```tsx twoslash title="remotion/Composition.tsx"
 export const MyComposition = () => {
-  return null;
+	return null;
 };
 ```
 
 ```tsx twoslash title="remotion/Root.tsx"
 // @filename: Composition.tsx
 export const MyComposition: React.FC = () => {
-  return null;
+	return null;
 };
 // @filename: Root.tsx
 // ---cut---
@@ -39,18 +39,18 @@ import {Composition} from 'remotion';
 import {MyComposition} from './Composition';
 
 export const RemotionRoot: React.FC = () => {
-  return (
-    <>
-      <Composition
-        id="Empty"
-        component={MyComposition}
-        durationInFrames={60}
-        fps={30}
-        width={1280}
-        height={720}
-      />
-    </>
-  );
+	return (
+		<>
+			<Composition
+				id="Empty"
+				component={MyComposition}
+				durationInFrames={60}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+		</>
+	);
 };
 ```
 
@@ -153,13 +153,13 @@ This snippet will enable the recommended rules only for the Remotion files:
 
 ```json title=".eslintrc"
 {
-  "plugins": ["@remotion"],
-  "overrides": [
-    {
-      "files": ["remotion/*.{ts,tsx}"],
-      "extends": ["plugin:@remotion/recommended"]
-    }
-  ]
+	"plugins": ["@remotion"],
+	"overrides": [
+		{
+			"files": ["remotion/*.{ts,tsx}"],
+			"extends": ["plugin:@remotion/recommended"]
+		}
+	]
 }
 ```
 

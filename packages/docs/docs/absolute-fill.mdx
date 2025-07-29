@@ -11,15 +11,15 @@ A helper component - it is an absolutely positioned `<div>` with the following s
 import React from 'react';
 // ---cut---
 const style: React.CSSProperties = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  width: '100%',
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
+	position: 'absolute',
+	top: 0,
+	left: 0,
+	right: 0,
+	bottom: 0,
+	width: '100%',
+	height: '100%',
+	display: 'flex',
+	flexDirection: 'column',
 };
 ```
 
@@ -29,16 +29,16 @@ This component is useful for layering content on top of each other. For example,
 import {AbsoluteFill, OffthreadVideo} from 'remotion';
 
 const MyComp = () => {
-  return (
-    <AbsoluteFill>
-      <AbsoluteFill>
-        <OffthreadVideo src="https://example.com/video.mp4" />
-      </AbsoluteFill>
-      <AbsoluteFill>
-        <h1>This text is written on top!</h1>
-      </AbsoluteFill>
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<AbsoluteFill>
+				<OffthreadVideo src="https://example.com/video.mp4" />
+			</AbsoluteFill>
+			<AbsoluteFill>
+				<h1>This text is written on top!</h1>
+			</AbsoluteFill>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -55,8 +55,8 @@ import {AbsoluteFill} from 'remotion';
 const content = <div>Hello, World</div>;
 // ---cut---
 const MyComp = () => {
-  const ref = useRef<HTMLDivElement>(null);
-  return <AbsoluteFill ref={ref}>{content}</AbsoluteFill>;
+	const ref = useRef<HTMLDivElement>(null);
+	return <AbsoluteFill ref={ref}>{content}</AbsoluteFill>;
 };
 ```
 

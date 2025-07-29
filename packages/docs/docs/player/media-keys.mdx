@@ -22,26 +22,26 @@ The underlying Web API used is the [Media Session API](https://developer.mozilla
 
 ```tsx twoslash
 const otherProps = {
-  compositionHeight: 720,
-  compositionWidth: 1280,
-  inputProps: {},
-  durationInFrames: 120,
-  fps: 30,
-  component: () => null,
+	compositionHeight: 720,
+	compositionWidth: 1280,
+	inputProps: {},
+	durationInFrames: 120,
+	fps: 30,
+	component: () => null,
 };
 // ---cut---
 
 import {Player} from '@remotion/player';
 
 export const MyComp: React.FC = () => {
-  return (
-    <Player
-      browserMediaControlsBehavior={{
-        mode: 'prevent-media-session',
-      }}
-      {...otherProps}
-    />
-  );
+	return (
+		<Player
+			browserMediaControlsBehavior={{
+				mode: 'prevent-media-session',
+			}}
+			{...otherProps}
+		/>
+	);
 };
 ```
 
@@ -52,26 +52,26 @@ This prevents that the Player is paused but the audio tags get resumed by pressi
 
 ```tsx twoslash
 const otherProps = {
-  compositionHeight: 720,
-  compositionWidth: 1280,
-  inputProps: {},
-  durationInFrames: 120,
-  fps: 30,
-  component: () => null,
+	compositionHeight: 720,
+	compositionWidth: 1280,
+	inputProps: {},
+	durationInFrames: 120,
+	fps: 30,
+	component: () => null,
 };
 // ---cut---
 
 import {Player} from '@remotion/player';
 
 export const MyComp: React.FC = () => {
-  return (
-    <Player
-      browserMediaControlsBehavior={{
-        mode: 'register-media-session',
-      }}
-      {...otherProps}
-    />
-  );
+	return (
+		<Player
+			browserMediaControlsBehavior={{
+				mode: 'register-media-session',
+			}}
+			{...otherProps}
+		/>
+	);
 };
 ```
 
@@ -92,26 +92,26 @@ Also, Remotion will react to seeking events and inform the device about the curr
 
 ```tsx twoslash
 const otherProps = {
-  compositionHeight: 720,
-  compositionWidth: 1280,
-  inputProps: {},
-  durationInFrames: 120,
-  fps: 30,
-  component: () => null,
+	compositionHeight: 720,
+	compositionWidth: 1280,
+	inputProps: {},
+	durationInFrames: 120,
+	fps: 30,
+	component: () => null,
 };
 // ---cut---
 
 import {Player} from '@remotion/player';
 
 export const MyComp: React.FC = () => {
-  return (
-    <Player
-      browserMediaControlsBehavior={{
-        mode: 'do-nothing',
-      }}
-      {...otherProps}
-    />
-  );
+	return (
+		<Player
+			browserMediaControlsBehavior={{
+				mode: 'do-nothing',
+			}}
+			{...otherProps}
+		/>
+	);
 };
 ```
 

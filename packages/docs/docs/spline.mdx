@@ -98,13 +98,13 @@ import {useVideoConfig} from 'remotion';
 import Torus from './Torus';
 
 export const Scene: React.FC = () => {
-  const {width, height} = useVideoConfig();
+	const {width, height} = useVideoConfig();
 
-  return (
-    <ThreeCanvas width={width} height={height}>
-      <Torus />
-    </ThreeCanvas>
-  );
+	return (
+		<ThreeCanvas width={width} height={height}>
+			<Torus />
+		</ThreeCanvas>
+	);
 };
 ```
 
@@ -132,10 +132,10 @@ Position the camera to look at the center point from `200` z offset.
 const camera = useThree((state) => state.camera);
 
 useEffect(() => {
-  camera.position.set(0, 0, -400);
-  camera.near = 0.2;
-  camera.far = 1000;
-  camera.lookAt(0, 0, 0);
+	camera.position.set(0, 0, -400);
+	camera.near = 0.2;
+	camera.far = 1000;
+	camera.lookAt(0, 0, 0);
 }, [camera]);
 ```
 
@@ -149,17 +149,17 @@ const fps = 30;
 // ---cut---
 
 const constantRotation = interpolate(
-  frame,
-  [0, durationInFrames],
-  [0, Math.PI * 6],
+	frame,
+	[0, durationInFrames],
+	[0, Math.PI * 6],
 );
 
 const entranceAnimation = spring({
-  frame,
-  fps,
-  config: {
-    damping: 200,
-  },
+	frame,
+	fps,
+	config: {
+		damping: 200,
+	},
 });
 ```
 
@@ -192,12 +192,12 @@ npx remotion render
 ## Credits
 
 <Credits
-  contributors={[
-    {
-      username: 'pabloescoder',
-      contribution: 'Author',
-    },
-  ]}
+	contributors={[
+		{
+			username: 'pabloescoder',
+			contribution: 'Author',
+		},
+	]}
 />
 
 ## See also

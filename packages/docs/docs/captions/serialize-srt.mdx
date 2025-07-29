@@ -12,27 +12,27 @@ Converts a two-dimensional array of [`Caption`](/docs/captions/caption) items in
 import {serializeSrt, Caption} from '@remotion/captions';
 
 const captions: Caption[] = [
-  {
-    text: 'Welcome to the Example Subtitle File!',
-    startMs: 0,
-    endMs: 2500,
-    timestampMs: 1250,
-    confidence: 1,
-  },
-  {
-    text: 'This is a demonstration of SRT subtitles.',
-    startMs: 3000,
-    endMs: 6000,
-    timestampMs: 4500,
-    confidence: 1,
-  },
-  {
-    text: 'You can use SRT files to add subtitles to your videos.',
-    startMs: 7000,
-    endMs: 10500,
-    timestampMs: 8750,
-    confidence: 1,
-  },
+	{
+		text: 'Welcome to the Example Subtitle File!',
+		startMs: 0,
+		endMs: 2500,
+		timestampMs: 1250,
+		confidence: 1,
+	},
+	{
+		text: 'This is a demonstration of SRT subtitles.',
+		startMs: 3000,
+		endMs: 6000,
+		timestampMs: 4500,
+		confidence: 1,
+	},
+	{
+		text: 'You can use SRT files to add subtitles to your videos.',
+		startMs: 7000,
+		endMs: 10500,
+		timestampMs: 8750,
+		confidence: 1,
+	},
 ];
 
 const lines = captions.map((caption) => [caption]);

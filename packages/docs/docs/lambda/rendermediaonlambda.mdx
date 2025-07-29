@@ -19,11 +19,12 @@ A [site](/docs/lambda/deploysite) or a [Serve URL](/docs/terminology/serve-url) 
 import {renderMediaOnLambda} from '@remotion/lambda/client';
 
 const {bucketName, renderId} = await renderMediaOnLambda({
-  region: 'us-east-1',
-  functionName: 'remotion-render-bds9aab',
-  composition: 'MyVideo',
-  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
-  codec: 'h264',
+	region: 'us-east-1',
+	functionName: 'remotion-render-bds9aab',
+	composition: 'MyVideo',
+	serveUrl:
+		'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+	codec: 'h264',
 });
 ```
 
@@ -328,12 +329,12 @@ If specified, Remotion will send a POST request to the provided endpoint to noti
 import {RenderMediaOnLambdaInput} from '@remotion/lambda';
 
 const webhook: RenderMediaOnLambdaInput['webhook'] = {
-  url: 'https://mapsnap.app/api/webhook',
-  secret: process.env.WEBHOOK_SECRET as string,
-  // Optionally pass up to 1024 bytes of custom data
-  customData: {
-    id: 42,
-  },
+	url: 'https://mapsnap.app/api/webhook',
+	secret: process.env.WEBHOOK_SECRET as string,
+	// Optionally pass up to 1024 bytes of custom data
+	customData: {
+		id: 42,
+	},
 };
 ```
 
@@ -343,8 +344,8 @@ If you don't want to set up validation, you can set `secret` to null:
 import {RenderMediaOnLambdaInput} from '@remotion/lambda';
 
 const webhook: RenderMediaOnLambdaInput['webhook'] = {
-  url: 'https://mapsnap.app/api/webhook',
-  secret: null,
+	url: 'https://mapsnap.app/api/webhook',
+	secret: null,
 };
 ```
 

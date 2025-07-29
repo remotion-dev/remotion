@@ -13,10 +13,10 @@ crumb: '@remotion/media-parser'
 import {parseMedia} from '@remotion/media-parser';
 
 const {metadata} = await parseMedia({
-  src: 'https://parser.media/video.mp4',
-  fields: {
-    metadata: true,
-  },
+	src: 'https://parser.media/video.mp4',
+	fields: {
+		metadata: true,
+	},
 });
 
 console.log(metadata);

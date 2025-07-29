@@ -7,9 +7,12 @@ crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-  <p>
-    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
-  </p>
+	<p>
+		Cloud Run is in{' '}
+		<a href="/docs/cloudrun/status">
+			Alpha status and not actively being developed.
+		</a>
+	</p>
 </ExperimentalBadge>
 
 Removes a Remotion project from your Cloud Storage bucket.
@@ -28,11 +31,11 @@ const region: GcpRegion = 'australia-southeast1';
 const {sites} = await getSites(region);
 
 for (const site of sites) {
-  await deleteSite({
-    bucketName: site.bucketName,
-    siteName: site.id,
-  });
-  console.log(`Site ${site.id} deleted.`);
+	await deleteSite({
+		bucketName: site.bucketName,
+		siteName: site.id,
+	});
+	console.log(`Site ${site.id} deleted.`);
 }
 ```
 

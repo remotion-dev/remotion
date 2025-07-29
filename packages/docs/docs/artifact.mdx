@@ -12,9 +12,11 @@ By rendering an `<Artifact>` tag in your Remotion markup, [an extra file will ge
 import {Artifact, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  const frame = useCurrentFrame();
+	const frame = useCurrentFrame();
 
-  return frame === 0 ? <Artifact filename="my-file.txt" content="Hello World!" /> : null;
+	return frame === 0 ? (
+		<Artifact filename="my-file.txt" content="Hello World!" />
+	) : null;
 };
 ```
 
@@ -35,9 +37,11 @@ The component will get evaluated on every frame, which means if you want to emit
 import {Artifact, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  const frame = useCurrentFrame();
+	const frame = useCurrentFrame();
 
-  return frame === 0 ? <Artifact filename="my-file.txt" content="Hello World!" /> : null;
+	return frame === 0 ? (
+		<Artifact filename="my-file.txt" content="Hello World!" />
+	) : null;
 };
 ```
 
@@ -73,8 +77,14 @@ A special symbol that if you pass it to the [`content`](/docs/artifact#content) 
 import {Artifact, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  const frame = useCurrentFrame();
-  return <>{frame === 0 ? <Artifact content={Artifact.Thumbnail} filename="thumbnail.jpeg" /> : null}</>;
+	const frame = useCurrentFrame();
+	return (
+		<>
+			{frame === 0 ? (
+				<Artifact content={Artifact.Thumbnail} filename="thumbnail.jpeg" />
+			) : null}
+		</>
+	);
 };
 ```
 

@@ -18,10 +18,10 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 const otherProps = {
-  durationInFrames: 120,
-  compositionWidth: 1920,
-  compositionHeight: 1080,
-  fps: 30,
+	durationInFrames: 120,
+	compositionWidth: 1920,
+	compositionHeight: 1080,
+	fps: 30,
 } as const;
 import {Player, PlayerRef} from '@remotion/player';
 import {useEffect, useRef, useState} from 'react';
@@ -29,21 +29,21 @@ import {MyVideo} from './remotion/MyVideo';
 
 // ---cut---
 export const App: React.FC = () => {
-  const playerRef = useRef<PlayerRef>(null);
-  const [currentTime, setCurrentTime] = useState(0);
+	const playerRef = useRef<PlayerRef>(null);
+	const [currentTime, setCurrentTime] = useState(0);
 
-  useEffect(() => {
-    playerRef.current?.addEventListener('timeupdate', (e) => {
-      setCurrentTime(e.detail.frame);
-    });
-  }, []);
+	useEffect(() => {
+		playerRef.current?.addEventListener('timeupdate', (e) => {
+			setCurrentTime(e.detail.frame);
+		});
+	}, []);
 
-  return (
-    <div>
-      <Player ref={playerRef} component={MyVideo} {...otherProps} />
-      <div>Current time: {currentTime}</div>
-    </div>
-  );
+	return (
+		<div>
+			<Player ref={playerRef} component={MyVideo} {...otherProps} />
+			<div>Current time: {currentTime}</div>
+		</div>
+	);
 };
 ```
 
@@ -56,10 +56,10 @@ export const MyVideo = () => <></>;
 
 // @filename: index.tsx
 const otherProps = {
-  durationInFrames: 120,
-  compositionWidth: 1920,
-  compositionHeight: 1080,
-  fps: 30,
+	durationInFrames: 120,
+	compositionWidth: 1920,
+	compositionHeight: 1080,
+	fps: 30,
 } as const;
 import {Player, PlayerRef} from '@remotion/player';
 import {useEffect, useRef, useState} from 'react';
@@ -67,34 +67,34 @@ import {MyVideo} from './remotion/MyVideo';
 
 // ---cut---
 const PlayerOnly: React.FC<{
-  playerRef: React.RefObject<PlayerRef | null>;
+	playerRef: React.RefObject<PlayerRef | null>;
 }> = ({playerRef}) => {
-  return <Player ref={playerRef} component={MyVideo} {...otherProps} />;
+	return <Player ref={playerRef} component={MyVideo} {...otherProps} />;
 };
 
 const ControlsOnly: React.FC<{
-  playerRef: React.RefObject<PlayerRef | null>;
+	playerRef: React.RefObject<PlayerRef | null>;
 }> = ({playerRef}) => {
-  const [currentTime, setCurrentTime] = useState(0);
+	const [currentTime, setCurrentTime] = useState(0);
 
-  useEffect(() => {
-    playerRef.current?.addEventListener('timeupdate', (e) => {
-      setCurrentTime(e.detail.frame);
-    });
-  }, []);
+	useEffect(() => {
+		playerRef.current?.addEventListener('timeupdate', (e) => {
+			setCurrentTime(e.detail.frame);
+		});
+	}, []);
 
-  return <div>Current time: {currentTime}</div>;
+	return <div>Current time: {currentTime}</div>;
 };
 
 export const App: React.FC = () => {
-  const playerRef = useRef<PlayerRef>(null);
+	const playerRef = useRef<PlayerRef>(null);
 
-  return (
-    <>
-      <PlayerOnly playerRef={playerRef} />
-      <ControlsOnly playerRef={playerRef} />
-    </>
-  );
+	return (
+		<>
+			<PlayerOnly playerRef={playerRef} />
+			<ControlsOnly playerRef={playerRef} />
+		</>
+	);
 };
 ```
 
@@ -127,23 +127,23 @@ import {useState, useMemo} from 'react';
 import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
-  const [text, setText] = useState('world');
-  const inputProps = useMemo(() => {
-    return {
-      text,
-    };
-  }, [text]);
+	const [text, setText] = useState('world');
+	const inputProps = useMemo(() => {
+		return {
+			text,
+		};
+	}, [text]);
 
-  return (
-    <Player
-      component={MyVideo}
-      durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      inputProps={inputProps}
-    />
-  );
+	return (
+		<Player
+			component={MyVideo}
+			durationInFrames={120}
+			compositionWidth={1920}
+			compositionHeight={1080}
+			fps={30}
+			inputProps={inputProps}
+		/>
+	);
 };
 ```
 

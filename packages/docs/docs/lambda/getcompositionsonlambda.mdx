@@ -20,10 +20,11 @@ You should use `getCompositionsOnLambda()` if you cannot use [`getCompositions()
 import {getCompositionsOnLambda} from '@remotion/lambda/client';
 
 const compositions = await getCompositionsOnLambda({
-  region: 'us-east-1',
-  functionName: 'remotion-render-bds9aab',
-  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
-  inputProps: {},
+	region: 'us-east-1',
+	functionName: 'remotion-render-bds9aab',
+	serveUrl:
+		'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+	inputProps: {},
 });
 
 console.log(compositions); // See below for an example value
@@ -123,24 +124,24 @@ Returns a promise that resolves to an array of available compositions. Example v
 
 ```ts twoslash
 [
-  {
-    id: 'HelloWorld',
-    width: 1920,
-    height: 1080,
-    fps: 30,
-    durationInFrames: 120,
-    defaultProps: {
-      title: 'Hello World',
-    },
-  },
-  {
-    id: 'Title',
-    width: 1080,
-    height: 1080,
-    fps: 30,
-    durationInFrames: 90,
-    defaultProps: undefined,
-  },
+	{
+		id: 'HelloWorld',
+		width: 1920,
+		height: 1080,
+		fps: 30,
+		durationInFrames: 120,
+		defaultProps: {
+			title: 'Hello World',
+		},
+	},
+	{
+		id: 'Title',
+		width: 1080,
+		height: 1080,
+		fps: 30,
+		durationInFrames: 90,
+		defaultProps: undefined,
+	},
 ];
 ```
 

@@ -10,71 +10,78 @@ Use the following snippet to skip certain sections of a video, without re-mounti
 
 ```tsx twoslash
 import React, {useMemo} from 'react';
-import {CalculateMetadataFunction, OffthreadVideo, staticFile, useCurrentFrame} from 'remotion';
+import {
+	CalculateMetadataFunction,
+	OffthreadVideo,
+	staticFile,
+	useCurrentFrame,
+} from 'remotion';
 
 const fps = 30;
 
 type Section = {
-  trimBefore: number;
-  trimAfter: number;
+	trimBefore: number;
+	trimAfter: number;
 };
 
 export const SAMPLE_SECTIONS: Section[] = [
-  {trimBefore: 0, trimAfter: 5 * fps},
-  {
-    trimBefore: 7 * fps,
-    trimAfter: 10 * fps,
-  },
-  {
-    trimBefore: 13 * fps,
-    trimAfter: 18 * fps,
-  },
+	{trimBefore: 0, trimAfter: 5 * fps},
+	{
+		trimBefore: 7 * fps,
+		trimAfter: 10 * fps,
+	},
+	{
+		trimBefore: 13 * fps,
+		trimAfter: 18 * fps,
+	},
 ];
 
 type Props = {
-  sections: Section[];
+	sections: Section[];
 };
 
-export const calculateMetadata: CalculateMetadataFunction<Props> = ({props}) => {
-  const durationInFrames = props.sections.reduce((acc, section) => {
-    return acc + section.trimAfter - section.trimBefore;
-  }, 0);
+export const calculateMetadata: CalculateMetadataFunction<Props> = ({
+	props,
+}) => {
+	const durationInFrames = props.sections.reduce((acc, section) => {
+		return acc + section.trimAfter - section.trimBefore;
+	}, 0);
 
-  return {
-    fps,
-    durationInFrames,
-  };
+	return {
+		fps,
+		durationInFrames,
+	};
 };
 
 export const JumpCuts: React.FC<Props> = ({sections}) => {
-  const frame = useCurrentFrame();
+	const frame = useCurrentFrame();
 
-  const trimBefore = useMemo(() => {
-    let summedUpDurations = 0;
-    for (const section of sections) {
-      summedUpDurations += section.trimAfter - section.trimBefore;
-      if (summedUpDurations > frame) {
-        return section.trimAfter - summedUpDurations;
-      }
-    }
+	const trimBefore = useMemo(() => {
+		let summedUpDurations = 0;
+		for (const section of sections) {
+			summedUpDurations += section.trimAfter - section.trimBefore;
+			if (summedUpDurations > frame) {
+				return section.trimAfter - summedUpDurations;
+			}
+		}
 
-    return null;
-  }, [frame, sections]);
+		return null;
+	}, [frame, sections]);
 
-  if (trimBefore === null) {
-    return null;
-  }
+	if (trimBefore === null) {
+		return null;
+	}
 
-  return (
-    <OffthreadVideo
-      pauseWhenBuffering
-      trimBefore={trimBefore}
-      // Remotion will automatically add a time fragment to the end of the video URL
-      // based on `trimBefore` and `trimAfter`. Opt out of this by adding one yourself.
-      // https://www.remotion.dev/docs/media-fragments
-      src={`${staticFile('time.mp4')}#t=0,`}
-    />
-  );
+	return (
+		<OffthreadVideo
+			pauseWhenBuffering
+			trimBefore={trimBefore}
+			// Remotion will automatically add a time fragment to the end of the video URL
+			// based on `trimBefore` and `trimAfter`. Opt out of this by adding one yourself.
+			// https://www.remotion.dev/docs/media-fragments
+			src={`${staticFile('time.mp4')}#t=0,`}
+		/>
+	);
 };
 ```
 

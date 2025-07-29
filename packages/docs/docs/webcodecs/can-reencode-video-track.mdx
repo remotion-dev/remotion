@@ -23,21 +23,21 @@ import {parseMedia} from '@remotion/media-parser';
 import {canReencodeVideoTrack} from '@remotion/webcodecs';
 
 const {tracks} = await parseMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  fields: {
-    tracks: true,
-  },
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	fields: {
+		tracks: true,
+	},
 });
 
 const videoTracks = tracks.filter((t) => t.type === 'video');
 
 for (const track of videoTracks) {
-  await canReencodeVideoTrack({
-    track,
-    videoCodec: 'vp8',
-    resizeOperation: null,
-    rotate: null,
-  });
+	await canReencodeVideoTrack({
+		track,
+		videoCodec: 'vp8',
+		resizeOperation: null,
+		rotate: null,
+	});
 }
 ```
 
@@ -45,24 +45,24 @@ for (const track of videoTracks) {
 import {convertMedia, canReencodeVideoTrack} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
-  videoCodec: 'vp8',
-  audioCodec: 'opus',
-  onVideoTrack: async ({track, resizeOperation, rotate}) => {
-    const canReencode = await canReencodeVideoTrack({
-      track,
-      videoCodec: 'vp8',
-      resizeOperation,
-      rotate,
-    });
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
+	videoCodec: 'vp8',
+	audioCodec: 'opus',
+	onVideoTrack: async ({track, resizeOperation, rotate}) => {
+		const canReencode = await canReencodeVideoTrack({
+			track,
+			videoCodec: 'vp8',
+			resizeOperation,
+			rotate,
+		});
 
-    if (canReencode) {
-      return {type: 'reencode', videoCodec: 'vp8'};
-    }
+		if (canReencode) {
+			return {type: 'reencode', videoCodec: 'vp8'};
+		}
 
-    return {type: 'drop'};
-  },
+		return {type: 'drop'};
+	},
 });
 ```
 

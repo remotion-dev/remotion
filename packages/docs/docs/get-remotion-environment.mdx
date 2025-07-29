@@ -24,21 +24,21 @@ import React from 'react';
 import {getRemotionEnvironment} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  const {isStudio, isPlayer, isRendering} = getRemotionEnvironment();
+	const {isStudio, isPlayer, isRendering} = getRemotionEnvironment();
 
-  if (isStudio) {
-    return <div>I'm in the Studio!</div>;
-  }
+	if (isStudio) {
+		return <div>I'm in the Studio!</div>;
+	}
 
-  if (isPlayer) {
-    return <div>I'm in the Player!</div>;
-  }
+	if (isPlayer) {
+		return <div>I'm in the Player!</div>;
+	}
 
-  if (isRendering) {
-    return <div>I'm Rendering</div>;
-  }
+	if (isRendering) {
+		return <div>I'm Rendering</div>;
+	}
 
-  return <div>Hello World!</div>;
+	return <div>Hello World!</div>;
 };
 ```
 

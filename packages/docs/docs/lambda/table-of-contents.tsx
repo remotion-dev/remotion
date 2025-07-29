@@ -108,9 +108,7 @@ export const TableOfContents: React.FC = () => {
 				</TOCItem>
 				<TOCItem link="/docs/lambda/expresswebhook">
 					<strong>expressWebhook()</strong>
-					<div>
-						Handle incoming webhooks specifically for Express.js
-					</div>
+					<div>Handle incoming webhooks specifically for Express.js</div>
 				</TOCItem>
 			</Grid>
 		</div>

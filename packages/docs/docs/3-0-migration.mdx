@@ -2,7 +2,7 @@
 image: /generated/articles-docs-3-0-migration.png
 id: 3-0-migration
 title: v3.0 Migration
-crumb: "Version Upgrade"
+crumb: 'Version Upgrade'
 ---
 
 When upgrading from Remotion 2 to Remotion 3, note the following changes and apply them to your project.
@@ -75,25 +75,25 @@ Instead, the composition ID is now embedded in the `composition` object (previou
 
 ```tsx title="Previously"
 renderFrames({
-  compositionId: "my-com",
-  config: {
-    width: 1920,
-    height: 1080,
-    fps: 30,
-    durationInFrames: 300,
-  },
+	compositionId: 'my-com',
+	config: {
+		width: 1920,
+		height: 1080,
+		fps: 30,
+		durationInFrames: 300,
+	},
 });
 ```
 
 ```tsx title="Now"
 renderFrames({
-  composition: {
-    id: "my-com",
-    width: 1920,
-    height: 1080,
-    fps: 30,
-    durationInFrames: 300,
-  },
+	composition: {
+		id: 'my-com',
+		width: 1920,
+		height: 1080,
+		fps: 30,
+		durationInFrames: 300,
+	},
 });
 ```
 
@@ -103,25 +103,25 @@ The `config` parameter in `renderFrames()` and `renderStill()` was renamed to `c
 
 ```tsx title="Previously"
 renderFrames({
-  compositionId: "my-com",
-  config: {
-    width: 1920,
-    height: 1080,
-    fps: 30,
-    durationInFrames: 300,
-  },
+	compositionId: 'my-com',
+	config: {
+		width: 1920,
+		height: 1080,
+		fps: 30,
+		durationInFrames: 300,
+	},
 });
 ```
 
 ```tsx title="Now"
 renderFrames({
-  composition: {
-    id: "my-com",
-    width: 1920,
-    height: 1080,
-    fps: 30,
-    durationInFrames: 300,
-  },
+	composition: {
+		id: 'my-com',
+		width: 1920,
+		height: 1080,
+		fps: 30,
+		durationInFrames: 300,
+	},
 });
 ```
 
@@ -137,22 +137,22 @@ The new behavior of Remotion 3.0 is that if an error occurs, these functions rej
 
 ```tsx title="Previously"
 await renderStill({
-  // ...
-  output: "/tmp/still.png",
-  onError: (err) => {
-    console.log("Error occured in browser", err);
-  },
+	// ...
+	output: '/tmp/still.png',
+	onError: (err) => {
+		console.log('Error occured in browser', err);
+	},
 });
 ```
 
 ```tsx title="Now"
 try {
-  await renderStill({
-    // ...
-    output: "/tmp/still.png",
-  });
+	await renderStill({
+		// ...
+		output: '/tmp/still.png',
+	});
 } catch (err) {
-  console.log("Error occured in browser", err);
+	console.log('Error occured in browser', err);
 }
 ```
 
@@ -164,17 +164,17 @@ The `webpackBundle` property was renamed to `serveUrl` to reflect the fact that 
 
 ```tsx title="Previously"
 await renderStill({
-  output: "/tmp/still.png",
-  webpackBundle: "/tmp/react-motion-graphics8zfs9d/index.html",
-  // ...
+	output: '/tmp/still.png',
+	webpackBundle: '/tmp/react-motion-graphics8zfs9d/index.html',
+	// ...
 });
 ```
 
 ```tsx title="Now"
 await renderStill({
-  output: "/tmp/still.png",
-  serveUrl: "/tmp/react-motion-graphics8zfs9d/index.html",
-  // ...
+	output: '/tmp/still.png',
+	serveUrl: '/tmp/react-motion-graphics8zfs9d/index.html',
+	// ...
 });
 ```
 
@@ -217,7 +217,7 @@ The import `overrideWebpackConfig` was deprecated and now removed. Use `Config.o
 ```
 
 ```tsx title="Now"
-import { Config } from "remotion";
+import {Config} from 'remotion';
 
 Config.overrideWebpackConfig();
 ```

@@ -3,7 +3,7 @@ image: /generated/articles-docs-compare.png
 id: compare-ssr
 title: Comparison of server-side rendering options
 sidebar_label: Comparison of SSR options
-crumb: "Compare"
+crumb: 'Compare'
 ---
 
 This page compares 3 options for rendering videos in the cloud:
@@ -16,15 +16,15 @@ These options are deliberately distinct with different tradeoffs, so that you ca
 
 ## Overall recommendation
 
-We recommend Remotion Lambda for most people as it has the best tradeoff for speed, ease of setup, maturity, total cost and scalability.  
+We recommend Remotion Lambda for most people as it has the best tradeoff for speed, ease of setup, maturity, total cost and scalability.
 
 The Remotion customers with the highest amount of videos rendered use the Remotion Lambda solution.
 
 ## Speed
 
-Remotion Lambda is the fastest option, because it implements distributed rendering - the video gets divided into smaller chunks and rendered in parallel across multiple Lambda functions.  
+Remotion Lambda is the fastest option, because it implements distributed rendering - the video gets divided into smaller chunks and rendered in parallel across multiple Lambda functions.
 
-Cloud Run does not support distributed rendering, so rendering happens on one physical machine.  
+Cloud Run does not support distributed rendering, so rendering happens on one physical machine.
 
 Implementing a custom distributed rendering solution from scratch is challenging and we do not yet provide documentation.
 
@@ -77,22 +77,22 @@ Most renders do not become faster with GPU acceleration. See: [Which content ben
 
 We have guides for configuring [a server with GPU acceleration](/docs/miscellaneous/cloud-gpu), but it is not yet supported by Remotion.
 
-Remotion Lambda does not have a GPU. You are limited to CPU-only rendering.  
+Remotion Lambda does not have a GPU. You are limited to CPU-only rendering.
 
 We have not tested Cloud Run with GPU acceleration. It is possible add a GPU to the Cloud Run instance - we are curious to hear your feedback.
 
 ## Stability
 
-We are happy with the architecture of Remotion Lambda and Node.js APIs and are committed to it in the long-term.  
+We are happy with the architecture of Remotion Lambda and Node.js APIs and are committed to it in the long-term.
 
 Cloud Run is in Alpha and we are considering moving it to a model which re-uses the code of Remotion Lambda.  
-This would allow us to better match the features of Remotion Lambda and enable distributed rendering.  
+This would allow us to better match the features of Remotion Lambda and enable distributed rendering.
 
 Currently, the development of Cloud Run is hindered because a new Docker image needs to be built for each change, making testing slow.  
 Therefore, we are currently only making essential changes to the current Cloud Run product.
 
 ## Conclusion
 
-We recommend to start with Remotion Lambda, as it is the quickest way to get started and leaves less room for error.  
+We recommend to start with Remotion Lambda, as it is the quickest way to get started and leaves less room for error.
 
 As you scale up and increase the sophistication of Remotion renders and want to become more cost-efficient, we recommend looking into other options as well.

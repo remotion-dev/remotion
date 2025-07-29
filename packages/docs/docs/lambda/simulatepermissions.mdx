@@ -20,12 +20,12 @@ This function does only validate the validity of the **user policy**, not the **
 import {simulatePermissions} from '@remotion/lambda';
 
 const {results} = await simulatePermissions({
-  region: 'us-east-1',
+	region: 'us-east-1',
 });
 
 for (const result of results) {
-  console.log(result.decision); // "allowed"
-  console.log(result.name); // "iam:SimulatePrincipalPolicy"
+	console.log(result.decision); // "allowed"
+	console.log(result.name); // "iam:SimulatePrincipalPolicy"
 }
 ```
 
@@ -47,11 +47,11 @@ A callback function that gets called every time a new simulation has been execut
 import {simulatePermissions} from '@remotion/lambda';
 
 const {results} = await simulatePermissions({
-  region: 'us-east-1',
-  onSimulation: (result) => {
-    console.log(result.decision); // "allowed"
-    console.log(result.name); // "iam:SimulatePrincipalPolicy"
-  },
+	region: 'us-east-1',
+	onSimulation: (result) => {
+		console.log(result.decision); // "allowed"
+		console.log(result.name); // "iam:SimulatePrincipalPolicy"
+	},
 });
 ```
 

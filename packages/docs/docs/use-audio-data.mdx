@@ -19,22 +19,25 @@ Using this function, you can elegantly render a component based on audio propert
 Remote audio files need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 
 <details>
-  <summary>More info</summary>
-  <ul>
-    <li>
-      Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
-    </li>
-    <li>
-      You can use{' '}
-      <a href="/docs/get-audio-duration-in-seconds">
-        <code>getAudioDurationInSeconds()</code>
-      </a>{' '}
-      without the audio needing CORS.
-    </li>
-    <li>
-      You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
-    </li>
-  </ul>
+	<summary>More info</summary>
+	<ul>
+		<li>
+			Remotion's origin is usually <code>http://localhost:3000</code>, but it
+			may be different if rendering on Lambda or the port is busy.
+		</li>
+		<li>
+			You can use{' '}
+			<a href="/docs/get-audio-duration-in-seconds">
+				<code>getAudioDurationInSeconds()</code>
+			</a>{' '}
+			without the audio needing CORS.
+		</li>
+		<li>
+			You can{' '}
+			<a href="/docs/chromium-flags#--disable-web-security">disable CORS</a>{' '}
+			during renders.
+		</li>
+	</ul>
 </details>
 :::
 
@@ -56,13 +59,13 @@ import {useAudioData} from '@remotion/media-utils';
 import {staticFile} from 'remotion';
 
 export const MyComponent: React.FC = () => {
-  const audioData = useAudioData(staticFile('music.mp3'));
+	const audioData = useAudioData(staticFile('music.mp3'));
 
-  if (!audioData) {
-    return null;
-  }
+	if (!audioData) {
+		return null;
+	}
 
-  return <div>This file has a {audioData.sampleRate} sampleRate.</div>;
+	return <div>This file has a {audioData.sampleRate} sampleRate.</div>;
 };
 ```
 

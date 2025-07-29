@@ -12,7 +12,9 @@ export const TableOfContents: React.FC = () => {
 				</TOCItem>
 				<TOCItem link="/docs/whisper-web/get-available-models">
 					<strong>getAvailableModels()</strong>
-					<div>Get a list of all available Whisper models with their download sizes</div>
+					<div>
+						Get a list of all available Whisper models with their download sizes
+					</div>
 				</TOCItem>
 				<TOCItem link="/docs/whisper-web/download-whisper-model">
 					<strong>downloadWhisperModel()</strong>

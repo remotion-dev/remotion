@@ -30,27 +30,28 @@ import {useEffect, useState} from 'react';
 import {cancelRender, continueRender, delayRender, staticFile} from 'remotion';
 
 const Balloons = () => {
-  const [handle] = useState(() => delayRender('Loading Lottie animation'));
+	const [handle] = useState(() => delayRender('Loading Lottie animation'));
 
-  const [animationData, setAnimationData] = useState<LottieAnimationData | null>(null);
+	const [animationData, setAnimationData] =
+		useState<LottieAnimationData | null>(null);
 
-  useEffect(() => {
-    fetch(staticFile('animation.json'))
-      .then((data) => data.json())
-      .then((json) => {
-        setAnimationData(json);
-        continueRender(handle);
-      })
-      .catch((err) => {
-        cancelRender(err);
-      });
-  }, [handle]);
+	useEffect(() => {
+		fetch(staticFile('animation.json'))
+			.then((data) => data.json())
+			.then((json) => {
+				setAnimationData(json);
+				continueRender(handle);
+			})
+			.catch((err) => {
+				cancelRender(err);
+			});
+	}, [handle]);
 
-  if (!animationData) {
-    return null;
-  }
+	if (!animationData) {
+		return null;
+	}
 
-  return <Lottie animationData={animationData} />;
+	return <Lottie animationData={animationData} />;
 };
 ```
 

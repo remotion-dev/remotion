@@ -19,11 +19,11 @@ The API takes care of exchanging messages between the main thread and the Web Wo
 import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 
 const result = await parseMediaOnWebWorker({
-  src: 'https://parser.media/video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
+	src: 'https://parser.media/video.mp4',
+	fields: {
+		durationInSeconds: true,
+		dimensions: true,
+	},
 });
 
 console.log(result.durationInSeconds); // 10
@@ -39,11 +39,11 @@ To use it, you can use the [`parseMediaOnServerWorker()`](/docs/media-parser/par
 import {parseMediaOnServerWorker} from '@remotion/media-parser/server-worker';
 
 const result = await parseMediaOnServerWorker({
-  src: '/tmp/video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
+	src: '/tmp/video.mp4',
+	fields: {
+		durationInSeconds: true,
+		dimensions: true,
+	},
 });
 
 console.log(result.durationInSeconds); // 10

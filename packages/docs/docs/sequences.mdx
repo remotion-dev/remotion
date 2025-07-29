@@ -28,22 +28,22 @@ Consider a title - to make it reusable, factor it out into its own component:
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 
 const Title: React.FC<{title: string}> = ({title}) => {
-  const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, 20], [0, 1], {
-    extrapolateRight: 'clamp',
-  });
+	const frame = useCurrentFrame();
+	const opacity = interpolate(frame, [0, 20], [0, 1], {
+		extrapolateRight: 'clamp',
+	});
 
-  return (
-    <div style={{opacity, textAlign: 'center', fontSize: '7em'}}>{title}</div>
-  );
+	return (
+		<div style={{opacity, textAlign: 'center', fontSize: '7em'}}>{title}</div>
+	);
 };
 
 export const MyVideo = () => {
-  return (
-    <AbsoluteFill>
-      <Title title="Hello World" />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Title title="Hello World" />
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -57,16 +57,16 @@ You can also use the [`<Sequence>`](/docs/sequence) component to limit the durat
 import {Sequence} from 'remotion';
 
 export const MyVideo = () => {
-  return (
-    <AbsoluteFill>
-      <Sequence durationInFrames={40}>
-        <Title title="Hello" />
-      </Sequence>
-      <Sequence from={40}>
-        <Title title="World" />
-      </Sequence>
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Sequence durationInFrames={40}>
+				<Title title="Hello" />
+			</Sequence>
+			<Sequence from={40}>
+				<Title title="World" />
+			</Sequence>
+		</AbsoluteFill>
+	);
 };
 ```
 

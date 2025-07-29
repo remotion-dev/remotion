@@ -53,23 +53,23 @@ const siteName = 'our-recorder';
 const compositionId = 'installwhispercpp';
 
 const configs = [
-  {
-    canvasLayout: 'square',
-    platform: 'linkedin',
-  },
-  {
-    canvasLayout: 'square',
-    platform: 'x',
-  },
-  {
-    canvasLayout: 'landscape',
-    platform: 'youtube',
-  },
+	{
+		canvasLayout: 'square',
+		platform: 'linkedin',
+	},
+	{
+		canvasLayout: 'square',
+		platform: 'x',
+	},
+	{
+		canvasLayout: 'landscape',
+		platform: 'youtube',
+	},
 ];
 
 await $`bunx remotion lambda sites create --site-name=${siteName}`;
 
 for (const config of configs) {
-  await $`bunx remotion lambda render ${siteName} ${compositionId} --props='${JSON.stringify(config)}'`;
+	await $`bunx remotion lambda render ${siteName} ${compositionId} --props='${JSON.stringify(config)}'`;
 }
 ```

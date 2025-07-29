@@ -20,16 +20,16 @@ In your [`remotion.config.ts`](/docs/config) file, you can call [`Config.overrid
 import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((currentConfiguration) => {
-  return {
-    ...currentConfiguration,
-    module: {
-      ...currentConfiguration.module,
-      rules: [
-        ...(currentConfiguration.module?.rules ?? []),
-        // Add more loaders here
-      ],
-    },
-  };
+	return {
+		...currentConfiguration,
+		module: {
+			...currentConfiguration.module,
+			rules: [
+				...(currentConfiguration.module?.rules ?? []),
+				// Add more loaders here
+			],
+		},
+	};
 });
 ```
 
@@ -45,10 +45,10 @@ When using the Node.JS APIs - [`bundle()`](/docs/bundle) for SSR or [`deploySite
 import {WebpackOverrideFn} from '@remotion/bundler';
 
 export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
-  return {
-    ...currentConfiguration,
-    // Your override here
-  };
+	return {
+		...currentConfiguration,
+		// Your override here
+	};
 };
 ```
 
@@ -77,8 +77,8 @@ import {bundle} from '@remotion/bundler';
 import {webpackOverride} from './src/webpack-override';
 
 await bundle({
-  entryPoint: require.resolve('./src/index.ts'),
-  webpackOverride,
+	entryPoint: require.resolve('./src/index.ts'),
+	webpackOverride,
 });
 ```
 
@@ -95,13 +95,13 @@ import {deploySite} from '@remotion/lambda';
 import {webpackOverride} from './src/webpack-override';
 
 await deploySite({
-  entryPoint: require.resolve('./src/index.ts'),
-  region: 'us-east-1',
-  bucketName: 'remotionlambda-c7fsl3d',
-  options: {
-    webpackOverride,
-  },
-  // ...other parameters
+	entryPoint: require.resolve('./src/index.ts'),
+	region: 'us-east-1',
+	bucketName: 'remotionlambda-c7fsl3d',
+	options: {
+		webpackOverride,
+	},
+	// ...other parameters
 });
 ```
 
@@ -142,24 +142,26 @@ Config.overrideWebpackConfig(enableTailwind);
 import {WebpackOverrideFn} from '@remotion/bundler';
 // ---cut---
 export const enableMdx: WebpackOverrideFn = (currentConfiguration) => {
-  return {
-    ...currentConfiguration,
-    module: {
-      ...currentConfiguration.module,
-      rules: [
-        ...(currentConfiguration.module?.rules ? currentConfiguration.module.rules : []),
-        {
-          test: /\.mdx?$/,
-          use: [
-            {
-              loader: '@mdx-js/loader',
-              options: {},
-            },
-          ],
-        },
-      ],
-    },
-  };
+	return {
+		...currentConfiguration,
+		module: {
+			...currentConfiguration.module,
+			rules: [
+				...(currentConfiguration.module?.rules
+					? currentConfiguration.module.rules
+					: []),
+				{
+					test: /\.mdx?$/,
+					use: [
+						{
+							loader: '@mdx-js/loader',
+							options: {},
+						},
+					],
+				},
+			],
+		},
+	};
 };
 ```
 
@@ -205,36 +207,38 @@ This allows you to enable `import` SVG files as React components.
 import {WebpackOverrideFn} from '@remotion/bundler';
 
 export const enableSvgr: WebpackOverrideFn = (currentConfiguration) => {
-  return {
-    ...currentConfiguration,
-    module: {
-      ...currentConfiguration.module,
-      rules: [
-        {
-          test: /\.svg$/i,
-          issuer: /\.[jt]sx?$/,
-          resourceQuery: {not: [/url/]}, // Exclude react component if *.svg?url
-          use: ['@svgr/webpack'],
-        },
-        ...(currentConfiguration.module?.rules ?? []).map((r) => {
-          if (!r) {
-            return r;
-          }
-          if (r === '...') {
-            return r;
-          }
-          if (!r.test?.toString().includes('svg')) {
-            return r;
-          }
-          return {
-            ...r,
-            // Remove Remotion loading SVGs as a URL
-            test: new RegExp(r.test.toString().replace(/svg\|/g, '').slice(1, -1)),
-          };
-        }),
-      ],
-    },
-  };
+	return {
+		...currentConfiguration,
+		module: {
+			...currentConfiguration.module,
+			rules: [
+				{
+					test: /\.svg$/i,
+					issuer: /\.[jt]sx?$/,
+					resourceQuery: {not: [/url/]}, // Exclude react component if *.svg?url
+					use: ['@svgr/webpack'],
+				},
+				...(currentConfiguration.module?.rules ?? []).map((r) => {
+					if (!r) {
+						return r;
+					}
+					if (r === '...') {
+						return r;
+					}
+					if (!r.test?.toString().includes('svg')) {
+						return r;
+					}
+					return {
+						...r,
+						// Remove Remotion loading SVGs as a URL
+						test: new RegExp(
+							r.test.toString().replace(/svg\|/g, '').slice(1, -1),
+						),
+					};
+				}),
+			],
+		},
+	};
 };
 ```
 
@@ -268,20 +272,22 @@ Config.overrideWebpackConfig(enableSvgr);
 import {WebpackOverrideFn} from '@remotion/bundler';
 
 export const enableGlsl: WebpackOverrideFn = (currentConfiguration) => {
-  return {
-    ...currentConfiguration,
-    module: {
-      ...currentConfiguration.module,
-      rules: [
-        ...(currentConfiguration.module?.rules ? currentConfiguration.module.rules : []),
-        {
-          test: /\.(glsl|vs|fs|vert|frag)$/,
-          exclude: /node_modules/,
-          use: ['glslify-import-loader', 'raw-loader', 'glslify-loader'],
-        },
-      ],
-    },
-  };
+	return {
+		...currentConfiguration,
+		module: {
+			...currentConfiguration.module,
+			rules: [
+				...(currentConfiguration.module?.rules
+					? currentConfiguration.module.rules
+					: []),
+				{
+					test: /\.(glsl|vs|fs|vert|frag)$/,
+					exclude: /node_modules/,
+					use: ['glslify-import-loader', 'raw-loader', 'glslify-loader'],
+				},
+			],
+		},
+	};
 };
 ```
 
@@ -302,8 +308,8 @@ Config.overrideWebpackConfig(enableGlsl);
 
 ```ts
 declare module '*.glsl' {
-  const value: string;
-  export default value;
+	const value: string;
+	export default value;
 }
 ```
 
@@ -320,12 +326,12 @@ There are two WebAssembly modes: asynchronous and synchronous. We recommend test
 import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((conf) => {
-  return {
-    ...conf,
-    experiments: {
-      syncWebAssembly: true,
-    },
-  };
+	return {
+		...conf,
+		experiments: {
+			syncWebAssembly: true,
+		},
+	};
 });
 ```
 
@@ -337,12 +343,12 @@ Since Webpack does not allow synchronous WebAssembly code in the main chunk, you
 import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((conf) => {
-  return {
-    ...conf,
-    experiments: {
-      asyncWebAssembly: true,
-    },
-  };
+	return {
+		...conf,
+		experiments: {
+			asyncWebAssembly: true,
+		},
+	};
 });
 ```
 
@@ -362,36 +368,36 @@ Add the Webpack override to your [Node.JS API calls as well if necessary](#when-
 import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((config) => {
-  return {
-    ...config,
-    module: {
-      ...config.module,
-      rules: config.module?.rules?.map((rule) => {
-        // @ts-expect-error
-        if (!rule?.use) {
-          return rule;
-        }
+	return {
+		...config,
+		module: {
+			...config.module,
+			rules: config.module?.rules?.map((rule) => {
+				// @ts-expect-error
+				if (!rule?.use) {
+					return rule;
+				}
 
-        return {
-          // @ts-expect-error
-          ...rule,
-          // @ts-expect-error
-          use: rule?.use.map((use) => {
-            if (!use?.loader?.includes('esbuild')) {
-              return use;
-            }
-            return {
-              ...use,
-              options: {
-                ...use.options,
-                jsxImportSource: 'react',
-              },
-            };
-          }),
-        };
-      }),
-    },
-  };
+				return {
+					// @ts-expect-error
+					...rule,
+					// @ts-expect-error
+					use: rule?.use.map((use) => {
+						if (!use?.loader?.includes('esbuild')) {
+							return use;
+						}
+						return {
+							...use,
+							options: {
+								...use.options,
+								jsxImportSource: 'react',
+							},
+						};
+					}),
+				};
+			}),
+		},
+	};
 });
 ```
 
@@ -421,8 +427,8 @@ export const enableSass: WebpackOverrideFn = (c) => c;
 import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig(async (currentConfiguration) => {
-  const {enableSass} = await import('./src/enable-sass');
-  return enableSass(currentConfiguration);
+	const {enableSass} = await import('./src/enable-sass');
+	return enableSass(currentConfiguration);
 });
 ```
 

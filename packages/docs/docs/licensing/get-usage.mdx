@@ -15,8 +15,8 @@ You should only call this API from the backend to avoid exposing your secret key
 import {getUsage} from '@remotion/licensing';
 
 const usage = await getUsage({
-  apiKey: 'rm_sec_xxxxx',
-  since: Date.now() - 1000 * 60 * 60 * 24 * 30, // 30 days ago
+	apiKey: 'rm_sec_xxxxx',
+	since: Date.now() - 1000 * 60 * 60 * 24 * 30, // 30 days ago
 });
 
 console.log(usage);

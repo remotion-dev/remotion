@@ -13,15 +13,15 @@ You may use this function if you want to customize part of the track transformat
 import {convertMedia, defaultOnAudioTrackHandler} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
-  onAudioTrack: (params) => {
-    // Custom logic for handling video tracks
-    // ...
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
+	onAudioTrack: (params) => {
+		// Custom logic for handling video tracks
+		// ...
 
-    // Fall back to the default behavior
-    return defaultOnAudioTrackHandler(params);
-  },
+		// Fall back to the default behavior
+		return defaultOnAudioTrackHandler(params);
+	},
 });
 ```
 
@@ -36,35 +36,50 @@ The default behavior is as follows:
   You may alternatively return `{type: 'drop'}` to remove the video track, but still succeed the other tracks.
 
 ```tsx twoslash title="Source code for defaultOnVideoTrackHandler"
-import {canReencodeVideoTrack, getDefaultVideoCodec, ConvertMediaOnVideoTrackHandler, VideoOperation} from '@remotion/webcodecs';
+import {
+	canReencodeVideoTrack,
+	getDefaultVideoCodec,
+	ConvertMediaOnVideoTrackHandler,
+	VideoOperation,
+} from '@remotion/webcodecs';
 
-export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler = async ({track, defaultVideoCodec, logLevel, outputContainer, rotate, inputContainer, canCopyTrack, resizeOperation}): Promise<VideoOperation> => {
-  if (canCopyTrack) {
-    return Promise.resolve({type: 'copy'});
-  }
+export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
+	async ({
+		track,
+		defaultVideoCodec,
+		logLevel,
+		outputContainer,
+		rotate,
+		inputContainer,
+		canCopyTrack,
+		resizeOperation,
+	}): Promise<VideoOperation> => {
+		if (canCopyTrack) {
+			return Promise.resolve({type: 'copy'});
+		}
 
-  // If for example exporting to audio, the default video codec will be null
-  if (defaultVideoCodec === null) {
-    return Promise.resolve({type: 'drop'});
-  }
+		// If for example exporting to audio, the default video codec will be null
+		if (defaultVideoCodec === null) {
+			return Promise.resolve({type: 'drop'});
+		}
 
-  const canReencode = await canReencodeVideoTrack({
-    videoCodec: defaultVideoCodec,
-    track,
-    resizeOperation,
-    rotate,
-  });
+		const canReencode = await canReencodeVideoTrack({
+			videoCodec: defaultVideoCodec,
+			track,
+			resizeOperation,
+			rotate,
+		});
 
-  if (canReencode) {
-    return Promise.resolve({
-      type: 'reencode',
-      videoCodec: defaultVideoCodec,
-      rotation: rotate - track.rotation,
-    });
-  }
+		if (canReencode) {
+			return Promise.resolve({
+				type: 'reencode',
+				videoCodec: defaultVideoCodec,
+				rotation: rotate - track.rotation,
+			});
+		}
 
-  return Promise.resolve({type: 'fail'});
-};
+		return Promise.resolve({type: 'fail'});
+	};
 ```
 
 ## See also

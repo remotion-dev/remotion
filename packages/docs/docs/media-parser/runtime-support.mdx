@@ -24,7 +24,8 @@ The following minimum versions are required:
 Use this to check if the runtime supports `parseMedia()`:
 
 ```tsx
-const canUseMediaParser = typeof fetch === 'function' && typeof new ArrayBuffer().resize === 'function';
+const canUseMediaParser =
+	typeof fetch === 'function' && typeof new ArrayBuffer().resize === 'function';
 ```
 
 ## WebCodecs support

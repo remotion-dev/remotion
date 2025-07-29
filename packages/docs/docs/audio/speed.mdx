@@ -19,10 +19,10 @@ You can use the [`playbackRate`](/docs/audio#playbackrate) prop to control the s
 import {AbsoluteFill, Audio, staticFile} from 'remotion';
 
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} playbackRate={2} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Audio src={staticFile('audio.mp3')} playbackRate={2} />
+		</AbsoluteFill>
+	);
 };
 ```

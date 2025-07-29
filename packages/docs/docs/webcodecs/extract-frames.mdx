@@ -16,12 +16,12 @@ Extracts frames from a video at specific timestamps.
 import {extractFrames} from '@remotion/webcodecs';
 
 await extractFrames({
-  src: 'https://parser.media/video.mp4',
-  timestampsInSeconds: [0, 1, 2, 3, 4],
-  onFrame: (frame) => {
-    console.log(frame);
-    //           ^?
-  },
+	src: 'https://parser.media/video.mp4',
+	timestampsInSeconds: [0, 1, 2, 3, 4],
+	onFrame: (frame) => {
+		console.log(frame);
+		//           ^?
+	},
 });
 ```
 
@@ -48,20 +48,20 @@ const canvasWidth = 500;
 const canvasHeight = 80;
 
 const timestamps: ExtractFramesTimestampsInSecondsFn = async ({track}) => {
-  const aspectRatio = track.width / track.height;
-  const amountOfFramesFit = Math.ceil(
-    canvasWidth / (canvasHeight * aspectRatio),
-  );
-  const timestampsInSeconds: number[] = [];
-  const segmentDuration = toSeconds - fromSeconds;
+	const aspectRatio = track.width / track.height;
+	const amountOfFramesFit = Math.ceil(
+		canvasWidth / (canvasHeight * aspectRatio),
+	);
+	const timestampsInSeconds: number[] = [];
+	const segmentDuration = toSeconds - fromSeconds;
 
-  for (let i = 0; i < amountOfFramesFit; i++) {
-    timestampsInSeconds.push(
-      fromSeconds + (segmentDuration / amountOfFramesFit) * (i + 0.5),
-    );
-  }
+	for (let i = 0; i < amountOfFramesFit; i++) {
+		timestampsInSeconds.push(
+			fromSeconds + (segmentDuration / amountOfFramesFit) * (i + 0.5),
+		);
+	}
 
-  return timestampsInSeconds;
+	return timestampsInSeconds;
 };
 ```
 
@@ -72,7 +72,6 @@ For this you need currently to make another [`parseMedia()`](/docs/media-parser/
 
 A callback that will be called with the frame at the given timestamp.  
 Each frame is a [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) object that can for example be drawn to a canvas.
-
 
 ### `acknowledgeRemotionLicense?`
 

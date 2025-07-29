@@ -15,11 +15,11 @@ _available from v4.0.190_
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
-  src: 'https://parser.media/video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
+	src: 'https://parser.media/video.mp4',
+	fields: {
+		durationInSeconds: true,
+		dimensions: true,
+	},
 });
 
 console.log(result.durationInSeconds); // 10
@@ -31,12 +31,12 @@ import {parseMedia} from '@remotion/media-parser';
 import {nodeReader} from '@remotion/media-parser/node';
 
 const result = await parseMedia({
-  src: '/Users/jonnyburger/Downloads/video.mp4',
-  fields: {
-    durationInSeconds: true,
-    dimensions: true,
-  },
-  reader: nodeReader,
+	src: '/Users/jonnyburger/Downloads/video.mp4',
+	fields: {
+		durationInSeconds: true,
+		dimensions: true,
+	},
+	reader: nodeReader,
 });
 ```
 
@@ -86,11 +86,11 @@ The `sample` has the type [`MediaParserVideoSample`](/docs/media-parser/types#me
 import {parseMedia, MediaParserOnVideoTrack} from '@remotion/media-parser';
 
 const onVideoTrack: MediaParserOnVideoTrack = ({track}) => {
-  console.log(track);
+	console.log(track);
 
-  return (sample) => {
-    console.log(new EncodedVideoChunk(sample));
-  };
+	return (sample) => {
+		console.log(new EncodedVideoChunk(sample));
+	};
 };
 ```
 
@@ -111,11 +111,11 @@ The `sample` has the type [`MediaParserAudioSample`](/docs/media-parser/types#me
 import {parseMedia, MediaParserOnAudioTrack} from '@remotion/media-parser';
 
 const onAudioTrack: MediaParserOnAudioTrack = ({track}) => {
-  console.log(track);
+	console.log(track);
 
-  return (sample) => {
-    console.log(new EncodedAudioChunk(sample));
-  };
+	return (sample) => {
+		console.log(new EncodedAudioChunk(sample));
+	};
 };
 ```
 
@@ -184,13 +184,13 @@ However, just like with [`fields`](#fields), adding a callback for a [slow field
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
-  src: 'https://parser.media/video.mp4',
-  onDurationInSeconds: (durationInSeconds) => {
-    console.log(durationInSeconds);
-  },
-  onDimensions: (dimensions) => {
-    console.log(dimensions);
-  },
+	src: 'https://parser.media/video.mp4',
+	onDurationInSeconds: (durationInSeconds) => {
+		console.log(durationInSeconds);
+	},
+	onDimensions: (dimensions) => {
+		console.log(dimensions);
+	},
 });
 ```
 

@@ -18,7 +18,15 @@ import {Player} from '@remotion/player';
 import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
-  return <Player component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} />;
+	return (
+		<Player
+			component={MyVideo}
+			durationInFrames={120}
+			compositionWidth={1920}
+			compositionHeight={1080}
+			fps={30}
+		/>
+	);
 };
 ```
 
@@ -184,16 +192,25 @@ const Component: React.FC = () => null;
 // ---cut---
 
 const MyApp: React.FC = () => {
-  // `RenderLoading` type can be imported from "@remotion/player"
-  const renderLoading: RenderLoading = useCallback(({height, width}) => {
-    return (
-      <AbsoluteFill style={{backgroundColor: 'gray'}}>
-        Loading player ({height}x{width})
-      </AbsoluteFill>
-    );
-  }, []);
+	// `RenderLoading` type can be imported from "@remotion/player"
+	const renderLoading: RenderLoading = useCallback(({height, width}) => {
+		return (
+			<AbsoluteFill style={{backgroundColor: 'gray'}}>
+				Loading player ({height}x{width})
+			</AbsoluteFill>
+		);
+	}, []);
 
-  return <Player fps={30} component={Component} durationInFrames={100} compositionWidth={1080} compositionHeight={1080} renderLoading={renderLoading} />;
+	return (
+		<Player
+			fps={30}
+			component={Component}
+			durationInFrames={100}
+			compositionWidth={1080}
+			compositionHeight={1080}
+			renderLoading={renderLoading}
+		/>
+	);
 };
 ```
 
@@ -224,23 +241,38 @@ import type {RenderPoster} from '@remotion/player';
 import {Player} from '@remotion/player';
 
 const MyApp: React.FC = () => {
-  const renderPoster: RenderPoster = useCallback(({height, width, isBuffering}) => {
-    if (isBuffering) {
-      return (
-        <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-          <Spinner />
-        </AbsoluteFill>
-      );
-    }
+	const renderPoster: RenderPoster = useCallback(
+		({height, width, isBuffering}) => {
+			if (isBuffering) {
+				return (
+					<AbsoluteFill
+						style={{justifyContent: 'center', alignItems: 'center'}}
+					>
+						<Spinner />
+					</AbsoluteFill>
+				);
+			}
 
-    return (
-      <AbsoluteFill style={{backgroundColor: 'gray'}}>
-        Click to play! ({height}x{width})
-      </AbsoluteFill>
-    );
-  }, []);
+			return (
+				<AbsoluteFill style={{backgroundColor: 'gray'}}>
+					Click to play! ({height}x{width})
+				</AbsoluteFill>
+			);
+		},
+		[],
+	);
 
-  return <Player fps={30} component={Component} durationInFrames={100} compositionWidth={1080} compositionHeight={1080} renderPoster={renderPoster} showPosterWhenUnplayed />;
+	return (
+		<Player
+			fps={30}
+			component={Component}
+			durationInFrames={100}
+			compositionWidth={1080}
+			compositionHeight={1080}
+			renderPoster={renderPoster}
+			showPosterWhenUnplayed
+		/>
+	);
 };
 ```
 
@@ -315,20 +347,32 @@ import {Player, RenderPlayPauseButton} from '@remotion/player';
 import {useCallback} from 'react';
 
 export const App: React.FC = () => {
-  const renderPlayPauseButton: RenderPlayPauseButton = useCallback(({playing, isBuffering}) => {
-    // Since v4.0.111, isBuffering is available
-    if (playing && isBuffering) {
-      return <MySpinner />;
-    }
+	const renderPlayPauseButton: RenderPlayPauseButton = useCallback(
+		({playing, isBuffering}) => {
+			// Since v4.0.111, isBuffering is available
+			if (playing && isBuffering) {
+				return <MySpinner />;
+			}
 
-    if (playing) {
-      return <MyPlayButton />;
-    }
+			if (playing) {
+				return <MyPlayButton />;
+			}
 
-    return <MyPauseButton />;
-  }, []);
+			return <MyPauseButton />;
+		},
+		[],
+	);
 
-  return <Player component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} renderPlayPauseButton={renderPlayPauseButton} />;
+	return (
+		<Player
+			component={MyVideo}
+			durationInFrames={120}
+			compositionWidth={1920}
+			compositionHeight={1080}
+			fps={30}
+			renderPlayPauseButton={renderPlayPauseButton}
+		/>
+	);
 };
 ```
 
@@ -351,15 +395,27 @@ import {Player, RenderFullscreenButton} from '@remotion/player';
 import {useCallback} from 'react';
 
 export const App: React.FC = () => {
-  const renderFullscreenButton: RenderFullscreenButton = useCallback(({isFullscreen}) => {
-    if (isFullscreen) {
-      return <MinimiseButton />;
-    }
+	const renderFullscreenButton: RenderFullscreenButton = useCallback(
+		({isFullscreen}) => {
+			if (isFullscreen) {
+				return <MinimiseButton />;
+			}
 
-    return <FullScreenButton />;
-  }, []);
+			return <FullScreenButton />;
+		},
+		[],
+	);
 
-  return <Player component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} renderFullscreenButton={renderFullscreenButton} />;
+	return (
+		<Player
+			component={MyVideo}
+			durationInFrames={120}
+			compositionWidth={1920}
+			compositionHeight={1080}
+			fps={30}
+			renderFullscreenButton={renderFullscreenButton}
+		/>
+	);
 };
 ```
 
@@ -380,16 +436,25 @@ import {Player, RenderMuteButton} from '@remotion/player';
 import {useCallback} from 'react';
 
 export const App: React.FC = () => {
-  const renderMuteButton: RenderMuteButton = useCallback(({muted, volume}) => {
-    const isMutedOrVolumeZero = muted || volume === 0;
-    if (isMutedOrVolumeZero) {
-      return <VolumeOffIcon />;
-    }
+	const renderMuteButton: RenderMuteButton = useCallback(({muted, volume}) => {
+		const isMutedOrVolumeZero = muted || volume === 0;
+		if (isMutedOrVolumeZero) {
+			return <VolumeOffIcon />;
+		}
 
-    return <VolumeOnIcon />;
-  }, []);
+		return <VolumeOnIcon />;
+	}, []);
 
-  return <Player fps={30} component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} renderMuteButton={renderMuteButton} />;
+	return (
+		<Player
+			fps={30}
+			component={MyVideo}
+			durationInFrames={120}
+			compositionWidth={1920}
+			compositionHeight={1080}
+			renderMuteButton={renderMuteButton}
+		/>
+	);
 };
 ```
 
@@ -408,11 +473,23 @@ import {useCallback} from 'react';
 import {Player, type RenderVolumeSlider} from '@remotion/player';
 
 export const App: React.FC = () => {
-  const renderVolumeSlider: RenderVolumeSlider = useCallback(({isVertical, volume, onBlur, inputRef, setVolume}) => {
-    return null; // Your volume slider implementation
-  }, []);
+	const renderVolumeSlider: RenderVolumeSlider = useCallback(
+		({isVertical, volume, onBlur, inputRef, setVolume}) => {
+			return null; // Your volume slider implementation
+		},
+		[],
+	);
 
-  return <Player fps={30} component={MyVideo} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} renderVolumeSlider={renderVolumeSlider} />;
+	return (
+		<Player
+			fps={30}
+			component={MyVideo}
+			durationInFrames={120}
+			compositionWidth={1920}
+			compositionHeight={1080}
+			renderVolumeSlider={renderVolumeSlider}
+		/>
+	);
 };
 ```
 
@@ -498,9 +575,9 @@ This prop is useful if you would like to scope the volume preference to a specif
 
 ```tsx
 <Player
-  component={MyVideo}
-  // ... other props
-  volumePersistenceKey="my-app-volume-preference"
+	component={MyVideo}
+	// ... other props
+	volumePersistenceKey="my-app-volume-preference"
 />
 ```
 
@@ -521,25 +598,25 @@ import {useEffect, useRef} from 'react';
 import {MyComposition} from './MyComposition';
 
 const MyComp: React.FC = () => {
-  const playerRef = useRef<PlayerRef>(null);
+	const playerRef = useRef<PlayerRef>(null);
 
-  useEffect(() => {
-    if (playerRef.current) {
-      console.log(playerRef.current.getCurrentFrame());
-    }
-  }, []);
+	useEffect(() => {
+		if (playerRef.current) {
+			console.log(playerRef.current.getCurrentFrame());
+		}
+	}, []);
 
-  return (
-    <Player
-      ref={playerRef}
-      durationInFrames={30}
-      compositionWidth={1080}
-      compositionHeight={1080}
-      fps={30}
-      component={MyComposition}
-      // Many other optional props are available.
-    />
-  );
+	return (
+		<Player
+			ref={playerRef}
+			durationInFrames={30}
+			compositionWidth={1080}
+			compositionHeight={1080}
+			fps={30}
+			component={MyComposition}
+			// Many other optional props are available.
+		/>
+	);
 };
 ```
 
@@ -586,22 +663,22 @@ import {useEffect, useRef} from 'react';
 const playerRef = useRef<PlayerRef>(null);
 
 useEffect(() => {
-  if (!playerRef.current) {
-    return;
-  }
-  const container = playerRef.current.getContainerNode();
-  if (!container) {
-    return;
-  }
+	if (!playerRef.current) {
+		return;
+	}
+	const container = playerRef.current.getContainerNode();
+	if (!container) {
+		return;
+	}
 
-  const onClick = () => {
-    console.log('player got clicked');
-  };
+	const onClick = () => {
+		console.log('player got clicked');
+	};
 
-  container.addEventListener('click', onClick);
-  return () => {
-    container.removeEventListener('click', onClick);
-  };
+	container.addEventListener('click', onClick);
+	return () => {
+		container.removeEventListener('click', onClick);
+	};
 }, []);
 ```
 
@@ -677,81 +754,84 @@ import {CallbackListener} from '@remotion/player';
 const playerRef = useRef<PlayerRef>(null);
 
 useEffect(() => {
-  if (!playerRef.current) {
-    return;
-  }
-  const onPlay: CallbackListener<'play'> = () => {
-    console.log('play');
-  };
-  const onRateChange: CallbackListener<'ratechange'> = (e) => {
-    console.log('ratechange', e.detail.playbackRate);
-  };
-  const onVolumeChange: CallbackListener<'volumechange'> = (e) => {
-    console.log('new volume', e.detail.volume);
-  };
+	if (!playerRef.current) {
+		return;
+	}
+	const onPlay: CallbackListener<'play'> = () => {
+		console.log('play');
+	};
+	const onRateChange: CallbackListener<'ratechange'> = (e) => {
+		console.log('ratechange', e.detail.playbackRate);
+	};
+	const onVolumeChange: CallbackListener<'volumechange'> = (e) => {
+		console.log('new volume', e.detail.volume);
+	};
 
-  const onPause: CallbackListener<'pause'> = () => {
-    console.log('pausing');
-  };
+	const onPause: CallbackListener<'pause'> = () => {
+		console.log('pausing');
+	};
 
-  const onSeeked: CallbackListener<'seeked'> = (e) => {
-    console.log('seeked to ' + e.detail.frame);
-  };
+	const onSeeked: CallbackListener<'seeked'> = (e) => {
+		console.log('seeked to ' + e.detail.frame);
+	};
 
-  const onTimeupdate: CallbackListener<'timeupdate'> = (e) => {
-    console.log('time has updated to ' + e.detail.frame);
-  };
+	const onTimeupdate: CallbackListener<'timeupdate'> = (e) => {
+		console.log('time has updated to ' + e.detail.frame);
+	};
 
-  const onEnded: CallbackListener<'ended'> = () => {
-    console.log('ended');
-  };
+	const onEnded: CallbackListener<'ended'> = () => {
+		console.log('ended');
+	};
 
-  const onError: CallbackListener<'error'> = (e) => {
-    console.log('error', e.detail.error);
-  };
+	const onError: CallbackListener<'error'> = (e) => {
+		console.log('error', e.detail.error);
+	};
 
-  const onFullscreenChange: CallbackListener<'fullscreenchange'> = (e) => {
-    console.log('fullscreenchange', e.detail.isFullscreen);
-  };
+	const onFullscreenChange: CallbackListener<'fullscreenchange'> = (e) => {
+		console.log('fullscreenchange', e.detail.isFullscreen);
+	};
 
-  const onScaleChange: CallbackListener<'scalechange'> = (e) => {
-    console.log('scalechange', e.detail.scale);
-  };
+	const onScaleChange: CallbackListener<'scalechange'> = (e) => {
+		console.log('scalechange', e.detail.scale);
+	};
 
-  const onMuteChange: CallbackListener<'mutechange'> = (e) => {
-    console.log('mutechange', e.detail.isMuted);
-  };
+	const onMuteChange: CallbackListener<'mutechange'> = (e) => {
+		console.log('mutechange', e.detail.isMuted);
+	};
 
-  playerRef.current.addEventListener('play', onPlay);
-  playerRef.current.addEventListener('ratechange', onRateChange);
-  playerRef.current.addEventListener('volumechange', onVolumeChange);
-  playerRef.current.addEventListener('pause', onPause);
-  playerRef.current.addEventListener('ended', onEnded);
-  playerRef.current.addEventListener('error', onError);
-  playerRef.current.addEventListener('fullscreenchange', onFullscreenChange);
-  playerRef.current.addEventListener('scalechange', onScaleChange);
-  playerRef.current.addEventListener('mutechange', onMuteChange);
+	playerRef.current.addEventListener('play', onPlay);
+	playerRef.current.addEventListener('ratechange', onRateChange);
+	playerRef.current.addEventListener('volumechange', onVolumeChange);
+	playerRef.current.addEventListener('pause', onPause);
+	playerRef.current.addEventListener('ended', onEnded);
+	playerRef.current.addEventListener('error', onError);
+	playerRef.current.addEventListener('fullscreenchange', onFullscreenChange);
+	playerRef.current.addEventListener('scalechange', onScaleChange);
+	playerRef.current.addEventListener('mutechange', onMuteChange);
 
-  // See below for difference between `seeked` and `timeupdate`
-  playerRef.current.addEventListener('seeked', onSeeked);
-  playerRef.current.addEventListener('timeupdate', onTimeupdate);
+	// See below for difference between `seeked` and `timeupdate`
+	playerRef.current.addEventListener('seeked', onSeeked);
+	playerRef.current.addEventListener('timeupdate', onTimeupdate);
 
-  return () => {
-    // Make sure to clean up event listeners
-    if (playerRef.current) {
-      playerRef.current.removeEventListener('play', onPlay);
-      playerRef.current.removeEventListener('ratechange', onRateChange);
-      playerRef.current.removeEventListener('volumechange', onVolumeChange);
-      playerRef.current.removeEventListener('pause', onPause);
-      playerRef.current.removeEventListener('ended', onEnded);
-      playerRef.current.removeEventListener('error', onError);
-      playerRef.current.removeEventListener('fullscreenchange', onFullscreenChange);
-      playerRef.current.removeEventListener('scalechange', onScaleChange);
-      playerRef.current.removeEventListener('mutechange', onMuteChange);
-      playerRef.current.removeEventListener('seeked', onSeeked);
-      playerRef.current.removeEventListener('timeupdate', onTimeupdate);
-    }
-  };
+	return () => {
+		// Make sure to clean up event listeners
+		if (playerRef.current) {
+			playerRef.current.removeEventListener('play', onPlay);
+			playerRef.current.removeEventListener('ratechange', onRateChange);
+			playerRef.current.removeEventListener('volumechange', onVolumeChange);
+			playerRef.current.removeEventListener('pause', onPause);
+			playerRef.current.removeEventListener('ended', onEnded);
+			playerRef.current.removeEventListener('error', onError);
+			playerRef.current.removeEventListener(
+				'fullscreenchange',
+				onFullscreenChange,
+			);
+			playerRef.current.removeEventListener('scalechange', onScaleChange);
+			playerRef.current.removeEventListener('mutechange', onMuteChange);
+			playerRef.current.removeEventListener('seeked', onSeeked);
+			playerRef.current.removeEventListener('timeupdate', onTimeupdate);
+		}
+	};
 }, []);
 ```
 
@@ -764,11 +844,11 @@ import {PlayerRef} from '@remotion/player';
 import {useRef} from 'react';
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
-  throw new Error();
+	throw new Error();
 }
 // ---cut---
 playerRef.current.addEventListener('seeked', (e) => {
-  console.log('seeked to ' + e.detail.frame); // seeked to 120
+	console.log('seeked to ' + e.detail.frame); // seeked to 120
 });
 ```
 
@@ -809,11 +889,11 @@ import {PlayerRef} from '@remotion/player';
 import {useRef} from 'react';
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
-  throw new Error();
+	throw new Error();
 }
 // ---cut---
 playerRef.current.addEventListener('timeupdate', (e) => {
-  console.log('current frame is ' + e.detail.frame); // current frame is 120
+	console.log('current frame is ' + e.detail.frame); // current frame is 120
 });
 ```
 
@@ -830,11 +910,11 @@ import {PlayerRef} from '@remotion/player';
 import {useRef} from 'react';
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
-  throw new Error();
+	throw new Error();
 }
 // ---cut---
 playerRef.current.addEventListener('frameupdate', (e) => {
-  console.log('current frame is ' + e.detail.frame); // current frame is 120
+	console.log('current frame is ' + e.detail.frame); // current frame is 120
 });
 ```
 
@@ -851,11 +931,11 @@ import {PlayerRef} from '@remotion/player';
 import {useRef} from 'react';
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
-  throw new Error();
+	throw new Error();
 }
 // ---cut---
 playerRef.current.addEventListener('fullscreenchange', (e) => {
-  console.log('is fullscreen' + e.detail.isFullscreen); // is fullscreen true
+	console.log('is fullscreen' + e.detail.isFullscreen); // is fullscreen true
 });
 ```
 
@@ -868,11 +948,11 @@ import {PlayerRef} from '@remotion/player';
 import {useRef} from 'react';
 const playerRef = useRef<PlayerRef>(null);
 if (!playerRef.current) {
-  throw new Error();
+	throw new Error();
 }
 // ---cut---
 playerRef.current.addEventListener('mutechange', (e) => {
-  console.log('is mute' + e.detail.isMuted); // is mute true
+	console.log('is mute' + e.detail.isMuted); // is mute true
 });
 ```
 
@@ -888,7 +968,7 @@ import {useRef} from 'react';
 const ref = useRef<PlayerRef>(null);
 // ---cut---
 ref.current?.addEventListener('error', (e) => {
-  console.log('error ', e.detail.error); // error [Error: undefined is not a function]
+	console.log('error ', e.detail.error); // error [Error: undefined is not a function]
 });
 ```
 
@@ -925,22 +1005,31 @@ const Component: React.FC = () => null;
 // ---cut---
 
 const MyApp: React.FC = () => {
-  // `ErrorFallback` type can be imported from "@remotion/player"
-  const errorFallback: ErrorFallback = useCallback(({error}) => {
-    return (
-      <AbsoluteFill
-        style={{
-          backgroundColor: 'yellow',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        Sorry about this! An error occurred: {error.message}
-      </AbsoluteFill>
-    );
-  }, []);
+	// `ErrorFallback` type can be imported from "@remotion/player"
+	const errorFallback: ErrorFallback = useCallback(({error}) => {
+		return (
+			<AbsoluteFill
+				style={{
+					backgroundColor: 'yellow',
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}
+			>
+				Sorry about this! An error occurred: {error.message}
+			</AbsoluteFill>
+		);
+	}, []);
 
-  return <Player fps={30} component={Component} durationInFrames={100} compositionWidth={1080} compositionHeight={1080} errorFallback={errorFallback} />;
+	return (
+		<Player
+			fps={30}
+			component={Component}
+			durationInFrames={100}
+			compositionWidth={1080}
+			compositionHeight={1080}
+			errorFallback={errorFallback}
+		/>
+	);
 };
 ```
 

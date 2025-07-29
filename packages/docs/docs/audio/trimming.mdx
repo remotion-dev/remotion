@@ -16,13 +16,17 @@ With it, you can trim off parts of the audio.
 import {AbsoluteFill, Audio, staticFile, useVideoConfig} from 'remotion';
 
 export const MyComposition = () => {
-  const {fps} = useVideoConfig();
+	const {fps} = useVideoConfig();
 
-  return (
-    <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} trimBefore={2 * fps} trimAfter={4 * fps} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<Audio
+				src={staticFile('audio.mp3')}
+				trimBefore={2 * fps}
+				trimAfter={4 * fps}
+			/>
+		</AbsoluteFill>
+	);
 };
 ```
 

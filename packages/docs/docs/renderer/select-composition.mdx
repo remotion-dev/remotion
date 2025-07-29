@@ -20,9 +20,9 @@ import {selectComposition} from '@remotion/renderer';
 
 const bundled = await bundle({entryPoint: require.resolve('./src/index.ts')});
 const composition = await selectComposition({
-  serveUrl: bundled,
-  id: 'MyComposition',
-  inputProps: {},
+	serveUrl: bundled,
+	id: 'MyComposition',
+	inputProps: {},
 });
 
 console.log(composition.id); // "MyComposition"

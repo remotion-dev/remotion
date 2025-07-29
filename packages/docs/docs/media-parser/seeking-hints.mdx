@@ -24,14 +24,14 @@ import {mediaParserController, parseMedia} from '@remotion/media-parser';
 const controller = mediaParserController();
 
 await parseMedia({
-  controller,
-  // Adding a callback so the full file is read
-  onVideoTrack: (track) => {
-    return (sample) => {
-      console.log(sample);
-    };
-  },
-  src: 'https://stream.mux.com/QkFQYWZ0ZS53ZWJ3aWQvc3RhdGlvbl9pbnRlcm5hbC5tM3U4Lm1wNA.m3u8',
+	controller,
+	// Adding a callback so the full file is read
+	onVideoTrack: (track) => {
+		return (sample) => {
+			console.log(sample);
+		};
+	},
+	src: 'https://stream.mux.com/QkFQYWZ0ZS53ZWJ3aWQvc3RhdGlvbl9pbnRlcm5hbC5tM3U4Lm1wNA.m3u8',
 });
 
 const hints = await controller.getSeekingHints();
@@ -50,10 +50,10 @@ const seekingHints = await controller.getSeekingHints();
 // ---cut---
 
 await parseMedia({
-  controller,
-  src: 'https://stream.mux.com/QkFQYWZ0ZS53ZWJ3aWQvc3RhdGlvbl9pbnRlcm5hbC5tM3U4Lm1wNA.m3u8',
-  // Seeking hints were obtained from the previous parse
-  seekingHints,
+	controller,
+	src: 'https://stream.mux.com/QkFQYWZ0ZS53ZWJ3aWQvc3RhdGlvbl9pbnRlcm5hbC5tM3U4Lm1wNA.m3u8',
+	// Seeking hints were obtained from the previous parse
+	seekingHints,
 });
 ```
 

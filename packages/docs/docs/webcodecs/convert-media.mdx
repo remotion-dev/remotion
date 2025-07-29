@@ -14,12 +14,12 @@ import {LicenseDisclaimer} from './LicenseDisclaimer';
 import {UnstableDisclaimer} from './UnstableDisclaimer';
 
 <details>
-  <summary>💼 Important License Disclaimer</summary>
-  <LicenseDisclaimer />
+	<summary>💼 Important License Disclaimer</summary>
+	<LicenseDisclaimer />
 </details>
 <details>
-  <summary>🚧 Unstable API</summary>
-  <UnstableDisclaimer />
+	<summary>🚧 Unstable API</summary>
+	<UnstableDisclaimer />
 </details>
 
 Re-encodes a video using [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) and [`@remotion/media-parser`](/docs/media-parser).
@@ -28,8 +28,8 @@ Re-encodes a video using [WebCodecs](https://developer.mozilla.org/en-US/docs/We
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
 });
 
 // Save the converted video as a Blob
@@ -55,8 +55,8 @@ Call this function to get the converted video as a `Blob`. You can then use this
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
 });
 
 const blob = await result.save();
@@ -172,25 +172,37 @@ _Function_ <TsType type="ConvertMediaOnProgress" source="@remotion/media-parser"
 Allows receiving progress updates. The following fields are available:
 
 ```tsx twoslash
-import type {ConvertMediaOnProgress, ConvertMediaProgress} from '@remotion/webcodecs';
+import type {
+	ConvertMediaOnProgress,
+	ConvertMediaProgress,
+} from '@remotion/webcodecs';
 
-export const onProgress: ConvertMediaOnProgress = ({decodedVideoFrames, decodedAudioFrames, encodedVideoFrames, encodedAudioFrames, bytesWritten, millisecondsWritten, expectedOutputDurationInMs, overallProgress}: ConvertMediaProgress) => {
-  console.log(decodedVideoFrames);
-  //                   ^?
-  console.log(decodedAudioFrames);
-  //                   ^?
-  console.log(encodedVideoFrames);
-  //                   ^?
-  console.log(encodedAudioFrames);
-  //                   ^?
-  console.log(bytesWritten);
-  //                   ^?
-  console.log(millisecondsWritten);
-  //                   ^?
-  console.log(expectedOutputDurationInMs);
-  //                   ^?
-  console.log(overallProgress);
-  //                   ^?
+export const onProgress: ConvertMediaOnProgress = ({
+	decodedVideoFrames,
+	decodedAudioFrames,
+	encodedVideoFrames,
+	encodedAudioFrames,
+	bytesWritten,
+	millisecondsWritten,
+	expectedOutputDurationInMs,
+	overallProgress,
+}: ConvertMediaProgress) => {
+	console.log(decodedVideoFrames);
+	//                   ^?
+	console.log(decodedAudioFrames);
+	//                   ^?
+	console.log(encodedVideoFrames);
+	//                   ^?
+	console.log(encodedAudioFrames);
+	//                   ^?
+	console.log(bytesWritten);
+	//                   ^?
+	console.log(millisecondsWritten);
+	//                   ^?
+	console.log(expectedOutputDurationInMs);
+	//                   ^?
+	console.log(overallProgress);
+	//                   ^?
 };
 ```
 
@@ -204,15 +216,15 @@ Allows you to hook into the video frames. The frames are [`VideoFrame`](https://
 import type {ConvertMediaOnVideoFrame} from '@remotion/webcodecs';
 
 export const onVideoFrame: ConvertMediaOnVideoFrame = ({frame}) => {
-  console.log(frame);
-  //           ^?
+	console.log(frame);
+	//           ^?
 
-  // Do something with the frame, for example:
-  // - Draw to a canvas
-  // - Modify the frame
+	// Do something with the frame, for example:
+	// - Draw to a canvas
+	// - Modify the frame
 
-  // Then return the frame to be used for encoding.
-  return frame;
+	// Then return the frame to be used for encoding.
+	return frame;
 };
 ```
 
@@ -237,15 +249,15 @@ Allows you to hook into the audio data. The items are native [`AudioData`](https
 import type {ConvertMediaOnAudioData} from '@remotion/webcodecs';
 
 export const onAudioData: ConvertMediaOnAudioData = ({audioData}) => {
-  console.log(audioData);
-  //           ^?
+	console.log(audioData);
+	//           ^?
 
-  // Do something with the audiodata, for example:
-  // - Change the pitch
-  // - Lower the volume
+	// Do something with the audiodata, for example:
+	// - Change the pitch
+	// - Lower the volume
 
-  // Then return the frame to be used for encoding.
-  return audioData;
+	// Then return the frame to be used for encoding.
+	return audioData;
 };
 ```
 
@@ -328,17 +340,17 @@ This feature is inherited from [`parseMedia()`](/docs/media-parser/parse-media),
 import {convertMedia} from '@remotion/webcodecs';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
-  videoCodec: 'vp8',
-  audioCodec: 'opus',
-  fields: {
-    size: true,
-  },
-  onSize: (size) => {
-    console.log(size);
-    //           ^?
-  },
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
+	videoCodec: 'vp8',
+	audioCodec: 'opus',
+	fields: {
+		size: true,
+	},
+	onSize: (size) => {
+		console.log(size);
+		//           ^?
+	},
 });
 
 const blob = await result.save();

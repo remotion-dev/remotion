@@ -15,15 +15,18 @@ If you pass the original URL into either an [`<Audio>`](/docs/audio), [`<Video>`
 Remote assets need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 
 <details>
-  <summary>More info</summary>
-  <ul>
-    <li>
-      Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
-    </li>
-    <li>
-      You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
-    </li>
-  </ul>
+	<summary>More info</summary>
+	<ul>
+		<li>
+			Remotion's origin is usually <code>http://localhost:3000</code>, but it
+			may be different if rendering on Lambda or the port is busy.
+		</li>
+		<li>
+			You can{' '}
+			<a href="/docs/chromium-flags#--disable-web-security">disable CORS</a>{' '}
+			during renders.
+		</li>
+	</ul>
 </details>
 :::
 
@@ -31,11 +34,11 @@ Remote assets need to support [CORS](https://developer.mozilla.org/en-US/docs/We
 import {prefetch} from 'remotion';
 
 const {free, waitUntilDone} = prefetch('https://example.com/video.mp4', {
-  method: 'blob-url',
+	method: 'blob-url',
 });
 
 waitUntilDone().then(() => {
-  console.log('Video has finished loading');
+	console.log('Video has finished loading');
 });
 
 // Call free() if you want to un-prefetch and free up the memory:
@@ -82,18 +85,21 @@ import {prefetch} from 'remotion';
 import type {PrefetchOnProgress} from 'remotion';
 
 const onProgress: PrefetchOnProgress = (progress) => {
-  if (progress.totalBytes === null) {
-    // HTTP response has no "Content-Length" header,
-    // therefore no relative progress can be calculated.
-    console.log('Loaded bytes:', progress.loadedBytes);
-    return;
-  }
+	if (progress.totalBytes === null) {
+		// HTTP response has no "Content-Length" header,
+		// therefore no relative progress can be calculated.
+		console.log('Loaded bytes:', progress.loadedBytes);
+		return;
+	}
 
-  console.log('Loading progress:', Math.round(progress.loadedBytes / progress.totalBytes / 100) + '%');
+	console.log(
+		'Loading progress:',
+		Math.round(progress.loadedBytes / progress.totalBytes / 100) + '%',
+	);
 };
 
 prefetch('https://example.com/video.mp4', {
-  onProgress,
+	onProgress,
 });
 ```
 

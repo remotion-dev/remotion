@@ -2,13 +2,13 @@
 image: /generated/articles-docs-loop.png
 id: loop
 title: <Loop>
-crumb: "API"
+crumb: 'API'
 ---
 
 import {
-  LoopExamples,
-  BlueSquare,
-} from "../components/LoopExamples/LoopExamples";
+	LoopExamples,
+	BlueSquare,
+} from '../components/LoopExamples/LoopExamples';
 
 ```twoslash include example
 const BlueSquare: React.FC = () => <div></div>
@@ -21,14 +21,14 @@ The `<Loop />` component allows you to quickly lay out an animation so it repeat
 
 ```tsx twoslash title="MyComp.tsx"
 // @include: example-BlueSquare
-import { Loop } from "remotion";
+import {Loop} from 'remotion';
 // ---cut---
 const MyComp = () => {
-  return (
-    <Loop durationInFrames={50} times={2}>
-      <BlueSquare />
-    </Loop>
-  );
+	return (
+		<Loop durationInFrames={50} times={2}>
+			<BlueSquare />
+		</Loop>
+	);
 };
 ```
 
@@ -75,7 +75,7 @@ All the examples below are based on the following animation of a blue square:
 // @include: example-BlueSquare
 // ---cut---
 const MyComp = () => {
-  return <BlueSquare />;
+	return <BlueSquare />;
 };
 ```
 
@@ -86,14 +86,14 @@ const MyComp = () => {
 
 ```tsx twoslash
 // @include: example-BlueSquare
-import { Loop } from "remotion";
+import {Loop} from 'remotion';
 // ---cut---
 const MyComp = () => {
-  return (
-    <Loop durationInFrames={50}>
-      <BlueSquare />
-    </Loop>
-  );
+	return (
+		<Loop durationInFrames={50}>
+			<BlueSquare />
+		</Loop>
+	);
 };
 ```
 
@@ -104,14 +104,14 @@ const MyComp = () => {
 
 ```tsx twoslash
 // @include: example-BlueSquare
-import { Loop } from "remotion";
+import {Loop} from 'remotion';
 // ---cut---
 const MyComp = () => {
-  return (
-    <Loop durationInFrames={50} times={2}>
-      <BlueSquare />
-    </Loop>
-  );
+	return (
+		<Loop durationInFrames={50} times={2}>
+			<BlueSquare />
+		</Loop>
+	);
 };
 ```
 
@@ -122,16 +122,16 @@ const MyComp = () => {
 
 ```tsx twoslash
 // @include: example-BlueSquare
-import { Loop } from "remotion";
+import {Loop} from 'remotion';
 // ---cut---
 const MyComp = () => {
-  return (
-    <Loop durationInFrames={75}>
-      <Loop durationInFrames={30}>
-        <BlueSquare />
-      </Loop>
-    </Loop>
-  );
+	return (
+		<Loop durationInFrames={75}>
+			<Loop durationInFrames={30}>
+				<BlueSquare />
+			</Loop>
+		</Loop>
+	);
 };
 ```
 
@@ -146,29 +146,29 @@ If inside a loop, an object with two properties is returned:
 - `iteration`: The current iteration of the loop, starting at 0.
 
 ```tsx twoslash
-import React from "react";
-import { Loop, useCurrentFrame } from "remotion";
+import React from 'react';
+import {Loop, useCurrentFrame} from 'remotion';
 
 const LoopedVideo: React.FC = () => {
-  return (
-    <Loop durationInFrames={50} times={3} name="MyLoop">
-      <Child />
-    </Loop>
-  );
+	return (
+		<Loop durationInFrames={50} times={3} name="MyLoop">
+			<Child />
+		</Loop>
+	);
 };
 
 const Child = () => {
-  const frame = useCurrentFrame(); // 75
-  const loop = Loop.useLoop();
+	const frame = useCurrentFrame(); // 75
+	const loop = Loop.useLoop();
 
-  if (loop === null) {
-    // Not inside a loop
-  } else {
-    console.log(loop.durationInFrames); // 50
-    console.log(loop.iteration); // 1
-  }
+	if (loop === null) {
+		// Not inside a loop
+	} else {
+		console.log(loop.durationInFrames); // 50
+		console.log(loop.iteration); // 1
+	}
 
-  return <div>{frame}</div>;
+	return <div>{frame}</div>;
 };
 ```
 

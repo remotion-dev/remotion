@@ -23,15 +23,15 @@ import {AbsoluteFill} from 'remotion';
 const {fontFamily} = loadFont();
 
 export const GoogleFontsExample: React.FC = () => {
-  return (
-    <AbsoluteFill
-      style={{
-        fontFamily: fontFamily,
-      }}
-    >
-      <h1>Google Fonts</h1>
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill
+			style={{
+				fontFamily: fontFamily,
+			}}
+		>
+			<h1>Google Fonts</h1>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -48,29 +48,29 @@ import {AbsoluteFill} from 'remotion';
 import {fontFamily, loadFont} from '@remotion/google-fonts/Lobster';
 
 const {waitUntilDone} = loadFont('normal', {
-  weights: ['400'],
-  subsets: ['latin'],
+	weights: ['400'],
+	subsets: ['latin'],
 });
 
 // Optional: Act once the font has been loaded
 waitUntilDone().then(() => {
-  console.log('Font is loaded');
+	console.log('Font is loaded');
 });
 
 export const GoogleFontsExample: React.FC = () => {
-  return (
-    <AbsoluteFill
-      style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-        // Pass the `fontFamily` you imported as a style
-        fontFamily: fontFamily,
-        fontSize: 280,
-      }}
-    >
-      <h1>Google Fonts</h1>
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill
+			style={{
+				justifyContent: 'center',
+				alignItems: 'center',
+				// Pass the `fontFamily` you imported as a style
+				fontFamily: fontFamily,
+				fontSize: 280,
+			}}
+		>
+			<h1>Google Fonts</h1>
+		</AbsoluteFill>
+	);
 };
 ```
 
@@ -151,13 +151,13 @@ A function that returns a promise that resolves when the font is loaded.
 import {loadFont} from '@remotion/google-fonts/Lobster';
 
 loadFont('normal', {
-  weights: ['400'],
-  subsets: ['latin'],
+	weights: ['400'],
+	subsets: ['latin'],
 })
-  .waitUntilDone()
-  .then(() => {
-    console.log('Done loading');
-  });
+	.waitUntilDone()
+	.then(() => {
+		console.log('Done loading');
+	});
 ```
 
 ## See also

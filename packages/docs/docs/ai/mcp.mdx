@@ -15,18 +15,19 @@ Our MCP server uses [CrawlChat](https://crawlchat.app)'s technology to index Rem
 
 To set it up:
 
-<Step>1</Step> Go to your Cursor Settings: <kbd>Cmd+Ctrl</kbd> + <kbd>P</kbd>, then type `> Cursor Settings` and confirm with Enter.
+<Step>1</Step> Go to your Cursor Settings: <kbd>Cmd+Ctrl</kbd> + <kbd>P</kbd>,
+then type `> Cursor Settings` and confirm with Enter.
 
 <Step>2</Step> Add an MCP:
 
 ```json
 {
-  "mcpServers": {
-    "remotion-documentation": {
-      "command": "npx",
-      "args": ["@remotion/mcp@latest"]
-    }
-  }
+	"mcpServers": {
+		"remotion-documentation": {
+			"command": "npx",
+			"args": ["@remotion/mcp@latest"]
+		}
+	}
 }
 ```
 
@@ -36,4 +37,7 @@ If you now ask Cursor in the composer to use the Remotion Documentation, the MCP
 
 <br />
 
-<img style={{width: 600}} src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/mcp-cursor.png" />
+<img
+	style={{width: 600}}
+	src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/mcp-cursor.png"
+/>

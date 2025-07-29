@@ -7,9 +7,12 @@ crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-  <p>
-    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
-  </p>
+	<p>
+		Cloud Run is in{' '}
+		<a href="/docs/cloudrun/status">
+			Alpha status and not actively being developed.
+		</a>
+	</p>
 </ExperimentalBadge>
 
 Creates a Cloud Storage bucket for Remotion Cloud Run in your GCP project. If one already exists, it will get returned instead.
@@ -20,7 +23,7 @@ Creates a Cloud Storage bucket for Remotion Cloud Run in your GCP project. If on
 import {getOrCreateBucket} from '@remotion/cloudrun';
 
 const {bucketName, alreadyExisted} = await getOrCreateBucket({
-  region: 'us-east1',
+	region: 'us-east1',
 });
 
 console.log(bucketName); // "remotioncloudrun-32df3p"

@@ -7,9 +7,12 @@ crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-  <p>
-    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
-  </p>
+	<p>
+		Cloud Run is in{' '}
+		<a href="/docs/cloudrun/status">
+			Alpha status and not actively being developed.
+		</a>
+	</p>
 </ExperimentalBadge>
 
 Deletes a deployed Cloud Run service based on its name.
@@ -22,14 +25,14 @@ To retrieve a list of services, call [`getServices()`](/docs/cloudrun/getservice
 import {deleteService, getServices} from '@remotion/cloudrun';
 
 const services = await getServices({
-  region: 'us-east1',
-  compatibleOnly: false,
+	region: 'us-east1',
+	compatibleOnly: false,
 });
 for (const service of services) {
-  await deleteService({
-    region: 'us-east1',
-    serviceName: service.serviceName,
-  });
+	await deleteService({
+		region: 'us-east1',
+		serviceName: service.serviceName,
+	});
 }
 ```
 

@@ -12,7 +12,10 @@ You may enable [AWS Lambda Insights](https://docs.aws.amazon.com/AmazonCloudWatc
 ## Prerequisites
 
 <Step>1</Step> Ensure you are on at least Remotion v4.0.61. <br />
-<Step>2</Step> If you started using Remotion before v4.0.61, update both your <a href="/docs/lambda/permissions#user-permissions">AWS user permission</a> and <a href="/docs/lambda/permissions#role-permissions">AWS role permission</a>, since now more permissions are needed.
+<Step>2</Step> If you started using Remotion before v4.0.61, update both your
+<a href="/docs/lambda/permissions#user-permissions">AWS user permission</a> and
+<a href="/docs/lambda/permissions#role-permissions">AWS role permission</a>,
+since now more permissions are needed.
 
 ## Enable Lambda Insights
 
@@ -32,11 +35,11 @@ import assert from 'assert';
 import {deployFunction} from '@remotion/lambda';
 
 const {alreadyExisted} = await deployFunction({
-  createCloudWatchLogGroup: true,
-  region: 'us-east-1',
-  timeoutInSeconds: 120,
-  memorySizeInMb: 3009,
-  enableLambdaInsights: true,
+	createCloudWatchLogGroup: true,
+	region: 'us-east-1',
+	timeoutInSeconds: 120,
+	memorySizeInMb: 3009,
+	enableLambdaInsights: true,
 });
 
 // Note: If the function previously already existed, Lambda insights are not applied.

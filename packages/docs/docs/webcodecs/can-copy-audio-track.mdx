@@ -23,22 +23,22 @@ import {parseMedia} from '@remotion/media-parser';
 import {canCopyAudioTrack} from '@remotion/webcodecs';
 
 const {tracks, container} = await parseMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  fields: {
-    tracks: true,
-    container: true,
-  },
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	fields: {
+		tracks: true,
+		container: true,
+	},
 });
 
 const audioTracks = tracks.filter((t) => t.type === 'audio');
 
 for (const track of audioTracks) {
-  canCopyAudioTrack({
-    inputCodec: track.codecEnum,
-    outputContainer: 'webm',
-    inputContainer: container,
-    outputAudioCodec: null,
-  }); // bool
+	canCopyAudioTrack({
+		inputCodec: track.codecEnum,
+		outputContainer: 'webm',
+		inputContainer: container,
+		outputAudioCodec: null,
+	}); // bool
 }
 ```
 
@@ -46,25 +46,25 @@ for (const track of audioTracks) {
 import {convertMedia, canCopyAudioTrack} from '@remotion/webcodecs';
 
 await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
-  videoCodec: 'vp8',
-  audioCodec: 'opus',
-  onAudioTrack: async ({track, outputContainer, inputContainer}) => {
-    const canCopy = canCopyAudioTrack({
-      inputCodec: track.codecEnum,
-      outputContainer,
-      inputContainer,
-      outputAudioCodec: null,
-    });
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
+	videoCodec: 'vp8',
+	audioCodec: 'opus',
+	onAudioTrack: async ({track, outputContainer, inputContainer}) => {
+		const canCopy = canCopyAudioTrack({
+			inputCodec: track.codecEnum,
+			outputContainer,
+			inputContainer,
+			outputAudioCodec: null,
+		});
 
-    if (canCopy) {
-      return {type: 'copy'};
-    }
+		if (canCopy) {
+			return {type: 'copy'};
+		}
 
-    // Just to keep the example brief, in reality, you would re-encode the track here
-    return {type: 'drop'};
-  },
+		// Just to keep the example brief, in reality, you would re-encode the track here
+		return {type: 'drop'};
+	},
 });
 ```
 

@@ -39,12 +39,12 @@ Define a function, you may type it using `CalculateMetadataFunction` - the gener
 // @filename: MyComp.tsx
 import React from 'react';
 export type MyComponentProps = {
-  text: string;
-  duration: number;
+	text: string;
+	duration: number;
 };
 
 export const MyComponent: React.FC<MyComponentProps> = ({text}) => {
-  return <div>{text}</div>;
+	return <div>{text}</div>;
 };
 
 // @filename: Vid.tsx
@@ -53,37 +53,41 @@ import React from 'react';
 import {CalculateMetadataFunction, Composition} from 'remotion';
 import {MyComponent, MyComponentProps} from './MyComp';
 
-const calculateMetadata: CalculateMetadataFunction<MyComponentProps> = ({props, defaultProps, abortSignal}) => {
-  return {
-    // Change the metadata
-    durationInFrames: props.duration,
-    // or transform some props
-    props,
-    // or add per-composition default codec
-    defaultCodec: 'h264',
-    // or add per-composition default video image format
-    defaultVideoImageFormat: 'png',
-    // or add per-composition default pixel format
-    defaultPixelFormat: 'yuv420p',
-  };
+const calculateMetadata: CalculateMetadataFunction<MyComponentProps> = ({
+	props,
+	defaultProps,
+	abortSignal,
+}) => {
+	return {
+		// Change the metadata
+		durationInFrames: props.duration,
+		// or transform some props
+		props,
+		// or add per-composition default codec
+		defaultCodec: 'h264',
+		// or add per-composition default video image format
+		defaultVideoImageFormat: 'png',
+		// or add per-composition default pixel format
+		defaultPixelFormat: 'yuv420p',
+	};
 };
 
 export const Root: React.FC = () => {
-  return (
-    <Composition
-      id="MyComp"
-      component={MyComponent}
-      durationInFrames={300}
-      fps={30}
-      width={1920}
-      height={1080}
-      defaultProps={{
-        text: 'Hello World',
-        duration: 1,
-      }}
-      calculateMetadata={calculateMetadata}
-    />
-  );
+	return (
+		<Composition
+			id="MyComp"
+			component={MyComponent}
+			durationInFrames={300}
+			fps={30}
+			width={1920}
+			height={1080}
+			defaultProps={{
+				text: 'Hello World',
+				duration: 1,
+			}}
+			calculateMetadata={calculateMetadata}
+		/>
+	);
 };
 ```
 

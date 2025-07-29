@@ -35,17 +35,21 @@ import {getAudioDurationInSeconds} from '@remotion/media-utils';
 import music from './music.mp3';
 
 const MyComp: React.FC = () => {
-  const getDuration = useCallback(async () => {
-    const publicFile = await getAudioDurationInSeconds(staticFile('voiceover.wav')); // 33.221
-    const imported = await getAudioDurationInSeconds(music); // 127.452
-    const remote = await getAudioDurationInSeconds('https://example.com/remote-audio.aac'); // 50.24
-  }, []);
+	const getDuration = useCallback(async () => {
+		const publicFile = await getAudioDurationInSeconds(
+			staticFile('voiceover.wav'),
+		); // 33.221
+		const imported = await getAudioDurationInSeconds(music); // 127.452
+		const remote = await getAudioDurationInSeconds(
+			'https://example.com/remote-audio.aac',
+		); // 50.24
+	}, []);
 
-  useEffect(() => {
-    getDuration();
-  }, []);
+	useEffect(() => {
+		getDuration();
+	}, []);
 
-  return null;
+	return null;
 };
 ```
 

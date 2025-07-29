@@ -17,19 +17,19 @@ import {useVideoConfig} from 'remotion';
 import {Gif} from '@remotion/gif';
 
 export const MyComponent: React.FC = () => {
-  const {width, height} = useVideoConfig();
-  const ref = useRef<HTMLCanvasElement>(null);
+	const {width, height} = useVideoConfig();
+	const ref = useRef<HTMLCanvasElement>(null);
 
-  return (
-    <Gif
-      ref={ref}
-      src="https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif"
-      width={width}
-      height={height}
-      fit="fill"
-      playbackRate={2}
-    />
-  );
+	return (
+		<Gif
+			ref={ref}
+			src="https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif"
+			width={width}
+			height={height}
+			fit="fill"
+			playbackRate={2}
+		/>
+	);
 };
 ```
 
@@ -45,18 +45,18 @@ The source of the GIF. Can be an URL or a local image - see [Importing assets](/
 Remote GIFs need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 
 <details>
-  <summary>More info</summary>
-  <ul>
-    <li>
-      Remotion's origin is usually <code>http://localhost:3000</code>, but it
-      may be different if rendering on Lambda or the port is busy.
-    </li>
-    <li>
-      You can{' '}
-      <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a>{' '}
-      during renders.
-    </li>
-  </ul>
+	<summary>More info</summary>
+	<ul>
+		<li>
+			Remotion's origin is usually <code>http://localhost:3000</code>, but it
+			may be different if rendering on Lambda or the port is busy.
+		</li>
+		<li>
+			You can{' '}
+			<a href="/docs/chromium-flags#--disable-web-security">disable CORS</a>{' '}
+			during renders.
+		</li>
+	</ul>
 </details>
 :::
 

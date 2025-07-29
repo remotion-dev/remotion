@@ -44,14 +44,14 @@ Setting up a webhook endpoint in a Next.js app which uses Pages Router. This wil
 import {pagesRouterWebhook} from '@remotion/lambda/client';
 
 const handler = pagesRouterWebhook({
-  secret: 'mysecret',
-  testing: true,
-  extraHeaders: {
-    region: 'south-asia',
-  },
-  onSuccess: () => console.log('Rendering Completed Successfully'),
-  onError: () => console.log('Something went wrong while rendering'),
-  onTimeout: () => console.log('Timeout occured while rendering'),
+	secret: 'mysecret',
+	testing: true,
+	extraHeaders: {
+		region: 'south-asia',
+	},
+	onSuccess: () => console.log('Rendering Completed Successfully'),
+	onError: () => console.log('Something went wrong while rendering'),
+	onTimeout: () => console.log('Timeout occured while rendering'),
 });
 export default handler;
 ```

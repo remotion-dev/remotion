@@ -13,8 +13,8 @@ _Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
 import {LicenseDisclaimer} from './LicenseDisclaimer';
 
 <details>
-  <summary>💼 Important License Disclaimer</summary>
-  <LicenseDisclaimer />
+	<summary>💼 Important License Disclaimer</summary>
+	<LicenseDisclaimer />
 </details>
 
 Converts an [`AudioData`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData) object to a new [`AudioData`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData) object with a different sample rate or format, or both.
@@ -23,12 +23,12 @@ Converts an [`AudioData`](https://developer.mozilla.org/en-US/docs/Web/API/Audio
 import {convertAudioData} from '@remotion/webcodecs';
 
 const audioData = new AudioData({
-  data: new Int32Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
-  format: 's32',
-  numberOfChannels: 1,
-  numberOfFrames: 10,
-  sampleRate: 44100,
-  timestamp: 0,
+	data: new Int32Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
+	format: 's32',
+	numberOfChannels: 1,
+	numberOfFrames: 10,
+	sampleRate: 44100,
+	timestamp: 0,
 });
 
 const newAudioData = convertAudioData({audioData, newSampleRate: 22050});

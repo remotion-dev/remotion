@@ -59,14 +59,14 @@ import {deploySite, getOrCreateBucket} from '@remotion/lambda';
 import path from 'path';
 
 const {bucketName} = await getOrCreateBucket({
-  region: 'us-east-1',
-  enableFolderExpiry: true,
+	region: 'us-east-1',
+	enableFolderExpiry: true,
 });
 
 const {serveUrl} = await deploySite({
-  entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
-  bucketName, // use the bucket with lifecyle rules
-  region: 'us-east-1',
+	entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
+	bucketName, // use the bucket with lifecyle rules
+	region: 'us-east-1',
 });
 console.log(serveUrl);
 ```
@@ -76,9 +76,11 @@ console.log(serveUrl);
 </Tabs>
 
 <details>
-  <summary>Verify that it worked</summary>
-  <p>In your S3 bucket, under "Management", you should see 4 lifecycle rules.</p>
-  <img src="/img/lambda/applied-lc-rules.png" />
+	<summary>Verify that it worked</summary>
+	<p>
+		In your S3 bucket, under "Management", you should see 4 lifecycle rules.
+	</p>
+	<img src="/img/lambda/applied-lc-rules.png" />
 </details>
 
 <br />
@@ -110,12 +112,13 @@ npx remotion lambda render testbed-v6 react-svg --delete-after="1-day"
 import {renderMediaOnLambda} from '@remotion/lambda/client';
 
 const {bucketName, renderId} = await renderMediaOnLambda({
-  region: 'us-east-1',
-  functionName: 'remotion-render-bds9aab',
-  composition: 'MyVideo',
-  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
-  codec: 'h264',
-  deleteAfter: '1-day',
+	region: 'us-east-1',
+	functionName: 'remotion-render-bds9aab',
+	composition: 'MyVideo',
+	serveUrl:
+		'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+	codec: 'h264',
+	deleteAfter: '1-day',
 });
 ```
 
@@ -127,14 +130,15 @@ const {bucketName, renderId} = await renderMediaOnLambda({
 import {renderStillOnLambda} from '@remotion/lambda/client';
 
 const {bucketName, renderId} = await renderStillOnLambda({
-  region: 'us-east-1',
-  functionName: 'remotion-render-bds9aab',
-  composition: 'MyVideo',
-  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
-  inputProps: {},
-  privacy: 'public',
-  imageFormat: 'png',
-  deleteAfter: '1-day',
+	region: 'us-east-1',
+	functionName: 'remotion-render-bds9aab',
+	composition: 'MyVideo',
+	serveUrl:
+		'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+	inputProps: {},
+	privacy: 'public',
+	imageFormat: 'png',
+	deleteAfter: '1-day',
 });
 ```
 
@@ -147,7 +151,10 @@ Verify that it worked
 
 </summary>
 
-<p>All files should have an expiration rule and expiration date set when viewing the object properties.</p>
+<p>
+	All files should have an expiration rule and expiration date set when viewing
+	the object properties.
+</p>
 
 <img src="/img/lambda/rendered-file-path.png" />
 <img src="/img/lambda/rendered-file-management.png" />

@@ -16,12 +16,12 @@ import {downloadAndParseMedia} from '@remotion/media-parser';
 import {nodeWriter} from '@remotion/media-parser/node-writer';
 
 const {durationInSeconds, tracks} = await downloadAndParseMedia({
-  src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
-  writer: nodeWriter('output.mp4'),
-  fields: {
-    durationInSeconds: true,
-    tracks: true,
-  },
+	src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
+	writer: nodeWriter('output.mp4'),
+	fields: {
+		durationInSeconds: true,
+		tracks: true,
+	},
 });
 // If here was reached, file is downloaded!
 console.log(durationInSeconds);
@@ -36,13 +36,13 @@ import {downloadAndParseMedia} from '@remotion/media-parser';
 import {nodeWriter} from '@remotion/media-parser/node-writer';
 
 await downloadAndParseMedia({
-  src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
-  writer: nodeWriter('output.mp4'),
-  onDurationInSeconds: (duration) => {
-    if (duration && duration > 600) {
-      throw new Error('Video is too long');
-    }
-  },
+	src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
+	writer: nodeWriter('output.mp4'),
+	onDurationInSeconds: (duration) => {
+		if (duration && duration > 600) {
+			throw new Error('Video is too long');
+		}
+	},
 });
 ```
 
@@ -53,17 +53,17 @@ import {downloadAndParseMedia} from '@remotion/media-parser';
 import {nodeWriter} from '@remotion/media-parser/node-writer';
 
 await downloadAndParseMedia({
-  src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
-  writer: nodeWriter('output.mp4'),
-  onError: (error) => {
-    // Force the file to be downloaded despite parsing error.
-    // Note: At the end, the error will be thrown nonetheless.
-    return {action: 'download'};
+	src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
+	writer: nodeWriter('output.mp4'),
+	onError: (error) => {
+		// Force the file to be downloaded despite parsing error.
+		// Note: At the end, the error will be thrown nonetheless.
+		return {action: 'download'};
 
-    // Default behavior:
-    // Abort the download, delete the file and throw the error immediately.
-    // return {action: 'fail'};
-  },
+		// Default behavior:
+		// Abort the download, delete the file and throw the error immediately.
+		// return {action: 'fail'};
+	},
 });
 ```
 

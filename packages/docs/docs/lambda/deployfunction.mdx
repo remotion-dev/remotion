@@ -16,11 +16,11 @@ If a function with the same version, memory size and timeout already existed, it
 import {deployFunction} from '@remotion/lambda';
 
 const {functionName} = await deployFunction({
-  region: 'us-east-1',
-  timeoutInSeconds: 120,
-  memorySizeInMb: 2048,
-  createCloudWatchLogGroup: true,
-  diskSizeInMb: 2048,
+	region: 'us-east-1',
+	timeoutInSeconds: 120,
+	memorySizeInMb: 2048,
+	createCloudWatchLogGroup: true,
+	diskSizeInMb: 2048,
 });
 console.log(functionName);
 ```

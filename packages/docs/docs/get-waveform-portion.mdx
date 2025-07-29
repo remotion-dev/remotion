@@ -92,11 +92,11 @@ const audioData = await getAudioData(staticFile('music.mp3')); /* {
 } */
 
 const waveformPortion = await getWaveformPortion({
-  audioData,
-  // Will select time range of 20-40 seconds
-  startTimeInSeconds: 20,
-  durationInSeconds: 20,
-  numberOfSamples: 10,
+	audioData,
+	// Will select time range of 20-40 seconds
+	startTimeInSeconds: 20,
+	durationInSeconds: 20,
+	numberOfSamples: 10,
 }); // [{index: 0, amplitude: 0.14}, ... {index: 9, amplitude: 0.79}]
 
 console.log(waveformPortion.length); // 10

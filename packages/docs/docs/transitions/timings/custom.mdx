@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-transitions-timings-custom.png
-crumb: "@remotion/transitions"
-title: "Custom timings"
+crumb: '@remotion/transitions'
+title: 'Custom timings'
 ---
 
 This page describes how to create your own custom timings for [`<TransitionSeries>`](/docs/transitions/transitionseries).
@@ -18,13 +18,13 @@ A timing is a configuration which includes:
 To implement a custom timing function, create a function which returns an object `TransitionTiming`.
 
 ```tsx twoslash title="custom-timing.ts"
-import type { TransitionTiming } from "@remotion/transitions";
+import type {TransitionTiming} from '@remotion/transitions';
 
 const customTiming = (): TransitionTiming => {
-  return {
-    getDurationInFrames: ({ fps }) => fps, // 1 second
-    getProgress: ({ frame, fps }) => Math.min(1, frame / fps),
-  };
+	return {
+		getDurationInFrames: ({fps}) => fps, // 1 second
+		getProgress: ({frame, fps}) => Math.min(1, frame / fps),
+	};
 };
 ```
 
@@ -43,39 +43,39 @@ In the following example:
 <br />
 
 ```tsx twoslash title="spring-timing-with-pause.ts"
-import type { TransitionTiming } from "@remotion/transitions";
-import { measureSpring, spring, SpringConfig } from "remotion";
+import type {TransitionTiming} from '@remotion/transitions';
+import {measureSpring, spring, SpringConfig} from 'remotion';
 
 const springTimingWithPause = ({
-  pauseDuration,
+	pauseDuration,
 }: {
-  pauseDuration: number;
+	pauseDuration: number;
 }): TransitionTiming => {
-  const firstHalf: Partial<SpringConfig> = {};
-  const secondPush: Partial<SpringConfig> = {
-    damping: 200,
-  };
+	const firstHalf: Partial<SpringConfig> = {};
+	const secondPush: Partial<SpringConfig> = {
+		damping: 200,
+	};
 
-  return {
-    getDurationInFrames: ({ fps }) => {
-      return (
-        measureSpring({ fps, config: firstHalf }) +
-        measureSpring({ fps, config: secondPush }) +
-        pauseDuration
-      );
-    },
-    getProgress({ fps, frame }) {
-      const first = spring({ fps, frame, config: firstHalf });
-      const second = spring({
-        fps,
-        frame,
-        config: secondPush,
-        delay: pauseDuration + measureSpring({ fps, config: firstHalf }),
-      });
+	return {
+		getDurationInFrames: ({fps}) => {
+			return (
+				measureSpring({fps, config: firstHalf}) +
+				measureSpring({fps, config: secondPush}) +
+				pauseDuration
+			);
+		},
+		getProgress({fps, frame}) {
+			const first = spring({fps, frame, config: firstHalf});
+			const second = spring({
+				fps,
+				frame,
+				config: secondPush,
+				delay: pauseDuration + measureSpring({fps, config: firstHalf}),
+			});
 
-      return first / 2 + second / 2;
-    },
-  };
+			return first / 2 + second / 2;
+		},
+	};
 };
 ```
 
@@ -88,53 +88,53 @@ A `spring()` animation by default goes from 0 to 1, which is why they [can be ad
 You may use a custom timing like any other timing by calling it and passing it to the `timing` prop of `<TransitionSeries.Transition>`.
 
 ```tsx twoslash title="using-custom-timing.tsx" {16}
-import { TransitionPresentation } from "@remotion/transitions";
+import {TransitionPresentation} from '@remotion/transitions';
 
 const SlidePresentation: React.FC = () => null;
-type CustomPresentationProps = { direction: "from-left" | "from-right" };
+type CustomPresentationProps = {direction: 'from-left' | 'from-right'};
 const customTransition = (
-  props: CustomPresentationProps,
+	props: CustomPresentationProps,
 ): TransitionPresentation<CustomPresentationProps> => {
-  return { component: SlidePresentation, props };
+	return {component: SlidePresentation, props};
 };
 
 const Letter: React.FC<{
-  children: React.ReactNode;
-  color: string;
+	children: React.ReactNode;
+	color: string;
 }> = () => null;
 
-import type { TransitionTiming } from "@remotion/transitions";
+import type {TransitionTiming} from '@remotion/transitions';
 
-const customTiming = (options: { pauseDuration: number }): TransitionTiming => {
-  return {
-    getDurationInFrames: ({ fps }) => fps, // 1 second
-    getProgress: ({ frame, fps }) => Math.min(1, frame / fps),
-  };
+const customTiming = (options: {pauseDuration: number}): TransitionTiming => {
+	return {
+		getDurationInFrames: ({fps}) => fps, // 1 second
+		getProgress: ({frame, fps}) => Math.min(1, frame / fps),
+	};
 };
 
 // ---cut---
 
-import { TransitionSeries } from "@remotion/transitions";
-import { slide } from "@remotion/transitions/slide";
-import { useVideoConfig } from "remotion";
+import {TransitionSeries} from '@remotion/transitions';
+import {slide} from '@remotion/transitions/slide';
+import {useVideoConfig} from 'remotion';
 
 export const CustomTransition: React.FC = () => {
-  const { width, height } = useVideoConfig();
+	const {width, height} = useVideoConfig();
 
-  return (
-    <TransitionSeries>
-      <TransitionSeries.Sequence durationInFrames={80}>
-        <Letter color="orange">A</Letter>
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition
-        presentation={slide({ direction: "from-left" })}
-        timing={customTiming({ pauseDuration: 10 })}
-      />
-      <TransitionSeries.Sequence durationInFrames={200}>
-        <Letter color="pink">B</Letter>
-      </TransitionSeries.Sequence>
-    </TransitionSeries>
-  );
+	return (
+		<TransitionSeries>
+			<TransitionSeries.Sequence durationInFrames={80}>
+				<Letter color="orange">A</Letter>
+			</TransitionSeries.Sequence>
+			<TransitionSeries.Transition
+				presentation={slide({direction: 'from-left'})}
+				timing={customTiming({pauseDuration: 10})}
+			/>
+			<TransitionSeries.Sequence durationInFrames={200}>
+				<Letter color="pink">B</Letter>
+			</TransitionSeries.Sequence>
+		</TransitionSeries>
+	);
 };
 ```
 

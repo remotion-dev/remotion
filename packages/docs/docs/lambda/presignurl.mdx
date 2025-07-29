@@ -13,21 +13,21 @@ Takes a private S3 object and turns it into a public URL by signing with your AW
 import {presignUrl} from '@remotion/lambda/client';
 
 const url = await presignUrl({
-  region: 'us-east-1',
-  bucketName: 'remotionlambda-c7fsl3d',
-  objectKey: 'assets/sample.png',
-  expiresInSeconds: 900,
-  checkIfObjectExists: true,
+	region: 'us-east-1',
+	bucketName: 'remotionlambda-c7fsl3d',
+	objectKey: 'assets/sample.png',
+	expiresInSeconds: 900,
+	checkIfObjectExists: true,
 });
 
 console.log(url); // `string` - or `null` if object doesn't exist
 
 const url2 = await presignUrl({
-  region: 'us-east-1',
-  bucketName: 'remotionlambda-c7fsl3d',
-  objectKey: 'assets/sample.png',
-  expiresInSeconds: 900,
-  checkIfObjectExists: false,
+	region: 'us-east-1',
+	bucketName: 'remotionlambda-c7fsl3d',
+	objectKey: 'assets/sample.png',
+	expiresInSeconds: 900,
+	checkIfObjectExists: false,
 });
 
 console.log(url); // always a string, or exception if object doesn't exist

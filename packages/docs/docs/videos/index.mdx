@@ -12,7 +12,9 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />;
+	return (
+		<OffthreadVideo src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+	);
 };
 ```
 
@@ -25,7 +27,7 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('video.mp4')} />;
+	return <OffthreadVideo src={staticFile('video.mp4')} />;
 };
 ```
 
@@ -39,7 +41,7 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('video.mp4')} trimBefore={60} />;
+	return <OffthreadVideo src={staticFile('video.mp4')} trimBefore={60} />;
 };
 ```
 
@@ -50,7 +52,13 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('video.mp4')} trimBefore={60} trimAfter={120} />;
+	return (
+		<OffthreadVideo
+			src={staticFile('video.mp4')}
+			trimBefore={60}
+			trimAfter={120}
+		/>
+	);
 };
 ```
 
@@ -64,11 +72,11 @@ import React from 'react';
 import {OffthreadVideo, staticFile, Sequence} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return (
-    <Sequence from={60}>
-      <OffthreadVideo src={staticFile('video.mp4')} />
-    </Sequence>
-  );
+	return (
+		<Sequence from={60}>
+			<OffthreadVideo src={staticFile('video.mp4')} />
+		</Sequence>
+	);
 };
 ```
 
@@ -82,18 +90,18 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return (
-    <OffthreadVideo
-      src={staticFile('video.mp4')}
-      style={{
-        width: 640,
-        height: 360,
-        position: 'absolute',
-        top: 100,
-        left: 100,
-      }}
-    />
-  );
+	return (
+		<OffthreadVideo
+			src={staticFile('video.mp4')}
+			style={{
+				width: 640,
+				height: 360,
+				position: 'absolute',
+				top: 100,
+				left: 100,
+			}}
+		/>
+	);
 };
 ```
 
@@ -106,7 +114,7 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('video.mp4')} volume={0.5} />;
+	return <OffthreadVideo src={staticFile('video.mp4')} volume={0.5} />;
 };
 ```
 
@@ -117,7 +125,7 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('video.mp4')} muted />;
+	return <OffthreadVideo src={staticFile('video.mp4')} muted />;
 };
 ```
 
@@ -132,7 +140,7 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('video.mp4')} playbackRate={2} />;
+	return <OffthreadVideo src={staticFile('video.mp4')} playbackRate={2} />;
 };
 ```
 

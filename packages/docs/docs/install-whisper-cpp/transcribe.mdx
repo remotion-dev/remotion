@@ -18,15 +18,15 @@ import path from 'path';
 import {transcribe} from '@remotion/install-whisper-cpp';
 
 const {transcription} = await transcribe({
-  inputPath: '/path/to/audio.wav',
-  whisperPath: path.join(process.cwd(), 'whisper.cpp'),
-  whisperCppVersion: '1.5.5',
-  model: 'medium.en',
-  tokenLevelTimestamps: true,
+	inputPath: '/path/to/audio.wav',
+	whisperPath: path.join(process.cwd(), 'whisper.cpp'),
+	whisperCppVersion: '1.5.5',
+	model: 'medium.en',
+	tokenLevelTimestamps: true,
 });
 
 for (const token of transcription) {
-  console.log(token.timestamps.from, token.timestamps.to, token.text);
+	console.log(token.timestamps.from, token.timestamps.to, token.text);
 }
 ```
 
@@ -122,7 +122,7 @@ The progress is a number between `0` and `1`.
 import type {TranscribeOnProgress} from '@remotion/install-whisper-cpp';
 
 const onProgress: TranscribeOnProgress = (progress) => {
-  console.log(`Transcription progress: ${progress * 100}%`);
+	console.log(`Transcription progress: ${progress * 100}%`);
 };
 ```
 
@@ -149,70 +149,72 @@ An object containing all the metadata and transcriptions resulting from the tran
 
 ```ts twoslash
 type Timestamps = {
-  from: string;
-  to: string;
+	from: string;
+	to: string;
 };
 
 type Offsets = {
-  from: number;
-  to: number;
+	from: number;
+	to: number;
 };
 
 type WordLevelToken = {
-  t_dtw: number;
-  text: string;
-  timestamps: Timestamps;
-  offsets: Offsets;
-  id: number;
-  p: number;
+	t_dtw: number;
+	text: string;
+	timestamps: Timestamps;
+	offsets: Offsets;
+	id: number;
+	p: number;
 };
 
 type TranscriptionItem = {
-  timestamps: Timestamps;
-  offsets: Offsets;
-  text: string;
+	timestamps: Timestamps;
+	offsets: Offsets;
+	text: string;
 };
 
 type TranscriptionItemWithTimestamp = TranscriptionItem & {
-  tokens: WordLevelToken[];
+	tokens: WordLevelToken[];
 };
 
 type Model = {
-  type: string;
-  multilingual: boolean;
-  vocab: number;
-  audio: {
-    ctx: number;
-    state: number;
-    head: number;
-    layer: number;
-  };
-  text: {
-    ctx: number;
-    state: number;
-    head: number;
-    layer: number;
-  };
-  mels: number;
-  ftype: number;
+	type: string;
+	multilingual: boolean;
+	vocab: number;
+	audio: {
+		ctx: number;
+		state: number;
+		head: number;
+		layer: number;
+	};
+	text: {
+		ctx: number;
+		state: number;
+		head: number;
+		layer: number;
+	};
+	mels: number;
+	ftype: number;
 };
 
 type Params = {
-  model: string;
-  language: string;
-  translate: boolean;
+	model: string;
+	language: string;
+	translate: boolean;
 };
 
 type Result = {
-  language: string;
+	language: string;
 };
 
 export type TranscriptionJson<WithTokenLevelTimestamp extends boolean> = {
-  systeminfo: string;
-  model: Model;
-  params: Params;
-  result: Result;
-  transcription: true extends WithTokenLevelTimestamp ? TranscriptionItemWithTimestamp[] : TranscriptionItem[];
+	systeminfo: string;
+	model: Model;
+	params: Params;
+	result: Result;
+	transcription: true extends WithTokenLevelTimestamp
+		? TranscriptionItemWithTimestamp[]
+		: TranscriptionItem[];
 };
 ```
 

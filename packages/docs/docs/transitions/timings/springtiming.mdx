@@ -1,58 +1,58 @@
 ---
 image: /generated/articles-docs-transitions-timings-springtiming.png
-crumb: "@remotion/transitions - Timings"
-title: "springTiming()"
+crumb: '@remotion/transitions - Timings'
+title: 'springTiming()'
 ---
 
 A timing function for [`<TransitionSeries>`](/docs/transitions/transitionseries) based on [`spring()`](/docs/spring).
 
 ```tsx twoslash title="SlideTransition.tsx"
-import { AbsoluteFill } from "remotion";
+import {AbsoluteFill} from 'remotion';
 
 const Letter: React.FC<{
-  children: React.ReactNode;
-  color: string;
-}> = ({ children, color }) => {
-  return (
-    <AbsoluteFill
-      style={{
-        backgroundColor: color,
-        opacity: 0.9,
-        justifyContent: "center",
-        alignItems: "center",
-        fontSize: 200,
-        color: "white",
-      }}
-    >
-      {children}
-    </AbsoluteFill>
-  );
+	children: React.ReactNode;
+	color: string;
+}> = ({children, color}) => {
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundColor: color,
+				opacity: 0.9,
+				justifyContent: 'center',
+				alignItems: 'center',
+				fontSize: 200,
+				color: 'white',
+			}}
+		>
+			{children}
+		</AbsoluteFill>
+	);
 };
 // ---cut---
-import { springTiming, TransitionSeries } from "@remotion/transitions";
-import { slide } from "@remotion/transitions/slide";
+import {springTiming, TransitionSeries} from '@remotion/transitions';
+import {slide} from '@remotion/transitions/slide';
 
 const BasicTransition = () => {
-  return (
-    <TransitionSeries>
-      <TransitionSeries.Sequence durationInFrames={40}>
-        <Letter color="#0b84f3">A</Letter>
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition
-        presentation={slide()}
-        timing={springTiming({
-          config: {
-            damping: 200,
-          },
-          durationInFrames: 30,
-          durationRestThreshold: 0.001,
-        })}
-      />
-      <TransitionSeries.Sequence durationInFrames={60}>
-        <Letter color="pink">B</Letter>
-      </TransitionSeries.Sequence>
-    </TransitionSeries>
-  );
+	return (
+		<TransitionSeries>
+			<TransitionSeries.Sequence durationInFrames={40}>
+				<Letter color="#0b84f3">A</Letter>
+			</TransitionSeries.Sequence>
+			<TransitionSeries.Transition
+				presentation={slide()}
+				timing={springTiming({
+					config: {
+						damping: 200,
+					},
+					durationInFrames: 30,
+					durationRestThreshold: 0.001,
+				})}
+			/>
+			<TransitionSeries.Sequence durationInFrames={60}>
+				<Letter color="pink">B</Letter>
+			</TransitionSeries.Sequence>
+		</TransitionSeries>
+	);
 };
 ```
 

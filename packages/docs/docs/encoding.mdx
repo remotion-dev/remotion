@@ -12,80 +12,80 @@ Backed by [FFmpeg](https://ffmpeg.org/), Remotion allows you to configure a vari
 Remotion supports 5 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9` and `prores`. While H264 will work well in most cases, sometimes it's worth going for a different codec. Refer to the table below to see the advantages and drawbacks of each codec.
 
 <table>
-  <tr>
-    <th>Codec</th>
-    <th>File extension</th>
-    <th>File size</th>
-    <th>Encoding time</th>
-    <th>Browser compatibility</th>
-    <th>Hardware acceleration possible</th>
-  </tr>
-  <tr>
-    <td>
-      H.264 <sub>also known as MPEG-4</sub>
-    </td>
-    <td>.mp4, .mov or .mkv</td>
-    <td style={{color: 'darkorange'}}>Medium</td>
-    <td style={{color: 'green', fontWeight: 'bold'}}>Very fast</td>
-    <td>
-      <a
-        href="https://caniuse.com/mpeg4"
-        style={{color: 'green', fontWeight: 'bold'}}
-      >
-        Very good
-      </a>
-    </td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>
-      H.265 <sub>also known as HEVC</sub>
-    </td>
-    <td>.mp4 or .hevc</td>
-    <td style={{color: 'darkorange'}}>Medium</td>
-    <td style={{color: 'green'}}>Fast</td>
-    <td>
-      <a
-        href="https://caniuse.com/hevc"
-        style={{color: 'red', fontWeight: 'bold'}}
-      >
-        Very poor
-      </a>
-    </td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>VP8</td>
-    <td>.webm</td>
-    <td style={{color: 'green'}}>Small</td>
-    <td style={{color: 'red'}}>Slow</td>
-    <td>
-      <a href="https://caniuse.com/webm" style={{color: 'darkorange'}}>
-        Okay
-      </a>
-    </td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>VP9</td>
-    <td>.webm</td>
-    <td style={{color: 'green', fontWeight: 'bold'}}>Very small</td>
-    <td style={{color: 'red', fontWeight: 'bold'}}>Very slow</td>
-    <td>
-      <a href="https://caniuse.com/webm" style={{color: 'darkorange'}}>
-        Okay
-      </a>
-    </td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>ProRes</td>
-    <td>.mov</td>
-    <td style={{color: 'red'}}>Large</td>
-    <td style={{color: 'green'}}>Fast</td>
-    <td style={{color: 'red', fontWeight: 'bold'}}>None</td>
-    <td style={{color: 'green', fontWeight: 'bold'}}>On macOS</td>
-  </tr>
+	<tr>
+		<th>Codec</th>
+		<th>File extension</th>
+		<th>File size</th>
+		<th>Encoding time</th>
+		<th>Browser compatibility</th>
+		<th>Hardware acceleration possible</th>
+	</tr>
+	<tr>
+		<td>
+			H.264 <sub>also known as MPEG-4</sub>
+		</td>
+		<td>.mp4, .mov or .mkv</td>
+		<td style={{color: 'darkorange'}}>Medium</td>
+		<td style={{color: 'green', fontWeight: 'bold'}}>Very fast</td>
+		<td>
+			<a
+				href="https://caniuse.com/mpeg4"
+				style={{color: 'green', fontWeight: 'bold'}}
+			>
+				Very good
+			</a>
+		</td>
+		<td>No</td>
+	</tr>
+	<tr>
+		<td>
+			H.265 <sub>also known as HEVC</sub>
+		</td>
+		<td>.mp4 or .hevc</td>
+		<td style={{color: 'darkorange'}}>Medium</td>
+		<td style={{color: 'green'}}>Fast</td>
+		<td>
+			<a
+				href="https://caniuse.com/hevc"
+				style={{color: 'red', fontWeight: 'bold'}}
+			>
+				Very poor
+			</a>
+		</td>
+		<td>No</td>
+	</tr>
+	<tr>
+		<td>VP8</td>
+		<td>.webm</td>
+		<td style={{color: 'green'}}>Small</td>
+		<td style={{color: 'red'}}>Slow</td>
+		<td>
+			<a href="https://caniuse.com/webm" style={{color: 'darkorange'}}>
+				Okay
+			</a>
+		</td>
+		<td>No</td>
+	</tr>
+	<tr>
+		<td>VP9</td>
+		<td>.webm</td>
+		<td style={{color: 'green', fontWeight: 'bold'}}>Very small</td>
+		<td style={{color: 'red', fontWeight: 'bold'}}>Very slow</td>
+		<td>
+			<a href="https://caniuse.com/webm" style={{color: 'darkorange'}}>
+				Okay
+			</a>
+		</td>
+		<td>No</td>
+	</tr>
+	<tr>
+		<td>ProRes</td>
+		<td>.mov</td>
+		<td style={{color: 'red'}}>Large</td>
+		<td style={{color: 'green'}}>Fast</td>
+		<td style={{color: 'red', fontWeight: 'bold'}}>None</td>
+		<td style={{color: 'green', fontWeight: 'bold'}}>On macOS</td>
+	</tr>
 </table>
 
 :::info
@@ -105,36 +105,36 @@ No matter which codec you end up using, there's always a tradeoff between file s
 Be cautious: Every codec has it's own range of acceptable values and a different default. So while `23` will look very good on a H264 video, it will look terrible on a WebM video. Use this chart to determine which CRF value to use:
 
 <table>
-  <tr>
-    <th>Codec</th>
-    <th>Minimum - Best quality</th>
-    <th>Maximum - Best compression</th>
-    <th>Default</th>
-  </tr>
-  <tr>
-    <td>H264</td>
-    <td>1</td>
-    <td>51</td>
-    <td>18</td>
-  </tr>
-  <tr>
-    <td>H265</td>
-    <td>0</td>
-    <td>51</td>
-    <td>23</td>
-  </tr>
-  <tr>
-    <td>VP8</td>
-    <td>4</td>
-    <td>63</td>
-    <td>9</td>
-  </tr>
-  <tr>
-    <td>VP9</td>
-    <td>0</td>
-    <td>63</td>
-    <td>28</td>
-  </tr>
+	<tr>
+		<th>Codec</th>
+		<th>Minimum - Best quality</th>
+		<th>Maximum - Best compression</th>
+		<th>Default</th>
+	</tr>
+	<tr>
+		<td>H264</td>
+		<td>1</td>
+		<td>51</td>
+		<td>18</td>
+	</tr>
+	<tr>
+		<td>H265</td>
+		<td>0</td>
+		<td>51</td>
+		<td>23</td>
+	</tr>
+	<tr>
+		<td>VP8</td>
+		<td>4</td>
+		<td>63</td>
+		<td>9</td>
+	</tr>
+	<tr>
+		<td>VP9</td>
+		<td>0</td>
+		<td>63</td>
+		<td>28</td>
+	</tr>
 </table>
 
 You can [set a CRF in the config file using the `Config.setCrf()`](/docs/config#setcrf) function or use the [`--crf`](/docs/cli/render#--jpeg-quality) command line flag.
@@ -160,62 +160,62 @@ _Applies only to `prores` codec_.
 For ProRes, there is no CRF option, but there are profiles which you can set using the [`--prores-profile` flag](/docs/cli/render#--prores-profile) or the [`setProResProfile`](/docs/config#setproresprofile) config file option.
 
 <table>
-  <tr>
-    <th>Value</th>
-    <th>FFmpeg setting</th>
-    <th>Bitrate</th>
-    <th>
-      <a href="/docs/transparent-videos">Supports alpha channel</a>
-    </th>
-  </tr>
-  <tr>
-    <td>
-      <code>"proxy"</code>
-    </td>
-    <td>0</td>
-    <td>~45Mbps</td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>
-      <code>"light"</code>
-    </td>
-    <td>1</td>
-    <td>~102Mbps</td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>
-      <code>"standard"</code> (default)
-    </td>
-    <td>2</td>
-    <td>~147Mbps</td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>
-      <code>"hq"</code>
-    </td>
-    <td>3</td>
-    <td>~220Mbps</td>
-    <td>No</td>
-  </tr>
-  <tr>
-    <td>
-      <code>"4444"</code>
-    </td>
-    <td>4</td>
-    <td>~330Mbps</td>
-    <td>Yes</td>
-  </tr>
-  <tr>
-    <td>
-      <code>"4444-xq"</code>
-    </td>
-    <td>4</td>
-    <td>~500Mbps</td>
-    <td>Yes</td>
-  </tr>
+	<tr>
+		<th>Value</th>
+		<th>FFmpeg setting</th>
+		<th>Bitrate</th>
+		<th>
+			<a href="/docs/transparent-videos">Supports alpha channel</a>
+		</th>
+	</tr>
+	<tr>
+		<td>
+			<code>"proxy"</code>
+		</td>
+		<td>0</td>
+		<td>~45Mbps</td>
+		<td>No</td>
+	</tr>
+	<tr>
+		<td>
+			<code>"light"</code>
+		</td>
+		<td>1</td>
+		<td>~102Mbps</td>
+		<td>No</td>
+	</tr>
+	<tr>
+		<td>
+			<code>"standard"</code> (default)
+		</td>
+		<td>2</td>
+		<td>~147Mbps</td>
+		<td>No</td>
+	</tr>
+	<tr>
+		<td>
+			<code>"hq"</code>
+		</td>
+		<td>3</td>
+		<td>~220Mbps</td>
+		<td>No</td>
+	</tr>
+	<tr>
+		<td>
+			<code>"4444"</code>
+		</td>
+		<td>4</td>
+		<td>~330Mbps</td>
+		<td>Yes</td>
+	</tr>
+	<tr>
+		<td>
+			<code>"4444-xq"</code>
+		</td>
+		<td>4</td>
+		<td>~500Mbps</td>
+		<td>Yes</td>
+	</tr>
 </table>
 
 Higher bitrate means higher quality and higher file size.
@@ -237,8 +237,8 @@ Using the [`--audio-codec`](/docs/config#setaudiocodec) flag, you can set the fo
 The container format will be automatically derived based on the file extension.
 
 import {
-  SupportedAudioCodecTable,
-  FileExtensionTable,
+	SupportedAudioCodecTable,
+	FileExtensionTable,
 } from '../components/SupportedAudioCodec';
 
 <SupportedAudioCodecTable />

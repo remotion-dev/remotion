@@ -6,9 +6,12 @@ crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-  <p>
-    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
-  </p>
+	<p>
+		Cloud Run is in{' '}
+		<a href="/docs/cloudrun/status">
+			Alpha status and not actively being developed.
+		</a>
+	</p>
 </ExperimentalBadge>
 
 Kicks off a media rendering process on Remotion Cloud Run.
@@ -23,16 +26,17 @@ A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology/serve-url
 import {renderMediaOnCloudrun} from '@remotion/cloudrun/client';
 
 const result = await renderMediaOnCloudrun({
-  region: 'us-east1',
-  serviceName: 'remotion-render-bds9aab',
-  composition: 'MyVideo',
-  serveUrl: 'https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh',
-  codec: 'h264',
+	region: 'us-east1',
+	serviceName: 'remotion-render-bds9aab',
+	composition: 'MyVideo',
+	serveUrl:
+		'https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh',
+	codec: 'h264',
 });
 
 if (result.type === 'success') {
-  console.log(result.bucketName);
-  console.log(result.renderId);
+	console.log(result.bucketName);
+	console.log(result.renderId);
 }
 ```
 
@@ -115,12 +119,15 @@ _optional_
 ```tsx twoslash
 import type {UpdateRenderProgress} from '@remotion/cloudrun/client';
 
-const updateRenderProgress: UpdateRenderProgress = (progress: number, error: boolean) => {
-  if (error) {
-    console.error('Render failed');
-  } else {
-    console.log(`Render progress: ${progress * 100}%`);
-  }
+const updateRenderProgress: UpdateRenderProgress = (
+	progress: number,
+	error: boolean,
+) => {
+	if (error) {
+		console.error('Render failed');
+	} else {
+		console.log(`Render progress: ${progress * 100}%`);
+	}
 };
 ```
 
@@ -139,14 +146,14 @@ Your webhook URL that will be called with the progress of the render. This will 
 
 ```json title="Example Webhook URL Declaration"
 {
-  "url": "https://example.com/webhook",
-  "headers": {
-    "Authorization": "Bearer 1234567890"
-  },
-  "data": {
-    "projectId": "1234567890"
-  },
-  "webhookProgressInterval": 0.1
+	"url": "https://example.com/webhook",
+	"headers": {
+		"Authorization": "Bearer 1234567890"
+	},
+	"data": {
+		"projectId": "1234567890"
+	},
+	"webhookProgressInterval": 0.1
 }
 ```
 
@@ -154,11 +161,11 @@ Your webhook URL that will be called with the progress of the render. This will 
 
 ```json title="Example Webhook Response"
 {
-  "progress": 0.1,
-  "renderedFrames": 100,
-  "encodedFrames": 100,
-  "renderId": "1234567890",
-  "projectId": "1234567890"
+	"progress": 0.1,
+	"renderedFrames": 100,
+	"encodedFrames": 100,
+	"renderId": "1234567890",
+	"projectId": "1234567890"
 }
 ```
 

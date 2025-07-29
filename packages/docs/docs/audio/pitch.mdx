@@ -23,11 +23,11 @@ A [`toneFrequency`](/docs/audio#tonefrequency) of 0.5 would lower the pitch by h
 import {Audio, staticFile, AbsoluteFill} from 'remotion';
 
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <div>Hello World!</div>
-      <Audio src={staticFile('audio.mp3')} toneFrequency={0.8} />
-    </AbsoluteFill>
-  );
+	return (
+		<AbsoluteFill>
+			<div>Hello World!</div>
+			<Audio src={staticFile('audio.mp3')} toneFrequency={0.8} />
+		</AbsoluteFill>
+	);
 };
 ```

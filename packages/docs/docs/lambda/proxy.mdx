@@ -37,7 +37,7 @@ const proxyAgent = new HttpsProxyAgent(proxyUrl);
 
 // Create a request handler that uses the proxy
 export const proxyRequestHandler = {
-  httpsAgent: proxyAgent,
+	httpsAgent: proxyAgent,
 };
 ```
 
@@ -53,7 +53,7 @@ const proxyUrl = 'http://your-proxy-server:8080';
 const proxyAgent = new HttpsProxyAgent(proxyUrl);
 
 export const proxyRequestHandler = {
-  httpsAgent: proxyAgent,
+	httpsAgent: proxyAgent,
 };
 
 // @filename: example.ts
@@ -62,9 +62,9 @@ import {getFunctions} from '@remotion/lambda/client';
 import {proxyRequestHandler} from './proxy-setup';
 
 const functions = await getFunctions({
-  region: 'us-east-1',
-  compatibleOnly: true,
-  requestHandler: proxyRequestHandler,
+	region: 'us-east-1',
+	compatibleOnly: true,
+	requestHandler: proxyRequestHandler,
 });
 
 console.log('Functions:', functions);
@@ -86,7 +86,7 @@ const proxyUrl = 'http://username:password@your-proxy-server:8080';
 const proxyAgent = new HttpsProxyAgent(proxyUrl);
 
 export const authenticatedProxyRequestHandler = {
-  httpsAgent: proxyAgent,
+	httpsAgent: proxyAgent,
 };
 ```
 
@@ -101,7 +101,7 @@ import {HttpsProxyAgent} from 'https-proxy-agent';
 const proxyAgent = new HttpsProxyAgent('http://proxy:8080');
 
 const myRequestHandler: RequestHandler = {
-  httpsAgent: proxyAgent,
+	httpsAgent: proxyAgent,
 };
 ```
 
@@ -114,16 +114,16 @@ import {HttpsProxyAgent} from 'https-proxy-agent';
 import type {RequestHandler} from '@remotion/lambda/client';
 
 const createRequestHandler = (): RequestHandler | undefined => {
-  const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+	const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
 
-  if (proxyUrl) {
-    return {
-      httpsAgent: new HttpsProxyAgent(proxyUrl),
-    };
-  }
+	if (proxyUrl) {
+		return {
+			httpsAgent: new HttpsProxyAgent(proxyUrl),
+		};
+	}
 
-  // Return undefined to use default behavior
-  return undefined;
+	// Return undefined to use default behavior
+	return undefined;
 };
 
 export const requestHandler = createRequestHandler();
@@ -137,15 +137,15 @@ import {HttpsProxyAgent} from 'https-proxy-agent';
 import type {RequestHandler} from '@remotion/lambda/client';
 
 const createRequestHandler = (): RequestHandler | undefined => {
-  const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+	const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
 
-  if (proxyUrl) {
-    return {
-      httpsAgent: new HttpsProxyAgent(proxyUrl),
-    };
-  }
+	if (proxyUrl) {
+		return {
+			httpsAgent: new HttpsProxyAgent(proxyUrl),
+		};
+	}
 
-  return undefined;
+	return undefined;
 };
 
 export const requestHandler = createRequestHandler();
@@ -156,9 +156,9 @@ import {getFunctions} from '@remotion/lambda/client';
 import {requestHandler} from './conditional-proxy';
 
 const functions = await getFunctions({
-  region: 'us-east-1',
-  compatibleOnly: true,
-  requestHandler, // This will be undefined if no proxy is configured
+	region: 'us-east-1',
+	compatibleOnly: true,
+	requestHandler, // This will be undefined if no proxy is configured
 });
 ```
 

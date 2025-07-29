@@ -20,14 +20,14 @@ const controller = mediaParserController();
 controller.seek(5); // Seek to 5 seconds
 
 await parseMedia({
-  src: 'https://parser.media/video.mp4',
-  controller,
-  onVideoTrack: () => {
-    return () => {
-      // You can also seek inmidst a parse.
-      controller.seek(10); // Seek to 10 seconds
-    };
-  },
+	src: 'https://parser.media/video.mp4',
+	controller,
+	onVideoTrack: () => {
+		return () => {
+			// You can also seek inmidst a parse.
+			controller.seek(10); // Seek to 10 seconds
+		};
+	},
 });
 ```
 
@@ -68,14 +68,14 @@ import {parseMedia, mediaParserController} from '@remotion/media-parser';
 const controller = mediaParserController();
 
 await parseMedia({
-  src: 'https://parser.media/video.mp4',
-  controller,
-  onVideoTrack: () => {
-    return async () => {
-      const result = await controller.simulateSeek(3); 
-      console.log(result); // { "type": "do-seek", byte: 5763, timeInSeconds: 0 }
-    };
-  },
+	src: 'https://parser.media/video.mp4',
+	controller,
+	onVideoTrack: () => {
+		return async () => {
+			const result = await controller.simulateSeek(3);
+			console.log(result); // { "type": "do-seek", byte: 5763, timeInSeconds: 0 }
+		};
+	},
 });
 ```
 

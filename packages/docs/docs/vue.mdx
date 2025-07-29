@@ -88,11 +88,11 @@ To enable JSX support in VueJS, update the `tsconfig.app.json` file by setting `
 
 ```json title="tsconfig.json"
 {
-  "compilerOptions": {
-    "jsx": "react",
-    "jsxImportSource": "" // Recommended to avoid errors while building
-    // other options
-  }
+	"compilerOptions": {
+		"jsx": "react",
+		"jsxImportSource": "" // Recommended to avoid errors while building
+		// other options
+	}
 }
 ```
 
@@ -111,17 +111,17 @@ import vue from '@vitejs/plugin-vue';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    react({
-      include: /\.(jsx|tsx)$/,
-    }),
-  ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
+	plugins: [
+		vue(),
+		react({
+			include: /\.(jsx|tsx)$/,
+		}),
+	],
+	resolve: {
+		alias: {
+			'@': fileURLToPath(new URL('./src', import.meta.url)),
+		},
+	},
 });
 ```
 
@@ -133,62 +133,62 @@ To embed Remotion components in VueJS, create a **wrapper component**:
 
 ```html title="PlayerViewWrapper.vue"
 <script lang="ts" setup>
-  import {onBeforeUnmount, onMounted, ref, watch} from 'vue';
-  import {type PlayerSchema, PlayerView} from '@/remotion/PlayerView';
-  import {createRoot, type Root} from 'react-dom/client';
-  import * as React from 'react';
+	import {onBeforeUnmount, onMounted, ref, watch} from 'vue';
+	import {type PlayerSchema, PlayerView} from '@/remotion/PlayerView';
+	import {createRoot, type Root} from 'react-dom/client';
+	import * as React from 'react';
 
-  interface PlayerData {
-    data: PlayerSchema;
-  }
+	interface PlayerData {
+		data: PlayerSchema;
+	}
 
-  const playerRef = ref();
-  const reactRoot = ref();
-  let root: Root;
-  const emit = defineEmits(['paused']);
+	const playerRef = ref();
+	const reactRoot = ref();
+	let root: Root;
+	const emit = defineEmits(['paused']);
 
-  const props = defineProps<PlayerData>();
+	const props = defineProps<PlayerData>();
 
-  onMounted(() => {
-    root = createRoot(reactRoot.value);
-    render();
-  });
+	onMounted(() => {
+		root = createRoot(reactRoot.value);
+		render();
+	});
 
-  function render() {
-    root.render(
-      React.createElement(PlayerView, {
-        data: props.data,
-        playerRefInstance: playerRef,
-        onPaused: () => emit('paused'),
-      }),
-    );
-  }
+	function render() {
+		root.render(
+			React.createElement(PlayerView, {
+				data: props.data,
+				playerRefInstance: playerRef,
+				onPaused: () => emit('paused'),
+			}),
+		);
+	}
 
-  watch(
-    () => playerRef,
-    (newData, oldData) => {
-      playerRef.value.play();
-    },
-    {deep: true},
-  );
+	watch(
+		() => playerRef,
+		(newData, oldData) => {
+			playerRef.value.play();
+		},
+		{deep: true},
+	);
 
-  watch(
-    () => props.data,
-    (newData, oldData) => {
-      render();
-    },
-    {deep: true},
-  );
+	watch(
+		() => props.data,
+		(newData, oldData) => {
+			render();
+		},
+		{deep: true},
+	);
 
-  onBeforeUnmount(() => {
-    if (root) {
-      root.unmount();
-    }
-  });
+	onBeforeUnmount(() => {
+		if (root) {
+			root.unmount();
+		}
+	});
 </script>
 
 <template>
-  <div ref="reactRoot"></div>
+	<div ref="reactRoot"></div>
 </template>
 ```
 
@@ -208,46 +208,46 @@ import {HelloWorld} from '@/remotion/HelloWorld';
 import type {Ref} from 'vue';
 
 export interface PlayerSchema {
-  titleText: string;
-  titleColor: string;
-  logoColor1: string;
-  logoColor2: string;
+	titleText: string;
+	titleColor: string;
+	logoColor1: string;
+	logoColor2: string;
 }
 
 export const PlayerView = ({
-  data,
-  playerRefInstance,
-  onPaused,
+	data,
+	playerRefInstance,
+	onPaused,
 }: {
-  data: PlayerSchema;
-  playerRefInstance: Ref<PlayerRef>;
-  onPaused?: () => void;
+	data: PlayerSchema;
+	playerRefInstance: Ref<PlayerRef>;
+	onPaused?: () => void;
 }): React.ReactElement => {
-  const playerRef: React.RefObject<PlayerRef> = React.createRef();
+	const playerRef: React.RefObject<PlayerRef> = React.createRef();
 
-  useEffect(() => {
-    if (playerRef.current) {
-      playerRefInstance.value = playerRef.current;
+	useEffect(() => {
+		if (playerRef.current) {
+			playerRefInstance.value = playerRef.current;
 
-      // add callback when player pauses
-      playerRef.current.addEventListener('pause', () => {
-        onPaused?.();
-      });
-    }
-  }, []);
+			// add callback when player pauses
+			playerRef.current.addEventListener('pause', () => {
+				onPaused?.();
+			});
+		}
+	}, []);
 
-  return (
-    <Player
-      ref={playerRef}
-      component={HelloWorld}
-      durationInFrames={150}
-      fps={30}
-      compositionHeight={1080}
-      compositionWidth={1920}
-      inputProps={data}
-      controls
-    />
-  );
+	return (
+		<Player
+			ref={playerRef}
+			component={HelloWorld}
+			durationInFrames={150}
+			fps={30}
+			compositionHeight={1080}
+			compositionWidth={1920}
+			inputProps={data}
+			controls
+		/>
+	);
 };
 ```
 
@@ -270,10 +270,10 @@ You're now able to use the [`API`](/docs/player/player) of the player via the `p
 - [Integration into Svelte](/docs/svelte)
 
 <Credits
-  contributors={[
-    {
-      username: 'dothem1337',
-      contribution: 'Author',
-    },
-  ]}
+	contributors={[
+		{
+			username: 'dothem1337',
+			contribution: 'Author',
+		},
+	]}
 />

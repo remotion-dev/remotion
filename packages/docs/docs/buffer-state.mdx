@@ -22,19 +22,19 @@ Visit this [GitHub repo](https://github.com/remotion-dev/video-buffering-example
 We create a new React Context that can handle the buffering states of media inside our Player. We implement default functions that do nothing, since no buffer state is necessary during rendering.
 
 ```tsx title="BufferManager.tsx"
-import { createContext } from "react";
+import {createContext} from 'react';
 
-type BufferState = { [key: string]: boolean };
+type BufferState = {[key: string]: boolean};
 
 type BufferContextType = {
-  canPlay: (id: string) => void;
-  needsToBuffer: (id: string) => void;
+	canPlay: (id: string) => void;
+	needsToBuffer: (id: string) => void;
 };
 
 export const BufferContext = createContext<BufferContextType>({
-  // By default, do nothing if the context is not set, for example in rendering
-  canPlay: () => {},
-  needsToBuffer: () => {},
+	// By default, do nothing if the context is not set, for example in rendering
+	canPlay: () => {},
+	needsToBuffer: () => {},
 });
 ```
 
@@ -43,71 +43,71 @@ The following component can be wrapped around the Player to provide it with the 
 If one media element is buffering, it can register that to the manager using `onBuffer()`. If all media elements are loaded, the buffer manager will call the `onContinue()` event.
 
 ```tsx twoslash title="BufferManager.tsx"
-import { createContext } from "react";
+import {createContext} from 'react';
 
-type BufferState = { [key: string]: boolean };
+type BufferState = {[key: string]: boolean};
 
 type BufferContextType = {
-  canPlay: (id: string) => void;
-  needsToBuffer: (id: string) => void;
+	canPlay: (id: string) => void;
+	needsToBuffer: (id: string) => void;
 };
 
 export const BufferContext = createContext<BufferContextType>({
-  // By default, do nothing if the context is not set, for example in rendering
-  canPlay: () => {},
-  needsToBuffer: () => {},
+	// By default, do nothing if the context is not set, for example in rendering
+	canPlay: () => {},
+	needsToBuffer: () => {},
 });
 
 // ---cut---
-import { useCallback, useMemo, useRef } from "react";
+import {useCallback, useMemo, useRef} from 'react';
 
 export const BufferManager: React.FC<{
-  children: React.ReactNode;
-  onBuffer: () => void;
-  onContinue: () => void;
-}> = ({ children, onBuffer, onContinue }) => {
-  const bufferState = useRef<BufferState>({});
-  const currentState = useRef(false);
+	children: React.ReactNode;
+	onBuffer: () => void;
+	onContinue: () => void;
+}> = ({children, onBuffer, onContinue}) => {
+	const bufferState = useRef<BufferState>({});
+	const currentState = useRef(false);
 
-  const sendEvents = useCallback(() => {
-    let previousState = currentState.current;
-    currentState.current = Object.values(bufferState.current).some(Boolean);
+	const sendEvents = useCallback(() => {
+		let previousState = currentState.current;
+		currentState.current = Object.values(bufferState.current).some(Boolean);
 
-    if (currentState.current && !previousState) {
-      onBuffer();
-    } else if (!currentState.current && previousState) {
-      onContinue();
-    }
-  }, [onBuffer, onContinue]);
+		if (currentState.current && !previousState) {
+			onBuffer();
+		} else if (!currentState.current && previousState) {
+			onContinue();
+		}
+	}, [onBuffer, onContinue]);
 
-  const canPlay = useCallback(
-    (id: string) => {
-      bufferState.current[id] = false;
-      sendEvents();
-    },
-    [sendEvents],
-  );
+	const canPlay = useCallback(
+		(id: string) => {
+			bufferState.current[id] = false;
+			sendEvents();
+		},
+		[sendEvents],
+	);
 
-  const needsToBuffer = useCallback(
-    (id: string) => {
-      bufferState.current[id] = true;
-      sendEvents();
-    },
-    [sendEvents],
-  );
+	const needsToBuffer = useCallback(
+		(id: string) => {
+			bufferState.current[id] = true;
+			sendEvents();
+		},
+		[sendEvents],
+	);
 
-  const bufferEvents = useMemo(() => {
-    return {
-      canPlay,
-      needsToBuffer,
-    };
-  }, [canPlay, needsToBuffer]);
+	const bufferEvents = useMemo(() => {
+		return {
+			canPlay,
+			needsToBuffer,
+		};
+	}, [canPlay, needsToBuffer]);
 
-  return (
-    <BufferContext.Provider value={bufferEvents}>
-      {children}
-    </BufferContext.Provider>
-  );
+	return (
+		<BufferContext.Provider value={bufferEvents}>
+			{children}
+		</BufferContext.Provider>
+	);
 };
 ```
 
@@ -118,122 +118,122 @@ The following component `<PausableVideo>` wraps the `<Video>` tag, so that you c
 ```tsx twoslash title="PausableVideo.tsx"
 // @filename: BufferManager.tsx
 
-import React, { createContext, useCallback, useMemo, useRef } from "react";
+import React, {createContext, useCallback, useMemo, useRef} from 'react';
 
-type BufferState = { [key: string]: boolean };
+type BufferState = {[key: string]: boolean};
 
 type BufferContextType = {
-  canPlay: (id: string) => void;
-  needsToBuffer: (id: string) => void;
+	canPlay: (id: string) => void;
+	needsToBuffer: (id: string) => void;
 };
 
 export const BufferContext = createContext<BufferContextType>({
-  // By default, do nothing if the context is not set, for example in rendering
-  canPlay: () => {},
-  needsToBuffer: () => {},
+	// By default, do nothing if the context is not set, for example in rendering
+	canPlay: () => {},
+	needsToBuffer: () => {},
 });
 
 export const BufferManager: React.FC<{
-  children: React.ReactNode;
-  onBuffer: () => void;
-  onContinue: () => void;
-}> = ({ children, onBuffer, onContinue }) => {
-  const bufferState = useRef<BufferState>({});
-  const currentState = useRef(false);
+	children: React.ReactNode;
+	onBuffer: () => void;
+	onContinue: () => void;
+}> = ({children, onBuffer, onContinue}) => {
+	const bufferState = useRef<BufferState>({});
+	const currentState = useRef(false);
 
-  const sendEvents = useCallback(() => {
-    let previousState = currentState.current;
-    currentState.current = Object.values(bufferState.current).some(Boolean);
+	const sendEvents = useCallback(() => {
+		let previousState = currentState.current;
+		currentState.current = Object.values(bufferState.current).some(Boolean);
 
-    if (currentState.current && !previousState) {
-      onBuffer();
-    } else if (!currentState.current && previousState) {
-      onContinue();
-    }
-  }, [onBuffer, onContinue]);
+		if (currentState.current && !previousState) {
+			onBuffer();
+		} else if (!currentState.current && previousState) {
+			onContinue();
+		}
+	}, [onBuffer, onContinue]);
 
-  const canPlay = useCallback(
-    (id: string) => {
-      bufferState.current[id] = false;
-      sendEvents();
-    },
-    [sendEvents],
-  );
+	const canPlay = useCallback(
+		(id: string) => {
+			bufferState.current[id] = false;
+			sendEvents();
+		},
+		[sendEvents],
+	);
 
-  const needsToBuffer = useCallback(
-    (id: string) => {
-      bufferState.current[id] = true;
-      sendEvents();
-    },
-    [sendEvents],
-  );
+	const needsToBuffer = useCallback(
+		(id: string) => {
+			bufferState.current[id] = true;
+			sendEvents();
+		},
+		[sendEvents],
+	);
 
-  const bufferEvents = useMemo(() => {
-    return {
-      canPlay,
-      needsToBuffer,
-    };
-  }, [canPlay, needsToBuffer]);
+	const bufferEvents = useMemo(() => {
+		return {
+			canPlay,
+			needsToBuffer,
+		};
+	}, [canPlay, needsToBuffer]);
 
-  return (
-    <BufferContext.Provider value={bufferEvents}>
-      {children}
-    </BufferContext.Provider>
-  );
+	return (
+		<BufferContext.Provider value={bufferEvents}>
+			{children}
+		</BufferContext.Provider>
+	);
 };
 // organize-imports-ignore
 // @filename: PausableVideo.tsx
 // ---cut---
 import React, {
-  forwardRef,
-  useContext,
-  useEffect,
-  useId,
-  useImperativeHandle,
-  useRef,
-} from "react";
-import { RemotionMainVideoProps, RemotionVideoProps, Video } from "remotion";
-import { BufferContext } from "./BufferManager";
+	forwardRef,
+	useContext,
+	useEffect,
+	useId,
+	useImperativeHandle,
+	useRef,
+} from 'react';
+import {RemotionMainVideoProps, RemotionVideoProps, Video} from 'remotion';
+import {BufferContext} from './BufferManager';
 
 const PausableVideoFunction: React.ForwardRefRenderFunction<
-  HTMLVideoElement,
-  RemotionVideoProps & RemotionMainVideoProps
-> = ({ src, ...props }, ref) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+	HTMLVideoElement,
+	RemotionVideoProps & RemotionMainVideoProps
+> = ({src, ...props}, ref) => {
+	const videoRef = useRef<HTMLVideoElement>(null);
 
-  const id = useId();
+	const id = useId();
 
-  useImperativeHandle(ref, () => videoRef.current as HTMLVideoElement);
+	useImperativeHandle(ref, () => videoRef.current as HTMLVideoElement);
 
-  const { canPlay, needsToBuffer } = useContext(BufferContext);
+	const {canPlay, needsToBuffer} = useContext(BufferContext);
 
-  useEffect(() => {
-    const { current } = videoRef;
-    if (!current) {
-      return;
-    }
+	useEffect(() => {
+		const {current} = videoRef;
+		if (!current) {
+			return;
+		}
 
-    const onPlay = () => {
-      canPlay(id);
-    };
+		const onPlay = () => {
+			canPlay(id);
+		};
 
-    const onBuffer = () => {
-      needsToBuffer(id);
-    };
+		const onBuffer = () => {
+			needsToBuffer(id);
+		};
 
-    current.addEventListener("canplay", onPlay);
-    current.addEventListener("waiting", onBuffer);
+		current.addEventListener('canplay', onPlay);
+		current.addEventListener('waiting', onBuffer);
 
-    return () => {
-      current.removeEventListener("canplay", onPlay);
-      current.removeEventListener("waiting", onBuffer);
+		return () => {
+			current.removeEventListener('canplay', onPlay);
+			current.removeEventListener('waiting', onBuffer);
 
-      // If component is unmounted, unblock the buffer manager
-      canPlay(id);
-    };
-  }, [canPlay, id, needsToBuffer]);
+			// If component is unmounted, unblock the buffer manager
+			canPlay(id);
+		};
+	}, [canPlay, id, needsToBuffer]);
 
-  return <Video {...props} ref={videoRef} src={src} />;
+	return <Video {...props} ref={videoRef} src={src} />;
 };
 
 export const PausableVideo = forwardRef(PausableVideoFunction);
@@ -253,71 +253,71 @@ By using a ref, we eliminate the risk of asynchronous React state leading to a r
 
 ```tsx twoslash title="App.tsx" {6-28,30,38}
 // @filename: BufferManager.tsx
-import { createContext } from "react";
+import {createContext} from 'react';
 
-type BufferState = { [key: string]: boolean };
+type BufferState = {[key: string]: boolean};
 
 type BufferContextType = {
-  canPlay: (id: string) => void;
-  needsToBuffer: (id: string) => void;
+	canPlay: (id: string) => void;
+	needsToBuffer: (id: string) => void;
 };
 
 export const BufferContext = createContext<BufferContextType>({
-  // By default, do nothing if the context is not set, for example in rendering
-  canPlay: () => {},
-  needsToBuffer: () => {},
+	// By default, do nothing if the context is not set, for example in rendering
+	canPlay: () => {},
+	needsToBuffer: () => {},
 });
 
 // ---cut---
-import React, { useCallback, useMemo, useRef } from "react";
+import React, {useCallback, useMemo, useRef} from 'react';
 
 export const BufferManager: React.FC<{
-  children: React.ReactNode;
-  onBuffer: () => void;
-  onContinue: () => void;
-}> = ({ children, onBuffer, onContinue }) => {
-  const bufferState = useRef<BufferState>({});
-  const currentState = useRef(false);
+	children: React.ReactNode;
+	onBuffer: () => void;
+	onContinue: () => void;
+}> = ({children, onBuffer, onContinue}) => {
+	const bufferState = useRef<BufferState>({});
+	const currentState = useRef(false);
 
-  const sendEvents = useCallback(() => {
-    let previousState = currentState.current;
-    currentState.current = Object.values(bufferState.current).some(Boolean);
+	const sendEvents = useCallback(() => {
+		let previousState = currentState.current;
+		currentState.current = Object.values(bufferState.current).some(Boolean);
 
-    if (currentState.current && !previousState) {
-      onBuffer();
-    } else if (!currentState.current && previousState) {
-      onContinue();
-    }
-  }, [onBuffer, onContinue]);
+		if (currentState.current && !previousState) {
+			onBuffer();
+		} else if (!currentState.current && previousState) {
+			onContinue();
+		}
+	}, [onBuffer, onContinue]);
 
-  const canPlay = useCallback(
-    (id: string) => {
-      bufferState.current[id] = false;
-      sendEvents();
-    },
-    [sendEvents],
-  );
+	const canPlay = useCallback(
+		(id: string) => {
+			bufferState.current[id] = false;
+			sendEvents();
+		},
+		[sendEvents],
+	);
 
-  const needsToBuffer = useCallback(
-    (id: string) => {
-      bufferState.current[id] = true;
-      sendEvents();
-    },
-    [sendEvents],
-  );
+	const needsToBuffer = useCallback(
+		(id: string) => {
+			bufferState.current[id] = true;
+			sendEvents();
+		},
+		[sendEvents],
+	);
 
-  const bufferEvents = useMemo(() => {
-    return {
-      canPlay,
-      needsToBuffer,
-    };
-  }, [canPlay, needsToBuffer]);
+	const bufferEvents = useMemo(() => {
+		return {
+			canPlay,
+			needsToBuffer,
+		};
+	}, [canPlay, needsToBuffer]);
 
-  return (
-    <BufferContext.Provider value={bufferEvents}>
-      {children}
-    </BufferContext.Provider>
-  );
+	return (
+		<BufferContext.Provider value={bufferEvents}>
+			{children}
+		</BufferContext.Provider>
+	);
 };
 
 // @filename: App.tsx
@@ -325,45 +325,45 @@ const MyComp: React.FC = () => null;
 
 // organize-imports-ignore
 // ---cut---
-import { Player, PlayerRef } from "@remotion/player";
-import React, { useState, useRef, useCallback } from "react";
-import { BufferManager } from "./BufferManager";
+import {Player, PlayerRef} from '@remotion/player';
+import React, {useState, useRef, useCallback} from 'react';
+import {BufferManager} from './BufferManager';
 
 function App() {
-  const playerRef = useRef<PlayerRef>(null);
-  const [buffering, setBuffering] = useState(false);
-  const pausedBecauseOfBuffering = useRef(false);
+	const playerRef = useRef<PlayerRef>(null);
+	const [buffering, setBuffering] = useState(false);
+	const pausedBecauseOfBuffering = useRef(false);
 
-  const onBuffer = useCallback(() => {
-    setBuffering(true);
+	const onBuffer = useCallback(() => {
+		setBuffering(true);
 
-    playerRef.current?.pause();
-    pausedBecauseOfBuffering.current = true;
-  }, []);
+		playerRef.current?.pause();
+		pausedBecauseOfBuffering.current = true;
+	}, []);
 
-  const onContinue = useCallback(() => {
-    setBuffering(false);
+	const onContinue = useCallback(() => {
+		setBuffering(false);
 
-    // Play only if we paused because of buffering
-    if (pausedBecauseOfBuffering.current) {
-      pausedBecauseOfBuffering.current = false;
-      playerRef.current?.play();
-    }
-  }, []);
+		// Play only if we paused because of buffering
+		if (pausedBecauseOfBuffering.current) {
+			pausedBecauseOfBuffering.current = false;
+			playerRef.current?.play();
+		}
+	}, []);
 
-  return (
-    <BufferManager onBuffer={onBuffer} onContinue={onContinue}>
-      <Player
-        ref={playerRef}
-        component={MyComp}
-        compositionHeight={720}
-        compositionWidth={1280}
-        durationInFrames={200}
-        fps={30}
-        controls
-      />
-    </BufferManager>
-  );
+	return (
+		<BufferManager onBuffer={onBuffer} onContinue={onContinue}>
+			<Player
+				ref={playerRef}
+				component={MyComp}
+				compositionHeight={720}
+				compositionWidth={1280}
+				durationInFrames={200}
+				fps={30}
+				controls
+			/>
+		</BufferManager>
+	);
 }
 
 export default App;
@@ -374,44 +374,44 @@ In addition to pausing the video, you can also display custom UI that will overl
 ```tsx twoslash title="App.tsx" {1, 8-25,34-36}
 const MyComp = () => null;
 // ---cut---
-import { Player, RenderPoster } from "@remotion/player";
-import { useCallback, useState } from "react";
-import { AbsoluteFill } from "remotion";
+import {Player, RenderPoster} from '@remotion/player';
+import {useCallback, useState} from 'react';
+import {AbsoluteFill} from 'remotion';
 
 function App() {
-  const [buffering, setBuffering] = useState();
+	const [buffering, setBuffering] = useState();
 
-  // Add this to your component rendering the <Player>
-  const renderPoster: RenderPoster = useCallback(() => {
-    if (buffering) {
-      return (
-        <AbsoluteFill
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            fontSize: 100,
-          }}
-        >
-          ⏳
-        </AbsoluteFill>
-      );
-    }
+	// Add this to your component rendering the <Player>
+	const renderPoster: RenderPoster = useCallback(() => {
+		if (buffering) {
+			return (
+				<AbsoluteFill
+					style={{
+						justifyContent: 'center',
+						alignItems: 'center',
+						fontSize: 100,
+					}}
+				>
+					⏳
+				</AbsoluteFill>
+			);
+		}
 
-    return null;
-  }, [buffering]);
+		return null;
+	}, [buffering]);
 
-  return (
-    <Player
-      fps={30}
-      component={MyComp}
-      compositionHeight={720}
-      compositionWidth={1280}
-      durationInFrames={200}
-      // Add these two props to the Player
-      showPosterWhenPaused
-      renderPoster={renderPoster}
-    />
-  );
+	return (
+		<Player
+			fps={30}
+			component={MyComp}
+			compositionHeight={720}
+			compositionWidth={1280}
+			durationInFrames={200}
+			// Add these two props to the Player
+			showPosterWhenPaused
+			renderPoster={renderPoster}
+		/>
+	);
 }
 ```
 

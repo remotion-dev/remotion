@@ -27,19 +27,20 @@ import {renderMediaOnLambda} from '@remotion/lambda';
 // ---cut---
 
 const {bucketName, renderId} = await renderMediaOnLambda({
-  region: 'us-east-1',
-  functionName: 'remotion-render-bds9aab',
-  composition: 'MyVideo',
-  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
-  inputProps: {},
-  codec: 'h264',
-  imageFormat: 'jpeg',
-  maxRetries: 1,
-  privacy: 'public',
-  outName: {
-    key: 'my-output',
-    bucketName: 'output-bucket',
-  },
+	region: 'us-east-1',
+	functionName: 'remotion-render-bds9aab',
+	composition: 'MyVideo',
+	serveUrl:
+		'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+	inputProps: {},
+	codec: 'h264',
+	imageFormat: 'jpeg',
+	maxRetries: 1,
+	privacy: 'public',
+	outName: {
+		key: 'my-output',
+		bucketName: 'output-bucket',
+	},
 });
 ```
 
@@ -60,13 +61,11 @@ _Available from v3.2.23_
 You can upload the file to another S3-compatible provider.
 
 - List of working providers (non-exhaustive):
-
   - ✅ [Supabase](/docs/lambda/supabase)
   - ✅ [Cloudflare](/docs/lambda/r2)
   - ✅ DigitalOcean Spaces
   - ✅ Google Cloud Storage  
     Notes about Google Cloud Storage:
-
     - GCP does support allowing underscores for bucket names, but we validate against it. Do not use underscores in your bucket name.
     - The bucket needs to have uniform access control and NOT fine-grained access.
     - To get your `accessKeyId` and `secretAccessKey`, create a service account that has Cloud Storage read + write permissions. Then run the following command:
@@ -85,24 +84,25 @@ import {renderMediaOnLambda} from '@remotion/lambda';
 // ---cut---
 
 const {bucketName, renderId} = await renderMediaOnLambda({
-  region: 'us-east-1',
-  functionName: 'remotion-render-bds9aab',
-  composition: 'MyVideo',
-  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
-  inputProps: {},
-  codec: 'h264',
-  imageFormat: 'jpeg',
-  maxRetries: 1,
-  privacy: 'no-acl',
-  outName: {
-    key: 'my-output',
-    bucketName: 'output-bucket',
-    s3OutputProvider: {
-      endpoint: 'https://fra1.digitaloceanspaces.com',
-      accessKeyId: '<DIGITAL_OCEAN_ACCESS_KEY_ID>',
-      secretAccessKey: '<DIGITAL_OCEAN_SECRET_ACCESS_KEY>',
-    },
-  },
+	region: 'us-east-1',
+	functionName: 'remotion-render-bds9aab',
+	composition: 'MyVideo',
+	serveUrl:
+		'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+	inputProps: {},
+	codec: 'h264',
+	imageFormat: 'jpeg',
+	maxRetries: 1,
+	privacy: 'no-acl',
+	outName: {
+		key: 'my-output',
+		bucketName: 'output-bucket',
+		s3OutputProvider: {
+			endpoint: 'https://fra1.digitaloceanspaces.com',
+			accessKeyId: '<DIGITAL_OCEAN_ACCESS_KEY_ID>',
+			secretAccessKey: '<DIGITAL_OCEAN_SECRET_ACCESS_KEY>',
+		},
+	},
 });
 ```
 
@@ -122,12 +122,12 @@ If you plan on saving to another bucket on AWS S3 and would like to use differen
 
 ```json
 {
-  "s3OutputProvider": {
-    "endpoint": "https://s3.us-west-1.amazonaws.com",
-    "accessKeyId": "<AWS_ACCESS_KEY_ID>",
-    "secretAccessKey": "<AWS_SECRET_ACCESS_KEY>",
-    "region": "us-west-1"
-  }
+	"s3OutputProvider": {
+		"endpoint": "https://s3.us-west-1.amazonaws.com",
+		"accessKeyId": "<AWS_ACCESS_KEY_ID>",
+		"secretAccessKey": "<AWS_SECRET_ACCESS_KEY>",
+		"region": "us-west-1"
+	}
 }
 ```
 

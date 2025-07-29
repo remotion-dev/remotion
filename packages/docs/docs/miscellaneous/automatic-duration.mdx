@@ -15,8 +15,8 @@ It is currently **not supported** to derive the duration of a composition be fro
   import {useCurrentFrame} from 'remotion';
 
   const InfiniteComposition: React.FC = () => {
-    const frame = useCurrentFrame();
-    return <div>{frame}</div>;
+  	const frame = useCurrentFrame();
+  	return <div>{frame}</div>;
   };
   ```
 
@@ -29,14 +29,14 @@ It is currently **not supported** to derive the duration of a composition be fro
   import {Sequence, useCurrentFrame} from 'remotion';
 
   const ChangingDuration: React.FC = () => {
-    const frame = useCurrentFrame();
+  	const frame = useCurrentFrame();
 
-    return (
-      // This is fine!
-      <Sequence from={frame} durationInFrames={30}>
-        <div>Hello World!</div>
-      </Sequence>
-    );
+  	return (
+  		// This is fine!
+  		<Sequence from={frame} durationInFrames={30}>
+  			<div>Hello World!</div>
+  		</Sequence>
+  	);
   };
   ```
 

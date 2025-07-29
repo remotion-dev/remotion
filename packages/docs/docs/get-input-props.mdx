@@ -51,19 +51,19 @@ import {Composition} from 'remotion';
 const getInputProps = () => ({hello: 'world'}) as const;
 const MyComp: React.FC = () => null;
 const config = {
-  component: MyComp,
-  durationInFrames: 100,
-  fps: 30,
-  width: 1000,
-  height: 1000,
-  id: 'MyComp',
+	component: MyComp,
+	durationInFrames: 100,
+	fps: 30,
+	width: 1000,
+	height: 1000,
+	id: 'MyComp',
 } as const;
 // ---cut---
 
 export const Root: React.FC = () => {
-  const {hello} = getInputProps(); // "world"
+	const {hello} = getInputProps(); // "world"
 
-  return <Composition {...config} />;
+	return <Composition {...config} />;
 };
 ```
 

@@ -40,8 +40,8 @@ When registering a component that takes props as a composition, you must define 
 // @filename: MyComponent.tsx
 import React from 'react';
 export const MyComponent: React.FC<{
-  propOne: string;
-  propTwo: number;
+	propOne: string;
+	propTwo: number;
 }> = () => null;
 
 // @filename: Root.tsx
@@ -52,22 +52,22 @@ import {Composition} from 'remotion';
 import {MyComponent} from './MyComponent';
 
 export const Root: React.FC = () => {
-  return (
-    <>
-      <Composition
-        id="my-video"
-        width={1080}
-        height={1080}
-        fps={30}
-        durationInFrames={30}
-        component={MyComponent}
-        defaultProps={{
-          propOne: 'Hi',
-          propTwo: 10,
-        }}
-      />
-    </>
-  );
+	return (
+		<>
+			<Composition
+				id="my-video"
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={30}
+				component={MyComponent}
+				defaultProps={{
+					propOne: 'Hi',
+					propTwo: 10,
+				}}
+			/>
+		</>
+	);
 };
 ```
 
@@ -108,21 +108,21 @@ const outputLocation = '/path/to/frames';
 import {renderMedia, selectComposition} from '@remotion/renderer';
 
 const inputProps = {
-  titleText: 'Hello World',
+	titleText: 'Hello World',
 };
 
 const composition = await selectComposition({
-  serveUrl,
-  id: 'my-video',
-  inputProps,
+	serveUrl,
+	id: 'my-video',
+	inputProps,
 });
 
 await renderMedia({
-  composition,
-  serveUrl,
-  codec: 'h264',
-  outputLocation,
-  inputProps,
+	composition,
+	serveUrl,
+	codec: 'h264',
+	outputLocation,
+	inputProps,
 });
 ```
 
@@ -168,22 +168,22 @@ This is useful if you want to concatenate multiple scenes together. You can use 
 ```tsx twoslash title="ChainedScenes.tsx"
 // @include: example-MyComponent
 const AnotherComponent: React.FC = () => {
-  return null;
+	return null;
 };
 // ---cut---
 import {Series} from 'remotion';
 
 const ChainedScenes = () => {
-  return (
-    <Series>
-      <Series.Sequence durationInFrames={90}>
-        <MyComponent propOne="hi" propTwo={10} />
-      </Series.Sequence>
-      <Series.Sequence durationInFrames={90}>
-        <AnotherComponent />
-      </Series.Sequence>
-    </Series>
-  );
+	return (
+		<Series>
+			<Series.Sequence durationInFrames={90}>
+				<MyComponent propOne="hi" propTwo={10} />
+			</Series.Sequence>
+			<Series.Sequence durationInFrames={90}>
+				<AnotherComponent />
+			</Series.Sequence>
+		</Series>
+	);
 };
 ```
 

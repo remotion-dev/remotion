@@ -18,13 +18,13 @@ If the user drops in any image, audio, video or GIF, you can configure them to b
 
 ```json
 [
-  {
-    "AllowedHeaders": ["*"],
-    "AllowedMethods": ["PUT", "GET", "HEAD"],
-    "AllowedOrigins": ["*"],
-    "ExposeHeaders": [],
-    "MaxAgeSeconds": 3000
-  }
+	{
+		"AllowedHeaders": ["*"],
+		"AllowedMethods": ["PUT", "GET", "HEAD"],
+		"AllowedOrigins": ["*"],
+		"ExposeHeaders": [],
+		"MaxAgeSeconds": 3000
+	}
 ]
 ```
 
@@ -34,15 +34,15 @@ If the user drops in any image, audio, video or GIF, you can configure them to b
 
 ```json
 {
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "Presign",
-      "Effect": "Allow",
-      "Action": ["s3:PutObject", "s3:PutObjectAcl"],
-      "Resource": ["arn:aws:s3:::YOUR_BUCKET_NAME/*"]
-    }
-  ]
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "Presign",
+			"Effect": "Allow",
+			"Action": ["s3:PutObject", "s3:PutObjectAcl"],
+			"Resource": ["arn:aws:s3:::YOUR_BUCKET_NAME/*"]
+		}
+	]
 }
 ```
 

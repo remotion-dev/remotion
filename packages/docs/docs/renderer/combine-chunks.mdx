@@ -21,21 +21,29 @@ Combine multiple video or audio chunks into a single output file. This function 
 import {combineChunks} from '@remotion/renderer';
 
 // Video files rendered as separate chunks
-const videoFiles = ['/path/to/chunk1.mp4', '/path/to/chunk2.mp4', '/path/to/chunk3.mp4'];
+const videoFiles = [
+	'/path/to/chunk1.mp4',
+	'/path/to/chunk2.mp4',
+	'/path/to/chunk3.mp4',
+];
 
 // Optional audio files corresponding to each video chunk
-const audioFiles = ['/path/to/chunk1.aac', '/path/to/chunk2.aac', '/path/to/chunk3.aac'];
+const audioFiles = [
+	'/path/to/chunk1.aac',
+	'/path/to/chunk2.aac',
+	'/path/to/chunk3.aac',
+];
 
 await combineChunks({
-  outputLocation: '/path/to/final-video.mp4',
-  videoFiles,
-  audioFiles,
-  codec: 'h264',
-  fps: 30,
-  framesPerChunk: 100,
-  audioCodec: 'aac',
-  preferLossless: false,
-  compositionDurationInFrames: 300,
+	outputLocation: '/path/to/final-video.mp4',
+	videoFiles,
+	audioFiles,
+	codec: 'h264',
+	fps: 30,
+	framesPerChunk: 100,
+	audioCodec: 'aac',
+	preferLossless: false,
+	compositionDurationInFrames: 300,
 });
 ```
 
@@ -122,8 +130,8 @@ Callback function to track the progress of the combining operation.
 import {CombineChunksOnProgress} from '@remotion/renderer';
 
 const onProgress: CombineChunksOnProgress = ({totalProgress, frames}) => {
-  console.log(`Combining is ${totalProgress * 100}% complete`);
-  console.log(`Processed ${frames} frames`);
+	console.log(`Combining is ${totalProgress * 100}% complete`);
+	console.log(`Processed ${frames} frames`);
 };
 ```
 

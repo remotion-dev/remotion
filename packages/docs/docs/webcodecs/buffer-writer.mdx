@@ -10,8 +10,8 @@ import {LicenseDisclaimer} from './LicenseDisclaimer';
 import {UnstableDisclaimer} from './UnstableDisclaimer';
 
 <details>
-  <summary>💼 Important License Disclaimer</summary>
-  <LicenseDisclaimer />
+	<summary>💼 Important License Disclaimer</summary>
+	<LicenseDisclaimer />
 </details>
 
 :::warning
@@ -29,9 +29,9 @@ import {convertMedia} from '@remotion/webcodecs';
 import {bufferWriter} from '@remotion/webcodecs/buffer';
 
 const result = await convertMedia({
-  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  container: 'webm',
-  writer: bufferWriter,
+	src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+	container: 'webm',
+	writer: bufferWriter,
 });
 
 const blob = await result.save();
@@ -46,16 +46,16 @@ import {convertMedia} from '@remotion/webcodecs';
 import {bufferWriter} from '@remotion/webcodecs/buffer';
 
 try {
-  const result = await convertMedia({
-    src: 'very-large-video.mp4',
-    container: 'webm',
-    writer: bufferWriter,
-  });
+	const result = await convertMedia({
+		src: 'very-large-video.mp4',
+		container: 'webm',
+		writer: bufferWriter,
+	});
 } catch (error) {
-  if ((error as Error).message.includes('Could not create buffer writer')) {
-    // Handle case where ArrayBuffer cannot be resized further
-    console.log('File too large for buffer writer, consider using webFsWriter');
-  }
+	if ((error as Error).message.includes('Could not create buffer writer')) {
+		// Handle case where ArrayBuffer cannot be resized further
+		console.log('File too large for buffer writer, consider using webFsWriter');
+	}
 }
 ```
 

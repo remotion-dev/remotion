@@ -30,16 +30,16 @@ Rendering the [`HelloWorld`](https://github.com/remotion-dev/template-helloworld
 import {CalculateMetadataFunction, OffthreadVideo, staticFile} from 'remotion';
 
 export const calculateMetadataFn: CalculateMetadataFunction<{}> = async () => {
-  return {
-    durationInFrames: 60 * 30,
-    fps: 30,
-    width: 1280,
-    height: 720,
-  };
+	return {
+		durationInFrames: 60 * 30,
+		fps: 30,
+		width: 1280,
+		height: 720,
+	};
 };
 
 export const OffthreadRemoteVideo: React.FC = () => {
-  return <OffthreadVideo src={staticFile('bigbuckbunny.mp4')} />;
+	return <OffthreadVideo src={staticFile('bigbuckbunny.mp4')} />;
 };
 ```
 
@@ -54,18 +54,18 @@ Rendering a video inside your video increases the cost significantly.
 import {CalculateMetadataFunction, OffthreadVideo} from 'remotion';
 
 export const calculateMetadataFn: CalculateMetadataFunction<{}> = async () => {
-  return {
-    durationInFrames: 10 * 60 * 30,
-    fps: 30,
-    width: 1280,
-    height: 720,
-  };
+	return {
+		durationInFrames: 10 * 60 * 30,
+		fps: 30,
+		width: 1280,
+		height: 720,
+	};
 };
 
 export const OffthreadRemoteVideo: React.FC = () => {
-  return (
-    <OffthreadVideo src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
-  );
+	return (
+		<OffthreadVideo src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+	);
 };
 ```
 
@@ -77,18 +77,18 @@ export const OffthreadRemoteVideo: React.FC = () => {
 import {CalculateMetadataFunction, OffthreadVideo} from 'remotion';
 
 export const calculateMetadataFn: CalculateMetadataFunction<{}> = async () => {
-  return {
-    durationInFrames: 10 * 30,
-    fps: 30,
-    width: 3840,
-    height: 2160,
-  };
+	return {
+		durationInFrames: 10 * 30,
+		fps: 30,
+		width: 3840,
+		height: 2160,
+	};
 };
 
 export const OffthreadRemoteVideo: React.FC = () => {
-  return (
-    <OffthreadVideo src="https://videos.pexels.com/video-files/5530402/5530402-uhd_3840_2160_25fps.mp4" />
-  );
+	return (
+		<OffthreadVideo src="https://videos.pexels.com/video-files/5530402/5530402-uhd_3840_2160_25fps.mp4" />
+	);
 };
 ```
 

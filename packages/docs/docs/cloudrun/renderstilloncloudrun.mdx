@@ -6,9 +6,12 @@ crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-  <p>
-    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
-  </p>
+	<p>
+		Cloud Run is in{' '}
+		<a href="/docs/cloudrun/status">
+			Alpha status and not actively being developed.
+		</a>
+	</p>
 </ExperimentalBadge>
 
 Kicks off a still rendering process on Remotion Cloud Run.
@@ -23,16 +26,17 @@ A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology/serve-url
 import {renderStillOnCloudrun} from '@remotion/cloudrun/client';
 
 const result = await renderStillOnCloudrun({
-  region: 'us-east1',
-  serviceName: 'remotion-render-bds9aab',
-  composition: 'MyStill',
-  imageFormat: 'png',
-  serveUrl: 'https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh',
+	region: 'us-east1',
+	serviceName: 'remotion-render-bds9aab',
+	composition: 'MyStill',
+	imageFormat: 'png',
+	serveUrl:
+		'https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh',
 });
 
 if (result.type === 'success') {
-  console.log(result.bucketName);
-  console.log(result.renderId);
+	console.log(result.bucketName);
+	console.log(result.renderId);
 }
 ```
 
