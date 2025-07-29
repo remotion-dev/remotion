@@ -50,6 +50,7 @@ export const makeAviAudioTrack = ({
 		trackId: index,
 		startInSeconds: 0,
 		timescale: WEBCODECS_TIMESCALE,
+		trackMediaTimeOffsetInTrackTimescale: 0,
 	};
 };
 
@@ -101,6 +102,7 @@ export const makeAviVideoTrack = ({
 		fps: strh.rate / strh.scale,
 		startInSeconds: 0,
 		timescale: WEBCODECS_TIMESCALE,
+		trackMediaTimeOffsetInTrackTimescale: 0,
 	};
 };
 

@@ -30,7 +30,7 @@ test('seek should also work on worker', async () => {
 		expect(hasBeenAborted(err)).toBe(true);
 		const timeInSeconds =
 			(firstSample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1);
-		expect(timeInSeconds).toBe(10.5);
+		expect(timeInSeconds).toBe(10.416666666666666);
 	}
 
 	const hints = await controller.getSeekingHints();
@@ -53,9 +53,9 @@ test('should be able to seek forward and then backwards', async () => {
 					samples++;
 
 					if (samples === 1) {
-						expect((sample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1)).toBe(
-							10.5,
-						);
+						expect(
+							(sample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1),
+						).toBeCloseTo(10.416666666666666);
 
 						const simulatedSeek = await controller.simulateSeek(0);
 						expect(simulatedSeek).toEqual({
@@ -68,7 +68,7 @@ test('should be able to seek forward and then backwards', async () => {
 
 					if (samples === 2) {
 						expect((sample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1)).toBe(
-							0.08333333333333333,
+							0,
 						);
 						const simulatedSeek = await controller.simulateSeek(10.6);
 						expect(simulatedSeek).toEqual({

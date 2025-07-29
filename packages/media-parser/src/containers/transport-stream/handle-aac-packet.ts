@@ -72,6 +72,7 @@ export const handleAacPacket = async ({
 			sampleRate,
 			startInSeconds: 0,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		};
 		await registerAudioTrack({
 			track,

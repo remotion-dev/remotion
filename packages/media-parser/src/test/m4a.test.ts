@@ -36,6 +36,7 @@ test('should work on voice note', async () => {
 				codecData: {type: 'aac-config', data: new Uint8Array([17, 136])},
 				codecEnum: 'aac',
 				timescale: WEBCODECS_TIMESCALE,
+				trackMediaTimeOffsetInTrackTimescale: 0,
 			});
 
 			return () => {

@@ -31,7 +31,7 @@ test('should process a basic seek request', async () => {
 		expect(hasBeenAborted(err)).toBe(true);
 		const timeInSeconds =
 			(firstSample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1);
-		expect(timeInSeconds).toBe(10.5);
+		expect(timeInSeconds).toBe(10.416666666666666);
 	}
 });
 

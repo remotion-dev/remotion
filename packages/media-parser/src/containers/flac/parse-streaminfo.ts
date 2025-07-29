@@ -57,6 +57,7 @@ export const parseStreamInfo = async ({
 			trackId: 0,
 			startInSeconds: 0,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		},
 		registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
 		tracks: state.callbacks.tracks,
