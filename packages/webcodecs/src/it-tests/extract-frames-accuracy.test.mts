@@ -33,6 +33,6 @@ test.describe('Should return correct frame even when it is out of order', () => 
 
 		await page.waitForFunction(() => (window as any).videoFrames?.length === 1);
 		const value = await page.evaluate(() => (window as any).videoFrames);
-		expect(value[0]).toBe((11 / 30) * WEBCODECS_TIMESCALE);
+		expect(value[0]).toBe(Math.floor((11 / 30) * WEBCODECS_TIMESCALE));
 	});
 });
