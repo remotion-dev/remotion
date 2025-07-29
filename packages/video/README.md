@@ -1,4 +1,4 @@
-# @remotion/new-video
+# @remotion/video
 
 Experimental tag for reliable and accurate video embedding
 

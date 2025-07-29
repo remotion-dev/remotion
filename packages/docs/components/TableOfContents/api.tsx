@@ -16,6 +16,7 @@ import {TableOfContents as LottieTableOfContents} from '../../docs/lottie/table-
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
 import {TableOfContents as MediaUtilsTableOfContents} from '../../docs/media-utils/table-of-contents';
 import {TableOfContents as MotionBlurTableOfContents} from '../../docs/motion-blur/table-of-contents';
+import {TableOfContents as NewVideoTableOfContents} from '../../docs/new-video/table-of-contents';
 import {TableOfContents as NoiseTableOfContents} from '../../docs/noise/table-of-contents';
 import {TableOfContents as OpenAiWhisperTableOfContents} from '../../docs/openai-whisper/TableOfContents';
 import {TableOfContents as PathsTableOfContents} from '../../docs/paths/table-of-contents';
@@ -31,7 +32,6 @@ import {TableOfContents as TailwindV4TableOfContents} from '../../docs/tailwind-
 import {TableOfContents as TailwindTableOfContents} from '../../docs/tailwind/TableOfContents';
 import {TableOfContents as ThreeTableOfContents} from '../../docs/three/TableOfContents';
 import {TableOfContents as TransitionsTableOfContents} from '../../docs/transitions/table-of-contents';
-import {TableOfContents as NewVideoTableOfContents} from '../../docs/video/table-of-contents';
 import {TableOfContents as WebcodecsTableOfContents} from '../../docs/webcodecs/TableOfContents';
 import {ZodTypesTableOfContents} from '../../docs/zod-types/TableOfContents';
 import {Grid} from './Grid';

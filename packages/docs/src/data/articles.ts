@@ -3433,13 +3433,13 @@ export const articles = [
 		slug: 'multiple-fps',
 	},
 	{
-		id: 'video/index',
+		id: 'new-video/index',
 		title: '<NewVideo>',
-		relativePath: 'docs/video/index.mdx',
-		compId: 'articles-docs-video-index',
+		relativePath: 'docs/new-video/index.mdx',
+		compId: 'articles-docs-new-video-index',
 		crumb: 'API',
 		noAi: false,
-		slug: 'video/index',
+		slug: 'new-video/index',
 	},
 	{
 		id: 'noise-visualization',
