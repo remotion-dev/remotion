@@ -75,6 +75,7 @@ An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
 
 ```tsx twoslash title="Using AbortController"
 import {getPartialAudioData} from '@remotion/webcodecs';
+import {hasBeenAborted} from '@remotion/media-parser';
 
 const controller = new AbortController();
 
@@ -90,7 +91,7 @@ try {
     signal: controller.signal,
   });
 } catch (err) {
-  if (err.name === 'AbortError') {
+  if (hasBeenAborted(err)) {
     console.log('Operation was cancelled');
   }
 }
