@@ -139,9 +139,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 		extractFrames({
 			src,
-			timestampsInSeconds: () => {
-				return [timestamp];
-			},
+			timestampsInSeconds: [timestamp],
 			onFrame: (extractedFrame) => {
 				canvasRef.current?.getContext('2d')?.drawImage(extractedFrame, 0, 0);
 

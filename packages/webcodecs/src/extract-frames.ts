@@ -79,16 +79,40 @@ const internalExtractFrames = ({
 
 			controller.seek(timestampTargets[0]);
 
+			let lastFrame: VideoFrame | undefined;
+
 			const decoder = createVideoDecoder({
 				onFrame: (frame) => {
 					Log.trace(logLevel, 'Received frame with timestamp', frame.timestamp);
-
-					if (frame.timestamp >= expectedFrames[0] - 1) {
-						expectedFrames.shift();
-						onFrame(frame);
-					} else {
+					if (expectedFrames.length === 0) {
 						frame.close();
+						return;
 					}
+
+					if (frame.timestamp < expectedFrames[0] - 1) {
+						if (lastFrame) {
+							lastFrame.close();
+						}
+
+						lastFrame = frame;
+						return;
+					}
+
+					// A WebM might have a timestamp of 67000 but we request 66666
+					// See a test with this problem in it-tests/rendering/frame-accuracy.test.ts
+					// Solution: We allow a 0.1000ms - 0.333ms = 0.667ms difference between the requested timestamp and the actual timestamp
+					if (expectedFrames[0] + (1000 - 333) < frame.timestamp && lastFrame) {
+						onFrame(lastFrame);
+						expectedFrames.shift();
+
+						lastFrame = frame;
+						return;
+					}
+
+					expectedFrames.shift();
+					onFrame(frame);
+
+					lastFrame = frame;
 				},
 				onError: (e) => {
 					controller.abort();
@@ -167,6 +191,9 @@ const internalExtractFrames = ({
 				return async () => {
 					await doProcess();
 					await decoder.flush();
+					if (lastFrame) {
+						lastFrame.close();
+					}
 				};
 			};
 		},
