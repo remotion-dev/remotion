@@ -135,17 +135,18 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
 
+		const actualFPS = playbackRate ? fps / playbackRate : fps;
+
+		const timestamp = frame / actualFPS;
+
 		extractFrames({
 			src,
-			// eslint-disable-next-line require-await
-			timestampsInSeconds: async () => {
-				const actualFPS = playbackRate ? fps / playbackRate : fps;
-
-				const timestamp = Math.round((frame / actualFPS) * 1000) / 1000;
+			timestampsInSeconds: () => {
 				return [timestamp];
 			},
 			onFrame: (extractedFrame) => {
 				canvasRef.current?.getContext('2d')?.drawImage(extractedFrame, 0, 0);
+
 				onVideoFrame?.(extractedFrame);
 				extractedFrame.close();
 				setActiveHandler(newHandle);
