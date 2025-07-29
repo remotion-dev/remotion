@@ -6226,6 +6226,15 @@ export const articles = [
 		slug: 'webcodecs/get-default-video-codec',
 	},
 	{
+		id: 'webcodecs/get-partial-audio-data',
+		title: 'getPartialAudioData()',
+		relativePath: 'docs/webcodecs/get-partial-audio-data.mdx',
+		compId: 'articles-docs-webcodecs-get-partial-audio-data',
+		crumb: '@remotion/webcodecs',
+		noAi: false,
+		slug: 'webcodecs/get-partial-audio-data',
+	},
+	{
 		id: 'webcodecs/index',
 		title: '@remotion/webcodecs',
 		relativePath: 'docs/webcodecs/index.mdx',
