@@ -12,6 +12,7 @@ import {
 import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 import {createVideoDecoder} from './create-video-decoder';
 import {withResolvers} from './create/with-resolvers';
+import {Log} from './log';
 
 export type ExtractFramesTimestampsInSecondsFn = (options: {
 	track: MediaParserVideoTrack;
@@ -71,6 +72,8 @@ const internalExtractFrames = ({
 
 			const decoder = createVideoDecoder({
 				onFrame: (frame) => {
+					Log.trace(logLevel, 'Received frame with timestamp', frame.timestamp);
+
 					if (frame.timestamp >= expectedFrames[0] - 1) {
 						expectedFrames.shift();
 						onFrame(frame);
@@ -98,13 +101,25 @@ const internalExtractFrames = ({
 
 				while (queued.length > 0) {
 					const sam = queued.shift();
+					if (!sam) {
+						throw new Error('Sample is undefined');
+					}
+
 					await decoder.waitForQueueToBeLessThan(10);
-					await decoder.decode(sam as MediaParserVideoSample);
+					Log.trace(logLevel, 'Decoding sample', sam.timestamp);
+					await decoder.decode(sam);
 				}
 			};
 
 			return async (sample) => {
 				const nextTimestampWeWant = timestampTargets[0];
+				Log.trace(
+					logLevel,
+					'Received sample with dts',
+					sample.decodingTimestamp,
+					'and cts',
+					sample.timestamp,
+				);
 
 				if (sample.type === 'key') {
 					await decoder.flush();
@@ -114,7 +129,7 @@ const internalExtractFrames = ({
 				queued.push(sample);
 
 				if (
-					sample.timestamp >=
+					sample.decodingTimestamp >=
 					timestampTargets[timestampTargets.length - 1] * WEBCODECS_TIMESCALE
 				) {
 					await doProcess();
@@ -128,7 +143,10 @@ const internalExtractFrames = ({
 					throw new Error('this should not happen');
 				}
 
-				if (sample.timestamp >= nextTimestampWeWant * WEBCODECS_TIMESCALE) {
+				if (
+					sample.decodingTimestamp >=
+					nextTimestampWeWant * WEBCODECS_TIMESCALE
+				) {
 					await doProcess();
 
 					if (timestampTargets.length === 0) {
@@ -138,6 +156,7 @@ const internalExtractFrames = ({
 				}
 
 				return async () => {
+					await doProcess();
 					await decoder.flush();
 				};
 			};
