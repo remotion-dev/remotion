@@ -690,6 +690,7 @@ const sidebars: SidebarsConfig = {
 				'webcodecs/get-available-audio-codecs',
 				'webcodecs/get-available-video-codecs',
 				'webcodecs/convert-audiodata',
+				'webcodecs/get-partial-audio-data',
 				'webcodecs/create-audio-decoder',
 				'webcodecs/create-video-decoder',
 				'webcodecs/extract-frames',
