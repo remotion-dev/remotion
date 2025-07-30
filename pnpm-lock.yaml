@@ -695,6 +695,9 @@ importers:
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions
+      '@remotion/video':
+        specifier: workspace:*
+        version: link:../video
       '@remotion/webcodecs':
         specifier: workspace:*
         version: link:../webcodecs
@@ -1073,6 +1076,9 @@ importers:
       '@remotion/transitions':
         specifier: workspace:*
         version: link:../transitions
+      '@remotion/video':
+        specifier: workspace:*
+        version: link:../video
       '@remotion/webcodecs':
         specifier: workspace:*
         version: link:../webcodecs
@@ -3643,6 +3649,28 @@ importers:
       '@remotion/test-utils':
         specifier: workspace:*
         version: link:../test-utils
+      eslint:
+        specifier: 9.19.0
+        version: 9.19.0
+      react:
+        specifier: 19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
+
+  packages/video:
+    dependencies:
+      '@remotion/webcodecs':
+        specifier: workspace:*
+        version: link:../webcodecs
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
       eslint:
         specifier: 9.19.0
         version: 9.19.0

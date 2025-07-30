@@ -13,7 +13,7 @@ function selectColor(color: string, frame: number) {
 
 const getMissedFramesforCodec = async (
 	codec: 'mp4' | 'webm',
-	offthread: boolean,
+	type: 'normal' | 'offthread' | 'codec',
 ) => {
 	const outputPath = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'remotion-'),
@@ -27,8 +27,8 @@ const getMissedFramesforCodec = async (
 			'exec',
 			'remotion',
 			'render',
-			'build',
-			`video-testing-${codec}${offthread ? '-offthread' : ''}`,
+			// 'build',
+			`video-testing-${codec}${type === 'normal' ? '' : '-' + type}`,
 			outputPath,
 			'--image-format',
 			'png',
@@ -88,7 +88,7 @@ const getMissedFramesforCodec = async (
 test(
 	'should render correct frames from embedded videos - WebM onthread',
 	async () => {
-		const missedFrames = await getMissedFramesforCodec('webm', false);
+		const missedFrames = await getMissedFramesforCodec('webm', 'normal');
 		expect(missedFrames).toBeLessThanOrEqual(8);
 	},
 	{
@@ -99,7 +99,7 @@ test(
 test(
 	'should render correct frames from embedded videos - WebM offthread',
 	async () => {
-		const missedFrames = await getMissedFramesforCodec('webm', true);
+		const missedFrames = await getMissedFramesforCodec('webm', 'offthread');
 		expect(missedFrames).toBe(0);
 	},
 	{
@@ -110,7 +110,7 @@ test(
 test(
 	'should render correct frames from embedded videos - MP4 onthread',
 	async () => {
-		const missedFrames = await getMissedFramesforCodec('mp4', false);
+		const missedFrames = await getMissedFramesforCodec('mp4', 'normal');
 		expect(missedFrames).toBeLessThanOrEqual(8);
 	},
 	{
@@ -121,8 +121,30 @@ test(
 test(
 	'should render correct frames from embedded videos - MP4 offthread',
 	async () => {
-		const missedFrames = await getMissedFramesforCodec('mp4', true);
+		const missedFrames = await getMissedFramesforCodec('mp4', 'offthread');
 		expect(missedFrames).toBe(0);
+	},
+	{
+		timeout: 40000,
+	},
+);
+
+test(
+	'should render correct frames from embedded videos - WebM codec video',
+	async () => {
+		const missedFrames = await getMissedFramesforCodec('webm', 'codec');
+		expect(missedFrames).toBe(0);
+	},
+	{
+		timeout: 30000,
+	},
+);
+
+test(
+	'should render correct frames from embedded videos - MP4 codec video',
+	async () => {
+		const missedFrames = await getMissedFramesforCodec('mp4', 'codec');
+		expect(missedFrames).toBeLessThanOrEqual(0);
 	},
 	{
 		timeout: 40000,
