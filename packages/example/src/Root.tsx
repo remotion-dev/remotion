@@ -124,6 +124,7 @@ import {
 } from './Compose/WhatIsRemotion';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
+import {NewVideoExample} from './NewVideo/NewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {OffthreadRemoteSeries} from './OffthreadRemoteVideo/OffthreadRemoteSeries';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
@@ -674,7 +675,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 					defaultProps={{
-						offthread: false,
 						codec: 'mp4' as const,
 					}}
 				/>
@@ -686,7 +686,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 					defaultProps={{
-						offthread: true,
+						type: 'offthread',
 						codec: 'mp4' as const,
 					}}
 				/>
@@ -702,6 +702,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Composition
+					id="longVideo"
+					component={NewVideoExample}
+					fps={30}
+					height={720}
+					width={1280}
+					durationInFrames={30 * 25}
+				/>
+				<Composition
 					id="video-testing-webm"
 					component={VideoTesting}
 					width={1080}
@@ -709,7 +717,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 					defaultProps={{
-						offthread: false,
 						codec: 'webm' as const,
 					}}
 				/>
@@ -721,8 +728,32 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 					defaultProps={{
-						offthread: true,
+						type: 'offthread',
 						codec: 'webm' as const,
+					}}
+				/>
+				<Composition
+					id="video-testing-webm-codec"
+					component={VideoTesting}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					defaultProps={{
+						type: 'codec',
+						codec: 'webm' as const,
+					}}
+				/>
+				<Composition
+					id="video-testing-mp4-codec"
+					component={VideoTesting}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					defaultProps={{
+						type: 'codec',
+						codec: 'mp4' as const,
 					}}
 				/>
 				<Composition
@@ -879,7 +910,6 @@ export const Index: React.FC = () => {
 					durationInFrames={(inputProps?.duration as number) ?? 20}
 					defaultProps={{
 						codec: 'mp4' as const,
-						offthread: false,
 					}}
 				/>
 				<Composition
