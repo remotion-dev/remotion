@@ -8112,6 +8112,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Tienne') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'TikTok Sans',
+		importName: 'TikTokSans',
+		load: () => import('./TikTokSans') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Tillana',
 		importName: 'Tillana',
 		load: () => import('./Tillana') as Promise<GoogleFont>,

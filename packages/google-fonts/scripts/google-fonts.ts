@@ -38608,6 +38608,39 @@ export const googleFonts: Font[] = [
 		menu: 'https://fonts.gstatic.com/s/tienne/v20/AYCKpX7pe9YCRP07kUnG.woff2',
 	},
 	{
+		family: 'TikTok Sans',
+		variants: ['300', 'regular', '500', '600', '700', '800', '900'],
+		subsets: [
+			'cyrillic',
+			'cyrillic-ext',
+			'greek',
+			'latin',
+			'latin-ext',
+			'vietnamese',
+		],
+		version: 'v4',
+		lastModified: '2025-07-25',
+		files: {
+			'300':
+				'https://fonts.gstatic.com/s/tiktoksans/v4/70kbu7g-Lm8OXGnh_Ow1sUfFMmlnhbRF425wxXH-UGeud7XItbaHtxhggMrrmAvSNAHtMV6x5PpBL2J5Rgbj-Bo7VuH1oVroETJ6Rg.woff2',
+			'500':
+				'https://fonts.gstatic.com/s/tiktoksans/v4/70kbu7g-Lm8OXGnh_Ow1sUfFMmlnhbRF425wxXH-UGeud7XItbaHtxhggMrrmAvSNAHtMV6x5PpBL2J5Rgbj-Bo7OuH1oVroETJ6Rg.woff2',
+			'600':
+				'https://fonts.gstatic.com/s/tiktoksans/v4/70kbu7g-Lm8OXGnh_Ow1sUfFMmlnhbRF425wxXH-UGeud7XItbaHtxhggMrrmAvSNAHtMV6x5PpBL2J5Rgbj-Bo71ub1oVroETJ6Rg.woff2',
+			'700':
+				'https://fonts.gstatic.com/s/tiktoksans/v4/70kbu7g-Lm8OXGnh_Ow1sUfFMmlnhbRF425wxXH-UGeud7XItbaHtxhggMrrmAvSNAHtMV6x5PpBL2J5Rgbj-Bo77-b1oVroETJ6Rg.woff2',
+			'800':
+				'https://fonts.gstatic.com/s/tiktoksans/v4/70kbu7g-Lm8OXGnh_Ow1sUfFMmlnhbRF425wxXH-UGeud7XItbaHtxhggMrrmAvSNAHtMV6x5PpBL2J5Rgbj-Bo7iOb1oVroETJ6Rg.woff2',
+			'900':
+				'https://fonts.gstatic.com/s/tiktoksans/v4/70kbu7g-Lm8OXGnh_Ow1sUfFMmlnhbRF425wxXH-UGeud7XItbaHtxhggMrrmAvSNAHtMV6x5PpBL2J5Rgbj-Bo7oeb1oVroETJ6Rg.woff2',
+			regular:
+				'https://fonts.gstatic.com/s/tiktoksans/v4/70kbu7g-Lm8OXGnh_Ow1sUfFMmlnhbRF425wxXH-UGeud7XItbaHtxhggMrrmAvSNAHtMV6x5PpBL2J5Rgbj-Bo7COH1oVroETJ6Rg.woff2',
+		},
+		category: 'sans-serif',
+		kind: 'webfonts#webfont',
+		menu: 'https://fonts.gstatic.com/s/tiktoksans/v4/70kbu7g-Lm8OXGnh_Ow1sUfFMmlnhbRF425wxXH-UGeud7XItbaHtxhggMrrmAvSNAHtMV6x5PpBL2J5Rgbj-Bo7COHFpVDp.woff2',
+	},
+	{
 		family: 'Tillana',
 		variants: ['regular', '500', '600', '700', '800'],
 		subsets: ['devanagari', 'latin', 'latin-ext'],
