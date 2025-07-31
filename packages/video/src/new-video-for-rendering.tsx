@@ -5,6 +5,7 @@ import React, {
 	useLayoutEffect,
 	useMemo,
 	useRef,
+	useState,
 } from 'react';
 import {
 	continueRender,
@@ -51,6 +52,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	const volumePropsFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
+	const [worker, setWorker] = useState<SharedWorker | null>(null);
 
 	const id = useMemo(
 		() =>
@@ -123,8 +125,54 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		sequenceContext?.relativeFrom,
 	]);
 	const {fps} = videoConfig;
+
+	function createInlineSharedWorker() {
+		return new SharedWorker(new URL('./worker.mjs', import.meta.url));
+	}
+
+	useEffect(() => {
+		if (!worker) {
+			//only set on the initial run
+			const workerFetched = createInlineSharedWorker();
+			setWorker(workerFetched);
+			let port = workerFetched.port;
+			port.start();
+
+			const frameExtractor = (e: MessageEvent) => {
+						if (e.data.type == 'requesting-frame') {
+					let {timestamp, src} = e.data;
+					console.log(`processor recieved request for timestamp: ${timestamp}`);
+					extractFrames({
+						src,
+						timestampsInSeconds: [timestamp],
+						onFrame: (extractedFrame: VideoFrame) => {
+							console.error('RCVD');
+							port.postMessage(
+								{
+									type: 'frame-result',
+									timestamp,
+									frame: extractFrames,
+								},
+								[extractedFrame],
+							);
+						},
+					});
+				}
+			};
+
+			port.onmessage = frameExtractor
+			port.postMessage({
+				type: 'become-processor',
+			});
+		}
+	}, []);
+
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
+			return;
+		}
+
+		if (!worker) {
 			return;
 		}
 
@@ -133,21 +181,32 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
 
-		const actualFPS = playbackRate ? fps / playbackRate : fps;
+		let port = worker.port;
 
+		const actualFPS = playbackRate ? fps / playbackRate : fps;
 		const timestamp = frame / actualFPS;
 
-		extractFrames({
-			src,
-			timestampsInSeconds: [timestamp],
-			onFrame: (extractedFrame) => {
-				canvasRef.current?.getContext('2d')?.drawImage(extractedFrame, 0, 0);
+		const paintHandler = (e: MessageEvent) => {
+			let msg = e.data;
+			if (msg.type !== 'extracted-frame') {
+				return;
+			}
+			let extractedFrame = msg.frame;
+			canvasRef.current?.getContext('2d')?.drawImage(extractedFrame, 0, 0);
+			onVideoFrame?.(extractedFrame);
+			continueRender(newHandle);
+		};
 
-				onVideoFrame?.(extractedFrame);
-				extractedFrame.close();
-				continueRender(newHandle);
-			},
+		port.addEventListener('message', paintHandler);
+		port.postMessage({
+			type: 'request-frame',
+			src,
+			timestamp,
 		});
+
+		return () => {
+			port.removeEventListener('message', paintHandler);
+		};
 	}, [
 		frame,
 		playbackRate,
