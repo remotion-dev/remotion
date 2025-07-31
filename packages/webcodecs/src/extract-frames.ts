@@ -51,6 +51,9 @@ const internalExtractFrames = ({
 
 	let dur: number | null = null;
 
+	let lastFrame: VideoFrame | undefined;
+	let lastFrameEmitted: VideoFrame | undefined;
+
 	parseMediaOnWebWorker({
 		src: new URL(src, window.location.href),
 		acknowledgeRemotionLicense,
@@ -79,8 +82,6 @@ const internalExtractFrames = ({
 
 			controller.seek(timestampTargets[0]);
 
-			let lastFrame: VideoFrame | undefined;
-
 			const decoder = createVideoDecoder({
 				onFrame: (frame) => {
 					Log.trace(logLevel, 'Received frame with timestamp', frame.timestamp);
@@ -103,15 +104,15 @@ const internalExtractFrames = ({
 					// Solution: We allow a 10.000ms - 3.333ms = 6.667ms difference between the requested timestamp and the actual timestamp
 					if (expectedFrames[0] + 6667 < frame.timestamp && lastFrame) {
 						onFrame(lastFrame);
+						lastFrameEmitted = lastFrame;
 						expectedFrames.shift();
-
 						lastFrame = frame;
 						return;
 					}
 
 					expectedFrames.shift();
 					onFrame(frame);
-
+					lastFrameEmitted = frame;
 					lastFrame = frame;
 				},
 				onError: (e) => {
@@ -191,7 +192,7 @@ const internalExtractFrames = ({
 				return async () => {
 					await doProcess();
 					await decoder.flush();
-					if (lastFrame) {
+					if (lastFrame && lastFrameEmitted !== lastFrame) {
 						lastFrame.close();
 					}
 				};
@@ -209,6 +210,10 @@ const internalExtractFrames = ({
 			}
 		})
 		.finally(() => {
+			if (lastFrame && lastFrameEmitted !== lastFrame) {
+				lastFrame.close();
+			}
+
 			signal?.removeEventListener('abort', abortListener);
 		});
 
