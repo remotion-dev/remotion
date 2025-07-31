@@ -151,7 +151,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 								{
 									type: 'frame-result',
 									timestamp,
-									frame: extractFrames,
+									frame: extractedFrame,
 								},
 								[extractedFrame],
 							);
