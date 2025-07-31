@@ -15,12 +15,14 @@
 	--ifm-color-primary-lighter: #2f96f6;
 	--ifm-color-primary-lightest: #53a9f7;
 	--ifm-code-font-size: 100%;
-	--ifm-font-family-base: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
-		Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica,
-		Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+	--ifm-font-family-base:
+		system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans,
+		sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif,
+		'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 	--ifm-font-size-base: 16px;
-	--ifm-font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas,
-		'Liberation Mono', 'Courier New', monospace;
+	--ifm-font-family-monospace:
+		SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+		monospace;
 	--ifm-color-emphasis-200: #ebedf0;
 }
 
@@ -67,8 +69,9 @@
 }
 
 html {
-	font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-		'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+	font-family:
+		ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+		'Segoe UI Symbol', 'Noto Color Emoji';
 }
 body {
 	margin: 0;
