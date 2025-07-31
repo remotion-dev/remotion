@@ -16,31 +16,6 @@ export type Expert = {
 
 export const experts: Expert[] = [
 	{
-		slug: 'florent-pergoud',
-		name: 'Florent Pergoud',
-		image: '/img/freelancers/florent.jpeg',
-		website: 'https://pergoud.com/',
-		x: 'florentpergoud',
-		github: 'florentpergoud',
-		linkedin: 'in/florent-pergoud/',
-		email: 'florentpergoud@gmail.com',
-		videocall: null,
-		since: new Date('2022-08-15').getTime(),
-		description: (
-			<div>
-				I made: Hello Météo, HugoDécrypteSport, Crowdfunding VFB, Cinéma Le
-				Vincennes and Piano MIDI visualizer. You can check them{' '}
-				<a
-					target={'_blank'}
-					href="https://florentpergoud.notion.site/Florent-Pergoud-s-Remotion-showcase-b0ef4299d389401aab21bbc62516cafe"
-				>
-					here
-				</a>
-				.
-			</div>
-		),
-	},
-	{
 		slug: 'stephen-sullivan',
 		name: 'Stephen Sullivan',
 		image: '/img/freelancers/stephen.png',
