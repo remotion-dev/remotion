@@ -19,7 +19,7 @@ export type JumpMark = {
 };
 
 const getKey = (samplePositionTrack: MinimalFlatSampleForTesting) => {
-	return `${samplePositionTrack.track.trackId}-${samplePositionTrack.samplePosition.decodingTimestamp}`;
+	return `${samplePositionTrack.track.trackId}-${samplePositionTrack.samplePosition.decodingTimestamp}.${samplePositionTrack.samplePosition.offset}`;
 };
 
 const findBestJump = ({
