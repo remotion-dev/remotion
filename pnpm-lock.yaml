@@ -3661,6 +3661,9 @@ importers:
 
   packages/video:
     dependencies:
+      '@remotion/media-parser':
+        specifier: workspace:*
+        version: link:../media-parser
       '@remotion/webcodecs':
         specifier: workspace:*
         version: link:../webcodecs

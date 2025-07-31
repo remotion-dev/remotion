@@ -11,7 +11,7 @@ const output = await build({
 		'src/worker.ts'
 	],
 	naming: '[name].mjs',
-	external: ['@remotion/webcodecs', 'remotion', 'react', 'react-dom'],
+	external: ['@remotion/webcodecs', 'remotion', 'react', 'react-dom', '@remotion/media-parser'],
 });
 
 if (!output.success) {
