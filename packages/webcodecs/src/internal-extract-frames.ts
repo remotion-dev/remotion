@@ -142,7 +142,7 @@ export const internalExtractFrames = ({
 						throw new Error('Sample is undefined');
 					}
 
-					await decoder.waitForQueueToBeLessThan(10);
+					await decoder.waitForQueueToBeLessThan(20);
 					Log.trace(logLevel, 'Decoding sample', sam.timestamp);
 					await decoder.decode(sam);
 				}
@@ -152,7 +152,7 @@ export const internalExtractFrames = ({
 				const nextTimestampWeWant = timestampTargets[0];
 				Log.trace(
 					logLevel,
-					'Received sample with dts',
+					`Received ${sample.type} sample with dts`,
 					sample.decodingTimestamp,
 					'and cts',
 					sample.timestamp,
