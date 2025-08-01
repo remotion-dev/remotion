@@ -28,6 +28,7 @@ import {Log} from './log';
 import type {ParseMediaCallbacks} from './options';
 import {fieldsNeedSamplesMap} from './state/need-samples-for-fields';
 import {makeParserState} from './state/parser-state';
+export type {ParseMedia, ParseMediaCallbacks} from './options';
 
 export {parseMedia} from './parse-media';
 

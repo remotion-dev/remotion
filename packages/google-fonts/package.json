@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.329",
+	"version": "4.0.331",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -2423,6 +2423,12 @@
 			"LibertinusMono": [
 				"dist/cjs/LibertinusMono.d.ts"
 			],
+			"LibertinusSans": [
+				"dist/cjs/LibertinusSans.d.ts"
+			],
+			"LibertinusSerif": [
+				"dist/cjs/LibertinusSerif.d.ts"
+			],
 			"LibreBarcode128": [
 				"dist/cjs/LibreBarcode128.d.ts"
 			],
@@ -2861,6 +2867,12 @@
 			"MouseMemoirs": [
 				"dist/cjs/MouseMemoirs.d.ts"
 			],
+			"MozillaHeadline": [
+				"dist/cjs/MozillaHeadline.d.ts"
+			],
+			"MozillaText": [
+				"dist/cjs/MozillaText.d.ts"
+			],
 			"MrBedfort": [
 				"dist/cjs/MrBedfort.d.ts"
 			],
@@ -2935,6 +2947,9 @@
 			],
 			"Narnoor": [
 				"dist/cjs/Narnoor.d.ts"
+			],
+			"NataSans": [
+				"dist/cjs/NataSans.d.ts"
 			],
 			"NationalPark": [
 				"dist/cjs/NationalPark.d.ts"
@@ -4870,6 +4885,9 @@
 			],
 			"Tienne": [
 				"dist/cjs/Tienne.d.ts"
+			],
+			"TikTokSans": [
+				"dist/cjs/TikTokSans.d.ts"
 			],
 			"Tillana": [
 				"dist/cjs/Tillana.d.ts"

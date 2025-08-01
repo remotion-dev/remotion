@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.329",
+	"version": "4.0.331",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -63,12 +63,21 @@
 			"module": "./dist/esm/buffer.mjs",
 			"import": "./dist/esm/buffer.mjs"
 		},
+		"./worker": {
+			"types": "./dist/worker.d.ts",
+			"require": "./dist/worker.js",
+			"module": "./dist/esm/worker.mjs",
+			"import": "./dist/esm/worker.mjs"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
 		">=1.0": {
 			"web-fs": [
 				"dist/writers/web-fs.d.ts"
+			],
+			"worker": [
+				"dist/worker.d.ts"
 			],
 			"buffer": [
 				"dist/writers/buffer.d.ts"

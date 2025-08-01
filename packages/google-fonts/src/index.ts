@@ -4031,6 +4031,16 @@ export const getAvailableFonts = () => [
 		load: () => import('./LibertinusMono') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Libertinus Sans',
+		importName: 'LibertinusSans',
+		load: () => import('./LibertinusSans') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Libertinus Serif',
+		importName: 'LibertinusSerif',
+		load: () => import('./LibertinusSerif') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Libre Barcode 128',
 		importName: 'LibreBarcode128',
 		load: () => import('./LibreBarcode128') as Promise<GoogleFont>,
@@ -4761,6 +4771,16 @@ export const getAvailableFonts = () => [
 		load: () => import('./MouseMemoirs') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Mozilla Headline',
+		importName: 'MozillaHeadline',
+		load: () => import('./MozillaHeadline') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Mozilla Text',
+		importName: 'MozillaText',
+		load: () => import('./MozillaText') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Mr Bedfort',
 		importName: 'MrBedfort',
 		load: () => import('./MrBedfort') as Promise<GoogleFont>,
@@ -4884,6 +4904,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Narnoor',
 		importName: 'Narnoor',
 		load: () => import('./Narnoor') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Nata Sans',
+		importName: 'NataSans',
+		load: () => import('./NataSans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'National Park',
@@ -8110,6 +8135,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Tienne',
 		importName: 'Tienne',
 		load: () => import('./Tienne') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'TikTok Sans',
+		importName: 'TikTokSans',
+		load: () => import('./TikTokSans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Tillana',
