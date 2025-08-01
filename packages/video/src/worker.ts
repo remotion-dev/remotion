@@ -1,6 +1,6 @@
-import {extractFrames} from './extract-frames';
+import { extractFrames } from "@remotion/webcodecs";
 
-onmessage = function (event: any) {
+onmessage = function (event: MessageEvent) {
 	const {src, timestamp} = event.data;
 	extractFrames({
 		src,

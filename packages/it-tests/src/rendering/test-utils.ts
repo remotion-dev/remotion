@@ -146,7 +146,6 @@ async function saveSequenceInTempDir(id: string) {
 			'exec',
 			'remotion',
 			'render',
-			// 'build',
 			id,
 			outputPath,
 			'--image-format',
