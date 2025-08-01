@@ -146,7 +146,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		const timestamp = frame / actualFPS;
 
 		const paintHandler = (e: MessageEvent) => {
-			let extractedFrame: VideoFrame = e.data;
+			const extractedFrame: VideoFrame = e.data;
 			canvasRef.current?.getContext('2d')?.drawImage(extractedFrame, 0, 0);
 			onVideoFrame?.(extractedFrame);
 			extractedFrame.close();
