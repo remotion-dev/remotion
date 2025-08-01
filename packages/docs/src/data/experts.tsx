@@ -498,4 +498,25 @@ export const experts: Expert[] = [
 			</div>
 		),
 	},
+	{
+		name: 'Shankhadeep Dey',
+		image: '/img/freelancers/shankhadeep.png',
+		website: 'https://shankhadeep.dev',
+		x: 'iamshankhadeep',
+		github: 'iamshankhadeep',
+		linkedin: 'in/iamshankhadeep/',
+		email: 'shankhadeepdey99@gmail.com',
+		slug: 'iamshankhadeep',
+		videocall: 'https://cal.com/iamshankhadeep',
+		since: new Date('2021-02-13').getTime(),
+		description: (
+			<div>
+				I created @remotion/player and @remotion/lambda with Jonny. I have 5+
+				years of experience in building products using Remotion, React, Next.js,
+				and Typescript. I have worked in companies like Camcorder and
+				early-stage startups like a funnel builder marketplace. I can build
+				products super fast from scratch. Looking forward to helping you.
+			</div>
+		),
+	},
 ];
