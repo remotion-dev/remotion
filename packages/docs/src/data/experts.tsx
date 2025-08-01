@@ -513,8 +513,8 @@ export const experts: Expert[] = [
 			<div>
 				I created @remotion/player and @remotion/lambda with Jonny. I have 5+
 				years of experience in building products using Remotion, React, Next.js,
-				and Typescript. I have worked in companies like camcorder and
-				early-stage startups like funnel builder marketplace. I can build
+				and Typescript. I have worked in companies like Camcorder and
+				early-stage startups like a funnel builder marketplace. I can build
 				products super fast from scratch. Looking forward to helping you.
 			</div>
 		),
