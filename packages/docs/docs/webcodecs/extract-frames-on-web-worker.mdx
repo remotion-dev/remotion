@@ -1,21 +1,21 @@
 ---
-image: /generated/articles-docs-webcodecs-extract-frames.png
-id: extract-frames
-title: extractFrames()
-slug: /webcodecs/extract-frames
+image: /generated/articles-docs-webcodecs-extract-frames-on-web-worker.png
+id: extract-frames-on-web-worker
+title: extractFramesOnWebWorker()
+slug: /webcodecs/extract-frames-on-web-worker
 crumb: '@remotion/webcodecs'
 ---
 
-# extractFrames()<AvailableFrom v="4.0.311"/>
+# extractFramesOnWebWorker()<AvailableFrom v="4.0.330"/>
 
 _Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
 
-Extracts frames from a video at specific timestamps using [`parseMedia()`](/docs/media-parser/parse-media).
+Extracts frames from a video at specific timestamps using [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker).
 
 ```tsx twoslash title="Extracting frames"
-import {extractFrames} from '@remotion/webcodecs';
+import {extractFramesOnWebWorker} from '@remotion/webcodecs/worker';
 
-await extractFrames({
+await extractFramesOnWebWorker({
   src: 'https://parser.media/video.mp4',
   timestampsInSeconds: [0, 1, 2, 3, 4],
   onFrame: (frame) => {
@@ -89,3 +89,4 @@ Default value: `"info"`, which logs only important information.
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/extract-frames.ts)
 - [`@remotion/webcodecs`](/docs/webcodecs)
 - [`parseMedia()`](/docs/media-parser/parse-media)
+- [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker)

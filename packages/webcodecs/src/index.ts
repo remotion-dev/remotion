@@ -26,8 +26,11 @@ export {createVideoDecoder} from './create-video-decoder';
 export type {WebCodecsVideoDecoder} from './create-video-decoder';
 export {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
 export {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
-export {extractFrames} from './extract-frames';
-export type {ExtractFramesTimestampsInSecondsFn} from './extract-frames';
+export {
+	extractFrames,
+	ExtractFrames,
+	ExtractFramesProps,
+} from './extract-frames';
 export {getAvailableAudioCodecs} from './get-available-audio-codecs';
 export type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
 export {getAvailableContainers} from './get-available-containers';
@@ -40,6 +43,7 @@ export {
 	getPartialAudioData,
 	GetPartialAudioDataProps,
 } from './get-partial-audio-data';
+export type {ExtractFramesTimestampsInSecondsFn} from './internal-extract-frames';
 export type {
 	AudioOperation,
 	ConvertMediaOnAudioTrackHandler,
