@@ -5659,7 +5659,7 @@ export const articles = [
 	},
 	{
 		id: 'transparent-videos',
-		title: 'Transparent videos',
+		title: 'Rendering transparent videos',
 		relativePath: 'docs/transparent-videos.mdx',
 		compId: 'articles-docs-transparent-videos',
 		crumb: 'Techniques',
@@ -6170,6 +6170,15 @@ export const articles = [
 		crumb: '@remotion/webcodecs',
 		noAi: false,
 		slug: 'webcodecs/default-on-video-track-handler',
+	},
+	{
+		id: 'extract-frames-on-web-worker',
+		title: 'extractFramesOnWebWorker()',
+		relativePath: 'docs/webcodecs/extract-frames-on-web-worker.mdx',
+		compId: 'articles-docs-webcodecs-extract-frames-on-web-worker',
+		crumb: '@remotion/webcodecs',
+		noAi: false,
+		slug: 'webcodecs/extract-frames-on-web-worker',
 	},
 	{
 		id: 'extract-frames',
