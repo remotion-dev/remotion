@@ -135,6 +135,8 @@ import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
+import {VideoTestingPlayback} from './VideoTesting/playback';
+import {VideoTestingTrim} from './VideoTesting/trim';
 import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
@@ -658,6 +660,62 @@ export const Index: React.FC = () => {
 					}}
 				/>
 			</Folder>
+			<Folder name="new-video-tests">
+				<Composition
+					id="longVideo"
+					component={NewVideoExample}
+					fps={30}
+					height={720}
+					width={1280}
+					durationInFrames={30 * 25}
+				/>
+				<Composition
+					id="video-testing-playback-codec"
+					component={VideoTestingPlayback}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={25}
+					defaultProps={{
+						type: 'codec',
+					}}
+				/>
+				<Composition
+					id="video-testing-trim-codec"
+					component={VideoTestingTrim}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={60}
+					defaultProps={{
+						type: 'codec',
+					}}
+				/>
+				<Composition
+					id="video-testing-webm-codec"
+					component={VideoTesting}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					defaultProps={{
+						type: 'codec',
+						codec: 'webm' as const,
+					}}
+				/>
+				<Composition
+					id="video-testing-mp4-codec"
+					component={VideoTesting}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					defaultProps={{
+						type: 'codec',
+						codec: 'mp4' as const,
+					}}
+				/>
+			</Folder>
 			<Folder name="video-tests">
 				<Composition
 					id="hls"
@@ -702,14 +760,6 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Composition
-					id="longVideo"
-					component={NewVideoExample}
-					fps={30}
-					height={720}
-					width={1280}
-					durationInFrames={30 * 25}
-				/>
-				<Composition
 					id="video-testing-webm"
 					component={VideoTesting}
 					width={1080}
@@ -730,30 +780,6 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						type: 'offthread',
 						codec: 'webm' as const,
-					}}
-				/>
-				<Composition
-					id="video-testing-webm-codec"
-					component={VideoTesting}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={100}
-					defaultProps={{
-						type: 'codec',
-						codec: 'webm' as const,
-					}}
-				/>
-				<Composition
-					id="video-testing-mp4-codec"
-					component={VideoTesting}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={100}
-					defaultProps={{
-						type: 'codec',
-						codec: 'mp4' as const,
 					}}
 				/>
 				<Composition
