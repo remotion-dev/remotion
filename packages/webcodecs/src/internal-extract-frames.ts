@@ -109,12 +109,21 @@ export const internalExtractFrames = ({
 						onFrame(lastFrame);
 						lastFrameEmitted = lastFrame;
 						expectedFrames.shift();
+						if (lastFrame) {
+							lastFrame.close();
+						}
+
 						lastFrame = frame;
 						return;
 					}
 
 					expectedFrames.shift();
+
 					onFrame(frame);
+					if (lastFrame && lastFrame !== lastFrameEmitted) {
+						lastFrame.close();
+					}
+
 					lastFrameEmitted = frame;
 					lastFrame = frame;
 				},
@@ -122,7 +131,9 @@ export const internalExtractFrames = ({
 					controller.abort();
 					try {
 						decoder.close();
-					} catch {}
+					} catch {
+						// Ignore
+					}
 
 					resolvers.reject(e);
 				},
