@@ -1350,8 +1350,9 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'editor-starter/setup',
-				'editor-starter/asset-uploads',
 				'editor-starter/features',
+				'editor-starter/fonts',
+				'editor-starter/asset-uploads',
 				'editor-starter/undo-redo',
 				'editor-starter/backend-routes',
 				'editor-starter/features-not-included',

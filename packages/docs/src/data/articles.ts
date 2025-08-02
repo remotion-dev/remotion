@@ -1314,6 +1314,15 @@ export const articles = [
 		slug: 'editor-starter/features',
 	},
 	{
+		id: 'fonts',
+		title: 'Fonts in the Editor Starter',
+		relativePath: 'docs/editor-starter/fonts.mdx',
+		compId: 'articles-docs-editor-starter-fonts',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/fonts',
+	},
+	{
 		id: 'setup',
 		title: 'Setup',
 		relativePath: 'docs/editor-starter/setup.mdx',
