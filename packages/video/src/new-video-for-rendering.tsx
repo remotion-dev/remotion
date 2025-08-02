@@ -12,6 +12,7 @@ import {
 	random,
 	useCurrentFrame,
 } from 'remotion';
+import type {RequestFrameRequest, WorkerResponsePayload} from './payloads';
 import type {NewVideoProps} from './props';
 const {
 	useUnsafeVideoConfig,
@@ -138,6 +139,8 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			workerRef.current = workerFetched;
 		}
 
+		const {current: worker} = workerRef;
+
 		const newHandle = delayRender(`extracting frame number ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
@@ -147,21 +150,26 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		const timestamp = frame / actualFPS;
 
 		const paintHandler = (e: MessageEvent) => {
-			const extractedFrame: VideoFrame = e.data;
-			canvasRef.current?.getContext('2d')?.drawImage(extractedFrame, 0, 0);
-			onVideoFrame?.(extractedFrame);
-			extractedFrame.close();
-			continueRender(newHandle);
+			const data = e.data as WorkerResponsePayload;
+			if (data.type === 'request-frame-response') {
+				canvasRef.current?.getContext('2d')?.drawImage(data.frame, 0, 0);
+				onVideoFrame?.(data.frame);
+				data.frame.close();
+
+				continueRender(newHandle);
+			}
 		};
 
-		workerRef.current.addEventListener('message', paintHandler);
-		workerRef.current.postMessage({
+		worker.addEventListener('message', paintHandler);
+		const request: RequestFrameRequest = {
 			src: new URL(src, window.location.href).toString(),
 			timestamp,
-		});
+			type: 'request-frame-request',
+		};
+		worker.postMessage(request);
 
 		return () => {
-			workerRef.current?.removeEventListener('message', paintHandler);
+			worker.removeEventListener('message', paintHandler);
 		};
 	}, [
 		frame,
