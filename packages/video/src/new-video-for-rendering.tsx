@@ -23,6 +23,10 @@ const {
 	evaluateVolume,
 } = Internals;
 
+function createDedicatedWorker() {
+	return new Worker(new URL('./worker.mjs', import.meta.url));
+}
+
 export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	volume: volumeProp,
 	playbackRate,
@@ -123,9 +127,6 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		sequenceContext?.relativeFrom,
 	]);
 	const {fps} = videoConfig;
-	function createDedicatedWorker() {
-		return new Worker(new URL('./worker.mjs', import.meta.url));
-	}
 
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
