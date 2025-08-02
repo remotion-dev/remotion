@@ -1,5 +1,3 @@
-import {createVideoDecoder} from './create-video-decoder';
-import {withResolvers} from './create/with-resolvers';
 import {
 	normalizeVideoRotation,
 	rotateAndResizeVideoFrame,
@@ -64,8 +62,6 @@ export type {WebCodecsController} from './webcodecs-controller';
 export const WebCodecsInternals = {
 	rotateAndResizeVideoFrame,
 	normalizeVideoRotation,
-	withResolvers,
-	createVideoDecoder,
 	calculateNewDimensionsFromDimensions:
 		calculateNewDimensionsFromRotateAndScale,
 };
