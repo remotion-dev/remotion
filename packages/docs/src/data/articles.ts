@@ -1296,6 +1296,15 @@ export const articles = [
 		slug: 'editor-starter/backend-routes',
 	},
 	{
+		id: 'editor-starter/dependencies',
+		title: 'Dependencies of the Editor Starter',
+		relativePath: 'docs/editor-starter/dependencies.mdx',
+		compId: 'articles-docs-editor-starter-dependencies',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/dependencies',
+	},
+	{
 		id: 'features-not-included',
 		title: 'Features not included in the Editor Starter',
 		relativePath: 'docs/editor-starter/features-not-included.mdx',

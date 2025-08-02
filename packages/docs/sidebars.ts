@@ -1350,6 +1350,7 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'editor-starter/setup',
+				'editor-starter/dependencies',
 				'editor-starter/features',
 				'editor-starter/fonts',
 				'editor-starter/asset-uploads',
