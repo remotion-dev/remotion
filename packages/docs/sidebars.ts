@@ -1346,7 +1346,7 @@ const sidebars: SidebarsConfig = {
 			className: 'wip-item',
 			link: {
 				type: 'doc',
-				id: 'editor-starter/features',
+				id: 'editor-starter/index',
 			},
 			items: [
 				'editor-starter/setup',

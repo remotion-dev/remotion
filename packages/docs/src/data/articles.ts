@@ -1323,6 +1323,15 @@ export const articles = [
 		slug: 'editor-starter/fonts',
 	},
 	{
+		id: 'editor-starter/index',
+		title: 'Editor Starter',
+		relativePath: 'docs/editor-starter/index.mdx',
+		compId: 'articles-docs-editor-starter-index',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/index',
+	},
+	{
 		id: 'setup',
 		title: 'Setup',
 		relativePath: 'docs/editor-starter/setup.mdx',
