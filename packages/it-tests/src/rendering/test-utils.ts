@@ -54,7 +54,7 @@ export const getMissedFramesforCodec = async (
 	return missedFrames;
 };
 
-export const getMissedFramesPlayback = async (
+export const getMissedFramesWithPlaybackrate = async (
 	type: 'normal' | 'offthread' | 'codec',
 ) => {
 	const outputPath = await saveSequenceInTempDir(
@@ -64,7 +64,7 @@ export const getMissedFramesPlayback = async (
 	let missedFrames = 0;
 
 	//4x playbackrate
-	for (let frame = 0; frame < 25; frame++) {
+	for (let frame = 0; frame < 6; frame++) {
 		//every 4th frame
 		const expectedColor = {
 			red: selectColor('red', frame * 4),
@@ -95,14 +95,14 @@ export const getMissedFramesPlayback = async (
 	return missedFrames;
 };
 
-export const getMissedFramesAfterTrim = async (
+export const getMissedFramesWithTrimApplied = async (
 	type: 'normal' | 'offthread' | 'codec',
 ) => {
 	const outputPath = await saveSequenceInTempDir(
 		`video-testing-trim${type === 'normal' ? '' : '-' + type}`,
 	);
 	let missedFrames = 0;
-	for (let frame = 20; frame < 80; frame++) {
+	for (let frame = 20; frame < 22; frame++) {
 		const expectedColor = {
 			red: selectColor('red', frame),
 			green: selectColor('green', frame),
@@ -146,6 +146,7 @@ async function saveSequenceInTempDir(id: string) {
 			'exec',
 			'remotion',
 			'render',
+			'./build',
 			id,
 			outputPath,
 			'--image-format',

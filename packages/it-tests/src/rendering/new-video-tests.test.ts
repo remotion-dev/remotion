@@ -4,9 +4,9 @@
 
 import {expect, test} from 'bun:test';
 import {
-	getMissedFramesAfterTrim,
 	getMissedFramesforCodec,
-	getMissedFramesPlayback,
+	getMissedFramesWithPlaybackrate,
+	getMissedFramesWithTrimApplied,
 } from './test-utils';
 
 test(
@@ -36,7 +36,7 @@ test(
 test(
 	'should render frames with correct playback speed - MP4 codec video',
 	async () => {
-		const missedFrames = await getMissedFramesPlayback('codec');
+		const missedFrames = await getMissedFramesWithPlaybackrate('codec');
 		expect(missedFrames).toBeLessThanOrEqual(0);
 	},
 	{
@@ -49,7 +49,7 @@ test(
 test(
 	'should render correct frames after applying trim - MP4 codec video',
 	async () => {
-		const missedFrames = await getMissedFramesAfterTrim('codec');
+		const missedFrames = await getMissedFramesWithTrimApplied('codec');
 		expect(missedFrames).toBeLessThanOrEqual(0);
 	},
 	{
