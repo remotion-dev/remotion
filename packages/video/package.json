@@ -21,7 +21,8 @@
 	},
 	"dependencies": {
 		"remotion": "workspace:*",
-		"@remotion/webcodecs": "workspace:*"
+		"@remotion/webcodecs": "workspace:*",
+		"@remotion/media-parser": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
