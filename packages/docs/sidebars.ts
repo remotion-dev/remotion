@@ -1354,6 +1354,7 @@ const sidebars: SidebarsConfig = {
 				'editor-starter/features',
 				'editor-starter/undo-redo',
 				'editor-starter/backend-routes',
+				'editor-starter/features-not-included',
 			],
 		},
 		{
