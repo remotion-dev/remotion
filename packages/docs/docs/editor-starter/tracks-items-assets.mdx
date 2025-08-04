@@ -21,7 +21,7 @@ The relationship between these entities is as following:
 
 ## Items
 
-The different items are defined by the type [`ItemType`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20type%20ItemType&type=code).  
+The type of an item is defined by the union [`EditorStarterItem`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20type%20EditorStarterItem&type=code).  
 By default, there are the following items:
 
 - [`ImageItem`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+ImageItem&type=code)
@@ -32,7 +32,23 @@ By default, there are the following items:
 - [`AudioItem`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+soliditem&type=code)
 - [`CaptionsItem`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+captionsitem&type=code)
 
-To add a new item type, copy the logic of one of the items, change it, and add it to the [`ItemType`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20type%20ItemType&type=code) union.  
+To add a new item type, copy the logic of one of the items, change it, and add it to the [`EditorStarterItem`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20type%20EditorStarterItem&type=code) union.  
 A lot of errors should appear when you run the typechecker in your console: `npx tsc -w`
 
 These errors are intentional and are supposed to guide you towards where in the code you need to add implementations for certain things in order to support the new item type.
+
+## Assets
+
+The different asset types are defined by the union [`EditorStarterAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20type%20EditorStarterAsset&type=code).  
+By default, there are the following items:
+
+- [`ImageAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+ImageAsset&type=code)
+- [`VideoAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+VideoAsset&type=code)
+- [`GifAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+GifAsset&type=code)
+- [`AudioAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+AudioAsset&type=code)
+- [`CaptionAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+type+CaptionAsset&type=code)
+
+To add a new item type, copy the logic of one of the items, change it, and add it to the [`EditorStarterAsset`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20type%20EditorStarterAsset&type=code) union.  
+Some errors should appear when you run the type checker in your console: `npx tsc -w`
+
+Resolve these errors to complete the implementation of your new asset type.
