@@ -14,7 +14,7 @@ By default, S3 is used for cloud storage, which requires some setup.
 - Visit the [S3 console](https://us-east-1.console.aws.amazon.com/s3/home?region=us-east-1).
 - Create a new bucket.
   - Uncheck the "Block all public access" checkbox.
-  - Disable ACL - if you don't do this, you will get a 400 error when later uploading assets.
+  - Switch the default setting and set **ACLs enabled** - if you don't do this, you will get a 400 error when later uploading assets.
 - In the bucket settings, go to the "Permissions" tab and enter the following policy into the "CORS" section:
 
 ```json
