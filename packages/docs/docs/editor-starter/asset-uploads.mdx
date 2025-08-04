@@ -6,7 +6,8 @@ id: asset-uploads
 crumb: Editor Starter
 ---
 
-If the user drops in any image, audio, video or GIF, you can configure them to be uploaded to an S3 bucket.
+If the user drops in any image, audio, video or GIF, they are uploaded to cloud storage so that rendering in the cloud can be performed later.  
+By default, S3 is used for cloud storage, which requires some setup.
 
 ## Setup
 
@@ -57,11 +58,19 @@ Make sure to replace `YOUR_BUCKET_NAME` with the name of your bucket.
 In your `.env` file, fill now the following variables:
 
 ```txt
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_REGION=
-AWS_BUCKET_NAME=
+REMOTION_AWS_ACCESS_KEY_ID=
+REMOTION_AWS_SECRET_ACCESS_KEY=
+REMOTION_AWS_REGION=
+REMOTION_AWS_BUCKET_NAME=
 ```
+
+:::note
+The same environment variables are also used for [rendering](/docs/editor-starter/rendering) in the cloud.
+:::
 
 Now, restart the Editor Starter.  
 When you drop in an asset, it should be uploaded to the S3 bucket!
+
+## See also
+
+- [Tracks, items and assets](/docs/editor-starter/tracks-items-assets)

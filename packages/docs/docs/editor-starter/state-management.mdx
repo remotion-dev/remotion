@@ -85,3 +85,34 @@ In [`src/editor-context-provider.tsx`](https://github.com/remotion-dev/editor-st
 This is intentional and achieves that when updating a portion of the state, only the components that are dependent on that portion of the state will re-render, while the rest of the components will not.
 
 For the best performance, we recommend that you continue to use this pattern in your own application.
+
+## Preventing state updates when nothing has changed
+
+You should prevent an unnecessary state update when nothing has changed.
+
+- This is better for performance
+- [This will prevent adding a snapshot to the undo stack, which would lead to clicking the undo button once with no effect](/docs/editor-starter/undo-redo#preventing-unnecessary-additions-to-the-undo-stack)
+
+Throughout the codebase, you will see checks that prevent an unnecessary state update.
+
+```ts title="Preventing an identity change"
+export const markAsDragging = (state: EditorState, itemId: string): EditorState => {
+  return changeItem(state, itemId, (item) => {
+    if (item.isDragging) {
+      // The item would not change, so we return the original object
+      return item;
+    }
+
+    return {
+      ...item,
+      isDragging: true,
+    };
+  });
+};
+```
+
+We recommend that you continue to use this pattern when you iterate on the Editor Starter.
+
+## See also
+
+- [Undo and Redo](/docs/editor-starter/undo-redo)
