@@ -6,28 +6,8 @@ id: undo-redo
 crumb: Editor Starter
 ---
 
-The Editor Starter implemnts a basic Undo and Redo feature.  
-It works by keeping an array of snapshots of the state of the editor in memory.
-
-## Undoable state
-
-State is separated into undoable and non-undoable parts.
-Undoable state is located within the `undoableState` object of the root state.
-
-**Undoable state** may be:
-
-- Position, size and other properties of an item
-- Track position and arrangement
-- Video properties like dimensions and frame rate
-
-**Non-undoable state** may be:
-
-- Asset upload progress
-- Zoom level
-- Captioning progress
-- Clipboard state
-- Rendering state
-- Selection state
+The Editor Starter implements a basic Undo and Redo feature.  
+It works by keeping an array of snapshots of the [undoable state](/docs/editor-starter/state-management#undoable-state) of the editor in memory.
 
 ## Undo stack
 

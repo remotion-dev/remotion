@@ -1,0 +1,87 @@
+---
+image: /generated/articles-docs-editor-starter-state-management.png
+title: State management in the Editor Starter
+sidebar_label: State management
+id: state-management
+crumb: Editor Starter
+---
+
+State in the [Editor Starter](/docs/editor-starter) is managed with the built-in React state management utilities: [`useState()`](https://react.dev/reference/react/useState) and [`useContext()`](https://react.dev/reference/react/useContext).
+
+<details>
+  <summary>Why?</summary>
+  <p>The Editor Starter was built in a way that as many different teams can adopt it as easily as possible.</p>
+  <p>While the default React state management utilities are controversial for some, any React application can make use of them and developers are most familiar with them.</p>
+</details>
+
+## Shape
+
+The whole state of the Editor Starter is stored in a single object with the shape defined by the [`EditorState`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20type%20EditorState&type=code).
+
+```ts title="src/editor/state/types.ts"
+export type UndoableState = {
+  tracks: TrackType[];
+  assets: Record<string, EditorStarterAsset>;
+  items: Record<string, EditorStarterItem>;
+  fps: number;
+  compositionWidth: number;
+  compositionHeight: number;
+};
+
+export type EditorState = {
+  undoableState: UndoableState;
+  selectedItems: string[];
+  textItemEditing: string | null;
+  textItemHoverPreview: TextItemHoverPreview | null;
+  rendering: RenderState;
+  captions: CaptionState;
+  initialized: boolean;
+  itemsBeingTrimmed: ItemBeingTrimmed[];
+  loop: boolean;
+};
+```
+
+- [`undoableState`](#undoable-state) - State that is affected by the undo stack
+  - `tracks`: An array of [timeline tracks](/docs/editor-starter/tracks-items-assets), the last ones are the ones rendered in the back.
+  - `assets`: A map of all [assets](/docs/editor-starter/tracks-items-assets) that have been uploaded to the editor.
+  - `items`: A map of all [items](/docs/editor-starter/tracks-items-assets) that have been added to the editor.
+  - `fps`: The frame rate (kept in state, [but no UI is exposed to change it](/docs/editor-starter/features-not-included#multiple-frame-rates))
+  - `compositionWidth`: The width of the canvas
+  - `compositionHeight`: The height of the canvas
+- `selectedItems`: An array of item IDs that are currently selected
+- `textItemEditing`: The ID of the text item that is currently being edited, if there is one
+- `textItemHoverPreview`: Preview updates of a text item (for example if a font is hovered in the font picker, the text will render temporarily with the font hovered)
+- `rendering`: The state of the rendering process
+- `captions`: The state of captioning process
+- `initialized`: Whether the editor has been initialized, if not initialized, canvas will not be visible
+- `itemsBeingTrimmed`: An array of items that are currently being trimmed, to show an indication of the maximum trim that is possible
+- `loop`: Whether the playback should loop
+
+## Undoable state
+
+State is separated into undoable and non-undoable parts.  
+Undoable state is located within the `undoableState` object of the root state.
+
+**Undoable state** may be:
+
+- Position, size and other properties of an item
+- Assets and tracks
+- Video properties like dimensions and frame rate
+
+**Non-undoable state** may be:
+
+- Asset upload progress
+- Captioning progress
+- Zoom level
+- Rendering state
+- Selection state
+
+See also: [Undo and Redo](/docs/editor-starter/undo-redo)
+
+## Contexts
+
+In [`src/editor-context-provider.tsx`](https://github.com/remotion-dev/editor-starter/blob/main/src/editor/context-provider.tsx), you will see a very deeply nested tree of various context providers.
+
+This is intentional and achieves that when updating a portion of the state, only the components that are dependent on that portion of the state will re-render, while the rest of the components will not.
+
+For the best performance, we recommend that you continue to use this pattern in your own application.
