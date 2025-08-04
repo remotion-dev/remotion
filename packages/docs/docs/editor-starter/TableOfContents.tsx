@@ -18,6 +18,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>Fonts</strong>
 					<div>Fonts included in the Editor Starter.</div>
 				</TOCItem>
+				<TOCItem link="/docs/editor-starter/captioning">
+					<strong>Captioning</strong>
+					<div>How to setup captions and how they work.</div>
+				</TOCItem>
 				<TOCItem link="/docs/editor-starter/asset-uploads">
 					<strong>Asset Uploads</strong>
 					<div>Asset upload functionality in the Editor Starter.</div>
@@ -29,6 +33,10 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/editor-starter/features-not-included">
 					<strong>Features not included</strong>
 					<div>Features not included in the Editor Starter.</div>
+				</TOCItem>
+				<TOCItem link="/docs/editor-starter/faq">
+					<strong>FAQ</strong>
+					<div>Frequently asked questions</div>
 				</TOCItem>
 			</Grid>
 		</div>

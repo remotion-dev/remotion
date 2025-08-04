@@ -1296,6 +1296,15 @@ export const articles = [
 		slug: 'editor-starter/backend-routes',
 	},
 	{
+		id: 'editor-starter/captioning',
+		title: 'Captioning in the Editor Starter',
+		relativePath: 'docs/editor-starter/captioning.mdx',
+		compId: 'articles-docs-editor-starter-captioning',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/captioning',
+	},
+	{
 		id: 'editor-starter/dependencies',
 		title: 'Dependencies of the Editor Starter',
 		relativePath: 'docs/editor-starter/dependencies.mdx',
@@ -1303,6 +1312,15 @@ export const articles = [
 		crumb: 'Editor Starter',
 		noAi: false,
 		slug: 'editor-starter/dependencies',
+	},
+	{
+		id: 'editor-starter/faq',
+		title: 'Frequently asked questions about the Editor Starter',
+		relativePath: 'docs/editor-starter/faq.mdx',
+		compId: 'articles-docs-editor-starter-faq',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/faq',
 	},
 	{
 		id: 'features-not-included',
