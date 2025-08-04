@@ -53,3 +53,11 @@ To add a new item type, copy the logic of one of the items, change it, and add i
 Some errors should appear when you run the type checker in your console: `npx tsc -w`
 
 Resolve these errors to complete the implementation of your new asset type.
+
+## Inspectors
+
+Each item type has an "Inspector" component which is a React component which can be mounted in the right sidebar.  
+The inspector may also show information about the asset that is associated with the item.
+
+If no item is selected, a special inspector for the global settings is shown.  
+See the source code for the [`<Inspector />` component](https://github.com/remotion-dev/editor-starter/blob/main/src/editor/inspector/inspector.tsx).
