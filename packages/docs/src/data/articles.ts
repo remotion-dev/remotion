@@ -1359,6 +1359,15 @@ export const articles = [
 		slug: 'editor-starter/index',
 	},
 	{
+		id: 'rendering',
+		title: 'Rendering',
+		relativePath: 'docs/editor-starter/rendering.mdx',
+		compId: 'articles-docs-editor-starter-rendering',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/rendering',
+	},
+	{
 		id: 'setup',
 		title: 'Setup',
 		relativePath: 'docs/editor-starter/setup.mdx',

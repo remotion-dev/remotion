@@ -8,31 +8,35 @@ export const TableOfContents: React.FC = () => {
 			<Grid>
 				<TOCItem link="/docs/editor-starter/setup">
 					<strong>Setup</strong>
-					<div>Installation and configuration guide.</div>
+					<div>Installation and configuration guide</div>
 				</TOCItem>
 				<TOCItem link="/docs/editor-starter/features">
 					<strong>Features</strong>
-					<div>Features included in the Editor Starter.</div>
+					<div>Features included in the Editor Starter</div>
 				</TOCItem>
 				<TOCItem link="/docs/editor-starter/fonts">
 					<strong>Fonts</strong>
-					<div>Fonts included in the Editor Starter.</div>
+					<div>How fonts work and which ones are included</div>
 				</TOCItem>
 				<TOCItem link="/docs/editor-starter/captioning">
 					<strong>Captioning</strong>
-					<div>How to setup captions and how they work.</div>
+					<div>How to setup captions and how they work</div>
+				</TOCItem>
+				<TOCItem link="/docs/editor-starter/rendering">
+					<strong>Rendering</strong>
+					<div>How to setup exports and how they work</div>
 				</TOCItem>
 				<TOCItem link="/docs/editor-starter/asset-uploads">
 					<strong>Asset Uploads</strong>
-					<div>Asset upload functionality in the Editor Starter.</div>
+					<div>Asset upload functionality in the Editor Starter</div>
 				</TOCItem>
-				<TOCItem link="/docs/editor-starter/undo-and-redo">
+				<TOCItem link="/docs/editor-starter/undo-redo">
 					<strong>Undo and Redo</strong>
-					<div>Undo and Redo functionality in the Editor Starter.</div>
+					<div>Undo and Redo functionality in the Editor Starter</div>
 				</TOCItem>
 				<TOCItem link="/docs/editor-starter/features-not-included">
 					<strong>Features not included</strong>
-					<div>Features not included in the Editor Starter.</div>
+					<div>Features not included in the Editor Starter</div>
 				</TOCItem>
 				<TOCItem link="/docs/editor-starter/faq">
 					<strong>FAQ</strong>
