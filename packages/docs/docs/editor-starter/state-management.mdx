@@ -111,7 +111,14 @@ export const markAsDragging = (state: EditorState, itemId: string): EditorState 
 };
 ```
 
-We recommend that you continue to use this pattern when you iterate on the Editor Starter.
+## Reading the state imperatively
+
+If you only need to access the state upon an interaction, you can use the [`useCurrentStateAsRef()`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20const%20useCurrentStateAsRef&type=code) hook.  
+It allows you to imperatively access the state when you need it.
+
+You cannot build a reactive UI with it, but is more performant than using a hook that re-renders when the state changes.
+
+For example: A save button that only needs to access the state when the user clicks it.
 
 ## See also
 
