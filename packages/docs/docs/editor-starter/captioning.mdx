@@ -5,4 +5,49 @@ sidebar_label: Captions
 crumb: Editor Starter
 ---
 
-TODO
+# Captioning
+
+Generate word-accurate subtitles for video and audio assets using AI-powered transcription, and display them as animated captions (e.g., TikTok-style word-by-word animations) in the editor's timeline and canvas. For implementation details, refer to the source code in `src/editor/captioning/`.
+
+In the Editor Starter, captions are treated as a first-class [item type](/docs/editor-starter/tracks-items-assets#items), similar to videos, images, or audio. This allows them to be manipulated like any other layer in the timeline and canvas.
+
+## Features
+
+### Text style customization
+
+- Font
+- Text color
+- Highlighed word color
+- Opacity
+
+### Timing customization
+
+- Page duration
+- Adjust timings of individual words
+
+### Automated creation of pages
+
+Captions are automatically split into "pages" for easier management. Pages are timed groups of words or sentences that fit nicely on screen. This is achieved by using `createTikTokStyleCaptions` from [@remotion/openai-whisper](/docs/captions) package.
+
+
+## Setup with OpenAI Whisper (recommended)
+
+To generate captions using OpenAI's Whisper model, add your OpenAI key to the `.env` file:
+```
+OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxx
+```
+
+This enables server-side transcription. Click "Generate Captions" on a video or audio layer:
+1. The editor fetches the audio.
+2. It transcribes it via OpenAI.
+3. It converts OpenAI's response into Remotion's `Captions` type and adds it to the timeline as a `CaptionsItem`.
+
+
+## Alternative: in-browser local transcription
+
+If you prefer not to use OpenAI (e.g., for privacy, cost, or offline support), you can integrate [@remotion/whisper-web](/docs/whisper-web) for local, in-browser transcription using a WebAssembly-based Whisper model. This eliminates the need for an OpenAI key and S3 fetches for transcription, but you'll still need to handle audio loading locally.
+
+### Caveats
+- **Performance**: Transcription runs on the CPU in the browser, which can be significantly slower than GPU-accelerated options like OpenAI's cloud service. Expect longer processing times for larger audio files (e.g., several minutes vs. seconds).
+- **Model size**: Smaller models (e.g., 'tiny') are faster but less accurate; larger ones require more memory and time.
+- **Browser compatibility**: Works in modern browsers supporting WebAssembly, but test on your target devices.
