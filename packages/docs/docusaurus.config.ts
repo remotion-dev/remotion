@@ -55,6 +55,7 @@ const config: Config = {
 						{to: '/docs/media-parser', label: 'Media Parser'},
 						{to: '/docs/webcodecs', label: 'WebCodecs'},
 						{to: '/docs/recorder', label: 'Recorder'},
+						{to: '/docs/editor-starter', label: 'Editor Starter'},
 						{to: '/docs/timeline', label: 'Timeline'},
 					],
 				},
