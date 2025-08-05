@@ -68,7 +68,9 @@ Video and audio items display a waveform at the bottom of the timeline.
 
 ### Volume control
 
-TODO
+Feature flag: [`FEATURE_VOLUME_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_VOLUME_CONTROL&type=code)
+
+Audio and video items display a draggable volume line on the timeline waveform. Dragging vertically adjusts the volume in decibels with a visual indicator showing the current level.
 
 ### Dropping assets
 
@@ -77,23 +79,25 @@ The item type is detected by [Remotion Media Parser](/docs/media-parser/foreign-
 
 ### Fade in and out
 
-TODO
+Feature flags: [`FEATURE_AUDIO_FADE_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_AUDIO_FADE_CONTROL&type=code) and [`FEATURE_VIDEO_FADE_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_VIDEO_FADE_CONTROL&type=code)
+
+Audio and video items support fade in and fade out effects. Draggable handles appear on hover at the start and end of items to adjust fade duration, with visual curves showing the fade effect.
 
 ### Drag and dropping
 
-TODO
+Items can be dragged and repositioned on the timeline. Multi-select is supported, allowing you to drag multiple items at once. A shadow overlay shows where the moving item is being placed when dragging.
 
 ### Automatic duration
 
-TODO
+When assets are imported, items are automatically assigned appropriate durations based on the asset's length. Video and audio items use the media duration, while images and text use default durations.
 
 ### Multi-select
 
-TODO
+Multiple items can be selected using Cmd/Ctrl+click (alternatively Shift+click) to add items to the selection, or range selection (so called Marquee selection) is possible by choosing a contiguous block of items. Selected items can be moved, deleted, or edited together.
 
 ### Splitting items
 
-TODO
+Items can be split at the current playhead position using the scissors tool. The split creates two separate items, properly handling fade effects and media start times for the new segments.
 
 ### Hide track
 
@@ -176,7 +180,9 @@ When hovering over an item in the font family dropdown, the text item in the can
 
 ### Font style
 
-TODO
+Feature flag: [`FEATURE_FONT_STYLE_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_FONT_STYLE_CONTROL&type=code)
+
+Allows setting the font style variant and weight (normal, italic, bold, etc.) for text and caption items. Includes live preview when hovering over options.
 
 ### Font size
 
@@ -186,11 +192,15 @@ Allows setting the font size of the item.
 
 ### Text value
 
-TODO
+Feature flag: [`FEATURE_TEXT_VALUE_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_TEXT_VALUE_CONTROL&type=code)
+
+Allows editing the text content via a text area in the inspector. Text area automatically resizes based on content and alignment settings.
 
 ### Color
 
-TODO
+Feature flag: [`FEATURE_COLOR_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_COLOR_CONTROL&type=code)
+
+Provides a color picker for text, solid, and caption items. Supports full RGB color selection for the item's primary color property.
 
 ### Rotation
 
@@ -198,131 +208,321 @@ Feature flags: [`FEATURE_ROTATION_CONTROL`](https://github.com/search?q=repo%3Ar
 
 ### Line height
 
-TODO
+Feature flag: [`FEATURE_TEXT_LINE_HEIGHT_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_TEXT_LINE_HEIGHT_CONTROL&type=code)
+
+Allows setting the line height for text and caption items. Accepts values from 0.5 to 5.0 with automatic text relayout when changed.
 
 ### Letter spacing
 
-TODO
+Feature flag: [`FEATURE_TEXT_LETTER_SPACING_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_TEXT_LETTER_SPACING_CONTROL&type=code)
 
-### Right to left
+Allows setting the letter spacing for text and caption items. Supports values from -10px to 50px with automatic text relayout when changed.
 
-TODO
+### Text direction
+
+Feature flag: [`FEATURE_TEXT_DIRECTION_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_TEXT_DIRECTION_CONTROL&type=code)
+
+Provides left-to-right (LTR) and right-to-left (RTL; like Arabic) text direction controls. Text direction is automatically detected when creating new text items, but can be manually overridden.
 
 ### Playback speed
 
-TODO
+Feature flag: [`FEATURE_PLAYBACKRATE_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_PLAYBACKRATE_CONTROL&type=code)
+
+Allows setting the playback rate for video, audio, and GIF items. Supports rates from 0.25x to 5x with automatic duration adjustment based on the new playback speed.
 
 ### Volume
 
-TODO
+Feature flag: [`FEATURE_VOLUME_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_VOLUME_CONTROL&type=code)
+
+Provides a volume slider for audio and video items with decibel-based adjustment. Shows the current dB difference to the original audio.
 
 ### Fade in and out
+
+Feature flags: [`FEATURE_AUDIO_FADE_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_AUDIO_FADE_CONTROL&type=code) and [`FEATURE_VIDEO_FADE_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_VIDEO_FADE_CONTROL&type=code)
+
+Provides precise controls for fade in and fade out durations for audio and video items. Allows setting fade times in seconds with visual preview of the fade effect.
 
 ## Playback
 
 ### Play / Pause button
 
-TODO
+A central play/pause button that starts or stops the video playback. It can be controlled using the Space bar on the keyboard and changes its icon to reflect whether the video is currently playing or paused.
 
 ### Current time indicator
 
-TODO
+Displays the current playhead position in timecode format (MM:SS.FF, where FF is the frame number). Updates in real-time as the video plays or when scrubbing through the timeline.
 
 ### Fullscreen button
 
-TODO
+Feature flag: [`FEATURE_FULLSCREEN_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_FULLSCREEN_CONTROL&type=code)
+
+Allows entering fullscreen mode for the video player (exiting with Esc).
 
 ### Mute button
 
-TODO
+Feature flag: [`FEATURE_MUTE_BUTTON`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_MUTE_BUTTON&type=code)
+
+Global mute/unmute switcher for the entire timeline audio. Visual indicator shows current mute state.
 
 ### Loop
 
-TODO
+Feature flag: [`FEATURE_LOOP_BUTTON`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_LOOP_BUTTON&type=code)
+
+Switcher button to enable or disable looping of the entire timeline. When enabled, the video will automatically restart from the beginning after reaching the end. Visual indicator shows current loop state.
 
 ## Canvas
 
 ### Click to select
 
-TODO
+Clicking on items in the canvas selects them. Selected items show a blue outline and can be edited via the inspector. Clicking on empty space deselects all items.
 
 ### Move and resize
 
-TODO
+Selected items can be dragged to move their position on the canvas. Resize handles appear on selected items allowing for width and height adjustment by dragging the corners or edges.
 
 ### Shift axis lock
 
-TODO
+Feature flag: [`FEATURE_SHIFT_AXIS_LOCK`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_SHIFT_AXIS_LOCK&type=code)
+
+While dragging holding Shift constrains item movement to horizontal or vertical axis only, helping with precise positioning and alignment.
 
 ### Shift aspect ratio lock
 
-TODO
+Feature flag: [`FEATURE_SHIFT_KEY_TO_OVERRIDE_ASPECT_RATIO_LOCK`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_SHIFT_KEY_TO_OVERRIDE_ASPECT_RATIO_LOCK&type=code)
 
-### Multiple selection
+Holding Shift while resizing video items overrides the original aspect ratio, enabling distortion when scaling video items up or down. This feature is disabled by default.
 
-TODO
+### Multi-select
+
+Multiple items can be selected by holding Cmd/Ctrl while clicking additional items. All selected items can be moved together.
 
 ### Marquee selection
 
-TODO
+Click and drag on empty canvas areas to create a selection rectangle that selects all items within its bounds. Useful for quickly selecting multiple items in a region.
 
 ### Dropping assets
 
-TODO
+Assets can be dropped directly onto the canvas from the file system. The item is automatically positioned at the playhead location and added to an appropriate track on the timeline.
 
-### Zoom
+### Zoom (level)
 
-TODO
+The canvas supports zooming in and out to view items at different scales. The zoom level on the canvas is displayed as a percentage and can be reset to fit the available space.
 
 ### Pinch to zoom / Ctrl + mouse wheel to zoom
 
-TODO
+On desktop, holding Ctrl/Cmd while scrolling the mouse wheel zooms in and out of the canvas with the mouse position as the zoom center. On touch devices, pinch gestures zoom into the canvas.
 
 ### Plus and minus buttons
 
-TODO
-
-### Keyboard shortcuts
-
-TODO
+Physical zoom buttons provide an alternative way to zoom in (+) and zoom out (-) of the canvas. Also includes a reset button to return to the default fit-to-canvas zoom level.
 
 ### Copy and paste
 
-TODO
+Feature flags: [`FEATURE_COPY_PASTE_LAYERS`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_COPY_PASTE_LAYERS&type=code) and [`FEATURE_PASTE_ASSETS`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_PASTE_ASSETS&type=code)
+
+Items can be copied with Cmd/Ctrl+C and pasted with Cmd/Ctrl+V. Pasted items are automatically positioned and can include text, images, and other assets from the clipboard.
 
 ### Bring to front / Send to back
+
+Items can be reordered by moving them between tracks on the timeline. Items on higher tracks appear in front of items on lower tracks in the final composition.
 
 ## Behaviors
 
 ### Cut, copy, paste, duplicate
 
-TODO
+Feature flags: [`FEATURE_CUT_LAYERS`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_CUT_LAYERS&type=code), [`FEATURE_COPY_PASTE_LAYERS`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_COPY_PASTE_LAYERS&type=code), and [`FEATURE_DUPLICATE_LAYERS`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_DUPLICATE_LAYERS&type=code)
+
+Standard cut (Cmd/Ctrl+X), copy (Cmd/Ctrl+C), and paste (Cmd/Ctrl+V) operations work with timeline items. Duplicate (Cmd/Ctrl+D) creates copies of selected items with automatic positioning.
 
 ### Save and load
 
-TODO
+Feature flag: [`FEATURE_SAVE_BUTTON`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_SAVE_BUTTON&type=code)
+
+Project data is automatically saved to browser's local storage. Manual save can be triggered with Cmd/Ctrl+S. Projects automatically load when returning to the editor.
 
 ### Asset uploads
 
-TODO
+Assets are uploaded and processed when dropped into the editor. Upload progress is shown with indicators, and assets are stored for use across browser sessions. Multiple file formats are supported.
 
 ### Undo and redo
 
-TODO
+Feature flags: [`FEATURE_UNDO_BUTTON`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_UNDO_BUTTON&type=code) and [`FEATURE_REDO_BUTTON`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_REDO_BUTTON&type=code)
+
+Full undo/redo system tracks all changes to the timeline and canvas. Use Cmd/Ctrl+Z to undo and Cmd/Ctrl+Y or Cmd/Ctrl+Shift+Z to redo actions.
 
 ### Asset caching
 
-TODO
+Feature flag: [`FEATURE_CACHE_ASSETS_LOCALLY`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_CACHE_ASSETS_LOCALLY&type=code)
+
+Assets are cached locally in the browser using IndexedDB for faster loading and offline editing capabilities. Cached assets persist across browser sessions.
 
 ## Rendering
 
 ### Remotion integration
 
-TODO
+The editor integrates directly with Remotion's rendering engine. The composition created in the editor can be rendered to MP4 or other video formats using Remotion's rendering capabilities.
 
 ### Render button
 
-TODO
+Triggers the rendering process to export the current composition as a video file. Shows render progress and allows download of the final rendered video.
+
+## Keyboard shortcuts
+
+<table>
+  <tr>
+    <td>
+      <kbd>⌘/Ctrl</kbd>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>Z</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Undo</td>
+    <td style={{verticalAlign: 'middle'}}><a href="https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_UNDO_SHORTCUT&type=code" target="_blank"><code>FEATURE_UNDO_SHORTCUT</code></a></td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>⌘/Ctrl</kbd>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>Y</kbd>
+      <br />
+
+      <kbd>⌘/Ctrl</kbd>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>Shift</kbd>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>Z</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Redo</td>
+    <td style={{verticalAlign: 'middle'}}><a href="https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_REDO_SHORTCUT&type=code" target="_blank"><code>FEATURE_REDO_SHORTCUT</code></a></td>
+
+  </tr>
+  <tr>
+    <td>
+      <kbd>
+        <svg viewBox="0 0 448 512" style={{width: 10, display: 'inline'}}>
+          <path
+            fill="currentColor"
+            d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+          ></path>
+        </svg>
+      </kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>1 frame forward</td>
+    <td style={{verticalAlign: 'middle'}}></td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>
+        <svg viewBox="0 0 448 512" style={{width: 10, display: 'inline'}}>
+          <path fill="currentColor" d="M257.5 445.1l-22.2 22.2c-9.4 9.4-24.6 9.4-33.9 0L7 273c-9.4-9.4-9.4-24.6 0-33.9L201.4 44.7c9.4-9.4 24.6-9.4 33.9 0l22.2 22.2c9.5 9.5 9.3 25-.4 34.3L136.6 216H424c13.3 0 24 10.7 24 24v32c0 13.3-10.7 24-24 24H136.6l120.5 114.8c9.8 9.3 10 24.8.4 34.3z"></path>
+        </svg>
+      </kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>1 frame backwards</td>
+    <td style={{verticalAlign: 'middle'}}></td>
+  </tr>
+  <tr>
+    <td>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>+</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Zoom in</td>
+    <td style={{verticalAlign: 'middle'}}></td>
+  </tr>
+  <tr>
+    <td>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>-</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Zoom out</td>
+    <td style={{verticalAlign: 'middle'}}></td>
+  </tr>
+  <tr>
+    <td>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>0</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Reset zoom</td>
+    <td style={{verticalAlign: 'middle'}}></td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>Space</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Play / Pause</td>
+    <td style={{verticalAlign: 'middle'}}></td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>⌘/Ctrl</kbd>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>S</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Save</td>
+    <td style={{verticalAlign: 'middle'}}><a href="https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_SAVE_BUTTON&type=code" target="_blank"><code>FEATURE_SAVE_BUTTON</code></a></td>
+  </tr>
+    <tr>
+    <td style={{verticalAlign: 'middle'}}>Hold <kbd>Shift</kbd> or <kbd>⌘/Ctrl</kbd> </td>
+    <td style={{verticalAlign: 'middle'}}>While selecting items (multi-select)</td>
+    <td style={{verticalAlign: 'middle'}}></td>
+  </tr>
+  <tr>
+    <td style={{verticalAlign: 'middle'}}>Hold <kbd>Shift</kbd> while dragging item</td>
+    <td style={{verticalAlign: 'middle'}}>Constrain movement to horizontal/vertical axis only</td>
+    <td style={{verticalAlign: 'middle'}}><a href="https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_SHIFT_AXIS_LOCK&type=code" target="_blank"><code>FEATURE_SHIFT_AXIS_LOCK</code></a></td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>⌘/Ctrl</kbd>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>A</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Select all items</td>
+    <td style={{verticalAlign: 'middle'}}></td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>⌘/Ctrl</kbd>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>X</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Cut selected item(s)</td>
+    <td style={{verticalAlign: 'middle'}}><a href="https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_CUT_LAYERS&type=code" target="_blank"><code>FEATURE_CUT_LAYERS</code></a></td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>⌘/Ctrl</kbd>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>C</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Copy selected item(s)</td>
+    <td style={{verticalAlign: 'middle'}}><a href="https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_COPY_PASTE_LAYERS&type=code" target="_blank"><code>FEATURE_COPY_PASTE_LAYERS</code></a></td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>⌘/Ctrl</kbd>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>V</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Paste item(s)</td>
+    <td style={{verticalAlign: 'middle'}}><a href="https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_COPY_PASTE_LAYERS&type=code" target="_blank"><code>FEATURE_COPY_PASTE_LAYERS</code></a></td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>⌘/Ctrl</kbd>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>D</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Duplicate selected item(s)</td>
+    <td style={{verticalAlign: 'middle'}}><a href="https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_DUPLICATE_LAYERS&type=code" target="_blank"><code>FEATURE_DUPLICATE_LAYERS</code></a></td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>Delete</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Delete selected item(s)</td>
+    <td style={{verticalAlign: 'middle'}}><a href="https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_BACKSPACE_TO_DELETE&type=code" target="_blank"><code>FEATURE_BACKSPACE_TO_DELETE</code></a></td>
+  </tr>
+</table>
 
 ## Captioning
 
