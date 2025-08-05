@@ -11,6 +11,7 @@ import {
 	hasBeenAborted,
 	mediaParserController,
 } from '@remotion/media-parser';
+import type {ParseMediaOnWorker} from '@remotion/media-parser/worker';
 import {createVideoDecoder} from './create-video-decoder';
 import {withResolvers} from './create/with-resolvers';
 import {Log} from './log';
