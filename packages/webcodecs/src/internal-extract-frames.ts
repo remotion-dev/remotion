@@ -11,7 +11,6 @@ import {
 	hasBeenAborted,
 	mediaParserController,
 } from '@remotion/media-parser';
-import type {ParseMediaOnWorker} from '@remotion/media-parser/worker';
 import {createVideoDecoder} from './create-video-decoder';
 import {withResolvers} from './create/with-resolvers';
 import {Log} from './log';
@@ -105,13 +104,14 @@ export const internalExtractFrames = ({
 					// A WebM might have a timestamp of 67000 but we request 66666
 					// See a test with this problem in it-tests/rendering/frame-accuracy.test.ts
 					// Solution: We allow a 10.000ms - 3.333ms = 6.667ms difference between the requested timestamp and the actual timestamp
-					if (expectedFrames[0] + 6667 < frame.timestamp && lastFrame) {
+					if (
+						expectedFrames[0] + 6667 < frame.timestamp &&
+						lastFrame &&
+						lastFrame !== lastFrameEmitted
+					) {
 						onFrame(lastFrame);
 						lastFrameEmitted = lastFrame;
 						expectedFrames.shift();
-						if (lastFrame) {
-							lastFrame.close();
-						}
 
 						lastFrame = frame;
 						return;
