@@ -65,11 +65,29 @@ REMOTION_AWS_BUCKET_NAME=
 ```
 
 :::note
+Rename the `.env.example` file to `.env` to get a template.
+:::
+
+:::note
 The same environment variables are also used for [rendering](/docs/editor-starter/rendering) in the cloud.
 :::
 
 Now, restart the Editor Starter.  
-When you drop in an asset, it should be uploaded to the S3 bucket!
+When you drop in an asset, it should be uploaded to the S3 bucket.
+
+## S3 Transfer acceleration (recommended)
+
+Loading the assets from S3 can be slow.  
+To speed it up, you can enable Transfer acceleration for your S3 bucket:
+
+- Go to the [S3 console](https://us-east-1.console.aws.amazon.com/s3/home?region=us-east-1).
+- Select your bucket.
+- Go to the "Properties" tab.
+- Scroll down to the "Transfer acceleration" section.
+- Click "Enable".
+- Click "Save".
+
+Then set the `REMOTION_AWS_TRANSFER_ACCELERATION` environment variable to `true` in your `.env` file.
 
 ## See also
 
