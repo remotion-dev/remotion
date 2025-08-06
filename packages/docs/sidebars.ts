@@ -1340,10 +1340,28 @@ const sidebars: SidebarsConfig = {
 				'timeline/render',
 			],
 		},
+
+		{
+			type: 'link',
+			href: '/docs/editor-starter',
+			label: 'Editor Starter',
+			className: 'wip-item',
+		},
+		{
+			type: 'link',
+			href: '/docs/recorder',
+			label: 'Recorder',
+		},
+	],
+	editorStarterSidebar: [
+		{
+			type: 'link',
+			href: '/docs',
+			label: '← Back to the main docs',
+		},
 		{
 			type: 'category',
 			label: 'Editor Starter',
-			className: 'wip-item',
 			link: {
 				type: 'doc',
 				id: 'editor-starter/index',
@@ -1367,11 +1385,6 @@ const sidebars: SidebarsConfig = {
 				'editor-starter/features-not-included',
 				'editor-starter/faq',
 			],
-		},
-		{
-			type: 'link',
-			href: '/docs/recorder',
-			label: 'Recorder',
 		},
 	],
 	recorderSidebar: [

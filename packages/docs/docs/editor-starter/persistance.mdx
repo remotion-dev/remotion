@@ -9,7 +9,7 @@ crumb: Editor Starter
 There are 2 types of persistance in the Editor Starter:
 
 - Saving the editor state
-- Caching the [assets](/docs/editor-starter/tracks-items-assets) (videos, images, audio, etc.)
+- Caching the [assets](/docs/editor-starter/tracks-items-assets) (videos, images, audio, etc.) in IndexedDB
 
 ## Saving the editor state
 
@@ -57,4 +57,18 @@ If you change the structure of your state, consider incrementing the version of 
 
 ## Caching assets
 
-TODO
+Because loading the assets remotely can be slow, the Editor Starter caches them in IndexedDB and prefers them over remote assets when displaying.
+
+The [`indexeddb.ts`](https://github.com/remotion-dev/editor-starter/blob/main/src/editor/caching/indexeddb.ts) file contains the implementation of the IndexedDB.
+
+Assets need to be manually cleaned up when they are no longer needed: [Asset cleanup](/docs/editor-starter/asset-cleanup)
+
+The [`<DownloadRemoteAssets>`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20DownloadRemoteAssets&type=code) component downloads any assets that are remote and caches them locally.
+
+The [`<UseLocalCachedAssets>`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20UseLocalCachedAssets&type=code) component loads cached assets from IndexedDB and turns them into blob URLs.  
+In addition, the [`initialize()`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+const+initialize&type=code) function will load any cached assets from IndexedDB before the initial editor state loaded, to prevent any requests to the remote server if possible.
+
+## See also
+
+- [Asset uploads](/docs/editor-starter/asset-uploads)
+- [Asset cleanup](/docs/editor-starter/asset-cleanup)
