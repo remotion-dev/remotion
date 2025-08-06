@@ -38,6 +38,7 @@ export type EditorState = {
   initialized: boolean;
   itemsBeingTrimmed: ItemBeingTrimmed[];
   loop: boolean;
+  assetStatus: Record<string, AssetState>;
 };
 ```
 
@@ -56,6 +57,11 @@ export type EditorState = {
 - `initialized`: Whether the editor has been initialized, if not initialized, canvas will not be visible
 - `itemsBeingTrimmed`: An array of items that are currently being trimmed, to show an indication of the maximum trim that is possible
 - `loop`: Whether the playback should loop
+- `assetStatus`: A map of asset IDs to their upload status, which can be:
+  - `pending-upload`: The asset is currently being uploaded
+  - `uploaded`: The asset has been uploaded successfully
+  - `error`: The asset upload has failed
+  - `in-progress`: The asset has not been uploaded yet
 
 ## Undoable state
 
@@ -70,7 +76,7 @@ Undoable state is located within the `undoableState` object of the root state.
 
 **Non-undoable state** may be:
 
-- Asset upload progress
+- Asset upload progress and status
 - Captioning progress
 - Zoom level
 - Rendering state
