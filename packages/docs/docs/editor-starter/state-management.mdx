@@ -19,6 +19,13 @@ State in the [Editor Starter](/docs/editor-starter) is managed with the built-in
 The whole state of the Editor Starter is stored in a single object with the shape defined by the [`EditorState`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20type%20EditorState&type=code).
 
 ```ts title="src/editor/state/types.ts"
+type DeletedAsset = {
+  remoteUrl: string | null;
+  remoteFileKey: string | null;
+  assetId: string;
+  statusAtDeletion: AssetState;
+};
+
 export type UndoableState = {
   tracks: TrackType[];
   assets: Record<string, EditorStarterAsset>;
@@ -26,6 +33,7 @@ export type UndoableState = {
   fps: number;
   compositionWidth: number;
   compositionHeight: number;
+  deletedAssets: DeletedAsset[];
 };
 
 export type EditorState = {
@@ -49,6 +57,7 @@ export type EditorState = {
   - `fps`: The frame rate (kept in state, [but no UI is exposed to change it](/docs/editor-starter/features-not-included#multiple-frame-rates))
   - `compositionWidth`: The width of the canvas
   - `compositionHeight`: The height of the canvas
+  - `deletedAssets`: An array of assets [that have been deleted](/docs/editor-starter/asset-cleanup)
 - `selectedItems`: An array of item IDs that are currently selected
 - `textItemEditing`: The ID of the text item that is currently being edited, if there is one
 - `textItemHoverPreview`: Preview updates of a text item (for example if a font is hovered in the font picker, the text will render temporarily with the font hovered)

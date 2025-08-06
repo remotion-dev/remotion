@@ -1278,6 +1278,15 @@ export const articles = [
 		slug: 'easing',
 	},
 	{
+		id: 'asset-cleanup',
+		title: 'Asset cleanup',
+		relativePath: 'docs/editor-starter/asset-cleanup.mdx',
+		compId: 'articles-docs-editor-starter-asset-cleanup',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/asset-cleanup',
+	},
+	{
 		id: 'asset-uploads',
 		title: 'Asset uploads',
 		relativePath: 'docs/editor-starter/asset-uploads.mdx',

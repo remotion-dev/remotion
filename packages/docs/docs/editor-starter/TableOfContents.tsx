@@ -46,6 +46,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>Asset Uploads</strong>
 					<div>Asset upload functionality in the Editor Starter</div>
 				</TOCItem>
+				<TOCItem link="/docs/editor-starter/asset-cleanup">
+					<strong>Asset Cleanup</strong>
+					<div>How to cleanup assets that are no longer needed</div>
+				</TOCItem>
 				<TOCItem link="/docs/editor-starter/persistance">
 					<strong>Persistance</strong>
 					<div>How data is persisted in the Editor Starter</div>

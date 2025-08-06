@@ -1359,6 +1359,7 @@ const sidebars: SidebarsConfig = {
 				'editor-starter/undo-redo',
 				'editor-starter/fonts',
 				'editor-starter/asset-uploads',
+				'editor-starter/asset-cleanup',
 				'editor-starter/persistance',
 				'editor-starter/captioning',
 				'editor-starter/rendering',
