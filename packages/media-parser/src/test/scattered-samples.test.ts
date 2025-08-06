@@ -7,24 +7,28 @@ beforeAll(async () => {
 	await getRemoteExampleVideo('veryDispersed');
 });
 
-test('weird seek', async () => {
-	let samples = 0;
+test(
+	'weird seek',
+	async () => {
+		let samples = 0;
 
-	await parseMedia({
-		src: await getRemoteExampleVideo('veryDispersed'),
-		acknowledgeRemotionLicense: true,
-		reader: nodeReader,
-		onVideoTrack: () => {
-			return () => {
-				samples++;
-			};
-		},
-		onAudioTrack: () => {
-			return () => {
-				samples++;
-			};
-		},
-	});
+		await parseMedia({
+			src: await getRemoteExampleVideo('veryDispersed'),
+			acknowledgeRemotionLicense: true,
+			reader: nodeReader,
+			onVideoTrack: () => {
+				return () => {
+					samples++;
+				};
+			},
+			onAudioTrack: () => {
+				return () => {
+					samples++;
+				};
+			},
+		});
 
-	expect(samples).toBe(9644);
-});
+		expect(samples).toBe(9644);
+	},
+	{timeout: 30_000},
+);
