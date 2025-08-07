@@ -52,7 +52,7 @@
 		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"dependencies": {
-		"turbo": "2.5.4",
+		"turbo": "2.5.5",
 		"typescript": "5.8.2"
 	},
 	"packageManager": "pnpm@8.10.2"
