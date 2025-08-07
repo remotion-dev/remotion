@@ -499,6 +499,14 @@ Feature flags: [`FEATURE_SAVE_BUTTON`](https://github.com/search?q=repo%3Aremoti
 
 A save can be triggered with <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>S</kbd>. When a project is saved, it will be automatically loaded when returning to the editor.
 
+### Load state from URL
+
+Feature flag: [`FEATURE_LOAD_STATE_FROM_URL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_LOAD_STATE_FROM_URL&type=code)
+
+Allows loading the initial state of the editor from a URL parameter `?state=`.
+
+The value must be a base64-encoded serialization of [`UndoableState`](/docs/editor-starter/state-management#undoable-statement).
+
 ### Asset uploads
 
 Assets are uploaded and processed when dropped into the editor. Upload progress is shown with indicators, and assets are stored for use across browser sessions. Multiple file formats are supported.
