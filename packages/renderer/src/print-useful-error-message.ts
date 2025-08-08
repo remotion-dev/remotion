@@ -72,10 +72,25 @@ export const printUsefulErrorMessage = (
 	if (
 		err.message.includes('Member must have value less than or equal to 3008')
 	) {
-		Log.info({indent, logLevel});
-		Log.info(
+		Log.warn({indent, logLevel});
+		Log.warn(
 			{indent, logLevel},
-			'💡 This error indicates that you have a AWS account on the free tier or have been limited by your organization. Often times this can be solved by adding a credit card. See also: https://repost.aws/questions/QUKruWYNDYTSmP17jCnIz6IQ/questions/QUKruWYNDYTSmP17jCnIz6IQ/unable-to-set-lambda-memory-over-3008mb',
+			'💡 This error indicates that you have a AWS account on the free or basic tier or have been limited by your organization.',
+		);
+		Log.warn(
+			{indent, logLevel},
+			'Often times this can be solved by adding a credit card, or if already done, by contacting AWS support.',
+		);
+		Log.warn(
+			{
+				indent,
+				logLevel,
+			},
+			'Alternatively, you can decrease the memory size of your Lambda function to a value below 3008 MB. See: https://www.remotion.dev/docs/lambda/runtime#core-count--vcpus',
+		);
+		Log.warn(
+			{indent, logLevel},
+			'See also: https://repost.aws/questions/QUKruWYNDYTSmP17jCnIz6IQ/questions/QUKruWYNDYTSmP17jCnIz6IQ/unable-to-set-lambda-memory-over-3008mb',
 		);
 	}
 

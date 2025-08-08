@@ -1278,6 +1278,15 @@ export const articles = [
 		slug: 'easing',
 	},
 	{
+		id: 'asset-cleanup',
+		title: 'Asset cleanup',
+		relativePath: 'docs/editor-starter/asset-cleanup.mdx',
+		compId: 'articles-docs-editor-starter-asset-cleanup',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/asset-cleanup',
+	},
+	{
 		id: 'asset-uploads',
 		title: 'Asset uploads',
 		relativePath: 'docs/editor-starter/asset-uploads.mdx',
@@ -1288,7 +1297,7 @@ export const articles = [
 	},
 	{
 		id: 'backend-routes',
-		title: 'Backend routes',
+		title: 'Backend routes in the Editor Starter',
 		relativePath: 'docs/editor-starter/backend-routes.mdx',
 		compId: 'articles-docs-editor-starter-backend-routes',
 		crumb: 'Editor Starter',
@@ -1323,6 +1332,15 @@ export const articles = [
 		slug: 'editor-starter/captioning',
 	},
 	{
+		id: 'copy-paste',
+		title: 'Copy and Paste in the Editor Starter',
+		relativePath: 'docs/editor-starter/copy-paste.mdx',
+		compId: 'articles-docs-editor-starter-copy-paste',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/copy-paste',
+	},
+	{
 		id: 'editor-starter/dependencies',
 		title: 'Dependencies of the Editor Starter',
 		relativePath: 'docs/editor-starter/dependencies.mdx',
@@ -1351,7 +1369,7 @@ export const articles = [
 	},
 	{
 		id: 'features',
-		title: 'Features',
+		title: 'Features in the Editor Starter',
 		relativePath: 'docs/editor-starter/features.mdx',
 		compId: 'articles-docs-editor-starter-features',
 		crumb: 'Editor Starter',
@@ -1386,8 +1404,17 @@ export const articles = [
 		slug: 'editor-starter/persistance',
 	},
 	{
+		id: 'production-checklist',
+		title: 'Production Checklist',
+		relativePath: 'docs/editor-starter/production-checklist.mdx',
+		compId: 'articles-docs-editor-starter-production-checklist',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/production-checklist',
+	},
+	{
 		id: 'rendering',
-		title: 'Rendering',
+		title: 'Rendering in the Editor Starter',
 		relativePath: 'docs/editor-starter/rendering.mdx',
 		compId: 'articles-docs-editor-starter-rendering',
 		crumb: 'Editor Starter',

@@ -38,6 +38,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>Undo and Redo</strong>
 					<div>Undo and Redo functionality in the Editor Starter</div>
 				</TOCItem>
+				<TOCItem link="/docs/editor-starter/copy-paste">
+					<strong>Copy and Paste</strong>
+					<div>How it is implemented in the Editor Starter</div>
+				</TOCItem>
 				<TOCItem link="/docs/editor-starter/fonts">
 					<strong>Fonts</strong>
 					<div>How fonts work and which ones are included</div>
@@ -45,6 +49,10 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/editor-starter/asset-uploads">
 					<strong>Asset Uploads</strong>
 					<div>Asset upload functionality in the Editor Starter</div>
+				</TOCItem>
+				<TOCItem link="/docs/editor-starter/asset-cleanup">
+					<strong>Asset Cleanup</strong>
+					<div>How to cleanup assets that are no longer needed</div>
 				</TOCItem>
 				<TOCItem link="/docs/editor-starter/persistance">
 					<strong>Persistance</strong>

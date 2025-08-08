@@ -46,6 +46,19 @@ const findBestJump = ({
 			!visited.has(getKey(sampleMap.get(offset)!)),
 	);
 
+	if (firstSampleAboveMinProgress === -1) {
+		// Track might be done, so we don't care about minimum progress
+		// then
+		const backup = offsetsSorted.findIndex(
+			(offset) => !visited.has(getKey(sampleMap.get(offset)!)),
+		);
+		if (backup === -1) {
+			throw new Error('this should not happen');
+		}
+
+		return backup;
+	}
+
 	return firstSampleAboveMinProgress;
 };
 
@@ -71,13 +84,10 @@ export const calculateJumpMarks = ({
 
 	const visited = new Set<string>();
 
-	let rollOverToProcess = false;
-
 	const increaseIndex = () => {
 		indexToVisit++;
 		if (indexToVisit >= offsetsSorted.length) {
-			rollOverToProcess = true;
-			indexToVisit = 0;
+			throw new Error('should not roll over, should jump');
 		}
 	};
 
@@ -96,6 +106,14 @@ export const calculateJumpMarks = ({
 			afterSampleWithOffset: lastVisitedSample.samplePosition.offset,
 			jumpToOffset: offsetsSorted[firstSampleAboveMinProgress],
 		};
+
+		if (
+			firstSampleAboveMinProgress ===
+			offsetsSorted.indexOf(lastVisitedSample.samplePosition.offset) + 1
+		) {
+			indexToVisit = firstSampleAboveMinProgress;
+			return;
+		}
 
 		indexToVisit = firstSampleAboveMinProgress;
 
@@ -121,20 +139,7 @@ export const calculateJumpMarks = ({
 			progresses,
 		});
 
-		if (
-			firstSampleAboveMinProgress > -1 &&
-			firstSampleAboveMinProgress !== indexToVisit + 1
-		) {
-			addJumpMark({firstSampleAboveMinProgress});
-			indexToVisit = firstSampleAboveMinProgress;
-		} else {
-			while (true) {
-				increaseIndex();
-				if (!visited.has(getKey(sampleMap.get(offsetsSorted[indexToVisit])!))) {
-					break;
-				}
-			}
-		}
+		addJumpMark({firstSampleAboveMinProgress});
 	};
 
 	while (true) {
@@ -147,18 +152,6 @@ export const calculateJumpMarks = ({
 		}
 
 		visited.add(sampleKey);
-
-		if (rollOverToProcess) {
-			if (!lastVisitedSample) {
-				throw new Error('no last visited sample');
-			}
-
-			jumpMarks.push({
-				afterSampleWithOffset: lastVisitedSample.samplePosition.offset,
-				jumpToOffset: currentSamplePosition.samplePosition.offset,
-			});
-			rollOverToProcess = false;
-		}
 
 		lastVisitedSample = currentSamplePosition;
 
@@ -187,6 +180,8 @@ export const calculateJumpMarks = ({
 
 		// Also don't allow audio progress to go more
 		if (spread > MAX_SPREAD_IN_SECONDS) {
+			considerJump();
+		} else if (indexToVisit === offsetsSorted.length - 1) {
 			considerJump();
 		} else {
 			increaseIndex();

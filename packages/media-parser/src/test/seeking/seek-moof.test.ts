@@ -1,5 +1,5 @@
 import {getRemoteExampleVideo} from '@remotion/example-videos';
-import {expect, test} from 'bun:test';
+import {beforeAll, expect, test} from 'bun:test';
 import {mediaParserController} from '../../controller/media-parser-controller';
 import {hasBeenAborted} from '../../errors';
 import {parseMedia} from '../../parse-media';
@@ -7,6 +7,10 @@ import {nodeReader} from '../../readers/from-node';
 import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 const controller1 = mediaParserController();
+
+beforeAll(async () => {
+	await getRemoteExampleVideo('fragmentedMoofTrickyDuration');
+});
 
 test('seek moof, should make use of the mfra atom if available', async () => {
 	const video = await getRemoteExampleVideo('fragmentedMoofTrickyDuration');

@@ -32,6 +32,7 @@ test.describe('Vite app', () => {
 
 		await page.waitForFunction(() => (window as any).videoFrames?.length === 5);
 		const value = await page.evaluate(() => (window as any).videoFrames);
+		console.log(value);
 		expect(value[0]).toBe(0);
 		expect(value[1] === 1000000 || value[1] === 920000).toBe(true);
 		expect(value[2] === 2000000 || value[2] === 1880000).toBe(true);

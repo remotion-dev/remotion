@@ -41,6 +41,7 @@ import {parseStsd} from './stsd/stsd';
 import {parseStss} from './stsd/stss';
 import {parseStsz} from './stsd/stsz';
 import {parseStts} from './stsd/stts';
+import {parseVpcc} from './stsd/vpcc';
 import {parseTfdt} from './tfdt';
 import {getTfhd} from './tfhd';
 import {parseTkhd} from './tkhd';
@@ -229,7 +230,7 @@ export const processBox = async ({
 	if (boxType === 'stsz') {
 		return {
 			type: 'box',
-			box: await parseStsz({
+			box: parseStsz({
 				iterator,
 				offset: fileOffset,
 				size: boxSize,
@@ -240,7 +241,7 @@ export const processBox = async ({
 	if (boxType === 'stco' || boxType === 'co64') {
 		return {
 			type: 'box',
-			box: await parseStco({
+			box: parseStco({
 				iterator,
 				offset: fileOffset,
 				size: boxSize,
@@ -252,7 +253,7 @@ export const processBox = async ({
 	if (boxType === 'pasp') {
 		return {
 			type: 'box',
-			box: await parsePasp({
+			box: parsePasp({
 				iterator,
 				offset: fileOffset,
 				size: boxSize,
@@ -263,7 +264,7 @@ export const processBox = async ({
 	if (boxType === 'stss') {
 		return {
 			type: 'box',
-			box: await parseStss({
+			box: parseStss({
 				iterator,
 				offset: fileOffset,
 				boxSize,
@@ -274,7 +275,7 @@ export const processBox = async ({
 	if (boxType === 'ctts') {
 		return {
 			type: 'box',
-			box: await parseCtts({
+			box: parseCtts({
 				iterator,
 				offset: fileOffset,
 				size: boxSize,
@@ -285,7 +286,7 @@ export const processBox = async ({
 	if (boxType === 'stsc') {
 		return {
 			type: 'box',
-			box: await parseStsc({
+			box: parseStsc({
 				iterator,
 				offset: fileOffset,
 				size: boxSize,
@@ -431,7 +432,7 @@ export const processBox = async ({
 	if (boxType === 'stts') {
 		return {
 			type: 'box',
-			box: await parseStts({
+			box: parseStts({
 				data: iterator,
 				size: boxSize,
 				fileOffset,
@@ -442,17 +443,24 @@ export const processBox = async ({
 	if (boxType === 'avcC') {
 		return {
 			type: 'box',
-			box: await parseAvcc({
+			box: parseAvcc({
 				data: iterator,
 				size: boxSize,
 			}),
 		};
 	}
 
+	if (boxType === 'vpcC') {
+		return {
+			type: 'box',
+			box: parseVpcc({data: iterator, size: boxSize}),
+		};
+	}
+
 	if (boxType === 'av1C') {
 		return {
 			type: 'box',
-			box: await parseAv1C({
+			box: parseAv1C({
 				data: iterator,
 				size: boxSize,
 			}),
@@ -462,7 +470,7 @@ export const processBox = async ({
 	if (boxType === 'hvcC') {
 		return {
 			type: 'box',
-			box: await parseHvcc({
+			box: parseHvcc({
 				data: iterator,
 				size: boxSize,
 				offset: fileOffset,
@@ -473,7 +481,7 @@ export const processBox = async ({
 	if (boxType === 'tfhd') {
 		return {
 			type: 'box',
-			box: await getTfhd({
+			box: getTfhd({
 				iterator,
 				offset: fileOffset,
 				size: boxSize,
@@ -484,7 +492,7 @@ export const processBox = async ({
 	if (boxType === 'mdhd') {
 		return {
 			type: 'box',
-			box: await parseMdhd({
+			box: parseMdhd({
 				data: iterator,
 				size: boxSize,
 				fileOffset,
@@ -495,7 +503,7 @@ export const processBox = async ({
 	if (boxType === 'esds') {
 		return {
 			type: 'box',
-			box: await parseEsds({
+			box: parseEsds({
 				data: iterator,
 				size: boxSize,
 				fileOffset,
@@ -506,7 +514,7 @@ export const processBox = async ({
 	if (boxType === 'trex') {
 		return {
 			type: 'box',
-			box: await parseTrex({iterator, offset: fileOffset, size: boxSize}),
+			box: parseTrex({iterator, offset: fileOffset, size: boxSize}),
 		};
 	}
 
