@@ -38,7 +38,8 @@ You should re-execute this command whenever:
 - You change how videos are rendered visually
 - You upgrade to a new Remotion version
 
-Running this script is idempotent, meaning you cannot run it too often.
+Running this script if the infrastructure already exists will not do anything.  
+Therefore, you can run it as often as you want.
 
 We recommend to run this script in your build pipeline as well, so that it executes whenever you deploy your app.  
 For example, if you deploy to Vercel, you can create a `vercel.json` file:
