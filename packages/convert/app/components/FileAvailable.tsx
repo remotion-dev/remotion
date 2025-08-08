@@ -13,6 +13,7 @@ import {Page} from './Page';
 import {Probe} from './Probe';
 import {ReplaceVideo} from './ReplaceVideo';
 import type {VideoThumbnailRef} from './VideoThumbnail';
+import {VideoPlayer} from './player/VideoPlayer';
 import Transcribe from './transcribe/App';
 import {useProbe} from './use-probe';
 
@@ -51,7 +52,7 @@ export const FileAvailable: React.FC<{
 
 	const probeResult = useProbe({
 		src,
-		logLevel: 'verbose',
+		logLevel: 'info',
 		onProgress,
 	});
 
@@ -71,6 +72,8 @@ export const FileAvailable: React.FC<{
 		<Page className="lg:justify-center pt-6 pb-10 px-4 lg:flex">
 			<div>
 				<BackButton setSrc={setSrc} />
+				<div className="h-4" />
+				<VideoPlayer src={src} />
 				<div className="h-4" />
 				<div className="lg:inline-flex lg:flex-row items-start">
 					<Probe
