@@ -12,6 +12,7 @@ import {
 	getColrBox,
 	getHvccBox,
 	getStsdVideoConfig,
+	getVpccBox,
 } from './get-sample-aspect-ratio';
 import {
 	getHasTracks,
@@ -89,8 +90,6 @@ export const getIsoBmColrConfig = (
 export const getVideoCodecString = (trakBox: TrakBox): string | null => {
 	const videoSample = getStsdVideoConfig(trakBox);
 	const avccBox = getAvccBox(trakBox);
-	const hvccBox = getHvccBox(trakBox);
-	const av1cBox = getAv1CBox(trakBox);
 
 	if (!videoSample) {
 		return null;
@@ -100,13 +99,23 @@ export const getVideoCodecString = (trakBox: TrakBox): string | null => {
 		return `${videoSample.format}.${avccBox.configurationString}`;
 	}
 
+	const hvccBox = getHvccBox(trakBox);
+
 	if (hvccBox) {
 		return `${videoSample.format}.${hvccBox.configurationString}`;
 	}
 
+	const av1cBox = getAv1CBox(trakBox);
+
 	if (av1cBox) {
 		const colrAtom = getColrBox(videoSample);
 		return parseAv1PrivateData(av1cBox.privateData, colrAtom);
+	}
+
+	const vpccBox = getVpccBox(trakBox);
+
+	if (vpccBox) {
+		return `${videoSample.format}.${vpccBox.codecString}`;
 	}
 
 	return videoSample.format;

@@ -23,6 +23,7 @@ import type {StsdBox} from './stsd/stsd';
 import type {StssBox} from './stsd/stss';
 import type {StszBox} from './stsd/stsz';
 import type {SttsBox} from './stsd/stts';
+import type {VpccBox} from './stsd/vpcc';
 import type {TfdtBox} from './tfdt';
 import type {TfhdBox} from './tfhd';
 import type {TkhdBox} from './tkhd';
@@ -58,6 +59,7 @@ export type IsoBaseMediaBox =
 	| StscBox
 	| AvccBox
 	| HvccBox
+	| VpccBox
 	| VoidBox
 	| StssBox
 	| PaspBox
