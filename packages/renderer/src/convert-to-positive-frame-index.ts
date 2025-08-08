@@ -6,5 +6,5 @@ export const convertToPositiveFrameIndex = ({
 	frame: number;
 	durationInFrames: number;
 }) => {
-	return frame < 0 ? durationInFrames - frame : frame;
+	return frame < 0 ? durationInFrames + frame : frame;
 };
