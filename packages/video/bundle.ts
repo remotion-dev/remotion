@@ -7,10 +7,11 @@ if (process.env.NODE_ENV !== 'production') {
 console.time('Generated.');
 const output = await build({
 	entrypoints: [
-		'src/index.ts'
+		'src/index.ts',
+		'src/worker.ts'
 	],
 	naming: '[name].mjs',
-	external: ['@remotion/webcodecs', 'remotion', 'react', 'react-dom'],
+	external: ['@remotion/webcodecs', 'remotion', 'react', 'react-dom', '@remotion/media-parser'],
 });
 
 if (!output.success) {
