@@ -18,6 +18,10 @@ export const getVideoCodecFromIsoTrak = (trakBox: TrakBox) => {
 				return 'av1';
 			}
 
+			if (videoSample.format === 'vp09') {
+				return 'vp9';
+			}
+
 			// ap4h: ProRes 4444
 			if (videoSample.format === 'ap4h') {
 				return 'prores';
