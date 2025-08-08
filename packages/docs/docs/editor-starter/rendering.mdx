@@ -49,6 +49,10 @@ For example, if you deploy to Vercel, you can create a `vercel.json` file:
 }
 ```
 
+:::note
+If you get an error `'MemorySize' value failed to satisfy constraint: Member must have value less than or equal to 3008`, you need to lower the memory size of your Lambda function by changing the [`MEM_SIZE_IN_MB`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20MEM_SIZE_IN_MB&type=code) variable to a lower value. You might be on the AWS free tier or have a low concurrency limit, which may hinder your ability to render many videos.
+:::
+
 ## Rendering
 
 Is very simple: When no item is selected in the Editor Starter, a Render button shows up in the [inspector](/docs/editor-starter/tracks-items-assets#inspectors).
