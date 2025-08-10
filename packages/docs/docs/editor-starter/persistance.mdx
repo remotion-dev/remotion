@@ -6,10 +6,11 @@ id: persistance
 crumb: Editor Starter
 ---
 
-There are 2 types of persistance in the Editor Starter:
+There are 3 types of persistance in the Editor Starter:
 
 - Saving the editor state
 - Caching the [assets](/docs/editor-starter/tracks-items-assets) (videos, images, audio, etc.) in IndexedDB
+- Saving the loop setting
 
 ## Saving the editor state
 
@@ -67,6 +68,10 @@ The [`<DownloadRemoteAssets>`](https://github.com/search?q=repo%3Aremotion-dev%2
 
 The [`<UseLocalCachedAssets>`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20UseLocalCachedAssets&type=code) component loads cached assets from IndexedDB and turns them into blob URLs.  
 In addition, the [`initialize()`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter+const+initialize&type=code) function will load any cached assets from IndexedDB before the initial editor state loaded, to prevent any requests to the remote server if possible.
+
+## Loop setting
+
+In [`src/editor/state/loop-persistance.ts`](https://github.com/remotion-dev/editor-starter/blob/main/src/editor/state/loop-persistance.ts), there is logic for persisting the loop setting.
 
 ## See also
 
