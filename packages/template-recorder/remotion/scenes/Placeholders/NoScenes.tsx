@@ -1,15 +1,15 @@
-import { AbsoluteFill } from "remotion";
-import { REGULAR_FONT } from "../../../config/fonts";
+import { AbsoluteFill } from 'remotion';
+import { REGULAR_FONT } from '../../../config/fonts';
 
 const container: React.CSSProperties = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
   flex: 1,
   ...REGULAR_FONT,
   fontSize: 36,
   gap: 10,
-  flexDirection: "column",
+  flexDirection: 'column',
 };
 
 export const NoScenes: React.FC = () => {

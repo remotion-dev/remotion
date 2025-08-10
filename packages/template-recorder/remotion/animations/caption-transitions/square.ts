@@ -1,10 +1,10 @@
-import { getSafeSpace } from "../../../config/layout";
+import { getSafeSpace } from '../../../config/layout';
 import type {
   SceneAndMetadata,
   VideoSceneAndMetadata,
-} from "../../../config/scenes";
-import type { Layout } from "../../layout/layout-types";
-import { isWebCamAtBottom, isWebCamRight } from "../webcam-transitions/helpers";
+} from '../../../config/scenes';
+import type { Layout } from '../../layout/layout-types';
+import { isWebCamAtBottom, isWebCamRight } from '../webcam-transitions/helpers';
 
 const getEnterAndExitOfFullscreenBox = ({
   scene,
@@ -19,7 +19,7 @@ const getEnterAndExitOfFullscreenBox = ({
   canvasWidth: number;
   subtitleLayout: Layout;
 }) => {
-  if (otherScene === null || otherScene.type !== "video-scene") {
+  if (otherScene === null || otherScene.type !== 'video-scene') {
     return subtitleLayout;
   }
 
@@ -52,8 +52,8 @@ const getEnterAndExitOfFullscreenBox = ({
   const top = isWebCamAtBottom(scene.webcamPosition)
     ? otherScene.layout.webcamLayout.top -
       subtitleLayout.height -
-      getSafeSpace("square")
-    : getSafeSpace("square") * 2 + otherScene.layout.webcamLayout.height;
+      getSafeSpace('square')
+    : getSafeSpace('square') * 2 + otherScene.layout.webcamLayout.height;
 
   // If the webcam moves to the top right corner, the subtitle should come from left corner
   if (!isWebCamRight(otherScene.webcamPosition)) {
@@ -136,7 +136,7 @@ const getEnterAndExitOfBentoLayout = ({
   subtitleLayout: Layout;
 }) => {
   if (!scene.layout.displayLayout) {
-    throw new Error("Expected display layout to be present");
+    throw new Error('Expected display layout to be present');
   }
 
   if (otherScene.layout.displayLayout) {
@@ -163,14 +163,14 @@ const getEnterAndExitOfBentoLayout = ({
     if (isWebCamAtBottom(scene.webcamPosition)) {
       return {
         ...subtitleLayout,
-        top: getSafeSpace("square"),
+        top: getSafeSpace('square'),
         left,
       };
     }
 
     return {
       ...subtitleLayout,
-      top: canvasHeight - subtitleLayout.height - getSafeSpace("square"),
+      top: canvasHeight - subtitleLayout.height - getSafeSpace('square'),
       left,
     };
   }
@@ -178,10 +178,10 @@ const getEnterAndExitOfBentoLayout = ({
   const top = isWebCamAtBottom(scene.webcamPosition)
     ? canvasHeight -
       otherScene.layout.webcamLayout.height -
-      getSafeSpace("square")
+      getSafeSpace('square')
     : otherScene.layout.webcamLayout.height -
       subtitleLayout.height +
-      getSafeSpace("square");
+      getSafeSpace('square');
 
   return {
     ...subtitleLayout,
@@ -203,7 +203,7 @@ export const getSquareEnterOrExit = ({
   canvasHeight: number;
   subtitleLayout: Layout;
 }): Layout => {
-  if (otherScene === null || otherScene.type !== "video-scene") {
+  if (otherScene === null || otherScene.type !== 'video-scene') {
     return subtitleLayout;
   }
 

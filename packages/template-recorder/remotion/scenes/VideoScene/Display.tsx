@@ -1,17 +1,17 @@
-import React, { useMemo } from "react";
-import { OffthreadVideo, useCurrentFrame, useVideoConfig } from "remotion";
-import type { CanvasLayout } from "../../../config/layout";
+import React, { useMemo } from 'react';
+import { OffthreadVideo, useCurrentFrame, useVideoConfig } from 'remotion';
+import type { CanvasLayout } from '../../../config/layout';
 import type {
   SceneAndMetadata,
   VideoSceneAndMetadata,
-} from "../../../config/scenes";
-import { getDisplayPosition } from "../../animations/display-transitions";
-import { BRollStack } from "../BRoll/BRollStack";
-import { ScaleDownIfBRollRequiresIt } from "../BRoll/ScaleDownWithBRoll";
+} from '../../../config/scenes';
+import { getDisplayPosition } from '../../animations/display-transitions';
+import { BRollStack } from '../BRoll/BRollStack';
+import { ScaleDownIfBRollRequiresIt } from '../BRoll/ScaleDownWithBRoll';
 
 const outer: React.CSSProperties = {
-  position: "absolute",
-  display: "flex",
+  position: 'absolute',
+  display: 'flex',
 };
 
 export const Display: React.FC<{
@@ -21,7 +21,7 @@ export const Display: React.FC<{
   nextScene: SceneAndMetadata | null;
   previousScene: SceneAndMetadata | null;
   startFrame: number;
-  endAt: number | undefined;
+  trimAfter: number | undefined;
   canvasLayout: CanvasLayout;
 }> = ({
   scene,
@@ -30,15 +30,15 @@ export const Display: React.FC<{
   nextScene,
   canvasLayout,
   previousScene,
-  endAt,
+  trimAfter,
   startFrame,
 }) => {
   if (scene.layout.displayLayout === null) {
-    throw new Error("No display");
+    throw new Error('No display');
   }
 
   if (scene.cameras.display === null) {
-    throw new Error("No display");
+    throw new Error('No display');
   }
 
   const frame = useCurrentFrame();
@@ -68,7 +68,7 @@ export const Display: React.FC<{
 
   const container: React.CSSProperties = useMemo(() => {
     return {
-      position: "absolute",
+      position: 'absolute',
       ...displayLayout,
     };
   }, [displayLayout]);
@@ -82,14 +82,14 @@ export const Display: React.FC<{
           frame={frame}
         >
           <OffthreadVideo
-            startFrom={startFrame}
-            endAt={endAt}
+            trimBefore={startFrame}
+            trimAfter={trimAfter}
             src={scene.cameras.display.src}
             style={{
               width: displayLayout.width,
               height: displayLayout.height,
               borderRadius: displayLayout.borderRadius,
-              objectFit: "cover",
+              objectFit: 'cover',
             }}
           />
         </ScaleDownIfBRollRequiresIt>

@@ -1,21 +1,21 @@
-import { AbsoluteFill } from "remotion";
-import { REGULAR_FONT } from "../config/fonts";
-import { SERVER_PORT } from "../config/server";
-import { COLORS } from "../config/themes";
-import { WaitForFonts } from "./helpers/WaitForFonts";
+import { AbsoluteFill } from 'remotion';
+import { REGULAR_FONT } from '../config/fonts';
+import { SERVER_PORT } from '../config/server';
+import { COLORS } from '../config/themes';
+import { WaitForFonts } from './helpers/WaitForFonts';
 
 const container: React.CSSProperties = {
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundColor: "#fff",
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#fff',
   fontSize: 30,
-  textAlign: "center",
+  textAlign: 'center',
   ...REGULAR_FONT,
 };
 
 const link: React.CSSProperties = {
   color: COLORS.light.ACCENT_COLOR,
-  textDecoration: "underline",
+  textDecoration: 'underline',
 };
 
 export const GoToRecorder: React.FC = () => {

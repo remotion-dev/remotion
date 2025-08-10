@@ -1,23 +1,23 @@
-import React, { useMemo } from "react";
+import React, { useMemo } from 'react';
 import {
   AbsoluteFill,
   interpolate,
   spring,
   useCurrentFrame,
   useVideoConfig,
-} from "remotion";
-import type { VideoSceneAndMetadata } from "../../../config/scenes";
-import { isWebCamRight } from "../../animations/webcam-transitions/helpers";
+} from 'remotion';
+import type { VideoSceneAndMetadata } from '../../../config/scenes';
+import { isWebCamRight } from '../../animations/webcam-transitions/helpers';
 
-import { Theme } from "../../../config/themes";
-import { SCENE_TRANSITION_DURATION } from "../../../config/transitions";
-import type { ChapterType } from "../make-chapters";
+import { Theme } from '../../../config/themes';
+import { SCENE_TRANSITION_DURATION } from '../../../config/transitions';
+import type { ChapterType } from '../make-chapters';
 import {
   CHAPTER_HEIGHT,
   CHAPTER_VERTICAL_MARGIN,
   LandscapeChapter,
-} from "./LandscapeChapter";
-import { getWidescreenChapterStyle } from "./layout";
+} from './LandscapeChapter';
+import { getWidescreenChapterStyle } from './layout';
 
 export const LandscapeChapters: React.FC<{
   scene: VideoSceneAndMetadata;
@@ -45,7 +45,7 @@ export const LandscapeChapters: React.FC<{
     CHAPTER_VERTICAL_MARGIN * 2;
 
   const rightAligned = isWebCamRight(
-    scene.webcamPosition === "center" ? "top-left" : scene.webcamPosition,
+    scene.webcamPosition === 'center' ? 'top-left' : scene.webcamPosition,
   );
 
   const delay = didTransitionIn ? SCENE_TRANSITION_DURATION : 0;
@@ -82,7 +82,7 @@ export const LandscapeChapters: React.FC<{
     >
       <AbsoluteFill
         style={{
-          flexDirection: "column",
+          flexDirection: 'column',
           height: tableOfContentHeight,
           flex: 1,
           ...styles,

@@ -1,19 +1,19 @@
-import { parseMedia } from "@remotion/media-parser";
-import { getImageDimensions } from "@remotion/media-utils";
-import type { BRoll, BRollWithDimensions } from "../../config/scenes";
+import { parseMedia } from '@remotion/media-parser';
+import { getImageDimensions } from '@remotion/media-utils';
+import type { BRoll, BRollWithDimensions } from '../../config/scenes';
 
 const imageFileExtensions = [
-  "jpg",
-  "jpeg",
-  "png",
-  "gif",
-  "webp",
-  "bmp",
-  "svg",
-  "ico",
+  'jpg',
+  'jpeg',
+  'png',
+  'gif',
+  'webp',
+  'bmp',
+  'svg',
+  'ico',
 ];
 
-const videoFileExtensions = ["mp4", "webm", "mov", "mkv"];
+const videoFileExtensions = ['mp4', 'webm', 'mov', 'mkv'];
 
 export const getBRollDimensions = async (
   bRoll: BRoll,
@@ -24,7 +24,7 @@ export const getBRollDimensions = async (
     const { width, height } = await getImageDimensions(bRoll.source);
     return {
       ...bRoll,
-      type: "image",
+      type: 'image',
       assetWidth: width,
       assetHeight: height,
     };
@@ -36,21 +36,21 @@ export const getBRollDimensions = async (
     const metadata = await parseMedia({
       src: bRoll.source,
       fields: { dimensions: true },
-      acknowledgeRemotionLicense: true
+      acknowledgeRemotionLicense: true,
     });
     if (!metadata.dimensions) {
-      throw new Error("No dimensions found for bRoll: " + bRoll.source);
+      throw new Error('No dimensions found for bRoll: ' + bRoll.source);
     }
 
     return {
       ...bRoll,
-      type: "video",
+      type: 'video',
       assetWidth: metadata.dimensions.width,
       assetHeight: metadata.dimensions.height,
     };
   }
 
   throw new Error(
-    `Unsupported file extension for bRoll: ${bRoll.source}. Only ${[...imageFileExtensions, ...videoFileExtensions].join(", ")} are supported.`,
+    `Unsupported file extension for bRoll: ${bRoll.source}. Only ${[...imageFileExtensions, ...videoFileExtensions].join(', ')} are supported.`,
   );
 };

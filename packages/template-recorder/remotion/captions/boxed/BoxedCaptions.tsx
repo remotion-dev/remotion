@@ -1,13 +1,13 @@
-import React from "react";
+import React from 'react';
 import {
   SceneAndMetadata,
   VideoSceneAndMetadata,
-} from "../../../config/scenes";
-import { Theme } from "../../../config/themes";
-import { WaitForFonts } from "../../helpers/WaitForFonts";
-import { CaptionOverlay } from "../editor/CaptionOverlay";
-import { AnimatedCaptions } from "./components/AnimatedCaptions";
-import { NoCaptionsPlaceholder } from "./components/NoCaptionsPlaceholder";
+} from '../../../config/scenes';
+import { Theme } from '../../../config/themes';
+import { WaitForFonts } from '../../helpers/WaitForFonts';
+import { CaptionOverlay } from '../editor/CaptionOverlay';
+import { AnimatedCaptions } from './components/AnimatedCaptions';
+import { NoCaptionsPlaceholder } from './components/NoCaptionsPlaceholder';
 
 export const BoxedCaptions: React.FC<{
   sceneAndMetadata: VideoSceneAndMetadata;
