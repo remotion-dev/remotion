@@ -1,16 +1,21 @@
-import {expect, test} from 'bun:test';
+import {getRemoteExampleVideo} from '@remotion/example-videos';
+import {beforeAll, expect, test} from 'bun:test';
 import {nodeReader} from '../node';
 import {parseMedia} from '../parse-media';
 
-// https://discord.com/channels/809501355504959528/990308056627806238/1403043606566273054
-// Have not yet received permission to use the file
-test.skip('no audio stream', async () => {
+beforeAll(async () => {
+	await getRemoteExampleVideo('vp9InMp4');
+});
+
+test('no audio stream', async () => {
+	const src = await getRemoteExampleVideo('vp9InMp4');
+
 	await parseMedia({
-		src: '/Users/jonathanburger/Downloads/rem0708.mp4',
-		reader: nodeReader,
+		src,
 		fields: {
 			tracks: true,
 		},
+		reader: nodeReader,
 		acknowledgeRemotionLicense: true,
 		onVideoTrack: ({track}) => {
 			expect(track.colorSpace).toEqual({
