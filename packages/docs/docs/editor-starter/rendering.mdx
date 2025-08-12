@@ -13,7 +13,7 @@ Rendering videos to MP4 works using [Remotion Lambda](/docs/lambda), a distribut
 Follow the [Remotion Lambda setup instructions](/docs/lambda/setup) step-by-step to set up your AWS account.
 
 :::note
-If you have already setup [asset uploads](/docs/editor-starter/asset-uploads), you should skip steps 4 and 5.  
+If you have already setup [asset uploads](/docs/editor-starter/asset-uploads), you should skip steps 4 and 5 of the Remotion Lambda setup instructions.  
 Don't create a new user, but select the user you created before.
 :::
 
@@ -56,7 +56,7 @@ If you get an error `'MemorySize' value failed to satisfy constraint: Member mus
 
 ## Rendering
 
-Is very simple: When no item is selected in the Editor Starter, a Render button shows up in the [inspector](/docs/editor-starter/tracks-items-assets#inspectors).
+Is very simple: When no item is selected in the Editor Starter, a Render button shows up in the [inspector](/docs/editor-starter/tracks-items-assets#inspectors) (i.e., composition inspector).
 
 The backend endpoint [`/api/render`](/docs/editor-starter/backend-routes#post-apirender) is invoked to trigger a render.  
 Once triggered, [`/api/progress`](/docs/editor-starter/backend-routes#get-apiprogress) is polled to check the progress of the render.
