@@ -1,14 +1,14 @@
-import { Caption } from '@remotion/captions';
-import React from 'react';
+import { Caption } from "@remotion/captions";
+import React from "react";
 import {
   Sequence,
   interpolate,
   useCurrentFrame,
   useVideoConfig,
-} from 'remotion';
-import type { Theme } from '../../../../config/themes';
-import type { CaptionPage } from '../../types';
-import { LINE_HEIGHT, SquareSubtitles } from './SquareSubtitles';
+} from "remotion";
+import type { Theme } from "../../../../config/themes";
+import type { CaptionPage } from "../../types";
+import { LINE_HEIGHT, SquareSubtitles } from "./SquareSubtitles";
 
 const getStartOfSegment = (segment: CaptionPage) => {
   if (segment.captions.length === 0) {
@@ -60,8 +60,8 @@ const FadeSentence: React.FC<{
     [0, 5, Math.max(6, durationInFrames - 5), Math.max(7, durationInFrames)],
     [0, 1, 1, 0],
     {
-      extrapolateRight: 'clamp',
-      extrapolateLeft: 'clamp',
+      extrapolateRight: "clamp",
+      extrapolateLeft: "clamp",
     },
   );
 

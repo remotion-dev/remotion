@@ -1,5 +1,5 @@
-import type { Dimensions } from '@remotion/layout-utils';
-import type { Rect } from './layout-types';
+import type { Dimensions } from "@remotion/layout-utils";
+import type { Rect } from "./layout-types";
 
 // Resize an aspect ratio to fit into a container
 // and center it

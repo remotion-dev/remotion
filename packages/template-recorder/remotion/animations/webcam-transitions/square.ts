@@ -1,9 +1,9 @@
 import type {
   SceneAndMetadata,
   VideoSceneAndMetadata,
-} from '../../../config/scenes';
-import type { LayoutAndFade } from '../../layout/layout-types';
-import { isWebCamAtBottom } from './helpers';
+} from "../../../config/scenes";
+import type { LayoutAndFade } from "../../layout/layout-types";
+import { isWebCamAtBottom } from "./helpers";
 
 export const getSquareWebcamStartOrEndLayout = ({
   otherScene,
@@ -14,14 +14,14 @@ export const getSquareWebcamStartOrEndLayout = ({
   currentScene: VideoSceneAndMetadata;
   canvasHeight: number;
 }): LayoutAndFade => {
-  if (!currentScene || currentScene.type !== 'video-scene') {
-    throw new Error('no transitions on non-video scenes');
+  if (!currentScene || currentScene.type !== "video-scene") {
+    throw new Error("no transitions on non-video scenes");
   }
 
   const currentLayout = currentScene.layout.webcamLayout;
 
   // No entrance if the other scene is not a video scene
-  if (!otherScene || otherScene.type !== 'video-scene') {
+  if (!otherScene || otherScene.type !== "video-scene") {
     return {
       layout: currentScene.layout.webcamLayout,
       shouldFadeRecording: false,

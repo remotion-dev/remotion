@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
-import type { Theme } from '../../../../config/themes';
-import { getHorizontalPaddingForSubtitles } from '../../processing/layout-captions';
-import type { CaptionPage } from '../../types';
-import { BoxedSingleCaption } from './SingleCaption';
+import React, { useMemo } from "react";
+import type { Theme } from "../../../../config/themes";
+import { getHorizontalPaddingForSubtitles } from "../../processing/layout-captions";
+import type { CaptionPage } from "../../types";
+import { BoxedSingleCaption } from "./SingleCaption";
 
 export const LINE_HEIGHT = 1.2;
 
@@ -22,13 +22,13 @@ export const SquareSubtitles: React.FC<{
   const style: React.CSSProperties = useMemo(() => {
     return {
       lineHeight: LINE_HEIGHT,
-      display: 'inline-block',
-      boxDecorationBreak: 'clone',
-      WebkitBoxDecorationBreak: 'clone',
+      display: "inline-block",
+      boxDecorationBreak: "clone",
+      WebkitBoxDecorationBreak: "clone",
       paddingLeft: getHorizontalPaddingForSubtitles(),
       paddingRight: getHorizontalPaddingForSubtitles(),
-      wordBreak: 'break-word',
-      width: '100%',
+      wordBreak: "break-word",
+      width: "100%",
     };
   }, []);
 

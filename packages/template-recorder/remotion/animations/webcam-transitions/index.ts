@@ -1,12 +1,12 @@
-import type { CanvasLayout } from '../../../config/layout';
+import type { CanvasLayout } from "../../../config/layout";
 import type {
   SceneAndMetadata,
   VideoSceneAndMetadata,
-} from '../../../config/scenes';
-import type { Layout, LayoutAndFade } from '../../layout/layout-types';
-import { interpolateLayoutAndFade } from '../interpolate-layout';
-import { getLandscapeWebCamStartOrEndLayout } from './landscape';
-import { getSquareWebcamStartOrEndLayout } from './square';
+} from "../../../config/scenes";
+import type { Layout, LayoutAndFade } from "../../layout/layout-types";
+import { interpolateLayoutAndFade } from "../interpolate-layout";
+import { getLandscapeWebCamStartOrEndLayout } from "./landscape";
+import { getSquareWebcamStartOrEndLayout } from "./square";
 
 const getWebCamStartOrEndLayout = ({
   canvasWidth,
@@ -21,7 +21,7 @@ const getWebCamStartOrEndLayout = ({
   canvasHeight: number;
   canvasLayout: CanvasLayout;
 }): LayoutAndFade => {
-  if (canvasLayout === 'landscape') {
+  if (canvasLayout === "landscape") {
     return getLandscapeWebCamStartOrEndLayout({
       currentScene,
       otherScene,
@@ -29,7 +29,7 @@ const getWebCamStartOrEndLayout = ({
     });
   }
 
-  if (canvasLayout === 'square') {
+  if (canvasLayout === "square") {
     return getSquareWebcamStartOrEndLayout({
       currentScene,
       canvasHeight,

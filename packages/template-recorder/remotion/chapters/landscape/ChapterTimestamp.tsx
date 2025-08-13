@@ -1,9 +1,9 @@
-import { measureText } from '@remotion/layout-utils';
-import React, { useMemo } from 'react';
-import { TITLE_FONT } from '../../../config/fonts';
-import { FPS } from '../../../config/fps';
-import { formatMilliseconds } from '../../../src/helpers/format-time';
-import { ChapterType } from '../make-chapters';
+import { measureText } from "@remotion/layout-utils";
+import React, { useMemo } from "react";
+import { TITLE_FONT } from "../../../config/fonts";
+import { FPS } from "../../../config/fps";
+import { formatMilliseconds } from "../../../src/helpers/format-time";
+import { ChapterType } from "../make-chapters";
 
 const chapterFontSize = 32;
 
@@ -29,17 +29,17 @@ export const ChapterTimestamp: React.FC<{
 
   const style: React.CSSProperties = useMemo(() => {
     return {
-      backgroundColor: 'black',
-      color: 'white',
+      backgroundColor: "black",
+      color: "white",
       padding: `${PADDING_VERTICAL}px 0px`,
       fontSize: chapterFontSize,
       ...TITLE_FONT,
       width: biggestWidth + PADDING_HORIZONTAL * 2,
-      textAlign: 'center',
-      height: '100%',
-      justifyContent: 'center',
-      alignItems: 'center',
-      display: 'flex',
+      textAlign: "center",
+      height: "100%",
+      justifyContent: "center",
+      alignItems: "center",
+      display: "flex",
     };
   }, [biggestWidth]);
 

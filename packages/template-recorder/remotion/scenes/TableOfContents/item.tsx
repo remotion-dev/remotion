@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
-import { useVideoConfig } from 'remotion';
-import { REGULAR_FONT } from '../../../config/fonts';
-import { formatMilliseconds } from '../../../src/helpers/format-time';
+import { useMemo } from "react";
+import { useVideoConfig } from "remotion";
+import { REGULAR_FONT } from "../../../config/fonts";
+import { formatMilliseconds } from "../../../src/helpers/format-time";
 
 export const TableOfContentItem: React.FC<{
   title: string;
@@ -18,9 +18,9 @@ export const TableOfContentItem: React.FC<{
       style={{
         ...REGULAR_FONT,
         fontSize: 46,
-        display: 'flex',
-        flexDirection: 'row',
-        width: '100%',
+        display: "flex",
+        flexDirection: "row",
+        width: "100%",
         lineHeight: 1.5,
       }}
     >
@@ -28,8 +28,8 @@ export const TableOfContentItem: React.FC<{
       <div
         style={{
           width: 150,
-          textAlign: 'right',
-          fontVariantNumeric: 'tabular-nums',
+          textAlign: "right",
+          fontVariantNumeric: "tabular-nums",
         }}
       >
         {formatMilliseconds(time * 1000)}

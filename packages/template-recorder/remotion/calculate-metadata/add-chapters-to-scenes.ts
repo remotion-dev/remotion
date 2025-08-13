@@ -1,4 +1,4 @@
-import { SceneAndMetadata } from '../../config/scenes';
+import { SceneAndMetadata } from "../../config/scenes";
 
 export const addChaptersToScenesAndMetadata = (
   scenesAndMetadata: SceneAndMetadata[],
@@ -7,7 +7,7 @@ export const addChaptersToScenesAndMetadata = (
   const newScenes: SceneAndMetadata[] = [];
 
   for (const scene of scenesAndMetadata) {
-    if (scene.type !== 'video-scene') {
+    if (scene.type !== "video-scene") {
       newScenes.push(scene);
       continue;
     }

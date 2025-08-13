@@ -1,11 +1,11 @@
-import React from 'react';
-import { Sequence, spring, useCurrentFrame, useVideoConfig } from 'remotion';
-import type { CanvasLayout } from '../../../config/layout';
-import type { BRollWithDimensions } from '../../../config/scenes';
-import { B_ROLL_TRANSITION_DURATION } from '../../../config/transitions';
-import type { BRollEnterDirection, Layout } from '../../layout/layout-types';
-import { Fade, FadeBRoll } from './FadeBRoll';
-import { ScaleDownBRoll } from './ScaleDownBRoll';
+import React from "react";
+import { Sequence, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import type { CanvasLayout } from "../../../config/layout";
+import type { BRollWithDimensions } from "../../../config/scenes";
+import { B_ROLL_TRANSITION_DURATION } from "../../../config/transitions";
+import type { BRollEnterDirection, Layout } from "../../layout/layout-types";
+import { Fade, FadeBRoll } from "./FadeBRoll";
+import { ScaleDownBRoll } from "./ScaleDownBRoll";
 
 const InnerBRoll: React.FC<{
   bRoll: BRollWithDimensions;
@@ -25,7 +25,7 @@ const InnerBRoll: React.FC<{
   const { fps } = useVideoConfig();
   const frame = useCurrentFrame();
 
-  const bRollType = canvasLayout === 'landscape' ? 'fade' : 'scale';
+  const bRollType = canvasLayout === "landscape" ? "fade" : "scale";
 
   const appearProgress = spring({
     fps,
@@ -46,7 +46,7 @@ const InnerBRoll: React.FC<{
     durationInFrames: B_ROLL_TRANSITION_DURATION,
   });
 
-  if (bRollType === 'fade') {
+  if (bRollType === "fade") {
     return (
       <Fade
         appearProgress={appearProgress}

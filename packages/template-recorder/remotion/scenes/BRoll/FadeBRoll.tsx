@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
-import { AbsoluteFill } from 'remotion';
-import type { BRollWithDimensions } from '../../../config/scenes';
-import type { Layout } from '../../layout/layout-types';
-import { ImgWithBlur } from '../VideoScene/ImgWithBlur';
-import { VideoWithBlur } from '../VideoScene/VideoWithBlur';
+import React, { useMemo } from "react";
+import { AbsoluteFill } from "remotion";
+import type { BRollWithDimensions } from "../../../config/scenes";
+import type { Layout } from "../../layout/layout-types";
+import { ImgWithBlur } from "../VideoScene/ImgWithBlur";
+import { VideoWithBlur } from "../VideoScene/VideoWithBlur";
 
 export const Fade: React.FC<{
   appearProgress: number;
@@ -30,7 +30,7 @@ export const FadeBRoll: React.FC<{
     };
   }, [bRoll.assetHeight, bRoll.assetWidth]);
 
-  if (bRoll.type === 'image') {
+  if (bRoll.type === "image") {
     return (
       <ImgWithBlur
         src={bRoll.source}
@@ -40,7 +40,7 @@ export const FadeBRoll: React.FC<{
     );
   }
 
-  if (bRoll.type === 'video') {
+  if (bRoll.type === "video") {
     return (
       <VideoWithBlur
         src={bRoll.source}

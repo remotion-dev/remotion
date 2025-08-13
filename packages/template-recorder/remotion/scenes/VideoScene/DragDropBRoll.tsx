@@ -1,11 +1,11 @@
-import { updateDefaultProps, writeStaticFile } from '@remotion/studio';
-import React from 'react';
-import { staticFile } from 'remotion';
+import { updateDefaultProps, writeStaticFile } from "@remotion/studio";
+import React from "react";
+import { staticFile } from "remotion";
 import {
   BRoll,
   SelectableScene,
   SelectableVideoScene,
-} from '../../../config/scenes';
+} from "../../../config/scenes";
 
 export const onBRollDropHandler = async ({
   e,

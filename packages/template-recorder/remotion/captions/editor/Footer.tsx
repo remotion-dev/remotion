@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react';
-import { FOOTER_HEIGHT, SIDE_PADDING } from './layout';
-import { useCaptionOverlay } from './use-caption-overlay';
+import React, { useCallback } from "react";
+import { FOOTER_HEIGHT, SIDE_PADDING } from "./layout";
+import { useCaptionOverlay } from "./use-caption-overlay";
 
 export const SubsEditorFooter: React.FC<{
   fileName: string;
@@ -14,24 +14,24 @@ export const SubsEditorFooter: React.FC<{
   return (
     <div
       style={{
-        display: 'flex',
-        flexDirection: 'row',
+        display: "flex",
+        flexDirection: "row",
         height: FOOTER_HEIGHT,
-        width: '100%',
-        backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0), white 20%)',
-        position: 'absolute',
+        width: "100%",
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0), white 20%)",
+        position: "absolute",
         bottom: 0,
         paddingTop: 20,
         paddingLeft: SIDE_PADDING,
         paddingRight: SIDE_PADDING,
-        alignItems: 'center',
+        alignItems: "center",
       }}
     >
       <div
         style={{
           fontSize: 20,
-          fontFamily: 'sans-serif',
-          color: 'gray',
+          fontFamily: "sans-serif",
+          color: "gray",
           flex: 1,
         }}
       >
@@ -42,21 +42,21 @@ export const SubsEditorFooter: React.FC<{
       <div>
         <button
           style={{
-            backgroundColor: 'black',
+            backgroundColor: "black",
             fontSize: 30,
-            color: 'white',
+            color: "white",
             borderRadius: 7,
-            padding: '12px 30px',
-            cursor: 'pointer',
+            padding: "12px 30px",
+            cursor: "pointer",
           }}
-          type={'button'}
+          type={"button"}
           onClick={onCloseSubEditor}
         >
-          Done{' '}
+          Done{" "}
           <kbd
             style={{
-              color: 'rgba(255, 255, 255, 0.4)',
-              fontSize: '0.9em',
+              color: "rgba(255, 255, 255, 0.4)",
+              fontSize: "0.9em",
               marginLeft: 5,
             }}
           >

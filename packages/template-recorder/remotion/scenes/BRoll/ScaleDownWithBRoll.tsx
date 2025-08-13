@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
-import { AbsoluteFill, spring, useVideoConfig } from 'remotion';
-import type { BRoll } from '../../../config/scenes';
-import { B_ROLL_TRANSITION_DURATION } from '../../../config/transitions';
-import type { BRollType } from '../../layout/layout-types';
+import React, { useMemo } from "react";
+import { AbsoluteFill, spring, useVideoConfig } from "remotion";
+import type { BRoll } from "../../../config/scenes";
+import { B_ROLL_TRANSITION_DURATION } from "../../../config/transitions";
+import type { BRollType } from "../../layout/layout-types";
 
 // A value of 0.1 means that the original
 // video only has a 90% of its original size
@@ -49,8 +49,8 @@ const ScaleDownWithBRoll: React.FC<Props> = ({ bRolls, frame, children }) => {
   const style: React.CSSProperties = useMemo(() => {
     return {
       scale: String(scale),
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
     };
   }, [scale]);
 
@@ -62,7 +62,7 @@ export const ScaleDownIfBRollRequiresIt: React.FC<
     bRollType: BRollType;
   }
 > = ({ bRollType, bRolls, frame, children }) => {
-  if (bRollType !== 'scale') {
+  if (bRollType !== "scale") {
     return <>{children}</>;
   }
 

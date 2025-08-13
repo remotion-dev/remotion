@@ -2,15 +2,15 @@ import {
   getStaticFiles,
   reevaluateComposition,
   watchPublicFolder,
-} from '@remotion/studio';
-import { useEffect, useState } from 'react';
-import { StaticFile } from 'remotion';
+} from "@remotion/studio";
+import { useEffect, useState } from "react";
+import { StaticFile } from "remotion";
 import {
   ALTERNATIVE1_PREFIX,
   ALTERNATIVE2_PREFIX,
   DISPLAY_PREFIX,
   WEBCAM_PREFIX,
-} from '../../config/cameras';
+} from "../../config/cameras";
 
 const filterForCurrentComposition = (
   files: StaticFile[],

@@ -1,15 +1,15 @@
-import React from 'react';
-import { useVideoConfig } from 'remotion';
+import React from "react";
+import { useVideoConfig } from "remotion";
 import {
   FIRST_COLUMN_WIDTH,
   HEADER_HEIGHT,
   SECOND_COLUMN_WIDTH,
   SIDE_PADDING,
-} from './layout';
+} from "./layout";
 
-const cmdOrCtrlCharacter = window.navigator.platform.startsWith('Mac')
-  ? '⌘'
-  : 'Ctrl';
+const cmdOrCtrlCharacter = window.navigator.platform.startsWith("Mac")
+  ? "⌘"
+  : "Ctrl";
 
 export const SubsEditorHeader: React.FC = () => {
   const { width } = useVideoConfig();
@@ -19,22 +19,22 @@ export const SubsEditorHeader: React.FC = () => {
     <div
       style={{
         height: HEADER_HEIGHT,
-        width: '100%',
-        backgroundImage: 'linear-gradient(white 60%, rgba(255, 255, 255, 0))',
-        position: 'absolute',
+        width: "100%",
+        backgroundImage: "linear-gradient(white 60%, rgba(255, 255, 255, 0))",
+        position: "absolute",
         paddingLeft: SIDE_PADDING,
         paddingRight: SIDE_PADDING,
-        display: 'flex',
-        flexDirection: 'row',
+        display: "flex",
+        flexDirection: "row",
       }}
     >
       <div
         style={{
-          fontFamily: 'Helvetica',
+          fontFamily: "Helvetica",
           fontSize: 20,
           paddingTop: 30,
-          color: 'gray',
-          textAlign: 'right',
+          color: "gray",
+          textAlign: "right",
           paddingRight: 30,
           width: FIRST_COLUMN_WIDTH * usableWidth,
         }}
@@ -43,10 +43,10 @@ export const SubsEditorHeader: React.FC = () => {
       </div>
       <div
         style={{
-          fontFamily: 'Helvetica',
+          fontFamily: "Helvetica",
           fontSize: 20,
           paddingTop: 30,
-          color: 'gray',
+          color: "gray",
           width: SECOND_COLUMN_WIDTH * usableWidth,
         }}
       >
@@ -54,10 +54,10 @@ export const SubsEditorHeader: React.FC = () => {
       </div>
       <div
         style={{
-          fontFamily: 'Helvetica',
+          fontFamily: "Helvetica",
           fontSize: 20,
           paddingTop: 30,
-          color: 'gray',
+          color: "gray",
         }}
       >
         MONOSPACE <kbd>({cmdOrCtrlCharacter}+I)</kbd>

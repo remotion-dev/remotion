@@ -22,5 +22,5 @@ export type RecordingsLayout = {
   bRollEnterDirection: BRollEnterDirection;
 };
 
-export type BRollEnterDirection = 'top' | 'bottom';
-export type BRollType = 'scale' | 'fade';
+export type BRollEnterDirection = "top" | "bottom";
+export type BRollType = "scale" | "fade";

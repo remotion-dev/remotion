@@ -1,7 +1,7 @@
-import { Caption } from '@remotion/captions';
-import { FPS } from '../../config/fps';
-import { SelectableVideoScene } from '../../config/scenes';
-import { postprocessCaptions } from '../captions/processing/postprocess-subs';
+import { Caption } from "@remotion/captions";
+import { FPS } from "../../config/fps";
+import { SelectableVideoScene } from "../../config/scenes";
+import { postprocessCaptions } from "../captions/processing/postprocess-subs";
 
 const START_FRAME_PADDING = Math.ceil(FPS / 4);
 const END_FRAME_PADDING = FPS / 2;

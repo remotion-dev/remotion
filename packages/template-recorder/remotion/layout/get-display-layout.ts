@@ -1,16 +1,16 @@
-import type { CanvasLayout } from '../../config/layout';
-import { getSafeSpace, type Dimensions } from '../../config/layout';
-import type { WebcamPosition } from '../../config/scenes';
+import type { CanvasLayout } from "../../config/layout";
+import { getSafeSpace, type Dimensions } from "../../config/layout";
+import type { WebcamPosition } from "../../config/scenes";
 import {
   isWebCamAtBottom,
   isWebCamRight,
-} from '../animations/webcam-transitions/helpers';
-import { borderRadius, fullscreenLayout } from './get-layout';
+} from "../animations/webcam-transitions/helpers";
+import { borderRadius, fullscreenLayout } from "./get-layout";
 import type {
   BRollEnterDirection,
   Layout,
   RecordingsLayout,
-} from './layout-types';
+} from "./layout-types";
 
 const getYForDisplayLayout = ({
   webcamPosition,
@@ -22,10 +22,10 @@ const getYForDisplayLayout = ({
   displayHeight: number;
 }): number => {
   if (isWebCamAtBottom(webcamPosition)) {
-    return getSafeSpace('square');
+    return getSafeSpace("square");
   }
 
-  return canvasSize.height - displayHeight - getSafeSpace('square');
+  return canvasSize.height - displayHeight - getSafeSpace("square");
 };
 
 export const getSquareDisplayLayout = ({
@@ -61,15 +61,15 @@ export const getSquareBRollLayout = ({
   displaySize: Dimensions;
 }): { bRollLayout: Layout; bRollEnterDirection: BRollEnterDirection } => {
   return {
-    bRollEnterDirection: isWebCamAtBottom(webcamPosition) ? 'top' : 'bottom',
+    bRollEnterDirection: isWebCamAtBottom(webcamPosition) ? "top" : "bottom",
     bRollLayout: {
-      left: getSafeSpace('square'),
+      left: getSafeSpace("square"),
       top: getYForDisplayLayout({
         webcamPosition,
         canvasSize,
         displayHeight: displaySize.height,
       }),
-      width: canvasSize.width - getSafeSpace('square') * 2,
+      width: canvasSize.width - getSafeSpace("square") * 2,
       height: displaySize.height,
       borderRadius,
       opacity: 1,
@@ -97,16 +97,16 @@ export const getLandscapeDisplayAndWebcamLayout = ({
     opacity: 1,
     left: isWebCamRight(webcamPosition)
       ? canvasSize.width - webcamSize.width - getSafeSpace(canvasLayout)
-      : getSafeSpace('landscape'),
+      : getSafeSpace("landscape"),
     top: isWebCamAtBottom(webcamPosition)
       ? canvasSize.height - webcamSize.height - getSafeSpace(canvasLayout)
-      : getSafeSpace('landscape'),
+      : getSafeSpace("landscape"),
   };
 
   return {
     displayLayout,
     webcamLayout,
     bRollLayout: displayLayout,
-    bRollEnterDirection: isWebCamAtBottom(webcamPosition) ? 'top' : 'bottom',
+    bRollEnterDirection: isWebCamAtBottom(webcamPosition) ? "top" : "bottom",
   };
 };

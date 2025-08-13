@@ -1,14 +1,14 @@
-import { Caption } from '@remotion/captions';
-import { writeStaticFile } from '@remotion/studio';
-import React, { useCallback, useEffect } from 'react';
-import ReactDOM from 'react-dom';
-import { AbsoluteFill } from 'remotion';
-import type { Theme } from '../../../config/themes';
-import { EditCaption } from './EditCaption';
-import { SubsEditorFooter } from './Footer';
-import { SubsEditorHeader } from './Header';
-import { FOOTER_HEIGHT, HEADER_HEIGHT, captionEditorPortal } from './layout';
-import { useCaptionOverlay } from './use-caption-overlay';
+import { Caption } from "@remotion/captions";
+import { writeStaticFile } from "@remotion/studio";
+import React, { useCallback, useEffect } from "react";
+import ReactDOM from "react-dom";
+import { AbsoluteFill } from "remotion";
+import type { Theme } from "../../../config/themes";
+import { EditCaption } from "./EditCaption";
+import { SubsEditorFooter } from "./Footer";
+import { SubsEditorHeader } from "./Header";
+import { FOOTER_HEIGHT, HEADER_HEIGHT, captionEditorPortal } from "./layout";
+import { useCaptionOverlay } from "./use-caption-overlay";
 
 export const CaptionsEditor: React.FC<{
   captions: Caption[];
@@ -34,7 +34,7 @@ export const CaptionsEditor: React.FC<{
         }
 
         if (!window.remotion_publicFolderExists) {
-          throw new Error('window.remotion_publicFolderExists is not set');
+          throw new Error("window.remotion_publicFolderExists is not set");
         }
 
         const newOutput = updater(old);
@@ -79,15 +79,15 @@ export const CaptionsEditor: React.FC<{
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         e.preventDefault();
         overlay.setOpen(false);
       }
     };
 
-    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener("keydown", onKeyDown);
     return () => {
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, [overlay, overlay.setOpen]);
 
@@ -98,12 +98,12 @@ export const CaptionsEditor: React.FC<{
   return ReactDOM.createPortal(
     <AbsoluteFill
       style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
       }}
     >
       <AbsoluteFill
         style={{
-          overflowY: 'auto',
+          overflowY: "auto",
           paddingTop: HEADER_HEIGHT,
           paddingBottom: FOOTER_HEIGHT,
         }}
@@ -111,7 +111,7 @@ export const CaptionsEditor: React.FC<{
         {captions.map((caption, i) => {
           return (
             <EditCaption
-              key={[caption.startMs, caption.endMs, i].join('-')}
+              key={[caption.startMs, caption.endMs, i].join("-")}
               theme={theme}
               index={i}
               longestNumberLength={longestNumberLength}

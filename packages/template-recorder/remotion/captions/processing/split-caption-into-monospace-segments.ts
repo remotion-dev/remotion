@@ -1,4 +1,4 @@
-import { Caption } from '@remotion/captions';
+import { Caption } from "@remotion/captions";
 
 export const splitCaptionIntoMonospaceSegments = (
   caption: Caption,
@@ -19,7 +19,7 @@ export const splitCaptionIntoMonospaceSegments = (
 
     result.push({
       ...caption,
-      text: `${('`' + match[1]) as string}\``,
+      text: `${("`" + match[1]) as string}\``,
     });
     lastIndex = regex.lastIndex;
   }
@@ -32,7 +32,7 @@ export const splitCaptionIntoMonospaceSegments = (
 };
 
 export const isCaptionMonospace = (caption: Caption) => {
-  return caption.text.startsWith('`') && caption.text.endsWith('`');
+  return caption.text.startsWith("`") && caption.text.endsWith("`");
 };
 
 export const removeMonospaceTicks = (caption: Caption) => {
