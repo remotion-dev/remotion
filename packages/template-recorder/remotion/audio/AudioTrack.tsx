@@ -1,15 +1,15 @@
-import React, { useMemo } from 'react';
-import { Audio, interpolate, Sequence, useVideoConfig } from 'remotion';
-import type { CanvasLayout } from '../../config/layout';
-import type { SceneAndMetadata } from '../../config/scenes';
+import React, { useMemo } from "react";
+import { Audio, interpolate, Sequence, useVideoConfig } from "remotion";
+import type { CanvasLayout } from "../../config/layout";
+import type { SceneAndMetadata } from "../../config/scenes";
 import {
   AUDIO_FADE_IN_FRAMES,
   BACKGROUND_VOLUME,
   getAudioSource,
   REGULAR_VOLUME,
-} from '../../config/sounds';
-import { SCENE_TRANSITION_DURATION } from '../../config/transitions';
-import { getShouldTransitionOut } from '../animations/transitions';
+} from "../../config/sounds";
+import { SCENE_TRANSITION_DURATION } from "../../config/transitions";
+import { getShouldTransitionOut } from "../animations/transitions";
 
 type LoudPart = [number, number];
 
@@ -48,8 +48,8 @@ const calculateVolume =
       ],
       [0, BACKGROUND_VOLUME, BACKGROUND_VOLUME, 0],
       {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
       },
     );
 
@@ -118,11 +118,11 @@ export const AudioTrack: React.FC<{
       addedUpDurations -= SCENE_TRANSITION_DURATION;
     }
 
-    const isLoud = scene.type !== 'video-scene';
+    const isLoud = scene.type !== "video-scene";
 
     const { music } = scene.scene;
 
-    if (music === 'previous' && audioClips.length > 0) {
+    if (music === "previous" && audioClips.length > 0) {
       const lastAudioClip = audioClips[audioClips.length - 1] as TAudioTrack;
 
       lastAudioClip.duration += metadataForScene.durationInFrames;
@@ -144,7 +144,7 @@ export const AudioTrack: React.FC<{
         }
       }
     } else {
-      if (music === 'previous') {
+      if (music === "previous") {
         return;
       }
 
@@ -162,7 +162,7 @@ export const AudioTrack: React.FC<{
   return (
     <>
       {audioClips.map((clip) => {
-        if (clip.src === 'none') {
+        if (clip.src === "none") {
           return null;
         }
 

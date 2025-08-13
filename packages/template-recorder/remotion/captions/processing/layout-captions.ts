@@ -1,15 +1,15 @@
-import { Caption } from '@remotion/captions';
-import { fillTextBox } from '@remotion/layout-utils';
-import { MONOSPACE_FONT, REGULAR_FONT } from '../../../config/fonts';
-import { getSafeSpace } from '../../../config/layout';
-import { getBorderWidthForSubtitles } from '../boxed/components/CaptionSentence';
-import { CaptionPage, LayoutedCaptions } from '../types';
-import { hasMonoSpaceInCaption } from './has-monospace-in-caption';
+import { Caption } from "@remotion/captions";
+import { fillTextBox } from "@remotion/layout-utils";
+import { MONOSPACE_FONT, REGULAR_FONT } from "../../../config/fonts";
+import { getSafeSpace } from "../../../config/layout";
+import { getBorderWidthForSubtitles } from "../boxed/components/CaptionSentence";
+import { CaptionPage, LayoutedCaptions } from "../types";
+import { hasMonoSpaceInCaption } from "./has-monospace-in-caption";
 import {
   isCaptionMonospace,
   removeMonospaceTicks,
   splitCaptionIntoMonospaceSegments,
-} from './split-caption-into-monospace-segments';
+} from "./split-caption-into-monospace-segments";
 
 const balanceCaptions = ({
   captions,
@@ -34,7 +34,7 @@ const balanceCaptions = ({
   for (let i = 1; i < 4; i++) {
     const index = bestCut - i;
     const caption = (captions[index] as Caption).text.trim();
-    if (caption.endsWith(',') || caption.endsWith('.')) {
+    if (caption.endsWith(",") || caption.endsWith(".")) {
       bestCut = index + 1;
       break;
     }
@@ -42,7 +42,7 @@ const balanceCaptions = ({
 
   while (
     (bestCut > 1 && hasMonoSpaceInCaption(captions[bestCut - 1] as Caption)) ||
-    (captions[bestCut - 1] as Caption).text.trim() === ''
+    (captions[bestCut - 1] as Caption).text.trim() === ""
   ) {
     bestCut--;
   }
@@ -119,7 +119,7 @@ const cutCaptions = ({
 };
 
 export const getHorizontalPaddingForSubtitles = () => {
-  return getSafeSpace('square');
+  return getSafeSpace("square");
 };
 
 export const layoutCaptions = ({

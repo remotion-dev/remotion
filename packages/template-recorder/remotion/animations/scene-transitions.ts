@@ -1,4 +1,4 @@
-import type { SceneAndMetadata } from '../../config/scenes';
+import type { SceneAndMetadata } from "../../config/scenes";
 
 export const getSceneEnter = ({
   canvasWidth,
@@ -18,8 +18,8 @@ export const getSceneEnter = ({
   }
 
   if (
-    previousScene.type === 'video-scene' &&
-    currentScene.type === 'video-scene'
+    previousScene.type === "video-scene" &&
+    currentScene.type === "video-scene"
   ) {
     return {
       left: 0,
@@ -46,7 +46,7 @@ export const getSceneExit = ({
     };
   }
 
-  if (nextScene.type === 'video-scene' && currentScene.type === 'video-scene') {
+  if (nextScene.type === "video-scene" && currentScene.type === "video-scene") {
     return {
       left: 0,
     };

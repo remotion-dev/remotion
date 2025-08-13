@@ -1,5 +1,5 @@
-import { interpolate } from 'remotion';
-import type { Layout } from '../layout/layout-types';
+import { interpolate } from "remotion";
+import type { Layout } from "../layout/layout-types";
 
 export const interpolateLayout = (
   firstLayout: Layout,

@@ -1,12 +1,12 @@
-import type React from 'react';
+import type React from "react";
 import {
   DIMENSIONS,
   type CanvasLayout,
   type Dimensions,
-} from '../../config/layout';
-import type { SceneAndMetadata } from '../../config/scenes';
-import { fitElementSizeInContainer } from './fit-element';
-import type { Layout } from './layout-types';
+} from "../../config/layout";
+import type { SceneAndMetadata } from "../../config/scenes";
+import { fitElementSizeInContainer } from "./fit-element";
+import type { Layout } from "./layout-types";
 
 // Background blur should only be enabled in landscape layout
 // when the webcam is in fullscreen
@@ -14,7 +14,7 @@ export const shouldEnableSceneBackgroundBlur = (
   scene: SceneAndMetadata,
   canvasLayout: CanvasLayout,
 ) => {
-  if (scene.type !== 'video-scene') {
+  if (scene.type !== "video-scene") {
     return false;
   }
 
@@ -22,7 +22,7 @@ export const shouldEnableSceneBackgroundBlur = (
     return false;
   }
 
-  if (canvasLayout !== 'landscape') {
+  if (canvasLayout !== "landscape") {
     return false;
   }
 
@@ -49,11 +49,11 @@ export const getBlurLayout = ({
     ...containerLayout,
     left: 0,
     top: 0,
-    overflow: 'hidden',
+    overflow: "hidden",
   };
 
   const innerStyle: React.CSSProperties = {
-    position: 'absolute',
+    position: "absolute",
     ...containerLayout,
     ...inner,
   };
@@ -67,13 +67,13 @@ export const getBlurLayout = ({
     blurStyle: {
       // Chrome has "blur bleed" where it does not blur the edges of the image.
       // Fixing by making the image larger
-      width: '110%',
-      height: '110%',
-      objectFit: 'cover',
-      filter: 'blur(20px)',
-      top: '-5%',
-      left: '-5%',
-      position: 'absolute',
+      width: "110%",
+      height: "110%",
+      objectFit: "cover",
+      filter: "blur(20px)",
+      top: "-5%",
+      left: "-5%",
+      position: "absolute",
     } as React.CSSProperties,
   };
 };

@@ -1,15 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react";
 import {
   AbsoluteFill,
   spring,
   useCurrentFrame,
   useVideoConfig,
-} from 'remotion';
-import { TITLE_FONT } from '../../../config/fonts';
-import { getSafeSpace } from '../../../config/layout';
-import { SCENE_TRANSITION_DURATION } from '../../../config/transitions';
-import { borderRadius } from '../../layout/get-layout';
-import type { Layout } from '../../layout/layout-types';
+} from "remotion";
+import { TITLE_FONT } from "../../../config/fonts";
+import { getSafeSpace } from "../../../config/layout";
+import { SCENE_TRANSITION_DURATION } from "../../../config/transitions";
+import { borderRadius } from "../../layout/get-layout";
+import type { Layout } from "../../layout/layout-types";
 
 const HEIGHT = 78;
 
@@ -36,7 +36,7 @@ export const SquareChapter: React.FC<{
   }, [displayLayout, webcamLayout]);
 
   const top = useMemo(() => {
-    return layout.height - HEIGHT - getSafeSpace('square');
+    return layout.height - HEIGHT - getSafeSpace("square");
   }, [layout.height]);
 
   const frame = useCurrentFrame();
@@ -59,11 +59,11 @@ export const SquareChapter: React.FC<{
     },
     delay: 70,
   });
-  const toTop = (1 - enter) * (HEIGHT + getSafeSpace('square'));
+  const toTop = (1 - enter) * (HEIGHT + getSafeSpace("square"));
   const toLeft = exit * -width;
 
   return (
-    <AbsoluteFill style={{ pointerEvents: 'none' }}>
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
       <div
         style={{
           ...layout,
@@ -73,31 +73,31 @@ export const SquareChapter: React.FC<{
                 (gradientOpacities[i] as number) * globalGradientOpacity
               }%`;
             })
-            .join(', ')}, hsl(0, 0%, 100%) 100%)`,
-          position: 'absolute',
+            .join(", ")}, hsl(0, 0%, 100%) 100%)`,
+          position: "absolute",
           opacity: (enter - exit) * 0.2,
         }}
       />
-      <div style={{ ...layout, position: 'absolute', overflow: 'hidden' }}>
+      <div style={{ ...layout, position: "absolute", overflow: "hidden" }}>
         <div
           style={{
-            color: 'white',
-            padding: '0 30px',
-            background: 'black',
-            position: 'absolute',
+            color: "white",
+            padding: "0 30px",
+            background: "black",
+            position: "absolute",
             top: top + toTop,
             height: HEIGHT,
-            left: getSafeSpace('square'),
+            left: getSafeSpace("square"),
             borderRadius,
             fontSize: 40,
             ...TITLE_FONT,
-            display: 'flex',
-            alignItems: 'center',
+            display: "flex",
+            alignItems: "center",
             transform: `translateX(${toLeft}px)`,
           }}
         >
           {title}
-        </div>{' '}
+        </div>{" "}
       </div>
     </AbsoluteFill>
   );

@@ -1,4 +1,4 @@
-import { Caption } from '@remotion/captions';
+import { Caption } from "@remotion/captions";
 
 export type UnserializedSrt = {
   firstTimestampMs: number;
@@ -14,7 +14,7 @@ const formatSingleSrtTimestamp = (timestamp: number) => {
   const seconds = Math.floor((timestamp % 60000) / 1000);
   const milliseconds = Math.floor(timestamp % 1000);
 
-  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')},${String(milliseconds).padStart(3, '0')}`;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")},${String(milliseconds).padStart(3, "0")}`;
 };
 
 const formatSrtTimestamp = (startMs: number, endMs: number) => {
@@ -33,7 +33,7 @@ export const serializeSrt = (srt: UnserializedSrt[]) => {
         formatSrtTimestamp(s.firstTimestampMs, s.lastTimestampMs),
         // Text
         s.text,
-      ].join('\n');
+      ].join("\n");
     })
-    .join('\n\n');
+    .join("\n\n");
 };

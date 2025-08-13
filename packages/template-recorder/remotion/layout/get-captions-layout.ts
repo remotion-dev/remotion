@@ -1,13 +1,13 @@
-import type { CanvasLayout, Dimensions } from '../../config/layout';
-import { getSafeSpace } from '../../config/layout';
-import type { WebcamPosition } from '../../config/scenes';
-import {} from '../animations/webcam-transitions';
+import type { CanvasLayout, Dimensions } from "../../config/layout";
+import { getSafeSpace } from "../../config/layout";
+import type { WebcamPosition } from "../../config/scenes";
+import {} from "../animations/webcam-transitions";
 import {
   isWebCamAtBottom,
   isWebCamRight,
-} from '../animations/webcam-transitions/helpers';
-import { borderRadius } from './get-layout';
-import type { Layout } from './layout-types';
+} from "../animations/webcam-transitions/helpers";
+import { borderRadius } from "./get-layout";
+import type { Layout } from "./layout-types";
 
 export const getCaptionsLayout = ({
   canvasLayout,
@@ -22,7 +22,7 @@ export const getCaptionsLayout = ({
   webcamPosition: WebcamPosition;
   displayLayout: Dimensions | null;
 }): Layout | null => {
-  if (canvasLayout !== 'square') {
+  if (canvasLayout !== "square") {
     return null;
   }
   if (displayLayout === null) {

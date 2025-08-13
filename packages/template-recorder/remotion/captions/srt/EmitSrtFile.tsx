@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
-import { Artifact, useCurrentFrame } from 'remotion';
-import { FPS } from '../../../config/fps';
-import { SceneAndMetadata } from '../../../config/scenes';
-import { combineSrt } from './helpers/combine-srt';
-import { serializeSrt } from './helpers/serialize-srt';
+import React, { useMemo } from "react";
+import { Artifact, useCurrentFrame } from "remotion";
+import { FPS } from "../../../config/fps";
+import { SceneAndMetadata } from "../../../config/scenes";
+import { combineSrt } from "./helpers/combine-srt";
+import { serializeSrt } from "./helpers/serialize-srt";
 
 // Rendering this component will cause an `captions.srt` file to be generated
 // while rendering.
@@ -16,7 +16,7 @@ export const EmitSrtFile: React.FC<{
     const toCombine = scenesAndMetadata.map((scene) => {
       return {
         offsetInMs: Math.round((scene.from * 1000) / FPS),
-        srts: scene.type === 'video-scene' ? scene.srt : [],
+        srts: scene.type === "video-scene" ? scene.srt : [],
       };
     });
 

@@ -1,7 +1,7 @@
-import React from 'react';
-import { AbsoluteFill } from 'remotion';
-import type { Theme } from '../../../config/themes';
-import { COLORS } from '../../../config/themes';
+import React from "react";
+import { AbsoluteFill } from "remotion";
+import type { Theme } from "../../../config/themes";
+import { COLORS } from "../../../config/themes";
 
 const border = 6;
 
@@ -34,7 +34,7 @@ export const ThumbnailContainers: React.FC<{
   return (
     <AbsoluteFill
       style={{
-        alignItems: 'flex-end',
+        alignItems: "flex-end",
         paddingRight: 100,
         top: YOUTUBE_END_SCREEN_SAFE_AREA_TOP,
       }}
@@ -42,8 +42,8 @@ export const ThumbnailContainers: React.FC<{
       <div
         style={{
           height: YOUTUBE_END_SCREEN_SAFE_AREA_HEIGHT,
-          display: 'flex',
-          flexDirection: 'column',
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <ThumbnailPreview theme={theme} />

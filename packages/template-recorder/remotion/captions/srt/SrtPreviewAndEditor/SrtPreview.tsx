@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
-import { Sequence, useVideoConfig } from 'remotion';
-import { useCaptions } from '../../editor/captions-provider';
-import { calculateSrt } from '../helpers/calculate-srt';
-import { SrtPreviewLine } from './SrtPreviewLine';
+import React, { useMemo } from "react";
+import { Sequence, useVideoConfig } from "remotion";
+import { useCaptions } from "../../editor/captions-provider";
+import { calculateSrt } from "../helpers/calculate-srt";
+import { SrtPreviewLine } from "./SrtPreviewLine";
 
 export const SrtPreview: React.FC<{
   startFrame: number;

@@ -1,8 +1,8 @@
 import type {
   SceneAndMetadata,
   VideoSceneAndMetadata,
-} from '../../../config/scenes';
-import type { LayoutAndFade } from '../../layout/layout-types';
+} from "../../../config/scenes";
+import type { LayoutAndFade } from "../../layout/layout-types";
 
 export const getLandscapeDisplayEnterOrExit = ({
   currentScene,
@@ -12,13 +12,13 @@ export const getLandscapeDisplayEnterOrExit = ({
   currentScene: VideoSceneAndMetadata;
 }): LayoutAndFade => {
   if (
-    currentScene.type !== 'video-scene' ||
+    currentScene.type !== "video-scene" ||
     currentScene.layout.displayLayout === null
   ) {
-    throw new Error('no transitions on non-video scenes');
+    throw new Error("no transitions on non-video scenes");
   }
 
-  if (otherScene === null || otherScene.type !== 'video-scene') {
+  if (otherScene === null || otherScene.type !== "video-scene") {
     return {
       layout: currentScene.layout.displayLayout,
       shouldFadeRecording: false,

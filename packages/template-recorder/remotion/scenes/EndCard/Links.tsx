@@ -1,8 +1,8 @@
-import React from 'react';
-import { spring, useCurrentFrame, useVideoConfig } from 'remotion';
-import type { LinkType } from '../../../config/endcard';
-import type { Theme } from '../../../config/themes';
-import { IconRow } from './IconRow';
+import React from "react";
+import { spring, useCurrentFrame, useVideoConfig } from "remotion";
+import type { LinkType } from "../../../config/endcard";
+import type { Theme } from "../../../config/themes";
+import { IconRow } from "./IconRow";
 
 export const Links: React.FC<{
   links: LinkType[];

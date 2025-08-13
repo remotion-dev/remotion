@@ -1,18 +1,18 @@
-import { parseMedia } from '@remotion/media-parser';
-import { CanvasLayout } from '../../config/layout';
+import { parseMedia } from "@remotion/media-parser";
+import { CanvasLayout } from "../../config/layout";
 import {
   Cameras,
   SceneAndMetadata,
   SceneVideos,
   SelectableScene,
-} from '../../config/scenes';
-import { calculateSrt } from '../captions/srt/helpers/calculate-srt';
-import { getBRollDimensions } from '../layout/get-broll-dimensions';
-import { getVideoSceneLayout } from '../layout/get-layout';
-import { PLACEHOLDER_DURATION_IN_FRAMES } from './empty-place-holder';
-import { fetchCaptions } from './fetch-captions';
-import { getFinalWebcamPosition } from './get-final-webcam-position';
-import { getStartEndFrame } from './get-start-end-frame';
+} from "../../config/scenes";
+import { calculateSrt } from "../captions/srt/helpers/calculate-srt";
+import { getBRollDimensions } from "../layout/get-broll-dimensions";
+import { getVideoSceneLayout } from "../layout/get-layout";
+import { PLACEHOLDER_DURATION_IN_FRAMES } from "./empty-place-holder";
+import { fetchCaptions } from "./fetch-captions";
+import { getFinalWebcamPosition } from "./get-final-webcam-position";
+import { getStartEndFrame } from "./get-start-end-frame";
 
 export const addMetadataToScene = async ({
   scene,
@@ -27,9 +27,9 @@ export const addMetadataToScene = async ({
   canvasLayout: CanvasLayout;
   allScenes: SelectableScene[];
 }): Promise<SceneAndMetadata> => {
-  if (scene.type !== 'videoscene') {
+  if (scene.type !== "videoscene") {
     return {
-      type: 'other-scene',
+      type: "other-scene",
       scene,
       durationInFrames: scene.durationInFrames,
       from: 0,
@@ -38,9 +38,9 @@ export const addMetadataToScene = async ({
 
   if (!cameras) {
     return {
-      type: 'other-scene',
+      type: "other-scene",
       scene: {
-        type: hasAtLeast1Camera ? 'nomorerecordings' : 'norecordings',
+        type: hasAtLeast1Camera ? "nomorerecordings" : "norecordings",
         transitionToNextScene: scene.transitionToNextScene,
         music: scene.music,
       },
@@ -59,10 +59,10 @@ export const addMetadataToScene = async ({
   });
 
   if (!webcamMetadata.dimensions) {
-    throw new Error('No dimensions for webcam');
+    throw new Error("No dimensions for webcam");
   }
   if (!webcamMetadata.durationInSeconds) {
-    throw new Error('No duration for webcam');
+    throw new Error("No duration for webcam");
   }
 
   const displayMetadata = cameras.display
@@ -105,7 +105,7 @@ export const addMetadataToScene = async ({
   };
 
   return {
-    type: 'video-scene',
+    type: "video-scene",
     scene,
     videos,
     layout: getVideoSceneLayout({

@@ -1,13 +1,13 @@
-import React, { useMemo } from 'react';
-import { Img, interpolate, OffthreadVideo, useVideoConfig } from 'remotion';
-import type { BRollWithDimensions } from '../../../config/scenes';
-import { fitElementSizeInContainer } from '../../layout/fit-element';
+import React, { useMemo } from "react";
+import { Img, interpolate, OffthreadVideo, useVideoConfig } from "remotion";
+import type { BRollWithDimensions } from "../../../config/scenes";
+import { fitElementSizeInContainer } from "../../layout/fit-element";
 import type {
   BRollEnterDirection,
   Layout,
   Rect,
-} from '../../layout/layout-types';
-import { ScaleDownIfBRollRequiresIt } from './ScaleDownWithBRoll';
+} from "../../layout/layout-types";
+import { ScaleDownIfBRollRequiresIt } from "./ScaleDownWithBRoll";
 
 export const ScaleDownBRoll: React.FC<{
   bRollEnterDirection: BRollEnterDirection;
@@ -31,16 +31,16 @@ export const ScaleDownBRoll: React.FC<{
   const bRollContainer: Layout = useMemo(() => {
     return {
       ...bRollLayout,
-      display: 'flex',
+      display: "flex",
     };
   }, [bRollLayout]);
 
   const enterPosition = useMemo(() => {
-    if (bRollEnterDirection === 'top') {
+    if (bRollEnterDirection === "top") {
       return -bRollLayout.height;
     }
 
-    if (bRollEnterDirection === 'bottom') {
+    if (bRollEnterDirection === "bottom") {
       return canvasHeight;
     }
 
@@ -51,16 +51,16 @@ export const ScaleDownBRoll: React.FC<{
     appearProgress - disappearProgress,
     [0, 1],
     [enterPosition, bRollLayout.top],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
 
   const outerStyle: React.CSSProperties = useMemo(() => {
     return {
       ...bRollContainer,
-      position: 'absolute',
+      position: "absolute",
       top: topOffset,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
     };
   }, [bRollContainer, topOffset]);
 
@@ -77,8 +77,8 @@ export const ScaleDownBRoll: React.FC<{
   const style = useMemo(() => {
     return {
       borderRadius: bRollLayout.borderRadius,
-      overflow: 'hidden',
-      boxShadow: '0 0 50px rgba(0, 0, 0, 0.2)',
+      overflow: "hidden",
+      boxShadow: "0 0 50px rgba(0, 0, 0, 0.2)",
       height: biggestLayout.height,
       width: biggestLayout.width,
       aspectRatio: bRoll.assetWidth / bRoll.assetHeight,
@@ -96,12 +96,12 @@ export const ScaleDownBRoll: React.FC<{
       <ScaleDownIfBRollRequiresIt
         frame={sceneFrame}
         bRolls={bRollsBefore}
-        bRollType={'scale'}
+        bRollType={"scale"}
       >
-        {bRoll.type === 'image' ? (
+        {bRoll.type === "image" ? (
           <Img src={bRoll.source} style={style} />
         ) : null}
-        {bRoll.type === 'video' ? (
+        {bRoll.type === "video" ? (
           <OffthreadVideo src={bRoll.source} muted style={style} />
         ) : null}
       </ScaleDownIfBRollRequiresIt>

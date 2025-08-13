@@ -1,8 +1,8 @@
-import type { Caption } from '@remotion/captions';
-import { FPS } from '../../../../config/fps';
-import { joinBackticks } from '../../processing/join-backticks';
-import { postprocessCaptions } from '../../processing/postprocess-subs';
-import type { UnserializedSrt } from './serialize-srt';
+import type { Caption } from "@remotion/captions";
+import { FPS } from "../../../../config/fps";
+import { joinBackticks } from "../../processing/join-backticks";
+import { postprocessCaptions } from "../../processing/postprocess-subs";
+import type { UnserializedSrt } from "./serialize-srt";
 
 // The SRT standard recommends not more than 42 characters per line
 
@@ -64,10 +64,10 @@ export const calculateSrt = ({
     const lastSegment = segment[segment.length - 1];
 
     if (!firstSegment) {
-      throw new Error('lastSegment is undefined');
+      throw new Error("lastSegment is undefined");
     }
     if (!lastSegment) {
-      throw new Error('lastSegment is undefined');
+      throw new Error("lastSegment is undefined");
     }
 
     const offset = -(startFrame / FPS) * 1000;
@@ -77,7 +77,7 @@ export const calculateSrt = ({
       Math.round(firstSegment.startMs + offset),
     );
     if (lastSegment.endMs === null) {
-      throw new Error('Cannot serialize .srt file: lastTimestamp is null');
+      throw new Error("Cannot serialize .srt file: lastTimestamp is null");
     }
 
     const lastTimestampMs = Math.max(0, lastSegment.endMs + offset);
@@ -87,7 +87,7 @@ export const calculateSrt = ({
       lastTimestampMs,
       text: segment
         .map((s) => s.text.trim())
-        .join(' ')
+        .join(" ")
         .trim(),
       captions: segment,
     };

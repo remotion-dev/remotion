@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
-import { type Theme } from '../../../config/themes';
-import type { ChapterType } from '../make-chapters';
-import { ChapterTimestamp } from './ChapterTimestamp';
-import { ChapterTitle } from './ChapterTitle';
+import React, { useMemo } from "react";
+import { type Theme } from "../../../config/themes";
+import type { ChapterType } from "../make-chapters";
+import { ChapterTimestamp } from "./ChapterTimestamp";
+import { ChapterTitle } from "./ChapterTitle";
 
 export const CHAPTER_HEIGHT = 80;
 export const CHAPTER_VERTICAL_MARGIN = 4;
@@ -26,16 +26,16 @@ export const LandscapeChapter: React.FC<{
 }) => {
   const style: React.CSSProperties = useMemo(() => {
     return {
-      display: 'inline-flex',
+      display: "inline-flex",
       borderRadius: 20,
-      border: '5px solid black',
+      border: "5px solid black",
       marginTop: isFirstShown ? 0 : CHAPTER_VERTICAL_MARGIN,
       marginBottom: isLastShown ? 0 : CHAPTER_VERTICAL_MARGIN,
-      overflow: 'hidden',
+      overflow: "hidden",
       height: CHAPTER_HEIGHT,
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: rightAligned ? 'row-reverse' : 'row',
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: rightAligned ? "row-reverse" : "row",
     };
   }, [isFirstShown, isLastShown, rightAligned]);
 

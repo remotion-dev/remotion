@@ -1,27 +1,27 @@
-import React from 'react';
-import { UnserializedSrt } from '../helpers/serialize-srt';
-import { SrtSingleCaption } from './SingleCaption';
+import React from "react";
+import { UnserializedSrt } from "../helpers/serialize-srt";
+import { SrtSingleCaption } from "./SingleCaption";
 
 const container: React.CSSProperties = {
-  justifyContent: 'flex-end',
-  alignItems: 'center',
-  position: 'absolute',
+  justifyContent: "flex-end",
+  alignItems: "center",
+  position: "absolute",
   bottom: 0,
-  width: '100%',
-  display: 'flex',
-  flexDirection: 'column',
+  width: "100%",
+  display: "flex",
+  flexDirection: "column",
 };
 
 const inner: React.CSSProperties = {
-  backgroundColor: 'rgba(0, 0, 0, 0.8)',
-  padding: '12px 15px',
-  color: 'white',
-  fontFamily: 'Helvetica, Arial, sans-serif',
-  pointerEvents: 'unset',
+  backgroundColor: "rgba(0, 0, 0, 0.8)",
+  padding: "12px 15px",
+  color: "white",
+  fontFamily: "Helvetica, Arial, sans-serif",
+  pointerEvents: "unset",
   borderRadius: 10,
   fontSize: 48,
   bottom: 50,
-  position: 'absolute',
+  position: "absolute",
 };
 
 export const SrtPreviewLine: React.FC<{

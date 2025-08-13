@@ -1,10 +1,10 @@
-import { getSafeSpace } from '../../../config/layout';
+import { getSafeSpace } from "../../../config/layout";
 import type {
   SceneAndMetadata,
   VideoSceneAndMetadata,
-} from '../../../config/scenes';
-import type { LayoutAndFade } from '../../layout/layout-types';
-import { isWebCamAtBottom } from '../webcam-transitions/helpers';
+} from "../../../config/scenes";
+import type { LayoutAndFade } from "../../layout/layout-types";
+import { isWebCamAtBottom } from "../webcam-transitions/helpers";
 
 export const getSquareDisplayEnterOrExit = ({
   currentScene,
@@ -18,13 +18,13 @@ export const getSquareDisplayEnterOrExit = ({
   canvasHeight: number;
 }): LayoutAndFade => {
   if (
-    currentScene.type !== 'video-scene' ||
+    currentScene.type !== "video-scene" ||
     currentScene.layout.displayLayout === null
   ) {
-    throw new Error('no transitions on non-video scenes');
+    throw new Error("no transitions on non-video scenes");
   }
 
-  if (otherScene === null || otherScene.type !== 'video-scene') {
+  if (otherScene === null || otherScene.type !== "video-scene") {
     return {
       layout: currentScene.layout.displayLayout,
       shouldFadeRecording: false,
@@ -70,31 +70,31 @@ export const getSquareDisplayEnterOrExit = ({
   }
 
   // 3. From top right to top: Should slide display to left
-  if (currentScene.webcamPosition === 'top-right') {
+  if (currentScene.webcamPosition === "top-right") {
     return {
       layout: {
         ...currentScene.layout.displayLayout,
         left: -currentScene.layout.displayLayout.width,
-        top: otherScene.layout.webcamLayout.height + getSafeSpace('square') * 2,
+        top: otherScene.layout.webcamLayout.height + getSafeSpace("square") * 2,
       },
       shouldFadeRecording: false,
     };
   }
 
   // 4. From top left to top: Should slide display to right
-  if (currentScene.webcamPosition === 'top-left') {
+  if (currentScene.webcamPosition === "top-left") {
     return {
       layout: {
         ...currentScene.layout.displayLayout,
         left: canvasWidth,
-        top: otherScene.layout.webcamLayout.height + getSafeSpace('square') * 2,
+        top: otherScene.layout.webcamLayout.height + getSafeSpace("square") * 2,
       },
       shouldFadeRecording: false,
     };
   }
 
   // 5. From bottom left to bottom: Display should disappear to right
-  if (currentScene.webcamPosition === 'bottom-left') {
+  if (currentScene.webcamPosition === "bottom-left") {
     return {
       layout: {
         ...currentScene.layout.displayLayout,
@@ -103,14 +103,14 @@ export const getSquareDisplayEnterOrExit = ({
           canvasHeight -
           currentScene.layout.displayLayout.height -
           otherScene.layout.webcamLayout.height -
-          getSafeSpace('square') * 2,
+          getSafeSpace("square") * 2,
       },
       shouldFadeRecording: false,
     };
   }
 
   // 6. From bottom right to bottom: Display should disappear to left
-  if (currentScene.webcamPosition === 'bottom-right') {
+  if (currentScene.webcamPosition === "bottom-right") {
     return {
       layout: {
         ...currentScene.layout.displayLayout,
@@ -119,11 +119,11 @@ export const getSquareDisplayEnterOrExit = ({
           canvasHeight -
           currentScene.layout.displayLayout.height -
           otherScene.layout.webcamLayout.height -
-          getSafeSpace('square') * 2,
+          getSafeSpace("square") * 2,
       },
       shouldFadeRecording: false,
     };
   }
 
-  throw new Error('Unhandled case');
+  throw new Error("Unhandled case");
 };

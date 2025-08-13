@@ -1,12 +1,12 @@
-import type { CanvasLayout } from '../../../config/layout';
+import type { CanvasLayout } from "../../../config/layout";
 import type {
   SceneAndMetadata,
   VideoSceneAndMetadata,
-} from '../../../config/scenes';
-import type { Layout, LayoutAndFade } from '../../layout/layout-types';
-import { interpolateLayoutAndFade } from '../interpolate-layout';
-import { getLandscapeDisplayEnterOrExit } from './landscape';
-import { getSquareDisplayEnterOrExit } from './square';
+} from "../../../config/scenes";
+import type { Layout, LayoutAndFade } from "../../layout/layout-types";
+import { interpolateLayoutAndFade } from "../interpolate-layout";
+import { getLandscapeDisplayEnterOrExit } from "./landscape";
+import { getSquareDisplayEnterOrExit } from "./square";
 
 const getDisplayStartOrEndLayout = ({
   currentScene,
@@ -21,14 +21,14 @@ const getDisplayStartOrEndLayout = ({
   canvasHeight: number;
   canvasLayout: CanvasLayout;
 }): LayoutAndFade => {
-  if (canvasLayout === 'landscape') {
+  if (canvasLayout === "landscape") {
     return getLandscapeDisplayEnterOrExit({
       currentScene,
       otherScene,
     });
   }
 
-  if (canvasLayout === 'square') {
+  if (canvasLayout === "square") {
     return getSquareDisplayEnterOrExit({
       currentScene,
       otherScene,
@@ -97,10 +97,10 @@ export const getDisplayPosition = ({
   canvasLayout: CanvasLayout;
 }): Layout => {
   if (
-    currentScene.type !== 'video-scene' ||
+    currentScene.type !== "video-scene" ||
     currentScene.layout.displayLayout === null
   ) {
-    throw new Error('no transitions on non-video scenes');
+    throw new Error("no transitions on non-video scenes");
   }
 
   const { enter, exit } = getDisplayTransitionOrigins({

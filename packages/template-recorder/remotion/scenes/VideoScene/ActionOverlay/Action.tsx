@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState } from "react";
 
 export const ActionContainer: React.FC<{
   children: React.ReactNode;
@@ -23,21 +23,21 @@ export const ActionContainer: React.FC<{
         height: 100,
         width: 150,
         fontSize: 16,
-        fontFamily: 'sans-serif',
-        fontWeight: 'bold',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        textAlign: 'center',
+        fontFamily: "sans-serif",
+        fontWeight: "bold",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        textAlign: "center",
         paddingTop: 20,
         gap: 10,
-        cursor: 'pointer',
-        appearance: 'none',
-        border: 'none',
+        cursor: "pointer",
+        appearance: "none",
+        border: "none",
         borderRadius: 0,
-        background: 'none',
-        color: 'black',
+        background: "none",
+        color: "black",
         opacity: hovered ? 1 : 0.8,
       }}
     >

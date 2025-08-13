@@ -1,6 +1,6 @@
-import { Caption } from '@remotion/captions';
-import React, { useCallback, useMemo, useState } from 'react';
-import { useCaptionOverlay } from '../../editor/use-caption-overlay';
+import { Caption } from "@remotion/captions";
+import React, { useCallback, useMemo, useState } from "react";
+import { useCaptionOverlay } from "../../editor/use-caption-overlay";
 
 export const SrtSingleCaption: React.FC<{
   caption: Caption;
@@ -19,8 +19,8 @@ export const SrtSingleCaption: React.FC<{
 
   const style: React.CSSProperties = useMemo(() => {
     return {
-      cursor: 'pointer',
-      color: hovered ? 'gray' : 'inherit',
+      cursor: "pointer",
+      color: hovered ? "gray" : "inherit",
     };
   }, [hovered]);
 

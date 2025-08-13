@@ -1,7 +1,7 @@
 import type {
   SceneAndMetadata,
   VideoSceneAndMetadata,
-} from '../../../config/scenes';
+} from "../../../config/scenes";
 
 // An inline subtitle transition:
 // - The subtitle stays at the same position and is the same subtitle type
@@ -18,7 +18,7 @@ export const shouldInlineTransitionSubtitles = ({
     return false;
   }
 
-  if (nextScene.type !== 'video-scene') {
+  if (nextScene.type !== "video-scene") {
     return false;
   }
 
