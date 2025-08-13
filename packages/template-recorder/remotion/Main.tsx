@@ -1,16 +1,16 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { AbsoluteFill, Sequence } from "remotion";
-import type { Platform } from "../config/endcard";
-import type { CanvasLayout } from "../config/layout";
-import type { SceneAndMetadata, SelectableScene } from "../config/scenes";
-import type { Theme } from "../config/themes";
-import { COLORS } from "../config/themes";
-import { AudioTrack } from "./audio/AudioTrack";
-import { captionEditorPortal } from "./captions/editor/layout";
-import { EmitSrtFile } from "./captions/srt/EmitSrtFile";
-import { makeChapters } from "./chapters/make-chapters";
-import { Scene } from "./scenes/Scene";
-import { NoDataScene } from "./scenes/VideoScene/NoDataScene";
+import React, { useCallback, useMemo, useState } from 'react';
+import { AbsoluteFill, Sequence } from 'remotion';
+import type { Platform } from '../config/endcard';
+import type { CanvasLayout } from '../config/layout';
+import type { SceneAndMetadata, SelectableScene } from '../config/scenes';
+import type { Theme } from '../config/themes';
+import { COLORS } from '../config/themes';
+import { AudioTrack } from './audio/AudioTrack';
+import { captionEditorPortal } from './captions/editor/layout';
+import { EmitSrtFile } from './captions/srt/EmitSrtFile';
+import { makeChapters } from './chapters/make-chapters';
+import { Scene } from './scenes/Scene';
+import { NoDataScene } from './scenes/VideoScene/NoDataScene';
 
 export type MainProps = {
   canvasLayout: CanvasLayout;
@@ -87,7 +87,7 @@ export const Main: React.FC<MainProps> = ({
         scenesAndMetadata={scenesAndMetadata}
         canvasLayout={canvasLayout}
       />
-      {canvasLayout === "landscape" ? (
+      {canvasLayout === 'landscape' ? (
         <EmitSrtFile scenesAndMetadata={scenesAndMetadata} />
       ) : null}
       <div ref={captionEditorPortal} />

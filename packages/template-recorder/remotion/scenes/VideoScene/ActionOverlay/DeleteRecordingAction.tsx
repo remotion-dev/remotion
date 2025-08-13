@@ -1,9 +1,9 @@
-import { deleteStaticFile, saveDefaultProps } from "@remotion/studio";
-import React, { useCallback } from "react";
-import { useVideoConfig } from "remotion";
-import { z } from "zod";
-import { Cameras, videoConf } from "../../../../config/scenes";
-import { ActionContainer } from "./Action";
+import { deleteStaticFile, saveDefaultProps } from '@remotion/studio';
+import React, { useCallback } from 'react';
+import { useVideoConfig } from 'remotion';
+import { z } from 'zod';
+import { Cameras, videoConf } from '../../../../config/scenes';
+import { ActionContainer } from './Action';
 
 export const DeleteRecordingAction: React.FC<{
   cameras: Cameras;
@@ -20,7 +20,7 @@ export const DeleteRecordingAction: React.FC<{
     ].filter(Boolean) as string[];
     if (
       !confirm(
-        `This will remove ${filesToDelete.join(", ")} from the file system and delete the scene. Do you want to proceed?`,
+        `This will remove ${filesToDelete.join(', ')} from the file system and delete the scene. Do you want to proceed?`,
       )
     ) {
       return;

@@ -1,4 +1,4 @@
-import { Caption } from "@remotion/captions";
+import { Caption } from '@remotion/captions';
 
 export type CaptionPage = {
   captions: Caption[];

@@ -1,4 +1,4 @@
-import { Caption } from "@remotion/captions";
+import { Caption } from '@remotion/captions';
 
 export const fixBackticks = (_captions: Caption[]): Caption[] => {
   const newCaptions: Caption[] = [];
@@ -6,7 +6,7 @@ export const fixBackticks = (_captions: Caption[]): Caption[] => {
   const captions = _captions.map((caption) => {
     return {
       ...caption,
-      text: caption.text.replaceAll(/`\s/g, " `"),
+      text: caption.text.replaceAll(/`\s/g, ' `'),
     };
   });
 
@@ -14,13 +14,13 @@ export const fixBackticks = (_captions: Caption[]): Caption[] => {
     const caption = captions[i] as Caption;
     const previousCaption = captions[i - 1] ?? null;
 
-    if (caption.text.startsWith(". ")) {
+    if (caption.text.startsWith('. ')) {
       const lastAddedCaption = newCaptions[newCaptions.length - 1] as Caption;
-      lastAddedCaption.text += ".";
+      lastAddedCaption.text += '.';
       caption.text = caption.text.slice(1);
     }
 
-    if (!caption.text.startsWith(" ") && previousCaption) {
+    if (!caption.text.startsWith(' ') && previousCaption) {
       const lastAddedCaption = newCaptions[newCaptions.length - 1] as Caption;
       lastAddedCaption.text += caption.text;
       lastAddedCaption.endMs = caption.endMs;
@@ -34,7 +34,7 @@ export const fixBackticks = (_captions: Caption[]): Caption[] => {
       ...w,
       text:
         // Remove double backticks: ` n``px`` rem``otion`` render`
-        w.text.replaceAll(/``/g, ""),
+        w.text.replaceAll(/``/g, ''),
     };
   });
 };

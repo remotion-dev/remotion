@@ -1,4 +1,4 @@
-import { SceneAndMetadata } from "../../config/scenes";
+import { SceneAndMetadata } from '../../config/scenes';
 
 export const PLACEHOLDER_DURATION_IN_FRAMES = 60;
 
@@ -22,10 +22,10 @@ export const addPlaceholderIfNoScenes = ({
   return {
     scenesAndMetadataWithDuration: [
       {
-        type: "other-scene" as const,
+        type: 'other-scene' as const,
         scene: {
-          type: "noscenes" as const,
-          music: "none",
+          type: 'noscenes' as const,
+          music: 'none',
           transitionToNextScene: true,
         },
         durationInFrames: PLACEHOLDER_DURATION_IN_FRAMES,

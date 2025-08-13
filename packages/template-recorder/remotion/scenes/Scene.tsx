@@ -1,33 +1,33 @@
-import { interpolateStyles } from "@remotion/animation-utils";
-import React, { useMemo } from "react";
+import { interpolateStyles } from '@remotion/animation-utils';
+import React, { useMemo } from 'react';
 import {
   AbsoluteFill,
   Sequence,
   spring,
   useCurrentFrame,
   useVideoConfig,
-} from "remotion";
-import type { Platform } from "../../config/endcard";
-import type { CanvasLayout } from "../../config/layout";
-import type { SceneAndMetadata } from "../../config/scenes";
-import type { Theme } from "../../config/themes";
-import { SCENE_TRANSITION_DURATION } from "../../config/transitions";
-import { getSceneEnter, getSceneExit } from "../animations/scene-transitions";
+} from 'remotion';
+import type { Platform } from '../../config/endcard';
+import type { CanvasLayout } from '../../config/layout';
+import type { SceneAndMetadata } from '../../config/scenes';
+import type { Theme } from '../../config/themes';
+import { SCENE_TRANSITION_DURATION } from '../../config/transitions';
+import { getSceneEnter, getSceneExit } from '../animations/scene-transitions';
 import {
   getShouldTransitionIn,
   getShouldTransitionOut,
-} from "../animations/transitions";
-import type { ChapterType } from "../chapters/make-chapters";
-import { useRefreshOnPublicFolderChange } from "../helpers/refresh-on-public-folder-change";
-import { useScrollToCurrentScene } from "../helpers/scroll-to-current-scene";
-import { EndCard } from "./EndCard";
-import { NoRecordingsScene } from "./Placeholders/NoRecordingsScene";
-import { NoScenes } from "./Placeholders/NoScenes";
-import { RecorderScene } from "./Recorder";
-import { TableOfContents } from "./TableOfContents";
-import { Title } from "./Title/Title";
-import { SoundEffects } from "./VideoScene/SoundEffects";
-import { VideoScene } from "./VideoScene/VideoScene";
+} from '../animations/transitions';
+import type { ChapterType } from '../chapters/make-chapters';
+import { useRefreshOnPublicFolderChange } from '../helpers/refresh-on-public-folder-change';
+import { useScrollToCurrentScene } from '../helpers/scroll-to-current-scene';
+import { EndCard } from './EndCard';
+import { NoRecordingsScene } from './Placeholders/NoRecordingsScene';
+import { NoScenes } from './Placeholders/NoScenes';
+import { RecorderScene } from './Recorder';
+import { TableOfContents } from './TableOfContents';
+import { Title } from './Title/Title';
+import { SoundEffects } from './VideoScene/SoundEffects';
+import { VideoScene } from './VideoScene/VideoScene';
 
 type Props = {
   sceneAndMetadata: SceneAndMetadata;
@@ -59,7 +59,7 @@ const InnerScene: React.FC<
   index,
   hovered,
 }) => {
-  if (sceneAndMetadata.type === "video-scene") {
+  if (sceneAndMetadata.type === 'video-scene') {
     return (
       <VideoScene
         enterProgress={enterProgress}
@@ -76,7 +76,7 @@ const InnerScene: React.FC<
     );
   }
 
-  if (sceneAndMetadata.scene.type === "title") {
+  if (sceneAndMetadata.scene.type === 'title') {
     return (
       <Title
         subtitle={sceneAndMetadata.scene.subtitle}
@@ -86,11 +86,11 @@ const InnerScene: React.FC<
     );
   }
 
-  if (sceneAndMetadata.scene.type === "recorder") {
+  if (sceneAndMetadata.scene.type === 'recorder') {
     return <RecorderScene theme={theme} />;
   }
 
-  if (sceneAndMetadata.scene.type === "endcard") {
+  if (sceneAndMetadata.scene.type === 'endcard') {
     return (
       <EndCard
         theme={theme}
@@ -102,29 +102,29 @@ const InnerScene: React.FC<
     );
   }
 
-  if (sceneAndMetadata.scene.type === "tableofcontents") {
+  if (sceneAndMetadata.scene.type === 'tableofcontents') {
     return <TableOfContents theme={theme} chapters={chapters} />;
   }
 
-  if (sceneAndMetadata.scene.type === "norecordings") {
+  if (sceneAndMetadata.scene.type === 'norecordings') {
     return <NoRecordingsScene type="none" />;
   }
 
-  if (sceneAndMetadata.scene.type === "nomorerecordings") {
+  if (sceneAndMetadata.scene.type === 'nomorerecordings') {
     return <NoRecordingsScene type="no-more" />;
   }
 
-  if (sceneAndMetadata.scene.type === "noscenes") {
+  if (sceneAndMetadata.scene.type === 'noscenes') {
     return <NoScenes />;
   }
-  if (sceneAndMetadata.scene.type === "videoscene") {
+  if (sceneAndMetadata.scene.type === 'videoscene') {
     throw new Error(
       'Video scene should be handled using sceneAndMetadata.type === "video-scene"',
     );
   }
 
   throw new Error(
-    "Scene type not implemented in Scene.tsx: " +
+    'Scene type not implemented in Scene.tsx: ' +
       // @ts-expect-error If this gives a TS error, then you need to implement a new scene type
       sceneAndMetadata.scene.type,
   );
@@ -226,7 +226,7 @@ export const Scene: React.FC<Props> = ({
   hovered,
 }) => {
   const chapter = useMemo(() => {
-    if (sceneAndMetadata.scene.type === "videoscene") {
+    if (sceneAndMetadata.scene.type === 'videoscene') {
       return sceneAndMetadata.scene.newChapter;
     }
 

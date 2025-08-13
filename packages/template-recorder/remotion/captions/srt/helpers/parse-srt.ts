@@ -8,7 +8,7 @@ export type ParsedSrtLine = {
 export type ParsedSrt = ParsedSrtLine[];
 
 function toSeconds(time: string) {
-  const [first, second, third] = time.split(":");
+  const [first, second, third] = time.split(':');
   if (!first) {
     throw new Error(`Invalid timestamp:${time}`);
   }
@@ -19,7 +19,7 @@ function toSeconds(time: string) {
     throw new Error(`Invalid timestamp:${time}`);
   }
 
-  const [seconds, millis] = third.split(",");
+  const [seconds, millis] = third.split(',');
   if (!seconds) {
     throw new Error(`Invalid timestamp:${time}`);
   }
@@ -36,30 +36,30 @@ function toSeconds(time: string) {
 }
 
 export const parseSrt = (input: string): ParsedSrt => {
-  const inputLines = input.split("\n");
+  const inputLines = input.split('\n');
   const lines: ParsedSrtLine[] = [];
 
   for (let i = 0; i < inputLines.length; i++) {
     const line = inputLines[i];
     const nextLine = inputLines[i + 1];
-    if (line?.match(/([0-9]+)/) && nextLine?.includes(" --> ")) {
-      const nextLineSplit = nextLine.split(" --> ");
+    if (line?.match(/([0-9]+)/) && nextLine?.includes(' --> ')) {
+      const nextLineSplit = nextLine.split(' --> ');
       const start = toSeconds(nextLineSplit[0] as string);
       const end = toSeconds(nextLineSplit[1] as string);
       lines.push({
         index: Number(line),
-        text: "",
+        text: '',
         startInSeconds: start,
         endInSeconds: end,
       });
-    } else if (line?.includes(" --> ")) {
+    } else if (line?.includes(' --> ')) {
       continue;
-    } else if (line?.trim() === "") {
+    } else if (line?.trim() === '') {
       (lines[lines.length - 1] as ParsedSrtLine).text = (
         lines[lines.length - 1] as ParsedSrtLine
       ).text.trim();
     } else {
-      (lines[lines.length - 1] as ParsedSrtLine).text += line + "\n";
+      (lines[lines.length - 1] as ParsedSrtLine).text += line + '\n';
     }
   }
 
