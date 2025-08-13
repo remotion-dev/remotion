@@ -4,6 +4,7 @@ import React from 'react';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
 import {Demo} from './homepage/Demo';
+import EditorStarterSection from './homepage/EditorStarterSection';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
 import {IfYouKnowReact} from './homepage/IfYouKnowReact';
 import type {ColorMode} from './homepage/layout/use-color-mode';
@@ -46,6 +47,10 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<Demo />
+						<br />
+						<br />
+						<br />
+						<EditorStarterSection />
 						<br />
 						<br />
 						<br />
