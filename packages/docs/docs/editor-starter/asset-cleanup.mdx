@@ -11,7 +11,7 @@ Assets may lay around in S3 storage buckets and in the local IndexedDB asset cac
 
 ## When it is safe to delete assets
 
-When the user deletes an asset, they may still undo the deletion by pressing <kbd>⌘/Ctrl</kbd>+<kbd>Z</kbd>.  
+When the user deletes an asset, they may still undo the deletion by pressing <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>Z</kbd>.  
 As long as the asset is referenced in the [undo stack](/docs/editor-starter/undo-redo), it is not safe to delete it.
 
 If you want to clean up assets, you need to ensure that the undo stack is clean, or clear the undo stack.

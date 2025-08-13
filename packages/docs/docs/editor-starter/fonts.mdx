@@ -15,6 +15,7 @@ The font stack is implemented on [`@remotion/google-fonts`](/docs/google-fonts).
 - Changing the font style ("Regular" / "Bold" / "Italic")
 - Changing the font size
 - Changing the text color
+- Changing the font stroke (width and color)
 - Changing the line height
 - Changing the letter spacing
 - Changing the text alignment ("Left" / "Center" / "Right")
@@ -31,7 +32,8 @@ In addition, `TikTok Sans` was added, because it is the default font for TikTok.
 
 Change the script [`generate-google-font-info.ts`](https://github.com/remotion-dev/editor-starter/blob/main/src/scripts/generate-google-font-info.ts) to include the fonts you want to include.
 
-See the [font picker docs](/docs/font-picker) to for example get a list of more fonts.  
+See the [font picker docs](/docs/font-picker) to for example get a list of more fonts.
+
 Then run:
 
 ```bash
@@ -57,7 +59,7 @@ See the [`FEATURE_FONT_FAMILY_DROPDOWN_RENDER_IN_FONT`](/docs/editor-starter/fea
 
 ## Hover to preview font family
 
-When hovering over an item in the font dropdown, the text item in the canvas updates with a preview of what the item would look like if it the hovered item was selected.
+When hovering over an item in the font dropdown, the text item in the canvas updates with a preview of what the item would look like if the hovered item was selected.
 
 See the [`FEATURE_FONT_FAMILY_DROPDOWN_HOVER_PREVIEW`](/docs/editor-starter/features#hover-to-preview-font-family) feature to see how it works.
 

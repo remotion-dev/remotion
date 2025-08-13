@@ -11,6 +11,9 @@ State in the [Editor Starter](/docs/editor-starter) is managed with the built-in
 <details>
   <summary>Why?</summary>
   <p>The Editor Starter was built in a way that as many different teams can adopt it as easily as possible.</p>
+
+<p>We chose to use React's native state management to keep the starter kit lightweight, minimize external dependencies, and leverage familiar patterns for developers already comfortable with React.</p>
+
   <p>While the default React state management utilities are controversial for some, any React application can make use of them and developers are most familiar with them.</p>
 </details>
 
@@ -41,8 +44,8 @@ export type EditorState = {
   selectedItems: string[];
   textItemEditing: string | null;
   textItemHoverPreview: TextItemHoverPreview | null;
-  rendering: RenderState;
-  captions: CaptionState;
+  renderingTasks: RenderingTask[];
+  captioningTasks: CaptioningTask[];
   initialized: boolean;
   itemsBeingTrimmed: ItemBeingTrimmed[];
   loop: boolean;
@@ -50,40 +53,40 @@ export type EditorState = {
 };
 ```
 
-- [`undoableState`](#undoable-state) - State that is affected by the undo stack
+- [`undoableState`](#undoable-state) - State that is affected by the undo stack:
   - `tracks`: An array of [timeline tracks](/docs/editor-starter/tracks-items-assets), the last ones are the ones rendered in the back.
   - `assets`: A map of all [assets](/docs/editor-starter/tracks-items-assets) that have been uploaded to the editor.
   - `items`: A map of all [items](/docs/editor-starter/tracks-items-assets) that have been added to the editor.
-  - `fps`: The frame rate (kept in state, [but no UI is exposed to change it](/docs/editor-starter/features-not-included#multiple-frame-rates))
-  - `compositionWidth`: The width of the canvas
-  - `compositionHeight`: The height of the canvas
-  - `deletedAssets`: An array of assets [that have been deleted](/docs/editor-starter/asset-cleanup)
-- `selectedItems`: An array of item IDs that are currently selected
-- `textItemEditing`: The ID of the text item that is currently being edited, if there is one
-- `textItemHoverPreview`: Preview updates of a text item (for example if a font is hovered in the font picker, the text will render temporarily with the font hovered)
-- `rendering`: The state of the rendering process
-- `captions`: The state of captioning process
-- `initialized`: Whether the editor has been initialized, if not initialized, canvas will not be visible
-- `itemsBeingTrimmed`: An array of items that are currently being trimmed, to show an indication of the maximum trim that is possible
-- `loop`: Whether the playback should loop
+  - `fps`: The frame rate (kept in state, [but by default no UI is exposed to change it](/docs/editor-starter/features-not-included#multiple-frame-rates)).
+  - `compositionWidth`: The width of the canvas.
+  - `compositionHeight`: The height of the canvas.
+  - `deletedAssets`: An array of assets [that have been deleted](/docs/editor-starter/asset-cleanup).
+- `selectedItems`: An array of item IDs that are currently selected.
+- `textItemEditing`: The ID of the text item that is currently being edited, if there is one.
+- `textItemHoverPreview`: Preview updates of a text item (for example if a font is hovered in the font picker, the text will render temporarily with the font hovered).
+- `renderingTasks`: The state of the rendering process.
+- `captioningTasks`: The state of captioning process.
+- `initialized`: Whether the editor has been initialized, if not initialized, canvas will not be visible.
+- `itemsBeingTrimmed`: An array of items that are currently being trimmed, to show an indication of the maximum trim that is possible.
+- `loop`: Whether the playback should loop.
 - `assetStatus`: A map of asset IDs to their upload status, which can be:
-  - `pending-upload`: The asset is currently being uploaded
-  - `uploaded`: The asset has been uploaded successfully
-  - `error`: The asset upload has failed
-  - `in-progress`: The asset has not been uploaded yet
+  - `pending-upload`: The asset is currently being uploaded.
+  - `uploaded`: The asset has been uploaded successfully.
+  - `error`: The asset upload has failed.
+  - `in-progress`: The asset has not been uploaded yet.
 
 ## Undoable state
 
 State is separated into undoable and non-undoable parts.  
 Undoable state is located within the `undoableState` object of the root state.
 
-**Undoable state** may be:
+**Undoable state** might be:
 
 - Position, size and other properties of an item
 - Assets and tracks
 - Video properties like dimensions and frame rate
 
-**Non-undoable state** may be:
+**Non-undoable state** might be:
 
 - Asset upload progress and status
 - Captioning progress

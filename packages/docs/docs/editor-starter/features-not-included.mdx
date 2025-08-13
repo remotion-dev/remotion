@@ -14,7 +14,8 @@ Certain features may:
 - be too complex for buyers to understand and adopt or
 - not be essential.
 
-We design the Editor Starter to be a starting point for developers wanting to build apps with video editing capabilities, not a complete product.  
+We design the Editor Starter to be a starting point for developers wanting to build apps with video editing capabilities, not a complete product.
+
 Our focus is to give you something simple that you are able to understand and iterate on.
 
 This means that if you want the include certain features, you will have to implement them yourself.  
@@ -83,7 +84,8 @@ You also need to refactor the Font Picker to show the additional fonts from addi
 
 ## Captioning long audio files
 
-Currently, we use the OpenAI Whisper API to caption audio files, which is limited to audio files up to 25 minutes (about 13 minutes).
+Currently, we use the OpenAI Whisper API to caption audio files, which is limited to audio files up to 25MB in size.  
+It is left up to you to decide how to handle long audio files.
 
 See: [Captioning - Limits](/docs/editor-starter/captioning#limits)
 

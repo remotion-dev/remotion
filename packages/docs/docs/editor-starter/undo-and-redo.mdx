@@ -27,8 +27,8 @@ In these cases, it is appropriate to only commit to the undo stack once the **mo
 
 ## Preventing unnecessary additions to the undo stack
 
-An addition to the undo stack is only made when the object reference of the state has changed.  
-If after a state update, JavaScript evaluates `oldState === newState` to `true`, the state update is not added to the undo stack.
+The undo stack only adds a new entry when the state object reference actually changes.  
+If a state update results in `oldState === newState` evaluating to `true`, no entry is added to the undo stack.
 
 See [Preventing state updates when nothing has changed](/docs/editor-starter/state-management#preventing-state-updates-when-nothing-has-changed) for more information.
 
