@@ -1,19 +1,19 @@
-import { Caption } from "@remotion/captions";
-import React, { useCallback, useMemo, useState } from "react";
+import { Caption } from '@remotion/captions';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   interpolateColors,
   spring,
   useCurrentFrame,
   useVideoConfig,
-} from "remotion";
-import { MONOSPACE_FONT, REGULAR_FONT } from "../../../../config/fonts";
-import type { Theme } from "../../../../config/themes";
-import { COLORS } from "../../../../config/themes";
-import { useCaptionOverlay } from "../../editor/use-caption-overlay";
+} from 'remotion';
+import { MONOSPACE_FONT, REGULAR_FONT } from '../../../../config/fonts';
+import type { Theme } from '../../../../config/themes';
+import { COLORS } from '../../../../config/themes';
+import { useCaptionOverlay } from '../../editor/use-caption-overlay';
 import {
   isCaptionMonospace,
   removeMonospaceTicks,
-} from "../../processing/split-caption-into-monospace-segments";
+} from '../../processing/split-caption-into-monospace-segments';
 
 type CaptionColor = {
   appeared: string;
@@ -41,7 +41,7 @@ const getShownCaptionColor = ({
 
   if (isCaptionMonospace(caption)) {
     if (active) {
-      return "white";
+      return 'white';
     }
 
     return captionColor.appeared;
@@ -133,25 +133,25 @@ export const BoxedSingleCaption: React.FC<{
 
   const backgroundColor = shouldHighlight
     ? COLORS[theme].ACCENT_COLOR
-    : "transparent";
+    : 'transparent';
 
   const style: React.CSSProperties = useMemo(() => {
     return {
-      display: "inline",
+      display: 'inline',
       color: shownCaptionColor,
       ...(monospace ? MONOSPACE_FONT : REGULAR_FONT),
       backgroundColor,
       outline: hovered
-        ? "2px solid black"
+        ? '2px solid black'
         : active
-          ? "5px solid " + backgroundColor
-          : "none",
-      whiteSpace: monospace ? "nowrap" : undefined,
+          ? '5px solid ' + backgroundColor
+          : 'none',
+      whiteSpace: monospace ? 'nowrap' : undefined,
       // Fix gap inbetween background and outline
-      boxShadow: shouldHighlight ? `0 0 0 1px ${backgroundColor}` : "none",
+      boxShadow: shouldHighlight ? `0 0 0 1px ${backgroundColor}` : 'none',
       borderRadius: WORD_HIGHLIGHT_BORDER_RADIUS,
       scale: String(progress),
-      cursor: "pointer",
+      cursor: 'pointer',
     };
   }, [
     active,

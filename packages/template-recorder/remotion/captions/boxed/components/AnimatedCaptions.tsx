@@ -1,26 +1,26 @@
-import React, { useMemo } from "react";
-import { AbsoluteFill, useVideoConfig } from "remotion";
+import React, { useMemo } from 'react';
+import { AbsoluteFill, useVideoConfig } from 'remotion';
 import type {
   SceneAndMetadata,
   VideoSceneAndMetadata,
-} from "../../../../config/scenes";
-import type { Theme } from "../../../../config/themes";
-import { COLORS } from "../../../../config/themes";
-import { shouldInlineTransitionSubtitles } from "../../../animations/caption-transitions/should-transition-subtitle";
-import { getSubtitleTransform } from "../../../animations/caption-transitions/subtitle-transitions";
-import { Layout } from "../../../layout/layout-types";
-import { useCaptions } from "../../editor/captions-provider";
-import { layoutCaptions } from "../../processing/layout-captions";
-import { postprocessCaptions } from "../../processing/postprocess-subs";
+} from '../../../../config/scenes';
+import type { Theme } from '../../../../config/themes';
+import { COLORS } from '../../../../config/themes';
+import { shouldInlineTransitionSubtitles } from '../../../animations/caption-transitions/should-transition-subtitle';
+import { getSubtitleTransform } from '../../../animations/caption-transitions/subtitle-transitions';
+import { Layout } from '../../../layout/layout-types';
+import { useCaptions } from '../../editor/captions-provider';
+import { layoutCaptions } from '../../processing/layout-captions';
+import { postprocessCaptions } from '../../processing/postprocess-subs';
 import {
   CaptionSentence,
   getBorderWidthForSubtitles,
   getSubtitlesLines,
-} from "./CaptionSentence";
+} from './CaptionSentence';
 import {
   TransitionFromPreviousSubtitles,
   TransitionToNextSubtitles,
-} from "./TransitionBetweenSubtitles";
+} from './TransitionBetweenSubtitles';
 
 const LINE_HEIGHT = 2;
 const SUBTITLES_FONT_SIZE = 56;
@@ -78,13 +78,13 @@ export const AnimatedCaptions: React.FC<{
 
     return {
       fontSize: SUBTITLES_FONT_SIZE,
-      display: "flex",
+      display: 'flex',
       lineHeight: LINE_HEIGHT,
       borderWidth: getBorderWidthForSubtitles(),
-      borderStyle: "solid",
+      borderStyle: 'solid',
       borderColor: COLORS[theme].BORDER_COLOR,
       backgroundColor,
-      justifyContent: "center",
+      justifyContent: 'center',
       ...getSubtitleTransform({
         enterProgress,
         exitProgress,

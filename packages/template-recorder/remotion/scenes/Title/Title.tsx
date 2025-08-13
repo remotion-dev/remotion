@@ -1,8 +1,8 @@
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { TITLE_FONT } from "../../../config/fonts";
-import type { Theme } from "../../../config/themes";
-import { COLORS } from "../../../config/themes";
+import React from 'react';
+import { AbsoluteFill } from 'remotion';
+import { TITLE_FONT } from '../../../config/fonts';
+import type { Theme } from '../../../config/themes';
+import { COLORS } from '../../../config/themes';
 
 export const Title: React.FC<{
   title: string;
@@ -12,8 +12,8 @@ export const Title: React.FC<{
   return (
     <AbsoluteFill
       style={{
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
         paddingLeft: 30,
         paddingRight: 30,
       }}
@@ -23,13 +23,13 @@ export const Title: React.FC<{
           ...TITLE_FONT,
           fontSize: 60,
           color: COLORS[theme].WORD_COLOR_ON_BG_APPEARED,
-          textAlign: "center",
-          textWrap: "balance",
+          textAlign: 'center',
+          textWrap: 'balance',
         }}
       >
         {title}
       </div>
-      {subtitle?.trim() === "" ? null : (
+      {subtitle?.trim() === '' ? null : (
         <div
           style={{
             fontSize: 40,
@@ -37,8 +37,8 @@ export const Title: React.FC<{
             color: COLORS[theme].ENDCARD_TEXT_COLOR,
             ...TITLE_FONT,
             marginTop: 10,
-            textAlign: "center",
-            textWrap: "balance",
+            textAlign: 'center',
+            textWrap: 'balance',
           }}
         >
           {subtitle}

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { cancelRender, continueRender, delayRender } from "remotion";
-import { waitForFonts } from "../../config/fonts";
+import React, { useEffect, useState } from 'react';
+import { cancelRender, continueRender, delayRender } from 'remotion';
+import { waitForFonts } from '../../config/fonts';
 
 // Missing fonts can influence the layout calculation
 // and cause the subtitles to be misaligned.
@@ -11,11 +11,11 @@ export const WaitForFonts: React.FC<{
 }> = ({ children }) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [handle] = useState(() =>
-    delayRender("Waiting for fonts to be loaded"),
+    delayRender('Waiting for fonts to be loaded'),
   );
 
   useEffect(() => {
-    const delay = delayRender("Waiting for fonts to be loaded");
+    const delay = delayRender('Waiting for fonts to be loaded');
 
     waitForFonts()
       .then(() => {

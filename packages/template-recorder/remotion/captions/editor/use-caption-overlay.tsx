@@ -1,5 +1,5 @@
-import { Caption } from "@remotion/captions";
-import React, { useContext, useMemo } from "react";
+import { Caption } from '@remotion/captions';
+import React, { useContext, useMemo } from 'react';
 
 type CaptionOverlayContext = {
   open: Caption | false;
@@ -9,7 +9,7 @@ type CaptionOverlayContext = {
 const context = React.createContext<CaptionOverlayContext>({
   open: false,
   setOpen: () => {
-    throw new Error("React Context not initialized");
+    throw new Error('React Context not initialized');
   },
 });
 

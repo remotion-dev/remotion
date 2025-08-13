@@ -1,5 +1,5 @@
-import { Caption } from "@remotion/captions";
-import { StaticFile } from "@remotion/studio";
+import { Caption } from '@remotion/captions';
+import { StaticFile } from '@remotion/studio';
 
 export const fetchCaptions = async (
   file: StaticFile | null,
@@ -19,7 +19,7 @@ export const fetchCaptions = async (
     const captions = data as Caption[];
     return captions;
   } catch (error) {
-    console.error("Error fetching WhisperOutput from JSON:", error);
+    console.error('Error fetching WhisperOutput from JSON:', error);
     return null;
   }
 };

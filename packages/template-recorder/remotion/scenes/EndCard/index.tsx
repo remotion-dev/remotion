@@ -1,11 +1,11 @@
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import type { Brand, LinkType, Platform } from "../../../config/endcard";
-import type { CanvasLayout } from "../../../config/layout";
-import type { Theme } from "../../../config/themes";
-import { COLORS } from "../../../config/themes";
-import { LeftSide } from "./LeftSide";
-import { ThumbnailContainers } from "./RightSide";
+import React from 'react';
+import { AbsoluteFill } from 'remotion';
+import type { Brand, LinkType, Platform } from '../../../config/endcard';
+import type { CanvasLayout } from '../../../config/layout';
+import type { Theme } from '../../../config/themes';
+import { COLORS } from '../../../config/themes';
+import { LeftSide } from './LeftSide';
+import { ThumbnailContainers } from './RightSide';
 
 export const EndCard: React.FC<{
   channel: Brand;
@@ -26,7 +26,7 @@ export const EndCard: React.FC<{
         channel={channel}
         platform={platform}
       />
-      {canvasLayout === "landscape" ? (
+      {canvasLayout === 'landscape' ? (
         <ThumbnailContainers theme={theme} />
       ) : null}
     </AbsoluteFill>

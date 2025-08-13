@@ -1,26 +1,26 @@
-import { Caption } from "@remotion/captions";
-import { autocorrectWords } from "../../../config/autocorrect";
-import { fixBackticks } from "./fix-backticks";
-import { removeBlankTokens } from "./remove-blank-tokens";
+import { Caption } from '@remotion/captions';
+import { autocorrectWords } from '../../../config/autocorrect';
+import { fixBackticks } from './fix-backticks';
+import { removeBlankTokens } from './remove-blank-tokens';
 
 const FILLER_WORDS = [
-  "[PAUSE]",
-  "[BLANK_AUDIO]",
-  "[Silence]",
-  "[silence]",
-  "[INAUDIBLE]",
+  '[PAUSE]',
+  '[BLANK_AUDIO]',
+  '[Silence]',
+  '[silence]',
+  '[INAUDIBLE]',
 ];
 
 const removeWhisperBlankWords = (original: Caption[]): Caption[] => {
   let firstIdx = 0;
-  let concatenatedCaption = "";
+  let concatenatedCaption = '';
   let inBlank = false;
 
   const captions = [...original];
   captions.forEach((caption, index) => {
     const captionCopy = { ...caption };
     captionCopy.text = captionCopy.text.trim();
-    if (captionCopy.text.includes("[")) {
+    if (captionCopy.text.includes('[')) {
       inBlank = true;
       firstIdx = index;
     }
@@ -29,7 +29,7 @@ const removeWhisperBlankWords = (original: Caption[]): Caption[] => {
       concatenatedCaption += captionCopy.text;
     }
 
-    if (inBlank && captionCopy.text.includes("]")) {
+    if (inBlank && captionCopy.text.includes(']')) {
       concatenatedCaption += captionCopy.text;
       if (
         FILLER_WORDS.find((caption) => concatenatedCaption.includes(caption))
@@ -39,7 +39,7 @@ const removeWhisperBlankWords = (original: Caption[]): Caption[] => {
           if (currentCaption?.text !== undefined) {
             captions[i] = {
               ...currentCaption,
-              text: "",
+              text: '',
             };
           }
         }
@@ -54,7 +54,7 @@ export const postprocessCaptions = (subTypes: Caption[]): Caption[] => {
 
   const removeBlankAudioAndPause = removeWhisperBlankWords(blankTokensRemoved);
   const removeBlankTokensAgain = removeBlankAudioAndPause.filter(
-    (w) => w.text.trim() !== "",
+    (w) => w.text.trim() !== '',
   );
 
   const correctedCaptions = autocorrectWords(removeBlankTokensAgain);

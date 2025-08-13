@@ -1,10 +1,10 @@
-import { getSafeSpace } from "../../../config/layout";
+import { getSafeSpace } from '../../../config/layout';
 import type {
   SceneAndMetadata,
   VideoSceneAndMetadata,
-} from "../../../config/scenes";
-import type { LayoutAndFade } from "../../layout/layout-types";
-import { isWebCamRight } from "./helpers";
+} from '../../../config/scenes';
+import type { LayoutAndFade } from '../../layout/layout-types';
+import { isWebCamRight } from './helpers';
 
 export const getLandscapeWebCamStartOrEndLayout = ({
   canvasWidth,
@@ -17,7 +17,7 @@ export const getLandscapeWebCamStartOrEndLayout = ({
 }): LayoutAndFade => {
   const currentLayout = currentScene.layout.webcamLayout;
 
-  if (!otherScene || otherScene.type !== "video-scene") {
+  if (!otherScene || otherScene.type !== 'video-scene') {
     return { layout: currentLayout, shouldFadeRecording: false };
   }
 
@@ -47,7 +47,7 @@ export const getLandscapeWebCamStartOrEndLayout = ({
     return {
       layout: {
         ...currentLayout,
-        left: canvasWidth + getSafeSpace("landscape"),
+        left: canvasWidth + getSafeSpace('landscape'),
       },
       shouldFadeRecording: false,
     };
@@ -56,7 +56,7 @@ export const getLandscapeWebCamStartOrEndLayout = ({
   return {
     layout: {
       ...currentLayout,
-      left: -getSafeSpace("landscape") - currentLayout.width,
+      left: -getSafeSpace('landscape') - currentLayout.width,
     },
     shouldFadeRecording: false,
   };
