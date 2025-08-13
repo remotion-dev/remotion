@@ -1,10 +1,10 @@
 import type {
   SceneAndMetadata,
   VideoSceneAndMetadata,
-} from "../../../config/scenes";
-import type { Layout } from "../../layout/layout-types";
-import { interpolateLayout } from "../interpolate-layout";
-import { getSquareEnterOrExit } from "./square";
+} from '../../../config/scenes';
+import type { Layout } from '../../layout/layout-types';
+import { interpolateLayout } from '../interpolate-layout';
+import { getSquareEnterOrExit } from './square';
 
 export const getSubtitleTransform = ({
   enterProgress,

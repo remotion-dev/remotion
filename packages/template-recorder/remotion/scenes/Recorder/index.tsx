@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Easing,
   interpolate,
@@ -6,23 +6,23 @@ import {
   spring,
   useCurrentFrame,
   useVideoConfig,
-} from "remotion";
-import type { Theme } from "../../../config/themes";
+} from 'remotion';
+import type { Theme } from '../../../config/themes';
 
-import { Rect, Triangle } from "@remotion/shapes";
-import { AbsoluteFill, interpolateColors } from "remotion";
-import { REGULAR_FONT } from "../../../config/fonts";
+import { Rect, Triangle } from '@remotion/shapes';
+import { AbsoluteFill, interpolateColors } from 'remotion';
+import { REGULAR_FONT } from '../../../config/fonts';
 
 const getBackground = (theme: Theme) => {
-  return theme === "dark" ? "#2E2E2E" : "rgba(255, 255, 255, 1)";
+  return theme === 'dark' ? '#2E2E2E' : 'rgba(255, 255, 255, 1)';
 };
 
 const getOpacity = (theme: Theme) => {
-  return theme === "dark" ? 0.13 : 0.08;
+  return theme === 'dark' ? 0.13 : 0.08;
 };
 
 const getBrand = (theme: Theme) => {
-  return theme === "dark" ? "white" : "#0C85F3";
+  return theme === 'dark' ? 'white' : '#0C85F3';
 };
 
 const TriangleToSquare: React.FC<{
@@ -52,7 +52,7 @@ const TriangleToSquare: React.FC<{
         [0, 1],
         [getBackground(theme), getBrand(theme)],
       ),
-      interpolateColors(opacity, [0, 1], [getBackground(theme), "#F43B00"]),
+      interpolateColors(opacity, [0, 1], [getBackground(theme), '#F43B00']),
     ],
   );
 
@@ -127,7 +127,7 @@ const R3: React.FC = () => {
         stroke="currentColor"
         strokeWidth="27.4281"
         strokeLinecap="square"
-      />{" "}
+      />{' '}
     </svg>
   );
 };
@@ -157,7 +157,7 @@ const E: React.FC = () => {
     <svg width="1080" height="1080" viewBox="0 0 1080 1080" fill="none">
       <mask
         id="mask0_20_679"
-        style={{ maskType: "alpha" }}
+        style={{ maskType: 'alpha' }}
         maskUnits="userSpaceOnUse"
         x="351"
         y="487"
@@ -181,7 +181,7 @@ const E: React.FC = () => {
       </g>
       <mask
         id="mask1_20_679"
-        style={{ maskType: "alpha" }}
+        style={{ maskType: 'alpha' }}
         maskUnits="userSpaceOnUse"
         x="336"
         y="475"
@@ -210,7 +210,7 @@ const C: React.FC = () => {
       <g mask="url(#mask4_20_679)" />
       <mask
         id="mask5_20_679"
-        style={{ maskType: "alpha" }}
+        style={{ maskType: 'alpha' }}
         maskUnits="userSpaceOnUse"
         x="448"
         y="475"
@@ -238,7 +238,7 @@ const E2: React.FC = () => {
     <svg width="1080" height="1080" viewBox="0 0 1080 1080" fill="none">
       <mask
         id="mask2_20_679"
-        style={{ maskType: "alpha" }}
+        style={{ maskType: 'alpha' }}
         maskUnits="userSpaceOnUse"
         x="861"
         y="487"
@@ -262,7 +262,7 @@ const E2: React.FC = () => {
       </g>
       <mask
         id="mask3_20_679"
-        style={{ maskType: "alpha" }}
+        style={{ maskType: 'alpha' }}
         maskUnits="userSpaceOnUse"
         x="846"
         y="475"
@@ -283,7 +283,7 @@ const E2: React.FC = () => {
       </g>
       <mask
         id="mask4_20_679"
-        style={{ maskType: "alpha" }}
+        style={{ maskType: 'alpha' }}
         maskUnits="userSpaceOnUse"
         x="463"
         y="487"
@@ -325,7 +325,7 @@ const FromRight: React.FC<{
     <AbsoluteFill
       style={{
         transform: `rotate(${rotation}rad)`,
-        transformOrigin: "150% 50%",
+        transformOrigin: '150% 50%',
       }}
     >
       {children}
@@ -334,7 +334,7 @@ const FromRight: React.FC<{
 };
 
 const getColor = (theme: Theme) => {
-  return theme === "dark" ? "white" : "black";
+  return theme === 'dark' ? 'white' : 'black';
 };
 
 const Recorder: React.FC<{
@@ -346,7 +346,7 @@ const Recorder: React.FC<{
         WebkitMaskImage: `linear-gradient(black 58%, transparent 74%)`,
       }}
     >
-      <AbsoluteFill style={{ overflow: "visible", color: getColor(theme) }}>
+      <AbsoluteFill style={{ overflow: 'visible', color: getColor(theme) }}>
         <FromRight delay={0}>
           <R1 />
         </FromRight>
@@ -373,8 +373,8 @@ const Recorder: React.FC<{
         </FromRight>
         <AbsoluteFill
           style={{
-            width: "160%",
-            height: "100.2%",
+            width: '160%',
+            height: '100.2%',
           }}
         />
       </AbsoluteFill>
@@ -455,15 +455,15 @@ const Logo: React.FC<{
   return (
     <Sequence
       style={{
-        transformOrigin: "center center",
+        transformOrigin: 'center center',
         transform: `scale(0.68) translateX(${posX}px) translateY(${posY}px)`,
       }}
     >
       <Sequence style={{}}>
         <Sequence
           style={{
-            justifyContent: "center",
-            alignItems: "center",
+            justifyContent: 'center',
+            alignItems: 'center',
             scale: String(1.2 + anim(2)),
           }}
         >
@@ -479,8 +479,8 @@ const Logo: React.FC<{
         </Sequence>
         <Sequence
           style={{
-            justifyContent: "center",
-            alignItems: "center",
+            justifyContent: 'center',
+            alignItems: 'center',
             scale: String(1.2 + anim(1)),
           }}
         >
@@ -496,8 +496,8 @@ const Logo: React.FC<{
         </Sequence>
         <Sequence
           style={{
-            justifyContent: "center",
-            alignItems: "center",
+            justifyContent: 'center',
+            alignItems: 'center',
             scale: String(1.2 + Math.max(anim(0), 0)),
           }}
         >
@@ -532,15 +532,15 @@ const Attribution: React.FC<{
 }> = ({ theme }) => {
   const frame = useCurrentFrame();
   const opacity = interpolate(frame, [40, 50], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
   });
 
   return (
     <AbsoluteFill
       style={{
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
         fontSize: 30,
         ...REGULAR_FONT,
         marginTop: 450,
@@ -554,7 +554,7 @@ const Attribution: React.FC<{
 };
 
 export const RecorderScene: React.FC<{
-  theme: "light" | "dark";
+  theme: 'light' | 'dark';
 }> = ({ theme }) => {
   const config = useVideoConfig();
 
@@ -563,16 +563,16 @@ export const RecorderScene: React.FC<{
       width={1080}
       height={1080}
       style={{
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
         left: (config.width - 1080) / 2,
       }}
     >
       <AbsoluteFill
         style={{
           transform: `scale(0.7)`,
-          overflowY: "hidden",
-          overflowX: "hidden",
+          overflowY: 'hidden',
+          overflowX: 'hidden',
         }}
       >
         <All theme={theme} />

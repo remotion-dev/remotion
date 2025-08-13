@@ -1,12 +1,12 @@
-import { StaticFile, getStaticFiles } from "remotion";
+import { StaticFile, getStaticFiles } from 'remotion';
 import {
   ALTERNATIVE1_PREFIX,
   ALTERNATIVE2_PREFIX,
   CAPTIONS_PREFIX,
   DISPLAY_PREFIX,
   WEBCAM_PREFIX,
-} from "../../config/cameras";
-import { Cameras, SelectableScene } from "../../config/scenes";
+} from '../../config/cameras';
+import { Cameras, SelectableScene } from '../../config/scenes';
 
 type CamerasAndScene = {
   scene: SelectableScene;
@@ -47,12 +47,12 @@ const mapFile = ({
   const timestamp = file.name
     // compositionId is case sensitive:
     // Need to replace it first before calling .toLowerCase()
-    .replace(`${compositionId}/${WEBCAM_PREFIX}`, "")
+    .replace(`${compositionId}/${WEBCAM_PREFIX}`, '')
     .toLowerCase()
-    .replace(".webm", "")
-    .replace(".mov", "")
-    .replace(".mkv", "")
-    .replace(".mp4", "");
+    .replace('.webm', '')
+    .replace('.mov', '')
+    .replace('.mkv', '')
+    .replace('.mp4', '');
 
   const display = findMatchingFile({
     files,
@@ -112,7 +112,7 @@ export const getAllCameras = ({
   let videoIndex = -1;
 
   const scenesWithCameras = scenes.map((scene): CamerasAndScene => {
-    if (scene.type !== "videoscene") {
+    if (scene.type !== 'videoscene') {
       return { cameras: null, scene };
     }
 

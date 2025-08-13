@@ -1,4 +1,4 @@
-import { UnserializedSrt } from "./serialize-srt";
+import { UnserializedSrt } from './serialize-srt';
 
 export type SrtsToCombine = {
   offsetInMs: number;

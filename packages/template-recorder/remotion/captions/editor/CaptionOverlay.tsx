@@ -1,12 +1,12 @@
-import { Caption } from "@remotion/captions";
-import React, { useEffect, useMemo, useState } from "react";
-import type { StaticFile } from "remotion";
-import { continueRender, delayRender, watchStaticFile } from "remotion";
-import type { Theme } from "../../../config/themes";
-import { CaptionsEditor } from "./CaptionsEditor";
-import type { CaptionsContextType } from "./captions-provider";
-import { CaptionsProvider } from "./captions-provider";
-import { CaptionOverlayProvider } from "./use-caption-overlay";
+import { Caption } from '@remotion/captions';
+import React, { useEffect, useMemo, useState } from 'react';
+import type { StaticFile } from 'remotion';
+import { continueRender, delayRender, watchStaticFile } from 'remotion';
+import type { Theme } from '../../../config/themes';
+import { CaptionsEditor } from './CaptionsEditor';
+import type { CaptionsContextType } from './captions-provider';
+import { CaptionsProvider } from './captions-provider';
+import { CaptionOverlayProvider } from './use-caption-overlay';
 
 export const CaptionOverlay: React.FC<{
   children: React.ReactNode;
@@ -15,12 +15,12 @@ export const CaptionOverlay: React.FC<{
   trimStart: number;
 }> = ({ children, file, theme, trimStart }) => {
   const [captions, setCaptions] = useState<Caption[] | null>(null);
-  const [handle] = useState(() => delayRender("Waiting for captions "));
+  const [handle] = useState(() => delayRender('Waiting for captions '));
 
   const [subEditorOpen, setSubEditorOpen] = useState<Caption | false>(false);
   const [changeStatus, setChangeStatus] = useState<
-    "initial" | "changed" | "unchanged"
-  >("initial");
+    'initial' | 'changed' | 'unchanged'
+  >('initial');
 
   const state = useMemo(() => {
     return { open: subEditorOpen, setOpen: setSubEditorOpen };
@@ -37,7 +37,7 @@ export const CaptionOverlay: React.FC<{
       file.name,
       (newData: StaticFile | null) => {
         if (newData) {
-          setChangeStatus("changed");
+          setChangeStatus('changed');
         }
       },
     );
@@ -47,14 +47,14 @@ export const CaptionOverlay: React.FC<{
   }, [file.name, subEditorOpen]);
 
   useEffect(() => {
-    if (changeStatus === "initial" || changeStatus === "changed") {
+    if (changeStatus === 'initial' || changeStatus === 'changed') {
       fetch(file.src)
         .then((res) => res.json())
         .then((d) => {
           continueRender(handle);
           setCaptions(d);
         });
-      setChangeStatus("unchanged");
+      setChangeStatus('unchanged');
     }
   }, [changeStatus, file.src, handle]);
 

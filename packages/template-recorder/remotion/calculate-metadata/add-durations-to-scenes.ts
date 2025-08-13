@@ -1,12 +1,12 @@
-import { CanvasLayout } from "../../config/layout";
-import { SceneAndMetadata } from "../../config/scenes";
-import { SCENE_TRANSITION_DURATION } from "../../config/transitions";
+import { CanvasLayout } from '../../config/layout';
+import { SceneAndMetadata } from '../../config/scenes';
+import { SCENE_TRANSITION_DURATION } from '../../config/transitions';
 import {
   getShouldTransitionIn,
   getShouldTransitionOut,
-} from "../animations/transitions";
-import { applyBRollRules } from "../scenes/BRoll/apply-b-roll-rules";
-import { addPlaceholderIfNoScenes } from "./empty-place-holder";
+} from '../animations/transitions';
+import { applyBRollRules } from '../scenes/BRoll/apply-b-roll-rules';
+import { addPlaceholderIfNoScenes } from './empty-place-holder';
 
 export const addDurationsToScenes = (
   scenes: SceneAndMetadata[],
@@ -40,7 +40,7 @@ export const addDurationsToScenes = (
       const from = totalDurationInFrames;
       totalDurationInFrames += sceneAndMetadata.durationInFrames;
 
-      if (sceneAndMetadata.type === "other-scene") {
+      if (sceneAndMetadata.type === 'other-scene') {
         return {
           ...sceneAndMetadata,
           from,

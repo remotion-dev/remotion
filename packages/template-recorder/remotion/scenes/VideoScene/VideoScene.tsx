@@ -1,27 +1,27 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from 'react';
 import {
   AbsoluteFill,
   getRemotionEnvironment,
   useCurrentFrame,
   useVideoConfig,
-} from "remotion";
-import type { CanvasLayout } from "../../../config/layout";
+} from 'remotion';
+import type { CanvasLayout } from '../../../config/layout';
 import type {
   SceneAndMetadata,
   VideoSceneAndMetadata,
-} from "../../../config/scenes";
-import type { Theme } from "../../../config/themes";
-import { B_ROLL_TRANSITION_DURATION } from "../../../config/transitions";
-import { getShouldTransitionIn } from "../../animations/transitions";
-import { BoxedCaptions } from "../../captions/boxed/BoxedCaptions";
-import { SrtPreviewAndEditor } from "../../captions/srt/SrtPreviewAndEditor/SrtPreviewAndEditor";
-import { LandscapeChapters } from "../../chapters/landscape/LandscapeChapters";
-import type { ChapterType } from "../../chapters/make-chapters";
-import { SquareChapter } from "../../chapters/square/SquareChapter";
-import { Actions } from "./ActionOverlay/Actions";
-import { Display } from "./Display";
-import { onBRollDragOver, onBRollDropHandler } from "./DragDropBRoll";
-import { Webcam } from "./Webcam";
+} from '../../../config/scenes';
+import type { Theme } from '../../../config/themes';
+import { B_ROLL_TRANSITION_DURATION } from '../../../config/transitions';
+import { getShouldTransitionIn } from '../../animations/transitions';
+import { BoxedCaptions } from '../../captions/boxed/BoxedCaptions';
+import { SrtPreviewAndEditor } from '../../captions/srt/SrtPreviewAndEditor/SrtPreviewAndEditor';
+import { LandscapeChapters } from '../../chapters/landscape/LandscapeChapters';
+import type { ChapterType } from '../../chapters/make-chapters';
+import { SquareChapter } from '../../chapters/square/SquareChapter';
+import { Actions } from './ActionOverlay/Actions';
+import { Display } from './Display';
+import { onBRollDragOver, onBRollDropHandler } from './DragDropBRoll';
+import { Webcam } from './Webcam';
 
 export const VideoScene: React.FC<{
   enterProgress: number;
@@ -47,10 +47,10 @@ export const VideoScene: React.FC<{
   hovered,
 }) => {
   const startFrame = sceneAndMetadata.startFrame;
-  const endAt = sceneAndMetadata.endFrame;
+  const trimAfter = sceneAndMetadata.endFrame;
 
-  if (sceneAndMetadata.type !== "video-scene") {
-    throw new Error("Not a camera scene");
+  if (sceneAndMetadata.type !== 'video-scene') {
+    throw new Error('Not a camera scene');
   }
 
   const didTransitionIn = getShouldTransitionIn({
@@ -91,14 +91,14 @@ export const VideoScene: React.FC<{
           nextScene={nextScene}
           previousScene={previousScene}
           startFrame={startFrame}
-          endAt={endAt}
+          trimAfter={trimAfter}
           canvasLayout={canvasLayout}
         />
       ) : null}
       <Webcam
         bRolls={bRollsOnTopOfWebcam}
         currentScene={sceneAndMetadata}
-        endAt={endAt}
+        trimAfter={trimAfter}
         enterProgress={enterProgress}
         exitProgress={exitProgress}
         startFrame={startFrame}
@@ -106,7 +106,7 @@ export const VideoScene: React.FC<{
         nextScene={nextScene}
         previousScene={previousScene}
       />
-      {canvasLayout === "square" ? (
+      {canvasLayout === 'square' ? (
         <BoxedCaptions
           enterProgress={enterProgress}
           exitProgress={exitProgress}
@@ -117,7 +117,7 @@ export const VideoScene: React.FC<{
           theme={theme}
         />
       ) : null}
-      {sceneAndMetadata.scene.newChapter && canvasLayout === "square" ? (
+      {sceneAndMetadata.scene.newChapter && canvasLayout === 'square' ? (
         <SquareChapter
           title={sceneAndMetadata.scene.newChapter}
           displayLayout={sceneAndMetadata.layout.displayLayout}
@@ -125,7 +125,7 @@ export const VideoScene: React.FC<{
           didTransitionIn={didTransitionIn}
         />
       ) : null}
-      {sceneAndMetadata.scene.newChapter && canvasLayout === "landscape" ? (
+      {sceneAndMetadata.scene.newChapter && canvasLayout === 'landscape' ? (
         <LandscapeChapters
           scene={sceneAndMetadata}
           theme={theme}
@@ -133,7 +133,7 @@ export const VideoScene: React.FC<{
           didTransitionIn={didTransitionIn}
         />
       ) : null}
-      {canvasLayout === "landscape" && sceneAndMetadata.cameras.captions ? (
+      {canvasLayout === 'landscape' && sceneAndMetadata.cameras.captions ? (
         <SrtPreviewAndEditor
           captions={sceneAndMetadata.cameras.captions}
           startFrame={startFrame}

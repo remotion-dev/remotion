@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AbsoluteFill,
   Img,
@@ -9,14 +9,14 @@ import {
   useCurrentFrame,
   useCurrentScale,
   useVideoConfig,
-} from "remotion";
-import type { Brand, LinkType, Platform } from "../../../config/endcard";
-import { avatars, channels } from "../../../config/endcard";
-import type { Theme } from "../../../config/themes";
-import { SCENE_TRANSITION_DURATION } from "../../../config/transitions";
-import { FollowButton, followButtonHeight } from "./FollowButton";
-import { IconRow, spaceBetweenImgAndText } from "./IconRow";
-import { Links } from "./Links";
+} from 'remotion';
+import type { Brand, LinkType, Platform } from '../../../config/endcard';
+import { avatars, channels } from '../../../config/endcard';
+import type { Theme } from '../../../config/themes';
+import { SCENE_TRANSITION_DURATION } from '../../../config/transitions';
+import { FollowButton, followButtonHeight } from './FollowButton';
+import { IconRow, spaceBetweenImgAndText } from './IconRow';
+import { Links } from './Links';
 
 const Avatar: React.FC<{
   avatar: string;
@@ -27,11 +27,11 @@ const Avatar: React.FC<{
       style={{
         height: followButtonHeight,
         width: followButtonHeight,
-        borderRadius: "50%",
+        borderRadius: '50%',
         boxShadow:
-          theme === "light"
-            ? "0px 0px 20px rgba(0, 0, 0, 0.2)"
-            : "0px 0px 50px rgba(255, 255, 255, 0.2)",
+          theme === 'light'
+            ? '0px 0px 20px rgba(0, 0, 0, 0.2)'
+            : '0px 0px 50px rgba(255, 255, 255, 0.2)',
       }}
       src={avatar}
     />
@@ -39,8 +39,8 @@ const Avatar: React.FC<{
 };
 
 const style: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
+  display: 'flex',
+  alignItems: 'center',
 };
 
 const FollowCTA: React.FC<{
@@ -70,7 +70,7 @@ export const LeftSide: React.FC<{
 }> = ({ platform, channel, links, theme }) => {
   const ref = useRef<HTMLDivElement>(null);
   const scaler = useRef<HTMLDivElement>(null);
-  const [handle] = useState(() => delayRender("Waiting for measurement"));
+  const [handle] = useState(() => delayRender('Waiting for measurement'));
   const [contentHeight, setHeight] = useState(0);
 
   const { fps, width } = useVideoConfig();
@@ -133,7 +133,7 @@ export const LeftSide: React.FC<{
       if (c === platform) {
         continue;
       }
-      if (c === "isLinkedInBusinessPage") {
+      if (c === 'isLinkedInBusinessPage') {
         continue;
       }
 
@@ -155,13 +155,13 @@ export const LeftSide: React.FC<{
     <AbsoluteFill
       style={{
         left: 80,
-        justifyContent: "center",
+        justifyContent: 'center',
         maxWidth: Math.min(maxWidth, 1000),
       }}
     >
       <div
         ref={scaler}
-        style={{ height: 100, position: "absolute", top: -100000 }}
+        style={{ height: 100, position: 'absolute', top: -100000 }}
       />
       <div
         style={{

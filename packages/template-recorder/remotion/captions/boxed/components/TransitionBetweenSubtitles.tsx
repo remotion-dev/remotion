@@ -1,6 +1,6 @@
-import React from "react";
-import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-import { SCENE_TRANSITION_DURATION } from "../../../../config/transitions";
+import React from 'react';
+import { interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
+import { SCENE_TRANSITION_DURATION } from '../../../../config/transitions';
 
 export const TransitionFromPreviousSubtitles: React.FC<{
   children: React.ReactNode;
@@ -20,8 +20,8 @@ export const TransitionFromPreviousSubtitles: React.FC<{
           [SCENE_TRANSITION_DURATION, SCENE_TRANSITION_DURATION + 5],
           [0, 1],
           {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
           },
         ),
       }}
@@ -53,8 +53,8 @@ export const TransitionToNextSubtitles: React.FC<{
           ],
           [1, 0],
           {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
           },
         ),
       }}

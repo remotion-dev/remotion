@@ -77,6 +77,10 @@ The same environment variables are also used for [rendering](/docs/editor-starte
 Now, restart the Editor Starter.  
 When you drop in an asset, it should be uploaded to the S3 bucket.
 
+## Limits
+
+The constant [`MAX_FILE_UPLOAD_SIZE_IN_MB`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20MAX_FILE_UPLOAD_SIZE_IN_MB&type=code) limits the size of the file that can be uploaded. By default, it is set to 1000MB.
+
 ## S3 Transfer acceleration (recommended)
 
 Loading the assets from S3 can be slow.  

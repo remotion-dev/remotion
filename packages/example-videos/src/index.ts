@@ -139,7 +139,6 @@ export const exampleVideos = {
 	),
 	junk: path.join(__dirname, '..', 'videos', 'junk.wav'),
 };
-
 export {
 	getPrivateExampleVideo,
 	getRemoteExampleVideo,

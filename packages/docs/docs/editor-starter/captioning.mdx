@@ -41,6 +41,15 @@ The [inspector](/docs/editor-starter/tracks-items-assets#inspectors) allows user
 
 Captions are automatically split into "pages" for easier management. Pages are timed groups of words or sentences that fit nicely on screen. This is achieved by using [`createTikTokStyleCaptions`](/docs/captions/create-tiktok-style-captions) from [`@remotion/captions`](/docs/captions) package.
 
+## Limits
+
+The default way of captioning is to use the OpenAI Whisper API, which has a limit of 25MB per request.
+
+At a 16Khz sample rate, this is about 13.4 minutes of mono audio.  
+By default, the Editor Starter disables the captioning feature if the audio is longer than that.
+
+Review the [logic of `MAX_DURATION_ALLOWING_CAPTIONING_IN_SEC`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20MAX_DURATION_ALLOWING_CAPTIONING_IN_SEC&type=code) to tweak it.
+
 ## Alternatives
 
 ### `@remotion/whisper-web`

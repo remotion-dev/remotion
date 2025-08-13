@@ -1,10 +1,10 @@
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { REGULAR_FONT } from "../../../config/fonts";
-import type { Theme } from "../../../config/themes";
-import { COLORS } from "../../../config/themes";
-import type { ChapterType } from "../../chapters/make-chapters";
-import { TableOfContentItem } from "./item";
+import React from 'react';
+import { AbsoluteFill } from 'remotion';
+import { REGULAR_FONT } from '../../../config/fonts';
+import type { Theme } from '../../../config/themes';
+import { COLORS } from '../../../config/themes';
+import type { ChapterType } from '../../chapters/make-chapters';
+import { TableOfContentItem } from './item';
 
 export const TableOfContents: React.FC<{
   chapters: ChapterType[];
@@ -15,7 +15,7 @@ export const TableOfContents: React.FC<{
       style={{
         backgroundColor: COLORS[theme].BACKGROUND,
 
-        justifyContent: "center",
+        justifyContent: 'center',
         paddingLeft: 80,
         paddingRight: 80,
         color: COLORS[theme].ENDCARD_TEXT_COLOR,

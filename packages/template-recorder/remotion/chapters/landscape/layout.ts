@@ -1,12 +1,12 @@
-import React from "react";
-import { getSafeSpace } from "../../../config/layout";
-import type { VideoSceneAndMetadata } from "../../../config/scenes";
-import {} from "../../animations/webcam-transitions";
+import React from 'react';
+import { getSafeSpace } from '../../../config/layout';
+import type { VideoSceneAndMetadata } from '../../../config/scenes';
+import {} from '../../animations/webcam-transitions';
 import {
   isWebCamAtBottom,
   isWebCamRight,
-} from "../../animations/webcam-transitions/helpers";
-import type { Layout } from "../../layout/layout-types";
+} from '../../animations/webcam-transitions/helpers';
+import type { Layout } from '../../layout/layout-types';
 
 const getWidescreenChapterLayout = (
   scene: VideoSceneAndMetadata,
@@ -14,13 +14,13 @@ const getWidescreenChapterLayout = (
 ): React.CSSProperties => {
   const { layout, webcamPosition } = scene;
 
-  if (webcamPosition === "center") {
+  if (webcamPosition === 'center') {
     return {
       height: 1000,
       borderRadius: 0,
       opacity: 1,
-      left: getSafeSpace("landscape"),
-      bottom: getSafeSpace("landscape"),
+      left: getSafeSpace('landscape'),
+      bottom: getSafeSpace('landscape'),
       width: 10000,
       top: undefined,
     };
@@ -44,12 +44,12 @@ const getWidescreenChapterLayout = (
           top:
             layout.webcamLayout.top -
             tableOfContentHeight -
-            getSafeSpace("landscape"),
+            getSafeSpace('landscape'),
           bottom: undefined,
         }
       : {
           top:
-            getSafeSpace("landscape") +
+            getSafeSpace('landscape') +
             layout.webcamLayout.top +
             layout.webcamLayout.height,
           bottom: undefined,
@@ -66,15 +66,15 @@ export const getWidescreenChapterStyle = (
   const chapterLayout = getWidescreenChapterLayout(scene, tableOfContentHeight);
 
   const rightAligned = isWebCamRight(
-    scene.webcamPosition === "center" ? "bottom-left" : scene.webcamPosition,
+    scene.webcamPosition === 'center' ? 'bottom-left' : scene.webcamPosition,
   );
 
   return {
     ...chapterLayout,
     ...(rightAligned
       ? {
-          alignSelf: "flex-end",
-          alignItems: "flex-end",
+          alignSelf: 'flex-end',
+          alignItems: 'flex-end',
         }
       : {}),
   };

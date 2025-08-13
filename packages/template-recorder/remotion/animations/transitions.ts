@@ -1,16 +1,16 @@
-import type { Dimensions } from "@remotion/layout-utils";
-import type { CanvasLayout } from "../../config/layout";
+import type { Dimensions } from '@remotion/layout-utils';
+import type { CanvasLayout } from '../../config/layout';
 import type {
   SceneAndMetadata,
   VideoSceneAndMetadata,
   WebcamPositionForComparison,
-} from "../../config/scenes";
+} from '../../config/scenes';
 
 const getComparableWebcamPosition = (
   sceneAndMetaData: VideoSceneAndMetadata,
   canvasLayout: CanvasLayout,
 ): WebcamPositionForComparison => {
-  if (canvasLayout !== "square") {
+  if (canvasLayout !== 'square') {
     return sceneAndMetaData.webcamPosition;
   }
 
@@ -19,13 +19,13 @@ const getComparableWebcamPosition = (
   }
 
   if (
-    sceneAndMetaData.webcamPosition === "bottom-left" ||
-    sceneAndMetaData.webcamPosition === "bottom-right"
+    sceneAndMetaData.webcamPosition === 'bottom-left' ||
+    sceneAndMetaData.webcamPosition === 'bottom-right'
   ) {
-    return "bottom";
+    return 'bottom';
   }
 
-  return "top";
+  return 'top';
 };
 
 const getHasSameSize = (
@@ -68,8 +68,8 @@ export const getShouldTransitionOut = ({
 
   // If not both are video scenes, we can transition (slide)
   if (
-    sceneAndMetadata.type !== "video-scene" ||
-    nextSceneAndMetadata.type !== "video-scene"
+    sceneAndMetadata.type !== 'video-scene' ||
+    nextSceneAndMetadata.type !== 'video-scene'
   ) {
     return true;
   }
