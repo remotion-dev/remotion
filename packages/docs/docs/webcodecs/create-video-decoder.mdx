@@ -187,6 +187,29 @@ await parseMedia({
 });
 ```
 
+## Undecodable video<AvailableFrom v="4.0.333" />
+
+If the video cannot be decoded by the browser, an `VideoUndecodableError` will be thrown.
+
+```tsx twoslash title="Undecodable audio"
+import {VideoUndecodableError, createVideoDecoder} from '@remotion/webcodecs';
+
+try {
+  await createVideoDecoder({
+    // @ts-expect-error - Invalid codec
+    track: {codec: 'invalid'},
+    onFrame: console.log,
+    onError: console.error,
+  });
+} catch (error) {
+  if (error instanceof VideoUndecodableError) {
+    console.log('The video cannot be decoded by this browser');
+  } else {
+    throw error;
+  }
+}
+```
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/create-video-decoder.ts)

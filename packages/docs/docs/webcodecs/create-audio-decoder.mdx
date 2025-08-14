@@ -131,7 +131,7 @@ import {createAudioDecoder} from '@remotion/webcodecs';
 
 await parseMedia({
   src: 'https://parser.media/video.mp4',
-  onAudioTrack: ({track, container}) => {
+  onAudioTrack: async ({track, container}) => {
     const decoder = await createAudioDecoder({
       track,
       onFrame: console.log,
@@ -195,6 +195,29 @@ await parseMedia({
     };
   },
 });
+```
+
+## Undecodable audio<AvailableFrom v="4.0.333" />
+
+If the audio cannot be decoded by the browser, an `AudioUndecodableError` will be thrown.
+
+```tsx twoslash title="Undecodable audio"
+import {AudioUndecodableError, createAudioDecoder} from '@remotion/webcodecs';
+
+try {
+  await createAudioDecoder({
+    // @ts-expect-error - Invalid codec
+    track: {codec: 'invalid'},
+    onFrame: console.log,
+    onError: console.error,
+  });
+} catch (error) {
+  if (error instanceof AudioUndecodableError) {
+    console.log('The audio cannot be decoded by this browser');
+  } else {
+    throw error;
+  }
+}
 ```
 
 ## See also
