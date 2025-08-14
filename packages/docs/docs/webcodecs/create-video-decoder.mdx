@@ -196,7 +196,6 @@ import {VideoUndecodableError, createVideoDecoder} from '@remotion/webcodecs';
 
 try {
   await createVideoDecoder({
-    // @ts-expect-error - Invalid codec
     track: {codec: 'invalid'},
     onFrame: console.log,
     onError: console.error,
