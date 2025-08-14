@@ -85,7 +85,7 @@ export const internalExtractFrames = ({
 
 			controller.seek(timestampTargets[0]);
 
-			const decoder = createVideoDecoder({
+			const decoder = await createVideoDecoder({
 				onFrame: (frame) => {
 					Log.trace(logLevel, 'Received frame with timestamp', frame.timestamp);
 					if (expectedFrames.length === 0) {

@@ -54,6 +54,10 @@ export type {
 } from './on-video-track-handler';
 export type {ResizeOperation} from './resizing/mode';
 export {rotateAndResizeVideoFrame} from './rotate-and-resize-video-frame';
+export {
+	AudioUndecodableError,
+	VideoUndecodableError,
+} from './undecodable-error';
 export {createVideoEncoder} from './video-encoder';
 export type {WebCodecsVideoEncoder} from './video-encoder';
 export {webcodecsController} from './webcodecs-controller';

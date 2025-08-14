@@ -123,12 +123,12 @@ export const getPartialAudioData = async ({
 			acknowledgeRemotionLicense: true,
 			src,
 			controller,
-			onAudioTrack: ({track}) => {
+			onAudioTrack: async ({track}) => {
 				if (signal.aborted) {
 					return null;
 				}
 
-				const audioDecoder = createAudioDecoder({
+				const audioDecoder = await createAudioDecoder({
 					track,
 					onFrame: (sample) => {
 						if (signal.aborted) {

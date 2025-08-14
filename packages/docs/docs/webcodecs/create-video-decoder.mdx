@@ -26,7 +26,7 @@ const track = {} as unknown as MediaParserVideoTrack;
 
 import {createVideoDecoder} from '@remotion/webcodecs';
 
-const decoder = createVideoDecoder({
+const decoder = await createVideoDecoder({
   track,
   onFrame: console.log,
   onError: console.error,
@@ -58,7 +58,7 @@ A callback that is called when a frame is decoded.
 
 Takes a single argument, which is a [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) object.
 
-If the passed callback is asynchronous, the queue size counter will be decreased only after the callback has been resolved.  
+If the passed callback is asynchronous, the queue size counter will be decreased only after the callback has been resolved.
 
 However, the callback for the next frame may already be called while your callback is still running.  
 We do not ensure that callbacks are running sequentially.
@@ -111,7 +111,7 @@ Returns a handle with a `wasReset()` function. If the decoder was reset inbetwee
 
 ### `getMostRecentSampleInput()`<AvailableFrom v="4.0.312" />
 
-Return the `.timestamp` of the most recently input sample. 
+Return the `.timestamp` of the most recently input sample.
 
 ## Example usage with `@remotion/media-parser`
 
@@ -121,8 +121,8 @@ import {createVideoDecoder} from '@remotion/webcodecs';
 
 await parseMedia({
   src: 'https://parser.media/video.mp4',
-  onVideoTrack: ({track, container}) => {
-    const decoder = createVideoDecoder({
+  onVideoTrack: async ({track, container}) => {
+    const decoder = await createVideoDecoder({
       track,
       onFrame: console.log,
       onError: console.error,
@@ -153,8 +153,8 @@ import {createVideoDecoder} from '@remotion/webcodecs';
 
 await parseMedia({
   src: 'https://parser.media/video.mp4',
-  onVideoTrack: ({track, container}) => {
-    const decoder = createVideoDecoder({
+  onVideoTrack: async ({track, container}) => {
+    const decoder = await createVideoDecoder({
       track,
       onFrame: console.log,
       onError: console.error,
@@ -165,7 +165,7 @@ await parseMedia({
 
       await decoder.waitForQueueToBeLessThan(10);
       if (wasReset()) {
-        return
+        return;
       }
 
       await decoder.decode(sample);
@@ -180,11 +180,33 @@ await parseMedia({
 
         // Called when the track is done
         await decoder.flush();
-        decoder.close()
+        decoder.close();
       };
     };
   },
 });
+```
+
+## Undecodable video<AvailableFrom v="4.0.333" />
+
+If the video cannot be decoded by the browser, an `VideoUndecodableError` will be thrown.
+
+```tsx twoslash title="Undecodable audio"
+import {VideoUndecodableError, createVideoDecoder} from '@remotion/webcodecs';
+
+try {
+  await createVideoDecoder({
+    track: {codec: 'invalid'},
+    onFrame: console.log,
+    onError: console.error,
+  });
+} catch (error) {
+  if (error instanceof VideoUndecodableError) {
+    console.log('The video cannot be decoded by this browser');
+  } else {
+    throw error;
+  }
+}
 ```
 
 ## See also

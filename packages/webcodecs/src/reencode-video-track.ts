@@ -183,7 +183,7 @@ export const reencodeVideoTrack = async ({
 		},
 	});
 
-	const videoDecoder = createVideoDecoder({
+	const videoDecoder = await createVideoDecoder({
 		track: videoDecoderConfig,
 		onFrame: async (frame) => {
 			await frameSorter.waitUntilProcessed();
