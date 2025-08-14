@@ -26,7 +26,7 @@ const track = {} as unknown as MediaParserAudioTrack;
 
 import {createAudioDecoder} from '@remotion/webcodecs';
 
-const decoder = createAudioDecoder({
+const decoder = await createAudioDecoder({
   track,
   onFrame: console.log,
   onError: console.error,
@@ -60,7 +60,7 @@ A callback that is called when an audio frame is decoded.
 
 Takes a single argument, which is an [`AudioData`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData) object.
 
-If the passed callback is asynchronous, the queue size counter will be decreased only after the callback has been resolved.  
+If the passed callback is asynchronous, the queue size counter will be decreased only after the callback has been resolved.
 
 However, the callback for the next frame may already be called while your callback is still running.  
 We do not ensure that callbacks are running sequentially.
@@ -77,7 +77,6 @@ A [`webcodecsController()`](/docs/webcodecs/webcodecs-controller) instance.
 
 If provided, you can call [`.pause()`](/docs/webcodecs/webcodecs-controller#pause), [`.resume()`](/docs/webcodecs/webcodecs-controller#resume) and [`.abort()`](/docs/webcodecs/webcodecs-controller#abort) on the controller to pause, resume and abort the decoding.
 
-
 ### `logLevel?`
 
 _string_ <TsType type="LogLevel" source="@remotion/media-parser"/>
@@ -89,12 +88,10 @@ Default value: `"info"`, which logs only important information.
 
 Returns an object with the following properties:
 
-
 ### `decode(sample: EncodedAudioChunkInit | EncodedAudioChunk)`
 
 Decodes a sample. Same as [`AudioDecoder.decode()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioDecoder/decode).  
 You can pass in a [`MediaParserAudioSample`](/docs/media-parser/types#mediaparseraudiosample) object from [`parseMedia()`](/docs/media-parser/parse-media), which also satisfies the [`EncodedAudioChunkInit`](https://www.w3.org/TR/webcodecs/#dictdef-encodedaudiochunkinit) interface.
-
 
 ### `waitForQueueToBeLessThan()`
 
@@ -121,8 +118,7 @@ Returns a handle with a `wasReset()` function. If the decoder was reset inbetwee
 
 ### `getMostRecentSampleInput()`<AvailableFrom v="4.0.312" />
 
-Return the `.timestamp` of the most recently input sample. 
-
+Return the `.timestamp` of the most recently input sample.
 
 ## Example usage with `@remotion/media-parser`
 
@@ -136,7 +132,7 @@ import {createAudioDecoder} from '@remotion/webcodecs';
 await parseMedia({
   src: 'https://parser.media/video.mp4',
   onAudioTrack: ({track, container}) => {
-    const decoder = createAudioDecoder({
+    const decoder = await createAudioDecoder({
       track,
       onFrame: console.log,
       onError: console.error,
@@ -150,7 +146,7 @@ await parseMedia({
       return async () => {
         // Called when the track is done
         await decoder.flush();
-        decoder.close()
+        decoder.close();
       };
     };
   },
@@ -167,9 +163,8 @@ import {createAudioDecoder} from '@remotion/webcodecs';
 
 await parseMedia({
   src: 'https://parser.media/video.mp4',
-  onAudioTrack: ({track, container}) => {
-
-    const decoder = createAudioDecoder({
+  onAudioTrack: async ({track, container}) => {
+    const decoder = await createAudioDecoder({
       track,
       onFrame: console.log,
       onError: console.error,
@@ -180,14 +175,13 @@ await parseMedia({
 
       await decoder.waitForQueueToBeLessThan(10);
       if (wasReset()) {
-        return
+        return;
       }
 
       await decoder.decode(sample);
       if (wasReset()) {
         return;
       }
-
 
       return async () => {
         if (wasReset()) {
@@ -196,13 +190,12 @@ await parseMedia({
 
         // Called when the track is done
         await decoder.flush();
-        decoder.close()
+        decoder.close();
       };
     };
   },
 });
 ```
-
 
 ## See also
 

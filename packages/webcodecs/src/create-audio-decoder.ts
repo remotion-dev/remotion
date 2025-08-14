@@ -3,6 +3,7 @@ import type {FlushPending} from './flush-pending';
 import {makeFlushPending} from './flush-pending';
 import {getWaveAudioDecoder} from './get-wave-audio-decoder';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import {AudioUndecodableError} from './undecodable-error';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsAudioDecoder = {
@@ -27,13 +28,13 @@ export type CreateAudioDecoderInit = {
 	logLevel: MediaParserLogLevel;
 };
 
-export const internalCreateAudioDecoder = ({
+export const internalCreateAudioDecoder = async ({
 	onFrame,
 	onError,
 	controller,
 	config,
 	logLevel,
-}: CreateAudioDecoderInit): WebCodecsAudioDecoder => {
+}: CreateAudioDecoderInit): Promise<WebCodecsAudioDecoder> => {
 	if (
 		controller &&
 		controller._internals._mediaParserController._internals.signal.aborted
@@ -101,6 +102,14 @@ export const internalCreateAudioDecoder = ({
 			'abort',
 			onAbort,
 		);
+	}
+
+	const isConfigSupported = await AudioDecoder.isConfigSupported(config);
+	if (!isConfigSupported) {
+		throw new AudioUndecodableError({
+			message: 'Audio cannot be decoded by this browser',
+			config,
+		});
 	}
 
 	audioDecoder.configure(config);
@@ -195,7 +204,7 @@ export const createAudioDecoder = ({
 	onError: (error: Error) => void;
 	controller?: WebCodecsController | null;
 	logLevel?: MediaParserLogLevel;
-}): WebCodecsAudioDecoder => {
+}): Promise<WebCodecsAudioDecoder> => {
 	return internalCreateAudioDecoder({
 		onFrame,
 		onError,

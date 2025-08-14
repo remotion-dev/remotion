@@ -2,6 +2,7 @@ import type {MediaParserLogLevel} from '@remotion/media-parser';
 import type {FlushPending} from './flush-pending';
 import {makeFlushPending} from './flush-pending';
 import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import {VideoUndecodableError} from './undecodable-error';
 import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsVideoDecoder = {
@@ -18,7 +19,7 @@ export type WebCodecsVideoDecoder = {
 	getMostRecentSampleInput: () => number | null;
 };
 
-export const internalCreateVideoDecoder = ({
+export const internalCreateVideoDecoder = async ({
 	onFrame,
 	onError,
 	controller,
@@ -30,7 +31,7 @@ export const internalCreateVideoDecoder = ({
 	controller: WebCodecsController | null;
 	config: VideoDecoderConfig;
 	logLevel: MediaParserLogLevel;
-}): WebCodecsVideoDecoder => {
+}): Promise<WebCodecsVideoDecoder> => {
 	if (
 		controller &&
 		controller._internals._mediaParserController._internals.signal.aborted
@@ -87,6 +88,14 @@ export const internalCreateVideoDecoder = ({
 			'abort',
 			onAbort,
 		);
+	}
+
+	const isConfigSupported = await VideoDecoder.isConfigSupported(config);
+	if (!isConfigSupported) {
+		throw new VideoUndecodableError({
+			message: 'Video cannot be decoded by this browser',
+			config,
+		});
 	}
 
 	videoDecoder.configure(config);
@@ -172,7 +181,7 @@ export const createVideoDecoder = ({
 	onError: (error: Error) => void;
 	controller?: WebCodecsController;
 	logLevel?: MediaParserLogLevel;
-}): WebCodecsVideoDecoder => {
+}): Promise<WebCodecsVideoDecoder> => {
 	return internalCreateVideoDecoder({
 		onFrame,
 		onError,
