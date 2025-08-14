@@ -204,10 +204,7 @@ const innerParseMp3PacketHeader = (iterator: BufferIterator) => {
 
 	const layer = layerBits === 0b11 ? 1 : layerBits === 0b10 ? 2 : 3;
 
-	const protectionBit = iterator.getBits(1);
-	if (protectionBit !== 0b1) {
-		throw new Error('Does not support CRC yet');
-	}
+	iterator.getBits(1); // 0b1 means that there is no CRC, 0b0 means there is. Not validating checksum though
 
 	const bitrateIndex = iterator.getBits(4);
 	const bitrateInKbit = getBitrateKB({
