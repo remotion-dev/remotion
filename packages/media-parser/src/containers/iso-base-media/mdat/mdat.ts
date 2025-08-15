@@ -99,13 +99,14 @@ export const parseMdatSection = async (
 			mediaSectionStart: mediaSection.start,
 		});
 
-		const calcedJumpMarks = calculateJumpMarks({
-			sampleMap: flatSamplesMap,
-			offsetsSorted: offsets,
-			trackIds,
-			endOfMdat,
-		});
-
+		const calcedJumpMarks = state.needsSamplesToNotBeDispersed
+			? calculateJumpMarks({
+					sampleMap: flatSamplesMap,
+					offsetsSorted: offsets,
+					trackIds,
+					endOfMdat,
+				})
+			: [];
 		state.iso.flatSamples.setJumpMarks(mediaSection.start, calcedJumpMarks);
 		state.iso.flatSamples.setSamples(mediaSection.start, flatSamplesMap);
 	}

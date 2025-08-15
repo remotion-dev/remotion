@@ -78,6 +78,7 @@ export const makeParserState = ({
 	initialReaderInstance,
 	makeSamplesStartAtZero,
 	prefetchCache,
+	needsSamplesToNotBeDispersed,
 }: {
 	hasAudioTrackHandlers: boolean;
 	hasVideoTrackHandlers: boolean;
@@ -101,6 +102,7 @@ export const makeParserState = ({
 	initialReaderInstance: Reader;
 	makeSamplesStartAtZero: boolean;
 	prefetchCache: PrefetchCache;
+	needsSamplesToNotBeDispersed: boolean;
 }) => {
 	let skippedBytes: number = 0;
 	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
@@ -226,6 +228,7 @@ export const makeParserState = ({
 		makeSamplesStartAtZero,
 		prefetchCache,
 		avc,
+		needsSamplesToNotBeDispersed,
 	};
 };
 
