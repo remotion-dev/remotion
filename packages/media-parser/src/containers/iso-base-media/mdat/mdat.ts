@@ -105,10 +105,10 @@ export const parseMdatSection = async (
 	}
 
 	const samplePositions = state.iso.flatSamples.getSamples(mediaSection.start)!;
-	const sampleIndiced = state.iso.flatSamples.getCurrentSampleIndices(
+	const sampleIndices = state.iso.flatSamples.getCurrentSampleIndices(
 		mediaSection.start,
 	);
-	const nextSample = getSampleWithLowestDts(samplePositions, sampleIndiced);
+	const nextSample = getSampleWithLowestDts(samplePositions, sampleIndices);
 
 	if (!nextSample) {
 		Log.verbose(state.logLevel, 'Iterated over all samples.', endOfMdat);
@@ -118,6 +118,21 @@ export const parseMdatSection = async (
 
 	if (nextSample.samplePosition.offset !== state.iterator.counter.getOffset()) {
 		return makeSkip(nextSample.samplePosition.offset);
+	}
+
+	// Corrupt file: Sample is beyond the end of the file. Don't process it.
+	if (
+		nextSample.samplePosition.offset + nextSample.samplePosition.size >
+		state.contentLength
+	) {
+		Log.verbose(
+			state.logLevel,
+			"Sample is beyond the end of the file. Don't process it.",
+			nextSample.samplePosition.offset + nextSample.samplePosition.size,
+			endOfMdat,
+		);
+
+		return makeSkip(endOfMdat);
 	}
 
 	const {iterator} = state;

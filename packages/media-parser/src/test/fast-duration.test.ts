@@ -5,7 +5,6 @@ import {parseMedia} from '../parse-media';
 test(
 	'fast test',
 	async () => {
-		let samples = 0;
 		await parseMedia({
 			src: '/Users/jonathanburger/Downloads/0205mp4.mp4',
 			fields: {
@@ -14,17 +13,6 @@ test(
 				dimensions: true,
 				videoCodec: true,
 				audioCodec: true,
-			},
-			onVideoTrack: (track) => {
-				return (sample) => {
-					samples++;
-					console.log(samples, sample.decodingTimestamp);
-				};
-			},
-			onAudioTrack: (track) => {
-				return (sample) => {
-					// console.log(sample.timestamp);
-				};
 			},
 			reader: nodeReader,
 			acknowledgeRemotionLicense: true,

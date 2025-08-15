@@ -80,6 +80,51 @@ export const calculateSamplePositions = ({
 	return trackIdAndSamplePositions;
 };
 
+const updateSampleIndicesAfterSeek = ({
+	samplePositionsForMdatStart,
+	seekedByte,
+}: {
+	samplePositionsForMdatStart: Record<number, TrackIdAndSamplePositions[]>;
+	seekedByte: number;
+}) => {
+	const currentSampleIndices: Record<number, Record<number, number>> = {};
+
+	const keys = Object.keys(samplePositionsForMdatStart).map(Number).sort();
+	const mdat = keys.find((key) => seekedByte >= key);
+
+	if (!mdat) {
+		return currentSampleIndices;
+	}
+
+	const samplePositions = samplePositionsForMdatStart[mdat];
+
+	if (!samplePositions) {
+		return currentSampleIndices;
+	}
+
+	for (const track of samplePositions) {
+		const currentSampleIndex = track.samplePositions.findIndex(
+			(sample) => sample.offset >= seekedByte,
+		);
+
+		if (!currentSampleIndices[mdat]) {
+			currentSampleIndices[mdat] = {};
+		}
+
+		if (!currentSampleIndices[mdat][track.trackId]) {
+			currentSampleIndices[mdat][track.trackId] = 0;
+		}
+
+		if (currentSampleIndex === -1) {
+			currentSampleIndices[mdat][track.trackId] = track.samplePositions.length;
+		} else {
+			currentSampleIndices[mdat][track.trackId] = currentSampleIndex;
+		}
+	}
+
+	return currentSampleIndices;
+};
+
 export const cachedSamplePositionsState = () => {
 	// offset -> sample positions
 	const samplePositionsForMdatStart: Record<
@@ -87,7 +132,7 @@ export const cachedSamplePositionsState = () => {
 		TrackIdAndSamplePositions[]
 	> = {};
 
-	const currentSampleIndex: Record<number, Record<number, number>> = {};
+	let currentSampleIndex: Record<number, Record<number, number>> = {};
 
 	return {
 		getSamples: (mdatStart: number): TrackIdAndSamplePositions[] | null => {
@@ -113,6 +158,12 @@ export const cachedSamplePositionsState = () => {
 		},
 		getCurrentSampleIndices: (mdatStart: number) => {
 			return currentSampleIndex[mdatStart] ?? {};
+		},
+		updateAfterSeek: (seekedByte: number) => {
+			currentSampleIndex = updateSampleIndicesAfterSeek({
+				samplePositionsForMdatStart,
+				seekedByte,
+			});
 		},
 	};
 };

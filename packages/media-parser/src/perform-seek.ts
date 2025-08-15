@@ -9,6 +9,7 @@ import type {MediaParserReaderInterface} from './readers/reader';
 import {seekBackwards} from './seek-backwards';
 import {seekForward} from './seek-forwards';
 import type {CurrentReader} from './state/current-reader';
+import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {SeekInfiniteLoop} from './state/seek-infinite-loop';
 import type {MediaSectionState} from './state/video-section';
 import {isByteInMediaSection} from './state/video-section';
@@ -29,6 +30,7 @@ export const performSeek = async ({
 	discardReadBytes,
 	fields,
 	prefetchCache,
+	isoState,
 }: {
 	seekTo: number;
 	userInitiated: boolean;
@@ -45,6 +47,7 @@ export const performSeek = async ({
 	src: ParseMediaSrc;
 	discardReadBytes: (force: boolean) => Promise<void>;
 	prefetchCache: PrefetchCache;
+	isoState: IsoBaseMediaState;
 }): Promise<void> => {
 	const byteInMediaSection = isByteInMediaSection({
 		position: seekTo,
@@ -125,6 +128,10 @@ export const performSeek = async ({
 			src,
 			prefetchCache,
 		});
+	}
+
+	if (userInitiated) {
+		isoState.flatSamples.updateAfterSeek(seekTo);
 	}
 
 	await controller._internals.checkForAbortAndPause();

@@ -22,6 +22,5 @@ test('handle subsequent mdat atoms', async () => {
 		onVideoTrack: () => {
 			return () => {};
 		},
-		logLevel: 'trace',
 	});
 });
