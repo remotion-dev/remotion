@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import {BlobSource, EncodedPacketSink, Input, MP4} from 'mediabunny';
+import {EncodedPacketSink, Input, MP4, StreamSource} from 'mediabunny';
+import {open} from 'node:fs/promises';
 import {nodeReader} from '../node';
 import {parseMedia} from '../parse-media';
 
@@ -15,13 +16,26 @@ const mediaParserBench = async () => {
 };
 
 const mediabunnyBench = async () => {
-	const bigBuckBunny = Bun.file(
+	const fileHandle = await open(
 		'/Users/jonathanburger/Downloads/BigBuckBunny.mp4',
+		'r',
 	);
+
+	const source = new StreamSource({
+		read: async (start, end) => {
+			const buffer = Buffer.alloc(end - start);
+			await fileHandle.read(buffer, 0, end - start, start);
+			return buffer;
+		},
+		getSize: async () => {
+			const {size} = await fileHandle.stat();
+			return size;
+		},
+	});
 
 	const input = new Input({
 		formats: [MP4],
-		source: new BlobSource(bigBuckBunny),
+		source,
 	});
 
 	const videoTrack = await input.getPrimaryVideoTrack();
@@ -30,10 +44,10 @@ const mediabunnyBench = async () => {
 	let currentPacket = await sink.getKeyPacket(0);
 	while (currentPacket) {
 		currentPacket = await sink.getNextPacket(currentPacket);
+		console.log(currentPacket?.microsecondTimestamp);
 	}
 };
 
-console.time('mediabunny');
 for (let i = 0; i < 10; i++) {
 	await mediabunnyBench();
 }
