@@ -488,6 +488,9 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-tiktok',
 		allowEnableTailwind: true,
 	},
+].filter(truthy);
+
+export const PAID_TEMPLATES = [
 	{
 		homePageLabel: 'Editor Starter',
 		shortName: 'Editor Starter',
@@ -496,17 +499,10 @@ export const FEATURED_TEMPLATES: Template[] = [
 		description: 'Professional Remotion Editor Starter (Paid)',
 		longerDescription:
 			'A premium starter for building a Remotion-based editor. Select to get the purchase link.',
-		promoBanner: {
-			src: '/img/template-editor-starter.png',
-			width: 1200,
-			height: 628,
-		},
+
 		cliId: 'editor-starter' as const,
-		type: 'image' as const,
 		defaultBranch: 'main',
-		featuredOnHomePage: null,
-		previewURL: null,
-		templateInMonorepo: 'template-editor-starter',
-		allowEnableTailwind: false,
+		previewURL: 'https://editor-starter.remotion.dev/',
+		purchaseURL: 'https://www.remotion.pro/editor-starter',
 	},
 ].filter(truthy);
