@@ -30,7 +30,7 @@ const findBestJump = ({
 }: {
 	sampleMap: Map<number, MinimalFlatSampleForTesting>;
 	offsetsSorted: number[];
-	visited: Set<string>;
+	visited: Map<string, true>;
 	progresses: Record<number, number>;
 }) => {
 	const minProgress = Math.min(...Object.values(progresses));
@@ -39,12 +39,13 @@ const findBestJump = ({
 		([, progress]) => progress === minProgress,
 	)?.[0];
 
-	const firstSampleAboveMinProgress = offsetsSorted.findIndex(
-		(offset) =>
-			sampleMap.get(offset)!.track.trackId ===
-				Number(trackNumberWithLowestProgress) &&
-			!visited.has(getKey(sampleMap.get(offset)!)),
-	);
+	const firstSampleAboveMinProgress = offsetsSorted.findIndex((offset) => {
+		const sample = sampleMap.get(offset)!;
+		return (
+			sample.track.trackId === Number(trackNumberWithLowestProgress) &&
+			!visited.has(getKey(sample))
+		);
+	});
 
 	if (firstSampleAboveMinProgress === -1) {
 		// Track might be done, so we don't care about minimum progress
@@ -82,7 +83,7 @@ export const calculateJumpMarks = ({
 
 	let indexToVisit = 0;
 
-	const visited = new Set<string>();
+	const visited = new Map<string, true>();
 
 	const increaseIndex = () => {
 		indexToVisit++;
@@ -151,7 +152,7 @@ export const calculateJumpMarks = ({
 			continue;
 		}
 
-		visited.add(sampleKey);
+		visited.set(sampleKey, true);
 
 		lastVisitedSample = currentSamplePosition;
 
