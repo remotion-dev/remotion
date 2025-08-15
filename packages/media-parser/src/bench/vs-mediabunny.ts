@@ -44,10 +44,10 @@ const mediabunnyBench = async () => {
 	let currentPacket = await sink.getKeyPacket(0);
 	while (currentPacket) {
 		currentPacket = await sink.getNextPacket(currentPacket);
-		console.log(currentPacket?.microsecondTimestamp);
 	}
 };
 
+console.time('mediabunny');
 for (let i = 0; i < 10; i++) {
 	await mediabunnyBench();
 }

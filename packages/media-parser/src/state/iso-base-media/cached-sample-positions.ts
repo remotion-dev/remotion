@@ -183,8 +183,8 @@ type Lowest = {
 export const getSampleWithLowestDts = (
 	samplePositions: TrackIdAndSamplePositions[],
 	currentSampleIndexMap: Record<number, number>,
-): Lowest | undefined => {
-	let lowestDts: Lowest | undefined;
+): Lowest[] => {
+	const lowestDts: Lowest[] = [];
 
 	for (const track of samplePositions) {
 		const currentSampleIndex = currentSampleIndexMap[track.trackId] ?? 0;
@@ -194,15 +194,15 @@ export const getSampleWithLowestDts = (
 
 		if (
 			currentSample &&
-			(!lowestDts ||
-				currentSample.decodingTimestamp <
-					lowestDts.samplePosition.decodingTimestamp)
+			(lowestDts.length === 0 ||
+				currentSample.decodingTimestamp <=
+					lowestDts[0].samplePosition.decodingTimestamp)
 		) {
-			lowestDts = {
+			lowestDts.push({
 				samplePosition: currentSample,
 				trackId: track.trackId,
 				index: currentSampleIndex,
-			};
+			});
 		}
 	}
 

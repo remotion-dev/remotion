@@ -121,13 +121,20 @@ export const parseMdatSection = async (
 	const sampleIndices = state.iso.flatSamples.getCurrentSampleIndices(
 		mediaSection.start,
 	);
-	const nextSample = getSampleWithLowestDts(samplePositions, sampleIndices);
+	const nextSampleArray = getSampleWithLowestDts(
+		samplePositions,
+		sampleIndices,
+	);
 
-	if (!nextSample) {
+	if (nextSampleArray.length === 0) {
 		Log.verbose(state.logLevel, 'Iterated over all samples.', endOfMdat);
-
 		return makeSkip(endOfMdat);
 	}
+
+	const exactMatch = nextSampleArray.find(
+		(s) => s.samplePosition.offset === state.iterator.counter.getOffset(),
+	);
+	const nextSample = exactMatch ?? nextSampleArray[0];
 
 	if (nextSample.samplePosition.offset !== state.iterator.counter.getOffset()) {
 		return makeSkip(nextSample.samplePosition.offset);
