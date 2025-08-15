@@ -496,7 +496,7 @@ export const PAID_TEMPLATES = [
 		shortName: 'Editor Starter',
 		org: 'remotion-dev',
 		repoName: 'editor-starter',
-		description: 'Professional Remotion Editor Starter (Paid)',
+		description: 'A boilerplate for starting a video editor',
 		longerDescription:
 			'A premium starter for building a Remotion-based editor. Select to get the purchase link.',
 

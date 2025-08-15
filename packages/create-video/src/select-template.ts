@@ -5,7 +5,7 @@ import {selectAsync} from './prompts';
 import type {Template} from './templates';
 import {FEATURED_TEMPLATES, PAID_TEMPLATES} from './templates';
 
-const ALL_TEMPLATES = [...FEATURED_TEMPLATES, ...PAID_TEMPLATES];
+const ALL_TEMPLATES = [...PAID_TEMPLATES, ...FEATURED_TEMPLATES];
 
 type Options = {
 	tmp: boolean;
