@@ -1,6 +1,6 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
 import type {MediaParserTrack} from '../../../get-tracks';
-import {getHasTracks} from '../../../get-tracks';
+import {getHasTracks, getTracksFromMoovBox} from '../../../get-tracks';
 import {Log} from '../../../log';
 import type {FetchMoreData, Skip} from '../../../skip';
 import {makeFetchMoreData, makeSkip} from '../../../skip';
@@ -81,12 +81,25 @@ export const parseMdatSection = async (
 			endOfMdat,
 			state,
 		});
+		const tracksFromMoov = getTracksFromMoovBox(moov);
 		state.iso.moov.setMoovBox({
 			moovBox: moov,
 			precomputed: false,
 		});
-		state.callbacks.tracks.setIsDone(state.logLevel);
+		const existingTracks = state.callbacks.tracks.getTracks();
+		for (const trackFromMoov of tracksFromMoov) {
+			if (existingTracks.find((t) => t.trackId === trackFromMoov.trackId)) {
+				continue;
+			}
 
+			if (trackFromMoov.type === 'other') {
+				continue;
+			}
+
+			state.callbacks.tracks.addTrack(trackFromMoov);
+		}
+
+		state.callbacks.tracks.setIsDone(state.logLevel);
 		state.structure.getIsoStructure().boxes.push(moov);
 
 		return parseMdatSection(state);

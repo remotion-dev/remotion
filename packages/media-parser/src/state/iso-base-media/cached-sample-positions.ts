@@ -9,6 +9,7 @@ import {
 } from '../../containers/iso-base-media/traversal';
 import type {SamplePosition} from '../../get-sample-positions';
 import {getTracks} from '../../get-tracks';
+import {Log} from '../../log';
 import type {ParserState} from '../parser-state';
 import {deduplicateTfraBoxesByOffset} from './precomputed-tfra';
 
@@ -57,6 +58,11 @@ export const calculateSamplePositions = ({
 	for (const track of tracks) {
 		const trakBox = getTrakBoxByTrackId(moov, track.trackId);
 		if (!trackIds.includes(track.trackId)) {
+			Log.verbose(
+				state.logLevel,
+				'Skipping calculating sample positions for track',
+				track.trackId,
+			);
 			continue;
 		}
 
