@@ -4,16 +4,19 @@ import React from 'react';
 export const EditorIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 	return (
 		<svg
-			viewBox="0 0 64 64"
+			viewBox="0 0 251 251"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
 			{...props}
 		>
-			<path 
-				fillRule="evenodd" 
-				fill="currentColor" 
-				d="M12,0 L52,0 Q64,0 64,12 L64,52 Q64,64 52,64 L12,64 Q0,64 0,52 L0,12 Q0,0 12,0 Z M10,4 Q4,4 4,10 L4,40 Q4,46 10,46 L54,46 Q60,46 60,40 L60,10 Q60,4 54,4 L10,4 Z M12,8 L52,8 Q56,8 56,12 L56,34 Q56,38 52,38 L12,38 Q8,38 8,34 L8,12 Q8,8 12,8 Z M28,20 L36,24 L28,28 Z M8,48 L56,48 Q60,48 60,52 L60,56 Q60,60 56,60 L8,60 Q4,60 4,56 L4,52 Q4,48 8,48 Z M7,50 Q6,50 6,51 Q6,52 7,52 L57,52 Q58,52 58,51 Q58,50 57,50 L7,50 Z M7,54 Q6,54 6,55 Q6,56 7,56 L57,56 Q58,56 58,55 Q58,54 57,54 L7,54 Z M7,58 Q6,58 6,59 Q6,60 7,60 L57,60 Q58,60 58,59 Q58,58 57,58 L7,58 Z M9,49 Q8,49 8,50 L8,52 Q8,53 9,53 L19,53 Q20,53 20,52 L20,50 Q20,49 19,49 L9,49 Z M23,49 Q22,49 22,50 L22,52 Q22,53 23,53 L29,53 Q30,53 30,52 L30,50 Q30,49 29,49 L23,49 Z M33,49 Q32,49 32,50 L32,52 Q32,53 33,53 L47,53 Q48,53 48,52 L48,50 Q48,49 47,49 L33,49 Z M9,53 Q8,53 8,54 L8,56 Q8,57 9,57 L27,57 Q28,57 28,56 L28,54 Q28,53 27,53 L9,53 Z M31,53 Q30,53 30,54 L30,56 Q30,57 31,57 L47,57 Q48,57 48,56 L48,54 Q48,53 47,53 L31,53 Z M25,48 L25,60 L27,60 L27,48 L25,48 Z M25,47 L26,45 L27,47 L25,47 Z"
-			/>
+			<rect x="4" y="4" width="52" height="52" rx="15" stroke="currentColor" strokeWidth="8"/>
+			<rect x="195" y="4" width="52" height="52" rx="15" stroke="currentColor" strokeWidth="8"/>
+			<rect x="4" y="195" width="52" height="52" rx="15" stroke="currentColor" strokeWidth="8"/>
+			<rect x="195" y="195" width="52" height="52" rx="15" stroke="currentColor" strokeWidth="8"/>
+			<path d="M55 222H196" stroke="currentColor" strokeWidth="8"/>
+			<path d="M30 60L30 191" stroke="currentColor" strokeWidth="8"/>
+			<path d="M221 60V191" stroke="currentColor" strokeWidth="8"/>
+			<path d="M55 30H196" stroke="currentColor" strokeWidth="8"/>
 		</svg>
 	);
 };
