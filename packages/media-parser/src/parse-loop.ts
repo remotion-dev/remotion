@@ -139,6 +139,7 @@ export const parseLoop = async ({
 						src: state.src,
 						discardReadBytes: state.discardReadBytes,
 						prefetchCache: state.prefetchCache,
+						isoState: state.iso,
 					});
 					state.timings.timeSeeking += Date.now() - seekStart;
 				}

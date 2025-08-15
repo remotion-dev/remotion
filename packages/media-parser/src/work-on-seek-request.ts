@@ -268,6 +268,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 			discardReadBytes,
 			fields,
 			prefetchCache,
+			isoState,
 		});
 		return;
 	}
@@ -289,6 +290,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 			discardReadBytes,
 			fields,
 			prefetchCache,
+			isoState,
 		});
 		const {hasChanged} =
 			controller._internals.seekSignal.clearSeekIfStillSame(seek);

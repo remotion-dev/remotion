@@ -1,6 +1,5 @@
 import {areSamplesComplete} from '../../containers/iso-base-media/are-samples-complete';
 import {getSamplePositionsFromTrack} from '../../containers/iso-base-media/get-sample-positions-from-track';
-import type {JumpMark} from '../../containers/iso-base-media/mdat/calculate-jump-marks';
 import {
 	getMoofBoxes,
 	getMoovBoxFromState,
@@ -9,43 +8,25 @@ import {
 	getTrexBoxes,
 } from '../../containers/iso-base-media/traversal';
 import type {SamplePosition} from '../../get-sample-positions';
-import type {
-	MediaParserAudioTrack,
-	MediaParserOtherTrack,
-	MediaParserVideoTrack,
-} from '../../get-tracks';
 import {getTracks} from '../../get-tracks';
+import {Log} from '../../log';
 import type {ParserState} from '../parser-state';
 import {deduplicateTfraBoxesByOffset} from './precomputed-tfra';
 
-export type FlatSample = {
-	track: MediaParserVideoTrack | MediaParserAudioTrack | MediaParserOtherTrack;
-	samplePosition: SamplePosition;
+type TrackIdAndSamplePositions = {
+	trackId: number;
+	samplePositions: SamplePosition[];
 };
 
-export type MinimalFlatSampleForTesting = {
-	track: {
-		trackId: number;
-		originalTimescale: number;
-		type: 'audio' | 'video' | 'other';
-	};
-	samplePosition: {
-		decodingTimestamp: number;
-		offset: number;
-	};
-};
-
-export const calculateFlatSamples = ({
+export const calculateSamplePositions = ({
 	state,
 	mediaSectionStart,
+	trackIds,
 }: {
 	state: ParserState;
 	mediaSectionStart: number;
-}): {
-	flatSamples: Map<number, FlatSample>;
-	offsets: number[];
 	trackIds: number[];
-} => {
+}): TrackIdAndSamplePositions[] => {
 	const tracks = getTracks(state, true);
 
 	const moofBoxes = getMoofBoxes(state.structure.getIsoStructure().boxes);
@@ -72,12 +53,18 @@ export const calculateFlatSamples = ({
 		throw new Error('No moov box found');
 	}
 
-	const offsets: number[] = [];
-	const trackIds: number[] = [];
-	const map = new Map<number, FlatSample>();
+	const trackIdAndSamplePositions: TrackIdAndSamplePositions[] = [];
 
 	for (const track of tracks) {
 		const trakBox = getTrakBoxByTrackId(moov, track.trackId);
+		if (!trackIds.includes(track.trackId)) {
+			Log.verbose(
+				state.logLevel,
+				'Skipping calculating sample positions for track',
+				track.trackId,
+			);
+			continue;
+		}
 
 		if (!trakBox) {
 			throw new Error('No trak box found');
@@ -90,39 +77,134 @@ export const calculateFlatSamples = ({
 			trexBoxes: getTrexBoxes(moov),
 		});
 
-		trackIds.push(track.trackId);
+		trackIdAndSamplePositions.push({
+			trackId: track.trackId,
+			samplePositions,
+		});
+	}
 
-		for (const samplePosition of samplePositions) {
-			offsets.push(samplePosition.offset);
-			map.set(samplePosition.offset, {
-				track,
-				samplePosition,
-			});
+	return trackIdAndSamplePositions;
+};
+
+const updateSampleIndicesAfterSeek = ({
+	samplePositionsForMdatStart,
+	seekedByte,
+}: {
+	samplePositionsForMdatStart: Record<number, TrackIdAndSamplePositions[]>;
+	seekedByte: number;
+}) => {
+	const currentSampleIndices: Record<number, Record<number, number>> = {};
+
+	const keys = Object.keys(samplePositionsForMdatStart).map(Number).sort();
+	const mdat = keys.find((key) => seekedByte >= key);
+
+	if (!mdat) {
+		return currentSampleIndices;
+	}
+
+	const samplePositions = samplePositionsForMdatStart[mdat];
+
+	if (!samplePositions) {
+		return currentSampleIndices;
+	}
+
+	for (const track of samplePositions) {
+		const currentSampleIndex = track.samplePositions.findIndex(
+			(sample) => sample.offset >= seekedByte,
+		);
+
+		if (!currentSampleIndices[mdat]) {
+			currentSampleIndices[mdat] = {};
+		}
+
+		if (!currentSampleIndices[mdat][track.trackId]) {
+			currentSampleIndices[mdat][track.trackId] = 0;
+		}
+
+		if (currentSampleIndex === -1) {
+			currentSampleIndices[mdat][track.trackId] = track.samplePositions.length;
+		} else {
+			currentSampleIndices[mdat][track.trackId] = currentSampleIndex;
 		}
 	}
 
-	offsets.sort((a, b) => a - b);
-
-	return {flatSamples: map, offsets, trackIds};
+	return currentSampleIndices;
 };
 
 export const cachedSamplePositionsState = () => {
-	// offset -> flat sample
-	const cachedForMdatStart: Record<string, Map<number, FlatSample>> = {};
-	const jumpMarksForMdatStart: Record<string, JumpMark[]> = {};
+	// offset -> sample positions
+	const samplePositionsForMdatStart: Record<
+		number,
+		TrackIdAndSamplePositions[]
+	> = {};
+
+	let currentSampleIndex: Record<number, Record<number, number>> = {};
 
 	return {
-		getSamples: (mdatStart: number): Map<number, FlatSample> | null => {
-			return cachedForMdatStart[mdatStart] ?? null;
+		getSamples: (mdatStart: number): TrackIdAndSamplePositions[] | null => {
+			return samplePositionsForMdatStart[mdatStart] ?? null;
 		},
-		setSamples: (mdatStart: number, samples: Map<number, FlatSample>) => {
-			cachedForMdatStart[mdatStart] = samples;
+		setSamples: (mdatStart: number, samples: TrackIdAndSamplePositions[]) => {
+			samplePositionsForMdatStart[mdatStart] = samples;
 		},
-		setJumpMarks: (mdatStart: number, marks: JumpMark[]) => {
-			jumpMarksForMdatStart[mdatStart] = marks;
+		setCurrentSampleIndex: (
+			mdatStart: number,
+			trackId: number,
+			index: number,
+		) => {
+			if (!currentSampleIndex[mdatStart]) {
+				currentSampleIndex[mdatStart] = {};
+			}
+
+			if (!currentSampleIndex[mdatStart][trackId]) {
+				currentSampleIndex[mdatStart][trackId] = 0;
+			}
+
+			currentSampleIndex[mdatStart][trackId] = index;
 		},
-		getJumpMarks: (mdatStart: number) => {
-			return jumpMarksForMdatStart[mdatStart];
+		getCurrentSampleIndices: (mdatStart: number) => {
+			return currentSampleIndex[mdatStart] ?? {};
+		},
+		updateAfterSeek: (seekedByte: number) => {
+			currentSampleIndex = updateSampleIndicesAfterSeek({
+				samplePositionsForMdatStart,
+				seekedByte,
+			});
 		},
 	};
+};
+
+type Lowest = {
+	samplePosition: SamplePosition;
+	trackId: number;
+	index: number;
+};
+
+export const getSampleWithLowestDts = (
+	samplePositions: TrackIdAndSamplePositions[],
+	currentSampleIndexMap: Record<number, number>,
+): Lowest | undefined => {
+	let lowestDts: Lowest | undefined;
+
+	for (const track of samplePositions) {
+		const currentSampleIndex = currentSampleIndexMap[track.trackId] ?? 0;
+		const currentSample = track.samplePositions[currentSampleIndex] as
+			| SamplePosition
+			| undefined;
+
+		if (
+			currentSample &&
+			(!lowestDts ||
+				currentSample.decodingTimestamp <
+					lowestDts.samplePosition.decodingTimestamp)
+		) {
+			lowestDts = {
+				samplePosition: currentSample,
+				trackId: track.trackId,
+				index: currentSampleIndex,
+			};
+		}
+	}
+
+	return lowestDts;
 };
