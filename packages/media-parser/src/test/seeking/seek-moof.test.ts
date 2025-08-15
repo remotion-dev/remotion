@@ -68,11 +68,6 @@ test('seek moof, should make use of the mfra atom if available', async () => {
 			},
 			{
 				from: 1261511,
-				to: 1262113,
-				type: 'internal',
-			},
-			{
-				from: 1262113,
 				to: 2052,
 				type: 'user-initiated',
 			},
