@@ -502,7 +502,6 @@ export const PAID_TEMPLATES = [
 
 		cliId: 'editor-starter' as const,
 		defaultBranch: 'main',
-		previewURL: 'https://editor-starter.remotion.dev/',
-		purchaseURL: 'https://www.remotion.pro/editor-starter',
+		previewURL: 'https://www.remotion.pro/editor-starter',
 	},
 ].filter(truthy);

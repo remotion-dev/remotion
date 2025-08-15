@@ -95,7 +95,7 @@ export const init = async () => {
 		Log.newLine();
 		Log.info(
 			`${chalk.yellow('Editor Starter is a paid template.')}\nGet it here: ${chalk.underline(
-				'https://www.remotion.pro/editor-starter',
+				selectedTemplate.previewURL,
 			)}`,
 		);
 		Log.newLine();

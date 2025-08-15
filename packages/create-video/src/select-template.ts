@@ -49,7 +49,10 @@ export const selectTemplate = async () => {
 					` ${chalk.gray(template.description.trim())} ${chalk.gray(
 						makeHyperlink({
 							text: '(?)',
-							url: `https://remotion.dev/templates/${template.cliId}`,
+							url:
+								template.cliId === 'editor-starter'
+									? `${template.previewURL}`
+									: `https://remotion.dev/templates/${template.cliId}`,
 							fallback: '',
 						}),
 					)}`,
