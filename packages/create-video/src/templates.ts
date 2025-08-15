@@ -43,7 +43,8 @@ export type Template = {
 		| 'tiktok'
 		| 'code-hike'
 		| 'render-server'
-		| 'recorder';
+		| 'recorder'
+		| 'editor-starter';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
@@ -486,5 +487,26 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-tiktok',
 		allowEnableTailwind: true,
+	},
+	{
+		homePageLabel: 'Editor Starter',
+		shortName: 'Editor Starter',
+		org: 'remotion-dev',
+		repoName: 'editor-starter',
+		description: 'Professional Remotion Editor Starter (Paid)',
+		longerDescription:
+			'A premium starter for building a Remotion-based editor. Select to get the purchase link.',
+		promoBanner: {
+			src: '/img/template-editor-starter.png',
+			width: 1200,
+			height: 628,
+		},
+		cliId: 'editor-starter' as const,
+		type: 'image' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-editor-starter',
+		allowEnableTailwind: false,
 	},
 ].filter(truthy);
