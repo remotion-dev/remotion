@@ -6,6 +6,7 @@ import {CreateVideoInternals} from 'create-video';
 import React from 'react';
 import {IconForTemplate} from '../../components/IconForTemplate';
 import {Seo} from '../../components/Seo';
+import {EditorIcon} from '../../components/icons/editor';
 import {SkiaIcon} from '../../components/icons/skia';
 import {TimelineIcon} from '../../components/icons/timeline';
 import styles from './styles.module.css';
@@ -127,7 +128,7 @@ export default () => {
 				<h3>Paid templates</h3>
 				<div className={styles.grid}>
 					<Link
-						key={'map'}
+						key={'mapbox-globe'}
 						className={styles.item}
 						style={outer}
 						to={`https://www.remotion.pro/mapbox-globe`}
@@ -145,7 +146,7 @@ export default () => {
 						</Item>
 					</Link>
 					<Link
-						key={'map'}
+						key={'watercolor-map'}
 						className={styles.item}
 						style={outer}
 						to={`https://www.remotion.pro/watercolor-map`}
@@ -162,7 +163,7 @@ export default () => {
 						</Item>
 					</Link>
 					<Link
-						key={'map'}
+						key={'timeline'}
 						className={styles.item}
 						style={outer}
 						to={`https://www.remotion.pro/timeline`}
@@ -174,6 +175,23 @@ export default () => {
 							}
 						>
 							<TimelineIcon
+								style={{
+									height: 0.7 * 32,
+								}}
+							/>
+						</Item>
+					</Link>
+					<Link
+						key={'editor-starter'}
+						className={styles.item}
+						style={outer}
+						to={`https://www.remotion.pro/editor-starter`}
+					>
+						<Item
+							label={'Editor Starter'}
+							description={'Professional Remotion Editor Starter Template'}
+						>
+							<EditorIcon
 								style={{
 									height: 0.7 * 32,
 								}}
