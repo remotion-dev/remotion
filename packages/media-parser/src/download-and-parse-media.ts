@@ -83,7 +83,8 @@ export const downloadAndParseMedia: DownloadAndParseMedia = async (options) => {
 		apiName: 'parseAndDownloadMedia()',
 		makeSamplesStartAtZero: options.makeSamplesStartAtZero ?? true,
 		seekingHints: options.seekingHints ?? null,
-		needsSamplesToNotBeDispersed: options.needsSamplesToNotBeDispersed ?? false,
+		_needsSamplesToNotBeDispersed:
+			options._needsSamplesToNotBeDispersed ?? false,
 	});
 	await content.finish();
 	return returnValue;

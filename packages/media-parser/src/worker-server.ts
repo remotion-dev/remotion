@@ -72,7 +72,7 @@ const startParsing = async (
 		m3uPlaylistContext,
 		seekingHints,
 		makeSamplesStartAtZero,
-		needsSamplesToNotBeDispersed,
+		_needsSamplesToNotBeDispersed,
 	} = payload;
 
 	const {
@@ -467,7 +467,7 @@ const startParsing = async (
 			onDiscardedData: null,
 			makeSamplesStartAtZero: makeSamplesStartAtZero ?? true,
 			seekingHints: seekingHints ?? null,
-			needsSamplesToNotBeDispersed: needsSamplesToNotBeDispersed ?? false,
+			_needsSamplesToNotBeDispersed: _needsSamplesToNotBeDispersed ?? false,
 		});
 		post({
 			type: 'response-done',

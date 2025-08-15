@@ -42,7 +42,7 @@ export const internalParseMedia: InternalParseMedia = async function <
 	m3uPlaylistContext,
 	makeSamplesStartAtZero,
 	seekingHints,
-	needsSamplesToNotBeDispersed,
+	_needsSamplesToNotBeDispersed: needsSamplesToNotBeDispersed,
 	...more
 }: InternalParseMediaOptions<F>) {
 	if (!src) {

@@ -345,7 +345,7 @@ export const convertMedia = async function <
 		makeSamplesStartAtZero: false,
 		m3uPlaylistContext: null,
 		seekingHints: seekingHints ?? null,
-		needsSamplesToNotBeDispersed: true,
+		_needsSamplesToNotBeDispersed: true,
 	})
 		.then(() => {
 			return state.waitForFinish();

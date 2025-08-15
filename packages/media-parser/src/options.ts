@@ -233,7 +233,10 @@ export type SerializeableOptionalParseMediaParams<
 	acknowledgeRemotionLicense: boolean;
 	m3uPlaylistContext: M3uPlaylistContext | null;
 	makeSamplesStartAtZero: boolean;
-	needsSamplesToNotBeDispersed: boolean;
+	/**
+	 * @deprecated For internal use only.
+	 */
+	_needsSamplesToNotBeDispersed: boolean;
 	seekingHints: SeekingHints | null;
 };
 
