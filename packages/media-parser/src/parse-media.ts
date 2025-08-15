@@ -65,5 +65,6 @@ export const parseMedia: ParseMedia = (options) => {
 		apiName: 'parseMedia()',
 		makeSamplesStartAtZero: options.makeSamplesStartAtZero ?? true,
 		seekingHints: options.seekingHints ?? null,
+		needsSamplesToNotBeDispersed: options.needsSamplesToNotBeDispersed ?? false,
 	});
 };
