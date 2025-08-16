@@ -497,9 +497,7 @@ export const PAID_TEMPLATES = [
 		org: 'remotion-dev',
 		repoName: 'editor-starter',
 		description: 'A boilerplate for starting a video editor',
-		longerDescription:
-			'A premium starter for building a Remotion-based editor. Select to get the purchase link.',
-
+		longerDescription: 'A starting point for building your own video editor.',
 		cliId: 'editor-starter' as const,
 		defaultBranch: 'main',
 		previewURL: 'https://www.remotion.pro/editor-starter',
