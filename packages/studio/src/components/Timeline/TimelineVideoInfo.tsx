@@ -1,5 +1,6 @@
 import {hasBeenAborted, WEBCODECS_TIMESCALE} from '@remotion/media-parser';
-import {extractFrames, rotateAndResizeVideoFrame} from '@remotion/webcodecs';
+import {rotateAndResizeVideoFrame} from '@remotion/webcodecs';
+import {extractFramesOnWebWorker} from '@remotion/webcodecs/worker';
 import React, {useEffect, useRef, useState} from 'react';
 import {useVideoConfig} from 'remotion';
 import type {FrameDatabaseKey} from '../../helpers/frame-database';
@@ -333,7 +334,7 @@ export const TimelineVideoInfo: React.FC<{
 
 		clearOldFrames();
 
-		extractFrames({
+		extractFramesOnWebWorker({
 			acknowledgeRemotionLicense: true,
 			timestampsInSeconds: ({track}) => {
 				aspectRatio.current = track.width / track.height;

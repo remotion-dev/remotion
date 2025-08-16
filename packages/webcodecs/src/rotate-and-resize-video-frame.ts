@@ -52,11 +52,7 @@ export const rotateAndResizeVideoFrame = ({
 		return frame;
 	}
 
-	// @ts-expect-error
-	const frameRotation: number = frame.rotation ?? 0;
-	const canvasRotationToApply = normalizeVideoRotation(
-		normalized - frameRotation,
-	);
+	const canvasRotationToApply = normalizeVideoRotation(normalized);
 
 	const {width, height} = calculateNewDimensionsFromRotateAndScale({
 		height: frame.displayHeight,
