@@ -16,7 +16,7 @@ export const EditorIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 				height="52"
 				rx="15"
 				stroke="currentColor"
-				strokeWidth="8"
+				strokeWidth="16"
 			/>
 			<rect
 				x="195"
@@ -25,7 +25,7 @@ export const EditorIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 				height="52"
 				rx="15"
 				stroke="currentColor"
-				strokeWidth="8"
+				strokeWidth="16"
 			/>
 			<rect
 				x="4"
@@ -34,7 +34,7 @@ export const EditorIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 				height="52"
 				rx="15"
 				stroke="currentColor"
-				strokeWidth="8"
+				strokeWidth="16"
 			/>
 			<rect
 				x="195"
@@ -43,12 +43,12 @@ export const EditorIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 				height="52"
 				rx="15"
 				stroke="currentColor"
-				strokeWidth="8"
+				strokeWidth="16"
 			/>
-			<path d="M55 222H196" stroke="currentColor" strokeWidth="8" />
-			<path d="M30 60L30 191" stroke="currentColor" strokeWidth="8" />
-			<path d="M221 60V191" stroke="currentColor" strokeWidth="8" />
-			<path d="M55 30H196" stroke="currentColor" strokeWidth="8" />
+			<path d="M55 222H196" stroke="currentColor" strokeWidth="16" />
+			<path d="M30 60L30 191" stroke="currentColor" strokeWidth="16" />
+			<path d="M221 60V191" stroke="currentColor" strokeWidth="16" />
+			<path d="M55 30H196" stroke="currentColor" strokeWidth="16" />
 		</svg>
 	);
 };
