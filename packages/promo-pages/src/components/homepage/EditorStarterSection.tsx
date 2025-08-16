@@ -37,6 +37,7 @@ const EditorStarterSection: React.FC = () => {
 							<a
 								href="https://www.remotion.pro/editor-starter?ref=remotion.dev"
 								target="_blank"
+								className="no-underline"
 							>
 								<BlueButton size="sm" loading={false}>
 									Start building
@@ -45,33 +46,24 @@ const EditorStarterSection: React.FC = () => {
 							<a
 								href="https://editor-starter.remotion.dev?ref=remotion.dev"
 								target="_blank"
+								className="no-underline"
 							>
 								<ClearButton size="sm" loading={false}>
 									Demo
+								</ClearButton>
+							</a>{' '}
+							<a
+								href="https://remotion.dev/editor-starter"
+								target="_blank"
+								className="no-underline"
+							>
+								<ClearButton size="sm" loading={false}>
+									Docs
 								</ClearButton>
 							</a>
 						</div>
 						<br />
 					</div>
-				</div>
-			</div>
-			<div
-				style={{
-					marginTop: '1rem',
-					justifyContent: 'center',
-					display: 'flex',
-				}}
-			>
-				<div
-					style={{
-						fontFamily: 'GTPlanar',
-					}}
-				>
-					Start building your video editor today. Check out the{' '}
-					<a href="/docs/editor-starter" className="bluelink">
-						documentation
-					</a>
-					.
 				</div>
 			</div>
 		</div>

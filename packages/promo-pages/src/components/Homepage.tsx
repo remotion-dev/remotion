@@ -50,10 +50,6 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<br />
-						<EditorStarterSection />
-						<br />
-						<br />
-						<br />
 						<SectionTitle>Pricing</SectionTitle>
 						<Pricing />
 						<TrustedByBanner />
@@ -66,6 +62,11 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<br />
+						<EditorStarterSection />
+						<br />
+						<br />
+						<br />
+
 						<SectionTitle>Even more power to developers</SectionTitle>
 						<div className={'fontbrand text-center mb-10 -mt-4'}>
 							Innovative video products that you might enjoy.
