@@ -52,7 +52,7 @@ export const reencodeVideoTrack = async ({
 		);
 	}
 
-	const rotation = (videoOperation.rotate ?? rotate) + track.rotation;
+	const rotation = videoOperation.rotate ?? rotate;
 
 	const {height: newHeight, width: newWidth} =
 		calculateNewDimensionsFromRotateAndScale({
