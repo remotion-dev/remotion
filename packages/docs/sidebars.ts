@@ -1345,7 +1345,7 @@ const sidebars: SidebarsConfig = {
 			type: 'link',
 			href: '/docs/editor-starter',
 			label: 'Editor Starter',
-			className: 'wip-item',
+			className: 'pro-item',
 		},
 		{
 			type: 'link',
