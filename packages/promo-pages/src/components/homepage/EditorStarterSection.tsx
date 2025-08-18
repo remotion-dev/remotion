@@ -16,7 +16,9 @@ const EditorStarterSection: React.FC = () => {
 						}
 					>
 						<img
-							src={'/img/editor-starter-demo.jpg'}
+							src={
+								'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Remotion%20Editor%20Starter%20Square%20Screenshot.png'
+							}
 							alt="Remotion Editor Starter"
 							className={
 								'absolute left-0 top-0 w-full h-full object-cover object-top rounded-sm rounded-tr-none rounded-br-none'
