@@ -32,8 +32,9 @@ const EditorStarterSection: React.FC = () => {
 							Editor Starter
 						</div>
 						<div className="text-muted mt-4 text-base fontbrand">
-							A template containing the most essential elements of a video
-							editor.
+							A comprehensive template that includes everything you need to
+							create custom video editing applications with React and
+							TypeScript.
 						</div>
 						<div className="h-5" />
 						<div className="flex gap-2 items-center">
