@@ -1,7 +1,8 @@
 import React from 'react';
 
-import {SectionTitle} from './VideoAppsTitle';
 import {BlueButton, ClearButton} from './layout/Button';
+import {MuxVideo} from './MuxVideo';
+import {SectionTitle} from './VideoAppsTitle';
 
 const EditorStarterSection: React.FC = () => {
 	return (
@@ -15,14 +16,15 @@ const EditorStarterSection: React.FC = () => {
 							'w-full max-w-[500px] aspect-square relative overflow-hidden bg-[#eee]'
 						}
 					>
-						<img
-							src={
-								'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Remotion%20Editor%20Starter%20Square%20Screenshot.png'
-							}
-							alt="Remotion Editor Starter"
+						<MuxVideo
+							muxId={'YIvIidbcAc7009B00Wr7gIbGyq67YGNlytGvMXwdsLRtc'}
 							className={
 								'absolute left-0 top-0 w-full h-full object-cover object-top rounded-sm rounded-tr-none rounded-br-none'
 							}
+							loop
+							autoPlay
+							playsInline
+							muted
 						/>
 					</div>
 					<div className={'p-6 flex-1 flex flex-col h-full'}>
@@ -30,9 +32,8 @@ const EditorStarterSection: React.FC = () => {
 							Editor Starter
 						</div>
 						<div className="text-muted mt-4 text-base fontbrand">
-							Add to existing project or start from scratch. A comprehensive
-							template that includes everything you need to create custom video
-							editing applications with React and TypeScript.
+							A template containing the most essential elements of a video
+							editor.
 						</div>
 						<div className="h-5" />
 						<div className="flex gap-2 items-center">
@@ -42,7 +43,7 @@ const EditorStarterSection: React.FC = () => {
 								className="no-underline"
 							>
 								<BlueButton size="sm" loading={false}>
-									Start building
+									Purchase
 								</BlueButton>
 							</a>
 							<a
@@ -56,7 +57,6 @@ const EditorStarterSection: React.FC = () => {
 							</a>{' '}
 							<a
 								href="https://remotion.dev/editor-starter"
-								target="_blank"
 								className="no-underline"
 							>
 								<ClearButton size="sm" loading={false}>
