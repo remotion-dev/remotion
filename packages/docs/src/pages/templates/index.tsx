@@ -135,7 +135,7 @@ export default () => {
 					>
 						<Item
 							label={'Editor Starter'}
-							description={'Professional Remotion Editor Starter Template'}
+							description={'A boilerplate for starting your own video editor'}
 						>
 							<EditorIcon
 								style={{
