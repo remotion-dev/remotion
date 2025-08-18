@@ -135,9 +135,7 @@ export default () => {
 					>
 						<Item
 							label={'Editor Starter'}
-							description={
-								'A template containing the most essential elements of a video editor'
-							}
+							description={'A boilerplate for starting your own video editor'}
 						>
 							<EditorIcon
 								style={{
