@@ -47,6 +47,10 @@ import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
 import {SlicePath} from './Paths/SlicePath';
+import {
+	PostmountExample,
+	PostmountWithStyles,
+} from './Postmount/PostmountExample';
 import {PremountedExample} from './Premount';
 import {PremountedRemoteVideos} from './Premount/RemoteVideos';
 import InfinityVideo from './ReallyLongVideo';
@@ -1323,6 +1327,24 @@ export const Index: React.FC = () => {
 					height={1080}
 					durationInFrames={300}
 					width={1080}
+				/>
+			</Folder>
+			<Folder name="Postmount">
+				<Composition
+					id="postmount-example"
+					component={PostmountExample}
+					fps={30}
+					height={1080}
+					durationInFrames={350}
+					width={1920}
+				/>
+				<Composition
+					id="postmount-with-styles"
+					component={PostmountWithStyles}
+					fps={30}
+					height={1080}
+					durationInFrames={230}
+					width={1920}
 				/>
 			</Folder>
 			<Folder name="Transitions">
