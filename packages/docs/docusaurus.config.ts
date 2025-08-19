@@ -52,11 +52,11 @@ const config: Config = {
 					items: [
 						{to: '/player', label: 'Player'},
 						{to: '/lambda', label: 'Lambda'},
+						{to: '/docs/editor-starter', label: 'Editor Starter'},
+						{to: '/docs/timeline', label: 'Timeline'},
 						{to: '/docs/media-parser', label: 'Media Parser'},
 						{to: '/docs/webcodecs', label: 'WebCodecs'},
 						{to: '/docs/recorder', label: 'Recorder'},
-						{to: '/docs/editor-starter', label: 'Editor Starter'},
-						{to: '/docs/timeline', label: 'Timeline'},
 					],
 				},
 				{
@@ -71,7 +71,7 @@ const config: Config = {
 						},
 						{to: 'blog', label: 'Blog'},
 						{to: 'showcase', label: 'Showcase'},
-						{to: 'https://convert.remotion.dev', label: 'Convert a video'},
+						{to: 'https://remotion.dev/convert', label: 'Convert a video'},
 						{to: '/docs/support', label: 'Support'},
 					],
 				},
@@ -189,10 +189,6 @@ const config: Config = {
 						{
 							label: 'TikTok',
 							href: 'https://www.tiktok.com/@remotion',
-						},
-						{
-							label: 'Threads',
-							href: 'https://www.threads.net/@remotion',
 						},
 					],
 				},
