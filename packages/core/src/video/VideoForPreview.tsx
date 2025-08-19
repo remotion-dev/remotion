@@ -142,8 +142,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		stack: _remotionInternalStack,
 		showInTimeline,
 		premountDisplay: null,
+		postmountDisplay: null,
 		onAutoPlayError: onAutoPlayError ?? null,
 		isPremounting: Boolean(parentSequence?.premounting),
+		isPostmounting: Boolean(parentSequence?.postmounting),
 	});
 
 	// putting playback before useVolume
@@ -156,6 +158,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		onlyWarnForMediaSeekingError,
 		acceptableTimeshift: acceptableTimeShiftInSeconds ?? null,
 		isPremounting: Boolean(parentSequence?.premounting),
+		isPostmounting: Boolean(parentSequence?.postmounting),
 		pauseWhenBuffering,
 		onAutoPlayError: onAutoPlayError ?? null,
 	});
