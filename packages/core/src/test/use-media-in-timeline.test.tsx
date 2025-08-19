@@ -82,8 +82,10 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 				stack: null,
 				showInTimeline: true,
 				premountDisplay: null,
+				postmountDisplay: null,
 				onAutoPlayError: null,
 				isPremounting: false,
+				isPostmounting: false,
 			}),
 		{
 			wrapper,
