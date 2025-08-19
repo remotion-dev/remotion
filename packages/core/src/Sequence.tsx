@@ -28,8 +28,10 @@ import {useCurrentFrame} from './use-current-frame';
 export type AbsoluteFillLayout = {
 	layout?: 'absolute-fill';
 	premountFor?: number;
+	postmountFor?: number;
 	style?: React.CSSProperties;
 	styleWhilePremounted?: React.CSSProperties;
+	styleWhilePostmounted?: React.CSSProperties;
 	className?: string;
 };
 
@@ -57,11 +59,19 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
+	readonly _remotionInternalPostmountDisplay?: number | null;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	readonly _remotionInternalStack?: string;
 	/**
 	 * @deprecated For internal use only.
 	 */
 	readonly _remotionInternalIsPremounting?: boolean;
+	/**
+	 * @deprecated For internal use only.
+	 */
+	readonly _remotionInternalIsPostmounting?: boolean;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -83,6 +93,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
 		_remotionInternalPremountDisplay: premountDisplay,
+		_remotionInternalPostmountDisplay: postmountDisplay,
 		...other
 	},
 	ref,
@@ -153,6 +164,14 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}, [other._remotionInternalIsPremounting, parentSequence?.premounting]);
 
+	const postmounting = useMemo(() => {
+		// || is intentional, ?? would not trigger on `false`
+		return (
+			parentSequence?.postmounting ||
+			Boolean(other._remotionInternalIsPostmounting)
+		);
+	}, [other._remotionInternalIsPostmounting, parentSequence?.postmounting]);
+
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
 			cumulatedFrom,
@@ -163,6 +182,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			height: height ?? parentSequence?.height ?? null,
 			width: width ?? parentSequence?.width ?? null,
 			premounting,
+			postmounting,
 		};
 	}, [
 		cumulatedFrom,
@@ -173,6 +193,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		height,
 		width,
 		premounting,
+		postmounting,
 	]);
 
 	const timelineClipName = useMemo(() => {
@@ -197,6 +218,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			loopDisplay,
 			stack: stack ?? null,
 			premountDisplay: premountDisplay ?? null,
+			postmountDisplay: postmountDisplay ?? null,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -217,6 +239,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		loopDisplay,
 		stack,
 		premountDisplay,
+		postmountDisplay,
 	]);
 
 	// Ceil to support floats
