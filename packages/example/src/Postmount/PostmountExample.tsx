@@ -6,28 +6,25 @@ export const PostmountExample: React.FC = () => {
 		<AbsoluteFill>
 			<Series>
 				{/* First video with both premount and postmount */}
-				<Series.Sequence 
-					durationInFrames={100} 
+				<Series.Sequence
+					durationInFrames={100}
 					premountFor={20}
 					postmountFor={30}
 				>
 					<Video pauseWhenBuffering src={staticFile('framer.webm')} />
 				</Series.Sequence>
-				
+
 				{/* Second video with just postmount to keep it in memory */}
-				<Series.Sequence 
-					durationInFrames={150} 
-					postmountFor={50}
-				>
-					<Video 
-						pauseWhenBuffering 
-						src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" 
+				<Series.Sequence durationInFrames={150} postmountFor={50}>
+					<Video
+						pauseWhenBuffering
+						src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 					/>
 				</Series.Sequence>
-				
+
 				{/* Third video with both to enable smooth transitions */}
-				<Series.Sequence 
-					durationInFrames={100} 
+				<Series.Sequence
+					durationInFrames={100}
 					premountFor={25}
 					postmountFor={25}
 				>
@@ -42,8 +39,8 @@ export const PostmountWithStyles: React.FC = () => {
 	return (
 		<AbsoluteFill>
 			<Series>
-				<Series.Sequence 
-					durationInFrames={100} 
+				<Series.Sequence
+					durationInFrames={100}
 					premountFor={20}
 					postmountFor={30}
 					styleWhilePremounted={{
@@ -55,17 +52,35 @@ export const PostmountWithStyles: React.FC = () => {
 						transform: 'scale(1.2)',
 					}}
 				>
-					<AbsoluteFill style={{background: 'blue', color: 'white', fontSize: 50, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+					<AbsoluteFill
+						style={{
+							background: 'blue',
+							color: 'white',
+							fontSize: 50,
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+						}}
+					>
 						<div>Scene 1</div>
 					</AbsoluteFill>
 				</Series.Sequence>
-				
-				<Series.Sequence 
-					durationInFrames={100} 
+
+				<Series.Sequence
+					durationInFrames={100}
 					premountFor={20}
 					postmountFor={30}
 				>
-					<AbsoluteFill style={{background: 'green', color: 'white', fontSize: 50, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+					<AbsoluteFill
+						style={{
+							background: 'green',
+							color: 'white',
+							fontSize: 50,
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+						}}
+					>
 						<div>Scene 2</div>
 					</AbsoluteFill>
 				</Series.Sequence>

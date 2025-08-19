@@ -3,7 +3,7 @@ import {AbsoluteFill, Sequence, Video, staticFile} from 'remotion';
 
 /**
  * Example demonstrating postmountFor feature
- * 
+ *
  * postmountFor keeps a sequence mounted for X frames after its duration ends,
  * improving performance when scrubbing backwards in the timeline.
  */
@@ -11,11 +11,7 @@ export const PostmountDemoComposition: React.FC = () => {
 	return (
 		<AbsoluteFill>
 			{/* Video that stays mounted 40 frames after it ends */}
-			<Sequence
-				from={50}
-				durationInFrames={100}
-				postmountFor={40}
-			>
+			<Sequence from={50} durationInFrames={100} postmountFor={40}>
 				<Video pauseWhenBuffering src={staticFile('framer.webm')} />
 			</Sequence>
 
@@ -27,9 +23,9 @@ export const PostmountDemoComposition: React.FC = () => {
 				postmountFor={30}
 			>
 				<AbsoluteFill style={{background: 'rgba(255, 0, 0, 0.5)'}}>
-					<Video 
-						pauseWhenBuffering 
-						src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" 
+					<Video
+						pauseWhenBuffering
+						src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 					/>
 				</AbsoluteFill>
 			</Sequence>
@@ -72,30 +68,34 @@ export const PostmountWithCustomStyles: React.FC = () => {
 					transform: 'translateX(100px)',
 				}}
 			>
-				<AbsoluteFill style={{
-					background: 'linear-gradient(45deg, #667eea 0%, #764ba2 100%)',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					fontSize: 60,
-					color: 'white',
-					fontFamily: 'Arial, sans-serif',
-				}}>
+				<AbsoluteFill
+					style={{
+						background: 'linear-gradient(45deg, #667eea 0%, #764ba2 100%)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						fontSize: 60,
+						color: 'white',
+						fontFamily: 'Arial, sans-serif',
+					}}
+				>
 					<div>Mounted Content</div>
 				</AbsoluteFill>
 			</Sequence>
 
 			{/* Visual indicator showing mount status */}
-			<Sequence from={0} durationInFrames={140}>
-				<div style={{
-					position: 'absolute',
-					top: 20,
-					left: 20,
-					fontSize: 20,
-					color: 'black',
-					background: 'white',
-					padding: 10,
-				}}>
+			<Sequence durationInFrames={140}>
+				<div
+					style={{
+						position: 'absolute',
+						top: 20,
+						left: 20,
+						fontSize: 20,
+						color: 'black',
+						background: 'white',
+						padding: 10,
+					}}
+				>
 					Frame timeline:
 					<br />
 					0-10: Not mounted
