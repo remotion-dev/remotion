@@ -185,7 +185,11 @@ const innerParseMp3PacketHeader = (iterator: BufferIterator) => {
      10 - MPEG Version 2 (ISO/IEC 13818-3)
      11 - MPEG Version 1 (ISO/IEC 11172-3)
    */
-	if (audioVersionId !== 0b11 && audioVersionId !== 0b10) {
+	if (
+		audioVersionId !== 0b11 &&
+		audioVersionId !== 0b10 &&
+		audioVersionId !== 0b00
+	) {
 		throw new Error('Expected MPEG Version 1 or 2');
 	}
 
