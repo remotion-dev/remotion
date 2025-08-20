@@ -2612,6 +2612,6 @@ export const DEMO_STATE = {
 	deletedAssets: [],
 };
 
-export const DEMO_URL = `https://editor-starter-1s129gg22-remotion.vercel.app/#state=${btoa(
+export const DEMO_URL = `https://editor-starter.remotion.dev/#state=${btoa(
 	JSON.stringify(DEMO_STATE),
 )}`;
