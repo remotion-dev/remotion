@@ -14,7 +14,7 @@ const LayoutWrapper = (props: Props): ReactNode => {
 				src="https://crawlchat.app/embed.js"
 				async
 				id="crawlchat-script"
-				data-id="67c0a28c5b075f0bb35e5366"
+				data-id="67bca5b7b57f15a3a6f8eac6"
 				data-ask-ai="true"
 				data-ask-ai-background-color="#282A36"
 				data-ask-ai-color="#ffffff"
