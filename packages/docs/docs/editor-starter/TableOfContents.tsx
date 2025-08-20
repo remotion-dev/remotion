@@ -6,6 +6,10 @@ export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
+				<TOCItem link="/docs/editor-starter/demo">
+					<strong>Demo</strong>
+					<div>A demo of the Editor Starter</div>
+				</TOCItem>
 				<TOCItem link="/docs/editor-starter/before-you-buy">
 					<strong>Before you buy</strong>
 					<div>What to consider before buying</div>

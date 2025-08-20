@@ -1325,6 +1325,12 @@ const sidebars: SidebarsConfig = {
 			defaultStyle: true, // Use the default menu item styling
 		},
 		{
+			type: 'link',
+			href: '/docs/editor-starter',
+			label: 'Editor Starter',
+			className: 'pro-item',
+		},
+		{
 			type: 'category',
 			label: 'Timeline',
 			className: 'pro-item',
@@ -1341,12 +1347,6 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 
-		{
-			type: 'link',
-			href: '/docs/editor-starter',
-			label: 'Editor Starter',
-			className: 'pro-item',
-		},
 		{
 			type: 'link',
 			href: '/docs/recorder',
@@ -1367,6 +1367,7 @@ const sidebars: SidebarsConfig = {
 				id: 'editor-starter/index',
 			},
 			items: [
+				'editor-starter/demo',
 				'editor-starter/before-you-buy',
 				'editor-starter/buy',
 				'editor-starter/setup',

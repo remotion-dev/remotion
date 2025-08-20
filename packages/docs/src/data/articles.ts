@@ -1341,6 +1341,15 @@ export const articles = [
 		slug: 'editor-starter/copy-paste',
 	},
 	{
+		id: 'editor-starter/demo',
+		title: 'Editor Starter Demo',
+		relativePath: 'docs/editor-starter/demo.mdx',
+		compId: 'articles-docs-editor-starter-demo',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/demo',
+	},
+	{
 		id: 'editor-starter/dependencies',
 		title: 'Dependencies of the Editor Starter',
 		relativePath: 'docs/editor-starter/dependencies.mdx',
