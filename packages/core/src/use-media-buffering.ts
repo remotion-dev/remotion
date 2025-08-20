@@ -184,7 +184,16 @@ export const useMediaBuffering = ({
 		// it gives the chance to load the new source.
 
 		// https://github.com/remotion-dev/remotion/issues/5218
-	}, [buffer, src, element, isPremounting, isPostmounting, logLevel, shouldBuffer, mountTime]);
+	}, [
+		buffer,
+		src,
+		element,
+		isPremounting,
+		isPostmounting,
+		logLevel,
+		shouldBuffer,
+		mountTime,
+	]);
 
 	return isBuffering;
 };

@@ -187,6 +187,7 @@ export const useMediaPlayback = ({
 		mediaType,
 		mountTime,
 		playing,
+		isPostmounting,
 	]);
 
 	// This must be a useLayoutEffect, because afterwards, useVolume() looks at the playbackRate

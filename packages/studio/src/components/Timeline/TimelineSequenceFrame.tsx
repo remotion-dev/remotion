@@ -14,10 +14,10 @@ export const TimelineSequenceFrame: React.FC<{
 }> = ({roundedFrame, premounted, postmounted}) => {
 	return (
 		<div style={relativeFrameStyle}>
-			{premounted 
-				? '0 (Premounted)' 
-				: postmounted 
-					? 'Last (Postmounted)' 
+			{premounted
+				? '0 (Premounted)'
+				: postmounted
+					? 'Last (Postmounted)'
 					: roundedFrame}
 		</div>
 	);
