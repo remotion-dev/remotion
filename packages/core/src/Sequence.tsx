@@ -294,113 +294,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 const RegularSequence = forwardRef(RegularSequenceRefForwardingFunction);
 
-const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
-	HTMLDivElement,
-	SequenceProps
-> = (props, ref) => {
-	const frame = useCurrentFrame();
-
-	if (props.layout === 'none') {
-		throw new Error(
-			'`<Sequence>` with `premountFor` prop does not support layout="none"',
-		);
-	}
-
-	const {
-		style: passedStyle,
-		from = 0,
-		premountFor = 0,
-		styleWhilePremounted,
-		...otherProps
-	} = props;
-
-	const premountingActive = frame < from && frame >= from - premountFor;
-
-	const style = useMemo(() => {
-		return {
-			...passedStyle,
-			opacity: premountingActive ? 0 : 1,
-			pointerEvents: premountingActive
-				? 'none'
-				: (passedStyle?.pointerEvents ?? undefined),
-			...(premountingActive ? styleWhilePremounted : {}),
-		};
-	}, [passedStyle, premountingActive, styleWhilePremounted]);
-
-	return (
-		<Freeze frame={from} active={premountingActive}>
-			<Sequence
-				ref={ref}
-				from={from}
-				style={style}
-				_remotionInternalPremountDisplay={premountFor}
-				_remotionInternalIsPremounting={premountingActive}
-				{...otherProps}
-			/>
-		</Freeze>
-	);
-};
-
-const PremountedSequence = forwardRef(PremountedSequenceRefForwardingFunction);
-
-const PostmountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
-	HTMLDivElement,
-	SequenceProps
-> = (props, ref) => {
-	const frame = useCurrentFrame();
-
-	if (props.layout === 'none') {
-		throw new Error(
-			'`<Sequence>` with `postmountFor` prop does not support layout="none"',
-		);
-	}
-
-	const {
-		style: passedStyle,
-		from = 0,
-		durationInFrames = Infinity,
-		postmountFor = 0,
-		styleWhilePostmounted,
-		...otherProps
-	} = props;
-
-	const endThreshold = Math.ceil(from + durationInFrames - 1);
-	const postmountingActive =
-		frame > endThreshold && frame <= endThreshold + postmountFor;
-
-	// Freeze at the last frame during postmount
-	const freezeFrame = durationInFrames - 1;
-
-	const style = useMemo(() => {
-		return {
-			...passedStyle,
-			opacity: postmountingActive ? 0 : 1,
-			pointerEvents: postmountingActive
-				? 'none'
-				: (passedStyle?.pointerEvents ?? undefined),
-			...(postmountingActive ? styleWhilePostmounted : {}),
-		};
-	}, [passedStyle, postmountingActive, styleWhilePostmounted]);
-
-	return (
-		<Freeze frame={freezeFrame} active={postmountingActive}>
-			<Sequence
-				ref={ref}
-				from={from}
-				durationInFrames={durationInFrames}
-				style={style}
-				_remotionInternalPostmountDisplay={postmountFor}
-				_remotionInternalIsPostmounting={postmountingActive}
-				{...otherProps}
-			/>
-		</Freeze>
-	);
-};
-
-const PostmountedSequence = forwardRef(
-	PostmountedSequenceRefForwardingFunction,
-);
-
 const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SequenceProps
@@ -440,7 +333,7 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	const style = useMemo(() => {
 		return {
 			...passedStyle,
-			opacity: premountingActive || postmountingActive ? 0 : 1,
+			opacity: premountingActive || postmountingActive ? 0.5 : 1,
 			pointerEvents:
 				premountingActive || postmountingActive
 					? 'none'
@@ -455,6 +348,14 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 		styleWhilePremounted,
 		styleWhilePostmounted,
 	]);
+
+	console.log('premountingActive', {
+		isFreezingActive,
+		premountingActive,
+		postmountingActive,
+		freezeFrame,
+		style,
+	});
 
 	return (
 		<Freeze frame={freezeFrame} active={isFreezingActive}>
@@ -482,17 +383,8 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	SequenceProps
 > = (props, ref) => {
 	if (props.layout !== 'none' && !getRemotionEnvironment().isRendering) {
-		if (props.premountFor && props.postmountFor) {
-			// Handle both premount and postmount
+		if (props.premountFor || props.postmountFor) {
 			return <PremountedPostmountedSequence {...props} ref={ref} />;
-		}
-
-		if (props.premountFor) {
-			return <PremountedSequence {...props} ref={ref} />;
-		}
-
-		if (props.postmountFor) {
-			return <PostmountedSequence {...props} ref={ref} />;
 		}
 	}
 
