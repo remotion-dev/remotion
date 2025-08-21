@@ -47,7 +47,10 @@ export const useMediaBuffering = ({
 			// has no future data.
 
 			// Breaks on Firefox though: https://github.com/remotion-dev/remotion/issues/3915
-			if (isPremounting && current.readyState < current.HAVE_FUTURE_DATA) {
+			if (
+				(isPremounting || isPostmounting) &&
+				current.readyState < current.HAVE_FUTURE_DATA
+			) {
 				if (!navigator.userAgent.includes('Firefox/')) {
 					playbackLogging({
 						logLevel,
