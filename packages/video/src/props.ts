@@ -25,4 +25,5 @@ export type NewVideoProps = {
 	 * @deprecated For internal use only
 	 */
 	stack?: string;
+	audioChannelIndex?: number;
 };

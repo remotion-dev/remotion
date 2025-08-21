@@ -133,6 +133,7 @@ export type AudioOrVideoAsset = {
 	playbackRate: number;
 	toneFrequency: number | null;
 	audioStartFrame: number;
+	audioChannelIndex: number;
 };
 
 type DiscriminatedArtifact =

@@ -94,6 +94,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		delayRenderTimeoutInMilliseconds,
 		allowAmplificationDuringRender,
 		useWebAudioApi,
+		audioChannelIndex,
 		...nativeProps
 	} = props;
 

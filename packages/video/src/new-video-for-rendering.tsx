@@ -38,6 +38,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	// Remove crossOrigin prop during rendering
 	// https://discord.com/channels/809501355504959528/844143007183667220/1311639632496033813
 	crossOrigin,
+	audioChannelIndex,
 }) => {
 	// eslint-disable-next-line    no-unused-expressions
 	crossOrigin;
@@ -106,6 +107,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			playbackRate: playbackRate ?? 1,
 			toneFrequency: toneFrequency ?? null,
 			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
+			audioChannelIndex: audioChannelIndex ?? 0,
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -121,8 +123,11 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		playbackRate,
 		toneFrequency,
 		sequenceContext?.relativeFrom,
+		audioChannelIndex,
 	]);
+
 	const {fps} = videoConfig;
+
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
 			return;

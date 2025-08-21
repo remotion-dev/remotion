@@ -154,6 +154,7 @@ export const downloadAsset = async ({
 	shouldAnalyzeAudioImmediately,
 	binariesDirectory,
 	cancelSignalForAudioAnalysis,
+	audioChannelIndex,
 }: {
 	src: string;
 	downloadMap: DownloadMap;
@@ -162,6 +163,7 @@ export const downloadAsset = async ({
 	shouldAnalyzeAudioImmediately: boolean;
 	binariesDirectory: string | null;
 	cancelSignalForAudioAnalysis: CancelSignal | undefined;
+	audioChannelIndex: number | undefined;
 }): Promise<string> => {
 	if (isAssetCompressed(src)) {
 		return src;
@@ -263,6 +265,7 @@ export const downloadAsset = async ({
 			indent,
 			logLevel,
 			cancelSignal: cancelSignalForAudioAnalysis,
+			audioChannelIndex,
 		});
 	}
 
@@ -387,6 +390,7 @@ export const downloadAndMapAssetsToFileUrl = async ({
 		shouldAnalyzeAudioImmediately,
 		binariesDirectory,
 		cancelSignalForAudioAnalysis,
+		audioChannelIndex: renderAsset.audioChannelIndex,
 	});
 	cleanup();
 

@@ -8,12 +8,11 @@ const src = 'https://parser.media/multichannel-audio.mov';
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>
 > = async () => {
-	const {slowDurationInSeconds, dimensions} = await parseMedia({
+	const {slowDurationInSeconds} = await parseMedia({
 		src,
 		acknowledgeRemotionLicense: true,
 		fields: {
 			slowDurationInSeconds: true,
-			dimensions: true,
 		},
 	});
 
@@ -26,7 +25,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 const Component = () => {
 	return (
 		<>
-			<Audio src={src} />
+			<Audio src={src} audioChannelIndex={3} />
 		</>
 	);
 };
@@ -37,5 +36,5 @@ export const MultiChannelAudio = StudioInternals.createComposition({
 	calculateMetadata: calculateMetadataFn,
 	fps,
 	width: 100,
-	height: 199,
+	height: 100,
 });

@@ -53,6 +53,7 @@ export type RemotionAudioProps = NativeAudioProps & {
 	delayRenderRetries?: number;
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	onError?: (err: Error) => void;
+	audioChannelIndex?: number;
 };
 
 type IsNever<T> = [T] extends [never] ? true : false;
