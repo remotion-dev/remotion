@@ -182,8 +182,10 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		stack: _remotionInternalStack,
 		showInTimeline,
 		premountDisplay: null,
+		postmountDisplay: null,
 		onAutoPlayError: null,
 		isPremounting: Boolean(sequenceContext?.premounting),
+		isPostmounting: Boolean(sequenceContext?.postmounting),
 	});
 
 	// putting playback before useVolume
@@ -196,6 +198,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		onlyWarnForMediaSeekingError: false,
 		acceptableTimeshift: acceptableTimeShiftInSeconds ?? null,
 		isPremounting: Boolean(sequenceContext?.premounting),
+		isPostmounting: Boolean(sequenceContext?.postmounting),
 		pauseWhenBuffering,
 		onAutoPlayError: null,
 	});
