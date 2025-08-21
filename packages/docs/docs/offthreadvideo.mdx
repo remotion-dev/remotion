@@ -229,6 +229,33 @@ Disabling tone mapping will speed up rendering, but may result in less vibrant c
 
 Prior to Remotion 4.0.117, tone mapping was always disabled, and the `toneMapped` prop was not available.
 
+### `audioChannelIndex?`<AvailableFrom v="4.0.340" />
+
+Select the audio stream to use. The default is `0`.
+
+```tsx twoslash
+import {AbsoluteFill, OffthreadVideo} from 'remotion';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <OffthreadVideo audioChannelIndex={1} src={'https://parser.media/multichannel-audio.mov'} />
+    </AbsoluteFill>
+  );
+};
+```
+
+:::note
+This prop only works during rendering.  
+Browsers do not support selecting the audio track without enabling experimental flags.
+
+Not to be confused with audio channels. A video can have multiple audio streams, each stream can have multiple channels.  
+Multiple audio streams can be used for example for adding multiple languages to a video.
+
+Audio streams are zero-indexed.
+:::
+
 ### `showInTimeline?`<AvailableFrom v="4.0.122"/>
 
 If set to `false`, no layer will be shown in the timeline of the Remotion Studio. The default is `true`.

@@ -220,6 +220,34 @@ Accepts a number between `0.01` and `2`, where `1` represents the original pitch
 
 A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 
+### `audioChannelIndex?`<AvailableFrom v="4.0.340" />
+
+Select the audio stream to use. The default is `0`.
+
+```tsx twoslash
+import {AbsoluteFill, Video} from 'remotion';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video audioChannelIndex={1} src={'https://parser.media/multichannel-audio.mov'} />
+    </AbsoluteFill>
+  );
+};
+```
+
+:::note
+This prop only works during rendering.  
+Browsers do not support selecting the audio track without enabling experimental flags.
+
+Not to be confused with audio channels. A video can have multiple audio streams, each stream can have multiple channels.  
+Multiple audio streams can be used for example for adding multiple languages to a video.
+
+Audio streams are zero-indexed.
+:::
+
+
 ### `onError?`
 
 Handle an error playing the video. From v3.3.89, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
