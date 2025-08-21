@@ -175,7 +175,7 @@ const Inner: React.FC<{
 				>
 					<TimelineSequenceFrame
 						premounted={isPremounting}
-						postmounted={isPostmounting}
+						postmounted={isPostmounting ? s.duration - 1 : null}
 						roundedFrame={roundedFrame}
 					/>
 				</div>

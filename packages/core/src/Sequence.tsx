@@ -324,16 +324,16 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 
 	// Determine which freeze frame to use
 	const freezeFrame = premountingActive
-		? 0
+		? from
 		: postmountingActive
-			? durationInFrames - 1
+			? from + durationInFrames - 1
 			: 0;
 	const isFreezingActive = premountingActive || postmountingActive;
 
 	const style = useMemo(() => {
 		return {
 			...passedStyle,
-			opacity: premountingActive || postmountingActive ? 0.5 : 1,
+			opacity: premountingActive || postmountingActive ? 0 : 1,
 			pointerEvents:
 				premountingActive || postmountingActive
 					? 'none'
@@ -348,14 +348,6 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 		styleWhilePremounted,
 		styleWhilePostmounted,
 	]);
-
-	console.log('premountingActive', {
-		isFreezingActive,
-		premountingActive,
-		postmountingActive,
-		freezeFrame,
-		style,
-	});
 
 	return (
 		<Freeze frame={freezeFrame} active={isFreezingActive}>

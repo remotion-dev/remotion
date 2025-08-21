@@ -10,14 +10,14 @@ const relativeFrameStyle: React.CSSProperties = {
 export const TimelineSequenceFrame: React.FC<{
 	readonly roundedFrame: number;
 	readonly premounted: boolean;
-	readonly postmounted: boolean;
+	readonly postmounted: number | null;
 }> = ({roundedFrame, premounted, postmounted}) => {
 	return (
 		<div style={relativeFrameStyle}>
 			{premounted
 				? '0 (Premounted)'
-				: postmounted
-					? 'Last (Postmounted)'
+				: postmounted !== null
+					? `${postmounted} (Postmounted)`
 					: roundedFrame}
 		</div>
 	);
