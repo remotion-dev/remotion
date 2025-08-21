@@ -25,7 +25,7 @@ test('Get audio channels for video', async () => {
 		logLevel: 'info',
 		binariesDirectory: null,
 		cancelSignal: undefined,
-		audioChannelIndex: 0,
+		audioStreamIndex: 0,
 	});
 	expect(channels).toEqual({channels: 2, duration: 10, startTime: 0});
 }, 90000);
@@ -48,7 +48,7 @@ test('Get audio channels for video without music', async () => {
 		logLevel: 'info',
 		binariesDirectory: null,
 		cancelSignal: undefined,
-		audioChannelIndex: 0,
+		audioStreamIndex: 0,
 	});
 
 	expect(channels.channels).toEqual(0);
@@ -75,7 +75,7 @@ test('Get audio channels for mp3', async () => {
 		logLevel: 'info',
 		binariesDirectory: null,
 		cancelSignal: undefined,
-		audioChannelIndex: 0,
+		audioStreamIndex: 0,
 	});
 	cleanDownloadMap(downloadMap);
 
@@ -98,7 +98,7 @@ test('Throw error if parsing a non video file', () => {
 			logLevel: 'info',
 			binariesDirectory: null,
 			cancelSignal: undefined,
-			audioChannelIndex: 0,
+			audioStreamIndex: 0,
 		}),
 	).toThrow(/Invalid data found when processing input/);
 	cleanDownloadMap(downloadMap);

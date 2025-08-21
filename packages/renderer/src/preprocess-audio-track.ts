@@ -28,7 +28,7 @@ type Options = {
 	trimRightOffset: number;
 	forSeamlessAacConcatenation: boolean;
 	onProgress: (progress: number) => void;
-	audioChannelIndex: number;
+	audioStreamIndex: number;
 };
 
 export type PreprocessedAudioTrack = {
@@ -50,7 +50,7 @@ const preprocessAudioTrackUnlimited = async ({
 	trimLeftOffset,
 	trimRightOffset,
 	forSeamlessAacConcatenation,
-	audioChannelIndex,
+	audioStreamIndex,
 }: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration, startTime} = await getAudioChannelsAndDuration({
 		downloadMap,
@@ -59,7 +59,7 @@ const preprocessAudioTrackUnlimited = async ({
 		logLevel,
 		binariesDirectory,
 		cancelSignal,
-		audioChannelIndex,
+		audioStreamIndex,
 	});
 
 	const filter = stringifyFfmpegFilter({
@@ -86,7 +86,7 @@ const preprocessAudioTrackUnlimited = async ({
 	const args = [
 		['-hide_banner'],
 		['-i', resolveAssetSrc(asset.src)],
-		audioChannelIndex ? ['-map', `0:a:${audioChannelIndex}`] : [],
+		audioStreamIndex ? ['-map', `0:a:${audioStreamIndex}`] : [],
 		['-ac', '2'],
 		['-filter_script:a', file],
 		['-c:a', 'pcm_s16le'],

@@ -53,7 +53,7 @@ export type RemotionVideoProps = NativeVideoProps & {
 	delayRenderRetries?: number;
 	onError?: (err: Error) => void;
 	onAutoPlayError?: null | (() => void);
-	audioChannelIndex?: number;
+	audioStreamIndex?: number;
 };
 
 type DeprecatedOffthreadVideoProps = {
@@ -91,7 +91,7 @@ export type RemotionOffthreadVideoProps = {
 	onAutoPlayError?: null | (() => void);
 	onVideoFrame?: OnVideoFrame;
 	crossOrigin?: '' | 'anonymous' | 'use-credentials';
-	audioChannelIndex?: number;
+	audioStreamIndex?: number;
 } & RemotionMainVideoProps &
 	DeprecatedOffthreadVideoProps;
 

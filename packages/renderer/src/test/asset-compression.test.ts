@@ -17,7 +17,7 @@ test('Should compress and uncompress assets', () => {
 				volume: 1,
 				toneFrequency: null,
 				audioStartFrame: 0,
-				audioChannelIndex: 0,
+				audioStreamIndex: 0,
 			},
 		],
 		[
@@ -31,7 +31,7 @@ test('Should compress and uncompress assets', () => {
 				volume: 1,
 				toneFrequency: null,
 				audioStartFrame: 0,
-				audioChannelIndex: 0,
+				audioStreamIndex: 0,
 			},
 		],
 	].flat(1);
@@ -58,7 +58,7 @@ test('Should compress and uncompress assets', () => {
 			volume: 1,
 			toneFrequency: null,
 			audioStartFrame: 0,
-			audioChannelIndex: 0,
+			audioStreamIndex: 0,
 		},
 	]);
 });

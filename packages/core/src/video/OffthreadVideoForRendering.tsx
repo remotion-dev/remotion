@@ -52,7 +52,7 @@ export const OffthreadVideoForRendering: React.FC<
 	// Remove crossOrigin prop during rendering
 	// https://discord.com/channels/809501355504959528/844143007183667220/1311639632496033813
 	crossOrigin,
-	audioChannelIndex,
+	audioStreamIndex,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
@@ -124,7 +124,7 @@ export const OffthreadVideoForRendering: React.FC<
 			playbackRate: playbackRate ?? 1,
 			toneFrequency: toneFrequency ?? null,
 			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
-			audioChannelIndex: audioChannelIndex ?? 0,
+			audioStreamIndex: audioStreamIndex ?? 0,
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -140,7 +140,7 @@ export const OffthreadVideoForRendering: React.FC<
 		playbackRate,
 		toneFrequency,
 		sequenceContext?.relativeFrom,
-		audioChannelIndex,
+		audioStreamIndex,
 	]);
 
 	const currentTime = useMemo(() => {

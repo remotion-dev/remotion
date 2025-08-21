@@ -229,7 +229,7 @@ Disabling tone mapping will speed up rendering, but may result in less vibrant c
 
 Prior to Remotion 4.0.117, tone mapping was always disabled, and the `toneMapped` prop was not available.
 
-### `audioChannelIndex?`<AvailableFrom v="4.0.340" />
+### `audioStreamIndex?`<AvailableFrom v="4.0.340" />
 
 Select the audio stream to use. The default is `0`.
 
@@ -240,7 +240,7 @@ import {AbsoluteFill, OffthreadVideo} from 'remotion';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <OffthreadVideo audioChannelIndex={1} src={'https://parser.media/multichannel-audio.mov'} />
+      <OffthreadVideo audioStreamIndex={1} src={'https://parser.media/multichannel-audio.mov'} />
     </AbsoluteFill>
   );
 };

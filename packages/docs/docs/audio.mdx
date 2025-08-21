@@ -164,7 +164,7 @@ Accepts a number between `0.01` and `2`, where `1` represents the original pitch
 
 A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 
-### `audioChannelIndex?`<AvailableFrom v="4.0.340" />
+### `audioStreamIndex?`<AvailableFrom v="4.0.340" />
 
 Select the audio stream to use. The default is `0`.
 
@@ -175,7 +175,7 @@ import {AbsoluteFill, Audio} from 'remotion';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Audio audioChannelIndex={1} src={'https://parser.media/multichannel-audio.mov'} />
+      <Audio audioStreamIndex={1} src={'https://parser.media/multichannel-audio.mov'} />
     </AbsoluteFill>
   );
 };

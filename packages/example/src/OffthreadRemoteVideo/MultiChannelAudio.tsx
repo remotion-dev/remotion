@@ -25,7 +25,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 const Component = () => {
 	return (
 		<>
-			<Audio src={src} audioChannelIndex={3} />
+			<Audio src={src} audioStreamIndex={3} />
 		</>
 	);
 };

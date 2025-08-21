@@ -15,18 +15,18 @@ export const getAudioChannelsAndDurationWithoutCache = async ({
 	logLevel,
 	binariesDirectory,
 	cancelSignal,
-	audioChannelIndex,
+	audioStreamIndex,
 }: {
 	src: string;
 	indent: boolean;
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
-	audioChannelIndex: number | undefined;
+	audioStreamIndex: number | undefined;
 }) => {
 	const args = [
 		['-v', 'error'],
-		['-select_streams', audioChannelIndex ? `a:${audioChannelIndex}` : 'a:0'],
+		['-select_streams', audioStreamIndex ? `a:${audioStreamIndex}` : 'a:0'],
 		[
 			'-show_entries',
 			'stream=channels:stream=start_time:format=duration:format=format_name',
@@ -83,7 +83,7 @@ async function getAudioChannelsAndDurationUnlimited({
 	logLevel,
 	binariesDirectory,
 	cancelSignal,
-	audioChannelIndex,
+	audioStreamIndex,
 }: {
 	downloadMap: DownloadMap;
 	src: string;
@@ -91,9 +91,9 @@ async function getAudioChannelsAndDurationUnlimited({
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
-	audioChannelIndex: number | undefined;
+	audioStreamIndex: number | undefined;
 }): Promise<AudioChannelsAndDurationResultCache> {
-	const cacheKey = audioChannelIndex ? `${src}-${audioChannelIndex}` : src;
+	const cacheKey = audioStreamIndex ? `${src}-${audioStreamIndex}` : src;
 	if (downloadMap.durationOfAssetCache[cacheKey]) {
 		return downloadMap.durationOfAssetCache[cacheKey];
 	}
@@ -104,7 +104,7 @@ async function getAudioChannelsAndDurationUnlimited({
 		logLevel,
 		binariesDirectory,
 		cancelSignal,
-		audioChannelIndex,
+		audioStreamIndex,
 	});
 
 	downloadMap.durationOfAssetCache[cacheKey] = result;
@@ -119,7 +119,7 @@ export const getAudioChannelsAndDuration = ({
 	logLevel,
 	binariesDirectory,
 	cancelSignal,
-	audioChannelIndex,
+	audioStreamIndex,
 }: {
 	downloadMap: DownloadMap;
 	src: string;
@@ -127,7 +127,7 @@ export const getAudioChannelsAndDuration = ({
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
-	audioChannelIndex: number | undefined;
+	audioStreamIndex: number | undefined;
 }): Promise<AudioChannelsAndDurationResultCache> => {
 	return limit(() =>
 		getAudioChannelsAndDurationUnlimited({
@@ -137,7 +137,7 @@ export const getAudioChannelsAndDuration = ({
 			logLevel,
 			binariesDirectory,
 			cancelSignal,
-			audioChannelIndex,
+			audioStreamIndex,
 		}),
 	);
 };

@@ -15,7 +15,7 @@ export type UnsafeAsset = Omit<
 	id: string;
 	playbackRate: number;
 	toneFrequency: number | null;
-	audioChannelIndex: number;
+	audioStreamIndex: number;
 };
 
 // Volume can either be static, for all frames the same,
