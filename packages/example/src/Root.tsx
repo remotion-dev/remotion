@@ -130,6 +130,7 @@ import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {NewVideoExample} from './NewVideo/NewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
+import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
 import {OffthreadRemoteSeries} from './OffthreadRemoteVideo/OffthreadRemoteSeries';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
@@ -697,6 +698,7 @@ export const Index: React.FC = () => {
 				<OffthreadRemoteVideo />
 				<OffthreadRemoteSeries />
 				<LoopedOffthreadRemoteVideo />
+				<MultiChannelAudio />
 				<Composition
 					id="OffthreadVideoToCanvas"
 					component={OffthreadVideoToCanvas}

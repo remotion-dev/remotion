@@ -76,6 +76,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		useWebAudioApi,
 		onError,
 		onNativeError,
+		audioStreamIndex,
 		...nativeProps
 	} = props;
 

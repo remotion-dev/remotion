@@ -227,7 +227,7 @@ export const stringifyFfmpegFilter = ({
 	// Set as few filters as possible, as combining them can create noise
 	return {
 		filter:
-			`[0:a]` +
+			'[0:a]' +
 			[
 				`aformat=sample_fmts=s32:sample_rates=${DEFAULT_SAMPLE_RATE}`,
 				// The order matters here! For speed and correctness, we first trim the audio
