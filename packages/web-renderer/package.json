@@ -1,0 +1,43 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/web-renderer"
+	},
+	"name": "@remotion/web-renderer",
+	"version": "4.0.340",
+	"main": "dist/index.js",
+	"sideEffects": false,
+	"scripts": {
+		"formatting": "prettier --experimental-cli src --check",
+		"test": "bun test src",
+		"lint": "eslint src",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Remotion <jonny@remotion.dev>",
+	"license": "UNLICENSED",
+	"dependencies": {
+		"remotion": "workspace:*"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		}
+	},
+	"keywords": [
+		"remotion",
+		"renderer",
+		"web"
+	],
+	"homepage": "https://www.remotion.dev/docs/web-renderer",
+	"description": "Remotion Renderer for the browser"
+}
