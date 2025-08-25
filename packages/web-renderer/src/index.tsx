@@ -2,8 +2,9 @@ import type {ComponentType, LazyExoticComponent} from 'react';
 import ReactDOM from 'react-dom/client';
 import type {CompositionManagerContext} from 'remotion';
 import {Internals} from 'remotion';
+import {waitForReady} from './wait-for-ready';
 
-export const renderMediaOnWeb = ({
+export const renderMediaOnWeb = async ({
 	Component,
 	width,
 	height,
@@ -22,6 +23,9 @@ export const renderMediaOnWeb = ({
 	div.style.height = `${height}px`;
 
 	document.body.appendChild(div);
+
+	// TODO: Hardcoded
+	const delayRenderTimeoutInMilliseconds = 10000;
 
 	if (!ReactDOM.createRoot) {
 		throw new Error('@remotion/web-renderer requires React 18 or higher');
@@ -114,4 +118,7 @@ export const renderMediaOnWeb = ({
 			</Internals.CanUseRemotionHooks>
 		</Internals.RemotionRoot>,
 	);
+
+	await waitForReady(delayRenderTimeoutInMilliseconds);
+	console.log('ready');
 };
