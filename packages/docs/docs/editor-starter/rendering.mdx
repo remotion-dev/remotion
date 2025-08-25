@@ -26,22 +26,30 @@ REMOTION_AWS_SECRET_ACCESS_KEY=
 REMOTION_AWS_BUCKET_NAME=
 ```
 
-Now, you can deploy a Lambda function and create a site:
+Now, you can deploy a Lambda function and create a site by running:
 
 ```ts
 bun deploy.ts
 ```
 
-You should re-execute this command whenever:
+Alternatively, running the build command will also build the site and deploy it to your S3 bucket:
+
+```sh
+npm run build
+```
+
+If the required AWS environment variables are not set, the build will still succeed and not throw an error—the deployment to S3 will simply be skipped.
+
+You should re-execute the deployment whenever:
 
 - You change the structure of the [state](/docs/editor-starter/state-management), e.g. add new fields or items
 - You change how videos are rendered visually
 - You upgrade to a new Remotion version
 
-Running this script if the infrastructure already exists will not do anything.  
+Running the deployment script if the infrastructure already exists will not do anything.  
 Therefore, you can run it as often as you want.
 
-We recommend to run this script in your build pipeline as well, so that it executes whenever you deploy your app.  
+We recommend to run the deployment in your build pipeline as well, so that it executes whenever you deploy your app.  
 For example, if you deploy to Vercel, you can create a `vercel.json` file:
 
 ```json title="vercel.json"
