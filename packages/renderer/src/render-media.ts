@@ -201,7 +201,7 @@ const internalRenderMediaRaw = ({
 	proResProfile,
 	x264Preset,
 	crf,
-	composition,
+	composition: compositionWithPossibleUnevenDimensions,
 	serializedInputPropsWithCustomSchema,
 	pixelFormat: userPixelFormat,
 	codec,
@@ -256,12 +256,14 @@ const internalRenderMediaRaw = ({
 	offthreadVideoThreads,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	const pixelFormat =
-		userPixelFormat ?? composition.defaultPixelFormat ?? DEFAULT_PIXEL_FORMAT;
+		userPixelFormat ??
+		compositionWithPossibleUnevenDimensions.defaultPixelFormat ??
+		DEFAULT_PIXEL_FORMAT;
 
 	if (repro) {
 		enableRepro({
 			serveUrl,
-			compositionName: composition.id,
+			compositionName: compositionWithPossibleUnevenDimensions.id,
 			serializedInputPropsWithCustomSchema,
 			serializedResolvedPropsWithCustomSchema,
 		});
@@ -331,8 +333,8 @@ const internalRenderMediaRaw = ({
 
 	const {estimatedUsage, freeMemory, hasEnoughMemory} =
 		shouldUseParallelEncoding({
-			height: composition.height,
-			width: composition.width,
+			height: compositionWithPossibleUnevenDimensions.height,
+			width: compositionWithPossibleUnevenDimensions.width,
 			logLevel,
 		});
 	const parallelEncoding =
@@ -413,7 +415,7 @@ const internalRenderMediaRaw = ({
 	const imageFormat: VideoImageFormat = isAudioCodec(codec)
 		? 'none'
 		: (provisionalImageFormat ??
-			composition.defaultVideoImageFormat ??
+			compositionWithPossibleUnevenDimensions.defaultVideoImageFormat ??
 			DEFAULT_VIDEO_IMAGE_FORMAT);
 
 	validateSelectedPixelFormatAndImageFormatCombination(
@@ -438,13 +440,19 @@ const internalRenderMediaRaw = ({
 
 	const {actualWidth, actualHeight} = validateEvenDimensionsWithCodec({
 		codec,
-		height: composition.height,
+		height: compositionWithPossibleUnevenDimensions.height,
 		scale,
-		width: composition.width,
+		width: compositionWithPossibleUnevenDimensions.width,
 		wantsImageSequence: false,
 		indent,
 		logLevel,
 	});
+
+	const composition = {
+		...compositionWithPossibleUnevenDimensions,
+		height: actualHeight,
+		width: actualWidth,
+	};
 
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
