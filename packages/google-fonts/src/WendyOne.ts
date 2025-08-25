@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Wendy One',
 	importName: 'WendyOne',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Wendy+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wendyone/v18/2sDcZGJOipXfgfXV5wgzZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/wendyone/v19/2sDcZGJOipXfgfXV5wgzZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wendyone/v18/2sDcZGJOipXfgfXV5wgzaGW5.woff2',
+					'https://fonts.gstatic.com/s/wendyone/v19/2sDcZGJOipXfgfXV5wgzaGW5.woff2',
 			},
 		},
 	},

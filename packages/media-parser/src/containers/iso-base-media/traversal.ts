@@ -9,7 +9,8 @@ import type {FtypBox} from './ftyp';
 import type {MdhdBox} from './mdhd';
 import type {TfraBox} from './mfra/tfra';
 import type {MoovBox} from './moov/moov';
-import type {MvhdBox} from './mvhd';
+import type {MvhdBox} from './moov/mvhd';
+import type {TrexBox} from './moov/trex';
 import type {CttsBox} from './stsd/ctts';
 import type {StcoBox} from './stsd/stco';
 import type {StscBox} from './stsd/stsc';
@@ -308,6 +309,29 @@ export const getTrunBoxes = (segment: IsoBaseMediaBox): TrunBox[] => {
 	const trunBoxes = segment.children.filter((c) => c.type === 'trun-box');
 
 	return trunBoxes as TrunBox[];
+};
+
+export const getMvexBox = (moovAtom: MoovBox): RegularBox | null => {
+	const mvexBox = moovAtom.children.find(
+		(s) => s.type === 'regular-box' && s.boxType === 'mvex',
+	);
+
+	if (!mvexBox || mvexBox.type !== 'regular-box') {
+		return null;
+	}
+
+	return mvexBox;
+};
+
+export const getTrexBoxes = (moovAtom: MoovBox): TrexBox[] => {
+	const mvexBox = getMvexBox(moovAtom);
+	if (!mvexBox) {
+		return [];
+	}
+
+	const trexBoxes = mvexBox.children.filter((c) => c.type === 'trex-box');
+
+	return trexBoxes as TrexBox[];
 };
 
 export const getTfraBoxesFromMfraBoxChildren = (

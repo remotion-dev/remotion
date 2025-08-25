@@ -62,17 +62,17 @@ Controls the `frame` which is returned when using the [`volume`](#volume) callba
 
 Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
 
-### `startFrom?` / `endAt?`
+### `trimBefore?` / `trimAfter?`<AvailableFrom v="4.0.319"/>
 
-`<Audio>` has two more helper props you can use:
+`<Audio>` has two helper props you can use to trim audio:
 
-- `startFrom` will remove a portion of the audio at the beginning
-- `endAt` will remove a portion of the audio at the end
+- `trimBefore` will remove a portion of the audio at the beginning (left side)
+- `trimAfter` will remove a portion of the audio at the end (right side)
 
 In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
 
-By passing `startFrom={60}`, the playback starts immediately, but with the first 2 seconds of the audio trimmed away.  
-By passing `endAt={120}`, any audio after the 4 second mark in the file will be trimmed away.
+By passing `trimBefore={60}`, the playback starts immediately, but with the first 2 seconds of the audio trimmed away.  
+By passing `trimAfter={120}`, any audio after the 4 second mark in the file will be trimmed away.
 
 The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
 
@@ -82,11 +82,17 @@ import {AbsoluteFill, Audio, staticFile} from 'remotion';
 export const MyVideo = () => {
   return (
     <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} startFrom={60} endAt={120} />
+      <Audio src={staticFile('audio.mp3')} trimBefore={60} trimAfter={120} />
     </AbsoluteFill>
   );
 };
 ```
+
+### ~~`startFrom?` / `endAt?`~~
+
+:::note Deprecated
+These props have been renamed to [`trimBefore`](#trimbefore--trimafter) and [`trimAfter`](#trimbefore--trimafter) in 4.0.319. They will continue to work but you cannot use them together with the new props.
+:::
 
 ### `playbackRate?`<AvailableFrom v="2.2.0"/>
 
@@ -105,6 +111,10 @@ export const MyVideo = () => {
   );
 };
 ```
+
+:::note
+Playing a video in reverse is not supported.
+:::
 
 ### `muted?`<AvailableFrom v="2.0.0"/>
 
@@ -154,6 +164,34 @@ Accepts a number between `0.01` and `2`, where `1` represents the original pitch
 
 A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 
+### `audioStreamIndex?`<AvailableFrom v="4.0.340" />
+
+Select the audio stream to use. The default is `0`.
+
+```tsx twoslash
+import {AbsoluteFill, Audio} from 'remotion';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio audioStreamIndex={1} src={'https://parser.media/multichannel-audio.mov'} />
+    </AbsoluteFill>
+  );
+};
+```
+
+:::note
+This prop only works during rendering.  
+Browsers do not support selecting the audio track without enabling experimental flags.
+
+Not to be confused with audio channels. A video can have multiple audio streams, each stream can have multiple channels.  
+Multiple audio streams can be used for example for adding multiple languages to a video.
+
+Audio streams are zero-indexed.
+:::
+
+
 ### `acceptableTimeShiftInSeconds?`<AvailableFrom v="3.2.42"/>
 
 In the [Remotion Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/player), Remotion will seek the audio if it gets too much out of sync with Remotion's internal time - be it due to the audio loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
@@ -177,6 +215,10 @@ Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRen
 ### `useWebAudioApi?`<AvailableFrom v="4.0.306" />
 
 Enable the [Web Audio API](/docs/audio/volume#limitations) for the audio tag.
+
+### `onError?`<AvailableFrom v="4.0.326" />
+
+Handle an error playing the audio.
 
 ### ~`allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />~
 

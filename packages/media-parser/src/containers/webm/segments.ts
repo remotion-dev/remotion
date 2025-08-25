@@ -121,6 +121,7 @@ export const expectSegment = async ({
 		headerReadSoFar: iterator.counter.getOffset() - offset,
 		statesForProcessing,
 		iterator,
+		logLevel,
 	});
 
 	return segment;
@@ -132,13 +133,15 @@ const parseSegment = async ({
 	iterator,
 	headerReadSoFar,
 	statesForProcessing,
+	logLevel,
 }: {
 	segmentId: string;
 	length: number;
 	iterator: BufferIterator;
 	headerReadSoFar: number;
 	statesForProcessing: WebmRequiredStatesForProcessing | null;
-}): Promise<Promise<MatroskaSegment> | MatroskaSegment> => {
+	logLevel: MediaParserLogLevel;
+}): Promise<MatroskaSegment | null> => {
 	if (length < 0) {
 		throw new Error(`Expected length of ${segmentId} to be greater or equal 0`);
 	}
@@ -146,7 +149,11 @@ const parseSegment = async ({
 	iterator.counter.decrement(headerReadSoFar);
 
 	const offset = iterator.counter.getOffset();
-	const ebml = await parseEbml(iterator, statesForProcessing);
+	const ebml = await parseEbml(iterator, statesForProcessing, logLevel);
+	if (ebml === null) {
+		return null;
+	}
+
 	if (!statesForProcessing) {
 		return ebml;
 	}

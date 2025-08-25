@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cal Sans',
 	importName: 'CalSans',
-	version: 'v1',
+	version: 'v2',
 	url: 'https://fonts.googleapis.com/css2?family=Cal+Sans:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/calsans/v1/fdN99sWUv3gWqXxqqRBTtFs04A.woff2',
+					'https://fonts.gstatic.com/s/calsans/v2/fdN99sWUv3gWqXxqqRBTtFs04A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/calsans/v1/fdN99sWUv3gWqXxqqRBStFs04A.woff2',
+					'https://fonts.gstatic.com/s/calsans/v2/fdN99sWUv3gWqXxqqRBStFs04A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/calsans/v1/fdN99sWUv3gWqXxqqRBctFs.woff2',
+					'https://fonts.gstatic.com/s/calsans/v2/fdN99sWUv3gWqXxqqRBctFs.woff2',
 			},
 		},
 	},

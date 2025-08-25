@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Laila',
 	importName: 'Laila',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Laila:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,43 +17,43 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/laila/v19/LYjBdG_8nE8jDLzxojNGjV8XVQ.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjBdG_8nE8jDLzxojNGjV8XVQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/laila/v19/LYjBdG_8nE8jDLzxojNJjV8XVQ.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjBdG_8nE8jDLzxojNJjV8XVQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/laila/v19/LYjBdG_8nE8jDLzxojNHjV8.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjBdG_8nE8jDLzxojNHjV8.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/laila/v19/LYjMdG_8nE8jDLRbgCZ4rA.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjMdG_8nE8jDLRbgCZ4rA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/laila/v19/LYjMdG_8nE8jDLRUgCZ4rA.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjMdG_8nE8jDLRUgCZ4rA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/laila/v19/LYjMdG_8nE8jDLRagCY.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjMdG_8nE8jDLRagCY.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/laila/v19/LYjBdG_8nE8jDLypozNGjV8XVQ.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjBdG_8nE8jDLypozNGjV8XVQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/laila/v19/LYjBdG_8nE8jDLypozNJjV8XVQ.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjBdG_8nE8jDLypozNJjV8XVQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/laila/v19/LYjBdG_8nE8jDLypozNHjV8.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjBdG_8nE8jDLypozNHjV8.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/laila/v19/LYjBdG_8nE8jDLyFpDNGjV8XVQ.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjBdG_8nE8jDLyFpDNGjV8XVQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/laila/v19/LYjBdG_8nE8jDLyFpDNJjV8XVQ.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjBdG_8nE8jDLyFpDNJjV8XVQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/laila/v19/LYjBdG_8nE8jDLyFpDNHjV8.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjBdG_8nE8jDLyFpDNHjV8.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/laila/v19/LYjBdG_8nE8jDLzhpTNGjV8XVQ.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjBdG_8nE8jDLzhpTNGjV8XVQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/laila/v19/LYjBdG_8nE8jDLzhpTNJjV8XVQ.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjBdG_8nE8jDLzhpTNJjV8XVQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/laila/v19/LYjBdG_8nE8jDLzhpTNHjV8.woff2',
+					'https://fonts.gstatic.com/s/laila/v20/LYjBdG_8nE8jDLzhpTNHjV8.woff2',
 			},
 		},
 	},

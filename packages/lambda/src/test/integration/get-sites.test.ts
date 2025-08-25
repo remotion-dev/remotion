@@ -14,6 +14,7 @@ test('Should have no buckets at first', async () => {
 			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
 			forceBucketName: null,
+			requestHandler: null,
 		}),
 	).toEqual({buckets: [], sites: []});
 });
@@ -27,6 +28,7 @@ test('Should have a site after deploying', async () => {
 		enableFolderExpiry: null,
 		forcePathStyle: false,
 		skipPutAcl: false,
+		requestHandler: null,
 	});
 	expect(
 		await internalDeploySite({
@@ -43,6 +45,7 @@ test('Should have a site after deploying', async () => {
 			options: {},
 			forcePathStyle: false,
 			fullClientSpecifics: mockFullClientSpecifics,
+			requestHandler: null,
 		}),
 	).toEqual({
 		serveUrl:
@@ -60,6 +63,7 @@ test('Should have a site after deploying', async () => {
 			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
 			forceBucketName: null,
+			requestHandler: null,
 		}),
 	).toEqual({
 		buckets: [

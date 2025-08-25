@@ -8,6 +8,7 @@ export const useMediaBuffering = ({
 	element,
 	shouldBuffer,
 	isPremounting,
+	isPostmounting,
 	logLevel,
 	mountTime,
 	src,
@@ -15,6 +16,7 @@ export const useMediaBuffering = ({
 	element: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	shouldBuffer: boolean;
 	isPremounting: boolean;
+	isPostmounting: boolean;
 	logLevel: LogLevel;
 	mountTime: number;
 	src: string | null;
@@ -35,7 +37,7 @@ export const useMediaBuffering = ({
 			return;
 		}
 
-		if (isPremounting) {
+		if (isPremounting || isPostmounting) {
 			// Needed by iOS Safari which will not load by default
 			// and therefore not fire the canplay event.
 
@@ -45,7 +47,10 @@ export const useMediaBuffering = ({
 			// has no future data.
 
 			// Breaks on Firefox though: https://github.com/remotion-dev/remotion/issues/3915
-			if (current.readyState < current.HAVE_FUTURE_DATA) {
+			if (
+				(isPremounting || isPostmounting) &&
+				current.readyState < current.HAVE_FUTURE_DATA
+			) {
 				if (!navigator.userAgent.includes('Firefox/')) {
 					playbackLogging({
 						logLevel,
@@ -59,6 +64,7 @@ export const useMediaBuffering = ({
 				}
 			}
 
+			// Don't trigger buffering during premount or postmount
 			return;
 		}
 
@@ -181,7 +187,16 @@ export const useMediaBuffering = ({
 		// it gives the chance to load the new source.
 
 		// https://github.com/remotion-dev/remotion/issues/5218
-	}, [buffer, src, element, isPremounting, logLevel, shouldBuffer, mountTime]);
+	}, [
+		buffer,
+		src,
+		element,
+		isPremounting,
+		isPostmounting,
+		logLevel,
+		shouldBuffer,
+		mountTime,
+	]);
 
 	return isBuffering;
 };

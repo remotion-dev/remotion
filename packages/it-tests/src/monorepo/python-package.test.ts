@@ -49,6 +49,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 	const toParse = output[PYTHON_OUTPUT_MARKER];
 	const nativeVersion =
 		await LambdaClientInternals.makeLambdaRenderMediaPayload({
+			requestHandler: null,
 			region: 'us-east-1',
 			composition: 'react-svg',
 			functionName: 'remotion-render',
@@ -62,6 +63,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			chromiumOptions: {},
 			colorSpace: null,
 			concurrencyPerLambda: 1,
+			concurrency: null,
 			crf: undefined,
 			deleteAfter: null,
 			downloadBehavior: {
@@ -193,6 +195,7 @@ test('Python package should create the same renderStill payload as normal Lambda
 			forcePathStyle: false,
 			apiKey: null,
 			storageClass: null,
+			requestHandler: null,
 		});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const {streamed: _, ...parsedJson} = JSON.parse(jsonOutput);

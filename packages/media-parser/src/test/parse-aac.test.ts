@@ -79,6 +79,7 @@ test('should be able to parse aac', async () => {
 				trackId: 0,
 				type: 'audio',
 				timescale: WEBCODECS_TIMESCALE,
+				trackMediaTimeOffsetInTrackTimescale: 0,
 			});
 			return () => {
 				audioSamples++;
@@ -169,6 +170,7 @@ test('should be able to get basics without parsing all', async () => {
 				trackId: 0,
 				type: 'audio',
 				timescale: WEBCODECS_TIMESCALE,
+				trackMediaTimeOffsetInTrackTimescale: 0,
 			});
 			return null;
 		},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Corben',
 	importName: 'Corben',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Corben:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/corben/v21/LYjDdGzzklQtCMpNqQNFlVs.woff2',
+					'https://fonts.gstatic.com/s/corben/v22/LYjDdGzzklQtCMpNqQNFlVs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/corben/v21/LYjDdGzzklQtCMpNpwNF.woff2',
+					'https://fonts.gstatic.com/s/corben/v22/LYjDdGzzklQtCMpNpwNF.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/corben/v21/LYjAdGzzklQtCMpFHCZQpHoqbN4.woff2',
+					'https://fonts.gstatic.com/s/corben/v22/LYjAdGzzklQtCMpFHCZQpHoqbN4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/corben/v21/LYjAdGzzklQtCMpFHCZQqnoq.woff2',
+					'https://fonts.gstatic.com/s/corben/v22/LYjAdGzzklQtCMpFHCZQqnoq.woff2',
 			},
 		},
 	},

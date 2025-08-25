@@ -158,7 +158,11 @@ export const createMatroskaMedia = async ({
 				chunk,
 			})
 		) {
-			return {cluster: currentCluster, isNew: false, smallestProgress};
+			return {
+				cluster: currentCluster,
+				isNew: false,
+				smallestProgress,
+			};
 		}
 
 		currentCluster = await makeCluster({
@@ -167,7 +171,12 @@ export const createMatroskaMedia = async ({
 			timescale,
 			logLevel,
 		});
-		return {cluster: currentCluster, isNew: true, smallestProgress};
+
+		return {
+			cluster: currentCluster,
+			isNew: true,
+			smallestProgress,
+		};
 	};
 
 	const updateDuration = async (newDuration: number) => {
@@ -185,6 +194,7 @@ export const createMatroskaMedia = async ({
 		trackNumber: number;
 		isVideo: boolean;
 	}) => {
+		const offset = w.getWrittenByteCount();
 		const {cluster, isNew, smallestProgress} = await getClusterOrMakeNew({
 			chunk,
 			isVideo,
@@ -201,12 +211,15 @@ export const createMatroskaMedia = async ({
 			trackNumber,
 		);
 		if (isNew) {
-			const newCluster = w.getWrittenByteCount();
+			if (offset === null) {
+				throw new Error('offset is null');
+			}
+
 			cues.push({
 				time:
 					timestampToClusterTimestamp(smallestProgress, timescale) +
 					timecodeRelativeToCluster,
-				clusterPosition: newCluster - seekHeadOffset,
+				clusterPosition: offset - seekHeadOffset,
 				trackNumber,
 			});
 		}

@@ -18,11 +18,11 @@ export const humanReadableCodec = (codec: Codec) => {
 	}
 
 	if (codec === 'h264-mkv') {
-		return 'H.264 Matroska';
+		return 'H.264 (Matroska)';
 	}
 
 	if (codec === 'h264-ts') {
-		return 'H.264 Transport Stream';
+		return 'H.264 (Transport Stream)';
 	}
 
 	if (codec === 'h265') {
@@ -34,11 +34,11 @@ export const humanReadableCodec = (codec: Codec) => {
 	}
 
 	if (codec === 'vp8') {
-		return 'WebM VP8';
+		return 'VP8';
 	}
 
 	if (codec === 'vp9') {
-		return 'WebM VP9';
+		return 'VP9';
 	}
 
 	if (codec === 'wav') {

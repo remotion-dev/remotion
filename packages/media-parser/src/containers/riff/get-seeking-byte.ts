@@ -39,6 +39,10 @@ export const getSeekingByteForRiff = async ({
 		return {
 			type: 'do-seek',
 			byte: lastKeyframe.positionInBytes,
+			timeInSeconds: Math.min(
+				lastKeyframe.decodingTimeInSeconds,
+				lastKeyframe.presentationTimeInSeconds,
+			),
 		};
 	}
 
@@ -85,5 +89,8 @@ export const getSeekingByteForRiff = async ({
 	return {
 		type: 'do-seek',
 		byte: bestEntry.offset + info.moviOffset - 4,
+		timeInSeconds:
+			bestEntry.sampleCounts[idx1Entries.videoTrackIndex] /
+			info.samplesPerSecond,
 	};
 };

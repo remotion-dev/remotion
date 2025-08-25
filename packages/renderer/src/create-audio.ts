@@ -114,6 +114,7 @@ export const createAudio = async ({
 				trimLeftOffset,
 				trimRightOffset,
 				forSeamlessAacConcatenation,
+				audioStreamIndex: asset.audioStreamIndex,
 			});
 			preprocessProgress[index] = 1;
 			updateProgress();

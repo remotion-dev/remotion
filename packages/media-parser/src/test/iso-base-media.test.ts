@@ -52,7 +52,7 @@ if (process.platform !== 'win32') {
 		expect(result.tracks.find((t) => t.type === 'video')?.codec).toBe(
 			'hvc1.2.4.L150.b0',
 		);
-		expect(result.rotation).toBe(-90);
+		expect(result.rotation).toBe(90);
 		expect(result.unrotatedDimensions).toEqual({
 			height: 2160,
 			width: 3840,
@@ -60,7 +60,7 @@ if (process.platform !== 'win32') {
 		expect(result.sampleRate).toBe(44100);
 		expect(result.numberOfAudioChannels).toBe(2);
 		expect(result.slowVideoBitrate).toBe(24_645_472.377668746);
-		expect(result.slowAudioBitrate).toBe(164057.78660220993);
+		expect(result.slowAudioBitrate).toBe(164057.77562631425);
 		expect(videoTracks).toBe(1);
 		expect(audioTracks).toBe(1);
 		expect(videoSamples).toBe(377);
@@ -79,7 +79,7 @@ if (process.platform !== 'win32') {
 		});
 		expect(internalStats).toEqual({
 			finalCursorOffset: 39062928,
-			skippedBytes: 2070,
+			skippedBytes: 71164,
 		});
 		expect(slowKeyframes).toEqual([
 			{

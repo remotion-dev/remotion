@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sirin Stencil',
 	importName: 'SirinStencil',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Sirin+Stencil:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/sirinstencil/v25/mem4YaWwznmLx-lzGfN7MdRyRc9MBw.woff2',
+					'https://fonts.gstatic.com/s/sirinstencil/v26/mem4YaWwznmLx-lzGfN7MdRyRc9MBw.woff2',
 			},
 		},
 	},

@@ -21,6 +21,7 @@ import {Loading} from './loading-indicator.js';
 import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
+import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
@@ -44,6 +45,8 @@ export type CalcMetadataReturnType<T extends Record<string, unknown>> = {
 	props?: T;
 	defaultCodec?: Codec;
 	defaultOutName?: string;
+	defaultVideoImageFormat?: VideoImageFormat;
+	defaultPixelFormat?: PixelFormat;
 };
 
 export type CalculateMetadataFunction<T extends Record<string, unknown>> =

@@ -199,6 +199,7 @@ impl FrameCache {
         time: i64,
         threshold: i64,
         thread_index: usize,
+        allow_no_pts_after: bool,
     ) -> Result<Option<usize>, ErrorWithBacktrace> {
         let mut best_item: Option<usize> = None;
         let mut best_distance = std::i64::MAX;
@@ -238,7 +239,7 @@ impl FrameCache {
         let has_pts_after = self.items.iter().any(|item| item.resolved_pts >= time);
 
         // If this happens, then `last_frame` has not worked correctly. Do not match
-        if !has_pts_after {
+        if !has_pts_after && !allow_no_pts_after {
             return Ok(None);
         }
 

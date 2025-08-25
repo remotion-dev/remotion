@@ -1,13 +1,14 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught,invalid-name
 
 from enum import Enum
-from typing import Optional, List, Dict, Any, Union, Literal
+from typing import Optional, Dict, Any, Union, Literal
 from dataclasses import dataclass, field
 from .version import VERSION
 
 
 # pylint: disable=too-many-instance-attributes
 
+RenderType = Union[Literal["video-or-audio"], Literal["still"]]
 
 class ValidStillImageFormats(str, Enum):
     """
@@ -19,10 +20,10 @@ class ValidStillImageFormats(str, Enum):
         PDF: Represents the PDF format for images.
         WEBP: Represents the WEBP image format.
     """
-    PNG: str = 'png'
-    JPEG: str = 'jpeg'
-    PDF: str = 'pdf'
-    WEBP: str = 'webp'
+    PNG = 'png'
+    JPEG = 'jpeg'
+    PDF = 'pdf'
+    WEBP = 'webp'
 
 
 class Privacy(str, Enum):
@@ -33,9 +34,9 @@ class Privacy(str, Enum):
         PUBLIC: Indicates a public setting.
         PRIVATE: Indicates a private setting.
     """
-    PUBLIC: str = 'public'
-    PRIVATE: str = 'private'
-    NO_ACL: str = 'no-acl'
+    PUBLIC = 'public'
+    PRIVATE = 'private'
+    NO_ACL = 'no-acl'
 
 
 class LogLevel(str, Enum):
@@ -65,11 +66,11 @@ class OpenGlRenderer(str, Enum):
         SWIFTSHADER: Represents the SWIFTSHADER OpenGL renderer.
         VULKAN: Represents the VULKAN OpenGL renderer.
     """
-    SWANGLE: str = 'swangle'
-    ANGLE: str = 'angle'
-    EGL: str = 'egl'
-    SWIFTSHADER: str = 'swiftshader'
-    VULKAN: str = 'vulkan'
+    SWANGLE = 'swangle'
+    ANGLE = 'angle'
+    EGL = 'egl'
+    SWIFTSHADER = 'swiftshader'
+    VULKAN = 'vulkan'
 
 
 @dataclass
@@ -147,19 +148,6 @@ class OutNameInputObject:
     s3_output_provider: Optional[CustomCredentials] = None
 
 
-@dataclass
-class Download:
-    """
-    Represents the behavior to download content.
-
-    Attributes:
-        type (str): The type of download action.
-        file_name (Optional[str]): The name of the file to be downloaded, if specified.
-    """
-    type: str
-    fileName: Optional[str]
-
-
 class DeleteAfter(Enum):
     """
     Enumeration for specifying the time period after which an item should be deleted.
@@ -203,7 +191,7 @@ class RenderProgressParams:
         """
         Convert instance attributes to a dictionary for serialization.
         """
-        parameters = {
+        parameters: dict[str, Any] = {
             'renderId': self.render_id,
             'bucketName': self.bucket_name,
             'type': 'status',
@@ -273,7 +261,7 @@ class RenderMediaParams:
     """
     Parameters for video rendering.
     """
-    input_props: Optional[List] = None
+    input_props: Optional[Dict[str, Any]] = None
     bucket_name: Optional[str] = None
     region: Optional[str] = None
     out_name: Optional[Union[str, OutNameInputObject]] = None
@@ -300,8 +288,9 @@ class RenderMediaParams:
     every_nth_frame: Optional[int] = 1
     number_of_gif_loops: Optional[int] = 0
     concurrency_per_lambda: Optional[int] = 1
+    concurrency: Optional[int] = None
     download_behavior: Optional[Union[PlayInBrowser, ShouldDownload]] = field(
-        default_factory=lambda: {'type': 'play-in-browser'})
+        default_factory=lambda: PlayInBrowser(type='play-in-browser'))
     muted: bool = False
     overwrite: bool = False
     force_path_style: Optional[bool] = None
@@ -330,6 +319,7 @@ class RenderMediaParams:
         parameters = {
             'rendererFunctionName': self.renderer_function_name,
             'framesPerLambda': self.frames_per_lambda,
+            'concurrency': self.concurrency,
             'composition': self.composition,
             'serveUrl': self.serve_url,
             'inputProps': self.private_serialized_input_props,
@@ -425,8 +415,7 @@ class RenderStillParams:
     timeout_in_milliseconds: Optional[int] = 30000
     chromium_options: Optional[ChromiumOptions] = None
     scale: Optional[float] = 1
-    download_behavior: Dict = field(default_factory=lambda: {
-                                    'type': 'play-in-browser'})
+    download_behavior: Dict = field(default_factory=lambda: PlayInBrowser(type='play-in-browser'))
     force_width: Optional[int] = None
     api_key: Optional[int] = None
     storage_class: Optional[str] = None
@@ -475,7 +464,7 @@ class RenderStillParams:
             'outName': self.out_name,
             'chromiumOptions': self.chromium_options if self.chromium_options is not None else {},
             'scale': self.scale,
-            'downloadBehavior': self.download_behavior or {'type': 'play-in-browser'},
+            'downloadBehavior': self.download_behavior or PlayInBrowser(type='play-in-browser'),
             'forceWidth': self.force_width,
             'apiKey': self.api_key,
             'forceHeight': self.force_height,

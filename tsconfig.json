@@ -37,9 +37,6 @@
 			"path": "./packages/create-video"
 		},
 		{
-			"path": "./packages/docs"
-		},
-		{
 			"path": "./packages/eslint-config"
 		},
 		{
@@ -181,6 +178,9 @@
 			"path": "./packages/template-stargazer"
 		},
 		{
+			"path": "./packages/template-recorder"
+		},
+		{
 			"path": "./packages/studio"
 		},
 		{
@@ -230,6 +230,9 @@
 		},
 		{
 			"path": "./packages/zod-types"
+		},
+		{
+			"path": "./packages/video"
 		}
 	]
 }

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kelly Slab',
 	importName: 'KellySlab',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Kelly+Slab:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/kellyslab/v17/-W_7XJX0Rz3cxUnJC5t6fkALfq0k.woff2',
+					'https://fonts.gstatic.com/s/kellyslab/v18/-W_7XJX0Rz3cxUnJC5t6fkALfq0k.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kellyslab/v17/-W_7XJX0Rz3cxUnJC5t6fkoLfq0k.woff2',
+					'https://fonts.gstatic.com/s/kellyslab/v18/-W_7XJX0Rz3cxUnJC5t6fkoLfq0k.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kellyslab/v17/-W_7XJX0Rz3cxUnJC5t6fkQLfg.woff2',
+					'https://fonts.gstatic.com/s/kellyslab/v18/-W_7XJX0Rz3cxUnJC5t6fkQLfg.woff2',
 			},
 		},
 	},

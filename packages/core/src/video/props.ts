@@ -3,8 +3,22 @@ import type {LoopVolumeCurveBehavior} from '../audio/use-audio-frame.js';
 import type {VolumeProp} from '../volume-prop.js';
 
 export type RemotionMainVideoProps = {
+	/**
+	 * @deprecated `startFrom` was renamed to `trimBefore`
+	 */
 	startFrom?: number;
+	/**
+	 * @deprecated `endAt` was renamed to `trimAfter`
+	 */
 	endAt?: number;
+	/**
+	 * Trim of th e video from the left (start) in frames.
+	 */
+	trimBefore?: number;
+	/**
+	 * Trim of the video from the right (end) in frames.
+	 */
+	trimAfter?: number;
 	/**
 	 * @deprecated Only for internal `transparent` use
 	 */
@@ -39,6 +53,7 @@ export type RemotionVideoProps = NativeVideoProps & {
 	delayRenderRetries?: number;
 	onError?: (err: Error) => void;
 	onAutoPlayError?: null | (() => void);
+	audioStreamIndex?: number;
 };
 
 type DeprecatedOffthreadVideoProps = {
@@ -76,6 +91,7 @@ export type RemotionOffthreadVideoProps = {
 	onAutoPlayError?: null | (() => void);
 	onVideoFrame?: OnVideoFrame;
 	crossOrigin?: '' | 'anonymous' | 'use-credentials';
+	audioStreamIndex?: number;
 } & RemotionMainVideoProps &
 	DeprecatedOffthreadVideoProps;
 

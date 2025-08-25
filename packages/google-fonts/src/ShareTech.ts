@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Share Tech',
 	importName: 'ShareTech',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Share+Tech:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/sharetech/v21/7cHtv4Uyi5K0OeZ7bohU8H0JmA.woff2',
+					'https://fonts.gstatic.com/s/sharetech/v22/7cHtv4Uyi5K0OeZ7bohU8H0JmA.woff2',
 			},
 		},
 	},

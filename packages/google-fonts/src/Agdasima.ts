@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Agdasima',
 	importName: 'Agdasima',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Agdasima:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/agdasima/v4/PN_zRfyxp2f1fUCgAPgzpTnr_w.woff2',
+					'https://fonts.gstatic.com/s/agdasima/v5/PN_zRfyxp2f1fUCgAPgzpTnr_w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/agdasima/v4/PN_zRfyxp2f1fUCgAPg9pTk.woff2',
+					'https://fonts.gstatic.com/s/agdasima/v5/PN_zRfyxp2f1fUCgAPg9pTk.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/agdasima/v4/PN_0Rfyxp2f1fUCgAPCGgCza3v3jzw.woff2',
+					'https://fonts.gstatic.com/s/agdasima/v5/PN_0Rfyxp2f1fUCgAPCGgCza3v3jzw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/agdasima/v4/PN_0Rfyxp2f1fUCgAPCGgCzU3v0.woff2',
+					'https://fonts.gstatic.com/s/agdasima/v5/PN_0Rfyxp2f1fUCgAPCGgCzU3v0.woff2',
 			},
 		},
 	},

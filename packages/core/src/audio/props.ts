@@ -2,8 +2,22 @@ import type {VolumeProp} from '../volume-prop.js';
 import type {LoopVolumeCurveBehavior} from './use-audio-frame.js';
 
 export type RemotionMainAudioProps = {
+	/**
+	 * @deprecated `startFrom` was renamed to `trimBefore`
+	 */
 	startFrom?: number;
+	/**
+	 * @deprecated `endAt` was renamed to `trimAfter`
+	 */
 	endAt?: number;
+	/**
+	 * Trim of the audio from the left (start) in frames.
+	 */
+	trimBefore?: number;
+	/**
+	 * Trim of the audio from the right (end) in frames.
+	 */
+	trimAfter?: number;
 };
 
 export type NativeAudioProps = Omit<
@@ -11,7 +25,13 @@ export type NativeAudioProps = Omit<
 		React.AudioHTMLAttributes<HTMLAudioElement>,
 		HTMLAudioElement
 	>,
-	'autoPlay' | 'controls' | 'onEnded' | 'nonce' | 'onResize' | 'onResizeCapture'
+	| 'autoPlay'
+	| 'controls'
+	| 'onEnded'
+	| 'nonce'
+	| 'onResize'
+	| 'onResizeCapture'
+	| 'onError'
 >;
 
 export type RemotionAudioProps = NativeAudioProps & {
@@ -32,6 +52,8 @@ export type RemotionAudioProps = NativeAudioProps & {
 	delayRenderTimeoutInMilliseconds?: number;
 	delayRenderRetries?: number;
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
+	onError?: (err: Error) => void;
+	audioStreamIndex?: number;
 };
 
 type IsNever<T> = [T] extends [never] ? true : false;

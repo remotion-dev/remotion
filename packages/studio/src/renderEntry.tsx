@@ -236,6 +236,9 @@ const renderContent = (Root: React.FC) => {
 					width: bundleMode.compositionWidth,
 					defaultCodec: bundleMode.compositionDefaultCodec,
 					defaultOutName: bundleMode.compositionDefaultOutName,
+					defaultVideoImageFormat:
+						bundleMode.compositionDefaultVideoImageFormat,
+					defaultPixelFormat: bundleMode.compositionDefaultPixelFormat,
 				}}
 			>
 				<Root />
@@ -319,6 +322,11 @@ if (typeof window !== 'undefined') {
 			Internals.Log.warn(
 				window.remotion_logLevel,
 				'defaultProps are too big to serialize - trying to find the problematic composition...',
+			);
+			Internals.Log.warn(
+				window.remotion_logLevel,
+				'Serialization:',
+				compositions,
 			);
 			for (const comp of compositions) {
 				if (!getCanSerializeDefaultProps(comp)) {

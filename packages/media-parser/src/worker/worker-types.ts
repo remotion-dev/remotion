@@ -34,6 +34,7 @@ import type {
 	MediaParserOnVideoTrackParams,
 	MediaParserVideoSample,
 } from '../webcodec-sample-types';
+import type {SeekResolution} from '../work-on-seek-request';
 
 export type ParseMediaOnWorkerPayload = {
 	type: 'request-worker';
@@ -93,6 +94,12 @@ type RequestGetSeekingHints = {
 	type: 'request-get-seeking-hints';
 };
 
+type RequestSimulateSeek = {
+	type: 'request-simulate-seek';
+	payload: number;
+	nonce: string;
+};
+
 type RequestAbort = {
 	type: 'request-abort';
 };
@@ -106,6 +113,12 @@ type ResponseDone = {
 type ResponseGetSeekingHints = {
 	type: 'response-get-seeking-hints';
 	payload: SeekingHints;
+};
+
+type ResponseSimulateSeek = {
+	type: 'response-simulate-seek';
+	nonce: string;
+	payload: SeekResolution;
 };
 
 type BaseError = {
@@ -320,6 +333,10 @@ export type ResponseCallbackPayload =
 			trackId: number;
 	  }
 	| {
+			callbackType: 'track-done';
+			trackId: number;
+	  }
+	| {
 			callbackType: 'm3u-associated-playlists-selection';
 			value: SelectM3uAssociatedPlaylistsFnOptions;
 	  };
@@ -349,6 +366,10 @@ export type AcknowledgePayload =
 	| {
 			payloadType: 'on-video-track-response';
 			registeredCallback: boolean;
+	  }
+	| {
+			payloadType: 'on-sample-response';
+			registeredTrackDoneCallback: boolean;
 	  };
 
 export type AcknowledgeCallback = {
@@ -368,6 +389,7 @@ export type WorkerRequestPayload =
 	| RequestAbort
 	| RequestSeek
 	| RequestGetSeekingHints
+	| RequestSimulateSeek
 	| AcknowledgeCallback
 	| SignalErrorInCallback;
 
@@ -375,4 +397,5 @@ export type WorkerResponsePayload =
 	| ResponseDone
 	| ResponseError
 	| ResponseOnCallbackRequest
-	| ResponseGetSeekingHints;
+	| ResponseGetSeekingHints
+	| ResponseSimulateSeek;

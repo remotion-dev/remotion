@@ -43,6 +43,7 @@ test('Should be able to collect assets', async () => {
 		playbackRate: 1,
 		toneFrequency: null,
 		audioStartFrame: 0,
+		audioStreamIndex: 0,
 	});
 });
 
@@ -64,6 +65,7 @@ test('Should get multiple assets', async () => {
 		playbackRate: 1,
 		toneFrequency: null,
 		audioStartFrame: 0,
+		audioStreamIndex: 0,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'audio',
@@ -75,6 +77,7 @@ test('Should get multiple assets', async () => {
 		playbackRate: 1,
 		toneFrequency: null,
 		audioStartFrame: 0,
+		audioStreamIndex: 0,
 	});
 });
 
@@ -100,6 +103,7 @@ test('Should handle jumps inbetween', async () => {
 		playbackRate: 1,
 		toneFrequency: null,
 		audioStartFrame: 0,
+		audioStreamIndex: 0,
 	});
 	expect(withoutId(assetPositions[1])).toEqual({
 		type: 'video',
@@ -111,6 +115,7 @@ test('Should handle jumps inbetween', async () => {
 		playbackRate: 1,
 		toneFrequency: null,
 		audioStartFrame: 0,
+		audioStreamIndex: 0,
 	});
 });
 
@@ -133,6 +138,7 @@ test('Should support sequencing', async () => {
 		playbackRate: 1,
 		toneFrequency: null,
 		audioStartFrame: 20,
+		audioStreamIndex: 0,
 	});
 });
 
@@ -165,6 +171,7 @@ test('Should calculate volumes correctly', async () => {
 			.filter((f) => f > 0),
 		toneFrequency: null,
 		audioStartFrame: 0,
+		audioStreamIndex: 0,
 	});
 });
 
@@ -207,5 +214,6 @@ test('Should calculate startFrom correctly', async () => {
 			.filter((i) => i > 0),
 		toneFrequency: null,
 		audioStartFrame: 100,
+		audioStreamIndex: 0,
 	});
 });

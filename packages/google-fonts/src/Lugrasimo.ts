@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lugrasimo',
 	importName: 'Lugrasimo',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Lugrasimo:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lugrasimo/v4/qkBXXvoF_s_eT9c7Y7au7Z5KoAU.woff2',
+					'https://fonts.gstatic.com/s/lugrasimo/v5/qkBXXvoF_s_eT9c7Y7au7Z5KoAU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lugrasimo/v4/qkBXXvoF_s_eT9c7Y7au455K.woff2',
+					'https://fonts.gstatic.com/s/lugrasimo/v5/qkBXXvoF_s_eT9c7Y7au455K.woff2',
 			},
 		},
 	},

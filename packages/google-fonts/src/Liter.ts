@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Liter',
 	importName: 'Liter',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Liter:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -16,10 +16,10 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/liter/v3/SLXGc1nX4GQ4d1IlTpu0xg.woff2',
+					'https://fonts.gstatic.com/s/liter/v4/SLXGc1nX4GQ4d1IlTpu0xg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/liter/v3/SLXGc1nX4GQ4d1IvTpu0xg.woff2',
-				latin: 'https://fonts.gstatic.com/s/liter/v3/SLXGc1nX4GQ4d1IhTps.woff2',
+					'https://fonts.gstatic.com/s/liter/v4/SLXGc1nX4GQ4d1IvTpu0xg.woff2',
+				latin: 'https://fonts.gstatic.com/s/liter/v4/SLXGc1nX4GQ4d1IhTps.woff2',
 			},
 		},
 	},

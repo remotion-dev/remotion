@@ -12,9 +12,7 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return (
-    <OffthreadVideo src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
-  );
+  return <OffthreadVideo src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />;
 };
 ```
 
@@ -33,7 +31,7 @@ export const MyComp: React.FC = () => {
 
 ## Trimming
 
-By using the [`startFrom`](/docs/offthreadvideo#startfrom) prop, you can remove the first few seconds of the video.  
+By using the [`trimBefore`](/docs/offthreadvideo#trimbefore) prop, you can remove the first few seconds of the video.  
 In the example below, the first two seconds of the video are skipped (assuming a composition FPS of 30).
 
 ```tsx twoslash
@@ -41,20 +39,18 @@ import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('video.mp4')} startFrom={60} />;
+  return <OffthreadVideo src={staticFile('video.mp4')} trimBefore={60} />;
 };
 ```
 
-Similarly, you can use [`endAt`](/docs/offthreadvideo#endat) to trim the end of the video.
+Similarly, you can use [`trimAfter`](/docs/offthreadvideo#trimafter) to trim the end of the video.
 
 ```tsx twoslash
 import React from 'react';
 import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return (
-    <OffthreadVideo src={staticFile('video.mp4')} startFrom={60} endAt={120} />
-  );
+  return <OffthreadVideo src={staticFile('video.mp4')} trimBefore={60} trimAfter={120} />;
 };
 ```
 
@@ -125,7 +121,7 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-See [Using Audio](/docs/using-audio#controlling-volume) for more ways you can control volume.
+See [Using Audio](/docs/audio/volume) for more ways you can control volume.
 
 ## Speed
 
@@ -144,7 +140,7 @@ This only works if the speed is constant. See also: [Changing the speed of a vid
 
 ## Looping
 
-See: [Looping an `<OffthreadVideo>`](/docs/offthreadvideo#looping-a-video)
+See: [Looping an `<OffthreadVideo>`](/docs/offthreadvideo#looping-a-offthreadvideo)
 
 ## GIFs
 

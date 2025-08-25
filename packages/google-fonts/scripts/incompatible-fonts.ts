@@ -1,4 +1,5 @@
 export const incompatibleFonts = [
+  "Linefont",
   "Material Icons",
   "Material Icons Outlined",
   "Material Icons Round",

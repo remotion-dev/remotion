@@ -9,8 +9,9 @@ import {
 	useCopyThumbnailToFavicon,
 } from '~/lib/title-context';
 import {useThumbnailAndWaveform} from '~/lib/use-thumbnail';
+import {AudioPlayback} from './AudioPlayback';
 import {AudioTrackOverview} from './AudioTrackOverview';
-import {AudioWaveForm} from './AudioWaveform';
+import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
 import {ContainerOverview} from './ContainerOverview';
 import {EmbeddedImage} from './EmbeddedImage';
 import {SourceLabel} from './SourceLabel';
@@ -93,8 +94,8 @@ export const Probe: React.FC<{
 		videoCodec,
 		durationInSeconds,
 		isHdr,
-		rotation,
 		done,
+		rotation,
 		error,
 		metadata,
 		location,
@@ -135,13 +136,17 @@ export const Probe: React.FC<{
 					{(images?.length ?? 0) > 0 ? (
 						<EmbeddedImage images={images as MediaParserEmbeddedImage[]} />
 					) : isAudio ? (
-						<AudioWaveForm bars={waveform} />
+						<AudioWaveformContainer>
+							<AudioWaveForm bars={waveform} />
+							<AudioPlayback src={src} />
+						</AudioWaveformContainer>
 					) : null}
 					{error ? null : thumbnailError ? null : isAudio ? null : (
 						<VideoThumbnail
 							ref={videoThumbnailRef}
 							smallThumbOnMobile
-							rotation={userRotation - (rotation ?? 0)}
+							userRotation={userRotation}
+							trackRotation={rotation}
 							mirrorHorizontal={mirrorHorizontal}
 							mirrorVertical={mirrorVertical}
 							initialReveal={false}
@@ -156,14 +161,14 @@ export const Probe: React.FC<{
 							)}
 						</CardTitle>
 						{error ? (
-							<CardDescription className="!mt-0 text-red-500">
+							<CardDescription className="mt-0! text-red-500">
 								Failed to parse media:
 								<br />
 								{error.message}
 							</CardDescription>
 						) : null}
 						<CardDescription
-							className={clsx('!mt-0 truncate', styles['fade-in'])}
+							className={clsx('mt-0! truncate', styles['fade-in'])}
 						>
 							{done ? (
 								<SourceLabel src={src} />

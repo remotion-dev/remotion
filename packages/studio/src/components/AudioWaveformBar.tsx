@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {TIMELINE_LAYER_HEIGHT} from '../helpers/timeline-layout';
+import {getTimelineLayerHeight} from '../helpers/timeline-layout';
 
 export const WAVEFORM_BAR_LENGTH = 2;
 export const WAVEFORM_BAR_MARGIN = 1;
@@ -27,7 +27,7 @@ export const AudioWaveformBar: React.FC<{
 	const style = useMemo(() => {
 		return {
 			...container,
-			height: TIMELINE_LAYER_HEIGHT * amplitude * (1 / 0.6366),
+			height: getTimelineLayerHeight('other') * amplitude * (1 / 0.6366),
 		};
 	}, [amplitude]);
 	return <div style={style} />;

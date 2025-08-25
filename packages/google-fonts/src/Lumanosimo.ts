@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lumanosimo',
 	importName: 'Lumanosimo',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Lumanosimo:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lumanosimo/v4/K2F0fZBYg_JDSEZHEfO8MoOAAhLz.woff2',
+					'https://fonts.gstatic.com/s/lumanosimo/v5/K2F0fZBYg_JDSEZHEfO8MoOAAhLz.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lumanosimo/v4/K2F0fZBYg_JDSEZHEfO8Mo2AAg.woff2',
+					'https://fonts.gstatic.com/s/lumanosimo/v5/K2F0fZBYg_JDSEZHEfO8Mo2AAg.woff2',
 			},
 		},
 	},

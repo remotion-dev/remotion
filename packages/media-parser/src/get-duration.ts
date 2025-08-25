@@ -8,6 +8,7 @@ import {
 	getTfraBoxes,
 	getTfraBoxesFromMfraBoxChildren,
 	getTrakBoxByTrackId,
+	getTrexBoxes,
 } from './containers/iso-base-media/traversal';
 import {getDurationFromM3u} from './containers/m3u/get-duration-from-m3u';
 import {getDurationFromMp3} from './containers/mp3/get-duration';
@@ -111,6 +112,7 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 			trakBox,
 			moofBoxes,
 			moofComplete: areSamplesComplete({moofBoxes, tfraBoxes}),
+			trexBoxes: getTrexBoxes(moovBox),
 		});
 
 		if (!isComplete) {

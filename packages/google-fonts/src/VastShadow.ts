@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Vast Shadow',
 	importName: 'VastShadow',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Vast+Shadow:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/vastshadow/v19/pe0qMImKOZ1V62ZwbVY9dce9I9s.woff2',
+					'https://fonts.gstatic.com/s/vastshadow/v20/pe0qMImKOZ1V62ZwbVY9dce9I9s.woff2',
 			},
 		},
 	},

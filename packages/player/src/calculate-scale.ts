@@ -80,19 +80,28 @@ export const calculateOuterStyle = ({
 
 export const calculateContainerStyle = ({
 	config,
-	canvasSize,
 	layout,
 	scale,
 	overflowVisible,
 }: {
 	config: VideoConfig | null;
-	canvasSize: Size | null;
 	layout: Layout | null;
 	scale: number;
 	overflowVisible: boolean;
 }): React.CSSProperties => {
-	if (!config || !canvasSize || !layout) {
+	if (!config) {
 		return {};
+	}
+
+	if (!layout) {
+		return {
+			position: 'absolute',
+			width: config.width,
+			height: config.height,
+			display: 'flex',
+			transform: `scale(${scale})`,
+			overflow: overflowVisible ? 'visible' : 'hidden',
+		};
 	}
 
 	return {
@@ -118,8 +127,19 @@ export const calculateOuter = ({
 	config: VideoConfig | null;
 	overflowVisible: boolean;
 }) => {
-	if (!layout || !config) {
+	if (!config) {
 		return {} as const;
+	}
+
+	if (!layout) {
+		return {
+			width: config.width * scale,
+			height: config.height * scale,
+			display: 'flex',
+			flexDirection: 'column',
+			position: 'absolute',
+			overflow: overflowVisible ? 'visible' : 'hidden',
+		} as const;
 	}
 
 	const {centerX, centerY} = layout;

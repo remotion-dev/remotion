@@ -217,6 +217,8 @@ const ConvertUI = ({
 			waveform.setDuration(durationInSeconds);
 		}
 
+		const startTime = Date.now();
+
 		probeController
 			.getSeekingHints()
 			.then((seekingHints) => {
@@ -249,6 +251,7 @@ const ConvertUI = ({
 							type: 'in-progress',
 							controller,
 							state: s,
+							startTime,
 						});
 					},
 					container: outputContainer,
@@ -322,10 +325,13 @@ const ConvertUI = ({
 			})
 
 			.then(({save, finalState}) => {
+				const completedTime = Date.now();
 				setState({
 					type: 'done',
 					download: save,
 					state: finalState,
+					startTime,
+					completedTime,
 				});
 			})
 			.catch((e) => {
@@ -458,6 +464,7 @@ const ConvertUI = ({
 					}
 					bars={bars}
 					isAudioOnly={isAudioExclusively}
+					startTime={state.startTime}
 				/>
 				<div className="h-2" />
 				<PauseResumeAndCancel controller={state.controller} />
@@ -484,6 +491,8 @@ const ConvertUI = ({
 					}
 					bars={bars}
 					isAudioOnly={isAudioExclusively}
+					startTime={state.startTime}
+					completedTime={state.completedTime}
 				/>
 				<div className="h-2" />
 				<ConversionDone

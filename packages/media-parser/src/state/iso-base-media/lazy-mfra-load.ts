@@ -40,7 +40,10 @@ export const lazyMfraLoad = ({
 			logLevel,
 			prefetchCache,
 		}).then((boxes) => {
-			Log.verbose(logLevel, 'Lazily found mfra atom.');
+			Log.verbose(
+				logLevel,
+				boxes ? 'Lazily found mfra atom.' : 'No mfra atom found.',
+			);
 			result = boxes;
 
 			return boxes;

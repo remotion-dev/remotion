@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Walter Turncoat',
 	importName: 'WalterTurncoat',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Walter+Turncoat:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/walterturncoat/v23/snfys0Gs98ln43n0d-14ULoToe6LZxec.woff2',
+					'https://fonts.gstatic.com/s/walterturncoat/v24/snfys0Gs98ln43n0d-14ULoToe6LZxec.woff2',
 			},
 		},
 	},

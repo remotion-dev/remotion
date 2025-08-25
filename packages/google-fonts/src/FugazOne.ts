@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fugaz One',
 	importName: 'FugazOne',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Fugaz+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/fugazone/v19/rax_HiWKp9EAITukFsl8Axhf.woff2',
+					'https://fonts.gstatic.com/s/fugazone/v20/rax_HiWKp9EAITukFsl8Axhf.woff2',
 			},
 		},
 	},

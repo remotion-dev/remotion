@@ -18,11 +18,7 @@ import {
 	DEFAULT_OUTPUT_PRIVACY,
 } from '@remotion/lambda-client/constants';
 import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
-import {
-	validateFramesPerFunction,
-	validatePrivacy,
-	type ServerlessCodec,
-} from '@remotion/serverless';
+import {validatePrivacy, type ServerlessCodec} from '@remotion/serverless';
 import {sleep} from '../../../shared/sleep';
 import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
@@ -190,6 +186,7 @@ export const renderCommand = async ({
 	};
 
 	let composition: string = args[1];
+
 	if (!composition) {
 		Log.info(
 			{indent: false, logLevel},
@@ -283,10 +280,8 @@ export const renderCommand = async ({
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy, true);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
-	validateFramesPerFunction({
-		framesPerFunction: framesPerLambda,
-		durationInFrames: 1,
-	});
+	const concurrency = parsedLambdaCli['concurrency'] ?? undefined;
+	const concurrencyPerLambda = parsedLambdaCli['concurrency-per-lambda'] ?? 1;
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
 
@@ -305,6 +300,7 @@ export const renderCommand = async ({
 		maxRetries,
 		composition,
 		framesPerLambda: framesPerLambda ?? null,
+		concurrency: concurrency ?? null,
 		privacy,
 		logLevel,
 		frameRange: frameRange ?? null,
@@ -314,7 +310,7 @@ export const renderCommand = async ({
 		scale,
 		numberOfGifLoops,
 		everyNthFrame,
-		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'] ?? 1,
+		concurrencyPerLambda,
 		muted,
 		overwrite,
 		audioBitrate,
@@ -347,6 +343,7 @@ export const renderCommand = async ({
 		apiKey:
 			parsedLambdaCli[BrowserSafeApis.options.apiKeyOption.cliFlag] ?? null,
 		storageClass: parsedLambdaCli['storage-class'] ?? null,
+		requestHandler: null,
 	});
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({

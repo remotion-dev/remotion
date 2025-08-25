@@ -32,8 +32,12 @@ export const parseElst = ({
 	const entries: ElstEntry[] = [];
 
 	for (let i = 0; i < entryCount; i++) {
-		const editDuration = iterator.getUint32();
-		const mediaTime = iterator.getInt32();
+		const editDuration = Number(
+			version === 1 ? iterator.getUint64() : iterator.getUint32(),
+		);
+		const mediaTime = Number(
+			version === 1 ? iterator.getUint64() : iterator.getInt32(),
+		);
 		const mediaRateInteger = iterator.getUint16();
 		const mediaRateFraction = iterator.getUint16();
 		entries.push({

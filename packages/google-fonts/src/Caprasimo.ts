@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Caprasimo',
 	importName: 'Caprasimo',
-	version: 'v5',
+	version: 'v6',
 	url: 'https://fonts.googleapis.com/css2?family=Caprasimo:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/caprasimo/v5/esDT31JQOPuXIUGBp72UnJ8DKpE.woff2',
+					'https://fonts.gstatic.com/s/caprasimo/v6/esDT31JQOPuXIUGBp72UnJ8DKpE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/caprasimo/v5/esDT31JQOPuXIUGBp72Ukp8D.woff2',
+					'https://fonts.gstatic.com/s/caprasimo/v6/esDT31JQOPuXIUGBp72Ukp8D.woff2',
 			},
 		},
 	},

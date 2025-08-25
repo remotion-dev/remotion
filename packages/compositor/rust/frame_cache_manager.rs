@@ -207,12 +207,13 @@ impl FrameCacheManager {
         tone_mapped: bool,
         time: i64,
         threshold: i64,
+        allow_no_pts_after: bool,
     ) -> Result<Option<usize>, ErrorWithBacktrace> {
         let thread_index = self.thread_index.clone();
         Ok(self
             .get_frame_cache(src, original_src, transparent, tone_mapped)
             .lock()?
-            .get_item_id(time, threshold, thread_index)?)
+            .get_item_id(time, threshold, thread_index, allow_no_pts_after)?)
     }
 
     pub fn get_cache_item_from_id(

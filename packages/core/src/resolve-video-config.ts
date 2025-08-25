@@ -5,7 +5,7 @@ import type {
 } from './Composition.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import type {InferProps} from './props-if-has-props.js';
-import {validateDefaultCodec} from './validation/validate-default-codec.js';
+import {validateCodec} from './validation/validate-default-codec.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
@@ -62,11 +62,22 @@ const validateCalculated = ({
 	});
 
 	const defaultCodec = calculated?.defaultCodec;
-	validateDefaultCodec(defaultCodec, calculateMetadataErrorLocation);
+	validateCodec(defaultCodec, calculateMetadataErrorLocation, 'defaultCodec');
 
 	const defaultOutName = calculated?.defaultOutName;
+	const defaultVideoImageFormat = calculated?.defaultVideoImageFormat;
+	const defaultPixelFormat = calculated?.defaultPixelFormat;
 
-	return {width, height, fps, durationInFrames, defaultCodec, defaultOutName};
+	return {
+		width,
+		height,
+		fps,
+		durationInFrames,
+		defaultCodec,
+		defaultOutName,
+		defaultVideoImageFormat,
+		defaultPixelFormat,
+	};
 };
 
 type ResolveVideoConfigParams = {
@@ -116,6 +127,8 @@ export const resolveVideoConfig = ({
 				fps,
 				defaultCodec,
 				defaultOutName,
+				defaultVideoImageFormat,
+				defaultPixelFormat,
 			} = validateCalculated({
 				calculated: c,
 				compositionDurationInFrames,
@@ -134,6 +147,8 @@ export const resolveVideoConfig = ({
 				props: serializeThenDeserializeInStudio(c.props ?? originalProps),
 				defaultCodec: defaultCodec ?? null,
 				defaultOutName: defaultOutName ?? null,
+				defaultVideoImageFormat: defaultVideoImageFormat ?? null,
+				defaultPixelFormat: defaultPixelFormat ?? null,
 			};
 		});
 	}
@@ -155,6 +170,8 @@ export const resolveVideoConfig = ({
 			props: serializeThenDeserializeInStudio(originalProps),
 			defaultCodec: null,
 			defaultOutName: null,
+			defaultVideoImageFormat: null,
+			defaultPixelFormat: null,
 		};
 	}
 
@@ -167,6 +184,8 @@ export const resolveVideoConfig = ({
 		),
 		defaultCodec: calculatedProm.defaultCodec ?? null,
 		defaultOutName: calculatedProm.defaultOutName ?? null,
+		defaultVideoImageFormat: calculatedProm.defaultVideoImageFormat ?? null,
+		defaultPixelFormat: calculatedProm.defaultPixelFormat ?? null,
 	};
 };
 

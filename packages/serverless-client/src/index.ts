@@ -4,7 +4,7 @@ export {
 	artifactName,
 	customOutName,
 	expiryDays,
-	MINIMUM_FRAMES_PER_FUNCTIONS,
+	MINIMUM_FRAMES_PER_FUNCTION,
 	outName,
 	outStillName,
 	overallProgressKey,
@@ -121,4 +121,5 @@ export const {
 	validateFps,
 	validateDimension,
 	validateDurationInFrames,
+	validateCodec,
 } = NoReactInternals;

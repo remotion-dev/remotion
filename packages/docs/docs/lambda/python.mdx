@@ -14,7 +14,9 @@ You first need to [complete the Lambda setup](/docs/lambda/setup).
 
 ## Limitations
 
-Sending large input props (>200KB) is not supported with Python at the moment.
+Before v4.0.315: Sending large input props (>200KB) was not supported.
+
+Starting from v4.0.315, the Python SDK automatically handles large input props by uploading them to S3 when they exceed AWS Lambda payload limits. Props larger than 200KB for video renders and 5MB for still renders are automatically compressed using the same logic as the JavaScript SDK. The SDK will automatically find or create an appropriate S3 bucket following Remotion's naming conventions.
 
 ## Rendering a video
 
@@ -68,12 +70,42 @@ if render_response:
     progress_response = client.get_render_progress(
         render_id=render_response.render_id, bucket_name=render_response.bucket_name)
 
-    while progress_response and not progress_response.done:
+    while progress_response and not progress_response.done and not progress_response.fatalErrorEncountered:
+        if progress_response.fatalErrorEncountered:
+            print("Fatal error encountered")
+            print(progress_response.errors)
+            break
         print("Overall progress")
         print(str(progress_response.overallProgress * 100) + "%")
         progress_response = client.get_render_progress(
             render_id=render_response.render_id, bucket_name=render_response.bucket_name)
     print("Render done!", progress_response.outputFile)
+```
+
+## Large input props _available from v4.0.315_
+
+The Python SDK automatically handles large input props by uploading them to S3 when they exceed AWS Lambda payload limits:
+
+- Video/audio renders: Props larger than ~194KB
+- Still renders: Props larger than ~4.9MB
+
+When large props are detected, they are automatically uploaded to S3 and referenced by the Lambda function. The SDK will find an existing Remotion bucket or create a new one automatically, following the same logic as the JavaScript SDK. This process is transparent to the user.
+
+```python title="large_props_example.py"
+# Large input props are handled automatically
+large_props = {
+    'bigData': ['x' * 1000] * 250,  # ~250KB of data
+    'description': 'This will be automatically uploaded to S3'
+}
+
+render_params = RenderMediaParams(
+    composition="my-composition",
+    input_props=large_props,  # Automatically compressed
+    # ... other parameters
+)
+
+# The render works the same way, compression is handled internally
+response = client.render_media_on_lambda(render_params)
 ```
 
 ## Rendering an image

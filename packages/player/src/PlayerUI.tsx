@@ -485,13 +485,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return calculateContainerStyle({
-			canvasSize,
 			config,
 			layout,
 			scale,
 			overflowVisible,
 		});
-	}, [canvasSize, config, layout, overflowVisible, scale]);
+	}, [config, layout, overflowVisible, scale]);
 
 	const playerPause = player.pause;
 	const playerDispatchError = player.emitter.dispatchError;

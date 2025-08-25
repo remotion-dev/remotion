@@ -32,10 +32,11 @@ test.describe('Vite app', () => {
 
 		await page.waitForFunction(() => (window as any).videoFrames?.length === 5);
 		const value = await page.evaluate(() => (window as any).videoFrames);
-		expect(value[0]).toBe(80000);
-		expect(value[1] === 1000000 || value[1] === 1040000).toBe(true);
-		expect(value[2] === 2000000).toBe(true);
-		expect(value[3] === 3000000 || value[3] === 3120000).toBe(true);
-		expect(value[4] === 4080000).toBe(true);
+		console.log(value);
+		expect(value[0]).toBe(0);
+		expect(value[1] === 1000000 || value[1] === 920000).toBe(true);
+		expect(value[2] === 2000000 || value[2] === 1880000).toBe(true);
+		expect(value[3] === 3000000 || value[3] === 2840000).toBe(true);
+		expect(value[4]).toBe(4_000_000);
 	});
 });

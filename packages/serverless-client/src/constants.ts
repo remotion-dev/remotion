@@ -117,6 +117,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	serveUrl: string;
 	composition: string;
 	framesPerLambda: number | null;
+	concurrency: number | null;
 	inputProps: SerializedInputProps;
 	codec: ServerlessCodec;
 	audioCodec: AudioCodec | null;
@@ -173,6 +174,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		serveUrl: string;
 		composition: string;
 		framesPerFunction: number | null;
+		concurrency: number | null;
 		bucketName: string;
 		inputProps: SerializedInputProps;
 		renderId: string;
@@ -394,7 +396,7 @@ export type AfterRenderCost = {
 
 export const CONCAT_FOLDER_TOKEN = 'remotion-concat';
 export const MAX_FUNCTIONS_PER_RENDER = 200;
-export const MINIMUM_FRAMES_PER_FUNCTIONS = 4;
+export const MINIMUM_FRAMES_PER_FUNCTION = 5;
 
 export const REMOTION_CONCATENATED_TOKEN = 'remotion-concatenated-token';
 

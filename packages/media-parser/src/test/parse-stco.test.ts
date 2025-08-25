@@ -12,7 +12,11 @@ test('Parse stco box', () => {
 		246,
 	]);
 
-	const iterator = getArrayBufferIterator(buf, null);
+	const iterator = getArrayBufferIterator({
+		initialData: buf,
+		maxBytes: buf.length,
+		logLevel: 'error',
+	});
 	iterator.counter.increment(8);
 	const result = parseStco({
 		iterator,
@@ -41,7 +45,11 @@ test('Parse stco box with empty chunk', () => {
 		172,
 	]);
 
-	const iterator = getArrayBufferIterator(buf, null);
+	const iterator = getArrayBufferIterator({
+		initialData: buf,
+		maxBytes: buf.length,
+		logLevel: 'error',
+	});
 	iterator.counter.increment(8);
 	const result = parseStco({
 		iterator,

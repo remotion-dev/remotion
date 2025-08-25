@@ -2,9 +2,11 @@ import {Log} from '../../log';
 import type {ParseResult} from '../../parse-result';
 import type {ParserState} from '../../state/parser-state';
 import {parseData} from './parse-data';
+import {parseFact} from './parse-fact';
 import {parseFmt} from './parse-fmt';
 import {parseHeader} from './parse-header';
 import {parseId3} from './parse-id3';
+import {parseJunk} from './parse-junk';
 import {parseList} from './parse-list';
 import {parseMediaSection} from './parse-media-section';
 
@@ -16,10 +18,10 @@ export const parseWav = (state: ParserState): Promise<ParseResult> => {
 		return parseMediaSection({state});
 	}
 
-	const type = iterator.getByteString(4, false);
+	const type = iterator.getByteString(4, false).toLowerCase();
 	Log.trace(state.logLevel, `Processing box type ${type}`);
 
-	if (type === 'RIFF') {
+	if (type === 'riff') {
 		return parseHeader({state});
 	}
 
@@ -31,12 +33,20 @@ export const parseWav = (state: ParserState): Promise<ParseResult> => {
 		return parseData({state});
 	}
 
-	if (type === 'LIST') {
+	if (type === 'list') {
 		return parseList({state});
 	}
 
-	if (type === 'id3' || type === 'ID3') {
+	if (type === 'id3') {
 		return parseId3({state});
+	}
+
+	if (type === 'junk' || type === 'fllr' || type === 'bext') {
+		return parseJunk({state});
+	}
+
+	if (type === 'fact') {
+		return parseFact({state});
 	}
 
 	if (type === '\u0000') {

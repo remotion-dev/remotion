@@ -9,7 +9,7 @@ crumb: 'Audio'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The [`<Audio />`](/docs/audio) tag supports the [`startFrom`](/docs/audio#startfrom--endat) and [`endAt`](/docs/audio#startfrom--endat) props.  
+The [`<Audio />`](/docs/audio) tag supports the [`trimBefore`](/docs/audio#trimbefore--trimafter) and [`trimAfter`](/docs/audio#trimbefore--trimafter) props.  
 With it, you can trim off parts of the audio.
 
 ```tsx twoslash {8} title="MyComp.tsx"
@@ -20,7 +20,7 @@ export const MyComposition = () => {
 
   return (
     <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} startFrom={2 * fps} endAt={4 * fps} />
+      <Audio src={staticFile('audio.mp3')} trimBefore={2 * fps} trimAfter={4 * fps} />
     </AbsoluteFill>
   );
 };
@@ -29,3 +29,7 @@ export const MyComposition = () => {
 This will result the audio to play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
 
 The audio will still play immediately at the beginning - to see how to shift the audio to appear later in the composition, see the [next article](/docs/audio/delaying).
+
+:::note Legacy props
+You can also use the deprecated `startFrom` and `endAt` props, but the new `trimBefore` and `trimAfter` props are preferred.
+:::

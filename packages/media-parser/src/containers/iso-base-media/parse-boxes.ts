@@ -12,7 +12,6 @@ export const parseIsoBaseMedia = async (
 
 	if (mediaSectionState === 'in-section') {
 		const skipTo = await parseMdatSection(state);
-
 		return skipTo;
 	}
 

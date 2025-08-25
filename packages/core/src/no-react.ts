@@ -28,6 +28,7 @@ import {colorNames, processColor} from './interpolate-colors';
 import {truthy} from './truthy';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
 import {validateFrame} from './validate-frame';
+import {validateCodec} from './validation/validate-default-codec';
 import {validateDefaultAndInputProps} from './validation/validate-default-props';
 import {validateDimension} from './validation/validate-dimensions';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames';
@@ -59,4 +60,5 @@ export const NoReactInternals = {
 	colorNames,
 	DATE_TOKEN,
 	FILE_TOKEN,
+	validateCodec,
 };

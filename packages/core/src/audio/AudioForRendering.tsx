@@ -21,6 +21,7 @@ import {useFrameForVolumeProp} from './use-audio-frame.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
 	readonly onDuration: (src: string, durationInSeconds: number) => void;
+	readonly onNativeError: React.ReactEventHandler<HTMLAudioElement>;
 };
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -39,11 +40,12 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalNativeLoopPassed,
 		acceptableTimeShiftInSeconds,
 		name,
-		onError,
+		onNativeError,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		loopVolumeCurveBehavior,
 		pauseWhenBuffering,
+		audioStreamIndex,
 		...nativeProps
 	} = props;
 
@@ -108,6 +110,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			playbackRate: props.playbackRate ?? 1,
 			toneFrequency: toneFrequency ?? null,
 			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
+			audioStreamIndex: audioStreamIndex ?? 0,
 		});
 		return () => unregisterRenderAsset(id);
 	}, [
@@ -124,6 +127,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		props.playbackRate,
 		toneFrequency,
 		sequenceContext?.relativeFrom,
+		audioStreamIndex,
 	]);
 
 	const {src} = props;
@@ -181,7 +185,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		return null;
 	}
 
-	return <audio ref={audioRef} {...nativeProps} />;
+	return <audio ref={audioRef} {...nativeProps} onError={onNativeError} />;
 };
 
 export const AudioForRendering = forwardRef(

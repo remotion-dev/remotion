@@ -29,14 +29,16 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 	};
 };
 
+const Component = () => {
+	return (
+		<>
+			<OffthreadVideo src={src} />
+		</>
+	);
+};
+
 export const OffthreadRemoteVideo = StudioInternals.createComposition({
-	component: () => {
-		return (
-			<>
-				<OffthreadVideo src={src} />
-			</>
-		);
-	},
+	component: Component,
 	id: 'OffthreadRemoteVideo',
 	calculateMetadata: calculateMetadataFn,
 	fps,

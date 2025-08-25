@@ -35,7 +35,7 @@ export const getSeekingByteForFlac = ({
 	}
 
 	if (bestAudioSample) {
-		return bestAudioSample.offset;
+		return bestAudioSample;
 	}
 
 	return null;

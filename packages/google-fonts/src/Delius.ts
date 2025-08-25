@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Delius',
 	importName: 'Delius',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Delius:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/delius/v19/PN_xRfK0pW_9e1rdZsg_.woff2',
+					'https://fonts.gstatic.com/s/delius/v20/PN_xRfK0pW_9e1rdZsg_.woff2',
 			},
 		},
 	},

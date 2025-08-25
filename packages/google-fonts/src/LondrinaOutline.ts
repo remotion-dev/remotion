@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Londrina Outline',
 	importName: 'LondrinaOutline',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Londrina+Outline:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/londrinaoutline/v27/C8c44dM8vmb14dfsZxhetg3pDH-STu07rA.woff2',
+					'https://fonts.gstatic.com/s/londrinaoutline/v28/C8c44dM8vmb14dfsZxhetg3pDH-STu07rA.woff2',
 			},
 		},
 	},

@@ -30,7 +30,7 @@ test('seek should also work on worker', async () => {
 		expect(hasBeenAborted(err)).toBe(true);
 		const timeInSeconds =
 			(firstSample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1);
-		expect(timeInSeconds).toBe(10.5);
+		expect(timeInSeconds).toBe(10.416666666666666);
 	}
 
 	const hints = await controller.getSeekingHints();
@@ -49,20 +49,33 @@ test('should be able to seek forward and then backwards', async () => {
 			src: exampleVideos.bigBuckBunny,
 			controller,
 			onVideoTrack: () => {
-				return (sample) => {
+				return async (sample) => {
 					samples++;
 
 					if (samples === 1) {
-						expect((sample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1)).toBe(
-							10.5,
-						);
+						expect(
+							(sample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1),
+						).toBeCloseTo(10.416666666666666);
+
+						const simulatedSeek = await controller.simulateSeek(0);
+						expect(simulatedSeek).toEqual({
+							type: 'do-seek',
+							byte: 48,
+							timeInSeconds: 0,
+						});
 						controller.seek(0);
 					}
 
 					if (samples === 2) {
 						expect((sample?.timestamp ?? 0) / (WEBCODECS_TIMESCALE ?? 1)).toBe(
-							0.08333333333333333,
+							0,
 						);
+						const simulatedSeek = await controller.simulateSeek(10.6);
+						expect(simulatedSeek).toEqual({
+							type: 'do-seek',
+							byte: 2271206,
+							timeInSeconds: 10.416666666666666,
+						});
 						controller.abort();
 					}
 				};
@@ -71,6 +84,10 @@ test('should be able to seek forward and then backwards', async () => {
 		});
 		throw new Error('should not complete');
 	} catch (err) {
+		if (!hasBeenAborted(err)) {
+			throw err;
+		}
+
 		expect(hasBeenAborted(err)).toBe(true);
 		expect(samples).toBe(2);
 	}

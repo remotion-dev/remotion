@@ -158,7 +158,13 @@ Whether the video is in HDR (High dynamic range).
 
 _number_
 
-The rotation of the video in degrees (e.g. `-90` for a 90° counter-clockwise rotation).
+The rotation of the video in degrees (e.g. `90` for a 90° counter-clockwise rotation).  
+Always one of the following values: `0`, `90`, `180`, `270`.
+
+:::note
+Breaking change from v4.0.328: The rotation is now in _counter-clockwise_ degrees, where as before it was in _clockwise_ degrees.  
+This is because the WebCodecs spec now supports rotation and since `MediaParserVideoTrack` can be passed to `VideoDecoder.configure()`, this change was necessary to make sure the rotation is always in the correct direction.
+:::
 
 ### `images`
 

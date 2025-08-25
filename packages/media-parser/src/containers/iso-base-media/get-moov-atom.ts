@@ -72,10 +72,11 @@ export const getMoovAtom = async ({
 			}
 		: null;
 
-	const iterator: BufferIterator = getArrayBufferIterator(
-		new Uint8Array([]),
-		state.contentLength - endOfMdat,
-	);
+	const iterator: BufferIterator = getArrayBufferIterator({
+		initialData: new Uint8Array([]),
+		maxBytes: state.contentLength - endOfMdat,
+		logLevel: 'error',
+	});
 
 	while (true) {
 		const result = await reader.reader.read();

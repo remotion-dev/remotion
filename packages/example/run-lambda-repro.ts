@@ -1,8 +1,10 @@
+import type {_InternalOverallRenderProgress} from '@remotion/lambda';
+import {AwsProvider} from '@remotion/lambda-client';
 import {$} from 'bun';
 
 const progress = (await Bun.file(
 	'./progress.json',
-).json()) as _InternalOverallRenderProgress<_InternalAwsProvider>;
+).json()) as _InternalOverallRenderProgress<AwsProvider>;
 
 if (!progress.renderMetadata) {
 	throw new Error('No render metadata');

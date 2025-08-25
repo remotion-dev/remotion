@@ -10,6 +10,7 @@ type GetOrCreateBucketInputInner<Provider extends CloudProvider> = {
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
 	skipPutAcl: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 };
 
 export type GetOrCreateBucketInput<Provider extends CloudProvider> = {
@@ -17,6 +18,7 @@ export type GetOrCreateBucketInput<Provider extends CloudProvider> = {
 	enableFolderExpiry?: boolean;
 	customCredentials?: CustomCredentials<Provider>;
 	forcePathStyle?: boolean;
+	requestHandler?: Provider['requestHandler'];
 };
 
 export type GetOrCreateBucketOutput = {
@@ -31,6 +33,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 		region: params.region,
 		forceBucketName: null,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: params.requestHandler,
 	});
 	if (remotionBuckets.length > 1) {
 		throw new Error(
@@ -52,6 +55,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 			region,
 			customCredentials: params.customCredentials,
 			forcePathStyle: params.forcePathStyle,
+			requestHandler: params.requestHandler,
 		});
 
 		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
@@ -64,6 +68,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 		region: params.region,
 		forcePathStyle: params.forcePathStyle,
 		skipPutAcl: params.skipPutAcl,
+		requestHandler: params.requestHandler,
 	});
 
 	// apply to newly created bucket
@@ -73,6 +78,7 @@ export const internalGetOrCreateBucket = async <Provider extends CloudProvider>(
 		region,
 		customCredentials: params.customCredentials,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: params.requestHandler,
 	});
 
 	return {bucketName, alreadyExisted: false};

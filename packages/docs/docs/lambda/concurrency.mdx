@@ -2,7 +2,7 @@
 image: /generated/articles-docs-lambda-concurrency.png
 id: concurrency
 title: Concurrency
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
 Remotion Lambda is a highly concurrent distributed video rendering system. That means that the video rendering work is split up across many Lambda functions. How many Lambda functions exactly can be defined by you, or you let Remotions defaults decide.
@@ -10,6 +10,8 @@ Remotion Lambda is a highly concurrent distributed video rendering system. That 
 ## Setting the concurrency
 
 You can set the concurrency via the [`framesPerLambda`](/docs/lambda/rendermediaonlambda#framesperlambda) option (or [`--frames-per-lambda`](/docs/lambda/cli/render#--frames-per-lambda) via CLI).
+
+Alternatively, you can use the [`concurrency`](/docs/lambda/rendermediaonlambda#concurrency) option (or [`--concurrency`](/docs/lambda/cli/render#--concurrency) via CLI) to specify the number of Lambda functions directly without needing to know the video duration.
 
 The concurrency is defined as `frameCount / framesPerLambda`. That means that the higher you set `framesPerLambda`, the lower the concurrency gets.
 
@@ -28,12 +30,12 @@ The following chart shows how the `framesPerLambda` and the implied concurrency 
 The code for determining the `framesPerLambda` parameter is:
 
 ```tsx twoslash
-import { interpolate } from "remotion";
+import {interpolate} from 'remotion';
 
 const bestFramesPerLambdaParam = (frameCount: number) => {
   // Between 0 and 10 minutes (at 30fps), interpolate the concurrency from 75 to 150
   const concurrency = interpolate(frameCount, [0, 18000], [75, 150], {
-    extrapolateRight: "clamp",
+    extrapolateRight: 'clamp',
   });
 
   // At least have 20 as a `framesPerLambda` value
@@ -46,15 +48,15 @@ const bestFramesPerLambdaParam = (frameCount: number) => {
 };
 ```
 
-import {ConcurrencyCalculator} from '../../components/Concurrency'
+import {ConcurrencyCalculator} from '../../components/Concurrency';
 
-<ConcurrencyCalculator/>
+<ConcurrencyCalculator />
 
 ## Concurrency limits
 
 Ensure that you only set parameter within these limits to ensure the renders don't throw any errors:
 
-- Minimum `framesPerLambda`: 4
+- Minimum `framesPerLambda`: 5 (4 up until Remotion 4.0.331)
 - Maximum concurrency: 200
 
 The Remotion Lambda defaults will never go outside these bounds.

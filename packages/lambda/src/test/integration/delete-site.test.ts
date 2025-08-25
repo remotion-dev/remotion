@@ -13,6 +13,7 @@ test('Return 0 total size if site did not exist', async () => {
 		enableFolderExpiry: null,
 		forcePathStyle: false,
 		skipPutAcl: false,
+		requestHandler: null,
 	});
 	expect(
 		await internalDeleteSite({
@@ -22,6 +23,7 @@ test('Return 0 total size if site did not exist', async () => {
 			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
 			onAfterItemDeleted: null,
+			requestHandler: null,
 		}),
 	).toEqual({totalSizeInBytes: 0});
 });
@@ -33,6 +35,7 @@ test('Return more than 0 total size if site did not exist', async () => {
 		enableFolderExpiry: null,
 		forcePathStyle: false,
 		skipPutAcl: false,
+		requestHandler: null,
 	});
 	const {siteName} = await internalDeploySite({
 		bucketName,
@@ -48,6 +51,7 @@ test('Return more than 0 total size if site did not exist', async () => {
 		siteName: mockImplementation.randomHash(),
 		forcePathStyle: false,
 		fullClientSpecifics: mockFullClientSpecifics,
+		requestHandler: null,
 	});
 	expect(
 		(
@@ -58,6 +62,7 @@ test('Return more than 0 total size if site did not exist', async () => {
 				providerSpecifics: mockImplementation,
 				forcePathStyle: false,
 				onAfterItemDeleted: null,
+				requestHandler: null,
 			})
 		).totalSizeInBytes,
 	).toBeGreaterThan(0);

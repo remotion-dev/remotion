@@ -88,8 +88,9 @@ export const parseXing = (data: Uint8Array): XingData => {
 		offset += 4;
 	}
 
-	if (offset !== data.length) {
-		throw new Error('xing header was parsed wrong: ' + JSON.stringify(data));
+	// Allow extra data after the standard Xing fields, as some encoders add additional information
+	if (offset > data.length) {
+		throw new Error('xing header was parsed wrong: read beyond available data');
 	}
 
 	return {

@@ -13,6 +13,7 @@ type MockProvider = {
 	};
 	creationFunctionOptions: {};
 	storageClass: string;
+	requestHandler: null;
 };
 
 const testRenderMetadata: RenderMetadata<MockProvider> = {
@@ -51,6 +52,7 @@ const testRenderMetadata: RenderMetadata<MockProvider> = {
 		width: 1920,
 		height: 1080,
 	},
+	scale: 1,
 };
 
 test('Should get a custom outname', () => {

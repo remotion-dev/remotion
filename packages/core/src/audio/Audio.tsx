@@ -10,7 +10,10 @@ import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateMediaProps} from '../validate-media-props.js';
-import {validateStartFromProps} from '../validate-start-from-props.js';
+import {
+	resolveTrimProps,
+	validateMediaTrimProps,
+} from '../validate-start-from-props.js';
 import {DurationsContext} from '../video/duration-state.js';
 import {AudioForPreview} from './AudioForPreview.js';
 import {AudioForRendering} from './AudioForRendering.js';
@@ -31,10 +34,13 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {
 		startFrom,
 		endAt,
+		trimBefore,
+		trimAfter,
 		name,
 		stack,
 		pauseWhenBuffering,
 		showInTimeline,
+		onError: onRemotionError,
 		...otherProps
 	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
@@ -62,13 +68,19 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			const errMessage = `Could not play audio with src ${preloadedSrc}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`;
 
 			if (loop) {
+				if (onRemotionError) {
+					onRemotionError(new Error(errMessage));
+					return;
+				}
+
 				cancelRender(new Error(errMessage));
 			} else {
+				onRemotionError?.(new Error(errMessage));
 				// eslint-disable-next-line no-console
 				console.warn(errMessage);
 			}
 		},
-		[loop, preloadedSrc],
+		[loop, onRemotionError, preloadedSrc],
 	);
 
 	const onDuration = useCallback(
@@ -81,6 +93,15 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const durationFetched =
 		durations[getAbsoluteSrc(preloadedSrc)] ??
 		durations[getAbsoluteSrc(props.src)];
+
+	validateMediaTrimProps({startFrom, endAt, trimBefore, trimAfter});
+
+	const {trimBeforeValue, trimAfterValue} = resolveTrimProps({
+		startFrom,
+		endAt,
+		trimBefore,
+		trimAfter,
+	});
 
 	if (loop && durationFetched !== undefined) {
 		if (!Number.isFinite(durationFetched)) {
@@ -99,10 +120,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			<Loop
 				layout="none"
 				durationInFrames={calculateLoopDuration({
-					endAt,
+					endAt: trimAfterValue ?? endAt,
 					mediaDuration: duration,
 					playbackRate: props.playbackRate ?? 1,
-					startFrom,
+					startFrom: trimBeforeValue ?? startFrom,
 				})}
 			>
 				<Audio
@@ -114,17 +135,16 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
-		validateStartFromProps(startFrom, endAt);
-
-		const startFromFrameNo = startFrom ?? 0;
-		const endAtFrameNo = endAt ?? Infinity;
+	if (
+		typeof trimBeforeValue !== 'undefined' ||
+		typeof trimAfterValue !== 'undefined'
+	) {
 		return (
 			<Sequence
 				layout="none"
-				from={0 - startFromFrameNo}
+				from={0 - (trimBeforeValue ?? 0)}
 				showInTimeline={false}
-				durationInFrames={endAtFrameNo}
+				durationInFrames={trimAfterValue}
 				name={name}
 			>
 				<Audio
@@ -145,7 +165,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 				onDuration={onDuration}
 				{...props}
 				ref={ref}
-				onError={onError}
+				onNativeError={onError}
 				_remotionInternalNeedsDurationCalculation={Boolean(loop)}
 			/>
 		);
@@ -162,7 +182,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			}
 			{...props}
 			ref={ref}
-			onError={onError}
+			onNativeError={onError}
 			onDuration={onDuration}
 			// Proposal: Make this default to true in v5
 			pauseWhenBuffering={pauseWhenBuffering ?? false}

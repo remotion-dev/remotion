@@ -7,6 +7,7 @@ import type {
 } from './webcodec-sample-types';
 import type {WithResolvers} from './with-resolvers';
 import {withResolvers} from './with-resolvers';
+import type {SeekResolution} from './work-on-seek-request';
 import {deserializeError} from './worker/serialize-error';
 import type {
 	AcknowledgePayload,
@@ -156,10 +157,24 @@ export const parseMediaOnWorkerImplementation = async <
 		return prom.promise;
 	});
 
+	const simulateSeekPromises: Record<
+		string,
+		WithResolvers<SeekResolution>
+	> = {};
+	controller?._internals.attachSimulateSeekResolution((seek) => {
+		const prom = withResolvers<SeekResolution>();
+		const nonce = String(Math.random());
+		post(worker, {type: 'request-simulate-seek', payload: seek, nonce});
+		simulateSeekPromises[nonce] = prom;
+		return prom.promise;
+	});
+
 	const callbacks: Record<
 		number,
 		MediaParserOnAudioSample | MediaParserOnVideoSample
 	> = {};
+
+	const trackDoneCallbacks: Record<number, () => void> = {};
 
 	function onMessage(message: MessageEvent) {
 		const data = message.data as WorkerResponsePayload;
@@ -402,9 +417,15 @@ export const parseMediaOnWorkerImplementation = async <
 							);
 						}
 
-						await callback(data.payload.value);
+						const trackDoneCallback = await callback(data.payload.value);
+						if (trackDoneCallback) {
+							trackDoneCallbacks[data.payload.trackId] = trackDoneCallback;
+						}
 
-						return {payloadType: 'void'};
+						return {
+							payloadType: 'on-sample-response',
+							registeredTrackDoneCallback: Boolean(trackDoneCallback),
+						};
 					}
 
 					if (data.payload.callbackType === 'on-video-sample') {
@@ -415,8 +436,26 @@ export const parseMediaOnWorkerImplementation = async <
 							);
 						}
 
-						await callback(data.payload.value);
+						const trackDoneCallback = await callback(data.payload.value);
+						if (trackDoneCallback) {
+							trackDoneCallbacks[data.payload.trackId] = trackDoneCallback;
+						}
 
+						return {
+							payloadType: 'on-sample-response',
+							registeredTrackDoneCallback: Boolean(trackDoneCallback),
+						};
+					}
+
+					if (data.payload.callbackType === 'track-done') {
+						const trackDoneCallback = trackDoneCallbacks[data.payload.trackId];
+						if (!trackDoneCallback) {
+							throw new Error(
+								`No track done callback registered for track ${data.payload.trackId}`,
+							);
+						}
+
+						trackDoneCallback();
 						return {payloadType: 'void'};
 					}
 
@@ -448,6 +487,18 @@ export const parseMediaOnWorkerImplementation = async <
 			}
 
 			firstPromise.resolve(data.payload);
+			return;
+		}
+
+		if (data.type === 'response-simulate-seek') {
+			const prom = simulateSeekPromises[data.nonce];
+			if (!prom) {
+				throw new Error('No simulate seek promise found');
+			}
+
+			prom.resolve(data.payload);
+			delete simulateSeekPromises[data.nonce];
+
 			return;
 		}
 

@@ -31,7 +31,7 @@ import type {StructureState} from './state/structure';
 import type {TransportStreamState} from './state/transport-stream/transport-stream';
 import {type MediaSectionState} from './state/video-section';
 
-const turnSeekIntoByte = async ({
+export const turnSeekIntoByte = async ({
 	seek,
 	mediaSectionState,
 	logLevel,
@@ -268,6 +268,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 			discardReadBytes,
 			fields,
 			prefetchCache,
+			isoState,
 		});
 		return;
 	}
@@ -289,6 +290,7 @@ export const workOnSeekRequest = async (options: WorkOnSeekRequestOptions) => {
 			discardReadBytes,
 			fields,
 			prefetchCache,
+			isoState,
 		});
 		const {hasChanged} =
 			controller._internals.seekSignal.clearSeekIfStillSame(seek);
@@ -328,4 +330,5 @@ export type SeekResolution =
 	| {
 			type: 'do-seek';
 			byte: number;
+			timeInSeconds: number;
 	  };

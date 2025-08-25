@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'League Script',
 	importName: 'LeagueScript',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=League+Script:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/leaguescript/v28/CSR54zpSlumSWj9CGVsoBZdeWNReuQ.woff2',
+					'https://fonts.gstatic.com/s/leaguescript/v29/CSR54zpSlumSWj9CGVsoBZdeWNReuQ.woff2',
 			},
 		},
 	},

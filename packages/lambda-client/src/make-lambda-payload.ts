@@ -28,7 +28,6 @@ import {
 	getNeedsToUpload,
 	serializeOrThrow,
 	validateDownloadBehavior,
-	validateFramesPerFunction,
 } from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
@@ -38,6 +37,7 @@ import {validateWebhook} from '@remotion/serverless-client';
 import type {GetRenderProgressInput} from './get-render-progress';
 import type {AwsRegion} from './regions';
 import type {RenderStillOnLambdaNonNullInput} from './render-still-on-lambda';
+import type {RequestHandler} from './types';
 import {validateLambdaCodec} from './validate-lambda-codec';
 import {validateServeUrl} from './validate-serveurl';
 
@@ -58,6 +58,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	jpegQuality: number;
 	maxRetries: number;
 	framesPerLambda: number | null;
+	concurrency: number | null;
 	logLevel: LogLevel;
 	frameRange: FrameRange | null;
 	outName: OutNameInput<AwsProvider> | null;
@@ -86,12 +87,14 @@ export type InnerRenderMediaOnLambdaInput = {
 	forcePathStyle: boolean;
 	metadata: Record<string, string> | null;
 	storageClass: StorageClass | null;
+	requestHandler: RequestHandler | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
 	rendererFunctionName,
 	frameRange,
 	framesPerLambda,
+	concurrency,
 	forceBucketName: bucketName,
 	codec,
 	composition,
@@ -135,15 +138,12 @@ export const makeLambdaRenderMediaPayload = async ({
 	apiKey,
 	offthreadVideoThreads,
 	storageClass,
+	requestHandler,
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
-	validateFramesPerFunction({
-		framesPerFunction: framesPerLambda ?? null,
-		durationInFrames: 1,
-	});
 	validateDownloadBehavior(downloadBehavior);
 	validateWebhook(webhook);
 
@@ -168,10 +168,12 @@ export const makeLambdaRenderMediaPayload = async ({
 		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: privacy === 'no-acl',
+		requestHandler: requestHandler ?? null,
 	});
 	return {
 		rendererFunctionName,
 		framesPerLambda,
+		concurrency,
 		composition,
 		serveUrl,
 		inputProps: serialized,
@@ -263,6 +265,7 @@ export const makeLambdaRenderStillPayload = async ({
 	forcePathStyle,
 	apiKey,
 	storageClass,
+	requestHandler,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
@@ -284,6 +287,7 @@ export const makeLambdaRenderStillPayload = async ({
 		providerSpecifics: awsImplementation,
 		forcePathStyle,
 		skipPutAcl: privacy === 'no-acl',
+		requestHandler,
 	});
 
 	return {

@@ -47,5 +47,7 @@ export const getSeekingByteForM3u8 = ({
 	return {
 		type: 'do-seek',
 		byte: currentPosition,
+		// TODO: This will be imperfect when seeking in playMedia()
+		timeInSeconds: time,
 	};
 };

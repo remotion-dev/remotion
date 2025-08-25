@@ -109,10 +109,11 @@ const getMatroskaVideoCodecString = ({
 
 	if (codec.value === 'V_MPEGH/ISO/HEVC') {
 		const priv = getPrivateData(track);
-		const iterator = getArrayBufferIterator(
-			priv as Uint8Array,
-			(priv as Uint8Array).length,
-		);
+		const iterator = getArrayBufferIterator({
+			initialData: priv as Uint8Array,
+			maxBytes: (priv as Uint8Array).length,
+			logLevel: 'error',
+		});
 
 		return 'hvc1.' + getHvc1CodecString(iterator);
 	}
@@ -216,10 +217,11 @@ const getMatroskaAudioCodecString = (track: TrackEntry): string => {
 	if (codec.value === 'A_AAC') {
 		const priv = getPrivateData(track);
 
-		const iterator = getArrayBufferIterator(
-			priv as Uint8Array,
-			(priv as Uint8Array).length,
-		);
+		const iterator = getArrayBufferIterator({
+			initialData: priv as Uint8Array,
+			maxBytes: (priv as Uint8Array).length,
+			logLevel: 'error',
+		});
 
 		iterator.startReadingBits();
 		/**
@@ -374,6 +376,7 @@ export const getTrack = ({
 			fps: null,
 			startInSeconds: 0,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		};
 	}
 
@@ -405,6 +408,7 @@ export const getTrack = ({
 			}),
 			startInSeconds: 0,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		};
 	}
 

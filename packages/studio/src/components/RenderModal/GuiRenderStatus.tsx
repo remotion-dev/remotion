@@ -86,8 +86,8 @@ const StitchingProgress: React.FC<{
 			<Spacing x={1} />
 			<div style={label}>
 				{progress.doneIn
-					? `Stitched ${progress.totalFrames} frames`
-					: `Stitching ${progress.frames} / ${progress.totalFrames} frames`}
+					? `Encoded ${progress.totalFrames} frames`
+					: `Encoding ${progress.frames} / ${progress.totalFrames} frames`}
 			</div>
 			{progress.doneIn ? <div style={right}>{progress.doneIn}ms</div> : null}
 		</div>

@@ -77,6 +77,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		propsType: 'input-props',
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
 	});
 
 	const resolvedPropsPromise = decompressInputProps({
@@ -87,6 +88,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		propsType: 'resolved-props',
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
 	});
 
 	RenderInternals.Log.verbose(
@@ -116,7 +118,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
-		`Rendering frames ${params.frameRange[0]}-${params.frameRange[1]} in this Lambda function`,
+		`Rendering frames ${params.frameRange[0]}-${params.frameRange[1]} (chunk ${params.chunk}) in this function`,
 	);
 
 	const start = Date.now();
@@ -240,6 +242,8 @@ const renderHandler = async <Provider extends CloudProvider>({
 				width: params.width,
 				defaultCodec: null,
 				defaultOutName: null,
+				defaultPixelFormat: null,
+				defaultVideoImageFormat: null,
 			},
 			imageFormat: params.imageFormat,
 			serializedInputPropsWithCustomSchema,

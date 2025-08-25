@@ -52,7 +52,7 @@ export const BackgroundAnimation: React.FC = () => {
 	}, [css]);
 
 	return (
-		<div className=" w-full h-full left-[50%] ml-[-50%] min-w-0 lg:m-auto lg:relative lg:min-w-[700px] lg:max-w-[1200px] lg:ml-auto lg:left-auto pointer-events-none">
+		<div className=" w-full h-full min-w-0 m-auto lg:relative lg:min-w-[700px] lg:max-w-[1200px] lg:ml-auto lg:left-auto pointer-events-none">
 			<svg
 				className="translate-y-[-30%] lg:translate-y-[-50%]"
 				viewBox="0 0 1 1"

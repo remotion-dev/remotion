@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ribeye',
 	importName: 'Ribeye',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Ribeye:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ribeye/v25/L0x8DFMxk1MP9R3htfqndSk.woff2',
+					'https://fonts.gstatic.com/s/ribeye/v26/L0x8DFMxk1MP9R3htfqndSk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ribeye/v25/L0x8DFMxk1MP9R3hu_qn.woff2',
+					'https://fonts.gstatic.com/s/ribeye/v26/L0x8DFMxk1MP9R3hu_qn.woff2',
 			},
 		},
 	},

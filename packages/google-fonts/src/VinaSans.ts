@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Vina Sans',
 	importName: 'VinaSans',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Vina+Sans:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/vinasans/v6/m8JQjfZKf6-d2273MP7DeJRAVmo.woff2',
+					'https://fonts.gstatic.com/s/vinasans/v7/m8JQjfZKf6-d2273MP7DeJRAVmo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vinasans/v6/m8JQjfZKf6-d2273MP7DeZRAVmo.woff2',
+					'https://fonts.gstatic.com/s/vinasans/v7/m8JQjfZKf6-d2273MP7DeZRAVmo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vinasans/v6/m8JQjfZKf6-d2273MP7Dd5RA.woff2',
+					'https://fonts.gstatic.com/s/vinasans/v7/m8JQjfZKf6-d2273MP7Dd5RA.woff2',
 			},
 		},
 	},

@@ -2,7 +2,7 @@
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 
-import {VERSION} from '@remotion/serverless-client';
+import {validateCodec, VERSION} from '@remotion/serverless-client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {type EventEmitter} from 'node:events';
 import {join} from 'path';
@@ -30,7 +30,6 @@ import {
 	validateOutname,
 	validatePrivacy,
 } from '@remotion/serverless-client';
-import {bestFramesPerFunctionParam} from '../best-frames-per-function-param';
 import {cleanupProps} from '../cleanup-props';
 import {findOutputFileInBucket} from '../find-output-file-in-bucket';
 import type {LaunchedBrowser} from '../get-browser-instance';
@@ -91,6 +90,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		propsType: 'input-props',
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
 	});
 
 	const logOptions: LogOptions = {
@@ -161,12 +161,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.everyNthFrame,
 	);
 
-	const framesPerLambda =
-		params.framesPerFunction ?? bestFramesPerFunctionParam(frameCount.length);
-
-	validateFramesPerFunction({
-		framesPerFunction: framesPerLambda,
+	const framesPerLambda = validateFramesPerFunction({
+		framesPerFunction: params.framesPerFunction,
 		durationInFrames: frameCount.length,
+		concurrency: params.concurrency,
 	});
 
 	validateOutname({
@@ -176,6 +174,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		separateAudioTo: null,
 		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
 	});
+	validateCodec(params.codec, 'renderMediaOnLambda', 'codec');
 	validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
@@ -218,6 +217,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
 		skipPutAcl: false,
+		requestHandler: null,
 	});
 
 	registerCleanupTask(() => {
@@ -340,6 +340,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		rendererFunctionName:
 			params.rendererFunctionName ??
 			insideFunctionSpecifics.getCurrentFunctionName(),
+		scale: params.scale,
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName({
@@ -366,6 +367,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
+			requestHandler: null,
 		});
 		if (output) {
 			throw new TypeError(
@@ -418,6 +420,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				customCredentials,
 				forcePathStyle: params.forcePathStyle,
 				storageClass: params.storageClass,
+				requestHandler: null,
 			})
 			.then(() => {
 				RenderInternals.Log.info(
@@ -470,6 +473,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				onArtifact,
 				providerSpecifics,
 				insideFunctionSpecifics,
+				requestHandler: null,
 			});
 		}),
 	);
@@ -508,6 +512,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		everyNthFrame: params.everyNthFrame,
 		frameRange: params.frameRange,
 		storageClass: params.storageClass,
+		requestHandler: null,
 	});
 
 	return postRenderData;

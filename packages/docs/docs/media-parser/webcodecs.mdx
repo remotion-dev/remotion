@@ -48,7 +48,7 @@ For example, the parsing of the media is much faster than the decoding of the vi
 This can lead to a "traffic jam" in front of the video decoder, where many samples are queueing quickly.  
 Since this will cause memory to build up, it will negatively impact the performance of the page.
 
-It makes sense to connect the whole pipeline together and throttle each step to it does not perform faster than the next step.  
+It makes sense to connect the whole pipeline together and throttle each step so it does not perform faster than the next step.  
 In the example above, six queues are required to be managed, with each one of them malfunctioning causing memory to run away.
 
 

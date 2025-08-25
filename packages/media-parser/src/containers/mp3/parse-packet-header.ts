@@ -185,7 +185,11 @@ const innerParseMp3PacketHeader = (iterator: BufferIterator) => {
      10 - MPEG Version 2 (ISO/IEC 13818-3)
      11 - MPEG Version 1 (ISO/IEC 11172-3)
    */
-	if (audioVersionId !== 0b11 && audioVersionId !== 0b10) {
+	if (
+		audioVersionId !== 0b11 &&
+		audioVersionId !== 0b10 &&
+		audioVersionId !== 0b00
+	) {
 		throw new Error('Expected MPEG Version 1 or 2');
 	}
 
@@ -204,10 +208,7 @@ const innerParseMp3PacketHeader = (iterator: BufferIterator) => {
 
 	const layer = layerBits === 0b11 ? 1 : layerBits === 0b10 ? 2 : 3;
 
-	const protectionBit = iterator.getBits(1);
-	if (protectionBit !== 0b1) {
-		throw new Error('Does not support CRC yet');
-	}
+	iterator.getBits(1); // 0b1 means that there is no CRC, 0b0 means there is. Not validating checksum though
 
 	const bitrateIndex = iterator.getBits(4);
 	const bitrateInKbit = getBitrateKB({

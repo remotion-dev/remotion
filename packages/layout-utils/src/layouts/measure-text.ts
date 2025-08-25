@@ -162,7 +162,12 @@ export const measureText = ({
 			boundingBox.height === boundingBoxOfFallbackFont.height &&
 			boundingBox.width === boundingBoxOfFallbackFont.width;
 
-		if (sameAsFallbackFont && computedFallback !== computedFontFamily) {
+		// Ensure there are at least 4 unique characters, with just a few, there is more likely to be a false positive
+		if (
+			sameAsFallbackFont &&
+			computedFallback !== computedFontFamily &&
+			new Set(text).size > 4
+		) {
 			const err = [
 				`Called measureText() with "fontFamily": ${JSON.stringify(
 					fontFamily,

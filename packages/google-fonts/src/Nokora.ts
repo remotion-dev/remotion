@@ -3,8 +3,8 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nokora',
 	importName: 'Nokora',
-	version: 'v32',
-	url: 'https://fonts.googleapis.com/css2?family=Nokora:ital,wght@0,100;0,300;0,400;0,700;0,900',
+	version: 'v33',
+	url: 'https://fonts.googleapis.com/css2?family=Nokora:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
 		latin:
@@ -14,33 +14,57 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v32/hYkKPuwgTubzaWxoXwAHivJA8Q.woff2',
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v32/hYkKPuwgTubzaWxoXwAMivI.woff2',
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
+			},
+			'200': {
+				khmer:
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 			'300': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v32/hYkLPuwgTubzaWxolxIbptd9yB8.woff2',
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v32/hYkLPuwgTubzaWxolxIbrdd9.woff2',
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v32/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v32/hYkIPuwgTubzaWxgPDAO.woff2',
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
+			},
+			'500': {
+				khmer:
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
+			},
+			'600': {
+				khmer:
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 			'700': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v32/hYkLPuwgTubzaWxohxUbptd9yB8.woff2',
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v32/hYkLPuwgTubzaWxohxUbrdd9.woff2',
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
+			},
+			'800': {
+				khmer:
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 			'900': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v32/hYkLPuwgTubzaWxovxcbptd9yB8.woff2',
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v32/hYkLPuwgTubzaWxovxcbrdd9.woff2',
+					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 		},
 	},
@@ -51,7 +75,16 @@ export const fontFamily = 'Nokora' as const;
 
 type Variants = {
 	normal: {
-		weights: '100' | '300' | '400' | '700' | '900';
+		weights:
+			| '100'
+			| '200'
+			| '300'
+			| '400'
+			| '500'
+			| '600'
+			| '700'
+			| '800'
+			| '900';
 		subsets: 'khmer' | 'latin';
 	};
 };

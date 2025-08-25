@@ -32,6 +32,7 @@ class RenderParams
     protected $everyNthFrame = 1;
     protected $numberOfGifLoops = 0;
     protected $concurrencyPerLambda = 1;
+    protected $concurrency = null;
     protected $downloadBehavior = [
         'type' => 'play-in-browser',
     ];
@@ -55,6 +56,7 @@ class RenderParams
     protected $x264Preset = null;
     protected $deleteAfter = null;
     protected $forcePathStyle = false;
+    protected $storageClass = null;
 
     public function __construct(
         ?array  $data = null,
@@ -77,6 +79,7 @@ class RenderParams
         ?int    $everyNthFrame = 1,
         ?int    $numberOfGifLoops = 0,
         ?int    $concurrencyPerLambda = 1,
+        ?int    $concurrency = null,
         ?array  $downloadBehavior = null,
         ?bool   $muted = false,
         ?bool   $overwrite = false,
@@ -128,6 +131,7 @@ class RenderParams
         $this->everyNthFrame = $everyNthFrame;
         $this->numberOfGifLoops = $numberOfGifLoops;
         $this->concurrencyPerLambda = $concurrencyPerLambda;
+        $this->concurrency = $concurrency;
         $this->downloadBehavior = $downloadBehavior ?? ['type' => 'play-in-browser'];
         $this->muted = $muted;
         $this->overwrite = $overwrite;
@@ -178,6 +182,7 @@ class RenderParams
             'everyNthFrame' => $this->getEveryNthFrame(),
             'numberOfGifLoops' => $this->getNumberOfGifLoops(),
             'concurrencyPerLambda' => $this->getConcurrencyPerLambda(),
+            'concurrency' => $this->getConcurrency(),
             'downloadBehavior' => $this->getDownloadBehavior(),
             'muted' => $this->getMuted(),
             'preferLossless' => $this->getPreferLossless(),
@@ -639,6 +644,11 @@ class RenderParams
         $this->concurrencyPerLambda = $concurrencyPerLambda;
     }
 
+    public function setConcurrency($concurrency)
+    {
+        $this->concurrency = $concurrency;
+    }
+
     public function setDownloadBehavior($downloadBehavior)
     {
         $this->downloadBehavior = $downloadBehavior;
@@ -683,6 +693,11 @@ class RenderParams
     public function getConcurrencyPerLambda()
     {
         return $this->concurrencyPerLambda;
+    }
+
+    public function getConcurrency()
+    {
+        return $this->concurrency;
     }
 
     public function getDownloadBehavior()

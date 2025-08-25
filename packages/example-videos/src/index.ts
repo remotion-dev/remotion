@@ -18,6 +18,7 @@ export const exampleVideos = {
 		'public',
 		'framermp4withoutfileextension',
 	),
+	framerWebm: path.join(examplePackage, 'public', 'framer.webm'),
 	corrupted: path.join(examplePackage, 'public', 'corrupted.mp4'),
 	customDar: path.join(examplePackage, 'public', 'custom-dar.mp4'),
 	screenrecording: path.join(examplePackage, 'public', 'quick.mov'),
@@ -124,8 +125,20 @@ export const exampleVideos = {
 		'fragmented-mp4-with-no-duration-metadata.mp4',
 	),
 	m4a: path.join(__dirname, '..', 'videos', 'voice-note.m4a'),
+	problematicFragmentedM4a: path.join(
+		__dirname,
+		'..',
+		'videos',
+		'problematic-fragmented.m4a',
+	),
+	waveFormatExtensible: path.join(
+		__dirname,
+		'..',
+		'videos',
+		'wave-format-extensible.wav',
+	),
+	junk: path.join(__dirname, '..', 'videos', 'junk.wav'),
 };
-
 export {
 	getPrivateExampleVideo,
 	getRemoteExampleVideo,

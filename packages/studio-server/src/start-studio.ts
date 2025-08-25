@@ -119,7 +119,7 @@ export const startStudio = async ({
 		}
 	} catch {}
 
-	watchRootFile(remotionRoot);
+	watchRootFile(remotionRoot, previewEntry);
 	const publicDir = getAbsolutePublicDir({
 		relativePublicDir,
 		remotionRoot,

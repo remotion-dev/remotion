@@ -4,13 +4,14 @@ import type {
 } from '@remotion/webcodecs';
 import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
+import {formatElapsedTime} from '~/lib/format-elapsed-time';
 import {formatSeconds} from '~/lib/format-seconds';
 import {getNewName} from '~/lib/generate-new-name';
 import {
 	useAddOutputFilenameToTitle,
 	useAddProgressToTitle,
 } from '~/lib/title-context';
-import {AudioWaveForm} from './AudioWaveform';
+import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
 import {Card} from './ui/card';
 import {Skeleton} from './ui/skeleton';
 import type {VideoThumbnailRef} from './VideoThumbnail';
@@ -27,6 +28,8 @@ export const ConvertProgress: React.FC<{
 	readonly isReencoding: boolean;
 	readonly isAudioOnly: boolean;
 	readonly bars: number[];
+	readonly startTime?: number;
+	readonly completedTime?: number;
 }> = ({
 	state,
 	name,
@@ -36,6 +39,8 @@ export const ConvertProgress: React.FC<{
 	isReencoding,
 	duration,
 	isAudioOnly,
+	startTime,
+	completedTime,
 }) => {
 	const progress = done
 		? 1
@@ -54,9 +59,10 @@ export const ConvertProgress: React.FC<{
 				<>
 					<VideoThumbnail
 						ref={convertProgressRef}
+						trackRotation={null}
 						initialReveal
 						smallThumbOnMobile={false}
-						rotation={0}
+						userRotation={0}
 						mirrorHorizontal={false}
 						mirrorVertical={false}
 					/>
@@ -77,7 +83,9 @@ export const ConvertProgress: React.FC<{
 					) : null}
 				</>
 			) : duration && isAudioOnly ? (
-				<AudioWaveForm bars={bars} />
+				<AudioWaveformContainer>
+					<AudioWaveForm bars={bars} />
+				</AudioWaveformContainer>
 			) : null}
 			<div className="p-2">
 				<div>
@@ -91,6 +99,19 @@ export const ConvertProgress: React.FC<{
 					<span>{formatSeconds(state.millisecondsWritten / 1000)}</span>
 					{' • '}
 					<span>{formatBytes(state.bytesWritten)}</span>
+					{startTime && (
+						<>
+							{' • '}
+							<span>
+								Time:{' '}
+								{formatElapsedTime(
+									done && completedTime
+										? completedTime - startTime
+										: Date.now() - startTime,
+								)}
+							</span>
+						</>
+					)}
 				</div>
 			</div>
 		</Card>

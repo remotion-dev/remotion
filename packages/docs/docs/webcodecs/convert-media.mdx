@@ -27,11 +27,62 @@ Re-encodes a video using [WebCodecs](https://developer.mozilla.org/en-US/docs/We
 ```tsx twoslash title="Converting a video"
 import {convertMedia} from '@remotion/webcodecs';
 
-await convertMedia({
+const result = await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   container: 'webm',
 });
+
+// Save the converted video as a Blob
+const blob = await result.save();
 ```
+
+## Return value
+
+`convertMedia()` returns a Promise that resolves to a `ConvertMediaResult` object with the following properties:
+
+### `save()`
+
+_Function that returns `Promise<Blob>`_
+
+Call this function to get the converted video as a `Blob`. You can then use this blob to:
+
+- Create a download link
+- Upload to a server
+- Display in a video element
+- Store in IndexedDB
+
+```tsx twoslash title="Saving and downloading a converted video"
+import {convertMedia} from '@remotion/webcodecs';
+
+const result = await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+});
+
+const blob = await result.save();
+
+// Create a download link
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'converted-video.webm';
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+URL.revokeObjectURL(url);
+```
+
+### `remove()`
+
+_Function that returns `Promise<void>`_
+
+Call this function to clean up any temporary resources created during the conversion process.
+
+### `finalState`
+
+_object of type `ConvertMediaProgress`_
+
+Contains the final state of the conversion process, including statistics about the conversion.
 
 ## API
 
@@ -276,7 +327,7 @@ This feature is inherited from [`parseMedia()`](/docs/media-parser/parse-media),
 ```tsx twoslash title="Converting a video"
 import {convertMedia} from '@remotion/webcodecs';
 
-await convertMedia({
+const result = await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   container: 'webm',
   videoCodec: 'vp8',
@@ -289,6 +340,8 @@ await convertMedia({
     //           ^?
   },
 });
+
+const blob = await result.save();
 ```
 
 ## License

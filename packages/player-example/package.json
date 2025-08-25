@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player-example"
 	},
 	"name": "@remotion/player-example",
-	"version": "4.0.311",
+	"version": "4.0.340",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -26,7 +26,7 @@
 		"eslint": "9.19.0"
 	},
 	"scripts": {
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"dev": "next dev",
 		"build-site": "next build"

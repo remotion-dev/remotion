@@ -66,6 +66,7 @@ test('Stream samples', async () => {
 			transfer: null,
 		},
 		timescale: WEBCODECS_TIMESCALE,
+		trackMediaTimeOffsetInTrackTimescale: 1024,
 	});
 
 	const audTracks = tracks.filter((t) => t.type === 'audio');
@@ -81,5 +82,6 @@ test('Stream samples', async () => {
 		codecData: null,
 		codecEnum: 'mp3',
 		timescale: WEBCODECS_TIMESCALE,
+		trackMediaTimeOffsetInTrackTimescale: 1105,
 	});
 });

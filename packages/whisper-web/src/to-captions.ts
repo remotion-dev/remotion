@@ -1,8 +1,8 @@
 import type {Caption} from '@remotion/captions';
-import type {TranscriptionJson} from './result';
+import type {TranscriptionItemWithTimestamp, TranscriptionJson} from './result';
 
 type ToCaptionsInput = {
-	whisperWebOutput: TranscriptionJson;
+	whisperWebOutput: TranscriptionJson | TranscriptionItemWithTimestamp[];
 };
 
 type ToCaptionsOutput = {
@@ -10,7 +10,10 @@ type ToCaptionsOutput = {
 };
 
 export const toCaptions = (input: ToCaptionsInput): ToCaptionsOutput => {
-	const {transcription} = input.whisperWebOutput;
+	const transcription =
+		'transcription' in input.whisperWebOutput
+			? input.whisperWebOutput.transcription
+			: input.whisperWebOutput;
 
 	const captions: Caption[] = [];
 
@@ -19,14 +22,15 @@ export const toCaptions = (input: ToCaptionsInput): ToCaptionsOutput => {
 			continue;
 		}
 
-		captions.push({
-			text: captions.length === 0 ? item.text.trimStart() : item.text,
-			startMs: item.offsets.from,
-			endMs: item.offsets.to,
-			timestampMs:
-				item.tokens[0].t_dtw === -1 ? null : item.tokens[0].t_dtw * 10,
-			confidence: item.tokens[0].p,
-		});
+		for (const token of item.tokens) {
+			captions.push({
+				text: captions.length === 0 ? token.text.trimStart() : token.text,
+				startMs: token.offsets.from,
+				endMs: token.offsets.to,
+				timestampMs: token.t_dtw === -1 ? null : token.t_dtw * 10,
+				confidence: token.p,
+			});
+		}
 	}
 
 	return {captions};

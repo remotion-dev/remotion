@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Amarante',
 	importName: 'Amarante',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Amarante:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amarante/v28/xMQXuF1KTa6EvGx9bp--AXvwmA.woff2',
+					'https://fonts.gstatic.com/s/amarante/v29/xMQXuF1KTa6EvGx9bp--AXvwmA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amarante/v28/xMQXuF1KTa6EvGx9bp-wAXs.woff2',
+					'https://fonts.gstatic.com/s/amarante/v29/xMQXuF1KTa6EvGx9bp-wAXs.woff2',
 			},
 		},
 	},
