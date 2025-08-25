@@ -1,4 +1,5 @@
 import {parseMedia} from '@remotion/media-parser';
+import {getPartialAudioData} from '@remotion/webcodecs';
 import {
 	useCallback,
 	useEffect,
@@ -9,7 +10,6 @@ import {
 } from 'react';
 import {cancelRender, continueRender, delayRender} from 'remotion';
 import {combineFloat32Arrays} from './combine-float32-arrays';
-import {getPartialAudioData} from './get-partial-audio-data';
 import {isRemoteAsset} from './is-remote-asset';
 import type {MediaUtilsAudioData} from './types';
 
@@ -171,11 +171,14 @@ export const useWindowedAudioData = ({
 				return;
 			}
 
+			const fromSeconds = windowIndex * windowInSeconds;
+			const toSeconds = (windowIndex + 1) * windowInSeconds;
+
 			try {
 				const partialWaveData = await getPartialAudioData({
 					src,
-					fromSeconds: windowIndex * windowInSeconds,
-					toSeconds: (windowIndex + 1) * windowInSeconds,
+					fromSeconds,
+					toSeconds,
 					channelIndex,
 					signal: controller.signal,
 				});
