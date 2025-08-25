@@ -22,6 +22,7 @@ import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
+import {TriggerWebRender} from './WebRender/TriggerWebRender';
 import {Flex, Spacing} from './layout';
 
 const container: React.CSSProperties = {
@@ -213,6 +214,7 @@ export const PreviewToolbar: React.FC<{
 				<Flex />
 				{!isMobileLayout && <FpsCounter playbackSpeed={playbackRate} />}
 				<Spacing x={2} />
+				<TriggerWebRender />
 				{readOnlyStudio ? null : <RenderButton />}
 				<Spacing x={1.5} />
 			</div>

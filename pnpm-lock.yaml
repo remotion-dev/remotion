@@ -2106,6 +2106,9 @@ importers:
       '@remotion/studio-shared':
         specifier: workspace:*
         version: link:../studio-shared
+      '@remotion/web-renderer':
+        specifier: workspace:*
+        version: link:../web-renderer
       '@remotion/webcodecs':
         specifier: workspace:*
         version: link:../webcodecs
@@ -3680,6 +3683,19 @@ importers:
       react-dom:
         specifier: 19.0.0
         version: 19.0.0(react@19.0.0)
+
+  packages/web-renderer:
+    dependencies:
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@remotion/eslint-config-internal':
+        specifier: workspace:*
+        version: link:../eslint-config-internal
+      eslint:
+        specifier: 9.19.0
+        version: 9.19.0
 
   packages/webcodecs:
     dependencies:
