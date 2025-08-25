@@ -2169,6 +2169,15 @@ export const articles = [
 		slug: 'lambda/custom-layers',
 	},
 	{
+		id: 'lambda/data-transfer-cost',
+		title: 'Data transfer cost',
+		relativePath: 'docs/lambda/data-transfer-cost.mdx',
+		compId: 'articles-docs-lambda-data-transfer-cost',
+		crumb: '@remotion/lambda',
+		noAi: false,
+		slug: 'lambda/data-transfer-cost',
+	},
+	{
 		id: 'deletefunction',
 		title: 'deleteFunction()',
 		relativePath: 'docs/lambda/deletefunction.mdx',
