@@ -441,7 +441,8 @@ const internalRenderMediaRaw = ({
 	const {actualWidth, actualHeight} = validateEvenDimensionsWithCodec({
 		codec,
 		height: compositionWithPossibleUnevenDimensions.height,
-		scale,
+		// Don't apply scale yet, only ensure even dimensions
+		scale: 1,
 		width: compositionWithPossibleUnevenDimensions.width,
 		wantsImageSequence: false,
 		indent,
