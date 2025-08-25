@@ -38,7 +38,12 @@ test.describe('Should return correct frame even when it is out of order', () => 
 			'http://localhost:' + (viteServer?.config.server.port ?? 5173),
 		);
 
-		await page.waitForFunction(() => (window as any).videoFrames?.length === 1);
+		await page.waitForFunction(() => (window as any).done === true);
+		const errors = await page.evaluate(() => (window as any).errors);
+		if (errors.length > 0) {
+			throw new Error(errors[0].message);
+		}
+
 		const value = await page.evaluate(() => (window as any).videoFrames);
 		expect(value[0]).toBe(Math.floor((11 / 30) * WEBCODECS_TIMESCALE));
 	});

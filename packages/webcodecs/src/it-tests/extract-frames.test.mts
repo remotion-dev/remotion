@@ -24,15 +24,19 @@ test.afterAll(async () => {
 	}
 });
 
-test.describe('Vite app', () => {
-	test('should execute vite script and set window property', async ({page}) => {
+test.describe('Extract frames', () => {
+	test('should extract frames', async ({page}) => {
 		await page.goto(
 			'http://localhost:' + (viteServer?.config.server.port ?? 5173),
 		);
 
-		await page.waitForFunction(() => (window as any).videoFrames?.length === 5);
+		await page.waitForFunction(() => (window as any).done === true);
+		const errors = await page.evaluate(() => (window as any).errors);
+		if (errors.length > 0) {
+			throw new Error(errors[0].message);
+		}
+
 		const value = await page.evaluate(() => (window as any).videoFrames);
-		console.log(value);
 		expect(value[0]).toBe(0);
 		expect(value[1] === 1000000 || value[1] === 920000).toBe(true);
 		expect(value[2] === 2000000 || value[2] === 1880000).toBe(true);
