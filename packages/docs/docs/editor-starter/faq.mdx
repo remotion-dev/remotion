@@ -62,6 +62,14 @@ If you have already bought the [Timeline](/docs/timeline) and also the Editor St
 
 Buy from the same email address and then contact us at [hi@remotion.dev](mailto:hi@remotion.dev) from the email address you used to buy the Timeline.
 
+## Do I have to use Remotion Lambda?
+
+The default template can be deployed in a fully serverless fashion.  
+If you want to render on a long-running server, you can modify the architecture to use the Remotion [Server-side rendering](/docs/ssr) APIs:
+
+- Copy the [frontend code](/docs/editor-starter/setup) into your existing project
+- For the [backend routes](/docs/editor-starter/backend-routes), implement them in your long-running server. For how to implement the rendering endpoints, you can take the [Render Server](/templates/render-server) as a reference.
+
 ## Is Remotion launching its own video editor?
 
 No - we hope to enable developers to launch their own products rather than entering the space ourselves.
