@@ -63,9 +63,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<{}> = async () => {
 };
 
 export const OffthreadRemoteVideo: React.FC = () => {
-  return (
-    <OffthreadVideo src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
-  );
+  return <OffthreadVideo src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />;
 };
 ```
 
@@ -86,9 +84,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<{}> = async () => {
 };
 
 export const OffthreadRemoteVideo: React.FC = () => {
-  return (
-    <OffthreadVideo src="https://videos.pexels.com/video-files/5530402/5530402-uhd_3840_2160_25fps.mp4" />
-  );
+  return <OffthreadVideo src="https://videos.pexels.com/video-files/5530402/5530402-uhd_3840_2160_25fps.mp4" />;
 };
 ```
 
@@ -101,7 +97,7 @@ The calculation above only factors in Lambda computation cost.
 This is usually the majority of the cost.  
 However, you also incur additional cost for:
 
-- Bandwidth: Pulling in assets happens always over HTTP and incurs S3 egress cost.
+- [Bandwidth](/docs/lambda/data-transfer-cost): Pulling in assets happens always over HTTP and incurs S3 egress cost.
 - Storage: Storing the sites and renders in S3 incurs S3 storage.
 - CloudWatch Logs: Renders are logged to CloudWatch by default.
 - [Remotion Licensing](https://remotion.pro/license): Teams of 4+ people also need to acquire a Remotion Company License in addition to the AWS cost.

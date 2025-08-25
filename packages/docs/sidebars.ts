@@ -1013,6 +1013,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/r2',
 				'lambda/insights',
 				'lambda/multiple-buckets',
+				'lambda/data-transfer-cost',
 				'lambda/how-lambda-works',
 				'lambda/bucket-naming',
 				'lambda/optimizing-cost',
