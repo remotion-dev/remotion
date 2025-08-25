@@ -5,6 +5,6 @@ await buildPackage({
 		cjs: 'do-nothing',
 		esm: 'build',
 	},
-	external: ['remotion'],
+	external: ['remotion', 'react', 'react-dom'],
 	entrypoints: [{path: 'src/index.tsx', target: 'browser'}],
 });

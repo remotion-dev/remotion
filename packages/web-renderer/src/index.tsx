@@ -17,6 +17,7 @@ export const renderMediaOnWeb = ({
 	// Match same behavior as renderEntry.tsx
 	div.style.display = 'flex';
 	div.style.backgroundColor = 'transparent';
+	div.style.position = 'absolute';
 	div.style.width = `${width}px`;
 	div.style.height = `${height}px`;
 
@@ -33,13 +34,14 @@ export const renderMediaOnWeb = ({
 	// TODO: delayRender()
 	// TODO: Video config
 	// TODO: window.remotion_isPlayer
+	// TODO: Log Level
 
 	const compositionManagerContext: CompositionManagerContext = {
 		currentCompositionMetadata: {
 			durationInFrames: 100,
 			fps: 30,
-			height: 100,
-			width: 100,
+			height: 1080,
+			width: 1080,
 			props: {},
 			defaultCodec: null,
 			defaultOutName: null,
@@ -60,8 +62,8 @@ export const renderMediaOnWeb = ({
 				calculateMetadata: null,
 				durationInFrames: 100,
 				fps: 30,
-				height: 100,
-				width: 100,
+				height: 1080,
+				width: 1080,
 			},
 		],
 		canvasContent: {
@@ -71,8 +73,45 @@ export const renderMediaOnWeb = ({
 	};
 
 	ReactDOM.createRoot(div).render(
-		<Internals.CompositionManager.Provider value={compositionManagerContext}>
-			<Component />
-		</Internals.CompositionManager.Provider>,
+		<Internals.RemotionRoot
+			// TODO: Hardcoded
+			logLevel="info"
+			// TODO: Hardcoded
+			numberOfAudioTags={0}
+			// TODO: Hardcoded
+			onlyRenderComposition={null}
+			// TODO: Hardcoded
+			currentCompositionMetadata={{
+				// TODO: Empty
+				props: {},
+				// TODO: Hardcoded
+				durationInFrames: 100,
+				// TODO: Hardcoded
+				fps: 30,
+				// TODO: Hardcoded
+				height: 1080,
+				// TODO: Hardcoded
+				width: 1080,
+				// TODO: Hardcoded
+				defaultCodec: null,
+				// TODO: Hardcoded
+				defaultOutName: null,
+				// TODO: Hardcoded
+				defaultVideoImageFormat: null,
+				// TODO: Hardcoded
+				defaultPixelFormat: null,
+			}}
+			// TODO: Hardcoded
+			audioLatencyHint="interactive"
+		>
+			<Internals.CanUseRemotionHooks value>
+				<Internals.CompositionManager.Provider
+					// TODO: This context is double-wrapped
+					value={compositionManagerContext}
+				>
+					<Component />
+				</Internals.CompositionManager.Provider>
+			</Internals.CanUseRemotionHooks>
+		</Internals.RemotionRoot>,
 	);
 };
