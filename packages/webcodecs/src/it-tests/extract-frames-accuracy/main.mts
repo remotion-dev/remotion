@@ -17,6 +17,7 @@ extractFrames({
 	onFrame(frame) {
 		window.videoFrames.push(frame.timestamp);
 	},
+	logLevel: 'verbose',
 	timestampsInSeconds: [11 / 30],
 	acknowledgeRemotionLicense: true,
 })
