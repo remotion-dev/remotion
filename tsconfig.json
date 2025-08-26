@@ -233,6 +233,9 @@
 		},
 		{
 			"path": "./packages/video"
+		},
+		{
+			"path": "./packages/web-renderer"
 		}
 	]
 }

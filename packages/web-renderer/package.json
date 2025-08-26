@@ -44,6 +44,5 @@
 		"renderer",
 		"web"
 	],
-	"homepage": "https://www.remotion.dev/docs/web-renderer",
-	"description": "Remotion Renderer for the browser"
+	"description": "Render videos in the browser (not yet released)"
 }
