@@ -78,7 +78,7 @@ test(
 				'exec',
 				'remotion',
 				'render',
-				'src/index.ts',
+				'build',
 				'ten-frame-tester',
 				'--frames',
 				'0-1',
