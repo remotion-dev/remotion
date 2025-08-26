@@ -2,6 +2,7 @@ import type {ComponentType, LazyExoticComponent} from 'react';
 import ReactDOM from 'react-dom/client';
 import type {CompositionManagerContext} from 'remotion';
 import {Internals} from 'remotion';
+import {findCanvasElements} from './find-canvas-elements';
 import {waitForReady} from './wait-for-ready';
 
 export const renderMediaOnWeb = async ({
@@ -120,5 +121,5 @@ export const renderMediaOnWeb = async ({
 	);
 
 	await waitForReady(delayRenderTimeoutInMilliseconds);
-	console.log('ready');
+	findCanvasElements(div);
 };
