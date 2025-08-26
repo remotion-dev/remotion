@@ -31,7 +31,7 @@ export const uncompressMediaAsset = (
 	allRenderAssets: AudioOrVideoAsset[],
 	assetToUncompress: AudioOrVideoAsset,
 ): AudioOrVideoAsset => {
-	const isCompressed = assetToUncompress.src.match(/same-as-(.*)-([0-9]+)$/);
+	const isCompressed = assetToUncompress.src.match(/same-as-(.*)-([0-9.]+)$/);
 	if (!isCompressed) {
 		return assetToUncompress;
 	}

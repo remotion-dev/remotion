@@ -29,11 +29,10 @@ export const getMetadata = (state: ParserState): MediaParserMetadataEntry[] => {
 
 	if (structure.type === 'mp3') {
 		const tags = getMetadataFromMp3(structure);
-		if (tags === null) {
-			throw new Error('Failed to get metadata from mp3');
-		}
 
-		return tags;
+		// Not all MP3s file have this header.
+		// Internal link: https://discord.com/channels/809501355504959528/1001500302375125055/1408880907602890752
+		return tags ?? [];
 	}
 
 	if (structure.type === 'wav') {

@@ -183,7 +183,9 @@ const streamRenderer = <Provider extends CloudProvider>({
 			})
 			.catch((err) => {
 				const shouldRetry =
-					(err as Error).stack?.includes('Error: aborted') ?? false;
+					(err as Error).stack?.includes('Error: aborted') ||
+					(err as Error).stack?.includes('ETIMEDOUT') ||
+					false;
 
 				resolve({
 					type: 'error',
