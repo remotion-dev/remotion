@@ -19,9 +19,11 @@ export const TriggerWebRender = () => {
 		}
 
 		renderMediaOnWeb({
-			Component: video?.component,
-			width: video?.width,
-			height: video?.height,
+			Component: video.component,
+			width: video.width,
+			height: video.height,
+			fps: video.fps,
+			durationInFrames: video.durationInFrames,
 		});
 	}, [video]);
 

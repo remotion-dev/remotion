@@ -10,10 +10,14 @@ export const renderMediaOnWeb = async ({
 	Component,
 	width,
 	height,
+	fps,
+	durationInFrames,
 }: {
 	Component: LazyExoticComponent<ComponentType<Record<string, unknown>>>;
 	width: number;
 	height: number;
+	fps: number;
+	durationInFrames: number;
 }) => {
 	const div = document.createElement('div');
 
@@ -44,10 +48,10 @@ export const renderMediaOnWeb = async ({
 
 	const compositionManagerContext: CompositionManagerContext = {
 		currentCompositionMetadata: {
-			durationInFrames: 100,
-			fps: 30,
-			height: 1080,
-			width: 1080,
+			durationInFrames,
+			fps,
+			height,
+			width,
 			props: {},
 			defaultCodec: null,
 			defaultOutName: null,
@@ -66,10 +70,10 @@ export const renderMediaOnWeb = async ({
 				parentFolderName: null,
 				schema: null,
 				calculateMetadata: null,
-				durationInFrames: 100,
-				fps: 30,
-				height: 1080,
-				width: 1080,
+				durationInFrames,
+				fps,
+				height,
+				width,
 			},
 		],
 		canvasContent: {
@@ -93,13 +97,13 @@ export const renderMediaOnWeb = async ({
 				// TODO: Empty
 				props: {},
 				// TODO: Hardcoded
-				durationInFrames: 100,
+				durationInFrames,
 				// TODO: Hardcoded
-				fps: 30,
+				fps,
 				// TODO: Hardcoded
-				height: 1080,
+				height,
 				// TODO: Hardcoded
-				width: 1080,
+				width,
 				// TODO: Hardcoded
 				defaultCodec: null,
 				// TODO: Hardcoded
