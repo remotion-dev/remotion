@@ -6,5 +6,5 @@ await buildPackage({
 		esm: 'build',
 	},
 	external: ['remotion', 'react', 'react-dom'],
-	entrypoints: [{path: 'src/index.tsx', target: 'browser'}],
+	entrypoints: [{path: 'src/index.ts', target: 'browser'}],
 });

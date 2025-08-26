@@ -2,6 +2,7 @@ import type {ComponentType, LazyExoticComponent} from 'react';
 import ReactDOM from 'react-dom/client';
 import type {CompositionManagerContext} from 'remotion';
 import {Internals} from 'remotion';
+import {compose} from './compose';
 import {findCanvasElements} from './find-canvas-elements';
 import {waitForReady} from './wait-for-ready';
 
@@ -77,7 +78,9 @@ export const renderMediaOnWeb = async ({
 		},
 	};
 
-	ReactDOM.createRoot(div).render(
+	const root = ReactDOM.createRoot(div);
+
+	root.render(
 		<Internals.RemotionRoot
 			// TODO: Hardcoded
 			logLevel="info"
@@ -121,5 +124,26 @@ export const renderMediaOnWeb = async ({
 	);
 
 	await waitForReady(delayRenderTimeoutInMilliseconds);
-	findCanvasElements(div);
+	const canvasElements = findCanvasElements(div);
+	const composed = compose({
+		composables: canvasElements,
+		width,
+		height,
+	});
+
+	const imageData = await composed.convertToBlob({
+		type: 'image/png',
+	});
+
+	// download image
+	const blob = new Blob([imageData], {type: 'image/png'});
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = 'composed.png';
+	a.click();
+	URL.revokeObjectURL(url);
+
+	root.unmount();
+	div.remove();
 };
