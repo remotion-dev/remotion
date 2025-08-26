@@ -77,6 +77,7 @@ export const packages = [
 	'example-videos',
 	'whisper-web',
 	'video',
+	'web-renderer',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
@@ -164,6 +165,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'svg-3d-engine': '3D SVG extrusion effects',
 	'serverless-client': null,
 	video: 'Experimental tag for reliable and accurate video embedding',
+	'web-renderer': 'Render videos in the browser (not yet released)',
 };
 export const installableMap: {[key in Pkgs]: boolean} = {
 	'svg-3d-engine': false,
@@ -244,6 +246,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	compositor: false,
 	'example-videos': false,
 	video: false,
+	'web-renderer': false,
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -328,4 +331,6 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'promo-pages': null,
 	'svg-3d-engine': null,
 	video: null,
+	// TODO: Add docs
+	'web-renderer': null,
 };
