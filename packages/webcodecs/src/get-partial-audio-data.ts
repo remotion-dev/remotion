@@ -193,6 +193,15 @@ export const getPartialAudioData = async ({
 					await audioDecoder.waitForQueueToBeLessThan(10);
 					// we're waiting for the queue above anyway, enqueue in sync mode
 					audioDecoder.decode(sample);
+
+					// this is called on the last sample of the track
+					// so if we have reached the end of the track, resolve the promise
+					return () => {
+						audioDecoder.flush().then(() => {
+							audioDecoder.close();
+							resolveAudioDecode();
+						});
+					};
 				};
 			},
 		});
