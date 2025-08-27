@@ -20,17 +20,24 @@ test('mpeg 2.5 mp3 file is parsing correctly', async () => {
 test('seeking in mpeg 2.5 mp3 should not hang', async () => {
 	const controller = mediaParserController();
 
+	let samples = 0;
+
 	controller.seek(90);
-	// TODO: why is this failing with `Out of bounds access`?
 	await parseMedia({
 		src: exampleVideos.mp3Mpeg25,
 		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 		controller,
 		onAudioTrack: () => {
-			return () => {
-				return () => {};
+			return (sample) => {
+				if (samples === 0) {
+					expect(sample.timestamp).toBe(90_000_000);
+				}
+
+				samples++;
 			};
 		},
 	});
-}, 1000);
+
+	expect(samples).toBe(836);
+});

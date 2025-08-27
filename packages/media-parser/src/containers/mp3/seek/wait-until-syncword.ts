@@ -12,6 +12,10 @@ export const discardUntilSyncword = ({
 			continue;
 		}
 
+		if (iterator.bytesRemaining() === 0) {
+			break;
+		}
+
 		const nextByte = iterator.getUint8();
 		const mask = 0xe0; // 1110 0000
 
