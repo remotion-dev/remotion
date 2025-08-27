@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-ts-expect-error */
 import readline from 'readline';
 
 const options = {
@@ -31,7 +32,9 @@ export const yesOrNo = ({
 	const noValues = options.no.map((v) => v.toLowerCase());
 
 	const rl = readline.createInterface({
+		// @ts-ignore
 		input: process.stdin,
+		// @ts-ignore
 		output: process.stdout,
 	});
 
