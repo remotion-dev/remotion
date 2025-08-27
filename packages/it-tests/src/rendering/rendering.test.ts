@@ -460,7 +460,6 @@ test('Should render a still that uses the staticFile() API and should apply prop
 			'build',
 			'static-demo',
 			out,
-			'--log=verbose',
 			`--props`,
 			'props.json',
 		],
