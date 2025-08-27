@@ -39,6 +39,7 @@
 		{"path": "../media-parser"},
 		{"path": "../webcodecs"},
 		{"path": "../whisper-web"},
-		{"path": "../layout-utils"}
+		{"path": "../layout-utils"},
+		{"path": "../video"}
 	]
 }

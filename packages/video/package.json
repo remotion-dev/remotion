@@ -15,13 +15,13 @@
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
-		"test": "bun test src/test",
 		"watch": "tsc -w",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {
 		"remotion": "workspace:*",
-		"@remotion/webcodecs": "workspace:*"
+		"@remotion/webcodecs": "workspace:*",
+		"@remotion/media-parser": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
