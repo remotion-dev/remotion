@@ -1,4 +1,4 @@
-import {ALL_FORMATS, Input, UrlSource, VideoSampleSink} from 'mediabunny';
+import type {VideoSampleSink} from 'mediabunny';
 import React, {
 	useContext,
 	useEffect,
@@ -7,13 +7,13 @@ import React, {
 	useRef,
 } from 'react';
 import {
-	cancelRender,
 	continueRender,
 	delayRender,
 	Internals,
 	random,
 	useCurrentFrame,
 } from 'remotion';
+import {getVideoSink} from './get-sink';
 import type {NewVideoProps} from './props';
 
 const {
@@ -125,6 +125,8 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 	const {fps} = videoConfig;
 
+	const sinkPromise = useRef<Promise<VideoSampleSink> | null>(null);
+
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
 			return;
@@ -138,35 +140,34 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		const actualFPS = playbackRate ? fps / playbackRate : fps;
 		const timestamp = frame / actualFPS;
 
-		const input = new Input({
-			formats: ALL_FORMATS,
-			source: new UrlSource(src),
-		});
+		if (!sinkPromise.current) {
+			sinkPromise.current = getVideoSink(src);
+		}
 
-		input.getPrimaryVideoTrack().then((track) => {
-			if (!track) {
-				throw new Error('No video track found');
+		const iterator = async function* () {
+			yield timestamp;
+		};
+
+		sinkPromise.current.then(async (sink) => {
+			const keyframeSamples = sink.samplesAtTimestamps(iterator());
+
+			for await (const sample of keyframeSamples) {
+				if (!sample) {
+					throw new Error(`Could not extract frame for ${src} at ${timestamp}`);
+				}
+
+				if (!canvasRef.current) {
+					throw new Error('Canvas not found');
+				}
+
+				const videoFrame = sample.toVideoFrame();
+				canvasRef.current.getContext('2d')?.drawImage(videoFrame, 0, 0);
+				onVideoFrame?.(videoFrame);
+				sample.close();
+				videoFrame.close();
 			}
 
-			const sink = new VideoSampleSink(track);
-			sink
-				.getSample(timestamp)
-				.then((sample) => {
-					if (!sample) {
-						cancelRender(new Error('No sample found'));
-					}
-
-					const videoFrame = sample.toVideoFrame();
-
-					canvasRef.current?.getContext('2d')?.drawImage(videoFrame, 0, 0);
-					onVideoFrame?.(videoFrame);
-					sample.close();
-					videoFrame.close();
-					continueRender(newHandle);
-				})
-				.catch((error) => {
-					cancelRender(error);
-				});
+			continueRender(newHandle);
 		});
 	}, [
 		frame,
