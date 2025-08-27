@@ -214,7 +214,7 @@ const innerParseMp3PacketHeader = (iterator: BufferIterator) => {
 	const bitrateInKbit = getBitrateKB({
 		bits: bitrateIndex,
 		mpegVersion,
-		level: audioVersionId as Level,
+		level: layer as Level,
 	});
 	if (bitrateInKbit === 'bad') {
 		throw new Error('Invalid bitrate');
@@ -226,10 +226,12 @@ const innerParseMp3PacketHeader = (iterator: BufferIterator) => {
 
 	const samplingFrequencyIndex = iterator.getBits(2);
 
-	const sampleRate = getSamplingFrequency({
+	const baseSampleRate = getSamplingFrequency({
 		bits: samplingFrequencyIndex,
 		mpegVersion,
 	});
+	const sampleRate =
+		audioVersionId === 0b00 ? baseSampleRate / 2 : baseSampleRate;
 	const padding = Boolean(iterator.getBits(1));
 	iterator.getBits(1); // private bit
 	const channelMode = iterator.getBits(2); // channel mode
