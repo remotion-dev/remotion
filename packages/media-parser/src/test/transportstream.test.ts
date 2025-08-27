@@ -183,7 +183,6 @@ test('Transport stream', async () => {
 			],
 		});
 		if (ffmpegResult.exitCode !== 0) {
-			// @ts-expect-error
 			throw new Error(ffmpegResult.stderr.toString('utf8'));
 		}
 
