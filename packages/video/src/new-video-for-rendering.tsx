@@ -1,3 +1,4 @@
+import {extractFrames} from '@remotion/webcodecs';
 import React, {
 	useContext,
 	useEffect,
@@ -12,7 +13,6 @@ import {
 	random,
 	useCurrentFrame,
 } from 'remotion';
-import type {RequestFrameRequest, WorkerResponsePayload} from './payloads';
 import type {NewVideoProps} from './props';
 const {
 	useUnsafeVideoConfig,
@@ -23,10 +23,6 @@ const {
 	RenderAssetManager,
 	evaluateVolume,
 } = Internals;
-
-function createDedicatedWorker() {
-	return new Worker(new URL('./worker.mjs', import.meta.url));
-}
 
 export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	volume: volumeProp,
@@ -55,7 +51,6 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	const volumePropsFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
-	const workerRef = useRef<Worker | null>(null);
 
 	const id = useMemo(
 		() =>
@@ -134,14 +129,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			return;
 		}
 
-		if (!workerRef.current) {
-			const workerFetched = createDedicatedWorker();
-			workerRef.current = workerFetched;
-		}
-
-		const {current: worker} = workerRef;
-
-		const newHandle = delayRender(`extracting frame number ${frame}`, {
+		const newHandle = delayRender(`extracting frame numberrr ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
@@ -149,28 +137,18 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		const actualFPS = playbackRate ? fps / playbackRate : fps;
 		const timestamp = frame / actualFPS;
 
-		const paintHandler = (e: MessageEvent) => {
-			const data = e.data as WorkerResponsePayload;
-			if (data.type === 'request-frame-response') {
-				canvasRef.current?.getContext('2d')?.drawImage(data.frame, 0, 0);
-				onVideoFrame?.(data.frame);
-				data.frame.close();
+		extractFrames({
+			src,
+			timestampsInSeconds: [timestamp],
 
+			onFrame: (extractedFrame) => {
+				canvasRef.current?.getContext('2d')?.drawImage(extractedFrame, 0, 0);
+
+				onVideoFrame?.(extractedFrame);
+				extractedFrame.close();
 				continueRender(newHandle);
-			}
-		};
-
-		worker.addEventListener('message', paintHandler);
-		const request: RequestFrameRequest = {
-			src: new URL(src, window.location.href).toString(),
-			timestamp,
-			type: 'request-frame-request',
-		};
-		worker.postMessage(request);
-
-		return () => {
-			worker.removeEventListener('message', paintHandler);
-		};
+			},
+		});
 	}, [
 		frame,
 		playbackRate,
