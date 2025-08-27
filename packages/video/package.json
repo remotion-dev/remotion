@@ -20,8 +20,7 @@
 	},
 	"dependencies": {
 		"remotion": "workspace:*",
-		"@remotion/webcodecs": "workspace:*",
-		"@remotion/media-parser": "workspace:*"
+		"mediabunny": "1.11.2"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

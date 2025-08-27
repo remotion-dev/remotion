@@ -1,4 +1,4 @@
-import {extractFrames} from '@remotion/webcodecs';
+import {ALL_FORMATS, Input, UrlSource, VideoSampleSink} from 'mediabunny';
 import React, {
 	useContext,
 	useEffect,
@@ -7,6 +7,7 @@ import React, {
 	useRef,
 } from 'react';
 import {
+	cancelRender,
 	continueRender,
 	delayRender,
 	Internals,
@@ -14,6 +15,7 @@ import {
 	useCurrentFrame,
 } from 'remotion';
 import type {NewVideoProps} from './props';
+
 const {
 	useUnsafeVideoConfig,
 	SequenceContext,
@@ -35,13 +37,8 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	delayRenderTimeoutInMilliseconds,
 	// call when a frame of the video, i.e. frame drawn on canvas
 	onVideoFrame,
-	// Remove crossOrigin prop during rendering
-	// https://discord.com/channels/809501355504959528/844143007183667220/1311639632496033813
-	crossOrigin,
 	audioStreamIndex,
 }) => {
-	// eslint-disable-next-line    no-unused-expressions
-	crossOrigin;
 	const absoluteFrame = useTimelinePosition();
 	const videoConfig = useUnsafeVideoConfig();
 	const sequenceContext = useContext(SequenceContext);
@@ -141,16 +138,35 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		const actualFPS = playbackRate ? fps / playbackRate : fps;
 		const timestamp = frame / actualFPS;
 
-		extractFrames({
-			src,
-			timestampsInSeconds: [timestamp],
-			onFrame: (extractedFrame) => {
-				canvasRef.current?.getContext('2d')?.drawImage(extractedFrame, 0, 0);
+		const input = new Input({
+			formats: ALL_FORMATS,
+			source: new UrlSource(src),
+		});
 
-				onVideoFrame?.(extractedFrame);
-				extractedFrame.close();
-				continueRender(newHandle);
-			},
+		input.getPrimaryVideoTrack().then((track) => {
+			if (!track) {
+				throw new Error('No video track found');
+			}
+
+			const sink = new VideoSampleSink(track);
+			sink
+				.getSample(timestamp)
+				.then((sample) => {
+					if (!sample) {
+						cancelRender(new Error('No sample found'));
+					}
+
+					const videoFrame = sample.toVideoFrame();
+
+					canvasRef.current?.getContext('2d')?.drawImage(videoFrame, 0, 0);
+					onVideoFrame?.(videoFrame);
+					sample.close();
+					videoFrame.close();
+					continueRender(newHandle);
+				})
+				.catch((error) => {
+					cancelRender(error);
+				});
 		});
 	}, [
 		frame,
