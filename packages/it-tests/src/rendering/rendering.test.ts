@@ -505,6 +505,7 @@ test(
 			},
 		);
 		await Bun.file(path.join(cwd, 'props.json')).delete();
+		await Bun.file(path.join(cwd, 'audio.wav')).delete();
 
 		expect(task.exitCode).toBe(0);
 		expect(fs.existsSync(outputPath)).toBe(true);
