@@ -47,9 +47,7 @@ export async function generateEnv(projectID: string) {
 	function deleteKeyPrompt() {
 		return new Promise((resolve) => {
 			const rl = readline.createInterface({
-				// @ts-expect-error
 				input: process.stdin,
-				// @ts-expect-error
 				output: process.stdout,
 			});
 
