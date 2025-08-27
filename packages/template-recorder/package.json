@@ -55,7 +55,7 @@
     "tailwindcss": "3.3.5",
     "typescript": "5.8.2",
     "vite": "5.4.19",
-    "@types/bun": "1.2.19",
+    "@types/bun": "1.2.21",
     "@types/dom-mediacapture-record": "1.0.21",
     "@types/connect": "3.4.38",
     "@types/web": "0.0.187",
