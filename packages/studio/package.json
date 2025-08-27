@@ -30,6 +30,7 @@
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/media-parser": "workspace:*",
 		"@remotion/renderer": "workspace:*",
+		"@remotion/web-renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
 		"@remotion/zod-types": "workspace:*",

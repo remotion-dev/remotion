@@ -173,6 +173,7 @@ export const webpackConfig = async ({
 					'esm',
 					'index.mjs',
 				),
+
 				'@remotion/media-parser/worker': path.resolve(
 					require.resolve('@remotion/media-parser'),
 					'..',

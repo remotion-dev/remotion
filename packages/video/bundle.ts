@@ -6,11 +6,15 @@ if (process.env.NODE_ENV !== 'production') {
 }
 console.time('Generated.');
 const output = await build({
-	entrypoints: [
-		'src/index.ts'
-	],
+	entrypoints: ['src/index.ts'],
 	naming: '[name].mjs',
-	external: ['@remotion/webcodecs', 'remotion', 'react', 'react-dom'],
+	external: [
+		'@remotion/webcodecs',
+		'remotion',
+		'react',
+		'react-dom',
+		'@remotion/media-parser',
+	],
 });
 
 if (!output.success) {
@@ -24,7 +28,5 @@ for (const file of output.outputs) {
 
 	await Bun.write(out, str);
 }
-
-
 
 console.timeEnd('Generated.');

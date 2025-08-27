@@ -139,7 +139,6 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		});
 
 		const actualFPS = playbackRate ? fps / playbackRate : fps;
-
 		const timestamp = frame / actualFPS;
 
 		extractFrames({

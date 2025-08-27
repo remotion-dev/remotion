@@ -1,8 +1,8 @@
 {
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/whisper-web"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/web-renderer"
 	},
-	"name": "@remotion/whisper-web",
+	"name": "@remotion/web-renderer",
 	"version": "4.0.340",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -11,14 +11,20 @@
 		"lint": "eslint src",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
-	"author": "Hunain Ahmed <junaidhunain6@gmail.com>",
+	"author": "Remotion <jonny@remotion.dev>",
 	"license": "UNLICENSED",
 	"dependencies": {
-		"@remotion/captions": "workspace:*"
+		"remotion": "workspace:*"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "9.19.0",
+		"react": "19.0.0",
+		"react-dom": "19.0.0"
+	},
+	"peerDependencies": {
+		"react": ">=18.0.0",
+		"react-dom": ">=18.0.0"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -30,19 +36,12 @@
 			"require": "./dist/index.js",
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
-		},
-		"./main": {
-			"require": "./main.js",
-			"module": "./main.js",
-			"import": "./main.js"
 		}
 	},
 	"keywords": [
 		"remotion",
-		"openai",
-		"whisper",
-		"wasm"
+		"renderer",
+		"web"
 	],
-	"homepage": "https://www.remotion.dev/docs/whisper-web",
-	"description": "Helpers for using Whisper.cpp in browser using WASM"
+	"description": "Render videos in the browser (not yet released)"
 }
