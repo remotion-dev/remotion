@@ -141,9 +141,9 @@ async function saveSequenceInTempDir(id: string) {
 	);
 
 	await execa(
-		'pnpm',
+		'bun',
 		[
-			'exec',
+			'x',
 			'remotion',
 			'render',
 			'./build',
