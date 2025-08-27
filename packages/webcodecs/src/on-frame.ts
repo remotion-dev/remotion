@@ -6,7 +6,7 @@ import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import type {ResizeOperation} from './resizing/mode';
 import {rotateAndResizeVideoFrame} from './rotate-and-resize-video-frame';
 
-export const onFrame = async ({
+export const processFrame = async ({
 	frame: unrotatedFrame,
 	onVideoFrame,
 	track,

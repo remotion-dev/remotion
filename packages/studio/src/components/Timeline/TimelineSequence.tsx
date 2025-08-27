@@ -48,6 +48,7 @@ const Inner: React.FC<{
 	const frame = useCurrentFrame();
 	const relativeFrame = frame - s.from;
 	const relativeFrameWithPremount = relativeFrame + (s.premountDisplay ?? 0);
+	const relativeFrameWithPostmount = relativeFrame - s.duration;
 
 	const roundedFrame = Math.round(relativeFrame * 100) / 100;
 
@@ -56,8 +57,12 @@ const Inner: React.FC<{
 		relativeFrameWithPremount >= 0 &&
 		relativeFrameWithPremount < s.duration &&
 		!isInRange;
+	const isPostmounting =
+		relativeFrameWithPostmount >= 0 &&
+		relativeFrameWithPostmount < (s.postmountDisplay ?? 0) &&
+		!isInRange;
 
-	const {marginLeft, width, premountWidth} = useMemo(() => {
+	const {marginLeft, width, premountWidth, postmountWidth} = useMemo(() => {
 		return getTimelineSequenceLayout({
 			durationInFrames: s.loopDisplay
 				? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
@@ -68,6 +73,7 @@ const Inner: React.FC<{
 			video,
 			windowWidth,
 			premountDisplay: s.premountDisplay,
+			postmountDisplay: s.postmountDisplay,
 		});
 	}, [maxMediaDuration, s, video, windowWidth]);
 
@@ -114,6 +120,24 @@ const Inner: React.FC<{
 				/>
 			) : null}
 
+			{postmountWidth ? (
+				<div
+					style={{
+						width: postmountWidth,
+						height: '100%',
+						background: `repeating-linear-gradient(
+							-45deg,
+							transparent,
+							transparent 2px,
+							rgba(255, 255, 255, ${isPostmounting ? 0.5 : 0.2}) 2px,
+							rgba(255, 255, 255, ${isPostmounting ? 0.5 : 0.2}) 4px
+						)`,
+						position: 'absolute',
+						right: 0,
+					}}
+				/>
+			) : null}
+
 			{s.type === 'audio' ? (
 				<AudioWaveform
 					src={s.src}
@@ -140,7 +164,7 @@ const Inner: React.FC<{
 			{s.type !== 'audio' &&
 			s.type !== 'video' &&
 			s.loopDisplay === undefined &&
-			(isInRange || isPremounting) ? (
+			(isInRange || isPremounting || isPostmounting) ? (
 				<div
 					style={{
 						paddingLeft: 5 + (premountWidth ?? 0),
@@ -151,6 +175,7 @@ const Inner: React.FC<{
 				>
 					<TimelineSequenceFrame
 						premounted={isPremounting}
+						postmounted={isPostmounting ? s.duration - 1 : null}
 						roundedFrame={roundedFrame}
 					/>
 				</div>

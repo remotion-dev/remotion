@@ -56,6 +56,7 @@ class RenderParams
     protected $x264Preset = null;
     protected $deleteAfter = null;
     protected $forcePathStyle = false;
+    protected $storageClass = null;
 
     public function __construct(
         ?array  $data = null,

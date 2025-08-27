@@ -36,6 +36,7 @@ export const useMediaPlayback = ({
 	acceptableTimeshift,
 	pauseWhenBuffering,
 	isPremounting,
+	isPostmounting,
 	onAutoPlayError,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>;
@@ -46,6 +47,7 @@ export const useMediaPlayback = ({
 	acceptableTimeshift: number | null;
 	pauseWhenBuffering: boolean;
 	isPremounting: boolean;
+	isPostmounting: boolean;
 	onAutoPlayError: null | (() => void);
 }) => {
 	const {playbackRate: globalPlaybackRate} = useContext(TimelineContext);
@@ -106,6 +108,7 @@ export const useMediaPlayback = ({
 		element: mediaRef,
 		shouldBuffer: pauseWhenBuffering,
 		isPremounting,
+		isPostmounting,
 		logLevel,
 		mountTime,
 		src: src ?? null,
@@ -154,7 +157,7 @@ export const useMediaPlayback = ({
 			playbackLogging({
 				logLevel,
 				tag: 'pause',
-				message: `Pausing ${mediaRef.current?.src} because ${isPremounting ? 'media is premounting' : 'Player is not playing'}`,
+				message: `Pausing ${mediaRef.current?.src} because ${isPremounting ? 'media is premounting' : isPostmounting ? 'media is postmounting' : 'Player is not playing'}`,
 				mountTime,
 			});
 			mediaRef.current?.pause();
@@ -184,6 +187,7 @@ export const useMediaPlayback = ({
 		mediaType,
 		mountTime,
 		playing,
+		isPostmounting,
 	]);
 
 	// This must be a useLayoutEffect, because afterwards, useVolume() looks at the playbackRate
@@ -246,7 +250,7 @@ export const useMediaPlayback = ({
 				mediaRef: mediaRef.current,
 				time: shouldBeTime,
 				logLevel,
-				why: `because time shift is too big. shouldBeTime = ${shouldBeTime}, isTime = ${mediaTagTime}, requestVideoCallbackTime = ${rvcTime}, timeShift = ${timeShift}${isVariableFpsVideo ? ', isVariableFpsVideo = true' : ''}, isPremounting = ${isPremounting}, pauseWhenBuffering = ${pauseWhenBuffering}`,
+				why: `because time shift is too big. shouldBeTime = ${shouldBeTime}, isTime = ${mediaTagTime}, requestVideoCallbackTime = ${rvcTime}, timeShift = ${timeShift}${isVariableFpsVideo ? ', isVariableFpsVideo = true' : ''}, isPremounting = ${isPremounting}, isPostmounting = ${isPostmounting}, pauseWhenBuffering = ${pauseWhenBuffering}`,
 				mountTime,
 			});
 			lastSeekDueToShift.current = lastSeek.current;
@@ -357,6 +361,7 @@ export const useMediaPlayback = ({
 		src,
 		onAutoPlayError,
 		isPremounting,
+		isPostmounting,
 		pauseWhenBuffering,
 		mountTime,
 		mediaTagCurrentTime,

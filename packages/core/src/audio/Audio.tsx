@@ -40,6 +40,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		stack,
 		pauseWhenBuffering,
 		showInTimeline,
+		onError: onRemotionError,
 		...otherProps
 	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
@@ -67,13 +68,19 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			const errMessage = `Could not play audio with src ${preloadedSrc}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`;
 
 			if (loop) {
+				if (onRemotionError) {
+					onRemotionError(new Error(errMessage));
+					return;
+				}
+
 				cancelRender(new Error(errMessage));
 			} else {
+				onRemotionError?.(new Error(errMessage));
 				// eslint-disable-next-line no-console
 				console.warn(errMessage);
 			}
 		},
-		[loop, preloadedSrc],
+		[loop, onRemotionError, preloadedSrc],
 	);
 
 	const onDuration = useCallback(
@@ -158,7 +165,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 				onDuration={onDuration}
 				{...props}
 				ref={ref}
-				onError={onError}
+				onNativeError={onError}
 				_remotionInternalNeedsDurationCalculation={Boolean(loop)}
 			/>
 		);
@@ -175,7 +182,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			}
 			{...props}
 			ref={ref}
-			onError={onError}
+			onNativeError={onError}
 			onDuration={onDuration}
 			// Proposal: Make this default to true in v5
 			pauseWhenBuffering={pauseWhenBuffering ?? false}

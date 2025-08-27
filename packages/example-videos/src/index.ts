@@ -18,6 +18,7 @@ export const exampleVideos = {
 		'public',
 		'framermp4withoutfileextension',
 	),
+	framerWebm: path.join(examplePackage, 'public', 'framer.webm'),
 	corrupted: path.join(examplePackage, 'public', 'corrupted.mp4'),
 	customDar: path.join(examplePackage, 'public', 'custom-dar.mp4'),
 	screenrecording: path.join(examplePackage, 'public', 'quick.mov'),
@@ -138,7 +139,6 @@ export const exampleVideos = {
 	),
 	junk: path.join(__dirname, '..', 'videos', 'junk.wav'),
 };
-
 export {
 	getPrivateExampleVideo,
 	getRemoteExampleVideo,

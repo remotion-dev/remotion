@@ -8,16 +8,6 @@ export const showSingleCompositionsPicker = async (
 	validCompositions: Await<ReturnType<typeof getCompositions>>,
 	logLevel: LogLevel,
 ): Promise<{compositionId: string; reason: string}> => {
-	if (validCompositions.length === 1) {
-		const onlyComposition = validCompositions[0];
-		if (onlyComposition) {
-			return {
-				compositionId: onlyComposition.id,
-				reason: 'Only composition',
-			};
-		}
-	}
-
 	const selectedComposition = (await selectAsync(
 		{
 			message: 'Select composition:',

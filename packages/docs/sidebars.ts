@@ -1,3 +1,4 @@
+// @ts-expect-error
 import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 
 const sidebars: SidebarsConfig = {
@@ -175,6 +176,7 @@ const sidebars: SidebarsConfig = {
 				'watchstaticfile',
 			],
 		},
+
 		{
 			type: 'category',
 			label: '@remotion/bundler',
@@ -689,9 +691,11 @@ const sidebars: SidebarsConfig = {
 				'webcodecs/get-available-audio-codecs',
 				'webcodecs/get-available-video-codecs',
 				'webcodecs/convert-audiodata',
+				'webcodecs/get-partial-audio-data',
 				'webcodecs/create-audio-decoder',
 				'webcodecs/create-video-decoder',
 				'webcodecs/extract-frames',
+				'webcodecs/extract-frames-on-web-worker',
 				'webcodecs/rotate-and-resize-video-frame',
 				'webcodecs/web-fs-writer',
 				'webcodecs/buffer-writer',
@@ -769,6 +773,15 @@ const sidebars: SidebarsConfig = {
 				id: 'licensing/index',
 			},
 			items: ['licensing/register-usage-point', 'licensing/get-usage'],
+		},
+		{
+			type: 'category',
+			label: '@remotion/video',
+			link: {
+				type: 'doc',
+				id: 'new-video/index',
+			},
+			items: ['new-video/index'],
 		},
 	],
 	mainSidebar: [
@@ -1000,6 +1013,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/r2',
 				'lambda/insights',
 				'lambda/multiple-buckets',
+				'lambda/data-transfer-cost',
 				'lambda/how-lambda-works',
 				'lambda/bucket-naming',
 				'lambda/optimizing-cost',
@@ -1312,6 +1326,12 @@ const sidebars: SidebarsConfig = {
 			defaultStyle: true, // Use the default menu item styling
 		},
 		{
+			type: 'link',
+			href: '/docs/editor-starter',
+			label: 'Editor Starter',
+			className: 'pro-item',
+		},
+		{
 			type: 'category',
 			label: 'Timeline',
 			className: 'pro-item',
@@ -1327,24 +1347,48 @@ const sidebars: SidebarsConfig = {
 				'timeline/render',
 			],
 		},
-		{
-			type: 'category',
-			label: 'Editor Starter',
-			className: 'wip-item',
-			link: {
-				type: 'doc',
-				id: 'editor-starter/features',
-			},
-			items: [
-				'editor-starter/features',
-				'editor-starter/undo-redo',
-				'editor-starter/backend-routes',
-			],
-		},
+
 		{
 			type: 'link',
 			href: '/docs/recorder',
 			label: 'Recorder',
+		},
+	],
+	editorStarterSidebar: [
+		{
+			type: 'link',
+			href: '/docs',
+			label: '← Back to the main docs',
+		},
+		{
+			type: 'category',
+			label: 'Editor Starter',
+			link: {
+				type: 'doc',
+				id: 'editor-starter/index',
+			},
+			items: [
+				'editor-starter/demo',
+				'editor-starter/before-you-buy',
+				'editor-starter/buy',
+				'editor-starter/setup',
+				'editor-starter/dependencies',
+				'editor-starter/features',
+				'editor-starter/state-management',
+				'editor-starter/tracks-items-assets',
+				'editor-starter/undo-redo',
+				'editor-starter/copy-paste',
+				'editor-starter/fonts',
+				'editor-starter/asset-uploads',
+				'editor-starter/asset-cleanup',
+				'editor-starter/persistance',
+				'editor-starter/captioning',
+				'editor-starter/rendering',
+				'editor-starter/backend-routes',
+				'editor-starter/production-checklist',
+				'editor-starter/features-not-included',
+				'editor-starter/faq',
+			],
 		},
 	],
 	recorderSidebar: [

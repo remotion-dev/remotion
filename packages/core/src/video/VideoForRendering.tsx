@@ -49,6 +49,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		loopVolumeCurveBehavior,
+		audioStreamIndex,
 		...props
 	},
 	ref,
@@ -122,6 +123,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			playbackRate: playbackRate ?? 1,
 			toneFrequency: toneFrequency ?? null,
 			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
+			audioStreamIndex: audioStreamIndex ?? 0,
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -137,6 +139,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		toneFrequency,
 		sequenceContext?.relativeFrom,
+		audioStreamIndex,
 	]);
 
 	useImperativeHandle(ref, () => {

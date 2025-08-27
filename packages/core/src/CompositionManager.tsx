@@ -120,6 +120,7 @@ export type TSequence = {
 	loopDisplay: LoopDisplay | undefined;
 	stack: string | null;
 	premountDisplay: number | null;
+	postmountDisplay: number | null;
 } & EnhancedTSequenceData;
 
 export type AudioOrVideoAsset = {
@@ -132,6 +133,7 @@ export type AudioOrVideoAsset = {
 	playbackRate: number;
 	toneFrequency: number | null;
 	audioStartFrame: number;
+	audioStreamIndex: number;
 };
 
 type DiscriminatedArtifact =

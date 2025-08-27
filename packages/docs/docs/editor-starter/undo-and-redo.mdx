@@ -6,28 +6,8 @@ id: undo-redo
 crumb: Editor Starter
 ---
 
-The Editor Starter implemnts a basic Undo and Redo feature.  
-It works by keeping an array of snapshots of the state of the editor in memory.
-
-## Undoable state
-
-State is separated into undoable and non-undoable parts.
-Undoable state is located within the `undoableState` object of the root state.
-
-**Undoable state** may be:
-
-- Position, size and other properties of an item
-- Track position and arrangement
-- Video properties like dimensions and frame rate
-
-**Non-undoable state** may be:
-
-- Asset upload progress
-- Zoom level
-- Captioning progress
-- Clipboard state
-- Rendering state
-- Selection state
+The Editor Starter implements a basic Undo and Redo feature.  
+It works by keeping an array of snapshots of the [undoable state](/docs/editor-starter/state-management#undoable-state) of the editor in memory.
 
 ## Undo stack
 
@@ -38,35 +18,19 @@ Whenever updating a state, you should set the `commitToUndoStack` property appro
 
 Actions that you may not want to add to the undo stack are high-frequency state update like:
 
-- Dragging an item to a new position in the canvas
-- Dragging an item to a new position in the timeline
+- Dragging an item in the canvas
+- Dragging an item in the timeline
 - Trimming an item in the timeline
 - Changing a value in the inspector with the slider
 
-In these cases, it is appropriate to only commit to the undo stack once the mouse cursor is released.
+In these cases, it is appropriate to only commit to the undo stack once the **mouse cursor is released**.
 
-## Preventing state changes
+## Preventing unnecessary additions to the undo stack
 
-You should prevent an unnecessary write to the undo stack when nothing has changed.  
-Nothing is written to the undo stack when the identity of the `undoableState` object has not changed.
+The undo stack only adds a new entry when the state object reference actually changes.  
+If a state update results in `oldState === newState` evaluating to `true`, no entry is added to the undo stack.
 
-This may require you to add additional checks to your state update functions to return the same object if nothing has changed.
-
-```ts title="Preventing an identity change"
-export const markAsDragging = (state: EditorState, itemId: string): EditorState => {
-  return changeItem(state, itemId, (item) => {
-    if (item.isDragging) {
-      // The item would not change, so we return the original object
-      return item;
-    }
-
-    return {
-      ...item,
-      isDragging: true,
-    };
-  });
-};
-```
+See [Preventing state updates when nothing has changed](/docs/editor-starter/state-management#preventing-state-updates-when-nothing-has-changed) for more information.
 
 ## Undo and Redo interactions
 
@@ -81,3 +45,7 @@ This behavior is controlled by the following [flags](/docs/editor-starter/featur
 - [`FEATURE_REDO_BUTTON`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_REDO_BUTTON&type=code)
 - [`FEATURE_UNDO_SHORTCUT`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_UNDO_SHORTCUT&type=code)
 - [`FEATURE_REDO_SHORTCUT`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_REDO_SHORTCUT&type=code)
+
+## See also
+
+- [State management](/docs/editor-starter/state-management)

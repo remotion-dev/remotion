@@ -1,10 +1,13 @@
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../../convert-audio-or-video-sample';
-import {getHasTracks} from '../../../get-tracks';
+import type {MediaParserTrack} from '../../../get-tracks';
+import {getHasTracks, getTracksFromMoovBox} from '../../../get-tracks';
 import {Log} from '../../../log';
 import type {FetchMoreData, Skip} from '../../../skip';
 import {makeFetchMoreData, makeSkip} from '../../../skip';
-import type {FlatSample} from '../../../state/iso-base-media/cached-sample-positions';
-import {calculateFlatSamples} from '../../../state/iso-base-media/cached-sample-positions';
+import {
+	calculateSamplePositions,
+	getSampleWithLowestDts,
+} from '../../../state/iso-base-media/cached-sample-positions';
 import {
 	getLastMoofBox,
 	getMaxFirstMoofOffset,
@@ -15,8 +18,8 @@ import {
 } from '../../../state/may-skip-video-data';
 import type {ParserState} from '../../../state/parser-state';
 import {getCurrentMediaSection} from '../../../state/video-section';
+import {WEBCODECS_TIMESCALE} from '../../../webcodecs-timescale';
 import {getMoovAtom} from '../get-moov-atom';
-import {calculateJumpMarks} from './calculate-jump-marks';
 import {postprocessBytes} from './postprocess-bytes';
 
 export const parseMdatSection = async (
@@ -78,87 +81,86 @@ export const parseMdatSection = async (
 			endOfMdat,
 			state,
 		});
+		const tracksFromMoov = getTracksFromMoovBox(moov);
 		state.iso.moov.setMoovBox({
 			moovBox: moov,
 			precomputed: false,
 		});
-		state.callbacks.tracks.setIsDone(state.logLevel);
+		const existingTracks = state.callbacks.tracks.getTracks();
+		for (const trackFromMoov of tracksFromMoov) {
+			if (existingTracks.find((t) => t.trackId === trackFromMoov.trackId)) {
+				continue;
+			}
 
+			if (trackFromMoov.type === 'other') {
+				continue;
+			}
+
+			state.callbacks.tracks.addTrack(trackFromMoov);
+		}
+
+		state.callbacks.tracks.setIsDone(state.logLevel);
 		state.structure.getIsoStructure().boxes.push(moov);
+
 		return parseMdatSection(state);
 	}
 
+	const tracks = state.callbacks.tracks.getTracks();
+
 	if (!state.iso.flatSamples.getSamples(mediaSection.start)) {
-		const flattedSamples = calculateFlatSamples({
+		const samplePosition = calculateSamplePositions({
 			state,
 			mediaSectionStart: mediaSection.start,
+			trackIds: tracks.map((t) => t.trackId),
 		});
 
-		const calcedJumpMarks = calculateJumpMarks(flattedSamples, endOfMdat);
-		state.iso.flatSamples.setJumpMarks(mediaSection.start, calcedJumpMarks);
-		state.iso.flatSamples.setSamples(
-			mediaSection.start,
-			flattedSamples.flat(1),
-		);
+		state.iso.flatSamples.setSamples(mediaSection.start, samplePosition);
 	}
 
-	const flatSamples = state.iso.flatSamples.getSamples(
+	const samplePositions = state.iso.flatSamples.getSamples(mediaSection.start)!;
+	const sampleIndices = state.iso.flatSamples.getCurrentSampleIndices(
 		mediaSection.start,
-	) as FlatSample[];
-	const jumpMarks = state.iso.flatSamples.getJumpMarks(mediaSection.start);
-	const {iterator} = state;
+	);
+	const nextSampleArray = getSampleWithLowestDts(
+		samplePositions,
+		sampleIndices,
+	);
 
-	const samplesWithIndex = flatSamples.find((sample) => {
-		return sample.samplePosition.offset === iterator.counter.getOffset();
-	});
-	if (!samplesWithIndex) {
-		// There are various reasons why in mdat we find weird stuff:
-		// - iphonevideo.hevc has a fake hoov atom which is not mapped
-		// - corrupted.mp4 has a corrupt table
-		const nextSample_ = flatSamples
-			.filter((s) => s.samplePosition.offset > iterator.counter.getOffset())
-			.sort((a, b) => a.samplePosition.offset - b.samplePosition.offset)[0];
-		if (nextSample_) {
-			iterator.discard(
-				nextSample_.samplePosition.offset - iterator.counter.getOffset(),
-			);
-			return null;
-		}
-
-		// guess we reached the end!
-		// iphonevideo.mov has extra padding here, so let's make sure to jump ahead
-
-		Log.verbose(
-			state.logLevel,
-			'Could not find sample at offset',
-			iterator.counter.getOffset(),
-			'skipping to end of mdat',
-		);
-
+	if (nextSampleArray.length === 0) {
+		Log.verbose(state.logLevel, 'Iterated over all samples.', endOfMdat);
 		return makeSkip(endOfMdat);
+	}
+
+	const exactMatch = nextSampleArray.find(
+		(s) => s.samplePosition.offset === state.iterator.counter.getOffset(),
+	);
+	const nextSample = exactMatch ?? nextSampleArray[0];
+
+	if (nextSample.samplePosition.offset !== state.iterator.counter.getOffset()) {
+		return makeSkip(nextSample.samplePosition.offset);
 	}
 
 	// Corrupt file: Sample is beyond the end of the file. Don't process it.
 	if (
-		samplesWithIndex.samplePosition.offset +
-			samplesWithIndex.samplePosition.size >
+		nextSample.samplePosition.offset + nextSample.samplePosition.size >
 		state.contentLength
 	) {
 		Log.verbose(
 			state.logLevel,
 			"Sample is beyond the end of the file. Don't process it.",
-			samplesWithIndex.samplePosition.offset +
-				samplesWithIndex.samplePosition.size,
+			nextSample.samplePosition.offset + nextSample.samplePosition.size,
 			endOfMdat,
 		);
 
 		return makeSkip(endOfMdat);
 	}
 
+	const {iterator} = state;
+
 	// Need to fetch more data
-	if (iterator.bytesRemaining() < samplesWithIndex.samplePosition.size) {
+	if (iterator.bytesRemaining() < nextSample.samplePosition.size) {
 		return makeFetchMoreData(
-			samplesWithIndex.samplePosition.size - iterator.bytesRemaining(),
+			nextSample.samplePosition.size - iterator.bytesRemaining(),
 		);
 	}
 
@@ -170,19 +172,37 @@ export const parseMdatSection = async (
 		offset,
 		bigEndian,
 		chunkSize,
-	} = samplesWithIndex.samplePosition;
-	const {originalTimescale, startInSeconds} = samplesWithIndex.track;
+	} = nextSample.samplePosition;
 
-	const cts = rawCts + startInSeconds * originalTimescale;
-	const dts = rawDts + startInSeconds * originalTimescale;
+	const track = tracks.find(
+		(t) => t.trackId === nextSample.trackId,
+	) as MediaParserTrack;
+
+	const {
+		originalTimescale,
+		startInSeconds,
+		trackMediaTimeOffsetInTrackTimescale,
+		timescale: trackTimescale,
+	} = track;
+
+	const cts =
+		rawCts +
+		startInSeconds * originalTimescale -
+		(trackMediaTimeOffsetInTrackTimescale / trackTimescale) *
+			WEBCODECS_TIMESCALE;
+	const dts =
+		rawDts +
+		startInSeconds * originalTimescale -
+		(trackMediaTimeOffsetInTrackTimescale / trackTimescale) *
+			WEBCODECS_TIMESCALE;
 
 	const bytes = postprocessBytes({
-		bytes: iterator.getSlice(samplesWithIndex.samplePosition.size),
+		bytes: iterator.getSlice(nextSample.samplePosition.size),
 		bigEndian,
 		chunkSize,
 	});
 
-	if (samplesWithIndex.track.type === 'audio') {
+	if (track.type === 'audio') {
 		const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
 			sample: {
 				data: bytes,
@@ -197,11 +217,11 @@ export const parseMdatSection = async (
 
 		await state.callbacks.onAudioSample({
 			audioSample,
-			trackId: samplesWithIndex.track.trackId,
+			trackId: track.trackId,
 		});
 	}
 
-	if (samplesWithIndex.track.type === 'video') {
+	if (track.type === 'video') {
 		// https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/sei_checkpoint.mp4
 		// Position in file 0x0001aba615
 		// https://github.com/remotion-dev/remotion/issues/4680
@@ -230,20 +250,15 @@ export const parseMdatSection = async (
 
 		await state.callbacks.onVideoSample({
 			videoSample,
-			trackId: samplesWithIndex.track.trackId,
+			trackId: track.trackId,
 		});
 	}
 
-	const jump = jumpMarks.find((j) => j.afterSampleWithOffset === offset);
-	if (jump) {
-		Log.verbose(
-			state.logLevel,
-			'Found jump mark',
-			jump.jumpToOffset,
-			'skipping to jump mark',
-		);
-		return makeSkip(jump.jumpToOffset);
-	}
+	state.iso.flatSamples.setCurrentSampleIndex(
+		mediaSection.start,
+		nextSample.trackId,
+		nextSample.index + 1,
+	);
 
 	return null;
 };

@@ -80,6 +80,7 @@ test('parse full wav', async () => {
 			trackId: 0,
 			type: 'audio',
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		},
 	]);
 	expect(durationInSeconds).toBe(30);

@@ -21,7 +21,7 @@ export const Display: React.FC<{
   nextScene: SceneAndMetadata | null;
   previousScene: SceneAndMetadata | null;
   startFrame: number;
-  endAt: number | undefined;
+  trimAfter: number | undefined;
   canvasLayout: CanvasLayout;
 }> = ({
   scene,
@@ -30,7 +30,7 @@ export const Display: React.FC<{
   nextScene,
   canvasLayout,
   previousScene,
-  endAt,
+  trimAfter,
   startFrame,
 }) => {
   if (scene.layout.displayLayout === null) {
@@ -82,8 +82,8 @@ export const Display: React.FC<{
           frame={frame}
         >
           <OffthreadVideo
-            startFrom={startFrame}
-            endAt={endAt}
+            trimBefore={startFrame}
+            trimAfter={trimAfter}
             src={scene.cameras.display.src}
             style={{
               width: displayLayout.width,

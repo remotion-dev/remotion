@@ -19,6 +19,11 @@ export const remoteExampleVideos = {
 		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/large-stsd.mp4',
 	videoWithEditList:
 		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/video-with-editlist.mp4',
+	veryDispersed:
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/very-dispersed.mp4',
+	vp9InMp4:
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/vp9-in-mp4.mp4',
+	multichannelAudio: 'https://parser.media/multichannel-audio.mov',
 };
 
 export const privateExampleVideos = {

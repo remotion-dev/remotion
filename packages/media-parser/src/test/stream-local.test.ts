@@ -127,6 +127,7 @@ test('Should stream AV1', async () => {
 		codecEnum: 'av1',
 		fps: null,
 		timescale: WEBCODECS_TIMESCALE,
+		trackMediaTimeOffsetInTrackTimescale: 0,
 	});
 	expect(audTracks.length).toBe(0);
 	expect(videoTracks).toBe(1);
@@ -312,6 +313,7 @@ test(
 			codecEnum: 'vp8',
 			fps: null,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		});
 		expect(audTracks.length).toBe(1);
 		expect(audTracks[0]).toEqual({
@@ -332,6 +334,7 @@ test(
 			},
 			codecEnum: 'opus',
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		});
 		expect(audioTracks).toBe(1);
 		expect(samples).toBe(381);
@@ -609,6 +612,7 @@ test('Stretched VP8', async () => {
 			transfer: null,
 		},
 		timescale: WEBCODECS_TIMESCALE,
+		trackMediaTimeOffsetInTrackTimescale: 0,
 	});
 });
 

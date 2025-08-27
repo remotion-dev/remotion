@@ -90,6 +90,18 @@ export const init = async () => {
 	const selectedTemplate = await selectTemplate();
 	Log.info(`Selected ${chalk.blue(selectedTemplate.shortName)}.`);
 
+	// If Editor Starter (paid) is selected, show purchase link and exit
+	if (selectedTemplate.cliId === 'editor-starter') {
+		Log.newLine();
+		Log.info(
+			`${chalk.yellow('Editor Starter is a paid template.')}\nGet it here: ${chalk.underline(
+				selectedTemplate.previewURL,
+			)}`,
+		);
+		Log.newLine();
+		return;
+	}
+
 	// Then resolve project root with template info and directory argument
 	const {projectRoot, folderName} = await resolveProjectRoot({
 		directoryArgument,

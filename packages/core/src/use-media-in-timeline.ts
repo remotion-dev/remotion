@@ -37,8 +37,10 @@ export const useMediaInTimeline = ({
 	stack,
 	showInTimeline,
 	premountDisplay,
+	postmountDisplay,
 	onAutoPlayError,
 	isPremounting,
+	isPostmounting,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -51,8 +53,10 @@ export const useMediaInTimeline = ({
 	stack: string | null;
 	showInTimeline: boolean;
 	premountDisplay: number | null;
+	postmountDisplay: number | null;
 	onAutoPlayError: null | (() => void);
 	isPremounting: boolean;
+	isPostmounting: boolean;
 }) => {
 	const videoConfig = useVideoConfig();
 	const {rootId, audioAndVideoTags} = useContext(TimelineContext);
@@ -137,6 +141,7 @@ export const useMediaInTimeline = ({
 			playbackRate,
 			stack,
 			premountDisplay,
+			postmountDisplay,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -162,6 +167,7 @@ export const useMediaInTimeline = ({
 		stack,
 		showInTimeline,
 		premountDisplay,
+		postmountDisplay,
 	]);
 
 	useEffect(() => {
@@ -173,7 +179,7 @@ export const useMediaInTimeline = ({
 					return;
 				}
 
-				if (isPremounting) {
+				if (isPremounting || isPostmounting) {
 					return;
 				}
 
@@ -202,6 +208,7 @@ export const useMediaInTimeline = ({
 		onAutoPlayError,
 		imperativePlaying,
 		isPremounting,
+		isPostmounting,
 		logLevel,
 		mountTime,
 	]);

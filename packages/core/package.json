@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/core"
 	},
 	"name": "remotion",
-	"version": "4.0.324",
+	"version": "4.0.340",
 	"description": "Make videos programmatically",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -38,9 +38,9 @@
 		"eslint": "9.19.0"
 	},
 	"keywords": [
-		"remotion",
-		"ffmpeg",
 		"video",
+		"creation",
+		"editor",
 		"react",
 		"player"
 	],

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.324",
+	"version": "4.0.340",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -650,8 +650,23 @@
 			"Biryani": [
 				"dist/cjs/Biryani.d.ts"
 			],
+			"Bitcount": [
+				"dist/cjs/Bitcount.d.ts"
+			],
 			"BitcountGridDouble": [
 				"dist/cjs/BitcountGridDouble.d.ts"
+			],
+			"BitcountGridSingle": [
+				"dist/cjs/BitcountGridSingle.d.ts"
+			],
+			"BitcountPropDouble": [
+				"dist/cjs/BitcountPropDouble.d.ts"
+			],
+			"BitcountPropSingle": [
+				"dist/cjs/BitcountPropSingle.d.ts"
+			],
+			"BitcountSingle": [
+				"dist/cjs/BitcountSingle.d.ts"
 			],
 			"Bitter": [
 				"dist/cjs/Bitter.d.ts"
@@ -1682,6 +1697,9 @@
 			"GolosText": [
 				"dist/cjs/GolosText.d.ts"
 			],
+			"GoogleSansCode": [
+				"dist/cjs/GoogleSansCode.d.ts"
+			],
 			"Gorditas": [
 				"dist/cjs/Gorditas.d.ts"
 			],
@@ -1987,6 +2005,9 @@
 			],
 			"InstrumentSerif": [
 				"dist/cjs/InstrumentSerif.d.ts"
+			],
+			"IntelOneMono": [
+				"dist/cjs/IntelOneMono.d.ts"
 			],
 			"Inter": [
 				"dist/cjs/Inter.d.ts"
@@ -2401,6 +2422,12 @@
 			],
 			"LibertinusMono": [
 				"dist/cjs/LibertinusMono.d.ts"
+			],
+			"LibertinusSans": [
+				"dist/cjs/LibertinusSans.d.ts"
+			],
+			"LibertinusSerif": [
+				"dist/cjs/LibertinusSerif.d.ts"
 			],
 			"LibreBarcode128": [
 				"dist/cjs/LibreBarcode128.d.ts"
@@ -2840,6 +2867,12 @@
 			"MouseMemoirs": [
 				"dist/cjs/MouseMemoirs.d.ts"
 			],
+			"MozillaHeadline": [
+				"dist/cjs/MozillaHeadline.d.ts"
+			],
+			"MozillaText": [
+				"dist/cjs/MozillaText.d.ts"
+			],
 			"MrBedfort": [
 				"dist/cjs/MrBedfort.d.ts"
 			],
@@ -2914,6 +2947,9 @@
 			],
 			"Narnoor": [
 				"dist/cjs/Narnoor.d.ts"
+			],
+			"NataSans": [
+				"dist/cjs/NataSans.d.ts"
 			],
 			"NationalPark": [
 				"dist/cjs/NationalPark.d.ts"
@@ -4849,6 +4885,9 @@
 			],
 			"Tienne": [
 				"dist/cjs/Tienne.d.ts"
+			],
+			"TikTokSans": [
+				"dist/cjs/TikTokSans.d.ts"
 			],
 			"Tillana": [
 				"dist/cjs/Tillana.d.ts"

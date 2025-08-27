@@ -4,6 +4,7 @@ import type {ColorParameterBox} from './containers/iso-base-media/stsd/colr';
 import type {HvccBox} from './containers/iso-base-media/stsd/hvcc';
 import type {PaspBox} from './containers/iso-base-media/stsd/pasp';
 import type {VideoSample} from './containers/iso-base-media/stsd/samples';
+import type {VpccBox} from './containers/iso-base-media/stsd/vpcc';
 import type {TkhdBox} from './containers/iso-base-media/tkhd';
 import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {getStsdBox} from './containers/iso-base-media/traversal';
@@ -42,6 +43,21 @@ export const getAvccBox = (trakBox: TrakBox): AvccBox | null => {
 	}
 
 	return avccBox;
+};
+
+export const getVpccBox = (trakBox: TrakBox): VpccBox | null => {
+	const videoConfig = getStsdVideoConfig(trakBox);
+	if (!videoConfig) {
+		return null;
+	}
+
+	const vpccBox = videoConfig.descriptors.find((c) => c.type === 'vpcc-box');
+
+	if (!vpccBox || vpccBox.type !== 'vpcc-box') {
+		return null;
+	}
+
+	return vpccBox;
 };
 
 export const getAv1CBox = (trakBox: TrakBox): Av1CBox | null => {

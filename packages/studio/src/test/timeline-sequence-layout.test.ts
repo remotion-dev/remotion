@@ -8,6 +8,8 @@ test('Should test timeline sequence layout without max media duration', () => {
 			startFrom: 2023,
 			startFromMedia: 0,
 			maxMediaDuration: null,
+			premountDisplay: null,
+			postmountDisplay: null,
 			video: {
 				durationInFrames: 2423,
 				fps: 30,
@@ -28,6 +30,7 @@ test('Should test timeline sequence layout without max media duration', () => {
 	).toEqual({
 		marginLeft: 1154.2137986426505,
 		premountWidth: null,
+		postmountWidth: null,
 		width: 226.9893263573493,
 	});
 });
@@ -38,6 +41,8 @@ test('Should test timeline sequence layout with max media duration', () => {
 			startFrom: 2023,
 			maxMediaDuration: 400,
 			startFromMedia: 10,
+			premountDisplay: null,
+			postmountDisplay: null,
 			video: {
 				durationInFrames: 2423,
 				fps: 30,
@@ -58,6 +63,7 @@ test('Should test timeline sequence layout with max media duration', () => {
 	).toEqual({
 		marginLeft: 1154.2137986426505,
 		premountWidth: null,
+		postmountWidth: null,
 		width: 221.8531462892238,
 	});
 });

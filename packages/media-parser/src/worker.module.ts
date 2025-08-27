@@ -2,6 +2,14 @@ import type {Options, ParseMediaFields} from './fields';
 import type {ParseMediaOnWorker, ParseMediaOnWorkerOptions} from './options';
 import {parseMediaOnWorkerImplementation} from './parse-media-on-worker-entry';
 
+export {
+	hasBeenAborted,
+	ImageType,
+	IsAnImageError,
+	IsAnUnsupportedFileTypeError,
+	IsAPdfError,
+	MediaParserAbortError,
+} from './errors';
 export type {ParseMediaOnWorker, ParseMediaOnWorkerOptions} from './options';
 
 export const parseMediaOnWebWorker: ParseMediaOnWorker = <

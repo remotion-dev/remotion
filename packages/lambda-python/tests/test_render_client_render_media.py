@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from remotion_lambda.models import RenderMediaParams, Download, Webhook
+from remotion_lambda.models import RenderMediaParams, ShouldDownload, Webhook
 from remotion_lambda.remotionclient import RemotionClient
 
 
@@ -17,7 +17,7 @@ class TestRemotionClient(TestCase):
             metadata={
                 "Author": "Lunar"
             },
-            download_behavior=Download(type="download", fileName="hi"),
+            download_behavior=ShouldDownload(type="download", fileName="hi"),
             webhook=Webhook(
                 url="https://example.com", secret="abc", customData=dict(hi="there"))
         )

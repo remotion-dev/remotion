@@ -11,4 +11,5 @@ export type SequenceContextType = {
 	width: number | null;
 	height: number | null;
 	premounting: boolean;
+	postmounting: boolean;
 };

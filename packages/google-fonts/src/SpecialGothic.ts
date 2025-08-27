@@ -3,8 +3,8 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Special Gothic',
 	importName: 'SpecialGothic',
-	version: 'v2',
-	url: 'https://fonts.googleapis.com/css2?family=Special+Gothic:ital,wght@0,400',
+	version: 'v3',
+	url: 'https://fonts.googleapis.com/css2?family=Special+Gothic:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
 			'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
@@ -15,9 +15,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/specialgothic/v2/1q2fY5WcG0Fg_v0fHc8BvIZ251ToXoCZgg.woff2',
+					'https://fonts.gstatic.com/s/specialgothic/v3/1q2SY5WcG0Fg_v0fHc8BvIZ2537qdm1JEt9N3w2mJykkEFoQfr4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/specialgothic/v2/1q2fY5WcG0Fg_v0fHc8BvIZ251TmXoA.woff2',
+					'https://fonts.gstatic.com/s/specialgothic/v3/1q2SY5WcG0Fg_v0fHc8BvIZ2537qdm1JEt9N3w2mJykkHloQ.woff2',
+			},
+			'500': {
+				'latin-ext':
+					'https://fonts.gstatic.com/s/specialgothic/v3/1q2SY5WcG0Fg_v0fHc8BvIZ2537qdm1JEt9N3w2mJykkEFoQfr4.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/specialgothic/v3/1q2SY5WcG0Fg_v0fHc8BvIZ2537qdm1JEt9N3w2mJykkHloQ.woff2',
+			},
+			'600': {
+				'latin-ext':
+					'https://fonts.gstatic.com/s/specialgothic/v3/1q2SY5WcG0Fg_v0fHc8BvIZ2537qdm1JEt9N3w2mJykkEFoQfr4.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/specialgothic/v3/1q2SY5WcG0Fg_v0fHc8BvIZ2537qdm1JEt9N3w2mJykkHloQ.woff2',
+			},
+			'700': {
+				'latin-ext':
+					'https://fonts.gstatic.com/s/specialgothic/v3/1q2SY5WcG0Fg_v0fHc8BvIZ2537qdm1JEt9N3w2mJykkEFoQfr4.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/specialgothic/v3/1q2SY5WcG0Fg_v0fHc8BvIZ2537qdm1JEt9N3w2mJykkHloQ.woff2',
 			},
 		},
 	},
@@ -28,7 +46,7 @@ export const fontFamily = 'Special Gothic' as const;
 
 type Variants = {
 	normal: {
-		weights: '400';
+		weights: '400' | '500' | '600' | '700';
 		subsets: 'latin' | 'latin-ext';
 	};
 };

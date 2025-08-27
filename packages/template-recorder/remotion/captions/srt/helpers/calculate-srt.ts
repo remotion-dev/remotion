@@ -72,7 +72,10 @@ export const calculateSrt = ({
 
     const offset = -(startFrame / FPS) * 1000;
 
-    const firstTimestampMs = Math.max(0, Math.round(firstSegment.startMs + offset));
+    const firstTimestampMs = Math.max(
+      0,
+      Math.round(firstSegment.startMs + offset),
+    );
     if (lastSegment.endMs === null) {
       throw new Error("Cannot serialize .srt file: lastTimestamp is null");
     }

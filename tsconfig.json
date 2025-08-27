@@ -37,9 +37,6 @@
 			"path": "./packages/create-video"
 		},
 		{
-			"path": "./packages/docs"
-		},
-		{
 			"path": "./packages/eslint-config"
 		},
 		{
@@ -233,6 +230,12 @@
 		},
 		{
 			"path": "./packages/zod-types"
+		},
+		{
+			"path": "./packages/video"
+		},
+		{
+			"path": "./packages/web-renderer"
 		}
 	]
 }

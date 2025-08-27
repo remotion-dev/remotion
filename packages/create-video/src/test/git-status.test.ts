@@ -15,7 +15,8 @@ test('Get git status', async () => {
 			path.posix.join(__dirname, '..', '..', '..', '..').replace(/\\/g, '/') ||
 			status.location ===
 				path.join(__dirname, '..', '..', '..', '..').replace(/\\/g, '/') ||
-			status.location === 'D:/a/remotion/remotion',
+			status.location === 'D:/a/remotion/remotion' ||
+			status.location === '/Users/runner/work/remotion/remotion',
 	).toEqual(true);
 
 	if (status.type !== 'is-git-repo') {

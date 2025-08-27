@@ -70,7 +70,7 @@ export const LeftSide: React.FC<{
 }> = ({ platform, channel, links, theme }) => {
   const ref = useRef<HTMLDivElement>(null);
   const scaler = useRef<HTMLDivElement>(null);
-  const [handle] = useState(() => delayRender());
+  const [handle] = useState(() => delayRender("Waiting for measurement"));
   const [contentHeight, setHeight] = useState(0);
 
   const { fps, width } = useVideoConfig();

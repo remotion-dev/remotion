@@ -89,6 +89,8 @@ const videoTags = [
 	'hev1',
 	'ap4h',
 	'av01',
+	'vp08',
+	'vp09',
 ];
 
 // https://developer.apple.com/documentation/quicktime-file-format/sound_sample_descriptions

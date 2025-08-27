@@ -58,6 +58,7 @@ export const calculateAssetPositions = (
 					playbackRate: asset.playbackRate,
 					toneFrequency: asset.toneFrequency,
 					audioStartFrame: asset.audioStartFrame,
+					audioStreamIndex: asset.audioStreamIndex,
 				});
 			}
 

@@ -28,10 +28,12 @@ import {
 	getVideoCodecString,
 	getVideoPrivateData,
 } from '../../get-video-codec';
+import {normalizeVideoRotation} from '../../normalize-video-rotation';
 import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {mediaParserAdvancedColorToWebCodecsColor} from './color-to-webcodecs-colors';
 import {getActualDecoderParameters} from './get-actual-number-of-channels';
 import {getVideoCodecFromIsoTrak} from './get-video-codec-from-iso-track';
+import {findTrackMediaTimeOffsetInTrackTimescale} from './mdat/get-editlist';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox, getVideoDescriptors} from './traversal';
 
@@ -91,6 +93,10 @@ export const makeBaseMediaTrack = (
 			codecEnum,
 			startInSeconds: startTimeInSeconds,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale:
+				findTrackMediaTimeOffsetInTrackTimescale({
+					trakBox,
+				}),
 		};
 	}
 
@@ -102,6 +108,10 @@ export const makeBaseMediaTrack = (
 			trakBox,
 			startInSeconds: startTimeInSeconds,
 			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale:
+				findTrackMediaTimeOffsetInTrackTimescale({
+					trakBox,
+				}),
 		};
 	}
 
@@ -154,7 +164,7 @@ export const makeBaseMediaTrack = (
 		// Repeating those keys because they get picked up by VideoDecoder
 		displayAspectWidth,
 		displayAspectHeight,
-		rotation,
+		rotation: normalizeVideoRotation(0 - rotation),
 		codecData: privateData,
 		colorSpace: mediaParserAdvancedColorToWebCodecsColor(advancedColor),
 		advancedColor,
@@ -162,6 +172,10 @@ export const makeBaseMediaTrack = (
 		fps: getFpsFromMp4TrakBox(trakBox),
 		startInSeconds: startTimeInSeconds,
 		timescale: WEBCODECS_TIMESCALE,
+		trackMediaTimeOffsetInTrackTimescale:
+			findTrackMediaTimeOffsetInTrackTimescale({
+				trakBox,
+			}),
 	};
 	return track;
 };

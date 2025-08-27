@@ -5,7 +5,7 @@ import type {
 } from './Composition.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import type {InferProps} from './props-if-has-props.js';
-import {validateDefaultCodec} from './validation/validate-default-codec.js';
+import {validateCodec} from './validation/validate-default-codec.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
@@ -62,7 +62,7 @@ const validateCalculated = ({
 	});
 
 	const defaultCodec = calculated?.defaultCodec;
-	validateDefaultCodec(defaultCodec, calculateMetadataErrorLocation);
+	validateCodec(defaultCodec, calculateMetadataErrorLocation, 'defaultCodec');
 
 	const defaultOutName = calculated?.defaultOutName;
 	const defaultVideoImageFormat = calculated?.defaultVideoImageFormat;

@@ -88,6 +88,7 @@ export type MediaParserVideoTrack = {
 	advancedColor: MediaParserAdvancedColor;
 	m3uStreamFormat: 'ts' | 'mp4' | null;
 	startInSeconds: number;
+	trackMediaTimeOffsetInTrackTimescale: number;
 };
 
 export type MediaParserAudioTrack = {
@@ -104,6 +105,7 @@ export type MediaParserAudioTrack = {
 	originalTimescale: number;
 	codecData: MediaParserCodecData | null;
 	startInSeconds: number;
+	trackMediaTimeOffsetInTrackTimescale: number;
 };
 
 export type MediaParserOtherTrack = {
@@ -113,6 +115,7 @@ export type MediaParserOtherTrack = {
 	originalTimescale: number;
 	trakBox: TrakBox | null;
 	startInSeconds: number;
+	trackMediaTimeOffsetInTrackTimescale: number;
 };
 
 export type MediaParserTrack =

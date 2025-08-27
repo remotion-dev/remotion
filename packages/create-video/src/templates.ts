@@ -43,7 +43,8 @@ export type Template = {
 		| 'tiktok'
 		| 'code-hike'
 		| 'render-server'
-		| 'recorder';
+		| 'recorder'
+		| 'editor-starter';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
@@ -96,7 +97,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Next.js',
-		previewURL: null,
+		previewURL: 'https://next.remotion.dev',
 		templateInMonorepo: 'template-next-app',
 		allowEnableTailwind: false,
 	},
@@ -117,7 +118,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
-		previewURL: null,
+		previewURL: 'https://next.remotion.dev',
 		templateInMonorepo: 'template-next-app-tailwind',
 		allowEnableTailwind: false,
 	},
@@ -138,7 +139,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
-		previewURL: null,
+		previewURL: 'https://next.remotion.dev',
 		templateInMonorepo: 'template-next-pages',
 		allowEnableTailwind: false,
 	},
@@ -486,5 +487,19 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-tiktok',
 		allowEnableTailwind: true,
+	},
+].filter(truthy);
+
+export const PAID_TEMPLATES = [
+	{
+		homePageLabel: 'Editor Starter',
+		shortName: 'Editor Starter',
+		org: 'remotion-dev',
+		repoName: 'editor-starter',
+		description: 'A boilerplate for starting a video editor',
+		longerDescription: 'A starting point for building your own video editor.',
+		cliId: 'editor-starter' as const,
+		defaultBranch: 'main',
+		previewURL: 'https://www.remotion.pro/editor-starter',
 	},
 ].filter(truthy);

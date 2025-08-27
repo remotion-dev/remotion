@@ -47,7 +47,7 @@ export const VideoScene: React.FC<{
   hovered,
 }) => {
   const startFrame = sceneAndMetadata.startFrame;
-  const endAt = sceneAndMetadata.endFrame;
+  const trimAfter = sceneAndMetadata.endFrame;
 
   if (sceneAndMetadata.type !== "video-scene") {
     throw new Error("Not a camera scene");
@@ -91,14 +91,14 @@ export const VideoScene: React.FC<{
           nextScene={nextScene}
           previousScene={previousScene}
           startFrame={startFrame}
-          endAt={endAt}
+          trimAfter={trimAfter}
           canvasLayout={canvasLayout}
         />
       ) : null}
       <Webcam
         bRolls={bRollsOnTopOfWebcam}
         currentScene={sceneAndMetadata}
-        endAt={endAt}
+        trimAfter={trimAfter}
         enterProgress={enterProgress}
         exitProgress={exitProgress}
         startFrame={startFrame}

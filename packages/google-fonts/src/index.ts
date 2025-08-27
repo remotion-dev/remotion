@@ -1076,9 +1076,34 @@ export const getAvailableFonts = () => [
 		load: () => import('./Biryani') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Bitcount',
+		importName: 'Bitcount',
+		load: () => import('./Bitcount') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Bitcount Grid Double',
 		importName: 'BitcountGridDouble',
 		load: () => import('./BitcountGridDouble') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bitcount Grid Single',
+		importName: 'BitcountGridSingle',
+		load: () => import('./BitcountGridSingle') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bitcount Prop Double',
+		importName: 'BitcountPropDouble',
+		load: () => import('./BitcountPropDouble') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bitcount Prop Single',
+		importName: 'BitcountPropSingle',
+		load: () => import('./BitcountPropSingle') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bitcount Single',
+		importName: 'BitcountSingle',
+		load: () => import('./BitcountSingle') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Bitter',
@@ -2796,6 +2821,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./GolosText') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Google Sans Code',
+		importName: 'GoogleSansCode',
+		load: () => import('./GoogleSansCode') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Gorditas',
 		importName: 'Gorditas',
 		load: () => import('./Gorditas') as Promise<GoogleFont>,
@@ -3304,6 +3334,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Instrument Serif',
 		importName: 'InstrumentSerif',
 		load: () => import('./InstrumentSerif') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Intel One Mono',
+		importName: 'IntelOneMono',
+		load: () => import('./IntelOneMono') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Inter',
@@ -3994,6 +4029,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Libertinus Mono',
 		importName: 'LibertinusMono',
 		load: () => import('./LibertinusMono') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Libertinus Sans',
+		importName: 'LibertinusSans',
+		load: () => import('./LibertinusSans') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Libertinus Serif',
+		importName: 'LibertinusSerif',
+		load: () => import('./LibertinusSerif') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Libre Barcode 128',
@@ -4726,6 +4771,16 @@ export const getAvailableFonts = () => [
 		load: () => import('./MouseMemoirs') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Mozilla Headline',
+		importName: 'MozillaHeadline',
+		load: () => import('./MozillaHeadline') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Mozilla Text',
+		importName: 'MozillaText',
+		load: () => import('./MozillaText') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Mr Bedfort',
 		importName: 'MrBedfort',
 		load: () => import('./MrBedfort') as Promise<GoogleFont>,
@@ -4849,6 +4904,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Narnoor',
 		importName: 'Narnoor',
 		load: () => import('./Narnoor') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Nata Sans',
+		importName: 'NataSans',
+		load: () => import('./NataSans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'National Park',
@@ -8075,6 +8135,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Tienne',
 		importName: 'Tienne',
 		load: () => import('./Tienne') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'TikTok Sans',
+		importName: 'TikTokSans',
+		load: () => import('./TikTokSans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Tillana',

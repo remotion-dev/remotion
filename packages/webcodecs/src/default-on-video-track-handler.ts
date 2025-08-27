@@ -47,7 +47,8 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler =
 			return Promise.resolve({
 				type: 'reencode',
 				videoCodec: defaultVideoCodec,
-				rotate: rotate - track.rotation,
+				// By default, will remove rotation when re-encoding
+				rotate: undefined,
 				resize: resizeOperation,
 			});
 		}

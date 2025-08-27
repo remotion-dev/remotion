@@ -1,7 +1,7 @@
 import {bestFramesPerFunctionParam} from './best-frames-per-function-param';
 import {
 	MAX_FUNCTIONS_PER_RENDER,
-	MINIMUM_FRAMES_PER_FUNCTIONS,
+	MINIMUM_FRAMES_PER_FUNCTION,
 } from './constants';
 
 export const validateFramesPerFunction = ({
@@ -20,7 +20,7 @@ export const validateFramesPerFunction = ({
 	}
 
 	const effectiveMinimum = Math.min(
-		MINIMUM_FRAMES_PER_FUNCTIONS,
+		MINIMUM_FRAMES_PER_FUNCTION,
 		durationInFrames,
 	);
 

@@ -1,6 +1,11 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import type {Video} from 'remotion';
-import {continueRender, delayRender, useCurrentFrame} from 'remotion';
+import {
+	cancelRender,
+	continueRender,
+	delayRender,
+	useCurrentFrame,
+} from 'remotion';
 import type {VideoTexture} from 'three/src/textures/VideoTexture';
 
 export type UseVideoTextureOptions = React.ComponentProps<typeof Video>;
@@ -38,12 +43,7 @@ export const useVideoTexture = (
 	const [vidText] = useState(
 		() => import('three/src/textures/VideoTexture.js'),
 	);
-	const [error, setError] = useState<Error | null>(null);
 	const frame = useCurrentFrame();
-
-	if (error) {
-		throw error;
-	}
 
 	const onReady = useCallback(() => {
 		vidText
@@ -60,7 +60,7 @@ export const useVideoTexture = (
 				continueRender(loaded);
 			})
 			.catch((err) => {
-				setError(err);
+				cancelRender(err);
 			});
 	}, [loaded, vidText, videoRef]);
 

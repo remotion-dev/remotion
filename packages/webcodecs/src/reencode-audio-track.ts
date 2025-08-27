@@ -207,7 +207,7 @@ export const reencodeAudioTrack = async ({
 		},
 	});
 
-	const audioDecoder = internalCreateAudioDecoder({
+	const audioDecoder = await internalCreateAudioDecoder({
 		onFrame: async (audioData) => {
 			await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
