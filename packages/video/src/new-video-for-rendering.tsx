@@ -129,7 +129,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			return;
 		}
 
-		const newHandle = delayRender(`extracting frame numberrr ${frame}`, {
+		const newHandle = delayRender(`extracting frame number ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
@@ -140,7 +140,6 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		extractFrames({
 			src,
 			timestampsInSeconds: [timestamp],
-
 			onFrame: (extractedFrame) => {
 				canvasRef.current?.getContext('2d')?.drawImage(extractedFrame, 0, 0);
 
