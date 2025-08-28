@@ -51,7 +51,7 @@ export const getFramesSinceKeyframe = async ({
 	});
 
 	for await (const sample of samples) {
-		keyframeBank.addFrame(sample.toVideoFrame());
+		keyframeBank.addFrame(sample);
 	}
 
 	return keyframeBank;

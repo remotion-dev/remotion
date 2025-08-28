@@ -13,6 +13,18 @@ export const makeKeyframeManager = () => {
 		sources[src][bank.startTimestampInSeconds] = bank;
 	};
 
+	const logCacheStats = (logLevel: LogLevel) => {
+		let count = 0;
+		for (const src in sources) {
+			for (const bank in sources[src]) {
+				const v = sources[src][bank];
+				count += v.getOpenFrameCount();
+			}
+		}
+
+		Log.verbose(logLevel, `Cache stats: ${count} open frames`);
+	};
+
 	const clearKeyframeBanksBeforeTime = ({
 		timestampInSeconds,
 		src,
@@ -49,6 +61,8 @@ export const makeKeyframeManager = () => {
 				bank.deleteFramesBeforeTimestamp(threshold, logLevel, src);
 			}
 		}
+
+		logCacheStats(logLevel);
 	};
 
 	const getKeyframeBankOrRefetch = async ({
@@ -56,11 +70,13 @@ export const makeKeyframeManager = () => {
 		timestamp,
 		videoSampleSink,
 		src,
+		logLevel,
 	}: {
 		packetSink: EncodedPacketSink;
 		timestamp: number;
 		videoSampleSink: VideoSampleSink;
 		src: string;
+		logLevel: LogLevel;
 	}) => {
 		const startPacket = await packetSink.getKeyPacket(timestamp, {
 			verifyKeyPackets: true,
@@ -90,6 +106,8 @@ export const makeKeyframeManager = () => {
 		if (await existingBank.hasTimestampInSecond(timestamp)) {
 			return existingBank;
 		}
+
+		Log.verbose(logLevel, `Bank exists but frames have already been evicted!`);
 
 		// Bank exists but frames have already been evicted!
 		// First delete it entirely
@@ -132,6 +150,7 @@ export const makeKeyframeManager = () => {
 			timestamp,
 			videoSampleSink,
 			src,
+			logLevel,
 		});
 
 		return keyframeBank;

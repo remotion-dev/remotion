@@ -157,10 +157,12 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			keyframeManager,
 			logLevel: logLevel ?? 'info',
 		})
-			.then((videoFrame) => {
-				if (!videoFrame) {
+			.then((videoSample) => {
+				if (!videoSample) {
 					cancelRender(new Error('No video frame found'));
 				}
+
+				const videoFrame = videoSample.toVideoFrame();
 
 				onVideoFrame?.(videoFrame);
 				canvasRef.current?.getContext('2d')?.drawImage(videoFrame, 0, 0);

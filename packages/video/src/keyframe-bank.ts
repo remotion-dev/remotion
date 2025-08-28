@@ -1,10 +1,11 @@
+import type {VideoSample} from 'mediabunny';
 import type {LogLevel} from './log';
 import {Log} from './log';
 
 export type KeyframeBank = {
 	startTimestampInSeconds: number;
 	endTimestampInSeconds: number;
-	getFrameFromTimestamp: (timestamp: number) => Promise<VideoFrame | null>;
+	getFrameFromTimestamp: (timestamp: number) => Promise<VideoSample | null>;
 	prepareForDeletion: () => void;
 	deleteFramesBeforeTimestamp: (
 		timestamp: number,
@@ -12,7 +13,8 @@ export type KeyframeBank = {
 		src: string,
 	) => void;
 	hasTimestampInSecond: (timestamp: number) => Promise<boolean>;
-	addFrame: (frame: VideoFrame) => void;
+	addFrame: (frame: VideoSample) => void;
+	getOpenFrameCount: () => number;
 };
 
 export const makeKeyframeBank = ({
@@ -22,12 +24,12 @@ export const makeKeyframeBank = ({
 	startTimestampInSeconds: number;
 	endTimestampInSeconds: number;
 }) => {
-	const frames: Record<number, VideoFrame> = {};
+	const frames: Record<number, VideoSample> = {};
 	const frameTimestamps: number[] = [];
 
 	const getFrameFromTimestamp = (
 		timestampInSeconds: number,
-	): Promise<VideoFrame | null> => {
+	): Promise<VideoSample | null> => {
 		if (timestampInSeconds < startTimestampInSeconds) {
 			return Promise.reject(
 				new Error(
@@ -45,13 +47,13 @@ export const makeKeyframeBank = ({
 		}
 
 		for (let i = frameTimestamps.length - 1; i >= 0; i--) {
-			const frame = frames[frameTimestamps[i]];
-			if (!frame) {
+			const sample = frames[frameTimestamps[i]];
+			if (!sample) {
 				return Promise.resolve(null);
 			}
 
-			if (frame.timestamp <= timestampInSeconds * 1_000_000) {
-				return Promise.resolve(frame);
+			if (sample.timestamp <= timestampInSeconds) {
+				return Promise.resolve(sample);
 			}
 		}
 
@@ -61,7 +63,6 @@ export const makeKeyframeBank = ({
 	};
 
 	const hasTimestampInSecond = async (timestamp: number) => {
-		// TODO: When able to delete frames,
 		return (await getFrameFromTimestamp(timestamp)) !== null;
 	};
 
@@ -78,18 +79,18 @@ export const makeKeyframeBank = ({
 		frameTimestamps.length = 0;
 	};
 
-	const addFrame = (frame: VideoFrame) => {
+	const addFrame = (frame: VideoSample) => {
 		frames[frame.timestamp] = frame;
 		frameTimestamps.push(frame.timestamp);
 	};
 
 	const deleteFramesBeforeTimestamp = (
-		timestamp: number,
+		timestampInSeconds: number,
 		logLevel: LogLevel,
 		src: string,
 	) => {
 		for (const frameTimestamp of frameTimestamps) {
-			if (frameTimestamp < timestamp * 1_000_000) {
+			if (frameTimestamp < timestampInSeconds) {
 				if (!frames[frameTimestamp]) {
 					continue;
 				}
@@ -101,6 +102,11 @@ export const makeKeyframeBank = ({
 		}
 	};
 
+	const getOpenFrameCount = () => {
+		return frameTimestamps.map((timestamp) => frames[timestamp]).filter(Boolean)
+			.length;
+	};
+
 	const keyframeBank: KeyframeBank = {
 		startTimestampInSeconds,
 		endTimestampInSeconds,
@@ -109,6 +115,7 @@ export const makeKeyframeBank = ({
 		hasTimestampInSecond,
 		addFrame,
 		deleteFramesBeforeTimestamp,
+		getOpenFrameCount,
 	};
 
 	return keyframeBank;
