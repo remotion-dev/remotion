@@ -12,6 +12,7 @@ import {
 	random,
 	useCurrentFrame,
 } from 'remotion';
+import {extractFrame} from './extract-frame';
 import type {GetSink} from './get-frames-since-keyframe';
 import {getVideoSink} from './get-frames-since-keyframe';
 import type {KeyframeManager} from './keyframe-manager';
@@ -127,7 +128,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 	const {fps} = videoConfig;
 
-	const sinkPromise = useRef<Promise<GetSink> | null>(null);
+	const sinkPromise = useRef<Record<string, Promise<GetSink>>>({});
 	const keyframeManager = useRef<KeyframeManager | null>(null);
 
 	useLayoutEffect(() => {
@@ -135,37 +136,36 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			return;
 		}
 
-		if (!sinkPromise.current) {
-			sinkPromise.current = getVideoSink(src);
+		if (!sinkPromise.current[src]) {
+			sinkPromise.current[src] = getVideoSink(src);
 		}
 
 		if (!keyframeManager.current) {
 			keyframeManager.current = makeKeyframeManager();
 		}
 
-		const actualFPS = playbackRate ? fps / playbackRate : fps;
-		const timestamp = frame / actualFPS;
+		const actualFps = playbackRate ? fps / playbackRate : fps;
+		const timestamp = frame / actualFps;
 
 		const newHandle = delayRender(`extracting frame number ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
 
-		sinkPromise.current?.then(({packetSink, videoSampleSink}) => {
-			const keyframeBank = keyframeManager.current?.requestKeyframeBank({
-				packetSink,
-				videoSampleSink,
-				timestamp,
-				src,
-			});
-			keyframeBank?.then((bank) => {
-				const videoFrame = bank.getFrameFromTimestamp(timestamp);
-				console.log('got frame', videoFrame.timestamp, timestamp);
-				onVideoFrame?.(videoFrame);
-				canvasRef.current?.getContext('2d')?.drawImage(videoFrame, 0, 0);
+		if (!keyframeManager.current) {
+			throw new Error('No keyframe manager found');
+		}
 
-				continueRender(newHandle);
-			});
+		extractFrame({
+			src,
+			timestamp,
+			sinkPromise: sinkPromise.current[src],
+			keyframeManager: keyframeManager.current,
+		}).then((videoFrame) => {
+			onVideoFrame?.(videoFrame);
+			canvasRef.current?.getContext('2d')?.drawImage(videoFrame, 0, 0);
+
+			continueRender(newHandle);
 		});
 
 		return () => {
