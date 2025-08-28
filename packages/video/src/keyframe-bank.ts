@@ -20,14 +20,50 @@ export type KeyframeBank = {
 export const makeKeyframeBank = ({
 	startTimestampInSeconds,
 	endTimestampInSeconds,
+	sampleIterator,
 }: {
 	startTimestampInSeconds: number;
 	endTimestampInSeconds: number;
+	sampleIterator: AsyncGenerator<VideoSample, void, unknown>;
 }) => {
 	const frames: Record<number, VideoSample> = {};
 	const frameTimestamps: number[] = [];
 
-	const getFrameFromTimestamp = (
+	const hasDecodedEnoughForTimestamp = (timestamp: number) => {
+		const lastFrameTimestamp = frameTimestamps[frameTimestamps.length - 1];
+		if (!lastFrameTimestamp) {
+			return false;
+		}
+
+		const lastFrame = frames[lastFrameTimestamp];
+		// Don't decode more, will probably have to re-decode everything
+		if (!lastFrame) {
+			return true;
+		}
+
+		return lastFrame.timestamp + lastFrame.duration >= timestamp;
+	};
+
+	const addFrame = (frame: VideoSample) => {
+		frames[frame.timestamp] = frame;
+		frameTimestamps.push(frame.timestamp);
+	};
+
+	const ensureEnoughFramesForTimestamp = async (timestamp: number) => {
+		while (!hasDecodedEnoughForTimestamp(timestamp)) {
+			const sample = await sampleIterator.next();
+
+			if (sample.value) {
+				addFrame(sample.value);
+			}
+
+			if (sample.done) {
+				break;
+			}
+		}
+	};
+
+	const getFrameFromTimestamp = async (
 		timestampInSeconds: number,
 	): Promise<VideoSample | null> => {
 		if (timestampInSeconds < startTimestampInSeconds) {
@@ -46,20 +82,20 @@ export const makeKeyframeBank = ({
 			);
 		}
 
+		await ensureEnoughFramesForTimestamp(timestampInSeconds);
+
 		for (let i = frameTimestamps.length - 1; i >= 0; i--) {
 			const sample = frames[frameTimestamps[i]];
 			if (!sample) {
-				return Promise.resolve(null);
+				return null;
 			}
 
 			if (sample.timestamp <= timestampInSeconds) {
-				return Promise.resolve(sample);
+				return sample;
 			}
 		}
 
-		return Promise.reject(
-			new Error('No frame found for timestamp ' + timestampInSeconds),
-		);
+		throw new Error('No frame found for timestamp ' + timestampInSeconds);
 	};
 
 	const hasTimestampInSecond = async (timestamp: number) => {
@@ -77,11 +113,6 @@ export const makeKeyframeBank = ({
 		}
 
 		frameTimestamps.length = 0;
-	};
-
-	const addFrame = (frame: VideoSample) => {
-		frames[frame.timestamp] = frame;
-		frameTimestamps.push(frame.timestamp);
 	};
 
 	const deleteFramesBeforeTimestamp = (
