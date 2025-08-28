@@ -59,6 +59,17 @@ export const useWindowedAudioData = ({
 
 		return () => {
 			isMounted.current = false;
+
+			// abort all pending requests
+			Object.values(requests.current).forEach((controller) => {
+				if (controller) {
+					controller.abort();
+				}
+			});
+			requests.current = {};
+
+			// clear all Float32Array references
+			setWaveformMap({});
 		};
 	}, []);
 
