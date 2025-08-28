@@ -45,6 +45,8 @@ export const makeKeyframeManager = () => {
 					`Cleared frames for src ${src} from ${bank.startTimestampInSeconds}sec to ${bank.endTimestampInSeconds}sec`,
 				);
 				delete sources[src][startTimeInSeconds as unknown as number];
+			} else {
+				bank.deleteFramesBeforeTimestamp(threshold, logLevel, src);
 			}
 		}
 	};
@@ -54,13 +56,11 @@ export const makeKeyframeManager = () => {
 		timestamp,
 		videoSampleSink,
 		src,
-		sources,
 	}: {
 		packetSink: EncodedPacketSink;
 		timestamp: number;
 		videoSampleSink: VideoSampleSink;
 		src: string;
-		sources: Record<string, Record<number, KeyframeBank>>;
 	}) => {
 		const startPacket = await packetSink.getKeyPacket(timestamp, {
 			verifyKeyPackets: true,
@@ -87,7 +87,7 @@ export const makeKeyframeManager = () => {
 		}
 
 		// Bank exists and still has the frame we want
-		if (existingBank.hasTimestampInSecond()) {
+		if (await existingBank.hasTimestampInSecond(timestamp)) {
 			return existingBank;
 		}
 
@@ -132,7 +132,6 @@ export const makeKeyframeManager = () => {
 			timestamp,
 			videoSampleSink,
 			src,
-			sources,
 		});
 
 		return keyframeBank;

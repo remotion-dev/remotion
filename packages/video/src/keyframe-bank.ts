@@ -1,10 +1,18 @@
+import type {LogLevel} from './log';
+import {Log} from './log';
+
 export type KeyframeBank = {
-	frames: VideoFrame[];
 	startTimestampInSeconds: number;
 	endTimestampInSeconds: number;
-	getFrameFromTimestamp: (timestamp: number) => Promise<VideoFrame>;
+	getFrameFromTimestamp: (timestamp: number) => Promise<VideoFrame | null>;
 	prepareForDeletion: () => void;
-	hasTimestampInSecond: () => boolean;
+	deleteFramesBeforeTimestamp: (
+		timestamp: number,
+		logLevel: LogLevel,
+		src: string,
+	) => void;
+	hasTimestampInSecond: (timestamp: number) => Promise<boolean>;
+	addFrame: (frame: VideoFrame) => void;
 };
 
 export const makeKeyframeBank = ({
@@ -14,11 +22,12 @@ export const makeKeyframeBank = ({
 	startTimestampInSeconds: number;
 	endTimestampInSeconds: number;
 }) => {
-	const frames: VideoFrame[] = [];
+	const frames: Record<number, VideoFrame> = {};
+	const frameTimestamps: number[] = [];
 
 	const getFrameFromTimestamp = (
 		timestampInSeconds: number,
-	): Promise<VideoFrame> => {
+	): Promise<VideoFrame | null> => {
 		if (timestampInSeconds < startTimestampInSeconds) {
 			return Promise.reject(
 				new Error(
@@ -35,8 +44,12 @@ export const makeKeyframeBank = ({
 			);
 		}
 
-		for (let i = frames.length - 1; i >= 0; i--) {
-			const frame = frames[i];
+		for (let i = frameTimestamps.length - 1; i >= 0; i--) {
+			const frame = frames[frameTimestamps[i]];
+			if (!frame) {
+				return Promise.resolve(null);
+			}
+
 			if (frame.timestamp <= timestampInSeconds * 1_000_000) {
 				return Promise.resolve(frame);
 			}
@@ -47,26 +60,55 @@ export const makeKeyframeBank = ({
 		);
 	};
 
-	const hasTimestampInSecond = () => {
+	const hasTimestampInSecond = async (timestamp: number) => {
 		// TODO: When able to delete frames,
-		return true;
+		return (await getFrameFromTimestamp(timestamp)) !== null;
 	};
 
 	const prepareForDeletion = () => {
-		for (const frame of frames) {
-			frame.close();
+		for (const frameTimestamp of frameTimestamps) {
+			if (!frames[frameTimestamp]) {
+				continue;
+			}
+
+			frames[frameTimestamp].close();
+			delete frames[frameTimestamp];
 		}
 
-		frames.length = 0;
+		frameTimestamps.length = 0;
+	};
+
+	const addFrame = (frame: VideoFrame) => {
+		frames[frame.timestamp] = frame;
+		frameTimestamps.push(frame.timestamp);
+	};
+
+	const deleteFramesBeforeTimestamp = (
+		timestamp: number,
+		logLevel: LogLevel,
+		src: string,
+	) => {
+		for (const frameTimestamp of frameTimestamps) {
+			if (frameTimestamp < timestamp * 1_000_000) {
+				if (!frames[frameTimestamp]) {
+					continue;
+				}
+
+				frames[frameTimestamp].close();
+				delete frames[frameTimestamp];
+				Log.verbose(logLevel, `Deleted frame ${frameTimestamp} for src ${src}`);
+			}
+		}
 	};
 
 	const keyframeBank: KeyframeBank = {
-		frames,
 		startTimestampInSeconds,
 		endTimestampInSeconds,
 		getFrameFromTimestamp,
 		prepareForDeletion,
 		hasTimestampInSecond,
+		addFrame,
+		deleteFramesBeforeTimestamp,
 	};
 
 	return keyframeBank;
