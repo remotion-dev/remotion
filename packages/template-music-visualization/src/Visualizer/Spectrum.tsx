@@ -33,7 +33,7 @@ export const Spectrum: React.FC<{
     src: audioSrc,
     frame,
     fps,
-    windowInSeconds: 5,
+    windowInSeconds: 30,
   });
 
   if (!audioData) {
