@@ -6,18 +6,26 @@ import {Log} from './log';
 
 export const makeKeyframeManager = () => {
 	// src => {[startTimestampInSeconds]: KeyframeBank
-	const sources: Record<string, Record<number, KeyframeBank>> = {};
+	const sources: Record<string, Record<number, Promise<KeyframeBank>>> = {};
 
-	const addKeyframeBank = ({src, bank}: {src: string; bank: KeyframeBank}) => {
+	const addKeyframeBank = ({
+		src,
+		bank,
+		startTimestampInSeconds,
+	}: {
+		src: string;
+		bank: Promise<KeyframeBank>;
+		startTimestampInSeconds: number;
+	}) => {
 		sources[src] = sources[src] ?? {};
-		sources[src][bank.startTimestampInSeconds] = bank;
+		sources[src][startTimestampInSeconds] = bank;
 	};
 
-	const logCacheStats = (logLevel: LogLevel) => {
+	const logCacheStats = async (logLevel: LogLevel) => {
 		let count = 0;
 		for (const src in sources) {
 			for (const bank in sources[src]) {
-				const v = sources[src][bank];
+				const v = await sources[src][bank];
 				count += v.getOpenFrameCount();
 			}
 		}
@@ -25,7 +33,7 @@ export const makeKeyframeManager = () => {
 		Log.verbose(logLevel, `Cache stats: ${count} open frames`);
 	};
 
-	const clearKeyframeBanksBeforeTime = ({
+	const clearKeyframeBanksBeforeTime = async ({
 		timestampInSeconds,
 		src,
 		logLevel,
@@ -47,8 +55,8 @@ export const makeKeyframeManager = () => {
 		const banks = Object.keys(sources[src]);
 
 		for (const startTimeInSeconds of banks) {
-			const bank = sources[src][startTimeInSeconds as unknown as number];
-			const {endTimestampInSeconds} = bank;
+			const bank = await sources[src][startTimeInSeconds as unknown as number];
+			const {endTimestampInSeconds} = await bank;
 
 			if (endTimestampInSeconds < threshold) {
 				bank.prepareForDeletion();
@@ -62,7 +70,7 @@ export const makeKeyframeManager = () => {
 			}
 		}
 
-		logCacheStats(logLevel);
+		await logCacheStats(logLevel);
 	};
 
 	const getKeyframeBankOrRefetch = async ({
@@ -86,24 +94,24 @@ export const makeKeyframeManager = () => {
 			throw new Error(`No key packet found for timestamp ${timestamp}`);
 		}
 
-		const startTimestamp = startPacket.timestamp;
-		const existingBank = sources[src]?.[startTimestamp];
+		const startTimestampInSeconds = startPacket.timestamp;
+		const existingBank = sources[src]?.[startTimestampInSeconds];
 
 		// Bank does not yet exist, we need to fetch
 		if (!existingBank) {
-			const newKeyframeBank = await getFramesSinceKeyframe({
+			const newKeyframeBank = getFramesSinceKeyframe({
 				packetSink,
 				videoSampleSink,
 				startPacket,
 			});
 
-			addKeyframeBank({src, bank: newKeyframeBank});
+			addKeyframeBank({src, bank: newKeyframeBank, startTimestampInSeconds});
 
 			return newKeyframeBank;
 		}
 
 		// Bank exists and still has the frame we want
-		if (await existingBank.hasTimestampInSecond(timestamp)) {
+		if (await (await existingBank).hasTimestampInSecond(timestamp)) {
 			return existingBank;
 		}
 
@@ -111,17 +119,17 @@ export const makeKeyframeManager = () => {
 
 		// Bank exists but frames have already been evicted!
 		// First delete it entirely
-		existingBank.prepareForDeletion();
-		delete sources[src][startTimestamp];
+		(await existingBank).prepareForDeletion();
+		delete sources[src][startTimestampInSeconds];
 
 		// Then refetch
-		const replacementKeybank = await getFramesSinceKeyframe({
+		const replacementKeybank = getFramesSinceKeyframe({
 			packetSink,
 			videoSampleSink,
 			startPacket,
 		});
 
-		addKeyframeBank({src, bank: replacementKeybank});
+		addKeyframeBank({src, bank: replacementKeybank, startTimestampInSeconds});
 
 		return replacementKeybank;
 	};
@@ -139,7 +147,7 @@ export const makeKeyframeManager = () => {
 		src: string;
 		logLevel: LogLevel;
 	}) => {
-		clearKeyframeBanksBeforeTime({
+		await clearKeyframeBanksBeforeTime({
 			timestampInSeconds: timestamp,
 			src,
 			logLevel,
