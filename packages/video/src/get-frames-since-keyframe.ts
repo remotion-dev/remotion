@@ -1,3 +1,4 @@
+import type {EncodedPacket} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	EncodedPacketSink,
@@ -5,6 +6,7 @@ import {
 	UrlSource,
 	VideoSampleSink,
 } from 'mediabunny';
+import {makeKeyframeBank} from './keyframe-bank';
 
 export const getVideoSink = async (src: string) => {
 	const input = new Input({
@@ -28,27 +30,29 @@ export type GetSink = Awaited<ReturnType<typeof getVideoSink>>;
 export const getFramesSinceKeyframe = async ({
 	packetSink,
 	videoSampleSink,
-	timestamp,
+	startPacket,
 }: {
 	packetSink: EncodedPacketSink;
 	videoSampleSink: VideoSampleSink;
-	timestamp: number;
+	startPacket: EncodedPacket;
 }) => {
-	const packet = await packetSink.getKeyPacket(timestamp, {
-		verifyKeyPackets: true,
+	const packet2 = await packetSink.getNextKeyPacket(startPacket, {
+		verifyKeyPackets: false,
 	});
-	if (!packet) {
-		throw new Error('No packet found');
+
+	const samples = videoSampleSink.samples(
+		startPacket.timestamp,
+		packet2 ? packet2.timestamp : Infinity,
+	);
+
+	const keyframeBank = makeKeyframeBank({
+		startTimestamp: startPacket.timestamp,
+		endTimestamp: packet2 ? packet2.timestamp : Infinity,
+	});
+
+	for await (const sample of samples) {
+		keyframeBank.frames.push(sample.toVideoFrame());
 	}
 
-	const packet2 = await packetSink.getNextKeyPacket(packet, {
-		verifyKeyPackets: true,
-	});
-	if (!packet2) {
-		throw new Error('No packet found');
-	}
-
-	const samples = videoSampleSink.samples(packet.timestamp, packet2.timestamp);
-
-	return samples;
+	return keyframeBank;
 };

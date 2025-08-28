@@ -12,8 +12,10 @@ import {
 	random,
 	useCurrentFrame,
 } from 'remotion';
-import type {GetSink} from './get-sink';
-import {getFramesSinceKeyframe, getVideoSink} from './get-sink';
+import type {GetSink} from './get-frames-since-keyframe';
+import {getVideoSink} from './get-frames-since-keyframe';
+import type {KeyframeManager} from './keyframe-manager';
+import {makeKeyframeManager} from './keyframe-manager';
 import type {NewVideoProps} from './props';
 
 const {
@@ -126,6 +128,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	const {fps} = videoConfig;
 
 	const sinkPromise = useRef<Promise<GetSink> | null>(null);
+	const keyframeManager = useRef<KeyframeManager | null>(null);
 
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
@@ -136,30 +139,33 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			sinkPromise.current = getVideoSink(src);
 		}
 
+		if (!keyframeManager.current) {
+			keyframeManager.current = makeKeyframeManager();
+		}
+
 		const actualFPS = playbackRate ? fps / playbackRate : fps;
 		const timestamp = frame / actualFPS;
-
-		sinkPromise.current.then(({packetSink, videoSampleSink}) => {
-			console.time('getFramesSinceKeyframe');
-			getFramesSinceKeyframe({packetSink, videoSampleSink, timestamp}).then(
-				async (samples) => {
-					let size = 0;
-					for await (const sample of samples) {
-						console.log(sample.timestamp, sample.allocationSize());
-						sample.toVideoFrame();
-						size += sample.allocationSize();
-					}
-
-					console.timeEnd('getFramesSinceKeyframe');
-
-					console.log(size);
-				},
-			);
-		});
 
 		const newHandle = delayRender(`extracting frame number ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		});
+
+		sinkPromise.current?.then(({packetSink, videoSampleSink}) => {
+			const keyframeBank = keyframeManager.current?.requestKeyframeBank({
+				packetSink,
+				videoSampleSink,
+				timestamp,
+				src,
+			});
+			keyframeBank?.then((bank) => {
+				const videoFrame = bank.getFrameFromTimestamp(timestamp);
+				console.log('got frame', videoFrame.timestamp, timestamp);
+				onVideoFrame?.(videoFrame);
+				canvasRef.current?.getContext('2d')?.drawImage(videoFrame, 0, 0);
+
+				continueRender(newHandle);
+			});
 		});
 
 		return () => {
