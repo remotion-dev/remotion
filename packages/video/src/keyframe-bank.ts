@@ -4,6 +4,7 @@ export type KeyframeBank = {
 	endTimestampInSeconds: number;
 	getFrameFromTimestamp: (timestamp: number) => Promise<VideoFrame>;
 	prepareForDeletion: () => void;
+	hasTimestampInSecond: () => boolean;
 };
 
 export const makeKeyframeBank = ({
@@ -46,6 +47,11 @@ export const makeKeyframeBank = ({
 		);
 	};
 
+	const hasTimestampInSecond = () => {
+		// TODO: When able to delete frames,
+		return true;
+	};
+
 	const prepareForDeletion = () => {
 		for (const frame of frames) {
 			frame.close();
@@ -60,6 +66,7 @@ export const makeKeyframeBank = ({
 		endTimestampInSeconds,
 		getFrameFromTimestamp,
 		prepareForDeletion,
+		hasTimestampInSecond,
 	};
 
 	return keyframeBank;

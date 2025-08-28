@@ -16,7 +16,6 @@ import {
 import {extractFrame} from './extract-frame';
 import type {GetSink} from './get-frames-since-keyframe';
 import {getVideoSink} from './get-frames-since-keyframe';
-import type {KeyframeManager} from './keyframe-manager';
 import {makeKeyframeManager} from './keyframe-manager';
 import type {NewVideoProps} from './props';
 
@@ -29,6 +28,8 @@ const {
 	RenderAssetManager,
 	evaluateVolume,
 } = Internals;
+
+const keyframeManager = makeKeyframeManager();
 
 export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	volume: volumeProp,
@@ -131,7 +132,6 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	const {fps} = videoConfig;
 
 	const sinkPromise = useRef<Record<string, Promise<GetSink>>>({});
-	const keyframeManager = useRef<KeyframeManager | null>(null);
 
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
@@ -142,10 +142,6 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			sinkPromise.current[src] = getVideoSink(src);
 		}
 
-		if (!keyframeManager.current) {
-			keyframeManager.current = makeKeyframeManager();
-		}
-
 		const actualFps = playbackRate ? fps / playbackRate : fps;
 		const timestamp = frame / actualFps;
 
@@ -154,15 +150,11 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
 
-		if (!keyframeManager.current) {
-			throw new Error('No keyframe manager found');
-		}
-
 		extractFrame({
 			src,
 			timestamp,
 			sinkPromise: sinkPromise.current[src],
-			keyframeManager: keyframeManager.current,
+			keyframeManager,
 			logLevel: logLevel ?? 'info',
 		})
 			.then((videoFrame) => {

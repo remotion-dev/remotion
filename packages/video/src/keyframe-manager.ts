@@ -25,6 +25,9 @@ export const makeKeyframeManager = () => {
 		// TODO: make it dependent on the fps and concurrency
 		const SAFE_BACK_WINDOW_IN_SECONDS = 1;
 		const threshold = timestampInSeconds - SAFE_BACK_WINDOW_IN_SECONDS;
+
+		// TODO: Delete banks of other sources
+
 		if (!sources[src]) {
 			return;
 		}
@@ -46,6 +49,65 @@ export const makeKeyframeManager = () => {
 		}
 	};
 
+	const getKeyframeBankOrRefetch = async ({
+		packetSink,
+		timestamp,
+		videoSampleSink,
+		src,
+		sources,
+	}: {
+		packetSink: EncodedPacketSink;
+		timestamp: number;
+		videoSampleSink: VideoSampleSink;
+		src: string;
+		sources: Record<string, Record<number, KeyframeBank>>;
+	}) => {
+		const startPacket = await packetSink.getKeyPacket(timestamp, {
+			verifyKeyPackets: true,
+		});
+
+		if (!startPacket) {
+			throw new Error(`No key packet found for timestamp ${timestamp}`);
+		}
+
+		const startTimestamp = startPacket.timestamp;
+		const existingBank = sources[src]?.[startTimestamp];
+
+		// Bank does not yet exist, we need to fetch
+		if (!existingBank) {
+			const newKeyframeBank = await getFramesSinceKeyframe({
+				packetSink,
+				videoSampleSink,
+				startPacket,
+			});
+
+			addKeyframeBank({src, bank: newKeyframeBank});
+
+			return newKeyframeBank;
+		}
+
+		// Bank exists and still has the frame we want
+		if (existingBank.hasTimestampInSecond()) {
+			return existingBank;
+		}
+
+		// Bank exists but frames have already been evicted!
+		// First delete it entirely
+		existingBank.prepareForDeletion();
+		delete sources[src][startTimestamp];
+
+		// Then refetch
+		const replacementKeybank = await getFramesSinceKeyframe({
+			packetSink,
+			videoSampleSink,
+			startPacket,
+		});
+
+		addKeyframeBank({src, bank: replacementKeybank});
+
+		return replacementKeybank;
+	};
+
 	const requestKeyframeBank = async ({
 		packetSink,
 		timestamp,
@@ -65,26 +127,13 @@ export const makeKeyframeManager = () => {
 			logLevel,
 		});
 
-		const packet = await packetSink.getKeyPacket(timestamp, {
-			verifyKeyPackets: true,
-		});
-
-		if (!packet) {
-			throw new Error(`No key packet found for timestamp ${timestamp}`);
-		}
-
-		const startTimestamp = packet.timestamp;
-		if (sources[src]?.[startTimestamp]) {
-			return sources[src][startTimestamp];
-		}
-
-		const keyframeBank = await getFramesSinceKeyframe({
+		const keyframeBank = await getKeyframeBankOrRefetch({
 			packetSink,
+			timestamp,
 			videoSampleSink,
-			startPacket: packet,
+			src,
+			sources,
 		});
-
-		addKeyframeBank({src, bank: keyframeBank});
 
 		return keyframeBank;
 	};
