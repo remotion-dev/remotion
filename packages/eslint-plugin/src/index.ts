@@ -4,6 +4,7 @@ import noBackgroundImage from './rules/no-background-image';
 import durationInFrames from './rules/no-duration-frames-infinity';
 import noFrom0 from './rules/no-from-0';
 import noStringAssets from './rules/no-string-assets';
+import nonPureAnimation from './rules/non-pure-animation';
 import slowCssProperty from './rules/slow-css-property';
 import staticFileNoRelative from './rules/staticfile-no-relative';
 import staticFileNoRemote from './rules/staticfile-no-remote';
@@ -24,6 +25,7 @@ const rules = {
 	'staticfile-no-relative': staticFileNoRelative,
 	'staticfile-no-remote': staticFileNoRemote,
 	'no-background-image': noBackgroundImage,
+	'non-pure-animation': nonPureAnimation,
 	'slow-css-property': slowCssProperty,
 	'v4-config-import': v4Import,
 };
@@ -40,6 +42,7 @@ const recommendedRuleConfig = {
 	'@remotion/staticfile-no-relative': 'error',
 	'@remotion/staticfile-no-remote': 'error',
 	'@remotion/no-background-image': 'error',
+	'@remotion/non-pure-animation': 'warn',
 	'@remotion/slow-css-property': 'warn',
 	'@remotion/v4-config-import': 'error',
 } as const;
