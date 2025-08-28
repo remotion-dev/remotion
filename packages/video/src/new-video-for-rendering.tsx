@@ -6,6 +6,7 @@ import React, {
 	useRef,
 } from 'react';
 import {
+	cancelRender,
 	continueRender,
 	delayRender,
 	Internals,
@@ -41,6 +42,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	// call when a frame of the video, i.e. frame drawn on canvas
 	onVideoFrame,
 	audioStreamIndex,
+	logLevel,
 }) => {
 	const absoluteFrame = useTimelinePosition();
 	const videoConfig = useUnsafeVideoConfig();
@@ -161,12 +163,17 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			timestamp,
 			sinkPromise: sinkPromise.current[src],
 			keyframeManager: keyframeManager.current,
-		}).then((videoFrame) => {
-			onVideoFrame?.(videoFrame);
-			canvasRef.current?.getContext('2d')?.drawImage(videoFrame, 0, 0);
+			logLevel: logLevel ?? 'info',
+		})
+			.then((videoFrame) => {
+				onVideoFrame?.(videoFrame);
+				canvasRef.current?.getContext('2d')?.drawImage(videoFrame, 0, 0);
 
-			continueRender(newHandle);
-		});
+				continueRender(newHandle);
+			})
+			.catch((error) => {
+				cancelRender(error);
+			});
 
 		return () => {
 			continueRender(newHandle);
@@ -179,6 +186,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		onVideoFrame,
 		playbackRate,
 		src,
+		logLevel,
 	]);
 
 	return (

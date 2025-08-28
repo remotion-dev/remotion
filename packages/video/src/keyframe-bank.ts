@@ -1,40 +1,65 @@
 export type KeyframeBank = {
 	frames: VideoFrame[];
-	startTimestamp: number;
-	endTimestamp: number;
-	getFrameFromTimestamp: (timestamp: number) => VideoFrame;
+	startTimestampInSeconds: number;
+	endTimestampInSeconds: number;
+	getFrameFromTimestamp: (timestamp: number) => Promise<VideoFrame>;
+	prepareForDeletion: () => void;
 };
 
 export const makeKeyframeBank = ({
-	startTimestamp,
-	endTimestamp,
+	startTimestampInSeconds,
+	endTimestampInSeconds,
 }: {
-	startTimestamp: number;
-	endTimestamp: number;
+	startTimestampInSeconds: number;
+	endTimestampInSeconds: number;
 }) => {
 	const frames: VideoFrame[] = [];
+
+	const getFrameFromTimestamp = (
+		timestampInSeconds: number,
+	): Promise<VideoFrame> => {
+		if (timestampInSeconds < startTimestampInSeconds) {
+			return Promise.reject(
+				new Error(
+					`Timestamp is before start timestamp (requested: ${timestampInSeconds}sec, start: ${startTimestampInSeconds})`,
+				),
+			);
+		}
+
+		if (timestampInSeconds > endTimestampInSeconds) {
+			return Promise.reject(
+				new Error(
+					`Timestamp is after end timestamp (requested: ${timestampInSeconds}sec, end: ${endTimestampInSeconds})`,
+				),
+			);
+		}
+
+		for (let i = frames.length - 1; i >= 0; i--) {
+			const frame = frames[i];
+			if (frame.timestamp <= timestampInSeconds * 1_000_000) {
+				return Promise.resolve(frame);
+			}
+		}
+
+		return Promise.reject(
+			new Error('No frame found for timestamp ' + timestampInSeconds),
+		);
+	};
+
+	const prepareForDeletion = () => {
+		for (const frame of frames) {
+			frame.close();
+		}
+
+		frames.length = 0;
+	};
+
 	const keyframeBank: KeyframeBank = {
 		frames,
-		startTimestamp,
-		endTimestamp,
-		getFrameFromTimestamp: (timestampInSeconds) => {
-			if (timestampInSeconds < startTimestamp * 1_000_000) {
-				throw new Error('Timestamp is before start timestamp');
-			}
-
-			if (timestampInSeconds > endTimestamp * 1_000_000) {
-				throw new Error('Timestamp is after end timestamp');
-			}
-
-			for (let i = frames.length - 1; i >= 0; i--) {
-				const frame = frames[i];
-				if (frame.timestamp <= timestampInSeconds * 1_000_000) {
-					return frame;
-				}
-			}
-
-			throw new Error('No frame found for timestamp ' + timestampInSeconds);
-		},
+		startTimestampInSeconds,
+		endTimestampInSeconds,
+		getFrameFromTimestamp,
+		prepareForDeletion,
 	};
 
 	return keyframeBank;

@@ -46,8 +46,8 @@ export const getFramesSinceKeyframe = async ({
 	);
 
 	const keyframeBank = makeKeyframeBank({
-		startTimestamp: startPacket.timestamp,
-		endTimestamp: packet2 ? packet2.timestamp : Infinity,
+		startTimestampInSeconds: startPacket.timestamp,
+		endTimestampInSeconds: packet2 ? packet2.timestamp : Infinity,
 	});
 
 	for await (const sample of samples) {
