@@ -1,4 +1,3 @@
-import type {VideoSampleSink} from 'mediabunny';
 import React, {
 	useContext,
 	useEffect,
@@ -7,16 +6,15 @@ import React, {
 	useRef,
 } from 'react';
 import {
-	cancelRender,
 	continueRender,
 	delayRender,
 	Internals,
 	random,
 	useCurrentFrame,
 } from 'remotion';
-import {getVideoSink} from './get-sink';
+import type {GetSink} from './get-sink';
+import {getFramesSinceKeyframe, getVideoSink} from './get-sink';
 import type {NewVideoProps} from './props';
-import {makeIterator, type FrameIterator} from './use-iterator';
 
 const {
 	useUnsafeVideoConfig,
@@ -127,76 +125,42 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 	const {fps} = videoConfig;
 
-	const sinkPromise = useRef<Promise<VideoSampleSink> | null>(null);
-	const iterator = useRef<Record<string, FrameIterator>>({});
-
-	useLayoutEffect(() => {
-		if (!sinkPromise.current) {
-			sinkPromise.current = getVideoSink(src);
-		}
-
-		const {current} = iterator;
-
-		if (!current[src]) {
-			current[src] = makeIterator();
-		}
-
-		sinkPromise.current
-			.then(async (sink) => {
-				const keyframeSamples = sink.samplesAtTimestamps(
-					current[src].iterator(),
-				);
-
-				console.log(keyframeSamples);
-				for await (const sample of keyframeSamples) {
-					console.log('sample', sample);
-					if (!sample) {
-						throw new Error(`Could not extract frame for ${src}`);
-					}
-
-					if (!canvasRef.current) {
-						throw new Error('Canvas not found');
-					}
-
-					const videoFrame = sample.toVideoFrame();
-					canvasRef.current.getContext('2d')?.drawImage(videoFrame, 0, 0);
-					onVideoFrame?.(videoFrame);
-					sample.close();
-					videoFrame.close();
-				}
-
-				console.log('done iterating over samples');
-			})
-			.catch((err) => {
-				cancelRender(err);
-			});
-
-		return () => {
-			current?.[src]?.cancel();
-		};
-	}, [src, onVideoFrame]);
+	const sinkPromise = useRef<Promise<GetSink> | null>(null);
 
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
 			return;
 		}
 
+		if (!sinkPromise.current) {
+			sinkPromise.current = getVideoSink(src);
+		}
+
+		const actualFPS = playbackRate ? fps / playbackRate : fps;
+		const timestamp = frame / actualFPS;
+
+		sinkPromise.current.then(({packetSink, videoSampleSink}) => {
+			console.time('getFramesSinceKeyframe');
+			getFramesSinceKeyframe({packetSink, videoSampleSink, timestamp}).then(
+				async (samples) => {
+					let size = 0;
+					for await (const sample of samples) {
+						console.log(sample.timestamp, sample.allocationSize());
+						sample.toVideoFrame();
+						size += sample.allocationSize();
+					}
+
+					console.timeEnd('getFramesSinceKeyframe');
+
+					console.log(size);
+				},
+			);
+		});
+
 		const newHandle = delayRender(`extracting frame number ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
-
-		const {current} = iterator;
-
-		const actualFPS = playbackRate ? fps / playbackRate : fps;
-		const timestamp = frame / actualFPS;
-		console.log('requesting frame', timestamp);
-		current[src]
-			.requestFrame(timestamp)
-			.then(() => {})
-			.catch((err) => {
-				cancelRender(err);
-			});
 
 		return () => {
 			continueRender(newHandle);
