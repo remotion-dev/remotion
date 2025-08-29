@@ -132,6 +132,7 @@ import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {NewVideoExample} from './NewVideo/NewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
+import {NewRemoteVideo} from './OffthreadRemoteVideo/NewRemoteVideo';
 import {OffthreadRemoteSeries} from './OffthreadRemoteVideo/OffthreadRemoteSeries';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
@@ -755,6 +756,7 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<OffthreadRemoteVideo />
+				<NewRemoteVideo />
 				<OffthreadRemoteSeries />
 				<LoopedOffthreadRemoteVideo />
 				<MultiChannelAudio />

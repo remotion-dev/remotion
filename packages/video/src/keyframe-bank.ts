@@ -14,7 +14,7 @@ export type KeyframeBank = {
 	) => void;
 	hasTimestampInSecond: (timestamp: number) => Promise<boolean>;
 	addFrame: (frame: VideoSample) => void;
-	getOpenFrameCount: () => number;
+	getOpenFrameCount: () => {length: number; size: number; timestamps: number[]};
 };
 
 export const makeKeyframeBank = ({
@@ -134,8 +134,28 @@ export const makeKeyframeBank = ({
 	};
 
 	const getOpenFrameCount = () => {
-		return frameTimestamps.map((timestamp) => frames[timestamp]).filter(Boolean)
-			.length;
+		const f = frameTimestamps
+			.map((timestamp) => {
+				const frame = frames[timestamp];
+				return frame;
+			})
+			.filter(Boolean);
+		const {length} = f;
+		const timestamps: number[] = [];
+		const size = f.reduce((acc, frame) => {
+			const allocationSize = frame.allocationSize();
+			if (allocationSize === 0) {
+				Log.verbose(
+					'verbose',
+					`Frame ${frame.timestamp} has allocation size! ${allocationSize}`,
+				);
+			}
+
+			timestamps.push(frame.timestamp);
+
+			return acc + allocationSize;
+		}, 0);
+		return {length, size, timestamps};
 	};
 
 	const keyframeBank: KeyframeBank = {

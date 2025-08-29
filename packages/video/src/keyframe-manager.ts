@@ -23,14 +23,28 @@ export const makeKeyframeManager = () => {
 
 	const logCacheStats = async (logLevel: LogLevel) => {
 		let count = 0;
+		let totalSize = 0;
 		for (const src in sources) {
 			for (const bank in sources[src]) {
 				const v = await sources[src][bank];
-				count += v.getOpenFrameCount();
+				const {length, size, timestamps} = v.getOpenFrameCount();
+				count += length;
+				totalSize += size;
+				if (size === 0) {
+					continue;
+				}
+
+				Log.verbose(
+					logLevel,
+					`Open frames for src ${src}: ${timestamps.join(', ')}`,
+				);
 			}
 		}
 
-		Log.verbose(logLevel, `Cache stats: ${count} open frames`);
+		Log.verbose(
+			logLevel,
+			`Cache stats: ${count} open frames, ${totalSize} bytes`,
+		);
 	};
 
 	const clearKeyframeBanksBeforeTime = async ({
@@ -56,7 +70,7 @@ export const makeKeyframeManager = () => {
 
 		for (const startTimeInSeconds of banks) {
 			const bank = await sources[src][startTimeInSeconds as unknown as number];
-			const {endTimestampInSeconds} = await bank;
+			const {endTimestampInSeconds} = bank;
 
 			if (endTimestampInSeconds < threshold) {
 				bank.prepareForDeletion();
