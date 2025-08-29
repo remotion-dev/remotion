@@ -51,10 +51,10 @@ const innerSetPropsAndEnv = async ({
 	const urlToVisit = normalizeServeUrl(serveUrl);
 
 	await page.evaluateOnNewDocument(
-		(timeout: number) => {
+		(timeout: number, mainTab: boolean) => {
 			window.remotion_puppeteerTimeout = timeout;
 
-			window.remotion_isMainTab = isMainTab;
+			window.remotion_isMainTab = mainTab;
 			// To make getRemotionEnvironment() work
 			if (window.process === undefined) {
 				// @ts-expect-error
