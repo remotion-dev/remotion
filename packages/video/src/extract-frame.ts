@@ -1,21 +1,24 @@
-import type {GetSink} from './get-frames-since-keyframe';
-import type {KeyframeManager} from './keyframe-manager';
+import {getVideoSink, type GetSink} from './get-frames-since-keyframe';
+import {makeKeyframeManager} from './keyframe-manager';
 import type {LogLevel} from './log';
+
+const keyframeManager = makeKeyframeManager();
+const sinkPromise: Record<string, Promise<GetSink>> = {};
 
 export const extractFrame = async ({
 	src,
 	timestamp,
-	sinkPromise,
-	keyframeManager,
 	logLevel,
 }: {
 	src: string;
 	timestamp: number;
-	sinkPromise: Promise<GetSink>;
-	keyframeManager: KeyframeManager;
 	logLevel: LogLevel;
 }) => {
-	const {packetSink, videoSampleSink} = await sinkPromise;
+	if (!sinkPromise[src]) {
+		sinkPromise[src] = getVideoSink(src);
+	}
+
+	const {packetSink, videoSampleSink} = await sinkPromise[src];
 
 	const keyframeBank = await keyframeManager.requestKeyframeBank({
 		packetSink,

@@ -13,10 +13,7 @@ import {
 	random,
 	useCurrentFrame,
 } from 'remotion';
-import {extractFrame} from './extract-frame';
-import type {GetSink} from './get-frames-since-keyframe';
-import {getVideoSink} from './get-frames-since-keyframe';
-import {makeKeyframeManager} from './keyframe-manager';
+import {extractFrameViaBroadcastChannel} from './extract-frame-via-broadcast-channel';
 import type {NewVideoProps} from './props';
 
 const {
@@ -28,8 +25,6 @@ const {
 	RenderAssetManager,
 	evaluateVolume,
 } = Internals;
-
-const keyframeManager = makeKeyframeManager();
 
 export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	volume: volumeProp,
@@ -131,15 +126,9 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 	const {fps} = videoConfig;
 
-	const sinkPromise = useRef<Record<string, Promise<GetSink>>>({});
-
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
 			return;
-		}
-
-		if (!sinkPromise.current[src]) {
-			sinkPromise.current[src] = getVideoSink(src);
 		}
 
 		const actualFps = playbackRate ? fps / playbackRate : fps;
@@ -150,19 +139,15 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
 
-		extractFrame({
+		extractFrameViaBroadcastChannel({
 			src,
 			timestamp,
-			sinkPromise: sinkPromise.current[src],
-			keyframeManager,
 			logLevel: logLevel ?? 'info',
 		})
-			.then((videoSample) => {
-				if (!videoSample) {
+			.then((videoFrame) => {
+				if (!videoFrame) {
 					cancelRender(new Error('No video frame found'));
 				}
-
-				const videoFrame = videoSample.toVideoFrame();
 
 				onVideoFrame?.(videoFrame);
 				canvasRef.current?.getContext('2d')?.drawImage(videoFrame, 0, 0);
