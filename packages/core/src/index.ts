@@ -66,6 +66,7 @@ declare global {
 		remotion_audioEnabled: boolean;
 		remotion_videoEnabled: boolean;
 		remotion_puppeteerTimeout: number;
+		remotion_broadcastChannel: BroadcastChannel;
 		remotion_inputProps: string;
 		remotion_envVariables: string;
 		remotion_isMainTab: boolean;

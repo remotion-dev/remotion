@@ -71,6 +71,10 @@ const innerSetPropsAndEnv = async ({
 		isMainTab,
 	);
 
+	await page.evaluateOnNewDocument(
+		'window.remotion_broadcastChannel = new BroadcastChannel("remotion-video-frame-extraction")',
+	);
+
 	if (envVariables) {
 		await page.evaluateOnNewDocument((input: string) => {
 			window.remotion_envVariables = input;

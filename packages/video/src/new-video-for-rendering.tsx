@@ -144,14 +144,14 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			timestamp,
 			logLevel: logLevel ?? 'info',
 		})
-			.then((videoFrame) => {
-				if (!videoFrame) {
+			.then((imageBitmap) => {
+				if (!imageBitmap) {
 					cancelRender(new Error('No video frame found'));
 				}
 
-				onVideoFrame?.(videoFrame);
-				canvasRef.current?.getContext('2d')?.drawImage(videoFrame, 0, 0);
-				videoFrame.close();
+				onVideoFrame?.(imageBitmap);
+				canvasRef.current?.getContext('2d')?.drawImage(imageBitmap, 0, 0);
+				imageBitmap.close();
 
 				continueRender(newHandle);
 			})

@@ -13,60 +13,56 @@ type ExtractFrameResponse =
 	| {
 			type: 'response-success';
 			id: string;
-			frame: VideoFrame | null;
+			frame: ImageBitmap | null;
 	  }
 	| {
 			type: 'response-error';
 			id: string;
-			errorStack: Error;
+			errorStack: string;
 	  };
 
-let singleBroadcastChannel: BroadcastChannel | undefined;
-
-const getBroadcastChannel = () => {
-	if (singleBroadcastChannel) {
-		return singleBroadcastChannel;
+window.remotion_broadcastChannel.addEventListener('message', async (event) => {
+	if (!window.remotion_isMainTab) {
+		// Other tabs will also get this message, but only the main tab should process it
+		return;
 	}
 
-	const channel = new BroadcastChannel('remotion-video-frame-extraction');
-
-	singleBroadcastChannel = channel;
-
-	singleBroadcastChannel.addEventListener('message', (event) => {
-		if (!window.remotion_isMainTab) {
-			// Other tabs will also get this message, but only the main tab should process it
-			return;
-		}
-
-		console.log('data', event.data);
-		const data = event.data as ExtractFrameRequest;
-		if (data.type === 'request') {
-			extractFrame({
+	const data = event.data as ExtractFrameRequest;
+	if (data.type === 'request') {
+		try {
+			const sample = await extractFrame({
 				src: data.src,
 				timestamp: data.timeInSeconds,
 				logLevel: data.logLevel,
-			})
-				.then((frame) => {
-					channel.postMessage({
-						type: 'response-success',
-						id: data.id,
-						frame: frame?.toVideoFrame() ?? null,
-					} as ExtractFrameResponse);
-				})
-				.catch((error) => {
-					channel.postMessage({
-						type: 'response-error',
-						id: data.id,
-						errorStack: error?.stack ?? 'No stack trace',
-					} as ExtractFrameResponse);
-				});
-		} else {
-			throw new Error('Invalid message: ' + JSON.stringify(data));
-		}
-	});
+			});
 
-	return singleBroadcastChannel;
-};
+			const frame = sample?.toVideoFrame() ?? null;
+			const imageBitmap = frame ? await createImageBitmap(frame) : null;
+			if (frame) {
+				frame.close();
+			}
+
+			const response: ExtractFrameResponse = {
+				type: 'response-success',
+				id: data.id,
+				frame: imageBitmap,
+			};
+
+			window.remotion_broadcastChannel.postMessage(response);
+			frame?.close();
+		} catch (error) {
+			const response: ExtractFrameResponse = {
+				type: 'response-error',
+				id: data.id,
+				errorStack: (error as Error).stack ?? 'No stack trace',
+			};
+
+			window.remotion_broadcastChannel.postMessage(response);
+		}
+	} else {
+		throw new Error('Invalid message: ' + JSON.stringify(data));
+	}
+});
 
 export const extractFrameViaBroadcastChannel = async ({
 	src,
@@ -76,7 +72,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	src: string;
 	timestamp: number;
 	logLevel: LogLevel;
-}): Promise<VideoFrame | null> => {
+}): Promise<ImageBitmap | VideoFrame | null> => {
 	if (typeof window.remotion_isMainTab === 'undefined') {
 		throw new Error('This should be defined');
 	}
@@ -95,36 +91,54 @@ export const extractFrameViaBroadcastChannel = async ({
 		return sample.toVideoFrame();
 	}
 
-	const broadcastChannel = getBroadcastChannel();
-
 	const requestId = crypto.randomUUID();
 
-	broadcastChannel.postMessage({
+	const resolvePromise = new Promise<ImageBitmap | null>((resolve, reject) => {
+		const onMessage = (event: MessageEvent) => {
+			const data = event.data as ExtractFrameResponse;
+			console.log('data', event);
+
+			if (!data) {
+				return;
+			}
+
+			if (data.type === 'response-success' && data.id === requestId) {
+				resolve(data.frame ? data.frame : null);
+				window.remotion_broadcastChannel.removeEventListener(
+					'message',
+					onMessage,
+				);
+			} else if (data.type === 'response-error' && data.id === requestId) {
+				reject(data.errorStack);
+				window.remotion_broadcastChannel.removeEventListener(
+					'message',
+					onMessage,
+				);
+			}
+		};
+
+		window.remotion_broadcastChannel.addEventListener('message', onMessage);
+	});
+
+	const request: ExtractFrameRequest = {
 		type: 'request',
 		src,
 		timeInSeconds: timestamp,
 		id: requestId,
-	});
+		logLevel,
+	};
 
-	const resolvePromise = new Promise<VideoFrame | null>((resolve, reject) => {
-		broadcastChannel.addEventListener(
-			'message',
-			(event) => {
-				const data = event.data as ExtractFrameResponse;
-				if (data.type === 'response-success' && data.id === requestId) {
-					resolve(data.frame);
-				} else if (data.type === 'response-error' && data.id === requestId) {
-					reject(data.errorStack);
-				}
-			},
-			{once: true},
-		);
-	});
+	window.remotion_broadcastChannel.postMessage(request);
+
+	let timeoutId: NodeJS.Timeout | undefined;
 
 	return Promise.race([
-		resolvePromise,
+		resolvePromise.then((res) => {
+			clearTimeout(timeoutId);
+			return res;
+		}),
 		new Promise<never>((_, reject) => {
-			setTimeout(
+			timeoutId = setTimeout(
 				() => {
 					reject(
 						new Error(
