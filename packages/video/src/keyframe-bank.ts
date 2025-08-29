@@ -18,8 +18,16 @@ export type KeyframeBank = {
 	}) => void;
 	hasTimestampInSecond: (timestamp: number) => Promise<boolean>;
 	addFrame: (frame: VideoSample) => void;
-	getOpenFrameCount: () => {length: number; size: number; timestamps: number[]};
+	getOpenFrameCount: () => {
+		length: number;
+		size: number;
+		timestamps: number[];
+		allocationSizes: number[];
+	};
 };
+
+export let iteratorsOpen = 0;
+export let framesOpen = 0;
 
 export const makeKeyframeBank = ({
 	startTimestampInSeconds,
@@ -32,6 +40,7 @@ export const makeKeyframeBank = ({
 }) => {
 	const frames: Record<number, VideoSample> = {};
 	const frameTimestamps: number[] = [];
+	iteratorsOpen++;
 
 	const hasDecodedEnoughForTimestamp = (timestamp: number) => {
 		const lastFrameTimestamp = frameTimestamps[frameTimestamps.length - 1];
@@ -58,6 +67,7 @@ export const makeKeyframeBank = ({
 			const sample = await sampleIterator.next();
 
 			if (sample.value) {
+				framesOpen++;
 				addFrame(sample.value);
 			}
 
@@ -108,10 +118,15 @@ export const makeKeyframeBank = ({
 
 	const prepareForDeletion = async () => {
 		// Cleanup frames that have been extracted that might not have been retrieved yet
-		const {value} = await sampleIterator.return();
+		const {value, done} = await sampleIterator.return();
 		if (value) {
 			value.close();
 		}
+
+		Log.verbose(
+			'verbose',
+			`Closed sample iterator ${Boolean(value)}, was done?${done}`,
+		);
 
 		for (const frameTimestamp of frameTimestamps) {
 			if (!frames[frameTimestamp]) {
@@ -120,6 +135,7 @@ export const makeKeyframeBank = ({
 
 			frames[frameTimestamp].close();
 			delete frames[frameTimestamp];
+			framesOpen--;
 		}
 
 		frameTimestamps.length = 0;
@@ -142,6 +158,7 @@ export const makeKeyframeBank = ({
 
 				frames[frameTimestamp].close();
 				delete frames[frameTimestamp];
+				framesOpen--;
 				Log.verbose(logLevel, `Deleted frame ${frameTimestamp} for src ${src}`);
 			}
 		}
@@ -156,6 +173,7 @@ export const makeKeyframeBank = ({
 			.filter(Boolean);
 		const {length} = f;
 		const timestamps: number[] = [];
+		const allocationSizes: number[] = [];
 		const size = f.reduce((acc, frame) => {
 			const allocationSize = frame.allocationSize();
 			if (allocationSize === 0) {
@@ -166,10 +184,10 @@ export const makeKeyframeBank = ({
 			}
 
 			timestamps.push(frame.timestamp);
-
+			allocationSizes.push(allocationSize);
 			return acc + allocationSize;
 		}, 0);
-		return {length, size, timestamps};
+		return {length, size, timestamps, allocationSizes};
 	};
 
 	const keyframeBank: KeyframeBank = {

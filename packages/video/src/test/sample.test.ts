@@ -14,17 +14,23 @@ test('sample', async () => {
 		throw new Error(`No video track found`);
 	}
 
-	for (let j = 0; j < 20; j++) {
-		const videoSampleSink = new VideoSampleSink(track);
+	const videoSampleSink = new VideoSampleSink(track);
 
+	for (let j = 0; j < 110; j++) {
 		const samples = videoSampleSink.samples();
-		for (let i = 0; i < 44; i++) {
+		for (let i = 0; i < 23; i++) {
 			const sample = await samples.next();
 			if (sample.value) {
 				sample.value.close();
 			}
 		}
 
+		const nextt = await samples.next();
+		const val = nextt.value;
+		if (val) {
+			val.close();
+		}
+
 		await samples.return();
 	}
-});
+}, 1_000_000);

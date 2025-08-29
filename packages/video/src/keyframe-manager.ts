@@ -1,6 +1,6 @@
 import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
 import {getFramesSinceKeyframe} from './get-frames-since-keyframe';
-import {type KeyframeBank} from './keyframe-bank';
+import {framesOpen, type KeyframeBank} from './keyframe-bank';
 import type {LogLevel} from './log';
 import {Log} from './log';
 
@@ -27,7 +27,8 @@ export const makeKeyframeManager = () => {
 		for (const src in sources) {
 			for (const bank in sources[src]) {
 				const v = await sources[src][bank];
-				const {length, size, timestamps} = v.getOpenFrameCount();
+				const {length, size, timestamps, allocationSizes} =
+					v.getOpenFrameCount();
 				count += length;
 				totalSize += size;
 				if (size === 0) {
@@ -36,14 +37,14 @@ export const makeKeyframeManager = () => {
 
 				Log.verbose(
 					logLevel,
-					`Open frames for src ${src}: ${timestamps.join(', ')}`,
+					`Open frames for src ${src}: ${timestamps.join(', ')}, ${allocationSizes.join(', ')}`,
 				);
 			}
 		}
 
 		Log.verbose(
 			logLevel,
-			`Cache stats: ${count} open frames, ${totalSize} bytes`,
+			`Cache stats: ${count} open frames, ${totalSize} bytes, actually open: ${framesOpen}`,
 		);
 	};
 

@@ -166,6 +166,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 				onVideoFrame?.(videoFrame);
 				canvasRef.current?.getContext('2d')?.drawImage(videoFrame, 0, 0);
+				videoFrame.close();
 
 				continueRender(newHandle);
 			})
