@@ -190,13 +190,13 @@ Scrolls the timeline as the playhead moves forward.
 
 Feature flag: [`FEATURE_TIMELINE_SNAPPING`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_TIMELINE_SNAPPING&type=code)
 
-Enables snapping behavior on the timeline, allowing items to automatically align with edges of other items, the playhead, or grid positions when dragging. This makes it easier to precisely position items and create seamless transitions. Enabled by default.
+Enables snapping on the timeline, allowing items to align with other items, the playhead, or grid positions when dragged. This simplifies positioning and transitions. Activate snapping by clicking the magnet icon in the top right corner.
 
 ### Snapping toggle shortcut
 
 Feature flag: [`FEATURE_SNAPPING_SHORTCUT`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_SNAPPING_SHORTCUT&type=code)
 
-Allows toggling timeline snapping on/off using a keyboard shortcut. When enabled, you can temporarily disable snapping while dragging items. Enabled by default. Requires [`FEATURE_TIMELINE_SNAPPING`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_TIMELINE_SNAPPING&type=code) to be enabled.
+Allows toggling timeline snapping on/off using the keyboard shortcut <kbd>Shift</kbd>+<kbd>M</kbd>. When this feature is enabled, you can temporarily (de)activate snapping using the shortcut.
 
 ## Inspector
 
@@ -745,6 +745,15 @@ Allows selecting the codec (MP4 / WebM) for rendering.
     </td>
     <td style={{verticalAlign: 'middle'}}>Delete selected item(s)</td>
     <td style={{verticalAlign: 'middle'}}><a href="https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_BACKSPACE_TO_DELETE&type=code" target="_blank"><code>FEATURE_BACKSPACE_TO_DELETE</code></a></td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>Shift</kbd>
+      <div style={{width: 2, display: 'inline-block'}} />
+      <kbd>M</kbd>
+    </td>
+    <td style={{verticalAlign: 'middle'}}>Toggle timeline snapping</td>
+    <td style={{verticalAlign: 'middle'}}><a href="https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_SNAPPING_SHORTCUT&type=code" target="_blank"><code>FEATURE_SNAPPING_SHORTCUT</code></a></td>
   </tr>
 </table>
 
