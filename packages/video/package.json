@@ -16,11 +16,13 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"watch": "tsc -w",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
+		"test:browser": "vitest --config=vitest.browser.config.ts"
 	},
 	"dependencies": {
+		"mediabunny": "1.11.2",
 		"remotion": "workspace:*",
-		"mediabunny": "1.11.2"
+		"webdriverio": "9.19.2"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -28,9 +30,11 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@vitest/browser": "^3.2.4",
 		"eslint": "9.19.0",
 		"react": "19.0.0",
-		"react-dom": "19.0.0"
+		"react-dom": "19.0.0",
+		"vitest": "3.2.4"
 	},
 	"keywords": [],
 	"publishConfig": {

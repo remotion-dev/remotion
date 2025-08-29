@@ -73,14 +73,18 @@ export const makeKeyframeManager = () => {
 			const {endTimestampInSeconds} = bank;
 
 			if (endTimestampInSeconds < threshold) {
-				bank.prepareForDeletion();
+				await bank.prepareForDeletion();
 				Log.verbose(
 					logLevel,
 					`Cleared frames for src ${src} from ${bank.startTimestampInSeconds}sec to ${bank.endTimestampInSeconds}sec`,
 				);
 				delete sources[src][startTimeInSeconds as unknown as number];
 			} else {
-				bank.deleteFramesBeforeTimestamp(threshold, logLevel, src);
+				bank.deleteFramesBeforeTimestamp({
+					timestampInSeconds: threshold,
+					logLevel,
+					src,
+				});
 			}
 		}
 

@@ -7,11 +7,15 @@ export type KeyframeBank = {
 	endTimestampInSeconds: number;
 	getFrameFromTimestamp: (timestamp: number) => Promise<VideoSample | null>;
 	prepareForDeletion: () => Promise<void>;
-	deleteFramesBeforeTimestamp: (
-		timestamp: number,
-		logLevel: LogLevel,
-		src: string,
-	) => void;
+	deleteFramesBeforeTimestamp: ({
+		logLevel,
+		src,
+		timestampInSeconds,
+	}: {
+		timestampInSeconds: number;
+		logLevel: LogLevel;
+		src: string;
+	}) => void;
 	hasTimestampInSecond: (timestamp: number) => Promise<boolean>;
 	addFrame: (frame: VideoSample) => void;
 	getOpenFrameCount: () => {length: number; size: number; timestamps: number[]};
@@ -103,6 +107,12 @@ export const makeKeyframeBank = ({
 	};
 
 	const prepareForDeletion = async () => {
+		// Cleanup frames that have been extracted that might not have been retrieved yet
+		const {value} = await sampleIterator.return();
+		if (value) {
+			value.close();
+		}
+
 		for (const frameTimestamp of frameTimestamps) {
 			if (!frames[frameTimestamp]) {
 				continue;
@@ -112,19 +122,18 @@ export const makeKeyframeBank = ({
 			delete frames[frameTimestamp];
 		}
 
-		try {
-			// Cleanup frames that have been extracted that might not have been retrieved yet
-			await sampleIterator.throw(new Error('Not needed anymore'));
-		} catch {}
-
 		frameTimestamps.length = 0;
 	};
 
-	const deleteFramesBeforeTimestamp = (
-		timestampInSeconds: number,
-		logLevel: LogLevel,
-		src: string,
-	) => {
+	const deleteFramesBeforeTimestamp = ({
+		logLevel,
+		src,
+		timestampInSeconds,
+	}: {
+		timestampInSeconds: number;
+		logLevel: LogLevel;
+		src: string;
+	}) => {
 		for (const frameTimestamp of frameTimestamps) {
 			if (frameTimestamp < timestampInSeconds) {
 				if (!frames[frameTimestamp]) {
