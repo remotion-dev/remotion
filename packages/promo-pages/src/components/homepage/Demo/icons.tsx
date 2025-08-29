@@ -50,7 +50,7 @@ export const PausedIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 			className="svg-inline--fa fa-play fa-w-14"
 			role="img"
 			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 448 512"
+			viewBox="0 0 480 512"
 			{...props}
 		>
 			<path
@@ -65,7 +65,7 @@ export const PlayingIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 320 512"
+			viewBox="0 0 400 512"
 			fill="currentColor"
 			{...props}
 		>

@@ -33,7 +33,8 @@ export const TitleStep: React.FC<{
 export const InlineStep: React.FC<{
 	readonly children: React.ReactNode;
 	readonly error?: boolean;
-}> = ({children, error}) => {
+	readonly style?: React.CSSProperties;
+}> = ({children, error, style}) => {
 	return (
 		<div
 			style={{
@@ -49,6 +50,7 @@ export const InlineStep: React.FC<{
 				fontWeight: 'bold',
 				verticalAlign: 'top',
 				fontFeatureSettings: '"ss03" on',
+				...(style ?? {}),
 			}}
 		>
 			{children}

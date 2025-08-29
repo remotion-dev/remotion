@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 
+import {IsMutedIcon, NotMutedIcon, PausedIcon, PlayingIcon} from './Demo/icons';
 import {MuxVideo} from './MuxVideo';
 import {SectionTitle} from './VideoAppsTitle';
 
@@ -18,7 +19,7 @@ const videoApps = [
 		link: 'https://banger.show?ref=remotion',
 		videoWidth: 1080,
 		videoHeight: 1080,
-		muxId: 'riYdneJ2zu1Vqiayoe1qAZXcSIRq0201tHgSBbh9JbtlU',
+		muxId: 'Kg02XHfkR6x8400BtO4Ica54XlSPimmmTRpqDHHUaeACk',
 		buttonText: 'Banger.Show website',
 	},
 	{
@@ -64,82 +65,18 @@ const icon: React.CSSProperties = {
 const VideoAppsShowcase: React.FC = () => {
 	const [activeTab, setActiveTab] = useState(0);
 	const [isMuted, setIsMuted] = useState(true);
+	const [isPlaying, setIsPlaying] = useState(false);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
-		const observer = new IntersectionObserver(
-			(entries) => {
-				if (entries[0].isIntersecting) {
-					if (videoRef.current && videoRef.current.paused) {
-						videoRef.current.muted = true; // Ensure video is muted before autoplay
-						setIsMuted(true); // Update state to reflect muted status
-						videoRef.current
-							.play()
-							.then(() => {})
-							.catch((error) => {
-								// eslint-disable-next-line no-console
-								console.error('Playback error:', error);
-							});
-					}
-				} else if (videoRef.current && !videoRef.current.paused) {
-					videoRef.current.pause();
-				}
-			},
-			{threshold: 0.5},
-		);
-
-		const currentContainer = containerRef.current;
-		if (currentContainer) {
-			observer.observe(currentContainer);
-		}
-
-		return () => {
-			if (currentContainer) {
-				observer.unobserve(currentContainer);
-			}
-		};
-	}, []);
-
+	// Remove the intersection observer autoplay logic
 	useEffect(() => {
 		const video = videoRef.current;
 		if (video) {
 			video.pause();
+			setIsPlaying(false);
 			video.currentTime = 0;
 			video.load();
-
-			// Check if the video is visible and play it if it is
-			const observer = new IntersectionObserver(
-				(entries) => {
-					if (entries[0].isIntersecting) {
-						// Introduce a delay before playing the video
-						if (video) {
-							video.muted = true; // Ensure video is muted before autoplay
-							setIsMuted(true); // Update state to reflect muted status
-							video
-								.play()
-								.then(() => {})
-								.catch((error) => {
-									// eslint-disable-next-line no-console
-									console.error('Playback error:', error);
-								});
-						}
-					}
-				},
-				{threshold: 0.5},
-			);
-
-			observer.observe(video);
-
-			return () => {
-				observer.disconnect();
-				video.muted = false; // Unmute the video when it's no longer visible
-				if (video) {
-					video.pause();
-					video.currentTime = 0;
-					video.load();
-				}
-			};
 		}
 	}, [activeTab]);
 
@@ -151,16 +88,17 @@ const VideoAppsShowcase: React.FC = () => {
 				if (playPromise !== undefined) {
 					playPromise
 						.then(() => {
-							// Playback started successfully
+							setIsPlaying(true);
 						})
 						.catch((error) => {
-							// Auto-play was prevented or there was an error
 							// eslint-disable-next-line no-console
 							console.error('Playback error:', error);
+							setIsPlaying(false);
 						});
 				}
 			} else {
 				videoRef.current.pause();
+				setIsPlaying(false);
 			}
 		}
 	};
@@ -197,7 +135,7 @@ const VideoAppsShowcase: React.FC = () => {
 				<div className={'flex-1 flex flex-col lg:flex-row justify-center'}>
 					<div
 						className={
-							'w-full max-w-[500px] aspect-square relative overflow-hidden bg-[#eee]'
+							'w-full max-w-[500px] aspect-square relative overflow-hidden bg-[#eee] cursor-pointer'
 						}
 						onClick={handlePlayPause}
 					>
@@ -212,25 +150,67 @@ const VideoAppsShowcase: React.FC = () => {
 							muted={isMuted}
 						/>
 
-						{isMuted && (
-							<button
-								type="button"
-								className={
-									'absolute bottom-2.5 right-2.5 bg-white text-black rounded-full w-8 h-8 flex justify-center items-center text-base cursor-pointer transition-colors border-2 border-black border-solid'
-								}
-								onClick={(e) => {
-									e.stopPropagation();
-									handleMuteToggle();
-								}}
-							>
-								<svg style={{width: 24}} viewBox="0 0 576 512">
-									<path
-										fill="black"
-										d="M0 160L0 352l128 0L272 480l48 0 0-448-48 0L128 160 0 160zm441 23l-17-17L390.1 200l17 17 39 39-39 39-17 17L424 345.9l17-17 39-39 39 39 17 17L569.9 312l-17-17-39-39 39-39 17-17L536 166.1l-17 17-39 39-39-39z"
-									/>
-								</svg>
-							</button>
-						)}
+						{/* Play/Pause Button - bottom left corner */}
+						<button
+							type="button"
+							className={
+								'absolute bottom-2.5 left-2.5 bg-white text-black rounded-full w-8 h-8 flex justify-center items-center text-base cursor-pointer transition-colors border-2 border-black border-solid'
+							}
+							onClick={(e) => {
+								e.stopPropagation();
+								handlePlayPause();
+							}}
+						>
+							{isPlaying ? (
+								<PlayingIcon
+									style={{
+										width: 12,
+										height: 20,
+										marginLeft: '2px',
+										marginTop: '1px',
+									}}
+								/>
+							) : (
+								<PausedIcon
+									style={{
+										width: 14,
+										height: 16,
+										marginLeft: '2px',
+										marginTop: '0.5px',
+									}}
+								/>
+							)}
+						</button>
+
+						{/* Mute/Unmute Button - bottom right corner */}
+						<button
+							type="button"
+							className={
+								'absolute bottom-2.5 right-2.5 bg-white text-black rounded-full w-8 h-8 flex justify-center items-center text-base cursor-pointer transition-colors border-2 border-black border-solid'
+							}
+							onClick={(e) => {
+								e.stopPropagation();
+								handleMuteToggle();
+							}}
+						>
+							{isMuted ? (
+								<IsMutedIcon
+									style={{
+										width: 16,
+										height: 16,
+										marginTop: '1px',
+									}}
+								/>
+							) : (
+								<NotMutedIcon
+									style={{
+										width: 16,
+										height: 16,
+										marginTop: '1px',
+									}}
+								/>
+							)}
+						</button>
 					</div>
 					<div className={'p-6 flex-1 flex flex-col h-full'}>
 						<div className="text-4xl font-bold fontbrand mt-0">

@@ -56,8 +56,7 @@ export const experts: Expert[] = [
 				! <br />
 				My services: SaaS platform from scratch including SSR, creating
 				individual videos and templates, and creating integrations for Remotion
-				with existing infrastructure <br />
-				Availability: Not available through fall 2024{' '}
+				with existing infrastructure.
 			</div>
 		),
 	},

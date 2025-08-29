@@ -322,8 +322,9 @@ export default () => {
 							</defs>
 						</svg>
 						<div style={{flex: 1}}>
-							Remotion Experts are independent freelancers that have proven
-							their Remotion expertise.
+							Remotion Experts are independent freelancers with proven Remotion
+							expertise and portfolios. However, due diligence is recommended
+							before hiring.
 						</div>
 					</div>
 					<Spacer />

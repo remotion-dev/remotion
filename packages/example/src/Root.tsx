@@ -128,6 +128,7 @@ import {
 } from './Compose/WhatIsRemotion';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
+import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {NewVideoExample} from './NewVideo/NewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
@@ -795,6 +796,18 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={600}
+				/>
+				<Composition
+					id="jump-cuts"
+					component={JumpCuts}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+					calculateMetadata={calculateMetadataJumpCuts}
+					defaultProps={{
+						sections: SAMPLE_SECTIONS,
+					}}
 				/>
 				<Composition
 					id="corrupt-video"
