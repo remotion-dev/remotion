@@ -24,6 +24,7 @@ type SetPropsAndEnv = {
 	indent: boolean;
 	logLevel: LogLevel;
 	onServeUrlVisited: () => void;
+	isMainTab: boolean;
 };
 
 const innerSetPropsAndEnv = async ({
@@ -40,6 +41,7 @@ const innerSetPropsAndEnv = async ({
 	indent,
 	logLevel,
 	onServeUrlVisited,
+	isMainTab,
 }: SetPropsAndEnv): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
@@ -48,21 +50,26 @@ const innerSetPropsAndEnv = async ({
 
 	const urlToVisit = normalizeServeUrl(serveUrl);
 
-	await page.evaluateOnNewDocument((timeout: number) => {
-		window.remotion_puppeteerTimeout = timeout;
+	await page.evaluateOnNewDocument(
+		(timeout: number) => {
+			window.remotion_puppeteerTimeout = timeout;
 
-		// To make getRemotionEnvironment() work
-		if (window.process === undefined) {
-			// @ts-expect-error
-			window.process = {};
-		}
+			window.remotion_isMainTab = isMainTab;
+			// To make getRemotionEnvironment() work
+			if (window.process === undefined) {
+				// @ts-expect-error
+				window.process = {};
+			}
 
-		if (window.process.env === undefined) {
-			window.process.env = {};
-		}
+			if (window.process.env === undefined) {
+				window.process.env = {};
+			}
 
-		window.process.env.NODE_ENV = 'production';
-	}, actualTimeout);
+			window.process.env.NODE_ENV = 'production';
+		},
+		actualTimeout,
+		isMainTab,
+	);
 
 	if (envVariables) {
 		await page.evaluateOnNewDocument((input: string) => {
@@ -143,6 +150,7 @@ const innerSetPropsAndEnv = async ({
 			indent,
 			logLevel,
 			onServeUrlVisited,
+			isMainTab,
 		});
 	};
 

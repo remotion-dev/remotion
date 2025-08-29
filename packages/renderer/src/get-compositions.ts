@@ -79,6 +79,7 @@ const innerGetCompositions = async ({
 		indent,
 		logLevel,
 		onServeUrlVisited: () => undefined,
+		isMainTab: true,
 	});
 
 	await puppeteerEvaluateWithCatch({

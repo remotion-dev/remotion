@@ -263,6 +263,7 @@ const innerRenderStill = async ({
 		indent,
 		logLevel,
 		onServeUrlVisited: () => undefined,
+		isMainTab: true,
 	});
 
 	await puppeteerEvaluateWithCatch({
