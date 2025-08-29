@@ -6,7 +6,7 @@ export type KeyframeBank = {
 	startTimestampInSeconds: number;
 	endTimestampInSeconds: number;
 	getFrameFromTimestamp: (timestamp: number) => Promise<VideoSample | null>;
-	prepareForDeletion: () => void;
+	prepareForDeletion: () => Promise<void>;
 	deleteFramesBeforeTimestamp: (
 		timestamp: number,
 		logLevel: LogLevel,
@@ -102,7 +102,7 @@ export const makeKeyframeBank = ({
 		return (await getFrameFromTimestamp(timestamp)) !== null;
 	};
 
-	const prepareForDeletion = () => {
+	const prepareForDeletion = async () => {
 		for (const frameTimestamp of frameTimestamps) {
 			if (!frames[frameTimestamp]) {
 				continue;
@@ -111,6 +111,11 @@ export const makeKeyframeBank = ({
 			frames[frameTimestamp].close();
 			delete frames[frameTimestamp];
 		}
+
+		try {
+			// Cleanup frames that have been extracted that might not have been retrieved yet
+			await sampleIterator.throw(new Error('Not needed anymore'));
+		} catch {}
 
 		frameTimestamps.length = 0;
 	};

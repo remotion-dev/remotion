@@ -133,7 +133,7 @@ export const makeKeyframeManager = () => {
 
 		// Bank exists but frames have already been evicted!
 		// First delete it entirely
-		(await existingBank).prepareForDeletion();
+		await (await existingBank).prepareForDeletion();
 		delete sources[src][startTimestampInSeconds];
 
 		// Then refetch
