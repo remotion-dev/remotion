@@ -96,7 +96,6 @@ export const extractFrameViaBroadcastChannel = async ({
 	const resolvePromise = new Promise<ImageBitmap | null>((resolve, reject) => {
 		const onMessage = (event: MessageEvent) => {
 			const data = event.data as ExtractFrameResponse;
-			console.log('data', event);
 
 			if (!data) {
 				return;
