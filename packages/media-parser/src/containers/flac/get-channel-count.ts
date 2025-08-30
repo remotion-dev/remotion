@@ -39,5 +39,12 @@ export const getChannelCount = (iterator: BufferIterator) => {
 		return 2;
 	}
 
+	// 0b1011..0b1111 are reserved per RFC 9639 §9.1.3 (Channels Bits).
+	// Some encoders/files in the wild may nonetheless use these values.
+	// Be lenient and treat them as stereo (2 channels) to keep parsing robust.
+	if (bits >= 0b1011 && bits <= 0b1111) {
+		return 2;
+	}
+
 	throw new Error(`Invalid channel count: ${bits.toString(2)}`);
 };
