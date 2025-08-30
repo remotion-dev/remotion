@@ -43,7 +43,9 @@ export const getRemoteExampleVideo = async (
 
 	if (!fs.existsSync(location)) {
 		if (!fs.existsSync(cacheDir)) {
-			fs.mkdirSync(cacheDir);
+			fs.mkdirSync(cacheDir, {
+				recursive: true,
+			});
 		}
 
 		console.log('Downloading video', url);

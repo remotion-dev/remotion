@@ -1,6 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
 import {StudioServerInternals} from '@remotion/studio-server';
-import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
 import {BROWSER_COMMAND, browserCommand} from './browser';
 import {defaultBrowserDownloadProgress} from './browser-download-bar';
@@ -161,7 +160,6 @@ export const CliInternals = {
 	printError,
 	getFileSizeDownloadBar,
 	determineFinalStillImageFormat,
-	minimist,
 	findEntryPoint,
 	getVideoImageFormat,
 	printCompositions,

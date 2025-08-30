@@ -1,5 +1,3 @@
-import type {CubeDirection} from '@remotion-dev/cube-presentation';
-import {cube} from '@remotion-dev/cube-presentation';
 import type {PlayerRef} from '@remotion/player';
 import {Player} from '@remotion/player';
 import type {
@@ -28,6 +26,8 @@ import {
 	presentationCompositionHeight,
 	presentationCompositionWidth,
 } from '../TableOfContents/transitions/presentations';
+import type {CubeDirection} from './cube';
+import {cube} from './cube';
 import {customPresentation} from './custom-transition';
 
 const SceneA: React.FC = () => {
