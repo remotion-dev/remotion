@@ -286,6 +286,7 @@ const innerRenderFrames = async ({
 			serveUrl,
 			timeoutInMilliseconds,
 			pageIndex,
+			isMainTab: pageIndex === 0,
 		});
 	};
 
