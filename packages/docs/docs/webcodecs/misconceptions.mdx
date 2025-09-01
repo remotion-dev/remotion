@@ -27,7 +27,7 @@ Bonus confusion: Handwritten assembly is not the same as WebAssembly
  For example, if FFmpeg writes fast assembly code for the `armv9` instruction set, it cannot be used because WebAssembly code runs in the browser and must therefore support all CPU architectures, meaning that only a common denominator of CPU-instructions can be used.
 
 The optimizations for `armv9` will be entirely removed when FFmpeg is compiled to WebAssembly.  
- Think of WebAssembly as another compilation target alongside x86, ARM etc., rather than associate it with Assembly languages.
+ Think of WebAssembly as another compilation target alongside x86, ARM etc., rather than associating it with Assembly languages.
 
 </details>
 
@@ -35,7 +35,7 @@ The optimizations for `armv9` will be entirely removed when FFmpeg is compiled t
 
 Probably this confusion is because video decoding and encoding can use the GPU.
 
-But WebGPU is the name of a specific API inside the browser that is mostly used for graphics or machine learning stuff.
+But WebGPU is the name of a specific API inside the browser that is mostly used for graphics or machine learning tasks.
 
 GPU acceleration for video is implemented on a very low level.  
 On macOS, it is built into the operating system and the silicon has been designed specifically to enable fast multimedia routines. On Nvidia cards, the hardware encoder is already built into the chip itself.
@@ -58,13 +58,13 @@ Rather, we just need an interface to make use of the already existing ones, and 
 How can a multimedia library written in JavaScript possibly be fast, when JavaScript is such a slow language?  
 Why are we not using WebAssembly to work around the slowness of JavaScript?
 
-It works because JavaScript only deals with the cheap operations, and WebCodecs takes care of the computationally expensive stuff.
+It works because JavaScript only deals with the cheap operations, and WebCodecs takes care of the computationally expensive parts.
 
-A library like [Mediabunny](https://mediabunny.dev) mainly reads and writes data from a file (demuxing and muxing), but the expensive stuff is to decompress and compress the media data (decoding and encoding).
+A library like [Mediabunny](https://mediabunny.dev) mainly reads and writes data from a file (demuxing and muxing), but the expensive parts are decompressing and compressing the media data (decoding and encoding).
 
-A multimedia library that does not use WebCodecs and uses code compiled to WebAssembly to decode and encode cannot take advantage of many of the hardware-specific optimisations that are possible on a computer, for example using CPU-specific instructions, or using the GPU.
+A multimedia library that does not use WebCodecs and uses code compiled to WebAssembly to decode and encode cannot take advantage of many of the hardware-specific optimizations that are possible on a computer, for example using CPU-specific instructions, or using the GPU.
 
-## WebCodecs can not be used on React Native or Node.js
+## WebCodecs cannot be used on React Native or Node.js
 
 At least for now, WebCodecs is an API that is only available in web browsers.  
 We tried to see if the C++ WebCodecs implementation of Chromium can be easily extracted into a module that may then be used in other contexts, but it is heavily connected to other Chromium code.
