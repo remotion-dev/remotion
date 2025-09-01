@@ -1078,6 +1078,7 @@ const sidebars: SidebarsConfig = {
 				'media-parser/webcodecs',
 				'media-parser/foreign-file-types',
 				'media-parser/stream-selection',
+				'mediabunny-migration',
 			],
 		},
 		{

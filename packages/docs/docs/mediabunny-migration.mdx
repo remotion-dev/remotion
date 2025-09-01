@@ -1,0 +1,69 @@
+---
+image: /generated/articles-docs-mediabunny-migration.png
+id: mediabunny-migration
+title: Remotion and Mediabunny
+slug: /mediabunny-migration
+crumb: 'Migration'
+sidebar_label: Migration to Mediabunny
+---
+
+[On September 1st 2025, we announced](/blog/mediabunny) that we are combining our efforts and are helping Mediabunny become the definitive multimedia library for the web!
+
+As a result, we will be slowing phasing out [`@remotion/media-parser`](/docs/media-parser) and [`@remotion/webcodecs`](/docs/webcodecs) and deprecate it when Mediabunny has reached the same capabilities.
+
+## Should I use Mediabunny or Media Parser?
+
+For new projects, we recommend that you [try out Mediabunny](https://mediabunny.dev/guide/quick-start).
+
+You can continue to use Media Parser in existing projects. Media Parser is not yet deprecated.  
+We have not yet published any material for how to migrate from Media Parser to Mediabunny, but we will slowly create it and update our documentation.
+
+## Differences in features
+
+Some features are available in Media Parser but not (yet) in Mediabunny, and vice versa.  
+Here are some notable ones:
+
+**Features exclusive to Media Parser**:
+
+- `.ts`, `.m3u8`, `.avi` and `.flac` container support
+- Foreign file probing
+- Native Web Worker integration
+- Download and Parse media
+- ID3 Metadata
+
+**Features exclusive to Mediabunny**:
+
+- `.ogg`, `.adts` container support
+- Compression
+- Media Player
+- Video creation
+- Live recording and streaming
+- Tree shaking
+
+Mediabunny is generally faster.  
+Media Parser has higher-level APIs ("`extractFrames()`") while Mediabunny's API is lower-level.  
+Mediabunny has a more permissive license (see below).
+
+If one of these characteristics is important for you, let this influence your choice.
+
+## How are Remotion and Mediabunny related?
+
+Mediabunny is an independent project by [Vanilagy](https://github.com/vanilagy).  
+Remotion is a Gold Sponsor.
+
+## Reporting bugs
+
+If you can pin down an issue to the Mediabunny library directly, then report an issue under [Mediabunny's repo](https://github.com/vanilagy/mediabunny/issues).  
+If an issue is also related to use in Remotion (e.g. issue with a usage we describe in our docs), you can file it with [Remotion](https://remotion.dev/issue)
+
+## License
+
+Remotion (the framework), `@remotion/media-parser` and `@remotion/webcodecs` continue to use the [Remotion License](/docs/license).
+If you are using Remotion and are not eligible for the free license, you continue to require a company license.
+
+[Mediabunny](https://mediabunny.dev) has a more permissive MPL 2.0 license.  
+If you are a company and you are only interested in the multimedia library, you don't need a Company License to use Mediabunny - it is truly open source!
+
+## What happens with remotion.dev/convert?
+
+It's not yet clear, but we both want to have a video conversion website that works fully offline, uses hardware acceleration and has no ads.
