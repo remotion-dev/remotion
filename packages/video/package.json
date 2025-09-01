@@ -20,7 +20,7 @@
 		"test:browser": "vitest --config=vitest.browser.config.ts"
 	},
 	"dependencies": {
-		"mediabunny": "1.11.2",
+		"mediabunny": "1.12.0",
 		"remotion": "workspace:*",
 		"webdriverio": "9.19.2"
 	},
