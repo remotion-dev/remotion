@@ -3267,6 +3267,15 @@ export const articles = [
 		slug: 'media-utils/visualize-audio-waveform',
 	},
 	{
+		id: 'mediabunny-migration',
+		title: 'Remotion and Mediabunny',
+		relativePath: 'docs/mediabunny-migration.mdx',
+		compId: 'articles-docs-mediabunny-migration',
+		crumb: 'Migration',
+		noAi: false,
+		slug: 'mediabunny-migration',
+	},
+	{
 		id: 'metadata',
 		title: 'Setting video metadata',
 		relativePath: 'docs/metadata.mdx',

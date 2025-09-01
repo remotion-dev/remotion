@@ -6,6 +6,10 @@ slug: /media-parser/samples
 crumb: '@remotion/media-parser'
 ---
 
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 With [`parseMedia()`](/docs/media-parser/parse-media), you can extract video and audio samples from a variety of [media formats](/docs/media-parser/format-support).
 
 ## Getting tracks
@@ -18,10 +22,10 @@ import {parseMedia} from '@remotion/media-parser';
 const samples = await parseMedia({
   src: 'https://parser.media/video.mp4',
   onVideoTrack: ({track, container}) => {
-    console.log(track.codecEnum)
+    console.log(track.codecEnum);
     //                ^?
-    return null
-  }
+    return null;
+  },
 });
 ```
 
@@ -40,10 +44,10 @@ const samples = await parseMedia({
   src: 'https://parser.media/video.mp4',
   onVideoTrack: ({track, container}) => {
     return (sample) => {
-      console.log(sample)
+      console.log(sample);
       //              ^?
-    }
-  }
+    };
+  },
 });
 ```
 
@@ -61,21 +65,21 @@ const samples = await parseMedia({
   onVideoTrack: ({track, container}) => {
     return (sample) => {
       return () => {
-        console.log(sample, 'is the last sample')
-      }
-    }
-  }
+        console.log(sample, 'is the last sample');
+      };
+    };
+  },
 });
 ```
 
 ## Seeking in callbacks
 
-In all types of callbacks, you can pause, resume, seek and abort. 
+In all types of callbacks, you can pause, resume, seek and abort.
 
 ```tsx twoslash title="Looping the parse"
 import {parseMedia, mediaParserController} from '@remotion/media-parser';
 
-const controller = mediaParserController()
+const controller = mediaParserController();
 
 const samples = await parseMedia({
   src: 'https://parser.media/video.mp4',
@@ -84,10 +88,10 @@ const samples = await parseMedia({
     return (sample) => {
       return () => {
         // When it's the last sample, seek to the beginning
-        controller.seek(0)
-      }
-    }
-  }
+        controller.seek(0);
+      };
+    };
+  },
 });
 ```
 
