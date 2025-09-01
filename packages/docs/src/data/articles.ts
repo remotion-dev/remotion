@@ -6419,7 +6419,7 @@ export const articles = [
 		title: 'Clearing up WebCodecs misconceptions',
 		relativePath: 'docs/webcodecs/misconceptions.mdx',
 		compId: 'articles-docs-webcodecs-misconceptions',
-		crumb: '@remotion/webcodecs',
+		crumb: 'WebCodecs',
 		noAi: false,
 		slug: 'webcodecs/misconceptions',
 	},
