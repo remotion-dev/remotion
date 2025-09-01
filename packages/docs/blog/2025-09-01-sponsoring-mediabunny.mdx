@@ -5,9 +5,14 @@ author: Jonny Burger
 author_title: Chief Hacker @ Remotion
 author_url: https://github.com/JonnyBurger
 author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
+image: /img//mediabunny-remotion.png
 ---
 
-With WebCodecs, we get an exciting new API for the browser, allowing us to bring performant multimedia workflows to the web.  
+import {Bunny} from './bunny';
+
+<Bunny />
+
+With WebCodecs, we get an exciting new API for the browser, allowing us to bring performant multimedia workflows to the web.
 
 There have been 2 serious efforts to create the "FFmpeg for the web", both released in 2025:
 
@@ -20,7 +25,7 @@ Both libraries have their strengths, but we acknowledge Mediabunny is the more p
 - Better architecture
 - Permissive license (MPL-2.0)
 
-Instead of trying to compete, we have decided to team up and push our vision even harder, together! 
+Instead of trying to compete, we have decided to team up and push our vision even harder, together!
 
 We're going to **phase out Remotion Media Parser and Remotion WebCodecs and help Mediabunny become the go-to multimedia toolkit for the web**.
 
@@ -34,17 +39,19 @@ This comes in 3 forms:
 
 ### How this benefits Remotion
 
-With access to lower-level multimedia APIs in the browser, we can make more capable and faster video applications!  
+With access to lower-level multimedia APIs in the browser, we can make more capable and faster video applications!
 
-One of the first unlocks will be to a faster, better way to embed videos in Remotion, and Mediabunny is a big puzzle piece for [enabling rendering videos in the browser](/docs/miscellaneous/render-in-browser).
-
+One of the first unlocks will be to a faster, better `<Video/>` tag.  
+Later on, Mediabunny will be a big puzzle piece for [enabling rendering videos in the browser](/docs/miscellaneous/render-in-browser).  
+APIs like [`extractFrames()`](/docs/webcodecs/extract-frames) and [`getPartialAudioData()`](/docs/webcodecs/get-partial-audio-data) will be converted to use Mediabunny.
 
 ### Should I stop using Media Parser?
 
 If Media Parser is working for you, you should not migrate to Mediabunny yet.  
 Media Parser is not deprecated and fully functional.  
-We will create resources helping you smoothly transition to Mediabunny.
+We will update documentation and create resources helping you smoothly transition to Mediabunny.
 
+If you are writing new code, we encourage you to [try Mediabunny](https://mediabunny.dev/guide/quick-start)!
 
 ### What can I do with a multimedia library in the browser?
 
@@ -63,4 +70,5 @@ Stay tuned!
 
 ### How can I support Mediabunny?
 
-You can join us in [sponsoring Mediabunny](https://github.com/sponsors/vanilagy) or [contributing code](https://github.com/Vanilagy/mediabunny#implementation--development)!  
+Give [Mediabunny a star on GitHub](https://github.com/vanilagy/mediabunny)!  
+If you love the mission, join us in [sponsoring Vanilagy](https://github.com/sponsors/vanilagy) or [contributing code](https://github.com/Vanilagy/mediabunny#implementation--development).
