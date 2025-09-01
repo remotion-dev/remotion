@@ -1,0 +1,76 @@
+---
+image: /generated/articles-docs-webcodecs-misconceptions.png
+id: misconceptions
+title: Clearing up WebCodecs misconceptions
+sidebar_label: Misconceptions
+slug: /webcodecs/misconceptions
+crumb: 'WebCodecs'
+---
+
+This page clears up some common misconceptions surrounding the topic of WebCodecs.
+
+## WebCodecs has nothing to do with WebAssembly
+
+Maybe this confusion comes up because both APIs start with ‘Web’, or from the fact that multimedia operations are low-level.  
+Or it’s because FFmpeg writes their code in [handwritten assembly](https://x.com/search?q=from%3Affmpeg%20handwritten%20assembly&src=typed_query), or because [ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm) as a library exists.
+
+Fact is: WebCodecs has nothing to do with WebAssembly! 
+
+WebAssembly is used to bring over code written in native languages to the web, but all the hardware-specific optimizations are stripped, so it's not suitable for multimedia.
+
+WebCodecs is an API that exposes fast, optimized routines for multimedia and it is built directly into the browser - that's why it’s not necessary to compile them with WebAssembly.
+
+<details>
+<summary>
+Bonus confusion: Handwritten assembly is not the same as WebAssembly
+</summary>
+ For example, if FFmpeg writes fast assembly code for the `armv9` instruction set, it cannot be used because WebAssembly code runs in the browser and must therefore support all CPU architectures, meaning that only a common denominator of CPU-instructions can be used.
+
+ The optimizations for `armv9` will be entirely removed when FFmpeg is compiled to WebAssembly.  
+ Think of WebAssembly as another compilation target alongside x86, ARM etc., rather than associate it with Assembly languages.
+</details>
+
+## WebCodecs has nothing to do with WebGPU
+
+Probably this confusion is because video decoding and encoding can use the GPU.
+
+But WebGPU is the name of a specific API inside the browser that is mostly used for graphics or machine learning stuff.
+
+GPU acceleration for video is implemented on a very low level.  
+On macOS, it is built into the operating system and the silicon has been designed specifically to enable fast multimedia routines. On Nvidia cards, the hardware encoder is already built into the chip itself.
+
+So, fortunately we don’t have to use WebGPU to make our own decoders and encoders!  
+Rather, we just need an interface to make use of the already existing ones, and that interface is WebCodecs.
+
+<details>
+<summary>
+Bonus confusion: The GPU is used less often than you think
+</summary>
+  For encoding videos, the CPU is often preferred, because it leads to better compression. With GPU encoding, you either get a larger file size or a worse video quality. However, it is faster!
+</details>
+
+
+<details>
+<summary>
+Fine print: There is interopability between WebCodecs and WebGPU
+</summary>
+You can [import a frame that you extracted with WebCodecs into a WebGPU texture](https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/importExternalTexture). So WebCodecs and WebGPU are tangentially connected, just not in the way most people imagine.
+</details>
+
+## JavaScript can be faster than WebAssembly
+
+How can a multimedia library written in JavaScript possibly be fast, when JavaScript is such a slow language?  
+Why are we not using WebAssembly to work around the slowness of JavaScript?
+
+It works because JavaScript only deals with the cheap operations, and WebCodecs takes care of the computationally expensive stuff.
+
+A library like [Mediabunny](https://mediabunny.dev) mainly reads and writes data from a file (demuxing and muxing), but the expensive stuff is to decompress and compress the media data (decoding and encoding).
+
+A multimedia library that does not use WebCodecs and uses code compiled to WebAssembly to decode and encode cannot take advantage of many of the hardware-specific optimisations that are possible on a computer, for example using CPU-specific instructions, or using the GPU.
+
+## WebCodecs can not be used on React Native or Node.js
+
+At least for now, WebCodecs is an API that is only available in web browsers.  
+We tried to see if the C++ WebCodecs implementation of Chromium can be easily extracted into a module that may then be used in other contexts, but it is heavily connected to other Chromium code.
+
+Using WebCodecs outside of the web browser is probably not so interesting anyways – in these contexts you already can natively use FFmpeg with its full performance.

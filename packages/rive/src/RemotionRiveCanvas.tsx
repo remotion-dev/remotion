@@ -103,7 +103,7 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 	useEffect(() => {
 		riveCanvas({
 			locateFile: () =>
-				'https://unpkg.com/@rive-app/canvas-advanced@2.19.3/rive.wasm',
+				'https://unpkg.com/@rive-app/canvas-advanced@2.31.2/rive.wasm',
 		})
 			.then((riveInstance) => {
 				setRiveCanvas(riveInstance);

@@ -6415,6 +6415,15 @@ export const articles = [
 		slug: 'webcodecs/index',
 	},
 	{
+		id: 'misconceptions',
+		title: 'Clearing up WebCodecs misconceptions',
+		relativePath: 'docs/webcodecs/misconceptions.mdx',
+		compId: 'articles-docs-webcodecs-misconceptions',
+		crumb: 'WebCodecs',
+		noAi: false,
+		slug: 'webcodecs/misconceptions',
+	},
+	{
 		id: 'pause-resume-abort',
 		title: 'Pause, resume and abort conversion',
 		relativePath: 'docs/webcodecs/pause-resume-abort.mdx',
