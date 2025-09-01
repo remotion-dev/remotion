@@ -89,7 +89,7 @@ const onProgress: PrefetchOnProgress = (progress) => {
     return;
   }
 
-  console.log('Loading progress:', Math.round(progress.loadedBytes / progress.totalBytes / 100) + '%');
+  console.log('Loading progress:', Math.round(progress.loadedBytes / progress.totalBytes * 100) + '%');
 };
 
 prefetch('https://example.com/video.mp4', {

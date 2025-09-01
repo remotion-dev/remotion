@@ -1101,6 +1101,7 @@ const sidebars: SidebarsConfig = {
 				'webcodecs/track-transformation',
 				'webcodecs/pause-resume-abort',
 				'webcodecs/telemetry',
+				'webcodecs/misconceptions',
 			],
 		},
 		{
