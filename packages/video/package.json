@@ -16,8 +16,7 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"watch": "tsc -w",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
-		"test:browser": "vitest --config=vitest.browser.config.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {
 		"mediabunny": "1.12.0",
