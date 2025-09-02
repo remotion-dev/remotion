@@ -9,7 +9,7 @@
 		"pro": {
 			"routing": [
 				{
-					"paths": []
+					"paths": ["/dashboard", "/login", "/api"]
 				}
 			]
 		}
