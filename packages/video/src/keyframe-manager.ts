@@ -75,6 +75,8 @@ export const makeKeyframeManager = () => {
 					await bank.prepareForDeletion();
 				}
 			}
+
+			delete sources[key];
 		}
 
 		if (!sources[src]) {
