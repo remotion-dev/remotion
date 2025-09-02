@@ -61,23 +61,7 @@ export const makeKeyframeManager = () => {
 		const SAFE_BACK_WINDOW_IN_SECONDS = 1;
 		const threshold = timestampInSeconds - SAFE_BACK_WINDOW_IN_SECONDS;
 
-		const keys = Object.keys(sources);
-		for (const key of keys) {
-			if (key === src) {
-				continue;
-			}
-
-			const otherBanks = Object.keys(sources[key]);
-			for (const b of otherBanks) {
-				const bank = await sources[key][b as unknown as number];
-				const {endTimestampInSeconds} = bank;
-				if (endTimestampInSeconds < threshold) {
-					await bank.prepareForDeletion();
-				}
-			}
-
-			delete sources[key];
-		}
+		// TODO: Delete banks of other sources
 
 		if (!sources[src]) {
 			return;
