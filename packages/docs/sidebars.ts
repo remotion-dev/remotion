@@ -1201,6 +1201,7 @@ const sidebars: SidebarsConfig = {
 			href: '/docs/api',
 			label: 'API Reference',
 		},
+		'mediabunny',
 		'upgrading',
 		{
 			type: 'category',

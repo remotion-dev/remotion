@@ -1,0 +1,17 @@
+{
+	"$schema": "https://openapi.vercel.sh/microfrontends.json",
+	"applications": {
+		"remotion": {
+			"development": {
+				"fallback": "www.remotion.dev"
+			}
+		},
+		"pro": {
+			"routing": [
+				{
+					"paths": ["/dashboard", "/login", "/api"]
+				}
+			]
+		}
+	}
+}
