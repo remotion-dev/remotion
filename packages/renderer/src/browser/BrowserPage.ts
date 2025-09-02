@@ -276,20 +276,10 @@ export class Page extends EventEmitter {
 					log.text.replace(/\(\)$/, ''),
 				);
 			} else {
-				Log.error(
-					{
-						logLevel,
-						tag: `Tab ${this.pageIndex} - console.${log.type}`,
-						indent,
-					},
-					log.text,
-				);
+				Log.error({logLevel, tag: `console.${log.type}`, indent}, log.text);
 			}
 		} else {
-			Log.verbose(
-				{logLevel, tag: `Tab ${this.pageIndex} - console.${log.type}`, indent},
-				log.text,
-			);
+			Log.verbose({logLevel, tag: `console.${log.type}`, indent}, log.text);
 		}
 	};
 
