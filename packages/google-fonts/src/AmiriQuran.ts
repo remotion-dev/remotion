@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Amiri Quran',
 	importName: 'AmiriQuran',
-	version: 'v17',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Amiri+Quran:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/amiriquran/v17/_Xmo-Hk0rD6DbUL4_vH8Zp5v5i2ssqe2.woff2',
+					'https://fonts.gstatic.com/s/amiriquran/v19/_Xmo-Hk0rD6DbUL4_vH8Zp5v5i2ssg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amiriquran/v17/_Xmo-Hk0rD6DbUL4_vH8Zp5q5i3Esg.woff2',
+					'https://fonts.gstatic.com/s/amiriquran/v19/_Xmo-Hk0rD6DbUL4_vH8Zp5q5i0.woff2',
 			},
 		},
 	},

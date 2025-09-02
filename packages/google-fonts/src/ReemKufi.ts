@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Reem Kufi',
 	importName: 'ReemKufi',
-	version: 'v25',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Reem+Kufi:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:
@@ -19,43 +19,43 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzbWW5O7w.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzbWW5O7w.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzZ2W5O7w.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzZ2W5O7w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzaGW5.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzaGW5.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzbWW5O7w.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzbWW5O7w.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzZ2W5O7w.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzZ2W5O7w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzaGW5.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzaGW5.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzbWW5O7w.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzbWW5O7w.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzZ2W5O7w.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzZ2W5O7w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzaGW5.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzaGW5.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzbWW5O7w.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzbWW5O7w.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzZ2W5O7w.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzZ2W5O7w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/reemkufi/v25/2sDcZGJLip7W2J7v7wQzaGW5.woff2',
+					'https://fonts.gstatic.com/s/reemkufi/v27/2sDcZGJLip7W2J7v7wQzaGW5.woff2',
 			},
 		},
 	},

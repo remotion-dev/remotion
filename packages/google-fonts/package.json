@@ -377,6 +377,9 @@
 			"Asar": [
 				"dist/cjs/Asar.d.ts"
 			],
+			"Asimovian": [
+				"dist/cjs/Asimovian.d.ts"
+			],
 			"Asset": [
 				"dist/cjs/Asset.d.ts"
 			],
@@ -962,6 +965,9 @@
 			"Chilanka": [
 				"dist/cjs/Chilanka.d.ts"
 			],
+			"ChironGoRoundTC": [
+				"dist/cjs/ChironGoRoundTC.d.ts"
+			],
 			"ChironHeiHK": [
 				"dist/cjs/ChironHeiHK.d.ts"
 			],
@@ -1078,6 +1084,12 @@
 			],
 			"CormorantUpright": [
 				"dist/cjs/CormorantUpright.d.ts"
+			],
+			"CossetteTexte": [
+				"dist/cjs/CossetteTexte.d.ts"
+			],
+			"CossetteTitre": [
+				"dist/cjs/CossetteTitre.d.ts"
 			],
 			"Courgette": [
 				"dist/cjs/Courgette.d.ts"
@@ -1369,6 +1381,12 @@
 			],
 			"Epilogue": [
 				"dist/cjs/Epilogue.d.ts"
+			],
+			"EpundaSans": [
+				"dist/cjs/EpundaSans.d.ts"
+			],
+			"EpundaSlab": [
+				"dist/cjs/EpundaSlab.d.ts"
 			],
 			"EricaOne": [
 				"dist/cjs/EricaOne.d.ts"
@@ -2417,6 +2435,9 @@
 			"LexendZetta": [
 				"dist/cjs/LexendZetta.d.ts"
 			],
+			"LibertinusKeyboard": [
+				"dist/cjs/LibertinusKeyboard.d.ts"
+			],
 			"LibertinusMath": [
 				"dist/cjs/LibertinusMath.d.ts"
 			],
@@ -2428,6 +2449,9 @@
 			],
 			"LibertinusSerif": [
 				"dist/cjs/LibertinusSerif.d.ts"
+			],
+			"LibertinusSerifDisplay": [
+				"dist/cjs/LibertinusSerifDisplay.d.ts"
 			],
 			"LibreBarcode128": [
 				"dist/cjs/LibreBarcode128.d.ts"
@@ -4583,6 +4607,9 @@
 			"SirinStencil": [
 				"dist/cjs/SirinStencil.d.ts"
 			],
+			"Sirivennela": [
+				"dist/cjs/Sirivennela.d.ts"
+			],
 			"SixCaps": [
 				"dist/cjs/SixCaps.d.ts"
 			],
@@ -4766,6 +4793,9 @@
 			"Stoke": [
 				"dist/cjs/Stoke.d.ts"
 			],
+			"StoryScript": [
+				"dist/cjs/StoryScript.d.ts"
+			],
 			"Strait": [
 				"dist/cjs/Strait.d.ts"
 			],
@@ -4822,6 +4852,12 @@
 			],
 			"SyneTactile": [
 				"dist/cjs/SyneTactile.d.ts"
+			],
+			"TASAExplorer": [
+				"dist/cjs/TASAExplorer.d.ts"
+			],
+			"TASAOrbiter": [
+				"dist/cjs/TASAOrbiter.d.ts"
 			],
 			"TacOne": [
 				"dist/cjs/TacOne.d.ts"
@@ -4933,6 +4969,9 @@
 			],
 			"TiroTelugu": [
 				"dist/cjs/TiroTelugu.d.ts"
+			],
+			"Tirra": [
+				"dist/cjs/Tirra.d.ts"
 			],
 			"TitanOne": [
 				"dist/cjs/TitanOne.d.ts"
@@ -5065,6 +5104,9 @@
 			],
 			"Vazirmatn": [
 				"dist/cjs/Vazirmatn.d.ts"
+			],
+			"VendSans": [
+				"dist/cjs/VendSans.d.ts"
 			],
 			"VesperLibre": [
 				"dist/cjs/VesperLibre.d.ts"

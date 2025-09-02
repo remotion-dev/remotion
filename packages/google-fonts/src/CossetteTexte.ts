@@ -1,12 +1,11 @@
 import {loadFonts} from './base';
 
 export const getInfo = () => ({
-	fontFamily: 'Noto Sans Batak',
-	importName: 'NotoSansBatak',
-	version: 'v23',
-	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Batak:ital,wght@0,400',
+	fontFamily: 'Cossette Texte',
+	importName: 'CossetteTexte',
+	version: 'v1',
+	url: 'https://fonts.googleapis.com/css2?family=Cossette+Texte:ital,wght@0,400;0,700',
 	unicodeRanges: {
-		batak: 'U+1BC0-1BFF, U+200C-200D, U+25CC',
 		'latin-ext':
 			'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
 		latin:
@@ -15,24 +14,28 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				batak:
-					'https://fonts.gstatic.com/s/notosansbatak/v23/gok2H6TwAEdtF9N8-mdTCQvT-ZdQ9oXOLuk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbatak/v23/gok2H6TwAEdtF9N8-mdTCQvT-ZdQqoXOLuk.woff2',
+					'https://fonts.gstatic.com/s/cossettetexte/v1/S6ukw4pDXzTb-m1kPi_7eV-ciM08zvFg1w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbatak/v23/gok2H6TwAEdtF9N8-mdTCQvT-ZdQpIXO.woff2',
+					'https://fonts.gstatic.com/s/cossettetexte/v1/S6ukw4pDXzTb-m1kPi_7eV-ciM0yzvE.woff2',
+			},
+			'700': {
+				'latin-ext':
+					'https://fonts.gstatic.com/s/cossettetexte/v1/S6unw4pDXzTb-m1kPi_7eV-ciMWJ6-RR9sv9DQ.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/cossettetexte/v1/S6unw4pDXzTb-m1kPi_7eV-ciMWJ6-Rf9ss.woff2',
 			},
 		},
 	},
-	subsets: ['batak', 'latin', 'latin-ext'],
+	subsets: ['latin', 'latin-ext'],
 });
 
-export const fontFamily = 'Noto Sans Batak' as const;
+export const fontFamily = 'Cossette Texte' as const;
 
 type Variants = {
 	normal: {
-		weights: '400';
-		subsets: 'batak' | 'latin' | 'latin-ext';
+		weights: '400' | '700';
+		subsets: 'latin' | 'latin-ext';
 	};
 };
 

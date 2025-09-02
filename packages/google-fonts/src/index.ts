@@ -621,6 +621,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Asar') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Asimovian',
+		importName: 'Asimovian',
+		load: () => import('./Asimovian') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Asset',
 		importName: 'Asset',
 		load: () => import('./Asset') as Promise<GoogleFont>,
@@ -1596,6 +1601,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Chilanka') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Chiron GoRound TC',
+		importName: 'ChironGoRoundTC',
+		load: () => import('./ChironGoRoundTC') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Chiron Hei HK',
 		importName: 'ChironHeiHK',
 		load: () => import('./ChironHeiHK') as Promise<GoogleFont>,
@@ -1789,6 +1799,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Cormorant Upright',
 		importName: 'CormorantUpright',
 		load: () => import('./CormorantUpright') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Cossette Texte',
+		importName: 'CossetteTexte',
+		load: () => import('./CossetteTexte') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Cossette Titre',
+		importName: 'CossetteTitre',
+		load: () => import('./CossetteTitre') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Courgette',
@@ -2274,6 +2294,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Epilogue',
 		importName: 'Epilogue',
 		load: () => import('./Epilogue') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Epunda Sans',
+		importName: 'EpundaSans',
+		load: () => import('./EpundaSans') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Epunda Slab',
+		importName: 'EpundaSlab',
+		load: () => import('./EpundaSlab') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Erica One',
@@ -4021,6 +4051,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./LexendZetta') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Libertinus Keyboard',
+		importName: 'LibertinusKeyboard',
+		load: () => import('./LibertinusKeyboard') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Libertinus Math',
 		importName: 'LibertinusMath',
 		load: () => import('./LibertinusMath') as Promise<GoogleFont>,
@@ -4039,6 +4074,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Libertinus Serif',
 		importName: 'LibertinusSerif',
 		load: () => import('./LibertinusSerif') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Libertinus Serif Display',
+		importName: 'LibertinusSerifDisplay',
+		load: () => import('./LibertinusSerifDisplay') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Libre Barcode 128',
@@ -7632,6 +7672,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./SirinStencil') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Sirivennela',
+		importName: 'Sirivennela',
+		load: () => import('./Sirivennela') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Six Caps',
 		importName: 'SixCaps',
 		load: () => import('./SixCaps') as Promise<GoogleFont>,
@@ -7937,6 +7982,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Stoke') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Story Script',
+		importName: 'StoryScript',
+		load: () => import('./StoryScript') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Strait',
 		importName: 'Strait',
 		load: () => import('./Strait') as Promise<GoogleFont>,
@@ -8030,6 +8080,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Syne Tactile',
 		importName: 'SyneTactile',
 		load: () => import('./SyneTactile') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'TASA Explorer',
+		importName: 'TASAExplorer',
+		load: () => import('./TASAExplorer') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'TASA Orbiter',
+		importName: 'TASAOrbiter',
+		load: () => import('./TASAOrbiter') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Tac One',
@@ -8215,6 +8275,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Tiro Telugu',
 		importName: 'TiroTelugu',
 		load: () => import('./TiroTelugu') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Tirra',
+		importName: 'Tirra',
+		load: () => import('./Tirra') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Titan One',
@@ -8435,6 +8500,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Vazirmatn',
 		importName: 'Vazirmatn',
 		load: () => import('./Vazirmatn') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Vend Sans',
+		importName: 'VendSans',
+		load: () => import('./VendSans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Vesper Libre',
