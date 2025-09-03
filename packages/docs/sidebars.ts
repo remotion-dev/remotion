@@ -170,6 +170,7 @@ const sidebars: SidebarsConfig = {
 				'use-buffer-state',
 				'use-current-frame',
 				'use-current-scale',
+				'use-remotion-environment',
 				'use-video-config',
 				'version',
 				'video',

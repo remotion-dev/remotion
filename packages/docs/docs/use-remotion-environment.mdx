@@ -1,0 +1,57 @@
+---
+image: /generated/articles-docs-use-remotion-environment.png
+title: useRemotionEnvironment()
+id: use-remotion-environment
+crumb: 'API'
+---
+
+# useRemotionEnvironment()<AvailableFrom v="4.0.342" />
+
+A React hook that provides information about the current Remotion Environment. This is the preferred way to access environment information in React components.
+
+It returns an object with the following properties:
+
+- `isStudio`: Whether the hook got called in the [Remotion Studio](/docs/cli/studio).
+- `isRendering`: Whether the hook got called in a render.
+- `isPlayer`: Whether a [`<Player>`](/docs/player) is mounted on the current page.
+- `isReadOnlyStudio`: Whether in a [statically deployed studio](https://www.remotion.dev/docs/studio/deploy-static), where the [`@remotion/studio`](/docs/studio/api) APIs cannot be used
+
+This can be useful if you want components to behave differently depending on the environment.
+
+### Example
+
+```tsx twoslash
+import React from 'react';
+import {useRemotionEnvironment} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const {isStudio, isPlayer, isRendering} = useRemotionEnvironment();
+
+  if (isStudio) {
+    return <div>I'm in the Studio!</div>;
+  }
+
+  if (isPlayer) {
+    return <div>I'm in the Player!</div>;
+  }
+
+  if (isRendering) {
+    return <div>I'm Rendering</div>;
+  }
+
+  return <div>Hello World!</div>;
+};
+```
+
+## Why use this hook instead of `getRemotionEnvironment()`?
+
+While `getRemotionEnvironment()` works for the current use cases, `useRemotionEnvironment()` is future-proof for browser rendering scenarios where preview and render might happen on the same page simultaneously.
+
+The hook helps to scope the environment information to the context of component that calls it, rather than globally.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/use-remotion-environment.ts)
+- [getRemotionEnvironment()](/docs/get-remotion-environment)
+- [useVideoConfig()](/docs/use-video-config)
+- [`<OffthreadVideo/> while rendering`](/docs/miscellaneous/snippets/offthread-video-while-rendering)
