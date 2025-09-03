@@ -40,8 +40,7 @@ const My3DVideo = () => {
 ```tsx twoslash title="Use useVideoTexture() only during rendering"
 import {ThreeCanvas, useOffthreadVideoTexture, useVideoTexture} from '@remotion/three';
 import {useRef} from 'react';
-import {getRemotionEnvironment, staticFile, useRemotionEnvironment, useVideoConfig, Video} from 'remotion';
-import {useRemotionEnvironment} from 'remotion';
+import {staticFile, useRemotionEnvironment, useVideoConfig, Video} from 'remotion';
 
 const videoSrc = staticFile('/vid.mp4');
 

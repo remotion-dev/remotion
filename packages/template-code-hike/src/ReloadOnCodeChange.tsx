@@ -2,7 +2,7 @@ import { getStaticFiles, reevaluateComposition } from "@remotion/studio";
 import { useState } from "react";
 import React, { useEffect } from "react";
 import { watchPublicFolder } from "@remotion/studio";
-import { getRemotionEnvironment, useRemotionEnvironment } from "remotion";
+import { useRemotionEnvironment } from "remotion";
 
 const getCurrentHash = () => {
   const files = getStaticFiles();
