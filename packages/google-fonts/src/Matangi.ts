@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Matangi',
 	importName: 'Matangi',
-	version: 'v1',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Matangi:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		devanagari:
@@ -17,59 +17,59 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
 			},
 			'800': {
 				devanagari:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
 			},
 			'900': {
 				devanagari:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDtl0hbZ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDRl0hbZ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/matangi/v1/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
+					'https://fonts.gstatic.com/s/matangi/v5/kmK9ZqE2FhDIeX2QlDpl0g.woff2',
 			},
 		},
 	},

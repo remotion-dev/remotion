@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Dives Akuru',
 	importName: 'NotoSerifDivesAkuru',
-	version: 'v3',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Dives+Akuru:ital,wght@0,400',
 	unicodeRanges: {
 		'dives-akuru':
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'dives-akuru':
-					'https://fonts.gstatic.com/s/notoserifdivesakuru/v3/QldfNSVMqAsHtsJ_TnD3aT03sMgd57ibeeZT2-vj7ohECw.woff2',
+					'https://fonts.gstatic.com/s/notoserifdivesakuru/v8/QldfNSVMqAsHtsJ_TnD3aT03sMgd57ibeeZT2-vj7ohECw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifdivesakuru/v3/QldfNSVMqAsHtsJ_TnD3aT03sMgd57ibeeZT20nCy7V9.woff2',
+					'https://fonts.gstatic.com/s/notoserifdivesakuru/v8/QldfNSVMqAsHtsJ_TnD3aT03sMgd57ibeeZT20nCy7V9.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifdivesakuru/v3/QldfNSVMqAsHtsJ_TnD3aT03sMgd57ibeeZT20fCyw.woff2',
+					'https://fonts.gstatic.com/s/notoserifdivesakuru/v8/QldfNSVMqAsHtsJ_TnD3aT03sMgd57ibeeZT20fCyw.woff2',
 			},
 		},
 	},
