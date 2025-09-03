@@ -17,7 +17,7 @@
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/preload": "workspace:*",
-		"next": "15.2.4",
+		"next": "15.4.7",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"remotion": "workspace:*"
