@@ -19,7 +19,7 @@
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {
-		"mediabunny": "1.12.0",
+		"mediabunny": "1.13.0",
 		"remotion": "workspace:*",
 		"webdriverio": "9.19.2"
 	},
