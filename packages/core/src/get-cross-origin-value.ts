@@ -22,7 +22,7 @@ export const getCrossOriginValue = ({
 	// But this requires CORS, so we cannot default to that.
 
 	// DONT DO THIS:
-	// if (!getRemotionEnvironment().isRendering) {
+	// if (!useRemotionEnvironment().isRendering) {
 	// 	return 'anonymous';
 	// }
 

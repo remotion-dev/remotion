@@ -5,8 +5,8 @@ import {
 	Internals,
 	continueRender,
 	delayRender,
-	getRemotionEnvironment,
 	useCurrentFrame,
+	useRemotionEnvironment,
 } from 'remotion';
 import {SuspenseLoader} from './SuspenseLoader';
 import {validateDimension} from './validate';
@@ -46,16 +46,16 @@ const FiberFrameInvalidator = () => {
 	return null;
 };
 
-const {isRendering} = getRemotionEnvironment();
-
-// https://r3f.docs.pmnd.rs/advanced/scaling-performance#on-demand-rendering
-const shouldUseFrameloopDemand = isRendering;
-
 /*
  * @description A wrapper for React Three Fiber's <Canvas /> which synchronizes with Remotion's useCurrentFrame().
  * @see [Documentation](https://www.remotion.dev/docs/three-canvas)
  */
 export const ThreeCanvas = (props: ThreeCanvasProps) => {
+	const {isRendering} = useRemotionEnvironment();
+
+	// https://r3f.docs.pmnd.rs/advanced/scaling-performance#on-demand-rendering
+	const shouldUseFrameloopDemand = isRendering;
+
 	const {children, width, height, style, onCreated, ...rest} = props;
 	const [waitForCreated] = useState(() =>
 		delayRender('Waiting for <ThreeCanvas/> to be created'),

@@ -2,8 +2,8 @@ import type React from 'react';
 import {useContext, useEffect, useState} from 'react';
 import {RenderAssetManager} from './RenderAssetManager';
 import type {DownloadBehavior} from './download-behavior';
-import {getRemotionEnvironment} from './get-remotion-environment';
 import {useCurrentFrame} from './use-current-frame';
+import {useRemotionEnvironment} from './use-remotion-environment';
 
 const ArtifactThumbnail = Symbol('Thumbnail');
 
@@ -17,7 +17,7 @@ export const Artifact: React.FC<{
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
 
-	const [env] = useState(() => getRemotionEnvironment());
+	const env = useRemotionEnvironment();
 
 	const frame = useCurrentFrame();
 

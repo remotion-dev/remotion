@@ -40,12 +40,14 @@ const My3DVideo = () => {
 ```tsx twoslash title="Use useVideoTexture() only during rendering"
 import {ThreeCanvas, useOffthreadVideoTexture, useVideoTexture} from '@remotion/three';
 import {useRef} from 'react';
-import {getRemotionEnvironment, staticFile, useVideoConfig, Video} from 'remotion';
+import {getRemotionEnvironment, staticFile, useRemotionEnvironment, useVideoConfig, Video} from 'remotion';
+import {useRemotionEnvironment} from 'remotion';
 
 const videoSrc = staticFile('/vid.mp4');
 
 const useVideoOrOffthreadVideoTexture = (videoSrc: string, videoRef: React.RefObject<HTMLVideoElement | null>) => {
-  if (getRemotionEnvironment().isRendering) {
+  const env = useRemotionEnvironment();
+  if (env.isRendering) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return useOffthreadVideoTexture({src: videoSrc});
   }
@@ -59,10 +61,11 @@ const My3DVideo = () => {
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const videoTexture = useVideoOrOffthreadVideoTexture(videoSrc, videoRef);
+  const env = useRemotionEnvironment();
 
   return (
     <>
-      {getRemotionEnvironment().isRendering ? null : <Video ref={videoRef} src={videoSrc} style={{position: 'absolute', opacity: 0}} />}
+      {env.isRendering ? null : <Video ref={videoRef} src={videoSrc} style={{position: 'absolute', opacity: 0}} />}
       <ThreeCanvas width={width} height={height}>
         <mesh>{videoTexture ? <meshBasicMaterial map={videoTexture} /> : null}</mesh>
       </ThreeCanvas>

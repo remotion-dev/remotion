@@ -6,7 +6,7 @@ import React, {
 	useImperativeHandle,
 	useRef,
 } from 'react';
-import {AbsoluteFill, getRemotionEnvironment} from 'remotion';
+import {AbsoluteFill, useRemotionEnvironment} from 'remotion';
 import {DisplayedEmoji} from './DisplayedEmoji';
 
 export type EmojiCardRef = {
@@ -141,6 +141,8 @@ const EmojiCardRefFn: React.ForwardRefRenderFunction<
 		});
 	}, []);
 
+	const env = useRemotionEnvironment();
+
 	return (
 		<AbsoluteFill
 			style={{
@@ -171,7 +173,7 @@ const EmojiCardRefFn: React.ForwardRefRenderFunction<
 					height: '100%',
 				}}
 			>
-				{getRemotionEnvironment().isRendering ? (
+				{env.isRendering ? (
 					<div style={emojiStyle}>
 						<DisplayedEmoji emoji={emojiIndex} />
 					</div>

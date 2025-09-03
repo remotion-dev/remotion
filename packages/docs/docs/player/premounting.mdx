@@ -74,7 +74,7 @@ Use the following component like you would `<Sequence>`:
 
 ```tsx twoslash title="PremountedSequence.tsx"
 import React, {forwardRef, useMemo} from 'react';
-import {Freeze, getRemotionEnvironment, Sequence, SequenceProps, useCurrentFrame} from 'remotion';
+import {Freeze, Sequence, SequenceProps, useCurrentFrame, useRemotionEnvironment} from 'remotion';
 
 export type PremountedSequenceProps = SequenceProps & {
   premountFor: number;
@@ -92,8 +92,10 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
     throw new Error('`<Premount>` does not support layout="none"');
   }
 
+  const env = useRemotionEnvironment();
+
   const {style: passedStyle, from = 0, ...otherProps} = props;
-  const active = frame < from && frame >= from - premountFor && !getRemotionEnvironment().isRendering;
+  const active = frame < from && frame >= from - premountFor && !env.isRendering;
 
   const style: React.CSSProperties = useMemo(() => {
     return {

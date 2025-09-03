@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import {
   AbsoluteFill,
-  getRemotionEnvironment,
+  useRemotionEnvironment,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
@@ -46,6 +46,7 @@ export const VideoScene: React.FC<{
   sceneIndex,
   hovered,
 }) => {
+  const env = useRemotionEnvironment();
   const startFrame = sceneAndMetadata.startFrame;
   const trimAfter = sceneAndMetadata.endFrame;
 
@@ -140,7 +141,7 @@ export const VideoScene: React.FC<{
           theme={theme}
         ></SrtPreviewAndEditor>
       ) : null}
-      {getRemotionEnvironment().isStudio ? (
+      {env.isStudio ? (
         <Actions
           visible={hovered}
           sceneIndex={sceneIndex}

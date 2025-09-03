@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {getRemotionEnvironment, Internals, Sequence} from 'remotion';
+import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
 import {NewVideoForRendering} from './new-video-for-rendering';
 import type {NewVideoProps} from './props';
 
@@ -22,7 +22,7 @@ export const NewVideo: React.FC<NewVideoProps> = (props) => {
 		showInTimeline,
 		...otherProps
 	} = props;
-	const environment = getRemotionEnvironment();
+	const environment = useRemotionEnvironment();
 
 	const onDuration = useCallback(() => undefined, []);
 

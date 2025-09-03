@@ -8,7 +8,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {getRemotionEnvironment} from 'remotion';
+import {useRemotionEnvironment} from 'remotion';
 import type {z, ZodTypeAny} from 'zod';
 import {getZodSchemaFromPrimitive} from '../api/get-zod-schema-from-primitive';
 import {useZodIfPossible} from '../components/get-zod-if-possible';
@@ -112,6 +112,7 @@ export const VisualControlsProvider: React.FC<{
 	const z = useZodIfPossible();
 
 	const changedRef = useRef(false);
+	const env = useRemotionEnvironment();
 
 	const visualControl = useCallback(
 		// eslint-disable-next-line prefer-arrow-callback
@@ -121,7 +122,7 @@ export const VisualControlsProvider: React.FC<{
 				/** Intentional: State is managed imperatively */
 			}
 
-			if (!getRemotionEnvironment().isStudio) {
+			if (!env.isStudio) {
 				return value;
 			}
 
@@ -141,7 +142,7 @@ export const VisualControlsProvider: React.FC<{
 
 			return currentValue as T;
 		},
-		[setControl, handles, z],
+		[setControl, handles, z, env.isStudio],
 	);
 
 	const updateHandles = useCallback(() => {
