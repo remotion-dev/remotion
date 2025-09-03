@@ -17,13 +17,9 @@ const nonPureAnimationPropertiesKebab = new Set(['transition']);
 
 // Tailwind classes that correspond to non-pure animations
 const nonPureAnimationTailwindClasses = [
-	// Basic transition classes
-	/\btransition\b/,
-	/\btransition-(?:all|none|colors|opacity|shadow|transform)\b/,
-	// Additional common transition properties
-	/\btransition-(?:spacing|size|width|height|margin|padding)\b/,
 	// Custom transition properties (catch-all for any transition-*)
 	/\btransition-\w+\b/,
+	/\btransition\b/,
 ];
 
 function findProblematicTailwindClass(
@@ -138,14 +134,8 @@ export default createRule<Options, MessageIds>({
 							context.report({
 								messageId: 'NonPureAnimation',
 								loc: {
-									start: {
-										line: start.line,
-										column: start.column + 4,
-									},
-									end: {
-										line: end.line,
-										column: end.column,
-									},
+									start,
+									end,
 								},
 							});
 						}
