@@ -21,48 +21,54 @@ type ExtractFrameResponse =
 			errorStack: string;
 	  };
 
-window.remotion_broadcastChannel.addEventListener('message', async (event) => {
-	if (!window.remotion_isMainTab) {
-		// Other tabs will also get this message, but only the main tab should process it
-		return;
-	}
-
-	const data = event.data as ExtractFrameRequest;
-	if (data.type === 'request') {
-		try {
-			const sample = await extractFrame({
-				src: data.src,
-				timestamp: data.timeInSeconds,
-				logLevel: data.logLevel,
-			});
-
-			const frame = sample?.toVideoFrame() ?? null;
-			const imageBitmap = frame ? await createImageBitmap(frame) : null;
-			if (frame) {
-				frame.close();
+// Doesn't exist in studio
+if (window.remotion_broadcastChannel) {
+	window.remotion_broadcastChannel.addEventListener(
+		'message',
+		async (event) => {
+			if (!window.remotion_isMainTab) {
+				// Other tabs will also get this message, but only the main tab should process it
+				return;
 			}
 
-			const response: ExtractFrameResponse = {
-				type: 'response-success',
-				id: data.id,
-				frame: imageBitmap,
-			};
+			const data = event.data as ExtractFrameRequest;
+			if (data.type === 'request') {
+				try {
+					const sample = await extractFrame({
+						src: data.src,
+						timestamp: data.timeInSeconds,
+						logLevel: data.logLevel,
+					});
 
-			window.remotion_broadcastChannel.postMessage(response);
-			frame?.close();
-		} catch (error) {
-			const response: ExtractFrameResponse = {
-				type: 'response-error',
-				id: data.id,
-				errorStack: (error as Error).stack ?? 'No stack trace',
-			};
+					const frame = sample?.toVideoFrame() ?? null;
+					const imageBitmap = frame ? await createImageBitmap(frame) : null;
+					if (frame) {
+						frame.close();
+					}
 
-			window.remotion_broadcastChannel.postMessage(response);
-		}
-	} else {
-		throw new Error('Invalid message: ' + JSON.stringify(data));
-	}
-});
+					const response: ExtractFrameResponse = {
+						type: 'response-success',
+						id: data.id,
+						frame: imageBitmap,
+					};
+
+					window.remotion_broadcastChannel!.postMessage(response);
+					frame?.close();
+				} catch (error) {
+					const response: ExtractFrameResponse = {
+						type: 'response-error',
+						id: data.id,
+						errorStack: (error as Error).stack ?? 'No stack trace',
+					};
+
+					window.remotion_broadcastChannel!.postMessage(response);
+				}
+			} else {
+				throw new Error('Invalid message: ' + JSON.stringify(data));
+			}
+		},
+	);
+}
 
 export const extractFrameViaBroadcastChannel = async ({
 	src,
@@ -103,20 +109,20 @@ export const extractFrameViaBroadcastChannel = async ({
 
 			if (data.type === 'response-success' && data.id === requestId) {
 				resolve(data.frame ? data.frame : null);
-				window.remotion_broadcastChannel.removeEventListener(
+				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,
 				);
 			} else if (data.type === 'response-error' && data.id === requestId) {
 				reject(data.errorStack);
-				window.remotion_broadcastChannel.removeEventListener(
+				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,
 				);
 			}
 		};
 
-		window.remotion_broadcastChannel.addEventListener('message', onMessage);
+		window.remotion_broadcastChannel!.addEventListener('message', onMessage);
 	});
 
 	const request: ExtractFrameRequest = {
@@ -127,7 +133,7 @@ export const extractFrameViaBroadcastChannel = async ({
 		logLevel,
 	};
 
-	window.remotion_broadcastChannel.postMessage(request);
+	window.remotion_broadcastChannel!.postMessage(request);
 
 	let timeoutId: NodeJS.Timeout | undefined;
 

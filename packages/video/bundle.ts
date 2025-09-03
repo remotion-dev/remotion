@@ -8,13 +8,7 @@ console.time('Generated.');
 const output = await build({
 	entrypoints: ['src/index.ts'],
 	naming: '[name].mjs',
-	external: [
-		'@remotion/webcodecs',
-		'remotion',
-		'react',
-		'react-dom',
-		'@remotion/media-parser',
-	],
+	external: ['remotion', 'react', 'react-dom'],
 });
 
 if (!output.success) {
