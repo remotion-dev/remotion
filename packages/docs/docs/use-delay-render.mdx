@@ -1,0 +1,115 @@
+---
+image: /generated/articles-docs-use-delay-render.png
+id: use-delay-render
+title: useDelayRender()
+sidebar_label: useDelayRender()
+crumb: 'How to'
+---
+
+A React hook that simplifies delaying render until an asynchronous operation completes. This is the recommended approach instead of using [`delayRender()`](/docs/delay-render) and [`continueRender()`](/docs/continue-render) directly.
+
+The hook returns a function that, when called, will unblock the render.
+
+## Example
+
+```tsx twoslash {6}
+import {useCallback, useEffect, useState} from 'react';
+import {useDelayRender} from 'remotion';
+
+export const MyVideo = () => {
+  const [data, setData] = useState(null);
+  const continueRender = useDelayRender();
+
+  const fetchData = useCallback(async () => {
+    const response = await fetch('http://example.com/api');
+    const json = await response.json();
+    setData(json);
+
+    continueRender();
+  }, [continueRender]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return <div>{data ? <div>This video has data from an API! {JSON.stringify(data)}</div> : null}</div>;
+};
+```
+
+## Adding a label
+
+You can add a label to help with debugging timeouts:
+
+```tsx twoslash
+import {useDelayRender} from 'remotion';
+
+export const MyVideo = () => {
+  const continueRender = useDelayRender('Fetching data from API...');
+
+  // ... rest of component
+  return <div />;
+};
+```
+
+## Configuration options
+
+You can pass additional options to customize timeout and retry behavior:
+
+```tsx twoslash
+import {useDelayRender} from 'remotion';
+
+export const MyVideo = () => {
+  const continueRender = useDelayRender('Loading asset...', {
+    timeoutInMilliseconds: 7000,
+    retries: 1,
+  });
+
+  // ... rest of component
+  return <div />;
+};
+```
+
+If the call times out, the label will be referenced in the error message:
+
+```
+A delayRender() "Fetching data from API..." was called but not cleared after 28000ms.
+```
+
+## API
+
+```tsx
+function useDelayRender(label?: string, options?: DelayRenderOptions): () => void;
+```
+
+### Parameters
+
+- `label` _(optional)_: A string label to help identify this delay in error messages.
+- `options` _(optional)_: Configuration options for the delay render behavior:
+  - `timeoutInMilliseconds` _(optional)_: Custom timeout for this specific delay
+  - `retries` _(optional)_: Number of retries if the delay times out
+
+### Return value
+
+Returns a function that, when called, will continue the render process.
+
+## Benefits over direct delayRender() usage
+
+- **Cleaner API**: No need to manage handles manually
+- **React-friendly**: Integrates naturally with React patterns
+- **Automatic cleanup**: The hook handles the render continuation logic
+- **Future-proof**: Will support scoped contexts when browser rendering is implemented
+
+## Timeout and error handling
+
+The hook uses the same timeout and error handling behavior as [`delayRender()`](/docs/delay-render):
+
+- Must be resolved within 30 seconds (configurable)
+- Can be used with [`cancelRender()`](/docs/cancel-render) for error scenarios
+- Supports multiple concurrent delays
+
+## See also
+
+- [`delayRender()`](/docs/delay-render) - The underlying API
+- [`continueRender()`](/docs/continue-render) - Manual render continuation
+- [`cancelRender()`](/docs/cancel-render) - Cancel render on error
+- [Data fetching guide](/docs/data-fetching)

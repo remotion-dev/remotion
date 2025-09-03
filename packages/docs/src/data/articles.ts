@@ -6046,6 +6046,15 @@ export const articles = [
 		slug: 'use-current-scale',
 	},
 	{
+		id: 'use-delay-render',
+		title: 'useDelayRender()',
+		relativePath: 'docs/use-delay-render.mdx',
+		compId: 'articles-docs-use-delay-render',
+		crumb: 'How to',
+		noAi: false,
+		slug: 'use-delay-render',
+	},
+	{
 		id: 'use-img-and-iframe',
 		title: '<Img>, <Video> and <Audio>',
 		relativePath: 'docs/use-img-and-iframe.mdx',
