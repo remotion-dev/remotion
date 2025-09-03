@@ -26,10 +26,19 @@ const nonPureAnimationTailwindClasses = [
 	/\btransition-\w+\b/,
 ];
 
-function containsNonPureAnimationTailwindClass(classString: string): boolean {
-	return nonPureAnimationTailwindClasses.some((pattern) =>
-		pattern.test(classString),
-	);
+function findProblematicTailwindClass(
+	classString: string,
+): {match: string; index: number} | null {
+	for (const pattern of nonPureAnimationTailwindClasses) {
+		const match = classString.match(pattern);
+		if (match) {
+			return {
+				match: match[0],
+				index: match.index!,
+			};
+		}
+	}
+	return null;
 }
 
 export default createRule<Options, MessageIds>({
@@ -83,18 +92,21 @@ export default createRule<Options, MessageIds>({
 					node.value
 				) {
 					let classString: string | undefined;
+					let valueNode: any;
 
 					if (
 						node.value.type === 'Literal' &&
 						typeof node.value.value === 'string'
 					) {
 						classString = node.value.value;
+						valueNode = node.value;
 					} else if (
 						node.value.type === 'JSXExpressionContainer' &&
 						node.value.expression.type === 'Literal' &&
 						typeof node.value.expression.value === 'string'
 					) {
 						classString = node.value.expression.value;
+						valueNode = node.value.expression;
 					} else if (
 						node.value.type === 'JSXExpressionContainer' &&
 						node.value.expression.type === 'TemplateLiteral'
@@ -104,16 +116,39 @@ export default createRule<Options, MessageIds>({
 						classString = templateLiteral.quasis
 							.map((q) => q.value.cooked || q.value.raw)
 							.join(' ');
+						valueNode = templateLiteral;
 					}
 
-					if (
-						classString &&
-						containsNonPureAnimationTailwindClass(classString)
-					) {
-						context.report({
-							messageId: 'NonPureAnimation',
-							node,
-						});
+					if (classString) {
+						const problematicClass = findProblematicTailwindClass(classString);
+						if (problematicClass) {
+							// Calculate the precise location of the problematic class
+							const sourceCode = context.getSourceCode();
+							const valueStart = valueNode.range[0];
+
+							// For string literals, we need to account for quotes
+							const quoteOffset = valueNode.type === 'Literal' ? 1 : 0;
+							const classStart =
+								valueStart + quoteOffset + problematicClass.index;
+							const classEnd = classStart + problematicClass.match.length;
+
+							const start = sourceCode.getLocFromIndex(classStart);
+							const end = sourceCode.getLocFromIndex(classEnd);
+
+							context.report({
+								messageId: 'NonPureAnimation',
+								loc: {
+									start: {
+										line: start.line,
+										column: start.column + 4,
+									},
+									end: {
+										line: end.line,
+										column: end.column,
+									},
+								},
+							});
+						}
 					}
 				}
 			},
