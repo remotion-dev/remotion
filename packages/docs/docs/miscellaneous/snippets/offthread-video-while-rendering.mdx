@@ -9,10 +9,11 @@ This is useful for attaching a `ref` to the [`<Video />`](/docs/video) tag.
 
 ```tsx twoslash
 import {forwardRef} from 'react';
-import {getRemotionEnvironment, OffthreadVideo, RemotionOffthreadVideoProps, Video} from 'remotion';
+import {OffthreadVideo, RemotionOffthreadVideoProps, useRemotionEnvironment, Video} from 'remotion';
 
 function OffthreadWhileRenderingRefForwardingFunction(props: RemotionOffthreadVideoProps, ref: React.Ref<HTMLVideoElement>) {
-  const isPreview = !getRemotionEnvironment().isRendering;
+  const env = useRemotionEnvironment();
+  const isPreview = !env.isRendering;
 
   if (isPreview) {
     const {imageFormat, ...otherProps} = props;

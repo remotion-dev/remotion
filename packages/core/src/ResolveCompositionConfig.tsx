@@ -15,10 +15,10 @@ import type {AnyComposition} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {EditorPropsContext} from './EditorProps.js';
 import {getInputProps} from './config/input-props.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {NonceContext} from './nonce.js';
 import type {InferProps} from './props-if-has-props.js';
 import {resolveVideoConfigOrCatch} from './resolve-video-config.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
@@ -89,12 +89,13 @@ export const ResolveCompositionConfig: React.FC<
 		(c) => c.id === currentRenderModalComposition,
 	);
 	const {props: allEditorProps} = useContext(EditorPropsContext);
+	const env = useRemotionEnvironment();
 
 	const inputProps = useMemo(() => {
-		return typeof window === 'undefined' || getRemotionEnvironment().isPlayer
+		return typeof window === 'undefined' || env.isPlayer
 			? {}
 			: (getInputProps() ?? {});
-	}, []);
+	}, [env.isPlayer]);
 
 	const [resolvedConfigs, setResolvedConfigs] = useState<
 		Record<string, VideoConfigState | undefined>
@@ -429,6 +430,8 @@ export const useResolvedVideoConfig = (
 		return composition ? (allEditorProps[composition.id] ?? {}) : {};
 	}, [allEditorProps, composition]);
 
+	const env = useRemotionEnvironment();
+
 	return useMemo(() => {
 		if (!composition) {
 			return null;
@@ -478,8 +481,7 @@ export const useResolvedVideoConfig = (
 					props: {
 						...(composition.defaultProps ?? {}),
 						...(selectedEditorProps ?? {}),
-						...(typeof window === 'undefined' ||
-						getRemotionEnvironment().isPlayer
+						...(typeof window === 'undefined' || env.isPlayer
 							? {}
 							: (getInputProps() ?? {})),
 					},
@@ -496,5 +498,11 @@ export const useResolvedVideoConfig = (
 		}
 
 		return context[composition.id] as VideoConfigState;
-	}, [composition, context, currentCompositionMetadata, selectedEditorProps]);
+	}, [
+		composition,
+		context,
+		currentCompositionMetadata,
+		selectedEditorProps,
+		env.isPlayer,
+	]);
 };

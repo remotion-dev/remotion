@@ -51,7 +51,7 @@ const innerSetPropsAndEnv = async ({
 	await page.evaluateOnNewDocument((timeout: number) => {
 		window.remotion_puppeteerTimeout = timeout;
 
-		// To make getRemotionEnvironment() work
+		// To make useRemotionEnvironment() work
 		if (window.process === undefined) {
 			// @ts-expect-error
 			window.process = {};

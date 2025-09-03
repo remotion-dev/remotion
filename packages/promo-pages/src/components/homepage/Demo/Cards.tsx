@@ -6,7 +6,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {AbsoluteFill, getRemotionEnvironment} from 'remotion';
+import {AbsoluteFill, useRemotionEnvironment} from 'remotion';
 import {Card} from './Card';
 import type {RemoteData} from './Comp';
 import {CurrentCountry} from './CurrentCountry';
@@ -47,7 +47,7 @@ export const Cards: React.FC<{
 
 	const positions = useRef(getInitialPositions());
 	const shouldBePositions = useRef(getInitialPositions());
-	const {isRendering} = getRemotionEnvironment();
+	const {isRendering} = useRemotionEnvironment();
 
 	useEffect(() => {
 		const {current} = container;

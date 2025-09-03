@@ -324,7 +324,7 @@ You can use the following `<LoopableOffthreadVideo>` component that uses [`@remo
 ```tsx twoslash title="src/LoopableOffthreadVideo.tsx"
 import {mediaParserController, parseMedia} from '@remotion/media-parser';
 import React, {useEffect, useState} from 'react';
-import {cancelRender, continueRender, delayRender, getRemotionEnvironment, Loop, OffthreadVideo, RemotionOffthreadVideoProps, useVideoConfig, Video} from 'remotion';
+import {cancelRender, continueRender, delayRender, Loop, OffthreadVideo, RemotionOffthreadVideoProps, useRemotionEnvironment, useVideoConfig, Video} from 'remotion';
 
 const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
   const [duration, setDuration] = useState<number | null>(null);
@@ -372,7 +372,8 @@ export const LoopableOffthreadVideo: React.FC<
     loop?: boolean;
   }
 > = ({loop, ...props}) => {
-  if (getRemotionEnvironment().isRendering) {
+  const env = useRemotionEnvironment();
+  if (env.isRendering) {
     if (loop) {
       return <LoopedOffthreadVideo {...props} />;
     }

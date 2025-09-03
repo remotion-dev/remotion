@@ -8,8 +8,8 @@ import {zColor} from '@remotion/zod-types';
 import React, {useEffect, useRef, useState} from 'react';
 import {
 	AbsoluteFill,
-	getRemotionEnvironment,
 	staticFile,
+	useRemotionEnvironment,
 	useVideoConfig,
 	Video,
 } from 'remotion';
@@ -38,12 +38,13 @@ const useVideoOrOffthreadVideoTexture = (
 	videoSrc: string,
 	videoRef: React.RefObject<HTMLVideoElement | null>,
 ) => {
+	const env = useRemotionEnvironment();
 	if (textureType === 'video') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		return useVideoTexture(videoRef);
 	}
 
-	if (getRemotionEnvironment().isRendering) {
+	if (env.isRendering) {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		return useOffthreadVideoTexture({src: videoSrc});
 	}
@@ -76,9 +77,11 @@ export const VideoTextureDemo: React.FC<
 		videoRef,
 	);
 
+	const env = useRemotionEnvironment();
+
 	return (
 		<AbsoluteFill style={container}>
-			{getRemotionEnvironment().isRendering ? null : (
+			{env.isRendering ? null : (
 				<Video ref={videoRef} src={videoSrc} style={videoStyle} />
 			)}
 			{videoData ? (

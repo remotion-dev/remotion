@@ -5,9 +5,9 @@ import {getAbsoluteSrc} from '../absolute-src.js';
 import {calculateLoopDuration} from '../calculate-loop.js';
 import {cancelRender} from '../cancel-render.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
-import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {
@@ -45,7 +45,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
-	const environment = getRemotionEnvironment();
+	const environment = useRemotionEnvironment();
 
 	const {durations, setDurations} = useContext(DurationsContext);
 	if (typeof props.src !== 'string') {

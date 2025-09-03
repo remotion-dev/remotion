@@ -3267,13 +3267,13 @@ export const articles = [
 		slug: 'media-utils/visualize-audio-waveform',
 	},
 	{
-		id: 'mediabunny-migration',
+		id: 'mediabunny',
 		title: 'Remotion and Mediabunny',
-		relativePath: 'docs/mediabunny-migration.mdx',
-		compId: 'articles-docs-mediabunny-migration',
+		relativePath: 'docs/mediabunny.mdx',
+		compId: 'articles-docs-mediabunny',
 		crumb: 'Migration',
 		noAi: false,
-		slug: 'mediabunny-migration',
+		slug: 'mediabunny',
 	},
 	{
 		id: 'metadata',
@@ -6062,6 +6062,15 @@ export const articles = [
 		crumb: '@remotion/three',
 		noAi: false,
 		slug: 'use-offthread-video-texture',
+	},
+	{
+		id: 'use-remotion-environment',
+		title: 'useRemotionEnvironment()',
+		relativePath: 'docs/use-remotion-environment.mdx',
+		compId: 'articles-docs-use-remotion-environment',
+		crumb: 'API',
+		noAi: false,
+		slug: 'use-remotion-environment',
 	},
 	{
 		id: 'use-video-config',

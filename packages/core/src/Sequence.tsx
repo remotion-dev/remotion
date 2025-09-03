@@ -14,7 +14,6 @@ import {
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {useNonce} from './nonce.js';
 import {
 	TimelineContext,
@@ -24,6 +23,7 @@ import {useVideoConfig} from './use-video-config.js';
 
 import {Freeze} from './freeze.js';
 import {useCurrentFrame} from './use-current-frame';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 
 export type AbsoluteFillLayout = {
 	layout?: 'absolute-fill';
@@ -200,8 +200,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		return name ?? '';
 	}, [name]);
 
+	const env = useRemotionEnvironment();
+
 	useEffect(() => {
-		if (!getRemotionEnvironment().isStudio) {
+		if (!env.isStudio) {
 			return;
 		}
 
@@ -240,6 +242,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		stack,
 		premountDisplay,
 		postmountDisplay,
+		env.isStudio,
 	]);
 
 	// Ceil to support floats
@@ -374,7 +377,8 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SequenceProps
 > = (props, ref) => {
-	if (props.layout !== 'none' && !getRemotionEnvironment().isRendering) {
+	const env = useRemotionEnvironment();
+	if (props.layout !== 'none' && !env.isRendering) {
 		if (props.premountFor || props.postmountFor) {
 			return <PremountedPostmountedSequence {...props} ref={ref} />;
 		}

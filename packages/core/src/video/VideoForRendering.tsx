@@ -16,12 +16,12 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
 import {continueRender, delayRender} from '../delay-render.js';
-import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {random} from '../random.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {getMediaTime} from './get-current-time.js';
@@ -64,7 +64,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
-	const environment = getRemotionEnvironment();
+	const environment = useRemotionEnvironment();
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
 

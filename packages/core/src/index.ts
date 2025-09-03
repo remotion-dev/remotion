@@ -169,6 +169,7 @@ export {
 	Translation,
 	useCurrentScale,
 } from './use-current-scale';
+export {useRemotionEnvironment} from './use-remotion-environment.js';
 export * from './use-video-config.js';
 export * from './version.js';
 export * from './video-config.js';

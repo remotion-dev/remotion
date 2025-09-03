@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
 import {Sequence} from '../Sequence.js';
-import {getRemotionEnvironment} from '../get-remotion-environment.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {
 	resolveTrimProps,
@@ -30,7 +30,7 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (
 		showInTimeline,
 		...otherProps
 	} = props;
-	const environment = getRemotionEnvironment();
+	const environment = useRemotionEnvironment();
 
 	const onDuration = useCallback(() => undefined, []);
 

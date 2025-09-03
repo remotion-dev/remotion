@@ -1,5 +1,4 @@
 import type {RefObject} from 'react';
-import {getRemotionEnvironment} from './get-remotion-environment';
 import type {LogLevel} from './log';
 import {playbackLogging} from './playback-logging';
 
@@ -10,6 +9,7 @@ export const playAndHandleNotAllowedError = ({
 	logLevel,
 	mountTime,
 	reason,
+	isPlayer,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	mediaType: 'audio' | 'video';
@@ -17,6 +17,7 @@ export const playAndHandleNotAllowedError = ({
 	logLevel: LogLevel;
 	mountTime: number;
 	reason: string;
+	isPlayer: boolean;
 }) => {
 	const {current} = mediaRef;
 	if (!current) {
@@ -88,7 +89,7 @@ export const playAndHandleNotAllowedError = ({
 
 			// eslint-disable-next-line no-console
 			console.log(`The video will be muted and we'll retry playing it.`);
-			if (mediaType === 'video' && getRemotionEnvironment().isPlayer) {
+			if (mediaType === 'video' && isPlayer) {
 				// eslint-disable-next-line no-console
 				console.log('Use onAutoPlayError() to handle this error yourself.');
 			}
