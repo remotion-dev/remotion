@@ -29,6 +29,10 @@ export type KeyframeBank = {
 export let iteratorsOpen = 0;
 export let framesOpen = 0;
 
+const roundTo6Digits = (timestamp: number) => {
+	return Math.floor(timestamp * 1_000_000) / 1_000_000;
+};
+
 export const makeKeyframeBank = ({
 	startTimestampInSeconds,
 	endTimestampInSeconds,
@@ -54,7 +58,10 @@ export const makeKeyframeBank = ({
 			return true;
 		}
 
-		return lastFrame.timestamp + lastFrame.duration >= timestamp;
+		return (
+			roundTo6Digits(lastFrame.timestamp + lastFrame.duration) >
+			roundTo6Digits(timestamp)
+		);
 	};
 
 	const addFrame = (frame: VideoSample) => {
@@ -78,23 +85,28 @@ export const makeKeyframeBank = ({
 	};
 
 	const getFrameFromTimestamp = async (
-		timestampInSeconds: number,
+		unroundedTimestampInSeconds: number,
 	): Promise<VideoSample | null> => {
-		if (timestampInSeconds < startTimestampInSeconds) {
+		if (unroundedTimestampInSeconds < startTimestampInSeconds) {
 			return Promise.reject(
 				new Error(
-					`Timestamp is before start timestamp (requested: ${timestampInSeconds}sec, start: ${startTimestampInSeconds})`,
+					`Timestamp is before start timestamp (requested: ${unroundedTimestampInSeconds}sec, start: ${startTimestampInSeconds})`,
 				),
 			);
 		}
 
-		if (timestampInSeconds > endTimestampInSeconds) {
+		if (unroundedTimestampInSeconds > endTimestampInSeconds) {
 			return Promise.reject(
 				new Error(
-					`Timestamp is after end timestamp (requested: ${timestampInSeconds}sec, end: ${endTimestampInSeconds})`,
+					`Timestamp is after end timestamp (requested: ${unroundedTimestampInSeconds}sec, end: ${endTimestampInSeconds})`,
 				),
 			);
 		}
+
+		// clip to first 6 digits
+		// Because 1.666666 (6 digits) should also match 1.6666666666666 (unrounded)
+		// 6 digits because webcodecs timescale is 1 million
+		const timestampInSeconds = unroundedTimestampInSeconds;
 
 		await ensureEnoughFramesForTimestamp(timestampInSeconds);
 
@@ -104,7 +116,7 @@ export const makeKeyframeBank = ({
 				return null;
 			}
 
-			if (sample.timestamp <= timestampInSeconds) {
+			if (roundTo6Digits(sample.timestamp) <= timestampInSeconds) {
 				return sample;
 			}
 		}
