@@ -15,6 +15,7 @@ import React, {
 } from 'react';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
 import {useSingletonAudioContext} from './use-audio-context.js';
@@ -287,6 +288,8 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const mountTime = useMountTime();
 
+	const env = useRemotionEnvironment();
+
 	const playAllAudios = useCallback(() => {
 		refs.forEach((ref) => {
 			const audio = audios.current.find((a) => a.el === ref.ref);
@@ -301,10 +304,11 @@ export const SharedAudioContextProvider: React.FC<{
 				logLevel,
 				mountTime,
 				reason: 'playing all audios',
+				isPlayer: env.isPlayer,
 			});
 		});
 		audioContext?.resume();
-	}, [audioContext, logLevel, mountTime, refs]);
+	}, [audioContext, logLevel, mountTime, refs, env.isPlayer]);
 
 	const value: SharedContext = useMemo(() => {
 		return {

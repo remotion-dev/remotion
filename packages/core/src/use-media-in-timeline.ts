@@ -4,12 +4,12 @@ import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {useLogLevel, useMountTime} from './log-level-context.js';
 import {useNonce} from './nonce.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import type {PlayableMediaTag} from './timeline-position-state.js';
 import {TimelineContext} from './timeline-position-state.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 import type {VolumeProp} from './volume-prop.js';
 import {evaluateVolume} from './volume-prop.js';
@@ -103,6 +103,8 @@ export const useMediaInTimeline = ({
 		}
 	}, [initialVolume, mediaType, src, volume]);
 
+	const env = useRemotionEnvironment();
+
 	useEffect(() => {
 		if (!mediaRef.current) {
 			return;
@@ -112,10 +114,7 @@ export const useMediaInTimeline = ({
 			throw new Error('No src passed');
 		}
 
-		if (
-			!getRemotionEnvironment().isStudio &&
-			window.process?.env?.NODE_ENV !== 'test'
-		) {
+		if (!env.isStudio && window.process?.env?.NODE_ENV !== 'test') {
 			return;
 		}
 
@@ -168,6 +167,7 @@ export const useMediaInTimeline = ({
 		showInTimeline,
 		premountDisplay,
 		postmountDisplay,
+		env.isStudio,
 	]);
 
 	useEffect(() => {
@@ -190,6 +190,7 @@ export const useMediaInTimeline = ({
 					logLevel,
 					mountTime,
 					reason,
+					isPlayer: env.isPlayer,
 				});
 			},
 		};
@@ -211,5 +212,6 @@ export const useMediaInTimeline = ({
 		isPostmounting,
 		logLevel,
 		mountTime,
+		env.isPlayer,
 	]);
 };

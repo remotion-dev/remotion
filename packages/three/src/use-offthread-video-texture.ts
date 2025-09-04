@@ -4,8 +4,8 @@ import {
 	cancelRender,
 	continueRender,
 	delayRender,
-	getRemotionEnvironment,
 	useCurrentFrame,
+	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -129,10 +129,12 @@ export function useOffthreadVideoTexture({
 		throw new Error('src must be provided to useOffthreadVideoTexture');
 	}
 
-	const {isRendering} = getRemotionEnvironment();
+	const env = useRemotionEnvironment();
+
+	const {isRendering} = env;
 	if (!isRendering) {
 		throw new Error(
-			'useOffthreadVideoTexture() can only be used during rendering. Use getRemotionEnvironment().isRendering to render it conditionally.',
+			'useOffthreadVideoTexture() can only be used during rendering. Use useRemotionEnvironment().isRendering to render it conditionally.',
 		);
 	}
 

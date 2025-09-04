@@ -4,10 +4,10 @@ import {
 	cancelRender,
 	continueRender,
 	delayRender,
-	getRemotionEnvironment,
 	Loop,
 	OffthreadVideo,
 	RemotionOffthreadVideoProps,
+	useRemotionEnvironment,
 	useVideoConfig,
 	Video,
 } from 'remotion';
@@ -58,7 +58,8 @@ export const LoopableOffthreadVideo: React.FC<
 		loop?: boolean;
 	}
 > = ({loop, ...props}) => {
-	if (getRemotionEnvironment().isRendering) {
+	const env = useRemotionEnvironment();
+	if (env.isRendering) {
 		if (loop) {
 			return <LoopedOffthreadVideo {...props} />;
 		}

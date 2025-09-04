@@ -1,5 +1,5 @@
 import {forwardRef} from 'react';
-import {getRemotionEnvironment} from 'remotion';
+import {useRemotionEnvironment} from 'remotion';
 import {GifForDevelopment} from './GifForDevelopment';
 import {GifForRendering} from './GifForRendering';
 import type {RemotionGifProps} from './props';
@@ -10,7 +10,7 @@ import type {RemotionGifProps} from './props';
  */
 export const Gif = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 	(props, ref) => {
-		const env = getRemotionEnvironment();
+		const env = useRemotionEnvironment();
 		if (env.isRendering) {
 			return <GifForRendering {...props} ref={ref} />;
 		}

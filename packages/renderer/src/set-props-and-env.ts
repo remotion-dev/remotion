@@ -55,7 +55,7 @@ const innerSetPropsAndEnv = async ({
 			window.remotion_puppeteerTimeout = timeout;
 
 			window.remotion_isMainTab = mainTab;
-			// To make getRemotionEnvironment() work
+			// To make useRemotionEnvironment() work
 			if (window.process === undefined) {
 				// @ts-expect-error
 				window.process = {};

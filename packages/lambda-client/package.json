@@ -32,7 +32,7 @@
 		"express": "4.21.0",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.19.0",
-		"next": "15.2.4",
+		"next": "15.4.7",
 		"@types/mime-types": "2.1.1"
 	},
 	"publishConfig": {
