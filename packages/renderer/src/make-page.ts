@@ -29,6 +29,7 @@ export const makePage = async ({
 	imageFormat,
 	serializedResolvedPropsWithCustomSchema,
 	pageIndex,
+	isMainTab,
 }: {
 	context: SourceMapGetter;
 	initialFrame: number;
@@ -48,6 +49,7 @@ export const makePage = async ({
 	serializedResolvedPropsWithCustomSchema: string;
 	imageFormat: VideoImageFormat;
 	pageIndex: number;
+	isMainTab: boolean;
 }) => {
 	const page = await browserReplacer
 		.getBrowser()
@@ -73,6 +75,7 @@ export const makePage = async ({
 		indent,
 		logLevel,
 		onServeUrlVisited: () => undefined,
+		isMainTab,
 	});
 
 	await puppeteerEvaluateWithCatch({

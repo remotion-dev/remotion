@@ -90,6 +90,7 @@ const innerSelectComposition = async ({
 		indent,
 		logLevel,
 		onServeUrlVisited,
+		isMainTab: true,
 	});
 
 	await puppeteerEvaluateWithCatch({
