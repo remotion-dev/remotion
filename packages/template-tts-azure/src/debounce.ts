@@ -1,11 +1,4 @@
-import { getRemotionEnvironment } from "remotion";
-
 export const waitForNoInput = (signal: AbortSignal, ms: number) => {
-  // Don't wait during rendering
-  if (getRemotionEnvironment().isRendering) {
-    return Promise.resolve();
-  }
-
   if (signal.aborted) {
     return Promise.reject(new Error("stale"));
   }
