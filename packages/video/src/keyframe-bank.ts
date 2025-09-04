@@ -29,8 +29,9 @@ export type KeyframeBank = {
 export let iteratorsOpen = 0;
 export let framesOpen = 0;
 
-const roundTo6Digits = (timestamp: number) => {
-	return Math.floor(timestamp * 1_000_000) / 1_000_000;
+// Round to only 4 digits, because WebM has a timescale of 1_000, e.g. framer.webm
+const roundTo4Digits = (timestamp: number) => {
+	return Math.round(timestamp * 1_000) / 1_000;
 };
 
 export const makeKeyframeBank = ({
@@ -59,8 +60,8 @@ export const makeKeyframeBank = ({
 		}
 
 		return (
-			roundTo6Digits(lastFrame.timestamp + lastFrame.duration) >
-			roundTo6Digits(timestamp)
+			roundTo4Digits(lastFrame.timestamp + lastFrame.duration) >
+			roundTo4Digits(timestamp)
 		);
 	};
 
@@ -85,28 +86,23 @@ export const makeKeyframeBank = ({
 	};
 
 	const getFrameFromTimestamp = async (
-		unroundedTimestampInSeconds: number,
+		timestampInSeconds: number,
 	): Promise<VideoSample | null> => {
-		if (unroundedTimestampInSeconds < startTimestampInSeconds) {
+		if (timestampInSeconds < startTimestampInSeconds) {
 			return Promise.reject(
 				new Error(
-					`Timestamp is before start timestamp (requested: ${unroundedTimestampInSeconds}sec, start: ${startTimestampInSeconds})`,
+					`Timestamp is before start timestamp (requested: ${timestampInSeconds}sec, start: ${startTimestampInSeconds})`,
 				),
 			);
 		}
 
-		if (unroundedTimestampInSeconds > endTimestampInSeconds) {
+		if (timestampInSeconds > endTimestampInSeconds) {
 			return Promise.reject(
 				new Error(
-					`Timestamp is after end timestamp (requested: ${unroundedTimestampInSeconds}sec, end: ${endTimestampInSeconds})`,
+					`Timestamp is after end timestamp (requested: ${timestampInSeconds}sec, end: ${endTimestampInSeconds})`,
 				),
 			);
 		}
-
-		// clip to first 6 digits
-		// Because 1.666666 (6 digits) should also match 1.6666666666666 (unrounded)
-		// 6 digits because webcodecs timescale is 1 million
-		const timestampInSeconds = unroundedTimestampInSeconds;
 
 		await ensureEnoughFramesForTimestamp(timestampInSeconds);
 
@@ -116,7 +112,9 @@ export const makeKeyframeBank = ({
 				return null;
 			}
 
-			if (roundTo6Digits(sample.timestamp) <= timestampInSeconds) {
+			if (
+				roundTo4Digits(sample.timestamp) <= roundTo4Digits(timestampInSeconds)
+			) {
 				return sample;
 			}
 		}
