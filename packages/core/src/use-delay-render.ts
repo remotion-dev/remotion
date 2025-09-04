@@ -1,20 +1,30 @@
-import {useCallback, useState} from 'react';
-import type {DelayRenderOptions} from './delay-render';
-import {continueRenderInternal, delayRenderInternal} from './delay-render';
-import {useRemotionEnvironment} from './use-remotion-environment';
+import {useCallback} from 'react';
+import type {DelayRenderOptions} from './delay-render.js';
+import {continueRenderInternal, delayRenderInternal} from './delay-render.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 
-type ContinueRenderFnBound = () => void;
+type DelayRenderFn = (label?: string, options?: DelayRenderOptions) => number;
+type ContinueRenderFn = (handle: number) => void;
 
-export const useDelayRender = (
-	label?: string,
-	options?: DelayRenderOptions,
-): ContinueRenderFnBound => {
+export const useDelayRender = (): {
+	delayRender: DelayRenderFn;
+	continueRender: ContinueRenderFn;
+} => {
 	const environment = useRemotionEnvironment();
-	const [handle] = useState(() =>
-		delayRenderInternal(environment, label, options),
+
+	const delayRender = useCallback<DelayRenderFn>(
+		(label?: string, options?: DelayRenderOptions) => {
+			return delayRenderInternal(environment, label, options);
+		},
+		[environment],
 	);
 
-	return useCallback(() => {
-		continueRenderInternal(handle, environment);
-	}, [handle, environment]);
+	const continueRender = useCallback<ContinueRenderFn>(
+		(handle: number) => {
+			continueRenderInternal(handle, environment);
+		},
+		[environment],
+	);
+
+	return {delayRender, continueRender};
 };
