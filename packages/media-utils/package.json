@@ -18,6 +18,8 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
+		"@remotion/media-parser": "workspace:*",
+		"@remotion/webcodecs": "workspace:*",
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
