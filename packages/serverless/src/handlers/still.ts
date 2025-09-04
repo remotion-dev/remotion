@@ -32,6 +32,7 @@ import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import {makeInitialOverallRenderProgress} from '../overall-render-progress';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
+import {removeOutnameCredentials} from '../remove-outname-credentials';
 import {validateComposition} from '../validate-composition';
 import {checkVersionMismatch} from './check-version-mismatch';
 import {sendTelemetryEvent} from './send-telemetry-event';
@@ -196,7 +197,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		renderId,
-		outName: params.outName ?? undefined,
+		outName: removeOutnameCredentials(params.outName ?? undefined),
 		privacy: params.privacy,
 		audioCodec: null,
 		deleteAfter: params.deleteAfter,
