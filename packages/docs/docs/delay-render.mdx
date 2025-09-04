@@ -13,7 +13,7 @@ This method is useful if you want to call an API to fetch data before you render
 `delayRender()` returns a handle. Once you have fetched data or finished the asynchronous task, you should call `continueRender(handle)` to let Remotion know that you are now ready to render.
 
 :::info
-Consider using [`useDelayRender()`](/docs/use-delay-render) instead, which provides a cleaner API and better integration with React patterns.
+Consider using [`useDelayRender()`](/docs/use-delay-render) instead, which provides a better integration with React patterns and is future-proof for [browser rendering](/docs/miscellaneous/render-in-browser).
 :::
 
 ## Example
