@@ -53,7 +53,7 @@ import React from 'react';
 import {CalculateMetadataFunction, Composition} from 'remotion';
 import {MyComponent, MyComponentProps} from './MyComp';
 
-const calculateMetadata: CalculateMetadataFunction<MyComponentProps> = ({props, defaultProps, abortSignal}) => {
+const calculateMetadata: CalculateMetadataFunction<MyComponentProps> = ({props, defaultProps, abortSignal, isRendering}) => {
   return {
     // Change the metadata
     durationInFrames: props.duration,
@@ -93,6 +93,7 @@ As argument, you get an object with the following properties:
 - `props`: The [resolved props](/docs/props-resolution), taking input props into account.
 - `abortSignal`: An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) which you can use to abort network requests if [the default props have been changed](/docs/data-fetching#aborting-stale-requests) in the meanwhile.
 - `compositionId` (_available from v4.0.98_): The ID of the current composition
+- `isRendering` (_available from v4.0.342_): A boolean indicating whether the function is being called during rendering (`true`) or in other contexts like the Studio (`false`)
 
 The function must return an pure JSON-serializable object, which can contain the following properties:
 

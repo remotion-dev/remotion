@@ -3,6 +3,7 @@ import type {
 	CalcMetadataReturnType,
 	CalculateMetadataFunction,
 } from './Composition.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import type {InferProps} from './props-if-has-props.js';
 import {validateCodec} from './validation/validate-default-codec.js';
@@ -111,6 +112,7 @@ export const resolveVideoConfig = ({
 				props: originalProps,
 				abortSignal: signal,
 				compositionId,
+				isRendering: getRemotionEnvironment().isRendering,
 			})
 		: null;
 

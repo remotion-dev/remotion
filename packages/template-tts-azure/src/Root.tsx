@@ -21,8 +21,12 @@ export const RemotionRoot: React.FC = () => {
           voice: "enUSWoman1" as const,
           displaySpeed: 10,
         }}
-        calculateMetadata={async ({ props, abortSignal }) => {
-          await waitForNoInput(abortSignal, 1000);
+        calculateMetadata={async ({ props, abortSignal, isRendering }) => {
+          // don't debounce user input during rendering
+          if (!isRendering) {
+            await waitForNoInput(abortSignal, 1000);
+          }
+
           const exists = await audioAlreadyExists({
             text: props.text,
             voice: props.voice,
