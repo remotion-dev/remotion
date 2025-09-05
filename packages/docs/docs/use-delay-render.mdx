@@ -1,0 +1,126 @@
+---
+image: /generated/articles-docs-use-delay-render.png
+id: use-delay-render
+title: useDelayRender()
+sidebar_label: useDelayRender()
+crumb: 'API'
+---
+
+# useDelayRender()<AvailableFrom v="4.0.342" />
+
+A React hook that provides scoped `delayRender` and `continueRender` functions for React components. This is the recommended approach instead of using the global [`delayRender()`](/docs/delay-render) and [`continueRender()`](/docs/continue-render) functions directly.
+
+The hook returns an object with `delayRender` and `continueRender` functions that are scoped to the component's environment context.
+
+## Example
+
+```tsx twoslash {6, 8, 15}
+import {useCallback, useEffect, useState} from 'react';
+import {useDelayRender} from 'remotion';
+
+export const MyVideo = () => {
+  const [data, setData] = useState(null);
+  const {delayRender, continueRender} = useDelayRender();
+
+  const [handle] = useState(() => delayRender('Fetching API data'));
+
+  const fetchData = useCallback(async () => {
+    const response = await fetch('http://example.com/api');
+    const json = await response.json();
+    setData(json);
+
+    continueRender(handle);
+  }, [handle, continueRender]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return <div>{data ? <div>This video has data from an API! {JSON.stringify(data)}</div> : null}</div>;
+};
+```
+
+## Multiple delays
+
+You can create multiple delay handles for different asynchronous operations:
+
+```tsx twoslash
+import {useCallback, useEffect, useState} from 'react';
+import {useDelayRender} from 'remotion';
+
+export const MyVideo = () => {
+  const {delayRender, continueRender} = useDelayRender();
+  const [dataHandle] = useState(() => delayRender('Fetching API data'));
+  const [imageHandle] = useState(() => delayRender('Loading image'));
+
+  useEffect(() => {
+    // Fetch API data
+    fetch('/api/data').then(() => continueRender(dataHandle));
+
+    // Load image
+    const img = new Image();
+    img.onload = () => continueRender(imageHandle);
+    img.src = '/image.jpg';
+  }, [dataHandle, imageHandle, continueRender]);
+
+  return <div>Content</div>;
+};
+```
+
+## Configuration options
+
+You can pass options to customize timeout and retry behavior:
+
+```tsx twoslash
+import {useDelayRender} from 'remotion';
+
+export const MyVideo = () => {
+  const {delayRender, continueRender} = useDelayRender();
+
+  const handle = delayRender('Loading asset...', {
+    timeoutInMilliseconds: 7000,
+    retries: 1,
+  });
+
+  // ... rest of component
+  return <div />;
+};
+```
+
+## API
+
+```tsx
+function useDelayRender(): {
+  delayRender: (label?: string, options?: DelayRenderOptions) => number;
+  continueRender: (handle: number) => void;
+};
+```
+
+### Return value
+
+Returns an object with two functions:
+
+- **`delayRender(label?, options?)`**: Creates a new delay handle
+  - `label` _(optional)_: A string label to help identify this delay in error messages
+  - `options` _(optional)_: Configuration options:
+    - `timeoutInMilliseconds` _(optional)_: Custom timeout for this specific delay
+    - `retries` _(optional)_: Number of retries if the delay times out
+  - **Returns**: A numeric handle to identify this delay
+
+- **`continueRender(handle)`**: Continues render for a specific handle
+  - `handle`: The numeric handle returned by `delayRender()`
+
+## Why use `useDelayRender()` over global `delayRender()`?
+
+This hook provides a more React-friendly API and is future-proof for [browser rendering](/docs/miscellaneous/render-in-browser).<br /> It is recommended to use this hook instead of the global `delayRender()` function.
+
+## Timeout and error handling
+
+The hook uses the same timeout and error handling behavior as [`delayRender()`](/docs/delay-render).
+
+## See also
+
+- [`delayRender()`](/docs/delay-render) - The underlying API
+- [`continueRender()`](/docs/continue-render) - Manual render continuation
+- [`cancelRender()`](/docs/cancel-render) - Cancel render on error
+- [Data fetching guide](/docs/data-fetching)

@@ -3523,15 +3523,6 @@ export const articles = [
 		slug: 'miscellaneous/snippets/player-in-iframe',
 	},
 	{
-		id: 'miscellaneous/snippets/use-delay-render',
-		title: 'useDelayRender()',
-		relativePath: 'docs/miscellaneous/snippets/use-delay-render.mdx',
-		compId: 'articles-docs-miscellaneous-snippets-use-delay-render',
-		crumb: 'Snippets',
-		noAi: false,
-		slug: 'miscellaneous/snippets/use-delay-render',
-	},
-	{
 		id: 'typescript-aliases',
 		title: 'TypeScript aliases',
 		relativePath: 'docs/miscellaneous/ts-aliases.mdx',
@@ -6044,6 +6035,15 @@ export const articles = [
 		crumb: 'API',
 		noAi: false,
 		slug: 'use-current-scale',
+	},
+	{
+		id: 'use-delay-render',
+		title: 'useDelayRender()',
+		relativePath: 'docs/use-delay-render.mdx',
+		compId: 'articles-docs-use-delay-render',
+		crumb: 'How to',
+		noAi: false,
+		slug: 'use-delay-render',
 	},
 	{
 		id: 'use-img-and-iframe',
