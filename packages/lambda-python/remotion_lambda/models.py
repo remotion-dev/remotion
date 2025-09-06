@@ -415,7 +415,7 @@ class RenderStillParams:
     timeout_in_milliseconds: Optional[int] = 30000
     chromium_options: Optional[ChromiumOptions] = None
     scale: Optional[float] = 1
-    download_behavior: Dict = field(default_factory=lambda: PlayInBrowser(type='play-in-browser'))
+    download_behavior: Union[PlayInBrowser, ShouldDownload] = field(default_factory=lambda: PlayInBrowser(type='play-in-browser'))
     force_width: Optional[int] = None
     api_key: Optional[int] = None
     storage_class: Optional[str] = None
