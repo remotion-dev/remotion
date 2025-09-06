@@ -1,7 +1,7 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught,invalid-name
 
 from enum import Enum
-from typing import Optional, Dict, Any, Union, Literal
+from typing import Optional, Dict, Any, Union, Literal, List
 from dataclasses import dataclass, field
 from .version import VERSION
 
@@ -534,26 +534,26 @@ class RenderStillResponse:
     outKey: str
 
 
+@dataclass
 class RenderMediaProgress:
     """
     Progress of video rendering.
     """
 
-    def __init__(self):
-        self.overallProgress = float()
-        self.chunks = int()
-        self.done = bool()
-        self.encodingStatus = None
-        self.costs = None
-        self.renderId = str()
-        self.renderMetadata = None
-        self.outputFile = None
-        self.outKey = None
-        self.timeToFinish = None
-        self.errors = []
-        self.fatalErrorEncountered = bool()
-        self.currentTime = int()
-        self.renderSize = int()
-        self.outputSizeInBytes = None
-        self.lambdasInvoked = int()
-        self.framesRendered = None
+    overallProgress: float = 0.0
+    chunks: int = 0
+    done: bool = False
+    encodingStatus: Optional[Any] = None
+    costs: Optional[Any] = None
+    renderId: str = ""
+    renderMetadata: Optional[Any] = None
+    outputFile: Optional[Any] = None
+    outKey: Optional[str] = None
+    timeToFinish: Optional[float] = None
+    errors: List[Any] = field(default_factory=list)
+    fatalErrorEncountered: bool = False
+    currentTime: int = 0
+    renderSize: int = 0
+    outputSizeInBytes: Optional[int] = None
+    lambdasInvoked: int = 0
+    framesRendered: Optional[int] = None
