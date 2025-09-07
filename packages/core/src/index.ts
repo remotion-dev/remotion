@@ -171,6 +171,7 @@ export {
 	Translation,
 	useCurrentScale,
 } from './use-current-scale';
+export {useDelayRender} from './use-delay-render';
 export {useRemotionEnvironment} from './use-remotion-environment.js';
 export * from './use-video-config.js';
 export * from './version.js';
