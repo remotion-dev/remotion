@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Amaranth',
 	importName: 'Amaranth',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Amaranth:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		latin:
@@ -13,21 +13,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/amaranth/v18/KtkoALODe433f0j1zMnALdKCxg.woff2',
+					'https://fonts.gstatic.com/s/amaranth/v19/KtkoALODe433f0j1zMnALdKCxg.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/amaranth/v18/KtkrALODe433f0j1zMnAJWmn02P3Eg.woff2',
+					'https://fonts.gstatic.com/s/amaranth/v19/KtkrALODe433f0j1zMnAJWmn02P3Eg.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/amaranth/v18/KtkuALODe433f0j1zMnFHdA.woff2',
+					'https://fonts.gstatic.com/s/amaranth/v19/KtkuALODe433f0j1zMnFHdA.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/amaranth/v18/KtkpALODe433f0j1zMF-OMWl42E.woff2',
+					'https://fonts.gstatic.com/s/amaranth/v19/KtkpALODe433f0j1zMF-OMWl42E.woff2',
 			},
 		},
 	},

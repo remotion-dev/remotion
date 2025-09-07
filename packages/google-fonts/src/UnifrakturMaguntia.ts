@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'UnifrakturMaguntia',
 	importName: 'UnifrakturMaguntia',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=UnifrakturMaguntia:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/unifrakturmaguntia/v21/WWXPlieVYwiGNomYU-ciRLRvEmK7oaVemGZM.woff2',
+					'https://fonts.gstatic.com/s/unifrakturmaguntia/v22/WWXPlieVYwiGNomYU-ciRLRvEmK7oaVemGZM.woff2',
 			},
 		},
 	},

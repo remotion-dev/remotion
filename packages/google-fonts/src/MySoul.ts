@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'My Soul',
 	importName: 'MySoul',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=My+Soul:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/mysoul/v6/3XFqErcuy945_u6KJ_0vklnn.woff2',
+					'https://fonts.gstatic.com/s/mysoul/v7/3XFqErcuy945_u6KJ_0vklnn.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mysoul/v6/3XFqErcuy945_u6KJ_wvklnn.woff2',
+					'https://fonts.gstatic.com/s/mysoul/v7/3XFqErcuy945_u6KJ_wvklnn.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mysoul/v6/3XFqErcuy945_u6KJ_Ivkg.woff2',
+					'https://fonts.gstatic.com/s/mysoul/v7/3XFqErcuy945_u6KJ_Ivkg.woff2',
 			},
 		},
 	},

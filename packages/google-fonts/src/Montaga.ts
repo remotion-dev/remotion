@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Montaga',
 	importName: 'Montaga',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Montaga:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/montaga/v13/H4cnBX2Ml8rCkEO_4gEa7Q.woff2',
+					'https://fonts.gstatic.com/s/montaga/v14/H4cnBX2Ml8rCkEO_4gEa7Q.woff2',
 			},
 		},
 	},

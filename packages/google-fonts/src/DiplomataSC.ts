@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Diplomata SC',
 	importName: 'DiplomataSC',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Diplomata+SC:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/diplomatasc/v29/buExpoi3ecvs3kidKgBJo2kv8fRPWiw.woff2',
+					'https://fonts.gstatic.com/s/diplomatasc/v30/buExpoi3ecvs3kidKgBJo2kv8fRPWiw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/diplomatasc/v29/buExpoi3ecvs3kidKgBJo2kv__RP.woff2',
+					'https://fonts.gstatic.com/s/diplomatasc/v30/buExpoi3ecvs3kidKgBJo2kv__RP.woff2',
 			},
 		},
 	},

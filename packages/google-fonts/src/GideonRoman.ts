@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gideon Roman',
 	importName: 'GideonRoman',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Gideon+Roman:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/gideonroman/v12/e3tmeuGrVOys8sxzZgWlmXoQc0nXkvc.woff2',
+					'https://fonts.gstatic.com/s/gideonroman/v13/e3tmeuGrVOys8sxzZgWlmXoQc0nXkvc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gideonroman/v12/e3tmeuGrVOys8sxzZgWlmXoQcknXkvc.woff2',
+					'https://fonts.gstatic.com/s/gideonroman/v13/e3tmeuGrVOys8sxzZgWlmXoQcknXkvc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gideonroman/v12/e3tmeuGrVOys8sxzZgWlmXoQfEnX.woff2',
+					'https://fonts.gstatic.com/s/gideonroman/v13/e3tmeuGrVOys8sxzZgWlmXoQfEnX.woff2',
 			},
 		},
 	},

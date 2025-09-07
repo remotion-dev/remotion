@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Antic',
 	importName: 'Antic',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Antic:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/antic/v19/TuGfUVB8XY5DRZZMq9k.woff2',
+					'https://fonts.gstatic.com/s/antic/v20/TuGfUVB8XY5DRZZMq9k.woff2',
 			},
 		},
 	},

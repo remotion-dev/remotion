@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Oi',
 	importName: 'Oi',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Oi:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -24,17 +24,17 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				arabic: 'https://fonts.gstatic.com/s/oi/v20/w8gXH2EuRptYsN-CjA.woff2',
+				arabic: 'https://fonts.gstatic.com/s/oi/v21/w8gXH2EuRptYsN-CjA.woff2',
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/oi/v20/w8gXH2EuRptQsN-CjA.woff2',
-				cyrillic: 'https://fonts.gstatic.com/s/oi/v20/w8gXH2EuRptZsN-CjA.woff2',
-				greek: 'https://fonts.gstatic.com/s/oi/v20/w8gXH2EuRptesN-CjA.woff2',
-				tamil: 'https://fonts.gstatic.com/s/oi/v20/w8gXH2EuRptLsN-CjA.woff2',
+					'https://fonts.gstatic.com/s/oi/v21/w8gXH2EuRptQsN-CjA.woff2',
+				cyrillic: 'https://fonts.gstatic.com/s/oi/v21/w8gXH2EuRptZsN-CjA.woff2',
+				greek: 'https://fonts.gstatic.com/s/oi/v21/w8gXH2EuRptesN-CjA.woff2',
+				tamil: 'https://fonts.gstatic.com/s/oi/v21/w8gXH2EuRptLsN-CjA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/oi/v20/w8gXH2EuRptSsN-CjA.woff2',
+					'https://fonts.gstatic.com/s/oi/v21/w8gXH2EuRptSsN-CjA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/oi/v20/w8gXH2EuRptTsN-CjA.woff2',
-				latin: 'https://fonts.gstatic.com/s/oi/v20/w8gXH2EuRptdsN8.woff2',
+					'https://fonts.gstatic.com/s/oi/v21/w8gXH2EuRptTsN-CjA.woff2',
+				latin: 'https://fonts.gstatic.com/s/oi/v21/w8gXH2EuRptdsN8.woff2',
 			},
 		},
 	},

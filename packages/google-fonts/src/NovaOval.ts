@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nova Oval',
 	importName: 'NovaOval',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Nova+Oval:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/novaoval/v25/jAnEgHdmANHvPenMaswyOIWg7cU.woff2',
+					'https://fonts.gstatic.com/s/novaoval/v26/jAnEgHdmANHvPenMaswyOIWg7cU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/novaoval/v25/jAnEgHdmANHvPenMaswyNoWg.woff2',
+					'https://fonts.gstatic.com/s/novaoval/v26/jAnEgHdmANHvPenMaswyNoWg.woff2',
 			},
 		},
 	},

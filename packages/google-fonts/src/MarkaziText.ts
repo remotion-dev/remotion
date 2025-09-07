@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Markazi Text',
 	importName: 'MarkaziText',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Markazi+Text:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:
@@ -19,43 +19,43 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVpHWVF1E.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVpHWVF1E.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVrnWVF1E.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVrnWVF1E.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVr3WVF1E.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVr3WVF1E.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVoXWV.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVoXWV.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVpHWVF1E.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVpHWVF1E.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVrnWVF1E.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVrnWVF1E.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVr3WVF1E.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVr3WVF1E.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVoXWV.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVoXWV.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVpHWVF1E.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVpHWVF1E.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVrnWVF1E.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVrnWVF1E.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVr3WVF1E.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVr3WVF1E.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVoXWV.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVoXWV.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVpHWVF1E.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVpHWVF1E.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVrnWVF1E.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVrnWVF1E.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVr3WVF1E.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVr3WVF1E.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/markazitext/v27/syk0-ydym6AtQaiEtX7yhqbVoXWV.woff2',
+					'https://fonts.gstatic.com/s/markazitext/v28/syk0-ydym6AtQaiEtX7yhqbVoXWV.woff2',
 			},
 		},
 	},

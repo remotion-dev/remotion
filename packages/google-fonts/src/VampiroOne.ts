@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Vampiro One',
 	importName: 'VampiroOne',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Vampiro+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vampiroone/v18/gokqH6DoDl5yXvJytFsdLnquuPl4og.woff2',
+					'https://fonts.gstatic.com/s/vampiroone/v19/gokqH6DoDl5yXvJytFsdLnquuPl4og.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vampiroone/v18/gokqH6DoDl5yXvJytFsdLnqguPk.woff2',
+					'https://fonts.gstatic.com/s/vampiroone/v19/gokqH6DoDl5yXvJytFsdLnqguPk.woff2',
 			},
 		},
 	},

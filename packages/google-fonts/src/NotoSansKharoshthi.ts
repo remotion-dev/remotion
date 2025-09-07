@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Kharoshthi',
 	importName: 'NotoSansKharoshthi',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Kharoshthi:ital,wght@0,400',
 	unicodeRanges: {
 		kharoshthi: 'U+200C-200D, U+2010, U+25CC, U+10A00-10A5F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				kharoshthi:
-					'https://fonts.gstatic.com/s/notosanskharoshthi/v16/Fh4qPiLjKS30-P4-pGMMXCCfvkc5Vd7KE6zGpl2B5g.woff2',
+					'https://fonts.gstatic.com/s/notosanskharoshthi/v17/Fh4qPiLjKS30-P4-pGMMXCCfvkc5Vd7KE6zGpl2B5g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanskharoshthi/v16/Fh4qPiLjKS30-P4-pGMMXCCfvkc5Vd7KE6zxpl2B5g.woff2',
+					'https://fonts.gstatic.com/s/notosanskharoshthi/v17/Fh4qPiLjKS30-P4-pGMMXCCfvkc5Vd7KE6zxpl2B5g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanskharoshthi/v16/Fh4qPiLjKS30-P4-pGMMXCCfvkc5Vd7KE6z_pl0.woff2',
+					'https://fonts.gstatic.com/s/notosanskharoshthi/v17/Fh4qPiLjKS30-P4-pGMMXCCfvkc5Vd7KE6z_pl0.woff2',
 			},
 		},
 	},

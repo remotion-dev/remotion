@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bowlby One',
 	importName: 'BowlbyOne',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Bowlby+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/bowlbyone/v24/taiPGmVuC4y96PFeqp8sqomI_A.woff2',
+					'https://fonts.gstatic.com/s/bowlbyone/v25/taiPGmVuC4y96PFeqp8sqomI_A.woff2',
 			},
 		},
 	},

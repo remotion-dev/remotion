@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Joan',
 	importName: 'Joan',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Joan:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,8 +15,8 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/joan/v11/ZXupe1oZsqWRXR5N8E1p.woff2',
-				latin: 'https://fonts.gstatic.com/s/joan/v11/ZXupe1oZsqWRXRBN8A.woff2',
+					'https://fonts.gstatic.com/s/joan/v12/ZXupe1oZsqWRXR5N8E1p.woff2',
+				latin: 'https://fonts.gstatic.com/s/joan/v12/ZXupe1oZsqWRXRBN8A.woff2',
 			},
 		},
 	},

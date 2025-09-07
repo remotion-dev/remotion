@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Original Surfer',
 	importName: 'OriginalSurfer',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Original+Surfer:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/originalsurfer/v24/RWmQoKGZ9vIirYntXJ3_MbekzNMSBUFuMlY.woff2',
+					'https://fonts.gstatic.com/s/originalsurfer/v25/RWmQoKGZ9vIirYntXJ3_MbekzNMSBUFuMlY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/originalsurfer/v24/RWmQoKGZ9vIirYntXJ3_MbekzNMSC0Fu.woff2',
+					'https://fonts.gstatic.com/s/originalsurfer/v25/RWmQoKGZ9vIirYntXJ3_MbekzNMSC0Fu.woff2',
 			},
 		},
 	},

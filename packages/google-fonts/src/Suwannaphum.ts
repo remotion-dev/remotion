@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Suwannaphum',
 	importName: 'Suwannaphum',
-	version: 'v32',
+	version: 'v33',
 	url: 'https://fonts.googleapis.com/css2?family=Suwannaphum:ital,wght@0,100;0,300;0,400;0,700;0,900',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,33 +14,33 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				khmer:
-					'https://fonts.gstatic.com/s/suwannaphum/v32/jAnAgHV7GtDvc8jbe8hXXL3BxcicXi2V.woff2',
+					'https://fonts.gstatic.com/s/suwannaphum/v33/jAnAgHV7GtDvc8jbe8hXXL3BxcicXi2V.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/suwannaphum/v32/jAnAgHV7GtDvc8jbe8hXXL3BxcOcXg.woff2',
+					'https://fonts.gstatic.com/s/suwannaphum/v33/jAnAgHV7GtDvc8jbe8hXXL3BxcOcXg.woff2',
 			},
 			'300': {
 				khmer:
-					'https://fonts.gstatic.com/s/suwannaphum/v32/jAnfgHV7GtDvc8jbe8hXXL0J19SwexCsfw.woff2',
+					'https://fonts.gstatic.com/s/suwannaphum/v33/jAnfgHV7GtDvc8jbe8hXXL0J19SwexCsfw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/suwannaphum/v32/jAnfgHV7GtDvc8jbe8hXXL0J19S7exA.woff2',
+					'https://fonts.gstatic.com/s/suwannaphum/v33/jAnfgHV7GtDvc8jbe8hXXL0J19S7exA.woff2',
 			},
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/suwannaphum/v32/jAnCgHV7GtDvc8jbe8hXXLWp9cGEWg.woff2',
+					'https://fonts.gstatic.com/s/suwannaphum/v33/jAnCgHV7GtDvc8jbe8hXXLWp9cGEWg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/suwannaphum/v32/jAnCgHV7GtDvc8jbe8hXXLWi9cE.woff2',
+					'https://fonts.gstatic.com/s/suwannaphum/v33/jAnCgHV7GtDvc8jbe8hXXLWi9cE.woff2',
 			},
 			'700': {
 				khmer:
-					'https://fonts.gstatic.com/s/suwannaphum/v32/jAnfgHV7GtDvc8jbe8hXXL0Z0NSwexCsfw.woff2',
+					'https://fonts.gstatic.com/s/suwannaphum/v33/jAnfgHV7GtDvc8jbe8hXXL0Z0NSwexCsfw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/suwannaphum/v32/jAnfgHV7GtDvc8jbe8hXXL0Z0NS7exA.woff2',
+					'https://fonts.gstatic.com/s/suwannaphum/v33/jAnfgHV7GtDvc8jbe8hXXL0Z0NS7exA.woff2',
 			},
 			'900': {
 				khmer:
-					'https://fonts.gstatic.com/s/suwannaphum/v32/jAnfgHV7GtDvc8jbe8hXXL0h0tSwexCsfw.woff2',
+					'https://fonts.gstatic.com/s/suwannaphum/v33/jAnfgHV7GtDvc8jbe8hXXL0h0tSwexCsfw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/suwannaphum/v32/jAnfgHV7GtDvc8jbe8hXXL0h0tS7exA.woff2',
+					'https://fonts.gstatic.com/s/suwannaphum/v33/jAnfgHV7GtDvc8jbe8hXXL0h0tS7exA.woff2',
 			},
 		},
 	},

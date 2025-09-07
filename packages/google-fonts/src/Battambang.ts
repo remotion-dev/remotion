@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Battambang',
 	importName: 'Battambang',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Battambang:ital,wght@0,100;0,300;0,400;0,700;0,900',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,33 +14,33 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				khmer:
-					'https://fonts.gstatic.com/s/battambang/v25/uk-kEGe7raEw-HjkzZabNhGZ6wR1zo8.woff2',
+					'https://fonts.gstatic.com/s/battambang/v26/uk-kEGe7raEw-HjkzZabNhGZ6wR1zo8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/battambang/v25/uk-kEGe7raEw-HjkzZabNhGZ4AR1.woff2',
+					'https://fonts.gstatic.com/s/battambang/v26/uk-kEGe7raEw-HjkzZabNhGZ4AR1.woff2',
 			},
 			'300': {
 				khmer:
-					'https://fonts.gstatic.com/s/battambang/v25/uk-lEGe7raEw-HjkzZabNtmL9yhQ87ZK.woff2',
+					'https://fonts.gstatic.com/s/battambang/v26/uk-lEGe7raEw-HjkzZabNtmL9yhQ87ZK.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/battambang/v25/uk-lEGe7raEw-HjkzZabNtmL9yNQ8w.woff2',
+					'https://fonts.gstatic.com/s/battambang/v26/uk-lEGe7raEw-HjkzZabNtmL9yNQ8w.woff2',
 			},
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/battambang/v25/uk-mEGe7raEw-HjkzZabPnmp4hxx.woff2',
+					'https://fonts.gstatic.com/s/battambang/v26/uk-mEGe7raEw-HjkzZabPnmp4hxx.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/battambang/v25/uk-mEGe7raEw-HjkzZabPnKp4g.woff2',
+					'https://fonts.gstatic.com/s/battambang/v26/uk-mEGe7raEw-HjkzZabPnKp4g.woff2',
 			},
 			'700': {
 				khmer:
-					'https://fonts.gstatic.com/s/battambang/v25/uk-lEGe7raEw-HjkzZabNsmM9yhQ87ZK.woff2',
+					'https://fonts.gstatic.com/s/battambang/v26/uk-lEGe7raEw-HjkzZabNsmM9yhQ87ZK.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/battambang/v25/uk-lEGe7raEw-HjkzZabNsmM9yNQ8w.woff2',
+					'https://fonts.gstatic.com/s/battambang/v26/uk-lEGe7raEw-HjkzZabNsmM9yNQ8w.woff2',
 			},
 			'900': {
 				khmer:
-					'https://fonts.gstatic.com/s/battambang/v25/uk-lEGe7raEw-HjkzZabNvGO9yhQ87ZK.woff2',
+					'https://fonts.gstatic.com/s/battambang/v26/uk-lEGe7raEw-HjkzZabNvGO9yhQ87ZK.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/battambang/v25/uk-lEGe7raEw-HjkzZabNvGO9yNQ8w.woff2',
+					'https://fonts.gstatic.com/s/battambang/v26/uk-lEGe7raEw-HjkzZabNvGO9yNQ8w.woff2',
 			},
 		},
 	},

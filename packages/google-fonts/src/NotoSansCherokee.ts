@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Cherokee',
 	importName: 'NotoSansCherokee',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Cherokee:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		cherokee:
@@ -17,75 +17,75 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				cherokee:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
 			},
 			'200': {
 				cherokee:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
 			},
 			'300': {
 				cherokee:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
 			},
 			'400': {
 				cherokee:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
 			},
 			'500': {
 				cherokee:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
 			},
 			'600': {
 				cherokee:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
 			},
 			'700': {
 				cherokee:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
 			},
 			'800': {
 				cherokee:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
 			},
 			'900': {
 				cherokee:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1eb1uxOVg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1ecluxOVg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscherokee/v24/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
+					'https://fonts.gstatic.com/s/notosanscherokee/v25/KFO6Cm6Yu8uF-29fiz9vQF9YWK6Z8O1efFux.woff2',
 			},
 		},
 	},

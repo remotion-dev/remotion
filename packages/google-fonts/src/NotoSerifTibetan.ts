@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Tibetan',
 	importName: 'NotoSerifTibetan',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Tibetan:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		tibetan: 'U+0F00-0FFF, U+200C-200D, U+25CC, U+3008-300B',
@@ -16,75 +16,75 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				tibetan:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
 			},
 			'200': {
 				tibetan:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
 			},
 			'300': {
 				tibetan:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
 			},
 			'400': {
 				tibetan:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
 			},
 			'500': {
 				tibetan:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
 			},
 			'600': {
 				tibetan:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
 			},
 			'700': {
 				tibetan:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
 			},
 			'800': {
 				tibetan:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
 			},
 			'900': {
 				tibetan:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbBMgm2WY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbH8gm2WY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftibetan/v23/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
+					'https://fonts.gstatic.com/s/notoseriftibetan/v24/gokzH7nwAEdtF9N45n0Vaz7O-pk0wsvbEcgm.woff2',
 			},
 		},
 	},

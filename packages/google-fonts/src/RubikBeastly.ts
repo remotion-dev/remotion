@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rubik Beastly',
 	importName: 'RubikBeastly',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Rubik+Beastly:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,15 +20,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/rubikbeastly/v10/0QImMXRd5oOmSC2ZQ7o9653X47b2_TpH.woff2',
+					'https://fonts.gstatic.com/s/rubikbeastly/v11/0QImMXRd5oOmSC2ZQ7o9653X47b2_TpH.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/rubikbeastly/v10/0QImMXRd5oOmSC2ZQ7o9653X47_2_TpH.woff2',
+					'https://fonts.gstatic.com/s/rubikbeastly/v11/0QImMXRd5oOmSC2ZQ7o9653X47_2_TpH.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/rubikbeastly/v10/0QImMXRd5oOmSC2ZQ7o9653X47n2_TpH.woff2',
+					'https://fonts.gstatic.com/s/rubikbeastly/v11/0QImMXRd5oOmSC2ZQ7o9653X47n2_TpH.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rubikbeastly/v10/0QImMXRd5oOmSC2ZQ7o9653X47X2_TpH.woff2',
+					'https://fonts.gstatic.com/s/rubikbeastly/v11/0QImMXRd5oOmSC2ZQ7o9653X47X2_TpH.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rubikbeastly/v10/0QImMXRd5oOmSC2ZQ7o9653X47v2_Q.woff2',
+					'https://fonts.gstatic.com/s/rubikbeastly/v11/0QImMXRd5oOmSC2ZQ7o9653X47v2_Q.woff2',
 			},
 		},
 	},

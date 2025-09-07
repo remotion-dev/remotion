@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Inscriptional Pahlavi',
 	importName: 'NotoSansInscriptionalPahlavi',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Inscriptional+Pahlavi:ital,wght@0,400',
 	unicodeRanges: {
 		'inscriptional-pahlavi': 'U+10B60-10B7F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'inscriptional-pahlavi':
-					'https://fonts.gstatic.com/s/notosansinscriptionalpahlavi/v17/ll8UK3GaVDuxR-TEqFPIbsR79Xxz9WEKbwsjpz7VklYlC7FCZoGfOTYK.woff2',
+					'https://fonts.gstatic.com/s/notosansinscriptionalpahlavi/v18/ll8UK3GaVDuxR-TEqFPIbsR79Xxz9WEKbwsjpz7VklYlC7FCZoGfOTYK.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansinscriptionalpahlavi/v17/ll8UK3GaVDuxR-TEqFPIbsR79Xxz9WEKbwsjpz7VklYlC7FCZtOfOTYK.woff2',
+					'https://fonts.gstatic.com/s/notosansinscriptionalpahlavi/v18/ll8UK3GaVDuxR-TEqFPIbsR79Xxz9WEKbwsjpz7VklYlC7FCZtOfOTYK.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansinscriptionalpahlavi/v17/ll8UK3GaVDuxR-TEqFPIbsR79Xxz9WEKbwsjpz7VklYlC7FCZt2fOQ.woff2',
+					'https://fonts.gstatic.com/s/notosansinscriptionalpahlavi/v18/ll8UK3GaVDuxR-TEqFPIbsR79Xxz9WEKbwsjpz7VklYlC7FCZt2fOQ.woff2',
 			},
 		},
 	},

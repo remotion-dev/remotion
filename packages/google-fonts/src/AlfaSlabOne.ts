@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Alfa Slab One',
 	importName: 'AlfaSlabOne',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Alfa+Slab+One:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/alfaslabone/v20/6NUQ8FmMKwSEKjnm5-4v-4Jh2d1he-Wv.woff2',
+					'https://fonts.gstatic.com/s/alfaslabone/v21/6NUQ8FmMKwSEKjnm5-4v-4Jh2d1he-Wv.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/alfaslabone/v20/6NUQ8FmMKwSEKjnm5-4v-4Jh2dxhe-Wv.woff2',
+					'https://fonts.gstatic.com/s/alfaslabone/v21/6NUQ8FmMKwSEKjnm5-4v-4Jh2dxhe-Wv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/alfaslabone/v20/6NUQ8FmMKwSEKjnm5-4v-4Jh2dJhew.woff2',
+					'https://fonts.gstatic.com/s/alfaslabone/v21/6NUQ8FmMKwSEKjnm5-4v-4Jh2dJhew.woff2',
 			},
 		},
 	},

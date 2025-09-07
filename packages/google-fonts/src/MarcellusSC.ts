@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Marcellus SC',
 	importName: 'MarcellusSC',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Marcellus+SC:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/marcellussc/v13/ke8iOgUHP1dg-Rmi6RWjbLE_iNacKKg.woff2',
+					'https://fonts.gstatic.com/s/marcellussc/v14/ke8iOgUHP1dg-Rmi6RWjbLE_iNacKKg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/marcellussc/v13/ke8iOgUHP1dg-Rmi6RWjbLE_htac.woff2',
+					'https://fonts.gstatic.com/s/marcellussc/v14/ke8iOgUHP1dg-Rmi6RWjbLE_htac.woff2',
 			},
 		},
 	},

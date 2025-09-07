@@ -170,6 +170,7 @@ const sidebars: SidebarsConfig = {
 				'use-buffer-state',
 				'use-current-frame',
 				'use-current-scale',
+				'use-delay-render',
 				'use-remotion-environment',
 				'use-video-config',
 				'version',
@@ -1192,7 +1193,6 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'miscellaneous/snippets/different-segments-at-different-speeds',
 				'miscellaneous/snippets/player-in-iframe',
-				'miscellaneous/snippets/use-delay-render',
 				'miscellaneous/snippets/offthread-video-while-rendering',
 				'miscellaneous/snippets/combine-compositions',
 			],

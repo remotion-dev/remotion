@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sofia',
 	importName: 'Sofia',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Sofia:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/sofia/v14/8QIHdirahM3j_su5uI0.woff2',
+					'https://fonts.gstatic.com/s/sofia/v15/8QIHdirahM3j_su5uI0.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Zilla Slab',
 	importName: 'ZillaSlab',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Zilla+Slab:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,65 +15,65 @@ export const getInfo = () => ({
 		italic: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFanZfeM_74wlPZtksIFaj8CVHaZV3B3Taw.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFanZfeM_74wlPZtksIFaj8CVHaZV3B3Taw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFanZfeM_74wlPZtksIFaj8CVHaZWXB3.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFanZfeM_74wlPZtksIFaj8CVHaZWXB3.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFa4ZfeM_74wlPZtksIFaj8K8VSMZlE.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFa4ZfeM_74wlPZtksIFaj8K8VSMZlE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFa4ZfeM_74wlPZtksIFaj8K_1SM.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFa4ZfeM_74wlPZtksIFaj8K_1SM.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFanZfeM_74wlPZtksIFaj8CDHeZV3B3Taw.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFanZfeM_74wlPZtksIFaj8CDHeZV3B3Taw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFanZfeM_74wlPZtksIFaj8CDHeZWXB3.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFanZfeM_74wlPZtksIFaj8CDHeZWXB3.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFanZfeM_74wlPZtksIFaj8CIHCZV3B3Taw.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFanZfeM_74wlPZtksIFaj8CIHCZV3B3Taw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFanZfeM_74wlPZtksIFaj8CIHCZWXB3.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFanZfeM_74wlPZtksIFaj8CIHCZWXB3.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFanZfeM_74wlPZtksIFaj8CRHGZV3B3Taw.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFanZfeM_74wlPZtksIFaj8CRHGZV3B3Taw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFanZfeM_74wlPZtksIFaj8CRHGZWXB3.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFanZfeM_74wlPZtksIFaj8CRHGZWXB3.woff2',
 			},
 		},
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFa5ZfeM_74wlPZtksIFYpEY6H2pW2hz.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFa5ZfeM_74wlPZtksIFYpEY6H2pW2hz.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFa5ZfeM_74wlPZtksIFYpEY6HOpWw.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFa5ZfeM_74wlPZtksIFYpEY6HOpWw.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFa6ZfeM_74wlPZtksIFajQ6_UyI.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFa6ZfeM_74wlPZtksIFajQ6_UyI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFa6ZfeM_74wlPZtksIFajo6_Q.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFa6ZfeM_74wlPZtksIFajo6_Q.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFa5ZfeM_74wlPZtksIFYskZ6H2pW2hz.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFa5ZfeM_74wlPZtksIFYskZ6H2pW2hz.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFa5ZfeM_74wlPZtksIFYskZ6HOpWw.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFa5ZfeM_74wlPZtksIFYskZ6HOpWw.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFa5ZfeM_74wlPZtksIFYuUe6H2pW2hz.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFa5ZfeM_74wlPZtksIFYuUe6H2pW2hz.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFa5ZfeM_74wlPZtksIFYuUe6HOpWw.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFa5ZfeM_74wlPZtksIFYuUe6HOpWw.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFa5ZfeM_74wlPZtksIFYoEf6H2pW2hz.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFa5ZfeM_74wlPZtksIFYoEf6H2pW2hz.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zillaslab/v11/dFa5ZfeM_74wlPZtksIFYoEf6HOpWw.woff2',
+					'https://fonts.gstatic.com/s/zillaslab/v12/dFa5ZfeM_74wlPZtksIFYoEf6HOpWw.woff2',
 			},
 		},
 	},

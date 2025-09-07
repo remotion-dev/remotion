@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Asar',
 	importName: 'Asar',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Asar:ital,wght@0,400',
 	unicodeRanges: {
 		devanagari:
@@ -17,10 +17,10 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/asar/v23/sZlLdRyI6TBIbkAaDYlT.woff2',
+					'https://fonts.gstatic.com/s/asar/v24/sZlLdRyI6TBIbkAaDYlT.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/asar/v23/sZlLdRyI6TBIbk8aDYlT.woff2',
-				latin: 'https://fonts.gstatic.com/s/asar/v23/sZlLdRyI6TBIbkEaDQ.woff2',
+					'https://fonts.gstatic.com/s/asar/v24/sZlLdRyI6TBIbk8aDYlT.woff2',
+				latin: 'https://fonts.gstatic.com/s/asar/v24/sZlLdRyI6TBIbkEaDQ.woff2',
 			},
 		},
 	},

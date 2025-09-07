@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Homenaje',
 	importName: 'Homenaje',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Homenaje:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/homenaje/v16/FwZY7-Q-xVAi_l-6Le6H6Mk.woff2',
+					'https://fonts.gstatic.com/s/homenaje/v17/FwZY7-Q-xVAi_l-6Le6H6Mk.woff2',
 			},
 		},
 	},

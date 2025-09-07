@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Iceberg',
 	importName: 'Iceberg',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Iceberg:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/iceberg/v25/8QIJdijAiM7o-qnZiI8Eqg.woff2',
+					'https://fonts.gstatic.com/s/iceberg/v26/8QIJdijAiM7o-qnZiI8Eqg.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Red Hat Text',
 	importName: 'RedHatText',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Red+Hat+Text:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,65 +15,65 @@ export const getInfo = () => ({
 		italic: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQJbohi_ic6B3yVSzGBrMxQbZchO8i5PA.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQJbohi_ic6B3yVSzGBrMxQbZchO8i5PA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQJbohi_ic6B3yVSzGBrMxQbZcvO8g.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQJbohi_ic6B3yVSzGBrMxQbZcvO8g.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQJbohi_ic6B3yVSzGBrMxQbZchO8i5PA.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQJbohi_ic6B3yVSzGBrMxQbZchO8i5PA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQJbohi_ic6B3yVSzGBrMxQbZcvO8g.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQJbohi_ic6B3yVSzGBrMxQbZcvO8g.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQJbohi_ic6B3yVSzGBrMxQbZchO8i5PA.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQJbohi_ic6B3yVSzGBrMxQbZchO8i5PA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQJbohi_ic6B3yVSzGBrMxQbZcvO8g.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQJbohi_ic6B3yVSzGBrMxQbZcvO8g.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQJbohi_ic6B3yVSzGBrMxQbZchO8i5PA.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQJbohi_ic6B3yVSzGBrMxQbZchO8i5PA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQJbohi_ic6B3yVSzGBrMxQbZcvO8g.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQJbohi_ic6B3yVSzGBrMxQbZcvO8g.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQJbohi_ic6B3yVSzGBrMxQbZchO8i5PA.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQJbohi_ic6B3yVSzGBrMxQbZchO8i5PA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQJbohi_ic6B3yVSzGBrMxQbZcvO8g.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQJbohi_ic6B3yVSzGBrMxQbZcvO8g.woff2',
 			},
 		},
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQXbohi_ic6B3yVSzGBrMxQZqctI8w.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQXbohi_ic6B3yVSzGBrMxQZqctI8w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQXbohi_ic6B3yVSzGBrMxQaKct.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQXbohi_ic6B3yVSzGBrMxQaKct.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQXbohi_ic6B3yVSzGBrMxQZqctI8w.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQXbohi_ic6B3yVSzGBrMxQZqctI8w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQXbohi_ic6B3yVSzGBrMxQaKct.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQXbohi_ic6B3yVSzGBrMxQaKct.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQXbohi_ic6B3yVSzGBrMxQZqctI8w.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQXbohi_ic6B3yVSzGBrMxQZqctI8w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQXbohi_ic6B3yVSzGBrMxQaKct.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQXbohi_ic6B3yVSzGBrMxQaKct.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQXbohi_ic6B3yVSzGBrMxQZqctI8w.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQXbohi_ic6B3yVSzGBrMxQZqctI8w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQXbohi_ic6B3yVSzGBrMxQaKct.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQXbohi_ic6B3yVSzGBrMxQaKct.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQXbohi_ic6B3yVSzGBrMxQZqctI8w.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQXbohi_ic6B3yVSzGBrMxQZqctI8w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redhattext/v18/RrQXbohi_ic6B3yVSzGBrMxQaKct.woff2',
+					'https://fonts.gstatic.com/s/redhattext/v19/RrQXbohi_ic6B3yVSzGBrMxQaKct.woff2',
 			},
 		},
 	},

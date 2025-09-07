@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Meddon',
 	importName: 'Meddon',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Meddon:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/meddon/v26/kmK8ZqA2EgDNeHTpjR1A7y8.woff2',
+					'https://fonts.gstatic.com/s/meddon/v27/kmK8ZqA2EgDNeHTpjR1A7y8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/meddon/v26/kmK8ZqA2EgDNeHTpgx1A.woff2',
+					'https://fonts.gstatic.com/s/meddon/v27/kmK8ZqA2EgDNeHTpgx1A.woff2',
 			},
 		},
 	},

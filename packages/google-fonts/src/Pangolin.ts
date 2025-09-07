@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Pangolin',
 	importName: 'Pangolin',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Pangolin:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,15 +20,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/pangolin/v11/cY9GfjGcW0FPpi-tWMfA79zqiA.woff2',
+					'https://fonts.gstatic.com/s/pangolin/v12/cY9GfjGcW0FPpi-tWMfA79zqiA.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/pangolin/v11/cY9GfjGcW0FPpi-tWMfJ79zqiA.woff2',
+					'https://fonts.gstatic.com/s/pangolin/v12/cY9GfjGcW0FPpi-tWMfJ79zqiA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/pangolin/v11/cY9GfjGcW0FPpi-tWMfC79zqiA.woff2',
+					'https://fonts.gstatic.com/s/pangolin/v12/cY9GfjGcW0FPpi-tWMfC79zqiA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/pangolin/v11/cY9GfjGcW0FPpi-tWMfD79zqiA.woff2',
+					'https://fonts.gstatic.com/s/pangolin/v12/cY9GfjGcW0FPpi-tWMfD79zqiA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/pangolin/v11/cY9GfjGcW0FPpi-tWMfN79w.woff2',
+					'https://fonts.gstatic.com/s/pangolin/v12/cY9GfjGcW0FPpi-tWMfN79w.woff2',
 			},
 		},
 	},

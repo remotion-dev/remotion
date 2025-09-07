@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'UnifrakturCook',
 	importName: 'UnifrakturCook',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=UnifrakturCook:ital,wght@0,700',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/unifrakturcook/v24/IurA6Yli8YOdcoky-0PTTdkm56n05Xwy1oM.woff2',
+					'https://fonts.gstatic.com/s/unifrakturcook/v25/IurA6Yli8YOdcoky-0PTTdkm56n05Xwy1oM.woff2',
 			},
 		},
 	},

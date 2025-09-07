@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Almendra',
 	importName: 'Almendra',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Almendra:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,29 +15,29 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/almendra/v27/H4ciBXKAlMnTn0CskxY4-LKYh563.woff2',
+					'https://fonts.gstatic.com/s/almendra/v28/H4ciBXKAlMnTn0CskxY4-LKYh563.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/almendra/v27/H4ciBXKAlMnTn0CskxY4-LyYhw.woff2',
+					'https://fonts.gstatic.com/s/almendra/v28/H4ciBXKAlMnTn0CskxY4-LyYhw.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/almendra/v27/H4chBXKAlMnTn0CskxY48Ae9kq-Wbghq.woff2',
+					'https://fonts.gstatic.com/s/almendra/v28/H4chBXKAlMnTn0CskxY48Ae9kq-Wbghq.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/almendra/v27/H4chBXKAlMnTn0CskxY48Ae9kqGWbg.woff2',
+					'https://fonts.gstatic.com/s/almendra/v28/H4chBXKAlMnTn0CskxY48Ae9kqGWbg.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/almendra/v27/H4ckBXKAlMnTn0CskxYzyL6Agw.woff2',
+					'https://fonts.gstatic.com/s/almendra/v28/H4ckBXKAlMnTn0CskxYzyL6Agw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/almendra/v27/H4ckBXKAlMnTn0CskxY9yL4.woff2',
+					'https://fonts.gstatic.com/s/almendra/v28/H4ckBXKAlMnTn0CskxY9yL4.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/almendra/v27/H4cjBXKAlMnTn0Cskx6G7auxoqOOag.woff2',
+					'https://fonts.gstatic.com/s/almendra/v28/H4cjBXKAlMnTn0Cskx6G7auxoqOOag.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/almendra/v27/H4cjBXKAlMnTn0Cskx6G7au_oqM.woff2',
+					'https://fonts.gstatic.com/s/almendra/v28/H4cjBXKAlMnTn0Cskx6G7au_oqM.woff2',
 			},
 		},
 	},

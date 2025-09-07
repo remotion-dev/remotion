@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rowdies',
 	importName: 'Rowdies',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Rowdies:ital,wght@0,300;0,400;0,700',
 	unicodeRanges: {
 		vietnamese:
@@ -17,27 +17,27 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/rowdies/v18/ptRMTieMYPNBAK219hth1Ob4KDNu.woff2',
+					'https://fonts.gstatic.com/s/rowdies/v19/ptRMTieMYPNBAK219hth1Ob4KDNu.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rowdies/v18/ptRMTieMYPNBAK219hth1Of4KDNu.woff2',
+					'https://fonts.gstatic.com/s/rowdies/v19/ptRMTieMYPNBAK219hth1Of4KDNu.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rowdies/v18/ptRMTieMYPNBAK219hth1On4KA.woff2',
+					'https://fonts.gstatic.com/s/rowdies/v19/ptRMTieMYPNBAK219hth1On4KA.woff2',
 			},
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/rowdies/v18/ptRJTieMYPNBAK21_r9DwdbZ.woff2',
+					'https://fonts.gstatic.com/s/rowdies/v19/ptRJTieMYPNBAK21_r9DwdbZ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rowdies/v18/ptRJTieMYPNBAK21_r5DwdbZ.woff2',
+					'https://fonts.gstatic.com/s/rowdies/v19/ptRJTieMYPNBAK21_r5DwdbZ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rowdies/v18/ptRJTieMYPNBAK21_rBDwQ.woff2',
+					'https://fonts.gstatic.com/s/rowdies/v19/ptRJTieMYPNBAK21_rBDwQ.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/rowdies/v18/ptRMTieMYPNBAK219gtm1Ob4KDNu.woff2',
+					'https://fonts.gstatic.com/s/rowdies/v19/ptRMTieMYPNBAK219gtm1Ob4KDNu.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rowdies/v18/ptRMTieMYPNBAK219gtm1Of4KDNu.woff2',
+					'https://fonts.gstatic.com/s/rowdies/v19/ptRMTieMYPNBAK219gtm1Of4KDNu.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rowdies/v18/ptRMTieMYPNBAK219gtm1On4KA.woff2',
+					'https://fonts.gstatic.com/s/rowdies/v19/ptRMTieMYPNBAK219gtm1On4KA.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Antonio',
 	importName: 'Antonio',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Antonio:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,45 +15,45 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
 			},
 			'200': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHoiFbez.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/antonio/v21/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
+					'https://fonts.gstatic.com/s/antonio/v22/gNMEW3NwSYq_9WD3yHQiFQ.woff2',
 			},
 		},
 	},

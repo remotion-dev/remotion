@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Limbu',
 	importName: 'NotoSansLimbu',
-	version: 'v24',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Limbu:ital,wght@0,400',
 	unicodeRanges: {
 		limbu: 'U+0964-0965, U+1900-194F, U+200C-200D, U+25CC',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				limbu:
-					'https://fonts.gstatic.com/s/notosanslimbu/v24/3JnlSDv90Gmq2mrzckOBBRRoNJVT4st2CHQ.woff2',
+					'https://fonts.gstatic.com/s/notosanslimbu/v26/3JnlSDv90Gmq2mrzckOBBRRoNJVT4st2CHQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanslimbu/v24/3JnlSDv90Gmq2mrzckOBBRRoNJVT2ct2CHQ.woff2',
+					'https://fonts.gstatic.com/s/notosanslimbu/v26/3JnlSDv90Gmq2mrzckOBBRRoNJVT2ct2CHQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanslimbu/v24/3JnlSDv90Gmq2mrzckOBBRRoNJVT18t2.woff2',
+					'https://fonts.gstatic.com/s/notosanslimbu/v26/3JnlSDv90Gmq2mrzckOBBRRoNJVT18t2.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Alata',
 	importName: 'Alata',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Alata:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/alata/v11/PbytFmztEwbIoceyzqYhQA.woff2',
+					'https://fonts.gstatic.com/s/alata/v12/PbytFmztEwbIoceyzqYhQA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/alata/v11/PbytFmztEwbIocezzqYhQA.woff2',
+					'https://fonts.gstatic.com/s/alata/v12/PbytFmztEwbIocezzqYhQA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/alata/v11/PbytFmztEwbIoce9zqY.woff2',
+					'https://fonts.gstatic.com/s/alata/v12/PbytFmztEwbIoce9zqY.woff2',
 			},
 		},
 	},

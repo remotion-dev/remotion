@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mr Dafoe',
 	importName: 'MrDafoe',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Mr+Dafoe:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mrdafoe/v14/lJwE-pIzkS5NXuMMrFijibIyxw.woff2',
+					'https://fonts.gstatic.com/s/mrdafoe/v15/lJwE-pIzkS5NXuMMrFijibIyxw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mrdafoe/v14/lJwE-pIzkS5NXuMMrFitibI.woff2',
+					'https://fonts.gstatic.com/s/mrdafoe/v15/lJwE-pIzkS5NXuMMrFitibI.woff2',
 			},
 		},
 	},

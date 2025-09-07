@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gabarito',
 	importName: 'Gabarito',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Gabarito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,39 +15,39 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gabarito/v8/QGYtz_0dZAGKJJ4t3HtmW4XUng.woff2',
+					'https://fonts.gstatic.com/s/gabarito/v9/QGYtz_0dZAGKJJ4t3HtmW4XUng.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gabarito/v8/QGYtz_0dZAGKJJ4t3HtoW4U.woff2',
+					'https://fonts.gstatic.com/s/gabarito/v9/QGYtz_0dZAGKJJ4t3HtoW4U.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gabarito/v8/QGYtz_0dZAGKJJ4t3HtmW4XUng.woff2',
+					'https://fonts.gstatic.com/s/gabarito/v9/QGYtz_0dZAGKJJ4t3HtmW4XUng.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gabarito/v8/QGYtz_0dZAGKJJ4t3HtoW4U.woff2',
+					'https://fonts.gstatic.com/s/gabarito/v9/QGYtz_0dZAGKJJ4t3HtoW4U.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gabarito/v8/QGYtz_0dZAGKJJ4t3HtmW4XUng.woff2',
+					'https://fonts.gstatic.com/s/gabarito/v9/QGYtz_0dZAGKJJ4t3HtmW4XUng.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gabarito/v8/QGYtz_0dZAGKJJ4t3HtoW4U.woff2',
+					'https://fonts.gstatic.com/s/gabarito/v9/QGYtz_0dZAGKJJ4t3HtoW4U.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gabarito/v8/QGYtz_0dZAGKJJ4t3HtmW4XUng.woff2',
+					'https://fonts.gstatic.com/s/gabarito/v9/QGYtz_0dZAGKJJ4t3HtmW4XUng.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gabarito/v8/QGYtz_0dZAGKJJ4t3HtoW4U.woff2',
+					'https://fonts.gstatic.com/s/gabarito/v9/QGYtz_0dZAGKJJ4t3HtoW4U.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gabarito/v8/QGYtz_0dZAGKJJ4t3HtmW4XUng.woff2',
+					'https://fonts.gstatic.com/s/gabarito/v9/QGYtz_0dZAGKJJ4t3HtmW4XUng.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gabarito/v8/QGYtz_0dZAGKJJ4t3HtoW4U.woff2',
+					'https://fonts.gstatic.com/s/gabarito/v9/QGYtz_0dZAGKJJ4t3HtoW4U.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gabarito/v8/QGYtz_0dZAGKJJ4t3HtmW4XUng.woff2',
+					'https://fonts.gstatic.com/s/gabarito/v9/QGYtz_0dZAGKJJ4t3HtmW4XUng.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gabarito/v8/QGYtz_0dZAGKJJ4t3HtoW4U.woff2',
+					'https://fonts.gstatic.com/s/gabarito/v9/QGYtz_0dZAGKJJ4t3HtoW4U.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Akaya Telivigala',
 	importName: 'AkayaTelivigala',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Akaya+Telivigala:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/akayatelivigala/v27/lJwc-oo_iG9wXqU3rCTD395tp0uiTcnXsbH0.woff2',
+					'https://fonts.gstatic.com/s/akayatelivigala/v28/lJwc-oo_iG9wXqU3rCTD395tp0uiTcnXsbH0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/akayatelivigala/v27/lJwc-oo_iG9wXqU3rCTD395tp0uiTdvXsbH0.woff2',
+					'https://fonts.gstatic.com/s/akayatelivigala/v28/lJwc-oo_iG9wXqU3rCTD395tp0uiTdvXsbH0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/akayatelivigala/v27/lJwc-oo_iG9wXqU3rCTD395tp0uiTdXXsQ.woff2',
+					'https://fonts.gstatic.com/s/akayatelivigala/v28/lJwc-oo_iG9wXqU3rCTD395tp0uiTdXXsQ.woff2',
 			},
 		},
 	},

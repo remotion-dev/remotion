@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Great Vibes',
 	importName: 'GreatVibes',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Great+Vibes:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -21,17 +21,17 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/greatvibes/v20/RWmMoKWR9v4ksMfaWd_JN9XIiaQ6DQ.woff2',
+					'https://fonts.gstatic.com/s/greatvibes/v21/RWmMoKWR9v4ksMfaWd_JN9XIiaQ6DQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/greatvibes/v20/RWmMoKWR9v4ksMfaWd_JN9XBiaQ6DQ.woff2',
+					'https://fonts.gstatic.com/s/greatvibes/v21/RWmMoKWR9v4ksMfaWd_JN9XBiaQ6DQ.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/greatvibes/v20/RWmMoKWR9v4ksMfaWd_JN9XJiaQ6DQ.woff2',
+					'https://fonts.gstatic.com/s/greatvibes/v21/RWmMoKWR9v4ksMfaWd_JN9XJiaQ6DQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/greatvibes/v20/RWmMoKWR9v4ksMfaWd_JN9XKiaQ6DQ.woff2',
+					'https://fonts.gstatic.com/s/greatvibes/v21/RWmMoKWR9v4ksMfaWd_JN9XKiaQ6DQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/greatvibes/v20/RWmMoKWR9v4ksMfaWd_JN9XLiaQ6DQ.woff2',
+					'https://fonts.gstatic.com/s/greatvibes/v21/RWmMoKWR9v4ksMfaWd_JN9XLiaQ6DQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/greatvibes/v20/RWmMoKWR9v4ksMfaWd_JN9XFiaQ.woff2',
+					'https://fonts.gstatic.com/s/greatvibes/v21/RWmMoKWR9v4ksMfaWd_JN9XFiaQ.woff2',
 			},
 		},
 	},

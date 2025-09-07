@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Glagolitic',
 	importName: 'NotoSansGlagolitic',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Glagolitic:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -22,16 +22,16 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/notosansglagolitic/v18/1q2ZY4-BBFBst88SU_tOj4J-4yuNF_HI4HRA6gie7g.woff2',
+					'https://fonts.gstatic.com/s/notosansglagolitic/v19/1q2ZY4-BBFBst88SU_tOj4J-4yuNF_HI4HRA6gie7g.woff2',
 				glagolitic:
-					'https://fonts.gstatic.com/s/notosansglagolitic/v18/1q2ZY4-BBFBst88SU_tOj4J-4yuNF_HI4HTLyy2j12o.woff2',
-				math: 'https://fonts.gstatic.com/s/notosansglagolitic/v18/1q2ZY4-BBFBst88SU_tOj4J-4yuNF_HI4HQx6gie7g.woff2',
+					'https://fonts.gstatic.com/s/notosansglagolitic/v19/1q2ZY4-BBFBst88SU_tOj4J-4yuNF_HI4HTLyy2j12o.woff2',
+				math: 'https://fonts.gstatic.com/s/notosansglagolitic/v19/1q2ZY4-BBFBst88SU_tOj4J-4yuNF_HI4HQx6gie7g.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notosansglagolitic/v18/1q2ZY4-BBFBst88SU_tOj4J-4yuNF_HI4HQj6gie7g.woff2',
+					'https://fonts.gstatic.com/s/notosansglagolitic/v19/1q2ZY4-BBFBst88SU_tOj4J-4yuNF_HI4HQj6gie7g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansglagolitic/v18/1q2ZY4-BBFBst88SU_tOj4J-4yuNF_HI4HRD6gie7g.woff2',
+					'https://fonts.gstatic.com/s/notosansglagolitic/v19/1q2ZY4-BBFBst88SU_tOj4J-4yuNF_HI4HRD6gie7g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansglagolitic/v18/1q2ZY4-BBFBst88SU_tOj4J-4yuNF_HI4HRN6gg.woff2',
+					'https://fonts.gstatic.com/s/notosansglagolitic/v19/1q2ZY4-BBFBst88SU_tOj4J-4yuNF_HI4HRN6gg.woff2',
 			},
 		},
 	},

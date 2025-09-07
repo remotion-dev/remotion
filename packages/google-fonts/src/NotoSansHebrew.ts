@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Hebrew',
 	importName: 'NotoSansHebrew',
-	version: 'v49',
+	version: 'v50',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,111 +20,111 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
 			},
 			'200': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
 			},
 			'300': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
 			},
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
 			},
 			'800': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
 			},
 			'900': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiZTNzENg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiYTNzENg.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiWTNzENg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiaTNzENg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshebrew/v49/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
+					'https://fonts.gstatic.com/s/notosanshebrew/v50/or30Q7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaePiUTNw.woff2',
 			},
 		},
 	},

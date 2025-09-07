@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mada',
 	importName: 'Mada',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Mada:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		arabic:
@@ -17,59 +17,59 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				arabic:
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTfGLRrX.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTfGLRrX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTzGLRrX.woff2',
-				latin: 'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTLGLQ.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTzGLRrX.woff2',
+				latin: 'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTLGLQ.woff2',
 			},
 			'300': {
 				arabic:
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTfGLRrX.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTfGLRrX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTzGLRrX.woff2',
-				latin: 'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTLGLQ.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTzGLRrX.woff2',
+				latin: 'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTLGLQ.woff2',
 			},
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTfGLRrX.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTfGLRrX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTzGLRrX.woff2',
-				latin: 'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTLGLQ.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTzGLRrX.woff2',
+				latin: 'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTLGLQ.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTfGLRrX.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTfGLRrX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTzGLRrX.woff2',
-				latin: 'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTLGLQ.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTzGLRrX.woff2',
+				latin: 'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTLGLQ.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTfGLRrX.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTfGLRrX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTzGLRrX.woff2',
-				latin: 'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTLGLQ.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTzGLRrX.woff2',
+				latin: 'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTLGLQ.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTfGLRrX.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTfGLRrX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTzGLRrX.woff2',
-				latin: 'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTLGLQ.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTzGLRrX.woff2',
+				latin: 'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTLGLQ.woff2',
 			},
 			'800': {
 				arabic:
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTfGLRrX.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTfGLRrX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTzGLRrX.woff2',
-				latin: 'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTLGLQ.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTzGLRrX.woff2',
+				latin: 'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTLGLQ.woff2',
 			},
 			'900': {
 				arabic:
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTfGLRrX.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTfGLRrX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTzGLRrX.woff2',
-				latin: 'https://fonts.gstatic.com/s/mada/v20/7Auwp_0qnzeSfTLGLQ.woff2',
+					'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTzGLRrX.woff2',
+				latin: 'https://fonts.gstatic.com/s/mada/v21/7Auwp_0qnzeSfTLGLQ.woff2',
 			},
 		},
 	},

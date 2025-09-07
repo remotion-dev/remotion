@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gulzar',
 	importName: 'Gulzar',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Gulzar:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/gulzar/v13/Wnz6HAc9eB3HB2I7YzYYmg8.woff2',
+					'https://fonts.gstatic.com/s/gulzar/v14/Wnz6HAc9eB3HB2I7YzYYmg8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gulzar/v13/Wnz6HAc9eB3HB2I7aDYYmg8.woff2',
+					'https://fonts.gstatic.com/s/gulzar/v14/Wnz6HAc9eB3HB2I7aDYYmg8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gulzar/v13/Wnz6HAc9eB3HB2I7ZjYY.woff2',
+					'https://fonts.gstatic.com/s/gulzar/v14/Wnz6HAc9eB3HB2I7ZjYY.woff2',
 			},
 		},
 	},
