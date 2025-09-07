@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Pau Cin Hau',
 	importName: 'NotoSansPauCinHau',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Pau+Cin+Hau:ital,wght@0,400',
 	unicodeRanges: {
 		'pau-cin-hau': 'U+11AC0-11AF8',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'pau-cin-hau':
-					'https://fonts.gstatic.com/s/notosanspaucinhau/v20/x3d-cl3IZKmUqiMg_9wBLLtzl22EayN7ehItBW6OJfV1.woff2',
+					'https://fonts.gstatic.com/s/notosanspaucinhau/v21/x3d-cl3IZKmUqiMg_9wBLLtzl22EayN7ehItBW6OJfV1.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanspaucinhau/v20/x3d-cl3IZKmUqiMg_9wBLLtzl22EayN7ehIthU-rGMw.woff2',
+					'https://fonts.gstatic.com/s/notosanspaucinhau/v21/x3d-cl3IZKmUqiMg_9wBLLtzl22EayN7ehIthU-rGMw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanspaucinhau/v20/x3d-cl3IZKmUqiMg_9wBLLtzl22EayN7ehIti0-r.woff2',
+					'https://fonts.gstatic.com/s/notosanspaucinhau/v21/x3d-cl3IZKmUqiMg_9wBLLtzl22EayN7ehIti0-r.woff2',
 			},
 		},
 	},

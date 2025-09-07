@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Alef',
 	importName: 'Alef',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Alef:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		hebrew:
@@ -15,14 +15,14 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				hebrew:
-					'https://fonts.gstatic.com/s/alef/v23/FeVfS0NQpLYgnjdRCqFx.woff2',
-				latin: 'https://fonts.gstatic.com/s/alef/v23/FeVfS0NQpLYgnjVRCg.woff2',
+					'https://fonts.gstatic.com/s/alef/v24/FeVfS0NQpLYgnjdRCqFx.woff2',
+				latin: 'https://fonts.gstatic.com/s/alef/v24/FeVfS0NQpLYgnjVRCg.woff2',
 			},
 			'700': {
 				hebrew:
-					'https://fonts.gstatic.com/s/alef/v23/FeVQS0NQpLYglo50H5xQ2Ixi.woff2',
+					'https://fonts.gstatic.com/s/alef/v24/FeVQS0NQpLYglo50H5xQ2Ixi.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/alef/v23/FeVQS0NQpLYglo50H55Q2A.woff2',
+					'https://fonts.gstatic.com/s/alef/v24/FeVQS0NQpLYglo50H55Q2A.woff2',
 			},
 		},
 	},

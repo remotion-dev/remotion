@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gajraj One',
 	importName: 'GajrajOne',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Gajraj+One:ital,wght@0,400',
 	unicodeRanges: {
 		devanagari:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/gajrajone/v6/1cX2aUDCDpXsuWVb1jIjn1eghPit.woff2',
+					'https://fonts.gstatic.com/s/gajrajone/v7/1cX2aUDCDpXsuWVb1jIjn1eghPit.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gajrajone/v6/1cX2aUDCDpXsuWVb1jIjn1ighPit.woff2',
+					'https://fonts.gstatic.com/s/gajrajone/v7/1cX2aUDCDpXsuWVb1jIjn1ighPit.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gajrajone/v6/1cX2aUDCDpXsuWVb1jIjn1aghA.woff2',
+					'https://fonts.gstatic.com/s/gajrajone/v7/1cX2aUDCDpXsuWVb1jIjn1aghA.woff2',
 			},
 		},
 	},

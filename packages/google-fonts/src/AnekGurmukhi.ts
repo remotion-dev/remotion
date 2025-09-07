@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Anek Gurmukhi',
 	importName: 'AnekGurmukhi',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Anek+Gurmukhi:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		gurmukhi:
@@ -17,67 +17,67 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
 			},
 			'200': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
 			},
 			'300': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
 			},
 			'400': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
 			},
 			'500': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
 			},
 			'600': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
 			},
 			'700': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
 			},
 			'800': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4yVbwosrQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y4bwosrQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgurmukhi/v12/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
+					'https://fonts.gstatic.com/s/anekgurmukhi/v13/0QI1MXRO_YSkA0quVLY79JnHybfeEOrXCa9Dmd9Ql4y2bwo.woff2',
 			},
 		},
 	},

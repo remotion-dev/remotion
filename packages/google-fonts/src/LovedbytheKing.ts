@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Loved by the King',
 	importName: 'LovedbytheKing',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Loved+by+the+King:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lovedbytheking/v23/Gw6gwdP76VDVJNXerebZxUMeRXUF2MiEn3Be2Q.woff2',
+					'https://fonts.gstatic.com/s/lovedbytheking/v24/Gw6gwdP76VDVJNXerebZxUMeRXUF2MiEn3Be2Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lovedbytheking/v23/Gw6gwdP76VDVJNXerebZxUMeRXUF2MiKn3A.woff2',
+					'https://fonts.gstatic.com/s/lovedbytheking/v24/Gw6gwdP76VDVJNXerebZxUMeRXUF2MiKn3A.woff2',
 			},
 		},
 	},

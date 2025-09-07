@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ubuntu',
 	importName: 'Ubuntu',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -21,117 +21,117 @@ export const getInfo = () => ({
 		italic: {
 			'300': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejZftVyCN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZftVyCN4Ffgg.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejZftVyLN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZftVyLN4Ffgg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejZftVyDN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZftVyDN4Ffgg.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejZftVyMN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZftVyMN4Ffgg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejZftVyBN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZftVyBN4Ffgg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejZftVyPN4E.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZftVyPN4E.woff2',
 			},
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCu6KVjbNBYlgoKej75l0mwFg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCu6KVjbNBYlgoKej75l0mwFg.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCu6KVjbNBYlgoKej7wl0mwFg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCu6KVjbNBYlgoKej7wl0mwFg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCu6KVjbNBYlgoKej74l0mwFg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCu6KVjbNBYlgoKej74l0mwFg.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCu6KVjbNBYlgoKej73l0mwFg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCu6KVjbNBYlgoKej73l0mwFg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCu6KVjbNBYlgoKej76l0mwFg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCu6KVjbNBYlgoKej76l0mwFg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCu6KVjbNBYlgoKej70l0k.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCu6KVjbNBYlgoKej70l0k.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejYHtFyCN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejYHtFyCN4Ffgg.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejYHtFyLN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejYHtFyLN4Ffgg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejYHtFyDN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejYHtFyDN4Ffgg.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejYHtFyMN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejYHtFyMN4Ffgg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejYHtFyBN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejYHtFyBN4Ffgg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejYHtFyPN4E.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejYHtFyPN4E.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejZPslyCN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZPslyCN4Ffgg.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejZPslyLN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZPslyLN4Ffgg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejZPslyDN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZPslyDN4Ffgg.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejZPslyMN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZPslyMN4Ffgg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejZPslyBN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZPslyBN4Ffgg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCp6KVjbNBYlgoKejZPslyPN4E.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCp6KVjbNBYlgoKejZPslyPN4E.woff2',
 			},
 		},
 		normal: {
 			'300': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoC1CzjvWyNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoC1CzjvWyNL4U.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoC1CzjtGyNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoC1CzjtGyNL4U.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoC1CzjvGyNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoC1CzjvGyNL4U.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoC1Czjs2yNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoC1Czjs2yNL4U.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoC1CzjvmyNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoC1CzjvmyNL4U.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoC1CzjsGyN.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoC1CzjsGyN.woff2',
 			},
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCs6KVjbNBYlgoKcg72j00.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCs6KVjbNBYlgoKcg72j00.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCs6KVjbNBYlgoKew72j00.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCs6KVjbNBYlgoKew72j00.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCs6KVjbNBYlgoKcw72j00.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCs6KVjbNBYlgoKcw72j00.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCs6KVjbNBYlgoKfA72j00.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCs6KVjbNBYlgoKfA72j00.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCs6KVjbNBYlgoKcQ72j00.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCs6KVjbNBYlgoKcQ72j00.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCs6KVjbNBYlgoKfw72.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCs6KVjbNBYlgoKfw72.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoCjC3jvWyNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCjC3jvWyNL4U.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoCjC3jtGyNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCjC3jtGyNL4U.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoCjC3jvGyNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCjC3jvGyNL4U.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoCjC3js2yNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCjC3js2yNL4U.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoCjC3jvmyNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCjC3jvmyNL4U.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoCjC3jsGyN.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCjC3jsGyN.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoCxCvjvWyNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCxCvjvWyNL4U.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoCxCvjtGyNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCxCvjtGyNL4U.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoCxCvjvGyNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCxCvjvGyNL4U.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoCxCvjs2yNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCxCvjs2yNL4U.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoCxCvjvmyNL4U.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCxCvjvmyNL4U.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ubuntu/v20/4iCv6KVjbNBYlgoCxCvjsGyN.woff2',
+					'https://fonts.gstatic.com/s/ubuntu/v21/4iCv6KVjbNBYlgoCxCvjsGyN.woff2',
 			},
 		},
 	},

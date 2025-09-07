@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Zen Dots',
 	importName: 'ZenDots',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Zen+Dots:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zendots/v13/XRXX3ICfm00IGoesQdaNRs71cA.woff2',
+					'https://fonts.gstatic.com/s/zendots/v14/XRXX3ICfm00IGoesQdaNRs71cA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zendots/v13/XRXX3ICfm00IGoesQdaDRs4.woff2',
+					'https://fonts.gstatic.com/s/zendots/v14/XRXX3ICfm00IGoesQdaDRs4.woff2',
 			},
 		},
 	},

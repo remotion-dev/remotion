@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Oxygen',
 	importName: 'Oxygen',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Oxygen:ital,wght@0,300;0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,21 +15,21 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/oxygen/v15/2sDcZG1Wl4LcnbuCJW8zZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/oxygen/v16/2sDcZG1Wl4LcnbuCJW8zZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/oxygen/v15/2sDcZG1Wl4LcnbuCJW8zaGW5.woff2',
+					'https://fonts.gstatic.com/s/oxygen/v16/2sDcZG1Wl4LcnbuCJW8zaGW5.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/oxygen/v15/2sDfZG1Wl4LcnbuKgE0mV0Q.woff2',
+					'https://fonts.gstatic.com/s/oxygen/v16/2sDfZG1Wl4LcnbuKgE0mV0Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/oxygen/v15/2sDfZG1Wl4LcnbuKjk0m.woff2',
+					'https://fonts.gstatic.com/s/oxygen/v16/2sDfZG1Wl4LcnbuKjk0m.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/oxygen/v15/2sDcZG1Wl4LcnbuCNWgzZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/oxygen/v16/2sDcZG1Wl4LcnbuCNWgzZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/oxygen/v15/2sDcZG1Wl4LcnbuCNWgzaGW5.woff2',
+					'https://fonts.gstatic.com/s/oxygen/v16/2sDcZG1Wl4LcnbuCNWgzaGW5.woff2',
 			},
 		},
 	},

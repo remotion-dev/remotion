@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Galindo',
 	importName: 'Galindo',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Galindo:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/galindo/v25/HI_KiYMeLqVKqwyuc5joR6-d.woff2',
+					'https://fonts.gstatic.com/s/galindo/v26/HI_KiYMeLqVKqwyuc5joR6-d.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/galindo/v25/HI_KiYMeLqVKqwyuc5boRw.woff2',
+					'https://fonts.gstatic.com/s/galindo/v26/HI_KiYMeLqVKqwyuc5boRw.woff2',
 			},
 		},
 	},

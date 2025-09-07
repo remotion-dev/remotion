@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Love Light',
 	importName: 'LoveLight',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Love+Light:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/lovelight/v7/t5tlIR0TNJyZWimpNAXDvK7IyAHu.woff2',
+					'https://fonts.gstatic.com/s/lovelight/v8/t5tlIR0TNJyZWimpNAXDvK7IyAHu.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lovelight/v7/t5tlIR0TNJyZWimpNAXDvK_IyAHu.woff2',
+					'https://fonts.gstatic.com/s/lovelight/v8/t5tlIR0TNJyZWimpNAXDvK_IyAHu.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lovelight/v7/t5tlIR0TNJyZWimpNAXDvKHIyA.woff2',
+					'https://fonts.gstatic.com/s/lovelight/v8/t5tlIR0TNJyZWimpNAXDvKHIyA.woff2',
 			},
 		},
 	},

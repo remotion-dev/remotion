@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Palmyrene',
 	importName: 'NotoSansPalmyrene',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Palmyrene:ital,wght@0,400',
 	unicodeRanges: {
 		palmyrene: 'U+10860-1087F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				palmyrene:
-					'https://fonts.gstatic.com/s/notosanspalmyrene/v16/ZgNPjOdKPa7CHqq0h37c_ASCWvH93SFCDviSQpp0rA.woff2',
+					'https://fonts.gstatic.com/s/notosanspalmyrene/v17/ZgNPjOdKPa7CHqq0h37c_ASCWvH93SFCDviSQpp0rA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanspalmyrene/v16/ZgNPjOdKPa7CHqq0h37c_ASCWvH93SFCDnuzZ6dN.woff2',
+					'https://fonts.gstatic.com/s/notosanspalmyrene/v17/ZgNPjOdKPa7CHqq0h37c_ASCWvH93SFCDnuzZ6dN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanspalmyrene/v16/ZgNPjOdKPa7CHqq0h37c_ASCWvH93SFCDnWzZw.woff2',
+					'https://fonts.gstatic.com/s/notosanspalmyrene/v17/ZgNPjOdKPa7CHqq0h37c_ASCWvH93SFCDnWzZw.woff2',
 			},
 		},
 	},

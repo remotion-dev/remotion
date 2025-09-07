@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Climate Crisis',
 	importName: 'ClimateCrisis',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Climate+Crisis:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/climatecrisis/v13/wEOpEB3AntNeKCPBVW9XOKlmp3AUgWFN1DvIvcM0gFpKhK8qKb4.woff2',
+					'https://fonts.gstatic.com/s/climatecrisis/v14/wEOpEB3AntNeKCPBVW9XOKlmp3AUgWFN1DvIvcM0gFpKhK8qKb4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/climatecrisis/v13/wEOpEB3AntNeKCPBVW9XOKlmp3AUgWFN1DvIvcM0gFpKiq8q.woff2',
+					'https://fonts.gstatic.com/s/climatecrisis/v14/wEOpEB3AntNeKCPBVW9XOKlmp3AUgWFN1DvIvcM0gFpKiq8q.woff2',
 			},
 		},
 	},

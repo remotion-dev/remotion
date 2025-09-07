@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Caramel',
 	importName: 'Caramel',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Caramel:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/caramel/v7/P5sCzZKBbMTf_Shy9CxkiK-u.woff2',
+					'https://fonts.gstatic.com/s/caramel/v8/P5sCzZKBbMTf_Shy9CxkiK-u.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/caramel/v7/P5sCzZKBbMTf_Shy9C1kiK-u.woff2',
+					'https://fonts.gstatic.com/s/caramel/v8/P5sCzZKBbMTf_Shy9C1kiK-u.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/caramel/v7/P5sCzZKBbMTf_Shy9CNkiA.woff2',
+					'https://fonts.gstatic.com/s/caramel/v8/P5sCzZKBbMTf_Shy9CNkiA.woff2',
 			},
 		},
 	},

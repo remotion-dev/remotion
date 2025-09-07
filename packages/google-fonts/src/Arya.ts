@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Arya',
 	importName: 'Arya',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Arya:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,18 +17,18 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/arya/v20/ga6CawNG-HJdxUD_-Ieq.woff2',
+					'https://fonts.gstatic.com/s/arya/v21/ga6CawNG-HJdxUD_-Ieq.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arya/v20/ga6CawNG-HJdxU__-Ieq.woff2',
-				latin: 'https://fonts.gstatic.com/s/arya/v20/ga6CawNG-HJdxUH_-A.woff2',
+					'https://fonts.gstatic.com/s/arya/v21/ga6CawNG-HJdxU__-Ieq.woff2',
+				latin: 'https://fonts.gstatic.com/s/arya/v21/ga6CawNG-HJdxUH_-A.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/arya/v20/ga6NawNG-HJdzfra7bmLaWg3.woff2',
+					'https://fonts.gstatic.com/s/arya/v21/ga6NawNG-HJdzfra7bmLaWg3.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arya/v20/ga6NawNG-HJdzfra7baLaWg3.woff2',
+					'https://fonts.gstatic.com/s/arya/v21/ga6NawNG-HJdzfra7baLaWg3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arya/v20/ga6NawNG-HJdzfra7biLaQ.woff2',
+					'https://fonts.gstatic.com/s/arya/v21/ga6NawNG-HJdzfra7biLaQ.woff2',
 			},
 		},
 	},

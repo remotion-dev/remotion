@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Nastaliq Urdu',
 	importName: 'NotoNastaliqUrdu',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:
@@ -17,35 +17,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/notonastaliqurdu/v22/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3SvoMC9Y.woff2',
+					'https://fonts.gstatic.com/s/notonastaliqurdu/v23/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3SvoMC9Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notonastaliqurdu/v22/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3QfoMC9Y.woff2',
+					'https://fonts.gstatic.com/s/notonastaliqurdu/v23/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3QfoMC9Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notonastaliqurdu/v22/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3T_oM.woff2',
+					'https://fonts.gstatic.com/s/notonastaliqurdu/v23/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3T_oM.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/notonastaliqurdu/v22/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3SvoMC9Y.woff2',
+					'https://fonts.gstatic.com/s/notonastaliqurdu/v23/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3SvoMC9Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notonastaliqurdu/v22/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3QfoMC9Y.woff2',
+					'https://fonts.gstatic.com/s/notonastaliqurdu/v23/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3QfoMC9Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notonastaliqurdu/v22/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3T_oM.woff2',
+					'https://fonts.gstatic.com/s/notonastaliqurdu/v23/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3T_oM.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/notonastaliqurdu/v22/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3SvoMC9Y.woff2',
+					'https://fonts.gstatic.com/s/notonastaliqurdu/v23/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3SvoMC9Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notonastaliqurdu/v22/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3QfoMC9Y.woff2',
+					'https://fonts.gstatic.com/s/notonastaliqurdu/v23/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3QfoMC9Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notonastaliqurdu/v22/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3T_oM.woff2',
+					'https://fonts.gstatic.com/s/notonastaliqurdu/v23/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3T_oM.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/notonastaliqurdu/v22/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3SvoMC9Y.woff2',
+					'https://fonts.gstatic.com/s/notonastaliqurdu/v23/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3SvoMC9Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notonastaliqurdu/v22/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3QfoMC9Y.woff2',
+					'https://fonts.gstatic.com/s/notonastaliqurdu/v23/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3QfoMC9Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notonastaliqurdu/v22/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3T_oM.woff2',
+					'https://fonts.gstatic.com/s/notonastaliqurdu/v23/LhW4MUPbN-oZdNFcBy1-DJYsEoTq5pu3T_oM.woff2',
 			},
 		},
 	},

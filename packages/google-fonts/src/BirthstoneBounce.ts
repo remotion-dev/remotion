@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Birthstone Bounce',
 	importName: 'BirthstoneBounce',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Birthstone+Bounce:ital,wght@0,400;0,500',
 	unicodeRanges: {
 		vietnamese:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/birthstonebounce/v12/ga6XaxZF43lIvTWrktHOTBJZGH7dEdVBEoIoDg.woff2',
+					'https://fonts.gstatic.com/s/birthstonebounce/v13/ga6XaxZF43lIvTWrktHOTBJZGH7dEdVBEoIoDg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/birthstonebounce/v12/ga6XaxZF43lIvTWrktHOTBJZGH7dEdVAEoIoDg.woff2',
+					'https://fonts.gstatic.com/s/birthstonebounce/v13/ga6XaxZF43lIvTWrktHOTBJZGH7dEdVAEoIoDg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/birthstonebounce/v12/ga6XaxZF43lIvTWrktHOTBJZGH7dEdVOEoI.woff2',
+					'https://fonts.gstatic.com/s/birthstonebounce/v13/ga6XaxZF43lIvTWrktHOTBJZGH7dEdVOEoI.woff2',
 			},
 			'500': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/birthstonebounce/v12/ga6SaxZF43lIvTWrktHOTBJZGH7dEd29MZcYL5LFLg.woff2',
+					'https://fonts.gstatic.com/s/birthstonebounce/v13/ga6SaxZF43lIvTWrktHOTBJZGH7dEd29MZcYL5LFLg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/birthstonebounce/v12/ga6SaxZF43lIvTWrktHOTBJZGH7dEd29MZcZL5LFLg.woff2',
+					'https://fonts.gstatic.com/s/birthstonebounce/v13/ga6SaxZF43lIvTWrktHOTBJZGH7dEd29MZcZL5LFLg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/birthstonebounce/v12/ga6SaxZF43lIvTWrktHOTBJZGH7dEd29MZcXL5I.woff2',
+					'https://fonts.gstatic.com/s/birthstonebounce/v13/ga6SaxZF43lIvTWrktHOTBJZGH7dEd29MZcXL5I.woff2',
 			},
 		},
 	},

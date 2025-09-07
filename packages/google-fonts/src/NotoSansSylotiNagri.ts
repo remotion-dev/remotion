@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Syloti Nagri',
 	importName: 'NotoSansSylotiNagri',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Syloti+Nagri:ital,wght@0,400',
 	unicodeRanges: {
 		'syloti-nagri':
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'syloti-nagri':
-					'https://fonts.gstatic.com/s/notosanssylotinagri/v24/uU9eCAQZ75uhfF9UoWDRiY3q7Sf_VFV3m4dGJW_7Nv7g.woff2',
+					'https://fonts.gstatic.com/s/notosanssylotinagri/v25/uU9eCAQZ75uhfF9UoWDRiY3q7Sf_VFV3m4dGJW_7Nv7g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssylotinagri/v24/uU9eCAQZ75uhfF9UoWDRiY3q7Sf_VFV3m4dGJV77Nv7g.woff2',
+					'https://fonts.gstatic.com/s/notosanssylotinagri/v25/uU9eCAQZ75uhfF9UoWDRiY3q7Sf_VFV3m4dGJV77Nv7g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssylotinagri/v24/uU9eCAQZ75uhfF9UoWDRiY3q7Sf_VFV3m4dGJVD7Ng.woff2',
+					'https://fonts.gstatic.com/s/notosanssylotinagri/v25/uU9eCAQZ75uhfF9UoWDRiY3q7Sf_VFV3m4dGJVD7Ng.woff2',
 			},
 		},
 	},

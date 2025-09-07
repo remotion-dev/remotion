@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Cypriot',
 	importName: 'NotoSansCypriot',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Cypriot:ital,wght@0,400',
 	unicodeRanges: {
 		cypriot: 'U+10100-10102, U+10107-10133, U+10137-1013F, U+10800-1083F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cypriot:
-					'https://fonts.gstatic.com/s/notosanscypriot/v19/8AtzGta9PYqQDjyp79a6f8Cj-3a3cyJ0IZI_pQ.woff2',
+					'https://fonts.gstatic.com/s/notosanscypriot/v20/8AtzGta9PYqQDjyp79a6f8Cj-3a3cyJ0IZI_pQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscypriot/v19/8AtzGta9PYqQDjyp79a6f8Cj-3a3cyIlIZI_pQ.woff2',
+					'https://fonts.gstatic.com/s/notosanscypriot/v20/8AtzGta9PYqQDjyp79a6f8Cj-3a3cyIlIZI_pQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscypriot/v19/8AtzGta9PYqQDjyp79a6f8Cj-3a3cyIrIZI.woff2',
+					'https://fonts.gstatic.com/s/notosanscypriot/v20/8AtzGta9PYqQDjyp79a6f8Cj-3a3cyIrIZI.woff2',
 			},
 		},
 	},

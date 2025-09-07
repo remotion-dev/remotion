@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Snowburst One',
 	importName: 'SnowburstOne',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Snowburst+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/snowburstone/v20/MQpS-WezKdujBsXY3B7I-UT7SZaePhac.woff2',
+					'https://fonts.gstatic.com/s/snowburstone/v21/MQpS-WezKdujBsXY3B7I-UT7SZaePhac.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/snowburstone/v20/MQpS-WezKdujBsXY3B7I-UT7SZiePg.woff2',
+					'https://fonts.gstatic.com/s/snowburstone/v21/MQpS-WezKdujBsXY3B7I-UT7SZiePg.woff2',
 			},
 		},
 	},

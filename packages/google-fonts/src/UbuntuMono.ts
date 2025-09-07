@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ubuntu Mono',
 	importName: 'UbuntuMono',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -21,61 +21,61 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFOhCneDtsqEr0keqCMhbCc_OsvSkLBP.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFOhCneDtsqEr0keqCMhbCc_OsvSkLBP.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFOhCneDtsqEr0keqCMhbCc_OsLSkLBP.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFOhCneDtsqEr0keqCMhbCc_OsLSkLBP.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFOhCneDtsqEr0keqCMhbCc_OsrSkLBP.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFOhCneDtsqEr0keqCMhbCc_OsrSkLBP.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFOhCneDtsqEr0keqCMhbCc_OsXSkLBP.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFOhCneDtsqEr0keqCMhbCc_OsXSkLBP.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFOhCneDtsqEr0keqCMhbCc_OsjSkLBP.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFOhCneDtsqEr0keqCMhbCc_OsjSkLBP.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFOhCneDtsqEr0keqCMhbCc_OsbSkA.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFOhCneDtsqEr0keqCMhbCc_OsbSkA.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFO8CneDtsqEr0keqCMhbCc_Mn33hYJufkO1.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFO8CneDtsqEr0keqCMhbCc_Mn33hYJufkO1.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFO8CneDtsqEr0keqCMhbCc_Mn33hYtufkO1.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFO8CneDtsqEr0keqCMhbCc_Mn33hYtufkO1.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFO8CneDtsqEr0keqCMhbCc_Mn33hYNufkO1.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFO8CneDtsqEr0keqCMhbCc_Mn33hYNufkO1.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFO8CneDtsqEr0keqCMhbCc_Mn33hYxufkO1.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFO8CneDtsqEr0keqCMhbCc_Mn33hYxufkO1.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFO8CneDtsqEr0keqCMhbCc_Mn33hYFufkO1.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFO8CneDtsqEr0keqCMhbCc_Mn33hYFufkO1.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFO8CneDtsqEr0keqCMhbCc_Mn33hY9ufg.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFO8CneDtsqEr0keqCMhbCc_Mn33hY9ufg.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFOjCneDtsqEr0keqCMhbCc3CsTKlA.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFOjCneDtsqEr0keqCMhbCc3CsTKlA.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFOjCneDtsqEr0keqCMhbCc-CsTKlA.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFOjCneDtsqEr0keqCMhbCc-CsTKlA.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFOjCneDtsqEr0keqCMhbCc2CsTKlA.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFOjCneDtsqEr0keqCMhbCc2CsTKlA.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFOjCneDtsqEr0keqCMhbCc5CsTKlA.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFOjCneDtsqEr0keqCMhbCc5CsTKlA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFOjCneDtsqEr0keqCMhbCc0CsTKlA.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFOjCneDtsqEr0keqCMhbCc0CsTKlA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFOjCneDtsqEr0keqCMhbCc6CsQ.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFOjCneDtsqEr0keqCMhbCc6CsQ.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFO-CneDtsqEr0keqCMhbC-BL9H4tY12eg.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFO-CneDtsqEr0keqCMhbC-BL9H4tY12eg.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFO-CneDtsqEr0keqCMhbC-BL9HxtY12eg.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFO-CneDtsqEr0keqCMhbC-BL9HxtY12eg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFO-CneDtsqEr0keqCMhbC-BL9H5tY12eg.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFO-CneDtsqEr0keqCMhbC-BL9H5tY12eg.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFO-CneDtsqEr0keqCMhbC-BL9H2tY12eg.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFO-CneDtsqEr0keqCMhbC-BL9H2tY12eg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFO-CneDtsqEr0keqCMhbC-BL9H7tY12eg.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFO-CneDtsqEr0keqCMhbC-BL9H7tY12eg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ubuntumono/v18/KFO-CneDtsqEr0keqCMhbC-BL9H1tY0.woff2',
+					'https://fonts.gstatic.com/s/ubuntumono/v19/KFO-CneDtsqEr0keqCMhbC-BL9H1tY0.woff2',
 			},
 		},
 	},

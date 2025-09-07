@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Belgrano',
 	importName: 'Belgrano',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Belgrano:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/belgrano/v18/55xvey5tM9rwKWrJZfMCgLg.woff2',
+					'https://fonts.gstatic.com/s/belgrano/v19/55xvey5tM9rwKWrJZfMCgLg.woff2',
 			},
 		},
 	},

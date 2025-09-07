@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Allura',
 	importName: 'Allura',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Allura:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/allura/v22/9oRPNYsQpS4zjuA_hAgWDto.woff2',
+					'https://fonts.gstatic.com/s/allura/v23/9oRPNYsQpS4zjuA_hAgWDto.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/allura/v22/9oRPNYsQpS4zjuA_hQgWDto.woff2',
+					'https://fonts.gstatic.com/s/allura/v23/9oRPNYsQpS4zjuA_hQgWDto.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/allura/v22/9oRPNYsQpS4zjuA_iwgW.woff2',
+					'https://fonts.gstatic.com/s/allura/v23/9oRPNYsQpS4zjuA_iwgW.woff2',
 			},
 		},
 	},

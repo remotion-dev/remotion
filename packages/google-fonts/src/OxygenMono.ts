@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Oxygen Mono',
 	importName: 'OxygenMono',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Oxygen+Mono:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/oxygenmono/v14/h0GsssGg9FxgDgCjLeAd7hjWx-6_Pg.woff2',
+					'https://fonts.gstatic.com/s/oxygenmono/v15/h0GsssGg9FxgDgCjLeAd7hjWx-6_Pg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/oxygenmono/v14/h0GsssGg9FxgDgCjLeAd7hjYx-4.woff2',
+					'https://fonts.gstatic.com/s/oxygenmono/v15/h0GsssGg9FxgDgCjLeAd7hjYx-4.woff2',
 			},
 		},
 	},

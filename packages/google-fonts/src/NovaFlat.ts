@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nova Flat',
 	importName: 'NovaFlat',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Nova+Flat:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/novaflat/v25/QdVUSTc-JgqpytEbVeb0sCFlq20.woff2',
+					'https://fonts.gstatic.com/s/novaflat/v26/QdVUSTc-JgqpytEbVeb0sCFlq20.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/novaflat/v25/QdVUSTc-JgqpytEbVeb0viFl.woff2',
+					'https://fonts.gstatic.com/s/novaflat/v26/QdVUSTc-JgqpytEbVeb0viFl.woff2',
 			},
 		},
 	},

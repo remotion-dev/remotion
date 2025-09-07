@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gayathri',
 	importName: 'Gayathri',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Gayathri:ital,wght@0,100;0,400;0,700',
 	unicodeRanges: {
 		malayalam:
@@ -15,21 +15,21 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				malayalam:
-					'https://fonts.gstatic.com/s/gayathri/v19/MCoWzAb429DbBilWLLhcyoTYAsgA.woff2',
+					'https://fonts.gstatic.com/s/gayathri/v20/MCoWzAb429DbBilWLLhcyoTYAsgA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gayathri/v19/MCoWzAb429DbBilWLLhcypzYAg.woff2',
+					'https://fonts.gstatic.com/s/gayathri/v20/MCoWzAb429DbBilWLLhcypzYAg.woff2',
 			},
 			'400': {
 				malayalam:
-					'https://fonts.gstatic.com/s/gayathri/v19/MCoQzAb429DbBilWLLAn-p7ABg.woff2',
+					'https://fonts.gstatic.com/s/gayathri/v20/MCoQzAb429DbBilWLLAn-p7ABg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gayathri/v19/MCoQzAb429DbBilWLLA_-p4.woff2',
+					'https://fonts.gstatic.com/s/gayathri/v20/MCoQzAb429DbBilWLLA_-p4.woff2',
 			},
 			'700': {
 				malayalam:
-					'https://fonts.gstatic.com/s/gayathri/v19/MCoXzAb429DbBilWLLiE34vnJ_U5wA.woff2',
+					'https://fonts.gstatic.com/s/gayathri/v20/MCoXzAb429DbBilWLLiE34vnJ_U5wA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gayathri/v19/MCoXzAb429DbBilWLLiE34v_J_U.woff2',
+					'https://fonts.gstatic.com/s/gayathri/v20/MCoXzAb429DbBilWLLiE34v_J_U.woff2',
 			},
 		},
 	},

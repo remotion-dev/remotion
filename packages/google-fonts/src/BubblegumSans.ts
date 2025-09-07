@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bubblegum Sans',
 	importName: 'BubblegumSans',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Bubblegum+Sans:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bubblegumsans/v21/AYCSpXb_Z9EORv1M5QTjEzMEteaOxIL_bw.woff2',
+					'https://fonts.gstatic.com/s/bubblegumsans/v22/AYCSpXb_Z9EORv1M5QTjEzMEteaOxIL_bw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bubblegumsans/v21/AYCSpXb_Z9EORv1M5QTjEzMEteaAxII.woff2',
+					'https://fonts.gstatic.com/s/bubblegumsans/v22/AYCSpXb_Z9EORv1M5QTjEzMEteaAxII.woff2',
 			},
 		},
 	},

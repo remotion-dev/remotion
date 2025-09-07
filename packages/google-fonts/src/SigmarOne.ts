@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sigmar One',
 	importName: 'SigmarOne',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Sigmar+One:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/sigmarone/v19/co3DmWZ8kjZuErj9Ta3do6vppkDi.woff2',
+					'https://fonts.gstatic.com/s/sigmarone/v20/co3DmWZ8kjZuErj9Ta3do6vppkDi.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sigmarone/v19/co3DmWZ8kjZuErj9Ta3do6rppkDi.woff2',
+					'https://fonts.gstatic.com/s/sigmarone/v20/co3DmWZ8kjZuErj9Ta3do6rppkDi.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sigmarone/v19/co3DmWZ8kjZuErj9Ta3do6Tppg.woff2',
+					'https://fonts.gstatic.com/s/sigmarone/v20/co3DmWZ8kjZuErj9Ta3do6Tppg.woff2',
 			},
 		},
 	},

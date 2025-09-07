@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Syriac Eastern',
 	importName: 'NotoSansSyriacEastern',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Syriac+Eastern:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		syriac:
@@ -17,75 +17,75 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				syriac:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
 			},
 			'200': {
 				syriac:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
 			},
 			'300': {
 				syriac:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
 			},
 			'400': {
 				syriac:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
 			},
 			'500': {
 				syriac:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
 			},
 			'600': {
 				syriac:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
 			},
 			'700': {
 				syriac:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
 			},
 			'800': {
 				syriac:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
 			},
 			'900': {
 				syriac:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUOaUDo90.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSURKUDo90.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssyriaceastern/v2/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
+					'https://fonts.gstatic.com/s/notosanssyriaceastern/v3/Noah6Vj_wIWFbTTCrYmvy8AjVU8aslWRHHvRYxSUSqUD.woff2',
 			},
 		},
 	},

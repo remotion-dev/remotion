@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Michroma',
 	importName: 'Michroma',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Michroma:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/michroma/v20/PN_zRfy9qWD8fEagAPgzpTnr_w.woff2',
+					'https://fonts.gstatic.com/s/michroma/v21/PN_zRfy9qWD8fEagAPgzpTnr_w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/michroma/v20/PN_zRfy9qWD8fEagAPg9pTk.woff2',
+					'https://fonts.gstatic.com/s/michroma/v21/PN_zRfy9qWD8fEagAPg9pTk.woff2',
 			},
 		},
 	},

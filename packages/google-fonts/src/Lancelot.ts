@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lancelot',
 	importName: 'Lancelot',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Lancelot:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lancelot/v27/J7acnppxBGtQEulG4KYxzp5yGw.woff2',
+					'https://fonts.gstatic.com/s/lancelot/v28/J7acnppxBGtQEulG4KYxzp5yGw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lancelot/v27/J7acnppxBGtQEulG4KY_zp4.woff2',
+					'https://fonts.gstatic.com/s/lancelot/v28/J7acnppxBGtQEulG4KY_zp4.woff2',
 			},
 		},
 	},

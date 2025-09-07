@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Corinthia',
 	importName: 'Corinthia',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Corinthia:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		vietnamese:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/corinthia/v12/wEO_EBrAnchaJyPMHE01WfoK7Es.woff2',
+					'https://fonts.gstatic.com/s/corinthia/v13/wEO_EBrAnchaJyPMHE01WfoK7Es.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/corinthia/v12/wEO_EBrAnchaJyPMHE01WPoK7Es.woff2',
+					'https://fonts.gstatic.com/s/corinthia/v13/wEO_EBrAnchaJyPMHE01WPoK7Es.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/corinthia/v12/wEO_EBrAnchaJyPMHE01VvoK.woff2',
+					'https://fonts.gstatic.com/s/corinthia/v13/wEO_EBrAnchaJyPMHE01VvoK.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/corinthia/v12/wEO6EBrAnchaJyPMHE097d8f3GoasbI.woff2',
+					'https://fonts.gstatic.com/s/corinthia/v13/wEO6EBrAnchaJyPMHE097d8f3GoasbI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/corinthia/v12/wEO6EBrAnchaJyPMHE097d8f3WoasbI.woff2',
+					'https://fonts.gstatic.com/s/corinthia/v13/wEO6EBrAnchaJyPMHE097d8f3WoasbI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/corinthia/v12/wEO6EBrAnchaJyPMHE097d8f02oa.woff2',
+					'https://fonts.gstatic.com/s/corinthia/v13/wEO6EBrAnchaJyPMHE097d8f02oa.woff2',
 			},
 		},
 	},

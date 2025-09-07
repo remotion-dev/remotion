@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bree Serif',
 	importName: 'BreeSerif',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Bree+Serif:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/breeserif/v17/4UaHrEJCrhhnVA3DgluA96Tp56N1.woff2',
+					'https://fonts.gstatic.com/s/breeserif/v18/4UaHrEJCrhhnVA3DgluA96Tp56N1.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/breeserif/v17/4UaHrEJCrhhnVA3DgluA96rp5w.woff2',
+					'https://fonts.gstatic.com/s/breeserif/v18/4UaHrEJCrhhnVA3DgluA96rp5w.woff2',
 			},
 		},
 	},

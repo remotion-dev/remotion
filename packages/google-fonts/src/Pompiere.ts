@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Pompiere',
 	importName: 'Pompiere',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Pompiere:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/pompiere/v20/VEMyRoxis5Dwuyeov5Wq7DE.woff2',
+					'https://fonts.gstatic.com/s/pompiere/v21/VEMyRoxis5Dwuyeov5Wq7DE.woff2',
 			},
 		},
 	},

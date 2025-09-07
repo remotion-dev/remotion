@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Almendra Display',
 	importName: 'AlmendraDisplay',
-	version: 'v32',
+	version: 'v33',
 	url: 'https://fonts.googleapis.com/css2?family=Almendra+Display:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/almendradisplay/v32/0FlPVOGWl1Sb4O3tETtADHRRlZhzbSbUTher.woff2',
+					'https://fonts.gstatic.com/s/almendradisplay/v33/0FlPVOGWl1Sb4O3tETtADHRRlZhzbSbUTher.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/almendradisplay/v32/0FlPVOGWl1Sb4O3tETtADHRRlZhzbSjUTg.woff2',
+					'https://fonts.gstatic.com/s/almendradisplay/v33/0FlPVOGWl1Sb4O3tETtADHRRlZhzbSjUTg.woff2',
 			},
 		},
 	},
