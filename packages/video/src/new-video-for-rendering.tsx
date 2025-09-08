@@ -133,6 +133,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 		const actualFps = playbackRate ? fps / playbackRate : fps;
 		const timestamp = frame / actualFps;
+		const durationInSeconds = 1 / actualFps;
 
 		const newHandle = delayRender(`extracting frame number ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
@@ -141,10 +142,11 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 		extractFrameViaBroadcastChannel({
 			src,
-			timestamp,
+			timeInSeconds: timestamp,
+			durationInSeconds,
 			logLevel: logLevel ?? 'info',
 		})
-			.then((imageBitmap) => {
+			.then(({frame: imageBitmap, audio}) => {
 				if (!imageBitmap) {
 					cancelRender(new Error('No video frame found'));
 				}

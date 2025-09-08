@@ -1,10 +1,11 @@
-import {extractFrame} from './extract-frame';
+import {extractFrameAndAudio} from './extract-frame';
 import type {LogLevel} from './log';
 
 type ExtractFrameRequest = {
 	type: 'request';
 	src: string;
 	timeInSeconds: number;
+	durationInSeconds: number;
 	id: string;
 	logLevel: LogLevel;
 };
@@ -14,6 +15,7 @@ type ExtractFrameResponse =
 			type: 'response-success';
 			id: string;
 			frame: ImageBitmap | null;
+			audio: AudioData | null;
 	  }
 	| {
 			type: 'response-error';
@@ -34,26 +36,30 @@ if (window.remotion_broadcastChannel) {
 			const data = event.data as ExtractFrameRequest;
 			if (data.type === 'request') {
 				try {
-					const sample = await extractFrame({
+					const {frame, audio} = await extractFrameAndAudio({
 						src: data.src,
-						timestamp: data.timeInSeconds,
+						timeInSeconds: data.timeInSeconds,
 						logLevel: data.logLevel,
+						durationInSeconds: data.durationInSeconds,
 					});
 
-					const frame = sample?.toVideoFrame() ?? null;
-					const imageBitmap = frame ? await createImageBitmap(frame) : null;
-					if (frame) {
-						frame.close();
+					const videoFrame = frame?.toVideoFrame() ?? null;
+					const imageBitmap = videoFrame
+						? await createImageBitmap(videoFrame)
+						: null;
+					if (videoFrame) {
+						videoFrame.close();
 					}
 
 					const response: ExtractFrameResponse = {
 						type: 'response-success',
 						id: data.id,
 						frame: imageBitmap,
+						audio,
 					};
 
 					window.remotion_broadcastChannel!.postMessage(response);
-					frame?.close();
+					videoFrame?.close();
 				} catch (error) {
 					const response: ExtractFrameResponse = {
 						type: 'response-error',
@@ -72,34 +78,42 @@ if (window.remotion_broadcastChannel) {
 
 export const extractFrameViaBroadcastChannel = async ({
 	src,
-	timestamp,
+	timeInSeconds,
 	logLevel,
+	durationInSeconds,
 }: {
 	src: string;
-	timestamp: number;
+	timeInSeconds: number;
+	durationInSeconds: number;
 	logLevel: LogLevel;
-}): Promise<ImageBitmap | VideoFrame | null> => {
+}): Promise<{
+	frame: ImageBitmap | VideoFrame | null;
+	audio: AudioData | null;
+}> => {
 	if (typeof window.remotion_isMainTab === 'undefined') {
 		throw new Error('This should be defined');
 	}
 
 	if (window.remotion_isMainTab) {
-		const sample = await extractFrame({
+		const {frame: sample, audio} = await extractFrameAndAudio({
 			logLevel,
 			src,
-			timestamp,
+			timeInSeconds,
+			durationInSeconds,
 		});
 
-		if (!sample) {
-			return null;
-		}
-
-		return sample.toVideoFrame();
+		return {
+			frame: sample?.toVideoFrame() ?? null,
+			audio,
+		};
 	}
 
 	const requestId = crypto.randomUUID();
 
-	const resolvePromise = new Promise<ImageBitmap | null>((resolve, reject) => {
+	const resolvePromise = new Promise<{
+		frame: ImageBitmap | null;
+		audio: AudioData | null;
+	}>((resolve, reject) => {
 		const onMessage = (event: MessageEvent) => {
 			const data = event.data as ExtractFrameResponse;
 
@@ -108,7 +122,7 @@ export const extractFrameViaBroadcastChannel = async ({
 			}
 
 			if (data.type === 'response-success' && data.id === requestId) {
-				resolve(data.frame ? data.frame : null);
+				resolve({frame: data.frame ? data.frame : null, audio: data.audio});
 				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,
@@ -128,9 +142,10 @@ export const extractFrameViaBroadcastChannel = async ({
 	const request: ExtractFrameRequest = {
 		type: 'request',
 		src,
-		timeInSeconds: timestamp,
+		timeInSeconds,
 		id: requestId,
 		logLevel,
+		durationInSeconds,
 	};
 
 	window.remotion_broadcastChannel!.postMessage(request);
@@ -147,7 +162,7 @@ export const extractFrameViaBroadcastChannel = async ({
 				() => {
 					reject(
 						new Error(
-							`Timeout while extracting frame ${timestamp} from ${src}`,
+							`Timeout while extracting frame ${timeInSeconds} from ${src}`,
 						),
 					);
 				},
