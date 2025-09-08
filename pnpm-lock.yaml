@@ -708,8 +708,8 @@ importers:
         specifier: workspace:*
         version: link:../zod-types
       '@rive-app/canvas-advanced':
-        specifier: 2.3.0
-        version: 2.3.0
+        specifier: 2.31.5
+        version: 2.31.5
       '@shopify/react-native-skia':
         specifier: 2.0.0
         version: 2.0.0(react@19.0.0)
@@ -1965,8 +1965,8 @@ importers:
   packages/rive:
     dependencies:
       '@rive-app/canvas-advanced':
-        specifier: 2.19.3
-        version: 2.19.3
+        specifier: 2.31.5
+        version: 2.31.5
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -9655,14 +9655,6 @@ packages:
       - webpack-cli
     dev: false
 
-  /@emnapi/runtime@1.4.3:
-    resolution: {integrity: sha512-pBPWdu6MLKROBX05wSNKcNb++m5Er+KQ9QkB+WVM+pW2Kx9hoSrVTnu3BdkI5eBLZoKu/J6mW/B6i6bJB2ytXQ==}
-    requiresBuild: true
-    dependencies:
-      tslib: 2.8.1
-    dev: false
-    optional: true
-
   /@emnapi/runtime@1.5.0:
     resolution: {integrity: sha512-97/BJ3iXHww3djw6hYIfErCZFee7qCtrneuLa20UXFCOTCfBM2cvQHjWJ2EG0s0MtdNwInarqCTz35i4wWXHsQ==}
     requiresBuild: true
@@ -11797,7 +11789,7 @@ packages:
     cpu: [wasm32]
     requiresBuild: true
     dependencies:
-      '@emnapi/runtime': 1.4.3
+      '@emnapi/runtime': 1.5.0
     dev: false
     optional: true
 
@@ -14380,12 +14372,8 @@ packages:
     dependencies:
       web-streams-polyfill: 3.3.3
 
-  /@rive-app/canvas-advanced@2.19.3:
-    resolution: {integrity: sha512-AcUsPH8ve7pV6QABN0ekwSpIJN0Fudjp+bqYxFUwbtXnE2wvoA0d2yzAtJeVwNQtFKboyfHovNgPIQ9tEdB4VA==}
-    dev: false
-
-  /@rive-app/canvas-advanced@2.3.0:
-    resolution: {integrity: sha512-JzgY8aSvWbuigoJ+8x1lHW8or0syQz8hxpRdPijkCCp/GJYRPvBstYdJPbHk2nbv5+BV+8Rv4zRw96wKFVsvKQ==}
+  /@rive-app/canvas-advanced@2.31.5:
+    resolution: {integrity: sha512-zwqLIc5wRF+zFKgDSTJn21+r4N4KWqAe6iVrjDGFzfxxeKDoESrwK7GQ9qVyS6UH2W4SsDRzO6q6jrlw33+yIg==}
     dev: false
 
   /@rollup/pluginutils@5.2.0:
