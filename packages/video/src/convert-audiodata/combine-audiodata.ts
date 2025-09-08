@@ -61,21 +61,25 @@ export const combineAudioDataAndClosePrevious = (
 		audioDataIndex++
 	) {
 		const audioData = audioDataArray[audioDataIndex];
-		if (audioDataIndex === 0) {
-			audioData.clone().copyTo(channel, {
-				planeIndex: 0,
-			});
-		} else {
-			const intermediateChannel = new DataType(
-				audioData.numberOfFrames * numberOfChannels,
-			);
-			audioData.clone().copyTo(intermediateChannel, {
-				planeIndex: 0,
-			});
-			channel.set(intermediateChannel, framesWritten);
-		}
 
-		framesWritten += audioData.numberOfFrames;
+		const intermediateChannel = new DataType(
+			audioData.numberOfFrames * numberOfChannels,
+		);
+		audioData.copyTo(intermediateChannel, {
+			planeIndex: 0,
+		});
+		channel.set(intermediateChannel, framesWritten);
+		console.log(
+			'wrote',
+			intermediateChannel.byteLength,
+			'bytes to channel at offset',
+			framesWritten,
+			audioData.format,
+			DataType,
+			audioData.allocationSize({planeIndex: 0}),
+		);
+
+		framesWritten += audioData.numberOfFrames * numberOfChannels;
 		audioData.close();
 	}
 

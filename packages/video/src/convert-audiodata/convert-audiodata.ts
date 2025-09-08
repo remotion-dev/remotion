@@ -38,6 +38,7 @@ export const convertAudioData = ({
 	const frameCount =
 		numberOfFrames -
 		Math.round((trimEndInSeconds + trimStartInSeconds) * audioData.sampleRate);
+	console.log({frameCount, trimEndInSeconds, trimStartInSeconds});
 
 	const newNumberOfFrames = Math.floor(frameCount / ratio);
 
@@ -59,8 +60,9 @@ export const convertAudioData = ({
 		format === audioData.format &&
 		newNumberOfFrames === numberOfFrames &&
 		trimStartInSeconds === 0 &&
-		trimEndInSeconds === null
+		trimEndInSeconds === 0
 	) {
+		console.log('cloning');
 		return audioData.clone();
 	}
 
@@ -74,7 +76,9 @@ export const convertAudioData = ({
 		.map(() => new DataType((isPlanar ? 1 : numberOfChannels) * frameCount));
 
 	for (let i = 0; i < planes; i++) {
-		audioData.clone().copyTo(srcChannels[i], {
+		console.log('copying');
+
+		audioData.copyTo(srcChannels[i], {
 			planeIndex: i,
 			format,
 			frameOffset,
@@ -84,6 +88,25 @@ export const convertAudioData = ({
 
 	const data = new DataType(newNumberOfFrames * numberOfChannels);
 	const chunkSize = frameCount / newNumberOfFrames;
+	console.log('resampling', chunkSize, frameCount, newNumberOfFrames);
+
+	if (newNumberOfFrames === frameCount) {
+		console.log('not resampling, copying');
+		let offset = 0;
+		for (let i = 0; i < planes; i++) {
+			data.set(srcChannels[i], offset);
+			offset += srcChannels[i].length;
+		}
+
+		return new AudioData({
+			data,
+			format,
+			numberOfChannels,
+			numberOfFrames: newNumberOfFrames,
+			sampleRate: newSampleRate,
+			timestamp: audioData.timestamp,
+		});
+	}
 
 	for (
 		let newFrameIndex = 0;

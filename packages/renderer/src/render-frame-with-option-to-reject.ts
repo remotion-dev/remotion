@@ -253,6 +253,15 @@ export const renderFrameWithOptionToReject = async ({
 		});
 	}
 
+	for (const renderAsset of inlineAudioAssets) {
+		// TODO: Hardcoded FPS
+		downloadMap.inlineAudioMixing.addAsset(
+			renderAsset,
+			30,
+			framesToRender.length,
+		);
+	}
+
 	cleanupPageError();
 	page.off('error', errorCallbackOnFrame);
 

@@ -79,10 +79,29 @@ export const extractAudio = async ({
 			continue;
 		}
 
+		// Less than 1 sample would be included - we did not need it after all!
+		if (sample.timestamp + sample.duration <= timeInSeconds) {
+			sample.close();
+			continue;
+		}
+
+		console.log(
+			sample.timestamp,
+			sample.duration,
+			timeInSeconds + durationInSeconds,
+		);
+
 		const isFirstSample = i === 0;
 		const isLastSample = i === samples.length - 1;
 
 		const audioDataRaw = sample.toAudioData();
+
+		console.log(
+			audioDataRaw.numberOfChannels,
+			audioDataRaw.format,
+			audioDataRaw.numberOfFrames,
+			audioDataRaw.sampleRate,
+		);
 
 		// amount of samples to shave from start and end
 		let trimStartInSeconds = 0;
@@ -98,23 +117,37 @@ export const extractAudio = async ({
 
 		if (isLastSample) {
 			trimEndInSeconds =
-				sample.timestamp +
-				sample.duration -
-				(timeInSeconds + durationInSeconds);
+				// clamp to 0 in case the audio ends early
+				Math.max(
+					0,
+					sample.timestamp +
+						sample.duration -
+						(timeInSeconds + durationInSeconds),
+				);
 		}
 
 		const audioData = convertAudioData({
 			audioData: audioDataRaw,
 			newSampleRate: 48000,
-			// todo: planar or not?
 			format: 's16',
 			trimStartInSeconds,
 			trimEndInSeconds,
 		});
 
+		if (audioData.numberOfFrames === 0) {
+			audioData.close();
+			sample.close();
+
+			continue;
+		}
+
 		audioDataArray.push(audioData);
 
 		sample.close();
+	}
+
+	if (audioDataArray.length === 0) {
+		return null;
 	}
 
 	const combined = combineAudioDataAndClosePrevious(audioDataArray);

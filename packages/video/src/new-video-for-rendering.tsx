@@ -1,4 +1,10 @@
-import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
+import React, {
+	useContext,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {
 	cancelRender,
 	continueRender,
@@ -39,7 +45,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
 
-	const id = useMemo(() => `${Math.random()}`, []);
+	const [id] = useState(() => `${Math.random()}`.replace('0.', ''));
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
