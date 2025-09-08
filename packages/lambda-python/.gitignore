@@ -14,4 +14,5 @@
 # Python virtual environments
 test-env/
 remotion-env-lint/
+.idea
 

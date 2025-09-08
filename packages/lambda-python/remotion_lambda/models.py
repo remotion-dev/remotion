@@ -1,7 +1,7 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught,invalid-name
 
 from enum import Enum
-from typing import Optional, Dict, Any, Union, Literal
+from typing import Optional, Dict, Any, Union, Literal, List
 from dataclasses import dataclass, field
 from .version import VERSION
 
@@ -9,6 +9,7 @@ from .version import VERSION
 # pylint: disable=too-many-instance-attributes
 
 RenderType = Union[Literal["video-or-audio"], Literal["still"]]
+
 
 class ValidStillImageFormats(str, Enum):
     """
@@ -20,6 +21,7 @@ class ValidStillImageFormats(str, Enum):
         PDF: Represents the PDF format for images.
         WEBP: Represents the WEBP image format.
     """
+
     PNG = 'png'
     JPEG = 'jpeg'
     PDF = 'pdf'
@@ -34,6 +36,7 @@ class Privacy(str, Enum):
         PUBLIC: Indicates a public setting.
         PRIVATE: Indicates a private setting.
     """
+
     PUBLIC = 'public'
     PRIVATE = 'private'
     NO_ACL = 'no-acl'
@@ -49,6 +52,7 @@ class LogLevel(str, Enum):
         WARN: Warning logging level.
         ERROR: Error logging level.
     """
+
     VERBOSE = 'verbose'
     INFO = 'info'
     WARN = 'warn'
@@ -66,6 +70,7 @@ class OpenGlRenderer(str, Enum):
         SWIFTSHADER: Represents the SWIFTSHADER OpenGL renderer.
         VULKAN: Represents the VULKAN OpenGL renderer.
     """
+
     SWANGLE = 'swangle'
     ANGLE = 'angle'
     EGL = 'egl'
@@ -84,9 +89,10 @@ class ChromiumOptions:
         gl (Optional[OpenGlRenderer]): Specifies the OpenGL renderer to use.
         headless (Optional[bool]): If True, runs Chromium in headless mode.
         user_agent (Optional[str]): Specifies a custom user agent.
-        enable_multi_process_on_linux (Optional[bool]): 
+        enable_multi_process_on_linux (Optional[bool]):
             If True, enables multi-process mode on Linux.
     """
+
     ignore_certificate_errors: Optional[bool] = None
     disable_web_security: Optional[bool] = None
     gl: Optional[OpenGlRenderer] = None
@@ -103,18 +109,20 @@ class CustomCredentialsWithoutSensitiveData:
     Attributes:
         endpoint (str): The endpoint associated with the credentials.
     """
+
     endpoint: str
 
 
 @dataclass
 class CustomCredentials(CustomCredentialsWithoutSensitiveData):
     """
-        Represents custom credentials, extending credentials without sensitive data.
+    Represents custom credentials, extending credentials without sensitive data.
 
-        Attributes:
-            access_key_id (Optional[str]): The access key ID.
-            secret_access_key (Optional[str]): The secret access key.
-        """
+    Attributes:
+        access_key_id (Optional[str]): The access key ID.
+        secret_access_key (Optional[str]): The secret access key.
+    """
+
     access_key_id: Optional[str] = None
     secret_access_key: Optional[str] = None
     region: Optional[str] = None
@@ -143,6 +151,7 @@ class OutNameInputObject:
         s3_output_provider (Optional[CustomCredentials]):
              Optional custom credentials for the S3 output provider.
     """
+
     bucketName: str
     key: str
     s3_output_provider: Optional[CustomCredentials] = None
@@ -158,6 +167,7 @@ class DeleteAfter(Enum):
         SEVEN_DAYS: Represents deletion after seven days.
         THIRTY_DAYS: Represents deletion after thirty days.
     """
+
     ONE_DAY = '1-day'
     THREE_DAYS = '3-days'
     SEVEN_DAYS = '7-days'
@@ -169,6 +179,7 @@ class RenderMediaResponse:
     """
     Response data after rendering.
     """
+
     bucket_name: str
     render_id: str
 
@@ -222,6 +233,7 @@ class CostsInfo:
         currency (str): The type of currency used for the costs, e.g., 'USD', 'EUR'.
         disclaimer (str): Any disclaimer or additional information related to the costs.
     """
+
     accrued_so_far: float
     display_cost: str
     currency: str
@@ -233,6 +245,7 @@ class PlayInBrowser:
     """
     The video should play in the browser when the link is clicked.
     """
+
     type: Literal['play-in-browser']
     # You can define additional fields as needed
 
@@ -242,6 +255,7 @@ class ShouldDownload:
     """
     The video should download when the link is clicked.
     """
+
     type: Literal['download']
     fileName: str  # Additional fields for this type
 
@@ -251,6 +265,7 @@ class Webhook:
     """
     Represents a webhook.
     """
+
     secret: str
     url: str
     customData: Optional[Dict] = None
@@ -261,6 +276,7 @@ class RenderMediaParams:
     """
     Parameters for video rendering.
     """
+
     input_props: Optional[Dict[str, Any]] = None
     bucket_name: Optional[str] = None
     region: Optional[str] = None
@@ -290,7 +306,8 @@ class RenderMediaParams:
     concurrency_per_lambda: Optional[int] = 1
     concurrency: Optional[int] = None
     download_behavior: Optional[Union[PlayInBrowser, ShouldDownload]] = field(
-        default_factory=lambda: PlayInBrowser(type='play-in-browser'))
+        default_factory=lambda: PlayInBrowser(type='play-in-browser')
+    )
     muted: bool = False
     overwrite: bool = False
     force_path_style: Optional[bool] = None
@@ -337,7 +354,9 @@ class RenderMediaParams:
             'outName': self.out_name,
             'preferLossless': self.prefer_lossless,
             'timeoutInMilliseconds': self.timeout_in_milliseconds,
-            'chromiumOptions': self.chromium_options if self.chromium_options is not None else {},
+            'chromiumOptions': (
+                self.chromium_options if self.chromium_options is not None else {}
+            ),
             'scale': self.scale,
             'everyNthFrame': self.every_nth_frame,
             'numberOfGifLoops': self.number_of_gif_loops,
@@ -360,7 +379,7 @@ class RenderMediaParams:
             'deleteAfter': self.delete_after,
             'encodingBufferSize': self.encoding_buffer_size,
             'encodingMaxRate': self.encoding_max_rate,
-            'type': 'start'
+            'type': 'start',
         }
 
         if self.crf is not None:
@@ -399,6 +418,7 @@ class RenderStillParams:
     """
     Parameters for video rendering.
     """
+
     composition: str
     serve_url: str = ""
     input_props: Optional[Dict[str, Any]] = None
@@ -415,7 +435,9 @@ class RenderStillParams:
     timeout_in_milliseconds: Optional[int] = 30000
     chromium_options: Optional[ChromiumOptions] = None
     scale: Optional[float] = 1
-    download_behavior: Dict = field(default_factory=lambda: PlayInBrowser(type='play-in-browser'))
+    download_behavior: Union[PlayInBrowser, ShouldDownload] = field(
+        default_factory=lambda: PlayInBrowser(type='play-in-browser')
+    )
     force_width: Optional[int] = None
     api_key: Optional[int] = None
     storage_class: Optional[str] = None
@@ -430,21 +452,21 @@ class RenderStillParams:
 
     def serialize_params(self) -> Dict:
         """
-            Serializes the parameters of the current object into a dictionary.
+        Serializes the parameters of the current object into a dictionary.
 
-            This method consolidates both mandatory and optional attributes of the object 
-            into a single dictionary. Mandatory attributes include region, functionName, 
-            serveUrl, composition, inputProps, imageFormat, and privacy. Optional attributes 
-            are added to the dictionary only if they are not None.
+        This method consolidates both mandatory and optional attributes of the object
+        into a single dictionary. Mandatory attributes include region, functionName,
+        serveUrl, composition, inputProps, imageFormat, and privacy. Optional attributes
+        are added to the dictionary only if they are not None.
 
-            The optional attributes include maxRetries, envVariables, jpegQuality, frame, 
-            logLevel, outName, timeoutInMilliseconds, chromiumOptions, scale, downloadBehavior, 
-            forceWidth, forceHeight, forceBucketName, and deleteAfter. 
-            Default values are provided for 'inputProps' (empty dictionary) and 'downloadBehavior' 
-            ('type': 'play-in-browser') if they are not explicitly set.
+        The optional attributes include maxRetries, envVariables, jpegQuality, frame,
+        logLevel, outName, timeoutInMilliseconds, chromiumOptions, scale, downloadBehavior,
+        forceWidth, forceHeight, forceBucketName, and deleteAfter.
+        Default values are provided for 'inputProps' (empty dictionary) and 'downloadBehavior'
+        ('type': 'play-in-browser') if they are not explicitly set.
 
-            Returns:
-                Dict: A dictionary containing all the serialized parameters of the object.
+        Returns:
+            Dict: A dictionary containing all the serialized parameters of the object.
         """
         parameters = {
             'type': 'still',
@@ -456,15 +478,20 @@ class RenderStillParams:
             'version': VERSION,
             'timeoutInMilliseconds': self.timeout_in_milliseconds,
             'maxRetries': self.max_retries,
-            'envVariables': self.env_variables if self.env_variables is not None else {},
+            'envVariables': (
+                self.env_variables if self.env_variables is not None else {}
+            ),
             'jpegQuality': self.jpeg_quality,
             'storageClass': self.storage_class,
             'frame': self.frame,
             'logLevel': self.log_level,
             'outName': self.out_name,
-            'chromiumOptions': self.chromium_options if self.chromium_options is not None else {},
+            'chromiumOptions': (
+                self.chromium_options if self.chromium_options is not None else {}
+            ),
             'scale': self.scale,
-            'downloadBehavior': self.download_behavior or PlayInBrowser(type='play-in-browser'),
+            'downloadBehavior': self.download_behavior
+            or PlayInBrowser(type='play-in-browser'),
             'forceWidth': self.force_width,
             'apiKey': self.api_key,
             'forceHeight': self.force_height,
@@ -490,7 +517,7 @@ class RenderStillResponse:
     Represents the output information of a rendering operation performed on AWS Lambda.
 
     Attributes:
-        estimated_price (CostsInfo): 
+        estimated_price (CostsInfo):
             An object containing detailed cost information related to the rendering.
         url (str): The URL where the rendered image is stored or can be accessed.
         size_in_bytes (int): The size of the rendered image file in bytes.
@@ -498,6 +525,7 @@ class RenderStillResponse:
         render_id (str): A unique identifier for the rendering operation.
         cloud_watch_logs (str): The CloudWatch logs associated with the rendering operation.
     """
+
     estimated_price: CostsInfo
     url: str
     size_in_bytes: int
@@ -506,26 +534,26 @@ class RenderStillResponse:
     outKey: str
 
 
+@dataclass
 class RenderMediaProgress:
     """
     Progress of video rendering.
     """
 
-    def __init__(self):
-        self.overallProgress = float()
-        self.chunks = int()
-        self.done = bool()
-        self.encodingStatus = None
-        self.costs = None
-        self.renderId = str()
-        self.renderMetadata = None
-        self.outputFile = None
-        self.outKey = None
-        self.timeToFinish = None
-        self.errors = []
-        self.fatalErrorEncountered = bool()
-        self.currentTime = int()
-        self.renderSize = int()
-        self.outputSizeInBytes = None
-        self.lambdasInvoked = int()
-        self.framesRendered = None
+    overallProgress: float = 0.0
+    chunks: int = 0
+    done: bool = False
+    encodingStatus: Optional[Any] = None
+    costs: Optional[Any] = None
+    renderId: str = ""
+    renderMetadata: Optional[Any] = None
+    outputFile: Optional[Any] = None
+    outKey: Optional[str] = None
+    timeToFinish: Optional[float] = None
+    errors: List[Any] = field(default_factory=list)
+    fatalErrorEncountered: bool = False
+    currentTime: int = 0
+    renderSize: int = 0
+    outputSizeInBytes: Optional[int] = None
+    lambdasInvoked: int = 0
+    framesRendered: Optional[int] = None
