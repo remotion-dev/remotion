@@ -136,6 +136,15 @@ export type AudioOrVideoAsset = {
 	audioStreamIndex: number;
 };
 
+export type InlineAudioAsset = {
+	type: 'inline-audio';
+	id: string;
+	audio: number[];
+	frame: number;
+	sampleRate: number;
+	numberOfChannels: number;
+};
+
 type DiscriminatedArtifact =
 	| {
 			contentType: 'binary';
@@ -157,7 +166,7 @@ export type ArtifactAsset = {
 	downloadBehavior: DownloadBehavior | null;
 } & DiscriminatedArtifact;
 
-export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset;
+export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset | InlineAudioAsset;
 
 export const compositionsRef = React.createRef<{
 	getCompositions: () => AnyComposition[];

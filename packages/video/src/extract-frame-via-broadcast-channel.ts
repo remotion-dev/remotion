@@ -8,6 +8,7 @@ type ExtractFrameRequest = {
 	durationInSeconds: number;
 	id: string;
 	logLevel: LogLevel;
+	shouldRenderAudio: boolean;
 };
 
 type ExtractFrameResponse =
@@ -41,6 +42,7 @@ if (window.remotion_broadcastChannel) {
 						timeInSeconds: data.timeInSeconds,
 						logLevel: data.logLevel,
 						durationInSeconds: data.durationInSeconds,
+						shouldRenderAudio: data.shouldRenderAudio,
 					});
 
 					const videoFrame = frame?.toVideoFrame() ?? null;
@@ -81,11 +83,13 @@ export const extractFrameViaBroadcastChannel = async ({
 	timeInSeconds,
 	logLevel,
 	durationInSeconds,
+	shouldRenderAudio,
 }: {
 	src: string;
 	timeInSeconds: number;
 	durationInSeconds: number;
 	logLevel: LogLevel;
+	shouldRenderAudio: boolean;
 }): Promise<{
 	frame: ImageBitmap | VideoFrame | null;
 	audio: AudioData | null;
@@ -100,6 +104,7 @@ export const extractFrameViaBroadcastChannel = async ({
 			src,
 			timeInSeconds,
 			durationInSeconds,
+			shouldRenderAudio,
 		});
 
 		return {
@@ -146,6 +151,7 @@ export const extractFrameViaBroadcastChannel = async ({
 		id: requestId,
 		logLevel,
 		durationInSeconds,
+		shouldRenderAudio,
 	};
 
 	window.remotion_broadcastChannel!.postMessage(request);

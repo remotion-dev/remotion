@@ -127,11 +127,13 @@ export const extractFrameAndAudio = async ({
 	timeInSeconds,
 	logLevel,
 	durationInSeconds,
+	shouldRenderAudio,
 }: {
 	src: string;
 	timeInSeconds: number;
 	logLevel: LogLevel;
 	durationInSeconds: number;
+	shouldRenderAudio: boolean;
 }) => {
 	const [frame, audio] = await Promise.all([
 		extractFrame({
@@ -139,12 +141,14 @@ export const extractFrameAndAudio = async ({
 			timeInSeconds,
 			logLevel,
 		}),
-		extractAudio({
-			src,
-			timeInSeconds,
-			logLevel,
-			durationInSeconds,
-		}),
+		shouldRenderAudio
+			? extractAudio({
+					src,
+					timeInSeconds,
+					logLevel,
+					durationInSeconds,
+				})
+			: null,
 	]);
 
 	return {

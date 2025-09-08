@@ -3,9 +3,14 @@ import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-fi
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import type {Page} from './browser/BrowserPage';
+import {collectAssets} from './collect-assets';
 import {compressAsset} from './compress-assets';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import {onlyArtifact, onlyAudioAndVideoAssets} from './filter-asset-types';
+import {
+	onlyArtifact,
+	onlyAudioAndVideoAssets,
+	onlyInlineAudio,
+} from './filter-asset-types';
 import type {CountType} from './get-frame-padded-index';
 import {getFrameOutputFileName} from './get-frame-padded-index';
 import type {VideoImageFormat} from './image-format';
@@ -138,32 +143,38 @@ export const renderFrameWithOptionToReject = async ({
 		);
 	}
 
-	const {buffer, collectedAssets} = await takeFrame({
-		frame,
-		freePage: page,
-		height,
-		imageFormat: assetsOnly ? 'none' : imageFormat,
-		output:
-			index === null
-				? null
-				: path.join(
-						frameDir,
-						getFrameOutputFileName({
-							frame,
-							imageFormat,
-							index,
-							countType,
-							lastFrame,
-							totalFrames: framesToRender.length,
-							imageSequencePattern,
-						}),
-					),
-		jpegQuality,
-		width,
-		scale,
-		wantsBuffer: Boolean(onFrameBuffer),
-		timeoutInMilliseconds,
-	});
+	const [buffer, collectedAssets] = await Promise.all([
+		takeFrame({
+			freePage: page,
+			height,
+			imageFormat: assetsOnly ? 'none' : imageFormat,
+			output:
+				index === null
+					? null
+					: path.join(
+							frameDir,
+							getFrameOutputFileName({
+								frame,
+								imageFormat,
+								index,
+								countType,
+								lastFrame,
+								totalFrames: framesToRender.length,
+								imageSequencePattern,
+							}),
+						),
+			jpegQuality,
+			width,
+			scale,
+			wantsBuffer: Boolean(onFrameBuffer),
+			timeoutInMilliseconds,
+		}),
+		collectAssets({
+			frame,
+			freePage: page,
+			timeoutInMilliseconds,
+		}),
+	]);
 	if (onFrameBuffer && !assetsOnly) {
 		if (!buffer) {
 			throw new Error('unexpected null buffer');
@@ -206,6 +217,8 @@ export const renderFrameWithOptionToReject = async ({
 		return compressAsset(previousAudioRenderAssets, asset);
 	});
 
+	const inlineAudioAssets = onlyInlineAudio(collectedAssets);
+
 	assets.push({
 		audioAndVideoAssets: compressedAssets,
 		frame,
@@ -215,7 +228,9 @@ export const renderFrameWithOptionToReject = async ({
 				filename: a.filename,
 			};
 		}),
+		inlineAudioAssets,
 	});
+
 	for (const renderAsset of compressedAssets) {
 		downloadAndMapAssetsToFileUrl({
 			renderAsset,

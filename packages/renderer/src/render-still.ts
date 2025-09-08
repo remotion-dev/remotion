@@ -11,6 +11,7 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
+import {collectAssets} from './collect-assets';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -320,18 +321,24 @@ const innerRenderStill = async ({
 		attempt: 0,
 	});
 
-	const {buffer, collectedAssets} = await takeFrame({
-		frame: stillFrame,
-		freePage: page,
-		height: composition.height,
-		width: composition.width,
-		imageFormat,
-		scale,
-		output,
-		jpegQuality,
-		wantsBuffer: !output,
-		timeoutInMilliseconds,
-	});
+	const [buffer, collectedAssets] = await Promise.all([
+		takeFrame({
+			freePage: page,
+			height: composition.height,
+			width: composition.width,
+			imageFormat,
+			scale,
+			output,
+			jpegQuality,
+			wantsBuffer: !output,
+			timeoutInMilliseconds,
+		}),
+		collectAssets({
+			frame,
+			freePage: page,
+			timeoutInMilliseconds,
+		}),
+	]);
 
 	const artifactAssets = onlyArtifact({
 		assets: collectedAssets,

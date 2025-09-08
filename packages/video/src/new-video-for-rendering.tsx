@@ -1,16 +1,9 @@
-import React, {
-	useContext,
-	useEffect,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-} from 'react';
+import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
 import {
 	cancelRender,
 	continueRender,
 	delayRender,
 	Internals,
-	random,
 	useCurrentFrame,
 } from 'remotion';
 import {extractFrameViaBroadcastChannel} from './extract-frame-via-broadcast-channel';
@@ -18,10 +11,8 @@ import type {NewVideoProps} from './props';
 
 const {
 	useUnsafeVideoConfig,
-	SequenceContext,
 	useFrameForVolumeProp,
 	useTimelinePosition,
-	getAbsoluteSrc,
 	RenderAssetManager,
 	evaluateVolume,
 } = Internals;
@@ -31,18 +22,15 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	playbackRate,
 	src,
 	muted,
-	toneFrequency,
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
 	// call when a frame of the video, i.e. frame drawn on canvas
 	onVideoFrame,
-	audioStreamIndex,
 	logLevel,
 }) => {
 	const absoluteFrame = useTimelinePosition();
 	const videoConfig = useUnsafeVideoConfig();
-	const sequenceContext = useContext(SequenceContext);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
@@ -51,18 +39,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
 
-	const id = useMemo(
-		() =>
-			`newvideo-${random(
-				src ?? '',
-			)}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
-		[
-			src,
-			sequenceContext?.cumulatedFrom,
-			sequenceContext?.relativeFrom,
-			sequenceContext?.durationInFrames,
-		],
-	);
+	const id = useMemo(() => `${Math.random()}`, []);
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
@@ -78,51 +55,21 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		mediaVolume: 1,
 	});
 
-	useEffect(() => {
-		if (!src) {
-			throw new Error('No src passed');
-		}
-
+	const shouldRenderAudio = useMemo(() => {
 		if (!window.remotion_audioEnabled) {
-			return;
+			return false;
 		}
 
 		if (muted) {
-			return;
+			return false;
 		}
 
 		if (volume <= 0) {
-			return;
+			return false;
 		}
 
-		registerRenderAsset({
-			type: 'video',
-			src: getAbsoluteSrc(src),
-			id,
-			frame: absoluteFrame,
-			volume,
-			mediaFrame: frame,
-			playbackRate: playbackRate ?? 1,
-			toneFrequency: toneFrequency ?? null,
-			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
-			audioStreamIndex: audioStreamIndex ?? 0,
-		});
-
-		return () => unregisterRenderAsset(id);
-	}, [
-		muted,
-		src,
-		registerRenderAsset,
-		id,
-		unregisterRenderAsset,
-		volume,
-		frame,
-		absoluteFrame,
-		playbackRate,
-		toneFrequency,
-		sequenceContext?.relativeFrom,
-		audioStreamIndex,
-	]);
+		return true;
+	}, [muted, volume]);
 
 	const {fps} = videoConfig;
 
@@ -145,6 +92,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			timeInSeconds: timestamp,
 			durationInSeconds,
 			logLevel: logLevel ?? 'info',
+			shouldRenderAudio,
 		})
 			.then(({frame: imageBitmap, audio}) => {
 				if (!imageBitmap) {
@@ -155,6 +103,24 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 				canvasRef.current?.getContext('2d')?.drawImage(imageBitmap, 0, 0);
 				imageBitmap.close();
 
+				if (audio) {
+					const data = new Int16Array(
+						audio.numberOfFrames * audio.numberOfChannels,
+					);
+					audio.clone().copyTo(data, {
+						planeIndex: 0,
+					});
+
+					registerRenderAsset({
+						type: 'inline-audio',
+						id,
+						audio: Array.from(data),
+						sampleRate: audio.sampleRate,
+						numberOfChannels: audio.numberOfChannels,
+						frame: absoluteFrame,
+					});
+				}
+
 				continueRender(newHandle);
 			})
 			.catch((error) => {
@@ -163,16 +129,22 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 		return () => {
 			continueRender(newHandle);
+			unregisterRenderAsset(id);
 		};
 	}, [
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		fps,
 		frame,
+		logLevel,
 		onVideoFrame,
 		playbackRate,
+		shouldRenderAudio,
 		src,
-		logLevel,
+		absoluteFrame,
+		registerRenderAsset,
+		unregisterRenderAsset,
+		id,
 	]);
 
 	return (
