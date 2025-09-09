@@ -7,11 +7,10 @@ import React, {
 } from 'react';
 import {
 	cancelRender,
-	continueRender,
-	delayRender,
 	Internals,
 	random,
 	useCurrentFrame,
+	useDelayRender,
 	useRemotionEnvironment,
 } from 'remotion';
 import {extractFrameViaBroadcastChannel} from './extract-frame-via-broadcast-channel';
@@ -128,6 +127,8 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 	const {fps} = videoConfig;
 
+	const {delayRender, continueRender} = useDelayRender();
+
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
 			return;
@@ -175,6 +176,8 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		src,
 		logLevel,
 		environment.isClientSideRendering,
+		delayRender,
+		continueRender,
 	]);
 
 	return (

@@ -3,9 +3,8 @@ import {Canvas, useThree} from '@react-three/fiber';
 import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
 import {
 	Internals,
-	continueRender,
-	delayRender,
 	useCurrentFrame,
+	useDelayRender,
 	useRemotionEnvironment,
 } from 'remotion';
 import {SuspenseLoader} from './SuspenseLoader';
@@ -57,6 +56,7 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 	const shouldUseFrameloopDemand = isRendering;
 
 	const {children, width, height, style, onCreated, ...rest} = props;
+	const {delayRender, continueRender} = useDelayRender();
 	const [waitForCreated] = useState(() =>
 		delayRender('Waiting for <ThreeCanvas/> to be created'),
 	);
@@ -75,7 +75,7 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 			continueRender(waitForCreated);
 			onCreated?.(state);
 		},
-		[onCreated, waitForCreated],
+		[onCreated, waitForCreated, continueRender],
 	);
 
 	return (
