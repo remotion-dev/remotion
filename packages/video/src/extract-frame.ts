@@ -65,6 +65,13 @@ export const extractAudio = async ({
 		samples.push(sample);
 	}
 
+	console.log(
+		'samples',
+		samples.map((s) => s.timestamp),
+		timeInSeconds,
+		timeInSeconds + durationInSeconds,
+	);
+
 	const audioDataArray: AudioData[] = [];
 	for (let i = 0; i < samples.length; i++) {
 		const sample = samples[i];
@@ -85,23 +92,10 @@ export const extractAudio = async ({
 			continue;
 		}
 
-		console.log(
-			sample.timestamp,
-			sample.duration,
-			timeInSeconds + durationInSeconds,
-		);
-
 		const isFirstSample = i === 0;
 		const isLastSample = i === samples.length - 1;
 
 		const audioDataRaw = sample.toAudioData();
-
-		console.log(
-			audioDataRaw.numberOfChannels,
-			audioDataRaw.format,
-			audioDataRaw.numberOfFrames,
-			audioDataRaw.sampleRate,
-		);
 
 		// amount of samples to shave from start and end
 		let trimStartInSeconds = 0;

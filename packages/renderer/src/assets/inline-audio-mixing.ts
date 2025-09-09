@@ -116,23 +116,24 @@ export const makeInlineAudioMixing = (dir: string) => {
 		const fileDescriptor = openFiles[asset.id];
 
 		const arr = new Int16Array(asset.audio);
+		const position = Math.round(
+			(asset.frame / fps) *
+				asset.numberOfChannels *
+				DEFAULT_SAMPLE_RATE *
+				BYTES_PER_SAMPLE,
+		);
+
 		writeSync(
 			// fs
 			fileDescriptor,
 			// data
 			arr,
-			// offset of dats
+			// offset of data
 			0,
 			// length
 			arr.byteLength,
 			// position
-			44 +
-				Math.round(
-					(asset.frame / fps) *
-						asset.numberOfChannels *
-						DEFAULT_SAMPLE_RATE *
-						BYTES_PER_SAMPLE,
-				),
+			44 + position,
 		);
 
 		console.log(
@@ -140,12 +141,10 @@ export const makeInlineAudioMixing = (dir: string) => {
 			arr.byteLength,
 			'bytes to',
 			path.join(folderToAdd, `${asset.id}.wav`),
-			Math.round(
-				(asset.frame / fps) *
-					asset.numberOfChannels *
-					DEFAULT_SAMPLE_RATE *
-					BYTES_PER_SAMPLE,
-			),
+			position,
+			arr.slice(0, 5),
+			// last 5 bytes
+			arr.slice(-5),
 		);
 	};
 

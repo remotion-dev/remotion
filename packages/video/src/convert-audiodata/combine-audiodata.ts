@@ -70,6 +70,8 @@ export const combineAudioDataAndClosePrevious = (
 		});
 		channel.set(intermediateChannel, framesWritten);
 		console.log(
+			audioData.timestamp,
+			audioData.duration,
 			'wrote',
 			intermediateChannel.byteLength,
 			'bytes to channel at offset',
