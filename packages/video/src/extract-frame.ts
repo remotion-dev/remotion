@@ -50,27 +50,49 @@ export const extractAudio = async ({
 		sinkPromise[src] = getSinks(src);
 	}
 
-	const {audio} = await sinkPromise[src];
+	const {audio, actualMatroskaTimestamps} = await sinkPromise[src];
 
 	if (audio === null) {
 		return null;
 	}
 
+	// TODO: Hardcodec
+	const fps = 30;
+
+	// https://discord.com/channels/@me/1409810025844838481/1415028953093111870
+	// Audio frames might have dependencies on previous and next frames so we need to decode a bit more
+	// and then discard it,
+	const extraThreshold = 1 / fps;
+
 	const sampleIterator = audio.sampleSink.samples(
-		timeInSeconds,
-		timeInSeconds + durationInSeconds,
+		timeInSeconds - extraThreshold,
+		timeInSeconds + durationInSeconds + extraThreshold,
 	);
 	const samples: AudioSample[] = [];
+
 	for await (const sample of sampleIterator) {
+		const realTimestamp = actualMatroskaTimestamps.getRealTimestamp(
+			sample.timestamp,
+		);
+
+		if (realTimestamp !== null && realTimestamp !== sample.timestamp) {
+			sample.setTimestamp(realTimestamp);
+		}
+
+		actualMatroskaTimestamps.observeTimestamp(sample.timestamp);
+		actualMatroskaTimestamps.observeTimestamp(
+			sample.timestamp + sample.duration,
+		);
+		if (sample.timestamp + sample.duration - 0.0000000001 <= timeInSeconds) {
+			continue;
+		}
+
+		if (sample.timestamp >= timeInSeconds + durationInSeconds - 0.0000000001) {
+			continue;
+		}
+
 		samples.push(sample);
 	}
-
-	console.log(
-		'samples',
-		samples.map((s) => s.timestamp),
-		timeInSeconds,
-		timeInSeconds + durationInSeconds,
-	);
 
 	const audioDataArray: AudioData[] = [];
 	for (let i = 0; i < samples.length; i++) {

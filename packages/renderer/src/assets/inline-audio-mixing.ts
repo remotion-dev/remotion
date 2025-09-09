@@ -50,7 +50,6 @@ export const makeInlineAudioMixing = (dir: string) => {
 				DEFAULT_SAMPLE_RATE *
 				BYTES_PER_SAMPLE,
 		);
-		console.log({totalNumberOfFrames, fps});
 		const expectedSize = 40 + expectedDataSize;
 
 		const {numberOfChannels} = asset;
@@ -134,17 +133,6 @@ export const makeInlineAudioMixing = (dir: string) => {
 			arr.byteLength,
 			// position
 			44 + position,
-		);
-
-		console.log(
-			'wrote',
-			arr.byteLength,
-			'bytes to',
-			path.join(folderToAdd, `${asset.id}.wav`),
-			position,
-			arr.slice(0, 5),
-			// last 5 bytes
-			arr.slice(-5),
 		);
 	};
 

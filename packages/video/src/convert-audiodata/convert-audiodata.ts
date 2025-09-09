@@ -38,16 +38,6 @@ export const convertAudioData = ({
 	const frameCount =
 		numberOfFrames -
 		Math.round((trimEndInSeconds + trimStartInSeconds) * audioData.sampleRate);
-	console.log(
-		JSON.stringify({
-			frameCount,
-			trimEndInSeconds,
-			trimStartInSeconds,
-			frameOffset,
-			t: audioData.timestamp,
-			d: audioData.duration,
-		}),
-	);
 
 	const newNumberOfFrames = Math.floor(frameCount / ratio);
 

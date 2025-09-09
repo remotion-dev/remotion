@@ -4,10 +4,12 @@ import {
 	AudioSampleSink,
 	EncodedPacketSink,
 	Input,
+	MATROSKA,
 	UrlSource,
 	VideoSampleSink,
 } from 'mediabunny';
 import {makeKeyframeBank} from './keyframe-bank';
+import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
 
 export const getSinks = async (src: string) => {
 	const input = new Input({
@@ -15,12 +17,15 @@ export const getSinks = async (src: string) => {
 		source: new UrlSource(src),
 	});
 
+	const format = await input.getFormat();
+
 	const videoTrack = await input.getPrimaryVideoTrack();
 	if (!videoTrack) {
 		throw new Error(`No video track found for ${src}`);
 	}
 
 	const audioTrack = await input.getPrimaryAudioTrack();
+	const isMatroska = format === MATROSKA;
 
 	return {
 		video: {
@@ -32,6 +37,7 @@ export const getSinks = async (src: string) => {
 					sampleSink: new AudioSampleSink(audioTrack),
 				}
 			: null,
+		actualMatroskaTimestamps: rememberActualMatroskaTimestamps(isMatroska),
 	};
 };
 

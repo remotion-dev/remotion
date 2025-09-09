@@ -69,17 +69,6 @@ export const combineAudioDataAndClosePrevious = (
 			planeIndex: 0,
 		});
 		channel.set(intermediateChannel, framesWritten);
-		console.log(
-			audioData.timestamp,
-			audioData.duration,
-			'wrote',
-			intermediateChannel.byteLength,
-			'bytes to channel at offset',
-			framesWritten,
-			audioData.format,
-			DataType,
-			audioData.allocationSize({planeIndex: 0}),
-		);
 
 		framesWritten += audioData.numberOfFrames * numberOfChannels;
 		audioData.close();
