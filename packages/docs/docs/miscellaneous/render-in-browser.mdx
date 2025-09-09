@@ -24,6 +24,14 @@ This keeps the possibility to have event handlers like `onPointerDown` attached 
 The encoding of the video will work with [Mediabunny](/docs/mediabunny).  
 We hope to launch this mode in late 2025.
 
+## Future-proofing your code
+
+To prepare yourself for client-side rendering, update your code:
+
+- to use the [`useRemotionEnvironment()`](/docs/use-remotion-environment) hook instead of `getRemotionEnvironment()`
+- to use the [`useDelayRender()`](/docs/use-delay-render) hook instead of `delayRender()`
+- Ensure your assets are available via CORS, so the client-side can access them
+
 ## See also
 
 - [`<Player>`](/player): Displaying a Remotion video in the browser without encoding it

@@ -15,6 +15,7 @@ It returns an object with the following properties:
 - `isRendering`: Whether the hook got called in a render.
 - `isPlayer`: Whether a [`<Player>`](/docs/player) is mounted on the current page.
 - `isReadOnlyStudio`: Whether in a [statically deployed studio](https://www.remotion.dev/docs/studio/deploy-static), where the [`@remotion/studio`](/docs/studio/api) APIs cannot be used
+- `isClientSideRendering`: Whether the function [got called in a client-side rendering context](/docs/miscellaneous/render-in-browser) (_available from v4.0.344_)
 
 This can be useful if you want components to behave differently depending on the environment.
 

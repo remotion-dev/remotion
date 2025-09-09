@@ -18,6 +18,7 @@ It returns an object with the following properties:
 - `isRendering`: Whether the function got called in a render. Also available in the [`calculateMetadata()`](/docs/calculate-metadata) function.
 - `isPlayer`: Whether a [`<Player>`](/docs/player) is mounted on the current page.
 - `isReadOnlyStudio`: Whether in a [statically deployed studio](https://www.remotion.dev/docs/studio/deploy-static), where the [`@remotion/studio`](/docs/studio/api) APIs cannot be used (_available from v4.0.238_)
+- `isClientSideRendering`: Whether the function [got called in a client-side rendering context](/docs/miscellaneous/render-in-browser) (_available from v4.0.344_)
 
 This can be useful if you want components or functions to behave differently depending on the environment.
 
