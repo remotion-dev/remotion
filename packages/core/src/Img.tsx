@@ -9,10 +9,10 @@ import React, {
 import {SequenceContext} from './SequenceContext.js';
 import type {IsExact} from './audio/props.js';
 import {cancelRender} from './cancel-render.js';
-import {continueRender, delayRender} from './delay-render.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
 import {useBufferState} from './use-buffer-state.js';
+import {useDelayRender} from './use-delay-render.js';
 
 function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
@@ -139,6 +139,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		[maxRetries, onError, retryIn],
 	);
 
+	const {delayRender, continueRender} = useDelayRender();
+
 	if (typeof window !== 'undefined') {
 		const isPremounting = Boolean(sequenceContext?.premounting);
 		const isPostmounting = Boolean(sequenceContext?.postmounting);
@@ -234,6 +236,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			isPremounting,
 			isPostmounting,
 			onImageFrame,
+			continueRender,
+			delayRender,
 		]);
 	}
 

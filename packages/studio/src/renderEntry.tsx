@@ -18,11 +18,12 @@ import type {
 } from 'remotion';
 import {
 	AbsoluteFill,
-	continueRender,
-	delayRender,
 	getInputProps,
 	getRemotionEnvironment,
+	continueRender as globalContinueRender,
+	delayRender as globalDelayRender,
 	Internals,
+	useDelayRender,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 
@@ -101,13 +102,14 @@ const GetVideoComposition: React.FC<{
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const portalContainer = useRef<HTMLDivElement>(null);
+	const {delayRender, continueRender} = useDelayRender();
 	const [handle] = useState(() =>
 		delayRender(`Waiting for Composition "${state.compositionName}"`),
 	);
 
 	useEffect(() => {
 		return () => continueRender(handle);
-	}, [handle]);
+	}, [handle, continueRender]);
 
 	useEffect(() => {
 		if (compositions.length === 0) {
@@ -151,7 +153,7 @@ const GetVideoComposition: React.FC<{
 		return () => {
 			current.removeChild(Internals.portalNode());
 		};
-	}, [canvasContent, handle]);
+	}, [canvasContent, handle, continueRender]);
 
 	if (!currentCompositionMetadata) {
 		return null;
@@ -173,7 +175,7 @@ const GetVideoComposition: React.FC<{
 
 const DEFAULT_ROOT_COMPONENT_TIMEOUT = 10000;
 
-const waitForRootHandle = delayRender(
+const waitForRootHandle = globalDelayRender(
 	'Loading root component - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout',
 	{
 		timeoutInMilliseconds:
@@ -287,18 +289,18 @@ const renderContent = (Root: React.FC) => {
 
 Internals.waitForRoot((Root) => {
 	renderContent(Root);
-	continueRender(waitForRootHandle);
+	globalContinueRender(waitForRootHandle);
 });
 
 export const setBundleModeAndUpdate = (state: BundleState) => {
 	setBundleMode(state);
-	const delay = delayRender(
+	const delay = globalDelayRender(
 		'Waiting for root component to load - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout',
 	);
 	Internals.waitForRoot((Root) => {
 		renderContent(Root);
 		requestAnimationFrame(() => {
-			continueRender(delay);
+			globalContinueRender(delay);
 		});
 	});
 };
@@ -361,7 +363,7 @@ if (typeof window !== 'undefined') {
 
 		return Promise.all(
 			compositions.map(async (c): Promise<VideoConfigWithSerializedProps> => {
-				const handle = delayRender(
+				const handle = globalDelayRender(
 					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`,
 				);
 
@@ -383,7 +385,7 @@ if (typeof window !== 'undefined') {
 				});
 
 				const resolved = await Promise.resolve(comp);
-				continueRender(handle);
+				globalContinueRender(handle);
 				const {props, defaultProps, ...data} = resolved;
 
 				return {
@@ -421,7 +423,7 @@ if (typeof window !== 'undefined') {
 		}
 
 		const abortController = new AbortController();
-		const handle = delayRender(
+		const handle = globalDelayRender(
 			`Running the calculateMetadata() function for composition ${compId}`,
 		);
 
@@ -448,7 +450,7 @@ if (typeof window !== 'undefined') {
 				compositionId: selectedComp.id,
 			}),
 		);
-		continueRender(handle);
+		globalContinueRender(handle);
 
 		const {props, defaultProps, ...data} = prom;
 		return {
