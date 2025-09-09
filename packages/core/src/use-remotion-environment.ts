@@ -1,6 +1,7 @@
-import {useState} from 'react';
+import {useContext, useState} from 'react';
 import {
 	getRemotionEnvironment,
+	RemotionEnvironmentContext,
 	type RemotionEnvironment,
 } from './get-remotion-environment';
 
@@ -9,6 +10,8 @@ import {
  * @see [Documentation](https://remotion.dev/docs/use-remotion-environment)
  */
 export const useRemotionEnvironment = (): RemotionEnvironment => {
+	const context = useContext(RemotionEnvironmentContext);
 	const [env] = useState(() => getRemotionEnvironment());
-	return env;
+
+	return context ?? env;
 };

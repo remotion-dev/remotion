@@ -1,4 +1,4 @@
-import type {ComponentType, LazyExoticComponent} from 'react';
+import {type ComponentType, type LazyExoticComponent} from 'react';
 import ReactDOM from 'react-dom/client';
 import type {CompositionManagerContext} from 'remotion';
 import {Internals} from 'remotion';
@@ -39,6 +39,7 @@ export const renderMediaOnWeb = async ({
 
 	// TODO: Env variables
 	// TODO: Input Props
+	// TODO: Default props
 	// TODO: calculateMetadata()
 	// TODO: getRemotionEnvironment()
 	// TODO: delayRender()
@@ -85,46 +86,56 @@ export const renderMediaOnWeb = async ({
 	const root = ReactDOM.createRoot(div);
 
 	root.render(
-		<Internals.RemotionRoot
-			// TODO: Hardcoded
-			logLevel="info"
-			// TODO: Hardcoded
-			numberOfAudioTags={0}
-			// TODO: Hardcoded
-			onlyRenderComposition={null}
-			// TODO: Hardcoded
-			currentCompositionMetadata={{
-				// TODO: Empty
-				props: {},
-				// TODO: Hardcoded
-				durationInFrames,
-				// TODO: Hardcoded
-				fps,
-				// TODO: Hardcoded
-				height,
-				// TODO: Hardcoded
-				width,
-				// TODO: Hardcoded
-				defaultCodec: null,
-				// TODO: Hardcoded
-				defaultOutName: null,
-				// TODO: Hardcoded
-				defaultVideoImageFormat: null,
-				// TODO: Hardcoded
-				defaultPixelFormat: null,
+		<Internals.RemotionEnvironmentContext
+			value={{
+				isStudio: false,
+				isRendering: true,
+				isPlayer: false,
+				isReadOnlyStudio: false,
+				isClientSideRendering: true,
 			}}
-			// TODO: Hardcoded
-			audioLatencyHint="interactive"
 		>
-			<Internals.CanUseRemotionHooks value>
-				<Internals.CompositionManager.Provider
-					// TODO: This context is double-wrapped
-					value={compositionManagerContext}
-				>
-					<Component />
-				</Internals.CompositionManager.Provider>
-			</Internals.CanUseRemotionHooks>
-		</Internals.RemotionRoot>,
+			<Internals.RemotionRoot
+				// TODO: Hardcoded
+				logLevel="info"
+				// TODO: Hardcoded
+				numberOfAudioTags={0}
+				// TODO: Hardcoded
+				onlyRenderComposition={null}
+				// TODO: Hardcoded
+				currentCompositionMetadata={{
+					// TODO: Empty
+					props: {},
+					// TODO: Hardcoded
+					durationInFrames,
+					// TODO: Hardcoded
+					fps,
+					// TODO: Hardcoded
+					height,
+					// TODO: Hardcoded
+					width,
+					// TODO: Hardcoded
+					defaultCodec: null,
+					// TODO: Hardcoded
+					defaultOutName: null,
+					// TODO: Hardcoded
+					defaultVideoImageFormat: null,
+					// TODO: Hardcoded
+					defaultPixelFormat: null,
+				}}
+				// TODO: Hardcoded
+				audioLatencyHint="interactive"
+			>
+				<Internals.CanUseRemotionHooks value>
+					<Internals.CompositionManager.Provider
+						// TODO: This context is double-wrapped
+						value={compositionManagerContext}
+					>
+						<Component />
+					</Internals.CompositionManager.Provider>
+				</Internals.CanUseRemotionHooks>
+			</Internals.RemotionRoot>
+		</Internals.RemotionEnvironmentContext>,
 	);
 
 	await waitForReady(delayRenderTimeoutInMilliseconds);

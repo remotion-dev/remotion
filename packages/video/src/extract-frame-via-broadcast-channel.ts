@@ -74,16 +74,14 @@ export const extractFrameViaBroadcastChannel = async ({
 	src,
 	timestamp,
 	logLevel,
+	isClientSideRendering,
 }: {
 	src: string;
 	timestamp: number;
 	logLevel: LogLevel;
+	isClientSideRendering: boolean;
 }): Promise<ImageBitmap | VideoFrame | null> => {
-	if (typeof window.remotion_isMainTab === 'undefined') {
-		throw new Error('This should be defined');
-	}
-
-	if (window.remotion_isMainTab) {
+	if (isClientSideRendering || window.remotion_isMainTab) {
 		const sample = await extractFrame({
 			logLevel,
 			src,
@@ -95,6 +93,10 @@ export const extractFrameViaBroadcastChannel = async ({
 		}
 
 		return sample.toVideoFrame();
+	}
+
+	if (typeof window.remotion_isMainTab === 'undefined') {
+		throw new Error('This should be defined');
 	}
 
 	const requestId = crypto.randomUUID();
