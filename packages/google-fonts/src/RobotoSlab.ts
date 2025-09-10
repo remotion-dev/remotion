@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Roboto Slab',
 	importName: 'RobotoSlab',
-	version: 'v35',
+	version: 'v36',
 	url: 'https://fonts.googleapis.com/css2?family=Roboto+Slab:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -23,147 +23,147 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
 			},
 			'200': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
 			},
 			'300': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
 			},
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
 			},
 			'800': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
 			},
 			'900': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufA5qW54A.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufJ5qW54A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufB5qW54A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufO5qW54A.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufC5qW54A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufD5qW54A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/robotoslab/v35/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
+					'https://fonts.gstatic.com/s/robotoslab/v36/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2',
 			},
 		},
 	},

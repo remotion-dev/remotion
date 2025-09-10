@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sansita',
 	importName: 'Sansita',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Sansita:ital,wght@0,400;0,700;0,800;0,900;1,400;1,700;1,800;1,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,53 +15,53 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sansita/v11/QldMNTRRphEb_-V7LBuBQFlb_qw.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldMNTRRphEb_-V7LBuBQFlb_qw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sansita/v11/QldMNTRRphEb_-V7LBuBTllb.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldMNTRRphEb_-V7LBuBTllb.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sansita/v11/QldJNTRRphEb_-V7LBuJ9XxOz41r__g.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldJNTRRphEb_-V7LBuJ9XxOz41r__g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sansita/v11/QldJNTRRphEb_-V7LBuJ9XxOwY1r.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldJNTRRphEb_-V7LBuJ9XxOwY1r.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sansita/v11/QldJNTRRphEb_-V7LBuJ6X9Oz41r__g.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldJNTRRphEb_-V7LBuJ6X9Oz41r__g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sansita/v11/QldJNTRRphEb_-V7LBuJ6X9OwY1r.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldJNTRRphEb_-V7LBuJ6X9OwY1r.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sansita/v11/QldJNTRRphEb_-V7LBuJzX5Oz41r__g.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldJNTRRphEb_-V7LBuJzX5Oz41r__g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sansita/v11/QldJNTRRphEb_-V7LBuJzX5OwY1r.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldJNTRRphEb_-V7LBuJzX5OwY1r.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sansita/v11/QldONTRRphEb_-V7LBCxTEFf.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldONTRRphEb_-V7LBCxTEFf.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sansita/v11/QldONTRRphEb_-V7LB6xTA.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldONTRRphEb_-V7LB6xTA.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sansita/v11/QldLNTRRphEb_-V7JKWUWXB-w5Vv.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldLNTRRphEb_-V7JKWUWXB-w5Vv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sansita/v11/QldLNTRRphEb_-V7JKWUWX5-ww.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldLNTRRphEb_-V7JKWUWX5-ww.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sansita/v11/QldLNTRRphEb_-V7JLmXWXB-w5Vv.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldLNTRRphEb_-V7JLmXWXB-w5Vv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sansita/v11/QldLNTRRphEb_-V7JLmXWX5-ww.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldLNTRRphEb_-V7JLmXWX5-ww.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sansita/v11/QldLNTRRphEb_-V7JJ2WWXB-w5Vv.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldLNTRRphEb_-V7JJ2WWXB-w5Vv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sansita/v11/QldLNTRRphEb_-V7JJ2WWX5-ww.woff2',
+					'https://fonts.gstatic.com/s/sansita/v12/QldLNTRRphEb_-V7JJ2WWX5-ww.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans NKo Unjoined',
 	importName: 'NotoSansNKoUnjoined',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+NKo+Unjoined:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		nko: 'U+060C, U+061B, U+061F, U+066A, U+07C0-07FF, U+200C-200F, U+25CC, U+2E1C-2E1D, U+FD3E-FD3F',
@@ -15,32 +15,32 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				nko: 'https://fonts.gstatic.com/s/notosansnkounjoined/v3/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFodpF5Mv.woff2',
+				nko: 'https://fonts.gstatic.com/s/notosansnkounjoined/v4/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFodpF5Mv.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansnkounjoined/v3/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuJpF5Mv.woff2',
+					'https://fonts.gstatic.com/s/notosansnkounjoined/v4/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuJpF5Mv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansnkounjoined/v3/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuxpFw.woff2',
+					'https://fonts.gstatic.com/s/notosansnkounjoined/v4/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuxpFw.woff2',
 			},
 			'500': {
-				nko: 'https://fonts.gstatic.com/s/notosansnkounjoined/v3/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFodpF5Mv.woff2',
+				nko: 'https://fonts.gstatic.com/s/notosansnkounjoined/v4/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFodpF5Mv.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansnkounjoined/v3/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuJpF5Mv.woff2',
+					'https://fonts.gstatic.com/s/notosansnkounjoined/v4/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuJpF5Mv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansnkounjoined/v3/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuxpFw.woff2',
+					'https://fonts.gstatic.com/s/notosansnkounjoined/v4/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuxpFw.woff2',
 			},
 			'600': {
-				nko: 'https://fonts.gstatic.com/s/notosansnkounjoined/v3/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFodpF5Mv.woff2',
+				nko: 'https://fonts.gstatic.com/s/notosansnkounjoined/v4/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFodpF5Mv.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansnkounjoined/v3/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuJpF5Mv.woff2',
+					'https://fonts.gstatic.com/s/notosansnkounjoined/v4/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuJpF5Mv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansnkounjoined/v3/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuxpFw.woff2',
+					'https://fonts.gstatic.com/s/notosansnkounjoined/v4/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuxpFw.woff2',
 			},
 			'700': {
-				nko: 'https://fonts.gstatic.com/s/notosansnkounjoined/v3/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFodpF5Mv.woff2',
+				nko: 'https://fonts.gstatic.com/s/notosansnkounjoined/v4/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFodpF5Mv.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansnkounjoined/v3/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuJpF5Mv.woff2',
+					'https://fonts.gstatic.com/s/notosansnkounjoined/v4/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuJpF5Mv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansnkounjoined/v3/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuxpFw.woff2',
+					'https://fonts.gstatic.com/s/notosansnkounjoined/v4/MCoCzBjx1d3VUhJFK9MYlNCXJ6VvqwGPz3szFuxpFw.woff2',
 			},
 		},
 	},

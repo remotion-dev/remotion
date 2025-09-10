@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Newa',
 	importName: 'NotoSansNewa',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Newa:ital,wght@0,400',
 	unicodeRanges: {
 		newa: 'U+1DFB, U+200C-200D, U+25CC, U+11400-1147F',
@@ -15,11 +15,11 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				newa: 'https://fonts.gstatic.com/s/notosansnewa/v16/7r3fqXp6utEsO9pI4f8ok8sWg_mSot8h5g.woff2',
+				newa: 'https://fonts.gstatic.com/s/notosansnewa/v17/7r3fqXp6utEsO9pI4f8ok8sWg_mSot8h5g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansnewa/v16/7r3fqXp6utEsO9pI4f8ok8sWg_n2ot8h5g.woff2',
+					'https://fonts.gstatic.com/s/notosansnewa/v17/7r3fqXp6utEsO9pI4f8ok8sWg_n2ot8h5g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansnewa/v16/7r3fqXp6utEsO9pI4f8ok8sWg_n4ot8.woff2',
+					'https://fonts.gstatic.com/s/notosansnewa/v17/7r3fqXp6utEsO9pI4f8ok8sWg_n4ot8.woff2',
 			},
 		},
 	},

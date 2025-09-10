@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Special Elite',
 	importName: 'SpecialElite',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Special+Elite:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/specialelite/v19/XLYgIZbkc4JPUL5CVArUVL0ntn4OSEFt.woff2',
+					'https://fonts.gstatic.com/s/specialelite/v20/XLYgIZbkc4JPUL5CVArUVL0ntn4OSEFt.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/specialelite/v19/XLYgIZbkc4JPUL5CVArUVL0ntnAOSA.woff2',
+					'https://fonts.gstatic.com/s/specialelite/v20/XLYgIZbkc4JPUL5CVArUVL0ntnAOSA.woff2',
 			},
 		},
 	},

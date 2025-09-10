@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'MuseoModerno',
 	importName: 'MuseoModerno',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=MuseoModerno:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900',
 	unicodeRanges: {
 		vietnamese:
@@ -17,149 +17,149 @@ export const getInfo = () => ({
 		italic: {
 			'100': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
 			},
 			'200': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
 			},
 			'300': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
 			},
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
 			},
 			'500': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
 			},
 			'600': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
 			},
 			'800': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
 			},
 			'900': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnmqAb6ow.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnnqAb6ow.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrf80HnU0_7wWdMrFcWqSEXlXjnpqAY.woff2',
 			},
 		},
 		normal: {
 			'100': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
 			},
 			'200': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
 			},
 			'300': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
 			},
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
 			},
 			'500': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
 			},
 			'600': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
 			},
 			'800': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
 			},
 			'900': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVAnrsAI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlVQnrsAI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/museomoderno/v28/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
+					'https://fonts.gstatic.com/s/museomoderno/v29/zrfi0HnU0_7wWdMrFcWqSEXlWwnr.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Stint Ultra Expanded',
 	importName: 'StintUltraExpanded',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Stint+Ultra+Expanded:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/stintultraexpanded/v23/CSRg4yNNh-GbW3o3JkwoDcdvMKMf0oBAd3qhCzUUWw.woff2',
+					'https://fonts.gstatic.com/s/stintultraexpanded/v24/CSRg4yNNh-GbW3o3JkwoDcdvMKMf0oBAd3qhCzUUWw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/stintultraexpanded/v23/CSRg4yNNh-GbW3o3JkwoDcdvMKMf0oBAd3qvCzU.woff2',
+					'https://fonts.gstatic.com/s/stintultraexpanded/v24/CSRg4yNNh-GbW3o3JkwoDcdvMKMf0oBAd3qvCzU.woff2',
 			},
 		},
 	},

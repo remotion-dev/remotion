@@ -7,10 +7,10 @@ import React, {
 } from 'react';
 import {
 	cancelRender,
-	continueRender,
-	delayRender,
 	Internals,
 	useCurrentFrame,
+	useDelayRender,
+	useRemotionEnvironment,
 } from 'remotion';
 import {extractFrameViaBroadcastChannel} from './extract-frame-via-broadcast-channel';
 import type {NewVideoProps} from './props';
@@ -44,6 +44,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	const volumePropsFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
+	const environment = useRemotionEnvironment();
 
 	const [id] = useState(() => `${Math.random()}`.replace('0.', ''));
 
@@ -79,6 +80,8 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 	const {fps} = videoConfig;
 
+	const {delayRender, continueRender} = useDelayRender();
+
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
 			return;
@@ -99,6 +102,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			durationInSeconds,
 			logLevel: logLevel ?? 'info',
 			shouldRenderAudio,
+			isClientSideRendering: environment.isClientSideRendering,
 		})
 			.then(({frame: imageBitmap, audio}) => {
 				if (!imageBitmap) {
@@ -138,19 +142,22 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			unregisterRenderAsset(id);
 		};
 	}, [
+		absoluteFrame,
+		continueRender,
+		delayRender,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
+		environment.isClientSideRendering,
 		fps,
 		frame,
+		id,
 		logLevel,
 		onVideoFrame,
 		playbackRate,
+		registerRenderAsset,
 		shouldRenderAudio,
 		src,
-		absoluteFrame,
-		registerRenderAsset,
 		unregisterRenderAsset,
-		id,
 	]);
 
 	return (

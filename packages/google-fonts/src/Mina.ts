@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mina',
 	importName: 'Mina',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Mina:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		bengali:
@@ -17,18 +17,18 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				bengali:
-					'https://fonts.gstatic.com/s/mina/v13/-nFzOGc18vARnypp7x3y.woff2',
+					'https://fonts.gstatic.com/s/mina/v14/-nFzOGc18vARnypp7x3y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mina/v13/-nFzOGc18vARnzZp7x3y.woff2',
-				latin: 'https://fonts.gstatic.com/s/mina/v13/-nFzOGc18vARnzhp7w.woff2',
+					'https://fonts.gstatic.com/s/mina/v14/-nFzOGc18vARnzZp7x3y.woff2',
+				latin: 'https://fonts.gstatic.com/s/mina/v14/-nFzOGc18vARnzhp7w.woff2',
 			},
 			'700': {
 				bengali:
-					'https://fonts.gstatic.com/s/mina/v13/-nF8OGc18vARl4NM-jDT9qOk.woff2',
+					'https://fonts.gstatic.com/s/mina/v14/-nF8OGc18vARl4NM-jDT9qOk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mina/v13/-nF8OGc18vARl4NM-izT9qOk.woff2',
+					'https://fonts.gstatic.com/s/mina/v14/-nF8OGc18vARl4NM-izT9qOk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mina/v13/-nF8OGc18vARl4NM-iLT9g.woff2',
+					'https://fonts.gstatic.com/s/mina/v14/-nF8OGc18vARl4NM-iLT9g.woff2',
 			},
 		},
 	},

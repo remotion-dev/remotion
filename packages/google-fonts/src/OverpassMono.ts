@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Overpass Mono',
 	importName: 'OverpassMono',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Overpass+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,63 +20,63 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iK0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iK0ts-2.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iu0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iu0ts-2.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iC0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iC0ts-2.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iG0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iG0ts-2.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1i-0tg.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1i-0tg.woff2',
 			},
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iK0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iK0ts-2.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iu0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iu0ts-2.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iC0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iC0ts-2.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iG0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iG0ts-2.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1i-0tg.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1i-0tg.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iK0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iK0ts-2.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iu0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iu0ts-2.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iC0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iC0ts-2.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iG0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iG0ts-2.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1i-0tg.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1i-0tg.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iK0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iK0ts-2.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iu0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iu0ts-2.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iC0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iC0ts-2.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iG0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iG0ts-2.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1i-0tg.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1i-0tg.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iK0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iK0ts-2.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iu0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iu0ts-2.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iC0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iC0ts-2.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1iG0ts-2.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1iG0ts-2.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/overpassmono/v20/_Xmq-H86tzKDdAPa-KPQZ-AC1i-0tg.woff2',
+					'https://fonts.gstatic.com/s/overpassmono/v21/_Xmq-H86tzKDdAPa-KPQZ-AC1i-0tg.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Luckiest Guy',
 	importName: 'LuckiestGuy',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Luckiest+Guy:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/luckiestguy/v24/_gP_1RrxsjcxVyin9l9n_j2hQ952mDo.woff2',
+					'https://fonts.gstatic.com/s/luckiestguy/v25/_gP_1RrxsjcxVyin9l9n_j2hQ952mDo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/luckiestguy/v24/_gP_1RrxsjcxVyin9l9n_j2hTd52.woff2',
+					'https://fonts.gstatic.com/s/luckiestguy/v25/_gP_1RrxsjcxVyin9l9n_j2hTd52.woff2',
 			},
 		},
 	},

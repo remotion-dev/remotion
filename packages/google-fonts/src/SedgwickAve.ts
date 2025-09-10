@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sedgwick Ave',
 	importName: 'SedgwickAve',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Sedgwick+Ave:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/sedgwickave/v12/uK_04rKEYuguzAcSYRdWTJqMVmI0Zcc.woff2',
+					'https://fonts.gstatic.com/s/sedgwickave/v13/uK_04rKEYuguzAcSYRdWTJqMVmI0Zcc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sedgwickave/v12/uK_04rKEYuguzAcSYRdWTJqMV2I0Zcc.woff2',
+					'https://fonts.gstatic.com/s/sedgwickave/v13/uK_04rKEYuguzAcSYRdWTJqMV2I0Zcc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sedgwickave/v12/uK_04rKEYuguzAcSYRdWTJqMWWI0.woff2',
+					'https://fonts.gstatic.com/s/sedgwickave/v13/uK_04rKEYuguzAcSYRdWTJqMWWI0.woff2',
 			},
 		},
 	},

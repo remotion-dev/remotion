@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Baumans',
 	importName: 'Baumans',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Baumans:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/baumans/v17/-W_-XJj9QyTd3Qfpd_04aw.woff2',
+					'https://fonts.gstatic.com/s/baumans/v18/-W_-XJj9QyTd3Qfpd_04aw.woff2',
 			},
 		},
 	},

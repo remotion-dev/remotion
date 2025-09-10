@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Edu SA Hand',
 	importName: 'EduSAHand',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Edu+SA+Hand:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,27 +15,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/edusahand/v2/mem6YaOmw37C-ogAJfd7Nq0Xdc1UAw.woff2',
+					'https://fonts.gstatic.com/s/edusahand/v3/mem6YaOmw37C-ogAJfd7Nq0Xdc1UAw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/edusahand/v2/mem6YaOmw37C-ogAJfd7Nq0Zdc0.woff2',
+					'https://fonts.gstatic.com/s/edusahand/v3/mem6YaOmw37C-ogAJfd7Nq0Zdc0.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/edusahand/v2/mem6YaOmw37C-ogAJfd7Nq0Xdc1UAw.woff2',
+					'https://fonts.gstatic.com/s/edusahand/v3/mem6YaOmw37C-ogAJfd7Nq0Xdc1UAw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/edusahand/v2/mem6YaOmw37C-ogAJfd7Nq0Zdc0.woff2',
+					'https://fonts.gstatic.com/s/edusahand/v3/mem6YaOmw37C-ogAJfd7Nq0Zdc0.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/edusahand/v2/mem6YaOmw37C-ogAJfd7Nq0Xdc1UAw.woff2',
+					'https://fonts.gstatic.com/s/edusahand/v3/mem6YaOmw37C-ogAJfd7Nq0Xdc1UAw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/edusahand/v2/mem6YaOmw37C-ogAJfd7Nq0Zdc0.woff2',
+					'https://fonts.gstatic.com/s/edusahand/v3/mem6YaOmw37C-ogAJfd7Nq0Zdc0.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/edusahand/v2/mem6YaOmw37C-ogAJfd7Nq0Xdc1UAw.woff2',
+					'https://fonts.gstatic.com/s/edusahand/v3/mem6YaOmw37C-ogAJfd7Nq0Xdc1UAw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/edusahand/v2/mem6YaOmw37C-ogAJfd7Nq0Zdc0.woff2',
+					'https://fonts.gstatic.com/s/edusahand/v3/mem6YaOmw37C-ogAJfd7Nq0Zdc0.woff2',
 			},
 		},
 	},

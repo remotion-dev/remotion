@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Habibi',
 	importName: 'Habibi',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Habibi:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/habibi/v21/CSR-4zFWkuqcTTNyQxhfVOY.woff2',
+					'https://fonts.gstatic.com/s/habibi/v22/CSR-4zFWkuqcTTNyQxhfVOY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/habibi/v21/CSR-4zFWkuqcTTNyTRhf.woff2',
+					'https://fonts.gstatic.com/s/habibi/v22/CSR-4zFWkuqcTTNyTRhf.woff2',
 			},
 		},
 	},

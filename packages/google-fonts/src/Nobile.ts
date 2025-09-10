@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nobile',
 	importName: 'Nobile',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Nobile:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -16,53 +16,53 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/nobile/v18/m8JRjflSeaOVl1iGXJ3QULF9bw.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JRjflSeaOVl1iGXJ3QULF9bw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/nobile/v18/m8JRjflSeaOVl1iGXJ3aULF9bw.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JRjflSeaOVl1iGXJ3aULF9bw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nobile/v18/m8JRjflSeaOVl1iGXJ3UULE.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JRjflSeaOVl1iGXJ3UULE.woff2',
 			},
 			'500': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/nobile/v18/m8JWjflSeaOVl1iGXJUnc6RGTm663A.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JWjflSeaOVl1iGXJUnc6RGTm663A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/nobile/v18/m8JWjflSeaOVl1iGXJUnc6RMTm663A.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JWjflSeaOVl1iGXJUnc6RMTm663A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nobile/v18/m8JWjflSeaOVl1iGXJUnc6RCTm4.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JWjflSeaOVl1iGXJUnc6RCTm4.woff2',
 			},
 			'700': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/nobile/v18/m8JWjflSeaOVl1iGXJVvdaRGTm663A.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JWjflSeaOVl1iGXJVvdaRGTm663A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/nobile/v18/m8JWjflSeaOVl1iGXJVvdaRMTm663A.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JWjflSeaOVl1iGXJVvdaRMTm663A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nobile/v18/m8JWjflSeaOVl1iGXJVvdaRCTm4.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JWjflSeaOVl1iGXJVvdaRCTm4.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/nobile/v18/m8JTjflSeaOVl1iGXa3WSLU.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JTjflSeaOVl1iGXa3WSLU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/nobile/v18/m8JTjflSeaOVl1iGV63WSLU.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JTjflSeaOVl1iGV63WSLU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nobile/v18/m8JTjflSeaOVl1iGWa3W.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JTjflSeaOVl1iGWa3W.woff2',
 			},
 			'500': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/nobile/v18/m8JQjflSeaOVl1iOqo7Dc5RAVmo.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JQjflSeaOVl1iOqo7Dc5RAVmo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/nobile/v18/m8JQjflSeaOVl1iOqo7DeZRAVmo.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JQjflSeaOVl1iOqo7DeZRAVmo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nobile/v18/m8JQjflSeaOVl1iOqo7Dd5RA.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JQjflSeaOVl1iOqo7Dd5RA.woff2',
 			},
 			'700': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/nobile/v18/m8JQjflSeaOVl1iO4ojDc5RAVmo.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JQjflSeaOVl1iO4ojDc5RAVmo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/nobile/v18/m8JQjflSeaOVl1iO4ojDeZRAVmo.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JQjflSeaOVl1iO4ojDeZRAVmo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nobile/v18/m8JQjflSeaOVl1iO4ojDd5RA.woff2',
+					'https://fonts.gstatic.com/s/nobile/v19/m8JQjflSeaOVl1iO4ojDd5RA.woff2',
 			},
 		},
 	},

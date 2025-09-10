@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Marhey',
 	importName: 'Marhey',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Marhey:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:
@@ -17,43 +17,43 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				arabic:
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRk48kRNs.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRk48kRNs.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRmI8kRNs.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRmI8kRNs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRlo8k.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRlo8k.woff2',
 			},
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRk48kRNs.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRk48kRNs.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRmI8kRNs.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRmI8kRNs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRlo8k.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRlo8k.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRk48kRNs.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRk48kRNs.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRmI8kRNs.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRmI8kRNs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRlo8k.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRlo8k.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRk48kRNs.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRk48kRNs.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRmI8kRNs.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRmI8kRNs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRlo8k.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRlo8k.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRk48kRNs.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRk48kRNs.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRmI8kRNs.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRmI8kRNs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/marhey/v7/x3dhck7Laq-T7wlRlo8k.woff2',
+					'https://fonts.gstatic.com/s/marhey/v8/x3dhck7Laq-T7wlRlo8k.woff2',
 			},
 		},
 	},

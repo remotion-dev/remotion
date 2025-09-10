@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Dekko',
 	importName: 'Dekko',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Dekko:ital,wght@0,400',
 	unicodeRanges: {
 		devanagari:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/dekko/v22/46khlb_wWjfSrutDTUrcfg.woff2',
+					'https://fonts.gstatic.com/s/dekko/v23/46khlb_wWjfSrutDTUrcfg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/dekko/v22/46khlb_wWjfSrutMTUrcfg.woff2',
+					'https://fonts.gstatic.com/s/dekko/v23/46khlb_wWjfSrutMTUrcfg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/dekko/v22/46khlb_wWjfSrutCTUo.woff2',
+					'https://fonts.gstatic.com/s/dekko/v23/46khlb_wWjfSrutCTUo.woff2',
 			},
 		},
 	},

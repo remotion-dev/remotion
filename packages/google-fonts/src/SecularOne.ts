@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Secular One',
 	importName: 'SecularOne',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Secular+One:ital,wght@0,400',
 	unicodeRanges: {
 		hebrew:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				hebrew:
-					'https://fonts.gstatic.com/s/secularone/v13/8QINdiTajsj_87rMuMdKyqDgOOhLLA.woff2',
+					'https://fonts.gstatic.com/s/secularone/v14/8QINdiTajsj_87rMuMdKyqDgOOhLLA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/secularone/v13/8QINdiTajsj_87rMuMdKyqDsOOhLLA.woff2',
+					'https://fonts.gstatic.com/s/secularone/v14/8QINdiTajsj_87rMuMdKyqDsOOhLLA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/secularone/v13/8QINdiTajsj_87rMuMdKyqDiOOg.woff2',
+					'https://fonts.gstatic.com/s/secularone/v14/8QINdiTajsj_87rMuMdKyqDiOOg.woff2',
 			},
 		},
 	},

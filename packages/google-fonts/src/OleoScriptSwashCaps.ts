@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Oleo Script Swash Caps',
 	importName: 'OleoScriptSwashCaps',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Oleo+Script+Swash+Caps:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/oleoscriptswashcaps/v13/Noaj6Vb-w5SFbTTAsZP_7JkCS08K-jCzDn_HAXOkSL0H.woff2',
+					'https://fonts.gstatic.com/s/oleoscriptswashcaps/v14/Noaj6Vb-w5SFbTTAsZP_7JkCS08K-jCzDn_HAXOkSL0H.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/oleoscriptswashcaps/v13/Noaj6Vb-w5SFbTTAsZP_7JkCS08K-jCzDn_HAX2kSA.woff2',
+					'https://fonts.gstatic.com/s/oleoscriptswashcaps/v14/Noaj6Vb-w5SFbTTAsZP_7JkCS08K-jCzDn_HAX2kSA.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/oleoscriptswashcaps/v13/Noag6Vb-w5SFbTTAsZP_7JkCS08K-jCzDn_HCcaBXYwmnuT5.woff2',
+					'https://fonts.gstatic.com/s/oleoscriptswashcaps/v14/Noag6Vb-w5SFbTTAsZP_7JkCS08K-jCzDn_HCcaBXYwmnuT5.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/oleoscriptswashcaps/v13/Noag6Vb-w5SFbTTAsZP_7JkCS08K-jCzDn_HCcaBXYImng.woff2',
+					'https://fonts.gstatic.com/s/oleoscriptswashcaps/v14/Noag6Vb-w5SFbTTAsZP_7JkCS08K-jCzDn_HCcaBXYImng.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Assistant',
 	importName: 'Assistant',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Assistant:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		hebrew:
@@ -17,59 +17,59 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				hebrew:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
 			},
 			'300': {
 				hebrew:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
 			},
 			'400': {
 				hebrew:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
 			},
 			'500': {
 				hebrew:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
 			},
 			'600': {
 				hebrew:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
 			},
 			'700': {
 				hebrew:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
 			},
 			'800': {
 				hebrew:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzamW5O7w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzZmW5O7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/assistant/v23/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
+					'https://fonts.gstatic.com/s/assistant/v24/2sDcZGJYnIjSi6H75xkzaGW5.woff2',
 			},
 		},
 	},

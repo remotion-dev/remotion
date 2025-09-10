@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Khojki',
 	importName: 'NotoSerifKhojki',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Khojki:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		khojki: 'U+0AE6-0AEF, U+200C-200D, U+25CC, U+A830-A839, U+11200-1124F',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khojki:
-					'https://fonts.gstatic.com/s/notoserifkhojki/v12/I_u0MoOduATTei9aP90ctmPGxP2rBI64ypb4eA.woff2',
+					'https://fonts.gstatic.com/s/notoserifkhojki/v13/I_u0MoOduATTei9aP90ctmPGxP2rBI64ypb4eA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifkhojki/v12/I_u0MoOduATTei9aP90ctmPGxP2rBI7Oypb4eA.woff2',
+					'https://fonts.gstatic.com/s/notoserifkhojki/v13/I_u0MoOduATTei9aP90ctmPGxP2rBI7Oypb4eA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifkhojki/v12/I_u0MoOduATTei9aP90ctmPGxP2rBI7AypY.woff2',
+					'https://fonts.gstatic.com/s/notoserifkhojki/v13/I_u0MoOduATTei9aP90ctmPGxP2rBI7AypY.woff2',
 			},
 			'500': {
 				khojki:
-					'https://fonts.gstatic.com/s/notoserifkhojki/v12/I_u0MoOduATTei9aP90ctmPGxP2rBI64ypb4eA.woff2',
+					'https://fonts.gstatic.com/s/notoserifkhojki/v13/I_u0MoOduATTei9aP90ctmPGxP2rBI64ypb4eA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifkhojki/v12/I_u0MoOduATTei9aP90ctmPGxP2rBI7Oypb4eA.woff2',
+					'https://fonts.gstatic.com/s/notoserifkhojki/v13/I_u0MoOduATTei9aP90ctmPGxP2rBI7Oypb4eA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifkhojki/v12/I_u0MoOduATTei9aP90ctmPGxP2rBI7AypY.woff2',
+					'https://fonts.gstatic.com/s/notoserifkhojki/v13/I_u0MoOduATTei9aP90ctmPGxP2rBI7AypY.woff2',
 			},
 			'600': {
 				khojki:
-					'https://fonts.gstatic.com/s/notoserifkhojki/v12/I_u0MoOduATTei9aP90ctmPGxP2rBI64ypb4eA.woff2',
+					'https://fonts.gstatic.com/s/notoserifkhojki/v13/I_u0MoOduATTei9aP90ctmPGxP2rBI64ypb4eA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifkhojki/v12/I_u0MoOduATTei9aP90ctmPGxP2rBI7Oypb4eA.woff2',
+					'https://fonts.gstatic.com/s/notoserifkhojki/v13/I_u0MoOduATTei9aP90ctmPGxP2rBI7Oypb4eA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifkhojki/v12/I_u0MoOduATTei9aP90ctmPGxP2rBI7AypY.woff2',
+					'https://fonts.gstatic.com/s/notoserifkhojki/v13/I_u0MoOduATTei9aP90ctmPGxP2rBI7AypY.woff2',
 			},
 			'700': {
 				khojki:
-					'https://fonts.gstatic.com/s/notoserifkhojki/v12/I_u0MoOduATTei9aP90ctmPGxP2rBI64ypb4eA.woff2',
+					'https://fonts.gstatic.com/s/notoserifkhojki/v13/I_u0MoOduATTei9aP90ctmPGxP2rBI64ypb4eA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifkhojki/v12/I_u0MoOduATTei9aP90ctmPGxP2rBI7Oypb4eA.woff2',
+					'https://fonts.gstatic.com/s/notoserifkhojki/v13/I_u0MoOduATTei9aP90ctmPGxP2rBI7Oypb4eA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifkhojki/v12/I_u0MoOduATTei9aP90ctmPGxP2rBI7AypY.woff2',
+					'https://fonts.gstatic.com/s/notoserifkhojki/v13/I_u0MoOduATTei9aP90ctmPGxP2rBI7AypY.woff2',
 			},
 		},
 	},

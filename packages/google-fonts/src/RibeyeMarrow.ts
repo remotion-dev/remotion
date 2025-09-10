@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ribeye Marrow',
 	importName: 'RibeyeMarrow',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Ribeye+Marrow:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ribeyemarrow/v25/GFDsWApshnqMRO2JdtRZ2d0vIAUZVFgK.woff2',
+					'https://fonts.gstatic.com/s/ribeyemarrow/v26/GFDsWApshnqMRO2JdtRZ2d0vIAUZVFgK.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ribeyemarrow/v25/GFDsWApshnqMRO2JdtRZ2d0vIAsZVA.woff2',
+					'https://fonts.gstatic.com/s/ribeyemarrow/v26/GFDsWApshnqMRO2JdtRZ2d0vIAsZVA.woff2',
 			},
 		},
 	},

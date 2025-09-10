@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Calligraffitti',
 	importName: 'Calligraffitti',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Calligraffitti:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/calligraffitti/v19/46k2lbT3XjDVqJw3DCmCFjE0vkFeOZc.woff2',
+					'https://fonts.gstatic.com/s/calligraffitti/v20/46k2lbT3XjDVqJw3DCmCFjE0vkFeOZc.woff2',
 			},
 		},
 	},

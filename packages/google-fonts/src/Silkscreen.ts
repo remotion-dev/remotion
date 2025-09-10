@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Silkscreen',
 	importName: 'Silkscreen',
-	version: 'v5',
+	version: 'v6',
 	url: 'https://fonts.googleapis.com/css2?family=Silkscreen:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/silkscreen/v5/m8JXjfVPf62XiF7kO-i9YL1la1OD.woff2',
+					'https://fonts.gstatic.com/s/silkscreen/v6/m8JXjfVPf62XiF7kO-i9YL1la1OD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/silkscreen/v5/m8JXjfVPf62XiF7kO-i9YLNlaw.woff2',
+					'https://fonts.gstatic.com/s/silkscreen/v6/m8JXjfVPf62XiF7kO-i9YLNlaw.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/silkscreen/v5/m8JUjfVPf62XiF7kO-i9aAhAfmKi2Oud.woff2',
+					'https://fonts.gstatic.com/s/silkscreen/v6/m8JUjfVPf62XiF7kO-i9aAhAfmKi2Oud.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/silkscreen/v5/m8JUjfVPf62XiF7kO-i9aAhAfmyi2A.woff2',
+					'https://fonts.gstatic.com/s/silkscreen/v6/m8JUjfVPf62XiF7kO-i9aAhAfmyi2A.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Montez',
 	importName: 'Montez',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Montez:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/montez/v24/845ZNMk5GoGIX8lW3brfed8.woff2',
+					'https://fonts.gstatic.com/s/montez/v25/845ZNMk5GoGIX8lW3brfed8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/montez/v24/845ZNMk5GoGIX8lW07rf.woff2',
+					'https://fonts.gstatic.com/s/montez/v25/845ZNMk5GoGIX8lW07rf.woff2',
 			},
 		},
 	},

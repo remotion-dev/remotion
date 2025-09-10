@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Buenard',
 	importName: 'Buenard',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Buenard:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,27 +15,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/buenard/v21/OD5DuM6Cyma8FnnsDz73qVi9.woff2',
+					'https://fonts.gstatic.com/s/buenard/v22/OD5DuM6Cyma8FnnsDz73qVi9.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/buenard/v21/OD5DuM6Cyma8FnnsDzD3qQ.woff2',
+					'https://fonts.gstatic.com/s/buenard/v22/OD5DuM6Cyma8FnnsDzD3qQ.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/buenard/v21/OD5DuM6Cyma8FnnsDz73qVi9.woff2',
+					'https://fonts.gstatic.com/s/buenard/v22/OD5DuM6Cyma8FnnsDz73qVi9.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/buenard/v21/OD5DuM6Cyma8FnnsDzD3qQ.woff2',
+					'https://fonts.gstatic.com/s/buenard/v22/OD5DuM6Cyma8FnnsDzD3qQ.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/buenard/v21/OD5DuM6Cyma8FnnsDz73qVi9.woff2',
+					'https://fonts.gstatic.com/s/buenard/v22/OD5DuM6Cyma8FnnsDz73qVi9.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/buenard/v21/OD5DuM6Cyma8FnnsDzD3qQ.woff2',
+					'https://fonts.gstatic.com/s/buenard/v22/OD5DuM6Cyma8FnnsDzD3qQ.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/buenard/v21/OD5DuM6Cyma8FnnsDz73qVi9.woff2',
+					'https://fonts.gstatic.com/s/buenard/v22/OD5DuM6Cyma8FnnsDz73qVi9.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/buenard/v21/OD5DuM6Cyma8FnnsDzD3qQ.woff2',
+					'https://fonts.gstatic.com/s/buenard/v22/OD5DuM6Cyma8FnnsDzD3qQ.woff2',
 			},
 		},
 	},

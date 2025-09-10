@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mountains of Christmas',
 	importName: 'MountainsofChristmas',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		latin:
@@ -13,11 +13,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/mountainsofchristmas/v23/3y9w6a4zcCnn5X0FDyrKi2ZRUBIy8uxoUo7eDNGsMQ.woff2',
+					'https://fonts.gstatic.com/s/mountainsofchristmas/v24/3y9w6a4zcCnn5X0FDyrKi2ZRUBIy8uxoUo7eDNGsMQ.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/mountainsofchristmas/v23/3y9z6a4zcCnn5X0FDyrKi2ZRUBIy8uxoUo7eBGqJJPxIOw.woff2',
+					'https://fonts.gstatic.com/s/mountainsofchristmas/v24/3y9z6a4zcCnn5X0FDyrKi2ZRUBIy8uxoUo7eBGqJJPxIOw.woff2',
 			},
 		},
 	},

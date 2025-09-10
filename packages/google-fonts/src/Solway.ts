@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Solway',
 	importName: 'Solway',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Solway:ital,wght@0,300;0,400;0,500;0,700;0,800',
 	unicodeRanges: {
 		latin:
@@ -13,23 +13,23 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				latin:
-					'https://fonts.gstatic.com/s/solway/v18/AMOTz46Cs2uTAOCuLlgpnccR.woff2',
+					'https://fonts.gstatic.com/s/solway/v19/AMOTz46Cs2uTAOCuLlgpnccR.woff2',
 			},
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/solway/v18/AMOQz46Cs2uTAOCmhXo8.woff2',
+					'https://fonts.gstatic.com/s/solway/v19/AMOQz46Cs2uTAOCmhXo8.woff2',
 			},
 			'500': {
 				latin:
-					'https://fonts.gstatic.com/s/solway/v18/AMOTz46Cs2uTAOCudlkpnccR.woff2',
+					'https://fonts.gstatic.com/s/solway/v19/AMOTz46Cs2uTAOCudlkpnccR.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/solway/v18/AMOTz46Cs2uTAOCuPl8pnccR.woff2',
+					'https://fonts.gstatic.com/s/solway/v19/AMOTz46Cs2uTAOCuPl8pnccR.woff2',
 			},
 			'800': {
 				latin:
-					'https://fonts.gstatic.com/s/solway/v18/AMOTz46Cs2uTAOCuIlwpnccR.woff2',
+					'https://fonts.gstatic.com/s/solway/v19/AMOTz46Cs2uTAOCuIlwpnccR.woff2',
 			},
 		},
 	},

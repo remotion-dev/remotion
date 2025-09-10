@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Herr Von Muellerhoff',
 	importName: 'HerrVonMuellerhoff',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Herr+Von+Muellerhoff:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/herrvonmuellerhoff/v22/WBL6rFjRZkREW8WqmCWYLgCkQKXb4CAft0cz9KNo3Q.woff2',
+					'https://fonts.gstatic.com/s/herrvonmuellerhoff/v23/WBL6rFjRZkREW8WqmCWYLgCkQKXb4CAft0cz9KNo3Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/herrvonmuellerhoff/v22/WBL6rFjRZkREW8WqmCWYLgCkQKXb4CAft0c99KM.woff2',
+					'https://fonts.gstatic.com/s/herrvonmuellerhoff/v23/WBL6rFjRZkREW8WqmCWYLgCkQKXb4CAft0c99KM.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Arimo',
 	importName: 'Arimo',
-	version: 'v34',
+	version: 'v35',
 	url: 'https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -25,149 +25,149 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9C5kiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9C5kiK-u.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CdkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CdkiK-u.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9C9kiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9C9kiK-u.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CBkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CBkiK-u.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CFkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CFkiK-u.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CxkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CxkiK-u.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9C1kiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9C1kiK-u.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CNkiA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CNkiA.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9C5kiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9C5kiK-u.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CdkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CdkiK-u.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9C9kiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9C9kiK-u.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CBkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CBkiK-u.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CFkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CFkiK-u.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CxkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CxkiK-u.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9C1kiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9C1kiK-u.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CNkiA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CNkiA.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9C5kiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9C5kiK-u.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CdkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CdkiK-u.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9C9kiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9C9kiK-u.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CBkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CBkiK-u.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CFkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CFkiK-u.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CxkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CxkiK-u.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9C1kiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9C1kiK-u.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CNkiA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CNkiA.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9C5kiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9C5kiK-u.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CdkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CdkiK-u.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9C9kiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9C9kiK-u.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CBkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CBkiK-u.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CFkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CFkiK-u.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CxkiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CxkiK-u.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9C1kiK-u.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9C1kiK-u.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sCzZCDf9_T_10c9CNkiA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sCzZCDf9_T_10c9CNkiA.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10UxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10UxCF8jA.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10dxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10dxCF8jA.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10VxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10VxCF8jA.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10axCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10axCF8jA.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10bxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10bxCF8jA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10WxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10WxCF8jA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10XxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10XxCF8jA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10ZxCE.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10ZxCE.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10UxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10UxCF8jA.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10dxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10dxCF8jA.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10VxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10VxCF8jA.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10axCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10axCF8jA.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10bxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10bxCF8jA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10WxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10WxCF8jA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10XxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10XxCF8jA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10ZxCE.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10ZxCE.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10UxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10UxCF8jA.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10dxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10dxCF8jA.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10VxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10VxCF8jA.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10axCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10axCF8jA.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10bxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10bxCF8jA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10WxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10WxCF8jA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10XxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10XxCF8jA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10ZxCE.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10ZxCE.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10UxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10UxCF8jA.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10dxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10dxCF8jA.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10VxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10VxCF8jA.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10axCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10axCF8jA.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10bxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10bxCF8jA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10WxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10WxCF8jA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10XxCF8jA.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10XxCF8jA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arimo/v34/P5sMzZCDf9_T_10ZxCE.woff2',
+					'https://fonts.gstatic.com/s/arimo/v35/P5sMzZCDf9_T_10ZxCE.woff2',
 			},
 		},
 	},

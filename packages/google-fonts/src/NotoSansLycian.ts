@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Lycian',
 	importName: 'NotoSansLycian',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Lycian:ital,wght@0,400',
 	unicodeRanges: {
 		lycian:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				lycian:
-					'https://fonts.gstatic.com/s/notosanslycian/v15/QldVNSNMqAsHtsJ7UmqxBQA9r8wA16TQCQ.woff2',
+					'https://fonts.gstatic.com/s/notosanslycian/v16/QldVNSNMqAsHtsJ7UmqxBQA9r8wA16TQCQ.woff2',
 			},
 		},
 	},

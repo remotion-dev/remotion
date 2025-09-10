@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Modern Antiqua',
 	importName: 'ModernAntiqua',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Modern+Antiqua:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/modernantiqua/v25/NGStv5TIAUg6Iq_RLNo_2dp1sL1NYWqEcw.woff2',
+					'https://fonts.gstatic.com/s/modernantiqua/v26/NGStv5TIAUg6Iq_RLNo_2dp1sL1NYWqEcw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/modernantiqua/v25/NGStv5TIAUg6Iq_RLNo_2dp1sL1DYWo.woff2',
+					'https://fonts.gstatic.com/s/modernantiqua/v26/NGStv5TIAUg6Iq_RLNo_2dp1sL1DYWo.woff2',
 			},
 		},
 	},

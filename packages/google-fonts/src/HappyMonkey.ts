@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Happy Monkey',
 	importName: 'HappyMonkey',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Happy+Monkey:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/happymonkey/v14/K2F2fZZcl-9SXwl5F_C4R_OwDgr3XWo.woff2',
+					'https://fonts.gstatic.com/s/happymonkey/v15/K2F2fZZcl-9SXwl5F_C4R_OwDgr3XWo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/happymonkey/v14/K2F2fZZcl-9SXwl5F_C4R_OwAAr3.woff2',
+					'https://fonts.gstatic.com/s/happymonkey/v15/K2F2fZZcl-9SXwl5F_C4R_OwAAr3.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rubik Pixels',
 	importName: 'RubikPixels',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Rubik+Pixels:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,15 +20,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/rubikpixels/v2/SlGXmQOaupkIeSx4CEpB7AdiYhwQWgo.woff2',
+					'https://fonts.gstatic.com/s/rubikpixels/v3/SlGXmQOaupkIeSx4CEpB7AdiYhwQWgo.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/rubikpixels/v2/SlGXmQOaupkIeSx4CEpB7AdiaxwQWgo.woff2',
+					'https://fonts.gstatic.com/s/rubikpixels/v3/SlGXmQOaupkIeSx4CEpB7AdiaxwQWgo.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/rubikpixels/v2/SlGXmQOaupkIeSx4CEpB7AdibRwQWgo.woff2',
+					'https://fonts.gstatic.com/s/rubikpixels/v3/SlGXmQOaupkIeSx4CEpB7AdibRwQWgo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rubikpixels/v2/SlGXmQOaupkIeSx4CEpB7AdiYRwQWgo.woff2',
+					'https://fonts.gstatic.com/s/rubikpixels/v3/SlGXmQOaupkIeSx4CEpB7AdiYRwQWgo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rubikpixels/v2/SlGXmQOaupkIeSx4CEpB7AdibxwQ.woff2',
+					'https://fonts.gstatic.com/s/rubikpixels/v3/SlGXmQOaupkIeSx4CEpB7AdibxwQ.woff2',
 			},
 		},
 	},

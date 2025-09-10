@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Meetei Mayek',
 	importName: 'NotoSansMeeteiMayek',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Meetei+Mayek:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'meetei-mayek': 'U+200C-200D, U+25CC, U+AAE0-AAF6, U+ABC0-ABFF',
@@ -16,75 +16,75 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				'meetei-mayek':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
 			},
 			'200': {
 				'meetei-mayek':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
 			},
 			'300': {
 				'meetei-mayek':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
 			},
 			'400': {
 				'meetei-mayek':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
 			},
 			'500': {
 				'meetei-mayek':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
 			},
 			'600': {
 				'meetei-mayek':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
 			},
 			'700': {
 				'meetei-mayek':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
 			},
 			'800': {
 				'meetei-mayek':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
 			},
 			'900': {
 				'meetei-mayek':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrOojb4JN.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrKAjb4JN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmeeteimayek/v19/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
+					'https://fonts.gstatic.com/s/notosansmeeteimayek/v20/HTx9L3QyKieByqY9eZPFweO0be7M21uSphSdrK4jbw.woff2',
 			},
 		},
 	},

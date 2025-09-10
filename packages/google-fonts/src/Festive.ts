@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Festive',
 	importName: 'Festive',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Festive:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/festive/v10/cY9Ffj6KX1xcoDWhJt_qyuHT.woff2',
+					'https://fonts.gstatic.com/s/festive/v11/cY9Ffj6KX1xcoDWhJt_qyuHT.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/festive/v10/cY9Ffj6KX1xcoDWhJt7qyuHT.woff2',
+					'https://fonts.gstatic.com/s/festive/v11/cY9Ffj6KX1xcoDWhJt7qyuHT.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/festive/v10/cY9Ffj6KX1xcoDWhJtDqyg.woff2',
+					'https://fonts.gstatic.com/s/festive/v11/cY9Ffj6KX1xcoDWhJtDqyg.woff2',
 			},
 		},
 	},

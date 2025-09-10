@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Aclonica',
 	importName: 'Aclonica',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Aclonica:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/aclonica/v24/K2FyfZJVlfNNSEBXGY7aAo-YBg.woff2',
+					'https://fonts.gstatic.com/s/aclonica/v25/K2FyfZJVlfNNSEBXGY7aAo-YBg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/aclonica/v24/K2FyfZJVlfNNSEBXGY7UAo8.woff2',
+					'https://fonts.gstatic.com/s/aclonica/v25/K2FyfZJVlfNNSEBXGY7UAo8.woff2',
 			},
 		},
 	},

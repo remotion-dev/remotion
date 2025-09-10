@@ -442,7 +442,7 @@ importers:
     devDependencies:
       '@remix-run/dev':
         specifier: ^2.15.2
-        version: 2.15.2(@remix-run/react@2.15.2)(@remix-run/serve@2.15.2)(typescript@5.8.2)(vite@5.4.19)
+        version: 2.15.2(@remix-run/react@2.15.2)(@remix-run/serve@2.15.2)(typescript@5.8.2)(vite@5.4.20)
       '@remotion/eslint-config-internal':
         specifier: workspace:*
         version: link:../eslint-config-internal
@@ -462,11 +462,11 @@ importers:
         specifier: 4.1.10
         version: 4.1.10
       vite:
-        specifier: 5.4.19
-        version: 5.4.19(@types/node@20.12.14)
+        specifier: 5.4.20
+        version: 5.4.20(@types/node@20.12.14)
       vite-tsconfig-paths:
         specifier: ^4.2.1
-        version: 4.3.2(typescript@5.8.2)(vite@5.4.19)
+        version: 4.3.2(typescript@5.8.2)(vite@5.4.20)
 
   packages/core:
     devDependencies:
@@ -2883,7 +2883,7 @@ importers:
         version: 4.1.1
       '@tailwindcss/vite':
         specifier: 4.1.1
-        version: 4.1.1(vite@5.4.19)
+        version: 4.1.1(vite@5.4.20)
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -2912,18 +2912,18 @@ importers:
         specifier: 4.0.0
         version: 4.0.0
       vite:
-        specifier: 5.4.19
-        version: 5.4.19(@types/node@20.12.14)
+        specifier: 5.4.20
+        version: 5.4.20(@types/node@20.12.14)
       vite-tsconfig-paths:
         specifier: ^4.2.1
-        version: 4.3.2(typescript@5.8.2)(vite@5.4.19)
+        version: 4.3.2(typescript@5.8.2)(vite@5.4.20)
       zod:
         specifier: 3.22.3
         version: 3.22.3
     devDependencies:
       '@react-router/dev':
         specifier: 7.2.0
-        version: 7.2.0(@react-router/serve@7.2.0)(@types/node@20.12.14)(react-router@7.5.2)(typescript@5.8.2)(vite@5.4.19)
+        version: 7.2.0(@react-router/serve@7.2.0)(@types/node@20.12.14)(react-router@7.5.2)(typescript@5.8.2)(vite@5.4.20)
       '@remotion/eslint-config-flat':
         specifier: workspace:*
         version: link:../eslint-config-flat
@@ -3083,10 +3083,10 @@ importers:
         version: 0.0.44
       '@vitejs/plugin-react':
         specifier: 4.1.0
-        version: 4.1.0(vite@5.4.19)
+        version: 4.1.0(vite@5.4.20)
       '@vitejs/plugin-react-swc':
         specifier: 3.0.0
-        version: 3.0.0(vite@5.4.19)
+        version: 3.0.0(vite@5.4.20)
       autoprefixer:
         specifier: 10.4.16
         version: 10.4.16(postcss@8.4.31)
@@ -3106,8 +3106,8 @@ importers:
         specifier: 5.8.2
         version: 5.8.2
       vite:
-        specifier: 5.4.19
-        version: 5.4.19(@types/node@20.12.14)
+        specifier: 5.4.20
+        version: 5.4.20(@types/node@20.12.14)
 
   packages/template-render-server:
     dependencies:
@@ -3740,8 +3740,8 @@ importers:
         specifier: 1.51.1
         version: 1.51.1
       vite:
-        specifier: 5.4.19
-        version: 5.4.19(@types/node@20.12.14)
+        specifier: 5.4.20
+        version: 5.4.20(@types/node@20.12.14)
 
   packages/whisper-web:
     dependencies:
@@ -13949,7 +13949,7 @@ packages:
     resolution: {integrity: sha512-HPwpGIzkl28mWyZqG52jiqDJ12waP11Pa1lGoiyUkIEuMLBP0oeK/C89esbXrxsky5we7dfd8U58nm0SgAWpVw==}
     dev: false
 
-  /@react-router/dev@7.2.0(@react-router/serve@7.2.0)(@types/node@20.12.14)(react-router@7.5.2)(typescript@5.8.2)(vite@5.4.19):
+  /@react-router/dev@7.2.0(@react-router/serve@7.2.0)(@types/node@20.12.14)(react-router@7.5.2)(typescript@5.8.2)(vite@5.4.20):
     resolution: {integrity: sha512-GzSNGeWuhx6sMsnidCQAlCAephibUMC61xIAdsc6hBXWCJe/T9wUrvtnh2Xbcpr7BRZJtJN4UhI472ZURA6m9w==}
     engines: {node: '>=20.0.0'}
     hasBin: true
@@ -13998,7 +13998,7 @@ packages:
       set-cookie-parser: 2.7.1
       typescript: 5.8.2
       valibot: 0.41.0(typescript@5.8.2)
-      vite: 5.4.19(@types/node@20.12.14)
+      vite: 5.4.20(@types/node@20.12.14)
       vite-node: 3.0.0-beta.2(@types/node@20.12.14)
     transitivePeerDependencies:
       - '@types/node'
@@ -14152,7 +14152,7 @@ packages:
       - '@types/react'
       - immer
 
-  /@remix-run/dev@2.15.2(@remix-run/react@2.15.2)(@remix-run/serve@2.15.2)(typescript@5.8.2)(vite@5.4.19):
+  /@remix-run/dev@2.15.2(@remix-run/react@2.15.2)(@remix-run/serve@2.15.2)(typescript@5.8.2)(vite@5.4.20):
     resolution: {integrity: sha512-o8lix8t4GBhtXjo/G1IzwtHVW5GRMs7amtFtBHiR1bhSyK7VyX5qGtTDmJyny5QDv83pxaLOCiE0dUng2BCoyQ==}
     engines: {node: '>=18.0.0'}
     hasBin: true
@@ -14228,7 +14228,7 @@ packages:
       tsconfig-paths: 4.2.0
       typescript: 5.8.2
       valibot: 0.41.0(typescript@5.8.2)
-      vite: 5.4.19(@types/node@20.12.14)
+      vite: 5.4.20(@types/node@20.12.14)
       vite-node: 1.6.0
       ws: 7.5.10
     transitivePeerDependencies:
@@ -16016,7 +16016,7 @@ packages:
       tailwindcss: 4.1.10
     dev: true
 
-  /@tailwindcss/vite@4.1.1(vite@5.4.19):
+  /@tailwindcss/vite@4.1.1(vite@5.4.20):
     resolution: {integrity: sha512-tFTkRZwXq4XKr3S2dUZBxy80wbWYHdDSsu4QOB1yE1HJFKjfxKVpXtup4dyTVdQcLInoHC9lZXFPHnjoBP774g==}
     peerDependencies:
       vite: ^5.2.0 || ^6
@@ -16024,7 +16024,7 @@ packages:
       '@tailwindcss/node': 4.1.1
       '@tailwindcss/oxide': 4.1.1
       tailwindcss: 4.1.1
-      vite: 5.4.19(@types/node@20.12.14)
+      vite: 5.4.20(@types/node@20.12.14)
     dev: false
 
   /@testing-library/dom@10.4.0:
@@ -17288,7 +17288,7 @@ packages:
       lodash: 4.17.21
       mlly: 1.5.0
       outdent: 0.8.0
-      vite: 5.4.19(@types/node@20.12.14)
+      vite: 5.4.20(@types/node@20.12.14)
       vite-node: 1.6.0
     transitivePeerDependencies:
       - '@types/node'
@@ -17315,7 +17315,7 @@ packages:
       react: '*'
       react-dom: '*'
     dependencies:
-      '@remix-run/dev': 2.15.2(@remix-run/react@2.15.2)(@remix-run/serve@2.15.2)(typescript@5.8.2)(vite@5.4.19)
+      '@remix-run/dev': 2.15.2(@remix-run/react@2.15.2)(@remix-run/serve@2.15.2)(typescript@5.8.2)(vite@5.4.20)
       '@remix-run/node': 2.15.2(typescript@5.8.2)
       '@remix-run/server-runtime': 2.15.2(typescript@5.8.2)
       '@vercel/static-config': 3.0.0
@@ -17333,18 +17333,18 @@ packages:
       ts-morph: 12.0.0
     dev: false
 
-  /@vitejs/plugin-react-swc@3.0.0(vite@5.4.19):
+  /@vitejs/plugin-react-swc@3.0.0(vite@5.4.20):
     resolution: {integrity: sha512-vYlodz/mjYRbxMGbHzDgR8aPR+z8n7K/enWkyBGH096xrL2DIPCuTvQVRYPTXGyy6wO7OFiMxZ3r4nKQD1sH0A==}
     peerDependencies:
       vite: ^4.0.0
     dependencies:
       '@swc/core': 1.12.1
-      vite: 5.4.19(@types/node@20.12.14)
+      vite: 5.4.20(@types/node@20.12.14)
     transitivePeerDependencies:
       - '@swc/helpers'
     dev: true
 
-  /@vitejs/plugin-react@4.1.0(vite@5.4.19):
+  /@vitejs/plugin-react@4.1.0(vite@5.4.20):
     resolution: {integrity: sha512-rM0SqazU9iqPUraQ2JlIvReeaxOoRj6n+PzB1C0cBzIbd8qP336nC39/R9yPi3wVcah7E7j/kdU1uCUqMEU4OQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -17355,7 +17355,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.23.2)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 5.4.19(@types/node@20.12.14)
+      vite: 5.4.20(@types/node@20.12.14)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -17393,7 +17393,7 @@ packages:
     dependencies:
       '@testing-library/dom': 10.4.0
       '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.0)
-      '@vitest/mocker': 3.2.4(vite@5.4.19)
+      '@vitest/mocker': 3.2.4(vite@5.4.20)
       '@vitest/utils': 3.2.4
       magic-string: 0.30.17
       sirv: 3.0.1
@@ -17426,7 +17426,7 @@ packages:
       tinyrainbow: 2.0.0
     dev: true
 
-  /@vitest/mocker@3.2.4(vite@5.4.19):
+  /@vitest/mocker@3.2.4(vite@5.4.20):
     resolution: {integrity: sha512-46ryTE9RZO/rfDd7pEqFl7etuyzekzEhUbTW3BvmeO/BcCMEgq59BKhek3dXDWgAj4oMK6OZi+vRr1wPW6qjEQ==}
     peerDependencies:
       msw: ^2.4.9
@@ -17440,7 +17440,7 @@ packages:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
       magic-string: 0.30.17
-      vite: 5.4.19(@types/node@20.12.14)
+      vite: 5.4.20(@types/node@20.12.14)
     dev: true
 
   /@vitest/pretty-format@3.2.4:
@@ -32629,7 +32629,7 @@ packages:
       debug: 4.4.0
       pathe: 1.1.2
       picocolors: 1.1.1
-      vite: 5.4.19(@types/node@20.12.14)
+      vite: 5.4.20(@types/node@20.12.14)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -32650,7 +32650,7 @@ packages:
       debug: 4.4.0
       es-module-lexer: 1.5.4
       pathe: 1.1.2
-      vite: 5.4.19(@types/node@20.12.14)
+      vite: 5.4.20(@types/node@20.12.14)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -32672,7 +32672,7 @@ packages:
       debug: 4.4.1
       es-module-lexer: 1.7.0
       pathe: 2.0.3
-      vite: 5.4.19(@types/node@20.12.14)
+      vite: 5.4.20(@types/node@20.12.14)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -32685,7 +32685,7 @@ packages:
       - terser
     dev: true
 
-  /vite-tsconfig-paths@4.3.2(typescript@5.8.2)(vite@5.4.19):
+  /vite-tsconfig-paths@4.3.2(typescript@5.8.2)(vite@5.4.20):
     resolution: {integrity: sha512-0Vd/a6po6Q+86rPlntHye7F31zA2URZMbH8M3saAZ/xR9QoGN/L21bxEGfXdWmFdNkqPpRdxFT7nmNe12e9/uA==}
     peerDependencies:
       vite: '*'
@@ -32696,7 +32696,7 @@ packages:
       debug: 4.4.0
       globrex: 0.1.2
       tsconfck: 3.1.4(typescript@5.8.2)
-      vite: 5.4.19(@types/node@20.12.14)
+      vite: 5.4.20(@types/node@20.12.14)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -32737,8 +32737,8 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vite@5.4.19(@types/node@20.12.14):
-    resolution: {integrity: sha512-qO3aKv3HoQC8QKiNSTuUM1l9o/XX3+c+VTgLHbJWHZGeTPVAg2XwazI9UWzoxjIJCGCV2zU60uqMzjeLZuULqA==}
+  /vite@5.4.20(@types/node@20.12.14):
+    resolution: {integrity: sha512-j3lYzGC3P+B5Yfy/pfKNgVEg4+UtcIJcVRt2cDjIOmhLourAqPqf8P7acgxeiSgUB7E3p2P8/3gNIgDLpwzs4g==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -32980,7 +32980,7 @@ packages:
       '@types/chai': 5.2.2
       '@vitest/browser': 3.2.4(vitest@3.2.4)(webdriverio@9.19.2)
       '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@5.4.19)
+      '@vitest/mocker': 3.2.4(vite@5.4.20)
       '@vitest/pretty-format': 3.2.4
       '@vitest/runner': 3.2.4
       '@vitest/snapshot': 3.2.4
@@ -32998,7 +32998,7 @@ packages:
       tinyglobby: 0.2.14
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
-      vite: 5.4.19(@types/node@20.12.14)
+      vite: 5.4.20(@types/node@20.12.14)
       vite-node: 3.2.4
       why-is-node-running: 2.3.0
     transitivePeerDependencies:

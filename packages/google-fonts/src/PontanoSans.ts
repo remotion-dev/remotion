@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Pontano Sans',
 	importName: 'PontanoSans',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Pontano+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,33 +15,33 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/pontanosans/v18/qFdD35GdgYR8EzR6oBLDHa3ayz8Ns1s.woff2',
+					'https://fonts.gstatic.com/s/pontanosans/v19/qFdD35GdgYR8EzR6oBLDHa3ayz8Ns1s.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/pontanosans/v18/qFdD35GdgYR8EzR6oBLDHa3axT8N.woff2',
+					'https://fonts.gstatic.com/s/pontanosans/v19/qFdD35GdgYR8EzR6oBLDHa3axT8N.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/pontanosans/v18/qFdD35GdgYR8EzR6oBLDHa3ayz8Ns1s.woff2',
+					'https://fonts.gstatic.com/s/pontanosans/v19/qFdD35GdgYR8EzR6oBLDHa3ayz8Ns1s.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/pontanosans/v18/qFdD35GdgYR8EzR6oBLDHa3axT8N.woff2',
+					'https://fonts.gstatic.com/s/pontanosans/v19/qFdD35GdgYR8EzR6oBLDHa3axT8N.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/pontanosans/v18/qFdD35GdgYR8EzR6oBLDHa3ayz8Ns1s.woff2',
+					'https://fonts.gstatic.com/s/pontanosans/v19/qFdD35GdgYR8EzR6oBLDHa3ayz8Ns1s.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/pontanosans/v18/qFdD35GdgYR8EzR6oBLDHa3axT8N.woff2',
+					'https://fonts.gstatic.com/s/pontanosans/v19/qFdD35GdgYR8EzR6oBLDHa3axT8N.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/pontanosans/v18/qFdD35GdgYR8EzR6oBLDHa3ayz8Ns1s.woff2',
+					'https://fonts.gstatic.com/s/pontanosans/v19/qFdD35GdgYR8EzR6oBLDHa3ayz8Ns1s.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/pontanosans/v18/qFdD35GdgYR8EzR6oBLDHa3axT8N.woff2',
+					'https://fonts.gstatic.com/s/pontanosans/v19/qFdD35GdgYR8EzR6oBLDHa3axT8N.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/pontanosans/v18/qFdD35GdgYR8EzR6oBLDHa3ayz8Ns1s.woff2',
+					'https://fonts.gstatic.com/s/pontanosans/v19/qFdD35GdgYR8EzR6oBLDHa3ayz8Ns1s.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/pontanosans/v18/qFdD35GdgYR8EzR6oBLDHa3axT8N.woff2',
+					'https://fonts.gstatic.com/s/pontanosans/v19/qFdD35GdgYR8EzR6oBLDHa3axT8N.woff2',
 			},
 		},
 	},

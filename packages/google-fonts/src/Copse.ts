@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Copse',
 	importName: 'Copse',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Copse:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/copse/v15/11hPGpDKz1rGb3dkFEk.woff2',
+					'https://fonts.gstatic.com/s/copse/v16/11hPGpDKz1rGb3dkFEk.woff2',
 			},
 		},
 	},

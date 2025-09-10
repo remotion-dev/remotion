@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kumar One',
 	importName: 'KumarOne',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Kumar+One:ital,wght@0,400',
 	unicodeRanges: {
 		gujarati:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				gujarati:
-					'https://fonts.gstatic.com/s/kumarone/v24/bMr1mS-P958wYi6YaGe2KOSXY3o.woff2',
+					'https://fonts.gstatic.com/s/kumarone/v25/bMr1mS-P958wYi6YaGe2KOSXY3o.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kumarone/v24/bMr1mS-P958wYi6YaGe2PeSXY3o.woff2',
+					'https://fonts.gstatic.com/s/kumarone/v25/bMr1mS-P958wYi6YaGe2PeSXY3o.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kumarone/v24/bMr1mS-P958wYi6YaGe2M-SX.woff2',
+					'https://fonts.gstatic.com/s/kumarone/v25/bMr1mS-P958wYi6YaGe2M-SX.woff2',
 			},
 		},
 	},

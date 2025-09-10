@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Angkor',
 	importName: 'Angkor',
-	version: 'v34',
+	version: 'v35',
 	url: 'https://fonts.googleapis.com/css2?family=Angkor:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/angkor/v34/H4cmBXyAlsPdnlbO_iY_0Lo.woff2',
+					'https://fonts.gstatic.com/s/angkor/v35/H4cmBXyAlsPdnlbO_iY_0Lo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/angkor/v34/H4cmBXyAlsPdnlbO9SY_.woff2',
+					'https://fonts.gstatic.com/s/angkor/v35/H4cmBXyAlsPdnlbO9SY_.woff2',
 			},
 		},
 	},

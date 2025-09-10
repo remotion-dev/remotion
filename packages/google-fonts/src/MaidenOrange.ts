@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Maiden Orange',
 	importName: 'MaidenOrange',
-	version: 'v31',
+	version: 'v32',
 	url: 'https://fonts.googleapis.com/css2?family=Maiden+Orange:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/maidenorange/v31/kJE1BuIX7AUmhi2V4m08kb1XvO9XCKS8.woff2',
+					'https://fonts.gstatic.com/s/maidenorange/v32/kJE1BuIX7AUmhi2V4m08kb1XvO9XCKS8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/maidenorange/v31/kJE1BuIX7AUmhi2V4m08kb1XvOFXCA.woff2',
+					'https://fonts.gstatic.com/s/maidenorange/v32/kJE1BuIX7AUmhi2V4m08kb1XvOFXCA.woff2',
 			},
 		},
 	},

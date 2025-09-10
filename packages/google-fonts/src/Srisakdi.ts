@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Srisakdi',
 	importName: 'Srisakdi',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Srisakdi:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		thai: 'U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC',
@@ -17,22 +17,22 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				thai: 'https://fonts.gstatic.com/s/srisakdi/v17/yMJRMIlvdpDbkB0A-gqvdy1Jiw.woff2',
+				thai: 'https://fonts.gstatic.com/s/srisakdi/v18/yMJRMIlvdpDbkB0A-gqvdy1Jiw.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/srisakdi/v17/yMJRMIlvdpDbkB0A-gq0dy1Jiw.woff2',
+					'https://fonts.gstatic.com/s/srisakdi/v18/yMJRMIlvdpDbkB0A-gq0dy1Jiw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/srisakdi/v17/yMJRMIlvdpDbkB0A-gq1dy1Jiw.woff2',
+					'https://fonts.gstatic.com/s/srisakdi/v18/yMJRMIlvdpDbkB0A-gq1dy1Jiw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/srisakdi/v17/yMJRMIlvdpDbkB0A-gq7dy0.woff2',
+					'https://fonts.gstatic.com/s/srisakdi/v18/yMJRMIlvdpDbkB0A-gq7dy0.woff2',
 			},
 			'700': {
-				thai: 'https://fonts.gstatic.com/s/srisakdi/v17/yMJWMIlvdpDbkB0A-gIAUjhiqtBBWw.woff2',
+				thai: 'https://fonts.gstatic.com/s/srisakdi/v18/yMJWMIlvdpDbkB0A-gIAUjhiqtBBWw.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/srisakdi/v17/yMJWMIlvdpDbkB0A-gIAUjh5qtBBWw.woff2',
+					'https://fonts.gstatic.com/s/srisakdi/v18/yMJWMIlvdpDbkB0A-gIAUjh5qtBBWw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/srisakdi/v17/yMJWMIlvdpDbkB0A-gIAUjh4qtBBWw.woff2',
+					'https://fonts.gstatic.com/s/srisakdi/v18/yMJWMIlvdpDbkB0A-gIAUjh4qtBBWw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/srisakdi/v17/yMJWMIlvdpDbkB0A-gIAUjh2qtA.woff2',
+					'https://fonts.gstatic.com/s/srisakdi/v18/yMJWMIlvdpDbkB0A-gIAUjh2qtA.woff2',
 			},
 		},
 	},

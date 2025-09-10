@@ -1,15 +1,11 @@
 import {getLottieMetadata, Lottie, LottieAnimationData} from '@remotion/lottie';
 import {AnimationItem} from 'lottie-web';
 import {useCallback, useEffect, useState} from 'react';
-import {
-	continueRender,
-	delayRender,
-	staticFile,
-	useCurrentFrame,
-} from 'remotion';
+import {staticFile, useCurrentFrame, useDelayRender} from 'remotion';
 
 const LottieLoader = () => {
 	const frame = useCurrentFrame();
+	const {delayRender, continueRender} = useDelayRender();
 	const [handle] = useState(() => delayRender('Loading Lottie animation'));
 
 	const [error, setError] = useState<Error | null>(null);
@@ -33,7 +29,7 @@ const LottieLoader = () => {
 				setError(err);
 				console.log('Animation failed to load', err);
 			});
-	}, [handle]);
+	}, [handle, continueRender]);
 
 	const onAnimationLoaded = useCallback((item: AnimationItem) => {
 		console.log(item.renderer);

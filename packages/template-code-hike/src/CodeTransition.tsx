@@ -1,5 +1,5 @@
-import { Easing, interpolate } from "remotion";
-import { continueRender, delayRender, useCurrentFrame } from "remotion";
+import { Easing, interpolate, useDelayRender } from "remotion";
+import { useCurrentFrame } from "remotion";
 import { Pre, HighlightedCode, AnnotationHandler } from "codehike/code";
 import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 
@@ -29,6 +29,7 @@ export function CodeTransition({
   const ref = React.useRef<HTMLPreElement>(null);
   const [oldSnapshot, setOldSnapshot] =
     useState<TokenTransitionsSnapshot | null>(null);
+  const { delayRender, continueRender } = useDelayRender();
   const [handle] = React.useState(() => delayRender());
 
   const prevCode: HighlightedCode = useMemo(() => {
