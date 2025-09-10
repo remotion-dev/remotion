@@ -128,15 +128,10 @@ export const makeKeyframeBank = ({
 
 	const prepareForDeletion = async () => {
 		// Cleanup frames that have been extracted that might not have been retrieved yet
-		const {value, done} = await sampleIterator.return();
+		const {value} = await sampleIterator.return();
 		if (value) {
 			value.close();
 		}
-
-		Log.verbose(
-			'verbose',
-			`Closed sample iterator ${Boolean(value)}, was done?${done}`,
-		);
 
 		for (const frameTimestamp of frameTimestamps) {
 			if (!frames[frameTimestamp]) {

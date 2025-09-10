@@ -1,5 +1,5 @@
 import {experimental_NewVideo as NewVideo} from '@remotion/video';
-import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
+import {AbsoluteFill, staticFile} from 'remotion';
 
 export const NewVideoExample: React.FC = () => {
 	return (
@@ -25,7 +25,6 @@ export const NewVideoExample: React.FC = () => {
 					</h1>
 				</div>
 				<NewVideo src={staticFile('long-video.mp4')} />
-				<OffthreadVideo src={staticFile('long-video.mp4')} />
 			</AbsoluteFill>
 		</>
 	);

@@ -7,7 +7,7 @@ import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import {truthy} from './truthy';
 
 export type FilterWithoutPaddingApplied = ProcessedTrack & {
-	filter: string;
+	filter: string | null;
 	actualTrimLeft: number;
 };
 

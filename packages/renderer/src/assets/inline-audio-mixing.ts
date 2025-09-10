@@ -34,14 +34,22 @@ export const makeInlineAudioMixing = (dir: string) => {
 		deleteDirectory(folderToAdd);
 	};
 
+	const getListOfAssets = () => {
+		return Object.keys(openFiles);
+	};
+
+	const getFilePath = (asset: InlineAudioAsset) => {
+		return path.join(folderToAdd, `${asset.id}.wav`);
+	};
+
 	const ensureAsset = (
 		asset: InlineAudioAsset,
 		fps: number,
 		totalNumberOfFrames: number,
 	) => {
-		const filePath = path.join(folderToAdd, `${asset.id}.wav`);
-		if (!openFiles[asset.id]) {
-			openFiles[asset.id] = fs.openSync(filePath, 'w');
+		const filePath = getFilePath(asset);
+		if (!openFiles[filePath]) {
+			openFiles[filePath] = fs.openSync(filePath, 'w');
 		}
 
 		const expectedDataSize = Math.round(
@@ -54,7 +62,7 @@ export const makeInlineAudioMixing = (dir: string) => {
 
 		const {numberOfChannels} = asset;
 
-		const fd = openFiles[asset.id];
+		const fd = openFiles[filePath];
 		writeSync(fd, new Uint8Array([0x52, 0x49, 0x46, 0x46]), 0, 4, 0); // "RIFF"
 		writeSync(
 			fd,
@@ -112,7 +120,8 @@ export const makeInlineAudioMixing = (dir: string) => {
 		totalNumberOfFrames: number,
 	) => {
 		ensureAsset(asset, fps, totalNumberOfFrames);
-		const fileDescriptor = openFiles[asset.id];
+		const filePath = getFilePath(asset);
+		const fileDescriptor = openFiles[filePath];
 
 		const arr = new Int16Array(asset.audio);
 		const position = Math.round(
@@ -139,7 +148,7 @@ export const makeInlineAudioMixing = (dir: string) => {
 	return {
 		cleanup,
 		addAsset,
-		folder: folderToAdd,
+		getListOfAssets,
 	};
 };
 
