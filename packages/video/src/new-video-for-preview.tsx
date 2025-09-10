@@ -13,6 +13,8 @@ type NewVideoForPreviewProps = {
 	readonly logLevel?: LogLevel;
 };
 
+const SEEK_THRESHOLD = 0.05;
+
 export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	src,
 	style,
@@ -24,12 +26,14 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	const frame = useCurrentFrame();
 
 	const [canvasSink, setCanvasSink] = useState<CanvasSink | null>(null);
-	const nextFrameRef = useRef<WrappedCanvas | null>(null);
 	const videoFrameIteratorRef = useRef<AsyncGenerator<
-		unknown,
+		WrappedCanvas,
 		void,
 		unknown
 	> | null>(null);
+	const nextFrameRef = useRef<WrappedCanvas | null>(null);
+	const asyncIdRef = useRef<number>(0);
+	const lastCurrentTimeRef = useRef<number>(-1);
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
@@ -44,6 +48,7 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	// set up the canvas sink here
 	useEffect(() => {
+		const currentAsyncId = asyncIdRef.current;
 		const input = new Input({
 			formats: ALL_FORMATS,
 			source: new UrlSource(src),
@@ -67,8 +72,10 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 				Log.error('[NewVideoForPreview] Failed to set up sink', err);
 			});
 		return () => {
+			asyncIdRef.current = currentAsyncId + 1; // cancel any pending operations
 			videoFrameIteratorRef.current?.return();
 			videoFrameIteratorRef.current = null;
+			nextFrameRef.current = null;
 		};
 	}, [src, logLevel]);
 
@@ -86,80 +93,143 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		ctx.drawImage(canvasImageSource, 0, 0);
 	}, []);
 
-	// main sync with the current time
-	useEffect(() => {
-		if (!canvasSink) {
-			return;
-		}
+	const isSignificantSeek = useCallback((newTime: number): boolean => {
+		if (lastCurrentTimeRef.current === -1) return true;
 
+		const timeDiff = Math.abs(newTime - lastCurrentTimeRef.current);
+		return timeDiff > SEEK_THRESHOLD;
+	}, []);
+
+	// uses existing iterator
+	const updateNextFrame = useCallback(async () => {
+		if (!videoFrameIteratorRef.current) return;
+
+		const currentAsyncId = asyncIdRef.current;
+
+		try {
+			const result = await videoFrameIteratorRef.current.next();
+
+			if (currentAsyncId !== asyncIdRef.current) {
+				Log.trace(
+					logLevel,
+					`[NewVideoForPreview] Race condition detected, aborting fetch`,
+				);
+				// race condition detected, just return
+				return;
+			}
+
+			if (result.value) {
+				Log.trace(
+					logLevel,
+					`[NewVideoForPreview] Buffered next frame ${result.value.timestamp.toFixed(3)}s`,
+				);
+				nextFrameRef.current = result.value;
+			}
+		} catch (err) {
+			Log.error('[NewVideoForPreview] Failed to update next frame', err);
+		}
+	}, [logLevel]);
+
+	// frame consumption using existing iterator (like mediabunny render loop)
+	const checkAndConsumeFrame = useCallback(() => {
 		const nextFrame = nextFrameRef.current;
 
 		if (nextFrame && nextFrame.timestamp <= currentTime) {
 			Log.trace(
 				logLevel,
-				`[NewVideoForPreview] Using prefetched frame for ${currentTime.toFixed(3)}s`,
+				`[NewVideoForPreview] Using cached frame ${nextFrame.timestamp.toFixed(3)}s`,
 			);
 			drawFrame(nextFrame.canvas);
-
 			nextFrameRef.current = null;
 
-			const prefetchIterator = canvasSink.canvases(currentTime);
-
-			const prefetchNextFrame = async () => {
-				try {
-					await prefetchIterator.next();
-
-					const nextFrameResult = await prefetchIterator.next();
-
-					if (!nextFrameResult.value) {
-						return;
-					}
-
-					nextFrameRef.current = nextFrameResult.value;
-				} catch (err) {
-					Log.error('[NewVideoForPreview] Failed to prefetch next frame', err);
-				}
-			};
-
-			prefetchNextFrame();
-
-			return;
+			// Continue using SAME iterator for next frame
+			updateNextFrame();
+			return true;
 		}
 
-		videoFrameIteratorRef.current?.return();
+		return false;
+	}, [currentTime, drawFrame, logLevel, updateNextFrame]);
 
-		const iterator = canvasSink.canvases(currentTime);
-		videoFrameIteratorRef.current = iterator;
+	// resets the current iterator, starts a new one
+	const startVideoIterator = useCallback(
+		async (timeToSeek: number) => {
+			if (!canvasSink) return;
 
-		const fetchFrames = async () => {
+			asyncIdRef.current++;
+			const currentAsyncId = asyncIdRef.current;
+
+			// clean up previous iterator
+			await videoFrameIteratorRef.current?.return();
+
+			videoFrameIteratorRef.current = canvasSink.canvases(timeToSeek);
+
+			try {
+				const firstFrame =
+					(await videoFrameIteratorRef.current.next()).value ?? null;
+				const secondFrame =
+					(await videoFrameIteratorRef.current.next()).value ?? null;
+
+				if (currentAsyncId !== asyncIdRef.current) {
+					Log.trace(
+						logLevel,
+						`[NewVideoForPreview] Race condition detected, aborting fetch for ${timeToSeek.toFixed(3)}s`,
+					);
+					return;
+				}
+
+				if (firstFrame) {
+					Log.trace(
+						logLevel,
+						`[NewVideoForPreview] Drew initial frame ${firstFrame.timestamp.toFixed(3)}s`,
+					);
+					drawFrame(firstFrame.canvas);
+				}
+
+				nextFrameRef.current = secondFrame;
+
+				if (secondFrame) {
+					updateNextFrame();
+				}
+			} catch (err) {
+				Log.error('[NewVideoForPreview] Failed to start video iterator', err);
+			}
+		},
+		[canvasSink, drawFrame, logLevel, updateNextFrame],
+	);
+
+	// main sync effect - mediabunny player example insipired
+	useEffect(() => {
+		if (!canvasSink) return;
+
+		const isSeek = isSignificantSeek(currentTime);
+
+		if (isSeek) {
 			Log.trace(
 				logLevel,
-				`[NewVideoForPreview] Fetching frames for ${currentTime.toFixed(3)}s`,
+				`[NewVideoForPreview] Seek detected to ${currentTime.toFixed(3)}s, creating new iterator`,
 			);
-			const firstFrame = (await iterator.next()).value ?? null;
-			const secondFrame = (await iterator.next()).value ?? null;
+			startVideoIterator(currentTime);
+		} else {
+			const frameConsumed = checkAndConsumeFrame();
 
-			if (firstFrame) {
+			if (!frameConsumed && !nextFrameRef.current) {
 				Log.trace(
 					logLevel,
-					`[NewVideoForPreview] Drew fetched frame`,
-					firstFrame.timestamp,
+					`[NewVideoForPreview] No cached frame, fetching for ${currentTime.toFixed(3)}s`,
 				);
-				drawFrame(firstFrame.canvas);
+				startVideoIterator(currentTime);
 			}
+		}
 
-			if (secondFrame) {
-				Log.trace(
-					logLevel,
-					`[NewVideoForPreview] Stored next frame for prefetching`,
-					secondFrame.timestamp,
-				);
-				nextFrameRef.current = secondFrame;
-			}
-		};
-
-		fetchFrames();
-	}, [canvasSink, currentTime, drawFrame, logLevel]);
+		lastCurrentTimeRef.current = currentTime;
+	}, [
+		canvasSink,
+		currentTime,
+		isSignificantSeek,
+		checkAndConsumeFrame,
+		startVideoIterator,
+		logLevel,
+	]);
 
 	return (
 		<canvas
