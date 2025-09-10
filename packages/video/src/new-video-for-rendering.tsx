@@ -15,14 +15,6 @@ import {
 import {extractFrameViaBroadcastChannel} from './extract-frame-via-broadcast-channel';
 import type {NewVideoProps} from './props';
 
-const {
-	useUnsafeVideoConfig,
-	useFrameForVolumeProp,
-	useTimelinePosition,
-	RenderAssetManager,
-	evaluateVolume,
-} = Internals;
-
 export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	volume: volumeProp,
 	playbackRate,
@@ -35,13 +27,14 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	onVideoFrame,
 	logLevel,
 }) => {
-	const absoluteFrame = useTimelinePosition();
-	const videoConfig = useUnsafeVideoConfig();
+	const absoluteFrame = Internals.useTimelinePosition();
+	const videoConfig = Internals.useUnsafeVideoConfig();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const {registerRenderAsset, unregisterRenderAsset} =
-		useContext(RenderAssetManager);
+	const {registerRenderAsset, unregisterRenderAsset} = useContext(
+		Internals.RenderAssetManager,
+	);
 	const frame = useCurrentFrame();
-	const volumePropsFrame = useFrameForVolumeProp(
+	const volumePropsFrame = Internals.useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
 	const environment = useRemotionEnvironment();
@@ -56,7 +49,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		throw new TypeError('No `src` was passed to <NewVideo>.');
 	}
 
-	const volume = evaluateVolume({
+	const volume = Internals.evaluateVolume({
 		volume: volumeProp,
 		frame: volumePropsFrame,
 		mediaVolume: 1,
