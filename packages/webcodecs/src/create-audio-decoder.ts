@@ -61,6 +61,17 @@ export const internalCreateAudioDecoder = async ({
 		});
 	}
 
+	if (config.codec === 'pcm-s24') {
+		return getWaveAudioDecoder({
+			onFrame,
+			config,
+			sampleFormat: 's24',
+			logLevel,
+			ioSynchronizer,
+			onError,
+		});
+	}
+
 	const audioDecoder = new AudioDecoder({
 		async output(frame) {
 			try {
