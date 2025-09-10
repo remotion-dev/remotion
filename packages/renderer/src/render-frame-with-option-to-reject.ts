@@ -256,7 +256,6 @@ export const renderFrameWithOptionToReject = async ({
 	}
 
 	for (const renderAsset of inlineAudioAssets) {
-		// TODO: Hardcoded FPS
 		downloadMap.inlineAudioMixing.addAsset({
 			asset: renderAsset,
 			fps,
