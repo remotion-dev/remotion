@@ -1,4 +1,4 @@
-import {cpSync, mkdirSync} from 'node:fs';
+import {mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {deleteDirectory} from '../delete-directory';
@@ -110,15 +110,8 @@ export const cleanDownloadMap = (downloadMap: DownloadMap) => {
 	deleteDirectory(downloadMap.downloadDir);
 	deleteDirectory(downloadMap.complexFilter);
 	deleteDirectory(downloadMap.compositingDir);
-	// TODO: Cleanup inline audio mixing
-	const backupDir = path.join(
-		downloadMap.assetDir,
-		'..',
-		'remotion-inline-audio-mixing',
-	);
-	cpSync(downloadMap.inlineAudioMixing.folder, backupDir, {recursive: true});
-	console.log('Copied inline audio mixing to', backupDir);
-	// downloadMap.inlineAudioMixing.cleanup();
+
+	downloadMap.inlineAudioMixing.cleanup();
 
 	// Assets dir must be last since the others are contained
 	deleteDirectory(downloadMap.assetDir);
