@@ -15,7 +15,8 @@ export const parseList = ({
 	const startOffset = iterator.counter.getOffset();
 	const type = iterator.getByteString(4, false);
 	if (type !== 'INFO') {
-		throw new Error(`Only supporting LIST INFO, but got ${type}`);
+		iterator.discard(ckSize - 4);
+		return Promise.resolve(null);
 	}
 
 	const metadata: MediaParserMetadataEntry[] = [];

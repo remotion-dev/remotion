@@ -5,6 +5,24 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {Source} from './convert-state';
 import {makeWaveformVisualizer} from './waveform-visualizer';
 
+function uint8_24le_to_uint32(u8: Uint8Array) {
+	if (u8.length % 3 !== 0) {
+		throw new Error('Input length must be a multiple of 3');
+	}
+
+	const count = u8.length / 3;
+	const out = new Uint32Array(count);
+	let j = 0;
+	for (let i = 0; i < count; i++) {
+		const b0 = u8[j++];
+		const b1 = u8[j++];
+		const b2 = u8[j++];
+		out[i] = (b0 | (b1 << 8) | (b2 << 16)) << 8;
+	}
+
+	return out;
+}
+
 export const useThumbnailAndWaveform = ({
 	src,
 	logLevel,
@@ -64,6 +82,22 @@ export const useThumbnailAndWaveform = ({
 							new AudioData({
 								data: sample.data,
 								format: 's16',
+								numberOfChannels: track.numberOfChannels,
+								sampleRate: track.sampleRate,
+								numberOfFrames:
+									((sample.duration as number) * track.sampleRate) / 1_000_000,
+								timestamp: sample.timestamp,
+							}),
+						);
+					};
+				}
+
+				if (track.codecEnum === 'pcm-s24') {
+					return (sample) => {
+						waveform.add(
+							new AudioData({
+								data: uint8_24le_to_uint32(sample.data),
+								format: 's32',
 								numberOfChannels: track.numberOfChannels,
 								sampleRate: track.sampleRate,
 								numberOfFrames:

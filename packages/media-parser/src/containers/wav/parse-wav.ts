@@ -41,7 +41,7 @@ export const parseWav = (state: ParserState): Promise<ParseResult> => {
 		return parseId3({state});
 	}
 
-	if (type === 'junk' || type === 'fllr' || type === 'bext') {
+	if (type === 'junk' || type === 'fllr' || type === 'bext' || type === 'cue') {
 		return parseJunk({state});
 	}
 
