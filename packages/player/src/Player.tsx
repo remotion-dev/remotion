@@ -170,10 +170,7 @@ const PlayerFn = <
 	ref: MutableRefObject<PlayerRef>,
 ) => {
 	if (typeof window !== 'undefined') {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		useLayoutEffect(() => {
-			window.remotion_isPlayer = true;
-		}, []);
+		window.remotion_isPlayer = true;
 	}
 
 	// @ts-expect-error
