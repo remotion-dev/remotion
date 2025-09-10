@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Babylonica',
 	importName: 'Babylonica',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Babylonica:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/babylonica/v6/5aUw9_i2qxWVCAE2aHjTmDp--GVM.woff2',
+					'https://fonts.gstatic.com/s/babylonica/v7/5aUw9_i2qxWVCAE2aHjTmDp--GVM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/babylonica/v6/5aUw9_i2qxWVCAE2aHjTmDt--GVM.woff2',
+					'https://fonts.gstatic.com/s/babylonica/v7/5aUw9_i2qxWVCAE2aHjTmDt--GVM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/babylonica/v6/5aUw9_i2qxWVCAE2aHjTmDV--A.woff2',
+					'https://fonts.gstatic.com/s/babylonica/v7/5aUw9_i2qxWVCAE2aHjTmDV--A.woff2',
 			},
 		},
 	},

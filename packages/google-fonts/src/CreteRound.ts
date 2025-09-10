@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Crete Round',
 	importName: 'CreteRound',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Crete+Round:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/creteround/v15/55xqey1sJNPjPiv1ZZZrxK1-4bHoLlxN.woff2',
+					'https://fonts.gstatic.com/s/creteround/v16/55xqey1sJNPjPiv1ZZZrxK1-4bHoLlxN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/creteround/v15/55xqey1sJNPjPiv1ZZZrxK1-4b_oLg.woff2',
+					'https://fonts.gstatic.com/s/creteround/v16/55xqey1sJNPjPiv1ZZZrxK1-4b_oLg.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/creteround/v15/55xoey1sJNPjPiv1ZZZrxK110b3wKg.woff2',
+					'https://fonts.gstatic.com/s/creteround/v16/55xoey1sJNPjPiv1ZZZrxK110b3wKg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/creteround/v15/55xoey1sJNPjPiv1ZZZrxK170b0.woff2',
+					'https://fonts.gstatic.com/s/creteround/v16/55xoey1sJNPjPiv1ZZZrxK170b0.woff2',
 			},
 		},
 	},

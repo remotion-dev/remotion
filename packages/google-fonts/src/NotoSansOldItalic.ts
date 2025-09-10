@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Old Italic',
 	importName: 'NotoSansOldItalic',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Old+Italic:ital,wght@0,400',
 	unicodeRanges: {
 		'old-italic': 'U+10300-1032F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'old-italic':
-					'https://fonts.gstatic.com/s/notosansolditalic/v17/TuGOUUFzXI5FBtUq5a8bh68BJxxEVam7tVkUfxldCA.woff2',
+					'https://fonts.gstatic.com/s/notosansolditalic/v18/TuGOUUFzXI5FBtUq5a8bh68BJxxEVam7tVkUfxldCA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansolditalic/v17/TuGOUUFzXI5FBtUq5a8bh68BJxxEVam7tVlYfxldCA.woff2',
+					'https://fonts.gstatic.com/s/notosansolditalic/v18/TuGOUUFzXI5FBtUq5a8bh68BJxxEVam7tVlYfxldCA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansolditalic/v17/TuGOUUFzXI5FBtUq5a8bh68BJxxEVam7tVlWfxk.woff2',
+					'https://fonts.gstatic.com/s/notosansolditalic/v18/TuGOUUFzXI5FBtUq5a8bh68BJxxEVam7tVlWfxk.woff2',
 			},
 		},
 	},

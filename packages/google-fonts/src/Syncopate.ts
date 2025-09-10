@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Syncopate',
 	importName: 'Syncopate',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Syncopate:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/syncopate/v23/pe0sMIuPIYBCpEV5eFdCC_e_O98.woff2',
+					'https://fonts.gstatic.com/s/syncopate/v24/pe0sMIuPIYBCpEV5eFdCC_e_O98.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/syncopate/v23/pe0sMIuPIYBCpEV5eFdCBfe_.woff2',
+					'https://fonts.gstatic.com/s/syncopate/v24/pe0sMIuPIYBCpEV5eFdCBfe_.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/syncopate/v23/pe0pMIuPIYBCpEV5eFdKvtKqCv5vS1U.woff2',
+					'https://fonts.gstatic.com/s/syncopate/v24/pe0pMIuPIYBCpEV5eFdKvtKqCv5vS1U.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/syncopate/v23/pe0pMIuPIYBCpEV5eFdKvtKqBP5v.woff2',
+					'https://fonts.gstatic.com/s/syncopate/v24/pe0pMIuPIYBCpEV5eFdKvtKqBP5v.woff2',
 			},
 		},
 	},

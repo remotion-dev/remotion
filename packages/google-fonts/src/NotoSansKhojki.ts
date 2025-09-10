@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Khojki',
 	importName: 'NotoSansKhojki',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Khojki:ital,wght@0,400',
 	unicodeRanges: {
 		khojki: 'U+0AE6-0AEF, U+200C-200D, U+25CC, U+A830-A839, U+11200-1124F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khojki:
-					'https://fonts.gstatic.com/s/notosanskhojki/v19/-nFnOHM29Oofr2wohFbTuPPKVWpmG4hx0ujy.woff2',
+					'https://fonts.gstatic.com/s/notosanskhojki/v20/-nFnOHM29Oofr2wohFbTuPPKVWpmG4hx0ujy.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanskhojki/v19/-nFnOHM29Oofr2wohFbTuPPKVWpmG_5x0ujy.woff2',
+					'https://fonts.gstatic.com/s/notosanskhojki/v20/-nFnOHM29Oofr2wohFbTuPPKVWpmG_5x0ujy.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanskhojki/v19/-nFnOHM29Oofr2wohFbTuPPKVWpmG_Bx0g.woff2',
+					'https://fonts.gstatic.com/s/notosanskhojki/v20/-nFnOHM29Oofr2wohFbTuPPKVWpmG_Bx0g.woff2',
 			},
 		},
 	},

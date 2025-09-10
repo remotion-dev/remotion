@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Freehand',
 	importName: 'Freehand',
-	version: 'v33',
+	version: 'v34',
 	url: 'https://fonts.googleapis.com/css2?family=Freehand:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/freehand/v33/cIf-Ma5eqk01VjKTgDmNRGQ-mQ.woff2',
+					'https://fonts.gstatic.com/s/freehand/v34/cIf-Ma5eqk01VjKTgDmNRGQ-mQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/freehand/v33/cIf-Ma5eqk01VjKTgDmGRGQ.woff2',
+					'https://fonts.gstatic.com/s/freehand/v34/cIf-Ma5eqk01VjKTgDmGRGQ.woff2',
 			},
 		},
 	},

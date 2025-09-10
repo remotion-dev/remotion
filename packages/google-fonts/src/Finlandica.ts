@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Finlandica',
 	importName: 'Finlandica',
-	version: 'v9',
+	version: 'v10',
 	url: 'https://fonts.googleapis.com/css2?family=Finlandica:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,85 +18,85 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1NSEKM_Y.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1NSEKM_Y.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1PCEKM_Y.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1PCEKM_Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1NiEKM_Y.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1NiEKM_Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1OCEK.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1OCEK.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1NSEKM_Y.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1NSEKM_Y.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1PCEKM_Y.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1PCEKM_Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1NiEKM_Y.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1NiEKM_Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1OCEK.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1OCEK.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1NSEKM_Y.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1NSEKM_Y.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1PCEKM_Y.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1PCEKM_Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1NiEKM_Y.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1NiEKM_Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1OCEK.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1OCEK.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1NSEKM_Y.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1NSEKM_Y.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1PCEKM_Y.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1PCEKM_Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1NiEKM_Y.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1NiEKM_Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF7OGk-8vAc7lEtg0aS45m1OCEK.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF7OGk-8vAc7lEtg0aS45m1OCEK.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45GFOjkO.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45GFOjkO.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45iFOjkO.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45iFOjkO.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45KFOjkO.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45KFOjkO.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45yFOg.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45yFOg.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45GFOjkO.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45GFOjkO.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45iFOjkO.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45iFOjkO.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45KFOjkO.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45KFOjkO.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45yFOg.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45yFOg.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45GFOjkO.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45GFOjkO.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45iFOjkO.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45iFOjkO.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45KFOjkO.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45KFOjkO.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45yFOg.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45yFOg.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45GFOjkO.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45GFOjkO.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45iFOjkO.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45iFOjkO.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45KFOjkO.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45KFOjkO.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/finlandica/v9/-nF5OGk-8vAc7lEtg0aS45yFOg.woff2',
+					'https://fonts.gstatic.com/s/finlandica/v10/-nF5OGk-8vAc7lEtg0aS45yFOg.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bangers',
 	importName: 'Bangers',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Bangers:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/bangers/v24/FeVQS0BTqb0h60ACH5FQ2Ixi.woff2',
+					'https://fonts.gstatic.com/s/bangers/v25/FeVQS0BTqb0h60ACH5FQ2Ixi.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bangers/v24/FeVQS0BTqb0h60ACH5BQ2Ixi.woff2',
+					'https://fonts.gstatic.com/s/bangers/v25/FeVQS0BTqb0h60ACH5BQ2Ixi.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bangers/v24/FeVQS0BTqb0h60ACH55Q2A.woff2',
+					'https://fonts.gstatic.com/s/bangers/v25/FeVQS0BTqb0h60ACH55Q2A.woff2',
 			},
 		},
 	},

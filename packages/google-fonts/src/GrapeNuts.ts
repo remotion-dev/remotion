@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Grape Nuts',
 	importName: 'GrapeNuts',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Grape+Nuts:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/grapenuts/v6/syk2-yF4iLM2RfKj4F7k7trlo22R.woff2',
+					'https://fonts.gstatic.com/s/grapenuts/v7/syk2-yF4iLM2RfKj4F7k7trlo22R.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/grapenuts/v6/syk2-yF4iLM2RfKj4F7k7tvlo22R.woff2',
+					'https://fonts.gstatic.com/s/grapenuts/v7/syk2-yF4iLM2RfKj4F7k7tvlo22R.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/grapenuts/v6/syk2-yF4iLM2RfKj4F7k7tXlow.woff2',
+					'https://fonts.gstatic.com/s/grapenuts/v7/syk2-yF4iLM2RfKj4F7k7tXlow.woff2',
 			},
 		},
 	},

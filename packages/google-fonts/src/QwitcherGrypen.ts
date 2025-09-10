@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Qwitcher Grypen',
 	importName: 'QwitcherGrypen',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Qwitcher+Grypen:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		vietnamese:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/qwitchergrypen/v7/pxicypclp9tDilN9RrC5BSI1dZmbQGlBkm8.woff2',
+					'https://fonts.gstatic.com/s/qwitchergrypen/v8/pxicypclp9tDilN9RrC5BSI1dZmbQGlBkm8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/qwitchergrypen/v7/pxicypclp9tDilN9RrC5BSI1dZmbQWlBkm8.woff2',
+					'https://fonts.gstatic.com/s/qwitchergrypen/v8/pxicypclp9tDilN9RrC5BSI1dZmbQWlBkm8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/qwitchergrypen/v7/pxicypclp9tDilN9RrC5BSI1dZmbT2lB.woff2',
+					'https://fonts.gstatic.com/s/qwitchergrypen/v8/pxicypclp9tDilN9RrC5BSI1dZmbT2lB.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/qwitchergrypen/v7/pxiZypclp9tDilN9RrC5BSI1dZmT9ExUok6tnvM.woff2',
+					'https://fonts.gstatic.com/s/qwitchergrypen/v8/pxiZypclp9tDilN9RrC5BSI1dZmT9ExUok6tnvM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/qwitchergrypen/v7/pxiZypclp9tDilN9RrC5BSI1dZmT9ExUo06tnvM.woff2',
+					'https://fonts.gstatic.com/s/qwitchergrypen/v8/pxiZypclp9tDilN9RrC5BSI1dZmT9ExUo06tnvM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/qwitchergrypen/v7/pxiZypclp9tDilN9RrC5BSI1dZmT9ExUrU6t.woff2',
+					'https://fonts.gstatic.com/s/qwitchergrypen/v8/pxiZypclp9tDilN9RrC5BSI1dZmT9ExUrU6t.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mukta Vaani',
 	importName: 'MuktaVaani',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Mukta+Vaani:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		gujarati:
@@ -17,59 +17,59 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				gujarati:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGXNV_Bf8O5LMQ.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGXNV_Bf8O5LMQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGXNV_BK8O5LMQ.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGXNV_BK8O5LMQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGXNV_BE8O4.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGXNV_BE8O4.woff2',
 			},
 			'300': {
 				gujarati:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGWpVPBf8O5LMQ.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGWpVPBf8O5LMQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGWpVPBK8O5LMQ.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGWpVPBK8O5LMQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGWpVPBE8O4.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGWpVPBE8O4.woff2',
 			},
 			'400': {
 				gujarati:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3Jn5SD_-ynaxmxnEfVHPIG0ZduV70Q.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3Jn5SD_-ynaxmxnEfVHPIG0ZduV70Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktavaani/v14/3Jn5SD_-ynaxmxnEfVHPIG0MduV70Q.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3Jn5SD_-ynaxmxnEfVHPIG0MduV70Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3Jn5SD_-ynaxmxnEfVHPIG0CduU.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3Jn5SD_-ynaxmxnEfVHPIG0CduU.woff2',
 			},
 			'500': {
 				gujarati:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGXxVfBf8O5LMQ.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGXxVfBf8O5LMQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGXxVfBK8O5LMQ.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGXxVfBK8O5LMQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGXxVfBE8O4.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGXxVfBE8O4.woff2',
 			},
 			'600': {
 				gujarati:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGXdUvBf8O5LMQ.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGXdUvBf8O5LMQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGXdUvBK8O5LMQ.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGXdUvBK8O5LMQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGXdUvBE8O4.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGXdUvBE8O4.woff2',
 			},
 			'700': {
 				gujarati:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGW5U_Bf8O5LMQ.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGW5U_Bf8O5LMQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGW5U_BK8O5LMQ.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGW5U_BK8O5LMQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGW5U_BE8O4.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGW5U_BE8O4.woff2',
 			},
 			'800': {
 				gujarati:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGWlUPBf8O5LMQ.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGWlUPBf8O5LMQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGWlUPBK8O5LMQ.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGWlUPBK8O5LMQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktavaani/v14/3JnkSD_-ynaxmxnEfVHPIGWlUPBE8O4.woff2',
+					'https://fonts.gstatic.com/s/muktavaani/v15/3JnkSD_-ynaxmxnEfVHPIGWlUPBE8O4.woff2',
 			},
 		},
 	},

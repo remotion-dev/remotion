@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mrs Sheppards',
 	importName: 'MrsSheppards',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Mrs+Sheppards:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mrssheppards/v24/PN_2Rfm9snC0XUGoEZhb91ig7vH7y0Mi.woff2',
+					'https://fonts.gstatic.com/s/mrssheppards/v25/PN_2Rfm9snC0XUGoEZhb91ig7vH7y0Mi.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mrssheppards/v24/PN_2Rfm9snC0XUGoEZhb91ig7v_7yw.woff2',
+					'https://fonts.gstatic.com/s/mrssheppards/v25/PN_2Rfm9snC0XUGoEZhb91ig7v_7yw.woff2',
 			},
 		},
 	},

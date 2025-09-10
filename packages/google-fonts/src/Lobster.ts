@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lobster',
 	importName: 'Lobster',
-	version: 'v31',
+	version: 'v32',
 	url: 'https://fonts.googleapis.com/css2?family=Lobster:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,15 +20,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/lobster/v31/neILzCirqoswsqX9zo-mM5Ez.woff2',
+					'https://fonts.gstatic.com/s/lobster/v32/neILzCirqoswsqX9zo-mM5Ez.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/lobster/v31/neILzCirqoswsqX9zoamM5Ez.woff2',
+					'https://fonts.gstatic.com/s/lobster/v32/neILzCirqoswsqX9zoamM5Ez.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/lobster/v31/neILzCirqoswsqX9zo2mM5Ez.woff2',
+					'https://fonts.gstatic.com/s/lobster/v32/neILzCirqoswsqX9zo2mM5Ez.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lobster/v31/neILzCirqoswsqX9zoymM5Ez.woff2',
+					'https://fonts.gstatic.com/s/lobster/v32/neILzCirqoswsqX9zoymM5Ez.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lobster/v31/neILzCirqoswsqX9zoKmMw.woff2',
+					'https://fonts.gstatic.com/s/lobster/v32/neILzCirqoswsqX9zoKmMw.woff2',
 			},
 		},
 	},

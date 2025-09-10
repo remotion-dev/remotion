@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hanalei',
 	importName: 'Hanalei',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Hanalei:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hanalei/v23/E21n_dD8iufIjBRHbzEsVhdR.woff2',
+					'https://fonts.gstatic.com/s/hanalei/v24/E21n_dD8iufIjBRHbzEsVhdR.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hanalei/v23/E21n_dD8iufIjBRHbz8sVg.woff2',
+					'https://fonts.gstatic.com/s/hanalei/v24/E21n_dD8iufIjBRHbz8sVg.woff2',
 			},
 		},
 	},

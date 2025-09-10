@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hind Guntur',
 	importName: 'HindGuntur',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Hind+Guntur:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		telugu:
@@ -17,43 +17,43 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				telugu:
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKyE3UZrok56nvamSuJd_yGn2cold3qjw.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKyE3UZrok56nvamSuJd_yGn2cold3qjw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKyE3UZrok56nvamSuJd_yGn2c6ld3qjw.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKyE3UZrok56nvamSuJd_yGn2c6ld3qjw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKyE3UZrok56nvamSuJd_yGn2c0ld0.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKyE3UZrok56nvamSuJd_yGn2c0ld0.woff2',
 			},
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKvE3UZrok56nvamSuJd_QxvXILtA.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKvE3UZrok56nvamSuJd_QxvXILtA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKvE3UZrok56nvamSuJd_QjvXILtA.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKvE3UZrok56nvamSuJd_QjvXILtA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKvE3UZrok56nvamSuJd_QtvXI.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKvE3UZrok56nvamSuJd_QtvXI.woff2',
 			},
 			'500': {
 				telugu:
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKyE3UZrok56nvamSuJd_zenmcold3qjw.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKyE3UZrok56nvamSuJd_zenmcold3qjw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKyE3UZrok56nvamSuJd_zenmc6ld3qjw.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKyE3UZrok56nvamSuJd_zenmc6ld3qjw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKyE3UZrok56nvamSuJd_zenmc0ld0.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKyE3UZrok56nvamSuJd_zenmc0ld0.woff2',
 			},
 			'600': {
 				telugu:
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKyE3UZrok56nvamSuJd_zymWcold3qjw.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKyE3UZrok56nvamSuJd_zymWcold3qjw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKyE3UZrok56nvamSuJd_zymWc6ld3qjw.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKyE3UZrok56nvamSuJd_zymWc6ld3qjw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKyE3UZrok56nvamSuJd_zymWc0ld0.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKyE3UZrok56nvamSuJd_zymWc0ld0.woff2',
 			},
 			'700': {
 				telugu:
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKyE3UZrok56nvamSuJd_yWmGcold3qjw.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKyE3UZrok56nvamSuJd_yWmGcold3qjw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKyE3UZrok56nvamSuJd_yWmGc6ld3qjw.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKyE3UZrok56nvamSuJd_yWmGc6ld3qjw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hindguntur/v13/wXKyE3UZrok56nvamSuJd_yWmGc0ld0.woff2',
+					'https://fonts.gstatic.com/s/hindguntur/v14/wXKyE3UZrok56nvamSuJd_yWmGc0ld0.woff2',
 			},
 		},
 	},

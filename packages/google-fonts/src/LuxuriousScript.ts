@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Luxurious Script',
 	importName: 'LuxuriousScript',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Luxurious+Script:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/luxuriousscript/v8/ahcCv9e7yydulT32KZ0rBIoD7DzMs0LEbh1J.woff2',
+					'https://fonts.gstatic.com/s/luxuriousscript/v9/ahcCv9e7yydulT32KZ0rBIoD7DzMs0LEbh1J.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/luxuriousscript/v8/ahcCv9e7yydulT32KZ0rBIoD7DzMs0PEbh1J.woff2',
+					'https://fonts.gstatic.com/s/luxuriousscript/v9/ahcCv9e7yydulT32KZ0rBIoD7DzMs0PEbh1J.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/luxuriousscript/v8/ahcCv9e7yydulT32KZ0rBIoD7DzMs03Ebg.woff2',
+					'https://fonts.gstatic.com/s/luxuriousscript/v9/ahcCv9e7yydulT32KZ0rBIoD7DzMs03Ebg.woff2',
 			},
 		},
 	},

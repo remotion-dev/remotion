@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Google Sans Code',
 	importName: 'GoogleSansCode',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800',
 	unicodeRanges: {
 		adlam:
@@ -31,281 +31,281 @@ export const getInfo = () => ({
 		italic: {
 			'300': {
 				adlam:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUz06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUz06tnvM.woff2',
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUgk6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUgk6tnvM.woff2',
 				cherokee:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUvk6tnvM.woff2',
-				math: 'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU0U6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUvk6tnvM.woff2',
+				math: 'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU0U6tnvM.woff2',
 				'old-permic':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUwU6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUwU6tnvM.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUw06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUw06tnvM.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUF2-Io8pO.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUF2-Io8pO.woff2',
 				syriac:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU3k6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU3k6tnvM.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUok6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUok6tnvM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUo06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUo06tnvM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUrU6t.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUrU6t.woff2',
 			},
 			'400': {
 				adlam:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUz06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUz06tnvM.woff2',
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUgk6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUgk6tnvM.woff2',
 				cherokee:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUvk6tnvM.woff2',
-				math: 'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU0U6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUvk6tnvM.woff2',
+				math: 'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU0U6tnvM.woff2',
 				'old-permic':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUwU6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUwU6tnvM.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUw06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUw06tnvM.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUF2-Io8pO.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUF2-Io8pO.woff2',
 				syriac:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU3k6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU3k6tnvM.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUok6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUok6tnvM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUo06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUo06tnvM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUrU6t.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUrU6t.woff2',
 			},
 			'500': {
 				adlam:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUz06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUz06tnvM.woff2',
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUgk6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUgk6tnvM.woff2',
 				cherokee:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUvk6tnvM.woff2',
-				math: 'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU0U6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUvk6tnvM.woff2',
+				math: 'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU0U6tnvM.woff2',
 				'old-permic':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUwU6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUwU6tnvM.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUw06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUw06tnvM.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUF2-Io8pO.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUF2-Io8pO.woff2',
 				syriac:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU3k6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU3k6tnvM.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUok6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUok6tnvM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUo06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUo06tnvM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUrU6t.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUrU6t.woff2',
 			},
 			'600': {
 				adlam:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUz06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUz06tnvM.woff2',
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUgk6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUgk6tnvM.woff2',
 				cherokee:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUvk6tnvM.woff2',
-				math: 'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU0U6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUvk6tnvM.woff2',
+				math: 'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU0U6tnvM.woff2',
 				'old-permic':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUwU6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUwU6tnvM.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUw06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUw06tnvM.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUF2-Io8pO.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUF2-Io8pO.woff2',
 				syriac:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU3k6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU3k6tnvM.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUok6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUok6tnvM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUo06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUo06tnvM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUrU6t.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUrU6t.woff2',
 			},
 			'700': {
 				adlam:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUz06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUz06tnvM.woff2',
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUgk6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUgk6tnvM.woff2',
 				cherokee:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUvk6tnvM.woff2',
-				math: 'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU0U6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUvk6tnvM.woff2',
+				math: 'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU0U6tnvM.woff2',
 				'old-permic':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUwU6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUwU6tnvM.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUw06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUw06tnvM.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUF2-Io8pO.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUF2-Io8pO.woff2',
 				syriac:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU3k6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU3k6tnvM.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUok6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUok6tnvM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUo06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUo06tnvM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUrU6t.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUrU6t.woff2',
 			},
 			'800': {
 				adlam:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUz06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUz06tnvM.woff2',
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUgk6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUgk6tnvM.woff2',
 				cherokee:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUvk6tnvM.woff2',
-				math: 'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU0U6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUvk6tnvM.woff2',
+				math: 'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU0U6tnvM.woff2',
 				'old-permic':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUwU6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUwU6tnvM.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUw06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUw06tnvM.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUF2-Io8pO.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUF2-Io8pO.woff2',
 				syriac:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU3k6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtU3k6tnvM.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUok6tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUok6tnvM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUo06tnvM.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUo06tnvM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUrU6t.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxiZyogzv91QhV44Z_GQBHsGf5PuWEtUrU6t.woff2',
 			},
 		},
 		normal: {
 			'300': {
 				adlam:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCxkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCxkr1ap.woff2',
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWGFkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWGFkr1ap.woff2',
 				cherokee:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWF1kr1ap.woff2',
-				math: 'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWDJkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWF1kr1ap.woff2',
+				math: 'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWDJkr1ap.woff2',
 				'old-permic':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCJkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCJkr1ap.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCBkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCBkr1ap.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWPRFimuQpw.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWPRFimuQpw.woff2',
 				syriac:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWD1kr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWD1kr1ap.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWEFkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWEFkr1ap.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWEBkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWEBkr1ap.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWE5krw.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWE5krw.woff2',
 			},
 			'400': {
 				adlam:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCxkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCxkr1ap.woff2',
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWGFkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWGFkr1ap.woff2',
 				cherokee:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWF1kr1ap.woff2',
-				math: 'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWDJkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWF1kr1ap.woff2',
+				math: 'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWDJkr1ap.woff2',
 				'old-permic':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCJkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCJkr1ap.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCBkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCBkr1ap.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWPRFimuQpw.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWPRFimuQpw.woff2',
 				syriac:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWD1kr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWD1kr1ap.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWEFkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWEFkr1ap.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWEBkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWEBkr1ap.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWE5krw.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWE5krw.woff2',
 			},
 			'500': {
 				adlam:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCxkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCxkr1ap.woff2',
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWGFkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWGFkr1ap.woff2',
 				cherokee:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWF1kr1ap.woff2',
-				math: 'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWDJkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWF1kr1ap.woff2',
+				math: 'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWDJkr1ap.woff2',
 				'old-permic':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCJkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCJkr1ap.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCBkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCBkr1ap.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWPRFimuQpw.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWPRFimuQpw.woff2',
 				syriac:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWD1kr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWD1kr1ap.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWEFkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWEFkr1ap.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWEBkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWEBkr1ap.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWE5krw.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWE5krw.woff2',
 			},
 			'600': {
 				adlam:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCxkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCxkr1ap.woff2',
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWGFkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWGFkr1ap.woff2',
 				cherokee:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWF1kr1ap.woff2',
-				math: 'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWDJkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWF1kr1ap.woff2',
+				math: 'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWDJkr1ap.woff2',
 				'old-permic':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCJkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCJkr1ap.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCBkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCBkr1ap.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWPRFimuQpw.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWPRFimuQpw.woff2',
 				syriac:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWD1kr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWD1kr1ap.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWEFkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWEFkr1ap.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWEBkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWEBkr1ap.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWE5krw.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWE5krw.woff2',
 			},
 			'700': {
 				adlam:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCxkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCxkr1ap.woff2',
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWGFkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWGFkr1ap.woff2',
 				cherokee:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWF1kr1ap.woff2',
-				math: 'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWDJkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWF1kr1ap.woff2',
+				math: 'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWDJkr1ap.woff2',
 				'old-permic':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCJkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCJkr1ap.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCBkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCBkr1ap.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWPRFimuQpw.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWPRFimuQpw.woff2',
 				syriac:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWD1kr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWD1kr1ap.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWEFkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWEFkr1ap.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWEBkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWEBkr1ap.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWE5krw.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWE5krw.woff2',
 			},
 			'800': {
 				adlam:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCxkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCxkr1ap.woff2',
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWGFkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWGFkr1ap.woff2',
 				cherokee:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWF1kr1ap.woff2',
-				math: 'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWDJkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWF1kr1ap.woff2',
+				math: 'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWDJkr1ap.woff2',
 				'old-permic':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCJkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCJkr1ap.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWCBkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWCBkr1ap.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWPRFimuQpw.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWPRFimuQpw.woff2',
 				syriac:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWD1kr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWD1kr1ap.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWEFkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWEFkr1ap.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWEBkr1ap.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWEBkr1ap.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/googlesanscode/v11/pxifyogzv91QhV44Z_GQBHsGf5PuWE5krw.woff2',
+					'https://fonts.gstatic.com/s/googlesanscode/v12/pxifyogzv91QhV44Z_GQBHsGf5PuWE5krw.woff2',
 			},
 		},
 	},

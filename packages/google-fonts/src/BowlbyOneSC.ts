@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bowlby One SC',
 	importName: 'BowlbyOneSC',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Bowlby+One+SC:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bowlbyonesc/v26/DtVlJxerQqQm37tzN3wMug9P_gH2ojhN.woff2',
+					'https://fonts.gstatic.com/s/bowlbyonesc/v27/DtVlJxerQqQm37tzN3wMug9P_gH2ojhN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bowlbyonesc/v26/DtVlJxerQqQm37tzN3wMug9P_g_2og.woff2',
+					'https://fonts.gstatic.com/s/bowlbyonesc/v27/DtVlJxerQqQm37tzN3wMug9P_g_2og.woff2',
 			},
 		},
 	},

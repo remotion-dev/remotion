@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Wittgenstein',
 	importName: 'Wittgenstein',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Wittgenstein:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,77 +15,77 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBL8rEDOakJCHParhXGwMgvYLtCgqEpB0A.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBL8rEDOakJCHParhXGwMgvYLtCgqEpB0A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBL8rEDOakJCHParhXGwMgvYLtCuqEo.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBL8rEDOakJCHParhXGwMgvYLtCuqEo.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBL8rEDOakJCHParhXGwMgvYLtCgqEpB0A.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBL8rEDOakJCHParhXGwMgvYLtCgqEpB0A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBL8rEDOakJCHParhXGwMgvYLtCuqEo.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBL8rEDOakJCHParhXGwMgvYLtCuqEo.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBL8rEDOakJCHParhXGwMgvYLtCgqEpB0A.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBL8rEDOakJCHParhXGwMgvYLtCgqEpB0A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBL8rEDOakJCHParhXGwMgvYLtCuqEo.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBL8rEDOakJCHParhXGwMgvYLtCuqEo.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBL8rEDOakJCHParhXGwMgvYLtCgqEpB0A.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBL8rEDOakJCHParhXGwMgvYLtCgqEpB0A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBL8rEDOakJCHParhXGwMgvYLtCuqEo.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBL8rEDOakJCHParhXGwMgvYLtCuqEo.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBL8rEDOakJCHParhXGwMgvYLtCgqEpB0A.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBL8rEDOakJCHParhXGwMgvYLtCgqEpB0A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBL8rEDOakJCHParhXGwMgvYLtCuqEo.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBL8rEDOakJCHParhXGwMgvYLtCuqEo.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBL8rEDOakJCHParhXGwMgvYLtCgqEpB0A.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBL8rEDOakJCHParhXGwMgvYLtCgqEpB0A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBL8rEDOakJCHParhXGwMgvYLtCuqEo.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBL8rEDOakJCHParhXGwMgvYLtCuqEo.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBLirEDOakJCHParhXGwMgvYJeCssE4.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBLirEDOakJCHParhXGwMgvYJeCssE4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBLirEDOakJCHParhXGwMgvYK-Cs.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBLirEDOakJCHParhXGwMgvYK-Cs.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBLirEDOakJCHParhXGwMgvYJeCssE4.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBLirEDOakJCHParhXGwMgvYJeCssE4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBLirEDOakJCHParhXGwMgvYK-Cs.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBLirEDOakJCHParhXGwMgvYK-Cs.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBLirEDOakJCHParhXGwMgvYJeCssE4.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBLirEDOakJCHParhXGwMgvYJeCssE4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBLirEDOakJCHParhXGwMgvYK-Cs.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBLirEDOakJCHParhXGwMgvYK-Cs.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBLirEDOakJCHParhXGwMgvYJeCssE4.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBLirEDOakJCHParhXGwMgvYJeCssE4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBLirEDOakJCHParhXGwMgvYK-Cs.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBLirEDOakJCHParhXGwMgvYK-Cs.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBLirEDOakJCHParhXGwMgvYJeCssE4.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBLirEDOakJCHParhXGwMgvYJeCssE4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBLirEDOakJCHParhXGwMgvYK-Cs.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBLirEDOakJCHParhXGwMgvYK-Cs.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBLirEDOakJCHParhXGwMgvYJeCssE4.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBLirEDOakJCHParhXGwMgvYJeCssE4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wittgenstein/v3/WBLirEDOakJCHParhXGwMgvYK-Cs.woff2',
+					'https://fonts.gstatic.com/s/wittgenstein/v4/WBLirEDOakJCHParhXGwMgvYK-Cs.woff2',
 			},
 		},
 	},

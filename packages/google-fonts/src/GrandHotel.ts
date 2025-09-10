@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Grand Hotel',
 	importName: 'GrandHotel',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Grand+Hotel:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/grandhotel/v20/7Au7p_IgjDKdCRWuR1azplQEGFw-0g.woff2',
+					'https://fonts.gstatic.com/s/grandhotel/v21/7Au7p_IgjDKdCRWuR1azplQEGFw-0g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/grandhotel/v20/7Au7p_IgjDKdCRWuR1azplQKGFw.woff2',
+					'https://fonts.gstatic.com/s/grandhotel/v21/7Au7p_IgjDKdCRWuR1azplQKGFw.woff2',
 			},
 		},
 	},

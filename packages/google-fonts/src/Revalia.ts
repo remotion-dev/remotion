@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Revalia',
 	importName: 'Revalia',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Revalia:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/revalia/v23/WwkexPimBE2-4ZPESVPkNbgJ.woff2',
+					'https://fonts.gstatic.com/s/revalia/v24/WwkexPimBE2-4ZPESVPkNbgJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/revalia/v23/WwkexPimBE2-4ZPESV3kNQ.woff2',
+					'https://fonts.gstatic.com/s/revalia/v24/WwkexPimBE2-4ZPESV3kNQ.woff2',
 			},
 		},
 	},

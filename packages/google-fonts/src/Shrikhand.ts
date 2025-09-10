@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Shrikhand',
 	importName: 'Shrikhand',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Shrikhand:ital,wght@0,400',
 	unicodeRanges: {
 		gujarati:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				gujarati:
-					'https://fonts.gstatic.com/s/shrikhand/v16/a8IbNovtLWfR7T7bMJwrGIKR4zg.woff2',
+					'https://fonts.gstatic.com/s/shrikhand/v17/a8IbNovtLWfR7T7bMJwrGIKR4zg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/shrikhand/v16/a8IbNovtLWfR7T7bMJwrDYKR4zg.woff2',
+					'https://fonts.gstatic.com/s/shrikhand/v17/a8IbNovtLWfR7T7bMJwrDYKR4zg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/shrikhand/v16/a8IbNovtLWfR7T7bMJwrA4KR.woff2',
+					'https://fonts.gstatic.com/s/shrikhand/v17/a8IbNovtLWfR7T7bMJwrA4KR.woff2',
 			},
 		},
 	},

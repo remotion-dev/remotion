@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Karma',
 	importName: 'Karma',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Karma:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,43 +17,43 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/karma/v17/va9F4kzAzMZRGLjDY_Z5sK32QA.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9F4kzAzMZRGLjDY_Z5sK32QA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/karma/v17/va9F4kzAzMZRGLjDY_Z2sK32QA.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9F4kzAzMZRGLjDY_Z2sK32QA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/karma/v17/va9F4kzAzMZRGLjDY_Z4sK0.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9F4kzAzMZRGLjDY_Z4sK0.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/karma/v17/va9I4kzAzMZRGLBpQeNHkQ.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9I4kzAzMZRGLBpQeNHkQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/karma/v17/va9I4kzAzMZRGLBmQeNHkQ.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9I4kzAzMZRGLBmQeNHkQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/karma/v17/va9I4kzAzMZRGLBoQeM.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9I4kzAzMZRGLBoQeM.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/karma/v17/va9F4kzAzMZRGLibYvZ5sK32QA.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9F4kzAzMZRGLibYvZ5sK32QA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/karma/v17/va9F4kzAzMZRGLibYvZ2sK32QA.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9F4kzAzMZRGLibYvZ2sK32QA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/karma/v17/va9F4kzAzMZRGLibYvZ4sK0.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9F4kzAzMZRGLibYvZ4sK0.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/karma/v17/va9F4kzAzMZRGLi3ZfZ5sK32QA.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9F4kzAzMZRGLi3ZfZ5sK32QA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/karma/v17/va9F4kzAzMZRGLi3ZfZ2sK32QA.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9F4kzAzMZRGLi3ZfZ2sK32QA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/karma/v17/va9F4kzAzMZRGLi3ZfZ4sK0.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9F4kzAzMZRGLi3ZfZ4sK0.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/karma/v17/va9F4kzAzMZRGLjTZPZ5sK32QA.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9F4kzAzMZRGLjTZPZ5sK32QA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/karma/v17/va9F4kzAzMZRGLjTZPZ2sK32QA.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9F4kzAzMZRGLjTZPZ2sK32QA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/karma/v17/va9F4kzAzMZRGLjTZPZ4sK0.woff2',
+					'https://fonts.gstatic.com/s/karma/v18/va9F4kzAzMZRGLjTZPZ4sK0.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Unica One',
 	importName: 'UnicaOne',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Unica+One:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/unicaone/v19/DPEuYwWHyAYGVTSmalsRft3eiEY.woff2',
+					'https://fonts.gstatic.com/s/unicaone/v20/DPEuYwWHyAYGVTSmalsRft3eiEY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/unicaone/v19/DPEuYwWHyAYGVTSmalsRf93eiEY.woff2',
+					'https://fonts.gstatic.com/s/unicaone/v20/DPEuYwWHyAYGVTSmalsRf93eiEY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/unicaone/v19/DPEuYwWHyAYGVTSmalsRcd3e.woff2',
+					'https://fonts.gstatic.com/s/unicaone/v20/DPEuYwWHyAYGVTSmalsRcd3e.woff2',
 			},
 		},
 	},

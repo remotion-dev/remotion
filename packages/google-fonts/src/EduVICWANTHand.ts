@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Edu VIC WA NT Hand',
 	importName: 'EduVICWANTHand',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Edu+VIC+WA+NT+Hand:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,27 +15,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduvicwanthand/v2/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca25L7SUc.woff2',
+					'https://fonts.gstatic.com/s/eduvicwanthand/v3/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca25L7SUc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduvicwanthand/v2/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca1ZL7.woff2',
+					'https://fonts.gstatic.com/s/eduvicwanthand/v3/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca1ZL7.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduvicwanthand/v2/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca25L7SUc.woff2',
+					'https://fonts.gstatic.com/s/eduvicwanthand/v3/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca25L7SUc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduvicwanthand/v2/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca1ZL7.woff2',
+					'https://fonts.gstatic.com/s/eduvicwanthand/v3/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca1ZL7.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduvicwanthand/v2/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca25L7SUc.woff2',
+					'https://fonts.gstatic.com/s/eduvicwanthand/v3/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca25L7SUc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduvicwanthand/v2/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca1ZL7.woff2',
+					'https://fonts.gstatic.com/s/eduvicwanthand/v3/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca1ZL7.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduvicwanthand/v2/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca25L7SUc.woff2',
+					'https://fonts.gstatic.com/s/eduvicwanthand/v3/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca25L7SUc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduvicwanthand/v2/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca1ZL7.woff2',
+					'https://fonts.gstatic.com/s/eduvicwanthand/v3/UcC73EsnIXnOaZKmY1Ry0wZjP9YVRBca1ZL7.woff2',
 			},
 		},
 	},

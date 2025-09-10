@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lusitana',
 	importName: 'Lusitana',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Lusitana:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		latin:
@@ -13,11 +13,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/lusitana/v13/CSR84z9ShvucWzsMKyhdTOI.woff2',
+					'https://fonts.gstatic.com/s/lusitana/v14/CSR84z9ShvucWzsMKyhdTOI.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/lusitana/v13/CSR74z9ShvucWzsMKyDmafctaNY.woff2',
+					'https://fonts.gstatic.com/s/lusitana/v14/CSR74z9ShvucWzsMKyDmafctaNY.woff2',
 			},
 		},
 	},

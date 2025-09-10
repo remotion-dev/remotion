@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Holtwood One SC',
 	importName: 'HoltwoodOneSC',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Holtwood+One+SC:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/holtwoodonesc/v22/yYLx0hLR0P-3vMFSk1TCq3Txg5BHeLz7HZs.woff2',
+					'https://fonts.gstatic.com/s/holtwoodonesc/v23/yYLx0hLR0P-3vMFSk1TCq3Txg5BHeLz7HZs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/holtwoodonesc/v22/yYLx0hLR0P-3vMFSk1TCq3Txg5BHdrz7.woff2',
+					'https://fonts.gstatic.com/s/holtwoodonesc/v23/yYLx0hLR0P-3vMFSk1TCq3Txg5BHdrz7.woff2',
 			},
 		},
 	},

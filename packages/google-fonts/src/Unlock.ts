@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Unlock',
 	importName: 'Unlock',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Unlock:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/unlock/v27/7Au-p_8ykD-cDl72IQLT8kU.woff2',
+					'https://fonts.gstatic.com/s/unlock/v28/7Au-p_8ykD-cDl72IQLT8kU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/unlock/v27/7Au-p_8ykD-cDl72LwLT.woff2',
+					'https://fonts.gstatic.com/s/unlock/v28/7Au-p_8ykD-cDl72LwLT.woff2',
 			},
 		},
 	},

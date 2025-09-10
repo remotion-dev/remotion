@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Langar',
 	importName: 'Langar',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Langar:ital,wght@0,400',
 	unicodeRanges: {
 		gurmukhi:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/langar/v29/kJEyBukW7AIlgjGliT9Yx9s.woff2',
+					'https://fonts.gstatic.com/s/langar/v30/kJEyBukW7AIlgjGliT9Yx9s.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/langar/v29/kJEyBukW7AIlgjGlpD9Yx9s.woff2',
+					'https://fonts.gstatic.com/s/langar/v30/kJEyBukW7AIlgjGlpD9Yx9s.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/langar/v29/kJEyBukW7AIlgjGlqj9Y.woff2',
+					'https://fonts.gstatic.com/s/langar/v30/kJEyBukW7AIlgjGlqj9Y.woff2',
 			},
 		},
 	},

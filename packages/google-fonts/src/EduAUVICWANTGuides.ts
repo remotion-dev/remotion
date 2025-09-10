@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Edu AU VIC WA NT Guides',
 	importName: 'EduAUVICWANTGuides',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Guides:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,27 +15,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduauvicwantguides/v2/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxsKTMk5Q.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantguides/v3/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxsKTMk5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduauvicwantguides/v2/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxiKTM.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantguides/v3/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxiKTM.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduauvicwantguides/v2/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxsKTMk5Q.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantguides/v3/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxsKTMk5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduauvicwantguides/v2/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxiKTM.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantguides/v3/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxiKTM.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduauvicwantguides/v2/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxsKTMk5Q.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantguides/v3/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxsKTMk5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduauvicwantguides/v2/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxiKTM.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantguides/v3/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxiKTM.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduauvicwantguides/v2/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxsKTMk5Q.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantguides/v3/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxsKTMk5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduauvicwantguides/v2/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxiKTM.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantguides/v3/TuGBUUJ4V48KZ9Nr3ZV46JQkJxtkFIKnvy00LAxiKTM.woff2',
 			},
 		},
 	},
