@@ -28,7 +28,9 @@ export const makeInlineAudioMixing = (dir: string) => {
 
 	const cleanup = () => {
 		for (const fd of Object.values(openFiles)) {
-			fs.closeSync(fd);
+			try {
+				fs.closeSync(fd);
+			} catch {}
 		}
 
 		deleteDirectory(folderToAdd);
