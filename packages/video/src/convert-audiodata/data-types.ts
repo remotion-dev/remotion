@@ -20,3 +20,9 @@ export const getDataTypeForAudioFormat = (format: AudioSampleFormat) => {
 			throw new Error(`Unsupported audio format: ${format satisfies never}`);
 	}
 };
+
+export type DataType =
+	| Float32Array<ArrayBuffer>
+	| Int16Array<ArrayBuffer>
+	| Uint8Array<ArrayBuffer>
+	| Int32Array<ArrayBuffer>;

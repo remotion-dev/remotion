@@ -1,13 +1,6 @@
 import {getDataTypeForAudioFormat} from './data-types';
 import {isPlanarFormat} from './is-planar-format';
-
-const validateRange = (format: AudioSampleFormat, value: number) => {
-	if (format === 'f32' || format === 'f32-planar') {
-		if (value < -1 || value > 1) {
-			throw new Error('All values in a Float32 array must be between -1 and 1');
-		}
-	}
-};
+import {resampleAudioData} from './resample-audiodata';
 
 export type ConvertAudioDataOptions = {
 	audioData: AudioData;
@@ -15,6 +8,7 @@ export type ConvertAudioDataOptions = {
 	format: AudioSampleFormat | null;
 	trimStartInSeconds: number;
 	trimEndInSeconds: number;
+	targetNumberOfChannels: number;
 };
 /**
  * Converts an `AudioData` object to a new `AudioData` object with a different sample rate or format.
@@ -26,9 +20,10 @@ export const convertAudioData = ({
 	format,
 	trimStartInSeconds,
 	trimEndInSeconds,
+	targetNumberOfChannels,
 }: ConvertAudioDataOptions) => {
 	const {
-		numberOfChannels,
+		numberOfChannels: srcNumberOfChannels,
 		sampleRate: currentSampleRate,
 		numberOfFrames,
 	} = audioData;
@@ -67,11 +62,11 @@ export const convertAudioData = ({
 	const DataType = getDataTypeForAudioFormat(format);
 
 	const isPlanar = isPlanarFormat(format);
-	const planes = isPlanar ? numberOfChannels : 1;
+	const planes = isPlanar ? srcNumberOfChannels : 1;
 
 	const srcChannels = new Array(planes)
 		.fill(true)
-		.map(() => new DataType((isPlanar ? 1 : numberOfChannels) * frameCount));
+		.map(() => new DataType((isPlanar ? 1 : srcNumberOfChannels) * frameCount));
 
 	for (let i = 0; i < planes; i++) {
 		audioData.copyTo(srcChannels[i], {
@@ -82,10 +77,17 @@ export const convertAudioData = ({
 		});
 	}
 
-	const data = new DataType(newNumberOfFrames * numberOfChannels);
+	const data = new DataType(newNumberOfFrames * targetNumberOfChannels);
 	const chunkSize = frameCount / newNumberOfFrames;
 
-	if (newNumberOfFrames === frameCount) {
+	const timestamp = Math.round(
+		audioData.timestamp + trimStartInSeconds * 1_000_000,
+	);
+
+	if (
+		newNumberOfFrames === frameCount &&
+		targetNumberOfChannels === srcNumberOfChannels
+	) {
 		let offset = 0;
 		for (let i = 0; i < planes; i++) {
 			data.set(srcChannels[i], offset);
@@ -95,71 +97,29 @@ export const convertAudioData = ({
 		return new AudioData({
 			data,
 			format,
-			numberOfChannels,
+			numberOfChannels: targetNumberOfChannels,
 			numberOfFrames: newNumberOfFrames,
 			sampleRate: newSampleRate,
-			timestamp: Math.round(
-				audioData.timestamp + trimStartInSeconds * 1_000_000,
-			),
+			timestamp,
 		});
 	}
 
-	for (
-		let newFrameIndex = 0;
-		newFrameIndex < newNumberOfFrames;
-		newFrameIndex++
-	) {
-		const start = Math.floor(newFrameIndex * chunkSize);
-		const end = Math.max(Math.floor(start + chunkSize), start + 1);
-
-		if (isPlanar) {
-			for (
-				let channelIndex = 0;
-				channelIndex < numberOfChannels;
-				channelIndex++
-			) {
-				const chunk = srcChannels[channelIndex].slice(start, end);
-
-				const average =
-					(chunk as Int32Array<ArrayBuffer>).reduce((a, b) => {
-						return a + b;
-					}, 0) / chunk.length;
-
-				validateRange(format, average);
-
-				data[newFrameIndex + channelIndex * newNumberOfFrames] = average;
-			}
-		} else {
-			const sampleCountAvg = end - start;
-
-			for (
-				let channelIndex = 0;
-				channelIndex < numberOfChannels;
-				channelIndex++
-			) {
-				const items = [];
-				for (let k = 0; k < sampleCountAvg; k++) {
-					const num =
-						srcChannels[0][(start + k) * numberOfChannels + channelIndex];
-					items.push(num);
-				}
-
-				const average = items.reduce((a, b) => a + b, 0) / items.length;
-
-				validateRange(format, average);
-
-				data[newFrameIndex * numberOfChannels + channelIndex] = average;
-			}
-		}
-	}
+	resampleAudioData({
+		srcNumberOfChannels,
+		srcChannels,
+		data,
+		newNumberOfFrames,
+		chunkSize,
+		isPlanar,
+	});
 
 	const newAudioData = new AudioData({
 		data,
 		format,
-		numberOfChannels,
+		numberOfChannels: targetNumberOfChannels,
 		numberOfFrames: newNumberOfFrames,
 		sampleRate: newSampleRate,
-		timestamp: Math.round(audioData.timestamp + trimStartInSeconds * 1_000_000),
+		timestamp,
 	});
 
 	return newAudioData;

@@ -1,6 +1,7 @@
 import type {AudioSample} from 'mediabunny';
 import {combineAudioDataAndClosePrevious} from './convert-audiodata/combine-audiodata';
 import {convertAudioData} from './convert-audiodata/convert-audiodata';
+import {TARGET_NUMBER_OF_CHANNELS} from './convert-audiodata/resample-audiodata';
 import {getSinks, type GetSink} from './get-frames-since-keyframe';
 import {makeKeyframeManager} from './keyframe-manager';
 import type {LogLevel} from './log';
@@ -148,6 +149,7 @@ export const extractAudio = async ({
 			format: 's16',
 			trimStartInSeconds,
 			trimEndInSeconds,
+			targetNumberOfChannels: TARGET_NUMBER_OF_CHANNELS,
 		});
 
 		if (audioData.numberOfFrames === 0) {

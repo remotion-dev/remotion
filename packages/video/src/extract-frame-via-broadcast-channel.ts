@@ -97,10 +97,6 @@ export const extractFrameViaBroadcastChannel = async ({
 	audio: AudioData | null;
 }> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
-		throw new Error('This should be defined');
-	}
-
-	if (window.remotion_isMainTab) {
 		const {frame: sample, audio} = await extractFrameAndAudio({
 			logLevel,
 			src,
