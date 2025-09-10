@@ -1,14 +1,11 @@
-import React, {useCallback} from 'react';
+import React from 'react';
 import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
+import {NewVideoForPreview} from './new-video-for-preview';
 import {NewVideoForRendering} from './new-video-for-rendering';
 import type {NewVideoProps} from './props';
 
-const {
-	validateMediaTrimProps,
-	resolveTrimProps,
-	validateMediaProps,
-	VideoForPreview,
-} = Internals;
+const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
+	Internals;
 
 export const NewVideo: React.FC<NewVideoProps> = (props) => {
 	// Should only destruct `startFrom` and `endAt` from props,
@@ -23,8 +20,6 @@ export const NewVideo: React.FC<NewVideoProps> = (props) => {
 		...otherProps
 	} = props;
 	const environment = useRemotionEnvironment();
-
-	const onDuration = useCallback(() => undefined, []);
 
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
@@ -74,27 +69,13 @@ export const NewVideo: React.FC<NewVideoProps> = (props) => {
 		return <NewVideoForRendering {...otherProps} />;
 	}
 
-	const {
-		onAutoPlayError,
-		onVideoFrame,
-		crossOrigin,
-		delayRenderRetries,
-		delayRenderTimeoutInMilliseconds,
-		...propsForPreview
-	} = otherProps;
-
+	// For preview, use our new canvas-based component
 	return (
-		<VideoForPreview
-			_remotionInternalStack={stack ?? null}
-			_remotionInternalNativeLoopPassed={false}
-			onDuration={onDuration}
-			onlyWarnForMediaSeekingError
-			pauseWhenBuffering={pauseWhenBuffering ?? false}
-			showInTimeline={showInTimeline ?? true}
-			onAutoPlayError={onAutoPlayError ?? undefined}
-			onVideoFrame={onVideoFrame ?? null}
-			crossOrigin={crossOrigin}
-			{...propsForPreview}
+		<NewVideoForPreview
+			src={otherProps.src}
+			style={otherProps.style}
+			playbackRate={otherProps.playbackRate}
+			logLevel={otherProps.logLevel}
 		/>
 	);
 };

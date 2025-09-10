@@ -24,7 +24,7 @@ export const NewVideoExample: React.FC = () => {
 						No Flickering
 					</h1>
 				</div>
-				<NewVideo src={staticFile('long-video.mp4')} />
+				<NewVideo logLevel="trace" src={staticFile('long-video.mp4')} />
 			</AbsoluteFill>
 		</>
 	);
