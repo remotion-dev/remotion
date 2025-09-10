@@ -106,6 +106,7 @@ export const renderFrame = ({
 			frame,
 			page,
 			imageSequencePattern,
+			fps: composition.fps,
 		})
 			.then(() => {
 				resolve();

@@ -53,6 +53,7 @@ export const renderFrameWithOptionToReject = async ({
 	frame,
 	page,
 	imageSequencePattern,
+	fps,
 }: {
 	reject: (err: Error) => void;
 	width: number;
@@ -90,6 +91,7 @@ export const renderFrameWithOptionToReject = async ({
 	frame: number;
 	page: Page;
 	imageSequencePattern: string | null;
+	fps: number;
 }) => {
 	const startTime = performance.now();
 
@@ -255,11 +257,12 @@ export const renderFrameWithOptionToReject = async ({
 
 	for (const renderAsset of inlineAudioAssets) {
 		// TODO: Hardcoded FPS
-		downloadMap.inlineAudioMixing.addAsset(
-			renderAsset,
-			30,
-			framesToRender.length,
-		);
+		downloadMap.inlineAudioMixing.addAsset({
+			asset: renderAsset,
+			fps,
+			totalNumberOfFrames: framesToRender.length,
+			firstFrame: framesToRender[0],
+		});
 	}
 
 	cleanupPageError();
