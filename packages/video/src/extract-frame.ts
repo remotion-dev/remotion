@@ -1,4 +1,4 @@
-import type {AudioSample, VideoSample} from 'mediabunny';
+import type {AudioSample} from 'mediabunny';
 import {combineAudioDataAndClosePrevious} from './convert-audiodata/combine-audiodata';
 import type {PcmS16AudioData} from './convert-audiodata/convert-audiodata';
 import {convertAudioData} from './convert-audiodata/convert-audiodata';
@@ -186,7 +186,7 @@ export const extractFrameAndAudio = async ({
 	durationInSeconds: number;
 	shouldRenderAudio: boolean;
 }): Promise<{
-	frame: VideoSample | null;
+	frame: VideoFrame | null;
 	audio: PcmS16AudioData | null;
 }> => {
 	const [frame, audio] = await Promise.all([
@@ -206,7 +206,7 @@ export const extractFrameAndAudio = async ({
 	]);
 
 	return {
-		frame,
+		frame: frame?.toVideoFrame() ?? null,
 		audio,
 	};
 };

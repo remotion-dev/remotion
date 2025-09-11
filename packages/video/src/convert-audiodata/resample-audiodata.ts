@@ -1,18 +1,16 @@
-import type {DataType} from './data-types';
-
 // Remotion exports all videos with 2 channels.
 export const TARGET_NUMBER_OF_CHANNELS = 2;
 
 export const resampleAudioData = ({
 	srcNumberOfChannels,
-	srcChannels,
-	data,
+	source: srcChannels,
+	destination,
 	newNumberOfFrames,
 	chunkSize,
 }: {
 	srcNumberOfChannels: number;
-	srcChannels: DataType[];
-	data: DataType;
+	source: Int16Array;
+	destination: Int16Array;
 	newNumberOfFrames: number;
 	chunkSize: number;
 }) => {
@@ -37,7 +35,7 @@ export const resampleAudioData = ({
 			let itemCount = 0;
 			for (let k = 0; k < sampleCountAvg; k++) {
 				const num =
-					srcChannels[0][(start + k) * srcNumberOfChannels + channelIndex];
+					srcChannels[(start + k) * srcNumberOfChannels + channelIndex];
 				itemSum += num;
 				itemCount++;
 			}
@@ -49,7 +47,7 @@ export const resampleAudioData = ({
 
 		if (TARGET_NUMBER_OF_CHANNELS === srcNumberOfChannels) {
 			for (let i = 0; i < srcNumberOfChannels; i++) {
-				data[newFrameIndex * srcNumberOfChannels + i] = sourceValues[i];
+				destination[newFrameIndex * srcNumberOfChannels + i] = sourceValues[i];
 			}
 		}
 
@@ -62,8 +60,8 @@ export const resampleAudioData = ({
 			const l = m;
 			const r = m;
 
-			data[newFrameIndex * 2 + 0] = l;
-			data[newFrameIndex * 2 + 1] = r;
+			destination[newFrameIndex * 2 + 0] = l;
+			destination[newFrameIndex * 2 + 1] = r;
 		}
 
 		// Quad to Stereo: 0.5 * (L + SL), 0.5 * (R + SR)
@@ -76,8 +74,8 @@ export const resampleAudioData = ({
 			const l2 = 0.5 * (l + sl);
 			const r2 = 0.5 * (r + sr);
 
-			data[newFrameIndex * 2 + 0] = l2;
-			data[newFrameIndex * 2 + 1] = r2;
+			destination[newFrameIndex * 2 + 0] = l2;
+			destination[newFrameIndex * 2 + 1] = r2;
 		}
 
 		// 5.1 to Stereo: L + sqrt(1/2) * (C + SL), R + sqrt(1/2) * (C + SR)
@@ -91,14 +89,15 @@ export const resampleAudioData = ({
 			const l2 = l + Math.sqrt(1 / 2) * (c + sl);
 			const r2 = r + Math.sqrt(1 / 2) * (c + sr);
 
-			data[newFrameIndex * 2 + 0] = l2;
-			data[newFrameIndex * 2 + 1] = r2;
+			destination[newFrameIndex * 2 + 0] = l2;
+			destination[newFrameIndex * 2 + 1] = r2;
 		}
 
 		// Discrete fallback: direct mapping with zero-fill or drop
 		else {
 			for (let i = 0; i < srcNumberOfChannels; i++) {
-				data[newFrameIndex * TARGET_NUMBER_OF_CHANNELS + i] = sourceValues[i];
+				destination[newFrameIndex * TARGET_NUMBER_OF_CHANNELS + i] =
+					sourceValues[i];
 			}
 		}
 	}

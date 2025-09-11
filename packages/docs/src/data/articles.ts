@@ -6041,7 +6041,7 @@ export const articles = [
 		title: 'useDelayRender()',
 		relativePath: 'docs/use-delay-render.mdx',
 		compId: 'articles-docs-use-delay-render',
-		crumb: 'How to',
+		crumb: 'API',
 		noAi: false,
 		slug: 'use-delay-render',
 	},

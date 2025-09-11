@@ -41,7 +41,7 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						shouldRenderAudio: data.shouldRenderAudio,
 					});
 
-					const videoFrame = frame?.toVideoFrame() ?? null;
+					const videoFrame = frame;
 					const imageBitmap = videoFrame
 						? await createImageBitmap(videoFrame)
 						: null;
@@ -93,7 +93,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	audio: PcmS16AudioData | null;
 }> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
-		const {frame: sample, audio} = await extractFrameAndAudio({
+		const {frame, audio} = await extractFrameAndAudio({
 			logLevel,
 			src,
 			timeInSeconds,
@@ -102,7 +102,7 @@ export const extractFrameViaBroadcastChannel = async ({
 		});
 
 		return {
-			frame: sample?.toVideoFrame() ?? null,
+			frame,
 			audio,
 		};
 	}
