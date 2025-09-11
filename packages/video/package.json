@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/video",
-	"version": "4.0.345",
+	"version": "4.0.346",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
