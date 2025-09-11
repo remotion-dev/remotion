@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Moderustic',
 	importName: 'Moderustic',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Moderustic:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,75 +20,75 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQuTdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQuTdoKFD.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQu3doKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQu3doKFD.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQurdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQurdoKFD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQufdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQufdoKFD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQundoA.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQundoA.woff2',
 			},
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQuTdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQuTdoKFD.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQu3doKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQu3doKFD.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQurdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQurdoKFD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQufdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQufdoKFD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQundoA.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQundoA.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQuTdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQuTdoKFD.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQu3doKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQu3doKFD.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQurdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQurdoKFD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQufdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQufdoKFD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQundoA.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQundoA.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQuTdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQuTdoKFD.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQu3doKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQu3doKFD.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQurdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQurdoKFD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQufdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQufdoKFD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQundoA.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQundoA.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQuTdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQuTdoKFD.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQu3doKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQu3doKFD.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQurdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQurdoKFD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQufdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQufdoKFD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQundoA.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQundoA.woff2',
 			},
 			'800': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQuTdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQuTdoKFD.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQu3doKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQu3doKFD.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQurdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQurdoKFD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQufdoKFD.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQufdoKFD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/moderustic/v2/2-ci9J9s3o6eLFNHFdXYQundoA.woff2',
+					'https://fonts.gstatic.com/s/moderustic/v3/2-ci9J9s3o6eLFNHFdXYQundoA.woff2',
 			},
 		},
 	},

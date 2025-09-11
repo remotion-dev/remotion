@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nova Mono',
 	importName: 'NovaMono',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Nova+Mono:ital,wght@0,400',
 	unicodeRanges: {
 		greek:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				greek:
-					'https://fonts.gstatic.com/s/novamono/v22/Cn-0JtiGWQ5Ajb--MRKvZGZZndM.woff2',
+					'https://fonts.gstatic.com/s/novamono/v23/Cn-0JtiGWQ5Ajb--MRKvZGZZndM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/novamono/v22/Cn-0JtiGWQ5Ajb--MRKvaWZZndM.woff2',
+					'https://fonts.gstatic.com/s/novamono/v23/Cn-0JtiGWQ5Ajb--MRKvaWZZndM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/novamono/v22/Cn-0JtiGWQ5Ajb--MRKvZ2ZZ.woff2',
+					'https://fonts.gstatic.com/s/novamono/v23/Cn-0JtiGWQ5Ajb--MRKvZ2ZZ.woff2',
 			},
 		},
 	},

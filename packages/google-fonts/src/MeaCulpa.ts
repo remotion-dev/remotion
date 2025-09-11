@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mea Culpa',
 	importName: 'MeaCulpa',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Mea+Culpa:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/meaculpa/v7/AMOTz4GcuWbEIuza8jspkscRa3k.woff2',
+					'https://fonts.gstatic.com/s/meaculpa/v8/AMOTz4GcuWbEIuza8jspkscRa3k.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/meaculpa/v7/AMOTz4GcuWbEIuza8jspk8cRa3k.woff2',
+					'https://fonts.gstatic.com/s/meaculpa/v8/AMOTz4GcuWbEIuza8jspk8cRa3k.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/meaculpa/v7/AMOTz4GcuWbEIuza8jspnccR.woff2',
+					'https://fonts.gstatic.com/s/meaculpa/v8/AMOTz4GcuWbEIuza8jspnccR.woff2',
 			},
 		},
 	},

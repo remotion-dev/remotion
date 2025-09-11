@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ewert',
 	importName: 'Ewert',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Ewert:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ewert/v26/va9I4kzO2tFODbBmQeNHkQ.woff2',
+					'https://fonts.gstatic.com/s/ewert/v27/va9I4kzO2tFODbBmQeNHkQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ewert/v26/va9I4kzO2tFODbBoQeM.woff2',
+					'https://fonts.gstatic.com/s/ewert/v27/va9I4kzO2tFODbBoQeM.woff2',
 			},
 		},
 	},

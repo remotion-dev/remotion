@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Manichaean',
 	importName: 'NotoSansManichaean',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Manichaean:ital,wght@0,400',
 	unicodeRanges: {
 		manichaean: 'U+0640, U+200C-200D, U+25CC, U+FE00, U+10AC0-10AFF',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				manichaean:
-					'https://fonts.gstatic.com/s/notosansmanichaean/v18/taiVGntiC4--qtsfi4Jp9-_GkPZZCcrfenr-Pzp1Cg.woff2',
+					'https://fonts.gstatic.com/s/notosansmanichaean/v19/taiVGntiC4--qtsfi4Jp9-_GkPZZCcrfenr-Pzp1Cg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmanichaean/v18/taiVGntiC4--qtsfi4Jp9-_GkPZZCcrfenqLPzp1Cg.woff2',
+					'https://fonts.gstatic.com/s/notosansmanichaean/v19/taiVGntiC4--qtsfi4Jp9-_GkPZZCcrfenqLPzp1Cg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmanichaean/v18/taiVGntiC4--qtsfi4Jp9-_GkPZZCcrfenqFPzo.woff2',
+					'https://fonts.gstatic.com/s/notosansmanichaean/v19/taiVGntiC4--qtsfi4Jp9-_GkPZZCcrfenqFPzo.woff2',
 			},
 		},
 	},

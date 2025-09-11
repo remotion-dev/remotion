@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'League Gothic',
 	importName: 'LeagueGothic',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=League+Gothic:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/leaguegothic/v12/qFdR35CBi4tvBz81xy7WG7ep-BQAY7Krj7feObpH_9aug9UKQw.woff2',
+					'https://fonts.gstatic.com/s/leaguegothic/v13/qFdR35CBi4tvBz81xy7WG7ep-BQAY7Krj7feObpH_9aug9UKQw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/leaguegothic/v12/qFdR35CBi4tvBz81xy7WG7ep-BQAY7Krj7feObpH_9avg9UKQw.woff2',
+					'https://fonts.gstatic.com/s/leaguegothic/v13/qFdR35CBi4tvBz81xy7WG7ep-BQAY7Krj7feObpH_9avg9UKQw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/leaguegothic/v12/qFdR35CBi4tvBz81xy7WG7ep-BQAY7Krj7feObpH_9ahg9U.woff2',
+					'https://fonts.gstatic.com/s/leaguegothic/v13/qFdR35CBi4tvBz81xy7WG7ep-BQAY7Krj7feObpH_9ahg9U.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mallanna',
 	importName: 'Mallanna',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Mallanna:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/mallanna/v14/hv-Vlzx-KEQb84YaDFwoGTVAVg.woff2',
+					'https://fonts.gstatic.com/s/mallanna/v15/hv-Vlzx-KEQb84YaDFwoGTVAVg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mallanna/v14/hv-Vlzx-KEQb84YaDFw0GTU.woff2',
+					'https://fonts.gstatic.com/s/mallanna/v15/hv-Vlzx-KEQb84YaDFw0GTU.woff2',
 			},
 		},
 	},

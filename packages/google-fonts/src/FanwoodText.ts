@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fanwood Text',
 	importName: 'FanwoodText',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Fanwood+Text:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fanwoodtext/v16/3XFzErwl05Ad_vSCF6Fq7xX2R-zV_Plybg.woff2',
+					'https://fonts.gstatic.com/s/fanwoodtext/v17/3XFzErwl05Ad_vSCF6Fq7xX2R-zV_Plybg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fanwoodtext/v16/3XFzErwl05Ad_vSCF6Fq7xX2R-zb_Pk.woff2',
+					'https://fonts.gstatic.com/s/fanwoodtext/v17/3XFzErwl05Ad_vSCF6Fq7xX2R-zb_Pk.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fanwoodtext/v16/3XFtErwl05Ad_vSCF6Fq7xX2TNzZ5P0.woff2',
+					'https://fonts.gstatic.com/s/fanwoodtext/v17/3XFtErwl05Ad_vSCF6Fq7xX2TNzZ5P0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fanwoodtext/v16/3XFtErwl05Ad_vSCF6Fq7xX2QtzZ.woff2',
+					'https://fonts.gstatic.com/s/fanwoodtext/v17/3XFtErwl05Ad_vSCF6Fq7xX2QtzZ.woff2',
 			},
 		},
 	},

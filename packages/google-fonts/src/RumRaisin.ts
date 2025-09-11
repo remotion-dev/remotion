@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rum Raisin',
 	importName: 'RumRaisin',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Rum+Raisin:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rumraisin/v23/nwpRtKu3Ih8D5avB4h2uF3aCyjA7.woff2',
+					'https://fonts.gstatic.com/s/rumraisin/v24/nwpRtKu3Ih8D5avB4h2uF3aCyjA7.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rumraisin/v23/nwpRtKu3Ih8D5avB4h2uF3iCyg.woff2',
+					'https://fonts.gstatic.com/s/rumraisin/v24/nwpRtKu3Ih8D5avB4h2uF3iCyg.woff2',
 			},
 		},
 	},

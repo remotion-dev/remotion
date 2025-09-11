@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'David Libre',
 	importName: 'DavidLibre',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=David+Libre:ital,wght@0,400;0,500;0,700',
 	unicodeRanges: {
 		hebrew:
@@ -22,42 +22,42 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				hebrew:
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfus0W_99N64iuYSvp4W8l54J-jYQ.woff2',
-				math: 'https://fonts.gstatic.com/s/davidlibre/v16/snfus0W_99N64iuYSvp4W8kH4J-jYQ.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfus0W_99N64iuYSvp4W8l54J-jYQ.woff2',
+				math: 'https://fonts.gstatic.com/s/davidlibre/v17/snfus0W_99N64iuYSvp4W8kH4J-jYQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfus0W_99N64iuYSvp4W8kV4J-jYQ.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfus0W_99N64iuYSvp4W8kV4J-jYQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfus0W_99N64iuYSvp4W8l04J-jYQ.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfus0W_99N64iuYSvp4W8l04J-jYQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfus0W_99N64iuYSvp4W8l14J-jYQ.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfus0W_99N64iuYSvp4W8l14J-jYQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfus0W_99N64iuYSvp4W8l74J8.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfus0W_99N64iuYSvp4W8l74J8.woff2',
 			},
 			'500': {
 				hebrew:
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfzs0W_99N64iuYSvp4W8GIw4qeQDKhSg.woff2',
-				math: 'https://fonts.gstatic.com/s/davidlibre/v16/snfzs0W_99N64iuYSvp4W8GIw4rgQDKhSg.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfzs0W_99N64iuYSvp4W8GIw4qeQDKhSg.woff2',
+				math: 'https://fonts.gstatic.com/s/davidlibre/v17/snfzs0W_99N64iuYSvp4W8GIw4rgQDKhSg.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfzs0W_99N64iuYSvp4W8GIw4ryQDKhSg.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfzs0W_99N64iuYSvp4W8GIw4ryQDKhSg.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfzs0W_99N64iuYSvp4W8GIw4qTQDKhSg.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfzs0W_99N64iuYSvp4W8GIw4qTQDKhSg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfzs0W_99N64iuYSvp4W8GIw4qSQDKhSg.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfzs0W_99N64iuYSvp4W8GIw4qSQDKhSg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfzs0W_99N64iuYSvp4W8GIw4qcQDI.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfzs0W_99N64iuYSvp4W8GIw4qcQDI.woff2',
 			},
 			'700': {
 				hebrew:
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfzs0W_99N64iuYSvp4W8HAxYqeQDKhSg.woff2',
-				math: 'https://fonts.gstatic.com/s/davidlibre/v16/snfzs0W_99N64iuYSvp4W8HAxYrgQDKhSg.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfzs0W_99N64iuYSvp4W8HAxYqeQDKhSg.woff2',
+				math: 'https://fonts.gstatic.com/s/davidlibre/v17/snfzs0W_99N64iuYSvp4W8HAxYrgQDKhSg.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfzs0W_99N64iuYSvp4W8HAxYryQDKhSg.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfzs0W_99N64iuYSvp4W8HAxYryQDKhSg.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfzs0W_99N64iuYSvp4W8HAxYqTQDKhSg.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfzs0W_99N64iuYSvp4W8HAxYqTQDKhSg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfzs0W_99N64iuYSvp4W8HAxYqSQDKhSg.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfzs0W_99N64iuYSvp4W8HAxYqSQDKhSg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/davidlibre/v16/snfzs0W_99N64iuYSvp4W8HAxYqcQDI.woff2',
+					'https://fonts.gstatic.com/s/davidlibre/v17/snfzs0W_99N64iuYSvp4W8HAxYqcQDI.woff2',
 			},
 		},
 	},

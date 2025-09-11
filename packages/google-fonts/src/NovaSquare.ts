@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nova Square',
 	importName: 'NovaSquare',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Nova+Square:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/novasquare/v26/RrQUbo9-9DV7b06QHgSWsahJT4IQGg.woff2',
+					'https://fonts.gstatic.com/s/novasquare/v27/RrQUbo9-9DV7b06QHgSWsahJT4IQGg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/novasquare/v26/RrQUbo9-9DV7b06QHgSWsahHT4I.woff2',
+					'https://fonts.gstatic.com/s/novasquare/v27/RrQUbo9-9DV7b06QHgSWsahHT4I.woff2',
 			},
 		},
 	},

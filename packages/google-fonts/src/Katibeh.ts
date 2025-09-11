@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Katibeh',
 	importName: 'Katibeh',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Katibeh:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/katibeh/v21/ZGjXol5MQJog4bxDWC9bVQNd.woff2',
+					'https://fonts.gstatic.com/s/katibeh/v22/ZGjXol5MQJog4bxDWC9bVQNd.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/katibeh/v21/ZGjXol5MQJog4bxDWCRbVQNd.woff2',
+					'https://fonts.gstatic.com/s/katibeh/v22/ZGjXol5MQJog4bxDWCRbVQNd.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/katibeh/v21/ZGjXol5MQJog4bxDWCpbVQ.woff2',
+					'https://fonts.gstatic.com/s/katibeh/v22/ZGjXol5MQJog4bxDWCpbVQ.woff2',
 			},
 		},
 	},

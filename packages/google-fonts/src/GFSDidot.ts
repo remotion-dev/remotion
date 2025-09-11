@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'GFS Didot',
 	importName: 'GFSDidot',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=GFS+Didot:ital,wght@0,400',
 	unicodeRanges: {
 		'greek-ext': 'U+1F00-1FFF',
@@ -18,13 +18,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'greek-ext':
-					'https://fonts.gstatic.com/s/gfsdidot/v17/Jqzh5TybZ9vZMWFssvwSHO3HJSA.woff2',
+					'https://fonts.gstatic.com/s/gfsdidot/v18/Jqzh5TybZ9vZMWFssvwSHO3HJSA.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/gfsdidot/v17/Jqzh5TybZ9vZMWFssvwSE-3HJSA.woff2',
+					'https://fonts.gstatic.com/s/gfsdidot/v18/Jqzh5TybZ9vZMWFssvwSE-3HJSA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/gfsdidot/v17/Jqzh5TybZ9vZMWFssvwSH-3HJSA.woff2',
+					'https://fonts.gstatic.com/s/gfsdidot/v18/Jqzh5TybZ9vZMWFssvwSH-3HJSA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gfsdidot/v17/Jqzh5TybZ9vZMWFssvwSEO3H.woff2',
+					'https://fonts.gstatic.com/s/gfsdidot/v18/Jqzh5TybZ9vZMWFssvwSEO3H.woff2',
 			},
 		},
 	},

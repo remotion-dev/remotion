@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nova Slim',
 	importName: 'NovaSlim',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Nova+Slim:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/novaslim/v25/Z9XUDmZNQAuem8jyZcnOwcmJrrg.woff2',
+					'https://fonts.gstatic.com/s/novaslim/v26/Z9XUDmZNQAuem8jyZcnOwcmJrrg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/novaslim/v25/Z9XUDmZNQAuem8jyZcnOz8mJ.woff2',
+					'https://fonts.gstatic.com/s/novaslim/v26/Z9XUDmZNQAuem8jyZcnOz8mJ.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Onest',
 	importName: 'Onest',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Onest:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,84 +18,84 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
-				latin: 'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmf-HY.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
+				latin: 'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmf-HY.woff2',
 			},
 			'200': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
-				latin: 'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmf-HY.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
+				latin: 'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmf-HY.woff2',
 			},
 			'300': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
-				latin: 'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmf-HY.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
+				latin: 'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmf-HY.woff2',
 			},
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
-				latin: 'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmf-HY.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
+				latin: 'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmf-HY.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
-				latin: 'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmf-HY.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
+				latin: 'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmf-HY.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
-				latin: 'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmf-HY.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
+				latin: 'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmf-HY.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
-				latin: 'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmf-HY.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
+				latin: 'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmf-HY.woff2',
 			},
 			'800': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
-				latin: 'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmf-HY.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
+				latin: 'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmf-HY.woff2',
 			},
 			'900': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmS-HY6EQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmb-HY6EQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
-				latin: 'https://fonts.gstatic.com/s/onest/v8/gNMKW3F-SZuj7xmf-HY.woff2',
+					'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmR-HY6EQ.woff2',
+				latin: 'https://fonts.gstatic.com/s/onest/v9/gNMKW3F-SZuj7xmf-HY.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rambla',
 	importName: 'Rambla',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Rambla:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,29 +15,29 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rambla/v13/snfps0ip98hx6mrEIYgDHtxEwQ.woff2',
+					'https://fonts.gstatic.com/s/rambla/v14/snfps0ip98hx6mrEIYgDHtxEwQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rambla/v13/snfps0ip98hx6mrEIYgNHtw.woff2',
+					'https://fonts.gstatic.com/s/rambla/v14/snfps0ip98hx6mrEIYgNHtw.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rambla/v13/snfus0ip98hx6mrEIYC2O8l14J-jYQ.woff2',
+					'https://fonts.gstatic.com/s/rambla/v14/snfus0ip98hx6mrEIYC2O8l14J-jYQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rambla/v13/snfus0ip98hx6mrEIYC2O8l74J8.woff2',
+					'https://fonts.gstatic.com/s/rambla/v14/snfus0ip98hx6mrEIYC2O8l74J8.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rambla/v13/snfrs0ip98hx6mrEKrgPBtg.woff2',
+					'https://fonts.gstatic.com/s/rambla/v14/snfrs0ip98hx6mrEKrgPBtg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rambla/v13/snfrs0ip98hx6mrEJLgP.woff2',
+					'https://fonts.gstatic.com/s/rambla/v14/snfrs0ip98hx6mrEJLgP.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rambla/v13/snfos0ip98hx6mrMn50aN_l5-Js.woff2',
+					'https://fonts.gstatic.com/s/rambla/v14/snfos0ip98hx6mrMn50aN_l5-Js.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rambla/v13/snfos0ip98hx6mrMn50aOfl5.woff2',
+					'https://fonts.gstatic.com/s/rambla/v14/snfos0ip98hx6mrMn50aOfl5.woff2',
 			},
 		},
 	},

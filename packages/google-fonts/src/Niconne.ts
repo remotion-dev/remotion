@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Niconne',
 	importName: 'Niconne',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Niconne:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/niconne/v15/w8gaH2QvRug1_rTfnQKn2W4O.woff2',
+					'https://fonts.gstatic.com/s/niconne/v16/w8gaH2QvRug1_rTfnQKn2W4O.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/niconne/v15/w8gaH2QvRug1_rTfnQyn2Q.woff2',
+					'https://fonts.gstatic.com/s/niconne/v16/w8gaH2QvRug1_rTfnQyn2Q.woff2',
 			},
 		},
 	},

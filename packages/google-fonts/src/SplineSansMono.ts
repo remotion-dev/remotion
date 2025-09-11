@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Spline Sans Mono',
 	importName: 'SplineSansMono',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Spline+Sans+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,65 +15,65 @@ export const getInfo = () => ({
 		italic: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70HjzAei_CDNLfgZxrW6wrZOF2WX5eplEWeyl0.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70HjzAei_CDNLfgZxrW6wrZOF2WX5eplEWeyl0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70HjzAei_CDNLfgZxrW6wrZOF2WX5epmkWe.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70HjzAei_CDNLfgZxrW6wrZOF2WX5epmkWe.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70HjzAei_CDNLfgZxrW6wrZOF2WX5eplEWeyl0.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70HjzAei_CDNLfgZxrW6wrZOF2WX5eplEWeyl0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70HjzAei_CDNLfgZxrW6wrZOF2WX5epmkWe.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70HjzAei_CDNLfgZxrW6wrZOF2WX5epmkWe.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70HjzAei_CDNLfgZxrW6wrZOF2WX5eplEWeyl0.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70HjzAei_CDNLfgZxrW6wrZOF2WX5eplEWeyl0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70HjzAei_CDNLfgZxrW6wrZOF2WX5epmkWe.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70HjzAei_CDNLfgZxrW6wrZOF2WX5epmkWe.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70HjzAei_CDNLfgZxrW6wrZOF2WX5eplEWeyl0.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70HjzAei_CDNLfgZxrW6wrZOF2WX5eplEWeyl0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70HjzAei_CDNLfgZxrW6wrZOF2WX5epmkWe.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70HjzAei_CDNLfgZxrW6wrZOF2WX5epmkWe.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70HjzAei_CDNLfgZxrW6wrZOF2WX5eplEWeyl0.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70HjzAei_CDNLfgZxrW6wrZOF2WX5eplEWeyl0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70HjzAei_CDNLfgZxrW6wrZOF2WX5epmkWe.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70HjzAei_CDNLfgZxrW6wrZOF2WX5epmkWe.woff2',
 			},
 		},
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70BjzAei_CDNLfgZxrW6wrZOF2WX5yZmF2a.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70BjzAei_CDNLfgZxrW6wrZOF2WX5yZmF2a.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70BjzAei_CDNLfgZxrW6wrZOF2WX5KZmA.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70BjzAei_CDNLfgZxrW6wrZOF2WX5KZmA.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70BjzAei_CDNLfgZxrW6wrZOF2WX5yZmF2a.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70BjzAei_CDNLfgZxrW6wrZOF2WX5yZmF2a.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70BjzAei_CDNLfgZxrW6wrZOF2WX5KZmA.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70BjzAei_CDNLfgZxrW6wrZOF2WX5KZmA.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70BjzAei_CDNLfgZxrW6wrZOF2WX5yZmF2a.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70BjzAei_CDNLfgZxrW6wrZOF2WX5yZmF2a.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70BjzAei_CDNLfgZxrW6wrZOF2WX5KZmA.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70BjzAei_CDNLfgZxrW6wrZOF2WX5KZmA.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70BjzAei_CDNLfgZxrW6wrZOF2WX5yZmF2a.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70BjzAei_CDNLfgZxrW6wrZOF2WX5yZmF2a.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70BjzAei_CDNLfgZxrW6wrZOF2WX5KZmA.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70BjzAei_CDNLfgZxrW6wrZOF2WX5KZmA.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70BjzAei_CDNLfgZxrW6wrZOF2WX5yZmF2a.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70BjzAei_CDNLfgZxrW6wrZOF2WX5yZmF2a.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/splinesansmono/v12/R70BjzAei_CDNLfgZxrW6wrZOF2WX5KZmA.woff2',
+					'https://fonts.gstatic.com/s/splinesansmono/v13/R70BjzAei_CDNLfgZxrW6wrZOF2WX5KZmA.woff2',
 			},
 		},
 	},

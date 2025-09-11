@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Petit Formal Script',
 	importName: 'PetitFormalScript',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Petit+Formal+Script:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petitformalscript/v18/B50TF6xQr2TXJBnGOFME6u5OR83oRP5qkHDgPrgZ.woff2',
+					'https://fonts.gstatic.com/s/petitformalscript/v19/B50TF6xQr2TXJBnGOFME6u5OR83oRP5qkHDgPrgZ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petitformalscript/v18/B50TF6xQr2TXJBnGOFME6u5OR83oRP5qkH7gPg.woff2',
+					'https://fonts.gstatic.com/s/petitformalscript/v19/B50TF6xQr2TXJBnGOFME6u5OR83oRP5qkH7gPg.woff2',
 			},
 		},
 	},

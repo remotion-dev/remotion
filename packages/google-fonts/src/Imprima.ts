@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Imprima',
 	importName: 'Imprima',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Imprima:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/imprima/v18/VEMxRoN7sY3yuy-7yoyNyQzk.woff2',
+					'https://fonts.gstatic.com/s/imprima/v19/VEMxRoN7sY3yuy-7yoyNyQzk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/imprima/v18/VEMxRoN7sY3yuy-7yoKNyQ.woff2',
+					'https://fonts.gstatic.com/s/imprima/v19/VEMxRoN7sY3yuy-7yoKNyQ.woff2',
 			},
 		},
 	},

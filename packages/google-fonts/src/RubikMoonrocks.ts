@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rubik Moonrocks',
 	importName: 'RubikMoonrocks',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Rubik+Moonrocks:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,15 +20,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/rubikmoonrocks/v6/845ANMAmAI2VUZMLu_W0M7HqlDHXV8r6FGw.woff2',
+					'https://fonts.gstatic.com/s/rubikmoonrocks/v7/845ANMAmAI2VUZMLu_W0M7HqlDHXV8r6FGw.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/rubikmoonrocks/v6/845ANMAmAI2VUZMLu_W0M7HqlDHXXsr6FGw.woff2',
+					'https://fonts.gstatic.com/s/rubikmoonrocks/v7/845ANMAmAI2VUZMLu_W0M7HqlDHXXsr6FGw.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/rubikmoonrocks/v6/845ANMAmAI2VUZMLu_W0M7HqlDHXWMr6FGw.woff2',
+					'https://fonts.gstatic.com/s/rubikmoonrocks/v7/845ANMAmAI2VUZMLu_W0M7HqlDHXWMr6FGw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rubikmoonrocks/v6/845ANMAmAI2VUZMLu_W0M7HqlDHXVMr6FGw.woff2',
+					'https://fonts.gstatic.com/s/rubikmoonrocks/v7/845ANMAmAI2VUZMLu_W0M7HqlDHXVMr6FGw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rubikmoonrocks/v6/845ANMAmAI2VUZMLu_W0M7HqlDHXWsr6.woff2',
+					'https://fonts.gstatic.com/s/rubikmoonrocks/v7/845ANMAmAI2VUZMLu_W0M7HqlDHXWsr6.woff2',
 			},
 		},
 	},

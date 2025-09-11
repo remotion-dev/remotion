@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Vibur',
 	importName: 'Vibur',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Vibur:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/vibur/v23/DPEiYwmEzw0QRgTuJDs.woff2',
+					'https://fonts.gstatic.com/s/vibur/v24/DPEiYwmEzw0QRgTuJDs.woff2',
 			},
 		},
 	},

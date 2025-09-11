@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Purple Purse',
 	importName: 'PurplePurse',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Purple+Purse:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/purplepurse/v24/qWctB66gv53iAp-Vfs4My6qCcRz-ijA.woff2',
+					'https://fonts.gstatic.com/s/purplepurse/v25/qWctB66gv53iAp-Vfs4My6qCcRz-ijA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/purplepurse/v24/qWctB66gv53iAp-Vfs4My6qCfxz-.woff2',
+					'https://fonts.gstatic.com/s/purplepurse/v25/qWctB66gv53iAp-Vfs4My6qCfxz-.woff2',
 			},
 		},
 	},

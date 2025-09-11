@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Koh Santepheap',
 	importName: 'KohSantepheap',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Koh+Santepheap:ital,wght@0,100;0,300;0,400;0,700;0,900',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,33 +14,33 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				khmer:
-					'https://fonts.gstatic.com/s/kohsantepheap/v14/gNMfW3p6SJbwyGj2rBZyeOrTjNuFLVCZtwNJ.woff2',
+					'https://fonts.gstatic.com/s/kohsantepheap/v15/gNMfW3p6SJbwyGj2rBZyeOrTjNuFLVCZtwNJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kohsantepheap/v14/gNMfW3p6SJbwyGj2rBZyeOrTjNuFLVuZtw.woff2',
+					'https://fonts.gstatic.com/s/kohsantepheap/v15/gNMfW3p6SJbwyGj2rBZyeOrTjNuFLVuZtw.woff2',
 			},
 			'300': {
 				khmer:
-					'https://fonts.gstatic.com/s/kohsantepheap/v14/gNMeW3p6SJbwyGj2rBZyeOrTjNtNP0y1kj5wSA.woff2',
+					'https://fonts.gstatic.com/s/kohsantepheap/v15/gNMeW3p6SJbwyGj2rBZyeOrTjNtNP0y1kj5wSA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kohsantepheap/v14/gNMeW3p6SJbwyGj2rBZyeOrTjNtNP0y-kj4.woff2',
+					'https://fonts.gstatic.com/s/kohsantepheap/v15/gNMeW3p6SJbwyGj2rBZyeOrTjNtNP0y-kj4.woff2',
 			},
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/kohsantepheap/v14/gNMdW3p6SJbwyGj2rBZyeOrTjNPtHVmBsw.woff2',
+					'https://fonts.gstatic.com/s/kohsantepheap/v15/gNMdW3p6SJbwyGj2rBZyeOrTjNPtHVmBsw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kohsantepheap/v14/gNMdW3p6SJbwyGj2rBZyeOrTjNPmHVk.woff2',
+					'https://fonts.gstatic.com/s/kohsantepheap/v15/gNMdW3p6SJbwyGj2rBZyeOrTjNPmHVk.woff2',
 			},
 			'700': {
 				khmer:
-					'https://fonts.gstatic.com/s/kohsantepheap/v14/gNMeW3p6SJbwyGj2rBZyeOrTjNtdOEy1kj5wSA.woff2',
+					'https://fonts.gstatic.com/s/kohsantepheap/v15/gNMeW3p6SJbwyGj2rBZyeOrTjNtdOEy1kj5wSA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kohsantepheap/v14/gNMeW3p6SJbwyGj2rBZyeOrTjNtdOEy-kj4.woff2',
+					'https://fonts.gstatic.com/s/kohsantepheap/v15/gNMeW3p6SJbwyGj2rBZyeOrTjNtdOEy-kj4.woff2',
 			},
 			'900': {
 				khmer:
-					'https://fonts.gstatic.com/s/kohsantepheap/v14/gNMeW3p6SJbwyGj2rBZyeOrTjNtlOky1kj5wSA.woff2',
+					'https://fonts.gstatic.com/s/kohsantepheap/v15/gNMeW3p6SJbwyGj2rBZyeOrTjNtlOky1kj5wSA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kohsantepheap/v14/gNMeW3p6SJbwyGj2rBZyeOrTjNtlOky-kj4.woff2',
+					'https://fonts.gstatic.com/s/kohsantepheap/v15/gNMeW3p6SJbwyGj2rBZyeOrTjNtlOky-kj4.woff2',
 			},
 		},
 	},

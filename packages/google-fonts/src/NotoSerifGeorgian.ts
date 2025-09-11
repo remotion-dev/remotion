@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Georgian',
 	importName: 'NotoSerifGeorgian',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		georgian:
@@ -17,75 +17,75 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				georgian:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
 			},
 			'200': {
 				georgian:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
 			},
 			'300': {
 				georgian:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
 			},
 			'400': {
 				georgian:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
 			},
 			'500': {
 				georgian:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
 			},
 			'600': {
 				georgian:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
 			},
 			'700': {
 				georgian:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
 			},
 			'800': {
 				georgian:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
 			},
 			'900': {
 				georgian:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev50sJmasg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5lsJmasg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifgeorgian/v28/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
+					'https://fonts.gstatic.com/s/notoserifgeorgian/v29/VEMaRpd8s4nv8hG_qOzL7HOAw4nt0Sl_XxyaEduNMvi7T6Y4ev5rsJk.woff2',
 			},
 		},
 	},

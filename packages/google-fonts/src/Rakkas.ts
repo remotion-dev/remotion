@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rakkas',
 	importName: 'Rakkas',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Rakkas:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/rakkas/v21/Qw3cZQlNHiblL3jPlNFOCeM.woff2',
+					'https://fonts.gstatic.com/s/rakkas/v22/Qw3cZQlNHiblL3jPlNFOCeM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rakkas/v21/Qw3cZQlNHiblL3jPn9FOCeM.woff2',
+					'https://fonts.gstatic.com/s/rakkas/v22/Qw3cZQlNHiblL3jPn9FOCeM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rakkas/v21/Qw3cZQlNHiblL3jPkdFO.woff2',
+					'https://fonts.gstatic.com/s/rakkas/v22/Qw3cZQlNHiblL3jPkdFO.woff2',
 			},
 		},
 	},

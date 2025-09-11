@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mitr',
 	importName: 'Mitr',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Mitr:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		thai: 'U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC',
@@ -17,57 +17,57 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'200': {
-				thai: 'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8fMZJIPecmNE.woff2',
+				thai: 'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8fMZJIPecmNE.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8fMZJJjecmNE.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8fMZJJjecmNE.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8fMZJJnecmNE.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8fMZJJnecmNE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8fMZJJfecg.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8fMZJJfecg.woff2',
 			},
 			'300': {
-				thai: 'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8ZcaJIPecmNE.woff2',
+				thai: 'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8ZcaJIPecmNE.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8ZcaJJjecmNE.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8ZcaJJjecmNE.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8ZcaJJnecmNE.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8ZcaJJnecmNE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8ZcaJJfecg.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8ZcaJJfecg.woff2',
 			},
 			'400': {
-				thai: 'https://fonts.gstatic.com/s/mitr/v12/pxiLypw5ucZF-Sg4Maj_.woff2',
+				thai: 'https://fonts.gstatic.com/s/mitr/v13/pxiLypw5ucZF-Sg4Maj_.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/mitr/v12/pxiLypw5ucZF-TM4Maj_.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiLypw5ucZF-TM4Maj_.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mitr/v12/pxiLypw5ucZF-TI4Maj_.woff2',
-				latin: 'https://fonts.gstatic.com/s/mitr/v12/pxiLypw5ucZF-Tw4MQ.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiLypw5ucZF-TI4Maj_.woff2',
+				latin: 'https://fonts.gstatic.com/s/mitr/v13/pxiLypw5ucZF-Tw4MQ.woff2',
 			},
 			'500': {
-				thai: 'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8c8bJIPecmNE.woff2',
+				thai: 'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8c8bJIPecmNE.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8c8bJJjecmNE.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8c8bJJjecmNE.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8c8bJJnecmNE.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8c8bJJnecmNE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8c8bJJfecg.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8c8bJJfecg.woff2',
 			},
 			'600': {
-				thai: 'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8eMcJIPecmNE.woff2',
+				thai: 'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8eMcJIPecmNE.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8eMcJJjecmNE.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8eMcJJjecmNE.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8eMcJJnecmNE.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8eMcJJnecmNE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8eMcJJfecg.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8eMcJJfecg.woff2',
 			},
 			'700': {
-				thai: 'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8YcdJIPecmNE.woff2',
+				thai: 'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8YcdJIPecmNE.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8YcdJJjecmNE.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8YcdJJjecmNE.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8YcdJJnecmNE.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8YcdJJnecmNE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mitr/v12/pxiEypw5ucZF8YcdJJfecg.woff2',
+					'https://fonts.gstatic.com/s/mitr/v13/pxiEypw5ucZF8YcdJJfecg.woff2',
 			},
 		},
 	},

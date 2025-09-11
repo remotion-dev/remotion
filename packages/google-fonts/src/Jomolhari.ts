@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Jomolhari',
 	importName: 'Jomolhari',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Jomolhari:ital,wght@0,400',
 	unicodeRanges: {
 		tibetan: 'U+0F00-0FFF, U+200C-200D, U+25CC, U+3008-300B',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				tibetan:
-					'https://fonts.gstatic.com/s/jomolhari/v20/EvONzA1M1Iw_CBd2hsQyBVgYGq4.woff2',
+					'https://fonts.gstatic.com/s/jomolhari/v21/EvONzA1M1Iw_CBd2hsQyBVgYGq4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/jomolhari/v20/EvONzA1M1Iw_CBd2hsQyEFgY.woff2',
+					'https://fonts.gstatic.com/s/jomolhari/v21/EvONzA1M1Iw_CBd2hsQyEFgY.woff2',
 			},
 		},
 	},

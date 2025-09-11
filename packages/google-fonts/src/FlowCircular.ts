@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Flow Circular',
 	importName: 'FlowCircular',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Flow+Circular:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,15 +20,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/flowcircular/v13/lJwB-pc4j2F-H8YKuyvfxdZ41i3jWOr2.woff2',
+					'https://fonts.gstatic.com/s/flowcircular/v14/lJwB-pc4j2F-H8YKuyvfxdZ41i3jWOr2.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/flowcircular/v13/lJwB-pc4j2F-H8YKuyvfxdZ41iTjWOr2.woff2',
+					'https://fonts.gstatic.com/s/flowcircular/v14/lJwB-pc4j2F-H8YKuyvfxdZ41iTjWOr2.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/flowcircular/v13/lJwB-pc4j2F-H8YKuyvfxdZ41i_jWOr2.woff2',
+					'https://fonts.gstatic.com/s/flowcircular/v14/lJwB-pc4j2F-H8YKuyvfxdZ41i_jWOr2.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/flowcircular/v13/lJwB-pc4j2F-H8YKuyvfxdZ41i7jWOr2.woff2',
+					'https://fonts.gstatic.com/s/flowcircular/v14/lJwB-pc4j2F-H8YKuyvfxdZ41i7jWOr2.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/flowcircular/v13/lJwB-pc4j2F-H8YKuyvfxdZ41iDjWA.woff2',
+					'https://fonts.gstatic.com/s/flowcircular/v14/lJwB-pc4j2F-H8YKuyvfxdZ41iDjWA.woff2',
 			},
 		},
 	},

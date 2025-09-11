@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Grechen Fuemen',
 	importName: 'GrechenFuemen',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Grechen+Fuemen:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/grechenfuemen/v10/vEFI2_tHEQ4d5ObgKxBzZh0MAVgU8tenXg.woff2',
+					'https://fonts.gstatic.com/s/grechenfuemen/v11/vEFI2_tHEQ4d5ObgKxBzZh0MAVgU8tenXg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/grechenfuemen/v10/vEFI2_tHEQ4d5ObgKxBzZh0MAVgV8tenXg.woff2',
+					'https://fonts.gstatic.com/s/grechenfuemen/v11/vEFI2_tHEQ4d5ObgKxBzZh0MAVgV8tenXg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/grechenfuemen/v10/vEFI2_tHEQ4d5ObgKxBzZh0MAVgb8tc.woff2',
+					'https://fonts.gstatic.com/s/grechenfuemen/v11/vEFI2_tHEQ4d5ObgKxBzZh0MAVgb8tc.woff2',
 			},
 		},
 	},

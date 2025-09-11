@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cormorant Unicase',
 	importName: 'CormorantUnicase',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Cormorant+Unicase:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,63 +20,63 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9N_ttcl5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9N_ttcl5m2EDQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9N_ttcs5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9N_ttcs5m2EDQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9N_ttcn5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9N_ttcn5m2EDQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9N_ttcm5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9N_ttcm5m2EDQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9N_ttco5m0.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9N_ttco5m0.woff2',
 			},
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_QiZUaILtOqhqgDeXoF_n1_fTGX9vZlMIXxw.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_QiZUaILtOqhqgDeXoF_n1_fTGX9vZlMIXxw.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_QiZUaILtOqhqgDeXoF_n1_fTGX9vQlMIXxw.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_QiZUaILtOqhqgDeXoF_n1_fTGX9vQlMIXxw.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_QiZUaILtOqhqgDeXoF_n1_fTGX9vblMIXxw.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_QiZUaILtOqhqgDeXoF_n1_fTGX9vblMIXxw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_QiZUaILtOqhqgDeXoF_n1_fTGX9valMIXxw.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_QiZUaILtOqhqgDeXoF_n1_fTGX9valMIXxw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_QiZUaILtOqhqgDeXoF_n1_fTGX9vUlMI.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_QiZUaILtOqhqgDeXoF_n1_fTGX9vUlMI.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Mnt9cl5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Mnt9cl5m2EDQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Mnt9cs5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Mnt9cs5m2EDQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Mnt9cn5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Mnt9cn5m2EDQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Mnt9cm5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Mnt9cm5m2EDQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Mnt9co5m0.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Mnt9co5m0.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9MLsNcl5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9MLsNcl5m2EDQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9MLsNcs5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9MLsNcs5m2EDQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9MLsNcn5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9MLsNcn5m2EDQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9MLsNcm5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9MLsNcm5m2EDQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9MLsNco5m0.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9MLsNco5m0.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Nvsdcl5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Nvsdcl5m2EDQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Nvsdcs5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Nvsdcs5m2EDQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Nvsdcn5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Nvsdcn5m2EDQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Nvsdcm5m2EDQ.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Nvsdcm5m2EDQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cormorantunicase/v24/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Nvsdco5m0.woff2',
+					'https://fonts.gstatic.com/s/cormorantunicase/v25/HI_ViZUaILtOqhqgDeXoF_n1_fTGX9Nvsdco5m0.woff2',
 			},
 		},
 	},

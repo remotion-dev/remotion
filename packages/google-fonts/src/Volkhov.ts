@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Volkhov',
 	importName: 'Volkhov',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Volkhov:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		latin:
@@ -13,21 +13,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/volkhov/v17/SlGSmQieoJcKemNecTA0h1R3.woff2',
+					'https://fonts.gstatic.com/s/volkhov/v18/SlGSmQieoJcKemNecTA0h1R3.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/volkhov/v17/SlGXmQieoJcKemNecTA8PHFibxwQ.woff2',
+					'https://fonts.gstatic.com/s/volkhov/v18/SlGXmQieoJcKemNecTA8PHFibxwQ.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/volkhov/v17/SlGQmQieoJcKemNecTUEhQ.woff2',
+					'https://fonts.gstatic.com/s/volkhov/v18/SlGQmQieoJcKemNecTUEhQ.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/volkhov/v17/SlGVmQieoJcKemNeeY4hkHNSbQ.woff2',
+					'https://fonts.gstatic.com/s/volkhov/v18/SlGVmQieoJcKemNeeY4hkHNSbQ.woff2',
 			},
 		},
 	},

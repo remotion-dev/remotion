@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Devonshire',
 	importName: 'Devonshire',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Devonshire:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/devonshire/v28/46kqlbDwWirWr4gtBD2Bb0xg0mlY.woff2',
+					'https://fonts.gstatic.com/s/devonshire/v29/46kqlbDwWirWr4gtBD2Bb0xg0mlY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/devonshire/v28/46kqlbDwWirWr4gtBD2Bb0Jg0g.woff2',
+					'https://fonts.gstatic.com/s/devonshire/v29/46kqlbDwWirWr4gtBD2Bb0Jg0g.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Doppio One',
 	importName: 'DoppioOne',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Doppio+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/doppioone/v13/Gg8wN5gSaBfyBw2MqCh-pgIrKVpe.woff2',
+					'https://fonts.gstatic.com/s/doppioone/v14/Gg8wN5gSaBfyBw2MqCh-pgIrKVpe.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/doppioone/v13/Gg8wN5gSaBfyBw2MqCh-pgwrKQ.woff2',
+					'https://fonts.gstatic.com/s/doppioone/v14/Gg8wN5gSaBfyBw2MqCh-pgwrKQ.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Castoro Titling',
 	importName: 'CastoroTitling',
-	version: 'v9',
+	version: 'v10',
 	url: 'https://fonts.googleapis.com/css2?family=Castoro+Titling:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/castorotitling/v9/buEupouwccj03leTfjUAhEZWlrNaaw0lSo8.woff2',
+					'https://fonts.gstatic.com/s/castorotitling/v10/buEupouwccj03leTfjUAhEZWlrNaaw0lSo8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/castorotitling/v9/buEupouwccj03leTfjUAhEZWlrNaZQ0l.woff2',
+					'https://fonts.gstatic.com/s/castorotitling/v10/buEupouwccj03leTfjUAhEZWlrNaZQ0l.woff2',
 			},
 		},
 	},

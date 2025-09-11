@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Amethysta',
 	importName: 'Amethysta',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Amethysta:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/amethysta/v16/rP2Fp2K15kgb_F3ibfW4Hz-D.woff2',
+					'https://fonts.gstatic.com/s/amethysta/v17/rP2Fp2K15kgb_F3ibfW4Hz-D.woff2',
 			},
 		},
 	},
