@@ -1,10 +1,9 @@
-import type {WrappedCanvas} from 'mediabunny';
-import {ALL_FORMATS, CanvasSink, Input, UrlSource} from 'mediabunny';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
 import {Log, type LogLevel} from './log';
+import {MediaPlayer} from './media-player';
 
-const {useUnsafeVideoConfig} = Internals;
+const {useUnsafeVideoConfig, Timeline} = Internals;
 
 type NewVideoForPreviewProps = {
 	readonly src: string;
@@ -12,8 +11,6 @@ type NewVideoForPreviewProps = {
 	readonly playbackRate?: number;
 	readonly logLevel?: LogLevel;
 };
-
-const SEEK_THRESHOLD = 0.05;
 
 export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	src,
@@ -24,16 +21,12 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
-
-	const [canvasSink, setCanvasSink] = useState<CanvasSink | null>(null);
-	const videoFrameIteratorRef = useRef<AsyncGenerator<
-		WrappedCanvas,
-		void,
-		unknown
-	> | null>(null);
-	const nextFrameRef = useRef<WrappedCanvas | null>(null);
-	const asyncIdRef = useRef<number>(0);
 	const lastCurrentTimeRef = useRef<number>(-1);
+	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
+
+	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+
+	const [playing] = Timeline.usePlayingState();
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
@@ -46,190 +39,92 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	const actualFps = videoConfig.fps / playbackRate;
 	const currentTime = frame / actualFps;
 
-	// set up the canvas sink here
 	useEffect(() => {
-		const currentAsyncId = asyncIdRef.current;
-		const input = new Input({
-			formats: ALL_FORMATS,
-			source: new UrlSource(src),
-		});
+		if (!canvasRef.current) return;
 
-		input
-			.getPrimaryVideoTrack()
-			.then((track) => {
-				if (!track) {
-					throw new Error(`No video track found for ${src}`);
-				}
+		let mounted = true;
 
-				const newCanvasSink = new CanvasSink(track, {
-					poolSize: 2,
+		const initializePlayer = async () => {
+			try {
+				Log.trace(
+					logLevel,
+					`[NewVideoForPreview] Creating MediaPlayer for src: ${src}`,
+				);
+				const player = new MediaPlayer({
+					canvas: canvasRef.current!,
+					src,
+					logLevel,
 				});
 
-				Log.trace(logLevel, `[NewVideoForPreview] Created canvas sink`);
-				setCanvasSink(newCanvasSink);
-			})
-			.catch((err) => {
-				Log.error('[NewVideoForPreview] Failed to set up sink', err);
-			});
-		return () => {
-			asyncIdRef.current = currentAsyncId + 1; // cancel any pending operations
-			videoFrameIteratorRef.current?.return();
-			videoFrameIteratorRef.current = null;
-			nextFrameRef.current = null;
-		};
-	}, [src, logLevel]);
+				mediaPlayerRef.current = player;
+				await player.initialize();
 
-	const drawFrame = useCallback((canvasImageSource: CanvasImageSource) => {
-		const canvas = canvasRef.current;
-		if (!canvas) {
-			return;
-		}
-
-		const ctx = canvas.getContext('2d');
-		if (!ctx) {
-			return;
-		}
-
-		ctx.drawImage(canvasImageSource, 0, 0);
-	}, []);
-
-	const isSignificantSeek = useCallback((newTime: number): boolean => {
-		if (lastCurrentTimeRef.current === -1) return true;
-
-		const timeDiff = Math.abs(newTime - lastCurrentTimeRef.current);
-		return timeDiff > SEEK_THRESHOLD;
-	}, []);
-
-	// uses existing iterator
-	const updateNextFrame = useCallback(async () => {
-		if (!videoFrameIteratorRef.current) return;
-
-		const currentAsyncId = asyncIdRef.current;
-
-		try {
-			const result = await videoFrameIteratorRef.current.next();
-
-			if (currentAsyncId !== asyncIdRef.current) {
-				Log.trace(
-					logLevel,
-					`[NewVideoForPreview] Race condition detected, aborting fetch`,
-				);
-				// race condition detected, just return
-				return;
-			}
-
-			if (result.value) {
-				Log.trace(
-					logLevel,
-					`[NewVideoForPreview] Buffered next frame ${result.value.timestamp.toFixed(3)}s`,
-				);
-				nextFrameRef.current = result.value;
-			}
-		} catch (err) {
-			Log.error('[NewVideoForPreview] Failed to update next frame', err);
-		}
-	}, [logLevel]);
-
-	// frame consumption using existing iterator (like mediabunny render loop)
-	const checkAndConsumeFrame = useCallback(() => {
-		const nextFrame = nextFrameRef.current;
-
-		if (nextFrame && nextFrame.timestamp <= currentTime) {
-			Log.trace(
-				logLevel,
-				`[NewVideoForPreview] Using cached frame ${nextFrame.timestamp.toFixed(3)}s`,
-			);
-			drawFrame(nextFrame.canvas);
-			nextFrameRef.current = null;
-
-			// Continue using SAME iterator for next frame
-			updateNextFrame();
-			return true;
-		}
-
-		return false;
-	}, [currentTime, drawFrame, logLevel, updateNextFrame]);
-
-	// resets the current iterator, starts a new one
-	const startVideoIterator = useCallback(
-		async (timeToSeek: number) => {
-			if (!canvasSink) return;
-
-			asyncIdRef.current++;
-			const currentAsyncId = asyncIdRef.current;
-
-			// clean up previous iterator
-			await videoFrameIteratorRef.current?.return();
-
-			videoFrameIteratorRef.current = canvasSink.canvases(timeToSeek);
-
-			try {
-				const firstFrame =
-					(await videoFrameIteratorRef.current.next()).value ?? null;
-				const secondFrame =
-					(await videoFrameIteratorRef.current.next()).value ?? null;
-
-				if (currentAsyncId !== asyncIdRef.current) {
-					Log.trace(
-						logLevel,
-						`[NewVideoForPreview] Race condition detected, aborting fetch for ${timeToSeek.toFixed(3)}s`,
-					);
+				if (!mounted) {
+					player.dispose();
 					return;
 				}
 
-				if (firstFrame) {
-					Log.trace(
-						logLevel,
-						`[NewVideoForPreview] Drew initial frame ${firstFrame.timestamp.toFixed(3)}s`,
-					);
-					drawFrame(firstFrame.canvas);
-				}
-
-				nextFrameRef.current = secondFrame;
-
-				if (secondFrame) {
-					updateNextFrame();
-				}
-			} catch (err) {
-				Log.error('[NewVideoForPreview] Failed to start video iterator', err);
-			}
-		},
-		[canvasSink, drawFrame, logLevel, updateNextFrame],
-	);
-
-	// main sync effect - mediabunny player example insipired
-	useEffect(() => {
-		if (!canvasSink) return;
-
-		const isSeek = isSignificantSeek(currentTime);
-
-		if (isSeek) {
-			Log.trace(
-				logLevel,
-				`[NewVideoForPreview] Seek detected to ${currentTime.toFixed(3)}s, creating new iterator`,
-			);
-			startVideoIterator(currentTime);
-		} else {
-			const frameConsumed = checkAndConsumeFrame();
-
-			if (!frameConsumed && !nextFrameRef.current) {
 				Log.trace(
 					logLevel,
-					`[NewVideoForPreview] No cached frame, fetching for ${currentTime.toFixed(3)}s`,
+					`[NewVideoForPreview] MediaPlayer initialized successfully`,
 				);
-				startVideoIterator(currentTime);
+
+				setMediaPlayerReady(true);
+			} catch (error) {
+				if (mounted) {
+					Log.error(
+						'[NewVideoForPreview] MediaPlayer initialization failed',
+						error,
+					);
+				}
 			}
+		};
+
+		initializePlayer();
+
+		return () => {
+			mounted = false;
+			if (mediaPlayerRef.current) {
+				Log.trace(logLevel, `[NewVideoForPreview] Disposing MediaPlayer`);
+				mediaPlayerRef.current.dispose();
+				mediaPlayerRef.current = null;
+			}
+		};
+	}, [src, logLevel]);
+
+	// sync play/pause state with Remotion timeline (like old VideoForPreview video does)
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer) return;
+
+		if (playing) {
+			Log.trace(
+				logLevel,
+				`[NewVideoForPreview] Remotion playing - calling MediaPlayer.play()`,
+			);
+			mediaPlayer.play();
+		} else {
+			Log.trace(
+				logLevel,
+				`[NewVideoForPreview] Remotion paused - calling MediaPlayer.pause()`,
+			);
+			mediaPlayer.pause();
 		}
+	}, [playing, logLevel]);
+
+	// sync target time with MediaPlayer
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) return;
+
+		mediaPlayer.seekTo(currentTime);
+		Log.trace(
+			logLevel,
+			`[NewVideoForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
+		);
 
 		lastCurrentTimeRef.current = currentTime;
-	}, [
-		canvasSink,
-		currentTime,
-		isSignificantSeek,
-		checkAndConsumeFrame,
-		startVideoIterator,
-		logLevel,
-	]);
+	}, [currentTime, logLevel, mediaPlayerReady]);
 
 	return (
 		<canvas
