@@ -1,5 +1,6 @@
-import type {AudioSample} from 'mediabunny';
+import type {AudioSample, VideoSample} from 'mediabunny';
 import {combineAudioDataAndClosePrevious} from './convert-audiodata/combine-audiodata';
+import type {PcmS16AudioData} from './convert-audiodata/convert-audiodata';
 import {convertAudioData} from './convert-audiodata/convert-audiodata';
 import {TARGET_NUMBER_OF_CHANNELS} from './convert-audiodata/resample-audiodata';
 import {getSinks, type GetSink} from './get-frames-since-keyframe';
@@ -46,7 +47,7 @@ export const extractAudio = async ({
 	timeInSeconds: number;
 	logLevel: LogLevel;
 	durationInSeconds: number;
-}) => {
+}): Promise<PcmS16AudioData | null> => {
 	if (!sinkPromise[src]) {
 		sinkPromise[src] = getSinks(src);
 	}
@@ -95,7 +96,7 @@ export const extractAudio = async ({
 		samples.push(sample);
 	}
 
-	const audioDataArray: AudioData[] = [];
+	const audioDataArray: PcmS16AudioData[] = [];
 	for (let i = 0; i < samples.length; i++) {
 		const sample = samples[i];
 
@@ -146,14 +147,13 @@ export const extractAudio = async ({
 		const audioData = convertAudioData({
 			audioData: audioDataRaw,
 			newSampleRate: 48000,
-			format: 's16',
 			trimStartInSeconds,
 			trimEndInSeconds,
 			targetNumberOfChannels: TARGET_NUMBER_OF_CHANNELS,
 		});
+		audioDataRaw.close();
 
 		if (audioData.numberOfFrames === 0) {
-			audioData.close();
 			sample.close();
 
 			continue;
@@ -185,7 +185,10 @@ export const extractFrameAndAudio = async ({
 	logLevel: LogLevel;
 	durationInSeconds: number;
 	shouldRenderAudio: boolean;
-}) => {
+}): Promise<{
+	frame: VideoSample | null;
+	audio: PcmS16AudioData | null;
+}> => {
 	const [frame, audio] = await Promise.all([
 		extractFrame({
 			src,

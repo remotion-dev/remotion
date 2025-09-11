@@ -9,14 +9,12 @@ export const resampleAudioData = ({
 	data,
 	newNumberOfFrames,
 	chunkSize,
-	isPlanar,
 }: {
 	srcNumberOfChannels: number;
 	srcChannels: DataType[];
 	data: DataType;
 	newNumberOfFrames: number;
 	chunkSize: number;
-	isPlanar: boolean;
 }) => {
 	for (
 		let newFrameIndex = 0;
@@ -33,31 +31,20 @@ export const resampleAudioData = ({
 			channelIndex < srcNumberOfChannels;
 			channelIndex++
 		) {
-			if (isPlanar) {
-				const chunk = srcChannels[channelIndex].slice(start, end);
+			const sampleCountAvg = end - start;
 
-				const average =
-					(chunk as Int32Array<ArrayBuffer>).reduce((a, b) => {
-						return a + b;
-					}, 0) / chunk.length;
-
-				sourceValues[channelIndex] = average;
-			} else {
-				const sampleCountAvg = end - start;
-
-				let itemSum = 0;
-				let itemCount = 0;
-				for (let k = 0; k < sampleCountAvg; k++) {
-					const num =
-						srcChannels[0][(start + k) * srcNumberOfChannels + channelIndex];
-					itemSum += num;
-					itemCount++;
-				}
-
-				const average = itemSum / itemCount;
-
-				sourceValues[channelIndex] = average;
+			let itemSum = 0;
+			let itemCount = 0;
+			for (let k = 0; k < sampleCountAvg; k++) {
+				const num =
+					srcChannels[0][(start + k) * srcNumberOfChannels + channelIndex];
+				itemSum += num;
+				itemCount++;
 			}
+
+			const average = itemSum / itemCount;
+
+			sourceValues[channelIndex] = average;
 		}
 
 		if (TARGET_NUMBER_OF_CHANNELS === srcNumberOfChannels) {

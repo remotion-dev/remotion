@@ -107,17 +107,10 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 				imageBitmap.close();
 
 				if (audio) {
-					const data = new Int16Array(
-						audio.numberOfFrames * audio.numberOfChannels,
-					);
-					audio.clone().copyTo(data, {
-						planeIndex: 0,
-					});
-
 					registerRenderAsset({
 						type: 'inline-audio',
 						id,
-						audio: Array.from(data),
+						audio: Array.from(audio.data),
 						sampleRate: audio.sampleRate,
 						numberOfChannels: audio.numberOfChannels,
 						frame: absoluteFrame,

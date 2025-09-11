@@ -1,3 +1,4 @@
+import type {PcmS16AudioData} from './convert-audiodata/convert-audiodata';
 import {extractFrameAndAudio} from './extract-frame';
 import type {LogLevel} from './log';
 
@@ -16,7 +17,7 @@ type ExtractFrameResponse =
 			type: 'response-success';
 			id: string;
 			frame: ImageBitmap | null;
-			audio: AudioData | null;
+			audio: PcmS16AudioData | null;
 	  }
 	| {
 			type: 'response-error';
@@ -25,15 +26,10 @@ type ExtractFrameResponse =
 	  };
 
 // Doesn't exist in studio
-if (window.remotion_broadcastChannel) {
+if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 	window.remotion_broadcastChannel.addEventListener(
 		'message',
 		async (event) => {
-			if (!window.remotion_isMainTab) {
-				// Other tabs will also get this message, but only the main tab should process it
-				return;
-			}
-
 			const data = event.data as ExtractFrameRequest;
 			if (data.type === 'request') {
 				try {
@@ -94,7 +90,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	isClientSideRendering: boolean;
 }): Promise<{
 	frame: ImageBitmap | VideoFrame | null;
-	audio: AudioData | null;
+	audio: PcmS16AudioData | null;
 }> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		const {frame: sample, audio} = await extractFrameAndAudio({
@@ -119,7 +115,7 @@ export const extractFrameViaBroadcastChannel = async ({
 
 	const resolvePromise = new Promise<{
 		frame: ImageBitmap | null;
-		audio: AudioData | null;
+		audio: PcmS16AudioData | null;
 	}>((resolve, reject) => {
 		const onMessage = (event: MessageEvent) => {
 			const data = event.data as ExtractFrameResponse;
@@ -129,7 +125,10 @@ export const extractFrameViaBroadcastChannel = async ({
 			}
 
 			if (data.type === 'response-success' && data.id === requestId) {
-				resolve({frame: data.frame ? data.frame : null, audio: data.audio});
+				resolve({
+					frame: data.frame ? data.frame : null,
+					audio: data.audio ? data.audio : null,
+				});
 				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,
@@ -170,7 +169,7 @@ export const extractFrameViaBroadcastChannel = async ({
 				() => {
 					reject(
 						new Error(
-							`Timeout while extracting frame ${timeInSeconds} from ${src}`,
+							`Timeout while extracting frame at time ${timeInSeconds}sec from ${src}`,
 						),
 					);
 				},

@@ -1,27 +1,30 @@
-import {getDataTypeForAudioFormat} from './data-types';
-import {isPlanarFormat} from './is-planar-format';
 import {resampleAudioData} from './resample-audiodata';
 
 export type ConvertAudioDataOptions = {
 	audioData: AudioData;
 	newSampleRate: number;
-	format: AudioSampleFormat | null;
 	trimStartInSeconds: number;
 	trimEndInSeconds: number;
 	targetNumberOfChannels: number;
 };
-/**
- * Converts an `AudioData` object to a new `AudioData` object with a different sample rate or format.
- * @see [Documentation](https://remotion.dev/docs/webcodecs/convert-audiodata)
- */
+
+const FORMAT: AudioSampleFormat = 's16';
+
+export type PcmS16AudioData = {
+	data: Int16Array;
+	sampleRate: number;
+	numberOfChannels: number;
+	numberOfFrames: number;
+	timestamp: number;
+};
+
 export const convertAudioData = ({
 	audioData,
 	newSampleRate,
-	format,
 	trimStartInSeconds,
 	trimEndInSeconds,
 	targetNumberOfChannels,
-}: ConvertAudioDataOptions) => {
+}: ConvertAudioDataOptions): PcmS16AudioData => {
 	const {
 		numberOfChannels: srcNumberOfChannels,
 		sampleRate: currentSampleRate,
@@ -46,81 +49,51 @@ export const convertAudioData = ({
 		throw new Error('newSampleRate must be between 3000 and 768000');
 	}
 
-	if (!format) {
-		throw new Error('AudioData format is not set');
-	}
+	const srcChannels = new Int16Array(srcNumberOfChannels * frameCount);
 
-	if (
-		format === audioData.format &&
-		newNumberOfFrames === numberOfFrames &&
-		trimStartInSeconds === 0 &&
-		trimEndInSeconds === 0
-	) {
-		return audioData.clone();
-	}
+	audioData.copyTo(srcChannels, {
+		planeIndex: 0,
+		format: FORMAT,
+		frameOffset,
+		frameCount,
+	});
 
-	const DataType = getDataTypeForAudioFormat(format);
-
-	const isPlanar = isPlanarFormat(format);
-	const planes = isPlanar ? srcNumberOfChannels : 1;
-
-	const srcChannels = new Array(planes)
-		.fill(true)
-		.map(() => new DataType((isPlanar ? 1 : srcNumberOfChannels) * frameCount));
-
-	for (let i = 0; i < planes; i++) {
-		audioData.copyTo(srcChannels[i], {
-			planeIndex: i,
-			format,
-			frameOffset,
-			frameCount,
-		});
-	}
-
-	const data = new DataType(newNumberOfFrames * targetNumberOfChannels);
+	const data = new Int16Array(newNumberOfFrames * targetNumberOfChannels);
 	const chunkSize = frameCount / newNumberOfFrames;
-
-	const timestamp = Math.round(
-		audioData.timestamp + trimStartInSeconds * 1_000_000,
-	);
 
 	if (
 		newNumberOfFrames === frameCount &&
 		targetNumberOfChannels === srcNumberOfChannels
 	) {
 		let offset = 0;
-		for (let i = 0; i < planes; i++) {
-			data.set(srcChannels[i], offset);
-			offset += srcChannels[i].length;
-		}
+		data.set(srcChannels, offset);
+		offset += srcChannels.length;
 
-		return new AudioData({
+		return {
 			data,
-			format,
 			numberOfChannels: targetNumberOfChannels,
 			numberOfFrames: newNumberOfFrames,
 			sampleRate: newSampleRate,
-			timestamp,
-		});
+			timestamp: audioData.timestamp,
+		};
 	}
 
 	resampleAudioData({
 		srcNumberOfChannels,
-		srcChannels,
+		srcChannels: [srcChannels],
 		data,
 		newNumberOfFrames,
 		chunkSize,
-		isPlanar,
 	});
 
-	const newAudioData = new AudioData({
+	const newAudioData = {
 		data,
-		format,
+		format: FORMAT,
 		numberOfChannels: targetNumberOfChannels,
 		numberOfFrames: newNumberOfFrames,
 		sampleRate: newSampleRate,
-		timestamp,
-	});
+		timestamp: audioData.timestamp,
+	};
 
 	return newAudioData;
 };

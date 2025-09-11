@@ -1,22 +1,15 @@
-import {getDataTypeForAudioFormat} from './data-types';
-import {isPlanarFormat} from './is-planar-format';
+import type {PcmS16AudioData} from './convert-audiodata';
 
 export const combineAudioDataAndClosePrevious = (
-	audioDataArray: AudioData[],
-) => {
+	audioDataArray: PcmS16AudioData[],
+): PcmS16AudioData => {
 	let numberOfFrames = 0;
-	let format: AudioSampleFormat | null = null;
 	let numberOfChannels: number | null = null;
 	let sampleRate: number | null = null;
 	const {timestamp} = audioDataArray[0];
 
 	for (const audioData of audioDataArray) {
 		numberOfFrames += audioData.numberOfFrames;
-		if (!format) {
-			format = audioData.format;
-		} else if (format !== audioData.format) {
-			throw new Error('Formats do not match');
-		}
 
 		if (!numberOfChannels) {
 			numberOfChannels = audioData.numberOfChannels;
@@ -31,10 +24,6 @@ export const combineAudioDataAndClosePrevious = (
 		}
 	}
 
-	if (!format) {
-		throw new Error('Format is not set');
-	}
-
 	if (!numberOfChannels) {
 		throw new Error('Number of channels is not set');
 	}
@@ -43,45 +32,19 @@ export const combineAudioDataAndClosePrevious = (
 		throw new Error('Sample rate is not set');
 	}
 
-	const DataType = getDataTypeForAudioFormat(format);
-	const isPlanar = isPlanarFormat(format);
-	if (isPlanar) {
-		throw new Error(
-			'Planar formats are not supported for combining audio dats',
-		);
+	const arr = new Int16Array(numberOfFrames * numberOfChannels);
+
+	let offset = 0;
+	for (const audioData of audioDataArray) {
+		arr.set(audioData.data, offset);
+		offset += audioData.data.length;
 	}
 
-	const channel = new DataType(numberOfFrames * numberOfChannels);
-
-	let framesWritten = 0;
-
-	for (
-		let audioDataIndex = 0;
-		audioDataIndex < audioDataArray.length;
-		audioDataIndex++
-	) {
-		const audioData = audioDataArray[audioDataIndex];
-
-		const intermediateChannel = new DataType(
-			audioData.numberOfFrames * numberOfChannels,
-		);
-		audioData.copyTo(intermediateChannel, {
-			planeIndex: 0,
-		});
-		channel.set(intermediateChannel, framesWritten);
-
-		framesWritten += audioData.numberOfFrames * numberOfChannels;
-		audioData.close();
-	}
-
-	const newAudioData = new AudioData({
+	return {
+		data: arr,
+		numberOfChannels,
 		numberOfFrames,
 		sampleRate,
 		timestamp,
-		data: channel,
-		format,
-		numberOfChannels,
-	});
-
-	return newAudioData;
+	};
 };
