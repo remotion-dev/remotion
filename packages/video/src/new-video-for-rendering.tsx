@@ -25,7 +25,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	delayRenderTimeoutInMilliseconds,
 	// call when a frame of the video, i.e. frame drawn on canvas
 	onVideoFrame,
-	logLevel,
+	logLevel = window.remotion_logLevel,
 }) => {
 	const absoluteFrame = Internals.useTimelinePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
