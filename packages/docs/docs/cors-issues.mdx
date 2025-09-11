@@ -48,7 +48,7 @@ The solution for these errors is to **also return the CORS headers in the respon
 
 Notice how the error message explicitly mentions the "preflight request"!
 
-## Set the `Access-Control-Allow-Origin` header
+## Set the `Access-Control-Allow-Methods` header
 
 <span style={{opacity: 0.5}}>`Access to fetch at 'http://localhost:3005/' from origin 'http://localhost:3001' has been blocked by CORS policy:`</span>
 <br />
@@ -78,6 +78,8 @@ This issue can be solved by adding the `Access-Control-Allow-Private-Network` he
 
 - `Access-Control-Allow-Private-Network: true`
 
+Once again, the resolution for the problem was described in the error message.
+
 ## Solving any CORS error
 
 There are more headers which can come into play:
@@ -90,7 +92,8 @@ There are more headers which can come into play:
 - `Access-Control-Expose-Headers`
 - `Access-Control-Max-Age`
 
-Whatever the issue, the error message in Chrome is very specific!  
+Whatever the issue, the error message that Chrome prints to the console is very specific.  
+It's easy to not inspect it closely because the first part is always the same, but the second part is the one that is specific to the issue.  
 Read the error message carefully and act appropriately.
 
 ## Disable the cache
