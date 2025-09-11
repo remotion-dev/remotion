@@ -1,6 +1,7 @@
 export type {
 	ArtifactAsset,
 	AudioOrVideoAsset,
+	InlineAudioAsset,
 	TRenderAsset,
 } from './CompositionManager';
 export {DownloadBehavior} from './download-behavior';

@@ -10,6 +10,13 @@ export const makeFfmpegFilterFile = (
 	complexFilter: FilterWithoutPaddingApplied,
 	downloadMap: DownloadMap,
 ) => {
+	if (complexFilter.filter === null) {
+		return {
+			file: null,
+			cleanup: () => undefined,
+		};
+	}
+
 	return makeFfmpegFilterFileStr(complexFilter.filter, downloadMap);
 };
 

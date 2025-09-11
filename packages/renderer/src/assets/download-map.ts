@@ -6,6 +6,10 @@ import {OffthreadVideoServerEmitter} from '../offthread-video-server';
 import type {FrameAndAssets} from '../render-frames';
 import {tmpDir} from '../tmp-dir';
 import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
+import {
+	makeInlineAudioMixing,
+	type InlineAudioMixing,
+} from './inline-audio-mixing';
 
 export type AudioChannelsAndDurationResultCache = {
 	channels: number;
@@ -44,6 +48,7 @@ export type DownloadMap = {
 	preventCleanup: () => void;
 	allowCleanup: () => void;
 	isPreventedFromCleanup: () => boolean;
+	inlineAudioMixing: InlineAudioMixing;
 };
 
 export type RenderAssetInfo = {
@@ -57,7 +62,7 @@ export type RenderAssetInfo = {
 	forSeamlessAacConcatenation: boolean;
 };
 
-const makeAndReturn = (dir: string, name: string) => {
+export const makeAndReturn = (dir: string, name: string) => {
 	const p = path.join(dir, name);
 	mkdirSync(p);
 	return p;
@@ -93,6 +98,7 @@ export const makeDownloadMap = (): DownloadMap => {
 		isPreventedFromCleanup: () => {
 			return prevented;
 		},
+		inlineAudioMixing: makeInlineAudioMixing(dir),
 	};
 };
 
@@ -104,6 +110,9 @@ export const cleanDownloadMap = (downloadMap: DownloadMap) => {
 	deleteDirectory(downloadMap.downloadDir);
 	deleteDirectory(downloadMap.complexFilter);
 	deleteDirectory(downloadMap.compositingDir);
+
+	downloadMap.inlineAudioMixing.cleanup();
+
 	// Assets dir must be last since the others are contained
 	deleteDirectory(downloadMap.assetDir);
 };

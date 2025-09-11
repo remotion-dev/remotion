@@ -1,6 +1,7 @@
 import type {
 	ArtifactAsset,
 	AudioOrVideoAsset,
+	InlineAudioAsset,
 	TRenderAsset,
 } from 'remotion/no-react';
 import type {EmittedArtifact} from './serialize-artifact';
@@ -58,4 +59,10 @@ export const onlyArtifact = ({
 			throw new Error('Unknown artifact type: ' + (artifact satisfies never));
 		})
 		.filter(truthy);
+};
+
+export const onlyInlineAudio = (assets: TRenderAsset[]): InlineAudioAsset[] => {
+	return assets.filter(
+		(asset) => asset.type === 'inline-audio',
+	) as InlineAudioAsset[];
 };

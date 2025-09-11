@@ -8,7 +8,6 @@ export type NewVideoProps = {
 	volume?: VolumeProp;
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	name?: string;
-	toneFrequency?: number;
 	pauseWhenBuffering?: boolean;
 	showInTimeline?: boolean;
 	onAutoPlayError?: null | (() => void);
@@ -26,6 +25,5 @@ export type NewVideoProps = {
 	 * @deprecated For internal use only
 	 */
 	stack?: string;
-	audioStreamIndex?: number;
 	logLevel?: LogLevel;
 };

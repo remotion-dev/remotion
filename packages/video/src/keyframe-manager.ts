@@ -37,14 +37,14 @@ export const makeKeyframeManager = () => {
 
 				Log.verbose(
 					logLevel,
-					`Open frames for src ${src}: ${timestamps.join(', ')}, ${allocationSizes.join(', ')}`,
+					`[NewVideo] Open frames for src ${src}: ${timestamps.join(', ')}, ${allocationSizes.join(', ')}`,
 				);
 			}
 		}
 
 		Log.verbose(
 			logLevel,
-			`Cache stats: ${count} open frames, ${totalSize} bytes, actually open: ${framesOpen}`,
+			`[NewVideo] Cache stats: ${count} open frames, ${totalSize} bytes, actually open: ${framesOpen}`,
 		);
 	};
 
@@ -77,7 +77,7 @@ export const makeKeyframeManager = () => {
 				await bank.prepareForDeletion();
 				Log.verbose(
 					logLevel,
-					`Cleared frames for src ${src} from ${bank.startTimestampInSeconds}sec to ${bank.endTimestampInSeconds}sec`,
+					`[NewVideo] Cleared frames for src ${src} from ${bank.startTimestampInSeconds}sec to ${bank.endTimestampInSeconds}sec`,
 				);
 				delete sources[src][startTimeInSeconds as unknown as number];
 			} else {
@@ -134,7 +134,10 @@ export const makeKeyframeManager = () => {
 			return existingBank;
 		}
 
-		Log.verbose(logLevel, `Bank exists but frames have already been evicted!`);
+		Log.verbose(
+			logLevel,
+			`[NewVideo] Bank exists but frames have already been evicted!`,
+		);
 
 		// Bank exists but frames have already been evicted!
 		// First delete it entirely
