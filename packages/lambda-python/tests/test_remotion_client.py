@@ -26,6 +26,16 @@ def test_client_config(remotion_client: RemotionClient):
     assert not remotion_client.force_path_style
 
 
+def test_client_config_with_creds(remotion_client_with_creds: RemotionClient):
+    remotion_client = remotion_client_with_creds
+    assert remotion_client.function_name == TEST_FUNCTION_NAME
+    assert remotion_client.region == TEST_REGION
+    assert remotion_client.serve_url == TEST_SERVE_URL
+    assert remotion_client.access_key == TEST_AWS_ACCESS_KEY
+    assert remotion_client.secret_key == TEST_AWS_SECRET_KEY
+    assert not remotion_client.force_path_style
+
+
 @pytest.mark.parametrize(
     "hash_value,expected",
     [
