@@ -22,17 +22,21 @@ from .models import (
 )
 
 
+BUCKET_NAME_PREFIX = 'remotionlambda-'
+REGION_US_EAST = 'us-east-1'
+
+
 class RemotionClient:
     """A client for interacting with the Remotion service."""
 
     # pylint: disable=too-many-arguments
     def __init__(
         self,
-        region,
-        serve_url,
-        function_name,
-        access_key=None,
-        secret_key=None,
+        region: str,
+        serve_url: str,
+        function_name: str,
+        access_key: Optional[str] = None,
+        secret_key: Optional[str] = None,
         force_path_style=False,
     ):
         """
@@ -67,7 +71,7 @@ class RemotionClient:
         # Use the same logic as JS SDK: prefix + region without dashes + random hash
         region_no_dashes = self.region.replace('-', '')
         random_suffix = self._generate_random_hash()
-        return f"remotionlambda-{region_no_dashes}-{random_suffix}"
+        return f"{BUCKET_NAME_PREFIX}{region_no_dashes}-{random_suffix}"
 
     def _input_props_key(self, hash_value):
         """Generate S3 key for input props."""
@@ -97,7 +101,7 @@ class RemotionClient:
             buckets = []
             for bucket in response['Buckets']:
                 bucket_name = bucket['Name']
-                if bucket_name.startswith('remotionlambda-'):
+                if bucket_name.startswith(BUCKET_NAME_PREFIX):
                     # Check if bucket is in the correct region
                     try:
                         bucket_region = s3_client.get_bucket_location(
@@ -106,7 +110,7 @@ class RemotionClient:
                         location = bucket_region.get('LocationConstraint')
                         # us-east-1 returns None for LocationConstraint
                         if location == self.region or (
-                            location is None and self.region == 'us-east-1'
+                            location is None and self.region == REGION_US_EAST
                         ):
                             buckets.append(bucket_name)
                     except ClientError:
@@ -136,7 +140,7 @@ class RemotionClient:
         s3_client = self._create_s3_client()
 
         try:
-            if self.region == 'us-east-1':
+            if self.region == REGION_US_EAST:
                 s3_client.create_bucket(Bucket=bucket_name)
             else:
                 s3_client.create_bucket(

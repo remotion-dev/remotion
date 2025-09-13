@@ -13,6 +13,9 @@ def test_client_config(remotion_client: RemotionClient):
     assert remotion_client.function_name == TEST_FUNCTION_NAME
     assert remotion_client.region == TEST_REGION
     assert remotion_client.serve_url == TEST_SERVE_URL
+    assert not remotion_client.access_key
+    assert not remotion_client.secret_key
+    assert not remotion_client.force_path_style
 
 
 @pytest.mark.parametrize(
