@@ -1,4 +1,5 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught
+import logging
 from dataclasses import asdict
 import random
 import json
@@ -20,7 +21,6 @@ from .models import (
     RenderStillParams,
     RenderType,
 )
-import logging
 
 
 logger = logging.getLogger(__name__)
