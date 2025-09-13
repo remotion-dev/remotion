@@ -103,7 +103,7 @@ class RemotionClient:
         try:
             response = s3_client.list_buckets()
         except ClientError as e:
-            logger.warning(f"Could not list S3 buckets: {e}")
+            logger.warning("Could not list S3 buckets: %s", e)
             return []
 
         remotion_buckets = []
@@ -190,9 +190,10 @@ class RemotionClient:
         if payload_size > max_size:
             # Log warning similar to JavaScript implementation
             logger.warning(
-                f"Warning: The props are over {round(max_size / 1000)}KB "
-                f"({ceil(payload_size / 1024)}KB) in size. Uploading them to S3 to "
-                f"circumvent AWS Lambda payload size, which may lead to slowdown."
+                "Warning: The props are over %sKB (%sKB) in size. Uploading them to S3 to "
+                "circumvent AWS Lambda payload size, which may lead to slowdown.",
+                round(max_size / 1000),
+                ceil(payload_size / 1024)
             )
             return True
         return False
