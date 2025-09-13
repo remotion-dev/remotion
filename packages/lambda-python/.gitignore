@@ -16,3 +16,4 @@ test-env/
 remotion-env-lint/
 .idea
 
+justfile
