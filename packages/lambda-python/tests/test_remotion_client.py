@@ -1,7 +1,15 @@
-from tests.conftest import remotion_client
+from tests.conftest import remotion_client, mock_s3_client, remotion_client_with_creds
 from remotion_lambda.remotionclient import RemotionClient
 import pytest
-from tests.constants import TEST_FUNCTION_NAME, TEST_REGION, TEST_SERVE_URL
+from tests.constants import (
+    TEST_FUNCTION_NAME,
+    TEST_REGION,
+    TEST_SERVE_URL,
+    TEST_AWS_SECRET_KEY,
+    TEST_AWS_ACCESS_KEY,
+)
+from unittest.mock import patch, Mock
+from botocore.config import Config
 
 
 def test_bucket_name_format(remotion_client: RemotionClient):
@@ -39,3 +47,67 @@ def test_generate_hash_basic_string(remotion_client: RemotionClient):
 
     assert len(result) == 64
     assert all(c in '0123456789abcdef' for c in result)
+
+
+@patch('boto3.client')
+def test_create_s3_client_default(
+    mock_boto_client, mock_s3_client, remotion_client: RemotionClient
+):
+    mock_boto_client.return_value = mock_s3_client
+    result = remotion_client._create_s3_client()
+
+    mock_boto_client.assert_called_once_with('s3', region_name=TEST_REGION)
+    assert result == mock_s3_client
+
+
+@patch('boto3.client')
+def test_create_s3_client_partial_creds(mock_boto_client, mock_s3_client):
+    remotion_client = RemotionClient(
+        region=TEST_REGION,
+        serve_url=TEST_SERVE_URL,
+        function_name=TEST_FUNCTION_NAME,
+        secret_key=TEST_AWS_SECRET_KEY,
+    )
+
+    mock_boto_client.return_value = mock_s3_client
+    result = remotion_client._create_s3_client()
+
+    mock_boto_client.assert_called_once_with('s3', region_name=TEST_REGION)
+    assert result == mock_s3_client
+
+
+@patch('boto3.client')
+def test_create_s3_client_creds(
+    mock_boto_client, mock_s3_client, remotion_client_with_creds
+):
+    mock_boto_client.return_value = mock_s3_client
+    result = remotion_client_with_creds._create_s3_client()
+
+    mock_boto_client.assert_called_once_with(
+        's3',
+        region_name=TEST_REGION,
+        aws_access_key_id=TEST_AWS_ACCESS_KEY,
+        aws_secret_access_key=TEST_AWS_SECRET_KEY,
+    )
+    assert result == mock_s3_client
+
+
+@patch('boto3.client')
+def test_create_s3_client_with_path_style(mock_boto_client, mock_s3_client):
+    remotion_client = RemotionClient(
+        region=TEST_REGION,
+        serve_url=TEST_SERVE_URL,
+        function_name=TEST_FUNCTION_NAME,
+        force_path_style=True,
+    )
+    mock_boto_client.return_value = mock_s3_client
+    result = remotion_client._create_s3_client()
+
+    mock_boto_client.assert_called_once()
+
+    call_args = mock_boto_client.call_args
+    assert 'config' in call_args[1]
+    config = call_args[1]['config']
+    assert isinstance(config, Config)
+    assert config.s3['addressing_style'] == 'path'
+    assert result == mock_s3_client

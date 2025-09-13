@@ -79,19 +79,20 @@ class RemotionClient:
 
     def _create_s3_client(self):
         """Create S3 client with appropriate credentials."""
-        config = None
+        kwargs = {'region_name': self.region}
+
         if self.force_path_style:
-            config = Config(s3={'addressing_style': 'path'})
+            kwargs['config'] = Config(s3={'addressing_style': 'path'})
 
         if self.access_key and self.secret_key:
-            return boto3.client(
-                's3',
-                aws_access_key_id=self.access_key,
-                aws_secret_access_key=self.secret_key,
-                region_name=self.region,
-                config=config,
+            kwargs.update(
+                {
+                    'aws_access_key_id': self.access_key,
+                    'aws_secret_access_key': self.secret_key,
+                }
             )
-        return boto3.client('s3', region_name=self.region, config=config)
+
+        return boto3.client('s3', **kwargs)
 
     def _get_remotion_buckets(self):
         """Get existing Remotion buckets in the region."""
