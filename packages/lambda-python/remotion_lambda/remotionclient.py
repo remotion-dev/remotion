@@ -193,7 +193,7 @@ class RemotionClient:
                 "Warning: The props are over %sKB (%sKB) in size. Uploading them to S3 to "
                 "circumvent AWS Lambda payload size, which may lead to slowdown.",
                 round(max_size / 1000),
-                ceil(payload_size / 1024)
+                ceil(payload_size / 1024),
             )
             return True
         return False
