@@ -121,3 +121,56 @@ def test_create_s3_client_with_path_style(mock_boto_client, mock_s3_client):
     assert isinstance(config, Config)
     assert config.s3['addressing_style'] == 'path'
     assert result == mock_s3_client
+
+
+@patch.object(RemotionClient, '_create_s3_client')
+def test_get_remotion_buckets_empty_response(
+    mock_create_client, mock_s3_client, remotion_client
+):
+    mock_s3_client.list_buckets.return_value = {'Buckets': []}
+    mock_create_client.return_value = mock_s3_client
+
+    result = remotion_client._get_remotion_buckets()
+
+    assert result == []
+    mock_s3_client.list_buckets.assert_called_once()
+
+
+@patch.object(RemotionClient, '_create_s3_client')
+def test_get_remotion_buckets_no_remotion_buckets(
+    mock_create_client, mock_s3_client, remotion_client
+):
+    mock_s3_client.list_buckets.return_value = {
+        'Buckets': [
+            {'Name': 'my-app-bucket'},
+            {'Name': 'some-other-bucket'},
+            {'Name': 'user-data-bucket'},
+        ]
+    }
+    mock_create_client.return_value = mock_s3_client
+
+    result = remotion_client._get_remotion_buckets()
+
+    assert result == []
+    mock_s3_client.list_buckets.assert_called_once()
+    mock_s3_client.get_bucket_location.assert_not_called()
+
+
+@patch.object(RemotionClient, '_create_s3_client')
+def test_get_remotion_buckets_single_match_us_east_1(
+    mock_create_client, mock_s3_client, remotion_client
+):
+    test_bucket_name = 'remotionlambda-useast1-abc123'
+    mock_s3_client.list_buckets.return_value = {
+        'Buckets': [
+            {'Name': test_bucket_name},
+            {'Name': 'other-bucket'},
+        ]
+    }
+    mock_s3_client.get_bucket_location.return_value = {'LocationConstraint': None}
+    mock_create_client.return_value = mock_s3_client
+
+    result = remotion_client._get_remotion_buckets()
+
+    assert result == [test_bucket_name]
+    mock_s3_client.get_bucket_location.assert_called_once_with(Bucket=test_bucket_name)

@@ -4,7 +4,7 @@ import random
 import json
 import hashlib
 from math import ceil
-from typing import Optional, Union
+from typing import Optional, Union, List
 from enum import Enum
 import boto3
 from botocore.exceptions import ClientError
@@ -20,7 +20,10 @@ from .models import (
     RenderStillParams,
     RenderType,
 )
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 BUCKET_NAME_PREFIX = 'remotionlambda-'
 REGION_US_EAST = 'us-east-1'
@@ -94,32 +97,40 @@ class RemotionClient:
 
         return boto3.client('s3', **kwargs)
 
-    def _get_remotion_buckets(self):
-        """Get existing Remotion buckets in the region."""
+    def _get_remotion_buckets(self) -> List[str]:
         s3_client = self._create_s3_client()
+
         try:
             response = s3_client.list_buckets()
-            buckets = []
-            for bucket in response['Buckets']:
-                bucket_name = bucket['Name']
-                if bucket_name.startswith(BUCKET_NAME_PREFIX):
-                    # Check if bucket is in the correct region
-                    try:
-                        bucket_region = s3_client.get_bucket_location(
-                            Bucket=bucket_name
-                        )
-                        location = bucket_region.get('LocationConstraint')
-                        # us-east-1 returns None for LocationConstraint
-                        if location == self.region or (
-                            location is None and self.region == REGION_US_EAST
-                        ):
-                            buckets.append(bucket_name)
-                    except ClientError:
-                        # Ignore buckets we can't access
-                        continue
-            return buckets
-        except ClientError:
+        except ClientError as e:
+            logger.warning(f"Could not list S3 buckets: {e}")
             return []
+
+        remotion_buckets = []
+
+        for bucket in response.get('Buckets', []):
+            bucket_name = bucket['Name']
+
+            if not bucket_name.startswith(BUCKET_NAME_PREFIX):
+                continue
+
+            if self._is_bucket_in_current_region(s3_client, bucket_name):
+                remotion_buckets.append(bucket_name)
+
+        return remotion_buckets
+
+    def _is_bucket_in_current_region(self, s3_client, bucket_name: str) -> bool:
+        try:
+            bucket_region = s3_client.get_bucket_location(Bucket=bucket_name)
+            location = bucket_region.get('LocationConstraint')
+
+            # us-east-1 returns None for LocationConstraint
+            return location == self.region or (
+                location is None and self.region == REGION_US_EAST
+            )
+        except ClientError:
+            # Ignore buckets we can't access (permission issues, etc.)
+            return False
 
     def _get_or_create_bucket(self):
         """Get existing bucket or create a new one following JS SDK logic."""
@@ -178,7 +189,7 @@ class RemotionClient:
 
         if payload_size > max_size:
             # Log warning similar to JavaScript implementation
-            print(
+            logger.warning(
                 f"Warning: The props are over {round(max_size / 1000)}KB "
                 f"({ceil(payload_size / 1024)}KB) in size. Uploading them to S3 to "
                 f"circumvent AWS Lambda payload size, which may lead to slowdown."
