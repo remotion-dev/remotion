@@ -1,11 +1,18 @@
 from tests.conftest import remotion_client
 from remotion_lambda.remotionclient import RemotionClient
 import pytest
+from tests.constants import TEST_FUNCTION_NAME, TEST_REGION, TEST_SERVE_URL
 
 
 def test_bucket_name_format(remotion_client: RemotionClient):
     bucket_name = remotion_client._make_bucket_name()
     assert bucket_name.startswith("remotionlambda-useast1-")
+
+
+def test_client_config(remotion_client: RemotionClient):
+    assert remotion_client.function_name == TEST_FUNCTION_NAME
+    assert remotion_client.region == TEST_REGION
+    assert remotion_client.serve_url == TEST_SERVE_URL
 
 
 @pytest.mark.parametrize(
