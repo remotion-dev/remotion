@@ -24,6 +24,7 @@ import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
+import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import {getExpectedMediaFrameUncorrected} from './get-current-time.js';
 import {getOffthreadVideoSource} from './offthread-video-source.js';
 import type {RemotionOffthreadVideoProps} from './props.js';
@@ -97,6 +98,8 @@ export const OffthreadVideoForRendering: React.FC<
 		frame: volumePropsFrame,
 		mediaVolume: 1,
 	});
+
+	warnAboutTooHighVolume(volume);
 
 	useEffect(() => {
 		if (!src) {

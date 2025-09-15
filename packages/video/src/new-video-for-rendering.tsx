@@ -79,6 +79,8 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		mediaVolume: 1,
 	});
 
+	Internals.warnAboutTooHighVolume(volume);
+
 	useEffect(() => {
 		if (!src) {
 			throw new Error('No src passed');

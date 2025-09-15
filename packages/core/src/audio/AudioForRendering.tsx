@@ -16,6 +16,7 @@ import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {evaluateVolume} from '../volume-prop.js';
+import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import type {RemotionAudioProps} from './props.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
@@ -80,6 +81,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		frame: volumePropFrame,
 		mediaVolume: 1,
 	});
+	warnAboutTooHighVolume(volume);
 
 	useImperativeHandle(ref, () => {
 		return audioRef.current as HTMLVideoElement;
