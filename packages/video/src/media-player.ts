@@ -499,12 +499,15 @@ export class MediaPlayer {
 				// passed. Use timestamp for throttling logic as it represents media time.
 				if (timestamp - this.getPlaybackTime() >= 1) {
 					await new Promise<void>((resolve) => {
-						const id = setInterval(() => {
+						const check = () => {
 							if (timestamp - this.getPlaybackTime() < 1) {
-								clearInterval(id);
 								resolve();
+							} else {
+								requestAnimationFrame(check);
 							}
-						}, 100);
+						};
+
+						check();
 					});
 				}
 			}
