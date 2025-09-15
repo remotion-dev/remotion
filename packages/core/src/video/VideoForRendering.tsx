@@ -24,6 +24,7 @@ import {useDelayRender} from '../use-delay-render.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
+import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import {getMediaTime} from './get-current-time.js';
 import type {OnVideoFrame, RemotionVideoProps} from './props';
 import {seekToTimeMultipleUntilRight} from './seek-until-right.js';
@@ -96,6 +97,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		frame: volumePropsFrame,
 		mediaVolume: 1,
 	});
+
+	warnAboutTooHighVolume(volume);
 
 	useEffect(() => {
 		if (!props.src) {

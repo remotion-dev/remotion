@@ -27,6 +27,7 @@ import {
 	useMediaVolumeState,
 } from '../volume-position-state.js';
 import {evaluateVolume} from '../volume-prop.js';
+import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import {useEmitVideoFrame} from './emit-video-frame.js';
 import type {NativeVideoProps, OnVideoFrame, RemotionVideoProps} from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
@@ -130,6 +131,8 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		volume,
 		mediaVolume,
 	});
+
+	warnAboutTooHighVolume(userPreferredVolume);
 
 	useMediaInTimeline({
 		mediaRef: videoRef,

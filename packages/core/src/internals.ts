@@ -114,6 +114,7 @@ import {
 	useMediaVolumeState,
 } from './volume-position-state.js';
 import {evaluateVolume} from './volume-prop.js';
+import {warnAboutTooHighVolume} from './volume-safeguard.js';
 import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
 import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
 import {
@@ -207,6 +208,7 @@ export const Internals = {
 	timeValueRef,
 	compositionSelectorRef,
 	RemotionEnvironmentContext,
+	warnAboutTooHighVolume,
 } as const;
 
 export type {
