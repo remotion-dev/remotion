@@ -3,7 +3,7 @@ require 'remotion_lambda/render_media_on_lambda_payload'
 require 'remotion_lambda/render_progress_payload'
 
 client = RemotionLambda::Client.new(
-  region: 'eu-central-1',
+  region: ENV.fetch('REMOTION_APP_REGION'),
 )  
 
 function_name = ENV.fetch('REMOTION_APP_FUNCTION_NAME')
