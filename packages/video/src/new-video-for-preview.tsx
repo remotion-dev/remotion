@@ -40,6 +40,8 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	const actualFps = videoConfig.fps / playbackRate;
 	const currentTime = frame / actualFps;
 
+	const [initialTimestamp] = useState(currentTime);
+
 	useEffect(() => {
 		if (!canvasRef.current) return;
 		if (!sharedAudioContext) return;
@@ -66,6 +68,14 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 						logLevel,
 						`[NewVideoForPreview] MediaPlayer initialized successfully`,
 					);
+
+					// draw initial frame
+					player.drawInitialFrame(initialTimestamp).catch((error) => {
+						Log.error(
+							'[NewVideoForPreview] Failed to draw initial frame',
+							error,
+						);
+					});
 				})
 				.catch((error) => {
 					Log.error(
@@ -86,8 +96,10 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 				mediaPlayerRef.current.dispose();
 				mediaPlayerRef.current = null;
 			}
+
+			setMediaPlayerReady(false);
 		};
-	}, [src, logLevel, sharedAudioContext]);
+	}, [src, logLevel, sharedAudioContext, initialTimestamp]);
 
 	// sync play/pause state with Remotion timeline (like old VideoForPreview video does)
 	useEffect(() => {

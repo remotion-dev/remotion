@@ -179,6 +179,45 @@ export class MediaPlayer {
 		}
 	}
 
+	public async drawInitialFrame(time: number = 0): Promise<void> {
+		if (!this.initialized || !this.canvasSink) {
+			Log.trace(
+				this.logLevel,
+				`[MediaPlayer] Cannot draw initial frame - not initialized or no canvas sink`,
+			);
+			return;
+		}
+
+		try {
+			Log.trace(
+				this.logLevel,
+				`[MediaPlayer] Drawing initial frame at ${time.toFixed(3)}s`,
+			);
+
+			// create temporary iterator just to get the first frame
+			const tempIterator = this.canvasSink.canvases(time);
+			const firstFrame = (await tempIterator.next()).value;
+
+			if (firstFrame) {
+				this.context.drawImage(firstFrame.canvas, 0, 0);
+				Log.trace(
+					this.logLevel,
+					`[MediaPlayer] Drew initial frame at timestamp ${firstFrame.timestamp.toFixed(3)}s`,
+				);
+			} else {
+				Log.trace(
+					this.logLevel,
+					`[MediaPlayer] No frame available at ${time.toFixed(3)}s`,
+				);
+			}
+
+			// clean up the temporary iterator
+			await tempIterator.return();
+		} catch (error) {
+			Log.error('[MediaPlayer] Failed to draw initial frame', error);
+		}
+	}
+
 	public async play(): Promise<void> {
 		if (!this.initialized || !this.sharedAudioContext) {
 			return;
