@@ -2,7 +2,7 @@ import Layout from '@theme/Layout';
 import React from 'react';
 
 import Head from '@docusaurus/Head';
-import {TeamPage} from '@remotion/promo-pages/dist/Team.js';
+import {TeamPage} from '@remotion/promo-pages/dist/team.js';
 
 export default () => {
 	return (
