@@ -1,11 +1,12 @@
-import type {WrappedCanvas} from 'mediabunny';
-import {ALL_FORMATS, CanvasSink, Input, UrlSource} from 'mediabunny';
+import type {WrappedAudioBuffer, WrappedCanvas} from 'mediabunny';
+import {
+	ALL_FORMATS,
+	AudioBufferSink,
+	CanvasSink,
+	Input,
+	UrlSource,
+} from 'mediabunny';
 import {Log, type LogLevel} from './log';
-
-export interface MediaPlayerOptions {
-	readonly logLevel?: LogLevel;
-	readonly sharedAudioContext: AudioContext;
-}
 
 const SEEK_THRESHOLD = 0.05;
 
@@ -24,10 +25,20 @@ export class MediaPlayer {
 
 	private nextFrame: WrappedCanvas | null = null;
 
+	private audioSink: AudioBufferSink | null = null;
+	private audioBufferIterator: AsyncGenerator<
+		WrappedAudioBuffer,
+		void,
+		unknown
+	> | null = null;
+
+	private queuedAudioNodes: Set<AudioBufferSourceNode> = new Set();
+
+	private gainNode: GainNode | null = null;
+	private expectedAudioTime: number = 0;
+
 	private sharedAudioContext: AudioContext | null = null;
-	private audioContextStartTime: number | null = null;
-	private playbackTimeAtStart = 0;
-	private playStartTime: number | null = null; // Fallback timing
+	private mediaTimeOffset: number = 0;
 
 	private playing = false;
 	private animationFrameId: number | null = null;
@@ -63,6 +74,11 @@ export class MediaPlayer {
 
 		this.context = context;
 
+		// Initialize timing offset - media starts at time 0, so offset equals current audio context time
+		if (this.sharedAudioContext) {
+			this.mediaTimeOffset = this.sharedAudioContext.currentTime;
+		}
+
 		Log.trace(this.logLevel, `[MediaPlayer] Created for src: ${src}`);
 	}
 
@@ -82,18 +98,27 @@ export class MediaPlayer {
 
 			this.totalDuration = await input.computeDuration();
 			const videoTrack = await input.getPrimaryVideoTrack();
+			const audioTrack = await input.getPrimaryAudioTrack();
 
-			if (!videoTrack) {
-				throw new Error(`No video track found for ${this.src}`);
+			if (!videoTrack && !audioTrack) {
+				throw new Error(`No video or audio track found for ${this.src}`);
 			}
 
-			this.canvasSink = new CanvasSink(videoTrack, {
-				poolSize: 2,
-				fit: 'contain',
-			});
+			if (videoTrack) {
+				this.canvasSink = new CanvasSink(videoTrack, {
+					poolSize: 2,
+					fit: 'contain',
+				});
 
-			this.canvas.width = videoTrack.displayWidth;
-			this.canvas.height = videoTrack.displayHeight;
+				this.canvas.width = videoTrack.displayWidth;
+				this.canvas.height = videoTrack.displayHeight;
+			}
+
+			if (audioTrack && this.sharedAudioContext) {
+				this.audioSink = new AudioBufferSink(audioTrack);
+				this.gainNode = this.sharedAudioContext.createGain();
+				this.gainNode.connect(this.sharedAudioContext.destination);
+			}
 
 			this.initialized = true;
 
@@ -108,19 +133,7 @@ export class MediaPlayer {
 	}
 
 	public seekTo(time: number): void {
-		if (!this.initialized) {
-			Log.trace(
-				this.logLevel,
-				`[MediaPlayer] Not initialized, ignoring seekTo(${time})`,
-			);
-			return;
-		}
-
-		if (!this.sharedAudioContext) {
-			Log.trace(
-				this.logLevel,
-				`[MediaPlayer] No shared audio context, ignoring seekTo(${time})`,
-			);
+		if (!this.initialized || !this.sharedAudioContext) {
 			return;
 		}
 
@@ -129,9 +142,8 @@ export class MediaPlayer {
 		const isSignificantSeek =
 			Math.abs(newTime - currentPlaybackTime) > SEEK_THRESHOLD;
 
-		this.playbackTimeAtStart = newTime;
-
-		this.audioContextStartTime = this.sharedAudioContext.currentTime;
+		// Update offset to make audio context time correspond to new media time
+		this.mediaTimeOffset = this.sharedAudioContext.currentTime - newTime;
 
 		if (isSignificantSeek) {
 			Log.trace(
@@ -139,6 +151,21 @@ export class MediaPlayer {
 				`[MediaPlayer] Significant seek to ${newTime.toFixed(3)}s - creating new iterator`,
 			);
 			this.startVideoIterator(newTime);
+
+			// if playing, restart audio iterator at new position
+			if (this.playing && this.audioSink) {
+				this.audioBufferIterator?.return();
+				this.audioBufferIterator = this.audioSink.buffers(newTime);
+
+				// Stop current audio nodes
+				for (const node of this.queuedAudioNodes) {
+					node.stop();
+				}
+
+				this.queuedAudioNodes.clear();
+
+				this.runAudioIterator();
+			}
 		} else {
 			Log.trace(
 				this.logLevel,
@@ -153,39 +180,47 @@ export class MediaPlayer {
 	}
 
 	public async play(): Promise<void> {
-		if (!this.initialized) {
-			Log.trace(this.logLevel, `[MediaPlayer] Not initialized, ignoring play`);
-			return;
-		}
-
-		if (!this.sharedAudioContext) {
-			Log.trace(
-				this.logLevel,
-				`[MediaPlayer] No shared audio context, ignoring play`,
-			);
+		if (!this.initialized || !this.sharedAudioContext) {
 			return;
 		}
 
 		if (!this.playing) {
-			this.playing = true;
-
 			if (this.sharedAudioContext.state === 'suspended') {
 				await this.sharedAudioContext.resume();
 			}
 
-			this.audioContextStartTime = this.sharedAudioContext.currentTime;
+			this.playing = true;
 
 			Log.trace(this.logLevel, `[MediaPlayer] Play - starting render loop`);
 			this.startRenderLoop();
+
+			// start audio iterator if we have audio
+			if (this.audioSink) {
+				// clean up existing iterator and start a new one
+				await this.audioBufferIterator?.return();
+				this.audioBufferIterator = this.audioSink.buffers(
+					this.getPlaybackTime(),
+				);
+				this.runAudioIterator();
+			}
 		}
 	}
 
 	public pause(): void {
 		if (this.playing) {
-			this.playbackTimeAtStart = this.getPlaybackTime(); // Save current position
 			this.playing = false;
-			this.audioContextStartTime = null;
-			this.playStartTime = null;
+
+			// stop audio iterator
+			this.audioBufferIterator?.return();
+			this.audioBufferIterator = null;
+
+			// stop all playing audio nodes
+			for (const node of this.queuedAudioNodes) {
+				node.stop();
+			}
+
+			this.queuedAudioNodes.clear();
+
 			Log.trace(this.logLevel, `[MediaPlayer] Pause - stopping render loop`);
 			this.stopRenderLoop();
 		}
@@ -195,10 +230,24 @@ export class MediaPlayer {
 		Log.trace(this.logLevel, `[MediaPlayer] Disposing...`);
 
 		this.stopRenderLoop();
+
+		// clean up video resources
 		this.videoFrameIterator?.return();
 		this.videoFrameIterator = null;
 		this.nextFrame = null;
 		this.canvasSink = null;
+
+		// Clean up audio resources
+		for (const node of this.queuedAudioNodes) {
+			node.stop();
+		}
+
+		this.queuedAudioNodes.clear();
+		this.audioBufferIterator?.return();
+		this.audioBufferIterator = null;
+		this.audioSink = null;
+		this.gainNode = null;
+
 		this.initialized = false;
 		this.asyncId++;
 	}
@@ -207,30 +256,14 @@ export class MediaPlayer {
 		return this.getPlaybackTime();
 	}
 
+	// current position in the media
 	private getPlaybackTime(): number {
-		if (
-			this.playing &&
-			this.sharedAudioContext &&
-			this.audioContextStartTime !== null
-		) {
-			// Perfect sync with Remotion's <Audio> tags using same clock
-			return (
-				this.sharedAudioContext.currentTime -
-				this.audioContextStartTime +
-				this.playbackTimeAtStart
-			);
+		if (!this.sharedAudioContext) {
+			return 0;
 		}
 
-		if (this.playing && this.playStartTime) {
-			// Fallback to performance timing
-			return (
-				this.playbackTimeAtStart +
-				(performance.now() - this.playStartTime) / 1000
-			);
-		}
-
-		// Paused or no timing reference
-		return this.playbackTimeAtStart;
+		// Audio context is single source of truth
+		return this.sharedAudioContext.currentTime - this.mediaTimeOffset;
 	}
 
 	public get duration(): number {
@@ -243,6 +276,7 @@ export class MediaPlayer {
 
 	private renderSingleFrame(): void {
 		const currentPlaybackTime = this.getPlaybackTime();
+
 		if (this.nextFrame && this.nextFrame.timestamp <= currentPlaybackTime) {
 			Log.trace(
 				this.logLevel,
@@ -377,6 +411,66 @@ export class MediaPlayer {
 			}
 		} catch (error) {
 			Log.error('[MediaPlayer] Failed to update next frame', error);
+		}
+	};
+
+	private runAudioIterator = async (): Promise<void> => {
+		if (
+			!this.audioSink ||
+			!this.sharedAudioContext ||
+			!this.audioBufferIterator ||
+			!this.gainNode
+		) {
+			return;
+		}
+
+		try {
+			// Initialize expected audio time to current position for sample-perfect continuity
+			this.expectedAudioTime = this.sharedAudioContext.currentTime;
+
+			// to play back audio, we loop over all audio chunks (typically very short) of the file and play them at the correct
+			// timestamp. the result is a continuous, uninterrupted audio signal.
+			for await (const {buffer, timestamp} of this.audioBufferIterator) {
+				const node = this.sharedAudioContext.createBufferSource();
+				node.buffer = buffer;
+				node.connect(this.gainNode);
+
+				// use expectedAudioTime for sample-perfect continuity instead of timestamp-based scheduling
+				// This ensures no gaps or overlaps between audio chunks
+				if (this.expectedAudioTime >= this.sharedAudioContext.currentTime) {
+					// If the audio starts in the future, schedule it at expected time
+					node.start(this.expectedAudioTime);
+				} else {
+					// if it starts in the past, play the audible section with proper offset
+					// in web audio api, we cannot schedule the start time in the past, so we need to use the current time and an offset
+					const offset =
+						this.sharedAudioContext.currentTime - this.expectedAudioTime;
+					node.start(this.sharedAudioContext.currentTime, offset);
+				}
+
+				this.queuedAudioNodes.add(node);
+				node.onended = () => {
+					this.queuedAudioNodes.delete(node);
+				};
+
+				// update expected time for next chunk to ensure sample-perfect continuity
+				this.expectedAudioTime += buffer.duration;
+
+				// If we're more than a second ahead of the current playback time, let's slow down the loop until time has
+				// passed. Use timestamp for throttling logic as it represents media time.
+				if (timestamp - this.getPlaybackTime() >= 1) {
+					await new Promise<void>((resolve) => {
+						const id = setInterval(() => {
+							if (timestamp - this.getPlaybackTime() < 1) {
+								clearInterval(id);
+								resolve();
+							}
+						}, 100);
+					});
+				}
+			}
+		} catch (error) {
+			Log.error('[MediaPlayer] Failed to run audio iterator', error);
 		}
 	};
 }
