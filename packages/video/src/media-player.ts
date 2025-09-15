@@ -4,6 +4,7 @@ import {Log, type LogLevel} from './log';
 
 export interface MediaPlayerOptions {
 	readonly logLevel?: LogLevel;
+	readonly sharedAudioContext: AudioContext;
 }
 
 const SEEK_THRESHOLD = 0.05;
@@ -23,7 +24,10 @@ export class MediaPlayer {
 
 	private nextFrame: WrappedCanvas | null = null;
 
-	private targetTime = 0; // set by React component via seekTo()
+	private sharedAudioContext: AudioContext | null = null;
+	private audioContextStartTime: number | null = null;
+	private playbackTimeAtStart = 0;
+	private playStartTime: number | null = null; // Fallback timing
 
 	private playing = false;
 	private animationFrameId: number | null = null;
@@ -37,14 +41,17 @@ export class MediaPlayer {
 		canvas,
 		src,
 		logLevel,
+		sharedAudioContext,
 	}: {
 		canvas: HTMLCanvasElement;
 		src: string;
 		logLevel: LogLevel;
+		sharedAudioContext?: AudioContext | null;
 	}) {
 		this.canvas = canvas;
 		this.src = src;
 		this.logLevel = logLevel ?? 'info';
+		this.sharedAudioContext = sharedAudioContext || null;
 
 		const context = canvas.getContext('2d', {
 			alpha: false,
@@ -109,23 +116,33 @@ export class MediaPlayer {
 			return;
 		}
 
-		const newTargetTime = Math.max(0, Math.min(time, this.totalDuration));
+		if (!this.sharedAudioContext) {
+			Log.trace(
+				this.logLevel,
+				`[MediaPlayer] No shared audio context, ignoring seekTo(${time})`,
+			);
+			return;
+		}
 
+		const newTime = Math.max(0, Math.min(time, this.totalDuration));
+		const currentPlaybackTime = this.getPlaybackTime();
 		const isSignificantSeek =
-			Math.abs(newTargetTime - this.targetTime) > SEEK_THRESHOLD;
+			Math.abs(newTime - currentPlaybackTime) > SEEK_THRESHOLD;
 
-		this.targetTime = newTargetTime;
+		this.playbackTimeAtStart = newTime;
+
+		this.audioContextStartTime = this.sharedAudioContext.currentTime;
 
 		if (isSignificantSeek) {
 			Log.trace(
 				this.logLevel,
-				`[MediaPlayer] Significant seek to ${this.targetTime.toFixed(3)}s - creating new iterator`,
+				`[MediaPlayer] Significant seek to ${newTime.toFixed(3)}s - creating new iterator`,
 			);
-			this.startVideoIterator(this.targetTime);
+			this.startVideoIterator(newTime);
 		} else {
 			Log.trace(
 				this.logLevel,
-				`[MediaPlayer] Minor time update to ${this.targetTime.toFixed(3)}s - using existing iterator`,
+				`[MediaPlayer] Minor time update to ${newTime.toFixed(3)}s - using existing iterator`,
 			);
 
 			// if paused, trigger a single frame update to show current position
@@ -135,9 +152,29 @@ export class MediaPlayer {
 		}
 	}
 
-	public play(): void {
+	public async play(): Promise<void> {
+		if (!this.initialized) {
+			Log.trace(this.logLevel, `[MediaPlayer] Not initialized, ignoring play`);
+			return;
+		}
+
+		if (!this.sharedAudioContext) {
+			Log.trace(
+				this.logLevel,
+				`[MediaPlayer] No shared audio context, ignoring play`,
+			);
+			return;
+		}
+
 		if (!this.playing) {
 			this.playing = true;
+
+			if (this.sharedAudioContext.state === 'suspended') {
+				await this.sharedAudioContext.resume();
+			}
+
+			this.audioContextStartTime = this.sharedAudioContext.currentTime;
+
 			Log.trace(this.logLevel, `[MediaPlayer] Play - starting render loop`);
 			this.startRenderLoop();
 		}
@@ -145,7 +182,10 @@ export class MediaPlayer {
 
 	public pause(): void {
 		if (this.playing) {
+			this.playbackTimeAtStart = this.getPlaybackTime(); // Save current position
 			this.playing = false;
+			this.audioContextStartTime = null;
+			this.playStartTime = null;
 			Log.trace(this.logLevel, `[MediaPlayer] Pause - stopping render loop`);
 			this.stopRenderLoop();
 		}
@@ -164,7 +204,33 @@ export class MediaPlayer {
 	}
 
 	public get currentTime(): number {
-		return this.targetTime;
+		return this.getPlaybackTime();
+	}
+
+	private getPlaybackTime(): number {
+		if (
+			this.playing &&
+			this.sharedAudioContext &&
+			this.audioContextStartTime !== null
+		) {
+			// Perfect sync with Remotion's <Audio> tags using same clock
+			return (
+				this.sharedAudioContext.currentTime -
+				this.audioContextStartTime +
+				this.playbackTimeAtStart
+			);
+		}
+
+		if (this.playing && this.playStartTime) {
+			// Fallback to performance timing
+			return (
+				this.playbackTimeAtStart +
+				(performance.now() - this.playStartTime) / 1000
+			);
+		}
+
+		// Paused or no timing reference
+		return this.playbackTimeAtStart;
 	}
 
 	public get duration(): number {
@@ -176,7 +242,8 @@ export class MediaPlayer {
 	}
 
 	private renderSingleFrame(): void {
-		if (this.nextFrame && this.nextFrame.timestamp <= this.targetTime) {
+		const currentPlaybackTime = this.getPlaybackTime();
+		if (this.nextFrame && this.nextFrame.timestamp <= currentPlaybackTime) {
 			Log.trace(
 				this.logLevel,
 				`[MediaPlayer] Single frame update at ${this.nextFrame.timestamp.toFixed(3)}s`,
@@ -205,10 +272,11 @@ export class MediaPlayer {
 	}
 
 	private render = (): void => {
-		if (this.nextFrame && this.nextFrame.timestamp <= this.targetTime) {
+		const currentPlaybackTime = this.getPlaybackTime();
+		if (this.nextFrame && this.nextFrame.timestamp <= currentPlaybackTime) {
 			Log.trace(
 				this.logLevel,
-				`[MediaPlayer] Drawing frame at ${this.nextFrame.timestamp.toFixed(3)}s (target: ${this.targetTime.toFixed(3)}s)`,
+				`[MediaPlayer] Drawing frame at ${this.nextFrame.timestamp.toFixed(3)}s (playback time: ${currentPlaybackTime.toFixed(3)}s)`,
 			);
 			this.context.drawImage(this.nextFrame.canvas, 0, 0);
 			this.nextFrame = null;
@@ -292,7 +360,7 @@ export class MediaPlayer {
 					break;
 				}
 
-				if (newNextFrame.timestamp <= this.targetTime) {
+				if (newNextFrame.timestamp <= this.getPlaybackTime()) {
 					Log.trace(
 						this.logLevel,
 						`[MediaPlayer] Drawing immediate frame ${newNextFrame.timestamp.toFixed(3)}s`,

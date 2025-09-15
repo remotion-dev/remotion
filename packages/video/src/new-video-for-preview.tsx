@@ -1,9 +1,9 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
 import {Log, type LogLevel} from './log';
 import {MediaPlayer} from './media-player';
 
-const {useUnsafeVideoConfig, Timeline} = Internals;
+const {useUnsafeVideoConfig, Timeline, SharedAudioContext} = Internals;
 
 type NewVideoForPreviewProps = {
 	readonly src: string;
@@ -27,6 +27,7 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
 
 	const [playing] = Timeline.usePlayingState();
+	const sharedAudioContext = useContext(SharedAudioContext);
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
@@ -41,56 +42,52 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	useEffect(() => {
 		if (!canvasRef.current) return;
+		if (!sharedAudioContext) return;
+		if (!sharedAudioContext.audioContext) return;
 
-		let mounted = true;
+		try {
+			Log.trace(
+				logLevel,
+				`[NewVideoForPreview] Creating MediaPlayer for src: ${src}`,
+			);
+			const player = new MediaPlayer({
+				canvas: canvasRef.current!,
+				src,
+				logLevel,
+				sharedAudioContext: sharedAudioContext.audioContext,
+			});
 
-		const initializePlayer = async () => {
-			try {
-				Log.trace(
-					logLevel,
-					`[NewVideoForPreview] Creating MediaPlayer for src: ${src}`,
-				);
-				const player = new MediaPlayer({
-					canvas: canvasRef.current!,
-					src,
-					logLevel,
-				});
-
-				mediaPlayerRef.current = player;
-				await player.initialize();
-
-				if (!mounted) {
-					player.dispose();
-					return;
-				}
-
-				Log.trace(
-					logLevel,
-					`[NewVideoForPreview] MediaPlayer initialized successfully`,
-				);
-
-				setMediaPlayerReady(true);
-			} catch (error) {
-				if (mounted) {
+			mediaPlayerRef.current = player;
+			player
+				.initialize()
+				.then(() => {
+					setMediaPlayerReady(true);
+					Log.trace(
+						logLevel,
+						`[NewVideoForPreview] MediaPlayer initialized successfully`,
+					);
+				})
+				.catch((error) => {
 					Log.error(
-						'[NewVideoForPreview] MediaPlayer initialization failed',
+						'[NewVideoForPreview] Failed to initialize MediaPlayer',
 						error,
 					);
-				}
-			}
-		};
-
-		initializePlayer();
+				});
+		} catch (error) {
+			Log.error(
+				'[NewVideoForPreview] MediaPlayer initialization failed',
+				error,
+			);
+		}
 
 		return () => {
-			mounted = false;
 			if (mediaPlayerRef.current) {
 				Log.trace(logLevel, `[NewVideoForPreview] Disposing MediaPlayer`);
 				mediaPlayerRef.current.dispose();
 				mediaPlayerRef.current = null;
 			}
 		};
-	}, [src, logLevel]);
+	}, [src, logLevel, sharedAudioContext]);
 
 	// sync play/pause state with Remotion timeline (like old VideoForPreview video does)
 	useEffect(() => {
@@ -102,7 +99,9 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 				logLevel,
 				`[NewVideoForPreview] Remotion playing - calling MediaPlayer.play()`,
 			);
-			mediaPlayer.play();
+			mediaPlayer.play().catch((error) => {
+				Log.error('[NewVideoForPreview] Failed to play', error);
+			});
 		} else {
 			Log.trace(
 				logLevel,

@@ -669,12 +669,12 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="new-video-tests">
 				<Composition
-					id="longVideo"
+					id="new-video"
 					component={NewVideoExample}
 					fps={30}
 					height={720}
 					width={1280}
-					durationInFrames={30 * 25}
+					durationInFrames={30 * 30}
 				/>
 				<Composition
 					id="video-testing-playback-codec"
