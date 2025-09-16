@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Numans',
 	importName: 'Numans',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Numans:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/numans/v15/SlGRmQmGupYAfH84ZhIh.woff2',
+					'https://fonts.gstatic.com/s/numans/v16/SlGRmQmGupYAfH84ZhIh.woff2',
 			},
 		},
 	},

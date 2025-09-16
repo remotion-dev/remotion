@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Brawler',
 	importName: 'Brawler',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Brawler:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		latin:
@@ -13,11 +13,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/brawler/v19/xn7gYHE3xXewAscGggexSg.woff2',
+					'https://fonts.gstatic.com/s/brawler/v20/xn7gYHE3xXewAscGggexSg.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/brawler/v19/xn7lYHE3xXewAscGiryUX9r8eQ.woff2',
+					'https://fonts.gstatic.com/s/brawler/v20/xn7lYHE3xXewAscGiryUX9r8eQ.woff2',
 			},
 		},
 	},

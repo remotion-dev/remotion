@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Marck Script',
 	importName: 'MarckScript',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Marck+Script:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/marckscript/v21/nwpTtK2oNgBA3Or78gapdwuyzCg_WMM.woff2',
+					'https://fonts.gstatic.com/s/marckscript/v22/nwpTtK2oNgBA3Or78gapdwuyzCg_WMM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/marckscript/v21/nwpTtK2oNgBA3Or78gapdwuyxig_WMM.woff2',
+					'https://fonts.gstatic.com/s/marckscript/v22/nwpTtK2oNgBA3Or78gapdwuyxig_WMM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/marckscript/v21/nwpTtK2oNgBA3Or78gapdwuyyCg_.woff2',
+					'https://fonts.gstatic.com/s/marckscript/v22/nwpTtK2oNgBA3Or78gapdwuyyCg_.woff2',
 			},
 		},
 	},

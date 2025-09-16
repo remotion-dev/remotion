@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'IM Fell French Canon SC',
 	importName: 'IMFellFrenchCanonSC',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=IM+Fell+French+Canon+SC:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/imfellfrenchcanonsc/v22/FBVmdCru5-ifcor2bgq9V89khWcmQghEURY7H0czWhE.woff2',
+					'https://fonts.gstatic.com/s/imfellfrenchcanonsc/v23/FBVmdCru5-ifcor2bgq9V89khWcmQghEURY7H0czWhE.woff2',
 			},
 		},
 	},

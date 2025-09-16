@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Comforter',
 	importName: 'Comforter',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Comforter:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -18,13 +18,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/comforter/v8/H4clBXOCl8nQnlaql3Qq65u9uqc.woff2',
+					'https://fonts.gstatic.com/s/comforter/v9/H4clBXOCl8nQnlaql3Qq65u9uqc.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/comforter/v8/H4clBXOCl8nQnlaql3Qq4Ju9uqc.woff2',
+					'https://fonts.gstatic.com/s/comforter/v9/H4clBXOCl8nQnlaql3Qq4Ju9uqc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/comforter/v8/H4clBXOCl8nQnlaql3Qq4Zu9uqc.woff2',
+					'https://fonts.gstatic.com/s/comforter/v9/H4clBXOCl8nQnlaql3Qq4Zu9uqc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/comforter/v8/H4clBXOCl8nQnlaql3Qq75u9.woff2',
+					'https://fonts.gstatic.com/s/comforter/v9/H4clBXOCl8nQnlaql3Qq75u9.woff2',
 			},
 		},
 	},

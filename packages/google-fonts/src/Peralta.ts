@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Peralta',
 	importName: 'Peralta',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Peralta:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/peralta/v20/hYkJPu0-RP_9d3kRKxkrr895.woff2',
+					'https://fonts.gstatic.com/s/peralta/v21/hYkJPu0-RP_9d3kRKxkrr895.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/peralta/v20/hYkJPu0-RP_9d3kRKxcrrw.woff2',
+					'https://fonts.gstatic.com/s/peralta/v21/hYkJPu0-RP_9d3kRKxcrrw.woff2',
 			},
 		},
 	},

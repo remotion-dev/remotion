@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Passero One',
 	importName: 'PasseroOne',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Passero+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/passeroone/v27/JTUTjIko8DOq5FeaeEAjgH5I7gvb-g.woff2',
+					'https://fonts.gstatic.com/s/passeroone/v28/JTUTjIko8DOq5FeaeEAjgH5I7gvb-g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/passeroone/v27/JTUTjIko8DOq5FeaeEAjgH5G7gs.woff2',
+					'https://fonts.gstatic.com/s/passeroone/v28/JTUTjIko8DOq5FeaeEAjgH5G7gs.woff2',
 			},
 		},
 	},

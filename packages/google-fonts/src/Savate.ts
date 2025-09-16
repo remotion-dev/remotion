@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Savate',
 	importName: 'Savate',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Savate:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,101 +15,101 @@ export const getInfo = () => ({
 		italic: {
 			'200': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLtmQRYkg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVVSTgjKAqpnvJnNoLjmQQ.woff2',
 			},
 		},
 		normal: {
 			'200': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnM7Lh.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnM7Lh.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnM7Lh.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnM7Lh.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnM7Lh.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnM7Lh.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnM7Lh.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnM7Lh.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnM7Lh.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnM7Lh.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnM7Lh.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnM7Lh.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnM7Lh.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnM7Lh.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnPbLhgQA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/savate/v4/QdVXSTgjKAqpnvJnM7Lh.woff2',
+					'https://fonts.gstatic.com/s/savate/v5/QdVXSTgjKAqpnvJnM7Lh.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cabin Sketch',
 	importName: 'CabinSketch',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Cabin+Sketch:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		latin:
@@ -13,11 +13,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/cabinsketch/v22/QGYpz_kZZAGCONcK2A4bGOj8mNhN.woff2',
+					'https://fonts.gstatic.com/s/cabinsketch/v23/QGYpz_kZZAGCONcK2A4bGOj8mNhN.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/cabinsketch/v22/QGY2z_kZZAGCONcK2A4bGOj0I_1Y5tjz.woff2',
+					'https://fonts.gstatic.com/s/cabinsketch/v23/QGY2z_kZZAGCONcK2A4bGOj0I_1Y5tjz.woff2',
 			},
 		},
 	},

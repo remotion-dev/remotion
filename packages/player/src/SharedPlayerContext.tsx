@@ -114,7 +114,7 @@ export const SharedPlayerContexts: React.FC<{
 	}, []);
 
 	return (
-		<Internals.RemotionEnvironmentContext value={env}>
+		<Internals.RemotionEnvironmentContext.Provider value={env}>
 			<Internals.LogLevelContext.Provider value={logLevelContext}>
 				<Internals.CanUseRemotionHooksProvider>
 					<Internals.Timeline.TimelineContext.Provider value={timelineContext}>
@@ -148,6 +148,6 @@ export const SharedPlayerContexts: React.FC<{
 					</Internals.Timeline.TimelineContext.Provider>
 				</Internals.CanUseRemotionHooksProvider>
 			</Internals.LogLevelContext.Provider>
-		</Internals.RemotionEnvironmentContext>
+		</Internals.RemotionEnvironmentContext.Provider>
 	);
 };

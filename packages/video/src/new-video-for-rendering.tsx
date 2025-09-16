@@ -55,6 +55,8 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		mediaVolume: 1,
 	});
 
+	Internals.warnAboutTooHighVolume(volume);
+
 	const shouldRenderAudio = useMemo(() => {
 		if (!window.remotion_audioEnabled) {
 			return false;

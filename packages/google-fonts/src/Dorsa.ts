@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Dorsa',
 	importName: 'Dorsa',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Dorsa:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/dorsa/v28/yYLn0hjd0OGwqr4613E.woff2',
+					'https://fonts.gstatic.com/s/dorsa/v29/yYLn0hjd0OGwqr4613E.woff2',
 			},
 		},
 	},

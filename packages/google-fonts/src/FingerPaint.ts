@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Finger Paint',
 	importName: 'FingerPaint',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Finger+Paint:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/fingerpaint/v20/0QInMXVJ-o-oRn_7dron8YW-9JzT.woff2',
+					'https://fonts.gstatic.com/s/fingerpaint/v21/0QInMXVJ-o-oRn_7dron8YW-9JzT.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lateef',
 	importName: 'Lateef',
-	version: 'v32',
+	version: 'v33',
 	url: 'https://fonts.googleapis.com/css2?family=Lateef:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		arabic:
@@ -17,59 +17,59 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				arabic:
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0bjyQbK7axnQ.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0bjyQbK7axnQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0bjyQZ67axnQ.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0bjyQZ67axnQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0bjyQaa7a.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0bjyQaa7a.woff2',
 			},
 			'300': {
 				arabic:
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0Cj-QbK7axnQ.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0Cj-QbK7axnQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0Cj-QZ67axnQ.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0Cj-QZ67axnQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0Cj-Qaa7a.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0Cj-Qaa7a.woff2',
 			},
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/lateef/v32/hESw6XVnNCxEvkb8pB2FVo8.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESw6XVnNCxEvkb8pB2FVo8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lateef/v32/hESw6XVnNCxEvkb8rx2FVo8.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESw6XVnNCxEvkb8rx2FVo8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lateef/v32/hESw6XVnNCxEvkb8oR2F.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESw6XVnNCxEvkb8oR2F.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0Uj6QbK7axnQ.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0Uj6QbK7axnQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0Uj6QZ67axnQ.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0Uj6QZ67axnQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0Uj6Qaa7a.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0Uj6Qaa7a.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0fjmQbK7axnQ.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0fjmQbK7axnQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0fjmQZ67axnQ.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0fjmQZ67axnQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0fjmQaa7a.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0fjmQaa7a.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0GjiQbK7axnQ.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0GjiQbK7axnQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0GjiQZ67axnQ.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0GjiQZ67axnQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0GjiQaa7a.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0GjiQaa7a.woff2',
 			},
 			'800': {
 				arabic:
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0BjuQbK7axnQ.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0BjuQbK7axnQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0BjuQZ67axnQ.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0BjuQZ67axnQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lateef/v32/hESz6XVnNCxEvkb0BjuQaa7a.woff2',
+					'https://fonts.gstatic.com/s/lateef/v33/hESz6XVnNCxEvkb0BjuQaa7a.woff2',
 			},
 		},
 	},

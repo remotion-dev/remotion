@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Lisu',
 	importName: 'NotoSansLisu',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Lisu:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		lisu: 'U+02CD, U+2010, U+300A-300B, U+A4D0-A4FF, U+11FB0',
@@ -15,32 +15,32 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				lisu: 'https://fonts.gstatic.com/s/notosanslisu/v26/uk-6EGO3o6EruUbnwovcYhz6kjQx1otz7Q.woff2',
+				lisu: 'https://fonts.gstatic.com/s/notosanslisu/v27/uk-6EGO3o6EruUbnwovcYhz6kjQx1otz7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanslisu/v26/uk-6EGO3o6EruUbnwovcYhz6kjR51otz7Q.woff2',
+					'https://fonts.gstatic.com/s/notosanslisu/v27/uk-6EGO3o6EruUbnwovcYhz6kjR51otz7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanslisu/v26/uk-6EGO3o6EruUbnwovcYhz6kjR31os.woff2',
+					'https://fonts.gstatic.com/s/notosanslisu/v27/uk-6EGO3o6EruUbnwovcYhz6kjR31os.woff2',
 			},
 			'500': {
-				lisu: 'https://fonts.gstatic.com/s/notosanslisu/v26/uk-6EGO3o6EruUbnwovcYhz6kjQx1otz7Q.woff2',
+				lisu: 'https://fonts.gstatic.com/s/notosanslisu/v27/uk-6EGO3o6EruUbnwovcYhz6kjQx1otz7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanslisu/v26/uk-6EGO3o6EruUbnwovcYhz6kjR51otz7Q.woff2',
+					'https://fonts.gstatic.com/s/notosanslisu/v27/uk-6EGO3o6EruUbnwovcYhz6kjR51otz7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanslisu/v26/uk-6EGO3o6EruUbnwovcYhz6kjR31os.woff2',
+					'https://fonts.gstatic.com/s/notosanslisu/v27/uk-6EGO3o6EruUbnwovcYhz6kjR31os.woff2',
 			},
 			'600': {
-				lisu: 'https://fonts.gstatic.com/s/notosanslisu/v26/uk-6EGO3o6EruUbnwovcYhz6kjQx1otz7Q.woff2',
+				lisu: 'https://fonts.gstatic.com/s/notosanslisu/v27/uk-6EGO3o6EruUbnwovcYhz6kjQx1otz7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanslisu/v26/uk-6EGO3o6EruUbnwovcYhz6kjR51otz7Q.woff2',
+					'https://fonts.gstatic.com/s/notosanslisu/v27/uk-6EGO3o6EruUbnwovcYhz6kjR51otz7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanslisu/v26/uk-6EGO3o6EruUbnwovcYhz6kjR31os.woff2',
+					'https://fonts.gstatic.com/s/notosanslisu/v27/uk-6EGO3o6EruUbnwovcYhz6kjR31os.woff2',
 			},
 			'700': {
-				lisu: 'https://fonts.gstatic.com/s/notosanslisu/v26/uk-6EGO3o6EruUbnwovcYhz6kjQx1otz7Q.woff2',
+				lisu: 'https://fonts.gstatic.com/s/notosanslisu/v27/uk-6EGO3o6EruUbnwovcYhz6kjQx1otz7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanslisu/v26/uk-6EGO3o6EruUbnwovcYhz6kjR51otz7Q.woff2',
+					'https://fonts.gstatic.com/s/notosanslisu/v27/uk-6EGO3o6EruUbnwovcYhz6kjR51otz7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanslisu/v26/uk-6EGO3o6EruUbnwovcYhz6kjR31os.woff2',
+					'https://fonts.gstatic.com/s/notosanslisu/v27/uk-6EGO3o6EruUbnwovcYhz6kjR31os.woff2',
 			},
 		},
 	},

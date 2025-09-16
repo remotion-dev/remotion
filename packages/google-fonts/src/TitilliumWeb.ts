@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Titillium Web',
 	importName: 'TitilliumWeb',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,71 +15,71 @@ export const getInfo = () => ({
 		italic: {
 			'200': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPFcZTIAOhVxoMyOr9n_E7fdMbewI1Db5yciWM.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPFcZTIAOhVxoMyOr9n_E7fdMbewI1Db5yciWM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPFcZTIAOhVxoMyOr9n_E7fdMbewI1DYZyc.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPFcZTIAOhVxoMyOr9n_E7fdMbewI1DYZyc.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPFcZTIAOhVxoMyOr9n_E7fdMbepI5Db5yciWM.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPFcZTIAOhVxoMyOr9n_E7fdMbepI5Db5yciWM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPFcZTIAOhVxoMyOr9n_E7fdMbepI5DYZyc.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPFcZTIAOhVxoMyOr9n_E7fdMbepI5DYZyc.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPAcZTIAOhVxoMyOr9n_E7fdMbWAaxWXr0.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPAcZTIAOhVxoMyOr9n_E7fdMbWAaxWXr0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPAcZTIAOhVxoMyOr9n_E7fdMbWD6xW.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPAcZTIAOhVxoMyOr9n_E7fdMbWD6xW.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPFcZTIAOhVxoMyOr9n_E7fdMbe0IhDb5yciWM.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPFcZTIAOhVxoMyOr9n_E7fdMbe0IhDb5yciWM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPFcZTIAOhVxoMyOr9n_E7fdMbe0IhDYZyc.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPFcZTIAOhVxoMyOr9n_E7fdMbe0IhDYZyc.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPFcZTIAOhVxoMyOr9n_E7fdMbetIlDb5yciWM.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPFcZTIAOhVxoMyOr9n_E7fdMbetIlDb5yciWM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPFcZTIAOhVxoMyOr9n_E7fdMbetIlDYZyc.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPFcZTIAOhVxoMyOr9n_E7fdMbetIlDYZyc.woff2',
 			},
 		},
 		normal: {
 			'200': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPDcZTIAOhVxoMyOr9n_E7ffAzHGIVzY4SY.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPDcZTIAOhVxoMyOr9n_E7ffAzHGIVzY4SY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPDcZTIAOhVxoMyOr9n_E7ffAzHGItzYw.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPDcZTIAOhVxoMyOr9n_E7ffAzHGItzYw.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPDcZTIAOhVxoMyOr9n_E7ffGjEGIVzY4SY.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPDcZTIAOhVxoMyOr9n_E7ffGjEGIVzY4SY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPDcZTIAOhVxoMyOr9n_E7ffGjEGItzYw.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPDcZTIAOhVxoMyOr9n_E7ffGjEGItzYw.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPDcZTIAOhVxoMyOr9n_E7ffBzCGIVzY4SY.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPDcZTIAOhVxoMyOr9n_E7ffBzCGIVzY4SY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPDcZTIAOhVxoMyOr9n_E7ffBzCGItzYw.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPDcZTIAOhVxoMyOr9n_E7ffBzCGItzYw.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPDcZTIAOhVxoMyOr9n_E7ffHjDGIVzY4SY.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPDcZTIAOhVxoMyOr9n_E7ffHjDGIVzY4SY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPDcZTIAOhVxoMyOr9n_E7ffHjDGItzYw.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPDcZTIAOhVxoMyOr9n_E7ffHjDGItzYw.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPDcZTIAOhVxoMyOr9n_E7ffEDBGIVzY4SY.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPDcZTIAOhVxoMyOr9n_E7ffEDBGIVzY4SY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/titilliumweb/v18/NaPDcZTIAOhVxoMyOr9n_E7ffEDBGItzYw.woff2',
+					'https://fonts.gstatic.com/s/titilliumweb/v19/NaPDcZTIAOhVxoMyOr9n_E7ffEDBGItzYw.woff2',
 			},
 		},
 	},

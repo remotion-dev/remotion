@@ -1188,6 +1188,15 @@ export const articles = [
 		slug: 'contributing/rust',
 	},
 	{
+		id: 'cors-issues',
+		title: 'How to debug any CORS issue',
+		relativePath: 'docs/cors-issues.mdx',
+		compId: 'articles-docs-cors-issues',
+		crumb: '#@!*',
+		noAi: false,
+		slug: 'cors-issues',
+	},
+	{
 		id: 'authoring-packages',
 		title: 'Authoring a Remotion library',
 		relativePath: 'docs/creating-a-library.mdx',

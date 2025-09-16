@@ -26,6 +26,7 @@ const result = await Bun.build({
 	entrypoints: [
 		'./src/components/Homepage.tsx',
 		'./src/components/homepage/Pricing.tsx',
+		'./src/components/team.tsx',
 	],
 	format: 'esm',
 	external: [

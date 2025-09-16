@@ -1,12 +1,4 @@
-import React from 'react';
-
-export type RemotionEnvironment = {
-	isStudio: boolean;
-	isRendering: boolean;
-	isClientSideRendering: boolean;
-	isPlayer: boolean;
-	isReadOnlyStudio: boolean;
-};
+import type {RemotionEnvironment} from './remotion-environment-context';
 
 // Avoid VITE obfuscation
 function getNodeEnvString() {
@@ -44,6 +36,3 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 		isClientSideRendering: false,
 	};
 };
-
-export const RemotionEnvironmentContext =
-	React.createContext<RemotionEnvironment | null>(null);

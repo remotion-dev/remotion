@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bonheur Royale',
 	importName: 'BonheurRoyale',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Bonheur+Royale:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/bonheurroyale/v14/c4m51nt_GMTrtX-b9GcG4-YRmbK3eUbFNw.woff2',
+					'https://fonts.gstatic.com/s/bonheurroyale/v15/c4m51nt_GMTrtX-b9GcG4-YRmbK3eUbFNw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bonheurroyale/v14/c4m51nt_GMTrtX-b9GcG4-YRmbK2eUbFNw.woff2',
+					'https://fonts.gstatic.com/s/bonheurroyale/v15/c4m51nt_GMTrtX-b9GcG4-YRmbK2eUbFNw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bonheurroyale/v14/c4m51nt_GMTrtX-b9GcG4-YRmbK4eUY.woff2',
+					'https://fonts.gstatic.com/s/bonheurroyale/v15/c4m51nt_GMTrtX-b9GcG4-YRmbK4eUY.woff2',
 			},
 		},
 	},

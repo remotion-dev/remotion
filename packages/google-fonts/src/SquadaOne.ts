@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Squada One',
 	importName: 'SquadaOne',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Squada+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/squadaone/v19/BCasqZ8XsOrx4mcOk6Mtaac2WQ.woff2',
+					'https://fonts.gstatic.com/s/squadaone/v20/BCasqZ8XsOrx4mcOk6Mtaac2WQ.woff2',
 			},
 		},
 	},

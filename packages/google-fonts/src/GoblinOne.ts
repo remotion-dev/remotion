@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Goblin One',
 	importName: 'GoblinOne',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Goblin+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/goblinone/v27/CSR64z1ZnOqZRjRCBVY_fOAKTQ.woff2',
+					'https://fonts.gstatic.com/s/goblinone/v28/CSR64z1ZnOqZRjRCBVY_fOAKTQ.woff2',
 			},
 		},
 	},

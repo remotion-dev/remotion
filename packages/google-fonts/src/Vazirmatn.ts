@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Vazirmatn',
 	importName: 'Vazirmatn',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Vazirmatn:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		arabic:
@@ -17,75 +17,75 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				arabic:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
 			},
 			'200': {
 				arabic:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
 			},
 			'300': {
 				arabic:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
 			},
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
 			},
 			'800': {
 				arabic:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
 			},
 			'900': {
 				arabic:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlGMWWMmk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlE8WWMmk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vazirmatn/v15/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
+					'https://fonts.gstatic.com/s/vazirmatn/v16/Dxxo8j6PP2D_kU2muijlHcWW.woff2',
 			},
 		},
 	},

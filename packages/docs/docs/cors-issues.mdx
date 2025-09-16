@@ -1,0 +1,102 @@
+---
+image: /generated/articles-docs-cors-issues.png
+sidebar_label: CORS issues
+title: How to debug any CORS issue
+crumb: '#@!*'
+---
+
+A CORS issue is best debugged with Google Chrome because of the useful error messages.  
+Upon a CORS failure, an error message is printed to the console, explaining why the request has been blocked:
+
+<span style={{opacity: 0.5}}>`Access to fetch at 'https://google.com/' from origin 'https://remotion.dev' has been blocked by CORS policy:` </span>
+<br />
+`No 'Access-Control-Allow-Origin' header is present on the requested resource.`
+
+**The secret to debugging CORS errors is to read the error message carefully.**
+
+In this case, the `Access-Control-Allow-Origin` header is missing.  
+You can resolve the error by sending the following header from your server:
+
+- `Access-Control-Allow-Origin: *`
+
+In other scenarios, the error message might be different!
+
+## Watch out for Preflight requests
+
+<span style={{opacity: 0.5}}>`Access to fetch at 'http://localhost:3005/' from origin 'http://localhost:3001' has been blocked by CORS policy:`</span>
+<br />
+`Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.`
+
+For some HTTP methods, the browser will send a request with the method `OPTIONS` first.  
+This is called a preflight request.
+
+| HTTP Method                 | OPTIONS Request Sent? |
+| --------------------------- | --------------------- |
+| GET, HEAD                   | No                    |
+| POST                        | Sometimes\*           |
+| PUT, DELETE, PATCH, OPTIONS | Yes                   |
+
+<details>
+  <summary>When a POST request sends a preflight request</summary>
+  <p>POST requests do not trigger a preflight request unless they include custom headers or have a Content-Type other than `application/x-www-form-urlencoded`, `multipart/form-data` or `text/plain`.</p>
+  <p>
+    Common gotcha: Adding the <code>Content-Type: application/json</code> header to a POST request will cause it to trigger a preflight request!
+  </p>
+</details>
+
+The solution for these errors is to **also return the CORS headers in the response to the `OPTIONS` request.**
+
+Notice how the error message explicitly mentions the "preflight request"!
+
+## Set the `Access-Control-Allow-Methods` header
+
+<span style={{opacity: 0.5}}>`Access to fetch at 'http://localhost:3005/' from origin 'http://localhost:3001' has been blocked by CORS policy:`</span>
+<br />
+`Method PUT is not allowed by Access-Control-Allow-Methods in preflight response.`
+
+If a [preflight](#watch-out-for-preflight-requests) request is happening, the response also must include the `Access-Control-Allow-Methods` header.
+
+Add the following header to the response:
+
+```
+Access-Control-Allow-Methods: *
+```
+
+If you intend to use HTTP methods other than `GET`, `HEAD` or `POST`, you should always add the `Access-Control-Allow-Methods` header.
+
+Again, notice that the error message was very specific!
+
+## Requesting localhost URLs
+
+Sometimes a request cannot be made not because a website on the internet requests a `localhost` URL:
+
+<span style={{opacity: 0.5}}>`Access to fetch at 'http://localhost:3005/' from origin 'https://www.remotion.dev' has been blocked by CORS policy:`</span>
+<br />
+`Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Private-Network' header was present in the preflight response for this private network request targeting the "local" address space.`
+
+This issue can be solved by adding the `Access-Control-Allow-Private-Network` header to the response:
+
+- `Access-Control-Allow-Private-Network: true`
+
+Once again, the resolution for the problem was described in the error message.
+
+## Solving any CORS error
+
+There are more headers which can come into play:
+
+- `Access-Control-Allow-Origin`
+- `Access-Control-Allow-Methods`
+- `Access-Control-Allow-Headers`
+- `Access-Control-Allow-Credentials`
+- `Access-Control-Allow-Private-Network`
+- `Access-Control-Expose-Headers`
+- `Access-Control-Max-Age`
+
+Whatever the issue, the error message that Chrome prints to the console is very specific.  
+It's easy to not inspect it closely because the first part is always the same, but the second part is the one that is specific to the issue.  
+Read the error message carefully and act appropriately.
+
+## Disable the cache
+
+If nothing makes sense, maybe it is a cache issue!  
+Open the Chrome DevTools and in the Network tab, check "Disable cache".

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bahianita',
 	importName: 'Bahianita',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Bahianita:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/bahianita/v22/yYLr0hTb3vuqqsBUgxWdzTHU6NI.woff2',
+					'https://fonts.gstatic.com/s/bahianita/v23/yYLr0hTb3vuqqsBUgxWdzTHU6NI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bahianita/v22/yYLr0hTb3vuqqsBUgxWdzDHU6NI.woff2',
+					'https://fonts.gstatic.com/s/bahianita/v23/yYLr0hTb3vuqqsBUgxWdzDHU6NI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bahianita/v22/yYLr0hTb3vuqqsBUgxWdwjHU.woff2',
+					'https://fonts.gstatic.com/s/bahianita/v23/yYLr0hTb3vuqqsBUgxWdwjHU.woff2',
 			},
 		},
 	},

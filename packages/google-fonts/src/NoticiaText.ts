@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noticia Text',
 	importName: 'NoticiaText',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Noticia+Text:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		vietnamese:
@@ -17,37 +17,37 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/noticiatext/v15/VuJodNDF2Yv9qppOePKYRP12YwtVn07tpQ.woff2',
+					'https://fonts.gstatic.com/s/noticiatext/v16/VuJodNDF2Yv9qppOePKYRP12YwtVn07tpQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/noticiatext/v15/VuJodNDF2Yv9qppOePKYRP12YwtUn07tpQ.woff2',
+					'https://fonts.gstatic.com/s/noticiatext/v16/VuJodNDF2Yv9qppOePKYRP12YwtUn07tpQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/noticiatext/v15/VuJodNDF2Yv9qppOePKYRP12Ywtan04.woff2',
+					'https://fonts.gstatic.com/s/noticiatext/v16/VuJodNDF2Yv9qppOePKYRP12Ywtan04.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/noticiatext/v15/VuJrdNDF2Yv9qppOePKYRP12YwPhulvdhDXUeA.woff2',
+					'https://fonts.gstatic.com/s/noticiatext/v16/VuJrdNDF2Yv9qppOePKYRP12YwPhulvdhDXUeA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/noticiatext/v15/VuJrdNDF2Yv9qppOePKYRP12YwPhulvchDXUeA.woff2',
+					'https://fonts.gstatic.com/s/noticiatext/v16/VuJrdNDF2Yv9qppOePKYRP12YwPhulvchDXUeA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/noticiatext/v15/VuJrdNDF2Yv9qppOePKYRP12YwPhulvShDU.woff2',
+					'https://fonts.gstatic.com/s/noticiatext/v16/VuJrdNDF2Yv9qppOePKYRP12YwPhulvShDU.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/noticiatext/v15/VuJ2dNDF2Yv9qppOePKYRP12aTtYh0o.woff2',
+					'https://fonts.gstatic.com/s/noticiatext/v16/VuJ2dNDF2Yv9qppOePKYRP12aTtYh0o.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/noticiatext/v15/VuJ2dNDF2Yv9qppOePKYRP12aDtYh0o.woff2',
+					'https://fonts.gstatic.com/s/noticiatext/v16/VuJ2dNDF2Yv9qppOePKYRP12aDtYh0o.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/noticiatext/v15/VuJ2dNDF2Yv9qppOePKYRP12ZjtY.woff2',
+					'https://fonts.gstatic.com/s/noticiatext/v16/VuJ2dNDF2Yv9qppOePKYRP12ZjtY.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/noticiatext/v15/VuJpdNDF2Yv9qppOePKYRP1-3R5Nt2vQnDE.woff2',
+					'https://fonts.gstatic.com/s/noticiatext/v16/VuJpdNDF2Yv9qppOePKYRP1-3R5Nt2vQnDE.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/noticiatext/v15/VuJpdNDF2Yv9qppOePKYRP1-3R5NtmvQnDE.woff2',
+					'https://fonts.gstatic.com/s/noticiatext/v16/VuJpdNDF2Yv9qppOePKYRP1-3R5NtmvQnDE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/noticiatext/v15/VuJpdNDF2Yv9qppOePKYRP1-3R5NuGvQ.woff2',
+					'https://fonts.gstatic.com/s/noticiatext/v16/VuJpdNDF2Yv9qppOePKYRP1-3R5NuGvQ.woff2',
 			},
 		},
 	},

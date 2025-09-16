@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans PhagsPa',
 	importName: 'NotoSansPhagsPa',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+PhagsPa:ital,wght@0,400',
 	unicodeRanges: {
 		math: 'U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-208E, U+2090-209C, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF',
@@ -19,15 +19,15 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				math: 'https://fonts.gstatic.com/s/notosansphagspa/v23/XLY8IYr5bJNDGYxPGjyYbaEjwQR-LGkXasc3GA.woff2',
+				math: 'https://fonts.gstatic.com/s/notosansphagspa/v24/XLY8IYr5bJNDGYxPGjyYbaEjwQR-LGkXasc3GA.woff2',
 				'phags-pa':
-					'https://fonts.gstatic.com/s/notosansphagspa/v23/XLY8IYr5bJNDGYxPGjyYbaEjwQR-LGlbasc3GA.woff2',
+					'https://fonts.gstatic.com/s/notosansphagspa/v24/XLY8IYr5bJNDGYxPGjyYbaEjwQR-LGlbasc3GA.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notosansphagspa/v23/XLY8IYr5bJNDGYxPGjyYbaEjwQR-LGkFasc3GA.woff2',
+					'https://fonts.gstatic.com/s/notosansphagspa/v24/XLY8IYr5bJNDGYxPGjyYbaEjwQR-LGkFasc3GA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansphagspa/v23/XLY8IYr5bJNDGYxPGjyYbaEjwQR-LGllasc3GA.woff2',
+					'https://fonts.gstatic.com/s/notosansphagspa/v24/XLY8IYr5bJNDGYxPGjyYbaEjwQR-LGllasc3GA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansphagspa/v23/XLY8IYr5bJNDGYxPGjyYbaEjwQR-LGlrasc.woff2',
+					'https://fonts.gstatic.com/s/notosansphagspa/v24/XLY8IYr5bJNDGYxPGjyYbaEjwQR-LGlrasc.woff2',
 			},
 		},
 	},

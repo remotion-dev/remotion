@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Wellfleet',
 	importName: 'Wellfleet',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Wellfleet:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wellfleet/v24/nuF7D_LfQJb3VYgX6eyj6myKPhM.woff2',
+					'https://fonts.gstatic.com/s/wellfleet/v25/nuF7D_LfQJb3VYgX6eyj6myKPhM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wellfleet/v24/nuF7D_LfQJb3VYgX6eyj5GyK.woff2',
+					'https://fonts.gstatic.com/s/wellfleet/v25/nuF7D_LfQJb3VYgX6eyj5GyK.woff2',
 			},
 		},
 	},

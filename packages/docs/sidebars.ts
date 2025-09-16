@@ -1282,6 +1282,7 @@ const sidebars: SidebarsConfig = {
 				'standalone',
 				'miscellaneous/emojis',
 				'miscellaneous/cross-origin-isolation',
+				'cors-issues',
 				'media-fragments',
 				'react-native',
 			],

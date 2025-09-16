@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gudea',
 	importName: 'Gudea',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Gudea:ital,wght@0,400;0,700;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,23 +15,23 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gudea/v15/neILzCqgsI0mp9CNzoymM5Ez.woff2',
+					'https://fonts.gstatic.com/s/gudea/v16/neILzCqgsI0mp9CNzoymM5Ez.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gudea/v15/neILzCqgsI0mp9CNzoKmMw.woff2',
+					'https://fonts.gstatic.com/s/gudea/v16/neILzCqgsI0mp9CNzoKmMw.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gudea/v15/neIFzCqgsI0mp9CG_oC-Nw.woff2',
+					'https://fonts.gstatic.com/s/gudea/v16/neIFzCqgsI0mp9CG_oC-Nw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gudea/v15/neIFzCqgsI0mp9CI_oA.woff2',
+					'https://fonts.gstatic.com/s/gudea/v16/neIFzCqgsI0mp9CI_oA.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gudea/v15/neIIzCqgsI0mp9gz25WPFqwKUQ.woff2',
+					'https://fonts.gstatic.com/s/gudea/v16/neIIzCqgsI0mp9gz25WPFqwKUQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gudea/v15/neIIzCqgsI0mp9gz25WBFqw.woff2',
+					'https://fonts.gstatic.com/s/gudea/v16/neIIzCqgsI0mp9gz25WBFqw.woff2',
 			},
 		},
 	},

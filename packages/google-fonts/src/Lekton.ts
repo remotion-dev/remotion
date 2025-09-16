@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lekton',
 	importName: 'Lekton',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Lekton:ital,wght@0,400;0,700;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,23 +15,23 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lekton/v20/SZc63FDmLaWmWpBuXS3ltUfr6Q.woff2',
+					'https://fonts.gstatic.com/s/lekton/v21/SZc63FDmLaWmWpBuXS3ltUfr6Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lekton/v20/SZc63FDmLaWmWpBuXS3rtUc.woff2',
+					'https://fonts.gstatic.com/s/lekton/v21/SZc63FDmLaWmWpBuXS3rtUc.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lekton/v20/SZc43FDmLaWmWpBuVh3prUM.woff2',
+					'https://fonts.gstatic.com/s/lekton/v21/SZc43FDmLaWmWpBuVh3prUM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lekton/v20/SZc43FDmLaWmWpBuWB3p.woff2',
+					'https://fonts.gstatic.com/s/lekton/v21/SZc43FDmLaWmWpBuWB3p.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lekton/v20/SZc73FDmLaWmWpBm4zj8nGLW0DI.woff2',
+					'https://fonts.gstatic.com/s/lekton/v21/SZc73FDmLaWmWpBm4zj8nGLW0DI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lekton/v20/SZc73FDmLaWmWpBm4zj8kmLW.woff2',
+					'https://fonts.gstatic.com/s/lekton/v21/SZc73FDmLaWmWpBm4zj8kmLW.woff2',
 			},
 		},
 	},

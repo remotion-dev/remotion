@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Vibes',
 	importName: 'Vibes',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Vibes:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/vibes/v15/QdVYSTsmIB6tmYd1FJfcuA.woff2',
+					'https://fonts.gstatic.com/s/vibes/v16/QdVYSTsmIB6tmYd1FJfcuA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vibes/v15/QdVYSTsmIB6tmYdwFJc.woff2',
+					'https://fonts.gstatic.com/s/vibes/v16/QdVYSTsmIB6tmYdwFJc.woff2',
 			},
 		},
 	},

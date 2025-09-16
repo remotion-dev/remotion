@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Ol Chiki',
 	importName: 'NotoSansOlChiki',
-	version: 'v30',
+	version: 'v31',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Ol+Chiki:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'ol-chiki': 'U+1C50-1C7F, U+20B9',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'ol-chiki':
-					'https://fonts.gstatic.com/s/notosansolchiki/v30/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZQByBf48.woff2',
+					'https://fonts.gstatic.com/s/notosansolchiki/v31/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZQByBf48.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansolchiki/v30/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZDRyBf48.woff2',
+					'https://fonts.gstatic.com/s/notosansolchiki/v31/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZDRyBf48.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansolchiki/v30/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZAxyB.woff2',
+					'https://fonts.gstatic.com/s/notosansolchiki/v31/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZAxyB.woff2',
 			},
 			'500': {
 				'ol-chiki':
-					'https://fonts.gstatic.com/s/notosansolchiki/v30/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZQByBf48.woff2',
+					'https://fonts.gstatic.com/s/notosansolchiki/v31/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZQByBf48.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansolchiki/v30/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZDRyBf48.woff2',
+					'https://fonts.gstatic.com/s/notosansolchiki/v31/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZDRyBf48.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansolchiki/v30/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZAxyB.woff2',
+					'https://fonts.gstatic.com/s/notosansolchiki/v31/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZAxyB.woff2',
 			},
 			'600': {
 				'ol-chiki':
-					'https://fonts.gstatic.com/s/notosansolchiki/v30/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZQByBf48.woff2',
+					'https://fonts.gstatic.com/s/notosansolchiki/v31/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZQByBf48.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansolchiki/v30/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZDRyBf48.woff2',
+					'https://fonts.gstatic.com/s/notosansolchiki/v31/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZDRyBf48.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansolchiki/v30/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZAxyB.woff2',
+					'https://fonts.gstatic.com/s/notosansolchiki/v31/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZAxyB.woff2',
 			},
 			'700': {
 				'ol-chiki':
-					'https://fonts.gstatic.com/s/notosansolchiki/v30/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZQByBf48.woff2',
+					'https://fonts.gstatic.com/s/notosansolchiki/v31/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZQByBf48.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansolchiki/v30/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZDRyBf48.woff2',
+					'https://fonts.gstatic.com/s/notosansolchiki/v31/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZDRyBf48.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansolchiki/v30/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZAxyB.woff2',
+					'https://fonts.gstatic.com/s/notosansolchiki/v31/N0bI2TJNOPt-eHmFZCdQbrL32r-4CvhZAxyB.woff2',
 			},
 		},
 	},

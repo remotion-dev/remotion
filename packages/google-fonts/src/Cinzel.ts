@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cinzel',
 	importName: 'Cinzel',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Cinzel:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,39 +15,39 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cinzel/v25/8vIJ7ww63mVu7gt7-GT7LEc.woff2',
+					'https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt7-GT7LEc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cinzel/v25/8vIJ7ww63mVu7gt79mT7.woff2',
+					'https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt79mT7.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cinzel/v25/8vIJ7ww63mVu7gt7-GT7LEc.woff2',
+					'https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt7-GT7LEc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cinzel/v25/8vIJ7ww63mVu7gt79mT7.woff2',
+					'https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt79mT7.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cinzel/v25/8vIJ7ww63mVu7gt7-GT7LEc.woff2',
+					'https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt7-GT7LEc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cinzel/v25/8vIJ7ww63mVu7gt79mT7.woff2',
+					'https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt79mT7.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cinzel/v25/8vIJ7ww63mVu7gt7-GT7LEc.woff2',
+					'https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt7-GT7LEc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cinzel/v25/8vIJ7ww63mVu7gt79mT7.woff2',
+					'https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt79mT7.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cinzel/v25/8vIJ7ww63mVu7gt7-GT7LEc.woff2',
+					'https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt7-GT7LEc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cinzel/v25/8vIJ7ww63mVu7gt79mT7.woff2',
+					'https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt79mT7.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cinzel/v25/8vIJ7ww63mVu7gt7-GT7LEc.woff2',
+					'https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt7-GT7LEc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cinzel/v25/8vIJ7ww63mVu7gt79mT7.woff2',
+					'https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt79mT7.woff2',
 			},
 		},
 	},

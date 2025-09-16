@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Pinyon Script',
 	importName: 'PinyonScript',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Pinyon+Script:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/pinyonscript/v23/6xKpdSJbL9-e9LuoeQiDRQR8WOraOrbh.woff2',
+					'https://fonts.gstatic.com/s/pinyonscript/v24/6xKpdSJbL9-e9LuoeQiDRQR8WOraOrbh.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/pinyonscript/v23/6xKpdSJbL9-e9LuoeQiDRQR8WOvaOrbh.woff2',
+					'https://fonts.gstatic.com/s/pinyonscript/v24/6xKpdSJbL9-e9LuoeQiDRQR8WOvaOrbh.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/pinyonscript/v23/6xKpdSJbL9-e9LuoeQiDRQR8WOXaOg.woff2',
+					'https://fonts.gstatic.com/s/pinyonscript/v24/6xKpdSJbL9-e9LuoeQiDRQR8WOXaOg.woff2',
 			},
 		},
 	},

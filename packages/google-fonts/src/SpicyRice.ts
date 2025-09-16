@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Spicy Rice',
 	importName: 'SpicyRice',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Spicy+Rice:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/spicyrice/v27/uK_24rSEd-Uqwk4jY1RyKva8W3ow.woff2',
+					'https://fonts.gstatic.com/s/spicyrice/v28/uK_24rSEd-Uqwk4jY1RyKva8W3ow.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/spicyrice/v27/uK_24rSEd-Uqwk4jY1RyKvi8Ww.woff2',
+					'https://fonts.gstatic.com/s/spicyrice/v28/uK_24rSEd-Uqwk4jY1RyKvi8Ww.woff2',
 			},
 		},
 	},

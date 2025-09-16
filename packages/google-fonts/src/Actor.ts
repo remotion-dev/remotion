@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Actor',
 	importName: 'Actor',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Actor:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/actor/v17/wEOzEBbCkc5cO0ejVSk.woff2',
+					'https://fonts.gstatic.com/s/actor/v18/wEOzEBbCkc5cO0ejVSk.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gochi Hand',
 	importName: 'GochiHand',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Gochi+Hand:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/gochihand/v24/hES06XlsOjtJsgCkx1Pkfon_-w.woff2',
+					'https://fonts.gstatic.com/s/gochihand/v25/hES06XlsOjtJsgCkx1Pkfon_-w.woff2',
 			},
 		},
 	},

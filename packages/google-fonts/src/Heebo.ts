@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Heebo',
 	importName: 'Heebo',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Heebo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		hebrew:
@@ -20,102 +20,102 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				hebrew:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
-				math: 'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
+				math: 'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H2TbE.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H2TbE.woff2',
 			},
 			'200': {
 				hebrew:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
-				math: 'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
+				math: 'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H2TbE.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H2TbE.woff2',
 			},
 			'300': {
 				hebrew:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
-				math: 'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
+				math: 'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H2TbE.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H2TbE.woff2',
 			},
 			'400': {
 				hebrew:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
-				math: 'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
+				math: 'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H2TbE.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H2TbE.woff2',
 			},
 			'500': {
 				hebrew:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
-				math: 'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
+				math: 'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H2TbE.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H2TbE.woff2',
 			},
 			'600': {
 				hebrew:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
-				math: 'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
+				math: 'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H2TbE.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H2TbE.woff2',
 			},
 			'700': {
 				hebrew:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
-				math: 'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
+				math: 'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H2TbE.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H2TbE.woff2',
 			},
 			'800': {
 				hebrew:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
-				math: 'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
+				math: 'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H2TbE.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H2TbE.woff2',
 			},
 			'900': {
 				hebrew:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
-				math: 'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H0TbFzsQ.woff2',
+				math: 'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GKTbFzsQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9GYTbFzsQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H4TbFzsQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/heebo/v27/NGS6v5_NC0k9P9H2TbE.woff2',
+					'https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H2TbE.woff2',
 			},
 		},
 	},

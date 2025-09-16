@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kode Mono',
 	importName: 'KodeMono',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Kode+Mono:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,27 +15,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kodemono/v3/A2BYn5pb0QgtVEPFnlYOk4Lwa5I.woff2',
+					'https://fonts.gstatic.com/s/kodemono/v4/A2BYn5pb0QgtVEPFnlYOk4Lwa5I.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kodemono/v3/A2BYn5pb0QgtVEPFnlYOnYLw.woff2',
+					'https://fonts.gstatic.com/s/kodemono/v4/A2BYn5pb0QgtVEPFnlYOnYLw.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kodemono/v3/A2BYn5pb0QgtVEPFnlYOk4Lwa5I.woff2',
+					'https://fonts.gstatic.com/s/kodemono/v4/A2BYn5pb0QgtVEPFnlYOk4Lwa5I.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kodemono/v3/A2BYn5pb0QgtVEPFnlYOnYLw.woff2',
+					'https://fonts.gstatic.com/s/kodemono/v4/A2BYn5pb0QgtVEPFnlYOnYLw.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kodemono/v3/A2BYn5pb0QgtVEPFnlYOk4Lwa5I.woff2',
+					'https://fonts.gstatic.com/s/kodemono/v4/A2BYn5pb0QgtVEPFnlYOk4Lwa5I.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kodemono/v3/A2BYn5pb0QgtVEPFnlYOnYLw.woff2',
+					'https://fonts.gstatic.com/s/kodemono/v4/A2BYn5pb0QgtVEPFnlYOnYLw.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kodemono/v3/A2BYn5pb0QgtVEPFnlYOk4Lwa5I.woff2',
+					'https://fonts.gstatic.com/s/kodemono/v4/A2BYn5pb0QgtVEPFnlYOk4Lwa5I.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kodemono/v3/A2BYn5pb0QgtVEPFnlYOnYLw.woff2',
+					'https://fonts.gstatic.com/s/kodemono/v4/A2BYn5pb0QgtVEPFnlYOnYLw.woff2',
 			},
 		},
 	},

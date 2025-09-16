@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Andika',
 	importName: 'Andika',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Andika:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,53 +20,53 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/andika/v26/mem9Ya6iyW-Lwqgwb4YfcrgmVA.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem9Ya6iyW-Lwqgwb4YfcrgmVA.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/andika/v26/mem9Ya6iyW-Lwqgwb4YWcrgmVA.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem9Ya6iyW-Lwqgwb4YWcrgmVA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/andika/v26/mem9Ya6iyW-Lwqgwb4YdcrgmVA.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem9Ya6iyW-Lwqgwb4YdcrgmVA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/andika/v26/mem9Ya6iyW-Lwqgwb4YccrgmVA.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem9Ya6iyW-Lwqgwb4YccrgmVA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/andika/v26/mem9Ya6iyW-Lwqgwb4YScrg.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem9Ya6iyW-Lwqgwb4YScrg.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/andika/v26/mem6Ya6iyW-Lwqgwb46pV60Udc1UAw.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem6Ya6iyW-Lwqgwb46pV60Udc1UAw.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/andika/v26/mem6Ya6iyW-Lwqgwb46pV60ddc1UAw.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem6Ya6iyW-Lwqgwb46pV60ddc1UAw.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/andika/v26/mem6Ya6iyW-Lwqgwb46pV60Wdc1UAw.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem6Ya6iyW-Lwqgwb46pV60Wdc1UAw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/andika/v26/mem6Ya6iyW-Lwqgwb46pV60Xdc1UAw.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem6Ya6iyW-Lwqgwb46pV60Xdc1UAw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/andika/v26/mem6Ya6iyW-Lwqgwb46pV60Zdc0.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem6Ya6iyW-Lwqgwb46pV60Zdc0.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/andika/v26/mem_Ya6iyW-LwqgwZ7YQarw.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem_Ya6iyW-LwqgwZ7YQarw.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/andika/v26/mem_Ya6iyW-LwqgwbrYQarw.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem_Ya6iyW-LwqgwbrYQarw.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/andika/v26/mem_Ya6iyW-LwqgwZbYQarw.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem_Ya6iyW-LwqgwZbYQarw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/andika/v26/mem_Ya6iyW-LwqgwZLYQarw.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem_Ya6iyW-LwqgwZLYQarw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/andika/v26/mem_Ya6iyW-LwqgwarYQ.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem_Ya6iyW-LwqgwarYQ.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/andika/v26/mem8Ya6iyW-Lwqg40ZMFWJ0bbck.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem8Ya6iyW-Lwqg40ZMFWJ0bbck.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/andika/v26/mem8Ya6iyW-Lwqg40ZMFUZ0bbck.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem8Ya6iyW-Lwqg40ZMFUZ0bbck.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/andika/v26/mem8Ya6iyW-Lwqg40ZMFWp0bbck.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem8Ya6iyW-Lwqg40ZMFWp0bbck.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/andika/v26/mem8Ya6iyW-Lwqg40ZMFW50bbck.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem8Ya6iyW-Lwqg40ZMFW50bbck.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/andika/v26/mem8Ya6iyW-Lwqg40ZMFVZ0b.woff2',
+					'https://fonts.gstatic.com/s/andika/v27/mem8Ya6iyW-Lwqg40ZMFVZ0b.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Medula One',
 	importName: 'MedulaOne',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Medula+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/medulaone/v19/YA9Wr0qb5kjJM6l2V0yuoiYgsg.woff2',
+					'https://fonts.gstatic.com/s/medulaone/v20/YA9Wr0qb5kjJM6l2V0yuoiYgsg.woff2',
 			},
 		},
 	},

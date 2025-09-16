@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Radley',
 	importName: 'Radley',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Radley:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/radley/v23/LYjBdGzinEIjCN1NojNJjV8XVQ.woff2',
+					'https://fonts.gstatic.com/s/radley/v24/LYjBdGzinEIjCN1NojNJjV8XVQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/radley/v23/LYjBdGzinEIjCN1NojNHjV8.woff2',
+					'https://fonts.gstatic.com/s/radley/v24/LYjBdGzinEIjCN1NojNHjV8.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/radley/v23/LYjDdGzinEIjCN1NqQNFlVs.woff2',
+					'https://fonts.gstatic.com/s/radley/v24/LYjDdGzinEIjCN1NqQNFlVs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/radley/v23/LYjDdGzinEIjCN1NpwNF.woff2',
+					'https://fonts.gstatic.com/s/radley/v24/LYjDdGzinEIjCN1NpwNF.woff2',
 			},
 		},
 	},

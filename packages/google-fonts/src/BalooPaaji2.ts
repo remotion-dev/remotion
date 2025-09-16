@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Baloo Paaji Two',
 	importName: 'BalooPaaji2',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		gurmukhi:
@@ -19,53 +19,53 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUHaaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUHaaHjyV.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFqaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFqaHjyV.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFuaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFuaHjyV.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFWaHg.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFWaHg.woff2',
 			},
 			'500': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUHaaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUHaaHjyV.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFqaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFqaHjyV.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFuaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFuaHjyV.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFWaHg.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFWaHg.woff2',
 			},
 			'600': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUHaaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUHaaHjyV.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFqaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFqaHjyV.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFuaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFuaHjyV.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFWaHg.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFWaHg.woff2',
 			},
 			'700': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUHaaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUHaaHjyV.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFqaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFqaHjyV.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFuaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFuaHjyV.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFWaHg.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFWaHg.woff2',
 			},
 			'800': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUHaaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUHaaHjyV.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFqaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFqaHjyV.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFuaHjyV.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFuaHjyV.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloopaaji2/v28/i7dMIFFzbz-QHZUdV9_UGWZuUFWaHg.woff2',
+					'https://fonts.gstatic.com/s/baloopaaji2/v29/i7dMIFFzbz-QHZUdV9_UGWZuUFWaHg.woff2',
 			},
 		},
 	},

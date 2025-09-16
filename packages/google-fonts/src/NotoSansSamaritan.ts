@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Samaritan',
 	importName: 'NotoSansSamaritan',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Samaritan:ital,wght@0,400',
 	unicodeRanges: {
 		samaritan: 'U+0800-083F, U+2E31',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				samaritan:
-					'https://fonts.gstatic.com/s/notosanssamaritan/v16/buEqppe9f8_vkXadMBJJo0tSmaYjFkxOYrdpN2OV.woff2',
+					'https://fonts.gstatic.com/s/notosanssamaritan/v17/buEqppe9f8_vkXadMBJJo0tSmaYjFkxOYrdpN2OV.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssamaritan/v16/buEqppe9f8_vkXadMBJJo0tSmaYjFkxOYodpN2OV.woff2',
+					'https://fonts.gstatic.com/s/notosanssamaritan/v17/buEqppe9f8_vkXadMBJJo0tSmaYjFkxOYodpN2OV.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssamaritan/v16/buEqppe9f8_vkXadMBJJo0tSmaYjFkxOYolpNw.woff2',
+					'https://fonts.gstatic.com/s/notosanssamaritan/v17/buEqppe9f8_vkXadMBJJo0tSmaYjFkxOYolpNw.woff2',
 			},
 		},
 	},
