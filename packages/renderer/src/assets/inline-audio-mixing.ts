@@ -25,6 +25,7 @@ export const makeInlineAudioMixing = (dir: string) => {
 	const folderToAdd = makeAndReturn(dir, 'remotion-inline-audio-mixing');
 	// asset id -> file descriptor
 	const openFiles: Record<string, number> = {};
+	const writtenHeaders: Record<string, boolean> = {};
 
 	const cleanup = () => {
 		for (const fd of Object.values(openFiles)) {
@@ -53,6 +54,12 @@ export const makeInlineAudioMixing = (dir: string) => {
 		if (!openFiles[filePath]) {
 			openFiles[filePath] = fs.openSync(filePath, 'w');
 		}
+
+		if (writtenHeaders[filePath]) {
+			return;
+		}
+
+		writtenHeaders[filePath] = true;
 
 		const expectedDataSize = Math.round(
 			(totalNumberOfFrames / fps) *
