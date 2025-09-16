@@ -1,9 +1,7 @@
 import {useContext, useState} from 'react';
-import {
-	getRemotionEnvironment,
-	RemotionEnvironmentContext,
-	type RemotionEnvironment,
-} from './get-remotion-environment';
+import {getRemotionEnvironment} from './get-remotion-environment';
+import type {RemotionEnvironment} from './remotion-environment-context';
+import {RemotionEnvironmentContext} from './remotion-environment-context';
 
 /**
  * @description A React hook that provides information about the current Remotion Environment. This is the preferred way to access environment information in React components as it will support future scoped contexts.
