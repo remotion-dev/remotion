@@ -41,11 +41,7 @@ import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 } from './get-preview-dom-element.js';
-import type {RemotionEnvironment} from './get-remotion-environment.js';
-import {
-	getRemotionEnvironment,
-	RemotionEnvironmentContext,
-} from './get-remotion-environment.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
@@ -57,6 +53,8 @@ import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
+import type {RemotionEnvironment} from './remotion-environment-context.js';
+import {RemotionEnvironmentContext} from './remotion-environment-context.js';
 import {RemotionRoot} from './RemotionRoot.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';

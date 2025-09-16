@@ -1,7 +1,7 @@
 import {cancelRender} from './cancel-render.js';
-import type {RemotionEnvironment} from './get-remotion-environment.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {Log} from './log.js';
+import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {truthy} from './truthy.js';
 
 if (typeof window !== 'undefined') {

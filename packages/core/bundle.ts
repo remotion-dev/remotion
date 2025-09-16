@@ -39,7 +39,13 @@ const noReactOutput = await build({
 	external: ['remotion', 'react', 'react-dom'],
 });
 const [noReactFile] = noReactOutput.outputs;
-await Bun.write('dist/esm/no-react.mjs', await noReactFile.text());
+const noReactText = await noReactFile.text();
+
+if (noReactText.includes('createContext')) {
+	throw new Error('remotion/no-react.mjs should not import React');
+}
+
+await Bun.write('dist/esm/no-react.mjs', noReactText);
 
 export {};
 
