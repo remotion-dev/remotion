@@ -406,6 +406,9 @@ const innerRenderFrames = async ({
 				onFrameUpdate,
 				nextFrameToRender,
 				imageSequencePattern: pattern,
+				trimLeftOffset,
+				trimRightOffset,
+				allFramesAndExtraFrames,
 			});
 		}),
 	);

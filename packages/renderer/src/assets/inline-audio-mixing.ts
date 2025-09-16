@@ -128,23 +128,36 @@ export const makeInlineAudioMixing = (dir: string) => {
 		fps,
 		totalNumberOfFrames,
 		firstFrame,
+		trimLeftOffset,
+		trimRightOffset,
 	}: {
 		asset: InlineAudioAsset;
 		fps: number;
 		totalNumberOfFrames: number;
 		firstFrame: number;
+		trimLeftOffset: number;
+		trimRightOffset: number;
 	}) => {
 		ensureAsset(asset, fps, totalNumberOfFrames);
 		const filePath = getFilePath(asset);
 		const fileDescriptor = openFiles[filePath];
 
 		const arr = new Int16Array(asset.audio);
+		console.log({
+			trimLeftOffset,
+			trimRightOffset,
+			firstFrame,
+			totalNumberOfFrames,
+			a: asset.frame,
+		});
 		const position = Math.round(
 			((asset.frame - firstFrame) / fps) *
 				asset.numberOfChannels *
 				DEFAULT_SAMPLE_RATE *
 				BYTES_PER_SAMPLE,
 		);
+
+		console.log({position});
 
 		writeSync(
 			// fs
