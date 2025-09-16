@@ -45,11 +45,19 @@ export const makeInlineAudioMixing = (dir: string) => {
 		return path.join(folderToAdd, `${asset.id}.wav`);
 	};
 
-	const ensureAsset = (
-		asset: InlineAudioAsset,
-		fps: number,
-		totalNumberOfFrames: number,
-	) => {
+	const ensureAsset = ({
+		asset,
+		fps,
+		totalNumberOfFrames,
+		trimLeftOffset,
+		trimRightOffset,
+	}: {
+		asset: InlineAudioAsset;
+		fps: number;
+		totalNumberOfFrames: number;
+		trimLeftOffset: number;
+		trimRightOffset: number;
+	}) => {
 		const filePath = getFilePath(asset);
 		if (!openFiles[filePath]) {
 			openFiles[filePath] = fs.openSync(filePath, 'w');
@@ -62,11 +70,12 @@ export const makeInlineAudioMixing = (dir: string) => {
 		writtenHeaders[filePath] = true;
 
 		const expectedDataSize = Math.round(
-			(totalNumberOfFrames / fps) *
+			(totalNumberOfFrames / fps - trimLeftOffset + trimRightOffset) *
 				asset.numberOfChannels *
 				DEFAULT_SAMPLE_RATE *
 				BYTES_PER_SAMPLE,
 		);
+
 		const expectedSize = 40 + expectedDataSize;
 
 		const {numberOfChannels} = asset;
@@ -138,26 +147,58 @@ export const makeInlineAudioMixing = (dir: string) => {
 		trimLeftOffset: number;
 		trimRightOffset: number;
 	}) => {
-		ensureAsset(asset, fps, totalNumberOfFrames);
+		ensureAsset({
+			asset,
+			fps,
+			totalNumberOfFrames,
+			trimLeftOffset,
+			trimRightOffset,
+		});
 		const filePath = getFilePath(asset);
 		const fileDescriptor = openFiles[filePath];
 
-		const arr = new Int16Array(asset.audio);
-		console.log({
-			trimLeftOffset,
-			trimRightOffset,
-			firstFrame,
-			totalNumberOfFrames,
-			a: asset.frame,
-		});
+		let arr = new Int16Array(asset.audio);
+		const isFirst = asset.frame === firstFrame;
+		const isLast = asset.frame === totalNumberOfFrames + firstFrame - 1;
+		const samplesToShaveFromStart = trimLeftOffset * DEFAULT_SAMPLE_RATE;
+		const samplesToShaveFromEnd = trimRightOffset * DEFAULT_SAMPLE_RATE;
+		if (
+			Math.abs(Math.round(samplesToShaveFromEnd) - samplesToShaveFromEnd) >
+			0.00000001
+		) {
+			throw new Error(
+				'samplesToShaveFromEnd should be approximately an integer',
+			);
+		}
+
+		if (
+			Math.abs(Math.round(samplesToShaveFromStart) - samplesToShaveFromStart) >
+			0.00000001
+		) {
+			throw new Error(
+				'samplesToShaveFromStart should be approximately an integer',
+			);
+		}
+
+		if (isFirst) {
+			arr = arr.slice(
+				Math.round(samplesToShaveFromStart) * asset.numberOfChannels,
+			);
+		}
+
+		if (isLast) {
+			arr = arr.slice(
+				0,
+				arr.length + Math.round(samplesToShaveFromEnd) * asset.numberOfChannels,
+			);
+		}
+
 		const position = Math.round(
-			((asset.frame - firstFrame) / fps) *
+			((asset.frame - firstFrame) / fps - (isFirst ? 0 : trimLeftOffset)) *
 				asset.numberOfChannels *
 				DEFAULT_SAMPLE_RATE *
 				BYTES_PER_SAMPLE,
 		);
-
-		console.log({position});
 
 		writeSync(
 			// fs
