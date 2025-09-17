@@ -129,33 +129,18 @@ export class MediaPlayer {
 
 			this.initialized = true;
 
-			if (!this.canvasSink) {
-				throw new Error('No canvas sink found');
+			await this.startVideoIterator(startTime);
+
+			if (this.audioSink) {
+				this.audioBufferIterator = this.audioSink.buffers(startTime);
+				this.runAudioIterator();
 			}
 
-			try {
-				const tempIterator = this.canvasSink.canvases(startTime);
-				const firstFrame = (await tempIterator.next()).value;
-
-				if (firstFrame) {
-					this.context.drawImage(firstFrame.canvas, 0, 0);
-					Log.trace(
-						this.logLevel,
-						`[MediaPlayer] Drew initial frame at timestamp ${firstFrame.timestamp.toFixed(3)}s`,
-					);
-				}
-
-				await tempIterator.return();
-			} catch (error) {
-				Log.error(
-					'[MediaPlayer] Failed to draw initial frame during initialization',
-					error,
-				);
-			}
+			this.startRenderLoop();
 
 			Log.trace(
 				this.logLevel,
-				`[MediaPlayer] Initialized successfully, duration: ${this.totalDuration}s`,
+				`[MediaPlayer] Initialized successfully with iterators started, duration: ${this.totalDuration}s`,
 			);
 		} catch (error) {
 			Log.error('[MediaPlayer] Failed to initialize', error);
