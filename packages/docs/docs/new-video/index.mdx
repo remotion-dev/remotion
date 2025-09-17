@@ -5,7 +5,7 @@ crumb: 'API'
 ---
 
 :::warning
-**Very experimental**: This component is in a very early stage and **slower** than OffthreadVideo.  
+**Very experimental**: This component is in a very early stage and does not support some basic features such as volume or playback rate or CSS styling.
 The current focus is on correctness, not on performance.
 
 We recommend that you use [`<OffthreadVideo/>`](/docs/offthreadvideo) for now.
@@ -49,7 +49,7 @@ export const MyComposition = () => {
 
 The URL of the video to be rendered. Can be a remote URL or a local file referenced with [`staticFile()`](/docs/staticfile).
 
-### `trimBefore?`<AvailableFrom v="4.0.319"/>
+### `trimBefore?`
 
 Will remove a portion of the video at the beginning (left side).
 
@@ -76,107 +76,29 @@ export const MyComposition = () => {
 };
 ```
 
-### `trimAfter?`<AvailableFrom v="4.0.319"/>
+### `trimAfter?`
 
 Removes a portion of the video at the end (right side). See [`trimBefore`](/docs/video#trimbefore) for an explanation.
 
 ### `volume?`
 
-Allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/audio/volume) guide to learn how to use it.
+**Currently not supported!**
 
-```tsx twoslash title="Example using static volume"
-import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_NewVideo as NewVideo} from '@remotion/video';
+### `loopVolumeCurveBehavior?`
 
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <NewVideo volume={0.5} src={staticFile('video.webm')} />
-    </AbsoluteFill>
-  );
-};
-```
+**Currently not supported!**
 
-```tsx twoslash title="Example of a ramp up over 100 frames"
-import {AbsoluteFill, interpolate, staticFile} from 'remotion';
-import {experimental_NewVideo as NewVideo} from '@remotion/video';
-
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <NewVideo volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('video.webm')} />
-    </AbsoluteFill>
-  );
-};
-```
-
-By default, volumes between 0 and 1 are supported, where in iOS Safari, the volume is always 1.  
-See [Volume Limitations](/docs/audio/volume#limitations) for more information.
-
-### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.142" />
-
-Controls the `frame` which is returned when using the [`volume`](#volume) callback function and wrapping `OffthreadVideo` in a [`<Loop>`](/docs/loop).
-
-Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
-
-### `style?`
-
-You can pass any style you can pass to a native HTML element. Keep in mind that during rendering, `<NewVideo>` renders a `canvas` tag, but a `<video>` tag is used during preview.
-
-```tsx twoslash
-import {AbsoluteFill, Img, staticFile} from 'remotion';
-
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Img src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
-    </AbsoluteFill>
-  );
-};
-```
-
-### `name?`<AvailableFrom v="4.0.71"/>
+### `name?`
 
 A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
 
-### `toneFrequency?`<AvailableFrom v="4.0.47"/>
-
-Adjust the pitch of the audio - will only be applied during rendering.
-
-Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
-
-A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
-
 ### `onError?`
 
-Handle an error playing the video. From v3.3.89, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
+**Currently not supported!**
 
-### `playbackRate?`<AvailableFrom v="2.2.0" />
+### `playbackRate?`
 
-Controls the speed of the video. `1` is the default and means regular speed, `0.5` slows down the video so it's twice as long and `2` speeds up the video so it's twice as fast.
-
-While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
-
-```tsx twoslash title="Example of a video playing twice as fast"
-import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_NewVideo as NewVideo} from '@remotion/video';
-
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <NewVideo playbackRate={2} src={staticFile('video.webm')} />
-    </AbsoluteFill>
-  );
-};
-```
-
-:::note
-Playing a video in reverse is not supported.
-:::
+**Currently not supported!**
 
 ### `muted?`
 
@@ -195,87 +117,46 @@ export const MyComposition = () => {
 };
 ```
 
-### `acceptableTimeShiftInSeconds?`<AvailableFrom v="3.2.42" />
+### `acceptableTimeShiftInSeconds?`
 
-In the [Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
+**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
 
-### `toneFrequency?`<AvailableFrom v="4.0.47"/>
-
-Adjust the pitch of the audio - will only be applied during rendering.
-
-Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
-
-A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
-
-### `audioStreamIndex?`<AvailableFrom v="4.0.340" />
-
-Select the audio stream to use. The default is `0`.
-
-```tsx twoslash
-import {AbsoluteFill, Audio} from 'remotion';
-
-// ---cut---
-export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Audio audioStreamIndex={1} src={'https://parser.media/multichannel-audio.mov'} />
-    </AbsoluteFill>
-  );
-};
-```
-
-:::note
-This prop only works during rendering.  
-Browsers do not support selecting the audio track without enabling experimental flags.
-
-Not to be confused with audio channels. A video can have multiple audio streams, each stream can have multiple channels.  
-Multiple audio streams can be used for example for adding multiple languages to a video.
-
-Audio streams are zero-indexed.
-:::
-
-### `pauseWhenBuffering?`<AvailableFrom v="4.0.111"/>
+### `pauseWhenBuffering?`
 
 If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
 
-### `showInTimeline?`<AvailableFrom v="4.0.122"/>
+### `showInTimeline?`
 
 If set to `false`, no layer will be shown in the timeline of the Remotion Studio. The default is `true`.
 
-### `delayRenderTimeoutInMilliseconds?`<AvailableFrom v="4.0.150" />
+### `delayRenderTimeoutInMilliseconds?`
 
 Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delayRender()`](/docs/delay-render) call that this component makes.
 
-### `delayRenderRetries?`<AvailableFrom v="4.0.178" />
+### `delayRenderRetries?`
 
 Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.
 
-### `onAutoPlayError?`<AvailableFrom v="4.0.187" />
+### `onAutoPlayError?`
 
-A callback function that gets called when the video fails to play due to autoplay restrictions.  
-If you don't pass a callback, the video will be muted and be retried once.  
-This prop is useful if you want to handle the error yourself, e.g. for pausing the Player.  
-Read more here about [autoplay restrictions](/docs/player/autoplay).
+**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
 
-### `onVideoFrame?`<AvailableFrom v="4.0.190" />
+### `onVideoFrame?`
 
 A callback function that gets called when a frame is extracted from the video.  
 Useful for [video manipulation](/docs/video-manipulation).  
-The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object.  
-During preview, this is a `HTMLVideoElement` object, during rendering, it is an `HTMLImageElement`.
+The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object, more specifically, either an `ImageBitmap` or a `VideoFrame`.
 
 ### `crossOrigin?`<AvailableFrom v="4.0.190" />
 
-Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-crossorigin) attribute of the `<video>` element.  
-One of `"anonymous"`, `"use-credentials"` or `undefined`.  
-Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
+**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
 
 ### `useWebAudioApi?`<AvailableFrom v="4.0.306" />
 
-Enable the [Web Audio API](/docs/audio/volume#limitations) for the video tag.
+**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
 
 ## See also
 
-- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/video/src/video.tsx)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/video/src/new-video.tsx)
 - [`<Video />`](/docs/video)
 - [`<OffthreadVideo>`](/docs/offthreadvideo)

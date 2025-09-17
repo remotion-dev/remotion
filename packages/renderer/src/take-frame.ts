@@ -1,6 +1,4 @@
-import type {TRenderAsset} from 'remotion/no-react';
 import type {Page} from './browser/BrowserPage';
-import {collectAssets} from './collect-assets';
 import type {StillImageFormat, VideoImageFormat} from './image-format';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {screenshot} from './puppeteer-screenshot';
@@ -9,7 +7,6 @@ export const takeFrame = async ({
 	freePage,
 	imageFormat,
 	jpegQuality,
-	frame,
 	width,
 	height,
 	output,
@@ -20,22 +17,15 @@ export const takeFrame = async ({
 	freePage: Page;
 	imageFormat: VideoImageFormat | StillImageFormat;
 	jpegQuality: number | undefined;
-	frame: number;
 	height: number;
 	width: number;
 	output: string | null;
 	scale: number;
 	wantsBuffer: boolean;
 	timeoutInMilliseconds: number;
-}): Promise<{buffer: Buffer | null; collectedAssets: TRenderAsset[]}> => {
-	const collectedAssets = await collectAssets({
-		frame,
-		freePage,
-		timeoutInMilliseconds,
-	});
-
+}): Promise<Buffer | null> => {
 	if (imageFormat === 'none') {
-		return {buffer: null, collectedAssets};
+		return null;
 	}
 
 	if (
@@ -75,5 +65,5 @@ export const takeFrame = async ({
 		scale,
 	});
 
-	return {buffer: buf, collectedAssets};
+	return buf;
 };

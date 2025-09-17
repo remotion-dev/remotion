@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import type {AudioOrVideoAsset, VideoConfig} from 'remotion/no-react';
+import type {
+	AudioOrVideoAsset,
+	InlineAudioAsset,
+	VideoConfig,
+} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
@@ -146,6 +150,7 @@ export type FrameAndAssets = {
 	frame: number;
 	audioAndVideoAssets: AudioOrVideoAsset[];
 	artifactAssets: ArtifactWithoutContent[];
+	inlineAudioAssets: InlineAudioAsset[];
 };
 
 export type RenderFramesOptions = {
@@ -401,6 +406,9 @@ const innerRenderFrames = async ({
 				onFrameUpdate,
 				nextFrameToRender,
 				imageSequencePattern: pattern,
+				trimLeftOffset,
+				trimRightOffset,
+				allFramesAndExtraFrames,
 			});
 		}),
 	);

@@ -13,6 +13,7 @@ import {resolveAssetSrc} from './resolve-asset-src';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import type {ProcessedTrack} from './stringify-ffmpeg-filter';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
+import {truthy} from './truthy';
 
 type Options = {
 	outName: string;
@@ -88,11 +89,13 @@ const preprocessAudioTrackUnlimited = async ({
 		['-i', resolveAssetSrc(asset.src)],
 		audioStreamIndex ? ['-map', `0:a:${audioStreamIndex}`] : [],
 		['-ac', '2'],
-		['-filter_script:a', file],
+		file ? ['-filter_script:a', file] : null,
 		['-c:a', 'pcm_s16le'],
 		['-ar', String(DEFAULT_SAMPLE_RATE)],
 		['-y', outName],
-	].flat(2);
+	]
+		.flat(2)
+		.filter(truthy);
 
 	Log.verbose(
 		{indent, logLevel},

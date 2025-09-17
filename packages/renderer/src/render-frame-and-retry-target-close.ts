@@ -51,6 +51,9 @@ export const renderFrameAndRetryTargetClose = async ({
 	onFrameUpdate,
 	nextFrameToRender,
 	imageSequencePattern,
+	trimLeftOffset,
+	trimRightOffset,
+	allFramesAndExtraFrames,
 }: {
 	retriesLeft: number;
 	attempt: number;
@@ -90,6 +93,9 @@ export const renderFrameAndRetryTargetClose = async ({
 		  ) => void);
 	nextFrameToRender: NextFrameToRender;
 	imageSequencePattern: string | null;
+	trimLeftOffset: number;
+	trimRightOffset: number;
+	allFramesAndExtraFrames: number[];
 }): Promise<void> => {
 	const currentPool = await poolPromise;
 
@@ -104,6 +110,9 @@ export const renderFrameAndRetryTargetClose = async ({
 	try {
 		await Promise.race([
 			renderFrame({
+				trimLeftOffset,
+				trimRightOffset,
+				allFramesAndExtraFrames,
 				attempt,
 				assets,
 				binariesDirectory,
@@ -215,6 +224,9 @@ export const renderFrameAndRetryTargetClose = async ({
 				onFrameUpdate,
 				nextFrameToRender,
 				imageSequencePattern,
+				trimLeftOffset,
+				trimRightOffset,
+				allFramesAndExtraFrames,
 			});
 		}
 
@@ -269,6 +281,9 @@ export const renderFrameAndRetryTargetClose = async ({
 			onFrameUpdate,
 			nextFrameToRender,
 			imageSequencePattern,
+			trimLeftOffset,
+			trimRightOffset,
+			allFramesAndExtraFrames,
 		});
 	}
 };
