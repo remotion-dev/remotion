@@ -143,6 +143,8 @@ export type InlineAudioAsset = {
 	frame: number;
 	sampleRate: number;
 	numberOfChannels: number;
+	timestamp: number;
+	duration: number;
 };
 
 type DiscriminatedArtifact =

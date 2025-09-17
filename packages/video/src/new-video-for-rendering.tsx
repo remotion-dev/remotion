@@ -116,6 +116,8 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 						sampleRate: audio.sampleRate,
 						numberOfChannels: audio.numberOfChannels,
 						frame: absoluteFrame,
+						timestamp: audio.timestamp,
+						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
 					});
 				}
 

@@ -65,16 +65,12 @@ export const convertAudioData = ({
 		newNumberOfFrames === frameCount &&
 		targetNumberOfChannels === srcNumberOfChannels
 	) {
-		let offset = 0;
-		data.set(srcChannels, offset);
-		offset += srcChannels.length;
-
 		return {
-			data,
+			data: srcChannels,
 			numberOfChannels: targetNumberOfChannels,
 			numberOfFrames: newNumberOfFrames,
 			sampleRate: newSampleRate,
-			timestamp: audioData.timestamp,
+			timestamp: audioData.timestamp + trimStartInSeconds * 1_000_000,
 		};
 	}
 
@@ -87,12 +83,12 @@ export const convertAudioData = ({
 	});
 
 	const newAudioData = {
-		data,
+		data: srcChannels,
 		format: FORMAT,
 		numberOfChannels: targetNumberOfChannels,
 		numberOfFrames: newNumberOfFrames,
 		sampleRate: newSampleRate,
-		timestamp: audioData.timestamp,
+		timestamp: audioData.timestamp + trimStartInSeconds * 1_000_000,
 	};
 
 	return newAudioData;
