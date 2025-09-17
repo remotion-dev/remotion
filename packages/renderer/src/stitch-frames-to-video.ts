@@ -333,6 +333,7 @@ const innerStitchFramesToVideo = async (
 			}
 		});
 		deleteDirectory(assetsInfo.downloadMap.stitchFrames);
+		assetsInfo.downloadMap.allowCleanup();
 
 		return Promise.resolve(file);
 	}
@@ -446,11 +447,9 @@ const innerStitchFramesToVideo = async (
 		rmSync(audio);
 	}
 
-	return new Promise<Buffer | null>((resolve, reject) => {
+	const result = await new Promise<Buffer | null>((resolve, reject) => {
 		task.once('close', (code, signal) => {
 			if (code === 0) {
-				assetsInfo.downloadMap.allowCleanup();
-
 				if (tempFile === null) {
 					cleanDownloadMap(assetsInfo.downloadMap);
 					return resolve(null);
@@ -478,6 +477,9 @@ const innerStitchFramesToVideo = async (
 			}
 		});
 	});
+	assetsInfo.downloadMap.allowCleanup();
+
+	return result;
 };
 
 export const internalStitchFramesToVideo = (
