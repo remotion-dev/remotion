@@ -42,13 +42,11 @@ export const extractAudio = async ({
 	src,
 	timeInSeconds,
 	durationInSeconds,
-	fps,
 }: {
 	src: string;
 	timeInSeconds: number;
 	logLevel: LogLevel;
 	durationInSeconds: number;
-	fps: number;
 }): Promise<PcmS16AudioData | null> => {
 	if (!sinkPromise[src]) {
 		sinkPromise[src] = getSinks(src);
