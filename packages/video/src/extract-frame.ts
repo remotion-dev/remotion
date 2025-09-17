@@ -52,7 +52,7 @@ export const extractAudio = async ({
 		sinkPromise[src] = getSinks(src);
 	}
 
-	const {audio, actualMatroskaTimestamps} = await sinkPromise[src];
+	const {audio, actualMatroskaTimestamps, isMatroska} = await sinkPromise[src];
 
 	if (audio === null) {
 		return null;
@@ -66,8 +66,12 @@ export const extractAudio = async ({
 	// and then discard it,
 	const extraThreshold = 1 / fps;
 
+	// Matroska timestamps are not accurate unless we start from the beginning
+	// So for matroska, we need to decode all samples :(
+
+	// https://github.com/Vanilagy/mediabunny/issues/105
 	const sampleIterator = audio.sampleSink.samples(
-		timeInSeconds - extraThreshold,
+		isMatroska ? 0 : timeInSeconds - extraThreshold,
 		timeInSeconds + durationInSeconds + extraThreshold,
 	);
 	const samples: AudioSample[] = [];

@@ -38,6 +38,7 @@ export const getSinks = async (src: string) => {
 				}
 			: null,
 		actualMatroskaTimestamps: rememberActualMatroskaTimestamps(isMatroska),
+		isMatroska,
 	};
 };
 
