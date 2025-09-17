@@ -4,7 +4,7 @@
 	},
 	"name": "docs",
 	"private": true,
-	"version": "4.0.347",
+	"version": "4.0.348",
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",
 		"docusaurus": "docusaurus",
