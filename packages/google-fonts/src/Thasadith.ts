@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Thasadith',
 	importName: 'Thasadith',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Thasadith:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		thai: 'U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC',
@@ -17,42 +17,42 @@ export const getInfo = () => ({
 	fonts: {
 		italic: {
 			'400': {
-				thai: 'https://fonts.gstatic.com/s/thasadith/v12/mtG-4_1TIqPYrd_f5R1osnMD-CGOFw.woff2',
+				thai: 'https://fonts.gstatic.com/s/thasadith/v13/mtG-4_1TIqPYrd_f5R1osnMD-CGOFw.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/thasadith/v12/mtG-4_1TIqPYrd_f5R1osnMY-CGOFw.woff2',
+					'https://fonts.gstatic.com/s/thasadith/v13/mtG-4_1TIqPYrd_f5R1osnMY-CGOFw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/thasadith/v12/mtG-4_1TIqPYrd_f5R1osnMZ-CGOFw.woff2',
+					'https://fonts.gstatic.com/s/thasadith/v13/mtG-4_1TIqPYrd_f5R1osnMZ-CGOFw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/thasadith/v12/mtG-4_1TIqPYrd_f5R1osnMX-CE.woff2',
+					'https://fonts.gstatic.com/s/thasadith/v13/mtG-4_1TIqPYrd_f5R1osnMX-CE.woff2',
 			},
 			'700': {
-				thai: 'https://fonts.gstatic.com/s/thasadith/v12/mtGj4_1TIqPYrd_f5R1osnus3TSlNkt98w.woff2',
+				thai: 'https://fonts.gstatic.com/s/thasadith/v13/mtGj4_1TIqPYrd_f5R1osnus3TSlNkt98w.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/thasadith/v12/mtGj4_1TIqPYrd_f5R1osnus3TS-Nkt98w.woff2',
+					'https://fonts.gstatic.com/s/thasadith/v13/mtGj4_1TIqPYrd_f5R1osnus3TS-Nkt98w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/thasadith/v12/mtGj4_1TIqPYrd_f5R1osnus3TS_Nkt98w.woff2',
+					'https://fonts.gstatic.com/s/thasadith/v13/mtGj4_1TIqPYrd_f5R1osnus3TS_Nkt98w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/thasadith/v12/mtGj4_1TIqPYrd_f5R1osnus3TSxNks.woff2',
+					'https://fonts.gstatic.com/s/thasadith/v13/mtGj4_1TIqPYrd_f5R1osnus3TSxNks.woff2',
 			},
 		},
 		normal: {
 			'400': {
-				thai: 'https://fonts.gstatic.com/s/thasadith/v12/mtG44_1TIqPYrd_f5R1oo0MV4CU.woff2',
+				thai: 'https://fonts.gstatic.com/s/thasadith/v13/mtG44_1TIqPYrd_f5R1oo0MV4CU.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/thasadith/v12/mtG44_1TIqPYrd_f5R1ouEMV4CU.woff2',
+					'https://fonts.gstatic.com/s/thasadith/v13/mtG44_1TIqPYrd_f5R1ouEMV4CU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/thasadith/v12/mtG44_1TIqPYrd_f5R1ouUMV4CU.woff2',
+					'https://fonts.gstatic.com/s/thasadith/v13/mtG44_1TIqPYrd_f5R1ouUMV4CU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/thasadith/v12/mtG44_1TIqPYrd_f5R1ot0MV.woff2',
+					'https://fonts.gstatic.com/s/thasadith/v13/mtG44_1TIqPYrd_f5R1ot0MV.woff2',
 			},
 			'700': {
-				thai: 'https://fonts.gstatic.com/s/thasadith/v12/mtG94_1TIqPYrd_f5R1gDGYAywSzLk8.woff2',
+				thai: 'https://fonts.gstatic.com/s/thasadith/v13/mtG94_1TIqPYrd_f5R1gDGYAywSzLk8.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/thasadith/v12/mtG94_1TIqPYrd_f5R1gDGYA0ASzLk8.woff2',
+					'https://fonts.gstatic.com/s/thasadith/v13/mtG94_1TIqPYrd_f5R1gDGYA0ASzLk8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/thasadith/v12/mtG94_1TIqPYrd_f5R1gDGYA0QSzLk8.woff2',
+					'https://fonts.gstatic.com/s/thasadith/v13/mtG94_1TIqPYrd_f5R1gDGYA0QSzLk8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/thasadith/v12/mtG94_1TIqPYrd_f5R1gDGYA3wSz.woff2',
+					'https://fonts.gstatic.com/s/thasadith/v13/mtG94_1TIqPYrd_f5R1gDGYA3wSz.woff2',
 			},
 		},
 	},

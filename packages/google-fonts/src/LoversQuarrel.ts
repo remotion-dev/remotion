@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lovers Quarrel',
 	importName: 'LoversQuarrel',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Lovers+Quarrel:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/loversquarrel/v24/Yq6N-LSKXTL-5bCy8ksBzpQ_-wAkabt-6g.woff2',
+					'https://fonts.gstatic.com/s/loversquarrel/v25/Yq6N-LSKXTL-5bCy8ksBzpQ_-wAkabt-6g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/loversquarrel/v24/Yq6N-LSKXTL-5bCy8ksBzpQ_-wAlabt-6g.woff2',
+					'https://fonts.gstatic.com/s/loversquarrel/v25/Yq6N-LSKXTL-5bCy8ksBzpQ_-wAlabt-6g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/loversquarrel/v24/Yq6N-LSKXTL-5bCy8ksBzpQ_-wArabs.woff2',
+					'https://fonts.gstatic.com/s/loversquarrel/v25/Yq6N-LSKXTL-5bCy8ksBzpQ_-wArabs.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Suranna',
 	importName: 'Suranna',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Suranna:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/suranna/v14/gokuH6ztGkFjWe58hA9TTlKm.woff2',
+					'https://fonts.gstatic.com/s/suranna/v15/gokuH6ztGkFjWe58hA9TTlKm.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/suranna/v14/gokuH6ztGkFjWe58hBNTTg.woff2',
+					'https://fonts.gstatic.com/s/suranna/v15/gokuH6ztGkFjWe58hBNTTg.woff2',
 			},
 		},
 	},

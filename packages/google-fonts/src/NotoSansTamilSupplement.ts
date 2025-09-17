@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Tamil Supplement',
 	importName: 'NotoSansTamilSupplement',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil+Supplement:ital,wght@0,400',
 	unicodeRanges: {
 		'tamil-supplement': 'U+11FC0-11FFF',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'tamil-supplement':
-					'https://fonts.gstatic.com/s/notosanstamilsupplement/v21/DdTz78kEtnooLS5rXF1DaruiCd_bFp_Ph4sGcn7ax8tqKscpQ7Q.woff2',
+					'https://fonts.gstatic.com/s/notosanstamilsupplement/v22/DdTz78kEtnooLS5rXF1DaruiCd_bFp_Ph4sGcn7ax8tqKscpQ7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstamilsupplement/v21/DdTz78kEtnooLS5rXF1DaruiCd_bFp_Ph4sGcn7ax8vlC-IUeg.woff2',
+					'https://fonts.gstatic.com/s/notosanstamilsupplement/v22/DdTz78kEtnooLS5rXF1DaruiCd_bFp_Ph4sGcn7ax8vlC-IUeg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstamilsupplement/v21/DdTz78kEtnooLS5rXF1DaruiCd_bFp_Ph4sGcn7ax8vrC-I.woff2',
+					'https://fonts.gstatic.com/s/notosanstamilsupplement/v22/DdTz78kEtnooLS5rXF1DaruiCd_bFp_Ph4sGcn7ax8vrC-I.woff2',
 			},
 		},
 	},

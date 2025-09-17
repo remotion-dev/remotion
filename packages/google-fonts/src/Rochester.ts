@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rochester',
 	importName: 'Rochester',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Rochester:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/rochester/v23/6ae-4KCqVa4Zy6Fif-UC2FHX.woff2',
+					'https://fonts.gstatic.com/s/rochester/v24/6ae-4KCqVa4Zy6Fif-UC2FHX.woff2',
 			},
 		},
 	},

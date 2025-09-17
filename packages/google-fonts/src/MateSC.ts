@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mate SC',
 	importName: 'MateSC',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Mate+SC:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/matesc/v22/-nF8OGQ1-uoVr2wK-izT9qOk.woff2',
+					'https://fonts.gstatic.com/s/matesc/v23/-nF8OGQ1-uoVr2wK-izT9qOk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/matesc/v22/-nF8OGQ1-uoVr2wK-iLT9g.woff2',
+					'https://fonts.gstatic.com/s/matesc/v23/-nF8OGQ1-uoVr2wK-iLT9g.woff2',
 			},
 		},
 	},

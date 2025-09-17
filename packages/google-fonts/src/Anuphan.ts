@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Anuphan',
 	importName: 'Anuphan',
-	version: 'v5',
+	version: 'v6',
 	url: 'https://fonts.googleapis.com/css2?family=Anuphan:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		thai: 'U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC',
@@ -17,67 +17,67 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'100': {
-				thai: 'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
+				thai: 'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWUDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWUDan29.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWQDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWQDan29.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWoDag.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWoDag.woff2',
 			},
 			'200': {
-				thai: 'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
+				thai: 'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWUDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWUDan29.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWQDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWQDan29.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWoDag.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWoDag.woff2',
 			},
 			'300': {
-				thai: 'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
+				thai: 'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWUDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWUDan29.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWQDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWQDan29.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWoDag.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWoDag.woff2',
 			},
 			'400': {
-				thai: 'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
+				thai: 'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWUDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWUDan29.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWQDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWQDan29.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWoDag.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWoDag.woff2',
 			},
 			'500': {
-				thai: 'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
+				thai: 'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWUDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWUDan29.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWQDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWQDan29.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWoDag.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWoDag.woff2',
 			},
 			'600': {
-				thai: 'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
+				thai: 'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWUDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWUDan29.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWQDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWQDan29.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWoDag.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWoDag.woff2',
 			},
 			'700': {
-				thai: 'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
+				thai: 'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mX4Dan29.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWUDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWUDan29.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWQDan29.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWQDan29.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anuphan/v5/2sDeZGxYgY7LkLT0mWoDag.woff2',
+					'https://fonts.gstatic.com/s/anuphan/v6/2sDeZGxYgY7LkLT0mWoDag.woff2',
 			},
 		},
 	},

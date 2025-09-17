@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Dogra',
 	importName: 'NotoSerifDogra',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Dogra:ital,wght@0,400',
 	unicodeRanges: {
 		dogra:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				dogra:
-					'https://fonts.gstatic.com/s/notoserifdogra/v23/MQpP-XquKMC7ROPP3QOOlm7xPu3fK6ycBb7Kiw.woff2',
+					'https://fonts.gstatic.com/s/notoserifdogra/v24/MQpP-XquKMC7ROPP3QOOlm7xPu3fK6ycBb7Kiw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifdogra/v23/MQpP-XquKMC7ROPP3QOOlm7xPu3fKye9IIPz.woff2',
+					'https://fonts.gstatic.com/s/notoserifdogra/v24/MQpP-XquKMC7ROPP3QOOlm7xPu3fKye9IIPz.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifdogra/v23/MQpP-XquKMC7ROPP3QOOlm7xPu3fKym9IA.woff2',
+					'https://fonts.gstatic.com/s/notoserifdogra/v24/MQpP-XquKMC7ROPP3QOOlm7xPu3fKym9IA.woff2',
 			},
 		},
 	},

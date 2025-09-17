@@ -41,7 +41,6 @@ import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 } from './get-preview-dom-element.js';
-import type {RemotionEnvironment} from './get-remotion-environment.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
@@ -54,6 +53,8 @@ import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
+import type {RemotionEnvironment} from './remotion-environment-context.js';
+import {RemotionEnvironmentContext} from './remotion-environment-context.js';
 import {RemotionRoot} from './RemotionRoot.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
@@ -111,6 +112,7 @@ import {
 	useMediaVolumeState,
 } from './volume-position-state.js';
 import {evaluateVolume} from './volume-prop.js';
+import {warnAboutTooHighVolume} from './volume-safeguard.js';
 import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
 import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
 import {
@@ -203,6 +205,8 @@ export const Internals = {
 	playbackLogging,
 	timeValueRef,
 	compositionSelectorRef,
+	RemotionEnvironmentContext,
+	warnAboutTooHighVolume,
 } as const;
 
 export type {

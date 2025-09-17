@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Yezidi',
 	importName: 'NotoSerifYezidi',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Yezidi:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		yezidi: 'U+060C, U+061B, U+061F, U+0660-0669, U+06D4, U+10E80-10EBF',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				yezidi:
-					'https://fonts.gstatic.com/s/notoserifyezidi/v22/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGkKasc3GA.woff2',
+					'https://fonts.gstatic.com/s/notoserifyezidi/v23/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGkKasc3GA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifyezidi/v22/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGllasc3GA.woff2',
+					'https://fonts.gstatic.com/s/notoserifyezidi/v23/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGllasc3GA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifyezidi/v22/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGlrasc.woff2',
+					'https://fonts.gstatic.com/s/notoserifyezidi/v23/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGlrasc.woff2',
 			},
 			'500': {
 				yezidi:
-					'https://fonts.gstatic.com/s/notoserifyezidi/v22/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGkKasc3GA.woff2',
+					'https://fonts.gstatic.com/s/notoserifyezidi/v23/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGkKasc3GA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifyezidi/v22/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGllasc3GA.woff2',
+					'https://fonts.gstatic.com/s/notoserifyezidi/v23/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGllasc3GA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifyezidi/v22/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGlrasc.woff2',
+					'https://fonts.gstatic.com/s/notoserifyezidi/v23/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGlrasc.woff2',
 			},
 			'600': {
 				yezidi:
-					'https://fonts.gstatic.com/s/notoserifyezidi/v22/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGkKasc3GA.woff2',
+					'https://fonts.gstatic.com/s/notoserifyezidi/v23/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGkKasc3GA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifyezidi/v22/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGllasc3GA.woff2',
+					'https://fonts.gstatic.com/s/notoserifyezidi/v23/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGllasc3GA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifyezidi/v22/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGlrasc.woff2',
+					'https://fonts.gstatic.com/s/notoserifyezidi/v23/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGlrasc.woff2',
 			},
 			'700': {
 				yezidi:
-					'https://fonts.gstatic.com/s/notoserifyezidi/v22/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGkKasc3GA.woff2',
+					'https://fonts.gstatic.com/s/notoserifyezidi/v23/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGkKasc3GA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifyezidi/v22/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGllasc3GA.woff2',
+					'https://fonts.gstatic.com/s/notoserifyezidi/v23/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGllasc3GA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifyezidi/v22/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGlrasc.woff2',
+					'https://fonts.gstatic.com/s/notoserifyezidi/v23/XLY8IYr5bJNDGYxLBibeHZAn3B5KJGlrasc.woff2',
 			},
 		},
 	},

@@ -15,15 +15,16 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
-import {continueRender, delayRender} from '../delay-render.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {random} from '../random.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
+import {useDelayRender} from '../use-delay-render.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
+import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import {getMediaTime} from './get-current-time.js';
 import type {OnVideoFrame, RemotionVideoProps} from './props';
 import {seekToTimeMultipleUntilRight} from './seek-until-right.js';
@@ -67,6 +68,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const environment = useRemotionEnvironment();
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
+	const {delayRender, continueRender} = useDelayRender();
 
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
@@ -95,6 +97,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		frame: volumePropsFrame,
 		mediaVolume: 1,
 	});
+
+	warnAboutTooHighVolume(volume);
 
 	useEffect(() => {
 		if (!props.src) {
@@ -247,6 +251,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		delayRenderTimeoutInMilliseconds,
 		logLevel,
 		mountTime,
+		continueRender,
+		delayRender,
 	]);
 
 	const {src} = props;
@@ -288,7 +294,14 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				current?.removeEventListener('loadedmetadata', didLoad);
 				continueRender(newHandle);
 			};
-		}, [src, onDuration, delayRenderRetries, delayRenderTimeoutInMilliseconds]);
+		}, [
+			src,
+			onDuration,
+			delayRenderRetries,
+			delayRenderTimeoutInMilliseconds,
+			continueRender,
+			delayRender,
+		]);
 	}
 
 	return <video ref={videoRef} disableRemotePlayback {...props} />;

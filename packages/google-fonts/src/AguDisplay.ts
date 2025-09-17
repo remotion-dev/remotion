@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Agu Display',
 	importName: 'AguDisplay',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Agu+Display:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/agudisplay/v2/iJWXBXKbbi6BeMC1_RX7qF_V5E7aciGRRWUwX4fdmaVKA6w.woff2',
+					'https://fonts.gstatic.com/s/agudisplay/v3/iJWXBXKbbi6BeMC1_RX7qF_V5E7aciGRRWUwX4fdmaVKA6w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/agudisplay/v2/iJWXBXKbbi6BeMC1_RX7qF_V5E7aciGRRWUwX4fdmKVKA6w.woff2',
+					'https://fonts.gstatic.com/s/agudisplay/v3/iJWXBXKbbi6BeMC1_RX7qF_V5E7aciGRRWUwX4fdmKVKA6w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/agudisplay/v2/iJWXBXKbbi6BeMC1_RX7qF_V5E7aciGRRWUwX4fdlqVK.woff2',
+					'https://fonts.gstatic.com/s/agudisplay/v3/iJWXBXKbbi6BeMC1_RX7qF_V5E7aciGRRWUwX4fdlqVK.woff2',
 			},
 		},
 	},

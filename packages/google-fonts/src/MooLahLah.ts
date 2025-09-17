@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Moo Lah Lah',
 	importName: 'MooLahLah',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Moo+Lah+Lah:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/moolahlah/v7/dg4h_p_opKZOA0w1AYcm56wlawcegg.woff2',
+					'https://fonts.gstatic.com/s/moolahlah/v8/dg4h_p_opKZOA0w1AYcm56wlawcegg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/moolahlah/v7/dg4h_p_opKZOA0w1AYcm56wkawcegg.woff2',
+					'https://fonts.gstatic.com/s/moolahlah/v8/dg4h_p_opKZOA0w1AYcm56wkawcegg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/moolahlah/v7/dg4h_p_opKZOA0w1AYcm56wqawc.woff2',
+					'https://fonts.gstatic.com/s/moolahlah/v8/dg4h_p_opKZOA0w1AYcm56wqawc.woff2',
 			},
 		},
 	},

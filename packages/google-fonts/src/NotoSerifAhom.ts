@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Ahom',
 	importName: 'NotoSerifAhom',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Ahom:ital,wght@0,400',
 	unicodeRanges: {
 		ahom: 'U+25CC, U+11700-1174F',
@@ -15,11 +15,11 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				ahom: 'https://fonts.gstatic.com/s/notoserifahom/v20/FeVIS0hfp6cprmEUffAW_fUL_ANOY80PMWGp.woff2',
+				ahom: 'https://fonts.gstatic.com/s/notoserifahom/v21/FeVIS0hfp6cprmEUffAW_fUL_ANOY80PMWGp.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifahom/v20/FeVIS0hfp6cprmEUffAW_fUL_ANOy-wqDFg.woff2',
+					'https://fonts.gstatic.com/s/notoserifahom/v21/FeVIS0hfp6cprmEUffAW_fUL_ANOy-wqDFg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifahom/v20/FeVIS0hfp6cprmEUffAW_fUL_ANOxewq.woff2',
+					'https://fonts.gstatic.com/s/notoserifahom/v21/FeVIS0hfp6cprmEUffAW_fUL_ANOxewq.woff2',
 			},
 		},
 	},

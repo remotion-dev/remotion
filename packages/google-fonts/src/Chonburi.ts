@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Chonburi',
 	importName: 'Chonburi',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Chonburi:ital,wght@0,400',
 	unicodeRanges: {
 		thai: 'U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC',
@@ -17,13 +17,13 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				thai: 'https://fonts.gstatic.com/s/chonburi/v13/8AtqGs-wOpGRTBq66LWJHLzriA.woff2',
+				thai: 'https://fonts.gstatic.com/s/chonburi/v14/8AtqGs-wOpGRTBq66LWJHLzriA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/chonburi/v13/8AtqGs-wOpGRTBq66LWSHLzriA.woff2',
+					'https://fonts.gstatic.com/s/chonburi/v14/8AtqGs-wOpGRTBq66LWSHLzriA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/chonburi/v13/8AtqGs-wOpGRTBq66LWTHLzriA.woff2',
+					'https://fonts.gstatic.com/s/chonburi/v14/8AtqGs-wOpGRTBq66LWTHLzriA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/chonburi/v13/8AtqGs-wOpGRTBq66LWdHLw.woff2',
+					'https://fonts.gstatic.com/s/chonburi/v14/8AtqGs-wOpGRTBq66LWdHLw.woff2',
 			},
 		},
 	},

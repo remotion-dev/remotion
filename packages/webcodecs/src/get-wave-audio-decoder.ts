@@ -5,41 +5,35 @@ import type {
 } from './create-audio-decoder';
 import type {IoSynchronizer} from './io-manager/io-synchronizer';
 
-const getBytesPerSample = (sampleFormat: AudioSampleFormat) => {
+const getBytesPerSample = (sampleFormat: 's16' | 's24') => {
 	if (sampleFormat === 's16') {
 		return 2;
 	}
 
-	if (sampleFormat === 's32') {
+	if (sampleFormat === 's24') {
 		return 4;
-	}
-
-	if (sampleFormat === 'f32') {
-		return 4;
-	}
-
-	if (sampleFormat === 'u8') {
-		return 1;
-	}
-
-	if (sampleFormat === 'f32-planar') {
-		return 4;
-	}
-
-	if (sampleFormat === 's16-planar') {
-		return 2;
-	}
-
-	if (sampleFormat === 's32-planar') {
-		return 4;
-	}
-
-	if (sampleFormat === 'u8-planar') {
-		return 1;
 	}
 
 	throw new Error(`Unsupported sample format: ${sampleFormat satisfies never}`);
 };
+
+function uint8_24le_to_uint32(u8: Uint8Array) {
+	if (u8.length % 3 !== 0) {
+		throw new Error('Input length must be a multiple of 3');
+	}
+
+	const count = u8.length / 3;
+	const out = new Uint32Array(count);
+	let j = 0;
+	for (let i = 0; i < count; i++) {
+		const b0 = u8[j++];
+		const b1 = u8[j++];
+		const b2 = u8[j++];
+		out[i] = (b0 | (b1 << 8) | (b2 << 16)) << 8;
+	}
+
+	return out;
+}
 
 const getAudioData = (
 	audioSample: EncodedAudioChunkInit | EncodedAudioChunk,
@@ -60,7 +54,7 @@ export const getWaveAudioDecoder = ({
 	ioSynchronizer,
 	onError,
 }: Pick<CreateAudioDecoderInit, 'onFrame' | 'config'> & {
-	sampleFormat: AudioSampleFormat;
+	sampleFormat: 's16' | 's24';
 	logLevel: MediaParserLogLevel;
 	ioSynchronizer: IoSynchronizer;
 	onError: (error: Error) => void;
@@ -69,14 +63,21 @@ export const getWaveAudioDecoder = ({
 		audioSample: EncodedAudioChunkInit | EncodedAudioChunk,
 	) => {
 		const bytesPerSample = getBytesPerSample(sampleFormat);
-		const data = getAudioData(audioSample);
+		const rawData = getAudioData(audioSample);
+
+		const data =
+			sampleFormat === 's24' && rawData instanceof Uint8Array
+				? uint8_24le_to_uint32(rawData)
+				: rawData;
+
+		const numberOfFrames =
+			data.byteLength / bytesPerSample / config.numberOfChannels;
 
 		const audioData = new AudioData({
 			data,
-			format: sampleFormat,
+			format: sampleFormat === 's16' ? 's16' : 's32',
 			numberOfChannels: config.numberOfChannels,
-			numberOfFrames:
-				data.byteLength / bytesPerSample / config.numberOfChannels,
+			numberOfFrames,
 			sampleRate: config.sampleRate,
 			timestamp: audioSample.timestamp,
 		});

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kristi',
 	importName: 'Kristi',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Kristi:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/kristi/v22/uK_y4ricdeU6zwdhDRcS.woff2',
+					'https://fonts.gstatic.com/s/kristi/v23/uK_y4ricdeU6zwdhDRcS.woff2',
 			},
 		},
 	},

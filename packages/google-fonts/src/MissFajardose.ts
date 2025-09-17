@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Miss Fajardose',
 	importName: 'MissFajardose',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Miss+Fajardose:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/missfajardose/v22/E21-_dn5gvrawDdPFVl-N0Ajb_qmUve5qw.woff2',
+					'https://fonts.gstatic.com/s/missfajardose/v23/E21-_dn5gvrawDdPFVl-N0Ajb_qmUve5qw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/missfajardose/v22/E21-_dn5gvrawDdPFVl-N0Ajb_qoUvc.woff2',
+					'https://fonts.gstatic.com/s/missfajardose/v23/E21-_dn5gvrawDdPFVl-N0Ajb_qoUvc.woff2',
 			},
 		},
 	},

@@ -229,7 +229,7 @@ export const stringifyFfmpegFilter = ({
 		filter:
 			'[0:a]' +
 			[
-				`aformat=sample_fmts=s32:sample_rates=${DEFAULT_SAMPLE_RATE}`,
+				`aformat=sample_fmts=s16:sample_rates=${DEFAULT_SAMPLE_RATE}`,
 				// The order matters here! For speed and correctness, we first trim the audio
 				...trimAndTempoFilter,
 				// The timings for volume must include whatever is in atrim, unless the volume

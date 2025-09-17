@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Brahmi',
 	importName: 'NotoSansBrahmi',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Brahmi:ital,wght@0,400',
 	unicodeRanges: {
 		brahmi: 'U+200C-200D, U+25CC, U+11000-1107F',
@@ -19,14 +19,14 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				brahmi:
-					'https://fonts.gstatic.com/s/notosansbrahmi/v19/vEFK2-VODB8RrNDvZSUmQQIIByV1woS_Wo7H.woff2',
-				math: 'https://fonts.gstatic.com/s/notosansbrahmi/v19/vEFK2-VODB8RrNDvZSUmQQIIByV1wqm_Wo7H.woff2',
+					'https://fonts.gstatic.com/s/notosansbrahmi/v20/vEFK2-VODB8RrNDvZSUmQQIIByV1woS_Wo7H.woff2',
+				math: 'https://fonts.gstatic.com/s/notosansbrahmi/v20/vEFK2-VODB8RrNDvZSUmQQIIByV1wqm_Wo7H.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notosansbrahmi/v19/vEFK2-VODB8RrNDvZSUmQQIIByV1wru_Wo7H.woff2',
+					'https://fonts.gstatic.com/s/notosansbrahmi/v20/vEFK2-VODB8RrNDvZSUmQQIIByV1wru_Wo7H.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbrahmi/v19/vEFK2-VODB8RrNDvZSUmQQIIByV1wtu_Wo7H.woff2',
+					'https://fonts.gstatic.com/s/notosansbrahmi/v20/vEFK2-VODB8RrNDvZSUmQQIIByV1wtu_Wo7H.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbrahmi/v19/vEFK2-VODB8RrNDvZSUmQQIIByV1wtW_Wg.woff2',
+					'https://fonts.gstatic.com/s/notosansbrahmi/v20/vEFK2-VODB8RrNDvZSUmQQIIByV1wtW_Wg.woff2',
 			},
 		},
 	},

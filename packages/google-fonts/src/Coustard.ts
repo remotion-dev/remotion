@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Coustard',
 	importName: 'Coustard',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Coustard:ital,wght@0,400;0,900',
 	unicodeRanges: {
 		latin:
@@ -13,11 +13,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/coustard/v16/3XFpErgg3YsZ5fqUU-UIt2Q.woff2',
+					'https://fonts.gstatic.com/s/coustard/v17/3XFpErgg3YsZ5fqUU-UIt2Q.woff2',
 			},
 			'900': {
 				latin:
-					'https://fonts.gstatic.com/s/coustard/v16/3XFuErgg3YsZ5fqUU-2LkHHhZfk.woff2',
+					'https://fonts.gstatic.com/s/coustard/v17/3XFuErgg3YsZ5fqUU-2LkHHhZfk.woff2',
 			},
 		},
 	},

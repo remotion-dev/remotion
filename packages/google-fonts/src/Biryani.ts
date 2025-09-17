@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Biryani',
 	importName: 'Biryani',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Biryani:ital,wght@0,200;0,300;0,400;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		devanagari:
@@ -17,59 +17,59 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				devanagari:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84YddYQyKTZYUtJ-.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84YddYQyKTZYUtJ-.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84YddYQyKTlYUtJ-.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84YddYQyKTlYUtJ-.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84YddYQyKTdYUg.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84YddYQyKTdYUg.woff2',
 			},
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84YddeAxKTZYUtJ-.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84YddeAxKTZYUtJ-.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84YddeAxKTlYUtJ-.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84YddeAxKTlYUtJ-.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84YddeAxKTdYUg.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84YddeAxKTdYUg.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-WlzNxIFoO84YdfUoTPAh5.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-WlzNxIFoO84YdfUoTPAh5.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/biryani/v14/hv-WlzNxIFoO84YdfUUTPAh5.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-WlzNxIFoO84YdfUUTPAh5.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-WlzNxIFoO84YdfUsTPA.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-WlzNxIFoO84YdfUsTPA.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84YddZQ3KTZYUtJ-.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84YddZQ3KTZYUtJ-.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84YddZQ3KTlYUtJ-.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84YddZQ3KTlYUtJ-.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84YddZQ3KTdYUg.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84YddZQ3KTdYUg.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84YddfA2KTZYUtJ-.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84YddfA2KTZYUtJ-.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84YddfA2KTlYUtJ-.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84YddfA2KTlYUtJ-.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84YddfA2KTdYUg.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84YddfA2KTdYUg.woff2',
 			},
 			'800': {
 				devanagari:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84Yddew1KTZYUtJ-.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84Yddew1KTZYUtJ-.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84Yddew1KTlYUtJ-.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84Yddew1KTlYUtJ-.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84Yddew1KTdYUg.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84Yddew1KTdYUg.woff2',
 			},
 			'900': {
 				devanagari:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84Yddcg0KTZYUtJ-.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84Yddcg0KTZYUtJ-.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84Yddcg0KTlYUtJ-.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84Yddcg0KTlYUtJ-.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/biryani/v14/hv-TlzNxIFoO84Yddcg0KTdYUg.woff2',
+					'https://fonts.gstatic.com/s/biryani/v15/hv-TlzNxIFoO84Yddcg0KTdYUg.woff2',
 			},
 		},
 	},

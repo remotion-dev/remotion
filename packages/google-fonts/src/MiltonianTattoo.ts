@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Miltonian Tattoo',
 	importName: 'MiltonianTattoo',
-	version: 'v33',
+	version: 'v34',
 	url: 'https://fonts.googleapis.com/css2?family=Miltonian+Tattoo:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/miltoniantattoo/v33/EvOUzBRL0o0kCxF-lcMCQxlpVsA_JwT2MQ.woff2',
+					'https://fonts.gstatic.com/s/miltoniantattoo/v34/EvOUzBRL0o0kCxF-lcMCQxlpVsA_JwT2MQ.woff2',
 			},
 		},
 	},

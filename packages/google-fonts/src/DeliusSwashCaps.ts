@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Delius Swash Caps',
 	importName: 'DeliusSwashCaps',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Delius+Swash+Caps:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/deliusswashcaps/v24/oY1E8fPLr7v4JWCExZpWebxVKORpXUeaIGY.woff2',
+					'https://fonts.gstatic.com/s/deliusswashcaps/v25/oY1E8fPLr7v4JWCExZpWebxVKORpXUeaIGY.woff2',
 			},
 		},
 	},

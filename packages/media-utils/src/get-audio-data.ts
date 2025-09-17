@@ -28,6 +28,12 @@ const fn = async (
 	});
 
 	const response = await fetchWithCorsCatch(src);
+	if (!response.ok) {
+		throw new Error(
+			`Failed to fetch audio data from ${src}: ${response.status} ${response.statusText}`,
+		);
+	}
+
 	const arrayBuffer = await response.arrayBuffer();
 
 	const wave = await audioContext.decodeAudioData(arrayBuffer);

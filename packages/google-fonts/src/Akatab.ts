@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Akatab',
 	importName: 'Akatab',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Akatab:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		tifinagh:
@@ -17,51 +17,51 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				tifinagh:
-					'https://fonts.gstatic.com/s/akatab/v8/VuJwdNrK3Z7gqJE_f4b4BIg.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJwdNrK3Z7gqJE_f4b4BIg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/akatab/v8/VuJwdNrK3Z7gqJE_UYb4BIg.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJwdNrK3Z7gqJE_UYb4BIg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/akatab/v8/VuJwdNrK3Z7gqJE_X4b4.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJwdNrK3Z7gqJE_X4b4.woff2',
 			},
 			'500': {
 				tifinagh:
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE3rKXtG6ljWRo.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE3rKXtG6ljWRo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE3rKXtNaljWRo.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE3rKXtNaljWRo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE3rKXtO6lj.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE3rKXtO6lj.woff2',
 			},
 			'600': {
 				tifinagh:
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE3gKLtG6ljWRo.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE3gKLtG6ljWRo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE3gKLtNaljWRo.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE3gKLtNaljWRo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE3gKLtO6lj.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE3gKLtO6lj.woff2',
 			},
 			'700': {
 				tifinagh:
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE35KPtG6ljWRo.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE35KPtG6ljWRo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE35KPtNaljWRo.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE35KPtNaljWRo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE35KPtO6lj.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE35KPtO6lj.woff2',
 			},
 			'800': {
 				tifinagh:
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE3-KDtG6ljWRo.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE3-KDtG6ljWRo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE3-KDtNaljWRo.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE3-KDtNaljWRo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE3-KDtO6lj.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE3-KDtO6lj.woff2',
 			},
 			'900': {
 				tifinagh:
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE33KHtG6ljWRo.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE33KHtG6ljWRo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE33KHtNaljWRo.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE33KHtNaljWRo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/akatab/v8/VuJzdNrK3Z7gqJE33KHtO6lj.woff2',
+					'https://fonts.gstatic.com/s/akatab/v9/VuJzdNrK3Z7gqJE33KHtO6lj.woff2',
 			},
 		},
 	},

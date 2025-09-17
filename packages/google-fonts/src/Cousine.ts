@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cousine',
 	importName: 'Cousine',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Cousine:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -25,77 +25,77 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/cousine/v28/d6lKkaiiRdih4SpP_SEfwx7p79k.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lKkaiiRdih4SpP_SEfwx7p79k.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lKkaiiRdih4SpP_SEfyh7p79k.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lKkaiiRdih4SpP_SEfyh7p79k.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/cousine/v28/d6lKkaiiRdih4SpP_SEfwh7p79k.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lKkaiiRdih4SpP_SEfwh7p79k.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lKkaiiRdih4SpP_SEfzR7p79k.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lKkaiiRdih4SpP_SEfzR7p79k.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lKkaiiRdih4SpP_SEfzB7p79k.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lKkaiiRdih4SpP_SEfzB7p79k.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lKkaiiRdih4SpP_SEfwR7p79k.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lKkaiiRdih4SpP_SEfwR7p79k.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cousine/v28/d6lKkaiiRdih4SpP_SEfwB7p79k.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lKkaiiRdih4SpP_SEfwB7p79k.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lKkaiiRdih4SpP_SEfzh7p.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lKkaiiRdih4SpP_SEfzh7p.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/cousine/v28/d6lPkaiiRdih4SpP_SEXdTv83fhhvmQ.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lPkaiiRdih4SpP_SEXdTv83fhhvmQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lPkaiiRdih4SpP_SEXdTv81PhhvmQ.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lPkaiiRdih4SpP_SEXdTv81PhhvmQ.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/cousine/v28/d6lPkaiiRdih4SpP_SEXdTv83PhhvmQ.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lPkaiiRdih4SpP_SEXdTv83PhhvmQ.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lPkaiiRdih4SpP_SEXdTv80_hhvmQ.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lPkaiiRdih4SpP_SEXdTv80_hhvmQ.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lPkaiiRdih4SpP_SEXdTv80vhhvmQ.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lPkaiiRdih4SpP_SEXdTv80vhhvmQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lPkaiiRdih4SpP_SEXdTv83_hhvmQ.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lPkaiiRdih4SpP_SEXdTv83_hhvmQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cousine/v28/d6lPkaiiRdih4SpP_SEXdTv83vhhvmQ.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lPkaiiRdih4SpP_SEXdTv83vhhvmQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lPkaiiRdih4SpP_SEXdTv80Phh.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lPkaiiRdih4SpP_SEXdTv80Phh.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/cousine/v28/d6lIkaiiRdih4SpP_SkvzAbt.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lIkaiiRdih4SpP_SkvzAbt.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lIkaiiRdih4SpP_SAvzAbt.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lIkaiiRdih4SpP_SAvzAbt.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/cousine/v28/d6lIkaiiRdih4SpP_SgvzAbt.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lIkaiiRdih4SpP_SgvzAbt.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lIkaiiRdih4SpP_ScvzAbt.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lIkaiiRdih4SpP_ScvzAbt.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lIkaiiRdih4SpP_SYvzAbt.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lIkaiiRdih4SpP_SYvzAbt.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lIkaiiRdih4SpP_SsvzAbt.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lIkaiiRdih4SpP_SsvzAbt.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cousine/v28/d6lIkaiiRdih4SpP_SovzAbt.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lIkaiiRdih4SpP_SovzAbt.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lIkaiiRdih4SpP_SQvzA.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lIkaiiRdih4SpP_SQvzA.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/cousine/v28/d6lNkaiiRdih4SpP9Z8K2TTM0uBl.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lNkaiiRdih4SpP9Z8K2TTM0uBl.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lNkaiiRdih4SpP9Z8K2T3M0uBl.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lNkaiiRdih4SpP9Z8K2T3M0uBl.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/cousine/v28/d6lNkaiiRdih4SpP9Z8K2TXM0uBl.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lNkaiiRdih4SpP9Z8K2TXM0uBl.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lNkaiiRdih4SpP9Z8K2TrM0uBl.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lNkaiiRdih4SpP9Z8K2TrM0uBl.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lNkaiiRdih4SpP9Z8K2TvM0uBl.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lNkaiiRdih4SpP9Z8K2TvM0uBl.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lNkaiiRdih4SpP9Z8K2TbM0uBl.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lNkaiiRdih4SpP9Z8K2TbM0uBl.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cousine/v28/d6lNkaiiRdih4SpP9Z8K2TfM0uBl.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lNkaiiRdih4SpP9Z8K2TfM0uBl.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cousine/v28/d6lNkaiiRdih4SpP9Z8K2TnM0g.woff2',
+					'https://fonts.gstatic.com/s/cousine/v29/d6lNkaiiRdih4SpP9Z8K2TnM0g.woff2',
 			},
 		},
 	},

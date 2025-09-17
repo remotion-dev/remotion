@@ -1,12 +1,7 @@
 import type {EmojiName} from '@remotion/animated-emoji';
 import type {Lottie, LottieAnimationData} from '@remotion/lottie';
 import React, {useEffect, useMemo, useState} from 'react';
-import {
-	cancelRender,
-	continueRender,
-	delayRender,
-	useVideoConfig,
-} from 'remotion';
+import {cancelRender, useDelayRender, useVideoConfig} from 'remotion';
 
 type Data = {
 	Lottie: typeof Lottie;
@@ -22,6 +17,7 @@ export const DisplayedEmoji: React.FC<{
 	const [browser, setBrowser] = useState<boolean>(
 		typeof document !== 'undefined',
 	);
+	const {delayRender, continueRender} = useDelayRender();
 
 	const src = useMemo(() => {
 		if (emoji === 'melting') {
@@ -60,7 +56,7 @@ export const DisplayedEmoji: React.FC<{
 			.catch((err) => {
 				cancelRender(err);
 			});
-	}, [handle, src]);
+	}, [handle, src, continueRender]);
 
 	useEffect(() => {
 		if (typeof document !== 'undefined') {

@@ -1,5 +1,5 @@
 import {forwardRef, useEffect, useRef, useState} from 'react';
-import {continueRender, delayRender, Internals} from 'remotion';
+import {Internals, useDelayRender} from 'remotion';
 import {Canvas} from './canvas';
 import {volatileGifCache} from './gif-cache';
 import {isCorsError} from './is-cors-error';
@@ -24,6 +24,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 		ref,
 	) => {
 		const resolvedSrc = resolveGifSource(src);
+		const {delayRender, continueRender} = useDelayRender();
 		const [state, update] = useState<GifState>(() => {
 			const parsedGif = volatileGifCache.get(resolvedSrc);
 
@@ -50,7 +51,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			return () => {
 				continueRender(renderHandle);
 			};
-		}, [renderHandle]);
+		}, [renderHandle, continueRender]);
 
 		const index = useCurrentGifIndex({
 			delays: state.delays,
@@ -109,7 +110,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 				continueRender(newHandle);
 				continueRender(renderHandle);
 			};
-		}, [renderHandle, logLevel, resolvedSrc]);
+		}, [renderHandle, logLevel, resolvedSrc, delayRender, continueRender]);
 
 		if (error) {
 			Internals.Log.error(error.stack);

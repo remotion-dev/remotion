@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Asset',
 	importName: 'Asset',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Asset:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,14 +20,14 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/asset/v29/SLXGc1na-mM4cVIsTpu0xg.woff2',
-				math: 'https://fonts.gstatic.com/s/asset/v29/SLXGc1na-mM4cVJdTpu0xg.woff2',
+					'https://fonts.gstatic.com/s/asset/v30/SLXGc1na-mM4cVIsTpu0xg.woff2',
+				math: 'https://fonts.gstatic.com/s/asset/v30/SLXGc1na-mM4cVJdTpu0xg.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/asset/v29/SLXGc1na-mM4cVJPTpu0xg.woff2',
+					'https://fonts.gstatic.com/s/asset/v30/SLXGc1na-mM4cVJPTpu0xg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/asset/v29/SLXGc1na-mM4cVIvTpu0xg.woff2',
+					'https://fonts.gstatic.com/s/asset/v30/SLXGc1na-mM4cVIvTpu0xg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/asset/v29/SLXGc1na-mM4cVIhTps.woff2',
+					'https://fonts.gstatic.com/s/asset/v30/SLXGc1na-mM4cVIhTps.woff2',
 			},
 		},
 	},

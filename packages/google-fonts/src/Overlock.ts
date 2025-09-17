@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Overlock',
 	importName: 'Overlock',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Overlock:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,41 +15,41 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/overlock/v18/Z9XTDmdMWRiN1_T9Z7Tc2OCsk4GC.woff2',
+					'https://fonts.gstatic.com/s/overlock/v19/Z9XTDmdMWRiN1_T9Z7Tc2OCsk4GC.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/overlock/v18/Z9XTDmdMWRiN1_T9Z7Tc2O6skw.woff2',
+					'https://fonts.gstatic.com/s/overlock/v19/Z9XTDmdMWRiN1_T9Z7Tc2O6skw.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/overlock/v18/Z9XQDmdMWRiN1_T9Z7Tc0FWJhrCj8RLT.woff2',
+					'https://fonts.gstatic.com/s/overlock/v19/Z9XQDmdMWRiN1_T9Z7Tc0FWJhrCj8RLT.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/overlock/v18/Z9XQDmdMWRiN1_T9Z7Tc0FWJhr6j8Q.woff2',
+					'https://fonts.gstatic.com/s/overlock/v19/Z9XQDmdMWRiN1_T9Z7Tc0FWJhr6j8Q.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/overlock/v18/Z9XQDmdMWRiN1_T9Z7Tc0G2LhrCj8RLT.woff2',
+					'https://fonts.gstatic.com/s/overlock/v19/Z9XQDmdMWRiN1_T9Z7Tc0G2LhrCj8RLT.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/overlock/v18/Z9XQDmdMWRiN1_T9Z7Tc0G2Lhr6j8Q.woff2',
+					'https://fonts.gstatic.com/s/overlock/v19/Z9XQDmdMWRiN1_T9Z7Tc0G2Lhr6j8Q.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/overlock/v18/Z9XVDmdMWRiN1_T9Z7TX6Oy0lw.woff2',
+					'https://fonts.gstatic.com/s/overlock/v19/Z9XVDmdMWRiN1_T9Z7TX6Oy0lw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/overlock/v18/Z9XVDmdMWRiN1_T9Z7TZ6Ow.woff2',
+					'https://fonts.gstatic.com/s/overlock/v19/Z9XVDmdMWRiN1_T9Z7TZ6Ow.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/overlock/v18/Z9XSDmdMWRiN1_T9Z7xizfmFtry79Q.woff2',
+					'https://fonts.gstatic.com/s/overlock/v19/Z9XSDmdMWRiN1_T9Z7xizfmFtry79Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/overlock/v18/Z9XSDmdMWRiN1_T9Z7xizfmLtrw.woff2',
+					'https://fonts.gstatic.com/s/overlock/v19/Z9XSDmdMWRiN1_T9Z7xizfmLtrw.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/overlock/v18/Z9XSDmdMWRiN1_T9Z7xaz_mFtry79Q.woff2',
+					'https://fonts.gstatic.com/s/overlock/v19/Z9XSDmdMWRiN1_T9Z7xaz_mFtry79Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/overlock/v18/Z9XSDmdMWRiN1_T9Z7xaz_mLtrw.woff2',
+					'https://fonts.gstatic.com/s/overlock/v19/Z9XSDmdMWRiN1_T9Z7xaz_mLtrw.woff2',
 			},
 		},
 	},

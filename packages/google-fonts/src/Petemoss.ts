@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Petemoss',
 	importName: 'Petemoss',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Petemoss:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petemoss/v8/A2BZn5tA2xgtGWHZgykWuqfNUg.woff2',
+					'https://fonts.gstatic.com/s/petemoss/v9/A2BZn5tA2xgtGWHZgykWuqfNUg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petemoss/v8/A2BZn5tA2xgtGWHZgykXuqfNUg.woff2',
+					'https://fonts.gstatic.com/s/petemoss/v9/A2BZn5tA2xgtGWHZgykXuqfNUg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petemoss/v8/A2BZn5tA2xgtGWHZgykZuqc.woff2',
+					'https://fonts.gstatic.com/s/petemoss/v9/A2BZn5tA2xgtGWHZgykZuqc.woff2',
 			},
 		},
 	},

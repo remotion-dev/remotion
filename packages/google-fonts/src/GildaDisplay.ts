@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gilda Display',
 	importName: 'GildaDisplay',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Gilda+Display:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gildadisplay/v19/t5tmIRoYMoaYG0WEOh7HwMeR3TDPr6OH.woff2',
+					'https://fonts.gstatic.com/s/gildadisplay/v20/t5tmIRoYMoaYG0WEOh7HwMeR3TDPr6OH.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gildadisplay/v19/t5tmIRoYMoaYG0WEOh7HwMeR3T7Prw.woff2',
+					'https://fonts.gstatic.com/s/gildadisplay/v20/t5tmIRoYMoaYG0WEOh7HwMeR3T7Prw.woff2',
 			},
 		},
 	},

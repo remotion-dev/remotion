@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ingrid Darling',
 	importName: 'IngridDarling',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Ingrid+Darling:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/ingriddarling/v6/LDIrapaJNxUtSuFdw-9yf4rCPvLGs78J8g.woff2',
+					'https://fonts.gstatic.com/s/ingriddarling/v7/LDIrapaJNxUtSuFdw-9yf4rCPvLGs78J8g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ingriddarling/v6/LDIrapaJNxUtSuFdw-9yf4rCPvLHs78J8g.woff2',
+					'https://fonts.gstatic.com/s/ingriddarling/v7/LDIrapaJNxUtSuFdw-9yf4rCPvLHs78J8g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ingriddarling/v6/LDIrapaJNxUtSuFdw-9yf4rCPvLJs78.woff2',
+					'https://fonts.gstatic.com/s/ingriddarling/v7/LDIrapaJNxUtSuFdw-9yf4rCPvLJs78.woff2',
 			},
 		},
 	},

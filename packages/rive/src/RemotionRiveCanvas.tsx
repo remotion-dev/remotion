@@ -15,12 +15,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {
-	continueRender,
-	delayRender,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {useCurrentFrame, useDelayRender, useVideoConfig} from 'remotion';
 import type {
 	RemotionRiveCanvasAlignment,
 	RemotionRiveCanvasFit,
@@ -69,6 +64,7 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 	const canvas = useRef<HTMLCanvasElement>(null);
 	const [riveCanvasInstance, setRiveCanvas] = useState<RiveCanvas | null>(null);
 	const [err, setError] = useState<Error | null>(null);
+	const {delayRender, continueRender} = useDelayRender();
 	const [handle] = useState(() => delayRender());
 	const lastFrame = useRef<number>(0);
 
@@ -103,7 +99,7 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 	useEffect(() => {
 		riveCanvas({
 			locateFile: () =>
-				'https://unpkg.com/@rive-app/canvas-advanced@2.31.2/rive.wasm',
+				'https://unpkg.com/@rive-app/canvas-advanced@2.31.5/rive.wasm',
 		})
 			.then((riveInstance) => {
 				setRiveCanvas(riveInstance);
@@ -112,7 +108,7 @@ const RemotionRiveCanvasForwardRefFunction: React.ForwardRefRenderFunction<
 			.catch((newErr) => {
 				setError(newErr);
 			});
-	}, [handle]);
+	}, [handle, continueRender]);
 
 	useEffect(() => {
 		if (!riveCanvasInstance) {

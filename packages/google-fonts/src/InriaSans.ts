@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Inria Sans',
 	importName: 'InriaSans',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,41 +15,41 @@ export const getInfo = () => ({
 		italic: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inriasans/v14/ptRRTiqXYfZMCOiVj9kQ1OzAgQl_pM4zXX4.woff2',
+					'https://fonts.gstatic.com/s/inriasans/v15/ptRRTiqXYfZMCOiVj9kQ1OzAgQl_pM4zXX4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inriasans/v14/ptRRTiqXYfZMCOiVj9kQ1OzAgQl_qs4z.woff2',
+					'https://fonts.gstatic.com/s/inriasans/v15/ptRRTiqXYfZMCOiVj9kQ1OzAgQl_qs4z.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inriasans/v14/ptROTiqXYfZMCOiVj9kQ1OzIJCtqle8.woff2',
+					'https://fonts.gstatic.com/s/inriasans/v15/ptROTiqXYfZMCOiVj9kQ1OzIJCtqle8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inriasans/v14/ptROTiqXYfZMCOiVj9kQ1OzIKitq.woff2',
+					'https://fonts.gstatic.com/s/inriasans/v15/ptROTiqXYfZMCOiVj9kQ1OzIKitq.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inriasans/v14/ptRRTiqXYfZMCOiVj9kQ1OzAkQ5_pM4zXX4.woff2',
+					'https://fonts.gstatic.com/s/inriasans/v15/ptRRTiqXYfZMCOiVj9kQ1OzAkQ5_pM4zXX4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inriasans/v14/ptRRTiqXYfZMCOiVj9kQ1OzAkQ5_qs4z.woff2',
+					'https://fonts.gstatic.com/s/inriasans/v15/ptRRTiqXYfZMCOiVj9kQ1OzAkQ5_qs4z.woff2',
 			},
 		},
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inriasans/v14/ptRPTiqXYfZMCOiVj9kQ3ELaPQJPqNY3.woff2',
+					'https://fonts.gstatic.com/s/inriasans/v15/ptRPTiqXYfZMCOiVj9kQ3ELaPQJPqNY3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inriasans/v14/ptRPTiqXYfZMCOiVj9kQ3ELaPQxPqA.woff2',
+					'https://fonts.gstatic.com/s/inriasans/v15/ptRPTiqXYfZMCOiVj9kQ3ELaPQxPqA.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inriasans/v14/ptRMTiqXYfZMCOiVj9kQ1Of4KDNu.woff2',
+					'https://fonts.gstatic.com/s/inriasans/v15/ptRMTiqXYfZMCOiVj9kQ1Of4KDNu.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inriasans/v14/ptRMTiqXYfZMCOiVj9kQ1On4KA.woff2',
+					'https://fonts.gstatic.com/s/inriasans/v15/ptRMTiqXYfZMCOiVj9kQ1On4KA.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inriasans/v14/ptRPTiqXYfZMCOiVj9kQ3FLdPQJPqNY3.woff2',
+					'https://fonts.gstatic.com/s/inriasans/v15/ptRPTiqXYfZMCOiVj9kQ3FLdPQJPqNY3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inriasans/v14/ptRPTiqXYfZMCOiVj9kQ3FLdPQxPqA.woff2',
+					'https://fonts.gstatic.com/s/inriasans/v15/ptRPTiqXYfZMCOiVj9kQ3FLdPQxPqA.woff2',
 			},
 		},
 	},

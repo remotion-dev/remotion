@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Style Script',
 	importName: 'StyleScript',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Style+Script:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/stylescript/v12/vm8xdRX3SV7Z0aPa88xzW5nZcF762NY.woff2',
+					'https://fonts.gstatic.com/s/stylescript/v13/vm8xdRX3SV7Z0aPa88xzW5nZcF762NY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/stylescript/v12/vm8xdRX3SV7Z0aPa88xzW5nZcV762NY.woff2',
+					'https://fonts.gstatic.com/s/stylescript/v13/vm8xdRX3SV7Z0aPa88xzW5nZcV762NY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/stylescript/v12/vm8xdRX3SV7Z0aPa88xzW5nZf176.woff2',
+					'https://fonts.gstatic.com/s/stylescript/v13/vm8xdRX3SV7Z0aPa88xzW5nZf176.woff2',
 			},
 		},
 	},

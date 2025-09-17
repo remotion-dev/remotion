@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Suravaram',
 	importName: 'Suravaram',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Suravaram:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/suravaram/v22/_gP61R_usiY7SCym4xIwkGS0cv8.woff2',
+					'https://fonts.gstatic.com/s/suravaram/v23/_gP61R_usiY7SCym4xIwkGS0cv8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/suravaram/v22/_gP61R_usiY7SCym4xIwjGS0.woff2',
+					'https://fonts.gstatic.com/s/suravaram/v23/_gP61R_usiY7SCym4xIwjGS0.woff2',
 			},
 		},
 	},

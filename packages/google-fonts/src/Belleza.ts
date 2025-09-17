@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Belleza',
 	importName: 'Belleza',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Belleza:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/belleza/v17/0nkoC9_pNeMfhX4Bhc_4ajzr.woff2',
+					'https://fonts.gstatic.com/s/belleza/v18/0nkoC9_pNeMfhX4Bhc_4ajzr.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/belleza/v17/0nkoC9_pNeMfhX4BhcH4ag.woff2',
+					'https://fonts.gstatic.com/s/belleza/v18/0nkoC9_pNeMfhX4BhcH4ag.woff2',
 			},
 		},
 	},

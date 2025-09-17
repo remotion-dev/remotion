@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'PT Serif Caption',
 	importName: 'PTSerifCaption',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=PT+Serif+Caption:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,25 +18,25 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ptserifcaption/v17/ieVj2ZhbGCW-JoW6S34pSDpqYKU019eLAgM9UvI.woff2',
+					'https://fonts.gstatic.com/s/ptserifcaption/v18/ieVj2ZhbGCW-JoW6S34pSDpqYKU019eLAgM9UvI.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ptserifcaption/v17/ieVj2ZhbGCW-JoW6S34pSDpqYKU019eLCwM9UvI.woff2',
+					'https://fonts.gstatic.com/s/ptserifcaption/v18/ieVj2ZhbGCW-JoW6S34pSDpqYKU019eLCwM9UvI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ptserifcaption/v17/ieVj2ZhbGCW-JoW6S34pSDpqYKU019eLAQM9UvI.woff2',
+					'https://fonts.gstatic.com/s/ptserifcaption/v18/ieVj2ZhbGCW-JoW6S34pSDpqYKU019eLAQM9UvI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ptserifcaption/v17/ieVj2ZhbGCW-JoW6S34pSDpqYKU019eLDwM9.woff2',
+					'https://fonts.gstatic.com/s/ptserifcaption/v18/ieVj2ZhbGCW-JoW6S34pSDpqYKU019eLDwM9.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ptserifcaption/v17/ieVl2ZhbGCW-JoW6S34pSDpqYKU019-7DRs5.woff2',
+					'https://fonts.gstatic.com/s/ptserifcaption/v18/ieVl2ZhbGCW-JoW6S34pSDpqYKU019-7DRs5.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ptserifcaption/v17/ieVl2ZhbGCW-JoW6S34pSDpqYKU019a7DRs5.woff2',
+					'https://fonts.gstatic.com/s/ptserifcaption/v18/ieVl2ZhbGCW-JoW6S34pSDpqYKU019a7DRs5.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ptserifcaption/v17/ieVl2ZhbGCW-JoW6S34pSDpqYKU019y7DRs5.woff2',
+					'https://fonts.gstatic.com/s/ptserifcaption/v18/ieVl2ZhbGCW-JoW6S34pSDpqYKU019y7DRs5.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ptserifcaption/v17/ieVl2ZhbGCW-JoW6S34pSDpqYKU019K7DQ.woff2',
+					'https://fonts.gstatic.com/s/ptserifcaption/v18/ieVl2ZhbGCW-JoW6S34pSDpqYKU019K7DQ.woff2',
 			},
 		},
 	},

@@ -3,9 +3,8 @@ import {useCallback, useEffect, useState} from 'react';
 import {
 	AbsoluteFill,
 	Audio,
-	continueRender,
-	delayRender,
 	interpolate,
+	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
 
@@ -13,6 +12,7 @@ const C4_FREQUENCY = 261.63;
 const sampleRate = 44100;
 
 export const OfflineAudioBufferExample: React.FC = () => {
+	const {delayRender, continueRender} = useDelayRender();
 	const [handle] = useState(() => delayRender());
 	const [audioBuffer, setAudioBuffer] = useState<string | null>(null);
 	const {fps, durationInFrames} = useVideoConfig();
@@ -41,7 +41,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
 		setAudioBuffer(audioBufferToDataUrl(buffer));
 
 		continueRender(handle);
-	}, [handle, lengthInSeconds]);
+	}, [handle, lengthInSeconds, continueRender]);
 
 	useEffect(() => {
 		renderAudio();

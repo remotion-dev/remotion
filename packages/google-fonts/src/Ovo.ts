@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ovo',
 	importName: 'Ovo',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Ovo:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -12,7 +12,7 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				latin: 'https://fonts.gstatic.com/s/ovo/v17/yYLl0h7WyfzTzI44.woff2',
+				latin: 'https://fonts.gstatic.com/s/ovo/v18/yYLl0h7WyfzTzI44.woff2',
 			},
 		},
 	},

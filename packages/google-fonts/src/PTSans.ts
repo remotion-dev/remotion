@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'PT Sans',
 	importName: 'PTSans',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,45 +18,45 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ptsans/v17/jizYRExUiTo99u79D0e0ysmIEDQ.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizYRExUiTo99u79D0e0ysmIEDQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ptsans/v17/jizYRExUiTo99u79D0e0w8mIEDQ.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizYRExUiTo99u79D0e0w8mIEDQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ptsans/v17/jizYRExUiTo99u79D0e0ycmIEDQ.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizYRExUiTo99u79D0e0ycmIEDQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ptsans/v17/jizYRExUiTo99u79D0e0x8mI.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizYRExUiTo99u79D0e0x8mI.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ptsans/v17/jizdRExUiTo99u79D0e8fOydIhUdwzM.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizdRExUiTo99u79D0e8fOydIhUdwzM.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ptsans/v17/jizdRExUiTo99u79D0e8fOydKxUdwzM.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizdRExUiTo99u79D0e8fOydKxUdwzM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ptsans/v17/jizdRExUiTo99u79D0e8fOydIRUdwzM.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizdRExUiTo99u79D0e8fOydIRUdwzM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ptsans/v17/jizdRExUiTo99u79D0e8fOydLxUd.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizdRExUiTo99u79D0e8fOydLxUd.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ptsans/v17/jizaRExUiTo99u79D0-ExdGM.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizaRExUiTo99u79D0-ExdGM.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ptsans/v17/jizaRExUiTo99u79D0aExdGM.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizaRExUiTo99u79D0aExdGM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ptsans/v17/jizaRExUiTo99u79D0yExdGM.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizaRExUiTo99u79D0yExdGM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ptsans/v17/jizaRExUiTo99u79D0KExQ.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizaRExUiTo99u79D0KExQ.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ptsans/v17/jizfRExUiTo99u79B_mh0OOtLQ0Z.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizfRExUiTo99u79B_mh0OOtLQ0Z.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ptsans/v17/jizfRExUiTo99u79B_mh0OqtLQ0Z.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizfRExUiTo99u79B_mh0OqtLQ0Z.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ptsans/v17/jizfRExUiTo99u79B_mh0OCtLQ0Z.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizfRExUiTo99u79B_mh0OCtLQ0Z.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ptsans/v17/jizfRExUiTo99u79B_mh0O6tLQ.woff2',
+					'https://fonts.gstatic.com/s/ptsans/v18/jizfRExUiTo99u79B_mh0O6tLQ.woff2',
 			},
 		},
 	},

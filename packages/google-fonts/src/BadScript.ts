@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bad Script',
 	importName: 'BadScript',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Bad+Script:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,15 +20,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/badscript/v17/6NUT8F6PJgbFWQn47_x7pOYkzO1A.woff2',
+					'https://fonts.gstatic.com/s/badscript/v18/6NUT8F6PJgbFWQn47_x7pOYkzO1A.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/badscript/v17/6NUT8F6PJgbFWQn47_x7pO8kzO1A.woff2',
+					'https://fonts.gstatic.com/s/badscript/v18/6NUT8F6PJgbFWQn47_x7pO8kzO1A.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/badscript/v17/6NUT8F6PJgbFWQn47_x7pOQkzO1A.woff2',
+					'https://fonts.gstatic.com/s/badscript/v18/6NUT8F6PJgbFWQn47_x7pOQkzO1A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/badscript/v17/6NUT8F6PJgbFWQn47_x7pOUkzO1A.woff2',
+					'https://fonts.gstatic.com/s/badscript/v18/6NUT8F6PJgbFWQn47_x7pOUkzO1A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/badscript/v17/6NUT8F6PJgbFWQn47_x7pOskzA.woff2',
+					'https://fonts.gstatic.com/s/badscript/v18/6NUT8F6PJgbFWQn47_x7pOskzA.woff2',
 			},
 		},
 	},

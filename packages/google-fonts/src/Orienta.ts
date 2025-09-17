@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Orienta',
 	importName: 'Orienta',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Orienta:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/orienta/v15/PlI9FlK4Jrl5Y9zNSy6i9URF.woff2',
+					'https://fonts.gstatic.com/s/orienta/v16/PlI9FlK4Jrl5Y9zNSy6i9URF.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/orienta/v15/PlI9FlK4Jrl5Y9zNSyCi9Q.woff2',
+					'https://fonts.gstatic.com/s/orienta/v16/PlI9FlK4Jrl5Y9zNSyCi9Q.woff2',
 			},
 		},
 	},

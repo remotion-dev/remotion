@@ -57,7 +57,7 @@ test(
 
 		// Should symbolicate stacktrace
 		// Do not search for strings that depend on color support
-		expect(task.stdout).toContain('src/CancelRender/index.tsx:18');
+		expect(task.stdout).toContain('src/CancelRender/index.tsx:19');
 		expect(task.stdout).toContain(
 			'Worst case: Inside a promise without a catch handler',
 		);

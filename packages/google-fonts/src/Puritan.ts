@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Puritan',
 	importName: 'Puritan',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Puritan:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		latin:
@@ -13,21 +13,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/puritan/v24/845aNMgkAJ2VTtIoxJjKRv6M.woff2',
+					'https://fonts.gstatic.com/s/puritan/v25/845aNMgkAJ2VTtIoxJjKRv6M.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/puritan/v24/845fNMgkAJ2VTtIoxJjC_duZ-GLC.woff2',
+					'https://fonts.gstatic.com/s/puritan/v25/845fNMgkAJ2VTtIoxJjC_duZ-GLC.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/puritan/v24/845YNMgkAJ2VTtIoxJ36RA.woff2',
+					'https://fonts.gstatic.com/s/puritan/v25/845YNMgkAJ2VTtIoxJ36RA.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/puritan/v24/845dNMgkAJ2VTtIozCbfUdmp-g.woff2',
+					'https://fonts.gstatic.com/s/puritan/v25/845dNMgkAJ2VTtIozCbfUdmp-g.woff2',
 			},
 		},
 	},

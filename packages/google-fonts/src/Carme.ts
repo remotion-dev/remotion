@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Carme',
 	importName: 'Carme',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Carme:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/carme/v16/ptRHTiWdbvZIDNjBzrI.woff2',
+					'https://fonts.gstatic.com/s/carme/v17/ptRHTiWdbvZIDNjBzrI.woff2',
 			},
 		},
 	},

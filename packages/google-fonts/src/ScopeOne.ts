@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Scope One',
 	importName: 'ScopeOne',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Scope+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/scopeone/v14/WBLnrEXKYFlGHrOKmGDFUkXNFME.woff2',
+					'https://fonts.gstatic.com/s/scopeone/v15/WBLnrEXKYFlGHrOKmGDFUkXNFME.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/scopeone/v14/WBLnrEXKYFlGHrOKmGDFXEXN.woff2',
+					'https://fonts.gstatic.com/s/scopeone/v15/WBLnrEXKYFlGHrOKmGDFXEXN.woff2',
 			},
 		},
 	},

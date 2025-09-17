@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sura',
 	importName: 'Sura',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Sura:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,18 +17,18 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sura/v20/SZc23FL5PbyzJfheWgXt.woff2',
+					'https://fonts.gstatic.com/s/sura/v21/SZc23FL5PbyzJfheWgXt.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sura/v20/SZc23FL5PbyzJfdeWgXt.woff2',
-				latin: 'https://fonts.gstatic.com/s/sura/v20/SZc23FL5PbyzJfleWg.woff2',
+					'https://fonts.gstatic.com/s/sura/v21/SZc23FL5PbyzJfdeWgXt.woff2',
+				latin: 'https://fonts.gstatic.com/s/sura/v21/SZc23FL5PbyzJfleWg.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sura/v20/SZc53FL5PbyzLUJ7TzvMkHrS.woff2',
+					'https://fonts.gstatic.com/s/sura/v21/SZc53FL5PbyzLUJ7TzvMkHrS.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sura/v20/SZc53FL5PbyzLUJ7TzTMkHrS.woff2',
+					'https://fonts.gstatic.com/s/sura/v21/SZc53FL5PbyzLUJ7TzTMkHrS.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sura/v20/SZc53FL5PbyzLUJ7TzrMkA.woff2',
+					'https://fonts.gstatic.com/s/sura/v21/SZc53FL5PbyzLUJ7TzrMkA.woff2',
 			},
 		},
 	},

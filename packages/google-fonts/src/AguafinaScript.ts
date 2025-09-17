@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Aguafina Script',
 	importName: 'AguafinaScript',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Aguafina+Script:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/aguafinascript/v23/If2QXTv_ZzSxGIO30LemWEOmt1b3o8Qosic.woff2',
+					'https://fonts.gstatic.com/s/aguafinascript/v24/If2QXTv_ZzSxGIO30LemWEOmt1b3o8Qosic.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/aguafinascript/v23/If2QXTv_ZzSxGIO30LemWEOmt1b3rcQo.woff2',
+					'https://fonts.gstatic.com/s/aguafinascript/v24/If2QXTv_ZzSxGIO30LemWEOmt1b3rcQo.woff2',
 			},
 		},
 	},

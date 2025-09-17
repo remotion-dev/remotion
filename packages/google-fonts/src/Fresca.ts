@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fresca',
 	importName: 'Fresca',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Fresca:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fresca/v23/6ae94K--SKgCzbMGE7cX53A.woff2',
+					'https://fonts.gstatic.com/s/fresca/v24/6ae94K--SKgCzbMGE7cX53A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fresca/v23/6ae94K--SKgCzbMGHbcX.woff2',
+					'https://fonts.gstatic.com/s/fresca/v24/6ae94K--SKgCzbMGHbcX.woff2',
 			},
 		},
 	},

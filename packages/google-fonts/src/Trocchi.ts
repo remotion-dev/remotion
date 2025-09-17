@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Trocchi',
 	importName: 'Trocchi',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Trocchi:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/trocchi/v18/qWcqB6WkuIDxDZLcPrJevfeT.woff2',
+					'https://fonts.gstatic.com/s/trocchi/v19/qWcqB6WkuIDxDZLcPrJevfeT.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/trocchi/v18/qWcqB6WkuIDxDZLcPrxevQ.woff2',
+					'https://fonts.gstatic.com/s/trocchi/v19/qWcqB6WkuIDxDZLcPrxevQ.woff2',
 			},
 		},
 	},

@@ -1,9 +1,4 @@
-export type RemotionEnvironment = {
-	isStudio: boolean;
-	isRendering: boolean;
-	isPlayer: boolean;
-	isReadOnlyStudio: boolean;
-};
+import type {RemotionEnvironment} from './remotion-environment-context';
 
 // Avoid VITE obfuscation
 function getNodeEnvString() {
@@ -38,5 +33,6 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 		isRendering,
 		isPlayer,
 		isReadOnlyStudio,
+		isClientSideRendering: false,
 	};
 };

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Moulpali',
 	importName: 'Moulpali',
-	version: 'v32',
+	version: 'v33',
 	url: 'https://fonts.googleapis.com/css2?family=Moulpali:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/moulpali/v32/H4ckBXKMl9HagUWymxY2yL6Agw.woff2',
+					'https://fonts.gstatic.com/s/moulpali/v33/H4ckBXKMl9HagUWymxY2yL6Agw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/moulpali/v32/H4ckBXKMl9HagUWymxY9yL4.woff2',
+					'https://fonts.gstatic.com/s/moulpali/v33/H4ckBXKMl9HagUWymxY9yL4.woff2',
 			},
 		},
 	},

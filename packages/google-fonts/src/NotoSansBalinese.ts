@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Balinese',
 	importName: 'NotoSansBalinese',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Balinese:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		balinese: 'U+001D, U+1B00-1B7F, U+200C-200D, U+25CC',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				balinese:
-					'https://fonts.gstatic.com/s/notosansbalinese/v26/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDRpyciWM.woff2',
+					'https://fonts.gstatic.com/s/notosansbalinese/v27/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDRpyciWM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbalinese/v26/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDb5yciWM.woff2',
+					'https://fonts.gstatic.com/s/notosansbalinese/v27/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDb5yciWM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbalinese/v26/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDYZyc.woff2',
+					'https://fonts.gstatic.com/s/notosansbalinese/v27/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDYZyc.woff2',
 			},
 			'500': {
 				balinese:
-					'https://fonts.gstatic.com/s/notosansbalinese/v26/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDRpyciWM.woff2',
+					'https://fonts.gstatic.com/s/notosansbalinese/v27/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDRpyciWM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbalinese/v26/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDb5yciWM.woff2',
+					'https://fonts.gstatic.com/s/notosansbalinese/v27/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDb5yciWM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbalinese/v26/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDYZyc.woff2',
+					'https://fonts.gstatic.com/s/notosansbalinese/v27/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDYZyc.woff2',
 			},
 			'600': {
 				balinese:
-					'https://fonts.gstatic.com/s/notosansbalinese/v26/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDRpyciWM.woff2',
+					'https://fonts.gstatic.com/s/notosansbalinese/v27/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDRpyciWM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbalinese/v26/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDb5yciWM.woff2',
+					'https://fonts.gstatic.com/s/notosansbalinese/v27/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDb5yciWM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbalinese/v26/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDYZyc.woff2',
+					'https://fonts.gstatic.com/s/notosansbalinese/v27/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDYZyc.woff2',
 			},
 			'700': {
 				balinese:
-					'https://fonts.gstatic.com/s/notosansbalinese/v26/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDRpyciWM.woff2',
+					'https://fonts.gstatic.com/s/notosansbalinese/v27/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDRpyciWM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbalinese/v26/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDb5yciWM.woff2',
+					'https://fonts.gstatic.com/s/notosansbalinese/v27/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDb5yciWM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbalinese/v26/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDYZyc.woff2',
+					'https://fonts.gstatic.com/s/notosansbalinese/v27/NaPFcYvSBuhTirw6IaFn6UrRDaqje-lDYZyc.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Stalemate',
 	importName: 'Stalemate',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Stalemate:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/stalemate/v23/taiIGmZ_EJq97-UfkZRZs66twZQ.woff2',
+					'https://fonts.gstatic.com/s/stalemate/v24/taiIGmZ_EJq97-UfkZRZs66twZQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/stalemate/v23/taiIGmZ_EJq97-UfkZRZva6t.woff2',
+					'https://fonts.gstatic.com/s/stalemate/v24/taiIGmZ_EJq97-UfkZRZva6t.woff2',
 			},
 		},
 	},

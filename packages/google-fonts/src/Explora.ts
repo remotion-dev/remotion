@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Explora',
 	importName: 'Explora',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Explora:ital,wght@0,400',
 	unicodeRanges: {
 		cherokee:
@@ -19,13 +19,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cherokee:
-					'https://fonts.gstatic.com/s/explora/v10/tsstApxFfjUH4wrvQ06Fo0C3.woff2',
+					'https://fonts.gstatic.com/s/explora/v11/tsstApxFfjUH4wrvQ06Fo0C3.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/explora/v10/tsstApxFfjUH4wrvQ1KFo0C3.woff2',
+					'https://fonts.gstatic.com/s/explora/v11/tsstApxFfjUH4wrvQ1KFo0C3.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/explora/v10/tsstApxFfjUH4wrvQ1OFo0C3.woff2',
+					'https://fonts.gstatic.com/s/explora/v11/tsstApxFfjUH4wrvQ1OFo0C3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/explora/v10/tsstApxFfjUH4wrvQ12Fow.woff2',
+					'https://fonts.gstatic.com/s/explora/v11/tsstApxFfjUH4wrvQ12Fow.woff2',
 			},
 		},
 	},

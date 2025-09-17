@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gemunu Libre',
 	importName: 'GemunuLibre',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Gemunu+Libre:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		sinhala:
@@ -17,59 +17,59 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				sinhala:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
 			},
 			'300': {
 				sinhala:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
 			},
 			'400': {
 				sinhala:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
 			},
 			'500': {
 				sinhala:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
 			},
 			'600': {
 				sinhala:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
 			},
 			'700': {
 				sinhala:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
 			},
 			'800': {
 				sinhala:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxACj0138.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxEyj0138.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gemunulibre/v17/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
+					'https://fonts.gstatic.com/s/gemunulibre/v18/X7ni4bQ6Cfy7jKGXVE_YlqnxHSj0.woff2',
 			},
 		},
 	},

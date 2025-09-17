@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'PT Mono',
 	importName: 'PTMono',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=PT+Mono:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,13 +18,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ptmono/v13/9oRONYoBnWILk-9AnCIzM-Py.woff2',
+					'https://fonts.gstatic.com/s/ptmono/v14/9oRONYoBnWILk-9AnCIzM-Py.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ptmono/v13/9oRONYoBnWILk-9AnCszM-Py.woff2',
+					'https://fonts.gstatic.com/s/ptmono/v14/9oRONYoBnWILk-9AnCszM-Py.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ptmono/v13/9oRONYoBnWILk-9AnCEzM-Py.woff2',
+					'https://fonts.gstatic.com/s/ptmono/v14/9oRONYoBnWILk-9AnCEzM-Py.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ptmono/v13/9oRONYoBnWILk-9AnC8zMw.woff2',
+					'https://fonts.gstatic.com/s/ptmono/v14/9oRONYoBnWILk-9AnC8zMw.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Spirax',
 	importName: 'Spirax',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Spirax:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/spirax/v21/buE3poKgYNLy0F3sWUFs.woff2',
+					'https://fonts.gstatic.com/s/spirax/v22/buE3poKgYNLy0F3sWUFs.woff2',
 			},
 		},
 	},

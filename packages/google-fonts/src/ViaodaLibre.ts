@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Viaoda Libre',
 	importName: 'ViaodaLibre',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Viaoda+Libre:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,15 +20,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/viaodalibre/v19/vEFW2_lWCgoR6OKuRz9kcRV5ZWgZ6tM.woff2',
+					'https://fonts.gstatic.com/s/viaodalibre/v20/vEFW2_lWCgoR6OKuRz9kcRV5ZWgZ6tM.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/viaodalibre/v19/vEFW2_lWCgoR6OKuRz9kcRV5bGgZ6tM.woff2',
+					'https://fonts.gstatic.com/s/viaodalibre/v20/vEFW2_lWCgoR6OKuRz9kcRV5bGgZ6tM.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/viaodalibre/v19/vEFW2_lWCgoR6OKuRz9kcRV5Z2gZ6tM.woff2',
+					'https://fonts.gstatic.com/s/viaodalibre/v20/vEFW2_lWCgoR6OKuRz9kcRV5Z2gZ6tM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/viaodalibre/v19/vEFW2_lWCgoR6OKuRz9kcRV5ZmgZ6tM.woff2',
+					'https://fonts.gstatic.com/s/viaodalibre/v20/vEFW2_lWCgoR6OKuRz9kcRV5ZmgZ6tM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/viaodalibre/v19/vEFW2_lWCgoR6OKuRz9kcRV5aGgZ.woff2',
+					'https://fonts.gstatic.com/s/viaodalibre/v20/vEFW2_lWCgoR6OKuRz9kcRV5aGgZ.woff2',
 			},
 		},
 	},

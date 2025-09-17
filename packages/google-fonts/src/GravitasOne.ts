@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gravitas One',
 	importName: 'GravitasOne',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Gravitas+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/gravitasone/v20/5h1diZ4hJ3cblKy3LWakKQmqCm5M.woff2',
+					'https://fonts.gstatic.com/s/gravitasone/v21/5h1diZ4hJ3cblKy3LWakKQmqCm5M.woff2',
 			},
 		},
 	},

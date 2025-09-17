@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'La Belle Aurore',
 	importName: 'LaBelleAurore',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=La+Belle+Aurore:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/labelleaurore/v22/RrQIbot8-mNYKnGNDkWlocovHeI4Eu2EBVk.woff2',
+					'https://fonts.gstatic.com/s/labelleaurore/v23/RrQIbot8-mNYKnGNDkWlocovHeI4Eu2EBVk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/labelleaurore/v22/RrQIbot8-mNYKnGNDkWlocovHeI4HO2E.woff2',
+					'https://fonts.gstatic.com/s/labelleaurore/v23/RrQIbot8-mNYKnGNDkWlocovHeI4HO2E.woff2',
 			},
 		},
 	},

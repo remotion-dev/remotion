@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Over the Rainbow',
 	importName: 'OvertheRainbow',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Over+the+Rainbow:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/overtherainbow/v22/11haGoXG1k_HKhMLUWz7Mc7vvW5ulvqs9eA2.woff2',
+					'https://fonts.gstatic.com/s/overtherainbow/v23/11haGoXG1k_HKhMLUWz7Mc7vvW5ulvqs9eA2.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/overtherainbow/v22/11haGoXG1k_HKhMLUWz7Mc7vvW5ulvSs9Q.woff2',
+					'https://fonts.gstatic.com/s/overtherainbow/v23/11haGoXG1k_HKhMLUWz7Mc7vvW5ulvSs9Q.woff2',
 			},
 		},
 	},

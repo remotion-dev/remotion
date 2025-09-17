@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Macondo Swash Caps',
 	importName: 'MacondoSwashCaps',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Macondo+Swash+Caps:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/macondoswashcaps/v25/6NUL8EaAJgGKZA7lpt941Z9s6ZYgDq6-fUAb.woff2',
+					'https://fonts.gstatic.com/s/macondoswashcaps/v26/6NUL8EaAJgGKZA7lpt941Z9s6ZYgDq6-fUAb.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Wix Madefor Display',
 	importName: 'WixMadeforDisplay',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,63 +20,63 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVzuAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVzuAnVe.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVXuAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVXuAnVe.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV7uAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV7uAnVe.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV_uAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV_uAnVe.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVHuAg.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVHuAg.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVzuAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVzuAnVe.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVXuAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVXuAnVe.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV7uAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV7uAnVe.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV_uAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV_uAnVe.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVHuAg.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVHuAg.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVzuAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVzuAnVe.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVXuAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVXuAnVe.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV7uAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV7uAnVe.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV_uAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV_uAnVe.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVHuAg.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVHuAg.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVzuAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVzuAnVe.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVXuAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVXuAnVe.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV7uAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV7uAnVe.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV_uAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV_uAnVe.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVHuAg.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVHuAg.woff2',
 			},
 			'800': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVzuAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVzuAnVe.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVXuAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVXuAnVe.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV7uAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV7uAnVe.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV_uAnVe.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CV_uAnVe.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/wixmadefordisplay/v11/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVHuAg.woff2',
+					'https://fonts.gstatic.com/s/wixmadefordisplay/v12/SZcl3EX9IbbyeJ8aOluD52KXgUA_7Ed1CVHuAg.woff2',
 			},
 		},
 	},

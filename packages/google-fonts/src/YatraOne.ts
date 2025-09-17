@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yatra One',
 	importName: 'YatraOne',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Yatra+One:ital,wght@0,400',
 	unicodeRanges: {
 		devanagari:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/yatraone/v15/C8ch4copsHzj8p7NaF0BxVmAXRA.woff2',
+					'https://fonts.gstatic.com/s/yatraone/v16/C8ch4copsHzj8p7NaF0BxVmAXRA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yatraone/v15/C8ch4copsHzj8p7NaF0BylmAXRA.woff2',
+					'https://fonts.gstatic.com/s/yatraone/v16/C8ch4copsHzj8p7NaF0BylmAXRA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yatraone/v15/C8ch4copsHzj8p7NaF0BxFmA.woff2',
+					'https://fonts.gstatic.com/s/yatraone/v16/C8ch4copsHzj8p7NaF0BxFmA.woff2',
 			},
 		},
 	},

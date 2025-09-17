@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Port Lligat Sans',
 	importName: 'PortLligatSans',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Port+Lligat+Sans:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/portlligatsans/v23/kmKmZrYrGBbdN1aV7Vokow6Lw4s4p7R-Tg.woff2',
+					'https://fonts.gstatic.com/s/portlligatsans/v24/kmKmZrYrGBbdN1aV7Vokow6Lw4s4p7R-Tg.woff2',
 			},
 		},
 	},

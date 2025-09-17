@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tajawal',
 	importName: 'Tajawal',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Tajawal:ital,wght@0,200;0,300;0,400;0,500;0,700;0,800;0,900',
 	unicodeRanges: {
 		arabic:
@@ -15,45 +15,45 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				arabic:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iurf6YBj_oCad4k1l_6gHrRpiYlJ.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iurf6YBj_oCad4k1l_6gHrRpiYlJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iurf6YBj_oCad4k1l_6gHrFpiQ.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iurf6YBj_oCad4k1l_6gHrFpiQ.woff2',
 			},
 			'300': {
 				arabic:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iurf6YBj_oCad4k1l5qjHrRpiYlJ.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iurf6YBj_oCad4k1l5qjHrRpiYlJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iurf6YBj_oCad4k1l5qjHrFpiQ.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iurf6YBj_oCad4k1l5qjHrFpiQ.woff2',
 			},
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iura6YBj_oCad4k1nzSBC45I.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iura6YBj_oCad4k1nzSBC45I.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iura6YBj_oCad4k1nzGBCw.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iura6YBj_oCad4k1nzGBCw.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iurf6YBj_oCad4k1l8KiHrRpiYlJ.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iurf6YBj_oCad4k1l8KiHrRpiYlJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iurf6YBj_oCad4k1l8KiHrFpiQ.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iurf6YBj_oCad4k1l8KiHrFpiQ.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iurf6YBj_oCad4k1l4qkHrRpiYlJ.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iurf6YBj_oCad4k1l4qkHrRpiYlJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iurf6YBj_oCad4k1l4qkHrFpiQ.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iurf6YBj_oCad4k1l4qkHrFpiQ.woff2',
 			},
 			'800': {
 				arabic:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iurf6YBj_oCad4k1l5anHrRpiYlJ.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iurf6YBj_oCad4k1l5anHrRpiYlJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iurf6YBj_oCad4k1l5anHrFpiQ.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iurf6YBj_oCad4k1l5anHrFpiQ.woff2',
 			},
 			'900': {
 				arabic:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iurf6YBj_oCad4k1l7KmHrRpiYlJ.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iurf6YBj_oCad4k1l7KmHrRpiYlJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tajawal/v11/Iurf6YBj_oCad4k1l7KmHrFpiQ.woff2',
+					'https://fonts.gstatic.com/s/tajawal/v12/Iurf6YBj_oCad4k1l7KmHrFpiQ.woff2',
 			},
 		},
 	},

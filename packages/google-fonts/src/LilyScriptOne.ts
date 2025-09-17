@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lily Script One',
 	importName: 'LilyScriptOne',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Lily+Script+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lilyscriptone/v15/LhW9MV7ZMfIPdMxeBjBvFN8SXLSIi86icNs.woff2',
+					'https://fonts.gstatic.com/s/lilyscriptone/v16/LhW9MV7ZMfIPdMxeBjBvFN8SXLSIi86icNs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lilyscriptone/v15/LhW9MV7ZMfIPdMxeBjBvFN8SXLSIhc6i.woff2',
+					'https://fonts.gstatic.com/s/lilyscriptone/v16/LhW9MV7ZMfIPdMxeBjBvFN8SXLSIhc6i.woff2',
 			},
 		},
 	},

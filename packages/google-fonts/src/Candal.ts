@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Candal',
 	importName: 'Candal',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Candal:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/candal/v15/XoHn2YH6T7-t_8c9BhQI.woff2',
+					'https://fonts.gstatic.com/s/candal/v16/XoHn2YH6T7-t_8c9BhQI.woff2',
 			},
 		},
 	},

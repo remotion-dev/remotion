@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Offside',
 	importName: 'Offside',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Offside:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/offside/v25/HI_KiYMWKa9QrAykc5joR6-d.woff2',
+					'https://fonts.gstatic.com/s/offside/v26/HI_KiYMWKa9QrAykc5joR6-d.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/offside/v25/HI_KiYMWKa9QrAykc5boRw.woff2',
+					'https://fonts.gstatic.com/s/offside/v26/HI_KiYMWKa9QrAykc5boRw.woff2',
 			},
 		},
 	},

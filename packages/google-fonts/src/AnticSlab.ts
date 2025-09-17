@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Antic Slab',
 	importName: 'AnticSlab',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Antic+Slab:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/anticslab/v16/bWt97fPFfRzkCa9Jlp6IacVcXA.woff2',
+					'https://fonts.gstatic.com/s/anticslab/v17/bWt97fPFfRzkCa9Jlp6IacVcXA.woff2',
 			},
 		},
 	},

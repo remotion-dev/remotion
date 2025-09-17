@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Passions Conflict',
 	importName: 'PassionsConflict',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Passions+Conflict:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/passionsconflict/v8/kmKnZrcrFhfafnWX9x0GuEC-zowow6NWaxMICA.woff2',
+					'https://fonts.gstatic.com/s/passionsconflict/v9/kmKnZrcrFhfafnWX9x0GuEC-zowow6NWaxMICA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/passionsconflict/v8/kmKnZrcrFhfafnWX9x0GuEC-zowow6NXaxMICA.woff2',
+					'https://fonts.gstatic.com/s/passionsconflict/v9/kmKnZrcrFhfafnWX9x0GuEC-zowow6NXaxMICA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/passionsconflict/v8/kmKnZrcrFhfafnWX9x0GuEC-zowow6NZaxM.woff2',
+					'https://fonts.gstatic.com/s/passionsconflict/v9/kmKnZrcrFhfafnWX9x0GuEC-zowow6NZaxM.woff2',
 			},
 		},
 	},

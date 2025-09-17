@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Butcherman',
 	importName: 'Butcherman',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Butcherman:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/butcherman/v24/2EbiL-thF0loflXUBOdb5zy5qs5u.woff2',
+					'https://fonts.gstatic.com/s/butcherman/v25/2EbiL-thF0loflXUBOdb5zy5qs5u.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/butcherman/v24/2EbiL-thF0loflXUBOdb5zK5qg.woff2',
+					'https://fonts.gstatic.com/s/butcherman/v25/2EbiL-thF0loflXUBOdb5zK5qg.woff2',
 			},
 		},
 	},

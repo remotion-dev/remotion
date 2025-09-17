@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Carrois Gothic',
 	importName: 'CarroisGothic',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Carrois+Gothic:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/carroisgothic/v16/Z9XPDmFATg-N1PLtLOOxvIHl9amE1C8.woff2',
+					'https://fonts.gstatic.com/s/carroisgothic/v17/Z9XPDmFATg-N1PLtLOOxvIHl9amE1C8.woff2',
 			},
 		},
 	},

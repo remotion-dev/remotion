@@ -2,12 +2,13 @@ import React, {useEffect, useState} from 'react';
 import {
 	AbsoluteFill,
 	cancelRender,
-	delayRender,
 	useCurrentFrame,
+	useDelayRender,
 } from 'remotion';
 
 export const CancelRender: React.FC = () => {
 	const frame = useCurrentFrame();
+	const {delayRender} = useDelayRender();
 	useState(() => delayRender('Rendering...'));
 
 	useEffect(() => {

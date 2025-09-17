@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Playball',
 	importName: 'Playball',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Playball:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/playball/v21/TK3gWksYAxQ7jbsKcg8Lnep_Kg.woff2',
+					'https://fonts.gstatic.com/s/playball/v22/TK3gWksYAxQ7jbsKcg8Lnep_Kg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playball/v21/TK3gWksYAxQ7jbsKcg8Knep_Kg.woff2',
+					'https://fonts.gstatic.com/s/playball/v22/TK3gWksYAxQ7jbsKcg8Knep_Kg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playball/v21/TK3gWksYAxQ7jbsKcg8Eneo.woff2',
+					'https://fonts.gstatic.com/s/playball/v22/TK3gWksYAxQ7jbsKcg8Eneo.woff2',
 			},
 		},
 	},

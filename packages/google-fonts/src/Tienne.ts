@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tienne',
 	importName: 'Tienne',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Tienne:ital,wght@0,400;0,700;0,900',
 	unicodeRanges: {
 		latin:
@@ -13,15 +13,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/tienne/v20/AYCKpX7pe9YCRP07l0nG.woff2',
+					'https://fonts.gstatic.com/s/tienne/v21/AYCKpX7pe9YCRP07l0nG.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/tienne/v20/AYCJpX7pe9YCRP0zLGzTR3Jv.woff2',
+					'https://fonts.gstatic.com/s/tienne/v21/AYCJpX7pe9YCRP0zLGzTR3Jv.woff2',
 			},
 			'900': {
 				latin:
-					'https://fonts.gstatic.com/s/tienne/v20/AYCJpX7pe9YCRP0zFG7TR3Jv.woff2',
+					'https://fonts.gstatic.com/s/tienne/v21/AYCJpX7pe9YCRP0zFG7TR3Jv.woff2',
 			},
 		},
 	},

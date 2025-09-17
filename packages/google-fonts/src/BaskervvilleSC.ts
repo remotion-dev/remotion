@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Baskervville SC',
 	importName: 'BaskervvilleSC',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Baskervville+SC:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,27 +15,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baskervvillesc/v3/X7n94bc_DeKlh6bBbk_WiKnBSUvh5l52hiQ.woff2',
+					'https://fonts.gstatic.com/s/baskervvillesc/v4/X7n94bc_DeKlh6bBbk_WiKnBSUvh5l52hiQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baskervvillesc/v3/X7n94bc_DeKlh6bBbk_WiKnBSUvh6F52.woff2',
+					'https://fonts.gstatic.com/s/baskervvillesc/v4/X7n94bc_DeKlh6bBbk_WiKnBSUvh6F52.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baskervvillesc/v3/X7n94bc_DeKlh6bBbk_WiKnBSUvh5l52hiQ.woff2',
+					'https://fonts.gstatic.com/s/baskervvillesc/v4/X7n94bc_DeKlh6bBbk_WiKnBSUvh5l52hiQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baskervvillesc/v3/X7n94bc_DeKlh6bBbk_WiKnBSUvh6F52.woff2',
+					'https://fonts.gstatic.com/s/baskervvillesc/v4/X7n94bc_DeKlh6bBbk_WiKnBSUvh6F52.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baskervvillesc/v3/X7n94bc_DeKlh6bBbk_WiKnBSUvh5l52hiQ.woff2',
+					'https://fonts.gstatic.com/s/baskervvillesc/v4/X7n94bc_DeKlh6bBbk_WiKnBSUvh5l52hiQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baskervvillesc/v3/X7n94bc_DeKlh6bBbk_WiKnBSUvh6F52.woff2',
+					'https://fonts.gstatic.com/s/baskervvillesc/v4/X7n94bc_DeKlh6bBbk_WiKnBSUvh6F52.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baskervvillesc/v3/X7n94bc_DeKlh6bBbk_WiKnBSUvh5l52hiQ.woff2',
+					'https://fonts.gstatic.com/s/baskervvillesc/v4/X7n94bc_DeKlh6bBbk_WiKnBSUvh5l52hiQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baskervvillesc/v3/X7n94bc_DeKlh6bBbk_WiKnBSUvh6F52.woff2',
+					'https://fonts.gstatic.com/s/baskervvillesc/v4/X7n94bc_DeKlh6bBbk_WiKnBSUvh6F52.woff2',
 			},
 		},
 	},

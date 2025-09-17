@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kite One',
 	importName: 'KiteOne',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Kite+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kiteone/v22/70lQu7shLnA_E02vyp1S4nj2Ow.woff2',
+					'https://fonts.gstatic.com/s/kiteone/v23/70lQu7shLnA_E02vyp1S4nj2Ow.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kiteone/v22/70lQu7shLnA_E02vyp1c4ng.woff2',
+					'https://fonts.gstatic.com/s/kiteone/v23/70lQu7shLnA_E02vyp1c4ng.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Denk One',
 	importName: 'DenkOne',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Denk+One:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -19,13 +19,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/denkone/v20/dg4m_pzhrqcFb2IzRNtNr7kVSg.woff2',
+					'https://fonts.gstatic.com/s/denkone/v21/dg4m_pzhrqcFb2IzRNtNr7kVSg.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/denkone/v20/dg4m_pzhrqcFb2IzRNtPr7kVSg.woff2',
+					'https://fonts.gstatic.com/s/denkone/v21/dg4m_pzhrqcFb2IzRNtPr7kVSg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/denkone/v20/dg4m_pzhrqcFb2IzRNtOr7kVSg.woff2',
+					'https://fonts.gstatic.com/s/denkone/v21/dg4m_pzhrqcFb2IzRNtOr7kVSg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/denkone/v20/dg4m_pzhrqcFb2IzRNtAr7k.woff2',
+					'https://fonts.gstatic.com/s/denkone/v21/dg4m_pzhrqcFb2IzRNtAr7k.woff2',
 			},
 		},
 	},

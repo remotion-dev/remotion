@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Inika',
 	importName: 'Inika',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Inika:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inika/v21/rnCm-x5X3QP-piTOT8YGsw.woff2',
+					'https://fonts.gstatic.com/s/inika/v22/rnCm-x5X3QP-piTOT8YGsw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inika/v21/rnCm-x5X3QP-piTAT8Y.woff2',
+					'https://fonts.gstatic.com/s/inika/v22/rnCm-x5X3QP-piTAT8Y.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inika/v21/rnCr-x5X3QP-pix7atM3knj-SA.woff2',
+					'https://fonts.gstatic.com/s/inika/v22/rnCr-x5X3QP-pix7atM3knj-SA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inika/v21/rnCr-x5X3QP-pix7atM5kng.woff2',
+					'https://fonts.gstatic.com/s/inika/v22/rnCr-x5X3QP-pix7atM5kng.woff2',
 			},
 		},
 	},

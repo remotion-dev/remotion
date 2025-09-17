@@ -7,11 +7,11 @@ import React, {
 } from 'react';
 import {
 	cancelRender,
-	continueRender,
-	delayRender,
 	Internals,
 	random,
 	useCurrentFrame,
+	useDelayRender,
+	useRemotionEnvironment,
 } from 'remotion';
 import {extractFrameViaBroadcastChannel} from './extract-frame-via-broadcast-channel';
 import type {NewVideoProps} from './props';
@@ -50,6 +50,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	const volumePropsFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
+	const environment = useRemotionEnvironment();
 
 	const id = useMemo(
 		() =>
@@ -77,6 +78,8 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		frame: volumePropsFrame,
 		mediaVolume: 1,
 	});
+
+	Internals.warnAboutTooHighVolume(volume);
 
 	useEffect(() => {
 		if (!src) {
@@ -126,6 +129,8 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 	const {fps} = videoConfig;
 
+	const {delayRender, continueRender} = useDelayRender();
+
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
 			return;
@@ -143,6 +148,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 			src,
 			timestamp,
 			logLevel: logLevel ?? 'info',
+			isClientSideRendering: environment.isClientSideRendering,
 		})
 			.then((imageBitmap) => {
 				if (!imageBitmap) {
@@ -171,6 +177,9 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		playbackRate,
 		src,
 		logLevel,
+		environment.isClientSideRendering,
+		delayRender,
+		continueRender,
 	]);
 
 	return (

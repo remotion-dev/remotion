@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Oriya',
 	importName: 'NotoSerifOriya',
-	version: 'v5',
+	version: 'v6',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Oriya:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		oriya:
@@ -17,35 +17,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				oriya:
-					'https://fonts.gstatic.com/s/notoseriforiya/v5/MjQdmj56u-r69izk_LDqWN7w0cYB4P5HB08K.woff2',
+					'https://fonts.gstatic.com/s/notoseriforiya/v6/MjQdmj56u-r69izk_LDqWN7w0cYB4P5HB08K.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriforiya/v5/MjQdmj56u-r69izk_LDqWN7w0cYB4OlHB08K.woff2',
+					'https://fonts.gstatic.com/s/notoseriforiya/v6/MjQdmj56u-r69izk_LDqWN7w0cYB4OlHB08K.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriforiya/v5/MjQdmj56u-r69izk_LDqWN7w0cYB4OdHBw.woff2',
+					'https://fonts.gstatic.com/s/notoseriforiya/v6/MjQdmj56u-r69izk_LDqWN7w0cYB4OdHBw.woff2',
 			},
 			'500': {
 				oriya:
-					'https://fonts.gstatic.com/s/notoseriforiya/v5/MjQdmj56u-r69izk_LDqWN7w0cYB4P5HB08K.woff2',
+					'https://fonts.gstatic.com/s/notoseriforiya/v6/MjQdmj56u-r69izk_LDqWN7w0cYB4P5HB08K.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriforiya/v5/MjQdmj56u-r69izk_LDqWN7w0cYB4OlHB08K.woff2',
+					'https://fonts.gstatic.com/s/notoseriforiya/v6/MjQdmj56u-r69izk_LDqWN7w0cYB4OlHB08K.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriforiya/v5/MjQdmj56u-r69izk_LDqWN7w0cYB4OdHBw.woff2',
+					'https://fonts.gstatic.com/s/notoseriforiya/v6/MjQdmj56u-r69izk_LDqWN7w0cYB4OdHBw.woff2',
 			},
 			'600': {
 				oriya:
-					'https://fonts.gstatic.com/s/notoseriforiya/v5/MjQdmj56u-r69izk_LDqWN7w0cYB4P5HB08K.woff2',
+					'https://fonts.gstatic.com/s/notoseriforiya/v6/MjQdmj56u-r69izk_LDqWN7w0cYB4P5HB08K.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriforiya/v5/MjQdmj56u-r69izk_LDqWN7w0cYB4OlHB08K.woff2',
+					'https://fonts.gstatic.com/s/notoseriforiya/v6/MjQdmj56u-r69izk_LDqWN7w0cYB4OlHB08K.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriforiya/v5/MjQdmj56u-r69izk_LDqWN7w0cYB4OdHBw.woff2',
+					'https://fonts.gstatic.com/s/notoseriforiya/v6/MjQdmj56u-r69izk_LDqWN7w0cYB4OdHBw.woff2',
 			},
 			'700': {
 				oriya:
-					'https://fonts.gstatic.com/s/notoseriforiya/v5/MjQdmj56u-r69izk_LDqWN7w0cYB4P5HB08K.woff2',
+					'https://fonts.gstatic.com/s/notoseriforiya/v6/MjQdmj56u-r69izk_LDqWN7w0cYB4P5HB08K.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriforiya/v5/MjQdmj56u-r69izk_LDqWN7w0cYB4OlHB08K.woff2',
+					'https://fonts.gstatic.com/s/notoseriforiya/v6/MjQdmj56u-r69izk_LDqWN7w0cYB4OlHB08K.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriforiya/v5/MjQdmj56u-r69izk_LDqWN7w0cYB4OdHBw.woff2',
+					'https://fonts.gstatic.com/s/notoseriforiya/v6/MjQdmj56u-r69izk_LDqWN7w0cYB4OdHBw.woff2',
 			},
 		},
 	},

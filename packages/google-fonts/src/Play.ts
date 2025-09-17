@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Play',
 	importName: 'Play',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Play:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -22,30 +22,30 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/play/v20/6aez4K2oVqwIvtg2H68T.woff2',
+					'https://fonts.gstatic.com/s/play/v21/6aez4K2oVqwIvtg2H68T.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/play/v20/6aez4K2oVqwIvtE2H68T.woff2',
+					'https://fonts.gstatic.com/s/play/v21/6aez4K2oVqwIvtE2H68T.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/play/v20/6aez4K2oVqwIvtY2H68T.woff2',
+					'https://fonts.gstatic.com/s/play/v21/6aez4K2oVqwIvtY2H68T.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/play/v20/6aez4K2oVqwIvto2H68T.woff2',
+					'https://fonts.gstatic.com/s/play/v21/6aez4K2oVqwIvto2H68T.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/play/v20/6aez4K2oVqwIvts2H68T.woff2',
-				latin: 'https://fonts.gstatic.com/s/play/v20/6aez4K2oVqwIvtU2Hw.woff2',
+					'https://fonts.gstatic.com/s/play/v21/6aez4K2oVqwIvts2H68T.woff2',
+				latin: 'https://fonts.gstatic.com/s/play/v21/6aez4K2oVqwIvtU2Hw.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/play/v20/6ae84K2oVqwItm4TCp0y2knT.woff2',
+					'https://fonts.gstatic.com/s/play/v21/6ae84K2oVqwItm4TCp0y2knT.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/play/v20/6ae84K2oVqwItm4TCpQy2knT.woff2',
+					'https://fonts.gstatic.com/s/play/v21/6ae84K2oVqwItm4TCpQy2knT.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/play/v20/6ae84K2oVqwItm4TCpMy2knT.woff2',
+					'https://fonts.gstatic.com/s/play/v21/6ae84K2oVqwItm4TCpMy2knT.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/play/v20/6ae84K2oVqwItm4TCp8y2knT.woff2',
+					'https://fonts.gstatic.com/s/play/v21/6ae84K2oVqwItm4TCp8y2knT.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/play/v20/6ae84K2oVqwItm4TCp4y2knT.woff2',
+					'https://fonts.gstatic.com/s/play/v21/6ae84K2oVqwItm4TCp4y2knT.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/play/v20/6ae84K2oVqwItm4TCpAy2g.woff2',
+					'https://fonts.gstatic.com/s/play/v21/6ae84K2oVqwItm4TCpAy2g.woff2',
 			},
 		},
 	},

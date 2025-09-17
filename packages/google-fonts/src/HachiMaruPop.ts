@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hachi Maru Pop',
 	importName: 'HachiMaruPop',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':
@@ -247,245 +247,245 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'[2]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.2.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.3.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.4.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.5.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.6.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.7.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.8.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.9.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.9.woff2',
 				'[10]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.10.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.10.woff2',
 				'[11]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.11.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.11.woff2',
 				'[12]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.12.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.12.woff2',
 				'[13]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.13.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.13.woff2',
 				'[14]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.14.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.14.woff2',
 				'[15]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.15.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.15.woff2',
 				'[16]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.16.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.16.woff2',
 				'[17]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.17.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.17.woff2',
 				'[18]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.18.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.18.woff2',
 				'[19]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.19.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.19.woff2',
 				'[20]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.20.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.20.woff2',
 				'[21]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.21.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.21.woff2',
 				'[22]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.22.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.22.woff2',
 				'[23]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.23.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.23.woff2',
 				'[24]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.24.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.24.woff2',
 				'[25]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.25.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.25.woff2',
 				'[26]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.26.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.26.woff2',
 				'[27]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.27.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.27.woff2',
 				'[28]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.28.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.28.woff2',
 				'[29]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.29.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.29.woff2',
 				'[30]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.30.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.30.woff2',
 				'[31]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.31.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.31.woff2',
 				'[32]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.32.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.32.woff2',
 				'[33]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.33.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.33.woff2',
 				'[34]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.34.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.34.woff2',
 				'[35]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.35.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.35.woff2',
 				'[36]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.36.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.36.woff2',
 				'[37]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.37.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.37.woff2',
 				'[38]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.38.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.38.woff2',
 				'[39]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.39.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.39.woff2',
 				'[40]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.40.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.40.woff2',
 				'[41]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.41.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.41.woff2',
 				'[42]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.42.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.42.woff2',
 				'[43]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.43.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.43.woff2',
 				'[44]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.44.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.44.woff2',
 				'[45]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.45.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.45.woff2',
 				'[46]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.46.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.46.woff2',
 				'[47]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.47.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.47.woff2',
 				'[48]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.48.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.48.woff2',
 				'[49]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.49.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.49.woff2',
 				'[50]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.50.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.50.woff2',
 				'[51]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.51.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.51.woff2',
 				'[52]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.52.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.52.woff2',
 				'[53]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.53.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.53.woff2',
 				'[54]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.54.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.54.woff2',
 				'[55]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.55.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.55.woff2',
 				'[56]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.56.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.56.woff2',
 				'[58]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.58.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.58.woff2',
 				'[59]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.59.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.59.woff2',
 				'[60]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.60.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.60.woff2',
 				'[61]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.61.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.61.woff2',
 				'[62]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.62.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.62.woff2',
 				'[63]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.63.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.63.woff2',
 				'[64]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.64.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.64.woff2',
 				'[65]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.65.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.65.woff2',
 				'[66]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.66.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.66.woff2',
 				'[67]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.67.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.67.woff2',
 				'[68]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.68.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.68.woff2',
 				'[69]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.69.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.69.woff2',
 				'[70]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.70.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.70.woff2',
 				'[71]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.71.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.71.woff2',
 				'[72]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.72.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.72.woff2',
 				'[73]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.73.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.73.woff2',
 				'[74]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.74.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.74.woff2',
 				'[75]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.75.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.75.woff2',
 				'[76]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.76.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.76.woff2',
 				'[77]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.77.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.77.woff2',
 				'[78]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.78.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.78.woff2',
 				'[79]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.79.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.79.woff2',
 				'[80]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.80.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.80.woff2',
 				'[81]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.81.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.81.woff2',
 				'[82]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.82.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.82.woff2',
 				'[83]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.83.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.83.woff2',
 				'[84]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.84.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.84.woff2',
 				'[85]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.85.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.85.woff2',
 				'[86]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.86.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.86.woff2',
 				'[87]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.87.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.87.woff2',
 				'[88]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.88.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.88.woff2',
 				'[89]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.89.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.89.woff2',
 				'[90]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.90.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.90.woff2',
 				'[91]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.91.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.91.woff2',
 				'[92]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.92.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.92.woff2',
 				'[93]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.93.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.93.woff2',
 				'[94]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.94.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.94.woff2',
 				'[95]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.95.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.95.woff2',
 				'[96]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.96.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.96.woff2',
 				'[97]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.97.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.97.woff2',
 				'[98]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.98.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.98.woff2',
 				'[99]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.99.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.99.woff2',
 				'[100]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.100.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.100.woff2',
 				'[101]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.101.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.101.woff2',
 				'[102]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.102.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.102.woff2',
 				'[103]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.103.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.103.woff2',
 				'[104]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.104.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.104.woff2',
 				'[105]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.105.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.105.woff2',
 				'[106]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.106.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.106.woff2',
 				'[107]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.107.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.107.woff2',
 				'[108]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.108.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.108.woff2',
 				'[109]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.109.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.109.woff2',
 				'[110]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.110.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.110.woff2',
 				'[111]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.111.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.111.woff2',
 				'[112]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.112.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.112.woff2',
 				'[113]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.113.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.113.woff2',
 				'[114]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.114.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.114.woff2',
 				'[115]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.115.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.115.woff2',
 				'[116]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.116.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.116.woff2',
 				'[117]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.117.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.117.woff2',
 				'[118]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.118.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.118.woff2',
 				'[119]':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.119.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7rWweN_ZpK1OtgnSaXe2-6ouLxxoAO2Opg.119.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7oW2Gs7rtQ.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7oW2Gs7rtQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7oW8Gs7rtQ.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7oW8Gs7rtQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hachimarupop/v22/HI_TiYoRLqpLrEiMAuO9Ysfz7oWyGs4.woff2',
+					'https://fonts.gstatic.com/s/hachimarupop/v23/HI_TiYoRLqpLrEiMAuO9Ysfz7oWyGs4.woff2',
 			},
 		},
 	},

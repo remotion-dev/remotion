@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lilita One',
 	importName: 'LilitaOne',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Lilita+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lilitaone/v16/i7dPIFZ9Zz-WBtRtedDbYE98RWq7.woff2',
+					'https://fonts.gstatic.com/s/lilitaone/v17/i7dPIFZ9Zz-WBtRtedDbYE98RWq7.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lilitaone/v16/i7dPIFZ9Zz-WBtRtedDbYEF8RQ.woff2',
+					'https://fonts.gstatic.com/s/lilitaone/v17/i7dPIFZ9Zz-WBtRtedDbYEF8RQ.woff2',
 			},
 		},
 	},

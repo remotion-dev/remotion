@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Covered By Your Grace',
 	importName: 'CoveredByYourGrace',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/coveredbyyourgrace/v16/QGYwz-AZahWOJJI9kykWW9mD6opopoqXSOSEHwgsm6Y.woff2',
+					'https://fonts.gstatic.com/s/coveredbyyourgrace/v17/QGYwz-AZahWOJJI9kykWW9mD6opopoqXSOSEHwgsm6Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/coveredbyyourgrace/v16/QGYwz-AZahWOJJI9kykWW9mD6opopoqXSOSEEQgs.woff2',
+					'https://fonts.gstatic.com/s/coveredbyyourgrace/v17/QGYwz-AZahWOJJI9kykWW9mD6opopoqXSOSEEQgs.woff2',
 			},
 		},
 	},

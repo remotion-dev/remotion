@@ -11,11 +11,12 @@ import React, {
 import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {continueRender, delayRender} from '../delay-render.js';
 import {random} from '../random.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
+import {useDelayRender} from '../use-delay-render.js';
 import {evaluateVolume} from '../volume-prop.js';
+import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import type {RemotionAudioProps} from './props.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
 
@@ -58,6 +59,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
 
+	const {delayRender, continueRender} = useDelayRender();
+
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
 	const id = useMemo(
@@ -78,6 +81,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		frame: volumePropFrame,
 		mediaVolume: 1,
 	});
+	warnAboutTooHighVolume(volume);
 
 	useImperativeHandle(ref, () => {
 		return audioRef.current as HTMLVideoElement;
@@ -179,6 +183,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		needsToRenderAudioTag,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
+		continueRender,
+		delayRender,
 	]);
 
 	if (!needsToRenderAudioTag) {

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Takri',
 	importName: 'NotoSansTakri',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Takri:ital,wght@0,400',
 	unicodeRanges: {
 		takri: 'U+0964-0965, U+200C-200D, U+25CC, U+A830-A839, U+11680-116CF',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				takri:
-					'https://fonts.gstatic.com/s/notosanstakri/v24/TuGJUVpzXI5FBtUq5a8bnKIOdTwgR-XX7kg.woff2',
+					'https://fonts.gstatic.com/s/notosanstakri/v25/TuGJUVpzXI5FBtUq5a8bnKIOdTwgR-XX7kg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstakri/v24/TuGJUVpzXI5FBtUq5a8bnKIOdTwgPeXX7kg.woff2',
+					'https://fonts.gstatic.com/s/notosanstakri/v25/TuGJUVpzXI5FBtUq5a8bnKIOdTwgPeXX7kg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstakri/v24/TuGJUVpzXI5FBtUq5a8bnKIOdTwgM-XX.woff2',
+					'https://fonts.gstatic.com/s/notosanstakri/v25/TuGJUVpzXI5FBtUq5a8bnKIOdTwgM-XX.woff2',
 			},
 		},
 	},

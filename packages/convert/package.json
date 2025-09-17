@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/convert",
-	"version": "4.0.341",
+	"version": "4.0.347",
 	"private": true,
 	"sideEffects": false,
 	"type": "module",
@@ -49,7 +49,7 @@
 		"eslint": "9.19.0",
 		"postcss": "8.4.47",
 		"tailwindcss": "4.1.10",
-		"vite": "5.4.19",
+		"vite": "5.4.20",
 		"vite-tsconfig-paths": "^4.2.1"
 	},
 	"engines": {

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Magra',
 	importName: 'Magra',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Magra:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/magra/v14/uK_94ruaZus72n54KjIvOw.woff2',
+					'https://fonts.gstatic.com/s/magra/v15/uK_94ruaZus72n54KjIvOw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/magra/v14/uK_94ruaZus72n52KjI.woff2',
+					'https://fonts.gstatic.com/s/magra/v15/uK_94ruaZus72n52KjI.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/magra/v14/uK_w4ruaZus72nbNDyceGvqkXw.woff2',
+					'https://fonts.gstatic.com/s/magra/v15/uK_w4ruaZus72nbNDyceGvqkXw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/magra/v14/uK_w4ruaZus72nbNDycQGvo.woff2',
+					'https://fonts.gstatic.com/s/magra/v15/uK_w4ruaZus72nbNDycQGvo.woff2',
 			},
 		},
 	},

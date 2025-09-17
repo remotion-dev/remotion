@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cardo',
 	importName: 'Cardo',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400',
 	unicodeRanges: {
 		gothic: 'U+0304-0305, U+0308, U+0331, U+10330-1034A',
@@ -23,59 +23,59 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				gothic:
-					'https://fonts.gstatic.com/s/cardo/v20/wlpxgwjKBV1pqhv97LQx3F5O.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpxgwjKBV1pqhv97LQx3F5O.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/cardo/v20/wlpxgwjKBV1pqhv97I8x3F5O.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpxgwjKBV1pqhv97I8x3F5O.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/cardo/v20/wlpxgwjKBV1pqhv97IAx3F5O.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpxgwjKBV1pqhv97IAx3F5O.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/cardo/v20/wlpxgwjKBV1pqhv97IEx3F5O.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpxgwjKBV1pqhv97IEx3F5O.woff2',
 				'old-italic':
-					'https://fonts.gstatic.com/s/cardo/v20/wlpxgwjKBV1pqhv97MEx3F5O.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpxgwjKBV1pqhv97MEx3F5O.woff2',
 				runic:
-					'https://fonts.gstatic.com/s/cardo/v20/wlpxgwjKBV1pqhv97Lcx3F5O.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpxgwjKBV1pqhv97Lcx3F5O.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cardo/v20/wlpxgwjKBV1pqhv97I0x3F5O.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpxgwjKBV1pqhv97I0x3F5O.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cardo/v20/wlpxgwjKBV1pqhv97IMx3A.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpxgwjKBV1pqhv97IMx3A.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				gothic:
-					'https://fonts.gstatic.com/s/cardo/v20/wlp_gwjKBV1pqhvP3IEp2A.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlp_gwjKBV1pqhvP3IEp2A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/cardo/v20/wlp_gwjKBV1pqhv03IEp2A.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlp_gwjKBV1pqhv03IEp2A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/cardo/v20/wlp_gwjKBV1pqhv73IEp2A.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlp_gwjKBV1pqhv73IEp2A.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/cardo/v20/wlp_gwjKBV1pqhv63IEp2A.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlp_gwjKBV1pqhv63IEp2A.woff2',
 				'old-italic':
-					'https://fonts.gstatic.com/s/cardo/v20/wlp_gwjKBV1pqhu63IEp2A.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlp_gwjKBV1pqhu63IEp2A.woff2',
 				runic:
-					'https://fonts.gstatic.com/s/cardo/v20/wlp_gwjKBV1pqhvM3IEp2A.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlp_gwjKBV1pqhvM3IEp2A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cardo/v20/wlp_gwjKBV1pqhv23IEp2A.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlp_gwjKBV1pqhv23IEp2A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cardo/v20/wlp_gwjKBV1pqhv43IE.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlp_gwjKBV1pqhv43IE.woff2',
 			},
 			'700': {
 				gothic:
-					'https://fonts.gstatic.com/s/cardo/v20/wlpygwjKBV1pqhND-ZQh-WN3aQ.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpygwjKBV1pqhND-ZQh-WN3aQ.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/cardo/v20/wlpygwjKBV1pqhND-ZQa-WN3aQ.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpygwjKBV1pqhND-ZQa-WN3aQ.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/cardo/v20/wlpygwjKBV1pqhND-ZQV-WN3aQ.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpygwjKBV1pqhND-ZQV-WN3aQ.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/cardo/v20/wlpygwjKBV1pqhND-ZQU-WN3aQ.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpygwjKBV1pqhND-ZQU-WN3aQ.woff2',
 				'old-italic':
-					'https://fonts.gstatic.com/s/cardo/v20/wlpygwjKBV1pqhND-ZRU-WN3aQ.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpygwjKBV1pqhND-ZRU-WN3aQ.woff2',
 				runic:
-					'https://fonts.gstatic.com/s/cardo/v20/wlpygwjKBV1pqhND-ZQi-WN3aQ.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpygwjKBV1pqhND-ZQi-WN3aQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cardo/v20/wlpygwjKBV1pqhND-ZQY-WN3aQ.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpygwjKBV1pqhND-ZQY-WN3aQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cardo/v20/wlpygwjKBV1pqhND-ZQW-WM.woff2',
+					'https://fonts.gstatic.com/s/cardo/v21/wlpygwjKBV1pqhND-ZQW-WM.woff2',
 			},
 		},
 	},

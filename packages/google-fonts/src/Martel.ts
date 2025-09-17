@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Martel',
 	importName: 'Martel',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Martel:ital,wght@0,200;0,300;0,400;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		devanagari:
@@ -17,59 +17,59 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				devanagari:
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XVqekqgxzWxvk.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XVqekqgxzWxvk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XVqekqjBzWxvk.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XVqekqjBzWxvk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XVqekqghzW.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XVqekqghzW.woff2',
 			},
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XVzeoqgxzWxvk.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XVzeoqgxzWxvk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XVzeoqjBzWxvk.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XVzeoqjBzWxvk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XVzeoqghzW.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XVzeoqghzW.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/martel/v11/PN_xRfK9oXHga0XdZ8g_vT0.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_xRfK9oXHga0XdZ8g_vT0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/martel/v11/PN_xRfK9oXHga0XdaMg_vT0.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_xRfK9oXHga0XdaMg_vT0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/martel/v11/PN_xRfK9oXHga0XdZsg_.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_xRfK9oXHga0XdZsg_.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XVuewqgxzWxvk.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XVuewqgxzWxvk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XVuewqjBzWxvk.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XVuewqjBzWxvk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XVuewqghzW.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XVuewqghzW.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XV3e0qgxzWxvk.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XV3e0qgxzWxvk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XV3e0qjBzWxvk.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XV3e0qjBzWxvk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XV3e0qghzW.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XV3e0qghzW.woff2',
 			},
 			'800': {
 				devanagari:
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XVwe4qgxzWxvk.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XVwe4qgxzWxvk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XVwe4qjBzWxvk.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XVwe4qjBzWxvk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XVwe4qghzW.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XVwe4qghzW.woff2',
 			},
 			'900': {
 				devanagari:
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XV5e8qgxzWxvk.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XV5e8qgxzWxvk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XV5e8qjBzWxvk.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XV5e8qjBzWxvk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/martel/v11/PN_yRfK9oXHga0XV5e8qghzW.woff2',
+					'https://fonts.gstatic.com/s/martel/v12/PN_yRfK9oXHga0XV5e8qghzW.woff2',
 			},
 		},
 	},

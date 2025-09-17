@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Inder',
 	importName: 'Inder',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Inder:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inder/v14/w8gUH2YoQe8_4sqzrQ6_3Q.woff2',
+					'https://fonts.gstatic.com/s/inder/v15/w8gUH2YoQe8_4sqzrQ6_3Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inder/v14/w8gUH2YoQe8_4sq9rQ4.woff2',
+					'https://fonts.gstatic.com/s/inder/v15/w8gUH2YoQe8_4sq9rQ4.woff2',
 			},
 		},
 	},

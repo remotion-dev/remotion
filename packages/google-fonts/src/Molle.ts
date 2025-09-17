@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Molle',
 	importName: 'Molle',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Molle:ital,wght@1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/molle/v24/E21n_dL5hOXFhWEsbzEsVhdR.woff2',
+					'https://fonts.gstatic.com/s/molle/v25/E21n_dL5hOXFhWEsbzEsVhdR.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/molle/v24/E21n_dL5hOXFhWEsbz8sVg.woff2',
+					'https://fonts.gstatic.com/s/molle/v25/E21n_dL5hOXFhWEsbz8sVg.woff2',
 			},
 		},
 	},

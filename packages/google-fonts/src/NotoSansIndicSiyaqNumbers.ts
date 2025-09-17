@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Indic Siyaq Numbers',
 	importName: 'NotoSansIndicSiyaqNumbers',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Indic+Siyaq+Numbers:ital,wght@0,400',
 	unicodeRanges: {
 		'indic-siyaq-numbers': 'U+0627, U+0660-0669, U+06F0-06F9, U+1EC71-1ECB4',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'indic-siyaq-numbers':
-					'https://fonts.gstatic.com/s/notosansindicsiyaqnumbers/v16/6xK5dTJFKcWIu4bpRBjRZRpsIYHabOeZ8UZLubTzpXNHKy0MF85YTos.woff2',
+					'https://fonts.gstatic.com/s/notosansindicsiyaqnumbers/v17/6xK5dTJFKcWIu4bpRBjRZRpsIYHabOeZ8UZLubTzpXNHKy0MF85YTos.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansindicsiyaqnumbers/v16/6xK5dTJFKcWIu4bpRBjRZRpsIYHabOeZ8UZLubTzpXNHKy2fNutldw.woff2',
+					'https://fonts.gstatic.com/s/notosansindicsiyaqnumbers/v17/6xK5dTJFKcWIu4bpRBjRZRpsIYHabOeZ8UZLubTzpXNHKy2fNutldw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansindicsiyaqnumbers/v16/6xK5dTJFKcWIu4bpRBjRZRpsIYHabOeZ8UZLubTzpXNHKy2RNus.woff2',
+					'https://fonts.gstatic.com/s/notosansindicsiyaqnumbers/v17/6xK5dTJFKcWIu4bpRBjRZRpsIYHabOeZ8UZLubTzpXNHKy2RNus.woff2',
 			},
 		},
 	},

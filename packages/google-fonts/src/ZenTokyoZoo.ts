@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Zen Tokyo Zoo',
 	importName: 'ZenTokyoZoo',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Zen+Tokyo+Zoo:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zentokyozoo/v7/NGSyv5ffC0J_BK6aFNtr6sRvwaRkRFe9.woff2',
+					'https://fonts.gstatic.com/s/zentokyozoo/v8/NGSyv5ffC0J_BK6aFNtr6sRvwaRkRFe9.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zentokyozoo/v7/NGSyv5ffC0J_BK6aFNtr6sRvwapkRA.woff2',
+					'https://fonts.gstatic.com/s/zentokyozoo/v8/NGSyv5ffC0J_BK6aFNtr6sRvwapkRA.woff2',
 			},
 		},
 	},

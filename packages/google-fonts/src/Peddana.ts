@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Peddana',
 	importName: 'Peddana',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Peddana:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/peddana/v23/aFTU7PBhaX89UcKWtgaQBLyM.woff2',
+					'https://fonts.gstatic.com/s/peddana/v24/aFTU7PBhaX89UcKWtgaQBLyM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/peddana/v23/aFTU7PBhaX89UcKWthqQBA.woff2',
+					'https://fonts.gstatic.com/s/peddana/v24/aFTU7PBhaX89UcKWthqQBA.woff2',
 			},
 		},
 	},

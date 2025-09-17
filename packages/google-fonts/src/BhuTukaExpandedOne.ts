@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'BhuTuka Expanded One',
 	importName: 'BhuTukaExpandedOne',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=BhuTuka+Expanded+One:ital,wght@0,400',
 	unicodeRanges: {
 		gurmukhi:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/bhutukaexpandedone/v8/SLXXc0jZ4WUJcClHTtv0t7IaDRsBsWRiJByz-JkPRQ.woff2',
+					'https://fonts.gstatic.com/s/bhutukaexpandedone/v9/SLXXc0jZ4WUJcClHTtv0t7IaDRsBsWRiJByz-JkPRQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bhutukaexpandedone/v8/SLXXc0jZ4WUJcClHTtv0t7IaDRsBsWRiJBye-JkPRQ.woff2',
+					'https://fonts.gstatic.com/s/bhutukaexpandedone/v9/SLXXc0jZ4WUJcClHTtv0t7IaDRsBsWRiJBye-JkPRQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bhutukaexpandedone/v8/SLXXc0jZ4WUJcClHTtv0t7IaDRsBsWRiJByQ-Jk.woff2',
+					'https://fonts.gstatic.com/s/bhutukaexpandedone/v9/SLXXc0jZ4WUJcClHTtv0t7IaDRsBsWRiJByQ-Jk.woff2',
 			},
 		},
 	},

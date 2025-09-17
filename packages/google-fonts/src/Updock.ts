@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Updock',
 	importName: 'Updock',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Updock:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/updock/v6/nuF4D_3dVZ70UI9ihLi2200.woff2',
+					'https://fonts.gstatic.com/s/updock/v7/nuF4D_3dVZ70UI9ihLi2200.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/updock/v6/nuF4D_3dVZ70UI9ihbi2200.woff2',
+					'https://fonts.gstatic.com/s/updock/v7/nuF4D_3dVZ70UI9ihbi2200.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/updock/v6/nuF4D_3dVZ70UI9ii7i2.woff2',
+					'https://fonts.gstatic.com/s/updock/v7/nuF4D_3dVZ70UI9ii7i2.woff2',
 			},
 		},
 	},

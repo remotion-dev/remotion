@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Poly',
 	importName: 'Poly',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Poly:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,16 +15,16 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/poly/v17/MQpV-W6wKNitdLK6pkrtjis.woff2',
+					'https://fonts.gstatic.com/s/poly/v18/MQpV-W6wKNitdLK6pkrtjis.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/poly/v17/MQpV-W6wKNitdLK6qErt.woff2',
+					'https://fonts.gstatic.com/s/poly/v18/MQpV-W6wKNitdLK6qErt.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/poly/v17/MQpb-W6wKNitdLmKqlLp.woff2',
-				latin: 'https://fonts.gstatic.com/s/poly/v17/MQpb-W6wKNitdLeKqg.woff2',
+					'https://fonts.gstatic.com/s/poly/v18/MQpb-W6wKNitdLmKqlLp.woff2',
+				latin: 'https://fonts.gstatic.com/s/poly/v18/MQpb-W6wKNitdLeKqg.woff2',
 			},
 		},
 	},

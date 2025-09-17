@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Vujahday Script',
 	importName: 'VujahdayScript',
-	version: 'v9',
+	version: 'v10',
 	url: 'https://fonts.googleapis.com/css2?family=Vujahday+Script:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/vujahdayscript/v9/RWmQoKGA8fEkrIPtSZ3_J7er2dUSBEFuMlY.woff2',
+					'https://fonts.gstatic.com/s/vujahdayscript/v10/RWmQoKGA8fEkrIPtSZ3_J7er2dUSBEFuMlY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vujahdayscript/v9/RWmQoKGA8fEkrIPtSZ3_J7er2dUSBUFuMlY.woff2',
+					'https://fonts.gstatic.com/s/vujahdayscript/v10/RWmQoKGA8fEkrIPtSZ3_J7er2dUSBUFuMlY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vujahdayscript/v9/RWmQoKGA8fEkrIPtSZ3_J7er2dUSC0Fu.woff2',
+					'https://fonts.gstatic.com/s/vujahdayscript/v10/RWmQoKGA8fEkrIPtSZ3_J7er2dUSC0Fu.woff2',
 			},
 		},
 	},

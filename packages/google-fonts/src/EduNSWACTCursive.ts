@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Edu NSW ACT Cursive',
 	importName: 'EduNSWACTCursive',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Edu+NSW+ACT+Cursive:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,27 +15,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/edunswactcursive/v2/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8bl3IT4.woff2',
+					'https://fonts.gstatic.com/s/edunswactcursive/v3/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8bl3IT4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/edunswactcursive/v2/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8jl3A.woff2',
+					'https://fonts.gstatic.com/s/edunswactcursive/v3/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8jl3A.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/edunswactcursive/v2/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8bl3IT4.woff2',
+					'https://fonts.gstatic.com/s/edunswactcursive/v3/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8bl3IT4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/edunswactcursive/v2/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8jl3A.woff2',
+					'https://fonts.gstatic.com/s/edunswactcursive/v3/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8jl3A.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/edunswactcursive/v2/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8bl3IT4.woff2',
+					'https://fonts.gstatic.com/s/edunswactcursive/v3/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8bl3IT4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/edunswactcursive/v2/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8jl3A.woff2',
+					'https://fonts.gstatic.com/s/edunswactcursive/v3/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8jl3A.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/edunswactcursive/v2/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8bl3IT4.woff2',
+					'https://fonts.gstatic.com/s/edunswactcursive/v3/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8bl3IT4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/edunswactcursive/v2/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8jl3A.woff2',
+					'https://fonts.gstatic.com/s/edunswactcursive/v3/xn78YGUw02PnIPEjskHSG_2fCaz9DzhQR8jl3A.woff2',
 			},
 		},
 	},

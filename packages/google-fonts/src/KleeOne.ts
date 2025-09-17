@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Klee One',
 	importName: 'KleeOne',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Klee+One:ital,wght@0,400;0,600',
 	unicodeRanges: {
 		'[0]':
@@ -254,503 +254,503 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'[0]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.0.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.0.woff2',
 				'[1]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.1.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.2.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.3.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.4.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.5.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.6.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.7.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.8.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.9.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.9.woff2',
 				'[10]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.10.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.10.woff2',
 				'[11]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.11.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.11.woff2',
 				'[12]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.12.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.12.woff2',
 				'[13]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.13.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.13.woff2',
 				'[14]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.14.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.14.woff2',
 				'[15]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.15.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.15.woff2',
 				'[16]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.16.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.16.woff2',
 				'[17]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.17.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.17.woff2',
 				'[18]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.18.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.18.woff2',
 				'[19]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.19.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.19.woff2',
 				'[20]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.20.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.20.woff2',
 				'[21]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.21.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.21.woff2',
 				'[22]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.22.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.22.woff2',
 				'[23]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.23.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.23.woff2',
 				'[24]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.24.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.24.woff2',
 				'[25]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.25.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.25.woff2',
 				'[26]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.26.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.26.woff2',
 				'[27]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.27.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.27.woff2',
 				'[28]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.28.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.28.woff2',
 				'[29]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.29.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.29.woff2',
 				'[30]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.30.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.30.woff2',
 				'[31]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.31.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.31.woff2',
 				'[32]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.32.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.32.woff2',
 				'[33]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.33.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.33.woff2',
 				'[34]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.34.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.34.woff2',
 				'[35]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.35.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.35.woff2',
 				'[36]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.36.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.36.woff2',
 				'[37]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.37.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.37.woff2',
 				'[38]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.38.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.38.woff2',
 				'[39]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.39.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.39.woff2',
 				'[40]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.40.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.40.woff2',
 				'[41]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.41.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.41.woff2',
 				'[42]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.42.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.42.woff2',
 				'[43]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.43.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.43.woff2',
 				'[44]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.44.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.44.woff2',
 				'[45]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.45.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.45.woff2',
 				'[46]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.46.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.46.woff2',
 				'[47]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.47.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.47.woff2',
 				'[48]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.48.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.48.woff2',
 				'[49]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.49.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.49.woff2',
 				'[50]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.50.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.50.woff2',
 				'[51]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.51.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.51.woff2',
 				'[52]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.52.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.52.woff2',
 				'[53]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.53.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.53.woff2',
 				'[54]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.54.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.54.woff2',
 				'[55]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.55.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.55.woff2',
 				'[56]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.56.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.56.woff2',
 				'[57]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.57.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.57.woff2',
 				'[58]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.58.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.58.woff2',
 				'[59]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.59.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.59.woff2',
 				'[60]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.60.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.60.woff2',
 				'[61]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.61.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.61.woff2',
 				'[62]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.62.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.62.woff2',
 				'[63]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.63.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.63.woff2',
 				'[64]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.64.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.64.woff2',
 				'[65]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.65.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.65.woff2',
 				'[66]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.66.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.66.woff2',
 				'[67]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.67.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.67.woff2',
 				'[68]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.68.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.68.woff2',
 				'[69]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.69.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.69.woff2',
 				'[70]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.70.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.70.woff2',
 				'[71]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.71.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.71.woff2',
 				'[72]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.72.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.72.woff2',
 				'[73]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.73.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.73.woff2',
 				'[74]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.74.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.74.woff2',
 				'[75]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.75.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.75.woff2',
 				'[76]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.76.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.76.woff2',
 				'[77]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.77.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.77.woff2',
 				'[78]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.78.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.78.woff2',
 				'[79]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.79.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.79.woff2',
 				'[80]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.80.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.80.woff2',
 				'[81]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.81.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.81.woff2',
 				'[82]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.82.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.82.woff2',
 				'[83]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.83.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.83.woff2',
 				'[84]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.84.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.84.woff2',
 				'[85]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.85.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.85.woff2',
 				'[86]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.86.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.86.woff2',
 				'[87]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.87.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.87.woff2',
 				'[88]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.88.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.88.woff2',
 				'[89]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.89.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.89.woff2',
 				'[90]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.90.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.90.woff2',
 				'[91]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.91.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.91.woff2',
 				'[92]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.92.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.92.woff2',
 				'[93]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.93.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.93.woff2',
 				'[94]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.94.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.94.woff2',
 				'[95]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.95.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.95.woff2',
 				'[96]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.96.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.96.woff2',
 				'[97]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.97.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.97.woff2',
 				'[98]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.98.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.98.woff2',
 				'[99]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.99.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.99.woff2',
 				'[100]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.100.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.100.woff2',
 				'[101]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.101.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.101.woff2',
 				'[102]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.102.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.102.woff2',
 				'[103]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.103.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.103.woff2',
 				'[104]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.104.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.104.woff2',
 				'[105]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.105.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.105.woff2',
 				'[106]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.106.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.106.woff2',
 				'[107]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.107.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.107.woff2',
 				'[108]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.108.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.108.woff2',
 				'[109]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.109.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.109.woff2',
 				'[110]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.110.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.110.woff2',
 				'[111]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.111.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.111.woff2',
 				'[112]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.112.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.112.woff2',
 				'[113]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.113.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.113.woff2',
 				'[114]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.114.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.114.woff2',
 				'[115]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.115.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.115.woff2',
 				'[116]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.116.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.116.woff2',
 				'[117]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.117.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.117.woff2',
 				'[118]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.118.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.118.woff2',
 				'[119]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.119.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4q4FUfemSYiv49tfllrv3pe-KYFKDXn9Sg.119.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4p4DM-aUWA.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4p4DM-aUWA.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4p4LM-aUWA.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4p4LM-aUWA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4p4JM-aUWA.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4p4JM-aUWA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kleeone/v12/LDIxapCLNRc6A8oT4p4HM-Y.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDIxapCLNRc6A8oT4p4HM-Y.woff2',
 			},
 			'600': {
 				'[0]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.0.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.0.woff2',
 				'[1]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.1.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.2.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.3.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.4.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.5.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.6.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.7.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.8.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.9.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.9.woff2',
 				'[10]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.10.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.10.woff2',
 				'[11]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.11.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.11.woff2',
 				'[12]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.12.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.12.woff2',
 				'[13]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.13.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.13.woff2',
 				'[14]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.14.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.14.woff2',
 				'[15]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.15.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.15.woff2',
 				'[16]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.16.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.16.woff2',
 				'[17]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.17.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.17.woff2',
 				'[18]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.18.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.18.woff2',
 				'[19]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.19.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.19.woff2',
 				'[20]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.20.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.20.woff2',
 				'[21]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.21.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.21.woff2',
 				'[22]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.22.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.22.woff2',
 				'[23]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.23.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.23.woff2',
 				'[24]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.24.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.24.woff2',
 				'[25]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.25.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.25.woff2',
 				'[26]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.26.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.26.woff2',
 				'[27]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.27.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.27.woff2',
 				'[28]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.28.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.28.woff2',
 				'[29]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.29.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.29.woff2',
 				'[30]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.30.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.30.woff2',
 				'[31]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.31.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.31.woff2',
 				'[32]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.32.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.32.woff2',
 				'[33]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.33.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.33.woff2',
 				'[34]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.34.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.34.woff2',
 				'[35]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.35.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.35.woff2',
 				'[36]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.36.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.36.woff2',
 				'[37]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.37.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.37.woff2',
 				'[38]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.38.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.38.woff2',
 				'[39]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.39.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.39.woff2',
 				'[40]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.40.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.40.woff2',
 				'[41]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.41.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.41.woff2',
 				'[42]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.42.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.42.woff2',
 				'[43]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.43.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.43.woff2',
 				'[44]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.44.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.44.woff2',
 				'[45]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.45.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.45.woff2',
 				'[46]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.46.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.46.woff2',
 				'[47]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.47.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.47.woff2',
 				'[48]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.48.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.48.woff2',
 				'[49]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.49.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.49.woff2',
 				'[50]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.50.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.50.woff2',
 				'[51]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.51.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.51.woff2',
 				'[52]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.52.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.52.woff2',
 				'[53]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.53.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.53.woff2',
 				'[54]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.54.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.54.woff2',
 				'[55]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.55.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.55.woff2',
 				'[56]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.56.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.56.woff2',
 				'[57]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.57.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.57.woff2',
 				'[58]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.58.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.58.woff2',
 				'[59]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.59.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.59.woff2',
 				'[60]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.60.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.60.woff2',
 				'[61]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.61.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.61.woff2',
 				'[62]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.62.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.62.woff2',
 				'[63]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.63.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.63.woff2',
 				'[64]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.64.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.64.woff2',
 				'[65]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.65.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.65.woff2',
 				'[66]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.66.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.66.woff2',
 				'[67]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.67.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.67.woff2',
 				'[68]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.68.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.68.woff2',
 				'[69]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.69.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.69.woff2',
 				'[70]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.70.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.70.woff2',
 				'[71]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.71.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.71.woff2',
 				'[72]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.72.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.72.woff2',
 				'[73]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.73.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.73.woff2',
 				'[74]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.74.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.74.woff2',
 				'[75]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.75.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.75.woff2',
 				'[76]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.76.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.76.woff2',
 				'[77]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.77.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.77.woff2',
 				'[78]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.78.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.78.woff2',
 				'[79]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.79.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.79.woff2',
 				'[80]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.80.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.80.woff2',
 				'[81]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.81.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.81.woff2',
 				'[82]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.82.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.82.woff2',
 				'[83]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.83.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.83.woff2',
 				'[84]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.84.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.84.woff2',
 				'[85]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.85.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.85.woff2',
 				'[86]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.86.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.86.woff2',
 				'[87]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.87.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.87.woff2',
 				'[88]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.88.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.88.woff2',
 				'[89]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.89.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.89.woff2',
 				'[90]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.90.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.90.woff2',
 				'[91]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.91.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.91.woff2',
 				'[92]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.92.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.92.woff2',
 				'[93]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.93.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.93.woff2',
 				'[94]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.94.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.94.woff2',
 				'[95]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.95.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.95.woff2',
 				'[96]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.96.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.96.woff2',
 				'[97]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.97.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.97.woff2',
 				'[98]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.98.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.98.woff2',
 				'[99]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.99.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.99.woff2',
 				'[100]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.100.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.100.woff2',
 				'[101]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.101.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.101.woff2',
 				'[102]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.102.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.102.woff2',
 				'[103]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.103.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.103.woff2',
 				'[104]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.104.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.104.woff2',
 				'[105]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.105.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.105.woff2',
 				'[106]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.106.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.106.woff2',
 				'[107]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.107.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.107.woff2',
 				'[108]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.108.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.108.woff2',
 				'[109]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.109.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.109.woff2',
 				'[110]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.110.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.110.woff2',
 				'[111]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.111.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.111.woff2',
 				'[112]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.112.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.112.woff2',
 				'[113]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.113.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.113.woff2',
 				'[114]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.114.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.114.woff2',
 				'[115]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.115.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.115.woff2',
 				'[116]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.116.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.116.woff2',
 				'[117]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.117.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.117.woff2',
 				'[118]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.118.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.118.woff2',
 				'[119]':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.119.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF8OpG_bEg9BQg0jk5IC-EIRaB2yYJkvAGA.119.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF_Oveef2kg.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF_Oveef2kg.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF_Oneef2kg.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF_Oneef2kg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF_Oleef2kg.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF_Oleef2kg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kleeone/v12/LDI2apCLNRc6A8oT4pbYF_Oreec.woff2',
+					'https://fonts.gstatic.com/s/kleeone/v13/LDI2apCLNRc6A8oT4pbYF_Oreec.woff2',
 			},
 		},
 	},

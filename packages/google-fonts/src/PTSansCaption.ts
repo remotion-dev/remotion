@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'PT Sans Caption',
 	importName: 'PTSansCaption',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=PT+Sans+Caption:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,23 +18,23 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ptsanscaption/v19/0FlMVP6Hrxmt7-fsUFhlFXNIlpcadw_xcy4.woff2',
+					'https://fonts.gstatic.com/s/ptsanscaption/v20/0FlMVP6Hrxmt7-fsUFhlFXNIlpcadw_xcy4.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ptsanscaption/v19/0FlMVP6Hrxmt7-fsUFhlFXNIlpcafg_xcy4.woff2',
+					'https://fonts.gstatic.com/s/ptsanscaption/v20/0FlMVP6Hrxmt7-fsUFhlFXNIlpcafg_xcy4.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ptsanscaption/v19/0FlMVP6Hrxmt7-fsUFhlFXNIlpcadA_xcy4.woff2',
+					'https://fonts.gstatic.com/s/ptsanscaption/v20/0FlMVP6Hrxmt7-fsUFhlFXNIlpcadA_xcy4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ptsanscaption/v19/0FlMVP6Hrxmt7-fsUFhlFXNIlpcaeg_x.woff2',
+					'https://fonts.gstatic.com/s/ptsanscaption/v20/0FlMVP6Hrxmt7-fsUFhlFXNIlpcaeg_x.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ptsanscaption/v19/0FlJVP6Hrxmt7-fsUFhlFXNIlpcSwSrkQQ-v_38.woff2',
+					'https://fonts.gstatic.com/s/ptsanscaption/v20/0FlJVP6Hrxmt7-fsUFhlFXNIlpcSwSrkQQ-v_38.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ptsanscaption/v19/0FlJVP6Hrxmt7-fsUFhlFXNIlpcSwSrkSA-v_38.woff2',
+					'https://fonts.gstatic.com/s/ptsanscaption/v20/0FlJVP6Hrxmt7-fsUFhlFXNIlpcSwSrkSA-v_38.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ptsanscaption/v19/0FlJVP6Hrxmt7-fsUFhlFXNIlpcSwSrkQg-v_38.woff2',
+					'https://fonts.gstatic.com/s/ptsanscaption/v20/0FlJVP6Hrxmt7-fsUFhlFXNIlpcSwSrkQg-v_38.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ptsanscaption/v19/0FlJVP6Hrxmt7-fsUFhlFXNIlpcSwSrkTA-v.woff2',
+					'https://fonts.gstatic.com/s/ptsanscaption/v20/0FlJVP6Hrxmt7-fsUFhlFXNIlpcSwSrkTA-v.woff2',
 			},
 		},
 	},

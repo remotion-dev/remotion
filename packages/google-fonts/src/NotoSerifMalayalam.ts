@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Malayalam',
 	importName: 'NotoSerifMalayalam',
-	version: 'v31',
+	version: 'v32',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Malayalam:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		malayalam:
@@ -17,75 +17,75 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				malayalam:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
 			},
 			'200': {
 				malayalam:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
 			},
 			'300': {
 				malayalam:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
 			},
 			'400': {
 				malayalam:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
 			},
 			'500': {
 				malayalam:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
 			},
 			'600': {
 				malayalam:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
 			},
 			'700': {
 				malayalam:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
 			},
 			'800': {
 				malayalam:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
 			},
 			'900': {
 				malayalam:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifmalayalam/v31/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
+					'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
 			},
 		},
 	},

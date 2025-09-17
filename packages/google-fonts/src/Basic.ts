@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Basic',
 	importName: 'Basic',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Basic:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/basic/v17/xfu_0WLxV2_XKTN-6FHlyQ.woff2',
+					'https://fonts.gstatic.com/s/basic/v18/xfu_0WLxV2_XKTN-6FHlyQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/basic/v17/xfu_0WLxV2_XKTNw6FE.woff2',
+					'https://fonts.gstatic.com/s/basic/v18/xfu_0WLxV2_XKTNw6FE.woff2',
 			},
 		},
 	},

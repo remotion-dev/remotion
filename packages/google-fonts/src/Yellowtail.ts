@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yellowtail',
 	importName: 'Yellowtail',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Yellowtail:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yellowtail/v24/OZpGg_pnoDtINPfRIlLohlXHwXD-.woff2',
+					'https://fonts.gstatic.com/s/yellowtail/v25/OZpGg_pnoDtINPfRIlLohlXHwXD-.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yellowtail/v24/OZpGg_pnoDtINPfRIlLohlvHwQ.woff2',
+					'https://fonts.gstatic.com/s/yellowtail/v25/OZpGg_pnoDtINPfRIlLohlvHwQ.woff2',
 			},
 		},
 	},

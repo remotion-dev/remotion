@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Xanh Mono',
 	importName: 'XanhMono',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Xanh+Mono:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,21 +17,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/xanhmono/v18/R70ejykVmvKCep-vWhSomjqcdzbBTg.woff2',
+					'https://fonts.gstatic.com/s/xanhmono/v19/R70ejykVmvKCep-vWhSomjqcdzbBTg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/xanhmono/v18/R70ejykVmvKCep-vWhSomjqddzbBTg.woff2',
+					'https://fonts.gstatic.com/s/xanhmono/v19/R70ejykVmvKCep-vWhSomjqddzbBTg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/xanhmono/v18/R70ejykVmvKCep-vWhSomjqTdzY.woff2',
+					'https://fonts.gstatic.com/s/xanhmono/v19/R70ejykVmvKCep-vWhSomjqTdzY.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/xanhmono/v18/R70YjykVmvKCep-vWhSokAqRbzI.woff2',
+					'https://fonts.gstatic.com/s/xanhmono/v19/R70YjykVmvKCep-vWhSokAqRbzI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/xanhmono/v18/R70YjykVmvKCep-vWhSokQqRbzI.woff2',
+					'https://fonts.gstatic.com/s/xanhmono/v19/R70YjykVmvKCep-vWhSokQqRbzI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/xanhmono/v18/R70YjykVmvKCep-vWhSonwqR.woff2',
+					'https://fonts.gstatic.com/s/xanhmono/v19/R70YjykVmvKCep-vWhSonwqR.woff2',
 			},
 		},
 	},

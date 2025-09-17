@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yaldevi',
 	importName: 'Yaldevi',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Yaldevi:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		sinhala:
@@ -17,51 +17,51 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				sinhala:
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJs3qyuHT.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJs3qyuHT.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJt7qyuHT.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJt7qyuHT.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJtDqyg.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJtDqyg.woff2',
 			},
 			'300': {
 				sinhala:
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJs3qyuHT.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJs3qyuHT.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJt7qyuHT.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJt7qyuHT.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJtDqyg.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJtDqyg.woff2',
 			},
 			'400': {
 				sinhala:
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJs3qyuHT.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJs3qyuHT.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJt7qyuHT.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJt7qyuHT.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJtDqyg.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJtDqyg.woff2',
 			},
 			'500': {
 				sinhala:
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJs3qyuHT.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJs3qyuHT.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJt7qyuHT.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJt7qyuHT.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJtDqyg.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJtDqyg.woff2',
 			},
 			'600': {
 				sinhala:
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJs3qyuHT.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJs3qyuHT.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJt7qyuHT.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJt7qyuHT.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJtDqyg.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJtDqyg.woff2',
 			},
 			'700': {
 				sinhala:
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJs3qyuHT.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJs3qyuHT.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJt7qyuHT.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJt7qyuHT.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yaldevi/v16/cY9Ffj6VW0NMrDWtJtDqyg.woff2',
+					'https://fonts.gstatic.com/s/yaldevi/v17/cY9Ffj6VW0NMrDWtJtDqyg.woff2',
 			},
 		},
 	},

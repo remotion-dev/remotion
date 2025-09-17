@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lemon',
 	importName: 'Lemon',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Lemon:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lemon/v18/HI_EiYEVKqRMq3jIQ5TwQw.woff2',
+					'https://fonts.gstatic.com/s/lemon/v19/HI_EiYEVKqRMq3jIQ5TwQw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lemon/v18/HI_EiYEVKqRMq3jGQ5Q.woff2',
+					'https://fonts.gstatic.com/s/lemon/v19/HI_EiYEVKqRMq3jGQ5Q.woff2',
 			},
 		},
 	},

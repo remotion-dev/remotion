@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Monofett',
 	importName: 'Monofett',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Monofett:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/monofett/v23/mFTyWbofw6zc9NtnW73bsx0b0Q.woff2',
+					'https://fonts.gstatic.com/s/monofett/v24/mFTyWbofw6zc9NtnW73bsx0b0Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/monofett/v23/mFTyWbofw6zc9NtnW73Vsx0.woff2',
+					'https://fonts.gstatic.com/s/monofett/v24/mFTyWbofw6zc9NtnW73Vsx0.woff2',
 			},
 		},
 	},

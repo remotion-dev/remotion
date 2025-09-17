@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Trykker',
 	importName: 'Trykker',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Trykker:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/trykker/v21/KtktALyWZJXudUPztNDiOO2j.woff2',
+					'https://fonts.gstatic.com/s/trykker/v22/KtktALyWZJXudUPztNDiOO2j.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/trykker/v21/KtktALyWZJXudUPztN7iOA.woff2',
+					'https://fonts.gstatic.com/s/trykker/v22/KtktALyWZJXudUPztN7iOA.woff2',
 			},
 		},
 	},

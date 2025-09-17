@@ -1,7 +1,8 @@
 import React, {Suspense, useLayoutEffect} from 'react';
-import {continueRender, delayRender} from 'remotion';
+import {useDelayRender} from 'remotion';
 
 const Unblocker: React.FC = () => {
+	const {delayRender, continueRender} = useDelayRender();
 	if (typeof document !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
@@ -11,7 +12,7 @@ const Unblocker: React.FC = () => {
 			return () => {
 				continueRender(handle);
 			};
-		}, []);
+		}, [continueRender, delayRender]);
 	}
 
 	return null;

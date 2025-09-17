@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bellefair',
 	importName: 'Bellefair',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Bellefair:ital,wght@0,400',
 	unicodeRanges: {
 		hebrew:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				hebrew:
-					'https://fonts.gstatic.com/s/bellefair/v14/kJExBuYY6AAuhiXUxG1N-vo3lOc.woff2',
+					'https://fonts.gstatic.com/s/bellefair/v15/kJExBuYY6AAuhiXUxG1N-vo3lOc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bellefair/v14/kJExBuYY6AAuhiXUxG1N9vo3lOc.woff2',
+					'https://fonts.gstatic.com/s/bellefair/v15/kJExBuYY6AAuhiXUxG1N9vo3lOc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bellefair/v14/kJExBuYY6AAuhiXUxG1N-Po3.woff2',
+					'https://fonts.gstatic.com/s/bellefair/v15/kJExBuYY6AAuhiXUxG1N-Po3.woff2',
 			},
 		},
 	},

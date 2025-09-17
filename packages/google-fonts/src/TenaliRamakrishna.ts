@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tenali Ramakrishna',
 	importName: 'TenaliRamakrishna',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Tenali+Ramakrishna:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/tenaliramakrishna/v13/raxgHj6Yt9gAN3LLKs0BZVMo8jmwn1-MM5_rYFE.woff2',
+					'https://fonts.gstatic.com/s/tenaliramakrishna/v14/raxgHj6Yt9gAN3LLKs0BZVMo8jmwn1-MM5_rYFE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tenaliramakrishna/v13/raxgHj6Yt9gAN3LLKs0BZVMo8jmwn1-ML5_r.woff2',
+					'https://fonts.gstatic.com/s/tenaliramakrishna/v14/raxgHj6Yt9gAN3LLKs0BZVMo8jmwn1-ML5_r.woff2',
 			},
 		},
 	},

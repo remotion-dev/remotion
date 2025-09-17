@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Chango',
 	importName: 'Chango',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Chango:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/chango/v28/2V0cKI0OB5U7WaJCxne5fFU.woff2',
+					'https://fonts.gstatic.com/s/chango/v29/2V0cKI0OB5U7WaJCxne5fFU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/chango/v28/2V0cKI0OB5U7WaJCyHe5.woff2',
+					'https://fonts.gstatic.com/s/chango/v29/2V0cKI0OB5U7WaJCyHe5.woff2',
 			},
 		},
 	},

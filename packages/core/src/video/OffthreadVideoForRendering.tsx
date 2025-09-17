@@ -16,20 +16,22 @@ import {
 } from '../audio/use-audio-frame.js';
 import {cancelRender} from '../cancel-render.js';
 import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
-import {continueRender, delayRender} from '../delay-render.js';
+import type {delayRender as delayRenderGlobal} from '../delay-render.js';
 import {random} from '../random.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {truthy} from '../truthy.js';
 import {useCurrentFrame} from '../use-current-frame.js';
+import {useDelayRender} from '../use-delay-render.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
+import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import {getExpectedMediaFrameUncorrected} from './get-current-time.js';
 import {getOffthreadVideoSource} from './offthread-video-source.js';
 import type {RemotionOffthreadVideoProps} from './props.js';
 
 type SrcAndHandle = {
 	src: string;
-	handle: ReturnType<typeof delayRender>;
+	handle: ReturnType<typeof delayRenderGlobal>;
 };
 
 export const OffthreadVideoForRendering: React.FC<
@@ -97,6 +99,8 @@ export const OffthreadVideoForRendering: React.FC<
 		mediaVolume: 1,
 	});
 
+	warnAboutTooHighVolume(volume);
+
 	useEffect(() => {
 		if (!src) {
 			throw new Error('No src passed');
@@ -163,6 +167,7 @@ export const OffthreadVideoForRendering: React.FC<
 	}, [toneMapped, currentTime, src, transparent]);
 
 	const [imageSrc, setImageSrc] = useState<SrcAndHandle | null>(null);
+	const {delayRender, continueRender} = useDelayRender();
 
 	useLayoutEffect(() => {
 		if (!window.remotion_videoEnabled) {
@@ -257,6 +262,8 @@ export const OffthreadVideoForRendering: React.FC<
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		onError,
+		continueRender,
+		delayRender,
 	]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =

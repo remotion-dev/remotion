@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Sora Sompeng',
 	importName: 'NotoSansSoraSompeng',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Sora+Sompeng:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'sora-sompeng': 'U+2010, U+110D0-110FF',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'sora-sompeng':
-					'https://fonts.gstatic.com/s/notosanssorasompeng/v25/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAJGE7tgt.woff2',
+					'https://fonts.gstatic.com/s/notosanssorasompeng/v26/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAJGE7tgt.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssorasompeng/v25/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPKE7tgt.woff2',
+					'https://fonts.gstatic.com/s/notosanssorasompeng/v26/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPKE7tgt.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssorasompeng/v25/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPyE7g.woff2',
+					'https://fonts.gstatic.com/s/notosanssorasompeng/v26/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPyE7g.woff2',
 			},
 			'500': {
 				'sora-sompeng':
-					'https://fonts.gstatic.com/s/notosanssorasompeng/v25/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAJGE7tgt.woff2',
+					'https://fonts.gstatic.com/s/notosanssorasompeng/v26/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAJGE7tgt.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssorasompeng/v25/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPKE7tgt.woff2',
+					'https://fonts.gstatic.com/s/notosanssorasompeng/v26/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPKE7tgt.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssorasompeng/v25/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPyE7g.woff2',
+					'https://fonts.gstatic.com/s/notosanssorasompeng/v26/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPyE7g.woff2',
 			},
 			'600': {
 				'sora-sompeng':
-					'https://fonts.gstatic.com/s/notosanssorasompeng/v25/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAJGE7tgt.woff2',
+					'https://fonts.gstatic.com/s/notosanssorasompeng/v26/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAJGE7tgt.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssorasompeng/v25/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPKE7tgt.woff2',
+					'https://fonts.gstatic.com/s/notosanssorasompeng/v26/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPKE7tgt.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssorasompeng/v25/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPyE7g.woff2',
+					'https://fonts.gstatic.com/s/notosanssorasompeng/v26/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPyE7g.woff2',
 			},
 			'700': {
 				'sora-sompeng':
-					'https://fonts.gstatic.com/s/notosanssorasompeng/v25/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAJGE7tgt.woff2',
+					'https://fonts.gstatic.com/s/notosanssorasompeng/v26/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAJGE7tgt.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssorasompeng/v25/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPKE7tgt.woff2',
+					'https://fonts.gstatic.com/s/notosanssorasompeng/v26/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPKE7tgt.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssorasompeng/v25/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPyE7g.woff2',
+					'https://fonts.gstatic.com/s/notosanssorasompeng/v26/PlIsFkO5O6RzLfvNNVSioxM2_OTrEhPyDLolAPyE7g.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ramaraja',
 	importName: 'Ramaraja',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Ramaraja:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/ramaraja/v16/SlGTmQearpYAYG1CACI_oHFKaQ.woff2',
+					'https://fonts.gstatic.com/s/ramaraja/v17/SlGTmQearpYAYG1CACI_oHFKaQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ramaraja/v16/SlGTmQearpYAYG1CACIjoHE.woff2',
+					'https://fonts.gstatic.com/s/ramaraja/v17/SlGTmQearpYAYG1CACIjoHE.woff2',
 			},
 		},
 	},
