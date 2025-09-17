@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Princess Sofia',
 	importName: 'PrincessSofia',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Princess+Sofia:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/princesssofia/v26/qWczB6yguIb8DZ_GXZst16n7GSzykjQYug.woff2',
+					'https://fonts.gstatic.com/s/princesssofia/v27/qWczB6yguIb8DZ_GXZst16n7GSzykjQYug.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/princesssofia/v26/qWczB6yguIb8DZ_GXZst16n7GSz8kjQ.woff2',
+					'https://fonts.gstatic.com/s/princesssofia/v27/qWczB6yguIb8DZ_GXZst16n7GSz8kjQ.woff2',
 			},
 		},
 	},

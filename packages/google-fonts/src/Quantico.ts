@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Quantico',
 	importName: 'Quantico',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Quantico:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		latin:
@@ -13,21 +13,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/quantico/v18/rax4HiSdp9cPL3KIF7xuFD96ng.woff2',
+					'https://fonts.gstatic.com/s/quantico/v19/rax4HiSdp9cPL3KIF7xuFD96ng.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/quantico/v18/rax7HiSdp9cPL3KIF7xuHIRfi0349A.woff2',
+					'https://fonts.gstatic.com/s/quantico/v19/rax7HiSdp9cPL3KIF7xuHIRfi0349A.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/quantico/v18/rax-HiSdp9cPL3KIF7xrJD0.woff2',
+					'https://fonts.gstatic.com/s/quantico/v19/rax-HiSdp9cPL3KIF7xrJD0.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/quantico/v18/rax5HiSdp9cPL3KIF7TQAShdu08.woff2',
+					'https://fonts.gstatic.com/s/quantico/v19/rax5HiSdp9cPL3KIF7TQAShdu08.woff2',
 			},
 		},
 	},

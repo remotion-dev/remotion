@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'The Nautigal',
 	importName: 'TheNautigal',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=The+Nautigal:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		vietnamese:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/thenautigal/v7/VdGZAZ8ZH51Lvng9fQV2bfKb7w9l49Q.woff2',
+					'https://fonts.gstatic.com/s/thenautigal/v8/VdGZAZ8ZH51Lvng9fQV2bfKb7w9l49Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/thenautigal/v7/VdGZAZ8ZH51Lvng9fQV2bfKb7g9l49Q.woff2',
+					'https://fonts.gstatic.com/s/thenautigal/v8/VdGZAZ8ZH51Lvng9fQV2bfKb7g9l49Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/thenautigal/v7/VdGZAZ8ZH51Lvng9fQV2bfKb4A9l.woff2',
+					'https://fonts.gstatic.com/s/thenautigal/v8/VdGZAZ8ZH51Lvng9fQV2bfKb4A9l.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/thenautigal/v7/VdGGAZ8ZH51Lvng9fQV2bfKTWypw0_WD3Lo.woff2',
+					'https://fonts.gstatic.com/s/thenautigal/v8/VdGGAZ8ZH51Lvng9fQV2bfKTWypw0_WD3Lo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/thenautigal/v7/VdGGAZ8ZH51Lvng9fQV2bfKTWypw0vWD3Lo.woff2',
+					'https://fonts.gstatic.com/s/thenautigal/v8/VdGGAZ8ZH51Lvng9fQV2bfKTWypw0vWD3Lo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/thenautigal/v7/VdGGAZ8ZH51Lvng9fQV2bfKTWypw3PWD.woff2',
+					'https://fonts.gstatic.com/s/thenautigal/v8/VdGGAZ8ZH51Lvng9fQV2bfKTWypw3PWD.woff2',
 			},
 		},
 	},

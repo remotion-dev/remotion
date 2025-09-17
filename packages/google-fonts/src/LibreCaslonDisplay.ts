@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Libre Caslon Display',
 	importName: 'LibreCaslonDisplay',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Libre+Caslon+Display:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/librecaslondisplay/v17/TuGOUUFxWphYQ6YI6q9Xp61FQzxDRKmzr1lYfxldCA.woff2',
+					'https://fonts.gstatic.com/s/librecaslondisplay/v18/TuGOUUFxWphYQ6YI6q9Xp61FQzxDRKmzr1lYfxldCA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/librecaslondisplay/v17/TuGOUUFxWphYQ6YI6q9Xp61FQzxDRKmzr1lWfxk.woff2',
+					'https://fonts.gstatic.com/s/librecaslondisplay/v18/TuGOUUFxWphYQ6YI6q9Xp61FQzxDRKmzr1lWfxk.woff2',
 			},
 		},
 	},

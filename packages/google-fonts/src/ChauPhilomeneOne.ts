@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Chau Philomene One',
 	importName: 'ChauPhilomeneOne',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Chau+Philomene+One:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/chauphilomeneone/v15/55xzezRsPtfie1vPY49qzdgSlJiHRQFcnrZ2aMYydQ.woff2',
+					'https://fonts.gstatic.com/s/chauphilomeneone/v16/55xzezRsPtfie1vPY49qzdgSlJiHRQFcnrZ2aMYydQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/chauphilomeneone/v15/55xzezRsPtfie1vPY49qzdgSlJiHRQFcnrZ4aMY.woff2',
+					'https://fonts.gstatic.com/s/chauphilomeneone/v16/55xzezRsPtfie1vPY49qzdgSlJiHRQFcnrZ4aMY.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/chauphilomeneone/v15/55xxezRsPtfie1vPY49qzdgSlJiHRQFclYZ6cMI.woff2',
+					'https://fonts.gstatic.com/s/chauphilomeneone/v16/55xxezRsPtfie1vPY49qzdgSlJiHRQFclYZ6cMI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/chauphilomeneone/v15/55xxezRsPtfie1vPY49qzdgSlJiHRQFcm4Z6.woff2',
+					'https://fonts.gstatic.com/s/chauphilomeneone/v16/55xxezRsPtfie1vPY49qzdgSlJiHRQFcm4Z6.woff2',
 			},
 		},
 	},

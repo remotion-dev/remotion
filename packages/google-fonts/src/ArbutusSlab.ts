@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Arbutus Slab',
 	importName: 'ArbutusSlab',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Arbutus+Slab:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arbutusslab/v16/oY1Z8e7OuLXkJGbXtr5ba7ZlYqUcFlY.woff2',
+					'https://fonts.gstatic.com/s/arbutusslab/v17/oY1Z8e7OuLXkJGbXtr5ba7ZlYqUcFlY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arbutusslab/v16/oY1Z8e7OuLXkJGbXtr5ba7ZlbKUc.woff2',
+					'https://fonts.gstatic.com/s/arbutusslab/v17/oY1Z8e7OuLXkJGbXtr5ba7ZlbKUc.woff2',
 			},
 		},
 	},

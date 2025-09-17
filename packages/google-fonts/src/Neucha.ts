@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Neucha',
 	importName: 'Neucha',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Neucha:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/neucha/v17/q5uGsou0JOdh94bfuQltOxU.woff2',
+					'https://fonts.gstatic.com/s/neucha/v18/q5uGsou0JOdh94bfuQltOxU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/neucha/v17/q5uGsou0JOdh94bfvQlt.woff2',
+					'https://fonts.gstatic.com/s/neucha/v18/q5uGsou0JOdh94bfvQlt.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Water Brush',
 	importName: 'WaterBrush',
-	version: 'v5',
+	version: 'v6',
 	url: 'https://fonts.googleapis.com/css2?family=Water+Brush:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/waterbrush/v5/AYCPpXPqc8cJWLhp4hywKEJi5vO_5Q.woff2',
+					'https://fonts.gstatic.com/s/waterbrush/v6/AYCPpXPqc8cJWLhp4hywKEJi5vO_5Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/waterbrush/v5/AYCPpXPqc8cJWLhp4hywKEJj5vO_5Q.woff2',
+					'https://fonts.gstatic.com/s/waterbrush/v6/AYCPpXPqc8cJWLhp4hywKEJj5vO_5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/waterbrush/v5/AYCPpXPqc8cJWLhp4hywKEJt5vM.woff2',
+					'https://fonts.gstatic.com/s/waterbrush/v6/AYCPpXPqc8cJWLhp4hywKEJt5vM.woff2',
 			},
 		},
 	},

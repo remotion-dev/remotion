@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Myanmar',
 	importName: 'NotoSerifMyanmar',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Myanmar:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		myanmar:
@@ -13,39 +13,39 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				myanmar:
-					'https://fonts.gstatic.com/s/notoserifmyanmar/v13/VuJudM7F2Yv76aBKKs-bHMQfAHUw3jnNwCD1WdQ.woff2',
+					'https://fonts.gstatic.com/s/notoserifmyanmar/v14/VuJudM7F2Yv76aBKKs-bHMQfAHUw3jnNwCD1WdQ.woff2',
 			},
 			'200': {
 				myanmar:
-					'https://fonts.gstatic.com/s/notoserifmyanmar/v13/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNbDH8YPH3.woff2',
+					'https://fonts.gstatic.com/s/notoserifmyanmar/v14/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNbDH8YPH3.woff2',
 			},
 			'300': {
 				myanmar:
-					'https://fonts.gstatic.com/s/notoserifmyanmar/v13/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNCDL8YPH3.woff2',
+					'https://fonts.gstatic.com/s/notoserifmyanmar/v14/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNCDL8YPH3.woff2',
 			},
 			'400': {
 				myanmar:
-					'https://fonts.gstatic.com/s/notoserifmyanmar/v13/VuJsdM7F2Yv76aBKKs-bHMQfAHUw3jnFvRDp.woff2',
+					'https://fonts.gstatic.com/s/notoserifmyanmar/v14/VuJsdM7F2Yv76aBKKs-bHMQfAHUw3jnFvRDp.woff2',
 			},
 			'500': {
 				myanmar:
-					'https://fonts.gstatic.com/s/notoserifmyanmar/v13/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNUDP8YPH3.woff2',
+					'https://fonts.gstatic.com/s/notoserifmyanmar/v14/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNUDP8YPH3.woff2',
 			},
 			'600': {
 				myanmar:
-					'https://fonts.gstatic.com/s/notoserifmyanmar/v13/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNfDT8YPH3.woff2',
+					'https://fonts.gstatic.com/s/notoserifmyanmar/v14/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNfDT8YPH3.woff2',
 			},
 			'700': {
 				myanmar:
-					'https://fonts.gstatic.com/s/notoserifmyanmar/v13/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNGDX8YPH3.woff2',
+					'https://fonts.gstatic.com/s/notoserifmyanmar/v14/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNGDX8YPH3.woff2',
 			},
 			'800': {
 				myanmar:
-					'https://fonts.gstatic.com/s/notoserifmyanmar/v13/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNBDb8YPH3.woff2',
+					'https://fonts.gstatic.com/s/notoserifmyanmar/v14/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNBDb8YPH3.woff2',
 			},
 			'900': {
 				myanmar:
-					'https://fonts.gstatic.com/s/notoserifmyanmar/v13/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNIDf8YPH3.woff2',
+					'https://fonts.gstatic.com/s/notoserifmyanmar/v14/VuJvdM7F2Yv76aBKKs-bHMQfAHUw3jnNIDf8YPH3.woff2',
 			},
 		},
 	},

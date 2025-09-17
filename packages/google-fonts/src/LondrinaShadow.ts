@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Londrina Shadow',
 	importName: 'LondrinaShadow',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Londrina+Shadow:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/londrinashadow/v27/oPWX_kB4kOQoWNJmjxLV5JuoCUlnQVyT.woff2',
+					'https://fonts.gstatic.com/s/londrinashadow/v28/oPWX_kB4kOQoWNJmjxLV5JuoCUlnQVyT.woff2',
 			},
 		},
 	},

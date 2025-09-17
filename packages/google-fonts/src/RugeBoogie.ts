@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ruge Boogie',
 	importName: 'RugeBoogie',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Ruge+Boogie:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/rugeboogie/v29/JIA3UVFwbHRF_GIWSMhKNSOqNTQfeQ.woff2',
+					'https://fonts.gstatic.com/s/rugeboogie/v30/JIA3UVFwbHRF_GIWSMhKNSOqNTQfeQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rugeboogie/v29/JIA3UVFwbHRF_GIWSMhKNSOrNTQfeQ.woff2',
+					'https://fonts.gstatic.com/s/rugeboogie/v30/JIA3UVFwbHRF_GIWSMhKNSOrNTQfeQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rugeboogie/v29/JIA3UVFwbHRF_GIWSMhKNSOlNTQ.woff2',
+					'https://fonts.gstatic.com/s/rugeboogie/v30/JIA3UVFwbHRF_GIWSMhKNSOlNTQ.woff2',
 			},
 		},
 	},

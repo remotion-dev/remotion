@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Hatran',
 	importName: 'NotoSansHatran',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Hatran:ital,wght@0,400',
 	unicodeRanges: {
 		hatran: 'U+200C, U+108E0-108FF',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				hatran:
-					'https://fonts.gstatic.com/s/notosanshatran/v16/A2BBn4Ne0RgnVF3Lnko-0sOBIfL_qFQci1TJ1Q.woff2',
+					'https://fonts.gstatic.com/s/notosanshatran/v17/A2BBn4Ne0RgnVF3Lnko-0sOBIfL_qFQci1TJ1Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshatran/v16/A2BBn4Ne0RgnVF3Lnko-0sOBIfL_qMY9rmnw.woff2',
+					'https://fonts.gstatic.com/s/notosanshatran/v17/A2BBn4Ne0RgnVF3Lnko-0sOBIfL_qMY9rmnw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshatran/v16/A2BBn4Ne0RgnVF3Lnko-0sOBIfL_qMg9rg.woff2',
+					'https://fonts.gstatic.com/s/notosanshatran/v17/A2BBn4Ne0RgnVF3Lnko-0sOBIfL_qMg9rg.woff2',
 			},
 		},
 	},

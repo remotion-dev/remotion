@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yeseva One',
 	importName: 'YesevaOne',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Yeseva+One:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,15 +20,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/yesevaone/v23/OpNJno4ck8vc-xYpwWWxliBVWyXD.woff2',
+					'https://fonts.gstatic.com/s/yesevaone/v24/OpNJno4ck8vc-xYpwWWxliBVWyXD.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/yesevaone/v23/OpNJno4ck8vc-xYpwWWxlilVWyXD.woff2',
+					'https://fonts.gstatic.com/s/yesevaone/v24/OpNJno4ck8vc-xYpwWWxlilVWyXD.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/yesevaone/v23/OpNJno4ck8vc-xYpwWWxliJVWyXD.woff2',
+					'https://fonts.gstatic.com/s/yesevaone/v24/OpNJno4ck8vc-xYpwWWxliJVWyXD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yesevaone/v23/OpNJno4ck8vc-xYpwWWxliNVWyXD.woff2',
+					'https://fonts.gstatic.com/s/yesevaone/v24/OpNJno4ck8vc-xYpwWWxliNVWyXD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yesevaone/v23/OpNJno4ck8vc-xYpwWWxli1VWw.woff2',
+					'https://fonts.gstatic.com/s/yesevaone/v24/OpNJno4ck8vc-xYpwWWxli1VWw.woff2',
 			},
 		},
 	},

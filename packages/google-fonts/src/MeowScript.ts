@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Meow Script',
 	importName: 'MeowScript',
-	version: 'v5',
+	version: 'v6',
 	url: 'https://fonts.googleapis.com/css2?family=Meow+Script:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/meowscript/v5/0FlQVPqanlaJrtr8AnJ0ERcp2fwyfA.woff2',
+					'https://fonts.gstatic.com/s/meowscript/v6/0FlQVPqanlaJrtr8AnJ0ERcp2fwyfA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/meowscript/v5/0FlQVPqanlaJrtr8AnJ0ERco2fwyfA.woff2',
+					'https://fonts.gstatic.com/s/meowscript/v6/0FlQVPqanlaJrtr8AnJ0ERco2fwyfA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/meowscript/v5/0FlQVPqanlaJrtr8AnJ0ERcm2fw.woff2',
+					'https://fonts.gstatic.com/s/meowscript/v6/0FlQVPqanlaJrtr8AnJ0ERcm2fw.woff2',
 			},
 		},
 	},

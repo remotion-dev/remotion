@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'IBM Plex Sans Thai Looped',
 	importName: 'IBMPlexSansThaiLooped',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai+Looped:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,66 +18,66 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss5AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_Ha6rnmsJCQ.woff2',
-				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss5AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_Ha6t3msJCQ.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss5AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_Ha6rnmsJCQ.woff2',
+				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss5AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_Ha6t3msJCQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss5AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_Ha6rXmsJCQ.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss5AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_Ha6rXmsJCQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss5AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_Ha6o3ms.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss5AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_Ha6o3ms.woff2',
 			},
 			'200': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_NqrtFOJGR0i.woff2',
-				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_NqrtEqJGR0i.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_NqrtFOJGR0i.woff2',
+				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_NqrtEqJGR0i.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_NqrtFCJGR0i.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_NqrtFCJGR0i.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_NqrtF6JGQ.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_NqrtF6JGQ.woff2',
 			},
 			'300': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_L6otFOJGR0i.woff2',
-				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_L6otEqJGR0i.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_L6otFOJGR0i.woff2',
+				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_L6otEqJGR0i.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_L6otFCJGR0i.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_L6otFCJGR0i.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_L6otF6JGQ.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_L6otF6JGQ.woff2',
 			},
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss_AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L9BiKoWGo.woff2',
-				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss_AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L9AGKoWGo.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss_AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L9BiKoWGo.woff2',
+				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss_AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L9AGKoWGo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss_AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L9BuKoWGo.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss_AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L9BuKoWGo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss_AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L9BWKoQ.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss_AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L9BWKoQ.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_OaptFOJGR0i.woff2',
-				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_OaptEqJGR0i.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_OaptFOJGR0i.woff2',
+				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_OaptEqJGR0i.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_OaptFCJGR0i.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_OaptFCJGR0i.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_OaptF6JGQ.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_OaptF6JGQ.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_MqutFOJGR0i.woff2',
-				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_MqutEqJGR0i.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_MqutFOJGR0i.woff2',
+				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_MqutEqJGR0i.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_MqutFCJGR0i.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_MqutFCJGR0i.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_MqutF6JGQ.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_MqutF6JGQ.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_K6vtFOJGR0i.woff2',
-				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_K6vtEqJGR0i.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_K6vtFOJGR0i.woff2',
+				thai: 'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_K6vtEqJGR0i.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_K6vtFCJGR0i.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_K6vtFCJGR0i.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v11/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_K6vtF6JGQ.woff2',
+					'https://fonts.gstatic.com/s/ibmplexsansthailooped/v12/tss6AoJJRAhL3BTrK3r2xxbFhvKfyBB6l7hHT30L_K6vtF6JGQ.woff2',
 			},
 		},
 	},

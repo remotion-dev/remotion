@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yesteryear',
 	importName: 'Yesteryear',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Yesteryear:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yesteryear/v20/dg4g_p78rroaKl8kRKo1n7UNTjon.woff2',
+					'https://fonts.gstatic.com/s/yesteryear/v21/dg4g_p78rroaKl8kRKo1n7UNTjon.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yesteryear/v20/dg4g_p78rroaKl8kRKo1n7sNTg.woff2',
+					'https://fonts.gstatic.com/s/yesteryear/v21/dg4g_p78rroaKl8kRKo1n7sNTg.woff2',
 			},
 		},
 	},

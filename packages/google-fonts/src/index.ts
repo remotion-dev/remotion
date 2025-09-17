@@ -1091,9 +1091,24 @@ export const getAvailableFonts = () => [
 		load: () => import('./BitcountGridDouble') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Bitcount Grid Double Ink',
+		importName: 'BitcountGridDoubleInk',
+		load: () => import('./BitcountGridDoubleInk') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Bitcount Grid Single',
 		importName: 'BitcountGridSingle',
 		load: () => import('./BitcountGridSingle') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bitcount Grid Single Ink',
+		importName: 'BitcountGridSingleInk',
+		load: () => import('./BitcountGridSingleInk') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bitcount Ink',
+		importName: 'BitcountInk',
+		load: () => import('./BitcountInk') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Bitcount Prop Double',
@@ -1101,14 +1116,29 @@ export const getAvailableFonts = () => [
 		load: () => import('./BitcountPropDouble') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Bitcount Prop Double Ink',
+		importName: 'BitcountPropDoubleInk',
+		load: () => import('./BitcountPropDoubleInk') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Bitcount Prop Single',
 		importName: 'BitcountPropSingle',
 		load: () => import('./BitcountPropSingle') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Bitcount Prop Single Ink',
+		importName: 'BitcountPropSingleInk',
+		load: () => import('./BitcountPropSingleInk') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Bitcount Single',
 		importName: 'BitcountSingle',
 		load: () => import('./BitcountSingle') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Bitcount Single Ink',
+		importName: 'BitcountSingleInk',
+		load: () => import('./BitcountSingleInk') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Bitter',
@@ -8830,6 +8860,21 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Zain',
 		importName: 'Zain',
 		load: () => import('./Zain') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Zalando Sans',
+		importName: 'ZalandoSans',
+		load: () => import('./ZalandoSans') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Zalando Sans Expanded',
+		importName: 'ZalandoSansExpanded',
+		load: () => import('./ZalandoSansExpanded') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Zalando Sans SemiExpanded',
+		importName: 'ZalandoSansSemiExpanded',
+		load: () => import('./ZalandoSansSemiExpanded') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Zen Antique',

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Metrophobic',
 	importName: 'Metrophobic',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Metrophobic:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/metrophobic/v23/sJoA3LZUhMSAPV_u0qwiAQ-B5X_1PA.woff2',
+					'https://fonts.gstatic.com/s/metrophobic/v24/sJoA3LZUhMSAPV_u0qwiAQ-B5X_1PA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/metrophobic/v23/sJoA3LZUhMSAPV_u0qwiAQ-A5X_1PA.woff2',
+					'https://fonts.gstatic.com/s/metrophobic/v24/sJoA3LZUhMSAPV_u0qwiAQ-A5X_1PA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/metrophobic/v23/sJoA3LZUhMSAPV_u0qwiAQ-O5X8.woff2',
+					'https://fonts.gstatic.com/s/metrophobic/v24/sJoA3LZUhMSAPV_u0qwiAQ-O5X8.woff2',
 			},
 		},
 	},

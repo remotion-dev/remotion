@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Knewave',
 	importName: 'Knewave',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Knewave:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/knewave/v14/sykz-yx0lLcxQaSIhSO3--rE.woff2',
+					'https://fonts.gstatic.com/s/knewave/v15/sykz-yx0lLcxQaSIhSO3--rE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/knewave/v14/sykz-yx0lLcxQaSIhS23-w.woff2',
+					'https://fonts.gstatic.com/s/knewave/v15/sykz-yx0lLcxQaSIhS23-w.woff2',
 			},
 		},
 	},

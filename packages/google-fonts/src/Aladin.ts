@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Aladin',
 	importName: 'Aladin',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Aladin:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/aladin/v25/ZgNSjPJFPrvJV5fF4C35lGQ.woff2',
+					'https://fonts.gstatic.com/s/aladin/v26/ZgNSjPJFPrvJV5fF4C35lGQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/aladin/v25/ZgNSjPJFPrvJV5fF7i35.woff2',
+					'https://fonts.gstatic.com/s/aladin/v26/ZgNSjPJFPrvJV5fF7i35.woff2',
 			},
 		},
 	},

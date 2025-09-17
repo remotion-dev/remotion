@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Seaweed Script',
 	importName: 'SeaweedScript',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Seaweed+Script:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/seaweedscript/v16/bx6cNx6Tne2pxOATYE8C_Rsoe3WA8qY2VQ.woff2',
+					'https://fonts.gstatic.com/s/seaweedscript/v17/bx6cNx6Tne2pxOATYE8C_Rsoe3WA8qY2VQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/seaweedscript/v16/bx6cNx6Tne2pxOATYE8C_Rsoe3WO8qY.woff2',
+					'https://fonts.gstatic.com/s/seaweedscript/v17/bx6cNx6Tne2pxOATYE8C_Rsoe3WO8qY.woff2',
 			},
 		},
 	},

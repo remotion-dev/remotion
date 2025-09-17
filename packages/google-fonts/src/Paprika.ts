@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Paprika',
 	importName: 'Paprika',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Paprika:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/paprika/v23/8QIJdijZitv49rDfiIEEqojk.woff2',
+					'https://fonts.gstatic.com/s/paprika/v24/8QIJdijZitv49rDfiIEEqojk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/paprika/v23/8QIJdijZitv49rDfiI8Eqg.woff2',
+					'https://fonts.gstatic.com/s/paprika/v24/8QIJdijZitv49rDfiI8Eqg.woff2',
 			},
 		},
 	},

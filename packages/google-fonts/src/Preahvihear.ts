@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Preahvihear',
 	importName: 'Preahvihear',
-	version: 'v31',
+	version: 'v32',
 	url: 'https://fonts.googleapis.com/css2?family=Preahvihear:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/preahvihear/v31/6NUS8F-dNQeEYhzj7uluxvwI6dB5fw.woff2',
+					'https://fonts.gstatic.com/s/preahvihear/v32/6NUS8F-dNQeEYhzj7uluxvwI6dB5fw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/preahvihear/v31/6NUS8F-dNQeEYhzj7uluxvwD6dA.woff2',
+					'https://fonts.gstatic.com/s/preahvihear/v32/6NUS8F-dNQeEYhzj7uluxvwD6dA.woff2',
 			},
 		},
 	},

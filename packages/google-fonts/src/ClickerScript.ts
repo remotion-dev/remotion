@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Clicker Script',
 	importName: 'ClickerScript',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Clicker+Script:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/clickerscript/v13/raxkHiKPvt8CMH6ZWP8PdlEq71rR0TukKQ.woff2',
+					'https://fonts.gstatic.com/s/clickerscript/v14/raxkHiKPvt8CMH6ZWP8PdlEq71rR0TukKQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/clickerscript/v13/raxkHiKPvt8CMH6ZWP8PdlEq71rf0Ts.woff2',
+					'https://fonts.gstatic.com/s/clickerscript/v14/raxkHiKPvt8CMH6ZWP8PdlEq71rf0Ts.woff2',
 			},
 		},
 	},

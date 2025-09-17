@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Flamenco',
 	importName: 'Flamenco',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Flamenco:ital,wght@0,300;0,400',
 	unicodeRanges: {
 		latin:
@@ -13,11 +13,11 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				latin:
-					'https://fonts.gstatic.com/s/flamenco/v18/neIPzCehqYguo67ssZ0qNLk1cJA.woff2',
+					'https://fonts.gstatic.com/s/flamenco/v19/neIPzCehqYguo67ssZ0qNLk1cJA.woff2',
 			},
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/flamenco/v18/neIIzCehqYguo67ssZWBFqw.woff2',
+					'https://fonts.gstatic.com/s/flamenco/v19/neIIzCehqYguo67ssZWBFqw.woff2',
 			},
 		},
 	},

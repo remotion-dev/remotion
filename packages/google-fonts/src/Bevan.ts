@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bevan',
 	importName: 'Bevan',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Bevan:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,21 +17,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/bevan/v25/4iCt6KZ0a9NXjG8YaCbTsnSJ.woff2',
+					'https://fonts.gstatic.com/s/bevan/v26/4iCt6KZ0a9NXjG8YaCbTsnSJ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bevan/v25/4iCt6KZ0a9NXjG8YaCfTsnSJ.woff2',
+					'https://fonts.gstatic.com/s/bevan/v26/4iCt6KZ0a9NXjG8YaCfTsnSJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bevan/v25/4iCt6KZ0a9NXjG8YaCnTsg.woff2',
+					'https://fonts.gstatic.com/s/bevan/v26/4iCt6KZ0a9NXjG8YaCnTsg.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/bevan/v25/4iCj6KZ0a9NXjG8SWCvLtg.woff2',
+					'https://fonts.gstatic.com/s/bevan/v26/4iCj6KZ0a9NXjG8SWCvLtg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bevan/v25/4iCj6KZ0a9NXjG8TWCvLtg.woff2',
+					'https://fonts.gstatic.com/s/bevan/v26/4iCj6KZ0a9NXjG8TWCvLtg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bevan/v25/4iCj6KZ0a9NXjG8dWCs.woff2',
+					'https://fonts.gstatic.com/s/bevan/v26/4iCj6KZ0a9NXjG8dWCs.woff2',
 			},
 		},
 	},

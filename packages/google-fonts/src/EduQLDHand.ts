@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Edu QLD Hand',
 	importName: 'EduQLDHand',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Edu+QLD+Hand:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		vietnamese:
@@ -17,35 +17,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/eduqldhand/v2/d6lPkaOkTtjy2QhuzWtup1r83_hhvmQ.woff2',
+					'https://fonts.gstatic.com/s/eduqldhand/v3/d6lPkaOkTtjy2QhuzWtup1r83_hhvmQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduqldhand/v2/d6lPkaOkTtjy2QhuzWtup1r83vhhvmQ.woff2',
+					'https://fonts.gstatic.com/s/eduqldhand/v3/d6lPkaOkTtjy2QhuzWtup1r83vhhvmQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduqldhand/v2/d6lPkaOkTtjy2QhuzWtup1r80Phh.woff2',
+					'https://fonts.gstatic.com/s/eduqldhand/v3/d6lPkaOkTtjy2QhuzWtup1r80Phh.woff2',
 			},
 			'500': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/eduqldhand/v2/d6lPkaOkTtjy2QhuzWtup1r83_hhvmQ.woff2',
+					'https://fonts.gstatic.com/s/eduqldhand/v3/d6lPkaOkTtjy2QhuzWtup1r83_hhvmQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduqldhand/v2/d6lPkaOkTtjy2QhuzWtup1r83vhhvmQ.woff2',
+					'https://fonts.gstatic.com/s/eduqldhand/v3/d6lPkaOkTtjy2QhuzWtup1r83vhhvmQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduqldhand/v2/d6lPkaOkTtjy2QhuzWtup1r80Phh.woff2',
+					'https://fonts.gstatic.com/s/eduqldhand/v3/d6lPkaOkTtjy2QhuzWtup1r80Phh.woff2',
 			},
 			'600': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/eduqldhand/v2/d6lPkaOkTtjy2QhuzWtup1r83_hhvmQ.woff2',
+					'https://fonts.gstatic.com/s/eduqldhand/v3/d6lPkaOkTtjy2QhuzWtup1r83_hhvmQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduqldhand/v2/d6lPkaOkTtjy2QhuzWtup1r83vhhvmQ.woff2',
+					'https://fonts.gstatic.com/s/eduqldhand/v3/d6lPkaOkTtjy2QhuzWtup1r83vhhvmQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduqldhand/v2/d6lPkaOkTtjy2QhuzWtup1r80Phh.woff2',
+					'https://fonts.gstatic.com/s/eduqldhand/v3/d6lPkaOkTtjy2QhuzWtup1r80Phh.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/eduqldhand/v2/d6lPkaOkTtjy2QhuzWtup1r83_hhvmQ.woff2',
+					'https://fonts.gstatic.com/s/eduqldhand/v3/d6lPkaOkTtjy2QhuzWtup1r83_hhvmQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduqldhand/v2/d6lPkaOkTtjy2QhuzWtup1r83vhhvmQ.woff2',
+					'https://fonts.gstatic.com/s/eduqldhand/v3/d6lPkaOkTtjy2QhuzWtup1r83vhhvmQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduqldhand/v2/d6lPkaOkTtjy2QhuzWtup1r80Phh.woff2',
+					'https://fonts.gstatic.com/s/eduqldhand/v3/d6lPkaOkTtjy2QhuzWtup1r80Phh.woff2',
 			},
 		},
 	},

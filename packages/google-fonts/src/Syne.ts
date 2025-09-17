@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Syne',
 	importName: 'Syne',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Syne:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		greek:
@@ -17,38 +17,38 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				greek:
-					'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm2NL9Hz_.woff2',
+					'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm2NL9Hz_.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm25L9Hz_.woff2',
-				latin: 'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm2BL9A.woff2',
+					'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm25L9Hz_.woff2',
+				latin: 'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm2BL9A.woff2',
 			},
 			'500': {
 				greek:
-					'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm2NL9Hz_.woff2',
+					'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm2NL9Hz_.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm25L9Hz_.woff2',
-				latin: 'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm2BL9A.woff2',
+					'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm25L9Hz_.woff2',
+				latin: 'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm2BL9A.woff2',
 			},
 			'600': {
 				greek:
-					'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm2NL9Hz_.woff2',
+					'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm2NL9Hz_.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm25L9Hz_.woff2',
-				latin: 'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm2BL9A.woff2',
+					'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm25L9Hz_.woff2',
+				latin: 'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm2BL9A.woff2',
 			},
 			'700': {
 				greek:
-					'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm2NL9Hz_.woff2',
+					'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm2NL9Hz_.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm25L9Hz_.woff2',
-				latin: 'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm2BL9A.woff2',
+					'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm25L9Hz_.woff2',
+				latin: 'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm2BL9A.woff2',
 			},
 			'800': {
 				greek:
-					'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm2NL9Hz_.woff2',
+					'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm2NL9Hz_.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm25L9Hz_.woff2',
-				latin: 'https://fonts.gstatic.com/s/syne/v23/8vIH7w4qzmVxm2BL9A.woff2',
+					'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm25L9Hz_.woff2',
+				latin: 'https://fonts.gstatic.com/s/syne/v24/8vIH7w4qzmVxm2BL9A.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sree Krushnadevaraya',
 	importName: 'SreeKrushnadevaraya',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Sree+Krushnadevaraya:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/sreekrushnadevaraya/v22/R70FjzQeifmPepmyQQjQ9kvwMkWYPfTA_HWA0llguQ.woff2',
+					'https://fonts.gstatic.com/s/sreekrushnadevaraya/v23/R70FjzQeifmPepmyQQjQ9kvwMkWYPfTA_HWA0llguQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sreekrushnadevaraya/v22/R70FjzQeifmPepmyQQjQ9kvwMkWYPfTA_HWc0lk.woff2',
+					'https://fonts.gstatic.com/s/sreekrushnadevaraya/v23/R70FjzQeifmPepmyQQjQ9kvwMkWYPfTA_HWc0lk.woff2',
 			},
 		},
 	},

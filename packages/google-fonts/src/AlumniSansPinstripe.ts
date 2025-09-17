@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Alumni Sans Pinstripe',
 	importName: 'AlumniSansPinstripe',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Alumni+Sans+Pinstripe:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,29 +20,29 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/alumnisanspinstripe/v7/ZgNDjOFFPq_AUJD1umyS30W-Xub8zD1ObheDYI9GjcTg5w.woff2',
+					'https://fonts.gstatic.com/s/alumnisanspinstripe/v8/ZgNDjOFFPq_AUJD1umyS30W-Xub8zD1ObheDYI9GjcTg5w.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/alumnisanspinstripe/v7/ZgNDjOFFPq_AUJD1umyS30W-Xub8zD1ObheDYI9PjcTg5w.woff2',
+					'https://fonts.gstatic.com/s/alumnisanspinstripe/v8/ZgNDjOFFPq_AUJD1umyS30W-Xub8zD1ObheDYI9PjcTg5w.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/alumnisanspinstripe/v7/ZgNDjOFFPq_AUJD1umyS30W-Xub8zD1ObheDYI9EjcTg5w.woff2',
+					'https://fonts.gstatic.com/s/alumnisanspinstripe/v8/ZgNDjOFFPq_AUJD1umyS30W-Xub8zD1ObheDYI9EjcTg5w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/alumnisanspinstripe/v7/ZgNDjOFFPq_AUJD1umyS30W-Xub8zD1ObheDYI9FjcTg5w.woff2',
+					'https://fonts.gstatic.com/s/alumnisanspinstripe/v8/ZgNDjOFFPq_AUJD1umyS30W-Xub8zD1ObheDYI9FjcTg5w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/alumnisanspinstripe/v7/ZgNDjOFFPq_AUJD1umyS30W-Xub8zD1ObheDYI9LjcQ.woff2',
+					'https://fonts.gstatic.com/s/alumnisanspinstripe/v8/ZgNDjOFFPq_AUJD1umyS30W-Xub8zD1ObheDYI9LjcQ.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/alumnisanspinstripe/v7/ZgNNjOFFPq_AUJD1umyS30W-Xub8zD1ObheDaL9JlcA.woff2',
+					'https://fonts.gstatic.com/s/alumnisanspinstripe/v8/ZgNNjOFFPq_AUJD1umyS30W-Xub8zD1ObheDaL9JlcA.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/alumnisanspinstripe/v7/ZgNNjOFFPq_AUJD1umyS30W-Xub8zD1ObheDYb9JlcA.woff2',
+					'https://fonts.gstatic.com/s/alumnisanspinstripe/v8/ZgNNjOFFPq_AUJD1umyS30W-Xub8zD1ObheDYb9JlcA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/alumnisanspinstripe/v7/ZgNNjOFFPq_AUJD1umyS30W-Xub8zD1ObheDar9JlcA.woff2',
+					'https://fonts.gstatic.com/s/alumnisanspinstripe/v8/ZgNNjOFFPq_AUJD1umyS30W-Xub8zD1ObheDar9JlcA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/alumnisanspinstripe/v7/ZgNNjOFFPq_AUJD1umyS30W-Xub8zD1ObheDa79JlcA.woff2',
+					'https://fonts.gstatic.com/s/alumnisanspinstripe/v8/ZgNNjOFFPq_AUJD1umyS30W-Xub8zD1ObheDa79JlcA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/alumnisanspinstripe/v7/ZgNNjOFFPq_AUJD1umyS30W-Xub8zD1ObheDZb9J.woff2',
+					'https://fonts.gstatic.com/s/alumnisanspinstripe/v8/ZgNNjOFFPq_AUJD1umyS30W-Xub8zD1ObheDZb9J.woff2',
 			},
 		},
 	},

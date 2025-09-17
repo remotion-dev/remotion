@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Old North Arabian',
 	importName: 'NotoSansOldNorthArabian',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Old+North+Arabian:ital,wght@0,400',
 	unicodeRanges: {
 		'old-north-arabian': 'U+10A80-10A9F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'old-north-arabian':
-					'https://fonts.gstatic.com/s/notosansoldnortharabian/v16/esDF30BdNv-KYGGJpKGk2tNiMt7Jar6olZDyNdr81zBgF2EbyjcZ.woff2',
+					'https://fonts.gstatic.com/s/notosansoldnortharabian/v17/esDF30BdNv-KYGGJpKGk2tNiMt7Jar6olZDyNdr81zBgF2EbyjcZ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansoldnortharabian/v16/esDF30BdNv-KYGGJpKGk2tNiMt7Jar6olZDyNdr81zBgkEA-9w4.woff2',
+					'https://fonts.gstatic.com/s/notosansoldnortharabian/v17/esDF30BdNv-KYGGJpKGk2tNiMt7Jar6olZDyNdr81zBgkEA-9w4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansoldnortharabian/v16/esDF30BdNv-KYGGJpKGk2tNiMt7Jar6olZDyNdr81zBgnkA-.woff2',
+					'https://fonts.gstatic.com/s/notosansoldnortharabian/v17/esDF30BdNv-KYGGJpKGk2tNiMt7Jar6olZDyNdr81zBgnkA-.woff2',
 			},
 		},
 	},

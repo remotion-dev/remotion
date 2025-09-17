@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cookie',
 	importName: 'Cookie',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Cookie:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/cookie/v22/syky-y18lb0tSbf9kgqS.woff2',
+					'https://fonts.gstatic.com/s/cookie/v23/syky-y18lb0tSbf9kgqS.woff2',
 			},
 		},
 	},

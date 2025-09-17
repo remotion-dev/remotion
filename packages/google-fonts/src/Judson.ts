@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Judson',
 	importName: 'Judson',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Judson:ital,wght@0,400;0,700;1,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,29 +17,29 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/judson/v19/FeVTS0Fbvbc14VxhDYl4_bFbkg.woff2',
+					'https://fonts.gstatic.com/s/judson/v20/FeVTS0Fbvbc14VxhDYl4_bFbkg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/judson/v19/FeVTS0Fbvbc14VxhDYl5_bFbkg.woff2',
+					'https://fonts.gstatic.com/s/judson/v20/FeVTS0Fbvbc14VxhDYl5_bFbkg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/judson/v19/FeVTS0Fbvbc14VxhDYl3_bE.woff2',
+					'https://fonts.gstatic.com/s/judson/v20/FeVTS0Fbvbc14VxhDYl3_bE.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/judson/v19/FeVRS0Fbvbc14VxhB7l15bU.woff2',
+					'https://fonts.gstatic.com/s/judson/v20/FeVRS0Fbvbc14VxhB7l15bU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/judson/v19/FeVRS0Fbvbc14VxhBrl15bU.woff2',
+					'https://fonts.gstatic.com/s/judson/v20/FeVRS0Fbvbc14VxhBrl15bU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/judson/v19/FeVRS0Fbvbc14VxhCLl1.woff2',
+					'https://fonts.gstatic.com/s/judson/v20/FeVRS0Fbvbc14VxhCLl1.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/judson/v19/FeVSS0Fbvbc14Vxps5xg1ZRmq28.woff2',
+					'https://fonts.gstatic.com/s/judson/v20/FeVSS0Fbvbc14Vxps5xg1ZRmq28.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/judson/v19/FeVSS0Fbvbc14Vxps5xg1JRmq28.woff2',
+					'https://fonts.gstatic.com/s/judson/v20/FeVSS0Fbvbc14Vxps5xg1JRmq28.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/judson/v19/FeVSS0Fbvbc14Vxps5xg2pRm.woff2',
+					'https://fonts.gstatic.com/s/judson/v20/FeVSS0Fbvbc14Vxps5xg2pRm.woff2',
 			},
 		},
 	},

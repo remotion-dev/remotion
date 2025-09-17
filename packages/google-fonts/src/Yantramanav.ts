@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yantramanav',
 	importName: 'Yantramanav',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Yantramanav:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900',
 	unicodeRanges: {
 		devanagari:
@@ -17,51 +17,51 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				devanagari:
-					'https://fonts.gstatic.com/s/yantramanav/v14/flU-Rqu5zY00QEpyWJYWN5-QbeV5DS41.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flU-Rqu5zY00QEpyWJYWN5-QbeV5DS41.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yantramanav/v14/flU-Rqu5zY00QEpyWJYWN5-Qbep5DS41.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flU-Rqu5zY00QEpyWJYWN5-Qbep5DS41.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yantramanav/v14/flU-Rqu5zY00QEpyWJYWN5-QbeR5DQ.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flU-Rqu5zY00QEpyWJYWN5-QbeR5DQ.woff2',
 			},
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/yantramanav/v14/flUhRqu5zY00QEpyWJYWN59Yf_NfKBMMtA.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flUhRqu5zY00QEpyWJYWN59Yf_NfKBMMtA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yantramanav/v14/flUhRqu5zY00QEpyWJYWN59Yf_NQKBMMtA.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flUhRqu5zY00QEpyWJYWN59Yf_NQKBMMtA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yantramanav/v14/flUhRqu5zY00QEpyWJYWN59Yf_NeKBM.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flUhRqu5zY00QEpyWJYWN59Yf_NeKBM.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/yantramanav/v14/flU8Rqu5zY00QEpyWJYWN5fyXeZhCQ.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flU8Rqu5zY00QEpyWJYWN5fyXeZhCQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yantramanav/v14/flU8Rqu5zY00QEpyWJYWN5f9XeZhCQ.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flU8Rqu5zY00QEpyWJYWN5f9XeZhCQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yantramanav/v14/flU8Rqu5zY00QEpyWJYWN5fzXeY.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flU8Rqu5zY00QEpyWJYWN5fzXeY.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/yantramanav/v14/flUhRqu5zY00QEpyWJYWN58AfvNfKBMMtA.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flUhRqu5zY00QEpyWJYWN58AfvNfKBMMtA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yantramanav/v14/flUhRqu5zY00QEpyWJYWN58AfvNQKBMMtA.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flUhRqu5zY00QEpyWJYWN58AfvNQKBMMtA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yantramanav/v14/flUhRqu5zY00QEpyWJYWN58AfvNeKBM.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flUhRqu5zY00QEpyWJYWN58AfvNeKBM.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/yantramanav/v14/flUhRqu5zY00QEpyWJYWN59IePNfKBMMtA.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flUhRqu5zY00QEpyWJYWN59IePNfKBMMtA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yantramanav/v14/flUhRqu5zY00QEpyWJYWN59IePNQKBMMtA.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flUhRqu5zY00QEpyWJYWN59IePNQKBMMtA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yantramanav/v14/flUhRqu5zY00QEpyWJYWN59IePNeKBM.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flUhRqu5zY00QEpyWJYWN59IePNeKBM.woff2',
 			},
 			'900': {
 				devanagari:
-					'https://fonts.gstatic.com/s/yantramanav/v14/flUhRqu5zY00QEpyWJYWN59wevNfKBMMtA.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flUhRqu5zY00QEpyWJYWN59wevNfKBMMtA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yantramanav/v14/flUhRqu5zY00QEpyWJYWN59wevNQKBMMtA.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flUhRqu5zY00QEpyWJYWN59wevNQKBMMtA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yantramanav/v14/flUhRqu5zY00QEpyWJYWN59wevNeKBM.woff2',
+					'https://fonts.gstatic.com/s/yantramanav/v15/flUhRqu5zY00QEpyWJYWN59wevNeKBM.woff2',
 			},
 		},
 	},

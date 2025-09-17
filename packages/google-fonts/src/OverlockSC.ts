@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Overlock SC',
 	importName: 'OverlockSC',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Overlock+SC:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/overlocksc/v24/1cX3aUHKGZrstGAY8nwVzEGJocWU1A.woff2',
+					'https://fonts.gstatic.com/s/overlocksc/v25/1cX3aUHKGZrstGAY8nwVzEGJocWU1A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/overlocksc/v24/1cX3aUHKGZrstGAY8nwVzEGHocU.woff2',
+					'https://fonts.gstatic.com/s/overlocksc/v25/1cX3aUHKGZrstGAY8nwVzEGHocU.woff2',
 			},
 		},
 	},

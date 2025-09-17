@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Audiowide',
 	importName: 'Audiowide',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Audiowide:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/audiowide/v21/l7gdbjpo0cum0ckerWCdmA_OIxo.woff2',
+					'https://fonts.gstatic.com/s/audiowide/v22/l7gdbjpo0cum0ckerWCdmA_OIxo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/audiowide/v21/l7gdbjpo0cum0ckerWCdlg_O.woff2',
+					'https://fonts.gstatic.com/s/audiowide/v22/l7gdbjpo0cum0ckerWCdlg_O.woff2',
 			},
 		},
 	},

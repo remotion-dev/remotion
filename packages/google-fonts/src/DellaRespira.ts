@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Della Respira',
 	importName: 'DellaRespira',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Della+Respira:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/dellarespira/v23/RLp5K5v44KaueWI6iEJQBiGPdf4Yug.woff2',
+					'https://fonts.gstatic.com/s/dellarespira/v24/RLp5K5v44KaueWI6iEJQBiGPdf4Yug.woff2',
 			},
 		},
 	},

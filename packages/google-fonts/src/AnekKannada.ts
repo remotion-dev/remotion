@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Anek Kannada',
 	importName: 'AnekKannada',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Anek+Kannada:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		kannada:
@@ -17,67 +17,67 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				kannada:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
 			},
 			'200': {
 				kannada:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
 			},
 			'300': {
 				kannada:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
 			},
 			'400': {
 				kannada:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
 			},
 			'500': {
 				kannada:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
 			},
 			'600': {
 				kannada:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
 			},
 			'700': {
 				kannada:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
 			},
 			'800': {
 				kannada:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pfmJA3Nd.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1pe2JA3Nd.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekkannada/v14/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
+					'https://fonts.gstatic.com/s/anekkannada/v15/raxvHiCNvNMKe1CKFsINYFlgkEIwGa8nL6ruWJg1peOJAw.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Splash',
 	importName: 'Splash',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Splash:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/splash/v7/KtksAL2RZoDkbU6RrPnHBdQ.woff2',
+					'https://fonts.gstatic.com/s/splash/v8/KtksAL2RZoDkbU6RrPnHBdQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/splash/v7/KtksAL2RZoDkbU6RrfnHBdQ.woff2',
+					'https://fonts.gstatic.com/s/splash/v8/KtksAL2RZoDkbU6RrfnHBdQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/splash/v7/KtksAL2RZoDkbU6Ro_nH.woff2',
+					'https://fonts.gstatic.com/s/splash/v8/KtksAL2RZoDkbU6Ro_nH.woff2',
 			},
 		},
 	},

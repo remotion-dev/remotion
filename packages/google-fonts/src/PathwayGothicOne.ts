@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Pathway Gothic One',
 	importName: 'PathwayGothicOne',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Pathway+Gothic+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/pathwaygothicone/v15/MwQrbgD32-KAvjkYGNUUxAtW7pEBwx-tRVZfX80.woff2',
+					'https://fonts.gstatic.com/s/pathwaygothicone/v16/MwQrbgD32-KAvjkYGNUUxAtW7pEBwx-tRVZfX80.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/pathwaygothicone/v15/MwQrbgD32-KAvjkYGNUUxAtW7pEBwx-tS1Zf.woff2',
+					'https://fonts.gstatic.com/s/pathwaygothicone/v16/MwQrbgD32-KAvjkYGNUUxAtW7pEBwx-tS1Zf.woff2',
 			},
 		},
 	},

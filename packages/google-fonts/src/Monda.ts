@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Monda',
 	importName: 'Monda',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Monda:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		vietnamese:
@@ -17,35 +17,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjspuPho7vA.woff2',
+					'https://fonts.gstatic.com/s/monda/v19/TK3tWkYFABsmjspuPho7vA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjspvPho7vA.woff2',
+					'https://fonts.gstatic.com/s/monda/v19/TK3tWkYFABsmjspvPho7vA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjsphPho.woff2',
+					'https://fonts.gstatic.com/s/monda/v19/TK3tWkYFABsmjsphPho.woff2',
 			},
 			'500': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjspuPho7vA.woff2',
+					'https://fonts.gstatic.com/s/monda/v19/TK3tWkYFABsmjspuPho7vA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjspvPho7vA.woff2',
+					'https://fonts.gstatic.com/s/monda/v19/TK3tWkYFABsmjspvPho7vA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjsphPho.woff2',
+					'https://fonts.gstatic.com/s/monda/v19/TK3tWkYFABsmjsphPho.woff2',
 			},
 			'600': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjspuPho7vA.woff2',
+					'https://fonts.gstatic.com/s/monda/v19/TK3tWkYFABsmjspuPho7vA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjspvPho7vA.woff2',
+					'https://fonts.gstatic.com/s/monda/v19/TK3tWkYFABsmjspvPho7vA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjsphPho.woff2',
+					'https://fonts.gstatic.com/s/monda/v19/TK3tWkYFABsmjsphPho.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjspuPho7vA.woff2',
+					'https://fonts.gstatic.com/s/monda/v19/TK3tWkYFABsmjspuPho7vA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjspvPho7vA.woff2',
+					'https://fonts.gstatic.com/s/monda/v19/TK3tWkYFABsmjspvPho7vA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/monda/v18/TK3tWkYFABsmjsphPho.woff2',
+					'https://fonts.gstatic.com/s/monda/v19/TK3tWkYFABsmjsphPho.woff2',
 			},
 		},
 	},

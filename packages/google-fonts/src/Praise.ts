@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Praise',
 	importName: 'Praise',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Praise:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/praise/v8/qkBUXvUZ-cnFXcFCBvm73L8.woff2',
+					'https://fonts.gstatic.com/s/praise/v9/qkBUXvUZ-cnFXcFCBvm73L8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/praise/v8/qkBUXvUZ-cnFXcFCB_m73L8.woff2',
+					'https://fonts.gstatic.com/s/praise/v9/qkBUXvUZ-cnFXcFCB_m73L8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/praise/v8/qkBUXvUZ-cnFXcFCCfm7.woff2',
+					'https://fonts.gstatic.com/s/praise/v9/qkBUXvUZ-cnFXcFCCfm7.woff2',
 			},
 		},
 	},

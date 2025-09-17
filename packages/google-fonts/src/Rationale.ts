@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rationale',
 	importName: 'Rationale',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Rationale:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/rationale/v29/9XUnlJ92n0_JFxHIfHcccVtN.woff2',
+					'https://fonts.gstatic.com/s/rationale/v30/9XUnlJ92n0_JFxHIfHcccVtN.woff2',
 			},
 		},
 	},

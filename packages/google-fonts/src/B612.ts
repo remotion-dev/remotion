@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'BSixOneTwo',
 	importName: 'B612',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=B612:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		latin:
@@ -13,20 +13,20 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/b612/v12/3Jn8SDDxiSz36juCGxCk.woff2',
+					'https://fonts.gstatic.com/s/b612/v13/3Jn8SDDxiSz36juCGxCk.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/b612/v12/3Jn_SDDxiSz36juKoDWxTl0A.woff2',
+					'https://fonts.gstatic.com/s/b612/v13/3Jn_SDDxiSz36juKoDWxTl0A.woff2',
 			},
 		},
 		normal: {
 			'400': {
-				latin: 'https://fonts.gstatic.com/s/b612/v12/3JnySDDxiSz36j6yGQ.woff2',
+				latin: 'https://fonts.gstatic.com/s/b612/v13/3JnySDDxiSz36j6yGQ.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/b612/v12/3Jn9SDDxiSz34oWXDDeBTA.woff2',
+					'https://fonts.gstatic.com/s/b612/v13/3Jn9SDDxiSz34oWXDDeBTA.woff2',
 			},
 		},
 	},

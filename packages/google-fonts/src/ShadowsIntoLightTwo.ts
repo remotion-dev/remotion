@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Shadows Into Light Two',
 	importName: 'ShadowsIntoLightTwo',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Shadows+Into+Light+Two:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/shadowsintolighttwo/v18/4iC86LVlZsRSjQhpWGedwyOoW-0A6_kpsyNmpALHGYNn.woff2',
+					'https://fonts.gstatic.com/s/shadowsintolighttwo/v19/4iC86LVlZsRSjQhpWGedwyOoW-0A6_kpsyNmpALHGYNn.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/shadowsintolighttwo/v18/4iC86LVlZsRSjQhpWGedwyOoW-0A6_kpsyNmpAzHGQ.woff2',
+					'https://fonts.gstatic.com/s/shadowsintolighttwo/v19/4iC86LVlZsRSjQhpWGedwyOoW-0A6_kpsyNmpAzHGQ.woff2',
 			},
 		},
 	},

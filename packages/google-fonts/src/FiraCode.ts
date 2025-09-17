@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fira Code',
 	importName: 'FiraCode',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Fira+Code:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -22,83 +22,83 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh0NSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh0NSDulI.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh2dSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh2dSDulI.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh0dSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh0dSDulI.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh3tSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3tSDulI.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bhZ_Wmh2uX.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bhZ_Wmh2uX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh09SDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh09SDulI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh3dSD.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3dSD.woff2',
 			},
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh0NSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh0NSDulI.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh2dSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh2dSDulI.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh0dSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh0dSDulI.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh3tSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3tSDulI.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bhZ_Wmh2uX.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bhZ_Wmh2uX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh09SDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh09SDulI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh3dSD.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3dSD.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh0NSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh0NSDulI.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh2dSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh2dSDulI.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh0dSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh0dSDulI.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh3tSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3tSDulI.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bhZ_Wmh2uX.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bhZ_Wmh2uX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh09SDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh09SDulI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh3dSD.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3dSD.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh0NSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh0NSDulI.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh2dSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh2dSDulI.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh0dSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh0dSDulI.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh3tSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3tSDulI.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bhZ_Wmh2uX.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bhZ_Wmh2uX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh09SDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh09SDulI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh3dSD.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3dSD.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh0NSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh0NSDulI.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh2dSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh2dSDulI.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh0dSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh0dSDulI.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh3tSDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3tSDulI.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bhZ_Wmh2uX.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bhZ_Wmh2uX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh09SDulI.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh09SDulI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/firacode/v26/uU9NCBsR6Z2vfE9aq3bh3dSD.woff2',
+					'https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3dSD.woff2',
 			},
 		},
 	},

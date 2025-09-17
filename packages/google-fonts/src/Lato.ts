@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lato',
 	importName: 'Lato',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,64 +15,64 @@ export const getInfo = () => ({
 		italic: {
 			'100': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lato/v24/S6u-w4BMUTPHjxsIPx-mPCLQ7A.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u-w4BMUTPHjxsIPx-mPCLQ7A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lato/v24/S6u-w4BMUTPHjxsIPx-oPCI.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u-w4BMUTPHjxsIPx-oPCI.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lato/v24/S6u_w4BMUTPHjxsI9w2_FQft1dw.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u_w4BMUTPHjxsI9w2_FQft1dw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lato/v24/S6u_w4BMUTPHjxsI9w2_Gwft.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u_w4BMUTPHjxsI9w2_Gwft.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lato/v24/S6u8w4BMUTPHjxsAUi-qJCY.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u8w4BMUTPHjxsAUi-qJCY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lato/v24/S6u8w4BMUTPHjxsAXC-q.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u8w4BMUTPHjxsAXC-q.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lato/v24/S6u_w4BMUTPHjxsI5wq_FQft1dw.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u_w4BMUTPHjxsI5wq_FQft1dw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lato/v24/S6u_w4BMUTPHjxsI5wq_Gwft.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u_w4BMUTPHjxsI5wq_Gwft.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lato/v24/S6u_w4BMUTPHjxsI3wi_FQft1dw.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u_w4BMUTPHjxsI3wi_FQft1dw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lato/v24/S6u_w4BMUTPHjxsI3wi_Gwft.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u_w4BMUTPHjxsI3wi_Gwft.woff2',
 			},
 		},
 		normal: {
 			'100': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lato/v24/S6u8w4BMUTPHh30AUi-qJCY.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u8w4BMUTPHh30AUi-qJCY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lato/v24/S6u8w4BMUTPHh30AXC-q.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u8w4BMUTPHh30AXC-q.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lato/v24/S6u9w4BMUTPHh7USSwaPGR_p.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u9w4BMUTPHh7USSwaPGR_p.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lato/v24/S6u9w4BMUTPHh7USSwiPGQ.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u9w4BMUTPHh7USSwiPGQ.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lato/v24/S6uyw4BMUTPHjxAwXjeu.woff2',
-				latin: 'https://fonts.gstatic.com/s/lato/v24/S6uyw4BMUTPHjx4wXg.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6uyw4BMUTPHjxAwXjeu.woff2',
+				latin: 'https://fonts.gstatic.com/s/lato/v25/S6uyw4BMUTPHjx4wXg.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lato/v24/S6u9w4BMUTPHh6UVSwaPGR_p.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u9w4BMUTPHh6UVSwaPGR_p.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lato/v24/S6u9w4BMUTPHh6UVSwiPGQ.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u9w4BMUTPHh6UVSwiPGQ.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lato/v24/S6u9w4BMUTPHh50XSwaPGR_p.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u9w4BMUTPHh50XSwaPGR_p.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lato/v24/S6u9w4BMUTPHh50XSwiPGQ.woff2',
+					'https://fonts.gstatic.com/s/lato/v25/S6u9w4BMUTPHh50XSwiPGQ.woff2',
 			},
 		},
 	},

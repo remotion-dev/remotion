@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Playpen Sans Hebrew',
 	importName: 'PlaypenSansHebrew',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Playpen+Sans+Hebrew:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		'[1]':
@@ -36,219 +36,219 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
 			},
 			'200': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
 			},
 			'300': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
 			},
 			'400': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
 			},
 			'500': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
 			},
 			'600': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
 			},
 			'700': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
 			},
 			'800': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eAlIy3cXRTPJFXZBAxpA.9.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIzVfUZX.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApPLVfUZX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApIDVfUZX.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensanshebrew/v7/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
+					'https://fonts.gstatic.com/s/playpensanshebrew/v8/lJwb-okuj29wT-AN6RvLx8QqjkKhL7eApI7VfQ.woff2',
 			},
 		},
 	},

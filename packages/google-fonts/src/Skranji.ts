@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Skranji',
 	importName: 'Skranji',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Skranji:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/skranji/v13/OZpDg_dtriVFNerMUzKkk2Tm.woff2',
+					'https://fonts.gstatic.com/s/skranji/v14/OZpDg_dtriVFNerMUzKkk2Tm.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/skranji/v13/OZpDg_dtriVFNerMUzykkw.woff2',
+					'https://fonts.gstatic.com/s/skranji/v14/OZpDg_dtriVFNerMUzykkw.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/skranji/v13/OZpGg_dtriVFNerMW4eBhlXHwXD-.woff2',
+					'https://fonts.gstatic.com/s/skranji/v14/OZpGg_dtriVFNerMW4eBhlXHwXD-.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/skranji/v13/OZpGg_dtriVFNerMW4eBhlvHwQ.woff2',
+					'https://fonts.gstatic.com/s/skranji/v14/OZpGg_dtriVFNerMW4eBhlvHwQ.woff2',
 			},
 		},
 	},

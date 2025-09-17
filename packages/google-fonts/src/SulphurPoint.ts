@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sulphur Point',
 	importName: 'SulphurPoint',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Sulphur+Point:ital,wght@0,300;0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,21 +15,21 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sulphurpoint/v15/RLpkK5vv8KaycDcazWFPBj2afVU6r6APUUPI.woff2',
+					'https://fonts.gstatic.com/s/sulphurpoint/v16/RLpkK5vv8KaycDcazWFPBj2afVU6r6APUUPI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sulphurpoint/v15/RLpkK5vv8KaycDcazWFPBj2afVU6r64PUQ.woff2',
+					'https://fonts.gstatic.com/s/sulphurpoint/v16/RLpkK5vv8KaycDcazWFPBj2afVU6r64PUQ.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sulphurpoint/v15/RLp5K5vv8KaycDcazWFPBj2adfAYupEu.woff2',
+					'https://fonts.gstatic.com/s/sulphurpoint/v16/RLp5K5vv8KaycDcazWFPBj2adfAYupEu.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sulphurpoint/v15/RLp5K5vv8KaycDcazWFPBj2adf4Yug.woff2',
+					'https://fonts.gstatic.com/s/sulphurpoint/v16/RLp5K5vv8KaycDcazWFPBj2adf4Yug.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sulphurpoint/v15/RLpkK5vv8KaycDcazWFPBj2afUU9r6APUUPI.woff2',
+					'https://fonts.gstatic.com/s/sulphurpoint/v16/RLpkK5vv8KaycDcazWFPBj2afUU9r6APUUPI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sulphurpoint/v15/RLpkK5vv8KaycDcazWFPBj2afUU9r64PUQ.woff2',
+					'https://fonts.gstatic.com/s/sulphurpoint/v16/RLpkK5vv8KaycDcazWFPBj2afUU9r64PUQ.woff2',
 			},
 		},
 	},

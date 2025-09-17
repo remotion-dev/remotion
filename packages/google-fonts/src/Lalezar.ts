@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lalezar',
 	importName: 'Lalezar',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Lalezar:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -19,13 +19,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/lalezar/v15/zrfl0HLVx-HwTP82YaL4IxL0.woff2',
+					'https://fonts.gstatic.com/s/lalezar/v16/zrfl0HLVx-HwTP82YaL4IxL0.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/lalezar/v15/zrfl0HLVx-HwTP82Yaj4IxL0.woff2',
+					'https://fonts.gstatic.com/s/lalezar/v16/zrfl0HLVx-HwTP82Yaj4IxL0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lalezar/v15/zrfl0HLVx-HwTP82Yan4IxL0.woff2',
+					'https://fonts.gstatic.com/s/lalezar/v16/zrfl0HLVx-HwTP82Yan4IxL0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lalezar/v15/zrfl0HLVx-HwTP82Yaf4Iw.woff2',
+					'https://fonts.gstatic.com/s/lalezar/v16/zrfl0HLVx-HwTP82Yaf4Iw.woff2',
 			},
 		},
 	},

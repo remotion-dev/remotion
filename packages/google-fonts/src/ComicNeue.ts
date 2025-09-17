@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Comic Neue',
 	importName: 'ComicNeue',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700',
 	unicodeRanges: {
 		latin:
@@ -13,29 +13,29 @@ export const getInfo = () => ({
 		italic: {
 			'300': {
 				latin:
-					'https://fonts.gstatic.com/s/comicneue/v8/4UaarEJDsxBrF37olUeD96_RTplkLCND.woff2',
+					'https://fonts.gstatic.com/s/comicneue/v9/4UaarEJDsxBrF37olUeD96_RTplkLCND.woff2',
 			},
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/comicneue/v8/4UaFrEJDsxBrF37olUeD96_Z5btx.woff2',
+					'https://fonts.gstatic.com/s/comicneue/v9/4UaFrEJDsxBrF37olUeD96_Z5btx.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/comicneue/v8/4UaarEJDsxBrF37olUeD96_RXp5kLCND.woff2',
+					'https://fonts.gstatic.com/s/comicneue/v9/4UaarEJDsxBrF37olUeD96_RXp5kLCND.woff2',
 			},
 		},
 		normal: {
 			'300': {
 				latin:
-					'https://fonts.gstatic.com/s/comicneue/v8/4UaErEJDsxBrF37olUeD_wHL8pxULg.woff2',
+					'https://fonts.gstatic.com/s/comicneue/v9/4UaErEJDsxBrF37olUeD_wHL8pxULg.woff2',
 			},
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/comicneue/v8/4UaHrEJDsxBrF37olUeD96rp5w.woff2',
+					'https://fonts.gstatic.com/s/comicneue/v9/4UaHrEJDsxBrF37olUeD96rp5w.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/comicneue/v8/4UaErEJDsxBrF37olUeD_xHM8pxULg.woff2',
+					'https://fonts.gstatic.com/s/comicneue/v9/4UaErEJDsxBrF37olUeD_xHM8pxULg.woff2',
 			},
 		},
 	},

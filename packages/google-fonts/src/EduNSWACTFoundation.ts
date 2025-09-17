@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Edu NSW ACT Foundation',
 	importName: 'EduNSWACTFoundation',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Edu+NSW+ACT+Foundation:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		latin:
@@ -13,19 +13,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/edunswactfoundation/v4/raxsHjqJtsNBFUi8WO0vUBgc9D-2lV_oQdCASFdXsA.woff2',
+					'https://fonts.gstatic.com/s/edunswactfoundation/v5/raxsHjqJtsNBFUi8WO0vUBgc9D-2lV_oQdCASFdXsA.woff2',
 			},
 			'500': {
 				latin:
-					'https://fonts.gstatic.com/s/edunswactfoundation/v4/raxsHjqJtsNBFUi8WO0vUBgc9D-2lV_oQdCASFdXsA.woff2',
+					'https://fonts.gstatic.com/s/edunswactfoundation/v5/raxsHjqJtsNBFUi8WO0vUBgc9D-2lV_oQdCASFdXsA.woff2',
 			},
 			'600': {
 				latin:
-					'https://fonts.gstatic.com/s/edunswactfoundation/v4/raxsHjqJtsNBFUi8WO0vUBgc9D-2lV_oQdCASFdXsA.woff2',
+					'https://fonts.gstatic.com/s/edunswactfoundation/v5/raxsHjqJtsNBFUi8WO0vUBgc9D-2lV_oQdCASFdXsA.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/edunswactfoundation/v4/raxsHjqJtsNBFUi8WO0vUBgc9D-2lV_oQdCASFdXsA.woff2',
+					'https://fonts.gstatic.com/s/edunswactfoundation/v5/raxsHjqJtsNBFUi8WO0vUBgc9D-2lV_oQdCASFdXsA.woff2',
 			},
 		},
 	},

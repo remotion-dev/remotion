@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gotu',
 	importName: 'Gotu',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Gotu:ital,wght@0,400',
 	unicodeRanges: {
 		devanagari:
@@ -19,12 +19,12 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/gotu/v17/o-0FIpksx3QOpHsBi7h6.woff2',
+					'https://fonts.gstatic.com/s/gotu/v18/o-0FIpksx3QOpHsBi7h6.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/gotu/v17/o-0FIpksx3QOpHUBi7h6.woff2',
+					'https://fonts.gstatic.com/s/gotu/v18/o-0FIpksx3QOpHUBi7h6.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gotu/v17/o-0FIpksx3QOpHQBi7h6.woff2',
-				latin: 'https://fonts.gstatic.com/s/gotu/v17/o-0FIpksx3QOpHoBiw.woff2',
+					'https://fonts.gstatic.com/s/gotu/v18/o-0FIpksx3QOpHQBi7h6.woff2',
+				latin: 'https://fonts.gstatic.com/s/gotu/v18/o-0FIpksx3QOpHoBiw.woff2',
 			},
 		},
 	},

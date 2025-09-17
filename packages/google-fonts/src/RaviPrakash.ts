@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ravi Prakash',
 	importName: 'RaviPrakash',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Ravi+Prakash:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/raviprakash/v20/gokpH6fsDkVrF9Bv9X8SOAK3g9xFm6Q.woff2',
+					'https://fonts.gstatic.com/s/raviprakash/v21/gokpH6fsDkVrF9Bv9X8SOAK3g9xFm6Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/raviprakash/v20/gokpH6fsDkVrF9Bv9X8SOAK3n9xF.woff2',
+					'https://fonts.gstatic.com/s/raviprakash/v21/gokpH6fsDkVrF9Bv9X8SOAK3n9xF.woff2',
 			},
 		},
 	},

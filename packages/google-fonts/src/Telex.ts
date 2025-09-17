@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Telex',
 	importName: 'Telex',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Telex:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/telex/v17/ieVw2Y1fKWmIO-faDVtSKA.woff2',
+					'https://fonts.gstatic.com/s/telex/v18/ieVw2Y1fKWmIO-faDVtSKA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/telex/v17/ieVw2Y1fKWmIO-fUDVs.woff2',
+					'https://fonts.gstatic.com/s/telex/v18/ieVw2Y1fKWmIO-fUDVs.woff2',
 			},
 		},
 	},

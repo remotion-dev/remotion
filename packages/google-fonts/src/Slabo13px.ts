@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Slabo OneThreepx',
 	importName: 'Slabo13px',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Slabo+13px:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/slabo13px/v16/11hEGp_azEvXZUdSBzzRQK6h2jkY.woff2',
+					'https://fonts.gstatic.com/s/slabo13px/v17/11hEGp_azEvXZUdSBzzRQK6h2jkY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/slabo13px/v16/11hEGp_azEvXZUdSBzzRQKCh2g.woff2',
+					'https://fonts.gstatic.com/s/slabo13px/v17/11hEGp_azEvXZUdSBzzRQKCh2g.woff2',
 			},
 		},
 	},

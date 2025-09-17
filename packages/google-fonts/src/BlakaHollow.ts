@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Blaka Hollow',
 	importName: 'BlakaHollow',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Blaka+Hollow:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/blakahollow/v7/MCoUzAL91sjRE2FsKsxUtezoBdAE-W8.woff2',
+					'https://fonts.gstatic.com/s/blakahollow/v8/MCoUzAL91sjRE2FsKsxUtezoBdAE-W8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/blakahollow/v7/MCoUzAL91sjRE2FsKsxUtezoDtAE-W8.woff2',
+					'https://fonts.gstatic.com/s/blakahollow/v8/MCoUzAL91sjRE2FsKsxUtezoDtAE-W8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/blakahollow/v7/MCoUzAL91sjRE2FsKsxUtezoANAE.woff2',
+					'https://fonts.gstatic.com/s/blakahollow/v8/MCoUzAL91sjRE2FsKsxUtezoANAE.woff2',
 			},
 		},
 	},

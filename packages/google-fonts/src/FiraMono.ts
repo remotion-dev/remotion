@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fira Mono',
 	importName: 'FiraMono',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Fira+Mono:ital,wght@0,400;0,500;0,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -22,51 +22,51 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/firamono/v15/N0bX2SlFPv1weGeLZDtgK_7SodY.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bX2SlFPv1weGeLZDtgK_7SodY.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/firamono/v15/N0bX2SlFPv1weGeLZDtgIv7SodY.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bX2SlFPv1weGeLZDtgIv7SodY.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/firamono/v15/N0bX2SlFPv1weGeLZDtgKv7SodY.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bX2SlFPv1weGeLZDtgKv7SodY.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/firamono/v15/N0bX2SlFPv1weGeLZDtgJf7SodY.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bX2SlFPv1weGeLZDtgJf7SodY.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/firamono/v15/N0bX2SlFPv1weGeLZDtgnN_3nO_Q.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bX2SlFPv1weGeLZDtgnN_3nO_Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/firamono/v15/N0bX2SlFPv1weGeLZDtgKP7SodY.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bX2SlFPv1weGeLZDtgKP7SodY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/firamono/v15/N0bX2SlFPv1weGeLZDtgJv7S.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bX2SlFPv1weGeLZDtgJv7S.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDto1d3Hk_fUWZA.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDto1d3Hk_fUWZA.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDto1d3HmvfUWZA.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDto1d3HmvfUWZA.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDto1d3HkvfUWZA.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDto1d3HkvfUWZA.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDto1d3HnffUWZA.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDto1d3HnffUWZA.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDto1d3HJNbxZKlI.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDto1d3HJNbxZKlI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDto1d3HkPfUWZA.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDto1d3HkPfUWZA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDto1d3HnvfU.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDto1d3HnvfU.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDtondvHk_fUWZA.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDtondvHk_fUWZA.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDtondvHmvfUWZA.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDtondvHmvfUWZA.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDtondvHkvfUWZA.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDtondvHkvfUWZA.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDtondvHnffUWZA.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDtondvHnffUWZA.woff2',
 				symbols2:
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDtondvHJNbxZKlI.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDtondvHJNbxZKlI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDtondvHkPfUWZA.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDtondvHkPfUWZA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/firamono/v15/N0bS2SlFPv1weGeLZDtondvHnvfU.woff2',
+					'https://fonts.gstatic.com/s/firamono/v16/N0bS2SlFPv1weGeLZDtondvHnvfU.woff2',
 			},
 		},
 	},

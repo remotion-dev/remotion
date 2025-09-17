@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bayon',
 	importName: 'Bayon',
-	version: 'v35',
+	version: 'v36',
 	url: 'https://fonts.googleapis.com/css2?family=Bayon:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/bayon/v35/9XUrlJNmn0LPFm-lMBc0dw.woff2',
+					'https://fonts.gstatic.com/s/bayon/v36/9XUrlJNmn0LPFm-lMBc0dw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bayon/v35/9XUrlJNmn0LPFm-uMBc.woff2',
+					'https://fonts.gstatic.com/s/bayon/v36/9XUrlJNmn0LPFm-uMBc.woff2',
 			},
 		},
 	},

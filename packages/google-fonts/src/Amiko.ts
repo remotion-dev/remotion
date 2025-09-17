@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Amiko',
 	importName: 'Amiko',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Amiko:ital,wght@0,400;0,600;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,27 +17,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/amiko/v14/WwkQxPq1DFK04uqjeV_8MQ.woff2',
+					'https://fonts.gstatic.com/s/amiko/v15/WwkQxPq1DFK04uqjeV_8MQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amiko/v14/WwkQxPq1DFK04uqseV_8MQ.woff2',
+					'https://fonts.gstatic.com/s/amiko/v15/WwkQxPq1DFK04uqseV_8MQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amiko/v14/WwkQxPq1DFK04uqieV8.woff2',
+					'https://fonts.gstatic.com/s/amiko/v15/WwkQxPq1DFK04uqieV8.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/amiko/v14/WwkdxPq1DFK04uJ9XUrCEIUwUQ.woff2',
+					'https://fonts.gstatic.com/s/amiko/v15/WwkdxPq1DFK04uJ9XUrCEIUwUQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amiko/v14/WwkdxPq1DFK04uJ9XUrNEIUwUQ.woff2',
+					'https://fonts.gstatic.com/s/amiko/v15/WwkdxPq1DFK04uJ9XUrNEIUwUQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amiko/v14/WwkdxPq1DFK04uJ9XUrDEIU.woff2',
+					'https://fonts.gstatic.com/s/amiko/v15/WwkdxPq1DFK04uJ9XUrDEIU.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/amiko/v14/WwkdxPq1DFK04uIZXErCEIUwUQ.woff2',
+					'https://fonts.gstatic.com/s/amiko/v15/WwkdxPq1DFK04uIZXErCEIUwUQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amiko/v14/WwkdxPq1DFK04uIZXErNEIUwUQ.woff2',
+					'https://fonts.gstatic.com/s/amiko/v15/WwkdxPq1DFK04uIZXErNEIUwUQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amiko/v14/WwkdxPq1DFK04uIZXErDEIU.woff2',
+					'https://fonts.gstatic.com/s/amiko/v15/WwkdxPq1DFK04uIZXErDEIU.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Abril Fatface',
 	importName: 'AbrilFatface',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Abril+Fatface:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/abrilfatface/v24/zOL64pLDlL1D99S8g8PtiKchq-lmjdLh.woff2',
+					'https://fonts.gstatic.com/s/abrilfatface/v25/zOL64pLDlL1D99S8g8PtiKchq-lmjdLh.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/abrilfatface/v24/zOL64pLDlL1D99S8g8PtiKchq-dmjQ.woff2',
+					'https://fonts.gstatic.com/s/abrilfatface/v25/zOL64pLDlL1D99S8g8PtiKchq-dmjQ.woff2',
 			},
 		},
 	},

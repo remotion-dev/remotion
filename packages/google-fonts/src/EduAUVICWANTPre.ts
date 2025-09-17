@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Edu AU VIC WA NT Pre',
 	importName: 'EduAUVICWANTPre',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Pre:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,27 +15,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduauvicwantpre/v2/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwK3zFPJA.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantpre/v3/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwK3zFPJA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduauvicwantpre/v2/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwE3zE.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantpre/v3/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwE3zE.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduauvicwantpre/v2/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwK3zFPJA.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantpre/v3/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwK3zFPJA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduauvicwantpre/v2/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwE3zE.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantpre/v3/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwE3zE.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduauvicwantpre/v2/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwK3zFPJA.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantpre/v3/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwK3zFPJA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduauvicwantpre/v2/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwE3zE.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantpre/v3/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwE3zE.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eduauvicwantpre/v2/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwK3zFPJA.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantpre/v3/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwK3zFPJA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eduauvicwantpre/v2/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwE3zE.woff2',
+					'https://fonts.gstatic.com/s/eduauvicwantpre/v3/f0Xp0fWk-t0rbG8Ycr-t55aG0elTWbFeXYwE3zE.woff2',
 			},
 		},
 	},

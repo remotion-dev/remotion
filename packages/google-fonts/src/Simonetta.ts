@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Simonetta',
 	importName: 'Simonetta',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Simonetta:ital,wght@0,400;0,900;1,400;1,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,29 +15,29 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/simonetta/v28/x3dkckHVYrCU5BU15c4xfsoPlyvVBA.woff2',
+					'https://fonts.gstatic.com/s/simonetta/v29/x3dkckHVYrCU5BU15c4xfsoPlyvVBA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/simonetta/v28/x3dkckHVYrCU5BU15c4xfsoBlys.woff2',
+					'https://fonts.gstatic.com/s/simonetta/v29/x3dkckHVYrCU5BU15c4xfsoBlys.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/simonetta/v28/x3d5ckHVYrCU5BU15c4xfsKCsD7kJQYLGg.woff2',
+					'https://fonts.gstatic.com/s/simonetta/v29/x3d5ckHVYrCU5BU15c4xfsKCsD7kJQYLGg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/simonetta/v28/x3d5ckHVYrCU5BU15c4xfsKCsD7qJQY.woff2',
+					'https://fonts.gstatic.com/s/simonetta/v29/x3d5ckHVYrCU5BU15c4xfsKCsD7qJQY.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/simonetta/v28/x3dickHVYrCU5BU15c4xdfoDjy8.woff2',
+					'https://fonts.gstatic.com/s/simonetta/v29/x3dickHVYrCU5BU15c4xdfoDjy8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/simonetta/v28/x3dickHVYrCU5BU15c4xe_oD.woff2',
+					'https://fonts.gstatic.com/s/simonetta/v29/x3dickHVYrCU5BU15c4xe_oD.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/simonetta/v28/x3dnckHVYrCU5BU15c45-N0Wvg7oPQI.woff2',
+					'https://fonts.gstatic.com/s/simonetta/v29/x3dnckHVYrCU5BU15c45-N0Wvg7oPQI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/simonetta/v28/x3dnckHVYrCU5BU15c45-N0WsA7o.woff2',
+					'https://fonts.gstatic.com/s/simonetta/v29/x3dnckHVYrCU5BU15c45-N0WsA7o.woff2',
 			},
 		},
 	},

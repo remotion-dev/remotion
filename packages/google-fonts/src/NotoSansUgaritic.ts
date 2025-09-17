@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Ugaritic',
 	importName: 'NotoSansUgaritic',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Ugaritic:ital,wght@0,400',
 	unicodeRanges: {
 		ugaritic: 'U+10380-1039F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				ugaritic:
-					'https://fonts.gstatic.com/s/notosansugaritic/v16/3qTwoiqhnSyU8TNFIdhZVCwbjCpkAXXUfBAJoiY.woff2',
+					'https://fonts.gstatic.com/s/notosansugaritic/v17/3qTwoiqhnSyU8TNFIdhZVCwbjCpkAXXUfBAJoiY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansugaritic/v16/3qTwoiqhnSyU8TNFIdhZVCwbjCpkAXXUOxAJoiY.woff2',
+					'https://fonts.gstatic.com/s/notosansugaritic/v17/3qTwoiqhnSyU8TNFIdhZVCwbjCpkAXXUOxAJoiY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansugaritic/v16/3qTwoiqhnSyU8TNFIdhZVCwbjCpkAXXUNRAJ.woff2',
+					'https://fonts.gstatic.com/s/notosansugaritic/v17/3qTwoiqhnSyU8TNFIdhZVCwbjCpkAXXUNRAJ.woff2',
 			},
 		},
 	},

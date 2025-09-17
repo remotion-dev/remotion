@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Concert One',
 	importName: 'ConcertOne',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Concert+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/concertone/v23/VEM1Ro9xs5PjtzCu-srDqSTsjP6yuQ.woff2',
+					'https://fonts.gstatic.com/s/concertone/v24/VEM1Ro9xs5PjtzCu-srDqSTsjP6yuQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/concertone/v23/VEM1Ro9xs5PjtzCu-srDqSTijP4.woff2',
+					'https://fonts.gstatic.com/s/concertone/v24/VEM1Ro9xs5PjtzCu-srDqSTijP4.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Koulen',
 	importName: 'Koulen',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Koulen:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/koulen/v29/AMOQz46as3KIBPemjno8ouY.woff2',
+					'https://fonts.gstatic.com/s/koulen/v30/AMOQz46as3KIBPemjno8ouY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/koulen/v29/AMOQz46as3KIBPemhXo8.woff2',
+					'https://fonts.gstatic.com/s/koulen/v30/AMOQz46as3KIBPemhXo8.woff2',
 			},
 		},
 	},

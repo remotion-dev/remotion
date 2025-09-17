@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Frijole',
 	importName: 'Frijole',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Frijole:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/frijole/v14/uU9PCBUR8oakM2BQ3xTR3w.woff2',
+					'https://fonts.gstatic.com/s/frijole/v15/uU9PCBUR8oakM2BQ3xTR3w.woff2',
 			},
 		},
 	},

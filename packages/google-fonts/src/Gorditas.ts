@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gorditas',
 	importName: 'Gorditas',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Gorditas:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		latin:
@@ -13,11 +13,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/gorditas/v23/ll8_K2aTVD26DsPEtTDvB68.woff2',
+					'https://fonts.gstatic.com/s/gorditas/v24/ll8_K2aTVD26DsPEtTDvB68.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/gorditas/v23/ll84K2aTVD26DsPEtThUIroPtgs.woff2',
+					'https://fonts.gstatic.com/s/gorditas/v24/ll84K2aTVD26DsPEtThUIroPtgs.woff2',
 			},
 		},
 	},

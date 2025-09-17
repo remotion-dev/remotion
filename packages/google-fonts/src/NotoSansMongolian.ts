@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Mongolian',
 	importName: 'NotoSansMongolian',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Mongolian:ital,wght@0,400',
 	unicodeRanges: {
 		'[90]':
@@ -66,60 +66,60 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'[90]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.90.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.90.woff2',
 				'[91]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.91.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.91.woff2',
 				'[92]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.92.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.92.woff2',
 				'[97]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.97.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.97.woff2',
 				'[98]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.98.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.98.woff2',
 				'[99]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.99.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.99.woff2',
 				'[100]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.100.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.100.woff2',
 				'[101]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.101.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.101.woff2',
 				'[102]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.102.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.102.woff2',
 				'[103]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.103.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.103.woff2',
 				'[105]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.105.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.105.woff2',
 				'[106]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.106.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.106.woff2',
 				'[108]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.108.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.108.woff2',
 				'[109]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.109.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.109.woff2',
 				'[110]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.110.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.110.woff2',
 				'[112]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.112.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.112.woff2',
 				'[113]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.113.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.113.woff2',
 				'[114]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.114.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.114.woff2',
 				'[115]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.115.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.115.woff2',
 				'[116]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.116.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.116.woff2',
 				'[117]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.117.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.117.woff2',
 				'[118]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.118.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.118.woff2',
 				'[119]':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.119.woff2',
-				math: 'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrTo9MAq6tav.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrToxL5I8eS0vHUmOj_GxV8hTQ6opSoXyWFRU1d14CMQwI84ag.119.woff2',
+				math: 'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrTo9MAq6tav.woff2',
 				mongolian:
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrTo9Jcq6tav.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrTo9Jcq6tav.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrTo9NIq6tav.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrTo9NIq6tav.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrTo9LIq6tav.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrTo9LIq6tav.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmongolian/v22/VdGCAYADGIwE0EopZx8xQfHlgEAMsrTo9Lwq6g.woff2',
+					'https://fonts.gstatic.com/s/notosansmongolian/v23/VdGCAYADGIwE0EopZx8xQfHlgEAMsrTo9Lwq6g.woff2',
 			},
 		},
 	},

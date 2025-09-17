@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Esteban',
 	importName: 'Esteban',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Esteban:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/esteban/v15/r05bGLZE-bdGdN-GROKJ5wok.woff2',
+					'https://fonts.gstatic.com/s/esteban/v16/r05bGLZE-bdGdN-GROKJ5wok.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/esteban/v15/r05bGLZE-bdGdN-GROyJ5w.woff2',
+					'https://fonts.gstatic.com/s/esteban/v16/r05bGLZE-bdGdN-GROyJ5w.woff2',
 			},
 		},
 	},

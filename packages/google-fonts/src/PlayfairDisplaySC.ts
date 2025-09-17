@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Playfair Display SC',
 	importName: 'PlayfairDisplaySC',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Playfair+Display+SC:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -18,65 +18,65 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke87OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw8FusyE4s.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke87OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw8FusyE4s.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke87OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw8HesyE4s.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke87OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw8HesyE4s.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke87OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw8HOsyE4s.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke87OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw8HOsyE4s.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke87OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw8Eusy.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke87OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw8Eusy.woff2',
 			},
 			'700': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0qc4nKKoQEyE.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0qc4nKKoQEyE.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0qc4nI6oQEyE.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0qc4nI6oQEyE.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0qc4nIqoQEyE.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0qc4nIqoQEyE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0qc4nLKoQ.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0qc4nLKoQ.woff2',
 			},
 			'900': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0kcwnKKoQEyE.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0kcwnKKoQEyE.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0kcwnI6oQEyE.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0kcwnI6oQEyE.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0kcwnIqoQEyE.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0kcwnIqoQEyE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0kcwnLKoQ.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke82OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbw0kcwnLKoQ.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke85OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lb0MEPM2.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke85OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lb0MEPM2.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke85OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbYMEPM2.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke85OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbYMEPM2.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke85OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbcMEPM2.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke85OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbcMEPM2.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke85OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbkMEA.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke85OhoaMkR6-hSn7kbHVoFf7ZfgMPr_lbkMEA.woff2',
 			},
 			'700': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nQIpBcgXLrIU.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nQIpBcgXLrIU.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nQIpBcMXLrIU.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nQIpBcMXLrIU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nQIpBcIXLrIU.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nQIpBcIXLrIU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nQIpBcwXLg.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nQIpBcwXLg.woff2',
 			},
 			'900': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nTorBcgXLrIU.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nTorBcgXLrIU.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nTorBcMXLrIU.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nTorBcMXLrIU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nTorBcIXLrIU.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nTorBcIXLrIU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playfairdisplaysc/v17/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nTorBcwXLg.woff2',
+					'https://fonts.gstatic.com/s/playfairdisplaysc/v18/ke80OhoaMkR6-hSn7kbHVoFf7ZfgMPr_nTorBcwXLg.woff2',
 			},
 		},
 	},

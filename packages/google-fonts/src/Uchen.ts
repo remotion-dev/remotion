@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Uchen',
 	importName: 'Uchen',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Uchen:ital,wght@0,400',
 	unicodeRanges: {
 		tibetan: 'U+0F00-0FFF, U+200C-200D, U+25CC, U+3008-300B',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				tibetan:
-					'https://fonts.gstatic.com/s/uchen/v10/nKKZ-GokGZ1baLaAGwCYdA.woff2',
+					'https://fonts.gstatic.com/s/uchen/v11/nKKZ-GokGZ1baLaAGwCYdA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/uchen/v10/nKKZ-GokGZ1baLaVGwA.woff2',
+					'https://fonts.gstatic.com/s/uchen/v11/nKKZ-GokGZ1baLaVGwA.woff2',
 			},
 		},
 	},

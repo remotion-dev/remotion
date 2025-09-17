@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Mahajani',
 	importName: 'NotoSansMahajani',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Mahajani:ital,wght@0,400',
 	unicodeRanges: {
 		mahajani: 'U+0964-096F, U+200C-200D, U+25CC, U+A830-A839, U+11150-11176',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				mahajani:
-					'https://fonts.gstatic.com/s/notosansmahajani/v19/-F6sfiVqLzI2JPCgQBnw60Agp0JrvD51-soQLNg.woff2',
+					'https://fonts.gstatic.com/s/notosansmahajani/v20/-F6sfiVqLzI2JPCgQBnw60Agp0JrvD51-soQLNg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmahajani/v19/-F6sfiVqLzI2JPCgQBnw60Agp0JrvD51jsoQLNg.woff2',
+					'https://fonts.gstatic.com/s/notosansmahajani/v20/-F6sfiVqLzI2JPCgQBnw60Agp0JrvD51jsoQLNg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmahajani/v19/-F6sfiVqLzI2JPCgQBnw60Agp0JrvD51gMoQ.woff2',
+					'https://fonts.gstatic.com/s/notosansmahajani/v20/-F6sfiVqLzI2JPCgQBnw60Agp0JrvD51gMoQ.woff2',
 			},
 		},
 	},

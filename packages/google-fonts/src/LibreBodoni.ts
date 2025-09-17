@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Libre Bodoni',
 	importName: 'LibreBodoni',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		vietnamese:
@@ -17,69 +17,69 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xm1-H45qDWDYULr5OfyZud9xDick_KPAg.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xm1-H45qDWDYULr5OfyZud9xDick_KPAg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xm1-H45qDWDYULr5OfyZud9xDidk_KPAg.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xm1-H45qDWDYULr5OfyZud9xDidk_KPAg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xm1-H45qDWDYULr5OfyZud9xDiTk_I.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xm1-H45qDWDYULr5OfyZud9xDiTk_I.woff2',
 			},
 			'500': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xm1-H45qDWDYULr5OfyZud9xDick_KPAg.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xm1-H45qDWDYULr5OfyZud9xDick_KPAg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xm1-H45qDWDYULr5OfyZud9xDidk_KPAg.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xm1-H45qDWDYULr5OfyZud9xDidk_KPAg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xm1-H45qDWDYULr5OfyZud9xDiTk_I.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xm1-H45qDWDYULr5OfyZud9xDiTk_I.woff2',
 			},
 			'600': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xm1-H45qDWDYULr5OfyZud9xDick_KPAg.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xm1-H45qDWDYULr5OfyZud9xDick_KPAg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xm1-H45qDWDYULr5OfyZud9xDidk_KPAg.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xm1-H45qDWDYULr5OfyZud9xDidk_KPAg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xm1-H45qDWDYULr5OfyZud9xDiTk_I.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xm1-H45qDWDYULr5OfyZud9xDiTk_I.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xm1-H45qDWDYULr5OfyZud9xDick_KPAg.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xm1-H45qDWDYULr5OfyZud9xDick_KPAg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xm1-H45qDWDYULr5OfyZud9xDidk_KPAg.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xm1-H45qDWDYULr5OfyZud9xDidk_KPAg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xm1-H45qDWDYULr5OfyZud9xDiTk_I.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xm1-H45qDWDYULr5OfyZud9xDiTk_I.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xmr-H45qDWDYULr5OfyZud9zgiRi_Y.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xmr-H45qDWDYULr5OfyZud9zgiRi_Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xmr-H45qDWDYULr5OfyZud9zwiRi_Y.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xmr-H45qDWDYULr5OfyZud9zwiRi_Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xmr-H45qDWDYULr5OfyZud9wQiR.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xmr-H45qDWDYULr5OfyZud9wQiR.woff2',
 			},
 			'500': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xmr-H45qDWDYULr5OfyZud9zgiRi_Y.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xmr-H45qDWDYULr5OfyZud9zgiRi_Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xmr-H45qDWDYULr5OfyZud9zwiRi_Y.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xmr-H45qDWDYULr5OfyZud9zwiRi_Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xmr-H45qDWDYULr5OfyZud9wQiR.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xmr-H45qDWDYULr5OfyZud9wQiR.woff2',
 			},
 			'600': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xmr-H45qDWDYULr5OfyZud9zgiRi_Y.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xmr-H45qDWDYULr5OfyZud9zgiRi_Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xmr-H45qDWDYULr5OfyZud9zwiRi_Y.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xmr-H45qDWDYULr5OfyZud9zwiRi_Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xmr-H45qDWDYULr5OfyZud9wQiR.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xmr-H45qDWDYULr5OfyZud9wQiR.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xmr-H45qDWDYULr5OfyZud9zgiRi_Y.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xmr-H45qDWDYULr5OfyZud9zgiRi_Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xmr-H45qDWDYULr5OfyZud9zwiRi_Y.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xmr-H45qDWDYULr5OfyZud9zwiRi_Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/librebodoni/v8/_Xmr-H45qDWDYULr5OfyZud9wQiR.woff2',
+					'https://fonts.gstatic.com/s/librebodoni/v9/_Xmr-H45qDWDYULr5OfyZud9wQiR.woff2',
 			},
 		},
 	},

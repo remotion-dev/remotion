@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Teko',
 	importName: 'Teko',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Teko:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,38 +17,38 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfaJ9pRtB.woff2',
+					'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfaJ9pRtB.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfa19pRtB.woff2',
-				latin: 'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfaN9pQ.woff2',
+					'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfa19pRtB.woff2',
+				latin: 'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfaN9pQ.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfaJ9pRtB.woff2',
+					'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfaJ9pRtB.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfa19pRtB.woff2',
-				latin: 'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfaN9pQ.woff2',
+					'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfa19pRtB.woff2',
+				latin: 'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfaN9pQ.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfaJ9pRtB.woff2',
+					'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfaJ9pRtB.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfa19pRtB.woff2',
-				latin: 'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfaN9pQ.woff2',
+					'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfa19pRtB.woff2',
+				latin: 'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfaN9pQ.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfaJ9pRtB.woff2',
+					'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfaJ9pRtB.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfa19pRtB.woff2',
-				latin: 'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfaN9pQ.woff2',
+					'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfa19pRtB.woff2',
+				latin: 'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfaN9pQ.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfaJ9pRtB.woff2',
+					'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfaJ9pRtB.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfa19pRtB.woff2',
-				latin: 'https://fonts.gstatic.com/s/teko/v22/LYjNdG7kmE0gfaN9pQ.woff2',
+					'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfa19pRtB.woff2',
+				latin: 'https://fonts.gstatic.com/s/teko/v23/LYjNdG7kmE0gfaN9pQ.woff2',
 			},
 		},
 	},

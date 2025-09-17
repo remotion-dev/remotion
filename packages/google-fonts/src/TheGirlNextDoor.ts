@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'The Girl Next Door',
 	importName: 'TheGirlNextDoor',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=The+Girl+Next+Door:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/thegirlnextdoor/v24/pe0zMJCIMIsBjFxqYBIcZ6_OI5oFHCY4XrF686Y.woff2',
+					'https://fonts.gstatic.com/s/thegirlnextdoor/v25/pe0zMJCIMIsBjFxqYBIcZ6_OI5oFHCY4XrF686Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/thegirlnextdoor/v24/pe0zMJCIMIsBjFxqYBIcZ6_OI5oFHCY4ULF6.woff2',
+					'https://fonts.gstatic.com/s/thegirlnextdoor/v25/pe0zMJCIMIsBjFxqYBIcZ6_OI5oFHCY4ULF6.woff2',
 			},
 		},
 	},

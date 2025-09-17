@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Anek Malayalam',
 	importName: 'AnekMalayalam',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Anek+Malayalam:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		malayalam:
@@ -17,67 +17,67 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				malayalam:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
 			},
 			'200': {
 				malayalam:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
 			},
 			'300': {
 				malayalam:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
 			},
 			'400': {
 				malayalam:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
 			},
 			'500': {
 				malayalam:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
 			},
 			'600': {
 				malayalam:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
 			},
 			'700': {
 				malayalam:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
 			},
 			'800': {
 				malayalam:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7bb9_Xjg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7e79_Xjg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekmalayalam/v17/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
+					'https://fonts.gstatic.com/s/anekmalayalam/v18/6qLUKZActRTs_mZAJUZWWkhke0nYa_vC8_Azq3-gP1S7db9_.woff2',
 			},
 		},
 	},

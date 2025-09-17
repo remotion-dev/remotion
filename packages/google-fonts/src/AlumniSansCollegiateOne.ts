@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Alumni Sans Collegiate One',
 	importName: 'AlumniSansCollegiateOne',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Alumni+Sans+Collegiate+One:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -18,25 +18,25 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v6/MQpD-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdY8j-nx0ta.woff2',
+					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v7/MQpD-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdY8j-nx0ta.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v6/MQpD-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdY8jSnx0ta.woff2',
+					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v7/MQpD-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdY8jSnx0ta.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v6/MQpD-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdY8jWnx0ta.woff2',
+					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v7/MQpD-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdY8jWnx0ta.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v6/MQpD-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdY8junxw.woff2',
+					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v7/MQpD-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdY8junxw.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v6/MQpB-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdZwjm_ww.woff2',
+					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v7/MQpB-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdZwjm_ww.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v6/MQpB-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdSwjm_ww.woff2',
+					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v7/MQpB-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdSwjm_ww.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v6/MQpB-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdTwjm_ww.woff2',
+					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v7/MQpB-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgdTwjm_ww.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v6/MQpB-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgddwjk.woff2',
+					'https://fonts.gstatic.com/s/alumnisanscollegiateone/v7/MQpB-XChK8G5CtmK_AuGxQrdNvPSXkn0RM-XqjWWhgddwjk.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sancreek',
 	importName: 'Sancreek',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Sancreek:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sancreek/v26/pxiHypAnsdxUm159X4D3V159EQ.woff2',
+					'https://fonts.gstatic.com/s/sancreek/v27/pxiHypAnsdxUm159X4D3V159EQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sancreek/v26/pxiHypAnsdxUm159X4D5V14.woff2',
+					'https://fonts.gstatic.com/s/sancreek/v27/pxiHypAnsdxUm159X4D5V14.woff2',
 			},
 		},
 	},

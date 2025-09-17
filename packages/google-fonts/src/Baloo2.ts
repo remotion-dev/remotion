@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Baloo Two',
 	importName: 'Baloo2',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Baloo+2:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		devanagari:
@@ -19,53 +19,53 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51ncANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51ncANwr.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51fcANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51fcANwr.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51bcANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51bcANwr.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51jcAA.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51jcAA.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51ncANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51ncANwr.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51fcANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51fcANwr.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51bcANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51bcANwr.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51jcAA.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51jcAA.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51ncANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51ncANwr.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51fcANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51fcANwr.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51bcANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51bcANwr.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51jcAA.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51jcAA.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51ncANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51ncANwr.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51fcANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51fcANwr.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51bcANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51bcANwr.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51jcAA.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51jcAA.woff2',
 			},
 			'800': {
 				devanagari:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51ncANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51ncANwr.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51fcANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51fcANwr.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51bcANwr.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51bcANwr.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloo2/v22/wXKrE3kTposypRyd51jcAA.woff2',
+					'https://fonts.gstatic.com/s/baloo2/v23/wXKrE3kTposypRyd51jcAA.woff2',
 			},
 		},
 	},

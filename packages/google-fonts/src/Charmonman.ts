@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Charmonman',
 	importName: 'Charmonman',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Charmonman:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		thai: 'U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC',
@@ -17,22 +17,22 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				thai: 'https://fonts.gstatic.com/s/charmonman/v19/MjQDmiR3vP_nuxDv47jiaIKivYdh.woff2',
+				thai: 'https://fonts.gstatic.com/s/charmonman/v20/MjQDmiR3vP_nuxDv47jiaIKivYdh.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/charmonman/v19/MjQDmiR3vP_nuxDv47jiaJmivYdh.woff2',
+					'https://fonts.gstatic.com/s/charmonman/v20/MjQDmiR3vP_nuxDv47jiaJmivYdh.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/charmonman/v19/MjQDmiR3vP_nuxDv47jiaJiivYdh.woff2',
+					'https://fonts.gstatic.com/s/charmonman/v20/MjQDmiR3vP_nuxDv47jiaJiivYdh.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/charmonman/v19/MjQDmiR3vP_nuxDv47jiaJaivQ.woff2',
+					'https://fonts.gstatic.com/s/charmonman/v20/MjQDmiR3vP_nuxDv47jiaJaivQ.woff2',
 			},
 			'700': {
-				thai: 'https://fonts.gstatic.com/s/charmonman/v19/MjQAmiR3vP_nuxDv47jiYC2HqKxA9dhm.woff2',
+				thai: 'https://fonts.gstatic.com/s/charmonman/v20/MjQAmiR3vP_nuxDv47jiYC2HqKxA9dhm.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/charmonman/v19/MjQAmiR3vP_nuxDv47jiYC2HqLdA9dhm.woff2',
+					'https://fonts.gstatic.com/s/charmonman/v20/MjQAmiR3vP_nuxDv47jiYC2HqLdA9dhm.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/charmonman/v19/MjQAmiR3vP_nuxDv47jiYC2HqLZA9dhm.woff2',
+					'https://fonts.gstatic.com/s/charmonman/v20/MjQAmiR3vP_nuxDv47jiYC2HqLZA9dhm.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/charmonman/v19/MjQAmiR3vP_nuxDv47jiYC2HqLhA9Q.woff2',
+					'https://fonts.gstatic.com/s/charmonman/v20/MjQAmiR3vP_nuxDv47jiYC2HqLhA9Q.woff2',
 			},
 		},
 	},

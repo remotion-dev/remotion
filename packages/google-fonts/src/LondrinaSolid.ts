@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Londrina Solid',
 	importName: 'LondrinaSolid',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Londrina+Solid:ital,wght@0,100;0,300;0,400;0,900',
 	unicodeRanges: {
 		latin:
@@ -13,19 +13,19 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				latin:
-					'https://fonts.gstatic.com/s/londrinasolid/v18/flUjRq6sw40kQEJxWNgkLuudGfs9GBEUsA.woff2',
+					'https://fonts.gstatic.com/s/londrinasolid/v19/flUjRq6sw40kQEJxWNgkLuudGfs9GBEUsA.woff2',
 			},
 			'300': {
 				latin:
-					'https://fonts.gstatic.com/s/londrinasolid/v18/flUiRq6sw40kQEJxWNgkLuudGfv1CgYzlZw.woff2',
+					'https://fonts.gstatic.com/s/londrinasolid/v19/flUiRq6sw40kQEJxWNgkLuudGfv1CgYzlZw.woff2',
 			},
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/londrinasolid/v18/flUhRq6sw40kQEJxWNgkLuudGfNeKBM.woff2',
+					'https://fonts.gstatic.com/s/londrinasolid/v19/flUhRq6sw40kQEJxWNgkLuudGfNeKBM.woff2',
 			},
 			'900': {
 				latin:
-					'https://fonts.gstatic.com/s/londrinasolid/v18/flUiRq6sw40kQEJxWNgkLuudGfvdDwYzlZw.woff2',
+					'https://fonts.gstatic.com/s/londrinasolid/v19/flUiRq6sw40kQEJxWNgkLuudGfvdDwYzlZw.woff2',
 			},
 		},
 	},

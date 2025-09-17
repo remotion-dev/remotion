@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Galdeano',
 	importName: 'Galdeano',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Galdeano:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/galdeano/v22/uU9MCBoQ4YOqOW1boAP2-vE.woff2',
+					'https://fonts.gstatic.com/s/galdeano/v23/uU9MCBoQ4YOqOW1boAP2-vE.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Calistoga',
 	importName: 'Calistoga',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Calistoga:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/calistoga/v17/6NUU8F2OJg6MeR7l4e0fvMwB8dQ.woff2',
+					'https://fonts.gstatic.com/s/calistoga/v18/6NUU8F2OJg6MeR7l4e0fvMwB8dQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/calistoga/v17/6NUU8F2OJg6MeR7l4e0fvcwB8dQ.woff2',
+					'https://fonts.gstatic.com/s/calistoga/v18/6NUU8F2OJg6MeR7l4e0fvcwB8dQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/calistoga/v17/6NUU8F2OJg6MeR7l4e0fs8wB.woff2',
+					'https://fonts.gstatic.com/s/calistoga/v18/6NUU8F2OJg6MeR7l4e0fs8wB.woff2',
 			},
 		},
 	},

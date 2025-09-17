@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Sundanese',
 	importName: 'NotoSansSundanese',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Sundanese:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		sundanese: 'U+1B80-1BBF, U+1CC0-1CC7, U+200C-200D, U+2010, U+25CC',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				sundanese:
-					'https://fonts.gstatic.com/s/notosanssundanese/v27/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgViMPpkv.woff2',
+					'https://fonts.gstatic.com/s/notosanssundanese/v28/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgViMPpkv.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssundanese/v27/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWuMPpkv.woff2',
+					'https://fonts.gstatic.com/s/notosanssundanese/v28/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWuMPpkv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssundanese/v27/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWWMPg.woff2',
+					'https://fonts.gstatic.com/s/notosanssundanese/v28/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWWMPg.woff2',
 			},
 			'500': {
 				sundanese:
-					'https://fonts.gstatic.com/s/notosanssundanese/v27/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgViMPpkv.woff2',
+					'https://fonts.gstatic.com/s/notosanssundanese/v28/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgViMPpkv.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssundanese/v27/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWuMPpkv.woff2',
+					'https://fonts.gstatic.com/s/notosanssundanese/v28/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWuMPpkv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssundanese/v27/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWWMPg.woff2',
+					'https://fonts.gstatic.com/s/notosanssundanese/v28/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWWMPg.woff2',
 			},
 			'600': {
 				sundanese:
-					'https://fonts.gstatic.com/s/notosanssundanese/v27/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgViMPpkv.woff2',
+					'https://fonts.gstatic.com/s/notosanssundanese/v28/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgViMPpkv.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssundanese/v27/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWuMPpkv.woff2',
+					'https://fonts.gstatic.com/s/notosanssundanese/v28/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWuMPpkv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssundanese/v27/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWWMPg.woff2',
+					'https://fonts.gstatic.com/s/notosanssundanese/v28/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWWMPg.woff2',
 			},
 			'700': {
 				sundanese:
-					'https://fonts.gstatic.com/s/notosanssundanese/v27/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgViMPpkv.woff2',
+					'https://fonts.gstatic.com/s/notosanssundanese/v28/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgViMPpkv.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssundanese/v27/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWuMPpkv.woff2',
+					'https://fonts.gstatic.com/s/notosanssundanese/v28/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWuMPpkv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssundanese/v27/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWWMPg.woff2',
+					'https://fonts.gstatic.com/s/notosanssundanese/v28/FwZH7_84xUkosG2xJo2gm7nFwSLQkdymgWWMPg.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Molengo',
 	importName: 'Molengo',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Molengo:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/molengo/v16/I_uuMpWeuBzZNBtQXb1akxCv.woff2',
+					'https://fonts.gstatic.com/s/molengo/v17/I_uuMpWeuBzZNBtQXb1akxCv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/molengo/v16/I_uuMpWeuBzZNBtQXbNakw.woff2',
+					'https://fonts.gstatic.com/s/molengo/v17/I_uuMpWeuBzZNBtQXbNakw.woff2',
 			},
 		},
 	},

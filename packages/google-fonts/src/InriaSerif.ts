@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Inria Serif',
 	importName: 'InriaSerif',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Inria+Serif:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,41 +15,41 @@ export const getInfo = () => ({
 		italic: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inriaserif/v17/fC16PYxPY3rXxEndZJAzN3SuT4THvlGFb1xN.woff2',
+					'https://fonts.gstatic.com/s/inriaserif/v18/fC16PYxPY3rXxEndZJAzN3SuT4THvlGFb1xN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inriaserif/v17/fC16PYxPY3rXxEndZJAzN3SuT4THvl-Fbw.woff2',
+					'https://fonts.gstatic.com/s/inriaserif/v18/fC16PYxPY3rXxEndZJAzN3SuT4THvl-Fbw.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inriaserif/v17/fC1nPYxPY3rXxEndZJAzN3SuRyHlq2Ck.woff2',
+					'https://fonts.gstatic.com/s/inriaserif/v18/fC1nPYxPY3rXxEndZJAzN3SuRyHlq2Ck.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inriaserif/v17/fC1nPYxPY3rXxEndZJAzN3SuRy_lqw.woff2',
+					'https://fonts.gstatic.com/s/inriaserif/v18/fC1nPYxPY3rXxEndZJAzN3SuRy_lqw.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inriaserif/v17/fC16PYxPY3rXxEndZJAzN3SuT5TAvlGFb1xN.woff2',
+					'https://fonts.gstatic.com/s/inriaserif/v18/fC16PYxPY3rXxEndZJAzN3SuT5TAvlGFb1xN.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inriaserif/v17/fC16PYxPY3rXxEndZJAzN3SuT5TAvl-Fbw.woff2',
+					'https://fonts.gstatic.com/s/inriaserif/v18/fC16PYxPY3rXxEndZJAzN3SuT5TAvl-Fbw.woff2',
 			},
 		},
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inriaserif/v17/fC14PYxPY3rXxEndZJAzN3wAVTjMjl2daw.woff2',
+					'https://fonts.gstatic.com/s/inriaserif/v18/fC14PYxPY3rXxEndZJAzN3wAVTjMjl2daw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inriaserif/v17/fC14PYxPY3rXxEndZJAzN3wAVTjCjl0.woff2',
+					'https://fonts.gstatic.com/s/inriaserif/v18/fC14PYxPY3rXxEndZJAzN3wAVTjCjl0.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inriaserif/v17/fC1lPYxPY3rXxEndZJAzN3Sldy39rw.woff2',
+					'https://fonts.gstatic.com/s/inriaserif/v18/fC1lPYxPY3rXxEndZJAzN3Sldy39rw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inriaserif/v17/fC1lPYxPY3rXxEndZJAzN3Srdy0.woff2',
+					'https://fonts.gstatic.com/s/inriaserif/v18/fC1lPYxPY3rXxEndZJAzN3Srdy0.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/inriaserif/v17/fC14PYxPY3rXxEndZJAzN3wQUjjMjl2daw.woff2',
+					'https://fonts.gstatic.com/s/inriaserif/v18/fC14PYxPY3rXxEndZJAzN3wQUjjMjl2daw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/inriaserif/v17/fC14PYxPY3rXxEndZJAzN3wQUjjCjl0.woff2',
+					'https://fonts.gstatic.com/s/inriaserif/v18/fC14PYxPY3rXxEndZJAzN3wQUjjCjl0.woff2',
 			},
 		},
 	},

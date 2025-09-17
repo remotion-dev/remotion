@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rye',
 	importName: 'Rye',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Rye:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,8 +15,8 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rye/v16/r05XGLJT86YzH57tbOo.woff2',
-				latin: 'https://fonts.gstatic.com/s/rye/v16/r05XGLJT86YzEZ7t.woff2',
+					'https://fonts.gstatic.com/s/rye/v17/r05XGLJT86YzH57tbOo.woff2',
+				latin: 'https://fonts.gstatic.com/s/rye/v17/r05XGLJT86YzEZ7t.woff2',
 			},
 		},
 	},

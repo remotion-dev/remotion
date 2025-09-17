@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.348",
+	"version": "4.0.349",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -659,17 +659,35 @@
 			"BitcountGridDouble": [
 				"dist/cjs/BitcountGridDouble.d.ts"
 			],
+			"BitcountGridDoubleInk": [
+				"dist/cjs/BitcountGridDoubleInk.d.ts"
+			],
 			"BitcountGridSingle": [
 				"dist/cjs/BitcountGridSingle.d.ts"
+			],
+			"BitcountGridSingleInk": [
+				"dist/cjs/BitcountGridSingleInk.d.ts"
+			],
+			"BitcountInk": [
+				"dist/cjs/BitcountInk.d.ts"
 			],
 			"BitcountPropDouble": [
 				"dist/cjs/BitcountPropDouble.d.ts"
 			],
+			"BitcountPropDoubleInk": [
+				"dist/cjs/BitcountPropDoubleInk.d.ts"
+			],
 			"BitcountPropSingle": [
 				"dist/cjs/BitcountPropSingle.d.ts"
 			],
+			"BitcountPropSingleInk": [
+				"dist/cjs/BitcountPropSingleInk.d.ts"
+			],
 			"BitcountSingle": [
 				"dist/cjs/BitcountSingle.d.ts"
+			],
+			"BitcountSingleInk": [
+				"dist/cjs/BitcountSingleInk.d.ts"
 			],
 			"Bitter": [
 				"dist/cjs/Bitter.d.ts"
@@ -5302,6 +5320,15 @@
 			],
 			"Zain": [
 				"dist/cjs/Zain.d.ts"
+			],
+			"ZalandoSans": [
+				"dist/cjs/ZalandoSans.d.ts"
+			],
+			"ZalandoSansExpanded": [
+				"dist/cjs/ZalandoSansExpanded.d.ts"
+			],
+			"ZalandoSansSemiExpanded": [
+				"dist/cjs/ZalandoSansSemiExpanded.d.ts"
 			],
 			"ZenAntique": [
 				"dist/cjs/ZenAntique.d.ts"

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Julee',
 	importName: 'Julee',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Julee:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/julee/v25/TuGfUVB3RpZPQ5ZCq9kDyQ.woff2',
+					'https://fonts.gstatic.com/s/julee/v26/TuGfUVB3RpZPQ5ZCq9kDyQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/julee/v25/TuGfUVB3RpZPQ5ZMq9k.woff2',
+					'https://fonts.gstatic.com/s/julee/v26/TuGfUVB3RpZPQ5ZMq9k.woff2',
 			},
 		},
 	},

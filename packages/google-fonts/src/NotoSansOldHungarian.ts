@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Old Hungarian',
 	importName: 'NotoSansOldHungarian',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Old+Hungarian:ital,wght@0,400',
 	unicodeRanges: {
 		'old-hungarian':
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'old-hungarian':
-					'https://fonts.gstatic.com/s/notosansoldhungarian/v18/E213_cD6hP3GwCJPEUssHEM0KqLaHJXg2PiIgSdsRSpqMJw.woff2',
+					'https://fonts.gstatic.com/s/notosansoldhungarian/v19/E213_cD6hP3GwCJPEUssHEM0KqLaHJXg2PiIgSdsRSpqMJw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansoldhungarian/v18/E213_cD6hP3GwCJPEUssHEM0KqLaHJXg2PiIgSfqZA9XCQ.woff2',
+					'https://fonts.gstatic.com/s/notosansoldhungarian/v19/E213_cD6hP3GwCJPEUssHEM0KqLaHJXg2PiIgSfqZA9XCQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansoldhungarian/v18/E213_cD6hP3GwCJPEUssHEM0KqLaHJXg2PiIgSfkZA8.woff2',
+					'https://fonts.gstatic.com/s/notosansoldhungarian/v19/E213_cD6hP3GwCJPEUssHEM0KqLaHJXg2PiIgSfkZA8.woff2',
 			},
 		},
 	},

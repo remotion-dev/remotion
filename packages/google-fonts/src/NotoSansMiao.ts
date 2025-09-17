@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Miao',
 	importName: 'NotoSansMiao',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Miao:ital,wght@0,400',
 	unicodeRanges: {
 		miao: 'U+25CC, U+16F00-16F9F',
@@ -15,11 +15,11 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				miao: 'https://fonts.gstatic.com/s/notosansmiao/v17/Dxxz8jmXMW75w3OmoDXVV4zyZXh0eqFhraE.woff2',
+				miao: 'https://fonts.gstatic.com/s/notosansmiao/v18/Dxxz8jmXMW75w3OmoDXVV4zyZXh0eqFhraE.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmiao/v17/Dxxz8jmXMW75w3OmoDXVV4zyZXjpW4RclA.woff2',
+					'https://fonts.gstatic.com/s/notosansmiao/v18/Dxxz8jmXMW75w3OmoDXVV4zyZXjpW4RclA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmiao/v17/Dxxz8jmXMW75w3OmoDXVV4zyZXjnW4Q.woff2',
+					'https://fonts.gstatic.com/s/notosansmiao/v18/Dxxz8jmXMW75w3OmoDXVV4zyZXjnW4Q.woff2',
 			},
 		},
 	},

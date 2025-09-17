@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cherry Swash',
 	importName: 'CherrySwash',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Cherry+Swash:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cherryswash/v21/i7dNIFByZjaNAMxtZcnfAy5MSXK_IwU.woff2',
+					'https://fonts.gstatic.com/s/cherryswash/v22/i7dNIFByZjaNAMxtZcnfAy5MSXK_IwU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cherryswash/v21/i7dNIFByZjaNAMxtZcnfAy5MR3K_.woff2',
+					'https://fonts.gstatic.com/s/cherryswash/v22/i7dNIFByZjaNAMxtZcnfAy5MR3K_.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cherryswash/v21/i7dSIFByZjaNAMxtZcnfAy5E_FeqEiSRV3U.woff2',
+					'https://fonts.gstatic.com/s/cherryswash/v22/i7dSIFByZjaNAMxtZcnfAy5E_FeqEiSRV3U.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cherryswash/v21/i7dSIFByZjaNAMxtZcnfAy5E_FeqHCSR.woff2',
+					'https://fonts.gstatic.com/s/cherryswash/v22/i7dSIFByZjaNAMxtZcnfAy5E_FeqHCSR.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Macondo',
 	importName: 'Macondo',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Macondo:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/macondo/v26/RrQQboN9-iB1IXmOe2LE0Q.woff2',
+					'https://fonts.gstatic.com/s/macondo/v27/RrQQboN9-iB1IXmOe2LE0Q.woff2',
 			},
 		},
 	},

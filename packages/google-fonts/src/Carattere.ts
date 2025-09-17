@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Carattere',
 	importName: 'Carattere',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Carattere:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/carattere/v7/4iCv6Kp1b9dXlgt_Ckvjv2yNL4U.woff2',
+					'https://fonts.gstatic.com/s/carattere/v8/4iCv6Kp1b9dXlgt_Ckvjv2yNL4U.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/carattere/v7/4iCv6Kp1b9dXlgt_CkvjvmyNL4U.woff2',
+					'https://fonts.gstatic.com/s/carattere/v8/4iCv6Kp1b9dXlgt_CkvjvmyNL4U.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/carattere/v7/4iCv6Kp1b9dXlgt_CkvjsGyN.woff2',
+					'https://fonts.gstatic.com/s/carattere/v8/4iCv6Kp1b9dXlgt_CkvjsGyN.woff2',
 			},
 		},
 	},

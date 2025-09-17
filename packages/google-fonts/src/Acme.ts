@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Acme',
 	importName: 'Acme',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Acme:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -12,7 +12,7 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				latin: 'https://fonts.gstatic.com/s/acme/v26/RrQfboBx-C5_XxrBbg.woff2',
+				latin: 'https://fonts.gstatic.com/s/acme/v27/RrQfboBx-C5_XxrBbg.woff2',
 			},
 		},
 	},

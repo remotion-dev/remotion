@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Braah One',
 	importName: 'BraahOne',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Braah+One:ital,wght@0,400',
 	unicodeRanges: {
 		gurmukhi:
@@ -19,13 +19,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/braahone/v7/KFOlCnWUpt6LsxxxiylfJxc4EsA.woff2',
+					'https://fonts.gstatic.com/s/braahone/v8/KFOlCnWUpt6LsxxxiylfJxc4EsA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/braahone/v7/KFOlCnWUpt6LsxxxiylfCxc4EsA.woff2',
+					'https://fonts.gstatic.com/s/braahone/v8/KFOlCnWUpt6LsxxxiylfCxc4EsA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/braahone/v7/KFOlCnWUpt6LsxxxiylfChc4EsA.woff2',
+					'https://fonts.gstatic.com/s/braahone/v8/KFOlCnWUpt6LsxxxiylfChc4EsA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/braahone/v7/KFOlCnWUpt6LsxxxiylfBBc4.woff2',
+					'https://fonts.gstatic.com/s/braahone/v8/KFOlCnWUpt6LsxxxiylfBBc4.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Trade Winds',
 	importName: 'TradeWinds',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Trade+Winds:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/tradewinds/v17/AYCPpXPpYNIIT7h8-QenM0Jt5vM.woff2',
+					'https://fonts.gstatic.com/s/tradewinds/v18/AYCPpXPpYNIIT7h8-QenM0Jt5vM.woff2',
 			},
 		},
 	},

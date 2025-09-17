@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Marmelad',
 	importName: 'Marmelad',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Marmelad:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,15 +20,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/marmelad/v18/Qw3eZQdSHj_jK2e-8uFBEec8Cw.woff2',
+					'https://fonts.gstatic.com/s/marmelad/v19/Qw3eZQdSHj_jK2e-8uFBEec8Cw.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/marmelad/v18/Qw3eZQdSHj_jK2e-8uFIEec8Cw.woff2',
+					'https://fonts.gstatic.com/s/marmelad/v19/Qw3eZQdSHj_jK2e-8uFIEec8Cw.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/marmelad/v18/Qw3eZQdSHj_jK2e-8uFDEec8Cw.woff2',
+					'https://fonts.gstatic.com/s/marmelad/v19/Qw3eZQdSHj_jK2e-8uFDEec8Cw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/marmelad/v18/Qw3eZQdSHj_jK2e-8uFCEec8Cw.woff2',
+					'https://fonts.gstatic.com/s/marmelad/v19/Qw3eZQdSHj_jK2e-8uFCEec8Cw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/marmelad/v18/Qw3eZQdSHj_jK2e-8uFMEec.woff2',
+					'https://fonts.gstatic.com/s/marmelad/v19/Qw3eZQdSHj_jK2e-8uFMEec.woff2',
 			},
 		},
 	},

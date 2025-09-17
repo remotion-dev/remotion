@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Capriola',
 	importName: 'Capriola',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Capriola:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/capriola/v14/wXKoE3YSppcvo1PDlk_1JeESnA.woff2',
+					'https://fonts.gstatic.com/s/capriola/v15/wXKoE3YSppcvo1PDlk_1JeESnA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/capriola/v14/wXKoE3YSppcvo1PDlk_7JeE.woff2',
+					'https://fonts.gstatic.com/s/capriola/v15/wXKoE3YSppcvo1PDlk_7JeE.woff2',
 			},
 		},
 	},

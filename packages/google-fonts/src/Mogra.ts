@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mogra',
 	importName: 'Mogra',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Mogra:ital,wght@0,400',
 	unicodeRanges: {
 		gujarati:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				gujarati:
-					'https://fonts.gstatic.com/s/mogra/v21/f0X40eSs8c95TCokBPPWxg.woff2',
+					'https://fonts.gstatic.com/s/mogra/v22/f0X40eSs8c95TCokBPPWxg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mogra/v21/f0X40eSs8c95TCoxBPPWxg.woff2',
+					'https://fonts.gstatic.com/s/mogra/v22/f0X40eSs8c95TCoxBPPWxg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mogra/v21/f0X40eSs8c95TCo_BPM.woff2',
+					'https://fonts.gstatic.com/s/mogra/v22/f0X40eSs8c95TCo_BPM.woff2',
 			},
 		},
 	},

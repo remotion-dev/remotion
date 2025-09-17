@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans NKo',
 	importName: 'NotoSansNKo',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+NKo:ital,wght@0,400',
 	unicodeRanges: {
 		nko: 'U+060C, U+061B, U+061F, U+066A, U+07C0-07FF, U+200C-200F, U+25CC, U+2E1C-2E1D, U+FD3E-FD3F',
@@ -15,11 +15,11 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				nko: 'https://fonts.gstatic.com/s/notosansnko/v6/esDX31ZdNv-KYGGJpKGk2_RpAvyGHfLB.woff2',
+				nko: 'https://fonts.gstatic.com/s/notosansnko/v7/esDX31ZdNv-KYGGJpKGk2_RpAvyGHfLB.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansnko/v6/esDX31ZdNv-KYGGJpKGk2_RpApmGHfLB.woff2',
+					'https://fonts.gstatic.com/s/notosansnko/v7/esDX31ZdNv-KYGGJpKGk2_RpApmGHfLB.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansnko/v6/esDX31ZdNv-KYGGJpKGk2_RpApeGHQ.woff2',
+					'https://fonts.gstatic.com/s/notosansnko/v7/esDX31ZdNv-KYGGJpKGk2_RpApeGHQ.woff2',
 			},
 		},
 	},

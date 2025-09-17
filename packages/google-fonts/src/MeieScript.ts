@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Meie Script',
 	importName: 'MeieScript',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Meie+Script:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/meiescript/v21/_LOImzDK7erRjhunIspaMgxu7oTQ0Q.woff2',
+					'https://fonts.gstatic.com/s/meiescript/v22/_LOImzDK7erRjhunIspaMgxu7oTQ0Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/meiescript/v21/_LOImzDK7erRjhunIspaMgxg7oQ.woff2',
+					'https://fonts.gstatic.com/s/meiescript/v22/_LOImzDK7erRjhunIspaMgxg7oQ.woff2',
 			},
 		},
 	},

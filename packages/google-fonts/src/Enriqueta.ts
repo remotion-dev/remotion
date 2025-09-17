@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Enriqueta',
 	importName: 'Enriqueta',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Enriqueta:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,27 +15,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/enriqueta/v18/goksH6L7AUFrRvV44HVjQkqioP0.woff2',
+					'https://fonts.gstatic.com/s/enriqueta/v19/goksH6L7AUFrRvV44HVjQkqioP0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/enriqueta/v18/goksH6L7AUFrRvV44HVjTEqi.woff2',
+					'https://fonts.gstatic.com/s/enriqueta/v19/goksH6L7AUFrRvV44HVjTEqi.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/enriqueta/v18/gokpH6L7AUFrRvV44HVrv2m3kdxFm6Q.woff2',
+					'https://fonts.gstatic.com/s/enriqueta/v19/gokpH6L7AUFrRvV44HVrv2m3kdxFm6Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/enriqueta/v18/gokpH6L7AUFrRvV44HVrv2m3n9xF.woff2',
+					'https://fonts.gstatic.com/s/enriqueta/v19/gokpH6L7AUFrRvV44HVrv2m3n9xF.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/enriqueta/v18/gokpH6L7AUFrRvV44HVrk263kdxFm6Q.woff2',
+					'https://fonts.gstatic.com/s/enriqueta/v19/gokpH6L7AUFrRvV44HVrk263kdxFm6Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/enriqueta/v18/gokpH6L7AUFrRvV44HVrk263n9xF.woff2',
+					'https://fonts.gstatic.com/s/enriqueta/v19/gokpH6L7AUFrRvV44HVrk263n9xF.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/enriqueta/v18/gokpH6L7AUFrRvV44HVr92-3kdxFm6Q.woff2',
+					'https://fonts.gstatic.com/s/enriqueta/v19/gokpH6L7AUFrRvV44HVr92-3kdxFm6Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/enriqueta/v18/gokpH6L7AUFrRvV44HVr92-3n9xF.woff2',
+					'https://fonts.gstatic.com/s/enriqueta/v19/gokpH6L7AUFrRvV44HVr92-3n9xF.woff2',
 			},
 		},
 	},

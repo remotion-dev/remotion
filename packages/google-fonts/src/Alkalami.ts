@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Alkalami',
 	importName: 'Alkalami',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Alkalami:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/alkalami/v7/zOL_4pfDmqRL95WXi6eJycF8ug.woff2',
+					'https://fonts.gstatic.com/s/alkalami/v8/zOL_4pfDmqRL95WXi6eJycF8ug.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/alkalami/v7/zOL_4pfDmqRL95WXi6eCycF8ug.woff2',
+					'https://fonts.gstatic.com/s/alkalami/v8/zOL_4pfDmqRL95WXi6eCycF8ug.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/alkalami/v7/zOL_4pfDmqRL95WXi6eMycE.woff2',
+					'https://fonts.gstatic.com/s/alkalami/v8/zOL_4pfDmqRL95WXi6eMycE.woff2',
 			},
 		},
 	},

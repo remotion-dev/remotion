@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Codystar',
 	importName: 'Codystar',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Codystar:ital,wght@0,300;0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/codystar/v18/FwZf7-Q1xVk-40qxOuYsytyihUaG9Q.woff2',
+					'https://fonts.gstatic.com/s/codystar/v19/FwZf7-Q1xVk-40qxOuYsytyihUaG9Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/codystar/v18/FwZf7-Q1xVk-40qxOuYsytyshUY.woff2',
+					'https://fonts.gstatic.com/s/codystar/v19/FwZf7-Q1xVk-40qxOuYsytyshUY.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/codystar/v18/FwZY7-Q1xVk-40qxOu6J6MmTpA.woff2',
+					'https://fonts.gstatic.com/s/codystar/v19/FwZY7-Q1xVk-40qxOu6J6MmTpA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/codystar/v18/FwZY7-Q1xVk-40qxOu6H6Mk.woff2',
+					'https://fonts.gstatic.com/s/codystar/v19/FwZY7-Q1xVk-40qxOu6H6Mk.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Zilla Slab Highlight',
 	importName: 'ZillaSlabHighlight',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Zilla+Slab+Highlight:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zillaslabhighlight/v20/gNMbW2BrTpK8-inLtBJgMMfbm6uNVDvRxitBaWHASQ.woff2',
+					'https://fonts.gstatic.com/s/zillaslabhighlight/v21/gNMbW2BrTpK8-inLtBJgMMfbm6uNVDvRxitBaWHASQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zillaslabhighlight/v20/gNMbW2BrTpK8-inLtBJgMMfbm6uNVDvRxitPaWE.woff2',
+					'https://fonts.gstatic.com/s/zillaslabhighlight/v21/gNMbW2BrTpK8-inLtBJgMMfbm6uNVDvRxitPaWE.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zillaslabhighlight/v20/gNMUW2BrTpK8-inLtBJgMMfbm6uNVDvRxiP0THTxaGR10A.woff2',
+					'https://fonts.gstatic.com/s/zillaslabhighlight/v21/gNMUW2BrTpK8-inLtBJgMMfbm6uNVDvRxiP0THTxaGR10A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zillaslabhighlight/v20/gNMUW2BrTpK8-inLtBJgMMfbm6uNVDvRxiP0THT_aGQ.woff2',
+					'https://fonts.gstatic.com/s/zillaslabhighlight/v21/gNMUW2BrTpK8-inLtBJgMMfbm6uNVDvRxiP0THT_aGQ.woff2',
 			},
 		},
 	},

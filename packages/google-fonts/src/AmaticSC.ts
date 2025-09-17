@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Amatic SC',
 	importName: 'AmaticSC',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Amatic+SC:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -20,27 +20,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/amaticsc/v27/TUZyzwprpvBS1izr_vOEDuSfQZQ.woff2',
+					'https://fonts.gstatic.com/s/amaticsc/v28/TUZyzwprpvBS1izr_vOEDuSfQZQ.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/amaticsc/v27/TUZyzwprpvBS1izr_vOECOSfQZQ.woff2',
+					'https://fonts.gstatic.com/s/amaticsc/v28/TUZyzwprpvBS1izr_vOECOSfQZQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/amaticsc/v27/TUZyzwprpvBS1izr_vOEBeSfQZQ.woff2',
+					'https://fonts.gstatic.com/s/amaticsc/v28/TUZyzwprpvBS1izr_vOEBeSfQZQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amaticsc/v27/TUZyzwprpvBS1izr_vOEBOSfQZQ.woff2',
+					'https://fonts.gstatic.com/s/amaticsc/v28/TUZyzwprpvBS1izr_vOEBOSfQZQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amaticsc/v27/TUZyzwprpvBS1izr_vOECuSf.woff2',
+					'https://fonts.gstatic.com/s/amaticsc/v28/TUZyzwprpvBS1izr_vOECuSf.woff2',
 			},
 			'700': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/amaticsc/v27/TUZ3zwprpvBS1izr_vOMscGKerUC7WQ.woff2',
+					'https://fonts.gstatic.com/s/amaticsc/v28/TUZ3zwprpvBS1izr_vOMscGKerUC7WQ.woff2',
 				hebrew:
-					'https://fonts.gstatic.com/s/amaticsc/v27/TUZ3zwprpvBS1izr_vOMscGKfLUC7WQ.woff2',
+					'https://fonts.gstatic.com/s/amaticsc/v28/TUZ3zwprpvBS1izr_vOMscGKfLUC7WQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/amaticsc/v27/TUZ3zwprpvBS1izr_vOMscGKcbUC7WQ.woff2',
+					'https://fonts.gstatic.com/s/amaticsc/v28/TUZ3zwprpvBS1izr_vOMscGKcbUC7WQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amaticsc/v27/TUZ3zwprpvBS1izr_vOMscGKcLUC7WQ.woff2',
+					'https://fonts.gstatic.com/s/amaticsc/v28/TUZ3zwprpvBS1izr_vOMscGKcLUC7WQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amaticsc/v27/TUZ3zwprpvBS1izr_vOMscGKfrUC.woff2',
+					'https://fonts.gstatic.com/s/amaticsc/v28/TUZ3zwprpvBS1izr_vOMscGKfrUC.woff2',
 			},
 		},
 	},

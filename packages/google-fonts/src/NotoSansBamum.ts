@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Bamum',
 	importName: 'NotoSansBamum',
-	version: 'v34',
+	version: 'v35',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Bamum:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		bamum: 'U+A6A0-A6FF, U+16800-16A38',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				bamum:
-					'https://fonts.gstatic.com/s/notosansbamum/v34/uk-7EGK3o6EruUbnwovcbBTkkklgoq5O1I0.woff2',
+					'https://fonts.gstatic.com/s/notosansbamum/v35/uk-7EGK3o6EruUbnwovcbBTkkklgoq5O1I0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbamum/v34/uk-7EGK3o6EruUbnwovcbBTkkklg_65O1I0.woff2',
+					'https://fonts.gstatic.com/s/notosansbamum/v35/uk-7EGK3o6EruUbnwovcbBTkkklg_65O1I0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbamum/v34/uk-7EGK3o6EruUbnwovcbBTkkklg8a5O.woff2',
+					'https://fonts.gstatic.com/s/notosansbamum/v35/uk-7EGK3o6EruUbnwovcbBTkkklg8a5O.woff2',
 			},
 			'500': {
 				bamum:
-					'https://fonts.gstatic.com/s/notosansbamum/v34/uk-7EGK3o6EruUbnwovcbBTkkklgoq5O1I0.woff2',
+					'https://fonts.gstatic.com/s/notosansbamum/v35/uk-7EGK3o6EruUbnwovcbBTkkklgoq5O1I0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbamum/v34/uk-7EGK3o6EruUbnwovcbBTkkklg_65O1I0.woff2',
+					'https://fonts.gstatic.com/s/notosansbamum/v35/uk-7EGK3o6EruUbnwovcbBTkkklg_65O1I0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbamum/v34/uk-7EGK3o6EruUbnwovcbBTkkklg8a5O.woff2',
+					'https://fonts.gstatic.com/s/notosansbamum/v35/uk-7EGK3o6EruUbnwovcbBTkkklg8a5O.woff2',
 			},
 			'600': {
 				bamum:
-					'https://fonts.gstatic.com/s/notosansbamum/v34/uk-7EGK3o6EruUbnwovcbBTkkklgoq5O1I0.woff2',
+					'https://fonts.gstatic.com/s/notosansbamum/v35/uk-7EGK3o6EruUbnwovcbBTkkklgoq5O1I0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbamum/v34/uk-7EGK3o6EruUbnwovcbBTkkklg_65O1I0.woff2',
+					'https://fonts.gstatic.com/s/notosansbamum/v35/uk-7EGK3o6EruUbnwovcbBTkkklg_65O1I0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbamum/v34/uk-7EGK3o6EruUbnwovcbBTkkklg8a5O.woff2',
+					'https://fonts.gstatic.com/s/notosansbamum/v35/uk-7EGK3o6EruUbnwovcbBTkkklg8a5O.woff2',
 			},
 			'700': {
 				bamum:
-					'https://fonts.gstatic.com/s/notosansbamum/v34/uk-7EGK3o6EruUbnwovcbBTkkklgoq5O1I0.woff2',
+					'https://fonts.gstatic.com/s/notosansbamum/v35/uk-7EGK3o6EruUbnwovcbBTkkklgoq5O1I0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbamum/v34/uk-7EGK3o6EruUbnwovcbBTkkklg_65O1I0.woff2',
+					'https://fonts.gstatic.com/s/notosansbamum/v35/uk-7EGK3o6EruUbnwovcbBTkkklg_65O1I0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbamum/v34/uk-7EGK3o6EruUbnwovcbBTkkklg8a5O.woff2',
+					'https://fonts.gstatic.com/s/notosansbamum/v35/uk-7EGK3o6EruUbnwovcbBTkkklg8a5O.woff2',
 			},
 		},
 	},

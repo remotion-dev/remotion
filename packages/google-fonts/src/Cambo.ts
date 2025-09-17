@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cambo',
 	importName: 'Cambo',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Cambo:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cambo/v18/IFSqHeNEk8FJk71zqE_BkA.woff2',
+					'https://fonts.gstatic.com/s/cambo/v19/IFSqHeNEk8FJk71zqE_BkA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cambo/v18/IFSqHeNEk8FJk719qE8.woff2',
+					'https://fonts.gstatic.com/s/cambo/v19/IFSqHeNEk8FJk719qE8.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Viga',
 	importName: 'Viga',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Viga:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,8 +15,8 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/viga/v14/xMQbuFFdSaiXzQspDre2.woff2',
-				latin: 'https://fonts.gstatic.com/s/viga/v14/xMQbuFFdSaiXzQUpDg.woff2',
+					'https://fonts.gstatic.com/s/viga/v15/xMQbuFFdSaiXzQspDre2.woff2',
+				latin: 'https://fonts.gstatic.com/s/viga/v15/xMQbuFFdSaiXzQUpDg.woff2',
 			},
 		},
 	},

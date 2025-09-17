@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Amita',
 	importName: 'Amita',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Amita:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/amita/v19/HhyaU5si9Om7PTlpC_W6EQ.woff2',
+					'https://fonts.gstatic.com/s/amita/v20/HhyaU5si9Om7PTlpC_W6EQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amita/v19/HhyaU5si9Om7PTlmC_W6EQ.woff2',
+					'https://fonts.gstatic.com/s/amita/v20/HhyaU5si9Om7PTlmC_W6EQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amita/v19/HhyaU5si9Om7PTloC_U.woff2',
+					'https://fonts.gstatic.com/s/amita/v20/HhyaU5si9Om7PTloC_U.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/amita/v19/HhyXU5si9Om7PTHTLuCEMItyTA.woff2',
+					'https://fonts.gstatic.com/s/amita/v20/HhyXU5si9Om7PTHTLuCEMItyTA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amita/v19/HhyXU5si9Om7PTHTLuCLMItyTA.woff2',
+					'https://fonts.gstatic.com/s/amita/v20/HhyXU5si9Om7PTHTLuCLMItyTA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amita/v19/HhyXU5si9Om7PTHTLuCFMIs.woff2',
+					'https://fonts.gstatic.com/s/amita/v20/HhyXU5si9Om7PTHTLuCFMIs.woff2',
 			},
 		},
 	},

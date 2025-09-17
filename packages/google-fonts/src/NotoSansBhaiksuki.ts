@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Bhaiksuki',
 	importName: 'NotoSansBhaiksuki',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Bhaiksuki:ital,wght@0,400',
 	unicodeRanges: {
 		bhaiksuki: 'U+200C-200D, U+25CC, U+11C00-11C6F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				bhaiksuki:
-					'https://fonts.gstatic.com/s/notosansbhaiksuki/v17/UcC63EosKniBH4iELXATsSBWdvUHXxhjwiz_UUMJng.woff2',
+					'https://fonts.gstatic.com/s/notosansbhaiksuki/v18/UcC63EosKniBH4iELXATsSBWdvUHXxhjwiz_UUMJng.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbhaiksuki/v17/UcC63EosKniBH4iELXATsSBWdvUHXxhjwrvedH4w.woff2',
+					'https://fonts.gstatic.com/s/notosansbhaiksuki/v18/UcC63EosKniBH4iELXATsSBWdvUHXxhjwrvedH4w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbhaiksuki/v17/UcC63EosKniBH4iELXATsSBWdvUHXxhjwrXedA.woff2',
+					'https://fonts.gstatic.com/s/notosansbhaiksuki/v18/UcC63EosKniBH4iELXATsSBWdvUHXxhjwrXedA.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Reddit Sans Condensed',
 	importName: 'RedditSansCondensed',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Reddit+Sans+Condensed:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		vietnamese:
@@ -17,67 +17,67 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
 			},
 			'300': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
 			},
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
 			},
 			'500': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
 			},
 			'600': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
 			},
 			'800': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
 			},
 			'900': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZeJHa74.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1ZOJHa74.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditsanscondensed/v4/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
+					'https://fonts.gstatic.com/s/redditsanscondensed/v5/m8JMjepOc6WYkkm2Dey9A5QGAQXmuL3va5I1auJH.woff2',
 			},
 		},
 	},

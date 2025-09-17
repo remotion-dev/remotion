@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Linear A',
 	importName: 'NotoSansLinearA',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Linear+A:ital,wght@0,400',
 	unicodeRanges: {
 		'linear-a': 'U+10107-10133, U+10600-1077F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'linear-a':
-					'https://fonts.gstatic.com/s/notosanslineara/v18/oPWS_l16kP4jCuhpgEGmwJOiA18FZj2GV0r0DV07.woff2',
+					'https://fonts.gstatic.com/s/notosanslineara/v19/oPWS_l16kP4jCuhpgEGmwJOiA18FZj2GV0r0DV07.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanslineara/v18/oPWS_l16kP4jCuhpgEGmwJOiA18FZj2Gx2vRMGQ.woff2',
+					'https://fonts.gstatic.com/s/notosanslineara/v19/oPWS_l16kP4jCuhpgEGmwJOiA18FZj2Gx2vRMGQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanslineara/v18/oPWS_l16kP4jCuhpgEGmwJOiA18FZj2GyWvR.woff2',
+					'https://fonts.gstatic.com/s/notosanslineara/v19/oPWS_l16kP4jCuhpgEGmwJOiA18FZj2GyWvR.woff2',
 			},
 		},
 	},

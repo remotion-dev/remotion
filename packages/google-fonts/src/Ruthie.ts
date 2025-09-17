@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ruthie',
 	importName: 'Ruthie',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Ruthie:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/ruthie/v27/gokvH63sGkdqXuUNnDR2c2s.woff2',
+					'https://fonts.gstatic.com/s/ruthie/v28/gokvH63sGkdqXuUNnDR2c2s.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ruthie/v27/gokvH63sGkdqXuUNnTR2c2s.woff2',
+					'https://fonts.gstatic.com/s/ruthie/v28/gokvH63sGkdqXuUNnTR2c2s.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ruthie/v27/gokvH63sGkdqXuUNkzR2.woff2',
+					'https://fonts.gstatic.com/s/ruthie/v28/gokvH63sGkdqXuUNkzR2.woff2',
 			},
 		},
 	},

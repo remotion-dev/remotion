@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Courgette',
 	importName: 'Courgette',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Courgette:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/courgette/v18/wEO_EBrAnc9BLjLQAUk1WPoK7Es.woff2',
+					'https://fonts.gstatic.com/s/courgette/v19/wEO_EBrAnc9BLjLQAUk1WPoK7Es.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/courgette/v18/wEO_EBrAnc9BLjLQAUk1VvoK.woff2',
+					'https://fonts.gstatic.com/s/courgette/v19/wEO_EBrAnc9BLjLQAUk1VvoK.woff2',
 			},
 		},
 	},

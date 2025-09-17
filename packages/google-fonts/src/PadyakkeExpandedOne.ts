@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Padyakke Expanded One',
 	importName: 'PadyakkeExpandedOne',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Padyakke+Expanded+One:ital,wght@0,400',
 	unicodeRanges: {
 		kannada:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				kannada:
-					'https://fonts.gstatic.com/s/padyakkeexpandedone/v7/K2FvfY9El_tbR0JfHb6WWvrBaU6XAUvC4IAoJa5llDg.woff2',
+					'https://fonts.gstatic.com/s/padyakkeexpandedone/v8/K2FvfY9El_tbR0JfHb6WWvrBaU6XAUvC4IAoJa5llDg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/padyakkeexpandedone/v7/K2FvfY9El_tbR0JfHb6WWvrBaU6XAUvC4IAoMa5llDg.woff2',
+					'https://fonts.gstatic.com/s/padyakkeexpandedone/v8/K2FvfY9El_tbR0JfHb6WWvrBaU6XAUvC4IAoMa5llDg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/padyakkeexpandedone/v7/K2FvfY9El_tbR0JfHb6WWvrBaU6XAUvC4IAoP65l.woff2',
+					'https://fonts.gstatic.com/s/padyakkeexpandedone/v8/K2FvfY9El_tbR0JfHb6WWvrBaU6XAUvC4IAoP65l.woff2',
 			},
 		},
 	},

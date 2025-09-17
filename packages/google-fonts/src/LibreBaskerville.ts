@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Libre Baskerville',
 	importName: 'LibreBaskerville',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,23 +15,23 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/librebaskerville/v16/kmKhZrc3Hgbbcjq75U4uslyuy4kn0qNcWx8QDP2V.woff2',
+					'https://fonts.gstatic.com/s/librebaskerville/v17/kmKhZrc3Hgbbcjq75U4uslyuy4kn0qNcWx8QDP2V.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/librebaskerville/v16/kmKhZrc3Hgbbcjq75U4uslyuy4kn0qNcWxEQDA.woff2',
+					'https://fonts.gstatic.com/s/librebaskerville/v17/kmKhZrc3Hgbbcjq75U4uslyuy4kn0qNcWxEQDA.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/librebaskerville/v16/kmKnZrc3Hgbbcjq75U4uslyuy4kn0qNXaxMICA.woff2',
+					'https://fonts.gstatic.com/s/librebaskerville/v17/kmKnZrc3Hgbbcjq75U4uslyuy4kn0qNXaxMICA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/librebaskerville/v16/kmKnZrc3Hgbbcjq75U4uslyuy4kn0qNZaxM.woff2',
+					'https://fonts.gstatic.com/s/librebaskerville/v17/kmKnZrc3Hgbbcjq75U4uslyuy4kn0qNZaxM.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/librebaskerville/v16/kmKiZrc3Hgbbcjq75U4uslyuy4kn0qviTgY5KcCsww.woff2',
+					'https://fonts.gstatic.com/s/librebaskerville/v17/kmKiZrc3Hgbbcjq75U4uslyuy4kn0qviTgY5KcCsww.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/librebaskerville/v16/kmKiZrc3Hgbbcjq75U4uslyuy4kn0qviTgY3KcA.woff2',
+					'https://fonts.gstatic.com/s/librebaskerville/v17/kmKiZrc3Hgbbcjq75U4uslyuy4kn0qviTgY3KcA.woff2',
 			},
 		},
 	},
