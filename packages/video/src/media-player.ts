@@ -74,22 +74,20 @@ export class MediaPlayer {
 
 		this.context = context;
 
-		// Initialize timing offset - media starts at time 0, so offset equals current audio context time
-		if (this.sharedAudioContext) {
-			this.mediaTimeOffset = this.sharedAudioContext.currentTime;
-		}
-
 		Log.trace(this.logLevel, `[MediaPlayer] Created for src: ${src}`);
 	}
 
-	public async initialize(): Promise<void> {
+	public async initialize(startTime: number = 0): Promise<void> {
 		if (this.initialized) {
 			Log.trace(this.logLevel, `[MediaPlayer] Already initialized, skipping`);
 			return;
 		}
 
 		try {
-			Log.trace(this.logLevel, `[MediaPlayer] Initializing...`);
+			Log.trace(
+				this.logLevel,
+				`[MediaPlayer] Initializing at startTime: ${startTime.toFixed(3)}s...`,
+			);
 
 			const input = new Input({
 				source: new UrlSource(this.src),
@@ -120,7 +118,40 @@ export class MediaPlayer {
 				this.gainNode.connect(this.sharedAudioContext.destination);
 			}
 
+			// Initialize timing offset based on actual starting position
+			if (this.sharedAudioContext) {
+				this.mediaTimeOffset = this.sharedAudioContext.currentTime - startTime;
+				Log.trace(
+					this.logLevel,
+					`[MediaPlayer] Set mediaTimeOffset to ${this.mediaTimeOffset.toFixed(3)}s (audioContext: ${this.sharedAudioContext.currentTime.toFixed(3)}s, startTime: ${startTime.toFixed(3)}s)`,
+				);
+			}
+
 			this.initialized = true;
+
+			if (!this.canvasSink) {
+				throw new Error('No canvas sink found');
+			}
+
+			try {
+				const tempIterator = this.canvasSink.canvases(startTime);
+				const firstFrame = (await tempIterator.next()).value;
+
+				if (firstFrame) {
+					this.context.drawImage(firstFrame.canvas, 0, 0);
+					Log.trace(
+						this.logLevel,
+						`[MediaPlayer] Drew initial frame at timestamp ${firstFrame.timestamp.toFixed(3)}s`,
+					);
+				}
+
+				await tempIterator.return();
+			} catch (error) {
+				Log.error(
+					'[MediaPlayer] Failed to draw initial frame during initialization',
+					error,
+				);
+			}
 
 			Log.trace(
 				this.logLevel,
@@ -135,6 +166,15 @@ export class MediaPlayer {
 	public seekTo(time: number): void {
 		if (!this.initialized || !this.sharedAudioContext) {
 			return;
+		}
+
+		// Ensure mediaTimeOffset is initialized (safety fallback)
+		if (this.mediaTimeOffset === 0) {
+			this.mediaTimeOffset = this.sharedAudioContext.currentTime - time;
+			Log.trace(
+				this.logLevel,
+				`[MediaPlayer] Late-initialized mediaTimeOffset to ${this.mediaTimeOffset.toFixed(3)}s`,
+			);
 		}
 
 		const newTime = Math.max(0, Math.min(time, this.totalDuration));

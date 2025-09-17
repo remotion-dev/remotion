@@ -61,21 +61,13 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 			mediaPlayerRef.current = player;
 			player
-				.initialize()
+				.initialize(initialTimestamp)
 				.then(() => {
 					setMediaPlayerReady(true);
 					Log.trace(
 						logLevel,
 						`[NewVideoForPreview] MediaPlayer initialized successfully`,
 					);
-
-					// draw initial frame
-					player.drawInitialFrame(initialTimestamp).catch((error) => {
-						Log.error(
-							'[NewVideoForPreview] Failed to draw initial frame',
-							error,
-						);
-					});
 				})
 				.catch((error) => {
 					Log.error(
@@ -121,7 +113,7 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			);
 			mediaPlayer.pause();
 		}
-	}, [playing, logLevel]);
+	}, [playing, logLevel, mediaPlayerReady]);
 
 	// sync target time with MediaPlayer
 	useEffect(() => {
