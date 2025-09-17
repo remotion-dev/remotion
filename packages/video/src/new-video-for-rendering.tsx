@@ -86,7 +86,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		const timestamp = frame / actualFps;
 		const durationInSeconds = 1 / actualFps;
 
-		const newHandle = delayRender(`extracting frame number ${frame}`, {
+		const newHandle = delayRender(`Extracting frame number ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
