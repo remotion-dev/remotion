@@ -1,31 +1,46 @@
+import {parseMedia} from '@remotion/media-parser';
+import {StudioInternals} from '@remotion/studio';
 import {experimental_NewVideo as NewVideo} from '@remotion/video';
-import {AbsoluteFill, staticFile} from 'remotion';
+import {CalculateMetadataFunction, staticFile} from 'remotion';
 
-export const NewVideoExample: React.FC = () => {
+const fps = 30;
+const src = staticFile('demo_smpte_h264_aac.mp4') + '#t=lol';
+
+export const calculateMetadataFn: CalculateMetadataFunction<
+	Record<string, unknown>
+> = async () => {
+	const {slowDurationInSeconds, dimensions} = await parseMedia({
+		src,
+		acknowledgeRemotionLicense: true,
+		fields: {
+			slowDurationInSeconds: true,
+			dimensions: true,
+		},
+	});
+
+	if (dimensions === null) {
+		throw new Error('Dimensions are null');
+	}
+
+	return {
+		durationInFrames: Math.round(slowDurationInSeconds * fps),
+		fps,
+		width: Math.floor(dimensions.width / 2) * 2,
+		height: Math.floor(dimensions.height / 2) * 2,
+	};
+};
+
+const Component = () => {
 	return (
 		<>
-			<AbsoluteFill>
-				<div
-					style={{
-						position: 'absolute',
-						fontSize: 70,
-						fontWeight: 900,
-						left: 20,
-						height: 'fit-content',
-						bottom: 20,
-						color: 'white',
-					}}
-				>
-					<h1
-						style={{
-							textShadow: '0px 5px 10px black',
-						}}
-					>
-						No Flickering
-					</h1>
-				</div>
-				<NewVideo src={staticFile('demo_smpte_h264_aac.mp4')} />
-			</AbsoluteFill>
+			<NewVideo src={src} />
 		</>
 	);
 };
+
+export const NewVideoExample = StudioInternals.createComposition({
+	component: Component,
+	id: 'new-video',
+	calculateMetadata: calculateMetadataFn,
+	fps,
+});
