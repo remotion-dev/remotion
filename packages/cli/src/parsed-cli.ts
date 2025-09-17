@@ -29,6 +29,7 @@ export const BooleanFlags = [
 	BrowserSafeApis.options.beepOnFinishOption.cliFlag,
 	BrowserSafeApis.options.disableGitSourceOption.cliFlag,
 	BrowserSafeApis.options.disallowParallelEncodingOption.cliFlag,
+	BrowserSafeApis.options.forSeamlessAacConcatenationOption.cliFlag,
 	'repro',
 	'compatible-only',
 	'force-path-style',
