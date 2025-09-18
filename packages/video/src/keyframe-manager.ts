@@ -1,6 +1,6 @@
 import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
 import {getFramesSinceKeyframe} from './get-frames-since-keyframe';
-import {framesOpen, type KeyframeBank} from './keyframe-bank';
+import {type KeyframeBank} from './keyframe-bank';
 import type {LogLevel} from './log';
 import {Log} from './log';
 
@@ -43,7 +43,7 @@ export const makeKeyframeManager = () => {
 
 		Log.verbose(
 			logLevel,
-			`[NewVideo] Cache stats: ${count} open frames, ${totalSize} bytes, actually open: ${framesOpen}`,
+			`[NewVideo] Cache stats: ${count} open frames, ${totalSize} bytes`,
 		);
 	};
 

@@ -24,9 +24,6 @@ export type KeyframeBank = {
 	};
 };
 
-export let iteratorsOpen = 0;
-export let framesOpen = 0;
-
 // Round to only 4 digits, because WebM has a timescale of 1_000, e.g. framer.webm
 const roundTo4Digits = (timestamp: number) => {
 	return Math.round(timestamp * 1_000) / 1_000;
@@ -45,8 +42,6 @@ export const makeKeyframeBank = ({
 	const frameTimestamps: number[] = [];
 
 	let alloctionSize = 0;
-
-	iteratorsOpen++;
 
 	const hasDecodedEnoughForTimestamp = (timestamp: number) => {
 		const lastFrameTimestamp = frameTimestamps[frameTimestamps.length - 1];
@@ -77,7 +72,6 @@ export const makeKeyframeBank = ({
 			const sample = await sampleIterator.next();
 
 			if (sample.value) {
-				framesOpen++;
 				addFrame(sample.value);
 			}
 
@@ -143,7 +137,6 @@ export const makeKeyframeBank = ({
 			alloctionSize -= frames[frameTimestamp].allocationSize();
 			frames[frameTimestamp].close();
 			delete frames[frameTimestamp];
-			framesOpen--;
 		}
 
 		frameTimestamps.length = 0;
@@ -173,7 +166,7 @@ export const makeKeyframeBank = ({
 
 				frames[frameTimestamp].close();
 				delete frames[frameTimestamp];
-				framesOpen--;
+
 				alloctionSize -= frames[frameTimestamp].allocationSize();
 				Log.verbose(
 					logLevel,
