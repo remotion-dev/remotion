@@ -133,7 +133,6 @@ export class MediaPlayer {
 
 			if (this.audioSink) {
 				this.audioBufferIterator = this.audioSink.buffers(startTime);
-				this.runAudioIterator();
 			}
 
 			this.startRenderLoop();
