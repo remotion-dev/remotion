@@ -1,28 +1,29 @@
 // Remotion exports all videos with 2 channels.
 export const TARGET_NUMBER_OF_CHANNELS = 2;
 
+// Remotion exports all videos with 48kHz sample rate.
+export const TARGET_SAMPLE_RATE = 48000;
+
 export const resampleAudioData = ({
 	srcNumberOfChannels,
 	source: srcChannels,
 	destination,
-	newNumberOfFrames,
+	targetFrames,
 	chunkSize,
+	volume,
 }: {
 	srcNumberOfChannels: number;
 	source: Int16Array;
 	destination: Int16Array;
-	newNumberOfFrames: number;
+	targetFrames: number;
 	chunkSize: number;
+	volume: number;
 }) => {
-	for (
-		let newFrameIndex = 0;
-		newFrameIndex < newNumberOfFrames;
-		newFrameIndex++
-	) {
+	for (let newFrameIndex = 0; newFrameIndex < targetFrames; newFrameIndex++) {
 		const start = Math.floor(newFrameIndex * chunkSize);
 		const end = Math.max(Math.floor(start + chunkSize), start + 1);
 
-		const sourceValues = new Array(srcNumberOfChannels).fill(0);
+		const sourceValues: number[] = new Array(srcNumberOfChannels).fill(0);
 
 		for (
 			let channelIndex = 0;
@@ -42,7 +43,7 @@ export const resampleAudioData = ({
 
 			const average = itemSum / itemCount;
 
-			sourceValues[channelIndex] = average;
+			sourceValues[channelIndex] = average * volume;
 		}
 
 		if (TARGET_NUMBER_OF_CHANNELS === srcNumberOfChannels) {
@@ -57,11 +58,9 @@ export const resampleAudioData = ({
 		// Mono to Stereo: M -> L, M -> R
 		if (srcNumberOfChannels === 1) {
 			const m = sourceValues[0];
-			const l = m;
-			const r = m;
 
-			destination[newFrameIndex * 2 + 0] = l;
-			destination[newFrameIndex * 2 + 1] = r;
+			destination[newFrameIndex * 2 + 0] = m;
+			destination[newFrameIndex * 2 + 1] = m;
 		}
 
 		// Quad to Stereo: 0.5 * (L + SL), 0.5 * (R + SR)

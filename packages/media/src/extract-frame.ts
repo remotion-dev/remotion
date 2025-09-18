@@ -2,7 +2,10 @@ import type {AudioSample} from 'mediabunny';
 import {combineAudioDataAndClosePrevious} from './convert-audiodata/combine-audiodata';
 import type {PcmS16AudioData} from './convert-audiodata/convert-audiodata';
 import {convertAudioData} from './convert-audiodata/convert-audiodata';
-import {TARGET_NUMBER_OF_CHANNELS} from './convert-audiodata/resample-audiodata';
+import {
+	TARGET_NUMBER_OF_CHANNELS,
+	TARGET_SAMPLE_RATE,
+} from './convert-audiodata/resample-audiodata';
 import {getSinks, type GetSink} from './get-frames-since-keyframe';
 import {makeKeyframeManager} from './keyframe-manager';
 import type {LogLevel} from './log';
@@ -42,11 +45,12 @@ export const extractAudio = async ({
 	src,
 	timeInSeconds,
 	durationInSeconds,
+	volume,
 }: {
 	src: string;
 	timeInSeconds: number;
-	logLevel: LogLevel;
 	durationInSeconds: number;
+	volume: number;
 }): Promise<PcmS16AudioData | null> => {
 	if (!sinkPromise[src]) {
 		sinkPromise[src] = getSinks(src);
@@ -150,10 +154,11 @@ export const extractAudio = async ({
 
 		const audioData = convertAudioData({
 			audioData: audioDataRaw,
-			newSampleRate: 48000,
+			newSampleRate: TARGET_SAMPLE_RATE,
 			trimStartInSeconds,
 			trimEndInSeconds,
 			targetNumberOfChannels: TARGET_NUMBER_OF_CHANNELS,
+			volume,
 		});
 		audioDataRaw.close();
 
@@ -184,6 +189,7 @@ export const extractFrameAndAudio = async ({
 	durationInSeconds,
 	includeAudio,
 	includeVideo,
+	volume,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -191,6 +197,7 @@ export const extractFrameAndAudio = async ({
 	durationInSeconds: number;
 	includeAudio: boolean;
 	includeVideo: boolean;
+	volume: number;
 }): Promise<{
 	frame: VideoFrame | null;
 	audio: PcmS16AudioData | null;
@@ -207,8 +214,8 @@ export const extractFrameAndAudio = async ({
 			? extractAudio({
 					src,
 					timeInSeconds,
-					logLevel,
 					durationInSeconds,
+					volume,
 				})
 			: null,
 	]);

@@ -11,6 +11,7 @@ test('Should be able to extract a frame', async () => {
 		logLevel: 'info',
 		includeAudio: true,
 		includeVideo: true,
+		volume: 1,
 	});
 
 	assert(frame);
@@ -37,13 +38,52 @@ test('Should manage the cache', async () => {
 			src: `/bigbuckbunny.mp4?i=${i}`,
 			timeInSeconds: 1,
 			durationInSeconds: 1 / 30,
-			logLevel: 'verbose',
+			logLevel: 'info',
 			includeAudio: true,
 			includeVideo: true,
+			volume: 1,
 		});
 	}
 
 	const cacheStats = await keyframeManager.getCacheStats();
 	expect(cacheStats.count).toBe(725);
 	expect(cacheStats.totalSize).toBe(1002240000);
+});
+
+test.only('Should be able to extract a frame', async () => {
+	await keyframeManager.clearAll();
+
+	const {audio: audioAtHalfVolume} = await extractFrameAndAudio({
+		src: '/bigbuckbunny.mp4',
+		timeInSeconds: 1,
+		durationInSeconds: 1 / 30,
+		logLevel: 'info',
+		includeAudio: true,
+		includeVideo: false,
+		volume: 0.5,
+	});
+
+	const {audio: audioAtFullVolume, frame} = await extractFrameAndAudio({
+		src: '/bigbuckbunny.mp4',
+		timeInSeconds: 1,
+		durationInSeconds: 1 / 30,
+		logLevel: 'info',
+		includeAudio: true,
+		includeVideo: false,
+		volume: 1,
+	});
+
+	assert(!frame);
+
+	const totalAudioAtFullVolume = audioAtFullVolume?.data.reduce(
+		(acc, curr) => acc + curr * 0.5,
+		0,
+	);
+	assert(audioAtHalfVolume);
+	const totalAudioAtHalfVolume = audioAtHalfVolume?.data.reduce(
+		(acc, curr) => acc + curr,
+		0,
+	);
+	assert(totalAudioAtFullVolume);
+	expect(totalAudioAtHalfVolume).toBe(totalAudioAtFullVolume);
 });

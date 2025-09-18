@@ -11,6 +11,7 @@ type ExtractFrameRequest = {
 	logLevel: LogLevel;
 	includeAudio: boolean;
 	includeVideo: boolean;
+	volume: number;
 };
 
 type ExtractFrameResponse =
@@ -41,6 +42,7 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						durationInSeconds: data.durationInSeconds,
 						includeAudio: data.includeAudio,
 						includeVideo: data.includeVideo,
+						volume: data.volume,
 					});
 
 					const videoFrame = frame;
@@ -84,6 +86,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	includeAudio,
 	includeVideo,
 	isClientSideRendering,
+	volume,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -92,6 +95,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	includeAudio: boolean;
 	includeVideo: boolean;
 	isClientSideRendering: boolean;
+	volume: number;
 }): Promise<{
 	frame: ImageBitmap | VideoFrame | null;
 	audio: PcmS16AudioData | null;
@@ -104,6 +108,7 @@ export const extractFrameViaBroadcastChannel = async ({
 			durationInSeconds,
 			includeAudio,
 			includeVideo,
+			volume,
 		});
 
 		return {
@@ -159,6 +164,7 @@ export const extractFrameViaBroadcastChannel = async ({
 		durationInSeconds,
 		includeAudio,
 		includeVideo,
+		volume,
 	};
 
 	window.remotion_broadcastChannel!.postMessage(request);

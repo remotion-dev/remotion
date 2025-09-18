@@ -99,6 +99,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 			includeAudio: shouldRenderAudio,
 			includeVideo: true,
 			isClientSideRendering: environment.isClientSideRendering,
+			volume,
 		})
 			.then(({frame: imageBitmap, audio}) => {
 				if (!imageBitmap) {
@@ -149,6 +150,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		shouldRenderAudio,
 		src,
 		unregisterRenderAsset,
+		volume,
 	]);
 
 	return (

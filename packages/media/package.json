@@ -16,6 +16,7 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"watch": "tsc -w",
+		"test": "vitest src/test --browser --run",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {

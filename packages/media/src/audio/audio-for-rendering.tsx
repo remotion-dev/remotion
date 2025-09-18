@@ -87,6 +87,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			includeAudio: shouldRenderAudio,
 			includeVideo: false,
 			isClientSideRendering: environment.isClientSideRendering,
+			volume,
 		})
 			.then(({audio}) => {
 				if (audio) {
@@ -128,6 +129,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		shouldRenderAudio,
 		src,
 		unregisterRenderAsset,
+		volume,
 	]);
 
 	return null;
