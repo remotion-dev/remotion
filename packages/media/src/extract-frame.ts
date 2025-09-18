@@ -183,22 +183,26 @@ export const extractFrameAndAudio = async ({
 	logLevel,
 	durationInSeconds,
 	includeAudio,
+	includeVideo,
 }: {
 	src: string;
 	timeInSeconds: number;
 	logLevel: LogLevel;
 	durationInSeconds: number;
 	includeAudio: boolean;
+	includeVideo: boolean;
 }): Promise<{
 	frame: VideoFrame | null;
 	audio: PcmS16AudioData | null;
 }> => {
 	const [frame, audio] = await Promise.all([
-		extractFrame({
-			src,
-			timeInSeconds,
-			logLevel,
-		}),
+		includeVideo
+			? extractFrame({
+					src,
+					timeInSeconds,
+					logLevel,
+				})
+			: null,
 		includeAudio
 			? extractAudio({
 					src,

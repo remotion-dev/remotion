@@ -11,7 +11,7 @@ const {
 } = Internals;
 
 export const Video: React.FC<VideoProps> = (props) => {
-	// Should only destruct `startFrom` and `endAt` from props,
+	// Should only destruct `trimBefore` and `trimAfter` from props,
 	// rest gets drilled down
 	const {
 		trimBefore,

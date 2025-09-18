@@ -1,7 +1,7 @@
-import type {LoopVolumeCurveBehavior, OnVideoFrame, VolumeProp} from 'remotion';
-import type {LogLevel} from './log';
+import type {LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
+import type {LogLevel} from '../log';
 
-export type VideoProps = {
+export type AudioProps = {
 	src: string;
 	trimBefore?: number;
 	trimAfter?: number;
@@ -11,7 +11,6 @@ export type VideoProps = {
 	pauseWhenBuffering?: boolean;
 	showInTimeline?: boolean;
 	onAutoPlayError?: null | (() => void);
-	onVideoFrame?: OnVideoFrame;
 	playbackRate?: number;
 	muted?: boolean;
 	delayRenderRetries?: number;
@@ -26,4 +25,6 @@ export type VideoProps = {
 	 */
 	stack?: string;
 	logLevel?: LogLevel;
+	loop?: boolean;
+	_remotionInternalNativeLoopPassed?: boolean;
 };

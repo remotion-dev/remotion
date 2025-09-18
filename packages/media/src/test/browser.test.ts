@@ -10,6 +10,7 @@ test('Should be able to extract a frame', async () => {
 		durationInSeconds: 1 / 30,
 		logLevel: 'info',
 		includeAudio: true,
+		includeVideo: true,
 	});
 
 	assert(frame);
@@ -38,6 +39,7 @@ test('Should manage the cache', async () => {
 			durationInSeconds: 1 / 30,
 			logLevel: 'verbose',
 			includeAudio: true,
+			includeVideo: true,
 		});
 	}
 

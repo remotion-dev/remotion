@@ -1,5 +1,6 @@
 import {createRef} from 'react';
 import {getAbsoluteSrc} from './absolute-src.js';
+import {AudioForPreview} from './audio/AudioForPreview.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -207,6 +208,7 @@ export const Internals = {
 	compositionSelectorRef,
 	RemotionEnvironmentContext,
 	warnAboutTooHighVolume,
+	AudioForPreview,
 } as const;
 
 export type {

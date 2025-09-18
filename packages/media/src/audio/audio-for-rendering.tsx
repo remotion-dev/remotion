@@ -1,10 +1,5 @@
-import React, {
-	useContext,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import type React from 'react';
+import {useContext, useLayoutEffect, useMemo, useState} from 'react';
 import {
 	cancelRender,
 	Internals,
@@ -12,10 +7,10 @@ import {
 	useDelayRender,
 	useRemotionEnvironment,
 } from 'remotion';
-import {extractFrameViaBroadcastChannel} from './extract-frame-via-broadcast-channel';
-import type {VideoProps} from './props';
+import {extractFrameViaBroadcastChannel} from '../extract-frame-via-broadcast-channel';
+import type {AudioProps} from './props';
 
-export const VideoForRendering: React.FC<VideoProps> = ({
+export const AudioForRendering: React.FC<AudioProps> = ({
 	volume: volumeProp,
 	playbackRate,
 	src,
@@ -23,13 +18,10 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
-	// call when a frame of the video, i.e. frame drawn on canvas
-	onVideoFrame,
 	logLevel = window.remotion_logLevel,
 }) => {
 	const absoluteFrame = Internals.useTimelinePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const {registerRenderAsset, unregisterRenderAsset} = useContext(
 		Internals.RenderAssetManager,
 	);
@@ -46,7 +38,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	}
 
 	if (!src) {
-		throw new TypeError('No `src` was passed to <Video>.');
+		throw new TypeError('No `src` was passed to <Audio>.');
 	}
 
 	const volume = Internals.evaluateVolume({
@@ -78,15 +70,11 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	const {delayRender, continueRender} = useDelayRender();
 
 	useLayoutEffect(() => {
-		if (!canvasRef.current) {
-			return;
-		}
-
 		const actualFps = playbackRate ? fps / playbackRate : fps;
 		const timestamp = frame / actualFps;
 		const durationInSeconds = 1 / actualFps;
 
-		const newHandle = delayRender(`Extracting frame number ${frame}`, {
+		const newHandle = delayRender(`Extracting audio for frame ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
@@ -96,18 +84,11 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 			timeInSeconds: timestamp,
 			durationInSeconds,
 			logLevel: logLevel ?? 'info',
-			shouldRenderAudio,
+			includeAudio: shouldRenderAudio,
+			includeVideo: false,
 			isClientSideRendering: environment.isClientSideRendering,
 		})
-			.then(({frame: imageBitmap, audio}) => {
-				if (!imageBitmap) {
-					cancelRender(new Error('No video frame found'));
-				}
-
-				onVideoFrame?.(imageBitmap);
-				canvasRef.current?.getContext('2d')?.drawImage(imageBitmap, 0, 0);
-				imageBitmap.close();
-
+			.then(({audio}) => {
 				if (audio) {
 					registerRenderAsset({
 						type: 'inline-audio',
@@ -142,7 +123,6 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		frame,
 		id,
 		logLevel,
-		onVideoFrame,
 		playbackRate,
 		registerRenderAsset,
 		shouldRenderAudio,
@@ -150,11 +130,5 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		unregisterRenderAsset,
 	]);
 
-	return (
-		<canvas
-			ref={canvasRef}
-			width={videoConfig.width}
-			height={videoConfig.height}
-		/>
-	);
+	return null;
 };

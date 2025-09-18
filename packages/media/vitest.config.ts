@@ -7,6 +7,7 @@ export default defineConfig({
 			provider: 'webdriverio',
 			instances: [{browser: 'chrome'}],
 			headless: true,
+			screenshotFailures: false,
 		},
 	},
 	publicDir: path.join(__dirname, '..', 'example-videos', 'videos'),
