@@ -48,6 +48,24 @@ export const makeKeyframeManager = () => {
 		);
 	};
 
+	const getCacheStats = async () => {
+		let count = 0;
+		let totalSize = 0;
+		for (const src in sources) {
+			for (const bank in sources[src]) {
+				const v = await sources[src][bank];
+				const {length, size} = v.getOpenFrameCount();
+				count += length;
+				totalSize += size;
+				if (size === 0) {
+					continue;
+				}
+			}
+		}
+
+		return {count, totalSize};
+	};
+
 	const clearKeyframeBanksBeforeTime = async ({
 		timestampInSeconds,
 		src,
@@ -189,6 +207,7 @@ export const makeKeyframeManager = () => {
 	return {
 		requestKeyframeBank,
 		addKeyframeBank,
+		getCacheStats,
 	};
 };
 

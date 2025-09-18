@@ -38,7 +38,7 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						timeInSeconds: data.timeInSeconds,
 						logLevel: data.logLevel,
 						durationInSeconds: data.durationInSeconds,
-						shouldRenderAudio: data.shouldRenderAudio,
+						includeAudio: data.shouldRenderAudio,
 					});
 
 					const videoFrame = frame;
@@ -98,7 +98,7 @@ export const extractFrameViaBroadcastChannel = async ({
 			src,
 			timeInSeconds,
 			durationInSeconds,
-			shouldRenderAudio,
+			includeAudio: shouldRenderAudio,
 		});
 
 		return {

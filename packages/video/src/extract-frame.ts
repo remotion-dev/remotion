@@ -7,7 +7,7 @@ import {getSinks, type GetSink} from './get-frames-since-keyframe';
 import {makeKeyframeManager} from './keyframe-manager';
 import type {LogLevel} from './log';
 
-const keyframeManager = makeKeyframeManager();
+export const keyframeManager = makeKeyframeManager();
 const sinkPromise: Record<string, Promise<GetSink>> = {};
 
 export const extractFrame = async ({
@@ -182,13 +182,13 @@ export const extractFrameAndAudio = async ({
 	timeInSeconds,
 	logLevel,
 	durationInSeconds,
-	shouldRenderAudio,
+	includeAudio,
 }: {
 	src: string;
 	timeInSeconds: number;
 	logLevel: LogLevel;
 	durationInSeconds: number;
-	shouldRenderAudio: boolean;
+	includeAudio: boolean;
 }): Promise<{
 	frame: VideoFrame | null;
 	audio: PcmS16AudioData | null;
@@ -199,7 +199,7 @@ export const extractFrameAndAudio = async ({
 			timeInSeconds,
 			logLevel,
 		}),
-		shouldRenderAudio
+		includeAudio
 			? extractAudio({
 					src,
 					timeInSeconds,
