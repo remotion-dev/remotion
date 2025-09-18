@@ -179,7 +179,7 @@ export const makeKeyframeBank = ({
 				alloctionSize -= frames[frameTimestamp].allocationSize();
 				Log.verbose(
 					logLevel,
-					`[NewVideo] Deleted frame ${frameTimestamp} for src ${src}`,
+					`[Video] Deleted frame ${frameTimestamp} for src ${src}`,
 				);
 			}
 		}

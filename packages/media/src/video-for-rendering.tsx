@@ -13,9 +13,9 @@ import {
 	useRemotionEnvironment,
 } from 'remotion';
 import {extractFrameViaBroadcastChannel} from './extract-frame-via-broadcast-channel';
-import type {NewVideoProps} from './props';
+import type {VideoProps} from './props';
 
-export const NewVideoForRendering: React.FC<NewVideoProps> = ({
+export const VideoForRendering: React.FC<VideoProps> = ({
 	volume: volumeProp,
 	playbackRate,
 	src,
@@ -46,7 +46,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	}
 
 	if (!src) {
-		throw new TypeError('No `src` was passed to <NewVideo>.');
+		throw new TypeError('No `src` was passed to <Video>.');
 	}
 
 	const volume = Internals.evaluateVolume({

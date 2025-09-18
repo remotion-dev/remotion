@@ -1,1 +1,1 @@
-export {NewVideo as experimental_NewVideo} from './new-video';
+export {Video as experimental_Video} from './video';

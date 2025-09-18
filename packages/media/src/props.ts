@@ -1,7 +1,7 @@
 import type {LoopVolumeCurveBehavior, OnVideoFrame, VolumeProp} from 'remotion';
 import type {LogLevel} from './log';
 
-export type NewVideoProps = {
+export type VideoProps = {
 	src: string;
 	trimBefore?: number;
 	trimAfter?: number;

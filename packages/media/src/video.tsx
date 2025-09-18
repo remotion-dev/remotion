@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
-import {NewVideoForRendering} from './new-video-for-rendering';
-import type {NewVideoProps} from './props';
+import type {VideoProps} from './props';
+import {VideoForRendering} from './video-for-rendering';
 
 const {
 	validateMediaTrimProps,
@@ -10,7 +10,7 @@ const {
 	VideoForPreview,
 } = Internals;
 
-export const NewVideo: React.FC<NewVideoProps> = (props) => {
+export const Video: React.FC<VideoProps> = (props) => {
 	// Should only destruct `startFrom` and `endAt` from props,
 	// rest gets drilled down
 	const {
@@ -28,7 +28,7 @@ export const NewVideo: React.FC<NewVideoProps> = (props) => {
 
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
-			`The \`<NewVideo>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+			`The \`<Video>\` tag requires a string for \`src\`, but got ${JSON.stringify(
 				props.src,
 			)} instead.`,
 		);
@@ -60,7 +60,7 @@ export const NewVideo: React.FC<NewVideoProps> = (props) => {
 				durationInFrames={trimAfterValue}
 				name={name}
 			>
-				<NewVideo
+				<Video
 					pauseWhenBuffering={pauseWhenBuffering ?? false}
 					{...otherProps}
 				/>
@@ -71,7 +71,7 @@ export const NewVideo: React.FC<NewVideoProps> = (props) => {
 	validateMediaProps(props, 'Video');
 
 	if (environment.isRendering) {
-		return <NewVideoForRendering {...otherProps} />;
+		return <VideoForRendering {...otherProps} />;
 	}
 
 	const {

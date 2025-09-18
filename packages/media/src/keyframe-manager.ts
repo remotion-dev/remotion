@@ -38,14 +38,14 @@ export const makeKeyframeManager = () => {
 
 				Log.verbose(
 					logLevel,
-					`[NewVideo] Open frames for src ${src}: ${timestamps.join(', ')}}`,
+					`[Video] Open frames for src ${src}: ${timestamps.join(', ')}}`,
 				);
 			}
 		}
 
 		Log.verbose(
 			logLevel,
-			`[NewVideo] Cache stats: ${count} open frames, ${totalSize} bytes`,
+			`[Video] Cache stats: ${count} open frames, ${totalSize} bytes`,
 		);
 	};
 
@@ -103,7 +103,7 @@ export const makeKeyframeManager = () => {
 				];
 				Log.verbose(
 					logLevel,
-					`[NewVideo] Deleted frames for src ${mostInThePastSrc} from ${mostInThePastBank.startTimestampInSeconds}sec to ${mostInThePastBank.endTimestampInSeconds}sec to free up memory.`,
+					`[Video] Deleted frames for src ${mostInThePastSrc} from ${mostInThePastBank.startTimestampInSeconds}sec to ${mostInThePastBank.endTimestampInSeconds}sec to free up memory.`,
 				);
 			}
 
@@ -138,7 +138,7 @@ export const makeKeyframeManager = () => {
 				await bank.prepareForDeletion();
 				Log.verbose(
 					logLevel,
-					`[NewVideo] Cleared frames for src ${src} from ${startTimestampInSeconds}sec to ${endTimestampInSeconds}sec`,
+					`[Video] Cleared frames for src ${src} from ${startTimestampInSeconds}sec to ${endTimestampInSeconds}sec`,
 				);
 				delete sources[src][startTimeInSeconds as unknown as number];
 			} else {
@@ -197,7 +197,7 @@ export const makeKeyframeManager = () => {
 
 		Log.verbose(
 			logLevel,
-			`[NewVideo] Bank exists but frames have already been evicted!`,
+			`[Video] Bank exists but frames have already been evicted!`,
 		);
 
 		// Bank exists but frames have already been evicted!
