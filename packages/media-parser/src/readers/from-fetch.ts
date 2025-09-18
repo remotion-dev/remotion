@@ -99,6 +99,7 @@ export const makeFetchRequest = async ({
 	if (
 		!resolvedUrlString.startsWith('https://') &&
 		!resolvedUrlString.startsWith('blob:') &&
+		!resolvedUrlString.startsWith('data:') &&
 		!resolvedUrlString.startsWith('http://')
 	) {
 		return Promise.reject(
