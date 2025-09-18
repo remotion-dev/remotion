@@ -4,6 +4,8 @@ import {type KeyframeBank} from './keyframe-bank';
 import type {LogLevel} from './log';
 import {Log} from './log';
 
+const MAX_CACHE_SIZE = 1000 * 1000 * 1000; // 1GB
+
 export const makeKeyframeManager = () => {
 	// src => {[startTimestampInSeconds]: KeyframeBank
 	const sources: Record<string, Record<number, Promise<KeyframeBank>>> = {};
@@ -65,6 +67,50 @@ export const makeKeyframeManager = () => {
 		return {count, totalSize};
 	};
 
+	const getTheKeyframeBankMostInThePast = async () => {
+		let mostInThePast = null;
+		let mostInThePastBank = null;
+
+		for (const src in sources) {
+			for (const b in sources[src]) {
+				const bank = await sources[src][b];
+
+				const lastUsed = bank.getLastUsed();
+				if (mostInThePast === null || lastUsed < mostInThePast) {
+					mostInThePast = lastUsed;
+					mostInThePastBank = {src, bank};
+				}
+			}
+		}
+
+		if (!mostInThePastBank) {
+			throw new Error('No keyframe bank found');
+		}
+
+		return mostInThePastBank;
+	};
+
+	const ensureToStayUnderMaxCacheSize = async (logLevel: LogLevel) => {
+		let cacheStats = await getCacheStats();
+		while (cacheStats.totalSize > MAX_CACHE_SIZE) {
+			const {bank: mostInThePastBank, src: mostInThePastSrc} =
+				await getTheKeyframeBankMostInThePast();
+
+			if (mostInThePastBank) {
+				await mostInThePastBank.prepareForDeletion();
+				delete sources[mostInThePastSrc][
+					mostInThePastBank.startTimestampInSeconds
+				];
+				Log.verbose(
+					logLevel,
+					`[NewVideo] Deleted frames for src ${mostInThePastSrc} from ${mostInThePastBank.startTimestampInSeconds}sec to ${mostInThePastBank.endTimestampInSeconds}sec to free up memory.`,
+				);
+			}
+
+			cacheStats = await getCacheStats();
+		}
+	};
+
 	const clearKeyframeBanksBeforeTime = async ({
 		timestampInSeconds,
 		src,
@@ -78,8 +124,6 @@ export const makeKeyframeManager = () => {
 		const SAFE_BACK_WINDOW_IN_SECONDS = 1;
 		const threshold = timestampInSeconds - SAFE_BACK_WINDOW_IN_SECONDS;
 
-		// TODO: Delete banks of other sources
-
 		if (!sources[src]) {
 			return;
 		}
@@ -88,13 +132,13 @@ export const makeKeyframeManager = () => {
 
 		for (const startTimeInSeconds of banks) {
 			const bank = await sources[src][startTimeInSeconds as unknown as number];
-			const {endTimestampInSeconds} = bank;
+			const {endTimestampInSeconds, startTimestampInSeconds} = bank;
 
 			if (endTimestampInSeconds < threshold) {
 				await bank.prepareForDeletion();
 				Log.verbose(
 					logLevel,
-					`[NewVideo] Cleared frames for src ${src} from ${bank.startTimestampInSeconds}sec to ${bank.endTimestampInSeconds}sec`,
+					`[NewVideo] Cleared frames for src ${src} from ${startTimestampInSeconds}sec to ${endTimestampInSeconds}sec`,
 				);
 				delete sources[src][startTimeInSeconds as unknown as number];
 			} else {
@@ -186,6 +230,8 @@ export const makeKeyframeManager = () => {
 		src: string;
 		logLevel: LogLevel;
 	}) => {
+		await ensureToStayUnderMaxCacheSize(logLevel);
+
 		await clearKeyframeBanksBeforeTime({
 			timestampInSeconds: timestamp,
 			src,

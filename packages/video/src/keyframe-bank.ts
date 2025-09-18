@@ -22,6 +22,7 @@ export type KeyframeBank = {
 		size: number;
 		timestamps: number[];
 	};
+	getLastUsed: () => number;
 };
 
 // Round to only 4 digits, because WebM has a timescale of 1_000, e.g. framer.webm
@@ -40,6 +41,8 @@ export const makeKeyframeBank = ({
 }) => {
 	const frames: Record<number, VideoSample> = {};
 	const frameTimestamps: number[] = [];
+
+	let lastUsed = Date.now();
 
 	let alloctionSize = 0;
 
@@ -65,6 +68,8 @@ export const makeKeyframeBank = ({
 		frames[frame.timestamp] = frame;
 		frameTimestamps.push(frame.timestamp);
 		alloctionSize += frame.allocationSize();
+
+		lastUsed = Date.now();
 	};
 
 	const ensureEnoughFramesForTimestamp = async (timestamp: number) => {
@@ -79,11 +84,15 @@ export const makeKeyframeBank = ({
 				break;
 			}
 		}
+
+		lastUsed = Date.now();
 	};
 
 	const getFrameFromTimestamp = async (
 		timestampInSeconds: number,
 	): Promise<VideoSample | null> => {
+		lastUsed = Date.now();
+
 		if (timestampInSeconds < startTimestampInSeconds) {
 			return Promise.reject(
 				new Error(
@@ -183,6 +192,10 @@ export const makeKeyframeBank = ({
 		};
 	};
 
+	const getLastUsed = () => {
+		return lastUsed;
+	};
+
 	const keyframeBank: KeyframeBank = {
 		startTimestampInSeconds,
 		endTimestampInSeconds,
@@ -192,6 +205,7 @@ export const makeKeyframeBank = ({
 		addFrame,
 		deleteFramesBeforeTimestamp,
 		getOpenFrameCount,
+		getLastUsed,
 	};
 
 	return keyframeBank;
