@@ -53,19 +53,19 @@ export const getFramesSinceKeyframe = async ({
 	videoSampleSink: VideoSampleSink;
 	startPacket: EncodedPacket;
 }) => {
-	const packet2 = await packetSink.getNextKeyPacket(startPacket, {
+	const nextKeyPacket = await packetSink.getNextKeyPacket(startPacket, {
 		verifyKeyPackets: false,
 	});
 
-	const samples = videoSampleSink.samples(
+	const sampleIterator = videoSampleSink.samples(
 		startPacket.timestamp,
-		packet2 ? packet2.timestamp : Infinity,
+		nextKeyPacket ? nextKeyPacket.timestamp : Infinity,
 	);
 
 	const keyframeBank = makeKeyframeBank({
 		startTimestampInSeconds: startPacket.timestamp,
-		endTimestampInSeconds: packet2 ? packet2.timestamp : Infinity,
-		sampleIterator: samples,
+		endTimestampInSeconds: nextKeyPacket ? nextKeyPacket.timestamp : Infinity,
+		sampleIterator,
 	});
 
 	return keyframeBank;

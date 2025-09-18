@@ -27,8 +27,8 @@ export const makeKeyframeManager = () => {
 		for (const src in sources) {
 			for (const bank in sources[src]) {
 				const v = await sources[src][bank];
-				const {length, size, timestamps} = v.getOpenFrameCount();
-				count += length;
+				const {size, timestamps} = v.getOpenFrameCount();
+				count += timestamps.length;
 				totalSize += size;
 				if (size === 0) {
 					continue;
@@ -53,8 +53,8 @@ export const makeKeyframeManager = () => {
 		for (const src in sources) {
 			for (const bank in sources[src]) {
 				const v = await sources[src][bank];
-				const {length, size} = v.getOpenFrameCount();
-				count += length;
+				const {timestamps, size} = v.getOpenFrameCount();
+				count += timestamps.length;
 				totalSize += size;
 				if (size === 0) {
 					continue;

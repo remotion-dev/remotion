@@ -19,7 +19,6 @@ export type KeyframeBank = {
 	hasTimestampInSecond: (timestamp: number) => Promise<boolean>;
 	addFrame: (frame: VideoSample) => void;
 	getOpenFrameCount: () => {
-		length: number;
 		size: number;
 		timestamps: number[];
 	};
@@ -44,6 +43,9 @@ export const makeKeyframeBank = ({
 }) => {
 	const frames: Record<number, VideoSample> = {};
 	const frameTimestamps: number[] = [];
+
+	let alloctionSize = 0;
+
 	iteratorsOpen++;
 
 	const hasDecodedEnoughForTimestamp = (timestamp: number) => {
@@ -67,6 +69,7 @@ export const makeKeyframeBank = ({
 	const addFrame = (frame: VideoSample) => {
 		frames[frame.timestamp] = frame;
 		frameTimestamps.push(frame.timestamp);
+		alloctionSize += frame.allocationSize();
 	};
 
 	const ensureEnoughFramesForTimestamp = async (timestamp: number) => {
@@ -137,6 +140,7 @@ export const makeKeyframeBank = ({
 				continue;
 			}
 
+			alloctionSize -= frames[frameTimestamp].allocationSize();
 			frames[frameTimestamp].close();
 			delete frames[frameTimestamp];
 			framesOpen--;
@@ -170,6 +174,7 @@ export const makeKeyframeBank = ({
 				frames[frameTimestamp].close();
 				delete frames[frameTimestamp];
 				framesOpen--;
+				alloctionSize -= frames[frameTimestamp].allocationSize();
 				Log.verbose(
 					logLevel,
 					`[NewVideo] Deleted frame ${frameTimestamp} for src ${src}`,
@@ -179,27 +184,10 @@ export const makeKeyframeBank = ({
 	};
 
 	const getOpenFrameCount = () => {
-		const f = frameTimestamps
-			.map((timestamp) => {
-				const frame = frames[timestamp];
-				return frame;
-			})
-			.filter(Boolean);
-		const {length} = f;
-		const timestamps: number[] = [];
-		const size = f.reduce((acc, frame) => {
-			const allocationSize = frame.allocationSize();
-			if (allocationSize === 0) {
-				Log.verbose(
-					'verbose',
-					`[NewVideo] Frame ${frame.timestamp} has allocation size! ${allocationSize}`,
-				);
-			}
-
-			timestamps.push(frame.timestamp);
-			return acc + allocationSize;
-		}, 0);
-		return {length, size, timestamps};
+		return {
+			size: alloctionSize,
+			timestamps: frameTimestamps,
+		};
 	};
 
 	const keyframeBank: KeyframeBank = {
