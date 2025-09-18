@@ -1,14 +1,14 @@
 ---
-image: /generated/articles-docs-new-video-index.png
-title: '<NewVideo>'
-crumb: 'API'
+image: /generated/articles-docs-media-video.png
+title: '<Video>'
+crumb: 'API - @remotion/media'
 ---
 
 :::warning
 **Very experimental**: This component is in a very early stage and does not support some basic features such as volume or playback rate or CSS styling.
 The current focus is on correctness, not on performance.
 
-We recommend that you use [`<OffthreadVideo/>`](/docs/offthreadvideo) for now.
+We recommend that you use [`<OffthreadVideo />`](/docs/offthreadvideo) for now.
 :::
 
 This component imports and displays a video, similar to [`<OffthreadVideo/>`](/docs/offthreadvideo) but during rendering, extracts the exact frame from the video using [Mediabunny](/docs/mediabunny) and displays it in a `<canvas>` tag.
@@ -78,7 +78,7 @@ export const MyComposition = () => {
 
 ### `trimAfter?`
 
-Removes a portion of the video at the end (right side). See [`trimBefore`](/docs/video#trimbefore) for an explanation.
+Removes a portion of the video at the end (right side). See [`trimBefore`](#trimbefore) for an explanation.
 
 ### `volume?`
 
@@ -147,16 +147,17 @@ A callback function that gets called when a frame is extracted from the video.
 Useful for [video manipulation](/docs/video-manipulation).  
 The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object, more specifically, either an `ImageBitmap` or a `VideoFrame`.
 
-### `crossOrigin?`<AvailableFrom v="4.0.190" />
+### `crossOrigin?`
 
 **Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
 
-### `useWebAudioApi?`<AvailableFrom v="4.0.306" />
+### `useWebAudioApi?`
 
 **Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
 
 ## See also
 
-- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/video/src/new-video.tsx)
-- [`<Video />`](/docs/video)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/media/src/video/video.tsx)
+- [`<Audio />` (from `@remotion/media`)](/docs/media/audio)
+- [`<Video />` (from `remotion`)](/docs/video)
 - [`<OffthreadVideo>`](/docs/offthreadvideo)

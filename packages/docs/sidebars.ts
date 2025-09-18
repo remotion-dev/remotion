@@ -781,9 +781,9 @@ const sidebars: SidebarsConfig = {
 			label: '@remotion/media',
 			link: {
 				type: 'doc',
-				id: 'new-video/index',
+				id: 'media/video',
 			},
-			items: ['new-video/index'],
+			items: ['media/audio', 'media/video'],
 		},
 	],
 	mainSidebar: [
