@@ -27,8 +27,7 @@ export const makeKeyframeManager = () => {
 		for (const src in sources) {
 			for (const bank in sources[src]) {
 				const v = await sources[src][bank];
-				const {length, size, timestamps, allocationSizes} =
-					v.getOpenFrameCount();
+				const {length, size, timestamps} = v.getOpenFrameCount();
 				count += length;
 				totalSize += size;
 				if (size === 0) {
@@ -37,7 +36,7 @@ export const makeKeyframeManager = () => {
 
 				Log.verbose(
 					logLevel,
-					`[NewVideo] Open frames for src ${src}: ${timestamps.join(', ')}, ${allocationSizes.join(', ')}`,
+					`[NewVideo] Open frames for src ${src}: ${timestamps.join(', ')}}`,
 				);
 			}
 		}

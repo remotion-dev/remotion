@@ -22,7 +22,6 @@ export type KeyframeBank = {
 		length: number;
 		size: number;
 		timestamps: number[];
-		allocationSizes: number[];
 	};
 };
 
@@ -188,7 +187,6 @@ export const makeKeyframeBank = ({
 			.filter(Boolean);
 		const {length} = f;
 		const timestamps: number[] = [];
-		const allocationSizes: number[] = [];
 		const size = f.reduce((acc, frame) => {
 			const allocationSize = frame.allocationSize();
 			if (allocationSize === 0) {
@@ -199,10 +197,9 @@ export const makeKeyframeBank = ({
 			}
 
 			timestamps.push(frame.timestamp);
-			allocationSizes.push(allocationSize);
 			return acc + allocationSize;
 		}, 0);
-		return {length, size, timestamps, allocationSizes};
+		return {length, size, timestamps};
 	};
 
 	const keyframeBank: KeyframeBank = {
