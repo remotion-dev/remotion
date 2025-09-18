@@ -778,7 +778,7 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/video',
+			label: '@remotion/media',
 			link: {
 				type: 'doc',
 				id: 'new-video/index',

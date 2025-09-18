@@ -17,7 +17,7 @@ This component imports and displays a video, similar to [`<OffthreadVideo/>`](/d
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_NewVideo as NewVideo} from '@remotion/video';
+import {experimental_NewVideo as NewVideo} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
@@ -32,7 +32,7 @@ You can load a video from an URL as well:
 
 ```tsx twoslash
 import {AbsoluteFill} from 'remotion';
-import {experimental_NewVideo as NewVideo} from '@remotion/video';
+import {experimental_NewVideo as NewVideo} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
   return (
@@ -64,7 +64,7 @@ For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_NewVideo as NewVideo} from '@remotion/video';
+import {experimental_NewVideo as NewVideo} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
@@ -106,7 +106,7 @@ You can drop the audio of the video by adding a `muted` prop:
 
 ```tsx twoslash title="Example of a muted video"
 import {AbsoluteFill, OffthreadVideo} from 'remotion';
-import {experimental_NewVideo as NewVideo} from '@remotion/video';
+import {experimental_NewVideo as NewVideo} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
   return (

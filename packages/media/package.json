@@ -1,5 +1,5 @@
 {
-	"name": "@remotion/video",
+	"name": "@remotion/media",
 	"version": "4.0.350",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

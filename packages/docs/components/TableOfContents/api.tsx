@@ -60,7 +60,7 @@ export const TableOfContents: React.FC = () => {
 				etc.
 			</p>
 			<RemotionTableOfContents />
-			<h2>@remotion/video</h2>
+			<h2>@remotion/media</h2>
 			<p>
 				An experimental <code>&lt;NewVideo /&gt;</code> tag for embedding
 				videos.

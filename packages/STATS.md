@@ -1,4 +1,5 @@
 # Download statistics
+
 Monthly downloads of Remotion packages  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/animated-emoji.svg?style=flat&color=black&label=@remotion/animated-emoji)](https://npmcharts.com/compare/@remotion/animated-emoji?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/animation-utils.svg?style=flat&color=black&label=@remotion/animation-utils)](https://npmcharts.com/compare/@remotion/animation-utils?minimal=true)  
@@ -53,8 +54,8 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/tailwind-v4.svg?style=flat&color=black&label=@remotion/tailwind-v4)](https://npmcharts.com/compare/@remotion/tailwind-v4?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/three.svg?style=flat&color=black&label=@remotion/three)](https://npmcharts.com/compare/@remotion/three?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/transitions.svg?style=flat&color=black&label=@remotion/transitions)](https://npmcharts.com/compare/@remotion/transitions?minimal=true)  
-[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/video.svg?style=flat&color=black&label=@remotion/video)](https://npmcharts.com/compare/@remotion/video?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/media.svg?style=flat&color=black&label=@remotion/media)](https://npmcharts.com/compare/@remotion/media?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/web-renderer.svg?style=flat&color=black&label=@remotion/web-renderer)](https://npmcharts.com/compare/@remotion/web-renderer?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/webcodecs.svg?style=flat&color=black&label=@remotion/webcodecs)](https://npmcharts.com/compare/@remotion/webcodecs?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/whisper-web.svg?style=flat&color=black&label=@remotion/whisper-web)](https://npmcharts.com/compare/@remotion/whisper-web?minimal=true)  
-[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/zod-types.svg?style=flat&color=black&label=@remotion/zod-types)](https://npmcharts.com/compare/@remotion/zod-types?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/zod-types.svg?style=flat&color=black&label=@remotion/zod-types)](https://npmcharts.com/compare/@remotion/zod-types?minimal=true)
