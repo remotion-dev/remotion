@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {Internals, useCurrentFrame} from 'remotion';
+import {Internals, useBufferState, useCurrentFrame} from 'remotion';
 import {Log, type LogLevel} from './log';
 import {MediaPlayer} from './media-player';
 
@@ -28,6 +28,8 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	const [playing] = Timeline.usePlayingState();
 	const sharedAudioContext = useContext(SharedAudioContext);
+	const buffer = useBufferState();
+	const delayHandleRef = useRef<{unblock: () => void} | null>(null);
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
@@ -83,6 +85,11 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		}
 
 		return () => {
+			if (delayHandleRef.current) {
+				delayHandleRef.current.unblock();
+				delayHandleRef.current = null;
+			}
+
 			if (mediaPlayerRef.current) {
 				Log.trace(logLevel, `[NewVideoForPreview] Disposing MediaPlayer`);
 				mediaPlayerRef.current.dispose();
@@ -128,6 +135,31 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 		lastCurrentTimeRef.current = currentTime;
 	}, [currentTime, logLevel, mediaPlayerReady]);
+
+	// sync MediaPlayer stalling with Remotion buffering
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) return;
+
+		mediaPlayer.onStalledChange((isStalled) => {
+			if (isStalled && !delayHandleRef.current) {
+				// Start blocking Remotion playback
+				delayHandleRef.current = buffer.delayPlayback();
+				Log.trace(
+					logLevel,
+					'[NewVideoForPreview] MediaPlayer stalled - blocking Remotion playback',
+				);
+			} else if (!isStalled && delayHandleRef.current) {
+				// Unblock Remotion playback
+				delayHandleRef.current.unblock();
+				delayHandleRef.current = null;
+				Log.trace(
+					logLevel,
+					'[NewVideoForPreview] MediaPlayer unstalled - unblocking Remotion playback',
+				);
+			}
+		});
+	}, [mediaPlayerReady, buffer, logLevel]);
 
 	return (
 		<canvas

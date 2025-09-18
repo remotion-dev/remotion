@@ -47,6 +47,18 @@ export class MediaPlayer {
 
 	private initialized = false;
 	private totalDuration = 0;
+	private actualFps: number | null = null;
+
+	// for remotion buffer state
+	private isStalled = false;
+	private onStalledChangeCallback?: (isStalled: boolean) => void;
+	private lastAudioProgressAtMs = 0;
+	private lastNetworkActivityAtMs = 0;
+	private isNetworkActive = false;
+	private isSeeking = false;
+
+	// A/V sync coordination
+	private canStartAudio = false;
 
 	constructor({
 		canvas,
@@ -74,6 +86,9 @@ export class MediaPlayer {
 
 		this.context = context;
 
+		// Initialize audio progress stopwatch
+		this.resetAudioProgressStopwatch();
+
 		Log.trace(this.logLevel, `[MediaPlayer] Created for src: ${src}`);
 	}
 
@@ -89,8 +104,14 @@ export class MediaPlayer {
 				`[MediaPlayer] Initializing at startTime: ${startTime.toFixed(3)}s...`,
 			);
 
+			const urlSource = new UrlSource(this.src);
+			urlSource.onread = () => {
+				this.lastNetworkActivityAtMs = performance.now();
+				this.isNetworkActive = true;
+			};
+
 			const input = new Input({
-				source: new UrlSource(this.src),
+				source: urlSource,
 				formats: ALL_FORMATS,
 			});
 
@@ -110,12 +131,26 @@ export class MediaPlayer {
 
 				this.canvas.width = videoTrack.displayWidth;
 				this.canvas.height = videoTrack.displayHeight;
+
+				// Extract actual FPS for stall detection
+				const packetStats = await videoTrack.computePacketStats();
+				this.actualFps = packetStats.averagePacketRate;
+
+				Log.trace(
+					this.logLevel,
+					`[MediaPlayer] Detected video FPS: ${this.actualFps}`,
+				);
 			}
 
 			if (audioTrack && this.sharedAudioContext) {
 				this.audioSink = new AudioBufferSink(audioTrack);
 				this.gainNode = this.sharedAudioContext.createGain();
 				this.gainNode.connect(this.sharedAudioContext.destination);
+			}
+
+			// For audio-only content, allow audio to start immediately
+			if (!videoTrack && audioTrack) {
+				this.canStartAudio = true;
 			}
 
 			// Initialize timing offset based on actual starting position
@@ -130,10 +165,6 @@ export class MediaPlayer {
 			this.initialized = true;
 
 			await this.startVideoIterator(startTime);
-
-			if (this.audioSink) {
-				this.audioBufferIterator = this.audioSink.buffers(startTime);
-			}
 
 			this.startRenderLoop();
 
@@ -174,12 +205,14 @@ export class MediaPlayer {
 				this.logLevel,
 				`[MediaPlayer] Significant seek to ${newTime.toFixed(3)}s - creating new iterator`,
 			);
-			this.startVideoIterator(newTime);
+			this.isSeeking = true;
+			this.canStartAudio = false;
+			this.updateStalledState();
 
-			// if playing, restart audio iterator at new position
+			// Stop existing audio first
 			if (this.playing && this.audioSink) {
 				this.audioBufferIterator?.return();
-				this.audioBufferIterator = this.audioSink.buffers(newTime);
+				this.audioBufferIterator = null;
 
 				// Stop current audio nodes
 				for (const node of this.queuedAudioNodes) {
@@ -187,9 +220,10 @@ export class MediaPlayer {
 				}
 
 				this.queuedAudioNodes.clear();
-
-				this.runAudioIterator();
 			}
+
+			// Start video iterator (which will open audio gate when ready)
+			this.startVideoIterator(newTime);
 		} else {
 			Log.trace(
 				this.logLevel,
@@ -257,15 +291,8 @@ export class MediaPlayer {
 			Log.trace(this.logLevel, `[MediaPlayer] Play - starting render loop`);
 			this.startRenderLoop();
 
-			// start audio iterator if we have audio
-			if (this.audioSink) {
-				// clean up existing iterator and start a new one
-				await this.audioBufferIterator?.return();
-				this.audioBufferIterator = this.audioSink.buffers(
-					this.getPlaybackTime(),
-				);
-				this.runAudioIterator();
-			}
+			// Audio will start automatically when video signals readiness via tryStartAudio()
+			this.tryStartAudio();
 		}
 	}
 
@@ -337,6 +364,14 @@ export class MediaPlayer {
 		return this.playing;
 	}
 
+	public get stalled(): boolean {
+		return this.isStalled;
+	}
+
+	public onStalledChange(callback: (isStalled: boolean) => void): void {
+		this.onStalledChangeCallback = callback;
+	}
+
 	private renderSingleFrame(): void {
 		const currentPlaybackTime = this.getPlaybackTime();
 
@@ -346,6 +381,11 @@ export class MediaPlayer {
 				`[MediaPlayer] Single frame update at ${this.nextFrame.timestamp.toFixed(3)}s`,
 			);
 			this.context.drawImage(this.nextFrame.canvas, 0, 0);
+			// For video-only content, track video progress as audio progress
+			if (!this.audioSink) {
+				this.resetAudioProgressStopwatch();
+			}
+
 			this.nextFrame = null;
 			this.updateNextFrame();
 		}
@@ -376,10 +416,17 @@ export class MediaPlayer {
 				`[MediaPlayer] Drawing frame at ${this.nextFrame.timestamp.toFixed(3)}s (playback time: ${currentPlaybackTime.toFixed(3)}s)`,
 			);
 			this.context.drawImage(this.nextFrame.canvas, 0, 0);
+			// For video-only content, track video progress as audio progress
+			if (!this.audioSink) {
+				this.resetAudioProgressStopwatch();
+			}
+
 			this.nextFrame = null;
 
 			this.updateNextFrame();
 		}
+
+		this.updateStalledState();
 
 		// continue render loop only if playing
 		if (this.playing) {
@@ -419,16 +466,35 @@ export class MediaPlayer {
 					`[MediaPlayer] Drew initial frame ${firstFrame.timestamp.toFixed(3)}s`,
 				);
 				this.context.drawImage(firstFrame.canvas, 0, 0);
+				// For video-only content, track video progress as audio progress
+				if (!this.audioSink) {
+					this.resetAudioProgressStopwatch();
+				}
+
+				this.canStartAudio = true;
+				this.isSeeking = false;
+				this.tryStartAudio();
 			}
 
-			this.nextFrame = secondFrame;
+			this.nextFrame = secondFrame ?? null;
 
 			if (secondFrame) {
 				Log.trace(
 					this.logLevel,
 					`[MediaPlayer] Buffered next frame ${secondFrame.timestamp.toFixed(3)}s`,
 				);
+				// For video-only content, track video progress as audio progress
+				if (!this.audioSink) {
+					this.resetAudioProgressStopwatch();
+				}
+
+				if (!this.canStartAudio) {
+					this.canStartAudio = true;
+					this.tryStartAudio();
+				}
 			}
+
+			this.updateStalledState();
 		} catch (error) {
 			Log.error('[MediaPlayer] Failed to start video iterator', error);
 		}
@@ -463,19 +529,142 @@ export class MediaPlayer {
 						`[MediaPlayer] Drawing immediate frame ${newNextFrame.timestamp.toFixed(3)}s`,
 					);
 					this.context.drawImage(newNextFrame.canvas, 0, 0);
+					// For video-only content, track video progress as audio progress
+					if (!this.audioSink) {
+						this.resetAudioProgressStopwatch();
+					}
 				} else {
 					this.nextFrame = newNextFrame;
 					Log.trace(
 						this.logLevel,
 						`[MediaPlayer] Buffered next frame ${newNextFrame.timestamp.toFixed(3)}s`,
 					);
+					// For video-only content, track video progress as audio progress
+					if (!this.audioSink) {
+						this.resetAudioProgressStopwatch();
+					}
+
+					// Open audio gate when new frames become available
+					if (!this.canStartAudio) {
+						this.canStartAudio = true;
+						this.tryStartAudio();
+					}
+
 					break;
 				}
 			}
 		} catch (error) {
 			Log.error('[MediaPlayer] Failed to update next frame', error);
 		}
+
+		this.updateStalledState();
 	};
+
+	// A/V sync coordination methods (WIP)
+	private tryStartAudio(): void {
+		// Only start if: playing + audio exists + gate is open + not already started
+		if (
+			this.playing &&
+			this.audioSink &&
+			this.canStartAudio &&
+			!this.audioBufferIterator
+		) {
+			this.audioBufferIterator = this.audioSink.buffers(this.getPlaybackTime());
+			this.runAudioIterator();
+			this.resetAudioProgressStopwatch();
+
+			Log.trace(
+				this.logLevel,
+				'[MediaPlayer] Audio started - A/V sync established',
+			);
+		}
+	}
+
+	// Stall detection methods
+	private resetAudioProgressStopwatch(): void {
+		this.lastAudioProgressAtMs = performance.now();
+	}
+
+	private getAudioLookaheadSec(): number {
+		if (!this.sharedAudioContext) return 0;
+		return this.expectedAudioTime - this.sharedAudioContext.currentTime;
+	}
+
+	private calculateAudioStallThresholdSec(): number {
+		return 0.2; // Need 200ms of audio scheduled ahead
+	}
+
+	private isNetworkStalled(): boolean {
+		const nowMs = performance.now();
+		const timeSinceNetworkMs = nowMs - this.lastNetworkActivityAtMs;
+
+		if (timeSinceNetworkMs > 100) {
+			this.isNetworkActive = false;
+		}
+
+		return this.isNetworkActive || timeSinceNetworkMs < 500;
+	}
+
+	private checkVideoStall(): boolean {
+		if (!this.actualFps) return false;
+
+		const nowMs = performance.now();
+		const frameIntervalMs = 1000 / this.actualFps;
+		const STALL_FRAME_COUNT = 6;
+		const calculatedThresholdMs = frameIntervalMs * STALL_FRAME_COUNT;
+		const MIN_THRESHOLD_MS = 150;
+		const MAX_THRESHOLD_MS = 300;
+		const threshold = Math.min(
+			Math.max(calculatedThresholdMs, MIN_THRESHOLD_MS),
+			MAX_THRESHOLD_MS,
+		);
+
+		// Use a separate video progress tracker for video-only content
+		const timeSinceVideoProgressMs = nowMs - this.lastAudioProgressAtMs; // Reuse for now
+
+		return (
+			!this.nextFrame &&
+			timeSinceVideoProgressMs > threshold &&
+			this.playing &&
+			this.currentTime < this.duration
+		);
+	}
+
+	private checkIfStalled(): boolean {
+		const nowMs = performance.now();
+
+		// Audio stall detection (primary)
+		if (this.audioSink && this.playing) {
+			const audioLookaheadSec = this.getAudioLookaheadSec();
+			const timeSinceAudioProgressMs = nowMs - this.lastAudioProgressAtMs;
+			const audioStallThresholdMs = 300; // 300ms without audio progress
+
+			const isAudioStarved =
+				audioLookaheadSec < this.calculateAudioStallThresholdSec() &&
+				timeSinceAudioProgressMs > audioStallThresholdMs;
+
+			if (isAudioStarved && this.isNetworkStalled()) {
+				return true; // Audio is starved and it's network-related
+			}
+		}
+
+		// Video stall detection (fallback for video-only content)
+		if (!this.audioSink) {
+			return this.checkVideoStall() && this.isNetworkStalled();
+		}
+
+		// Seeking always stalls
+		return this.isSeeking;
+	}
+
+	private updateStalledState(): void {
+		const wasStalled = this.isStalled;
+		this.isStalled = this.checkIfStalled();
+
+		if (this.isStalled !== wasStalled) {
+			this.onStalledChangeCallback?.(this.isStalled);
+		}
+	}
 
 	private runAudioIterator = async (): Promise<void> => {
 		if (
@@ -518,6 +707,10 @@ export class MediaPlayer {
 
 				// update expected time for next chunk to ensure sample-perfect continuity
 				this.expectedAudioTime += buffer.duration;
+
+				// Track audio progress for stall detection
+				this.resetAudioProgressStopwatch();
+				this.updateStalledState();
 
 				// If we're more than a second ahead of the current playback time, let's slow down the loop until time has
 				// passed. Use timestamp for throttling logic as it represents media time.
