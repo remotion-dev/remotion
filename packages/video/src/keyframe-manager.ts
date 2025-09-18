@@ -204,10 +204,26 @@ export const makeKeyframeManager = () => {
 		return keyframeBank;
 	};
 
+	const clearAll = async () => {
+		const srcs = Object.keys(sources);
+		for (const src of srcs) {
+			const banks = Object.keys(sources[src]);
+
+			for (const startTimeInSeconds of banks) {
+				const bank =
+					await sources[src][startTimeInSeconds as unknown as number];
+
+				await bank.prepareForDeletion();
+				delete sources[src][startTimeInSeconds as unknown as number];
+			}
+		}
+	};
+
 	return {
 		requestKeyframeBank,
 		addKeyframeBank,
 		getCacheStats,
+		clearAll,
 	};
 };
 
