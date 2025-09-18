@@ -37,7 +37,7 @@ export const convertAudioData = ({
 		numberOfFrames -
 		Math.round((trimEndInSeconds + trimStartInSeconds) * audioData.sampleRate);
 
-	const newNumberOfFrames = Math.floor(frameCount / ratio);
+	const newNumberOfFrames = Math.round(frameCount / ratio);
 
 	if (newNumberOfFrames === 0) {
 		throw new Error(

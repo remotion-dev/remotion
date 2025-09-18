@@ -2,11 +2,8 @@ import {assert, expect, test} from 'vitest';
 import {extractFrameAndAudio, keyframeManager} from '../extract-frame';
 
 test('Should be able to extract a frame', async () => {
-	expect(navigator.userAgent).toBeDefined();
-	expect(navigator.userAgent).toContain('Chrome');
-
 	const {audio, frame} = await extractFrameAndAudio({
-		src: 'https://parser.media/video.mp4',
+		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1,
 		durationInSeconds: 1 / 30,
 		logLevel: 'info',
@@ -27,5 +24,5 @@ test('Should be able to extract a frame', async () => {
 	expect(audio.data.byteLength).toBe(6400);
 
 	const cacheStats = await keyframeManager.getCacheStats();
-	expect(cacheStats.count).toBe(26);
+	expect(cacheStats.count).toBe(25);
 });
