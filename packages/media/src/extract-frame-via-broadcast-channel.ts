@@ -78,7 +78,7 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 	);
 }
 
-export const extractFrameViaBroadcastChannel = async ({
+export const extractFrameViaBroadcastChannel = ({
 	src,
 	timeInSeconds,
 	logLevel,
@@ -101,7 +101,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	audio: PcmS16AudioData | null;
 }> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
-		const {frame, audio} = await extractFrameAndAudio({
+		return extractFrameAndAudio({
 			logLevel,
 			src,
 			timeInSeconds,
@@ -110,15 +110,6 @@ export const extractFrameViaBroadcastChannel = async ({
 			includeVideo,
 			volume,
 		});
-
-		return {
-			frame,
-			audio,
-		};
-	}
-
-	if (typeof window.remotion_isMainTab === 'undefined') {
-		throw new Error('This should be defined');
 	}
 
 	const requestId = crypto.randomUUID();

@@ -97,18 +97,18 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 			durationInSeconds,
 			logLevel: logLevel ?? 'info',
 			includeAudio: shouldRenderAudio,
-			includeVideo: true,
+			includeVideo: window.remotion_videoEnabled,
 			isClientSideRendering: environment.isClientSideRendering,
 			volume,
 		})
 			.then(({frame: imageBitmap, audio}) => {
-				if (!imageBitmap) {
+				if (imageBitmap) {
+					onVideoFrame?.(imageBitmap);
+					canvasRef.current?.getContext('2d')?.drawImage(imageBitmap, 0, 0);
+					imageBitmap.close();
+				} else if (window.remotion_videoEnabled) {
 					cancelRender(new Error('No video frame found'));
 				}
-
-				onVideoFrame?.(imageBitmap);
-				canvasRef.current?.getContext('2d')?.drawImage(imageBitmap, 0, 0);
-				imageBitmap.close();
 
 				if (audio) {
 					registerRenderAsset({
