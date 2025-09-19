@@ -1,7 +1,7 @@
 import type {LogLevel} from 'remotion';
 import type {PcmS16AudioData} from './convert-audiodata/convert-audiodata';
+import {extractAudio} from './extract-audio';
 import {extractFrame} from './extract-frame';
-import {extractAudio} from './extrct-audio';
 
 export const extractFrameAndAudio = async ({
 	src,
