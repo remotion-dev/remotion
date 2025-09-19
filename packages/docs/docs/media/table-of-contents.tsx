@@ -7,7 +7,7 @@ export const TableOfContents: React.FC = () => {
 		<div>
 			<Grid>
 				<TOCItem link="/docs/media/video">
-					<strong>{'<Viewo>'}</strong>
+					<strong>{'<Video>'}</strong>
 					<div>
 						WebCodecs-based video tag for efficient and accurate embedding
 					</div>
