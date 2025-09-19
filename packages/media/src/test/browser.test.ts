@@ -50,7 +50,7 @@ test('Should manage the cache', async () => {
 	expect(cacheStats.totalSize).toBe(1002240000);
 });
 
-test.only('Should be able to extract a frame', async () => {
+test('Should be apply volume correctly', async () => {
 	await keyframeManager.clearAll();
 
 	const {audio: audioAtHalfVolume} = await extractFrameAndAudio({
@@ -75,10 +75,11 @@ test.only('Should be able to extract a frame', async () => {
 
 	assert(!frame);
 
-	const totalAudioAtFullVolume = audioAtFullVolume?.data.reduce(
-		(acc, curr) => acc + curr * 0.5,
-		0,
-	);
+	const totalAudioAtFullVolume = audioAtFullVolume?.data.reduce((acc, curr) => {
+		const unrounded = curr * 0.5;
+		const rounded = curr > 0 ? Math.floor(unrounded) : Math.ceil(unrounded);
+		return acc + rounded;
+	}, 0);
 	assert(audioAtHalfVolume);
 	const totalAudioAtHalfVolume = audioAtHalfVolume?.data.reduce(
 		(acc, curr) => acc + curr,

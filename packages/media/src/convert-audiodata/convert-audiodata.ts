@@ -79,7 +79,7 @@ export const convertAudioData = ({
 
 	resampleAudioData({
 		srcNumberOfChannels,
-		source: srcChannels,
+		sourceChannels: srcChannels,
 		destination: data,
 		targetFrames: newNumberOfFrames,
 		chunkSize,
@@ -87,7 +87,7 @@ export const convertAudioData = ({
 	});
 
 	const newAudioData = {
-		data: srcChannels,
+		data,
 		format: FORMAT,
 		numberOfChannels: targetNumberOfChannels,
 		numberOfFrames: newNumberOfFrames,

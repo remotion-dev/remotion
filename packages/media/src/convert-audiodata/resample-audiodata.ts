@@ -6,49 +6,51 @@ export const TARGET_SAMPLE_RATE = 48000;
 
 export const resampleAudioData = ({
 	srcNumberOfChannels,
-	source: srcChannels,
+	sourceChannels,
 	destination,
 	targetFrames,
 	chunkSize,
 	volume,
 }: {
 	srcNumberOfChannels: number;
-	source: Int16Array;
+	sourceChannels: Int16Array;
 	destination: Int16Array;
 	targetFrames: number;
 	chunkSize: number;
 	volume: number;
 }) => {
+	const getSourceValues = (
+		start: number,
+		end: number,
+		channelIndex: number,
+	) => {
+		const sampleCountAvg = end - start;
+
+		let itemSum = 0;
+		let itemCount = 0;
+		for (let k = 0; k < sampleCountAvg; k++) {
+			const num =
+				sourceChannels[(start + k) * srcNumberOfChannels + channelIndex];
+			itemSum += num;
+			itemCount++;
+		}
+
+		const average = itemSum / itemCount;
+
+		return average * volume;
+	};
+
 	for (let newFrameIndex = 0; newFrameIndex < targetFrames; newFrameIndex++) {
 		const start = Math.floor(newFrameIndex * chunkSize);
 		const end = Math.max(Math.floor(start + chunkSize), start + 1);
 
-		const sourceValues: number[] = new Array(srcNumberOfChannels).fill(0);
-
-		for (
-			let channelIndex = 0;
-			channelIndex < srcNumberOfChannels;
-			channelIndex++
-		) {
-			const sampleCountAvg = end - start;
-
-			let itemSum = 0;
-			let itemCount = 0;
-			for (let k = 0; k < sampleCountAvg; k++) {
-				const num =
-					srcChannels[(start + k) * srcNumberOfChannels + channelIndex];
-				itemSum += num;
-				itemCount++;
-			}
-
-			const average = itemSum / itemCount;
-
-			sourceValues[channelIndex] = average * volume;
-		}
-
 		if (TARGET_NUMBER_OF_CHANNELS === srcNumberOfChannels) {
 			for (let i = 0; i < srcNumberOfChannels; i++) {
-				destination[newFrameIndex * srcNumberOfChannels + i] = sourceValues[i];
+				destination[newFrameIndex * srcNumberOfChannels + i] = getSourceValues(
+					start,
+					end,
+					i,
+				);
 			}
 		}
 
@@ -57,7 +59,7 @@ export const resampleAudioData = ({
 
 		// Mono to Stereo: M -> L, M -> R
 		if (srcNumberOfChannels === 1) {
-			const m = sourceValues[0];
+			const m = getSourceValues(start, end, 0);
 
 			destination[newFrameIndex * 2 + 0] = m;
 			destination[newFrameIndex * 2 + 1] = m;
@@ -65,10 +67,10 @@ export const resampleAudioData = ({
 
 		// Quad to Stereo: 0.5 * (L + SL), 0.5 * (R + SR)
 		else if (srcNumberOfChannels === 4) {
-			const l = sourceValues[0];
-			const r = sourceValues[1];
-			const sl = sourceValues[2];
-			const sr = sourceValues[3];
+			const l = getSourceValues(start, end, 0);
+			const r = getSourceValues(start, end, 1);
+			const sl = getSourceValues(start, end, 2);
+			const sr = getSourceValues(start, end, 3);
 
 			const l2 = 0.5 * (l + sl);
 			const r2 = 0.5 * (r + sr);
@@ -79,11 +81,11 @@ export const resampleAudioData = ({
 
 		// 5.1 to Stereo: L + sqrt(1/2) * (C + SL), R + sqrt(1/2) * (C + SR)
 		else if (srcNumberOfChannels === 6) {
-			const l = sourceValues[0];
-			const r = sourceValues[1];
-			const c = sourceValues[2];
-			const sl = sourceValues[3];
-			const sr = sourceValues[4];
+			const l = getSourceValues(start, end, 0);
+			const r = getSourceValues(start, end, 1);
+			const c = getSourceValues(start, end, 2);
+			const sl = getSourceValues(start, end, 3);
+			const sr = getSourceValues(start, end, 4);
 
 			const l2 = l + Math.sqrt(1 / 2) * (c + sl);
 			const r2 = r + Math.sqrt(1 / 2) * (c + sr);
@@ -96,7 +98,7 @@ export const resampleAudioData = ({
 		else {
 			for (let i = 0; i < srcNumberOfChannels; i++) {
 				destination[newFrameIndex * TARGET_NUMBER_OF_CHANNELS + i] =
-					sourceValues[i];
+					getSourceValues(start, end, i);
 			}
 		}
 	}
