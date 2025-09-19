@@ -5,7 +5,7 @@
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/video"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media"
 	},
 	"sideEffects": false,
 	"author": "Hunain Ahmed <junaidhunain6@gmail.com>",
@@ -49,5 +49,6 @@
 		},
 		"./package.json": "./package.json"
 	},
-	"description": "Experimental tag for reliable and accurate video embedding"
+	"description": "Experimental WebCodecs-based media tags",
+	"homepage": "https://remotion.dev/docs/media"
 }
