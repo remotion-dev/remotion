@@ -175,6 +175,7 @@ export const makeKeyframeBank = ({
 
 				alloctionSize -= frames[frameTimestamp].allocationSize();
 
+				frameTimestamps.splice(frameTimestamps.indexOf(frameTimestamp), 1);
 				frames[frameTimestamp].close();
 				delete frames[frameTimestamp];
 

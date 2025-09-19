@@ -38,7 +38,7 @@ export const makeKeyframeManager = () => {
 
 				Log.verbose(
 					logLevel,
-					`[Video] Open frames for src ${src}: ${timestamps.join(', ')}}`,
+					`[Video] Open frames for src ${src}: ${timestamps.join(', ')}`,
 				);
 			}
 		}
