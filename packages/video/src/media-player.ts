@@ -106,7 +106,7 @@ export class MediaPlayer {
 
 			const urlSource = new UrlSource(this.src);
 			urlSource.onread = () => {
-				this.lastNetworkActivityAtMs = performance.now();
+				this.lastNetworkActivityAtMs = this.getCurrentTimeMs();
 				this.isNetworkActive = true;
 			};
 
@@ -160,6 +160,9 @@ export class MediaPlayer {
 					this.logLevel,
 					`[MediaPlayer] Set mediaTimeOffset to ${this.mediaTimeOffset.toFixed(3)}s (audioContext: ${this.sharedAudioContext.currentTime.toFixed(3)}s, startTime: ${startTime.toFixed(3)}s)`,
 				);
+
+				this.lastAudioProgressAtMs = this.getCurrentTimeMs();
+				this.lastNetworkActivityAtMs = this.getCurrentTimeMs();
 			}
 
 			this.initialized = true;
@@ -580,9 +583,18 @@ export class MediaPlayer {
 		}
 	}
 
+	// Unified time reference for stall detection
+	private getCurrentTimeMs(): number {
+		if (!this.sharedAudioContext) {
+			return performance.now();
+		}
+
+		return this.sharedAudioContext.currentTime * 1000;
+	}
+
 	// Stall detection methods
 	private resetAudioProgressStopwatch(): void {
-		this.lastAudioProgressAtMs = performance.now();
+		this.lastAudioProgressAtMs = this.getCurrentTimeMs();
 	}
 
 	private getAudioLookaheadSec(): number {
@@ -595,20 +607,20 @@ export class MediaPlayer {
 	}
 
 	private isNetworkStalled(): boolean {
-		const nowMs = performance.now();
+		const nowMs = this.getCurrentTimeMs();
 		const timeSinceNetworkMs = nowMs - this.lastNetworkActivityAtMs;
 
 		if (timeSinceNetworkMs > 100) {
 			this.isNetworkActive = false;
 		}
 
-		return this.isNetworkActive || timeSinceNetworkMs < 500;
+		return !this.isNetworkActive && timeSinceNetworkMs >= 500;
 	}
 
 	private checkVideoStall(): boolean {
 		if (!this.actualFps) return false;
 
-		const nowMs = performance.now();
+		const nowMs = this.getCurrentTimeMs();
 		const frameIntervalMs = 1000 / this.actualFps;
 		const STALL_FRAME_COUNT = 6;
 		const calculatedThresholdMs = frameIntervalMs * STALL_FRAME_COUNT;
@@ -631,39 +643,29 @@ export class MediaPlayer {
 	}
 
 	private checkIfStalled(): boolean {
-		const nowMs = performance.now();
-
-		// Audio stall detection (primary)
+		// Only check what matters for playback readiness
 		if (this.audioSink && this.playing) {
 			const audioLookaheadSec = this.getAudioLookaheadSec();
-			const timeSinceAudioProgressMs = nowMs - this.lastAudioProgressAtMs;
-			const audioStallThresholdMs = 300; // 300ms without audio progress
-
 			const isAudioStarved =
-				audioLookaheadSec < this.calculateAudioStallThresholdSec() &&
-				timeSinceAudioProgressMs > audioStallThresholdMs;
+				audioLookaheadSec < this.calculateAudioStallThresholdSec();
 
-			if (isAudioStarved && this.isNetworkStalled()) {
-				return true; // Audio is starved and it's network-related
-			}
+			return isAudioStarved && this.isNetworkStalled();
 		}
 
-		// Video stall detection (fallback for video-only content)
+		// Video-only fallback
 		if (!this.audioSink) {
 			return this.checkVideoStall() && this.isNetworkStalled();
 		}
 
-		// Seeking always stalls
-		return this.isSeeking;
+		return false; // Remove: return this.isSeeking;
 	}
 
 	private updateStalledState(): void {
-		const wasStalled = this.isStalled;
-		this.isStalled = this.checkIfStalled();
+		const isStalled = this.checkIfStalled();
 
-		if (this.isStalled !== wasStalled) {
-			this.onStalledChangeCallback?.(this.isStalled);
-		}
+		this.isStalled = isStalled;
+
+		this.onStalledChangeCallback?.(isStalled);
 	}
 
 	private runAudioIterator = async (): Promise<void> => {
@@ -677,24 +679,16 @@ export class MediaPlayer {
 		}
 
 		try {
-			// Initialize expected audio time to current position for sample-perfect continuity
 			this.expectedAudioTime = this.sharedAudioContext.currentTime;
 
-			// to play back audio, we loop over all audio chunks (typically very short) of the file and play them at the correct
-			// timestamp. the result is a continuous, uninterrupted audio signal.
 			for await (const {buffer, timestamp} of this.audioBufferIterator) {
 				const node = this.sharedAudioContext.createBufferSource();
 				node.buffer = buffer;
 				node.connect(this.gainNode);
 
-				// use expectedAudioTime for sample-perfect continuity instead of timestamp-based scheduling
-				// This ensures no gaps or overlaps between audio chunks
 				if (this.expectedAudioTime >= this.sharedAudioContext.currentTime) {
-					// If the audio starts in the future, schedule it at expected time
 					node.start(this.expectedAudioTime);
 				} else {
-					// if it starts in the past, play the audible section with proper offset
-					// in web audio api, we cannot schedule the start time in the past, so we need to use the current time and an offset
 					const offset =
 						this.sharedAudioContext.currentTime - this.expectedAudioTime;
 					node.start(this.sharedAudioContext.currentTime, offset);
@@ -705,11 +699,8 @@ export class MediaPlayer {
 					this.queuedAudioNodes.delete(node);
 				};
 
-				// update expected time for next chunk to ensure sample-perfect continuity
 				this.expectedAudioTime += buffer.duration;
 
-				// Track audio progress for stall detection
-				this.resetAudioProgressStopwatch();
 				this.updateStalledState();
 
 				// If we're more than a second ahead of the current playback time, let's slow down the loop until time has
