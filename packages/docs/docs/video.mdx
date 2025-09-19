@@ -132,7 +132,7 @@ import {AbsoluteFill, interpolate, staticFile, Video} from 'remotion';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('video.webm')} />
+      <Video volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };

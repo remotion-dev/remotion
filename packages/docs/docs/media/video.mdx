@@ -4,6 +4,11 @@ title: '<Video>'
 crumb: 'API - @remotion/media'
 ---
 
+:::note
+This is documentation for the upcoming new `<Video>` tag.  
+Not to be confused with the older [`<Video>`](/docs/video) tag from `remotion`.
+:::
+
 :::warning
 **Very experimental**: This component is in a very early stage and does not support some basic features such as volume or playback rate or CSS styling.
 The current focus is on correctness, not on performance.
@@ -82,7 +87,36 @@ Removes a portion of the video at the end (right side). See [`trimBefore`](#trim
 
 ### `volume?`
 
-**Currently not supported!**
+### `volume?`
+
+Allows you to control the volume of the audio in it's entirety or frame by frame.  
+Read the page on [using audio](/docs/using-audio) to learn more.
+
+```tsx twoslash title="Setting a static volume"
+import {AbsoluteFill, staticFile} from 'remotion';
+import {experimental_Video as Video} from '@remotion/media';
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Video volume={0.5} src={staticFile('video.webm')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+```tsx twoslash title="Changing the volume over time"
+import {AbsoluteFill, interpolate, staticFile} from 'remotion';
+import {experimental_Video as Video} from '@remotion/media';
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Video volume={(f) => interpolate(f, [0, 30], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={'https://parser.media/video.mp4'} />
+    </AbsoluteFill>
+  );
+};
+```
 
 ### `loopVolumeCurveBehavior?`
 
