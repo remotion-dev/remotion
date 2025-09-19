@@ -1,4 +1,3 @@
-import type {AudioSample} from 'mediabunny';
 import {combineAudioDataAndClosePrevious} from '../convert-audiodata/combine-audiodata';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {convertAudioData} from '../convert-audiodata/convert-audiodata';
@@ -43,24 +42,11 @@ export const extractAudio = async ({
 		isMatroska,
 		actualMatroskaTimestamps,
 	});
-	const samples: AudioSample[] = [];
 
-	while (true) {
-		const sample = await sampleIterator.getNextSample();
-		if (sample === null) {
-			break;
-		}
-
-		if (sample.timestamp + sample.duration - 0.0000000001 <= timeInSeconds) {
-			continue;
-		}
-
-		if (sample.timestamp >= timeInSeconds + durationInSeconds - 0.0000000001) {
-			break;
-		}
-
-		samples.push(sample);
-	}
+	const samples = await sampleIterator.getSamples(
+		timeInSeconds,
+		durationInSeconds,
+	);
 
 	const audioDataArray: PcmS16AudioData[] = [];
 	for (let i = 0; i < samples.length; i++) {
