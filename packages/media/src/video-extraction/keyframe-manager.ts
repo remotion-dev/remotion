@@ -1,10 +1,13 @@
 import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
+import {
+	getTotalCacheStats,
+	MAX_CACHE_SIZE,
+	SAFE_BACK_WINDOW_IN_SECONDS,
+} from '../caches';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
 import {getFramesSinceKeyframe} from './get-frames-since-keyframe';
 import {type KeyframeBank} from './keyframe-bank';
-
-const MAX_CACHE_SIZE = 1000 * 1000 * 1000; // 1GB
 
 export const makeKeyframeManager = () => {
 	// src => {[startTimestampInSeconds]: KeyframeBank
@@ -26,6 +29,7 @@ export const makeKeyframeManager = () => {
 	const logCacheStats = async (logLevel: LogLevel) => {
 		let count = 0;
 		let totalSize = 0;
+
 		for (const src in sources) {
 			for (const bank in sources[src]) {
 				const v = await sources[src][bank];
@@ -52,6 +56,7 @@ export const makeKeyframeManager = () => {
 	const getCacheStats = async () => {
 		let count = 0;
 		let totalSize = 0;
+
 		for (const src in sources) {
 			for (const bank in sources[src]) {
 				const v = await sources[src][bank];
@@ -90,24 +95,28 @@ export const makeKeyframeManager = () => {
 		return mostInThePastBank;
 	};
 
+	const deleteOldestKeyframeBank = async (logLevel: LogLevel) => {
+		const {bank: mostInThePastBank, src: mostInThePastSrc} =
+			await getTheKeyframeBankMostInThePast();
+
+		if (mostInThePastBank) {
+			await mostInThePastBank.prepareForDeletion();
+			delete sources[mostInThePastSrc][
+				mostInThePastBank.startTimestampInSeconds
+			];
+			Log.verbose(
+				logLevel,
+				`[Video] Deleted frames for src ${mostInThePastSrc} from ${mostInThePastBank.startTimestampInSeconds}sec to ${mostInThePastBank.endTimestampInSeconds}sec to free up memory.`,
+			);
+		}
+	};
+
 	const ensureToStayUnderMaxCacheSize = async (logLevel: LogLevel) => {
-		let cacheStats = await getCacheStats();
+		let cacheStats = await getTotalCacheStats();
+
 		while (cacheStats.totalSize > MAX_CACHE_SIZE) {
-			const {bank: mostInThePastBank, src: mostInThePastSrc} =
-				await getTheKeyframeBankMostInThePast();
-
-			if (mostInThePastBank) {
-				await mostInThePastBank.prepareForDeletion();
-				delete sources[mostInThePastSrc][
-					mostInThePastBank.startTimestampInSeconds
-				];
-				Log.verbose(
-					logLevel,
-					`[Video] Deleted frames for src ${mostInThePastSrc} from ${mostInThePastBank.startTimestampInSeconds}sec to ${mostInThePastBank.endTimestampInSeconds}sec to free up memory.`,
-				);
-			}
-
-			cacheStats = await getCacheStats();
+			await deleteOldestKeyframeBank(logLevel);
+			cacheStats = await getTotalCacheStats();
 		}
 	};
 
@@ -120,8 +129,6 @@ export const makeKeyframeManager = () => {
 		src: string;
 		logLevel: LogLevel;
 	}) => {
-		// TODO: make it dependent on the fps and concurrency
-		const SAFE_BACK_WINDOW_IN_SECONDS = 1;
 		const threshold = timestampInSeconds - SAFE_BACK_WINDOW_IN_SECONDS;
 
 		if (!sources[src]) {

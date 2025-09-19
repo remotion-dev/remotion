@@ -1,4 +1,5 @@
 import type {AudioSample, AudioSampleSink} from 'mediabunny';
+import {SAFE_BACK_WINDOW_IN_SECONDS} from '../caches';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
@@ -38,7 +39,11 @@ export const makeAudioIterator = ({
 
 	const cache = makeAudioCache();
 
+	let lastUsed = Date.now();
+
 	const getNextSample = async () => {
+		lastUsed = Date.now();
+
 		const {value: sample, done} = await sampleIterator.next();
 		if (done) {
 			fullDuration = cache.getNewestTimestamp() ?? null;
@@ -64,13 +69,15 @@ export const makeAudioIterator = ({
 	};
 
 	const getSamples = async (timestamp: number, durationInSeconds: number) => {
+		lastUsed = Date.now();
+
 		if (fullDuration !== null && timestamp > fullDuration) {
 			return [];
 		}
 
 		// Clear all samples before the timestamp
 		// Do this in the while loop because samples might start from 0
-		cache.clearBeforeThreshold(timestamp - 1);
+		cache.clearBeforeThreshold(timestamp - SAFE_BACK_WINDOW_IN_SECONDS);
 
 		const samples: AudioSample[] = cache.getSamples(
 			timestamp,
@@ -109,6 +116,13 @@ export const makeAudioIterator = ({
 		);
 	};
 
+	const getCacheStats = () => {
+		return {
+			count: cache.getOpenTimestamps().length,
+			size: cache.getOpenTimestamps().reduce((acc, t) => acc + t, 0),
+		};
+	};
+
 	const canSatisfyRequestedTime = (timestamp: number) => {
 		const oldestTimestamp = cache.getOldestTimestamp() ?? startTimestamp;
 		if (fullDuration !== null && timestamp > fullDuration) {
@@ -118,6 +132,16 @@ export const makeAudioIterator = ({
 		return (
 			oldestTimestamp < timestamp && Math.abs(oldestTimestamp - timestamp) < 10
 		);
+	};
+
+	const prepareForDeletion = async () => {
+		cache.deleteAll();
+		const {value} = await sampleIterator.return();
+		if (value) {
+			value.close();
+		}
+
+		fullDuration = null;
 	};
 
 	let op = Promise.resolve<AudioSample[]>([]);
@@ -134,6 +158,9 @@ export const makeAudioIterator = ({
 		},
 		canSatisfyRequestedTime,
 		logOpenFrames,
+		getCacheStats,
+		getLastUsed: () => lastUsed,
+		prepareForDeletion,
 	};
 };
 

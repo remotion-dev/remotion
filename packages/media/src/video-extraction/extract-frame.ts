@@ -1,8 +1,7 @@
+import {keyframeManager} from '../caches';
 import type {LogLevel} from '../log';
 import {getSinks, type GetSink} from './get-frames-since-keyframe';
-import {makeKeyframeManager} from './keyframe-manager';
 
-export const keyframeManager = makeKeyframeManager();
 export const sinkPromises: Record<string, Promise<GetSink>> = {};
 
 export const extractFrame = async ({

@@ -1,3 +1,4 @@
+import {audioManager} from '../caches';
 import {combineAudioDataAndClosePrevious} from '../convert-audiodata/combine-audiodata';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {convertAudioData} from '../convert-audiodata/convert-audiodata';
@@ -8,9 +9,6 @@ import {
 import type {LogLevel} from '../log';
 import {sinkPromises} from '../video-extraction/extract-frame';
 import {getSinks} from '../video-extraction/get-frames-since-keyframe';
-import {makeAudioManager} from './audio-manager';
-
-const audioManager = makeAudioManager();
 
 export const extractAudio = async ({
 	src,

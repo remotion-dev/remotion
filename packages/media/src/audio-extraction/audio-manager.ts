@@ -1,4 +1,5 @@
 import type {AudioSampleSink} from 'mediabunny';
+import {getTotalCacheStats, MAX_CACHE_SIZE} from '../caches';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import type {AudioSampleIterator} from './audio-iterator';
 import {makeAudioIterator} from './audio-iterator';
@@ -32,6 +33,28 @@ export const makeAudioManager = () => {
 		return iterator;
 	};
 
+	const getIteratorMostInThePast = () => {
+		let mostInThePast = null;
+		let mostInThePastIterator = null;
+		for (const iterator of iterators) {
+			const lastUsed = iterator.getLastUsed();
+			if (mostInThePast === null || lastUsed < mostInThePast) {
+				mostInThePast = lastUsed;
+				mostInThePastIterator = iterator;
+			}
+		}
+
+		return mostInThePastIterator;
+	};
+
+	const deleteOldestIterator = async () => {
+		const iterator = getIteratorMostInThePast();
+		if (iterator) {
+			await iterator.prepareForDeletion();
+			iterators.splice(iterators.indexOf(iterator), 1);
+		}
+	};
+
 	const getIterator = async ({
 		src,
 		timeInSeconds,
@@ -45,6 +68,10 @@ export const makeAudioManager = () => {
 		isMatroska: boolean;
 		actualMatroskaTimestamps: RememberActualMatroskaTimestamps;
 	}) => {
+		while ((await getTotalCacheStats()).totalSize > MAX_CACHE_SIZE) {
+			await deleteOldestIterator();
+		}
+
 		for (const iterator of iterators) {
 			if (
 				iterator.src === src &&
@@ -64,8 +91,22 @@ export const makeAudioManager = () => {
 		});
 	};
 
+	const getCacheStats = () => {
+		let totalCount = 0;
+		let totalSize = 0;
+		for (const iterator of iterators) {
+			const {count, size} = iterator.getCacheStats();
+			totalCount += count;
+			totalSize += size;
+		}
+
+		return {count: totalCount, totalSize};
+	};
+
 	return {
 		makeIterator,
 		getIterator,
+		getCacheStats,
+		getIteratorMostInThePast,
 	};
 };
