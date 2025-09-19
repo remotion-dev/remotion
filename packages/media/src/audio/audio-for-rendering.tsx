@@ -7,7 +7,7 @@ import {
 	useDelayRender,
 	useRemotionEnvironment,
 } from 'remotion';
-import {extractFrameViaBroadcastChannel} from '../extract-frame-via-broadcast-channel';
+import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {AudioProps} from './props';
 
 export const AudioForRendering: React.FC<AudioProps> = ({

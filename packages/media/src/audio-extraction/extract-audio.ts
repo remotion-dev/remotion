@@ -1,13 +1,13 @@
 import type {AudioSample} from 'mediabunny';
-import {combineAudioDataAndClosePrevious} from './convert-audiodata/combine-audiodata';
-import type {PcmS16AudioData} from './convert-audiodata/convert-audiodata';
-import {convertAudioData} from './convert-audiodata/convert-audiodata';
+import {combineAudioDataAndClosePrevious} from '../convert-audiodata/combine-audiodata';
+import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
+import {convertAudioData} from '../convert-audiodata/convert-audiodata';
 import {
 	TARGET_NUMBER_OF_CHANNELS,
 	TARGET_SAMPLE_RATE,
-} from './convert-audiodata/resample-audiodata';
-import {sinkPromises} from './extract-frame';
-import {getSinks} from './get-frames-since-keyframe';
+} from '../convert-audiodata/resample-audiodata';
+import {sinkPromises} from '../video-extraction/extract-frame';
+import {getSinks} from '../video-extraction/get-frames-since-keyframe';
 
 export const extractAudio = async ({
 	src,
@@ -20,6 +20,7 @@ export const extractAudio = async ({
 	durationInSeconds: number;
 	volume: number;
 }): Promise<PcmS16AudioData | null> => {
+	console.time('extractAudio');
 	if (!sinkPromises[src]) {
 		sinkPromises[src] = getSinks(src);
 	}
@@ -27,6 +28,8 @@ export const extractAudio = async ({
 	const {audio, actualMatroskaTimestamps, isMatroska} = await sinkPromises[src];
 
 	if (audio === null) {
+		console.timeEnd('extractAudio');
+
 		return null;
 	}
 
@@ -141,10 +144,14 @@ export const extractAudio = async ({
 	}
 
 	if (audioDataArray.length === 0) {
+		console.timeEnd('extractAudio');
+
 		return null;
 	}
 
 	const combined = combineAudioDataAndClosePrevious(audioDataArray);
+
+	console.timeEnd('extractAudio');
 
 	return combined;
 };

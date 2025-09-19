@@ -12,7 +12,7 @@ import {
 	useDelayRender,
 	useRemotionEnvironment,
 } from 'remotion';
-import {extractFrameViaBroadcastChannel} from '../extract-frame-via-broadcast-channel';
+import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {VideoProps} from './props';
 
 export const VideoForRendering: React.FC<VideoProps> = ({

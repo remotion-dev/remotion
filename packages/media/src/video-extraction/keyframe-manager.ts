@@ -1,8 +1,8 @@
 import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
+import type {LogLevel} from '../log';
+import {Log} from '../log';
 import {getFramesSinceKeyframe} from './get-frames-since-keyframe';
 import {type KeyframeBank} from './keyframe-bank';
-import type {LogLevel} from './log';
-import {Log} from './log';
 
 const MAX_CACHE_SIZE = 1000 * 1000 * 1000; // 1GB
 
