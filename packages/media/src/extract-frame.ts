@@ -133,7 +133,6 @@ export const extractAudio = async ({
 		let trimStartInSeconds = 0;
 		let trimEndInSeconds = 0;
 
-		// TODO: Apply volume
 		// TODO: Apply playback rate
 		// TODO: Apply tone frequency
 
