@@ -22,7 +22,7 @@ export const makeAudioManager = () => {
 		const iterator = makeAudioIterator({
 			audioSampleSink,
 			isMatroska,
-			timeInSeconds,
+			startTimestamp: timeInSeconds,
 			src,
 			actualMatroskaTimestamps,
 		});
@@ -32,7 +32,7 @@ export const makeAudioManager = () => {
 		return iterator;
 	};
 
-	const getIterator = ({
+	const getIterator = async ({
 		src,
 		timeInSeconds,
 		audioSampleSink,
@@ -45,6 +45,16 @@ export const makeAudioManager = () => {
 		isMatroska: boolean;
 		actualMatroskaTimestamps: RememberActualMatroskaTimestamps;
 	}) => {
+		for (const iterator of iterators) {
+			if (
+				iterator.src === src &&
+				(await iterator.waitForCompletion()) &&
+				iterator.canSatisfyRequestedTime(timeInSeconds)
+			) {
+				return iterator;
+			}
+		}
+
 		return makeIterator({
 			src,
 			timeInSeconds,

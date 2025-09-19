@@ -5,6 +5,7 @@ import {
 	TARGET_NUMBER_OF_CHANNELS,
 	TARGET_SAMPLE_RATE,
 } from '../convert-audiodata/resample-audiodata';
+import type {LogLevel} from '../log';
 import {sinkPromises} from '../video-extraction/extract-frame';
 import {getSinks} from '../video-extraction/get-frames-since-keyframe';
 import {makeAudioManager} from './audio-manager';
@@ -16,13 +17,14 @@ export const extractAudio = async ({
 	timeInSeconds,
 	durationInSeconds,
 	volume,
+	logLevel,
 }: {
 	src: string;
 	timeInSeconds: number;
 	durationInSeconds: number;
 	volume: number;
+	logLevel: LogLevel;
 }): Promise<PcmS16AudioData | null> => {
-	console.time('extractAudio');
 	if (!sinkPromises[src]) {
 		sinkPromises[src] = getSinks(src);
 	}
@@ -30,12 +32,10 @@ export const extractAudio = async ({
 	const {audio, actualMatroskaTimestamps, isMatroska} = await sinkPromises[src];
 
 	if (audio === null) {
-		console.timeEnd('extractAudio');
-
 		return null;
 	}
 
-	const sampleIterator = audioManager.getIterator({
+	const sampleIterator = await audioManager.getIterator({
 		src,
 		timeInSeconds,
 		audioSampleSink: audio.sampleSink,
@@ -48,6 +48,8 @@ export const extractAudio = async ({
 		durationInSeconds,
 	);
 
+	sampleIterator.logOpenFrames(logLevel);
+
 	const audioDataArray: PcmS16AudioData[] = [];
 	for (let i = 0; i < samples.length; i++) {
 		const sample = samples[i];
@@ -58,13 +60,11 @@ export const extractAudio = async ({
 				sample.sampleRate <
 			1
 		) {
-			sample.close();
 			continue;
 		}
 
 		// Less than 1 sample would be included - we did not need it after all!
 		if (sample.timestamp + sample.duration <= timeInSeconds) {
-			sample.close();
 			continue;
 		}
 
@@ -106,25 +106,17 @@ export const extractAudio = async ({
 		audioDataRaw.close();
 
 		if (audioData.numberOfFrames === 0) {
-			sample.close();
-
 			continue;
 		}
 
 		audioDataArray.push(audioData);
-
-		sample.close();
 	}
 
 	if (audioDataArray.length === 0) {
-		console.timeEnd('extractAudio');
-
 		return null;
 	}
 
 	const combined = combineAudioDataAndClosePrevious(audioDataArray);
-
-	console.timeEnd('extractAudio');
 
 	return combined;
 };

@@ -37,6 +37,7 @@ export const extractFrameAndAudio = async ({
 					timeInSeconds,
 					durationInSeconds,
 					volume,
+					logLevel,
 				})
 			: null,
 	]);

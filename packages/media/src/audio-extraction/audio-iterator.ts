@@ -1,4 +1,6 @@
 import type {AudioSample, AudioSampleSink} from 'mediabunny';
+import type {LogLevel} from '../log';
+import {Log} from '../log';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import {makeAudioCache} from './audio-cache';
 
@@ -13,13 +15,13 @@ const extraThreshold = 1.5;
 export const makeAudioIterator = ({
 	audioSampleSink,
 	isMatroska,
-	timeInSeconds,
+	startTimestamp,
 	src,
 	actualMatroskaTimestamps,
 }: {
 	audioSampleSink: AudioSampleSink;
 	isMatroska: boolean;
-	timeInSeconds: number;
+	startTimestamp: number;
 	src: string;
 	actualMatroskaTimestamps: RememberActualMatroskaTimestamps;
 }) => {
@@ -29,16 +31,17 @@ export const makeAudioIterator = ({
 	// https://github.com/Vanilagy/mediabunny/issues/105
 
 	const sampleIterator = audioSampleSink.samples(
-		isMatroska ? 0 : Math.max(0, timeInSeconds - extraThreshold),
+		isMatroska ? 0 : Math.max(0, startTimestamp - extraThreshold),
 	);
 
-	const cache = makeAudioCache();
+	let fullDuration: number | null = null;
 
-	let currentTimestamp = timeInSeconds;
+	const cache = makeAudioCache();
 
 	const getNextSample = async () => {
 		const {value: sample, done} = await sampleIterator.next();
 		if (done) {
+			fullDuration = cache.getNewestTimestamp() ?? null;
 			return null;
 		}
 
@@ -56,16 +59,23 @@ export const makeAudioIterator = ({
 		);
 
 		cache.addFrame(sample);
-		currentTimestamp = sample.timestamp;
 
 		return sample;
 	};
 
 	const getSamples = async (timestamp: number, durationInSeconds: number) => {
+		if (fullDuration !== null && timestamp > fullDuration) {
+			return [];
+		}
+
 		// Clear all samples before the timestamp
+		// Do this in the while loop because samples might start from 0
 		cache.clearBeforeThreshold(timestamp - 1);
 
-		const samples: AudioSample[] = [];
+		const samples: AudioSample[] = cache.getSamples(
+			timestamp,
+			durationInSeconds,
+		);
 
 		while (true) {
 			const sample = await getNextSample();
@@ -87,11 +97,43 @@ export const makeAudioIterator = ({
 		return samples;
 	};
 
+	const logOpenFrames = (logLevel: LogLevel) => {
+		Log.verbose(
+			logLevel,
+			'Open audio samples for src',
+			src,
+			cache
+				.getOpenTimestamps()
+				.map((t) => t.toFixed(3))
+				.join(', '),
+		);
+	};
+
+	const canSatisfyRequestedTime = (timestamp: number) => {
+		const oldestTimestamp = cache.getOldestTimestamp() ?? startTimestamp;
+		if (fullDuration !== null && timestamp > fullDuration) {
+			return true;
+		}
+
+		return (
+			oldestTimestamp < timestamp && Math.abs(oldestTimestamp - timestamp) < 10
+		);
+	};
+
+	let op = Promise.resolve<AudioSample[]>([]);
+
 	return {
 		src,
-		getNextSample,
-		getCurrentTimestamp: () => currentTimestamp,
-		getSamples,
+		getSamples: (ts: number, dur: number) => {
+			op = op.then(() => getSamples(ts, dur));
+			return op;
+		},
+		waitForCompletion: async () => {
+			await op;
+			return true;
+		},
+		canSatisfyRequestedTime,
+		logOpenFrames,
 	};
 };
 

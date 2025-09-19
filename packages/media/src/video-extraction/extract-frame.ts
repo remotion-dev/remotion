@@ -14,7 +14,6 @@ export const extractFrame = async ({
 	timeInSeconds: number;
 	logLevel: LogLevel;
 }) => {
-	console.time('extractFrame');
 	if (!sinkPromises[src]) {
 		sinkPromises[src] = getSinks(src);
 	}
@@ -31,6 +30,5 @@ export const extractFrame = async ({
 
 	const frame = await keyframeBank.getFrameFromTimestamp(timeInSeconds);
 
-	console.timeEnd('extractFrame');
 	return frame;
 };
