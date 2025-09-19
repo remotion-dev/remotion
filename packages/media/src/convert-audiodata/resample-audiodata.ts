@@ -37,7 +37,16 @@ export const resampleAudioData = ({
 
 		const average = itemSum / itemCount;
 
-		return average * volume;
+		const averageVolume = average * volume;
+		if (averageVolume < -32768) {
+			return -32768;
+		}
+
+		if (averageVolume > 32767) {
+			return 32767;
+		}
+
+		return averageVolume;
 	};
 
 	for (let newFrameIndex = 0; newFrameIndex < targetFrames; newFrameIndex++) {
