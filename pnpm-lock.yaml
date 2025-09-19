@@ -1632,8 +1632,8 @@ importers:
   packages/media:
     dependencies:
       mediabunny:
-        specifier: 1.13.0
-        version: 1.13.0
+        specifier: 1.17.0
+        version: 1.17.0
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -1678,8 +1678,8 @@ importers:
         specifier: 9.19.0
         version: 9.19.0
       mediabunny:
-        specifier: 1.13.0
-        version: 1.13.0
+        specifier: 1.17.0
+        version: 1.17.0
 
   packages/media-utils:
     dependencies:
@@ -24949,8 +24949,8 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
 
-  /mediabunny@1.13.0:
-    resolution: {integrity: sha512-eAtCVOzceN3VkExQmYrDB+3bM6d98PfB6AhgueojYG6T5SNzc4cRR2gWm0oZ1HjhNN0J4hjtvtEpJ+AAMXF/dQ==}
+  /mediabunny@1.17.0:
+    resolution: {integrity: sha512-3IvrYu1Eur6IoLjygMAeVrh+5jkJxsr1RTAc7+e4QYONUt4MrUaorPIl3XtLKQdJLGcxlERrHn2KC50qBZN9mg==}
     dependencies:
       '@types/dom-mediacapture-transform': 0.1.11
       '@types/dom-webcodecs': 0.1.13
