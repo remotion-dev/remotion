@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sarpanch',
 	importName: 'Sarpanch',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Sarpanch:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		devanagari:
@@ -17,51 +17,51 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sarpanch/v14/hESy6Xt4NCpRuk6Pzi2GTovn_w.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hESy6Xt4NCpRuk6Pzi2GTovn_w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sarpanch/v14/hESy6Xt4NCpRuk6Pzi2JTovn_w.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hESy6Xt4NCpRuk6Pzi2JTovn_w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sarpanch/v14/hESy6Xt4NCpRuk6Pzi2HTos.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hESy6Xt4NCpRuk6Pzi2HTos.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziV0bZ7Z3nAeRA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziV0bZ7Z3nAeRA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziV0bZ7W3nAeRA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziV0bZ7W3nAeRA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziV0bZ7Y3nA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziV0bZ7Y3nA.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziVYap7Z3nAeRA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziVYap7Z3nAeRA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziVYap7W3nAeRA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziVYap7W3nAeRA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziVYap7Y3nA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziVYap7Y3nA.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziU8a57Z3nAeRA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziU8a57Z3nAeRA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziU8a57W3nAeRA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziU8a57W3nAeRA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziU8a57Y3nA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziU8a57Y3nA.woff2',
 			},
 			'800': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziUgaJ7Z3nAeRA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziUgaJ7Z3nAeRA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziUgaJ7W3nAeRA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziUgaJ7W3nAeRA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziUgaJ7Y3nA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziUgaJ7Y3nA.woff2',
 			},
 			'900': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziUEaZ7Z3nAeRA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziUEaZ7Z3nAeRA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziUEaZ7W3nAeRA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziUEaZ7W3nAeRA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sarpanch/v14/hES16Xt4NCpRuk6PziUEaZ7Y3nA.woff2',
+					'https://fonts.gstatic.com/s/sarpanch/v15/hES16Xt4NCpRuk6PziUEaZ7Y3nA.woff2',
 			},
 		},
 	},

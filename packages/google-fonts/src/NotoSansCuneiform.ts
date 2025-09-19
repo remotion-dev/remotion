@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Cuneiform',
 	importName: 'NotoSansCuneiform',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Cuneiform:ital,wght@0,400',
 	unicodeRanges: {
 		cuneiform: 'U+12000-123FF, U+12400-1246E, U+12470-12474, U+12480-12543',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cuneiform:
-					'https://fonts.gstatic.com/s/notosanscuneiform/v17/bMrrmTWK7YY-MF22aHGGd7H8PhJtvBDWse5DlCQu.woff2',
+					'https://fonts.gstatic.com/s/notosanscuneiform/v18/bMrrmTWK7YY-MF22aHGGd7H8PhJtvBDWse5DlCQu.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscuneiform/v17/bMrrmTWK7YY-MF22aHGGd7H8PhJtvBDWsbZDlCQu.woff2',
+					'https://fonts.gstatic.com/s/notosanscuneiform/v18/bMrrmTWK7YY-MF22aHGGd7H8PhJtvBDWsbZDlCQu.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscuneiform/v17/bMrrmTWK7YY-MF22aHGGd7H8PhJtvBDWsbhDlA.woff2',
+					'https://fonts.gstatic.com/s/notosanscuneiform/v18/bMrrmTWK7YY-MF22aHGGd7H8PhJtvBDWsbhDlA.woff2',
 			},
 		},
 	},

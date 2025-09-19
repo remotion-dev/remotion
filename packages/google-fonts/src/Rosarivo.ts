@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rosarivo',
 	importName: 'Rosarivo',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Rosarivo:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rosarivo/v23/PlI4Fl2lO6N9f8HaNDeA4HVkmPy5.woff2',
+					'https://fonts.gstatic.com/s/rosarivo/v24/PlI4Fl2lO6N9f8HaNDeA4HVkmPy5.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rosarivo/v23/PlI4Fl2lO6N9f8HaNDeA4HtkmA.woff2',
+					'https://fonts.gstatic.com/s/rosarivo/v24/PlI4Fl2lO6N9f8HaNDeA4HtkmA.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rosarivo/v23/PlI-Fl2lO6N9f8HaNDeL0Hl8nA.woff2',
+					'https://fonts.gstatic.com/s/rosarivo/v24/PlI-Fl2lO6N9f8HaNDeL0Hl8nA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rosarivo/v23/PlI-Fl2lO6N9f8HaNDeF0Hk.woff2',
+					'https://fonts.gstatic.com/s/rosarivo/v24/PlI-Fl2lO6N9f8HaNDeF0Hk.woff2',
 			},
 		},
 	},

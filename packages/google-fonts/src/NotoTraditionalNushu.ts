@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Traditional Nushu',
 	importName: 'NotoTraditionalNushu',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Traditional+Nushu:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		nushu: 'U+2003, U+3000, U+3002, U+4E00, U+FE12, U+16FE1, U+1B170-1B2FB',
@@ -16,43 +16,43 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				nushu:
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67FzV_Geh6.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67FzV_Geh6.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0R_Geh6.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0R_Geh6.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0p_GQ.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0p_GQ.woff2',
 			},
 			'400': {
 				nushu:
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67FzV_Geh6.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67FzV_Geh6.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0R_Geh6.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0R_Geh6.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0p_GQ.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0p_GQ.woff2',
 			},
 			'500': {
 				nushu:
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67FzV_Geh6.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67FzV_Geh6.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0R_Geh6.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0R_Geh6.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0p_GQ.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0p_GQ.woff2',
 			},
 			'600': {
 				nushu:
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67FzV_Geh6.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67FzV_Geh6.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0R_Geh6.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0R_Geh6.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0p_GQ.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0p_GQ.woff2',
 			},
 			'700': {
 				nushu:
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67FzV_Geh6.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67FzV_Geh6.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0R_Geh6.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0R_Geh6.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nototraditionalnushu/v22/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0p_GQ.woff2',
+					'https://fonts.gstatic.com/s/nototraditionalnushu/v23/SZco3EDkJ7q9FaoMPlmF4Su8hlIjoGh5aj67F0p_GQ.woff2',
 			},
 		},
 	},

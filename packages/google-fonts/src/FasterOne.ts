@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Faster One',
 	importName: 'FasterOne',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Faster+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fasterone/v19/H4ciBXCHmdfClFb-vWhf-LKYh563.woff2',
+					'https://fonts.gstatic.com/s/fasterone/v20/H4ciBXCHmdfClFb-vWhf-LKYh563.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fasterone/v19/H4ciBXCHmdfClFb-vWhf-LyYhw.woff2',
+					'https://fonts.gstatic.com/s/fasterone/v20/H4ciBXCHmdfClFb-vWhf-LyYhw.woff2',
 			},
 		},
 	},

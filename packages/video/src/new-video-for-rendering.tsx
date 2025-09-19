@@ -1,14 +1,13 @@
 import React, {
 	useContext,
-	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
+	useState,
 } from 'react';
 import {
 	cancelRender,
 	Internals,
-	random,
 	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
@@ -16,54 +15,31 @@ import {
 import {extractFrameViaBroadcastChannel} from './extract-frame-via-broadcast-channel';
 import type {NewVideoProps} from './props';
 
-const {
-	useUnsafeVideoConfig,
-	SequenceContext,
-	useFrameForVolumeProp,
-	useTimelinePosition,
-	getAbsoluteSrc,
-	RenderAssetManager,
-	evaluateVolume,
-} = Internals;
-
 export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 	volume: volumeProp,
 	playbackRate,
 	src,
 	muted,
-	toneFrequency,
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
 	// call when a frame of the video, i.e. frame drawn on canvas
 	onVideoFrame,
-	audioStreamIndex,
-	logLevel,
+	logLevel = window.remotion_logLevel,
 }) => {
-	const absoluteFrame = useTimelinePosition();
-	const videoConfig = useUnsafeVideoConfig();
-	const sequenceContext = useContext(SequenceContext);
+	const absoluteFrame = Internals.useTimelinePosition();
+	const videoConfig = Internals.useUnsafeVideoConfig();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const {registerRenderAsset, unregisterRenderAsset} =
-		useContext(RenderAssetManager);
+	const {registerRenderAsset, unregisterRenderAsset} = useContext(
+		Internals.RenderAssetManager,
+	);
 	const frame = useCurrentFrame();
-	const volumePropsFrame = useFrameForVolumeProp(
+	const volumePropsFrame = Internals.useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
 	const environment = useRemotionEnvironment();
 
-	const id = useMemo(
-		() =>
-			`newvideo-${random(
-				src ?? '',
-			)}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
-		[
-			src,
-			sequenceContext?.cumulatedFrom,
-			sequenceContext?.relativeFrom,
-			sequenceContext?.durationInFrames,
-		],
-	);
+	const [id] = useState(() => `${Math.random()}`.replace('0.', ''));
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
@@ -73,7 +49,7 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 		throw new TypeError('No `src` was passed to <NewVideo>.');
 	}
 
-	const volume = evaluateVolume({
+	const volume = Internals.evaluateVolume({
 		volume: volumeProp,
 		frame: volumePropsFrame,
 		mediaVolume: 1,
@@ -81,51 +57,21 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 	Internals.warnAboutTooHighVolume(volume);
 
-	useEffect(() => {
-		if (!src) {
-			throw new Error('No src passed');
-		}
-
+	const shouldRenderAudio = useMemo(() => {
 		if (!window.remotion_audioEnabled) {
-			return;
+			return false;
 		}
 
 		if (muted) {
-			return;
+			return false;
 		}
 
 		if (volume <= 0) {
-			return;
+			return false;
 		}
 
-		registerRenderAsset({
-			type: 'video',
-			src: getAbsoluteSrc(src),
-			id,
-			frame: absoluteFrame,
-			volume,
-			mediaFrame: frame,
-			playbackRate: playbackRate ?? 1,
-			toneFrequency: toneFrequency ?? null,
-			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
-			audioStreamIndex: audioStreamIndex ?? 0,
-		});
-
-		return () => unregisterRenderAsset(id);
-	}, [
-		muted,
-		src,
-		registerRenderAsset,
-		id,
-		unregisterRenderAsset,
-		volume,
-		frame,
-		absoluteFrame,
-		playbackRate,
-		toneFrequency,
-		sequenceContext?.relativeFrom,
-		audioStreamIndex,
-	]);
+		return true;
+	}, [muted, volume]);
 
 	const {fps} = videoConfig;
 
@@ -138,19 +84,22 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 		const actualFps = playbackRate ? fps / playbackRate : fps;
 		const timestamp = frame / actualFps;
+		const durationInSeconds = 1 / actualFps;
 
-		const newHandle = delayRender(`extracting frame number ${frame}`, {
+		const newHandle = delayRender(`Extracting frame number ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
 
 		extractFrameViaBroadcastChannel({
 			src,
-			timestamp,
+			timeInSeconds: timestamp,
+			durationInSeconds,
 			logLevel: logLevel ?? 'info',
+			shouldRenderAudio,
 			isClientSideRendering: environment.isClientSideRendering,
 		})
-			.then((imageBitmap) => {
+			.then(({frame: imageBitmap, audio}) => {
 				if (!imageBitmap) {
 					cancelRender(new Error('No video frame found'));
 				}
@@ -158,6 +107,19 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 				onVideoFrame?.(imageBitmap);
 				canvasRef.current?.getContext('2d')?.drawImage(imageBitmap, 0, 0);
 				imageBitmap.close();
+
+				if (audio) {
+					registerRenderAsset({
+						type: 'inline-audio',
+						id,
+						audio: Array.from(audio.data),
+						sampleRate: audio.sampleRate,
+						numberOfChannels: audio.numberOfChannels,
+						frame: absoluteFrame,
+						timestamp: audio.timestamp,
+						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
+					});
+				}
 
 				continueRender(newHandle);
 			})
@@ -167,19 +129,25 @@ export const NewVideoForRendering: React.FC<NewVideoProps> = ({
 
 		return () => {
 			continueRender(newHandle);
+			unregisterRenderAsset(id);
 		};
 	}, [
+		absoluteFrame,
+		continueRender,
+		delayRender,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
+		environment.isClientSideRendering,
 		fps,
 		frame,
+		id,
+		logLevel,
 		onVideoFrame,
 		playbackRate,
+		registerRenderAsset,
+		shouldRenderAudio,
 		src,
-		logLevel,
-		environment.isClientSideRendering,
-		delayRender,
-		continueRender,
+		unregisterRenderAsset,
 	]);
 
 	return (

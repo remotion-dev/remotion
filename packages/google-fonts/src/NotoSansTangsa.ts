@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Tangsa',
 	importName: 'NotoSansTangsa',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Tangsa:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		tangsa: 'U+16A70-16ACF',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				tangsa:
-					'https://fonts.gstatic.com/s/notosanstangsa/v8/z7NPdQPmcigbbZAIOl9igP26K470vi-gR_ibHw.woff2',
+					'https://fonts.gstatic.com/s/notosanstangsa/v9/z7NPdQPmcigbbZAIOl9igP26K470vi-gR_ibHw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstangsa/v8/z7NPdQPmcigbbZAIOl9igP26K470voKBYsWi.woff2',
+					'https://fonts.gstatic.com/s/notosanstangsa/v9/z7NPdQPmcigbbZAIOl9igP26K470voKBYsWi.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstangsa/v8/z7NPdQPmcigbbZAIOl9igP26K470voyBYg.woff2',
+					'https://fonts.gstatic.com/s/notosanstangsa/v9/z7NPdQPmcigbbZAIOl9igP26K470voyBYg.woff2',
 			},
 			'500': {
 				tangsa:
-					'https://fonts.gstatic.com/s/notosanstangsa/v8/z7NPdQPmcigbbZAIOl9igP26K470vi-gR_ibHw.woff2',
+					'https://fonts.gstatic.com/s/notosanstangsa/v9/z7NPdQPmcigbbZAIOl9igP26K470vi-gR_ibHw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstangsa/v8/z7NPdQPmcigbbZAIOl9igP26K470voKBYsWi.woff2',
+					'https://fonts.gstatic.com/s/notosanstangsa/v9/z7NPdQPmcigbbZAIOl9igP26K470voKBYsWi.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstangsa/v8/z7NPdQPmcigbbZAIOl9igP26K470voyBYg.woff2',
+					'https://fonts.gstatic.com/s/notosanstangsa/v9/z7NPdQPmcigbbZAIOl9igP26K470voyBYg.woff2',
 			},
 			'600': {
 				tangsa:
-					'https://fonts.gstatic.com/s/notosanstangsa/v8/z7NPdQPmcigbbZAIOl9igP26K470vi-gR_ibHw.woff2',
+					'https://fonts.gstatic.com/s/notosanstangsa/v9/z7NPdQPmcigbbZAIOl9igP26K470vi-gR_ibHw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstangsa/v8/z7NPdQPmcigbbZAIOl9igP26K470voKBYsWi.woff2',
+					'https://fonts.gstatic.com/s/notosanstangsa/v9/z7NPdQPmcigbbZAIOl9igP26K470voKBYsWi.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstangsa/v8/z7NPdQPmcigbbZAIOl9igP26K470voyBYg.woff2',
+					'https://fonts.gstatic.com/s/notosanstangsa/v9/z7NPdQPmcigbbZAIOl9igP26K470voyBYg.woff2',
 			},
 			'700': {
 				tangsa:
-					'https://fonts.gstatic.com/s/notosanstangsa/v8/z7NPdQPmcigbbZAIOl9igP26K470vi-gR_ibHw.woff2',
+					'https://fonts.gstatic.com/s/notosanstangsa/v9/z7NPdQPmcigbbZAIOl9igP26K470vi-gR_ibHw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstangsa/v8/z7NPdQPmcigbbZAIOl9igP26K470voKBYsWi.woff2',
+					'https://fonts.gstatic.com/s/notosanstangsa/v9/z7NPdQPmcigbbZAIOl9igP26K470voKBYsWi.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstangsa/v8/z7NPdQPmcigbbZAIOl9igP26K470voyBYg.woff2',
+					'https://fonts.gstatic.com/s/notosanstangsa/v9/z7NPdQPmcigbbZAIOl9igP26K470voyBYg.woff2',
 			},
 		},
 	},

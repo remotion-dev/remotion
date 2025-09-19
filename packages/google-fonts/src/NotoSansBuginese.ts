@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Buginese',
 	importName: 'NotoSansBuginese',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Buginese:ital,wght@0,400',
 	unicodeRanges: {
 		buginese: 'U+1A00-1A1F, U+200C-200D, U+25CC, U+A9CF',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				buginese:
-					'https://fonts.gstatic.com/s/notosansbuginese/v18/esDM30ldNv-KYGGJpKGk18phe_7Da6_QmvGFbLk.woff2',
+					'https://fonts.gstatic.com/s/notosansbuginese/v19/esDM30ldNv-KYGGJpKGk18phe_7Da6_QmvGFbLk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbuginese/v18/esDM30ldNv-KYGGJpKGk18phe_7Da6_QvPGFbLk.woff2',
+					'https://fonts.gstatic.com/s/notosansbuginese/v19/esDM30ldNv-KYGGJpKGk18phe_7Da6_QvPGFbLk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbuginese/v18/esDM30ldNv-KYGGJpKGk18phe_7Da6_QsvGF.woff2',
+					'https://fonts.gstatic.com/s/notosansbuginese/v19/esDM30ldNv-KYGGJpKGk18phe_7Da6_QsvGF.woff2',
 			},
 		},
 	},

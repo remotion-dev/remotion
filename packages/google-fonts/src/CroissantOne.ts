@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Croissant One',
 	importName: 'CroissantOne',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Croissant+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/croissantone/v27/3y9n6bU9bTPg4m8NDy3Kq24UA3Ngnqcd.woff2',
+					'https://fonts.gstatic.com/s/croissantone/v28/3y9n6bU9bTPg4m8NDy3Kq24UA3Ngnqcd.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/croissantone/v27/3y9n6bU9bTPg4m8NDy3Kq24UA31gng.woff2',
+					'https://fonts.gstatic.com/s/croissantone/v28/3y9n6bU9bTPg4m8NDy3Kq24UA31gng.woff2',
 			},
 		},
 	},

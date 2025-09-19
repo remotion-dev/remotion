@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Dynalight',
 	importName: 'Dynalight',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Dynalight:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/dynalight/v23/1Ptsg8LOU_aOmQvTsF44Q4FqPfE.woff2',
+					'https://fonts.gstatic.com/s/dynalight/v24/1Ptsg8LOU_aOmQvTsF44Q4FqPfE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/dynalight/v23/1Ptsg8LOU_aOmQvTsF44TYFq.woff2',
+					'https://fonts.gstatic.com/s/dynalight/v24/1Ptsg8LOU_aOmQvTsF44TYFq.woff2',
 			},
 		},
 	},

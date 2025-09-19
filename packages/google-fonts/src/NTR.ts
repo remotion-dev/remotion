@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'NTR',
 	importName: 'NTR',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=NTR:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -14,8 +14,8 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				telugu: 'https://fonts.gstatic.com/s/ntr/v18/RLpzK5Xy0ZjSA2Jt1TA.woff2',
-				latin: 'https://fonts.gstatic.com/s/ntr/v18/RLpzK5Xy0ZjSH2Jt.woff2',
+				telugu: 'https://fonts.gstatic.com/s/ntr/v19/RLpzK5Xy0ZjSA2Jt1TA.woff2',
+				latin: 'https://fonts.gstatic.com/s/ntr/v19/RLpzK5Xy0ZjSH2Jt.woff2',
 			},
 		},
 	},

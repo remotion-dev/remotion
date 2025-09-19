@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Swanky and Moo Moo',
 	importName: 'SwankyandMooMoo',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Swanky+and+Moo+Moo:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/swankyandmoomoo/v23/flUlRrKz24IuWVI_WJYTYcqbEsMUZ3kkvLnld64.woff2',
+					'https://fonts.gstatic.com/s/swankyandmoomoo/v24/flUlRrKz24IuWVI_WJYTYcqbEsMUZ3kkvLnld64.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/swankyandmoomoo/v23/flUlRrKz24IuWVI_WJYTYcqbEsMUZ3kksrnl.woff2',
+					'https://fonts.gstatic.com/s/swankyandmoomoo/v24/flUlRrKz24IuWVI_WJYTYcqbEsMUZ3kksrnl.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Racing Sans One',
 	importName: 'RacingSansOne',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Racing+Sans+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/racingsansone/v16/sykr-yRtm7EvTrXNxkv5jfKKyDCAJnDnapI.woff2',
+					'https://fonts.gstatic.com/s/racingsansone/v17/sykr-yRtm7EvTrXNxkv5jfKKyDCAJnDnapI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/racingsansone/v16/sykr-yRtm7EvTrXNxkv5jfKKyDCAKHDn.woff2',
+					'https://fonts.gstatic.com/s/racingsansone/v17/sykr-yRtm7EvTrXNxkv5jfKKyDCAKHDn.woff2',
 			},
 		},
 	},

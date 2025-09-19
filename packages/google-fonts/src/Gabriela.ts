@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gabriela',
 	importName: 'Gabriela',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Gabriela:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,13 +18,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/gabriela/v22/qkBWXvsO6sreR8E-b8m0xLt3mQ.woff2',
+					'https://fonts.gstatic.com/s/gabriela/v23/qkBWXvsO6sreR8E-b8m0xLt3mQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/gabriela/v22/qkBWXvsO6sreR8E-b8m9xLt3mQ.woff2',
+					'https://fonts.gstatic.com/s/gabriela/v23/qkBWXvsO6sreR8E-b8m9xLt3mQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gabriela/v22/qkBWXvsO6sreR8E-b8m3xLt3mQ.woff2',
+					'https://fonts.gstatic.com/s/gabriela/v23/qkBWXvsO6sreR8E-b8m3xLt3mQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gabriela/v22/qkBWXvsO6sreR8E-b8m5xLs.woff2',
+					'https://fonts.gstatic.com/s/gabriela/v23/qkBWXvsO6sreR8E-b8m5xLs.woff2',
 			},
 		},
 	},

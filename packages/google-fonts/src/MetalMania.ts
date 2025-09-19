@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Metal Mania',
 	importName: 'MetalMania',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Metal+Mania:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/metalmania/v22/RWmMoKWb4e8kqMfBUdPFJdXLiaQ6DQ.woff2',
+					'https://fonts.gstatic.com/s/metalmania/v23/RWmMoKWb4e8kqMfBUdPFJdXLiaQ6DQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/metalmania/v22/RWmMoKWb4e8kqMfBUdPFJdXFiaQ.woff2',
+					'https://fonts.gstatic.com/s/metalmania/v23/RWmMoKWb4e8kqMfBUdPFJdXFiaQ.woff2',
 			},
 		},
 	},

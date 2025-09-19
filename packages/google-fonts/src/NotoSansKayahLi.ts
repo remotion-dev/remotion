@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Kayah Li',
 	importName: 'NotoSansKayahLi',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Kayah+Li:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'kayah-li': 'U+200C-200D, U+2010, U+25CC, U+A900-A92F',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'kayah-li':
-					'https://fonts.gstatic.com/s/notosanskayahli/v25/B50SF61OpWTRcGrhOVJJwOMXdca6YecOz1nFA4E.woff2',
+					'https://fonts.gstatic.com/s/notosanskayahli/v26/B50SF61OpWTRcGrhOVJJwOMXdca6YecOz1nFA4E.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanskayahli/v25/B50SF61OpWTRcGrhOVJJwOMXdca6YecOiVnFA4E.woff2',
+					'https://fonts.gstatic.com/s/notosanskayahli/v26/B50SF61OpWTRcGrhOVJJwOMXdca6YecOiVnFA4E.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanskayahli/v25/B50SF61OpWTRcGrhOVJJwOMXdca6YecOh1nF.woff2',
+					'https://fonts.gstatic.com/s/notosanskayahli/v26/B50SF61OpWTRcGrhOVJJwOMXdca6YecOh1nF.woff2',
 			},
 			'500': {
 				'kayah-li':
-					'https://fonts.gstatic.com/s/notosanskayahli/v25/B50SF61OpWTRcGrhOVJJwOMXdca6YecOz1nFA4E.woff2',
+					'https://fonts.gstatic.com/s/notosanskayahli/v26/B50SF61OpWTRcGrhOVJJwOMXdca6YecOz1nFA4E.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanskayahli/v25/B50SF61OpWTRcGrhOVJJwOMXdca6YecOiVnFA4E.woff2',
+					'https://fonts.gstatic.com/s/notosanskayahli/v26/B50SF61OpWTRcGrhOVJJwOMXdca6YecOiVnFA4E.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanskayahli/v25/B50SF61OpWTRcGrhOVJJwOMXdca6YecOh1nF.woff2',
+					'https://fonts.gstatic.com/s/notosanskayahli/v26/B50SF61OpWTRcGrhOVJJwOMXdca6YecOh1nF.woff2',
 			},
 			'600': {
 				'kayah-li':
-					'https://fonts.gstatic.com/s/notosanskayahli/v25/B50SF61OpWTRcGrhOVJJwOMXdca6YecOz1nFA4E.woff2',
+					'https://fonts.gstatic.com/s/notosanskayahli/v26/B50SF61OpWTRcGrhOVJJwOMXdca6YecOz1nFA4E.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanskayahli/v25/B50SF61OpWTRcGrhOVJJwOMXdca6YecOiVnFA4E.woff2',
+					'https://fonts.gstatic.com/s/notosanskayahli/v26/B50SF61OpWTRcGrhOVJJwOMXdca6YecOiVnFA4E.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanskayahli/v25/B50SF61OpWTRcGrhOVJJwOMXdca6YecOh1nF.woff2',
+					'https://fonts.gstatic.com/s/notosanskayahli/v26/B50SF61OpWTRcGrhOVJJwOMXdca6YecOh1nF.woff2',
 			},
 			'700': {
 				'kayah-li':
-					'https://fonts.gstatic.com/s/notosanskayahli/v25/B50SF61OpWTRcGrhOVJJwOMXdca6YecOz1nFA4E.woff2',
+					'https://fonts.gstatic.com/s/notosanskayahli/v26/B50SF61OpWTRcGrhOVJJwOMXdca6YecOz1nFA4E.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanskayahli/v25/B50SF61OpWTRcGrhOVJJwOMXdca6YecOiVnFA4E.woff2',
+					'https://fonts.gstatic.com/s/notosanskayahli/v26/B50SF61OpWTRcGrhOVJJwOMXdca6YecOiVnFA4E.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanskayahli/v25/B50SF61OpWTRcGrhOVJJwOMXdca6YecOh1nF.woff2',
+					'https://fonts.gstatic.com/s/notosanskayahli/v26/B50SF61OpWTRcGrhOVJJwOMXdca6YecOh1nF.woff2',
 			},
 		},
 	},

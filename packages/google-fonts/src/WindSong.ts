@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'WindSong',
 	importName: 'WindSong',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=WindSong:ital,wght@0,400;0,500',
 	unicodeRanges: {
 		vietnamese:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/windsong/v12/KR1WBsyu-P-GFEW57o9xF9CKvg.woff2',
+					'https://fonts.gstatic.com/s/windsong/v13/KR1WBsyu-P-GFEW57o9xF9CKvg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/windsong/v12/KR1WBsyu-P-GFEW57o9wF9CKvg.woff2',
+					'https://fonts.gstatic.com/s/windsong/v13/KR1WBsyu-P-GFEW57o9wF9CKvg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/windsong/v12/KR1WBsyu-P-GFEW57o9-F9A.woff2',
+					'https://fonts.gstatic.com/s/windsong/v13/KR1WBsyu-P-GFEW57o9-F9A.woff2',
 			},
 			'500': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/windsong/v12/KR1RBsyu-P-GFEW57oeNNMW6nyzOjQ.woff2',
+					'https://fonts.gstatic.com/s/windsong/v13/KR1RBsyu-P-GFEW57oeNNMW6nyzOjQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/windsong/v12/KR1RBsyu-P-GFEW57oeNNMW7nyzOjQ.woff2',
+					'https://fonts.gstatic.com/s/windsong/v13/KR1RBsyu-P-GFEW57oeNNMW7nyzOjQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/windsong/v12/KR1RBsyu-P-GFEW57oeNNMW1nyw.woff2',
+					'https://fonts.gstatic.com/s/windsong/v13/KR1RBsyu-P-GFEW57oeNNMW1nyw.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kablammo',
 	importName: 'Kablammo',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Kablammo:ital,wght@0,400',
 	unicodeRanges: {
 		'[2]':
@@ -34,29 +34,29 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'[2]':
-					'https://fonts.gstatic.com/s/kablammo/v3/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.2.woff2',
+					'https://fonts.gstatic.com/s/kablammo/v4/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/kablammo/v3/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.3.woff2',
+					'https://fonts.gstatic.com/s/kablammo/v4/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.3.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/kablammo/v3/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.5.woff2',
+					'https://fonts.gstatic.com/s/kablammo/v4/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/kablammo/v3/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.6.woff2',
+					'https://fonts.gstatic.com/s/kablammo/v4/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/kablammo/v3/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.7.woff2',
+					'https://fonts.gstatic.com/s/kablammo/v4/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.7.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/kablammo/v3/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.9.woff2',
+					'https://fonts.gstatic.com/s/kablammo/v4/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.9.woff2',
 				'[10]':
-					'https://fonts.gstatic.com/s/kablammo/v3/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.10.woff2',
+					'https://fonts.gstatic.com/s/kablammo/v4/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCjinUcfYJ-R_3eSwYL.10.woff2',
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/kablammo/v3/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCThRcQT4Y.woff2',
+					'https://fonts.gstatic.com/s/kablammo/v4/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCThRcQT4Y.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/kablammo/v3/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCTjBcQT4Y.woff2',
+					'https://fonts.gstatic.com/s/kablammo/v4/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCTjBcQT4Y.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/kablammo/v3/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCThxcQT4Y.woff2',
+					'https://fonts.gstatic.com/s/kablammo/v4/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCThxcQT4Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kablammo/v3/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCThhcQT4Y.woff2',
+					'https://fonts.gstatic.com/s/kablammo/v4/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCThhcQT4Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kablammo/v3/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCTiBcQ.woff2',
+					'https://fonts.gstatic.com/s/kablammo/v4/bWtm7fHPcgrhC-J3lcXhcQTY5Ixs6Au9YgCTiBcQ.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Edu VIC WA NT Beginner',
 	importName: 'EduVICWANTBeginner',
-	version: 'v5',
+	version: 'v6',
 	url: 'https://fonts.googleapis.com/css2?family=Edu+VIC+WA+NT+Beginner:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		latin:
@@ -13,19 +13,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/eduvicwantbeginner/v5/jizLRF1BuW9OwcnNPxLl4KfZCHd9nFtd5Tu7mNyB4w.woff2',
+					'https://fonts.gstatic.com/s/eduvicwantbeginner/v6/jizLRF1BuW9OwcnNPxLl4KfZCHd9nFtd5Tu7mNyB4w.woff2',
 			},
 			'500': {
 				latin:
-					'https://fonts.gstatic.com/s/eduvicwantbeginner/v5/jizLRF1BuW9OwcnNPxLl4KfZCHd9nFtd5Tu7mNyB4w.woff2',
+					'https://fonts.gstatic.com/s/eduvicwantbeginner/v6/jizLRF1BuW9OwcnNPxLl4KfZCHd9nFtd5Tu7mNyB4w.woff2',
 			},
 			'600': {
 				latin:
-					'https://fonts.gstatic.com/s/eduvicwantbeginner/v5/jizLRF1BuW9OwcnNPxLl4KfZCHd9nFtd5Tu7mNyB4w.woff2',
+					'https://fonts.gstatic.com/s/eduvicwantbeginner/v6/jizLRF1BuW9OwcnNPxLl4KfZCHd9nFtd5Tu7mNyB4w.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/eduvicwantbeginner/v5/jizLRF1BuW9OwcnNPxLl4KfZCHd9nFtd5Tu7mNyB4w.woff2',
+					'https://fonts.gstatic.com/s/eduvicwantbeginner/v6/jizLRF1BuW9OwcnNPxLl4KfZCHd9nFtd5Tu7mNyB4w.woff2',
 			},
 		},
 	},

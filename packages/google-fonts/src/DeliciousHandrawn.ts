@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Delicious Handrawn',
 	importName: 'DeliciousHandrawn',
-	version: 'v9',
+	version: 'v10',
 	url: 'https://fonts.googleapis.com/css2?family=Delicious+Handrawn:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/delicioushandrawn/v9/wlpsgx_NAUNkpmKQifcxkQchDFo3fJ1F1ZBCR6s.woff2',
+					'https://fonts.gstatic.com/s/delicioushandrawn/v10/wlpsgx_NAUNkpmKQifcxkQchDFo3fJ1F1ZBCR6s.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/delicioushandrawn/v9/wlpsgx_NAUNkpmKQifcxkQchDFo3fJ1F25BC.woff2',
+					'https://fonts.gstatic.com/s/delicioushandrawn/v10/wlpsgx_NAUNkpmKQifcxkQchDFo3fJ1F25BC.woff2',
 			},
 		},
 	},

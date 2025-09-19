@@ -1,31 +1,48 @@
 import type {EncodedPacket} from 'mediabunny';
 import {
 	ALL_FORMATS,
+	AudioSampleSink,
 	EncodedPacketSink,
 	Input,
+	MATROSKA,
 	UrlSource,
 	VideoSampleSink,
 } from 'mediabunny';
 import {makeKeyframeBank} from './keyframe-bank';
+import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
 
-export const getVideoSink = async (src: string) => {
+export const getSinks = async (src: string) => {
 	const input = new Input({
 		formats: ALL_FORMATS,
 		source: new UrlSource(src),
 	});
 
-	const track = await input.getPrimaryVideoTrack();
-	if (!track) {
+	const format = await input.getFormat();
+
+	const videoTrack = await input.getPrimaryVideoTrack();
+	if (!videoTrack) {
 		throw new Error(`No video track found for ${src}`);
 	}
 
-	const videoSampleSink = new VideoSampleSink(track);
-	const packetSink = new EncodedPacketSink(track);
+	const audioTrack = await input.getPrimaryAudioTrack();
+	const isMatroska = format === MATROSKA;
 
-	return {videoSampleSink, packetSink};
+	return {
+		video: {
+			sampleSink: new VideoSampleSink(videoTrack),
+			packetSink: new EncodedPacketSink(videoTrack),
+		},
+		audio: audioTrack
+			? {
+					sampleSink: new AudioSampleSink(audioTrack),
+				}
+			: null,
+		actualMatroskaTimestamps: rememberActualMatroskaTimestamps(isMatroska),
+		isMatroska,
+	};
 };
 
-export type GetSink = Awaited<ReturnType<typeof getVideoSink>>;
+export type GetSink = Awaited<ReturnType<typeof getSinks>>;
 
 export const getFramesSinceKeyframe = async ({
 	packetSink,

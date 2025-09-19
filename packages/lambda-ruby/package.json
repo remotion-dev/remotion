@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/lambda-ruby",
 	"private": true,
-	"version": "4.0.347",
+	"version": "4.0.350",
 	"scripts": {
 		"publishprivate": "bun publish.ts"
 	},

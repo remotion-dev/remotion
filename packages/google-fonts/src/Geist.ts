@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Geist',
 	importName: 'Geist',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Geist:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -16,66 +16,66 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwYGFWfOw.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwYGFWfOw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwSGFWfOw.woff2',
-				latin: 'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwcGFU.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwSGFWfOw.woff2',
+				latin: 'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2',
 			},
 			'200': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwYGFWfOw.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwYGFWfOw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwSGFWfOw.woff2',
-				latin: 'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwcGFU.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwSGFWfOw.woff2',
+				latin: 'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2',
 			},
 			'300': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwYGFWfOw.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwYGFWfOw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwSGFWfOw.woff2',
-				latin: 'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwcGFU.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwSGFWfOw.woff2',
+				latin: 'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2',
 			},
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwYGFWfOw.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwYGFWfOw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwSGFWfOw.woff2',
-				latin: 'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwcGFU.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwSGFWfOw.woff2',
+				latin: 'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2',
 			},
 			'500': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwYGFWfOw.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwYGFWfOw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwSGFWfOw.woff2',
-				latin: 'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwcGFU.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwSGFWfOw.woff2',
+				latin: 'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2',
 			},
 			'600': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwYGFWfOw.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwYGFWfOw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwSGFWfOw.woff2',
-				latin: 'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwcGFU.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwSGFWfOw.woff2',
+				latin: 'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2',
 			},
 			'700': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwYGFWfOw.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwYGFWfOw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwSGFWfOw.woff2',
-				latin: 'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwcGFU.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwSGFWfOw.woff2',
+				latin: 'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2',
 			},
 			'800': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwYGFWfOw.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwYGFWfOw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwSGFWfOw.woff2',
-				latin: 'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwcGFU.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwSGFWfOw.woff2',
+				latin: 'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2',
 			},
 			'900': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwYGFWfOw.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwYGFWfOw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwSGFWfOw.woff2',
-				latin: 'https://fonts.gstatic.com/s/geist/v3/gyByhwUxId8gMEwcGFU.woff2',
+					'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwSGFWfOw.woff2',
+				latin: 'https://fonts.gstatic.com/s/geist/v4/gyByhwUxId8gMEwcGFU.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mouse Memoirs',
 	importName: 'MouseMemoirs',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Mouse+Memoirs:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mousememoirs/v18/t5tmIRoSNJ-PH0WNNgDYxdSb3TDPr6OH.woff2',
+					'https://fonts.gstatic.com/s/mousememoirs/v19/t5tmIRoSNJ-PH0WNNgDYxdSb3TDPr6OH.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mousememoirs/v18/t5tmIRoSNJ-PH0WNNgDYxdSb3T7Prw.woff2',
+					'https://fonts.gstatic.com/s/mousememoirs/v19/t5tmIRoSNJ-PH0WNNgDYxdSb3T7Prw.woff2',
 			},
 		},
 	},

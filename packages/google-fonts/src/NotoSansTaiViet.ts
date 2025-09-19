@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Tai Viet',
 	importName: 'NotoSansTaiViet',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Tai+Viet:ital,wght@0,400',
 	unicodeRanges: {
 		'tai-viet': 'U+200C-200D, U+25CC, U+A78B-A78C, U+AA80-AADF',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'tai-viet':
-					'https://fonts.gstatic.com/s/notosanstaiviet/v19/8QIUdj3HhN_lv4jf9vsE-9GMOLsaSPZbpoQeasQ.woff2',
+					'https://fonts.gstatic.com/s/notosanstaiviet/v20/8QIUdj3HhN_lv4jf9vsE-9GMOLsaSPZbpoQeasQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstaiviet/v19/8QIUdj3HhN_lv4jf9vsE-9GMOLsaSPZb4oQeasQ.woff2',
+					'https://fonts.gstatic.com/s/notosanstaiviet/v20/8QIUdj3HhN_lv4jf9vsE-9GMOLsaSPZb4oQeasQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstaiviet/v19/8QIUdj3HhN_lv4jf9vsE-9GMOLsaSPZb7IQe.woff2',
+					'https://fonts.gstatic.com/s/notosanstaiviet/v20/8QIUdj3HhN_lv4jf9vsE-9GMOLsaSPZb7IQe.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Are You Serious',
 	importName: 'AreYouSerious',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Are+You+Serious:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/areyouserious/v13/ll8kK2GVSSr-PtjQ5nONVcNn430KjTVmOGQ.woff2',
+					'https://fonts.gstatic.com/s/areyouserious/v14/ll8kK2GVSSr-PtjQ5nONVcNn430KjTVmOGQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/areyouserious/v13/ll8kK2GVSSr-PtjQ5nONVcNn430KjDVmOGQ.woff2',
+					'https://fonts.gstatic.com/s/areyouserious/v14/ll8kK2GVSSr-PtjQ5nONVcNn430KjDVmOGQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/areyouserious/v13/ll8kK2GVSSr-PtjQ5nONVcNn430KgjVm.woff2',
+					'https://fonts.gstatic.com/s/areyouserious/v14/ll8kK2GVSSr-PtjQ5nONVcNn430KgjVm.woff2',
 			},
 		},
 	},

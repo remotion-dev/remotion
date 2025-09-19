@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Paytone One',
 	importName: 'PaytoneOne',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Paytone+One:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/paytoneone/v24/0nksC9P7MfYHj2oFtYm2ChTigPvNiA.woff2',
+					'https://fonts.gstatic.com/s/paytoneone/v25/0nksC9P7MfYHj2oFtYm2ChTigPvNiA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/paytoneone/v24/0nksC9P7MfYHj2oFtYm2ChTjgPvNiA.woff2',
+					'https://fonts.gstatic.com/s/paytoneone/v25/0nksC9P7MfYHj2oFtYm2ChTjgPvNiA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/paytoneone/v24/0nksC9P7MfYHj2oFtYm2ChTtgPs.woff2',
+					'https://fonts.gstatic.com/s/paytoneone/v25/0nksC9P7MfYHj2oFtYm2ChTtgPs.woff2',
 			},
 		},
 	},

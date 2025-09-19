@@ -128,15 +128,10 @@ export const makeKeyframeBank = ({
 
 	const prepareForDeletion = async () => {
 		// Cleanup frames that have been extracted that might not have been retrieved yet
-		const {value, done} = await sampleIterator.return();
+		const {value} = await sampleIterator.return();
 		if (value) {
 			value.close();
 		}
-
-		Log.verbose(
-			'verbose',
-			`Closed sample iterator ${Boolean(value)}, was done?${done}`,
-		);
 
 		for (const frameTimestamp of frameTimestamps) {
 			if (!frames[frameTimestamp]) {
@@ -161,6 +156,13 @@ export const makeKeyframeBank = ({
 		src: string;
 	}) => {
 		for (const frameTimestamp of frameTimestamps) {
+			const isLast =
+				frameTimestamp === frameTimestamps[frameTimestamps.length - 1];
+			// Don't delete the last frame, since it may be the last one in the video!
+			if (isLast) {
+				continue;
+			}
+
 			if (frameTimestamp < timestampInSeconds) {
 				if (!frames[frameTimestamp]) {
 					continue;
@@ -169,7 +171,10 @@ export const makeKeyframeBank = ({
 				frames[frameTimestamp].close();
 				delete frames[frameTimestamp];
 				framesOpen--;
-				Log.verbose(logLevel, `Deleted frame ${frameTimestamp} for src ${src}`);
+				Log.verbose(
+					logLevel,
+					`[NewVideo] Deleted frame ${frameTimestamp} for src ${src}`,
+				);
 			}
 		}
 	};
@@ -189,7 +194,7 @@ export const makeKeyframeBank = ({
 			if (allocationSize === 0) {
 				Log.verbose(
 					'verbose',
-					`Frame ${frame.timestamp} has allocation size! ${allocationSize}`,
+					`[NewVideo] Frame ${frame.timestamp} has allocation size! ${allocationSize}`,
 				);
 			}
 

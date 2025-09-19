@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'MonteCarlo',
 	importName: 'MonteCarlo',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=MonteCarlo:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/montecarlo/v12/buEzpo6-f9X01GadLA0G4CIf_exL.woff2',
+					'https://fonts.gstatic.com/s/montecarlo/v13/buEzpo6-f9X01GadLA0G4CIf_exL.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/montecarlo/v12/buEzpo6-f9X01GadLA0G4CMf_exL.woff2',
+					'https://fonts.gstatic.com/s/montecarlo/v13/buEzpo6-f9X01GadLA0G4CMf_exL.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/montecarlo/v12/buEzpo6-f9X01GadLA0G4C0f_Q.woff2',
+					'https://fonts.gstatic.com/s/montecarlo/v13/buEzpo6-f9X01GadLA0G4C0f_Q.woff2',
 			},
 		},
 	},

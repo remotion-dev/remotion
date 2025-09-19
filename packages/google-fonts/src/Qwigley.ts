@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Qwigley',
 	importName: 'Qwigley',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Qwigley:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/qwigley/v19/1cXzaU3UGJb5tGoCiVRmimmB.woff2',
+					'https://fonts.gstatic.com/s/qwigley/v20/1cXzaU3UGJb5tGoCiVRmimmB.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/qwigley/v19/1cXzaU3UGJb5tGoCiVVmimmB.woff2',
+					'https://fonts.gstatic.com/s/qwigley/v20/1cXzaU3UGJb5tGoCiVVmimmB.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/qwigley/v19/1cXzaU3UGJb5tGoCiVtmig.woff2',
+					'https://fonts.gstatic.com/s/qwigley/v20/1cXzaU3UGJb5tGoCiVtmig.woff2',
 			},
 		},
 	},

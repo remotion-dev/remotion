@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sriracha',
 	importName: 'Sriracha',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Sriracha:ital,wght@0,400',
 	unicodeRanges: {
 		thai: 'U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC',
@@ -17,13 +17,13 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				thai: 'https://fonts.gstatic.com/s/sriracha/v15/0nkrC9D4IuYBgWcI9NbLTwHSoQ.woff2',
+				thai: 'https://fonts.gstatic.com/s/sriracha/v16/0nkrC9D4IuYBgWcI9NbLTwHSoQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/sriracha/v15/0nkrC9D4IuYBgWcI9NbQTwHSoQ.woff2',
+					'https://fonts.gstatic.com/s/sriracha/v16/0nkrC9D4IuYBgWcI9NbQTwHSoQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sriracha/v15/0nkrC9D4IuYBgWcI9NbRTwHSoQ.woff2',
+					'https://fonts.gstatic.com/s/sriracha/v16/0nkrC9D4IuYBgWcI9NbRTwHSoQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sriracha/v15/0nkrC9D4IuYBgWcI9NbfTwE.woff2',
+					'https://fonts.gstatic.com/s/sriracha/v16/0nkrC9D4IuYBgWcI9NbfTwE.woff2',
 			},
 		},
 	},

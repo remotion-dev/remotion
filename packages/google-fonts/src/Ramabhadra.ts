@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ramabhadra',
 	importName: 'Ramabhadra',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Ramabhadra:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/ramabhadra/v16/EYq2maBOwqRW9P1SQ83LSghMXquW.woff2',
+					'https://fonts.gstatic.com/s/ramabhadra/v17/EYq2maBOwqRW9P1SQ83LSghMXquW.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ramabhadra/v16/EYq2maBOwqRW9P1SQ83LShRMXg.woff2',
+					'https://fonts.gstatic.com/s/ramabhadra/v17/EYq2maBOwqRW9P1SQ83LShRMXg.woff2',
 			},
 		},
 	},

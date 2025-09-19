@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sedgwick Ave Display',
 	importName: 'SedgwickAveDisplay',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Sedgwick+Ave+Display:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/sedgwickavedisplay/v22/xfuu0XPgU3jZPUoUo3ScvmPi-NapQ8OxM1c7fecXOw.woff2',
+					'https://fonts.gstatic.com/s/sedgwickavedisplay/v23/xfuu0XPgU3jZPUoUo3ScvmPi-NapQ8OxM1c7fecXOw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sedgwickavedisplay/v22/xfuu0XPgU3jZPUoUo3ScvmPi-NapQ8OxM1c6fecXOw.woff2',
+					'https://fonts.gstatic.com/s/sedgwickavedisplay/v23/xfuu0XPgU3jZPUoUo3ScvmPi-NapQ8OxM1c6fecXOw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sedgwickavedisplay/v22/xfuu0XPgU3jZPUoUo3ScvmPi-NapQ8OxM1c0fec.woff2',
+					'https://fonts.gstatic.com/s/sedgwickavedisplay/v23/xfuu0XPgU3jZPUoUo3ScvmPi-NapQ8OxM1c0fec.woff2',
 			},
 		},
 	},

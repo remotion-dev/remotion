@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Shojumaru',
 	importName: 'Shojumaru',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Shojumaru:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/shojumaru/v15/rax_HiWfutkLLnaKCtl8DRhfo0s.woff2',
+					'https://fonts.gstatic.com/s/shojumaru/v16/rax_HiWfutkLLnaKCtl8DRhfo0s.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/shojumaru/v15/rax_HiWfutkLLnaKCtl8Axhf.woff2',
+					'https://fonts.gstatic.com/s/shojumaru/v16/rax_HiWfutkLLnaKCtl8Axhf.woff2',
 			},
 		},
 	},

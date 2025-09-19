@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cagliostro',
 	importName: 'Cagliostro',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Cagliostro:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/cagliostro/v21/ZgNWjP5HM73BV5amnX-TvGLOMg.woff2',
+					'https://fonts.gstatic.com/s/cagliostro/v22/ZgNWjP5HM73BV5amnX-TvGLOMg.woff2',
 			},
 		},
 	},

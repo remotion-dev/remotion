@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bilbo',
 	importName: 'Bilbo',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Bilbo:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/bilbo/v20/o-0EIpgpwWwZ220proVD4w.woff2',
+					'https://fonts.gstatic.com/s/bilbo/v21/o-0EIpgpwWwZ220proVD4w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bilbo/v20/o-0EIpgpwWwZ220oroVD4w.woff2',
+					'https://fonts.gstatic.com/s/bilbo/v21/o-0EIpgpwWwZ220oroVD4w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bilbo/v20/o-0EIpgpwWwZ220mroU.woff2',
+					'https://fonts.gstatic.com/s/bilbo/v21/o-0EIpgpwWwZ220mroU.woff2',
 			},
 		},
 	},

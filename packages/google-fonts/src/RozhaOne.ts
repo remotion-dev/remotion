@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rozha One',
 	importName: 'RozhaOne',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Rozha+One:ital,wght@0,400',
 	unicodeRanges: {
 		devanagari:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/rozhaone/v16/AlZy_zVFtYP12Zncg2kRc335bB0.woff2',
+					'https://fonts.gstatic.com/s/rozhaone/v17/AlZy_zVFtYP12Zncg2kRc335bB0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rozhaone/v16/AlZy_zVFtYP12Zncg2kRfH35bB0.woff2',
+					'https://fonts.gstatic.com/s/rozhaone/v17/AlZy_zVFtYP12Zncg2kRfH35bB0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rozhaone/v16/AlZy_zVFtYP12Zncg2kRcn35.woff2',
+					'https://fonts.gstatic.com/s/rozhaone/v17/AlZy_zVFtYP12Zncg2kRcn35.woff2',
 			},
 		},
 	},

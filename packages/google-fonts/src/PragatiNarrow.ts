@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Pragati Narrow',
 	importName: 'PragatiNarrow',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Pragati+Narrow:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/pragatinarrow/v14/vm8vdRf0T0bS1ffgsPB7WZ-mD275wNJHMw.woff2',
+					'https://fonts.gstatic.com/s/pragatinarrow/v15/vm8vdRf0T0bS1ffgsPB7WZ-mD275wNJHMw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/pragatinarrow/v14/vm8vdRf0T0bS1ffgsPB7WZ-mD272wNJHMw.woff2',
+					'https://fonts.gstatic.com/s/pragatinarrow/v15/vm8vdRf0T0bS1ffgsPB7WZ-mD272wNJHMw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/pragatinarrow/v14/vm8vdRf0T0bS1ffgsPB7WZ-mD274wNI.woff2',
+					'https://fonts.gstatic.com/s/pragatinarrow/v15/vm8vdRf0T0bS1ffgsPB7WZ-mD274wNI.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/pragatinarrow/v14/vm8sdRf0T0bS1ffgsPB7WZ-mD2ZD5cd5EpIjlg.woff2',
+					'https://fonts.gstatic.com/s/pragatinarrow/v15/vm8sdRf0T0bS1ffgsPB7WZ-mD2ZD5cd5EpIjlg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/pragatinarrow/v14/vm8sdRf0T0bS1ffgsPB7WZ-mD2ZD5cd2EpIjlg.woff2',
+					'https://fonts.gstatic.com/s/pragatinarrow/v15/vm8sdRf0T0bS1ffgsPB7WZ-mD2ZD5cd2EpIjlg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/pragatinarrow/v14/vm8sdRf0T0bS1ffgsPB7WZ-mD2ZD5cd4EpI.woff2',
+					'https://fonts.gstatic.com/s/pragatinarrow/v15/vm8sdRf0T0bS1ffgsPB7WZ-mD2ZD5cd4EpI.woff2',
 			},
 		},
 	},

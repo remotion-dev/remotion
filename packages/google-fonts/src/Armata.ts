@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Armata',
 	importName: 'Armata',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Armata:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/armata/v20/gokvH63_HV5jQ-ENnTR2c2s.woff2',
+					'https://fonts.gstatic.com/s/armata/v21/gokvH63_HV5jQ-ENnTR2c2s.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/armata/v20/gokvH63_HV5jQ-ENkzR2.woff2',
+					'https://fonts.gstatic.com/s/armata/v21/gokvH63_HV5jQ-ENkzR2.woff2',
 			},
 		},
 	},

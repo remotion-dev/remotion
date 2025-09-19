@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sintony',
 	importName: 'Sintony',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Sintony:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sintony/v16/XoHm2YDqR7-98cVUET0tuu8o.woff2',
+					'https://fonts.gstatic.com/s/sintony/v17/XoHm2YDqR7-98cVUET0tuu8o.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sintony/v16/XoHm2YDqR7-98cVUETMtug.woff2',
+					'https://fonts.gstatic.com/s/sintony/v17/XoHm2YDqR7-98cVUETMtug.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sintony/v16/XoHj2YDqR7-98cVUGYgIr94JkwLp.woff2',
+					'https://fonts.gstatic.com/s/sintony/v17/XoHj2YDqR7-98cVUGYgIr94JkwLp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sintony/v16/XoHj2YDqR7-98cVUGYgIr9AJkw.woff2',
+					'https://fonts.gstatic.com/s/sintony/v17/XoHj2YDqR7-98cVUGYgIr9AJkw.woff2',
 			},
 		},
 	},

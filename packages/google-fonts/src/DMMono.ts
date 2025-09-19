@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'DM Mono',
 	importName: 'DMMono',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,41 +15,41 @@ export const getInfo = () => ({
 		italic: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/dmmono/v15/aFTT7PB1QTsUX8KYth-orYadYY35Zlk.woff2',
+					'https://fonts.gstatic.com/s/dmmono/v16/aFTT7PB1QTsUX8KYth-orYadYY35Zlk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/dmmono/v15/aFTT7PB1QTsUX8KYth-orYadb435.woff2',
+					'https://fonts.gstatic.com/s/dmmono/v16/aFTT7PB1QTsUX8KYth-orYadb435.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/dmmono/v15/aFTW7PB1QTsUX8KYth-gCKSIUKw.woff2',
+					'https://fonts.gstatic.com/s/dmmono/v16/aFTW7PB1QTsUX8KYth-gCKSIUKw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/dmmono/v15/aFTW7PB1QTsUX8KYth-gBqSI.woff2',
+					'https://fonts.gstatic.com/s/dmmono/v16/aFTW7PB1QTsUX8KYth-gBqSI.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/dmmono/v15/aFTT7PB1QTsUX8KYth-o9YedYY35Zlk.woff2',
+					'https://fonts.gstatic.com/s/dmmono/v16/aFTT7PB1QTsUX8KYth-o9YedYY35Zlk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/dmmono/v15/aFTT7PB1QTsUX8KYth-o9Yedb435.woff2',
+					'https://fonts.gstatic.com/s/dmmono/v16/aFTT7PB1QTsUX8KYth-o9Yedb435.woff2',
 			},
 		},
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/dmmono/v15/aFTR7PB1QTsUX8KYvrGyEY2tbZX9.woff2',
+					'https://fonts.gstatic.com/s/dmmono/v16/aFTR7PB1QTsUX8KYvrGyEY2tbZX9.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/dmmono/v15/aFTR7PB1QTsUX8KYvrGyEYOtbQ.woff2',
+					'https://fonts.gstatic.com/s/dmmono/v16/aFTR7PB1QTsUX8KYvrGyEYOtbQ.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/dmmono/v15/aFTU7PB1QTsUX8KYthSQBLyM.woff2',
+					'https://fonts.gstatic.com/s/dmmono/v16/aFTU7PB1QTsUX8KYthSQBLyM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/dmmono/v15/aFTU7PB1QTsUX8KYthqQBA.woff2',
+					'https://fonts.gstatic.com/s/dmmono/v16/aFTU7PB1QTsUX8KYthqQBA.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/dmmono/v15/aFTR7PB1QTsUX8KYvumzEY2tbZX9.woff2',
+					'https://fonts.gstatic.com/s/dmmono/v16/aFTR7PB1QTsUX8KYvumzEY2tbZX9.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/dmmono/v15/aFTR7PB1QTsUX8KYvumzEYOtbQ.woff2',
+					'https://fonts.gstatic.com/s/dmmono/v16/aFTR7PB1QTsUX8KYvumzEYOtbQ.woff2',
 			},
 		},
 	},

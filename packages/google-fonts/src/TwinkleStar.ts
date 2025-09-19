@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Twinkle Star',
 	importName: 'TwinkleStar',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Twinkle+Star:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/twinklestar/v7/pe0pMI6IL4dPoFl9LGEmY6WqC_5vS1U.woff2',
+					'https://fonts.gstatic.com/s/twinklestar/v8/pe0pMI6IL4dPoFl9LGEmY6WqC_5vS1U.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/twinklestar/v7/pe0pMI6IL4dPoFl9LGEmY6WqCv5vS1U.woff2',
+					'https://fonts.gstatic.com/s/twinklestar/v8/pe0pMI6IL4dPoFl9LGEmY6WqCv5vS1U.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/twinklestar/v7/pe0pMI6IL4dPoFl9LGEmY6WqBP5v.woff2',
+					'https://fonts.gstatic.com/s/twinklestar/v8/pe0pMI6IL4dPoFl9LGEmY6WqBP5v.woff2',
 			},
 		},
 	},

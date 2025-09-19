@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Anek Tamil',
 	importName: 'AnekTamil',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Anek+Tamil:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		tamil: 'U+0964-0965, U+0B82-0BFA, U+200C-200D, U+20B9, U+25CC',
@@ -16,67 +16,67 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				tamil:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
 			},
 			'200': {
 				tamil:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
 			},
 			'300': {
 				tamil:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
 			},
 			'400': {
 				tamil:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
 			},
 			'500': {
 				tamil:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
 			},
 			'600': {
 				tamil:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
 			},
 			'700': {
 				tamil:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
 			},
 			'800': {
 				tamil:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-DU897Eg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-bU897Eg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anektamil/v17/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
+					'https://fonts.gstatic.com/s/anektamil/v18/XLY2IZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW2-VU88.woff2',
 			},
 		},
 	},

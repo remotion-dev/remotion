@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Duployan',
 	importName: 'NotoSansDuployan',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Duployan:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		duployan:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				duployan:
-					'https://fonts.gstatic.com/s/notosansduployan/v18/gokzH7nwAEdtF9N8-mdTDx_X9JM5wsvbi-kD5F8a.woff2',
+					'https://fonts.gstatic.com/s/notosansduployan/v19/gokzH7nwAEdtF9N8-mdTDx_X9JM5wsvbi-kD5F8a.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansduployan/v18/gokzH7nwAEdtF9N8-mdTDx_X9JM5wsvbH8gm2WY.woff2',
+					'https://fonts.gstatic.com/s/notosansduployan/v19/gokzH7nwAEdtF9N8-mdTDx_X9JM5wsvbH8gm2WY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansduployan/v18/gokzH7nwAEdtF9N8-mdTDx_X9JM5wsvbEcgm.woff2',
+					'https://fonts.gstatic.com/s/notosansduployan/v19/gokzH7nwAEdtF9N8-mdTDx_X9JM5wsvbEcgm.woff2',
 			},
 			'700': {
 				duployan:
-					'https://fonts.gstatic.com/s/notosansduployan/v18/gokwH7nwAEdtF9N8-mdTDx_X9JM5wsvTqu0zfGY7uK2n.woff2',
+					'https://fonts.gstatic.com/s/notosansduployan/v19/gokwH7nwAEdtF9N8-mdTDx_X9JM5wsvTqu0zfGY7uK2n.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansduployan/v18/gokwH7nwAEdtF9N8-mdTDx_X9JM5wsvTqu0z6EcehZQ.woff2',
+					'https://fonts.gstatic.com/s/notosansduployan/v19/gokwH7nwAEdtF9N8-mdTDx_X9JM5wsvTqu0z6EcehZQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansduployan/v18/gokwH7nwAEdtF9N8-mdTDx_X9JM5wsvTqu0z5kce.woff2',
+					'https://fonts.gstatic.com/s/notosansduployan/v19/gokwH7nwAEdtF9N8-mdTDx_X9JM5wsvTqu0z5kce.woff2',
 			},
 		},
 	},

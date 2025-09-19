@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Charm',
 	importName: 'Charm',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Charm:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		thai: 'U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC',
@@ -17,22 +17,22 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				thai: 'https://fonts.gstatic.com/s/charm/v13/7cHmv4oii5K0MdY8K-4E4Q.woff2',
+				thai: 'https://fonts.gstatic.com/s/charm/v14/7cHmv4oii5K0MdY8K-4E4Q.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/charm/v13/7cHmv4oii5K0MdYnK-4E4Q.woff2',
+					'https://fonts.gstatic.com/s/charm/v14/7cHmv4oii5K0MdYnK-4E4Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/charm/v13/7cHmv4oii5K0MdYmK-4E4Q.woff2',
+					'https://fonts.gstatic.com/s/charm/v14/7cHmv4oii5K0MdYmK-4E4Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/charm/v13/7cHmv4oii5K0MdYoK-4.woff2',
+					'https://fonts.gstatic.com/s/charm/v14/7cHmv4oii5K0MdYoK-4.woff2',
 			},
 			'700': {
-				thai: 'https://fonts.gstatic.com/s/charm/v13/7cHrv4oii5K0Md6TDvsvwH8RnA.woff2',
+				thai: 'https://fonts.gstatic.com/s/charm/v14/7cHrv4oii5K0Md6TDvsvwH8RnA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/charm/v13/7cHrv4oii5K0Md6TDvs0wH8RnA.woff2',
+					'https://fonts.gstatic.com/s/charm/v14/7cHrv4oii5K0Md6TDvs0wH8RnA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/charm/v13/7cHrv4oii5K0Md6TDvs1wH8RnA.woff2',
+					'https://fonts.gstatic.com/s/charm/v14/7cHrv4oii5K0Md6TDvs1wH8RnA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/charm/v13/7cHrv4oii5K0Md6TDvs7wH8.woff2',
+					'https://fonts.gstatic.com/s/charm/v14/7cHrv4oii5K0Md6TDvs7wH8.woff2',
 			},
 		},
 	},

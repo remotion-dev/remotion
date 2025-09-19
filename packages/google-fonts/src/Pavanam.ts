@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Pavanam',
 	importName: 'Pavanam',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Pavanam:ital,wght@0,400',
 	unicodeRanges: {
 		tamil: 'U+0964-0965, U+0B82-0BFA, U+200C-200D, U+20B9, U+25CC',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				tamil:
-					'https://fonts.gstatic.com/s/pavanam/v12/BXRrvF_aiezLh0xPPPpa9Ff0.woff2',
+					'https://fonts.gstatic.com/s/pavanam/v13/BXRrvF_aiezLh0xPPPpa9Ff0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/pavanam/v12/BXRrvF_aiezLh0xPPOJa9Ff0.woff2',
+					'https://fonts.gstatic.com/s/pavanam/v13/BXRrvF_aiezLh0xPPOJa9Ff0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/pavanam/v12/BXRrvF_aiezLh0xPPOxa9A.woff2',
+					'https://fonts.gstatic.com/s/pavanam/v13/BXRrvF_aiezLh0xPPOxa9A.woff2',
 			},
 		},
 	},

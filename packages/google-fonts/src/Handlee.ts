@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Handlee',
 	importName: 'Handlee',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Handlee:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/handlee/v19/-F6xfjBsISg9aMakPm3wow.woff2',
+					'https://fonts.gstatic.com/s/handlee/v20/-F6xfjBsISg9aMakPm3wow.woff2',
 			},
 		},
 	},

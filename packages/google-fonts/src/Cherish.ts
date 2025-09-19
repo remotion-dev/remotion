@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cherish',
 	importName: 'Cherish',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Cherish:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/cherish/v8/ll88K2mXUyqsDsTN1ijIIpIJ.woff2',
+					'https://fonts.gstatic.com/s/cherish/v9/ll88K2mXUyqsDsTN1ijIIpIJ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cherish/v8/ll88K2mXUyqsDsTN1inIIpIJ.woff2',
+					'https://fonts.gstatic.com/s/cherish/v9/ll88K2mXUyqsDsTN1inIIpIJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cherish/v8/ll88K2mXUyqsDsTN1ifIIg.woff2',
+					'https://fonts.gstatic.com/s/cherish/v9/ll88K2mXUyqsDsTN1ifIIg.woff2',
 			},
 		},
 	},

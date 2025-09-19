@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Courier Prime',
 	importName: 'CourierPrime',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,29 +15,29 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/courierprime/v10/u-4n0q2lgwslOqpF_6gQ8kELawRZVsf6lvg.woff2',
+					'https://fonts.gstatic.com/s/courierprime/v11/u-4n0q2lgwslOqpF_6gQ8kELawRZVsf6lvg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/courierprime/v10/u-4n0q2lgwslOqpF_6gQ8kELawRZWMf6.woff2',
+					'https://fonts.gstatic.com/s/courierprime/v11/u-4n0q2lgwslOqpF_6gQ8kELawRZWMf6.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/courierprime/v10/u-4i0q2lgwslOqpF_6gQ8kELawRR4-Lvp9nsBXw.woff2',
+					'https://fonts.gstatic.com/s/courierprime/v11/u-4i0q2lgwslOqpF_6gQ8kELawRR4-Lvp9nsBXw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/courierprime/v10/u-4i0q2lgwslOqpF_6gQ8kELawRR4-Lvqdns.woff2',
+					'https://fonts.gstatic.com/s/courierprime/v11/u-4i0q2lgwslOqpF_6gQ8kELawRR4-Lvqdns.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/courierprime/v10/u-450q2lgwslOqpF_6gQ8kELaw9pWt_-.woff2',
+					'https://fonts.gstatic.com/s/courierprime/v11/u-450q2lgwslOqpF_6gQ8kELaw9pWt_-.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/courierprime/v10/u-450q2lgwslOqpF_6gQ8kELawFpWg.woff2',
+					'https://fonts.gstatic.com/s/courierprime/v11/u-450q2lgwslOqpF_6gQ8kELawFpWg.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/courierprime/v10/u-4k0q2lgwslOqpF_6gQ8kELY7pMT-7fq8Ho.woff2',
+					'https://fonts.gstatic.com/s/courierprime/v11/u-4k0q2lgwslOqpF_6gQ8kELY7pMT-7fq8Ho.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/courierprime/v10/u-4k0q2lgwslOqpF_6gQ8kELY7pMT-Dfqw.woff2',
+					'https://fonts.gstatic.com/s/courierprime/v11/u-4k0q2lgwslOqpF_6gQ8kELY7pMT-Dfqw.woff2',
 			},
 		},
 	},

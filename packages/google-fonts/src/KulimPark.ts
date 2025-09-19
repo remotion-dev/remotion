@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kulim Park',
 	importName: 'KulimPark',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,65 +15,65 @@ export const getInfo = () => ({
 		italic: {
 			'200': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdNm9secq3hflz1Uu3IwhFwUKa9gaJ0rOjU.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdNm9secq3hflz1Uu3IwhFwUKa9gaJ0rOjU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdNm9secq3hflz1Uu3IwhFwUKa9gZp0r.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdNm9secq3hflz1Uu3IwhFwUKa9gZp0r.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdNm9secq3hflz1Uu3IwhFwUTaxgaJ0rOjU.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdNm9secq3hflz1Uu3IwhFwUTaxgaJ0rOjU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdNm9secq3hflz1Uu3IwhFwUTaxgZp0r.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdNm9secq3hflz1Uu3IwhFwUTaxgZp0r.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdN59secq3hflz1Uu3IwhFwc6I51Wbw.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdN59secq3hflz1Uu3IwhFwc6I51Wbw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdN59secq3hflz1Uu3IwhFwc5o51.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdN59secq3hflz1Uu3IwhFwc5o51.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdNm9secq3hflz1Uu3IwhFwUOapgaJ0rOjU.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdNm9secq3hflz1Uu3IwhFwUOapgaJ0rOjU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdNm9secq3hflz1Uu3IwhFwUOapgZp0r.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdNm9secq3hflz1Uu3IwhFwUOapgZp0r.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdNm9secq3hflz1Uu3IwhFwUXatgaJ0rOjU.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdNm9secq3hflz1Uu3IwhFwUXatgaJ0rOjU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdNm9secq3hflz1Uu3IwhFwUXatgZp0r.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdNm9secq3hflz1Uu3IwhFwUXatgZp0r.woff2',
 			},
 		},
 		normal: {
 			'200': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdN49secq3hflz1Uu3IwjJYN8adQZIUv.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdN49secq3hflz1Uu3IwjJYN8adQZIUv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdN49secq3hflz1Uu3IwjJYN8alQZA.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdN49secq3hflz1Uu3IwjJYN8alQZA.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdN49secq3hflz1Uu3IwjPIO8adQZIUv.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdN49secq3hflz1Uu3IwjPIO8adQZIUv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdN49secq3hflz1Uu3IwjPIO8alQZA.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdN49secq3hflz1Uu3IwjPIO8alQZA.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdN79secq3hflz1Uu3IwhFcs5JZx.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdN79secq3hflz1Uu3IwhFcs5JZx.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdN79secq3hflz1Uu3IwhFks5A.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdN79secq3hflz1Uu3IwhFks5A.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdN49secq3hflz1Uu3IwjIYI8adQZIUv.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdN49secq3hflz1Uu3IwjIYI8adQZIUv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdN49secq3hflz1Uu3IwjIYI8alQZA.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdN49secq3hflz1Uu3IwjIYI8alQZA.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdN49secq3hflz1Uu3IwjOIJ8adQZIUv.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdN49secq3hflz1Uu3IwjOIJ8adQZIUv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kulimpark/v14/fdN49secq3hflz1Uu3IwjOIJ8alQZA.woff2',
+					'https://fonts.gstatic.com/s/kulimpark/v15/fdN49secq3hflz1Uu3IwjOIJ8alQZA.woff2',
 			},
 		},
 	},

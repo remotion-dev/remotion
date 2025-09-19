@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Timmana',
 	importName: 'Timmana',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Timmana:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/timmana/v13/6xKvdShfL9yK-rvpOnDRKUwJ.woff2',
+					'https://fonts.gstatic.com/s/timmana/v14/6xKvdShfL9yK-rvpOnDRKUwJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/timmana/v13/6xKvdShfL9yK-rvpOmzRKQ.woff2',
+					'https://fonts.gstatic.com/s/timmana/v14/6xKvdShfL9yK-rvpOmzRKQ.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Seymour One',
 	importName: 'SeymourOne',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Seymour+One:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/seymourone/v24/4iCp6Khla9xbjQpoWGGd0lyLN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/seymourone/v25/4iCp6Khla9xbjQpoWGGd0lyLN4Ffgg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/seymourone/v24/4iCp6Khla9xbjQpoWGGd0lyBN4Ffgg.woff2',
+					'https://fonts.gstatic.com/s/seymourone/v25/4iCp6Khla9xbjQpoWGGd0lyBN4Ffgg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/seymourone/v24/4iCp6Khla9xbjQpoWGGd0lyPN4E.woff2',
+					'https://fonts.gstatic.com/s/seymourone/v25/4iCp6Khla9xbjQpoWGGd0lyPN4E.woff2',
 			},
 		},
 	},

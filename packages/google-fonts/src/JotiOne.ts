@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Joti One',
 	importName: 'JotiOne',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Joti+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/jotione/v27/Z9XVDmdJQAmWm9TwabTX6Oy0lw.woff2',
+					'https://fonts.gstatic.com/s/jotione/v28/Z9XVDmdJQAmWm9TwabTX6Oy0lw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/jotione/v27/Z9XVDmdJQAmWm9TwabTZ6Ow.woff2',
+					'https://fonts.gstatic.com/s/jotione/v28/Z9XVDmdJQAmWm9TwabTZ6Ow.woff2',
 			},
 		},
 	},

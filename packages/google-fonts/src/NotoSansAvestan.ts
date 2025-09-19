@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Avestan',
 	importName: 'NotoSansAvestan',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Avestan:ital,wght@0,400',
 	unicodeRanges: {
 		avestan: 'U+200C-200D, U+2E30-2E31, U+10B00-10B3F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				avestan:
-					'https://fonts.gstatic.com/s/notosansavestan/v21/bWti7ejKfBziStx7lIzKOLQZKhIJkxvuQgW7jg.woff2',
+					'https://fonts.gstatic.com/s/notosansavestan/v22/bWti7ejKfBziStx7lIzKOLQZKhIJkxvuQgW7jg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansavestan/v21/bWti7ejKfBziStx7lIzKOLQZKhIJkxu0QgW7jg.woff2',
+					'https://fonts.gstatic.com/s/notosansavestan/v22/bWti7ejKfBziStx7lIzKOLQZKhIJkxu0QgW7jg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansavestan/v21/bWti7ejKfBziStx7lIzKOLQZKhIJkxu6QgU.woff2',
+					'https://fonts.gstatic.com/s/notosansavestan/v22/bWti7ejKfBziStx7lIzKOLQZKhIJkxu6QgU.woff2',
 			},
 		},
 	},

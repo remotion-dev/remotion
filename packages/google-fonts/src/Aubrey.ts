@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Aubrey',
 	importName: 'Aubrey',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Aubrey:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/aubrey/v28/q5uGsou7NPBw-p7fvQlt.woff2',
+					'https://fonts.gstatic.com/s/aubrey/v29/q5uGsou7NPBw-p7fvQlt.woff2',
 			},
 		},
 	},

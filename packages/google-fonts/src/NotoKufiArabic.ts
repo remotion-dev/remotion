@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Kufi Arabic',
 	importName: 'NotoKufiArabic',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		arabic:
@@ -20,102 +20,102 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				arabic:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
-				math: 'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
+				math: 'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
 			},
 			'200': {
 				arabic:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
-				math: 'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
+				math: 'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
 			},
 			'300': {
 				arabic:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
-				math: 'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
+				math: 'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
 			},
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
-				math: 'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
+				math: 'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
-				math: 'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
+				math: 'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
-				math: 'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
+				math: 'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
-				math: 'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
+				math: 'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
 			},
 			'800': {
 				arabic:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
-				math: 'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
+				math: 'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
 			},
 			'900': {
 				arabic:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
-				math: 'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFlKp.woff2',
+				math: 'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrJ8FFlKp.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrI0FFlKp.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrO0FFlKp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notokufiarabic/v26/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
+					'https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFg.woff2',
 			},
 		},
 	},

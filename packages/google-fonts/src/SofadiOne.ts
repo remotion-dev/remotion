@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sofadi One',
 	importName: 'SofadiOne',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Sofadi+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/sofadione/v21/JIA2UVBxdnVBuElZaMFGQDSCEA.woff2',
+					'https://fonts.gstatic.com/s/sofadione/v22/JIA2UVBxdnVBuElZaMFGQDSCEA.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fredericka the Great',
 	importName: 'FrederickatheGreat',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Fredericka+the+Great:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/frederickathegreat/v22/9Bt33CxNwt7aOctW2xjbCstzwVKsIBVV--StxbcVcg.woff2',
+					'https://fonts.gstatic.com/s/frederickathegreat/v23/9Bt33CxNwt7aOctW2xjbCstzwVKsIBVV--StxbcVcg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/frederickathegreat/v22/9Bt33CxNwt7aOctW2xjbCstzwVKsIBVV--Sjxbc.woff2',
+					'https://fonts.gstatic.com/s/frederickathegreat/v23/9Bt33CxNwt7aOctW2xjbCstzwVKsIBVV--Sjxbc.woff2',
 			},
 		},
 	},

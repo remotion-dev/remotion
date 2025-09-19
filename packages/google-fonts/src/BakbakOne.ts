@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bakbak One',
 	importName: 'BakbakOne',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Bakbak+One:ital,wght@0,400',
 	unicodeRanges: {
 		devanagari:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/bakbakone/v10/zOL54pXAl6RI-p_ardnu-cJkvthH.woff2',
+					'https://fonts.gstatic.com/s/bakbakone/v11/zOL54pXAl6RI-p_ardnu-cJkvthH.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bakbakone/v10/zOL54pXAl6RI-p_ardnu-c1kvthH.woff2',
+					'https://fonts.gstatic.com/s/bakbakone/v11/zOL54pXAl6RI-p_ardnu-c1kvthH.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bakbakone/v10/zOL54pXAl6RI-p_ardnu-cNkvg.woff2',
+					'https://fonts.gstatic.com/s/bakbakone/v11/zOL54pXAl6RI-p_ardnu-cNkvg.woff2',
 			},
 		},
 	},

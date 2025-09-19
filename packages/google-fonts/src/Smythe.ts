@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Smythe',
 	importName: 'Smythe',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Smythe:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/smythe/v23/MwQ3bhT01--coT1xP7J-.woff2',
+					'https://fonts.gstatic.com/s/smythe/v24/MwQ3bhT01--coT1xP7J-.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Canadian Aboriginal',
 	importName: 'NotoSansCanadianAboriginal',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Canadian+Aboriginal:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'canadian-aboriginal':
@@ -20,102 +20,102 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
-				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
+				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
 			},
 			'200': {
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
-				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
+				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
 			},
 			'300': {
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
-				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
+				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
 			},
 			'400': {
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
-				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
+				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
 			},
 			'500': {
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
-				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
+				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
 			},
 			'600': {
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
-				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
+				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
 			},
 			'700': {
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
-				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
+				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
 			},
 			'800': {
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
-				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
+				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
 			},
 			'900': {
 				'canadian-aboriginal':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
-				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx15whAXAg.woff2',
+				math: 'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx0qwhAXAg.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx04whAXAg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1YwhAXAg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v27/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
+					'https://fonts.gstatic.com/s/notosanscanadianaboriginal/v28/4C_gLjTuEqPj-8J01CwaGkiZ9os0iGVkezM1mUT-j_Lmlx1WwhA.woff2',
 			},
 		},
 	},

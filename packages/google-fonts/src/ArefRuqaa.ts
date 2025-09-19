@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Aref Ruqaa',
 	importName: 'ArefRuqaa',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Aref+Ruqaa:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		arabic:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/arefruqaa/v25/WwkbxPW1E165rajQKDulIIIoVeo5.woff2',
+					'https://fonts.gstatic.com/s/arefruqaa/v26/WwkbxPW1E165rajQKDulIIIoVeo5.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arefruqaa/v25/WwkbxPW1E165rajQKDulIIkoVeo5.woff2',
+					'https://fonts.gstatic.com/s/arefruqaa/v26/WwkbxPW1E165rajQKDulIIkoVeo5.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arefruqaa/v25/WwkbxPW1E165rajQKDulIIcoVQ.woff2',
+					'https://fonts.gstatic.com/s/arefruqaa/v26/WwkbxPW1E165rajQKDulIIcoVQ.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/arefruqaa/v25/WwkYxPW1E165rajQKDulKDwNQNAY2e_7.woff2',
+					'https://fonts.gstatic.com/s/arefruqaa/v26/WwkYxPW1E165rajQKDulKDwNQNAY2e_7.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arefruqaa/v25/WwkYxPW1E165rajQKDulKDwNQNsY2e_7.woff2',
+					'https://fonts.gstatic.com/s/arefruqaa/v26/WwkYxPW1E165rajQKDulKDwNQNsY2e_7.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arefruqaa/v25/WwkYxPW1E165rajQKDulKDwNQNUY2Q.woff2',
+					'https://fonts.gstatic.com/s/arefruqaa/v26/WwkYxPW1E165rajQKDulKDwNQNUY2Q.woff2',
 			},
 		},
 	},

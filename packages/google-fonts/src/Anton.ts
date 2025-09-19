@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Anton',
 	importName: 'Anton',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Anton:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/anton/v26/1Ptgg87LROyAm3K8-C8QSw.woff2',
+					'https://fonts.gstatic.com/s/anton/v27/1Ptgg87LROyAm3K8-C8QSw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anton/v26/1Ptgg87LROyAm3K9-C8QSw.woff2',
+					'https://fonts.gstatic.com/s/anton/v27/1Ptgg87LROyAm3K9-C8QSw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anton/v26/1Ptgg87LROyAm3Kz-C8.woff2',
+					'https://fonts.gstatic.com/s/anton/v27/1Ptgg87LROyAm3Kz-C8.woff2',
 			},
 		},
 	},

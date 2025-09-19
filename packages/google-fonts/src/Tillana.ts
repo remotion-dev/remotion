@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tillana',
 	importName: 'Tillana',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Tillana:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		devanagari:
@@ -17,43 +17,43 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/tillana/v14/VuJxdNvf35P4qJ1OSKDdObFn.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJxdNvf35P4qJ1OSKDdObFn.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tillana/v14/VuJxdNvf35P4qJ1OSK_dObFn.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJxdNvf35P4qJ1OSK_dObFn.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tillana/v14/VuJxdNvf35P4qJ1OSKHdOQ.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJxdNvf35P4qJ1OSKHdOQ.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/tillana/v14/VuJ0dNvf35P4qJ1OQFL-LI9GZCNc.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJ0dNvf35P4qJ1OQFL-LI9GZCNc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tillana/v14/VuJ0dNvf35P4qJ1OQFL-LIBGZCNc.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJ0dNvf35P4qJ1OQFL-LIBGZCNc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tillana/v14/VuJ0dNvf35P4qJ1OQFL-LI5GZA.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJ0dNvf35P4qJ1OQFL-LI5GZA.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/tillana/v14/VuJ0dNvf35P4qJ1OQH75LI9GZCNc.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJ0dNvf35P4qJ1OQH75LI9GZCNc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tillana/v14/VuJ0dNvf35P4qJ1OQH75LIBGZCNc.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJ0dNvf35P4qJ1OQH75LIBGZCNc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tillana/v14/VuJ0dNvf35P4qJ1OQH75LI5GZA.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJ0dNvf35P4qJ1OQH75LI5GZA.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/tillana/v14/VuJ0dNvf35P4qJ1OQBr4LI9GZCNc.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJ0dNvf35P4qJ1OQBr4LI9GZCNc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tillana/v14/VuJ0dNvf35P4qJ1OQBr4LIBGZCNc.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJ0dNvf35P4qJ1OQBr4LIBGZCNc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tillana/v14/VuJ0dNvf35P4qJ1OQBr4LI5GZA.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJ0dNvf35P4qJ1OQBr4LI5GZA.woff2',
 			},
 			'800': {
 				devanagari:
-					'https://fonts.gstatic.com/s/tillana/v14/VuJ0dNvf35P4qJ1OQAb7LI9GZCNc.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJ0dNvf35P4qJ1OQAb7LI9GZCNc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tillana/v14/VuJ0dNvf35P4qJ1OQAb7LIBGZCNc.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJ0dNvf35P4qJ1OQAb7LIBGZCNc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tillana/v14/VuJ0dNvf35P4qJ1OQAb7LI5GZA.woff2',
+					'https://fonts.gstatic.com/s/tillana/v15/VuJ0dNvf35P4qJ1OQAb7LI5GZA.woff2',
 			},
 		},
 	},

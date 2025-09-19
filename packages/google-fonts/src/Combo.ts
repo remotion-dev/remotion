@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Combo',
 	importName: 'Combo',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Combo:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/combo/v21/BXRlvF3Jh_fIhj0rDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/combo/v22/BXRlvF3Jh_fIhj0rDO5C8A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/combo/v21/BXRlvF3Jh_fIhj0lDO4.woff2',
+					'https://fonts.gstatic.com/s/combo/v22/BXRlvF3Jh_fIhj0lDO4.woff2',
 			},
 		},
 	},

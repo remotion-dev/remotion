@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Eczar',
 	importName: 'Eczar',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Eczar:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		devanagari:
@@ -20,63 +20,63 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0kDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0kDO5C8A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0pDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0pDO5C8A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0mDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0mDO5C8A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0rDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0rDO5C8A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0lDO4.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0lDO4.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0kDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0kDO5C8A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0pDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0pDO5C8A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0mDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0mDO5C8A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0rDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0rDO5C8A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0lDO4.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0lDO4.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0kDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0kDO5C8A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0pDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0pDO5C8A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0mDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0mDO5C8A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0rDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0rDO5C8A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0lDO4.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0lDO4.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0kDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0kDO5C8A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0pDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0pDO5C8A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0mDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0mDO5C8A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0rDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0rDO5C8A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0lDO4.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0lDO4.woff2',
 			},
 			'800': {
 				devanagari:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0kDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0kDO5C8A.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0pDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0pDO5C8A.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0mDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0mDO5C8A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0rDO5C8A.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0rDO5C8A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eczar/v26/BXRlvF3Pi-DLmz0lDO4.woff2',
+					'https://fonts.gstatic.com/s/eczar/v27/BXRlvF3Pi-DLmz0lDO4.woff2',
 			},
 		},
 	},

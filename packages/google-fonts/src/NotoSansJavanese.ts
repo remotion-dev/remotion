@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Javanese',
 	importName: 'NotoSansJavanese',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Javanese:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		javanese: 'U+200C-200D, U+25CC, U+A980-A9DF',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				javanese:
-					'https://fonts.gstatic.com/s/notosansjavanese/v24/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH507U9dp0.woff2',
+					'https://fonts.gstatic.com/s/notosansjavanese/v25/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH507U9dp0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansjavanese/v24/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH5-7U9dp0.woff2',
+					'https://fonts.gstatic.com/s/notosansjavanese/v25/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH5-7U9dp0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansjavanese/v24/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH59bU9.woff2',
+					'https://fonts.gstatic.com/s/notosansjavanese/v25/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH59bU9.woff2',
 			},
 			'500': {
 				javanese:
-					'https://fonts.gstatic.com/s/notosansjavanese/v24/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH507U9dp0.woff2',
+					'https://fonts.gstatic.com/s/notosansjavanese/v25/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH507U9dp0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansjavanese/v24/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH5-7U9dp0.woff2',
+					'https://fonts.gstatic.com/s/notosansjavanese/v25/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH5-7U9dp0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansjavanese/v24/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH59bU9.woff2',
+					'https://fonts.gstatic.com/s/notosansjavanese/v25/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH59bU9.woff2',
 			},
 			'600': {
 				javanese:
-					'https://fonts.gstatic.com/s/notosansjavanese/v24/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH507U9dp0.woff2',
+					'https://fonts.gstatic.com/s/notosansjavanese/v25/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH507U9dp0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansjavanese/v24/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH5-7U9dp0.woff2',
+					'https://fonts.gstatic.com/s/notosansjavanese/v25/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH5-7U9dp0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansjavanese/v24/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH59bU9.woff2',
+					'https://fonts.gstatic.com/s/notosansjavanese/v25/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH59bU9.woff2',
 			},
 			'700': {
 				javanese:
-					'https://fonts.gstatic.com/s/notosansjavanese/v24/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH507U9dp0.woff2',
+					'https://fonts.gstatic.com/s/notosansjavanese/v25/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH507U9dp0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansjavanese/v24/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH5-7U9dp0.woff2',
+					'https://fonts.gstatic.com/s/notosansjavanese/v25/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH5-7U9dp0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansjavanese/v24/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH59bU9.woff2',
+					'https://fonts.gstatic.com/s/notosansjavanese/v25/2V0AKJkDAIA6Hp4zoSScDjV0Y-eoHAH59bU9.woff2',
 			},
 		},
 	},

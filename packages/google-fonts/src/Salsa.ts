@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Salsa',
 	importName: 'Salsa',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Salsa:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/salsa/v22/gNMKW3FiRpKj-hmf-HY.woff2',
+					'https://fonts.gstatic.com/s/salsa/v23/gNMKW3FiRpKj-hmf-HY.woff2',
 			},
 		},
 	},

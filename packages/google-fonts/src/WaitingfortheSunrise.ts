@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Waiting for the Sunrise',
 	importName: 'WaitingfortheSunrise',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Waiting+for+the+Sunrise:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/waitingforthesunrise/v22/WBL1rFvOYl9CEv2i1mO6KUW8RKWJ2zoXoz5JsbZZ_B7pYg.woff2',
+					'https://fonts.gstatic.com/s/waitingforthesunrise/v23/WBL1rFvOYl9CEv2i1mO6KUW8RKWJ2zoXoz5JsbZZ_B7pYg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/waitingforthesunrise/v22/WBL1rFvOYl9CEv2i1mO6KUW8RKWJ2zoXoz5JsbZX_B4.woff2',
+					'https://fonts.gstatic.com/s/waitingforthesunrise/v23/WBL1rFvOYl9CEv2i1mO6KUW8RKWJ2zoXoz5JsbZX_B4.woff2',
 			},
 		},
 	},

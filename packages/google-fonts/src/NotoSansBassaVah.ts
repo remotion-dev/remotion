@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Bassa Vah',
 	importName: 'NotoSansBassaVah',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Bassa+Vah:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'bassa-vah': 'U+25CC, U+16AD0-16AFF',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'bassa-vah':
-					'https://fonts.gstatic.com/s/notosansbassavah/v20/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLzxgdcNgpvw.woff2',
+					'https://fonts.gstatic.com/s/notosansbassavah/v21/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLzxgdcNgpvw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbassavah/v20/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz448VeUQ.woff2',
+					'https://fonts.gstatic.com/s/notosansbassavah/v21/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz448VeUQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbassavah/v20/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz4A8VQ.woff2',
+					'https://fonts.gstatic.com/s/notosansbassavah/v21/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz4A8VQ.woff2',
 			},
 			'500': {
 				'bassa-vah':
-					'https://fonts.gstatic.com/s/notosansbassavah/v20/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLzxgdcNgpvw.woff2',
+					'https://fonts.gstatic.com/s/notosansbassavah/v21/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLzxgdcNgpvw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbassavah/v20/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz448VeUQ.woff2',
+					'https://fonts.gstatic.com/s/notosansbassavah/v21/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz448VeUQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbassavah/v20/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz4A8VQ.woff2',
+					'https://fonts.gstatic.com/s/notosansbassavah/v21/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz4A8VQ.woff2',
 			},
 			'600': {
 				'bassa-vah':
-					'https://fonts.gstatic.com/s/notosansbassavah/v20/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLzxgdcNgpvw.woff2',
+					'https://fonts.gstatic.com/s/notosansbassavah/v21/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLzxgdcNgpvw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbassavah/v20/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz448VeUQ.woff2',
+					'https://fonts.gstatic.com/s/notosansbassavah/v21/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz448VeUQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbassavah/v20/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz4A8VQ.woff2',
+					'https://fonts.gstatic.com/s/notosansbassavah/v21/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz4A8VQ.woff2',
 			},
 			'700': {
 				'bassa-vah':
-					'https://fonts.gstatic.com/s/notosansbassavah/v20/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLzxgdcNgpvw.woff2',
+					'https://fonts.gstatic.com/s/notosansbassavah/v21/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLzxgdcNgpvw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansbassavah/v20/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz448VeUQ.woff2',
+					'https://fonts.gstatic.com/s/notosansbassavah/v21/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz448VeUQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansbassavah/v20/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz4A8VQ.woff2',
+					'https://fonts.gstatic.com/s/notosansbassavah/v21/PN_sRee-r3f7LnqsD5sax12gjZn7mBpLz4A8VQ.woff2',
 			},
 		},
 	},

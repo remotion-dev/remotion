@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kurale',
 	importName: 'Kurale',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Kurale:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,15 +20,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/kurale/v13/4iCs6KV9e9dXjhoKcg72j00.woff2',
+					'https://fonts.gstatic.com/s/kurale/v14/4iCs6KV9e9dXjhoKcg72j00.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/kurale/v13/4iCs6KV9e9dXjhoKew72j00.woff2',
+					'https://fonts.gstatic.com/s/kurale/v14/4iCs6KV9e9dXjhoKew72j00.woff2',
 				devanagari:
-					'https://fonts.gstatic.com/s/kurale/v13/4iCs6KV9e9dXjhoKfg72j00.woff2',
+					'https://fonts.gstatic.com/s/kurale/v14/4iCs6KV9e9dXjhoKfg72j00.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kurale/v13/4iCs6KV9e9dXjhoKcQ72j00.woff2',
+					'https://fonts.gstatic.com/s/kurale/v14/4iCs6KV9e9dXjhoKcQ72j00.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kurale/v13/4iCs6KV9e9dXjhoKfw72.woff2',
+					'https://fonts.gstatic.com/s/kurale/v14/4iCs6KV9e9dXjhoKfw72.woff2',
 			},
 		},
 	},

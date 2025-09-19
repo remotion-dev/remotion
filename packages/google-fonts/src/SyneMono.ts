@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Syne Mono',
 	importName: 'SyneMono',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Syne+Mono:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/synemono/v15/K2FzfZNHj_FHBmRbFvHDK6qlPys.woff2',
+					'https://fonts.gstatic.com/s/synemono/v16/K2FzfZNHj_FHBmRbFvHDK6qlPys.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/synemono/v15/K2FzfZNHj_FHBmRbFvHDJaql.woff2',
+					'https://fonts.gstatic.com/s/synemono/v16/K2FzfZNHj_FHBmRbFvHDJaql.woff2',
 			},
 		},
 	},

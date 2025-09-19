@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Multani',
 	importName: 'NotoSansMultani',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Multani:ital,wght@0,400',
 	unicodeRanges: {
 		multani: 'U+0964-0965, U+0A66-0A6F, U+11280-112AF',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				multani:
-					'https://fonts.gstatic.com/s/notosansmultani/v20/9Bty3ClF38_RfOpe1gCaZ8p30BOFO2BNr_Gc5A.woff2',
+					'https://fonts.gstatic.com/s/notosansmultani/v21/9Bty3ClF38_RfOpe1gCaZ8p30BOFO2BNr_Gc5A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmultani/v20/9Bty3ClF38_RfOpe1gCaZ8p30BOFO2A9r_Gc5A.woff2',
+					'https://fonts.gstatic.com/s/notosansmultani/v21/9Bty3ClF38_RfOpe1gCaZ8p30BOFO2A9r_Gc5A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmultani/v20/9Bty3ClF38_RfOpe1gCaZ8p30BOFO2Azr_E.woff2',
+					'https://fonts.gstatic.com/s/notosansmultani/v21/9Bty3ClF38_RfOpe1gCaZ8p30BOFO2Azr_E.woff2',
 			},
 		},
 	},

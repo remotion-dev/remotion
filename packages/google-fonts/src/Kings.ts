@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kings',
 	importName: 'Kings',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Kings:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,10 +17,10 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/kings/v8/8AtnGsK4O5CYXX_AoaCiPQ.woff2',
+					'https://fonts.gstatic.com/s/kings/v9/8AtnGsK4O5CYXX_AoaCiPQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kings/v8/8AtnGsK4O5CYXX_BoaCiPQ.woff2',
-				latin: 'https://fonts.gstatic.com/s/kings/v8/8AtnGsK4O5CYXX_PoaA.woff2',
+					'https://fonts.gstatic.com/s/kings/v9/8AtnGsK4O5CYXX_BoaCiPQ.woff2',
+				latin: 'https://fonts.gstatic.com/s/kings/v9/8AtnGsK4O5CYXX_PoaA.woff2',
 			},
 		},
 	},

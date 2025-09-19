@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Kawi',
 	importName: 'NotoSansKawi',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Kawi:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		kawi: 'U+11F00-11F10, U+11F12-11F3A, U+11F3E-11F5A',
@@ -15,32 +15,32 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				kawi: 'https://fonts.gstatic.com/s/notosanskawi/v4/92zMtBJLNqsg7tCciW0EPHNNh3zNZwVDLIw.woff2',
+				kawi: 'https://fonts.gstatic.com/s/notosanskawi/v5/92zMtBJLNqsg7tCciW0EPHNNh3zNZwVDLIw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanskawi/v4/92zMtBJLNqsg7tCciW0EPHNNh3xiRiB-FQ.woff2',
+					'https://fonts.gstatic.com/s/notosanskawi/v5/92zMtBJLNqsg7tCciW0EPHNNh3xiRiB-FQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanskawi/v4/92zMtBJLNqsg7tCciW0EPHNNh3xsRiA.woff2',
+					'https://fonts.gstatic.com/s/notosanskawi/v5/92zMtBJLNqsg7tCciW0EPHNNh3xsRiA.woff2',
 			},
 			'500': {
-				kawi: 'https://fonts.gstatic.com/s/notosanskawi/v4/92zMtBJLNqsg7tCciW0EPHNNh3zNZwVDLIw.woff2',
+				kawi: 'https://fonts.gstatic.com/s/notosanskawi/v5/92zMtBJLNqsg7tCciW0EPHNNh3zNZwVDLIw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanskawi/v4/92zMtBJLNqsg7tCciW0EPHNNh3xiRiB-FQ.woff2',
+					'https://fonts.gstatic.com/s/notosanskawi/v5/92zMtBJLNqsg7tCciW0EPHNNh3xiRiB-FQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanskawi/v4/92zMtBJLNqsg7tCciW0EPHNNh3xsRiA.woff2',
+					'https://fonts.gstatic.com/s/notosanskawi/v5/92zMtBJLNqsg7tCciW0EPHNNh3xsRiA.woff2',
 			},
 			'600': {
-				kawi: 'https://fonts.gstatic.com/s/notosanskawi/v4/92zMtBJLNqsg7tCciW0EPHNNh3zNZwVDLIw.woff2',
+				kawi: 'https://fonts.gstatic.com/s/notosanskawi/v5/92zMtBJLNqsg7tCciW0EPHNNh3zNZwVDLIw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanskawi/v4/92zMtBJLNqsg7tCciW0EPHNNh3xiRiB-FQ.woff2',
+					'https://fonts.gstatic.com/s/notosanskawi/v5/92zMtBJLNqsg7tCciW0EPHNNh3xiRiB-FQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanskawi/v4/92zMtBJLNqsg7tCciW0EPHNNh3xsRiA.woff2',
+					'https://fonts.gstatic.com/s/notosanskawi/v5/92zMtBJLNqsg7tCciW0EPHNNh3xsRiA.woff2',
 			},
 			'700': {
-				kawi: 'https://fonts.gstatic.com/s/notosanskawi/v4/92zMtBJLNqsg7tCciW0EPHNNh3zNZwVDLIw.woff2',
+				kawi: 'https://fonts.gstatic.com/s/notosanskawi/v5/92zMtBJLNqsg7tCciW0EPHNNh3zNZwVDLIw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanskawi/v4/92zMtBJLNqsg7tCciW0EPHNNh3xiRiB-FQ.woff2',
+					'https://fonts.gstatic.com/s/notosanskawi/v5/92zMtBJLNqsg7tCciW0EPHNNh3xiRiB-FQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanskawi/v4/92zMtBJLNqsg7tCciW0EPHNNh3xsRiA.woff2',
+					'https://fonts.gstatic.com/s/notosanskawi/v5/92zMtBJLNqsg7tCciW0EPHNNh3xsRiA.woff2',
 			},
 		},
 	},

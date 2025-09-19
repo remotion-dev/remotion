@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bruno Ace SC',
 	importName: 'BrunoAceSC',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Bruno+Ace+SC:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/brunoacesc/v6/ptROTiycffFLBuiHjdJDl63IJCtqle8.woff2',
+					'https://fonts.gstatic.com/s/brunoacesc/v7/ptROTiycffFLBuiHjdJDl63IJCtqle8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/brunoacesc/v6/ptROTiycffFLBuiHjdJDl63IKitq.woff2',
+					'https://fonts.gstatic.com/s/brunoacesc/v7/ptROTiycffFLBuiHjdJDl63IKitq.woff2',
 			},
 		},
 	},

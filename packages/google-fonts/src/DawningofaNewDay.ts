@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Dawning of a New Day',
 	importName: 'DawningofaNewDay',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Dawning+of+a+New+Day:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/dawningofanewday/v21/t5t_IQMbOp2SEwuncwLRjMfIg1yYit_nAw8cj2M.woff2',
+					'https://fonts.gstatic.com/s/dawningofanewday/v22/t5t_IQMbOp2SEwuncwLRjMfIg1yYit_nAw8cj2M.woff2',
 			},
 		},
 	},

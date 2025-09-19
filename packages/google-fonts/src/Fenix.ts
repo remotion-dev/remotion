@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fenix',
 	importName: 'Fenix',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Fenix:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fenix/v20/XoHo2YL_S7-g5rskITE1vg.woff2',
+					'https://fonts.gstatic.com/s/fenix/v21/XoHo2YL_S7-g5rskITE1vg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fenix/v20/XoHo2YL_S7-g5rsqITE.woff2',
+					'https://fonts.gstatic.com/s/fenix/v21/XoHo2YL_S7-g5rsqITE.woff2',
 			},
 		},
 	},

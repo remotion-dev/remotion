@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gafata',
 	importName: 'Gafata',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Gafata:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gafata/v21/XRXV3I6Cn0VJKonIO-aBXso.woff2',
+					'https://fonts.gstatic.com/s/gafata/v22/XRXV3I6Cn0VJKonIO-aBXso.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gafata/v21/XRXV3I6Cn0VJKonINeaB.woff2',
+					'https://fonts.gstatic.com/s/gafata/v22/XRXV3I6Cn0VJKonINeaB.woff2',
 			},
 		},
 	},

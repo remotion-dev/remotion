@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Tai Tham',
 	importName: 'NotoSansTaiTham',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Tai+Tham:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'tai-tham': 'U+1A20-1AAF, U+200C-200D, U+2219, U+25CC',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'tai-tham':
-					'https://fonts.gstatic.com/s/notosanstaitham/v24/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtQa5koJo.woff2',
+					'https://fonts.gstatic.com/s/notosanstaitham/v25/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtQa5koJo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstaitham/v24/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtBK5koJo.woff2',
+					'https://fonts.gstatic.com/s/notosanstaitham/v25/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtBK5koJo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstaitham/v24/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtCq5k.woff2',
+					'https://fonts.gstatic.com/s/notosanstaitham/v25/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtCq5k.woff2',
 			},
 			'500': {
 				'tai-tham':
-					'https://fonts.gstatic.com/s/notosanstaitham/v24/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtQa5koJo.woff2',
+					'https://fonts.gstatic.com/s/notosanstaitham/v25/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtQa5koJo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstaitham/v24/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtBK5koJo.woff2',
+					'https://fonts.gstatic.com/s/notosanstaitham/v25/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtBK5koJo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstaitham/v24/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtCq5k.woff2',
+					'https://fonts.gstatic.com/s/notosanstaitham/v25/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtCq5k.woff2',
 			},
 			'600': {
 				'tai-tham':
-					'https://fonts.gstatic.com/s/notosanstaitham/v24/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtQa5koJo.woff2',
+					'https://fonts.gstatic.com/s/notosanstaitham/v25/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtQa5koJo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstaitham/v24/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtBK5koJo.woff2',
+					'https://fonts.gstatic.com/s/notosanstaitham/v25/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtBK5koJo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstaitham/v24/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtCq5k.woff2',
+					'https://fonts.gstatic.com/s/notosanstaitham/v25/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtCq5k.woff2',
 			},
 			'700': {
 				'tai-tham':
-					'https://fonts.gstatic.com/s/notosanstaitham/v24/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtQa5koJo.woff2',
+					'https://fonts.gstatic.com/s/notosanstaitham/v25/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtQa5koJo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstaitham/v24/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtBK5koJo.woff2',
+					'https://fonts.gstatic.com/s/notosanstaitham/v25/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtBK5koJo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstaitham/v24/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtCq5k.woff2',
+					'https://fonts.gstatic.com/s/notosanstaitham/v25/kJEuBv0U4hgtwxDUw2x9q7tbjLIfbPGtCq5k.woff2',
 			},
 		},
 	},

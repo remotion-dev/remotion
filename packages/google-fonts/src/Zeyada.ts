@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Zeyada',
 	importName: 'Zeyada',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Zeyada:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zeyada/v21/11hAGpPTxVPUbgZzPWysaKY.woff2',
+					'https://fonts.gstatic.com/s/zeyada/v22/11hAGpPTxVPUbgZzPWysaKY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zeyada/v21/11hAGpPTxVPUbgZzM2ys.woff2',
+					'https://fonts.gstatic.com/s/zeyada/v22/11hAGpPTxVPUbgZzM2ys.woff2',
 			},
 		},
 	},

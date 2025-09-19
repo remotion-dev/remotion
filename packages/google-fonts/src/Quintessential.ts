@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Quintessential',
 	importName: 'Quintessential',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Quintessential:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/quintessential/v23/fdNn9sOGq31Yjnh3qWU14Ddtjb55QbgWAw.woff2',
+					'https://fonts.gstatic.com/s/quintessential/v24/fdNn9sOGq31Yjnh3qWU14Ddtjb55QbgWAw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/quintessential/v23/fdNn9sOGq31Yjnh3qWU14Ddtjb53Qbg.woff2',
+					'https://fonts.gstatic.com/s/quintessential/v24/fdNn9sOGq31Yjnh3qWU14Ddtjb53Qbg.woff2',
 			},
 		},
 	},

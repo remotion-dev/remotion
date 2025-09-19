@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Jaro',
 	importName: 'Jaro',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Jaro:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/jaro/v7/ea8DadQwV_r_Rv3-7zZMCGhQgVr1SmCkPvzlpQ.woff2',
+					'https://fonts.gstatic.com/s/jaro/v8/ea8DadQwV_r_Rv3-7zZMCGhQgVr1SmCkPvzlpQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/jaro/v7/ea8DadQwV_r_Rv3-7zZMCGhQgVr1SmClPvzlpQ.woff2',
+					'https://fonts.gstatic.com/s/jaro/v8/ea8DadQwV_r_Rv3-7zZMCGhQgVr1SmClPvzlpQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/jaro/v7/ea8DadQwV_r_Rv3-7zZMCGhQgVr1SmCrPvw.woff2',
+					'https://fonts.gstatic.com/s/jaro/v8/ea8DadQwV_r_Rv3-7zZMCGhQgVr1SmCrPvw.woff2',
 			},
 		},
 	},

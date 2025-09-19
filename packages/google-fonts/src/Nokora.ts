@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nokora',
 	importName: 'Nokora',
-	version: 'v33',
+	version: 'v34',
 	url: 'https://fonts.googleapis.com/css2?family=Nokora:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,57 +14,57 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 			'200': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 			'300': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 			'500': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 			'600': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 			'700': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 			'800': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 			'900': {
 				khmer:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgNzAOkvY.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgNzAOkvY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nokora/v33/hYkIPuwgTubzaWxgPDAO.woff2',
+					'https://fonts.gstatic.com/s/nokora/v34/hYkIPuwgTubzaWxgPDAO.woff2',
 			},
 		},
 	},

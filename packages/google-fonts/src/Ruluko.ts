@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ruluko',
 	importName: 'Ruluko',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Ruluko:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ruluko/v21/xMQVuFNZVaODtm0ZAq-yGX8.woff2',
+					'https://fonts.gstatic.com/s/ruluko/v22/xMQVuFNZVaODtm0ZAq-yGX8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ruluko/v21/xMQVuFNZVaODtm0ZDK-y.woff2',
+					'https://fonts.gstatic.com/s/ruluko/v22/xMQVuFNZVaODtm0ZDK-y.woff2',
 			},
 		},
 	},

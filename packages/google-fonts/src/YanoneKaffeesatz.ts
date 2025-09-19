@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yanone Kaffeesatz',
 	importName: 'YanoneKaffeesatz',
-	version: 'v31',
+	version: 'v32',
 	url: 'https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -23,93 +23,93 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8WH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8WH-qVHQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8fH-qVHQ.woff2',
-				math: 'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y9nH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8fH-qVHQ.woff2',
+				math: 'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y9nH-qVHQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y91H-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y91H-qVHQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8UH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8UH-qVHQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8VH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8VH-qVHQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8bH-o.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8bH-o.woff2',
 			},
 			'300': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8WH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8WH-qVHQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8fH-qVHQ.woff2',
-				math: 'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y9nH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8fH-qVHQ.woff2',
+				math: 'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y9nH-qVHQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y91H-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y91H-qVHQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8UH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8UH-qVHQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8VH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8VH-qVHQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8bH-o.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8bH-o.woff2',
 			},
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8WH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8WH-qVHQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8fH-qVHQ.woff2',
-				math: 'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y9nH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8fH-qVHQ.woff2',
+				math: 'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y9nH-qVHQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y91H-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y91H-qVHQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8UH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8UH-qVHQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8VH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8VH-qVHQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8bH-o.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8bH-o.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8WH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8WH-qVHQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8fH-qVHQ.woff2',
-				math: 'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y9nH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8fH-qVHQ.woff2',
+				math: 'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y9nH-qVHQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y91H-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y91H-qVHQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8UH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8UH-qVHQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8VH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8VH-qVHQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8bH-o.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8bH-o.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8WH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8WH-qVHQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8fH-qVHQ.woff2',
-				math: 'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y9nH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8fH-qVHQ.woff2',
+				math: 'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y9nH-qVHQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y91H-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y91H-qVHQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8UH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8UH-qVHQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8VH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8VH-qVHQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8bH-o.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8bH-o.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8WH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8WH-qVHQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8fH-qVHQ.woff2',
-				math: 'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y9nH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8fH-qVHQ.woff2',
+				math: 'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y9nH-qVHQ.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y91H-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y91H-qVHQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8UH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8UH-qVHQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8VH-qVHQ.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8VH-qVHQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yanonekaffeesatz/v31/3y976aknfjLm_3lMKjiMgmUUYBs04Y8bH-o.woff2',
+					'https://fonts.gstatic.com/s/yanonekaffeesatz/v32/3y976aknfjLm_3lMKjiMgmUUYBs04Y8bH-o.woff2',
 			},
 		},
 	},

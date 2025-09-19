@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bentham',
 	importName: 'Bentham',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Bentham:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bentham/v19/VdGeAZQPEpYfmHglGWUxCaaK.woff2',
+					'https://fonts.gstatic.com/s/bentham/v20/VdGeAZQPEpYfmHglGWUxCaaK.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bentham/v19/VdGeAZQPEpYfmHglGWsxCQ.woff2',
+					'https://fonts.gstatic.com/s/bentham/v20/VdGeAZQPEpYfmHglGWsxCQ.woff2',
 			},
 		},
 	},

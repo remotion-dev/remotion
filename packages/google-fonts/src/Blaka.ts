@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Blaka',
 	importName: 'Blaka',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Blaka:ital,wght@0,400',
 	unicodeRanges: {
 		arabic:
@@ -17,10 +17,10 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/blaka/v7/8vIG7w8722p_6ndp0UHGFQ.woff2',
+					'https://fonts.gstatic.com/s/blaka/v8/8vIG7w8722p_6ndp0UHGFQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/blaka/v7/8vIG7w8722p_6ndi0UHGFQ.woff2',
-				latin: 'https://fonts.gstatic.com/s/blaka/v7/8vIG7w8722p_6nds0UE.woff2',
+					'https://fonts.gstatic.com/s/blaka/v8/8vIG7w8722p_6ndi0UHGFQ.woff2',
+				latin: 'https://fonts.gstatic.com/s/blaka/v8/8vIG7w8722p_6nds0UE.woff2',
 			},
 		},
 	},

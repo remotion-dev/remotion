@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'News Cycle',
 	importName: 'NewsCycle',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=News+Cycle:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -23,35 +23,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR64z1Qlv-GDxkbKVQ_fO0KTet_.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR64z1Qlv-GDxkbKVQ_fO0KTet_.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR64z1Qlv-GDxkbKVQ_fOQKTet_.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR64z1Qlv-GDxkbKVQ_fOQKTet_.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR64z1Qlv-GDxkbKVQ_fOwKTet_.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR64z1Qlv-GDxkbKVQ_fOwKTet_.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR64z1Qlv-GDxkbKVQ_fOMKTet_.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR64z1Qlv-GDxkbKVQ_fOMKTet_.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR64z1Qlv-GDxkbKVQ_fO8KTet_.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR64z1Qlv-GDxkbKVQ_fO8KTet_.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR64z1Qlv-GDxkbKVQ_fO4KTet_.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR64z1Qlv-GDxkbKVQ_fO4KTet_.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR64z1Qlv-GDxkbKVQ_fOAKTQ.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR64z1Qlv-GDxkbKVQ_fOAKTQ.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR54z1Qlv-GDxkbKVQ_dFsvWNleudwk.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR54z1Qlv-GDxkbKVQ_dFsvWNleudwk.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR54z1Qlv-GDxkbKVQ_dFsvWNBeudwk.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR54z1Qlv-GDxkbKVQ_dFsvWNBeudwk.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR54z1Qlv-GDxkbKVQ_dFsvWNheudwk.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR54z1Qlv-GDxkbKVQ_dFsvWNheudwk.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR54z1Qlv-GDxkbKVQ_dFsvWNdeudwk.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR54z1Qlv-GDxkbKVQ_dFsvWNdeudwk.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR54z1Qlv-GDxkbKVQ_dFsvWNteudwk.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR54z1Qlv-GDxkbKVQ_dFsvWNteudwk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR54z1Qlv-GDxkbKVQ_dFsvWNpeudwk.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR54z1Qlv-GDxkbKVQ_dFsvWNpeudwk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/newscycle/v25/CSR54z1Qlv-GDxkbKVQ_dFsvWNReuQ.woff2',
+					'https://fonts.gstatic.com/s/newscycle/v26/CSR54z1Qlv-GDxkbKVQ_dFsvWNReuQ.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Zen Loop',
 	importName: 'ZenLoop',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Zen+Loop:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zenloop/v10/h0GtssK16UsnJwHsEJ9xkQH_4tOG.woff2',
+					'https://fonts.gstatic.com/s/zenloop/v11/h0GtssK16UsnJwHsEJ9xkQH_4tOG.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zenloop/v10/h0GtssK16UsnJwHsEJ9xkQ__4g.woff2',
+					'https://fonts.gstatic.com/s/zenloop/v11/h0GtssK16UsnJwHsEJ9xkQ__4g.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/zenloop/v10/h0GrssK16UsnJwHsEJ96oQ3n5g.woff2',
+					'https://fonts.gstatic.com/s/zenloop/v11/h0GrssK16UsnJwHsEJ96oQ3n5g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/zenloop/v10/h0GrssK16UsnJwHsEJ90oQ0.woff2',
+					'https://fonts.gstatic.com/s/zenloop/v11/h0GrssK16UsnJwHsEJ90oQ0.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kalam',
 	importName: 'Kalam',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Kalam:ital,wght@0,300;0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,27 +17,27 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/kalam/v17/YA9Qr0Wd4kDdMtD6GjLNkiQ4tg.woff2',
+					'https://fonts.gstatic.com/s/kalam/v18/YA9Qr0Wd4kDdMtD6GjLNkiQ4tg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kalam/v17/YA9Qr0Wd4kDdMtD6GjLCkiQ4tg.woff2',
+					'https://fonts.gstatic.com/s/kalam/v18/YA9Qr0Wd4kDdMtD6GjLCkiQ4tg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kalam/v17/YA9Qr0Wd4kDdMtD6GjLMkiQ.woff2',
+					'https://fonts.gstatic.com/s/kalam/v18/YA9Qr0Wd4kDdMtD6GjLMkiQ.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/kalam/v17/YA9dr0Wd4kDdMthQOCfzsw.woff2',
+					'https://fonts.gstatic.com/s/kalam/v18/YA9dr0Wd4kDdMthQOCfzsw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kalam/v17/YA9dr0Wd4kDdMthfOCfzsw.woff2',
+					'https://fonts.gstatic.com/s/kalam/v18/YA9dr0Wd4kDdMthfOCfzsw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kalam/v17/YA9dr0Wd4kDdMthROCc.woff2',
+					'https://fonts.gstatic.com/s/kalam/v18/YA9dr0Wd4kDdMthROCc.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/kalam/v17/YA9Qr0Wd4kDdMtDqHTLNkiQ4tg.woff2',
+					'https://fonts.gstatic.com/s/kalam/v18/YA9Qr0Wd4kDdMtDqHTLNkiQ4tg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kalam/v17/YA9Qr0Wd4kDdMtDqHTLCkiQ4tg.woff2',
+					'https://fonts.gstatic.com/s/kalam/v18/YA9Qr0Wd4kDdMtDqHTLCkiQ4tg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kalam/v17/YA9Qr0Wd4kDdMtDqHTLMkiQ.woff2',
+					'https://fonts.gstatic.com/s/kalam/v18/YA9Qr0Wd4kDdMtDqHTLMkiQ.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Dangrek',
 	importName: 'Dangrek',
-	version: 'v32',
+	version: 'v33',
 	url: 'https://fonts.googleapis.com/css2?family=Dangrek:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/dangrek/v32/LYjCdG30nEgoH8E2sC9gqGIu.woff2',
+					'https://fonts.gstatic.com/s/dangrek/v33/LYjCdG30nEgoH8E2sC9gqGIu.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/dangrek/v32/LYjCdG30nEgoH8E2sCRgqA.woff2',
+					'https://fonts.gstatic.com/s/dangrek/v33/LYjCdG30nEgoH8E2sCRgqA.woff2',
 			},
 		},
 	},

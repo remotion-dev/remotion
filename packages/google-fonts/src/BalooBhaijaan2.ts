@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Baloo Bhaijaan Two',
 	importName: 'BalooBhaijaan2',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		arabic:
@@ -19,53 +19,53 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIRsdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIRsdO_q.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI5sdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI5sdO_q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI9sdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI9sdO_q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIFsdA.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIFsdA.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIRsdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIRsdO_q.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI5sdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI5sdO_q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI9sdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI9sdO_q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIFsdA.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIFsdA.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIRsdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIRsdO_q.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI5sdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI5sdO_q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI9sdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI9sdO_q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIFsdA.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIFsdA.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIRsdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIRsdO_q.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI5sdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI5sdO_q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI9sdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI9sdO_q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIFsdA.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIFsdA.woff2',
 			},
 			'800': {
 				arabic:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIRsdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIRsdO_q.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI5sdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI5sdO_q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI9sdO_q.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAI9sdO_q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloobhaijaan2/v20/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIFsdA.woff2',
+					'https://fonts.gstatic.com/s/baloobhaijaan2/v21/zYX9KUwuEqdVGqM8tPDdAA_Y-_bMAIFsdA.woff2',
 			},
 		},
 	},

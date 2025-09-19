@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Caladea',
 	importName: 'Caladea',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Caladea:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,29 +15,29 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/caladea/v7/kJExBugZ7AAjhybUvR1N9vo3lOc.woff2',
+					'https://fonts.gstatic.com/s/caladea/v8/kJExBugZ7AAjhybUvR1N9vo3lOc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/caladea/v7/kJExBugZ7AAjhybUvR1N-Po3.woff2',
+					'https://fonts.gstatic.com/s/caladea/v8/kJExBugZ7AAjhybUvR1N-Po3.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/caladea/v7/kJE0BugZ7AAjhybUvR1FQ98ipcZyNZ0.woff2',
+					'https://fonts.gstatic.com/s/caladea/v8/kJE0BugZ7AAjhybUvR1FQ98ipcZyNZ0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/caladea/v7/kJE0BugZ7AAjhybUvR1FQ98iq8Zy.woff2',
+					'https://fonts.gstatic.com/s/caladea/v8/kJE0BugZ7AAjhybUvR1FQ98iq8Zy.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/caladea/v7/kJEzBugZ7AAjhybUvRZ9-uIz.woff2',
+					'https://fonts.gstatic.com/s/caladea/v8/kJEzBugZ7AAjhybUvRZ9-uIz.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/caladea/v7/kJEzBugZ7AAjhybUvRh9-g.woff2',
+					'https://fonts.gstatic.com/s/caladea/v8/kJEzBugZ7AAjhybUvRh9-g.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/caladea/v7/kJE2BugZ7AAjhybUtaNY79MSqd52.woff2',
+					'https://fonts.gstatic.com/s/caladea/v8/kJE2BugZ7AAjhybUtaNY79MSqd52.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/caladea/v7/kJE2BugZ7AAjhybUtaNY790SqQ.woff2',
+					'https://fonts.gstatic.com/s/caladea/v8/kJE2BugZ7AAjhybUtaNY790SqQ.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Adamina',
 	importName: 'Adamina',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Adamina:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/adamina/v21/j8_r6-DH1bjoc-dwi-3UEA.woff2',
+					'https://fonts.gstatic.com/s/adamina/v22/j8_r6-DH1bjoc-dwi-3UEA.woff2',
 			},
 		},
 	},

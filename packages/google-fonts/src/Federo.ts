@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Federo',
 	importName: 'Federo',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Federo:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/federo/v19/iJWFBX-cbD_ETsbWilmf.woff2',
+					'https://fonts.gstatic.com/s/federo/v20/iJWFBX-cbD_ETsbWilmf.woff2',
 			},
 		},
 	},

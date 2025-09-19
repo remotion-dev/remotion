@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fuzzy Bubbles',
 	importName: 'FuzzyBubbles',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		vietnamese:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/fuzzybubbles/v8/6qLGKZMbrgv9pwtjPEVNV0F2BnvzZisr.woff2',
+					'https://fonts.gstatic.com/s/fuzzybubbles/v9/6qLGKZMbrgv9pwtjPEVNV0F2BnvzZisr.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fuzzybubbles/v8/6qLGKZMbrgv9pwtjPEVNV0F2BnrzZisr.woff2',
+					'https://fonts.gstatic.com/s/fuzzybubbles/v9/6qLGKZMbrgv9pwtjPEVNV0F2BnrzZisr.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fuzzybubbles/v8/6qLGKZMbrgv9pwtjPEVNV0F2BnTzZg.woff2',
+					'https://fonts.gstatic.com/s/fuzzybubbles/v9/6qLGKZMbrgv9pwtjPEVNV0F2BnTzZg.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/fuzzybubbles/v8/6qLbKZMbrgv9pwtjPEVNV0F2Ds_WcxsKZ3M1.woff2',
+					'https://fonts.gstatic.com/s/fuzzybubbles/v9/6qLbKZMbrgv9pwtjPEVNV0F2Ds_WcxsKZ3M1.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fuzzybubbles/v8/6qLbKZMbrgv9pwtjPEVNV0F2Ds_WcxoKZ3M1.woff2',
+					'https://fonts.gstatic.com/s/fuzzybubbles/v9/6qLbKZMbrgv9pwtjPEVNV0F2Ds_WcxoKZ3M1.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fuzzybubbles/v8/6qLbKZMbrgv9pwtjPEVNV0F2Ds_WcxQKZw.woff2',
+					'https://fonts.gstatic.com/s/fuzzybubbles/v9/6qLbKZMbrgv9pwtjPEVNV0F2Ds_WcxQKZw.woff2',
 			},
 		},
 	},

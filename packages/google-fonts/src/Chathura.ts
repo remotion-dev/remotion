@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Chathura',
 	importName: 'Chathura',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Chathura:ital,wght@0,100;0,300;0,400;0,700;0,800',
 	unicodeRanges: {
 		telugu:
@@ -15,33 +15,33 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				telugu:
-					'https://fonts.gstatic.com/s/chathura/v21/_gP91R7-rzUuVjim42dEm1-RT8Zy.woff2',
+					'https://fonts.gstatic.com/s/chathura/v22/_gP91R7-rzUuVjim42dEm1-RT8Zy.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/chathura/v21/_gP91R7-rzUuVjim42dEm0ORTw.woff2',
+					'https://fonts.gstatic.com/s/chathura/v22/_gP91R7-rzUuVjim42dEm0ORTw.woff2',
 			},
 			'300': {
 				telugu:
-					'https://fonts.gstatic.com/s/chathura/v21/_gP81R7-rzUuVjim42eMiVSqavtLoQ.woff2',
+					'https://fonts.gstatic.com/s/chathura/v22/_gP81R7-rzUuVjim42eMiVSqavtLoQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/chathura/v21/_gP81R7-rzUuVjim42eMiVS2avs.woff2',
+					'https://fonts.gstatic.com/s/chathura/v22/_gP81R7-rzUuVjim42eMiVS2avs.woff2',
 			},
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/chathura/v21/_gP71R7-rzUuVjim4287q0GJSw.woff2',
+					'https://fonts.gstatic.com/s/chathura/v22/_gP71R7-rzUuVjim4287q0GJSw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/chathura/v21/_gP71R7-rzUuVjim428nq0E.woff2',
+					'https://fonts.gstatic.com/s/chathura/v22/_gP71R7-rzUuVjim428nq0E.woff2',
 			},
 			'700': {
 				telugu:
-					'https://fonts.gstatic.com/s/chathura/v21/_gP81R7-rzUuVjim42ecjlSqavtLoQ.woff2',
+					'https://fonts.gstatic.com/s/chathura/v22/_gP81R7-rzUuVjim42ecjlSqavtLoQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/chathura/v21/_gP81R7-rzUuVjim42ecjlS2avs.woff2',
+					'https://fonts.gstatic.com/s/chathura/v22/_gP81R7-rzUuVjim42ecjlS2avs.woff2',
 			},
 			'800': {
 				telugu:
-					'https://fonts.gstatic.com/s/chathura/v21/_gP81R7-rzUuVjim42eAjVSqavtLoQ.woff2',
+					'https://fonts.gstatic.com/s/chathura/v22/_gP81R7-rzUuVjim42eAjVSqavtLoQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/chathura/v21/_gP81R7-rzUuVjim42eAjVS2avs.woff2',
+					'https://fonts.gstatic.com/s/chathura/v22/_gP81R7-rzUuVjim42eAjVS2avs.woff2',
 			},
 		},
 	},

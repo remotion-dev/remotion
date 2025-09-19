@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cambay',
 	importName: 'Cambay',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Cambay:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,37 +17,37 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/cambay/v13/SLXLc1rY6H0_ZDs2bI6K59ZMaA.woff2',
+					'https://fonts.gstatic.com/s/cambay/v14/SLXLc1rY6H0_ZDs2bI6K59ZMaA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cambay/v13/SLXLc1rY6H0_ZDs2bI6F59ZMaA.woff2',
+					'https://fonts.gstatic.com/s/cambay/v14/SLXLc1rY6H0_ZDs2bI6F59ZMaA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cambay/v13/SLXLc1rY6H0_ZDs2bI6L59Y.woff2',
+					'https://fonts.gstatic.com/s/cambay/v14/SLXLc1rY6H0_ZDs2bI6L59Y.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/cambay/v13/SLXMc1rY6H0_ZDs2bIYwwsNySXtdkA.woff2',
+					'https://fonts.gstatic.com/s/cambay/v14/SLXMc1rY6H0_ZDs2bIYwwsNySXtdkA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cambay/v13/SLXMc1rY6H0_ZDs2bIYwwsN9SXtdkA.woff2',
+					'https://fonts.gstatic.com/s/cambay/v14/SLXMc1rY6H0_ZDs2bIYwwsN9SXtdkA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cambay/v13/SLXMc1rY6H0_ZDs2bIYwwsNzSXs.woff2',
+					'https://fonts.gstatic.com/s/cambay/v14/SLXMc1rY6H0_ZDs2bIYwwsNzSXs.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/cambay/v13/SLXJc1rY6H0_ZDs2aL6J_9I.woff2',
+					'https://fonts.gstatic.com/s/cambay/v14/SLXJc1rY6H0_ZDs2aL6J_9I.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cambay/v13/SLXJc1rY6H0_ZDs2Z76J_9I.woff2',
+					'https://fonts.gstatic.com/s/cambay/v14/SLXJc1rY6H0_ZDs2Z76J_9I.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cambay/v13/SLXJc1rY6H0_ZDs2ab6J.woff2',
+					'https://fonts.gstatic.com/s/cambay/v14/SLXJc1rY6H0_ZDs2ab6J.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/cambay/v13/SLXKc1rY6H0_ZDs-0pucwfNxUX8.woff2',
+					'https://fonts.gstatic.com/s/cambay/v14/SLXKc1rY6H0_ZDs-0pucwfNxUX8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cambay/v13/SLXKc1rY6H0_ZDs-0puczvNxUX8.woff2',
+					'https://fonts.gstatic.com/s/cambay/v14/SLXKc1rY6H0_ZDs-0puczvNxUX8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cambay/v13/SLXKc1rY6H0_ZDs-0pucwPNx.woff2',
+					'https://fonts.gstatic.com/s/cambay/v14/SLXKc1rY6H0_ZDs-0pucwPNx.woff2',
 			},
 		},
 	},

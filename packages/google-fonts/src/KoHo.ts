@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'KoHo',
 	importName: 'KoHo',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=KoHo:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		thai: 'U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC',
@@ -17,113 +17,113 @@ export const getInfo = () => ({
 	fonts: {
 		italic: {
 			'200': {
-				thai: 'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNisssJ_DMaqlPys.woff2',
+				thai: 'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNisssJ_DMaqlPys.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNisssJ_DKqqlPys.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNisssJ_DKqqlPys.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNisssJ_DK6qlPys.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNisssJ_DK6qlPys.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNisssJ_DJaql.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNisssJ_DJaql.woff2',
 			},
 			'300': {
-				thai: 'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNiss1JzDMaqlPys.woff2',
+				thai: 'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNiss1JzDMaqlPys.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNiss1JzDKqqlPys.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNiss1JzDKqqlPys.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNiss1JzDK6qlPys.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNiss1JzDK6qlPys.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNiss1JzDJaql.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNiss1JzDJaql.woff2',
 			},
 			'400': {
-				thai: 'https://fonts.gstatic.com/s/koho/v17/K2FwfZ5fmddNNiska77WGos.woff2',
+				thai: 'https://fonts.gstatic.com/s/koho/v18/K2FwfZ5fmddNNiska77WGos.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/koho/v17/K2FwfZ5fmddNNiskcL7WGos.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FwfZ5fmddNNiskcL7WGos.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/koho/v17/K2FwfZ5fmddNNiskcb7WGos.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FwfZ5fmddNNiskcb7WGos.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/koho/v17/K2FwfZ5fmddNNiskf77W.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FwfZ5fmddNNiskf77W.woff2',
 			},
 			'500': {
-				thai: 'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNissjJ3DMaqlPys.woff2',
+				thai: 'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNissjJ3DMaqlPys.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNissjJ3DKqqlPys.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNissjJ3DKqqlPys.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNissjJ3DK6qlPys.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNissjJ3DK6qlPys.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNissjJ3DJaql.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNissjJ3DJaql.woff2',
 			},
 			'600': {
-				thai: 'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNissoJrDMaqlPys.woff2',
+				thai: 'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNissoJrDMaqlPys.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNissoJrDKqqlPys.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNissoJrDKqqlPys.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNissoJrDK6qlPys.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNissoJrDK6qlPys.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNissoJrDJaql.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNissoJrDJaql.woff2',
 			},
 			'700': {
-				thai: 'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNissxJvDMaqlPys.woff2',
+				thai: 'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNissxJvDMaqlPys.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNissxJvDKqqlPys.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNissxJvDKqqlPys.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNissxJvDK6qlPys.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNissxJvDK6qlPys.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/koho/v17/K2FzfZ5fmddNNissxJvDJaql.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FzfZ5fmddNNissxJvDJaql.woff2',
 			},
 		},
 		normal: {
 			'200': {
-				thai: 'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPuE1aI3zJ7Kh.woff2',
+				thai: 'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPuE1aI3zJ7Kh.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPuE1aJbzJ7Kh.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPuE1aJbzJ7Kh.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPuE1aJfzJ7Kh.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPuE1aJfzJ7Kh.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPuE1aJnzJw.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPuE1aJnzJw.woff2',
 			},
 			'300': {
-				thai: 'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPoU2aI3zJ7Kh.woff2',
+				thai: 'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPoU2aI3zJ7Kh.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPoU2aJbzJ7Kh.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPoU2aJbzJ7Kh.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPoU2aJfzJ7Kh.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPoU2aJfzJ7Kh.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPoU2aJnzJw.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPoU2aJnzJw.woff2',
 			},
 			'400': {
-				thai: 'https://fonts.gstatic.com/s/koho/v17/K2F-fZ5fmddNNjoUfabS.woff2',
+				thai: 'https://fonts.gstatic.com/s/koho/v18/K2F-fZ5fmddNNjoUfabS.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/koho/v17/K2F-fZ5fmddNNiEUfabS.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2F-fZ5fmddNNiEUfabS.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/koho/v17/K2F-fZ5fmddNNiAUfabS.woff2',
-				latin: 'https://fonts.gstatic.com/s/koho/v17/K2F-fZ5fmddNNi4UfQ.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2F-fZ5fmddNNiAUfabS.woff2',
+				latin: 'https://fonts.gstatic.com/s/koho/v18/K2F-fZ5fmddNNi4UfQ.woff2',
 			},
 			'500': {
-				thai: 'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPt03aI3zJ7Kh.woff2',
+				thai: 'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPt03aI3zJ7Kh.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPt03aJbzJ7Kh.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPt03aJbzJ7Kh.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPt03aJfzJ7Kh.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPt03aJfzJ7Kh.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPt03aJnzJw.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPt03aJnzJw.woff2',
 			},
 			'600': {
-				thai: 'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPvEwaI3zJ7Kh.woff2',
+				thai: 'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPvEwaI3zJ7Kh.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPvEwaJbzJ7Kh.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPvEwaJbzJ7Kh.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPvEwaJfzJ7Kh.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPvEwaJfzJ7Kh.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPvEwaJnzJw.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPvEwaJnzJw.woff2',
 			},
 			'700': {
-				thai: 'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPpUxaI3zJ7Kh.woff2',
+				thai: 'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPpUxaI3zJ7Kh.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPpUxaJbzJ7Kh.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPpUxaJbzJ7Kh.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPpUxaJfzJ7Kh.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPpUxaJfzJ7Kh.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/koho/v17/K2FxfZ5fmddNPpUxaJnzJw.woff2',
+					'https://fonts.gstatic.com/s/koho/v18/K2FxfZ5fmddNPpUxaJnzJw.woff2',
 			},
 		},
 	},

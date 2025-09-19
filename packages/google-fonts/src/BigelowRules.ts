@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bigelow Rules',
 	importName: 'BigelowRules',
-	version: 'v30',
+	version: 'v31',
 	url: 'https://fonts.googleapis.com/css2?family=Bigelow+Rules:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bigelowrules/v30/RrQWboly8iR_I3KWSzeRuN0zf44IHvWA.woff2',
+					'https://fonts.gstatic.com/s/bigelowrules/v31/RrQWboly8iR_I3KWSzeRuN0zf44IHvWA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bigelowrules/v30/RrQWboly8iR_I3KWSzeRuN0zf4AIHg.woff2',
+					'https://fonts.gstatic.com/s/bigelowrules/v31/RrQWboly8iR_I3KWSzeRuN0zf4AIHg.woff2',
 			},
 		},
 	},

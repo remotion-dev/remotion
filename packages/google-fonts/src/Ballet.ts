@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ballet',
 	importName: 'Ballet',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Ballet:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/ballet/v29/QGYyz_MYZA-HM4NjuGOVnUEXme1I4Xi3O4m0ExAo.woff2',
+					'https://fonts.gstatic.com/s/ballet/v30/QGYyz_MYZA-HM4NjuGOVnUEXme1I4Xi3O4m0ExAo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ballet/v29/QGYyz_MYZA-HM4NjuGOVnUEXme1I4Xi3O4i0ExAo.woff2',
+					'https://fonts.gstatic.com/s/ballet/v30/QGYyz_MYZA-HM4NjuGOVnUEXme1I4Xi3O4i0ExAo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ballet/v29/QGYyz_MYZA-HM4NjuGOVnUEXme1I4Xi3O4a0Ew.woff2',
+					'https://fonts.gstatic.com/s/ballet/v30/QGYyz_MYZA-HM4NjuGOVnUEXme1I4Xi3O4a0Ew.woff2',
 			},
 		},
 	},

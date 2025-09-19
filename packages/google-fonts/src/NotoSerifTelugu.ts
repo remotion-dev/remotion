@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Telugu',
 	importName: 'NotoSerifTelugu',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Telugu:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		telugu:
@@ -17,75 +17,75 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				telugu:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
 			},
 			'200': {
 				telugu:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
 			},
 			'300': {
 				telugu:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
 			},
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
 			},
 			'500': {
 				telugu:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
 			},
 			'600': {
 				telugu:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
 			},
 			'700': {
 				telugu:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
 			},
 			'800': {
 				telugu:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
 			},
 			'900': {
 				telugu:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhScbUfs5Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSObUfs5Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftelugu/v28/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
+					'https://fonts.gstatic.com/s/notoseriftelugu/v29/tDbW2pCbnkEKmXNVmt2M1q6f4HWbbhSAbUc.woff2',
 			},
 		},
 	},

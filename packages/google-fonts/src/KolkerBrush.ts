@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kolker Brush',
 	importName: 'KolkerBrush',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Kolker+Brush:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/kolkerbrush/v7/iJWDBXWRZjfKWdvmzwvvog3O5Kh798o.woff2',
+					'https://fonts.gstatic.com/s/kolkerbrush/v8/iJWDBXWRZjfKWdvmzwvvog3O5Kh798o.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kolkerbrush/v7/iJWDBXWRZjfKWdvmzwvvog3O5ah798o.woff2',
+					'https://fonts.gstatic.com/s/kolkerbrush/v8/iJWDBXWRZjfKWdvmzwvvog3O5ah798o.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kolkerbrush/v7/iJWDBXWRZjfKWdvmzwvvog3O66h7.woff2',
+					'https://fonts.gstatic.com/s/kolkerbrush/v8/iJWDBXWRZjfKWdvmzwvvog3O66h7.woff2',
 			},
 		},
 	},

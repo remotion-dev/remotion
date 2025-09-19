@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fuggles',
 	importName: 'Fuggles',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Fuggles:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/fuggles/v13/k3kQo8UEJOlD1hpOfdboLnnA.woff2',
+					'https://fonts.gstatic.com/s/fuggles/v14/k3kQo8UEJOlD1hpOfdboLnnA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fuggles/v13/k3kQo8UEJOlD1hpOfdfoLnnA.woff2',
+					'https://fonts.gstatic.com/s/fuggles/v14/k3kQo8UEJOlD1hpOfdfoLnnA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fuggles/v13/k3kQo8UEJOlD1hpOfdnoLg.woff2',
+					'https://fonts.gstatic.com/s/fuggles/v14/k3kQo8UEJOlD1hpOfdnoLg.woff2',
 			},
 		},
 	},

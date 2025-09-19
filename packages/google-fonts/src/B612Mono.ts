@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'BSixOneTwo Mono',
 	importName: 'B612Mono',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=B612+Mono:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		latin:
@@ -13,21 +13,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/b612mono/v15/kmK5Zq85QVWbN1eW6lJV1T7fguA.woff2',
+					'https://fonts.gstatic.com/s/b612mono/v16/kmK5Zq85QVWbN1eW6lJV1T7fguA.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/b612mono/v15/kmKkZq85QVWbN1eW6lJV1TZkp_VMl7Y.woff2',
+					'https://fonts.gstatic.com/s/b612mono/v16/kmKkZq85QVWbN1eW6lJV1TZkp_VMl7Y.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/b612mono/v15/kmK_Zq85QVWbN1eW6lJV0A7d.woff2',
+					'https://fonts.gstatic.com/s/b612mono/v16/kmK_Zq85QVWbN1eW6lJV0A7d.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/b612mono/v15/kmK6Zq85QVWbN1eW6lJdayvIpcVO.woff2',
+					'https://fonts.gstatic.com/s/b612mono/v16/kmK6Zq85QVWbN1eW6lJdayvIpcVO.woff2',
 			},
 		},
 	},
