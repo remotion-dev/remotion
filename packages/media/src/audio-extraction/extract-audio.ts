@@ -12,26 +12,33 @@ import {getSinks} from '../video-extraction/get-frames-since-keyframe';
 
 export const extractAudio = async ({
 	src,
-	timeInSeconds,
+	timeInSeconds: unloopedTimeInSeconds,
 	durationInSeconds,
 	volume,
 	logLevel,
+	loop,
 }: {
 	src: string;
 	timeInSeconds: number;
 	durationInSeconds: number;
 	volume: number;
 	logLevel: LogLevel;
+	loop: boolean;
 }): Promise<PcmS16AudioData | null> => {
 	if (!sinkPromises[src]) {
 		sinkPromises[src] = getSinks(src);
 	}
 
-	const {audio, actualMatroskaTimestamps, isMatroska} = await sinkPromises[src];
+	const {audio, actualMatroskaTimestamps, isMatroska, getDuration} =
+		await sinkPromises[src];
 
 	if (audio === null) {
 		return null;
 	}
+
+	const timeInSeconds = loop
+		? unloopedTimeInSeconds % (await getDuration())
+		: unloopedTimeInSeconds;
 
 	const sampleIterator = await audioManager.getIterator({
 		src,

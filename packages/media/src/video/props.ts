@@ -30,4 +30,5 @@ export type VideoProps = {
 	 */
 	stack?: string;
 	logLevel?: LogLevel;
+	loop?: boolean;
 };

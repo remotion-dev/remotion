@@ -6,18 +6,24 @@ export const sinkPromises: Record<string, Promise<GetSink>> = {};
 
 export const extractFrame = async ({
 	src,
-	timeInSeconds,
+	timeInSeconds: unloopedTimeinSeconds,
 	logLevel,
+	loop,
 }: {
 	src: string;
 	timeInSeconds: number;
 	logLevel: LogLevel;
+	loop: boolean;
 }) => {
 	if (!sinkPromises[src]) {
 		sinkPromises[src] = getSinks(src);
 	}
 
-	const {video} = await sinkPromises[src];
+	const {video, getDuration} = await sinkPromises[src];
+
+	const timeInSeconds = loop
+		? unloopedTimeinSeconds % (await getDuration())
+		: unloopedTimeinSeconds;
 
 	const keyframeBank = await keyframeManager.requestKeyframeBank({
 		packetSink: video.packetSink,

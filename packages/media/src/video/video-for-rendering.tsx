@@ -26,6 +26,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	// call when a frame of the video, i.e. frame drawn on canvas
 	onVideoFrame,
 	logLevel = window.remotion_logLevel,
+	loop,
 }) => {
 	const absoluteFrame = Internals.useTimelinePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -100,6 +101,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 			includeVideo: window.remotion_videoEnabled,
 			isClientSideRendering: environment.isClientSideRendering,
 			volume,
+			loop: loop ?? false,
 		})
 			.then(({frame: imageBitmap, audio}) => {
 				if (imageBitmap) {
@@ -151,6 +153,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		src,
 		unregisterRenderAsset,
 		volume,
+		loop,
 	]);
 
 	return (

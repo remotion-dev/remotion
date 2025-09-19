@@ -13,6 +13,7 @@ test('Should be able to extract a frame', async () => {
 		includeAudio: true,
 		includeVideo: true,
 		volume: 1,
+		loop: false,
 	});
 
 	assert(frame);
@@ -43,6 +44,7 @@ test('Should manage the cache', async () => {
 			includeAudio: true,
 			includeVideo: true,
 			volume: 1,
+			loop: false,
 		});
 	}
 
@@ -62,6 +64,7 @@ test('Should be apply volume correctly', async () => {
 		includeAudio: true,
 		includeVideo: false,
 		volume: 0.5,
+		loop: false,
 	});
 
 	const {audio: audioAtFullVolume, frame} = await extractFrameAndAudio({
@@ -72,6 +75,7 @@ test('Should be apply volume correctly', async () => {
 		includeAudio: true,
 		includeVideo: false,
 		volume: 1,
+		loop: false,
 	});
 
 	assert(!frame);
@@ -88,4 +92,20 @@ test('Should be apply volume correctly', async () => {
 	);
 	assert(totalAudioAtFullVolume);
 	expect(totalAudioAtHalfVolume).toBe(totalAudioAtFullVolume);
+});
+
+test('Should be able to loop', async () => {
+	await keyframeManager.clearAll();
+	const {frame} = await extractFrameAndAudio({
+		src: `/bigbuckbunny.mp4`,
+		timeInSeconds: 10000001,
+		durationInSeconds: 1 / 30,
+		logLevel: 'info',
+		includeAudio: true,
+		includeVideo: true,
+		volume: 1,
+		loop: true,
+	});
+
+	expect(frame?.timestamp).toBe(41_000_000);
 });

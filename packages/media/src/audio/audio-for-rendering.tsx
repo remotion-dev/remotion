@@ -19,6 +19,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
 	logLevel = window.remotion_logLevel,
+	loop,
 }) => {
 	const absoluteFrame = Internals.useTimelinePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -88,6 +89,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			includeVideo: false,
 			isClientSideRendering: environment.isClientSideRendering,
 			volume,
+			loop: loop ?? false,
 		})
 			.then(({audio}) => {
 				if (audio) {
@@ -130,6 +132,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		src,
 		unregisterRenderAsset,
 		volume,
+		loop,
 	]);
 
 	return null;

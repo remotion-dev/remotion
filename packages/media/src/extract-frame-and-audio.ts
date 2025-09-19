@@ -11,6 +11,7 @@ export const extractFrameAndAudio = async ({
 	includeAudio,
 	includeVideo,
 	volume,
+	loop,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -19,6 +20,7 @@ export const extractFrameAndAudio = async ({
 	includeAudio: boolean;
 	includeVideo: boolean;
 	volume: number;
+	loop: boolean;
 }): Promise<{
 	frame: VideoFrame | null;
 	audio: PcmS16AudioData | null;
@@ -29,6 +31,7 @@ export const extractFrameAndAudio = async ({
 					src,
 					timeInSeconds,
 					logLevel,
+					loop,
 				})
 			: null,
 		includeAudio
@@ -38,6 +41,7 @@ export const extractFrameAndAudio = async ({
 					durationInSeconds,
 					volume,
 					logLevel,
+					loop,
 				})
 			: null,
 	]);
