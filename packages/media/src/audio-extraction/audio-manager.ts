@@ -1,5 +1,6 @@
 import type {AudioSampleSink} from 'mediabunny';
 import {getTotalCacheStats, MAX_CACHE_SIZE} from '../caches';
+import type {LogLevel} from '../log';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import type {AudioSampleIterator} from './audio-iterator';
 import {makeAudioIterator} from './audio-iterator';
@@ -82,6 +83,14 @@ export const makeAudioManager = () => {
 			}
 		}
 
+		for (const iterator of iterators) {
+			// delete iterator with same starting timestamp
+			if (iterator.src === src && iterator.startTimestamp === timeInSeconds) {
+				await iterator.prepareForDeletion();
+				iterators.splice(iterators.indexOf(iterator), 1);
+			}
+		}
+
 		return makeIterator({
 			src,
 			timeInSeconds,
@@ -103,10 +112,17 @@ export const makeAudioManager = () => {
 		return {count: totalCount, totalSize};
 	};
 
+	const logOpenFrames = (logLevel: LogLevel) => {
+		for (const iterator of iterators) {
+			iterator.logOpenFrames(logLevel);
+		}
+	};
+
 	return {
 		makeIterator,
 		getIterator,
 		getCacheStats,
 		getIteratorMostInThePast,
+		logOpenFrames,
 	};
 };

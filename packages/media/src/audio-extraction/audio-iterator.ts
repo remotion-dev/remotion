@@ -72,12 +72,12 @@ export const makeAudioIterator = ({
 		lastUsed = Date.now();
 
 		if (fullDuration !== null && timestamp > fullDuration) {
+			// Clear all samples before the timestamp
+			// Do this in the while loop because samples might start from 0
+			cache.clearBeforeThreshold(fullDuration - SAFE_BACK_WINDOW_IN_SECONDS);
+
 			return [];
 		}
-
-		// Clear all samples before the timestamp
-		// Do this in the while loop because samples might start from 0
-		cache.clearBeforeThreshold(timestamp - SAFE_BACK_WINDOW_IN_SECONDS);
 
 		const samples: AudioSample[] = cache.getSamples(
 			timestamp,
@@ -85,6 +85,10 @@ export const makeAudioIterator = ({
 		);
 
 		while (true) {
+			// Clear all samples before the timestamp
+			// Do this in the while loop because samples might start from 0
+			cache.clearBeforeThreshold(timestamp - SAFE_BACK_WINDOW_IN_SECONDS);
+
 			const sample = await getNextSample();
 			if (sample === null) {
 				break;
@@ -107,7 +111,7 @@ export const makeAudioIterator = ({
 	const logOpenFrames = (logLevel: LogLevel) => {
 		Log.verbose(
 			logLevel,
-			'Open audio samples for src',
+			'[Audio] Open samples for src',
 			src,
 			cache
 				.getOpenTimestamps()
@@ -161,6 +165,7 @@ export const makeAudioIterator = ({
 		getCacheStats,
 		getLastUsed: () => lastUsed,
 		prepareForDeletion,
+		startTimestamp,
 	};
 };
 

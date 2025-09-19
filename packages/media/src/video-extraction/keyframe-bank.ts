@@ -124,7 +124,7 @@ export const makeKeyframeBank = ({
 			}
 		}
 
-		throw new Error('No frame found for timestamp ' + timestampInSeconds);
+		return null;
 	};
 
 	const hasTimestampInSecond = async (timestamp: number) => {

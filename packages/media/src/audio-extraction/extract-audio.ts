@@ -46,7 +46,7 @@ export const extractAudio = async ({
 		durationInSeconds,
 	);
 
-	sampleIterator.logOpenFrames(logLevel);
+	audioManager.logOpenFrames(logLevel);
 
 	const audioDataArray: PcmS16AudioData[] = [];
 	for (let i = 0; i < samples.length; i++) {
