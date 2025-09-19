@@ -1,5 +1,6 @@
 import {assert, expect, test} from 'vitest';
-import {extractFrameAndAudio, keyframeManager} from '../extract-frame';
+import {keyframeManager} from '../extract-frame';
+import {extractFrameAndAudio} from '../extract-frame-and-audio';
 
 test('Should be able to extract a frame', async () => {
 	await keyframeManager.clearAll();
