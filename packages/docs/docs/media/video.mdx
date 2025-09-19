@@ -118,10 +118,6 @@ export const MyVideo = () => {
 };
 ```
 
-### `loopVolumeCurveBehavior?`
-
-**Currently not supported!**
-
 ### `name?`
 
 A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
@@ -150,6 +146,28 @@ export const MyComposition = () => {
   );
 };
 ```
+
+### `loop?`<AvailableFrom v="3.2.29" />
+
+Makes the video loop indefinitely.
+
+```tsx twoslash title="Example of a looped video"
+import {AbsoluteFill} from 'remotion';
+import {experimental_Video as NewVideo} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video loop src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `loopVolumeCurveBehavior?`
+
+**Currently not supported!**
 
 ### `acceptableTimeShiftInSeconds?`
 

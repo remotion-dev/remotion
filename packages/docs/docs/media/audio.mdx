@@ -116,10 +116,6 @@ export const MyVideo = () => {
 };
 ```
 
-### `loopVolumeCurveBehavior?`
-
-**Currently not supported!**
-
 ### `name?`
 
 A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
@@ -132,20 +128,32 @@ A name and that will be shown as the label of the sequence in the timeline of th
 
 **Currently not supported!**
 
+### `loop?`<AvailableFrom v="3.2.29" />
+
+Makes the audio loop indefinitely.
+
+```tsx twoslash title="Example of a looped audio"
+import {experimental_Audio as Audio} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return <Audio loop src="https://parser.media/audio.wav" />;
+};
+```
+
+### `loopVolumeCurveBehavior?`
+
+**Currently not supported!**
+
 ### `muted?`
 
 The `muted` prop will be respected. It will lead to no audio being played while still keeping the audio tag mounted. It's value may change over time, for example to only mute a certain section of the audio.
 
 ```tsx twoslash title="Example of a muted video"
-import {AbsoluteFill, OffthreadVideo} from 'remotion';
 import {experimental_Audio as Audio} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
-  return (
-    <AbsoluteFill>
-      <Audio muted src="https://parser.media/audio.wav" />
-    </AbsoluteFill>
-  );
+  return <Audio muted src="https://parser.media/audio.wav" />;
 };
 ```
 
