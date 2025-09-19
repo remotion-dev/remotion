@@ -26,3 +26,7 @@ export const rememberActualMatroskaTimestamps = (isMatroska: boolean) => {
 		getRealTimestamp,
 	};
 };
+
+export type RememberActualMatroskaTimestamps = ReturnType<
+	typeof rememberActualMatroskaTimestamps
+>;
