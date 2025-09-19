@@ -10,7 +10,7 @@ Not to be confused with the older [`<Video>`](/docs/video) tag from `remotion`.
 :::
 
 :::warning
-**Very experimental**: This component is in a very early stage and does not support some basic features such as volume or playback rate or CSS styling.
+**Very experimental**: This component is in a very early stage and does not support some basic features such as playback rate or CSS styling.
 The current focus is on correctness, not on performance.
 
 We recommend that you use [`<OffthreadVideo />`](/docs/offthreadvideo) for now.
@@ -22,12 +22,12 @@ This component imports and displays a video, similar to [`<OffthreadVideo/>`](/d
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_Video as NewVideo} from '@remotion/media';
+import {experimental_Video as Video} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
     <AbsoluteFill>
-      <NewVideo src={staticFile('video.webm')} />
+      <Video src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
@@ -37,12 +37,12 @@ You can load a video from an URL as well:
 
 ```tsx twoslash
 import {AbsoluteFill} from 'remotion';
-import {experimental_Video as NewVideo} from '@remotion/media';
+import {experimental_Video as Video} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <NewVideo src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+      <Video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
     </AbsoluteFill>
   );
 };
@@ -69,13 +69,13 @@ For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_Video as NewVideo} from '@remotion/media';
+import {experimental_Video as Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <NewVideo src={staticFile('video.webm')} trimBefore={60} trimAfter={120} />
+      <Video src={staticFile('video.webm')} trimBefore={60} trimAfter={120} />
     </AbsoluteFill>
   );
 };
@@ -136,24 +136,42 @@ You can drop the audio of the video by adding a `muted` prop:
 
 ```tsx twoslash title="Example of a muted video"
 import {AbsoluteFill, OffthreadVideo} from 'remotion';
-import {experimental_Video as NewVideo} from '@remotion/media';
+import {experimental_Video as Video} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <NewVideo muted src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+      <Video muted src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
     </AbsoluteFill>
   );
 };
 ```
 
-### `loop?`<AvailableFrom v="3.2.29" />
+### `style?`
+
+You can pass any style you can pass to a native HTML `<canvas>` element.
+
+```tsx twoslash
+import {AbsoluteFill, staticFile} from 'remotion';
+import {experimental_Video as Video} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `loop?`
 
 Makes the video loop indefinitely.
 
 ```tsx twoslash title="Example of a looped video"
 import {AbsoluteFill} from 'remotion';
-import {experimental_Video as NewVideo} from '@remotion/media';
+import {experimental_Video as Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {

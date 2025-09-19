@@ -27,6 +27,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	onVideoFrame,
 	logLevel = window.remotion_logLevel,
 	loop,
+	style,
 }) => {
 	const absoluteFrame = Internals.useTimelinePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -159,6 +160,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	return (
 		<canvas
 			ref={canvasRef}
+			style={style}
 			width={videoConfig.width}
 			height={videoConfig.height}
 		/>

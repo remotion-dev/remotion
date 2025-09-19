@@ -40,6 +40,6 @@
 		{"path": "../webcodecs"},
 		{"path": "../whisper-web"},
 		{"path": "../layout-utils"},
-		{"path": "../video"}
+		{"path": "../media"}
 	]
 }
