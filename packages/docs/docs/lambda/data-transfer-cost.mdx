@@ -18,10 +18,17 @@ No, with the default settings, since the transfer happens over HTTP, AWS counts 
 
 ## Option 1: Use an alternate CDN for storing assets
 
-Many people use Cloudflare R2 to store their big assets instead.  
+Many Remotion users use Cloudflare R2 to store their big assets instead.  
 This is easy to achieve - simply put the assets in a Cloudflare R2 bucket and reference them using the HTTP URL that you get.
 
 Cloudflare does not charge for data transfer, so this is a great way to reduce the cost.
+
+Make sure to disable the Bot fight mode for R2:
+
+- Go to Security of your domain -> Settings -> disable "Bot fight mode"
+- Ensure you use your own domain on the bucket
+
+This ensures no traffic gets blocked when the Lambda function uses a headless browser to load the assets.
 
 ## Option 2: Enable VPC endpoints
 
@@ -35,3 +42,7 @@ Refer to these [notes](https://github.com/remotion-dev/remotion/issues/3817#issu
 - You still pay a flat fee per request.
 - Setting up a VPC endpoint might restrict other network traffic.
 - We do not have recommendations yet for how to configure the VPC endpoint.
+
+## See also
+
+- [Cost example](/docs/lambda/cost-example)
