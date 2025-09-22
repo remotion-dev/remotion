@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Libre Barcode ThreeNine Extended Text',
 	importName: 'LibreBarcode39ExtendedText',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Extended+Text:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/librebarcode39extendedtext/v29/eLG1P_rwIgOiDA7yrs9LoKaYRVLQ1YldrrOnnL7xPO4jNP6Me7gj.woff2',
+					'https://fonts.gstatic.com/s/librebarcode39extendedtext/v30/eLG1P_rwIgOiDA7yrs9LoKaYRVLQ1YldrrOnnL7xPO4jNP6Me7gj.woff2',
 			},
 		},
 	},

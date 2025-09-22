@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Redacted',
 	importName: 'Redacted',
-	version: 'v9',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Redacted:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redacted/v9/Z9XVDmdRShme2O_7aLTX6Oy0lw.woff2',
+					'https://fonts.gstatic.com/s/redacted/v11/Z9XVDmdRShme2O_7aLTX6Oy0lw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redacted/v9/Z9XVDmdRShme2O_7aLTZ6Ow.woff2',
+					'https://fonts.gstatic.com/s/redacted/v11/Z9XVDmdRShme2O_7aLTZ6Ow.woff2',
 			},
 		},
 	},

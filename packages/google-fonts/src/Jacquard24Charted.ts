@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Jacquard TwoFour Charted',
 	importName: 'Jacquard24Charted',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Jacquard+24+Charted:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/jacquard24charted/v4/mtGm4-dNK6HaudrE9VVKhENTsEXEYish4i1hMLJ_.woff2',
+					'https://fonts.gstatic.com/s/jacquard24charted/v5/mtGm4-dNK6HaudrE9VVKhENTsEXEYish4i1hMLJ_.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/jacquard24charted/v4/mtGm4-dNK6HaudrE9VVKhENTsEXEYish4iNhMA.woff2',
+					'https://fonts.gstatic.com/s/jacquard24charted/v5/mtGm4-dNK6HaudrE9VVKhENTsEXEYish4iNhMA.woff2',
 			},
 		},
 	},
