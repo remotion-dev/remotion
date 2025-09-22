@@ -50,10 +50,6 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		if (!sharedAudioContext.audioContext) return;
 
 		try {
-			Log.trace(
-				logLevel,
-				`[NewVideoForPreview] Creating MediaPlayer for src: ${src}`,
-			);
 			const player = new MediaPlayer({
 				canvas: canvasRef.current!,
 				src,
@@ -106,18 +102,10 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		if (!mediaPlayer) return;
 
 		if (playing) {
-			Log.trace(
-				logLevel,
-				`[NewVideoForPreview] Remotion playing - calling MediaPlayer.play()`,
-			);
 			mediaPlayer.play().catch((error) => {
 				Log.error('[NewVideoForPreview] Failed to play', error);
 			});
 		} else {
-			Log.trace(
-				logLevel,
-				`[NewVideoForPreview] Remotion paused - calling MediaPlayer.pause()`,
-			);
 			mediaPlayer.pause();
 		}
 	}, [playing, logLevel, mediaPlayerReady]);
