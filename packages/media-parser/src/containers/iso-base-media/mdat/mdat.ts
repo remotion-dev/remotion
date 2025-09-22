@@ -134,7 +134,11 @@ export const parseMdatSection = async (
 	const exactMatch = nextSampleArray.find(
 		(s) => s.samplePosition.offset === state.iterator.counter.getOffset(),
 	);
-	const nextSample = exactMatch ?? nextSampleArray[0];
+	const nextSample =
+		exactMatch ??
+		nextSampleArray.sort(
+			(a, b) => a.samplePosition.offset - b.samplePosition.offset,
+		)[0];
 
 	if (nextSample.samplePosition.offset !== state.iterator.counter.getOffset()) {
 		return makeSkip(nextSample.samplePosition.offset);
