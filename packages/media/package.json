@@ -13,10 +13,11 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"scripts": {
+		"if-node-18+": "node -e \"const [maj]=process.versions.node.split('.').map(Number); process.exit(maj>=18?0:1)\"",
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"watch": "tsc -w",
-		"test": "vitest src/test --browser --run",
+		"test": "npm run if-node-18+ && vitest src/test --browser --run",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {
