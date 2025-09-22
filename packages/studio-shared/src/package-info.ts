@@ -76,7 +76,7 @@ export const packages = [
 	'compositor',
 	'example-videos',
 	'whisper-web',
-	'video',
+	'media',
 	'web-renderer',
 ] as const;
 
@@ -164,7 +164,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'promo-pages': null,
 	'svg-3d-engine': '3D SVG extrusion effects',
 	'serverless-client': null,
-	video: 'Experimental tag for reliable and accurate video embedding',
+	media: 'Experimental WebCodecs-based media tags',
 	'web-renderer': 'Render videos in the browser (not yet released)',
 };
 export const installableMap: {[key in Pkgs]: boolean} = {
@@ -245,7 +245,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'openai-whisper': true,
 	compositor: false,
 	'example-videos': false,
-	video: false,
+	media: true,
 	'web-renderer': false,
 };
 
@@ -330,7 +330,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'example-videos': null,
 	'promo-pages': null,
 	'svg-3d-engine': null,
-	video: null,
+	media: 'https://remotion.dev/docs/media',
 	// TODO: Add docs
 	'web-renderer': null,
 };

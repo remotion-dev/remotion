@@ -2,7 +2,7 @@
 image: /generated/articles-docs-audio.png
 title: <Audio>
 id: audio
-crumb: 'How to'
+crumb: 'API - remotion'
 ---
 
 Using this component, you can add audio to your video. All audio formats which are supported by Chromium are supported by the component.
@@ -27,7 +27,7 @@ export const MyVideo = () => {
 
 ### `volume?`
 
-The component also accepts a `volume` props which allows you to control the volume of the audio in it's entirety or frame by frame. Read the page on [using audio](/docs/using-audio) to learn more.
+Allows you to control the volume of the audio in it's entirety or frame by frame. Read the page on [using audio](/docs/using-audio) to learn more.
 
 ```tsx twoslash title="Setting a static volume"
 import {AbsoluteFill, Audio, staticFile} from 'remotion';
@@ -191,7 +191,6 @@ Multiple audio streams can be used for example for adding multiple languages to 
 Audio streams are zero-indexed.
 :::
 
-
 ### `acceptableTimeShiftInSeconds?`<AvailableFrom v="3.2.42"/>
 
 In the [Remotion Studio](/docs/terminology/studio) or in the [Remotion Player](/docs/player), Remotion will seek the audio if it gets too much out of sync with Remotion's internal time - be it due to the audio loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
@@ -233,6 +232,7 @@ To prevent synthetic amplification, set a volume not higher than 1.
 - [Using audio](/docs/using-audio)
 - [Audio visualization](/docs/audio/visualization)
 - [`<Video />`](/docs/video)
+- [`<Audio />` (from `@remotion/media`)](/docs/media/audio)
 
 <Credits
   contributors={[

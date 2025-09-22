@@ -1,0 +1,55 @@
+{
+	"name": "@remotion/media",
+	"version": "4.0.350",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media"
+	},
+	"sideEffects": false,
+	"author": "Hunain Ahmed <junaidhunain6@gmail.com>",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"scripts": {
+		"if-node-18+": "node -e \"const [maj]=process.versions.node.split('.').map(Number); process.exit(maj>=18?0:1)\"",
+		"formatting": "prettier --experimental-cli src --check",
+		"lint": "eslint src",
+		"watch": "tsc -w",
+		"test": "node src/test/execute.mjs",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"dependencies": {
+		"mediabunny": "1.17.0",
+		"remotion": "workspace:*",
+		"webdriverio": "9.19.2"
+	},
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@vitest/browser": "^3.2.4",
+		"eslint": "9.19.0",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"vitest": "3.2.4"
+	},
+	"keywords": [],
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"description": "Experimental WebCodecs-based media tags",
+	"homepage": "https://remotion.dev/docs/media"
+}

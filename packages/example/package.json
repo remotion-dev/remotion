@@ -35,7 +35,7 @@
 		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/animation-utils": "workspace:*",
 		"@remotion/babel-loader": "workspace:*",
-		"@remotion/video": "workspace:*",
+		"@remotion/media": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",

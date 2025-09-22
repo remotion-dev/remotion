@@ -1,4 +1,4 @@
-import {experimental_NewVideo as NewVideo} from '@remotion/video';
+import {experimental_Video as NewVideo} from '@remotion/media';
 import {AbsoluteFill, staticFile} from 'remotion';
 
 export const NewVideoExample: React.FC = () => {
