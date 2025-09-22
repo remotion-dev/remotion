@@ -1,0 +1,29 @@
+---
+image: /generated/articles-docs-video-tags.png
+id: video-tags
+title: Comparison of video tags
+crumb: 'Comparison'
+---
+
+We offer three components for embedding videos into your Remotion composition:
+
+- [`<OffthreadVideo />`](/docs/offthreadvideo) - **our recommendation**, based on a Rust-based frame extractor
+- [`<Video />`](/docs/video) from `remotion` - based on the HTML5 `<video>` element
+- [`<Video />`](/docs/media/video) from `@remotion/media` - an experimental WebCodecs-based component, set to become the default
+
+This page offers a comparison to help you decide which tag to use.
+
+|                                          | [`<OffthreadVideo />`](/docs/offthreadvideo)                                                     | [`<Video />`](/docs/video) <br/> [`<Audio />`](/docs/audio) <br/> (`remotion`) | [`<Video />`](/docs/media/video) <br/> [`<Audio />`](/docs/media/audio) (`@remotion/media`)                             |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| **Based on**                             | Rust + FFmpeg binary                                                                             | HTML5 `<video>` tag                                                            | Mediabunny, WebCodecs                                                                                                   |
+| **Frame-perfect**                        | ✅                                                                                               | ❌ Not guaranteed                                                              | ✅                                                                                                                      |
+| **Partial download of asset**            | ❌                                                                                               | Only with `muted` prop                                                         | ✅                                                                                                                      |
+| **Preview**                              | HTML5 `<video>`                                                                                  | HTML5 `<video>`                                                                | HTML5 `<video>` <br/> Soon: WebCodecs                                                                                   |
+| **Render Speed**                         | Fast                                                                                             | Medium                                                                         | <span style={{color: 'green', fontWeight: 'bold'}}> Fastest </span>                                                     |
+| **Supported containers**                 | `.aac`, `.avi`, `.caf`, `.flac`, `.flv`, `.m4a`, `.mkv`, `.mp3`, `.mp4`, `.ogg`, `.wav`, `.webm` | `.aac`, `.flac`, `.m4a`, `.mkv`, `.mp3`, `.mp4`, `.ogg`, `.wav`, `.webm`       | `.aac`, `.flac`, `.mkv`, `.mov`, `.mp3`, `.mp4`, `.ogg`, `.wav`, `.webm`                                                |
+| **Supported codecs**                     | AAC, AC3, AV1, FLAC, H.264, H.265, M4A, MP3, Opus, PCM, ProRes, VP8, VP9, Vorbis                 | AAC, FLAC, H.264, MP3, Opus, VP8, VP9, Vorbis                                  | AAC, FLAC, H.264, MP3, Opus, VP8, VP9, Vorbis <br/><br/> Planned: Fallback to `<OffthreadVideo>` for unsupported codecs |
+| **HLS Support**                          | No                                                                                               | [Only during preview](/docs/miscellaneous/snippets/hls)                        | Planned                                                                                                                 |
+| **CORS required**                        | No                                                                                               | No                                                                             | Yes                                                                                                                     |
+| **Loopable**                             | ❌                                                                                               | ✅                                                                             | ✅                                                                                                                      |
+| **`playbackRate`** <br/> (Speed Change)  | ✅                                                                                               | ✅                                                                             | Planned                                                                                                                 |
+| **`toneFrequency`** <br/> (Pitch Change) | Only during rendering                                                                            | Only during rendering                                                          | Planned                                                                                                                 |

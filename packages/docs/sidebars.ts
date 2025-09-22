@@ -825,8 +825,8 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/snippets/accelerated-video',
 				'miscellaneous/snippets/jumpcuts',
 				'miscellaneous/snippets/freeze-portions',
+				'video-tags',
 				'miscellaneous/snippets/hls',
-				'video-vs-offthreadvideo',
 			],
 		},
 		{
