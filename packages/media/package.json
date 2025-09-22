@@ -17,7 +17,7 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"watch": "tsc -w",
-		"test": "npm run if-node-18+ && vitest src/test --browser --run",
+		"test": "node src/test/execute.mjs",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {
