@@ -1,0 +1,233 @@
+---
+image: /generated/articles-docs-media-video.png
+title: '<Video>'
+crumb: 'API - @remotion/media'
+---
+
+:::note
+This is documentation for the upcoming new `<Video>` tag.  
+Not to be confused with the older [`<Video>`](/docs/video) tag from `remotion`.
+:::
+
+:::warning
+**Very experimental**: This component is in a very early stage and does not support some basic features such as playback rate or CSS styling.
+The current focus is on correctness, not on performance.
+
+We recommend that you use [`<OffthreadVideo />`](/docs/offthreadvideo) for now.
+:::
+
+This component imports and displays a video, similar to [`<OffthreadVideo/>`](/docs/offthreadvideo) but during rendering, extracts the exact frame from the video using [Mediabunny](/docs/mediabunny) and displays it in a `<canvas>` tag.
+
+## Example
+
+```tsx twoslash
+import {AbsoluteFill, staticFile} from 'remotion';
+import {experimental_Video as Video} from '@remotion/media';
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Video src={staticFile('video.webm')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+You can load a video from an URL as well:
+
+```tsx twoslash
+import {AbsoluteFill} from 'remotion';
+import {experimental_Video as Video} from '@remotion/media';
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+    </AbsoluteFill>
+  );
+};
+```
+
+## Props
+
+### `src`
+
+The URL of the video to be rendered. Can be a remote URL or a local file referenced with [`staticFile()`](/docs/staticfile).
+
+### `trimBefore?`
+
+Will remove a portion of the video at the beginning (left side).
+
+In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
+
+By passing `trimBefore={60}`, the playback starts immediately, but with the first 2 seconds of the video trimmed away.  
+By passing `trimAfter={120}`, any video after the 4 second mark in the file will be trimmed away.
+
+The video will play the range from `00:02:00` to `00:04:00`, meaning the video will play for 2 seconds.
+
+For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
+
+```tsx twoslash
+import {AbsoluteFill, staticFile} from 'remotion';
+import {experimental_Video as Video} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video src={staticFile('video.webm')} trimBefore={60} trimAfter={120} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `trimAfter?`
+
+Removes a portion of the video at the end (right side). See [`trimBefore`](#trimbefore) for an explanation.
+
+### `volume?`
+
+### `volume?`
+
+Allows you to control the volume of the audio in it's entirety or frame by frame.  
+Read the page on [using audio](/docs/using-audio) to learn more.
+
+```tsx twoslash title="Setting a static volume"
+import {AbsoluteFill, staticFile} from 'remotion';
+import {experimental_Video as Video} from '@remotion/media';
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Video volume={0.5} src={staticFile('video.webm')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+```tsx twoslash title="Changing the volume over time"
+import {AbsoluteFill, interpolate, staticFile} from 'remotion';
+import {experimental_Video as Video} from '@remotion/media';
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Video volume={(f) => interpolate(f, [0, 30], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={'https://parser.media/video.mp4'} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `name?`
+
+A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
+
+### `onError?`
+
+**Currently not supported!**
+
+### `playbackRate?`
+
+**Currently not supported!**
+
+### `muted?`
+
+You can drop the audio of the video by adding a `muted` prop:
+
+```tsx twoslash title="Example of a muted video"
+import {AbsoluteFill, OffthreadVideo} from 'remotion';
+import {experimental_Video as Video} from '@remotion/media';
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video muted src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `style?`
+
+You can pass any style you can pass to a native HTML `<canvas>` element.
+
+```tsx twoslash
+import {AbsoluteFill, staticFile} from 'remotion';
+import {experimental_Video as Video} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `loop?`
+
+Makes the video loop indefinitely.
+
+```tsx twoslash title="Example of a looped video"
+import {AbsoluteFill} from 'remotion';
+import {experimental_Video as Video} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video loop src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `loopVolumeCurveBehavior?`
+
+**Currently not supported!**
+
+### `acceptableTimeShiftInSeconds?`
+
+**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
+
+### `pauseWhenBuffering?`
+
+If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
+
+### `showInTimeline?`
+
+If set to `false`, no layer will be shown in the timeline of the Remotion Studio. The default is `true`.
+
+### `delayRenderTimeoutInMilliseconds?`
+
+Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delayRender()`](/docs/delay-render) call that this component makes.
+
+### `delayRenderRetries?`
+
+Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.
+
+### `onAutoPlayError?`
+
+**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
+
+### `onVideoFrame?`
+
+A callback function that gets called when a frame is extracted from the video.  
+Useful for [video manipulation](/docs/video-manipulation).  
+The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object, more specifically, either an `ImageBitmap` or a `VideoFrame`.
+
+### `crossOrigin?`
+
+**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
+
+### `useWebAudioApi?`
+
+**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/media/src/video/video.tsx)
+- [`<Audio />` (from `@remotion/media`)](/docs/media/audio)
+- [`<Video />` (from `remotion`)](/docs/video)
+- [`<OffthreadVideo>`](/docs/offthreadvideo)

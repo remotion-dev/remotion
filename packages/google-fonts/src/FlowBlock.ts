@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Flow Block',
 	importName: 'FlowBlock',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Flow+Block:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,15 +20,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/flowblock/v14/wlp0gwfPCEB65UmTk-d6yWxvbRBX.woff2',
+					'https://fonts.gstatic.com/s/flowblock/v15/wlp0gwfPCEB65UmTk-d6yWxvbRBX.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/flowblock/v14/wlp0gwfPCEB65UmTk-d6yWVvbRBX.woff2',
+					'https://fonts.gstatic.com/s/flowblock/v15/wlp0gwfPCEB65UmTk-d6yWVvbRBX.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/flowblock/v14/wlp0gwfPCEB65UmTk-d6yW5vbRBX.woff2',
+					'https://fonts.gstatic.com/s/flowblock/v15/wlp0gwfPCEB65UmTk-d6yW5vbRBX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/flowblock/v14/wlp0gwfPCEB65UmTk-d6yW9vbRBX.woff2',
+					'https://fonts.gstatic.com/s/flowblock/v15/wlp0gwfPCEB65UmTk-d6yW9vbRBX.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/flowblock/v14/wlp0gwfPCEB65UmTk-d6yWFvbQ.woff2',
+					'https://fonts.gstatic.com/s/flowblock/v15/wlp0gwfPCEB65UmTk-d6yWFvbQ.woff2',
 			},
 		},
 	},

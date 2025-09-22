@@ -166,6 +166,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Aladin') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Alan Sans',
+		importName: 'AlanSans',
+		load: () => import('./AlanSans') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Alata',
 		importName: 'Alata',
 		load: () => import('./Alata') as Promise<GoogleFont>,
@@ -7370,6 +7375,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'SUSE',
 		importName: 'SUSE',
 		load: () => import('./SUSE') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'SUSE Mono',
+		importName: 'SUSEMono',
+		load: () => import('./SUSEMono') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Sacramento',

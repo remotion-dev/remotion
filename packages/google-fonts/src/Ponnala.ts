@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ponnala',
 	importName: 'Ponnala',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Ponnala:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/ponnala/v2/w8gaH2QxQOU08bbbnRCn2W4O.woff2',
+					'https://fonts.gstatic.com/s/ponnala/v3/w8gaH2QxQOU08bbbnRCn2W4O.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ponnala/v2/w8gaH2QxQOU08bbbnQyn2Q.woff2',
+					'https://fonts.gstatic.com/s/ponnala/v3/w8gaH2QxQOU08bbbnQyn2Q.woff2',
 			},
 		},
 	},

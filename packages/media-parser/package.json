@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
 	"name": "@remotion/media-parser",
-	"version": "4.0.350",
+	"version": "4.0.351",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -18,7 +18,7 @@
 		"@types/wicg-file-system-access": "2023.10.5",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.19.0",
-		"mediabunny": "1.13.0",
+		"mediabunny": "1.17.0",
 		"@types/bun": "1.2.8"
 	},
 	"publishConfig": {

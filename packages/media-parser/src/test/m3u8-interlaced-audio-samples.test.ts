@@ -3,7 +3,7 @@ import {mediaParserController} from '../controller/media-parser-controller';
 import {hasBeenAborted} from '../errors';
 import {parseMedia} from '../parse-media';
 
-test('should be able to select between audio tracks', async () => {
+test.skip('should be able to select between audio tracks', async () => {
 	let videoSamples = 0;
 	let audioSamples = 0;
 

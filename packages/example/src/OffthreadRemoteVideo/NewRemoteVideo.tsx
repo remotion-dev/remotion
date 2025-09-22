@@ -1,6 +1,6 @@
+import {experimental_Video as Video} from '@remotion/media';
 import {parseMedia} from '@remotion/media-parser';
 import {StudioInternals} from '@remotion/studio';
-import {experimental_NewVideo as NewVideo} from '@remotion/video';
 import {CalculateMetadataFunction, staticFile} from 'remotion';
 
 const fps = 30;
@@ -33,7 +33,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 const Component = () => {
 	return (
 		<>
-			<NewVideo src={src} logLevel="verbose" />
+			<Video src={src} logLevel="verbose" />
 		</>
 	);
 };

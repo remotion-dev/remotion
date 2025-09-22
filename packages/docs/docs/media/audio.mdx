@@ -1,0 +1,197 @@
+---
+image: /generated/articles-docs-media-audio.png
+title: '<Audio>'
+crumb: 'API - @remotion/media'
+---
+
+:::note
+This is documentation for the upcoming new `<Audio>` tag.  
+Not to be confused with the older [`<Audio>`](/docs/audio) tag from `remotion`.
+:::
+
+:::warning
+**Very experimental**: This component is in a very early stage and does not support some basic features such as playback rate.
+The current focus is on correctness, not on performance.
+
+We recommend that you use [`<Audio />`](/docs/audio) for now.
+:::
+
+This component imports and displays a video, similar to [`<Audio />`](/docs/audio) from `remotion` but during rendering, extracts the exact audio using [Mediabunny](/docs/mediabunny) instead of FFmpeg.
+
+## Example
+
+```tsx twoslash
+import {AbsoluteFill, staticFile} from 'remotion';
+import {experimental_Audio as Audio} from '@remotion/media';
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile('audio.mp3')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+You can load a video from an URL as well:
+
+```tsx twoslash
+import {AbsoluteFill} from 'remotion';
+import {experimental_Audio as Audio} from '@remotion/media';
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src="https://parser.media/audio.wav" />
+    </AbsoluteFill>
+  );
+};
+```
+
+## Props
+
+### `src`
+
+The URL of the audio to be rendered. Can be a remote URL or a local file referenced with [`staticFile()`](/docs/staticfile).
+
+### `trimBefore?`
+
+Will remove a portion of the audio at the beginning (left side).
+
+In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
+
+By passing `trimBefore={60}`, the playback starts immediately, but with the first 2 seconds of the audio trimmed away.  
+By passing `trimAfter={120}`, any audio after the 4 second mark in the file will be trimmed away.
+
+The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
+
+For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
+
+```tsx twoslash
+import {AbsoluteFill, staticFile} from 'remotion';
+import {experimental_Audio as Audio} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile('audio.mp3')} trimBefore={60} trimAfter={120} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `trimAfter?`
+
+Removes a portion of the audio at the end (right side). See [`trimBefore`](#trimbefore) for an explanation.
+
+### `volume?`
+
+Allows you to control the volume of the audio in it's entirety or frame by frame.  
+Read the page on [using audio](/docs/using-audio) to learn more.
+
+```tsx twoslash title="Setting a static volume"
+import {AbsoluteFill, staticFile} from 'remotion';
+import {experimental_Audio as Audio} from '@remotion/media';
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Audio volume={0.5} src={staticFile('background.mp3')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+```tsx twoslash title="Changing the volume over time"
+import {AbsoluteFill, interpolate, staticFile} from 'remotion';
+import {experimental_Audio as Audio} from '@remotion/media';
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Audio volume={(f) => interpolate(f, [0, 30], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('voice.mp3')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `name?`
+
+A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
+
+### `onError?`
+
+**Currently not supported!**
+
+### `playbackRate?`
+
+**Currently not supported!**
+
+### `loop?`<AvailableFrom v="3.2.29" />
+
+Makes the audio loop indefinitely.
+
+```tsx twoslash title="Example of a looped audio"
+import {experimental_Audio as Audio} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return <Audio loop src="https://parser.media/audio.wav" />;
+};
+```
+
+### `loopVolumeCurveBehavior?`
+
+**Currently not supported!**
+
+### `muted?`
+
+The `muted` prop will be respected. It will lead to no audio being played while still keeping the audio tag mounted. It's value may change over time, for example to only mute a certain section of the audio.
+
+```tsx twoslash title="Example of a muted video"
+import {experimental_Audio as Audio} from '@remotion/media';
+// ---cut---
+export const MyComposition = () => {
+  return <Audio muted src="https://parser.media/audio.wav" />;
+};
+```
+
+### `acceptableTimeShiftInSeconds?`
+
+**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<audio>` tag.
+
+### `pauseWhenBuffering?`
+
+If set to `true` and the audio is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
+
+### `showInTimeline?`
+
+If set to `false`, no layer will be shown in the timeline of the Remotion Studio. The default is `true`.
+
+### `delayRenderTimeoutInMilliseconds?`
+
+Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delayRender()`](/docs/delay-render) call that this component makes.
+
+### `delayRenderRetries?`
+
+Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.
+
+### `onAutoPlayError?`
+
+**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<audio>` tag.
+
+### `crossOrigin?`
+
+**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<audio>` tag.
+
+### `useWebAudioApi?`
+
+**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<audio>` tag.
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/media/src/audio/audio.tsx)
+- [`<Audio />` (from `remotion`)](/docs/audio)
+- [`<Video />` (from `@remotion/media`)](/docs/media/video)
+- [`<OffthreadVideo>`](/docs/offthreadvideo)

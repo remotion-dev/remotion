@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Jersey OneFive',
 	importName: 'Jersey15',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Jersey+15:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/jersey15/v3/_6_9EDzuROGsUuk2TWjia4AggCk.woff2',
+					'https://fonts.gstatic.com/s/jersey15/v4/_6_9EDzuROGsUuk2TWjia4AggCk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/jersey15/v3/_6_9EDzuROGsUuk2TWjiZYAg.woff2',
+					'https://fonts.gstatic.com/s/jersey15/v4/_6_9EDzuROGsUuk2TWjiZYAg.woff2',
 			},
 		},
 	},
