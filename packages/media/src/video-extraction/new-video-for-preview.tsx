@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {Internals, useBufferState, useCurrentFrame} from 'remotion';
-import {Log, type LogLevel} from './log';
+import {Log, type LogLevel} from '../log';
 import {MediaPlayer} from './media-player';
 
 const {useUnsafeVideoConfig, Timeline, SharedAudioContext} = Internals;

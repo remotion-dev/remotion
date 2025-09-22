@@ -6,7 +6,7 @@ import {
 	Input,
 	UrlSource,
 } from 'mediabunny';
-import {Log, type LogLevel} from './log';
+import {Log, type LogLevel} from '../log';
 
 const SEEK_THRESHOLD = 0.05;
 
