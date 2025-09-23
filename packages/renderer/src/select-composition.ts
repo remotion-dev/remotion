@@ -10,6 +10,7 @@ import {handleJavascriptException} from './error-handling/handle-javascript-exce
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {Log} from './logger';
+import {getAvailableMemory} from './memory/get-available-memory';
 import type {ChromiumOptions} from './open-browser';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
@@ -93,6 +94,7 @@ const innerSelectComposition = async ({
 		onServeUrlVisited,
 		isMainTab: true,
 		videoCacheSizeInBytes,
+		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
 	await puppeteerEvaluateWithCatch({

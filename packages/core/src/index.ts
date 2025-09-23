@@ -71,6 +71,7 @@ declare global {
 		remotion_envVariables: string;
 		remotion_isMainTab: boolean;
 		remotion_videoCacheSizeInBytes: number | null;
+		remotion_initialMemoryAvailable: number | null;
 		remotion_collectAssets: () => TRenderAsset[];
 		remotion_isPlayer: boolean;
 		remotion_isStudio: boolean;

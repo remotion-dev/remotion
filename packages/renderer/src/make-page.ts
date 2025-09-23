@@ -5,6 +5,7 @@ import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
 import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
+import {getAvailableMemory} from './memory/get-available-memory';
 import type {PixelFormat} from './pixel-format';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import type {BrowserReplacer} from './replace-browser';
@@ -79,6 +80,7 @@ export const makePage = async ({
 		onServeUrlVisited: () => undefined,
 		isMainTab,
 		videoCacheSizeInBytes,
+		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
 	await puppeteerEvaluateWithCatch({

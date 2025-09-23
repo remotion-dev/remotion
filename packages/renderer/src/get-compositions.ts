@@ -9,6 +9,7 @@ import {defaultBrowserDownloadProgress} from './browser/browser-download-progres
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
+import {getAvailableMemory} from './memory/get-available-memory';
 import type {ChromiumOptions} from './open-browser';
 import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
 import type {ToOptions} from './options/option';
@@ -82,6 +83,7 @@ const innerGetCompositions = async ({
 		onServeUrlVisited: () => undefined,
 		isMainTab: true,
 		videoCacheSizeInBytes,
+		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
 	await puppeteerEvaluateWithCatch({

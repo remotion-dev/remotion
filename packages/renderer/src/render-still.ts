@@ -26,6 +26,7 @@ import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
+import {getAvailableMemory} from './memory/get-available-memory';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import type {ToOptions} from './options/option';
@@ -267,6 +268,7 @@ const innerRenderStill = async ({
 		onServeUrlVisited: () => undefined,
 		isMainTab: true,
 		videoCacheSizeInBytes,
+		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
 	await puppeteerEvaluateWithCatch({

@@ -26,6 +26,7 @@ type SetPropsAndEnv = {
 	onServeUrlVisited: () => void;
 	isMainTab: boolean;
 	videoCacheSizeInBytes: number | null;
+	initialMemoryAvailable: number | null;
 };
 
 const innerSetPropsAndEnv = async ({
@@ -44,6 +45,7 @@ const innerSetPropsAndEnv = async ({
 	onServeUrlVisited,
 	isMainTab,
 	videoCacheSizeInBytes,
+	initialMemoryAvailable,
 }: SetPropsAndEnv): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
@@ -57,6 +59,7 @@ const innerSetPropsAndEnv = async ({
 			window.remotion_puppeteerTimeout = timeout;
 			window.remotion_isMainTab = mainTab;
 			window.remotion_videoCacheSizeInBytes = videoCacheSizeInBytes;
+			window.remotion_initialMemoryAvailable = initialMemoryAvailable;
 			// To make useRemotionEnvironment() work
 			if (window.process === undefined) {
 				// @ts-expect-error
@@ -159,6 +162,7 @@ const innerSetPropsAndEnv = async ({
 			onServeUrlVisited,
 			isMainTab,
 			videoCacheSizeInBytes,
+			initialMemoryAvailable,
 		});
 	};
 
