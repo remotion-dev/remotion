@@ -85,11 +85,18 @@ export const makeAudioIterator = ({
 		);
 
 		while (true) {
+			const sample = await getNextSample();
+
 			// Clear all samples before the timestamp
 			// Do this in the while loop because samples might start from 0
-			cache.clearBeforeThreshold(timestamp - SAFE_BACK_WINDOW_IN_SECONDS);
+			// Also do this after a sample has just been added, if it was the last sample we now have the duration
+			// and can prevent deleting the last sample
 
-			const sample = await getNextSample();
+			const deleteBefore =
+				fullDuration === null ? timestamp : Math.min(timestamp, fullDuration);
+
+			cache.clearBeforeThreshold(deleteBefore - SAFE_BACK_WINDOW_IN_SECONDS);
+
 			if (sample === null) {
 				break;
 			}
