@@ -432,7 +432,7 @@ export const RenderModalAdvanced: React.FC<{
 			</div>
 			{renderMode === 'audio' ? null : (
 				<div style={optionRow}>
-					<div style={label}>Custom Video cache</div>
+					<div style={label}>Custom @remotion/media cache size</div>
 					<Spacing x={0.5} />
 					<OptionExplainerBubble id="mediaCacheSizeInBytesOption" />
 					<div style={rightRow}>
