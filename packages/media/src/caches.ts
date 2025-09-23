@@ -71,7 +71,7 @@ const getUncachedMaxCacheSize = (logLevel: LogLevel) => {
 
 		Log.verbose(
 			logLevel,
-			`Using @remotion/media cache size set based on available memory (50% of available memory): ${(window.remotion_initialMemoryAvailable / 1024 / 1024).toFixed(1)} MB`,
+			`Using @remotion/media cache size set based on available memory (50% of available memory): ${(value / 1024 / 1024).toFixed(1)} MB`,
 		);
 		return value;
 	}
