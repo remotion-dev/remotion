@@ -20,7 +20,7 @@ Use [`onVideoTrack`](/docs/media-parser/parse-media#onvideotrack) and/or [`onAud
 import {parseMedia} from '@remotion/media-parser';
 
 const samples = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   onVideoTrack: ({track, container}) => {
     console.log(track.codecEnum);
     //                ^?
@@ -41,7 +41,7 @@ If you return a callback from [`onVideoTrack`](/docs/media-parser/parse-media#on
 import {parseMedia} from '@remotion/media-parser';
 
 const samples = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   onVideoTrack: ({track, container}) => {
     return (sample) => {
       console.log(sample);
@@ -61,7 +61,7 @@ If you would like to execute code when the last sample of a track has been parse
 import {parseMedia} from '@remotion/media-parser';
 
 const samples = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   onVideoTrack: ({track, container}) => {
     return (sample) => {
       return () => {
@@ -82,7 +82,7 @@ import {parseMedia, mediaParserController} from '@remotion/media-parser';
 const controller = mediaParserController();
 
 const samples = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   controller,
   onVideoTrack: ({track, container}) => {
     return (sample) => {

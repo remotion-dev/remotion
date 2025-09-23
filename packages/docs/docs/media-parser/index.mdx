@@ -60,7 +60,7 @@ Get metadata from a video file - [over 20 different fields are supported.](/docs
 import {parseMedia} from '@remotion/media-parser';
 
 const {durationInSeconds, videoCodec} = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   fields: {
     durationInSeconds: true,
     videoCodec: true,
@@ -77,7 +77,7 @@ Extract samples from a video file - [supports WebCodecs](/docs/media-parser/webc
 import {parseMedia} from '@remotion/media-parser';
 
 await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   onVideoTrack: ({track}) => {
     // Get information about the
     console.log(track.width);

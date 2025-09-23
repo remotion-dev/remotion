@@ -22,7 +22,7 @@ The following snippet is a basic, non-production ready example of how to use `pa
 import {parseMedia, MediaParserOnAudioTrack, MediaParserOnVideoTrack} from '@remotion/media-parser';
 
 const result = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   onVideoTrack: ({track}) => {
     const decoder = new VideoDecoder({
       output: console.log,

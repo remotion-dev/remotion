@@ -124,7 +124,7 @@ import {parseMedia} from '@remotion/media-parser';
 import {createVideoDecoder} from '@remotion/webcodecs';
 
 await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   onVideoTrack: async ({track, container}) => {
     const decoder = await createVideoDecoder({
       track,
@@ -156,7 +156,7 @@ import {parseMedia} from '@remotion/media-parser';
 import {createVideoDecoder} from '@remotion/webcodecs';
 
 await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   onVideoTrack: async ({track, container}) => {
     const decoder = await createVideoDecoder({
       track,

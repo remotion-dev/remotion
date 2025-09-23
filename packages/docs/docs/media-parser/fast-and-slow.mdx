@@ -82,7 +82,7 @@ import {parseMedia} from '@remotion/media-parser';
 // ---cut---
 // Some fields only require the first few bytes of the file to be read:
 const result = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   fields: {
     size: true,
     container: true,
@@ -95,7 +95,7 @@ console.log(result.internalStats.finalCursorOffset); // 12
 // Reading the metadata of the video will only require the metadata section to be parsed.
 // You can also use onVideoTrack() and return null to retrieve track information but to not get the samples.
 const result2 = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   fields: {
     durationInSeconds: true,
     dimensions: true,
@@ -112,7 +112,7 @@ console.log(result2.dimensions);
 
 // Asking for all video samples requires parsing the whole file
 const result3 = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   fields: {
     internalStats: true,
   },

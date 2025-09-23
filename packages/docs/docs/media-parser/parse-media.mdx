@@ -19,7 +19,7 @@ _available from v4.0.190_
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   fields: {
     durationInSeconds: true,
     dimensions: true,
@@ -188,7 +188,7 @@ However, just like with [`fields`](#fields), adding a callback for a [slow field
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   onDurationInSeconds: (durationInSeconds) => {
     console.log(durationInSeconds);
   },
