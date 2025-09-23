@@ -45,7 +45,7 @@ export type RenderModalState = {
 	initialOpenGlRenderer: OpenGlRenderer | null;
 	initialIgnoreCertificateErrors: boolean;
 	initialHeadless: boolean;
-	initialVideoCacheSizeInBytes: number | null;
+	initialMediaCacheSizeInBytes: number | null;
 	initialOffthreadVideoCacheSizeInBytes: number | null;
 	initialOffthreadVideoThreads: number | null;
 	initialColorSpace: ColorSpace;

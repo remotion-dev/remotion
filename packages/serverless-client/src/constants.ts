@@ -153,7 +153,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	bucketName: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
-	videoCacheSizeInBytes: number | null;
+	mediaCacheSizeInBytes: number | null;
 	deleteAfter: DeleteAfter | null;
 	colorSpace: ColorSpace | null;
 	preferLossless: boolean;
@@ -211,7 +211,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		forceWidth: number | null;
 		offthreadVideoCacheSizeInBytes: number | null;
 		offthreadVideoThreads: number | null;
-		videoCacheSizeInBytes: number | null;
+		mediaCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace | null;
 		preferLossless: boolean;
@@ -263,7 +263,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		preferLossless: boolean;
 		offthreadVideoCacheSizeInBytes: number | null;
 		offthreadVideoThreads: number | null;
-		videoCacheSizeInBytes: number | null;
+		mediaCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace | null;
 		compositionStart: number;
@@ -296,7 +296,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
 		offthreadVideoThreads: number | null;
-		videoCacheSizeInBytes: number | null;
+		mediaCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
 		streamed: boolean;
 		forcePathStyle: boolean;
@@ -314,7 +314,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		serveUrl: string;
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
-		videoCacheSizeInBytes: number | null;
+		mediaCacheSizeInBytes: number | null;
 		forcePathStyle: boolean;
 	};
 };

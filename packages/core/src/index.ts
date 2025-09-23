@@ -70,7 +70,7 @@ declare global {
 		remotion_inputProps: string;
 		remotion_envVariables: string;
 		remotion_isMainTab: boolean;
-		remotion_videoCacheSizeInBytes: number | null;
+		remotion_mediaCacheSizeInBytes: number | null;
 		remotion_initialMemoryAvailable: number | null;
 		remotion_collectAssets: () => TRenderAsset[];
 		remotion_isPlayer: boolean;

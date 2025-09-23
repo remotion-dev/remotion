@@ -254,7 +254,7 @@ const internalRenderMediaRaw = ({
 	hardwareAcceleration,
 	chromeMode,
 	offthreadVideoThreads,
-	videoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	const pixelFormat =
 		userPixelFormat ??
@@ -717,7 +717,7 @@ const internalRenderMediaRaw = ({
 					onArtifact,
 					chromeMode,
 					imageSequencePattern: null,
-					videoCacheSizeInBytes,
+					mediaCacheSizeInBytes,
 				});
 
 				return renderFramesProc;
@@ -947,7 +947,7 @@ export const renderMedia = ({
 	chromeMode,
 	offthreadVideoThreads,
 	compositionStart,
-	videoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -1033,6 +1033,6 @@ export const renderMedia = ({
 		compositionStart: compositionStart ?? 0,
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
-		videoCacheSizeInBytes: videoCacheSizeInBytes ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 	});
 };

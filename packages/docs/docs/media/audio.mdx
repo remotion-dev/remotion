@@ -189,6 +189,15 @@ Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRen
 
 **Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<audio>` tag.
 
+## Setting the cache size
+
+`@remotion/media` keeps a cache of video and audio frames.
+
+By default, the cache may grow to up to 50% of the available system memory.  
+The rendering APIs allow you to customize this limit on a per-render basis.
+
+See in [`renderMedia()`](/docs/renderer/render-media) for example: [`mediaCacheSizeInBytes`](/docs/renderer/select-composition#mediacachesizeinbytes).
+
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/media/src/audio/audio.tsx)

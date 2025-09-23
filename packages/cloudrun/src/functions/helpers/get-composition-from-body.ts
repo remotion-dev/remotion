@@ -31,7 +31,7 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 			},
 			onServeUrlVisited: () => undefined,
 			chromeMode: 'headless-shell',
-			videoCacheSizeInBytes: body.videoCacheSizeInBytes,
+			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
 		},
 	);
 

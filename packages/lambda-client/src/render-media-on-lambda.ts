@@ -199,7 +199,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		apiKey: options.apiKey ?? null,
 		storageClass: options.storageClass ?? null,
 		requestHandler: options.requestHandler ?? null,
-		videoCacheSizeInBytes: options.videoCacheSizeInBytes ?? null,
+		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 	};
 };
 

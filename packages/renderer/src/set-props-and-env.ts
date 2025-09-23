@@ -25,7 +25,7 @@ type SetPropsAndEnv = {
 	logLevel: LogLevel;
 	onServeUrlVisited: () => void;
 	isMainTab: boolean;
-	videoCacheSizeInBytes: number | null;
+	mediaCacheSizeInBytes: number | null;
 	initialMemoryAvailable: number | null;
 };
 
@@ -44,7 +44,7 @@ const innerSetPropsAndEnv = async ({
 	logLevel,
 	onServeUrlVisited,
 	isMainTab,
-	videoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 	initialMemoryAvailable,
 }: SetPropsAndEnv): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
@@ -63,7 +63,7 @@ const innerSetPropsAndEnv = async ({
 		) => {
 			window.remotion_puppeteerTimeout = timeout;
 			window.remotion_isMainTab = mainTab;
-			window.remotion_videoCacheSizeInBytes = cacheSizeInBytes;
+			window.remotion_mediaCacheSizeInBytes = cacheSizeInBytes;
 			window.remotion_initialMemoryAvailable = initMemoryAvailable;
 			// To make useRemotionEnvironment() work
 			if (window.process === undefined) {
@@ -79,7 +79,7 @@ const innerSetPropsAndEnv = async ({
 		},
 		actualTimeout,
 		isMainTab,
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 		initialMemoryAvailable,
 	);
 
@@ -167,7 +167,7 @@ const innerSetPropsAndEnv = async ({
 			logLevel,
 			onServeUrlVisited,
 			isMainTab,
-			videoCacheSizeInBytes,
+			mediaCacheSizeInBytes,
 			initialMemoryAvailable,
 		});
 	};

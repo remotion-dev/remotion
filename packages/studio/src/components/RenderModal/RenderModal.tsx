@@ -222,7 +222,7 @@ type RenderModalProps = {
 	readonly initialGl: OpenGlRenderer | null;
 	readonly initialIgnoreCertificateErrors: boolean;
 	readonly initialOffthreadVideoCacheSizeInBytes: number | null;
-	readonly initialVideoCacheSizeInBytes: number | null;
+	readonly initialMediaCacheSizeInBytes: number | null;
 	readonly initialHeadless: boolean;
 	readonly initialColorSpace: ColorSpace;
 	readonly initialEncodingMaxRate: string | null;
@@ -277,7 +277,7 @@ const RenderModal: React.FC<
 	initialEncodingBufferSize,
 	initialEncodingMaxRate,
 	initialOffthreadVideoThreads,
-	initialVideoCacheSizeInBytes,
+	initialMediaCacheSizeInBytes,
 	initialUserAgent,
 	defaultProps,
 	inFrameMark,
@@ -492,9 +492,9 @@ const RenderModal: React.FC<
 
 	const [offthreadVideoCacheSizeInBytes, setOffthreadVideoCacheSizeInBytes] =
 		useState<number | null>(initialOffthreadVideoCacheSizeInBytes);
-	const [videoCacheSizeInBytes, setVideoCacheSizeInBytes] = useState<
+	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
 		number | null
-	>(initialVideoCacheSizeInBytes);
+	>(initialMediaCacheSizeInBytes);
 
 	const [offthreadVideoThreads, setOffthreadVideoThreads] = useState<
 		number | null
@@ -767,7 +767,7 @@ const RenderModal: React.FC<
 			metadata,
 			chromeMode,
 			offthreadVideoThreads,
-			videoCacheSizeInBytes,
+			mediaCacheSizeInBytes,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -797,7 +797,7 @@ const RenderModal: React.FC<
 		metadata,
 		chromeMode,
 		offthreadVideoThreads,
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
@@ -873,7 +873,7 @@ const RenderModal: React.FC<
 			hardwareAcceleration,
 			chromeMode,
 			offthreadVideoThreads,
-			videoCacheSizeInBytes,
+			mediaCacheSizeInBytes,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -927,7 +927,7 @@ const RenderModal: React.FC<
 		hardwareAcceleration,
 		chromeMode,
 		offthreadVideoThreads,
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 	]);
 
 	const onClickSequence = useCallback(() => {
@@ -957,7 +957,7 @@ const RenderModal: React.FC<
 			metadata,
 			chromeMode,
 			offthreadVideoThreads,
-			videoCacheSizeInBytes,
+			mediaCacheSizeInBytes,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -991,7 +991,7 @@ const RenderModal: React.FC<
 		metadata,
 		chromeMode,
 		offthreadVideoThreads,
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 	]);
 
 	useEffect(() => {
@@ -1445,8 +1445,8 @@ const RenderModal: React.FC<
 							setEnvVariables={setEnvVariables}
 							envVariables={envVariables}
 							offthreadVideoCacheSizeInBytes={offthreadVideoCacheSizeInBytes}
-							setVideoCacheSizeInBytes={setVideoCacheSizeInBytes}
-							videoCacheSizeInBytes={videoCacheSizeInBytes}
+							setMediaCacheSizeInBytes={setMediaCacheSizeInBytes}
+							mediaCacheSizeInBytes={mediaCacheSizeInBytes}
 							setOffthreadVideoCacheSizeInBytes={
 								setOffthreadVideoCacheSizeInBytes
 							}

@@ -32,7 +32,7 @@ type ValidateCompositionOptions<Provider extends CloudProvider> = {
 	logLevel: LogLevel;
 	server: RemotionServer | undefined;
 	offthreadVideoCacheSizeInBytes: number | null;
-	videoCacheSizeInBytes: number | null;
+	mediaCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
 	onBrowserDownload: OnBrowserDownload;
 	onServeUrlVisited: () => void;
@@ -57,7 +57,7 @@ export const validateComposition = async <Provider extends CloudProvider>({
 	onServeUrlVisited,
 	providerSpecifics,
 	offthreadVideoThreads,
-	videoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 }: ValidateCompositionOptions<Provider>): Promise<VideoConfig> => {
 	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
@@ -79,7 +79,7 @@ export const validateComposition = async <Provider extends CloudProvider>({
 		onBrowserDownload,
 		onServeUrlVisited,
 		chromeMode: 'headless-shell',
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 	});
 
 	const videoConfig: VideoConfig = {

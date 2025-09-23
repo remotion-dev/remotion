@@ -27,13 +27,13 @@ import {separateAudioOption} from './separate-audio';
 import {throwIfSiteExistsOption} from './throw-if-site-exists';
 import {delayRenderTimeoutInMillisecondsOption} from './timeout';
 import {videoBitrateOption} from './video-bitrate';
-import {videoCacheSizeInBytesOption} from './video-cache-size';
+import {mediaCacheSizeInBytesOption} from './video-cache-size';
 import {videoCodecOption} from './video-codec';
 import {x264Option} from './x264-preset';
 
 export const optionsMap = {
 	renderMedia: {
-		videoCacheSizeInBytes: videoCacheSizeInBytesOption,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		videoBitrate: videoBitrateOption,
@@ -63,7 +63,7 @@ export const optionsMap = {
 		hardwareAcceleration: hardwareAccelerationOption,
 	},
 	renderStill: {
-		videoCacheSizeInBytes: videoCacheSizeInBytesOption,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		jpegQuality: jpegQualityOption,
@@ -74,7 +74,7 @@ export const optionsMap = {
 		chromeMode: chromeModeOption,
 	},
 	getCompositions: {
-		videoCacheSizeInBytes: videoCacheSizeInBytesOption,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		logLevel: logLevelOption,
@@ -84,7 +84,7 @@ export const optionsMap = {
 		chromeMode: chromeModeOption,
 	},
 	selectComposition: {
-		videoCacheSizeInBytes: videoCacheSizeInBytesOption,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		logLevel: logLevelOption,
@@ -94,7 +94,7 @@ export const optionsMap = {
 		chromeMode: chromeModeOption,
 	},
 	renderFrames: {
-		videoCacheSizeInBytes: videoCacheSizeInBytesOption,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
 		forSeamlessAacConcatenation: forSeamlessAacConcatenationOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
@@ -107,7 +107,7 @@ export const optionsMap = {
 		imageSequencePattern: imageSequencePatternOption,
 	},
 	renderMediaOnLambda: {
-		videoCacheSizeInBytes: videoCacheSizeInBytesOption,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		videoBitrate: videoBitrateOption,
@@ -125,7 +125,7 @@ export const optionsMap = {
 		apiKey: apiKeyOption,
 	},
 	renderStillOnLambda: {
-		videoCacheSizeInBytes: videoCacheSizeInBytesOption,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		jpegQuality: jpegQualityOption,
@@ -136,13 +136,13 @@ export const optionsMap = {
 		apiKey: apiKeyOption,
 	},
 	getCompositionsOnLambda: {
-		videoCacheSizeInBytes: videoCacheSizeInBytesOption,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 	},
 	renderMediaOnCloudRun: {
-		videoCacheSizeInBytes: videoCacheSizeInBytesOption,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		numberOfGifLoops: numberOfGifLoopsOption,
@@ -162,7 +162,7 @@ export const optionsMap = {
 		jpegQuality: jpegQualityOption,
 	},
 	renderStillOnCloudRun: {
-		videoCacheSizeInBytes: videoCacheSizeInBytesOption,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		logLevel: logLevelOption,

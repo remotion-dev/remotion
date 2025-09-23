@@ -63,7 +63,7 @@ const innerGetCompositions = async ({
 	timeoutInMilliseconds,
 	indent,
 	logLevel,
-	videoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 }: InnerGetCompositionsParams): Promise<VideoConfig[]> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
@@ -82,7 +82,7 @@ const innerGetCompositions = async ({
 		logLevel,
 		onServeUrlVisited: () => undefined,
 		isMainTab: true,
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
@@ -172,7 +172,7 @@ const internalGetCompositionsRaw = async ({
 	onBrowserDownload,
 	chromeMode,
 	offthreadVideoThreads,
-	videoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -240,7 +240,7 @@ const internalGetCompositionsRaw = async ({
 					onBrowserDownload,
 					chromeMode,
 					offthreadVideoThreads,
-					videoCacheSizeInBytes,
+					mediaCacheSizeInBytes,
 				});
 			})
 
@@ -291,7 +291,7 @@ export const getCompositions = (
 		offthreadVideoCacheSizeInBytes,
 		chromeMode,
 		offthreadVideoThreads,
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 	} = config ?? {};
 
 	const indent = false;
@@ -326,6 +326,6 @@ export const getCompositions = (
 			}),
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
-		videoCacheSizeInBytes: videoCacheSizeInBytes ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 	});
 };

@@ -71,6 +71,6 @@ export const processStill = async ({
 		publicPath: null,
 		chromeMode: job.chromeMode,
 		audioLatencyHint: null,
-		videoCacheSizeInBytes: job.videoCacheSizeInBytes,
+		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 	});
 };

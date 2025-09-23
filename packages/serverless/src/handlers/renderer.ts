@@ -343,7 +343,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			hardwareAcceleration: 'disable',
 			chromeMode: 'headless-shell',
 			offthreadVideoThreads: params.offthreadVideoThreads,
-			videoCacheSizeInBytes: params.videoCacheSizeInBytes,
+			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(

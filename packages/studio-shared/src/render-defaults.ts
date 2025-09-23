@@ -42,7 +42,7 @@ export type RenderDefaults = {
 	disableWebSecurity: boolean;
 	openGlRenderer: OpenGlRenderer | null;
 	ignoreCertificateErrors: boolean;
-	videoCacheSizeInBytes: number | null;
+	mediaCacheSizeInBytes: number | null;
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
 	headless: boolean;

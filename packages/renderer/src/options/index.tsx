@@ -41,7 +41,7 @@ import {separateAudioOption} from './separate-audio';
 import {throwIfSiteExistsOption} from './throw-if-site-exists';
 import {delayRenderTimeoutInMillisecondsOption} from './timeout';
 import {videoBitrateOption} from './video-bitrate';
-import {videoCacheSizeInBytesOption} from './video-cache-size';
+import {mediaCacheSizeInBytesOption} from './video-cache-size';
 import {videoCodecOption} from './video-codec';
 import {webhookCustomDataOption} from './webhook-custom-data';
 import {x264Option} from './x264-preset';
@@ -92,7 +92,7 @@ export const allOptions = {
 	audioLatencyHintOption,
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
-	videoCacheSizeInBytesOption,
+	mediaCacheSizeInBytesOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

@@ -64,7 +64,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				hardwareAcceleration: input.hardwareAcceleration,
 				chromeMode: input.chromeMode,
 				offthreadVideoThreads: input.offthreadVideoThreads,
-				videoCacheSizeInBytes: input.videoCacheSizeInBytes,
+				mediaCacheSizeInBytes: input.mediaCacheSizeInBytes,
 			},
 			logLevel,
 		});
@@ -104,7 +104,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				metadata: input.metadata,
 				chromeMode: input.chromeMode,
 				offthreadVideoThreads: input.offthreadVideoThreads,
-				videoCacheSizeInBytes: input.videoCacheSizeInBytes,
+				mediaCacheSizeInBytes: input.mediaCacheSizeInBytes,
 			},
 			logLevel,
 		});
@@ -140,7 +140,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				metadata: input.metadata,
 				chromeMode: input.chromeMode,
 				offthreadVideoThreads: input.offthreadVideoThreads,
-				videoCacheSizeInBytes: input.videoCacheSizeInBytes,
+				mediaCacheSizeInBytes: input.mediaCacheSizeInBytes,
 			},
 			entryPoint,
 			remotionRoot,

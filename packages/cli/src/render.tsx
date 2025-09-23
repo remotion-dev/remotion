@@ -43,7 +43,7 @@ const {
 	offthreadVideoThreadsOption,
 	audioLatencyHintOption,
 	imageSequencePatternOption,
-	videoCacheSizeInBytesOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -198,7 +198,7 @@ export const render = async (
 	const imageSequencePattern = imageSequencePatternOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const videoCacheSizeInBytes = videoCacheSizeInBytesOption.getValue({
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
@@ -256,7 +256,7 @@ export const render = async (
 		audioCodec,
 		disallowParallelEncoding,
 		offthreadVideoCacheSizeInBytes,
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 		colorSpace,
 		repro,
 		binariesDirectory,

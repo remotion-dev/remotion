@@ -31,7 +31,7 @@ export const getCompositionWithDimensionOverride = async ({
 	binariesDirectory,
 	onBrowserDownload,
 	chromeMode,
-	videoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 }: {
 	height: number | null;
 	width: number | null;
@@ -53,7 +53,7 @@ export const getCompositionWithDimensionOverride = async ({
 	binariesDirectory: string | null;
 	onBrowserDownload: OnBrowserDownload;
 	chromeMode: ChromeMode;
-	videoCacheSizeInBytes: number | null;
+	mediaCacheSizeInBytes: number | null;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -79,7 +79,7 @@ export const getCompositionWithDimensionOverride = async ({
 		onBrowserDownload,
 		chromeMode,
 		offthreadVideoThreads,
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 	});
 
 	return {

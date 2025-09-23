@@ -67,8 +67,8 @@ export const RenderModalAdvanced: React.FC<{
 	readonly setOffthreadVideoCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number | null>
 	>;
-	readonly videoCacheSizeInBytes: number | null;
-	readonly setVideoCacheSizeInBytes: React.Dispatch<
+	readonly mediaCacheSizeInBytes: number | null;
+	readonly setMediaCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number | null>
 	>;
 	readonly offthreadVideoThreads: number | null;
@@ -109,8 +109,8 @@ export const RenderModalAdvanced: React.FC<{
 	setx264Preset,
 	x264Preset,
 	codec,
-	setVideoCacheSizeInBytes,
-	videoCacheSizeInBytes,
+	setMediaCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 	offthreadVideoCacheSizeInBytes,
 	setOffthreadVideoCacheSizeInBytes,
 	offthreadVideoThreads,
@@ -140,15 +140,15 @@ export const RenderModalAdvanced: React.FC<{
 		];
 	}, []);
 
-	const toggleCustomVideoCacheSizeInBytes = useCallback(() => {
-		setVideoCacheSizeInBytes((previous) => {
+	const toggleCustomMediaCacheSizeInBytes = useCallback(() => {
+		setMediaCacheSizeInBytes((previous) => {
 			if (previous === null) {
 				return 1000 * 1000 * 1000;
 			}
 
 			return null;
 		});
-	}, [setVideoCacheSizeInBytes]);
+	}, [setMediaCacheSizeInBytes]);
 
 	const toggleCustomOffthreadVideoCacheSizeInBytes = useCallback(() => {
 		setOffthreadVideoCacheSizeInBytes((previous) => {
@@ -306,11 +306,11 @@ export const RenderModalAdvanced: React.FC<{
 		);
 	}, [hardwareAcceleration, setHardwareAcceleration]);
 
-	const changeVideoCacheSizeInBytes: React.Dispatch<
+	const changeMediaCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number>
 	> = useCallback(
 		(cb) => {
-			setVideoCacheSizeInBytes((prev) => {
+			setMediaCacheSizeInBytes((prev) => {
 				if (prev === null) {
 					throw new TypeError('Expected previous value');
 				}
@@ -322,7 +322,7 @@ export const RenderModalAdvanced: React.FC<{
 				return cb;
 			});
 		},
-		[setVideoCacheSizeInBytes],
+		[setMediaCacheSizeInBytes],
 	);
 
 	const changeOffthreadVideoCacheSizeInBytes: React.Dispatch<
@@ -434,25 +434,25 @@ export const RenderModalAdvanced: React.FC<{
 				<div style={optionRow}>
 					<div style={label}>Custom Video cache</div>
 					<Spacing x={0.5} />
-					<OptionExplainerBubble id="videoCacheSizeInBytesOption" />
+					<OptionExplainerBubble id="mediaCacheSizeInBytesOption" />
 					<div style={rightRow}>
 						<Checkbox
-							checked={videoCacheSizeInBytes !== null}
-							onChange={toggleCustomVideoCacheSizeInBytes}
-							name="video-cache-size"
+							checked={mediaCacheSizeInBytes !== null}
+							onChange={toggleCustomMediaCacheSizeInBytes}
+							name="media-cache-size"
 						/>
 					</div>
 				</div>
 			)}
-			{renderMode === 'audio' || videoCacheSizeInBytes === null ? null : (
+			{renderMode === 'audio' || mediaCacheSizeInBytes === null ? null : (
 				<NumberSetting
 					min={0}
 					max={2000 * 1024 * 1024}
 					step={1024}
-					name="Video cache size"
+					name="@remotion/media cache size"
 					formatter={(w) => `${w} bytes`}
-					onValueChanged={changeVideoCacheSizeInBytes}
-					value={videoCacheSizeInBytes}
+					onValueChanged={changeMediaCacheSizeInBytes}
+					value={mediaCacheSizeInBytes}
 				/>
 			)}
 			{renderMode === 'audio' ? null : (

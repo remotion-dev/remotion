@@ -96,7 +96,7 @@ test(
 				metadata: {Author: 'Lunar'},
 				apiKey: null,
 				storageClass: null,
-				videoCacheSizeInBytes: null,
+				mediaCacheSizeInBytes: null,
 			},
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
@@ -161,7 +161,7 @@ test(
 			type: ServerlessRoutines.launch,
 			payload: {
 				type: ServerlessRoutines.launch,
-				videoCacheSizeInBytes: null,
+				mediaCacheSizeInBytes: null,
 				offthreadVideoCacheSizeInBytes: null,
 				offthreadVideoThreads: null,
 				serveUrl: `http://localhost:${port}`,

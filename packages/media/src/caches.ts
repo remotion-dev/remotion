@@ -22,30 +22,30 @@ export const getTotalCacheStats = async () => {
 
 const getUncachedMaxCacheSize = (logLevel: LogLevel) => {
 	if (
-		window.remotion_videoCacheSizeInBytes !== undefined &&
-		window.remotion_videoCacheSizeInBytes !== null
+		window.remotion_mediaCacheSizeInBytes !== undefined &&
+		window.remotion_mediaCacheSizeInBytes !== null
 	) {
-		if (window.remotion_videoCacheSizeInBytes < 240 * 1024 * 1024) {
+		if (window.remotion_mediaCacheSizeInBytes < 240 * 1024 * 1024) {
 			cancelRender(
 				new Error(
-					`The minimum value for the "videoCacheSizeInBytes" prop is 240MB (${240 * 1024 * 1024}), got: ${window.remotion_videoCacheSizeInBytes}`,
+					`The minimum value for the "mediaCacheSizeInBytes" prop is 240MB (${240 * 1024 * 1024}), got: ${window.remotion_mediaCacheSizeInBytes}`,
 				),
 			);
 		}
 
-		if (window.remotion_videoCacheSizeInBytes > 20_000 * 1024 * 1024) {
+		if (window.remotion_mediaCacheSizeInBytes > 20_000 * 1024 * 1024) {
 			cancelRender(
 				new Error(
-					`The maximum value for the "videoCacheSizeInBytes" prop is 20GB (${20000 * 1024 * 1024}), got: ${window.remotion_videoCacheSizeInBytes}`,
+					`The maximum value for the "mediaCacheSizeInBytes" prop is 20GB (${20000 * 1024 * 1024}), got: ${window.remotion_mediaCacheSizeInBytes}`,
 				),
 			);
 		}
 
 		Log.verbose(
 			logLevel,
-			`Using @remotion/media cache size set using "videoCacheSizeInBytes": ${(window.remotion_videoCacheSizeInBytes / 1024 / 1024).toFixed(1)} MB`,
+			`Using @remotion/media cache size set using "mediaCacheSizeInBytes": ${(window.remotion_mediaCacheSizeInBytes / 1024 / 1024).toFixed(1)} MB`,
 		);
-		return window.remotion_videoCacheSizeInBytes;
+		return window.remotion_mediaCacheSizeInBytes;
 	}
 
 	if (

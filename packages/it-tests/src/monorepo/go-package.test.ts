@@ -84,7 +84,7 @@ test(
 				apiKey: null,
 				storageClass: null,
 				requestHandler: null,
-				videoCacheSizeInBytes: null,
+				mediaCacheSizeInBytes: null,
 			});
 
 		expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));

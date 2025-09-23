@@ -231,7 +231,7 @@ const innerRenderFrames = async ({
 	onArtifact,
 	binariesDirectory,
 	imageSequencePattern,
-	videoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 }: Omit<
 	InnerRenderFramesOptions,
 	'offthreadVideoCacheSizeInBytes'
@@ -293,7 +293,7 @@ const innerRenderFrames = async ({
 			timeoutInMilliseconds,
 			pageIndex,
 			isMainTab: pageIndex === 0,
-			videoCacheSizeInBytes,
+			mediaCacheSizeInBytes,
 		});
 	};
 
@@ -476,7 +476,7 @@ const internalRenderFramesRaw = ({
 	chromeMode,
 	offthreadVideoThreads,
 	imageSequencePattern,
-	videoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -610,7 +610,7 @@ const internalRenderFramesRaw = ({
 					chromeMode,
 					offthreadVideoThreads,
 					imageSequencePattern,
-					videoCacheSizeInBytes,
+					mediaCacheSizeInBytes,
 				});
 			}),
 		])
@@ -710,7 +710,7 @@ export const renderFrames = (
 		chromeMode,
 		offthreadVideoThreads,
 		imageSequencePattern,
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 	} = options;
 
 	if (!composition) {
@@ -786,6 +786,6 @@ export const renderFrames = (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		imageSequencePattern: imageSequencePattern ?? null,
-		videoCacheSizeInBytes: videoCacheSizeInBytes ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 	});
 };

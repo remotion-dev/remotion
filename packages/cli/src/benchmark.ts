@@ -55,7 +55,7 @@ const {
 	hardwareAccelerationOption,
 	chromeModeOption,
 	offthreadVideoThreadsOption,
-	videoCacheSizeInBytesOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -332,7 +332,7 @@ export const benchmarkCommand = async (
 		}).value,
 		onBrowserDownload,
 		chromeMode,
-		videoCacheSizeInBytes: videoCacheSizeInBytesOption.getValue({
+		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value,
 	});
@@ -521,7 +521,7 @@ export const benchmarkCommand = async (
 						commandLine: parsedCli,
 					}).value,
 					chromeMode,
-					videoCacheSizeInBytes: videoCacheSizeInBytesOption.getValue({
+					mediaCacheSizeInBytes: mediaCacheSizeInBytesOption.getValue({
 						commandLine: parsedCli,
 					}).value,
 				},

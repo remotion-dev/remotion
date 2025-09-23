@@ -103,7 +103,7 @@ export const renderStillSingleThread = async (
 				throw new Error('Emitting artifacts is not supported in Cloud Run');
 			},
 			chromeMode: 'headless-shell',
-			videoCacheSizeInBytes: body.videoCacheSizeInBytes,
+			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
 		});
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 

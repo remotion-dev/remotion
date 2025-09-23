@@ -74,7 +74,7 @@ const innerSelectComposition = async ({
 	indent,
 	logLevel,
 	onServeUrlVisited,
-	videoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 }: InnerSelectCompositionConfig): Promise<InternalReturnType> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
@@ -93,7 +93,7 @@ const innerSelectComposition = async ({
 		logLevel,
 		onServeUrlVisited,
 		isMainTab: true,
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
@@ -208,7 +208,7 @@ export const internalSelectCompositionRaw = async (
 		onBrowserDownload,
 		onServeUrlVisited,
 		chromeMode,
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 	} = options;
 
 	const [{page, cleanupPage}, serverUsed] = await Promise.all([
@@ -278,7 +278,7 @@ export const internalSelectCompositionRaw = async (
 			onBrowserDownload,
 			onServeUrlVisited,
 			chromeMode,
-			videoCacheSizeInBytes,
+			mediaCacheSizeInBytes,
 		})
 			.then((data) => {
 				return resolve(data);
@@ -327,7 +327,7 @@ export const selectComposition = async (
 		onBrowserDownload,
 		chromeMode,
 		offthreadVideoThreads,
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 	} = options;
 
 	const indent = false;
@@ -364,7 +364,7 @@ export const selectComposition = async (
 		onServeUrlVisited: () => undefined,
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
-		videoCacheSizeInBytes: videoCacheSizeInBytes ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 	});
 	return data.metadata;
 };

@@ -29,7 +29,7 @@ const {
 	audioCodecOption,
 	hardwareAccelerationOption,
 	chromeModeOption,
-	videoCacheSizeInBytesOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -112,7 +112,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const chromeMode = chromeModeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const videoCacheSizeInBytes = videoCacheSizeInBytesOption.getValue({
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
@@ -167,6 +167,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		metadata,
 		hardwareAcceleration,
 		chromeMode,
-		videoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 	};
 };

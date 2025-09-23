@@ -1,25 +1,26 @@
 import type {AnyRemotionOption} from './option';
 
-let videoCacheSizeInBytes: number | null = null;
+let mediaCacheSizeInBytes: number | null = null;
 
-export const getVideoCacheSizeInBytes = () => {
-	return videoCacheSizeInBytes;
+export const getMediaCacheSizeInBytes = () => {
+	return mediaCacheSizeInBytes;
 };
 
-const cliFlag = 'video-cache-size-in-bytes' as const;
+const cliFlag = 'media-cache-size-in-bytes' as const;
 
-export const videoCacheSizeInBytesOption = {
-	name: '<Video> cache size',
+export const mediaCacheSizeInBytesOption = {
+	name: '@remotion/media cache size',
 	cliFlag,
 	description: () => (
 		<>
-			Specify the maximum size of the cache for <code>&lt;Video&gt;</code> (from{' '}
-			<code>@remotion/media</code>) frames, in bytes. <br />
-			Default: <code>1_000_000</code>
+			Specify the maximum size of the cache that <code>&lt;Video&gt;</code> and{' '}
+			<code>&lt;Audio&gt;</code> from <code>@remotion/media</code> may use
+			combined, in bytes. <br />
+			The default is half of the available system memory when the render starts.
 		</>
 	),
-	ssrName: 'videoCacheSizeInBytes' as const,
-	docLink: 'https://www.remotion.dev/docs/media/video',
+	ssrName: 'mediaCacheSizeInBytes' as const,
+	docLink: 'https://www.remotion.dev/docs/media/video#setting-the-cache-size',
 	type: 0 as number | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
@@ -29,10 +30,10 @@ export const videoCacheSizeInBytesOption = {
 			};
 		}
 
-		if (videoCacheSizeInBytes !== null) {
+		if (mediaCacheSizeInBytes !== null) {
 			return {
 				source: 'config',
-				value: videoCacheSizeInBytes,
+				value: mediaCacheSizeInBytes,
 			};
 		}
 
@@ -42,11 +43,11 @@ export const videoCacheSizeInBytesOption = {
 		};
 	},
 	setConfig: (size: number | null) => {
-		videoCacheSizeInBytes = size ?? null;
+		mediaCacheSizeInBytes = size ?? null;
 	},
 } satisfies AnyRemotionOption<number | null>;
 
-export const validateVideoCacheSizeInBytes = (option: unknown) => {
+export const validateMediaCacheSizeInBytes = (option: unknown) => {
 	if (option === undefined || option === null) {
 		return;
 	}
