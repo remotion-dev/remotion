@@ -46,29 +46,3 @@ export const mediaCacheSizeInBytesOption = {
 		mediaCacheSizeInBytes = size ?? null;
 	},
 } satisfies AnyRemotionOption<number | null>;
-
-export const validateMediaCacheSizeInBytes = (option: unknown) => {
-	if (option === undefined || option === null) {
-		return;
-	}
-
-	if (typeof option !== 'number') {
-		throw new Error('Expected a number');
-	}
-
-	if (option < 0 || option === 0) {
-		throw new Error('Expected a positive number');
-	}
-
-	if (Number.isNaN(option)) {
-		throw new Error('Expected a number');
-	}
-
-	if (!Number.isFinite(option)) {
-		throw new Error('Expected a finite number');
-	}
-
-	if (option % 1 !== 0) {
-		throw new Error('Expected a whole number');
-	}
-};
