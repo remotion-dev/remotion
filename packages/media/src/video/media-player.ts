@@ -189,15 +189,19 @@ export class MediaPlayer {
 		}
 	}
 
-	private async cleanupAudio(): Promise<void> {
-		await this.audioBufferIterator?.return();
-		this.audioBufferIterator = null;
-
+	private cleanupAudioQueue(): void {
 		for (const node of this.queuedAudioNodes) {
 			node.stop();
 		}
 
 		this.queuedAudioNodes.clear();
+	}
+
+	private async cleanAudioIteratorAndNodes(): Promise<void> {
+		await this.audioBufferIterator?.return();
+		this.audioBufferIterator = null;
+
+		this.cleanupAudioQueue();
 	}
 
 	public async seekTo(time: number): Promise<void> {
@@ -227,11 +231,9 @@ export class MediaPlayer {
 				this.logLevel,
 				`Significant seek to ${newTime.toFixed(3)}s - creating new iterator`,
 			);
-			// Audio will be restarted first in the new order
 
-			// Stop existing audio first
-			if (this.audioSink && this.playing) {
-				await this.cleanupAudio();
+			if (this.audioSink) {
+				await this.cleanAudioIteratorAndNodes();
 			}
 
 			// Start audio iterator first (buffering signal), then video
@@ -304,28 +306,16 @@ export class MediaPlayer {
 			Log.trace(this.logLevel, `[MediaPlayer] Play - starting render loop`);
 			this.startRenderLoop();
 
-			// Audio is already started as buffering signal
+			this.expectedAudioTime = this.sharedAudioContext.currentTime;
 		}
 	}
 
 	public pause(): void {
-		if (this.playing) {
-			this.playing = false;
+		this.playing = false;
 
-			// stop audio iterator
-			this.audioBufferIterator?.return();
-			this.audioBufferIterator = null;
-
-			// stop all playing audio nodes
-			for (const node of this.queuedAudioNodes) {
-				node.stop();
-			}
-
-			this.queuedAudioNodes.clear();
-
-			Log.trace(this.logLevel, `[MediaPlayer] Pause - stopping render loop`);
-			this.stopRenderLoop();
-		}
+		Log.trace(this.logLevel, `[MediaPlayer] Pause - stopping render loop`);
+		this.cleanupAudioQueue();
+		this.stopRenderLoop();
 	}
 
 	public dispose(): void {
@@ -339,14 +329,7 @@ export class MediaPlayer {
 		this.nextFrame = null;
 		this.canvasSink = null;
 
-		// Clean up audio resources
-		for (const node of this.queuedAudioNodes) {
-			node.stop();
-		}
-
-		this.queuedAudioNodes.clear();
-		this.audioBufferIterator?.return();
-		this.audioBufferIterator = null;
+		this.cleanAudioIteratorAndNodes();
 		this.audioSink = null;
 		this.gainNode = null;
 
@@ -608,24 +591,30 @@ export class MediaPlayer {
 					this.setStalledState(false);
 				}
 
-				const node = this.sharedAudioContext.createBufferSource();
-				node.buffer = buffer;
-				node.connect(this.gainNode);
+				if (this.playing) {
+					const node = this.sharedAudioContext.createBufferSource();
+					node.buffer = buffer;
+					node.connect(this.gainNode);
 
-				if (this.expectedAudioTime >= this.sharedAudioContext.currentTime) {
-					node.start(this.expectedAudioTime);
-				} else {
-					const offset =
-						this.sharedAudioContext.currentTime - this.expectedAudioTime;
-					node.start(this.sharedAudioContext.currentTime, offset);
+					if (this.expectedAudioTime >= this.sharedAudioContext.currentTime) {
+						node.start(this.expectedAudioTime);
+					} else {
+						const offset =
+							this.sharedAudioContext.currentTime - this.expectedAudioTime;
+						node.start(this.sharedAudioContext.currentTime, offset);
+					}
+
+					this.queuedAudioNodes.add(node);
+					node.onended = () => {
+						this.queuedAudioNodes.delete(node);
+					};
 				}
 
-				this.queuedAudioNodes.add(node);
-				node.onended = () => {
-					this.queuedAudioNodes.delete(node);
-				};
-
-				this.expectedAudioTime += buffer.duration;
+				if (this.playing) {
+					this.expectedAudioTime += buffer.duration;
+				} else {
+					this.expectedAudioTime = this.sharedAudioContext.currentTime;
+				}
 
 				// If we're more than a second ahead of the current playback time, let's slow down the loop until time has
 				// passed. Use timestamp for throttling logic as it represents media time.
