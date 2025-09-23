@@ -134,6 +134,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		},
 		providerSpecifics,
 		offthreadVideoThreads: params.offthreadVideoThreads,
+		videoCacheSizeInBytes: params.videoCacheSizeInBytes,
 	});
 	overallProgress.setCompositionValidated(Date.now());
 	RenderInternals.Log.info(
@@ -287,6 +288,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			forcePathStyle: params.forcePathStyle,
 			metadata: params.metadata,
 			offthreadVideoThreads: params.offthreadVideoThreads,
+			videoCacheSizeInBytes: params.videoCacheSizeInBytes,
 		};
 		return payload;
 	});

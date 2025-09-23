@@ -42,6 +42,7 @@ export const addStillRenderJob = ({
 	beepOnFinish,
 	metadata,
 	chromeMode,
+	videoCacheSizeInBytes,
 }: {
 	compositionId: string;
 	outName: string;
@@ -60,6 +61,7 @@ export const addStillRenderJob = ({
 	beepOnFinish: boolean;
 	metadata: Record<string, string> | null;
 	chromeMode: ChromeMode;
+	videoCacheSizeInBytes: number | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -85,6 +87,7 @@ export const addStillRenderJob = ({
 		beepOnFinish,
 		metadata,
 		chromeMode,
+		videoCacheSizeInBytes,
 	});
 };
 
@@ -110,6 +113,7 @@ export const addSequenceRenderJob = ({
 	repro,
 	metadata,
 	chromeMode,
+	videoCacheSizeInBytes,
 }: {
 	compositionId: string;
 	outName: string;
@@ -132,6 +136,7 @@ export const addSequenceRenderJob = ({
 	repro: boolean;
 	metadata: Record<string, string> | null;
 	chromeMode: ChromeMode;
+	videoCacheSizeInBytes: number | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -161,6 +166,7 @@ export const addSequenceRenderJob = ({
 		repro,
 		metadata,
 		chromeMode,
+		videoCacheSizeInBytes,
 	});
 };
 
@@ -204,6 +210,7 @@ export const addVideoRenderJob = ({
 	metadata,
 	hardwareAcceleration,
 	chromeMode,
+	videoCacheSizeInBytes,
 }: {
 	compositionId: string;
 	outName: string;
@@ -244,6 +251,7 @@ export const addVideoRenderJob = ({
 	metadata: Record<string, string> | null;
 	hardwareAcceleration: HardwareAccelerationOption;
 	chromeMode: ChromeMode;
+	videoCacheSizeInBytes: number | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -291,6 +299,7 @@ export const addVideoRenderJob = ({
 		metadata,
 		hardwareAcceleration,
 		chromeMode,
+		videoCacheSizeInBytes,
 	});
 };
 

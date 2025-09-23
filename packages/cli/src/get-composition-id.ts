@@ -64,6 +64,7 @@ export const getCompositionId = async ({
 	binariesDirectory,
 	onBrowserDownload,
 	chromeMode,
+	videoCacheSizeInBytes,
 }: {
 	args: (string | number)[];
 	compositionIdFromUi: string | null;
@@ -83,6 +84,7 @@ export const getCompositionId = async ({
 	binariesDirectory: string | null;
 	onBrowserDownload: OnBrowserDownload;
 	chromeMode: ChromeMode;
+	videoCacheSizeInBytes: number | null;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -116,6 +118,7 @@ export const getCompositionId = async ({
 				onBrowserDownload,
 				onServeUrlVisited: () => undefined,
 				chromeMode,
+				videoCacheSizeInBytes,
 			});
 
 		if (propsSize > 10_000_000) {
@@ -162,6 +165,7 @@ export const getCompositionId = async ({
 		binariesDirectory,
 		onBrowserDownload,
 		chromeMode,
+		videoCacheSizeInBytes,
 	});
 
 	if (comps.length === 1) {

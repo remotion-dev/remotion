@@ -43,6 +43,7 @@ const {
 	offthreadVideoThreadsOption,
 	audioLatencyHintOption,
 	imageSequencePatternOption,
+	videoCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -197,6 +198,9 @@ export const render = async (
 	const imageSequencePattern = imageSequencePatternOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const videoCacheSizeInBytes = videoCacheSizeInBytesOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	await renderVideoFlow({
 		fullEntryPoint,
@@ -252,6 +256,7 @@ export const render = async (
 		audioCodec,
 		disallowParallelEncoding,
 		offthreadVideoCacheSizeInBytes,
+		videoCacheSizeInBytes,
 		colorSpace,
 		repro,
 		binariesDirectory,

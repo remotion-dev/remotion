@@ -53,6 +53,7 @@ export const getCompositionsOnLambda = async ({
 	offthreadVideoCacheSizeInBytes,
 	forcePathStyle,
 	requestHandler,
+	videoCacheSizeInBytes,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
@@ -91,6 +92,7 @@ export const getCompositionsOnLambda = async ({
 				bucketName: bucketName ?? null,
 				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 				forcePathStyle: forcePathStyle ?? false,
+				videoCacheSizeInBytes: videoCacheSizeInBytes ?? null,
 			},
 			region,
 			timeoutInTest: 120000,

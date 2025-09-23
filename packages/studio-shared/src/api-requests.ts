@@ -100,6 +100,7 @@ export type AddRenderRequest = {
 	serializedInputPropsWithCustomSchema: string;
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
+	videoCacheSizeInBytes: number | null;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	metadata: Record<string, string> | null;

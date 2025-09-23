@@ -232,7 +232,7 @@
 			"path": "./packages/zod-types"
 		},
 		{
-			"path": "./packages/video"
+			"path": "./packages/media"
 		},
 		{
 			"path": "./packages/web-renderer"

@@ -179,6 +179,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		onServeUrlVisited: () => undefined,
 		providerSpecifics,
 		offthreadVideoThreads: params.offthreadVideoThreads,
+		videoCacheSizeInBytes: params.videoCacheSizeInBytes,
 	});
 
 	const renderMetadata: RenderMetadata<Provider> = {
@@ -326,6 +327,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 			data: composition.props,
 		}).serializedString,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+		videoCacheSizeInBytes: params.videoCacheSizeInBytes,
 		binariesDirectory: null,
 		onBrowserDownload,
 		onArtifact,

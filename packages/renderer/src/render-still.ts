@@ -133,6 +133,7 @@ const innerRenderStill = async ({
 	onBrowserDownload,
 	onArtifact,
 	chromeMode,
+	videoCacheSizeInBytes,
 }: InternalRenderStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
@@ -265,6 +266,7 @@ const innerRenderStill = async ({
 		logLevel,
 		onServeUrlVisited: () => undefined,
 		isMainTab: true,
+		videoCacheSizeInBytes,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -464,6 +466,7 @@ export const renderStill = (
 		onArtifact,
 		chromeMode,
 		offthreadVideoThreads,
+		videoCacheSizeInBytes,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -529,5 +532,6 @@ export const renderStill = (
 		onArtifact: onArtifact ?? null,
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		videoCacheSizeInBytes: videoCacheSizeInBytes ?? null,
 	});
 };

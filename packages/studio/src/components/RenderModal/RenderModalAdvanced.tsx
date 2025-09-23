@@ -67,6 +67,10 @@ export const RenderModalAdvanced: React.FC<{
 	readonly setOffthreadVideoCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number | null>
 	>;
+	readonly videoCacheSizeInBytes: number | null;
+	readonly setVideoCacheSizeInBytes: React.Dispatch<
+		React.SetStateAction<number | null>
+	>;
 	readonly offthreadVideoThreads: number | null;
 	readonly setOffthreadVideoThreads: React.Dispatch<
 		React.SetStateAction<number | null>
@@ -105,6 +109,8 @@ export const RenderModalAdvanced: React.FC<{
 	setx264Preset,
 	x264Preset,
 	codec,
+	setVideoCacheSizeInBytes,
+	videoCacheSizeInBytes,
 	offthreadVideoCacheSizeInBytes,
 	setOffthreadVideoCacheSizeInBytes,
 	offthreadVideoThreads,
@@ -133,6 +139,16 @@ export const RenderModalAdvanced: React.FC<{
 			'default',
 		];
 	}, []);
+
+	const toggleCustomVideoCacheSizeInBytes = useCallback(() => {
+		setVideoCacheSizeInBytes((previous) => {
+			if (previous === null) {
+				return 1000 * 1000 * 1000;
+			}
+
+			return null;
+		});
+	}, [setVideoCacheSizeInBytes]);
 
 	const toggleCustomOffthreadVideoCacheSizeInBytes = useCallback(() => {
 		setOffthreadVideoCacheSizeInBytes((previous) => {
@@ -290,6 +306,25 @@ export const RenderModalAdvanced: React.FC<{
 		);
 	}, [hardwareAcceleration, setHardwareAcceleration]);
 
+	const changeVideoCacheSizeInBytes: React.Dispatch<
+		React.SetStateAction<number>
+	> = useCallback(
+		(cb) => {
+			setVideoCacheSizeInBytes((prev) => {
+				if (prev === null) {
+					throw new TypeError('Expected previous value');
+				}
+
+				if (typeof cb === 'function') {
+					return cb(prev);
+				}
+
+				return cb;
+			});
+		},
+		[setVideoCacheSizeInBytes],
+	);
+
 	const changeOffthreadVideoCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number>
 	> = useCallback(
@@ -395,6 +430,31 @@ export const RenderModalAdvanced: React.FC<{
 					/>
 				</div>
 			</div>
+			{renderMode === 'audio' ? null : (
+				<div style={optionRow}>
+					<div style={label}>Custom Video cache</div>
+					<Spacing x={0.5} />
+					<OptionExplainerBubble id="videoCacheSizeInBytesOption" />
+					<div style={rightRow}>
+						<Checkbox
+							checked={videoCacheSizeInBytes !== null}
+							onChange={toggleCustomVideoCacheSizeInBytes}
+							name="video-cache-size"
+						/>
+					</div>
+				</div>
+			)}
+			{renderMode === 'audio' || videoCacheSizeInBytes === null ? null : (
+				<NumberSetting
+					min={0}
+					max={2000 * 1024 * 1024}
+					step={1024}
+					name="Video cache size"
+					formatter={(w) => `${w} bytes`}
+					onValueChanged={changeVideoCacheSizeInBytes}
+					value={videoCacheSizeInBytes}
+				/>
+			)}
 			{renderMode === 'audio' ? null : (
 				<div style={optionRow}>
 					<div style={label}>Custom OffthreadVideo cache</div>

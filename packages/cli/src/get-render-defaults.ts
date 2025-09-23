@@ -29,6 +29,7 @@ const {
 	audioCodecOption,
 	hardwareAccelerationOption,
 	chromeModeOption,
+	videoCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -111,6 +112,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const chromeMode = chromeModeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const videoCacheSizeInBytes = videoCacheSizeInBytesOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
@@ -163,5 +167,6 @@ export const getRenderDefaults = (): RenderDefaults => {
 		metadata,
 		hardwareAcceleration,
 		chromeMode,
+		videoCacheSizeInBytes,
 	};
 };

@@ -145,6 +145,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	colorSpace,
 	downloadBehavior,
 	metadata,
+	videoCacheSizeInBytes,
 }: InternalRenderMediaOnCloudrun): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -208,6 +209,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		metadata: metadata ?? null,
 		renderIdOverride,
 		renderStatusWebhook,
+		videoCacheSizeInBytes: videoCacheSizeInBytes ?? null,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -344,6 +346,7 @@ export const renderMediaOnCloudrun = ({
 	renderIdOverride,
 	renderStatusWebhook,
 	offthreadVideoThreads,
+	videoCacheSizeInBytes,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -395,5 +398,6 @@ export const renderMediaOnCloudrun = ({
 		renderIdOverride: renderIdOverride ?? undefined,
 		renderStatusWebhook: renderStatusWebhook ?? undefined,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		videoCacheSizeInBytes: videoCacheSizeInBytes ?? null,
 	});
 };

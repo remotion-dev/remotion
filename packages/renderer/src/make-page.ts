@@ -30,6 +30,7 @@ export const makePage = async ({
 	serializedResolvedPropsWithCustomSchema,
 	pageIndex,
 	isMainTab,
+	videoCacheSizeInBytes,
 }: {
 	context: SourceMapGetter;
 	initialFrame: number;
@@ -50,6 +51,7 @@ export const makePage = async ({
 	imageFormat: VideoImageFormat;
 	pageIndex: number;
 	isMainTab: boolean;
+	videoCacheSizeInBytes: number | null;
 }) => {
 	const page = await browserReplacer
 		.getBrowser()
@@ -76,6 +78,7 @@ export const makePage = async ({
 		logLevel,
 		onServeUrlVisited: () => undefined,
 		isMainTab,
+		videoCacheSizeInBytes,
 	});
 
 	await puppeteerEvaluateWithCatch({

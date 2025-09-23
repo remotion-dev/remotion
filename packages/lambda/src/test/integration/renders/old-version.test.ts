@@ -60,6 +60,7 @@ test('Should fail when using an incompatible version', async () => {
 				metadata: {Author: 'Lunar'},
 				apiKey: null,
 				storageClass: null,
+				videoCacheSizeInBytes: null,
 			},
 			functionName: 'remotion-dev-render',
 			region: 'us-east-1',

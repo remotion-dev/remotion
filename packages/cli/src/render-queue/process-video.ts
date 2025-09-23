@@ -100,6 +100,7 @@ export const processVideoJob = async ({
 			job.type === 'video' ? job.hardwareAcceleration : 'disable',
 		chromeMode: job.chromeMode,
 		offthreadVideoThreads: job.offthreadVideoThreads,
+		videoCacheSizeInBytes: job.videoCacheSizeInBytes,
 		audioLatencyHint: null,
 		imageSequencePattern: null,
 	});

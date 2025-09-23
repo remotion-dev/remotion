@@ -103,6 +103,7 @@ const internalRenderStillOnCloudRun = async ({
 	downloadBehavior,
 	renderIdOverride,
 	renderStatusWebhook,
+	videoCacheSizeInBytes,
 }: OptionalParameters & MandatoryParameters): Promise<
 	RenderStillOnCloudrunOutput | ErrorResponsePayload | CloudRunCrashResponse
 > => {
@@ -147,6 +148,7 @@ const internalRenderStillOnCloudRun = async ({
 		downloadBehavior,
 		renderIdOverride,
 		renderStatusWebhook,
+		videoCacheSizeInBytes,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -255,5 +257,6 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
 		renderIdOverride: options.renderIdOverride ?? undefined,
 		renderStatusWebhook: options.renderStatusWebhook ?? undefined,
+		videoCacheSizeInBytes: options.videoCacheSizeInBytes ?? null,
 	});
 };

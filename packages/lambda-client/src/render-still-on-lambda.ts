@@ -204,5 +204,6 @@ export const renderStillOnLambda = (
 		offthreadVideoThreads: input.offthreadVideoThreads ?? null,
 		storageClass: input.storageClass ?? null,
 		requestHandler: input.requestHandler ?? null,
+		videoCacheSizeInBytes: input.videoCacheSizeInBytes ?? null,
 	});
 };
