@@ -6163,6 +6163,15 @@ export const articles = [
 		slug: 'video-manipulation',
 	},
 	{
+		id: 'video-tags',
+		title: 'Comparison of video tags',
+		relativePath: 'docs/video-tags.mdx',
+		compId: 'articles-docs-video-tags',
+		crumb: '<Video>, <OffthreadVideo>, @remotion/media',
+		noAi: false,
+		slug: 'video-tags',
+	},
+	{
 		id: 'video-uploads',
 		title: 'Handling user video uploads',
 		relativePath: 'docs/video-uploads.mdx',
@@ -6170,15 +6179,6 @@ export const articles = [
 		crumb: 'Building video apps',
 		noAi: false,
 		slug: 'video-uploads',
-	},
-	{
-		id: 'video-vs-offthreadvideo',
-		title: '<OffthreadVideo> vs. <Video>',
-		relativePath: 'docs/video-vs-offthreadvideo.mdx',
-		compId: 'articles-docs-video-vs-offthreadvideo',
-		crumb: 'Comparison',
-		noAi: false,
-		slug: 'video-vs-offthreadvideo',
 	},
 	{
 		id: 'video',
