@@ -55,11 +55,16 @@ const innerSetPropsAndEnv = async ({
 	const urlToVisit = normalizeServeUrl(serveUrl);
 
 	await page.evaluateOnNewDocument(
-		(timeout: number, mainTab: boolean) => {
+		(
+			timeout: number,
+			mainTab: boolean,
+			cacheSizeInBytes: number | null,
+			initMemoryAvailable: number | null,
+		) => {
 			window.remotion_puppeteerTimeout = timeout;
 			window.remotion_isMainTab = mainTab;
-			window.remotion_videoCacheSizeInBytes = videoCacheSizeInBytes;
-			window.remotion_initialMemoryAvailable = initialMemoryAvailable;
+			window.remotion_videoCacheSizeInBytes = cacheSizeInBytes;
+			window.remotion_initialMemoryAvailable = initMemoryAvailable;
 			// To make useRemotionEnvironment() work
 			if (window.process === undefined) {
 				// @ts-expect-error
@@ -75,6 +80,7 @@ const innerSetPropsAndEnv = async ({
 		actualTimeout,
 		isMainTab,
 		videoCacheSizeInBytes,
+		initialMemoryAvailable,
 	);
 
 	await page.evaluateOnNewDocument(

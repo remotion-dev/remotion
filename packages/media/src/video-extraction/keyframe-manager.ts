@@ -1,7 +1,7 @@
 import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
 import {
+	getMaxVideoCacheSize,
 	getTotalCacheStats,
-	MAX_CACHE_SIZE,
 	SAFE_BACK_WINDOW_IN_SECONDS,
 } from '../caches';
 import type {LogLevel} from '../log';
@@ -114,7 +114,8 @@ export const makeKeyframeManager = () => {
 	const ensureToStayUnderMaxCacheSize = async (logLevel: LogLevel) => {
 		let cacheStats = await getTotalCacheStats();
 
-		while (cacheStats.totalSize > MAX_CACHE_SIZE) {
+		const maxCacheSize = getMaxVideoCacheSize(logLevel);
+		while (cacheStats.totalSize > maxCacheSize) {
 			await deleteOldestKeyframeBank(logLevel);
 			cacheStats = await getTotalCacheStats();
 		}
