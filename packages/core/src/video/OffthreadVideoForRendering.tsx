@@ -15,7 +15,7 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
 import {cancelRender} from '../cancel-render.js';
-import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
+import {OBJECTFIT_CONTAIN_CLASS_NAME} from '../default-css.js';
 import type {delayRender as delayRenderGlobal} from '../delay-render.js';
 import {random} from '../random.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
@@ -276,7 +276,7 @@ export const OffthreadVideoForRendering: React.FC<
 		}, [imageSrc, onError]);
 
 	const className = useMemo(() => {
-		return [OFFTHREAD_VIDEO_CLASS_NAME, props.className]
+		return [OBJECTFIT_CONTAIN_CLASS_NAME, props.className]
 			.filter(truthy)
 			.join(' ');
 	}, [props.className]);
