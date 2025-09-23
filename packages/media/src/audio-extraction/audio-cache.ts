@@ -14,6 +14,11 @@ export const makeAudioCache = () => {
 			const endTimestamp = timestamp + samples[timestamp].duration;
 
 			if (endTimestamp < threshold) {
+				const isLast = timestamp === timestamps[timestamps.length - 1];
+				if (isLast) {
+					continue;
+				}
+
 				samples[timestamp].close();
 				delete samples[timestamp];
 				timestamps.splice(timestamps.indexOf(timestamp), 1);
