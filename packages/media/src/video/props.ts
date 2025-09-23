@@ -7,6 +7,7 @@ import type {
 
 export type VideoProps = {
 	src: string;
+	className?: string;
 	trimBefore?: number;
 	trimAfter?: number;
 	volume?: VolumeProp;

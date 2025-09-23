@@ -28,6 +28,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	logLevel = window.remotion_logLevel,
 	loop,
 	style,
+	className,
 }) => {
 	const absoluteFrame = Internals.useTimelinePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -157,12 +158,11 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		loop,
 	]);
 
-	return (
-		<canvas
-			ref={canvasRef}
-			style={style}
-			width={videoConfig.width}
-			height={videoConfig.height}
-		/>
-	);
+	const classNameValue = useMemo(() => {
+		return [Internals.OBJECTFIT_CONTAIN_CLASS_NAME, className]
+			.filter(Internals.truthy)
+			.join(' ');
+	}, [className]);
+
+	return <canvas ref={canvasRef} style={style} className={classNameValue} />;
 };

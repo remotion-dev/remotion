@@ -19,7 +19,8 @@ export const injectCSS = (css: string) => {
 	injected[css] = true;
 };
 
-export const OFFTHREAD_VIDEO_CLASS_NAME = '__remotion_offthreadvideo';
+// make object-fit: contain low priority, so it can be overridden by another class name
+export const OBJECTFIT_CONTAIN_CLASS_NAME = '__remotion_objectfitcontain';
 
 export const makeDefaultPreviewCSS = (
 	scope: string | null,
@@ -34,7 +35,7 @@ export const makeDefaultPreviewCSS = (
       margin: 0;
 	    background-color: ${backgroundColor};
     }
-    .${OFFTHREAD_VIDEO_CLASS_NAME} {
+    .${OBJECTFIT_CONTAIN_CLASS_NAME} {
       object-fit: contain;
     }
     `;
@@ -48,7 +49,7 @@ export const makeDefaultPreviewCSS = (
       width: 100%;
       height: 100%;
     }
-    ${scope} .${OFFTHREAD_VIDEO_CLASS_NAME} {
+    ${scope} .${OBJECTFIT_CONTAIN_CLASS_NAME} {
       object-fit: contain;
     }
   `;
