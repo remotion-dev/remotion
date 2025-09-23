@@ -11,6 +11,7 @@ import {
 	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
+	useVideoConfig,
 } from 'remotion';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {VideoProps} from './props';
@@ -28,9 +29,10 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	logLevel = window.remotion_logLevel,
 	loop,
 	style,
+	className,
 }) => {
 	const absoluteFrame = Internals.useTimelinePosition();
-	const videoConfig = Internals.useUnsafeVideoConfig();
+	const {fps} = useVideoConfig();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const {registerRenderAsset, unregisterRenderAsset} = useContext(
 		Internals.RenderAssetManager,
@@ -42,10 +44,6 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	const environment = useRemotionEnvironment();
 
 	const [id] = useState(() => `${Math.random()}`.replace('0.', ''));
-
-	if (!videoConfig) {
-		throw new Error('No video config found');
-	}
 
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -74,8 +72,6 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 
 		return true;
 	}, [muted, volume]);
-
-	const {fps} = videoConfig;
 
 	const {delayRender, continueRender} = useDelayRender();
 
@@ -107,7 +103,22 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 			.then(({frame: imageBitmap, audio}) => {
 				if (imageBitmap) {
 					onVideoFrame?.(imageBitmap);
-					canvasRef.current?.getContext('2d')?.drawImage(imageBitmap, 0, 0);
+					const context = canvasRef.current?.getContext('2d');
+					if (!context) {
+						return;
+					}
+
+					context.canvas.width =
+						imageBitmap instanceof ImageBitmap
+							? imageBitmap.width
+							: imageBitmap.displayWidth;
+					context.canvas.height =
+						imageBitmap instanceof ImageBitmap
+							? imageBitmap.height
+							: imageBitmap.displayHeight;
+					context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
+					context.drawImage(imageBitmap, 0, 0);
+
 					imageBitmap.close();
 				} else if (window.remotion_videoEnabled) {
 					cancelRender(new Error('No video frame found'));
@@ -157,12 +168,11 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		loop,
 	]);
 
-	return (
-		<canvas
-			ref={canvasRef}
-			style={style}
-			width={videoConfig.width}
-			height={videoConfig.height}
-		/>
-	);
+	const classNameValue = useMemo(() => {
+		return [Internals.OBJECTFIT_CONTAIN_CLASS_NAME, className]
+			.filter(Internals.truthy)
+			.join(' ');
+	}, [className]);
+
+	return <canvas ref={canvasRef} style={style} className={classNameValue} />;
 };

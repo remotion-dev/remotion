@@ -28,6 +28,7 @@ import {
 	CompositionSetters,
 } from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
+import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {
 	EditorPropsContext,
 	EditorPropsProvider,
@@ -209,6 +210,7 @@ export const Internals = {
 	RemotionEnvironmentContext,
 	warnAboutTooHighVolume,
 	AudioForPreview,
+	OBJECTFIT_CONTAIN_CLASS_NAME,
 } as const;
 
 export type {
