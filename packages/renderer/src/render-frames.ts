@@ -231,6 +231,7 @@ const innerRenderFrames = async ({
 	onArtifact,
 	binariesDirectory,
 	imageSequencePattern,
+	mediaCacheSizeInBytes,
 }: Omit<
 	InnerRenderFramesOptions,
 	'offthreadVideoCacheSizeInBytes'
@@ -292,6 +293,7 @@ const innerRenderFrames = async ({
 			timeoutInMilliseconds,
 			pageIndex,
 			isMainTab: pageIndex === 0,
+			mediaCacheSizeInBytes,
 		});
 	};
 
@@ -474,6 +476,7 @@ const internalRenderFramesRaw = ({
 	chromeMode,
 	offthreadVideoThreads,
 	imageSequencePattern,
+	mediaCacheSizeInBytes,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -607,6 +610,7 @@ const internalRenderFramesRaw = ({
 					chromeMode,
 					offthreadVideoThreads,
 					imageSequencePattern,
+					mediaCacheSizeInBytes,
 				});
 			}),
 		])
@@ -706,6 +710,7 @@ export const renderFrames = (
 		chromeMode,
 		offthreadVideoThreads,
 		imageSequencePattern,
+		mediaCacheSizeInBytes,
 	} = options;
 
 	if (!composition) {
@@ -781,5 +786,6 @@ export const renderFrames = (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		imageSequencePattern: imageSequencePattern ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 	});
 };

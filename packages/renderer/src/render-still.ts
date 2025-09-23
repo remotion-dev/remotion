@@ -26,6 +26,7 @@ import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
+import {getAvailableMemory} from './memory/get-available-memory';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import type {ToOptions} from './options/option';
@@ -133,6 +134,7 @@ const innerRenderStill = async ({
 	onBrowserDownload,
 	onArtifact,
 	chromeMode,
+	mediaCacheSizeInBytes,
 }: InternalRenderStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
@@ -265,6 +267,8 @@ const innerRenderStill = async ({
 		logLevel,
 		onServeUrlVisited: () => undefined,
 		isMainTab: true,
+		mediaCacheSizeInBytes,
+		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -464,6 +468,7 @@ export const renderStill = (
 		onArtifact,
 		chromeMode,
 		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -529,5 +534,6 @@ export const renderStill = (
 		onArtifact: onArtifact ?? null,
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 	});
 };

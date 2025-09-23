@@ -46,6 +46,7 @@ export const extractAudio = async ({
 		audioSampleSink: audio.sampleSink,
 		isMatroska,
 		actualMatroskaTimestamps,
+		logLevel,
 	});
 
 	const samples = await sampleIterator.getSamples(

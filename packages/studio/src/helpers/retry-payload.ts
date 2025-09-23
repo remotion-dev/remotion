@@ -66,6 +66,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			renderTypeOfLastRender: 'still',
 			initialHardwareAcceleration: defaults.hardwareAcceleration,
 			initialChromeMode: job.chromeMode,
+			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 		};
 	}
 
@@ -119,6 +120,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			renderTypeOfLastRender: 'sequence',
 			initialHardwareAcceleration: defaults.hardwareAcceleration,
 			initialChromeMode: job.chromeMode,
+			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 		};
 	}
 
@@ -173,6 +175,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			renderTypeOfLastRender: 'video',
 			initialHardwareAcceleration: job.hardwareAcceleration,
 			initialChromeMode: job.chromeMode,
+			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 		};
 	}
 

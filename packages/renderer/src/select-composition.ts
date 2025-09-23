@@ -10,6 +10,7 @@ import {handleJavascriptException} from './error-handling/handle-javascript-exce
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {Log} from './logger';
+import {getAvailableMemory} from './memory/get-available-memory';
 import type {ChromiumOptions} from './open-browser';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
@@ -73,6 +74,7 @@ const innerSelectComposition = async ({
 	indent,
 	logLevel,
 	onServeUrlVisited,
+	mediaCacheSizeInBytes,
 }: InnerSelectCompositionConfig): Promise<InternalReturnType> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
@@ -91,6 +93,8 @@ const innerSelectComposition = async ({
 		logLevel,
 		onServeUrlVisited,
 		isMainTab: true,
+		mediaCacheSizeInBytes,
+		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -204,6 +208,7 @@ export const internalSelectCompositionRaw = async (
 		onBrowserDownload,
 		onServeUrlVisited,
 		chromeMode,
+		mediaCacheSizeInBytes,
 	} = options;
 
 	const [{page, cleanupPage}, serverUsed] = await Promise.all([
@@ -273,6 +278,7 @@ export const internalSelectCompositionRaw = async (
 			onBrowserDownload,
 			onServeUrlVisited,
 			chromeMode,
+			mediaCacheSizeInBytes,
 		})
 			.then((data) => {
 				return resolve(data);
@@ -321,6 +327,7 @@ export const selectComposition = async (
 		onBrowserDownload,
 		chromeMode,
 		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	} = options;
 
 	const indent = false;
@@ -357,6 +364,7 @@ export const selectComposition = async (
 		onServeUrlVisited: () => undefined,
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 	});
 	return data.metadata;
 };

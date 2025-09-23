@@ -130,6 +130,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	overwrite,
 	jpegQuality,
 	offthreadVideoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 	deleteAfter,
 	colorSpace,
 	preferLossless,
@@ -218,6 +219,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		metadata: metadata ?? null,
 		apiKey: apiKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		storageClass: storageClass ?? null,
 	};
 };
@@ -266,6 +268,8 @@ export const makeLambdaRenderStillPayload = async ({
 	apiKey,
 	storageClass,
 	requestHandler,
+	offthreadVideoThreads,
+	mediaCacheSizeInBytes,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
@@ -317,7 +321,8 @@ export const makeLambdaRenderStillPayload = async ({
 		streamed: true,
 		forcePathStyle,
 		apiKey: apiKey ?? null,
-		offthreadVideoThreads: null,
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		storageClass: storageClass ?? null,
 	};
 };
