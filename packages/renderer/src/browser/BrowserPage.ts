@@ -296,7 +296,7 @@ export class Page extends EventEmitter {
 						tag,
 						indent,
 					},
-					isDelayRenderClear ? log.previewString : log.previewString,
+					log.previewString,
 				);
 			}
 		} else if (log.type === 'error') {
