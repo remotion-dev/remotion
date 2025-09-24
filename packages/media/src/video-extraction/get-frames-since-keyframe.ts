@@ -55,7 +55,7 @@ export const getFramesSinceKeyframe = async ({
 	startPacket: EncodedPacket;
 }) => {
 	const nextKeyPacket = await packetSink.getNextKeyPacket(startPacket, {
-		verifyKeyPackets: false,
+		verifyKeyPackets: true,
 	});
 
 	const sampleIterator = videoSampleSink.samples(
