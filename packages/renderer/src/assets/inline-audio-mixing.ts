@@ -164,19 +164,19 @@ export const makeInlineAudioMixing = (dir: string) => {
 		const samplesToShaveFromEnd = trimRightOffset * DEFAULT_SAMPLE_RATE;
 		if (
 			Math.abs(Math.round(samplesToShaveFromEnd) - samplesToShaveFromEnd) >
-			0.00000001
+			0.0000001
 		) {
 			throw new Error(
-				'samplesToShaveFromEnd should be approximately an integer',
+				`samplesToShaveFromEnd should be approximately an integer, is${samplesToShaveFromEnd}`,
 			);
 		}
 
 		if (
 			Math.abs(Math.round(samplesToShaveFromStart) - samplesToShaveFromStart) >
-			0.00000001
+			0.0000001
 		) {
 			throw new Error(
-				'samplesToShaveFromStart should be approximately an integer',
+				`samplesToShaveFromStart should be approximately an integer, is ${samplesToShaveFromStart}`,
 			);
 		}
 
