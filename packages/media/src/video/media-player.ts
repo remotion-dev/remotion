@@ -82,6 +82,9 @@ export class MediaPlayer {
 	private onStalledChangeCallback?: (isStalled: boolean) => void;
 
 	// Audio-first buffering strategy (MediaBunny pattern)
+	private audioBufferHealth = 0; // seconds of audio buffered ahead
+	private audioIteratorStarted = false;
+	private readonly HEALTHY_BUFER_THRESHOLD = 1;
 
 	constructor({
 		canvas,
@@ -202,6 +205,8 @@ export class MediaPlayer {
 	private async cleanAudioIteratorAndNodes(): Promise<void> {
 		await this.audioBufferIterator?.return();
 		this.audioBufferIterator = null;
+		this.audioIteratorStarted = false;
+		this.audioBufferHealth = 0;
 
 		this.cleanupAudioQueue();
 	}
@@ -310,6 +315,8 @@ export class MediaPlayer {
 		this.cleanAudioIteratorAndNodes();
 		this.audioSink = null;
 		this.gainNode = null;
+		this.audioIteratorStarted = false;
+		this.audioBufferHealth = 0;
 
 		this.initialized = false;
 		this.asyncId++;
@@ -361,10 +368,22 @@ export class MediaPlayer {
 		this.onStalledChangeCallback = callback;
 	}
 
+	private canRenderVideo(): boolean {
+		return (
+			this.audioIteratorStarted &&
+			this.audioBufferHealth >= this.HEALTHY_BUFER_THRESHOLD
+		);
+	}
+
 	private renderSingleFrame(): void {
 		const currentPlaybackTime = this.getPlaybackTime();
+		const canRenderVideo = this.canRenderVideo();
 
-		if (this.nextFrame && this.nextFrame.timestamp <= currentPlaybackTime) {
+		if (
+			canRenderVideo &&
+			this.nextFrame &&
+			this.nextFrame.timestamp <= currentPlaybackTime
+		) {
 			Log.trace(
 				this.logLevel,
 				`[MediaPlayer] Single frame update at ${this.nextFrame.timestamp.toFixed(3)}s`,
@@ -396,15 +415,18 @@ export class MediaPlayer {
 	private render = (): void => {
 		const currentPlaybackTime = this.getPlaybackTime();
 
+		if (this.isStalled) {
+			this.maybeForceResumeFromStall();
+		}
+
+		const canRenderVideo = this.canRenderVideo();
+
 		if (
 			!this.isStalled &&
+			canRenderVideo &&
 			this.nextFrame &&
 			this.nextFrame.timestamp <= currentPlaybackTime
 		) {
-			Log.trace(
-				this.logLevel,
-				`[MediaPlayer] Drawing frame at ${this.nextFrame.timestamp.toFixed(3)}s (playback time: ${currentPlaybackTime.toFixed(3)}s)`,
-			);
 			this.context.drawImage(this.nextFrame.canvas, 0, 0);
 
 			this.nextFrame = null;
@@ -429,10 +451,10 @@ export class MediaPlayer {
 			return;
 		}
 
-		this.asyncId++;
-
 		// Clean up existing audio iterator
 		await this.audioBufferIterator?.return();
+		this.audioIteratorStarted = false;
+		this.audioBufferHealth = 0;
 
 		Log.trace(
 			this.logLevel,
@@ -525,8 +547,8 @@ export class MediaPlayer {
 				}
 
 				if (newNextFrame.timestamp <= this.getPlaybackTime()) {
-					// Only draw immediate frames if not stalled (for A/V sync)
-					if (!this.isStalled) {
+					// Only draw immediate frames if not stalled and can render video (audio-first throttling)
+					if (!this.isStalled && this.canRenderVideo()) {
 						Log.trace(
 							this.logLevel,
 							`[MediaPlayer] Drawing immediate frame ${newNextFrame.timestamp.toFixed(3)}s`,
@@ -550,10 +572,58 @@ export class MediaPlayer {
 		}
 	};
 
+	private stallStartedAtMs: number | null = null;
+	private minStalledTimeoutMs: number = 500;
+
 	private setStalledState(isStalled: boolean): void {
 		if (this.isStalled !== isStalled) {
 			this.isStalled = isStalled;
-			this.onStalledChangeCallback?.(isStalled);
+
+			if (isStalled) {
+				this.stallStartedAtMs = performance.now();
+				this.onStalledChangeCallback?.(true);
+			} else {
+				this.stallStartedAtMs = null;
+				this.onStalledChangeCallback?.(false);
+			}
+		}
+	}
+
+	private maybeResumeFromStall(currentBufferDuration: number): void {
+		if (!this.isStalled || !this.stallStartedAtMs) {
+			return;
+		}
+
+		const now = performance.now();
+		const stallDuration = now - this.stallStartedAtMs;
+
+		const minTimeElapsed = stallDuration >= this.minStalledTimeoutMs;
+		const bufferHealthy = currentBufferDuration >= this.HEALTHY_BUFER_THRESHOLD;
+
+		if (minTimeElapsed && bufferHealthy) {
+			Log.trace(
+				this.logLevel,
+				`[MediaPlayer] Resuming from stall after ${stallDuration}ms - buffer recovered`,
+			);
+			this.setStalledState(false);
+		}
+	}
+
+	private maybeForceResumeFromStall(): void {
+		if (!this.isStalled || !this.stallStartedAtMs) {
+			return;
+		}
+
+		const now = performance.now();
+		const stallDuration = now - this.stallStartedAtMs;
+		const forceTimeout = stallDuration > this.minStalledTimeoutMs * 10;
+
+		if (forceTimeout) {
+			Log.trace(
+				this.logLevel,
+				`[MediaPlayer] Force resuming from stall after ${stallDuration}ms`,
+			);
+			this.setStalledState(false);
 		}
 	}
 
@@ -569,6 +639,7 @@ export class MediaPlayer {
 
 		try {
 			let totalBufferDuration = 0;
+			this.audioIteratorStarted = true;
 
 			while (true) {
 				const STALL_TIMEOUT_MS = 50;
@@ -593,9 +664,9 @@ export class MediaPlayer {
 				const {buffer, timestamp, duration} = result.value;
 				totalBufferDuration += duration;
 
-				if (this.isStalled && totalBufferDuration >= 1.0) {
-					this.setStalledState(false);
-				}
+				this.audioBufferHealth = Math.max(0, totalBufferDuration);
+
+				this.maybeResumeFromStall(totalBufferDuration);
 
 				if (this.playing) {
 					this.scheduleAudioChunk(buffer, timestamp);
