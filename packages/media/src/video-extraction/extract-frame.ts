@@ -1,5 +1,5 @@
+import {type LogLevel} from 'remotion';
 import {keyframeManager} from '../caches';
-import type {LogLevel} from '../log';
 import {getSinks, type GetSink} from './get-frames-since-keyframe';
 
 export const sinkPromises: Record<string, Promise<GetSink>> = {};

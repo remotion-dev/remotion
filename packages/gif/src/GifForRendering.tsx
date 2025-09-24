@@ -69,12 +69,16 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			let aborted = false;
 			const newHandle = delayRender('Loading <Gif /> with src=' + resolvedSrc);
 
-			Internals.Log.verbose(logLevel, 'Loading GIF with source', resolvedSrc);
+			Internals.Log.verbose(
+				{logLevel, tag: null},
+				'Loading GIF with source',
+				resolvedSrc,
+			);
 			const time = Date.now();
 			parseGif({controller, src: resolvedSrc})
 				.then((parsed) => {
 					Internals.Log.verbose(
-						logLevel,
+						{logLevel, tag: null},
 						'Parsed GIF in',
 						Date.now() - time,
 						'ms',
@@ -92,7 +96,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 						return;
 					}
 
-					Internals.Log.error('Failed to load GIF', err);
+					Internals.Log.error({logLevel, tag: null}, 'Failed to load GIF', err);
 
 					if (currentOnError.current) {
 						currentOnError.current(err);
@@ -113,7 +117,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 		}, [renderHandle, logLevel, resolvedSrc, delayRender, continueRender]);
 
 		if (error) {
-			Internals.Log.error(error.stack);
+			Internals.Log.error({logLevel, tag: null}, error.stack);
 			if (isCorsError(error)) {
 				throw new Error(
 					`Failed to render GIF with source ${src}: "${error.message}". You must enable CORS for this URL.`,

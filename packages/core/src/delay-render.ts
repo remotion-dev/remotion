@@ -128,13 +128,16 @@ export const continueRenderInternal = (
 					window.remotion_delayRenderTimeouts[handle];
 				clearTimeout(timeout);
 				const message = [
-					label ? `delayRender() "${label}"` : 'A delayRender()',
+					label ? `"${label}"` : 'A handle',
 					DELAY_RENDER_CLEAR_TOKEN,
 					`${Date.now() - startTime}ms`,
 				]
 					.filter(truthy)
 					.join(' ');
-				Log.verbose(window.remotion_logLevel, message);
+				Log.verbose(
+					{logLevel: window.remotion_logLevel, tag: 'delayRender()'},
+					message,
+				);
 				delete window.remotion_delayRenderTimeouts[handle];
 			}
 

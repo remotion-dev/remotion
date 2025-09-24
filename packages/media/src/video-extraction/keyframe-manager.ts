@@ -1,11 +1,10 @@
 import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
+import {Internals, type LogLevel} from 'remotion';
 import {
 	getMaxVideoCacheSize,
 	getTotalCacheStats,
 	SAFE_BACK_WINDOW_IN_SECONDS,
 } from '../caches';
-import type {LogLevel} from '../log';
-import {Log} from '../log';
 import {getFramesSinceKeyframe} from './get-frames-since-keyframe';
 import {type KeyframeBank} from './keyframe-bank';
 
@@ -40,16 +39,16 @@ export const makeKeyframeManager = () => {
 					continue;
 				}
 
-				Log.verbose(
-					logLevel,
-					`[Video] Open frames for src ${src}: ${timestamps.join(', ')}`,
+				Internals.Log.verbose(
+					{logLevel, tag: '@remotion/media'},
+					`Open frames for src ${src}: ${timestamps.join(', ')}`,
 				);
 			}
 		}
 
-		Log.verbose(
-			logLevel,
-			`[Video] Cache stats: ${count} open frames, ${totalSize} bytes`,
+		Internals.Log.verbose(
+			{logLevel, tag: '@remotion/media'},
+			`Video cache stats: ${count} open frames, ${totalSize} bytes`,
 		);
 	};
 
@@ -104,9 +103,9 @@ export const makeKeyframeManager = () => {
 			delete sources[mostInThePastSrc][
 				mostInThePastBank.startTimestampInSeconds
 			];
-			Log.verbose(
-				logLevel,
-				`[Video] Deleted frames for src ${mostInThePastSrc} from ${mostInThePastBank.startTimestampInSeconds}sec to ${mostInThePastBank.endTimestampInSeconds}sec to free up memory.`,
+			Internals.Log.verbose(
+				{logLevel, tag: '@remotion/media'},
+				`Deleted frames for src ${mostInThePastSrc} from ${mostInThePastBank.startTimestampInSeconds}sec to ${mostInThePastBank.endTimestampInSeconds}sec to free up memory.`,
 			);
 		}
 	};
@@ -144,8 +143,8 @@ export const makeKeyframeManager = () => {
 
 			if (endTimestampInSeconds < threshold) {
 				await bank.prepareForDeletion();
-				Log.verbose(
-					logLevel,
+				Internals.Log.verbose(
+					{logLevel, tag: '@remotion/media'},
 					`[Video] Cleared frames for src ${src} from ${startTimestampInSeconds}sec to ${endTimestampInSeconds}sec`,
 				);
 				delete sources[src][startTimeInSeconds as unknown as number];
@@ -203,9 +202,9 @@ export const makeKeyframeManager = () => {
 			return existingBank;
 		}
 
-		Log.verbose(
-			logLevel,
-			`[Video] Bank exists but frames have already been evicted!`,
+		Internals.Log.verbose(
+			{logLevel, tag: '@remotion/media'},
+			`Keyframe bank exists but frames have already been evicted!`,
 		);
 
 		// Bank exists but frames have already been evicted!

@@ -1,6 +1,6 @@
 import type {AudioSampleSink} from 'mediabunny';
+import type {LogLevel} from 'remotion';
 import {getMaxVideoCacheSize, getTotalCacheStats} from '../caches';
-import type {LogLevel} from '../log';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import type {AudioSampleIterator} from './audio-iterator';
 import {makeAudioIterator} from './audio-iterator';

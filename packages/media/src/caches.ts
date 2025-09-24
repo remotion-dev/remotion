@@ -1,6 +1,5 @@
-import {cancelRender, type LogLevel} from 'remotion';
+import {cancelRender, Internals, type LogLevel} from 'remotion';
 import {makeAudioManager} from './audio-extraction/audio-manager';
-import {Log} from './log';
 import {makeKeyframeManager} from './video-extraction/keyframe-manager';
 
 // TODO: make it dependent on the fps and concurrency
@@ -41,9 +40,9 @@ const getUncachedMaxCacheSize = (logLevel: LogLevel) => {
 			);
 		}
 
-		Log.verbose(
-			logLevel,
-			`Using @remotion/media cache size set using "mediaCacheSizeInBytes": ${(window.remotion_mediaCacheSizeInBytes / 1024 / 1024).toFixed(1)} MB`,
+		Internals.Log.verbose(
+			{logLevel, tag: '@remotion/media'},
+			`Using cache size set using "mediaCacheSizeInBytes": ${(window.remotion_mediaCacheSizeInBytes / 1024 / 1024).toFixed(1)} MB`,
 		);
 		return window.remotion_mediaCacheSizeInBytes;
 	}
@@ -54,24 +53,24 @@ const getUncachedMaxCacheSize = (logLevel: LogLevel) => {
 	) {
 		const value = window.remotion_initialMemoryAvailable / 2;
 		if (value < 240 * 1024 * 1024) {
-			Log.verbose(
-				logLevel,
-				`Using @remotion/media cache size set based on minimum value of 240MB (which is more than half of the available system memory!)`,
+			Internals.Log.verbose(
+				{logLevel, tag: '@remotion/media'},
+				`Using cache size set based on minimum value of 240MB (which is more than half of the available system memory!)`,
 			);
 			return 240 * 1024 * 1024;
 		}
 
 		if (value > 20_000 * 1024 * 1024) {
-			Log.verbose(
-				logLevel,
-				`Using @remotion/media cache size set based on maximum value of 20GB (which is less than half of the available system memory)`,
+			Internals.Log.verbose(
+				{logLevel, tag: '@remotion/media'},
+				`Using cache size set based on maximum value of 20GB (which is less than half of the available system memory)`,
 			);
 			return 20_000 * 1024 * 1024;
 		}
 
-		Log.verbose(
-			logLevel,
-			`Using @remotion/media cache size set based on available memory (50% of available memory): ${(value / 1024 / 1024).toFixed(1)} MB`,
+		Internals.Log.verbose(
+			{logLevel, tag: '@remotion/media'},
+			`Using cache size set based on available memory (50% of available memory): ${(value / 1024 / 1024).toFixed(1)} MB`,
 		);
 		return value;
 	}

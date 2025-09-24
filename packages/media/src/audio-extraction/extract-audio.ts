@@ -1,3 +1,4 @@
+import {type LogLevel} from 'remotion';
 import {audioManager} from '../caches';
 import {combineAudioDataAndClosePrevious} from '../convert-audiodata/combine-audiodata';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
@@ -6,7 +7,6 @@ import {
 	TARGET_NUMBER_OF_CHANNELS,
 	TARGET_SAMPLE_RATE,
 } from '../convert-audiodata/resample-audiodata';
-import type {LogLevel} from '../log';
 import {sinkPromises} from '../video-extraction/extract-frame';
 import {getSinks} from '../video-extraction/get-frames-since-keyframe';
 
