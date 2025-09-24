@@ -61,7 +61,6 @@ export class MediaPlayer {
 	private queuedAudioNodes: Set<AudioBufferSourceNode> = new Set();
 
 	private gainNode: GainNode | null = null;
-	private expectedAudioTime: number = 0;
 
 	private sharedAudioContext: AudioContext | null = null;
 	private mediaTimeOffset: number = 0;
@@ -209,46 +208,24 @@ export class MediaPlayer {
 			return;
 		}
 
-		// Ensure mediaTimeOffset is initialized (safety fallback)
-		if (this.mediaTimeOffset === 0) {
-			this.mediaTimeOffset = this.sharedAudioContext.currentTime - time;
-			Log.trace(
-				this.logLevel,
-				`[MediaPlayer] Late-initialized mediaTimeOffset to ${this.mediaTimeOffset.toFixed(3)}s`,
-			);
-		}
-
 		const newTime = Math.max(0, Math.min(time, this.totalDuration));
 		const currentPlaybackTime = this.getPlaybackTime();
 		const isSignificantSeek =
 			Math.abs(newTime - currentPlaybackTime) > SEEK_THRESHOLD;
 
-		// Update offset to make audio context time correspond to new media time
-		this.mediaTimeOffset = this.sharedAudioContext.currentTime - newTime;
-
 		if (isSignificantSeek) {
-			Log.trace(
-				this.logLevel,
-				`Significant seek to ${newTime.toFixed(3)}s - creating new iterator`,
-			);
+			this.mediaTimeOffset = this.sharedAudioContext.currentTime - newTime;
 
 			if (this.audioSink) {
 				await this.cleanAudioIteratorAndNodes();
 			}
 
-			// Start audio iterator first (buffering signal), then video
 			await this.startAudioIterator(newTime);
 			await this.startVideoIterator(newTime);
-		} else {
-			Log.trace(
-				this.logLevel,
-				`[MediaPlayer] Minor time update to ${newTime.toFixed(3)}s - using existing iterator`,
-			);
+		}
 
-			// if paused, trigger a single frame update to show current position
-			if (!this.playing) {
-				this.renderSingleFrame();
-			}
+		if (!this.playing) {
+			this.renderSingleFrame();
 		}
 	}
 
@@ -305,8 +282,6 @@ export class MediaPlayer {
 
 			Log.trace(this.logLevel, `[MediaPlayer] Play - starting render loop`);
 			this.startRenderLoop();
-
-			this.expectedAudioTime = this.sharedAudioContext.currentTime;
 		}
 	}
 
@@ -558,7 +533,6 @@ export class MediaPlayer {
 		}
 
 		try {
-			this.expectedAudioTime = this.sharedAudioContext.currentTime;
 			let totalBufferDuration = 0;
 
 			while (true) {
@@ -572,7 +546,6 @@ export class MediaPlayer {
 						'Iterator timeout',
 					);
 				} catch {
-					// Timeout occurred, set stall state and continue trying
 					this.setStalledState(true);
 					await sleep(10);
 					continue;
@@ -583,24 +556,26 @@ export class MediaPlayer {
 				}
 
 				const {buffer, timestamp, duration} = result.value;
-
 				totalBufferDuration += duration;
 
-				// Only unstall when we have 1+ seconds of actual audio buffer
 				if (this.isStalled && totalBufferDuration >= 1.0) {
 					this.setStalledState(false);
 				}
 
 				if (this.playing) {
+					// Simple timing calculation for EVERY chunk
+					const currentMediaTime = this.getPlaybackTime();
+					const timeOffset = timestamp - currentMediaTime;
+					const scheduleTime = this.sharedAudioContext.currentTime + timeOffset;
+
 					const node = this.sharedAudioContext.createBufferSource();
 					node.buffer = buffer;
 					node.connect(this.gainNode);
 
-					if (this.expectedAudioTime >= this.sharedAudioContext.currentTime) {
-						node.start(this.expectedAudioTime);
+					if (scheduleTime >= this.sharedAudioContext.currentTime) {
+						node.start(scheduleTime);
 					} else {
-						const offset =
-							this.sharedAudioContext.currentTime - this.expectedAudioTime;
+						const offset = this.sharedAudioContext.currentTime - scheduleTime;
 						node.start(this.sharedAudioContext.currentTime, offset);
 					}
 
@@ -610,14 +585,7 @@ export class MediaPlayer {
 					};
 				}
 
-				if (this.playing) {
-					this.expectedAudioTime += buffer.duration;
-				} else {
-					this.expectedAudioTime = this.sharedAudioContext.currentTime;
-				}
-
-				// If we're more than a second ahead of the current playback time, let's slow down the loop until time has
-				// passed. Use timestamp for throttling logic as it represents media time.
+				// Throttling logic unchanged
 				if (timestamp - this.getPlaybackTime() >= 1) {
 					await new Promise<void>((resolve) => {
 						const check = () => {
