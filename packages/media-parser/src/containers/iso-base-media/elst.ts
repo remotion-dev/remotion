@@ -24,7 +24,7 @@ export const parseElst = ({
 	size: number;
 	offset: number;
 }): ElstBox => {
-	const {expectNoMoreBytes} = iterator.startBox(size - 8);
+	const {discardRest} = iterator.startBox(size - 8);
 
 	const version = iterator.getUint8();
 	const flags = iterator.getUint24();
@@ -48,7 +48,7 @@ export const parseElst = ({
 		});
 	}
 
-	expectNoMoreBytes();
+	discardRest();
 
 	const result: ElstBox = {
 		type: 'elst-box',
