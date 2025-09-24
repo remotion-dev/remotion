@@ -106,14 +106,14 @@ const format = (
 		?.split('__remotion_log_')?.[1]
 		?.replace(')', '');
 
-	const logLevelFromEvent =
+	const logLevelFromEvent: LogLevel =
 		eventType === 'debug'
 			? 'verbose'
 			: eventType === 'error'
 				? 'error'
 				: eventType === 'warning'
 					? 'warn'
-					: 'info';
+					: 'verbose';
 
 	return {previewString, logLevelFromRemotionLog, logLevelFromEvent};
 };
@@ -290,7 +290,7 @@ export class Page extends EventEmitter {
 					log.previewString,
 				);
 			} else {
-				Log.verbose(
+				Log[logLevel](
 					{
 						logLevel,
 						tag,
