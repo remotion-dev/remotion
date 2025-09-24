@@ -1,6 +1,5 @@
 import type {VideoSample} from 'mediabunny';
-import type {LogLevel} from '../log';
-import {Log} from '../log';
+import {Log, type LogLevel} from 'remotion';
 
 export type KeyframeBank = {
 	startTimestampInSeconds: number;

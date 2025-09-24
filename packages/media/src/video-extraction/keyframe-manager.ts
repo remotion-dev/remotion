@@ -1,11 +1,10 @@
 import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
+import {Log, type LogLevel} from 'remotion';
 import {
 	getMaxVideoCacheSize,
 	getTotalCacheStats,
 	SAFE_BACK_WINDOW_IN_SECONDS,
 } from '../caches';
-import type {LogLevel} from '../log';
-import {Log} from '../log';
 import {getFramesSinceKeyframe} from './get-frames-since-keyframe';
 import {type KeyframeBank} from './keyframe-bank';
 

@@ -1,6 +1,5 @@
-import {cancelRender, type LogLevel} from 'remotion';
+import {cancelRender, Log, type LogLevel} from 'remotion';
 import {makeAudioManager} from './audio-extraction/audio-manager';
-import {Log} from './log';
 import {makeKeyframeManager} from './video-extraction/keyframe-manager';
 
 // TODO: make it dependent on the fps and concurrency

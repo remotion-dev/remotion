@@ -1,7 +1,6 @@
 import type {AudioSample, AudioSampleSink} from 'mediabunny';
+import {Log, type LogLevel} from 'remotion';
 import {SAFE_BACK_WINDOW_IN_SECONDS} from '../caches';
-import type {LogLevel} from '../log';
-import {Log} from '../log';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import {makeAudioCache} from './audio-cache';
 

@@ -1,5 +1,4 @@
-import type {LogLevel} from 'remotion';
-import {Internals} from 'remotion';
+import {Log, type LogLevel} from 'remotion';
 
 let warningShown = false;
 
@@ -16,7 +15,7 @@ export const acknowledgeRemotionLicenseMessage = (
 	}
 
 	warningShown = true;
-	Internals.Log.warn(
+	Log.warn(
 		logLevel,
 		'Note: Some companies are required to obtain a license to use Remotion. See: https://remotion.dev/license\nPass the `acknowledgeRemotionLicense` prop to `<Player />` function to make this message disappear.',
 	);

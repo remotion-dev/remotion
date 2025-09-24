@@ -1,5 +1,4 @@
-import type {LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
-import type {LogLevel} from '../log';
+import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
 
 export type AudioProps = {
 	src: string;

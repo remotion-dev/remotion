@@ -48,7 +48,6 @@ import type {SerializedJSONWithCustomFields} from './input-props-serialization.j
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
-import {Log} from './log.js';
 import {NonceContext, SetNonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
 import {portalNode} from './portal-node.js';
@@ -201,7 +200,6 @@ export const Internals = {
 	editorPropsProviderRef,
 	PROPS_UPDATED_EXTERNALLY,
 	validateRenderAsset,
-	Log,
 	LogLevelContext,
 	useLogLevel,
 	playbackLogging,
