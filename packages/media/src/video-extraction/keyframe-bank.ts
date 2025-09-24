@@ -44,7 +44,7 @@ export const makeKeyframeBank = ({
 
 	let lastUsed = Date.now();
 
-	let alloctionSize = 0;
+	let allocationSize = 0;
 
 	const hasDecodedEnoughForTimestamp = (timestamp: number) => {
 		const lastFrameTimestamp = frameTimestamps[frameTimestamps.length - 1];
@@ -67,7 +67,7 @@ export const makeKeyframeBank = ({
 	const addFrame = (frame: VideoSample) => {
 		frames[frame.timestamp] = frame;
 		frameTimestamps.push(frame.timestamp);
-		alloctionSize += frame.allocationSize();
+		allocationSize += frame.allocationSize();
 
 		lastUsed = Date.now();
 	};
@@ -143,7 +143,7 @@ export const makeKeyframeBank = ({
 				continue;
 			}
 
-			alloctionSize -= frames[frameTimestamp].allocationSize();
+			allocationSize -= frames[frameTimestamp].allocationSize();
 			frames[frameTimestamp].close();
 			delete frames[frameTimestamp];
 		}
@@ -173,7 +173,7 @@ export const makeKeyframeBank = ({
 					continue;
 				}
 
-				alloctionSize -= frames[frameTimestamp].allocationSize();
+				allocationSize -= frames[frameTimestamp].allocationSize();
 
 				frameTimestamps.splice(frameTimestamps.indexOf(frameTimestamp), 1);
 				frames[frameTimestamp].close();
@@ -189,7 +189,7 @@ export const makeKeyframeBank = ({
 
 	const getOpenFrameCount = () => {
 		return {
-			size: alloctionSize,
+			size: allocationSize,
 			timestamps: frameTimestamps,
 		};
 	};
