@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {LogLevel} from 'remotion';
 import type {JSHandle} from './JSHandle';
 
 export interface ConsoleMessageLocation {
@@ -49,6 +50,7 @@ export class ConsoleMessage {
 	args: JSHandle[];
 	previewString: string;
 	#stackTraceLocations: ConsoleMessageLocation[];
+	logLevel: LogLevel;
 
 	constructor({
 		type,
@@ -56,22 +58,21 @@ export class ConsoleMessage {
 		args,
 		stackTraceLocations,
 		previewString,
+		logLevel,
 	}: {
 		type: ConsoleMessageType;
 		text: string;
 		args: JSHandle[];
 		stackTraceLocations: ConsoleMessageLocation[];
 		previewString: string;
+		logLevel: LogLevel;
 	}) {
 		this.type = type;
 		this.text = text;
 		this.args = args;
 		this.previewString = previewString;
 		this.#stackTraceLocations = stackTraceLocations;
-	}
-
-	location(): ConsoleMessageLocation {
-		return this.#stackTraceLocations[0] ?? {};
+		this.logLevel = logLevel;
 	}
 
 	stackTrace(): ConsoleMessageLocation[] {
