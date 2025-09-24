@@ -316,6 +316,7 @@ class RenderMediaParams:
     webhook: Optional[Webhook] = None
     force_height: Optional[int] = None
     offthreadvideo_cache_size_in_bytes: Optional[int] = None
+    media_cache_size_in_bytes: Optional[int] = None
     offthreadvideo_threads: Optional[int] = None
     force_width: Optional[int] = None
     api_key: Optional[str] = None
@@ -370,6 +371,7 @@ class RenderMediaParams:
             'webhook': self.webhook,
             'forceHeight': self.force_height,
             'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes,
+            'mediaCacheSizeInBytes': self.media_cache_size_in_bytes,
             'offthreadVideoThreads': self.offthreadvideo_threads,
             'forceWidth': self.force_width,
             'apiKey': self.api_key,
@@ -447,6 +449,7 @@ class RenderStillParams:
     delete_after: Optional[DeleteAfter] = None
     force_path_style: Optional[bool] = None
     offthreadvideo_cache_size_in_bytes: Optional[int] = None
+    media_cache_size_in_bytes: Optional[int] = None
     offthreadvideo_threads: Optional[int] = None
     streamed: bool = False
 
@@ -499,6 +502,7 @@ class RenderStillParams:
             'deleteAfter': self.delete_after,
             'attempt': self.attempt,
             'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes,
+            'mediaCacheSizeInBytes': self.media_cache_size_in_bytes,
             'offthreadVideoThreads': self.offthreadvideo_threads,
             'streamed': self.streamed,
         }

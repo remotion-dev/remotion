@@ -13,7 +13,7 @@ window.videoFrames = [];
 window.errors = [];
 
 extractFrames({
-	src: 'https://parser.media/video.mp4',
+	src: 'https://remotion.media/video.mp4',
 	onFrame(frame) {
 		window.videoFrames.push(frame.timestamp);
 	},

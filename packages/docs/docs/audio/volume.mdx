@@ -67,12 +67,17 @@ You can work around these limitations by enabling the Web Audio API for your [`<
 import {Audio, staticFile, AbsoluteFill} from 'remotion';
 // ---cut---
 
-<Audio src="https://parser.media/audio.wav" volume={2} useWebAudioApi crossOrigin="anonymous" />;
+<Audio src="https://remotion.media/audio.wav" volume={2} useWebAudioApi crossOrigin="anonymous" />;
 ```
 
 However, this comes with two caveats:
 
 <div>
-<div><Step error>1</Step> You must set the `crossOrigin` prop to `anonymous` and the audio must support CORS.</div>
-<div><Step error>2</Step> On Safari, you cannot combine it with [`playbackRate`](/docs/audio#playbackrate). If you do, the volume will be ignored.</div>
-</div><br/>
+  <div>
+    <Step error>1</Step> You must set the `crossOrigin` prop to `anonymous` and the audio must support CORS.
+  </div>
+  <div>
+    <Step error>2</Step> On Safari, you cannot combine it with [`playbackRate`](/docs/audio#playbackrate). If you do, the volume will be ignored.
+  </div>
+</div>
+<br />

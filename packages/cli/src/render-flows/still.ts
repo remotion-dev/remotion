@@ -79,6 +79,7 @@ export const renderStillFlow = async ({
 	chromeMode,
 	offthreadVideoThreads,
 	audioLatencyHint,
+	mediaCacheSizeInBytes,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -112,6 +113,7 @@ export const renderStillFlow = async ({
 	publicPath: string | null;
 	chromeMode: ChromeMode;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	mediaCacheSizeInBytes: number | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	Log.verbose(
@@ -250,6 +252,7 @@ export const renderStillFlow = async ({
 			binariesDirectory,
 			onBrowserDownload,
 			chromeMode,
+			mediaCacheSizeInBytes,
 		});
 
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
@@ -382,6 +385,7 @@ export const renderStillFlow = async ({
 		onArtifact,
 		chromeMode,
 		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	});
 
 	aggregate.rendering = {

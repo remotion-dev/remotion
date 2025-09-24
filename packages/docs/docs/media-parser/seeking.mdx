@@ -24,7 +24,7 @@ const controller = mediaParserController();
 controller.seek(5); // Seek to 5 seconds
 
 await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   controller,
   onVideoTrack: () => {
     return () => {
@@ -72,7 +72,7 @@ import {parseMedia, mediaParserController} from '@remotion/media-parser';
 const controller = mediaParserController();
 
 await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   controller,
   onVideoTrack: () => {
     return async () => {

@@ -128,6 +128,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		apiKey: params.apiKey,
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		storageClass: params.storageClass,
+		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 	};
 
 	await providerSpecifics.callFunctionAsync({

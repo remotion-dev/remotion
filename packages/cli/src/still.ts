@@ -25,6 +25,7 @@ const {
 	chromeModeOption,
 	offthreadVideoThreadsOption,
 	audioLatencyHintOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -92,6 +93,9 @@ export const still = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -172,5 +176,6 @@ export const still = async (
 		publicPath,
 		chromeMode,
 		audioLatencyHint,
+		mediaCacheSizeInBytes,
 	});
 };

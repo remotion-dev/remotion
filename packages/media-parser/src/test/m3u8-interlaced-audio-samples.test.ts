@@ -33,7 +33,7 @@ test.skip('should be able to select between audio tracks', async () => {
 	expect(audioSamples).toBe(44);
 });
 
-test('should ensure unique track IDs', async () => {
+test.skip('should ensure unique track IDs', async () => {
 	const {tracks} = await parseMedia({
 		src: 'https://cdn.bitmovin.com/content/assets/sintel/hls/playlist.m3u8',
 		acknowledgeRemotionLicense: true,

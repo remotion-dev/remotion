@@ -12,7 +12,7 @@ Allows you to use a video in React Three Fiber that is synchronized with Remotio
 This hook only works during rendering. In the Player and the Remotion Studio, use [`useVideoTexture()`](/docs/use-video-texture) instead. See below for an example.
 
 This hook was designed to combat limitations of the default `<Video>` element that is used with `useVideoTexture()` hook.
-See: [`<OffthreadVideo> vs <Video>`](/docs/video-vs-offthreadvideo)
+See: [Comparison of video tags](/docs/video-tags)
 
 The return type of it is a `THREE.Texture | null` which you can assign as a `map` to for example `meshBasicMaterial`. We recommend to only render the material when the texture is not `null` to prevent bugs.
 
@@ -123,4 +123,4 @@ Like `<OffthreadVideo>`, looping a video [is not supported out of the box](/docs
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/three/src/use-offthread-video-texture.ts)
 - [`useVideoTexture()`](/docs/use-video-texture)
 - [`<ThreeCanvas />`](/docs/three-canvas)
-- [`<OffthreadVideo> vs <Video>`](/docs/video-vs-offthreadvideo)
+- [Comparison of video tags](/docs/video-tags)

@@ -5,5 +5,5 @@
 		"outDir": "dist"
 	},
 	"include": ["src"],
-	"references": [{"path": "../serverless-client"}]
+	"references": [{"path": "../serverless-client"}, {"path": "../renderer"}]
 }

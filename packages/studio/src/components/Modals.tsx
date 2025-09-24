@@ -48,6 +48,9 @@ export const Modals: React.FC<{
 					initialOffthreadVideoThreads={
 						modalContextType.initialOffthreadVideoThreads
 					}
+					initialMediaCacheSizeInBytes={
+						modalContextType.initialMediaCacheSizeInBytes
+					}
 					initialConcurrency={modalContextType.initialConcurrency}
 					maxConcurrency={modalContextType.maxConcurrency}
 					minConcurrency={modalContextType.minConcurrency}

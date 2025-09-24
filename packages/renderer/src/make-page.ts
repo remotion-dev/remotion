@@ -5,6 +5,7 @@ import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
 import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
+import {getAvailableMemory} from './memory/get-available-memory';
 import type {PixelFormat} from './pixel-format';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import type {BrowserReplacer} from './replace-browser';
@@ -30,6 +31,7 @@ export const makePage = async ({
 	serializedResolvedPropsWithCustomSchema,
 	pageIndex,
 	isMainTab,
+	mediaCacheSizeInBytes,
 }: {
 	context: SourceMapGetter;
 	initialFrame: number;
@@ -50,6 +52,7 @@ export const makePage = async ({
 	imageFormat: VideoImageFormat;
 	pageIndex: number;
 	isMainTab: boolean;
+	mediaCacheSizeInBytes: number | null;
 }) => {
 	const page = await browserReplacer
 		.getBrowser()
@@ -76,6 +79,8 @@ export const makePage = async ({
 		logLevel,
 		onServeUrlVisited: () => undefined,
 		isMainTab,
+		mediaCacheSizeInBytes,
+		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
 	await puppeteerEvaluateWithCatch({

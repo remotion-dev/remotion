@@ -20,7 +20,7 @@ Extracts frames from a video at specific timestamps using [`parseMediaOnWebWorke
 import {extractFramesOnWebWorker} from '@remotion/webcodecs/worker';
 
 await extractFramesOnWebWorker({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   timestampsInSeconds: [0, 1, 2, 3, 4],
   onFrame: (frame) => {
     console.log(frame);

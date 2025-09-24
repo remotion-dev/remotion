@@ -117,6 +117,7 @@ export const renderVideoFlow = async ({
 	chromeMode,
 	audioLatencyHint,
 	imageSequencePattern,
+	mediaCacheSizeInBytes,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -176,6 +177,7 @@ export const renderVideoFlow = async ({
 	chromeMode: ChromeMode;
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	imageSequencePattern: string | null;
+	mediaCacheSizeInBytes: number | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
@@ -350,6 +352,7 @@ export const renderVideoFlow = async ({
 			binariesDirectory,
 			onBrowserDownload,
 			chromeMode,
+			mediaCacheSizeInBytes,
 		});
 
 	const {onArtifact} = handleOnArtifact({
@@ -538,6 +541,7 @@ export const renderVideoFlow = async ({
 			onArtifact,
 			chromeMode,
 			imageSequencePattern,
+			mediaCacheSizeInBytes,
 		});
 
 		Log.info({indent, logLevel}, chalk.blue(`\n▶ ${absoluteOutputFile}`));
@@ -632,6 +636,7 @@ export const renderVideoFlow = async ({
 		metadata: metadata ?? null,
 		hardwareAcceleration,
 		chromeMode,
+		mediaCacheSizeInBytes,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});

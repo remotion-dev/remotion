@@ -3,7 +3,7 @@ import {StudioInternals} from '@remotion/studio';
 import {Audio, CalculateMetadataFunction} from 'remotion';
 
 const fps = 30;
-const src = 'https://parser.media/multichannel-audio.mov';
+const src = 'https://remotion.media/multiple-audio-streams.mov';
 
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>

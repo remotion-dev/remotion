@@ -25,6 +25,8 @@ type SetPropsAndEnv = {
 	logLevel: LogLevel;
 	onServeUrlVisited: () => void;
 	isMainTab: boolean;
+	mediaCacheSizeInBytes: number | null;
+	initialMemoryAvailable: number | null;
 };
 
 const innerSetPropsAndEnv = async ({
@@ -42,6 +44,8 @@ const innerSetPropsAndEnv = async ({
 	logLevel,
 	onServeUrlVisited,
 	isMainTab,
+	mediaCacheSizeInBytes,
+	initialMemoryAvailable,
 }: SetPropsAndEnv): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
@@ -51,10 +55,16 @@ const innerSetPropsAndEnv = async ({
 	const urlToVisit = normalizeServeUrl(serveUrl);
 
 	await page.evaluateOnNewDocument(
-		(timeout: number, mainTab: boolean) => {
+		(
+			timeout: number,
+			mainTab: boolean,
+			cacheSizeInBytes: number | null,
+			initMemoryAvailable: number | null,
+		) => {
 			window.remotion_puppeteerTimeout = timeout;
-
 			window.remotion_isMainTab = mainTab;
+			window.remotion_mediaCacheSizeInBytes = cacheSizeInBytes;
+			window.remotion_initialMemoryAvailable = initMemoryAvailable;
 			// To make useRemotionEnvironment() work
 			if (window.process === undefined) {
 				// @ts-expect-error
@@ -69,6 +79,8 @@ const innerSetPropsAndEnv = async ({
 		},
 		actualTimeout,
 		isMainTab,
+		mediaCacheSizeInBytes,
+		initialMemoryAvailable,
 	);
 
 	await page.evaluateOnNewDocument(
@@ -155,6 +167,8 @@ const innerSetPropsAndEnv = async ({
 			logLevel,
 			onServeUrlVisited,
 			isMainTab,
+			mediaCacheSizeInBytes,
+			initialMemoryAvailable,
 		});
 	};
 

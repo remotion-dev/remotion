@@ -42,7 +42,7 @@ By default, S3 is used for cloud storage, which requires some setup.
     {
       "Sid": "Presign",
       "Effect": "Allow",
-      "Action": ["s3:PutObject", "s3:PutObjectAcl"],
+      "Action": ["s3:PutObject", "s3:PutObjectAcl", "s3:DeleteObject"],
       "Resource": ["arn:aws:s3:::YOUR_BUCKET_NAME/*"]
     }
   ]

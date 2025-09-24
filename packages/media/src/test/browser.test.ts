@@ -33,6 +33,29 @@ test('Should be able to extract a frame', async () => {
 	expect(cacheStats.count).toBe(25);
 });
 
+test('Should be able to extract the last frame', async () => {
+	await keyframeManager.clearAll();
+
+	const {audio, frame} = await extractFrameAndAudio({
+		src: '/bigbuckbunny.mp4',
+		timeInSeconds: 1_000_000,
+		durationInSeconds: 1 / 30,
+		logLevel: 'info',
+		includeAudio: true,
+		includeVideo: true,
+		volume: 1,
+		loop: false,
+	});
+
+	assert(frame);
+	expect(frame.timestamp).toBe(59_958_333);
+
+	assert(!audio);
+
+	const cacheStats = await keyframeManager.getCacheStats();
+	expect(cacheStats.count).toBe(93);
+});
+
 test('Should manage the cache', async () => {
 	await keyframeManager.clearAll();
 	for (let i = 0; i < 50; i++) {

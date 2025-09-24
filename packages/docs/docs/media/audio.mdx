@@ -42,7 +42,7 @@ import {experimental_Audio as Audio} from '@remotion/media';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Audio src="https://parser.media/audio.wav" />
+      <Audio src="https://remotion.media/audio.wav" />
     </AbsoluteFill>
   );
 };
@@ -137,7 +137,7 @@ import {experimental_Audio as Audio} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
-  return <Audio loop src="https://parser.media/audio.wav" />;
+  return <Audio loop src="https://remotion.media/audio.wav" />;
 };
 ```
 
@@ -153,7 +153,7 @@ The `muted` prop will be respected. It will lead to no audio being played while 
 import {experimental_Audio as Audio} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
-  return <Audio muted src="https://parser.media/audio.wav" />;
+  return <Audio muted src="https://remotion.media/audio.wav" />;
 };
 ```
 
@@ -188,6 +188,15 @@ Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRen
 ### `useWebAudioApi?`
 
 **Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<audio>` tag.
+
+## Setting the cache size
+
+`@remotion/media` keeps a cache of video and audio frames.
+
+By default, the cache may grow to up to 50% of the available system memory.  
+The rendering APIs allow you to customize this limit on a per-render basis.
+
+See in [`renderMedia()`](/docs/renderer/render-media) for example: [`mediaCacheSizeInBytes`](/docs/renderer/select-composition#mediacachesizeinbytes).
 
 ## See also
 
