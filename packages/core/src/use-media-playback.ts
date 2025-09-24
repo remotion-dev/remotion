@@ -81,7 +81,7 @@ export const useMediaPlayback = ({
 		}
 
 		Log.verbose(
-			logLevel,
+			{logLevel, tag: null},
 			`Detected ${src} as a variable FPS video. Disabling buffering while seeking.`,
 		);
 

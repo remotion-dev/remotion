@@ -94,17 +94,25 @@ const format = (
 ) => {
 	const previewString = args
 		.filter(
-			(a) =>
-				!(a.type === 'symbol' && a.description?.includes(`__remotion_log_`)),
+			(a) => !(a.type === 'symbol' && a.description?.includes(`__remotion_`)),
 		)
 		.map((a) => formatRemoteObject(a))
 		.filter(Boolean)
 		.join(' ');
 
-	const firstArg = args[0];
-	const logLevelFromRemotionLog = firstArg.description
-		?.split('__remotion_log_')?.[1]
-		?.replace(')', '');
+	let logLevelFromRemotionLog: LogLevel | null = null;
+	let tag: string | null = null;
+
+	for (const a of args) {
+		if (a.type === 'symbol' && a.description?.includes(`__remotion_level_`)) {
+			logLevelFromRemotionLog = a.description
+				?.split('__remotion_level_')?.[1]
+				?.replace(')', '') as LogLevel;
+		}
+		if (a.type === 'symbol' && a.description?.includes(`__remotion_tag_`)) {
+			tag = a.description?.split('__remotion_tag_')?.[1]?.replace(')', '');
+		}
+	}
 
 	const logLevelFromEvent: LogLevel =
 		eventType === 'debug'
@@ -115,7 +123,7 @@ const format = (
 					? 'warn'
 					: 'verbose';
 
-	return {previewString, logLevelFromRemotionLog, logLevelFromEvent};
+	return {previewString, logLevelFromRemotionLog, logLevelFromEvent, tag};
 };
 
 export class Page extends EventEmitter {
@@ -279,7 +287,9 @@ export class Page extends EventEmitter {
 			const tagInfo = [origPosition?.name, isDelayRenderClear ? null : file]
 				.filter(truthy)
 				.join('@');
-			const tag = [tabInfo, tagInfo].filter(truthy).join(', ');
+			const tag = [tabInfo, log.tag, log.tag ? null : tagInfo]
+				.filter(truthy)
+				.join(', ');
 			if (log.type === 'error') {
 				Log.error(
 					{
@@ -381,10 +391,8 @@ export class Page extends EventEmitter {
 			});
 		}
 
-		const {previewString, logLevelFromRemotionLog, logLevelFromEvent} = format(
-			level,
-			args ?? [],
-		);
+		const {previewString, logLevelFromRemotionLog, logLevelFromEvent, tag} =
+			format(level, args ?? []);
 
 		if (source !== 'worker') {
 			const message = new ConsoleMessage({
@@ -393,7 +401,8 @@ export class Page extends EventEmitter {
 				args: [],
 				stackTraceLocations: [{url, lineNumber}],
 				previewString,
-				logLevel: (logLevelFromRemotionLog as LogLevel) ?? logLevelFromEvent,
+				logLevel: logLevelFromRemotionLog ?? logLevelFromEvent,
+				tag,
 			});
 			this.onBrowserLog?.({
 				stackTrace: message.stackTrace(),
@@ -548,10 +557,8 @@ export class Page extends EventEmitter {
 			}
 		}
 
-		const {previewString, logLevelFromRemotionLog, logLevelFromEvent} = format(
-			eventType,
-			args.map((a) => a._remoteObject) ?? [],
-		);
+		const {previewString, logLevelFromRemotionLog, logLevelFromEvent, tag} =
+			format(eventType, args.map((a) => a._remoteObject) ?? []);
 		const logLevel = (logLevelFromRemotionLog as LogLevel) ?? logLevelFromEvent;
 
 		const message = new ConsoleMessage({
@@ -561,6 +568,7 @@ export class Page extends EventEmitter {
 			stackTraceLocations,
 			previewString,
 			logLevel,
+			tag,
 		});
 		this.#onConsole(message);
 	}

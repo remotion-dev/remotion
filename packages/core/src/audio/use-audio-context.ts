@@ -13,7 +13,10 @@ const warnOnce = (logLevel: LogLevel) => {
 
 	// Don't pullute logs if in SSR
 	if (typeof window !== 'undefined') {
-		Log.warn(logLevel, 'AudioContext is not supported in this browser');
+		Log.warn(
+			{logLevel, tag: null},
+			'AudioContext is not supported in this browser',
+		);
 	}
 };
 

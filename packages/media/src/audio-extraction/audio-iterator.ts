@@ -116,8 +116,8 @@ export const makeAudioIterator = ({
 
 	const logOpenFrames = (logLevel: LogLevel) => {
 		Internals.Log.verbose(
-			logLevel,
-			'[Audio] Open samples for src',
+			{logLevel, tag: '@remotion/media'},
+			'Open audio samples for src',
 			src,
 			cache
 				.getOpenTimestamps()

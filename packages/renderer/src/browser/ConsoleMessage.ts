@@ -51,6 +51,7 @@ export class ConsoleMessage {
 	previewString: string;
 	#stackTraceLocations: ConsoleMessageLocation[];
 	logLevel: LogLevel;
+	tag: string | null;
 
 	constructor({
 		type,
@@ -59,6 +60,7 @@ export class ConsoleMessage {
 		stackTraceLocations,
 		previewString,
 		logLevel,
+		tag,
 	}: {
 		type: ConsoleMessageType;
 		text: string;
@@ -66,6 +68,7 @@ export class ConsoleMessage {
 		stackTraceLocations: ConsoleMessageLocation[];
 		previewString: string;
 		logLevel: LogLevel;
+		tag: string | null;
 	}) {
 		this.type = type;
 		this.text = text;
@@ -73,6 +76,7 @@ export class ConsoleMessage {
 		this.previewString = previewString;
 		this.#stackTraceLocations = stackTraceLocations;
 		this.logLevel = logLevel;
+		this.tag = tag;
 	}
 
 	stackTrace(): ConsoleMessageLocation[] {

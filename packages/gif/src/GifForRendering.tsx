@@ -1,5 +1,5 @@
 import {forwardRef, useEffect, useRef, useState} from 'react';
-import {Internals, Log, useDelayRender} from 'remotion';
+import {Internals, useDelayRender} from 'remotion';
 import {Canvas} from './canvas';
 import {volatileGifCache} from './gif-cache';
 import {isCorsError} from './is-cors-error';
@@ -69,11 +69,20 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			let aborted = false;
 			const newHandle = delayRender('Loading <Gif /> with src=' + resolvedSrc);
 
-			Log.verbose(logLevel, 'Loading GIF with source', resolvedSrc);
+			Internals.Log.verbose(
+				{logLevel, tag: null},
+				'Loading GIF with source',
+				resolvedSrc,
+			);
 			const time = Date.now();
 			parseGif({controller, src: resolvedSrc})
 				.then((parsed) => {
-					Log.verbose(logLevel, 'Parsed GIF in', Date.now() - time, 'ms');
+					Internals.Log.verbose(
+						{logLevel, tag: null},
+						'Parsed GIF in',
+						Date.now() - time,
+						'ms',
+					);
 					currentOnLoad.current?.(parsed);
 					update(parsed);
 					volatileGifCache.set(resolvedSrc, parsed);
@@ -87,7 +96,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 						return;
 					}
 
-					Log.error('Failed to load GIF', err);
+					Internals.Log.error({logLevel, tag: null}, 'Failed to load GIF', err);
 
 					if (currentOnError.current) {
 						currentOnError.current(err);
@@ -108,7 +117,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 		}, [renderHandle, logLevel, resolvedSrc, delayRender, continueRender]);
 
 		if (error) {
-			Log.error(error.stack);
+			Internals.Log.error({logLevel, tag: null}, error.stack);
 			if (isCorsError(error)) {
 				throw new Error(
 					`Failed to render GIF with source ${src}: "${error.message}". You must enable CORS for this URL.`,

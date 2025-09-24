@@ -1,3 +1,5 @@
+import {getRemotionEnvironment} from './get-remotion-environment';
+
 /* eslint-disable no-console */
 export const logLevels = ['trace', 'verbose', 'info', 'warn', 'error'] as const;
 
@@ -14,42 +16,71 @@ export const isEqualOrBelowLogLevel = (
 	return getNumberForLogLevel(currentLevel) <= getNumberForLogLevel(level);
 };
 
-const transformArgs = (
-	args: Parameters<typeof console.log>,
-	logLevel: LogLevel,
-) => {
-	return [Symbol.for(`__remotion_log_${logLevel}`), ...args];
+const transformArgs = ({
+	args,
+	logLevel,
+	tag,
+}: {
+	args: Parameters<typeof console.log>;
+	logLevel: LogLevel;
+	tag: string | null;
+}) => {
+	const arr = [...args];
+	if (
+		getRemotionEnvironment().isRendering &&
+		!getRemotionEnvironment().isClientSideRendering
+	) {
+		arr.unshift(Symbol.for(`__remotion_level_${logLevel}`));
+	}
+
+	if (tag) {
+		arr.unshift(Symbol.for(`__remotion_tag_${tag}`));
+	}
+
+	return arr;
 };
 
-const verbose = (
-	logLevel: LogLevel,
-	...args: Parameters<typeof console.log>
-) => {
-	if (isEqualOrBelowLogLevel(logLevel, 'verbose')) {
-		return console.debug(...transformArgs(args, 'verbose'));
+type Options = {
+	logLevel: LogLevel;
+	tag: string | null;
+};
+
+const verbose = (options: Options, ...args: Parameters<typeof console.log>) => {
+	if (isEqualOrBelowLogLevel(options.logLevel, 'verbose')) {
+		return console.debug(
+			...transformArgs({args, logLevel: 'verbose', tag: options.tag}),
+		);
 	}
 };
 
-const trace = (logLevel: LogLevel, ...args: Parameters<typeof console.log>) => {
-	if (isEqualOrBelowLogLevel(logLevel, 'trace')) {
-		return console.debug(...transformArgs(args, 'trace'));
+const trace = (options: Options, ...args: Parameters<typeof console.log>) => {
+	if (isEqualOrBelowLogLevel(options.logLevel, 'trace')) {
+		return console.debug(
+			...transformArgs({args, logLevel: 'trace', tag: options.tag}),
+		);
 	}
 };
 
-const info = (logLevel: LogLevel, ...args: Parameters<typeof console.log>) => {
-	if (isEqualOrBelowLogLevel(logLevel, 'info')) {
-		return console.log(...transformArgs(args, 'info'));
+const info = (options: Options, ...args: Parameters<typeof console.log>) => {
+	if (isEqualOrBelowLogLevel(options.logLevel, 'info')) {
+		return console.log(
+			...transformArgs({args, logLevel: 'info', tag: options.tag}),
+		);
 	}
 };
 
-const warn = (logLevel: LogLevel, ...args: Parameters<typeof console.log>) => {
-	if (isEqualOrBelowLogLevel(logLevel, 'warn')) {
-		return console.warn(...transformArgs(args, 'warn'));
+const warn = (options: Options, ...args: Parameters<typeof console.log>) => {
+	if (isEqualOrBelowLogLevel(options.logLevel, 'warn')) {
+		return console.warn(
+			...transformArgs({args, logLevel: 'warn', tag: options.tag}),
+		);
 	}
 };
 
-const error = (...args: Parameters<typeof console.log>) => {
-	return console.error(...transformArgs(args, 'error'));
+const error = (options: Options, ...args: Parameters<typeof console.log>) => {
+	return console.error(
+		...transformArgs({args, logLevel: 'error', tag: options.tag}),
+	);
 };
 
 export const Log = {

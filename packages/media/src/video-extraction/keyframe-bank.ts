@@ -179,8 +179,8 @@ export const makeKeyframeBank = ({
 				delete frames[frameTimestamp];
 
 				Internals.Log.verbose(
-					logLevel,
-					`[Video] Deleted frame ${frameTimestamp} for src ${src}`,
+					{logLevel, tag: '@remotion/media'},
+					`Deleted frame ${frameTimestamp} for src ${src}`,
 				);
 			}
 		}
