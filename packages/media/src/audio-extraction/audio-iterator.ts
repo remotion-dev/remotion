@@ -1,5 +1,5 @@
 import type {AudioSample, AudioSampleSink} from 'mediabunny';
-import {Log, type LogLevel} from 'remotion';
+import {Internals, type LogLevel} from 'remotion';
 import {SAFE_BACK_WINDOW_IN_SECONDS} from '../caches';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import {makeAudioCache} from './audio-cache';
@@ -115,7 +115,7 @@ export const makeAudioIterator = ({
 	};
 
 	const logOpenFrames = (logLevel: LogLevel) => {
-		Log.verbose(
+		Internals.Log.verbose(
 			logLevel,
 			'[Audio] Open samples for src',
 			src,

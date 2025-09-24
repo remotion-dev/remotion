@@ -1,4 +1,4 @@
-import {cancelRender, Log, type LogLevel} from 'remotion';
+import {cancelRender, Internals, type LogLevel} from 'remotion';
 import {makeAudioManager} from './audio-extraction/audio-manager';
 import {makeKeyframeManager} from './video-extraction/keyframe-manager';
 
@@ -40,7 +40,7 @@ const getUncachedMaxCacheSize = (logLevel: LogLevel) => {
 			);
 		}
 
-		Log.verbose(
+		Internals.Log.verbose(
 			logLevel,
 			`Using @remotion/media cache size set using "mediaCacheSizeInBytes": ${(window.remotion_mediaCacheSizeInBytes / 1024 / 1024).toFixed(1)} MB`,
 		);
@@ -53,7 +53,7 @@ const getUncachedMaxCacheSize = (logLevel: LogLevel) => {
 	) {
 		const value = window.remotion_initialMemoryAvailable / 2;
 		if (value < 240 * 1024 * 1024) {
-			Log.verbose(
+			Internals.Log.verbose(
 				logLevel,
 				`Using @remotion/media cache size set based on minimum value of 240MB (which is more than half of the available system memory!)`,
 			);
@@ -61,14 +61,14 @@ const getUncachedMaxCacheSize = (logLevel: LogLevel) => {
 		}
 
 		if (value > 20_000 * 1024 * 1024) {
-			Log.verbose(
+			Internals.Log.verbose(
 				logLevel,
 				`Using @remotion/media cache size set based on maximum value of 20GB (which is less than half of the available system memory)`,
 			);
 			return 20_000 * 1024 * 1024;
 		}
 
-		Log.verbose(
+		Internals.Log.verbose(
 			logLevel,
 			`Using @remotion/media cache size set based on available memory (50% of available memory): ${(value / 1024 / 1024).toFixed(1)} MB`,
 		);

@@ -1,5 +1,5 @@
 import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
-import {Log, type LogLevel} from 'remotion';
+import {Internals, type LogLevel} from 'remotion';
 import {
 	getMaxVideoCacheSize,
 	getTotalCacheStats,
@@ -39,14 +39,14 @@ export const makeKeyframeManager = () => {
 					continue;
 				}
 
-				Log.verbose(
+				Internals.Log.verbose(
 					logLevel,
 					`[Video] Open frames for src ${src}: ${timestamps.join(', ')}`,
 				);
 			}
 		}
 
-		Log.verbose(
+		Internals.Log.verbose(
 			logLevel,
 			`[Video] Cache stats: ${count} open frames, ${totalSize} bytes`,
 		);
@@ -103,7 +103,7 @@ export const makeKeyframeManager = () => {
 			delete sources[mostInThePastSrc][
 				mostInThePastBank.startTimestampInSeconds
 			];
-			Log.verbose(
+			Internals.Log.verbose(
 				logLevel,
 				`[Video] Deleted frames for src ${mostInThePastSrc} from ${mostInThePastBank.startTimestampInSeconds}sec to ${mostInThePastBank.endTimestampInSeconds}sec to free up memory.`,
 			);
@@ -143,7 +143,7 @@ export const makeKeyframeManager = () => {
 
 			if (endTimestampInSeconds < threshold) {
 				await bank.prepareForDeletion();
-				Log.verbose(
+				Internals.Log.verbose(
 					logLevel,
 					`[Video] Cleared frames for src ${src} from ${startTimestampInSeconds}sec to ${endTimestampInSeconds}sec`,
 				);
@@ -202,7 +202,7 @@ export const makeKeyframeManager = () => {
 			return existingBank;
 		}
 
-		Log.verbose(
+		Internals.Log.verbose(
 			logLevel,
 			`[Video] Bank exists but frames have already been evicted!`,
 		);

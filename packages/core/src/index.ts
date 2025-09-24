@@ -139,7 +139,7 @@ export * from './IFrame.js';
 export {Img, ImgProps} from './Img.js';
 export * from './internals.js';
 export {interpolateColors} from './interpolate-colors.js';
-export {Log, LogLevel} from './log.js';
+export {LogLevel} from './log.js';
 export {Loop} from './loop/index.js';
 export {
 	EasingFunction,

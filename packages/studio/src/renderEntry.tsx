@@ -23,7 +23,6 @@ import {
 	continueRender as globalContinueRender,
 	delayRender as globalDelayRender,
 	Internals,
-	Log,
 	useDelayRender,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -326,11 +325,15 @@ if (typeof window !== 'undefined') {
 
 		const canSerializeDefaultProps = getCanSerializeDefaultProps(compositions);
 		if (!canSerializeDefaultProps) {
-			Log.warn(
+			Internals.Log.warn(
 				window.remotion_logLevel,
 				'defaultProps are too big to serialize - trying to find the problematic composition...',
 			);
-			Log.warn(window.remotion_logLevel, 'Serialization:', compositions);
+			Internals.Log.warn(
+				window.remotion_logLevel,
+				'Serialization:',
+				compositions,
+			);
 			for (const comp of compositions) {
 				if (!getCanSerializeDefaultProps(comp)) {
 					throw new Error(
@@ -339,7 +342,7 @@ if (typeof window !== 'undefined') {
 				}
 			}
 
-			Log.warn(
+			Internals.Log.warn(
 				window.remotion_logLevel,
 				'Could not single out a problematic composition -  The composition list as a whole is too big to serialize.',
 			);

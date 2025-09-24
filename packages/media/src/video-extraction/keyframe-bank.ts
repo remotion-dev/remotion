@@ -1,5 +1,5 @@
 import type {VideoSample} from 'mediabunny';
-import {Log, type LogLevel} from 'remotion';
+import {Internals, type LogLevel} from 'remotion';
 
 export type KeyframeBank = {
 	startTimestampInSeconds: number;
@@ -178,7 +178,7 @@ export const makeKeyframeBank = ({
 				frames[frameTimestamp].close();
 				delete frames[frameTimestamp];
 
-				Log.verbose(
+				Internals.Log.verbose(
 					logLevel,
 					`[Video] Deleted frame ${frameTimestamp} for src ${src}`,
 				);

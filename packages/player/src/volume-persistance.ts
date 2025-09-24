@@ -1,4 +1,4 @@
-import {Log, type LogLevel} from 'remotion';
+import {Internals, type LogLevel} from 'remotion';
 
 const DEFAULT_VOLUME_PERSISTANCE_KEY = 'remotion.volumePreference';
 
@@ -20,7 +20,7 @@ export const persistVolume = (
 		// User can disallow localStorage access
 		// https://github.com/remotion-dev/remotion/issues/3540
 
-		Log.error(logLevel, 'Could not persist volume', e);
+		Internals.Log.error(logLevel, 'Could not persist volume', e);
 	}
 };
 
