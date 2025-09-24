@@ -29,9 +29,6 @@
 	"types": "dist/cjs/index.d.ts",
 	"typesVersions": {
 		">=1.0": {
-			"from-info": [
-				"./dist/cjs/from-info.d.ts"
-			],
 			"ABeeZee": [
 				"dist/cjs/ABeeZee.d.ts"
 			],
@@ -5380,6 +5377,9 @@
 			],
 			"ZillaSlabHighlight": [
 				"dist/cjs/ZillaSlabHighlight.d.ts"
+			],
+			"from-info": [
+				"./dist/cjs/from-info.d.ts"
 			]
 		}
 	},

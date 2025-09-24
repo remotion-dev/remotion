@@ -96,8 +96,9 @@ export const resampleAudioData = ({
 			const sl = getSourceValues(start, end, 3);
 			const sr = getSourceValues(start, end, 4);
 
-			const l2 = l + Math.sqrt(1 / 2) * (c + sl);
-			const r2 = r + Math.sqrt(1 / 2) * (c + sr);
+			const sq = Math.sqrt(1 / 2);
+			const l2 = l + sq * (c + sl);
+			const r2 = r + sq * (c + sr);
 
 			destination[newFrameIndex * 2 + 0] = l2;
 			destination[newFrameIndex * 2 + 1] = r2;
