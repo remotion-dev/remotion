@@ -63,7 +63,10 @@ export class MediaPlayer {
 	private gainNode: GainNode | null = null;
 
 	private sharedAudioContext: AudioContext | null = null;
-	private mediaTimeOffset: number = 0;
+
+	// offset used to sync audio timing with Remotion playback
+	// audioDelay = mediaTimestamp + audioSyncAnchor - audioContext.currentTime
+	private audioSyncAnchor: number = 0;
 
 	private playing = false;
 	private animationFrameId: number | null = null;
@@ -165,7 +168,7 @@ export class MediaPlayer {
 
 			// Initialize timing offset based on actual starting position
 			if (this.sharedAudioContext) {
-				this.mediaTimeOffset = this.sharedAudioContext.currentTime - startTime;
+				this.audioSyncAnchor = this.sharedAudioContext.currentTime - startTime;
 			}
 
 			this.initialized = true;
@@ -214,7 +217,7 @@ export class MediaPlayer {
 			Math.abs(newTime - currentPlaybackTime) > SEEK_THRESHOLD;
 
 		if (isSignificantSeek) {
-			this.mediaTimeOffset = this.sharedAudioContext.currentTime - newTime;
+			this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 
 			if (this.audioSink) {
 				await this.cleanAudioIteratorAndNodes();
@@ -312,14 +315,46 @@ export class MediaPlayer {
 		this.asyncId++;
 	}
 
-	// current position in the media
+	// since we're routing audio to the shared audio context, we need to convert the media timestamp to the audio context timeline
 	private getPlaybackTime(): number {
 		if (!this.sharedAudioContext) {
 			return 0;
 		}
 
-		// Audio context is single source of truth
-		return this.sharedAudioContext.currentTime - this.mediaTimeOffset;
+		return this.sharedAudioContext.currentTime - this.audioSyncAnchor;
+	}
+
+	private scheduleAudioChunk(
+		buffer: AudioBuffer,
+		mediaTimestamp: number,
+	): void {
+		if (!this.sharedAudioContext || !this.gainNode) {
+			return;
+		}
+
+		// calculate how long to delay this chunk for sync
+		const audioDelay =
+			mediaTimestamp +
+			this.audioSyncAnchor -
+			this.sharedAudioContext.currentTime;
+		const scheduleTime = this.sharedAudioContext.currentTime + audioDelay;
+
+		const node = this.sharedAudioContext.createBufferSource();
+		node.buffer = buffer;
+		node.connect(this.gainNode);
+
+		if (audioDelay >= 0) {
+			// schedule in the future - perfect timing
+			node.start(scheduleTime);
+		} else {
+			// we're behind - start now but skip ahead in the audio buffer
+			node.start(this.sharedAudioContext.currentTime, -audioDelay);
+		}
+
+		this.queuedAudioNodes.add(node);
+		node.onended = () => {
+			this.queuedAudioNodes.delete(node);
+		};
 	}
 
 	public onStalledChange(callback: (isStalled: boolean) => void): void {
@@ -563,26 +598,7 @@ export class MediaPlayer {
 				}
 
 				if (this.playing) {
-					// Simple timing calculation for EVERY chunk
-					const currentMediaTime = this.getPlaybackTime();
-					const timeOffset = timestamp - currentMediaTime;
-					const scheduleTime = this.sharedAudioContext.currentTime + timeOffset;
-
-					const node = this.sharedAudioContext.createBufferSource();
-					node.buffer = buffer;
-					node.connect(this.gainNode);
-
-					if (scheduleTime >= this.sharedAudioContext.currentTime) {
-						node.start(scheduleTime);
-					} else {
-						const offset = this.sharedAudioContext.currentTime - scheduleTime;
-						node.start(this.sharedAudioContext.currentTime, offset);
-					}
-
-					this.queuedAudioNodes.add(node);
-					node.onended = () => {
-						this.queuedAudioNodes.delete(node);
-					};
+					this.scheduleAudioChunk(buffer, timestamp);
 				}
 
 				// Throttling logic unchanged
