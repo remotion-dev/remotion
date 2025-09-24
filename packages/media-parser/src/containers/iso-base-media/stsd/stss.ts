@@ -33,7 +33,7 @@ export const parseStss = ({
 	const bytesRemainingInBox = boxSize - (iterator.counter.getOffset() - offset);
 
 	if (bytesRemainingInBox > 0) {
-		throw new Error(`Unexpected bytes remaining in box stss`);
+		iterator.discard(bytesRemainingInBox);
 	}
 
 	return {
