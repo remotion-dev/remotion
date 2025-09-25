@@ -38,7 +38,7 @@ export class MediaPlayer {
 
 	private gainNode: GainNode | null = null;
 
-	private sharedAudioContext: AudioContext | null = null;
+	private sharedAudioContext: AudioContext;
 
 	// audioDelay = mediaTimestamp + audioSyncAnchor - audioContext.currentTime
 	private audioSyncAnchor: number = 0;
@@ -68,12 +68,12 @@ export class MediaPlayer {
 		canvas: HTMLCanvasElement;
 		src: string;
 		logLevel: LogLevel;
-		sharedAudioContext?: AudioContext | null;
+		sharedAudioContext: AudioContext;
 	}) {
 		this.canvas = canvas;
 		this.src = src;
 		this.logLevel = logLevel ?? 'info';
-		this.sharedAudioContext = sharedAudioContext || null;
+		this.sharedAudioContext = sharedAudioContext;
 
 		const context = canvas.getContext('2d', {
 			alpha: false,
