@@ -90,11 +90,6 @@ export class MediaPlayer {
 
 	public async initialize(startTime: number = 0): Promise<void> {
 		try {
-			Internals.Log.trace(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				`[MediaPlayer] Initializing at startTime: ${startTime.toFixed(3)}s...`,
-			);
-
 			const urlSource = new UrlSource(this.src);
 
 			const input = new Input({
@@ -204,21 +199,12 @@ export class MediaPlayer {
 
 			this.playing = true;
 
-			Internals.Log.trace(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				'[MediaPlayer] Play - starting render loop',
-			);
 			this.startRenderLoop();
 		}
 	}
 
 	public pause(): void {
 		this.playing = false;
-
-		Internals.Log.trace(
-			{logLevel: this.logLevel, tag: '@remotion/media'},
-			'[MediaPlayer] Pause - stopping render loop',
-		);
 		this.cleanupAudioQueue();
 		this.stopRenderLoop();
 	}
@@ -289,10 +275,6 @@ export class MediaPlayer {
 			return;
 		}
 
-		Internals.Log.trace(
-			{logLevel: this.logLevel, tag: '@remotion/media'},
-			'[MediaPlayer] Starting render loop',
-		);
 		this.render();
 	}
 
@@ -300,10 +282,6 @@ export class MediaPlayer {
 		if (this.animationFrameId !== null) {
 			cancelAnimationFrame(this.animationFrameId);
 			this.animationFrameId = null;
-			Internals.Log.trace(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				'[MediaPlayer] Stopped render loop',
-			);
 		}
 	}
 
@@ -340,10 +318,6 @@ export class MediaPlayer {
 
 	private startAudioIterator = async (timeToSeek: number): Promise<void> => {
 		if (!this.audioSink || !this.sharedAudioContext) {
-			Internals.Log.trace(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				`[MediaPlayer] No audio sink or context - skipping audio iterator`,
-			);
 			return;
 		}
 
@@ -352,19 +326,9 @@ export class MediaPlayer {
 		this.audioIteratorStarted = false;
 		this.audioBufferHealth = 0;
 
-		Internals.Log.trace(
-			{logLevel: this.logLevel, tag: '@remotion/media'},
-			`[MediaPlayer] Starting audio iterator at ${timeToSeek.toFixed(3)}s`,
-		);
-
 		try {
 			this.audioBufferIterator = this.audioSink.buffers(timeToSeek);
 			this.runAudioIterator();
-
-			Internals.Log.trace(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				`[MediaPlayer] Audio iterator started successfully at ${timeToSeek.toFixed(3)}s`,
-			);
 		} catch (error) {
 			Internals.Log.error(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
@@ -391,10 +355,6 @@ export class MediaPlayer {
 			const secondFrame = (await this.videoFrameIterator.next()).value ?? null;
 
 			if (currentAsyncId !== this.asyncId) {
-				Internals.Log.trace(
-					{logLevel: this.logLevel, tag: '@remotion/media'},
-					`[MediaPlayer] Race condition detected, aborting startVideoIterator for ${timeToSeek.toFixed(3)}s`,
-				);
 				return;
 			}
 
