@@ -6,7 +6,8 @@ import {
 	Input,
 	UrlSource,
 } from 'mediabunny';
-import {Log, type LogLevel} from '../log';
+import type {LogLevel} from 'remotion';
+import {Internals} from 'remotion';
 import {sleep, withTimeout} from '../timeout-utils';
 
 export const SEEK_THRESHOLD = 0.05;
@@ -90,8 +91,8 @@ export class MediaPlayer {
 
 	public async initialize(startTime: number = 0): Promise<void> {
 		try {
-			Log.trace(
-				this.logLevel,
+			Internals.Log.trace(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
 				`[MediaPlayer] Initializing at startTime: ${startTime.toFixed(3)}s...`,
 			);
 
@@ -124,7 +125,8 @@ export class MediaPlayer {
 				const packetStats = await videoTrack.computePacketStats();
 				this.actualFps = packetStats.averagePacketRate;
 
-				Log.trace(
+				Internals.Log.trace(
+					{logLevel: this.logLevel, tag: '@remotion/media'},
 					this.logLevel,
 					`[MediaPlayer] Detected video FPS: ${this.actualFps}`,
 				);
@@ -148,7 +150,11 @@ export class MediaPlayer {
 
 			this.startRenderLoop();
 		} catch (error) {
-			Log.error('[MediaPlayer] Failed to initialize', error);
+			Internals.Log.error(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
+				'[MediaPlayer] Failed to initialize',
+				error,
+			);
 			throw error;
 		}
 	}
@@ -202,7 +208,8 @@ export class MediaPlayer {
 		}
 
 		try {
-			Log.trace(
+			Internals.Log.trace(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
 				this.logLevel,
 				`[MediaPlayer] Drawing initial frame at ${time.toFixed(3)}s`,
 			);
@@ -212,12 +219,14 @@ export class MediaPlayer {
 
 			if (firstFrame) {
 				this.context.drawImage(firstFrame.canvas, 0, 0);
-				Log.trace(
+				Internals.Log.trace(
+					{logLevel: this.logLevel, tag: '@remotion/media'},
 					this.logLevel,
 					`[MediaPlayer] Drew initial frame at timestamp ${firstFrame.timestamp.toFixed(3)}s`,
 				);
 			} else {
-				Log.trace(
+				Internals.Log.trace(
+					{logLevel: this.logLevel, tag: '@remotion/media'},
 					this.logLevel,
 					`[MediaPlayer] No frame available at ${time.toFixed(3)}s`,
 				);
@@ -225,7 +234,11 @@ export class MediaPlayer {
 
 			await tempIterator.return();
 		} catch (error) {
-			Log.error('[MediaPlayer] Failed to draw initial frame', error);
+			Internals.Log.error(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
+				'[MediaPlayer] Failed to draw initial frame',
+				error,
+			);
 		}
 	}
 
@@ -241,7 +254,10 @@ export class MediaPlayer {
 
 			this.playing = true;
 
-			Log.trace(this.logLevel, `[MediaPlayer] Play - starting render loop`);
+			Internals.Log.trace(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
+				'[MediaPlayer] Play - starting render loop',
+			);
 			this.startRenderLoop();
 		}
 	}
@@ -249,7 +265,10 @@ export class MediaPlayer {
 	public pause(): void {
 		this.playing = false;
 
-		Log.trace(this.logLevel, `[MediaPlayer] Pause - stopping render loop`);
+		Internals.Log.trace(
+			{logLevel: this.logLevel, tag: '@remotion/media'},
+			'[MediaPlayer] Pause - stopping render loop',
+		);
 		this.cleanupAudioQueue();
 		this.stopRenderLoop();
 	}
@@ -324,7 +343,8 @@ export class MediaPlayer {
 			this.nextFrame &&
 			this.nextFrame.timestamp <= currentPlaybackTime
 		) {
-			Log.trace(
+			Internals.Log.trace(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
 				this.logLevel,
 				`[MediaPlayer] Single frame update at ${this.nextFrame.timestamp.toFixed(3)}s`,
 			);
@@ -340,7 +360,10 @@ export class MediaPlayer {
 			return;
 		}
 
-		Log.trace(this.logLevel, `[MediaPlayer] Starting render loop`);
+		Internals.Log.trace(
+			{logLevel: this.logLevel, tag: '@remotion/media'},
+			'[MediaPlayer] Starting render loop',
+		);
 		this.render();
 	}
 
@@ -348,7 +371,10 @@ export class MediaPlayer {
 		if (this.animationFrameId !== null) {
 			cancelAnimationFrame(this.animationFrameId);
 			this.animationFrameId = null;
-			Log.trace(this.logLevel, `[MediaPlayer] Stopped render loop`);
+			Internals.Log.trace(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
+				'[MediaPlayer] Stopped render loop',
+			);
 		}
 	}
 
@@ -384,7 +410,8 @@ export class MediaPlayer {
 
 	private startAudioIterator = async (timeToSeek: number): Promise<void> => {
 		if (!this.audioSink || !this.sharedAudioContext) {
-			Log.trace(
+			Internals.Log.trace(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
 				this.logLevel,
 				`[MediaPlayer] No audio sink or context - skipping audio iterator`,
 			);
@@ -396,7 +423,8 @@ export class MediaPlayer {
 		this.audioIteratorStarted = false;
 		this.audioBufferHealth = 0;
 
-		Log.trace(
+		Internals.Log.trace(
+			{logLevel: this.logLevel, tag: '@remotion/media'},
 			this.logLevel,
 			`[MediaPlayer] Starting audio iterator at ${timeToSeek.toFixed(3)}s`,
 		);
@@ -405,12 +433,17 @@ export class MediaPlayer {
 			this.audioBufferIterator = this.audioSink.buffers(timeToSeek);
 			this.runAudioIterator();
 
-			Log.trace(
+			Internals.Log.trace(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
 				this.logLevel,
 				`[MediaPlayer] Audio iterator started successfully at ${timeToSeek.toFixed(3)}s`,
 			);
 		} catch (error) {
-			Log.error('[MediaPlayer] Failed to start audio iterator', error);
+			Internals.Log.error(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
+				'[MediaPlayer] Failed to start audio iterator',
+				error,
+			);
 		}
 	};
 
@@ -431,7 +464,8 @@ export class MediaPlayer {
 			const secondFrame = (await this.videoFrameIterator.next()).value ?? null;
 
 			if (currentAsyncId !== this.asyncId) {
-				Log.trace(
+				Internals.Log.trace(
+					{logLevel: this.logLevel, tag: '@remotion/media'},
 					this.logLevel,
 					`[MediaPlayer] Race condition detected, aborting startVideoIterator for ${timeToSeek.toFixed(3)}s`,
 				);
@@ -439,7 +473,8 @@ export class MediaPlayer {
 			}
 
 			if (firstFrame) {
-				Log.trace(
+				Internals.Log.trace(
+					{logLevel: this.logLevel, tag: '@remotion/media'},
 					this.logLevel,
 					`[MediaPlayer] Drew initial frame ${firstFrame.timestamp.toFixed(3)}s`,
 				);
@@ -449,13 +484,18 @@ export class MediaPlayer {
 			this.nextFrame = secondFrame ?? null;
 
 			if (secondFrame) {
-				Log.trace(
+				Internals.Log.trace(
+					{logLevel: this.logLevel, tag: '@remotion/media'},
 					this.logLevel,
 					`[MediaPlayer] Buffered next frame ${secondFrame.timestamp.toFixed(3)}s`,
 				);
 			}
 		} catch (error) {
-			Log.error('[MediaPlayer] Failed to start video iterator', error);
+			Internals.Log.error(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
+				'[MediaPlayer] Failed to start video iterator',
+				error,
+			);
 		}
 	};
 
@@ -476,7 +516,8 @@ export class MediaPlayer {
 				}
 
 				if (currentAsyncId !== this.asyncId) {
-					Log.trace(
+					Internals.Log.trace(
+						{logLevel: this.logLevel, tag: '@remotion/media'},
 						this.logLevel,
 						`[MediaPlayer] Race condition detected in updateNextFrame`,
 					);
@@ -485,7 +526,8 @@ export class MediaPlayer {
 
 				if (newNextFrame.timestamp <= this.getPlaybackTime()) {
 					if (!this.isBuffering && this.canRenderVideo()) {
-						Log.trace(
+						Internals.Log.trace(
+							{logLevel: this.logLevel, tag: '@remotion/media'},
 							this.logLevel,
 							`[MediaPlayer] Drawing immediate frame ${newNextFrame.timestamp.toFixed(3)}s`,
 						);
@@ -493,7 +535,8 @@ export class MediaPlayer {
 					}
 				} else {
 					this.nextFrame = newNextFrame;
-					Log.trace(
+					Internals.Log.trace(
+						{logLevel: this.logLevel, tag: '@remotion/media'},
 						this.logLevel,
 						`[MediaPlayer] Buffered next frame ${newNextFrame.timestamp.toFixed(3)}s`,
 					);
@@ -502,7 +545,11 @@ export class MediaPlayer {
 				}
 			}
 		} catch (error) {
-			Log.error('[MediaPlayer] Failed to update next frame', error);
+			Internals.Log.error(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
+				'[MediaPlayer] Failed to update next frame',
+				error,
+			);
 		}
 	};
 
@@ -536,7 +583,8 @@ export class MediaPlayer {
 			currentBufferDuration >= this.HEALTHY_BUFER_THRESHOLD_SECONDS;
 
 		if (minTimeElapsed && bufferHealthy) {
-			Log.trace(
+			Internals.Log.trace(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
 				this.logLevel,
 				`[MediaPlayer] Resuming from buffering after ${bufferingDuration}ms - buffer recovered`,
 			);
@@ -555,7 +603,8 @@ export class MediaPlayer {
 		const forceTimeout = bufferingDuration > this.minBufferingTimeoutMs * 10;
 
 		if (forceTimeout) {
-			Log.trace(
+			Internals.Log.trace(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
 				this.logLevel,
 				`[MediaPlayer] Force resuming from buffering after ${bufferingDuration}ms`,
 			);
@@ -623,7 +672,11 @@ export class MediaPlayer {
 				}
 			}
 		} catch (error) {
-			Log.error('[MediaPlayer] Failed to run audio iterator', error);
+			Internals.Log.error(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
+				'[MediaPlayer] Failed to run audio iterator',
+				error,
+			);
 		}
 	};
 }

@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
+import type {LogLevel} from 'remotion';
 import {Internals, useBufferState, useCurrentFrame} from 'remotion';
-import {Log, type LogLevel} from '../log';
 import {MediaPlayer} from './media-player';
 
 const {useUnsafeVideoConfig, Timeline, SharedAudioContext} = Internals;
@@ -62,19 +62,21 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 				.initialize(initialTimestamp)
 				.then(() => {
 					setMediaPlayerReady(true);
-					Log.trace(
-						logLevel,
+					Internals.Log.trace(
+						{logLevel, tag: '@remotion/media'},
 						`[NewVideoForPreview] MediaPlayer initialized successfully`,
 					);
 				})
 				.catch((error) => {
-					Log.error(
+					Internals.Log.error(
+						{logLevel, tag: '@remotion/media'},
 						'[NewVideoForPreview] Failed to initialize MediaPlayer',
 						error,
 					);
 				});
 		} catch (error) {
-			Log.error(
+			Internals.Log.error(
+				{logLevel, tag: '@remotion/media'},
 				'[NewVideoForPreview] MediaPlayer initialization failed',
 				error,
 			);
@@ -87,7 +89,10 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			}
 
 			if (mediaPlayerRef.current) {
-				Log.trace(logLevel, `[NewVideoForPreview] Disposing MediaPlayer`);
+				Internals.Log.trace(
+					{logLevel, tag: '@remotion/media'},
+					`[NewVideoForPreview] Disposing MediaPlayer`,
+				);
 				mediaPlayerRef.current.dispose();
 				mediaPlayerRef.current = null;
 			}
@@ -103,7 +108,11 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 		if (playing) {
 			mediaPlayer.play().catch((error) => {
-				Log.error('[NewVideoForPreview] Failed to play', error);
+				Internals.Log.error(
+					{logLevel, tag: '@remotion/media'},
+					'[NewVideoForPreview] Failed to play',
+					error,
+				);
 			});
 		} else {
 			mediaPlayer.pause();
@@ -116,8 +125,8 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		if (!mediaPlayer || !mediaPlayerReady) return;
 
 		mediaPlayer.seekTo(currentTime);
-		Log.trace(
-			logLevel,
+		Internals.Log.trace(
+			{logLevel, tag: '@remotion/media'},
 			`[NewVideoForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
 		);
 
@@ -133,16 +142,16 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			if (newBufferingState && !delayHandleRef.current) {
 				// Start blocking Remotion playback
 				delayHandleRef.current = buffer.delayPlayback();
-				Log.trace(
-					logLevel,
+				Internals.Log.trace(
+					{logLevel, tag: '@remotion/media'},
 					'[NewVideoForPreview] MediaPlayer buffering - blocking Remotion playback',
 				);
 			} else if (!newBufferingState && delayHandleRef.current) {
 				// Unblock Remotion playback
 				delayHandleRef.current.unblock();
 				delayHandleRef.current = null;
-				Log.trace(
-					logLevel,
+				Internals.Log.trace(
+					{logLevel, tag: '@remotion/media'},
 					'[NewVideoForPreview] MediaPlayer unbuffering - unblocking Remotion playback',
 				);
 			}
