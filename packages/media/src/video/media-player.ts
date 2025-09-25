@@ -127,7 +127,6 @@ export class MediaPlayer {
 
 				Internals.Log.trace(
 					{logLevel: this.logLevel, tag: '@remotion/media'},
-					this.logLevel,
 					`[MediaPlayer] Detected video FPS: ${this.actualFps}`,
 				);
 			}
@@ -199,46 +198,6 @@ export class MediaPlayer {
 
 		if (!this.playing) {
 			this.renderSingleFrame();
-		}
-	}
-
-	public async drawInitialFrame(time: number = 0): Promise<void> {
-		if (!this.initialized || !this.canvasSink) {
-			return;
-		}
-
-		try {
-			Internals.Log.trace(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				this.logLevel,
-				`[MediaPlayer] Drawing initial frame at ${time.toFixed(3)}s`,
-			);
-
-			const tempIterator = this.canvasSink.canvases(time, time + 1);
-			const firstFrame = (await tempIterator.next()).value;
-
-			if (firstFrame) {
-				this.context.drawImage(firstFrame.canvas, 0, 0);
-				Internals.Log.trace(
-					{logLevel: this.logLevel, tag: '@remotion/media'},
-					this.logLevel,
-					`[MediaPlayer] Drew initial frame at timestamp ${firstFrame.timestamp.toFixed(3)}s`,
-				);
-			} else {
-				Internals.Log.trace(
-					{logLevel: this.logLevel, tag: '@remotion/media'},
-					this.logLevel,
-					`[MediaPlayer] No frame available at ${time.toFixed(3)}s`,
-				);
-			}
-
-			await tempIterator.return();
-		} catch (error) {
-			Internals.Log.error(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				'[MediaPlayer] Failed to draw initial frame',
-				error,
-			);
 		}
 	}
 
@@ -345,7 +304,6 @@ export class MediaPlayer {
 		) {
 			Internals.Log.trace(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
-				this.logLevel,
 				`[MediaPlayer] Single frame update at ${this.nextFrame.timestamp.toFixed(3)}s`,
 			);
 			this.context.drawImage(this.nextFrame.canvas, 0, 0);
@@ -412,7 +370,6 @@ export class MediaPlayer {
 		if (!this.audioSink || !this.sharedAudioContext) {
 			Internals.Log.trace(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
-				this.logLevel,
 				`[MediaPlayer] No audio sink or context - skipping audio iterator`,
 			);
 			return;
@@ -425,7 +382,6 @@ export class MediaPlayer {
 
 		Internals.Log.trace(
 			{logLevel: this.logLevel, tag: '@remotion/media'},
-			this.logLevel,
 			`[MediaPlayer] Starting audio iterator at ${timeToSeek.toFixed(3)}s`,
 		);
 
@@ -435,7 +391,6 @@ export class MediaPlayer {
 
 			Internals.Log.trace(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
-				this.logLevel,
 				`[MediaPlayer] Audio iterator started successfully at ${timeToSeek.toFixed(3)}s`,
 			);
 		} catch (error) {
@@ -466,7 +421,6 @@ export class MediaPlayer {
 			if (currentAsyncId !== this.asyncId) {
 				Internals.Log.trace(
 					{logLevel: this.logLevel, tag: '@remotion/media'},
-					this.logLevel,
 					`[MediaPlayer] Race condition detected, aborting startVideoIterator for ${timeToSeek.toFixed(3)}s`,
 				);
 				return;
@@ -475,7 +429,6 @@ export class MediaPlayer {
 			if (firstFrame) {
 				Internals.Log.trace(
 					{logLevel: this.logLevel, tag: '@remotion/media'},
-					this.logLevel,
 					`[MediaPlayer] Drew initial frame ${firstFrame.timestamp.toFixed(3)}s`,
 				);
 				this.context.drawImage(firstFrame.canvas, 0, 0);
@@ -486,7 +439,6 @@ export class MediaPlayer {
 			if (secondFrame) {
 				Internals.Log.trace(
 					{logLevel: this.logLevel, tag: '@remotion/media'},
-					this.logLevel,
 					`[MediaPlayer] Buffered next frame ${secondFrame.timestamp.toFixed(3)}s`,
 				);
 			}
@@ -518,7 +470,6 @@ export class MediaPlayer {
 				if (currentAsyncId !== this.asyncId) {
 					Internals.Log.trace(
 						{logLevel: this.logLevel, tag: '@remotion/media'},
-						this.logLevel,
 						`[MediaPlayer] Race condition detected in updateNextFrame`,
 					);
 					break;
@@ -528,7 +479,6 @@ export class MediaPlayer {
 					if (!this.isBuffering && this.canRenderVideo()) {
 						Internals.Log.trace(
 							{logLevel: this.logLevel, tag: '@remotion/media'},
-							this.logLevel,
 							`[MediaPlayer] Drawing immediate frame ${newNextFrame.timestamp.toFixed(3)}s`,
 						);
 						this.context.drawImage(newNextFrame.canvas, 0, 0);
@@ -537,7 +487,6 @@ export class MediaPlayer {
 					this.nextFrame = newNextFrame;
 					Internals.Log.trace(
 						{logLevel: this.logLevel, tag: '@remotion/media'},
-						this.logLevel,
 						`[MediaPlayer] Buffered next frame ${newNextFrame.timestamp.toFixed(3)}s`,
 					);
 
@@ -585,7 +534,6 @@ export class MediaPlayer {
 		if (minTimeElapsed && bufferHealthy) {
 			Internals.Log.trace(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
-				this.logLevel,
 				`[MediaPlayer] Resuming from buffering after ${bufferingDuration}ms - buffer recovered`,
 			);
 			this.setBufferingState(false);
@@ -605,7 +553,6 @@ export class MediaPlayer {
 		if (forceTimeout) {
 			Internals.Log.trace(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
-				this.logLevel,
 				`[MediaPlayer] Force resuming from buffering after ${bufferingDuration}ms`,
 			);
 			this.setBufferingState(false);
