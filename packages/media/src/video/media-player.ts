@@ -50,7 +50,6 @@ export class MediaPlayer {
 
 	private initialized = false;
 	private totalDuration = 0;
-	private actualFps: number | null = null;
 
 	// for remotion buffer state
 	private isBuffering = false;
@@ -121,14 +120,6 @@ export class MediaPlayer {
 
 				this.canvas.width = videoTrack.displayWidth;
 				this.canvas.height = videoTrack.displayHeight;
-
-				const packetStats = await videoTrack.computePacketStats();
-				this.actualFps = packetStats.averagePacketRate;
-
-				Internals.Log.trace(
-					{logLevel: this.logLevel, tag: '@remotion/media'},
-					`[MediaPlayer] Detected video FPS: ${this.actualFps}`,
-				);
 			}
 
 			if (audioTrack && this.sharedAudioContext) {
