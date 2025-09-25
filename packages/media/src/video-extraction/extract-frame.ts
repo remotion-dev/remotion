@@ -21,6 +21,10 @@ export const extractFrame = async ({
 
 	const {video, getDuration} = await sinkPromises[src];
 
+	if (video === null) {
+		throw new Error(`No video track found for ${src}`);
+	}
+
 	const timeInSeconds = loop
 		? unloopedTimeinSeconds % (await getDuration())
 		: unloopedTimeinSeconds;
