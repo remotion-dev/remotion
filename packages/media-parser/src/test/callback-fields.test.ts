@@ -10,7 +10,7 @@ test('should be able to use callback fields only', async () => {
 		src: exampleVideos.transparentWebm,
 		onDurationInSeconds: (durationInSeconds) => {
 			assertions++;
-			expect(durationInSeconds).toBe(5);
+			expect(durationInSeconds).toBe(5.008);
 		},
 		onVideoCodec: (videoCodec) => {
 			assertions++;

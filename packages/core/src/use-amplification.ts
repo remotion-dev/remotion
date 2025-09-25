@@ -19,11 +19,15 @@ const warnSafariOnce = (logLevel: LogLevel) => {
 
 	warned = true;
 	Log.warn(
-		logLevel,
+		{logLevel, tag: null},
 		'In Safari, setting a volume and a playback rate at the same time is buggy.',
 	);
-	Log.warn(logLevel, 'In Desktop Safari, only volumes <= 1 will be applied.');
 	Log.warn(
+		{logLevel, tag: null},
+		'In Desktop Safari, only volumes <= 1 will be applied.',
+	);
+	Log.warn(
+		{logLevel, tag: null},
 		logLevel,
 		'In Mobile Safari, the volume will be ignored and set to 1 if a playbackRate is set.',
 	);
@@ -97,7 +101,7 @@ export const useVolume = ({
 			};
 
 			Log.trace(
-				logLevel,
+				{logLevel, tag: null},
 				`Starting to amplify ${mediaRef.current?.src}. Gain = ${currentVolumeRef.current}, playbackRate = ${mediaRef.current?.playbackRate}`,
 			);
 
@@ -119,7 +123,7 @@ export const useVolume = ({
 		) {
 			audioStuffRef.current.gainNode.gain.value = valueToSet;
 			Log.trace(
-				logLevel,
+				{logLevel, tag: null},
 				`Setting gain to ${valueToSet} for ${mediaRef.current?.src}`,
 			);
 		}

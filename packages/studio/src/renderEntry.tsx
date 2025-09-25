@@ -326,11 +326,11 @@ if (typeof window !== 'undefined') {
 		const canSerializeDefaultProps = getCanSerializeDefaultProps(compositions);
 		if (!canSerializeDefaultProps) {
 			Internals.Log.warn(
-				window.remotion_logLevel,
+				{logLevel: window.remotion_logLevel, tag: null},
 				'defaultProps are too big to serialize - trying to find the problematic composition...',
 			);
 			Internals.Log.warn(
-				window.remotion_logLevel,
+				{logLevel: window.remotion_logLevel, tag: null},
 				'Serialization:',
 				compositions,
 			);
@@ -343,7 +343,7 @@ if (typeof window !== 'undefined') {
 			}
 
 			Internals.Log.warn(
-				window.remotion_logLevel,
+				{logLevel: window.remotion_logLevel, tag: null},
 				'Could not single out a problematic composition -  The composition list as a whole is too big to serialize.',
 			);
 

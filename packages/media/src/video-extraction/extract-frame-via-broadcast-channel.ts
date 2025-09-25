@@ -1,6 +1,6 @@
+import {type LogLevel} from 'remotion';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
-import type {LogLevel} from '../log';
 
 type ExtractFrameRequest = {
 	type: 'request';

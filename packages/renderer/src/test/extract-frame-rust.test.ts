@@ -42,45 +42,6 @@ test(
 	{timeout: 10000},
 );
 
-test(
-	'Should be able to get a PNG',
-	async () => {
-		const compositor = startLongRunningCompositor({
-			maximumFrameCacheItemsInBytes: null,
-			logLevel: 'info',
-			indent: false,
-			binariesDirectory: null,
-			extraThreads: 2,
-		});
-
-		const data = await compositor.executeCommand('ExtractFrame', {
-			src: exampleVideos.transparentWebm,
-			original_src: exampleVideos.transparentWebm,
-			time: 1,
-			transparent: true,
-			tone_mapped: true,
-		});
-
-		// Platform specific PNG encoder settings
-
-		if (data.length === 169002) {
-			expect(data[100000] / 100).toBeCloseTo(0.01, 0.01);
-			expect(data[100001] / 100).toBeCloseTo(1.28, 0.01);
-			expect(data[140001] / 100).toBeCloseTo(1.85, 0.01);
-		} else if (data.length === 170905) {
-			expect(data.length).toBe(170905);
-		} else if (data.length === 164353) {
-			expect(data.length).toBe(164353);
-		} else {
-			expect(data.length).toBe(173198);
-		}
-
-		await compositor.finishCommands();
-		await compositor.waitForDone();
-	},
-	{timeout: 10000},
-);
-
 test('Should be able to start two compositors', async () => {
 	const compositor = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,

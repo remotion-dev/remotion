@@ -20,7 +20,7 @@ export const persistVolume = (
 		// User can disallow localStorage access
 		// https://github.com/remotion-dev/remotion/issues/3540
 
-		Internals.Log.error(logLevel, 'Could not persist volume', e);
+		Internals.Log.error({logLevel, tag: null}, 'Could not persist volume', e);
 	}
 };
 
