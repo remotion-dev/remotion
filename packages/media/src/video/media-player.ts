@@ -40,7 +40,7 @@ export class MediaPlayer {
 
 	private sharedAudioContext: AudioContext;
 
-	// audioDelay = mediaTimestamp + audioSyncAnchor - audioContext.currentTime
+	// audioDelay = mediaTimestamp + audioSyncAnchor - sharedAudioContext.currentTime
 	private audioSyncAnchor: number = 0;
 
 	private playing = false;
