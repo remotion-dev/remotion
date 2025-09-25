@@ -46,7 +46,7 @@ export class MediaPlayer {
 	private playing = false;
 	private animationFrameId: number | null = null;
 
-	private asyncId = 0;
+	private videoAsyncId = 0;
 
 	private initialized = false;
 	private totalDuration = 0;
@@ -79,6 +79,7 @@ export class MediaPlayer {
 			alpha: false,
 			desynchronized: true,
 		});
+
 		if (!context) {
 			throw new Error('Could not get 2D context from canvas');
 		}
@@ -222,7 +223,7 @@ export class MediaPlayer {
 		this.stopRenderLoop();
 		this.videoFrameIterator?.return();
 		this.cleanAudioIteratorAndNodes();
-		this.asyncId++;
+		this.videoAsyncId++;
 	}
 
 	private getPlaybackTime(): number {
@@ -340,8 +341,8 @@ export class MediaPlayer {
 			return;
 		}
 
-		this.asyncId++;
-		const currentAsyncId = this.asyncId;
+		this.videoAsyncId++;
+		const currentAsyncId = this.videoAsyncId;
 
 		await this.videoFrameIterator?.return();
 
@@ -351,7 +352,7 @@ export class MediaPlayer {
 			const firstFrame = (await this.videoFrameIterator.next()).value ?? null;
 			const secondFrame = (await this.videoFrameIterator.next()).value ?? null;
 
-			if (currentAsyncId !== this.asyncId) {
+			if (currentAsyncId !== this.videoAsyncId) {
 				return;
 			}
 
