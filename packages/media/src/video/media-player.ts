@@ -428,22 +428,12 @@ export class MediaPlayer {
 			return;
 		}
 
-		const currentAsyncId = this.asyncId;
-
 		try {
 			while (true) {
 				const newNextFrame =
 					(await this.videoFrameIterator.next()).value ?? null;
 
 				if (!newNextFrame) {
-					break;
-				}
-
-				if (currentAsyncId !== this.asyncId) {
-					Internals.Log.trace(
-						{logLevel: this.logLevel, tag: '@remotion/media'},
-						`[MediaPlayer] Race condition detected in updateNextFrame`,
-					);
 					break;
 				}
 
