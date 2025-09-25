@@ -188,7 +188,7 @@ export class MediaPlayer {
 		}
 
 		if (!this.playing) {
-			this.renderSingleFrame();
+			this.render();
 		}
 	}
 
@@ -284,26 +284,6 @@ export class MediaPlayer {
 		);
 	}
 
-	private renderSingleFrame(): void {
-		const currentPlaybackTime = this.getPlaybackTime();
-		const canRenderVideo = this.canRenderVideo();
-
-		if (
-			canRenderVideo &&
-			this.nextFrame &&
-			this.nextFrame.timestamp <= currentPlaybackTime
-		) {
-			Internals.Log.trace(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				`[MediaPlayer] Single frame update at ${this.nextFrame.timestamp.toFixed(3)}s`,
-			);
-			this.context.drawImage(this.nextFrame.canvas, 0, 0);
-
-			this.nextFrame = null;
-			this.updateNextFrame();
-		}
-	}
-
 	private startRenderLoop(): void {
 		if (this.animationFrameId !== null) {
 			return;
@@ -328,34 +308,35 @@ export class MediaPlayer {
 	}
 
 	private render = (): void => {
-		const currentPlaybackTime = this.getPlaybackTime();
-
 		if (this.isBuffering) {
 			this.maybeForceResumeFromBuffering();
 		}
 
-		const canRenderVideo = this.canRenderVideo();
-
-		if (
-			!this.isBuffering &&
-			canRenderVideo &&
-			this.nextFrame &&
-			this.nextFrame.timestamp <= currentPlaybackTime
-		) {
-			this.context.drawImage(this.nextFrame.canvas, 0, 0);
-
-			this.nextFrame = null;
-
-			this.updateNextFrame();
+		if (this.shouldRenderFrame()) {
+			this.drawCurrentFrame();
 		}
 
-		// continue render loop only if playing
 		if (this.playing) {
 			this.animationFrameId = requestAnimationFrame(this.render);
 		} else {
 			this.animationFrameId = null;
 		}
 	};
+
+	private shouldRenderFrame(): boolean {
+		return (
+			!this.isBuffering &&
+			this.canRenderVideo() &&
+			this.nextFrame !== null &&
+			this.nextFrame.timestamp <= this.getPlaybackTime()
+		);
+	}
+
+	private drawCurrentFrame(): void {
+		this.context.drawImage(this.nextFrame!.canvas, 0, 0);
+		this.nextFrame = null;
+		this.updateNextFrame();
+	}
 
 	private startAudioIterator = async (timeToSeek: number): Promise<void> => {
 		if (!this.audioSink || !this.sharedAudioContext) {
@@ -467,13 +448,7 @@ export class MediaPlayer {
 				}
 
 				if (newNextFrame.timestamp <= this.getPlaybackTime()) {
-					if (!this.isBuffering && this.canRenderVideo()) {
-						Internals.Log.trace(
-							{logLevel: this.logLevel, tag: '@remotion/media'},
-							`[MediaPlayer] Drawing immediate frame ${newNextFrame.timestamp.toFixed(3)}s`,
-						);
-						this.context.drawImage(newNextFrame.canvas, 0, 0);
-					}
+					continue;
 				} else {
 					this.nextFrame = newNextFrame;
 					Internals.Log.trace(
