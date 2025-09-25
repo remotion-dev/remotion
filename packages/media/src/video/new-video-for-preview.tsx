@@ -21,7 +21,6 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
-	const lastCurrentTimeRef = useRef<number>(-1);
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
@@ -129,8 +128,6 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			{logLevel, tag: '@remotion/media'},
 			`[NewVideoForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
 		);
-
-		lastCurrentTimeRef.current = currentTime;
 	}, [currentTime, logLevel, mediaPlayerReady]);
 
 	// sync MediaPlayer buffering with Remotion buffering
