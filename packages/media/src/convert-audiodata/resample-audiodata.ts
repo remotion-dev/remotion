@@ -24,20 +24,39 @@ export const resampleAudioData = ({
 		end: number,
 		channelIndex: number,
 	) => {
-		const sampleCountAvg = end - start;
+		const startFloor = Math.floor(start);
+		const startFraction = start - startFloor;
+		const endFraction = end - Math.floor(end);
 
-		let itemSum = 0;
-		let itemCount = 0;
-		for (let k = 0; k < sampleCountAvg; k++) {
-			const num =
-				sourceChannels[(start + k) * srcNumberOfChannels + channelIndex];
-			itemSum += num;
-			itemCount++;
+		let weightedSum = 0;
+		let totalWeight = 0;
+
+		// Handle first fractional sample
+		if (startFraction > 0) {
+			const firstSample =
+				sourceChannels[Math.floor(start) * srcNumberOfChannels + channelIndex];
+			weightedSum += firstSample * (1 - startFraction);
+			totalWeight += 1 - startFraction;
 		}
 
-		const average = itemSum / itemCount;
+		// Handle full samples
+		for (let k = Math.ceil(start); k < Math.floor(end); k++) {
+			const num = sourceChannels[k * srcNumberOfChannels + channelIndex];
+			weightedSum += num;
+			totalWeight += 1;
+		}
 
+		// Handle last fractional sample
+		if (endFraction > 0) {
+			const lastSample =
+				sourceChannels[Math.floor(end) * srcNumberOfChannels + channelIndex];
+			weightedSum += lastSample * endFraction;
+			totalWeight += endFraction;
+		}
+
+		const average = weightedSum / totalWeight;
 		const averageVolume = average * volume;
+
 		if (averageVolume < -32768) {
 			return -32768;
 		}
@@ -50,8 +69,8 @@ export const resampleAudioData = ({
 	};
 
 	for (let newFrameIndex = 0; newFrameIndex < targetFrames; newFrameIndex++) {
-		const start = Math.floor(newFrameIndex * chunkSize);
-		const end = Math.max(Math.floor(start + chunkSize), start + 1);
+		const start = newFrameIndex * chunkSize;
+		const end = start + chunkSize;
 
 		if (TARGET_NUMBER_OF_CHANNELS === srcNumberOfChannels) {
 			for (let i = 0; i < srcNumberOfChannels; i++) {
