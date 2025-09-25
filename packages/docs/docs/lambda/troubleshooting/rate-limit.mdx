@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-lambda-troubleshooting-rate-limit.png
 id: rate-limit
-sidebar_label: TooManyRequestsException
+sidebar_label: ConcurrentInvocationLimitExceeded
 title: AWS Rate Limit Troubleshooting
 crumb: 'Lambda Troubleshooting'
 ---
@@ -10,6 +10,12 @@ If you get an error message:
 
 ```
 TooManyRequestsException: Rate Exceeded.
+```
+
+or
+
+```
+ConcurrentInvocationLimitExceeded
 ```
 
 while calling a Lambda function, it means your concurrency limit has been reached.

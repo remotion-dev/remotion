@@ -192,7 +192,10 @@ export const callFunctionWithStreamingImplementation = async <
 		// Do not remove this await
 		await callLambdaWithStreamingWithoutRetry<T, Provider>(options);
 	} catch (err) {
-		if ((err as Error).stack?.includes('TooManyRequestsException')) {
+		if (
+			(err as Error).stack?.includes('TooManyRequestsException') ||
+			(err as Error).message?.includes('ConcurrentInvocationLimitExceeded')
+		) {
 			throw new Error(
 				`AWS Concurrency limit reached (Original Error: ${(err as Error).message}). See https://www.remotion.dev/docs/lambda/troubleshooting/rate-limit for tips to fix this.`,
 			);
