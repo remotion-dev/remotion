@@ -8,7 +8,7 @@ import {
 } from 'mediabunny';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
-import {sleep, withTimeout} from '../timeout-utils';
+import {sleep, withTimeout} from './timeout-utils';
 
 export const SEEK_THRESHOLD = 0.05;
 
@@ -88,6 +88,18 @@ export class MediaPlayer {
 
 	private input: Input<UrlSource> | null = null;
 
+	private isReady(): boolean {
+		return this.initialized && Boolean(this.sharedAudioContext);
+	}
+
+	private hasAudio(): boolean {
+		return Boolean(this.audioSink && this.sharedAudioContext && this.gainNode);
+	}
+
+	private isCurrentlyBuffering(): boolean {
+		return this.isBuffering && Boolean(this.bufferingStartedAtMs);
+	}
+
 	public async initialize(startTime: number = 0): Promise<void> {
 		try {
 			const urlSource = new UrlSource(this.src);
@@ -162,9 +174,7 @@ export class MediaPlayer {
 	}
 
 	public async seekTo(time: number): Promise<void> {
-		if (!this.initialized || !this.sharedAudioContext) {
-			return;
-		}
+		if (!this.isReady()) return;
 
 		const newTime = Math.max(0, Math.min(time, this.totalDuration));
 		const currentPlaybackTime = this.getPlaybackTime();
@@ -188,9 +198,7 @@ export class MediaPlayer {
 	}
 
 	public async play(): Promise<void> {
-		if (!this.initialized || !this.sharedAudioContext) {
-			return;
-		}
+		if (!this.isReady()) return;
 
 		if (!this.playing) {
 			if (this.sharedAudioContext.state === 'suspended') {
@@ -217,12 +225,7 @@ export class MediaPlayer {
 		this.asyncId++;
 	}
 
-	// since we're routing audio to the shared audio context, we need to convert the media timestamp to the audio context timeline
 	private getPlaybackTime(): number {
-		if (!this.sharedAudioContext) {
-			return 0;
-		}
-
 		return this.sharedAudioContext.currentTime - this.audioSyncAnchor;
 	}
 
@@ -230,10 +233,6 @@ export class MediaPlayer {
 		buffer: AudioBuffer,
 		mediaTimestamp: number,
 	): void {
-		if (!this.sharedAudioContext || !this.gainNode) {
-			return;
-		}
-
 		// calculate how long to delay this chunk for sync
 		const audioDelay =
 			mediaTimestamp +
@@ -243,7 +242,7 @@ export class MediaPlayer {
 
 		const node = this.sharedAudioContext.createBufferSource();
 		node.buffer = buffer;
-		node.connect(this.gainNode);
+		node.connect(this.gainNode!);
 
 		if (audioDelay >= 0) {
 			// schedule in the future - perfect timing
@@ -317,9 +316,7 @@ export class MediaPlayer {
 	}
 
 	private startAudioIterator = async (timeToSeek: number): Promise<void> => {
-		if (!this.audioSink || !this.sharedAudioContext) {
-			return;
-		}
+		if (!this.hasAudio()) return;
 
 		// Clean up existing audio iterator
 		await this.audioBufferIterator?.return();
@@ -327,7 +324,7 @@ export class MediaPlayer {
 		this.audioBufferHealth = 0;
 
 		try {
-			this.audioBufferIterator = this.audioSink.buffers(timeToSeek);
+			this.audioBufferIterator = this.audioSink!.buffers(timeToSeek);
 			this.runAudioIterator();
 		} catch (error) {
 			Internals.Log.error(
@@ -436,12 +433,10 @@ export class MediaPlayer {
 	}
 
 	private maybeResumeFromBuffering(currentBufferDuration: number): void {
-		if (!this.isBuffering || !this.bufferingStartedAtMs) {
-			return;
-		}
+		if (!this.isCurrentlyBuffering()) return;
 
 		const now = performance.now();
-		const bufferingDuration = now - this.bufferingStartedAtMs;
+		const bufferingDuration = now - this.bufferingStartedAtMs!;
 
 		const minTimeElapsed = bufferingDuration >= this.minBufferingTimeoutMs;
 		const bufferHealthy =
@@ -456,14 +451,11 @@ export class MediaPlayer {
 		}
 	}
 
-	// used to resume from buffering in case buffer was not healthy enough and timeout passed
 	private maybeForceResumeFromBuffering(): void {
-		if (!this.isBuffering || !this.bufferingStartedAtMs) {
-			return;
-		}
+		if (!this.isCurrentlyBuffering()) return;
 
 		const now = performance.now();
-		const bufferingDuration = now - this.bufferingStartedAtMs;
+		const bufferingDuration = now - this.bufferingStartedAtMs!;
 		const forceTimeout = bufferingDuration > this.minBufferingTimeoutMs * 10;
 
 		if (forceTimeout) {
@@ -476,14 +468,7 @@ export class MediaPlayer {
 	}
 
 	private runAudioIterator = async (): Promise<void> => {
-		if (
-			!this.audioSink ||
-			!this.sharedAudioContext ||
-			!this.audioBufferIterator ||
-			!this.gainNode
-		) {
-			return;
-		}
+		if (!this.hasAudio() || !this.audioBufferIterator) return;
 
 		try {
 			let totalBufferDuration = 0;
