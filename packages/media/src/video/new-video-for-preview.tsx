@@ -124,26 +124,26 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		lastCurrentTimeRef.current = currentTime;
 	}, [currentTime, logLevel, mediaPlayerReady]);
 
-	// sync MediaPlayer stalling with Remotion buffering
+	// sync MediaPlayer buffering with Remotion buffering
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
 
-		mediaPlayer.onStalledChange((isStalled) => {
-			if (isStalled && !delayHandleRef.current) {
+		mediaPlayer.onBufferingChange((newBufferingState) => {
+			if (newBufferingState && !delayHandleRef.current) {
 				// Start blocking Remotion playback
 				delayHandleRef.current = buffer.delayPlayback();
 				Log.trace(
 					logLevel,
-					'[NewVideoForPreview] MediaPlayer stalled - blocking Remotion playback',
+					'[NewVideoForPreview] MediaPlayer buffering - blocking Remotion playback',
 				);
-			} else if (!isStalled && delayHandleRef.current) {
+			} else if (!newBufferingState && delayHandleRef.current) {
 				// Unblock Remotion playback
 				delayHandleRef.current.unblock();
 				delayHandleRef.current = null;
 				Log.trace(
 					logLevel,
-					'[NewVideoForPreview] MediaPlayer unstalled - unblocking Remotion playback',
+					'[NewVideoForPreview] MediaPlayer unbuffering - unblocking Remotion playback',
 				);
 			}
 		});

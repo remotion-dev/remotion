@@ -7,34 +7,9 @@ import {
 	UrlSource,
 } from 'mediabunny';
 import {Log, type LogLevel} from '../log';
+import {sleep, withTimeout} from '../timeout-utils';
 
-/* eslint-disable no-promise-executor-return */
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const SEEK_THRESHOLD = 0.05;
-
-function withTimeout<T>(
-	promise: Promise<T>,
-	timeoutMs: number,
-	errorMessage: string = 'Operation timed out',
-): Promise<T> {
-	let timeoutId: number | null = null;
-
-	const timeoutPromise = new Promise<never>((_, reject) => {
-		timeoutId = window.setTimeout(() => {
-			reject(new Error(errorMessage));
-		}, timeoutMs);
-	});
-
-	return Promise.race([
-		promise.finally(() => {
-			if (timeoutId) {
-				clearTimeout(timeoutId);
-			}
-		}),
-		timeoutPromise,
-	]);
-}
+export const SEEK_THRESHOLD = 0.05;
 
 export class MediaPlayer {
 	private canvas: HTMLCanvasElement;
@@ -64,7 +39,6 @@ export class MediaPlayer {
 
 	private sharedAudioContext: AudioContext | null = null;
 
-	// offset used to sync audio timing with Remotion playback
 	// audioDelay = mediaTimestamp + audioSyncAnchor - audioContext.currentTime
 	private audioSyncAnchor: number = 0;
 
@@ -78,13 +52,12 @@ export class MediaPlayer {
 	private actualFps: number | null = null;
 
 	// for remotion buffer state
-	private isStalled = false;
-	private onStalledChangeCallback?: (isStalled: boolean) => void;
+	private isBuffering = false;
+	private onBufferingChangeCallback?: (isBuffering: boolean) => void;
 
-	// Audio-first buffering strategy (MediaBunny pattern)
-	private audioBufferHealth = 0; // seconds of audio buffered ahead
+	private audioBufferHealth = 0;
 	private audioIteratorStarted = false;
-	private readonly HEALTHY_BUFER_THRESHOLD = 1;
+	private readonly HEALTHY_BUFER_THRESHOLD_SECONDS = 1;
 
 	constructor({
 		canvas,
@@ -111,16 +84,11 @@ export class MediaPlayer {
 		}
 
 		this.context = context;
-
-		Log.trace(this.logLevel, `[MediaPlayer] Created for src: ${src}`);
 	}
 
-	public async initialize(startTime: number = 0): Promise<void> {
-		if (this.initialized) {
-			Log.trace(this.logLevel, `[MediaPlayer] Already initialized, skipping`);
-			return;
-		}
+	private input: Input<UrlSource> | null = null;
 
+	public async initialize(startTime: number = 0): Promise<void> {
 		try {
 			Log.trace(
 				this.logLevel,
@@ -133,6 +101,8 @@ export class MediaPlayer {
 				source: urlSource,
 				formats: ALL_FORMATS,
 			});
+
+			this.input = input;
 
 			this.totalDuration = await input.computeDuration();
 			const videoTrack = await input.getPrimaryVideoTrack();
@@ -151,7 +121,6 @@ export class MediaPlayer {
 				this.canvas.width = videoTrack.displayWidth;
 				this.canvas.height = videoTrack.displayHeight;
 
-				// Extract actual FPS for stall detection
 				const packetStats = await videoTrack.computePacketStats();
 				this.actualFps = packetStats.averagePacketRate;
 
@@ -167,27 +136,17 @@ export class MediaPlayer {
 				this.gainNode.connect(this.sharedAudioContext.destination);
 			}
 
-			// Audio-first strategy: audio will start first regardless of content type
-
-			// Initialize timing offset based on actual starting position
 			if (this.sharedAudioContext) {
 				this.audioSyncAnchor = this.sharedAudioContext.currentTime - startTime;
 			}
 
 			this.initialized = true;
 
-			// Start audio iterator first as the buffering signal (MediaBunny strategy)
 			await this.startAudioIterator(startTime);
 
-			// Start video iterator after audio is ready
 			await this.startVideoIterator(startTime);
 
 			this.startRenderLoop();
-
-			Log.trace(
-				this.logLevel,
-				`[MediaPlayer] Initialized successfully with iterators started, duration: ${this.totalDuration}s`,
-			);
 		} catch (error) {
 			Log.error('[MediaPlayer] Failed to initialize', error);
 			throw error;
@@ -239,10 +198,6 @@ export class MediaPlayer {
 
 	public async drawInitialFrame(time: number = 0): Promise<void> {
 		if (!this.initialized || !this.canvasSink) {
-			Log.trace(
-				this.logLevel,
-				`[MediaPlayer] Cannot draw initial frame - not initialized or no canvas sink`,
-			);
 			return;
 		}
 
@@ -252,8 +207,7 @@ export class MediaPlayer {
 				`[MediaPlayer] Drawing initial frame at ${time.toFixed(3)}s`,
 			);
 
-			// create temporary iterator just to get the first frame
-			const tempIterator = this.canvasSink.canvases(time);
+			const tempIterator = this.canvasSink.canvases(time, time + 1);
 			const firstFrame = (await tempIterator.next()).value;
 
 			if (firstFrame) {
@@ -269,7 +223,6 @@ export class MediaPlayer {
 				);
 			}
 
-			// clean up the temporary iterator
 			await tempIterator.return();
 		} catch (error) {
 			Log.error('[MediaPlayer] Failed to draw initial frame', error);
@@ -302,23 +255,10 @@ export class MediaPlayer {
 	}
 
 	public dispose(): void {
-		Log.trace(this.logLevel, `[MediaPlayer] Disposing...`);
-
+		this.input?.dispose();
 		this.stopRenderLoop();
-
-		// clean up video resources
 		this.videoFrameIterator?.return();
-		this.videoFrameIterator = null;
-		this.nextFrame = null;
-		this.canvasSink = null;
-
 		this.cleanAudioIteratorAndNodes();
-		this.audioSink = null;
-		this.gainNode = null;
-		this.audioIteratorStarted = false;
-		this.audioBufferHealth = 0;
-
-		this.initialized = false;
 		this.asyncId++;
 	}
 
@@ -364,14 +304,14 @@ export class MediaPlayer {
 		};
 	}
 
-	public onStalledChange(callback: (isStalled: boolean) => void): void {
-		this.onStalledChangeCallback = callback;
+	public onBufferingChange(callback: (isBuffering: boolean) => void): void {
+		this.onBufferingChangeCallback = callback;
 	}
 
 	private canRenderVideo(): boolean {
 		return (
 			this.audioIteratorStarted &&
-			this.audioBufferHealth >= this.HEALTHY_BUFER_THRESHOLD
+			this.audioBufferHealth >= this.HEALTHY_BUFER_THRESHOLD_SECONDS
 		);
 	}
 
@@ -415,14 +355,14 @@ export class MediaPlayer {
 	private render = (): void => {
 		const currentPlaybackTime = this.getPlaybackTime();
 
-		if (this.isStalled) {
-			this.maybeForceResumeFromStall();
+		if (this.isBuffering) {
+			this.maybeForceResumeFromBuffering();
 		}
 
 		const canRenderVideo = this.canRenderVideo();
 
 		if (
-			!this.isStalled &&
+			!this.isBuffering &&
 			canRenderVideo &&
 			this.nextFrame &&
 			this.nextFrame.timestamp <= currentPlaybackTime
@@ -504,8 +444,6 @@ export class MediaPlayer {
 					`[MediaPlayer] Drew initial frame ${firstFrame.timestamp.toFixed(3)}s`,
 				);
 				this.context.drawImage(firstFrame.canvas, 0, 0);
-
-				// Audio is already started as buffering signal
 			}
 
 			this.nextFrame = secondFrame ?? null;
@@ -515,8 +453,6 @@ export class MediaPlayer {
 					this.logLevel,
 					`[MediaPlayer] Buffered next frame ${secondFrame.timestamp.toFixed(3)}s`,
 				);
-
-				// Audio is already started as buffering signal
 			}
 		} catch (error) {
 			Log.error('[MediaPlayer] Failed to start video iterator', error);
@@ -534,6 +470,7 @@ export class MediaPlayer {
 			while (true) {
 				const newNextFrame =
 					(await this.videoFrameIterator.next()).value ?? null;
+
 				if (!newNextFrame) {
 					break;
 				}
@@ -547,8 +484,7 @@ export class MediaPlayer {
 				}
 
 				if (newNextFrame.timestamp <= this.getPlaybackTime()) {
-					// Only draw immediate frames if not stalled and can render video (audio-first throttling)
-					if (!this.isStalled && this.canRenderVideo()) {
+					if (!this.isBuffering && this.canRenderVideo()) {
 						Log.trace(
 							this.logLevel,
 							`[MediaPlayer] Drawing immediate frame ${newNextFrame.timestamp.toFixed(3)}s`,
@@ -562,8 +498,6 @@ export class MediaPlayer {
 						`[MediaPlayer] Buffered next frame ${newNextFrame.timestamp.toFixed(3)}s`,
 					);
 
-					// Audio is already started as buffering signal
-
 					break;
 				}
 			}
@@ -572,58 +506,60 @@ export class MediaPlayer {
 		}
 	};
 
-	private stallStartedAtMs: number | null = null;
-	private minStalledTimeoutMs: number = 500;
+	private bufferingStartedAtMs: number | null = null;
+	private minBufferingTimeoutMs: number = 500;
 
-	private setStalledState(isStalled: boolean): void {
-		if (this.isStalled !== isStalled) {
-			this.isStalled = isStalled;
+	private setBufferingState(isBuffering: boolean): void {
+		if (this.isBuffering !== isBuffering) {
+			this.isBuffering = isBuffering;
 
-			if (isStalled) {
-				this.stallStartedAtMs = performance.now();
-				this.onStalledChangeCallback?.(true);
+			if (isBuffering) {
+				this.bufferingStartedAtMs = performance.now();
+				this.onBufferingChangeCallback?.(true);
 			} else {
-				this.stallStartedAtMs = null;
-				this.onStalledChangeCallback?.(false);
+				this.bufferingStartedAtMs = null;
+				this.onBufferingChangeCallback?.(false);
 			}
 		}
 	}
 
-	private maybeResumeFromStall(currentBufferDuration: number): void {
-		if (!this.isStalled || !this.stallStartedAtMs) {
+	private maybeResumeFromBuffering(currentBufferDuration: number): void {
+		if (!this.isBuffering || !this.bufferingStartedAtMs) {
 			return;
 		}
 
 		const now = performance.now();
-		const stallDuration = now - this.stallStartedAtMs;
+		const bufferingDuration = now - this.bufferingStartedAtMs;
 
-		const minTimeElapsed = stallDuration >= this.minStalledTimeoutMs;
-		const bufferHealthy = currentBufferDuration >= this.HEALTHY_BUFER_THRESHOLD;
+		const minTimeElapsed = bufferingDuration >= this.minBufferingTimeoutMs;
+		const bufferHealthy =
+			currentBufferDuration >= this.HEALTHY_BUFER_THRESHOLD_SECONDS;
 
 		if (minTimeElapsed && bufferHealthy) {
 			Log.trace(
 				this.logLevel,
-				`[MediaPlayer] Resuming from stall after ${stallDuration}ms - buffer recovered`,
+				`[MediaPlayer] Resuming from buffering after ${bufferingDuration}ms - buffer recovered`,
 			);
-			this.setStalledState(false);
+			this.setBufferingState(false);
 		}
 	}
 
-	private maybeForceResumeFromStall(): void {
-		if (!this.isStalled || !this.stallStartedAtMs) {
+	// used to resume from buffering in case buffer was not healthy enough and timeout passed
+	private maybeForceResumeFromBuffering(): void {
+		if (!this.isBuffering || !this.bufferingStartedAtMs) {
 			return;
 		}
 
 		const now = performance.now();
-		const stallDuration = now - this.stallStartedAtMs;
-		const forceTimeout = stallDuration > this.minStalledTimeoutMs * 10;
+		const bufferingDuration = now - this.bufferingStartedAtMs;
+		const forceTimeout = bufferingDuration > this.minBufferingTimeoutMs * 10;
 
 		if (forceTimeout) {
 			Log.trace(
 				this.logLevel,
-				`[MediaPlayer] Force resuming from stall after ${stallDuration}ms`,
+				`[MediaPlayer] Force resuming from buffering after ${bufferingDuration}ms`,
 			);
-			this.setStalledState(false);
+			this.setBufferingState(false);
 		}
 	}
 
@@ -642,17 +578,17 @@ export class MediaPlayer {
 			this.audioIteratorStarted = true;
 
 			while (true) {
-				const STALL_TIMEOUT_MS = 50;
+				const BUFFERING_TIMEOUT_MS = 50;
 
 				let result: IteratorResult<WrappedAudioBuffer, void>;
 				try {
 					result = await withTimeout(
 						this.audioBufferIterator.next(),
-						STALL_TIMEOUT_MS,
+						BUFFERING_TIMEOUT_MS,
 						'Iterator timeout',
 					);
 				} catch {
-					this.setStalledState(true);
+					this.setBufferingState(true);
 					await sleep(10);
 					continue;
 				}
@@ -666,13 +602,12 @@ export class MediaPlayer {
 
 				this.audioBufferHealth = Math.max(0, totalBufferDuration);
 
-				this.maybeResumeFromStall(totalBufferDuration);
+				this.maybeResumeFromBuffering(totalBufferDuration);
 
 				if (this.playing) {
 					this.scheduleAudioChunk(buffer, timestamp);
 				}
 
-				// Throttling logic unchanged
 				if (timestamp - this.getPlaybackTime() >= 1) {
 					await new Promise<void>((resolve) => {
 						const check = () => {
