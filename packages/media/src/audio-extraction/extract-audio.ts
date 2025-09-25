@@ -13,14 +13,16 @@ import {getSinks} from '../video-extraction/get-frames-since-keyframe';
 export const extractAudio = async ({
 	src,
 	timeInSeconds: unloopedTimeInSeconds,
-	durationInSeconds,
+	durationInSeconds: durationInSecondsWithoutPlaybackRate,
 	volume,
+	playbackRate,
 	logLevel,
 	loop,
 }: {
 	src: string;
 	timeInSeconds: number;
 	durationInSeconds: number;
+	playbackRate: number;
 	volume: number;
 	logLevel: LogLevel;
 	loop: boolean;
@@ -28,6 +30,8 @@ export const extractAudio = async ({
 	if (!sinkPromises[src]) {
 		sinkPromises[src] = getSinks(src);
 	}
+
+	const durationInSeconds = durationInSecondsWithoutPlaybackRate * playbackRate;
 
 	const {audio, actualMatroskaTimestamps, isMatroska, getDuration} =
 		await sinkPromises[src];
@@ -83,7 +87,6 @@ export const extractAudio = async ({
 		let trimStartInSeconds = 0;
 		let trimEndInSeconds = 0;
 
-		// TODO: Apply playback rate
 		// TODO: Apply tone frequency
 
 		if (isFirstSample) {
