@@ -4,6 +4,18 @@ export const TARGET_NUMBER_OF_CHANNELS = 2;
 // Remotion exports all videos with 48kHz sample rate.
 export const TARGET_SAMPLE_RATE = 48000;
 
+const fixFloatingPoint = (value: number) => {
+	if (value % 1 < 0.0000001) {
+		return Math.floor(value);
+	}
+
+	if (value % 1 > 0.9999999) {
+		return Math.ceil(value);
+	}
+
+	return value;
+};
+
 export const resampleAudioData = ({
 	srcNumberOfChannels,
 	sourceChannels,
@@ -20,13 +32,17 @@ export const resampleAudioData = ({
 	volume: number;
 }) => {
 	const getSourceValues = (
-		start: number,
-		end: number,
+		startUnfixed: number,
+		endUnfixed: number,
 		channelIndex: number,
 	) => {
+		const start = fixFloatingPoint(startUnfixed);
+		const end = fixFloatingPoint(endUnfixed);
 		const startFloor = Math.floor(start);
+		const startCeil = Math.ceil(start);
 		const startFraction = start - startFloor;
 		const endFraction = end - Math.floor(end);
+		const endFloor = Math.floor(end);
 
 		let weightedSum = 0;
 		let totalWeight = 0;
@@ -34,13 +50,13 @@ export const resampleAudioData = ({
 		// Handle first fractional sample
 		if (startFraction > 0) {
 			const firstSample =
-				sourceChannels[Math.floor(start) * srcNumberOfChannels + channelIndex];
+				sourceChannels[startFloor * srcNumberOfChannels + channelIndex];
 			weightedSum += firstSample * (1 - startFraction);
 			totalWeight += 1 - startFraction;
 		}
 
 		// Handle full samples
-		for (let k = Math.ceil(start); k < Math.floor(end); k++) {
+		for (let k = startCeil; k < endFloor; k++) {
 			const num = sourceChannels[k * srcNumberOfChannels + channelIndex];
 			weightedSum += num;
 			totalWeight += 1;
@@ -49,7 +65,7 @@ export const resampleAudioData = ({
 		// Handle last fractional sample
 		if (endFraction > 0) {
 			const lastSample =
-				sourceChannels[Math.floor(end) * srcNumberOfChannels + channelIndex];
+				sourceChannels[endFloor * srcNumberOfChannels + channelIndex];
 			weightedSum += lastSample * endFraction;
 			totalWeight += endFraction;
 		}
