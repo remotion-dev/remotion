@@ -1,13 +1,15 @@
-import type {LogLevel, VolumeProp} from 'remotion';
+import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
 
 export type AudioProps = {
 	src: string;
 	trimBefore?: number;
 	trimAfter?: number;
 	volume?: VolumeProp;
+	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	name?: string;
 	pauseWhenBuffering?: boolean;
 	showInTimeline?: boolean;
+	playbackRate?: number;
 	muted?: boolean;
 	delayRenderRetries?: number;
 	delayRenderTimeoutInMilliseconds?: number;
@@ -19,5 +21,4 @@ export type AudioProps = {
 	logLevel?: LogLevel;
 	loop?: boolean;
 	_remotionInternalNativeLoopPassed?: boolean;
-	playbackRate?: number;
 };
