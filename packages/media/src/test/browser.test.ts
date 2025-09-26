@@ -91,17 +91,16 @@ test('Should be apply volume correctly', async () => {
 		loop: false,
 	});
 
-	const audioAtHalfVolume = applyVolume(audioAtFullVolume!.data, 0.5);
-
-	assert(!frame);
-
 	const totalAudioAtFullVolume = audioAtFullVolume?.data.reduce((acc, curr) => {
 		const unrounded = curr * 0.5;
 		const rounded = curr > 0 ? Math.floor(unrounded) : Math.ceil(unrounded);
 		return acc + rounded;
 	}, 0);
-	assert(audioAtHalfVolume);
-	const totalAudioAtHalfVolume = audioAtHalfVolume.reduce(
+	applyVolume(audioAtFullVolume!.data, 0.5);
+
+	assert(!frame);
+
+	const totalAudioAtHalfVolume = audioAtFullVolume?.data.reduce(
 		(acc, curr) => acc + curr,
 		0,
 	);

@@ -7,6 +7,7 @@ import {
 	useDelayRender,
 	useRemotionEnvironment,
 } from 'remotion';
+import {applyVolume} from '../convert-audiodata/apply-volume';
 import {frameForVolumeProp} from '../looped-frame';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {AudioProps} from './props';
@@ -98,6 +99,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				Internals.warnAboutTooHighVolume(volume);
 
 				if (audio && volume > 0) {
+					applyVolume(audio.data, volume);
 					registerRenderAsset({
 						type: 'inline-audio',
 						id,

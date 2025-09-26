@@ -1,6 +1,6 @@
-export const applyVolume = (array: Int16Array, volume: number) => {
+export const applyVolume = (array: Int16Array, volume: number): void => {
 	if (volume === 1) {
-		return array;
+		return;
 	}
 
 	for (let i = 0; i < array.length; i++) {
@@ -14,6 +14,4 @@ export const applyVolume = (array: Int16Array, volume: number) => {
 			array[i] = newValue;
 		}
 	}
-
-	return array;
 };

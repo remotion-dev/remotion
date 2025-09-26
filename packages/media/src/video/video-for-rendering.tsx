@@ -137,10 +137,11 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 					Internals.warnAboutTooHighVolume(volume);
 
 					if (audio && volume > 0) {
+						applyVolume(audio.data, volume);
 						registerRenderAsset({
 							type: 'inline-audio',
 							id,
-							audio: Array.from(applyVolume(audio.data, volume)),
+							audio: Array.from(audio.data),
 							sampleRate: audio.sampleRate,
 							numberOfChannels: audio.numberOfChannels,
 							frame: absoluteFrame,
