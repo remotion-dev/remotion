@@ -20,6 +20,14 @@ export type PcmS16AudioData = {
 	timestamp: number;
 };
 
+const roundButRoundDownZeroPointFive = (value: number) => {
+	if (value % 1 <= 0.5) {
+		return Math.floor(value);
+	}
+
+	return Math.ceil(value);
+};
+
 export const convertAudioData = ({
 	audioData,
 	newSampleRate,
@@ -36,7 +44,9 @@ export const convertAudioData = ({
 	} = audioData;
 	const ratio = currentSampleRate / newSampleRate;
 
-	const frameOffset = Math.round(trimStartInSeconds * audioData.sampleRate);
+	const frameOffset = roundButRoundDownZeroPointFive(
+		trimStartInSeconds * audioData.sampleRate,
+	);
 	const unroundedFrameCount =
 		numberOfFrames -
 		(trimEndInSeconds + trimStartInSeconds) * audioData.sampleRate;
@@ -57,11 +67,17 @@ export const convertAudioData = ({
 	}
 
 	const srcChannels = new Int16Array(srcNumberOfChannels * frameCount);
+	console.log({
+		frameCount,
+		frameOffset,
+		numberOfFrames,
+		audioData: audioData.numberOfFrames - frameOffset,
+	});
 
 	audioData.copyTo(srcChannels, {
 		planeIndex: 0,
 		format: FORMAT,
-		frameOffset,
+		frameOffset: Math.round(frameOffset),
 		frameCount,
 	});
 
@@ -90,7 +106,6 @@ export const convertAudioData = ({
 		targetFrames: newNumberOfFrames,
 		chunkSize,
 		volume,
-		playbackRate,
 	});
 
 	const newAudioData = {

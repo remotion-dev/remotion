@@ -4,7 +4,7 @@ export const TARGET_NUMBER_OF_CHANNELS = 2;
 // Remotion exports all videos with 48kHz sample rate.
 export const TARGET_SAMPLE_RATE = 48000;
 
-const fixFloatingPoint = (value: number) => {
+export const fixFloatingPoint = (value: number) => {
 	if (value % 1 < 0.0000001) {
 		return Math.floor(value);
 	}
@@ -23,7 +23,6 @@ export const resampleAudioData = ({
 	targetFrames,
 	chunkSize,
 	volume,
-	playbackRate,
 }: {
 	srcNumberOfChannels: number;
 	sourceChannels: Int16Array;
@@ -31,7 +30,6 @@ export const resampleAudioData = ({
 	targetFrames: number;
 	chunkSize: number;
 	volume: number;
-	playbackRate: number;
 }) => {
 	const getSourceValues = (
 		startUnfixed: number,
@@ -87,8 +85,8 @@ export const resampleAudioData = ({
 	};
 
 	for (let newFrameIndex = 0; newFrameIndex < targetFrames; newFrameIndex++) {
-		const start = newFrameIndex * (chunkSize * playbackRate);
-		const end = start + chunkSize * playbackRate;
+		const start = newFrameIndex * chunkSize;
+		const end = start + chunkSize;
 
 		if (TARGET_NUMBER_OF_CHANNELS === srcNumberOfChannels) {
 			for (let i = 0; i < srcNumberOfChannels; i++) {
@@ -149,6 +147,4 @@ export const resampleAudioData = ({
 			}
 		}
 	}
-
-	console.log(destination.byteLength, targetFrames);
 };
