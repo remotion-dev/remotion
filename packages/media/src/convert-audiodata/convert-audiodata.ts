@@ -71,7 +71,7 @@ export const convertAudioData = ({
 	audioData.copyTo(srcChannels, {
 		planeIndex: 0,
 		format: FORMAT,
-		frameOffset: Math.round(frameOffset),
+		frameOffset,
 		frameCount,
 	});
 
