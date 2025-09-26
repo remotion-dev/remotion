@@ -67,12 +67,6 @@ export const convertAudioData = ({
 	}
 
 	const srcChannels = new Int16Array(srcNumberOfChannels * frameCount);
-	console.log({
-		frameCount,
-		frameOffset,
-		numberOfFrames,
-		audioData: audioData.numberOfFrames - frameOffset,
-	});
 
 	audioData.copyTo(srcChannels, {
 		planeIndex: 0,

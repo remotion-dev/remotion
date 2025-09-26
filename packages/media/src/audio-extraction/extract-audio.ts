@@ -125,12 +125,6 @@ export const extractAudio = async ({
 	}
 
 	const combined = combineAudioDataAndClosePrevious(audioDataArray);
-	console.log({
-		durationInSecondsWithoutPlaybackRate: durationInSeconds,
-		durationInSeconds,
-		timeInSeconds,
-		numberOfFrames: combined.numberOfFrames,
-	});
 
 	return combined;
 };
