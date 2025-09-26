@@ -22,14 +22,12 @@ export const resampleAudioData = ({
 	destination,
 	targetFrames,
 	chunkSize,
-	volume,
 }: {
 	srcNumberOfChannels: number;
 	sourceChannels: Int16Array;
 	destination: Int16Array;
 	targetFrames: number;
 	chunkSize: number;
-	volume: number;
 }) => {
 	const getSourceValues = (
 		startUnfixed: number,
@@ -71,17 +69,8 @@ export const resampleAudioData = ({
 		}
 
 		const average = weightedSum / totalWeight;
-		const averageVolume = average * volume;
 
-		if (averageVolume < -32768) {
-			return -32768;
-		}
-
-		if (averageVolume > 32767) {
-			return 32767;
-		}
-
-		return averageVolume;
+		return average;
 	};
 
 	for (let newFrameIndex = 0; newFrameIndex < targetFrames; newFrameIndex++) {

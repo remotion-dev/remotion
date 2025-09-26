@@ -12,7 +12,6 @@ type ExtractFrameRequest = {
 	logLevel: LogLevel;
 	includeAudio: boolean;
 	includeVideo: boolean;
-	volume: number;
 	loop: boolean;
 };
 
@@ -22,6 +21,7 @@ type ExtractFrameResponse =
 			id: string;
 			frame: ImageBitmap | null;
 			audio: PcmS16AudioData | null;
+			durationInSeconds: number | null;
 	  }
 	| {
 			type: 'response-error';
@@ -37,7 +37,7 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 			const data = event.data as ExtractFrameRequest;
 			if (data.type === 'request') {
 				try {
-					const {frame, audio} = await extractFrameAndAudio({
+					const {frame, audio, durationInSeconds} = await extractFrameAndAudio({
 						src: data.src,
 						timeInSeconds: data.timeInSeconds,
 						logLevel: data.logLevel,
@@ -45,7 +45,6 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						playbackRate: data.playbackRate,
 						includeAudio: data.includeAudio,
 						includeVideo: data.includeVideo,
-						volume: data.volume,
 						loop: data.loop,
 					});
 
@@ -62,6 +61,7 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						id: data.id,
 						frame: imageBitmap,
 						audio,
+						durationInSeconds: durationInSeconds ?? null,
 					};
 
 					window.remotion_broadcastChannel!.postMessage(response);
@@ -91,7 +91,6 @@ export const extractFrameViaBroadcastChannel = ({
 	includeAudio,
 	includeVideo,
 	isClientSideRendering,
-	volume,
 	loop,
 }: {
 	src: string;
@@ -102,11 +101,11 @@ export const extractFrameViaBroadcastChannel = ({
 	includeAudio: boolean;
 	includeVideo: boolean;
 	isClientSideRendering: boolean;
-	volume: number;
 	loop: boolean;
 }): Promise<{
 	frame: ImageBitmap | VideoFrame | null;
 	audio: PcmS16AudioData | null;
+	durationInSeconds: number | null;
 }> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
@@ -117,7 +116,6 @@ export const extractFrameViaBroadcastChannel = ({
 			playbackRate,
 			includeAudio,
 			includeVideo,
-			volume,
 			loop,
 		});
 	}
@@ -127,6 +125,7 @@ export const extractFrameViaBroadcastChannel = ({
 	const resolvePromise = new Promise<{
 		frame: ImageBitmap | null;
 		audio: PcmS16AudioData | null;
+		durationInSeconds: number | null;
 	}>((resolve, reject) => {
 		const onMessage = (event: MessageEvent) => {
 			const data = event.data as ExtractFrameResponse;
@@ -139,6 +138,9 @@ export const extractFrameViaBroadcastChannel = ({
 				resolve({
 					frame: data.frame ? data.frame : null,
 					audio: data.audio ? data.audio : null,
+					durationInSeconds: data.durationInSeconds
+						? data.durationInSeconds
+						: null,
 				});
 				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
@@ -166,7 +168,6 @@ export const extractFrameViaBroadcastChannel = ({
 		playbackRate,
 		includeAudio,
 		includeVideo,
-		volume,
 		loop,
 	};
 

@@ -13,6 +13,8 @@ import {
 	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
+import {applyVolume} from '../convert-audiodata/apply-volume';
+import {frameForVolumeProp} from '../looped-frame';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {VideoProps} from './props';
 
@@ -31,49 +33,25 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	style,
 	className,
 }) => {
-	const absoluteFrame = Internals.useTimelinePosition();
-	const {fps} = useVideoConfig();
-	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const {registerRenderAsset, unregisterRenderAsset} = useContext(
-		Internals.RenderAssetManager,
-	);
-	const frame = useCurrentFrame();
-	const volumePropsFrame = Internals.useFrameForVolumeProp(
-		loopVolumeCurveBehavior ?? 'repeat',
-	);
-	const environment = useRemotionEnvironment();
-
-	const [id] = useState(() => `${Math.random()}`.replace('0.', ''));
-
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
 	}
 
-	const volume = Internals.evaluateVolume({
-		volume: volumeProp,
-		frame: volumePropsFrame,
-		mediaVolume: 1,
-	});
+	const frame = useCurrentFrame();
+	const absoluteFrame = Internals.useTimelinePosition();
 
-	Internals.warnAboutTooHighVolume(volume);
+	const {fps} = useVideoConfig();
+	const {registerRenderAsset, unregisterRenderAsset} = useContext(
+		Internals.RenderAssetManager,
+	);
+	const startsAt = Internals.useMediaStartsAt();
 
-	const shouldRenderAudio = useMemo(() => {
-		if (!window.remotion_audioEnabled) {
-			return false;
-		}
+	const [id] = useState(() => `${Math.random()}`.replace('0.', ''));
 
-		if (muted) {
-			return false;
-		}
-
-		if (volume <= 0) {
-			return false;
-		}
-
-		return true;
-	}, [muted, volume]);
-
+	const environment = useRemotionEnvironment();
 	const {delayRender, continueRender} = useDelayRender();
+
+	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
@@ -89,6 +67,18 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
 
+		const shouldRenderAudio = (() => {
+			if (!window.remotion_audioEnabled) {
+				return false;
+			}
+
+			if (muted) {
+				return false;
+			}
+
+			return true;
+		})();
+
 		extractFrameViaBroadcastChannel({
 			src,
 			timeInSeconds: timestamp,
@@ -98,48 +88,71 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 			includeAudio: shouldRenderAudio,
 			includeVideo: window.remotion_videoEnabled,
 			isClientSideRendering: environment.isClientSideRendering,
-			volume,
 			loop: loop ?? false,
 		})
-			.then(({frame: imageBitmap, audio}) => {
-				if (imageBitmap) {
-					onVideoFrame?.(imageBitmap);
-					const context = canvasRef.current?.getContext('2d');
-					if (!context) {
-						return;
+			.then(
+				({
+					frame: imageBitmap,
+					audio,
+					durationInSeconds: assetDurationInSeconds,
+				}) => {
+					if (imageBitmap) {
+						onVideoFrame?.(imageBitmap);
+						const context = canvasRef.current?.getContext('2d');
+						if (!context) {
+							return;
+						}
+
+						context.canvas.width =
+							imageBitmap instanceof ImageBitmap
+								? imageBitmap.width
+								: imageBitmap.displayWidth;
+						context.canvas.height =
+							imageBitmap instanceof ImageBitmap
+								? imageBitmap.height
+								: imageBitmap.displayHeight;
+						context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
+						context.drawImage(imageBitmap, 0, 0);
+
+						imageBitmap.close();
+					} else if (window.remotion_videoEnabled) {
+						cancelRender(new Error('No video frame found'));
 					}
 
-					context.canvas.width =
-						imageBitmap instanceof ImageBitmap
-							? imageBitmap.width
-							: imageBitmap.displayWidth;
-					context.canvas.height =
-						imageBitmap instanceof ImageBitmap
-							? imageBitmap.height
-							: imageBitmap.displayHeight;
-					context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
-					context.drawImage(imageBitmap, 0, 0);
-
-					imageBitmap.close();
-				} else if (window.remotion_videoEnabled) {
-					cancelRender(new Error('No video frame found'));
-				}
-
-				if (audio) {
-					registerRenderAsset({
-						type: 'inline-audio',
-						id,
-						audio: Array.from(audio.data),
-						sampleRate: audio.sampleRate,
-						numberOfChannels: audio.numberOfChannels,
-						frame: absoluteFrame,
-						timestamp: audio.timestamp,
-						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
+					const volumePropsFrame = frameForVolumeProp({
+						behavior: loopVolumeCurveBehavior ?? 'repeat',
+						loop: loop ?? false,
+						assetDurationInSeconds: assetDurationInSeconds ?? 0,
+						fps,
+						frame,
+						startsAt,
 					});
-				}
 
-				continueRender(newHandle);
-			})
+					const volume = Internals.evaluateVolume({
+						volume: volumeProp,
+						frame: volumePropsFrame,
+						mediaVolume: 1,
+					});
+
+					Internals.warnAboutTooHighVolume(volume);
+
+					if (audio && volume > 0) {
+						applyVolume(audio.data, volume);
+						registerRenderAsset({
+							type: 'inline-audio',
+							id,
+							audio: Array.from(audio.data),
+							sampleRate: audio.sampleRate,
+							numberOfChannels: audio.numberOfChannels,
+							frame: absoluteFrame,
+							timestamp: audio.timestamp,
+							duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
+						});
+					}
+
+					continueRender(newHandle);
+				},
+			)
 			.catch((error) => {
 				cancelRender(error);
 			});
@@ -159,14 +172,16 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		frame,
 		id,
 		logLevel,
+		loop,
+		loopVolumeCurveBehavior,
+		muted,
 		onVideoFrame,
 		playbackRate,
 		registerRenderAsset,
-		shouldRenderAudio,
 		src,
+		startsAt,
 		unregisterRenderAsset,
-		volume,
-		loop,
+		volumeProp,
 	]);
 
 	const classNameValue = useMemo(() => {
