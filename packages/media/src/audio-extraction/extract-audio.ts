@@ -95,6 +95,15 @@ export const extractAudio = async ({
 
 		if (isFirstSample) {
 			trimStartInSeconds = timeInSeconds - sample.timestamp;
+			if (trimStartInSeconds < 0 && trimStartInSeconds > -1e-10) {
+				trimStartInSeconds = 0;
+			}
+
+			if (trimStartInSeconds < 0) {
+				throw new Error(
+					`trimStartInSeconds is negative: ${trimStartInSeconds}`,
+				);
+			}
 		}
 
 		if (isLastSample) {
