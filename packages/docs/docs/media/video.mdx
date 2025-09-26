@@ -87,8 +87,6 @@ Removes a portion of the video at the end (right side). See [`trimBefore`](#trim
 
 ### `volume?`
 
-### `volume?`
-
 Allows you to control the volume of the audio in it's entirety or frame by frame.  
 Read the page on [using audio](/docs/using-audio) to learn more.
 
@@ -207,10 +205,6 @@ Controls the `frame` which is returned when using the [`volume`](#volume) callba
 
 Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
 
-### `acceptableTimeShiftInSeconds?`
-
-**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
-
 ### `pauseWhenBuffering?`
 
 If set to `true` and the video is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
@@ -227,23 +221,11 @@ Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delay
 
 Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.
 
-### `onAutoPlayError?`
-
-**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
-
 ### `onVideoFrame?`
 
 A callback function that gets called when a frame is extracted from the video.  
 Useful for [video manipulation](/docs/video-manipulation).  
 The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object, more specifically, either an `ImageBitmap` or a `VideoFrame`.
-
-### `crossOrigin?`
-
-**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
-
-### `useWebAudioApi?`
-
-**Pending removal**: Future iterations will also have client-side playback and not support this prop which was designed for the `<video>` tag.
 
 ## Setting the cache size
 
