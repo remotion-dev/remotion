@@ -33,7 +33,6 @@ export const Audio: React.FC<AudioProps> = (props) => {
 		stack,
 		showInTimeline,
 		loop,
-		playbackRate,
 		...otherProps
 	} = props;
 	const environment = useRemotionEnvironment();
@@ -135,7 +134,6 @@ export const Audio: React.FC<AudioProps> = (props) => {
 			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			_remotionInternalNeedsDurationCalculation={Boolean(loop)}
 			showInTimeline={showInTimeline ?? true}
-			playbackRate={playbackRate}
 		/>
 	);
 };
