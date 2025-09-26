@@ -127,14 +127,13 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		frame,
 		id,
 		logLevel,
+		playbackRate,
 		registerRenderAsset,
 		shouldRenderAudio,
 		src,
 		unregisterRenderAsset,
 		volume,
 		loop,
-		playbackRate,
-		loopVolumeCurveBehavior,
 	]);
 
 	return null;
