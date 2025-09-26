@@ -201,8 +201,6 @@ export const makeInlineAudioMixing = (dir: string) => {
 			asset.numberOfChannels *
 			BYTES_PER_SAMPLE;
 
-		console.log('writing', positionInSeconds, position, arr.byteLength / 4);
-
 		writeSync(
 			// fs
 			fileDescriptor,
