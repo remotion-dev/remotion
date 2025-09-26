@@ -20,18 +20,17 @@ export const getSinks = async (src: string) => {
 	const format = await input.getFormat();
 
 	const videoTrack = await input.getPrimaryVideoTrack();
-	if (!videoTrack) {
-		throw new Error(`No video track found for ${src}`);
-	}
 
 	const audioTrack = await input.getPrimaryAudioTrack();
 	const isMatroska = format === MATROSKA;
 
 	return {
-		video: {
-			sampleSink: new VideoSampleSink(videoTrack),
-			packetSink: new EncodedPacketSink(videoTrack),
-		},
+		video: videoTrack
+			? {
+					sampleSink: new VideoSampleSink(videoTrack),
+					packetSink: new EncodedPacketSink(videoTrack),
+				}
+			: null,
 		audio: audioTrack
 			? {
 					sampleSink: new AudioSampleSink(audioTrack),

@@ -7,6 +7,7 @@ export type ConvertAudioDataOptions = {
 	trimEndInSeconds: number;
 	targetNumberOfChannels: number;
 	volume: number;
+	playbackRate: number;
 };
 
 const FORMAT: AudioSampleFormat = 's16';
@@ -19,6 +20,14 @@ export type PcmS16AudioData = {
 	timestamp: number;
 };
 
+const roundButRoundDownZeroPointFive = (value: number) => {
+	if (value % 1 <= 0.5) {
+		return Math.floor(value);
+	}
+
+	return Math.ceil(value);
+};
+
 export const convertAudioData = ({
 	audioData,
 	newSampleRate,
@@ -26,6 +35,7 @@ export const convertAudioData = ({
 	trimEndInSeconds,
 	targetNumberOfChannels,
 	volume,
+	playbackRate,
 }: ConvertAudioDataOptions): PcmS16AudioData => {
 	const {
 		numberOfChannels: srcNumberOfChannels,
@@ -34,12 +44,17 @@ export const convertAudioData = ({
 	} = audioData;
 	const ratio = currentSampleRate / newSampleRate;
 
-	const frameOffset = Math.round(trimStartInSeconds * audioData.sampleRate);
-	const frameCount =
+	const frameOffset = roundButRoundDownZeroPointFive(
+		trimStartInSeconds * audioData.sampleRate,
+	);
+	const unroundedFrameCount =
 		numberOfFrames -
-		Math.round((trimEndInSeconds + trimStartInSeconds) * audioData.sampleRate);
+		(trimEndInSeconds + trimStartInSeconds) * audioData.sampleRate;
 
-	const newNumberOfFrames = Math.round(frameCount / ratio);
+	const frameCount = Math.round(unroundedFrameCount);
+	const newNumberOfFrames = Math.round(
+		unroundedFrameCount / ratio / playbackRate,
+	);
 
 	if (newNumberOfFrames === 0) {
 		throw new Error(
@@ -66,7 +81,8 @@ export const convertAudioData = ({
 	if (
 		newNumberOfFrames === frameCount &&
 		targetNumberOfChannels === srcNumberOfChannels &&
-		volume === 1
+		volume === 1 &&
+		playbackRate === 1
 	) {
 		return {
 			data: srcChannels,
