@@ -234,29 +234,21 @@ export class MediaPlayer {
 		buffer: AudioBuffer,
 		mediaTimestamp: number,
 	): void {
-		// calculate how long to delay this chunk for sync
-		const audioDelay =
-			mediaTimestamp +
-			this.audioSyncAnchor -
-			this.sharedAudioContext.currentTime;
-		const scheduleTime = this.sharedAudioContext.currentTime + audioDelay;
+		const targetTime = mediaTimestamp + this.audioSyncAnchor;
+		const delay = targetTime - this.sharedAudioContext.currentTime;
 
 		const node = this.sharedAudioContext.createBufferSource();
 		node.buffer = buffer;
 		node.connect(this.gainNode!);
 
-		if (audioDelay >= 0) {
-			// schedule in the future - perfect timing
-			node.start(scheduleTime);
+		if (delay >= 0) {
+			node.start(targetTime);
 		} else {
-			// we're behind - start now but skip ahead in the audio buffer
-			node.start(this.sharedAudioContext.currentTime, -audioDelay);
+			node.start(this.sharedAudioContext.currentTime, -delay);
 		}
 
 		this.queuedAudioNodes.add(node);
-		node.onended = () => {
-			this.queuedAudioNodes.delete(node);
-		};
+		node.onended = () => this.queuedAudioNodes.delete(node);
 	}
 
 	public onBufferingChange(callback: (isBuffering: boolean) => void): void {
@@ -473,6 +465,7 @@ export class MediaPlayer {
 
 		try {
 			let totalBufferDuration = 0;
+			let isFirstBuffer = true;
 			this.audioIteratorStarted = true;
 
 			while (true) {
@@ -496,6 +489,7 @@ export class MediaPlayer {
 				}
 
 				const {buffer, timestamp, duration} = result.value;
+
 				totalBufferDuration += duration;
 
 				this.audioBufferHealth = Math.max(0, totalBufferDuration);
@@ -503,6 +497,12 @@ export class MediaPlayer {
 				this.maybeResumeFromBuffering(totalBufferDuration);
 
 				if (this.playing) {
+					if (isFirstBuffer) {
+						this.audioSyncAnchor =
+							this.sharedAudioContext.currentTime - timestamp;
+						isFirstBuffer = false;
+					}
+
 					this.scheduleAudioChunk(buffer, timestamp);
 				}
 
