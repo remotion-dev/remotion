@@ -79,6 +79,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			src,
 			timeInSeconds: timestamp,
 			durationInSeconds,
+			playbackRate: playbackRate ?? 1,
 			logLevel: logLevel ?? 'info',
 			includeAudio: shouldRenderAudio,
 			includeVideo: false,

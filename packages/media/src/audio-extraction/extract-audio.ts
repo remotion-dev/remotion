@@ -17,6 +17,7 @@ export const extractAudio = async ({
 	volume,
 	logLevel,
 	loop,
+	playbackRate,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -24,6 +25,7 @@ export const extractAudio = async ({
 	volume: number;
 	logLevel: LogLevel;
 	loop: boolean;
+	playbackRate: number;
 }): Promise<PcmS16AudioData | null> => {
 	if (!sinkPromises[src]) {
 		sinkPromises[src] = getSinks(src);
@@ -83,7 +85,6 @@ export const extractAudio = async ({
 		let trimStartInSeconds = 0;
 		let trimEndInSeconds = 0;
 
-		// TODO: Apply playback rate
 		// TODO: Apply tone frequency
 
 		if (isFirstSample) {
@@ -108,6 +109,7 @@ export const extractAudio = async ({
 			trimEndInSeconds,
 			targetNumberOfChannels: TARGET_NUMBER_OF_CHANNELS,
 			volume,
+			playbackRate,
 		});
 		audioDataRaw.close();
 

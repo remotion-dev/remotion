@@ -10,7 +10,7 @@ Not to be confused with the older [`<Audio>`](/docs/audio) tag from `remotion`.
 :::
 
 :::warning
-**Very experimental**: This component is in a very early stage and does not support some basic features such as playback rate.
+**Very experimental**: This component is in a very early stage.
 The current focus is on correctness, not on performance.
 
 We recommend that you use [`<Audio />`](/docs/audio) for now.
@@ -124,9 +124,27 @@ A name and that will be shown as the label of the sequence in the timeline of th
 
 **Currently not supported!**
 
-### `playbackRate?`
+### `playbackRate?`<AvailableFrom v="4.0.354" />
 
-Controls the speed of the video. `1` is the default and means regular speed, `0.5` slows down the video so it's twice as long and `2` speeds up the video so it's twice as fast.
+Controls the speed of the audio. `1` is the default and means regular speed, `0.5` slows down the audio so it's twice as long and `2` speeds up the audio so it's twice as fast.
+
+```tsx twoslash title="Example of a audio playing twice as fast"
+import {AbsoluteFill, staticFile} from 'remotion';
+import {experimental_Audio as Audio} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio playbackRate={2} src={'https://remotion.media/audio.mp3'} />
+    </AbsoluteFill>
+  );
+};
+```
+
+:::note
+Playing a audio in reverse is not supported.
+:::
 
 ### `loop?`<AvailableFrom v="3.2.29" />
 

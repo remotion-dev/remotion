@@ -92,6 +92,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 			src,
 			timeInSeconds: timestamp,
 			durationInSeconds,
+			playbackRate: playbackRate ?? 1,
 			logLevel: logLevel ?? 'info',
 			includeAudio: shouldRenderAudio,
 			includeVideo: window.remotion_videoEnabled,
