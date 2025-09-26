@@ -1,5 +1,5 @@
 import type React from 'react';
-import {useContext, useLayoutEffect, useMemo, useState} from 'react';
+import {useContext, useLayoutEffect, useState} from 'react';
 import {
 	cancelRender,
 	Internals,
@@ -7,6 +7,7 @@ import {
 	useDelayRender,
 	useRemotionEnvironment,
 } from 'remotion';
+import {frameForVolumeProp} from '../looped-frame';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {AudioProps} from './props';
 
@@ -21,15 +22,15 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	logLevel = window.remotion_logLevel,
 	loop,
 }) => {
+	const frame = useCurrentFrame();
 	const absoluteFrame = Internals.useTimelinePosition();
+
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const {registerRenderAsset, unregisterRenderAsset} = useContext(
 		Internals.RenderAssetManager,
 	);
-	const frame = useCurrentFrame();
-	const volumePropsFrame = Internals.useFrameForVolumeProp(
-		loopVolumeCurveBehavior ?? 'repeat',
-	);
+	const startsAt = Internals.useMediaStartsAt();
+
 	const environment = useRemotionEnvironment();
 
 	const [id] = useState(() => `${Math.random()}`.replace('0.', ''));
@@ -41,30 +42,6 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Audio>.');
 	}
-
-	const volume = Internals.evaluateVolume({
-		volume: volumeProp,
-		frame: volumePropsFrame,
-		mediaVolume: 1,
-	});
-
-	Internals.warnAboutTooHighVolume(volume);
-
-	const shouldRenderAudio = useMemo(() => {
-		if (!window.remotion_audioEnabled) {
-			return false;
-		}
-
-		if (muted) {
-			return false;
-		}
-
-		if (volume <= 0) {
-			return false;
-		}
-
-		return true;
-	}, [muted, volume]);
 
 	const {fps} = videoConfig;
 
@@ -80,6 +57,18 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
 
+		const shouldRenderAudio = (() => {
+			if (!window.remotion_audioEnabled) {
+				return false;
+			}
+
+			if (muted) {
+				return false;
+			}
+
+			return true;
+		})();
+
 		extractFrameViaBroadcastChannel({
 			src,
 			timeInSeconds: timestamp,
@@ -89,11 +78,26 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			includeAudio: shouldRenderAudio,
 			includeVideo: false,
 			isClientSideRendering: environment.isClientSideRendering,
-			volume,
 			loop: loop ?? false,
 		})
-			.then(({audio}) => {
-				if (audio) {
+			.then(({audio, durationInSeconds: assetDurationInSeconds}) => {
+				const volumePropsFrame = frameForVolumeProp({
+					behavior: loopVolumeCurveBehavior ?? 'repeat',
+					loop: loop ?? false,
+					assetDurationInSeconds: assetDurationInSeconds ?? 0,
+					fps,
+					frame,
+					startsAt,
+				});
+				const volume = Internals.evaluateVolume({
+					volume: volumeProp,
+					frame: volumePropsFrame,
+					mediaVolume: 1,
+				});
+
+				Internals.warnAboutTooHighVolume(volume);
+
+				if (audio && volume > 0) {
 					registerRenderAsset({
 						type: 'inline-audio',
 						id,
@@ -127,13 +131,15 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		frame,
 		id,
 		logLevel,
+		loop,
+		loopVolumeCurveBehavior,
+		muted,
 		playbackRate,
 		registerRenderAsset,
-		shouldRenderAudio,
 		src,
+		startsAt,
 		unregisterRenderAsset,
-		volume,
-		loop,
+		volumeProp,
 	]);
 
 	return null;

@@ -14,7 +14,6 @@ export const extractAudio = async ({
 	src,
 	timeInSeconds: unloopedTimeInSeconds,
 	durationInSeconds,
-	volume,
 	logLevel,
 	loop,
 	playbackRate,
@@ -22,11 +21,13 @@ export const extractAudio = async ({
 	src: string;
 	timeInSeconds: number;
 	durationInSeconds: number;
-	volume: number;
 	logLevel: LogLevel;
 	loop: boolean;
 	playbackRate: number;
-}): Promise<PcmS16AudioData | null> => {
+}): Promise<{
+	data: PcmS16AudioData | null;
+	durationInSeconds: number | null;
+}> => {
 	if (!sinkPromises[src]) {
 		sinkPromises[src] = getSinks(src);
 	}
@@ -34,12 +35,17 @@ export const extractAudio = async ({
 	const {audio, actualMatroskaTimestamps, isMatroska, getDuration} =
 		await sinkPromises[src];
 
+	let duration: number | null = null;
+	if (loop) {
+		duration = await getDuration();
+	}
+
 	if (audio === null) {
-		return null;
+		return {data: null, durationInSeconds: null};
 	}
 
 	const timeInSeconds = loop
-		? unloopedTimeInSeconds % (await getDuration())
+		? unloopedTimeInSeconds % duration!
 		: unloopedTimeInSeconds;
 
 	const sampleIterator = await audioManager.getIterator({
@@ -108,7 +114,6 @@ export const extractAudio = async ({
 			trimStartInSeconds,
 			trimEndInSeconds,
 			targetNumberOfChannels: TARGET_NUMBER_OF_CHANNELS,
-			volume,
 			playbackRate,
 		});
 		audioDataRaw.close();
@@ -121,10 +126,10 @@ export const extractAudio = async ({
 	}
 
 	if (audioDataArray.length === 0) {
-		return null;
+		return {data: null, durationInSeconds: duration};
 	}
 
 	const combined = combineAudioDataAndClosePrevious(audioDataArray);
 
-	return combined;
+	return {data: combined, durationInSeconds: duration};
 };
