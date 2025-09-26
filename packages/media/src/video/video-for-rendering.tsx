@@ -27,10 +27,14 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	logLevel = window.remotion_logLevel,
 	loop,
 	style,
+	playbackRate,
 	className,
 }) => {
 	const absoluteFrame = Internals.useTimelinePosition();
 	const {fps} = useVideoConfig();
+
+	const actualFps = playbackRate ? fps / playbackRate : fps;
+
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const {registerRenderAsset, unregisterRenderAsset} = useContext(
 		Internals.RenderAssetManager,
@@ -76,8 +80,8 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 			return;
 		}
 
-		const timestamp = frame / fps;
-		const durationInSeconds = 1 / fps;
+		const timestamp = frame / actualFps;
+		const durationInSeconds = 1 / actualFps;
 
 		const newHandle = delayRender(`Extracting frame number ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
@@ -149,7 +153,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		environment.isClientSideRendering,
-		fps,
+		actualFps,
 		frame,
 		id,
 		logLevel,

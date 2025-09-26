@@ -10,7 +10,7 @@ Not to be confused with the older [`<Video>`](/docs/video) tag from `remotion`.
 :::
 
 :::warning
-**Very experimental**: This component is in a very early stage and does not support some basic features such as playback rate or CSS styling.
+**Very experimental**: This component is in a very early stage and does not support some basic features such as CSS styling.
 The current focus is on correctness, not on performance.
 
 We recommend that you use [`<OffthreadVideo />`](/docs/offthreadvideo) for now.
@@ -120,13 +120,9 @@ export const MyVideo = () => {
 
 A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
 
-### `onError?`
-
-**Currently not supported!**
-
 ### `playbackRate?`
 
-**Currently not supported!**
+Controls the speed of the video. `1` is the default and means regular speed, `0.5` slows down the video so it's twice as long and `2` speeds up the video so it's twice as fast.
 
 ### `muted?`
 
@@ -180,10 +176,6 @@ export const MyComposition = () => {
   );
 };
 ```
-
-### `loopVolumeCurveBehavior?`
-
-**Currently not supported!**
 
 ### `pauseWhenBuffering?`
 

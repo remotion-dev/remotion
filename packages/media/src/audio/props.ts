@@ -19,4 +19,5 @@ export type AudioProps = {
 	logLevel?: LogLevel;
 	loop?: boolean;
 	_remotionInternalNativeLoopPassed?: boolean;
+	playbackRate?: number;
 };
