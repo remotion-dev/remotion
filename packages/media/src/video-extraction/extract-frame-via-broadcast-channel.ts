@@ -7,6 +7,7 @@ type ExtractFrameRequest = {
 	src: string;
 	timeInSeconds: number;
 	durationInSeconds: number;
+	playbackRate: number;
 	id: string;
 	logLevel: LogLevel;
 	includeAudio: boolean;
@@ -41,6 +42,7 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						timeInSeconds: data.timeInSeconds,
 						logLevel: data.logLevel,
 						durationInSeconds: data.durationInSeconds,
+						playbackRate: data.playbackRate,
 						includeAudio: data.includeAudio,
 						includeVideo: data.includeVideo,
 						volume: data.volume,
@@ -85,6 +87,7 @@ export const extractFrameViaBroadcastChannel = ({
 	timeInSeconds,
 	logLevel,
 	durationInSeconds,
+	playbackRate,
 	includeAudio,
 	includeVideo,
 	isClientSideRendering,
@@ -94,6 +97,7 @@ export const extractFrameViaBroadcastChannel = ({
 	src: string;
 	timeInSeconds: number;
 	durationInSeconds: number;
+	playbackRate: number;
 	logLevel: LogLevel;
 	includeAudio: boolean;
 	includeVideo: boolean;
@@ -110,6 +114,7 @@ export const extractFrameViaBroadcastChannel = ({
 			src,
 			timeInSeconds,
 			durationInSeconds,
+			playbackRate,
 			includeAudio,
 			includeVideo,
 			volume,
@@ -158,6 +163,7 @@ export const extractFrameViaBroadcastChannel = ({
 		id: requestId,
 		logLevel,
 		durationInSeconds,
+		playbackRate,
 		includeAudio,
 		includeVideo,
 		volume,
