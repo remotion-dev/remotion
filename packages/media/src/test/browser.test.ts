@@ -1,5 +1,6 @@
 import {assert, expect, test} from 'vitest';
 import {keyframeManager} from '../caches';
+import {applyVolume} from '../convert-audiodata/apply-volume';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
 
 test('Should be able to extract a frame', async () => {
@@ -13,7 +14,6 @@ test('Should be able to extract a frame', async () => {
 		logLevel: 'info',
 		includeAudio: true,
 		includeVideo: true,
-		volume: 1,
 		loop: false,
 	});
 
@@ -45,7 +45,6 @@ test('Should be able to extract the last frame', async () => {
 		logLevel: 'info',
 		includeAudio: true,
 		includeVideo: true,
-		volume: 1,
 		loop: false,
 	});
 
@@ -69,7 +68,6 @@ test('Should manage the cache', async () => {
 			logLevel: 'info',
 			includeAudio: true,
 			includeVideo: true,
-			volume: 1,
 			loop: false,
 		});
 	}
@@ -82,18 +80,6 @@ test('Should manage the cache', async () => {
 test('Should be apply volume correctly', async () => {
 	await keyframeManager.clearAll();
 
-	const {audio: audioAtHalfVolume} = await extractFrameAndAudio({
-		src: '/bigbuckbunny.mp4',
-		timeInSeconds: 1,
-		durationInSeconds: 1 / 30,
-		playbackRate: 1,
-		logLevel: 'info',
-		includeAudio: true,
-		includeVideo: false,
-		volume: 0.5,
-		loop: false,
-	});
-
 	const {audio: audioAtFullVolume, frame} = await extractFrameAndAudio({
 		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1,
@@ -102,19 +88,19 @@ test('Should be apply volume correctly', async () => {
 		logLevel: 'info',
 		includeAudio: true,
 		includeVideo: false,
-		volume: 1,
 		loop: false,
 	});
-
-	assert(!frame);
 
 	const totalAudioAtFullVolume = audioAtFullVolume?.data.reduce((acc, curr) => {
 		const unrounded = curr * 0.5;
 		const rounded = curr > 0 ? Math.floor(unrounded) : Math.ceil(unrounded);
 		return acc + rounded;
 	}, 0);
-	assert(audioAtHalfVolume);
-	const totalAudioAtHalfVolume = audioAtHalfVolume?.data.reduce(
+	applyVolume(audioAtFullVolume!.data, 0.5);
+
+	assert(!frame);
+
+	const totalAudioAtHalfVolume = audioAtFullVolume?.data.reduce(
 		(acc, curr) => acc + curr,
 		0,
 	);
@@ -132,7 +118,6 @@ test('Should be able to loop', async () => {
 		playbackRate: 1,
 		includeAudio: true,
 		includeVideo: true,
-		volume: 1,
 		loop: true,
 	});
 

@@ -201,9 +201,11 @@ export const MyComposition = () => {
 };
 ```
 
-### `loopVolumeCurveBehavior?`
+### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.354" />
 
-**Currently not supported!**
+Controls the `frame` which is returned when using the [`volume`](#volume) callback function and adding the [`loop`](#loop) attribute.
+
+Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
 
 ### `acceptableTimeShiftInSeconds?`
 
