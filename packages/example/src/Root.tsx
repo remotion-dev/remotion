@@ -114,6 +114,7 @@ if (alias !== 'alias') {
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
+import {parseMedia} from '@remotion/media-parser';
 import {zMatrix} from '@remotion/zod-types';
 import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
@@ -668,7 +669,37 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="new-video-tests">
-				<NewVideoExample />
+				<Composition
+					id="new-video"
+					component={NewVideoExample}
+					fps={30}
+					defaultProps={{
+						src: staticFile('demo_smpte_h264_pcm.mkv'),
+					}}
+					calculateMetadata={async ({props}) => {
+						const fps = 30;
+
+						const {slowDurationInSeconds, dimensions} = await parseMedia({
+							src: props.src as string,
+							fields: {
+								slowDurationInSeconds: true,
+								dimensions: true,
+							},
+						});
+
+						if (dimensions === null) {
+							throw new Error('Dimensions are null');
+						}
+
+						return {
+							props: props,
+							durationInFrames: Math.round(slowDurationInSeconds * fps),
+							fps,
+							width: dimensions.width,
+							height: dimensions.height,
+						};
+					}}
+				/>
 				<Composition
 					id="video-testing-playback-codec"
 					component={VideoTestingPlayback}
