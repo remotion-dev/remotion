@@ -12,10 +12,8 @@ import type {AudioProps} from './props';
 
 export const AudioForRendering: React.FC<AudioProps> = ({
 	volume: volumeProp,
-	playbackRate,
 	src,
 	muted,
-	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
 	logLevel = window.remotion_logLevel,
@@ -27,9 +25,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		Internals.RenderAssetManager,
 	);
 	const frame = useCurrentFrame();
-	const volumePropsFrame = Internals.useFrameForVolumeProp(
-		loopVolumeCurveBehavior ?? 'repeat',
-	);
+	const volumePropsFrame = Internals.useFrameForVolumeProp('repeat');
 	const environment = useRemotionEnvironment();
 
 	const [id] = useState(() => `${Math.random()}`.replace('0.', ''));
@@ -71,9 +67,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const {delayRender, continueRender} = useDelayRender();
 
 	useLayoutEffect(() => {
-		const actualFps = playbackRate ? fps / playbackRate : fps;
-		const timestamp = frame / actualFps;
-		const durationInSeconds = 1 / actualFps;
+		const timestamp = frame / fps;
+		const durationInSeconds = 1 / fps;
 
 		const newHandle = delayRender(`Extracting audio for frame ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
@@ -126,7 +121,6 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		frame,
 		id,
 		logLevel,
-		playbackRate,
 		registerRenderAsset,
 		shouldRenderAudio,
 		src,
