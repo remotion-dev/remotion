@@ -18,6 +18,8 @@ import type {VideoProps} from './props';
 
 export const VideoForRendering: React.FC<VideoProps> = ({
 	volume: volumeProp,
+	playbackRate,
+	loopVolumeCurveBehavior,
 	src,
 	muted,
 	delayRenderRetries,
@@ -27,7 +29,6 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	logLevel = window.remotion_logLevel,
 	loop,
 	style,
-	playbackRate,
 	className,
 }) => {
 	const absoluteFrame = Internals.useTimelinePosition();
@@ -40,7 +41,9 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		Internals.RenderAssetManager,
 	);
 	const frame = useCurrentFrame();
-	const volumePropsFrame = Internals.useFrameForVolumeProp('repeat');
+	const volumePropsFrame = Internals.useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
 	const environment = useRemotionEnvironment();
 
 	const [id] = useState(() => `${Math.random()}`.replace('0.', ''));
@@ -149,22 +152,23 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		};
 	}, [
 		absoluteFrame,
+		actualFps,
 		continueRender,
 		delayRender,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		environment.isClientSideRendering,
-		actualFps,
 		frame,
 		id,
 		logLevel,
+		loop,
 		onVideoFrame,
+		playbackRate,
 		registerRenderAsset,
 		shouldRenderAudio,
 		src,
 		unregisterRenderAsset,
 		volume,
-		loop,
 	]);
 
 	const classNameValue = useMemo(() => {

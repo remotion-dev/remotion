@@ -18,7 +18,7 @@ const {
 
 // dummy function for now because onError is not supported
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const onRemotionError = (e: Error) => {};
+const onRemotionError = (_e: Error) => {};
 
 export const Audio: React.FC<AudioProps> = (props) => {
 	const audioContext = useContext(SharedAudioContext);
