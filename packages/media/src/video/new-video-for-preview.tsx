@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {LogLevel} from 'remotion';
 import {Internals, useBufferState, useCurrentFrame} from 'remotion';
 import {MediaPlayer} from './media-player';
@@ -10,6 +10,7 @@ type NewVideoForPreviewProps = {
 	readonly style?: React.CSSProperties;
 	readonly playbackRate?: number;
 	readonly logLevel?: LogLevel;
+	readonly className?: string;
 };
 
 export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
@@ -17,6 +18,7 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	style,
 	playbackRate = 1,
 	logLevel = 'info',
+	className,
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const videoConfig = useUnsafeVideoConfig();
@@ -100,6 +102,12 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		};
 	}, [src, logLevel, sharedAudioContext, initialTimestamp]);
 
+	const classNameValue = useMemo(() => {
+		return [Internals.OBJECTFIT_CONTAIN_CLASS_NAME, className]
+			.filter(Internals.truthy)
+			.join(' ');
+	}, [className]);
+
 	// sync play/pause state with Remotion timeline (like old VideoForPreview video does)
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -161,6 +169,7 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			width={videoConfig.width}
 			height={videoConfig.height}
 			style={style}
+			className={classNameValue}
 		/>
 	);
 };
