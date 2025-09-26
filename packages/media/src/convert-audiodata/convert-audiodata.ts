@@ -6,7 +6,6 @@ export type ConvertAudioDataOptions = {
 	trimStartInSeconds: number;
 	trimEndInSeconds: number;
 	targetNumberOfChannels: number;
-	volume: number;
 	playbackRate: number;
 };
 
@@ -34,7 +33,6 @@ export const convertAudioData = ({
 	trimStartInSeconds,
 	trimEndInSeconds,
 	targetNumberOfChannels,
-	volume,
 	playbackRate,
 }: ConvertAudioDataOptions): PcmS16AudioData => {
 	const {
@@ -81,7 +79,6 @@ export const convertAudioData = ({
 	if (
 		newNumberOfFrames === frameCount &&
 		targetNumberOfChannels === srcNumberOfChannels &&
-		volume === 1 &&
 		playbackRate === 1
 	) {
 		return {
@@ -99,7 +96,6 @@ export const convertAudioData = ({
 		destination: data,
 		targetFrames: newNumberOfFrames,
 		chunkSize,
-		volume,
 	});
 
 	const newAudioData = {
