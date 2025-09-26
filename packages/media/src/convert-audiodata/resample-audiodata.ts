@@ -23,6 +23,7 @@ export const resampleAudioData = ({
 	targetFrames,
 	chunkSize,
 	volume,
+	playbackRate,
 }: {
 	srcNumberOfChannels: number;
 	sourceChannels: Int16Array;
@@ -30,6 +31,7 @@ export const resampleAudioData = ({
 	targetFrames: number;
 	chunkSize: number;
 	volume: number;
+	playbackRate: number;
 }) => {
 	const getSourceValues = (
 		startUnfixed: number,
@@ -85,8 +87,8 @@ export const resampleAudioData = ({
 	};
 
 	for (let newFrameIndex = 0; newFrameIndex < targetFrames; newFrameIndex++) {
-		const start = newFrameIndex * chunkSize;
-		const end = start + chunkSize;
+		const start = newFrameIndex * (chunkSize * playbackRate);
+		const end = start + chunkSize * playbackRate;
 
 		if (TARGET_NUMBER_OF_CHANNELS === srcNumberOfChannels) {
 			for (let i = 0; i < srcNumberOfChannels; i++) {
@@ -147,4 +149,6 @@ export const resampleAudioData = ({
 			}
 		}
 	}
+
+	console.log(destination.byteLength, targetFrames);
 };

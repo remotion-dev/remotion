@@ -13,25 +13,23 @@ import {getSinks} from '../video-extraction/get-frames-since-keyframe';
 export const extractAudio = async ({
 	src,
 	timeInSeconds: unloopedTimeInSeconds,
-	durationInSeconds: durationInSecondsWithoutPlaybackRate,
+	durationInSeconds,
 	volume,
-	playbackRate,
 	logLevel,
 	loop,
+	playbackRate,
 }: {
 	src: string;
 	timeInSeconds: number;
 	durationInSeconds: number;
-	playbackRate: number;
 	volume: number;
 	logLevel: LogLevel;
 	loop: boolean;
+	playbackRate: number;
 }): Promise<PcmS16AudioData | null> => {
 	if (!sinkPromises[src]) {
 		sinkPromises[src] = getSinks(src);
 	}
-
-	const durationInSeconds = durationInSecondsWithoutPlaybackRate * playbackRate;
 
 	const {audio, actualMatroskaTimestamps, isMatroska, getDuration} =
 		await sinkPromises[src];
@@ -111,6 +109,7 @@ export const extractAudio = async ({
 			trimEndInSeconds,
 			targetNumberOfChannels: TARGET_NUMBER_OF_CHANNELS,
 			volume,
+			playbackRate,
 		});
 		audioDataRaw.close();
 
@@ -126,6 +125,12 @@ export const extractAudio = async ({
 	}
 
 	const combined = combineAudioDataAndClosePrevious(audioDataArray);
+	console.log({
+		durationInSecondsWithoutPlaybackRate: durationInSeconds,
+		durationInSeconds,
+		timeInSeconds,
+		numberOfFrames: combined.numberOfFrames,
+	});
 
 	return combined;
 };
