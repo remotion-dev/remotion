@@ -75,9 +75,7 @@ export const Video: React.FC<VideoProps> = (props) => {
 	}
 
 	const {
-		onAutoPlayError,
 		onVideoFrame,
-		crossOrigin,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		...propsForPreview
@@ -91,9 +89,7 @@ export const Video: React.FC<VideoProps> = (props) => {
 			onlyWarnForMediaSeekingError
 			pauseWhenBuffering={pauseWhenBuffering ?? false}
 			showInTimeline={showInTimeline ?? true}
-			onAutoPlayError={onAutoPlayError ?? undefined}
 			onVideoFrame={onVideoFrame ?? null}
-			crossOrigin={crossOrigin}
 			{...propsForPreview}
 		/>
 	);

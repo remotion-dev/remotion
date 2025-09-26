@@ -16,6 +16,10 @@ const {
 	AudioForPreview,
 } = Internals;
 
+// dummy function for now because onError is not supported
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const onRemotionError = (_e: Error) => {};
+
 export const Audio: React.FC<AudioProps> = (props) => {
 	const audioContext = useContext(SharedAudioContext);
 
@@ -28,7 +32,6 @@ export const Audio: React.FC<AudioProps> = (props) => {
 		pauseWhenBuffering,
 		stack,
 		showInTimeline,
-		onError: onRemotionError,
 		loop,
 		...otherProps
 	} = props;
@@ -80,7 +83,7 @@ export const Audio: React.FC<AudioProps> = (props) => {
 				console.warn(errMessage);
 			}
 		},
-		[onRemotionError, loop],
+		[loop],
 	);
 
 	if (
@@ -110,8 +113,6 @@ export const Audio: React.FC<AudioProps> = (props) => {
 	}
 
 	const {
-		onAutoPlayError,
-		crossOrigin,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		...propsForPreview
