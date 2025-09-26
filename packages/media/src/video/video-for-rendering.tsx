@@ -21,9 +21,9 @@ import type {VideoProps} from './props';
 export const VideoForRendering: React.FC<VideoProps> = ({
 	volume: volumeProp,
 	playbackRate,
-	loopVolumeCurveBehavior,
 	src,
 	muted,
+	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
 	// call when a frame of the video, i.e. frame drawn on canvas
@@ -59,7 +59,6 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		}
 
 		const actualFps = playbackRate ? fps / playbackRate : fps;
-
 		const timestamp = frame / actualFps;
 		const durationInSeconds = 1 / actualFps;
 
