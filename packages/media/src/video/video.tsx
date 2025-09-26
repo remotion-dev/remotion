@@ -1,7 +1,7 @@
 import React from 'react';
 import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
-import {NewVideoForPreview} from './new-video-for-preview';
 import type {VideoProps} from './props';
+import {NewVideoForPreview} from './video-for-preview';
 import {VideoForRendering} from './video-for-rendering';
 
 const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
