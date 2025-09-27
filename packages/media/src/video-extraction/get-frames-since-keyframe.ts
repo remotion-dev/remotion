@@ -24,7 +24,7 @@ export const getSinks = async (src: string) => {
 	const audioTrack = await input.getPrimaryAudioTrack();
 	const isMatroska = format === MATROSKA;
 
-	return {
+	return new WeakRef({
 		video: videoTrack
 			? {
 					sampleSink: new VideoSampleSink(videoTrack),
@@ -39,7 +39,7 @@ export const getSinks = async (src: string) => {
 		actualMatroskaTimestamps: rememberActualMatroskaTimestamps(isMatroska),
 		isMatroska,
 		getDuration: () => input.computeDuration(),
-	};
+	});
 };
 
 export type GetSink = Awaited<ReturnType<typeof getSinks>>;
