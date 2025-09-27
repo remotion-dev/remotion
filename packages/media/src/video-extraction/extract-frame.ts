@@ -1,8 +1,6 @@
 import {type LogLevel} from 'remotion';
 import {keyframeManager} from '../caches';
-import {getSinks, type GetSink} from './get-frames-since-keyframe';
-
-export const sinkPromises: Record<string, Promise<GetSink>> = {};
+import {getSinkWeak} from '../get-sink-weak';
 
 export const extractFrame = async ({
 	src,
@@ -15,11 +13,9 @@ export const extractFrame = async ({
 	logLevel: LogLevel;
 	loop: boolean;
 }) => {
-	if (!sinkPromises[src]) {
-		sinkPromises[src] = getSinks(src);
-	}
+	const sink = await getSinkWeak(src, logLevel);
 
-	const {video, getDuration} = await sinkPromises[src];
+	const {video, getDuration} = sink;
 
 	if (video === null) {
 		throw new Error(`No video track found for ${src}`);
