@@ -1,14 +1,11 @@
-import React, {useCallback} from 'react';
+import React from 'react';
 import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
 import type {VideoProps} from './props';
+import {NewVideoForPreview} from './video-for-preview';
 import {VideoForRendering} from './video-for-rendering';
 
-const {
-	validateMediaTrimProps,
-	resolveTrimProps,
-	validateMediaProps,
-	VideoForPreview,
-} = Internals;
+const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
+	Internals;
 
 export const Video: React.FC<VideoProps> = (props) => {
 	// Should only destruct `trimBefore` and `trimAfter` from props,
@@ -23,8 +20,6 @@ export const Video: React.FC<VideoProps> = (props) => {
 		...otherProps
 	} = props;
 	const environment = useRemotionEnvironment();
-
-	const onDuration = useCallback(() => undefined, []);
 
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
@@ -74,23 +69,13 @@ export const Video: React.FC<VideoProps> = (props) => {
 		return <VideoForRendering {...otherProps} />;
 	}
 
-	const {
-		onVideoFrame,
-		delayRenderRetries,
-		delayRenderTimeoutInMilliseconds,
-		...propsForPreview
-	} = otherProps;
-
+	// For preview, use our new canvas-based component
 	return (
-		<VideoForPreview
-			_remotionInternalStack={stack ?? null}
-			_remotionInternalNativeLoopPassed={false}
-			onDuration={onDuration}
-			onlyWarnForMediaSeekingError
-			pauseWhenBuffering={pauseWhenBuffering ?? false}
-			showInTimeline={showInTimeline ?? true}
-			onVideoFrame={onVideoFrame ?? null}
-			{...propsForPreview}
+		<NewVideoForPreview
+			src={otherProps.src}
+			style={otherProps.style}
+			playbackRate={otherProps.playbackRate}
+			logLevel={otherProps.logLevel}
 		/>
 	);
 };
