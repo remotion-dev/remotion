@@ -28,7 +28,7 @@ export const extractAudio = async ({
 	durationInSeconds: number | null;
 }> => {
 	const {audio, actualMatroskaTimestamps, isMatroska, getDuration} =
-		await getSinkWeak(src);
+		await getSinkWeak(src, logLevel);
 
 	let duration: number | null = null;
 	if (loop) {

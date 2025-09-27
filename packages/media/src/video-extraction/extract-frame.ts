@@ -13,7 +13,7 @@ export const extractFrame = async ({
 	logLevel: LogLevel;
 	loop: boolean;
 }) => {
-	const sink = await getSinkWeak(src);
+	const sink = await getSinkWeak(src, logLevel);
 
 	const {video, getDuration} = sink;
 
