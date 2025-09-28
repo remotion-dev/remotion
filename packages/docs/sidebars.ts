@@ -1208,7 +1208,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'mediabunny/index',
 			},
-			items: ['mediabunny/index', 'mediabunny/formats'],
+			items: ['mediabunny/index', 'mediabunny/formats', 'mediabunny/version'],
 		},
 		'upgrading',
 		{
