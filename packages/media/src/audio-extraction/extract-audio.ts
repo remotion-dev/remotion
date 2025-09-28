@@ -27,7 +27,7 @@ export const extractAudio = async ({
 	data: PcmS16AudioData | null;
 	durationInSeconds: number | null;
 }> => {
-	const {audio, actualMatroskaTimestamps, isMatroska, getDuration} =
+	const {getAudio, actualMatroskaTimestamps, isMatroska, getDuration} =
 		await getSinkWeak(src, logLevel);
 
 	let duration: number | null = null;
@@ -35,8 +35,14 @@ export const extractAudio = async ({
 		duration = await getDuration();
 	}
 
-	if (audio === null) {
+	const audio = await getAudio();
+
+	if (audio === 'no-audio-track') {
 		return {data: null, durationInSeconds: null};
+	}
+
+	if (audio === 'cannot-decode-audio') {
+		throw new Error(`Cannot decode audio track for ${src}`);
 	}
 
 	const timeInSeconds = loop

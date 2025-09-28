@@ -15,14 +15,18 @@ export const extractFrame = async ({
 }) => {
 	const sink = await getSinkWeak(src, logLevel);
 
-	const {video, getDuration} = sink;
+	const video = await sink.getVideo();
 
-	if (video === null) {
+	if (video === 'no-video-track') {
 		throw new Error(`No video track found for ${src}`);
 	}
 
+	if (video === 'cannot-decode') {
+		throw new Error(`Cannot decode video track for ${src}`);
+	}
+
 	const timeInSeconds = loop
-		? unloopedTimeinSeconds % (await getDuration())
+		? unloopedTimeinSeconds % (await sink.getDuration())
 		: unloopedTimeinSeconds;
 
 	const keyframeBank = await keyframeManager.requestKeyframeBank({
