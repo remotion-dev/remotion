@@ -181,6 +181,30 @@ const sidebars: SidebarsConfig = {
 
 		{
 			type: 'category',
+			label: '@remotion/animated-emoji',
+			link: {
+				type: 'doc',
+				id: 'animated-emoji/index',
+			},
+			items: [
+				'animated-emoji/animated-emoji',
+				'animated-emoji/get-available-emoji',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/animation-utils',
+			link: {
+				type: 'doc',
+				id: 'animation-utils/index',
+			},
+			items: [
+				'animation-utils/make-transform',
+				'animation-utils/interpolate-styles',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/bundler',
 			link: {
 				type: 'doc',
@@ -190,47 +214,63 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/captions',
 			link: {
 				type: 'doc',
-				id: 'renderer',
+				id: 'captions/index',
 			},
-			label: '@remotion/renderer',
 			items: [
-				'renderer/get-compositions',
-				'renderer/select-composition',
-				'renderer/render-media',
-				'renderer/render-frames',
-				'renderer/render-still',
-				'renderer/stitch-frames-to-video',
-				'renderer/open-browser',
-				'renderer/ensure-browser',
-				'renderer/make-cancel-signal',
-				'renderer/ensure-ffmpeg',
-				'renderer/ensure-ffprobe',
-				'renderer/get-can-extract-frames-fast',
-				'renderer/get-video-metadata',
-				'renderer/get-silent-parts',
-				'renderer/combine-chunks',
-				'renderer/extract-audio',
+				'captions/caption',
+				'captions/parse-srt',
+				'captions/serialize-srt',
+				'captions/create-tiktok-style-captions',
 			],
 		},
 		{
 			type: 'category',
+			label: '@remotion/cloudrun',
 			link: {
 				type: 'doc',
-				id: 'player/installation',
+				id: 'cloudrun/api',
 			},
-
-			label: '@remotion/player',
 			items: [
 				{
 					type: 'link',
-					href: '/docs/player',
-					label: 'Guide + Examples',
+					href: '/docs/cloudrun/cli',
+					label: 'CLI Reference',
 				},
-				'player/api',
-				'player/thumbnail',
+				'cloudrun/getserviceinfo',
+				'cloudrun/deployservice',
+				'cloudrun/deleteservice',
+				'cloudrun/getservices',
+				'cloudrun/speculateservicename',
+				'cloudrun/getregions',
+				'cloudrun/deploysite',
+				'cloudrun/deletesite',
+				'cloudrun/getsites',
+				'cloudrun/getorcreatebucket',
+				'cloudrun/rendermediaoncloudrun',
+				'cloudrun/renderstilloncloudrun',
+				'cloudrun/testpermissions',
 			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/enable-scss',
+			link: {
+				type: 'doc',
+				id: 'enable-scss/overview',
+			},
+			items: ['enable-scss/enable-scss'],
+		},
+		{
+			type: 'category',
+			label: '@remotion/fonts',
+			link: {
+				type: 'doc',
+				id: 'fonts-api/fonts-api',
+			},
+			items: ['fonts-api/load-font'],
 		},
 		{
 			type: 'category',
@@ -243,64 +283,47 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/media-utils',
+			label: '@remotion/google-fonts',
 			link: {
 				type: 'doc',
-				id: 'media-utils/index',
+				id: 'google-fonts/google-fonts',
 			},
 			items: [
-				'audio-buffer-to-data-url',
-				'get-audio-data',
-				'get-audio-duration-in-seconds',
-				'get-video-metadata',
-				'get-waveform-portion',
-				'use-audio-data',
-				'use-windowed-audio-data',
-				'visualize-audio',
-				'media-utils/visualize-audio-waveform',
-				'media-utils/create-smooth-svg-path',
-				'get-image-dimensions',
+				'google-fonts/load-font',
+				'google-fonts/get-available-fonts',
+				'google-fonts/get-info',
+				'google-fonts/load-font-from-info',
 			],
 		},
 		{
 			type: 'category',
-			label: '@remotion/media-parser',
+			label: '@remotion/install-whisper-cpp',
 			link: {
 				type: 'doc',
-				id: 'media-parser/index',
+				id: 'install-whisper-cpp/index',
 			},
 			items: [
-				{
-					type: 'link',
-					href: '/docs/media-parser',
-					label: 'Guide',
-				},
-				'media-parser/types',
-				'media-parser/parse-media',
-				'media-parser/download-and-parse-media',
-				'media-parser/media-parser-controller',
-				'media-parser/parse-media-on-web-worker',
-				'media-parser/parse-media-on-server-worker',
-				'media-parser/has-been-aborted',
-				'media-parser/node-reader',
-				'media-parser/web-reader',
-				'media-parser/universal-reader',
-				'media-parser/node-writer',
-				'media-parser/webcodecs-timescale',
+				'install-whisper-cpp/install-whisper-cpp',
+				'install-whisper-cpp/download-whisper-model',
+				'install-whisper-cpp/transcribe',
+				'install-whisper-cpp/to-captions',
+				'install-whisper-cpp/convert-to-captions',
 			],
 		},
-
 		{
 			type: 'category',
-			label: '@remotion/motion-blur',
+			label: '@remotion/layout-utils',
 			link: {
 				type: 'doc',
-				id: 'motion-blur/index',
+				id: 'layout-utils/index',
 			},
 			items: [
-				'motion-blur/trail',
-				'motion-blur/camera-motion-blur',
-				'motion-blur/common-mistake',
+				'layout-utils/best-practices',
+				'layout-utils/measure-text',
+				'layout-utils/fill-text-box',
+				'layout-utils/fit-text',
+				'layout-utils/fit-text-on-n-lines',
+				'layout-utils/debug',
 			],
 		},
 		{
@@ -346,80 +369,12 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/cloudrun',
+			label: '@remotion/licensing',
 			link: {
 				type: 'doc',
-				id: 'cloudrun/api',
+				id: 'licensing/index',
 			},
-			items: [
-				{
-					type: 'link',
-					href: '/docs/cloudrun/cli',
-					label: 'CLI Reference',
-				},
-				'cloudrun/getserviceinfo',
-				'cloudrun/deployservice',
-				'cloudrun/deleteservice',
-				'cloudrun/getservices',
-				'cloudrun/speculateservicename',
-				'cloudrun/getregions',
-				'cloudrun/deploysite',
-				'cloudrun/deletesite',
-				'cloudrun/getsites',
-				'cloudrun/getorcreatebucket',
-				'cloudrun/rendermediaoncloudrun',
-				'cloudrun/renderstilloncloudrun',
-				'cloudrun/testpermissions',
-			],
-		},
-		{
-			type: 'category',
-			label: '@remotion/tailwind',
-			link: {
-				type: 'doc',
-				id: 'tailwind/tailwind',
-			},
-			items: ['tailwind/enable-tailwind'],
-		},
-		{
-			type: 'category',
-			label: '@remotion/tailwind-v4',
-			link: {
-				type: 'doc',
-				id: 'tailwind-v4/overview',
-			},
-			items: ['tailwind-v4/enable-tailwind'],
-		},
-		{
-			type: 'category',
-			label: '@remotion/enable-scss',
-			link: {
-				type: 'doc',
-				id: 'enable-scss/overview',
-			},
-			items: ['enable-scss/enable-scss'],
-		},
-		{
-			type: 'category',
-			label: '@remotion/three',
-			link: {
-				type: 'doc',
-				id: 'three',
-			},
-			items: [
-				'three-canvas',
-				'use-video-texture',
-				'use-offthread-video-texture',
-			],
-		},
-		{
-			type: 'category',
-			label: '@remotion/skia',
-			link: {
-				type: 'doc',
-				id: 'skia/skia',
-			},
-			items: ['skia/enable-skia', 'skia/skia-canvas'],
+			items: ['licensing/register-usage-point', 'licensing/get-usage'],
 		},
 		{
 			type: 'category',
@@ -438,18 +393,91 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/preload',
+			label: '@remotion/media',
 			link: {
 				type: 'doc',
-				id: 'preload/preload',
+				id: 'media/index',
+			},
+			items: ['media/audio', 'media/video'],
+		},
+		{
+			type: 'category',
+			label: '@remotion/media-parser',
+			link: {
+				type: 'doc',
+				id: 'media-parser/index',
 			},
 			items: [
-				'preload/preload-video',
-				'preload/preload-audio',
-				'preload/preload-image',
-				'preload/preload-font',
-				'preload/resolve-redirect',
+				{
+					type: 'link',
+					href: '/docs/media-parser',
+					label: 'Guide',
+				},
+				'media-parser/types',
+				'media-parser/parse-media',
+				'media-parser/download-and-parse-media',
+				'media-parser/media-parser-controller',
+				'media-parser/parse-media-on-web-worker',
+				'media-parser/parse-media-on-server-worker',
+				'media-parser/has-been-aborted',
+				'media-parser/node-reader',
+				'media-parser/web-reader',
+				'media-parser/universal-reader',
+				'media-parser/node-writer',
+				'media-parser/webcodecs-timescale',
 			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/media-utils',
+			link: {
+				type: 'doc',
+				id: 'media-utils/index',
+			},
+			items: [
+				'audio-buffer-to-data-url',
+				'get-audio-data',
+				'get-audio-duration-in-seconds',
+				'get-video-metadata',
+				'get-waveform-portion',
+				'use-audio-data',
+				'use-windowed-audio-data',
+				'visualize-audio',
+				'media-utils/visualize-audio-waveform',
+				'media-utils/create-smooth-svg-path',
+				'get-image-dimensions',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/motion-blur',
+			link: {
+				type: 'doc',
+				id: 'motion-blur/index',
+			},
+			items: [
+				'motion-blur/trail',
+				'motion-blur/camera-motion-blur',
+				'motion-blur/common-mistake',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/noise',
+			link: {
+				type: 'doc',
+				id: 'noise/index',
+			},
+			items: ['noise/noise-2d', 'noise/noise-3d', 'noise/noise-4d'],
+		},
+		{
+			type: 'category',
+			label: '@remotion/openai-whisper',
+			link: {
+				type: 'doc',
+				id: 'openai-whisper/index',
+			},
+			items: ['openai-whisper/openai-whisper-api-to-captions'],
 		},
 		{
 			type: 'category',
@@ -482,26 +510,71 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/noise',
+			label: '@remotion/player',
 			link: {
 				type: 'doc',
-				id: 'noise/index',
+				id: 'player/installation',
 			},
-			items: ['noise/noise-2d', 'noise/noise-3d', 'noise/noise-4d'],
+
+			items: [
+				{
+					type: 'link',
+					href: '/docs/player',
+					label: 'Guide + Examples',
+				},
+				'player/api',
+				'player/thumbnail',
+			],
 		},
 		{
 			type: 'category',
-			label: '@remotion/google-fonts',
+			label: '@remotion/preload',
 			link: {
 				type: 'doc',
-				id: 'google-fonts/google-fonts',
+				id: 'preload/preload',
 			},
 			items: [
-				'google-fonts/load-font',
-				'google-fonts/get-available-fonts',
-				'google-fonts/get-info',
-				'google-fonts/load-font-from-info',
+				'preload/preload-video',
+				'preload/preload-audio',
+				'preload/preload-image',
+				'preload/preload-font',
+				'preload/resolve-redirect',
 			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/renderer',
+			link: {
+				type: 'doc',
+				id: 'renderer',
+			},
+			items: [
+				'renderer/get-compositions',
+				'renderer/select-composition',
+				'renderer/render-media',
+				'renderer/render-frames',
+				'renderer/render-still',
+				'renderer/stitch-frames-to-video',
+				'renderer/open-browser',
+				'renderer/ensure-browser',
+				'renderer/make-cancel-signal',
+				'renderer/ensure-ffmpeg',
+				'renderer/ensure-ffprobe',
+				'renderer/get-can-extract-frames-fast',
+				'renderer/get-video-metadata',
+				'renderer/get-silent-parts',
+				'renderer/combine-chunks',
+				'renderer/extract-audio',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/rive',
+			link: {
+				type: 'doc',
+				id: 'rive/index',
+			},
+			items: ['rive/index', 'rive/remotionrivecanvas'],
 		},
 		{
 			type: 'category',
@@ -531,12 +604,12 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/rive',
+			label: '@remotion/skia',
 			link: {
 				type: 'doc',
-				id: 'rive/index',
+				id: 'skia/skia',
 			},
-			items: ['rive/index', 'rive/remotionrivecanvas'],
+			items: ['skia/enable-skia', 'skia/skia-canvas'],
 		},
 		{
 			type: 'category',
@@ -562,6 +635,37 @@ const sidebars: SidebarsConfig = {
 				'studio/focus-default-props-path',
 				'studio/reevaluate-composition',
 				'studio/visual-control',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/tailwind',
+			link: {
+				type: 'doc',
+				id: 'tailwind/tailwind',
+			},
+			items: ['tailwind/enable-tailwind'],
+		},
+		{
+			type: 'category',
+			label: '@remotion/tailwind-v4',
+			link: {
+				type: 'doc',
+				id: 'tailwind-v4/overview',
+			},
+			items: ['tailwind-v4/enable-tailwind'],
+		},
+		{
+			type: 'category',
+			label: '@remotion/three',
+			link: {
+				type: 'doc',
+				id: 'three',
+			},
+			items: [
+				'three-canvas',
+				'use-video-texture',
+				'use-offthread-video-texture',
 			],
 		},
 		{
@@ -615,59 +719,6 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/zod-types',
-			link: {
-				type: 'doc',
-				id: 'zod-types/index',
-			},
-			items: [
-				'zod-types/z-color',
-				'zod-types/z-textarea',
-				'zod-types/z-matrix',
-			],
-		},
-		{
-			type: 'category',
-			label: '@remotion/layout-utils',
-			link: {
-				type: 'doc',
-				id: 'layout-utils/index',
-			},
-			items: [
-				'layout-utils/best-practices',
-				'layout-utils/measure-text',
-				'layout-utils/fill-text-box',
-				'layout-utils/fit-text',
-				'layout-utils/fit-text-on-n-lines',
-				'layout-utils/debug',
-			],
-		},
-		{
-			type: 'category',
-			label: '@remotion/animation-utils',
-			link: {
-				type: 'doc',
-				id: 'animation-utils/index',
-			},
-			items: [
-				'animation-utils/make-transform',
-				'animation-utils/interpolate-styles',
-			],
-		},
-		{
-			type: 'category',
-			label: '@remotion/animated-emoji',
-			link: {
-				type: 'doc',
-				id: 'animated-emoji/index',
-			},
-			items: [
-				'animated-emoji/animated-emoji',
-				'animated-emoji/get-available-emoji',
-			],
-		},
-		{
-			type: 'category',
 			label: '@remotion/webcodecs',
 			link: {
 				type: 'doc',
@@ -705,35 +756,6 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/captions',
-			link: {
-				type: 'doc',
-				id: 'captions/index',
-			},
-			items: [
-				'captions/caption',
-				'captions/parse-srt',
-				'captions/serialize-srt',
-				'captions/create-tiktok-style-captions',
-			],
-		},
-		{
-			type: 'category',
-			label: '@remotion/install-whisper-cpp',
-			link: {
-				type: 'doc',
-				id: 'install-whisper-cpp/index',
-			},
-			items: [
-				'install-whisper-cpp/install-whisper-cpp',
-				'install-whisper-cpp/download-whisper-model',
-				'install-whisper-cpp/transcribe',
-				'install-whisper-cpp/to-captions',
-				'install-whisper-cpp/convert-to-captions',
-			],
-		},
-		{
-			type: 'category',
 			label: '@remotion/whisper-web',
 			link: {
 				type: 'doc',
@@ -751,39 +773,16 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/openai-whisper',
+			label: '@remotion/zod-types',
 			link: {
 				type: 'doc',
-				id: 'openai-whisper/index',
+				id: 'zod-types/index',
 			},
-			items: ['openai-whisper/openai-whisper-api-to-captions'],
-		},
-		{
-			type: 'category',
-			label: '@remotion/fonts',
-			link: {
-				type: 'doc',
-				id: 'fonts-api/fonts-api',
-			},
-			items: ['fonts-api/load-font'],
-		},
-		{
-			type: 'category',
-			label: '@remotion/licensing',
-			link: {
-				type: 'doc',
-				id: 'licensing/index',
-			},
-			items: ['licensing/register-usage-point', 'licensing/get-usage'],
-		},
-		{
-			type: 'category',
-			label: '@remotion/media',
-			link: {
-				type: 'doc',
-				id: 'media/video',
-			},
-			items: ['media/audio', 'media/video'],
+			items: [
+				'zod-types/z-color',
+				'zod-types/z-textarea',
+				'zod-types/z-matrix',
+			],
 		},
 	],
 	mainSidebar: [
