@@ -1,0 +1,101 @@
+---
+title: Supported formats and codecs by Mediabunny
+crumb: 'Mediabunny'
+sidebar_label: Supported formats
+---
+
+The following features from Remotion are using [Mediabunny](https://mediabunny.dev):
+
+- [`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media)
+- [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media)
+
+Therefore, format support is bound to the [formats and codecs supported by Mediabunny](/guide/supported-formats-and-codecs).  
+Mediabunny's compatibility data is mirrored on this page.
+
+## Supported container formats
+
+- ISOBMFF-based formats (`.mp4`, `.m4v`, `.m4a`, ...)
+- QuickTime File Format (`.mov`)
+- Matroska (`.mkv`)
+- WebM (`.webm`)
+- Ogg (`.ogg`)
+- MP3 (`.mp3`)
+- WAVE (`.wav`)
+- ADTS (`.aac`)
+- FLAC (`.flac`)
+
+## Video codecs
+
+- `'avc'` - Advanced Video Coding (AVC) / H.264
+- `'hevc'` - High Efficiency Video Coding (HEVC) / H.265
+
+:::note
+Chrome Headless Shell does not support HEVC in headless mode.  
+This means that during rendering of Remotion videos server-side, HEVC videos cannot be decoded using [`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media).
+:::
+
+- `'vp8'` - VP8
+- `'vp9'` - VP9
+- `'av1'` - AOMedia Video 1 (AV1)
+
+## Audio codecs
+
+- `'aac'` - Advanced Audio Coding (AAC)
+- `'opus'` - Opus
+- `'mp3'` - MP3
+- `'vorbis'` - Vorbis
+- `'flac'` - Free Lossless Audio Codec (FLAC)
+- `'pcm-u8'` - 8-bit unsigned PCM
+- `'pcm-s8'` - 8-bit signed PCM
+- `'pcm-s16'` - 16-bit little-endian signed PCM
+- `'pcm-s16be'` - 16-bit big-endian signed PCM
+- `'pcm-s24'` - 24-bit little-endian signed PCM
+- `'pcm-s24be'` - 24-bit big-endian signed PCM
+- `'pcm-s32'` - 32-bit little-endian signed PCM
+- `'pcm-s32be'` - 32-bit big-endian signed PCM
+- `'pcm-f32'` - 32-bit little-endian float PCM
+- `'pcm-f32be'` - 32-bit big-endian float PCM
+- `'pcm-f64'` - 64-bit little-endian float PCM
+- `'pcm-f64be'` - 64-bit big-endian float PCM
+- `'ulaw'` - μ-law PCM
+- `'alaw'` - A-law PCM
+
+## Compatibility table
+
+Not all codecs can be used with all containers. The following table specifies the supported codec-container combinations:
+
+|               | .mp4 | .mov | .mkv | .webm | .ogg | .mp3 | .wav | .aac | .flac |
+| :-----------: | :--: | :--: | :--: | :---: | :--: | :--: | :--: | :--: | :---: |
+|    `'avc'`    |  ✓   |  ✓   |  ✓   |       |      |      |      |      |       |
+|   `'hevc'`    |  ✓   |  ✓   |  ✓   |       |      |      |      |      |       |
+|    `'vp8'`    |  ✓   |  ✓   |  ✓   |   ✓   |      |      |      |      |       |
+|    `'vp9'`    |  ✓   |  ✓   |  ✓   |   ✓   |      |      |      |      |       |
+|    `'av1'`    |  ✓   |  ✓   |  ✓   |   ✓   |      |      |      |      |       |
+|    `'aac'`    |  ✓   |  ✓   |  ✓   |       |      |      |      |  ✓   |       |
+|   `'opus'`    |  ✓   |  ✓   |  ✓   |   ✓   |  ✓   |      |      |      |       |
+|    `'mp3'`    |  ✓   |  ✓   |  ✓   |       |      |  ✓   |      |      |       |
+|  `'vorbis'`   |  ✓   |  ✓   |  ✓   |   ✓   |  ✓   |      |      |      |       |
+|   `'flac'`    |  ✓   |  ✓   |  ✓   |       |      |      |      |      |   ✓   |
+|  `'pcm-u8'`   |      |  ✓   |  ✓   |       |      |      |  ✓   |      |       |
+|  `'pcm-s8'`   |      |  ✓   |      |       |      |      |      |      |       |
+|  `'pcm-s16'`  |  ✓   |  ✓   |  ✓   |       |      |      |  ✓   |      |       |
+| `'pcm-s16be'` |  ✓   |  ✓   |  ✓   |       |      |      |      |      |       |
+|  `'pcm-s24'`  |  ✓   |  ✓   |  ✓   |       |      |      |  ✓   |      |       |
+| `'pcm-s24be'` |  ✓   |  ✓   |  ✓   |       |      |      |      |      |       |
+|  `'pcm-s32'`  |  ✓   |  ✓   |  ✓   |       |      |      |  ✓   |      |       |
+| `'pcm-s32be'` |  ✓   |  ✓   |  ✓   |       |      |      |      |      |       |
+|  `'pcm-f32'`  |  ✓   |  ✓   |  ✓   |       |      |      |  ✓   |      |       |
+| `'pcm-f32be'` |  ✓   |  ✓   |      |       |      |      |      |      |       |
+|  `'pcm-f64'`  |  ✓   |  ✓   |  ✓   |       |      |      |      |      |       |
+| `'pcm-f64be'` |  ✓   |  ✓   |      |       |      |      |      |      |       |
+|   `'ulaw'`    |      |  ✓   |      |       |      |      |  ✓   |      |       |
+|   `'alaw'`    |      |  ✓   |      |       |      |      |  ✓   |      |       |
+
+## CORS
+
+All media files must be either CORS-enabled or served from the bundle using [`staticFile()`](/docs/staticfile).
+
+## See also
+
+- [`@remotion/media` - Supported media](/docs/media/support)
+- [Mediabunny - Supported formats and codecs](https://mediabunny.dev/guide/supported-formats-and-codecs)

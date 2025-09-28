@@ -398,7 +398,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'media/index',
 			},
-			items: ['media/audio', 'media/video'],
+			items: ['media/audio', 'media/video', 'media/support'],
 		},
 		{
 			type: 'category',
@@ -1201,7 +1201,15 @@ const sidebars: SidebarsConfig = {
 			href: '/docs/api',
 			label: 'API Reference',
 		},
-		'mediabunny',
+		{
+			type: 'category',
+			label: 'Mediabunny',
+			link: {
+				type: 'doc',
+				id: 'mediabunny/index',
+			},
+			items: ['mediabunny/index', 'mediabunny/formats'],
+		},
 		'upgrading',
 		{
 			type: 'category',
