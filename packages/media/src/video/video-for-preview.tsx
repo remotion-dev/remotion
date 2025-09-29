@@ -23,6 +23,7 @@ type NewVideoForPreviewProps = {
 	readonly muted?: boolean;
 	readonly volume?: VolumeProp;
 	readonly loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
+	readonly onVideoFrame?: (frame: CanvasImageSource) => void;
 };
 
 export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
@@ -34,6 +35,7 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	muted = false,
 	volume,
 	loopVolumeCurveBehavior,
+	onVideoFrame,
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const videoConfig = useUnsafeVideoConfig();
@@ -230,6 +232,18 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 		mediaPlayer.setPlaybackRate(effectivePlaybackRate);
 	}, [effectivePlaybackRate, mediaPlayerReady, logLevel]);
+
+	// sync onVideoFrame callback with MediaPlayer
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		if (onVideoFrame) {
+			mediaPlayer.onVideoFrame(onVideoFrame);
+		}
+	}, [onVideoFrame, mediaPlayerReady]);
 
 	return (
 		<canvas

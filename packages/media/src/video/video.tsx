@@ -69,6 +69,7 @@ export const Video: React.FC<VideoProps> = (props) => {
 			muted={otherProps.muted}
 			volume={otherProps.volume}
 			loopVolumeCurveBehavior={otherProps.loopVolumeCurveBehavior}
+			onVideoFrame={otherProps.onVideoFrame}
 		/>
 	);
 };

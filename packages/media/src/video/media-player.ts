@@ -61,6 +61,8 @@ export class MediaPlayer {
 	private audioIteratorStarted = false;
 	private readonly HEALTHY_BUFER_THRESHOLD_SECONDS = 1;
 
+	private onVideoFrameCallback?: (frame: CanvasImageSource) => void;
+
 	constructor({
 		canvas,
 		src,
@@ -279,6 +281,10 @@ export class MediaPlayer {
 		this.onBufferingChangeCallback = callback;
 	}
 
+	public onVideoFrame(callback: (frame: CanvasImageSource) => void): void {
+		this.onVideoFrameCallback = callback;
+	}
+
 	private canRenderVideo(): boolean {
 		return (
 			this.audioIteratorStarted &&
@@ -328,6 +334,11 @@ export class MediaPlayer {
 
 	private drawCurrentFrame(): void {
 		this.context.drawImage(this.nextFrame!.canvas, 0, 0);
+
+		if (this.onVideoFrameCallback) {
+			this.onVideoFrameCallback(this.canvas);
+		}
+
 		this.nextFrame = null;
 		this.updateNextFrame();
 	}
