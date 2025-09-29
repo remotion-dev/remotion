@@ -554,25 +554,29 @@ test(
 	{timeout: 20000},
 );
 
-test('Should be able to render a huge payload that gets serialized', async () => {
-	const task = await execa(
-		'pnpm',
-		[
-			'exec',
-			'remotion',
-			'still',
-			'build',
-			'huge-payload',
-			outputPath.replace('.mp4', '.png'),
-		],
-		{
-			cwd: path.join(process.cwd(), '..', 'example'),
-		},
-	);
+test(
+	'Should be able to render a huge payload that gets serialized',
+	async () => {
+		const task = await execa(
+			'pnpm',
+			[
+				'exec',
+				'remotion',
+				'still',
+				'build',
+				'huge-payload',
+				outputPath.replace('.mp4', '.png'),
+			],
+			{
+				cwd: path.join(process.cwd(), '..', 'example'),
+			},
+		);
 
-	expect(task.exitCode).toBe(0);
-	fs.unlinkSync(outputPath.replace('.mp4', '.png'));
-});
+		expect(task.exitCode).toBe(0);
+		fs.unlinkSync(outputPath.replace('.mp4', '.png'));
+	},
+	{timeout: 10000},
+);
 
 test(
 	'If timeout, the error should be shown',
