@@ -10,15 +10,8 @@ const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
 export const Video: React.FC<VideoProps> = (props) => {
 	// Should only destruct `trimBefore` and `trimAfter` from props,
 	// rest gets drilled down
-	const {
-		trimBefore,
-		trimAfter,
-		name,
-		pauseWhenBuffering,
-		stack,
-		showInTimeline,
-		...otherProps
-	} = props;
+	const {trimBefore, trimAfter, name, stack, showInTimeline, ...otherProps} =
+		props;
 	const environment = useRemotionEnvironment();
 
 	if (typeof props.src !== 'string') {
@@ -55,10 +48,7 @@ export const Video: React.FC<VideoProps> = (props) => {
 				durationInFrames={trimAfterValue}
 				name={name}
 			>
-				<Video
-					pauseWhenBuffering={pauseWhenBuffering ?? false}
-					{...otherProps}
-				/>
+				<Video {...otherProps} />
 			</Sequence>
 		);
 	}
