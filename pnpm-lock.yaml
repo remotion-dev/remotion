@@ -3320,11 +3320,11 @@ importers:
         specifier: 16.0.3
         version: 16.0.3
       express:
-        specifier: 4.21.0
-        version: 4.21.0
+        specifier: 5.1.0
+        version: 5.1.0
       express-rate-limit:
-        specifier: 5.3.0
-        version: 5.3.0
+        specifier: 8.1.0
+        version: 8.1.0(express@5.1.0)
       p-limit:
         specifier: 3.1.0
         version: 3.1.0
@@ -11426,8 +11426,11 @@ packages:
     resolution: {integrity: sha512-JhFGDVJ7tmDJItKhYgJCGLOWjuK9vPxiXoUFLwLDc99NlmklilbiQJwoctZtt13+xMw91MCk/REan6MWHqDjyA==}
     engines: {node: '>=12.0.0'}
 
-  express-rate-limit@5.3.0:
-    resolution: {integrity: sha512-qJhfEgCnmteSeZAeuOKQ2WEIFTX5ajrzE0xS6gCOBCoRQcU+xEzQmgYQQTpzCcqUAAzTEtu4YEih4pnLfvNtew==}
+  express-rate-limit@8.1.0:
+    resolution: {integrity: sha512-4nLnATuKupnmwqiJc27b4dCFmB/T60ExgmtDD7waf4LdrbJ8CPZzZRHYErDYNhoz+ql8fUdYwM/opf90PoPAQA==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      express: '>= 4.11'
 
   express@4.21.0:
     resolution: {integrity: sha512-VqcNGcj/Id5ZT1LZ/cfihi3ttTn+NJmkli2eZADigjq29qTlWi/hAQ43t/VLPq8+UX06FCEx3ByOYet6ZFblng==}
@@ -25411,7 +25414,7 @@ snapshots:
       '@babel/plugin-syntax-typescript': 7.27.1(@babel/core@7.23.2)
       '@vanilla-extract/babel-plugin-debug-ids': 1.2.2
       '@vanilla-extract/css': 1.17.4
-      esbuild: 0.17.6
+      esbuild: 0.18.20
       eval: 0.1.8
       find-up: 5.0.0
       javascript-stringify: 2.1.0
@@ -27926,7 +27929,7 @@ snapshots:
       eslint: 9.19.0(jiti@2.6.0)
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.12.2(eslint@9.19.0(jiti@2.6.0))(typescript@5.8.2))(eslint@9.19.0(jiti@2.6.0)))(eslint@9.19.0(jiti@2.6.0))
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.12.2(eslint@9.19.0(jiti@2.6.0))(typescript@5.8.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.19.0(jiti@2.6.0))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.12.2(eslint@9.19.0(jiti@2.6.0))(typescript@5.8.2))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.12.2(eslint@9.19.0(jiti@2.6.0))(typescript@5.8.2))(eslint@9.19.0(jiti@2.6.0)))(eslint@9.19.0(jiti@2.6.0)))(eslint@9.19.0(jiti@2.6.0))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.19.0(jiti@2.6.0))
       eslint-plugin-react: 7.37.4(eslint@9.19.0(jiti@2.6.0))
       eslint-plugin-react-hooks: 5.2.0(eslint@9.19.0(jiti@2.6.0))
@@ -27956,7 +27959,7 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.12.2(eslint@9.19.0(jiti@2.6.0))(typescript@5.8.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.19.0(jiti@2.6.0))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.12.2(eslint@9.19.0(jiti@2.6.0))(typescript@5.8.2))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.12.2(eslint@9.19.0(jiti@2.6.0))(typescript@5.8.2))(eslint@9.19.0(jiti@2.6.0)))(eslint@9.19.0(jiti@2.6.0)))(eslint@9.19.0(jiti@2.6.0))
     transitivePeerDependencies:
       - supports-color
 
@@ -27976,7 +27979,7 @@ snapshots:
       eslint: 9.19.0(jiti@2.6.0)
       jsx-ast-utils: 2.4.1
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.12.2(eslint@9.19.0(jiti@2.6.0))(typescript@5.8.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.19.0(jiti@2.6.0)):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.12.2(eslint@9.19.0(jiti@2.6.0))(typescript@5.8.2))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.12.2(eslint@9.19.0(jiti@2.6.0))(typescript@5.8.2))(eslint@9.19.0(jiti@2.6.0)))(eslint@9.19.0(jiti@2.6.0)))(eslint@9.19.0(jiti@2.6.0)):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -28325,7 +28328,10 @@ snapshots:
 
   expect-type@1.2.2: {}
 
-  express-rate-limit@5.3.0: {}
+  express-rate-limit@8.1.0(express@5.1.0):
+    dependencies:
+      express: 5.1.0
+      ip-address: 10.0.1
 
   express@4.21.0:
     dependencies:
