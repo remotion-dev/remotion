@@ -27,12 +27,14 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
-	// call when a frame of the video, i.e. frame drawn on canvas
 	onVideoFrame,
 	logLevel = window.remotion_logLevel,
 	loop,
 	style,
 	className,
+	fallbackOffthreadVideoProps,
+	name,
+	showInTimeline,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -101,7 +103,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 				if (result === 'cannot-decode') {
 					Internals.Log.info(
 						{logLevel, tag: '@remotion/media'},
-						`Cannot decode ${src}, falling back to OffthreadVideo`,
+						`Cannot decode ${src}, falling back to <OffthreadVideo>`,
 					);
 					setReplaceWithOffthreadVideo(true);
 					return;
@@ -209,7 +211,30 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	if (replaceWithOffthreadVideo) {
 		// TODO: Loop and other props
 		return (
-			<OffthreadVideo src={src} playbackRate={playbackRate} muted={muted} />
+			<OffthreadVideo
+				src={src}
+				playbackRate={playbackRate}
+				muted={muted}
+				acceptableTimeShiftInSeconds={
+					fallbackOffthreadVideoProps?.acceptableTimeShiftInSeconds
+				}
+				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
+				delayRenderRetries={delayRenderRetries}
+				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+				style={style}
+				allowAmplificationDuringRender
+				transparent={fallbackOffthreadVideoProps?.transparent}
+				toneMapped={fallbackOffthreadVideoProps?.toneMapped}
+				audioStreamIndex={fallbackOffthreadVideoProps?.audioStreamIndex}
+				name={name}
+				showInTimeline={showInTimeline}
+				className={className}
+				onVideoFrame={onVideoFrame}
+				volume={volumeProp}
+				id={id}
+				onError={fallbackOffthreadVideoProps?.onError}
+				toneFrequency={fallbackOffthreadVideoProps?.toneFrequency}
+			/>
 		);
 	}
 

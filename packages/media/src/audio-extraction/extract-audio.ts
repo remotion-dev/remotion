@@ -45,7 +45,7 @@ export const extractAudio = async ({
 	}
 
 	if (audio === 'cannot-decode-audio') {
-		throw new Error(`Cannot decode audio track for ${src}`);
+		return 'cannot-decode';
 	}
 
 	const timeInSeconds = loop

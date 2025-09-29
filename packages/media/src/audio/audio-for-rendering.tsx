@@ -23,6 +23,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	delayRenderTimeoutInMilliseconds,
 	logLevel = window.remotion_logLevel,
 	loop,
+	fallbackHtml5AudioProps,
+	showInTimeline,
+	style,
+	name,
 }) => {
 	const frame = useCurrentFrame();
 	const absoluteFrame = Internals.useTimelinePosition();
@@ -88,7 +92,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				if (result === 'cannot-decode') {
 					Internals.Log.info(
 						{logLevel, tag: '@remotion/media'},
-						`Cannot decode ${src}, falling back to OffthreadVideo`,
+						`Cannot decode ${src}, falling back to <Audio>`,
 					);
 					setReplaceWithOffthreadVideo(true);
 					return;
@@ -161,7 +165,26 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	if (replaceWithOffthreadVideo) {
 		// TODO: Loop and other props
 		return (
-			<Audio src={src} playbackRate={playbackRate} muted={muted} loop={loop} />
+			<Audio
+				src={src}
+				playbackRate={playbackRate}
+				muted={muted}
+				loop={loop}
+				volume={volumeProp}
+				delayRenderRetries={delayRenderRetries}
+				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+				style={style}
+				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
+				audioStreamIndex={fallbackHtml5AudioProps?.audioStreamIndex}
+				useWebAudioApi={fallbackHtml5AudioProps?.useWebAudioApi}
+				onError={fallbackHtml5AudioProps?.onError}
+				toneFrequency={fallbackHtml5AudioProps?.toneFrequency}
+				acceptableTimeShiftInSeconds={
+					fallbackHtml5AudioProps?.acceptableTimeShiftInSeconds
+				}
+				name={name}
+				showInTimeline={showInTimeline}
+			/>
 		);
 	}
 
