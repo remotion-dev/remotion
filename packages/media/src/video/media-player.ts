@@ -17,6 +17,7 @@ export class MediaPlayer {
 	private context: CanvasRenderingContext2D;
 	private src: string;
 	private logLevel: LogLevel;
+	private playbackRate: number;
 
 	private canvasSink: CanvasSink | null = null;
 	private videoFrameIterator: AsyncGenerator<
@@ -75,6 +76,7 @@ export class MediaPlayer {
 		this.src = src;
 		this.logLevel = logLevel ?? 'info';
 		this.sharedAudioContext = sharedAudioContext;
+		this.playbackRate = 1;
 
 		const context = canvas.getContext('2d', {
 			alpha: false,
@@ -234,6 +236,10 @@ export class MediaPlayer {
 
 		const appliedVolume = Math.max(0, volume);
 		this.gainNode.gain.value = appliedVolume;
+	}
+
+	public setPlaybackRate(rate: number): void {
+		this.playbackRate = rate;
 	}
 
 	public dispose(): void {

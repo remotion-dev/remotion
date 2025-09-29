@@ -43,6 +43,8 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
 
 	const [playing] = Timeline.usePlayingState();
+	const timelineContext = useContext(Timeline.TimelineContext);
+	const globalPlaybackRate = timelineContext.playbackRate;
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
 	const delayHandleRef = useRef<{unblock: () => void} | null>(null);
@@ -89,6 +91,7 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			});
 
 			mediaPlayerRef.current = player;
+
 			player
 				.initialize(initialTimestamp)
 				.then(() => {
@@ -212,6 +215,21 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 		mediaPlayer.setVolume(userPreferredVolume);
 	}, [userPreferredVolume, mediaPlayerReady, logLevel]);
+
+	const effectivePlaybackRate = useMemo(
+		() => playbackRate * globalPlaybackRate,
+		[playbackRate, globalPlaybackRate],
+	);
+
+	// sync playbackRate with MediaPlayer (like HTML5 video does)
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setPlaybackRate(effectivePlaybackRate);
+	}, [effectivePlaybackRate, mediaPlayerReady, logLevel]);
 
 	return (
 		<canvas
