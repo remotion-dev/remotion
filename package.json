@@ -43,7 +43,22 @@
 	"pnpm": {
 		"overrides": {
 			"caniuse-lite": "1.0.30001724"
-		}
+		},
+		"onlyBuiltDependencies": [
+			"@parcel/watcher",
+			"@swc/core",
+			"@tailwindcss/oxide",
+			"bun",
+			"core-js",
+			"core-js-pure",
+			"edgedriver",
+			"es5-ext",
+			"esbuild",
+			"geckodriver",
+			"protobufjs",
+			"sharp",
+			"unrs-resolver"
+		]
 	},
 	"devDependencies": {
 		"@types/bun": "1.2.8",
@@ -57,5 +72,5 @@
 		"turbo": "2.5.5",
 		"typescript": "5.8.2"
 	},
-	"packageManager": "pnpm@8.10.2"
+	"packageManager": "pnpm@10.17.1"
 }
