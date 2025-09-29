@@ -44,6 +44,7 @@ export class MediaPlayer {
 	private audioSyncAnchor: number = 0;
 
 	private playing = false;
+	private muted = false;
 	private animationFrameId: number | null = null;
 
 	private videoAsyncId = 0;
@@ -217,6 +218,13 @@ export class MediaPlayer {
 		this.playing = false;
 		this.cleanupAudioQueue();
 		this.stopRenderLoop();
+	}
+
+	public setMuted(muted: boolean): void {
+		this.muted = muted;
+		if (muted) {
+			this.cleanupAudioQueue();
+		}
 	}
 
 	public dispose(): void {
@@ -497,7 +505,7 @@ export class MediaPlayer {
 
 				this.maybeResumeFromBuffering(totalBufferDuration);
 
-				if (this.playing) {
+				if (this.playing && !this.muted) {
 					if (isFirstBuffer) {
 						this.audioSyncAnchor =
 							this.sharedAudioContext.currentTime - timestamp;

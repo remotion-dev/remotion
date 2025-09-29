@@ -3,7 +3,8 @@ import type {LogLevel} from 'remotion';
 import {Internals, useBufferState, useCurrentFrame} from 'remotion';
 import {MediaPlayer} from './media-player';
 
-const {useUnsafeVideoConfig, Timeline, SharedAudioContext} = Internals;
+const {useUnsafeVideoConfig, Timeline, SharedAudioContext, useMediaMutedState} =
+	Internals;
 
 type NewVideoForPreviewProps = {
 	readonly src: string;
@@ -11,6 +12,7 @@ type NewVideoForPreviewProps = {
 	readonly playbackRate?: number;
 	readonly logLevel?: LogLevel;
 	readonly className?: string;
+	readonly muted?: boolean;
 };
 
 export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
@@ -19,6 +21,7 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	playbackRate = 1,
 	logLevel = 'info',
 	className,
+	muted = false,
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const videoConfig = useUnsafeVideoConfig();
@@ -31,6 +34,8 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
 	const delayHandleRef = useRef<{unblock: () => void} | null>(null);
+
+	const [mediaMuted] = useMediaMutedState();
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
@@ -162,6 +167,16 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			}
 		});
 	}, [mediaPlayerReady, buffer, logLevel]);
+
+	const effectiveMuted = muted || mediaMuted;
+
+	// sync muted state with MediaPlayer
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) return;
+
+		mediaPlayer.setMuted(effectiveMuted);
+	}, [effectiveMuted, mediaPlayerReady]);
 
 	return (
 		<canvas
