@@ -23,10 +23,13 @@ export const extractAudio = async ({
 	logLevel: LogLevel;
 	loop: boolean;
 	playbackRate: number;
-}): Promise<{
-	data: PcmS16AudioData | null;
-	durationInSeconds: number | null;
-}> => {
+}): Promise<
+	| {
+			data: PcmS16AudioData | null;
+			durationInSeconds: number | null;
+	  }
+	| 'cannot-decode'
+> => {
 	const {getAudio, actualMatroskaTimestamps, isMatroska, getDuration} =
 		await getSinkWeak(src, logLevel);
 

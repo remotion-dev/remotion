@@ -8,6 +8,7 @@ import React, {
 import {
 	cancelRender,
 	Internals,
+	OffthreadVideo,
 	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
@@ -52,9 +53,15 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	const {delayRender, continueRender} = useDelayRender();
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const [replaceWithOffthreadVideo, setReplaceWithOffthreadVideo] =
+		useState(false);
 
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
+			return;
+		}
+
+		if (replaceWithOffthreadVideo) {
 			return;
 		}
 
@@ -90,69 +97,77 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
 		})
-			.then(
-				({
+			.then((result) => {
+				if (result === 'cannot-decode') {
+					Internals.Log.info(
+						{logLevel, tag: '@remotion/media'},
+						`Cannot decode ${src}, falling back to OffthreadVideo`,
+					);
+					setReplaceWithOffthreadVideo(true);
+					return;
+				}
+
+				const {
 					frame: imageBitmap,
 					audio,
 					durationInSeconds: assetDurationInSeconds,
-				}) => {
-					if (imageBitmap) {
-						onVideoFrame?.(imageBitmap);
-						const context = canvasRef.current?.getContext('2d');
-						if (!context) {
-							return;
-						}
-
-						context.canvas.width =
-							imageBitmap instanceof ImageBitmap
-								? imageBitmap.width
-								: imageBitmap.displayWidth;
-						context.canvas.height =
-							imageBitmap instanceof ImageBitmap
-								? imageBitmap.height
-								: imageBitmap.displayHeight;
-						context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
-						context.drawImage(imageBitmap, 0, 0);
-
-						imageBitmap.close();
-					} else if (window.remotion_videoEnabled) {
-						cancelRender(new Error('No video frame found'));
+				} = result;
+				if (imageBitmap) {
+					onVideoFrame?.(imageBitmap);
+					const context = canvasRef.current?.getContext('2d');
+					if (!context) {
+						return;
 					}
 
-					const volumePropsFrame = frameForVolumeProp({
-						behavior: loopVolumeCurveBehavior ?? 'repeat',
-						loop: loop ?? false,
-						assetDurationInSeconds: assetDurationInSeconds ?? 0,
-						fps,
-						frame,
-						startsAt,
+					context.canvas.width =
+						imageBitmap instanceof ImageBitmap
+							? imageBitmap.width
+							: imageBitmap.displayWidth;
+					context.canvas.height =
+						imageBitmap instanceof ImageBitmap
+							? imageBitmap.height
+							: imageBitmap.displayHeight;
+					context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
+					context.drawImage(imageBitmap, 0, 0);
+
+					imageBitmap.close();
+				} else if (window.remotion_videoEnabled) {
+					cancelRender(new Error('No video frame found'));
+				}
+
+				const volumePropsFrame = frameForVolumeProp({
+					behavior: loopVolumeCurveBehavior ?? 'repeat',
+					loop: loop ?? false,
+					assetDurationInSeconds: assetDurationInSeconds ?? 0,
+					fps,
+					frame,
+					startsAt,
+				});
+
+				const volume = Internals.evaluateVolume({
+					volume: volumeProp,
+					frame: volumePropsFrame,
+					mediaVolume: 1,
+				});
+
+				Internals.warnAboutTooHighVolume(volume);
+
+				if (audio && volume > 0) {
+					applyVolume(audio.data, volume);
+					registerRenderAsset({
+						type: 'inline-audio',
+						id,
+						audio: Array.from(audio.data),
+						sampleRate: audio.sampleRate,
+						numberOfChannels: audio.numberOfChannels,
+						frame: absoluteFrame,
+						timestamp: audio.timestamp,
+						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
 					});
+				}
 
-					const volume = Internals.evaluateVolume({
-						volume: volumeProp,
-						frame: volumePropsFrame,
-						mediaVolume: 1,
-					});
-
-					Internals.warnAboutTooHighVolume(volume);
-
-					if (audio && volume > 0) {
-						applyVolume(audio.data, volume);
-						registerRenderAsset({
-							type: 'inline-audio',
-							id,
-							audio: Array.from(audio.data),
-							sampleRate: audio.sampleRate,
-							numberOfChannels: audio.numberOfChannels,
-							frame: absoluteFrame,
-							timestamp: audio.timestamp,
-							duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
-						});
-					}
-
-					continueRender(newHandle);
-				},
-			)
+				continueRender(newHandle);
+			})
 			.catch((error) => {
 				cancelRender(error);
 			});
@@ -182,6 +197,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		startsAt,
 		unregisterRenderAsset,
 		volumeProp,
+		replaceWithOffthreadVideo,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -189,6 +205,13 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 			.filter(Internals.truthy)
 			.join(' ');
 	}, [className]);
+
+	if (replaceWithOffthreadVideo) {
+		// TODO: Loop and other props
+		return (
+			<OffthreadVideo src={src} playbackRate={playbackRate} muted={muted} />
+		);
+	}
 
 	return <canvas ref={canvasRef} style={style} className={classNameValue} />;
 };

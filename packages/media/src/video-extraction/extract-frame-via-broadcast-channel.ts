@@ -27,6 +27,10 @@ type ExtractFrameResponse =
 			type: 'response-error';
 			id: string;
 			errorStack: string;
+	  }
+	| {
+			type: 'response-cannot-decode';
+			id: string;
 	  };
 
 // Doesn't exist in studio
@@ -37,7 +41,7 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 			const data = event.data as ExtractFrameRequest;
 			if (data.type === 'request') {
 				try {
-					const {frame, audio, durationInSeconds} = await extractFrameAndAudio({
+					const result = await extractFrameAndAudio({
 						src: data.src,
 						timeInSeconds: data.timeInSeconds,
 						logLevel: data.logLevel,
@@ -47,6 +51,18 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						includeVideo: data.includeVideo,
 						loop: data.loop,
 					});
+
+					if (result === 'cannot-decode') {
+						const cannotDecodeResponse: ExtractFrameResponse = {
+							type: 'response-cannot-decode',
+							id: data.id,
+						};
+
+						window.remotion_broadcastChannel!.postMessage(cannotDecodeResponse);
+						return;
+					}
+
+					const {frame, audio, durationInSeconds} = result;
 
 					const videoFrame = frame;
 					const imageBitmap = videoFrame
@@ -102,11 +118,14 @@ export const extractFrameViaBroadcastChannel = ({
 	includeVideo: boolean;
 	isClientSideRendering: boolean;
 	loop: boolean;
-}): Promise<{
-	frame: ImageBitmap | VideoFrame | null;
-	audio: PcmS16AudioData | null;
-	durationInSeconds: number | null;
-}> => {
+}): Promise<
+	| {
+			frame: ImageBitmap | VideoFrame | null;
+			audio: PcmS16AudioData | null;
+			durationInSeconds: number | null;
+	  }
+	| 'cannot-decode'
+> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
 			logLevel,
@@ -122,11 +141,14 @@ export const extractFrameViaBroadcastChannel = ({
 
 	const requestId = crypto.randomUUID();
 
-	const resolvePromise = new Promise<{
-		frame: ImageBitmap | null;
-		audio: PcmS16AudioData | null;
-		durationInSeconds: number | null;
-	}>((resolve, reject) => {
+	const resolvePromise = new Promise<
+		| {
+				frame: ImageBitmap | null;
+				audio: PcmS16AudioData | null;
+				durationInSeconds: number | null;
+		  }
+		| 'cannot-decode'
+	>((resolve, reject) => {
 		const onMessage = (event: MessageEvent) => {
 			const data = event.data as ExtractFrameResponse;
 
@@ -148,6 +170,15 @@ export const extractFrameViaBroadcastChannel = ({
 				);
 			} else if (data.type === 'response-error' && data.id === requestId) {
 				reject(data.errorStack);
+				window.remotion_broadcastChannel!.removeEventListener(
+					'message',
+					onMessage,
+				);
+			} else if (
+				data.type === 'response-cannot-decode' &&
+				data.id === requestId
+			) {
+				resolve('cannot-decode');
 				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,

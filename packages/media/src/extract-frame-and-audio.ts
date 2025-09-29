@@ -21,11 +21,14 @@ export const extractFrameAndAudio = async ({
 	includeAudio: boolean;
 	includeVideo: boolean;
 	loop: boolean;
-}): Promise<{
-	frame: VideoFrame | null;
-	audio: PcmS16AudioData | null;
-	durationInSeconds: number | null;
-}> => {
+}): Promise<
+	| {
+			frame: VideoFrame | null;
+			audio: PcmS16AudioData | null;
+			durationInSeconds: number | null;
+	  }
+	| 'cannot-decode'
+> => {
 	const [frame, audio] = await Promise.all([
 		includeVideo
 			? extractFrame({
@@ -46,6 +49,18 @@ export const extractFrameAndAudio = async ({
 				})
 			: null,
 	]);
+
+	if (frame === 'cannot-decode') {
+		return 'cannot-decode';
+	}
+
+	if (audio === 'cannot-decode') {
+		if (frame !== null) {
+			frame?.close();
+		}
+
+		return 'cannot-decode';
+	}
 
 	return {
 		frame: frame?.toVideoFrame() ?? null,

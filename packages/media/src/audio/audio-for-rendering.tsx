@@ -1,6 +1,7 @@
 import type React from 'react';
 import {useContext, useLayoutEffect, useState} from 'react';
 import {
+	Audio,
 	cancelRender,
 	Internals,
 	useCurrentFrame,
@@ -47,6 +48,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const {fps} = videoConfig;
 
 	const {delayRender, continueRender} = useDelayRender();
+	const [replaceWithOffthreadVideo, setReplaceWithOffthreadVideo] =
+		useState(false);
 
 	useLayoutEffect(() => {
 		const actualFps = playbackRate ? fps / playbackRate : fps;
@@ -81,7 +84,18 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
 		})
-			.then(({audio, durationInSeconds: assetDurationInSeconds}) => {
+			.then((result) => {
+				if (result === 'cannot-decode') {
+					Internals.Log.info(
+						{logLevel, tag: '@remotion/media'},
+						`Cannot decode ${src}, falling back to OffthreadVideo`,
+					);
+					setReplaceWithOffthreadVideo(true);
+					return;
+				}
+
+				const {audio, durationInSeconds: assetDurationInSeconds} = result;
+
 				const volumePropsFrame = frameForVolumeProp({
 					behavior: loopVolumeCurveBehavior ?? 'repeat',
 					loop: loop ?? false,
@@ -143,6 +157,13 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		unregisterRenderAsset,
 		volumeProp,
 	]);
+
+	if (replaceWithOffthreadVideo) {
+		// TODO: Loop and other props
+		return (
+			<Audio src={src} playbackRate={playbackRate} muted={muted} loop={loop} />
+		);
+	}
 
 	return null;
 };
