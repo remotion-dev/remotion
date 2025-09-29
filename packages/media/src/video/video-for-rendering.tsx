@@ -109,6 +109,15 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 					return;
 				}
 
+				if (result === 'network-error') {
+					Internals.Log.info(
+						{logLevel, tag: '@remotion/media'},
+						`Network error fetching ${src}, falling back to <OffthreadVideo>`,
+					);
+					setReplaceWithOffthreadVideo(true);
+					return;
+				}
+
 				const {
 					frame: imageBitmap,
 					audio,

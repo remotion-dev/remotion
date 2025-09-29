@@ -1,4 +1,4 @@
-import type {EncodedPacket} from 'mediabunny';
+import type {EncodedPacket, UrlSourceOptions} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	AudioSampleSink,
@@ -26,10 +26,29 @@ export type AudioSinkResult =
 	| 'cannot-decode-audio';
 export type VideoSinkResult = VideoSinks | 'no-video-track' | 'cannot-decode';
 
+const getRetryDelay = ((previousAttempts, err) => {
+	const error = err as Error;
+	// We suspect CORS error
+	if (
+		// Chrome
+		error.message.includes('Failed to fetch') ||
+		// Safari
+		error.message.includes('Load failed') ||
+		// Firefox
+		error.message.includes('NetworkError when attempting to fetch resource')
+	) {
+		return null;
+	}
+
+	return Math.min(2 ** (previousAttempts - 2), 16);
+}) satisfies UrlSourceOptions['getRetryDelay'];
+
 export const getSinks = async (src: string) => {
 	const input = new Input({
 		formats: ALL_FORMATS,
-		source: new UrlSource(src),
+		source: new UrlSource(src, {
+			getRetryDelay,
+		}),
 	});
 
 	const format = await input.getFormat();

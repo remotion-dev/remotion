@@ -31,6 +31,10 @@ type ExtractFrameResponse =
 	| {
 			type: 'response-cannot-decode';
 			id: string;
+	  }
+	| {
+			type: 'response-network-error';
+			id: string;
 	  };
 
 // Doesn't exist in studio
@@ -59,6 +63,16 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						};
 
 						window.remotion_broadcastChannel!.postMessage(cannotDecodeResponse);
+						return;
+					}
+
+					if (result === 'network-error') {
+						const networkErrorResponse: ExtractFrameResponse = {
+							type: 'response-network-error',
+							id: data.id,
+						};
+
+						window.remotion_broadcastChannel!.postMessage(networkErrorResponse);
 						return;
 					}
 
@@ -125,6 +139,7 @@ export const extractFrameViaBroadcastChannel = ({
 			durationInSeconds: number | null;
 	  }
 	| 'cannot-decode'
+	| 'network-error'
 > => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
@@ -148,6 +163,7 @@ export const extractFrameViaBroadcastChannel = ({
 				durationInSeconds: number | null;
 		  }
 		| 'cannot-decode'
+		| 'network-error'
 	>((resolve, reject) => {
 		const onMessage = (event: MessageEvent) => {
 			const data = event.data as ExtractFrameResponse;
@@ -176,6 +192,15 @@ export const extractFrameViaBroadcastChannel = ({
 				);
 			} else if (
 				data.type === 'response-cannot-decode' &&
+				data.id === requestId
+			) {
+				resolve('cannot-decode');
+				window.remotion_broadcastChannel!.removeEventListener(
+					'message',
+					onMessage,
+				);
+			} else if (
+				data.type === 'response-network-error' &&
 				data.id === requestId
 			) {
 				resolve('cannot-decode');

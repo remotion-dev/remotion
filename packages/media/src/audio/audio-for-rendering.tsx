@@ -98,6 +98,15 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					return;
 				}
 
+				if (result === 'network-error') {
+					Internals.Log.info(
+						{logLevel, tag: '@remotion/media'},
+						`Network error fetching ${src}, falling back to <Audio>`,
+					);
+					setReplaceWithOffthreadVideo(true);
+					return;
+				}
+
 				const {audio, durationInSeconds: assetDurationInSeconds} = result;
 
 				const volumePropsFrame = frameForVolumeProp({
