@@ -203,7 +203,7 @@ export const extractFrameViaBroadcastChannel = ({
 				data.type === 'response-network-error' &&
 				data.id === requestId
 			) {
-				resolve('cannot-decode');
+				resolve('network-error');
 				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,
