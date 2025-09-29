@@ -439,17 +439,23 @@ const internalRenderMediaRaw = ({
 		onCtrlCExit(`Delete ${workingDir}`, () => deleteDirectory(workingDir));
 	}
 
-	const {actualWidth: widthEvenDimensions, actualHeight: heightEvenDimensions} =
-		validateEvenDimensionsWithCodec({
-			codec,
-			height: compositionWithPossibleUnevenDimensions.height,
-			// Don't apply scale yet, only ensure even dimensions
-			scale: 1,
-			width: compositionWithPossibleUnevenDimensions.width,
-			wantsImageSequence: false,
-			indent,
-			logLevel,
-		});
+	const {
+		actualWidth: widthEvenDimensionsUndivided,
+		actualHeight: heightEvenDimensionsUndivided,
+	} = validateEvenDimensionsWithCodec({
+		codec,
+		height: compositionWithPossibleUnevenDimensions.height,
+		scale,
+		width: compositionWithPossibleUnevenDimensions.width,
+		wantsImageSequence: false,
+		indent,
+		logLevel,
+	});
+
+	const heightEvenDimensions = Math.round(
+		heightEvenDimensionsUndivided / scale,
+	);
+	const widthEvenDimensions = Math.round(widthEvenDimensionsUndivided / scale);
 
 	const {actualWidth, actualHeight} = validateEvenDimensionsWithCodec({
 		codec,
