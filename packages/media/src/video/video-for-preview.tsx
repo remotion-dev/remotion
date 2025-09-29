@@ -1,10 +1,18 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
-import type {LogLevel} from 'remotion';
+import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
 import {Internals, useBufferState, useCurrentFrame} from 'remotion';
 import {MediaPlayer} from './media-player';
 
-const {useUnsafeVideoConfig, Timeline, SharedAudioContext, useMediaMutedState} =
-	Internals;
+const {
+	useUnsafeVideoConfig,
+	Timeline,
+	SharedAudioContext,
+	useMediaMutedState,
+	useMediaVolumeState,
+	useFrameForVolumeProp,
+	evaluateVolume,
+	warnAboutTooHighVolume,
+} = Internals;
 
 type NewVideoForPreviewProps = {
 	readonly src: string;
@@ -13,6 +21,8 @@ type NewVideoForPreviewProps = {
 	readonly logLevel?: LogLevel;
 	readonly className?: string;
 	readonly muted?: boolean;
+	readonly volume?: VolumeProp;
+	readonly loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 };
 
 export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
@@ -22,6 +32,8 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	logLevel = 'info',
 	className,
 	muted = false,
+	volume,
+	loopVolumeCurveBehavior,
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const videoConfig = useUnsafeVideoConfig();
@@ -36,6 +48,19 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	const delayHandleRef = useRef<{unblock: () => void} | null>(null);
 
 	const [mediaMuted] = useMediaMutedState();
+	const [mediaVolume] = useMediaVolumeState();
+
+	const volumePropFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
+
+	const userPreferredVolume = evaluateVolume({
+		frame: volumePropFrame,
+		volume,
+		mediaVolume,
+	});
+
+	warnAboutTooHighVolume(userPreferredVolume);
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
@@ -168,7 +193,7 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		});
 	}, [mediaPlayerReady, buffer, logLevel]);
 
-	const effectiveMuted = muted || mediaMuted;
+	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
 
 	// sync muted state with MediaPlayer
 	useEffect(() => {
@@ -177,6 +202,16 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 		mediaPlayer.setMuted(effectiveMuted);
 	}, [effectiveMuted, mediaPlayerReady]);
+
+	// sync volume with MediaPlayer
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setVolume(userPreferredVolume);
+	}, [userPreferredVolume, mediaPlayerReady, logLevel]);
 
 	return (
 		<canvas

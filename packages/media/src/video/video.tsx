@@ -77,6 +77,8 @@ export const Video: React.FC<VideoProps> = (props) => {
 			playbackRate={otherProps.playbackRate}
 			logLevel={otherProps.logLevel}
 			muted={otherProps.muted}
+			volume={otherProps.volume}
+			loopVolumeCurveBehavior={otherProps.loopVolumeCurveBehavior}
 		/>
 	);
 };

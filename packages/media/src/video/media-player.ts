@@ -227,6 +227,15 @@ export class MediaPlayer {
 		}
 	}
 
+	public setVolume(volume: number): void {
+		if (!this.gainNode) {
+			return;
+		}
+
+		const appliedVolume = Math.max(0, volume);
+		this.gainNode.gain.value = appliedVolume;
+	}
+
 	public dispose(): void {
 		this.input?.dispose();
 		this.stopRenderLoop();
