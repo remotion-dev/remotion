@@ -183,6 +183,7 @@ export class MediaPlayer {
 			Math.abs(newTime - currentPlaybackTime) > SEEK_THRESHOLD;
 
 		if (isSignificantSeek) {
+			this.nextFrame = null;
 			this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 
 			if (this.audioSink) {
