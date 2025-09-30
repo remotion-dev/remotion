@@ -309,8 +309,9 @@ export class MediaPlayer {
 
 	private canRenderVideo(): boolean {
 		return (
-			this.audioIteratorStarted &&
-			this.audioBufferHealth >= this.HEALTHY_BUFER_THRESHOLD_SECONDS
+			!this.hasAudio() ||
+			(this.audioIteratorStarted &&
+				this.audioBufferHealth >= this.HEALTHY_BUFER_THRESHOLD_SECONDS)
 		);
 	}
 
