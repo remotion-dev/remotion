@@ -168,6 +168,7 @@ export const listCompositionsCommand = async (
 		}),
 		chromeMode,
 		mediaCacheSizeInBytes,
+		onLog: RenderInternals.defaultOnLog,
 	});
 
 	printCompositions(compositions, logLevel);

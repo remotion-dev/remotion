@@ -61,6 +61,7 @@ export type {RenderDefaults} from './render-defaults';
 export {
 	AggregateRenderProgress,
 	ArtifactProgress,
+	BrowserProgressLog,
 	BundlingState,
 	CopyingState,
 	DownloadProgress,

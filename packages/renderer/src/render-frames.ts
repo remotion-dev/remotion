@@ -13,13 +13,14 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
-import type {Page} from './browser/BrowserPage';
+import type {OnLog, Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import {getShouldUsePartitionedRendering} from './can-use-parallel-encoding';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
+import {defaultOnLog} from './default-on-log';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {resolveConcurrency} from './get-concurrency';
@@ -99,6 +100,7 @@ type InternalRenderFramesOptions = {
 	parallelEncodingEnabled: boolean;
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type InnerRenderFramesOptions = {
@@ -139,6 +141,7 @@ type InnerRenderFramesOptions = {
 	parallelEncodingEnabled: boolean;
 	compositionStart: number;
 	binariesDirectory: string | null;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type ArtifactWithoutContent = {
@@ -232,6 +235,7 @@ const innerRenderFrames = async ({
 	binariesDirectory,
 	imageSequencePattern,
 	mediaCacheSizeInBytes,
+	onLog,
 }: Omit<
 	InnerRenderFramesOptions,
 	'offthreadVideoCacheSizeInBytes'
@@ -294,6 +298,7 @@ const innerRenderFrames = async ({
 			pageIndex,
 			isMainTab: pageIndex === 0,
 			mediaCacheSizeInBytes,
+			onLog,
 		});
 	};
 
@@ -477,6 +482,7 @@ const internalRenderFramesRaw = ({
 	offthreadVideoThreads,
 	imageSequencePattern,
 	mediaCacheSizeInBytes,
+	onLog,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -611,6 +617,7 @@ const internalRenderFramesRaw = ({
 					offthreadVideoThreads,
 					imageSequencePattern,
 					mediaCacheSizeInBytes,
+					onLog,
 				});
 			}),
 		])
@@ -787,5 +794,6 @@ export const renderFrames = (
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		imageSequencePattern: imageSequencePattern ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		onLog: defaultOnLog,
 	});
 };

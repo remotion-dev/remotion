@@ -89,7 +89,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		})
 			.then((result) => {
 				if (result === 'cannot-decode') {
-					Internals.Log.info(
+					Internals.Log.warn(
 						{logLevel, tag: '@remotion/media'},
 						`Cannot decode ${src}, falling back to <Audio>`,
 					);
@@ -98,7 +98,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				}
 
 				if (result === 'network-error') {
-					Internals.Log.info(
+					Internals.Log.warn(
 						{logLevel, tag: '@remotion/media'},
 						`Network error fetching ${src}, falling back to <Audio>`,
 					);

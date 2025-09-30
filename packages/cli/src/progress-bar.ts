@@ -9,6 +9,7 @@ import type {
 	StitchingProgressInput,
 } from '@remotion/studio-server';
 import {StudioServerInternals} from '@remotion/studio-server';
+import type {BrowserProgressLog} from '@remotion/studio-shared';
 import {formatBytes, type ArtifactProgress} from '@remotion/studio-shared';
 import {chalk} from './chalk';
 import {
@@ -239,6 +240,28 @@ export const getRightLabelWidth = (totalFrames: number) => {
 	return `${totalFrames}/${totalFrames}`.length;
 };
 
+const makeLogsProgress = (logs: BrowserProgressLog[]) => {
+	if (logs.length === 0) {
+		return null;
+	}
+
+	return logs
+		.map((log) => {
+			return RenderInternals.Log.formatLogs(
+				log.logLevel,
+				{
+					indent: false,
+					// It the log makes it this far, it should be logged
+					// Bypass log level filter
+					logLevel: 'trace',
+					tag: log.tag ?? undefined,
+				},
+				[log.previewString],
+			).join(' ');
+		})
+		.join('\n');
+};
+
 const makeStitchingProgress = ({
 	stitchingProgress,
 	isUsingParallelEncoding,
@@ -280,9 +303,10 @@ export const makeRenderingAndStitchingProgress = ({
 	progress: number;
 	message: string;
 } => {
-	const {rendering, stitching, downloads, bundling, artifactState} = prog;
+	const {rendering, stitching, downloads, bundling, artifactState, logs} = prog;
 	const output = [
 		rendering ? makeRenderingProgress(rendering) : null,
+		makeLogsProgress(logs),
 		makeMultiDownloadProgress(downloads, rendering?.totalFrames ?? 0),
 		stitching === null
 			? null

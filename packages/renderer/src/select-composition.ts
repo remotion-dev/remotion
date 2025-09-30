@@ -1,5 +1,6 @@
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
+import {RenderInternals} from '.';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -223,6 +224,7 @@ export const internalSelectCompositionRaw = async (
 			chromeMode,
 			pageIndex: 0,
 			onBrowserLog,
+			onLog: RenderInternals.defaultOnLog,
 		}),
 		makeOrReuseServer(
 			options.server,

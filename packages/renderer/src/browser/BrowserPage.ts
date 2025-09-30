@@ -126,6 +126,16 @@ const format = (
 	return {previewString, logLevelFromRemotionLog, logLevelFromEvent, tag};
 };
 
+export type OnLog = ({
+	logLevel,
+	previewString,
+	tag,
+}: {
+	logLevel: LogLevel;
+	tag: string;
+	previewString: string;
+}) => void;
+
 export class Page extends EventEmitter {
 	id: string;
 	static async _create({
@@ -138,6 +148,7 @@ export class Page extends EventEmitter {
 		indent,
 		pageIndex,
 		onBrowserLog,
+		onLog,
 	}: {
 		client: CDPSession;
 		target: Target;
@@ -148,6 +159,7 @@ export class Page extends EventEmitter {
 		indent: boolean;
 		pageIndex: number;
 		onBrowserLog: null | ((log: BrowserLog) => void);
+		onLog: OnLog;
 	}): Promise<Page> {
 		const page = new Page({
 			client,
@@ -158,6 +170,7 @@ export class Page extends EventEmitter {
 			indent,
 			pageIndex,
 			onBrowserLog,
+			onLog,
 		});
 		await page.#initialize();
 		await page.setViewport(defaultViewport);
@@ -178,6 +191,7 @@ export class Page extends EventEmitter {
 	indent: boolean;
 	pageIndex: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
+	onLog: OnLog;
 
 	constructor({
 		client,
@@ -188,6 +202,7 @@ export class Page extends EventEmitter {
 		indent,
 		pageIndex,
 		onBrowserLog,
+		onLog,
 	}: {
 		client: CDPSession;
 		target: Target;
@@ -197,6 +212,7 @@ export class Page extends EventEmitter {
 		indent: boolean;
 		pageIndex: number;
 		onBrowserLog: null | ((log: BrowserLog) => void);
+		onLog: OnLog;
 	}) {
 		super();
 		this.#client = client;
@@ -210,6 +226,7 @@ export class Page extends EventEmitter {
 		this.indent = indent;
 		this.pageIndex = pageIndex;
 		this.onBrowserLog = onBrowserLog;
+		this.onLog = onLog;
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
 			switch (event.targetInfo.type) {
@@ -290,25 +307,11 @@ export class Page extends EventEmitter {
 			const tag = [tabInfo, log.tag, log.tag ? null : tagInfo]
 				.filter(truthy)
 				.join(', ');
-			if (log.type === 'error') {
-				Log.error(
-					{
-						logLevel,
-						tag,
-						indent,
-					},
-					log.previewString,
-				);
-			} else {
-				Log[logLevel](
-					{
-						logLevel,
-						tag,
-						indent,
-					},
-					log.previewString,
-				);
-			}
+			this.onLog({
+				logLevel: log.logLevel,
+				tag,
+				previewString: log.previewString,
+			});
 		} else if (log.type === 'error') {
 			if (log.text.includes('Failed to load resource:')) {
 				Log.error(
