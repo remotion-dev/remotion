@@ -1,6 +1,6 @@
 import type {VideoConfig} from 'remotion/no-react';
 import type {BrowserLog} from './browser-log';
-import type {Page} from './browser/BrowserPage';
+import type {OnLog, Page} from './browser/BrowserPage';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
 import type {VideoImageFormat} from './image-format';
@@ -32,6 +32,7 @@ export const makePage = async ({
 	pageIndex,
 	isMainTab,
 	mediaCacheSizeInBytes,
+	onLog,
 }: {
 	context: SourceMapGetter;
 	initialFrame: number;
@@ -53,10 +54,11 @@ export const makePage = async ({
 	pageIndex: number;
 	isMainTab: boolean;
 	mediaCacheSizeInBytes: number | null;
+	onLog: OnLog;
 }) => {
 	const page = await browserReplacer
 		.getBrowser()
-		.newPage({context, logLevel, indent, pageIndex, onBrowserLog});
+		.newPage({context, logLevel, indent, pageIndex, onBrowserLog, onLog});
 	pagesArray.push(page);
 	await page.setViewport({
 		width: composition.width,

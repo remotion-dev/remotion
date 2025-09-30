@@ -3,9 +3,10 @@ import {NoReactInternals} from 'remotion/no-react';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
-import type {Page} from './browser/BrowserPage';
+import type {OnLog, Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
+import {defaultOnLog} from './default-on-log';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
@@ -34,6 +35,7 @@ type InternalGetCompositionsOptions = {
 	server: RemotionServer | undefined;
 	indent: boolean;
 	serveUrlOrWebpackUrl: string;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.getCompositions>;
 
 export type GetCompositionsOptions = RequiredInputPropsInV5 & {
@@ -173,6 +175,7 @@ const internalGetCompositionsRaw = async ({
 	chromeMode,
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
+	onLog,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -185,6 +188,7 @@ const internalGetCompositionsRaw = async ({
 		chromeMode,
 		pageIndex: 0,
 		onBrowserLog,
+		onLog,
 	});
 
 	const cleanup: CleanupFn[] = [cleanupPage];
@@ -327,5 +331,6 @@ export const getCompositions = (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		onLog: defaultOnLog,
 	});
 };

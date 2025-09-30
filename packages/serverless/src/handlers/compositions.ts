@@ -101,6 +101,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 			chromeMode: 'headless-shell',
 			offthreadVideoThreads: 1,
 			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+			onLog: RenderInternals.defaultOnLog,
 		});
 
 		return Promise.resolve({

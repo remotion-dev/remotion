@@ -101,7 +101,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		})
 			.then((result) => {
 				if (result === 'cannot-decode') {
-					Internals.Log.info(
+					Internals.Log.warn(
 						{logLevel, tag: '@remotion/media'},
 						`Cannot decode ${src}, falling back to <OffthreadVideo>`,
 					);
@@ -110,7 +110,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 				}
 
 				if (result === 'network-error') {
-					Internals.Log.info(
+					Internals.Log.warn(
 						{logLevel, tag: '@remotion/media'},
 						`Network error fetching ${src}, falling back to <OffthreadVideo>`,
 					);

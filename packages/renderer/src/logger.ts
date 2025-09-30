@@ -26,6 +26,30 @@ export const secondverboseTag = (str: string) => {
 };
 
 export const Log = {
+	formatLogs: (
+		logLevel: LogLevel,
+		options: VerboseLogOptions,
+		args: Parameters<typeof console.log>,
+	) => {
+		return [
+			options.indent ? INDENT_TOKEN : null,
+			options.tag ? verboseTag(options.tag) : null,
+		]
+			.filter(truthy)
+			.concat(
+				args.map((a) => {
+					if (logLevel === 'warn') {
+						return chalk.yellow(a);
+					}
+
+					if (logLevel === 'error') {
+						return chalk.red(a);
+					}
+
+					return chalk.gray(a);
+				}),
+			);
+	},
 	trace: (
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
@@ -37,14 +61,7 @@ export const Log = {
 				return process.stdout.write('\n');
 			}
 
-			return console.log(
-				...[
-					options.indent ? INDENT_TOKEN : null,
-					options.tag ? verboseTag(options.tag) : null,
-				]
-					.filter(truthy)
-					.concat(args.map((a) => chalk.gray(a))),
-			);
+			return console.log(...Log.formatLogs('trace', options, args));
 		}
 	},
 	verbose: (
@@ -58,14 +75,7 @@ export const Log = {
 				return process.stdout.write('\n');
 			}
 
-			return console.log(
-				...[
-					options.indent ? INDENT_TOKEN : null,
-					options.tag ? verboseTag(options.tag) : null,
-				]
-					.filter(truthy)
-					.concat(args.map((a) => chalk.gray(a))),
-			);
+			return console.log(...Log.formatLogs('verbose', options, args));
 		}
 	},
 	info: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
@@ -76,11 +86,7 @@ export const Log = {
 				return process.stdout.write('\n');
 			}
 
-			return console.log(
-				...[options.indent ? INDENT_TOKEN : null]
-					.filter(truthy)
-					.concat(args ?? []),
-			);
+			return console.log(...Log.formatLogs('info', options, args));
 		}
 	},
 	warn: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
@@ -91,11 +97,7 @@ export const Log = {
 				return process.stdout.write('\n');
 			}
 
-			return console.warn(
-				...[options.indent ? chalk.yellow(INDENT_TOKEN) : null]
-					.filter(truthy)
-					.concat(args.map((a) => chalk.yellow(a))),
-			);
+			return console.warn(...Log.formatLogs('warn', options, args));
 		}
 	},
 	error: (
@@ -109,14 +111,7 @@ export const Log = {
 				return process.stdout.write('\n');
 			}
 
-			return console.error(
-				...[
-					options.indent ? INDENT_TOKEN : null,
-					options.tag ? verboseTag(options.tag) : null,
-				]
-					.filter(truthy)
-					.concat(args.map((a) => chalk.red(a))),
-			);
+			return console.error(...Log.formatLogs('error', options, args));
 		}
 	},
 };

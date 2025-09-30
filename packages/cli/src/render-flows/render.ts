@@ -12,6 +12,7 @@ import type {
 	FrameRange,
 	LogLevel,
 	NumberOfGifLoops,
+	OnLog,
 	PixelFormat,
 	ProResProfile,
 	RenderMediaOnDownload,
@@ -57,6 +58,7 @@ import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
 import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
+import {addLogToAggregateProgress} from './add-log-to-aggregate-progress';
 
 export const renderVideoFlow = async ({
 	remotionRoot,
@@ -238,6 +240,7 @@ export const renderVideoFlow = async ({
 		bytes: 0,
 		doneIn: null,
 	};
+	const logsProgress: AggregateRenderProgress['logs'] = [];
 
 	let artifactState: ArtifactProgress = {received: []};
 
@@ -255,6 +258,7 @@ export const renderVideoFlow = async ({
 			bundling: bundlingProgress,
 			copyingState,
 			artifactState,
+			logs: logsProgress,
 		};
 
 		const {output, message, progress} = makeRenderingAndStitchingProgress({
@@ -359,7 +363,10 @@ export const renderVideoFlow = async ({
 		artifactState,
 		onProgress: (progress) => {
 			artifactState = progress;
-			updateRenderProgress({newline: false, printToConsole: true});
+			updateRenderProgress({
+				newline: false,
+				printToConsole: !updatesDontOverwrite,
+			});
 		},
 		compositionId,
 	});
@@ -475,6 +482,32 @@ export const renderVideoFlow = async ({
 		uiImageFormat,
 	});
 
+	const onLog: OnLog = ({logLevel: logLogLevel, previewString, tag}) => {
+		addLogToAggregateProgress({
+			logs: logsProgress,
+			logLogLevel,
+			previewString,
+			tag,
+			logLevel,
+		});
+
+		if (!updatesDontOverwrite) {
+			updateRenderProgress({
+				newline: false,
+				printToConsole: !updatesDontOverwrite,
+			});
+		} else {
+			Log[logLogLevel](
+				{
+					indent,
+					logLevel,
+					tag,
+				},
+				previewString,
+			);
+		}
+	};
+
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -542,6 +575,7 @@ export const renderVideoFlow = async ({
 			chromeMode,
 			imageSequencePattern,
 			mediaCacheSizeInBytes,
+			onLog,
 		});
 
 		Log.info({indent, logLevel}, chalk.blue(`\n▶ ${absoluteOutputFile}`));
@@ -637,6 +671,7 @@ export const renderVideoFlow = async ({
 		hardwareAcceleration,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		onLog,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});

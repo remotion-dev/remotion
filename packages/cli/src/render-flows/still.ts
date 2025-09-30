@@ -45,6 +45,7 @@ import {
 	getOutputLocation,
 	getUserPassedOutputLocation,
 } from '../user-passed-output-location';
+import {addLogToAggregateProgress} from './add-log-to-aggregate-progress';
 
 export const renderStillFlow = async ({
 	remotionRoot,
@@ -386,6 +387,19 @@ export const renderStillFlow = async ({
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		onLog: ({logLevel: logLogLevel, previewString, tag}) => {
+			addLogToAggregateProgress({
+				logs: aggregate.logs,
+				logLogLevel,
+				previewString,
+				tag,
+				logLevel,
+			});
+			updateRenderProgress({
+				newline: false,
+				printToConsole: true,
+			});
+		},
 	});
 
 	aggregate.rendering = {

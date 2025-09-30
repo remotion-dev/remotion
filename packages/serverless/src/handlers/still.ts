@@ -333,6 +333,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		onArtifact,
 		chromeMode: 'headless-shell',
 		offthreadVideoThreads: params.offthreadVideoThreads,
+		onLog: RenderInternals.defaultOnLog,
 	});
 
 	const {size} = await fs.promises.stat(outputPath);
