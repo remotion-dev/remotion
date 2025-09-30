@@ -33,7 +33,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 const Component = () => {
 	return (
 		<>
-			<Video src={src} logLevel="verbose" />
+			<Video src={src} />
 		</>
 	);
 };

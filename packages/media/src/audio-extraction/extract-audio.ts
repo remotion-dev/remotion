@@ -7,8 +7,7 @@ import {
 	TARGET_NUMBER_OF_CHANNELS,
 	TARGET_SAMPLE_RATE,
 } from '../convert-audiodata/resample-audiodata';
-import {sinkPromises} from '../video-extraction/extract-frame';
-import {getSinks} from '../video-extraction/get-frames-since-keyframe';
+import {getSinkWeak} from '../get-sink-weak';
 
 export const extractAudio = async ({
 	src,
@@ -24,24 +23,29 @@ export const extractAudio = async ({
 	logLevel: LogLevel;
 	loop: boolean;
 	playbackRate: number;
-}): Promise<{
-	data: PcmS16AudioData | null;
-	durationInSeconds: number | null;
-}> => {
-	if (!sinkPromises[src]) {
-		sinkPromises[src] = getSinks(src);
-	}
-
-	const {audio, actualMatroskaTimestamps, isMatroska, getDuration} =
-		await sinkPromises[src];
+}): Promise<
+	| {
+			data: PcmS16AudioData | null;
+			durationInSeconds: number | null;
+	  }
+	| 'cannot-decode'
+> => {
+	const {getAudio, actualMatroskaTimestamps, isMatroska, getDuration} =
+		await getSinkWeak(src, logLevel);
 
 	let duration: number | null = null;
 	if (loop) {
 		duration = await getDuration();
 	}
 
-	if (audio === null) {
+	const audio = await getAudio();
+
+	if (audio === 'no-audio-track') {
 		return {data: null, durationInSeconds: null};
+	}
+
+	if (audio === 'cannot-decode-audio') {
+		return 'cannot-decode';
 	}
 
 	const timeInSeconds = loop

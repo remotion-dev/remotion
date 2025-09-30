@@ -21,35 +21,67 @@ export const extractFrameAndAudio = async ({
 	includeAudio: boolean;
 	includeVideo: boolean;
 	loop: boolean;
-}): Promise<{
-	frame: VideoFrame | null;
-	audio: PcmS16AudioData | null;
-	durationInSeconds: number | null;
-}> => {
-	const [frame, audio] = await Promise.all([
-		includeVideo
-			? extractFrame({
-					src,
-					timeInSeconds,
-					logLevel,
-					loop,
-				})
-			: null,
-		includeAudio
-			? extractAudio({
-					src,
-					timeInSeconds,
-					durationInSeconds,
-					logLevel,
-					loop,
-					playbackRate,
-				})
-			: null,
-	]);
+}): Promise<
+	| {
+			frame: VideoFrame | null;
+			audio: PcmS16AudioData | null;
+			durationInSeconds: number | null;
+	  }
+	| 'cannot-decode'
+	| 'network-error'
+> => {
+	try {
+		const [frame, audio] = await Promise.all([
+			includeVideo
+				? extractFrame({
+						src,
+						timeInSeconds,
+						logLevel,
+						loop,
+					})
+				: null,
+			includeAudio
+				? extractAudio({
+						src,
+						timeInSeconds,
+						durationInSeconds,
+						logLevel,
+						loop,
+						playbackRate,
+					})
+				: null,
+		]);
 
-	return {
-		frame: frame?.toVideoFrame() ?? null,
-		audio: audio?.data ?? null,
-		durationInSeconds: audio?.durationInSeconds ?? null,
-	};
+		if (frame === 'cannot-decode') {
+			return 'cannot-decode';
+		}
+
+		if (audio === 'cannot-decode') {
+			if (frame !== null) {
+				frame?.close();
+			}
+
+			return 'cannot-decode';
+		}
+
+		return {
+			frame: frame?.toVideoFrame() ?? null,
+			audio: audio?.data ?? null,
+			durationInSeconds: audio?.durationInSeconds ?? null,
+		};
+	} catch (err) {
+		const error = err as Error;
+		if (
+			// Chrome
+			error.message.includes('Failed to fetch') ||
+			// Safari
+			error.message.includes('Load failed') ||
+			// Firefox
+			error.message.includes('NetworkError when attempting to fetch resource')
+		) {
+			return 'network-error';
+		}
+
+		throw err;
+	}
 };

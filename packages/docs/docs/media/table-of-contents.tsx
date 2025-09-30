@@ -8,15 +8,11 @@ export const TableOfContents: React.FC = () => {
 			<Grid>
 				<TOCItem link="/docs/media/video">
 					<strong>{'<Video>'}</strong>
-					<div>
-						WebCodecs-based video tag for efficient and accurate embedding
-					</div>
+					<div>WebCodecs-based tag for embedding videos</div>
 				</TOCItem>
 				<TOCItem link="/docs/media/audio">
 					<strong>{'<Audio>'}</strong>
-					<div>
-						WebCodecs-based audio tag for efficient and accurate embedding
-					</div>
+					<div>WebCodecs-based tag for embedding audio</div>
 				</TOCItem>
 			</Grid>
 		</div>
