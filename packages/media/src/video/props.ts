@@ -5,6 +5,15 @@ import type {
 	VolumeProp,
 } from 'remotion';
 
+export type FallbackOffthreadVideoProps = {
+	acceptableTimeShiftInSeconds?: number;
+	transparent?: boolean;
+	toneMapped?: boolean;
+	audioStreamIndex?: number;
+	onError?: (err: Error) => void;
+	toneFrequency?: number;
+};
+
 export type VideoProps = {
 	src: string;
 	className?: string;
@@ -27,12 +36,5 @@ export type VideoProps = {
 	stack?: string;
 	logLevel?: LogLevel;
 	loop?: boolean;
-	fallbackOffthreadVideoProps?: {
-		acceptableTimeShiftInSeconds?: number;
-		transparent?: boolean;
-		toneMapped?: boolean;
-		audioStreamIndex?: number;
-		onError?: (err: Error) => void;
-		toneFrequency?: number;
-	};
+	fallbackOffthreadVideoProps?: FallbackOffthreadVideoProps;
 };
