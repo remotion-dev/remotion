@@ -52,8 +52,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const {fps} = videoConfig;
 
 	const {delayRender, continueRender} = useDelayRender();
-	const [replaceWithOffthreadVideo, setReplaceWithOffthreadVideo] =
-		useState(false);
+	const [replaceWithHtml5Audio, setReplaceWithHtml5Audio] = useState(false);
 
 	useLayoutEffect(() => {
 		const actualFps = playbackRate ? fps / playbackRate : fps;
@@ -94,7 +93,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						{logLevel, tag: '@remotion/media'},
 						`Cannot decode ${src}, falling back to <Audio>`,
 					);
-					setReplaceWithOffthreadVideo(true);
+					setReplaceWithHtml5Audio(true);
 					return;
 				}
 
@@ -103,7 +102,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						{logLevel, tag: '@remotion/media'},
 						`Network error fetching ${src}, falling back to <Audio>`,
 					);
-					setReplaceWithOffthreadVideo(true);
+					setReplaceWithHtml5Audio(true);
 					return;
 				}
 
@@ -171,7 +170,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		volumeProp,
 	]);
 
-	if (replaceWithOffthreadVideo) {
+	if (replaceWithHtml5Audio) {
 		// TODO: Loop and other props
 		return (
 			<Audio
