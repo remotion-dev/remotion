@@ -46,7 +46,11 @@ export const Log = {
 						return chalk.red(a);
 					}
 
-					return chalk.gray(a);
+					if (logLevel === 'verbose' || logLevel === 'trace') {
+						return chalk.gray(a);
+					}
+
+					return a;
 				}),
 			);
 	},
