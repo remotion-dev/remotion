@@ -101,19 +101,25 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		})
 			.then((result) => {
 				if (result === 'cannot-decode') {
-					Internals.Log.warn(
-						{logLevel, tag: '@remotion/media'},
-						`Cannot decode ${src}, falling back to <OffthreadVideo>`,
-					);
+					if (window.remotion_isMainTab) {
+						Internals.Log.info(
+							{logLevel, tag: '@remotion/media'},
+							`Cannot decode ${src}, falling back to <OffthreadVideo>`,
+						);
+					}
+
 					setReplaceWithOffthreadVideo(true);
 					return;
 				}
 
 				if (result === 'network-error') {
-					Internals.Log.warn(
-						{logLevel, tag: '@remotion/media'},
-						`Network error fetching ${src}, falling back to <OffthreadVideo>`,
-					);
+					if (window.remotion_isMainTab) {
+						Internals.Log.info(
+							{logLevel, tag: '@remotion/media'},
+							`Network error fetching ${src}, falling back to <OffthreadVideo>`,
+						);
+					}
+
 					setReplaceWithOffthreadVideo(true);
 					return;
 				}

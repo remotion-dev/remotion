@@ -7,6 +7,7 @@ import {
 	MATROSKA,
 	UrlSource,
 	VideoSampleSink,
+	WEBM,
 } from 'mediabunny';
 import {makeKeyframeBank} from './keyframe-bank';
 import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
@@ -26,21 +27,8 @@ export type AudioSinkResult =
 	| 'cannot-decode-audio';
 export type VideoSinkResult = VideoSinks | 'no-video-track' | 'cannot-decode';
 
-const getRetryDelay = ((previousAttempts, err) => {
-	const error = err as Error;
-	// We suspect CORS error
-	if (
-		// Chrome
-		error.message.includes('Failed to fetch') ||
-		// Safari
-		error.message.includes('Load failed') ||
-		// Firefox
-		error.message.includes('NetworkError when attempting to fetch resource')
-	) {
-		return null;
-	}
-
-	return Math.min(2 ** (previousAttempts - 2), 16);
+const getRetryDelay = (() => {
+	return null;
 }) satisfies UrlSourceOptions['getRetryDelay'];
 
 export const getSinks = async (src: string) => {
@@ -52,7 +40,7 @@ export const getSinks = async (src: string) => {
 	});
 
 	const format = await input.getFormat();
-	const isMatroska = format === MATROSKA;
+	const isMatroska = format === MATROSKA || format === WEBM;
 
 	const getVideoSinks = async (): Promise<VideoSinkResult> => {
 		const videoTrack = await input.getPrimaryVideoTrack();
