@@ -22,7 +22,6 @@ export type VideoProps = {
 	volume?: VolumeProp;
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	name?: string;
-	pauseWhenBuffering?: boolean;
 	showInTimeline?: boolean;
 	onVideoFrame?: OnVideoFrame;
 	playbackRate?: number;
