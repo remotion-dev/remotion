@@ -283,6 +283,10 @@ export class MediaPlayer {
 
 	public onVideoFrame(callback: (frame: CanvasImageSource) => void): void {
 		this.onVideoFrameCallback = callback;
+
+		if (this.initialized && callback) {
+			callback(this.canvas);
+		}
 	}
 
 	private canRenderVideo(): boolean {
@@ -389,6 +393,10 @@ export class MediaPlayer {
 					`[MediaPlayer] Drew initial frame ${firstFrame.timestamp.toFixed(3)}s`,
 				);
 				this.context.drawImage(firstFrame.canvas, 0, 0);
+
+				if (this.onVideoFrameCallback) {
+					this.onVideoFrameCallback(this.canvas);
+				}
 			}
 
 			this.nextFrame = secondFrame ?? null;
