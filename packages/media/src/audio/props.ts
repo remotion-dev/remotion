@@ -1,5 +1,13 @@
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
 
+export type FallbackHtml5AudioProps = {
+	offthreadAudioProps: {
+		playbackRate?: number;
+		muted?: boolean;
+		loop?: boolean;
+	};
+};
+
 export type AudioProps = {
 	src: string;
 	trimBefore?: number;
@@ -21,4 +29,11 @@ export type AudioProps = {
 	logLevel?: LogLevel;
 	loop?: boolean;
 	_remotionInternalNativeLoopPassed?: boolean;
+	fallbackHtml5AudioProps?: {
+		onError?: (err: Error) => void;
+		audioStreamIndex?: number;
+		useWebAudioApi?: boolean;
+		toneFrequency?: number;
+		acceptableTimeShiftInSeconds?: number;
+	};
 };

@@ -6,7 +6,7 @@ import {extractFrameAndAudio} from '../extract-frame-and-audio';
 test('Should be able to extract a frame', async () => {
 	await keyframeManager.clearAll();
 
-	const {audio, frame} = await extractFrameAndAudio({
+	const result = await extractFrameAndAudio({
 		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1,
 		durationInSeconds: 1 / 30,
@@ -16,6 +16,17 @@ test('Should be able to extract a frame', async () => {
 		includeVideo: true,
 		loop: false,
 	});
+
+	if (result === 'cannot-decode') {
+		throw new Error('Cannot decode');
+	}
+
+	if (result === 'network-error') {
+		throw new Error('Network error');
+	}
+
+	const {audio, frame} = result;
+	assert(audio);
 
 	assert(frame);
 	expect(frame.timestamp).toBe(1_000_000);
@@ -37,7 +48,7 @@ test('Should be able to extract a frame', async () => {
 test('Should be able to extract the last frame', async () => {
 	await keyframeManager.clearAll();
 
-	const {audio, frame} = await extractFrameAndAudio({
+	const result = await extractFrameAndAudio({
 		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1_000_000,
 		durationInSeconds: 1 / 30,
@@ -47,6 +58,16 @@ test('Should be able to extract the last frame', async () => {
 		includeVideo: true,
 		loop: false,
 	});
+
+	if (result === 'cannot-decode') {
+		throw new Error('Cannot decode');
+	}
+
+	if (result === 'network-error') {
+		throw new Error('Network error');
+	}
+
+	const {audio, frame} = result;
 
 	assert(frame);
 	expect(frame.timestamp).toBe(59_958_333);
@@ -80,7 +101,7 @@ test('Should manage the cache', async () => {
 test('Should be apply volume correctly', async () => {
 	await keyframeManager.clearAll();
 
-	const {audio: audioAtFullVolume, frame} = await extractFrameAndAudio({
+	const result = await extractFrameAndAudio({
 		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1,
 		durationInSeconds: 1 / 30,
@@ -90,6 +111,16 @@ test('Should be apply volume correctly', async () => {
 		includeVideo: false,
 		loop: false,
 	});
+
+	if (result === 'cannot-decode') {
+		throw new Error('Cannot decode');
+	}
+
+	if (result === 'network-error') {
+		throw new Error('Network error');
+	}
+
+	const {audio: audioAtFullVolume, frame} = result;
 
 	const totalAudioAtFullVolume = audioAtFullVolume?.data.reduce((acc, curr) => {
 		const unrounded = curr * 0.5;
@@ -110,7 +141,7 @@ test('Should be apply volume correctly', async () => {
 
 test('Should be able to loop', async () => {
 	await keyframeManager.clearAll();
-	const {frame} = await extractFrameAndAudio({
+	const result = await extractFrameAndAudio({
 		src: `/bigbuckbunny.mp4`,
 		timeInSeconds: 10000001,
 		durationInSeconds: 1 / 30,
@@ -120,6 +151,16 @@ test('Should be able to loop', async () => {
 		includeVideo: true,
 		loop: true,
 	});
+
+	if (result === 'cannot-decode') {
+		throw new Error('Cannot decode');
+	}
+
+	if (result === 'network-error') {
+		throw new Error('Network error');
+	}
+
+	const {frame} = result;
 
 	expect(frame?.timestamp).toBe(41_000_000);
 });

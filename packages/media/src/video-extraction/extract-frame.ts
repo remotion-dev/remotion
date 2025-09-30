@@ -1,3 +1,4 @@
+import type {VideoSample} from 'mediabunny';
 import {type LogLevel} from 'remotion';
 import {keyframeManager} from '../caches';
 import {getSinkWeak} from '../get-sink-weak';
@@ -12,17 +13,21 @@ export const extractFrame = async ({
 	timeInSeconds: number;
 	logLevel: LogLevel;
 	loop: boolean;
-}) => {
+}): Promise<VideoSample | 'cannot-decode' | null> => {
 	const sink = await getSinkWeak(src, logLevel);
 
-	const {video, getDuration} = sink;
+	const video = await sink.getVideo();
 
-	if (video === null) {
+	if (video === 'no-video-track') {
 		throw new Error(`No video track found for ${src}`);
 	}
 
+	if (video === 'cannot-decode') {
+		return 'cannot-decode';
+	}
+
 	const timeInSeconds = loop
-		? unloopedTimeinSeconds % (await getDuration())
+		? unloopedTimeinSeconds % (await sink.getDuration())
 		: unloopedTimeinSeconds;
 
 	const keyframeBank = await keyframeManager.requestKeyframeBank({

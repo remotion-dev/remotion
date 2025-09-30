@@ -27,4 +27,12 @@ export type VideoProps = {
 	stack?: string;
 	logLevel?: LogLevel;
 	loop?: boolean;
+	fallbackOffthreadVideoProps?: {
+		acceptableTimeShiftInSeconds?: number;
+		transparent?: boolean;
+		toneMapped?: boolean;
+		audioStreamIndex?: number;
+		onError?: (err: Error) => void;
+		toneFrequency?: number;
+	};
 };
