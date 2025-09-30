@@ -147,9 +147,10 @@ export class MediaPlayer {
 
 			this.initialized = true;
 
-			await this.startAudioIterator(startTime);
+			const mediaTime = startTime * this.playbackRate;
+			await this.startAudioIterator(mediaTime);
 
-			await this.startVideoIterator(startTime);
+			await this.startVideoIterator(mediaTime);
 
 			this.startRenderLoop();
 		} catch (error) {
@@ -195,8 +196,9 @@ export class MediaPlayer {
 				await this.cleanAudioIteratorAndNodes();
 			}
 
-			await this.startAudioIterator(newTime);
-			await this.startVideoIterator(newTime);
+			const mediaTime = newTime * this.playbackRate;
+			await this.startAudioIterator(mediaTime);
+			await this.startVideoIterator(mediaTime);
 		}
 
 		if (!this.playing) {
@@ -240,8 +242,18 @@ export class MediaPlayer {
 		this.gainNode.gain.value = appliedVolume;
 	}
 
-	public setPlaybackRate(rate: number): void {
+	public async setPlaybackRate(rate: number): Promise<void> {
+		if (this.playbackRate === rate) return;
+
 		this.playbackRate = rate;
+
+		if (this.hasAudio() && this.playing) {
+			const currentPlaybackTime = this.getPlaybackTime();
+			const mediaTime = currentPlaybackTime * rate;
+
+			await this.cleanAudioIteratorAndNodes();
+			await this.startAudioIterator(mediaTime);
+		}
 	}
 
 	public dispose(): void {
@@ -256,15 +268,21 @@ export class MediaPlayer {
 		return this.sharedAudioContext.currentTime - this.audioSyncAnchor;
 	}
 
+	private getAdjustedTimestamp(mediaTimestamp: number): number {
+		return mediaTimestamp / this.playbackRate;
+	}
+
 	private scheduleAudioChunk(
 		buffer: AudioBuffer,
 		mediaTimestamp: number,
 	): void {
-		const targetTime = mediaTimestamp + this.audioSyncAnchor;
+		const adjustedTimestamp = this.getAdjustedTimestamp(mediaTimestamp);
+		const targetTime = adjustedTimestamp + this.audioSyncAnchor;
 		const delay = targetTime - this.sharedAudioContext.currentTime;
 
 		const node = this.sharedAudioContext.createBufferSource();
 		node.buffer = buffer;
+		node.playbackRate.value = this.playbackRate;
 		node.connect(this.gainNode!);
 
 		if (delay >= 0) {
@@ -332,7 +350,8 @@ export class MediaPlayer {
 			!this.isBuffering &&
 			this.canRenderVideo() &&
 			this.nextFrame !== null &&
-			this.nextFrame.timestamp <= this.getPlaybackTime()
+			this.getAdjustedTimestamp(this.nextFrame.timestamp) <=
+				this.getPlaybackTime()
 		);
 	}
 
@@ -430,7 +449,10 @@ export class MediaPlayer {
 					break;
 				}
 
-				if (newNextFrame.timestamp <= this.getPlaybackTime()) {
+				if (
+					this.getAdjustedTimestamp(newNextFrame.timestamp) <=
+					this.getPlaybackTime()
+				) {
 					continue;
 				} else {
 					this.nextFrame = newNextFrame;
@@ -535,24 +557,34 @@ export class MediaPlayer {
 
 				totalBufferDuration += duration;
 
-				this.audioBufferHealth = Math.max(0, totalBufferDuration);
+				this.audioBufferHealth = Math.max(
+					0,
+					totalBufferDuration / this.playbackRate,
+				);
 
-				this.maybeResumeFromBuffering(totalBufferDuration);
+				this.maybeResumeFromBuffering(totalBufferDuration / this.playbackRate);
 
 				if (this.playing && !this.muted) {
 					if (isFirstBuffer) {
 						this.audioSyncAnchor =
-							this.sharedAudioContext.currentTime - timestamp;
+							this.sharedAudioContext.currentTime -
+							this.getAdjustedTimestamp(timestamp);
 						isFirstBuffer = false;
 					}
 
 					this.scheduleAudioChunk(buffer, timestamp);
 				}
 
-				if (timestamp - this.getPlaybackTime() >= 1) {
+				if (
+					this.getAdjustedTimestamp(timestamp) - this.getPlaybackTime() >=
+					1
+				) {
 					await new Promise<void>((resolve) => {
 						const check = () => {
-							if (timestamp - this.getPlaybackTime() < 1) {
+							if (
+								this.getAdjustedTimestamp(timestamp) - this.getPlaybackTime() <
+								1
+							) {
 								resolve();
 							} else {
 								requestAnimationFrame(check);

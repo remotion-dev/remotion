@@ -230,7 +230,13 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			return;
 		}
 
-		mediaPlayer.setPlaybackRate(effectivePlaybackRate);
+		mediaPlayer.setPlaybackRate(effectivePlaybackRate).catch((error) => {
+			Internals.Log.error(
+				{logLevel, tag: '@remotion/media'},
+				'[NewVideoForPreview] Failed to set playback rate',
+				error,
+			);
+		});
 	}, [effectivePlaybackRate, mediaPlayerReady, logLevel]);
 
 	// sync onVideoFrame callback with MediaPlayer
