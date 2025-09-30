@@ -166,6 +166,7 @@ export const getCompositionId = async ({
 		onBrowserDownload,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		onLog: RenderInternals.defaultOnLog,
 	});
 
 	if (comps.length === 1) {

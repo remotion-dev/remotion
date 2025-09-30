@@ -51,6 +51,12 @@ export type BundlingState = {
 	doneIn: number | null;
 };
 
+export type BrowserProgressLog = {
+	logLevel: LogLevel;
+	previewString: string;
+	tag: string | null;
+};
+
 export type AggregateRenderProgress = {
 	rendering: RenderingProgressInput | null;
 	stitching: StitchingProgressInput | null;
@@ -58,6 +64,7 @@ export type AggregateRenderProgress = {
 	bundling: BundlingState;
 	copyingState: CopyingState;
 	artifactState: ArtifactProgress;
+	logs: BrowserProgressLog[];
 };
 
 export type ReceivedArtifact = {

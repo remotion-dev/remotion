@@ -335,6 +335,7 @@ export const benchmarkCommand = async (
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value,
+		onLog: RenderInternals.defaultOnLog,
 	});
 
 	const ids = (
@@ -524,6 +525,7 @@ export const benchmarkCommand = async (
 					mediaCacheSizeInBytes: mediaCacheSizeInBytesOption.getValue({
 						commandLine: parsedCli,
 					}).value,
+					onLog: RenderInternals.defaultOnLog,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

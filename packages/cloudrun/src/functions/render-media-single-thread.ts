@@ -201,6 +201,7 @@ export const renderMediaSingleThread = async (
 			metadata: body.metadata ?? null,
 			hardwareAcceleration: 'disable',
 			chromeMode: 'headless-shell',
+			onLog: RenderInternals.defaultOnLog,
 		});
 
 		const storage = new Storage();

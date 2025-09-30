@@ -7,12 +7,14 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import type {OnLog} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
 import {collectAssets} from './collect-assets';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
+import {defaultOnLog} from './default-on-log';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {onlyArtifact} from './filter-asset-types';
@@ -71,6 +73,7 @@ type InternalRenderStillOptions = {
 	serveUrl: string;
 	port: number | null;
 	onArtifact: OnArtifact | null;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.renderStill>;
 
 export type RenderStillOptions = {
@@ -135,6 +138,7 @@ const innerRenderStill = async ({
 	onArtifact,
 	chromeMode,
 	mediaCacheSizeInBytes,
+	onLog,
 }: InternalRenderStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
@@ -218,6 +222,7 @@ const innerRenderStill = async ({
 		indent,
 		pageIndex: 0,
 		onBrowserLog,
+		onLog,
 	});
 	await page.setViewport({
 		width: composition.width,
@@ -535,5 +540,6 @@ export const renderStill = (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		onLog: defaultOnLog,
 	});
 };

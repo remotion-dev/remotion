@@ -15,4 +15,5 @@ export const initialAggregateRenderProgress = (): AggregateRenderProgress => ({
 	artifactState: {
 		received: [],
 	},
+	logs: [],
 });
