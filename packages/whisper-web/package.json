@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/whisper-web"
 	},
 	"name": "@remotion/whisper-web",
-	"version": "4.0.353",
+	"version": "4.0.355",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {

@@ -1,8 +1,7 @@
+import type {VideoSample} from 'mediabunny';
 import {type LogLevel} from 'remotion';
 import {keyframeManager} from '../caches';
-import {getSinks, type GetSink} from './get-frames-since-keyframe';
-
-export const sinkPromises: Record<string, Promise<GetSink>> = {};
+import {getSinkWeak} from '../get-sink-weak';
 
 export const extractFrame = async ({
 	src,
@@ -14,19 +13,21 @@ export const extractFrame = async ({
 	timeInSeconds: number;
 	logLevel: LogLevel;
 	loop: boolean;
-}) => {
-	if (!sinkPromises[src]) {
-		sinkPromises[src] = getSinks(src);
-	}
+}): Promise<VideoSample | 'cannot-decode' | null> => {
+	const sink = await getSinkWeak(src, logLevel);
 
-	const {video, getDuration} = await sinkPromises[src];
+	const video = await sink.getVideo();
 
-	if (video === null) {
+	if (video === 'no-video-track') {
 		throw new Error(`No video track found for ${src}`);
 	}
 
+	if (video === 'cannot-decode') {
+		return 'cannot-decode';
+	}
+
 	const timeInSeconds = loop
-		? unloopedTimeinSeconds % (await getDuration())
+		? unloopedTimeinSeconds % (await sink.getDuration())
 		: unloopedTimeinSeconds;
 
 	const keyframeBank = await keyframeManager.requestKeyframeBank({

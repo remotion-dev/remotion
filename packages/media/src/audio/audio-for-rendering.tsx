@@ -1,6 +1,7 @@
 import type React from 'react';
 import {useContext, useLayoutEffect, useState} from 'react';
 import {
+	Audio,
 	cancelRender,
 	Internals,
 	useCurrentFrame,
@@ -22,6 +23,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	delayRenderTimeoutInMilliseconds,
 	logLevel = window.remotion_logLevel,
 	loop,
+	fallbackHtml5AudioProps,
+	showInTimeline,
+	style,
+	name,
 }) => {
 	const frame = useCurrentFrame();
 	const absoluteFrame = Internals.useTimelinePosition();
@@ -47,6 +52,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const {fps} = videoConfig;
 
 	const {delayRender, continueRender} = useDelayRender();
+	const [replaceWithHtml5Audio, setReplaceWithHtml5Audio] = useState(false);
 
 	useLayoutEffect(() => {
 		const actualFps = playbackRate ? fps / playbackRate : fps;
@@ -81,7 +87,27 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
 		})
-			.then(({audio, durationInSeconds: assetDurationInSeconds}) => {
+			.then((result) => {
+				if (result === 'cannot-decode') {
+					Internals.Log.info(
+						{logLevel, tag: '@remotion/media'},
+						`Cannot decode ${src}, falling back to <Audio>`,
+					);
+					setReplaceWithHtml5Audio(true);
+					return;
+				}
+
+				if (result === 'network-error') {
+					Internals.Log.info(
+						{logLevel, tag: '@remotion/media'},
+						`Network error fetching ${src}, falling back to <Audio>`,
+					);
+					setReplaceWithHtml5Audio(true);
+					return;
+				}
+
+				const {audio, durationInSeconds: assetDurationInSeconds} = result;
+
 				const volumePropsFrame = frameForVolumeProp({
 					behavior: loopVolumeCurveBehavior ?? 'repeat',
 					loop: loop ?? false,
@@ -143,6 +169,32 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		unregisterRenderAsset,
 		volumeProp,
 	]);
+
+	if (replaceWithHtml5Audio) {
+		// TODO: Loop and other props
+		return (
+			<Audio
+				src={src}
+				playbackRate={playbackRate}
+				muted={muted}
+				loop={loop}
+				volume={volumeProp}
+				delayRenderRetries={delayRenderRetries}
+				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+				style={style}
+				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
+				audioStreamIndex={fallbackHtml5AudioProps?.audioStreamIndex}
+				useWebAudioApi={fallbackHtml5AudioProps?.useWebAudioApi}
+				onError={fallbackHtml5AudioProps?.onError}
+				toneFrequency={fallbackHtml5AudioProps?.toneFrequency}
+				acceptableTimeShiftInSeconds={
+					fallbackHtml5AudioProps?.acceptableTimeShiftInSeconds
+				}
+				name={name}
+				showInTimeline={showInTimeline}
+			/>
+		);
+	}
 
 	return null;
 };
