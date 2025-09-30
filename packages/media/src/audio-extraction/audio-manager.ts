@@ -14,12 +14,14 @@ export const makeAudioManager = () => {
 		audioSampleSink,
 		isMatroska,
 		actualMatroskaTimestamps,
+		logLevel,
 	}: {
 		timeInSeconds: number;
 		src: string;
 		audioSampleSink: AudioSampleSink;
 		isMatroska: boolean;
 		actualMatroskaTimestamps: RememberActualMatroskaTimestamps;
+		logLevel: LogLevel;
 	}) => {
 		const iterator = makeAudioIterator({
 			audioSampleSink,
@@ -27,6 +29,7 @@ export const makeAudioManager = () => {
 			startTimestamp: timeInSeconds,
 			src,
 			actualMatroskaTimestamps,
+			logLevel,
 		});
 
 		iterators.push(iterator);
@@ -100,6 +103,7 @@ export const makeAudioManager = () => {
 			audioSampleSink,
 			isMatroska,
 			actualMatroskaTimestamps,
+			logLevel,
 		});
 	};
 
@@ -115,9 +119,9 @@ export const makeAudioManager = () => {
 		return {count: totalCount, totalSize};
 	};
 
-	const logOpenFrames = (logLevel: LogLevel) => {
+	const logOpenFrames = () => {
 		for (const iterator of iterators) {
-			iterator.logOpenFrames(logLevel);
+			iterator.logOpenFrames();
 		}
 	};
 
