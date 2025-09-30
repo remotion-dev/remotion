@@ -7,6 +7,7 @@ import {
 	MATROSKA,
 	UrlSource,
 	VideoSampleSink,
+	WEBM,
 } from 'mediabunny';
 import {makeKeyframeBank} from './keyframe-bank';
 import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
@@ -39,7 +40,7 @@ export const getSinks = async (src: string) => {
 	});
 
 	const format = await input.getFormat();
-	const isMatroska = format === MATROSKA;
+	const isMatroska = format === MATROSKA || format === WEBM;
 
 	const getVideoSinks = async (): Promise<VideoSinkResult> => {
 		const videoTrack = await input.getPrimaryVideoTrack();

@@ -12,18 +12,35 @@ import {makeAudioCache} from './audio-cache';
 
 const extraThreshold = 1.5;
 
+const warned: Record<string, boolean> = {};
+
+const warnAboutMatroskaOnce = (src: string, logLevel: LogLevel) => {
+	if (warned[src]) {
+		return;
+	}
+
+	warned[src] = true;
+
+	Internals.Log.warn(
+		{logLevel, tag: '@remotion/media'},
+		`Audio from ${src} will need to be read from the beginning. https://www.remotion.dev/docs/media/support#matroska-limitation`,
+	);
+};
+
 export const makeAudioIterator = ({
 	audioSampleSink,
 	isMatroska,
 	startTimestamp,
 	src,
 	actualMatroskaTimestamps,
+	logLevel,
 }: {
 	audioSampleSink: AudioSampleSink;
 	isMatroska: boolean;
 	startTimestamp: number;
 	src: string;
 	actualMatroskaTimestamps: RememberActualMatroskaTimestamps;
+	logLevel: LogLevel;
 }) => {
 	// Matroska timestamps are not accurate unless we start from the beginning
 	// So for matroska, we need to decode all samples :(
@@ -33,6 +50,9 @@ export const makeAudioIterator = ({
 	const sampleIterator = audioSampleSink.samples(
 		isMatroska ? 0 : Math.max(0, startTimestamp - extraThreshold),
 	);
+	if (isMatroska) {
+		warnAboutMatroskaOnce(src, logLevel);
+	}
 
 	let fullDuration: number | null = null;
 
@@ -114,7 +134,7 @@ export const makeAudioIterator = ({
 		return samples;
 	};
 
-	const logOpenFrames = (logLevel: LogLevel) => {
+	const logOpenFrames = () => {
 		Internals.Log.verbose(
 			{logLevel, tag: '@remotion/media'},
 			'Open audio samples for src',
