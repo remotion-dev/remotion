@@ -12,6 +12,7 @@ const {
 	useFrameForVolumeProp,
 	evaluateVolume,
 	warnAboutTooHighVolume,
+	usePreload,
 } = Internals;
 
 type NewVideoForPreviewProps = {
@@ -79,6 +80,8 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	const [initialTimestamp] = useState(currentTime);
 
+	const preloadedSrc = usePreload(src);
+
 	useEffect(() => {
 		if (!canvasRef.current) return;
 		if (!sharedAudioContext) return;
@@ -87,7 +90,7 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		try {
 			const player = new MediaPlayer({
 				canvas: canvasRef.current!,
-				src,
+				src: preloadedSrc,
 				logLevel,
 				sharedAudioContext: sharedAudioContext.audioContext,
 			});
@@ -135,7 +138,7 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 			setMediaPlayerReady(false);
 		};
-	}, [src, logLevel, sharedAudioContext, initialTimestamp]);
+	}, [preloadedSrc, logLevel, sharedAudioContext, initialTimestamp]);
 
 	const classNameValue = useMemo(() => {
 		return [Internals.OBJECTFIT_CONTAIN_CLASS_NAME, className]
