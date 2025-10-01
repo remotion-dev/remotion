@@ -199,15 +199,6 @@ By default, if the video cannot be embedded using this tag, [a fallback to `<Aud
 
 Pass this prop to disable the fallback and fail the render instead.
 
-## Setting the cache size
-
-`@remotion/media` keeps a cache of video and audio frames.
-
-By default, the cache may grow to up to 50% of the available system memory.  
-The rendering APIs allow you to customize this limit on a per-render basis.
-
-See in [`renderMedia()`](/docs/renderer/render-media) for example: [`mediaCacheSizeInBytes`](/docs/renderer/select-composition#mediacachesizeinbytes).
-
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/media/src/audio/audio.tsx)

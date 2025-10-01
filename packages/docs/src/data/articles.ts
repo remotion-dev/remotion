@@ -3285,6 +3285,15 @@ export const articles = [
 		slug: 'media/audio',
 	},
 	{
+		id: 'media/fallback',
+		title: 'Fallback from @remotion/media to <OffthreadVideo> or <Audio>',
+		relativePath: 'docs/media/fallback.mdx',
+		compId: 'articles-docs-media-fallback',
+		crumb: '@remotion/media',
+		noAi: false,
+		slug: 'media/fallback',
+	},
+	{
 		id: 'media/index',
 		title: '@remotion/media',
 		relativePath: 'docs/media/index.mdx',
