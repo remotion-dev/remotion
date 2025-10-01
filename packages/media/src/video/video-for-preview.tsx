@@ -1,7 +1,15 @@
+import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
-import {Internals, useBufferState, useCurrentFrame} from 'remotion';
+import {
+	Internals,
+	Loop,
+	useBufferState,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {MediaPlayer} from './media-player';
+import type {VideoProps} from './props';
 
 const {
 	useUnsafeVideoConfig,
@@ -15,6 +23,32 @@ const {
 	usePreload,
 } = Internals;
 
+const calculateLoopDuration = ({
+	endAt,
+	mediaDuration,
+	playbackRate,
+	startFrom,
+}: {
+	mediaDuration: number;
+	playbackRate: number;
+	startFrom: number | undefined;
+	endAt: number | undefined;
+}) => {
+	let duration = mediaDuration;
+
+	if (typeof endAt !== 'undefined') {
+		duration = endAt;
+	}
+
+	if (typeof startFrom !== 'undefined') {
+		duration -= startFrom;
+	}
+
+	const actualDuration = duration / playbackRate;
+
+	return Math.floor(actualDuration);
+};
+
 type NewVideoForPreviewProps = {
 	readonly src: string;
 	readonly style?: React.CSSProperties;
@@ -25,9 +59,10 @@ type NewVideoForPreviewProps = {
 	readonly volume?: VolumeProp;
 	readonly loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	readonly onVideoFrame?: (frame: CanvasImageSource) => void;
+	readonly _remotionInternalNativeLoopPassed?: boolean;
 };
 
-export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
+const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	src,
 	style,
 	playbackRate = 1,
@@ -146,7 +181,6 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			.join(' ');
 	}, [className]);
 
-	// sync play/pause state with Remotion timeline (like old VideoForPreview video does)
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer) return;
@@ -164,7 +198,6 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		}
 	}, [playing, logLevel, mediaPlayerReady]);
 
-	// sync target time with MediaPlayer
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
@@ -176,21 +209,18 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		);
 	}, [currentTime, logLevel, mediaPlayerReady]);
 
-	// sync MediaPlayer buffering with Remotion buffering
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
 
 		mediaPlayer.onBufferingChange((newBufferingState) => {
 			if (newBufferingState && !delayHandleRef.current) {
-				// Start blocking Remotion playback
 				delayHandleRef.current = buffer.delayPlayback();
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},
 					'[NewVideoForPreview] MediaPlayer buffering - blocking Remotion playback',
 				);
 			} else if (!newBufferingState && delayHandleRef.current) {
-				// Unblock Remotion playback
 				delayHandleRef.current.unblock();
 				delayHandleRef.current = null;
 				Internals.Log.trace(
@@ -203,7 +233,6 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
 
-	// sync muted state with MediaPlayer
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
@@ -211,7 +240,6 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		mediaPlayer.setMuted(effectiveMuted);
 	}, [effectiveMuted, mediaPlayerReady]);
 
-	// sync volume with MediaPlayer
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) {
@@ -226,7 +254,6 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		[playbackRate, globalPlaybackRate],
 	);
 
-	// sync playbackRate with MediaPlayer (like HTML5 video does)
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) {
@@ -242,7 +269,6 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		});
 	}, [effectivePlaybackRate, mediaPlayerReady, logLevel]);
 
-	// sync onVideoFrame callback with MediaPlayer
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) {
@@ -261,6 +287,125 @@ export const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			height={videoConfig.height}
 			style={style}
 			className={classNameValue}
+		/>
+	);
+};
+
+interface VideoForPreviewWithDurationProps extends VideoProps {
+	readonly durationInSeconds: number;
+}
+
+const VideoForPreviewWithDuration: React.FC<
+	VideoForPreviewWithDurationProps
+> = (props) => {
+	const {name, durationInSeconds, loop, trimBefore, trimAfter, ...otherProps} =
+		props;
+	const {fps} = useVideoConfig();
+
+	if (loop) {
+		if (!Number.isFinite(durationInSeconds)) {
+			return (
+				<VideoForPreviewWithDuration
+					{...props}
+					_remotionInternalNativeLoopPassed
+					loop={false}
+				/>
+			);
+		}
+
+		const mediaDuration = durationInSeconds * fps;
+
+		return (
+			<Loop
+				durationInFrames={calculateLoopDuration({
+					endAt: trimAfter,
+					mediaDuration,
+					playbackRate: props.playbackRate ?? 1,
+					startFrom: trimBefore,
+				})}
+				layout="none"
+				name={name}
+			>
+				<VideoForPreviewWithDuration
+					{...props}
+					_remotionInternalNativeLoopPassed
+					loop={false}
+				/>
+			</Loop>
+		);
+	}
+
+	return (
+		<NewVideoForPreview
+			src={otherProps.src}
+			style={otherProps.style}
+			playbackRate={otherProps.playbackRate}
+			logLevel={otherProps.logLevel}
+			muted={otherProps.muted}
+			volume={otherProps.volume}
+			loopVolumeCurveBehavior={otherProps.loopVolumeCurveBehavior}
+			onVideoFrame={otherProps.onVideoFrame}
+			_remotionInternalNativeLoopPassed={
+				otherProps._remotionInternalNativeLoopPassed
+			}
+		/>
+	);
+};
+
+export const VideoForPreview: React.FC<VideoProps> = (props) => {
+	const {loop, src, logLevel} = props;
+	const preloadedSrc = usePreload(src);
+
+	const [durationInSeconds, setDurationInSeconds] = useState<number | null>(
+		null,
+	);
+
+	useEffect(() => {
+		if (!loop) {
+			return;
+		}
+
+		let cancelled = false;
+
+		const computeDuration = async () => {
+			try {
+				const urlSource = new UrlSource(preloadedSrc);
+				const input = new Input({
+					source: urlSource,
+					formats: ALL_FORMATS,
+				});
+
+				const duration = await input.computeDuration();
+
+				if (!cancelled) {
+					setDurationInSeconds(duration);
+				}
+
+				input.dispose();
+			} catch (error) {
+				Internals.Log.error(
+					{logLevel: logLevel ?? 'info', tag: '@remotion/media'},
+					'[VideoForPreview] Failed to compute duration',
+					error,
+				);
+			}
+		};
+
+		computeDuration();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [loop, preloadedSrc, logLevel]);
+
+	if (loop && durationInSeconds === null) {
+		return null;
+	}
+
+	return (
+		<VideoForPreviewWithDuration
+			{...props}
+			durationInSeconds={durationInSeconds ?? 0}
 		/>
 	);
 };

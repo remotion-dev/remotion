@@ -35,5 +35,9 @@ export type VideoProps = {
 	stack?: string;
 	logLevel?: LogLevel;
 	loop?: boolean;
+	/**
+	 * @deprecated For internal use only
+	 */
+	_remotionInternalNativeLoopPassed?: boolean;
 	fallbackOffthreadVideoProps?: FallbackOffthreadVideoProps;
 };
