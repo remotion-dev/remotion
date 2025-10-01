@@ -24,3 +24,27 @@ Cannot decode /public/video-h265.mp4, falling back to <OffthreadVideo>
 ```
 
 If you are rendering on an environment where the logs are not immediately visible (e.g. Lambda), observe whether a fallback has happened by visiting the logs (e.g. CloudWatch).
+
+## Preventing a fallback from happening
+
+To prevent [`<Video>`](/docs/media/video) from falling back to [`<OffthreadVideo>`](/docs/offthreadvideo), set the [`disallowFallbackToOffthreadVideo`](/docs/media/video#disallowfallbacktooffthreadvideo) prop:
+
+```tsx twoslash title="No fallback to OffthreadVideo"
+import {experimental_Video as Video} from '@remotion/media';
+
+export const MyComp: React.FC = () => {
+  return <Video src="https://remotion.media/video.mp4" disallowFallbackToOffthreadVideo />;
+};
+```
+
+To prevent [`<Audio>`](/docs/media/audio) from falling back to [`<Audio>`](/docs/audio) from [`remotion`](/docs/remotion), set the [`disallowFallbackToHtml5Audio`](/docs/media/disallowfallbacktohtml5audio) prop:
+
+```tsx twoslash title="No fallback to HTML5 audio tag"
+import {experimental_Audio as Audio} from '@remotion/media';
+
+export const MyComp: React.FC = () => {
+  return <Audio src="https://remotion.media/audio.mp3" disallowFallbackToHtml5Audio />;
+};
+```
+
+If a fallback is prevented, the render will be cancelled instead.

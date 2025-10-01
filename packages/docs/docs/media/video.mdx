@@ -225,6 +225,12 @@ A callback function that gets called when a frame is extracted from the video.
 Useful for [video manipulation](/docs/video-manipulation).  
 The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object, more specifically, either an `ImageBitmap` or a `VideoFrame`.
 
+### `disallowFallbackToOffthreadVideo?`<AvailableFrom v="3.0.356" />
+
+By default, if the video cannot be embedded using this tag, [a fallback to `<OffthreadVideo>`](/docs/media/fallback) will be attempted.
+
+Pass this prop to disable the fallback and fail the render instead.
+
 ## Setting the cache size
 
 `@remotion/media` keeps a cache of video and audio frames.
