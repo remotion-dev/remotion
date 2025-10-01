@@ -398,7 +398,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'media/index',
 			},
-			items: ['media/audio', 'media/video', 'media/support'],
+			items: ['media/audio', 'media/video', 'media/support', 'media/fallback'],
 		},
 		{
 			type: 'category',

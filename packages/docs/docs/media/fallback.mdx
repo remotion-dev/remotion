@@ -1,0 +1,26 @@
+---
+title: 'Fallback from @remotion/media to <OffthreadVideo> or <Audio>'
+sidebar_label: 'Fallback to <OffthreadVideo>'
+crumb: '@remotion/media'
+---
+
+Sometimes, a media file cannot be embedded using [`@remotion/media`](/docs/media)'s [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) tags.  
+In such cases, a fallback to [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Audio>`](/docs/audio) from the `remotion` package is attempted.
+
+## When a fallback is attempted
+
+Here are some cases where [`@remotion/media`](/docs/media) may fall back to [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Audio>`](/docs/audio) from `remotion`:
+
+- The resource fails to load due to [CORS restrictions](/docs/cors-issues)
+- The container format is not supported by [Mediabunny](/docs/mediabunny/formats)
+- The codec cannot be decoded by WebCodecs (e.g. a H.265 stream during rendering)
+
+## Observing when a fallback happens
+
+If [`@remotion/media`](/docs/media) falls back to another tag, then a warning message will be logged in the render:
+
+```
+Cannot decode /public/video-h265.mp4, falling back to <OffthreadVideo>
+```
+
+If you are rendering on an environment where the logs are not immediately visible (e.g. Lambda), observe whether a fallback has happened by visiting the logs (e.g. CloudWatch).
