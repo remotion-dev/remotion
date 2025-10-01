@@ -1198,7 +1198,6 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'miscellaneous/snippets/different-segments-at-different-speeds',
 				'miscellaneous/snippets/player-in-iframe',
-				'miscellaneous/snippets/offthread-video-while-rendering',
 				'miscellaneous/snippets/combine-compositions',
 			],
 		},

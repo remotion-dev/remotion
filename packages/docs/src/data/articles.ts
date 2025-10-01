@@ -3285,6 +3285,15 @@ export const articles = [
 		slug: 'media/audio',
 	},
 	{
+		id: 'media/cache',
+		title: 'In-memory cache for @remotion/media',
+		relativePath: 'docs/media/cache.mdx',
+		compId: 'articles-docs-media-cache',
+		crumb: 'API - @remotion/media',
+		noAi: false,
+		slug: 'media/cache',
+	},
+	{
 		id: 'media/fallback',
 		title: 'Fallback from @remotion/media to <OffthreadVideo> or <Audio>',
 		relativePath: 'docs/media/fallback.mdx',
@@ -3573,17 +3582,6 @@ export const articles = [
 		crumb: 'Snippets',
 		noAi: false,
 		slug: 'miscellaneous/snippets/jumpcuts',
-	},
-	{
-		id: 'miscellaneous/snippets/offthread-video-while-rendering',
-		title: '<OffthreadVideo /> while rendering',
-		relativePath:
-			'docs/miscellaneous/snippets/offthread-video-while-rendering.mdx',
-		compId:
-			'articles-docs-miscellaneous-snippets-offthread-video-while-rendering',
-		crumb: 'Snippets',
-		noAi: false,
-		slug: 'miscellaneous/snippets/offthread-video-while-rendering',
 	},
 	{
 		id: 'miscellaneous/snippets/player-in-iframe',
