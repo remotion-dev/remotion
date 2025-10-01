@@ -94,16 +94,7 @@ export const Index: React.FC = () => {
       });
   }, [handle]);
 
-  return (
-    <Composition
-      id="dynamic-duration"
-      component={VideoTesting}
-      width={1080}
-      height={1080}
-      fps={30}
-      durationInFrames={duration}
-    />
-  );
+  return <Composition id="dynamic-duration" component={VideoTesting} width={1080} height={1080} fps={30} durationInFrames={duration} />;
 };
 ```
 
@@ -167,21 +158,12 @@ export const Index: React.FC = () => {
       });
   }, []);
 
-  return (
-    <Player
-      component={VideoTesting}
-      compositionWidth={1080}
-      compositionHeight={1080}
-      fps={30}
-      durationInFrames={duration}
-    />
-  );
+  return <Player component={VideoTesting} compositionWidth={1080} compositionHeight={1080} fps={30} durationInFrames={duration} />;
 };
 ```
 
 <p>
-  <Step>2</Step> Call your own <code>calculateMetadata()</code> function reused
-  from your Remotion project:
+  <Step>2</Step> Call your own <code>calculateMetadata()</code> function reused from your Remotion project:
 </p>
 
 ```tsx twoslash title="MyApp.tsx"
@@ -223,6 +205,7 @@ export const Index: React.FC = () => {
         props: {},
         abortSignal: new AbortController().signal,
         compositionId: 'MyComp',
+        isRendering: true,
       }),
     )
       .then(({durationInFrames, props, width, height, fps}) => {
