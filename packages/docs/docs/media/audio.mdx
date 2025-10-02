@@ -10,10 +10,10 @@ Not to be confused with the older [`<Audio>`](/docs/audio) tag from `remotion`.
 :::
 
 :::warning
-**Very experimental**: This component is in a very early stage.
-The current focus is on correctness, not on performance.
-
+**Experimental**: This component is in an early stage and not yet feature complete.
 We recommend that you use [`<Audio />`](/docs/audio) for now.
+
+See the [progress of this component on our issue tracker](https://github.com/remotion-dev/remotion/issues/5650).
 :::
 
 This component imports and displays a video, similar to [`<Audio />`](/docs/audio) from `remotion` but during rendering, extracts the exact audio using [Mediabunny](/docs/mediabunny) instead of FFmpeg.
@@ -192,6 +192,29 @@ Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delay
 ### `delayRenderRetries?`
 
 Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.
+
+### `audioStreamIndex?`
+
+Select the audio stream to use. The default is `0`.
+
+```tsx twoslash
+import {AbsoluteFill} from 'remotion';
+import {experimental_Audio as Audio} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio audioStreamIndex={1} src={'https://remotion.media/multiple-audio-streams.mov'} />
+    </AbsoluteFill>
+  );
+};
+```
+
+:::note
+Currently only works during rendering.  
+Planning to support it during preview as well.
+:::
 
 ### `disallowFallbackToHtml5Audio?`<AvailableFrom v="3.0.356" />
 

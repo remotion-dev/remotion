@@ -70,10 +70,16 @@ export const getSinks = async (src: string) => {
 		return videoSinksPromise;
 	};
 
-	let audioSinksPromise: Promise<AudioSinkResult> | null = null;
+	// audioSinksPromise is now a record indexed by audio track index
+	const audioSinksPromise: Record<
+		number,
+		Promise<AudioSinkResult> | undefined
+	> = {};
 
-	const getAudioSinks = async (): Promise<AudioSinkResult> => {
-		const audioTrack = await input.getPrimaryAudioTrack();
+	const getAudioSinks = async (index: number): Promise<AudioSinkResult> => {
+		const audioTracks = await input.getAudioTracks();
+		const audioTrack = audioTracks[index];
+
 		if (!audioTrack) {
 			return 'no-audio-track';
 		}
@@ -89,18 +95,18 @@ export const getSinks = async (src: string) => {
 		};
 	};
 
-	const getAudioSinksPromise = () => {
-		if (audioSinksPromise) {
-			return audioSinksPromise;
+	const getAudioSinksPromise = (index: number) => {
+		if (audioSinksPromise[index]) {
+			return audioSinksPromise[index];
 		}
 
-		audioSinksPromise = getAudioSinks();
-		return audioSinksPromise;
+		audioSinksPromise[index] = getAudioSinks(index);
+		return audioSinksPromise[index];
 	};
 
 	return new WeakRef({
 		getVideo: () => getVideoSinksPromise(),
-		getAudio: () => getAudioSinksPromise(),
+		getAudio: (index: number) => getAudioSinksPromise(index),
 		actualMatroskaTimestamps: rememberActualMatroskaTimestamps(isMatroska),
 		isMatroska,
 		getDuration: () => input.computeDuration(),

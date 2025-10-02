@@ -10,10 +10,10 @@ Not to be confused with the older [`<Video>`](/docs/video) tag from `remotion`.
 :::
 
 :::warning
-**Very experimental**: This component is in a very early stage.
-The current focus is on correctness, not on performance.
-
+**Experimental**: This component is in an early stage and not yet feature complete.
 We recommend that you use [`<OffthreadVideo />`](/docs/offthreadvideo) for now.
+
+See the [progress of this component on our issue tracker](https://github.com/remotion-dev/remotion/issues/5650).
 :::
 
 This component imports and displays a video, similar to [`<OffthreadVideo/>`](/docs/offthreadvideo) but during rendering, extracts the exact frame from the video using [Mediabunny](/docs/mediabunny) and displays it in a `<canvas>` tag.
@@ -224,6 +224,29 @@ Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRen
 A callback function that gets called when a frame is extracted from the video.  
 Useful for [video manipulation](/docs/video-manipulation).  
 The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object, more specifically, either an `ImageBitmap` or a `VideoFrame`.
+
+### `audioStreamIndex?`
+
+Select the audio stream to use. The default is `0`.
+
+```tsx twoslash
+import {AbsoluteFill} from 'remotion';
+import {experimental_Video as Video} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video audioStreamIndex={1} src={'https://remotion.media/multiple-audio-streams.mov'} />
+    </AbsoluteFill>
+  );
+};
+```
+
+:::note
+Currently only works during rendering.  
+Planning to support it during preview as well.
+:::
 
 ### `disallowFallbackToOffthreadVideo?`<AvailableFrom v="3.0.356" />
 

@@ -12,6 +12,7 @@ export const extractFrameAndAudio = async ({
 	includeAudio,
 	includeVideo,
 	loop,
+	audioStreamIndex,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -21,6 +22,7 @@ export const extractFrameAndAudio = async ({
 	includeAudio: boolean;
 	includeVideo: boolean;
 	loop: boolean;
+	audioStreamIndex: number;
 }): Promise<
 	| {
 			frame: VideoFrame | null;
@@ -48,6 +50,7 @@ export const extractFrameAndAudio = async ({
 						logLevel,
 						loop,
 						playbackRate,
+						audioStreamIndex,
 					})
 				: null,
 		]);
