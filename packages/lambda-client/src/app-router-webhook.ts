@@ -43,15 +43,14 @@ export const appRouterWebhook = (
 		// Parse the body properly
 		const body = await req.json();
 
-		validateWebhookSignature({
-			secret,
-			body,
-			signatureHeader: req.headers.get('X-Remotion-Signature') as string,
-		});
-
-		const payload = body as WebhookPayload;
-
 		try {
+			validateWebhookSignature({
+				secret,
+				body,
+				signatureHeader: req.headers.get('X-Remotion-Signature') as string,
+			});
+
+			const payload = body as WebhookPayload;
 			if (payload.type === 'success' && onSuccess) {
 				await onSuccess(payload);
 			} else if (payload.type === 'timeout' && onTimeout) {
@@ -63,9 +62,9 @@ export const appRouterWebhook = (
 			return new Response(
 				JSON.stringify({
 					success: false,
-					error: (err instanceof Error ? err.message : String(err)),
+					error: err instanceof Error ? err.message : String(err),
 				}),
-				{ status: 500, headers }
+				{status: 500, headers},
 			);
 		}
 
