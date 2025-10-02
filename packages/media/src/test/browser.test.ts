@@ -15,6 +15,7 @@ test('Should be able to extract a frame', async () => {
 		includeAudio: true,
 		includeVideo: true,
 		loop: false,
+		audioStreamIndex: 0,
 	});
 
 	if (result === 'cannot-decode') {
@@ -57,6 +58,7 @@ test('Should be able to extract the last frame', async () => {
 		includeAudio: true,
 		includeVideo: true,
 		loop: false,
+		audioStreamIndex: 0,
 	});
 
 	if (result === 'cannot-decode') {
@@ -90,6 +92,7 @@ test('Should manage the cache', async () => {
 			includeAudio: true,
 			includeVideo: true,
 			loop: false,
+			audioStreamIndex: 0,
 		});
 	}
 
@@ -110,6 +113,7 @@ test('Should be apply volume correctly', async () => {
 		includeAudio: true,
 		includeVideo: false,
 		loop: false,
+		audioStreamIndex: 0,
 	});
 
 	if (result === 'cannot-decode') {
@@ -150,6 +154,7 @@ test('Should be able to loop', async () => {
 		includeAudio: true,
 		includeVideo: true,
 		loop: true,
+		audioStreamIndex: 0,
 	});
 
 	if (result === 'cannot-decode') {

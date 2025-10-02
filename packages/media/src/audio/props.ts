@@ -28,12 +28,13 @@ export type AudioProps = {
 	stack?: string;
 	logLevel?: LogLevel;
 	loop?: boolean;
+	audioStreamIndex?: number;
 	_remotionInternalNativeLoopPassed?: boolean;
 	fallbackHtml5AudioProps?: {
 		onError?: (err: Error) => void;
-		audioStreamIndex?: number;
 		useWebAudioApi?: boolean;
 		toneFrequency?: number;
 		acceptableTimeShiftInSeconds?: number;
 	};
+	disallowFallbackToHtml5Audio?: boolean;
 };

@@ -33,8 +33,10 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	style,
 	className,
 	fallbackOffthreadVideoProps,
+	audioStreamIndex,
 	name,
 	showInTimeline,
+	disallowFallbackToOffthreadVideo,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -98,9 +100,18 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 			includeVideo: window.remotion_videoEnabled,
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
+			audioStreamIndex: audioStreamIndex ?? 0,
 		})
 			.then((result) => {
 				if (result === 'cannot-decode') {
+					if (disallowFallbackToOffthreadVideo) {
+						cancelRender(
+							new Error(
+								`Cannot decode ${src}, and 'disallowFallbackToOffthreadVideo' was set. Failing the render.`,
+							),
+						);
+					}
+
 					if (window.remotion_isMainTab) {
 						Internals.Log.info(
 							{logLevel, tag: '@remotion/media'},
@@ -113,6 +124,14 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 				}
 
 				if (result === 'network-error') {
+					if (disallowFallbackToOffthreadVideo) {
+						cancelRender(
+							new Error(
+								`Cannot decode ${src}, and 'disallowFallbackToOffthreadVideo' was set. Failing the render.`,
+							),
+						);
+					}
+
 					if (window.remotion_isMainTab) {
 						Internals.Log.info(
 							{logLevel, tag: '@remotion/media'},
@@ -215,6 +234,8 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		unregisterRenderAsset,
 		volumeProp,
 		replaceWithOffthreadVideo,
+		audioStreamIndex,
+		disallowFallbackToOffthreadVideo,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -240,7 +261,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 				allowAmplificationDuringRender
 				transparent={fallbackOffthreadVideoProps?.transparent}
 				toneMapped={fallbackOffthreadVideoProps?.toneMapped}
-				audioStreamIndex={fallbackOffthreadVideoProps?.audioStreamIndex}
+				audioStreamIndex={audioStreamIndex}
 				name={name}
 				showInTimeline={showInTimeline}
 				className={className}

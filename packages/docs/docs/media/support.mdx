@@ -25,4 +25,6 @@ Prefer non-Matroska-based files (`.mp4`, `.mov`, `.m4a`) when you are doing dist
 
 ## Fallback to `<OffthreadVideo>`
 
-If a media file cannot be decoded, be it because of an unsupported codec or because it does not support CORS, then we plan on automatically falling back to [`<OffthreadVideo>`](/docs/offthreadvideo) if available. This is currently not yet implemented.
+If a media file cannot be decoded, be it because of an unsupported codec or because it does not support CORS, then `@remotion/media` automatically falls back to [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Audio>`](/docs/audio) from the [`remotion`](/docs/remotion) package.
+
+See: [Fallback from `@remotion/media` to `<OffthreadVideo>` or `<Audio>`](/docs/media/fallback)

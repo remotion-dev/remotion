@@ -457,6 +457,11 @@
 			"source": "/investors",
 			"destination": "/docs/investors",
 			"permanent": false
+		},
+		{
+			"destination": "/docs/video-tags#using-a-different-tag-in-preview-and-rendering",
+			"permanent": false,
+			"source": "/docs/miscellaneous/snippets/offthread-video-while-rendering"
 		}
 	]
 }

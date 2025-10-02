@@ -9,7 +9,6 @@ export type FallbackOffthreadVideoProps = {
 	acceptableTimeShiftInSeconds?: number;
 	transparent?: boolean;
 	toneMapped?: boolean;
-	audioStreamIndex?: number;
 	onError?: (err: Error) => void;
 	toneFrequency?: number;
 };
@@ -39,5 +38,7 @@ export type VideoProps = {
 	 * @deprecated For internal use only
 	 */
 	_remotionInternalNativeLoopPassed?: boolean;
+	audioStreamIndex?: number;
+	disallowFallbackToOffthreadVideo?: boolean;
 	fallbackOffthreadVideoProps?: FallbackOffthreadVideoProps;
 };

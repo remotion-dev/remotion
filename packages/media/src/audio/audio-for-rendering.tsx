@@ -24,9 +24,11 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	logLevel = window.remotion_logLevel,
 	loop,
 	fallbackHtml5AudioProps,
+	audioStreamIndex,
 	showInTimeline,
 	style,
 	name,
+	disallowFallbackToHtml5Audio,
 }) => {
 	const frame = useCurrentFrame();
 	const absoluteFrame = Internals.useTimelinePosition();
@@ -86,9 +88,18 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			includeVideo: false,
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
+			audioStreamIndex: audioStreamIndex ?? 0,
 		})
 			.then((result) => {
 				if (result === 'cannot-decode') {
+					if (disallowFallbackToHtml5Audio) {
+						cancelRender(
+							new Error(
+								`Cannot decode ${src}, and 'disallowFallbackToHtml5Audio' was set. Failing the render.`,
+							),
+						);
+					}
+
 					Internals.Log.warn(
 						{logLevel, tag: '@remotion/media'},
 						`Cannot decode ${src}, falling back to <Audio>`,
@@ -98,6 +109,14 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				}
 
 				if (result === 'network-error') {
+					if (disallowFallbackToHtml5Audio) {
+						cancelRender(
+							new Error(
+								`Cannot decode ${src}, and 'disallowFallbackToHtml5Audio' was set. Failing the render.`,
+							),
+						);
+					}
+
 					Internals.Log.warn(
 						{logLevel, tag: '@remotion/media'},
 						`Network error fetching ${src}, falling back to <Audio>`,
@@ -154,6 +173,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		delayRender,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
+		disallowFallbackToHtml5Audio,
 		environment.isClientSideRendering,
 		fps,
 		frame,
@@ -168,6 +188,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		startsAt,
 		unregisterRenderAsset,
 		volumeProp,
+		audioStreamIndex,
 	]);
 
 	if (replaceWithHtml5Audio) {
@@ -183,7 +204,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 				style={style}
 				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
-				audioStreamIndex={fallbackHtml5AudioProps?.audioStreamIndex}
+				audioStreamIndex={audioStreamIndex}
 				useWebAudioApi={fallbackHtml5AudioProps?.useWebAudioApi}
 				onError={fallbackHtml5AudioProps?.onError}
 				toneFrequency={fallbackHtml5AudioProps?.toneFrequency}

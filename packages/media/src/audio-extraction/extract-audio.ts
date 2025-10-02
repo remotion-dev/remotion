@@ -16,6 +16,7 @@ export const extractAudio = async ({
 	logLevel,
 	loop,
 	playbackRate,
+	audioStreamIndex,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -23,6 +24,7 @@ export const extractAudio = async ({
 	logLevel: LogLevel;
 	loop: boolean;
 	playbackRate: number;
+	audioStreamIndex: number;
 }): Promise<
 	| {
 			data: PcmS16AudioData | null;
@@ -38,7 +40,7 @@ export const extractAudio = async ({
 		duration = await getDuration();
 	}
 
-	const audio = await getAudio();
+	const audio = await getAudio(audioStreamIndex);
 
 	if (audio === 'no-audio-track') {
 		return {data: null, durationInSeconds: null};
