@@ -16,7 +16,10 @@ export const addHeaders = (
 export const pagesRouterWebhook = (options: NextWebhookArgs) => {
 	const {testing, extraHeaders, secret, onSuccess, onTimeout, onError} =
 		options;
-	return function (req: NextApiRequest, res: NextApiResponse): void {
+	return async function (
+		req: NextApiRequest,
+		res: NextApiResponse,
+	): Promise<void> {
 		addHeaders(res, extraHeaders || {});
 
 		if (testing) {
@@ -35,24 +38,31 @@ export const pagesRouterWebhook = (options: NextWebhookArgs) => {
 			return;
 		}
 
-		validateWebhookSignature({
-			secret,
-			body: req.body,
-			signatureHeader: req.headers['x-remotion-signature'] as string,
-		});
+		try {
+			validateWebhookSignature({
+				secret,
+				body: req.body,
+				signatureHeader: req.headers['x-remotion-signature'] as string,
+			});
 
-		// If code reaches this path, the webhook is authentic.
-		const payload = req.body as WebhookPayload;
-		if (payload.type === 'success' && onSuccess) {
-			onSuccess(payload);
-		} else if (payload.type === 'timeout' && onTimeout) {
-			onTimeout(payload);
-		} else if (payload.type === 'error' && onError) {
-			onError(payload);
+			// If code reaches this path, the webhook is authentic.
+			const payload = req.body as WebhookPayload;
+			if (payload.type === 'success' && onSuccess) {
+				await onSuccess(payload);
+			} else if (payload.type === 'timeout' && onTimeout) {
+				await onTimeout(payload);
+			} else if (payload.type === 'error' && onError) {
+				await onError(payload);
+			}
+
+			res.status(200).json({
+				success: true,
+			});
+		} catch (err) {
+			res.status(500).json({
+				success: false,
+				error: err instanceof Error ? err.message : String(err),
+			});
 		}
-
-		res.status(200).json({
-			success: true,
-		});
 	};
 };
