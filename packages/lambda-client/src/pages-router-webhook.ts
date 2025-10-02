@@ -16,7 +16,10 @@ export const addHeaders = (
 export const pagesRouterWebhook = (options: NextWebhookArgs) => {
 	const {testing, extraHeaders, secret, onSuccess, onTimeout, onError} =
 		options;
-	return async function (req: NextApiRequest, res: NextApiResponse): Promise<void> {
+	return async function (
+		req: NextApiRequest,
+		res: NextApiResponse,
+	): Promise<void> {
 		addHeaders(res, extraHeaders || {});
 
 		if (testing) {
@@ -58,7 +61,7 @@ export const pagesRouterWebhook = (options: NextWebhookArgs) => {
 		} catch (err) {
 			res.status(500).json({
 				success: false,
-				error: (err instanceof Error ? err.message : String(err)),
+				error: err instanceof Error ? err.message : String(err),
 			});
 		}
 	};
