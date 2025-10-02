@@ -16,7 +16,10 @@ export const addHeaders = (
 export const pagesRouterWebhook = (options: NextWebhookArgs) => {
 	const {testing, extraHeaders, secret, onSuccess, onTimeout, onError} =
 		options;
-	return function (req: NextApiRequest, res: NextApiResponse): void {
+	return async function (
+		req: NextApiRequest,
+		res: NextApiResponse,
+	): Promise<void> {
 		addHeaders(res, extraHeaders || {});
 
 		if (testing) {
@@ -44,11 +47,11 @@ export const pagesRouterWebhook = (options: NextWebhookArgs) => {
 		// If code reaches this path, the webhook is authentic.
 		const payload = req.body as WebhookPayload;
 		if (payload.type === 'success' && onSuccess) {
-			onSuccess(payload);
+			await onSuccess(payload);
 		} else if (payload.type === 'timeout' && onTimeout) {
-			onTimeout(payload);
+			await onTimeout(payload);
 		} else if (payload.type === 'error' && onError) {
-			onError(payload);
+			await onError(payload);
 		}
 
 		res.status(200).json({

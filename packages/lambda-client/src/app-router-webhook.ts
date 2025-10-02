@@ -10,9 +10,9 @@ export type NextWebhookArgs = {
 	testing?: boolean;
 	extraHeaders?: Record<string, string>;
 	secret: string;
-	onSuccess?: (payload: WebhookSuccessPayload) => void;
-	onTimeout?: (payload: WebhookTimeoutPayload) => void;
-	onError?: (payload: WebhookErrorPayload) => void;
+	onSuccess?: (payload: WebhookSuccessPayload) => void | Promise<void>;
+	onTimeout?: (payload: WebhookTimeoutPayload) => void | Promise<void>;
+	onError?: (payload: WebhookErrorPayload) => void | Promise<void>;
 };
 
 export const appRouterWebhook = (
@@ -52,11 +52,11 @@ export const appRouterWebhook = (
 		const payload = body as WebhookPayload;
 
 		if (payload.type === 'success' && onSuccess) {
-			onSuccess(payload);
+			await onSuccess(payload);
 		} else if (payload.type === 'timeout' && onTimeout) {
-			onTimeout(payload);
+			await onTimeout(payload);
 		} else if (payload.type === 'error' && onError) {
-			onError(payload);
+			await onError(payload);
 		}
 
 		return new Response(JSON.stringify({success: true}), {headers});

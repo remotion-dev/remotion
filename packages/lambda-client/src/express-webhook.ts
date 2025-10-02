@@ -6,7 +6,7 @@ import {validateWebhookSignature} from './validate-webhook-signature';
 export const expressWebhook = (options: NextWebhookArgs) => {
 	const {testing, extraHeaders, secret, onSuccess, onTimeout, onError} =
 		options;
-	return (req: Request, res: Response) => {
+	return async (req: Request, res: Response) => {
 		//  add headers to enable  testing
 		if (testing) {
 			const testingheaders = {
@@ -37,11 +37,11 @@ export const expressWebhook = (options: NextWebhookArgs) => {
 		//  custom logic
 		const payload = req.body;
 		if (payload.type === 'success' && onSuccess) {
-			onSuccess(payload);
+			await onSuccess(payload);
 		} else if (payload.type === 'error' && onError) {
-			onError(payload);
+			await onError(payload);
 		} else if (payload.type === 'timeout' && onTimeout) {
-			onTimeout(payload);
+			await onTimeout(payload);
 		}
 
 		// send response
