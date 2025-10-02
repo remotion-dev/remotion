@@ -33,6 +33,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	style,
 	className,
 	fallbackOffthreadVideoProps,
+	audioStreamIndex,
 	name,
 	showInTimeline,
 }) => {
@@ -98,6 +99,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 			includeVideo: window.remotion_videoEnabled,
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
+			audioStreamIndex: audioStreamIndex ?? 0,
 		})
 			.then((result) => {
 				if (result === 'cannot-decode') {
@@ -215,6 +217,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		unregisterRenderAsset,
 		volumeProp,
 		replaceWithOffthreadVideo,
+		audioStreamIndex,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -240,7 +243,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 				allowAmplificationDuringRender
 				transparent={fallbackOffthreadVideoProps?.transparent}
 				toneMapped={fallbackOffthreadVideoProps?.toneMapped}
-				audioStreamIndex={fallbackOffthreadVideoProps?.audioStreamIndex}
+				audioStreamIndex={audioStreamIndex}
 				name={name}
 				showInTimeline={showInTimeline}
 				className={className}

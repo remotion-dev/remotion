@@ -9,7 +9,6 @@ export type FallbackOffthreadVideoProps = {
 	acceptableTimeShiftInSeconds?: number;
 	transparent?: boolean;
 	toneMapped?: boolean;
-	audioStreamIndex?: number;
 	onError?: (err: Error) => void;
 	toneFrequency?: number;
 };
@@ -35,5 +34,6 @@ export type VideoProps = {
 	stack?: string;
 	logLevel?: LogLevel;
 	loop?: boolean;
+	audioStreamIndex?: number;
 	fallbackOffthreadVideoProps?: FallbackOffthreadVideoProps;
 };

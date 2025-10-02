@@ -24,6 +24,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	logLevel = window.remotion_logLevel,
 	loop,
 	fallbackHtml5AudioProps,
+	audioStreamIndex,
 	showInTimeline,
 	style,
 	name,
@@ -86,6 +87,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			includeVideo: false,
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
+			audioStreamIndex: audioStreamIndex ?? 0,
 		})
 			.then((result) => {
 				if (result === 'cannot-decode') {
@@ -168,6 +170,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		startsAt,
 		unregisterRenderAsset,
 		volumeProp,
+		audioStreamIndex,
 	]);
 
 	if (replaceWithHtml5Audio) {
@@ -183,7 +186,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 				style={style}
 				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
-				audioStreamIndex={fallbackHtml5AudioProps?.audioStreamIndex}
+				audioStreamIndex={audioStreamIndex}
 				useWebAudioApi={fallbackHtml5AudioProps?.useWebAudioApi}
 				onError={fallbackHtml5AudioProps?.onError}
 				toneFrequency={fallbackHtml5AudioProps?.toneFrequency}
