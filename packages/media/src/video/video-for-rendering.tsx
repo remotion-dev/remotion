@@ -102,7 +102,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		})
 			.then((result) => {
 				if (result === 'cannot-decode') {
-					if (!disallowFallbackToOffthreadVideo) {
+					if (disallowFallbackToOffthreadVideo) {
 						cancelRender(
 							new Error(
 								`Cannot decode ${src}, and 'disallowFallbackToOffthreadVideo' was set. Failing the render.`,
@@ -122,7 +122,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 				}
 
 				if (result === 'network-error') {
-					if (!disallowFallbackToOffthreadVideo) {
+					if (disallowFallbackToOffthreadVideo) {
 						cancelRender(
 							new Error(
 								`Cannot decode ${src}, and 'disallowFallbackToOffthreadVideo' was set. Failing the render.`,

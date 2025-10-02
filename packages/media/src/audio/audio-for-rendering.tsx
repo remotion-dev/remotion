@@ -90,7 +90,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		})
 			.then((result) => {
 				if (result === 'cannot-decode') {
-					if (!disallowFallbackToHtml5Audio) {
+					if (disallowFallbackToHtml5Audio) {
 						cancelRender(
 							new Error(
 								`Cannot decode ${src}, and 'disallowFallbackToHtml5Audio' was set. Failing the render.`,
@@ -107,7 +107,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				}
 
 				if (result === 'network-error') {
-					if (!disallowFallbackToHtml5Audio) {
+					if (disallowFallbackToHtml5Audio) {
 						cancelRender(
 							new Error(
 								`Cannot decode ${src}, and 'disallowFallbackToHtml5Audio' was set. Failing the render.`,
