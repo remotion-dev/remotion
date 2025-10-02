@@ -51,12 +51,22 @@ export const appRouterWebhook = (
 
 		const payload = body as WebhookPayload;
 
-		if (payload.type === 'success' && onSuccess) {
-			await onSuccess(payload);
-		} else if (payload.type === 'timeout' && onTimeout) {
-			await onTimeout(payload);
-		} else if (payload.type === 'error' && onError) {
-			await onError(payload);
+		try {
+			if (payload.type === 'success' && onSuccess) {
+				await onSuccess(payload);
+			} else if (payload.type === 'timeout' && onTimeout) {
+				await onTimeout(payload);
+			} else if (payload.type === 'error' && onError) {
+				await onError(payload);
+			}
+		} catch (err) {
+			return new Response(
+				JSON.stringify({
+					success: false,
+					error: (err instanceof Error ? err.message : String(err)),
+				}),
+				{ status: 500, headers }
+			);
 		}
 
 		return new Response(JSON.stringify({success: true}), {headers});
