@@ -35,6 +35,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	fallbackOffthreadVideoProps,
 	name,
 	showInTimeline,
+	disallowFallbackToOffthreadVideo,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -101,6 +102,14 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		})
 			.then((result) => {
 				if (result === 'cannot-decode') {
+					if (disallowFallbackToOffthreadVideo) {
+						cancelRender(
+							new Error(
+								`Cannot decode ${src}, and 'disallowFallbackToOffthreadVideo' was set. Failing the render.`,
+							),
+						);
+					}
+
 					if (window.remotion_isMainTab) {
 						Internals.Log.info(
 							{logLevel, tag: '@remotion/media'},
@@ -113,6 +122,14 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 				}
 
 				if (result === 'network-error') {
+					if (disallowFallbackToOffthreadVideo) {
+						cancelRender(
+							new Error(
+								`Cannot decode ${src}, and 'disallowFallbackToOffthreadVideo' was set. Failing the render.`,
+							),
+						);
+					}
+
 					if (window.remotion_isMainTab) {
 						Internals.Log.info(
 							{logLevel, tag: '@remotion/media'},
@@ -215,6 +232,7 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 		unregisterRenderAsset,
 		volumeProp,
 		replaceWithOffthreadVideo,
+		disallowFallbackToOffthreadVideo,
 	]);
 
 	const classNameValue = useMemo(() => {

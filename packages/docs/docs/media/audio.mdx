@@ -193,14 +193,11 @@ Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delay
 
 Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.
 
-## Setting the cache size
+### `disallowFallbackToHtml5Audio?`<AvailableFrom v="3.0.356" />
 
-`@remotion/media` keeps a cache of video and audio frames.
+By default, if the video cannot be embedded using this tag, [a fallback to `<Audio>` from `remotion`](/docs/media/fallback) will be attempted.
 
-By default, the cache may grow to up to 50% of the available system memory.  
-The rendering APIs allow you to customize this limit on a per-render basis.
-
-See in [`renderMedia()`](/docs/renderer/render-media) for example: [`mediaCacheSizeInBytes`](/docs/renderer/select-composition#mediacachesizeinbytes).
+Pass this prop to disable the fallback and fail the render instead.
 
 ## See also
 

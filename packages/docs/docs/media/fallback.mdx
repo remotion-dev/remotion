@@ -1,0 +1,51 @@
+---
+image: /generated/articles-docs-media-fallback.png
+title: 'Fallback from @remotion/media to <OffthreadVideo> or <Audio>'
+sidebar_label: 'Fallback to <OffthreadVideo>'
+crumb: '@remotion/media'
+---
+
+Sometimes, a media file cannot be embedded using [`@remotion/media`](/docs/media)'s [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) tags.  
+In such cases, a fallback to [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Audio>`](/docs/audio) from the `remotion` package is attempted.
+
+## When a fallback is attempted
+
+Here are some cases where [`@remotion/media`](/docs/media) may fall back to [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Audio>`](/docs/audio) from `remotion`:
+
+- The resource fails to load due to [CORS restrictions](/docs/cors-issues)
+- The container format is not supported by [Mediabunny](/docs/mediabunny/formats)
+- The codec cannot be decoded by WebCodecs (e.g. a H.265 stream during rendering)
+
+## Observing when a fallback happens
+
+If [`@remotion/media`](/docs/media) falls back to another tag, then a warning message will be logged in the render:
+
+```
+Cannot decode /public/video-h265.mp4, falling back to <OffthreadVideo>
+```
+
+If you are rendering on an environment where the logs are not immediately visible (e.g. Lambda), observe whether a fallback has happened by visiting the logs (e.g. CloudWatch).
+
+## Preventing a fallback from happening
+
+To prevent [`<Video>`](/docs/media/video) from falling back to [`<OffthreadVideo>`](/docs/offthreadvideo), set the [`disallowFallbackToOffthreadVideo`](/docs/media/video#disallowfallbacktooffthreadvideo) prop:
+
+```tsx twoslash title="No fallback to OffthreadVideo"
+import {experimental_Video as Video} from '@remotion/media';
+
+export const MyComp: React.FC = () => {
+  return <Video src="https://remotion.media/video.mp4" disallowFallbackToOffthreadVideo />;
+};
+```
+
+To prevent [`<Audio>`](/docs/media/audio) from falling back to [`<Audio>`](/docs/audio) from [`remotion`](/docs/remotion), set the [`disallowFallbackToHtml5Audio`](/docs/media/audio#disallowfallbacktohtml5audio) prop:
+
+```tsx twoslash title="No fallback to HTML5 audio tag"
+import {experimental_Audio as Audio} from '@remotion/media';
+
+export const MyComp: React.FC = () => {
+  return <Audio src="https://remotion.media/audio.mp3" disallowFallbackToHtml5Audio />;
+};
+```
+
+If a fallback is prevented, the render will be cancelled instead.
