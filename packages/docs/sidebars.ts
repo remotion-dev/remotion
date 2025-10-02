@@ -398,7 +398,13 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'media/index',
 			},
-			items: ['media/audio', 'media/video', 'media/support'],
+			items: [
+				'media/audio',
+				'media/video',
+				'media/support',
+				'media/fallback',
+				'media/cache',
+			],
 		},
 		{
 			type: 'category',
@@ -1192,7 +1198,6 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'miscellaneous/snippets/different-segments-at-different-speeds',
 				'miscellaneous/snippets/player-in-iframe',
-				'miscellaneous/snippets/offthread-video-while-rendering',
 				'miscellaneous/snippets/combine-compositions',
 			],
 		},

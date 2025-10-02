@@ -35,5 +35,6 @@ export type VideoProps = {
 	logLevel?: LogLevel;
 	loop?: boolean;
 	audioStreamIndex?: number;
+	disallowFallbackToOffthreadVideo?: boolean;
 	fallbackOffthreadVideoProps?: FallbackOffthreadVideoProps;
 };

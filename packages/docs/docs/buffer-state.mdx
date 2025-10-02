@@ -22,9 +22,9 @@ Visit this [GitHub repo](https://github.com/remotion-dev/video-buffering-example
 We create a new React Context that can handle the buffering states of media inside our Player. We implement default functions that do nothing, since no buffer state is necessary during rendering.
 
 ```tsx title="BufferManager.tsx"
-import { createContext } from "react";
+import {createContext} from 'react';
 
-type BufferState = { [key: string]: boolean };
+type BufferState = {[key: string]: boolean};
 
 type BufferContextType = {
   canPlay: (id: string) => void;
@@ -43,9 +43,9 @@ The following component can be wrapped around the Player to provide it with the 
 If one media element is buffering, it can register that to the manager using `onBuffer()`. If all media elements are loaded, the buffer manager will call the `onContinue()` event.
 
 ```tsx twoslash title="BufferManager.tsx"
-import { createContext } from "react";
+import {createContext} from 'react';
 
-type BufferState = { [key: string]: boolean };
+type BufferState = {[key: string]: boolean};
 
 type BufferContextType = {
   canPlay: (id: string) => void;
@@ -59,13 +59,13 @@ export const BufferContext = createContext<BufferContextType>({
 });
 
 // ---cut---
-import { useCallback, useMemo, useRef } from "react";
+import {useCallback, useMemo, useRef} from 'react';
 
 export const BufferManager: React.FC<{
   children: React.ReactNode;
   onBuffer: () => void;
   onContinue: () => void;
-}> = ({ children, onBuffer, onContinue }) => {
+}> = ({children, onBuffer, onContinue}) => {
   const bufferState = useRef<BufferState>({});
   const currentState = useRef(false);
 
@@ -103,11 +103,7 @@ export const BufferManager: React.FC<{
     };
   }, [canPlay, needsToBuffer]);
 
-  return (
-    <BufferContext.Provider value={bufferEvents}>
-      {children}
-    </BufferContext.Provider>
-  );
+  return <BufferContext.Provider value={bufferEvents}>{children}</BufferContext.Provider>;
 };
 ```
 
@@ -118,9 +114,9 @@ The following component `<PausableVideo>` wraps the `<Video>` tag, so that you c
 ```tsx twoslash title="PausableVideo.tsx"
 // @filename: BufferManager.tsx
 
-import React, { createContext, useCallback, useMemo, useRef } from "react";
+import React, {createContext, useCallback, useMemo, useRef} from 'react';
 
-type BufferState = { [key: string]: boolean };
+type BufferState = {[key: string]: boolean};
 
 type BufferContextType = {
   canPlay: (id: string) => void;
@@ -137,7 +133,7 @@ export const BufferManager: React.FC<{
   children: React.ReactNode;
   onBuffer: () => void;
   onContinue: () => void;
-}> = ({ children, onBuffer, onContinue }) => {
+}> = ({children, onBuffer, onContinue}) => {
   const bufferState = useRef<BufferState>({});
   const currentState = useRef(false);
 
@@ -175,40 +171,26 @@ export const BufferManager: React.FC<{
     };
   }, [canPlay, needsToBuffer]);
 
-  return (
-    <BufferContext.Provider value={bufferEvents}>
-      {children}
-    </BufferContext.Provider>
-  );
+  return <BufferContext.Provider value={bufferEvents}>{children}</BufferContext.Provider>;
 };
 // organize-imports-ignore
 // @filename: PausableVideo.tsx
 // ---cut---
-import React, {
-  forwardRef,
-  useContext,
-  useEffect,
-  useId,
-  useImperativeHandle,
-  useRef,
-} from "react";
-import { RemotionMainVideoProps, RemotionVideoProps, Video } from "remotion";
-import { BufferContext } from "./BufferManager";
+import React, {forwardRef, useContext, useEffect, useId, useImperativeHandle, useRef} from 'react';
+import {RemotionMainVideoProps, RemotionVideoProps, Video} from 'remotion';
+import {BufferContext} from './BufferManager';
 
-const PausableVideoFunction: React.ForwardRefRenderFunction<
-  HTMLVideoElement,
-  RemotionVideoProps & RemotionMainVideoProps
-> = ({ src, ...props }, ref) => {
+const PausableVideoFunction: React.ForwardRefRenderFunction<HTMLVideoElement, RemotionVideoProps & RemotionMainVideoProps> = ({src, ...props}, ref) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const id = useId();
 
   useImperativeHandle(ref, () => videoRef.current as HTMLVideoElement);
 
-  const { canPlay, needsToBuffer } = useContext(BufferContext);
+  const {canPlay, needsToBuffer} = useContext(BufferContext);
 
   useEffect(() => {
-    const { current } = videoRef;
+    const {current} = videoRef;
     if (!current) {
       return;
     }
@@ -221,12 +203,12 @@ const PausableVideoFunction: React.ForwardRefRenderFunction<
       needsToBuffer(id);
     };
 
-    current.addEventListener("canplay", onPlay);
-    current.addEventListener("waiting", onBuffer);
+    current.addEventListener('canplay', onPlay);
+    current.addEventListener('waiting', onBuffer);
 
     return () => {
-      current.removeEventListener("canplay", onPlay);
-      current.removeEventListener("waiting", onBuffer);
+      current.removeEventListener('canplay', onPlay);
+      current.removeEventListener('waiting', onBuffer);
 
       // If component is unmounted, unblock the buffer manager
       canPlay(id);
@@ -240,7 +222,7 @@ export const PausableVideo = forwardRef(PausableVideoFunction);
 ```
 
 If you are using `<OffthreadVideo>` instead, you cannot have a ref attached to it.  
-[Use this technique](/docs/miscellaneous/snippets/offthread-video-while-rendering) to use `<OffthreadVideo>` only during rendering.
+[Use this technique](/docs/video-tags#using-a-different-tag-in-preview-and-rendering) to use `<OffthreadVideo>` only during rendering.
 
 Replace `<Video>` elements in your Remotion component with `<PausableVideoFunction>` to make them report buffering state.
 
@@ -253,9 +235,9 @@ By using a ref, we eliminate the risk of asynchronous React state leading to a r
 
 ```tsx twoslash title="App.tsx" {6-28,30,38}
 // @filename: BufferManager.tsx
-import { createContext } from "react";
+import {createContext} from 'react';
 
-type BufferState = { [key: string]: boolean };
+type BufferState = {[key: string]: boolean};
 
 type BufferContextType = {
   canPlay: (id: string) => void;
@@ -269,13 +251,13 @@ export const BufferContext = createContext<BufferContextType>({
 });
 
 // ---cut---
-import React, { useCallback, useMemo, useRef } from "react";
+import React, {useCallback, useMemo, useRef} from 'react';
 
 export const BufferManager: React.FC<{
   children: React.ReactNode;
   onBuffer: () => void;
   onContinue: () => void;
-}> = ({ children, onBuffer, onContinue }) => {
+}> = ({children, onBuffer, onContinue}) => {
   const bufferState = useRef<BufferState>({});
   const currentState = useRef(false);
 
@@ -313,11 +295,7 @@ export const BufferManager: React.FC<{
     };
   }, [canPlay, needsToBuffer]);
 
-  return (
-    <BufferContext.Provider value={bufferEvents}>
-      {children}
-    </BufferContext.Provider>
-  );
+  return <BufferContext.Provider value={bufferEvents}>{children}</BufferContext.Provider>;
 };
 
 // @filename: App.tsx
@@ -325,9 +303,9 @@ const MyComp: React.FC = () => null;
 
 // organize-imports-ignore
 // ---cut---
-import { Player, PlayerRef } from "@remotion/player";
-import React, { useState, useRef, useCallback } from "react";
-import { BufferManager } from "./BufferManager";
+import {Player, PlayerRef} from '@remotion/player';
+import React, {useState, useRef, useCallback} from 'react';
+import {BufferManager} from './BufferManager';
 
 function App() {
   const playerRef = useRef<PlayerRef>(null);
@@ -353,15 +331,7 @@ function App() {
 
   return (
     <BufferManager onBuffer={onBuffer} onContinue={onContinue}>
-      <Player
-        ref={playerRef}
-        component={MyComp}
-        compositionHeight={720}
-        compositionWidth={1280}
-        durationInFrames={200}
-        fps={30}
-        controls
-      />
+      <Player ref={playerRef} component={MyComp} compositionHeight={720} compositionWidth={1280} durationInFrames={200} fps={30} controls />
     </BufferManager>
   );
 }
@@ -374,9 +344,9 @@ In addition to pausing the video, you can also display custom UI that will overl
 ```tsx twoslash title="App.tsx" {1, 8-25,34-36}
 const MyComp = () => null;
 // ---cut---
-import { Player, RenderPoster } from "@remotion/player";
-import { useCallback, useState } from "react";
-import { AbsoluteFill } from "remotion";
+import {Player, RenderPoster} from '@remotion/player';
+import {useCallback, useState} from 'react';
+import {AbsoluteFill} from 'remotion';
 
 function App() {
   const [buffering, setBuffering] = useState();
@@ -387,8 +357,8 @@ function App() {
       return (
         <AbsoluteFill
           style={{
-            justifyContent: "center",
-            alignItems: "center",
+            justifyContent: 'center',
+            alignItems: 'center',
             fontSize: 100,
           }}
         >

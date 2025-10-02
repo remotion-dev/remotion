@@ -36,4 +36,5 @@ export type AudioProps = {
 		toneFrequency?: number;
 		acceptableTimeShiftInSeconds?: number;
 	};
+	disallowFallbackToHtml5Audio?: boolean;
 };
