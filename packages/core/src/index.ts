@@ -174,6 +174,7 @@ export {
 	useCurrentScale,
 } from './use-current-scale';
 export {useDelayRender} from './use-delay-render';
+export {useMediaInTimeline} from './use-media-in-timeline.js';
 export {useRemotionEnvironment} from './use-remotion-environment.js';
 export * from './use-video-config.js';
 export * from './version.js';

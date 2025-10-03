@@ -20,6 +20,7 @@ import {usePreload} from '../prefetch.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
+import {useMediaTag} from '../use-media-tag.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {VERSION} from '../version.js';
 import {
@@ -135,7 +136,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	warnAboutTooHighVolume(userPreferredVolume);
 
 	useMediaInTimeline({
-		mediaRef: videoRef,
 		volume,
 		mediaVolume,
 		mediaType: 'video',
@@ -147,6 +147,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		premountDisplay: null,
 		postmountDisplay: null,
+	});
+
+	useMediaTag({
+		mediaRef: videoRef,
+		id: timelineId,
+		mediaType: 'video',
 		onAutoPlayError: onAutoPlayError ?? null,
 		isPremounting: Boolean(parentSequence?.premounting),
 		isPostmounting: Boolean(parentSequence?.postmounting),

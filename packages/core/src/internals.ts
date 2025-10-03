@@ -88,6 +88,7 @@ import {
 	PreviewSizeContext,
 } from './use-current-scale.js';
 import {useLazyComponent} from './use-lazy-component.js';
+import {useMediaTag} from './use-media-tag.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
 import {validateMediaProps} from './validate-media-props.js';
@@ -151,6 +152,7 @@ export const Internals = {
 	getRoot,
 	useMediaVolumeState,
 	useMediaMutedState,
+	useMediaTag,
 	useLazyComponent,
 	truthy,
 	SequenceContext,
