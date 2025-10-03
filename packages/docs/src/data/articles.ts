@@ -6116,6 +6116,15 @@ export const articles = [
 		slug: 'use-img-and-iframe',
 	},
 	{
+		id: 'use-media-in-timeline',
+		title: 'useMediaInTimeline()',
+		relativePath: 'docs/use-media-in-timeline.mdx',
+		compId: 'articles-docs-use-media-in-timeline',
+		crumb: 'API',
+		noAi: false,
+		slug: 'use-media-in-timeline',
+	},
+	{
 		id: 'use-offthread-video-texture',
 		title: 'useOffthreadVideoTexture()',
 		relativePath: 'docs/use-offthread-video-texture.mdx',
