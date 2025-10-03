@@ -171,7 +171,6 @@ const sidebars: SidebarsConfig = {
 				'use-current-frame',
 				'use-current-scale',
 				'use-delay-render',
-				'use-media-in-timeline',
 				'use-remotion-environment',
 				'use-video-config',
 				'version',

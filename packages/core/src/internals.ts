@@ -88,6 +88,7 @@ import {
 	PreviewSizeContext,
 } from './use-current-scale.js';
 import {useLazyComponent} from './use-lazy-component.js';
+import {useMediaInTimeline} from './use-media-in-timeline.js';
 import {useMediaTag} from './use-media-tag.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
@@ -153,6 +154,7 @@ export const Internals = {
 	useMediaVolumeState,
 	useMediaMutedState,
 	useMediaTag,
+	useMediaInTimeline,
 	useLazyComponent,
 	truthy,
 	SequenceContext,
