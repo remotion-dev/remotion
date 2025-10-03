@@ -19,12 +19,10 @@ export const validateEvenDimensionsWithCodec = ({
 	indent: boolean;
 	logLevel: LogLevel;
 }) => {
-	let actualWidth = width * scale;
-	let actualHeight = height * scale;
 	if (wantsImageSequence) {
 		return {
-			actualWidth,
-			actualHeight,
+			actualWidth: width,
+			actualHeight: height,
 		};
 	}
 
@@ -35,53 +33,37 @@ export const validateEvenDimensionsWithCodec = ({
 		codec !== 'h264-ts'
 	) {
 		return {
-			actualWidth,
-			actualHeight,
+			actualWidth: width,
+			actualHeight: height,
 		};
 	}
 
-	if (
-		actualWidth % 1 !== 0 &&
-		(actualWidth % 1 < 0.005 || actualWidth % 1 > 0.005)
-	) {
-		Log.verbose(
-			{indent, logLevel},
-			`Rounding width to an even number from ${actualWidth} to ${Math.round(actualWidth)}`,
-		);
-		actualWidth = Math.round(actualWidth);
+	let heightEvenDimensions = height;
+	while (Math.round(heightEvenDimensions * scale) % 2 !== 0) {
+		heightEvenDimensions--;
 	}
 
-	if (
-		actualHeight % 1 !== 0 &&
-		(actualHeight % 1 < 0.005 || actualHeight % 1 > 0.005)
-	) {
-		Log.verbose(
-			{indent, logLevel},
-			`Rounding height to an even number from ${actualHeight} to ${Math.round(actualHeight)}`,
-		);
-		actualHeight = Math.round(actualHeight);
+	let widthEvenDimensions = width;
+	while (Math.round(widthEvenDimensions * scale) % 2 !== 0) {
+		widthEvenDimensions--;
 	}
 
-	const displayName = codec === 'h265' ? 'H265' : 'H264';
-
-	if (actualWidth % 2 !== 0) {
+	if (widthEvenDimensions !== width) {
 		Log.verbose(
 			{indent, logLevel},
-			`Rounding width down to an even number from ${actualWidth} to ${actualWidth - 1} for ${displayName} codec compatibility`,
+			`Rounding width to an even number from ${width} to ${widthEvenDimensions}`,
 		);
-		actualWidth -= 1;
 	}
 
-	if (actualHeight % 2 !== 0) {
+	if (heightEvenDimensions !== height) {
 		Log.verbose(
 			{indent, logLevel},
-			`Rounding height down to an even number from ${actualHeight} to ${actualHeight - 1} for ${displayName} codec compatibility`,
+			`Rounding height to an even number from ${height} to ${heightEvenDimensions}`,
 		);
-		actualHeight -= 1;
 	}
 
 	return {
-		actualWidth,
-		actualHeight,
+		actualWidth: widthEvenDimensions,
+		actualHeight: heightEvenDimensions,
 	};
 };

@@ -443,24 +443,6 @@ const internalRenderMediaRaw = ({
 		onCtrlCExit(`Delete ${workingDir}`, () => deleteDirectory(workingDir));
 	}
 
-	const {
-		actualWidth: widthEvenDimensionsUndivided,
-		actualHeight: heightEvenDimensionsUndivided,
-	} = validateEvenDimensionsWithCodec({
-		codec,
-		height: compositionWithPossibleUnevenDimensions.height,
-		scale,
-		width: compositionWithPossibleUnevenDimensions.width,
-		wantsImageSequence: false,
-		indent,
-		logLevel,
-	});
-
-	const heightEvenDimensions = Math.round(
-		heightEvenDimensionsUndivided / scale,
-	);
-	const widthEvenDimensions = Math.round(widthEvenDimensionsUndivided / scale);
-
 	const {actualWidth, actualHeight} = validateEvenDimensionsWithCodec({
 		codec,
 		height: compositionWithPossibleUnevenDimensions.height,
@@ -470,10 +452,11 @@ const internalRenderMediaRaw = ({
 		indent,
 		logLevel,
 	});
+
 	const composition = {
 		...compositionWithPossibleUnevenDimensions,
-		height: heightEvenDimensions,
-		width: widthEvenDimensions,
+		height: actualHeight,
+		width: actualWidth,
 	};
 
 	const realFrameRange = getRealFrameRange(
