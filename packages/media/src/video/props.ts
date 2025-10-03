@@ -34,6 +34,10 @@ export type VideoProps = {
 	stack?: string;
 	logLevel?: LogLevel;
 	loop?: boolean;
+	/**
+	 * @deprecated For internal use only
+	 */
+	_remotionInternalNativeLoopPassed?: boolean;
 	audioStreamIndex?: number;
 	disallowFallbackToOffthreadVideo?: boolean;
 	fallbackOffthreadVideoProps?: FallbackOffthreadVideoProps;

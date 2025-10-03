@@ -1,15 +1,13 @@
 import React from 'react';
 import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
 import type {VideoProps} from './props';
-import {NewVideoForPreview} from './video-for-preview';
+import {VideoForPreview} from './video-for-preview';
 import {VideoForRendering} from './video-for-rendering';
 
 const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
 	Internals;
 
 export const Video: React.FC<VideoProps> = (props) => {
-	// Should only destruct `trimBefore` and `trimAfter` from props,
-	// rest gets drilled down
 	const {trimBefore, trimAfter, name, stack, showInTimeline, ...otherProps} =
 		props;
 	const environment = useRemotionEnvironment();
@@ -59,17 +57,5 @@ export const Video: React.FC<VideoProps> = (props) => {
 		return <VideoForRendering {...otherProps} />;
 	}
 
-	// For preview, use our new canvas-based component
-	return (
-		<NewVideoForPreview
-			src={otherProps.src}
-			style={otherProps.style}
-			playbackRate={otherProps.playbackRate}
-			logLevel={otherProps.logLevel}
-			muted={otherProps.muted}
-			volume={otherProps.volume}
-			loopVolumeCurveBehavior={otherProps.loopVolumeCurveBehavior}
-			onVideoFrame={otherProps.onVideoFrame}
-		/>
-	);
+	return <VideoForPreview {...otherProps} />;
 };
