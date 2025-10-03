@@ -8,7 +8,6 @@ import {
 	spyOn,
 	test,
 } from 'bun:test';
-import type {RefObject} from 'react';
 import React, {useMemo} from 'react';
 import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
@@ -64,10 +63,6 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 		);
 	};
 
-	const audioRef = {
-		current: {volume: 0.5},
-	} as unknown as RefObject<HTMLAudioElement>;
-
 	const {unmount} = renderHook(
 		() =>
 			useMediaInTimeline({
@@ -75,7 +70,6 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 				src: 'test',
 				mediaVolume: 1,
 				mediaType: 'audio',
-				mediaRef: audioRef,
 				playbackRate: 1,
 				displayName: null,
 				id: 'test',
@@ -83,9 +77,6 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 				showInTimeline: true,
 				premountDisplay: null,
 				postmountDisplay: null,
-				onAutoPlayError: null,
-				isPremounting: false,
-				isPostmounting: false,
 			}),
 		{
 			wrapper,
