@@ -36,6 +36,10 @@ type ExtractFrameResponse =
 	| {
 			type: 'response-network-error';
 			id: string;
+	  }
+	| {
+			type: 'response-unknown-container-format';
+			id: string;
 	  };
 
 // Doesn't exist in studio
@@ -75,6 +79,18 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						};
 
 						window.remotion_broadcastChannel!.postMessage(networkErrorResponse);
+						return;
+					}
+
+					if (result === 'unknown-container-format') {
+						const unknownContainerFormatResponse: ExtractFrameResponse = {
+							type: 'response-unknown-container-format',
+							id: data.id,
+						};
+
+						window.remotion_broadcastChannel!.postMessage(
+							unknownContainerFormatResponse,
+						);
 						return;
 					}
 
@@ -144,6 +160,7 @@ export const extractFrameViaBroadcastChannel = ({
 	  }
 	| 'cannot-decode'
 	| 'network-error'
+	| 'unknown-container-format'
 > => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
@@ -169,6 +186,7 @@ export const extractFrameViaBroadcastChannel = ({
 		  }
 		| 'cannot-decode'
 		| 'network-error'
+		| 'unknown-container-format'
 	>((resolve, reject) => {
 		const onMessage = (event: MessageEvent) => {
 			const data = event.data as ExtractFrameResponse;
@@ -177,7 +195,11 @@ export const extractFrameViaBroadcastChannel = ({
 				return;
 			}
 
-			if (data.type === 'response-success' && data.id === requestId) {
+			if (data.id !== requestId) {
+				return;
+			}
+
+			if (data.type === 'response-success') {
 				resolve({
 					frame: data.frame ? data.frame : null,
 					audio: data.audio ? data.audio : null,
@@ -189,31 +211,48 @@ export const extractFrameViaBroadcastChannel = ({
 					'message',
 					onMessage,
 				);
-			} else if (data.type === 'response-error' && data.id === requestId) {
+				return;
+			}
+
+			if (data.type === 'response-error') {
 				reject(data.errorStack);
 				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,
 				);
-			} else if (
-				data.type === 'response-cannot-decode' &&
-				data.id === requestId
-			) {
+				return;
+			}
+
+			if (data.type === 'response-cannot-decode') {
 				resolve('cannot-decode');
 				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,
 				);
-			} else if (
-				data.type === 'response-network-error' &&
-				data.id === requestId
-			) {
+				return;
+			}
+
+			if (data.type === 'response-network-error') {
 				resolve('network-error');
 				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,
 				);
+				return;
 			}
+
+			if (data.type === 'response-unknown-container-format') {
+				resolve('unknown-container-format');
+				window.remotion_broadcastChannel!.removeEventListener(
+					'message',
+					onMessage,
+				);
+				return;
+			}
+
+			throw new Error(
+				`Invalid message: ${JSON.stringify(data satisfies never)}`,
+			);
 		};
 
 		window.remotion_broadcastChannel!.addEventListener('message', onMessage);

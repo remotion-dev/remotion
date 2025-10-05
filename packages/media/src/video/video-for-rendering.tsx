@@ -130,6 +130,26 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			audioStreamIndex: audioStreamIndex ?? 0,
 		})
 			.then((result) => {
+				if (result === 'unknown-container-format') {
+					if (disallowFallbackToOffthreadVideo) {
+						cancelRender(
+							new Error(
+								`Unknown container format ${src}, and 'disallowFallbackToOffthreadVideo' was set. Failing the render.`,
+							),
+						);
+					}
+
+					if (window.remotion_isMainTab) {
+						Internals.Log.info(
+							{logLevel, tag: '@remotion/media'},
+							`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <OffthreadVideo>`,
+						);
+					}
+
+					setReplaceWithOffthreadVideo(true);
+					return;
+				}
+
 				if (result === 'cannot-decode') {
 					if (disallowFallbackToOffthreadVideo) {
 						cancelRender(
