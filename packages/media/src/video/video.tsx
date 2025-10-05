@@ -26,6 +26,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 	trimAfter,
 	trimBefore,
 	volume,
+	showInTimeline,
 	stack,
 }) => {
 	const environment = useRemotionEnvironment();
@@ -82,14 +83,15 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 					stack={stack}
 					style={style}
 					volume={volume}
-					trimAfter={0}
-					trimBefore={0}
+					trimAfter={undefined}
+					trimBefore={undefined}
+					showInTimeline={showInTimeline}
 				/>
 			</Sequence>
 		);
 	}
 
-	validateMediaProps(props, 'Video');
+	validateMediaProps({playbackRate, volume}, 'Video');
 
 	if (environment.isRendering) {
 		return (
@@ -121,17 +123,8 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 
 	return (
 		<VideoForPreview
-			audioStreamIndex={audioStreamIndex ?? 0}
 			className={className}
-			delayRenderRetries={delayRenderRetries ?? null}
-			delayRenderTimeoutInMilliseconds={
-				delayRenderTimeoutInMilliseconds ?? null
-			}
-			disallowFallbackToOffthreadVideo={
-				disallowFallbackToOffthreadVideo ?? false
-			}
 			name={name}
-			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
 			logLevel={logLevel}
 			loop={loop}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
@@ -139,7 +132,6 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 			onVideoFrame={onVideoFrame}
 			playbackRate={playbackRate}
 			src={src}
-			stack={stack}
 			style={style}
 			volume={volume}
 		/>
@@ -167,7 +159,6 @@ export const Video: React.FC<VideoProps> = ({
 	trimBefore,
 	volume,
 	stack,
-	_remotionInternalNativeLoopPassed,
 }) => {
 	return (
 		<InnerVideo

@@ -307,8 +307,8 @@ interface VideoForPreviewWithDurationProps {
 	readonly onVideoFrame: undefined | ((frame: CanvasImageSource) => void);
 	readonly loop: boolean;
 	readonly name: string | undefined;
-	readonly trimAfter: number;
-	readonly trimBefore: number;
+	readonly trimAfter: number | undefined;
+	readonly trimBefore: number | undefined;
 }
 
 const VideoForPreviewWithDuration: React.FC<
@@ -409,8 +409,6 @@ type InnerVideoProps = {
 	readonly muted: boolean;
 	readonly name: string | undefined;
 	readonly volume: VolumeProp;
-	readonly trimAfter: number;
-	readonly trimBefore: number;
 	readonly loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
 	readonly onVideoFrame: OnVideoFrame | undefined;
 	readonly playbackRate: number;
@@ -424,8 +422,6 @@ export const VideoForPreview: React.FC<InnerVideoProps> = ({
 	logLevel,
 	muted,
 	name,
-	trimAfter,
-	trimBefore,
 	volume,
 	loopVolumeCurveBehavior,
 	onVideoFrame,
@@ -492,8 +488,8 @@ export const VideoForPreview: React.FC<InnerVideoProps> = ({
 			style={style}
 			volume={volume}
 			name={name}
-			trimAfter={trimAfter}
-			trimBefore={trimBefore}
+			trimAfter={undefined}
+			trimBefore={undefined}
 			loop={loop}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
 		/>

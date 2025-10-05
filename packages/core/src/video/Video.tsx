@@ -136,7 +136,10 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	validateMediaProps(props, 'Video');
+	validateMediaProps(
+		{playbackRate: props.playbackRate, volume: props.volume},
+		'Video',
+	);
 
 	if (environment.isRendering) {
 		return (

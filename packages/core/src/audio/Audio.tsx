@@ -157,7 +157,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	validateMediaProps(props, 'Audio');
+	validateMediaProps(
+		{playbackRate: props.playbackRate, volume: props.volume},
+		'Audio',
+	);
 
 	if (environment.isRendering) {
 		return (

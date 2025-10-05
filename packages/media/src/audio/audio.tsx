@@ -106,7 +106,10 @@ export const Audio: React.FC<AudioProps> = (props) => {
 		);
 	}
 
-	validateMediaProps(props, 'Video');
+	validateMediaProps(
+		{playbackRate: props.playbackRate, volume: props.volume},
+		'Audio',
+	);
 
 	if (environment.isRendering) {
 		return <AudioForRendering {...otherProps} />;

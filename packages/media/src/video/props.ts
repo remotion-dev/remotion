@@ -42,8 +42,9 @@ type OptionalVideoProps = {
 	audioStreamIndex: number;
 	disallowFallbackToOffthreadVideo: boolean;
 	fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
-	trimAfter: number;
-	trimBefore: number;
+	trimAfter: number | undefined;
+	trimBefore: number | undefined;
+	showInTimeline: boolean;
 };
 
 export type InnerVideoProps = MandatoryVideoProps &
