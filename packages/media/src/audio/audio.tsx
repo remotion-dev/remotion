@@ -1,28 +1,12 @@
-import React, {useCallback, useContext} from 'react';
-import {
-	cancelRender,
-	Internals,
-	Sequence,
-	useRemotionEnvironment,
-} from 'remotion';
-import {SharedAudioContext} from '../../../core/src/audio/shared-audio-tags';
+import React from 'react';
+import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
+import {AudioForPreview} from './audio-for-preview';
 import {AudioForRendering} from './audio-for-rendering';
 import type {AudioProps} from './props';
 
-const {
-	validateMediaTrimProps,
-	resolveTrimProps,
-	validateMediaProps,
-	AudioForPreview,
-} = Internals;
-
-// dummy function for now because onError is not supported
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const onRemotionError = (_e: Error) => {};
+const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} = Internals;
 
 export const Audio: React.FC<AudioProps> = (props) => {
-	const audioContext = useContext(SharedAudioContext);
-
 	// Should only destruct `trimBefore` and `trimAfter` from props,
 	// rest gets drilled down
 	const {
@@ -36,8 +20,6 @@ export const Audio: React.FC<AudioProps> = (props) => {
 		...otherProps
 	} = props;
 	const environment = useRemotionEnvironment();
-
-	const onDuration = useCallback(() => undefined, []);
 
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
@@ -60,31 +42,6 @@ export const Audio: React.FC<AudioProps> = (props) => {
 		trimBefore,
 		trimAfter,
 	});
-
-	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
-		(e) => {
-			// eslint-disable-next-line no-console
-			console.log(e.currentTarget.error);
-
-			// If there is no `loop` property, we don't need to get the duration
-			// and this does not need to be a fatal error
-			const errMessage = `Could not play audio: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`;
-
-			if (loop) {
-				if (onRemotionError) {
-					onRemotionError(new Error(errMessage));
-					return;
-				}
-
-				cancelRender(new Error(errMessage));
-			} else {
-				onRemotionError?.(new Error(errMessage));
-				// eslint-disable-next-line no-console
-				console.warn(errMessage);
-			}
-		},
-		[loop],
-	);
 
 	if (
 		typeof trimBeforeValue !== 'undefined' ||
@@ -123,20 +80,9 @@ export const Audio: React.FC<AudioProps> = (props) => {
 
 	return (
 		<AudioForPreview
-			_remotionInternalNativeLoopPassed={
-				props._remotionInternalNativeLoopPassed ?? false
-			}
-			_remotionInternalStack={stack ?? null}
-			shouldPreMountAudioTags={
-				audioContext !== null && audioContext.numberOfAudioTags > 0
-			}
+			loop={loop}
+			name={name}
 			{...propsForPreview}
-			onNativeError={onError}
-			onDuration={onDuration}
-			// Proposal: Make this default to true in v5
-			pauseWhenBuffering={pauseWhenBuffering ?? false}
-			_remotionInternalNeedsDurationCalculation={Boolean(loop)}
-			showInTimeline={showInTimeline ?? true}
 		/>
 	);
 };
