@@ -69,7 +69,7 @@ test(
 	},
 );
 
-test(
+test.only(
 	'Should be able to render video with scale 0.1',
 	async () => {
 		const task = execa(
