@@ -1,4 +1,4 @@
-import {experimental_Video as Video} from '@remotion/media';
+import {Video} from '@remotion/media';
 import {parseMedia} from '@remotion/media-parser';
 import {StudioInternals} from '@remotion/studio';
 import {CalculateMetadataFunction, staticFile} from 'remotion';
