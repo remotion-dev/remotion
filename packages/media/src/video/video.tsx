@@ -182,8 +182,8 @@ export const Video: React.FC<VideoProps> = ({
 			showInTimeline={showInTimeline ?? true}
 			src={src}
 			style={style ?? {}}
-			trimAfter={trimAfter ?? 0}
-			trimBefore={trimBefore ?? 0}
+			trimAfter={trimAfter}
+			trimBefore={trimBefore}
 			volume={volume ?? 1}
 			stack={stack}
 		/>
