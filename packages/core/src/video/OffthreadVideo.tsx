@@ -51,11 +51,14 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 		trimAfter,
 	});
 
-	if (trimBeforeValue !== 0 || trimAfterValue !== 0) {
+	if (
+		typeof trimBeforeValue !== 'undefined' ||
+		typeof trimAfterValue !== 'undefined'
+	) {
 		return (
 			<Sequence
 				layout="none"
-				from={0 - trimBeforeValue}
+				from={0 - (trimBeforeValue ?? 0)}
 				showInTimeline={false}
 				durationInFrames={trimAfterValue}
 				name={name}
