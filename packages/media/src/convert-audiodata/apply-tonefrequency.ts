@@ -1,5 +1,6 @@
 import {FORMAT, type PcmS16AudioData} from './convert-audiodata';
 import {resampleAudioData, TARGET_SAMPLE_RATE} from './resample-audiodata';
+import {atempoInt16Interleaved} from './wsola';
 
 export const applyToneFrequency = (
 	audioData: PcmS16AudioData,
@@ -44,26 +45,23 @@ export const applyToneFrequency = (
 		timestamp: audioData.timestamp,
 	};
 
-	const step3Data = new Int16Array(
-		audioData.numberOfChannels * audioData.numberOfFrames,
+	const step3Data = atempoInt16Interleaved(
+		step2AudioData.data,
+		step2AudioData.numberOfChannels,
+		toneFrequency,
 	);
 
-	const step3ChunkSize = newNumberOfFrames / audioData.numberOfFrames;
-
-	resampleAudioData({
-		srcNumberOfChannels: step2AudioData.numberOfChannels,
-		sourceChannels: step2AudioData.data,
-		destination: step3Data,
-		targetFrames: audioData.numberOfFrames,
-		chunkSize: step3ChunkSize,
-	});
-
-	console.log({step3ChunkSize, chunkSize});
+	// Target per-channel length and interleave
+	const targetPerChan = Math.max(
+		1,
+		Math.round(step2AudioData.numberOfFrames * toneFrequency),
+	);
+	const targetTotal = targetPerChan * step2AudioData.numberOfChannels;
 
 	return {
 		data: step3Data,
 		numberOfChannels: step2AudioData.numberOfChannels,
-		numberOfFrames: audioData.numberOfFrames,
+		numberOfFrames: targetTotal,
 		sampleRate: TARGET_SAMPLE_RATE,
 		timestamp: audioData.timestamp,
 	};
