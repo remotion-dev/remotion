@@ -22,7 +22,7 @@ This component imports and displays a video, similar to [`<Audio />`](/docs/audi
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_Audio as Audio} from '@remotion/media';
+import {Audio} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
@@ -37,7 +37,7 @@ You can load a video from an URL as well:
 
 ```tsx twoslash
 import {AbsoluteFill} from 'remotion';
-import {experimental_Audio as Audio} from '@remotion/media';
+import {Audio} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
   return (
@@ -69,7 +69,7 @@ For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_Audio as Audio} from '@remotion/media';
+import {Audio} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
@@ -92,7 +92,7 @@ Read the page on [using audio](/docs/using-audio) to learn more.
 
 ```tsx twoslash title="Setting a static volume"
 import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_Audio as Audio} from '@remotion/media';
+import {Audio} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
@@ -105,7 +105,7 @@ export const MyVideo = () => {
 
 ```tsx twoslash title="Changing the volume over time"
 import {AbsoluteFill, interpolate, staticFile} from 'remotion';
-import {experimental_Audio as Audio} from '@remotion/media';
+import {Audio} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
@@ -130,7 +130,7 @@ Controls the speed of the audio. `1` is the default and means regular speed, `0.
 
 ```tsx twoslash title="Example of a audio playing twice as fast"
 import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_Audio as Audio} from '@remotion/media';
+import {Audio} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
@@ -151,7 +151,7 @@ Playing a audio in reverse is not supported.
 Makes the audio loop indefinitely.
 
 ```tsx twoslash title="Example of a looped audio"
-import {experimental_Audio as Audio} from '@remotion/media';
+import {Audio} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
@@ -170,7 +170,7 @@ Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"`
 The `muted` prop will be respected. It will lead to no audio being played while still keeping the audio tag mounted. It's value may change over time, for example to only mute a certain section of the audio.
 
 ```tsx twoslash title="Example of a muted video"
-import {experimental_Audio as Audio} from '@remotion/media';
+import {Audio} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
   return <Audio muted src="https://remotion.media/audio.wav" />;
@@ -199,7 +199,7 @@ Select the audio stream to use. The default is `0`.
 
 ```tsx twoslash
 import {AbsoluteFill} from 'remotion';
-import {experimental_Audio as Audio} from '@remotion/media';
+import {Audio} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
