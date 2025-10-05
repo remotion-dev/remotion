@@ -30,6 +30,7 @@ export const extractFrameAndAudio = async ({
 			durationInSeconds: number | null;
 	  }
 	| 'cannot-decode'
+	| 'unknown-container-format'
 	| 'network-error'
 > => {
 	try {
@@ -57,6 +58,14 @@ export const extractFrameAndAudio = async ({
 
 		if (frame === 'cannot-decode') {
 			return 'cannot-decode';
+		}
+
+		if (frame === 'unknown-container-format') {
+			return 'unknown-container-format';
+		}
+
+		if (audio === 'unknown-container-format') {
+			return 'unknown-container-format';
 		}
 
 		if (audio === 'cannot-decode') {

@@ -36,6 +36,10 @@ type ExtractFrameResponse =
 	| {
 			type: 'response-network-error';
 			id: string;
+	  }
+	| {
+			type: 'response-unknown-container-format';
+			id: string;
 	  };
 
 // Doesn't exist in studio
@@ -75,6 +79,18 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						};
 
 						window.remotion_broadcastChannel!.postMessage(networkErrorResponse);
+						return;
+					}
+
+					if (result === 'unknown-container-format') {
+						const unknownContainerFormatResponse: ExtractFrameResponse = {
+							type: 'response-unknown-container-format',
+							id: data.id,
+						};
+
+						window.remotion_broadcastChannel!.postMessage(
+							unknownContainerFormatResponse,
+						);
 						return;
 					}
 
@@ -144,6 +160,7 @@ export const extractFrameViaBroadcastChannel = ({
 	  }
 	| 'cannot-decode'
 	| 'network-error'
+	| 'unknown-container-format'
 > => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({

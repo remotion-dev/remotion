@@ -24,12 +24,25 @@ type AudioSinks = {
 export type AudioSinkResult =
 	| AudioSinks
 	| 'no-audio-track'
-	| 'cannot-decode-audio';
-export type VideoSinkResult = VideoSinks | 'no-video-track' | 'cannot-decode';
+	| 'cannot-decode-audio'
+	| 'unknown-container-format';
+export type VideoSinkResult =
+	| VideoSinks
+	| 'no-video-track'
+	| 'cannot-decode'
+	| 'unknown-container-format';
 
 const getRetryDelay = (() => {
 	return null;
 }) satisfies UrlSourceOptions['getRetryDelay'];
+
+const getFormatOrNull = async (input: Input) => {
+	try {
+		return await input.getFormat();
+	} catch {
+		return null;
+	}
+};
 
 export const getSinks = async (src: string) => {
 	const input = new Input({
@@ -39,10 +52,14 @@ export const getSinks = async (src: string) => {
 		}),
 	});
 
-	const format = await input.getFormat();
+	const format = await getFormatOrNull(input);
 	const isMatroska = format === MATROSKA || format === WEBM;
 
 	const getVideoSinks = async (): Promise<VideoSinkResult> => {
+		if (format === null) {
+			return 'unknown-container-format';
+		}
+
 		const videoTrack = await input.getPrimaryVideoTrack();
 		if (!videoTrack) {
 			return 'no-video-track';
@@ -77,6 +94,10 @@ export const getSinks = async (src: string) => {
 	> = {};
 
 	const getAudioSinks = async (index: number): Promise<AudioSinkResult> => {
+		if (format === null) {
+			return 'unknown-container-format';
+		}
+
 		const audioTracks = await input.getAudioTracks();
 		const audioTrack = audioTracks[index];
 
