@@ -32,7 +32,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 const Component = () => {
 	return (
 		<>
-			<OffthreadVideo src={src} trimBefore={} />
+			<OffthreadVideo src={src} />
 		</>
 	);
 };

@@ -120,10 +120,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			<Loop
 				layout="none"
 				durationInFrames={calculateLoopDuration({
-					endAt: trimAfterValue ?? endAt,
+					endAt: trimAfterValue,
 					mediaDuration: duration,
 					playbackRate: props.playbackRate ?? 1,
-					startFrom: trimBeforeValue ?? startFrom,
+					startFrom: trimBeforeValue,
 				})}
 			>
 				<Audio

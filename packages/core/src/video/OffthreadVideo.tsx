@@ -1,5 +1,6 @@
 import React, {useCallback} from 'react';
 import {Sequence} from '../Sequence.js';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {
@@ -13,7 +14,9 @@ import type {
 	RemotionOffthreadVideoProps,
 } from './props.js';
 
-const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (props) => {
+export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
+	props,
+) => {
 	// Should only destruct `startFrom` and `endAt` from props,
 	// rest gets drilled down
 	const {
@@ -48,14 +51,11 @@ const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (props) => {
 		trimAfter,
 	});
 
-	if (
-		typeof trimBeforeValue !== 'undefined' ||
-		typeof trimAfterValue !== 'undefined'
-	) {
+	if (trimBeforeValue !== 0 || trimAfterValue !== 0) {
 		return (
 			<Sequence
 				layout="none"
-				from={0 - (trimBeforeValue ?? 0)}
+				from={0 - trimBeforeValue}
 				showInTimeline={false}
 				durationInFrames={trimAfterValue}
 				name={name}
@@ -201,3 +201,5 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 		/>
 	);
 };
+
+addSequenceStackTraces(OffthreadVideo);

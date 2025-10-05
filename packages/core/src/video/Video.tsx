@@ -98,10 +98,10 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		return (
 			<Loop
 				durationInFrames={calculateLoopDuration({
-					endAt: trimAfterValue ?? undefined,
+					endAt: trimAfterValue,
 					mediaDuration,
 					playbackRate: props.playbackRate ?? 1,
-					startFrom: trimBeforeValue ?? undefined,
+					startFrom: trimBeforeValue,
 				})}
 				layout="none"
 				name={name}

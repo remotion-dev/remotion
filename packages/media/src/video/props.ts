@@ -13,32 +13,43 @@ export type FallbackOffthreadVideoProps = {
 	toneFrequency?: number;
 };
 
-export type VideoProps = {
+type MandatoryVideoProps = {
 	src: string;
-	className?: string;
-	trimBefore?: number;
-	trimAfter?: number;
-	volume?: VolumeProp;
-	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
-	name?: string;
-	showInTimeline?: boolean;
-	onVideoFrame?: OnVideoFrame;
-	playbackRate?: number;
-	muted?: boolean;
-	delayRenderRetries?: number;
-	delayRenderTimeoutInMilliseconds?: number;
-	style?: React.CSSProperties;
-	/**
-	 * @deprecated For internal use only
-	 */
-	stack?: string;
-	logLevel?: LogLevel;
-	loop?: boolean;
-	/**
-	 * @deprecated For internal use only
-	 */
-	_remotionInternalNativeLoopPassed?: boolean;
-	audioStreamIndex?: number;
-	disallowFallbackToOffthreadVideo?: boolean;
-	fallbackOffthreadVideoProps?: FallbackOffthreadVideoProps;
 };
+
+type OuterVideoProps = {
+	trimBefore: number | undefined;
+	trimAfter: number | undefined;
+};
+
+type OptionalVideoProps = {
+	className: string | undefined;
+	volume: VolumeProp;
+	loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
+	name: string | undefined;
+	onVideoFrame: OnVideoFrame | undefined;
+	playbackRate: number;
+	muted: boolean;
+	delayRenderRetries: number | null;
+	delayRenderTimeoutInMilliseconds: number | null;
+	style: React.CSSProperties;
+	/**
+	 * @deprecated For internal use only
+	 */
+	stack: string | undefined;
+	logLevel: LogLevel;
+	loop: boolean;
+	audioStreamIndex: number;
+	disallowFallbackToOffthreadVideo: boolean;
+	fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
+	trimAfter: number;
+	trimBefore: number;
+};
+
+export type InnerVideoProps = MandatoryVideoProps &
+	OuterVideoProps &
+	OptionalVideoProps;
+
+export type VideoProps = MandatoryVideoProps &
+	Partial<OuterVideoProps> &
+	Partial<OptionalVideoProps>;
