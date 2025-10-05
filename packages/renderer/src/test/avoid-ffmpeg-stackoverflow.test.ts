@@ -5,6 +5,6 @@ test('Should avoid having more than 98 possible volumes to avoid FFmpeg exceptio
 	const thousandsOfValues = new Array(10000)
 		.fill(true)
 		.map((_, i) => i / 9999)
-		.map((t) => roundVolumeToAvoidStackOverflow(t));
+		.map((t) => roundVolumeToAvoidStackOverflow(t, 0, 1));
 	expect(new Set(thousandsOfValues).size).toBe(98);
 });
