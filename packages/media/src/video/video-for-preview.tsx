@@ -21,6 +21,7 @@ const {
 	evaluateVolume,
 	warnAboutTooHighVolume,
 	usePreload,
+	useMediaInTimeline,
 } = Internals;
 
 const calculateLoopDuration = ({
@@ -101,6 +102,22 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	});
 
 	warnAboutTooHighVolume(userPreferredVolume);
+
+	const [timelineId] = useState(() => String(Math.random()));
+
+	useMediaInTimeline({
+		volume,
+		mediaVolume,
+		mediaType: 'video',
+		src,
+		playbackRate,
+		displayName: null,
+		id: timelineId,
+		stack: null,
+		showInTimeline: true,
+		premountDisplay: null,
+		postmountDisplay: null,
+	});
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
