@@ -65,6 +65,10 @@ export const extractFrameAndAudio = async ({
 		}
 
 		if (audio === 'unknown-container-format') {
+			if (frame !== null) {
+				frame?.close();
+			}
+
 			return 'unknown-container-format';
 		}
 
