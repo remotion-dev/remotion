@@ -34,7 +34,7 @@ Use the [`useRemotionEnvironment()`](/docs/use-remotion-environment) hook to ren
 
 ```tsx twoslash title="OffthreadVideo during preview, @remotion/media during rendering"
 import {useRemotionEnvironment, OffthreadVideo, RemotionOffthreadVideoProps} from 'remotion';
-import {experimental_Video as Video, VideoProps} from '@remotion/media';
+import {Video, VideoProps} from '@remotion/media';
 
 const OffthreadWhileRenderingRefForwardingFunction: React.FC<{
   offthreadVideoProps: RemotionOffthreadVideoProps;

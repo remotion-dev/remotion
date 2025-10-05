@@ -24,7 +24,7 @@ This component has [native buffering support](/docs/player/buffer-state) enabled
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_Video as Video} from '@remotion/media';
+import {Video} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
@@ -39,7 +39,7 @@ You can load a video from an URL as well:
 
 ```tsx twoslash
 import {AbsoluteFill} from 'remotion';
-import {experimental_Video as Video} from '@remotion/media';
+import {Video} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
   return (
@@ -71,7 +71,7 @@ For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_Video as Video} from '@remotion/media';
+import {Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
@@ -94,7 +94,7 @@ Read the page on [using audio](/docs/using-audio) to learn more.
 
 ```tsx twoslash title="Setting a static volume"
 import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_Video as Video} from '@remotion/media';
+import {Video} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
@@ -107,7 +107,7 @@ export const MyVideo = () => {
 
 ```tsx twoslash title="Changing the volume over time"
 import {AbsoluteFill, interpolate, staticFile} from 'remotion';
-import {experimental_Video as Video} from '@remotion/media';
+import {Video} from '@remotion/media';
 
 export const MyVideo = () => {
   return (
@@ -132,7 +132,7 @@ Controls the speed of the video. `1` is the default and means regular speed, `0.
 
 ```tsx twoslash title="Example of a video playing twice as fast"
 import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_Video as Video} from '@remotion/media';
+import {Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
@@ -154,7 +154,7 @@ You can drop the audio of the video by adding a `muted` prop:
 
 ```tsx twoslash title="Example of a muted video"
 import {AbsoluteFill, OffthreadVideo} from 'remotion';
-import {experimental_Video as Video} from '@remotion/media';
+import {Video} from '@remotion/media';
 // ---cut---
 export const MyComposition = () => {
   return (
@@ -171,7 +171,7 @@ You can pass any style you can pass to a native HTML `<canvas>` element.
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
-import {experimental_Video as Video} from '@remotion/media';
+import {Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
@@ -189,7 +189,7 @@ Makes the video loop indefinitely.
 
 ```tsx twoslash title="Example of a looped video"
 import {AbsoluteFill} from 'remotion';
-import {experimental_Video as Video} from '@remotion/media';
+import {Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {
@@ -231,7 +231,7 @@ Select the audio stream to use. The default is `0`.
 
 ```tsx twoslash
 import {AbsoluteFill} from 'remotion';
-import {experimental_Video as Video} from '@remotion/media';
+import {Video} from '@remotion/media';
 
 // ---cut---
 export const MyComposition = () => {

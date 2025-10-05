@@ -1,4 +1,4 @@
-import {experimental_Video as NewVideo} from '@remotion/media';
+import {Video as NewVideo} from '@remotion/media';
 
 interface NewVideoProps {
 	src?: string;
