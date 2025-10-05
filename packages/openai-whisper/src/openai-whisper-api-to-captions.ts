@@ -42,7 +42,7 @@ export const openAiWhisperApiToCaptions = ({
 		).exec(remainingText);
 		if (!match) {
 			throw new Error(
-				`Unable to parse punctuation from OpenAI Whisper output. Could not find word "${word.word}" in text "${remainingText.slice(0, 100)}". File an issue under https://remotion.dev/issue to ask for a fix.`,
+				`Unable to parse punctuation from OpenAI Whisper output. Could not find word "${word.word}" in text "${remainingText.slice(0, 100)}". File an issue under https://remotion.dev/issue and post the input for openAiWhisperApiToCaptions() to ask for a fix.`,
 			);
 		}
 
