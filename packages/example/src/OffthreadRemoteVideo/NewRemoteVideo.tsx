@@ -1,6 +1,7 @@
+import {experimental_Video as Video} from '@remotion/media';
 import {parseMedia} from '@remotion/media-parser';
 import {StudioInternals} from '@remotion/studio';
-import {CalculateMetadataFunction, OffthreadVideo, staticFile} from 'remotion';
+import {CalculateMetadataFunction, staticFile} from 'remotion';
 
 const fps = 30;
 const src = staticFile('bigbuckbunny.mp4') + '#t=lol';
@@ -32,7 +33,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 const Component = () => {
 	return (
 		<>
-			<OffthreadVideo src={src} />
+			<Video src={src} />
 		</>
 	);
 };
