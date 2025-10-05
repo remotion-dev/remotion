@@ -44,6 +44,7 @@ type InnerVideoProps = {
 	readonly audioStreamIndex: number;
 	readonly disallowFallbackToOffthreadVideo: boolean;
 	readonly stack: string | undefined;
+	readonly toneFrequency: number;
 };
 
 export const VideoForRendering: React.FC<InnerVideoProps> = ({
@@ -64,6 +65,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	name,
 	disallowFallbackToOffthreadVideo,
 	stack,
+	toneFrequency,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -128,6 +130,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
 			audioStreamIndex: audioStreamIndex ?? 0,
+			toneFrequency: toneFrequency ?? 1,
 		})
 			.then((result) => {
 				if (result === 'unknown-container-format') {
@@ -283,6 +286,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		replaceWithOffthreadVideo,
 		audioStreamIndex,
 		disallowFallbackToOffthreadVideo,
+		toneFrequency,
 	]);
 
 	const classNameValue = useMemo(() => {
