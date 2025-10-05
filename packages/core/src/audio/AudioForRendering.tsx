@@ -112,7 +112,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			volume,
 			mediaFrame: frame,
 			playbackRate: props.playbackRate ?? 1,
-			toneFrequency: toneFrequency ?? null,
+			toneFrequency: toneFrequency ?? 1,
 			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
 			audioStreamIndex: audioStreamIndex ?? 0,
 		});

@@ -8,15 +8,12 @@ import {
 } from '../validate-start-from-props.js';
 import {OffthreadVideoForRendering} from './OffthreadVideoForRendering.js';
 import {VideoForPreview} from './VideoForPreview.js';
-import type {RemotionOffthreadVideoProps} from './props.js';
+import type {
+	AllOffthreadVideoProps,
+	RemotionOffthreadVideoProps,
+} from './props.js';
 
-/*
- * @description This method imports and displays a video, similar to <Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag
- * @see [Documentation](https://www.remotion.dev/docs/offthreadvideo)
- */
-export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (
-	props,
-) => {
+const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (props) => {
 	// Should only destruct `startFrom` and `endAt` from props,
 	// rest gets drilled down
 	const {
@@ -42,12 +39,6 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (
 		);
 	}
 
-	if (props.imageFormat) {
-		throw new TypeError(
-			`The \`<OffthreadVideo>\` tag does no longer accept \`imageFormat\`. Use the \`transparent\` prop if you want to render a transparent video.`,
-		);
-	}
-
 	validateMediaTrimProps({startFrom, endAt, trimBefore, trimAfter});
 
 	const {trimBeforeValue, trimAfterValue} = resolveTrimProps({
@@ -69,9 +60,16 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (
 				durationInFrames={trimAfterValue}
 				name={name}
 			>
-				<OffthreadVideo
+				<InnerOffthreadVideo
 					pauseWhenBuffering={pauseWhenBuffering ?? false}
 					{...otherProps}
+					trimAfter={undefined}
+					name={undefined}
+					showInTimeline={showInTimeline}
+					trimBefore={undefined}
+					stack={undefined}
+					startFrom={undefined}
+					endAt={undefined}
 				/>
 			</Sequence>
 		);
@@ -80,7 +78,19 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (
 	validateMediaProps(props, 'Video');
 
 	if (environment.isRendering) {
-		return <OffthreadVideoForRendering {...otherProps} />;
+		return (
+			<OffthreadVideoForRendering
+				pauseWhenBuffering={pauseWhenBuffering ?? false}
+				{...otherProps}
+				trimAfter={undefined}
+				name={undefined}
+				showInTimeline={showInTimeline}
+				trimBefore={undefined}
+				stack={undefined}
+				startFrom={undefined}
+				endAt={undefined}
+			/>
+		);
 	}
 
 	const {
@@ -97,7 +107,6 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (
 	return (
 		<VideoForPreview
 			_remotionInternalStack={stack ?? null}
-			_remotionInternalNativeLoopPassed={false}
 			onDuration={onDuration}
 			onlyWarnForMediaSeekingError
 			pauseWhenBuffering={pauseWhenBuffering ?? false}
@@ -106,6 +115,89 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (
 			onVideoFrame={onVideoFrame ?? null}
 			crossOrigin={crossOrigin}
 			{...propsForPreview}
+			_remotionInternalNativeLoopPassed={false}
+		/>
+	);
+};
+
+/*
+ * @description This method imports and displays a video, similar to <Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag
+ * @see [Documentation](https://www.remotion.dev/docs/offthreadvideo)
+ */
+
+export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
+	src,
+	acceptableTimeShiftInSeconds,
+	allowAmplificationDuringRender,
+	audioStreamIndex,
+	className,
+	crossOrigin,
+	delayRenderRetries,
+	delayRenderTimeoutInMilliseconds,
+	id,
+	loopVolumeCurveBehavior,
+	muted,
+	name,
+	onAutoPlayError,
+	onError,
+	onVideoFrame,
+	pauseWhenBuffering,
+	playbackRate,
+	showInTimeline,
+	style,
+	toneFrequency,
+	toneMapped,
+	transparent,
+	trimAfter,
+	trimBefore,
+	useWebAudioApi,
+	volume,
+	_remotionInternalNativeLoopPassed,
+	endAt,
+	stack,
+	startFrom,
+	imageFormat,
+}) => {
+	if (imageFormat) {
+		throw new TypeError(
+			`The \`<OffthreadVideo>\` tag does no longer accept \`imageFormat\`. Use the \`transparent\` prop if you want to render a transparent video.`,
+		);
+	}
+
+	return (
+		<InnerOffthreadVideo
+			acceptableTimeShiftInSeconds={acceptableTimeShiftInSeconds}
+			allowAmplificationDuringRender={allowAmplificationDuringRender ?? true}
+			audioStreamIndex={audioStreamIndex ?? 0}
+			className={className}
+			crossOrigin={crossOrigin}
+			delayRenderRetries={delayRenderRetries}
+			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+			id={id}
+			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
+			muted={muted ?? false}
+			name={name}
+			onAutoPlayError={onAutoPlayError ?? null}
+			onError={onError}
+			onVideoFrame={onVideoFrame}
+			pauseWhenBuffering={pauseWhenBuffering ?? true}
+			playbackRate={playbackRate ?? 1}
+			toneFrequency={toneFrequency ?? 1}
+			showInTimeline={showInTimeline ?? true}
+			src={src}
+			stack={stack}
+			startFrom={startFrom}
+			_remotionInternalNativeLoopPassed={
+				_remotionInternalNativeLoopPassed ?? false
+			}
+			endAt={endAt}
+			style={style}
+			toneMapped={toneMapped ?? true}
+			transparent={transparent ?? false}
+			trimAfter={trimAfter}
+			trimBefore={trimBefore}
+			useWebAudioApi={useWebAudioApi ?? false}
+			volume={volume}
 		/>
 	);
 };
