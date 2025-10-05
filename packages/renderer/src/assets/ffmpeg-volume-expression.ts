@@ -83,6 +83,44 @@ type FfmpegVolumeExpression = {
 	value: string;
 };
 
+export const makeVolumeMap = (volume: number[]) => {
+	// A 1 sec video with frames 0-29 would mean that
+	// frame 29 corresponds to timestamp 0.966666...
+	// but the audio is actually 1 sec long. For that reason we pad the last
+	// timestamp.
+	const paddedVolume = [...volume, volume[volume.length - 1]];
+
+	let min = Infinity;
+	let max = 0;
+	for (let i = 0; i < volume.length; i++) {
+		const vol = volume[i];
+		if (vol < min) {
+			min = vol;
+		}
+
+		if (vol > max) {
+			max = vol;
+		}
+	}
+
+	// Otherwise, we construct an FFMPEG expression. First step:
+	// Make a map of all possible volumes
+	// {possibleVolume1} => [frame1, frame2]
+	// {possibleVolume2} => [frame3, frame4]
+	const volumeMap: {[volume: string]: number[]} = {};
+	paddedVolume.forEach((baseVolume, frame) => {
+		// Adjust volume based on how many other tracks have not yet finished
+		const actualVolume = roundVolumeToAvoidStackOverflow(baseVolume, min, max);
+		if (!volumeMap[actualVolume]) {
+			volumeMap[actualVolume] = [];
+		}
+
+		volumeMap[actualVolume].push(frame);
+	});
+
+	return volumeMap;
+};
+
 export const ffmpegVolumeExpression = ({
 	volume,
 	fps,
@@ -109,26 +147,7 @@ export const ffmpegVolumeExpression = ({
 		});
 	}
 
-	// A 1 sec video with frames 0-29 would mean that
-	// frame 29 corresponds to timestamp 0.966666...
-	// but the audio is actually 1 sec long. For that reason we pad the last
-	// timestamp.
-	const paddedVolume = [...volume, volume[volume.length - 1]];
-
-	// Otherwise, we construct an FFMPEG expression. First step:
-	// Make a map of all possible volumes
-	// {possibleVolume1} => [frame1, frame2]
-	// {possibleVolume2} => [frame3, frame4]
-	const volumeMap: {[volume: string]: number[]} = {};
-	paddedVolume.forEach((baseVolume, frame) => {
-		// Adjust volume based on how many other tracks have not yet finished
-		const actualVolume = roundVolumeToAvoidStackOverflow(baseVolume);
-		if (!volumeMap[actualVolume]) {
-			volumeMap[actualVolume] = [];
-		}
-
-		volumeMap[actualVolume].push(frame);
-	});
+	const volumeMap = makeVolumeMap(volume);
 
 	// Sort the map so that the most common volume is last
 	// this is going to be the else statement so the expression is short
