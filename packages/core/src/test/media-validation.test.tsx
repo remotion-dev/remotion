@@ -45,23 +45,29 @@ describe('ValidateMediaProps should not throw with valid volume inputs', () => {
 describe('ValidateMediaProps should throw with invalid playbackRate', () => {
 	test(`It should not allow playbackRate of 0 or below.`, () => {
 		expectToThrow(
-			() => validateMediaProps({playbackRate: -1}, 'Audio'),
+			() => validateMediaProps({playbackRate: -1, volume: undefined}, 'Audio'),
 			/You have passed a playbackRate of -1 to your <Audio \/> component. Playback rate must be a real number above 0./,
 		);
 	});
 	test(`It should not allow non-finite playbackRate.`, () => {
 		expectToThrow(
-			() => validateMediaProps({playbackRate: Infinity}, 'Audio'),
+			() =>
+				validateMediaProps(
+					{playbackRate: Infinity, volume: undefined},
+					'Audio',
+				),
 			/You have passed a playbackRate of Infinity to your <Audio \/> component. Playback rate must be a real number above 0./,
 		);
 	});
 	test(`It should not allow NaN playbackRate.`, () => {
 		expectToThrow(
-			() => validateMediaProps({playbackRate: NaN}, 'Audio'),
+			() => validateMediaProps({playbackRate: NaN, volume: undefined}, 'Audio'),
 			/You have passed a playbackRate of NaN to your <Audio \/> component. Playback rate must be a real number above 0./,
 		);
 	});
 	test(`It should not allow regular playbackrate.`, () => {
-		expect(() => validateMediaProps({playbackRate: 1}, 'Audio')).not.toThrow();
+		expect(() =>
+			validateMediaProps({playbackRate: 1, volume: undefined}, 'Audio'),
+		).not.toThrow();
 	});
 });

@@ -102,6 +102,7 @@ import {
 	isCompositionIdValid,
 } from './validation/validate-composition-id.js';
 import {DurationsContextProvider} from './video/duration-state.js';
+import {InnerOffthreadVideo} from './video/OffthreadVideo.js';
 import {isIosSafari} from './video/video-fragment.js';
 import {VideoForPreview} from './video/VideoForPreview.js';
 import type {
@@ -213,6 +214,7 @@ export const Internals = {
 	warnAboutTooHighVolume,
 	AudioForPreview,
 	OBJECTFIT_CONTAIN_CLASS_NAME,
+	InnerOffthreadVideo,
 } as const;
 
 export type {

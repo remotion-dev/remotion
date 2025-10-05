@@ -131,7 +131,7 @@ export type AudioOrVideoAsset = {
 	volume: number;
 	mediaFrame: number;
 	playbackRate: number;
-	toneFrequency: number | null;
+	toneFrequency: number;
 	audioStartFrame: number;
 	audioStreamIndex: number;
 };

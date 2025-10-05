@@ -1,6 +1,11 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
-import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
+import type {
+	LogLevel,
+	LoopVolumeCurveBehavior,
+	OnVideoFrame,
+	VolumeProp,
+} from 'remotion';
 import {
 	Internals,
 	Loop,
@@ -9,7 +14,6 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {MediaPlayer} from './media-player';
-import type {VideoProps} from './props';
 
 const {
 	useUnsafeVideoConfig,
@@ -52,24 +56,23 @@ const calculateLoopDuration = ({
 
 type NewVideoForPreviewProps = {
 	readonly src: string;
-	readonly style?: React.CSSProperties;
-	readonly playbackRate?: number;
-	readonly logLevel?: LogLevel;
-	readonly className?: string;
-	readonly muted?: boolean;
-	readonly volume?: VolumeProp;
-	readonly loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
-	readonly onVideoFrame?: (frame: CanvasImageSource) => void;
-	readonly _remotionInternalNativeLoopPassed?: boolean;
+	readonly style: React.CSSProperties | undefined;
+	readonly playbackRate: number;
+	readonly logLevel: LogLevel;
+	readonly className: string | undefined;
+	readonly muted: boolean;
+	readonly volume: VolumeProp;
+	readonly loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
+	readonly onVideoFrame: undefined | ((frame: CanvasImageSource) => void);
 };
 
 const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	src,
 	style,
-	playbackRate = 1,
-	logLevel = 'info',
+	playbackRate,
+	logLevel,
 	className,
-	muted = false,
+	muted,
 	volume,
 	loopVolumeCurveBehavior,
 	onVideoFrame,
@@ -308,24 +311,61 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	);
 };
 
-interface VideoForPreviewWithDurationProps extends VideoProps {
-	readonly durationInSeconds: number;
+interface VideoForPreviewWithDurationProps {
+	readonly durationInSeconds: number | null;
+	readonly src: string;
+	readonly style: React.CSSProperties | undefined;
+	readonly playbackRate: number;
+	readonly logLevel: LogLevel;
+	readonly className: string | undefined;
+	readonly muted: boolean;
+	readonly volume: VolumeProp;
+	readonly loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
+	readonly onVideoFrame: undefined | ((frame: CanvasImageSource) => void);
+	readonly loop: boolean;
+	readonly name: string | undefined;
+	readonly trimAfter: number | undefined;
+	readonly trimBefore: number | undefined;
 }
 
 const VideoForPreviewWithDuration: React.FC<
 	VideoForPreviewWithDurationProps
-> = (props) => {
-	const {name, durationInSeconds, loop, trimBefore, trimAfter, ...otherProps} =
-		props;
+> = ({
+	className,
+	durationInSeconds,
+	logLevel,
+	loopVolumeCurveBehavior,
+	muted,
+	onVideoFrame,
+	playbackRate,
+	src,
+	style,
+	volume,
+	loop,
+	name,
+	trimAfter,
+	trimBefore,
+}) => {
 	const {fps} = useVideoConfig();
 
 	if (loop) {
-		if (!Number.isFinite(durationInSeconds)) {
+		if (!Number.isFinite(durationInSeconds) || durationInSeconds === null) {
 			return (
 				<VideoForPreviewWithDuration
-					{...props}
-					_remotionInternalNativeLoopPassed
 					loop={false}
+					className={className}
+					durationInSeconds={durationInSeconds}
+					logLevel={logLevel}
+					loopVolumeCurveBehavior={loopVolumeCurveBehavior}
+					muted={muted}
+					onVideoFrame={onVideoFrame}
+					playbackRate={playbackRate}
+					src={src}
+					style={style}
+					volume={volume}
+					name={name}
+					trimAfter={trimAfter}
+					trimBefore={trimBefore}
 				/>
 			);
 		}
@@ -337,16 +377,27 @@ const VideoForPreviewWithDuration: React.FC<
 				durationInFrames={calculateLoopDuration({
 					endAt: trimAfter,
 					mediaDuration,
-					playbackRate: props.playbackRate ?? 1,
+					playbackRate: playbackRate ?? 1,
 					startFrom: trimBefore,
 				})}
 				layout="none"
 				name={name}
 			>
 				<VideoForPreviewWithDuration
-					{...props}
-					_remotionInternalNativeLoopPassed
 					loop={false}
+					className={className}
+					durationInSeconds={durationInSeconds}
+					logLevel={logLevel}
+					loopVolumeCurveBehavior={loopVolumeCurveBehavior}
+					muted={muted}
+					onVideoFrame={onVideoFrame}
+					playbackRate={playbackRate}
+					src={src}
+					style={style}
+					volume={volume}
+					name={name}
+					trimAfter={trimAfter}
+					trimBefore={trimBefore}
 				/>
 			</Loop>
 		);
@@ -354,23 +405,46 @@ const VideoForPreviewWithDuration: React.FC<
 
 	return (
 		<NewVideoForPreview
-			src={otherProps.src}
-			style={otherProps.style}
-			playbackRate={otherProps.playbackRate}
-			logLevel={otherProps.logLevel}
-			muted={otherProps.muted}
-			volume={otherProps.volume}
-			loopVolumeCurveBehavior={otherProps.loopVolumeCurveBehavior}
-			onVideoFrame={otherProps.onVideoFrame}
-			_remotionInternalNativeLoopPassed={
-				otherProps._remotionInternalNativeLoopPassed
-			}
+			src={src}
+			style={style}
+			playbackRate={playbackRate}
+			logLevel={logLevel}
+			muted={muted}
+			volume={volume}
+			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
+			onVideoFrame={onVideoFrame}
+			className={className}
 		/>
 	);
 };
 
-export const VideoForPreview: React.FC<VideoProps> = (props) => {
-	const {loop, src, logLevel} = props;
+type InnerVideoProps = {
+	readonly className: string | undefined;
+	readonly loop: boolean;
+	readonly src: string;
+	readonly logLevel: LogLevel;
+	readonly muted: boolean;
+	readonly name: string | undefined;
+	readonly volume: VolumeProp;
+	readonly loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
+	readonly onVideoFrame: OnVideoFrame | undefined;
+	readonly playbackRate: number;
+	readonly style: React.CSSProperties;
+};
+
+export const VideoForPreview: React.FC<InnerVideoProps> = ({
+	className,
+	loop,
+	src,
+	logLevel,
+	muted,
+	name,
+	volume,
+	loopVolumeCurveBehavior,
+	onVideoFrame,
+	playbackRate,
+	style,
+}) => {
 	const preloadedSrc = usePreload(src);
 
 	const [durationInSeconds, setDurationInSeconds] = useState<number | null>(
@@ -385,26 +459,26 @@ export const VideoForPreview: React.FC<VideoProps> = (props) => {
 		let cancelled = false;
 
 		const computeDuration = async () => {
-			try {
-				const urlSource = new UrlSource(preloadedSrc);
-				const input = new Input({
-					source: urlSource,
-					formats: ALL_FORMATS,
-				});
+			const urlSource = new UrlSource(preloadedSrc);
+			const input = new Input({
+				source: urlSource,
+				formats: ALL_FORMATS,
+			});
 
+			try {
 				const duration = await input.computeDuration();
 
 				if (!cancelled) {
 					setDurationInSeconds(duration);
 				}
-
-				input.dispose();
 			} catch (error) {
 				Internals.Log.error(
-					{logLevel: logLevel ?? 'info', tag: '@remotion/media'},
+					{logLevel, tag: '@remotion/media'},
 					'[VideoForPreview] Failed to compute duration',
 					error,
 				);
+			} finally {
+				input.dispose();
 			}
 		};
 
@@ -421,8 +495,20 @@ export const VideoForPreview: React.FC<VideoProps> = (props) => {
 
 	return (
 		<VideoForPreviewWithDuration
-			{...props}
-			durationInSeconds={durationInSeconds ?? 0}
+			durationInSeconds={durationInSeconds}
+			className={className}
+			logLevel={logLevel}
+			muted={muted}
+			onVideoFrame={onVideoFrame}
+			playbackRate={playbackRate}
+			src={src}
+			style={style}
+			volume={volume}
+			name={name}
+			trimAfter={undefined}
+			trimBefore={undefined}
+			loop={loop}
+			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
 		/>
 	);
 };

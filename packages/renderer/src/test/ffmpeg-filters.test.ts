@@ -16,7 +16,7 @@ const baseAsset: MediaAsset = {
 	volume: 1,
 	id: '1',
 	playbackRate: 1,
-	toneFrequency: null,
+	toneFrequency: 1,
 	audioStartFrame: 0,
 	audioStreamIndex: 0,
 };
@@ -325,7 +325,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 					trimLeft: 0,
 					startInVideo: 0,
 					playbackRate: 16,
-					toneFrequency: null,
+					toneFrequency: 1,
 					audioStartFrame: 0,
 					audioStreamIndex: 0,
 				},

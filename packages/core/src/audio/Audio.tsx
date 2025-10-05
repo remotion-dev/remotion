@@ -120,10 +120,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			<Loop
 				layout="none"
 				durationInFrames={calculateLoopDuration({
-					endAt: trimAfterValue ?? endAt,
+					endAt: trimAfterValue,
 					mediaDuration: duration,
 					playbackRate: props.playbackRate ?? 1,
-					startFrom: trimBeforeValue ?? startFrom,
+					startFrom: trimBeforeValue,
 				})}
 			>
 				<Audio
@@ -157,7 +157,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	validateMediaProps(props, 'Audio');
+	validateMediaProps(
+		{playbackRate: props.playbackRate, volume: props.volume},
+		'Audio',
+	);
 
 	if (environment.isRendering) {
 		return (

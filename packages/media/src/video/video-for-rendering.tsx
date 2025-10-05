@@ -5,10 +5,15 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {
+	LogLevel,
+	LoopVolumeCurveBehavior,
+	OnVideoFrame,
+	VolumeProp,
+} from 'remotion';
 import {
 	cancelRender,
 	Internals,
-	OffthreadVideo,
 	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
@@ -17,9 +22,31 @@ import {
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {frameForVolumeProp} from '../looped-frame';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
-import type {VideoProps} from './props';
+import type {FallbackOffthreadVideoProps} from './props';
 
-export const VideoForRendering: React.FC<VideoProps> = ({
+// TODO: Combining `loop` + trimAfter / trimBefore
+// is not consistent across preview and rendering
+type InnerVideoProps = {
+	readonly className: string | undefined;
+	readonly loop: boolean;
+	readonly src: string;
+	readonly logLevel: LogLevel;
+	readonly muted: boolean;
+	readonly name: string | undefined;
+	readonly volume: VolumeProp;
+	readonly loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
+	readonly onVideoFrame: OnVideoFrame | undefined;
+	readonly playbackRate: number;
+	readonly style: React.CSSProperties;
+	readonly delayRenderRetries: number | null;
+	readonly delayRenderTimeoutInMilliseconds: number | null;
+	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
+	readonly audioStreamIndex: number;
+	readonly disallowFallbackToOffthreadVideo: boolean;
+	readonly stack: string | undefined;
+};
+
+export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	volume: volumeProp,
 	playbackRate,
 	src,
@@ -28,15 +55,15 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
 	onVideoFrame,
-	logLevel = window.remotion_logLevel,
+	logLevel,
 	loop,
 	style,
 	className,
 	fallbackOffthreadVideoProps,
 	audioStreamIndex,
 	name,
-	showInTimeline,
 	disallowFallbackToOffthreadVideo,
+	stack,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -247,29 +274,42 @@ export const VideoForRendering: React.FC<VideoProps> = ({
 	if (replaceWithOffthreadVideo) {
 		// TODO: Loop and other props
 		return (
-			<OffthreadVideo
+			<Internals.InnerOffthreadVideo
 				src={src}
-				playbackRate={playbackRate}
-				muted={muted}
+				playbackRate={playbackRate ?? 1}
+				muted={muted ?? false}
 				acceptableTimeShiftInSeconds={
 					fallbackOffthreadVideoProps?.acceptableTimeShiftInSeconds
 				}
-				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
-				delayRenderRetries={delayRenderRetries}
-				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+				loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
+				delayRenderRetries={delayRenderRetries ?? undefined}
+				delayRenderTimeoutInMilliseconds={
+					delayRenderTimeoutInMilliseconds ?? undefined
+				}
 				style={style}
 				allowAmplificationDuringRender
-				transparent={fallbackOffthreadVideoProps?.transparent}
-				toneMapped={fallbackOffthreadVideoProps?.toneMapped}
-				audioStreamIndex={audioStreamIndex}
+				transparent={fallbackOffthreadVideoProps?.transparent ?? false}
+				toneMapped={fallbackOffthreadVideoProps?.toneMapped ?? true}
+				audioStreamIndex={audioStreamIndex ?? 0}
 				name={name}
-				showInTimeline={showInTimeline}
 				className={className}
 				onVideoFrame={onVideoFrame}
 				volume={volumeProp}
 				id={id}
 				onError={fallbackOffthreadVideoProps?.onError}
-				toneFrequency={fallbackOffthreadVideoProps?.toneFrequency}
+				toneFrequency={fallbackOffthreadVideoProps?.toneFrequency ?? 1}
+				// these shouldn't matter during rendering / should not appear at all
+				showInTimeline={false}
+				crossOrigin={undefined}
+				onAutoPlayError={() => undefined}
+				pauseWhenBuffering={false}
+				trimAfter={undefined}
+				trimBefore={undefined}
+				useWebAudioApi={false}
+				startFrom={undefined}
+				endAt={undefined}
+				stack={stack}
+				_remotionInternalNativeLoopPassed={false}
 			/>
 		);
 	}
