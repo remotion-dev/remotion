@@ -96,7 +96,7 @@ test('Simple expression - should not clamp to 1', () => {
 	});
 });
 
-test('Complex expression - should  be higher than 1 if allowed', () => {
+test('Complex expression - should be higher than 1 if allowed', () => {
 	expect(
 		ffmpegVolumeExpression({
 			volume: [0.5, 2],
@@ -105,7 +105,7 @@ test('Complex expression - should  be higher than 1 if allowed', () => {
 		}),
 	).toEqual({
 		eval: 'frame',
-		value: "'if(between(t,-0.0167,0.0167),0.505,2)'",
+		value: "'if(between(t,-0.0167,0.0167),0.5,2)'",
 	});
 });
 
@@ -151,6 +151,6 @@ test('Last volume should be default case', () => {
 	expect(expression).toEqual({
 		eval: 'frame',
 		value:
-			"'if(between(t,-0.0167,0.0500),0,if(between(t,0.0500,0.1167),0.01,if(between(t,0.1167,0.1833),0.021,if(between(t,0.1833,0.2500),0.031,if(between(t,0.2500,0.3167),0.041,if(between(t,0.3167,0.3833),0.052,if(between(t,0.3833,0.4500),0.062,if(between(t,0.4500,0.5167),0.072,if(between(t,0.5167,0.5833),0.082,0.093)))))))))'",
+			"'if(between(t,-0.0167,0.0167),0,if(between(t,0.0167,0.0500),0.005,if(between(t,0.0500,0.0833),0.01,if(between(t,0.0833,0.1167),0.015,if(between(t,0.1167,0.1500),0.02,if(between(t,0.1500,0.1833),0.025,if(between(t,0.1833,0.2167),0.03,if(between(t,0.2167,0.2500),0.035,if(between(t,0.2500,0.2833),0.04,if(between(t,0.2833,0.3167),0.045,if(between(t,0.3167,0.3500),0.05,if(between(t,0.3500,0.3833),0.055,if(between(t,0.3833,0.4167),0.06,if(between(t,0.4167,0.4500),0.065,if(between(t,0.4500,0.4833),0.07,if(between(t,0.4833,0.5167),0.075,if(between(t,0.5167,0.5500),0.08,if(between(t,0.5500,0.5833),0.085,if(between(t,0.5833,0.6167),0.09,0.095)))))))))))))))))))'",
 	});
 });
