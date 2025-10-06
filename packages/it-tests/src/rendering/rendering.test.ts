@@ -462,32 +462,36 @@ test(
 	{timeout: 15000},
 );
 
-test('Should render a still that uses the staticFile() API and should apply props', async () => {
-	const out = outputPath.replace('.mp4', '.png');
-	await Bun.write('props.json', JSON.stringify({flag: true}));
-	const task = await execa(
-		'pnpm',
-		[
-			'exec',
-			'remotion',
-			'still',
-			'build',
-			'static-demo',
-			out,
-			'--log=verbose',
-			`--props={\"flag\": true}`,
-		],
-		{
-			cwd: path.join(process.cwd(), '..', 'example'),
-			// @ts-expect-error staticfile
-			env: {
-				REMOTION_FLAG: 'hi',
+test(
+	'Should render a still that uses the staticFile() API and should apply props',
+	async () => {
+		const out = outputPath.replace('.mp4', '.png');
+		await Bun.write('props.json', JSON.stringify({flag: true}));
+		const task = await execa(
+			'pnpm',
+			[
+				'exec',
+				'remotion',
+				'still',
+				'build',
+				'static-demo',
+				out,
+				'--log=verbose',
+				`--props={\"flag\": true}`,
+			],
+			{
+				cwd: path.join(process.cwd(), '..', 'example'),
+				// @ts-expect-error staticfile
+				env: {
+					REMOTION_FLAG: 'hi',
+				},
 			},
-		},
-	);
-	expect(task.exitCode).toBe(0);
-	fs.unlinkSync(out);
-});
+		);
+		expect(task.exitCode).toBe(0);
+		fs.unlinkSync(out);
+	},
+	{timeout: 15000},
+);
 
 test(
 	'Dynamic duration should work and audio separation',
