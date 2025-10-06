@@ -145,6 +145,7 @@ export type InlineAudioAsset = {
 	numberOfChannels: number;
 	timestamp: number;
 	duration: number;
+	toneFrequency: number;
 };
 
 type DiscriminatedArtifact =

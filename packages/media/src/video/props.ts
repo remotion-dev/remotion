@@ -44,6 +44,7 @@ type OptionalVideoProps = {
 	fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 	trimAfter: number | undefined;
 	trimBefore: number | undefined;
+	toneFrequency: number;
 	showInTimeline: boolean;
 };
 
