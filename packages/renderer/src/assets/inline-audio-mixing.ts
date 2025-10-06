@@ -195,7 +195,7 @@ export const makeInlineAudioMixing = (dir: string) => {
 			toneFrequencies[filePath] !== asset.toneFrequency
 		) {
 			throw new Error(
-				`toneFrequency must be the same across the audio, got ${asset.toneFrequency}, but before it was ${toneFrequencies[asset.id]}`,
+				`toneFrequency must be the same across the entire audio, got ${asset.toneFrequency}, but before it was ${toneFrequencies[asset.id]}`,
 			);
 		}
 
