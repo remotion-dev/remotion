@@ -1,8 +1,4 @@
-// Remotion exports all videos with 2 channels.
-export const TARGET_NUMBER_OF_CHANNELS = 2;
-
-// Remotion exports all videos with 48kHz sample rate.
-export const TARGET_SAMPLE_RATE = 48000;
+import {NUMBER_OF_CHANNELS} from './change-tonefrequency';
 
 const fixFloatingPoint = (value: number) => {
 	if (value % 1 < 0.0000001) {
@@ -17,13 +13,11 @@ const fixFloatingPoint = (value: number) => {
 };
 
 export const resampleAudioData = ({
-	srcNumberOfChannels,
 	sourceChannels,
 	destination,
 	targetFrames,
 	chunkSize,
 }: {
-	srcNumberOfChannels: number;
 	sourceChannels: Int16Array;
 	destination: Int16Array;
 	targetFrames: number;
@@ -48,14 +42,14 @@ export const resampleAudioData = ({
 		// Handle first fractional sample
 		if (startFraction > 0) {
 			const firstSample =
-				sourceChannels[startFloor * srcNumberOfChannels + channelIndex];
+				sourceChannels[startFloor * NUMBER_OF_CHANNELS + channelIndex];
 			weightedSum += firstSample * (1 - startFraction);
 			totalWeight += 1 - startFraction;
 		}
 
 		// Handle full samples
 		for (let k = startCeil; k < endFloor; k++) {
-			const num = sourceChannels[k * srcNumberOfChannels + channelIndex];
+			const num = sourceChannels[k * NUMBER_OF_CHANNELS + channelIndex];
 			weightedSum += num;
 			totalWeight += 1;
 		}
@@ -63,7 +57,7 @@ export const resampleAudioData = ({
 		// Handle last fractional sample
 		if (endFraction > 0) {
 			const lastSample =
-				sourceChannels[endFloor * srcNumberOfChannels + channelIndex];
+				sourceChannels[endFloor * NUMBER_OF_CHANNELS + channelIndex];
 			weightedSum += lastSample * endFraction;
 			totalWeight += endFraction;
 		}
@@ -77,12 +71,8 @@ export const resampleAudioData = ({
 		const start = newFrameIndex * chunkSize;
 		const end = start + chunkSize;
 
-		if (TARGET_NUMBER_OF_CHANNELS !== srcNumberOfChannels) {
-			throw new Error('srcNumberOfChannels must be 2');
-		}
-
-		for (let i = 0; i < srcNumberOfChannels; i++) {
-			destination[newFrameIndex * srcNumberOfChannels + i] = getSourceValues(
+		for (let i = 0; i < NUMBER_OF_CHANNELS; i++) {
+			destination[newFrameIndex * NUMBER_OF_CHANNELS + i] = getSourceValues(
 				start,
 				end,
 				i,

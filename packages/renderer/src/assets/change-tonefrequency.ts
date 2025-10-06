@@ -1,8 +1,8 @@
+import {DEFAULT_SAMPLE_RATE} from '../sample-rate';
 import {wsolaInt16Interleaved} from './change-tempo';
 import {resampleAudioData} from './resample-audiodata';
 
-const TARGET_SAMPLE_RATE = 48000;
-const NUMBER_OF_CHANNELS = 2;
+export const NUMBER_OF_CHANNELS = 2;
 
 export const applyToneFrequency = (
 	numberOfFrames: number,
@@ -16,10 +16,10 @@ export const applyToneFrequency = (
 	// 2. Resample to 48Khz
 	// 3. Apply playback rate
 
-	const step1SampleRate = TARGET_SAMPLE_RATE * toneFrequency;
+	const step1SampleRate = DEFAULT_SAMPLE_RATE * toneFrequency;
 
 	const newNumberOfFrames = Math.round(
-		numberOfFrames * (TARGET_SAMPLE_RATE / step1SampleRate),
+		numberOfFrames * (DEFAULT_SAMPLE_RATE / step1SampleRate),
 	);
 
 	const step2Data = new Int16Array(newNumberOfFrames * NUMBER_OF_CHANNELS);
@@ -27,7 +27,6 @@ export const applyToneFrequency = (
 	const chunkSize = numberOfFrames / newNumberOfFrames;
 
 	resampleAudioData({
-		srcNumberOfChannels: NUMBER_OF_CHANNELS,
 		sourceChannels: audioData,
 		destination: step2Data,
 		targetFrames: newNumberOfFrames,
