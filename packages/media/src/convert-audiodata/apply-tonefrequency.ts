@@ -1,6 +1,6 @@
 import {FORMAT, type PcmS16AudioData} from './convert-audiodata';
 import {resampleAudioData, TARGET_SAMPLE_RATE} from './resample-audiodata';
-import {atempoInt16Interleaved} from './wsola';
+import {wsolaInt16Interleaved} from './wsola';
 
 export const applyToneFrequency = (
 	audioData: PcmS16AudioData,
@@ -45,7 +45,7 @@ export const applyToneFrequency = (
 		timestamp: audioData.timestamp,
 	};
 
-	const step3Data = atempoInt16Interleaved(
+	const step3Data = wsolaInt16Interleaved(
 		step2AudioData.data,
 		step2AudioData.numberOfChannels,
 		toneFrequency,
