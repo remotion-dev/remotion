@@ -17,6 +17,7 @@ import {random} from '../random.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
+import {useMediaTag} from '../use-media-tag.js';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
@@ -177,7 +178,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	useMediaInTimeline({
 		volume,
 		mediaVolume,
-		mediaRef: audioRef,
 		src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
@@ -187,9 +187,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		premountDisplay: sequenceContext?.premountDisplay ?? null,
 		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
-		onAutoPlayError: null,
-		isPremounting: Boolean(sequenceContext?.premounting),
-		isPostmounting: Boolean(sequenceContext?.postmounting),
 	});
 
 	// putting playback before useVolume
@@ -204,6 +201,15 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(sequenceContext?.premounting),
 		isPostmounting: Boolean(sequenceContext?.postmounting),
 		pauseWhenBuffering,
+		onAutoPlayError: null,
+	});
+
+	useMediaTag({
+		id: timelineId,
+		isPostmounting: Boolean(sequenceContext?.postmounting),
+		isPremounting: Boolean(sequenceContext?.premounting),
+		mediaRef: audioRef,
+		mediaType: 'audio',
 		onAutoPlayError: null,
 	});
 
