@@ -10,7 +10,7 @@ export const experimental_Audio = Audio;
  */
 export const experimental_Video = Video;
 
+export {AudioForPreview} from './audio/audio-for-preview';
 export {AudioProps, FallbackHtml5AudioProps} from './audio/props';
 export {VideoProps} from './video/props';
 export {Audio, Video};
-export {AudioForPreview} from './audio/audio-for-preview';

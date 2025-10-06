@@ -4,7 +4,8 @@ import {AudioForPreview} from './audio-for-preview';
 import {AudioForRendering} from './audio-for-rendering';
 import type {AudioProps} from './props';
 
-const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} = Internals;
+const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
+	Internals;
 
 export const Audio: React.FC<AudioProps> = (props) => {
 	// Should only destruct `trimBefore` and `trimAfter` from props,
@@ -78,11 +79,5 @@ export const Audio: React.FC<AudioProps> = (props) => {
 		...propsForPreview
 	} = otherProps;
 
-	return (
-		<AudioForPreview
-			loop={loop}
-			name={name}
-			{...propsForPreview}
-		/>
-	);
+	return <AudioForPreview loop={loop} name={name} {...propsForPreview} />;
 };
