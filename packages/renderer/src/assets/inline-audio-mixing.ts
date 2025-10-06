@@ -2,7 +2,10 @@ import fs, {writeSync} from 'node:fs';
 import path from 'node:path';
 import type {InlineAudioAsset} from 'remotion/no-react';
 import {deleteDirectory} from '../delete-directory';
+import type {LogLevel} from '../log-level';
+import type {CancelSignal} from '../make-cancel-signal';
 import {DEFAULT_SAMPLE_RATE} from '../sample-rate';
+import {applyToneFrequencyUsingFfmpeg} from './apply-tone-frequency';
 import {makeAndReturn} from './download-map';
 
 const numberTo32BiIntLittleEndian = (num: number) => {
@@ -26,6 +29,7 @@ export const makeInlineAudioMixing = (dir: string) => {
 	// asset id -> file descriptor
 	const openFiles: Record<string, number> = {};
 	const writtenHeaders: Record<string, boolean> = {};
+	const toneFrequencies: Record<string, number> = {};
 
 	const cleanup = () => {
 		for (const fd of Object.values(openFiles)) {
@@ -132,6 +136,35 @@ export const makeInlineAudioMixing = (dir: string) => {
 		); // Remaining size
 	};
 
+	const finish = async ({
+		binariesDirectory,
+		indent,
+		logLevel,
+		cancelSignal,
+	}: {
+		indent: boolean;
+		logLevel: LogLevel;
+		binariesDirectory: string | null;
+		cancelSignal: CancelSignal | undefined;
+	}) => {
+		for (const fd of Object.keys(openFiles)) {
+			const frequency = toneFrequencies[fd];
+			if (frequency !== 1) {
+				const tmpFile = fd.replace(/.wav$/, '-tmp.wav');
+				await applyToneFrequencyUsingFfmpeg({
+					input: fd,
+					output: tmpFile,
+					toneFrequency: frequency,
+					indent,
+					logLevel,
+					binariesDirectory,
+					cancelSignal,
+				});
+				fs.renameSync(tmpFile, fd);
+			}
+		}
+	};
+
 	const addAsset = ({
 		asset,
 		fps,
@@ -154,8 +187,20 @@ export const makeInlineAudioMixing = (dir: string) => {
 			trimLeftOffset,
 			trimRightOffset,
 		});
+
 		const filePath = getFilePath(asset);
+
+		if (
+			toneFrequencies[filePath] !== undefined &&
+			toneFrequencies[filePath] !== asset.toneFrequency
+		) {
+			throw new Error(
+				`toneFrequency must be the same across the entire audio, got ${asset.toneFrequency}, but before it was ${toneFrequencies[asset.id]}`,
+			);
+		}
+
 		const fileDescriptor = openFiles[filePath];
+		toneFrequencies[filePath] = asset.toneFrequency;
 
 		let arr = new Int16Array(asset.audio);
 		const isFirst = asset.frame === firstFrame;
@@ -219,6 +264,7 @@ export const makeInlineAudioMixing = (dir: string) => {
 		cleanup,
 		addAsset,
 		getListOfAssets,
+		finish,
 	};
 };
 
