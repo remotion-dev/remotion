@@ -102,8 +102,6 @@ export const extractAudio = async ({
 		let trimStartInSeconds = 0;
 		let trimEndInSeconds = 0;
 
-		// TODO: Apply tone frequency
-
 		if (isFirstSample) {
 			trimStartInSeconds = timeInSeconds - sample.timestamp;
 			if (trimStartInSeconds < 0 && trimStartInSeconds > -1e-10) {

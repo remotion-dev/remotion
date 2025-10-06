@@ -123,6 +123,13 @@ export const createAudio = async ({
 		}),
 	);
 
+	await downloadMap.inlineAudioMixing.finish({
+		indent,
+		logLevel,
+		binariesDirectory,
+		cancelSignal,
+	});
+
 	const inlinedAudio = downloadMap.inlineAudioMixing.getListOfAssets();
 
 	const preprocessed: PreprocessedAudioTrack[] = [
