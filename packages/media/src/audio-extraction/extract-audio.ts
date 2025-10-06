@@ -1,6 +1,5 @@
 import {type LogLevel} from 'remotion';
 import {audioManager} from '../caches';
-import {applyToneFrequency} from '../convert-audiodata/apply-tonefrequency';
 import {combineAudioDataAndClosePrevious} from '../convert-audiodata/combine-audiodata';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {convertAudioData} from '../convert-audiodata/convert-audiodata';
@@ -18,7 +17,6 @@ export const extractAudio = async ({
 	loop,
 	playbackRate,
 	audioStreamIndex,
-	toneFrequency,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -27,7 +25,6 @@ export const extractAudio = async ({
 	loop: boolean;
 	playbackRate: number;
 	audioStreamIndex: number;
-	toneFrequency: number;
 }): Promise<
 	| {
 			data: PcmS16AudioData | null;
@@ -105,8 +102,6 @@ export const extractAudio = async ({
 		let trimStartInSeconds = 0;
 		let trimEndInSeconds = 0;
 
-		// TODO: Apply tone frequency
-
 		if (isFirstSample) {
 			trimStartInSeconds = timeInSeconds - sample.timestamp;
 			if (trimStartInSeconds < 0 && trimStartInSeconds > -1e-10) {
@@ -131,7 +126,7 @@ export const extractAudio = async ({
 				);
 		}
 
-		let audioData = convertAudioData({
+		const audioData = convertAudioData({
 			audioData: audioDataRaw,
 			newSampleRate: TARGET_SAMPLE_RATE,
 			trimStartInSeconds,
@@ -143,10 +138,6 @@ export const extractAudio = async ({
 
 		if (audioData.numberOfFrames === 0) {
 			continue;
-		}
-
-		if (toneFrequency !== 1) {
-			audioData = applyToneFrequency(audioData, toneFrequency);
 		}
 
 		audioDataArray.push(audioData);

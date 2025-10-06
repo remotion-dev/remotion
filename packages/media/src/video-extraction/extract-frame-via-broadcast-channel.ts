@@ -14,7 +14,6 @@ type ExtractFrameRequest = {
 	includeVideo: boolean;
 	loop: boolean;
 	audioStreamIndex: number;
-	toneFrequency: number;
 };
 
 type ExtractFrameResponse =
@@ -61,7 +60,6 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						includeVideo: data.includeVideo,
 						loop: data.loop,
 						audioStreamIndex: data.audioStreamIndex,
-						toneFrequency: data.toneFrequency,
 					});
 
 					if (result === 'cannot-decode') {
@@ -143,7 +141,6 @@ export const extractFrameViaBroadcastChannel = ({
 	isClientSideRendering,
 	loop,
 	audioStreamIndex,
-	toneFrequency,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -155,7 +152,6 @@ export const extractFrameViaBroadcastChannel = ({
 	isClientSideRendering: boolean;
 	loop: boolean;
 	audioStreamIndex: number;
-	toneFrequency: number;
 }): Promise<
 	| {
 			frame: ImageBitmap | VideoFrame | null;
@@ -177,7 +173,6 @@ export const extractFrameViaBroadcastChannel = ({
 			includeVideo,
 			loop,
 			audioStreamIndex,
-			toneFrequency,
 		});
 	}
 
@@ -275,7 +270,6 @@ export const extractFrameViaBroadcastChannel = ({
 		includeVideo,
 		loop,
 		audioStreamIndex,
-		toneFrequency,
 	};
 
 	window.remotion_broadcastChannel!.postMessage(request);
