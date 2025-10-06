@@ -8,7 +8,6 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import {calculateLoopDuration} from '../calculate-loop-duration';
 import {MediaPlayer} from '../video/media-player';
 
 const {
@@ -22,6 +21,7 @@ const {
 	warnAboutTooHighVolume,
 	usePreload,
 	useLogLevel,
+	calculateLoopDuration,
 } = Internals;
 
 type NewAudioForPreviewProps = {

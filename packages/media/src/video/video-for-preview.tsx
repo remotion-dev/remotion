@@ -13,7 +13,6 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import {calculateLoopDuration} from '../calculate-loop-duration';
 import {MediaPlayer} from './media-player';
 
 const {
@@ -28,6 +27,7 @@ const {
 	usePreload,
 	useMediaInTimeline,
 	SequenceContext,
+	calculateLoopDuration,
 } = Internals;
 
 type NewVideoForPreviewProps = {

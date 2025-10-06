@@ -10,6 +10,7 @@ import {
 	useMediaStartsAt,
 } from './audio/use-audio-frame.js';
 import {BufferingContextReact, BufferingProvider} from './buffering.js';
+import {calculateLoopDuration} from './calculate-loop.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
@@ -167,6 +168,7 @@ export const Internals = {
 	SharedAudioContext,
 	SharedAudioContextProvider,
 	invalidCompositionErrorMessage,
+	calculateLoopDuration,
 	isCompositionIdValid,
 	getPreviewDomElement,
 	compositionsRef,
