@@ -14,6 +14,7 @@ import type {
 import {
 	cancelRender,
 	Internals,
+	random,
 	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
@@ -44,6 +45,7 @@ type InnerVideoProps = {
 	readonly audioStreamIndex: number;
 	readonly disallowFallbackToOffthreadVideo: boolean;
 	readonly stack: string | undefined;
+	readonly toneFrequency: number;
 };
 
 export const VideoForRendering: React.FC<InnerVideoProps> = ({
@@ -64,6 +66,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	name,
 	disallowFallbackToOffthreadVideo,
 	stack,
+	toneFrequency,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -77,8 +80,22 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		Internals.RenderAssetManager,
 	);
 	const startsAt = Internals.useMediaStartsAt();
+	const sequenceContext = useContext(Internals.SequenceContext);
 
-	const [id] = useState(() => `${Math.random()}`.replace('0.', ''));
+	// Generate a string that's as unique as possible for this asset
+	// but at the same time the same on all threads
+	const id = useMemo(
+		() =>
+			`media-video-${random(
+				src,
+			)}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
+		[
+			src,
+			sequenceContext?.cumulatedFrom,
+			sequenceContext?.relativeFrom,
+			sequenceContext?.durationInFrames,
+		],
+	);
 
 	const environment = useRemotionEnvironment();
 	const {delayRender, continueRender} = useDelayRender();
@@ -246,6 +263,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
 						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
+						toneFrequency: toneFrequency ?? 1,
 					});
 				}
 
@@ -283,6 +301,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		replaceWithOffthreadVideo,
 		audioStreamIndex,
 		disallowFallbackToOffthreadVideo,
+		toneFrequency,
 	]);
 
 	const classNameValue = useMemo(() => {

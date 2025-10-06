@@ -1,9 +1,10 @@
 import type React from 'react';
-import {useContext, useLayoutEffect, useState} from 'react';
+import {useContext, useLayoutEffect, useMemo, useState} from 'react';
 import {
 	Audio,
 	cancelRender,
 	Internals,
+	random,
 	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
@@ -29,6 +30,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	style,
 	name,
 	disallowFallbackToHtml5Audio,
+	toneFrequency,
 }) => {
 	const frame = useCurrentFrame();
 	const absoluteFrame = Internals.useTimelinePosition();
@@ -40,8 +42,6 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const startsAt = Internals.useMediaStartsAt();
 
 	const environment = useRemotionEnvironment();
-
-	const [id] = useState(() => `${Math.random()}`.replace('0.', ''));
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
@@ -55,6 +55,23 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 	const {delayRender, continueRender} = useDelayRender();
 	const [replaceWithHtml5Audio, setReplaceWithHtml5Audio] = useState(false);
+
+	const sequenceContext = useContext(Internals.SequenceContext);
+
+	// Generate a string that's as unique as possible for this asset
+	// but at the same time the same on all threads
+	const id = useMemo(
+		() =>
+			`media-video-${random(
+				src,
+			)}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
+		[
+			src,
+			sequenceContext?.cumulatedFrom,
+			sequenceContext?.relativeFrom,
+			sequenceContext?.durationInFrames,
+		],
+	);
 
 	useLayoutEffect(() => {
 		const actualFps = playbackRate ? fps / playbackRate : fps;
@@ -171,6 +188,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
 						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
+						toneFrequency: toneFrequency ?? 1,
 					});
 				}
 
@@ -206,6 +224,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		unregisterRenderAsset,
 		volumeProp,
 		audioStreamIndex,
+		toneFrequency,
 	]);
 
 	if (replaceWithHtml5Audio) {
@@ -224,7 +243,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				audioStreamIndex={audioStreamIndex}
 				useWebAudioApi={fallbackHtml5AudioProps?.useWebAudioApi}
 				onError={fallbackHtml5AudioProps?.onError}
-				toneFrequency={fallbackHtml5AudioProps?.toneFrequency}
+				toneFrequency={toneFrequency}
 				acceptableTimeShiftInSeconds={
 					fallbackHtml5AudioProps?.acceptableTimeShiftInSeconds
 				}

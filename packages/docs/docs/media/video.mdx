@@ -248,6 +248,19 @@ Currently only works during rendering.
 Planning to support it during preview as well.
 :::
 
+### `toneFrequency?`
+
+Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
+
+A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
+
+The value must stay the same across the entire time the video tag is mounted.
+
+:::note
+Currently only works during rendering.  
+Planning to support it during preview as well.
+:::
+
 ### `fallbackOffthreadVideoProps?`
 
 When a [fallback to `<OffthreadVideo>`](/docs/media/fallback) happens, this prop allows you to pass props to the fallback `<OffthreadVideo>` component.  
@@ -256,14 +269,6 @@ Only props that are not supported by `<Video>` from `@remotion/media` need to be
 #### `acceptableTimeShiftInSeconds?`
 
 Maps to [`<OffthreadVideo />` -> `acceptableTimeShiftInSeconds`](/docs/offthreadvideo#acceptabletimeshiftinseconds)
-
-#### `toneFrequency?`
-
-Maps to [`<OffthreadVideo />` -> `toneFrequency`](/docs/offthreadvideo#tonefrequency)
-
-:::note
-Subject to change: Will soon become a top-level prop.
-:::
 
 #### `transparent?`
 
