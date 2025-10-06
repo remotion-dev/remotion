@@ -2,8 +2,10 @@ import fs, {writeSync} from 'node:fs';
 import path from 'node:path';
 import type {InlineAudioAsset} from 'remotion/no-react';
 import {deleteDirectory} from '../delete-directory';
+import type {LogLevel} from '../log-level';
+import type {CancelSignal} from '../make-cancel-signal';
 import {DEFAULT_SAMPLE_RATE} from '../sample-rate';
-import {processWavFileWithWSOLA} from './change-tempo';
+import {applyToneFrequencyUsingFfmpeg} from './apply-tone-frequency';
 import {makeAndReturn} from './download-map';
 
 const numberTo32BiIntLittleEndian = (num: number) => {
@@ -134,11 +136,31 @@ export const makeInlineAudioMixing = (dir: string) => {
 		); // Remaining size
 	};
 
-	const finish = async () => {
+	const finish = async ({
+		binariesDirectory,
+		indent,
+		logLevel,
+		cancelSignal,
+	}: {
+		indent: boolean;
+		logLevel: LogLevel;
+		binariesDirectory: string | null;
+		cancelSignal: CancelSignal | undefined;
+	}) => {
 		for (const fd of Object.keys(openFiles)) {
 			const frequency = toneFrequencies[fd];
 			if (frequency !== 1) {
-				await processWavFileWithWSOLA(fd, toneFrequencies[fd]);
+				const tmpFile = fd.replace(/.wav$/, '-tmp.wav');
+				await applyToneFrequencyUsingFfmpeg({
+					input: fd,
+					output: tmpFile,
+					toneFrequency: frequency,
+					indent,
+					logLevel,
+					binariesDirectory,
+					cancelSignal,
+				});
+				fs.renameSync(tmpFile, fd);
 			}
 		}
 	};
