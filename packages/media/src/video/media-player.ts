@@ -11,6 +11,7 @@ import {Internals} from 'remotion';
 import {sleep, withTimeout} from './timeout-utils';
 
 export const SEEK_THRESHOLD = 0.05;
+const AUDIO_BUFFER_TOLERANCE_THRESHOLD = 0.1;
 
 export class MediaPlayer {
 	private canvas: HTMLCanvasElement | null;
@@ -373,7 +374,9 @@ export class MediaPlayer {
 		this.updateNextFrame();
 	}
 
-	private startAudioIterator = async (timeToSeek: number): Promise<void> => {
+	private startAudioIterator = async (
+		startFromSecond: number,
+	): Promise<void> => {
 		if (!this.hasAudio()) return;
 
 		// Clean up existing audio iterator
@@ -382,8 +385,8 @@ export class MediaPlayer {
 		this.audioBufferHealth = 0;
 
 		try {
-			this.audioBufferIterator = this.audioSink!.buffers(timeToSeek);
-			this.runAudioIterator();
+			this.audioBufferIterator = this.audioSink!.buffers(startFromSecond);
+			this.runAudioIterator(startFromSecond);
 		} catch (error) {
 			Internals.Log.error(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
@@ -532,7 +535,7 @@ export class MediaPlayer {
 		}
 	}
 
-	private runAudioIterator = async (): Promise<void> => {
+	private runAudioIterator = async (startFromSecond: number): Promise<void> => {
 		if (!this.hasAudio() || !this.audioBufferIterator) return;
 
 		try {
@@ -577,6 +580,12 @@ export class MediaPlayer {
 							this.sharedAudioContext.currentTime -
 							this.getAdjustedTimestamp(timestamp);
 						isFirstBuffer = false;
+					}
+
+					// if timestamp is less than timeToSeek, skip
+					// context: for some reason, mediabunny returns buffer at 9.984s, when requested at 10s
+					if (timestamp < startFromSecond - AUDIO_BUFFER_TOLERANCE_THRESHOLD) {
+						continue;
 					}
 
 					this.scheduleAudioChunk(buffer, timestamp);

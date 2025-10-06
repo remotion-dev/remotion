@@ -26,6 +26,8 @@ const {
 	evaluateVolume,
 	warnAboutTooHighVolume,
 	usePreload,
+	useMediaInTimeline,
+	SequenceContext,
 } = Internals;
 
 type NewVideoForPreviewProps = {
@@ -79,6 +81,24 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	});
 
 	warnAboutTooHighVolume(userPreferredVolume);
+
+	const [timelineId] = useState(() => String(Math.random()));
+
+	const parentSequence = useContext(SequenceContext);
+
+	useMediaInTimeline({
+		volume,
+		mediaVolume,
+		mediaType: 'video',
+		src,
+		playbackRate,
+		displayName: null,
+		id: timelineId,
+		stack: null,
+		showInTimeline: true,
+		premountDisplay: parentSequence?.premountDisplay ?? null,
+		postmountDisplay: parentSequence?.postmountDisplay ?? null,
+	});
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
