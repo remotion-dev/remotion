@@ -26,6 +26,7 @@ const {
 	warnAboutTooHighVolume,
 	usePreload,
 	useMediaInTimeline,
+	SequenceContext,
 } = Internals;
 
 const calculateLoopDuration = ({
@@ -108,6 +109,8 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	const [timelineId] = useState(() => String(Math.random()));
 
+	const parentSequence = useContext(SequenceContext);
+
 	useMediaInTimeline({
 		volume,
 		mediaVolume,
@@ -118,8 +121,8 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		id: timelineId,
 		stack: null,
 		showInTimeline: true,
-		premountDisplay: null,
-		postmountDisplay: null,
+		premountDisplay: parentSequence?.premountDisplay ?? null,
+		postmountDisplay: parentSequence?.postmountDisplay ?? null,
 	});
 
 	if (!videoConfig) {
