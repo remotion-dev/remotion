@@ -1,3 +1,6 @@
+import fs from 'fs/promises';
+import {DEFAULT_SAMPLE_RATE} from '../sample-rate';
+
 function clamp16(x: number): number {
 	const y = Math.round(x);
 	return y < -32768 ? -32768 : y > 32767 ? 32767 : y;
@@ -247,8 +250,6 @@ export async function processWavFileWithWSOLA(
 	filePath: string,
 	tempoFactor: number,
 ): Promise<void> {
-	const fs = await import('fs/promises');
-
 	// Read the file
 	const fileBuffer = await fs.readFile(filePath);
 
@@ -275,9 +276,6 @@ export async function processWavFileWithWSOLA(
 	// Write the processed file back
 	await fs.writeFile(filePath, newBuffer);
 }
-
-import {DEFAULT_SAMPLE_RATE} from '../sample-rate';
-import {resampleAudioData} from './resample-audiodata';
 
 export const NUMBER_OF_CHANNELS = 2;
 
@@ -317,4 +315,85 @@ export const applyToneFrequency = (
 	);
 
 	return step3Data;
+};
+
+const fixFloatingPoint = (value: number) => {
+	if (value % 1 < 0.0000001) {
+		return Math.floor(value);
+	}
+
+	if (value % 1 > 0.9999999) {
+		return Math.ceil(value);
+	}
+
+	return value;
+};
+
+export const resampleAudioData = ({
+	sourceChannels,
+	destination,
+	targetFrames,
+	chunkSize,
+}: {
+	sourceChannels: Int16Array;
+	destination: Int16Array;
+	targetFrames: number;
+	chunkSize: number;
+}) => {
+	const getSourceValues = (
+		startUnfixed: number,
+		endUnfixed: number,
+		channelIndex: number,
+	) => {
+		const start = fixFloatingPoint(startUnfixed);
+		const end = fixFloatingPoint(endUnfixed);
+		const startFloor = Math.floor(start);
+		const startCeil = Math.ceil(start);
+		const startFraction = start - startFloor;
+		const endFraction = end - Math.floor(end);
+		const endFloor = Math.floor(end);
+
+		let weightedSum = 0;
+		let totalWeight = 0;
+
+		// Handle first fractional sample
+		if (startFraction > 0) {
+			const firstSample =
+				sourceChannels[startFloor * NUMBER_OF_CHANNELS + channelIndex];
+			weightedSum += firstSample * (1 - startFraction);
+			totalWeight += 1 - startFraction;
+		}
+
+		// Handle full samples
+		for (let k = startCeil; k < endFloor; k++) {
+			const num = sourceChannels[k * NUMBER_OF_CHANNELS + channelIndex];
+			weightedSum += num;
+			totalWeight += 1;
+		}
+
+		// Handle last fractional sample
+		if (endFraction > 0) {
+			const lastSample =
+				sourceChannels[endFloor * NUMBER_OF_CHANNELS + channelIndex];
+			weightedSum += lastSample * endFraction;
+			totalWeight += endFraction;
+		}
+
+		const average = weightedSum / totalWeight;
+
+		return average;
+	};
+
+	for (let newFrameIndex = 0; newFrameIndex < targetFrames; newFrameIndex++) {
+		const start = newFrameIndex * chunkSize;
+		const end = start + chunkSize;
+
+		for (let i = 0; i < NUMBER_OF_CHANNELS; i++) {
+			destination[newFrameIndex * NUMBER_OF_CHANNELS + i] = getSourceValues(
+				start,
+				end,
+				i,
+			);
+		}
+	}
 };
