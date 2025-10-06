@@ -26,6 +26,7 @@ export const makeInlineAudioMixing = (dir: string) => {
 	// asset id -> file descriptor
 	const openFiles: Record<string, number> = {};
 	const writtenHeaders: Record<string, boolean> = {};
+	const toneFrequencies: Record<string, number> = {};
 
 	const cleanup = () => {
 		for (const fd of Object.values(openFiles)) {
@@ -132,6 +133,12 @@ export const makeInlineAudioMixing = (dir: string) => {
 		); // Remaining size
 	};
 
+	const finish = () => {
+		for (const fd of Object.keys(openFiles)) {
+			console.log('finished', fd, toneFrequencies[fd]);
+		}
+	};
+
 	const addAsset = ({
 		asset,
 		fps,
@@ -154,6 +161,16 @@ export const makeInlineAudioMixing = (dir: string) => {
 			trimLeftOffset,
 			trimRightOffset,
 		});
+		if (
+			toneFrequencies[asset.id] !== undefined &&
+			toneFrequencies[asset.id] !== asset.toneFrequency
+		) {
+			throw new Error(
+				`toneFrequency must be the same across the audio, got ${asset.toneFrequency}, but before it was ${toneFrequencies[asset.id]}`,
+			);
+		}
+
+		toneFrequencies[asset.id] = asset.toneFrequency;
 		const filePath = getFilePath(asset);
 		const fileDescriptor = openFiles[filePath];
 
@@ -219,6 +236,7 @@ export const makeInlineAudioMixing = (dir: string) => {
 		cleanup,
 		addAsset,
 		getListOfAssets,
+		finish,
 	};
 };
 
