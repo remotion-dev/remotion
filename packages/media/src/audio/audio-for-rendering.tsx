@@ -91,6 +91,23 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			audioStreamIndex: audioStreamIndex ?? 0,
 		})
 			.then((result) => {
+				if (result === 'unknown-container-format') {
+					if (disallowFallbackToHtml5Audio) {
+						cancelRender(
+							new Error(
+								`Unknown container format ${src}, and 'disallowFallbackToHtml5Audio' was set. Failing the render.`,
+							),
+						);
+					}
+
+					Internals.Log.warn(
+						{logLevel, tag: '@remotion/media'},
+						`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Audio>`,
+					);
+					setReplaceWithHtml5Audio(true);
+					return;
+				}
+
 				if (result === 'cannot-decode') {
 					if (disallowFallbackToHtml5Audio) {
 						cancelRender(

@@ -13,7 +13,9 @@ export const extractFrame = async ({
 	timeInSeconds: number;
 	logLevel: LogLevel;
 	loop: boolean;
-}): Promise<VideoSample | 'cannot-decode' | null> => {
+}): Promise<
+	VideoSample | 'cannot-decode' | 'unknown-container-format' | null
+> => {
 	const sink = await getSinkWeak(src, logLevel);
 
 	const video = await sink.getVideo();
@@ -24,6 +26,10 @@ export const extractFrame = async ({
 
 	if (video === 'cannot-decode') {
 		return 'cannot-decode';
+	}
+
+	if (video === 'unknown-container-format') {
+		return 'unknown-container-format';
 	}
 
 	const timeInSeconds = loop

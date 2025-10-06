@@ -183,6 +183,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			width: width ?? parentSequence?.width ?? null,
 			premounting,
 			postmounting,
+			premountDisplay: premountDisplay ?? null,
+			postmountDisplay: postmountDisplay ?? null,
 		};
 	}, [
 		cumulatedFrom,
@@ -194,6 +196,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		width,
 		premounting,
 		postmounting,
+		premountDisplay,
+		postmountDisplay,
 	]);
 
 	const timelineClipName = useMemo(() => {
