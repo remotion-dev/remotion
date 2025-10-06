@@ -248,6 +248,19 @@ Currently only works during rendering.
 Planning to support it during preview as well.
 :::
 
+### `toneFrequency?`
+
+Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
+
+A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
+
+The value must stay the same across the entire time the video tag is mounted.
+
+:::note
+Currently only works during rendering.  
+Planning to support it during preview as well.
+:::
+
 ### `disallowFallbackToOffthreadVideo?`<AvailableFrom v="3.0.356" />
 
 By default, if the video cannot be embedded using this tag, [a fallback to `<OffthreadVideo>`](/docs/media/fallback) will be attempted.
