@@ -1,9 +1,10 @@
 import type React from 'react';
-import {useContext, useLayoutEffect, useState} from 'react';
+import {useContext, useLayoutEffect, useMemo, useState} from 'react';
 import {
 	Audio,
 	cancelRender,
 	Internals,
+	random,
 	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
@@ -42,8 +43,6 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 	const environment = useRemotionEnvironment();
 
-	const [id] = useState(() => `${Math.random()}`.replace('0.', ''));
-
 	if (!videoConfig) {
 		throw new Error('No video config found');
 	}
@@ -56,6 +55,23 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 	const {delayRender, continueRender} = useDelayRender();
 	const [replaceWithHtml5Audio, setReplaceWithHtml5Audio] = useState(false);
+
+	const sequenceContext = useContext(Internals.SequenceContext);
+
+	// Generate a string that's as unique as possible for this asset
+	// but at the same time the same on all threads
+	const id = useMemo(
+		() =>
+			`media-video-${random(
+				src,
+			)}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
+		[
+			src,
+			sequenceContext?.cumulatedFrom,
+			sequenceContext?.relativeFrom,
+			sequenceContext?.durationInFrames,
+		],
+	);
 
 	useLayoutEffect(() => {
 		const actualFps = playbackRate ? fps / playbackRate : fps;
@@ -90,7 +106,6 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
 			audioStreamIndex: audioStreamIndex ?? 0,
-			toneFrequency: toneFrequency ?? 1,
 		})
 			.then((result) => {
 				if (result === 'unknown-container-format') {
@@ -173,6 +188,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
 						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
+						toneFrequency: toneFrequency ?? 1,
 					});
 				}
 
