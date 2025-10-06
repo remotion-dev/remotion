@@ -296,16 +296,32 @@ export class MediaPlayer {
 		node.onended = () => this.queuedAudioNodes.delete(node);
 	}
 
-	public onBufferingChange(callback: (isBuffering: boolean) => void): void {
+	public onBufferingChange(
+		callback: (isBuffering: boolean) => void,
+	): () => void {
 		this.onBufferingChangeCallback = callback;
+
+		return () => {
+			if (this.onBufferingChangeCallback === callback) {
+				this.onBufferingChangeCallback = undefined;
+			}
+		};
 	}
 
-	public onVideoFrame(callback: (frame: CanvasImageSource) => void): void {
+	public onVideoFrame(
+		callback: (frame: CanvasImageSource) => void,
+	): () => void {
 		this.onVideoFrameCallback = callback;
 
 		if (this.initialized && callback) {
 			callback(this.canvas);
 		}
+
+		return () => {
+			if (this.onVideoFrameCallback === callback) {
+				this.onVideoFrameCallback = undefined;
+			}
+		};
 	}
 
 	private canRenderVideo(): boolean {

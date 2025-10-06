@@ -88,7 +88,6 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	const globalPlaybackRate = timelineContext.playbackRate;
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
-	const delayHandleRef = useRef<{unblock: () => void} | null>(null);
 
 	const [mediaMuted] = useMediaMutedState();
 	const [mediaVolume] = useMediaVolumeState();
@@ -139,10 +138,6 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 				.initialize(initialTimestamp)
 				.then(() => {
 					setMediaPlayerReady(true);
-					Internals.Log.trace(
-						{logLevel, tag: '@remotion/media'},
-						`[NewVideoForPreview] MediaPlayer initialized successfully`,
-					);
 				})
 				.catch((error) => {
 					Internals.Log.error(
@@ -160,11 +155,6 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		}
 
 		return () => {
-			if (delayHandleRef.current) {
-				delayHandleRef.current.unblock();
-				delayHandleRef.current = null;
-			}
-
 			if (mediaPlayerRef.current) {
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},
@@ -216,22 +206,34 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
 
-		mediaPlayer.onBufferingChange((newBufferingState) => {
-			if (newBufferingState && !delayHandleRef.current) {
-				delayHandleRef.current = buffer.delayPlayback();
+		let currentBlock: {unblock: () => void} | null = null;
+
+		const unsubscribe = mediaPlayer.onBufferingChange((newBufferingState) => {
+			if (newBufferingState && !currentBlock) {
+				currentBlock = buffer.delayPlayback();
+
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},
 					'[NewVideoForPreview] MediaPlayer buffering - blocking Remotion playback',
 				);
-			} else if (!newBufferingState && delayHandleRef.current) {
-				delayHandleRef.current.unblock();
-				delayHandleRef.current = null;
+			} else if (!newBufferingState && currentBlock) {
+				currentBlock.unblock();
+				currentBlock = null;
+
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},
 					'[NewVideoForPreview] MediaPlayer unbuffering - unblocking Remotion playback',
 				);
 			}
 		});
+
+		return () => {
+			unsubscribe();
+			if (currentBlock) {
+				currentBlock.unblock();
+				currentBlock = null;
+			}
+		};
 	}, [mediaPlayerReady, buffer, logLevel]);
 
 	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
@@ -274,13 +276,15 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
+		if (!mediaPlayer || !mediaPlayerReady || !onVideoFrame) {
 			return;
 		}
 
-		if (onVideoFrame) {
-			mediaPlayer.onVideoFrame(onVideoFrame);
-		}
+		const unsubscribe = mediaPlayer.onVideoFrame(onVideoFrame);
+
+		return () => {
+			unsubscribe();
+		};
 	}, [onVideoFrame, mediaPlayerReady]);
 
 	return (
