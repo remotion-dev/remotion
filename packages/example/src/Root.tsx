@@ -130,6 +130,7 @@ import {
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
+import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoExample} from './NewVideo/NewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
@@ -668,7 +669,7 @@ export const Index: React.FC = () => {
 					}}
 				/>
 			</Folder>
-			<Folder name="new-video-tests">
+			<Folder name="new-media-tags">
 				<Composition
 					id="new-video"
 					component={NewVideoExample}
@@ -697,6 +698,32 @@ export const Index: React.FC = () => {
 							fps,
 							width: dimensions.width,
 							height: dimensions.height,
+						};
+					}}
+				/>
+				<Composition
+					id="new-audio"
+					component={NewAudioExample}
+					fps={30}
+					defaultProps={{
+						src: staticFile('music.mp3'),
+					}}
+					calculateMetadata={async ({props}) => {
+						const fps = 30;
+
+						const {slowDurationInSeconds} = await parseMedia({
+							src: props.src as string,
+							fields: {
+								slowDurationInSeconds: true,
+							},
+						});
+
+						return {
+							props: props,
+							durationInFrames: Math.round(slowDurationInSeconds * fps),
+							fps,
+							width: 800,
+							height: 800,
 						};
 					}}
 				/>
