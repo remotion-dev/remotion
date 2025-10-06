@@ -1,4 +1,4 @@
-import {NUMBER_OF_CHANNELS} from './change-tonefrequency';
+import {NUMBER_OF_CHANNELS} from './change-tempo';
 
 const fixFloatingPoint = (value: number) => {
 	if (value % 1 < 0.0000001) {

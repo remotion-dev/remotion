@@ -1,5 +1,3 @@
-import {applyToneFrequency} from './change-tonefrequency';
-
 function clamp16(x: number): number {
 	const y = Math.round(x);
 	return y < -32768 ? -32768 : y > 32767 ? 32767 : y;
@@ -274,20 +272,49 @@ export async function processWavFileWithWSOLA(
 	const processedBytes = new Uint8Array(processedAudio.buffer);
 	newBuffer.set(processedBytes, 44);
 
-	// Update file size in WAV header (bytes 4-7)
-	const newFileSize = newBuffer.length - 8;
-	newBuffer[4] = newFileSize & 0xff;
-	newBuffer[5] = (newFileSize >> 8) & 0xff;
-	newBuffer[6] = (newFileSize >> 16) & 0xff;
-	newBuffer[7] = (newFileSize >> 24) & 0xff;
-
-	// Update data chunk size in WAV header (bytes 40-43)
-	const newDataSize = processedAudio.length * 2;
-	newBuffer[40] = newDataSize & 0xff;
-	newBuffer[41] = (newDataSize >> 8) & 0xff;
-	newBuffer[42] = (newDataSize >> 16) & 0xff;
-	newBuffer[43] = (newDataSize >> 24) & 0xff;
-
 	// Write the processed file back
 	await fs.writeFile(filePath, newBuffer);
 }
+
+import {DEFAULT_SAMPLE_RATE} from '../sample-rate';
+import {resampleAudioData} from './resample-audiodata';
+
+export const NUMBER_OF_CHANNELS = 2;
+
+export const applyToneFrequency = (
+	numberOfFrames: number,
+	audioData: Int16Array,
+	toneFrequency: number,
+): Int16Array => {
+	// In FFmpeg, we apply toneFrequency as follows:
+	// `asetrate=${DEFAULT_SAMPLE_RATE}*${toneFrequency},aresample=${DEFAULT_SAMPLE_RATE},atempo=1/${toneFrequency}`
+	// So there are 2 steps:
+	// 1. Change the assumed sample rate
+	// 2. Resample to 48Khz
+	// 3. Apply playback rate
+
+	const step1SampleRate = DEFAULT_SAMPLE_RATE * toneFrequency;
+
+	const newNumberOfFrames = Math.round(
+		numberOfFrames * (DEFAULT_SAMPLE_RATE / step1SampleRate),
+	);
+
+	const step2Data = new Int16Array(newNumberOfFrames * NUMBER_OF_CHANNELS);
+
+	const chunkSize = numberOfFrames / newNumberOfFrames;
+
+	resampleAudioData({
+		sourceChannels: audioData,
+		destination: step2Data,
+		targetFrames: newNumberOfFrames,
+		chunkSize,
+	});
+
+	const step3Data = wsolaInt16Interleaved(
+		step2Data,
+		NUMBER_OF_CHANNELS,
+		toneFrequency,
+	);
+
+	return step3Data;
+};
