@@ -261,6 +261,27 @@ Currently only works during rendering.
 Planning to support it during preview as well.
 :::
 
+### `fallbackOffthreadVideoProps?`
+
+When a [fallback to `<OffthreadVideo>`](/docs/media/fallback) happens, this prop allows you to pass props to the fallback `<OffthreadVideo>` component.  
+Only props that are not supported by `<Video>` from `@remotion/media` need to be specified here - props that apply for both tags will automatically be forwarded and do not need to be specified here.
+
+#### `acceptableTimeShiftInSeconds?`
+
+Maps to [`<OffthreadVideo />` -> `acceptableTimeShiftInSeconds`](/docs/offthreadvideo#acceptabletimeshiftinseconds)
+
+#### `transparent?`
+
+Maps to [`<OffthreadVideo />` -> `transparent`](/docs/offthreadvideo#transparent)
+
+#### `toneMapped?`
+
+Maps to [`<OffthreadVideo />` -> `toneMapped`](/docs/offthreadvideo#tonemapped)
+
+#### `onError?`
+
+Maps to [`<OffthreadVideo />` -> `onError`](/docs/offthreadvideo#onerror)
+
 ### `disallowFallbackToOffthreadVideo?`<AvailableFrom v="3.0.356" />
 
 By default, if the video cannot be embedded using this tag, [a fallback to `<OffthreadVideo>`](/docs/media/fallback) will be attempted.

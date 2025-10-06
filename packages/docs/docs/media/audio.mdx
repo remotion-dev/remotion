@@ -224,6 +224,23 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 
 The value must stay the same across the entire time the video tag is mounted.
 
+### `fallbackHtml5AudioProps?`
+
+When a [fallback to `<Audio>` from `remotion`](/docs/media/fallback) happens, this prop allows you to pass props to the fallback `<Audio>` component.  
+Only props that are not supported by `<Audio>` from `@remotion/media` need to be specified here - props that apply for both tags will automatically be forwarded and do not need to be specified here.
+
+#### `onError?`
+
+Maps to [`<Audio />` -> `onError`](/docs/audio#onerror)
+
+#### `useWebAudioApi?`
+
+Maps to [`<Audio />` -> `useWebAudioApi`](/docs/audio#usewebaudioapi)
+
+#### `acceptableTimeShiftInSeconds?`
+
+Maps to [`<Audio />` -> `acceptableTimeShiftInSeconds`](/docs/audio#acceptabletimeshiftinseconds)
+
 ### `disallowFallbackToHtml5Audio?`<AvailableFrom v="3.0.356" />
 
 By default, if the video cannot be embedded using this tag, [a fallback to `<Audio>` from `remotion`](/docs/media/fallback) will be attempted.
