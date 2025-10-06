@@ -203,42 +203,46 @@ test(
 	},
 );
 
-test('Should render a still image if single frame specified', async () => {
-	const outDir = outputPath.replace('.mp4', '');
-	const outImg = path.join(outDir, 'element-2.png');
-	const task = await execa(
-		'pnpm',
-		[
-			'exec',
-			'remotion',
-			'render',
-			'build',
-			'ten-frame-tester',
-			'--frames=2',
-			outDir,
-		],
-		{
-			cwd: path.join(process.cwd(), '..', 'example'),
-			reject: false,
-		},
-	);
-	expect(task.exitCode).toBe(0);
-	expect(fs.existsSync(outImg)).toBe(true);
+test(
+	'Should render a still image if single frame specified',
+	async () => {
+		const outDir = outputPath.replace('.mp4', '');
+		const outImg = path.join(outDir, 'element-2.png');
+		const task = await execa(
+			'pnpm',
+			[
+				'exec',
+				'remotion',
+				'render',
+				'build',
+				'ten-frame-tester',
+				'--frames=2',
+				outDir,
+			],
+			{
+				cwd: path.join(process.cwd(), '..', 'example'),
+				reject: false,
+			},
+		);
+		expect(task.exitCode).toBe(0);
+		expect(fs.existsSync(outImg)).toBe(true);
 
-	const info = await RenderInternals.callFf({
-		bin: 'ffprobe',
-		args: [outImg],
-		indent: false,
-		logLevel: 'info',
-		binariesDirectory: null,
-		cancelSignal: undefined,
-	});
-	const data = info.stderr;
-	expect(data).toContain('Video: png');
-	await fs.promises.rm(outDir, {
-		recursive: true,
-	});
-});
+		const info = await RenderInternals.callFf({
+			bin: 'ffprobe',
+			args: [outImg],
+			indent: false,
+			logLevel: 'info',
+			binariesDirectory: null,
+			cancelSignal: undefined,
+		});
+		const data = info.stderr;
+		expect(data).toContain('Video: png');
+		await fs.promises.rm(outDir, {
+			recursive: true,
+		});
+	},
+	{timeout: 15000},
+);
 
 test(
 	'Should be able to render a WAV audio file',

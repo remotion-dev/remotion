@@ -33,8 +33,8 @@ export type AudioProps = {
 	fallbackHtml5AudioProps?: {
 		onError?: (err: Error) => void;
 		useWebAudioApi?: boolean;
-		toneFrequency?: number;
 		acceptableTimeShiftInSeconds?: number;
 	};
 	disallowFallbackToHtml5Audio?: boolean;
+	toneFrequency?: number;
 };

@@ -28,6 +28,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 	volume,
 	showInTimeline,
 	stack,
+	toneFrequency,
 }) => {
 	const environment = useRemotionEnvironment();
 
@@ -86,6 +87,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 					trimAfter={undefined}
 					trimBefore={undefined}
 					showInTimeline={showInTimeline}
+					toneFrequency={toneFrequency}
 				/>
 			</Sequence>
 		);
@@ -117,6 +119,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 				stack={stack}
 				style={style}
 				volume={volume}
+				toneFrequency={toneFrequency}
 			/>
 		);
 	}
@@ -159,6 +162,7 @@ export const Video: React.FC<VideoProps> = ({
 	trimBefore,
 	volume,
 	stack,
+	toneFrequency,
 }) => {
 	return (
 		<InnerVideo
@@ -185,6 +189,7 @@ export const Video: React.FC<VideoProps> = ({
 			trimAfter={trimAfter}
 			trimBefore={trimBefore}
 			volume={volume ?? 1}
+			toneFrequency={toneFrequency ?? 1}
 			stack={stack}
 		/>
 	);

@@ -1,39 +1,34 @@
-import {Video} from '@remotion/media';
+import {Audio} from '@remotion/media';
 import {parseMedia} from '@remotion/media-parser';
 import {StudioInternals} from '@remotion/studio';
 import {CalculateMetadataFunction, staticFile} from 'remotion';
 
 const fps = 30;
-const src = staticFile('bigbuckbunny.mp4') + '#t=lol';
+const src = staticFile('audio-48000hz.wav') + '#t=lol';
 
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>
 > = async () => {
-	const {slowDurationInSeconds, dimensions} = await parseMedia({
+	const {slowDurationInSeconds} = await parseMedia({
 		src,
 		acknowledgeRemotionLicense: true,
 		fields: {
 			slowDurationInSeconds: true,
-			dimensions: true,
 		},
 	});
-
-	if (dimensions === null) {
-		throw new Error('Dimensions are null');
-	}
 
 	return {
 		durationInFrames: Math.round(slowDurationInSeconds * fps),
 		fps,
-		width: Math.floor(dimensions.width / 2) * 2,
-		height: Math.floor(dimensions.height / 2) * 2,
+		width: 100,
+		height: 100,
 	};
 };
 
 const Component = () => {
 	return (
 		<>
-			<Video src={src} />
+			<Audio src={src} toneFrequency={0.9} />
 		</>
 	);
 };
