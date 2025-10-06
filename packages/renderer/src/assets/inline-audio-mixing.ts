@@ -138,7 +138,6 @@ export const makeInlineAudioMixing = (dir: string) => {
 		for (const fd of Object.keys(openFiles)) {
 			const frequency = toneFrequencies[fd];
 			if (frequency !== 1) {
-				console.log('processing wsofa', fd, frequency);
 				await processWavFileWithWSOLA(fd, toneFrequencies[fd]);
 			}
 		}

@@ -9,7 +9,7 @@ export type ConvertAudioDataOptions = {
 	playbackRate: number;
 };
 
-export const FORMAT: AudioSampleFormat = 's16';
+const FORMAT: AudioSampleFormat = 's16';
 
 export type PcmS16AudioData = {
 	data: Int16Array;
