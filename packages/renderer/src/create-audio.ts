@@ -123,7 +123,7 @@ export const createAudio = async ({
 		}),
 	);
 
-	downloadMap.inlineAudioMixing.finish();
+	await downloadMap.inlineAudioMixing.finish();
 
 	const inlinedAudio = downloadMap.inlineAudioMixing.getListOfAssets();
 

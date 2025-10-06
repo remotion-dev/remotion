@@ -1,3 +1,5 @@
+import {applyToneFrequency} from './change-tonefrequency';
+
 function clamp16(x: number): number {
 	const y = Math.round(x);
 	return y < -32768 ? -32768 : y > 32767 ? 32767 : y;
@@ -234,4 +236,58 @@ export function wsolaInt16Interleaved(
 	}
 
 	return result;
+}
+
+/**
+ * Reads a WAV file, applies WSOLA tempo modification, and writes it back.
+ * Ignores the first 44 bytes (WAV header) and treats the rest as interleaved Int16 PCM.
+ *
+ * @param filePath Path to the WAV file to process
+ * @param tempoFactor Tempo factor: >1 = faster/shorter, <1 = slower/longer
+ */
+export async function processWavFileWithWSOLA(
+	filePath: string,
+	tempoFactor: number,
+): Promise<void> {
+	const fs = await import('fs/promises');
+
+	// Read the file
+	const fileBuffer = await fs.readFile(filePath);
+
+	// Skip first 44 bytes (WAV header) and create Int16Array
+	const audioData = new Int16Array(fileBuffer.buffer, 44);
+
+	// Apply WSOLA with 2 channels (stereo)
+	const processedAudio = applyToneFrequency(
+		audioData.length / 2,
+		audioData,
+		tempoFactor,
+	);
+
+	// Create new buffer with original header + processed audio
+	const newBuffer = new Uint8Array(44 + processedAudio.length * 2);
+
+	// Copy original header (first 44 bytes)
+	newBuffer.set(fileBuffer.subarray(0, 44), 0);
+
+	// Copy processed audio data
+	const processedBytes = new Uint8Array(processedAudio.buffer);
+	newBuffer.set(processedBytes, 44);
+
+	// Update file size in WAV header (bytes 4-7)
+	const newFileSize = newBuffer.length - 8;
+	newBuffer[4] = newFileSize & 0xff;
+	newBuffer[5] = (newFileSize >> 8) & 0xff;
+	newBuffer[6] = (newFileSize >> 16) & 0xff;
+	newBuffer[7] = (newFileSize >> 24) & 0xff;
+
+	// Update data chunk size in WAV header (bytes 40-43)
+	const newDataSize = processedAudio.length * 2;
+	newBuffer[40] = newDataSize & 0xff;
+	newBuffer[41] = (newDataSize >> 8) & 0xff;
+	newBuffer[42] = (newDataSize >> 16) & 0xff;
+	newBuffer[43] = (newDataSize >> 24) & 0xff;
+
+	// Write the processed file back
+	await fs.writeFile(filePath, newBuffer);
 }

@@ -3,6 +3,7 @@ import path from 'node:path';
 import type {InlineAudioAsset} from 'remotion/no-react';
 import {deleteDirectory} from '../delete-directory';
 import {DEFAULT_SAMPLE_RATE} from '../sample-rate';
+import {processWavFileWithWSOLA} from './change-tempo';
 import {makeAndReturn} from './download-map';
 
 const numberTo32BiIntLittleEndian = (num: number) => {
@@ -133,9 +134,13 @@ export const makeInlineAudioMixing = (dir: string) => {
 		); // Remaining size
 	};
 
-	const finish = () => {
+	const finish = async () => {
 		for (const fd of Object.keys(openFiles)) {
-			console.log('finished', fd, toneFrequencies[fd]);
+			const frequency = toneFrequencies[fd];
+			if (frequency !== 1) {
+				console.log('processing wsofa', fd, frequency);
+				await processWavFileWithWSOLA(fd, toneFrequencies[fd]);
+			}
 		}
 	};
 
@@ -161,18 +166,20 @@ export const makeInlineAudioMixing = (dir: string) => {
 			trimLeftOffset,
 			trimRightOffset,
 		});
+
+		const filePath = getFilePath(asset);
+
 		if (
-			toneFrequencies[asset.id] !== undefined &&
-			toneFrequencies[asset.id] !== asset.toneFrequency
+			toneFrequencies[filePath] !== undefined &&
+			toneFrequencies[filePath] !== asset.toneFrequency
 		) {
 			throw new Error(
 				`toneFrequency must be the same across the audio, got ${asset.toneFrequency}, but before it was ${toneFrequencies[asset.id]}`,
 			);
 		}
 
-		toneFrequencies[asset.id] = asset.toneFrequency;
-		const filePath = getFilePath(asset);
 		const fileDescriptor = openFiles[filePath];
+		toneFrequencies[filePath] = asset.toneFrequency;
 
 		let arr = new Int16Array(asset.audio);
 		const isFirst = asset.frame === firstFrame;
