@@ -154,6 +154,14 @@ const InnerComposition = <
 	const environment = useRemotionEnvironment();
 
 	const canUseComposition = useContext(CanUseRemotionHooks);
+
+	// Record seen composition IDs as early as possible so that overlays can access them
+	if (typeof window !== 'undefined') {
+		window.remotion_seenCompositionIds = Array.from(
+			new Set([...(window.remotion_seenCompositionIds ?? []), id]),
+		);
+	}
+
 	if (canUseComposition) {
 		if (isPlayer) {
 			throw new Error(
@@ -176,7 +184,6 @@ const InnerComposition = <
 
 		validateCompositionId(id);
 		validateDefaultAndInputProps(defaultProps, 'defaultProps', id);
-
 		registerComposition<Schema, Props>({
 			durationInFrames: durationInFrames ?? undefined,
 			fps: fps ?? undefined,

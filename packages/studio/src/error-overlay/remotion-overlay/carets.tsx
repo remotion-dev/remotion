@@ -1,9 +1,9 @@
 import React from 'react';
 
-export const CaretRight = () => {
+export const CaretRight = ({size}: {readonly size?: number}) => {
 	return (
 		<svg
-			style={{height: 20}}
+			style={{height: size ?? 20}}
 			aria-hidden="true"
 			focusable="false"
 			role="img"
@@ -19,7 +19,8 @@ export const CaretRight = () => {
 
 export const CaretDown: React.FC<{
 	readonly invert: boolean;
-}> = ({invert}) => {
+	readonly size?: number;
+}> = ({invert, size}) => {
 	return (
 		<svg
 			aria-hidden="true"
@@ -27,7 +28,7 @@ export const CaretDown: React.FC<{
 			role="img"
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 320 512"
-			style={{height: 20, transform: invert ? `rotate(180deg)` : ''}}
+			style={{height: size ?? 20, transform: invert ? `rotate(180deg)` : ''}}
 		>
 			<path
 				fill="currentColor"
