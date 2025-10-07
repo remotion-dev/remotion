@@ -13,7 +13,6 @@ const {
 	evaluateVolume,
 	warnAboutTooHighVolume,
 	usePreload,
-	useLogLevel,
 	useMediaInTimeline,
 	SequenceContext,
 } = Internals;
@@ -289,30 +288,29 @@ type InnerAudioProps = {
 };
 
 export const AudioForPreview: React.FC<InnerAudioProps> = ({
-	loop = false,
+	loop,
 	src,
-	logLevel: logLevelProp,
-	muted = false,
+	logLevel,
+	muted,
 	name,
-	volume = 1,
-	loopVolumeCurveBehavior = 'repeat',
-	playbackRate = 1,
+	volume,
+	loopVolumeCurveBehavior,
+	playbackRate,
 	trimAfter,
 	trimBefore,
 	showInTimeline,
 }) => {
-	const logLevel = useLogLevel() ?? logLevelProp ?? 'info';
 	const preloadedSrc = usePreload(src);
 
 	return (
 		<NewAudioForPreview
 			src={preloadedSrc}
-			playbackRate={playbackRate}
-			logLevel={logLevel}
-			muted={muted}
-			volume={volume}
-			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
-			loop={loop}
+			playbackRate={playbackRate ?? 1}
+			logLevel={logLevel ?? window.remotion_logLevel}
+			muted={muted ?? false}
+			volume={volume ?? 1}
+			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
+			loop={loop ?? false}
 			trimAfter={trimAfter}
 			trimBefore={trimBefore}
 			name={name}
