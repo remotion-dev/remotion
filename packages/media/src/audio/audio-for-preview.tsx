@@ -80,10 +80,10 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		throw new TypeError('No `src` was passed to <NewAudioForPreview>.');
 	}
 
-	const actualFps = videoConfig.fps / playbackRate;
-	const currentTime = frame / actualFps;
+	const currentTime = frame / videoConfig.fps;
 
-	const [initialTimestamp] = useState(currentTime);
+	const currentTimeRef = useRef(currentTime);
+	currentTimeRef.current = currentTime;
 
 	const preloadedSrc = usePreload(src);
 
@@ -115,8 +115,10 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 				logLevel,
 				sharedAudioContext: sharedAudioContext.audioContext,
 				loop,
-				trimAfterSeconds: (trimAfter ?? 0) * actualFps,
-				trimBeforeSeconds: (trimBefore ?? 0) * actualFps,
+				trimAfterSeconds: trimAfter ? trimAfter / videoConfig.fps : undefined,
+				trimBeforeSeconds: trimBefore
+					? trimBefore / videoConfig.fps
+					: undefined,
 				canvas: null,
 				playbackRate,
 			});
@@ -124,7 +126,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 			mediaPlayerRef.current = player;
 
 			player
-				.initialize(initialTimestamp)
+				.initialize(currentTimeRef.current)
 				.then(() => {
 					setMediaPlayerReady(true);
 					Internals.Log.trace(
@@ -168,12 +170,12 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		preloadedSrc,
 		logLevel,
 		sharedAudioContext,
-		initialTimestamp,
+		currentTimeRef,
 		loop,
-		actualFps,
 		trimAfter,
 		trimBefore,
 		playbackRate,
+		videoConfig.fps,
 	]);
 
 	useEffect(() => {
