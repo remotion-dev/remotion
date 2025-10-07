@@ -20,6 +20,7 @@ const {
 	usePreload,
 	useMediaInTimeline,
 	SequenceContext,
+	calculateLoopDuration,
 } = Internals;
 
 type NewVideoForPreviewProps = {
