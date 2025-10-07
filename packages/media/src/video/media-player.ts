@@ -136,9 +136,12 @@ export class MediaPlayer {
 
 			this.input = input;
 
-			this.totalDuration = await input.computeDuration();
-			const videoTrack = await input.getPrimaryVideoTrack();
-			const audioTrack = await input.getPrimaryAudioTrack();
+			const [duration, videoTrack, audioTrack] = await Promise.all([
+				input.computeDuration(),
+				input.getPrimaryVideoTrack(),
+				input.getPrimaryAudioTrack(),
+			]);
+			this.totalDuration = duration;
 
 			if (!videoTrack && !audioTrack) {
 				throw new Error(`No video or audio track found for ${this.src}`);
@@ -166,10 +169,9 @@ export class MediaPlayer {
 
 			this.initialized = true;
 
-			const mediaTime = startTime * this.playbackRate;
 			await Promise.all([
-				this.startAudioIterator(mediaTime),
-				this.startVideoIterator(mediaTime),
+				this.startAudioIterator(startTime),
+				this.startVideoIterator(startTime),
 			]);
 
 			this.startRenderLoop();
@@ -216,9 +218,10 @@ export class MediaPlayer {
 				await this.cleanAudioIteratorAndNodes();
 			}
 
-			const mediaTime = newTime * this.playbackRate;
-			await this.startAudioIterator(mediaTime);
-			await this.startVideoIterator(mediaTime);
+			await Promise.all([
+				this.startAudioIterator(newTime),
+				this.startVideoIterator(newTime),
+			]);
 		}
 
 		if (!this.playing) {
@@ -292,16 +295,11 @@ export class MediaPlayer {
 		return this.sharedAudioContext.currentTime - this.audioSyncAnchor;
 	}
 
-	private getAdjustedTimestamp(mediaTimestamp: number): number {
-		return mediaTimestamp / this.playbackRate;
-	}
-
 	private scheduleAudioChunk(
 		buffer: AudioBuffer,
 		mediaTimestamp: number,
 	): void {
-		const adjustedTimestamp = this.getAdjustedTimestamp(mediaTimestamp);
-		const targetTime = adjustedTimestamp + this.audioSyncAnchor;
+		const targetTime = mediaTimestamp + this.audioSyncAnchor;
 		const delay = targetTime - this.sharedAudioContext.currentTime;
 
 		const node = this.sharedAudioContext.createBufferSource();
@@ -391,8 +389,7 @@ export class MediaPlayer {
 			!this.isBuffering &&
 			this.canRenderVideo() &&
 			this.nextFrame !== null &&
-			this.getAdjustedTimestamp(this.nextFrame.timestamp) <=
-				this.getPlaybackTime()
+			this.nextFrame.timestamp <= this.getPlaybackTime()
 		);
 	}
 
@@ -494,10 +491,7 @@ export class MediaPlayer {
 					break;
 				}
 
-				if (
-					this.getAdjustedTimestamp(newNextFrame.timestamp) <=
-					this.getPlaybackTime()
-				) {
+				if (newNextFrame.timestamp <= this.getPlaybackTime()) {
 					continue;
 				} else {
 					this.nextFrame = newNextFrame;
@@ -612,8 +606,7 @@ export class MediaPlayer {
 				if (this.playing && !this.muted) {
 					if (isFirstBuffer) {
 						this.audioSyncAnchor =
-							this.sharedAudioContext.currentTime -
-							this.getAdjustedTimestamp(timestamp);
+							this.sharedAudioContext.currentTime - timestamp;
 						isFirstBuffer = false;
 					}
 
@@ -626,16 +619,10 @@ export class MediaPlayer {
 					this.scheduleAudioChunk(buffer, timestamp);
 				}
 
-				if (
-					this.getAdjustedTimestamp(timestamp) - this.getPlaybackTime() >=
-					1
-				) {
+				if (timestamp - this.getPlaybackTime() >= 1) {
 					await new Promise<void>((resolve) => {
 						const check = () => {
-							if (
-								this.getAdjustedTimestamp(timestamp) - this.getPlaybackTime() <
-								1
-							) {
+							if (timestamp - this.getPlaybackTime() < 1) {
 								resolve();
 							} else {
 								requestAnimationFrame(check);
