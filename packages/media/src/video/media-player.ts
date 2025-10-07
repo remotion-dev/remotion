@@ -14,8 +14,8 @@ export const SEEK_THRESHOLD = 0.05;
 const AUDIO_BUFFER_TOLERANCE_THRESHOLD = 0.1;
 
 export class MediaPlayer {
-	private canvas: HTMLCanvasElement;
-	private context: CanvasRenderingContext2D;
+	private canvas: HTMLCanvasElement | null;
+	private context: CanvasRenderingContext2D | null;
 	private src: string;
 	private logLevel: LogLevel;
 	private playbackRate: number;
@@ -70,27 +70,31 @@ export class MediaPlayer {
 		logLevel,
 		sharedAudioContext,
 	}: {
-		canvas: HTMLCanvasElement;
+		canvas?: HTMLCanvasElement;
 		src: string;
 		logLevel: LogLevel;
 		sharedAudioContext: AudioContext;
 	}) {
-		this.canvas = canvas;
+		this.canvas = canvas ?? null;
 		this.src = src;
 		this.logLevel = logLevel ?? window.remotion_logLevel;
 		this.sharedAudioContext = sharedAudioContext;
 		this.playbackRate = 1;
 
-		const context = canvas.getContext('2d', {
-			alpha: false,
-			desynchronized: true,
-		});
+		if (canvas) {
+			const context = canvas.getContext('2d', {
+				alpha: false,
+				desynchronized: true,
+			});
 
-		if (!context) {
-			throw new Error('Could not get 2D context from canvas');
+			if (!context) {
+				throw new Error('Could not get 2D context from canvas');
+			}
+
+			this.context = context;
+		} else {
+			this.context = null;
 		}
-
-		this.context = context;
 	}
 
 	private input: Input<UrlSource> | null = null;
@@ -126,7 +130,7 @@ export class MediaPlayer {
 				throw new Error(`No video or audio track found for ${this.src}`);
 			}
 
-			if (videoTrack) {
+			if (videoTrack && this.canvas && this.context) {
 				this.canvasSink = new CanvasSink(videoTrack, {
 					poolSize: 2,
 					fit: 'contain',
@@ -313,7 +317,7 @@ export class MediaPlayer {
 	): () => void {
 		this.onVideoFrameCallback = callback;
 
-		if (this.initialized && callback) {
+		if (this.initialized && callback && this.canvas) {
 			callback(this.canvas);
 		}
 
@@ -374,9 +378,11 @@ export class MediaPlayer {
 	}
 
 	private drawCurrentFrame(): void {
-		this.context.drawImage(this.nextFrame!.canvas, 0, 0);
+		if (this.context && this.nextFrame) {
+			this.context.drawImage(this.nextFrame.canvas, 0, 0);
+		}
 
-		if (this.onVideoFrameCallback) {
+		if (this.onVideoFrameCallback && this.canvas) {
 			this.onVideoFrameCallback(this.canvas);
 		}
 
@@ -426,14 +432,14 @@ export class MediaPlayer {
 				return;
 			}
 
-			if (firstFrame) {
+			if (firstFrame && this.context) {
 				Internals.Log.trace(
 					{logLevel: this.logLevel, tag: '@remotion/media'},
 					`[MediaPlayer] Drew initial frame ${firstFrame.timestamp.toFixed(3)}s`,
 				);
 				this.context.drawImage(firstFrame.canvas, 0, 0);
 
-				if (this.onVideoFrameCallback) {
+				if (this.onVideoFrameCallback && this.canvas) {
 					this.onVideoFrameCallback(this.canvas);
 				}
 			}

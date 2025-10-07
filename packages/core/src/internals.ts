@@ -168,6 +168,7 @@ export const Internals = {
 	SharedAudioContext,
 	SharedAudioContextProvider,
 	invalidCompositionErrorMessage,
+	calculateLoopDuration,
 	isCompositionIdValid,
 	getPreviewDomElement,
 	compositionsRef,
