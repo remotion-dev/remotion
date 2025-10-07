@@ -29,6 +29,7 @@ type NewAudioForPreviewProps = {
 	readonly trimBefore: number | undefined;
 	readonly name: string | undefined;
 	readonly showInTimeline: boolean;
+	readonly stack: string | null;
 };
 
 const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
@@ -43,6 +44,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 	trimBefore,
 	name,
 	showInTimeline,
+	stack,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
@@ -99,7 +101,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		playbackRate,
 		displayName: name ?? null,
 		id: timelineId,
-		stack: null,
+		stack,
 		showInTimeline,
 		premountDisplay: parentSequence?.premountDisplay ?? null,
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,
@@ -283,6 +285,7 @@ type InnerAudioProps = {
 	readonly showInTimeline?: boolean;
 	readonly trimAfter?: number | undefined;
 	readonly trimBefore?: number | undefined;
+	readonly stack: string | null;
 };
 
 export const AudioForPreview: React.FC<InnerAudioProps> = ({
@@ -297,6 +300,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	trimAfter,
 	trimBefore,
 	showInTimeline,
+	stack,
 }) => {
 	const preloadedSrc = usePreload(src);
 
@@ -313,6 +317,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			trimBefore={trimBefore}
 			name={name}
 			showInTimeline={showInTimeline ?? true}
+			stack={stack}
 		/>
 	);
 };

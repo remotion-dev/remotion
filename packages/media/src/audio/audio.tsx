@@ -36,5 +36,15 @@ export const Audio: React.FC<AudioProps> = (props) => {
 		...propsForPreview
 	} = otherProps;
 
-	return <AudioForPreview loop={loop} name={name} {...propsForPreview} />;
+	return (
+		<AudioForPreview
+			loop={loop}
+			name={name}
+			{...propsForPreview}
+			stack={stack ?? null}
+		/>
+	);
 };
+
+// TODO: Doesn't work
+Internals.addSequenceStackTraces(Audio);

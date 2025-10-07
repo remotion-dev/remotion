@@ -103,6 +103,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 			showInTimeline={showInTimeline}
 			trimAfter={trimAfterValue}
 			trimBefore={trimBeforeValue}
+			stack={stack ?? null}
 		/>
 	);
 };
