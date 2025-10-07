@@ -121,7 +121,7 @@ export const makeKeyframeBank = ({
 					roundTo4Digits(timestampInSeconds) ||
 				// Match 0.3333333333 to 0.33355555
 				// this does not satisfy the previous condition, since one rounds up and one rounds down
-				Math.abs(sample.timestamp - timestampInSeconds) < 0.001
+				Math.abs(sample.timestamp - timestampInSeconds) <= 0.001
 			) {
 				return sample;
 			}
