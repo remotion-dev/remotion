@@ -260,8 +260,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				}
 
 				const volumePropsFrame = frameForVolumeProp({
-					behavior: loopVolumeCurveBehavior ?? 'repeat',
-					loop: loop ?? false,
+					behavior: loopVolumeCurveBehavior,
+					loop,
 					assetDurationInSeconds: assetDurationInSeconds ?? 0,
 					fps,
 					frame,
@@ -287,7 +287,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
 						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
-						toneFrequency: toneFrequency ?? 1,
+						toneFrequency,
 					});
 				}
 
