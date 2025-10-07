@@ -272,13 +272,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			return;
 		}
 
-		mediaPlayer.setPlaybackRate(effectivePlaybackRate).catch((error) => {
-			Internals.Log.error(
-				{logLevel, tag: '@remotion/media'},
-				'[NewVideoForPreview] Failed to set playback rate',
-				error,
-			);
-		});
+		mediaPlayer.setPlaybackRate(effectivePlaybackRate);
 	}, [effectivePlaybackRate, mediaPlayerReady, logLevel]);
 
 	useEffect(() => {

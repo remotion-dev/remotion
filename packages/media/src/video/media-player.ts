@@ -265,18 +265,8 @@ export class MediaPlayer {
 		this.gainNode.gain.value = appliedVolume;
 	}
 
-	public async setPlaybackRate(rate: number): Promise<void> {
-		if (this.playbackRate === rate) return;
-
+	public setPlaybackRate(rate: number): void {
 		this.playbackRate = rate;
-
-		if (this.hasAudio() && this.playing) {
-			const currentPlaybackTime = this.getPlaybackTime();
-			const mediaTime = currentPlaybackTime * rate;
-
-			await this.cleanAudioIteratorAndNodes();
-			await this.startAudioIterator(mediaTime);
-		}
 	}
 
 	public setLoop(loop: boolean): void {

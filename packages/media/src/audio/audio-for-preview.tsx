@@ -253,13 +253,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 			return;
 		}
 
-		audioPlayer.setPlaybackRate(effectivePlaybackRate).catch((error) => {
-			Internals.Log.error(
-				{logLevel, tag: '@remotion/media'},
-				'[NewAudioForPreview] Failed to set playback rate',
-				error,
-			);
-		});
+		audioPlayer.setPlaybackRate(effectivePlaybackRate);
 	}, [effectivePlaybackRate, mediaPlayerReady, logLevel]);
 
 	return null;
