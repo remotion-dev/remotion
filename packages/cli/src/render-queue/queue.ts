@@ -254,7 +254,7 @@ const processJobIfPossible = async ({
 	} catch (err) {
 		Log.error(
 			{indent: false, logLevel},
-			chalk.gray('╰─ '),
+			chalk.gray('\n╰─ '),
 			chalk.red('Failed to render'),
 		);
 
