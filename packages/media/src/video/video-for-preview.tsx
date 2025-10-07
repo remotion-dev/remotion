@@ -107,8 +107,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		throw new TypeError('No `src` was passed to <NewVideoForPreview>.');
 	}
 
-	const actualFps = videoConfig.fps / playbackRate;
-	const currentTime = frame / actualFps;
+	const currentTime = frame / videoConfig.fps;
 
 	const currentTimeRef = useRef(currentTime);
 	currentTimeRef.current = currentTime;
@@ -127,8 +126,10 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 				logLevel,
 				sharedAudioContext: sharedAudioContext.audioContext,
 				loop,
-				trimAfterSeconds: (trimAfter ?? 0) * actualFps,
-				trimBeforeSeconds: (trimBefore ?? 0) * actualFps,
+				trimAfterSeconds: trimAfter ? trimAfter * videoConfig.fps : undefined,
+				trimBeforeSeconds: trimBefore
+					? trimBefore * videoConfig.fps
+					: undefined,
 			});
 
 			mediaPlayerRef.current = player;
@@ -170,9 +171,9 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		logLevel,
 		sharedAudioContext,
 		loop,
-		actualFps,
 		trimAfter,
 		trimBefore,
+		videoConfig.fps,
 	]);
 
 	const classNameValue = useMemo(() => {

@@ -8,6 +8,7 @@ import {
 } from 'mediabunny';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
+import {resolvePlaybackTime} from './resolve-playback-time';
 import {sleep, withTimeout} from './timeout-utils';
 
 export const SEEK_THRESHOLD = 0.05;
@@ -49,15 +50,15 @@ export class MediaPlayer {
 	private muted = false;
 	private loop = false;
 
-	private trimBeforeSeconds = 0;
-	private trimAfterSeconds = 0;
+	private trimBeforeSeconds: number | undefined;
+	private trimAfterSeconds: number | undefined;
 
 	private animationFrameId: number | null = null;
 
 	private videoAsyncId = 0;
 
 	private initialized = false;
-	private totalDuration = 0;
+	private totalDuration: number | undefined;
 
 	// for remotion buffer state
 	private isBuffering = false;
@@ -83,8 +84,8 @@ export class MediaPlayer {
 		logLevel: LogLevel;
 		sharedAudioContext: AudioContext;
 		loop: boolean;
-		trimBeforeSeconds: number;
-		trimAfterSeconds: number;
+		trimBeforeSeconds: number | undefined;
+		trimAfterSeconds: number | undefined;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -205,7 +206,14 @@ export class MediaPlayer {
 	public async seekTo(time: number): Promise<void> {
 		if (!this.isReady()) return;
 
-		const newTime = Math.max(0, Math.min(time, this.totalDuration));
+		const newTime = resolvePlaybackTime({
+			absolutePlaybackTimeInSeconds: time,
+			playbackRate: this.playbackRate,
+			loop: this.loop,
+			trimBeforeInSeconds: this.trimBeforeSeconds,
+			trimAfterInSeconds: this.trimAfterSeconds,
+			mediaDurationInSeconds: this.totalDuration,
+		});
 		const currentPlaybackTime = this.getPlaybackTime();
 		const isSignificantSeek =
 			Math.abs(newTime - currentPlaybackTime) > SEEK_THRESHOLD;
@@ -282,7 +290,16 @@ export class MediaPlayer {
 	}
 
 	private getPlaybackTime(): number {
-		return this.sharedAudioContext.currentTime - this.audioSyncAnchor;
+		const absoluteTime =
+			this.sharedAudioContext.currentTime - this.audioSyncAnchor;
+		return resolvePlaybackTime({
+			absolutePlaybackTimeInSeconds: absoluteTime,
+			playbackRate: this.playbackRate,
+			loop: this.loop,
+			trimBeforeInSeconds: this.trimBeforeSeconds,
+			trimAfterInSeconds: this.trimAfterSeconds,
+			mediaDurationInSeconds: this.totalDuration,
+		});
 	}
 
 	private scheduleAudioChunk(
