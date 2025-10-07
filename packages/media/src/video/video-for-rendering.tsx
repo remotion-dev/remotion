@@ -390,7 +390,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					layout="none"
 					durationInFrames={calculateLoopDuration({
 						endAt: trimAfterValue,
-						mediaDuration: replaceWithOffthreadVideo.durationInSeconds,
+						mediaDurationInFrames:
+							replaceWithOffthreadVideo.durationInSeconds * fps,
 						playbackRate,
 						startFrom: trimBeforeValue,
 					})}

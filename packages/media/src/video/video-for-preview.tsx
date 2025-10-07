@@ -357,7 +357,7 @@ const VideoForPreviewWithDuration: React.FC<
 			<Loop
 				durationInFrames={Internals.calculateLoopDuration({
 					endAt: trimAfter,
-					mediaDuration,
+					mediaDurationInFrames: mediaDuration,
 					playbackRate: playbackRate ?? 1,
 					startFrom: trimBefore,
 				})}

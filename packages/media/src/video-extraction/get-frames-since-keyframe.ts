@@ -130,7 +130,14 @@ export const getSinks = async (src: string) => {
 		getAudio: (index: number) => getAudioSinksPromise(index),
 		actualMatroskaTimestamps: rememberActualMatroskaTimestamps(isMatroska),
 		isMatroska,
-		getDuration: () => input.computeDuration(),
+		getDuration: async () => {
+			try {
+				const duration = await input.computeDuration();
+				return duration;
+			} catch {
+				return null;
+			}
+		},
 	});
 };
 

@@ -47,33 +47,40 @@ export const extractFrameAndAudio = async ({
 				: null,
 		]);
 
-		if (frame === 'cannot-decode') {
-			return {type: 'cannot-decode', durationInSeconds};
+		if (frame?.type === 'cannot-decode') {
+			return {
+				type: 'cannot-decode',
+				durationInSeconds: frame.durationInSeconds,
+			};
 		}
 
-		if (frame === 'unknown-container-format') {
+		if (frame?.type === 'unknown-container-format') {
 			return {type: 'unknown-container-format'};
 		}
 
 		if (audio === 'unknown-container-format') {
 			if (frame !== null) {
-				frame?.close();
+				frame?.frame?.close();
 			}
 
 			return {type: 'unknown-container-format'};
 		}
 
 		if (audio === 'cannot-decode') {
-			if (frame !== null) {
-				frame?.close();
+			if (frame?.type === 'success' && frame.frame !== null) {
+				frame?.frame.close();
 			}
 
-			return {type: 'cannot-decode', durationInSeconds};
+			return {
+				type: 'cannot-decode',
+				durationInSeconds:
+					frame?.type === 'success' ? frame.durationInSeconds : null,
+			};
 		}
 
 		return {
 			type: 'success',
-			frame: frame?.toVideoFrame() ?? null,
+			frame: frame?.frame?.toVideoFrame() ?? null,
 			audio: audio?.data ?? null,
 			durationInSeconds: audio?.durationInSeconds ?? null,
 		};
