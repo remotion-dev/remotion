@@ -94,7 +94,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 	useMediaInTimeline({
 		volume,
 		mediaVolume,
-		mediaType: 'video',
+		mediaType: 'audio',
 		src,
 		playbackRate,
 		displayName: name ?? null,
