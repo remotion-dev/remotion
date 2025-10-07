@@ -59,7 +59,7 @@ export const makeKeyframeBank = ({
 
 		return (
 			roundTo4Digits(lastFrame.timestamp + lastFrame.duration) >
-			roundTo4Digits(timestamp)
+			roundTo4Digits(timestamp) + 0.001
 		);
 	};
 
@@ -117,7 +117,11 @@ export const makeKeyframeBank = ({
 			}
 
 			if (
-				roundTo4Digits(sample.timestamp) <= roundTo4Digits(timestampInSeconds)
+				roundTo4Digits(sample.timestamp) <=
+					roundTo4Digits(timestampInSeconds) ||
+				// Match 0.3333333333 to 0.33355555
+				// this does not satisfy the previous condition, since one rounds up and one rounds down
+				Math.abs(sample.timestamp - timestampInSeconds) <= 0.001
 			) {
 				return sample;
 			}
