@@ -142,7 +142,7 @@ export const CompositionIdsDropdown: React.FC<{
 					/>
 					<div>
 						{filtered.length === 0 ? (
-							<div style={{opacity: 0.7, padding: 8, justifyItems: 'center'}}>
+							<div style={{opacity: 0.7, padding: 8, textAlign: 'center'}}>
 								No compositions found
 							</div>
 						) : (
