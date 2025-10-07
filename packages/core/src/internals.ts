@@ -217,7 +217,6 @@ export const Internals = {
 	AudioForPreview,
 	OBJECTFIT_CONTAIN_CLASS_NAME,
 	InnerOffthreadVideo,
-	calculateLoopDuration,
 } as const;
 
 export type {
