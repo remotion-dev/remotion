@@ -78,6 +78,7 @@ export class MediaPlayer {
 		loop,
 		trimBeforeSeconds,
 		trimAfterSeconds,
+		playbackRate,
 	}: {
 		canvas: HTMLCanvasElement | null;
 		src: string;
@@ -86,12 +87,13 @@ export class MediaPlayer {
 		loop: boolean;
 		trimBeforeSeconds: number | undefined;
 		trimAfterSeconds: number | undefined;
+		playbackRate: number;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
 		this.logLevel = logLevel ?? window.remotion_logLevel;
 		this.sharedAudioContext = sharedAudioContext;
-		this.playbackRate = 1;
+		this.playbackRate = playbackRate;
 		this.loop = loop;
 		this.trimBeforeSeconds = trimBeforeSeconds;
 		this.trimAfterSeconds = trimAfterSeconds;
@@ -126,7 +128,7 @@ export class MediaPlayer {
 		return this.isBuffering && Boolean(this.bufferingStartedAtMs);
 	}
 
-	public async initialize(startTime: number): Promise<void> {
+	public async initialize(startTimeUnresolved: number): Promise<void> {
 		try {
 			const urlSource = new UrlSource(this.src);
 
@@ -163,6 +165,15 @@ export class MediaPlayer {
 				this.gainNode = this.sharedAudioContext.createGain();
 				this.gainNode.connect(this.sharedAudioContext.destination);
 			}
+
+			const startTime = resolvePlaybackTime({
+				absolutePlaybackTimeInSeconds: startTimeUnresolved,
+				playbackRate: this.playbackRate,
+				loop: this.loop,
+				trimBeforeInSeconds: this.trimBeforeSeconds,
+				trimAfterInSeconds: this.trimAfterSeconds,
+				mediaDurationInSeconds: this.totalDuration,
+			});
 
 			if (this.sharedAudioContext) {
 				this.audioSyncAnchor = this.sharedAudioContext.currentTime - startTime;

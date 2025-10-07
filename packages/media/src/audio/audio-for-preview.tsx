@@ -118,6 +118,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 				trimAfterSeconds: (trimAfter ?? 0) * actualFps,
 				trimBeforeSeconds: (trimBefore ?? 0) * actualFps,
 				canvas: null,
+				playbackRate,
 			});
 
 			mediaPlayerRef.current = player;
@@ -172,6 +173,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		actualFps,
 		trimAfter,
 		trimBefore,
+		playbackRate,
 	]);
 
 	useEffect(() => {

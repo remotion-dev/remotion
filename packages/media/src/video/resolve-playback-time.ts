@@ -30,6 +30,7 @@ export const resolvePlaybackTime = ({
 
 	const time = timeConsideringLoop * playbackRate + (trimBeforeInSeconds ?? 0);
 	if (Number.isNaN(time)) {
+		// eslint-disable-next-line no-console
 		console.log({
 			absolutePlaybackTimeInSeconds,
 			playbackRate,
@@ -40,8 +41,6 @@ export const resolvePlaybackTime = ({
 		});
 		throw new Error('Time is NaN');
 	}
-
-	console.log(time, absolutePlaybackTimeInSeconds);
 
 	return time;
 };

@@ -101,6 +101,8 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 			style={style}
 			volume={volume}
 			showInTimeline={showInTimeline}
+			trimAfter={trimAfterValue}
+			trimBefore={trimBeforeValue}
 		/>
 	);
 };
