@@ -47,6 +47,11 @@ export class MediaPlayer {
 
 	private playing = false;
 	private muted = false;
+	private loop = false;
+
+	private trimBeforeSeconds = 0;
+	private trimAfterSeconds = 0;
+
 	private animationFrameId: number | null = null;
 
 	private videoAsyncId = 0;
@@ -69,17 +74,26 @@ export class MediaPlayer {
 		src,
 		logLevel,
 		sharedAudioContext,
+		loop,
+		trimBeforeSeconds,
+		trimAfterSeconds,
 	}: {
 		canvas: HTMLCanvasElement;
 		src: string;
 		logLevel: LogLevel;
 		sharedAudioContext: AudioContext;
+		loop: boolean;
+		trimBeforeSeconds: number;
+		trimAfterSeconds: number;
 	}) {
 		this.canvas = canvas;
 		this.src = src;
 		this.logLevel = logLevel ?? window.remotion_logLevel;
 		this.sharedAudioContext = sharedAudioContext;
 		this.playbackRate = 1;
+		this.loop = loop;
+		this.trimBeforeSeconds = trimBeforeSeconds;
+		this.trimAfterSeconds = trimAfterSeconds;
 
 		const context = canvas.getContext('2d', {
 			alpha: false,
@@ -107,7 +121,7 @@ export class MediaPlayer {
 		return this.isBuffering && Boolean(this.bufferingStartedAtMs);
 	}
 
-	public async initialize(startTime: number = 0): Promise<void> {
+	public async initialize(startTime: number): Promise<void> {
 		try {
 			const urlSource = new UrlSource(this.src);
 
@@ -149,9 +163,10 @@ export class MediaPlayer {
 			this.initialized = true;
 
 			const mediaTime = startTime * this.playbackRate;
-			await this.startAudioIterator(mediaTime);
-
-			await this.startVideoIterator(mediaTime);
+			await Promise.all([
+				this.startAudioIterator(mediaTime),
+				this.startVideoIterator(mediaTime),
+			]);
 
 			this.startRenderLoop();
 		} catch (error) {
@@ -255,6 +270,10 @@ export class MediaPlayer {
 			await this.cleanAudioIteratorAndNodes();
 			await this.startAudioIterator(mediaTime);
 		}
+	}
+
+	public setLoop(loop: boolean): void {
+		this.loop = loop;
 	}
 
 	public dispose(): void {
@@ -414,7 +433,7 @@ export class MediaPlayer {
 		this.videoAsyncId++;
 		const currentAsyncId = this.videoAsyncId;
 
-		await this.videoFrameIterator?.return();
+		this.videoFrameIterator?.return().catch(() => undefined);
 
 		this.videoFrameIterator = this.canvasSink.canvases(timeToSeek);
 
