@@ -78,7 +78,7 @@ export class MediaPlayer {
 		trimBeforeSeconds,
 		trimAfterSeconds,
 	}: {
-		canvas?: HTMLCanvasElement;
+		canvas: HTMLCanvasElement | null;
 		src: string;
 		logLevel: LogLevel;
 		sharedAudioContext: AudioContext;
