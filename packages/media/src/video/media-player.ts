@@ -56,6 +56,7 @@ export class MediaPlayer {
 	private animationFrameId: number | null = null;
 
 	private videoAsyncId = 0;
+	private audioAsyncId = 0;
 
 	private initialized = false;
 	private totalDuration: number | undefined;
@@ -429,6 +430,9 @@ export class MediaPlayer {
 	): Promise<void> => {
 		if (!this.hasAudio()) return;
 
+		this.audioAsyncId++;
+		const currentAsyncId = this.audioAsyncId;
+
 		// Clean up existing audio iterator
 		await this.audioBufferIterator?.return();
 		this.audioIteratorStarted = false;
@@ -436,7 +440,7 @@ export class MediaPlayer {
 
 		try {
 			this.audioBufferIterator = this.audioSink!.buffers(startFromSecond);
-			this.runAudioIterator(startFromSecond);
+			this.runAudioIterator(startFromSecond, currentAsyncId);
 		} catch (error) {
 			Internals.Log.error(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
@@ -582,7 +586,10 @@ export class MediaPlayer {
 		}
 	}
 
-	private runAudioIterator = async (startFromSecond: number): Promise<void> => {
+	private runAudioIterator = async (
+		startFromSecond: number,
+		audioAsyncId: number,
+	): Promise<void> => {
 		if (!this.hasAudio() || !this.audioBufferIterator) return;
 
 		try {
@@ -591,6 +598,10 @@ export class MediaPlayer {
 			this.audioIteratorStarted = true;
 
 			while (true) {
+				if (audioAsyncId !== this.audioAsyncId) {
+					return;
+				}
+
 				const BUFFERING_TIMEOUT_MS = 50;
 
 				let result: IteratorResult<WrappedAudioBuffer, void>;
