@@ -10,6 +10,7 @@ import {
 	useMediaStartsAt,
 } from './audio/use-audio-frame.js';
 import {BufferingContextReact, BufferingProvider} from './buffering.js';
+import {calculateLoopDuration} from './calculate-loop.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
@@ -215,6 +216,7 @@ export const Internals = {
 	AudioForPreview,
 	OBJECTFIT_CONTAIN_CLASS_NAME,
 	InnerOffthreadVideo,
+	calculateLoopDuration,
 } as const;
 
 export type {

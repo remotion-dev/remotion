@@ -1,7 +1,7 @@
 import type {LogLevel} from 'remotion';
 import {extractAudio} from './audio-extraction/extract-audio';
-import type {PcmS16AudioData} from './convert-audiodata/convert-audiodata';
 import {extractFrame} from './video-extraction/extract-frame';
+import type {ExtractFrameViaBroadcastChannelResult} from './video-extraction/extract-frame-via-broadcast-channel';
 
 export const extractFrameAndAudio = async ({
 	src,
@@ -23,16 +23,7 @@ export const extractFrameAndAudio = async ({
 	includeVideo: boolean;
 	loop: boolean;
 	audioStreamIndex: number;
-}): Promise<
-	| {
-			frame: VideoFrame | null;
-			audio: PcmS16AudioData | null;
-			durationInSeconds: number | null;
-	  }
-	| 'cannot-decode'
-	| 'unknown-container-format'
-	| 'network-error'
-> => {
+}): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	try {
 		const [frame, audio] = await Promise.all([
 			includeVideo
@@ -57,11 +48,11 @@ export const extractFrameAndAudio = async ({
 		]);
 
 		if (frame === 'cannot-decode') {
-			return 'cannot-decode';
+			return {type: 'cannot-decode', durationInSeconds};
 		}
 
 		if (frame === 'unknown-container-format') {
-			return 'unknown-container-format';
+			return {type: 'unknown-container-format'};
 		}
 
 		if (audio === 'unknown-container-format') {
@@ -69,7 +60,7 @@ export const extractFrameAndAudio = async ({
 				frame?.close();
 			}
 
-			return 'unknown-container-format';
+			return {type: 'unknown-container-format'};
 		}
 
 		if (audio === 'cannot-decode') {
@@ -77,10 +68,11 @@ export const extractFrameAndAudio = async ({
 				frame?.close();
 			}
 
-			return 'cannot-decode';
+			return {type: 'cannot-decode', durationInSeconds};
 		}
 
 		return {
+			type: 'success',
 			frame: frame?.toVideoFrame() ?? null,
 			audio: audio?.data ?? null,
 			durationInSeconds: audio?.durationInSeconds ?? null,
@@ -95,7 +87,7 @@ export const extractFrameAndAudio = async ({
 			// Firefox
 			error.message.includes('NetworkError when attempting to fetch resource')
 		) {
-			return 'network-error';
+			return {type: 'network-error'};
 		}
 
 		throw err;

@@ -29,32 +29,6 @@ const {
 	SequenceContext,
 } = Internals;
 
-const calculateLoopDuration = ({
-	endAt,
-	mediaDuration,
-	playbackRate,
-	startFrom,
-}: {
-	mediaDuration: number;
-	playbackRate: number;
-	startFrom: number | undefined;
-	endAt: number | undefined;
-}) => {
-	let duration = mediaDuration;
-
-	if (typeof endAt !== 'undefined') {
-		duration = endAt;
-	}
-
-	if (typeof startFrom !== 'undefined') {
-		duration -= startFrom;
-	}
-
-	const actualDuration = duration / playbackRate;
-
-	return Math.floor(actualDuration);
-};
-
 type NewVideoForPreviewProps = {
 	readonly src: string;
 	readonly style: React.CSSProperties | undefined;
@@ -381,7 +355,7 @@ const VideoForPreviewWithDuration: React.FC<
 
 		return (
 			<Loop
-				durationInFrames={calculateLoopDuration({
+				durationInFrames={Internals.calculateLoopDuration({
 					endAt: trimAfter,
 					mediaDuration,
 					playbackRate: playbackRate ?? 1,

@@ -1,34 +1,35 @@
-import {Audio} from '@remotion/media';
+import {Video} from '@remotion/media';
 import {parseMedia} from '@remotion/media-parser';
 import {StudioInternals} from '@remotion/studio';
-import {CalculateMetadataFunction, staticFile} from 'remotion';
+import {CalculateMetadataFunction} from 'remotion';
 
 const fps = 30;
-const src = staticFile('audio-48000hz.wav') + '#t=lol';
+const src = 'https://remotion.media/video.mp4' + '#t=lol';
 
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>
 > = async () => {
-	const {slowDurationInSeconds} = await parseMedia({
+	const {slowDurationInSeconds, dimensions} = await parseMedia({
 		src,
 		acknowledgeRemotionLicense: true,
 		fields: {
 			slowDurationInSeconds: true,
+			dimensions: true,
 		},
 	});
 
 	return {
 		durationInFrames: Math.round(slowDurationInSeconds * fps),
 		fps,
-		width: 100,
-		height: 100,
+		width: dimensions?.width ?? 100,
+		height: dimensions?.height ?? 100,
 	};
 };
 
 const Component = () => {
 	return (
 		<>
-			<Audio src={src} toneFrequency={0.9} />
+			<Video src={src} />
 		</>
 	);
 };

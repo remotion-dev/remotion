@@ -14,12 +14,14 @@ import type {
 import {
 	cancelRender,
 	Internals,
+	Loop,
 	random,
 	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
+import {calculateLoopDuration} from '../../../core/src/calculate-loop';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {frameForVolumeProp} from '../looped-frame';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
@@ -46,6 +48,12 @@ type InnerVideoProps = {
 	readonly disallowFallbackToOffthreadVideo: boolean;
 	readonly stack: string | undefined;
 	readonly toneFrequency: number;
+	readonly trimBeforeValue: number | undefined;
+	readonly trimAfterValue: number | undefined;
+};
+
+type FallbackToOffthreadVideo = {
+	durationInSeconds: number | null;
 };
 
 export const VideoForRendering: React.FC<InnerVideoProps> = ({
@@ -67,6 +75,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	disallowFallbackToOffthreadVideo,
 	stack,
 	toneFrequency,
+	trimAfterValue,
+	trimBeforeValue,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -101,8 +111,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	const {delayRender, continueRender} = useDelayRender();
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const [replaceWithOffthreadVideo, setReplaceWithOffthreadVideo] =
-		useState(false);
+	const [replaceWithOffthreadVideo, setReplaceWithOffthreadVideo] = useState<
+		FallbackToOffthreadVideo | false
+	>(false);
 
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
@@ -147,7 +158,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			audioStreamIndex,
 		})
 			.then((result) => {
-				if (result === 'unknown-container-format') {
+				if (result.type === 'unknown-container-format') {
 					if (disallowFallbackToOffthreadVideo) {
 						cancelRender(
 							new Error(
@@ -163,11 +174,11 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						);
 					}
 
-					setReplaceWithOffthreadVideo(true);
+					setReplaceWithOffthreadVideo({durationInSeconds: null});
 					return;
 				}
 
-				if (result === 'cannot-decode') {
+				if (result.type === 'cannot-decode') {
 					if (disallowFallbackToOffthreadVideo) {
 						cancelRender(
 							new Error(
@@ -183,11 +194,13 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						);
 					}
 
-					setReplaceWithOffthreadVideo(true);
+					setReplaceWithOffthreadVideo({
+						durationInSeconds: result.durationInSeconds,
+					});
 					return;
 				}
 
-				if (result === 'network-error') {
+				if (result.type === 'network-error') {
 					if (disallowFallbackToOffthreadVideo) {
 						cancelRender(
 							new Error(
@@ -203,7 +216,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						);
 					}
 
-					setReplaceWithOffthreadVideo(true);
+					setReplaceWithOffthreadVideo({durationInSeconds: null});
 					return;
 				}
 
@@ -323,7 +336,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 	if (replaceWithOffthreadVideo) {
 		// TODO: Loop and other props
-		return (
+		const fallback = (
 			<Internals.InnerOffthreadVideo
 				src={src}
 				playbackRate={playbackRate ?? 1}
@@ -362,6 +375,32 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				_remotionInternalNativeLoopPassed={false}
 			/>
 		);
+
+		if (loop) {
+			if (!replaceWithOffthreadVideo.durationInSeconds) {
+				cancelRender(
+					new Error(
+						`Cannot render video ${src}: @remotion/media was unable to render, and fell back to <OffthreadVideo>. Also, "loop" was set, but <OffthreadVideo> does not support looping and @remotion/media could also not determine the duration of the video.`,
+					),
+				);
+			}
+
+			return (
+				<Loop
+					layout="none"
+					durationInFrames={calculateLoopDuration({
+						endAt: trimAfterValue,
+						mediaDuration: replaceWithOffthreadVideo.durationInSeconds,
+						playbackRate,
+						startFrom: trimBeforeValue,
+					})}
+				>
+					{fallback}
+				</Loop>
+			);
+		}
+
+		return fallback;
 	}
 
 	return <canvas ref={canvasRef} style={style} className={classNameValue} />;
