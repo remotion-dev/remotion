@@ -176,7 +176,8 @@ export class MediaPlayer {
 			});
 
 			if (this.sharedAudioContext) {
-				this.audioSyncAnchor = this.sharedAudioContext.currentTime - startTime;
+				this.audioSyncAnchor =
+					this.sharedAudioContext.currentTime - startTimeUnresolved;
 			}
 
 			this.initialized = true;
@@ -624,7 +625,8 @@ export class MediaPlayer {
 				if (this.playing && !this.muted) {
 					if (isFirstBuffer) {
 						this.audioSyncAnchor =
-							this.sharedAudioContext.currentTime - timestamp;
+							this.sharedAudioContext.currentTime -
+							(timestamp - (this.trimBeforeSeconds ?? 0));
 						isFirstBuffer = false;
 					}
 
