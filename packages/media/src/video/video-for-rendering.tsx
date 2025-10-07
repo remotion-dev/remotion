@@ -232,7 +232,18 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 					imageBitmap.close();
 				} else if (window.remotion_videoEnabled) {
-					cancelRender(new Error('No video frame found'));
+					// In the case of https://discord.com/channels/809501355504959528/809501355504959531/1424400511070765086
+					// A video that only starts at time 0.033sec
+					// we shall not crash here but clear the canvas
+					const context = canvasRef.current?.getContext('2d');
+					if (context) {
+						context.clearRect(
+							0,
+							0,
+							context.canvas.width,
+							context.canvas.height,
+						);
+					}
 				}
 
 				const volumePropsFrame = frameForVolumeProp({

@@ -172,13 +172,16 @@ export const makeKeyframeManager = () => {
 		videoSampleSink: VideoSampleSink;
 		src: string;
 		logLevel: LogLevel;
-	}) => {
+	}): Promise<KeyframeBank | null> => {
 		const startPacket = await packetSink.getKeyPacket(timestamp, {
 			verifyKeyPackets: true,
 		});
 
 		if (!startPacket) {
-			throw new Error(`No key packet found for timestamp ${timestamp}`);
+			// e.g. https://discord.com/channels/809501355504959528/809501355504959531/1424400511070765086
+			// The video has an offset and the first frame is at time 0.033sec
+			// we shall not crash here but handle it gracefully
+			return null;
 		}
 
 		const startTimestampInSeconds = startPacket.timestamp;
