@@ -120,6 +120,8 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 				style={style}
 				volume={volume}
 				toneFrequency={toneFrequency}
+				trimAfterValue={trimAfterValue}
+				trimBeforeValue={trimBeforeValue}
 			/>
 		);
 	}

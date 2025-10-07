@@ -32,6 +32,7 @@ type ExtractFrameResponse =
 	| {
 			type: 'response-cannot-decode';
 			id: string;
+			durationInSeconds: number | null;
 	  }
 	| {
 			type: 'response-network-error';
@@ -62,17 +63,18 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						audioStreamIndex: data.audioStreamIndex,
 					});
 
-					if (result === 'cannot-decode') {
+					if (result.type === 'cannot-decode') {
 						const cannotDecodeResponse: ExtractFrameResponse = {
 							type: 'response-cannot-decode',
 							id: data.id,
+							durationInSeconds: result.durationInSeconds,
 						};
 
 						window.remotion_broadcastChannel!.postMessage(cannotDecodeResponse);
 						return;
 					}
 
-					if (result === 'network-error') {
+					if (result.type === 'network-error') {
 						const networkErrorResponse: ExtractFrameResponse = {
 							type: 'response-network-error',
 							id: data.id,
@@ -82,7 +84,7 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						return;
 					}
 
-					if (result === 'unknown-container-format') {
+					if (result.type === 'unknown-container-format') {
 						const unknownContainerFormatResponse: ExtractFrameResponse = {
 							type: 'response-unknown-container-format',
 							id: data.id,
@@ -130,6 +132,17 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 	);
 }
 
+export type ExtractFrameViaBroadcastChannelResult =
+	| {
+			type: 'success';
+			frame: ImageBitmap | VideoFrame | null;
+			audio: PcmS16AudioData | null;
+			durationInSeconds: number | null;
+	  }
+	| {type: 'cannot-decode'; durationInSeconds: number | null}
+	| {type: 'network-error'}
+	| {type: 'unknown-container-format'};
+
 export const extractFrameViaBroadcastChannel = ({
 	src,
 	timeInSeconds,
@@ -152,16 +165,7 @@ export const extractFrameViaBroadcastChannel = ({
 	isClientSideRendering: boolean;
 	loop: boolean;
 	audioStreamIndex: number;
-}): Promise<
-	| {
-			frame: ImageBitmap | VideoFrame | null;
-			audio: PcmS16AudioData | null;
-			durationInSeconds: number | null;
-	  }
-	| 'cannot-decode'
-	| 'network-error'
-	| 'unknown-container-format'
-> => {
+}): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
 			logLevel,
@@ -180,13 +184,14 @@ export const extractFrameViaBroadcastChannel = ({
 
 	const resolvePromise = new Promise<
 		| {
+				type: 'success';
 				frame: ImageBitmap | null;
 				audio: PcmS16AudioData | null;
 				durationInSeconds: number | null;
 		  }
-		| 'cannot-decode'
-		| 'network-error'
-		| 'unknown-container-format'
+		| {type: 'cannot-decode'; durationInSeconds: number | null}
+		| {type: 'network-error'}
+		| {type: 'unknown-container-format'}
 	>((resolve, reject) => {
 		const onMessage = (event: MessageEvent) => {
 			const data = event.data as ExtractFrameResponse;
@@ -201,6 +206,7 @@ export const extractFrameViaBroadcastChannel = ({
 
 			if (data.type === 'response-success') {
 				resolve({
+					type: 'success',
 					frame: data.frame ? data.frame : null,
 					audio: data.audio ? data.audio : null,
 					durationInSeconds: data.durationInSeconds
@@ -224,7 +230,10 @@ export const extractFrameViaBroadcastChannel = ({
 			}
 
 			if (data.type === 'response-cannot-decode') {
-				resolve('cannot-decode');
+				resolve({
+					type: 'cannot-decode',
+					durationInSeconds: data.durationInSeconds,
+				});
 				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,
@@ -233,7 +242,7 @@ export const extractFrameViaBroadcastChannel = ({
 			}
 
 			if (data.type === 'response-network-error') {
-				resolve('network-error');
+				resolve({type: 'network-error'});
 				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,
@@ -242,7 +251,7 @@ export const extractFrameViaBroadcastChannel = ({
 			}
 
 			if (data.type === 'response-unknown-container-format') {
-				resolve('unknown-container-format');
+				resolve({type: 'unknown-container-format'});
 				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,

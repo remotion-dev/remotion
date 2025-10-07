@@ -18,15 +18,15 @@ test('Should be able to extract a frame', async () => {
 		audioStreamIndex: 0,
 	});
 
-	if (result === 'cannot-decode') {
+	if (result.type === 'cannot-decode') {
 		throw new Error('Cannot decode');
 	}
 
-	if (result === 'network-error') {
+	if (result.type === 'network-error') {
 		throw new Error('Network error');
 	}
 
-	if (result === 'unknown-container-format') {
+	if (result.type === 'unknown-container-format') {
 		throw new Error('Unknown container format');
 	}
 
@@ -34,7 +34,7 @@ test('Should be able to extract a frame', async () => {
 	assert(audio);
 
 	assert(frame);
-	expect(frame.timestamp).toBe(1_000_000);
+	expect((frame as VideoFrame).timestamp).toBe(1_000_000);
 
 	assert(audio);
 	expect(audio.sampleRate).toBe(48000);
@@ -65,22 +65,22 @@ test('Should be able to extract the last frame', async () => {
 		audioStreamIndex: 0,
 	});
 
-	if (result === 'cannot-decode') {
+	if (result.type === 'cannot-decode') {
 		throw new Error('Cannot decode');
 	}
 
-	if (result === 'network-error') {
+	if (result.type === 'network-error') {
 		throw new Error('Network error');
 	}
 
-	if (result === 'unknown-container-format') {
+	if (result.type === 'unknown-container-format') {
 		throw new Error('Unknown container format');
 	}
 
 	const {audio, frame} = result;
 
 	assert(frame);
-	expect(frame.timestamp).toBe(59_958_333);
+	expect((frame as VideoFrame).timestamp).toBe(59_958_333);
 
 	assert(!audio);
 
@@ -124,15 +124,15 @@ test('Should be apply volume correctly', async () => {
 		audioStreamIndex: 0,
 	});
 
-	if (result === 'cannot-decode') {
+	if (result.type === 'cannot-decode') {
 		throw new Error('Cannot decode');
 	}
 
-	if (result === 'network-error') {
+	if (result.type === 'network-error') {
 		throw new Error('Network error');
 	}
 
-	if (result === 'unknown-container-format') {
+	if (result.type === 'unknown-container-format') {
 		throw new Error('Unknown container format');
 	}
 
@@ -169,19 +169,19 @@ test('Should be able to loop', async () => {
 		audioStreamIndex: 0,
 	});
 
-	if (result === 'cannot-decode') {
+	if (result.type === 'cannot-decode') {
 		throw new Error('Cannot decode');
 	}
 
-	if (result === 'network-error') {
+	if (result.type === 'network-error') {
 		throw new Error('Network error');
 	}
 
-	if (result === 'unknown-container-format') {
+	if (result.type === 'unknown-container-format') {
 		throw new Error('Unknown container format');
 	}
 
 	const {frame} = result;
 
-	expect(frame?.timestamp).toBe(41_000_000);
+	expect((frame as VideoFrame)?.timestamp).toBe(41_000_000);
 });

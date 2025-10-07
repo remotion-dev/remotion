@@ -1,15 +1,15 @@
 export const calculateLoopDuration = ({
 	endAt,
-	mediaDuration,
+	mediaDurationInFrames,
 	playbackRate,
 	startFrom,
 }: {
-	mediaDuration: number;
+	mediaDurationInFrames: number;
 	playbackRate: number;
 	startFrom: number | undefined;
 	endAt: number | undefined;
 }) => {
-	let duration = mediaDuration;
+	let duration = mediaDurationInFrames;
 
 	// Account for endAt
 	if (typeof endAt !== 'undefined') {

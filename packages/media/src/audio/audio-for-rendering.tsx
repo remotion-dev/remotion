@@ -108,7 +108,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			audioStreamIndex: audioStreamIndex ?? 0,
 		})
 			.then((result) => {
-				if (result === 'unknown-container-format') {
+				if (result.type === 'unknown-container-format') {
 					if (disallowFallbackToHtml5Audio) {
 						cancelRender(
 							new Error(
@@ -125,7 +125,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					return;
 				}
 
-				if (result === 'cannot-decode') {
+				if (result.type === 'cannot-decode') {
 					if (disallowFallbackToHtml5Audio) {
 						cancelRender(
 							new Error(
@@ -142,7 +142,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					return;
 				}
 
-				if (result === 'network-error') {
+				if (result.type === 'network-error') {
 					if (disallowFallbackToHtml5Audio) {
 						cancelRender(
 							new Error(
