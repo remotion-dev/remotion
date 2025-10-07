@@ -44,6 +44,10 @@ export const extractFrame = async ({
 		logLevel,
 	});
 
+	if (!keyframeBank) {
+		return null;
+	}
+
 	const frame = await keyframeBank.getFrameFromTimestamp(timeInSeconds);
 
 	return frame;
