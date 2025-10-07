@@ -40,10 +40,10 @@ const getTimeInSeconds = ({
 	}
 
 	const loopDuration = Internals.calculateLoopDuration({
-		endAt: endAt,
+		endAt,
 		mediaDurationInFrames: mediaDurationInSeconds,
 		playbackRate,
-		startFrom: startFrom,
+		startFrom,
 	});
 
 	const timeInSeconds = unloopedTimeinSeconds % loopDuration;
