@@ -100,7 +100,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			timeInSeconds: timestamp,
 			durationInSeconds,
 			playbackRate: playbackRate ?? 1,
-			logLevel: logLevel ?? 'info',
+			logLevel,
 			includeAudio: shouldRenderAudio,
 			includeVideo: false,
 			isClientSideRendering: environment.isClientSideRendering,

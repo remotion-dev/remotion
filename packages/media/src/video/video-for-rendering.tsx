@@ -138,13 +138,13 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			src,
 			timeInSeconds: timestamp,
 			durationInSeconds,
-			playbackRate: playbackRate ?? 1,
-			logLevel: logLevel ?? 'info',
+			playbackRate,
+			logLevel,
 			includeAudio: shouldRenderAudio,
 			includeVideo: window.remotion_videoEnabled,
 			isClientSideRendering: environment.isClientSideRendering,
-			loop: loop ?? false,
-			audioStreamIndex: audioStreamIndex ?? 0,
+			loop,
+			audioStreamIndex,
 		})
 			.then((result) => {
 				if (result === 'unknown-container-format') {
