@@ -105,6 +105,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 			trimBefore={trimBeforeValue}
 			stack={stack ?? null}
 			disallowFallbackToOffthreadVideo={disallowFallbackToOffthreadVideo}
+			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
 		/>
 	);
 };

@@ -7,6 +7,7 @@ import type {
 } from 'remotion';
 import {Internals, useBufferState, useCurrentFrame, Video} from 'remotion';
 import {MediaPlayer} from './media-player';
+import type {FallbackOffthreadVideoProps} from './props';
 
 const {
 	useUnsafeVideoConfig,
@@ -39,6 +40,7 @@ type NewVideoForPreviewProps = {
 	readonly trimBefore: number | undefined;
 	readonly stack: string | null;
 	readonly disallowFallbackToOffthreadVideo: boolean;
+	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 };
 
 const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
@@ -58,6 +60,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	trimBefore,
 	stack,
 	disallowFallbackToOffthreadVideo,
+	fallbackOffthreadVideoProps,
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const videoConfig = useUnsafeVideoConfig();
@@ -390,6 +393,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 				loop={loop}
 				showInTimeline={showInTimeline}
 				stack={stack ?? undefined}
+				{...fallbackOffthreadVideoProps}
 			/>
 		);
 	}
@@ -422,6 +426,7 @@ type InnerVideoProps = {
 	readonly trimBefore: number | undefined;
 	readonly stack: string | null;
 	readonly disallowFallbackToOffthreadVideo: boolean;
+	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 };
 
 export const VideoForPreview: React.FC<InnerVideoProps> = ({
@@ -441,6 +446,7 @@ export const VideoForPreview: React.FC<InnerVideoProps> = ({
 	trimBefore,
 	stack,
 	disallowFallbackToOffthreadVideo,
+	fallbackOffthreadVideoProps,
 }) => {
 	const preloadedSrc = usePreload(src);
 
@@ -462,6 +468,7 @@ export const VideoForPreview: React.FC<InnerVideoProps> = ({
 			showInTimeline={showInTimeline}
 			stack={stack}
 			disallowFallbackToOffthreadVideo={disallowFallbackToOffthreadVideo}
+			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
 		/>
 	);
 };
