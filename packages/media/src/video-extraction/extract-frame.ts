@@ -104,10 +104,6 @@ export const extractFrame = async ({
 		startFrom,
 		fps,
 	});
-	Internals.Log.info(
-		{logLevel, tag: '@remotion/media'},
-		`Extracting frame at ${timeInSeconds}`,
-	);
 
 	const keyframeBank = await keyframeManager.requestKeyframeBank({
 		packetSink: video.packetSink,
