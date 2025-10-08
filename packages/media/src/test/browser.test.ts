@@ -18,6 +18,7 @@ test('Should be able to extract a frame', async () => {
 		audioStreamIndex: 0,
 		endAt: undefined,
 		startFrom: undefined,
+		fps: 30,
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -67,6 +68,7 @@ test('Should be able to extract the last frame', async () => {
 		audioStreamIndex: 0,
 		endAt: undefined,
 		startFrom: undefined,
+		fps: 30,
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -107,6 +109,7 @@ test('Should manage the cache', async () => {
 			audioStreamIndex: 0,
 			endAt: undefined,
 			startFrom: undefined,
+			fps: 30,
 		});
 	}
 
@@ -130,6 +133,7 @@ test('Should be apply volume correctly', async () => {
 		audioStreamIndex: 0,
 		endAt: undefined,
 		startFrom: undefined,
+		fps: 30,
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -177,6 +181,7 @@ test('Should be able to loop', async () => {
 		audioStreamIndex: 0,
 		endAt: undefined,
 		startFrom: undefined,
+		fps: 30,
 	});
 
 	if (result.type === 'cannot-decode') {

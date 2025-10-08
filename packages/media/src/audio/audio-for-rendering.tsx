@@ -110,6 +110,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			audioStreamIndex: audioStreamIndex ?? 0,
 			endAt: trimAfter,
 			startFrom: trimBefore,
+			fps,
 		})
 			.then((result) => {
 				if (result.type === 'unknown-container-format') {

@@ -20,6 +20,7 @@ const getTimeInSeconds = ({
 	endAt,
 	startFrom,
 	playbackRate,
+	fps,
 }: {
 	loop: boolean;
 	mediaDurationInSeconds: number | null;
@@ -28,6 +29,7 @@ const getTimeInSeconds = ({
 	endAt: number | undefined;
 	startFrom: number | undefined;
 	playbackRate: number;
+	fps: number;
 }) => {
 	if (!loop) {
 		return unloopedTimeinSeconds;
@@ -39,12 +41,13 @@ const getTimeInSeconds = ({
 		);
 	}
 
-	const loopDuration = Internals.calculateLoopDuration({
-		endAt,
-		mediaDurationInFrames: mediaDurationInSeconds,
-		playbackRate,
-		startFrom,
-	});
+	const loopDuration =
+		Internals.calculateLoopDuration({
+			endAt,
+			mediaDurationInFrames: mediaDurationInSeconds * fps,
+			playbackRate,
+			startFrom,
+		}) / fps;
 
 	const timeInSeconds = unloopedTimeinSeconds % loopDuration;
 	return timeInSeconds + (startFrom ?? 0);
@@ -58,6 +61,7 @@ export const extractFrame = async ({
 	endAt,
 	startFrom,
 	playbackRate,
+	fps,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -66,6 +70,7 @@ export const extractFrame = async ({
 	endAt: number | undefined;
 	startFrom: number | undefined;
 	playbackRate: number;
+	fps: number;
 }): Promise<ExtractFrameResult> => {
 	const sink = await getSinkWeak(src, logLevel);
 
@@ -99,6 +104,7 @@ export const extractFrame = async ({
 		endAt,
 		playbackRate,
 		startFrom,
+		fps,
 	});
 
 	const keyframeBank = await keyframeManager.requestKeyframeBank({

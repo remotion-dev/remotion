@@ -158,6 +158,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			audioStreamIndex,
 			endAt: trimAfterValue,
 			startFrom: trimBeforeValue,
+			fps,
 		})
 			.then((result) => {
 				if (result.type === 'unknown-container-format') {

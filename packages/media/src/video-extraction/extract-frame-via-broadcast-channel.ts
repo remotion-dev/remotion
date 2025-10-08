@@ -16,6 +16,7 @@ type ExtractFrameRequest = {
 	audioStreamIndex: number;
 	endAt: number | undefined;
 	startFrom: number | undefined;
+	fps: number;
 };
 
 type ExtractFrameResponse =
@@ -65,6 +66,7 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						audioStreamIndex: data.audioStreamIndex,
 						endAt: data.endAt,
 						startFrom: data.startFrom,
+						fps: data.fps,
 					});
 
 					if (result.type === 'cannot-decode') {
@@ -160,6 +162,7 @@ export const extractFrameViaBroadcastChannel = ({
 	audioStreamIndex,
 	endAt,
 	startFrom,
+	fps,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -173,6 +176,7 @@ export const extractFrameViaBroadcastChannel = ({
 	audioStreamIndex: number;
 	endAt: number | undefined;
 	startFrom: number | undefined;
+	fps: number;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
@@ -187,6 +191,7 @@ export const extractFrameViaBroadcastChannel = ({
 			audioStreamIndex,
 			endAt,
 			startFrom,
+			fps,
 		});
 	}
 
@@ -291,6 +296,7 @@ export const extractFrameViaBroadcastChannel = ({
 		audioStreamIndex,
 		endAt,
 		startFrom,
+		fps,
 	};
 
 	window.remotion_broadcastChannel!.postMessage(request);
