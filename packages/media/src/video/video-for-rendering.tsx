@@ -155,8 +155,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			isClientSideRendering: environment.isClientSideRendering,
 			loop,
 			audioStreamIndex,
-			endAt: trimAfterValue,
-			startFrom: trimBeforeValue,
+			trimAfter: trimAfterValue,
+			trimBefore: trimBeforeValue,
 			fps,
 		})
 			.then((result) => {
@@ -392,11 +392,11 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				<Loop
 					layout="none"
 					durationInFrames={calculateLoopDuration({
-						endAt: trimAfterValue,
+						trimAfter: trimAfterValue,
 						mediaDurationInFrames:
 							replaceWithOffthreadVideo.durationInSeconds * fps,
 						playbackRate,
-						startFrom: trimBeforeValue,
+						trimBefore: trimBeforeValue,
 					})}
 				>
 					{fallback}

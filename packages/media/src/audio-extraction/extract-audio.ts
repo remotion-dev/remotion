@@ -18,8 +18,8 @@ export const extractAudio = async ({
 	loop,
 	playbackRate,
 	audioStreamIndex,
-	startFrom,
-	endAt,
+	trimBefore,
+	trimAfter,
 	fps,
 }: {
 	src: string;
@@ -29,8 +29,8 @@ export const extractAudio = async ({
 	loop: boolean;
 	playbackRate: number;
 	audioStreamIndex: number;
-	startFrom: number | undefined;
-	endAt: number | undefined;
+	trimBefore: number | undefined;
+	trimAfter: number | undefined;
 	fps: number;
 }): Promise<
 	| {
@@ -67,9 +67,9 @@ export const extractAudio = async ({
 		mediaDurationInSeconds,
 		unloopedTimeInSeconds,
 		src,
-		endAt,
+		trimAfter,
 		playbackRate,
-		startFrom,
+		trimBefore,
 		fps,
 	});
 	const sampleIterator = await audioManager.getIterator({

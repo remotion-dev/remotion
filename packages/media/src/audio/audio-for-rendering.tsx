@@ -108,8 +108,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
 			audioStreamIndex: audioStreamIndex ?? 0,
-			endAt: trimAfter,
-			startFrom: trimBefore,
+			trimAfter,
+			trimBefore,
 			fps,
 		})
 			.then((result) => {

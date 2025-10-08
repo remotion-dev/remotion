@@ -14,8 +14,8 @@ type ExtractFrameRequest = {
 	includeVideo: boolean;
 	loop: boolean;
 	audioStreamIndex: number;
-	endAt: number | undefined;
-	startFrom: number | undefined;
+	trimAfter: number | undefined;
+	trimBefore: number | undefined;
 	fps: number;
 };
 
@@ -64,8 +64,8 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						includeVideo: data.includeVideo,
 						loop: data.loop,
 						audioStreamIndex: data.audioStreamIndex,
-						endAt: data.endAt,
-						startFrom: data.startFrom,
+						trimAfter: data.trimAfter,
+						trimBefore: data.trimBefore,
 						fps: data.fps,
 					});
 
@@ -160,8 +160,8 @@ export const extractFrameViaBroadcastChannel = ({
 	isClientSideRendering,
 	loop,
 	audioStreamIndex,
-	endAt,
-	startFrom,
+	trimAfter,
+	trimBefore,
 	fps,
 }: {
 	src: string;
@@ -174,8 +174,8 @@ export const extractFrameViaBroadcastChannel = ({
 	isClientSideRendering: boolean;
 	loop: boolean;
 	audioStreamIndex: number;
-	endAt: number | undefined;
-	startFrom: number | undefined;
+	trimAfter: number | undefined;
+	trimBefore: number | undefined;
 	fps: number;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
@@ -189,8 +189,8 @@ export const extractFrameViaBroadcastChannel = ({
 			includeVideo,
 			loop,
 			audioStreamIndex,
-			endAt,
-			startFrom,
+			trimAfter,
+			trimBefore,
 			fps,
 		});
 	}
@@ -294,8 +294,8 @@ export const extractFrameViaBroadcastChannel = ({
 		includeVideo,
 		loop,
 		audioStreamIndex,
-		endAt,
-		startFrom,
+		trimAfter,
+		trimBefore,
 		fps,
 	};
 

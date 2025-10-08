@@ -18,8 +18,8 @@ export const extractFrame = async ({
 	timeInSeconds: unloopedTimeInSeconds,
 	logLevel,
 	loop,
-	endAt,
-	startFrom,
+	startAfter,
+	trimBefore,
 	playbackRate,
 	fps,
 }: {
@@ -27,8 +27,8 @@ export const extractFrame = async ({
 	timeInSeconds: number;
 	logLevel: LogLevel;
 	loop: boolean;
-	endAt: number | undefined;
-	startFrom: number | undefined;
+	startAfter: number | undefined;
+	trimBefore: number | undefined;
 	playbackRate: number;
 	fps: number;
 }): Promise<ExtractFrameResult> => {
@@ -59,9 +59,9 @@ export const extractFrame = async ({
 		mediaDurationInSeconds,
 		unloopedTimeInSeconds,
 		src,
-		endAt,
+		trimAfter: startAfter,
 		playbackRate,
-		startFrom,
+		trimBefore,
 		fps,
 	});
 
