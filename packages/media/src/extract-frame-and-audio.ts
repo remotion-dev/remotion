@@ -53,6 +53,9 @@ export const extractFrameAndAudio = async ({
 						loop,
 						playbackRate,
 						audioStreamIndex,
+						endAt,
+						fps,
+						startFrom,
 					})
 				: null,
 		]);
