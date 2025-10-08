@@ -8,11 +8,19 @@ import {
 } from 'mediabunny';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
+import {isNetworkError} from '../is-network-error';
 import {resolvePlaybackTime} from './resolve-playback-time';
 import {sleep, withTimeout} from './timeout-utils';
 
 export const SEEK_THRESHOLD = 0.05;
 const AUDIO_BUFFER_TOLERANCE_THRESHOLD = 0.1;
+
+export type MediaPlayerInitResult =
+	| {type: 'success'}
+	| {type: 'unknown-container-format'}
+	| {type: 'cannot-decode'}
+	| {type: 'network-error'}
+	| {type: 'no-tracks'};
 
 export class MediaPlayer {
 	private canvas: HTMLCanvasElement | null;
@@ -129,7 +137,9 @@ export class MediaPlayer {
 		return this.isBuffering && Boolean(this.bufferingStartedAtMs);
 	}
 
-	public async initialize(startTimeUnresolved: number): Promise<void> {
+	public async initialize(
+		startTimeUnresolved: number,
+	): Promise<MediaPlayerInitResult> {
 		try {
 			const urlSource = new UrlSource(this.src);
 
@@ -140,6 +150,24 @@ export class MediaPlayer {
 
 			this.input = input;
 
+			try {
+				await this.input.getFormat();
+			} catch (error) {
+				const err = error as Error;
+
+				if (isNetworkError(err)) {
+					throw error;
+				}
+
+				Internals.Log.error(
+					{logLevel: this.logLevel, tag: '@remotion/media'},
+					`[MediaPlayer] Failed to recognize format for ${this.src}`,
+					error,
+				);
+
+				return {type: 'unknown-container-format'};
+			}
+
 			const [duration, videoTrack, audioTrack] = await Promise.all([
 				input.computeDuration(),
 				input.getPrimaryVideoTrack(),
@@ -148,10 +176,16 @@ export class MediaPlayer {
 			this.totalDuration = duration;
 
 			if (!videoTrack && !audioTrack) {
-				throw new Error(`No video or audio track found for ${this.src}`);
+				return {type: 'no-tracks'};
 			}
 
 			if (videoTrack && this.canvas && this.context) {
+				const canDecode = await videoTrack.canDecode();
+
+				if (!canDecode) {
+					return {type: 'cannot-decode'};
+				}
+
 				this.canvasSink = new CanvasSink(videoTrack, {
 					poolSize: 2,
 					fit: 'contain',
@@ -188,7 +222,20 @@ export class MediaPlayer {
 			]);
 
 			this.startRenderLoop();
+
+			return {type: 'success'};
 		} catch (error) {
+			const err = error as Error;
+
+			if (isNetworkError(err)) {
+				Internals.Log.error(
+					{logLevel: this.logLevel, tag: '@remotion/media'},
+					`[MediaPlayer] Network/CORS error for ${this.src}`,
+					err,
+				);
+				return {type: 'network-error'};
+			}
+
 			Internals.Log.error(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
 				'[MediaPlayer] Failed to initialize',

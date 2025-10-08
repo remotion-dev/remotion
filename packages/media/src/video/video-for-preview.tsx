@@ -5,7 +5,12 @@ import type {
 	OnVideoFrame,
 	VolumeProp,
 } from 'remotion';
-import {Internals, useBufferState, useCurrentFrame} from 'remotion';
+import {
+	Internals,
+	Video as RemotionVideo,
+	useBufferState,
+	useCurrentFrame,
+} from 'remotion';
 import {MediaPlayer} from './media-player';
 
 const {
@@ -63,6 +68,8 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
+		useState(false);
 
 	const [playing] = Timeline.usePlayingState();
 	const timelineContext = useContext(Timeline.TimelineContext);
@@ -139,8 +146,46 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 			player
 				.initialize(currentTimeRef.current)
-				.then(() => {
-					setMediaPlayerReady(true);
+				.then((result) => {
+					if (result.type === 'unknown-container-format') {
+						Internals.Log.info(
+							{logLevel, tag: '@remotion/media'},
+							`Unknown container format for ${preloadedSrc}, falling back to native <Video>`,
+						);
+						setShouldFallbackToNativeVideo(true);
+						return;
+					}
+
+					if (result.type === 'network-error') {
+						Internals.Log.info(
+							{logLevel, tag: '@remotion/media'},
+							`Network/CORS error for ${preloadedSrc}, falling back to native <Video>`,
+						);
+						setShouldFallbackToNativeVideo(true);
+						return;
+					}
+
+					if (result.type === 'cannot-decode') {
+						Internals.Log.info(
+							{logLevel, tag: '@remotion/media'},
+							`Cannot decode video for ${preloadedSrc}, falling back to native <Video>`,
+						);
+						setShouldFallbackToNativeVideo(true);
+						return;
+					}
+
+					if (result.type === 'no-tracks') {
+						Internals.Log.info(
+							{logLevel, tag: '@remotion/media'},
+							`No video or audio tracks found for ${preloadedSrc}, falling back to native <Video>`,
+						);
+						setShouldFallbackToNativeVideo(true);
+						return;
+					}
+
+					if (result.type === 'success') {
+						setMediaPlayerReady(true);
+					}
 				})
 				.catch((error) => {
 					Internals.Log.error(
@@ -148,6 +193,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 						'[NewVideoForPreview] Failed to initialize MediaPlayer',
 						error,
 					);
+					setShouldFallbackToNativeVideo(true);
 				});
 		} catch (error) {
 			Internals.Log.error(
@@ -155,6 +201,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 				'[NewVideoForPreview] MediaPlayer initialization failed',
 				error,
 			);
+			setShouldFallbackToNativeVideo(true);
 		}
 
 		return () => {
@@ -168,6 +215,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			}
 
 			setMediaPlayerReady(false);
+			setShouldFallbackToNativeVideo(false);
 		};
 	}, [
 		preloadedSrc,
@@ -301,6 +349,26 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			unsubscribe();
 		};
 	}, [onVideoFrame, mediaPlayerReady]);
+
+	if (shouldFallbackToNativeVideo) {
+		return (
+			<RemotionVideo
+				src={src}
+				style={style}
+				className={className}
+				muted={muted}
+				volume={volume}
+				playbackRate={playbackRate}
+				loop={loop}
+				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
+				name={name}
+				showInTimeline={showInTimeline}
+				stack={stack ?? undefined}
+				trimBefore={trimBefore}
+				trimAfter={trimAfter}
+			/>
+		);
+	}
 
 	return (
 		<canvas
