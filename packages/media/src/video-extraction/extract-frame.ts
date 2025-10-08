@@ -18,7 +18,7 @@ export const extractFrame = async ({
 	timeInSeconds: unloopedTimeInSeconds,
 	logLevel,
 	loop,
-	startAfter,
+	trimAfter,
 	trimBefore,
 	playbackRate,
 	fps,
@@ -27,7 +27,7 @@ export const extractFrame = async ({
 	timeInSeconds: number;
 	logLevel: LogLevel;
 	loop: boolean;
-	startAfter: number | undefined;
+	trimAfter: number | undefined;
 	trimBefore: number | undefined;
 	playbackRate: number;
 	fps: number;
@@ -59,7 +59,7 @@ export const extractFrame = async ({
 		mediaDurationInSeconds,
 		unloopedTimeInSeconds,
 		src,
-		trimAfter: startAfter,
+		trimAfter,
 		playbackRate,
 		trimBefore,
 		fps,
