@@ -207,7 +207,9 @@ export const makeKeyframeManager = () => {
 
 		Internals.Log.verbose(
 			{logLevel, tag: '@remotion/media'},
-			`Keyframe bank exists but frames have already been evicted!`,
+			`Keyframe bank exists but frame at time ${timestamp} does not exist anymore. Only the following times are available:`,
+			(await existingBank).endTimestampInSeconds,
+			(await existingBank).startTimestampInSeconds,
 		);
 
 		// Bank exists but frames have already been evicted!
