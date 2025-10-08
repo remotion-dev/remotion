@@ -13,8 +13,8 @@ export const extractFrameAndAudio = async ({
 	includeVideo,
 	loop,
 	audioStreamIndex,
-	endAt,
-	startFrom,
+	trimAfter,
+	trimBefore,
 	fps,
 }: {
 	src: string;
@@ -26,8 +26,8 @@ export const extractFrameAndAudio = async ({
 	includeVideo: boolean;
 	loop: boolean;
 	audioStreamIndex: number;
-	endAt: number | undefined;
-	startFrom: number | undefined;
+	trimAfter: number | undefined;
+	trimBefore: number | undefined;
 	fps: number;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	try {
@@ -38,9 +38,9 @@ export const extractFrameAndAudio = async ({
 						timeInSeconds,
 						logLevel,
 						loop,
-						endAt,
+						trimAfter,
 						playbackRate,
-						startFrom,
+						trimBefore,
 						fps,
 					})
 				: null,
@@ -53,9 +53,9 @@ export const extractFrameAndAudio = async ({
 						loop,
 						playbackRate,
 						audioStreamIndex,
-						endAt,
+						trimAfter,
 						fps,
-						startFrom,
+						trimBefore,
 					})
 				: null,
 		]);

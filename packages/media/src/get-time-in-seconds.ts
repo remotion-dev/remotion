@@ -5,16 +5,17 @@ export const getTimeInSeconds = ({
 	mediaDurationInSeconds,
 	unloopedTimeInSeconds,
 	src,
-	endAt,
-	startFrom,
+	trimAfter,
+	trimBefore,
 	fps,
+	playbackRate,
 }: {
 	loop: boolean;
 	mediaDurationInSeconds: number | null;
 	unloopedTimeInSeconds: number;
 	src: string;
-	endAt: number | undefined;
-	startFrom: number | undefined;
+	trimAfter: number | undefined;
+	trimBefore: number | undefined;
 	playbackRate: number;
 	fps: number;
 }) => {
@@ -26,15 +27,15 @@ export const getTimeInSeconds = ({
 
 	const loopDuration = loop
 		? Internals.calculateLoopDuration({
-				endAt,
+				trimAfter,
 				mediaDurationInFrames: mediaDurationInSeconds! * fps,
 				// Playback rate was already specified before
 				playbackRate: 1,
-				startFrom,
+				trimBefore,
 			}) / fps
 		: Infinity;
 
-	const timeInSeconds = unloopedTimeInSeconds % loopDuration;
+	const timeInSeconds = (unloopedTimeInSeconds * playbackRate) % loopDuration;
 
-	return timeInSeconds + (startFrom ?? 0) / fps;
+	return timeInSeconds + (trimBefore ?? 0) / fps;
 };

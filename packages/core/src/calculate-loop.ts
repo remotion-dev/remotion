@@ -1,24 +1,24 @@
 export const calculateLoopDuration = ({
-	endAt,
+	trimAfter,
 	mediaDurationInFrames,
 	playbackRate,
-	startFrom,
+	trimBefore,
 }: {
 	mediaDurationInFrames: number;
 	playbackRate: number;
-	startFrom: number | undefined;
-	endAt: number | undefined;
+	trimBefore: number | undefined;
+	trimAfter: number | undefined;
 }) => {
 	let duration = mediaDurationInFrames;
 
-	// Account for endAt
-	if (typeof endAt !== 'undefined') {
-		duration = endAt;
+	// Account for trimAfter
+	if (typeof trimAfter !== 'undefined') {
+		duration = trimAfter;
 	}
 
-	// Account for startFrom
-	if (typeof startFrom !== 'undefined') {
-		duration -= startFrom;
+	// Account for trimBefore
+	if (typeof trimBefore !== 'undefined') {
+		duration -= trimBefore;
 	}
 
 	const actualDuration = duration / playbackRate;
