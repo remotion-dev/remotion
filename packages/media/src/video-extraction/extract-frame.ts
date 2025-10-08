@@ -50,7 +50,7 @@ const getTimeInSeconds = ({
 		}) / fps;
 
 	const timeInSeconds = unloopedTimeinSeconds % loopDuration;
-	return timeInSeconds + (startFrom ?? 0);
+	return timeInSeconds + (startFrom ?? 0) / fps;
 };
 
 export const extractFrame = async ({
