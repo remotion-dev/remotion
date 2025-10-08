@@ -1,4 +1,5 @@
 import {assert, expect, test} from 'vitest';
+import {getTimeInSeconds} from '../get-time-in-seconds';
 import {extractFrame} from '../video-extraction/extract-frame';
 
 const fps = 25;
@@ -8,13 +9,26 @@ const playbackRate = 2;
 const loop = true;
 
 test('when looping with a lot of concurrency, it must be frame-accurate', async () => {
-	const letInputTimestamps = [1.96, 2, 2.04, 2.08];
+	const letInputTimestamps = [198, 199, 200, 201, 202];
+	const realTimestamps = [];
 	const outputTimestamps = [];
 
-	for (const timeInSeconds of letInputTimestamps) {
+	for (const timeInFrames of letInputTimestamps) {
+		const realTimestamp = getTimeInSeconds({
+			fps,
+			loop,
+			mediaDurationInSeconds: 10,
+			playbackRate,
+			src: 'https://remotion.media/video.mp4',
+			trimAfter,
+			trimBefore,
+			unloopedTimeInSeconds: timeInFrames / fps,
+		});
+		realTimestamps.push(realTimestamp);
+
 		const result = await extractFrame({
 			src: 'https://remotion.media/video.mp4',
-			timeInSeconds,
+			timeInSeconds: timeInFrames / fps,
 			logLevel: 'verbose',
 			loop,
 			trimAfter,
@@ -27,5 +41,6 @@ test('when looping with a lot of concurrency, it must be frame-accurate', async 
 		outputTimestamps.push(result.frame?.timestamp ?? 0);
 	}
 
-	expect(outputTimestamps).toEqual([4, 4, 4, 4]);
+	expect(realTimestamps).toEqual([7.96, 7.98, 4, 4.02, 4.04]);
+	expect(outputTimestamps).toEqual([7.96, 7.98, 4, 4.02, 4.04]);
 });

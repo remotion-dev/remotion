@@ -38,7 +38,7 @@ export const extractFrameAndAudio = async ({
 						timeInSeconds,
 						logLevel,
 						loop,
-						trimAfter: trimAfter,
+						trimAfter,
 						playbackRate,
 						trimBefore,
 						fps,
