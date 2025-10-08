@@ -99,7 +99,7 @@ export const makeKeyframeManager = () => {
 			await getTheKeyframeBankMostInThePast();
 
 		if (mostInThePastBank) {
-			await mostInThePastBank.prepareForDeletion();
+			await mostInThePastBank.prepareForDeletion(logLevel);
 			delete sources[mostInThePastSrc][
 				mostInThePastBank.startTimestampInSeconds
 			];
@@ -142,7 +142,7 @@ export const makeKeyframeManager = () => {
 			const {endTimestampInSeconds, startTimestampInSeconds} = bank;
 
 			if (endTimestampInSeconds < threshold) {
-				await bank.prepareForDeletion();
+				await bank.prepareForDeletion(logLevel);
 				Internals.Log.verbose(
 					{logLevel, tag: '@remotion/media'},
 					`[Video] Cleared frames for src ${src} from ${startTimestampInSeconds}sec to ${endTimestampInSeconds}sec`,
@@ -193,6 +193,7 @@ export const makeKeyframeManager = () => {
 				packetSink,
 				videoSampleSink,
 				startPacket,
+				logLevel,
 			});
 
 			addKeyframeBank({src, bank: newKeyframeBank, startTimestampInSeconds});
@@ -207,12 +208,12 @@ export const makeKeyframeManager = () => {
 
 		Internals.Log.verbose(
 			{logLevel, tag: '@remotion/media'},
-			`Keyframe bank exists but frames have already been evicted!`,
+			`Keyframe bank exists but frame at time ${timestamp} does not exist anymore.`,
 		);
 
 		// Bank exists but frames have already been evicted!
 		// First delete it entirely
-		await (await existingBank).prepareForDeletion();
+		await (await existingBank).prepareForDeletion(logLevel);
 		delete sources[src][startTimestampInSeconds];
 
 		// Then refetch
@@ -220,6 +221,7 @@ export const makeKeyframeManager = () => {
 			packetSink,
 			videoSampleSink,
 			startPacket,
+			logLevel,
 		});
 
 		addKeyframeBank({src, bank: replacementKeybank, startTimestampInSeconds});
@@ -259,7 +261,7 @@ export const makeKeyframeManager = () => {
 		return keyframeBank;
 	};
 
-	const clearAll = async () => {
+	const clearAll = async (logLevel: LogLevel) => {
 		const srcs = Object.keys(sources);
 		for (const src of srcs) {
 			const banks = Object.keys(sources[src]);
@@ -268,7 +270,7 @@ export const makeKeyframeManager = () => {
 				const bank =
 					await sources[src][startTimeInSeconds as unknown as number];
 
-				await bank.prepareForDeletion();
+				await bank.prepareForDeletion(logLevel);
 				delete sources[src][startTimeInSeconds as unknown as number];
 			}
 		}

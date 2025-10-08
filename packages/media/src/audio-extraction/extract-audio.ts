@@ -8,15 +8,19 @@ import {
 	TARGET_SAMPLE_RATE,
 } from '../convert-audiodata/resample-audiodata';
 import {getSinkWeak} from '../get-sink-weak';
+import {getTimeInSeconds} from '../get-time-in-seconds';
 
 export const extractAudio = async ({
 	src,
 	timeInSeconds: unloopedTimeInSeconds,
-	durationInSeconds,
+	durationInSeconds: durationNotYetApplyingPlaybackRate,
 	logLevel,
 	loop,
 	playbackRate,
 	audioStreamIndex,
+	trimBefore,
+	trimAfter,
+	fps,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -25,6 +29,9 @@ export const extractAudio = async ({
 	loop: boolean;
 	playbackRate: number;
 	audioStreamIndex: number;
+	trimBefore: number | undefined;
+	trimAfter: number | undefined;
+	fps: number;
 }): Promise<
 	| {
 			data: PcmS16AudioData | null;
@@ -36,9 +43,9 @@ export const extractAudio = async ({
 	const {getAudio, actualMatroskaTimestamps, isMatroska, getDuration} =
 		await getSinkWeak(src, logLevel);
 
-	let duration: number | null = null;
+	let mediaDurationInSeconds: number | null = null;
 	if (loop) {
-		duration = await getDuration();
+		mediaDurationInSeconds = await getDuration();
 	}
 
 	const audio = await getAudio(audioStreamIndex);
@@ -55,10 +62,16 @@ export const extractAudio = async ({
 		return 'unknown-container-format';
 	}
 
-	const timeInSeconds = loop
-		? unloopedTimeInSeconds % duration!
-		: unloopedTimeInSeconds;
-
+	const timeInSeconds = getTimeInSeconds({
+		loop,
+		mediaDurationInSeconds,
+		unloopedTimeInSeconds,
+		src,
+		trimAfter,
+		playbackRate,
+		trimBefore,
+		fps,
+	});
 	const sampleIterator = await audioManager.getIterator({
 		src,
 		timeInSeconds,
@@ -67,6 +80,8 @@ export const extractAudio = async ({
 		actualMatroskaTimestamps,
 		logLevel,
 	});
+
+	const durationInSeconds = durationNotYetApplyingPlaybackRate * playbackRate;
 
 	const samples = await sampleIterator.getSamples(
 		timeInSeconds,
@@ -144,10 +159,10 @@ export const extractAudio = async ({
 	}
 
 	if (audioDataArray.length === 0) {
-		return {data: null, durationInSeconds: duration};
+		return {data: null, durationInSeconds: mediaDurationInSeconds};
 	}
 
 	const combined = combineAudioDataAndClosePrevious(audioDataArray);
 
-	return {data: combined, durationInSeconds: duration};
+	return {data: combined, durationInSeconds: mediaDurationInSeconds};
 };

@@ -1,7 +1,8 @@
 import type {VideoSample} from 'mediabunny';
-import {Internals, type LogLevel} from 'remotion';
+import {type LogLevel} from 'remotion';
 import {keyframeManager} from '../caches';
 import {getSinkWeak} from '../get-sink-weak';
+import {getTimeInSeconds} from '../get-time-in-seconds';
 
 type ExtractFrameResult =
 	| {
@@ -12,52 +13,13 @@ type ExtractFrameResult =
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
 	| {type: 'unknown-container-format'};
 
-const getTimeInSeconds = ({
-	loop,
-	mediaDurationInSeconds,
-	unloopedTimeinSeconds,
-	src,
-	endAt,
-	startFrom,
-	playbackRate,
-	fps,
-}: {
-	loop: boolean;
-	mediaDurationInSeconds: number | null;
-	unloopedTimeinSeconds: number;
-	src: string;
-	endAt: number | undefined;
-	startFrom: number | undefined;
-	playbackRate: number;
-	fps: number;
-}) => {
-	if (mediaDurationInSeconds === null) {
-		throw new Error(
-			`Could not determine duration of ${src}, but "loop" was set.`,
-		);
-	}
-
-	const loopDuration = loop
-		? Internals.calculateLoopDuration({
-				endAt,
-				mediaDurationInFrames: mediaDurationInSeconds * fps,
-				playbackRate,
-				startFrom,
-			}) / fps
-		: Infinity;
-
-	const timeInSeconds = unloopedTimeinSeconds % loopDuration;
-
-	return timeInSeconds + (startFrom ?? 0) / fps;
-};
-
 export const extractFrame = async ({
 	src,
-	timeInSeconds: unloopedTimeinSeconds,
+	timeInSeconds: unloopedTimeInSeconds,
 	logLevel,
 	loop,
-	endAt,
-	startFrom,
+	trimAfter,
+	trimBefore,
 	playbackRate,
 	fps,
 }: {
@@ -65,8 +27,8 @@ export const extractFrame = async ({
 	timeInSeconds: number;
 	logLevel: LogLevel;
 	loop: boolean;
-	endAt: number | undefined;
-	startFrom: number | undefined;
+	trimAfter: number | undefined;
+	trimBefore: number | undefined;
 	playbackRate: number;
 	fps: number;
 }): Promise<ExtractFrameResult> => {
@@ -86,22 +48,20 @@ export const extractFrame = async ({
 		return {type: 'unknown-container-format'};
 	}
 
-	const mediaDurationInSeconds = await sink.getDuration();
+	let mediaDurationInSeconds: number | null = null;
 
-	if (loop && mediaDurationInSeconds === null) {
-		throw new Error(
-			`Could not determine duration of ${src}, but "loop" was set.`,
-		);
+	if (loop) {
+		mediaDurationInSeconds = await sink.getDuration();
 	}
 
 	const timeInSeconds = getTimeInSeconds({
 		loop,
 		mediaDurationInSeconds,
-		unloopedTimeinSeconds,
+		unloopedTimeInSeconds,
 		src,
-		endAt,
+		trimAfter,
 		playbackRate,
-		startFrom,
+		trimBefore,
 		fps,
 	});
 

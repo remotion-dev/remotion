@@ -4,7 +4,7 @@ import {applyVolume} from '../convert-audiodata/apply-volume';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
 
 test('Should be able to extract a frame', async () => {
-	await keyframeManager.clearAll();
+	await keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
 		src: '/bigbuckbunny.mp4',
@@ -16,8 +16,8 @@ test('Should be able to extract a frame', async () => {
 		includeVideo: true,
 		loop: false,
 		audioStreamIndex: 0,
-		endAt: undefined,
-		startFrom: undefined,
+		trimAfter: undefined,
+		trimBefore: undefined,
 		fps: 30,
 	});
 
@@ -54,7 +54,7 @@ test('Should be able to extract a frame', async () => {
 });
 
 test('Should be able to extract the last frame', async () => {
-	await keyframeManager.clearAll();
+	await keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
 		src: '/bigbuckbunny.mp4',
@@ -66,8 +66,8 @@ test('Should be able to extract the last frame', async () => {
 		includeVideo: true,
 		loop: false,
 		audioStreamIndex: 0,
-		endAt: undefined,
-		startFrom: undefined,
+		trimAfter: undefined,
+		trimBefore: undefined,
 		fps: 30,
 	});
 
@@ -95,7 +95,8 @@ test('Should be able to extract the last frame', async () => {
 });
 
 test('Should manage the cache', async () => {
-	await keyframeManager.clearAll();
+	await keyframeManager.clearAll('info');
+
 	for (let i = 0; i < 50; i++) {
 		await extractFrameAndAudio({
 			src: `/bigbuckbunny.mp4?i=${i}`,
@@ -107,8 +108,8 @@ test('Should manage the cache', async () => {
 			includeVideo: true,
 			loop: false,
 			audioStreamIndex: 0,
-			endAt: undefined,
-			startFrom: undefined,
+			trimAfter: undefined,
+			trimBefore: undefined,
 			fps: 30,
 		});
 	}
@@ -119,7 +120,7 @@ test('Should manage the cache', async () => {
 });
 
 test('Should be apply volume correctly', async () => {
-	await keyframeManager.clearAll();
+	await keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
 		src: '/bigbuckbunny.mp4',
@@ -131,8 +132,8 @@ test('Should be apply volume correctly', async () => {
 		includeVideo: false,
 		loop: false,
 		audioStreamIndex: 0,
-		endAt: undefined,
-		startFrom: undefined,
+		trimAfter: undefined,
+		trimBefore: undefined,
 		fps: 30,
 	});
 
@@ -168,7 +169,8 @@ test('Should be apply volume correctly', async () => {
 });
 
 test('Should be able to loop', async () => {
-	await keyframeManager.clearAll();
+	await keyframeManager.clearAll('info');
+
 	const result = await extractFrameAndAudio({
 		src: `/bigbuckbunny.mp4`,
 		timeInSeconds: 10000001,
@@ -179,8 +181,8 @@ test('Should be able to loop', async () => {
 		includeVideo: true,
 		loop: true,
 		audioStreamIndex: 0,
-		endAt: undefined,
-		startFrom: undefined,
+		trimAfter: undefined,
+		trimBefore: undefined,
 		fps: 30,
 	});
 

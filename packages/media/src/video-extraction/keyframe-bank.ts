@@ -5,7 +5,7 @@ export type KeyframeBank = {
 	startTimestampInSeconds: number;
 	endTimestampInSeconds: number;
 	getFrameFromTimestamp: (timestamp: number) => Promise<VideoSample | null>;
-	prepareForDeletion: () => Promise<void>;
+	prepareForDeletion: (logLevel: LogLevel) => Promise<void>;
 	deleteFramesBeforeTimestamp: ({
 		logLevel,
 		src,
@@ -33,11 +33,17 @@ export const makeKeyframeBank = ({
 	startTimestampInSeconds,
 	endTimestampInSeconds,
 	sampleIterator,
+	logLevel: parentLogLevel,
 }: {
 	startTimestampInSeconds: number;
 	endTimestampInSeconds: number;
 	sampleIterator: AsyncGenerator<VideoSample, void, unknown>;
+	logLevel: LogLevel;
 }) => {
+	Internals.Log.verbose(
+		{logLevel: parentLogLevel, tag: '@remotion/media'},
+		`Creating keyframe bank from ${startTimestampInSeconds}sec to ${endTimestampInSeconds}sec`,
+	);
 	const frames: Record<number, VideoSample> = {};
 	const frameTimestamps: number[] = [];
 
@@ -134,7 +140,11 @@ export const makeKeyframeBank = ({
 		return (await getFrameFromTimestamp(timestamp)) !== null;
 	};
 
-	const prepareForDeletion = async () => {
+	const prepareForDeletion = async (logLevel: LogLevel) => {
+		Internals.Log.verbose(
+			{logLevel, tag: '@remotion/media'},
+			`Preparing for deletion of keyframe bank from ${startTimestampInSeconds}sec to ${endTimestampInSeconds}sec`,
+		);
 		// Cleanup frames that have been extracted that might not have been retrieved yet
 		const {value} = await sampleIterator.return();
 		if (value) {
@@ -163,7 +173,8 @@ export const makeKeyframeBank = ({
 		logLevel: LogLevel;
 		src: string;
 	}) => {
-		for (const frameTimestamp of frameTimestamps) {
+		const deletedTimestamps = [];
+		for (const frameTimestamp of frameTimestamps.slice()) {
 			const isLast =
 				frameTimestamp === frameTimestamps[frameTimestamps.length - 1];
 			// Don't delete the last frame, since it may be the last one in the video!
@@ -181,12 +192,15 @@ export const makeKeyframeBank = ({
 				frameTimestamps.splice(frameTimestamps.indexOf(frameTimestamp), 1);
 				frames[frameTimestamp].close();
 				delete frames[frameTimestamp];
-
-				Internals.Log.verbose(
-					{logLevel, tag: '@remotion/media'},
-					`Deleted frame ${frameTimestamp} for src ${src}`,
-				);
+				deletedTimestamps.push(frameTimestamp);
 			}
+		}
+
+		if (deletedTimestamps.length > 0) {
+			Internals.Log.verbose(
+				{logLevel, tag: '@remotion/media'},
+				`Deleted frames ${deletedTimestamps.join(', ')} for src ${src} because it is lower than ${timestampInSeconds}. Remaining: ${frameTimestamps}`,
+			);
 		}
 	};
 

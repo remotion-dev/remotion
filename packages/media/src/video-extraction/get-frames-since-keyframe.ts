@@ -9,6 +9,7 @@ import {
 	VideoSampleSink,
 	WEBM,
 } from 'mediabunny';
+import type {LogLevel} from 'remotion';
 import {makeKeyframeBank} from './keyframe-bank';
 import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
 
@@ -130,13 +131,8 @@ export const getSinks = async (src: string) => {
 		getAudio: (index: number) => getAudioSinksPromise(index),
 		actualMatroskaTimestamps: rememberActualMatroskaTimestamps(isMatroska),
 		isMatroska,
-		getDuration: async () => {
-			try {
-				const duration = await input.computeDuration();
-				return duration;
-			} catch {
-				return null;
-			}
+		getDuration: () => {
+			return input.computeDuration();
 		},
 	});
 };
@@ -147,10 +143,12 @@ export const getFramesSinceKeyframe = async ({
 	packetSink,
 	videoSampleSink,
 	startPacket,
+	logLevel,
 }: {
 	packetSink: EncodedPacketSink;
 	videoSampleSink: VideoSampleSink;
 	startPacket: EncodedPacket;
+	logLevel: LogLevel;
 }) => {
 	const nextKeyPacket = await packetSink.getNextKeyPacket(startPacket, {
 		verifyKeyPackets: true,
@@ -165,6 +163,7 @@ export const getFramesSinceKeyframe = async ({
 		startTimestampInSeconds: startPacket.timestamp,
 		endTimestampInSeconds: nextKeyPacket ? nextKeyPacket.timestamp : Infinity,
 		sampleIterator,
+		logLevel,
 	});
 
 	return keyframeBank;

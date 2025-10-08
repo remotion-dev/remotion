@@ -76,9 +76,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	);
 
 	useLayoutEffect(() => {
-		const actualFps = playbackRate ? fps / playbackRate : fps;
-		const timestamp = frame / actualFps;
-		const durationInSeconds = 1 / actualFps;
+		const timestamp = frame / fps;
+		const durationInSeconds = 1 / fps;
 
 		const newHandle = delayRender(`Extracting audio for frame ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
@@ -108,8 +107,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
 			audioStreamIndex: audioStreamIndex ?? 0,
-			endAt: trimAfter,
-			startFrom: trimBefore,
+			trimAfter,
+			trimBefore,
 			fps,
 		})
 			.then((result) => {

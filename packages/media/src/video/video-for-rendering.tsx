@@ -124,11 +124,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			return;
 		}
 
-		const actualFps = playbackRate ? fps / playbackRate : fps;
-		const timestamp = frame / actualFps;
-		const durationInSeconds = 1 / actualFps;
+		const timestamp = frame / fps;
+		const durationInSeconds = 1 / fps;
 
-		const newHandle = delayRender(`Extracting frame number ${frame}`, {
+		const newHandle = delayRender(`Extracting frame at time ${timestamp}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 		});
@@ -156,8 +155,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			isClientSideRendering: environment.isClientSideRendering,
 			loop,
 			audioStreamIndex,
-			endAt: trimAfterValue,
-			startFrom: trimBeforeValue,
+			trimAfter: trimAfterValue,
+			trimBefore: trimBeforeValue,
 			fps,
 		})
 			.then((result) => {
@@ -393,11 +392,11 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				<Loop
 					layout="none"
 					durationInFrames={calculateLoopDuration({
-						endAt: trimAfterValue,
+						trimAfter: trimAfterValue,
 						mediaDurationInFrames:
 							replaceWithOffthreadVideo.durationInSeconds * fps,
 						playbackRate,
-						startFrom: trimBeforeValue,
+						trimBefore: trimBeforeValue,
 					})}
 				>
 					{fallback}
