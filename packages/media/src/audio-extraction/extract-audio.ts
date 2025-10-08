@@ -13,7 +13,7 @@ import {getTimeInSeconds} from '../get-time-in-seconds';
 export const extractAudio = async ({
 	src,
 	timeInSeconds: unloopedTimeInSeconds,
-	durationInSeconds,
+	durationInSeconds: durationNotYetApplyingPlaybackRate,
 	logLevel,
 	loop,
 	playbackRate,
@@ -80,6 +80,8 @@ export const extractAudio = async ({
 		actualMatroskaTimestamps,
 		logLevel,
 	});
+
+	const durationInSeconds = durationNotYetApplyingPlaybackRate / playbackRate;
 
 	const samples = await sampleIterator.getSamples(
 		timeInSeconds,

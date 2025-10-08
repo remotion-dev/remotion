@@ -8,6 +8,7 @@ export const getTimeInSeconds = ({
 	endAt,
 	startFrom,
 	fps,
+	playbackRate,
 }: {
 	loop: boolean;
 	mediaDurationInSeconds: number | null;
@@ -34,7 +35,7 @@ export const getTimeInSeconds = ({
 			}) / fps
 		: Infinity;
 
-	const timeInSeconds = unloopedTimeInSeconds % loopDuration;
+	const timeInSeconds = (unloopedTimeInSeconds / playbackRate) % loopDuration;
 
 	return timeInSeconds + (startFrom ?? 0) / fps;
 };

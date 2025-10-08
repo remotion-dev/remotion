@@ -124,9 +124,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			return;
 		}
 
-		const actualFps = playbackRate ? fps / playbackRate : fps;
-		const timestamp = frame / actualFps;
-		const durationInSeconds = 1 / actualFps;
+		const timestamp = frame / fps;
+		const durationInSeconds = 1 / fps;
 
 		const newHandle = delayRender(`Extracting frame at time ${timestamp}`, {
 			retries: delayRenderRetries ?? undefined,
