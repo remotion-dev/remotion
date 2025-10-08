@@ -9,7 +9,7 @@ const playbackRate = 2;
 const loop = true;
 
 test('when looping with a lot of concurrency, it must be frame-accurate', async () => {
-	const letInputTimestamps = [198, 199, 200, 201, 202];
+	const letInputTimestamps = [197, 198, 199, 200, 201, 202];
 	const realTimestamps = [];
 	const outputTimestamps = [];
 
@@ -29,7 +29,7 @@ test('when looping with a lot of concurrency, it must be frame-accurate', async 
 		const result = await extractFrame({
 			src: 'https://remotion.media/video.mp4',
 			timeInSeconds: timeInFrames / fps,
-			logLevel: 'verbose',
+			logLevel: 'info',
 			loop,
 			trimAfter,
 			trimBefore,
@@ -41,6 +41,8 @@ test('when looping with a lot of concurrency, it must be frame-accurate', async 
 		outputTimestamps.push(result.frame?.timestamp ?? 0);
 	}
 
-	expect(realTimestamps).toEqual([7.96, 7.98, 4, 4.02, 4.04]);
-	expect(outputTimestamps).toEqual([7.96, 7.98, 4, 4.02, 4.04]);
+	expect(realTimestamps).toEqual([
+		7.76, 7.84, 7.92, 4, 4.079999999999998, 4.16,
+	]);
+	expect(outputTimestamps).toEqual([7.76, 7.84, 7.92, 4, 4.08, 4.16]);
 });

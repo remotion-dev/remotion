@@ -35,7 +35,7 @@ export const getTimeInSeconds = ({
 			}) / fps
 		: Infinity;
 
-	const timeInSeconds = (unloopedTimeInSeconds / playbackRate) % loopDuration;
+	const timeInSeconds = (unloopedTimeInSeconds * playbackRate) % loopDuration;
 
 	return timeInSeconds + (trimBefore ?? 0) / fps;
 };
