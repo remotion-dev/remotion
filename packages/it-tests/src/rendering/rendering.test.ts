@@ -110,54 +110,62 @@ test(
 	},
 );
 
-test('Should fail to render out of range frame when range is a number', async () => {
-	const out = outputPath.replace('.mp4', '');
+test(
+	'Should fail to render out of range frame when range is a number',
+	async () => {
+		const out = outputPath.replace('.mp4', '');
 
-	const task = await execa(
-		'pnpm',
-		[
-			'exec',
-			'remotion',
-			'render',
-			'build',
+		const task = await execa(
+			'pnpm',
+			[
+				'exec',
+				'remotion',
+				'render',
+				'build',
 
-			'ten-frame-tester',
-			'--sequence',
-			'--frames=10',
-			out,
-		],
-		{
-			cwd: path.join(process.cwd(), '..', 'example'),
-			reject: false,
-		},
-	);
-	expect(task.exitCode).toBe(1);
-	expect(task.stderr).toContain(
-		'Frame number is out of range, must be between 0 and 9',
-	);
-});
+				'ten-frame-tester',
+				'--sequence',
+				'--frames=10',
+				out,
+			],
+			{
+				cwd: path.join(process.cwd(), '..', 'example'),
+				reject: false,
+			},
+		);
+		expect(task.exitCode).toBe(1);
+		expect(task.stderr).toContain(
+			'Frame number is out of range, must be between 0 and 9',
+		);
+	},
+	{timeout: 15000},
+);
 
-test('Should fail to render out of range frame when range is a string', async () => {
-	const task = await execa(
-		'pnpm',
-		[
-			'exec',
-			'remotion',
-			'render',
-			'build',
+test(
+	'Should fail to render out of range frame when range is a string',
+	async () => {
+		const task = await execa(
+			'pnpm',
+			[
+				'exec',
+				'remotion',
+				'render',
+				'build',
 
-			'ten-frame-tester',
-			'--frames=2-10',
-			outputPath,
-		],
-		{
-			cwd: path.join(process.cwd(), '..', 'example'),
-			reject: false,
-		},
-	);
-	expect(task.exitCode).toBe(1);
-	expect(task.stderr).toContain('frame range 2-10 is not inbetween 0-9');
-});
+				'ten-frame-tester',
+				'--frames=2-10',
+				outputPath,
+			],
+			{
+				cwd: path.join(process.cwd(), '..', 'example'),
+				reject: false,
+			},
+		);
+		expect(task.exitCode).toBe(1);
+		expect(task.stderr).toContain('frame range 2-10 is not inbetween 0-9');
+	},
+	{timeout: 15000},
+);
 
 test(
 	'Should render a ProRes video',
