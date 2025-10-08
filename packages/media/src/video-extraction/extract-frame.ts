@@ -31,25 +31,23 @@ const getTimeInSeconds = ({
 	playbackRate: number;
 	fps: number;
 }) => {
-	if (!loop) {
-		return unloopedTimeinSeconds;
-	}
-
 	if (mediaDurationInSeconds === null) {
 		throw new Error(
 			`Could not determine duration of ${src}, but "loop" was set.`,
 		);
 	}
 
-	const loopDuration =
-		Internals.calculateLoopDuration({
-			endAt,
-			mediaDurationInFrames: mediaDurationInSeconds * fps,
-			playbackRate,
-			startFrom,
-		}) / fps;
+	const loopDuration = loop
+		? Internals.calculateLoopDuration({
+				endAt,
+				mediaDurationInFrames: mediaDurationInSeconds * fps,
+				playbackRate,
+				startFrom,
+			}) / fps
+		: Infinity;
 
 	const timeInSeconds = unloopedTimeinSeconds % loopDuration;
+
 	return timeInSeconds + (startFrom ?? 0) / fps;
 };
 
@@ -106,6 +104,10 @@ export const extractFrame = async ({
 		startFrom,
 		fps,
 	});
+	Internals.Log.info(
+		{logLevel, tag: '@remotion/media'},
+		`Extracting frame at ${timeInSeconds}`,
+	);
 
 	const keyframeBank = await keyframeManager.requestKeyframeBank({
 		packetSink: video.packetSink,
