@@ -1,5 +1,5 @@
 import type {VideoSample} from 'mediabunny';
-import {type LogLevel} from 'remotion';
+import {Internals, type LogLevel} from 'remotion';
 import {keyframeManager} from '../caches';
 import {getSinkWeak} from '../get-sink-weak';
 
@@ -12,16 +12,63 @@ type ExtractFrameResult =
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
 	| {type: 'unknown-container-format'};
 
+const getTimeInSeconds = ({
+	loop,
+	mediaDurationInSeconds,
+	unloopedTimeinSeconds,
+	src,
+	endAt,
+	startFrom,
+	playbackRate,
+	fps,
+}: {
+	loop: boolean;
+	mediaDurationInSeconds: number | null;
+	unloopedTimeinSeconds: number;
+	src: string;
+	endAt: number | undefined;
+	startFrom: number | undefined;
+	playbackRate: number;
+	fps: number;
+}) => {
+	if (mediaDurationInSeconds === null) {
+		throw new Error(
+			`Could not determine duration of ${src}, but "loop" was set.`,
+		);
+	}
+
+	const loopDuration = loop
+		? Internals.calculateLoopDuration({
+				endAt,
+				mediaDurationInFrames: mediaDurationInSeconds * fps,
+				playbackRate,
+				startFrom,
+			}) / fps
+		: Infinity;
+
+	const timeInSeconds = unloopedTimeinSeconds % loopDuration;
+
+	return timeInSeconds + (startFrom ?? 0) / fps;
+};
+
 export const extractFrame = async ({
 	src,
 	timeInSeconds: unloopedTimeinSeconds,
 	logLevel,
 	loop,
+	endAt,
+	startFrom,
+	playbackRate,
+	fps,
 }: {
 	src: string;
 	timeInSeconds: number;
 	logLevel: LogLevel;
 	loop: boolean;
+	endAt: number | undefined;
+	startFrom: number | undefined;
+	playbackRate: number;
+	fps: number;
 }): Promise<ExtractFrameResult> => {
 	const sink = await getSinkWeak(src, logLevel);
 
@@ -39,17 +86,24 @@ export const extractFrame = async ({
 		return {type: 'unknown-container-format'};
 	}
 
-	const durationInSeconds = await sink.getDuration();
+	const mediaDurationInSeconds = await sink.getDuration();
 
-	if (loop && durationInSeconds === null) {
+	if (loop && mediaDurationInSeconds === null) {
 		throw new Error(
 			`Could not determine duration of ${src}, but "loop" was set.`,
 		);
 	}
 
-	const timeInSeconds = loop
-		? unloopedTimeinSeconds % durationInSeconds!
-		: unloopedTimeinSeconds;
+	const timeInSeconds = getTimeInSeconds({
+		loop,
+		mediaDurationInSeconds,
+		unloopedTimeinSeconds,
+		src,
+		endAt,
+		playbackRate,
+		startFrom,
+		fps,
+	});
 
 	const keyframeBank = await keyframeManager.requestKeyframeBank({
 		packetSink: video.packetSink,

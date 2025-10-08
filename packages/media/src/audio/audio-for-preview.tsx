@@ -1,13 +1,6 @@
-import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
-import {
-	Internals,
-	Loop,
-	useBufferState,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {Internals, useBufferState, useCurrentFrame} from 'remotion';
 import {MediaPlayer} from '../video/media-player';
 
 const {
@@ -20,8 +13,8 @@ const {
 	evaluateVolume,
 	warnAboutTooHighVolume,
 	usePreload,
-	useLogLevel,
-	calculateLoopDuration,
+	useMediaInTimeline,
+	SequenceContext,
 } = Internals;
 
 type NewAudioForPreviewProps = {
@@ -31,6 +24,12 @@ type NewAudioForPreviewProps = {
 	readonly muted: boolean;
 	readonly volume: VolumeProp;
 	readonly loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
+	readonly loop: boolean;
+	readonly trimAfter: number | undefined;
+	readonly trimBefore: number | undefined;
+	readonly name: string | undefined;
+	readonly showInTimeline: boolean;
+	readonly stack: string | null;
 };
 
 const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
@@ -40,6 +39,12 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 	muted,
 	volume,
 	loopVolumeCurveBehavior,
+	loop,
+	trimAfter,
+	trimBefore,
+	name,
+	showInTimeline,
+	stack,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
@@ -77,12 +82,30 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		throw new TypeError('No `src` was passed to <NewAudioForPreview>.');
 	}
 
-	const actualFps = videoConfig.fps / playbackRate;
-	const currentTime = frame / actualFps;
+	const currentTime = frame / videoConfig.fps;
 
-	const [initialTimestamp] = useState(currentTime);
+	const currentTimeRef = useRef(currentTime);
+	currentTimeRef.current = currentTime;
 
 	const preloadedSrc = usePreload(src);
+
+	const [timelineId] = useState(() => String(Math.random()));
+
+	const parentSequence = useContext(SequenceContext);
+
+	useMediaInTimeline({
+		volume,
+		mediaVolume,
+		mediaType: 'audio',
+		src,
+		playbackRate,
+		displayName: name ?? null,
+		id: timelineId,
+		stack,
+		showInTimeline,
+		premountDisplay: parentSequence?.premountDisplay ?? null,
+		postmountDisplay: parentSequence?.postmountDisplay ?? null,
+	});
 
 	useEffect(() => {
 		if (!sharedAudioContext) return;
@@ -93,12 +116,19 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 				src: preloadedSrc,
 				logLevel,
 				sharedAudioContext: sharedAudioContext.audioContext,
+				loop,
+				trimAfterSeconds: trimAfter ? trimAfter / videoConfig.fps : undefined,
+				trimBeforeSeconds: trimBefore
+					? trimBefore / videoConfig.fps
+					: undefined,
+				canvas: null,
+				playbackRate,
 			});
 
 			mediaPlayerRef.current = player;
 
 			player
-				.initialize(initialTimestamp)
+				.initialize(currentTimeRef.current)
 				.then(() => {
 					setMediaPlayerReady(true);
 					Internals.Log.trace(
@@ -138,7 +168,17 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 
 			setMediaPlayerReady(false);
 		};
-	}, [preloadedSrc, logLevel, sharedAudioContext, initialTimestamp]);
+	}, [
+		preloadedSrc,
+		logLevel,
+		sharedAudioContext,
+		currentTimeRef,
+		loop,
+		trimAfter,
+		trimBefore,
+		playbackRate,
+		videoConfig.fps,
+	]);
 
 	useEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;
@@ -219,108 +259,10 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 			return;
 		}
 
-		audioPlayer.setPlaybackRate(effectivePlaybackRate).catch((error) => {
-			Internals.Log.error(
-				{logLevel, tag: '@remotion/media'},
-				'[NewAudioForPreview] Failed to set playback rate',
-				error,
-			);
-		});
+		audioPlayer.setPlaybackRate(effectivePlaybackRate);
 	}, [effectivePlaybackRate, mediaPlayerReady, logLevel]);
 
 	return null;
-};
-
-interface AudioForPreviewWithDurationProps {
-	readonly durationInSeconds: number | null;
-	readonly src: string;
-	readonly playbackRate: number;
-	readonly logLevel: LogLevel;
-	readonly muted: boolean;
-	readonly volume: VolumeProp;
-	readonly loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
-	readonly loop: boolean;
-	readonly name: string | undefined;
-	readonly trimAfter: number | undefined;
-	readonly trimBefore: number | undefined;
-}
-
-const AudioForPreviewWithDuration: React.FC<
-	AudioForPreviewWithDurationProps
-> = ({
-	durationInSeconds,
-	logLevel,
-	loopVolumeCurveBehavior,
-	muted,
-	playbackRate,
-	src,
-	volume,
-	loop,
-	name,
-	trimAfter,
-	trimBefore,
-}) => {
-	const {fps} = useVideoConfig();
-
-	if (loop) {
-		if (!Number.isFinite(durationInSeconds) || durationInSeconds === null) {
-			return (
-				<AudioForPreviewWithDuration
-					loop={false}
-					durationInSeconds={durationInSeconds}
-					logLevel={logLevel}
-					loopVolumeCurveBehavior={loopVolumeCurveBehavior}
-					muted={muted}
-					playbackRate={playbackRate}
-					src={src}
-					volume={volume}
-					name={name}
-					trimAfter={trimAfter}
-					trimBefore={trimBefore}
-				/>
-			);
-		}
-
-		const mediaDuration = durationInSeconds * fps;
-
-		return (
-			<Loop
-				durationInFrames={calculateLoopDuration({
-					endAt: trimAfter,
-					mediaDuration,
-					playbackRate: playbackRate ?? 1,
-					startFrom: trimBefore,
-				})}
-				layout="none"
-				name={name}
-			>
-				<AudioForPreviewWithDuration
-					loop={false}
-					durationInSeconds={durationInSeconds}
-					logLevel={logLevel}
-					loopVolumeCurveBehavior={loopVolumeCurveBehavior}
-					muted={muted}
-					playbackRate={playbackRate}
-					src={src}
-					volume={volume}
-					name={name}
-					trimAfter={trimAfter}
-					trimBefore={trimBefore}
-				/>
-			</Loop>
-		);
-	}
-
-	return (
-		<NewAudioForPreview
-			src={src}
-			playbackRate={playbackRate}
-			logLevel={logLevel}
-			muted={muted}
-			volume={volume}
-			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
-		/>
-	);
 };
 
 type InnerAudioProps = {
@@ -341,80 +283,41 @@ type InnerAudioProps = {
 	readonly pauseWhenBuffering?: boolean;
 	readonly _remotionInternalNeedsDurationCalculation?: boolean;
 	readonly showInTimeline?: boolean;
+	readonly trimAfter?: number | undefined;
+	readonly trimBefore?: number | undefined;
+	readonly stack: string | null;
 };
 
 export const AudioForPreview: React.FC<InnerAudioProps> = ({
-	loop = false,
+	loop,
 	src,
-	logLevel: logLevelProp,
-	muted = false,
+	logLevel,
+	muted,
 	name,
-	volume = 1,
-	loopVolumeCurveBehavior = 'repeat',
-	playbackRate = 1,
+	volume,
+	loopVolumeCurveBehavior,
+	playbackRate,
+	trimAfter,
+	trimBefore,
+	showInTimeline,
+	stack,
 }) => {
-	const logLevel = useLogLevel() ?? logLevelProp ?? 'info';
 	const preloadedSrc = usePreload(src);
 
-	const [durationInSeconds, setDurationInSeconds] = useState<number | null>(
-		null,
-	);
-
-	useEffect(() => {
-		if (!loop) {
-			return;
-		}
-
-		let cancelled = false;
-
-		const computeDuration = async () => {
-			const urlSource = new UrlSource(preloadedSrc);
-			const input = new Input({
-				source: urlSource,
-				formats: ALL_FORMATS,
-			});
-
-			try {
-				const duration = await input.computeDuration();
-
-				if (!cancelled) {
-					setDurationInSeconds(duration);
-				}
-			} catch (error) {
-				Internals.Log.error(
-					{logLevel, tag: '@remotion/media'},
-					'[AudioForPreview] Failed to compute duration',
-					error,
-				);
-			} finally {
-				input.dispose();
-			}
-		};
-
-		computeDuration();
-
-		return () => {
-			cancelled = true;
-		};
-	}, [loop, preloadedSrc, logLevel]);
-
-	if (loop && durationInSeconds === null) {
-		return null;
-	}
-
 	return (
-		<AudioForPreviewWithDuration
-			durationInSeconds={durationInSeconds}
-			logLevel={logLevel}
-			muted={muted}
-			playbackRate={playbackRate}
-			src={src}
-			volume={volume}
+		<NewAudioForPreview
+			src={preloadedSrc}
+			playbackRate={playbackRate ?? 1}
+			logLevel={logLevel ?? window.remotion_logLevel}
+			muted={muted ?? false}
+			volume={volume ?? 1}
+			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
+			loop={loop ?? false}
+			trimAfter={trimAfter}
+			trimBefore={trimBefore}
 			name={name}
-			trimAfter={undefined}
-			trimBefore={undefined}
-			loop={loop}
-			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
+			showInTimeline={showInTimeline ?? true}
+			stack={stack}
 		/>
 	);
 };

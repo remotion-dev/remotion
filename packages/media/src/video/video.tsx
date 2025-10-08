@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals, Sequence, useRemotionEnvironment} from 'remotion';
+import {Internals, useRemotionEnvironment} from 'remotion';
 import type {InnerVideoProps, VideoProps} from './props';
 import {VideoForPreview} from './video-for-preview';
 import {VideoForRendering} from './video-for-rendering';
@@ -26,9 +26,9 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 	trimAfter,
 	trimBefore,
 	volume,
-	showInTimeline,
 	stack,
 	toneFrequency,
+	showInTimeline,
 }) => {
 	const environment = useRemotionEnvironment();
 
@@ -53,45 +53,6 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 		trimBefore,
 		trimAfter,
 	});
-
-	if (
-		typeof trimBeforeValue !== 'undefined' ||
-		typeof trimAfterValue !== 'undefined'
-	) {
-		return (
-			<Sequence
-				layout="none"
-				from={0 - (trimBeforeValue ?? 0)}
-				showInTimeline={false}
-				durationInFrames={trimAfterValue}
-				name={name}
-			>
-				<InnerVideo
-					audioStreamIndex={audioStreamIndex}
-					className={className}
-					delayRenderRetries={delayRenderRetries}
-					delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-					disallowFallbackToOffthreadVideo={disallowFallbackToOffthreadVideo}
-					name={name}
-					fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
-					logLevel={logLevel}
-					loop={loop}
-					loopVolumeCurveBehavior={loopVolumeCurveBehavior}
-					muted={muted}
-					onVideoFrame={onVideoFrame}
-					playbackRate={playbackRate}
-					src={src}
-					stack={stack}
-					style={style}
-					volume={volume}
-					trimAfter={undefined}
-					trimBefore={undefined}
-					showInTimeline={showInTimeline}
-					toneFrequency={toneFrequency}
-				/>
-			</Sequence>
-		);
-	}
 
 	validateMediaProps({playbackRate, volume}, 'Video');
 
@@ -139,6 +100,10 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 			src={src}
 			style={style}
 			volume={volume}
+			showInTimeline={showInTimeline}
+			trimAfter={trimAfterValue}
+			trimBefore={trimBeforeValue}
+			stack={stack ?? null}
 		/>
 	);
 };

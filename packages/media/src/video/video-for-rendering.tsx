@@ -156,6 +156,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			isClientSideRendering: environment.isClientSideRendering,
 			loop,
 			audioStreamIndex,
+			endAt: trimAfterValue,
+			startFrom: trimBeforeValue,
+			fps,
 		})
 			.then((result) => {
 				if (result.type === 'unknown-container-format') {
@@ -326,6 +329,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		audioStreamIndex,
 		disallowFallbackToOffthreadVideo,
 		toneFrequency,
+		trimAfterValue,
+		trimBeforeValue,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -335,7 +340,6 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	}, [className]);
 
 	if (replaceWithOffthreadVideo) {
-		// TODO: Loop and other props
 		const fallback = (
 			<Internals.InnerOffthreadVideo
 				src={src}

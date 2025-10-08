@@ -31,6 +31,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	name,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
+	trimAfter,
+	trimBefore,
 }) => {
 	const frame = useCurrentFrame();
 	const absoluteFrame = Internals.useTimelinePosition();
@@ -106,6 +108,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
 			audioStreamIndex: audioStreamIndex ?? 0,
+			endAt: trimAfter,
+			startFrom: trimBefore,
+			fps,
 		})
 			.then((result) => {
 				if (result.type === 'unknown-container-format') {
@@ -225,6 +230,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		volumeProp,
 		audioStreamIndex,
 		toneFrequency,
+		trimAfter,
+		trimBefore,
 	]);
 
 	if (replaceWithHtml5Audio) {

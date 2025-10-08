@@ -8,7 +8,16 @@ console.time('Generated.');
 const output = await build({
 	entrypoints: ['src/index.ts'],
 	naming: '[name].mjs',
-	external: ['remotion', 'react', 'react-dom', 'mediabunny'],
+	external: [
+		'remotion',
+		'remotion/no-react',
+		'react',
+		'react/jsx-runtime',
+		'react/jsx-runtime',
+		'react/jsx-dev-runtime',
+		'react-dom',
+		'mediabunny',
+	],
 });
 
 if (!output.success) {

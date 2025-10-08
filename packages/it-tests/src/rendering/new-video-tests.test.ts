@@ -31,7 +31,7 @@ test(
 	},
 );
 
-//playback rate, enusure no frames are missed
+//playback rate, ensure no frames are missed
 
 test(
 	'should render frames with correct playback speed - MP4 codec video',
