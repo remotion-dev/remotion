@@ -19,7 +19,7 @@ export const getTimeInSeconds = ({
 	playbackRate: number;
 	fps: number;
 }) => {
-	if (mediaDurationInSeconds === null) {
+	if (mediaDurationInSeconds === null && loop) {
 		throw new Error(
 			`Could not determine duration of ${src}, but "loop" was set.`,
 		);
@@ -28,7 +28,7 @@ export const getTimeInSeconds = ({
 	const loopDuration = loop
 		? Internals.calculateLoopDuration({
 				endAt,
-				mediaDurationInFrames: mediaDurationInSeconds * fps,
+				mediaDurationInFrames: mediaDurationInSeconds! * fps,
 				// Playback rate was already specified before
 				playbackRate: 1,
 				startFrom,
