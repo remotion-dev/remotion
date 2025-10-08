@@ -372,7 +372,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		};
 	}, [onVideoFrame, mediaPlayerReady]);
 
-	if (shouldFallbackToNativeVideo) {
+	if (shouldFallbackToNativeVideo && !disallowFallbackToOffthreadVideo) {
 		// <Video> will fallback to <VideoForPreview> anyway
 		// not using <OffthreadVideo> because it does not support looping
 		return (
