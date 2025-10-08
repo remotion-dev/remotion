@@ -81,7 +81,7 @@ export const extractAudio = async ({
 		logLevel,
 	});
 
-	const durationInSeconds = durationNotYetApplyingPlaybackRate / playbackRate;
+	const durationInSeconds = durationNotYetApplyingPlaybackRate * playbackRate;
 
 	const samples = await sampleIterator.getSamples(
 		timeInSeconds,
