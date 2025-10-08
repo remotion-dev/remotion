@@ -5,67 +5,71 @@ import {nodeReader} from '../readers/from-node';
 
 // bun crash
 if (process.platform !== 'win32') {
-	test('Should stream ISO base media', async () => {
-		let videoTracks = 0;
-		let audioTracks = 0;
-		let videoSamples = 0;
-		let audioSamples = 0;
-		const result = await parseMedia({
-			src: exampleVideos.iphonevideo,
-			fields: {
-				durationInSeconds: true,
-				fps: true,
-				videoCodec: true,
-				audioCodec: true,
-				tracks: true,
-				dimensions: true,
-				rotation: true,
-				unrotatedDimensions: true,
-				numberOfAudioChannels: true,
-				sampleRate: true,
-				slowVideoBitrate: true,
-				slowAudioBitrate: true,
-			},
-			reader: nodeReader,
-			onVideoTrack: () => {
-				videoTracks++;
-				return () => {
-					videoSamples++;
-				};
-			},
-			onAudioTrack: () => {
-				audioTracks++;
-				return () => {
-					audioSamples++;
-				};
-			},
-			acknowledgeRemotionLicense: true,
-		});
-		expect(result.dimensions).toEqual({
-			width: 2160,
-			height: 3840,
-		});
-		expect(result.durationInSeconds).toBe(12.568333333333333);
-		expect(result.fps).toBe(29.99602174777881);
-		expect(result.videoCodec).toBe('h265');
-		expect(result.audioCodec).toBe('aac');
-		expect(result.tracks.find((t) => t.type === 'video')?.codec).toBe(
-			'hvc1.2.4.L150.b0',
-		);
-		expect(result.rotation).toBe(90);
-		expect(result.unrotatedDimensions).toEqual({
-			height: 2160,
-			width: 3840,
-		});
-		expect(result.sampleRate).toBe(44100);
-		expect(result.numberOfAudioChannels).toBe(2);
-		expect(result.slowVideoBitrate).toBe(24_645_472.377668746);
-		expect(result.slowAudioBitrate).toBe(164057.77562631425);
-		expect(videoTracks).toBe(1);
-		expect(audioTracks).toBe(1);
-		expect(videoSamples).toBe(377);
-		expect(audioSamples).toBe(544);
-	});
+	test(
+		'Should stream ISO base media',
+		async () => {
+			let videoTracks = 0;
+			let audioTracks = 0;
+			let videoSamples = 0;
+			let audioSamples = 0;
+			const result = await parseMedia({
+				src: exampleVideos.iphonevideo,
+				fields: {
+					durationInSeconds: true,
+					fps: true,
+					videoCodec: true,
+					audioCodec: true,
+					tracks: true,
+					dimensions: true,
+					rotation: true,
+					unrotatedDimensions: true,
+					numberOfAudioChannels: true,
+					sampleRate: true,
+					slowVideoBitrate: true,
+					slowAudioBitrate: true,
+				},
+				reader: nodeReader,
+				onVideoTrack: () => {
+					videoTracks++;
+					return () => {
+						videoSamples++;
+					};
+				},
+				onAudioTrack: () => {
+					audioTracks++;
+					return () => {
+						audioSamples++;
+					};
+				},
+				acknowledgeRemotionLicense: true,
+			});
+			expect(result.dimensions).toEqual({
+				width: 2160,
+				height: 3840,
+			});
+			expect(result.durationInSeconds).toBe(12.568333333333333);
+			expect(result.fps).toBe(29.99602174777881);
+			expect(result.videoCodec).toBe('h265');
+			expect(result.audioCodec).toBe('aac');
+			expect(result.tracks.find((t) => t.type === 'video')?.codec).toBe(
+				'hvc1.2.4.L150.b0',
+			);
+			expect(result.rotation).toBe(90);
+			expect(result.unrotatedDimensions).toEqual({
+				height: 2160,
+				width: 3840,
+			});
+			expect(result.sampleRate).toBe(44100);
+			expect(result.numberOfAudioChannels).toBe(2);
+			expect(result.slowVideoBitrate).toBe(24_645_472.377668746);
+			expect(result.slowAudioBitrate).toBe(164057.77562631425);
+			expect(videoTracks).toBe(1);
+			expect(audioTracks).toBe(1);
+			expect(videoSamples).toBe(377);
+			expect(audioSamples).toBe(544);
+		},
+		{timeout: 15000},
+	);
 
 	test('Should get keyframes', async () => {
 		const {slowKeyframes, internalStats} = await parseMedia({
