@@ -28,6 +28,7 @@ export const makeAudioCache = () => {
 
 	const deleteAll = () => {
 		for (const timestamp of timestamps) {
+			samples[timestamp].close();
 			delete samples[timestamp];
 		}
 

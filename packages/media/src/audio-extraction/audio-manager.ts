@@ -1,5 +1,5 @@
 import type {AudioSampleSink} from 'mediabunny';
-import type {LogLevel} from 'remotion';
+import {Internals, type LogLevel} from 'remotion';
 import {
 	getMaxVideoCacheSize,
 	getTotalCacheStats,
@@ -55,11 +55,30 @@ export const makeAudioManager = () => {
 		return mostInThePastIterator;
 	};
 
-	const deleteOldestIterator = async () => {
+	const deleteOldestIterator = () => {
 		const iterator = getIteratorMostInThePast();
 		if (iterator) {
-			await iterator.prepareForDeletion();
+			iterator.prepareForDeletion();
 			iterators.splice(iterators.indexOf(iterator), 1);
+		}
+	};
+
+	const deleteDuplicateIterators = (logLevel: LogLevel) => {
+		const seenKeys = new Set<string>();
+		for (let i = 0; i < iterators.length; i++) {
+			const iterator = iterators[i];
+			const key = `${iterator.src}-${iterator.getOldestTimestamp()}-${iterator.getNewestTimestamp()}`;
+
+			if (seenKeys.has(key)) {
+				iterator.prepareForDeletion();
+				iterators.splice(iterators.indexOf(iterator), 1);
+				Internals.Log.verbose(
+					{logLevel, tag: '@remotion/media'},
+					`Deleted duplicate iterator for ${iterator.src}`,
+				);
+			}
+
+			seenKeys.add(key);
 		}
 	};
 
@@ -80,7 +99,7 @@ export const makeAudioManager = () => {
 	}) => {
 		const maxCacheSize = getMaxVideoCacheSize(logLevel);
 		while ((await getTotalCacheStats()).totalSize > maxCacheSize) {
-			await deleteOldestIterator();
+			deleteOldestIterator();
 		}
 
 		for (const iterator of iterators) {
@@ -101,13 +120,16 @@ export const makeAudioManager = () => {
 			}
 		}
 
-		for (const iterator of iterators) {
-			// delete iterator with same starting timestamp
+		for (let i = 0; i < iterators.length; i++) {
+			const iterator = iterators[i];
+			// delete iterator with same starting timestamp as requested
 			if (iterator.src === src && iterator.startTimestamp === timeInSeconds) {
-				await iterator.prepareForDeletion();
+				iterator.prepareForDeletion();
 				iterators.splice(iterators.indexOf(iterator), 1);
 			}
 		}
+
+		deleteDuplicateIterators(logLevel);
 
 		return makeIterator({
 			src,
@@ -170,5 +192,6 @@ export const makeAudioManager = () => {
 		getCacheStats,
 		getIteratorMostInThePast,
 		logOpenFrames,
+		deleteDuplicateIterators,
 	};
 };

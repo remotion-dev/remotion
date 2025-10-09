@@ -174,12 +174,13 @@ export const makeAudioIterator = ({
 		);
 	};
 
-	const prepareForDeletion = async () => {
+	const prepareForDeletion = () => {
 		cache.deleteAll();
-		const {value} = await sampleIterator.return();
-		if (value) {
-			value.close();
-		}
+		sampleIterator.return().then((value) => {
+			if (value.value) {
+				value.value.close();
+			}
+		});
 
 		fullDuration = null;
 	};
@@ -203,6 +204,8 @@ export const makeAudioIterator = ({
 		prepareForDeletion,
 		startTimestamp,
 		clearBeforeThreshold: cache.clearBeforeThreshold,
+		getOldestTimestamp: cache.getOldestTimestamp,
+		getNewestTimestamp: cache.getNewestTimestamp,
 	};
 };
 
