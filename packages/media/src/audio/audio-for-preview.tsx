@@ -30,6 +30,7 @@ type NewAudioForPreviewProps = {
 	readonly name: string | undefined;
 	readonly showInTimeline: boolean;
 	readonly stack: string | null;
+	readonly audioStreamIndex: number;
 };
 
 const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
@@ -45,6 +46,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 	name,
 	showInTimeline,
 	stack,
+	audioStreamIndex,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
@@ -123,6 +125,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 					: undefined,
 				canvas: null,
 				playbackRate,
+				audioStreamIndex,
 			});
 
 			mediaPlayerRef.current = player;
@@ -178,6 +181,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		trimBefore,
 		playbackRate,
 		videoConfig.fps,
+		audioStreamIndex,
 	]);
 
 	useEffect(() => {
@@ -286,6 +290,7 @@ type InnerAudioProps = {
 	readonly trimAfter?: number | undefined;
 	readonly trimBefore?: number | undefined;
 	readonly stack: string | null;
+	readonly audioStreamIndex?: number;
 };
 
 export const AudioForPreview: React.FC<InnerAudioProps> = ({
@@ -301,11 +306,13 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	trimBefore,
 	showInTimeline,
 	stack,
+	audioStreamIndex,
 }) => {
 	const preloadedSrc = usePreload(src);
 
 	return (
 		<NewAudioForPreview
+			audioStreamIndex={audioStreamIndex ?? 0}
 			src={preloadedSrc}
 			playbackRate={playbackRate ?? 1}
 			logLevel={logLevel ?? window.remotion_logLevel}

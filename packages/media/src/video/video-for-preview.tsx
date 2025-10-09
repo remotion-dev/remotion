@@ -38,6 +38,7 @@ type NewVideoForPreviewProps = {
 	readonly trimAfter: number | undefined;
 	readonly trimBefore: number | undefined;
 	readonly stack: string | null;
+	readonly audioStreamIndex: number;
 };
 
 const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
@@ -56,6 +57,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	trimAfter,
 	trimBefore,
 	stack,
+	audioStreamIndex,
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const videoConfig = useUnsafeVideoConfig();
@@ -133,6 +135,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 					? trimBefore / videoConfig.fps
 					: undefined,
 				playbackRate,
+				audioStreamIndex,
 			});
 
 			mediaPlayerRef.current = player;
@@ -178,6 +181,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		trimBefore,
 		videoConfig.fps,
 		playbackRate,
+		audioStreamIndex,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -329,6 +333,7 @@ type InnerVideoProps = {
 	readonly trimAfter: number | undefined;
 	readonly trimBefore: number | undefined;
 	readonly stack: string | null;
+	readonly audioStreamIndex: number;
 };
 
 export const VideoForPreview: React.FC<InnerVideoProps> = ({
@@ -347,6 +352,7 @@ export const VideoForPreview: React.FC<InnerVideoProps> = ({
 	trimAfter,
 	trimBefore,
 	stack,
+	audioStreamIndex,
 }) => {
 	const preloadedSrc = usePreload(src);
 
@@ -367,6 +373,7 @@ export const VideoForPreview: React.FC<InnerVideoProps> = ({
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
 			showInTimeline={showInTimeline}
 			stack={stack}
+			audioStreamIndex={audioStreamIndex}
 		/>
 	);
 };
