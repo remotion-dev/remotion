@@ -196,10 +196,22 @@ export const makeKeyframeBank = ({
 			}
 		}
 
+		const renderTimestampRange = (timestamps: number[]): string => {
+			if (timestamps.length === 0) {
+				return '(none)';
+			}
+
+			if (timestamps.length === 1) {
+				return timestamps[0].toFixed(3);
+			}
+
+			return `${timestamps[0].toFixed(3)}...${timestamps[timestamps.length - 1].toFixed(3)}`;
+		};
+
 		if (deletedTimestamps.length > 0) {
 			Internals.Log.verbose(
 				{logLevel, tag: '@remotion/media'},
-				`Deleted frames ${deletedTimestamps.join(', ')} for src ${src} because it is lower than ${timestampInSeconds}. Remaining: ${frameTimestamps}`,
+				`Deleted ${deletedTimestamps.length} frame${deletedTimestamps.length === 1 ? '' : 's'} ${renderTimestampRange(deletedTimestamps)} for src ${src} because it is lower than ${timestampInSeconds}. Remaining: ${renderTimestampRange(frameTimestamps)}`,
 			);
 		}
 	};
