@@ -1,11 +1,13 @@
-import {resampleAudioData} from './resample-audiodata';
+import {
+	resampleAudioData,
+	TARGET_NUMBER_OF_CHANNELS,
+	TARGET_SAMPLE_RATE,
+} from './resample-audiodata';
 
 export type ConvertAudioDataOptions = {
 	audioData: AudioData;
-	newSampleRate: number;
 	trimStartInSeconds: number;
 	trimEndInSeconds: number;
-	targetNumberOfChannels: number;
 	playbackRate: number;
 };
 
@@ -13,26 +15,14 @@ const FORMAT: AudioSampleFormat = 's16';
 
 export type PcmS16AudioData = {
 	data: Int16Array;
-	sampleRate: number;
-	numberOfChannels: number;
 	numberOfFrames: number;
 	timestamp: number;
 };
 
-const roundButRoundDownZeroPointFive = (value: number) => {
-	if (value % 1 <= 0.5) {
-		return Math.floor(value);
-	}
-
-	return Math.ceil(value);
-};
-
 export const convertAudioData = ({
 	audioData,
-	newSampleRate,
 	trimStartInSeconds,
 	trimEndInSeconds,
-	targetNumberOfChannels,
 	playbackRate,
 }: ConvertAudioDataOptions): PcmS16AudioData => {
 	const {
@@ -40,17 +30,22 @@ export const convertAudioData = ({
 		sampleRate: currentSampleRate,
 		numberOfFrames,
 	} = audioData;
-	const ratio = currentSampleRate / newSampleRate;
+	const ratio = currentSampleRate / TARGET_SAMPLE_RATE;
 
-	const frameOffset = roundButRoundDownZeroPointFive(
-		trimStartInSeconds * audioData.sampleRate,
-	);
+	// Always rounding down start timestamps and rounding up end durations
+	// to ensure there are no gaps when the samples don't align
+	// In @remotion/renderer inline audio mixing, we also round down the sample start
+	// timestamp and round up the end timestamp
+	// This might lead to overlapping, hopefully aligning perfectly!
+	// Test case: https://github.com/remotion-dev/remotion/issues/5758
+
+	const frameOffset = Math.floor(trimStartInSeconds * audioData.sampleRate);
 	const unroundedFrameCount =
 		numberOfFrames -
 		(trimEndInSeconds + trimStartInSeconds) * audioData.sampleRate;
 
-	const frameCount = Math.round(unroundedFrameCount);
-	const newNumberOfFrames = Math.round(
+	const frameCount = Math.ceil(unroundedFrameCount);
+	const newNumberOfFrames = Math.ceil(
 		unroundedFrameCount / ratio / playbackRate,
 	);
 
@@ -58,10 +53,6 @@ export const convertAudioData = ({
 		throw new Error(
 			'Cannot resample - the given sample rate would result in less than 1 sample',
 		);
-	}
-
-	if (newSampleRate < 3000 || newSampleRate > 768000) {
-		throw new Error('newSampleRate must be between 3000 and 768000');
 	}
 
 	const srcChannels = new Int16Array(srcNumberOfChannels * frameCount);
@@ -73,20 +64,19 @@ export const convertAudioData = ({
 		frameCount,
 	});
 
-	const data = new Int16Array(newNumberOfFrames * targetNumberOfChannels);
+	const data = new Int16Array(newNumberOfFrames * TARGET_NUMBER_OF_CHANNELS);
 	const chunkSize = frameCount / newNumberOfFrames;
 
 	if (
 		newNumberOfFrames === frameCount &&
-		targetNumberOfChannels === srcNumberOfChannels &&
+		TARGET_NUMBER_OF_CHANNELS === srcNumberOfChannels &&
 		playbackRate === 1
 	) {
 		return {
 			data: srcChannels,
-			numberOfChannels: targetNumberOfChannels,
 			numberOfFrames: newNumberOfFrames,
-			sampleRate: newSampleRate,
-			timestamp: audioData.timestamp + trimStartInSeconds * 1_000_000,
+			timestamp:
+				audioData.timestamp + (frameOffset / audioData.sampleRate) * 1_000_000,
 		};
 	}
 
@@ -98,13 +88,11 @@ export const convertAudioData = ({
 		chunkSize,
 	});
 
-	const newAudioData = {
+	const newAudioData: PcmS16AudioData = {
 		data,
-		format: FORMAT,
-		numberOfChannels: targetNumberOfChannels,
 		numberOfFrames: newNumberOfFrames,
-		sampleRate: newSampleRate,
-		timestamp: audioData.timestamp + trimStartInSeconds * 1_000_000,
+		timestamp:
+			audioData.timestamp + (frameOffset / audioData.sampleRate) * 1_000_000,
 	};
 
 	return newAudioData;

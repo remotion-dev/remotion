@@ -40,14 +40,14 @@ test('Should be able to extract a frame', async () => {
 	expect((frame as VideoFrame).timestamp).toBe(1_000_000);
 
 	assert(audio);
-	expect(audio.sampleRate).toBe(48000);
 
 	// duration = 1 / 30
 	// channels = 2
 	// bits = 16
 	// sampleRate = 48000
 	// 1 / 30 * 2 * 2 * 48000 = 6400
-	expect(audio.data.byteLength).toBe(6400);
+	// we round down start and round up duration
+	expect(audio.data.byteLength).toBe(6404);
 
 	const cacheStats = await keyframeManager.getCacheStats();
 	expect(cacheStats.count).toBe(25);

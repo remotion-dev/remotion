@@ -10,6 +10,7 @@ import {
 	useRemotionEnvironment,
 } from 'remotion';
 import {applyVolume} from '../convert-audiodata/apply-volume';
+import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {AudioProps} from './props';
@@ -187,11 +188,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						type: 'inline-audio',
 						id,
 						audio: Array.from(audio.data),
-						sampleRate: audio.sampleRate,
-						numberOfChannels: audio.numberOfChannels,
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
-						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
+						duration: (audio.numberOfFrames / TARGET_SAMPLE_RATE) * 1_000_000,
 						toneFrequency: toneFrequency ?? 1,
 					});
 				}

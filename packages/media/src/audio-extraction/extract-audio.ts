@@ -3,10 +3,6 @@ import {audioManager} from '../caches';
 import {combineAudioDataAndClosePrevious} from '../convert-audiodata/combine-audiodata';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {convertAudioData} from '../convert-audiodata/convert-audiodata';
-import {
-	TARGET_NUMBER_OF_CHANNELS,
-	TARGET_SAMPLE_RATE,
-} from '../convert-audiodata/resample-audiodata';
 import {getSinkWeak} from '../get-sink-weak';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 
@@ -143,10 +139,8 @@ export const extractAudio = async ({
 
 		const audioData = convertAudioData({
 			audioData: audioDataRaw,
-			newSampleRate: TARGET_SAMPLE_RATE,
 			trimStartInSeconds,
 			trimEndInSeconds,
-			targetNumberOfChannels: TARGET_NUMBER_OF_CHANNELS,
 			playbackRate,
 		});
 		audioDataRaw.close();
