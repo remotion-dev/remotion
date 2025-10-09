@@ -39,7 +39,7 @@ type NewAudioForPreviewProps = {
 	readonly disallowFallbackToHtml5Audio: boolean;
 	readonly toneFrequency: number | undefined;
 	readonly audioStreamIndex: number | undefined;
-	readonly fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
+	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
 };
 
 const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
