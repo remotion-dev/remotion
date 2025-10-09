@@ -1,10 +1,6 @@
 import type {AudioSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
-import {
-	getMaxVideoCacheSize,
-	getTotalCacheStats,
-	SAFE_BACK_WINDOW_IN_SECONDS,
-} from '../caches';
+import {getMaxVideoCacheSize, getTotalCacheStats} from '../caches';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import type {AudioSampleIterator} from './audio-iterator';
 import {makeAudioIterator} from './audio-iterator';
@@ -100,14 +96,6 @@ export const makeAudioManager = () => {
 		const maxCacheSize = getMaxVideoCacheSize(logLevel);
 		while ((await getTotalCacheStats()).totalSize > maxCacheSize) {
 			deleteOldestIterator();
-		}
-
-		for (const iterator of iterators) {
-			if (iterator.src === src) {
-				iterator.clearBeforeThreshold(
-					timeInSeconds - SAFE_BACK_WINDOW_IN_SECONDS,
-				);
-			}
 		}
 
 		for (const iterator of iterators) {

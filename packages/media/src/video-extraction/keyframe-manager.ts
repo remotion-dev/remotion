@@ -271,15 +271,39 @@ export const makeKeyframeManager = () => {
 				const bank =
 					await sources[src][startTimeInSeconds as unknown as number];
 
-				await bank.prepareForDeletion(logLevel);
+				bank.prepareForDeletion(logLevel);
 				delete sources[src][startTimeInSeconds as unknown as number];
 			}
 		}
 	};
 
+	let queue = Promise.resolve<unknown>(undefined);
+
 	return {
-		requestKeyframeBank,
-		addKeyframeBank,
+		requestKeyframeBank: ({
+			packetSink,
+			timestamp,
+			videoSampleSink,
+			src,
+			logLevel,
+		}: {
+			packetSink: EncodedPacketSink;
+			timestamp: number;
+			videoSampleSink: VideoSampleSink;
+			src: string;
+			logLevel: LogLevel;
+		}) => {
+			queue = queue.then(() =>
+				requestKeyframeBank({
+					packetSink,
+					timestamp,
+					videoSampleSink,
+					src,
+					logLevel,
+				}),
+			);
+			return queue as Promise<KeyframeBank | null>;
+		},
 		getCacheStats,
 		clearAll,
 	};
