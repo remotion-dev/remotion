@@ -239,7 +239,7 @@ export const makeInlineAudioMixing = (dir: string) => {
 			(asset.frame - firstFrame) / fps - (isFirst ? 0 : trimLeftOffset);
 
 		const position =
-			Math.round(positionInSeconds * DEFAULT_SAMPLE_RATE) *
+			Math.floor(positionInSeconds * DEFAULT_SAMPLE_RATE) *
 			NUMBER_OF_CHANNELS *
 			BYTES_PER_SAMPLE;
 

@@ -20,14 +20,6 @@ export type PcmS16AudioData = {
 	timestamp: number;
 };
 
-const roundButRoundDownZeroPointFive = (value: number) => {
-	if (value % 1 <= 0.5) {
-		return Math.floor(value);
-	}
-
-	return Math.ceil(value);
-};
-
 export const convertAudioData = ({
 	audioData,
 	trimStartInSeconds,
@@ -41,15 +33,13 @@ export const convertAudioData = ({
 	} = audioData;
 	const ratio = currentSampleRate / TARGET_SAMPLE_RATE;
 
-	const frameOffset = roundButRoundDownZeroPointFive(
-		trimStartInSeconds * audioData.sampleRate,
-	);
+	const frameOffset = Math.floor(trimStartInSeconds * audioData.sampleRate);
 	const unroundedFrameCount =
 		numberOfFrames -
 		(trimEndInSeconds + trimStartInSeconds) * audioData.sampleRate;
 
-	const frameCount = Math.round(unroundedFrameCount);
-	const newNumberOfFrames = Math.round(
+	const frameCount = Math.ceil(unroundedFrameCount);
+	const newNumberOfFrames = Math.ceil(
 		unroundedFrameCount / ratio / playbackRate,
 	);
 
@@ -79,7 +69,8 @@ export const convertAudioData = ({
 		return {
 			data: srcChannels,
 			numberOfFrames: newNumberOfFrames,
-			timestamp: audioData.timestamp + trimStartInSeconds * 1_000_000,
+			timestamp:
+				audioData.timestamp + (frameOffset / audioData.sampleRate) * 1_000_000,
 		};
 	}
 
@@ -94,7 +85,8 @@ export const convertAudioData = ({
 	const newAudioData: PcmS16AudioData = {
 		data,
 		numberOfFrames: newNumberOfFrames,
-		timestamp: audioData.timestamp + trimStartInSeconds * 1_000_000,
+		timestamp:
+			audioData.timestamp + (frameOffset / audioData.sampleRate) * 1_000_000,
 	};
 
 	return newAudioData;
