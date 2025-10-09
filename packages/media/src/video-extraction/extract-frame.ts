@@ -67,6 +67,14 @@ const extractFrameInternal = async ({
 		fps,
 	});
 
+	if (timeInSeconds === null) {
+		return {
+			type: 'success',
+			frame: null,
+			durationInSeconds: await sink.getDuration(),
+		};
+	}
+
 	const keyframeBank = await keyframeManager.requestKeyframeBank({
 		packetSink: video.packetSink,
 		videoSampleSink: video.sampleSink,

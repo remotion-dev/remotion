@@ -72,6 +72,10 @@ const extractAudioInternal = async ({
 		trimBefore,
 		fps,
 	});
+	if (timeInSeconds === null) {
+		return {data: null, durationInSeconds: mediaDurationInSeconds};
+	}
+
 	const sampleIterator = await audioManager.getIterator({
 		src,
 		timeInSeconds,
