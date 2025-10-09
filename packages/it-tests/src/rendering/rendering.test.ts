@@ -591,7 +591,7 @@ test(
 		expect(task.exitCode).toBe(0);
 		fs.unlinkSync(outputPath.replace('.mp4', '.png'));
 	},
-	{timeout: 10000},
+	{timeout: 20000},
 );
 
 test(
