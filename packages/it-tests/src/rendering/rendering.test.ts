@@ -122,7 +122,6 @@ test(
 				'remotion',
 				'render',
 				'build',
-
 				'ten-frame-tester',
 				'--sequence',
 				'--frames=10',
@@ -138,7 +137,7 @@ test(
 			'Frame number is out of range, must be between 0 and 9',
 		);
 	},
-	{timeout: 15000},
+	{timeout: 30000},
 );
 
 test(

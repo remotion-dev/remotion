@@ -13,7 +13,6 @@ test('Should be able to convert audio that is on the verge', () => {
 
 	const spedUp = convertAudioData({
 		audioData: sine,
-		newSampleRate: 48000,
 		trimStartInSeconds: 0.041666666666666664,
 		trimEndInSeconds: 0,
 		playbackRate: 2,
@@ -23,7 +22,7 @@ test('Should be able to convert audio that is on the verge', () => {
 });
 
 test('convert with playbackrate', () => {
-	const sampleRate = 44100;
+	const sampleRate = 48000;
 
 	const sine = generateSine({
 		length: 100,
@@ -45,7 +44,6 @@ test('convert with playbackrate', () => {
 
 	const spedUp = convertAudioData({
 		audioData: sine,
-		newSampleRate: sampleRate,
 		trimStartInSeconds: 0,
 		trimEndInSeconds: 0,
 		playbackRate: 2,

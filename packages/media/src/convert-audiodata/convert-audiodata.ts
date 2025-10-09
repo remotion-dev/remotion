@@ -6,7 +6,6 @@ import {
 
 export type ConvertAudioDataOptions = {
 	audioData: AudioData;
-	newSampleRate: number;
 	trimStartInSeconds: number;
 	trimEndInSeconds: number;
 	playbackRate: number;
