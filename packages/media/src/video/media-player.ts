@@ -20,6 +20,7 @@ export class MediaPlayer {
 	private src: string;
 	private logLevel: LogLevel;
 	private playbackRate: number;
+	private audioStreamIndex: number;
 
 	private canvasSink: CanvasSink | null = null;
 	private videoFrameIterator: AsyncGenerator<
@@ -80,6 +81,7 @@ export class MediaPlayer {
 		trimBeforeSeconds,
 		trimAfterSeconds,
 		playbackRate,
+		audioStreamIndex,
 	}: {
 		canvas: HTMLCanvasElement | null;
 		src: string;
@@ -89,6 +91,7 @@ export class MediaPlayer {
 		trimBeforeSeconds: number | undefined;
 		trimAfterSeconds: number | undefined;
 		playbackRate: number;
+		audioStreamIndex?: number;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -98,6 +101,7 @@ export class MediaPlayer {
 		this.loop = loop;
 		this.trimBeforeSeconds = trimBeforeSeconds;
 		this.trimAfterSeconds = trimAfterSeconds;
+		this.audioStreamIndex = audioStreamIndex ?? 0;
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
@@ -140,12 +144,14 @@ export class MediaPlayer {
 
 			this.input = input;
 
-			const [duration, videoTrack, audioTrack] = await Promise.all([
+			const [duration, videoTrack, audioTracks] = await Promise.all([
 				input.computeDuration(),
 				input.getPrimaryVideoTrack(),
-				input.getPrimaryAudioTrack(),
+				input.getAudioTracks(),
 			]);
 			this.totalDuration = duration;
+
+			const audioTrack = audioTracks[this.audioStreamIndex] ?? null;
 
 			if (!videoTrack && !audioTrack) {
 				throw new Error(`No video or audio track found for ${this.src}`);
