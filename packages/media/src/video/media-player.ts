@@ -91,7 +91,7 @@ export class MediaPlayer {
 		trimBeforeSeconds: number | undefined;
 		trimAfterSeconds: number | undefined;
 		playbackRate: number;
-		audioStreamIndex?: number;
+		audioStreamIndex: number;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
