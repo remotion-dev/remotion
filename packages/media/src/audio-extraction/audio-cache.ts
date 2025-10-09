@@ -63,6 +63,10 @@ export const makeAudioCache = () => {
 	};
 
 	const getNewestTimestamp = () => {
+		if (timestamps.length === 0) {
+			return null;
+		}
+
 		const sample = samples[timestamps[timestamps.length - 1]];
 		return sample.timestamp + sample.duration;
 	};

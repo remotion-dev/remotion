@@ -65,7 +65,7 @@ export const makeAudioIterator = ({
 
 		const {value: sample, done} = await sampleIterator.next();
 		if (done) {
-			fullDuration = cache.getNewestTimestamp() ?? null;
+			fullDuration = cache.getNewestTimestamp();
 			return null;
 		}
 
@@ -102,6 +102,13 @@ export const makeAudioIterator = ({
 			timestamp,
 			durationInSeconds,
 		);
+
+		const newestTimestamp = cache.getNewestTimestamp();
+		if (newestTimestamp !== null) {
+			if (newestTimestamp >= timestamp + durationInSeconds - 0.0000000001) {
+				return samples;
+			}
+		}
 
 		while (true) {
 			const sample = await getNextSample();
