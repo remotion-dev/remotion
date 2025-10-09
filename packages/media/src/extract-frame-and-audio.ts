@@ -1,5 +1,6 @@
 import type {LogLevel} from 'remotion';
 import {extractAudio} from './audio-extraction/extract-audio';
+import {isNetworkError} from './is-network-error';
 import {extractFrame} from './video-extraction/extract-frame';
 import type {ExtractFrameViaBroadcastChannelResult} from './video-extraction/extract-frame-via-broadcast-channel';
 
@@ -99,14 +100,7 @@ export const extractFrameAndAudio = async ({
 		};
 	} catch (err) {
 		const error = err as Error;
-		if (
-			// Chrome
-			error.message.includes('Failed to fetch') ||
-			// Safari
-			error.message.includes('Load failed') ||
-			// Firefox
-			error.message.includes('NetworkError when attempting to fetch resource')
-		) {
+		if (isNetworkError(error)) {
 			return {type: 'network-error'};
 		}
 

@@ -5,8 +5,9 @@ import type {
 	OnVideoFrame,
 	VolumeProp,
 } from 'remotion';
-import {Internals, useBufferState, useCurrentFrame} from 'remotion';
+import {Internals, useBufferState, useCurrentFrame, Video} from 'remotion';
 import {MediaPlayer} from './media-player';
+import type {FallbackOffthreadVideoProps} from './props';
 
 const {
 	useUnsafeVideoConfig,
@@ -38,6 +39,8 @@ type NewVideoForPreviewProps = {
 	readonly trimAfter: number | undefined;
 	readonly trimBefore: number | undefined;
 	readonly stack: string | null;
+	readonly disallowFallbackToOffthreadVideo: boolean;
+	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 	readonly audioStreamIndex: number;
 };
 
@@ -57,6 +60,8 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	trimAfter,
 	trimBefore,
 	stack,
+	disallowFallbackToOffthreadVideo,
+	fallbackOffthreadVideoProps,
 	audioStreamIndex,
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -65,6 +70,8 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
+		useState(false);
 
 	const [playing] = Timeline.usePlayingState();
 	const timelineContext = useContext(Timeline.TimelineContext);
@@ -142,8 +149,70 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 			player
 				.initialize(currentTimeRef.current)
-				.then(() => {
-					setMediaPlayerReady(true);
+				.then((result) => {
+					if (result.type === 'unknown-container-format') {
+						if (disallowFallbackToOffthreadVideo) {
+							throw new Error(
+								`Unknown container format ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
+							);
+						}
+
+						Internals.Log.warn(
+							{logLevel, tag: '@remotion/media'},
+							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <OffthreadVideo>`,
+						);
+						setShouldFallbackToNativeVideo(true);
+						return;
+					}
+
+					if (result.type === 'network-error') {
+						if (disallowFallbackToOffthreadVideo) {
+							throw new Error(
+								`Network error fetching ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
+							);
+						}
+
+						Internals.Log.warn(
+							{logLevel, tag: '@remotion/media'},
+							`Network error fetching ${preloadedSrc}, falling back to <OffthreadVideo>`,
+						);
+						setShouldFallbackToNativeVideo(true);
+						return;
+					}
+
+					if (result.type === 'cannot-decode') {
+						if (disallowFallbackToOffthreadVideo) {
+							throw new Error(
+								`Cannot decode ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
+							);
+						}
+
+						Internals.Log.warn(
+							{logLevel, tag: '@remotion/media'},
+							`Cannot decode ${preloadedSrc}, falling back to <OffthreadVideo>`,
+						);
+						setShouldFallbackToNativeVideo(true);
+						return;
+					}
+
+					if (result.type === 'no-tracks') {
+						if (disallowFallbackToOffthreadVideo) {
+							throw new Error(
+								`No video or audio tracks found for ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
+							);
+						}
+
+						Internals.Log.warn(
+							{logLevel, tag: '@remotion/media'},
+							`No video or audio tracks found for ${preloadedSrc}, falling back to <OffthreadVideo>`,
+						);
+						setShouldFallbackToNativeVideo(true);
+						return;
+					}
+
+					if (result.type === 'success') {
+						setMediaPlayerReady(true);
+					}
 				})
 				.catch((error) => {
 					Internals.Log.error(
@@ -151,6 +220,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 						'[NewVideoForPreview] Failed to initialize MediaPlayer',
 						error,
 					);
+					setShouldFallbackToNativeVideo(true);
 				});
 		} catch (error) {
 			Internals.Log.error(
@@ -158,6 +228,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 				'[NewVideoForPreview] MediaPlayer initialization failed',
 				error,
 			);
+			setShouldFallbackToNativeVideo(true);
 		}
 
 		return () => {
@@ -171,6 +242,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			}
 
 			setMediaPlayerReady(false);
+			setShouldFallbackToNativeVideo(false);
 		};
 	}, [
 		preloadedSrc,
@@ -181,6 +253,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		trimBefore,
 		videoConfig.fps,
 		playbackRate,
+		disallowFallbackToOffthreadVideo,
 		audioStreamIndex,
 	]);
 
@@ -306,6 +379,29 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		};
 	}, [onVideoFrame, mediaPlayerReady]);
 
+	if (shouldFallbackToNativeVideo && !disallowFallbackToOffthreadVideo) {
+		// <Video> will fallback to <VideoForPreview> anyway
+		// not using <OffthreadVideo> because it does not support looping
+		return (
+			<Video
+				src={src}
+				style={style}
+				className={className}
+				muted={muted}
+				volume={volume}
+				trimAfter={trimAfter}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
+				name={name}
+				loop={loop}
+				showInTimeline={showInTimeline}
+				stack={stack ?? undefined}
+				{...fallbackOffthreadVideoProps}
+			/>
+		);
+	}
+
 	return (
 		<canvas
 			ref={canvasRef}
@@ -333,6 +429,8 @@ type InnerVideoProps = {
 	readonly trimAfter: number | undefined;
 	readonly trimBefore: number | undefined;
 	readonly stack: string | null;
+	readonly disallowFallbackToOffthreadVideo: boolean;
+	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 	readonly audioStreamIndex: number;
 };
 
@@ -352,6 +450,8 @@ export const VideoForPreview: React.FC<InnerVideoProps> = ({
 	trimAfter,
 	trimBefore,
 	stack,
+	disallowFallbackToOffthreadVideo,
+	fallbackOffthreadVideoProps,
 	audioStreamIndex,
 }) => {
 	const preloadedSrc = usePreload(src);
@@ -373,6 +473,8 @@ export const VideoForPreview: React.FC<InnerVideoProps> = ({
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
 			showInTimeline={showInTimeline}
 			stack={stack}
+			disallowFallbackToOffthreadVideo={disallowFallbackToOffthreadVideo}
+			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
 			audioStreamIndex={audioStreamIndex}
 		/>
 	);
