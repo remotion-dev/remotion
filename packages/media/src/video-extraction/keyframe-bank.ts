@@ -1,5 +1,6 @@
 import type {VideoSample} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
+import {renderTimestampRange} from '../render-timestamp-range';
 
 export type KeyframeBank = {
 	startTimestampInSeconds: number;
@@ -195,18 +196,6 @@ export const makeKeyframeBank = ({
 				deletedTimestamps.push(frameTimestamp);
 			}
 		}
-
-		const renderTimestampRange = (timestamps: number[]): string => {
-			if (timestamps.length === 0) {
-				return '(none)';
-			}
-
-			if (timestamps.length === 1) {
-				return timestamps[0].toFixed(3);
-			}
-
-			return `${timestamps[0].toFixed(3)}...${timestamps[timestamps.length - 1].toFixed(3)}`;
-		};
 
 		if (deletedTimestamps.length > 0) {
 			Internals.Log.verbose(
