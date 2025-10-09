@@ -238,6 +238,10 @@ export const makeInlineAudioMixing = (dir: string) => {
 		const positionInSeconds =
 			(asset.frame - firstFrame) / fps - (isFirst ? 0 : trimLeftOffset);
 
+		// Always rounding down to ensure there are no gaps when the samples don't align
+		// In @remotion/media, we also round down the sample start timestamp and round up the end timestamp
+		// This might lead to overlapping, hopefully aligning perfectly!
+		// Test case: https://github.com/remotion-dev/remotion/issues/5758
 		const position =
 			Math.floor(positionInSeconds * DEFAULT_SAMPLE_RATE) *
 			NUMBER_OF_CHANNELS *

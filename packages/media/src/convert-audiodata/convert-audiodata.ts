@@ -33,6 +33,13 @@ export const convertAudioData = ({
 	} = audioData;
 	const ratio = currentSampleRate / TARGET_SAMPLE_RATE;
 
+	// Always rounding down start timestamps and rounding up end durations
+	// to ensure there are no gaps when the samples don't align
+	// In @remotion/renderer inline audio mixing, we also round down the sample start
+	// timestamp and round up the end timestamp
+	// This might lead to overlapping, hopefully aligning perfectly!
+	// Test case: https://github.com/remotion-dev/remotion/issues/5758
+
 	const frameOffset = Math.floor(trimStartInSeconds * audioData.sampleRate);
 	const unroundedFrameCount =
 		numberOfFrames -
