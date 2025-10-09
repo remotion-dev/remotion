@@ -1,7 +1,7 @@
 import type {VideoSample} from 'mediabunny';
 import {type LogLevel} from 'remotion';
 import {keyframeManager} from '../caches';
-import {getSinkWeak} from '../get-sink-weak';
+import {getSink} from '../get-sink';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 
 type ExtractFrameResult =
@@ -13,16 +13,7 @@ type ExtractFrameResult =
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
 	| {type: 'unknown-container-format'};
 
-export const extractFrame = async ({
-	src,
-	timeInSeconds: unloopedTimeInSeconds,
-	logLevel,
-	loop,
-	trimAfter,
-	trimBefore,
-	playbackRate,
-	fps,
-}: {
+type ExtractFrameParams = {
 	src: string;
 	timeInSeconds: number;
 	logLevel: LogLevel;
@@ -31,8 +22,19 @@ export const extractFrame = async ({
 	trimBefore: number | undefined;
 	playbackRate: number;
 	fps: number;
-}): Promise<ExtractFrameResult> => {
-	const sink = await getSinkWeak(src, logLevel);
+};
+
+const extractFrameInternal = async ({
+	src,
+	timeInSeconds: unloopedTimeInSeconds,
+	logLevel,
+	loop,
+	trimAfter,
+	trimBefore,
+	playbackRate,
+	fps,
+}: ExtractFrameParams): Promise<ExtractFrameResult> => {
+	const sink = await getSink(src, logLevel);
 
 	const video = await sink.getVideo();
 
@@ -84,4 +86,16 @@ export const extractFrame = async ({
 	const frame = await keyframeBank.getFrameFromTimestamp(timeInSeconds);
 
 	return {type: 'success', frame, durationInSeconds: await sink.getDuration()};
+};
+
+type ExtractFrameReturnType = Awaited<ReturnType<typeof extractFrameInternal>>;
+
+let queue = Promise.resolve<ExtractFrameReturnType | undefined>(undefined);
+
+export const extractFrame = (
+	params: ExtractFrameParams,
+): Promise<ExtractFrameReturnType> => {
+	queue = queue.then(() => extractFrameInternal(params));
+
+	return queue as Promise<ExtractFrameReturnType>;
 };

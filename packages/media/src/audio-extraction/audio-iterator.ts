@@ -195,6 +195,7 @@ export const makeAudioIterator = ({
 		getLastUsed: () => lastUsed,
 		prepareForDeletion,
 		startTimestamp,
+		clearBeforeThreshold: cache.clearBeforeThreshold,
 	};
 };
 

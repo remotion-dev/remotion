@@ -10,7 +10,7 @@ export const makeAudioCache = () => {
 	};
 
 	const clearBeforeThreshold = (threshold: number) => {
-		for (const timestamp of timestamps) {
+		for (const timestamp of timestamps.slice()) {
 			const endTimestamp = timestamp + samples[timestamp].duration;
 
 			if (endTimestamp < threshold) {

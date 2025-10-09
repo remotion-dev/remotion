@@ -3,21 +3,12 @@ import {audioManager} from '../caches';
 import {combineAudioDataAndClosePrevious} from '../convert-audiodata/combine-audiodata';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {convertAudioData} from '../convert-audiodata/convert-audiodata';
-import {getSinkWeak} from '../get-sink-weak';
+import {getSink} from '../get-sink';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 
-export const extractAudio = async ({
-	src,
-	timeInSeconds: unloopedTimeInSeconds,
-	durationInSeconds: durationNotYetApplyingPlaybackRate,
-	logLevel,
-	loop,
-	playbackRate,
-	audioStreamIndex,
-	trimBefore,
-	trimAfter,
-	fps,
-}: {
+type ExtractAudioReturnType = Awaited<ReturnType<typeof extractAudioInternal>>;
+
+type ExtractAudioParams = {
 	src: string;
 	timeInSeconds: number;
 	durationInSeconds: number;
@@ -28,7 +19,20 @@ export const extractAudio = async ({
 	trimBefore: number | undefined;
 	trimAfter: number | undefined;
 	fps: number;
-}): Promise<
+};
+
+const extractAudioInternal = async ({
+	src,
+	timeInSeconds: unloopedTimeInSeconds,
+	durationInSeconds: durationNotYetApplyingPlaybackRate,
+	logLevel,
+	loop,
+	playbackRate,
+	audioStreamIndex,
+	trimBefore,
+	trimAfter,
+	fps,
+}: ExtractAudioParams): Promise<
 	| {
 			data: PcmS16AudioData | null;
 			durationInSeconds: number | null;
@@ -37,7 +41,7 @@ export const extractAudio = async ({
 	| 'unknown-container-format'
 > => {
 	const {getAudio, actualMatroskaTimestamps, isMatroska, getDuration} =
-		await getSinkWeak(src, logLevel);
+		await getSink(src, logLevel);
 
 	let mediaDurationInSeconds: number | null = null;
 	if (loop) {
@@ -121,7 +125,7 @@ export const extractAudio = async ({
 
 			if (trimStartInSeconds < 0) {
 				throw new Error(
-					`trimStartInSeconds is negative: ${trimStartInSeconds}`,
+					`trimStartInSeconds is negative: ${trimStartInSeconds}. ${JSON.stringify({timeInSeconds, ts: sample.timestamp, d: sample.duration, isFirstSample, isLastSample, durationInSeconds, i, st: samples.map((s) => s.timestamp)})}`,
 				);
 			}
 		}
@@ -159,4 +163,14 @@ export const extractAudio = async ({
 	const combined = combineAudioDataAndClosePrevious(audioDataArray);
 
 	return {data: combined, durationInSeconds: mediaDurationInSeconds};
+};
+
+let queue = Promise.resolve<ExtractAudioReturnType | undefined>(undefined);
+
+export const extractAudio = (
+	params: ExtractAudioParams,
+): Promise<ExtractAudioReturnType> => {
+	queue = queue.then(() => extractAudioInternal(params));
+
+	return queue as Promise<ExtractAudioReturnType>;
 };
