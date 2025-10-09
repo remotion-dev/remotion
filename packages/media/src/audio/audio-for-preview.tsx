@@ -139,6 +139,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 					: undefined,
 				canvas: null,
 				playbackRate,
+				audioStreamIndex: audioStreamIndex ?? 0,
 			});
 
 			mediaPlayerRef.current = player;
@@ -259,6 +260,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		trimBefore,
 		playbackRate,
 		videoConfig.fps,
+		audioStreamIndex,
 		disallowFallbackToHtml5Audio,
 	]);
 
@@ -418,6 +420,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 
 	return (
 		<NewAudioForPreview
+			audioStreamIndex={audioStreamIndex ?? 0}
 			src={preloadedSrc}
 			playbackRate={playbackRate ?? 1}
 			logLevel={logLevel ?? window.remotion_logLevel}
@@ -432,7 +435,6 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			stack={stack}
 			disallowFallbackToHtml5Audio={disallowFallbackToHtml5Audio ?? false}
 			toneFrequency={toneFrequency}
-			audioStreamIndex={audioStreamIndex}
 			fallbackHtml5AudioProps={fallbackHtml5AudioProps}
 		/>
 	);

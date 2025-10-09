@@ -89,6 +89,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 
 	return (
 		<VideoForPreview
+			audioStreamIndex={audioStreamIndex ?? 0}
 			className={className}
 			name={name}
 			logLevel={logLevel}

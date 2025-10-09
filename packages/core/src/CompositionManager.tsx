@@ -141,8 +141,6 @@ export type InlineAudioAsset = {
 	id: string;
 	audio: number[];
 	frame: number;
-	sampleRate: number;
-	numberOfChannels: number;
 	timestamp: number;
 	duration: number;
 	toneFrequency: number;

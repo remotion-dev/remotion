@@ -41,6 +41,7 @@ type NewVideoForPreviewProps = {
 	readonly stack: string | null;
 	readonly disallowFallbackToOffthreadVideo: boolean;
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
+	readonly audioStreamIndex: number;
 };
 
 const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
@@ -61,6 +62,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	stack,
 	disallowFallbackToOffthreadVideo,
 	fallbackOffthreadVideoProps,
+	audioStreamIndex,
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const videoConfig = useUnsafeVideoConfig();
@@ -140,6 +142,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 					? trimBefore / videoConfig.fps
 					: undefined,
 				playbackRate,
+				audioStreamIndex,
 			});
 
 			mediaPlayerRef.current = player;
@@ -251,6 +254,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		videoConfig.fps,
 		playbackRate,
 		disallowFallbackToOffthreadVideo,
+		audioStreamIndex,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -427,6 +431,7 @@ type InnerVideoProps = {
 	readonly stack: string | null;
 	readonly disallowFallbackToOffthreadVideo: boolean;
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
+	readonly audioStreamIndex: number;
 };
 
 export const VideoForPreview: React.FC<InnerVideoProps> = ({
@@ -447,6 +452,7 @@ export const VideoForPreview: React.FC<InnerVideoProps> = ({
 	stack,
 	disallowFallbackToOffthreadVideo,
 	fallbackOffthreadVideoProps,
+	audioStreamIndex,
 }) => {
 	const preloadedSrc = usePreload(src);
 
@@ -469,6 +475,7 @@ export const VideoForPreview: React.FC<InnerVideoProps> = ({
 			stack={stack}
 			disallowFallbackToOffthreadVideo={disallowFallbackToOffthreadVideo}
 			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
+			audioStreamIndex={audioStreamIndex}
 		/>
 	);
 };

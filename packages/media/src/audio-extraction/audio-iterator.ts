@@ -135,15 +135,18 @@ export const makeAudioIterator = ({
 	};
 
 	const logOpenFrames = () => {
-		Internals.Log.verbose(
-			{logLevel, tag: '@remotion/media'},
-			'Open audio samples for src',
-			src,
-			cache
-				.getOpenTimestamps()
-				.map((t) => t.toFixed(3))
-				.join(', '),
-		);
+		const openTimestamps = cache.getOpenTimestamps();
+		if (openTimestamps.length > 0) {
+			const first = openTimestamps[0];
+			const last = openTimestamps[openTimestamps.length - 1];
+
+			Internals.Log.verbose(
+				{logLevel, tag: '@remotion/media'},
+				'Open audio samples for src',
+				src,
+				`${first.toFixed(3)}...${last.toFixed(3)}`,
+			);
+		}
 	};
 
 	const getCacheStats = () => {
