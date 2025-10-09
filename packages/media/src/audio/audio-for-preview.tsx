@@ -361,10 +361,6 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 				toneFrequency={toneFrequency}
 				audioStreamIndex={audioStreamIndex}
 				pauseWhenBuffering={fallbackHtml5AudioProps?.pauseWhenBuffering}
-				delayRenderTimeoutInMilliseconds={
-					fallbackHtml5AudioProps?.delayRenderTimeoutInMilliseconds
-				}
-				delayRenderRetries={fallbackHtml5AudioProps?.delayRenderRetries}
 				{...fallbackHtml5AudioProps}
 			/>
 		);

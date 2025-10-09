@@ -29,13 +29,11 @@ export const Audio: React.FC<AudioProps> = (props) => {
 		return <AudioForRendering {...otherProps} />;
 	}
 
-	const {...propsForPreview} = otherProps;
-
 	return (
 		<AudioForPreview
 			loop={loop}
 			name={name}
-			{...propsForPreview}
+			{...otherProps}
 			stack={stack ?? null}
 		/>
 	);

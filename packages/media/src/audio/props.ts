@@ -4,8 +4,6 @@ export type FallbackHtml5AudioProps = {
 	onError?: (err: Error) => void;
 	useWebAudioApi?: boolean;
 	acceptableTimeShiftInSeconds?: number;
-	delayRenderRetries?: number;
-	delayRenderTimeoutInMilliseconds?: number;
 	pauseWhenBuffering?: boolean;
 };
 
@@ -31,4 +29,6 @@ export type AudioProps = {
 	fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
 	disallowFallbackToHtml5Audio?: boolean;
 	toneFrequency?: number;
+	delayRenderRetries?: number;
+	delayRenderTimeoutInMilliseconds?: number;
 };
