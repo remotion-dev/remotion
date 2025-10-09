@@ -51,10 +51,10 @@ export const makeAudioManager = () => {
 		return mostInThePastIterator;
 	};
 
-	const deleteOldestIterator = async () => {
+	const deleteOldestIterator = () => {
 		const iterator = getIteratorMostInThePast();
 		if (iterator) {
-			await iterator.prepareForDeletion();
+			iterator.prepareForDeletion();
 			iterators.splice(iterators.indexOf(iterator), 1);
 		}
 	};
@@ -76,7 +76,7 @@ export const makeAudioManager = () => {
 	}) => {
 		const maxCacheSize = getMaxVideoCacheSize(logLevel);
 		while ((await getTotalCacheStats()).totalSize > maxCacheSize) {
-			await deleteOldestIterator();
+			deleteOldestIterator();
 		}
 
 		for (const iterator of iterators) {
@@ -92,7 +92,7 @@ export const makeAudioManager = () => {
 		for (const iterator of iterators) {
 			// delete iterator with same starting timestamp
 			if (iterator.src === src && iterator.startTimestamp === timeInSeconds) {
-				await iterator.prepareForDeletion();
+				iterator.prepareForDeletion();
 				iterators.splice(iterators.indexOf(iterator), 1);
 			}
 		}

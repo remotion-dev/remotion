@@ -167,12 +167,13 @@ export const makeAudioIterator = ({
 		);
 	};
 
-	const prepareForDeletion = async () => {
+	const prepareForDeletion = () => {
 		cache.deleteAll();
-		const {value} = await sampleIterator.return();
-		if (value) {
-			value.close();
-		}
+		sampleIterator.return().then((result) => {
+			if (result.value) {
+				result.value.close();
+			}
+		});
 
 		fullDuration = null;
 	};
