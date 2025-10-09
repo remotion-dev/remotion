@@ -188,7 +188,6 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						id,
 						audio: Array.from(audio.data),
 						sampleRate: audio.sampleRate,
-						numberOfChannels: audio.numberOfChannels,
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
 						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,

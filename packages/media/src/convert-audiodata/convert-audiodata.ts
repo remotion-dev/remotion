@@ -1,11 +1,13 @@
-import {resampleAudioData} from './resample-audiodata';
+import {
+	resampleAudioData,
+	TARGET_NUMBER_OF_CHANNELS,
+} from './resample-audiodata';
 
 export type ConvertAudioDataOptions = {
 	audioData: AudioData;
 	newSampleRate: number;
 	trimStartInSeconds: number;
 	trimEndInSeconds: number;
-	targetNumberOfChannels: number;
 	playbackRate: number;
 };
 
@@ -14,7 +16,6 @@ const FORMAT: AudioSampleFormat = 's16';
 export type PcmS16AudioData = {
 	data: Int16Array;
 	sampleRate: number;
-	numberOfChannels: number;
 	numberOfFrames: number;
 	timestamp: number;
 };
@@ -32,7 +33,6 @@ export const convertAudioData = ({
 	newSampleRate,
 	trimStartInSeconds,
 	trimEndInSeconds,
-	targetNumberOfChannels,
 	playbackRate,
 }: ConvertAudioDataOptions): PcmS16AudioData => {
 	const {
@@ -73,17 +73,16 @@ export const convertAudioData = ({
 		frameCount,
 	});
 
-	const data = new Int16Array(newNumberOfFrames * targetNumberOfChannels);
+	const data = new Int16Array(newNumberOfFrames * TARGET_NUMBER_OF_CHANNELS);
 	const chunkSize = frameCount / newNumberOfFrames;
 
 	if (
 		newNumberOfFrames === frameCount &&
-		targetNumberOfChannels === srcNumberOfChannels &&
+		TARGET_NUMBER_OF_CHANNELS === srcNumberOfChannels &&
 		playbackRate === 1
 	) {
 		return {
 			data: srcChannels,
-			numberOfChannels: targetNumberOfChannels,
 			numberOfFrames: newNumberOfFrames,
 			sampleRate: newSampleRate,
 			timestamp: audioData.timestamp + trimStartInSeconds * 1_000_000,
@@ -98,10 +97,8 @@ export const convertAudioData = ({
 		chunkSize,
 	});
 
-	const newAudioData = {
+	const newAudioData: PcmS16AudioData = {
 		data,
-		format: FORMAT,
-		numberOfChannels: targetNumberOfChannels,
 		numberOfFrames: newNumberOfFrames,
 		sampleRate: newSampleRate,
 		timestamp: audioData.timestamp + trimStartInSeconds * 1_000_000,

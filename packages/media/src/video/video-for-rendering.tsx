@@ -285,7 +285,6 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						id,
 						audio: Array.from(audio.data),
 						sampleRate: audio.sampleRate,
-						numberOfChannels: audio.numberOfChannels,
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
 						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,

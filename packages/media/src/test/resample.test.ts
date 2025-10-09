@@ -16,7 +16,6 @@ test('Should be able to convert audio that is on the verge', () => {
 		newSampleRate: 48000,
 		trimStartInSeconds: 0.041666666666666664,
 		trimEndInSeconds: 0,
-		targetNumberOfChannels: 1,
 		playbackRate: 2,
 	});
 
@@ -49,7 +48,6 @@ test('convert with playbackrate', () => {
 		newSampleRate: sampleRate,
 		trimStartInSeconds: 0,
 		trimEndInSeconds: 0,
-		targetNumberOfChannels: 2,
 		playbackRate: 2,
 	});
 

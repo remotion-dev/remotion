@@ -23,6 +23,7 @@ const numberTo16BitLittleEndian = (num: number) => {
 
 const BIT_DEPTH = 16;
 const BYTES_PER_SAMPLE = BIT_DEPTH / 8;
+const NUMBER_OF_CHANNELS = 2;
 
 export const makeInlineAudioMixing = (dir: string) => {
 	const folderToAdd = makeAndReturn(dir, 'remotion-inline-audio-mixing');
@@ -75,14 +76,12 @@ export const makeInlineAudioMixing = (dir: string) => {
 
 		const expectedDataSize = Math.round(
 			(totalNumberOfFrames / fps - trimLeftOffset + trimRightOffset) *
-				asset.numberOfChannels *
+				NUMBER_OF_CHANNELS *
 				DEFAULT_SAMPLE_RATE *
 				BYTES_PER_SAMPLE,
 		);
 
 		const expectedSize = 40 + expectedDataSize;
-
-		const {numberOfChannels} = asset;
 
 		const fd = openFiles[filePath];
 		writeSync(fd, new Uint8Array([0x52, 0x49, 0x46, 0x46]), 0, 4, 0); // "RIFF"
@@ -97,7 +96,7 @@ export const makeInlineAudioMixing = (dir: string) => {
 		writeSync(fd, new Uint8Array([0x66, 0x6d, 0x74, 0x20]), 0, 4, 12); // "fmt "
 		writeSync(fd, new Uint8Array([BIT_DEPTH, 0x00, 0x00, 0x00]), 0, 4, 16); // fmt chunk size = 16
 		writeSync(fd, new Uint8Array([0x01, 0x00]), 0, 2, 20); // Audio format (PCM) = 1, set 3 if float32 would be true
-		writeSync(fd, new Uint8Array([numberOfChannels, 0x00]), 0, 2, 22); // Number of channels
+		writeSync(fd, new Uint8Array([NUMBER_OF_CHANNELS, 0x00]), 0, 2, 22); // Number of channels
 		writeSync(
 			fd,
 			new Uint8Array(numberTo32BiIntLittleEndian(DEFAULT_SAMPLE_RATE)),
@@ -109,7 +108,7 @@ export const makeInlineAudioMixing = (dir: string) => {
 			fd,
 			new Uint8Array(
 				numberTo32BiIntLittleEndian(
-					DEFAULT_SAMPLE_RATE * numberOfChannels * BYTES_PER_SAMPLE,
+					DEFAULT_SAMPLE_RATE * NUMBER_OF_CHANNELS * BYTES_PER_SAMPLE,
 				),
 			),
 			0,
@@ -119,7 +118,7 @@ export const makeInlineAudioMixing = (dir: string) => {
 		writeSync(
 			fd,
 			new Uint8Array(
-				numberTo16BitLittleEndian(numberOfChannels * BYTES_PER_SAMPLE),
+				numberTo16BitLittleEndian(NUMBER_OF_CHANNELS * BYTES_PER_SAMPLE),
 			),
 			0,
 			2,
@@ -226,15 +225,13 @@ export const makeInlineAudioMixing = (dir: string) => {
 		}
 
 		if (isFirst) {
-			arr = arr.slice(
-				Math.round(samplesToShaveFromStart) * asset.numberOfChannels,
-			);
+			arr = arr.slice(Math.round(samplesToShaveFromStart) * NUMBER_OF_CHANNELS);
 		}
 
 		if (isLast) {
 			arr = arr.slice(
 				0,
-				arr.length + Math.round(samplesToShaveFromEnd) * asset.numberOfChannels,
+				arr.length + Math.round(samplesToShaveFromEnd) * NUMBER_OF_CHANNELS,
 			);
 		}
 
@@ -243,7 +240,7 @@ export const makeInlineAudioMixing = (dir: string) => {
 
 		const position =
 			Math.round(positionInSeconds * DEFAULT_SAMPLE_RATE) *
-			asset.numberOfChannels *
+			NUMBER_OF_CHANNELS *
 			BYTES_PER_SAMPLE;
 
 		writeSync(

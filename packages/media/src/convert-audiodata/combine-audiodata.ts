@@ -1,21 +1,15 @@
 import type {PcmS16AudioData} from './convert-audiodata';
+import {TARGET_NUMBER_OF_CHANNELS} from './resample-audiodata';
 
 export const combineAudioDataAndClosePrevious = (
 	audioDataArray: PcmS16AudioData[],
 ): PcmS16AudioData => {
 	let numberOfFrames = 0;
-	let numberOfChannels: number | null = null;
 	let sampleRate: number | null = null;
 	const {timestamp} = audioDataArray[0];
 
 	for (const audioData of audioDataArray) {
 		numberOfFrames += audioData.numberOfFrames;
-
-		if (!numberOfChannels) {
-			numberOfChannels = audioData.numberOfChannels;
-		} else if (numberOfChannels !== audioData.numberOfChannels) {
-			throw new Error('Number of channels do not match');
-		}
 
 		if (!sampleRate) {
 			sampleRate = audioData.sampleRate;
@@ -24,15 +18,11 @@ export const combineAudioDataAndClosePrevious = (
 		}
 	}
 
-	if (!numberOfChannels) {
-		throw new Error('Number of channels is not set');
-	}
-
 	if (!sampleRate) {
 		throw new Error('Sample rate is not set');
 	}
 
-	const arr = new Int16Array(numberOfFrames * numberOfChannels);
+	const arr = new Int16Array(numberOfFrames * TARGET_NUMBER_OF_CHANNELS);
 
 	let offset = 0;
 	for (const audioData of audioDataArray) {
@@ -42,7 +32,6 @@ export const combineAudioDataAndClosePrevious = (
 
 	return {
 		data: arr,
-		numberOfChannels,
 		numberOfFrames,
 		sampleRate,
 		timestamp,
