@@ -1,7 +1,13 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
-import {Internals, useBufferState, useCurrentFrame} from 'remotion';
+import {
+	Internals,
+	Audio as RemotionAudio,
+	useBufferState,
+	useCurrentFrame,
+} from 'remotion';
 import {MediaPlayer} from '../video/media-player';
+import type {FallbackHtml5AudioProps} from './props';
 
 const {
 	useUnsafeVideoConfig,
@@ -30,7 +36,10 @@ type NewAudioForPreviewProps = {
 	readonly name: string | undefined;
 	readonly showInTimeline: boolean;
 	readonly stack: string | null;
-	readonly audioStreamIndex: number;
+	readonly disallowFallbackToHtml5Audio: boolean;
+	readonly toneFrequency: number | undefined;
+	readonly audioStreamIndex: number | undefined;
+	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
 };
 
 const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
@@ -46,13 +55,18 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 	name,
 	showInTimeline,
 	stack,
+	disallowFallbackToHtml5Audio,
+	toneFrequency,
 	audioStreamIndex,
+	fallbackHtml5AudioProps,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+	const [shouldFallbackToNativeAudio, setShouldFallbackToNativeAudio] =
+		useState(false);
 
 	const [playing] = Timeline.usePlayingState();
 	const timelineContext = useContext(Timeline.TimelineContext);
@@ -125,19 +139,81 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 					: undefined,
 				canvas: null,
 				playbackRate,
-				audioStreamIndex,
+				audioStreamIndex: audioStreamIndex ?? 0,
 			});
 
 			mediaPlayerRef.current = player;
 
 			player
 				.initialize(currentTimeRef.current)
-				.then(() => {
-					setMediaPlayerReady(true);
-					Internals.Log.trace(
-						{logLevel, tag: '@remotion/media'},
-						`[NewAudioForPreview] MediaPlayer initialized successfully`,
-					);
+				.then((result) => {
+					if (result.type === 'unknown-container-format') {
+						if (disallowFallbackToHtml5Audio) {
+							throw new Error(
+								`Unknown container format ${preloadedSrc}, and 'disallowFallbackToHtml5Audio' was set.`,
+							);
+						}
+
+						Internals.Log.warn(
+							{logLevel, tag: '@remotion/media'},
+							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Audio>`,
+						);
+						setShouldFallbackToNativeAudio(true);
+						return;
+					}
+
+					if (result.type === 'network-error') {
+						if (disallowFallbackToHtml5Audio) {
+							throw new Error(
+								`Network error fetching ${preloadedSrc}, and 'disallowFallbackToHtml5Audio' was set.`,
+							);
+						}
+
+						Internals.Log.warn(
+							{logLevel, tag: '@remotion/media'},
+							`Network error fetching ${preloadedSrc}, falling back to <Audio>`,
+						);
+						setShouldFallbackToNativeAudio(true);
+						return;
+					}
+
+					if (result.type === 'cannot-decode') {
+						if (disallowFallbackToHtml5Audio) {
+							throw new Error(
+								`Cannot decode ${preloadedSrc}, and 'disallowFallbackToHtml5Audio' was set.`,
+							);
+						}
+
+						Internals.Log.warn(
+							{logLevel, tag: '@remotion/media'},
+							`Cannot decode ${preloadedSrc}, falling back to <Audio>`,
+						);
+						setShouldFallbackToNativeAudio(true);
+						return;
+					}
+
+					if (result.type === 'no-tracks') {
+						if (disallowFallbackToHtml5Audio) {
+							throw new Error(
+								`No video or audio tracks found for ${preloadedSrc}, and 'disallowFallbackToHtml5Audio' was set.`,
+							);
+						}
+
+						Internals.Log.warn(
+							{logLevel, tag: '@remotion/media'},
+							`No video or audio tracks found for ${preloadedSrc}, falling back to <Audio>`,
+						);
+						setShouldFallbackToNativeAudio(true);
+						return;
+					}
+
+					if (result.type === 'success') {
+						setMediaPlayerReady(true);
+						Internals.Log.trace(
+							{logLevel, tag: '@remotion/media'},
+							`[NewAudioForPreview] MediaPlayer initialized successfully`,
+						);
+					}
 				})
 				.catch((error) => {
 					Internals.Log.error(
@@ -145,6 +221,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 						'[NewAudioForPreview] Failed to initialize MediaPlayer',
 						error,
 					);
+					setShouldFallbackToNativeAudio(true);
 				});
 		} catch (error) {
 			Internals.Log.error(
@@ -152,6 +229,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 				'[NewAudioForPreview] MediaPlayer initialization failed',
 				error,
 			);
+			setShouldFallbackToNativeAudio(true);
 		}
 
 		return () => {
@@ -170,6 +248,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 			}
 
 			setMediaPlayerReady(false);
+			setShouldFallbackToNativeAudio(false);
 		};
 	}, [
 		preloadedSrc,
@@ -182,6 +261,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		playbackRate,
 		videoConfig.fps,
 		audioStreamIndex,
+		disallowFallbackToHtml5Audio,
 	]);
 
 	useEffect(() => {
@@ -266,6 +346,28 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		audioPlayer.setPlaybackRate(effectivePlaybackRate);
 	}, [effectivePlaybackRate, mediaPlayerReady, logLevel]);
 
+	if (shouldFallbackToNativeAudio && !disallowFallbackToHtml5Audio) {
+		return (
+			<RemotionAudio
+				src={src}
+				muted={muted}
+				volume={volume}
+				startFrom={trimBefore}
+				endAt={trimAfter}
+				playbackRate={playbackRate}
+				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
+				name={name}
+				loop={loop}
+				showInTimeline={showInTimeline}
+				stack={stack ?? undefined}
+				toneFrequency={toneFrequency}
+				audioStreamIndex={audioStreamIndex}
+				pauseWhenBuffering={fallbackHtml5AudioProps?.pauseWhenBuffering}
+				{...fallbackHtml5AudioProps}
+			/>
+		);
+	}
+
 	return null;
 };
 
@@ -290,7 +392,10 @@ type InnerAudioProps = {
 	readonly trimAfter?: number | undefined;
 	readonly trimBefore?: number | undefined;
 	readonly stack: string | null;
+	readonly disallowFallbackToHtml5Audio?: boolean;
+	readonly toneFrequency?: number;
 	readonly audioStreamIndex?: number;
+	readonly fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
 };
 
 export const AudioForPreview: React.FC<InnerAudioProps> = ({
@@ -306,7 +411,10 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	trimBefore,
 	showInTimeline,
 	stack,
+	disallowFallbackToHtml5Audio,
+	toneFrequency,
 	audioStreamIndex,
+	fallbackHtml5AudioProps,
 }) => {
 	const preloadedSrc = usePreload(src);
 
@@ -325,6 +433,9 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			name={name}
 			showInTimeline={showInTimeline ?? true}
 			stack={stack}
+			disallowFallbackToHtml5Audio={disallowFallbackToHtml5Audio ?? false}
+			toneFrequency={toneFrequency}
+			fallbackHtml5AudioProps={fallbackHtml5AudioProps}
 		/>
 	);
 };
