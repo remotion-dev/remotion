@@ -154,9 +154,9 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 							);
 						}
 
-						Internals.Log.info(
+						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
-							`Unknown container format for ${preloadedSrc}, falling back to <OffthreadVideo>`,
+							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <OffthreadVideo>`,
 						);
 						setShouldFallbackToNativeVideo(true);
 						return;
@@ -165,13 +165,13 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 					if (result.type === 'network-error') {
 						if (disallowFallbackToOffthreadVideo) {
 							throw new Error(
-								`Network/CORS error for ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
+								`Network error fetching ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
 							);
 						}
 
-						Internals.Log.info(
+						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
-							`Network/CORS error for ${preloadedSrc}, falling back to <OffthreadVideo>`,
+							`Network error fetching ${preloadedSrc}, falling back to <OffthreadVideo>`,
 						);
 						setShouldFallbackToNativeVideo(true);
 						return;
@@ -180,13 +180,13 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 					if (result.type === 'cannot-decode') {
 						if (disallowFallbackToOffthreadVideo) {
 							throw new Error(
-								`Cannot decode video for ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
+								`Cannot decode ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
 							);
 						}
 
-						Internals.Log.info(
+						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
-							`Cannot decode video for ${preloadedSrc}, falling back to <OffthreadVideo>`,
+							`Cannot decode ${preloadedSrc}, falling back to <OffthreadVideo>`,
 						);
 						setShouldFallbackToNativeVideo(true);
 						return;
@@ -199,7 +199,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 							);
 						}
 
-						Internals.Log.info(
+						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
 							`No video or audio tracks found for ${preloadedSrc}, falling back to <OffthreadVideo>`,
 						);
