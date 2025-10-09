@@ -22,7 +22,7 @@ export const makeAudioManager = () => {
 		isMatroska: boolean;
 		actualMatroskaTimestamps: RememberActualMatroskaTimestamps;
 		logLevel: LogLevel;
-	}) => {
+	}): AudioSampleIterator => {
 		const iterator = makeAudioIterator({
 			audioSampleSink,
 			isMatroska,
@@ -125,9 +125,36 @@ export const makeAudioManager = () => {
 		}
 	};
 
+	let queue = Promise.resolve<unknown>(undefined);
+
 	return {
-		makeIterator,
-		getIterator,
+		getIterator: ({
+			src,
+			timeInSeconds,
+			audioSampleSink,
+			isMatroska,
+			actualMatroskaTimestamps,
+			logLevel,
+		}: {
+			src: string;
+			timeInSeconds: number;
+			audioSampleSink: AudioSampleSink;
+			isMatroska: boolean;
+			actualMatroskaTimestamps: RememberActualMatroskaTimestamps;
+			logLevel: LogLevel;
+		}) => {
+			queue = queue.then(() =>
+				getIterator({
+					src,
+					timeInSeconds,
+					audioSampleSink,
+					isMatroska,
+					actualMatroskaTimestamps,
+					logLevel,
+				}),
+			);
+			return queue as Promise<AudioSampleIterator>;
+		},
 		getCacheStats,
 		getIteratorMostInThePast,
 		logOpenFrames,
