@@ -1,11 +1,12 @@
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
 
 export type FallbackHtml5AudioProps = {
-	offthreadAudioProps: {
-		playbackRate?: number;
-		muted?: boolean;
-		loop?: boolean;
-	};
+	onError?: (err: Error) => void;
+	useWebAudioApi?: boolean;
+	acceptableTimeShiftInSeconds?: number;
+	delayRenderRetries?: number;
+	delayRenderTimeoutInMilliseconds?: number;
+	pauseWhenBuffering?: boolean;
 };
 
 export type AudioProps = {
@@ -15,12 +16,9 @@ export type AudioProps = {
 	volume?: VolumeProp;
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	name?: string;
-	pauseWhenBuffering?: boolean;
 	showInTimeline?: boolean;
 	playbackRate?: number;
 	muted?: boolean;
-	delayRenderRetries?: number;
-	delayRenderTimeoutInMilliseconds?: number;
 	style?: React.CSSProperties;
 	/**
 	 * @deprecated For internal use only
@@ -30,11 +28,7 @@ export type AudioProps = {
 	loop?: boolean;
 	audioStreamIndex?: number;
 	_remotionInternalNativeLoopPassed?: boolean;
-	fallbackHtml5AudioProps?: {
-		onError?: (err: Error) => void;
-		useWebAudioApi?: boolean;
-		acceptableTimeShiftInSeconds?: number;
-	};
+	fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
 	disallowFallbackToHtml5Audio?: boolean;
 	toneFrequency?: number;
 };
