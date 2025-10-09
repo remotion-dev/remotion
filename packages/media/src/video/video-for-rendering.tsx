@@ -23,6 +23,7 @@ import {
 } from 'remotion';
 import {calculateLoopDuration} from '../../../core/src/calculate-loop';
 import {applyVolume} from '../convert-audiodata/apply-volume';
+import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {FallbackOffthreadVideoProps} from './props';
@@ -284,10 +285,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						type: 'inline-audio',
 						id,
 						audio: Array.from(audio.data),
-						sampleRate: audio.sampleRate,
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
-						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
+						duration: (audio.numberOfFrames / TARGET_SAMPLE_RATE) * 1_000_000,
 						toneFrequency,
 					});
 				}

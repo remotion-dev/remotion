@@ -1,6 +1,7 @@
 import {
 	resampleAudioData,
 	TARGET_NUMBER_OF_CHANNELS,
+	TARGET_SAMPLE_RATE,
 } from './resample-audiodata';
 
 export type ConvertAudioDataOptions = {
@@ -15,7 +16,6 @@ const FORMAT: AudioSampleFormat = 's16';
 
 export type PcmS16AudioData = {
 	data: Int16Array;
-	sampleRate: number;
 	numberOfFrames: number;
 	timestamp: number;
 };
@@ -30,7 +30,6 @@ const roundButRoundDownZeroPointFive = (value: number) => {
 
 export const convertAudioData = ({
 	audioData,
-	newSampleRate,
 	trimStartInSeconds,
 	trimEndInSeconds,
 	playbackRate,
@@ -40,7 +39,7 @@ export const convertAudioData = ({
 		sampleRate: currentSampleRate,
 		numberOfFrames,
 	} = audioData;
-	const ratio = currentSampleRate / newSampleRate;
+	const ratio = currentSampleRate / TARGET_SAMPLE_RATE;
 
 	const frameOffset = roundButRoundDownZeroPointFive(
 		trimStartInSeconds * audioData.sampleRate,
@@ -58,10 +57,6 @@ export const convertAudioData = ({
 		throw new Error(
 			'Cannot resample - the given sample rate would result in less than 1 sample',
 		);
-	}
-
-	if (newSampleRate < 3000 || newSampleRate > 768000) {
-		throw new Error('newSampleRate must be between 3000 and 768000');
 	}
 
 	const srcChannels = new Int16Array(srcNumberOfChannels * frameCount);
@@ -84,7 +79,6 @@ export const convertAudioData = ({
 		return {
 			data: srcChannels,
 			numberOfFrames: newNumberOfFrames,
-			sampleRate: newSampleRate,
 			timestamp: audioData.timestamp + trimStartInSeconds * 1_000_000,
 		};
 	}
@@ -100,7 +94,6 @@ export const convertAudioData = ({
 	const newAudioData: PcmS16AudioData = {
 		data,
 		numberOfFrames: newNumberOfFrames,
-		sampleRate: newSampleRate,
 		timestamp: audioData.timestamp + trimStartInSeconds * 1_000_000,
 	};
 

@@ -40,7 +40,6 @@ test('Should be able to extract a frame', async () => {
 	expect((frame as VideoFrame).timestamp).toBe(1_000_000);
 
 	assert(audio);
-	expect(audio.sampleRate).toBe(48000);
 
 	// duration = 1 / 30
 	// channels = 2
