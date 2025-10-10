@@ -3348,6 +3348,15 @@ export const articles = [
 		slug: 'mediabunny/index',
 	},
 	{
+		id: 'mediabunny/new-video',
+		title: 'New <Video> and <Audio> tags',
+		relativePath: 'docs/mediabunny/new-video.mdx',
+		compId: 'articles-docs-mediabunny-new-video',
+		crumb: 'Mediabunny',
+		noAi: false,
+		slug: 'mediabunny/new-video',
+	},
+	{
 		id: 'mediabunny/version',
 		title: 'Mediabunny version used by Remotion',
 		relativePath: 'docs/mediabunny/version.mdx',

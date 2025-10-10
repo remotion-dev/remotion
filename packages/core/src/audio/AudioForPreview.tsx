@@ -102,7 +102,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	if (!src) {
-		throw new TypeError("No 'src' was passed to <Audio>.");
+		throw new TypeError("No 'src' was passed to <Html5Audio>.");
 	}
 
 	const preloadedSrc = usePreload(src);

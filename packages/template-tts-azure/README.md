@@ -49,7 +49,7 @@ Welcome to your TTS Remotion project!
     ```
 - Copy `.env.example` to `.env` entering your secrets
   - ⚠️ Ensure your AWS credentials only allow reading and uploading to a specific S3 bucket `s3:GetObject` and `s3:PutObject` to not compromise your credentials if you deploy your Remotion project
-- Use method `synthesizeSpeech` from `src/TextToSpeech/tts.ts` to convert Text to Audio. Using `createS3Url()` you can create a source for the `<Audio />` component.
+- Use method `synthesizeSpeech` from `src/TextToSpeech/tts.ts` to convert Text to Audio. Using `createS3Url()` you can create a source for the `<Html5Audio />` component.
 
 ## Example
 

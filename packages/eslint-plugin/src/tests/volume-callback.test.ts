@@ -31,11 +31,11 @@ export const Re = () => {
 }
           `,
 		`
-import {Audio} from 'remotion';
+import {Html5Audio} from 'remotion';
 
 export const Re = () => {
   return (
-    <Audio volume={1} />
+    <Html5Audio volume={1} />
   );
 }
           `,
@@ -60,11 +60,11 @@ export const Re = () => {
 }
           `,
 		`
-import {Audio} from 'remotion';
+import {Html5Audio} from 'remotion';
 
 export const Re = () => {
   return (
-    <Audio volume={function(f) { return f / 30; }} />
+    <Html5Audio volume={function(f) { return f / 30; }} />
   );
 }
           `,
@@ -90,13 +90,13 @@ export const Re = () => {
 		},
 		{
 			code: `
-import {Video, useCurrentFrame} from 'remotion';
+import {Html5Video, useCurrentFrame} from 'remotion';
 
 export const Re = () => {
   const frame = useCurrentFrame();
 
   return (
-    <Audio volume={frame / 20} />
+    <Html5Video volume={frame / 20} />
   );
 }
       `,

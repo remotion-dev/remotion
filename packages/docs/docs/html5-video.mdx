@@ -1,14 +1,16 @@
 ---
 image: /generated/articles-docs-video.png
-title: <Video>
-id: video
+title: <Html5Video>
+id: html5-video
 crumb: 'API - remotion'
 ---
 
+[_previously called `<Video>`_](/docs/mediabunny/new-video)
+
 Wraps the native [`<video>`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement) element to include video in your component that is synchronized with Remotion's time.
 
-:::info
-Prefer [`<OffthreadVideo>`](/docs/offthreadvideo) which during render is faster and supports more codecs.
+:::note
+Prefer [one of the other video tags](/docs/video-tags) which perform better.
 :::
 
 ## API
@@ -309,7 +311,7 @@ To decide which tag to use, see: [Comparison of video tags](/docs/video-tags)
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/video/Video.tsx)
-- [`<Audio />`](/docs/audio)
+- [`<Html5Audio />`](/docs/html5-audio)
 - [`<OffthreadVideo />`](/docs/offthreadvideo)
 - [`<Video />` (from `@remotion/media`)](/docs/media/video)
 - [Comparison of video tags](/docs/video-tags)

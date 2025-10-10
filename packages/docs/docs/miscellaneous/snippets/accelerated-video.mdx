@@ -5,11 +5,15 @@ sidebar_label: Changing speed over time
 crumb: 'Snippets'
 ---
 
+:::note
+This does not work with [`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media) yet.
+:::
+
 import {AcceleratedVideoExample} from '../../../components/AcceleratedVideoPlayerExample.tsx';
 
 To speed up a video over time - for example to start with regular speed and then increasingly make it faster - we need to write some code to ensure we stay within Remotion's rules.
 
-It is not as easy as interpolating the [`playbackRate`](/docs/video#playbackrate):
+It is not as easy as interpolating the [`playbackRate`](/docs/offthreadvideo#playbackrate):
 
 ```tsx twoslash title="❌ Does not work"
 import {interpolate, OffthreadVideo} from 'remotion';
@@ -62,6 +66,6 @@ Note that the timeline in the Remotion Studio might move as you play the video b
 
 ## See also
 
-- [`<OffthreadVideo>`](/docs/video)
+- [`<OffthreadVideo>`](/docs/offthreadvideo)
 - [Different segments at different speeds](/docs/miscellaneous/snippets/different-segments-at-different-speeds)
 - [Jump Cutting](/docs/miscellaneous/snippets/jumpcuts)

@@ -1,5 +1,5 @@
-import {Audio, staticFile} from 'remotion';
+import {Html5Audio, staticFile} from 'remotion';
 
 export const HandleAudioRenderError = () => {
-	return <Audio src={staticFile('balloons.json')} />;
+	return <Html5Audio src={staticFile('balloons.json')} />;
 };

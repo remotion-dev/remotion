@@ -18,7 +18,7 @@ Bar visualizations are ideal for visualizing music.
 
 ```tsx twoslash
 import {useAudioData, visualizeAudio} from '@remotion/media-utils';
-import {Audio, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Html5Audio, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 
 const music = staticFile('music.mp3');
 
@@ -42,7 +42,7 @@ export const MyComponent: React.FC = () => {
   // the longer the bar
   return (
     <div>
-      <Audio src={music} />
+      <Html5Audio src={music} />
       {visualization.map((v) => {
         return <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />;
       })}

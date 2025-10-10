@@ -206,7 +206,7 @@ export const useMediaPlayback = ({
 	}, [mediaRef, playbackRate]);
 
 	useEffect(() => {
-		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
+		const tagName = mediaType === 'audio' ? '<Html5Audio>' : '<Html5Video>';
 		if (!mediaRef.current) {
 			throw new Error(`No ${mediaType} ref found`);
 		}

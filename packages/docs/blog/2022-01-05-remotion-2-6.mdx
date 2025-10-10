@@ -12,8 +12,9 @@ The biggest announcement of this release is that the [`@remotion/player`](/playe
 
 ## `<Player/>` is now stable
 
-<img src="/img/player-demo.jpg" /><br/>
-<br/>
+<img src="/img/player-demo.jpg" />
+<br />
+<br />
 
 With the `<Player/>` component, you can embed a Remotion Video inside a React app without rendering the video. The API is modeled after the native HTML `<video>` tag that many developers are already familiar with.
 
@@ -33,9 +34,10 @@ In this release, we added a new [`renderLoading`](/docs/player/player#renderload
 Recently, we broke the error overlay that pops up when your code contains an error. This is now fixed and we went deeper than ever before!
 
 <img src="/img/error-overlay.png" />
-<br/>
-<br/>
-The Fast Refresh and error overlay is now inlined in our codebase and allows for customization that makes sense for Remotion. The overlay now matches the dark theme of the Remotion Preview and includes handy links such as opening a file in the editor, looking for the error in our GitHub issues and our Discord community.
+<br />
+<br />
+The Fast Refresh and error overlay is now inlined in our codebase and allows for customization that makes sense for Remotion. The overlay now matches the dark theme of the Remotion Preview and includes handy links such as opening a file in the editor, looking for the error in our GitHub issues and
+our Discord community.
 
 ## Support for `/public` folder
 
@@ -44,7 +46,7 @@ If you include the new `<Player />` component in a Create React App or Next.JS p
 
 ## `<Audio />` or `<Video />` now support `data:` URLs
 
-Data URLs are now valid sources for [`<Audio />`](/docs/audio) and [`<Video />`](/docs/video) tags. This is useful for example for tones that are programmatically generated. To help with development of such projects, a new API was added to the `@remotion/media-utils` project: [`audioBufferToDataUrl()`](/docs/audio-buffer-to-data-url). See our festive [Tone.js](https://github.com/remotion-dev/tone-js-example) sample project for an example!
+Data URLs are now valid sources for [`<Html5Audio />`](/docs/html5-audio) and [`<Html5Video />`](/docs/html5-video) tags. This is useful for example for tones that are programmatically generated. To help with development of such projects, a new API was added to the `@remotion/media-utils` project: [`audioBufferToDataUrl()`](/docs/audio-buffer-to-data-url). See our festive [Tone.js](https://github.com/remotion-dev/tone-js-example) sample project for an example!
 
 ## New audiogram template
 

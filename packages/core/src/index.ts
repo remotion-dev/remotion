@@ -119,7 +119,7 @@ checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
 export * from './animated-image/index.js';
 export {Artifact} from './Artifact.js';
-export {Audio, RemotionAudioProps} from './audio/index.js';
+export {Audio, Html5Audio, RemotionAudioProps} from './audio/index.js';
 export type {LoopVolumeCurveBehavior} from './audio/use-audio-frame.js';
 export {cancelRender} from './cancel-render.js';
 export {
@@ -182,6 +182,7 @@ export * from './use-video-config.js';
 export * from './version.js';
 export * from './video-config.js';
 export {
+	Html5Video,
 	OffthreadVideo,
 	OffthreadVideoProps,
 	RemotionMainVideoProps,

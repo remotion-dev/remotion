@@ -1,9 +1,9 @@
 import React from 'react';
-import {Audio, staticFile} from 'remotion';
+import {Html5Audio, staticFile} from 'remotion';
 
 const LoopedTrimmedAudio: React.FC = () => {
 	return (
-		<Audio
+		<Html5Audio
 			loop
 			src={staticFile('music.mp3')}
 			startFrom={125}

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-	Audio,
+	Html5Audio,
 	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
@@ -39,9 +39,9 @@ const AudioTestingMute: React.FC = () => {
 					<Sequence from={20} durationInFrames={200}>
 						<Sequence from={20} durationInFrames={200}>
 							<Sequence from={20} durationInFrames={200}>
-								<Audio src={music} muted={getMuteState('music')} />
-								<Audio src={music} muted={getMuteState('music')} />
-								<Audio src={music} muted={getMuteState('music')} />
+								<Html5Audio src={music} muted={getMuteState('music')} />
+								<Html5Audio src={music} muted={getMuteState('music')} />
+								<Html5Audio src={music} muted={getMuteState('music')} />
 							</Sequence>
 						</Sequence>
 					</Sequence>

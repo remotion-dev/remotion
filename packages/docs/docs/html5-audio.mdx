@@ -1,11 +1,13 @@
 ---
 image: /generated/articles-docs-audio.png
-title: <Audio>
-id: audio
+title: <Html5Audio>
+id: html5-audio
 crumb: 'API - remotion'
 ---
 
-Using this component, you can add audio to your video. All audio formats which are supported by Chromium are supported by the component.
+[_previously called `<Audio>`_](/docs/mediabunny/new-video)
+
+Using this component, you can add audio to your video. All audio formats which are supported by Chrome are supported by the component.
 
 ## API
 
@@ -14,12 +16,12 @@ Using this component, you can add audio to your video. All audio formats which a
 [Put an audio file into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.
 
 ```tsx twoslash
-import {AbsoluteFill, Audio, staticFile} from 'remotion';
+import {AbsoluteFill, Html5Audio, staticFile} from 'remotion';
 
 export const MyVideo = () => {
   return (
     <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} />
+      <Html5Audio src={staticFile('audio.mp3')} />
     </AbsoluteFill>
   );
 };
@@ -30,24 +32,24 @@ export const MyVideo = () => {
 Allows you to control the volume of the audio in it's entirety or frame by frame. Read the page on [using audio](/docs/using-audio) to learn more.
 
 ```tsx twoslash title="Setting a static volume"
-import {AbsoluteFill, Audio, staticFile} from 'remotion';
+import {AbsoluteFill, Html5Audio, staticFile} from 'remotion';
 
 export const MyVideo = () => {
   return (
     <AbsoluteFill>
-      <Audio volume={0.5} src={staticFile('background.mp3')} />
+      <Html5Audio volume={0.5} src={staticFile('background.mp3')} />
     </AbsoluteFill>
   );
 };
 ```
 
 ```tsx twoslash title="Changing the volume over time"
-import {AbsoluteFill, Audio, interpolate, staticFile} from 'remotion';
+import {AbsoluteFill, Html5Audio, interpolate, staticFile} from 'remotion';
 
 export const MyVideo = () => {
   return (
     <AbsoluteFill>
-      <Audio volume={(f) => interpolate(f, [0, 30], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('voice.mp3')} />
+      <Html5Audio volume={(f) => interpolate(f, [0, 30], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('voice.mp3')} />
     </AbsoluteFill>
   );
 };
@@ -64,7 +66,7 @@ Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"`
 
 ### `trimBefore?` / `trimAfter?`<AvailableFrom v="4.0.319"/>
 
-`<Audio>` has two helper props you can use to trim audio:
+`<Html5Audio>` has two helper props you can use to trim audio:
 
 - `trimBefore` will remove a portion of the audio at the beginning (left side)
 - `trimAfter` will remove a portion of the audio at the end (right side)
@@ -77,12 +79,12 @@ By passing `trimAfter={120}`, any audio after the 4 second mark in the file will
 The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
 
 ```tsx twoslash
-import {AbsoluteFill, Audio, staticFile} from 'remotion';
+import {AbsoluteFill, Html5Audio, staticFile} from 'remotion';
 
 export const MyVideo = () => {
   return (
     <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} trimBefore={60} trimAfter={120} />
+      <Html5Audio src={staticFile('audio.mp3')} trimBefore={60} trimAfter={120} />
     </AbsoluteFill>
   );
 };
@@ -101,12 +103,12 @@ You can use the `playbackRate` prop to control the speed of the audio. `1` is th
 While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
 
 ```tsx twoslash
-import {AbsoluteFill, Audio, staticFile} from 'remotion';
+import {AbsoluteFill, Html5Audio, staticFile} from 'remotion';
 
 export const MyVideo = () => {
   return (
     <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} playbackRate={2} />
+      <Html5Audio src={staticFile('audio.mp3')} playbackRate={2} />
     </AbsoluteFill>
   );
 };
@@ -121,13 +123,13 @@ Playing a video in reverse is not supported.
 The `muted` prop will be respected. It will lead to no audio being played while still keeping the audio tag mounted. It's value may change over time, for example to only mute a certain section of the audio.
 
 ```tsx twoslash
-import {AbsoluteFill, Audio, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Html5Audio, staticFile, useCurrentFrame} from 'remotion';
 
 export const MyVideo = () => {
   const frame = useCurrentFrame();
   return (
     <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} muted={frame < 30} />
+      <Html5Audio src={staticFile('audio.mp3')} muted={frame < 30} />
     </AbsoluteFill>
   );
 };
@@ -144,13 +146,13 @@ A name and that will be shown as the label of the sequence in the timeline of th
 You can use the `loop` prop to loop audio.
 
 ```tsx twoslash
-import {AbsoluteFill, Audio, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Html5Audio, staticFile, useCurrentFrame} from 'remotion';
 
 export const MyVideo = () => {
   const frame = useCurrentFrame();
   return (
     <AbsoluteFill>
-      <Audio loop src={staticFile('audio.mp3')} />
+      <Html5Audio loop src={staticFile('audio.mp3')} />
     </AbsoluteFill>
   );
 };
@@ -169,13 +171,13 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 Select the audio stream to use. The default is `0`.
 
 ```tsx twoslash
-import {AbsoluteFill, Audio} from 'remotion';
+import {AbsoluteFill, Html5Audio} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Audio audioStreamIndex={1} src={'https://remotion.media/multiple-audio-streams.mov'} />
+      <Html5Audio audioStreamIndex={1} src={'https://remotion.media/multiple-audio-streams.mov'} />
     </AbsoluteFill>
   );
 };
@@ -231,7 +233,7 @@ To prevent synthetic amplification, set a volume not higher than 1.
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/audio/Audio.tsx)
 - [Using audio](/docs/using-audio)
 - [Audio visualization](/docs/audio/visualization)
-- [`<Video />`](/docs/video)
+- [`<Html5Video />`](/docs/html5-video)
 - [`<Audio />` (from `@remotion/media`)](/docs/media/audio)
 
 <Credits

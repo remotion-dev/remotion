@@ -2,13 +2,13 @@
 image: /generated/articles-docs-miscellaneous-absolute-paths.png
 sidebar_label: Absolute paths
 title: Files with absolute paths
-crumb: "FAQ"
+crumb: 'FAQ'
 ---
 
 Why is it not possible to use absolute paths to require assets?
 
 ```tsx title="This does not work"
-import { Img } from "remotion";
+import {Img} from 'remotion';
 
 const MyComp: React.FC = () => {
   return <Img src="C://Users/Joe/Documents/image.png" />;
@@ -75,7 +75,7 @@ npx serve --cors C://Users/Joe/Documents
 ```
 
 You will get a URL that you can use to access the folder via HTTP.  
-Pass URLs of assets to `<Img>`, `<Video>`, `<OffthreadVideo>`, `<Audio>`, `<Gif>` tags to use them in Remotion.
+Pass URLs of assets to `<Img>`, `<Video>`, `<OffthreadVideo>`, `<Audio>`, `<Gif>`, `<Html5Video>`, `<Html5Audio>` tags to use them in Remotion.
 
 If you need to spawn a server programmatically, use [`serve-handler`](https://www.npmjs.com/package/serve-handler).
 

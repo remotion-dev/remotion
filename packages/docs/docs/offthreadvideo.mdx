@@ -7,7 +7,7 @@ crumb: 'API'
 
 _Available from Remotion 3.0.11_
 
-This component imports and displays a video, similar to [`<Video/>`](/docs/video), but during rendering, extracts the exact frame from the video and displays it in a [`<Img>`](/docs/img) tag. This extraction process happens outside the browser using FFmpeg.
+This component imports and displays a video, similar to [`<Html5Video/>`](/docs/html5-video), but during rendering, extracts the exact frame from the video and displays it in a [`<Img>`](/docs/img) tag. This extraction process happens outside the browser using FFmpeg.
 
 This component was designed to combat limitations of the default `<Video>` element. See: [Comparison of video tags](/docs/video-tags).
 
@@ -317,7 +317,8 @@ If you don't care about color accuracy, you can set `toneMapped` to `false` as w
 
 ## Looping a OffthreadVideo
 
-Unlike [`<Video>`](/docs/video), `OffthreadVideo` does not currently implement the `loop` property.
+Unlike [`<Html5Video>`](/docs/html5-video), `OffthreadVideo` does not implement the `loop` property.  
+Consider using [another video tag](/docs/video-tags) for looping.
 
 You can use the following `<LoopableOffthreadVideo>` component that uses [`@remotion/media-parser`](/docs/media-parser/) to loop a video.
 
@@ -398,5 +399,6 @@ The following codecs can be read by `<OffthreadVideo>`:
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/video/OffthreadVideo.tsx)
-- [`<Video />`](/docs/video)
+- [`<Html5Video />`](/docs/html5-video)
+- [`<Video />` (from `@remotion/media`)](/docs/media/video)
 - [Comparison of video tags](/docs/video-tags)

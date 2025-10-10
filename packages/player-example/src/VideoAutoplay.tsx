@@ -1,7 +1,7 @@
 import {preloadAudio, preloadVideo} from '@remotion/preload';
 import {
 	AbsoluteFill,
-	Audio,
+	Html5Audio,
 	Sequence,
 	Series,
 	Video,
@@ -22,7 +22,7 @@ export const VideoautoplayDemo = () => {
 			}}
 		>
 			<Sequence from={20}>
-				<Audio src={staticFile('sample.mp3')} volume={0.2} />
+				<Html5Audio src={staticFile('sample.mp3')} volume={0.2} />
 			</Sequence>
 			<Series>
 				<Series.Sequence durationInFrames={10}>

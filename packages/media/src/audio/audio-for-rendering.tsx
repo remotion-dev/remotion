@@ -1,8 +1,8 @@
 import type React from 'react';
 import {useContext, useLayoutEffect, useMemo, useState} from 'react';
 import {
-	Audio,
 	cancelRender,
+	Html5Audio,
 	Internals,
 	random,
 	useCurrentFrame,
@@ -128,7 +128,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 					Internals.Log.warn(
 						{logLevel, tag: '@remotion/media'},
-						`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Audio>`,
+						`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
 					);
 					setReplaceWithHtml5Audio(true);
 					return;
@@ -145,7 +145,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 					Internals.Log.warn(
 						{logLevel, tag: '@remotion/media'},
-						`Cannot decode ${src}, falling back to <Audio>`,
+						`Cannot decode ${src}, falling back to <Html5Audio>`,
 					);
 					setReplaceWithHtml5Audio(true);
 					return;
@@ -162,7 +162,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 					Internals.Log.warn(
 						{logLevel, tag: '@remotion/media'},
-						`Network error fetching ${src}, falling back to <Audio>`,
+						`Network error fetching ${src}, falling back to <Html5Audio>`,
 					);
 					setReplaceWithHtml5Audio(true);
 					return;
@@ -238,9 +238,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	]);
 
 	if (replaceWithHtml5Audio) {
-		// TODO: Loop and other props
 		return (
-			<Audio
+			<Html5Audio
 				src={src}
 				playbackRate={playbackRate}
 				muted={muted}
