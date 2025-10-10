@@ -142,10 +142,9 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 				logLevel,
 				sharedAudioContext: sharedAudioContext.audioContext,
 				loop,
-				trimAfterSeconds: trimAfter ? trimAfter / videoConfig.fps : undefined,
-				trimBeforeSeconds: trimBefore
-					? trimBefore / videoConfig.fps
-					: undefined,
+				trimAfter,
+				trimBefore,
+				fps: videoConfig.fps,
 				canvas: null,
 				playbackRate,
 				audioStreamIndex: audioStreamIndex ?? 0,
@@ -339,7 +338,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		}
 
 		audioPlayer.setVolume(userPreferredVolume);
-	}, [userPreferredVolume, mediaPlayerReady, logLevel]);
+	}, [userPreferredVolume, mediaPlayerReady]);
 
 	const effectivePlaybackRate = useMemo(
 		() => playbackRate * globalPlaybackRate,
@@ -353,7 +352,16 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		}
 
 		audioPlayer.setPlaybackRate(effectivePlaybackRate);
-	}, [effectivePlaybackRate, mediaPlayerReady, logLevel]);
+	}, [effectivePlaybackRate, mediaPlayerReady]);
+
+	useEffect(() => {
+		const audioPlayer = mediaPlayerRef.current;
+		if (!audioPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		audioPlayer.setFps(videoConfig.fps);
+	}, [videoConfig.fps, mediaPlayerReady]);
 
 	if (shouldFallbackToNativeAudio && !disallowFallbackToHtml5Audio) {
 		return (

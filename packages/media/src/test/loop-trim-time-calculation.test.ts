@@ -11,6 +11,7 @@ test('should inhibit the same behavior as <Html5Video> - no loop', () => {
 		trimAfter: 200,
 		trimBefore: 100,
 		unloopedTimeInSeconds: 4.04,
+		ifNoMediaDuration: 'fail',
 	});
 
 	expect(timestamp).toBe(null);
@@ -26,6 +27,7 @@ test('should inhibit the same loop behavior as <Html5Video> - loop + trim after'
 		trimAfter: 200,
 		trimBefore: 100,
 		unloopedTimeInSeconds: 4.04,
+		ifNoMediaDuration: 'fail',
 	});
 
 	expect(timestamp).toBe(4.04);
@@ -41,6 +43,7 @@ test('should inhibit the same loop behavior as <Html5Video> - loop + no trim aft
 		trimAfter: undefined,
 		trimBefore: 100,
 		unloopedTimeInSeconds: 4.04,
+		ifNoMediaDuration: 'fail',
 	});
 
 	expect(timestamp).toBe(8.04);
@@ -56,6 +59,7 @@ test('should inhibit the same loop behavior as <Html5Video> - edge case', () => 
 		trimAfter: 100,
 		trimBefore: 0,
 		unloopedTimeInSeconds: 4,
+		ifNoMediaDuration: 'fail',
 	});
 
 	expect(timestamp).toBe(null);
