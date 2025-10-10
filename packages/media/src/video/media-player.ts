@@ -8,8 +8,8 @@ import {
 } from 'mediabunny';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
+import {getTimeInSeconds} from '../get-time-in-seconds';
 import {isNetworkError} from '../is-network-error';
-import {resolvePlaybackTime} from './resolve-playback-time';
 import {sleep, withTimeout} from './timeout-utils';
 
 export const SEEK_THRESHOLD = 0.05;
@@ -59,9 +59,10 @@ export class MediaPlayer {
 	private playing = false;
 	private muted = false;
 	private loop = false;
+	private fps: number;
 
-	private trimBeforeSeconds: number | undefined;
-	private trimAfterSeconds: number | undefined;
+	private trimBefore: number | undefined;
+	private trimAfter: number | undefined;
 
 	private animationFrameId: number | null = null;
 
@@ -87,20 +88,22 @@ export class MediaPlayer {
 		logLevel,
 		sharedAudioContext,
 		loop,
-		trimBeforeSeconds,
-		trimAfterSeconds,
+		trimBefore,
+		trimAfter,
 		playbackRate,
 		audioStreamIndex,
+		fps,
 	}: {
 		canvas: HTMLCanvasElement | null;
 		src: string;
 		logLevel: LogLevel;
 		sharedAudioContext: AudioContext;
 		loop: boolean;
-		trimBeforeSeconds: number | undefined;
-		trimAfterSeconds: number | undefined;
+		trimBefore: number | undefined;
+		trimAfter: number | undefined;
 		playbackRate: number;
 		audioStreamIndex: number;
+		fps: number;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -108,9 +111,10 @@ export class MediaPlayer {
 		this.sharedAudioContext = sharedAudioContext;
 		this.playbackRate = playbackRate;
 		this.loop = loop;
-		this.trimBeforeSeconds = trimBeforeSeconds;
-		this.trimAfterSeconds = trimAfterSeconds;
+		this.trimBefore = trimBefore;
+		this.trimAfter = trimAfter;
 		this.audioStreamIndex = audioStreamIndex ?? 0;
+		this.fps = fps;
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
@@ -208,14 +212,22 @@ export class MediaPlayer {
 				this.gainNode.connect(this.sharedAudioContext.destination);
 			}
 
-			const startTime = resolvePlaybackTime({
-				absolutePlaybackTimeInSeconds: startTimeUnresolved,
+			const startTime = getTimeInSeconds({
+				unloopedTimeInSeconds: startTimeUnresolved,
 				playbackRate: this.playbackRate,
 				loop: this.loop,
-				trimBeforeInSeconds: this.trimBeforeSeconds,
-				trimAfterInSeconds: this.trimAfterSeconds,
+				trimBefore: this.trimBefore,
+				trimAfter: this.trimAfter,
 				mediaDurationInSeconds: this.totalDuration,
+				fps: this.fps,
+				ifNoMediaDuration: 'infinity',
+				src: this.src,
 			});
+
+			if (startTime === null) {
+				this.context?.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
+				return {type: 'success', durationInSeconds: this.totalDuration};
+			}
 
 			if (this.sharedAudioContext) {
 				this.audioSyncAnchor = this.sharedAudioContext.currentTime - startTime;
@@ -272,16 +284,28 @@ export class MediaPlayer {
 	public async seekTo(time: number): Promise<void> {
 		if (!this.isReady()) return;
 
-		const newTime = resolvePlaybackTime({
-			absolutePlaybackTimeInSeconds: time,
+		const newTime = getTimeInSeconds({
+			unloopedTimeInSeconds: time,
 			playbackRate: this.playbackRate,
 			loop: this.loop,
-			trimBeforeInSeconds: this.trimBeforeSeconds,
-			trimAfterInSeconds: this.trimAfterSeconds,
-			mediaDurationInSeconds: this.totalDuration,
+			trimBefore: this.trimBefore,
+			trimAfter: this.trimAfter,
+			mediaDurationInSeconds: this.totalDuration ?? null,
+			fps: this.fps,
+			ifNoMediaDuration: 'infinity',
+			src: this.src,
 		});
+
+		if (newTime === null) {
+			this.context?.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
+			await this.cleanAudioIteratorAndNodes();
+			return;
+		}
+
 		const currentPlaybackTime = this.getPlaybackTime();
+
 		const isSignificantSeek =
+			currentPlaybackTime === null ||
 			Math.abs(newTime - currentPlaybackTime) > SEEK_THRESHOLD;
 
 		if (isSignificantSeek) {
@@ -343,6 +367,10 @@ export class MediaPlayer {
 		this.playbackRate = rate;
 	}
 
+	public setFps(fps: number): void {
+		this.fps = fps;
+	}
+
 	public setLoop(loop: boolean): void {
 		this.loop = loop;
 	}
@@ -355,7 +383,7 @@ export class MediaPlayer {
 		this.videoAsyncId++;
 	}
 
-	private getPlaybackTime(): number | null {
+	private getPlaybackTime(): number {
 		return this.sharedAudioContext.currentTime - this.audioSyncAnchor;
 	}
 
@@ -449,11 +477,16 @@ export class MediaPlayer {
 	};
 
 	private shouldRenderFrame(): boolean {
+		const playbackTime = this.getPlaybackTime();
+		if (playbackTime === null) {
+			return false;
+		}
+
 		return (
 			!this.isBuffering &&
 			this.canRenderVideo() &&
 			this.nextFrame !== null &&
-			this.nextFrame.timestamp <= this.getPlaybackTime()
+			this.nextFrame.timestamp <= playbackTime
 		);
 	}
 
@@ -558,7 +591,12 @@ export class MediaPlayer {
 					break;
 				}
 
-				if (newNextFrame.timestamp <= this.getPlaybackTime()) {
+				const playbackTime = this.getPlaybackTime();
+				if (playbackTime === null) {
+					continue;
+				}
+
+				if (newNextFrame.timestamp <= playbackTime) {
 					continue;
 				} else {
 					this.nextFrame = newNextFrame;
@@ -693,10 +731,19 @@ export class MediaPlayer {
 					this.scheduleAudioChunk(buffer, timestamp);
 				}
 
-				if (timestamp - this.getPlaybackTime() >= 1) {
+				const playbackTime = this.getPlaybackTime();
+				if (playbackTime === null) {
+					continue;
+				}
+
+				if (timestamp - playbackTime >= 1) {
 					await new Promise<void>((resolve) => {
 						const check = () => {
-							if (timestamp - this.getPlaybackTime() < 1) {
+							const currentPlaybackTime = this.getPlaybackTime();
+							if (
+								currentPlaybackTime !== null &&
+								timestamp - currentPlaybackTime < 1
+							) {
 								resolve();
 							} else {
 								requestAnimationFrame(check);

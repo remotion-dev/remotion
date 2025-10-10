@@ -146,10 +146,9 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 				logLevel,
 				sharedAudioContext: sharedAudioContext.audioContext,
 				loop,
-				trimAfterSeconds: trimAfter ? trimAfter / videoConfig.fps : undefined,
-				trimBeforeSeconds: trimBefore
-					? trimBefore / videoConfig.fps
-					: undefined,
+				trimAfter,
+				trimBefore,
+				fps: videoConfig.fps,
 				playbackRate,
 				audioStreamIndex,
 			});
@@ -351,7 +350,7 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		}
 
 		mediaPlayer.setVolume(userPreferredVolume);
-	}, [userPreferredVolume, mediaPlayerReady, logLevel]);
+	}, [userPreferredVolume, mediaPlayerReady]);
 
 	const effectivePlaybackRate = useMemo(
 		() => playbackRate * globalPlaybackRate,
@@ -365,7 +364,7 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		}
 
 		mediaPlayer.setPlaybackRate(effectivePlaybackRate);
-	}, [effectivePlaybackRate, mediaPlayerReady, logLevel]);
+	}, [effectivePlaybackRate, mediaPlayerReady]);
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -375,6 +374,15 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 		mediaPlayer.setLoop(loop);
 	}, [loop, mediaPlayerReady]);
+
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setFps(videoConfig.fps);
+	}, [videoConfig.fps, mediaPlayerReady]);
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

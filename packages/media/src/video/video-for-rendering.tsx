@@ -28,8 +28,6 @@ import {frameForVolumeProp} from '../looped-frame';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {FallbackOffthreadVideoProps} from './props';
 
-// TODO: Combining `loop` + trimAfter / trimBefore
-// is not consistent across preview and rendering
 type InnerVideoProps = {
 	readonly className: string | undefined;
 	readonly loop: boolean;
