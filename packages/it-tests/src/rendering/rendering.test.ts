@@ -476,7 +476,8 @@ test.only(
 				'static-demo',
 				out,
 				'--log=verbose',
-				`--props={"flag": true}`,
+				'--props',
+				'{"flag": true}',
 			],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
