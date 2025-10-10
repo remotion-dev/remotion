@@ -49,6 +49,7 @@ export class MediaPlayer {
 	private queuedAudioNodes: Set<AudioBufferSourceNode> = new Set();
 
 	private gainNode: GainNode | null = null;
+	private currentVolume: number = 1;
 
 	private sharedAudioContext: AudioContext;
 
@@ -349,8 +350,8 @@ export class MediaPlayer {
 
 	public setMuted(muted: boolean): void {
 		this.muted = muted;
-		if (muted) {
-			this.cleanupAudioQueue();
+		if (this.gainNode) {
+			this.gainNode.gain.value = muted ? 0 : this.currentVolume;
 		}
 	}
 
@@ -360,7 +361,10 @@ export class MediaPlayer {
 		}
 
 		const appliedVolume = Math.max(0, volume);
-		this.gainNode.gain.value = appliedVolume;
+		this.currentVolume = appliedVolume;
+		if (!this.muted) {
+			this.gainNode.gain.value = appliedVolume;
+		}
 	}
 
 	public setPlaybackRate(rate: number): void {
@@ -715,7 +719,7 @@ export class MediaPlayer {
 
 				this.maybeResumeFromBuffering(totalBufferDuration / this.playbackRate);
 
-				if (this.playing && !this.muted) {
+				if (this.playing) {
 					if (isFirstBuffer) {
 						this.audioSyncAnchor =
 							this.sharedAudioContext.currentTime - timestamp;
