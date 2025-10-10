@@ -1,15 +1,15 @@
 import React from 'react';
-import {AbsoluteFill, Series, staticFile, Video} from 'remotion';
+import {AbsoluteFill, Html5Video, Series, staticFile} from 'remotion';
 
 export const PremountedRemoteVideos: React.FC = () => {
 	return (
 		<AbsoluteFill>
 			<Series>
 				<Series.Sequence durationInFrames={200} premountFor={20}>
-					<Video pauseWhenBuffering src={staticFile('framer.webm')} />
+					<Html5Video pauseWhenBuffering src={staticFile('framer.webm')} />
 				</Series.Sequence>
 				<Series.Sequence durationInFrames={700} premountFor={30}>
-					<Video
+					<Html5Video
 						pauseWhenBuffering
 						startFrom={1000}
 						src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"

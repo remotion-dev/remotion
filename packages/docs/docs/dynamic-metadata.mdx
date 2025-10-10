@@ -17,7 +17,8 @@ Pass a [`calculateMetadata`](/docs/composition#calculatemetadata) callback funct
 
 ```tsx twoslash title="src/Root.tsx"
 import {parseMedia} from '@remotion/media-parser';
-import {Composition, Video} from 'remotion';
+import {Composition} from 'remotion';
+import {Video} from '@remotion/media';
 
 type MyCompProps = {
   src: string;

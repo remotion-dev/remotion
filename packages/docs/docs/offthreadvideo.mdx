@@ -9,7 +9,7 @@ _Available from Remotion 3.0.11_
 
 This component imports and displays a video, similar to [`<Html5Video/>`](/docs/html5-video), but during rendering, extracts the exact frame from the video and displays it in a [`<Img>`](/docs/img) tag. This extraction process happens outside the browser using FFmpeg.
 
-This component was designed to combat limitations of the default `<Video>` element. See: [Comparison of video tags](/docs/video-tags).
+This component was designed to combat limitations of the default `<Html5Video>` element. See: [Comparison of video tags](/docs/video-tags).
 
 ## Example
 
@@ -325,7 +325,7 @@ You can use the following `<LoopableOffthreadVideo>` component that uses [`@remo
 ```tsx twoslash title="src/LoopableOffthreadVideo.tsx"
 import {mediaParserController, parseMedia} from '@remotion/media-parser';
 import React, {useEffect, useState} from 'react';
-import {cancelRender, continueRender, delayRender, Loop, OffthreadVideo, RemotionOffthreadVideoProps, useRemotionEnvironment, useVideoConfig, Video} from 'remotion';
+import {cancelRender, continueRender, delayRender, Loop, OffthreadVideo, RemotionOffthreadVideoProps, useRemotionEnvironment, useVideoConfig, Html5Video} from 'remotion';
 
 const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
   const [duration, setDuration] = useState<number | null>(null);
@@ -382,7 +382,7 @@ export const LoopableOffthreadVideo: React.FC<
     return <OffthreadVideo {...props} />;
   }
 
-  return <Video loop={loop} {...props}></Video>;
+  return <Html5Video loop={loop} {...props}></Html5Video>;
 };
 ```
 

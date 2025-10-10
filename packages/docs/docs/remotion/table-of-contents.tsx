@@ -73,7 +73,7 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/offthreadvideo">
 					<strong>{'<OffthreadVideo>'}</strong>
 					<div>
-						Alternative to <code>{'<Video>'}</code>
+						Alternative to <code>{'<Html5Video>'}</code>
 					</div>
 				</TOCItem>
 				<TOCItem link="/docs/animatedimage">

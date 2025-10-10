@@ -1,6 +1,6 @@
 import Hls from 'hls.js';
 import React, {useEffect, useRef} from 'react';
-import {AbsoluteFill, RemotionVideoProps, Video} from 'remotion';
+import {AbsoluteFill, Html5Video, RemotionVideoProps} from 'remotion';
 
 const HlsVideo: React.FC<RemotionVideoProps> = ({src}) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -20,7 +20,7 @@ const HlsVideo: React.FC<RemotionVideoProps> = ({src}) => {
 		};
 	}, [src]);
 
-	return <Video ref={videoRef} src={src} />;
+	return <Html5Video ref={videoRef} src={src} />;
 };
 
 export const HlsDemo: React.FC = () => {

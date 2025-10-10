@@ -25,13 +25,13 @@ This new core component will freeze all of it's children and make them think tha
 You can use it for example to display a still frame from a video:
 
 ```tsx twoslash title="MyVideo.tsx"
-import {Freeze, Video} from 'remotion';
+import {Freeze, Html5Video} from 'remotion';
 import myVid from './vid.mp4';
 
 export const MyVideo = () => {
   return (
     <Freeze frame={30}>
-      <Video src={myVid} />
+      <Html5Video src={myVid} />
     </Freeze>
   );
 };
@@ -46,11 +46,11 @@ However, it works for any content. As you can see the API is dead simple! You ca
 This prop allows you to slow down or speed up video and audio elements! Now you can import a video in normal speed and play it in slow motion or timelapse without re-rendering the video.
 
 ```tsx twoslash title="LightningSpeed.tsx"
-import {Video} from 'remotion';
+import {Html5Video} from 'remotion';
 import myVid from './vid.mp4';
 
 export const MyVideo = () => {
-  return <Video src={myVid} playbackRate={4} />;
+  return <Html5Video src={myVid} playbackRate={4} />;
 };
 ```
 

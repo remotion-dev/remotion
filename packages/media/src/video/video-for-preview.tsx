@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
-import {Internals, useBufferState, useCurrentFrame, Video} from 'remotion';
+import {Html5Video, Internals, useBufferState, useCurrentFrame} from 'remotion';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {MediaPlayer} from './media-player';
@@ -393,7 +393,7 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		// <Video> will fallback to <VideoForPreview> anyway
 		// not using <OffthreadVideo> because it does not support looping
 		return (
-			<Video
+			<Html5Video
 				src={src}
 				style={style}
 				className={className}

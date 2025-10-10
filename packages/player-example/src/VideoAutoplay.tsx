@@ -2,9 +2,9 @@ import {preloadAudio, preloadVideo} from '@remotion/preload';
 import {
 	AbsoluteFill,
 	Html5Audio,
+	Html5Video,
 	Sequence,
 	Series,
-	Video,
 	staticFile,
 } from 'remotion';
 
@@ -30,7 +30,7 @@ export const VideoautoplayDemo = () => {
 				</Series.Sequence>
 			</Series>
 			<AbsoluteFill>
-				<Video
+				<Html5Video
 					pauseWhenBuffering
 					src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 				/>

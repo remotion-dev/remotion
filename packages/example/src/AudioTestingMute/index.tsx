@@ -1,10 +1,10 @@
 import React from 'react';
 import {
 	Html5Audio,
+	Html5Video,
 	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
-	Video,
 } from 'remotion';
 import movie from '../resources/framer-music.mp4';
 import music from '../resources/sound1.mp3';
@@ -33,7 +33,7 @@ const AudioTestingMute: React.FC = () => {
 
 	return (
 		<div>
-			<Video src={movie} muted={getMuteState('movie')} />
+			<Html5Video src={movie} muted={getMuteState('movie')} />
 			<Sequence from={20} durationInFrames={200}>
 				<Sequence from={20} durationInFrames={200}>
 					<Sequence from={20} durationInFrames={200}>

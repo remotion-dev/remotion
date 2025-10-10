@@ -56,13 +56,13 @@ First check that you are not accidentially creating an infite render loop. For e
 const uuidv4 = () => '';
 
 // ---cut---
-import {Video} from 'remotion';
+import {Html5Video} from 'remotion';
 
 export default function SBSVideo() {
   return (
     <>
       {['https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'].map((video, i) => {
-        return <Video key={uuidv4()} src={video} />;
+        return <Html5Video key={uuidv4()} src={video} />;
       })}
     </>
   );
@@ -73,7 +73,7 @@ If you ruled out this possibility, use [`<OffthreadVideo>`](/docs/offthreadvideo
 
 ## Recover from this error<AvailableFrom v="3.3.89" />
 
-You can handle this error and replace it with a different video by passing the `onError()` prop to the `<Video>` or `<OffthreadVideo>` component.
+You can handle this error and replace it with a different video by passing the `onError()` prop to the `<Html5Video>` or `<OffthreadVideo>` component.
 
 ## See also
 

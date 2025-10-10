@@ -40,13 +40,13 @@ Add the [`premountFor`](/docs/sequence#premountfor) prop to the [`<Sequence>`](/
 The number you pass is the number in frames you premount the component for.
 
 ```tsx twoslash title="Premounted.tsx"
-import {Sequence, staticFile, Video} from 'remotion';
+import {Sequence, staticFile, OffthreadVideo} from 'remotion';
 
 // ---cut---
 const MyComp: React.FC = () => {
   return (
     <Sequence premountFor={100}>
-      <Video src={staticFile('bigbuckbunny.mp4')}></Video>
+      <OffthreadVideo src={staticFile('bigbuckbunny.mp4')}></OffthreadVideo>
     </Sequence>
   );
 };

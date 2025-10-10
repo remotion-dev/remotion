@@ -124,7 +124,7 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 };
 
 /*
- * @description This method imports and displays a video, similar to <Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag
+ * @description This method imports and displays a video, similar to <Html5Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag
  * @see [Documentation](https://www.remotion.dev/docs/offthreadvideo)
  */
 

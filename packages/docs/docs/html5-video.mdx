@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-video.png
+image: /generated/articles-docs-html5-video.png
 title: <Html5Video>
 id: html5-video
 crumb: 'API - remotion'
@@ -20,12 +20,12 @@ Prefer [one of the other video tags](/docs/video-tags) which perform better.
 All the props that the native `<video>` element accepts (except `autoplay` and `controls`) will be forwarded (but of course not all are useful for Remotion). This means you can use all CSS to style the video.
 
 ```tsx twoslash
-import {AbsoluteFill, staticFile, Video} from 'remotion';
+import {AbsoluteFill, staticFile, Html5Video} from 'remotion';
 
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video src={staticFile('video.webm')} />
+      <Html5Video src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
@@ -34,12 +34,12 @@ export const MyComposition = () => {
 You can load a video from an URL as well:
 
 ```tsx twoslash
-import {AbsoluteFill, Video} from 'remotion';
+import {AbsoluteFill, Html5Video} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+      <Html5Video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
     </AbsoluteFill>
   );
 };
@@ -65,13 +65,13 @@ The video will play the range from `00:02:00` to `00:04:00`, meaning the video w
 For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
 
 ```tsx twoslash
-import {AbsoluteFill, staticFile, Video} from 'remotion';
+import {AbsoluteFill, staticFile, Html5Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video src={staticFile('video.webm')} trimBefore={60} trimAfter={120} />
+      <Html5Video src={staticFile('video.webm')} trimBefore={60} trimAfter={120} />
     </AbsoluteFill>
   );
 };
@@ -98,13 +98,13 @@ This prop has been renamed to [`trimAfter`](#trimAfter) in 4.0.319. It will cont
 You can pass any style you can pass to a native `<video>` element. For example, set its size:
 
 ```tsx twoslash
-import {AbsoluteFill, staticFile, Video} from 'remotion';
+import {AbsoluteFill, staticFile, Html5Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
+      <Html5Video src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
     </AbsoluteFill>
   );
 };
@@ -115,26 +115,26 @@ export const MyComposition = () => {
 Allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/audio/volume) guide to learn how to use it.
 
 ```tsx twoslash title="Example using static volume"
-import {AbsoluteFill, staticFile, Video} from 'remotion';
+import {AbsoluteFill, staticFile, Html5Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video volume={0.5} src={staticFile('video.webm')} />
+      <Html5Video volume={0.5} src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
 ```
 
 ```tsx twoslash title="Example of a ramp up over 100 frames"
-import {AbsoluteFill, interpolate, staticFile, Video} from 'remotion';
+import {AbsoluteFill, interpolate, staticFile, Html5Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={staticFile('video.webm')} />
+      <Html5Video volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
@@ -160,13 +160,13 @@ Controls the speed of the video. `1` is the default and means regular speed, `0.
 While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
 
 ```tsx twoslash title="Example of a video playing twice as fast"
-import {AbsoluteFill, staticFile, Video} from 'remotion';
+import {AbsoluteFill, staticFile, Html5Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video playbackRate={2} src={staticFile('video.webm')} />
+      <Html5Video playbackRate={2} src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
@@ -181,12 +181,12 @@ Playing a video in reverse is not supported.
 You can drop the audio of the video by adding a `muted` prop:
 
 ```tsx twoslash title="Example of a muted video"
-import {AbsoluteFill, Video} from 'remotion';
+import {AbsoluteFill, Html5Video} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video muted src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+      <Html5Video muted src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
     </AbsoluteFill>
   );
 };
@@ -199,12 +199,12 @@ This has the benefit that Remotion will not have to download the video file duri
 Makes the video loop indefinitely.
 
 ```tsx twoslash title="Example of a looped video"
-import {AbsoluteFill, Video} from 'remotion';
+import {AbsoluteFill, Html5Video} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video loop src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+      <Html5Video loop src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
     </AbsoluteFill>
   );
 };
@@ -227,13 +227,13 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 Select the audio stream to use. The default is `0`.
 
 ```tsx twoslash
-import {AbsoluteFill, Video} from 'remotion';
+import {AbsoluteFill, Html5Video} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video audioStreamIndex={1} src={'https://remotion.media/multiple-audio-streams.mov'} />
+      <Html5Video audioStreamIndex={1} src={'https://remotion.media/multiple-audio-streams.mov'} />
     </AbsoluteFill>
   );
 };
@@ -303,8 +303,8 @@ See: [Which video formats does Remotion support?](/docs/miscellaneous/video-form
 
 ## Alternatives: `<OffthreadVideo>` and `@remotion/media`
 
-[`<OffthreadVideo>`](/docs/offthreadvideo) is a Rust-based alternative to `<Video>`.  
-[`@remotion/media`](/docs/media/video) is an experimental component that will replace `<Video>` at some point.
+[`<OffthreadVideo>`](/docs/offthreadvideo) is a Rust-based alternative to `<Html5Video>`.  
+[`@remotion/media`](/docs/media/video) is an experimental component that will replace `<Html5Video>` at some point.
 
 To decide which tag to use, see: [Comparison of video tags](/docs/video-tags)
 

@@ -53,7 +53,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
-			`The \`<Video>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+			`The \`<Html5Video>\` tag requires a string for \`src\`, but got ${JSON.stringify(
 				props.src,
 			)} instead.`,
 		);

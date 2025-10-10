@@ -13,16 +13,25 @@ const ruleTester = new ESLintUtils.RuleTester({
 ruleTester.run('volume-callback', rule, {
 	valid: [
 		`
-import {Video} from 'remotion';
+import {Html5Video} from 'remotion';
 
 export const Re = () => {
   return (
-    <Video volume={1} />
+    <Html5Video volume={1} />
   );
 }
           `,
 		`
 import {Video} from 'remotion';
+
+export const Re = () => {
+  return (
+    <Video volume={f => f / 29} />
+  );
+}
+          `,
+		`
+import {Video} from '@remotion/media';
 
 export const Re = () => {
   return (

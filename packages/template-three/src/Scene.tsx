@@ -1,4 +1,4 @@
-import { staticFile } from "remotion";
+import { Html5Video, staticFile } from "remotion";
 import { getVideoMetadata, VideoMetadata } from "@remotion/media-utils";
 import { ThreeCanvas } from "@remotion/three";
 import React, { useEffect, useRef, useState } from "react";
@@ -46,7 +46,7 @@ export const Scene: React.FC<
 
   return (
     <AbsoluteFill style={container}>
-      <Video
+      <Html5Video
         ref={videoRef}
         src={videoSrc}
         style={videoStyle}

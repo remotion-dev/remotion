@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Series, staticFile, Video} from 'remotion';
+import {AbsoluteFill, Html5Video, Series, staticFile} from 'remotion';
 
 export const PostmountExample: React.FC = () => {
 	return (
@@ -11,12 +11,12 @@ export const PostmountExample: React.FC = () => {
 					premountFor={20}
 					postmountFor={30}
 				>
-					<Video pauseWhenBuffering src={staticFile('framer.webm')} />
+					<Html5Video pauseWhenBuffering src={staticFile('framer.webm')} />
 				</Series.Sequence>
 
 				{/* Second video with just postmount to keep it in memory */}
 				<Series.Sequence durationInFrames={150} postmountFor={50}>
-					<Video
+					<Html5Video
 						pauseWhenBuffering
 						src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 					/>
@@ -28,7 +28,7 @@ export const PostmountExample: React.FC = () => {
 					premountFor={25}
 					postmountFor={25}
 				>
-					<Video pauseWhenBuffering src={staticFile('framer.webm')} />
+					<Html5Video pauseWhenBuffering src={staticFile('framer.webm')} />
 				</Series.Sequence>
 			</Series>
 		</AbsoluteFill>
