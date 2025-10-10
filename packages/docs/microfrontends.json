@@ -7,6 +7,9 @@
 			}
 		},
 		"pro": {
+			"development": {
+				"fallback": "www.remotion.dev"
+			},
 			"routing": [
 				{
 					"paths": ["/dashboard", "/login", "/api"]
