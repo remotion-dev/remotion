@@ -6,6 +6,7 @@ import type {
 	AnyCompMetadata,
 	AnyComposition,
 	AudioOrVideoAsset,
+	LoopDisplay,
 	TRenderAsset,
 } from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
@@ -245,4 +246,5 @@ export type _InternalTypes = {
 	AnyCompMetadata: AnyCompMetadata;
 	AudioOrVideoAsset: AudioOrVideoAsset;
 	TRenderAsset: TRenderAsset;
+	LoopDisplay: LoopDisplay;
 };

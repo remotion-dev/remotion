@@ -1,4 +1,5 @@
 import {useContext, useEffect, useMemo, useState} from 'react';
+import type {LoopDisplay} from './CompositionManager.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
@@ -33,6 +34,7 @@ export const useMediaInTimeline = ({
 	showInTimeline,
 	premountDisplay,
 	postmountDisplay,
+	loopDisplay,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -45,6 +47,7 @@ export const useMediaInTimeline = ({
 	showInTimeline: boolean;
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
+	loopDisplay: LoopDisplay | undefined;
 }) => {
 	const videoConfig = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
@@ -117,7 +120,7 @@ export const useMediaInTimeline = ({
 			nonce,
 			startMediaFrom: 0 - startsAt,
 			doesVolumeChange,
-			loopDisplay: undefined,
+			loopDisplay,
 			playbackRate,
 			stack,
 			premountDisplay,
@@ -148,5 +151,6 @@ export const useMediaInTimeline = ({
 		premountDisplay,
 		postmountDisplay,
 		env.isStudio,
+		loopDisplay,
 	]);
 };

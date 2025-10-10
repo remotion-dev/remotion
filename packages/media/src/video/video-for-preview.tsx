@@ -5,7 +5,14 @@ import type {
 	OnVideoFrame,
 	VolumeProp,
 } from 'remotion';
-import {Internals, useBufferState, useCurrentFrame, Video} from 'remotion';
+import {
+	Internals,
+	useBufferState,
+	useCurrentFrame,
+	useVideoConfig,
+	Video,
+} from 'remotion';
+import {useLoopDisplay} from '../show-in-timeline';
 import {MediaPlayer} from './media-player';
 import type {FallbackOffthreadVideoProps} from './props';
 
@@ -96,6 +103,16 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	const parentSequence = useContext(SequenceContext);
 
+	const {durationInFrames: compDuration} = useVideoConfig();
+
+	const loopDisplay = useLoopDisplay({
+		loop,
+		mediaDurationInSeconds: compDuration,
+		playbackRate,
+		trimAfter,
+		trimBefore,
+	});
+
 	useMediaInTimeline({
 		volume,
 		mediaVolume,
@@ -108,6 +125,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		showInTimeline,
 		premountDisplay: parentSequence?.premountDisplay ?? null,
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,
+		loopDisplay,
 	});
 
 	if (!videoConfig) {
