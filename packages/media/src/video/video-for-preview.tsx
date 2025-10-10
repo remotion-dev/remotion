@@ -1,17 +1,6 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
-import type {
-	LogLevel,
-	LoopVolumeCurveBehavior,
-	OnVideoFrame,
-	VolumeProp,
-} from 'remotion';
-import {
-	Internals,
-	useBufferState,
-	useCurrentFrame,
-	useVideoConfig,
-	Video,
-} from 'remotion';
+import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
+import {Internals, useBufferState, useCurrentFrame, Video} from 'remotion';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
 import {MediaPlayer} from './media-player';
@@ -51,8 +40,8 @@ type NewVideoForPreviewProps = {
 	readonly audioStreamIndex: number;
 };
 
-const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
-	src,
+export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
+	src: unpreloadedSrc,
 	style,
 	playbackRate,
 	logLevel,
@@ -71,6 +60,8 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	fallbackOffthreadVideoProps,
 	audioStreamIndex,
 }) => {
+	const src = usePreload(unpreloadedSrc);
+
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
@@ -88,6 +79,9 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	const [mediaMuted] = useMediaMutedState();
 	const [mediaVolume] = useMediaVolumeState();
+	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
+		number | null
+	>(null);
 
 	const volumePropFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
 
@@ -101,19 +95,18 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	const parentSequence = useContext(SequenceContext);
 
-	const {durationInFrames: compDuration} = useVideoConfig();
-
 	const loopDisplay = useLoopDisplay({
 		loop,
-		mediaDurationInSeconds: compDuration,
+		mediaDurationInSeconds,
 		playbackRate,
 		trimAfter,
 		trimBefore,
 	});
 
+	console.log({loopDisplay});
+
 	useMediaInTimeline({
 		volume,
-		mediaVolume,
 		mediaType: 'video',
 		src,
 		playbackRate,
@@ -123,6 +116,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		premountDisplay: parentSequence?.premountDisplay ?? null,
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,
 		loopDisplay,
+		mediaVolume,
 	});
 
 	if (!videoConfig) {
@@ -227,6 +221,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 					if (result.type === 'success') {
 						setMediaPlayerReady(true);
+						setMediaDurationInSeconds(result.durationInSeconds);
 					}
 				})
 				.catch((error) => {
@@ -424,73 +419,6 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			height={videoConfig.height}
 			style={style}
 			className={classNameValue}
-		/>
-	);
-};
-
-type InnerVideoProps = {
-	readonly className: string | undefined;
-	readonly loop: boolean;
-	readonly src: string;
-	readonly logLevel: LogLevel;
-	readonly muted: boolean;
-	readonly name: string | undefined;
-	readonly volume: VolumeProp;
-	readonly loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
-	readonly onVideoFrame: OnVideoFrame | undefined;
-	readonly playbackRate: number;
-	readonly style: React.CSSProperties;
-	readonly showInTimeline: boolean;
-	readonly trimAfter: number | undefined;
-	readonly trimBefore: number | undefined;
-	readonly stack: string | null;
-	readonly disallowFallbackToOffthreadVideo: boolean;
-	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
-	readonly audioStreamIndex: number;
-};
-
-export const VideoForPreview: React.FC<InnerVideoProps> = ({
-	className,
-	loop,
-	src,
-	logLevel,
-	muted,
-	name,
-	volume,
-	loopVolumeCurveBehavior,
-	onVideoFrame,
-	playbackRate,
-	style,
-	showInTimeline,
-	trimAfter,
-	trimBefore,
-	stack,
-	disallowFallbackToOffthreadVideo,
-	fallbackOffthreadVideoProps,
-	audioStreamIndex,
-}) => {
-	const preloadedSrc = usePreload(src);
-
-	return (
-		<NewVideoForPreview
-			className={className}
-			logLevel={logLevel}
-			muted={muted}
-			onVideoFrame={onVideoFrame}
-			playbackRate={playbackRate}
-			src={preloadedSrc}
-			style={style}
-			volume={volume}
-			name={name}
-			trimAfter={trimAfter}
-			trimBefore={trimBefore}
-			loop={loop}
-			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
-			showInTimeline={showInTimeline}
-			stack={stack}
-			disallowFallbackToOffthreadVideo={disallowFallbackToOffthreadVideo}
-			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
-			audioStreamIndex={audioStreamIndex}
 		/>
 	);
 };

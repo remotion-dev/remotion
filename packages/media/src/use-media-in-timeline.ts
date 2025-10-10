@@ -1,6 +1,6 @@
 import {useContext, useEffect, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
-import {Internals, type VolumeProp} from 'remotion';
+import {Internals, useCurrentFrame, type VolumeProp} from 'remotion';
 
 export const useMediaInTimeline = ({
 	volume,
@@ -35,6 +35,7 @@ export const useMediaInTimeline = ({
 
 	const [sequenceId] = useState(() => String(Math.random()));
 	const [mediaId] = useState(() => String(Math.random()));
+	const frame = useCurrentFrame();
 
 	const {
 		volumes,
@@ -65,6 +66,10 @@ export const useMediaInTimeline = ({
 			return;
 		}
 
+		const loopIteration = loopDisplay
+			? Math.floor(frame / loopDisplay.durationInFrames)
+			: 0;
+
 		registerSequence({
 			type: 'sequence',
 			premountDisplay,
@@ -85,8 +90,8 @@ export const useMediaInTimeline = ({
 			type: mediaType,
 			src,
 			id: mediaId,
-			duration,
-			from: 0,
+			duration: loopDisplay?.durationInFrames ?? duration,
+			from: loopDisplay ? loopIteration * loopDisplay.durationInFrames : 0,
 			parent: sequenceId,
 			displayName: finalDisplayName,
 			rootId,
@@ -95,7 +100,7 @@ export const useMediaInTimeline = ({
 			nonce,
 			startMediaFrom: 0 - startsAt,
 			doesVolumeChange,
-			loopDisplay,
+			loopDisplay: undefined,
 			playbackRate,
 			stack,
 			premountDisplay: null,
@@ -128,5 +133,6 @@ export const useMediaInTimeline = ({
 		startsAt,
 		unregisterSequence,
 		volumes,
+		frame,
 	]);
 };
