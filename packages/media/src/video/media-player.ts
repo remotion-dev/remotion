@@ -750,7 +750,11 @@ export class MediaPlayer {
 				if (timestamp - playbackTime >= 1) {
 					await new Promise<void>((resolve) => {
 						const check = () => {
-							if (timestamp - playbackTime < 1) {
+							const currentPlaybackTime = this.getPlaybackTime();
+							if (
+								currentPlaybackTime !== null &&
+								timestamp - currentPlaybackTime < 1
+							) {
 								resolve();
 							} else {
 								requestAnimationFrame(check);
