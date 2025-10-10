@@ -52,7 +52,12 @@ export default createRule<Options, MessageIds>({
 				if (name.type !== 'JSXIdentifier') {
 					return;
 				}
-				if (name.name !== 'Video' && name.name !== 'Audio') {
+				if (
+					name.name !== 'Video' &&
+					name.name !== 'Audio' &&
+					name.name !== 'Html5Video' &&
+					name.name !== 'Html5Audio'
+				) {
 					return;
 				}
 
