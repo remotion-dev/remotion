@@ -17,6 +17,7 @@ const {
 	warnAboutTooHighVolume,
 	usePreload,
 	SequenceContext,
+	SequenceVisibilityToggleContext,
 } = Internals;
 
 type NewVideoForPreviewProps = {
@@ -83,6 +84,8 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		number | null
 	>(null);
 
+	const {hidden} = useContext(SequenceVisibilityToggleContext);
+
 	const volumePropFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
 
 	const userPreferredVolume = evaluateVolume({
@@ -103,7 +106,7 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		trimBefore,
 	});
 
-	useMediaInTimeline({
+	const {id: timelineId} = useMediaInTimeline({
 		volume,
 		mediaType: 'video',
 		src,
@@ -118,6 +121,8 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		trimAfter,
 		trimBefore,
 	});
+
+	const isSequenceHidden = hidden[timelineId] ?? false;
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
@@ -334,7 +339,8 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		};
 	}, [mediaPlayerReady, buffer, logLevel]);
 
-	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
+	const effectiveMuted =
+		isSequenceHidden || muted || mediaMuted || userPreferredVolume <= 0;
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -397,13 +403,20 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		};
 	}, [onVideoFrame, mediaPlayerReady]);
 
+	const actualStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...style,
+			opacity: isSequenceHidden ? 0 : (style?.opacity ?? 1),
+		};
+	}, [isSequenceHidden, style]);
+
 	if (shouldFallbackToNativeVideo && !disallowFallbackToOffthreadVideo) {
 		// <Video> will fallback to <VideoForPreview> anyway
 		// not using <OffthreadVideo> because it does not support looping
 		return (
 			<Html5Video
 				src={src}
-				style={style}
+				style={actualStyle}
 				className={className}
 				muted={muted}
 				volume={volume}
@@ -425,7 +438,7 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			ref={canvasRef}
 			width={videoConfig.width}
 			height={videoConfig.height}
-			style={style}
+			style={actualStyle}
 			className={classNameValue}
 		/>
 	);

@@ -147,4 +147,8 @@ export const useMediaInTimeline = ({
 		volumes,
 		frame,
 	]);
+
+	return {
+		id: mediaId,
+	};
 };
