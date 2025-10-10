@@ -15,18 +15,14 @@ jobs:
     name: Lambda integration
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
-        with:
-          version: "8.10.2"
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "pnpm"
-      - uses: oven-sh/setup-bun@v2.0.1
+      - uses: oven-sh/setup-bun@v2.0.2
         with:
-          bun-version: 1.2.10
+          bun-version: 1.3.0
       - name: Install
-        run: pnpm i --frozen-lockfile
+        run: bun i
       - name: Cache turbo build setup
         uses: actions/cache@v4
         with:
@@ -36,7 +32,7 @@ jobs:
             ${{ runner.os }}-turbo-
       - name: Test Lambda IT
         run: |
-          pnpm run testlambda
+          bun run testlambda
       - name: IT tests
         timeout-minutes: 10
         run: |
@@ -50,18 +46,15 @@ jobs:
     name: Webcodecs tests
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
-        with:
-          version: "8.10.2"
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "pnpm"
-      - uses: oven-sh/setup-bun@v2.0.1
+          cache: "bun"
+      - uses: oven-sh/setup-bun@v2.0.2
         with:
-          bun-version: 1.2.10
+          bun-version: 1.3.0
       - name: Install
-        run: pnpm i --frozen-lockfile
+        run: bun i
       - name: Cache turbo build setup
         uses: actions/cache@v4
         with:
@@ -79,9 +72,6 @@ jobs:
     name: SSR integration
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
-        with:
-          version: "8.10.2"
       - name: Cache turbo build setup
         uses: actions/cache/restore@v4
         with:
@@ -91,12 +81,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 16
-          cache: "pnpm"
-      - uses: oven-sh/setup-bun@v2.0.1
+      - uses: oven-sh/setup-bun@v2.0.2
         with:
-          bun-version: 1.2.10
+          bun-version: 1.3.0
       - name: Install
-        run: pnpm i --frozen-lockfile
+        run: bun i
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -118,15 +107,12 @@ jobs:
       - name: Test SSR
         timeout-minutes: 8
         run: |
-          pnpm run testssr
+          bun run testssr
   lint:
     runs-on: ubuntu-latest
     name: Linting + Formatting
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
-        with:
-          version: "8.10.2"
       - name: Cache turbo build setup
         uses: actions/cache/restore@v4
         with:
@@ -136,18 +122,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "pnpm"
-      - uses: oven-sh/setup-bun@v2.0.1
+      - uses: oven-sh/setup-bun@v2.0.2
         with:
-          bun-version: 1.2.10
+          bun-version: 1.3.0
       - name: Install
-        run: pnpm i --frozen-lockfile
+        run: bun i
         env:
           CI: true
       - name: Perform stylecheck
         timeout-minutes: 10
         run: |
-          pnpm run stylecheck
+          bun run stylecheck
   build:
     name: Build Node ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -165,13 +150,9 @@ jobs:
             node_version: 20.5
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
-        with:
-          version: "8.10.2"
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node_version }}
-          cache: "pnpm"
       - name: Cache turbo build setup
         uses: actions/cache@v4
         with:
@@ -179,12 +160,12 @@ jobs:
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-turbo-
-      - uses: oven-sh/setup-bun@v2.0.1
+      - uses: oven-sh/setup-bun@v2.0.2
         with:
-          bun-version: 1.2.10
+          bun-version: 1.3.0
       - name: Install
-        run: pnpm i --frozen-lockfile
+        run: bun i
       - name: Build & Test
         timeout-minutes: 30
         run: |
-          pnpm run ci
+          bun run ci

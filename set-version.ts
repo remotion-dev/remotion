@@ -74,7 +74,7 @@ execSync('bun ensure-correct-version.ts', {
 	cwd: 'packages/media-parser',
 });
 
-execSync('pnpm build', {
+execSync('bun run build', {
 	stdio: 'inherit',
 });
 
