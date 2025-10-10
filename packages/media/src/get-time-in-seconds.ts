@@ -37,5 +37,15 @@ export const getTimeInSeconds = ({
 
 	const timeInSeconds = (unloopedTimeInSeconds * playbackRate) % loopDuration;
 
+	if ((trimAfter ?? null) !== null) {
+		if (!loop) {
+			const time = (trimAfter! - (trimBefore ?? 0)) / fps;
+
+			if (timeInSeconds >= time) {
+				return null;
+			}
+		}
+	}
+
 	return timeInSeconds + (trimBefore ?? 0) / fps;
 };

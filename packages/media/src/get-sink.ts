@@ -5,7 +5,7 @@ import {getSinks} from './video-extraction/get-frames-since-keyframe';
 
 export const sinkPromises: Record<string, Promise<GetSink>> = {};
 
-export const getSinkWeak = async (src: string, logLevel: LogLevel) => {
+export const getSink = (src: string, logLevel: LogLevel) => {
 	let promise = sinkPromises[src];
 	if (!promise) {
 		Internals.Log.verbose(

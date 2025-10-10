@@ -80,6 +80,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		const timestamp = frame / fps;
 		const durationInSeconds = 1 / fps;
 
+		if (replaceWithHtml5Audio) {
+			return;
+		}
+
 		const newHandle = delayRender(`Extracting audio for frame ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
@@ -230,6 +234,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		toneFrequency,
 		trimAfter,
 		trimBefore,
+		replaceWithHtml5Audio,
 	]);
 
 	if (replaceWithHtml5Audio) {
