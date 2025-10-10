@@ -32,7 +32,8 @@
 		"@remotion/compositor-linux-x64-gnu": "workspace:*",
 		"@types/minimist": "1.2.2",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "9.19.0",
+		"@types/node": "20.12.14"
 	},
 	"exports": {
 		"./package.json": "./package.json",
