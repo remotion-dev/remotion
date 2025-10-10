@@ -71,6 +71,7 @@ const extractAudioInternal = async ({
 		playbackRate,
 		trimBefore,
 		fps,
+		ifNoMediaDuration: 'fail',
 	});
 	if (timeInSeconds === null) {
 		return {data: null, durationInSeconds: mediaDurationInSeconds};

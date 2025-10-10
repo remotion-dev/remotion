@@ -65,6 +65,7 @@ const extractFrameInternal = async ({
 		playbackRate,
 		trimBefore,
 		fps,
+		ifNoMediaDuration: 'fail',
 	});
 
 	if (timeInSeconds === null) {
