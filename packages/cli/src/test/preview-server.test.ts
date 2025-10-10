@@ -38,8 +38,8 @@ describe('setting preview server port', () => {
 		],
 	])(
 		'throw error on invalid ports %s',
-		(port: number | undefined, errorPattern: string) => {
-			expectToThrow(() => setPort(port), new RegExp(errorPattern));
+		(port: number | string, errorPattern: string) => {
+			expectToThrow(() => setPort(port as number), new RegExp(errorPattern));
 		},
 	);
 });
