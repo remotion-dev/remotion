@@ -13,23 +13,29 @@ export const resolvePlaybackTime = ({
 	trimAfterInSeconds: number | undefined;
 	mediaDurationInSeconds: number | undefined;
 }) => {
-	const loopAfterPreliminary = loop
-		? Math.min(
-				trimAfterInSeconds ?? Infinity,
-				mediaDurationInSeconds ?? Infinity,
-			)
-		: Infinity;
+	const loopAfterPreliminary = Math.min(
+		trimAfterInSeconds ?? Infinity,
+		mediaDurationInSeconds ?? Infinity,
+	);
 	const loopAfterConsideringTrimBefore =
 		loopAfterPreliminary - (trimBeforeInSeconds ?? 0);
 
 	const loopAfterConsideringPlaybackRate =
 		loopAfterConsideringTrimBefore / playbackRate;
 
+	if (
+		absolutePlaybackTimeInSeconds > loopAfterConsideringPlaybackRate &&
+		!loop
+	) {
+		return loopAfterConsideringPlaybackRate;
+	}
+
 	const timeConsideringLoop =
 		absolutePlaybackTimeInSeconds % loopAfterConsideringPlaybackRate;
 
-	const time = timeConsideringLoop * playbackRate + (trimBeforeInSeconds ?? 0);
-	if (Number.isNaN(time)) {
+	const timeInSeconds =
+		timeConsideringLoop * playbackRate + (trimBeforeInSeconds ?? 0);
+	if (Number.isNaN(timeInSeconds)) {
 		// eslint-disable-next-line no-console
 		console.log({
 			absolutePlaybackTimeInSeconds,
@@ -42,5 +48,5 @@ export const resolvePlaybackTime = ({
 		throw new Error('Time is NaN');
 	}
 
-	return time;
+	return timeInSeconds;
 };
