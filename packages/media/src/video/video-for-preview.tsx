@@ -339,7 +339,8 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		};
 	}, [mediaPlayerReady, buffer, logLevel]);
 
-	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
+	const effectiveMuted =
+		isSequenceHidden || muted || mediaMuted || userPreferredVolume <= 0;
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
