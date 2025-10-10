@@ -2,7 +2,7 @@ import { Html5Video, staticFile } from "remotion";
 import { getVideoMetadata, VideoMetadata } from "@remotion/media-utils";
 import { ThreeCanvas } from "@remotion/three";
 import React, { useEffect, useRef, useState } from "react";
-import { AbsoluteFill, useVideoConfig, Video } from "remotion";
+import { AbsoluteFill, useVideoConfig } from "remotion";
 import { Phone } from "./Phone";
 import { z } from "zod";
 import { zColor } from "@remotion/zod-types";
