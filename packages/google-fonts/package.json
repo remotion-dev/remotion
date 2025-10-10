@@ -452,6 +452,15 @@
 			"B612Mono": [
 				"dist/cjs/B612Mono.d.ts"
 			],
+			"BBHSansBartle": [
+				"dist/cjs/BBHSansBartle.d.ts"
+			],
+			"BBHSansBogle": [
+				"dist/cjs/BBHSansBogle.d.ts"
+			],
+			"BBHSansHegarty": [
+				"dist/cjs/BBHSansHegarty.d.ts"
+			],
 			"BIZUDGothic": [
 				"dist/cjs/BIZUDGothic.d.ts"
 			],
