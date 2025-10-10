@@ -3,7 +3,7 @@ import {AbsoluteFill} from 'remotion';
 import {LIGHT_COLOR} from '../../helpers/colors';
 
 const width: React.CSSProperties = {
-	width: 30,
+	width: 0,
 	flexDirection: 'row',
 	display: 'flex',
 	position: 'relative',

@@ -16,7 +16,7 @@ export const SEEK_THRESHOLD = 0.05;
 const AUDIO_BUFFER_TOLERANCE_THRESHOLD = 0.1;
 
 export type MediaPlayerInitResult =
-	| {type: 'success'}
+	| {type: 'success'; durationInSeconds: number}
 	| {type: 'unknown-container-format'}
 	| {type: 'cannot-decode'}
 	| {type: 'network-error'}
@@ -172,12 +172,12 @@ export class MediaPlayer {
 				return {type: 'unknown-container-format'};
 			}
 
-			const [duration, videoTrack, audioTracks] = await Promise.all([
+			const [durationInSeconds, videoTrack, audioTracks] = await Promise.all([
 				input.computeDuration(),
 				input.getPrimaryVideoTrack(),
 				input.getAudioTracks(),
 			]);
-			this.totalDuration = duration;
+			this.totalDuration = durationInSeconds;
 
 			const audioTrack = audioTracks[this.audioStreamIndex] ?? null;
 
@@ -229,7 +229,7 @@ export class MediaPlayer {
 
 			this.startRenderLoop();
 
-			return {type: 'success'};
+			return {type: 'success', durationInSeconds};
 		} catch (error) {
 			const err = error as Error;
 

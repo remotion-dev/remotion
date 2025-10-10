@@ -2,7 +2,7 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {Sequence} from '../Sequence.js';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {calculateLoopDuration} from '../calculate-loop.js';
+import {calculateMediaDuration} from '../calculate-media-duration.js';
 import {cancelRender} from '../cancel-render.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Loop} from '../loop/index.js';
@@ -119,7 +119,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		return (
 			<Loop
 				layout="none"
-				durationInFrames={calculateLoopDuration({
+				durationInFrames={calculateMediaDuration({
 					trimAfter: trimAfterValue,
 					mediaDurationInFrames: duration,
 					playbackRate: props.playbackRate ?? 1,

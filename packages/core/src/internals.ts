@@ -10,7 +10,7 @@ import {
 	useMediaStartsAt,
 } from './audio/use-audio-frame.js';
 import {BufferingContextReact, BufferingProvider} from './buffering.js';
-import {calculateLoopDuration} from './calculate-loop.js';
+import {calculateMediaDuration} from './calculate-media-duration.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
@@ -89,7 +89,10 @@ import {
 	PreviewSizeContext,
 } from './use-current-scale.js';
 import {useLazyComponent} from './use-lazy-component.js';
-import {useMediaInTimeline} from './use-media-in-timeline.js';
+import {
+	useBasicMediaInTimeline,
+	useMediaInTimeline,
+} from './use-media-in-timeline.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
 import {validateMediaProps} from './validate-media-props.js';
@@ -168,7 +171,7 @@ export const Internals = {
 	SharedAudioContext,
 	SharedAudioContextProvider,
 	invalidCompositionErrorMessage,
-	calculateLoopDuration,
+	calculateMediaDuration,
 	isCompositionIdValid,
 	getPreviewDomElement,
 	compositionsRef,
@@ -217,6 +220,7 @@ export const Internals = {
 	AudioForPreview,
 	OBJECTFIT_CONTAIN_CLASS_NAME,
 	InnerOffthreadVideo,
+	useBasicMediaInTimeline,
 } as const;
 
 export type {

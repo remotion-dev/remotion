@@ -26,7 +26,7 @@ export const getTimeInSeconds = ({
 	}
 
 	const loopDuration = loop
-		? Internals.calculateLoopDuration({
+		? Internals.calculateMediaDuration({
 				trimAfter,
 				mediaDurationInFrames: mediaDurationInSeconds! * fps,
 				// Playback rate was already specified before
