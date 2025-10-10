@@ -22,14 +22,14 @@ export const useLoopDisplay = ({
 			return undefined;
 		}
 
-		const durationInFrames = Internals.calculateLoopDuration({
+		const durationInFrames = Internals.calculateMediaDuration({
 			mediaDurationInFrames: mediaDurationInSeconds * fps,
 			playbackRate,
 			trimAfter,
 			trimBefore,
 		});
 
-		const maxTimes = Math.ceil(compDuration / durationInFrames);
+		const maxTimes = compDuration / durationInFrames;
 
 		return {
 			numberOfTimes: maxTimes,

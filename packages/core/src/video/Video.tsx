@@ -2,7 +2,7 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {Sequence} from '../Sequence.js';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {calculateLoopDuration} from '../calculate-loop.js';
+import {calculateMediaDuration} from '../calculate-media-duration.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
@@ -97,7 +97,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 		return (
 			<Loop
-				durationInFrames={calculateLoopDuration({
+				durationInFrames={calculateMediaDuration({
 					trimAfter: trimAfterValue,
 					mediaDurationInFrames: mediaDuration,
 					playbackRate: props.playbackRate ?? 1,

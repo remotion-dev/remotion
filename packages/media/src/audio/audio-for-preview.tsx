@@ -128,6 +128,8 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		premountDisplay: parentSequence?.premountDisplay ?? null,
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,
 		loopDisplay,
+		trimAfter,
+		trimBefore,
 	});
 
 	useEffect(() => {

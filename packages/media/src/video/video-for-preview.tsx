@@ -103,8 +103,6 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		trimBefore,
 	});
 
-	console.log({loopDisplay});
-
 	useMediaInTimeline({
 		volume,
 		mediaType: 'video',
@@ -117,6 +115,8 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,
 		loopDisplay,
 		mediaVolume,
+		trimAfter,
+		trimBefore,
 	});
 
 	if (!videoConfig) {

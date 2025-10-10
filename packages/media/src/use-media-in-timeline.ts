@@ -14,6 +14,8 @@ export const useMediaInTimeline = ({
 	premountDisplay,
 	postmountDisplay,
 	loopDisplay,
+	trimBefore,
+	trimAfter,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -26,6 +28,8 @@ export const useMediaInTimeline = ({
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
 	loopDisplay: _InternalTypes['LoopDisplay'] | undefined;
+	trimBefore: number | undefined;
+	trimAfter: number | undefined;
 }) => {
 	const parentSequence = useContext(Internals.SequenceContext);
 	const startsAt = Internals.useMediaStartsAt();
@@ -51,6 +55,9 @@ export const useMediaInTimeline = ({
 		mediaType,
 		src,
 		displayName,
+		trimBefore,
+		trimAfter,
+		playbackRate,
 	});
 
 	useEffect(() => {
@@ -70,21 +77,23 @@ export const useMediaInTimeline = ({
 			? Math.floor(frame / loopDisplay.durationInFrames)
 			: 0;
 
-		registerSequence({
-			type: 'sequence',
-			premountDisplay,
-			postmountDisplay,
-			parent: parentSequence?.id ?? null,
-			displayName: finalDisplayName,
-			rootId,
-			showInTimeline: true,
-			nonce,
-			loopDisplay,
-			stack,
-			from: 0,
-			duration,
-			id: sequenceId,
-		});
+		if (loopDisplay) {
+			registerSequence({
+				type: 'sequence',
+				premountDisplay,
+				postmountDisplay,
+				parent: parentSequence?.id ?? null,
+				displayName: finalDisplayName,
+				rootId,
+				showInTimeline: true,
+				nonce,
+				loopDisplay,
+				stack,
+				from: 0,
+				duration,
+				id: sequenceId,
+			});
+		}
 
 		registerSequence({
 			type: mediaType,
@@ -92,7 +101,7 @@ export const useMediaInTimeline = ({
 			id: mediaId,
 			duration: loopDisplay?.durationInFrames ?? duration,
 			from: loopDisplay ? loopIteration * loopDisplay.durationInFrames : 0,
-			parent: sequenceId,
+			parent: loopDisplay ? sequenceId : (parentSequence?.id ?? null),
 			displayName: finalDisplayName,
 			rootId,
 			volume: volumes,
@@ -108,7 +117,10 @@ export const useMediaInTimeline = ({
 		});
 
 		return () => {
-			unregisterSequence(sequenceId);
+			if (loopDisplay) {
+				unregisterSequence(sequenceId);
+			}
+
 			unregisterSequence(mediaId);
 		};
 	}, [
