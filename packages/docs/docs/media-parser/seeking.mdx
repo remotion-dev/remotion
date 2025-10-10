@@ -35,7 +35,7 @@ await parseMedia({
 });
 ```
 
-Calling [`.seek()`](/docs/media-parser/media-parser-controller#seek) will **seek to the best keyframe** that comes before the time you specified.
+Calling [`.seek()`](/docs/media-parser/media-parser-controller#seektimeinseconds-number) will **seek to the best keyframe** that comes before the time you specified.
 
 If there is a keyframe at exactly this time, it may seek to this one.  
 There is no guarantee that this is the last keyframe before the time you specified.
