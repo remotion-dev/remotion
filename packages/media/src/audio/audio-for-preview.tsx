@@ -7,6 +7,7 @@ import {
 	useCurrentFrame,
 } from 'remotion';
 import {useLoopDisplay} from '../show-in-timeline';
+import {useMediaInTimeline} from '../use-media-in-timeline';
 import {MediaPlayer} from '../video/media-player';
 import type {FallbackHtml5AudioProps} from './props';
 
@@ -20,7 +21,6 @@ const {
 	evaluateVolume,
 	warnAboutTooHighVolume,
 	usePreload,
-	useMediaInTimeline,
 	SequenceContext,
 } = Internals;
 
@@ -106,8 +106,6 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 
 	const preloadedSrc = usePreload(src);
 
-	const [timelineId] = useState(() => String(Math.random()));
-
 	const parentSequence = useContext(SequenceContext);
 
 	const loopDisplay = useLoopDisplay({
@@ -125,7 +123,6 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		src,
 		playbackRate,
 		displayName: name ?? null,
-		id: timelineId,
 		stack,
 		showInTimeline,
 		premountDisplay: parentSequence?.premountDisplay ?? null,

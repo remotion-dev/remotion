@@ -13,6 +13,7 @@ import {
 	Video,
 } from 'remotion';
 import {useLoopDisplay} from '../show-in-timeline';
+import {useMediaInTimeline} from '../use-media-in-timeline';
 import {MediaPlayer} from './media-player';
 import type {FallbackOffthreadVideoProps} from './props';
 
@@ -26,7 +27,6 @@ const {
 	evaluateVolume,
 	warnAboutTooHighVolume,
 	usePreload,
-	useMediaInTimeline,
 	SequenceContext,
 } = Internals;
 
@@ -99,8 +99,6 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	warnAboutTooHighVolume(userPreferredVolume);
 
-	const [timelineId] = useState(() => String(Math.random()));
-
 	const parentSequence = useContext(SequenceContext);
 
 	const {durationInFrames: compDuration} = useVideoConfig();
@@ -120,7 +118,6 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		src,
 		playbackRate,
 		displayName: name ?? null,
-		id: timelineId,
 		stack,
 		showInTimeline,
 		premountDisplay: parentSequence?.premountDisplay ?? null,

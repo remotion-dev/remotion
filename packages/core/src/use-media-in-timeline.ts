@@ -27,12 +27,18 @@ export const useBasicMediaInTimeline = ({
 	mediaVolume,
 	mediaType,
 	src,
+	displayName,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
 	mediaType: 'audio' | 'video';
 	src: string | undefined;
+	displayName: string | null;
 }) => {
+	if (!src) {
+		throw new Error('No src passed');
+	}
+
 	const startsAt = useMediaStartsAt();
 	const parentSequence = useContext(SequenceContext);
 	const videoConfig = useVideoConfig();
@@ -81,6 +87,7 @@ export const useBasicMediaInTimeline = ({
 		nonce,
 		rootId,
 		isStudio: env.isStudio,
+		finalDisplayName: displayName ?? getAssetDisplayName(src),
 	};
 };
 
@@ -115,13 +122,21 @@ export const useMediaInTimeline = ({
 	const startsAt = useMediaStartsAt();
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 
-	const {volumes, duration, doesVolumeChange, nonce, rootId, isStudio} =
-		useBasicMediaInTimeline({
-			volume,
-			mediaVolume,
-			mediaType,
-			src,
-		});
+	const {
+		volumes,
+		duration,
+		doesVolumeChange,
+		nonce,
+		rootId,
+		isStudio,
+		finalDisplayName,
+	} = useBasicMediaInTimeline({
+		volume,
+		mediaVolume,
+		mediaType,
+		src,
+		displayName,
+	});
 
 	useEffect(() => {
 		if (!src) {
@@ -143,7 +158,7 @@ export const useMediaInTimeline = ({
 			duration,
 			from: 0,
 			parent: parentSequence?.id ?? null,
-			displayName: displayName ?? getAssetDisplayName(src),
+			displayName: finalDisplayName,
 			rootId,
 			volume: volumes,
 			showInTimeline: true,
@@ -156,6 +171,7 @@ export const useMediaInTimeline = ({
 			premountDisplay,
 			postmountDisplay,
 		});
+
 		return () => {
 			unregisterSequence(id);
 		};
@@ -172,7 +188,6 @@ export const useMediaInTimeline = ({
 		mediaType,
 		startsAt,
 		playbackRate,
-		displayName,
 		stack,
 		showInTimeline,
 		premountDisplay,
@@ -180,5 +195,6 @@ export const useMediaInTimeline = ({
 		isStudio,
 		loopDisplay,
 		rootId,
+		finalDisplayName,
 	]);
 };
