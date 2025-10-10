@@ -1314,6 +1314,7 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-flat": "workspace:*",
+        "@types/node": "20.12.14",
         "@types/react": "19.0.0",
         "@types/web": "0.0.166",
         "eslint": "9.19.0",
