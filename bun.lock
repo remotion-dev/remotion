@@ -1057,6 +1057,7 @@
         "@remotion/example-videos": "workspace:*",
         "@testing-library/dom": "10.4.0",
         "@testing-library/react": "16.1.0",
+        "@types/node": "20.12.14",
         "@types/ws": "8.5.10",
         "eslint": "9.19.0",
         "react": "19.0.0",
@@ -1218,6 +1219,7 @@
       "devDependencies": {
         "@babel/types": "7.24.0",
         "@remotion/eslint-config-internal": "workspace:*",
+        "@types/node": "20.12.14",
         "@types/semver": "^7.3.4",
         "ast-types": "0.16.1",
         "eslint": "9.19.0",
