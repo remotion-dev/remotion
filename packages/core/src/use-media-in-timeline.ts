@@ -68,7 +68,20 @@ export const useBasicMediaInTimeline = ({
 		}
 	}, [initialVolume, mediaType, src, volume]);
 
-	return {volumes, duration};
+	const doesVolumeChange = typeof volume === 'function';
+
+	const nonce = useNonce();
+	const {rootId} = useContext(TimelineContext);
+	const env = useRemotionEnvironment();
+
+	return {
+		volumes,
+		duration,
+		doesVolumeChange,
+		nonce,
+		rootId,
+		isStudio: env.isStudio,
+	};
 };
 
 export const useMediaInTimeline = ({
@@ -102,26 +115,20 @@ export const useMediaInTimeline = ({
 	const startsAt = useMediaStartsAt();
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 
-	const nonce = useNonce();
-	const {rootId} = useContext(TimelineContext);
-
-	const {volumes, duration} = useBasicMediaInTimeline({
-		volume,
-		mediaVolume,
-		mediaType,
-		src,
-	});
-
-	const doesVolumeChange = typeof volume === 'function';
-
-	const env = useRemotionEnvironment();
+	const {volumes, duration, doesVolumeChange, nonce, rootId, isStudio} =
+		useBasicMediaInTimeline({
+			volume,
+			mediaVolume,
+			mediaType,
+			src,
+		});
 
 	useEffect(() => {
 		if (!src) {
 			throw new Error('No src passed');
 		}
 
-		if (!env.isStudio && window.process?.env?.NODE_ENV !== 'test') {
+		if (!isStudio && window.process?.env?.NODE_ENV !== 'test') {
 			return;
 		}
 
@@ -158,7 +165,6 @@ export const useMediaInTimeline = ({
 		parentSequence,
 		src,
 		registerSequence,
-		rootId,
 		unregisterSequence,
 		volumes,
 		doesVolumeChange,
@@ -171,7 +177,8 @@ export const useMediaInTimeline = ({
 		showInTimeline,
 		premountDisplay,
 		postmountDisplay,
-		env.isStudio,
+		isStudio,
 		loopDisplay,
+		rootId,
 	]);
 };
