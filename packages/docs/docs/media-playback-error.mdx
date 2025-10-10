@@ -18,7 +18,7 @@ or
 - Error: Could not play audio with src [source] [object MediaError]
 ```
 
-This error happens when you are trying to embed a `<Video/>` or `<Audio/>` tag in your Remotion project but the browser is unable to load and play the media. Although the browser does not report the exact error, there are two common reasons for this error.
+This error happens when you are trying to embed a [`<Html5Video/>`](/docs/html5-video) or [`<Html5Audio/>`](/docs/html5-audio) tag in your Remotion project but the browser is unable to load and play the media. Although the browser does not report the exact error, there are two common reasons for this error.
 
 ## Codec not supported by Chrome
 
@@ -56,13 +56,13 @@ First check that you are not accidentially creating an infite render loop. For e
 const uuidv4 = () => '';
 
 // ---cut---
-import {Video} from 'remotion';
+import {Html5Video} from 'remotion';
 
 export default function SBSVideo() {
   return (
     <>
       {['https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'].map((video, i) => {
-        return <Video key={uuidv4()} src={video} />;
+        return <Html5Video key={uuidv4()} src={video} />;
       })}
     </>
   );
@@ -73,7 +73,7 @@ If you ruled out this possibility, use [`<OffthreadVideo>`](/docs/offthreadvideo
 
 ## Recover from this error<AvailableFrom v="3.3.89" />
 
-You can handle this error and replace it with a different video by passing the `onError()` prop to the `<Video>` or `<OffthreadVideo>` component.
+You can handle this error and replace it with a different video by passing the `onError()` prop to the `<Html5Video>` or `<OffthreadVideo>` component.
 
 ## See also
 

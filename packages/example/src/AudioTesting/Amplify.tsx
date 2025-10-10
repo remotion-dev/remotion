@@ -1,5 +1,5 @@
 import React from 'react';
-import {Audio, OffthreadVideo, Sequence, staticFile} from 'remotion';
+import {Html5Audio, OffthreadVideo, Sequence, staticFile} from 'remotion';
 
 const Amplify: React.FC = () => {
 	const [volume1, setVolume1] = React.useState(1);
@@ -36,16 +36,8 @@ const Amplify: React.FC = () => {
 				value={volume3}
 				onChange={(e) => setVolume3(Number(e.target.value))}
 			/>
-			<Audio
-				src={staticFile('music.mp3')}
-				// eslint-disable-next-line @remotion/volume-callback
-				volume={volume1}
-			/>
-			<Audio
-				src={staticFile('sounds/9.wav')}
-				// eslint-disable-next-line @remotion/volume-callback
-				volume={volume2}
-			/>
+			<Html5Audio src={staticFile('music.mp3')} volume={volume1} />
+			<Html5Audio src={staticFile('sounds/9.wav')} volume={volume2} />
 			<Sequence durationInFrames={90}>
 				<OffthreadVideo
 					src={staticFile('bigbuckbunny.mp4')}

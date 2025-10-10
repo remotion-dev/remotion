@@ -77,7 +77,7 @@ The implementation of the `upload()` function is provider-specific and we do not
 
 ## Optimistic updates
 
-When we start the upload of the file, we can create a blob URL using `URL.createObjectURL()` which can be used to display the local file in a [`<Video>`](/docs/video) tag. When the file is done uploading and we get the remote URL, the component shall use remote URL as source.
+When we start the upload of the file, we can create a blob URL using `URL.createObjectURL()` which can be used to display the local file in a [`<Video>`](/docs/media/video) tag. When the file is done uploading and we get the remote URL, the component shall use remote URL as source.
 
 ```tsx twoslash title="App.tsx"
 const MyComposition: React.FC<{videoUrl: string}> = ({videoUrl}) => {

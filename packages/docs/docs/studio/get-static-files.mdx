@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-studio-get-static-files.png
 title: getStaticFiles()
-crumb: "@remotion/studio"
+crumb: '@remotion/studio'
 ---
 
 # getStaticFiles()<AvailableFrom v="4.0.144"/>
@@ -22,8 +22,8 @@ On Linux, watching for changes in subdirectories is only supported from Node.js 
 :::
 
 ```tsx twoslash title="example.ts"
-import { getStaticFiles, StaticFile } from "@remotion/studio";
-import { Video } from "remotion";
+import {getStaticFiles, StaticFile} from '@remotion/studio';
+import {Video} from '@remotion/media';
 
 const files = getStaticFiles();
 /*
@@ -51,7 +51,7 @@ const videoSrc = files[0].src;
 
 // Find a file by it's name and import it
 const data = files.find((f) => {
-  return f.name === "video.mp4";
+  return f.name === 'video.mp4';
 }) as StaticFile; // Use `as StaticFile` to assert the file exists
 
 // Use the `src` property to get a src to pass to a media element

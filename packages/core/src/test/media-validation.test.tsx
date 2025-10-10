@@ -45,8 +45,9 @@ describe('ValidateMediaProps should not throw with valid volume inputs', () => {
 describe('ValidateMediaProps should throw with invalid playbackRate', () => {
 	test(`It should not allow playbackRate of 0 or below.`, () => {
 		expectToThrow(
-			() => validateMediaProps({playbackRate: -1, volume: undefined}, 'Audio'),
-			/You have passed a playbackRate of -1 to your <Audio \/> component. Playback rate must be a real number above 0./,
+			() =>
+				validateMediaProps({playbackRate: -1, volume: undefined}, 'Html5Audio'),
+			/You have passed a playbackRate of -1 to your <Html5Audio \/> component. Playback rate must be a real number above 0./,
 		);
 	});
 	test(`It should not allow non-finite playbackRate.`, () => {
@@ -54,20 +55,24 @@ describe('ValidateMediaProps should throw with invalid playbackRate', () => {
 			() =>
 				validateMediaProps(
 					{playbackRate: Infinity, volume: undefined},
-					'Audio',
+					'Html5Audio',
 				),
-			/You have passed a playbackRate of Infinity to your <Audio \/> component. Playback rate must be a real number above 0./,
+			/You have passed a playbackRate of Infinity to your <Html5Audio \/> component. Playback rate must be a real number above 0./,
 		);
 	});
 	test(`It should not allow NaN playbackRate.`, () => {
 		expectToThrow(
-			() => validateMediaProps({playbackRate: NaN, volume: undefined}, 'Audio'),
-			/You have passed a playbackRate of NaN to your <Audio \/> component. Playback rate must be a real number above 0./,
+			() =>
+				validateMediaProps(
+					{playbackRate: NaN, volume: undefined},
+					'Html5Audio',
+				),
+			/You have passed a playbackRate of NaN to your <Html5Audio \/> component. Playback rate must be a real number above 0./,
 		);
 	});
 	test(`It should not allow regular playbackrate.`, () => {
 		expect(() =>
-			validateMediaProps({playbackRate: 1, volume: undefined}, 'Audio'),
+			validateMediaProps({playbackRate: 1, volume: undefined}, 'Html5Audio'),
 		).not.toThrow();
 	});
 });

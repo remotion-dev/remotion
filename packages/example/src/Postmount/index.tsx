@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Sequence, Video, staticFile} from 'remotion';
+import {AbsoluteFill, Html5Video, Sequence, staticFile} from 'remotion';
 
 /**
  * Example demonstrating postmountFor feature
@@ -12,7 +12,7 @@ export const PostmountDemoComposition: React.FC = () => {
 		<AbsoluteFill>
 			{/* Video that stays mounted 40 frames after it ends */}
 			<Sequence from={50} durationInFrames={100} postmountFor={40}>
-				<Video pauseWhenBuffering src={staticFile('framer.webm')} />
+				<Html5Video pauseWhenBuffering src={staticFile('framer.webm')} />
 			</Sequence>
 
 			{/* Overlapping sequences with both premount and postmount */}
@@ -23,7 +23,7 @@ export const PostmountDemoComposition: React.FC = () => {
 				postmountFor={30}
 			>
 				<AbsoluteFill style={{background: 'rgba(255, 0, 0, 0.5)'}}>
-					<Video
+					<Html5Video
 						pauseWhenBuffering
 						src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 					/>
@@ -38,7 +38,7 @@ export const PostmountDemoComposition: React.FC = () => {
 				postmountFor={50}
 			>
 				<AbsoluteFill style={{background: 'rgba(0, 0, 255, 0.5)'}}>
-					<Video pauseWhenBuffering src={staticFile('framer.webm')} />
+					<Html5Video pauseWhenBuffering src={staticFile('framer.webm')} />
 				</AbsoluteFill>
 			</Sequence>
 		</AbsoluteFill>

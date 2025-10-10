@@ -65,8 +65,8 @@ Anytime they change, the browser considers this a new source and re-loads the vi
 There are valid scenarios where we recommend disabling the media fragment hints:
 
 - Changing the `from` and `durationInFrames` values of a `<Sequence>` dynamically
-- Changing the `trimBefore` and `trimAfter` values of a `<Video>` or `<OffthreadVideo>` dynamically
-- Changing the `playbackRate` of a `<Video>` over time.
+- Changing the `trimBefore` and `trimAfter` values of a `<Html5Video>` or `<OffthreadVideo>` dynamically
+- Changing the `playbackRate` of a `<Html5Video>`, `<OffthreadVideo>` or `<Video>` over time.
 
 Normally you would not do this, but there are exceptions, like: [Changing the speed of a video over time](/docs/miscellaneous/snippets/accelerated-video)
 

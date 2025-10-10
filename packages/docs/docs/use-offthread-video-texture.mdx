@@ -11,7 +11,7 @@ Allows you to use a video in React Three Fiber that is synchronized with Remotio
 
 This hook only works during rendering. In the Player and the Remotion Studio, use [`useVideoTexture()`](/docs/use-video-texture) instead. See below for an example.
 
-This hook was designed to combat limitations of the default `<Video>` element that is used with `useVideoTexture()` hook.
+This hook was designed to combat limitations of the default `<Html5Video>` element that is used with `useVideoTexture()` hook.
 See: [Comparison of video tags](/docs/video-tags)
 
 The return type of it is a `THREE.Texture | null` which you can assign as a `map` to for example `meshBasicMaterial`. We recommend to only render the material when the texture is not `null` to prevent bugs.
@@ -40,7 +40,7 @@ const My3DVideo = () => {
 ```tsx twoslash title="Use useVideoTexture() only during rendering"
 import {ThreeCanvas, useOffthreadVideoTexture, useVideoTexture} from '@remotion/three';
 import {useRef} from 'react';
-import {staticFile, useRemotionEnvironment, useVideoConfig, Video} from 'remotion';
+import {staticFile, useRemotionEnvironment, useVideoConfig, Html5Video} from 'remotion';
 
 const videoSrc = staticFile('/vid.mp4');
 
@@ -64,7 +64,7 @@ const My3DVideo = () => {
 
   return (
     <>
-      {env.isRendering ? null : <Video ref={videoRef} src={videoSrc} style={{position: 'absolute', opacity: 0}} />}
+      {env.isRendering ? null : <Html5Video ref={videoRef} src={videoSrc} style={{position: 'absolute', opacity: 0}} />}
       <ThreeCanvas width={width} height={height}>
         <mesh>{videoTexture ? <meshBasicMaterial map={videoTexture} /> : null}</mesh>
       </ThreeCanvas>

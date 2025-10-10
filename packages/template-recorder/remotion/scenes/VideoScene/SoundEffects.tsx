@@ -1,4 +1,4 @@
-import { Audio, staticFile } from "remotion";
+import { Html5Audio, staticFile } from "remotion";
 import type { SceneAndMetadata } from "../../../config/scenes";
 import {
   isGrowingFromMiniature,
@@ -19,7 +19,7 @@ export const SoundEffects: React.FC<{
       secondScene: sceneAndMetadata,
     })
   ) {
-    return <Audio src={staticFile("sounds/shrink.m4a")} volume={0.2} />;
+    return <Html5Audio src={staticFile("sounds/shrink.m4a")} volume={0.2} />;
   }
 
   if (
@@ -28,8 +28,8 @@ export const SoundEffects: React.FC<{
       secondScene: sceneAndMetadata,
     })
   ) {
-    return <Audio src={staticFile("sounds/grow.m4a")} volume={0.2} />;
+    return <Html5Audio src={staticFile("sounds/grow.m4a")} volume={0.2} />;
   }
 
-  return <Audio src={staticFile("sounds/whip.wav")} volume={0.1} />;
+  return <Html5Audio src={staticFile("sounds/whip.wav")} volume={0.1} />;
 };

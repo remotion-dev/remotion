@@ -164,7 +164,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 
 						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
-							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Audio>`,
+							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
 						);
 						setShouldFallbackToNativeAudio(true);
 						return;
@@ -179,7 +179,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 
 						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
-							`Network error fetching ${preloadedSrc}, falling back to <Audio>`,
+							`Network error fetching ${preloadedSrc}, falling back to <Html5Audio>`,
 						);
 						setShouldFallbackToNativeAudio(true);
 						return;
@@ -194,7 +194,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 
 						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
-							`Cannot decode ${preloadedSrc}, falling back to <Audio>`,
+							`Cannot decode ${preloadedSrc}, falling back to <Html5Audio>`,
 						);
 						setShouldFallbackToNativeAudio(true);
 						return;
@@ -209,7 +209,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 
 						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
-							`No video or audio tracks found for ${preloadedSrc}, falling back to <Audio>`,
+							`No video or audio tracks found for ${preloadedSrc}, falling back to <Html5Audio>`,
 						);
 						setShouldFallbackToNativeAudio(true);
 						return;

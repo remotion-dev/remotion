@@ -2,7 +2,7 @@ import {audioBufferToDataUrl} from '@remotion/media-utils';
 import {useCallback, useEffect, useState} from 'react';
 import {
 	AbsoluteFill,
-	Audio,
+	Html5Audio,
 	interpolate,
 	useDelayRender,
 	useVideoConfig,
@@ -50,7 +50,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
 	return (
 		<AbsoluteFill>
 			{audioBuffer && (
-				<Audio
+				<Html5Audio
 					src={audioBuffer}
 					startFrom={0}
 					endAt={100}

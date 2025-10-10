@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Audio, Sequence, useVideoConfig } from "remotion";
+import { AbsoluteFill, Html5Audio, Sequence, useVideoConfig } from "remotion";
 
 import { Spectrum } from "./Spectrum";
 import { AudiogramCompositionSchemaType } from "../helpers/schema";
@@ -46,7 +46,7 @@ export const Visualizer: React.FC<AudiogramCompositionSchemaType> = ({
     >
       <Sequence from={-audioOffsetInFrames}>
         <BassOverlay audioSrc={audioFileUrl} color={visualizer.color} />
-        <Audio pauseWhenBuffering src={audioFileUrl} />
+        <Html5Audio pauseWhenBuffering src={audioFileUrl} />
         <AbsoluteFill style={containerStyle}>
           <div style={visualizerContainerStyle}>
             {visualizer.type === "oscilloscope" ? (

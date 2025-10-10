@@ -4,12 +4,12 @@ import {
 	cancelRender,
 	continueRender,
 	delayRender,
+	Html5Video,
 	Loop,
 	OffthreadVideo,
 	RemotionOffthreadVideoProps,
 	useRemotionEnvironment,
 	useVideoConfig,
-	Video,
 } from 'remotion';
 
 const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
@@ -67,5 +67,5 @@ export const LoopableOffthreadVideo: React.FC<
 		return <OffthreadVideo {...props} />;
 	}
 
-	return <Video loop={loop} {...props}></Video>;
+	return <Html5Video loop={loop} {...props}></Html5Video>;
 };

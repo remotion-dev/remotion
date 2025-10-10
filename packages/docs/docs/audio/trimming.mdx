@@ -9,18 +9,18 @@ crumb: 'Audio'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The [`<Audio />`](/docs/audio) tag supports the [`trimBefore`](/docs/audio#trimbefore--trimafter) and [`trimAfter`](/docs/audio#trimbefore--trimafter) props.  
+The [`<Html5Audio />`](/docs/html5-audio) tag supports the [`trimBefore`](/docs/html5-audio#trimbefore--trimafter) and [`trimAfter`](/docs/html5-audio#trimbefore--trimafter) props.  
 With it, you can trim off parts of the audio.
 
 ```tsx twoslash {8} title="MyComp.tsx"
-import {AbsoluteFill, Audio, staticFile, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Html5Audio, staticFile, useVideoConfig} from 'remotion';
 
 export const MyComposition = () => {
   const {fps} = useVideoConfig();
 
   return (
     <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} trimBefore={2 * fps} trimAfter={4 * fps} />
+      <Html5Audio src={staticFile('audio.mp3')} trimBefore={2 * fps} trimAfter={4 * fps} />
     </AbsoluteFill>
   );
 };

@@ -24,7 +24,7 @@ import {useSingletonAudioContext} from './use-audio-context.js';
  * This functionality of Remotion will keep a certain amount
  * of <audio> tags pre-mounted and by default filled with an empty audio track.
  * If the user interacts, the empty audio will be played.
- * If one of Remotions <Audio /> tags get mounted, the audio will not be rendered at this location, but into one of the prerendered audio tags.
+ * If one of Remotions <Html5Audio /> tags get mounted, the audio will not be rendered at this location, but into one of the prerendered audio tags.
  *
  * This helps with autoplay issues on iOS Safari and soon other browsers,
  * which only allow audio playback upon user interaction.
@@ -200,7 +200,7 @@ export const SharedAudioContextProvider: React.FC<{
 				throw new Error(
 					`Tried to simultaneously mount ${
 						numberOfAudioTags + 1
-					} <Audio /> tags at the same time. With the current settings, the maximum amount of <Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player/autoplay#using-the-numberofsharedaudiotags-prop for more information on how to increase this limit.`,
+					} <Html5Audio /> tags at the same time. With the current settings, the maximum amount of <Html5Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player/autoplay#using-the-numberofsharedaudiotags-prop for more information on how to increase this limit.`,
 				);
 			}
 

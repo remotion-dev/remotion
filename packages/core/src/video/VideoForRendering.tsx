@@ -167,7 +167,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			fps: videoConfig.fps,
 		});
 		const handle = delayRender(
-			`Rendering <Video /> with src="${props.src}" at time ${currentTime}`,
+			`Rendering <Html5Video /> with src="${props.src}" at time ${currentTime}`,
 			{
 				retries: delayRenderRetries ?? undefined,
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
@@ -266,7 +266,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			}
 
 			const newHandle = delayRender(
-				'Loading <Video> duration with src=' + src,
+				'Loading <Html5Video> duration with src=' + src,
 				{
 					retries: delayRenderRetries ?? undefined,
 					timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,

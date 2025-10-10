@@ -138,7 +138,6 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'absolute-fill',
-				'audio',
 				'artifact',
 				'calculate-metadata',
 				'cancel-render',
@@ -151,6 +150,8 @@ const sidebars: SidebarsConfig = {
 				'get-input-props',
 				'get-remotion-environment',
 				'getstaticfiles',
+				'html5-audio',
+				'html5-video',
 				'iframe',
 				'img',
 				'interpolate-colors',
@@ -174,7 +175,6 @@ const sidebars: SidebarsConfig = {
 				'use-remotion-environment',
 				'use-video-config',
 				'version',
-				'video',
 				'watchstaticfile',
 			],
 		},
@@ -1213,7 +1213,12 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'mediabunny/index',
 			},
-			items: ['mediabunny/index', 'mediabunny/formats', 'mediabunny/version'],
+			items: [
+				'mediabunny/index',
+				'mediabunny/new-video',
+				'mediabunny/formats',
+				'mediabunny/version',
+			],
 		},
 		'upgrading',
 		{

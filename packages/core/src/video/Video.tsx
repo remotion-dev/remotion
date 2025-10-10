@@ -53,7 +53,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
-			`The \`<Video>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+			`The \`<Html5Video>\` tag requires a string for \`src\`, but got ${JSON.stringify(
 				props.src,
 			)} instead.`,
 		);
@@ -85,7 +85,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	if (loop && durationFetched !== undefined) {
 		if (!Number.isFinite(durationFetched)) {
 			return (
-				<Video
+				<Html5Video
 					{...propsOtherThanLoop}
 					ref={ref}
 					_remotionInternalNativeLoopPassed
@@ -106,7 +106,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				layout="none"
 				name={name}
 			>
-				<Video
+				<Html5Video
 					{...propsOtherThanLoop}
 					ref={ref}
 					_remotionInternalNativeLoopPassed
@@ -127,7 +127,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				durationInFrames={trimAfterValue}
 				name={name}
 			>
-				<Video
+				<Html5Video
 					pauseWhenBuffering={pauseWhenBuffering ?? false}
 					{...otherProps}
 					ref={ref}
@@ -138,7 +138,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	validateMediaProps(
 		{playbackRate: props.playbackRate, volume: props.volume},
-		'Video',
+		'Html5Video',
 	);
 
 	if (environment.isRendering) {
@@ -171,10 +171,15 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	);
 };
 
-/*
+/**
  * @description Wraps the native `<video>` element to include video in your component that is synchronized with Remotion's time.
- * @see [Documentation](https://www.remotion.dev/docs/video)
+ * @see [Documentation](https://www.remotion.dev/docs/html5-video)
  */
-export const Video = forwardRef(VideoForwardingFunction);
+export const Html5Video = forwardRef(VideoForwardingFunction);
+addSequenceStackTraces(Html5Video);
 
-addSequenceStackTraces(Video);
+/**
+ * @deprecated This component has been renamed to `Html5Video`.
+ * @see [Documentation](https://remotion.dev/docs/mediabunny/new-video)
+ */
+export const Video = Html5Video;
