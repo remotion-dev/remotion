@@ -27,9 +27,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          key: ${{ runner.os }}-turbo2-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-turbo-
+            ${{ runner.os }}-turbo2-
       - name: Test Lambda IT
         run: |
           bun run testlambda
@@ -58,9 +58,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          key: ${{ runner.os }}-turbo2-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-turbo-
+            ${{ runner.os }}-turbo2-
       - name: Install deps
         run: cd packages/webcodecs && bunx playwright install --with-deps
       - name: Test Webcodecs
@@ -76,7 +76,7 @@ jobs:
         with:
           path: .turbo
           key: |
-            ${{ runner.os }}-turbo-
+            ${{ runner.os }}-turbo2-
       - uses: actions/setup-node@v4
         with:
           node-version: 16
@@ -117,7 +117,7 @@ jobs:
         with:
           path: .turbo
           key: |
-            ${{ runner.os }}-turbo-
+            ${{ runner.os }}-turbo2-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -156,9 +156,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          key: ${{ runner.os }}-turbo2-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-turbo-
+            ${{ runner.os }}-turbo2-
       - uses: oven-sh/setup-bun@v2.0.2
         with:
           bun-version: 1.3.0
