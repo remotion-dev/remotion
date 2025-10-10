@@ -52,7 +52,8 @@ export class MediaPlayer {
 
 	private sharedAudioContext: AudioContext;
 
-	// audioDelay = mediaTimestamp + audioSyncAnchor - sharedAudioContext.currentTime
+	// this is the time difference between Web Audio timeline
+	// and media file timeline
 	private audioSyncAnchor: number = 0;
 
 	private playing = false;
@@ -383,19 +384,7 @@ export class MediaPlayer {
 	}
 
 	private getPlaybackTime(): number | null {
-		const absoluteTime =
-			this.sharedAudioContext.currentTime - this.audioSyncAnchor;
-		return getTimeInSeconds({
-			unloopedTimeInSeconds: absoluteTime,
-			playbackRate: this.playbackRate,
-			loop: this.loop,
-			trimBefore: this.trimBefore,
-			trimAfter: this.trimAfter,
-			mediaDurationInSeconds: this.totalDuration ?? null,
-			fps: this.fps,
-			ifNoMediaDuration: 'infinity',
-			src: this.src,
-		});
+		return this.sharedAudioContext.currentTime - this.audioSyncAnchor;
 	}
 
 	private scheduleAudioChunk(
