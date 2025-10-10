@@ -5,7 +5,9 @@ import {colorCode} from './colorCodes.mjs';
 export function taskPrompt(projectID: string) {
 	return new Promise((resolve) => {
 		const rl = readline.createInterface({
+			// @ts-expect-error process.stdin
 			input: process.stdin,
+			// @ts-expect-error process.stdout is not a WritableStream
 			output: process.stdout,
 		});
 

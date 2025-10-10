@@ -31,7 +31,9 @@ export const yesOrNo = ({
 	const noValues = options.no.map((v) => v.toLowerCase());
 
 	const rl = readline.createInterface({
+		// @ts-expect-error process.stdin
 		input: process.stdin,
+		// @ts-expect-error process.stdout is not a WritableStream
 		output: process.stdout,
 	});
 
