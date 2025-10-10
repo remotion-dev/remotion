@@ -22,6 +22,55 @@ const warnOnce = (message: string) => {
 	didWarn[message] = true;
 };
 
+export const useBasicMediaInTimeline = ({
+	volume,
+	mediaVolume,
+	mediaType,
+	src,
+}: {
+	volume: VolumeProp | undefined;
+	mediaVolume: number;
+	mediaType: 'audio' | 'video';
+	src: string | undefined;
+}) => {
+	const startsAt = useMediaStartsAt();
+	const parentSequence = useContext(SequenceContext);
+	const videoConfig = useVideoConfig();
+
+	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
+
+	const duration = parentSequence
+		? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
+		: videoConfig.durationInFrames;
+
+	const volumes: string | number = useMemo(() => {
+		if (typeof volume === 'number') {
+			return volume;
+		}
+
+		return new Array(Math.floor(Math.max(0, duration + startsAt)))
+			.fill(true)
+			.map((_, i) => {
+				return evaluateVolume({
+					frame: i + startsAt,
+					volume,
+					mediaVolume,
+				});
+			})
+			.join(',');
+	}, [duration, startsAt, volume, mediaVolume]);
+
+	useEffect(() => {
+		if (typeof volume === 'number' && volume !== initialVolume) {
+			warnOnce(
+				`Remotion: The ${mediaType} with src ${src} has changed it's volume. Prefer the callback syntax for setting volume to get better timeline display: https://www.remotion.dev/docs/audio/volume`,
+			);
+		}
+	}, [initialVolume, mediaType, src, volume]);
+
+	return {volumes, duration};
+};
+
 export const useMediaInTimeline = ({
 	volume,
 	mediaVolume,
@@ -49,47 +98,21 @@ export const useMediaInTimeline = ({
 	postmountDisplay: number | null;
 	loopDisplay: LoopDisplay | undefined;
 }) => {
-	const videoConfig = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
-	const actualFrom = parentSequence
-		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
-		: 0;
 	const startsAt = useMediaStartsAt();
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
-	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
 
 	const nonce = useNonce();
 	const {rootId} = useContext(TimelineContext);
 
-	const duration = parentSequence
-		? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
-		: videoConfig.durationInFrames;
+	const {volumes, duration} = useBasicMediaInTimeline({
+		volume,
+		mediaVolume,
+		mediaType,
+		src,
+	});
+
 	const doesVolumeChange = typeof volume === 'function';
-
-	const volumes: string | number = useMemo(() => {
-		if (typeof volume === 'number') {
-			return volume;
-		}
-
-		return new Array(Math.floor(Math.max(0, duration + startsAt)))
-			.fill(true)
-			.map((_, i) => {
-				return evaluateVolume({
-					frame: i + startsAt,
-					volume,
-					mediaVolume,
-				});
-			})
-			.join(',');
-	}, [duration, startsAt, volume, mediaVolume]);
-
-	useEffect(() => {
-		if (typeof volume === 'number' && volume !== initialVolume) {
-			warnOnce(
-				`Remotion: The ${mediaType} with src ${src} has changed it's volume. Prefer the callback syntax for setting volume to get better timeline display: https://www.remotion.dev/docs/audio/volume`,
-			);
-		}
-	}, [initialVolume, mediaType, src, volume]);
 
 	const env = useRemotionEnvironment();
 
@@ -130,7 +153,6 @@ export const useMediaInTimeline = ({
 			unregisterSequence(id);
 		};
 	}, [
-		actualFrom,
 		duration,
 		id,
 		parentSequence,
@@ -138,7 +160,6 @@ export const useMediaInTimeline = ({
 		registerSequence,
 		rootId,
 		unregisterSequence,
-		videoConfig,
 		volumes,
 		doesVolumeChange,
 		nonce,
