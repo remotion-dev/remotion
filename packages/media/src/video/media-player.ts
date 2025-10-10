@@ -119,7 +119,7 @@ export class MediaPlayer {
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
-				alpha: false,
+				alpha: true,
 				desynchronized: true,
 			});
 
@@ -226,7 +226,7 @@ export class MediaPlayer {
 			});
 
 			if (startTime === null) {
-				this.context?.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
+				this.clearCanvas();
 				return {type: 'success', durationInSeconds: this.totalDuration};
 			}
 
@@ -265,6 +265,12 @@ export class MediaPlayer {
 		}
 	}
 
+	private clearCanvas(): void {
+		if (this.context && this.canvas) {
+			this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		}
+	}
+
 	private cleanupAudioQueue(): void {
 		for (const node of this.queuedAudioNodes) {
 			node.stop();
@@ -298,7 +304,7 @@ export class MediaPlayer {
 		});
 
 		if (newTime === null) {
-			this.context?.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
+			this.clearCanvas();
 			await this.cleanAudioIteratorAndNodes();
 			return;
 		}
