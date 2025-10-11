@@ -467,10 +467,8 @@ test(
 		const out = outputPath.replace('.mp4', '.png');
 		await Bun.write('props.json', JSON.stringify({flag: true}));
 		const task = await execa(
-			'bun',
+			'node_modules/.bin/remotion',
 			[
-				'x',
-				'remotion',
 				'still',
 				'build',
 				'static-demo',
@@ -500,10 +498,8 @@ test(
 
 		const randomDuration = Math.round(Math.random() * 18 + 2);
 		const task = await execa(
-			'bun',
+			'node_modules/.bin/remotion',
 			[
-				'x',
-				'remotion',
 				'render',
 				'build',
 				'dynamic-duration',
