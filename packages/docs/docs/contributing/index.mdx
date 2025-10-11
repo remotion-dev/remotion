@@ -18,14 +18,11 @@ This project is released with a [Contributor Code of Conduct](https://remotion.d
 
 ## Setup
 
-<Step>1</Step> Remotion uses
-<a href="https://bun.com/">
-  <code>bun</code> v1.3.0
-</a>
-as the package manager for development in this repository. <br />
+<Step>1</Step> Remotion uses [`Bun`](https://bun.com) v1.3.0 as the package manager for development in this repository. The version must be at least `1.3.0`.
 
-Prefix with `sudo` if necessary.  
-The version must be `1.3.0`.
+```
+curl -fsSL https://bun.com/install | bash -s "bun-v1.3.0"
+```
 
 <Step>2</Step> Clone the Remotion repository:
 
@@ -56,6 +53,14 @@ bun run watch
 ```
 
 <Step>6</Step> You can start making changes!
+
+## Coming from pnpm
+
+Before using Bun, we used pnpm as the package manager. If you are coming from pnpm, you need to wipe all node_modules folders first before you run `bun i`.
+
+```sh
+bun run cleanall
+```
 
 ## Testing your changes
 
