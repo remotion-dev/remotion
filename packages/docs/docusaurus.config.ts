@@ -127,10 +127,6 @@ const config: Config = {
 						class="crawlchat-nav-askai" 
 						onclick="window.crawlchatEmbed.toggleSidePanel()">
 							<span class="crawlchat-button-text">Ask AI</span>
-							<span class="keyboard-keys">
-								<kbd>⌘</kbd>
-								<kbd>I</kbd>
-							</span>
 						</button>`,
 				},
 			].filter(Boolean),
