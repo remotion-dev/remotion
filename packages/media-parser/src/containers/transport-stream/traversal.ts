@@ -1,5 +1,5 @@
 import type {TransportStreamStructure} from '../../parse-result';
-import type {TransportStreamPATBox} from './boxes';
+import type {TransportStreamPATBox, TransportStreamPMTBox} from './boxes';
 import type {TransportStreamProgramAssociationTableEntry} from './parse-pat';
 import type {TransportStreamEntry} from './parse-pmt';
 
@@ -17,12 +17,22 @@ const findProgramAssociationTableOrThrow = (
 	return box as TransportStreamPATBox;
 };
 
-export const findProgramMapTableOrThrow = (
-	structure: TransportStreamStructure,
-) => {
+export const findProgramMapOrNull = (structure: TransportStreamStructure) => {
 	const box = structure.boxes.find(
 		(b) => b.type === 'transport-stream-pmt-box',
 	);
+
+	if (!box) {
+		return null;
+	}
+
+	return box as TransportStreamPMTBox;
+};
+
+export const findProgramMapTableOrThrow = (
+	structure: TransportStreamStructure,
+) => {
+	const box = findProgramMapOrNull(structure);
 
 	if (!box) {
 		throw new Error('No PMT box found');

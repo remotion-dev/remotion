@@ -140,6 +140,24 @@ export const videoCodecOption = {
 		}
 
 		if (derivedOutNameCodecs.possible.length > 0) {
+			if (
+				compositionCodec &&
+				derivedOutNameCodecs.possible.includes(compositionCodec)
+			) {
+				return {
+					value: compositionCodec,
+					source:
+						'derived from out name + compositionCodec from calculateMetadata',
+				};
+			}
+
+			if (configFile && derivedOutNameCodecs.possible.includes(configFile)) {
+				return {
+					value: configFile,
+					source: 'derived from out name + config file',
+				};
+			}
+
 			return {
 				value: derivedOutNameCodecs.default as Codec,
 				source: 'derived from out name',

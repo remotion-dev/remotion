@@ -1,7 +1,9 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
+import {WAVE_SAMPLES_PER_SECOND} from '../containers/wav/get-seeking-byte';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('parse full wav', async () => {
 	const {
@@ -25,7 +27,7 @@ test('parse full wav', async () => {
 		slowFps,
 		slowKeyframes,
 		slowNumberOfFrames,
-		structure,
+		slowStructure,
 		unrotatedDimensions,
 		videoCodec,
 		numberOfAudioChannels,
@@ -55,7 +57,7 @@ test('parse full wav', async () => {
 			slowFps: true,
 			slowKeyframes: true,
 			slowNumberOfFrames: true,
-			structure: true,
+			slowStructure: true,
 			unrotatedDimensions: true,
 			videoCodec: true,
 			sampleRate: true,
@@ -65,19 +67,20 @@ test('parse full wav', async () => {
 	expect(dimensions).toBe(null);
 	expect(container).toBe('wav');
 	expect(audioCodec).toBe('pcm-s16');
-	expect(tracks.videoTracks).toEqual([]);
-	expect(tracks.audioTracks).toEqual([
+	expect(tracks).toEqual([
 		{
+			startInSeconds: 0,
 			codec: 'pcm-s16',
-			codecPrivate: null,
-			codecWithoutConfig: 'pcm-s16',
+			codecData: null,
+			codecEnum: 'pcm-s16',
 			description: undefined,
 			numberOfChannels: 1,
 			sampleRate: 44100,
-			timescale: 1000000,
+			originalTimescale: 1000000,
 			trackId: 0,
-			trakBox: null,
 			type: 'audio',
+			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		},
 	]);
 	expect(durationInSeconds).toBe(30);
@@ -105,7 +108,7 @@ test('parse full wav', async () => {
 	expect(slowFps).toBe(0);
 	expect(slowKeyframes).toEqual([]);
 	expect(slowNumberOfFrames).toBe(0);
-	expect(structure).toEqual({
+	expect(slowStructure).toEqual({
 		boxes: [
 			{
 				fileSize: 2646142,
@@ -179,14 +182,17 @@ test('should get all samples', async () => {
 		},
 		onAudioTrack: () => {
 			return (sample) => {
-				expect(sample.dts % 1_000_000).toBe(0);
-				expect(sample.cts % 1_000_000).toBe(0);
-				expect(sample.timestamp % 1_000_000).toBe(0);
+				expect(
+					sample.decodingTimestamp % (1_000_000 / WAVE_SAMPLES_PER_SECOND),
+				).toBe(0);
+				expect(sample.timestamp % (1_000_000 / WAVE_SAMPLES_PER_SECOND)).toBe(
+					0,
+				);
 				samples++;
 			};
 		},
 	});
-	expect(samples).toBe(30);
+	expect(samples).toBe(750);
 	expect(internalStats).toEqual({
 		skippedBytes: 0,
 		finalCursorOffset: 2646150,

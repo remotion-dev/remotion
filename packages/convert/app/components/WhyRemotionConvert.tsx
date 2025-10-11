@@ -61,7 +61,7 @@ export const WhyRemotionConvert: React.FC = () => {
 					</div>
 				</div>
 				<div className="h-20" />
-				<Footer />
+				<Footer routeAction={{type: 'generic-convert'}} />
 			</div>
 			<div className="h-10" />
 		</div>

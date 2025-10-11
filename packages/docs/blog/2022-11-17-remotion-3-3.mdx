@@ -11,8 +11,8 @@ image: /img/remotion-3-3.png
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import {NewMuxVideo} from '../src/components/MuxVideo';
-import {TableOfContents} from '../components/TableOfContents/paths';
-import {FfmpegVideo} from '../components/FFmpegVideo'
+import {TableOfContents} from '../docs/paths/table-of-contents';
+import {FfmpegVideo} from '../components/FFmpegVideo';
 
 ## No more FFmpeg installation!
 
@@ -27,7 +27,7 @@ When deploying Remotion on a server, you can now also let Remotion install FFmpe
 
 It is now easy to import Google Fonts into Remotion! [`@remotion/google-fonts`](/docs/google-fonts) takes care of correct loading, and is fully type-safe!
 
-<video src="/img/google-fonts.mp4" autoPlay loop muted playsInline/>
+<video src="/img/google-fonts.mp4" autoPlay loop muted playsInline />
 
 ## New `@remotion/motion-blur` package
 
@@ -35,9 +35,13 @@ This package contains two components: [`<Trail>`](/docs/motion-blur/trail) and [
 
 A quick demo of what is now called [`<Trail>`](/docs/motion-blur/trail):
 
-<NewMuxVideo muxId="XPgKwILbTR4jZPxuR2ewfKjRF9cnThudkXPIkSSvQBM" style={{
-  width: '100%'
-}} controls />
+<NewMuxVideo
+  muxId="XPgKwILbTR4jZPxuR2ewfKjRF9cnThudkXPIkSSvQBM"
+  style={{
+    width: '100%',
+  }}
+  controls
+/>
 
 ## New `@remotion/noise` package
 
@@ -45,9 +49,13 @@ This package offers easy, type-safe, pure functions for getting creative with no
 
 A video demo of how you can create interesting effects with noise:
 
-<NewMuxVideo muxId="5o013raWoyw1Jv01MJo02INMEQ5scAt01PveIQ800yYkEhQk" style={{
-  width: '100%'
-}} controls />
+<NewMuxVideo
+  muxId="5o013raWoyw1Jv01MJo02INMEQ5scAt01PveIQ800yYkEhQk"
+  style={{
+    width: '100%',
+  }}
+  controls
+/>
 
 ## New `@remotion/paths` package
 
@@ -63,9 +71,13 @@ By pressing <kbd>Cmd+K</kbd>, you can trigger a new Quick Switcher. It has three
 - Type `> ` followed by an item in the menu bar to trigger that action.
 - Type `? ` followed by a search term to query the docs.
 
-<NewMuxVideo muxId="t00Mj7y1CLLGjaMvQyoBqcjdy4PIzVrFaT4317fKbzx00" style={{
-  width: '100%'
-}} controls />
+<NewMuxVideo
+  muxId="t00Mj7y1CLLGjaMvQyoBqcjdy4PIzVrFaT4317fKbzx00"
+  style={{
+    width: '100%',
+  }}
+  controls
+/>
 
 ## Remotion Core
 
@@ -73,7 +85,7 @@ By pressing <kbd>Cmd+K</kbd>, you can trigger a new Quick Switcher. It has three
 
 [`<Sequence from={0}>`](/docs/sequence) can now be shortened to [`<Sequence>`](/docs/sequence). Our ESLint plugin was updated to suggest this refactor automatically.
 
-<video src="/img/eslint-from-0.mp4" autoPlay loop muted playsInline/>
+<video src="/img/eslint-from-0.mp4" autoPlay loop muted playsInline />
 
 You can now also `style` a sequence if you did not pass `layout="none"`.
 
@@ -81,7 +93,7 @@ A `ref` can be attached to `<Sequence>` and [`<AbsoluteFill>`](/docs/absolute-fi
 
 ### Video and Audio support `loop` prop
 
-The [`<Video>`](/docs/video) and [`<Audio>`](/docs/audio) components now support the [`loop`](/docs/video#loop) property.
+The [`<Video>`](/docs/html5-video) and [`<Audio>`](/docs/html5-audio) components now support the [`loop`](/docs/html5-video#loop) property.
 
 ## Preview
 
@@ -97,9 +109,13 @@ If your device supports multitouch, you can now pinch to zoom the composition. A
 
 Using two fingers, you can move the canvas around and pressing <kbd>0</kbd> will reset the canvas. For the latter, there is also a button in the top-right corner that you can click.
 
-<NewMuxVideo muxId="5I01hwK6hs7w0200Ho1KNho7rfU700UVKYDnd7FItANR32U" style={{
-  width: '100%'
-}} controls />
+<NewMuxVideo
+  muxId="5I01hwK6hs7w0200Ho1KNho7rfU700UVKYDnd7FItANR32U"
+  style={{
+    width: '100%',
+  }}
+  controls
+/>
 
 ### Search the docs from the Remotion Preview
 
@@ -145,7 +161,7 @@ If you change values in your `.env` file, the Remotion Preview will reload and p
 
 When quitting the Remotion Preview using `Ctrl+C`, for example to render a video, A new popup will signalize that Fast Refresh will not work anymore.
 
-<img src="/img/disconnected.png" style={{borderRadius: 5}}/>
+<img src="/img/disconnected.png" style={{borderRadius: 5}} />
 
 ## Rendering
 
@@ -192,22 +208,22 @@ Previously, the progress for rendering and encoding was reported individually. T
 Previously, [`bundle()`](/docs/bundle) accepted three arguments: `entryPoint`, `onProgress` and `options`.
 
 ```ts twoslash title="Old bundle() signature"
-import { bundle } from "@remotion/bundler";
+import {bundle} from '@remotion/bundler';
 
-bundle("./src/index.ts", (progress) => console.log(progress), {
-  publicDir: process.cwd() + "/public",
+bundle('./src/index.ts', (progress) => console.log(progress), {
+  publicDir: process.cwd() + '/public',
 });
 ```
 
 Since getting the progress was less important than some of the options, `bundle()` now accepts an object with options, progress callback and entryPoint altogether:
 
 ```ts twoslash title="New bundle() signature"
-import { bundle } from "@remotion/bundler";
+import {bundle} from '@remotion/bundler';
 
 bundle({
-  entryPoint: "./src/index.ts",
+  entryPoint: './src/index.ts',
   onProgress: (progress) => console.log(progress),
-  publicDir: process.cwd() + "/public",
+  publicDir: process.cwd() + '/public',
 });
 ```
 
@@ -220,11 +236,11 @@ The previous signature is still supported.
 The new [`<Thumbnail>`](/docs/player/thumbnail) component is like the [`<Player>`](/docs/player/player), but for rendering a preview of a still. You can use it to display a specific frame of a video without having to render it.
 
 ```tsx twoslash
-import React from "react";
+import React from 'react';
 const MyComp: React.FC = () => null;
 
 // ---cut---
-import { Thumbnail } from "@remotion/player";
+import {Thumbnail} from '@remotion/player';
 
 const MyApp: React.FC = () => {
   return (
@@ -251,7 +267,7 @@ In addition to `timeupdate`, you can subscribe to [`frameupdate`](/docs/player/p
 
 If the Player is displayed in a narrow container, the volume control now goes upwards instead of to the right, in order to save some space.
 
-<video src="https://remotion-assets.s3.eu-central-1.amazonaws.com/responsivevolume.mov" autoPlay loop muted playsInline/>
+<video src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/responsivevolume.mov" autoPlay loop muted playsInline />
 
 ### Get the scale of the Player
 
@@ -261,7 +277,7 @@ Using the imperative [`getScale()`](/docs/player/player#getscale) method, you ca
 
 On YouTube, the video always starts with controls shown and then they fade out after a few seconds. We have made this the default behavior in Remotion as well, because users would often not realize that the Player is interactive otherwise. You can control the behavior using [`initiallyShowControls`](/docs/player/player#initiallyshowcontrols).
 
-<video src="/img/controlsinitiallyshown.mov" style={{maxWidth: 400, width: "100%"}} autoPlay loop muted playsInline/>
+<video src="/img/controlsinitiallyshown.mov" style={{maxWidth: 400, width: '100%'}} autoPlay loop muted playsInline />
 
 ### Play a section of a video
 
@@ -282,12 +298,12 @@ You can define the [`initialFrame`](/docs/player/player#initialframe) on which y
 In addition to the [`Preload APIs`](/docs/preload), [`prefetch()`](/docs/prefetch) presents another way of preloading an asset so it is ready to display when it is supposed to appear in the Remotion Player.
 
 ```tsx twoslash title="Prefetching API"
-import { prefetch } from "remotion";
+import {prefetch} from 'remotion';
 
-const { free, waitUntilDone } = prefetch("https://example.com/video.mp4");
+const {free, waitUntilDone} = prefetch('https://example.com/video.mp4');
 
 waitUntilDone().then(() => {
-  console.log("Video has finished loading");
+  console.log('Video has finished loading');
   free(); // Free up memory
 });
 ```
@@ -366,7 +382,7 @@ The following options are now optional:
 
 The new [`npx remotion benchmark`](/docs/cli/benchmark) helps you compare different render configurations and find out which one is the fastest. Currently, you can compare different codecs, compositions and concurrency values. Each configuration is run multiple times in order to increase confidence in the results.
 
-<img src="/img/benchmark.png" style={{borderRadius: 5, maxWidth: 600, width: "100%"}}/>
+<img src="/img/benchmark.png" style={{borderRadius: 5, maxWidth: 600, width: '100%'}} />
 
 ## New guides
 

@@ -2,7 +2,7 @@
 import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 
-import {VERSION} from '@remotion/serverless-client';
+import {validateCodec, VERSION} from '@remotion/serverless-client';
 import {existsSync, mkdirSync, rmSync} from 'fs';
 import {type EventEmitter} from 'node:events';
 import {join} from 'path';
@@ -30,7 +30,6 @@ import {
 	validateOutname,
 	validatePrivacy,
 } from '@remotion/serverless-client';
-import {bestFramesPerFunctionParam} from '../best-frames-per-function-param';
 import {cleanupProps} from '../cleanup-props';
 import {findOutputFileInBucket} from '../find-output-file-in-bucket';
 import type {LaunchedBrowser} from '../get-browser-instance';
@@ -39,6 +38,7 @@ import {mergeChunksAndFinishRender} from '../merge-chunks';
 import type {OverallProgressHelper} from '../overall-render-progress';
 import {makeOverallRenderProgress} from '../overall-render-progress';
 import {planFrameRanges} from '../plan-frame-ranges';
+import {removeOutnameCredentials} from '../remove-outname-credentials';
 import {streamRendererFunctionWithRetry} from '../stream-renderer';
 import {validateComposition} from '../validate-composition';
 import {sendTelemetryEvent} from './send-telemetry-event';
@@ -91,6 +91,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		propsType: 'input-props',
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
 	});
 
 	const logOptions: LogOptions = {
@@ -133,6 +134,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		},
 		providerSpecifics,
 		offthreadVideoThreads: params.offthreadVideoThreads,
+		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 	});
 	overallProgress.setCompositionValidated(Date.now());
 	RenderInternals.Log.info(
@@ -161,12 +163,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		params.everyNthFrame,
 	);
 
-	const framesPerLambda =
-		params.framesPerFunction ?? bestFramesPerFunctionParam(frameCount.length);
-
-	validateFramesPerFunction({
-		framesPerFunction: framesPerLambda,
+	const framesPerLambda = validateFramesPerFunction({
+		framesPerFunction: params.framesPerFunction,
 		durationInFrames: frameCount.length,
+		concurrency: params.concurrency,
 	});
 
 	validateOutname({
@@ -176,6 +176,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		separateAudioTo: null,
 		bucketNamePrefix: providerSpecifics.getBucketPrefix(),
 	});
+	validateCodec(params.codec, 'renderMediaOnLambda', 'codec');
 	validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
@@ -218,6 +219,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
 		skipPutAcl: false,
+		requestHandler: null,
 	});
 
 	registerCleanupTask(() => {
@@ -286,6 +288,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			forcePathStyle: params.forcePathStyle,
 			metadata: params.metadata,
 			offthreadVideoThreads: params.offthreadVideoThreads,
+			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 		};
 		return payload;
 	});
@@ -321,7 +324,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		renderId: params.renderId,
-		outName: params.outName ?? undefined,
+		outName: removeOutnameCredentials(params.outName ?? undefined),
 		privacy: params.privacy,
 		everyNthFrame: params.everyNthFrame,
 		frameRange: realFrameRange,
@@ -340,6 +343,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		rendererFunctionName:
 			params.rendererFunctionName ??
 			insideFunctionSpecifics.getCurrentFunctionName(),
+		scale: params.scale,
 	};
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName({
@@ -366,6 +370,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			currentRegion: insideFunctionSpecifics.getCurrentRegionInFunction(),
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
+			requestHandler: null,
 		});
 		if (output) {
 			throw new TypeError(
@@ -414,9 +419,11 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				region,
 				privacy: params.privacy,
 				expectedBucketOwner: options.expectedBucketOwner,
-				downloadBehavior: params.downloadBehavior,
+				downloadBehavior: artifact.downloadBehavior ?? params.downloadBehavior,
 				customCredentials,
 				forcePathStyle: params.forcePathStyle,
+				storageClass: params.storageClass,
+				requestHandler: null,
 			})
 			.then(() => {
 				RenderInternals.Log.info(
@@ -469,6 +476,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 				onArtifact,
 				providerSpecifics,
 				insideFunctionSpecifics,
+				requestHandler: null,
 			});
 		}),
 	);
@@ -477,7 +485,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		bucketName: params.bucketName,
 		renderId: params.renderId,
 		expectedBucketOwner: options.expectedBucketOwner,
-		numberOfFrames: frameCount.length,
+		numberOfFrames: comp.durationInFrames,
 		audioCodec: params.audioCodec,
 		chunkCount: chunks.length,
 		codec: params.codec,
@@ -504,6 +512,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
 		insideFunctionSpecifics,
+		everyNthFrame: params.everyNthFrame,
+		frameRange: params.frameRange,
+		storageClass: params.storageClass,
+		requestHandler: null,
 	});
 
 	return postRenderData;
@@ -521,9 +533,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	options: Options;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
-}): Promise<{
-	type: 'success';
-}> => {
+}): Promise<void> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
@@ -695,9 +705,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		sendTelemetryEvent(params.apiKey ?? null, params.logLevel);
 
 		if (!params.webhook || webhookInvoked) {
-			return {
-				type: 'success',
-			};
+			return;
 		}
 
 		try {
@@ -752,10 +760,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		}
 
 		runCleanupTasks();
-
-		return {
-			type: 'success',
-		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			throw err;
@@ -844,8 +848,6 @@ export const launchHandler = async <Provider extends CloudProvider>({
 				);
 			}
 		}
-
-		throw err;
 	} finally {
 		if (instance) {
 			insideFunctionSpecifics.forgetBrowserEventLoop({

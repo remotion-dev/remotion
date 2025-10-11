@@ -1,0 +1,57 @@
+---
+image: https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/editor-starter-og-image.jpg
+title: Editor Starter
+sidebar_label: Editor Starter
+crumb: Editor Starter
+hide_title: true
+---
+
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/editor-starter-og-image.jpg" />
+<br />
+<br />
+
+A template containing the most essential elements of a video editor.
+
+- **Save countless hours** by leveraging our pre-made components for timeline, interactive canvas, font picker, asset uploads, etc.
+- **Get the best of Remotion** put together into one template, culminating years of development and battle-testing.
+- **Customize anything** by adopting a clean, well-structured codebase with 80+ feature flags.
+
+import {TableOfContents} from './TableOfContents';
+
+## Introduction video
+
+<iframe
+  style={{
+    width: '100%',
+    aspectRatio: '16 / 9',
+  }}
+  src="https://www.youtube.com/embed/KwMMm1n3giU"
+  title="YouTube video player"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+/>
+<br />
+
+## Table of contents
+
+<TableOfContents />
+
+## Contributors
+
+The Editor Starter has been worked on by the following people:
+
+- [Jonny Burger](https://github.com/JonnyBurger)
+- [Igor Samokhovets](https://github.com/samohovets)
+- [Shankhadeep Dey](https://github.com/Iamshankhadeep)
+- [Mehmet Ademi](https://github.com/mehmetademi)
+- [Pramod Kumar](https://github.com/pskd73)
+- [Matthew McGillivray](https://github.com/UmungoBungo)
+
+## License
+
+The source code of the Remotion Editor Starter is governed by the [Remotion License](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md) and [its own specific license](https://www.remotion.pro/editor-starter?tab=license).
+
+- Remotion, as an underlying technology of the Remotion Editor Starter, is free to use for individuals and small companies. If you fall into this category, you can buy the Remotion Editor Starter as a one-time purchase. If you are a larger company, you must subscribe to the [Company License](https://www.remotion.pro/license). Read the [Terms & Conditions](https://www.remotion.pro/terms).
+
+- The Remotion Editor Starter License [can be seen in the Remotion Store Page](https://www.remotion.pro/editor-starter) as well as accessible through the dedicated GitHub repository after purchase.

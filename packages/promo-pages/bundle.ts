@@ -1,4 +1,5 @@
-import {$} from 'bun';
+import {$, build} from 'bun';
+
 import {NoReactInternals} from 'remotion/no-react';
 
 if (process.env.NODE_ENV !== 'production') {
@@ -22,12 +23,13 @@ if (nodeVersion.trim() === 'undefined') {
 
 await $`bunx tailwindcss -i src/index.css -o dist/tailwind.css`;
 
-const result = await Bun.build({
+const result = await build({
 	entrypoints: [
 		'./src/components/Homepage.tsx',
 		'./src/components/homepage/Pricing.tsx',
-		'./src/components/Ai.tsx',
+		'./src/components/team.tsx',
 	],
+	outdir: 'dist',
 	format: 'esm',
 	external: [
 		'react',
@@ -39,6 +41,11 @@ const result = await Bun.build({
 		'zod',
 	],
 });
+
+if (!result.success) {
+	console.log(result.logs.join('\n'));
+	process.exit(1);
+}
 
 for (const output of result.outputs) {
 	await Bun.write('dist/' + output.path, await output.text());

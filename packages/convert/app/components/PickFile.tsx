@@ -1,6 +1,7 @@
 import React, {useCallback} from 'react';
-import {SAMPLE_FILE} from '~/lib/config';
+import {SAMPLE_FILE_CONVERT, SAMPLE_FILE_TRANSCRIBE} from '~/lib/config';
 import type {Source} from '~/lib/convert-state';
+import type {RouteAction} from '~/seo';
 import {AlternativePickFileOptions} from './AlternativePickFileOptions';
 import {DropFileBox} from './DropFileBox';
 import {TextMarkLogo} from './TextMarkLogo';
@@ -9,10 +10,17 @@ import {WhyRemotionConvert} from './WhyRemotionConvert';
 export const PickFile: React.FC<{
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly title: string;
-}> = ({setSrc, title}) => {
+	readonly action: RouteAction;
+}> = ({setSrc, title, action}) => {
 	const onSampleFile = useCallback(() => {
-		setSrc({type: 'url', url: SAMPLE_FILE});
-	}, [setSrc]);
+		setSrc({
+			type: 'url',
+			url:
+				action.type === 'transcribe'
+					? SAMPLE_FILE_TRANSCRIBE
+					: SAMPLE_FILE_CONVERT,
+		});
+	}, [setSrc, action]);
 
 	const onDrop = useCallback(
 		(event: React.DragEvent<HTMLDivElement>) => {

@@ -14,8 +14,8 @@ export type UnsafeAsset = Omit<
 	volume: number[];
 	id: string;
 	playbackRate: number;
-	allowAmplificationDuringRender: boolean;
-	toneFrequency: number | null;
+	toneFrequency: number;
+	audioStreamIndex: number;
 };
 
 // Volume can either be static, for all frames the same,
@@ -31,7 +31,7 @@ export const uncompressMediaAsset = (
 	allRenderAssets: AudioOrVideoAsset[],
 	assetToUncompress: AudioOrVideoAsset,
 ): AudioOrVideoAsset => {
-	const isCompressed = assetToUncompress.src.match(/same-as-(.*)-([0-9]+)$/);
+	const isCompressed = assetToUncompress.src.match(/same-as-(.*)-([0-9.]+)$/);
 	if (!isCompressed) {
 		return assetToUncompress;
 	}

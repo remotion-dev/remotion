@@ -1,3 +1,4 @@
+import {Video as NewVideo} from '@remotion/media';
 import {
 	OffthreadVideo,
 	Sequence,
@@ -8,13 +9,20 @@ import {
 
 export const VideoTesting: React.FC<{
 	codec: 'mp4' | 'webm';
-	offthread: boolean;
-}> = ({codec, offthread}) => {
+	type?: 'normal' | 'offthread' | 'codec';
+}> = ({codec, type = 'normal'}) => {
 	const {durationInFrames} = useVideoConfig();
 	const videoMp4 = staticFile('framermp4withoutfileextension');
 	const videoWebm = staticFile('framer.webm');
 
-	const Comp = offthread ? OffthreadVideo : Video;
+	let Comp;
+	if (type === 'codec') {
+		Comp = NewVideo;
+	} else if (type === 'offthread') {
+		Comp = OffthreadVideo;
+	} else {
+		Comp = Video;
+	}
 
 	return (
 		<div>

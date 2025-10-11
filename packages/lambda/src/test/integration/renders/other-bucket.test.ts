@@ -13,7 +13,7 @@ test(
 			crf: 9,
 			frameRange: [0, 12],
 			framesPerLambda: 8,
-			logLevel: 'error',
+			logLevel: 'verbose',
 			outName: {
 				bucketName: 'my-other-bucket',
 				key: 'my-key',

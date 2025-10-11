@@ -11,7 +11,7 @@ import TabItem from '@theme/TabItem';
 
 <ExperimentalBadge>
   <p>
-    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
   </p>
 </ExperimentalBadge>
 
@@ -138,7 +138,7 @@ npx remotion cloudrun sites create src/index.ts --site-name=my-video
 
 A [`serveUrl`](/docs/terminology/serve-url) will be printed pointing to the deployed project.
 
-When you update your Remotion code in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites#--site-name), a unique URL will be generated on every deploy.
+When you update your Remotion code in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites/create#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites/create#--site-name), a unique URL will be generated on every deploy.
 
 </TabItem>
 <TabItem value="node">

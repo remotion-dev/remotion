@@ -23,6 +23,31 @@ We provide as a workaround for CORS issues the `disableWebSecurity` flag. This f
 
 APIs such as `renderMedia()` and `renderMediaOnLambda()` may be expensive (computationally or financially) to run. You should ensure that you are not exposing those APIs to the web without authentication or rate limiting. Otherwise, you may be vulnerable to DDoS attacks.
 
+## Dependency Security Scanning
+
+Since Remotion is distributed via NPM, reports of scans of our dependencies can be publicly viewed on platforms such as [Socket](https://socket.dev). You can check specific Remotion packages for vulnerabilities:
+
+- [Core package (`remotion`)](https://socket.dev/npm/package/remotion) 
+- [`@remotion/lambda`](https://socket.dev/npm/package/@remotion/lambda)
+- [`@remotion/player`](https://socket.dev/npm/package/@remotion/player)
+
+Make sure to also check other Remotion packages you plan to use by searching for them on Socket or similar security scanning platforms.
+
+## Security Certifications
+
+Remotion does not have security certifications such as ISO27001 or SOC2. This is uncommon for JavaScript packages distributed via NPM. You may find comfort in the fact that there is no data processing done by Remotion's servers. After you obtain a license, you simply run Remotion on your own infrastructure, with no connection to our servers.
+
+## Security Review Process
+
+We generally respond to alerts from GitHub's vulnerability scanner and dependency security advisories. Our process includes:
+
+- Monitoring for security alerts from GitHub's vulnerability scanner (typically alerts from 'moderate' severity and above)
+- Reviewing and addressing reported vulnerabilities in a timely manner
+- Updating dependencies when security patches are available
+- Publishing patched versions as needed
+
+Please note that we handle security situations on an ad-hoc basis and cannot provide guarantees about response times or specific security thresholds.
+
 ## General Node.JS security best practices
 
 Often you will use Remotion alongside other Node.js dependencies.  

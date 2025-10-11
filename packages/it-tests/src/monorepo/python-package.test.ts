@@ -1,5 +1,5 @@
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {expect, test} from 'bun:test';
+import {beforeAll, expect, test} from 'bun:test';
 import {execSync} from 'child_process';
 import {readFileSync, writeFileSync} from 'fs';
 import path from 'path';
@@ -11,6 +11,12 @@ const referenceVersion = readFileSync(
 );
 const referenceVersionJson = JSON.parse(referenceVersion);
 const version = referenceVersionJson.version;
+
+beforeAll(() => {
+	execSync('python -m pip install -r requirements.txt', {
+		cwd: path.join(process.cwd(), '..', 'lambda-python'),
+	});
+});
 
 test('Set the right version for pytest', () => {
 	expect(typeof version).toBe('string');
@@ -43,6 +49,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 	const toParse = output[PYTHON_OUTPUT_MARKER];
 	const nativeVersion =
 		await LambdaClientInternals.makeLambdaRenderMediaPayload({
+			requestHandler: null,
 			region: 'us-east-1',
 			composition: 'react-svg',
 			functionName: 'remotion-render',
@@ -56,6 +63,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			chromiumOptions: {},
 			colorSpace: null,
 			concurrencyPerLambda: 1,
+			concurrency: null,
 			crf: undefined,
 			deleteAfter: null,
 			downloadBehavior: {
@@ -103,6 +111,8 @@ test('Python package should create the same renderMedia payload as normal Lambda
 				Author: 'Lunar',
 			},
 			apiKey: null,
+			storageClass: null,
+			mediaCacheSizeInBytes: null,
 		});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const parsedJson = JSON.parse(jsonOutput);
@@ -183,10 +193,11 @@ test('Python package should create the same renderStill payload as normal Lambda
 			frame: 0,
 			indent: false,
 			onInit: () => undefined,
-			dumpBrowserLogs: false,
-			quality: undefined,
 			forcePathStyle: false,
 			apiKey: null,
+			storageClass: null,
+			requestHandler: null,
+			mediaCacheSizeInBytes: null,
 		});
 	const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 	const {streamed: _, ...parsedJson} = JSON.parse(jsonOutput);

@@ -146,7 +146,7 @@ _optional - default `1`_
 How often a frame render may be retried until it fails.
 
 :::note
-A retry only gets executed if a the error is in the [list of flaky errors](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/shared/is-flaky-error.ts).
+A retry only gets executed if a the error is in the [list of flaky errors](https://github.com/remotion-dev/remotion/blob/main/packages/lambda-client/src/is-flaky-error.ts).
 :::
 
 ### `envVariables?`
@@ -198,6 +198,10 @@ Either:
 
 - `{"type": "play-in-browser"}` - the default. The video will play in the browser.
 - `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
+
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
 
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
@@ -254,6 +258,10 @@ Logs can be read through the CloudWatch URL that this function returns.
 ### `forcePathStyle?`<AvailableFrom v="4.0.202" />
 
 Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+
+### `storageClass?`<AvailableFrom v="4.0.305"/>
+
+An [identifier](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-compare) for the S3 storage class of the rendered media. Default: `undefined` (which is `STANDARD`).
 
 ### ~~`dumpBrowserLogs?`~~
 

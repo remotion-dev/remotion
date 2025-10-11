@@ -23,6 +23,8 @@ const {
 	publicDirOption,
 	chromeModeOption,
 	offthreadVideoThreadsOption,
+	audioLatencyHintOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -90,6 +92,9 @@ export const still = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -114,6 +119,9 @@ export const still = async (
 	const chromeMode = chromeModeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const audioLatencyHint = audioLatencyHintOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -134,7 +142,7 @@ export const still = async (
 		envVariables,
 		height,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
 				indent: undefined,
 				staticBase: null,
@@ -162,5 +170,7 @@ export const still = async (
 		binariesDirectory,
 		publicPath,
 		chromeMode,
+		audioLatencyHint,
+		mediaCacheSizeInBytes,
 	});
 };

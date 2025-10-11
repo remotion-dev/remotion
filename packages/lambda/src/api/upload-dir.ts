@@ -1,5 +1,5 @@
 import {Upload} from '@aws-sdk/lib-storage';
-import type {AwsRegion} from '@remotion/lambda-client';
+import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import type {Privacy, UploadDirProgress} from '@remotion/serverless';
 import mimeTypes from 'mime-types';
@@ -57,7 +57,7 @@ async function getFiles(
 	return _files.flat(1);
 }
 
-const limit = LambdaClientInternals.pLimit(15);
+const limit = LambdaClientInternals.pLimit(5);
 
 export const uploadDir = async ({
 	bucket,
@@ -68,6 +68,7 @@ export const uploadDir = async ({
 	privacy,
 	toUpload,
 	forcePathStyle,
+	requestHandler,
 }: {
 	bucket: string;
 	region: AwsRegion;
@@ -77,6 +78,7 @@ export const uploadDir = async ({
 	privacy: Privacy;
 	toUpload: string[];
 	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
 }) => {
 	const files = await getFiles(localDir, localDir, toUpload);
 	const progresses: {[key: string]: number} = {};
@@ -88,6 +90,7 @@ export const uploadDir = async ({
 		region,
 		customCredentials: null,
 		forcePathStyle,
+		requestHandler,
 	});
 
 	const uploadWithoutRetry = async (filePath: FileInfo) => {

@@ -7,8 +7,7 @@ crumb: '@remotion/media-parser'
 ---
 
 :::warning
-**Unstable API**: This package is experimental. The API may change in the future.  
-The API for getting video metadata is stable and may be used in production.
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
 :::
 
 This API is the same as [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker), but besides reading from URLs and [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File) objects, you can also pass file paths that will be read using the `fs` module.
@@ -22,7 +21,7 @@ We do not test against Deno's `Worker` implementation.
 :::
 
 ```tsx twoslash title="Parsing a video on a Bun Worker"
-import {parseMediaOnServerWorker} from '@remotion/media-parser/worker';
+import {parseMediaOnServerWorker} from '@remotion/media-parser/server-worker';
 
 const result = await parseMediaOnServerWorker({
   src: '/tmp/video.mp4',
@@ -44,6 +43,6 @@ The [`reader`](/docs/media-parser/parse-media#reader) option in the worker is ha
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/parse-media-on-server-worker.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/server-worker.module.ts)
 - [`parseMedia()`](/docs/media-parser/parse-media)
 - [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker)

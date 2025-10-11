@@ -23,9 +23,9 @@ const mock: TRenderAsset[][] = new Array(2934)
 						volume: 1,
 						playbackRate: 1,
 						mediaFrame: 0,
-						allowAmplificationDuringRender: false,
-						toneFrequency: null,
+						toneFrequency: 1,
 						audioStartFrame: 0,
+						audioStreamIndex: 0,
 					}
 				: null,
 			{
@@ -36,9 +36,9 @@ const mock: TRenderAsset[][] = new Array(2934)
 				volume: 1,
 				playbackRate: 1,
 				mediaFrame: k,
-				allowAmplificationDuringRender: false,
-				toneFrequency: null,
+				toneFrequency: 1,
 				audioStartFrame: 0,
+				audioStreamIndex: 0,
 			},
 		].filter(truthy);
 	});
@@ -59,9 +59,9 @@ test('Dont skip assets', () => {
 			trimLeft: 0,
 			volume: 1,
 			playbackRate: 1,
-			allowAmplificationDuringRender: false,
-			toneFrequency: null,
+			toneFrequency: 1,
 			audioStartFrame: 0,
+			audioStreamIndex: 0,
 		},
 		{
 			src: 'http://localhost:3000/e15ac5e3d531199ebb1828ca6a99100d.webm',
@@ -72,9 +72,9 @@ test('Dont skip assets', () => {
 			trimLeft: 0,
 			volume: 1,
 			playbackRate: 1,
-			allowAmplificationDuringRender: false,
-			toneFrequency: null,
+			toneFrequency: 1,
 			audioStartFrame: 0,
+			audioStreamIndex: 0,
 		},
 	]);
 });

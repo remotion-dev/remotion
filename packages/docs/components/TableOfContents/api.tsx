@@ -1,38 +1,39 @@
 import React from 'react';
 import {TableOfContents as AnimatedEmojiTableOfContents} from '../../docs/animated-emoji/TableOfContents';
+import {TableOfContents as AnimationUtilsTableOfContents} from '../../docs/animation-utils/table-of-contents';
+import {TableOfContents as BundlerTableOfContents} from '../../docs/bundler/table-of-contents';
 import {TableOfContents as CaptionsTableOfContents} from '../../docs/captions/TableOfContents';
+import {TableOfContents as CloudrunTableOfContents} from '../../docs/cloudrun/table-of-contents';
 import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-scss/TableOfContents';
 import {TableOfContents as FontsTableOfContents} from '../../docs/fonts-api/TableOfContents';
+import {TableOfContents as GifTableOfContents} from '../../docs/gif/table-of-contents';
+import {TableOfContents as GoogleFontsTableOfContents} from '../../docs/google-fonts/TableOfContents';
 import {TableOfContents as InstallWhisperCppTableOfContents} from '../../docs/install-whisper-cpp/install-whisper-cpp';
+import {TableOfContents as LambdaTableOfContents} from '../../docs/lambda/table-of-contents';
+import {TableOfContents as LayoutUtilsTableOfContents} from '../../docs/layout-utils/table-of-contents';
 import {TableOfContents as LicensingTableOfContents} from '../../docs/licensing/TableOfContents';
+import {TableOfContents as LottieTableOfContents} from '../../docs/lottie/table-of-contents';
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
+import {TableOfContents as MediaUtilsTableOfContents} from '../../docs/media-utils/table-of-contents';
+import {TableOfContents as NewVideoTableOfContents} from '../../docs/media/table-of-contents';
+import {TableOfContents as MotionBlurTableOfContents} from '../../docs/motion-blur/table-of-contents';
+import {TableOfContents as NoiseTableOfContents} from '../../docs/noise/table-of-contents';
 import {TableOfContents as OpenAiWhisperTableOfContents} from '../../docs/openai-whisper/TableOfContents';
+import {TableOfContents as PathsTableOfContents} from '../../docs/paths/table-of-contents';
 import {PlayerTableOfContents} from '../../docs/player/TableOfContents';
+import {TableOfContents as PreloadTableOfContents} from '../../docs/preload/table-of-contents';
+import {TableOfContents as RemotionTableOfContents} from '../../docs/remotion/table-of-contents';
+import {TableOfContents as RendererTableOfContents} from '../../docs/renderer/TableOfContents';
+import {TableOfContents as RiveTableOfContents} from '../../docs/rive/table-of-contents';
+import {TableOfContents as ShapesTableOfContents} from '../../docs/shapes/table-of-contents';
 import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
 import {TableOfContents as StudioTableOfContents} from '../../docs/studio/TableOfContents';
 import {TableOfContents as TailwindV4TableOfContents} from '../../docs/tailwind-v4/TableOfContents';
 import {TableOfContents as TailwindTableOfContents} from '../../docs/tailwind/TableOfContents';
 import {TableOfContents as ThreeTableOfContents} from '../../docs/three/TableOfContents';
+import {TableOfContents as TransitionsTableOfContents} from '../../docs/transitions/table-of-contents';
 import {TableOfContents as WebcodecsTableOfContents} from '../../docs/webcodecs/TableOfContents';
-import {TableOfContents as AnimationUtilsTableOfContents} from '../TableOfContents/animation-utils';
-import {TableOfContents as BundlerTableOfContents} from '../TableOfContents/bundler';
-import {TableOfContents as CloudrunTableOfContents} from '../TableOfContents/cloudrun';
-import {TableOfContents as GifTableOfContents} from '../TableOfContents/gif';
-import {TableOfContents as GoogleFontsTableOfContents} from '../TableOfContents/google-fonts';
-import {TableOfContents as LambdaTableOfContents} from '../TableOfContents/lambda';
-import {TableOfContents as LayoutUtilsTableOfContents} from '../TableOfContents/LayoutUtils';
-import {TableOfContents as LottieTableOfContents} from '../TableOfContents/lottie';
-import {TableOfContents as MediaUtilsTableOfContents} from '../TableOfContents/media-utils';
-import {TableOfContents as MotionBlurTableOfContents} from '../TableOfContents/motion-blur';
-import {TableOfContents as NoiseTableOfContents} from '../TableOfContents/noise';
-import {TableOfContents as PathsTableOfContents} from '../TableOfContents/paths';
-import {TableOfContents as PreloadTableOfContents} from '../TableOfContents/preload';
-import {TableOfContents as RemotionTableOfContents} from '../TableOfContents/remotion';
-import {TableOfContents as RendererTableOfContents} from '../TableOfContents/renderer';
-import {TableOfContents as RiveTableOfContents} from '../TableOfContents/rive';
-import {TableOfContents as ShapesTableOfContents} from '../TableOfContents/shapes';
-import {TableOfContents as TransitionsTableOfContents} from '../TableOfContents/transitions';
-import {TableOfContents as ZodTypesTableOfContents} from '../TableOfContents/zod-types';
+import {ZodTypesTableOfContents} from '../../docs/zod-types/TableOfContents';
 import {Grid} from './Grid';
 import {TOCItem} from './TOCItem';
 
@@ -59,6 +60,12 @@ export const TableOfContents: React.FC = () => {
 				etc.
 			</p>
 			<RemotionTableOfContents />
+			<h2>@remotion/media</h2>
+			<p>
+				An experimental <code>&lt;NewVideo /&gt;</code> tag for embedding
+				videos.
+			</p>
+			<NewVideoTableOfContents />
 			<h2>@remotion/bundler</h2>
 			<p>Create a Webpack bundle from Node.JS </p>
 			<BundlerTableOfContents />

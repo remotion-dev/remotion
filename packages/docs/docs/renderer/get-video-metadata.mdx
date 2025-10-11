@@ -96,7 +96,7 @@ A prediction whether the video will be seekable in the browser. The algorithm is
 5. Otherwise, it is not seekable (`false`).
 
 If a video is not seekable, you might run into the ["Non-seekable media"](/docs/non-seekable-media) error.  
-This means that the video might fail to render if embedded in a `<Video>` tag and be slow if embedded in a `<OffthreadVideo>` tag.
+This means that the video might fail to render if embedded in a `<Html5Video>` tag and be slow if embedded in a `<OffthreadVideo>` tag.
 
 You may consider re-encoding the video using FFmpeg to make it seekable.
 

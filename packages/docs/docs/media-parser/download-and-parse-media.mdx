@@ -6,6 +6,10 @@ slug: /media-parser/download-and-parse-media
 crumb: '@remotion/media-parser'
 ---
 
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 Same as [`parseMedia()`](/docs/media-parser/parse-media), but also downloads the media file to disk.
 
 Meant to be used in Node.js and Bun.
@@ -46,7 +50,7 @@ Throw an error to stop the download.
 import {downloadAndParseMedia} from '@remotion/media-parser';
 import {nodeWriter} from '@remotion/media-parser/node-writer';
 
-const {durationInSeconds} = await downloadAndParseMedia({
+await downloadAndParseMedia({
   src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
   writer: nodeWriter('output.mp4'),
   onDurationInSeconds: (duration) => {

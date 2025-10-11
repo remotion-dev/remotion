@@ -1,6 +1,7 @@
 import {
 	makeCircle,
 	makeEllipse,
+	makeHeart,
 	makePie,
 	makePolygon,
 	makeRect,
@@ -55,6 +56,34 @@ export const shapeComponents: ShapeComponent[] = [
 		],
 	},
 	{
+		shape: 'Heart',
+		fn: makeHeart,
+		params: [
+			{
+				name: 'height',
+				type: 'number',
+				description: 'The height of the heart.',
+			},
+			{
+				name: 'aspectRatio',
+				type: 'number',
+				description: 'The aspect ratio of the heart. Default 1.1.',
+			},
+			{
+				name: 'bottomRoundnessAdjustment',
+				type: 'number',
+				description:
+					'The amount of bottom roundness deviation from the default. Negative values make the bottom point sharper, positive values make it rounder.',
+			},
+			{
+				name: 'depthAdjustment',
+				type: 'number',
+				description:
+					'The deviation of the default depth (how deep the top of the heart is). Negative values make the heart deeper, positive values make it shallower.',
+			},
+		],
+	},
+	{
 		shape: 'Pie',
 		fn: makePie,
 		params: [
@@ -91,7 +120,7 @@ export const shapeComponents: ShapeComponent[] = [
 			},
 			{
 				name: 'rotation',
-				type: 'boolean',
+				type: 'number',
 				description: (
 					<>
 						Add rotation to the path. <code>0</code> means no rotation,{' '}

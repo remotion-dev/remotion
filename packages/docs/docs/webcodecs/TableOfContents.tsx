@@ -26,6 +26,10 @@ export const WebCodecsGuide: React.FC = () => {
 					<strong>Fix a MediaRecorder video</strong>
 					<div>Fix missing video duration and poor seeking performance</div>
 				</TOCItem>
+				<TOCItem link="/docs/webcodecs/resample-audio-16khz">
+					<strong>Resample audio to 16kHz</strong>
+					<div>Resample an audio track to 16kHz for use with Whisper</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);
@@ -98,6 +102,50 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/webcodecs/get-available-video-codecs">
 					<strong>{'getAvailableVideoCodecs()'}</strong>
 					<div>Get the video codecs that can fit in a container.</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/convert-audiodata">
+					<strong>{'convertAudioData()'}</strong>
+					<div>
+						Change the format or sample rate of an <code>AudioData</code>{' '}
+						object.
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/create-audio-decoder">
+					<strong>{'createAudioDecoder()'}</strong>
+					<div>
+						Create an <code>AudioDecoder</code> object.
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/create-video-decoder">
+					<strong>{'createVideoDecoder()'}</strong>
+					<div>
+						Create a <code>VideoDecoder</code> object.
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/extract-frames">
+					<strong>{'extractFrames()'}</strong>
+					<div>Extract frames from a video at specific timestamps.</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/get-partial-audio-data">
+					<strong>{'getPartialAudioData()'}</strong>
+					<div>
+						Extract audio data from a specific time window of a media file.
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/rotate-and-resize-video-frame">
+					<strong>{'rotateAndResizeVideoFrame()'}</strong>
+					<div>Rotate and resize a video frame.</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/web-fs-writer">
+					<strong>{'webFsWriter'}</strong>
+					<div>
+						Writer that saves to browser file system using File System Access
+						API.
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/webcodecs/buffer-writer">
+					<strong>{'bufferWriter'}</strong>
+					<div>Writer that saves to an in-memory resizable ArrayBuffer.</div>
 				</TOCItem>
 			</Grid>
 		</div>

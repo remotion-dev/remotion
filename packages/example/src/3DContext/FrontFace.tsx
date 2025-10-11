@@ -16,7 +16,7 @@ export const Face: React.FC<{
 
 	const frontFace = reduceMatrices([
 		type === 'back' ? scaleX(-1) : null,
-		translateZ(type === 'front' ? -depth * 0.49 : 0.49 * depth),
+		translateZ(type === 'front' ? -depth * 0.48 : 0.48 * depth),
 		useTransformations(),
 	]);
 

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/install-whisper-cpp"
 	},
 	"name": "@remotion/install-whisper-cpp",
-	"version": "4.0.274",
+	"version": "4.0.357",
 	"description": "Helpers for installing and using Whisper.cpp",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -11,7 +11,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"scripts": {
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"test": "bun test src",
 		"make": "tsc -d"

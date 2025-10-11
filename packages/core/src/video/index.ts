@@ -1,7 +1,8 @@
 export {OffthreadVideo} from './OffthreadVideo.js';
 export type {
+	RemotionOffthreadVideoProps as OffthreadVideoProps,
 	RemotionMainVideoProps,
-	OffthreadVideoProps as RemotionOffthreadVideoProps,
+	RemotionOffthreadVideoProps,
 	RemotionVideoProps,
 } from './props';
-export {Video} from './Video.js';
+export {Html5Video, Video} from './Video.js';

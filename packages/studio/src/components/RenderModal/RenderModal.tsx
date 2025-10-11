@@ -222,6 +222,8 @@ type RenderModalProps = {
 	readonly initialGl: OpenGlRenderer | null;
 	readonly initialIgnoreCertificateErrors: boolean;
 	readonly initialOffthreadVideoCacheSizeInBytes: number | null;
+	readonly initialMediaCacheSizeInBytes: number | null;
+	readonly initialHeadless: boolean;
 	readonly initialColorSpace: ColorSpace;
 	readonly initialEncodingMaxRate: string | null;
 	readonly initialEncodingBufferSize: string | null;
@@ -274,6 +276,7 @@ const RenderModal: React.FC<
 	initialEncodingBufferSize,
 	initialEncodingMaxRate,
 	initialOffthreadVideoThreads,
+	initialMediaCacheSizeInBytes,
 	initialUserAgent,
 	defaultProps,
 	inFrameMark,
@@ -485,6 +488,9 @@ const RenderModal: React.FC<
 
 	const [offthreadVideoCacheSizeInBytes, setOffthreadVideoCacheSizeInBytes] =
 		useState<number | null>(initialOffthreadVideoCacheSizeInBytes);
+	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
+		number | null
+	>(initialMediaCacheSizeInBytes);
 
 	const [offthreadVideoThreads, setOffthreadVideoThreads] = useState<
 		number | null
@@ -757,6 +763,7 @@ const RenderModal: React.FC<
 			metadata,
 			chromeMode,
 			offthreadVideoThreads,
+			mediaCacheSizeInBytes,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -786,6 +793,7 @@ const RenderModal: React.FC<
 		metadata,
 		chromeMode,
 		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
@@ -861,6 +869,7 @@ const RenderModal: React.FC<
 			hardwareAcceleration,
 			chromeMode,
 			offthreadVideoThreads,
+			mediaCacheSizeInBytes,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -914,6 +923,7 @@ const RenderModal: React.FC<
 		hardwareAcceleration,
 		chromeMode,
 		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	]);
 
 	const onClickSequence = useCallback(() => {
@@ -943,6 +953,7 @@ const RenderModal: React.FC<
 			metadata,
 			chromeMode,
 			offthreadVideoThreads,
+			mediaCacheSizeInBytes,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -976,6 +987,7 @@ const RenderModal: React.FC<
 		metadata,
 		chromeMode,
 		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	]);
 
 	useEffect(() => {
@@ -1356,6 +1368,8 @@ const RenderModal: React.FC<
 							setEncodingBufferSize={setEncodingBufferSize}
 							encodingMaxRate={encodingMaxRate}
 							setEncodingMaxRate={setEncodingMaxRate}
+							compositionWidth={resolvedComposition.width}
+							compositionHeight={resolvedComposition.height}
 						/>
 					) : tab === 'audio' ? (
 						<RenderModalAudio
@@ -1425,6 +1439,8 @@ const RenderModal: React.FC<
 							setEnvVariables={setEnvVariables}
 							envVariables={envVariables}
 							offthreadVideoCacheSizeInBytes={offthreadVideoCacheSizeInBytes}
+							setMediaCacheSizeInBytes={setMediaCacheSizeInBytes}
+							mediaCacheSizeInBytes={mediaCacheSizeInBytes}
 							setOffthreadVideoCacheSizeInBytes={
 								setOffthreadVideoCacheSizeInBytes
 							}

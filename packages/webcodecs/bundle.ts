@@ -8,6 +8,7 @@ console.time('Generated.');
 const output = await build({
 	entrypoints: [
 		'src/index.ts',
+		'src/worker.ts',
 		'src/writers/buffer.ts',
 		'src/writers/web-fs.ts',
 	],

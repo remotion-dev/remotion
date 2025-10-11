@@ -10,6 +10,7 @@ import {awsImplementation} from './aws-provider';
 import {cleanItems} from './clean-items';
 import {REMOTION_BUCKET_PREFIX} from './constants';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export type DeleteRenderInput = {
 	region: AwsRegion;
@@ -17,6 +18,7 @@ export type DeleteRenderInput = {
 	renderId: string;
 	customCredentials?: CustomCredentials<AwsProvider>;
 	forcePathStyle?: boolean;
+	requestHandler?: RequestHandler;
 };
 
 export const internalDeleteRender = async (
@@ -35,6 +37,7 @@ export const internalDeleteRender = async (
 		renderId: input.renderId,
 		providerSpecifics: input.providerSpecifics,
 		forcePathStyle: input.forcePathStyle,
+		requestHandler: input.requestHandler,
 	});
 
 	// Render did not start yet
@@ -55,6 +58,7 @@ export const internalDeleteRender = async (
 		key,
 		region: input.region,
 		forcePathStyle: input.forcePathStyle,
+		requestHandler: input.requestHandler,
 	});
 
 	let files = await input.providerSpecifics.listObjects({
@@ -63,6 +67,7 @@ export const internalDeleteRender = async (
 		region: input.region,
 		expectedBucketOwner,
 		forcePathStyle: input.forcePathStyle,
+		requestHandler: input.requestHandler,
 	});
 
 	let totalSize = 0;
@@ -79,6 +84,7 @@ export const internalDeleteRender = async (
 			region: input.region,
 			providerSpecifics: input.providerSpecifics,
 			forcePathStyle: input.forcePathStyle,
+			requestHandler: input.requestHandler,
 		});
 		files = await input.providerSpecifics.listObjects({
 			bucketName: input.bucketName,
@@ -86,6 +92,7 @@ export const internalDeleteRender = async (
 			region: input.region,
 			expectedBucketOwner,
 			forcePathStyle: input.forcePathStyle,
+			requestHandler: input.requestHandler,
 		});
 	}
 
@@ -102,6 +109,6 @@ export const deleteRender = (input: DeleteRenderInput) => {
 	return internalDeleteRender({
 		...input,
 		providerSpecifics: awsImplementation,
-		forcePathStyle: false,
+		forcePathStyle: input.forcePathStyle ?? false,
 	});
 };

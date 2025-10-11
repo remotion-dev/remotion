@@ -1,6 +1,16 @@
-import {getArrayBufferIterator} from '../../buffer-iterator';
-import type {ParserState} from '../../state/parser-state';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
+import type {MediaParserLogLevel} from '../../log';
+import {registerVideoTrack} from '../../register-track';
+import type {AvcState} from '../../state/avc/avc-state';
+import type {WebmState} from '../../state/matroska/webm';
+import type {CallbacksState} from '../../state/sample-callbacks';
+import type {StructureState} from '../../state/structure';
+import type {
+	MediaParserAudioSample,
+	MediaParserOnVideoTrack,
+	MediaParserVideoSample,
+} from '../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {parseAvc} from '../avc/parse-avc';
 import {getTracksFromMatroska} from './get-ready-tracks';
 import type {BlockSegment, SimpleBlockSegment} from './segments/all-segments';
@@ -10,50 +20,116 @@ import {parseBlockFlags} from './segments/block-simple-block-flags';
 type SampleResult =
 	| {
 			type: 'video-sample';
-			videoSample: AudioOrVideoSample;
+			videoSample: MediaParserVideoSample;
+			trackId: number;
+			timescale: number;
 	  }
 	| {
 			type: 'audio-sample';
-			audioSample: AudioOrVideoSample;
+			audioSample: MediaParserAudioSample;
+			trackId: number;
+			timescale: number;
 	  }
 	| {
 			type: 'partial-video-sample';
-			partialVideoSample: Omit<AudioOrVideoSample, 'type'>;
+			partialVideoSample: Omit<MediaParserVideoSample, 'type'>;
+			trackId: number;
+			timescale: number;
 	  }
 	| {
 			type: 'no-sample';
 	  };
 
-const addAvcToTrackIfNecessary = ({
+const addAvcToTrackAndActivateTrackIfNecessary = async ({
 	partialVideoSample,
 	codec,
-	state,
+	structureState,
+	webmState,
 	trackNumber,
+	logLevel,
+	callbacks,
+	onVideoTrack,
+	avcState,
 }: {
-	partialVideoSample: Omit<AudioOrVideoSample, 'type'>;
+	partialVideoSample: Omit<MediaParserVideoSample, 'type'>;
 	codec: string;
-	state: ParserState;
+	structureState: StructureState;
+	webmState: WebmState;
 	trackNumber: number;
+	logLevel: MediaParserLogLevel;
+	callbacks: CallbacksState;
+	onVideoTrack: MediaParserOnVideoTrack | null;
+	avcState: AvcState;
 }) => {
-	if (
-		codec === 'V_MPEG4/ISO/AVC' &&
-		getTracksFromMatroska({state}).missingInfo.length > 0
-	) {
-		const parsed = parseAvc(partialVideoSample.data);
-		for (const parse of parsed) {
-			if (parse.type === 'avc-profile') {
-				state.webm.setAvcProfileForTrackNumber(trackNumber, parse);
+	if (codec !== 'V_MPEG4/ISO/AVC') {
+		return;
+	}
+
+	const missingTracks = getTracksFromMatroska({
+		structureState,
+		webmState,
+	}).missingInfo;
+
+	if (missingTracks.length === 0) {
+		return;
+	}
+
+	const parsed = parseAvc(partialVideoSample.data, avcState);
+	for (const parse of parsed) {
+		if (parse.type === 'avc-profile') {
+			webmState.setAvcProfileForTrackNumber(trackNumber, parse);
+			const track = missingTracks.find((t) => t.trackId === trackNumber);
+			if (!track) {
+				throw new Error('Could not find track ' + trackNumber);
 			}
+
+			const resolvedTracks = getTracksFromMatroska({
+				structureState,
+				webmState,
+			}).resolved;
+			const resolvedTrack = resolvedTracks.find(
+				(t) => t.trackId === trackNumber,
+			);
+			if (!resolvedTrack) {
+				throw new Error('Could not find track ' + trackNumber);
+			}
+
+			await registerVideoTrack({
+				track: resolvedTrack,
+				container: 'webm',
+				logLevel,
+				onVideoTrack,
+				registerVideoSampleCallback: callbacks.registerVideoSampleCallback,
+				tracks: callbacks.tracks,
+			});
 		}
 	}
 };
 
-export const getSampleFromBlock = (
-	ebml: BlockSegment | SimpleBlockSegment,
-	state: ParserState,
-	offset: number,
-): SampleResult => {
-	const iterator = getArrayBufferIterator(ebml.value, ebml.value.length);
+export const getSampleFromBlock = async ({
+	ebml,
+	webmState,
+	offset,
+	structureState,
+	callbacks,
+	logLevel,
+	onVideoTrack,
+	avcState,
+}: {
+	ebml: BlockSegment | SimpleBlockSegment;
+	webmState: WebmState;
+	offset: number;
+	structureState: StructureState;
+	callbacks: CallbacksState;
+	logLevel: MediaParserLogLevel;
+	onVideoTrack: MediaParserOnVideoTrack | null;
+	avcState: AvcState;
+}): Promise<SampleResult> => {
+	const iterator = getArrayBufferIterator({
+		initialData: ebml.value,
+		maxBytes: ebml.value.length,
+		logLevel: 'error',
+	});
 	const trackNumber = iterator.getVint();
 	if (trackNumber === null) {
 		throw new Error('Not enough data to get track number, should not happen');
@@ -68,11 +144,11 @@ export const getSampleFromBlock = (
 			: matroskaElements.Block,
 	);
 
-	const {codec, trackTimescale} = state.webm.getTrackInfoByNumber(trackNumber);
+	const {codec, trackTimescale} = webmState.getTrackInfoByNumber(trackNumber);
 
-	const clusterOffset = state.webm.getTimestampOffsetForByteOffset(offset);
+	const clusterOffset = webmState.getTimestampOffsetForByteOffset(offset);
 
-	const timescale = state.webm.getTimescale();
+	const timescale = webmState.getTimescale();
 
 	if (clusterOffset === undefined) {
 		throw new Error('Could not find offset for byte offset ' + offset);
@@ -95,15 +171,12 @@ export const getSampleFromBlock = (
 	const remainingNow = ebml.value.length - iterator.counter.getOffset();
 
 	if (codec.startsWith('V_')) {
-		const partialVideoSample: Omit<AudioOrVideoSample, 'type'> = {
+		const partialVideoSample: Omit<MediaParserVideoSample, 'type'> = {
 			data: iterator.getSlice(remainingNow),
-			cts: timecodeInMicroseconds,
-			dts: timecodeInMicroseconds,
+			decodingTimestamp: timecodeInMicroseconds,
 			duration: undefined,
-			trackId: trackNumber,
 			timestamp: timecodeInMicroseconds,
 			offset,
-			timescale,
 		};
 
 		if (keyframe === null) {
@@ -112,17 +185,24 @@ export const getSampleFromBlock = (
 			return {
 				type: 'partial-video-sample',
 				partialVideoSample,
+				trackId: trackNumber,
+				timescale: WEBCODECS_TIMESCALE,
 			};
 		}
 
-		addAvcToTrackIfNecessary({
+		await addAvcToTrackAndActivateTrackIfNecessary({
 			codec,
 			partialVideoSample,
-			state,
+			structureState,
+			webmState,
 			trackNumber,
+			callbacks,
+			logLevel,
+			onVideoTrack,
+			avcState,
 		});
 
-		const sample: AudioOrVideoSample = {
+		const sample: MediaParserVideoSample = {
 			...partialVideoSample,
 			type: keyframe ? 'key' : 'delta',
 		};
@@ -132,20 +212,19 @@ export const getSampleFromBlock = (
 		return {
 			type: 'video-sample',
 			videoSample: sample,
+			trackId: trackNumber,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 	}
 
 	if (codec.startsWith('A_')) {
-		const audioSample: AudioOrVideoSample = {
+		const audioSample: MediaParserAudioSample = {
 			data: iterator.getSlice(remainingNow),
-			trackId: trackNumber,
 			timestamp: timecodeInMicroseconds,
 			type: 'key',
 			duration: undefined,
-			cts: timecodeInMicroseconds,
-			dts: timecodeInMicroseconds,
+			decodingTimestamp: timecodeInMicroseconds,
 			offset,
-			timescale,
 		};
 
 		iterator.destroy();
@@ -153,6 +232,8 @@ export const getSampleFromBlock = (
 		return {
 			type: 'audio-sample',
 			audioSample,
+			trackId: trackNumber,
+			timescale: WEBCODECS_TIMESCALE,
 		};
 	}
 

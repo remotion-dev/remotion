@@ -1,4 +1,7 @@
-import type {AudioOrVideoSample} from '@remotion/media-parser';
+import type {
+	MediaParserAudioSample,
+	MediaParserVideoSample,
+} from '@remotion/media-parser';
 import {MediaParserInternals} from '@remotion/media-parser';
 import type {MakeTrackAudio, MakeTrackVideo} from '../make-track-info';
 import type {MediaFn, MediaFnGeneratorInput} from '../media-fn';
@@ -135,7 +138,7 @@ export const createMatroskaMedia = async ({
 		chunk,
 		isVideo,
 	}: {
-		chunk: AudioOrVideoSample;
+		chunk: MediaParserAudioSample | MediaParserVideoSample;
 		isVideo: boolean;
 	}) => {
 		// In Safari, samples can arrive out of order, e.g public/bigbuckbunny.mp4
@@ -143,7 +146,7 @@ export const createMatroskaMedia = async ({
 		// to allow for timestamps to be lower than the previous one
 
 		progressTracker.setPossibleLowestTimestamp(
-			Math.min(chunk.timestamp, chunk.cts ?? Infinity, chunk.dts ?? Infinity),
+			Math.min(chunk.timestamp, chunk.decodingTimestamp ?? Infinity),
 		);
 
 		const smallestProgress = progressTracker.getSmallestProgress();
@@ -155,7 +158,11 @@ export const createMatroskaMedia = async ({
 				chunk,
 			})
 		) {
-			return {cluster: currentCluster, isNew: false, smallestProgress};
+			return {
+				cluster: currentCluster,
+				isNew: false,
+				smallestProgress,
+			};
 		}
 
 		currentCluster = await makeCluster({
@@ -164,7 +171,12 @@ export const createMatroskaMedia = async ({
 			timescale,
 			logLevel,
 		});
-		return {cluster: currentCluster, isNew: true, smallestProgress};
+
+		return {
+			cluster: currentCluster,
+			isNew: true,
+			smallestProgress,
+		};
 	};
 
 	const updateDuration = async (newDuration: number) => {
@@ -178,10 +190,11 @@ export const createMatroskaMedia = async ({
 		trackNumber,
 		isVideo,
 	}: {
-		chunk: AudioOrVideoSample;
+		chunk: MediaParserAudioSample | MediaParserVideoSample;
 		trackNumber: number;
 		isVideo: boolean;
 	}) => {
+		const offset = w.getWrittenByteCount();
 		const {cluster, isNew, smallestProgress} = await getClusterOrMakeNew({
 			chunk,
 			isVideo,
@@ -198,12 +211,15 @@ export const createMatroskaMedia = async ({
 			trackNumber,
 		);
 		if (isNew) {
-			const newCluster = w.getWrittenByteCount();
+			if (offset === null) {
+				throw new Error('offset is null');
+			}
+
 			cues.push({
 				time:
 					timestampToClusterTimestamp(smallestProgress, timescale) +
 					timecodeRelativeToCluster,
-				clusterPosition: newCluster - seekHeadOffset,
+				clusterPosition: offset - seekHeadOffset,
 				trackNumber,
 			});
 		}
@@ -243,7 +259,7 @@ export const createMatroskaMedia = async ({
 				}
 			});
 		},
-		getBlob: async () => {
+		getBlob: () => {
 			return w.getBlob();
 		},
 		remove: async () => {

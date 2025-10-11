@@ -38,8 +38,8 @@ pub fn is_about_to_run_out_of_memory() -> bool {
 pub fn get_ideal_maximum_frame_cache_size() -> u64 {
     let available_memory = get_available_memory();
 
-    // Take 40% of available memory
-    let max = available_memory * 2 / 5;
+    // Take 50% of available memory
+    let max = available_memory / 2;
 
     return max.max(mb_to_bytes(240)).min(mb_to_bytes(20_000)).into();
 }

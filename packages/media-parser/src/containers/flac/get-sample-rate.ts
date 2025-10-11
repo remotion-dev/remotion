@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {ParserState} from '../../state/parser-state';
 
 // https://www.rfc-editor.org/rfc/rfc9639.html#name-sample-rate-bits
@@ -8,7 +8,7 @@ export const getSampleRate = (
 ): number | 'uncommon-u8' | 'uncommon-u16' | 'uncommon-u16-10' => {
 	const mode = iterator.getBits(4);
 	if (mode === 0b0000) {
-		const structure = state.getFlacStructure();
+		const structure = state.structure.getFlacStructure();
 		const sampleRate =
 			structure.boxes.find((box) => box.type === 'flac-streaminfo')
 				?.sampleRate ?? null;

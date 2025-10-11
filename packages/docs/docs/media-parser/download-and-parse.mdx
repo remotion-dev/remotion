@@ -8,8 +8,7 @@ crumb: '@remotion/media-parser'
 ---
 
 :::warning
-**Unstable API**: This package is experimental. The API may change in the future.  
-The API for getting video metadata is stable and may be used in production.
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
 :::
 
 [`@remotion/media-parser`](/docs/media-parser) allows you to download a remote video to disk, and while the media is downloading, retrieve metadata from it as soon as it is available.
@@ -40,7 +39,7 @@ Throw an error to stop the download.
 import {downloadAndParseMedia} from '@remotion/media-parser';
 import {nodeWriter} from '@remotion/media-parser/node-writer';
 
-const {durationInSeconds} = await downloadAndParseMedia({
+await downloadAndParseMedia({
   src: 'https://s3.amazonaws.com/bucket/uploaded-asset.mp4',
   writer: nodeWriter('output.mp4'),
   onDurationInSeconds: (duration) => {

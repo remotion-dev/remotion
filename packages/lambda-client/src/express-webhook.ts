@@ -6,7 +6,7 @@ import {validateWebhookSignature} from './validate-webhook-signature';
 export const expressWebhook = (options: NextWebhookArgs) => {
 	const {testing, extraHeaders, secret, onSuccess, onTimeout, onError} =
 		options;
-	return (req: Request, res: Response) => {
+	return async (req: Request, res: Response) => {
 		//  add headers to enable  testing
 		if (testing) {
 			const testingheaders = {
@@ -27,24 +27,31 @@ export const expressWebhook = (options: NextWebhookArgs) => {
 			return;
 		}
 
-		// validate the webhook signature
-		validateWebhookSignature({
-			signatureHeader: req.header('X-Remotion-Signature') as string,
-			body: req.body,
-			secret,
-		});
+		try {
+			// validate the webhook signature
+			validateWebhookSignature({
+				signatureHeader: req.header('X-Remotion-Signature') as string,
+				body: req.body,
+				secret,
+			});
 
-		//  custom logic
-		const payload = req.body;
-		if (payload.type === 'success' && onSuccess) {
-			onSuccess(payload);
-		} else if (payload.type === 'error' && onError) {
-			onError(payload);
-		} else if (payload.type === 'timeout' && onTimeout) {
-			onTimeout(payload);
+			//  custom logic
+			const payload = req.body;
+			if (payload.type === 'success' && onSuccess) {
+				await onSuccess(payload);
+			} else if (payload.type === 'error' && onError) {
+				await onError(payload);
+			} else if (payload.type === 'timeout' && onTimeout) {
+				await onTimeout(payload);
+			}
+
+			// send response
+			res.status(200).json({success: true});
+		} catch (err) {
+			res.status(500).json({
+				success: false,
+				error: err instanceof Error ? err.message : String(err),
+			});
 		}
-
-		// send response
-		res.status(200).json({success: true});
 	};
 };

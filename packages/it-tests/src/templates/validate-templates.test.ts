@@ -35,13 +35,8 @@ describe('Templates should be valid', () => {
 
 			expect(body.dependencies.remotion).toBe('workspace:*');
 			expect(body.dependencies['@remotion/cli']).toMatch('workspace:*');
-			if (body.name === 'template-skia') {
-				expect(body.dependencies.react).toMatch(/^\^?18/);
-				expect(body.dependencies['react-dom']).toMatch(/^\^?18/);
-			} else {
-				expect(body.dependencies.react).toMatch(/^\^?19/);
-				expect(body.dependencies['react-dom']).toMatch(/^\^?19/);
-			}
+			expect(body.dependencies.react).toMatch(/^\^?19/);
+			expect(body.dependencies['react-dom']).toMatch(/^\^?19/);
 
 			if (body.dependencies['zod']) {
 				expect(body.dependencies['zod']).toBe('3.23.8');
@@ -50,12 +45,12 @@ describe('Templates should be valid', () => {
 				expect(body.dependencies['@types/web']).toInclude('0.0.166');
 			}
 
-			expect(body.devDependencies.prettier).toMatch('3.3.3');
+			expect(body.devDependencies.prettier).toMatch('3.6.0');
 			expect(body.private).toBe(true);
 			expect(body.name).toStartWith('template-');
 
 			if (!template.shortName.includes('JavaScript')) {
-				expect(body.devDependencies['typescript']).toInclude('5.5.4');
+				expect(body.devDependencies['typescript']).toInclude('5.8.2');
 
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const eitherPluginOrConfig =
@@ -71,10 +66,10 @@ describe('Templates should be valid', () => {
 
 			const scripts = body.scripts;
 			expect(scripts.dev).toMatch(
-				/(remotion\sstudio)|(ts-node src\/studio)|(next dev)|(react-router dev)/,
+				/(remotion\sstudio)|(next dev)|(react-router dev)|(tsx watch)|(tsx src\/studio)|(bun studio\.ts)/,
 			);
 			expect(scripts.build).toMatch(
-				/(remotion\sbundle)|(ts-node\ssrc\/render)|(react-router build)|(next\sbuild)/,
+				/(remotion\sbundle)|(react-router build)|(next\sbuild)|(tsx src\/render)|(tsc \&\& vite build)/,
 			);
 		});
 
@@ -169,7 +164,11 @@ describe('Templates should be valid', () => {
 			]);
 			expect(contents).toInclude('npx remotion upgrade');
 			expect(contents).toInclude('npx remotion render');
-			expect(contents).toInclude('npm run dev');
+
+			expect(
+				contents?.includes('npm run dev') ||
+					contents?.includes('npx remotion studio'),
+			).toBe(true);
 		});
 		it(`${template.shortName} should be registered in tsconfig.json`, async () => {
 			const tsconfig = path.join(process.cwd(), '..', '..', 'tsconfig.json');
@@ -179,7 +178,10 @@ describe('Templates should be valid', () => {
 			const references = parsed.references.map((r: any) =>
 				r.path.replace('./packages/', ''),
 			);
-			if (!template.shortName.includes('JavaScript')) {
+			if (
+				!template.shortName.includes('JavaScript') &&
+				!template.shortName.includes('Skia')
+			) {
 				expect(references).toContain(template.templateInMonorepo);
 			}
 		});

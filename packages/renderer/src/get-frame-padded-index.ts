@@ -7,14 +7,16 @@ import type {VideoImageFormat} from './image-format';
 
 export type CountType = 'from-zero' | 'actual-frames';
 
-const padIndex = ({
-	num,
-	filePadLength,
+export const getFrameOutputFileNameFromPattern = ({
+	pattern,
+	frame,
+	ext,
 }: {
-	num: number;
-	filePadLength: number;
+	pattern: string;
+	frame: string;
+	ext: string;
 }) => {
-	return String(num).padStart(filePadLength, '0');
+	return pattern.replace(/\[frame\]/g, frame).replace(/\[ext\]/g, ext);
 };
 
 export const getFrameOutputFileName = ({
@@ -24,6 +26,7 @@ export const getFrameOutputFileName = ({
 	countType,
 	lastFrame,
 	totalFrames,
+	imageSequencePattern,
 }: {
 	index: number;
 	frame: number;
@@ -31,19 +34,28 @@ export const getFrameOutputFileName = ({
 	countType: CountType;
 	lastFrame: number;
 	totalFrames: number;
+	imageSequencePattern: string | null;
 }) => {
 	const filePadLength = getFilePadLength({lastFrame, countType, totalFrames});
+	const frameStr =
+		countType === 'actual-frames'
+			? String(frame).padStart(filePadLength, '0')
+			: String(index).padStart(filePadLength, '0');
+	if (imageSequencePattern) {
+		return getFrameOutputFileNameFromPattern({
+			pattern: imageSequencePattern,
+			frame: frameStr,
+			ext: imageFormat,
+		});
+	}
 
 	const prefix = 'element';
-
 	if (countType === 'actual-frames') {
-		const paddedIndex = padIndex({filePadLength, num: frame});
-		return `${prefix}-${paddedIndex}.${imageFormat}`;
+		return `${prefix}-${frameStr}.${imageFormat}`;
 	}
 
 	if (countType === 'from-zero') {
-		const paddedIndex = padIndex({filePadLength, num: index});
-		return `${prefix}-${paddedIndex}.${imageFormat}`;
+		return `${prefix}-${frameStr}.${imageFormat}`;
 	}
 
 	throw new TypeError('Unknown count type');

@@ -13,8 +13,12 @@ import {bundleOnCli} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {yesOrNo} from './yes-or-no';
 
-const {publicPathOption, publicDirOption, disableGitSourceOption} =
-	BrowserSafeApis.options;
+const {
+	publicPathOption,
+	publicDirOption,
+	disableGitSourceOption,
+	audioLatencyHintOption,
+} = BrowserSafeApis.options;
 
 export const bundleCommand = async (
 	remotionRoot: string,
@@ -61,6 +65,9 @@ export const bundleCommand = async (
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 	const disableGitSource = disableGitSourceOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const audioLatencyHint = audioLatencyHintOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
@@ -130,6 +137,7 @@ export const bundleCommand = async (
 		bufferStateDelayInMilliseconds: null,
 		maxTimelineTracks: null,
 		publicPath,
+		audioLatencyHint,
 	});
 
 	Log.info(

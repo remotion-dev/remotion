@@ -1,10 +1,8 @@
-import type {
-	CreateContent,
-	Writer,
-	WriterInterface,
-} from '@remotion/media-parser';
+import type {MediaParserInternalTypes} from '@remotion/media-parser';
 
-const createContent: CreateContent = async ({filename}) => {
+const createContent: MediaParserInternalTypes['CreateContent'] = async ({
+	filename,
+}) => {
 	const directoryHandle = await navigator.storage.getDirectory();
 	const actualFilename = `__remotion_mediaparser:${filename}`;
 
@@ -38,7 +36,7 @@ const createContent: CreateContent = async ({filename}) => {
 		await writable.seek(written);
 	};
 
-	const writer: Writer = {
+	const writer: MediaParserInternalTypes['Writer'] = {
 		write: (arr: Uint8Array) => {
 			writPromise = writPromise.then(() => write(arr));
 			return writPromise;
@@ -70,7 +68,7 @@ const createContent: CreateContent = async ({filename}) => {
 	return writer;
 };
 
-export const webFsWriter: WriterInterface = {
+export const webFsWriter: MediaParserInternalTypes['WriterInterface'] = {
 	createContent,
 };
 
@@ -83,14 +81,18 @@ export const canUseWebFsWriter = async () => {
 		return false;
 	}
 
-	const directoryHandle = await navigator.storage.getDirectory();
-	const fileHandle = await directoryHandle.getFileHandle(
-		'remotion-probe-web-fs-support',
-		{
-			create: true,
-		},
-	);
+	try {
+		const directoryHandle = await navigator.storage.getDirectory();
+		const fileHandle = await directoryHandle.getFileHandle(
+			'remotion-probe-web-fs-support',
+			{
+				create: true,
+			},
+		);
 
-	const canUse = fileHandle.createWritable !== undefined;
-	return canUse;
+		const canUse = fileHandle.createWritable !== undefined;
+		return canUse;
+	} catch {
+		return false;
+	}
 };

@@ -3,14 +3,14 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/streaming"
 	},
 	"name": "@remotion/streaming",
-	"version": "4.0.274",
+	"version": "4.0.357",
 	"description": "Utilities for streaming data between programs",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src",
-		"formatting": "prettier src --check",
-		"make": "tsc -d"
+		"formatting": "prettier --experimental-cli src --check",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -26,7 +26,12 @@
 		"eslint": "9.19.0"
 	},
 	"exports": {
-		".": "./dist/index.js",
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		}
 	}
 }

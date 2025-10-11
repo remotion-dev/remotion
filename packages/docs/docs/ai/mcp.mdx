@@ -17,16 +17,23 @@ To set it up:
 
 <Step>1</Step> Go to your Cursor Settings: <kbd>Cmd+Ctrl</kbd> + <kbd>P</kbd>, then type `> Cursor Settings` and confirm with Enter.
 
-<Step>2</Step> Add an MCP with the following settings:
+<Step>2</Step> Add an MCP:
 
-- **Name**: Search Remotion Documentation
-- **Command**: `npx @remotion/mcp`
-- **Type**: Command
+```json
+{
+  "mcpServers": {
+    "remotion-documentation": {
+      "command": "npx",
+      "args": ["@remotion/mcp@latest"]
+    }
+  }
+}
+```
 
-If this worked, a green dot should show up and the tool `search_remotion_documentation` should show up.
+If this worked, a green dot should show up and the tool `remotion-documentation` should show up.
 
 If you now ask Cursor in the composer to use the Remotion Documentation, the MCP should get invoked.
 
 <br />
 
-<img style={{width: 600}} src="https://remotion-assets.s3.eu-central-1.amazonaws.com/mcp-cursor.png" />
+<img style={{width: 600}} src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/mcp-cursor.png" />

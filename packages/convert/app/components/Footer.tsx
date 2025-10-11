@@ -1,4 +1,5 @@
 import React from 'react';
+import type {RouteAction} from '~/seo';
 
 const Logo: React.FC = () => {
 	return (
@@ -32,7 +33,9 @@ const Logo: React.FC = () => {
 	);
 };
 
-export const Footer: React.FC = () => {
+export const Footer: React.FC<{
+	readonly routeAction: RouteAction;
+}> = ({routeAction}) => {
 	return (
 		<div className="lg:flex flex-row items-center">
 			<a
@@ -56,12 +59,30 @@ export const Footer: React.FC = () => {
 				</div>
 			</a>
 			<div className="flex-1" />
+			{routeAction.type === 'transcribe' ? (
+				<a
+					target="_blank"
+					href="https://remotion.dev/docs/whisper-web"
+					className="text-sm text-muted-foreground font-medium hover:text-foreground"
+				>
+					Powered by @remotion/whisper-web
+				</a>
+			) : (
+				<a
+					target="_blank"
+					href="https://remotion.dev/webcodecs"
+					className="text-sm text-muted-foreground font-medium hover:text-foreground"
+				>
+					Powered by @remotion/webcodecs
+				</a>
+			)}
+			<div className="w-6" />
 			<a
 				target="_blank"
-				href="https://remotion.dev/webcodecs"
+				href="https://remotion.dev/report"
 				className="text-sm text-muted-foreground font-medium hover:text-foreground"
 			>
-				Powered by @remotion/webcodecs
+				Report bug
 			</a>
 			<div className="w-6" />
 			<a

@@ -215,13 +215,13 @@ pre .error-behind {
 /* Queries */
 pre .arrow {
 	/* Transparent background */
-	background-color: var(--ifm-color-emphasis-200);
+	background-color: #42434e;
 	position: relative;
 	top: -7px;
 	margin-left: 0.1rem;
 	/* Edges */
-	border-left: 1px solid var(--ifm-color-emphasis-200);
-	border-top: 1px solid var(--ifm-color-emphasis-200);
+	border-left: 1px solid #42434e;
+	border-top: 1px solid #42434e;
 	transform: translateY(25%) rotate(45deg);
 	/* Size */
 	height: 8px;
@@ -230,7 +230,8 @@ pre .arrow {
 
 pre .popover {
 	margin-bottom: 10px;
-	background-color: var(--ifm-color-emphasis-200);
+	background-color: #42434e;
+	color: white;
 	display: inline-block;
 	padding: 0 0.5rem 0.3rem;
 	margin-top: 10px;

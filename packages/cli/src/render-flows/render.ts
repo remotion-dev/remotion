@@ -12,6 +12,7 @@ import type {
 	FrameRange,
 	LogLevel,
 	NumberOfGifLoops,
+	OnLog,
 	PixelFormat,
 	ProResProfile,
 	RenderMediaOnDownload,
@@ -57,6 +58,7 @@ import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
 import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
+import {addLogToAggregateProgress} from './add-log-to-aggregate-progress';
 
 export const renderVideoFlow = async ({
 	remotionRoot,
@@ -115,6 +117,9 @@ export const renderVideoFlow = async ({
 	metadata,
 	hardwareAcceleration,
 	chromeMode,
+	audioLatencyHint,
+	imageSequencePattern,
+	mediaCacheSizeInBytes,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -172,6 +177,9 @@ export const renderVideoFlow = async ({
 	metadata: Record<string, string> | null;
 	hardwareAcceleration: HardwareAccelerationOption;
 	chromeMode: ChromeMode;
+	audioLatencyHint: AudioContextLatencyCategory | null;
+	imageSequencePattern: string | null;
+	mediaCacheSizeInBytes: number | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
@@ -232,6 +240,7 @@ export const renderVideoFlow = async ({
 		bytes: 0,
 		doneIn: null,
 	};
+	const logsProgress: AggregateRenderProgress['logs'] = [];
 
 	let artifactState: ArtifactProgress = {received: []};
 
@@ -249,6 +258,7 @@ export const renderVideoFlow = async ({
 			bundling: bundlingProgress,
 			copyingState,
 			artifactState,
+			logs: logsProgress,
 		};
 
 		const {output, message, progress} = makeRenderingAndStitchingProgress({
@@ -287,6 +297,7 @@ export const renderVideoFlow = async ({
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
 			publicPath,
+			audioLatencyHint,
 		},
 	);
 
@@ -345,13 +356,17 @@ export const renderVideoFlow = async ({
 			binariesDirectory,
 			onBrowserDownload,
 			chromeMode,
+			mediaCacheSizeInBytes,
 		});
 
 	const {onArtifact} = handleOnArtifact({
 		artifactState,
 		onProgress: (progress) => {
 			artifactState = progress;
-			updateRenderProgress({newline: false, printToConsole: true});
+			updateRenderProgress({
+				newline: false,
+				printToConsole: !updatesDontOverwrite,
+			});
 		},
 		compositionId,
 	});
@@ -467,6 +482,32 @@ export const renderVideoFlow = async ({
 		uiImageFormat,
 	});
 
+	const onLog: OnLog = ({logLevel: logLogLevel, previewString, tag}) => {
+		addLogToAggregateProgress({
+			logs: logsProgress,
+			logLogLevel,
+			previewString,
+			tag,
+			logLevel,
+		});
+
+		if (!updatesDontOverwrite) {
+			updateRenderProgress({
+				newline: false,
+				printToConsole: !updatesDontOverwrite,
+			});
+		} else {
+			Log[logLogLevel](
+				{
+					indent,
+					logLevel,
+					tag,
+				},
+				previewString,
+			);
+		}
+	};
+
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -518,7 +559,7 @@ export const renderVideoFlow = async ({
 			onFrameBuffer: null,
 			logLevel,
 			serializedResolvedPropsWithCustomSchema:
-				NoReactInternals.serializeJSONWithDate({
+				NoReactInternals.serializeJSONWithSpecialTypes({
 					indent: undefined,
 					staticBase: null,
 					data: config.props,
@@ -532,9 +573,12 @@ export const renderVideoFlow = async ({
 			onBrowserDownload,
 			onArtifact,
 			chromeMode,
+			imageSequencePattern,
+			mediaCacheSizeInBytes,
+			onLog,
 		});
 
-		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
+		Log.info({indent, logLevel}, chalk.blue(`\n▶ ${absoluteOutputFile}`));
 		return;
 	}
 
@@ -608,7 +652,7 @@ export const renderVideoFlow = async ({
 		onBrowserLog: null,
 		onStart: () => undefined,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: config.props,
 				indent: undefined,
 				staticBase: null,
@@ -626,6 +670,8 @@ export const renderVideoFlow = async ({
 		metadata: metadata ?? null,
 		hardwareAcceleration,
 		chromeMode,
+		mediaCacheSizeInBytes,
+		onLog,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});

@@ -1,8 +1,8 @@
-import type {MatroskaElement} from '@remotion/media-parser';
+import type {MediaParserInternalTypes} from '@remotion/media-parser';
 import {makeMatroskaBytes, padMatroskaBytes} from './matroska-utils';
 
 export type Seek = {
-	hexString: MatroskaElement;
+	hexString: MediaParserInternalTypes['MatroskaElement'];
 	byte: number;
 };
 

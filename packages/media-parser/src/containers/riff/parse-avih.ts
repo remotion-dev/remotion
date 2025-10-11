@@ -1,5 +1,7 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {RiffBox} from './riff-box';
+
+const AVIF_HAS_INDEX = 0x00000010;
 
 export const parseAvih = ({
 	iterator,
@@ -21,12 +23,15 @@ export const parseAvih = ({
 	const width = iterator.getUint32Le();
 	const height = iterator.getUint32Le();
 
+	const hasIndex = (flags & AVIF_HAS_INDEX) !== 0;
+
 	iterator.discard(16);
 
 	expectNoMoreBytes();
 
 	return {
 		type: 'avih-box',
+		hasIndex,
 		microSecPerFrame: dwMicroSecPerFrame,
 		maxBytesPerSecond: dwMaxBytesPerSec,
 		paddingGranularity,

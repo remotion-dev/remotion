@@ -6,11 +6,15 @@ slug: /media-parser/fields
 crumb: '@remotion/media-parser'
 ---
 
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 The following fields are available in [`parseMedia()`](/docs/media-parser/parse-media):
 
 ### `dimensions`
 
-_`{width: number, height: number} | null`_
+_[`MediaParserDimensions`](/docs/media-parser/types#mediaparserdimensions) | null_
 
 The dimensions of the video.  
 Any rotation is already applied - the dimensions are like a media player would show them.  
@@ -29,8 +33,10 @@ Only returns a non-null value if the duration is stored in the metadata.
 
 _number_
 
-The duration of the video in seconds, but it is guaranteed to return a value.  
-If needed, the entire video file is read to determine the duration.
+The duration of the media in seconds, but it is guaranteed to return a value.
+
+If needed, the entire video file is read to determine the duration.  
+However, if the duration is stored in the metadata, it will be used, so it will not read the entire file.
 
 ### `name`
 
@@ -40,7 +46,7 @@ The name of the file.
 
 ### `container`
 
-_"mp4" | "webm" | "avi" | "transport-stream" | "mp3" | "aac" | "wav" | "flac"_
+_[`MediaParserContainer`](/docs/media-parser/types#mediaparsercontainer)_
 
 The container of the file.
 
@@ -57,7 +63,7 @@ _string | null_
 The MIME type of the file that was returned when the file was fetched.  
 Only available if using the [`webReader`](/docs/media-parser/web-reader) (default).
 
-### `structure`
+### `slowStructure`
 
 The internal structure of the video. Unstable, internal data structure, refer to the TypeScript types to see what's inside.
 
@@ -72,10 +78,14 @@ Only returns a non-null value if the frame rate is stored in the metadata.
 
 _number_
 
-The frame rate of the video, but it is guaranteed to return a value.  
+The frame rate of the video, but it is guaranteed to return a value.
+
 If needed, the entire video file is read to determine the frame rate.
+However, if the frame rate is stored in the metadata, it will be used, so it will not read the entire file.
 
 ### `videoCodec`
+
+_[`MediaParserVideoCodec`](/docs/media-parser/types#mediaparservideocodec) | null_
 
 The video codec of the file.  
 If multiple video tracks are present, this will be the first video track.  
@@ -83,16 +93,22 @@ One of `"h264"`, `"h265"`, `"vp8"`, `"vp9"`, `"av1"`, `"prores"` or `null` (in c
 
 ### `audioCodec`
 
+_[`MediaParserAudioCodec`](/docs/media-parser/types#mediaparseraudiocodec) | null_
+
 The audio codec of the file.  
 If multiple audio tracks are present, this will be the first audio track.  
 One of `'aac'`, `'mp3'`, `'aiff'`, `'opus'`, `'pcm'`, `'flac'`, `'unknown'` (audio is there but not recognized) or `null` (in case of no audio detected).
 
 ### `metadata`
 
+_[`MediaParserMetadataEntry[]`](/docs/media-parser/types#mediaparsermetadataentry)_
+
 Metadata fields such as ID3 tags or EXIF data.  
 See [metadata](/docs/media-parser/tags) for more information.
 
 ### `location`
+
+_[`MediaParserLocation`](/docs/media-parser/types#mediaparserlocation) | null_
 
 The location of the video was shot. Either `null` if not available or:
 
@@ -103,26 +119,21 @@ The location of the video was shot. Either `null` if not available or:
 
 ### `tracks`
 
-Returns an object of two two arrays `videoTracks` and `audioTracks`.  
-The data structure of them is not yet stable.
+_[`MediaParserTrack[]`](/docs/media-parser/types#mediaparsertrack)_
+
+An array of [`MediaParserTrack`](/docs/media-parser/types#mediaparsertrack).
 
 ### `keyframes`
 
-Return type: <TsType type="MediaParserKeyframe[] | null" source="@remotion/media-parser" />
+_[`MediaParserKeyframe[]`](/docs/media-parser/types#mediaparserkeyframe) | null_
 
 An array of keyframes. Each keyframe has the following structure:
-
-- `presentationTimeInSeconds`: The time in seconds when the keyframe should be presented
-- `decodingTimeInSeconds`: The time in seconds when the keyframe should be decoded
-- `positionInBytes`: The position in bytes where the keyframe is located in the file
-- `sizeInBytes`: The size of the keyframe in bytes
-- `trackId`: The ID of the track the frame belongs to
 
 Only being returned if the keyframe information are stored in the metadata, otherwise `null`.
 
 ### `slowKeyframes`
 
-Return type: <TsType type="MediaParserKeyframe[]" source="@remotion/media-parser" />
+_[`MediaParserKeyframe[]`](/docs/media-parser/types#mediaparserkeyframe)_
 
 An array of keyframes, same as [`keyframes`](#keyframes), but it is guaranteed to return a value.
 
@@ -137,7 +148,7 @@ Will read the entire video file to determine the number of frames.
 
 ### `unrotatedDimensions`
 
-_`{width: number, height: number}`_
+_[`MediaParserDimensions`](/docs/media-parser/types#mediaparserdimensions) | null_
 
 The dimensions of the video before rotation.
 
@@ -151,18 +162,19 @@ Whether the video is in HDR (High dynamic range).
 
 _number_
 
-The rotation of the video in degrees (e.g. `-90` for a 90° counter-clockwise rotation).
+The rotation of the video in degrees (e.g. `90` for a 90° counter-clockwise rotation).  
+Always one of the following values: `0`, `90`, `180`, `270`.
+
+:::note
+Breaking change from v4.0.328: The rotation is now in _counter-clockwise_ degrees, where as before it was in _clockwise_ degrees.  
+This is because the WebCodecs spec now supports rotation and since `MediaParserVideoTrack` can be passed to `VideoDecoder.configure()`, this change was necessary to make sure the rotation is always in the correct direction.
+:::
 
 ### `images`
 
-Return type: <TsType type="MediaParserEmbeddedImage[]" source="@remotion/media-parser" />
+_[`MediaParserEmbeddedImage[]`](/docs/media-parser/types#mediaparserembeddedimage)_
 
-Embedded images in the file, for example an album cover inside an MP3.  
-Each array element has the following fields:
-
-- `mimeType`: The MIME type of the image, or `null`
-- `description`: A description of the image, or `null`
-- `data`: The image data as a `Uint8Array`
+Embedded images in the file, for example an album cover inside an MP3.
 
 ### `sampleRate`
 
@@ -198,21 +210,6 @@ The video bitrate in bits per second. `null` if there is no video track.
 
 ### `m3uStreams`
 
+_[`M3uStream[]`](/docs/media-parser/types#m3ustream) | null_
+
 Only for .m3u8, this will return a non-`null` value if the file is a playlist.
-
-An array of objects with the following fields:
-
-- `bandwidth`: The bandwidth of the stream. May be `null`.
-- `averageBandwidth`: The average bandwidth of the stream. May be `null`.
-- `resolution`: The resolution of the stream. May be `null`.
-- `codecs`: The codec strings of the stream as an array May be `null`.
-- `src`: The URL or file path of the stream
-- `id`: A unique identifier that Remotion gives the stream
-- `associatedPlaylists`: Audio tracks that are connected to this stream but live in a separate file.
-  - `src`: The URL or file path of the audio track
-  - `autoselect`: Corresponds to the `AUTOSELECT` attribute in the HLS playlist
-  - `default`: Corresponds to the `DEFAULT` attribute in the HLS playlist
-  - `language`: The language of the audio track
-  - `name`: The name of the audio track
-  - `groupId`: The group ID of the audio track
-  - `channels`: The number of audio channels in the audio track, or `null`.

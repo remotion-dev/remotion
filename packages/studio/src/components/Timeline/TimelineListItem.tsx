@@ -3,26 +3,13 @@ import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {
+	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
-	TIMELINE_LAYER_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {TimelineLayerEye} from './TimelineLayerEye';
 import {TimelineStack} from './TimelineStack';
 
 const SPACING = 5;
-
-const outer: React.CSSProperties = {
-	height: TIMELINE_LAYER_HEIGHT + TIMELINE_ITEM_BORDER_BOTTOM,
-	color: 'white',
-	fontFamily: 'Arial, Helvetica, sans-serif',
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	wordBreak: 'break-all',
-	textAlign: 'left',
-	paddingLeft: SPACING,
-	borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
-};
 
 const space: React.CSSProperties = {
 	width: SPACING,
@@ -60,6 +47,23 @@ export const TimelineListItem: React.FC<{
 		},
 		[sequence.id, setHidden],
 	);
+
+	const outer: React.CSSProperties = useMemo(() => {
+		return {
+			height:
+				getTimelineLayerHeight(sequence.type === 'video' ? 'video' : 'other') +
+				TIMELINE_ITEM_BORDER_BOTTOM,
+			color: 'white',
+			fontFamily: 'Arial, Helvetica, sans-serif',
+			display: 'flex',
+			flexDirection: 'row',
+			alignItems: 'center',
+			wordBreak: 'break-all',
+			textAlign: 'left',
+			paddingLeft: SPACING,
+			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
+		};
+	}, [sequence.type]);
 
 	return (
 		<div style={outer}>

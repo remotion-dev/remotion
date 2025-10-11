@@ -215,7 +215,11 @@ Render a silent audio track if there wouldn't be any otherwise.
 
 _puppeteer.Browser - optional_
 
-An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+
+:::note
+Despite the name, not actually compatible with `puppeteer`, only with [`openBrowser()`](/docs/renderer/open-browser).
+:::
 
 ### `scale?`
 
@@ -441,6 +445,10 @@ Before you use this hack, reach out to the Remotion team on [Discord](https://re
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
 
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
@@ -470,6 +478,10 @@ _boolean - default `false`_
 ### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.123" />
 
 <Options id="for-seamless-aac-concatenation" />
+
+### `compositionStart?`<AvailableFrom v="4.0.279"/>
+
+An option to be used only if implementing a distributed renderer, see [Distributed rendering](/docs/distributed-rendering#2-invoking-render-functions) for what to set it to.
 
 ### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 

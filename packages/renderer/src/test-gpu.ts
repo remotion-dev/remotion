@@ -1,4 +1,5 @@
 import type {BrowserExecutable} from './browser-executable';
+import type {OnLog} from './browser/BrowserPage';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import type {LogLevel} from './log-level';
 import type {ChromiumOptions} from './open-browser';
@@ -19,6 +20,7 @@ export const getChromiumGpuInformation = async ({
 	timeoutInMilliseconds,
 	onBrowserDownload,
 	chromeMode,
+	onLog,
 }: {
 	browserExecutable: BrowserExecutable;
 	indent: boolean;
@@ -27,6 +29,7 @@ export const getChromiumGpuInformation = async ({
 	timeoutInMilliseconds: number;
 	onBrowserDownload: OnBrowserDownload;
 	chromeMode: ChromeMode;
+	onLog: OnLog;
 }) => {
 	const {page, cleanupPage: cleanup} = await getPageAndCleanupFn({
 		passedInInstance: undefined,
@@ -39,6 +42,7 @@ export const getChromiumGpuInformation = async ({
 		chromeMode,
 		pageIndex: 0,
 		onBrowserLog: null,
+		onLog,
 	});
 
 	await page.goto({url: 'chrome://gpu', timeout: 12000});

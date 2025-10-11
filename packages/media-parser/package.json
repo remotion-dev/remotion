@@ -3,11 +3,11 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
 	"name": "@remotion/media-parser",
-	"version": "4.0.274",
+	"version": "4.0.357",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"test": "bun test src/test",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
@@ -18,7 +18,8 @@
 		"@types/wicg-file-system-access": "2023.10.5",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.19.0",
-		"@types/bun": "1.2.5"
+		"mediabunny": "1.23.0",
+		"@types/bun": "1.3.0"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -75,30 +76,39 @@
 			"require": "./dist/worker.js",
 			"module": "./dist/esm/worker.mjs",
 			"import": "./dist/esm/worker.mjs"
+		},
+		"./server-worker": {
+			"types": "./dist/server-worker.d.ts",
+			"require": "./dist/server-worker.js",
+			"module": "./dist/esm/server-worker.mjs",
+			"import": "./dist/esm/server-worker.mjs"
 		}
 	},
 	"typesVersions": {
 		">=1.0": {
 			"node": [
-				"dist/node.d.ts"
+				"./dist/node.d.ts"
 			],
 			"web": [
-				"dist/web.d.ts"
+				"./dist/web.d.ts"
 			],
 			"universal": [
-				"dist/universal.d.ts"
+				"./dist/universal.d.ts"
 			],
 			"node-writer": [
-				"dist/node-writer.d.ts"
+				"./dist/node-writer.d.ts"
 			],
 			"worker-web-entry": [
-				"dist/worker-web-entry.d.ts"
+				"./dist/worker-web-entry.d.ts"
 			],
 			"worker-server-entry": [
-				"dist/worker-server-entry.d.ts"
+				"./dist/worker-server-entry.d.ts"
 			],
 			"worker": [
-				"dist/worker.d.ts"
+				"./dist/worker.d.ts"
+			],
+			"server-worker": [
+				"./dist/server-worker.d.ts"
 			]
 		}
 	},

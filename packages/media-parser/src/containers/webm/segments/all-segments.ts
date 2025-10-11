@@ -426,6 +426,8 @@ export const seekHead = {
 	type: 'children',
 } as const satisfies Ebml;
 
+export type SeekHeadSegment = EbmlParsed<typeof seekHead>;
+
 export const voidHeader = {
 	name: 'Void',
 	type: 'uint8array',

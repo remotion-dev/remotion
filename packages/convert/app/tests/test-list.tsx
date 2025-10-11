@@ -5,7 +5,7 @@ import {addTestWatcher, isSafari, makeProgressReporter} from './test-structure';
 
 const basicMp4ToWebM = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/bigbuckbunny.mp4';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/bigbuckbunny.mp4';
 
 	return addTestWatcher({
 		name: 'Basic MP4 to WebM',
@@ -22,7 +22,7 @@ const basicMp4ToWebM = (): TestStructure => {
 
 const av1WebmToMp4 = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/av1-bbb.webm';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/av1-bbb.webm';
 
 	return addTestWatcher({
 		name: 'AV1 WebM to MP4',
@@ -39,7 +39,7 @@ const av1WebmToMp4 = (): TestStructure => {
 
 const av1WebmToMp4H265 = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/av1-bbb.webm';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/av1-bbb.webm';
 
 	return addTestWatcher({
 		name: 'AV1 WebM to MP4 (H.265)',
@@ -57,7 +57,7 @@ const av1WebmToMp4H265 = (): TestStructure => {
 
 const weirdMp4aConfig = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/riverside.mp4';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/riverside.mp4';
 
 	return addTestWatcher({
 		name: 'weird mp4a config',
@@ -76,7 +76,7 @@ const weirdMp4aConfig = (): TestStructure => {
 
 const convertToWav = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/riverside.mp4';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/riverside.mp4';
 
 	return addTestWatcher({
 		name: 'convert to wav',
@@ -93,7 +93,7 @@ const convertToWav = (): TestStructure => {
 
 const lpcmLivePhoto = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/livephoto-lpcm-audio.mov';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/livephoto-lpcm-audio.mov';
 	return addTestWatcher({
 		name: 'HEVC Live Photo + LPCM audio codec',
 		src,
@@ -108,8 +108,7 @@ const lpcmLivePhoto = (): TestStructure => {
 };
 
 const aviToMp4ReEncode = (): TestStructure => {
-	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/example.avi';
+	const src = 'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/example.avi';
 	return addTestWatcher({
 		name: 'AVI to MP4 (Re-Encode)',
 		src,
@@ -128,7 +127,12 @@ const aviToMp4ReEncode = (): TestStructure => {
 						};
 					}
 
-					return {type: 'reencode', audioCodec: 'aac', bitrate: 128000};
+					return {
+						type: 'reencode',
+						audioCodec: 'aac',
+						bitrate: 128000,
+						sampleRate: null,
+					};
 				},
 			});
 		},
@@ -136,8 +140,7 @@ const aviToMp4ReEncode = (): TestStructure => {
 };
 
 const aviToMp4 = (): TestStructure => {
-	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/example.avi';
+	const src = 'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/example.avi';
 	return addTestWatcher({
 		name: 'AVI to MP4',
 		src,
@@ -153,7 +156,7 @@ const aviToMp4 = (): TestStructure => {
 
 const rotatedVideo = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/iphone-hevc.mov';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/iphone-hevc.mov';
 
 	return addTestWatcher({
 		name: 'Rotated video',
@@ -170,7 +173,7 @@ const rotatedVideo = (): TestStructure => {
 
 const vpxEncodingError = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/vpx-encoding-error.mp4';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/vpx-encoding-error.mp4';
 	return addTestWatcher({
 		name: 'Flipping a video',
 		src,
@@ -189,7 +192,7 @@ const vpxEncodingError = (): TestStructure => {
 
 const offsetTimestamps = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/very-offset-timestamps.mp4';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/very-offset-timestamps.mp4';
 
 	return addTestWatcher({
 		name: 'Convert a video with offset video and audio timestamps',
@@ -206,7 +209,7 @@ const offsetTimestamps = (): TestStructure => {
 
 const transportStream = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/transportstream.ts';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/transportstream.ts';
 
 	return addTestWatcher({
 		name: 'Convert a .ts file to .webm',
@@ -223,7 +226,7 @@ const transportStream = (): TestStructure => {
 
 const remuxUnevenDim = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/unevendim.webm';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/unevendim.webm';
 
 	return addTestWatcher({
 		name: 'Remux uneven dim',
@@ -246,7 +249,7 @@ const remuxUnevenDim = (): TestStructure => {
 
 const remuxToughTimestamps = (): TestStructure => {
 	const src =
-		'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/tough-timestamps.mp4';
+		'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/tough-timestamps.mp4';
 
 	return addTestWatcher({
 		name: 'Resize Recorder WebM with tough timestamps',

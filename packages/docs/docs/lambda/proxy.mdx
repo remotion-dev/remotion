@@ -1,0 +1,169 @@
+---
+image: /generated/articles-docs-lambda-proxy.png
+id: proxy
+title: Using a proxy with Remotion Lambda
+sidebar_label: Using a proxy
+crumb: 'Lambda'
+---
+
+_Available from v4.0.315_
+
+Remotion Lambda supports using HTTP/HTTPS proxies for all AWS API calls by accepting a `requestHandler` option that allows you to pass a custom AWS SDK request handler.
+
+This is useful when your environment requires all external HTTP requests to go through a proxy server.
+
+## Setting up a proxy
+
+### 1. Install a proxy agent
+
+First, install an HTTP/HTTPS proxy agent package like `https-proxy-agent`:
+
+```bash
+npm install https-proxy-agent
+```
+
+### 2. Create a request handler with proxy
+
+Create a request handler that uses your proxy:
+
+```tsx twoslash
+import {HttpsProxyAgent} from 'https-proxy-agent';
+
+// Configure your proxy URL
+const proxyUrl = 'http://your-proxy-server:8080';
+
+// Create a proxy agent
+const proxyAgent = new HttpsProxyAgent(proxyUrl);
+
+// Create a request handler that uses the proxy
+export const proxyRequestHandler = {
+  httpsAgent: proxyAgent,
+};
+```
+
+### 3. Use the request handler with Remotion Lambda functions
+
+Pass the `requestHandler` option to any Remotion Lambda function:
+
+```tsx twoslash
+// @filename: proxy-setup.ts
+import {HttpsProxyAgent} from 'https-proxy-agent';
+
+const proxyUrl = 'http://your-proxy-server:8080';
+const proxyAgent = new HttpsProxyAgent(proxyUrl);
+
+export const proxyRequestHandler = {
+  httpsAgent: proxyAgent,
+};
+
+// @filename: example.ts
+// ---cut---
+import {getFunctions} from '@remotion/lambda/client';
+import {proxyRequestHandler} from './proxy-setup';
+
+const functions = await getFunctions({
+  region: 'us-east-1',
+  compatibleOnly: true,
+  requestHandler: proxyRequestHandler,
+});
+
+console.log('Functions:', functions);
+```
+
+## Supported functions
+
+All public AWS-related APIs in the Lambda client accept the `requestHandler` option.
+
+## Example with authentication
+
+If your proxy requires authentication, you can include credentials in the proxy URL:
+
+```tsx twoslash
+import {HttpsProxyAgent} from 'https-proxy-agent';
+
+// Proxy with authentication
+const proxyUrl = 'http://username:password@your-proxy-server:8080';
+const proxyAgent = new HttpsProxyAgent(proxyUrl);
+
+export const authenticatedProxyRequestHandler = {
+  httpsAgent: proxyAgent,
+};
+```
+
+## TypeScript support
+
+Remotion Lambda exports a `RequestHandler` type that you can use for type safety:
+
+```tsx twoslash
+import type {RequestHandler} from '@remotion/lambda/client';
+import {HttpsProxyAgent} from 'https-proxy-agent';
+
+const proxyAgent = new HttpsProxyAgent('http://proxy:8080');
+
+const myRequestHandler: RequestHandler = {
+  httpsAgent: proxyAgent,
+};
+```
+
+## Environment-specific configuration
+
+You can conditionally use a proxy based on your environment:
+
+```tsx twoslash
+import {HttpsProxyAgent} from 'https-proxy-agent';
+import type {RequestHandler} from '@remotion/lambda/client';
+
+const createRequestHandler = (): RequestHandler | undefined => {
+  const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+
+  if (proxyUrl) {
+    return {
+      httpsAgent: new HttpsProxyAgent(proxyUrl),
+    };
+  }
+
+  // Return undefined to use default behavior
+  return undefined;
+};
+
+export const requestHandler = createRequestHandler();
+```
+
+Then use it in your Lambda calls:
+
+```tsx twoslash
+// @filename: conditional-proxy.ts
+import {HttpsProxyAgent} from 'https-proxy-agent';
+import type {RequestHandler} from '@remotion/lambda/client';
+
+const createRequestHandler = (): RequestHandler | undefined => {
+  const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+
+  if (proxyUrl) {
+    return {
+      httpsAgent: new HttpsProxyAgent(proxyUrl),
+    };
+  }
+
+  return undefined;
+};
+
+export const requestHandler = createRequestHandler();
+
+// @filename: usage.ts
+// ---cut---
+import {getFunctions} from '@remotion/lambda/client';
+import {requestHandler} from './conditional-proxy';
+
+const functions = await getFunctions({
+  region: 'us-east-1',
+  compatibleOnly: true,
+  requestHandler, // This will be undefined if no proxy is configured
+});
+```
+
+## See also
+
+- [https-proxy-agent documentation](https://www.npmjs.com/package/https-proxy-agent)
+- [getFunctions()](/docs/lambda/getfunctions)
+- [getAwsClient()](/docs/lambda/getawsclient)

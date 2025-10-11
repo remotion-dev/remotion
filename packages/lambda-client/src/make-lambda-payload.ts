@@ -28,15 +28,16 @@ import {
 	getNeedsToUpload,
 	serializeOrThrow,
 	validateDownloadBehavior,
-	validateFramesPerFunction,
 } from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
 
+import type {StorageClass} from '@aws-sdk/client-s3';
 import {validateWebhook} from '@remotion/serverless-client';
 import type {GetRenderProgressInput} from './get-render-progress';
 import type {AwsRegion} from './regions';
 import type {RenderStillOnLambdaNonNullInput} from './render-still-on-lambda';
+import type {RequestHandler} from './types';
 import {validateLambdaCodec} from './validate-lambda-codec';
 import {validateServeUrl} from './validate-serveurl';
 
@@ -57,6 +58,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	jpegQuality: number;
 	maxRetries: number;
 	framesPerLambda: number | null;
+	concurrency: number | null;
 	logLevel: LogLevel;
 	frameRange: FrameRange | null;
 	outName: OutNameInput<AwsProvider> | null;
@@ -84,12 +86,15 @@ export type InnerRenderMediaOnLambdaInput = {
 	indent: boolean;
 	forcePathStyle: boolean;
 	metadata: Record<string, string> | null;
+	storageClass: StorageClass | null;
+	requestHandler: RequestHandler | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>;
 
 export const makeLambdaRenderMediaPayload = async ({
 	rendererFunctionName,
 	frameRange,
 	framesPerLambda,
+	concurrency,
 	forceBucketName: bucketName,
 	codec,
 	composition,
@@ -125,6 +130,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	overwrite,
 	jpegQuality,
 	offthreadVideoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 	deleteAfter,
 	colorSpace,
 	preferLossless,
@@ -132,15 +138,13 @@ export const makeLambdaRenderMediaPayload = async ({
 	metadata,
 	apiKey,
 	offthreadVideoThreads,
+	storageClass,
+	requestHandler,
 }: InnerRenderMediaOnLambdaInput): Promise<
 	ServerlessStartPayload<AwsProvider>
 > => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
-	validateFramesPerFunction({
-		framesPerFunction: framesPerLambda ?? null,
-		durationInFrames: 1,
-	});
 	validateDownloadBehavior(downloadBehavior);
 	validateWebhook(webhook);
 
@@ -165,10 +169,12 @@ export const makeLambdaRenderMediaPayload = async ({
 		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: privacy === 'no-acl',
+		requestHandler: requestHandler ?? null,
 	});
 	return {
 		rendererFunctionName,
 		framesPerLambda,
+		concurrency,
 		composition,
 		serveUrl,
 		inputProps: serialized,
@@ -213,6 +219,8 @@ export const makeLambdaRenderMediaPayload = async ({
 		metadata: metadata ?? null,
 		apiKey: apiKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		storageClass: storageClass ?? null,
 	};
 };
 
@@ -239,7 +247,6 @@ export const makeLambdaRenderStillPayload = async ({
 	inputProps,
 	imageFormat,
 	envVariables,
-	quality,
 	jpegQuality,
 	region,
 	maxRetries,
@@ -259,15 +266,13 @@ export const makeLambdaRenderStillPayload = async ({
 	deleteAfter,
 	forcePathStyle,
 	apiKey,
+	storageClass,
+	requestHandler,
+	offthreadVideoThreads,
+	mediaCacheSizeInBytes,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
-	if (quality) {
-		throw new Error(
-			'The `quality` option is deprecated. Use `jpegQuality` instead.',
-		);
-	}
-
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
 	const serializedInputProps = await compressInputProps({
@@ -286,6 +291,7 @@ export const makeLambdaRenderStillPayload = async ({
 		providerSpecifics: awsImplementation,
 		forcePathStyle,
 		skipPutAcl: privacy === 'no-acl',
+		requestHandler,
 	});
 
 	return {
@@ -315,6 +321,8 @@ export const makeLambdaRenderStillPayload = async ({
 		streamed: true,
 		forcePathStyle,
 		apiKey: apiKey ?? null,
-		offthreadVideoThreads: null,
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		storageClass: storageClass ?? null,
 	};
 };

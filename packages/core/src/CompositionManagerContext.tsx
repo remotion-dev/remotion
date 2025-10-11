@@ -14,6 +14,8 @@ export type BaseMetadata = Pick<
 	| 'width'
 	| 'defaultCodec'
 	| 'defaultOutName'
+	| 'defaultVideoImageFormat'
+	| 'defaultPixelFormat'
 >;
 
 export type CanvasContent =

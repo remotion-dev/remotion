@@ -24,9 +24,13 @@ This release brings support for GIF as an output format, official support for Ta
 
 - You can even render your GIF distributed across many small VMs using Remotion Lambda!
 
-<img style={{width: "100%"}} src="https://remotion-assets.s3.eu-central-1.amazonaws.com/render-as-gif.gif" />
+<img style={{width: '100%'}} src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/render-as-gif.gif" />
 
-<p style={{textAlign: "center"}}><em>You can put <a href="/docs/gif">{"<Gif>"}</a>'s in your GIF!</em></p>
+<p style={{textAlign: 'center'}}>
+  <em>
+    You can put <a href="/docs/gif">{'<Gif>'}</a>'s in your GIF!
+  </em>
+</p>
 
 ## TailwindCSS support
 
@@ -65,16 +69,18 @@ yarn create video --tailwind
 
 </Tabs>
 
-<img style={{width: "100%"}} src="/img/tailwind.gif" />
+<img style={{width: '100%'}} src="/img/tailwind.gif" />
 
-<p style={{textAlign: "center"}}><em>Yes, you can write a GIF in Tailwind now.</em></p>
+<p style={{textAlign: 'center'}}>
+  <em>Yes, you can write a GIF in Tailwind now.</em>
+</p>
 
 ## Springs with durations
 
 You can now do this:
 
 ```tsx twoslash
-import { spring } from "remotion";
+import {spring} from 'remotion';
 const frame = 10;
 // ---cut---
 const fps = 30;
@@ -103,13 +109,15 @@ Until now - if you pass a duration to a spring, we will detect the trajectory of
 
 ## `<OffthreadVideo>` component
 
-[This component](/docs/offthreadvideo) is an alternative to the [`<Video>`](/docs/video) component that extracts frames using FFMPEG and renders them inside an [`<Img>`](/docs/img) tag.
+[This component](/docs/offthreadvideo) is an alternative to the [`<Html5Video>`](/docs/html5-video) component that extracts frames using FFMPEG and renders them inside an [`<Img>`](/docs/img) tag.
 
-We made the `<OffthreadVideo>` component in order to counteract problems with seeking and throttling that users were reporting with the `<Video>` tag. The new way improves reliability but has it's tradeoffs - read [`<OffthreadVideo> vs <Video>`](/docs/video-vs-offthreadvideo) or check out our [visual explanation on Instagram](https://www.instagram.com/p/CftaiHpMM-L/)!
+We made the `<OffthreadVideo>` component in order to counteract problems with seeking and throttling that users were reporting with the `<Video>` tag. The new way improves reliability but has it's tradeoffs - read [`<OffthreadVideo> vs <Html5Video>`](/docs/video-tags) or check out our [visual explanation on Instagram](https://www.instagram.com/p/CftaiHpMM-L/)!
 
 <a href="https://www.instagram.com/p/CftaiHpMM-L/">
   <img src="/img/offthreadvideo-all.png" />
-  <p style={{textAlign: "center"}}><em>Follow us on Instagram where we explain concepts visually!</em></p>
+  <p style={{textAlign: 'center'}}>
+    <em>Follow us on Instagram where we explain concepts visually!</em>
+  </p>
 </a>
 
 ## `renderMedia()` returns a buffer
@@ -123,7 +131,9 @@ before they appear in the [`<Player>`](/docs/player): [`resolveRedirect()`](/doc
 
 <a href="https://twitter.com/remotion/status/1538809909965357056">
   <img src="/img/preload-all.png" />
-  <p style={{textAlign: "center"}}><em>We first announce and explain new features on Twitter!</em></p>
+  <p style={{textAlign: 'center'}}>
+    <em>We first announce and explain new features on Twitter!</em>
+  </p>
 </a>
 
 ## Sidebar improvements
@@ -155,7 +165,9 @@ We welcome Patric as our intern! As you can see on our [new team page](/about), 
 
 <video playsInline src="/img/patric.mp4" autoPlay muted loop />
 
-<p style={{textAlign: "center"}}><em>Patric's first Remotion video!</em></p>
+<p style={{textAlign: 'center'}}>
+  <em>Patric's first Remotion video!</em>
+</p>
 
 Remotion won the "Most Exciting use of Technology Award" at React Summit - we owe it all to you!
 

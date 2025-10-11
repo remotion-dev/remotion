@@ -39,6 +39,7 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
 			audioCodec: defaultAudioCodec,
 			track,
 			bitrate,
+			sampleRate: null,
 		});
 
 		if (canReencode) {
@@ -51,6 +52,7 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
 				type: 'reencode',
 				bitrate,
 				audioCodec: defaultAudioCodec,
+				sampleRate: null,
 			});
 		}
 

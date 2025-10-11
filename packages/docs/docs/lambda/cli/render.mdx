@@ -19,7 +19,7 @@ npx remotion lambda render <serve-url> [<composition-id>] [<output-location>]
 
 Arguments:
 
-- Obtain a [Serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites#create) command or by calling [`deploySite()`](/docs/lambda/deploysite).
+- Obtain a [Serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites/create) command or by calling [`deploySite()`](/docs/lambda/deploysite).
 - The [Composition ID](/docs/terminology/composition#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
 - The `output-location` parameter is optional. If you don't specify it, the video is stored in your S3 bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
@@ -113,6 +113,19 @@ Minimum value: <MinimumFramesPerLambda />
 
 :::note
 The `framesPerLambda` parameter cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
+:::
+
+### `--concurrency`<AvailableFrom v="4.0.322" />
+
+Specify the number of Lambda functions to use for rendering. This is an alternative to `--frames-per-lambda` that allows you to set the concurrency directly without needing to know the video duration.
+
+The concurrency is defined as `frameCount / framesPerLambda`. Remotion will automatically calculate the appropriate `framesPerLambda` value based on your concurrency setting.
+
+Maximum value: 200  
+Minimum value: Depends on video length (must result in `framesPerLambda >= 4`)
+
+:::note
+Cannot be used together with `--frames-per-lambda`. Use only one of them.
 :::
 
 ### `--concurrency-per-lambda`<AvailableFrom v="3.0.30" />
@@ -249,6 +262,10 @@ This will most notably disable CORS in Chrome among other security features.
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
+### `--media-cache-size-in-bytes`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
@@ -284,3 +301,7 @@ Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, yo
 ### `--api-Key`<AvailableFrom v="4.0.253"/>
 
 <Options id="api-key" />
+
+### `--storage-class`<AvailableFrom v="4.0.305"/>
+
+An [identifier](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-compare) for the S3 storage class of the rendered media. Default: `undefined` (which is `STANDARD`).

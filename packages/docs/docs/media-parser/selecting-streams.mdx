@@ -6,12 +6,14 @@ slug: /media-parser/stream-selection
 crumb: '@remotion/media-parser'
 ---
 
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 Some containers such as `.m3u8` (and in the future `.mpd`) support multiple equivalent streams, of which you are supposed to select one.  
 For example, a `.m3u8` file might contain multiple video streams with different resolutions.
 
-By default, the stream with the highest resolution is selected (sorted by width multiplied by height).
-
-## Selecting a stream
+## Selecting a M3U stream
 
 Use the [`selectM3uStream`](/docs/media-parser/parse-media#selectm3ustream) option to select a stream.
 
@@ -22,10 +24,10 @@ const media = await parseMedia({
   src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
   selectM3uStream: ({streams}) => {
     for (const stream of streams) {
-      console.log(stream.resolution); // {width: 1920, height: 1080}
-      console.log(stream.bandwidth); // 4400000
-      console.log(stream.url); // "https://test-streams.mux.dev/x36xhzz/193039199_mp4_h264_aac_hd_7.m3u8"
-      console.log(stream.averageBandwidth); // null
+      console.log(stream.dimensions); // {width: 1920, height: 1080}
+      console.log(stream.bandwidthInBitsPerSec); // 4400000
+      console.log(stream.src); // "https://test-streams.mux.dev/x36xhzz/193039199_mp4_h264_aac_hd_7.m3u8"
+      console.log(stream.averageBandwidthInBitsPerSec); // null
       console.log(stream.codecs); // ["avc1.640028", "mp4a.40.2"]
       console.log(stream.associatedPlaylists); // See below
     }
@@ -34,6 +36,9 @@ const media = await parseMedia({
   },
 });
 ```
+
+You must return the `id` of the stream you want to select.  
+By default, the stream with the highest resolution is selected (sorted by width multiplied by height).
 
 ## Show a stream selection interface
 
@@ -73,12 +78,14 @@ const media = await parseMedia({
 
 ## Selecting an audio track
 
-Once a primary stream has been selected, another callback may get invoked allowing you to pick an audio stream.
+Once a primary stream has been selected, another callback may get invoked allowing you to pick "associated playlists" of the primary stream.
 
-```tsx twoslash Selecting the first stream
+An associated playlist is an audio track, but it could in the future also be a subtitle track.
+
+```tsx twoslash title="Selecting the first stream"
 import {parseMedia} from '@remotion/media-parser';
 
-const media = await parseMedia({
+await parseMedia({
   src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
   selectM3uAssociatedPlaylists: ({associatedPlaylists}) => {
     return associatedPlaylists.filter((playlist) => {
@@ -89,7 +96,7 @@ const media = await parseMedia({
       console.log(playlist.autoselect); // boolean
       console.log(playlist.default); // boolean
       console.log(playlist.channels); // number | null
-      console.log(playlist.url); // string
+      console.log(playlist.src); // string
 
       return playlist.default;
     });

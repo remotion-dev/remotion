@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {TransportStreamPMTBox} from './boxes';
 import {discardRestOfPacket} from './discard-rest-of-packet';
 

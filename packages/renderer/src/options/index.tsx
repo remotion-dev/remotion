@@ -6,8 +6,10 @@ import {binariesDirectoryOption} from './binaries-directory';
 import {chromeModeOption} from './chrome-mode';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
+import {enableCrossSiteIsolationOption} from './cross-site-isolation';
 import {deleteAfterOption} from './delete-after';
 import {disableGitSourceOption} from './disable-git-source';
+import {disallowParallelEncodingOption} from './disallow-parallel-encoding';
 import {enableLambdaInsights} from './enable-lambda-insights';
 import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
@@ -17,7 +19,9 @@ import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {glOption} from './gl';
 import {hardwareAccelerationOption} from './hardware-acceleration';
+import {imageSequencePatternOption} from './image-sequence-pattern';
 import {jpegQualityOption} from './jpeg-quality';
+import {audioLatencyHintOption} from './latency-hint';
 import {logLevelOption} from './log-level';
 import {metadataOption} from './metadata';
 import {mutedOption} from './mute';
@@ -36,6 +40,7 @@ import {separateAudioOption} from './separate-audio';
 import {throwIfSiteExistsOption} from './throw-if-site-exists';
 import {delayRenderTimeoutInMillisecondsOption} from './timeout';
 import {videoBitrateOption} from './video-bitrate';
+import {mediaCacheSizeInBytesOption} from './video-cache-size';
 import {videoCodecOption} from './video-codec';
 import {webhookCustomDataOption} from './webhook-custom-data';
 import {x264Option} from './x264-preset';
@@ -55,6 +60,7 @@ export const allOptions = {
 	webhookCustomDataOption,
 	colorSpaceOption,
 	deleteAfterOption,
+	disallowParallelEncodingOption,
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
@@ -81,6 +87,10 @@ export const allOptions = {
 	hardwareAccelerationOption,
 	chromeModeOption,
 	apiKeyOption,
+	audioLatencyHintOption,
+	enableCrossSiteIsolationOption,
+	imageSequencePatternOption,
+	mediaCacheSizeInBytesOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

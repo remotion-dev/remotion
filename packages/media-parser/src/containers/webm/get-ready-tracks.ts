@@ -1,5 +1,6 @@
-import type {Track} from '../../get-tracks';
-import type {ParserState} from '../../state/parser-state';
+import type {MediaParserTrack} from '../../get-tracks';
+import type {WebmState} from '../../state/matroska/webm';
+import type {StructureState} from '../../state/structure';
 import {getCodecStringFromSpsAndPps} from '../avc/codec-string';
 import {
 	getTrack,
@@ -8,18 +9,18 @@ import {
 import {getMainSegment, getTracksSegment} from './traversal';
 
 export type ResolvedAndUnresolvedTracks = {
-	resolved: Track[];
-	missingInfo: Track[];
+	resolved: MediaParserTrack[];
+	missingInfo: MediaParserTrack[];
 };
 
 export const getTracksFromMatroska = ({
-	state,
+	structureState,
+	webmState,
 }: {
-	state: ParserState;
+	structureState: StructureState;
+	webmState: WebmState;
 }): ResolvedAndUnresolvedTracks => {
-	const webmState = state.webm;
-
-	const structure = state.getMatroskaStructure();
+	const structure = structureState.getMatroskaStructure();
 	const mainSegment = getMainSegment(structure.boxes);
 	if (!mainSegment) {
 		throw new Error('No main segment');
@@ -31,8 +32,8 @@ export const getTracksFromMatroska = ({
 		throw new Error('No tracks segment');
 	}
 
-	const resolvedTracks: Track[] = [];
-	const missingInfo: Track[] = [];
+	const resolvedTracks: MediaParserTrack[] = [];
+	const missingInfo: MediaParserTrack[] = [];
 
 	for (const trackEntrySegment of tracksSegment.value) {
 		if (trackEntrySegment.type === 'Crc32') {
@@ -70,8 +71,14 @@ export const getTracksFromMatroska = ({
 	return {missingInfo, resolved: resolvedTracks};
 };
 
-export const matroskaHasTracks = (state: ParserState) => {
-	const structure = state.getMatroskaStructure();
+export const matroskaHasTracks = ({
+	structureState,
+	webmState,
+}: {
+	structureState: StructureState;
+	webmState: WebmState;
+}) => {
+	const structure = structureState.getMatroskaStructure();
 	const mainSegment = getMainSegment(structure.boxes);
 	if (!mainSegment) {
 		return false;
@@ -80,7 +87,8 @@ export const matroskaHasTracks = (state: ParserState) => {
 	return (
 		getTracksSegment(mainSegment) !== null &&
 		getTracksFromMatroska({
-			state,
+			structureState,
+			webmState,
 		}).missingInfo.length === 0
 	);
 };

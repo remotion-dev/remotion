@@ -32,6 +32,7 @@ class RenderParams
     protected $everyNthFrame = 1;
     protected $numberOfGifLoops = 0;
     protected $concurrencyPerLambda = 1;
+    protected $concurrency = null;
     protected $downloadBehavior = [
         'type' => 'play-in-browser',
     ];
@@ -47,6 +48,7 @@ class RenderParams
     protected $forceWidth = null;
     protected $apiKey = null;
     protected $offthreadVideoCacheSizeInBytes = null;
+    protected $mediaCacheSizeInBytes = null;
     protected $offthreadVideoThreads = null;
     protected $audioCodec = null;
     protected $rendererFunctionName = null;
@@ -55,6 +57,7 @@ class RenderParams
     protected $x264Preset = null;
     protected $deleteAfter = null;
     protected $forcePathStyle = false;
+    protected $storageClass = null;
 
     public function __construct(
         ?array  $data = null,
@@ -77,6 +80,7 @@ class RenderParams
         ?int    $everyNthFrame = 1,
         ?int    $numberOfGifLoops = 0,
         ?int    $concurrencyPerLambda = 1,
+        ?int    $concurrency = null,
         ?array  $downloadBehavior = null,
         ?bool   $muted = false,
         ?bool   $overwrite = false,
@@ -87,8 +91,10 @@ class RenderParams
         ?int    $forceWidth = null,
         ?int    $apiKey = null,
         ?int    $offthreadVideoCacheSizeInBytes = null,
+        ?int    $mediaCacheSizeInBytes = null,
         ?int    $offthreadVideoThreads = null,
         ?string $audioCodec = null,
+        ?string $storageClass = null,
         ?int    $framesPerLambda = null,
         ?string $rendererFunctionName = null,
         ?string $proResProfile = null,
@@ -127,6 +133,7 @@ class RenderParams
         $this->everyNthFrame = $everyNthFrame;
         $this->numberOfGifLoops = $numberOfGifLoops;
         $this->concurrencyPerLambda = $concurrencyPerLambda;
+        $this->concurrency = $concurrency;
         $this->downloadBehavior = $downloadBehavior ?? ['type' => 'play-in-browser'];
         $this->muted = $muted;
         $this->overwrite = $overwrite;
@@ -139,8 +146,10 @@ class RenderParams
         $this->forceWidth = $forceWidth;
         $this->apiKey = $apiKey;
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
+        $this->mediaCacheSizeInBytes = $mediaCacheSizeInBytes;
         $this->offthreadVideoThreads = $offthreadVideoThreads;
         $this->audioCodec = $audioCodec;
+        $this->storageClass = $storageClass;
         $this->framesPerLambda = $framesPerLambda;
         $this->rendererFunctionName = $rendererFunctionName;
         $this->proResProfile = $proResProfile;
@@ -176,6 +185,7 @@ class RenderParams
             'everyNthFrame' => $this->getEveryNthFrame(),
             'numberOfGifLoops' => $this->getNumberOfGifLoops(),
             'concurrencyPerLambda' => $this->getConcurrencyPerLambda(),
+            'concurrency' => $this->getConcurrency(),
             'downloadBehavior' => $this->getDownloadBehavior(),
             'muted' => $this->getMuted(),
             'preferLossless' => $this->getPreferLossless(),
@@ -190,9 +200,11 @@ class RenderParams
             'forceWidth' => $this->getForceWidth(),
             'apiKey' => $this->getApiKey(),
             'offthreadVideoCacheSizeInBytes' => $this->getOffthreadVideoCacheSizeInBytes(),
+            'mediaCacheSizeInBytes' => $this->getMediaCacheSizeInBytes(),
             'offthreadVideoThreads' => $this->getOffthreadVideoThreads(),
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
+            'storageClass' => $this->getStorageClass(),
             'x264Preset' => $this->getX264Preset(),
             'deleteAfter' => $this->getDeleteAfter(),
             'forcePathStyle' => $this->getForcePathStyle(),
@@ -309,6 +321,25 @@ class RenderParams
         return $this;
     }
 
+    /**
+     * Get the value of storageClass
+     */
+    public function getStorageClass()
+    {
+        return $this->storageClass;
+    }
+
+    /**
+     * Set the value of storageClass
+     *
+     * @return  self
+     */
+    public function setStorageClass($storageClass)
+    {
+        $this->storageClass = $storageClass;
+
+        return $this;
+    }
     /**
      * Get the value of data
      */
@@ -617,6 +648,11 @@ class RenderParams
         $this->concurrencyPerLambda = $concurrencyPerLambda;
     }
 
+    public function setConcurrency($concurrency)
+    {
+        $this->concurrency = $concurrency;
+    }
+
     public function setDownloadBehavior($downloadBehavior)
     {
         $this->downloadBehavior = $downloadBehavior;
@@ -661,6 +697,11 @@ class RenderParams
     public function getConcurrencyPerLambda()
     {
         return $this->concurrencyPerLambda;
+    }
+
+    public function getConcurrency()
+    {
+        return $this->concurrency;
     }
 
     public function getDownloadBehavior()
@@ -718,6 +759,16 @@ class RenderParams
     public function setOffthreadVideoCacheSizeInBytes($offthreadVideoCacheSizeInBytes)
     {
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
+    }
+
+    public function getMediaCacheSizeInBytes()
+    {
+        return $this->mediaCacheSizeInBytes;
+    }
+
+    public function setMediaCacheSizeInBytes($mediaCacheSizeInBytes)
+    {
+        $this->mediaCacheSizeInBytes = $mediaCacheSizeInBytes;
     }
     public function setOffthreadVideoThreads($offthreadVideoThreads)
     {
@@ -784,6 +835,8 @@ class RenderParams
     {
         return $this->offthreadVideoCacheSizeInBytes;
     }
+
+
     public function getOffthreadVideoThreads()
     {
         return $this->offthreadVideoThreads;

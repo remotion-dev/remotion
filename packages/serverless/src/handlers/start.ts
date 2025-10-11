@@ -50,6 +50,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 				providerSpecifics,
 				forcePathStyle: params.forcePathStyle,
 				skipPutAcl: false,
+				requestHandler: null,
 			})
 		).bucketName;
 	const realServeUrl = providerSpecifics.convertToServeUrl({
@@ -74,11 +75,14 @@ export const startHandler = async <Provider extends CloudProvider>({
 		privacy: 'private',
 		customCredentials: null,
 		forcePathStyle: params.forcePathStyle,
+		storageClass: null,
+		requestHandler: null,
 	});
 
 	const payload: ServerlessPayload<Provider> = {
 		type: ServerlessRoutines.launch,
 		framesPerFunction: params.framesPerLambda,
+		concurrency: params.concurrency,
 		composition: params.composition,
 		serveUrl: realServeUrl,
 		inputProps: params.inputProps,
@@ -123,6 +127,8 @@ export const startHandler = async <Provider extends CloudProvider>({
 		metadata: params.metadata,
 		apiKey: params.apiKey,
 		offthreadVideoThreads: params.offthreadVideoThreads,
+		storageClass: params.storageClass,
+		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 	};
 
 	await providerSpecifics.callFunctionAsync({
@@ -131,6 +137,7 @@ export const startHandler = async <Provider extends CloudProvider>({
 		payload,
 		region,
 		timeoutInTest: options.timeoutInMilliseconds,
+		requestHandler: null,
 	});
 
 	await initialFile;

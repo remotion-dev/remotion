@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-google-fonts-load-font.png
 title: loadFont()
-crumb: "@remotion/google-fonts"
+crumb: '@remotion/google-fonts'
 ---
 
 _Part of the [`@remotion/google-fonts`](/docs/google-fonts) package_
@@ -17,10 +17,10 @@ Load a [Google Font](https://fonts.google.com) for use in Remotion.
 Without arguments, all styles, weights and character subsets of a font are being loaded.
 
 ```tsx twoslash title="Load all variants of the Lobster font"
-import { loadFont } from "@remotion/google-fonts/Lobster";
-import { AbsoluteFill } from "remotion";
+import {loadFont} from '@remotion/google-fonts/Lobster';
+import {AbsoluteFill} from 'remotion';
 
-const { fontFamily } = loadFont();
+const {fontFamily} = loadFont();
 
 export const GoogleFontsExample: React.FC = () => {
   return (
@@ -44,25 +44,25 @@ A large font file paired with a limited bandwith can potentially lead to a rende
 If you want to load multiple styles, use multiple `loadFont()` statements.
 
 ```tsx twoslash title="Load a specific style, weight and subset"
-import { AbsoluteFill } from "remotion";
-import { fontFamily, loadFont } from "@remotion/google-fonts/Lobster";
+import {AbsoluteFill} from 'remotion';
+import {fontFamily, loadFont} from '@remotion/google-fonts/Lobster';
 
-const { waitUntilDone } = loadFont("normal", {
-  weights: ["400"],
-  subsets: ["latin"],
+const {waitUntilDone} = loadFont('normal', {
+  weights: ['400'],
+  subsets: ['latin'],
 });
 
 // Optional: Act once the font has been loaded
 waitUntilDone().then(() => {
-  console.log("Font is loaded");
+  console.log('Font is loaded');
 });
 
 export const GoogleFontsExample: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
         // Pass the `fontFamily` you imported as a style
         fontFamily: fontFamily,
         fontSize: 280,
@@ -101,6 +101,13 @@ Array of font subsets that should be loaded. By default, all.
 _optional_
 
 Allows you to specify a [`Document`](https://developer.mozilla.org/en-US/docs/Web/API/Document?retiredLocale=de). If you want to inject the fonts into an iframe, you want to give it a ref and pass `iframeRef.contentDocument` to this parameter. By default, the global `window.document` is used.
+
+#### ignoreTooManyRequestsWarning<AvailableFrom v="4.0.283" />
+
+_optional_
+
+If more than 20 network requests are made to load the font, then a warning will be printed to the console.  
+You can disable that warning by setting this option.
 
 ## Return value
 
@@ -141,15 +148,15 @@ Unicode range information about the font.
 A function that returns a promise that resolves when the font is loaded.
 
 ```tsx title="Load a font in the background"
-import { loadFont } from "@remotion/google-fonts/Lobster";
+import {loadFont} from '@remotion/google-fonts/Lobster';
 
-loadFont("normal", {
-  weights: ["400"],
-  subsets: ["latin"],
+loadFont('normal', {
+  weights: ['400'],
+  subsets: ['latin'],
 })
   .waitUntilDone()
   .then(() => {
-    console.log("Done loading");
+    console.log('Done loading');
   });
 ```
 

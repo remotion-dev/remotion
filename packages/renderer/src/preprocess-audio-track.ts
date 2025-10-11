@@ -13,6 +13,7 @@ import {resolveAssetSrc} from './resolve-asset-src';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import type {ProcessedTrack} from './stringify-ffmpeg-filter';
 import {stringifyFfmpegFilter} from './stringify-ffmpeg-filter';
+import {truthy} from './truthy';
 
 type Options = {
 	outName: string;
@@ -28,6 +29,7 @@ type Options = {
 	trimRightOffset: number;
 	forSeamlessAacConcatenation: boolean;
 	onProgress: (progress: number) => void;
+	audioStreamIndex: number;
 };
 
 export type PreprocessedAudioTrack = {
@@ -49,6 +51,7 @@ const preprocessAudioTrackUnlimited = async ({
 	trimLeftOffset,
 	trimRightOffset,
 	forSeamlessAacConcatenation,
+	audioStreamIndex,
 }: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration, startTime} = await getAudioChannelsAndDuration({
 		downloadMap,
@@ -57,6 +60,7 @@ const preprocessAudioTrackUnlimited = async ({
 		logLevel,
 		binariesDirectory,
 		cancelSignal,
+		audioStreamIndex,
 	});
 
 	const filter = stringifyFfmpegFilter({
@@ -83,12 +87,15 @@ const preprocessAudioTrackUnlimited = async ({
 	const args = [
 		['-hide_banner'],
 		['-i', resolveAssetSrc(asset.src)],
+		audioStreamIndex ? ['-map', `0:a:${audioStreamIndex}`] : [],
 		['-ac', '2'],
-		['-filter_script:a', file],
+		file ? ['-filter_script:a', file] : null,
 		['-c:a', 'pcm_s16le'],
 		['-ar', String(DEFAULT_SAMPLE_RATE)],
 		['-y', outName],
-	].flat(2);
+	]
+		.flat(2)
+		.filter(truthy);
 
 	Log.verbose(
 		{indent, logLevel},

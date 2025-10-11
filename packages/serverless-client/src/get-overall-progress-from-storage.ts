@@ -13,6 +13,7 @@ export const getOverallProgressFromStorage = async <
 	region,
 	providerSpecifics,
 	forcePathStyle,
+	requestHandler,
 }: {
 	renderId: string;
 	expectedBucketOwner: string | null;
@@ -20,6 +21,7 @@ export const getOverallProgressFromStorage = async <
 	region: Provider['region'];
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 }) => {
 	try {
 		const Body = await providerSpecifics.readFile({
@@ -28,6 +30,7 @@ export const getOverallProgressFromStorage = async <
 			expectedBucketOwner,
 			region,
 			forcePathStyle,
+			requestHandler,
 		});
 
 		const str = await streamToString(Body);

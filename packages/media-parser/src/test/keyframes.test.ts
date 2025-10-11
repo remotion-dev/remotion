@@ -57,28 +57,28 @@ test('should be able to get keyframes from avi', async () => {
 	expect(slowKeyframes).toEqual([
 		{
 			decodingTimeInSeconds: 0,
-			positionInBytes: 9992,
+			positionInBytes: 9984,
 			presentationTimeInSeconds: 0,
 			sizeInBytes: 4599,
 			trackId: 0,
 		},
 		{
 			decodingTimeInSeconds: 8.333333333333334,
-			positionInBytes: 203306,
+			positionInBytes: 203298,
 			presentationTimeInSeconds: 8.333333333333334,
 			sizeInBytes: 4796,
 			trackId: 0,
 		},
 		{
 			decodingTimeInSeconds: 16.666666666666668,
-			positionInBytes: 395248,
+			positionInBytes: 395240,
 			presentationTimeInSeconds: 16.666666666666668,
 			sizeInBytes: 4651,
 			trackId: 0,
 		},
 		{
 			decodingTimeInSeconds: 25,
-			positionInBytes: 580478,
+			positionInBytes: 580470,
 			presentationTimeInSeconds: 25,
 			sizeInBytes: 4097,
 			trackId: 0,
@@ -104,9 +104,9 @@ test('should be able to get keyframes from .ts', async () => {
 	expect(slowNumberOfFrames).toEqual(298);
 	expect(slowKeyframes).toEqual([
 		{
-			decodingTimeInSeconds: 10,
+			decodingTimeInSeconds: 0,
 			positionInBytes: 564,
-			presentationTimeInSeconds: 10.033333333333333,
+			presentationTimeInSeconds: 0.03333333333333333,
 			sizeInBytes: 23814,
 			trackId: 256,
 		},

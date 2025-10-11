@@ -6,29 +6,35 @@ import type {
 	SelectM3uAssociatedPlaylistsFnOptions,
 	SelectM3uStreamFnOptions,
 } from '../containers/m3u/select-stream';
-import type {Dimensions, ImageType} from '../errors';
+import type {ImageType} from '../errors';
+import type {Options, ParseMediaFields} from '../fields';
+import type {MediaParserDimensions} from '../get-dimensions';
 import type {MediaParserLocation} from '../get-location';
-import type {MediaParserAudioCodec, MediaParserVideoCodec} from '../get-tracks';
+import type {
+	MediaParserAudioCodec,
+	MediaParserTrack,
+	MediaParserVideoCodec,
+} from '../get-tracks';
 import type {MediaParserMetadataEntry} from '../metadata/get-metadata';
 import type {
 	MediaParserContainer,
 	MediaParserKeyframe,
-	MediaParserTracks,
-	Options,
-	ParseMediaFields,
 	ParseMediaProgress,
 	ParseMediaResult,
 	ParseMediaSrc,
 	SerializeableOptionalParseMediaParams,
 } from '../options';
 import type {MediaParserStructureUnstable} from '../parse-result';
+import type {SeekingHints} from '../seeking-hints';
 import type {MediaParserEmbeddedImage} from '../state/images';
 import type {InternalStats} from '../state/parser-state';
 import type {
-	AudioOrVideoSample,
-	OnAudioTrackParams,
-	OnVideoTrackParams,
+	MediaParserAudioSample,
+	MediaParserOnAudioTrackParams,
+	MediaParserOnVideoTrackParams,
+	MediaParserVideoSample,
 } from '../webcodec-sample-types';
+import type {SeekResolution} from '../work-on-seek-request';
 
 export type ParseMediaOnWorkerPayload = {
 	type: 'request-worker';
@@ -61,7 +67,7 @@ export type ParseMediaOnWorkerPayload = {
 	postSlowKeyframes: boolean;
 	postSlowNumberOfFrames: boolean;
 	postSlowVideoBitrate: boolean;
-	postStructure: boolean;
+	postSlowStructure: boolean;
 	postTracks: boolean;
 	postDurationInSeconds: boolean;
 	postParseProgress: boolean;
@@ -75,8 +81,23 @@ type RequestPause = {
 	type: 'request-pause';
 };
 
+type RequestSeek = {
+	type: 'request-seek';
+	payload: number;
+};
+
 type RequestResume = {
 	type: 'request-resume';
+};
+
+type RequestGetSeekingHints = {
+	type: 'request-get-seeking-hints';
+};
+
+type RequestSimulateSeek = {
+	type: 'request-simulate-seek';
+	payload: number;
+	nonce: string;
 };
 
 type RequestAbort = {
@@ -86,6 +107,18 @@ type RequestAbort = {
 type ResponseDone = {
 	type: 'response-done';
 	payload: ParseMediaResult<Options<ParseMediaFields>>;
+	seekingHints: SeekingHints | null;
+};
+
+type ResponseGetSeekingHints = {
+	type: 'response-get-seeking-hints';
+	payload: SeekingHints;
+};
+
+type ResponseSimulateSeek = {
+	type: 'response-simulate-seek';
+	nonce: string;
+	payload: SeekResolution;
 };
 
 type BaseError = {
@@ -93,21 +126,26 @@ type BaseError = {
 	errorMessage: string;
 };
 
+type AbortError = BaseError & {
+	errorName: 'AbortError';
+};
+
 type GenericError = BaseError & {
 	errorName: 'Error';
 };
 
-type IsAGifError = BaseError & {
-	errorName: 'IsAGifError';
-	mimeType: string | null;
-	sizeInBytes: number | null;
-	fileName: string | null;
+type NotReadableError = BaseError & {
+	errorName: 'NotReadableError';
+};
+
+type TypeError = BaseError & {
+	errorName: 'TypeError';
 };
 
 type IsAnImageError = BaseError & {
 	errorName: 'IsAnImageError';
 	imageType: ImageType;
-	dimensions: Dimensions | null;
+	dimensions: MediaParserDimensions | null;
 	mimeType: string | null;
 	sizeInBytes: number | null;
 	fileName: string | null;
@@ -129,15 +167,19 @@ type IsAnUnsupportedFileTypeError = BaseError & {
 
 type MediaParserAbortError = BaseError & {
 	errorName: 'MediaParserAbortError';
+	seekingHints: SeekingHints | null;
 };
 
 type AnyError =
 	| GenericError
-	| IsAGifError
 	| IsAnImageError
 	| IsAPdfError
 	| IsAnUnsupportedFileTypeError
-	| MediaParserAbortError;
+	| MediaParserAbortError
+	// browser native errors
+	| AbortError
+	| NotReadableError
+	| TypeError;
 
 export type ResponseError = {
 	type: 'response-error';
@@ -154,11 +196,11 @@ export type ResponseCallbackPayload =
 	  }
 	| {
 			callbackType: 'dimensions';
-			value: Dimensions | null;
+			value: MediaParserDimensions | null;
 	  }
 	| {
 			callbackType: 'unrotated-dimensions';
-			value: Dimensions | null;
+			value: MediaParserDimensions | null;
 	  }
 	| {
 			callbackType: 'video-codec';
@@ -245,16 +287,16 @@ export type ResponseCallbackPayload =
 			value: number | null;
 	  }
 	| {
-			callbackType: 'structure';
+			callbackType: 'slow-structure';
 			value: MediaParserStructureUnstable;
 	  }
 	| {
 			callbackType: 'tracks';
-			value: MediaParserTracks;
+			value: MediaParserTrack[];
 	  }
 	| {
 			callbackType: 'unrotated-dimensions';
-			value: Dimensions | null;
+			value: MediaParserDimensions | null;
 	  }
 	| {
 			callbackType: 'video-codec';
@@ -274,15 +316,24 @@ export type ResponseCallbackPayload =
 	  }
 	| {
 			callbackType: 'on-audio-track';
-			value: OnAudioTrackParams;
+			value: MediaParserOnAudioTrackParams;
 	  }
 	| {
 			callbackType: 'on-video-track';
-			value: OnVideoTrackParams;
+			value: MediaParserOnVideoTrackParams;
 	  }
 	| {
-			callbackType: 'on-audio-video-sample';
-			value: AudioOrVideoSample;
+			callbackType: 'on-audio-sample';
+			value: MediaParserAudioSample;
+			trackId: number;
+	  }
+	| {
+			callbackType: 'on-video-sample';
+			value: MediaParserVideoSample;
+			trackId: number;
+	  }
+	| {
+			callbackType: 'track-done';
 			trackId: number;
 	  }
 	| {
@@ -315,6 +366,10 @@ export type AcknowledgePayload =
 	| {
 			payloadType: 'on-video-track-response';
 			registeredCallback: boolean;
+	  }
+	| {
+			payloadType: 'on-sample-response';
+			registeredTrackDoneCallback: boolean;
 	  };
 
 export type AcknowledgeCallback = {
@@ -332,10 +387,15 @@ export type WorkerRequestPayload =
 	| RequestResume
 	| RequestPause
 	| RequestAbort
+	| RequestSeek
+	| RequestGetSeekingHints
+	| RequestSimulateSeek
 	| AcknowledgeCallback
 	| SignalErrorInCallback;
 
 export type WorkerResponsePayload =
 	| ResponseDone
 	| ResponseError
-	| ResponseOnCallbackRequest;
+	| ResponseOnCallbackRequest
+	| ResponseGetSeekingHints
+	| ResponseSimulateSeek;

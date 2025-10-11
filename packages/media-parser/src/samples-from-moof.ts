@@ -1,24 +1,33 @@
 import type {IsoBaseMediaBox} from './containers/iso-base-media/base-media-box';
+import type {TrexBox} from './containers/iso-base-media/moov/trex';
 import {
 	getTfdtBox,
 	getTfhdBox,
 	getTrunBoxes,
 } from './containers/iso-base-media/traversal';
 import type {SamplePosition} from './get-sample-positions';
-import type {AnySegment} from './parse-result';
+import type {MoofBox} from './state/iso-base-media/precomputed-moof';
 
 const getSamplesFromTraf = (
 	trafSegment: IsoBaseMediaBox,
 	moofOffset: number,
+	trexBoxes: TrexBox[],
 ): SamplePosition[] => {
 	if (trafSegment.type !== 'regular-box' || trafSegment.boxType !== 'traf') {
 		throw new Error('Expected traf-box');
 	}
 
 	const tfhdBox = getTfhdBox(trafSegment);
-	const defaultSampleDuration = tfhdBox?.defaultSampleDuration ?? null;
-	const defaultSampleSize = tfhdBox?.defaultSampleSize ?? null;
-	const defaultSampleFlags = tfhdBox?.defaultSampleFlags ?? null;
+	const trexBox = trexBoxes.find((t) => t.trackId === tfhdBox?.trackId) ?? null;
+
+	// intentional || instead of ?? to allow for 0, doesn't make sense for duration or size
+	const defaultTrackSampleDuration =
+		tfhdBox?.defaultSampleDuration || trexBox?.defaultSampleDuration || null;
+	const defaultTrackSampleSize =
+		tfhdBox?.defaultSampleSize || trexBox?.defaultSampleSize || null;
+	// but flags may just be 0 :)
+	const defaultTrackSampleFlags =
+		tfhdBox?.defaultSampleFlags ?? trexBox?.defaultSampleFlags ?? null;
 
 	const tfdtBox = getTfdtBox(trafSegment);
 	const trunBoxes = getTrunBoxes(trafSegment);
@@ -40,12 +49,12 @@ const getSamplesFromTraf = (
 
 		for (const sample of trunBox.samples) {
 			i++;
-			const duration = sample.sampleDuration ?? defaultSampleDuration;
+			const duration = sample.sampleDuration || defaultTrackSampleDuration;
 			if (duration === null) {
 				throw new Error('Expected duration');
 			}
 
-			const size = sample.sampleSize ?? defaultSampleSize;
+			const size = sample.sampleSize ?? defaultTrackSampleSize;
 			if (size === null) {
 				throw new Error('Expected size');
 			}
@@ -55,7 +64,7 @@ const getSamplesFromTraf = (
 				? sample.sampleFlags
 				: isFirstSample && trunBox.firstSampleFlags !== null
 					? trunBox.firstSampleFlags
-					: defaultSampleFlags;
+					: defaultTrackSampleFlags;
 			if (sampleFlags === null) {
 				throw new Error('Expected sample flags');
 			}
@@ -66,12 +75,14 @@ const getSamplesFromTraf = (
 
 			const samplePosition: SamplePosition = {
 				offset: offset + (moofOffset ?? 0) + (dataOffset ?? 0),
-				dts,
-				cts: dts + (sample.sampleCompositionTimeOffset ?? 0),
+				decodingTimestamp: dts,
+				timestamp: dts + (sample.sampleCompositionTimeOffset ?? 0),
 				duration,
 				isKeyframe: keyframe,
 				size,
 				chunk: 0,
+				bigEndian: false,
+				chunkSize: null,
 			};
 			samples.push(samplePosition);
 			offset += size;
@@ -85,24 +96,19 @@ const getSamplesFromTraf = (
 export const getSamplesFromMoof = ({
 	moofBox,
 	trackId,
+	trexBoxes,
 }: {
-	moofBox: AnySegment;
+	moofBox: MoofBox;
 	trackId: number;
+	trexBoxes: TrexBox[];
 }) => {
-	if (moofBox.type !== 'regular-box') {
-		throw new Error('Expected moof-box');
-	}
-
-	const trafs = moofBox.children.filter(
-		(c) => c.type === 'regular-box' && c.boxType === 'traf',
-	) as IsoBaseMediaBox[];
-
-	const mapped = trafs.map((traf) => {
+	const mapped = moofBox.trafBoxes.map((traf) => {
 		const tfhdBox = getTfhdBox(traf);
+		if (!tfhdBox || tfhdBox.trackId !== trackId) {
+			return [];
+		}
 
-		return tfhdBox?.trackId === trackId
-			? getSamplesFromTraf(traf, moofBox.offset)
-			: [];
+		return getSamplesFromTraf(traf, moofBox.offset, trexBoxes);
 	});
 
 	return mapped.flat(1);

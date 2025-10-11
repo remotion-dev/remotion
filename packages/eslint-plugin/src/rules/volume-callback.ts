@@ -9,7 +9,7 @@ type Options = [];
 type MessageIds = 'VolumeCallback';
 
 const VolumeCallback =
-	'Prefer a callback function for setting the volume: `volume={(f) => interpolate(...)}`. See https://www.remotion.dev/docs/using-audio/#controlling-volume';
+	'Prefer a callback function for setting the volume: `volume={(f) => interpolate(...)}`. See https://www.remotion.dev/docs/audio/volume';
 
 export default createRule<Options, MessageIds>({
 	name: 'volume-callback',
@@ -52,7 +52,12 @@ export default createRule<Options, MessageIds>({
 				if (name.type !== 'JSXIdentifier') {
 					return;
 				}
-				if (name.name !== 'Video' && name.name !== 'Audio') {
+				if (
+					name.name !== 'Video' &&
+					name.name !== 'Audio' &&
+					name.name !== 'Html5Video' &&
+					name.name !== 'Html5Audio'
+				) {
 					return;
 				}
 
@@ -65,6 +70,12 @@ export default createRule<Options, MessageIds>({
 					return;
 				}
 				if (expression.type === 'ArrowFunctionExpression') {
+					return;
+				}
+				if (expression.type === 'FunctionExpression') {
+					return;
+				}
+				if (expression.type === 'Identifier') {
 					return;
 				}
 

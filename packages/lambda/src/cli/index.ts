@@ -240,6 +240,15 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 			);
 		}
 
+		if (error.stack?.includes('ConcurrentInvocationLimitExceeded')) {
+			Log.error(
+				{indent: false, logLevel},
+				`
+AWS returned an "ConcurrentInvocationLimitExceeded" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
+`.trim(),
+			);
+		}
+
 		if (
 			error.stack?.includes(
 				'The security token included in the request is invalid',

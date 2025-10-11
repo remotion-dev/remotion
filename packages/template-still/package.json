@@ -15,7 +15,7 @@
   "repository": {},
   "license": "UNLICENSED",
   "dependencies": {
-    "@aws-sdk/client-s3": "3.738.0",
+    "@aws-sdk/client-s3": "3.787.0",
     "@remotion/bundler": "workspace:*",
     "@remotion/cli": "workspace:*",
     "@remotion/renderer": "workspace:*",
@@ -37,9 +37,9 @@
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
     "eslint": "9.19.0",
-    "prettier": "3.3.3",
-    "bun": "1.1.30",
-    "typescript": "5.5.4"
+    "prettier": "3.6.0",
+    "bun": "1.3.0",
+    "typescript": "5.8.2"
   },
   "private": true
 }

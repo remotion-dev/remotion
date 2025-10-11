@@ -1,39 +1,78 @@
-import type {AudioTrack, VideoTrack} from './get-tracks';
+import type {MediaParserAudioTrack, MediaParserVideoTrack} from './get-tracks';
 import type {MediaParserContainer} from './options';
 
-export type OnAudioSample = (
-	sample: AudioOrVideoSample,
-) => void | Promise<void>;
-export type OnVideoSample = (
-	sample: AudioOrVideoSample,
-) => void | Promise<void>;
+export type MediaParserOnAudioSample = (
+	sample: MediaParserAudioSample,
+) =>
+	| void
+	| Promise<OnTrackDoneCallback | void>
+	| Promise<void>
+	| OnTrackDoneCallback;
 
-export type OnAudioTrackParams = {
-	track: AudioTrack;
+export type MediaParserOnVideoSample = (
+	sample: MediaParserVideoSample,
+) =>
+	| void
+	| Promise<OnTrackDoneCallback | void>
+	| Promise<void>
+	| OnTrackDoneCallback;
+
+export type OnTrackDoneCallback = () => void | Promise<void>;
+
+export type MediaParserOnAudioTrackParams = {
+	track: MediaParserAudioTrack;
 	container: MediaParserContainer;
 };
 
-export type OnAudioTrack = (
-	options: OnAudioTrackParams,
-) => OnAudioSample | Promise<OnAudioSample | null> | null;
+export type MediaParserOnAudioTrack = (
+	options: MediaParserOnAudioTrackParams,
+) => MediaParserOnAudioSample | Promise<MediaParserOnAudioSample | null> | null;
 
-export type OnVideoTrackParams = {
-	track: VideoTrack;
+export type MediaParserOnVideoTrackParams = {
+	track: MediaParserVideoTrack;
 	container: MediaParserContainer;
 };
 
-export type OnVideoTrack = (
-	options: OnVideoTrackParams,
-) => OnVideoSample | Promise<OnVideoSample | null> | null;
+export type MediaParserOnVideoTrack = (
+	options: MediaParserOnVideoTrackParams,
+) => MediaParserOnVideoSample | Promise<MediaParserOnVideoSample | null> | null;
 
-export type AudioOrVideoSample = {
+// These types are the same, but maybe we add more info in the future
+// Therefore keeping it separate for now
+export type MediaParserAudioSample = {
+	// Used by WebCodecs
 	data: Uint8Array;
 	timestamp: number;
 	duration: number | undefined;
-	trackId: number;
 	type: 'key' | 'delta';
-	cts: number;
-	dts: number;
+	// Not used by WebCodecs
+	decodingTimestamp: number;
 	offset: number;
-	timescale: number;
+};
+
+export type MediaParserAvcKeyframeInfo = {
+	type: 'keyframe';
+	poc: number | null;
+};
+
+export type MediaParserAvcDeltaFrameInfo = {
+	type: 'delta-frame';
+	isBidirectionalFrame: boolean;
+	poc: number | null;
+};
+
+export type MediaParserAvcExtraInfo =
+	| MediaParserAvcKeyframeInfo
+	| MediaParserAvcDeltaFrameInfo;
+
+export type MediaParserVideoSample = {
+	// Used by WebCodecs
+	data: Uint8Array;
+	timestamp: number;
+	type: 'key' | 'delta';
+	duration: number | undefined;
+	// Not used by WebCodecs
+	decodingTimestamp: number;
+	offset: number;
+	avc?: MediaParserAvcExtraInfo;
 };

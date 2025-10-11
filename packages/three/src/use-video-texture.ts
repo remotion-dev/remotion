@@ -1,6 +1,6 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import type {Video} from 'remotion';
-import {continueRender, delayRender, useCurrentFrame} from 'remotion';
+import {cancelRender, useCurrentFrame, useDelayRender} from 'remotion';
 import type {VideoTexture} from 'three/src/textures/VideoTexture';
 
 export type UseVideoTextureOptions = React.ComponentProps<typeof Video>;
@@ -26,6 +26,7 @@ const warnAboutRequestVideoFrameCallback = () => {
 export const useVideoTexture = (
 	videoRef: React.RefObject<HTMLVideoElement | null>,
 ): VideoTexture | null => {
+	const {delayRender, continueRender} = useDelayRender();
 	const [loaded] = useState(() => {
 		if (typeof document === 'undefined') {
 			return 0;
@@ -33,16 +34,12 @@ export const useVideoTexture = (
 
 		return delayRender(`Waiting for texture in useVideoTexture() to be loaded`);
 	});
+
 	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
 	const [vidText] = useState(
 		() => import('three/src/textures/VideoTexture.js'),
 	);
-	const [error, setError] = useState<Error | null>(null);
 	const frame = useCurrentFrame();
-
-	if (error) {
-		throw error;
-	}
 
 	const onReady = useCallback(() => {
 		vidText
@@ -52,17 +49,18 @@ export const useVideoTexture = (
 				}
 
 				const vt = new VideoTexture(videoRef.current);
+
 				videoRef.current.width = videoRef.current.videoWidth;
 				videoRef.current.height = videoRef.current.videoHeight;
 				setVideoTexture(vt);
 				continueRender(loaded);
 			})
 			.catch((err) => {
-				setError(err);
+				cancelRender(err);
 			});
-	}, [loaded, vidText, videoRef]);
+	}, [loaded, vidText, videoRef, continueRender]);
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if (!videoRef.current) {
 			return;
 		}
@@ -99,6 +97,14 @@ export const useVideoTexture = (
 
 		current.requestVideoFrameCallback(ready);
 	}, [frame, loaded, videoRef]);
+
+	useEffect(() => {
+		// Clean up on unmount
+
+		return () => {
+			continueRender(loaded);
+		};
+	}, [loaded, continueRender]);
 
 	if (
 		typeof HTMLVideoElement === 'undefined' ||

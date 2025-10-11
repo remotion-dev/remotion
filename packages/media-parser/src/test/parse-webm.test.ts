@@ -13,6 +13,6 @@ test('should be able to parse a WebM', async () => {
 		acknowledgeRemotionLicense: true,
 		reader: nodeReader,
 	});
-	expect(webm.durationInSeconds).toBe(5);
+	expect(webm.durationInSeconds).toBe(5.008);
 	expect(webm.videoCodec).toBe('vp8');
 });

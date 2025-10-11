@@ -13,7 +13,7 @@ export type SerializedJSONWithCustomFields = {
 export const DATE_TOKEN = 'remotion-date:';
 export const FILE_TOKEN = 'remotion-file:';
 
-export const serializeJSONWithDate = ({
+export const serializeJSONWithSpecialTypes = ({
 	data,
 	indent,
 	staticBase,
@@ -69,7 +69,7 @@ export const serializeJSONWithDate = ({
 	}
 };
 
-export const deserializeJSONWithCustomFields = <T = Record<string, unknown>>(
+export const deserializeJSONWithSpecialTypes = <T = Record<string, unknown>>(
 	data: string,
 ): T => {
 	return JSON.parse(data, (_, value) => {
@@ -86,8 +86,8 @@ export const deserializeJSONWithCustomFields = <T = Record<string, unknown>>(
 };
 
 export const serializeThenDeserialize = (props: Record<string, unknown>) => {
-	return deserializeJSONWithCustomFields(
-		serializeJSONWithDate({
+	return deserializeJSONWithSpecialTypes(
+		serializeJSONWithSpecialTypes({
 			data: props,
 			indent: 2,
 			staticBase: window.remotion_staticBase,

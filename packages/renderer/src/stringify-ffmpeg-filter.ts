@@ -4,10 +4,11 @@ import type {AssetVolume, MediaAsset} from './assets/types';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
+import {getActualTrimLeft} from './seamless-aac-trim';
 import {truthy} from './truthy';
 
 export type FilterWithoutPaddingApplied = ProcessedTrack & {
-	filter: string;
+	filter: string | null;
 	actualTrimLeft: number;
 };
 
@@ -41,46 +42,6 @@ const stringifyTrim = (trim: number) => {
 	return asString;
 };
 
-export const getActualTrimLeft = ({
-	asset,
-	fps,
-	trimLeftOffset,
-	seamless,
-	assetDuration,
-}: {
-	asset: MediaAsset;
-	fps: number;
-	trimLeftOffset: number;
-	seamless: boolean;
-	assetDuration: number | null;
-}): {
-	trimLeft: number;
-	maxTrim: number | null;
-} => {
-	const sinceStart = asset.trimLeft - asset.audioStartFrame;
-	if (!seamless) {
-		return {
-			trimLeft:
-				asset.audioStartFrame / fps +
-				(sinceStart / fps) * asset.playbackRate +
-				trimLeftOffset,
-			maxTrim: assetDuration,
-		};
-	}
-
-	if (seamless) {
-		return {
-			trimLeft:
-				asset.audioStartFrame / fps / asset.playbackRate +
-				sinceStart / fps +
-				trimLeftOffset,
-			maxTrim: assetDuration ? assetDuration / asset.playbackRate : null,
-		};
-	}
-
-	throw new Error('This should never happen');
-};
-
 const trimAndSetTempo = ({
 	assetDuration,
 	asset,
@@ -107,11 +68,13 @@ const trimAndSetTempo = ({
 	// It creates a small offset and the offset needs to be the same for all audio tracks, before processing it further.
 	// This also affects the trimLeft and trimRight values, as they need to be adjusted.
 	const {trimLeft, maxTrim} = getActualTrimLeft({
-		asset,
+		trimLeft: asset.trimLeft,
 		fps,
 		trimLeftOffset,
 		seamless: true,
 		assetDuration,
+		audioStartFrame: asset.audioStartFrame,
+		playbackRate: asset.playbackRate,
 	});
 	const trimRight =
 		trimLeft + asset.duration / fps - trimLeftOffset + trimRightOffset;
@@ -180,11 +143,13 @@ export const stringifyFfmpegFilter = ({
 	const startInVideoSeconds = startInVideo / fps;
 
 	const {trimLeft, maxTrim} = getActualTrimLeft({
-		asset,
+		trimLeft: asset.trimLeft,
 		fps,
 		trimLeftOffset,
 		seamless: forSeamlessAacConcatenation,
 		assetDuration,
+		audioStartFrame: asset.audioStartFrame,
+		playbackRate: asset.playbackRate,
 	});
 
 	if (maxTrim && trimLeft >= maxTrim) {
@@ -215,19 +180,20 @@ export const stringifyFfmpegFilter = ({
 		volume,
 		fps,
 		trimLeft: actualTrimLeft,
-		allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
 	});
 
 	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;
 
-	const padStart = startInVideoSeconds + presentationTimeOffsetInSeconds;
+	const padStart =
+		startInVideoSeconds +
+		(asset.trimLeft === 0 ? presentationTimeOffsetInSeconds : 0);
 
 	// Set as few filters as possible, as combining them can create noise
 	return {
 		filter:
-			`[0:a]` +
+			'[0:a]' +
 			[
-				`aformat=sample_fmts=s32:sample_rates=${DEFAULT_SAMPLE_RATE}`,
+				`aformat=sample_fmts=s16:sample_rates=${DEFAULT_SAMPLE_RATE}`,
 				// The order matters here! For speed and correctness, we first trim the audio
 				...trimAndTempoFilter,
 				// The timings for volume must include whatever is in atrim, unless the volume

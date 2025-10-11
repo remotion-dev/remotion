@@ -5,7 +5,7 @@
 	"name": "@remotion/astro-example",
 	"private": true,
 	"type": "module",
-	"version": "4.0.274",
+	"version": "4.0.357",
 	"scripts": {
 		"dev": "astro dev",
 		"start": "astro dev",
@@ -22,8 +22,8 @@
 		"@remotion/skia": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",
-		"lottie-web": "5.12.2",
-		"astro": "5.0.8",
+		"lottie-web": "5.13.0",
+		"astro": "5.13.1",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"remotion": "workspace:*"

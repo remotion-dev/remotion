@@ -1,11 +1,13 @@
+import type {Options, ParseMediaFields} from './fields';
+import type {ParseMediaOptions, ParseMediaResult} from './options';
+import type {SeekingHints} from './seeking-hints';
 import type {
-	AllOptions,
-	Options,
-	ParseMediaFields,
-	ParseMediaOptions,
-	ParseMediaResult,
-} from './options';
-import type {OnAudioSample, OnVideoSample} from './webcodec-sample-types';
+	MediaParserOnAudioSample,
+	MediaParserOnVideoSample,
+} from './webcodec-sample-types';
+import type {WithResolvers} from './with-resolvers';
+import {withResolvers} from './with-resolvers';
+import type {SeekResolution} from './work-on-seek-request';
 import {deserializeError} from './worker/serialize-error';
 import type {
 	AcknowledgePayload,
@@ -47,7 +49,7 @@ const convertToWorkerPayload = (
 		onSlowKeyframes,
 		onSlowNumberOfFrames,
 		onSlowVideoBitrate,
-		onStructure,
+		onSlowStructure,
 		onTracks,
 		onVideoTrack,
 		selectM3uStream,
@@ -82,7 +84,7 @@ const convertToWorkerPayload = (
 		postSlowKeyframes: Boolean(onSlowKeyframes),
 		postSlowNumberOfFrames: Boolean(onSlowNumberOfFrames),
 		postSlowVideoBitrate: Boolean(onSlowVideoBitrate),
-		postStructure: Boolean(onStructure),
+		postSlowStructure: Boolean(onSlowStructure),
 		postTracks: Boolean(onTracks),
 		postUnrotatedDimensions: Boolean(onUnrotatedDimensions),
 		postVideoCodec: Boolean(onVideoCodec),
@@ -92,7 +94,8 @@ const convertToWorkerPayload = (
 		postM3uAssociatedPlaylistsSelection: Boolean(selectM3uAssociatedPlaylists),
 		postOnAudioTrack: Boolean(onAudioTrack),
 		postOnVideoTrack: Boolean(onVideoTrack),
-		src,
+		// URL cannot be serialized, so we convert it to a string
+		src: src instanceof URL ? src.toString() : src,
 	};
 };
 
@@ -104,27 +107,21 @@ export const parseMediaOnWorkerImplementation = async <
 	F extends Options<ParseMediaFields>,
 >(
 	{controller, reader, ...params}: ParseMediaOptions<F>,
-	workerUrlEntry: URL,
+	worker: Worker,
 	apiName: string,
 ) => {
-	if (typeof Worker === 'undefined') {
-		throw new Error('"Worker" is not available. Cannot call workerClient()');
-	}
-
 	if (reader) {
 		throw new Error(
 			`\`reader\` should not be provided to \`${apiName}\`. If you want to use it in the browser, use parseMediaOnWorker(). If you also want to read files from the file system, use parseMediaOnServerWorker().`,
 		);
 	}
 
-	const worker = new Worker(workerUrlEntry);
-
 	post(worker, convertToWorkerPayload(params));
 
+	let workerTerminated = false;
+
 	const {promise, resolve, reject} =
-		Promise.withResolvers<
-			ParseMediaResult<Partial<AllOptions<ParseMediaFields>>>
-		>();
+		withResolvers<ParseMediaResult<Options<ParseMediaFields>>>();
 
 	const onAbort = () => {
 		post(worker, {type: 'request-abort'});
@@ -138,18 +135,84 @@ export const parseMediaOnWorkerImplementation = async <
 		post(worker, {type: 'request-pause'});
 	};
 
-	const callbacks: Record<number, OnAudioSample | OnVideoSample> = {};
+	const onSeek = ({detail: {seek}}: {detail: {seek: number}}) => {
+		post(worker, {type: 'request-seek', payload: seek});
+		controller?._internals.seekSignal.clearSeekIfStillSame(seek);
+	};
+
+	const seekingHintPromises: WithResolvers<SeekingHints | null>[] = [];
+	let finalSeekingHints: SeekingHints | null = null;
+	controller?._internals.attachSeekingHintResolution(() => {
+		if (finalSeekingHints) {
+			return Promise.resolve(finalSeekingHints);
+		}
+
+		if (workerTerminated) {
+			return Promise.reject(new Error('Worker terminated'));
+		}
+
+		const prom = withResolvers<SeekingHints | null>();
+		post(worker, {type: 'request-get-seeking-hints'});
+		seekingHintPromises.push(prom);
+		return prom.promise;
+	});
+
+	const simulateSeekPromises: Record<
+		string,
+		WithResolvers<SeekResolution>
+	> = {};
+	controller?._internals.attachSimulateSeekResolution((seek) => {
+		const prom = withResolvers<SeekResolution>();
+		const nonce = String(Math.random());
+		post(worker, {type: 'request-simulate-seek', payload: seek, nonce});
+		simulateSeekPromises[nonce] = prom;
+		return prom.promise;
+	});
+
+	const callbacks: Record<
+		number,
+		MediaParserOnAudioSample | MediaParserOnVideoSample
+	> = {};
+
+	const trackDoneCallbacks: Record<number, () => void> = {};
 
 	function onMessage(message: MessageEvent) {
 		const data = message.data as WorkerResponsePayload;
 		if (data.type === 'response-done') {
 			resolve(data.payload);
+			if (data.seekingHints) {
+				finalSeekingHints = data.seekingHints;
+				for (const prom of seekingHintPromises) {
+					prom.resolve(finalSeekingHints);
+				}
+			}
+
+			return;
 		}
 
 		if (data.type === 'response-error') {
 			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			cleanup();
-			reject(deserializeError(data));
+			// Reject main loop
+			const error = deserializeError(data);
+			error.stack = data.errorStack;
+			reject(error);
+
+			// If aborted, we send the seeking hints we got,
+			// otherwise we reject all .getSeekingHints() promises
+			if (data.errorName === 'MediaParserAbortError') {
+				finalSeekingHints = data.seekingHints;
+				for (const prom of seekingHintPromises) {
+					prom.resolve(finalSeekingHints);
+				}
+			} else {
+				// Reject all .getSeekingHints() promises
+				for (const prom of seekingHintPromises) {
+					prom.reject(error);
+				}
+			}
+
+			return;
 		}
 
 		if (data.type === 'response-on-callback-request') {
@@ -225,8 +288,8 @@ export const parseMediaOnWorkerImplementation = async <
 						return {payloadType: 'void'};
 					}
 
-					if (data.payload.callbackType === 'structure') {
-						await params.onStructure?.(data.payload.value);
+					if (data.payload.callbackType === 'slow-structure') {
+						await params.onSlowStructure?.(data.payload.value);
 						return {payloadType: 'void'};
 					}
 
@@ -346,7 +409,7 @@ export const parseMediaOnWorkerImplementation = async <
 						};
 					}
 
-					if (data.payload.callbackType === 'on-audio-video-sample') {
+					if (data.payload.callbackType === 'on-audio-sample') {
 						const callback = callbacks[data.payload.trackId];
 						if (!callback) {
 							throw new Error(
@@ -354,8 +417,45 @@ export const parseMediaOnWorkerImplementation = async <
 							);
 						}
 
-						await callback(data.payload.value);
+						const trackDoneCallback = await callback(data.payload.value);
+						if (trackDoneCallback) {
+							trackDoneCallbacks[data.payload.trackId] = trackDoneCallback;
+						}
 
+						return {
+							payloadType: 'on-sample-response',
+							registeredTrackDoneCallback: Boolean(trackDoneCallback),
+						};
+					}
+
+					if (data.payload.callbackType === 'on-video-sample') {
+						const callback = callbacks[data.payload.trackId];
+						if (!callback) {
+							throw new Error(
+								`No callback registered for track ${data.payload.trackId}`,
+							);
+						}
+
+						const trackDoneCallback = await callback(data.payload.value);
+						if (trackDoneCallback) {
+							trackDoneCallbacks[data.payload.trackId] = trackDoneCallback;
+						}
+
+						return {
+							payloadType: 'on-sample-response',
+							registeredTrackDoneCallback: Boolean(trackDoneCallback),
+						};
+					}
+
+					if (data.payload.callbackType === 'track-done') {
+						const trackDoneCallback = trackDoneCallbacks[data.payload.trackId];
+						if (!trackDoneCallback) {
+							throw new Error(
+								`No track done callback registered for track ${data.payload.trackId}`,
+							);
+						}
+
+						trackDoneCallback();
 						return {payloadType: 'void'};
 					}
 
@@ -377,22 +477,54 @@ export const parseMediaOnWorkerImplementation = async <
 						nonce: data.nonce,
 					});
 				});
+			return;
 		}
+
+		if (data.type === 'response-get-seeking-hints') {
+			const firstPromise = seekingHintPromises.shift();
+			if (!firstPromise) {
+				throw new Error('No seeking hint promise found');
+			}
+
+			firstPromise.resolve(data.payload);
+			return;
+		}
+
+		if (data.type === 'response-simulate-seek') {
+			const prom = simulateSeekPromises[data.nonce];
+			if (!prom) {
+				throw new Error('No simulate seek promise found');
+			}
+
+			prom.resolve(data.payload);
+			delete simulateSeekPromises[data.nonce];
+
+			return;
+		}
+
+		throw new Error(
+			`Unknown response type: ${JSON.stringify(data satisfies never)}`,
+		);
 	}
 
 	worker.addEventListener('message', onMessage);
 	controller?.addEventListener('abort', onAbort);
 	controller?.addEventListener('resume', onResume);
 	controller?.addEventListener('pause', onPause);
+	controller?.addEventListener('seek', onSeek);
 
 	function cleanup() {
 		worker.removeEventListener('message', onMessage);
 		controller?.removeEventListener('abort', onAbort);
 		controller?.removeEventListener('resume', onResume);
 		controller?.removeEventListener('pause', onPause);
+		controller?.removeEventListener('seek', onSeek);
 
+		workerTerminated = true;
 		worker.terminate();
 	}
+
+	controller?._internals.markAsReadyToEmitEvents();
 
 	const val = await promise;
 

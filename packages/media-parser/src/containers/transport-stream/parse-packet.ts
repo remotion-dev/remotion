@@ -1,4 +1,6 @@
-import type {ParserState} from '../../state/parser-state';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
+import type {TransportStreamStructure} from '../../parse-result';
+import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
 import type {TransportStreamBox} from './boxes';
 import {parsePat, parseSdt} from './parse-pat';
 import {parsePes} from './parse-pes';
@@ -6,12 +8,15 @@ import {parsePmt} from './parse-pmt';
 import {parseStream} from './parse-stream-packet';
 import {getProgramForId, getStreamForId} from './traversal';
 
-export const parsePacket = async ({
-	parserState,
+export const parsePacket = ({
+	iterator,
+	structure,
+	transportStream,
 }: {
-	parserState: ParserState;
-}): Promise<TransportStreamBox | null> => {
-	const {iterator} = parserState;
+	iterator: BufferIterator;
+	structure: TransportStreamStructure;
+	transportStream: TransportStreamState;
+}): TransportStreamBox | null => {
 	const offset = iterator.counter.getOffset();
 	const syncByte = iterator.getUint8();
 	if (syncByte !== 0x47) {
@@ -52,10 +57,8 @@ export const parsePacket = async ({
 
 	const read = iterator.counter.getOffset() - offset;
 	if (read === 188) {
-		return Promise.resolve(null);
+		return null;
 	}
-
-	const structure = parserState.getTsStructure();
 
 	const pat = structure.boxes.find(
 		(b) => b.type === 'transport-stream-pmt-box',
@@ -64,18 +67,19 @@ export const parsePacket = async ({
 		payloadUnitStartIndicator && pat?.streams.find((e) => e.pid === programId);
 
 	if (isPes) {
-		const packetPes = parsePes(iterator);
-		parserState.transportStream.nextPesHeaderStore.setNextPesHeader(packetPes);
+		const packetPes = parsePes({iterator, offset});
+		transportStream.nextPesHeaderStore.setNextPesHeader(packetPes);
+		transportStream.observedPesHeaders.addPesHeader(packetPes);
 	} else if (payloadUnitStartIndicator === 1) {
 		iterator.getUint8(); // pointerField
 	}
 
 	if (programId === 0) {
-		return Promise.resolve(parsePat(iterator));
+		return parsePat(iterator);
 	}
 
 	if (programId === 17) {
-		return Promise.resolve(parseSdt(iterator));
+		return parseSdt(iterator);
 	}
 
 	// PID 17 is SDT
@@ -83,20 +87,22 @@ export const parsePacket = async ({
 	// Die Service Description Table nennt den Programmnamen (z. B. „ZDF“) und gibt weitere Informationen der einzelnen Programme (Services); sie wird auf PID 17 übertragen.
 	const program =
 		programId === 17 ? null : getProgramForId(structure, programId);
+
 	if (program) {
 		const pmt = parsePmt(iterator);
-		return Promise.resolve(pmt);
+		return pmt;
 	}
 
-	const stream = getStreamForId(structure, programId);
-	if (stream) {
-		await parseStream({
-			transportStreamEntry: stream,
-			state: parserState,
+	const transportStreamEntry = getStreamForId(structure, programId);
+	if (transportStreamEntry) {
+		parseStream({
+			transportStreamEntry,
+			iterator,
+			transportStream,
 			programId,
-			structure,
 		});
-		return Promise.resolve(null);
+
+		return null;
 	}
 
 	throw new Error('Unknown packet identifier');

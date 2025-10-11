@@ -3,13 +3,13 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/core"
 	},
 	"name": "remotion",
-	"version": "4.0.274",
+	"version": "4.0.357",
 	"description": "Make videos programmatically",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md .",
 		"lint": "eslint src",
 		"test": "bun test src/test",
@@ -38,9 +38,9 @@
 		"eslint": "9.19.0"
 	},
 	"keywords": [
-		"remotion",
-		"ffmpeg",
 		"video",
+		"creation",
+		"editor",
 		"react",
 		"player"
 	],

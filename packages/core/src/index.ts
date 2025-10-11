@@ -6,6 +6,7 @@ import type {
 	AnyCompMetadata,
 	AnyComposition,
 	AudioOrVideoAsset,
+	LoopDisplay,
 	TRenderAsset,
 } from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
@@ -14,6 +15,7 @@ import {useIsPlayer} from './is-player.js';
 import type {LogLevel} from './log.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import {Null} from './Null.js';
+import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import {Sequence} from './Sequence.js';
 import type {VideoConfig} from './video-config.js';
 
@@ -37,6 +39,8 @@ declare global {
 		};
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];
+		// Fallback list of seen composition IDs, populated as early as possible by <Composition>
+		remotion_seenCompositionIds: string[];
 		getStaticCompositions: () => Promise<VideoConfigWithSerializedProps[]>;
 		remotion_calculateComposition: (
 			compId: string,
@@ -49,6 +53,7 @@ declare global {
 		remotion_editorName: string | null;
 		remotion_ignoreFastRefreshUpdate: number | null;
 		remotion_numberOfAudioTags: number;
+		remotion_audioLatencyHint: AudioContextLatencyCategory | undefined;
 		remotion_logLevel: LogLevel;
 		remotion_projectName: string;
 		remotion_cwd: string;
@@ -64,8 +69,12 @@ declare global {
 		remotion_audioEnabled: boolean;
 		remotion_videoEnabled: boolean;
 		remotion_puppeteerTimeout: number;
+		remotion_broadcastChannel: BroadcastChannel | undefined;
 		remotion_inputProps: string;
 		remotion_envVariables: string;
+		remotion_isMainTab: boolean;
+		remotion_mediaCacheSizeInBytes: number | null;
+		remotion_initialMemoryAvailable: number | null;
 		remotion_collectAssets: () => TRenderAsset[];
 		remotion_isPlayer: boolean;
 		remotion_isStudio: boolean;
@@ -89,6 +98,8 @@ export type BundleCompositionState = {
 	compositionFps: number;
 	compositionDefaultCodec: Codec;
 	compositionDefaultOutName: string | null;
+	compositionDefaultVideoImageFormat: VideoImageFormat | null;
+	compositionDefaultPixelFormat: PixelFormat | null;
 };
 
 export type BundleIndexState = {
@@ -108,7 +119,8 @@ checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
 export * from './animated-image/index.js';
 export {Artifact} from './Artifact.js';
-export * from './audio/index.js';
+export {Audio, Html5Audio, RemotionAudioProps} from './audio/index.js';
+export type {LoopVolumeCurveBehavior} from './audio/use-audio-frame.js';
 export {cancelRender} from './cancel-render.js';
 export {
 	CalculateMetadataFunction,
@@ -120,6 +132,7 @@ export {
 export type {CanvasContent} from './CompositionManagerContext.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
+export {DownloadBehavior} from './download-behavior.js';
 export * from './easing.js';
 export * from './Folder.js';
 export * from './freeze.js';
@@ -141,6 +154,7 @@ export {
 } from './no-react';
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
+export type {PixelFormat, VideoImageFormat} from './render-types.js';
 export {
 	AbsoluteFillLayout,
 	LayoutAndStyle,
@@ -162,10 +176,22 @@ export {
 	Translation,
 	useCurrentScale,
 } from './use-current-scale';
+export {useDelayRender} from './use-delay-render';
+export {useRemotionEnvironment} from './use-remotion-environment.js';
 export * from './use-video-config.js';
 export * from './version.js';
 export * from './video-config.js';
-export * from './video/index.js';
+export {
+	Html5Video,
+	OffthreadVideo,
+	OffthreadVideoProps,
+	RemotionMainVideoProps,
+	RemotionOffthreadVideoProps,
+	RemotionVideoProps,
+	Video,
+} from './video/index.js';
+export type {OnVideoFrame} from './video/props.js';
+export type {VolumeProp} from './volume-prop.js';
 export {watchStaticFile} from './watch-static-file.js';
 
 export const Experimental = {
@@ -228,4 +254,5 @@ export type _InternalTypes = {
 	AnyCompMetadata: AnyCompMetadata;
 	AudioOrVideoAsset: AudioOrVideoAsset;
 	TRenderAsset: TRenderAsset;
+	LoopDisplay: LoopDisplay;
 };

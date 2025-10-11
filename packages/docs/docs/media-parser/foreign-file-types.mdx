@@ -6,13 +6,17 @@ slug: /media-parser/foreign-file-types
 crumb: '@remotion/media-parser'
 ---
 
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 If you pass a file that is not one of the supported formats, [`parseMedia()`](/docs/media-parser/parse-media) will throw an error.  
 Sometimes this error can contain useful information about the file type nonetheless.
 
 This is useful if you allow users to upload an arbitrary file and want to get information about it with just one pass.
 
 ```tsx twoslash title="Get information about a video, or get the file type if it's not a video"
-import {parseMedia, IsAnImageError, IsAGifError, IsAPdfError, IsAnUnsupportedFileTypeError} from '@remotion/media-parser';
+import {parseMedia, IsAnImageError, IsAPdfError, IsAnUnsupportedFileTypeError} from '@remotion/media-parser';
 
 try {
   await parseMedia({
@@ -22,8 +26,6 @@ try {
 } catch (e) {
   if (e instanceof IsAnImageError) {
     console.log('The file is an image of format:', e.imageType, 'dimensions:', e.dimensions);
-  } else if (e instanceof IsAGifError) {
-    console.log('The file is a GIF');
   } else if (e instanceof IsAPdfError) {
     console.log('The file is a PDF');
   } else if (e instanceof IsAnUnsupportedFileTypeError) {
@@ -36,21 +38,13 @@ try {
 
 ### `IsAnImageError`
 
-An error if the image is a `png`, `jpeg`, `bmp` or `webp`.
+An error if the image is a `png`, `jpeg`, `bmp`, `gif` or `webp`.
 
 - `fileName`: The name of the file - from file name or `Content-Disposition` header.
 - `sizeInBytes`: The size of the file in bytes.
 - `mimeType`: The MIME type of the file.
-- `imageType`: The type of the image (`png`, `jpeg`, `bmp` or `webp`).
+- `imageType`: The type of the image (`png`, `jpeg`, `bmp`, `gif` or `webp`).
 - `dimensions`: The dimensions of the image (`width` and `height`).
-
-### `IsAGifError`
-
-An error if the image is a GIF.
-
-- `fileName`: The name of the file - from file name or `Content-Disposition` header.
-- `sizeInBytes`: The size of the file in bytes.
-- `mimeType`: The MIME type of the file.
 
 ### `IsAPdfError`
 

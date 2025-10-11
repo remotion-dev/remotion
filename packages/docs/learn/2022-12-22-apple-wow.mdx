@@ -18,7 +18,7 @@ import {AppleFireworksTutorial} from '../src/components/tutorials';
 
 Learn how to create an animation that Apple has on its website during the holiday season with this beginner-friendly Remotion tutorial!
 
-<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Final.gif" />
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Final.gif" />
 
 ## Video version
 
@@ -77,14 +77,7 @@ export const MyComposition: React.FC = () => null;
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      <Composition
-        id="MyComp"
-        component={MyComposition}
-        durationInFrames={150}
-        fps={30}
-        width={1920}
-        height={1080}
-      />
+      <Composition id="MyComp" component={MyComposition} durationInFrames={150} fps={30} width={1920} height={1080} />
     </>
   );
 };
@@ -132,7 +125,7 @@ export const MyComposition: React.FC = () => {
 
 This results in the following:
 
-<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Background.png" />
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Background.png" />
 
 ## Render a dot
 
@@ -190,7 +183,7 @@ export const MyComposition: React.FC = () => {
 
 Now we got a white dot on top of our background:
 
-<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Dot.png" />
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Dot.png" />
 
 ## Animate the dot
 
@@ -257,7 +250,7 @@ export const MyComposition: React.FC = () => {
 
 Now, you have some action to show. By using `<Shrinking>` in your main composition you have created a scale out effect:
 
-<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Shrinking.gif" />
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Shrinking.gif" />
 
 ## Move the dot
 
@@ -265,13 +258,7 @@ Next, create a component called `<Move>`. This component has a spring animation,
 
 ```tsx twoslash title="src/Move.tsx"
 import React from 'react';
-import {
-  AbsoluteFill,
-  interpolate,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from 'remotion';
+import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const Move: React.FC<{
   children: React.ReactNode;
@@ -344,7 +331,7 @@ export const MyComposition = () => {
 
 And up goes the dot:
 
-<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Move.gif" />
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Move.gif" />
 
 ## Duplicate the moving dot
 
@@ -352,13 +339,7 @@ Here it gets a little bit trickier, but the following steps are going to make yo
 
 ```tsx twoslash title="src/Move.tsx"
 import React from 'react';
-import {
-  AbsoluteFill,
-  interpolate,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from 'remotion';
+import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const Move: React.FC<{
   children: React.ReactNode;
@@ -487,7 +468,7 @@ export const MyComposition = () => {
 
 And this is how your animation with the duplicated dots should look like:
 
-<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Trail.gif" />
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Trail.gif" />
 
 ## Duplicating markup and arranging it in a circle
 
@@ -575,7 +556,7 @@ export const MyComposition = () => {
 
 The animated explosion should look like this:
 
-<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Explosion.gif" />
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Explosion.gif" />
 
 ## Cleanup
 
@@ -656,7 +637,7 @@ export const MyComposition = () => {
 
 Nothing has changed on the animation itself:
 
-<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Dots.gif" />
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Dots.gif" />
 
 ## Adding hearts and stars
 
@@ -826,7 +807,7 @@ export const YellowHearts: React.FC = () => {
 
 Your main composition should look like this:
 
-<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/DotsAndHearts.gif" />
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/DotsAndHearts.gif" />
 
 <br />
 <br />
@@ -965,7 +946,7 @@ export const Stars: React.FC = () => {
 
 Here is how the almost complete firework should look like:
 
-<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/DotsAndHeartsAndStars.gif" />
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/DotsAndHeartsAndStars.gif" />
 
 ## Slow motion effect
 
@@ -976,13 +957,7 @@ import React from 'react';
 import {Freeze, interpolate, useCurrentFrame} from 'remotion';
 
 // remapSpeed() is a helper function for the component <Slowed> that takes a frame number and a speed
-const remapSpeed = ({
-  frame,
-  speed,
-}: {
-  frame: number;
-  speed: (fr: number) => number;
-}) => {
+const remapSpeed = ({frame, speed}: {frame: number; speed: (fr: number) => number}) => {
   let framesPassed = 0;
   for (let i = 0; i <= frame; i++) {
     framesPassed += speed(i);
@@ -1062,7 +1037,7 @@ export const MyComposition = () => {
 
 Your final firework should look like this:
 
-<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Slowed.gif" />
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Slowed.gif" />
 
 ## Adding your animoji
 
@@ -1085,7 +1060,7 @@ Only assets that are being used by Remotion need to be in the `public` folder. Y
 
 Here is a screenshot right before creating the series of frames:
 
-<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/FFmpegCommand.png" />
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/FFmpegCommand.png" />
 
 <br />
 <br />
@@ -1179,6 +1154,6 @@ export const MyComposition = () => {
 
 By doing all of this you have imported a transparent version of your animoji into your composition. You can run `npm run build` to export your video as MP4. Which should look like this:
 
-<img src="https://remotion-assets.s3.eu-central-1.amazonaws.com/tutorial/Final.gif" />
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Final.gif" />
 
 Congrats on your programmatically generated video! 🎉

@@ -14,7 +14,7 @@ export const CodemodFooter: React.FC<{
 	readonly valid: boolean;
 	readonly codemod: RecastCodemod;
 	readonly loadingNotification: React.ReactNode;
-	readonly succeessNotifcation: React.ReactNode;
+	readonly successNotification: React.ReactNode;
 	readonly errorNotification: string;
 	readonly genericSubmitLabel: string;
 	readonly submitLabel: (options: {relativeRootPath: string}) => string;
@@ -22,7 +22,7 @@ export const CodemodFooter: React.FC<{
 	codemod,
 	valid,
 	loadingNotification,
-	succeessNotifcation,
+	successNotification,
 	errorNotification,
 	genericSubmitLabel,
 	submitLabel,
@@ -65,7 +65,7 @@ export const CodemodFooter: React.FC<{
 			signal: new AbortController().signal,
 		})
 			.then(() => {
-				notification.replaceContent(succeessNotifcation, 2000);
+				notification.replaceContent(successNotification, 2000);
 			})
 			.catch((err) => {
 				notification.replaceContent(
@@ -78,7 +78,7 @@ export const CodemodFooter: React.FC<{
 		errorNotification,
 		loadingNotification,
 		setSelectedModal,
-		succeessNotifcation,
+		successNotification,
 	]);
 
 	const getCanApplyCodemod = useCallback(

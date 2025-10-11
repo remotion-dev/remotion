@@ -2,6 +2,7 @@ import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('parse flac', async () => {
 	let samples = 0;
@@ -27,7 +28,7 @@ test('parse flac', async () => {
 		slowFps,
 		slowKeyframes,
 		slowNumberOfFrames,
-		structure,
+		slowStructure,
 		unrotatedDimensions,
 		numberOfAudioChannels,
 		sampleRate,
@@ -58,7 +59,7 @@ test('parse flac', async () => {
 			slowFps: true,
 			slowKeyframes: true,
 			slowNumberOfFrames: true,
-			structure: true,
+			slowStructure: true,
 			unrotatedDimensions: true,
 			numberOfAudioChannels: true,
 			sampleRate: true,
@@ -73,24 +74,29 @@ test('parse flac', async () => {
 		acknowledgeRemotionLicense: true,
 	});
 	expect(durationInSeconds).toBe(19.714285714285715);
-	expect(tracks.audioTracks).toEqual([
+	expect(tracks.filter((t) => t.type === 'audio')).toEqual([
 		{
+			startInSeconds: 0,
 			codec: 'flac',
 			type: 'audio',
 			description: new Uint8Array([
 				16, 0, 16, 0, 0, 6, 45, 0, 37, 173, 10, 196, 66, 240, 0, 13, 68, 24, 85,
 				22, 231, 0, 113, 139, 185, 1, 33, 54, 155, 80, 241, 191, 203, 112,
 			]),
-			codecPrivate: new Uint8Array([
-				16, 0, 16, 0, 0, 6, 45, 0, 37, 173, 10, 196, 66, 240, 0, 13, 68, 24, 85,
-				22, 231, 0, 113, 139, 185, 1, 33, 54, 155, 80, 241, 191, 203, 112,
-			]),
-			codecWithoutConfig: 'flac',
+			codecData: {
+				type: 'flac-description',
+				data: new Uint8Array([
+					16, 0, 16, 0, 0, 6, 45, 0, 37, 173, 10, 196, 66, 240, 0, 13, 68, 24,
+					85, 22, 231, 0, 113, 139, 185, 1, 33, 54, 155, 80, 241, 191, 203, 112,
+				]),
+			},
+			codecEnum: 'flac',
 			numberOfChannels: 2,
 			sampleRate: 44100,
-			timescale: 1000000,
+			originalTimescale: WEBCODECS_TIMESCALE,
 			trackId: 0,
-			trakBox: null,
+			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		},
 	]);
 	expect(samples).toBe(213);
@@ -152,7 +158,7 @@ test('parse flac', async () => {
 	expect(slowFps).toBe(0);
 	expect(slowKeyframes).toEqual([]);
 	expect(slowNumberOfFrames).toBe(0);
-	expect(structure).toEqual({
+	expect(slowStructure).toEqual({
 		type: 'flac',
 		boxes: [
 			{
@@ -214,7 +220,7 @@ test('parse flac', async () => {
 	expect(unrotatedDimensions).toBe(null);
 	expect(sampleRate).toBe(44100);
 	expect(numberOfAudioChannels).toBe(2);
-	expect(slowAudioBitrate).toBe(572430.1799075705);
+	expect(slowAudioBitrate).toBe(574437.043478261);
 	expect(slowVideoBitrate).toBe(null);
 });
 

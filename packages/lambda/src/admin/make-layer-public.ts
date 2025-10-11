@@ -55,11 +55,13 @@ const makeLayerPublic = async () => {
 			const layerName = `remotion-binaries-${layer}-arm64`;
 			const {Version, LayerArn} = await LambdaClientInternals.getLambdaClient(
 				region,
+				undefined,
+				null,
 			).send(
 				new PublishLayerVersionCommand({
 					Content: {
 						S3Bucket: getBucketName(region),
-						S3Key: `remotion-layer-${layer}-v13-arm64.zip`,
+						S3Key: `remotion-layer-${layer}-v14-arm64.zip`,
 					},
 					LayerName: layerName,
 					LicenseInfo:
@@ -76,7 +78,11 @@ const makeLayerPublic = async () => {
 					Description: VERSION,
 				}),
 			);
-			await LambdaClientInternals.getLambdaClient(region).send(
+			await LambdaClientInternals.getLambdaClient(
+				region,
+				undefined,
+				undefined,
+			).send(
 				new AddLayerVersionPermissionCommand({
 					Action: 'lambda:GetLayerVersion',
 					LayerName: layerName,

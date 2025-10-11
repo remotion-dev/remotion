@@ -24,6 +24,9 @@ type SetPropsAndEnv = {
 	indent: boolean;
 	logLevel: LogLevel;
 	onServeUrlVisited: () => void;
+	isMainTab: boolean;
+	mediaCacheSizeInBytes: number | null;
+	initialMemoryAvailable: number | null;
 };
 
 const innerSetPropsAndEnv = async ({
@@ -40,6 +43,9 @@ const innerSetPropsAndEnv = async ({
 	indent,
 	logLevel,
 	onServeUrlVisited,
+	isMainTab,
+	mediaCacheSizeInBytes,
+	initialMemoryAvailable,
 }: SetPropsAndEnv): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
@@ -48,21 +54,38 @@ const innerSetPropsAndEnv = async ({
 
 	const urlToVisit = normalizeServeUrl(serveUrl);
 
-	await page.evaluateOnNewDocument((timeout: number) => {
-		window.remotion_puppeteerTimeout = timeout;
+	await page.evaluateOnNewDocument(
+		(
+			timeout: number,
+			mainTab: boolean,
+			cacheSizeInBytes: number | null,
+			initMemoryAvailable: number | null,
+		) => {
+			window.remotion_puppeteerTimeout = timeout;
+			window.remotion_isMainTab = mainTab;
+			window.remotion_mediaCacheSizeInBytes = cacheSizeInBytes;
+			window.remotion_initialMemoryAvailable = initMemoryAvailable;
+			// To make useRemotionEnvironment() work
+			if (window.process === undefined) {
+				// @ts-expect-error
+				window.process = {};
+			}
 
-		// To make getRemotionEnvironment() work
-		if (window.process === undefined) {
-			// @ts-expect-error
-			window.process = {};
-		}
+			if (window.process.env === undefined) {
+				window.process.env = {};
+			}
 
-		if (window.process.env === undefined) {
-			window.process.env = {};
-		}
+			window.process.env.NODE_ENV = 'production';
+		},
+		actualTimeout,
+		isMainTab,
+		mediaCacheSizeInBytes,
+		initialMemoryAvailable,
+	);
 
-		window.process.env.NODE_ENV = 'production';
-	}, actualTimeout);
+	await page.evaluateOnNewDocument(
+		'window.remotion_broadcastChannel = new BroadcastChannel("remotion-video-frame-extraction")',
+	);
 
 	if (envVariables) {
 		await page.evaluateOnNewDocument((input: string) => {
@@ -143,6 +166,9 @@ const innerSetPropsAndEnv = async ({
 			indent,
 			logLevel,
 			onServeUrlVisited,
+			isMainTab,
+			mediaCacheSizeInBytes,
+			initialMemoryAvailable,
 		});
 	};
 
@@ -296,7 +322,7 @@ export const setPropsAndEnv = async (params: SetPropsAndEnv) => {
 					reject(
 						new Error(
 							[
-								`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser.`,
+								`Timed out after ${params.timeoutInMilliseconds}ms while setting up the headless browser.`,
 								'This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding.',
 								process.platform === 'linux'
 									? 'Make sure you have installed the Linux depdendencies: https://www.remotion.dev/docs/miscellaneous/linux-dependencies'

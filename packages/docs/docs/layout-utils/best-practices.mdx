@@ -53,15 +53,9 @@ It keeps the code clean by exposing a high-order component which only mounts its
 A file is defined which loads some fonts:
 
 ```tsx twoslash title="fonts.ts"
-import {
-  fontFamily as regularFont,
-  loadFont as loadRegular,
-} from '@remotion/google-fonts/Inter';
+import {fontFamily as regularFont, loadFont as loadRegular} from '@remotion/google-fonts/Inter';
 
-import {
-  fontFamily as monospaceFont,
-  loadFont as loadMonospace,
-} from '@remotion/google-fonts/RobotoMono';
+import {fontFamily as monospaceFont, loadFont as loadMonospace} from '@remotion/google-fonts/RobotoMono';
 
 import {cancelRender, continueRender, delayRender} from 'remotion';
 
@@ -84,15 +78,9 @@ Then a higher order component is defined which only renders it's children when t
 
 ```tsx twoslash title="WaitForFonts.tsx"
 // @filename: fonts.ts
-import {
-  fontFamily as regularFont,
-  loadFont as loadRegular,
-} from '@remotion/google-fonts/Inter';
+import {fontFamily as regularFont, loadFont as loadRegular} from '@remotion/google-fonts/Inter';
 
-import {
-  fontFamily as monospaceFont,
-  loadFont as loadMonospace,
-} from '@remotion/google-fonts/RobotoMono';
+import {fontFamily as monospaceFont, loadFont as loadMonospace} from '@remotion/google-fonts/RobotoMono';
 
 import {cancelRender, continueRender, delayRender} from 'remotion';
 
@@ -120,7 +108,13 @@ export const WaitForFonts: React.FC<{
   children: React.ReactNode;
 }> = ({children}) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const [handle] = useState(() => delayRender());
+  const [handle] = useState(() => delayRender('<WaitForFonts> component'));
+
+  useEffect(() => {
+    return () => {
+      continueRender(handle);
+    };
+  }, [handle]);
 
   useEffect(() => {
     const delay = delayRender('Waiting for fonts to be loaded');

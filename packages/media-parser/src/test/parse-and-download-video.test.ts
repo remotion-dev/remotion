@@ -1,8 +1,8 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {existsSync, statSync, unlinkSync} from 'node:fs';
+import {mediaParserController} from '../controller/media-parser-controller';
 import {downloadAndParseMedia} from '../download-and-parse-media';
-import {mediaParserController} from '../media-parser-controller';
 import {nodeReader} from '../readers/from-node';
 import {nodeWriter} from '../writers/node';
 
@@ -44,7 +44,7 @@ test(
 	'should be able to parse and download remote video',
 	async () => {
 		const {size} = await downloadAndParseMedia({
-			src: 'https://remotion-assets.s3.eu-central-1.amazonaws.com/example-videos/transportstream.ts',
+			src: 'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/transportstream.ts',
 			fields: {
 				size: true,
 			},
@@ -100,13 +100,13 @@ test('should be able to continue on error', () => {
 	const controller = mediaParserController();
 	expect(
 		downloadAndParseMedia({
-			src: 'https://remotion-assets.s3.eu-central-1.amazonaws.com/jkl.gif',
+			src: 'https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/jkl.gif',
 			controller,
 			writer: nodeWriter('jkl.gif'),
 			onError: () => ({action: 'download'}),
 			acknowledgeRemotionLicense: true,
 		}),
-	).rejects.toThrow('GIF files are not yet supported');
+	).rejects.toThrow('Image files are not supported');
 	expect(existsSync('jkl.gif')).toBe(true);
 	unlinkSync('jkl.gif');
 });

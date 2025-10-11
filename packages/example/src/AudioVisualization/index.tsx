@@ -7,7 +7,7 @@ import {transparentize} from 'polished';
 import React from 'react';
 import {
 	AbsoluteFill,
-	Audio,
+	Html5Audio,
 	Img,
 	interpolate,
 	staticFile,
@@ -42,8 +42,9 @@ const Orb = styled.div`
 	justify-content: center;
 	align-items: center;
 	font-size: 70px;
-	font-family: --apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-		Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	font-family:
+		--apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	font-weight: bold;
 	text-transform: lowercase;
 	flex-direction: column;
@@ -175,7 +176,7 @@ const AudioVisualization: React.FC = () => {
 				})}
 			/>
 
-			<Audio src={music} />
+			<Html5Audio src={music} />
 			<FullSize>
 				{circlesToUse.map((v, i) => {
 					const leftNeighbour =

@@ -1,10 +1,14 @@
 import {getDurationFromFlac} from './containers/flac/get-duration-from-flac';
+import {areSamplesComplete} from './containers/iso-base-media/are-samples-complete';
 import {getSamplePositionsFromTrack} from './containers/iso-base-media/get-sample-positions-from-track';
-import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
 	getMoofBoxes,
 	getMoovBoxFromState,
 	getMvhdBox,
+	getTfraBoxes,
+	getTfraBoxesFromMfraBoxChildren,
+	getTrakBoxByTrackId,
+	getTrexBoxes,
 } from './containers/iso-base-media/traversal';
 import {getDurationFromM3u} from './containers/m3u/get-duration-from-m3u';
 import {getDurationFromMp3} from './containers/mp3/get-duration';
@@ -13,6 +17,7 @@ import {getDurationFromWav} from './containers/wav/get-duration-from-wav';
 import type {DurationSegment} from './containers/webm/segments/all-segments';
 import {getHasTracks, getTracks} from './get-tracks';
 import type {AnySegment} from './parse-result';
+import {deduplicateTfraBoxesByOffset} from './state/iso-base-media/precomputed-tfra';
 import type {ParserState} from './state/parser-state';
 
 const getDurationFromMatroska = (segments: AnySegment[]): number | null => {
@@ -53,46 +58,31 @@ export const isMatroska = (boxes: AnySegment[]) => {
 	return matroskaBox;
 };
 
-const isoHasDuration = (parserState: ParserState) => {
-	const structure = parserState.getIsoStructure();
-
-	const moovBox = getMoovBoxFromState(parserState);
-	if (!moovBox) {
-		return false;
-	}
-
-	const mvhdBox = getMvhdBox(moovBox);
-
-	if (!mvhdBox) {
-		return false;
-	}
-
-	if (mvhdBox.type !== 'mvhd-box') {
-		throw new Error('Expected mvhd-box');
-	}
-
-	if (mvhdBox.durationInSeconds > 0) {
-		return true;
-	}
-
-	// Checking if this is a fragmented mp4
-	const moofBoxes = getMoofBoxes(structure.boxes);
-	const hasMvex = moovBox.children.some(
-		(b) => b.type === 'regular-box' && b.boxType === 'mvex',
-	);
-	const isFragmented = moofBoxes.length > 0 || hasMvex;
-	return !isFragmented;
-};
-
 const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
-	const structure = parserState.getIsoStructure();
+	const structure = parserState.structure.getIsoStructure();
 
-	const moovBox = getMoovBoxFromState(parserState);
+	const moovBox = getMoovBoxFromState({
+		structureState: parserState.structure,
+		isoState: parserState.iso,
+		mp4HeaderSegment: parserState.m3uPlaylistContext?.mp4HeaderSegment ?? null,
+		mayUsePrecomputed: true,
+	});
+
 	if (!moovBox) {
 		return null;
 	}
 
 	const moofBoxes = getMoofBoxes(structure.boxes);
+	const mfra = parserState.iso.mfra.getIfAlreadyLoaded();
+	const tfraBoxes = deduplicateTfraBoxesByOffset([
+		...(mfra ? getTfraBoxesFromMfraBoxChildren(mfra) : []),
+		...getTfraBoxes(structure.boxes),
+	]);
+
+	if (!areSamplesComplete({moofBoxes, tfraBoxes})) {
+		return null;
+	}
+
 	const mvhdBox = getMvhdBox(moovBox);
 
 	if (!mvhdBox) {
@@ -107,33 +97,50 @@ const getDurationFromIsoBaseMedia = (parserState: ParserState) => {
 		return mvhdBox.durationInSeconds;
 	}
 
-	const tracks = getTracks(parserState);
-	const allTracks = [
-		...tracks.videoTracks,
-		...tracks.audioTracks,
-		...tracks.otherTracks,
-	];
-	const allSamples = allTracks.map((t) => {
-		const {timescale: ts} = t;
-		const samplePositions = getSamplePositionsFromTrack({
-			trakBox: t.trakBox as TrakBox,
+	const tracks = getTracks(parserState, true);
+
+	const allSamples = tracks.map((t) => {
+		const {originalTimescale: ts} = t;
+
+		const trakBox = getTrakBoxByTrackId(moovBox, t.trackId);
+
+		if (!trakBox) {
+			return null;
+		}
+
+		const {samplePositions, isComplete} = getSamplePositionsFromTrack({
+			trakBox,
 			moofBoxes,
+			moofComplete: areSamplesComplete({moofBoxes, tfraBoxes}),
+			trexBoxes: getTrexBoxes(moovBox),
 		});
 
+		if (!isComplete) {
+			return null;
+		}
+
+		if (samplePositions.length === 0) {
+			return null;
+		}
+
 		const highest = samplePositions
-			?.map((sp) => (sp.cts + sp.duration) / ts)
+			?.map((sp) => (sp.timestamp + sp.duration) / ts)
 			.reduce((a, b) => Math.max(a, b), 0);
 
 		return highest ?? 0;
 	});
 
-	const highestTimestamp = Math.max(...allSamples);
+	if (allSamples.every((s) => s === null)) {
+		return null;
+	}
+
+	const highestTimestamp = Math.max(...allSamples.filter((s) => s !== null));
 
 	return highestTimestamp;
 };
 
 export const getDuration = (parserState: ParserState): number | null => {
-	const structure = parserState.getStructure();
+	const structure = parserState.structure.getStructure();
 	if (structure.type === 'matroska') {
 		return getDurationFromMatroska(structure.boxes);
 	}
@@ -176,23 +183,23 @@ export const getDuration = (parserState: ParserState): number | null => {
 // `duration` just grabs from metadata, and otherwise returns null
 // Therefore just checking if we have tracks
 export const hasDuration = (parserState: ParserState): boolean => {
-	const structure = parserState.getStructureOrNull();
+	const structure = parserState.structure.getStructureOrNull();
 	if (structure === null) {
 		return false;
 	}
 
-	if (structure.type === 'iso-base-media') {
-		return isoHasDuration(parserState);
-	}
-
-	return getHasTracks(parserState);
+	return getHasTracks(parserState, true);
 };
 
 // `slowDuration` goes through everything, and therefore is false
 // Unless it it somewhere in the metadata and is non-null
 export const hasSlowDuration = (parserState: ParserState): boolean => {
 	try {
-		return hasDuration(parserState) && getDuration(parserState) !== null;
+		if (!hasDuration(parserState)) {
+			return false;
+		}
+
+		return getDuration(parserState) !== null;
 	} catch {
 		return false;
 	}

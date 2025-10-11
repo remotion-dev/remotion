@@ -7,6 +7,7 @@ export {getServices} from './api/get-services';
 export {getSites} from './api/get-sites';
 export {
 	RenderMediaOnCloudrunInput,
+	UpdateRenderProgress,
 	renderMediaOnCloudrun,
 } from './api/render-media-on-cloudrun';
 export {

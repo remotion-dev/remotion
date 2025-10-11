@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
-    "prettier": "3.3.3",
+    "prettier": "3.6.0",
     "eslint": "9.19.0"
   },
   "private": true

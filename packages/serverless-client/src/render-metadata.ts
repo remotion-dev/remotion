@@ -4,8 +4,8 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import type {DownloadBehavior} from 'remotion';
 import type {
-	DownloadBehavior,
 	OutNameInputWithoutCredentials,
 	Privacy,
 	SerializedInputProps,
@@ -57,4 +57,5 @@ export type RenderMetadata<Provider extends CloudProvider> = Discriminated & {
 	downloadBehavior: DownloadBehavior;
 	metadata: Record<string, string> | null;
 	dimensions: Dimensions;
+	scale: number;
 };

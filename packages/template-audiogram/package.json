@@ -14,9 +14,12 @@
   "dependencies": {
     "@remotion/cli": "workspace:*",
     "@remotion/media-utils": "workspace:*",
+    "@remotion/media-parser": "workspace:*",
     "@remotion/captions": "workspace:*",
     "@remotion/zod-types": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
+    "@remotion/layout-utils": "workspace:*",
+    "@remotion/install-whisper-cpp": "workspace:*",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "remotion": "workspace:*",
@@ -27,8 +30,9 @@
     "@types/react": "19.0.0",
     "@types/web": "0.0.166",
     "eslint": "9.19.0",
-    "prettier": "3.3.3",
-    "typescript": "5.5.4"
+    "prettier": "3.6.0",
+    "typescript": "5.8.2",
+    "@types/node": "20.12.14"
   },
   "private": true
 }

@@ -1,9 +1,27 @@
-import type {LogLevel} from '@remotion/media-parser';
+import type {MediaParserLogLevel} from '@remotion/media-parser';
 import {mediaParserController} from '@remotion/media-parser';
 import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {Source} from './convert-state';
 import {makeWaveformVisualizer} from './waveform-visualizer';
+
+function uint8_24le_to_uint32(u8: Uint8Array) {
+	if (u8.length % 3 !== 0) {
+		throw new Error('Input length must be a multiple of 3');
+	}
+
+	const count = u8.length / 3;
+	const out = new Uint32Array(count);
+	let j = 0;
+	for (let i = 0; i < count; i++) {
+		const b0 = u8[j++];
+		const b1 = u8[j++];
+		const b2 = u8[j++];
+		out[i] = (b0 | (b1 << 8) | (b2 << 16)) << 8;
+	}
+
+	return out;
+}
 
 export const useThumbnailAndWaveform = ({
 	src,
@@ -13,7 +31,7 @@ export const useThumbnailAndWaveform = ({
 	onWaveformBars,
 }: {
 	src: Source;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	onVideoThumbnail: (videoFrame: VideoFrame) => Promise<void>;
 	onWaveformBars: (bars: number[]) => void;
 	onDone: () => void;
@@ -35,10 +53,13 @@ export const useThumbnailAndWaveform = ({
 
 		const controller = mediaParserController();
 
+		let videoDecoder: VideoDecoder | undefined;
+
 		parseMediaOnWebWorker({
 			controller,
 			src: src.type === 'file' ? src.file : src.url,
 			logLevel,
+			acknowledgeRemotionLicense: true,
 			onDurationInSeconds: (dur) => {
 				if (dur !== null) {
 					waveform.setDuration(dur);
@@ -55,20 +76,7 @@ export const useThumbnailAndWaveform = ({
 
 				hasStartedWaveform.current = true;
 
-				const decoder = new AudioDecoder({
-					output(frame) {
-						waveform.add(frame);
-						frame.close();
-					},
-					error: (error) => {
-						// eslint-disable-next-line no-console
-						console.log(error);
-						setError(error);
-						controller.abort();
-					},
-				});
-
-				if (track.codecWithoutConfig === 'pcm-s16') {
+				if (track.codecEnum === 'pcm-s16') {
 					return (sample) => {
 						waveform.add(
 							new AudioData({
@@ -83,6 +91,35 @@ export const useThumbnailAndWaveform = ({
 						);
 					};
 				}
+
+				if (track.codecEnum === 'pcm-s24') {
+					return (sample) => {
+						waveform.add(
+							new AudioData({
+								data: uint8_24le_to_uint32(sample.data),
+								format: 's32',
+								numberOfChannels: track.numberOfChannels,
+								sampleRate: track.sampleRate,
+								numberOfFrames:
+									((sample.duration as number) * track.sampleRate) / 1_000_000,
+								timestamp: sample.timestamp,
+							}),
+						);
+					};
+				}
+
+				const decoder = new AudioDecoder({
+					output(frame) {
+						waveform.add(frame);
+						frame.close();
+					},
+					error: (error) => {
+						// eslint-disable-next-line no-console
+						console.log(error);
+						setError(error);
+						controller.abort();
+					},
+				});
 
 				if (!(await AudioDecoder.isConfigSupported(track)).supported) {
 					controller.abort();
@@ -108,7 +145,7 @@ export const useThumbnailAndWaveform = ({
 					container !== 'm3u8';
 				const framesToGet = onlyKeyframes ? 3 : 30;
 
-				const decoder = new VideoDecoder({
+				videoDecoder = new VideoDecoder({
 					error: (error) => {
 						// eslint-disable-next-line no-console
 						console.log(error);
@@ -137,7 +174,7 @@ export const useThumbnailAndWaveform = ({
 					return null;
 				}
 
-				decoder.configure(track);
+				videoDecoder.configure(track);
 
 				return (sample) => {
 					if (sample.type !== 'key' && onlyKeyframes) {
@@ -145,10 +182,10 @@ export const useThumbnailAndWaveform = ({
 					}
 
 					if (sample.type === 'key') {
-						decoder.flush();
+						videoDecoder!.flush();
 					}
 
-					decoder.decode(new EncodedVideoChunk(sample));
+					videoDecoder!.decode(new EncodedVideoChunk(sample));
 				};
 			},
 		})
@@ -171,6 +208,7 @@ export const useThumbnailAndWaveform = ({
 				setError(err2 as Error);
 			})
 			.then(() => {
+				videoDecoder?.flush();
 				hasEnoughData();
 			});
 

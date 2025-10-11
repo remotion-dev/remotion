@@ -8,7 +8,7 @@ export const makeTimeoutPromise = ({
 }: {
 	label: () => string;
 	ms: number;
-	controller: WebCodecsController;
+	controller: WebCodecsController | null;
 }) => {
 	const {promise, reject, resolve} = withResolvers<void>();
 
@@ -32,8 +32,10 @@ export const makeTimeoutPromise = ({
 		set();
 	};
 
-	controller.addEventListener('pause', onPause);
-	controller.addEventListener('resume', onResume);
+	if (controller) {
+		controller.addEventListener('pause', onPause);
+		controller.addEventListener('resume', onResume);
+	}
 
 	return {
 		timeoutPromise: promise,
@@ -43,8 +45,10 @@ export const makeTimeoutPromise = ({
 			}
 
 			resolve();
-			controller.removeEventListener('pause', onPause);
-			controller.removeEventListener('resume', onResume);
+			if (controller) {
+				controller.removeEventListener('pause', onPause);
+				controller.removeEventListener('resume', onResume);
+			}
 		},
 	};
 };

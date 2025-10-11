@@ -1,0 +1,121 @@
+[
+  {
+    "text": "In",
+    "startMs": 0,
+    "endMs": 240,
+    "timestampMs": 1280,
+    "confidence": 0.897921
+  },
+  {
+    "text": " the",
+    "startMs": 240,
+    "endMs": 1160,
+    "timestampMs": 1480,
+    "confidence": 0.998468
+  },
+  {
+    "text": " right",
+    "startMs": 1160,
+    "endMs": 1210,
+    "timestampMs": 1780,
+    "confidence": 0.996485
+  },
+  {
+    "text": " sidebar",
+    "startMs": 1210,
+    "endMs": 2130,
+    "timestampMs": 2280,
+    "confidence": 0.766833
+  },
+  {
+    "text": " you",
+    "startMs": 2130,
+    "endMs": 2420,
+    "timestampMs": 2660,
+    "confidence": 0.711176
+  },
+  {
+    "text": " can",
+    "startMs": 2420,
+    "endMs": 2780,
+    "timestampMs": 2880,
+    "confidence": 0.997554
+  },
+  {
+    "text": " edit",
+    "startMs": 2780,
+    "endMs": 3370,
+    "timestampMs": 3260,
+    "confidence": 0.996947
+  },
+  {
+    "text": " a",
+    "startMs": 3370,
+    "endMs": 3420,
+    "timestampMs": 3560,
+    "confidence": 0.990722
+  },
+  {
+    "text": " video",
+    "startMs": 3420,
+    "endMs": 4070,
+    "timestampMs": 3860,
+    "confidence": 0.96658
+  },
+  {
+    "text": " by",
+    "startMs": 4070,
+    "endMs": 4150,
+    "timestampMs": 4200,
+    "confidence": 0.951174
+  },
+  {
+    "text": " adding",
+    "startMs": 4150,
+    "endMs": 4610,
+    "timestampMs": 4600,
+    "confidence": 0.991111
+  },
+  {
+    "text": " more",
+    "startMs": 4610,
+    "endMs": 4910,
+    "timestampMs": 4860,
+    "confidence": 0.991306
+  },
+  {
+    "text": " scenes",
+    "startMs": 4910,
+    "endMs": 5580,
+    "timestampMs": 5300,
+    "confidence": 0.990269
+  },
+  {
+    "text": " or",
+    "startMs": 5580,
+    "endMs": 5690,
+    "timestampMs": 5820,
+    "confidence": 0.954239
+  },
+  {
+    "text": " changing",
+    "startMs": 5690,
+    "endMs": 6320,
+    "timestampMs": 6300,
+    "confidence": 0.975855
+  },
+  {
+    "text": " other",
+    "startMs": 6320,
+    "endMs": 6520,
+    "timestampMs": 6700,
+    "confidence": 0.631347
+  },
+  {
+    "text": " parameters.",
+    "startMs": 6520,
+    "endMs": 7600,
+    "timestampMs": 7240,
+    "confidence": 0.94359
+  }
+]

@@ -1,4 +1,4 @@
-import type {AwsRegion} from '@remotion/lambda-client';
+import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
 import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import {getSitesKey} from '@remotion/lambda-client/constants';
 import type {ProviderSpecifics} from '@remotion/serverless';
@@ -14,6 +14,7 @@ type OptionalParameters = {
 		| ((data: {bucketName: string; itemName: string}) => void)
 		| null;
 	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
 };
 
 export type DeleteSiteInput = MandatoryParameters & OptionalParameters;
@@ -31,6 +32,7 @@ export const internalDeleteSite = async ({
 	onAfterItemDeleted,
 	providerSpecifics,
 	forcePathStyle,
+	requestHandler,
 }: DeleteSiteInput & {
 	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }): Promise<DeleteSiteOutput> => {
@@ -43,6 +45,7 @@ export const internalDeleteSite = async ({
 		region,
 		expectedBucketOwner: accountId,
 		forcePathStyle,
+		requestHandler: null,
 	});
 
 	let totalSize = 0;
@@ -59,6 +62,7 @@ export const internalDeleteSite = async ({
 			region,
 			providerSpecifics,
 			forcePathStyle,
+			requestHandler,
 		});
 		files = await providerSpecifics.listObjects({
 			bucketName,
@@ -67,6 +71,7 @@ export const internalDeleteSite = async ({
 			region,
 			expectedBucketOwner: accountId,
 			forcePathStyle,
+			requestHandler,
 		});
 	}
 
@@ -87,5 +92,6 @@ export const deleteSite = (
 		onAfterItemDeleted: props.onAfterItemDeleted ?? null,
 		forcePathStyle: props.forcePathStyle ?? false,
 		providerSpecifics: LambdaClientInternals.awsImplementation,
+		requestHandler: props.requestHandler ?? null,
 	});
 };

@@ -14,6 +14,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {DownloadBehavior} from 'remotion';
 import type {ExpensiveChunk} from './most-expensive-chunks';
 import type {ChunkRetry, CloudProvider, ReceivedArtifact} from './types';
 import type {EnhancedErrorInfo} from './write-error-to-storage';
@@ -84,15 +85,6 @@ export const serverlessCodecs = [
 export type ServerlessCodec = (typeof serverlessCodecs)[number];
 export type Privacy = 'public' | 'private' | 'no-acl';
 
-export type DownloadBehavior =
-	| {
-			type: 'play-in-browser';
-	  }
-	| {
-			type: 'download';
-			fileName: string | null;
-	  };
-
 type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
@@ -125,6 +117,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	serveUrl: string;
 	composition: string;
 	framesPerLambda: number | null;
+	concurrency: number | null;
 	inputProps: SerializedInputProps;
 	codec: ServerlessCodec;
 	audioCodec: AudioCodec | null;
@@ -160,12 +153,14 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	bucketName: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
+	mediaCacheSizeInBytes: number | null;
 	deleteAfter: DeleteAfter | null;
 	colorSpace: ColorSpace | null;
 	preferLossless: boolean;
 	forcePathStyle: boolean;
 	metadata: Record<string, string> | null;
 	apiKey: string | null;
+	storageClass: Provider['storageClass'] | null;
 };
 
 export type ServerlessPayloads<Provider extends CloudProvider> = {
@@ -180,6 +175,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		serveUrl: string;
 		composition: string;
 		framesPerFunction: number | null;
+		concurrency: number | null;
 		bucketName: string;
 		inputProps: SerializedInputProps;
 		renderId: string;
@@ -215,12 +211,14 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		forceWidth: number | null;
 		offthreadVideoCacheSizeInBytes: number | null;
 		offthreadVideoThreads: number | null;
+		mediaCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace | null;
 		preferLossless: boolean;
 		forcePathStyle: boolean;
 		metadata: Record<string, string> | null;
 		apiKey: string | null;
+		storageClass: Provider['storageClass'] | null;
 	};
 	status: ServerlessStatusPayload<Provider>;
 	renderer: {
@@ -265,6 +263,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		preferLossless: boolean;
 		offthreadVideoCacheSizeInBytes: number | null;
 		offthreadVideoThreads: number | null;
+		mediaCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace | null;
 		compositionStart: number;
@@ -297,10 +296,12 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
 		offthreadVideoThreads: number | null;
+		mediaCacheSizeInBytes: number | null;
 		deleteAfter: DeleteAfter | null;
 		streamed: boolean;
 		forcePathStyle: boolean;
 		apiKey: string | null;
+		storageClass: Provider['storageClass'] | null;
 	};
 	compositions: {
 		type: ServerlessRoutines.compositions;
@@ -313,6 +314,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		serveUrl: string;
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
+		mediaCacheSizeInBytes: number | null;
 		forcePathStyle: boolean;
 	};
 };
@@ -399,9 +401,8 @@ export type AfterRenderCost = {
 
 export const CONCAT_FOLDER_TOKEN = 'remotion-concat';
 export const MAX_FUNCTIONS_PER_RENDER = 200;
-export const MINIMUM_FRAMES_PER_FUNCTIONS = 4;
+export const MINIMUM_FRAMES_PER_FUNCTION = 5;
 
 export const REMOTION_CONCATENATED_TOKEN = 'remotion-concatenated-token';
-export const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
 
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';

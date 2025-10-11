@@ -2,8 +2,11 @@ import {installFileWatcher} from './file-watcher';
 import {waitForLiveEventsListener} from './preview-server/live-events';
 import {getProjectInfo} from './preview-server/project-info';
 
-export const watchRootFile = async (remotionRoot: string) => {
-	const rootFile = await getProjectInfo(remotionRoot);
+export const watchRootFile = async (
+	remotionRoot: string,
+	entryPoint: string,
+) => {
+	const rootFile = await getProjectInfo(remotionRoot, entryPoint);
 	if (!rootFile.rootFile) {
 		return;
 	}

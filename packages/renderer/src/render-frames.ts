@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import type {AudioOrVideoAsset, VideoConfig} from 'remotion/no-react';
+import type {
+	AudioOrVideoAsset,
+	InlineAudioAsset,
+	VideoConfig,
+} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
@@ -9,13 +13,14 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
-import type {Page} from './browser/BrowserPage';
+import type {OnLog, Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import {getShouldUsePartitionedRendering} from './can-use-parallel-encoding';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
+import {defaultOnLog} from './default-on-log';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {resolveConcurrency} from './get-concurrency';
@@ -95,6 +100,7 @@ type InternalRenderFramesOptions = {
 	parallelEncodingEnabled: boolean;
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type InnerRenderFramesOptions = {
@@ -135,6 +141,7 @@ type InnerRenderFramesOptions = {
 	parallelEncodingEnabled: boolean;
 	compositionStart: number;
 	binariesDirectory: string | null;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type ArtifactWithoutContent = {
@@ -146,6 +153,7 @@ export type FrameAndAssets = {
 	frame: number;
 	audioAndVideoAssets: AudioOrVideoAsset[];
 	artifactAssets: ArtifactWithoutContent[];
+	inlineAudioAssets: InlineAudioAsset[];
 };
 
 export type RenderFramesOptions = {
@@ -225,6 +233,9 @@ const innerRenderFrames = async ({
 	forSeamlessAacConcatenation,
 	onArtifact,
 	binariesDirectory,
+	imageSequencePattern,
+	mediaCacheSizeInBytes,
+	onLog,
 }: Omit<
 	InnerRenderFramesOptions,
 	'offthreadVideoCacheSizeInBytes'
@@ -285,6 +296,9 @@ const innerRenderFrames = async ({
 			serveUrl,
 			timeoutInMilliseconds,
 			pageIndex,
+			isMainTab: pageIndex === 0,
+			mediaCacheSizeInBytes,
+			onLog,
 		});
 	};
 
@@ -330,7 +344,7 @@ const innerRenderFrames = async ({
 
 	// Render the extra frames at the beginning of the video first,
 	// then the regular frames, then the extra frames at the end of the video.
-	// While the order technically doesn't matter, components such as <Video> are
+	// While the order technically doesn't matter, components such as <Html5Video> are
 	// not always frame perfect and give a flicker.
 	// We reduce the chance of flicker by rendering the frames in order.
 
@@ -358,6 +372,11 @@ const innerRenderFrames = async ({
 				allFramesAndExtraFrames,
 				concurrencyOrFramesToRender,
 			});
+
+	const pattern = imageSequencePattern || `element-[frame].[ext]`;
+	const imageSequenceName = pattern
+		.replace(/\[frame\]/g, `%0${filePadLength}d`)
+		.replace(/\[ext\]/g, imageFormat);
 
 	await Promise.all(
 		allFramesAndExtraFrames.map(() => {
@@ -393,6 +412,10 @@ const innerRenderFrames = async ({
 				onFrameBuffer,
 				onFrameUpdate,
 				nextFrameToRender,
+				imageSequencePattern: pattern,
+				trimLeftOffset,
+				trimRightOffset,
+				allFramesAndExtraFrames,
 			});
 		}),
 	);
@@ -400,15 +423,13 @@ const innerRenderFrames = async ({
 	const firstFrameIndex = countType === 'from-zero' ? 0 : framesToRender[0];
 
 	await Promise.all(downloadPromises);
+
 	return {
 		assetsInfo: {
 			assets: assets.sort((a, b) => {
 				return a.frame - b.frame;
 			}),
-			imageSequenceName: path.join(
-				frameDir,
-				`element-%0${filePadLength}d.${imageFormat}`,
-			),
+			imageSequenceName: path.join(frameDir, imageSequenceName),
 			firstFrameIndex,
 			downloadMap,
 			trimLeftOffset,
@@ -459,6 +480,9 @@ const internalRenderFramesRaw = ({
 	onArtifact,
 	chromeMode,
 	offthreadVideoThreads,
+	imageSequencePattern,
+	mediaCacheSizeInBytes,
+	onLog,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -591,6 +615,9 @@ const internalRenderFramesRaw = ({
 					onArtifact,
 					chromeMode,
 					offthreadVideoThreads,
+					imageSequencePattern,
+					mediaCacheSizeInBytes,
+					onLog,
 				});
 			}),
 		])
@@ -689,6 +716,8 @@ export const renderFrames = (
 		onArtifact,
 		chromeMode,
 		offthreadVideoThreads,
+		imageSequencePattern,
+		mediaCacheSizeInBytes,
 	} = options;
 
 	if (!composition) {
@@ -728,13 +757,13 @@ export const renderFrames = (
 		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,
 		onDownload: onDownload ?? null,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},
 			}).serializedString,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: composition.props,
@@ -763,5 +792,8 @@ export const renderFrames = (
 		onArtifact: onArtifact ?? null,
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		imageSequencePattern: imageSequencePattern ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		onLog: defaultOnLog,
 	});
 };

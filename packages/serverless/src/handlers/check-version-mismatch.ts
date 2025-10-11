@@ -29,7 +29,9 @@ export const checkVersionMismatch = <Provider extends CloudProvider>({
 	if (params.version !== VERSION) {
 		if (!params.version) {
 			throw new Error(
-				`Version mismatch: When calling ${apiName}, you called the function ${insideFunctionSpecifics.getCurrentFunctionName()} which has the version ${VERSION} but the @remotion/lambda package is an older version. Deploy a new function and use it to call ${apiName}. See: https://www.remotion.dev/docs/lambda/upgrading`,
+				`Version mismatch: When calling ${apiName}, you called the function ${insideFunctionSpecifics.getCurrentFunctionName()} which has the version ${VERSION} but the @remotion/lambda package sent an incompatible payload: ${JSON.stringify(
+					params,
+				)}. Expected it to contain {version: ${VERSION}}`,
 			);
 		}
 

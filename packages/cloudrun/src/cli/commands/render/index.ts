@@ -35,6 +35,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
 	metadataOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -106,6 +107,9 @@ export const renderCommand = async (
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	let composition: string = args[1];
 
 	const chromiumOptions: ChromiumOptions = {
@@ -161,7 +165,7 @@ export const renderCommand = async (
 				width,
 				server: await server,
 				serializedInputPropsWithCustomSchema:
-					NoReactInternals.serializeJSONWithDate({
+					NoReactInternals.serializeJSONWithSpecialTypes({
 						data: inputProps,
 						indent: undefined,
 						staticBase: null,
@@ -175,6 +179,7 @@ export const renderCommand = async (
 					quiet: CliInternals.quietFlagProvided(),
 				}),
 				chromeMode: 'headless-shell',
+				mediaCacheSizeInBytes,
 			});
 		composition = compositionId;
 	}
@@ -291,7 +296,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		inputProps,
 		codec: codec as CloudrunCodec,
 		forceBucketName,
-		privacy,
+		privacy: parsedCloudrunCli.privacy ?? 'public',
 		outName,
 		updateRenderProgress,
 		jpegQuality,
@@ -336,6 +341,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 				}
 			: null,
 		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	});
 
 	if (res.type === 'crash') {

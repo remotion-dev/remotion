@@ -30,21 +30,42 @@ type State =
 export const DropZone: React.FC<{
 	readonly onUrl: (src: string) => void;
 	readonly onFilename: (filename: string) => void;
-}> = ({onUrl, onFilename}) => {
+	readonly onError?: (error: string) => void;
+	readonly maxSizeBytes?: number;
+}> = ({onUrl, onFilename, onError, maxSizeBytes}) => {
 	const [progress, setProgress] = useState<State>({type: 'idle'});
 
 	const selectVideo = useCallback(
 		async (file: File) => {
+			// Clear any previous errors
+			onError?.('');
+
+			// Check file size if maxSizeBytes is provided
+			if (maxSizeBytes && file.size > maxSizeBytes) {
+				const sizeMB = Math.round(file.size / (1024 * 1024));
+				const maxSizeMB = Math.round(maxSizeBytes / (1024 * 1024));
+				const errorMessage = `File size (${sizeMB} MB) exceeds the maximum limit of ${maxSizeMB} MB.`;
+				onError?.(errorMessage);
+				return;
+			}
+
 			onFilename(file.name);
 			setProgress({type: 'waiting-for-presign'});
-			const url = await handleDrop({
-				file,
-				onProgress: (p) => setProgress({type: 'progress', progress: p}),
-			});
-			setProgress({type: 'done', url, filename: file.name, size: file.size});
-			onUrl(url);
+			try {
+				const url = await handleDrop({
+					file,
+					onProgress: (p) => setProgress({type: 'progress', progress: p}),
+				});
+				setProgress({type: 'done', url, filename: file.name, size: file.size});
+				onUrl(url);
+			} catch (err) {
+				setProgress({type: 'idle'});
+				onError?.(
+					`Upload failed: ${err instanceof Error ? err.message : 'Unknown error'}`,
+				);
+			}
 		},
-		[onFilename, onUrl],
+		[onFilename, onUrl, onError, maxSizeBytes],
 	);
 
 	const onDrop: React.DragEventHandler = useCallback(

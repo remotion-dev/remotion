@@ -1,5 +1,5 @@
 import {getStaticFiles} from '@remotion/studio';
-import {Audio, interpolate, Sequence} from 'remotion';
+import {Html5Audio, interpolate, Sequence} from 'remotion';
 
 const AudioTesting: React.FC = () => {
 	const files = getStaticFiles();
@@ -8,10 +8,10 @@ const AudioTesting: React.FC = () => {
 	return (
 		<div>
 			<Sequence from={100} durationInFrames={55.995}>
-				<Audio
+				<Html5Audio
 					loop
-					startFrom={100}
-					endAt={200}
+					trimBefore={100}
+					trimAfter={200}
 					src={music?.src}
 					volume={(f) =>
 						interpolate(f, [0, 50, 100], [0, 1, 0], {

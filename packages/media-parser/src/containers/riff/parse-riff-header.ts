@@ -7,7 +7,7 @@ export const parseRiffHeader = (state: ParserState): ParseResult => {
 		throw new Error('Not a RIFF file');
 	}
 
-	const structure = state.getRiffStructure();
+	const structure = state.structure.getRiffStructure();
 
 	const size = state.iterator.getUint32Le();
 	const fileType = state.iterator.getByteString(4, false);

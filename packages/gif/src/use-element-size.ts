@@ -35,10 +35,17 @@ export const useElementSize = (
 				return;
 			}
 
-			const probableCssParentScale = newSize[0].width / contentRect.width;
+			const probableCssParentScale =
+				contentRect.width === 0 ? 1 : newSize[0].width / contentRect.width;
 
-			const width = newSize[0].width * (1 / probableCssParentScale);
-			const height = newSize[0].height * (1 / probableCssParentScale);
+			const width =
+				probableCssParentScale > 0
+					? newSize[0].width * (1 / probableCssParentScale)
+					: newSize[0].width;
+			const height =
+				probableCssParentScale > 0
+					? newSize[0].height * (1 / probableCssParentScale)
+					: newSize[0].height;
 
 			setSize({
 				width,

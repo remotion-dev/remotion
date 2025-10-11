@@ -1,6 +1,6 @@
 use std::{io::ErrorKind, time::SystemTime};
 
-use ffmpeg_next:: Rational;
+use ffmpeg_next::{ ffi::AVSEEK_FLAG_ANY,  Rational};
 use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
@@ -161,7 +161,7 @@ impl OpenedStream {
         target_position: i64,
         time_base: Rational,
         one_frame_in_time_base: i64,
-        threshold: i64,
+        _threshold: i64,
         tone_mapped: bool,
         frame_cache_manager: &mut FrameCacheManager,
         thread_index: usize,
@@ -200,11 +200,19 @@ impl OpenedStream {
                 Err(err) => {
                     if err.to_string().contains("Operation not permitted") {
                         _print_verbose(&format!(
-                            "Seeking into a part of the file that contains executable code."
+                            "Could not perform seek. Got 'Operation not permitted' error."
                         ))?;
-                        _print_verbose(&format!("FFmpeg is unwilling to execute it."))?;
-
-                        Ok(())
+                        _print_verbose(&format!("Attempting to seek to the beginning of the file."))?;
+                        match self.input.seek(
+                            self.stream_index as i32,
+                            0,
+                            target_position,
+                            0,
+                            AVSEEK_FLAG_ANY ,
+                        ) {
+                            Ok(_) => Ok(()),
+                            Err(err) => Err(err)
+                        }
                     } else {
                         Err(err)
                     }
@@ -296,16 +304,37 @@ impl OpenedStream {
                             let new_position_to_seek_to = pts - 1;
                             stop_after_n_diverging_pts = None;
 
-                            self.input.seek(
+                           let res =  self.input.seek(
                                 self.stream_index as i32,
                                 0,
                                 pts,
                                 new_position_to_seek_to,
                                 0,
-                            )?;
+                            );
+                            match res {
+                                Ok(_) => {}
+                                Err(err) => {
+                                    if err.to_string().contains("Operation not permitted") {
+                                        _print_verbose(&format!(
+                                            "Could not perform seek. Got 'Operation not permitted' error."
+                                        ))?;
+                                        _print_verbose(&format!("Attempting to seek to the beginning of the file."))?;
+                                        self.input.seek(
+                                            self.stream_index as i32,
+                                            0,
+                                            pts,
+                                            new_position_to_seek_to,
+                                            AVSEEK_FLAG_ANY ,
+                                        )?;
+                                    } 
+                                    else {
+                                        panic!("{}", err.to_string());
+                                    }
+                                }
+                            }
                         }
                         None => {}
-                    }
+                    };
                     continue;
                 }
             }
@@ -421,14 +450,16 @@ impl OpenedStream {
             }
         }
 
+        // Allow a lot of threshold here, because otherwise we would crash.
+        // Better to have a frame with a lot of deviation than to crash.
         let final_frame = frame_cache_manager
-            .get_cache_item_id(&self.src, &self.original_src, self.transparent, tone_mapped, target_position, threshold)?;
+            .get_cache_item_id(&self.src, &self.original_src, self.transparent, tone_mapped, target_position, 1000000000, true)?;
 
         if final_frame.is_none() {
             return Err(std::io::Error::new(
                 ErrorKind::Other,
                 format!(
-                    "No frame found at position {} for source {} (original source = {}). If you think this should work, file an issue at https://remotion.dev/report or post it in https://remotion.dev/discord. Post the problematic video and the output of `npx remotion versions`.",
+                    "No frame found at position {} for source {} (original source = {}). See https://remotion.dev/docs/troubleshooting/no-frame-found-at-position for troubleshooting help.",
                     target_position, self.src, self.original_src
                 ),
             ))?;

@@ -7,16 +7,19 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import type {OnLog} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
+import {collectAssets} from './collect-assets';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
+import {defaultOnLog} from './default-on-log';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {onlyArtifact} from './filter-asset-types';
 import {findRemotionRoot} from './find-closest-package-json';
-import type {StillImageFormat} from './image-format';
+import type {StillImageFormat, VideoImageFormat} from './image-format';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
 	validateStillImageFormat,
@@ -25,11 +28,13 @@ import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
+import {getAvailableMemory} from './memory/get-available-memory';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import {DEFAULT_OVERWRITE} from './overwrite';
+import type {PixelFormat} from './pixel-format';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -68,6 +73,7 @@ type InternalRenderStillOptions = {
 	serveUrl: string;
 	port: number | null;
 	onArtifact: OnArtifact | null;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.renderStill>;
 
 export type RenderStillOptions = {
@@ -131,6 +137,8 @@ const innerRenderStill = async ({
 	onBrowserDownload,
 	onArtifact,
 	chromeMode,
+	mediaCacheSizeInBytes,
+	onLog,
 }: InternalRenderStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
@@ -214,6 +222,7 @@ const innerRenderStill = async ({
 		indent,
 		pageIndex: 0,
 		onBrowserLog,
+		onLog,
 	});
 	await page.setViewport({
 		width: composition.width,
@@ -262,6 +271,9 @@ const innerRenderStill = async ({
 		indent,
 		logLevel,
 		onServeUrlVisited: () => undefined,
+		isMainTab: true,
+		mediaCacheSizeInBytes,
+		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -275,6 +287,8 @@ const innerRenderStill = async ({
 			width: number,
 			defaultCodec: Codec,
 			defaultOutName: string | null,
+			defaultVideoImageFormat: VideoImageFormat | null,
+			defaultPixelFormat: PixelFormat | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -286,6 +300,8 @@ const innerRenderStill = async ({
 				compositionWidth: width,
 				compositionDefaultCodec: defaultCodec,
 				compositionDefaultOutName: defaultOutName,
+				compositionDefaultVideoImageFormat: defaultVideoImageFormat,
+				compositionDefaultPixelFormat: defaultPixelFormat,
 			});
 		},
 		args: [
@@ -297,6 +313,8 @@ const innerRenderStill = async ({
 			composition.width,
 			composition.defaultCodec,
 			composition.defaultOutName,
+			composition.defaultVideoImageFormat,
+			composition.defaultPixelFormat,
 		],
 		frame: null,
 		page,
@@ -312,20 +330,29 @@ const innerRenderStill = async ({
 		attempt: 0,
 	});
 
-	const {buffer, collectedAssets} = await takeFrame({
-		frame: stillFrame,
-		freePage: page,
-		height: composition.height,
-		width: composition.width,
-		imageFormat,
-		scale,
-		output,
-		jpegQuality,
-		wantsBuffer: !output,
-		timeoutInMilliseconds,
-	});
+	const [buffer, collectedAssets] = await Promise.all([
+		takeFrame({
+			freePage: page,
+			height: composition.height,
+			width: composition.width,
+			imageFormat,
+			scale,
+			output,
+			jpegQuality,
+			wantsBuffer: !output,
+			timeoutInMilliseconds,
+		}),
+		collectAssets({
+			frame,
+			freePage: page,
+			timeoutInMilliseconds,
+		}),
+	]);
 
-	const artifactAssets = onlyArtifact(collectedAssets);
+	const artifactAssets = onlyArtifact({
+		assets: collectedAssets,
+		frameBuffer: buffer,
+	});
 	const previousArtifactAssets = [];
 
 	for (const artifact of artifactAssets) {
@@ -446,6 +473,7 @@ export const renderStill = (
 		onArtifact,
 		chromeMode,
 		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -476,7 +504,7 @@ export const renderStill = (
 		imageFormat: imageFormat ?? DEFAULT_STILL_IMAGE_FORMAT,
 		indent,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				staticBase: null,
 				indent: undefined,
 				data: inputProps ?? {},
@@ -494,7 +522,7 @@ export const renderStill = (
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		logLevel,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: composition.props ?? {},
@@ -511,5 +539,7 @@ export const renderStill = (
 		onArtifact: onArtifact ?? null,
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		onLog: defaultOnLog,
 	});
 };

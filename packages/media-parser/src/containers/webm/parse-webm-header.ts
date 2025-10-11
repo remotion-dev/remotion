@@ -1,25 +1,49 @@
 import type {ParseResult} from '../../parse-result';
+import {makeSkip} from '../../skip';
+import {maySkipVideoData} from '../../state/may-skip-video-data';
 import type {ParserState} from '../../state/parser-state';
+import {getByteForSeek} from './get-byte-for-cues';
 import {expectSegment} from './segments';
+import {selectStatesForProcessing} from './state-for-processing';
 
 // Parsing according to https://darkcoding.net/software/reading-mediarecorders-webm-opus-output/
 export const parseWebm = async (state: ParserState): Promise<ParseResult> => {
-	const structure = state.getMatroskaStructure();
+	const structure = state.structure.getMatroskaStructure();
 
 	const {iterator} = state;
+	const offset = iterator.counter.getOffset();
 
 	const isInsideSegment = state.webm.isInsideSegment(iterator);
-	const isInsideCluster = state.webm.isInsideCluster(iterator);
+	const isInsideCluster = state.webm.isInsideCluster(offset);
 
 	const results = await expectSegment({
-		state,
+		iterator,
+		logLevel: state.logLevel,
+		statesForProcessing: selectStatesForProcessing(state),
 		isInsideSegment,
+		mediaSectionState: state.mediaSection,
 	});
+	if (results?.type === 'SeekHead') {
+		const position = getByteForSeek({seekHeadSegment: results, offset});
+		if (position !== null) {
+			state.webm.cues.triggerLoad(position, offset);
+		}
+	}
+
 	if (results === null) {
 		return null;
 	}
 
 	if (isInsideCluster) {
+		if (maySkipVideoData({state})) {
+			return makeSkip(
+				Math.min(
+					state.contentLength,
+					isInsideCluster.size + isInsideCluster.start,
+				),
+			);
+		}
+
 		const segments = structure.boxes.filter((box) => box.type === 'Segment');
 		const segment = segments[isInsideCluster.segment];
 		if (!segment) {

@@ -3,9 +3,7 @@
 	"compilerOptions": {
 		"rootDir": "src",
 		"outDir": "./dist",
-		"skipLibCheck": true,
-		"module": "ES2020",
-		"moduleResolution": "bundler"
+		"skipLibCheck": true
 	},
 	"references": [
 		{
@@ -15,5 +13,12 @@
 			"path": "../example-videos"
 		}
 	],
-	"include": ["src"]
+	"include": ["src"],
+	"exclude": [
+		"./src/worker.module.ts",
+		"./src/test/worker.test.ts",
+		"./src/test/seeking/seek-on-worker.test.ts",
+		"./src/server-worker.module.ts",
+		"./src/bench/vs-mediabunny.ts"
+	]
 }

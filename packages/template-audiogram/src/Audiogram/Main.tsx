@@ -1,35 +1,38 @@
 import React from "react";
-import { AbsoluteFill, Audio, Img, Sequence, useVideoConfig } from "remotion";
-import { loadFont, fontFamily } from "@remotion/google-fonts/IBMPlexSans";
-import "./style.css";
+import {
+  AbsoluteFill,
+  Html5Audio,
+  Img,
+  Sequence,
+  useVideoConfig,
+} from "remotion";
 
 import { PaginatedCaptions } from "./Captions";
-import { Waveform } from "./Waveform";
+import { Spectrum } from "./Spectrum";
+import {
+  BASE_SIZE,
+  CAPTIONS_FONT_SIZE,
+  CAPTIONS_FONT_WEIGHT,
+  LINE_HEIGHT,
+  LINES_PER_PAGE,
+} from "./constants";
+import { Oscilloscope } from "./Oscilloscope";
+import { FONT_FAMILY } from "./font";
+import { WaitForFonts } from "./WaitForFonts";
 import { AudiogramCompositionSchemaType } from "./schema";
 
-loadFont("normal", {
-  weights: ["500"],
-});
-
 export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
-  audioFileName,
-  coverImgFileName,
+  visualizer,
+  audioFileUrl,
+  coverImageUrl,
   titleText,
   titleColor,
-  subtitlesTextColor,
-  subtitlesLinePerPage,
-  waveColor,
-  waveNumberOfSamples,
-  waveFreqRangeStartIndex,
-  waveLinesToDisplay,
-  subtitlesZoomMeasurerSize,
-  subtitlesLineHeight,
+  captionsTextColor,
   onlyDisplayCurrentSentence,
-  mirrorWave,
   audioOffsetInSeconds,
   captions,
 }) => {
-  const { durationInFrames, fps } = useVideoConfig();
+  const { durationInFrames, fps, width } = useVideoConfig();
 
   if (!captions) {
     throw new Error(
@@ -38,49 +41,95 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
   }
 
   const audioOffsetInFrames = Math.round(audioOffsetInSeconds * fps);
+  const baseNumberOfSamples = Number(visualizer.numberOfSamples);
+
+  const textBoxWidth = width - BASE_SIZE * 2;
 
   return (
     <AbsoluteFill>
       <Sequence from={-audioOffsetInFrames}>
-        <Audio pauseWhenBuffering src={audioFileName} />
+        <Html5Audio pauseWhenBuffering src={audioFileUrl} />
         <div
-          className="container"
           style={{
-            fontFamily,
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            height: "100%",
+            color: "white",
+            padding: "48px",
+            backgroundColor: "black",
+            fontFamily: FONT_FAMILY,
           }}
         >
-          <div className="row">
-            <Img className="cover" src={coverImgFileName} />
-            <div className="title" style={{ color: titleColor }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Img
+              style={{
+                borderRadius: "6px",
+                maxHeight: "250px",
+              }}
+              src={coverImageUrl}
+            />
+            <div
+              style={{
+                marginLeft: "48px",
+                lineHeight: "1.25",
+                fontWeight: 800,
+                color: titleColor,
+                fontSize: "48px",
+              }}
+            >
               {titleText}
             </div>
           </div>
           <div>
-            <Waveform
-              key={audioFileName}
-              audioSrc={audioFileName}
-              mirrorWave={mirrorWave}
-              waveColor={waveColor}
-              numberOfSamples={Number(waveNumberOfSamples)}
-              freqRangeStartIndex={waveFreqRangeStartIndex}
-              waveLinesToDisplay={waveLinesToDisplay}
-            />
+            {visualizer.type === "oscilloscope" ? (
+              <Oscilloscope
+                waveColor={visualizer.color}
+                padding={visualizer.padding}
+                audioSrc={audioFileUrl}
+                numberOfSamples={baseNumberOfSamples}
+                windowInSeconds={visualizer.windowInSeconds}
+                posterization={visualizer.posterization}
+                amplitude={visualizer.amplitude}
+              />
+            ) : visualizer.type === "spectrum" ? (
+              <Spectrum
+                barColor={visualizer.color}
+                audioSrc={audioFileUrl}
+                mirrorWave={visualizer.mirrorWave}
+                numberOfSamples={baseNumberOfSamples * 4} // since fft is used, we need to increase the number of samples to get a better resolution
+                freqRangeStartIndex={visualizer.freqRangeStartIndex}
+                waveLinesToDisplay={visualizer.linesToDisplay}
+              />
+            ) : null}
           </div>
-          <div
-            style={{ lineHeight: `${subtitlesLineHeight}px` }}
-            className="captions"
-          >
-            <PaginatedCaptions
-              captions={captions}
-              startFrame={audioOffsetInFrames}
-              endFrame={audioOffsetInFrames + durationInFrames}
-              linesPerPage={subtitlesLinePerPage}
-              subtitlesTextColor={subtitlesTextColor}
-              subtitlesZoomMeasurerSize={subtitlesZoomMeasurerSize}
-              subtitlesLineHeight={subtitlesLineHeight}
-              onlyDisplayCurrentSentence={onlyDisplayCurrentSentence}
-            />
-          </div>
+          <WaitForFonts>
+            <div
+              style={{
+                lineHeight: `${LINE_HEIGHT}px`,
+                width: textBoxWidth,
+                fontWeight: CAPTIONS_FONT_WEIGHT,
+                fontSize: CAPTIONS_FONT_SIZE,
+                marginTop: BASE_SIZE * 0.5,
+              }}
+            >
+              <PaginatedCaptions
+                captions={captions}
+                startFrame={audioOffsetInFrames}
+                endFrame={audioOffsetInFrames + durationInFrames}
+                linesPerPage={LINES_PER_PAGE}
+                subtitlesTextColor={captionsTextColor}
+                onlyDisplayCurrentSentence={onlyDisplayCurrentSentence}
+                textBoxWidth={textBoxWidth}
+              />
+            </div>
+          </WaitForFonts>
         </div>
       </Sequence>
     </AbsoluteFill>

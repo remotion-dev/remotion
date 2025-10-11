@@ -14,6 +14,9 @@
 		"testlambda": {
 			"dependsOn": ["^make", "@remotion/example#bundle"]
 		},
+		"testwebcodecs": {
+			"dependsOn": ["@remotion/webcodecs#make"]
+		},
 		"make": {
 			"dependsOn": ["^make"],
 			"outputs": ["dist"],
@@ -57,11 +60,6 @@
 		"@remotion/google-fonts#make": {
 			"outputs": ["src", ".cache-css", "dist"],
 			"dependsOn": ["^make"],
-			"outputLogs": "new-only"
-		},
-		"@remotion/docs#make": {
-			"outputs": [],
-			"dependsOn": [],
 			"outputLogs": "new-only"
 		},
 		"@remotion/fig-autocomplete#make": {

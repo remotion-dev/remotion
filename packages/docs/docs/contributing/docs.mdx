@@ -16,33 +16,12 @@ At the bottom of each page, the `Improve this page` button is the easiest way to
 
 ## Submitting a new page
 
-<Tabs
-defaultValue="quick"
-values={[
-{ label: 'Basic setup (quicker)', value: 'quick', },
-{ label: 'Full docs', value: 'full', },
-]
-}>
-<TabItem value="quick">
-
-This method will avoid having to compile all docs. You cannot validate if links to other docs are valid.
-
-<Step>1</Step> Set up the Remotion repository <a href="/docs/contributing">according to the instructions here</a>. <br/>
-<Step>2</Step> Run <code>node new-doc.mjs</code> and follow the instructions.<br/>
-
-  </TabItem>
-
-  <TabItem value="full">
 
 <Step>1</Step> Set up the Remotion repository <a href="/docs/contributing">according the instructions here</a>. <br/>
-<Step>2</Step> Create a new <code>.md</code> document in the <code>packages/docs/docs</code> folder. <br/>
-<Step>3</Step> Add the document to <code>packages/docs/sidebars.js</code>.<br/>
+<Step>2</Step> Create a new <code>.mdx</code> document in the <code>packages/docs/docs</code> folder. <br/>
+<Step>3</Step> Add the document to <code>packages/docs/sidebars.ts</code>.<br/>
 <Step>4</Step> Write what you have to say!<br/>
 <Step>5</Step> Run <code>node render-cards.mjs</code> in <code>packages/docs</code> to generate preview cards that will show up if the documentation page is shared on social media.<br/>
-
-  </TabItem>
-
-</Tabs>
 
 ## Language guidelines
 

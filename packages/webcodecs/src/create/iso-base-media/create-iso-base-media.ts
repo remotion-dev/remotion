@@ -1,7 +1,10 @@
+import type {
+	MediaParserAudioSample,
+	MediaParserVideoSample,
+} from '@remotion/media-parser';
 import {
 	MediaParserInternals,
-	type AudioOrVideoSample,
-	type SamplePosition,
+	type MediaParserInternalTypes,
 } from '@remotion/media-parser';
 import type {MakeTrackAudio, MakeTrackVideo} from '../make-track-info';
 import {combineUint8Arrays} from '../matroska/matroska-utils';
@@ -20,6 +23,7 @@ export const createIsoBaseMedia = async ({
 	filename,
 	progressTracker,
 	expectedDurationInSeconds,
+	expectedFrameRate,
 }: MediaFnGeneratorInput): Promise<MediaFn> => {
 	const header = createIsoBaseMediaFtyp({
 		compatibleBrands: ['isom', 'iso2', 'avc1', 'mp42'],
@@ -39,7 +43,7 @@ export const createIsoBaseMedia = async ({
 	const trackDurations: Record<number, number> = {};
 
 	const currentTracks: (MakeTrackAudio | MakeTrackVideo)[] = [];
-	const samplePositions: SamplePosition[][] = [];
+	const samplePositions: MediaParserInternalTypes['SamplePosition'][][] = [];
 	const sampleChunkIndices: number[] = [];
 
 	const moovOffset = w.getWrittenByteCount();
@@ -57,6 +61,7 @@ export const createIsoBaseMedia = async ({
 			timescale: CONTAINER_TIMESCALE,
 			expectedDurationInSeconds,
 			logLevel,
+			expectedFrameRate,
 		});
 	};
 
@@ -109,7 +114,7 @@ export const createIsoBaseMedia = async ({
 		isVideo,
 		codecPrivate,
 	}: {
-		chunk: AudioOrVideoSample;
+		chunk: MediaParserAudioSample | MediaParserVideoSample;
 		trackNumber: number;
 		isVideo: boolean;
 		codecPrivate: Uint8Array | null;
@@ -120,7 +125,7 @@ export const createIsoBaseMedia = async ({
 		mdatSize += chunk.data.length;
 		onBytesProgress(w.getWrittenByteCount());
 		progressTracker.setPossibleLowestTimestamp(
-			Math.min(chunk.timestamp, chunk.cts ?? Infinity, chunk.dts ?? Infinity),
+			Math.min(chunk.timestamp, chunk.decodingTimestamp ?? Infinity),
 		);
 		progressTracker.updateTrackProgress(trackNumber, chunk.timestamp);
 
@@ -192,16 +197,22 @@ export const createIsoBaseMedia = async ({
 		// media parser and EncodedVideoChunk returns timestamps in microseconds
 		// need to normalize the timestamps to milliseconds
 
-		const samplePositionToAdd: SamplePosition = {
+		const samplePositionToAdd: MediaParserInternalTypes['SamplePosition'] = {
 			isKeyframe: chunk.type === 'key',
 			offset: position,
 			chunk: sampleChunkIndices[trackNumber],
-			cts: Math.round((chunk.cts / 1_000_000) * currentTrack.timescale),
-			dts: Math.round((chunk.dts / 1_000_000) * currentTrack.timescale),
+			timestamp: Math.round(
+				(chunk.timestamp / 1_000_000) * currentTrack.timescale,
+			),
+			decodingTimestamp: Math.round(
+				(chunk.decodingTimestamp / 1_000_000) * currentTrack.timescale,
+			),
 			duration: Math.round(
 				((chunk.duration ?? 0) / 1_000_000) * currentTrack.timescale,
 			),
 			size: chunk.data.length,
+			bigEndian: false,
+			chunkSize: null,
 		};
 		lastChunkWasVideo = isVideo;
 

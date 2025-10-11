@@ -1,4 +1,4 @@
-import type {Dimensions} from '../get-dimensions';
+import type {MediaParserDimensions} from '../get-dimensions';
 import {matchesPattern} from './detect-file-type';
 
 function getBmpDimensions(
@@ -29,5 +29,5 @@ export const isBmp = (data: Uint8Array): BmpType | null => {
 
 export type BmpType = {
 	type: 'bmp';
-	dimensions: Dimensions | null;
+	dimensions: MediaParserDimensions | null;
 };

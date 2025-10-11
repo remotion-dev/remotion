@@ -3,12 +3,12 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/shapes"
 	},
 	"name": "@remotion/shapes",
-	"version": "4.0.274",
+	"version": "4.0.357",
 	"description": "Generate SVG shapes",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"test": "bun test src",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"

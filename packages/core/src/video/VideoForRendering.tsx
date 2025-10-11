@@ -15,15 +15,16 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
-import {continueRender, delayRender} from '../delay-render.js';
-import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {random} from '../random.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
+import {useDelayRender} from '../use-delay-render.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
+import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import {getMediaTime} from './get-current-time.js';
 import type {OnVideoFrame, RemotionVideoProps} from './props';
 import {seekToTimeMultipleUntilRight} from './seek-until-right.js';
@@ -49,6 +50,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		loopVolumeCurveBehavior,
+		audioStreamIndex,
 		...props
 	},
 	ref,
@@ -63,9 +65,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
-	const environment = getRemotionEnvironment();
+	const environment = useRemotionEnvironment();
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
+	const {delayRender, continueRender} = useDelayRender();
 
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
@@ -93,8 +96,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		volume: volumeProp,
 		frame: volumePropsFrame,
 		mediaVolume: 1,
-		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
+
+	warnAboutTooHighVolume(volume);
 
 	useEffect(() => {
 		if (!props.src) {
@@ -121,9 +125,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			volume,
 			mediaFrame: frame,
 			playbackRate: playbackRate ?? 1,
-			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
-			toneFrequency: toneFrequency ?? null,
+			toneFrequency: toneFrequency ?? 1,
 			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
+			audioStreamIndex: audioStreamIndex ?? 0,
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -137,9 +141,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		frame,
 		absoluteFrame,
 		playbackRate,
-		allowAmplificationDuringRender,
 		toneFrequency,
 		sequenceContext?.relativeFrom,
+		audioStreamIndex,
 	]);
 
 	useImperativeHandle(ref, () => {
@@ -163,7 +167,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			fps: videoConfig.fps,
 		});
 		const handle = delayRender(
-			`Rendering <Video /> with src="${props.src}" at time ${currentTime}`,
+			`Rendering <Html5Video /> with src="${props.src}" at time ${currentTime}`,
 			{
 				retries: delayRenderRetries ?? undefined,
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
@@ -247,6 +251,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		delayRenderTimeoutInMilliseconds,
 		logLevel,
 		mountTime,
+		continueRender,
+		delayRender,
 	]);
 
 	const {src} = props;
@@ -260,7 +266,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			}
 
 			const newHandle = delayRender(
-				'Loading <Video> duration with src=' + src,
+				'Loading <Html5Video> duration with src=' + src,
 				{
 					retries: delayRenderRetries ?? undefined,
 					timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
@@ -288,7 +294,14 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				current?.removeEventListener('loadedmetadata', didLoad);
 				continueRender(newHandle);
 			};
-		}, [src, onDuration, delayRenderRetries, delayRenderTimeoutInMilliseconds]);
+		}, [
+			src,
+			onDuration,
+			delayRenderRetries,
+			delayRenderTimeoutInMilliseconds,
+			continueRender,
+			delayRender,
+		]);
 	}
 
 	return <video ref={videoRef} disableRemotePlayback {...props} />;

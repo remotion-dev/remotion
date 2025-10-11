@@ -2,7 +2,6 @@ import type {FlacStructure} from './containers/flac/types';
 import {getMoovFromFromIsoStructure} from './containers/iso-base-media/traversal';
 import type {WavStructure} from './containers/wav/types';
 import {
-	IsAGifError,
 	IsAPdfError,
 	IsAnImageError,
 	IsAnUnsupportedFileTypeError,
@@ -13,55 +12,56 @@ import type {Mp3Structure} from './parse-result';
 import {registerAudioTrack, registerVideoTrack} from './register-track';
 import type {ParserState} from './state/parser-state';
 
-export const initVideo = async ({
-	state,
-	mimeType,
-	name,
-	contentLength,
-}: {
-	state: ParserState;
-	mimeType: string | null;
-	name: string | null;
-	contentLength: number;
-}) => {
+export const initVideo = async ({state}: {state: ParserState}) => {
 	const fileType = state.iterator.detectFileType();
+	const {mimeType, name, contentLength} = state;
 
 	if (fileType.type === 'riff') {
 		Log.verbose(state.logLevel, 'Detected RIFF container');
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'riff',
 			boxes: [],
 		});
 		return;
 	}
 
-	if (state.mp4HeaderSegment) {
+	if (state.m3uPlaylistContext?.mp4HeaderSegment) {
 		Log.verbose(state.logLevel, 'Detected ISO Base Media segment');
-		const moovAtom = getMoovFromFromIsoStructure(state.mp4HeaderSegment);
+		const moovAtom = getMoovFromFromIsoStructure(
+			state.m3uPlaylistContext.mp4HeaderSegment,
+		);
 		if (!moovAtom) {
 			throw new Error('No moov box found');
 		}
 
 		const tracks = getTracksFromMoovBox(moovAtom);
-		for (const track of tracks.videoTracks) {
+		for (const track of tracks.filter((t) => t.type === 'video')) {
 			await registerVideoTrack({
-				state,
 				track,
 				container: 'mp4',
+				logLevel: state.logLevel,
+				onVideoTrack: state.onVideoTrack,
+				registerVideoSampleCallback:
+					state.callbacks.registerVideoSampleCallback,
+				tracks: state.callbacks.tracks,
 			});
 		}
 
-		for (const track of tracks.audioTracks) {
+		for (const track of tracks.filter((t) => t.type === 'audio')) {
 			await registerAudioTrack({
-				state,
 				track,
 				container: 'mp4',
+				registerAudioSampleCallback:
+					state.callbacks.registerAudioSampleCallback,
+				tracks: state.callbacks.tracks,
+				logLevel: state.logLevel,
+				onAudioTrack: state.onAudioTrack,
 			});
 		}
 
 		state.callbacks.tracks.setIsDone(state.logLevel);
 
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'iso-base-media',
 			boxes: [],
 		});
@@ -70,7 +70,7 @@ export const initVideo = async ({
 
 	if (fileType.type === 'iso-base-media') {
 		Log.verbose(state.logLevel, 'Detected ISO Base Media container');
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'iso-base-media',
 			boxes: [],
 		});
@@ -79,7 +79,7 @@ export const initVideo = async ({
 
 	if (fileType.type === 'webm') {
 		Log.verbose(state.logLevel, 'Detected Matroska container');
-		state.setStructure({
+		state.structure.setStructure({
 			boxes: [],
 			type: 'matroska',
 		});
@@ -88,7 +88,11 @@ export const initVideo = async ({
 
 	if (fileType.type === 'transport-stream') {
 		Log.verbose(state.logLevel, 'Detected MPEG-2 Transport Stream');
-		state.setStructure({
+		state.mediaSection.addMediaSection({
+			start: 0,
+			size: contentLength,
+		});
+		state.structure.setStructure({
 			boxes: [],
 			type: 'transport-stream',
 		});
@@ -101,7 +105,7 @@ export const initVideo = async ({
 			boxes: [],
 			type: 'mp3',
 		};
-		state.setStructure(structure);
+		state.structure.setStructure(structure);
 		return;
 	}
 
@@ -111,7 +115,7 @@ export const initVideo = async ({
 			boxes: [],
 			type: 'wav',
 		};
-		state.setStructure(structure);
+		state.structure.setStructure(structure);
 		return;
 	}
 
@@ -121,13 +125,13 @@ export const initVideo = async ({
 			boxes: [],
 			type: 'flac',
 		};
-		state.setStructure(structure);
+		state.structure.setStructure(structure);
 		return;
 	}
 
 	if (fileType.type === 'aac') {
 		Log.verbose(state.logLevel, 'Detected AAC');
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'aac',
 			boxes: [],
 		});
@@ -136,22 +140,11 @@ export const initVideo = async ({
 
 	if (fileType.type === 'm3u') {
 		Log.verbose(state.logLevel, 'Detected M3U');
-		state.setStructure({
+		state.structure.setStructure({
 			type: 'm3u',
 			boxes: [],
 		});
 		return;
-	}
-
-	if (fileType.type === 'gif') {
-		return Promise.reject(
-			new IsAGifError({
-				message: 'GIF files are not yet supported',
-				mimeType,
-				sizeInBytes: contentLength,
-				fileName: name,
-			}),
-		);
 	}
 
 	if (fileType.type === 'pdf') {
@@ -169,7 +162,8 @@ export const initVideo = async ({
 		fileType.type === 'bmp' ||
 		fileType.type === 'jpeg' ||
 		fileType.type === 'png' ||
-		fileType.type === 'webp'
+		fileType.type === 'webp' ||
+		fileType.type === 'gif'
 	) {
 		return Promise.reject(
 			new IsAnImageError({

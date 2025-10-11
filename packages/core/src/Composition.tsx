@@ -8,17 +8,21 @@ import {
 } from './CanUseRemotionHooks.js';
 import {CompositionSetters} from './CompositionManagerContext.js';
 import {FolderContext} from './Folder.js';
-import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
+import {
+	PROPS_UPDATED_EXTERNALLY,
+	useResolvedVideoConfig,
+} from './ResolveCompositionConfig.js';
 import type {Codec} from './codec.js';
-import {continueRender, delayRender} from './delay-render.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import {useIsPlayer} from './is-player.js';
 import {Loading} from './loading-indicator.js';
 import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
+import type {PixelFormat, VideoImageFormat} from './render-types.js';
+import {useDelayRender} from './use-delay-render.js';
 import {useLazyComponent} from './use-lazy-component.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
 import {validateDefaultAndInputProps} from './validation/validate-default-props.js';
@@ -41,6 +45,8 @@ export type CalcMetadataReturnType<T extends Record<string, unknown>> = {
 	props?: T;
 	defaultCodec?: Codec;
 	defaultOutName?: string;
+	defaultVideoImageFormat?: VideoImageFormat;
+	defaultPixelFormat?: PixelFormat;
 };
 
 export type CalculateMetadataFunction<T extends Record<string, unknown>> =
@@ -49,6 +55,7 @@ export type CalculateMetadataFunction<T extends Record<string, unknown>> =
 		props: T;
 		abortSignal: AbortSignal;
 		compositionId: string;
+		isRendering: boolean;
 	}) => Promise<CalcMetadataReturnType<T>> | CalcMetadataReturnType<T>;
 
 type OptionalDimensions<
@@ -108,10 +115,11 @@ export type CompositionProps<
 	PropsIfHasProps<Schema, Props>;
 
 const Fallback: React.FC = () => {
+	const {continueRender, delayRender} = useDelayRender();
 	useEffect(() => {
 		const fallback = delayRender('Waiting for Root component to unsuspend');
 		return () => continueRender(fallback);
-	}, []);
+	}, [continueRender, delayRender]);
 	return null;
 };
 
@@ -143,9 +151,17 @@ const InnerComposition = <
 	const nonce = useNonce();
 
 	const isPlayer = useIsPlayer();
-	const environment = getRemotionEnvironment();
+	const environment = useRemotionEnvironment();
 
 	const canUseComposition = useContext(CanUseRemotionHooks);
+
+	// Record seen composition IDs as early as possible so that overlays can access them
+	if (typeof window !== 'undefined') {
+		window.remotion_seenCompositionIds = Array.from(
+			new Set([...(window.remotion_seenCompositionIds ?? []), id]),
+		);
+	}
+
 	if (canUseComposition) {
 		if (isPlayer) {
 			throw new Error(
@@ -205,11 +221,25 @@ const InnerComposition = <
 		unregisterComposition,
 	]);
 
+	useEffect(() => {
+		window.dispatchEvent(
+			new CustomEvent<{resetUnsaved: string | null}>(PROPS_UPDATED_EXTERNALLY, {
+				detail: {
+					resetUnsaved: id,
+				},
+			}),
+		);
+	}, [defaultProps, id]);
+
 	const resolved = useResolvedVideoConfig(id);
 
 	if (environment.isStudio && video && video.component === lazy) {
 		const Comp = lazy;
-		if (resolved === null || resolved.type !== 'success') {
+		if (
+			resolved === null ||
+			(resolved.type !== 'success' &&
+				resolved.type !== 'success-and-refreshing')
+		) {
 			return null;
 		}
 
@@ -230,7 +260,11 @@ const InnerComposition = <
 
 	if (environment.isRendering && video && video.component === lazy) {
 		const Comp = lazy;
-		if (resolved === null || resolved.type !== 'success') {
+		if (
+			resolved === null ||
+			(resolved.type !== 'success' &&
+				resolved.type !== 'success-and-refreshing')
+		) {
 			return null;
 		}
 

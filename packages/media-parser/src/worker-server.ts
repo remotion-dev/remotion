@@ -2,10 +2,12 @@ import {
 	defaultSelectM3uAssociatedPlaylists,
 	defaultSelectM3uStreamFn,
 } from './containers/m3u/select-stream';
+import {mediaParserController} from './controller/media-parser-controller';
 import {internalParseMedia} from './internal-parse-media';
-import {mediaParserController} from './media-parser-controller';
-import type {ReaderInterface} from './readers/reader';
-import {forwardMediaParserControllerToWorker} from './worker/forward-controller';
+import type {MediaParserReaderInterface} from './readers/reader';
+import type {SeekingHints} from './seeking-hints';
+import {withResolvers} from './with-resolvers';
+import {forwardMediaParserControllerToWorker} from './worker/forward-controller-to-worker';
 import {serializeError} from './worker/serialize-error';
 import type {
 	AcknowledgePayload,
@@ -22,9 +24,9 @@ const post = (message: WorkerResponsePayload) => {
 const controller = mediaParserController();
 
 const executeCallback = (payload: ResponseCallbackPayload) => {
-	const nonce = crypto.randomUUID();
-	const {promise, resolve, reject} =
-		Promise.withResolvers<AcknowledgePayload>();
+	// safari doesn't support crypto.randomUUID()
+	const nonce = String(Math.random());
+	const {promise, resolve, reject} = withResolvers<AcknowledgePayload>();
 
 	const cb = (msg: MessageEvent) => {
 		const data = msg.data as WorkerRequestPayload;
@@ -59,7 +61,7 @@ const executeCallback = (payload: ResponseCallbackPayload) => {
 
 const startParsing = async (
 	message: ParseMediaOnWorkerPayload,
-	reader: ReaderInterface,
+	reader: MediaParserReaderInterface,
 ) => {
 	const {payload, src} = message;
 	const {
@@ -67,7 +69,9 @@ const startParsing = async (
 		acknowledgeRemotionLicense,
 		logLevel: userLogLevel,
 		progressIntervalInMs,
-		mp4HeaderSegment,
+		m3uPlaylistContext,
+		seekingHints,
+		makeSamplesStartAtZero,
 	} = payload;
 
 	const {
@@ -92,7 +96,7 @@ const startParsing = async (
 		postSlowFps,
 		postSlowDurationInSeconds,
 		postSlowVideoBitrate,
-		postStructure,
+		postSlowStructure,
 		postTracks,
 		postUnrotatedDimensions,
 		postVideoCodec,
@@ -304,10 +308,10 @@ const startParsing = async (
 						});
 					}
 				: null,
-			onStructure: postStructure
+			onSlowStructure: postSlowStructure
 				? async (structure) => {
 						await executeCallback({
-							callbackType: 'structure',
+							callbackType: 'slow-structure',
 							value: structure,
 						});
 					}
@@ -320,6 +324,7 @@ const startParsing = async (
 						});
 					}
 				: null,
+
 			onUnrotatedDimensions: postUnrotatedDimensions
 				? async (dimensions) => {
 						await executeCallback({
@@ -366,7 +371,7 @@ const startParsing = async (
 						return res.value;
 					}
 				: defaultSelectM3uStreamFn,
-			mp4HeaderSegment: mp4HeaderSegment ?? null,
+			m3uPlaylistContext: m3uPlaylistContext ?? null,
 			selectM3uAssociatedPlaylists: postM3uAssociatedPlaylistsSelection
 				? async (playlists) => {
 						const res = await executeCallback({
@@ -396,11 +401,26 @@ const startParsing = async (
 						}
 
 						return async (sample) => {
-							await executeCallback({
-								callbackType: 'on-audio-video-sample',
+							const audioSampleRes = await executeCallback({
+								callbackType: 'on-audio-sample',
 								value: sample,
 								trackId: params.track.trackId,
 							});
+
+							if (audioSampleRes.payloadType !== 'on-sample-response') {
+								throw new Error('Invalid response from callback');
+							}
+
+							if (!audioSampleRes.registeredTrackDoneCallback) {
+								return;
+							}
+
+							return async () => {
+								await executeCallback({
+									callbackType: 'track-done',
+									trackId: params.track.trackId,
+								});
+							};
 						};
 					}
 				: null,
@@ -420,22 +440,51 @@ const startParsing = async (
 						}
 
 						return async (sample) => {
-							await executeCallback({
-								callbackType: 'on-audio-video-sample',
+							const videoSampleRes = await executeCallback({
+								callbackType: 'on-video-sample',
 								value: sample,
 								trackId: params.track.trackId,
 							});
+
+							if (videoSampleRes.payloadType !== 'on-sample-response') {
+								throw new Error('Invalid response from callback');
+							}
+
+							if (!videoSampleRes.registeredTrackDoneCallback) {
+								return;
+							}
+
+							return async () => {
+								await executeCallback({
+									callbackType: 'track-done',
+									trackId: params.track.trackId,
+								});
+							};
 						};
 					}
 				: null,
 			onDiscardedData: null,
+			makeSamplesStartAtZero: makeSamplesStartAtZero ?? true,
+			seekingHints: seekingHints ?? null,
 		});
 		post({
 			type: 'response-done',
 			payload: ret,
+			seekingHints: await controller.getSeekingHints(),
 		});
 	} catch (e) {
-		post(serializeError(e as Error, logLevel));
+		let seekingHintsRes: SeekingHints | null = null;
+		try {
+			seekingHintsRes = await controller.getSeekingHints();
+		} catch {}
+
+		post(
+			serializeError({
+				error: e as Error,
+				logLevel,
+				seekingHints: seekingHintsRes,
+			}),
+		);
 	}
 };
 
@@ -443,7 +492,7 @@ const onMessageForWorker = forwardMediaParserControllerToWorker(controller);
 
 export const messageHandler = (
 	message: MessageEvent,
-	readerInterface: ReaderInterface,
+	readerInterface: MediaParserReaderInterface,
 ) => {
 	const data = message.data as WorkerRequestPayload;
 

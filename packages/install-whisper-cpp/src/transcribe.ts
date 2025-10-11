@@ -65,6 +65,8 @@ type Result = {
 	language: string;
 };
 
+type AdditionalArgs = string[] | [string, string][];
+
 export type TranscriptionJson<WithTokenLevelTimestamp extends boolean> = {
 	systeminfo: string;
 	model: Model;
@@ -128,6 +130,8 @@ const transcribeToTemporaryFile = async ({
 	splitOnWord,
 	signal,
 	onProgress,
+	flashAttention,
+	additionalArgs,
 }: {
 	fileToTranscribe: string;
 	whisperPath: string;
@@ -143,6 +147,8 @@ const transcribeToTemporaryFile = async ({
 	splitOnWord: boolean | null;
 	signal: AbortSignal | null;
 	onProgress: TranscribeOnProgress | null;
+	flashAttention?: boolean;
+	additionalArgs?: AdditionalArgs;
 }): Promise<{
 	outputPath: string;
 }> => {
@@ -172,6 +178,8 @@ const transcribeToTemporaryFile = async ({
 		translate ? '-tr' : null,
 		language ? ['-l', language.toLowerCase()] : null,
 		splitOnWord ? ['--split-on-word', splitOnWord] : null,
+		flashAttention ? ['--flash-attn', 'true'] : null,
+		...(additionalArgs ?? []),
 	]
 		.flat(1)
 		.filter(Boolean) as string[];
@@ -242,7 +250,7 @@ const transcribeToTemporaryFile = async ({
 			if (stderr.includes('must be 16 kHz')) {
 				reject(
 					new Error(
-						'wav file must be 16 kHz - use this command to make it so: "ffmpeg -i input.wav -ar 16000 output.wav -y"',
+						'wav file must be 16 kHz - See https://www.remotion.dev/docs/webcodecs/resample-audio-16khz#on-the-server on how to convert your audio to a 16-bit, 16KHz, WAVE file',
 					),
 				);
 			}
@@ -272,6 +280,8 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	splitOnWord,
 	signal,
 	onProgress,
+	flashAttention,
+	additionalArgs,
 }: {
 	inputPath: string;
 	whisperPath: string;
@@ -286,6 +296,8 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	splitOnWord?: boolean;
 	signal?: AbortSignal;
 	onProgress?: TranscribeOnProgress;
+	flashAttention?: boolean;
+	additionalArgs?: AdditionalArgs;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
@@ -320,6 +332,8 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		signal: signal ?? null,
 		splitOnWord: splitOnWord ?? null,
 		onProgress: onProgress ?? null,
+		flashAttention,
+		additionalArgs,
 	});
 
 	const json = (await readJson(

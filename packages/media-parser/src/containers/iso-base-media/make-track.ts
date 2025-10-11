@@ -18,20 +18,33 @@ import {
 	getSampleAspectRatio,
 	getStsdVideoConfig,
 } from '../../get-sample-aspect-ratio';
-import type {AudioTrack, OtherTrack, VideoTrack} from '../../get-tracks';
+import type {
+	MediaParserAudioTrack,
+	MediaParserOtherTrack,
+	MediaParserVideoTrack,
+} from '../../get-tracks';
 import {
 	getIsoBmColrConfig,
 	getVideoCodecString,
 	getVideoPrivateData,
 } from '../../get-video-codec';
+import {normalizeVideoRotation} from '../../normalize-video-rotation';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
+import {mediaParserAdvancedColorToWebCodecsColor} from './color-to-webcodecs-colors';
 import {getActualDecoderParameters} from './get-actual-number-of-channels';
 import {getVideoCodecFromIsoTrak} from './get-video-codec-from-iso-track';
+import {findTrackMediaTimeOffsetInTrackTimescale} from './mdat/get-editlist';
 import type {TrakBox} from './trak/trak';
 import {getTkhdBox, getVideoDescriptors} from './traversal';
 
 export const makeBaseMediaTrack = (
 	trakBox: TrakBox,
-): VideoTrack | AudioTrack | OtherTrack | null => {
+	startTimeInSeconds: number,
+):
+	| MediaParserVideoTrack
+	| MediaParserAudioTrack
+	| MediaParserOtherTrack
+	| null => {
 	const tkhdBox = getTkhdBox(trakBox);
 
 	const videoDescriptors = getVideoDescriptors(trakBox);
@@ -59,11 +72,11 @@ export const makeBaseMediaTrack = (
 		const {codecString, description} = getAudioCodecStringFromTrak(trakBox);
 		const codecPrivate =
 			getCodecPrivateFromTrak(trakBox) ?? description ?? null;
-		const codecWithoutConfig = getAudioCodecFromTrack(trakBox);
+		const codecEnum = getAudioCodecFromTrack(trakBox);
 
 		const actual = getActualDecoderParameters({
-			audioCodec: codecWithoutConfig,
-			codecPrivate,
+			audioCodec: codecEnum,
+			codecPrivate: codecPrivate ?? null,
 			numberOfChannels,
 			sampleRate,
 		});
@@ -71,14 +84,19 @@ export const makeBaseMediaTrack = (
 		return {
 			type: 'audio',
 			trackId: tkhdBox.trackId,
-			timescale: timescaleAndDuration.timescale,
+			originalTimescale: timescaleAndDuration.timescale,
 			codec: codecString,
 			numberOfChannels: actual.numberOfChannels,
 			sampleRate: actual.sampleRate,
-			description: actual.codecPrivate ?? undefined,
-			trakBox,
-			codecPrivate: actual.codecPrivate,
-			codecWithoutConfig,
+			description: actual.codecPrivate?.data ?? undefined,
+			codecData: actual.codecPrivate,
+			codecEnum,
+			startInSeconds: startTimeInSeconds,
+			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale:
+				findTrackMediaTimeOffsetInTrackTimescale({
+					trakBox,
+				}),
 		};
 	}
 
@@ -86,8 +104,14 @@ export const makeBaseMediaTrack = (
 		return {
 			type: 'other',
 			trackId: tkhdBox.trackId,
-			timescale: timescaleAndDuration.timescale,
+			originalTimescale: timescaleAndDuration.timescale,
 			trakBox,
+			startInSeconds: startTimeInSeconds,
+			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale:
+				findTrackMediaTimeOffsetInTrackTimescale({
+					trakBox,
+				}),
 		};
 	}
 
@@ -118,12 +142,19 @@ export const makeBaseMediaTrack = (
 
 	const privateData = getVideoPrivateData(trakBox);
 
-	const track: VideoTrack = {
+	const advancedColor = getIsoBmColrConfig(trakBox) ?? {
+		fullRange: null,
+		matrix: null,
+		primaries: null,
+		transfer: null,
+	};
+
+	const track: MediaParserVideoTrack = {
 		m3uStreamFormat: null,
 		type: 'video',
 		trackId: tkhdBox.trackId,
 		description: videoDescriptors ?? undefined,
-		timescale: timescaleAndDuration.timescale,
+		originalTimescale: timescaleAndDuration.timescale,
 		codec,
 		sampleAspectRatio: getSampleAspectRatio(trakBox),
 		width,
@@ -133,17 +164,18 @@ export const makeBaseMediaTrack = (
 		// Repeating those keys because they get picked up by VideoDecoder
 		displayAspectWidth,
 		displayAspectHeight,
-		rotation,
-		trakBox,
-		codecPrivate: privateData,
-		color: getIsoBmColrConfig(trakBox) ?? {
-			fullRange: null,
-			matrixCoefficients: null,
-			primaries: null,
-			transferCharacteristics: null,
-		},
-		codecWithoutConfig: getVideoCodecFromIsoTrak(trakBox),
+		rotation: normalizeVideoRotation(0 - rotation),
+		codecData: privateData,
+		colorSpace: mediaParserAdvancedColorToWebCodecsColor(advancedColor),
+		advancedColor,
+		codecEnum: getVideoCodecFromIsoTrak(trakBox),
 		fps: getFpsFromMp4TrakBox(trakBox),
+		startInSeconds: startTimeInSeconds,
+		timescale: WEBCODECS_TIMESCALE,
+		trackMediaTimeOffsetInTrackTimescale:
+			findTrackMediaTimeOffsetInTrackTimescale({
+				trakBox,
+			}),
 	};
 	return track;
 };

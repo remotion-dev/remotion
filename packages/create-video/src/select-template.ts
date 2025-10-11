@@ -3,20 +3,30 @@ import minimist from 'minimist';
 import {makeHyperlink} from './hyperlinks/make-link';
 import {selectAsync} from './prompts';
 import type {Template} from './templates';
-import {FEATURED_TEMPLATES} from './templates';
+import {FEATURED_TEMPLATES, PAID_TEMPLATES} from './templates';
+
+const ALL_TEMPLATES = [...FEATURED_TEMPLATES, ...PAID_TEMPLATES];
 
 type Options = {
 	tmp: boolean;
 };
 
 const parsed = minimist<Options>(process.argv.slice(2), {
-	boolean: [...FEATURED_TEMPLATES.map((f) => f.cliId), 'tmp'],
+	boolean: [...ALL_TEMPLATES.map((f) => f.cliId), 'tmp'],
+	string: ['_'],
 });
 
 export const isTmpFlagSelected = () => parsed.tmp;
 
+export const getPositionalArguments = () => parsed._;
+
+export const getDirectoryArgument = (): string | null => {
+	const positionalArgs = getPositionalArguments();
+	return positionalArgs.length > 0 ? positionalArgs[0] || null : null;
+};
+
 export const selectTemplate = async () => {
-	const isFlagSelected = FEATURED_TEMPLATES.find((f) => {
+	const isFlagSelected = ALL_TEMPLATES.find((f) => {
 		return parsed[f.cliId];
 	});
 
@@ -28,14 +38,21 @@ export const selectTemplate = async () => {
 		message: 'Choose a template:',
 		optionsPerPage: 20,
 
-		choices: FEATURED_TEMPLATES.map((template) => {
+		choices: ALL_TEMPLATES.map((template) => {
 			return {
 				value: template,
-				title: `${chalk.blue(template.shortName)}${chalk.reset(
+				title: `${chalk.blue(template.shortName)}${
+					template.cliId === 'editor-starter'
+						? ' ' + chalk.yellow('(Paid)')
+						: ''
+				}${chalk.reset(
 					` ${chalk.gray(template.description.trim())} ${chalk.gray(
 						makeHyperlink({
 							text: '(?)',
-							url: `https://remotion.dev/templates/${template.cliId}`,
+							url:
+								template.cliId === 'editor-starter'
+									? `${template.previewURL}`
+									: `https://remotion.dev/templates/${template.cliId}`,
 							fallback: '',
 						}),
 					)}`,

@@ -20,8 +20,8 @@
     "@remotion/eslint-config-flat": "workspace:*",
     "@types/react": "19.0.0",
     "eslint": "9.19.0",
-    "prettier": "3.3.3",
-    "typescript": "5.5.4"
+    "prettier": "3.6.0",
+    "typescript": "5.8.2"
   },
   "private": true
 }

@@ -63,10 +63,10 @@ export type M3uMap = {
 
 export type M3uStreamInfo = {
 	type: 'm3u-stream-info';
-	bandwidth: number | null;
-	averageBandwidth: number | null;
+	bandwidthInBitsPerSec: number | null;
+	averageBandwidthInBitsPerSec: number | null;
 	codecs: string[] | null;
-	resolution: {
+	dimensions: {
 		width: number;
 		height: number;
 	} | null;
@@ -82,6 +82,7 @@ export type M3uMediaInfo = {
 	default: boolean;
 	channels: number | null;
 	uri: string;
+	mediaType: string | null;
 };
 
 export type M3uTextValue = {

@@ -24,10 +24,6 @@ import {
 } from '@remotion/serverless-client';
 import fs from 'node:fs';
 import path from 'node:path';
-import {
-	canConcatAudioSeamlessly,
-	canConcatVideoSeamlessly,
-} from '../can-concat-seamlessly';
 import type {LaunchedBrowser} from '../get-browser-instance';
 import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {startLeakDetection} from '../leak-detection';
@@ -81,6 +77,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		propsType: 'input-props',
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
 	});
 
 	const resolvedPropsPromise = decompressInputProps({
@@ -91,7 +88,13 @@ const renderHandler = async <Provider extends CloudProvider>({
 		propsType: 'resolved-props',
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
 	});
+
+	RenderInternals.Log.verbose(
+		{indent: false, logLevel: params.logLevel},
+		`Waiting for browser instance`,
+	);
 
 	const browserInstance = await insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
@@ -115,7 +118,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
-		`Rendering frames ${params.frameRange[0]}-${params.frameRange[1]} in this Lambda function`,
+		`Rendering frames ${params.frameRange[0]}-${params.frameRange[1]} (chunk ${params.chunk}) in this function`,
 	);
 
 	const start = Date.now();
@@ -134,11 +137,11 @@ const renderHandler = async <Provider extends CloudProvider>({
 		preferLossless: params.preferLossless,
 	});
 
-	const seamlessAudio = canConcatAudioSeamlessly(
+	const seamlessAudio = RenderInternals.canConcatAudioSeamlessly(
 		defaultAudioCodec,
 		params.framesPerLambda,
 	);
-	const seamlessVideo = canConcatVideoSeamlessly(params.codec);
+	const seamlessVideo = RenderInternals.canConcatVideoSeamlessly(params.codec);
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
@@ -239,6 +242,8 @@ const renderHandler = async <Provider extends CloudProvider>({
 				width: params.width,
 				defaultCodec: null,
 				defaultOutName: null,
+				defaultPixelFormat: null,
+				defaultVideoImageFormat: null,
 			},
 			imageFormat: params.imageFormat,
 			serializedInputPropsWithCustomSchema,
@@ -338,6 +343,8 @@ const renderHandler = async <Provider extends CloudProvider>({
 			hardwareAcceleration: 'disable',
 			chromeMode: 'headless-shell',
 			offthreadVideoThreads: params.offthreadVideoThreads,
+			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+			onLog: RenderInternals.defaultOnLog,
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(
@@ -367,7 +374,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 		);
 		await onStream({
 			type: 'audio-chunk-rendered',
-			payload: fs.readFileSync(audioOutputLocation),
+			payload: new Uint8Array(fs.readFileSync(audioOutputLocation)),
 		});
 		audioChunkTimer.end();
 	}
@@ -381,7 +388,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			type: NoReactAPIs.isAudioCodec(params.codec)
 				? 'audio-chunk-rendered'
 				: 'video-chunk-rendered',
-			payload: fs.readFileSync(videoOutputLocation),
+			payload: new Uint8Array(fs.readFileSync(videoOutputLocation)),
 		});
 		videoChunkTimer.end();
 	}
@@ -436,9 +443,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	requestContext: RequestContext;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
-}): Promise<{
-	type: 'success';
-}> => {
+}): Promise<void> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -461,9 +466,6 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 				instance = browserInstance;
 			},
 		});
-		return {
-			type: 'success',
-		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			// eslint-disable-next-line no-console
@@ -515,8 +517,6 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 				},
 			},
 		});
-
-		throw err;
 	} finally {
 		if (shouldKeepBrowserOpen && instance) {
 			insideFunctionSpecifics.forgetBrowserEventLoop({

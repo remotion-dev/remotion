@@ -7,8 +7,8 @@ import {
 	useState,
 } from 'react';
 import {cancelRender} from '../cancel-render.js';
-import {continueRender, delayRender} from '../delay-render.js';
 import {useCurrentFrame} from '../use-current-frame.js';
+import {useDelayRender} from '../use-delay-render.js';
 import {useVideoConfig} from '../use-video-config.js';
 import type {AnimatedImageCanvasRef} from './canvas';
 import {Canvas} from './canvas';
@@ -47,6 +47,7 @@ export const AnimatedImage = forwardRef<
 		const resolvedSrc = resolveAnimatedImageSource(src);
 		const [imageDecoder, setImageDecoder] =
 			useState<RemotionImageDecoder | null>(null);
+		const {delayRender, continueRender} = useDelayRender();
 
 		const [decodeHandle] = useState(() =>
 			delayRender(`Rendering <AnimatedImage/> with src="${resolvedSrc}"`),
@@ -101,7 +102,13 @@ export const AnimatedImage = forwardRef<
 			return () => {
 				controller.abort();
 			};
-		}, [resolvedSrc, decodeHandle, onError, initialLoopBehavior]);
+		}, [
+			resolvedSrc,
+			decodeHandle,
+			onError,
+			initialLoopBehavior,
+			continueRender,
+		]);
 
 		useLayoutEffect(() => {
 			if (!imageDecoder) {
@@ -133,7 +140,15 @@ export const AnimatedImage = forwardRef<
 						cancelRender(err);
 					}
 				});
-		}, [currentTime, imageDecoder, loopBehavior, onError, src]);
+		}, [
+			currentTime,
+			imageDecoder,
+			loopBehavior,
+			onError,
+			src,
+			continueRender,
+			delayRender,
+		]);
 
 		return (
 			<Canvas ref={ref} width={width} height={height} fit={fit} {...props} />

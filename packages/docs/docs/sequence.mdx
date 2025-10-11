@@ -262,6 +262,13 @@ _optional_
 
 [Premount](/docs/player/premounting) the sequence for a set number of frames.
 
+### `postmountFor`<AvailableFrom v="4.0.340" />
+
+_optional_
+
+Same as `premountFor`, but for after the sequence has ended.  
+Use this only if you expect the user to frequently seek backwards in the timeline and you want to avoid flickers for this behavior.
+
 ### `styleWhilePremounted`<AvailableFrom v="4.0.252" />
 
 _optional_

@@ -7,8 +7,7 @@ crumb: '@remotion/media-parser'
 ---
 
 :::warning
-**Unstable API**: This package is experimental. The API may change in the future.  
-The API for getting video metadata is stable and may be used in production.
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
 :::
 
 A [reader](/docs/media-parser/readers) for [`@remotion/media-parser`](/docs/media-parser) that reads either from a URL or from a [`File`](https://developer.mozilla.org/en-US/docs/Web/API/File).
@@ -23,7 +22,7 @@ import {webReader} from '@remotion/media-parser/web';
 
 const result = await parseMedia({
   // Or a `File`
-  src: 'https://example.com/my-video.mp4',
+  src: 'https://remotion.media/video.mp4',
   fields: {
     durationInSeconds: true,
     dimensions: true,

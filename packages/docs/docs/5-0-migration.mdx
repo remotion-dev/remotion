@@ -98,6 +98,21 @@ They are now available in `@remotion/lambda/client`.
 Since the introduction of [Chrome Headless Shell](/docs/miscellaneous/chrome-headless-shell), it is not possible to disable headless mode anymore.  
 This flag was a no-op and has now been removed.
 
+## `@remotion/google-fonts` requires specifying weights and subsets
+
+When using `loadFonts()` from `@remotion/google-fonts`, you must now specify which font weights and subsets you want to load. Loading all weights and subsets by default is no longer supported as it can lead to timeouts.
+
+**Required action**: Explicitly specify the weights and subsets you need:
+
+```ts
+import {loadFont} from '@remotion/google-fonts/Roboto';
+
+loadFont('normal', {
+  weights: ['400', '700'],
+  subsets: ['latin'],
+});
+```
+
 ## License changes
 
 Remotion 5.0 has an updated license. View the [license](https://github.com/remotion-dev/remotion/blob/5-0-license/LICENSE.md) here or compare the [changes](https://github.com/remotion-dev/remotion/pull/3750).

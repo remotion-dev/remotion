@@ -1,25 +1,37 @@
 import {addAvcProfileToTrack} from './add-avc-profile-to-track';
-import type {AudioTrack, Track, VideoTrack} from './get-tracks';
+import type {
+	MediaParserAudioTrack,
+	MediaParserTrack,
+	MediaParserVideoTrack,
+} from './get-tracks';
+import type {MediaParserLogLevel} from './log';
 import {Log} from './log';
 import type {MediaParserContainer} from './options';
+import type {TracksState} from './state/has-tracks-section';
 import type {ParserState} from './state/parser-state';
+import type {CallbacksState} from './state/sample-callbacks';
+import type {
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from './webcodec-sample-types';
 
 export const registerVideoTrack = async ({
-	state,
 	track,
 	container,
+	logLevel,
+	onVideoTrack,
+	registerVideoSampleCallback,
+	tracks,
 }: {
-	state: ParserState;
-	track: Track;
+	track: MediaParserTrack;
 	container: MediaParserContainer;
+	logLevel: MediaParserLogLevel;
+	onVideoTrack: MediaParserOnVideoTrack | null;
+	registerVideoSampleCallback: CallbacksState['registerVideoSampleCallback'];
+	tracks: TracksState;
 }) => {
-	if (
-		state.callbacks.tracks.getTracks().find((t) => t.trackId === track.trackId)
-	) {
-		Log.trace(
-			state.logLevel,
-			`Track ${track.trackId} already registered, skipping`,
-		);
+	if (tracks.getTracks().find((t) => t.trackId === track.trackId)) {
+		Log.trace(logLevel, `Track ${track.trackId} already registered, skipping`);
 		return null;
 	}
 
@@ -27,37 +39,39 @@ export const registerVideoTrack = async ({
 		throw new Error('Expected video track');
 	}
 
-	state.callbacks.tracks.addTrack(track);
+	tracks.addTrack(track);
 
-	if (!state.onVideoTrack) {
+	if (!onVideoTrack) {
 		return null;
 	}
 
-	const callback = await state.onVideoTrack({track, container});
-	await state.callbacks.registerVideoSampleCallback(
-		track.trackId,
-		callback ?? null,
-	);
+	const callback = await onVideoTrack({
+		track,
+		container,
+	});
+
+	await registerVideoSampleCallback(track.trackId, callback ?? null);
 
 	return callback;
 };
 
 export const registerAudioTrack = async ({
-	state,
 	track,
 	container,
+	tracks,
+	logLevel,
+	onAudioTrack,
+	registerAudioSampleCallback,
 }: {
-	state: ParserState;
-	track: AudioTrack;
+	track: MediaParserAudioTrack;
 	container: MediaParserContainer;
+	tracks: TracksState;
+	logLevel: MediaParserLogLevel;
+	onAudioTrack: MediaParserOnAudioTrack | null;
+	registerAudioSampleCallback: CallbacksState['registerAudioSampleCallback'];
 }) => {
-	if (
-		state.callbacks.tracks.getTracks().find((t) => t.trackId === track.trackId)
-	) {
-		Log.trace(
-			state.logLevel,
-			`Track ${track.trackId} already registered, skipping`,
-		);
+	if (tracks.getTracks().find((t) => t.trackId === track.trackId)) {
+		Log.trace(logLevel, `Track ${track.trackId} already registered, skipping`);
 		return null;
 	}
 
@@ -65,16 +79,17 @@ export const registerAudioTrack = async ({
 		throw new Error('Expected audio track');
 	}
 
-	state.callbacks.tracks.addTrack(track);
-	if (!state.onAudioTrack) {
+	tracks.addTrack(track);
+	if (!onAudioTrack) {
 		return null;
 	}
 
-	const callback = await state.onAudioTrack({track, container});
-	await state.callbacks.registerAudioSampleCallback(
-		track.trackId,
-		callback ?? null,
-	);
+	const callback = await onAudioTrack({
+		track,
+		container,
+	});
+	await registerAudioSampleCallback(track.trackId, callback ?? null);
+
 	return callback;
 };
 
@@ -84,14 +99,17 @@ export const registerVideoTrackWhenProfileIsAvailable = ({
 	container,
 }: {
 	state: ParserState;
-	track: VideoTrack;
+	track: MediaParserVideoTrack;
 	container: MediaParserContainer;
 }) => {
 	state.riff.registerOnAvcProfileCallback(async (profile) => {
 		await registerVideoTrack({
-			state,
 			track: addAvcProfileToTrack(track, profile),
 			container,
+			logLevel: state.logLevel,
+			onVideoTrack: state.onVideoTrack,
+			registerVideoSampleCallback: state.callbacks.registerVideoSampleCallback,
+			tracks: state.callbacks.tracks,
 		});
 	});
 };

@@ -1,9 +1,9 @@
 import { Composition, staticFile } from "remotion";
 import { Audiogram } from "./Audiogram/Main";
 import { audiogramSchema } from "./Audiogram/schema";
-import { getAudioDurationInSeconds } from "@remotion/media-utils";
 import { getSubtitles } from "./helpers/fetch-captions";
 import { FPS } from "./helpers/ms-to-frame";
+import { parseMedia } from "@remotion/media-parser";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -15,42 +15,43 @@ export const RemotionRoot: React.FC = () => {
         height={1080}
         schema={audiogramSchema}
         defaultProps={{
-          // Audio settings
-          audioOffsetInSeconds: 6.9,
-
-          // Title settings
-          audioFileName: staticFile("audio.wav"),
-          coverImgFileName: staticFile("cover.jpg"),
-          titleText:
-            "#234 – Money, Kids, and Choosing Your Market with Justin Jackson of Transistor.fm",
+          // audio settings
+          audioOffsetInSeconds: 0,
+          audioFileUrl: staticFile("audio.wav"),
+          // podcast data
+          coverImageUrl: staticFile("podcast-cover.jpeg"),
+          titleText: "Ep 550 - Supper Club × Remotion React",
           titleColor: "rgba(186, 186, 186, 0.93)",
-
-          // Subtitles settings
-          subtitlesFileName: staticFile("captions1.srt"),
-          onlyDisplayCurrentSentence: true,
-          subtitlesTextColor: "rgba(255, 255, 255, 0.93)",
-          subtitlesLinePerPage: 4,
-          subtitlesZoomMeasurerSize: 10,
-          subtitlesLineHeight: 98,
-
-          // Wave settings
-          waveColor: "#a3a5ae",
-          waveFreqRangeStartIndex: 7,
-          waveLinesToDisplay: 29,
-          waveNumberOfSamples: "256", // This is string for Remotion controls and will be converted to a number
-          mirrorWave: true,
+          // captions settings
           captions: null,
+          captionsFileName: staticFile("captions.json"),
+          onlyDisplayCurrentSentence: true,
+          captionsTextColor: "rgba(255, 255, 255, 0.93)",
+          // visualizer settings
+          visualizer: {
+            type: "oscilloscope",
+            color: "#F4B941",
+            numberOfSamples: "64" as const,
+            windowInSeconds: 0.1,
+            posterization: 3,
+            amplitude: 4,
+            padding: 50,
+          },
         }}
         // Determine the length of the video based on the duration of the audio file
         calculateMetadata={async ({ props }) => {
-          const captions = await getSubtitles(props.subtitlesFileName);
-          const durationInSeconds = await getAudioDurationInSeconds(
-            props.audioFileName,
-          );
+          const captions = await getSubtitles(props.captionsFileName);
+          const { slowDurationInSeconds } = await parseMedia({
+            src: props.audioFileUrl,
+            acknowledgeRemotionLicense: true,
+            fields: {
+              slowDurationInSeconds: true,
+            },
+          });
 
           return {
             durationInFrames: Math.floor(
-              (durationInSeconds - props.audioOffsetInSeconds) * FPS,
+              (slowDurationInSeconds - props.audioOffsetInSeconds) * FPS,
             ),
             props: {
               ...props,

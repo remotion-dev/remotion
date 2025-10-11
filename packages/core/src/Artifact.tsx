@@ -1,17 +1,23 @@
 import type React from 'react';
 import {useContext, useEffect, useState} from 'react';
 import {RenderAssetManager} from './RenderAssetManager';
-import {getRemotionEnvironment} from './get-remotion-environment';
+import type {DownloadBehavior} from './download-behavior';
 import {useCurrentFrame} from './use-current-frame';
+import {useRemotionEnvironment} from './use-remotion-environment';
+
+const ArtifactThumbnail = Symbol('Thumbnail');
 
 export const Artifact: React.FC<{
 	readonly filename: string;
-	readonly content: string | Uint8Array;
-}> = ({filename, content}) => {
+	readonly content: string | Uint8Array | typeof ArtifactThumbnail;
+	readonly downloadBehavior?: DownloadBehavior | null;
+}> & {
+	Thumbnail: typeof ArtifactThumbnail;
+} = ({filename, content, downloadBehavior}) => {
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
 
-	const [env] = useState(() => getRemotionEnvironment());
+	const env = useRemotionEnvironment();
 
 	const frame = useCurrentFrame();
 
@@ -31,7 +37,17 @@ export const Artifact: React.FC<{
 				content: btoa(new TextDecoder('utf8').decode(content)),
 				filename,
 				frame,
-				binary: true,
+				contentType: 'binary',
+				downloadBehavior: downloadBehavior ?? null,
+			});
+		} else if (content === ArtifactThumbnail) {
+			registerRenderAsset({
+				type: 'artifact',
+				id,
+				filename,
+				frame,
+				contentType: 'thumbnail',
+				downloadBehavior: downloadBehavior ?? null,
 			});
 		} else {
 			registerRenderAsset({
@@ -40,7 +56,8 @@ export const Artifact: React.FC<{
 				content,
 				filename,
 				frame,
-				binary: false,
+				contentType: 'text',
+				downloadBehavior: downloadBehavior ?? null,
 			});
 		}
 
@@ -55,7 +72,10 @@ export const Artifact: React.FC<{
 		id,
 		registerRenderAsset,
 		unregisterRenderAsset,
+		downloadBehavior,
 	]);
 
 	return null;
 };
+
+Artifact.Thumbnail = ArtifactThumbnail;

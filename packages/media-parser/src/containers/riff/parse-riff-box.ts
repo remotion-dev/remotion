@@ -1,5 +1,7 @@
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {ParserState} from '../../state/parser-state';
 import {parseAvih} from './parse-avih';
+import {parseIdx1} from './parse-idx1';
 import {parseIsft} from './parse-isft';
 import {parseListBox} from './parse-list-box';
 import {parseStrh} from './parse-strh';
@@ -8,15 +10,20 @@ import type {RiffBox, RiffRegularBox} from './riff-box';
 export const parseRiffBox = ({
 	size,
 	id,
-	state,
+	iterator,
+	stateIfExpectingSideEffects,
 }: {
 	size: number;
 	id: string;
-	state: ParserState;
+	iterator: BufferIterator;
+	stateIfExpectingSideEffects: ParserState | null;
 }): Promise<RiffBox> => {
-	const {iterator} = state;
 	if (id === 'LIST') {
-		return parseListBox({size, state});
+		return parseListBox({
+			size,
+			iterator,
+			stateIfExpectingSideEffects,
+		});
 	}
 
 	if (id === 'ISFT') {
@@ -29,6 +36,10 @@ export const parseRiffBox = ({
 
 	if (id === 'strh') {
 		return Promise.resolve(parseStrh({iterator, size}));
+	}
+
+	if (id === 'idx1') {
+		return Promise.resolve(parseIdx1({iterator, size}));
 	}
 
 	iterator.discard(size);

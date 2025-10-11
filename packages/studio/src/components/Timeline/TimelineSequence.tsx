@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
 import {BLUE} from '../../helpers/colors';
@@ -6,7 +6,8 @@ import {
 	SEQUENCE_BORDER_WIDTH,
 	getTimelineSequenceLayout,
 } from '../../helpers/get-timeline-sequence-layout';
-import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
+import {getTimelineLayerHeight} from '../../helpers/timeline-layout';
+import {useMaxMediaDuration} from '../../helpers/use-max-media-duration';
 import {AudioWaveform} from '../AudioWaveform';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
@@ -35,9 +36,10 @@ const Inner: React.FC<{
 	// If a duration is 1, it is essentially a still and it should have width 0
 	// Some compositions may not be longer than their media duration,
 	// if that is the case, it needs to be asynchronously determined
-	const [maxMediaDuration, setMaxMediaDuration] = useState(Infinity);
 
 	const video = Internals.useVideo();
+
+	const maxMediaDuration = useMaxMediaDuration(s, video?.fps ?? 30);
 
 	if (!video) {
 		throw new TypeError('Expected video config');
@@ -46,6 +48,7 @@ const Inner: React.FC<{
 	const frame = useCurrentFrame();
 	const relativeFrame = frame - s.from;
 	const relativeFrameWithPremount = relativeFrame + (s.premountDisplay ?? 0);
+	const relativeFrameWithPostmount = relativeFrame - s.duration;
 
 	const roundedFrame = Math.round(relativeFrame * 100) / 100;
 
@@ -54,8 +57,12 @@ const Inner: React.FC<{
 		relativeFrameWithPremount >= 0 &&
 		relativeFrameWithPremount < s.duration &&
 		!isInRange;
+	const isPostmounting =
+		relativeFrameWithPostmount >= 0 &&
+		relativeFrameWithPostmount < (s.postmountDisplay ?? 0) &&
+		!isInRange;
 
-	const {marginLeft, width, premountWidth} = useMemo(() => {
+	const {marginLeft, width, premountWidth, postmountWidth} = useMemo(() => {
 		return getTimelineSequenceLayout({
 			durationInFrames: s.loopDisplay
 				? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
@@ -66,6 +73,7 @@ const Inner: React.FC<{
 			video,
 			windowWidth,
 			premountDisplay: s.premountDisplay,
+			postmountDisplay: s.postmountDisplay,
 		});
 	}, [maxMediaDuration, s, video, windowWidth]);
 
@@ -80,7 +88,7 @@ const Inner: React.FC<{
 			border: SEQUENCE_BORDER_WIDTH + 'px solid rgba(255, 255, 255, 0.2)',
 			borderRadius: 2,
 			position: 'absolute',
-			height: TIMELINE_LAYER_HEIGHT,
+			height: getTimelineLayerHeight(s.type === 'video' ? 'video' : 'other'),
 			marginLeft,
 			width,
 			color: 'white',
@@ -88,6 +96,10 @@ const Inner: React.FC<{
 			opacity: isInRange ? 1 : 0.5,
 		};
 	}, [isInRange, marginLeft, s.type, width]);
+
+	if (maxMediaDuration === null) {
+		return null;
+	}
 
 	return (
 		<div key={s.id} style={style} title={s.displayName}>
@@ -108,6 +120,24 @@ const Inner: React.FC<{
 				/>
 			) : null}
 
+			{postmountWidth ? (
+				<div
+					style={{
+						width: postmountWidth,
+						height: '100%',
+						background: `repeating-linear-gradient(
+							-45deg,
+							transparent,
+							transparent 2px,
+							rgba(255, 255, 255, ${isPostmounting ? 0.5 : 0.2}) 2px,
+							rgba(255, 255, 255, ${isPostmounting ? 0.5 : 0.2}) 4px
+						)`,
+						position: 'absolute',
+						right: 0,
+					}}
+				/>
+			) : null}
+
 			{s.type === 'audio' ? (
 				<AudioWaveform
 					src={s.src}
@@ -116,11 +146,17 @@ const Inner: React.FC<{
 					startFrom={s.startMediaFrom}
 					durationInFrames={s.duration}
 					volume={s.volume}
-					setMaxMediaDuration={setMaxMediaDuration}
 					playbackRate={s.playbackRate}
 				/>
 			) : null}
-			{s.type === 'video' ? <TimelineVideoInfo src={s.src} /> : null}
+			{s.type === 'video' ? (
+				<TimelineVideoInfo
+					src={s.src}
+					visualizationWidth={width}
+					startFrom={s.startMediaFrom}
+					durationInFrames={s.duration}
+				/>
+			) : null}
 			{s.loopDisplay === undefined ? null : (
 				<LoopedTimelineIndicator loops={s.loopDisplay.numberOfTimes} />
 			)}
@@ -128,7 +164,7 @@ const Inner: React.FC<{
 			{s.type !== 'audio' &&
 			s.type !== 'video' &&
 			s.loopDisplay === undefined &&
-			(isInRange || isPremounting) ? (
+			(isInRange || isPremounting || isPostmounting) ? (
 				<div
 					style={{
 						paddingLeft: 5 + (premountWidth ?? 0),
@@ -139,6 +175,7 @@ const Inner: React.FC<{
 				>
 					<TimelineSequenceFrame
 						premounted={isPremounting}
+						postmounted={isPostmounting ? s.duration - 1 : null}
 						roundedFrame={roundedFrame}
 					/>
 				</div>

@@ -26,7 +26,7 @@
     "@remotion/shapes": "workspace:*",
     "@remotion/tailwind-v4": "workspace:*",
     "clsx": "2.1.1",
-    "next": "15.1.6",
+    "next": "15.4.7",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "remotion": "workspace:*",
@@ -45,9 +45,11 @@
     "eslint": "9.19.0",
     "@next/eslint-plugin-next": "15.1.6",
     "eslint-config-next": "15.1.6",
+    "@typescript-eslint/eslint-plugin": "8.46.0",
+    "@typescript-eslint/parser": "8.46.0",
     "postcss": "8.4.47",
-    "prettier": "3.3.3",
+    "prettier": "3.6.0",
     "tailwindcss": "4.0.3",
-    "typescript": "5.5.4"
+    "typescript": "5.8.2"
   }
 }

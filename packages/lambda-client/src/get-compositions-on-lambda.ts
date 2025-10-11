@@ -13,6 +13,7 @@ import {
 } from '@remotion/serverless-client';
 import {awsImplementation} from './aws-provider';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
@@ -27,6 +28,7 @@ export type GetCompositionsOnLambdaInput = {
 	 */
 	dumpBrowserLogs?: boolean;
 	forcePathStyle?: boolean;
+	requestHandler?: RequestHandler | null;
 } & Partial<
 	ToOptions<typeof BrowserSafeApis.optionsMap.getCompositionsOnLambda>
 >;
@@ -50,6 +52,8 @@ export const getCompositionsOnLambda = async ({
 	dumpBrowserLogs,
 	offthreadVideoCacheSizeInBytes,
 	forcePathStyle,
+	requestHandler,
+	mediaCacheSizeInBytes,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
@@ -69,6 +73,7 @@ export const getCompositionsOnLambda = async ({
 		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: false,
+		requestHandler,
 	});
 
 	try {
@@ -87,9 +92,11 @@ export const getCompositionsOnLambda = async ({
 				bucketName: bucketName ?? null,
 				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 				forcePathStyle: forcePathStyle ?? false,
+				mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 			},
 			region,
 			timeoutInTest: 120000,
+			requestHandler,
 		});
 		return res.compositions;
 	} catch (err) {

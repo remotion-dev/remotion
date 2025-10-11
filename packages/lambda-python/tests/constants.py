@@ -1,0 +1,5 @@
+TEST_REGION = "us-east-1"
+TEST_SERVE_URL = "https://example.com"
+TEST_FUNCTION_NAME = "remotion-render"
+TEST_AWS_SECRET_KEY = "test-secret-key"
+TEST_AWS_ACCESS_KEY = "test-access-key"

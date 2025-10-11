@@ -5,67 +5,71 @@ import {nodeReader} from '../readers/from-node';
 
 // bun crash
 if (process.platform !== 'win32') {
-	test('Should stream ISO base media', async () => {
-		let videoTracks = 0;
-		let audioTracks = 0;
-		let videoSamples = 0;
-		let audioSamples = 0;
-		const result = await parseMedia({
-			src: exampleVideos.iphonevideo,
-			fields: {
-				durationInSeconds: true,
-				fps: true,
-				videoCodec: true,
-				audioCodec: true,
-				tracks: true,
-				dimensions: true,
-				rotation: true,
-				unrotatedDimensions: true,
-				numberOfAudioChannels: true,
-				sampleRate: true,
-				slowVideoBitrate: true,
-				slowAudioBitrate: true,
-			},
-			reader: nodeReader,
-			onVideoTrack: ({track}) => {
-				expect(track.timescale).toBe(600);
-				videoTracks++;
-				return () => {
-					videoSamples++;
-				};
-			},
-			onAudioTrack: () => {
-				audioTracks++;
-				return () => {
-					audioSamples++;
-				};
-			},
-			acknowledgeRemotionLicense: true,
-		});
-		expect(result.dimensions).toEqual({
-			width: 2160,
-			height: 3840,
-		});
-		expect(result.durationInSeconds).toBe(12.568333333333333);
-		expect(result.fps).toBe(29.99602174777881);
-		expect(result.videoCodec).toBe('h265');
-		expect(result.audioCodec).toBe('aac');
-		expect(result.tracks.videoTracks.length).toBe(1);
-		expect(result.tracks.videoTracks[0].codec).toBe('hvc1.2.4.L150.b0');
-		expect(result.rotation).toBe(-90);
-		expect(result.unrotatedDimensions).toEqual({
-			height: 2160,
-			width: 3840,
-		});
-		expect(result.sampleRate).toBe(44100);
-		expect(result.numberOfAudioChannels).toBe(2);
-		expect(result.slowVideoBitrate).toBe(24_521_925.585937504);
-		expect(result.slowAudioBitrate).toBe(163_756.20978860298);
-		expect(videoTracks).toBe(1);
-		expect(audioTracks).toBe(1);
-		expect(videoSamples).toBe(377);
-		expect(audioSamples).toBe(544);
-	});
+	test(
+		'Should stream ISO base media',
+		async () => {
+			let videoTracks = 0;
+			let audioTracks = 0;
+			let videoSamples = 0;
+			let audioSamples = 0;
+			const result = await parseMedia({
+				src: exampleVideos.iphonevideo,
+				fields: {
+					durationInSeconds: true,
+					fps: true,
+					videoCodec: true,
+					audioCodec: true,
+					tracks: true,
+					dimensions: true,
+					rotation: true,
+					unrotatedDimensions: true,
+					numberOfAudioChannels: true,
+					sampleRate: true,
+					slowVideoBitrate: true,
+					slowAudioBitrate: true,
+				},
+				reader: nodeReader,
+				onVideoTrack: () => {
+					videoTracks++;
+					return () => {
+						videoSamples++;
+					};
+				},
+				onAudioTrack: () => {
+					audioTracks++;
+					return () => {
+						audioSamples++;
+					};
+				},
+				acknowledgeRemotionLicense: true,
+			});
+			expect(result.dimensions).toEqual({
+				width: 2160,
+				height: 3840,
+			});
+			expect(result.durationInSeconds).toBe(12.568333333333333);
+			expect(result.fps).toBe(29.99602174777881);
+			expect(result.videoCodec).toBe('h265');
+			expect(result.audioCodec).toBe('aac');
+			expect(result.tracks.find((t) => t.type === 'video')?.codec).toBe(
+				'hvc1.2.4.L150.b0',
+			);
+			expect(result.rotation).toBe(90);
+			expect(result.unrotatedDimensions).toEqual({
+				height: 2160,
+				width: 3840,
+			});
+			expect(result.sampleRate).toBe(44100);
+			expect(result.numberOfAudioChannels).toBe(2);
+			expect(result.slowVideoBitrate).toBe(24_645_472.377668746);
+			expect(result.slowAudioBitrate).toBe(164057.77562631425);
+			expect(videoTracks).toBe(1);
+			expect(audioTracks).toBe(1);
+			expect(videoSamples).toBe(377);
+			expect(audioSamples).toBe(544);
+		},
+		{timeout: 15000},
+	);
 
 	test('Should get keyframes', async () => {
 		const {slowKeyframes, internalStats} = await parseMedia({
@@ -79,7 +83,7 @@ if (process.platform !== 'win32') {
 		});
 		expect(internalStats).toEqual({
 			finalCursorOffset: 39062928,
-			skippedBytes: 2070,
+			skippedBytes: 71164,
 		});
 		expect(slowKeyframes).toEqual([
 			{
@@ -97,7 +101,7 @@ if (process.platform !== 'win32') {
 				trackId: 1,
 			},
 			{
-				decodingTimeInSeconds: 2.033333333333333,
+				decodingTimeInSeconds: 2.0333333333333337,
 				positionInBytes: 5928534,
 				presentationTimeInSeconds: 2.1333333333333333,
 				sizeInBytes: 204071,
@@ -111,16 +115,16 @@ if (process.platform !== 'win32') {
 				trackId: 1,
 			},
 			{
-				decodingTimeInSeconds: 4.166666666666666,
+				decodingTimeInSeconds: 4.166666666666667,
 				positionInBytes: 13242642,
 				presentationTimeInSeconds: 4.266666666666667,
 				sizeInBytes: 213213,
 				trackId: 1,
 			},
 			{
-				decodingTimeInSeconds: 5.233333333333333,
+				decodingTimeInSeconds: 5.233333333333334,
 				positionInBytes: 16387233,
-				presentationTimeInSeconds: 5.333333333333333,
+				presentationTimeInSeconds: 5.333333333333334,
 				sizeInBytes: 250679,
 				trackId: 1,
 			},
@@ -146,9 +150,9 @@ if (process.platform !== 'win32') {
 				trackId: 1,
 			},
 			{
-				decodingTimeInSeconds: 9.501666666666667,
+				decodingTimeInSeconds: 9.501666666666669,
 				positionInBytes: 29786012,
-				presentationTimeInSeconds: 9.601666666666667,
+				presentationTimeInSeconds: 9.601666666666668,
 				sizeInBytes: 250183,
 				trackId: 1,
 			},

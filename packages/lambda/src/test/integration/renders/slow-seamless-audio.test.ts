@@ -17,7 +17,7 @@ test(
 			composition: 'framer',
 			frameRange: [1700, 1740],
 			imageFormat: 'none',
-			logLevel: 'error',
+			logLevel: 'verbose',
 			region: 'eu-central-1',
 			framesPerLambda: 22,
 			inputProps: {playbackRate: 0.5},
@@ -59,6 +59,7 @@ test(
 			expectedBucketOwner: 'abc',
 			prefix: rendersPrefix(renderId),
 			forcePathStyle: false,
+			requestHandler: null,
 		});
 
 		expect(files.length).toBe(2);
@@ -77,6 +78,7 @@ test(
 			expectedBucketOwner: 'abc',
 			prefix: rendersPrefix(renderId),
 			forcePathStyle: false,
+			requestHandler: null,
 		});
 
 		expect(expectFiles.length).toBe(0);

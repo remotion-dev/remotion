@@ -1,20 +1,21 @@
-import type {Track} from '../get-tracks';
-import type {LogLevel} from '../log';
+import type {Options, ParseMediaFields} from '../fields';
+import type {MediaParserTrack} from '../get-tracks';
+import type {MediaParserLogLevel} from '../log';
 import {Log} from '../log';
-import type {Options, ParseMediaFields, ParseMediaSrc} from '../options';
+import type {ParseMediaSrc} from '../options';
 import type {CanSkipTracksState} from './can-skip-tracks';
 
 export const makeTracksSectionState = (
 	canSkipTracksState: CanSkipTracksState,
 	src: ParseMediaSrc,
 ) => {
-	const tracks: Track[] = [];
+	const tracks: MediaParserTrack[] = [];
 	let doneWithTracks = false;
 
 	return {
 		hasAllTracks: () => doneWithTracks,
 		getIsDone: () => doneWithTracks,
-		setIsDone: (logLevel: LogLevel) => {
+		setIsDone: (logLevel: MediaParserLogLevel) => {
 			if (doneWithTracks) {
 				throw new Error(
 					'Error in Media Parser: Tracks have already been parsed',
@@ -24,10 +25,12 @@ export const makeTracksSectionState = (
 			Log.verbose(logLevel, 'All tracks have been parsed');
 			doneWithTracks = true;
 		},
-		addTrack: (track: Track) => {
+		addTrack: (track: MediaParserTrack) => {
 			tracks.push(track);
 		},
-		getTracks: () => tracks,
+		getTracks: () => {
+			return tracks;
+		},
 		ensureHasTracksAtEnd: (fields: Options<ParseMediaFields>) => {
 			if (canSkipTracksState.canSkipTracks()) {
 				return;

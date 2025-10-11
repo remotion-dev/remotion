@@ -15,5 +15,5 @@ export const playbackLogging = ({
 		.filter(Boolean)
 		.join(' ');
 
-	Log.trace(logLevel, `[${tags}]`, message);
+	Log.trace({logLevel, tag: null}, `[${tags}]`, message);
 };

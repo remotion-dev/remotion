@@ -17,12 +17,17 @@ const getClient = (url: string) => {
 	);
 };
 
+type NodeRequestAndResponse = {
+	request: http.ClientRequest;
+	response: http.IncomingMessage;
+};
+
 const readFileWithoutRedirect = (
 	url: string,
-): Promise<http.IncomingMessage> => {
-	return new Promise<http.IncomingMessage>((resolve, reject) => {
+): Promise<NodeRequestAndResponse> => {
+	return new Promise<NodeRequestAndResponse>((resolve, reject) => {
 		const client = getClient(url);
-		client(
+		const req = client(
 			url,
 			// Bun 1.1.16 does not support the `headers` option
 			typeof Bun === 'undefined'
@@ -34,9 +39,12 @@ const readFileWithoutRedirect = (
 					}
 				: {},
 			(res) => {
-				resolve(res);
+				resolve({request: req, response: res});
 			},
-		).on('error', (err) => {
+		);
+
+		req.on('error', (err) => {
+			req.destroy();
 			return reject(err);
 		});
 	});
@@ -45,31 +53,37 @@ const readFileWithoutRedirect = (
 export const readFile = async (
 	url: string,
 	redirectsSoFar = 0,
-): Promise<http.IncomingMessage> => {
+): Promise<NodeRequestAndResponse> => {
 	if (redirectsSoFar > 10) {
 		throw new Error(`Too many redirects while downloading ${url}`);
 	}
 
-	const file = await readFileWithoutRedirect(url);
-	if (redirectStatusCodes.includes(file.statusCode as number)) {
-		if (!file.headers.location) {
+	const {request, response} = await readFileWithoutRedirect(url);
+	if (redirectStatusCodes.includes(response.statusCode as number)) {
+		if (!response.headers.location) {
 			throw new Error(
-				`Received a status code ${file.statusCode} but no "Location" header while calling ${file.headers.location}`,
+				`Received a status code ${response.statusCode} but no "Location" header while calling ${response.headers.location}`,
 			);
 		}
 
 		const {origin} = new URL(url);
-		const redirectUrl = new URL(file.headers.location, origin).toString();
+		const redirectUrl = new URL(response.headers.location, origin).toString();
+
+		request.destroy();
+		response.destroy();
 
 		return readFile(redirectUrl, redirectsSoFar + 1);
 	}
 
-	if ((file.statusCode as number) >= 400) {
-		const body = await tryToObtainBody(file);
+	if ((response.statusCode as number) >= 400) {
+		const body = await tryToObtainBody(response);
+
+		request.destroy();
+		response.destroy();
 
 		throw new Error(
 			[
-				`Received a status code of ${file.statusCode} while downloading file ${url}.`,
+				`Received a status code of ${response.statusCode} while downloading file ${url}.`,
 				body ? `The response body was:` : null,
 				body ? `---` : null,
 				body ? body : null,
@@ -80,7 +94,7 @@ export const readFile = async (
 		);
 	}
 
-	return file;
+	return {request, response};
 };
 
 const tryToObtainBody = async (file: http.IncomingMessage) => {

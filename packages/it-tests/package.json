@@ -3,22 +3,24 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/it-tests"
 	},
 	"name": "@remotion/it-tests",
-	"version": "4.0.274",
+	"version": "4.0.357",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"scripts": {
-		"test": "bun test src/rendering --run",
-		"testssr": "bun test src/ssr src/bundle src/templates src/monorepo --timeout 40000",
+		"test": " node --test src/node-version/media-parser.mjs && bun test src/rendering --run ",
+		"testssr": "bun test src/ssr src/bundle src/webcodecs src/templates src/monorepo --timeout 40000",
 		"testlambda": "exit 0",
 		"lint": "tsc -d",
-		"formatting": "prettier src --check"
+		"formatting": "prettier --experimental-cli src --check"
 	},
 	"private": true,
 	"devDependencies": {
+		"@types/node": "20.12.14",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/lambda": "workspace:*",
 		"@remotion/lambda-client": "workspace:*",
 		"@remotion/compositor-darwin-arm64": "workspace:*",
+		"@remotion/compositor-darwin-x64": "workspace:*",
 		"@remotion/compositor-win32-x64-msvc": "workspace:*",
 		"@remotion/compositor-linux-x64-gnu": "workspace:*",
 		"@remotion/cloudrun": "workspace:*",

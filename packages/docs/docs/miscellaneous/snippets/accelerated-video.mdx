@@ -5,20 +5,21 @@ sidebar_label: Changing speed over time
 crumb: 'Snippets'
 ---
 
+:::note
+This does not work with [`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media) yet.
+:::
+
 import {AcceleratedVideoExample} from '../../../components/AcceleratedVideoPlayerExample.tsx';
 
 To speed up a video over time - for example to start with regular speed and then increasingly make it faster - we need to write some code to ensure we stay within Remotion's rules.
 
-It is not as easy as interpolating the [`playbackRate`](/docs/video#playbackrate):
+It is not as easy as interpolating the [`playbackRate`](/docs/offthreadvideo#playbackrate):
 
 ```tsx twoslash title="❌ Does not work"
 import {interpolate, OffthreadVideo} from 'remotion';
 let frame = 0;
 // ---cut---
-<OffthreadVideo
-  playbackRate={interpolate(frame, [0, 100], [1, 5])}
-  src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#disable"
-/>;
+<OffthreadVideo playbackRate={interpolate(frame, [0, 100], [1, 5])} src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#disable" />;
 ```
 
 This is because Remotion will evaluate each frame independently from the other frames. If `frame` is 100, the `playbackRate` evaluates as 5 and Remotion will render the 500th frame of the video, which is undesired because it does not take into account that the speed has been building up to 5 until now.
@@ -47,11 +48,7 @@ export const AcceleratedVideo: React.FC = () => {
 
   return (
     <Sequence from={frame}>
-      <OffthreadVideo
-        startFrom={Math.round(remappedFrame)}
-        playbackRate={speedFunction(frame)}
-        src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#disable"
-      />
+      <OffthreadVideo trimBefore={Math.round(remappedFrame)} playbackRate={speedFunction(frame)} src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#disable" />
     </Sequence>
   );
 };
@@ -69,6 +66,6 @@ Note that the timeline in the Remotion Studio might move as you play the video b
 
 ## See also
 
-- [`<OffthreadVideo>`](/docs/video)
+- [`<OffthreadVideo>`](/docs/offthreadvideo)
 - [Different segments at different speeds](/docs/miscellaneous/snippets/different-segments-at-different-speeds)
 - [Jump Cutting](/docs/miscellaneous/snippets/jumpcuts)

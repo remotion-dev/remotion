@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
@@ -48,7 +49,7 @@ func main() {
 		InputProps: map[string]interface{}{
 			"data": "Let's play",
 		},
-		Composition: "main", // The composition to use
+		Composition: "react-svg", // The composition to use
 
 	}
 
@@ -82,7 +83,6 @@ func main() {
 	fmt.Print(renderResponse.RenderId)
 	/// Get bucket information
 	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.RenderId, renderResponse.RenderId)
-
 	// Render Progress request
 	renderProgressInputRequest := lambda_go_sdk.RenderConfig{
 		FunctionName: functionName,
@@ -91,14 +91,33 @@ func main() {
 		BucketName:   renderResponse.BucketName,
 		LogLevel:     "info",
 	}
-	// Execute getting the render progress
-	renderProgressResponse, renderProgressError := lambda_go_sdk.GetRenderProgress(renderProgressInputRequest)
 
-	// Check if we have error
-	if renderProgressError != nil {
-		log.Fatalf("%s %s", "Invalid render progress response", renderProgressError)
+	// Keep checking progress until render is complete
+	for {
+		// Execute getting the render progress
+		renderProgressResponse, renderProgressError := lambda_go_sdk.GetRenderProgress(renderProgressInputRequest)
+
+		// Check if we have error
+		if renderProgressError != nil {
+			log.Fatalf("%s %s", "Invalid render progress response", renderProgressError)
+		}
+
+		if len(renderProgressResponse.Errors) > 0 {
+			fmt.Printf("errors: %v\n", renderProgressResponse.Errors)
+		}
+		if renderProgressResponse.FatalErrorEncountered {
+			log.Fatalf("%s %v", "Fatal error encountered", renderProgressResponse.Errors)
+		}
+
+		// Get the overall render progress
+		fmt.Printf("overallprogress: %f\n", renderProgressResponse.OverallProgress)
+
+		if renderProgressResponse.OverallProgress >= 1.0 {
+			fmt.Printf("Render completed %s\n", *renderProgressResponse.OutputFile)
+			break
+		}
+
+		// Wait a bit before checking again
+		time.Sleep(1 * time.Second)
 	}
-
-	// Get the overall render progress
-	fmt.Printf("overallprogress: %f ", renderProgressResponse.OverallProgress)
 }

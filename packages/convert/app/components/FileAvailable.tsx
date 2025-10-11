@@ -13,6 +13,7 @@ import {Page} from './Page';
 import {Probe} from './Probe';
 import {ReplaceVideo} from './ReplaceVideo';
 import type {VideoThumbnailRef} from './VideoThumbnail';
+import Transcribe from './transcribe/App';
 import {useProbe} from './use-probe';
 
 export const FileAvailable: React.FC<{
@@ -84,7 +85,8 @@ export const FileAvailable: React.FC<{
 						}
 						mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
 					/>
-					{routeAction.type !== 'generic-probe' ? (
+					{routeAction.type !== 'generic-probe' &&
+					routeAction.type !== 'transcribe' ? (
 						<>
 							<div className="h-8 lg:h-0 lg:w-8" />
 							<div
@@ -103,6 +105,7 @@ export const FileAvailable: React.FC<{
 										unrotatedDimensions={probeResult.unrotatedDimensions}
 										dimensions={probeResult.dimensions}
 										durationInSeconds={probeResult.durationInSeconds ?? null}
+										fps={probeResult.fps ?? null}
 										logLevel="verbose"
 										action={routeAction}
 										enableRotateOrMirror={enableRotateOrMirrow}
@@ -115,14 +118,19 @@ export const FileAvailable: React.FC<{
 										setFlipVertical={setFlipVertical}
 										videoThumbnailRef={videoThumbnailRef}
 										rotation={probeResult.rotation}
+										probeController={probeResult.controller}
+										sampleRate={probeResult.sampleRate}
 									/>
 								</div>
 							</div>
 						</>
 					) : null}
+					{routeAction.type === 'transcribe' ? (
+						<Transcribe src={src} name={probeResult.name ?? ''} />
+					) : null}
 				</div>
 				<div className="h-16" />
-				<Footer />
+				<Footer routeAction={routeAction} />
 				<ReplaceVideo setSrc={setSrc} />
 			</div>
 		</Page>

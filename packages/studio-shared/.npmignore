@@ -2,4 +2,5 @@ src
 tsconfig.json
 dist/test
 .eslintrc.js
+eslint.config.mjs
 .prettierrc.js

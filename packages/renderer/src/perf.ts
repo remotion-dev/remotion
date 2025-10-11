@@ -1,14 +1,7 @@
-type PerfId =
-	| 'activate-target'
-	| 'capture'
-	| 'save'
-	| 'extract-frame'
-	| 'piping';
+type PerfId = 'capture' | 'extract-frame' | 'piping';
 
 const perf: {[key in PerfId]: number[]} = {
-	'activate-target': [],
 	capture: [],
-	save: [],
 	'extract-frame': [],
 	piping: [],
 };

@@ -3,12 +3,12 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda"
 	},
 	"name": "@remotion/lambda",
-	"version": "4.0.274",
+	"version": "4.0.357",
 	"description": "Render Remotion videos on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"testlambda": "exit 0",
 		"test": "bun test src/test/unit",
@@ -19,14 +19,15 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
 	"dependencies": {
-		"@aws-sdk/s3-request-presigner": "3.738.0",
-		"@aws-sdk/client-lambda": "3.738.0",
-		"@aws-sdk/client-s3": "3.738.0",
-		"@aws-sdk/client-sts": "3.738.0",
-		"@aws-sdk/client-iam": "3.738.0",
-		"@aws-sdk/client-cloudwatch-logs": "3.738.0",
-		"@aws-sdk/client-service-quotas": "3.738.0",
-		"@aws-sdk/lib-storage": "3.738.0",
+		"@aws-sdk/s3-request-presigner": "3.787.0",
+		"@aws-sdk/middleware-flexible-checksums": "3.787.0",
+		"@aws-sdk/client-lambda": "3.787.0",
+		"@aws-sdk/client-s3": "3.787.0",
+		"@aws-sdk/client-sts": "3.787.0",
+		"@aws-sdk/client-iam": "3.787.0",
+		"@aws-sdk/client-cloudwatch-logs": "3.787.0",
+		"@aws-sdk/client-service-quotas": "3.787.0",
+		"@aws-sdk/lib-storage": "3.787.0",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/lambda-client": "workspace:*",
@@ -48,9 +49,10 @@
 		"@types/minimist": "1.2.2",
 		"@types/prompt": "^1.1.0",
 		"eslint": "9.19.0",
-		"next": "15.1.6",
+		"next": "15.4.7",
 		"pureimage": "0.4.13",
-		"zip-lib": "^0.7.2"
+		"zip-lib": "^0.7.2",
+		"@types/node": "20.12.14"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"
@@ -82,10 +84,10 @@
 	"typesVersions": {
 		">=1.0": {
 			"client": [
-				"dist/client.d.ts"
+				"./dist/client.d.ts"
 			],
 			"policies": [
-				"dist/policies.d.ts"
+				"./dist/policies.d.ts"
 			]
 		}
 	},

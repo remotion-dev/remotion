@@ -6,13 +6,12 @@ slug: /media-parser/parse-media
 crumb: '@remotion/media-parser'
 ---
 
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 _Part of the [`@remotion/media-parser`](/docs/media-parser) package._
 _available from v4.0.190_
-
-:::warning
-**Unstable API**: This package is experimental. The API may change in the future.  
-The API for getting video metadata is stable and may be used in production.
-:::
 
 ## Examples
 
@@ -20,7 +19,7 @@ The API for getting video metadata is stable and may be used in production.
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
-  src: 'https://example.com/my-video.mp4',
+  src: 'https://remotion.media/video.mp4',
   fields: {
     durationInSeconds: true,
     dimensions: true,
@@ -36,7 +35,7 @@ import {parseMedia} from '@remotion/media-parser';
 import {nodeReader} from '@remotion/media-parser/node';
 
 const result = await parseMedia({
-  src: '/Users/jonnyburger/Downloads/my-video.mp4',
+  src: '/Users/jonnyburger/Downloads/video.mp4',
   fields: {
     durationInSeconds: true,
     dimensions: true,
@@ -77,16 +76,20 @@ A [controller](/docs/media-parser/media-parser-controller) object that allows yo
 
 ### `onVideoTrack?`
 
-A callback that is called when a video track is detected.  
-It receives an object with `track` and `container` (API not yet stable).  
+[A callback that is called when a video track is detected.](/docs/media-parser/samples)  
+It receives an object with:
+
+- `track` (of type [`MediaParserVideoTrack`](/docs/media-parser/types#mediaparservideotrack))
+- `container` (of type [`MediaParserContainer`](/docs/media-parser/types#mediaparsercontainer))
+
 You must return either `null` or a callback that is called for each sample that corresponds to the video track.
 
-The `sample` has the type `VideoSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk) constructor.
+The `sample` has the type [`MediaParserVideoSample`](/docs/media-parser/types#mediaparservideosample), which is compatible with the mandatory fields for the WebCodecs [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk) constructor.
 
 ```tsx twoslash title="Reading video frames"
-import {parseMedia, OnVideoTrack} from '@remotion/media-parser';
+import {parseMedia, MediaParserOnVideoTrack} from '@remotion/media-parser';
 
-const onVideoTrack: OnVideoTrack = ({track}) => {
+const onVideoTrack: MediaParserOnVideoTrack = ({track}) => {
   console.log(track);
 
   return (sample) => {
@@ -97,17 +100,21 @@ const onVideoTrack: OnVideoTrack = ({track}) => {
 
 ### `onAudioTrack?`
 
-A callback that is called when an audio track is detected.  
-It receives an object with `track` and `container` (API not yet stable).  
+[A callback that is called when an audio track is detected.](/docs/media-parser/samples)  
+It receives an object with:
+
+- `track` (of type [`MediaParserAudioTrack`](/docs/media-parser/types#mediaparseraudiotrack))
+- `container` (of type [`MediaParserContainer`](/docs/media-parser/types#mediaparsercontainer))
+
 You must return either `null` or a callback that is called for each sample that corresponds to the audio track.
 
-The `sample` has the type `AudioSample` and while not all fields are stable, it has all the mandatory fields for the [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk) constructor.
+The `sample` has the type [`MediaParserAudioSample`](/docs/media-parser/types#mediaparseraudiosample), which is compatible with the mandatory fields for the WebCodecs [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk) constructor.
 
 ```tsx twoslash title="Reading audio frames"
 // @noErrors
-import {parseMedia, OnAudioTrack} from '@remotion/media-parser';
+import {parseMedia, MediaParserOnAudioTrack} from '@remotion/media-parser';
 
-const onAudioTrack: OnAudioTrack = ({track}) => {
+const onAudioTrack: MediaParserOnAudioTrack = ({track}) => {
   console.log(track);
 
   return (sample) => {
@@ -149,6 +156,18 @@ The interval in milliseconds at which the [`onParseProgress`](#onparseprogress) 
 Default `100`. Set to `0` for unthrottled and synchronous updates.  
 Note that updates are fired very often and updating the DOM often may slow down the conversion process.
 
+### `makeSamplesStartAtZero`
+
+_boolean_
+
+If this is set to true, the timestamps of the samples returned will be recalculated so they start at 0 instead of the timestamps that are contained in the file. Default `true`.
+
+### `seekingHints?`
+
+An object that contains hints about the structure of the media file.
+
+See [Seeking Hints](/docs/media-parser/seeking-hints) for more information.
+
 ### `logLevel?`
 
 One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
@@ -169,7 +188,7 @@ However, just like with [`fields`](#fields), adding a callback for a [slow field
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
-  src: 'https://example.com/my-video.mp4',
+  src: 'https://remotion.media/video.mp4',
   onDurationInSeconds: (durationInSeconds) => {
     console.log(durationInSeconds);
   },

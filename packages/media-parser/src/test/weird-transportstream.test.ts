@@ -10,11 +10,11 @@ test('aac packets smaller than 188', async () => {
 		logLevel: 'info',
 		onAudioTrack: () => {
 			return (s) => {
-				if (s.dts < lastAudioTimestamp) {
+				if (s.decodingTimestamp < lastAudioTimestamp) {
 					throw new Error('Audio timestamp is not increasing');
 				}
 
-				lastAudioTimestamp = s.dts;
+				lastAudioTimestamp = s.decodingTimestamp;
 				audioSamples += 1;
 			};
 		},

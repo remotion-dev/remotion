@@ -6,13 +6,13 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import {cancelRender, continueRender, delayRender} from 'remotion';
+import {cancelRender, useDelayRender} from 'remotion';
 import {combineFloat32Arrays} from './combine-float32-arrays';
 import {getPartialWaveData} from './get-partial-wave-data';
 import {isRemoteAsset} from './is-remote-asset';
 import type {WaveProbe} from './probe-wave-file';
 import {probeWaveFile} from './probe-wave-file';
-import type {AudioData} from './types';
+import type {MediaUtilsAudioData} from './types';
 
 type WaveformMap = Record<number, Float32Array>;
 
@@ -25,7 +25,7 @@ export type UseWindowedAudioDataOptions = {
 };
 
 export type UseWindowedAudioDataReturnValue = {
-	audioData: AudioData | null;
+	audioData: MediaUtilsAudioData | null;
 	dataOffsetInSeconds: number;
 };
 
@@ -53,6 +53,8 @@ export const useWindowedAudioData = ({
 		};
 	}, []);
 
+	const {delayRender, continueRender} = useDelayRender();
+
 	const fetchMetadata = useCallback(
 		async (signal: AbortSignal) => {
 			const handle = delayRender(
@@ -77,7 +79,7 @@ export const useWindowedAudioData = ({
 				signal.removeEventListener('abort', cont);
 			}
 		},
-		[src],
+		[src, delayRender, continueRender],
 	);
 
 	useLayoutEffect(() => {
@@ -98,7 +100,9 @@ export const useWindowedAudioData = ({
 		}
 
 		const maxWindowIndex = Math.floor(
-			waveProbe.durationInSeconds / windowInSeconds,
+			// If an audio is exactly divisible by windowInSeconds, we need to
+			// subtract 0.000000000001 to avoid fetching an extra window.
+			waveProbe.durationInSeconds / windowInSeconds - 0.000000000001,
 		);
 
 		// needs to be in order because we rely on the concatenation below
@@ -194,7 +198,7 @@ export const useWindowedAudioData = ({
 		});
 	}, [fetchAndSetWaveformData, waveProbe, windowsToFetch]);
 
-	const currentAudioData = useMemo((): AudioData | null => {
+	const currentAudioData = useMemo((): MediaUtilsAudioData | null => {
 		if (!waveProbe) {
 			return null;
 		}
@@ -226,7 +230,7 @@ export const useWindowedAudioData = ({
 		return () => {
 			continueRender(handle);
 		};
-	}, [currentAudioData, src]);
+	}, [currentAudioData, src, delayRender, continueRender]);
 
 	return {
 		audioData: currentAudioData,

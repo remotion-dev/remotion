@@ -4,6 +4,7 @@ import {
 	useZodIfPossible,
 	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
+import type {JSONPath} from './zod-types';
 import {ZodArrayEditor} from './ZodArrayEditor';
 import {ZodBooleanEditor} from './ZodBooleanEditor';
 import {ZodColorEditor} from './ZodColorEditor';
@@ -12,6 +13,7 @@ import {ZodDefaultEditor} from './ZodDefaultEditor';
 import {ZodDiscriminatedUnionEditor} from './ZodDiscriminatedUnionEditor';
 import {ZodEffectEditor} from './ZodEffectEditor';
 import {ZodEnumEditor} from './ZodEnumEditor';
+import {ZodMatrixEditor} from './ZodMatrixEditor';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
 import {ZodNullableEditor} from './ZodNullableEditor';
 import {ZodNumberEditor} from './ZodNumberEditor';
@@ -22,7 +24,6 @@ import {ZodStringEditor} from './ZodStringEditor';
 import {ZodTextareaEditor} from './ZodTextareaEditor';
 import {ZodTupleEditor} from './ZodTupleEditor';
 import {ZodUnionEditor} from './ZodUnionEditor';
-import type {JSONPath} from './zod-types';
 
 export type UpdaterFunction<T> = (
 	updater: (oldValue: T) => T,
@@ -305,6 +306,28 @@ export const ZodSwitch: React.FC<{
 					schema={schema}
 					onSave={onSave as UpdaterFunction<string>}
 					defaultValue={defaultValue as string}
+					showSaveButton={showSaveButton}
+					onRemove={onRemove}
+					saving={saving}
+					saveDisabledByParent={saveDisabledByParent}
+					mayPad={mayPad}
+				/>
+			);
+		}
+
+		if (
+			zodTypes &&
+			schema._def.description ===
+				zodTypes.ZodZypesInternals.REMOTION_MATRIX_BRAND
+		) {
+			return (
+				<ZodMatrixEditor
+					setValue={setValue as UpdaterFunction<unknown[]>}
+					value={value as unknown[]}
+					jsonPath={jsonPath}
+					schema={schema._def.schema}
+					defaultValue={defaultValue as unknown[]}
+					onSave={onSave as UpdaterFunction<unknown[]>}
 					showSaveButton={showSaveButton}
 					onRemove={onRemove}
 					saving={saving}

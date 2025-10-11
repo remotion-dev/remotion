@@ -12,7 +12,7 @@ export const VideoOperationOption: React.FC<{
 
 	if (operation.type === 'copy') {
 		if (!currentVideoCodec) {
-			throw new Error('No current video codec');
+			return `Copy without re-encoding`;
 		}
 
 		return `Copy ${renderHumanReadableVideoCodec(currentVideoCodec)} without re-encoding`;

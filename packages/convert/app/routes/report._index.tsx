@@ -11,6 +11,9 @@ import {Textarea} from '~/components/ui/textarea';
 type Product = 'remotion' | 'media-parser' | 'webcodecs';
 type Usage = 'public-testset' | 'internally' | 'confidential';
 
+// 1GB file size limit
+const MAX_FILE_SIZE_BYTES = 1073741824;
+
 type SubmitStatus =
 	| {
 			type: 'idle';
@@ -30,6 +33,7 @@ const Report: React.FC = () => {
 	const [product, setProduct] = useState<Product | null>(null);
 	const [usage, setUsage] = useState<Usage | null>(null);
 	const [contact, setContact] = useState('');
+	const [fileSizeError, setFileSizeError] = useState<string | null>(null);
 
 	const [submitStatus, setSubmitStatus] = useState<SubmitStatus>({
 		type: 'idle',
@@ -79,11 +83,22 @@ const Report: React.FC = () => {
 					<DropZone
 						onFilename={(f) => {
 							setFilename(f);
+							setFileSizeError(null); // Clear any previous file size errors
 						}}
 						onUrl={(u) => {
 							setUrl(u);
 						}}
+						onError={(error) => {
+							setFileSizeError(error);
+						}}
+						maxSizeBytes={MAX_FILE_SIZE_BYTES}
 					/>
+					{fileSizeError && (
+						<p className="text-red-500 mt-2 text-sm">{fileSizeError}</p>
+					)}
+					<p className="text-muted-foreground text-sm mt-2">
+						<strong>Note:</strong> Maximum file size is 1GB.
+					</p>
 					<br />
 					<h2 className="font-brand mt-5 font-bold">
 						Which product has an issue with this video?
@@ -180,17 +195,17 @@ const Report: React.FC = () => {
 						</div>
 					</RadioGroup>
 					<h2 className="font-brand mt-5 font-bold">
-						Your email / Discord username
+						Your email / Discord username *
 					</h2>
 					<p className="text-muted-foreground text-sm">
-						For any follow-up questions, or to notify you when the issue is
-						fixed.
+						Required. For any follow-up questions, or to notify you when the
+						issue is fixed.
 					</p>
 
 					<Input
-						name="description"
+						name="contact"
 						className="mt-3"
-						placeholder="Your Email"
+						placeholder="Your Email or Discord username (required)"
 						value={contact}
 						onChange={(e) => setContact(e.target.value)}
 					/>

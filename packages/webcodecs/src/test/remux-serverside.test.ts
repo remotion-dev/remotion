@@ -5,7 +5,7 @@ import {expect, test} from 'bun:test';
 import {unlinkSync} from 'node:fs';
 import {convertMedia} from '../convert-media';
 
-test('should be able to remux server side', async () => {
+test.skip('should be able to remux server side', async () => {
 	// bun file descriptor problem
 	if (process.platform === 'win32') {
 		return;

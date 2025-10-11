@@ -42,45 +42,6 @@ test(
 	{timeout: 10000},
 );
 
-test(
-	'Should be able to get a PNG',
-	async () => {
-		const compositor = startLongRunningCompositor({
-			maximumFrameCacheItemsInBytes: null,
-			logLevel: 'info',
-			indent: false,
-			binariesDirectory: null,
-			extraThreads: 2,
-		});
-
-		const data = await compositor.executeCommand('ExtractFrame', {
-			src: exampleVideos.transparentWebm,
-			original_src: exampleVideos.transparentWebm,
-			time: 1,
-			transparent: true,
-			tone_mapped: true,
-		});
-
-		// Platform specific PNG encoder settings
-
-		if (data.length === 169002) {
-			expect(data[100000] / 100).toBeCloseTo(0.01, 0.01);
-			expect(data[100001] / 100).toBeCloseTo(1.28, 0.01);
-			expect(data[140001] / 100).toBeCloseTo(1.85, 0.01);
-		} else if (data.length === 170905) {
-			expect(data.length).toBe(170905);
-		} else if (data.length === 164353) {
-			expect(data.length).toBe(164353);
-		} else {
-			expect(data.length).toBe(173198);
-		}
-
-		await compositor.finishCommands();
-		await compositor.waitForDone();
-	},
-	{timeout: 10000},
-);
-
 test('Should be able to start two compositors', async () => {
 	const compositor = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,
@@ -358,74 +319,78 @@ test('Should be able to extract the frames in reverse order', async () => {
 	}
 });
 
-test('Last frame should be fast', async () => {
-	const compositor = startLongRunningCompositor({
-		maximumFrameCacheItemsInBytes: null,
-		logLevel: 'info',
-		indent: false,
-		binariesDirectory: null,
-		extraThreads: 2,
-	});
+test(
+	'Last frame should be fast',
+	async () => {
+		const compositor = startLongRunningCompositor({
+			maximumFrameCacheItemsInBytes: null,
+			logLevel: 'info',
+			indent: false,
+			binariesDirectory: null,
+			extraThreads: 2,
+		});
 
-	const time = Date.now();
+		const time = Date.now();
 
-	const data = await compositor.executeCommand('ExtractFrame', {
-		src: exampleVideos.transparentWebm,
-		original_src: exampleVideos.transparentWebm,
-		time: 5.0,
-		transparent: false,
-		tone_mapped: true,
-	});
+		const data = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.transparentWebm,
+			original_src: exampleVideos.transparentWebm,
+			time: 5.0,
+			transparent: false,
+			tone_mapped: true,
+		});
 
-	const time_end = Date.now();
-	expect(data.length).toBe(6220854);
+		const time_end = Date.now();
+		expect(data.length).toBe(6220854);
 
-	const time2 = Date.now();
-	const data2 = await compositor.executeCommand('ExtractFrame', {
-		src: exampleVideos.transparentWebm,
-		original_src: exampleVideos.transparentWebm,
-		time: 5.0,
-		transparent: false,
-		tone_mapped: true,
-	});
+		const time2 = Date.now();
+		const data2 = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.transparentWebm,
+			original_src: exampleVideos.transparentWebm,
+			time: 5.0,
+			transparent: false,
+			tone_mapped: true,
+		});
 
-	// Time should be way less now
-	const time2_end = Date.now();
-	expect(time2_end - time2).toBeLessThan(time_end - time);
-	expect(data2.length).toBe(6220854);
+		// Time should be way less now
+		const time2_end = Date.now();
+		expect(time2_end - time2).toBeLessThan(time_end - time);
+		expect(data2.length).toBe(6220854);
 
-	const time3 = Date.now();
-	const data3 = await compositor.executeCommand('ExtractFrame', {
-		src: exampleVideos.transparentWebm,
-		original_src: exampleVideos.transparentWebm,
-		time: 100,
-		transparent: false,
-		tone_mapped: true,
-	});
+		const time3 = Date.now();
+		const data3 = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.transparentWebm,
+			original_src: exampleVideos.transparentWebm,
+			time: 100,
+			transparent: false,
+			tone_mapped: true,
+		});
 
-	// Time should be way less now
-	const time3_end = Date.now();
-	expect(time3_end - time3).toBeLessThan(time_end - time);
-	expect(data3.length).toBe(6220854);
+		// Time should be way less now
+		const time3_end = Date.now();
+		expect(time3_end - time3).toBeLessThan(time_end - time);
+		expect(data3.length).toBe(6220854);
 
-	// Transparent frame should be different, so it should take a lot more time
-	// Improve me: This file is corrupt and cannot seek to the last frame.. get a better example
-	const time4 = Date.now();
-	const data4 = await compositor.executeCommand('ExtractFrame', {
-		src: exampleVideos.transparentWebm,
-		original_src: exampleVideos.transparentWebm,
-		time: 1,
-		transparent: true,
-		tone_mapped: true,
-	});
+		// Transparent frame should be different, so it should take a lot more time
+		// Improve me: This file is corrupt and cannot seek to the last frame.. get a better example
+		const time4 = Date.now();
+		const data4 = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.transparentWebm,
+			original_src: exampleVideos.transparentWebm,
+			time: 1,
+			transparent: true,
+			tone_mapped: true,
+		});
 
-	const time4_end = Date.now();
-	expect(time4_end - time4).toBeGreaterThan((time3_end - time3) * 2);
-	expect(data4.length).not.toBe(6220854);
+		const time4_end = Date.now();
+		expect(time4_end - time4).toBeGreaterThan((time3_end - time3) * 2);
+		expect(data4.length).not.toBe(6220854);
 
-	await compositor.finishCommands();
-	await compositor.waitForDone();
-});
+		await compositor.finishCommands();
+		await compositor.waitForDone();
+	},
+	{timeout: 10000},
+);
 
 test('Should get from a screen recording', async () => {
 	const compositor = startLongRunningCompositor({

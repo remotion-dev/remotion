@@ -12,7 +12,7 @@ const server = new McpServer({
 });
 
 server.tool(
-	'search-remotion-documentation',
+	'remotion-documentation',
 	{
 		query: z.string({
 			description: 'The query to search for. Keep it short and concise.',

@@ -33,7 +33,7 @@ export const quotasCommand = (args: string[], logLevel: LogLevel) => {
 	}
 
 	if (args[0] === INCREASE_SUBCOMMAND) {
-		return quotasIncreaseCommand(logLevel);
+		return quotasIncreaseCommand(logLevel, null);
 	}
 
 	CliInternals.Log.error(

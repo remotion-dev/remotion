@@ -1,0 +1,111 @@
+---
+slug: media-parser
+title: Remotion Media Parser
+author: Jonny Burger
+author_title: Chief Hacker @ Remotion
+author_url: https://github.com/JonnyBurger
+author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
+image: /img/media-parser.png
+---
+
+:::note
+Update September 2025: We are phasing out Media Parser and are moving to [Mediabunny](/docs/mediabunny)!
+:::
+
+We're taking video even more seriously with our own multimedia library, designed from the ground up for JavaScript and the web!
+
+<iframe
+  style={{
+    width: '100%',
+    aspectRatio: '16 / 9',
+  }}
+  src="https://www.youtube.com/embed/r3dUGdfVnkM"
+  title="YouTube video player"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+/>
+<br />
+
+[**Remotion Media Parser Docs**](/docs/media-parser)
+
+In short, what does Remotion Media Parser achieve?
+
+### Better metadata retrieval
+
+Get more information from more file formats, faster. An universal API that works on both the server and the client.
+
+You can choose which metadata you want to retrieve, and Media Parser will choose the fastest way.
+
+```tsx twoslash title="Get metadata from a video"
+import {parseMedia} from '@remotion/media-parser';
+
+// ---cut---
+const result = await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+    fps: true,
+    slowKeyframes: true,
+    slowVideoBitrate: true,
+    isHdr: true,
+    videoCodec: true,
+    rotation: true,
+    numberOfAudioChannels: true,
+    sampleRate: true,
+    metadata: true,
+  },
+});
+
+console.log(result.durationInSeconds);
+//                     ^?
+```
+
+### Video decoding and processing
+
+Media Parser ties into the WebCodecs API – hardware-accelerated decoding, built right into the browser. Previously hard to use, now made accessible!
+
+<img src="/img/decoding.png" alt="Video decoding" />
+
+```tsx twoslash title="Decode video frames"
+import {parseMedia} from '@remotion/media-parser';
+
+// ---cut---
+const result = await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  onVideoTrack: (track) => {
+    const videoDecoder = new VideoDecoder({
+      output: console.log,
+      error: console.error,
+    });
+
+    return (sample) => {
+      videoDecoder.decode(new EncodedVideoChunk(sample));
+    };
+  },
+});
+```
+
+:::note
+This is an oversimplified example - you might get performance problems running this code with longer videos because samples are being passed [faster than they can be decoded](/docs/media-parser/webcodecs).
+:::
+
+### Unlock new use cases
+
+<img src="/img/webcodecs-use-cases.png" alt="WebCodecs use cases" />
+
+Developers need a better way to work with video on the web.
+
+Media Parser is a foundational library that unlocks many upcoming improvements to Remotion and for the web in general. We will be implementing many of these ideas ourselves, but also invite you to build with Media Parser.
+
+### We built the fastest video converter on the web
+
+Try out [remotion.dev/convert](https://remotion.dev/convert), our web video converter powered by Remotion Media Parser and WebCodecs. Because it works offline and the conversion is hardware-accelerated, it is faster than any other web converter we could find!
+
+<img src="/img/converter.webp" alt="Converter" />
+
+<hr />
+
+- **Upvote Remotion Media Parser on [Product Hunt](https://www.producthunt.com/posts/remotion-media-parser)**
+- [**View Docs**](/docs/media-parser)

@@ -44,6 +44,12 @@ export const Checkmark = () => (
 	</svg>
 );
 
+const formatPlaybackRate = (rate: number): string => {
+	const str = rate.toString();
+	// If the string doesn't contain a decimal point, add ".0"
+	return str.includes('.') ? str : str + '.0';
+};
+
 const PlaybackrateOption: React.FC<{
 	readonly rate: number;
 	readonly selectedRate: number;
@@ -91,7 +97,7 @@ const PlaybackrateOption: React.FC<{
 			<div style={checkmarkContainer}>
 				{rate === selectedRate ? <Checkmark /> : null}
 			</div>
-			{rate.toFixed(1)}x
+			{formatPlaybackRate(rate)}x
 		</div>
 	);
 };

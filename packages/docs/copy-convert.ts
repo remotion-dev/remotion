@@ -90,6 +90,10 @@ extraPages.push({
 	type: 'report',
 });
 
+extraPages.push({
+	type: 'transcribe',
+});
+
 for (const page of extraPages) {
 	const slug = seo.makeSlug(page);
 	const pageTitle = seo.getPageTitle(page);

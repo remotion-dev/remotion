@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 
 export const isMoviAtom = (iterator: BufferIterator, ckId: string): boolean => {
 	if (ckId !== 'LIST') {

@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('parse m3u8', async () => {
 	let audioSamples = 0;
@@ -33,7 +34,7 @@ test('parse m3u8', async () => {
 			};
 		},
 		fields: {
-			structure: true,
+			slowStructure: true,
 			durationInSeconds: true,
 			dimensions: true,
 			tracks: true,
@@ -63,24 +64,34 @@ test('parse m3u8', async () => {
 		width: 1000,
 		height: 1000,
 	});
-	expect(tracks.videoTracks).toEqual([
+	expect(tracks.filter((t) => t.type === 'video')).toEqual([
 		{
+			startInSeconds: 0,
 			m3uStreamFormat: 'ts',
 			type: 'video',
 			codec: 'avc1.640028',
-			codecPrivate: new Uint8Array([
-				1, 100, 0, 40, 255, 225, 0, 30, 103, 100, 0, 40, 172, 217, 0, 252, 31,
-				249, 101, 192, 91, 129, 1, 2, 160, 0, 0, 3, 0, 42, 131, 166, 128, 1,
-				227, 6, 50, 192, 1, 0, 4, 104, 234, 239, 44, 253, 248, 248, 0,
-			]),
-			codecWithoutConfig: 'h264',
+			codecData: {
+				type: 'avc-sps-pps',
+				data: new Uint8Array([
+					1, 100, 0, 40, 255, 225, 0, 30, 103, 100, 0, 40, 172, 217, 0, 252, 31,
+					249, 101, 192, 91, 129, 1, 2, 160, 0, 0, 3, 0, 42, 131, 166, 128, 1,
+					227, 6, 50, 192, 1, 0, 4, 104, 234, 239, 44, 253, 248, 248, 0,
+				]),
+			},
+			codecEnum: 'h264',
 			codedHeight: 1000,
 			codedWidth: 1000,
-			color: {
-				matrixCoefficients: 'bt470bg',
-				transferCharacteristics: null,
+			colorSpace: {
+				matrix: 'bt470bg',
+				transfer: null,
 				primaries: null,
 				fullRange: true,
+			},
+			advancedColor: {
+				fullRange: true,
+				matrix: 'bt470bg',
+				primaries: null,
+				transfer: null,
 			},
 			description: undefined,
 			displayAspectHeight: 1000,
@@ -92,24 +103,27 @@ test('parse m3u8', async () => {
 				denominator: 1,
 				numerator: 1,
 			},
-			timescale: 90000,
+			originalTimescale: 90000,
 			trackId: 256,
-			trakBox: null,
 			width: 1000,
+			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		},
 	]);
-	expect(tracks.audioTracks).toEqual([
+	expect(tracks.filter((t) => t.type === 'audio')).toEqual([
 		{
+			startInSeconds: 0,
 			codec: 'mp4a.40.2',
-			codecPrivate: new Uint8Array([9, 144]),
-			codecWithoutConfig: 'aac',
-			description: undefined,
+			codecData: {type: 'aac-config', data: new Uint8Array([9, 144])},
+			codecEnum: 'aac',
+			description: new Uint8Array([9, 144]),
 			numberOfChannels: 2,
 			sampleRate: 48000,
-			timescale: 90000,
+			originalTimescale: 90000,
 			trackId: 257,
-			trakBox: null,
 			type: 'audio',
+			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		},
 	]);
 	expect(audioCodec).toBe('aac');
@@ -132,34 +146,34 @@ test('parse m3u8', async () => {
 	// url omitted, is dynamic
 	expect(m3uStreams).toMatchObject([
 		{
-			averageBandwidth: 1057100,
-			bandwidth: 1057100,
+			averageBandwidthInBitsPerSec: 1057100,
+			bandwidthInBitsPerSec: 1057100,
 			codecs: ['mp4a.40.2', 'avc1.640028'],
-			resolution: {width: 1000, height: 1000},
+			dimensions: {width: 1000, height: 1000},
 			id: 0,
 			associatedPlaylists: [],
 		},
 		{
-			averageBandwidth: 618200,
-			bandwidth: 618200,
+			averageBandwidthInBitsPerSec: 618200,
+			bandwidthInBitsPerSec: 618200,
 			codecs: ['mp4a.40.2', 'avc1.640020'],
-			resolution: {width: 720, height: 720},
+			dimensions: {width: 720, height: 720},
 			id: 1,
 			associatedPlaylists: [],
 		},
 		{
-			averageBandwidth: 358600,
-			bandwidth: 358600,
+			averageBandwidthInBitsPerSec: 358600,
+			bandwidthInBitsPerSec: 358600,
 			codecs: ['mp4a.40.2', 'avc1.64001f'],
-			resolution: {width: 480, height: 480},
+			dimensions: {width: 480, height: 480},
 			id: 2,
 			associatedPlaylists: [],
 		},
 		{
-			averageBandwidth: 214500,
-			bandwidth: 214500,
+			averageBandwidthInBitsPerSec: 214500,
+			bandwidthInBitsPerSec: 214500,
 			codecs: ['mp4a.40.2', 'avc1.640015'],
-			resolution: {width: 270, height: 270},
+			dimensions: {width: 270, height: 270},
 			id: 3,
 			associatedPlaylists: [],
 		},

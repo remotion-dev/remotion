@@ -70,7 +70,7 @@ Set the port to be used to host the Webpack bundle.
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setStudioPort(3004);
+Config.setRendererPort(3004);
 ```
 
 The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option.
@@ -176,7 +176,7 @@ Config.setShouldOpenBrowser(false);
 
 ## `setBrowserExecutable()`<AvailableFrom v="1.5.0" />
 
-Set a custom Chrome or Chromium executable path. By default Remotion will try to find an existing version of Chrome on your system and if not found, it will download one. This flag is useful if you don't have Chrome installed in a standard location and you want to prevent downloading an additional browser or need [support for the H264 codec](/docs/video#codec-support).
+Set a custom Chrome or Chromium executable path. By default Remotion will try to find an existing version of Chrome on your system and if not found, it will download one. This flag is useful if you don't have Chrome installed in a standard location and you want to prevent downloading an additional browser or need [support for the H264 codec](/docs/html5-video#codec-support).
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -341,6 +341,18 @@ Config.setMuted(true);
 ```
 
 The [command line flag](/docs/cli/render#--muted) `--muted` will take precedence over this option.
+
+## `setDisallowParallelEncoding()`<AvailableFrom v="4.0.315" />
+
+Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower. Default `false`.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDisallowParallelEncoding(true);
+```
+
+The [command line flag](/docs/cli/render#--disallow-parallel-encoding) `--disallow-parallel-encoding` will take precedence over this option.
 
 ## `setEnforceAudioTrack()`<AvailableFrom v="3.2.1" />
 
@@ -666,10 +678,23 @@ Config.setAudioBitrate('128K');
 
 The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will take precedence over this option.
 
+## `setAudioLatencyHint()`<AvailableFrom v="4.0.303" />
+
+<Options id="audio-latency-hint" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setAudioLatencyHint('interactive');
+```
+
+The `--audio-latency-hint` command line flag will take precedence over this option.
+
 ## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
 <Options id="enable-folder-expiry" />
-<br />
 <br />
 
 ```ts twoslash title="remotion.config.ts"
@@ -715,6 +740,20 @@ Config.setBeepOnFinish(true);
 ```
 
 The [command line flag](/docs/cli/studio#--beep-on-finish) `--beep-on-finish` will take precedence over this option.
+
+## `setEnableCrossSiteIsolation()`<AvailableFrom v="4.0.306" />
+
+<Options id="cross-site-isolation" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setEnableCrossSiteIsolation(true);
+```
+
+The [command line flag](/docs/cli/studio#--cross-site-isolation) `--cross-site-isolation` will take precedence over this option.
 
 ## `setBufferStateDelayInMilliseconds()`<AvailableFrom v="4.0.111" />
 
@@ -934,3 +973,21 @@ The old way is deprecated, but will work for the foreseeable future.
 ## See also
 
 - [Encoding guide](/docs/encoding)
+
+### setImageSequencePattern(pattern)
+
+Set the pattern for naming image sequence files when rendering an image sequence.
+
+- `[frame]` will be replaced with the zero-padded frame number (e.g. 0001, 0002, ...)
+- `[ext]` will be replaced with the image format extension (e.g. jpeg, png)
+
+**Example:**
+
+```js
+// remotion.config.ts
+import {Config} from 'remotion';
+
+Config.setImageSequencePattern('frame_[frame]_custom.[ext]');
+```
+
+This will produce files like `frame_0001_custom.jpeg`, `frame_0002_custom.jpeg`, ...

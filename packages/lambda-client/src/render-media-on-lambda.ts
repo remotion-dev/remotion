@@ -1,3 +1,4 @@
+import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
 	AudioCodec,
 	BrowserSafeApis,
@@ -28,6 +29,7 @@ import {
 import type {InnerRenderMediaOnLambdaInput} from './make-lambda-payload';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export type RenderMediaOnLambdaInput = {
 	region: AwsRegion;
@@ -49,6 +51,7 @@ export type RenderMediaOnLambdaInput = {
 	jpegQuality?: number;
 	maxRetries?: number;
 	framesPerLambda?: number;
+	concurrency?: number;
 	frameRange?: FrameRange;
 	outName?: OutNameInput<AwsProvider>;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
@@ -69,6 +72,8 @@ export type RenderMediaOnLambdaInput = {
 	dumpBrowserLogs?: boolean;
 	forcePathStyle?: boolean;
 	metadata?: Record<string, string> | null;
+	storageClass?: StorageClass | null;
+	requestHandler?: RequestHandler;
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type RenderMediaOnLambdaOutput = {
@@ -93,6 +98,7 @@ export const internalRenderMediaOnLambdaRaw = async (
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
 			timeoutInTest: 120000,
+			requestHandler: input.requestHandler,
 		});
 
 		return {
@@ -150,6 +156,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		colorSpace: options.colorSpace ?? null,
 		composition: options.composition,
 		concurrencyPerLambda: options.concurrencyPerLambda ?? 1,
+		concurrency: options.concurrency ?? null,
 		crf: options.crf,
 		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
 		envVariables: options.envVariables ?? {},
@@ -190,6 +197,9 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		indent: false,
 		metadata: options.metadata ?? null,
 		apiKey: options.apiKey ?? null,
+		storageClass: options.storageClass ?? null,
+		requestHandler: options.requestHandler ?? null,
+		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 	};
 };
 

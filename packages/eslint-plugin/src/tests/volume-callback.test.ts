@@ -13,11 +13,11 @@ const ruleTester = new ESLintUtils.RuleTester({
 ruleTester.run('volume-callback', rule, {
 	valid: [
 		`
-import {Video} from 'remotion';
+import {Html5Video} from 'remotion';
 
 export const Re = () => {
   return (
-    <Video volume={1} />
+    <Html5Video volume={1} />
   );
 }
           `,
@@ -31,11 +31,20 @@ export const Re = () => {
 }
           `,
 		`
-import {Audio} from 'remotion';
+import {Video} from '@remotion/media';
 
 export const Re = () => {
   return (
-    <Audio volume={1} />
+    <Video volume={f => f / 29} />
+  );
+}
+          `,
+		`
+import {Html5Audio} from 'remotion';
+
+export const Re = () => {
+  return (
+    <Html5Audio volume={1} />
   );
 }
           `,
@@ -45,6 +54,26 @@ const RandomComp = () => null;
 export const Re = () => {
   return (
     <RandomComp volume={1} />
+  );
+}
+          `,
+		`
+import {Video} from 'remotion';
+
+const getVolume = (f) => f / 30;
+
+export const Re = () => {
+  return (
+    <Video volume={getVolume} />
+  );
+}
+          `,
+		`
+import {Html5Audio} from 'remotion';
+
+export const Re = () => {
+  return (
+    <Html5Audio volume={function(f) { return f / 30; }} />
   );
 }
           `,
@@ -70,13 +99,31 @@ export const Re = () => {
 		},
 		{
 			code: `
+import {Html5Video, useCurrentFrame} from 'remotion';
+
+export const Re = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <Html5Video volume={frame / 20} />
+  );
+}
+      `,
+			errors: [
+				{
+					messageId: 'VolumeCallback',
+				},
+			],
+		},
+		{
+			code: `
 import {Video, useCurrentFrame} from 'remotion';
 
 export const Re = () => {
   const frame = useCurrentFrame();
 
   return (
-    <Audio volume={frame / 20} />
+    <Video volume={frame + 5} />
   );
 }
       `,

@@ -1,17 +1,18 @@
 import type {Bar} from './get-waveform-portion';
 import {getWaveformPortion} from './get-waveform-portion';
-import type {AudioData} from './types';
+import type {MediaUtilsAudioData} from './types';
 
 const cache: {[key: string]: Bar[]} = {};
 
 export type VisualizeAudioWaveformOptions = {
-	audioData: AudioData;
+	audioData: MediaUtilsAudioData;
 	frame: number;
 	fps: number;
 	windowInSeconds: number;
 	numberOfSamples: number;
 	channel?: number;
 	dataOffsetInSeconds?: number;
+	normalize?: boolean;
 };
 
 const visualizeAudioWaveformFrame = ({
@@ -22,6 +23,7 @@ const visualizeAudioWaveformFrame = ({
 	windowInSeconds,
 	channel,
 	dataOffsetInSeconds,
+	normalize = false,
 }: VisualizeAudioWaveformOptions) => {
 	if (windowInSeconds * audioData.sampleRate < numberOfSamples) {
 		throw new TypeError(
@@ -55,6 +57,7 @@ const visualizeAudioWaveformFrame = ({
 		outputRange: 'minus-one-to-one',
 		channel,
 		dataOffsetInSeconds,
+		normalize,
 	});
 };
 

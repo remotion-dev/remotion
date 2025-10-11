@@ -8,7 +8,7 @@ crumb: 'How To'
 
 import {VideoCanvasExamples} from '../components/GreenscreenExamples/index';
 
-You can draw frames of an [`<OffthreadVideo>`](/docs/offthreadvideo) or a [`<Video>`](/docs/video) onto a `<canvas>` element using the [`drawImage()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage) API.
+You can draw frames of a [`<OffthreadVideo>`](/docs/offthreadvideo), [`<Video>`](/docs/media/video) or a [`<Html5Video>`](/docs/html5-video) onto a `<canvas>` element using the [`drawImage()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage) API.
 
 :::note
 During preview, makes use of the [`requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback) API.  
@@ -91,9 +91,7 @@ declare global {
   }
   type VideoFrameRequestCallbackId = number;
   interface HTMLVideoElement extends HTMLMediaElement {
-    requestVideoFrameCallback(
-      callback: (now: DOMHighResTimeStamp, metadata: VideoFrameMetadata) => any,
-    ): VideoFrameRequestCallbackId;
+    requestVideoFrameCallback(callback: (now: DOMHighResTimeStamp, metadata: VideoFrameMetadata) => any): VideoFrameRequestCallbackId;
     cancelVideoFrameCallback(handle: VideoFrameRequestCallbackId): void;
   }
 }
@@ -140,11 +138,7 @@ export const Greenscreen: React.FC<{
   return (
     <AbsoluteFill>
       <AbsoluteFill>
-        <OffthreadVideo
-          style={{opacity: 0}}
-          onVideoFrame={onVideoFrame}
-          src="https://remotion-assets.s3.eu-central-1.amazonaws.com/just-do-it-short.mp4"
-        />
+        <OffthreadVideo style={{opacity: 0}} onVideoFrame={onVideoFrame} src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/just-do-it-short.mp4" />
       </AbsoluteFill>
       <AbsoluteFill>
         <canvas ref={canvas} width={width} height={height} />
@@ -156,6 +150,6 @@ export const Greenscreen: React.FC<{
 
 ## Before v4.0.190
 
-Before v4.0.190, the `onVideoFrame` prop of [`<OffthreadVideo>`](/docs/offthreadvideo) and [`<Video>`](/docs/video) was not supported.  
-You could only manipulate a `<Video>` using the `requestVideoFrameCallback` API.  
+Before v4.0.190, the `onVideoFrame` prop of [`<OffthreadVideo>`](/docs/offthreadvideo) and [`<Html5Video>`](/docs/html5-video) was not supported.  
+You could only manipulate a `<Html5Video>` using the `requestVideoFrameCallback` API.  
 Click [here](https://github.com/remotion-dev/remotion/blob/b966d0e99cfb91478ca697675f822284da1f9055/packages/docs/docs/video-manipulation.mdx) to see the old version of this page.

@@ -1,30 +1,30 @@
+import type {BufferIterator} from '../../iterator/buffer-iterator';
+import type {MediaParserLogLevel} from '../../log';
+import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
-import type {ParserState} from '../../state/parser-state';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {MediaParserVideoSample} from '../../webcodec-sample-types';
 import {getSampleFromBlock} from './get-sample-from-block';
-import {getTrack} from './make-track';
+import {
+	getTrack,
+	NO_CODEC_PRIVATE_SHOULD_BE_DERIVED_FROM_SPS,
+} from './make-track';
 import type {PossibleEbml} from './segments/all-segments';
 import {ebmlMap} from './segments/all-segments';
+import type {WebmRequiredStatesForProcessing} from './state-for-processing';
 
 export type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
 
 export const parseEbml = async (
-	state: ParserState,
-): Promise<Prettify<PossibleEbml>> => {
-	const {iterator} = state;
+	iterator: BufferIterator,
+	statesForProcessing: WebmRequiredStatesForProcessing | null,
+	logLevel: MediaParserLogLevel,
+): Promise<Prettify<PossibleEbml> | null> => {
 	const hex = iterator.getMatroskaSegmentId();
 	if (hex === null) {
 		throw new Error(
 			'Not enough bytes left to parse EBML - this should not happen',
-		);
-	}
-
-	const hasInMap = ebmlMap[hex as keyof typeof ebmlMap];
-	if (!hasInMap) {
-		throw new Error(
-			`Don't know how to parse EBML hex ID ${JSON.stringify(hex)}`,
 		);
 	}
 
@@ -36,6 +36,14 @@ export const parseEbml = async (
 		throw new Error(
 			'Not enough bytes left to parse EBML - this should not happen',
 		);
+	}
+
+	const hasInMap = ebmlMap[hex as keyof typeof ebmlMap];
+
+	if (!hasInMap) {
+		Log.verbose(logLevel, `Unknown EBML hex ID ${JSON.stringify(hex)}`);
+		iterator.discard(size);
+		return null;
 	}
 
 	if (hasInMap.type === 'uint') {
@@ -114,14 +122,19 @@ export const parseEbml = async (
 			}
 
 			const offset = iterator.counter.getOffset();
-			const value = await parseEbml(state);
-			// eslint-disable-next-line @typescript-eslint/no-use-before-define
-			const remapped = await postprocessEbml({
-				offset,
-				ebml: value,
-				state,
-			});
-			children.push(remapped);
+			const value = await parseEbml(iterator, statesForProcessing, logLevel);
+
+			if (value) {
+				const remapped = statesForProcessing
+					? // eslint-disable-next-line @typescript-eslint/no-use-before-define
+						await postprocessEbml({
+							offset,
+							ebml: value,
+							statesForProcessing,
+						})
+					: value;
+				children.push(remapped);
+			}
 
 			const offsetNow = iterator.counter.getOffset();
 
@@ -146,57 +159,83 @@ export const parseEbml = async (
 export const postprocessEbml = async ({
 	offset,
 	ebml,
-	state,
+	statesForProcessing: {
+		webmState,
+		callbacks,
+		logLevel,
+		onAudioTrack,
+		onVideoTrack,
+		structureState,
+		avcState,
+	},
 }: {
 	offset: number;
 	ebml: Prettify<PossibleEbml>;
-	state: ParserState;
+	statesForProcessing: WebmRequiredStatesForProcessing;
 }): Promise<Prettify<PossibleEbml>> => {
 	if (ebml.type === 'TimestampScale') {
-		state.webm.setTimescale(ebml.value.value);
+		webmState.setTimescale(ebml.value.value);
 	}
 
 	if (ebml.type === 'Tracks') {
-		state.callbacks.tracks.setIsDone(state.logLevel);
+		callbacks.tracks.setIsDone(logLevel);
 	}
 
 	if (ebml.type === 'TrackEntry') {
-		state.webm.onTrackEntrySegment(ebml);
+		webmState.onTrackEntrySegment(ebml);
 
 		const track = getTrack({
 			track: ebml,
-			timescale: state.webm.getTimescale(),
+			timescale: webmState.getTimescale(),
 		});
 
 		if (track && track.type === 'audio') {
 			await registerAudioTrack({
-				state,
 				track,
 				container: 'webm',
+				registerAudioSampleCallback: callbacks.registerAudioSampleCallback,
+				tracks: callbacks.tracks,
+				logLevel,
+				onAudioTrack,
 			});
 		}
 
 		if (track && track.type === 'video') {
-			await registerVideoTrack({
-				state,
-				track,
-				container: 'webm',
-			});
+			if (track.codec !== NO_CODEC_PRIVATE_SHOULD_BE_DERIVED_FROM_SPS) {
+				await registerVideoTrack({
+					track,
+					container: 'webm',
+					logLevel,
+					onVideoTrack,
+					registerVideoSampleCallback: callbacks.registerVideoSampleCallback,
+					tracks: callbacks.tracks,
+				});
+			}
 		}
 	}
 
 	if (ebml.type === 'Timestamp') {
-		state.webm.setTimestampOffset(offset, ebml.value.value);
+		webmState.setTimestampOffset(offset, ebml.value.value);
 	}
 
 	if (ebml.type === 'Block' || ebml.type === 'SimpleBlock') {
-		const sample = getSampleFromBlock(ebml, state, offset);
+		const sample = await getSampleFromBlock({
+			ebml,
+			webmState,
+			offset,
+			structureState,
+			callbacks,
+			logLevel,
+			onVideoTrack,
+			avcState,
+		});
 
 		if (sample.type === 'video-sample') {
-			await state.callbacks.onVideoSample(
-				sample.videoSample.trackId,
-				sample.videoSample,
-			);
+			await callbacks.onVideoSample({
+				videoSample: sample.videoSample,
+				trackId: sample.trackId,
+			});
+
 			return {
 				type: 'Block',
 				value: new Uint8Array([]),
@@ -205,10 +244,11 @@ export const postprocessEbml = async ({
 		}
 
 		if (sample.type === 'audio-sample') {
-			await state.callbacks.onAudioSample(
-				sample.audioSample.trackId,
-				sample.audioSample,
-			);
+			await callbacks.onAudioSample({
+				audioSample: sample.audioSample,
+				trackId: sample.trackId,
+			});
+
 			return {
 				type: 'Block',
 				value: new Uint8Array([]),
@@ -245,17 +285,27 @@ export const postprocessEbml = async ({
 		const sample =
 			block.value.length === 0
 				? null
-				: getSampleFromBlock(block, state, offset);
+				: await getSampleFromBlock({
+						ebml: block,
+						webmState,
+						offset,
+						structureState,
+						callbacks,
+						logLevel,
+						onVideoTrack,
+						avcState,
+					});
 
 		if (sample && sample.type === 'partial-video-sample') {
-			const completeFrame: AudioOrVideoSample = {
+			const completeFrame: MediaParserVideoSample = {
 				...sample.partialVideoSample,
 				type: hasReferenceBlock ? 'delta' : 'key',
 			};
-			await state.callbacks.onVideoSample(
-				sample.partialVideoSample.trackId,
-				completeFrame,
-			);
+
+			await callbacks.onVideoSample({
+				videoSample: completeFrame,
+				trackId: sample.trackId,
+			});
 		}
 
 		return {

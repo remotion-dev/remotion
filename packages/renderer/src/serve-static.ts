@@ -101,7 +101,7 @@ export const serveStatic = async (
 							resolve(port);
 							return unlock();
 						});
-						server.on('error', (err) => {
+						server.on('error', (err: Error) => {
 							unlock();
 							reject(err);
 						});

@@ -7,6 +7,10 @@ sidebar_label: Getting video metadata
 crumb: '@remotion/media-parser'
 ---
 
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 Using [`@remotion/media-parser`](/docs/media-parser), you can get metadata from a [variety of media formats](/docs/media-parser/format-support).
 
 ## Getting metadata from a URL
@@ -18,7 +22,7 @@ This works in the browser as well as in Node.js and Bun.
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
-  src: 'https://example.com/my-video.mp4',
+  src: 'https://remotion.media/video.mp4',
   fields: {
     durationInSeconds: true,
     dimensions: true,
@@ -85,7 +89,7 @@ See [Available Fields](/docs/media-parser/fields) for a complete list.
 import {parseMedia} from '@remotion/media-parser';
 
 const result = await parseMedia({
-  src: 'https://example.com/my-video.mp4',
+  src: 'https://remotion.media/video.mp4',
   fields: {
     durationInSeconds: true,
     dimensions: true,

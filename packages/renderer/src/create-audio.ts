@@ -13,6 +13,7 @@ import type {CancelSignal} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
 import type {AudioCodec} from './options/audio-codec';
 import {getExtensionFromAudioCodec} from './options/audio-codec';
+import type {PreprocessedAudioTrack} from './preprocess-audio-track';
 import {preprocessAudioTrack} from './preprocess-audio-track';
 import type {FrameAndAssets} from './render-frames';
 import {truthy} from './truthy';
@@ -114,6 +115,7 @@ export const createAudio = async ({
 				trimLeftOffset,
 				trimRightOffset,
 				forSeamlessAacConcatenation,
+				audioStreamIndex: asset.audioStreamIndex,
 			});
 			preprocessProgress[index] = 1;
 			updateProgress();
@@ -121,7 +123,26 @@ export const createAudio = async ({
 		}),
 	);
 
-	const preprocessed = audioTracks.filter(truthy);
+	await downloadMap.inlineAudioMixing.finish({
+		indent,
+		logLevel,
+		binariesDirectory,
+		cancelSignal,
+	});
+
+	const inlinedAudio = downloadMap.inlineAudioMixing.getListOfAssets();
+
+	const preprocessed: PreprocessedAudioTrack[] = [
+		...audioTracks.filter(truthy),
+		...inlinedAudio.map((asset) => ({
+			outName: asset,
+			filter: {
+				filter: null,
+				pad_start: null,
+				pad_end: null,
+			},
+		})),
+	];
 	const merged = path.join(downloadMap.audioPreprocessing, 'merged.wav');
 	const extension = getExtensionFromAudioCodec(audioCodec);
 	const outName = path.join(

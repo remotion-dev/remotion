@@ -67,7 +67,7 @@ test('Should read the whole file', async () => {
 			name: true,
 			internalStats: true,
 			tracks: true,
-			structure: true,
+			slowStructure: true,
 		},
 		onAudioTrack: () => {
 			return () => {};

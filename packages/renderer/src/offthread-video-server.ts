@@ -143,6 +143,7 @@ export const startOffthreadVideoServer = ({
 				binariesDirectory,
 				cancelSignalForAudioAnalysis: undefined,
 				shouldAnalyzeAudioImmediately: true,
+				audioStreamIndex: undefined,
 			})
 				.then((to) => {
 					return new Promise<Uint8Array>((resolve, reject) => {

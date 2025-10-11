@@ -2,7 +2,7 @@ require 'remotion_lambda/sdk'
 require 'remotion_lambda/render_still_on_lambda_payload'
 
 client = RemotionLambda::Client.new(
-  region: 'eu-central-1',
+  region: ENV.fetch('REMOTION_APP_REGION'),
 )  
 
 function_name = ENV.fetch('REMOTION_APP_FUNCTION_NAME')

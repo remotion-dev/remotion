@@ -2,6 +2,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -110,21 +111,24 @@ const useBufferManager = (
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [blocks]);
 
-	useEffect(() => {
-		if (blocks.length === 0) {
-			onResumeCallbacks.forEach((c) => c());
-			playbackLogging({
-				logLevel,
-				message: 'Player is exiting buffer state',
-				mountTime,
-				tag: 'player',
-			});
-		}
-		// Intentionally only firing when blocks change, not the callbacks
-		// otherwise a resume callback might remove itself after being called
-		// and trigger again
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [blocks]);
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			if (blocks.length === 0) {
+				onResumeCallbacks.forEach((c) => c());
+				playbackLogging({
+					logLevel,
+					message: 'Player is exiting buffer state',
+					mountTime,
+					tag: 'player',
+				});
+			}
+			// Intentionally only firing when blocks change, not the callbacks
+			// otherwise a resume callback might remove itself after being called
+			// and trigger again
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		}, [blocks]);
+	}
 
 	return useMemo(() => {
 		return {addBlock, listenForBuffering, listenForResume, buffering};

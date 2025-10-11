@@ -8,8 +8,7 @@ crumb: '@remotion/media-parser'
 ---
 
 :::warning
-**Unstable API**: This package is experimental. The API may change in the future.  
-The API for getting video metadata is stable and may be used in production.
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
 :::
 
 Parsing using [`parseMedia()`](/docs/media-parser/parse-media) will block the main thread of JavaScript, which is undesirable if you are displaying a UI in the browser, or are serving requests on a web server.
@@ -24,7 +23,7 @@ The API takes care of exchanging messages between the main thread and the Web Wo
 import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
 
 const result = await parseMediaOnWebWorker({
-  src: 'https://example.com/my-video.mp4',
+  src: 'https://remotion.media/video.mp4',
   fields: {
     durationInSeconds: true,
     dimensions: true,
@@ -41,7 +40,7 @@ console.log(result.dimensions); // {width: 1920, height: 1080}
 To use it, you can use the [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker) API.
 
 ```tsx twoslash title="Parsing a video on a Web Worker on Bun"
-import {parseMediaOnServerWorker} from '@remotion/media-parser/worker';
+import {parseMediaOnServerWorker} from '@remotion/media-parser/server-worker';
 
 const result = await parseMediaOnServerWorker({
   src: '/tmp/video.mp4',
@@ -59,7 +58,7 @@ The difference to [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-
 
 ## API Differences
 
-The [`parseMediaOnWebWorker`](/docs/media-parser/parse-media-on-web-worker) and [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker) APIs don't accept the [`reader`](/docs/media-parser#reader) field.
+The [`parseMediaOnWebWorker`](/docs/media-parser/parse-media-on-web-worker) and [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker) APIs don't accept the [`reader`](/docs/media-parser/parse-media#reader) field.
 
 It is hardcoded to [`webReader`](/docs/media-parser/web-reader) and [`universalReader`](/docs/media-parser/universal-reader) respectively.
 

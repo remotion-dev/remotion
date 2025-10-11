@@ -18,11 +18,7 @@ import {
 	DEFAULT_OUTPUT_PRIVACY,
 } from '@remotion/lambda-client/constants';
 import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
-import {
-	validateFramesPerFunction,
-	validatePrivacy,
-	type ServerlessCodec,
-} from '@remotion/serverless';
+import {validatePrivacy, type ServerlessCodec} from '@remotion/serverless';
 import {sleep} from '../../../shared/sleep';
 import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
@@ -57,6 +53,7 @@ const {
 	binariesDirectoryOption,
 	preferLosslessOption,
 	metadataOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async ({
@@ -116,6 +113,9 @@ export const renderCommand = async ({
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -185,6 +185,7 @@ export const renderCommand = async ({
 	};
 
 	let composition: string = args[1];
+
 	if (!composition) {
 		Log.info(
 			{indent: false, logLevel},
@@ -223,7 +224,7 @@ export const renderCommand = async ({
 				height,
 				indent,
 				serializedInputPropsWithCustomSchema:
-					NoReactInternals.serializeJSONWithDate({
+					NoReactInternals.serializeJSONWithSpecialTypes({
 						indent: undefined,
 						staticBase: null,
 						data: inputProps,
@@ -244,6 +245,7 @@ export const renderCommand = async ({
 					quiet: CliInternals.quietFlagProvided(),
 				}),
 				chromeMode: 'headless-shell',
+				mediaCacheSizeInBytes: mediaCacheSizeInBytes,
 			});
 		composition = compositionId;
 	}
@@ -278,10 +280,8 @@ export const renderCommand = async ({
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy, true);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
-	validateFramesPerFunction({
-		framesPerFunction: framesPerLambda,
-		durationInFrames: 1,
-	});
+	const concurrency = parsedLambdaCli['concurrency'] ?? undefined;
+	const concurrencyPerLambda = parsedLambdaCli['concurrency-per-lambda'] ?? 1;
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
 
@@ -300,6 +300,7 @@ export const renderCommand = async ({
 		maxRetries,
 		composition,
 		framesPerLambda: framesPerLambda ?? null,
+		concurrency: concurrency ?? null,
 		privacy,
 		logLevel,
 		frameRange: frameRange ?? null,
@@ -309,7 +310,7 @@ export const renderCommand = async ({
 		scale,
 		numberOfGifLoops,
 		everyNthFrame,
-		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'] ?? 1,
+		concurrencyPerLambda,
 		muted,
 		overwrite,
 		audioBitrate,
@@ -333,6 +334,7 @@ export const renderCommand = async ({
 		colorSpace,
 		downloadBehavior: {type: 'play-in-browser'},
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		x264Preset: x264Preset ?? null,
 		preferLossless,
@@ -341,6 +343,8 @@ export const renderCommand = async ({
 		metadata: metadata ?? null,
 		apiKey:
 			parsedLambdaCli[BrowserSafeApis.options.apiKeyOption.cliFlag] ?? null,
+		storageClass: parsedLambdaCli['storage-class'] ?? null,
+		requestHandler: null,
 	});
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({

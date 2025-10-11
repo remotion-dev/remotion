@@ -1,25 +1,39 @@
 import {mapAudioObjectTypeToCodecString} from '../../aac-codecprivate';
 import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audio-or-video-sample';
-import type {Track} from '../../get-tracks';
+import type {MediaParserAudioTrack} from '../../get-tracks';
+import type {MediaParserLogLevel} from '../../log';
 import {registerAudioTrack} from '../../register-track';
-import type {ParserState} from '../../state/parser-state';
-import type {AudioOrVideoSample} from '../../webcodec-sample-types';
+import type {CallbacksState} from '../../state/sample-callbacks';
+import type {TransportStreamState} from '../../state/transport-stream/transport-stream';
+import type {
+	MediaParserAudioSample,
+	MediaParserOnAudioTrack,
+} from '../../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import {readAdtsHeader} from './adts-header';
 import {MPEG_TIMESCALE} from './handle-avc-packet';
 import type {TransportStreamPacketBuffer} from './process-stream-buffers';
 
 export const handleAacPacket = async ({
 	streamBuffer,
-	state,
 	programId,
 	offset,
+	sampleCallbacks,
+	logLevel,
+	onAudioTrack,
+	transportStream,
+	makeSamplesStartAtZero,
 }: {
 	streamBuffer: TransportStreamPacketBuffer;
-	state: ParserState;
 	programId: number;
 	offset: number;
+	sampleCallbacks: CallbacksState;
+	logLevel: MediaParserLogLevel;
+	onAudioTrack: MediaParserOnAudioTrack | null;
+	transportStream: TransportStreamState;
+	makeSamplesStartAtZero: boolean;
 }) => {
-	const adtsHeader = readAdtsHeader(streamBuffer.buffer);
+	const adtsHeader = readAdtsHeader(streamBuffer.getBuffer());
 	if (!adtsHeader) {
 		throw new Error('Invalid ADTS header - too short');
 	}
@@ -27,45 +41,71 @@ export const handleAacPacket = async ({
 	const {channelConfiguration, codecPrivate, sampleRate, audioObjectType} =
 		adtsHeader;
 
-	const isTrackRegistered = state.callbacks.tracks.getTracks().find((t) => {
+	const isTrackRegistered = sampleCallbacks.tracks.getTracks().find((t) => {
 		return t.trackId === programId;
 	});
 
 	if (!isTrackRegistered) {
-		const track: Track = {
-			type: 'audio',
-			codecPrivate,
+		const startOffset = makeSamplesStartAtZero
+			? Math.min(
+					streamBuffer.pesHeader.pts,
+					streamBuffer.pesHeader.dts ?? Infinity,
+				)
+			: 0;
+		transportStream.startOffset.setOffset({
 			trackId: programId,
-			trakBox: null,
-			timescale: MPEG_TIMESCALE,
-			codecWithoutConfig: 'aac',
+			newOffset: startOffset,
+		});
+
+		const track: MediaParserAudioTrack = {
+			type: 'audio',
+			codecData: {type: 'aac-config', data: codecPrivate},
+			trackId: programId,
+			originalTimescale: MPEG_TIMESCALE,
+			codecEnum: 'aac',
 			codec: mapAudioObjectTypeToCodecString(audioObjectType),
 			// https://www.w3.org/TR/webcodecs-aac-codec-registration/
-			description: undefined,
+			// WebCodecs spec says that description should be given for AAC format
+			// ChatGPT says that Transport Streams are always AAC, not ADTS
+			description: codecPrivate,
 			numberOfChannels: channelConfiguration,
 			sampleRate,
+			startInSeconds: 0,
+			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		};
 		await registerAudioTrack({
 			track,
-			state,
 			container: 'transport-stream',
+			registerAudioSampleCallback: sampleCallbacks.registerAudioSampleCallback,
+			tracks: sampleCallbacks.tracks,
+			logLevel,
+			onAudioTrack,
 		});
 	}
 
-	const sample: AudioOrVideoSample = {
-		cts: streamBuffer.pesHeader.pts,
-		dts: streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts,
-		timestamp: streamBuffer.pesHeader.pts,
+	const sample: MediaParserAudioSample = {
+		decodingTimestamp:
+			(streamBuffer.pesHeader.dts ?? streamBuffer.pesHeader.pts) -
+			transportStream.startOffset.getOffset(programId),
+		timestamp:
+			streamBuffer.pesHeader.pts -
+			transportStream.startOffset.getOffset(programId),
 		duration: undefined,
-		data: new Uint8Array(streamBuffer.buffer),
-		trackId: programId,
+		data: streamBuffer.getBuffer(),
 		type: 'key',
 		offset,
-		timescale: MPEG_TIMESCALE,
 	};
 
-	await state.callbacks.onAudioSample(
-		programId,
-		convertAudioOrVideoSampleToWebCodecsTimestamps(sample, MPEG_TIMESCALE),
-	);
+	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+		sample,
+		timescale: MPEG_TIMESCALE,
+	});
+
+	await sampleCallbacks.onAudioSample({
+		audioSample,
+		trackId: programId,
+	});
+
+	transportStream.lastEmittedSample.setLastEmittedSample(sample);
 };

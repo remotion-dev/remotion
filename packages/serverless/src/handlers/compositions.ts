@@ -59,6 +59,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 					providerSpecifics,
 					forcePathStyle: params.forcePathStyle,
 					skipPutAcl: false,
+					requestHandler: null,
 				}).then((b) => b.bucketName));
 
 		const serializedInputPropsWithCustomSchema = await decompressInputProps({
@@ -69,6 +70,7 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 			propsType: 'input-props',
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
+			requestHandler: null,
 		});
 
 		const realServeUrl = providerSpecifics.convertToServeUrl({
@@ -98,6 +100,8 @@ export const compositionsHandler = async <Provider extends CloudProvider>({
 			},
 			chromeMode: 'headless-shell',
 			offthreadVideoThreads: 1,
+			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+			onLog: RenderInternals.defaultOnLog,
 		});
 
 		return Promise.resolve({

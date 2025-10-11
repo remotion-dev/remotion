@@ -23,6 +23,7 @@ import {RenderAssetManagerProvider} from './RenderAssetManager.js';
 import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
 import {SequenceManagerProvider} from './SequenceManager.js';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
+import type {DownloadBehavior} from './download-behavior.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 
 export type TComposition<
@@ -119,6 +120,7 @@ export type TSequence = {
 	loopDisplay: LoopDisplay | undefined;
 	stack: string | null;
 	premountDisplay: number | null;
+	postmountDisplay: number | null;
 } & EnhancedTSequenceData;
 
 export type AudioOrVideoAsset = {
@@ -129,21 +131,43 @@ export type AudioOrVideoAsset = {
 	volume: number;
 	mediaFrame: number;
 	playbackRate: number;
-	allowAmplificationDuringRender: boolean;
-	toneFrequency: number | null;
+	toneFrequency: number;
 	audioStartFrame: number;
+	audioStreamIndex: number;
 };
+
+export type InlineAudioAsset = {
+	type: 'inline-audio';
+	id: string;
+	audio: number[];
+	frame: number;
+	timestamp: number;
+	duration: number;
+	toneFrequency: number;
+};
+
+type DiscriminatedArtifact =
+	| {
+			contentType: 'binary';
+			content: string;
+	  }
+	| {
+			contentType: 'text';
+			content: string;
+	  }
+	| {
+			contentType: 'thumbnail';
+	  };
 
 export type ArtifactAsset = {
 	type: 'artifact';
 	id: string;
 	filename: string;
-	content: string | Uint8Array;
 	frame: number;
-	binary: boolean;
-};
+	downloadBehavior: DownloadBehavior | null;
+} & DiscriminatedArtifact;
 
-export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset;
+export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset | InlineAudioAsset;
 
 export const compositionsRef = React.createRef<{
 	getCompositions: () => AnyComposition[];
@@ -154,11 +178,13 @@ export const CompositionManagerProvider: React.FC<{
 	readonly numberOfAudioTags: number;
 	readonly onlyRenderComposition: string | null;
 	readonly currentCompositionMetadata: BaseMetadata | null;
+	readonly audioLatencyHint: AudioContextLatencyCategory;
 }> = ({
 	children,
 	numberOfAudioTags,
 	onlyRenderComposition,
 	currentCompositionMetadata,
+	audioLatencyHint,
 }) => {
 	// Wontfix, expected to have
 	const [compositions, setCompositions] = useState<AnyComposition[]>([]);
@@ -298,6 +324,7 @@ export const CompositionManagerProvider: React.FC<{
 							<SharedAudioContextProvider
 								numberOfAudioTags={numberOfAudioTags}
 								component={composition?.component ?? null}
+								audioLatencyHint={audioLatencyHint}
 							>
 								{children}
 							</SharedAudioContextProvider>

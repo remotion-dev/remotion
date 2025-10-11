@@ -21,8 +21,8 @@ import TabItem from '@theme/TabItem';
 - Click on "Create policy"
 - Click on JSON
 - In your project, type `npx remotion lambda policies role` in the command line and copy it into the "JSON" field on AWS.
-- Click next. On the tags page, you don't need to fill in anything. Click next again.
-- Give the policy **exactly** the name `remotion-lambda-policy`. The other fields can be left as they are.
+- Click next. Give the policy **exactly** the name `remotion-lambda-policy`. The other fields can be left as they are.
+- On the tags page, you don't need to fill in anything. Click next again.
 
 ## 3. Create a role
 
@@ -143,7 +143,7 @@ npx remotion lambda sites create src/index.ts --site-name=my-video
 
 A [Serve URL](/docs/terminology/serve-url) will be printed pointing to the deployed project.
 
-When you update your Remotion code in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites#--site-name), a unique URL will be generated on every deploy.
+When you update your Remotion code in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites/create#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites/create#--site-name), a unique URL will be generated on every deploy.
 
 </TabItem>
 <TabItem value="node">
@@ -217,7 +217,7 @@ Progress will be printed until the video finished rendering. Congrats! You rende
 You already have the function name from a previous step. But since you only need to deploy a function once, it's useful to retrieve the name of your deployed function programmatically before rendering a video in case your Node.JS program restarts. We can call [`getFunctions()`](/docs/lambda/getfunctions) with the `compatibleOnly` flag to get only functions with a matching version.
 
 ```ts twoslash
-import {getFunctions, renderMediaOnLambda, getRenderProgress} from '@remotion/lambda';
+import {getFunctions, renderMediaOnLambda, getRenderProgress} from '@remotion/lambda/client';
 
 const functions = await getFunctions({
   region: 'us-east-1',
@@ -230,7 +230,7 @@ const functionName = functions[0].functionName;
 We can now trigger a render using the [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) function.
 
 ```ts twoslash
-import {getFunctions, renderMediaOnLambda, getRenderProgress} from '@remotion/lambda';
+import {getFunctions, renderMediaOnLambda, getRenderProgress} from '@remotion/lambda/client';
 
 const url = 'string';
 const functions = await getFunctions({

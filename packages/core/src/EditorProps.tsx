@@ -1,3 +1,4 @@
+import type {SyntheticEvent} from 'react';
 import React, {
 	createContext,
 	useCallback,
@@ -17,7 +18,7 @@ export type EditorPropsContextType = {
 			| Record<string, unknown>
 			| ((oldProps: Record<string, unknown>) => Record<string, unknown>);
 	}) => void;
-	resetUnsaved: () => void;
+	resetUnsaved: (compositionId: string) => void;
 };
 
 export const EditorPropsContext = createContext<EditorPropsContextType>({
@@ -38,6 +39,9 @@ export const editorPropsProviderRef = React.createRef<{
 export const timeValueRef = React.createRef<{
 	goToFrame: () => void;
 	seek: (newFrame: number) => void;
+	play: (e?: SyntheticEvent | PointerEvent) => void;
+	pause: () => void;
+	toggle: (e?: SyntheticEvent | PointerEvent) => void;
 }>();
 
 export const EditorPropsProvider: React.FC<{
@@ -68,8 +72,16 @@ export const EditorPropsProvider: React.FC<{
 		[],
 	);
 
-	const resetUnsaved = useCallback(() => {
-		setProps({});
+	const resetUnsaved = useCallback((compositionId: string) => {
+		setProps((prev) => {
+			if (prev[compositionId]) {
+				const newProps = {...prev};
+				delete newProps[compositionId];
+				return newProps;
+			}
+
+			return prev;
+		});
 	}, []);
 
 	useImperativeHandle(editorPropsProviderRef, () => {

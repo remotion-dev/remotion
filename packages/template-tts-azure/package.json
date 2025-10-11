@@ -12,7 +12,7 @@
   "repository": {},
   "license": "UNLICENSED",
   "dependencies": {
-    "@aws-sdk/client-s3": "3.738.0",
+    "@aws-sdk/client-s3": "3.787.0",
     "@remotion/cli": "workspace:*",
     "@remotion/media-utils": "workspace:*",
     "@remotion/zod-types": "workspace:*",
@@ -25,12 +25,14 @@
   "devDependencies": {
     "@types/node": "20.12.14",
     "@remotion/eslint-config-flat": "workspace:*",
+    "@remotion/eslint-plugin": "workspace:*",
     "@types/md5": "2.3.0",
     "@types/react": "19.0.0",
     "eslint": "9.19.0",
-    "prettier": "3.3.3",
     "ts-node": "10.9.1",
-    "typescript": "5.5.4",
-    "zod": "3.23.8"
+    "zod": "3.23.8",
+    "prettier": "3.6.0",
+    "tsx": "4.19.3",
+    "typescript": "5.8.2"
   }
 }

@@ -2,12 +2,12 @@
 image: /generated/articles-docs-google-fonts-index.png
 id: google-fonts
 sidebar_label: Overview
-title: "@remotion/google-fonts"
+title: '@remotion/google-fonts'
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import {TableOfContents} from '../../components/TableOfContents/google-fonts';
+import {TableOfContents} from './TableOfContents';
 
 The `@remotion/google-fonts` package provides APIs for easily integrating [Google Fonts](https://fonts.google.com/) into Remotion.
 
@@ -51,14 +51,14 @@ pnpm i @remotion/google-fonts
 To load a font, import the package `@remotion/google-fonts/<FontName>` and call [`loadFont()`](/docs/google-fonts/load-font).
 
 ```tsx twoslash title="Load all font styles"
-import { loadFont } from "@remotion/google-fonts/TitanOne";
-const { fontFamily } = loadFont(); // "Titan One"
+import {loadFont} from '@remotion/google-fonts/TitanOne';
+const {fontFamily} = loadFont(); // "Titan One"
 ```
 
 If you want to import multiple fonts and want to avoid a variable name collision, you can import the fonts using an `import * as` statement.
 
 ```tsx twoslash title="Scope loadFont() variable"
-import * as Montserrat from "@remotion/google-fonts/Montserrat";
+import * as Montserrat from '@remotion/google-fonts/Montserrat';
 Montserrat.loadFont();
 ```
 
@@ -67,29 +67,29 @@ Call [`loadFont()`](/docs/google-fonts/load-font) to start the loading process. 
 You can pass a style (such as `normal`, `italic`) to only load that specific style. If you want multiple styles, call `loadFont()` multiple times.
 
 ```tsx twoslash title="Load just one style"
-import { loadFont } from "@remotion/google-fonts/TitanOne";
+import {loadFont} from '@remotion/google-fonts/TitanOne';
 
-loadFont("normal");
+loadFont('normal');
 ```
 
 Use the TypeScript autocomplete to see the available styles. To further narrow down what's being loaded, you can specify `weights` and `subsets`. These options are also typesafe.
 
 ```tsx twoslash title="Load a specific style with limit weights and subsets"
-import * as Montserrat from "@remotion/google-fonts/Montserrat";
+import * as Montserrat from '@remotion/google-fonts/Montserrat';
 
-Montserrat.loadFont("normal", {
-  weights: ["400", "600", "800"],
-  subsets: ["latin", "latin-ext"],
+Montserrat.loadFont('normal', {
+  weights: ['400', '600', '800'],
+  subsets: ['latin', 'latin-ext'],
 });
 ```
 
-`loadFonts()` returns an object with a `fontFamily` property. You can use the `style` attribute to render text in the font you loaded.
+[`loadFont()`](/docs/google-fonts/load-font) returns an object with a `fontFamily` property. You can use the `style` attribute to render text in the font you loaded.
 
 ```tsx twoslash title="Use the fontFamily property"
-import { loadFont } from "@remotion/google-fonts/TitanOne";
-import { AbsoluteFill } from "remotion";
+import {loadFont} from '@remotion/google-fonts/TitanOne';
+import {AbsoluteFill} from 'remotion';
 
-const { fontFamily } = loadFont();
+const {fontFamily} = loadFont();
 
 export const GoogleFontsDemoComposition = () => {
   return (
@@ -107,7 +107,7 @@ export const GoogleFontsDemoComposition = () => {
 To get information about a font, you can import the `getInfo()` function:
 
 ```tsx twoslash title="Get info about the font"
-import { getInfo } from "@remotion/google-fonts/Montserrat";
+import {getInfo} from '@remotion/google-fonts/Montserrat';
 console.log(getInfo());
 ```
 
@@ -128,14 +128,15 @@ console.log(getInfo());
         "latin": "https://fonts.gstatic.com/s/titanone/v13/mFTzWbsGxbbS_J5cQcjClDgm.woff2"
       }
     }
-  }
+  },
+  "subsets": ["latin", "latin-ext"]
 }
 ```
 
 To get a list of all available fonts, you can call [`getAvailableFonts()`](/docs/google-fonts/get-available-fonts) imported from `@remotion/google-fonts`:
 
 ```ts twoslash
-import { getAvailableFonts } from "@remotion/google-fonts";
+import {getAvailableFonts} from '@remotion/google-fonts';
 
 console.log(getAvailableFonts());
 ```
@@ -143,6 +144,12 @@ console.log(getAvailableFonts());
 ## APIs
 
 <TableOfContents />
+
+## Troubleshooting
+
+Known issues:
+
+- [delayRender timeout when fetching fonts](/docs/troubleshooting/font-loading-errors#render-timeout-when-loading-google-fonts)
 
 ## Credits
 

@@ -124,8 +124,9 @@ export const measureText = ({
 	fontVariantNumeric,
 	validateFontIsLoaded = true,
 	additionalStyles,
+	textTransform,
 }: Word): Dimensions => {
-	const key = `${text}-${fontFamily}-${fontWeight}-${fontSize}-${letterSpacing}-${JSON.stringify(additionalStyles)}`;
+	const key = `${text}-${fontFamily}-${fontWeight}-${fontSize}-${letterSpacing}-${textTransform}-${JSON.stringify(additionalStyles)}`;
 
 	if (wordCache.has(key)) {
 		return wordCache.get(key) as Dimensions;
@@ -139,6 +140,7 @@ export const measureText = ({
 		fontWeight,
 		letterSpacing,
 		additionalStyles,
+		textTransform,
 	});
 
 	if (validateFontIsLoaded && text.trim().length > 0) {
@@ -153,13 +155,19 @@ export const measureText = ({
 			fontWeight,
 			letterSpacing,
 			additionalStyles,
+			textTransform,
 		});
 
 		const sameAsFallbackFont =
 			boundingBox.height === boundingBoxOfFallbackFont.height &&
 			boundingBox.width === boundingBoxOfFallbackFont.width;
 
-		if (sameAsFallbackFont && computedFallback !== computedFontFamily) {
+		// Ensure there are at least 4 unique characters, with just a few, there is more likely to be a false positive
+		if (
+			sameAsFallbackFont &&
+			computedFallback !== computedFontFamily &&
+			new Set(text).size > 4
+		) {
 			const err = [
 				`Called measureText() with "fontFamily": ${JSON.stringify(
 					fontFamily,

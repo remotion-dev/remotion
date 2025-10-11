@@ -1,10 +1,12 @@
 import type {VideoConfig} from 'remotion/no-react';
 import type {BrowserLog} from './browser-log';
-import type {Page} from './browser/BrowserPage';
+import type {OnLog, Page} from './browser/BrowserPage';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
 import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
+import {getAvailableMemory} from './memory/get-available-memory';
+import type {PixelFormat} from './pixel-format';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import type {BrowserReplacer} from './replace-browser';
 import {setPropsAndEnv} from './set-props-and-env';
@@ -28,6 +30,9 @@ export const makePage = async ({
 	imageFormat,
 	serializedResolvedPropsWithCustomSchema,
 	pageIndex,
+	isMainTab,
+	mediaCacheSizeInBytes,
+	onLog,
 }: {
 	context: SourceMapGetter;
 	initialFrame: number;
@@ -47,10 +52,13 @@ export const makePage = async ({
 	serializedResolvedPropsWithCustomSchema: string;
 	imageFormat: VideoImageFormat;
 	pageIndex: number;
+	isMainTab: boolean;
+	mediaCacheSizeInBytes: number | null;
+	onLog: OnLog;
 }) => {
 	const page = await browserReplacer
 		.getBrowser()
-		.newPage({context, logLevel, indent, pageIndex, onBrowserLog});
+		.newPage({context, logLevel, indent, pageIndex, onBrowserLog, onLog});
 	pagesArray.push(page);
 	await page.setViewport({
 		width: composition.width,
@@ -72,6 +80,9 @@ export const makePage = async ({
 		indent,
 		logLevel,
 		onServeUrlVisited: () => undefined,
+		isMainTab,
+		mediaCacheSizeInBytes,
+		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -85,6 +96,8 @@ export const makePage = async ({
 			width: number,
 			defaultCodec: Codec,
 			defaultOutName: string | null,
+			defaultVideoImageFormat: VideoImageFormat | null,
+			defaultPixelFormat: PixelFormat | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -96,6 +109,8 @@ export const makePage = async ({
 				compositionWidth: width,
 				compositionDefaultCodec: defaultCodec,
 				compositionDefaultOutName: defaultOutName,
+				compositionDefaultVideoImageFormat: defaultVideoImageFormat,
+				compositionDefaultPixelFormat: defaultPixelFormat,
 			});
 		},
 		args: [
@@ -107,6 +122,8 @@ export const makePage = async ({
 			composition.width,
 			composition.defaultCodec,
 			composition.defaultOutName,
+			composition.defaultVideoImageFormat,
+			composition.defaultPixelFormat,
 		],
 		frame: null,
 		page,

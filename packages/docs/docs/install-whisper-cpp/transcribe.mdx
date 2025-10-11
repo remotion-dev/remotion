@@ -36,18 +36,7 @@ for (const token of transcription) {
 
 The path to the file you want extract text from.
 
-The file has to be a 16KHz wav file. You can extract a 16KHz wav file from a video or audio file for
-example by utilizing FFmpeg with the following command:
-
-```bash
-ffmpeg -i input.mp4 -ar 16000 output.wav -y
-```
-
-If you don't want to install FFmpeg, you can also use the [smaller FFmpeg binary](/docs/cli/ffmpeg) provided by Remotion.
-
-```bash
-npx remotion ffmpeg -i input.mp4 -ar 16000 output.wav -y
-```
+The file has to be a 16-bit, 16KHz, WAVE file. See [Resample audio to 16kHz](/docs/webcodecs/resample-audio-16khz#on-the-server) for more information.
 
 ### `whisperPath`
 
@@ -135,6 +124,21 @@ import type {TranscribeOnProgress} from '@remotion/install-whisper-cpp';
 const onProgress: TranscribeOnProgress = (progress) => {
   console.log(`Transcription progress: ${progress * 100}%`);
 };
+```
+
+### `flashAttention?`<AvailableFrom v="4.0.324" />
+
+Boolean value, enable flash attention.
+
+### `additionalArgs?`<AvailableFrom v="4.0.324" />
+
+Additional args to be passed to whisper, in an array. The array can contain strings or string pairs, like
+
+```js
+transcribe({
+  ...,
+  additionalArgs: ['-tdrz', ['--max-len', '1']]
+})
 ```
 
 ## Return value

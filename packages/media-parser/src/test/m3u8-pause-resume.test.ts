@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
+import {mediaParserController} from '../controller/media-parser-controller';
 import {hasBeenAborted} from '../errors';
-import {mediaParserController} from '../media-parser-controller';
 import {parseMedia} from '../parse-media';
 
 test(

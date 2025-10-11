@@ -1,4 +1,5 @@
 import type {Codec} from './codec';
+import type {PixelFormat, VideoImageFormat} from './render-types';
 
 export type VideoConfig = {
 	width: number;
@@ -10,4 +11,6 @@ export type VideoConfig = {
 	props: Record<string, unknown>;
 	defaultCodec: Codec | null;
 	defaultOutName: string | null;
+	defaultVideoImageFormat: VideoImageFormat | null;
+	defaultPixelFormat: PixelFormat | null;
 };

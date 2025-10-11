@@ -88,6 +88,7 @@ class Semantic
 				chromiumOptions: {},
 				colorSpace: null,
 				concurrencyPerLambda: 1,
+				concurrency: null,
 				crf: undefined,
 				deleteAfter: null,
 				downloadBehavior: {type: 'play-in-browser'},
@@ -126,6 +127,9 @@ class Semantic
 					Author: 'Remotion',
 				},
 				apiKey: null,
+				storageClass: null,
+				requestHandler: null,
+				mediaCacheSizeInBytes: null,
 			});
 		const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 		const parsedJson = JSON.parse(jsonOutput);

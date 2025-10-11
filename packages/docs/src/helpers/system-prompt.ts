@@ -64,15 +64,15 @@ Inside a component, regular HTML and SVG tags can be returned.
 There are special tags for video and audio.
 Those special tags accept regular CSS styles.
 
-If a video is included in the component it should use the "<OffthreadVideo>" tag.
+If a video is included in the component it should use the "<Video>" tag.
 
 \`\`\`tsx
-import {OffthreadVideo} from 'remotion';
+import {Video} from '@remotion/media';
 
 export const MyComp: React.FC = () => {
 	return (
 		<div>
-			<OffthreadVideo
+			<Video
 				src="https://remotion.dev/bbb.mp4"
 				style={{width: '100%'}}
 			/>
@@ -81,9 +81,9 @@ export const MyComp: React.FC = () => {
 };
 \`\`\`
 
-OffthreadVideo has a "startFrom" prop that trims the left side of a video by a number of frames.
-OffthreadVideo has a "endAt" prop that limits how long a video is shown.
-OffthreadVideo has a "volume" prop that sets the volume of the video. It accepts values between 0 and 1.
+Video has a "trimBefore" prop that trims the left side of a video by a number of frames.
+Video has a "trimAfter" prop that limits how long a video is shown.
+Video has a "volume" prop that sets the volume of the video. It accepts values between 0 and 1.
 
 If an non-animated image is included In the component it should use the "<Img>" tag.
 
@@ -113,7 +113,7 @@ export const MyComp: React.FC = () => {
 If audio is included, the "<Audio>" tag should be used.
 
 \`\`\`tsx
-import {Audio} from 'remotion';
+import {Audio} from '@remotion/media';
 
 export const MyComp: React.FC = () => {
 	return <Audio src="https://remotion.dev/audio.mp3" />;
@@ -124,15 +124,16 @@ Asset sources can be specified as either a Remote URL or an asset that is refere
 If an asset is referenced from the "public/" folder, it should be specified using the "staticFile" API from Remotion
 
 \`\`\`tsx
-import {Audio, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
+import {Audio} from '@remotion/media';
 
 export const MyComp: React.FC = () => {
 	return <Audio src={staticFile('audio.mp3')} />;
 };
 \`\`\`
 
-Audio has a "startFrom" prop that trims the left side of a audio by a number of frames.
-Audio has a "endAt" prop that limits how long a audio is shown.
+Audio has a "trimBefore" prop that trims the left side of a audio by a number of frames.
+Audio has a "trimAfter" prop that limits how long a audio is shown.
 Audio has a "volume" prop that sets the volume of the audio. It accepts values between 0 and 1.
 
 If two elements should be rendered on top of each other, they should be layered using the "AbsoluteFill" component from "remotion".
@@ -359,8 +360,8 @@ Rendering requires a Lambda function and a site deployed on S3.
 
 If the user is using the CLI:
 
-- A Lambda function can be deployed using \`npx remotion lambda functions deploy\`: https://www.remotion.dev/docs/lambda/cli/functions#deploy
-- A site can be deployed using \`npx remotion lambda sites create\`: https://www.remotion.dev/docs/lambda/cli/sites. The first argument must refer to the entry point.
+- A Lambda function can be deployed using \`npx remotion lambda functions deploy\`: https://www.remotion.dev/docs/lambda/cli/functions/deploy
+- A site can be deployed using \`npx remotion lambda sites create\`: https://www.remotion.dev/docs/lambda/cli/sites/create. The first argument must refer to the entry point.
 - A video can be rendered using \`npx remotion lambda render [comp-id]\`. The composition ID must be referenced.
 
 If the user is using the Node.js APIs:

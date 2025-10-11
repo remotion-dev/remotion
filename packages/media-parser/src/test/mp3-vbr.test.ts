@@ -3,9 +3,9 @@ import {expect, test} from 'bun:test';
 import {nodeReader} from '../node';
 import {parseMedia} from '../parse-media';
 
-test('mp3 vbr fast path', async () => {
+test('mp3 info section path', async () => {
 	const {durationInSeconds, internalStats} = await parseMedia({
-		src: exampleVideos.mp3vbr,
+		src: exampleVideos.mp3infosection,
 		reader: nodeReader,
 		acknowledgeRemotionLicense: true,
 		fields: {
@@ -18,9 +18,9 @@ test('mp3 vbr fast path', async () => {
 	expect(durationInSeconds).toBe(5.04);
 });
 
-test('mp3 vbr slow path', async () => {
+test('mp3 info section slow path', async () => {
 	const {slowDurationInSeconds, internalStats} = await parseMedia({
-		src: exampleVideos.mp3vbr,
+		src: exampleVideos.mp3infosection,
 		reader: nodeReader,
 		acknowledgeRemotionLicense: true,
 		fields: {

@@ -1,4 +1,4 @@
-import type {Dimensions} from '../get-dimensions';
+import type {MediaParserDimensions} from '../get-dimensions';
 import {matchesPattern} from './detect-file-type';
 
 export function getPngDimensions(
@@ -38,5 +38,5 @@ export const isPng = (data: Uint8Array): PngType | null => {
 
 export type PngType = {
 	type: 'png';
-	dimensions: Dimensions | null;
+	dimensions: MediaParserDimensions | null;
 };

@@ -73,6 +73,12 @@ Example: Your video has an `fps` of 30, and you pass 15 as the `frame` on `visua
 
 The amount of seconds the audio is offset, pass this parameter if you are using [`useWindowedAudioData()`](/docs/use-windowed-audio-data).
 
+### `normalize?`<AvailableFrom v="4.0.280" />
+
+_boolean_
+
+Default `false`. If set to `true`, then the wave data gets scaled so that the biggest value is `1`.
+
 ## Return value
 
 `number[]`
@@ -88,7 +94,7 @@ The array is of length defined by the `numberOfSamples` parameter.
 ```tsx twoslash
 import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform} from '@remotion/media-utils';
 import React from 'react';
-import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
+import {AbsoluteFill, Html5Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
 
 const height = 300;
 
@@ -120,7 +126,7 @@ const BaseExample: React.FC = () => {
 
   return (
     <div style={{flex: 1}}>
-      <Audio src={staticFile('podcast.wav')} />
+      <Html5Audio src={staticFile('podcast.wav')} />
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
         <svg style={{backgroundColor: ' #0B84F3'}} viewBox={`0 0 ${width} ${height}`} width={width} height={height}>
           <path stroke="white" fill="none" strokeWidth={10} d={p as string} />
@@ -141,7 +147,7 @@ By increasing the `windowInSeconds` by tenfold, the audiogram starts moving to t
 ```tsx twoslash {6}
 import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform, AudioData} from '@remotion/media-utils';
 import React from 'react';
-import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
+import {AbsoluteFill, Html5Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
 
 const frame = useCurrentFrame();
 const audioDataVoice = useAudioData(staticFile('podcast.wav')) as AudioData;
@@ -167,7 +173,7 @@ By only calculating the waveform every third frame, we make the waveform calmer 
 ```tsx twoslash {3}
 import {createSmoothSvgPath, useAudioData, visualizeAudioWaveform, AudioData} from '@remotion/media-utils';
 import React from 'react';
-import {AbsoluteFill, Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
+import {AbsoluteFill, Html5Audio, useCurrentFrame, useVideoConfig, staticFile} from 'remotion';
 
 const frame = useCurrentFrame();
 const audioDataVoice = useAudioData(staticFile('podcast.wav')) as AudioData;
@@ -188,8 +194,8 @@ const waveform = visualizeAudioWaveform({
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/visualize-audio-waveform.ts)
-- [Audio visualization](/docs/audio-visualization)
+- [Audio visualization](/docs/audio/visualization)
 - [`useAudioData()`](/docs/use-audio-data)
 - [`getAudioData()`](/docs/get-audio-data)
-- [`<Audio/>`](/docs/audio)
+- [`<Html5Audio/>`](/docs/html5-audio)
 - [Using audio](/docs/using-audio)

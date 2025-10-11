@@ -168,7 +168,6 @@ export const ZodObjectEditor: React.FC<{
 					</SchemaVerticalGuide>
 				</RevisionContextProvider>
 			) : null}
-
 			{isRoot || !expanded ? null : <div style={fieldsetLabel}>{'}'}</div>}
 		</Fieldset>
 	);

@@ -4,7 +4,7 @@ import {parseM3uManifest} from './parse-m3u-manifest';
 import {runOverM3u} from './run-over-m3u';
 
 export const parseM3u = async ({state}: {state: ParserState}) => {
-	const structure = state.getM3uStructure();
+	const structure = state.structure.getM3uStructure();
 	if (state.m3u.isReadyToIterateOverM3u()) {
 		const selectedPlaylists = state.m3u.getSelectedPlaylists();
 
@@ -26,6 +26,13 @@ export const parseM3u = async ({state}: {state: ParserState}) => {
 			throw new Error('Expected src to be a string');
 		}
 
+		state.mediaSection.addMediaSection({
+			start: 0,
+			// We do a pseudo-seek when seeking m3u, which will be the same byte
+			// as we are currently in, which in most cases is the end of the file.
+			size: state.contentLength + 1,
+		});
+
 		await afterManifestFetch({
 			structure,
 			m3uState: state.m3u,
@@ -34,6 +41,8 @@ export const parseM3u = async ({state}: {state: ParserState}) => {
 			logLevel: state.logLevel,
 			selectAssociatedPlaylistsFn: state.selectM3uAssociatedPlaylistsFn,
 			readerInterface: state.readerInterface,
+			onAudioTrack: state.onAudioTrack,
+			canSkipTracks: state.callbacks.canSkipTracksState,
 		});
 		return null;
 	}

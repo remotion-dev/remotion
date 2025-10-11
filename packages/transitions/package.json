@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/transitions"
 	},
 	"name": "@remotion/transitions",
-	"version": "4.0.274",
+	"version": "4.0.357",
 	"description": "Library for creating transitions in Remotion",
 	"sideEffects": false,
 	"main": "dist/esm/index.mjs",
@@ -12,7 +12,7 @@
 	"scripts": {
 		"test": "bun test src",
 		"lint": "eslint src",
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger",
@@ -90,6 +90,12 @@
 			"import": "./dist/esm/none.mjs",
 			"require": "./dist/presentations/none.js"
 		},
+		"./iris": {
+			"types": "./dist/presentations/iris.d.ts",
+			"module": "./dist/esm/iris.mjs",
+			"import": "./dist/esm/iris.mjs",
+			"require": "./dist/presentations/iris.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -111,6 +117,9 @@
 			],
 			"clock-wipe": [
 				"dist/presentations/clock-wipe.d.ts"
+			],
+			"iris": [
+				"dist/presentations/iris.d.ts"
 			]
 		}
 	},

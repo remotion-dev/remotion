@@ -4,8 +4,8 @@ import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
+	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
-	TIMELINE_LAYER_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
@@ -75,8 +75,15 @@ export const Timeline: React.FC = () => {
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
 			height:
-				shown.length *
-					(TIMELINE_LAYER_HEIGHT + Number(TIMELINE_ITEM_BORDER_BOTTOM)) +
+				shown.reduce((acc, track) => {
+					return (
+						acc +
+						getTimelineLayerHeight(
+							track.sequence.type === 'video' ? 'video' : 'other',
+						) +
+						Number(TIMELINE_ITEM_BORDER_BOTTOM)
+					);
+				}, 0) +
 				TIMELINE_ITEM_BORDER_BOTTOM +
 				(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0) +
 				TIMELINE_TIME_INDICATOR_HEIGHT,
@@ -85,7 +92,7 @@ export const Timeline: React.FC = () => {
 			minHeight: '100%',
 			overflowX: 'hidden',
 		};
-	}, [hasBeenCut, shown.length]);
+	}, [hasBeenCut, shown]);
 
 	return (
 		<div

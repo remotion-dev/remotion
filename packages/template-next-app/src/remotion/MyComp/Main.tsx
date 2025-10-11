@@ -13,7 +13,10 @@ import { Rings } from "./Rings";
 import { TextFade } from "./TextFade";
 import { CompositionProps } from "../../types/constants";
 
-loadFont();
+loadFont("normal", {
+  subsets: ["latin"],
+  weights: ["400", "700"],
+});
 
 const container: React.CSSProperties = {
   backgroundColor: "white",

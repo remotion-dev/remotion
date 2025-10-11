@@ -23,7 +23,7 @@ import {
 	selectPackageManager,
 } from './pkg-managers';
 import {resolveProjectRoot} from './resolve-project-root';
-import {selectTemplate} from './select-template';
+import {getDirectoryArgument, selectTemplate} from './select-template';
 import {yesOrNo} from './yesno';
 
 const gitExists = (commandToCheck: string, argsToCheck: string[]) => {
@@ -82,7 +82,31 @@ const getGitStatus = async (root: string): Promise<void> => {
 
 export const init = async () => {
 	Log.info(`Welcome to ${chalk.blue('Remotion')}!`);
-	const {projectRoot, folderName} = await resolveProjectRoot();
+
+	// Get directory argument if provided
+	const directoryArgument = getDirectoryArgument();
+
+	// Select template first
+	const selectedTemplate = await selectTemplate();
+	Log.info(`Selected ${chalk.blue(selectedTemplate.shortName)}.`);
+
+	// If Editor Starter (paid) is selected, show purchase link and exit
+	if (selectedTemplate.cliId === 'editor-starter') {
+		Log.newLine();
+		Log.info(
+			`${chalk.yellow('Editor Starter is a paid template.')}\nGet it here: ${chalk.underline(
+				selectedTemplate.previewURL,
+			)}`,
+		);
+		Log.newLine();
+		return;
+	}
+
+	// Then resolve project root with template info and directory argument
+	const {projectRoot, folderName} = await resolveProjectRoot({
+		directoryArgument,
+		selectedTemplate,
+	});
 	Log.info();
 
 	const result = await checkGitAvailability(projectRoot, 'git', ['--version']);
@@ -107,8 +131,6 @@ export const init = async () => {
 	}
 
 	const latestRemotionVersionPromise = getLatestRemotionVersion();
-
-	const selectedTemplate = await selectTemplate();
 
 	const shouldOverrideTailwind = selectedTemplate.allowEnableTailwind
 		? await askTailwind()
@@ -160,11 +182,7 @@ export const init = async () => {
 		: relativeToCurrent;
 
 	Log.info();
-	Log.info(
-		`Copied ${chalk.blue(
-			selectedTemplate.shortName,
-		)} to ${chalk.blue(cdToFolder)}.`,
-	);
+	Log.info(`Copied to ${chalk.blue(cdToFolder)}.`);
 	Log.info();
 
 	Log.info('Get started by running:');
@@ -175,11 +193,11 @@ export const init = async () => {
 	Log.info('To render a video, run:');
 	Log.info(' ' + chalk.blue(getRenderCommand(pkgManager)));
 	Log.info('');
+	Log.info();
+	await openInEditorFlow(projectRoot);
 	Log.info(
 		'Docs to get you started:',
 		chalk.underline('https://www.remotion.dev/docs/the-fundamentals'),
 	);
-	Log.info();
-	await openInEditorFlow(projectRoot);
 	Log.info('Enjoy Remotion!');
 };

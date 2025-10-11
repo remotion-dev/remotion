@@ -6,6 +6,10 @@ slug: /webcodecs/convert-media
 crumb: '@remotion/webcodecs'
 ---
 
+:::warning
+[We are phasing out Remotion WebCodecs and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 # convertMedia()<AvailableFrom v="4.0.229"/>
 
 _Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
@@ -27,11 +31,62 @@ Re-encodes a video using [WebCodecs](https://developer.mozilla.org/en-US/docs/We
 ```tsx twoslash title="Converting a video"
 import {convertMedia} from '@remotion/webcodecs';
 
-await convertMedia({
+const result = await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   container: 'webm',
 });
+
+// Save the converted video as a Blob
+const blob = await result.save();
 ```
+
+## Return value
+
+`convertMedia()` returns a Promise that resolves to a `ConvertMediaResult` object with the following properties:
+
+### `save()`
+
+_Function that returns `Promise<Blob>`_
+
+Call this function to get the converted video as a `Blob`. You can then use this blob to:
+
+- Create a download link
+- Upload to a server
+- Display in a video element
+- Store in IndexedDB
+
+```tsx twoslash title="Saving and downloading a converted video"
+import {convertMedia} from '@remotion/webcodecs';
+
+const result = await convertMedia({
+  src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  container: 'webm',
+});
+
+const blob = await result.save();
+
+// Create a download link
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'converted-video.webm';
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+URL.revokeObjectURL(url);
+```
+
+### `remove()`
+
+_Function that returns `Promise<void>`_
+
+Call this function to clean up any temporary resources created during the conversion process.
+
+### `finalState`
+
+_object of type `ConvertMediaProgress`_
+
+Contains the final state of the conversion process, including statistics about the conversion.
 
 ## API
 
@@ -54,6 +109,12 @@ _number_
 Pass the expected duration of the output video in seconds, so that the size of the MP4 metadata section can be estimated well. If the value is not passed, 2MB will be allocated for the MP4 metadata section.
 
 If the size is exceeded (for videos which are around 1 hour or longer), the render may fail in the end.
+
+### `expectedFrameRate?`
+
+_number_
+
+Pass the expected frame rate of the output video, so that the size of the MP4 metadata section can be estimated well. If the value is not passed, 60 will be used as a conservative fallback.
 
 ### `videoCodec?`
 
@@ -256,6 +317,12 @@ The interval in milliseconds at which the `onProgress` callback is called.
 Default `100`. Set to `0` for unthrottled updates.  
 Note that updates are fired very often and updating the DOM often may slow down the conversion process.
 
+### `seekingHints?`
+
+An object that contains hints about the structure of the media file.
+
+See [Seeking Hints](/docs/media-parser/seeking-hints) for more information.
+
 ### `fields?` and Callbacks
 
 You can obtain information about the video file while you are converting it.  
@@ -264,7 +331,7 @@ This feature is inherited from [`parseMedia()`](/docs/media-parser/parse-media),
 ```tsx twoslash title="Converting a video"
 import {convertMedia} from '@remotion/webcodecs';
 
-await convertMedia({
+const result = await convertMedia({
   src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   container: 'webm',
   videoCodec: 'vp8',
@@ -277,6 +344,8 @@ await convertMedia({
     //           ^?
   },
 });
+
+const blob = await result.save();
 ```
 
 ## License

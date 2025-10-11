@@ -49,6 +49,15 @@ execSync(`git commit --allow-empty -m 'Release ${VERSION}'`, {
 	stdio: 'inherit',
 });
 try {
+	execSync(`git tag -d ${VERSION} 2>/dev/null || true`, {
+		cwd: workingDir,
+		stdio: 'inherit',
+	});
+	execSync(`git push --delete origin ${VERSION} 2>/dev/null || true`, {
+		cwd: workingDir,
+		stdio: 'inherit',
+	});
+
 	execSync(`git tag ${VERSION}`, {cwd: workingDir, stdio: 'inherit'});
 } catch (e) {}
 execSync('git push', {cwd: workingDir, stdio: 'inherit'});
@@ -58,4 +67,7 @@ execSync('gem build remotion_lambda.gemspec', {
 	cwd: workingDir,
 	stdio: 'inherit',
 });
-execSync('gem push remotion_lambda-*.gem', {cwd: workingDir, stdio: 'inherit'});
+execSync('gem push remotion_lambda-*.gem 2>/dev/null || true', {
+	cwd: workingDir,
+	stdio: 'inherit',
+});

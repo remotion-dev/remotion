@@ -6,7 +6,6 @@ import {
   Group,
   LinearGradient,
   mix,
-  Paint,
   Path,
   processTransform2d,
   rect,
@@ -123,40 +122,61 @@ export const SkiaNeon: React.FC<{
           </Group>
           <Path
             path={path}
-            color="transparent"
             strokeCap="round"
             strokeJoin="round"
             end={progress}
+            style="stroke"
+            strokeWidth={15}
           >
-            <Paint style="stroke" strokeWidth={15}>
-              <LinearGradient
-                colors={colors}
-                start={topLeft(bounds)}
-                end={topRight(bounds)}
-              />
-              <Blur
-                blur={interpolate(progress, [0, 0.5, 1], [0, blur1 * 2, blur1])}
-              />
-            </Paint>
-            <Paint style="stroke" strokeWidth={4}>
-              <LinearGradient
-                colors={colors}
-                start={topLeft(bounds)}
-                end={topRight(bounds)}
-              />
-              <Blur
-                blur={interpolate(progress, [0, 0.5, 1], [0, blur2 * 2, blur2])}
-              />
-            </Paint>
-            <Paint style="stroke" strokeWidth={1}>
-              <LinearGradient
-                colors={colors}
-                start={topLeft(bounds)}
-                end={topRight(bounds)}
-              />
-            </Paint>
-            <Paint style="stroke" strokeWidth={2.5} color="white" />
+            <LinearGradient
+              colors={colors}
+              start={topLeft(bounds)}
+              end={topRight(bounds)}
+            />
+            <Blur
+              blur={interpolate(progress, [0, 0.5, 1], [0, blur1 * 2, blur1])}
+            />
           </Path>
+          <Path
+            path={path}
+            strokeCap="round"
+            strokeJoin="round"
+            end={progress}
+            style="stroke"
+            strokeWidth={4}
+          >
+            <LinearGradient
+              colors={colors}
+              start={topLeft(bounds)}
+              end={topRight(bounds)}
+            />
+            <Blur
+              blur={interpolate(progress, [0, 0.5, 1], [0, blur2 * 2, blur2])}
+            />
+          </Path>
+          <Path
+            path={path}
+            strokeCap="round"
+            strokeJoin="round"
+            end={progress}
+            style="stroke"
+            strokeWidth={1}
+          >
+            <LinearGradient
+              colors={colors}
+              start={topLeft(bounds)}
+              end={topRight(bounds)}
+            />
+          </Path>
+          <Path
+            path={path}
+            strokeCap="round"
+            strokeJoin="round"
+            end={progress}
+            style="stroke"
+            strokeWidth={2.5}
+            color="white"
+          ></Path>
         </React.Fragment>
       ))}
     </>

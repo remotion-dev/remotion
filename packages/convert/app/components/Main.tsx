@@ -2,9 +2,10 @@ import {useLocation} from '@remix-run/react';
 import React, {useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 import {TitleProvider} from '~/lib/title-context';
-import type { RouteAction} from '~/seo';
+import type {RouteAction} from '~/seo';
 import {getHeaderTitle} from '~/seo';
 import {FileAvailable} from './FileAvailable';
+import {GlobalApisInConsole} from './GlobalApis';
 import {PickFile} from './PickFile';
 
 export const Main: React.FC<{
@@ -22,15 +23,26 @@ export const Main: React.FC<{
 			<div className="font-sans min-h-screen">
 				{src ? (
 					<FileAvailable
-						key={src.type === 'url' ? src.url : src.file.name}
+						key={
+							src.type === 'url'
+								? src.url
+								: src.file instanceof File
+									? src.file.name
+									: src.file.toString()
+						}
 						routeAction={routeAction}
 						src={src}
 						setSrc={setSrc}
 					/>
 				) : (
-					<PickFile setSrc={setSrc} title={getHeaderTitle(routeAction)} />
+					<PickFile
+						action={routeAction}
+						setSrc={setSrc}
+						title={getHeaderTitle(routeAction)}
+					/>
 				)}
 			</div>
+			<GlobalApisInConsole />
 		</TitleProvider>
 	);
 };

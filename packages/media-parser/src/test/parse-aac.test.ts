@@ -2,6 +2,7 @@ import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('should be able to parse aac', async () => {
 	let audioSamples = 0;
@@ -25,7 +26,7 @@ test('should be able to parse aac', async () => {
 		slowFps,
 		slowKeyframes,
 		slowNumberOfFrames,
-		structure,
+		slowStructure,
 		tracks,
 		unrotatedDimensions,
 		videoCodec,
@@ -57,7 +58,7 @@ test('should be able to parse aac', async () => {
 			slowFps: true,
 			slowKeyframes: true,
 			slowNumberOfFrames: true,
-			structure: true,
+			slowStructure: true,
 			tracks: true,
 			unrotatedDimensions: true,
 			numberOfAudioChannels: true,
@@ -67,16 +68,18 @@ test('should be able to parse aac', async () => {
 		},
 		onAudioTrack: ({track}) => {
 			expect(track).toEqual({
+				startInSeconds: 0,
 				codec: 'mp4a.40.2',
-				codecWithoutConfig: 'aac',
-				codecPrivate: new Uint8Array([10, 16]),
+				codecEnum: 'aac',
+				codecData: {type: 'aac-config', data: new Uint8Array([10, 16])},
 				description: new Uint8Array([10, 16]),
 				numberOfChannels: 2,
 				sampleRate: 44100,
-				timescale: 1000000,
+				originalTimescale: 1000000,
 				trackId: 0,
-				trakBox: null,
 				type: 'audio',
+				timescale: WEBCODECS_TIMESCALE,
+				trackMediaTimeOffsetInTrackTimescale: 0,
 			});
 			return () => {
 				audioSamples++;
@@ -110,12 +113,12 @@ test('should be able to parse aac', async () => {
 	expect(slowNumberOfFrames).toEqual(0);
 	expect(unrotatedDimensions).toBe(null);
 	expect(videoCodec).toBe(null);
-	expect(structure).toEqual({
+	expect(slowStructure).toEqual({
 		type: 'aac',
 		boxes: [],
 	});
-	expect(tracks.audioTracks.length).toBe(1);
-	expect(tracks.videoTracks.length).toBe(0);
+	expect(tracks.filter((t) => t.type === 'audio').length).toBe(1);
+	expect(tracks.filter((t) => t.type === 'video').length).toBe(0);
 	expect(numberOfAudioChannels).toBe(2);
 	expect(sampleRate).toBe(44100);
 	expect(slowAudioBitrate).toBe(132945.5141129032);
@@ -156,16 +159,18 @@ test('should be able to get basics without parsing all', async () => {
 		},
 		onAudioTrack: ({track}) => {
 			expect(track).toEqual({
+				startInSeconds: 0,
 				codec: 'mp4a.40.2',
-				codecWithoutConfig: 'aac',
-				codecPrivate: new Uint8Array([10, 16]),
+				codecEnum: 'aac',
+				codecData: {type: 'aac-config', data: new Uint8Array([10, 16])},
 				description: new Uint8Array([10, 16]),
 				numberOfChannels: 2,
 				sampleRate: 44100,
-				timescale: 1000000,
+				originalTimescale: 1000000,
 				trackId: 0,
-				trakBox: null,
 				type: 'audio',
+				timescale: WEBCODECS_TIMESCALE,
+				trackMediaTimeOffsetInTrackTimescale: 0,
 			});
 			return null;
 		},
@@ -187,6 +192,6 @@ test('should be able to get basics without parsing all', async () => {
 	expect(size).toBe(1758426);
 	expect(unrotatedDimensions).toBe(null);
 	expect(videoCodec).toBe(null);
-	expect(tracks.audioTracks.length).toBe(1);
-	expect(tracks.videoTracks.length).toBe(0);
+	expect(tracks.filter((t) => t.type === 'audio').length).toBe(1);
+	expect(tracks.filter((t) => t.type === 'video').length).toBe(0);
 });

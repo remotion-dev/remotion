@@ -1,5 +1,5 @@
 import {SimulatePrincipalPolicyCommand} from '@aws-sdk/client-iam';
-import type {AwsRegion} from '@remotion/lambda-client';
+import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 
 export type EvalDecision = 'allowed' | 'explicitDeny' | 'implicitDeny';
@@ -15,9 +15,13 @@ export const simulateRule = async (options: {
 	arn: string;
 	resource: string[];
 	retries: number;
+	requestHandler: RequestHandler | null;
 }): Promise<SimulationResult[]> => {
 	try {
-		const res = await LambdaClientInternals.getIamClient(options.region).send(
+		const res = await LambdaClientInternals.getIamClient(
+			options.region,
+			options.requestHandler,
+		).send(
 			new SimulatePrincipalPolicyCommand({
 				ActionNames: options.actionNames,
 				PolicySourceArn: options.arn,

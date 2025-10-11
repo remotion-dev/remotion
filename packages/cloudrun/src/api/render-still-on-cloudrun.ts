@@ -8,6 +8,7 @@ import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {z} from 'zod';
+import type {Privacy} from '../defaults';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayload,
@@ -34,7 +35,7 @@ type OptionalParameters = {
 	cloudRunUrl: string | null;
 	serviceName: string | null;
 	inputProps: Record<string, unknown>;
-	privacy: 'public' | 'private';
+	privacy: Privacy;
 	forceBucketName: string | null;
 	outName: string | null;
 	envVariables: Record<string, string>;
@@ -102,6 +103,7 @@ const internalRenderStillOnCloudRun = async ({
 	downloadBehavior,
 	renderIdOverride,
 	renderStatusWebhook,
+	mediaCacheSizeInBytes,
 }: OptionalParameters & MandatoryParameters): Promise<
 	RenderStillOnCloudrunOutput | ErrorResponsePayload | CloudRunCrashResponse
 > => {
@@ -121,7 +123,7 @@ const internalRenderStillOnCloudRun = async ({
 		composition,
 		serveUrl,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},
@@ -146,6 +148,7 @@ const internalRenderStillOnCloudRun = async ({
 		downloadBehavior,
 		renderIdOverride,
 		renderStatusWebhook,
+		mediaCacheSizeInBytes,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -254,5 +257,6 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
 		renderIdOverride: options.renderIdOverride ?? undefined,
 		renderStatusWebhook: options.renderStatusWebhook ?? undefined,
+		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 	});
 };

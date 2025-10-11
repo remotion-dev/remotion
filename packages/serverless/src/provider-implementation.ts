@@ -85,6 +85,7 @@ export type UploadDir<Provider extends CloudProvider> = (options: {
 	privacy: Privacy;
 	toUpload: string[];
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 }) => Promise<void>;
 
 type CreateFunctionOptions<Provider extends CloudProvider> = {
@@ -95,6 +96,7 @@ type CreateFunctionOptions<Provider extends CloudProvider> = {
 	memorySizeInMb: number;
 	functionName: string;
 	zipFile: string;
+	requestHandler: Provider['requestHandler'] | null;
 } & Provider['creationFunctionOptions'];
 
 export type CreateFunction<Provider extends CloudProvider> = (

@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 
 export const discardRestOfPacket = (iterator: BufferIterator) => {
 	const next188 = 188 - (iterator.counter.getOffset() % 188);

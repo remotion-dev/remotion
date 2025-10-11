@@ -32,6 +32,10 @@ test('Should be able to collect artifacts', async () => {
 		throw new Error('Expected artifact');
 	}
 
+	if (sec.contentType !== 'text') {
+		throw new Error('Expected text');
+	}
+
 	expect(sec.filename).toEqual('hi.txt');
 	expect(sec.content).toEqual('hi there');
 });

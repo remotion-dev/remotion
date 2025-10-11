@@ -6,13 +6,15 @@ slug: /media-parser/runtime-support
 crumb: '@remotion/media-parser'
 ---
 
-`@remotion/media-parser` works in the Browser, Node.js and Bun.
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
 
-However, all of these require some quite modern versions (considered modern as of August 2024).
+[`@remotion/media-parser`](/docs/media-parser) works in the Browser, Node.js and Bun.
 
-## For parsing
+## Runtime versions
 
-For parsing a video, the following minimum versions are required:
+The following minimum versions are required:
 
 - Node.js: 20.0.0
 - Bun 1.0.0
@@ -21,7 +23,7 @@ For parsing a video, the following minimum versions are required:
 - Safari 16.4
 - Firefox 128
 
-### Feature detection
+## Feature detection
 
 Use this to check if the runtime supports `parseMedia()`:
 
@@ -29,14 +31,20 @@ Use this to check if the runtime supports `parseMedia()`:
 const canUseMediaParser = typeof fetch === 'function' && typeof new ArrayBuffer().resize === 'function';
 ```
 
-## For using WebCodecs
+## WebCodecs support
 
-WebCodecs support is not tied to `@remotion/media-parser` itself, but if you use it to extract samples, you need to use the following minimum versions:
+WebCodecs support is not tied to `@remotion/media-parser` itself, but if you use it to decode video and audio, you :
 
 - Chrome 94
 - Edge 94
-- Safari 16.4 - No support for `AudioDecoder`
-- Firefox - No support, but in development
+- Firefox 130
+- Safari - Technology Preview
+
+:::warning
+Safari does have video-only support, but will add audio support later in 2025. Last updated May 9th 2025.
+:::
+
+See also: [Can I use WebCodecs?](https://caniuse.com/webcodecs)
 
 ## See also
 

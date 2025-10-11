@@ -19,7 +19,8 @@ export const RectProvider: React.FC<{
 	readonly cornerRadius: number;
 	readonly children: React.ReactNode;
 }> = ({cornerRadius, height, width, children}) => {
-	const {path} = makeRect({height, width, cornerRadius});
+	const maxCornerRadius = Math.min(cornerRadius, width / 2, height / 2);
+	const {path} = makeRect({height, width, cornerRadius: maxCornerRadius});
 
 	const viewBox = `0 0 ${width} ${height}`;
 

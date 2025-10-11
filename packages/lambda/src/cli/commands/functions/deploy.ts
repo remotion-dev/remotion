@@ -109,6 +109,7 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 		runtimePreference,
 		providerSpecifics,
 		fullClientSpecifics,
+		requestHandler: null,
 	});
 	if (CliInternals.quietFlagProvided()) {
 		CliInternals.Log.info({indent: false, logLevel}, functionName);

@@ -34,7 +34,10 @@ export const isFlakyError = (err: Error): boolean => {
 		return true;
 	}
 
-	if (message.includes('Timed out while setting up the headless browser')) {
+	if (
+		message.includes('Timed out') &&
+		message.includes('while setting up the headless browser')
+	) {
 		return true;
 	}
 

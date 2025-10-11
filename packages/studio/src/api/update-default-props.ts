@@ -29,11 +29,11 @@ export const updateDefaultProps = ({
 	});
 
 	window.dispatchEvent(
-		new CustomEvent<{resetUnsaved: boolean}>(
+		new CustomEvent<{resetUnsaved: string | null}>(
 			Internals.PROPS_UPDATED_EXTERNALLY,
 			{
 				detail: {
-					resetUnsaved: false,
+					resetUnsaved: null,
 				},
 			},
 		),

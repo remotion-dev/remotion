@@ -1,13 +1,20 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 
 export type PacketPes = {
 	streamId: number;
 	dts: number | null;
 	pts: number;
 	priority: number;
+	offset: number;
 };
 
-export const parsePes = (iterator: BufferIterator) => {
+export const parsePes = ({
+	iterator,
+	offset,
+}: {
+	iterator: BufferIterator;
+	offset: number;
+}) => {
 	const ident = iterator.getUint24();
 	if (ident !== 0x000001) {
 		throw new Error(`Unexpected PES packet start code: ${ident.toString(16)}`);
@@ -45,7 +52,7 @@ export const parsePes = (iterator: BufferIterator) => {
 	iterator.getBits(1); // crc flag
 	iterator.getBits(1); // extension flag
 	const pesHeaderLength = iterator.getBits(8);
-	const offset = iterator.counter.getOffset();
+	const offsetAfterHeader = iterator.counter.getOffset();
 	let pts: number | null = null;
 	if (!ptsPresent) {
 		throw new Error(`PTS is required`);
@@ -81,13 +88,16 @@ export const parsePes = (iterator: BufferIterator) => {
 	}
 
 	iterator.stopReadingBits();
-	iterator.discard(pesHeaderLength - (iterator.counter.getOffset() - offset));
+	iterator.discard(
+		pesHeaderLength - (iterator.counter.getOffset() - offsetAfterHeader),
+	);
 
 	const packet: PacketPes = {
 		dts,
 		pts,
 		streamId,
 		priority,
+		offset,
 	};
 	return packet;
 };

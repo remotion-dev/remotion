@@ -1,4 +1,4 @@
-import type {SamplePosition} from '@remotion/media-parser';
+import type {MediaParserInternalTypes} from '@remotion/media-parser';
 import {combineUint8Arrays} from '../../../../../matroska/matroska-utils';
 import {
 	addSize,
@@ -20,7 +20,9 @@ const createEntry = (entry: Entry) => {
 	]);
 };
 
-export const createStsc = (samplePositions: SamplePosition[]) => {
+export const createStsc = (
+	samplePositions: MediaParserInternalTypes['SamplePosition'][],
+) => {
 	const entries: Entry[] = [];
 
 	const deduplicateLastEntry = () => {

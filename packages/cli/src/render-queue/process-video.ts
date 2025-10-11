@@ -100,5 +100,8 @@ export const processVideoJob = async ({
 			job.type === 'video' ? job.hardwareAcceleration : 'disable',
 		chromeMode: job.chromeMode,
 		offthreadVideoThreads: job.offthreadVideoThreads,
+		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+		audioLatencyHint: null,
+		imageSequencePattern: null,
 	});
 };

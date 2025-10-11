@@ -8,14 +8,18 @@ export const useMediaBuffering = ({
 	element,
 	shouldBuffer,
 	isPremounting,
+	isPostmounting,
 	logLevel,
 	mountTime,
+	src,
 }: {
 	element: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	shouldBuffer: boolean;
 	isPremounting: boolean;
+	isPostmounting: boolean;
 	logLevel: LogLevel;
 	mountTime: number;
+	src: string | null;
 }) => {
 	const buffer = useBufferState();
 	const [isBuffering, setIsBuffering] = useState(false);
@@ -33,7 +37,7 @@ export const useMediaBuffering = ({
 			return;
 		}
 
-		if (isPremounting) {
+		if (isPremounting || isPostmounting) {
 			// Needed by iOS Safari which will not load by default
 			// and therefore not fire the canplay event.
 
@@ -43,18 +47,24 @@ export const useMediaBuffering = ({
 			// has no future data.
 
 			// Breaks on Firefox though: https://github.com/remotion-dev/remotion/issues/3915
-			if (current.readyState < current.HAVE_FUTURE_DATA) {
+			if (
+				(isPremounting || isPostmounting) &&
+				current.readyState < current.HAVE_FUTURE_DATA
+			) {
 				if (!navigator.userAgent.includes('Firefox/')) {
 					playbackLogging({
 						logLevel,
-						message: `Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox. Element is premounted`,
+						message: `Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox. Element is premounted ${current.playbackRate}`,
 						tag: 'load',
 						mountTime,
 					});
+					const previousPlaybackRate = current.playbackRate;
 					current.load();
+					current.playbackRate = previousPlaybackRate;
 				}
 			}
 
+			// Don't trigger buffering during premount or postmount
 			return;
 		}
 
@@ -145,12 +155,14 @@ export const useMediaBuffering = ({
 				if (!navigator.userAgent.includes('Firefox/')) {
 					playbackLogging({
 						logLevel,
-						message: `Calling .load() on ${current.src} because readyState is ${current.readyState} and it is not Firefox.`,
+						message: `Calling .load() on ${src} because readyState is ${current.readyState} and it is not Firefox. ${current.playbackRate}`,
 						tag: 'load',
 						mountTime,
 					});
 
+					const previousPlaybackRate = current.playbackRate;
 					current.load();
+					current.playbackRate = previousPlaybackRate;
 				}
 			} else {
 				const onWaiting = () => {
@@ -169,7 +181,22 @@ export const useMediaBuffering = ({
 		return () => {
 			cleanup('element was unmounted or prop changed');
 		};
-	}, [buffer, element, isPremounting, logLevel, shouldBuffer, mountTime]);
+
+		// dependencies array:
+		// `src` should be in it, because if changing the source and pausing at the same time,
+		// it gives the chance to load the new source.
+
+		// https://github.com/remotion-dev/remotion/issues/5218
+	}, [
+		buffer,
+		src,
+		element,
+		isPremounting,
+		isPostmounting,
+		logLevel,
+		shouldBuffer,
+		mountTime,
+	]);
 
 	return isBuffering;
 };

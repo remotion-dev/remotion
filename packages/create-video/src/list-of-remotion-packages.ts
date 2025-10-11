@@ -76,4 +76,7 @@ export const listOfRemotionPackages = [
 	'@remotion/openai-whisper',
 	'@remotion/compositor',
 	'@remotion/example-videos',
+	'@remotion/whisper-web',
+	'@remotion/media',
+	'@remotion/web-renderer',
 ];

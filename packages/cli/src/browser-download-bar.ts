@@ -1,4 +1,4 @@
-import type {LogLevel, OnBrowserDownload} from '@remotion/renderer';
+import type {ChromeMode, LogLevel, OnBrowserDownload} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {Log} from './log';
@@ -11,15 +11,21 @@ const makeDownloadProgress = ({
 	bytesDownloaded,
 	totalBytes,
 	doneIn,
+	chromeMode,
 }: {
 	totalBytes: number;
 	bytesDownloaded: number;
 	doneIn: number | null;
+	chromeMode: ChromeMode;
 }) => {
 	const progress = bytesDownloaded / totalBytes;
 
 	return [
-		`${doneIn ? 'Got' : 'Getting'} Headless Shell`.padEnd(LABEL_WIDTH, ' '),
+		`${doneIn ? 'Got' : 'Getting'} ${
+			chromeMode === 'chrome-for-testing'
+				? 'Chrome for Testing'
+				: 'Headless Shell'
+		}`.padEnd(LABEL_WIDTH, ' '),
 		makeProgressBar(progress, false),
 		doneIn === null
 			? (progress * 100).toFixed(0) + '%'
@@ -107,6 +113,7 @@ export const defaultBrowserDownloadProgress = ({
 						doneIn,
 						bytesDownloaded: progress.downloadedBytes,
 						totalBytes: progress.totalSizeInBytes,
+						chromeMode,
 					}),
 					progress.percent === 1,
 				);

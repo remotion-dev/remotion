@@ -16,6 +16,7 @@ test('Should fail when using an incompatible version', async () => {
 				envVariables: {},
 				frameRange: [0, 12],
 				framesPerFunction: 8,
+				concurrency: null,
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
@@ -58,10 +59,13 @@ test('Should fail when using an incompatible version', async () => {
 				forcePathStyle: false,
 				metadata: {Author: 'Lunar'},
 				apiKey: null,
+				storageClass: null,
+				mediaCacheSizeInBytes: null,
 			},
 			functionName: 'remotion-dev-render',
 			region: 'us-east-1',
 			timeoutInTest: 120000,
+			requestHandler: null,
 		});
 		console.log(aha);
 		throw new Error('Should not reach this');

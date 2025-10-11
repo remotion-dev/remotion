@@ -42,14 +42,15 @@ import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
 import {MissingImg} from './MissingImg';
-import {
-	LoopedOffthreadRemoteVideo,
-	OffthreadRemoteVideo,
-} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
+import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
 import {SlicePath} from './Paths/SlicePath';
+import {
+	PostmountExample,
+	PostmountWithStyles,
+} from './Postmount/PostmountExample';
 import {PremountedExample} from './Premount';
 import {PremountedRemoteVideos} from './Premount/RemoteVideos';
 import InfinityVideo from './ReallyLongVideo';
@@ -84,6 +85,7 @@ import {
 } from './StudioApis/SaveDefaultProps';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
+import './style.css';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
 import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
@@ -104,7 +106,6 @@ import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
-import './style.css';
 import {WatchStaticDemo} from './watch-static';
 
 if (alias !== 'alias') {
@@ -113,17 +114,41 @@ if (alias !== 'alias') {
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
+import {parseMedia} from '@remotion/media-parser';
+import {zMatrix} from '@remotion/zod-types';
 import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
 import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
+import Amplify from './AudioTesting/Amplify';
+import {
+	WhatIsRemotion,
+	whatIsRemotionCalculateMetadata,
+	whatIsRemotionSchema,
+} from './Compose/WhatIsRemotion';
+import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
+import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
+import {NewAudioExample} from './NewAudio/NewAudio';
+import {NewVideoExample} from './NewVideo/NewVideo';
+import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
+import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
+import {NewRemoteVideo} from './OffthreadRemoteVideo/NewRemoteVideo';
+import {OffthreadRemoteSeries} from './OffthreadRemoteVideo/OffthreadRemoteSeries';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
+import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
+import {PrintProps} from './PrintProps';
 import {SmoothTextTransition} from './SmoothTextTransition';
 import {Seek} from './StudioApis/Seek';
+import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
+import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
+import {VideoTestingPlayback} from './VideoTesting/playback';
+import {VideoTestingTrim} from './VideoTesting/trim';
+import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
+import {WhisperWeb} from './WhisperWeb';
 
 class Vector2 {
 	readonly x: number;
@@ -412,6 +437,14 @@ export const Index: React.FC = () => {
 					durationInFrames={10}
 				/>
 				<Composition
+					id="print-props"
+					component={PrintProps}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={10}
+				/>
+				<Composition
 					id="transition-rounding"
 					component={TransitionRounding}
 					width={1080}
@@ -540,6 +573,14 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 				/>
+				<Folder name="edge-blur">
+					<Still
+						width={1000}
+						height={1500}
+						component={EdgeBlur}
+						id="edge-blur"
+					></Still>
+				</Folder>
 			</Folder>
 			<Folder name="creatives">
 				<Composition
@@ -584,6 +625,17 @@ export const Index: React.FC = () => {
 						line: 'Test',
 					}}
 				/>
+				<Still
+					id="FitTextOnNLines"
+					component={FitTextOnNLines}
+					width={1300}
+					height={350}
+					schema={fitTextOnNLinesSchema}
+					defaultProps={{
+						line: 'No matter how much text I am adding, the text always fits on 2 lines and there is corner rounding like on TikTok.',
+						maxLines: 2,
+					}}
+				/>
 				<Composition
 					id="beta-text"
 					component={BetaText}
@@ -617,6 +669,111 @@ export const Index: React.FC = () => {
 					}}
 				/>
 			</Folder>
+			<Folder name="new-media-tags">
+				<Composition
+					id="new-video"
+					component={NewVideoExample}
+					fps={30}
+					defaultProps={{
+						src: staticFile('demo_smpte_h264_pcm.mkv'),
+					}}
+					calculateMetadata={async ({props}) => {
+						const fps = 30;
+
+						const {slowDurationInSeconds, dimensions} = await parseMedia({
+							src: props.src as string,
+							fields: {
+								slowDurationInSeconds: true,
+								dimensions: true,
+							},
+						});
+
+						if (dimensions === null) {
+							throw new Error('Dimensions are null');
+						}
+
+						return {
+							props: props,
+							durationInFrames: Math.round(slowDurationInSeconds * fps),
+							fps,
+							width: dimensions.width,
+							height: dimensions.height,
+						};
+					}}
+				/>
+				<Composition
+					id="new-audio"
+					component={NewAudioExample}
+					fps={30}
+					defaultProps={{
+						src: staticFile('music.mp3'),
+					}}
+					calculateMetadata={async ({props}) => {
+						const fps = 30;
+
+						const {slowDurationInSeconds} = await parseMedia({
+							src: props.src as string,
+							fields: {
+								slowDurationInSeconds: true,
+							},
+						});
+
+						return {
+							props: props,
+							durationInFrames: Math.round(slowDurationInSeconds * fps),
+							fps,
+							width: 800,
+							height: 800,
+						};
+					}}
+				/>
+				<Composition
+					id="video-testing-playback-codec"
+					component={VideoTestingPlayback}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={25}
+					defaultProps={{
+						type: 'codec',
+					}}
+				/>
+				<Composition
+					id="video-testing-trim-codec"
+					component={VideoTestingTrim}
+					fps={30}
+					height={1080}
+					width={1080}
+					durationInFrames={60}
+					defaultProps={{
+						type: 'codec',
+					}}
+				/>
+				<Composition
+					id="video-testing-webm-codec"
+					component={VideoTesting}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					defaultProps={{
+						type: 'codec',
+						codec: 'webm' as const,
+					}}
+				/>
+				<Composition
+					id="video-testing-mp4-codec"
+					component={VideoTesting}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					defaultProps={{
+						type: 'codec',
+						codec: 'mp4' as const,
+					}}
+				/>
+			</Folder>
 			<Folder name="video-tests">
 				<Composition
 					id="hls"
@@ -634,7 +791,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 					defaultProps={{
-						offthread: false,
 						codec: 'mp4' as const,
 					}}
 				/>
@@ -646,12 +802,15 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 					defaultProps={{
-						offthread: true,
+						type: 'offthread',
 						codec: 'mp4' as const,
 					}}
 				/>
 				<OffthreadRemoteVideo />
+				<NewRemoteVideo />
+				<OffthreadRemoteSeries />
 				<LoopedOffthreadRemoteVideo />
+				<MultiChannelAudio />
 				<Composition
 					id="OffthreadVideoToCanvas"
 					component={OffthreadVideoToCanvas}
@@ -668,7 +827,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 					defaultProps={{
-						offthread: false,
 						codec: 'webm' as const,
 					}}
 				/>
@@ -680,7 +838,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 					defaultProps={{
-						offthread: true,
+						type: 'offthread',
 						codec: 'webm' as const,
 					}}
 				/>
@@ -691,6 +849,18 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={600}
+				/>
+				<Composition
+					id="jump-cuts"
+					component={JumpCuts}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+					calculateMetadata={calculateMetadataJumpCuts}
+					defaultProps={{
+						sections: SAMPLE_SECTIONS,
+					}}
 				/>
 				<Composition
 					id="corrupt-video"
@@ -838,7 +1008,6 @@ export const Index: React.FC = () => {
 					durationInFrames={(inputProps?.duration as number) ?? 20}
 					defaultProps={{
 						codec: 'mp4' as const,
-						offthread: false,
 					}}
 				/>
 				<Composition
@@ -902,11 +1071,11 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="audio-testing-amplify"
-					lazyComponent={() => import('./AudioTesting/Amplify')}
-					width={1080}
-					height={1080}
+					component={Amplify}
+					width={200}
+					height={200}
 					fps={30}
-					durationInFrames={120}
+					durationInFrames={1000}
 				/>
 				<Composition
 					id="audio-testing-base64"
@@ -1148,7 +1317,6 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 				/>
 			</Folder>
-
 			<Folder name="shapes">
 				<Composition
 					id="circle-test"
@@ -1199,6 +1367,7 @@ export const Index: React.FC = () => {
 					height={630}
 					fps={30}
 					schema={z.object({
+						matrix: zMatrix(),
 						union: z.array(
 							z.discriminatedUnion('type', [
 								z.object({
@@ -1218,6 +1387,7 @@ export const Index: React.FC = () => {
 						),
 					})}
 					defaultProps={{
+						matrix: [0, 1, 1, 0],
 						union: [
 							{type: 'boat' as const, depth: 10},
 							{type: 'car' as const, color: 'blue', obj: [{link: 'hi there'}]},
@@ -1251,6 +1421,24 @@ export const Index: React.FC = () => {
 					height={1080}
 					durationInFrames={300}
 					width={1080}
+				/>
+			</Folder>
+			<Folder name="Postmount">
+				<Composition
+					id="postmount-example"
+					component={PostmountExample}
+					fps={30}
+					height={1080}
+					durationInFrames={350}
+					width={1920}
+				/>
+				<Composition
+					id="postmount-with-styles"
+					component={PostmountWithStyles}
+					fps={30}
+					height={1080}
+					durationInFrames={230}
+					width={1920}
 				/>
 			</Folder>
 			<Folder name="Transitions">
@@ -1293,6 +1481,7 @@ export const Index: React.FC = () => {
 						delay: 5.2,
 						color: '#df822a',
 						list: [{name: 'first', age: 12}],
+						matrix: [0, 1, 1, 0],
 						description: 'Sample description \nOn multiple lines',
 						dropdown: 'a' as const,
 						superSchema: [
@@ -1304,7 +1493,7 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				{/**
-				 // @ts-expect-error intentional */}
+         // @ts-expect-error intentional */}
 				<Composition
 					id="impossible-to-save"
 					component={SchemaTest}
@@ -1362,29 +1551,28 @@ export const Index: React.FC = () => {
 				durationInFrames={120}
 			/>
 			{/**
-			 * 
-			 * 
-			 * disabled for react   19
-			<Folder name="Skia">
-				<Composition
-					id="skia-shader"
-					component={RuntimeShaderDemo}
-					fps={30}
-					height={1080}
-					width={1080}
-					durationInFrames={120}
-				/>
-				<Composition
-					id="skia-zoomblur"
-					component={RuntimeShaderZoomBlur}
-					fps={30}
-					height={1080}
-					width={1080}
-					durationInFrames={120}
-				/>
-			</Folder>
-			 */}
-
+     * 
+     * 
+     * disabled for react   19
+    <Folder name="Skia">
+        <Composition
+            id="skia-shader"
+            component={RuntimeShaderDemo}
+            fps={30}
+            height={1080}
+            width={1080}
+            durationInFrames={120}
+        />
+        <Composition
+            id="skia-zoomblur"
+            component={RuntimeShaderZoomBlur}
+            fps={30}
+            height={1080}
+            width={1080}
+            durationInFrames={120}
+        />
+    </Folder>
+     */}
 			<Folder name="studio-apis">
 				<Composition
 					id="save-default-props"
@@ -1458,7 +1646,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					height={1000}
 					width={1000}
-					durationInFrames={10}
+					durationInFrames={100}
 				/>
 			</Folder>
 			<Folder name="MediaErrorHandling">
@@ -1518,6 +1706,16 @@ export const Index: React.FC = () => {
 					durationInFrames={1000}
 				/>
 				<Composition
+					id="WhatIsRemotion"
+					component={WhatIsRemotion}
+					width={1080}
+					fps={30}
+					durationInFrames={273}
+					schema={whatIsRemotionSchema}
+					defaultProps={{fade: false, whiteBackground: true, reel: false}}
+					calculateMetadata={whatIsRemotionCalculateMetadata}
+				/>
+				<Composition
 					id="3DContext"
 					component={ThreeDContext}
 					width={1080}
@@ -1553,6 +1751,17 @@ export const Index: React.FC = () => {
 					durationInFrames={900}
 				/>
 			</Folder>
+			<Folder name="visual-controls">
+				<Composition
+					id="visual-controls"
+					component={VisualControls}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={900}
+				/>
+			</Folder>
+			<Still id="whisper-web" component={WhisperWeb} width={800} height={800} />
 			<Composition
 				id="empty"
 				component={Empty}
@@ -1560,6 +1769,22 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={900}
+			/>
+			<Composition
+				id="premount-on-transition-series"
+				component={PremountOnTransitionSeries}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={500}
+			/>
+			<Composition
+				id="TikTokTextBoxes"
+				component={TikTokTextBoxPlayground}
+				width={1080}
+				height={2160}
+				fps={30}
+				durationInFrames={500}
 			/>
 		</>
 	);

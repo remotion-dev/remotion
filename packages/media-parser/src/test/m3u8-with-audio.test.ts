@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
+import {mediaParserController} from '../controller/media-parser-controller';
 import {hasBeenAborted} from '../errors';
-import {mediaParserController} from '../media-parser-controller';
 import {parseMedia} from '../parse-media';
 
 test(
@@ -29,12 +29,12 @@ test(
 				},
 				onAudioTrack: () => {
 					return (s) => {
-						if (s.dts < lastAudioTimestamp) {
+						if (s.decodingTimestamp < lastAudioTimestamp) {
 							throw new Error('Audio timestamp is not increasing');
 						}
 
 						audioSamples += 1;
-						lastAudioTimestamp = s.dts;
+						lastAudioTimestamp = s.decodingTimestamp;
 					};
 				},
 				onVideoTrack: () => {
@@ -43,12 +43,12 @@ test(
 							throw new Error('Video timestamp is not increasing:');
 						}
 
-						if (s.dts === 20000000) {
+						if (s.decodingTimestamp === 20000000) {
 							controller.abort();
 						}
 
 						videoSamples += 1;
-						lastVideoTimestamp = s.dts;
+						lastVideoTimestamp = s.decodingTimestamp;
 					};
 				},
 			});

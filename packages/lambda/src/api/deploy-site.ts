@@ -1,5 +1,5 @@
 import {type GitSource, type WebpackOverrideFn} from '@remotion/bundler';
-import type {AwsRegion} from '@remotion/lambda-client';
+import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
 import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import {
 	getSitesKey,
@@ -42,6 +42,7 @@ type OptionalParameters = {
 	gitSource: GitSource | null;
 	indent: boolean;
 	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.deploySiteLambda>;
 
 export type DeploySiteInput = MandatoryParameters & Partial<OptionalParameters>;
@@ -68,6 +69,7 @@ const mandatoryDeploySite = async ({
 	providerSpecifics,
 	forcePathStyle,
 	fullClientSpecifics,
+	requestHandler,
 }: MandatoryParameters &
 	OptionalParameters & {
 		providerSpecifics: ProviderSpecifics<AwsProvider>;
@@ -92,6 +94,7 @@ const mandatoryDeploySite = async ({
 		region,
 		expectedBucketOwner: accountId,
 		forcePathStyle,
+		requestHandler,
 	});
 	if (!bucketExists) {
 		throw new Error(`No bucket with the name ${bucketName} exists`);
@@ -107,6 +110,7 @@ const mandatoryDeploySite = async ({
 			// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
 			prefix: `${subFolder}/`,
 			forcePathStyle,
+			requestHandler,
 		}),
 		fullClientSpecifics.bundleSite({
 			publicPath: `/${subFolder}/`,
@@ -164,6 +168,7 @@ const mandatoryDeploySite = async ({
 			privacy: privacy ?? 'public',
 			toUpload,
 			forcePathStyle,
+			requestHandler,
 		}),
 		Promise.all(
 			toDelete.map((d) => {
@@ -173,6 +178,7 @@ const mandatoryDeploySite = async ({
 					key: d.Key as string,
 					region,
 					forcePathStyle,
+					requestHandler,
 				});
 			}),
 		),
@@ -221,5 +227,6 @@ export const deploySite = (args: DeploySiteInput) => {
 		providerSpecifics: LambdaClientInternals.awsImplementation,
 		forcePathStyle: args.forcePathStyle ?? false,
 		fullClientSpecifics: awsFullClientSpecifics,
+		requestHandler: args.requestHandler ?? null,
 	});
 };

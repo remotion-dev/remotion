@@ -1,4 +1,4 @@
-import {VideoTrack} from '@remotion/media-parser';
+import {MediaParserVideoTrack} from '@remotion/media-parser';
 import {
 	ConvertMediaProgress,
 	convertMedia,
@@ -72,7 +72,13 @@ export const SrcEncoder: React.FC<{
 	const i = useRef(0);
 
 	const onVideoFrame = useCallback(
-		async ({frame, track}: {frame: VideoFrame; track: VideoTrack}) => {
+		async ({
+			frame,
+			track,
+		}: {
+			frame: VideoFrame;
+			track: MediaParserVideoTrack;
+		}) => {
 			i.current++;
 
 			if (i.current % 10 === 1) {

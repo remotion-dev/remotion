@@ -21,7 +21,11 @@ const callLambdaSyncWithoutRetry = async <
 	OrError<ServerlessReturnValues<Provider>[T]>
 > => {
 	const Payload = JSON.stringify(payload);
-	const res = await getLambdaClient(region as AwsRegion, timeoutInTest).send(
+	const res = await getLambdaClient(
+		region as AwsRegion,
+		timeoutInTest,
+		null,
+	).send(
 		new InvokeCommand({
 			FunctionName: functionName,
 			Payload,

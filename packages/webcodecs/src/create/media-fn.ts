@@ -1,5 +1,10 @@
-import type {AudioOrVideoSample, WriterInterface} from '@remotion/media-parser';
-import type {LogLevel} from '../log';
+import type {
+	MediaParserAudioSample,
+	MediaParserInternalTypes,
+	MediaParserLogLevel,
+	MediaParserVideoSample,
+} from '@remotion/media-parser';
+import type {ConvertMediaContainer} from '../get-available-containers';
 import type {MakeTrackAudio, MakeTrackVideo} from './make-track-info';
 import type {ProgressTracker} from './progress-tracker';
 
@@ -7,7 +12,7 @@ export type MediaFn = {
 	getBlob: () => Promise<Blob>;
 	remove: () => Promise<void>;
 	addSample: (options: {
-		chunk: AudioOrVideoSample;
+		chunk: MediaParserAudioSample | MediaParserVideoSample;
 		trackNumber: number;
 		isVideo: boolean;
 		codecPrivate: Uint8Array | null;
@@ -26,11 +31,13 @@ export type MediaFn = {
 };
 
 export type MediaFnGeneratorInput = {
-	writer: WriterInterface;
+	writer: MediaParserInternalTypes['WriterInterface'];
 	onBytesProgress: (totalBytes: number) => void;
 	onMillisecondsProgress: (totalMilliseconds: number) => void;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	filename: string;
 	progressTracker: ProgressTracker;
 	expectedDurationInSeconds: number | null;
+	expectedFrameRate: number | null;
+	container: ConvertMediaContainer;
 };

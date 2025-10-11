@@ -67,6 +67,21 @@ Minimum value: <MinimumFramesPerLambda />
 The `framesPerLambda` parameter cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
 :::
 
+### `concurrency?`<AvailableFrom v="4.0.322" />
+
+_optional_
+
+Specify the number of Lambda functions to use for rendering. This is an alternative to `framesPerLambda` that allows you to set the concurrency directly without needing to know the video duration.
+
+The concurrency is defined as `frameCount / framesPerLambda`. Remotion will automatically calculate the appropriate `framesPerLambda` value based on your concurrency setting.
+
+Maximum value: 200  
+Minimum value: Depends on video length (must result in `framesPerLambda >= 4`)
+
+:::note
+Cannot be used together with `framesPerLambda`. Use only one of them.
+:::
+
 ### `frameRange?`
 
 _number | [number, number] - optional_
@@ -213,7 +228,7 @@ How often a chunk may be retried to render in case the render fails.
 If a rendering of a chunk is failed, the error will be reported in the [`getRenderProgress()`](/docs/lambda/getrenderprogress) object and retried up to as many times as you specify using this option.
 
 :::note
-A retry only gets executed if a the error is in the [list of flaky errors](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/shared/is-flaky-error.ts).
+A retry only gets executed if a the error is in the [list of flaky errors](https://github.com/remotion-dev/remotion/blob/main/packages/lambda-client/src/is-flaky-error.ts).
 :::
 
 ### `scale?`
@@ -347,6 +362,10 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 If the `logLevel` is set to `verbose`, the Lambda function will not clean up artifacts, to aid debugging. Do not use it unless you are debugging a problem.
 
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
@@ -374,6 +393,10 @@ Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, yo
 ### `apiKey?`<AvailableFrom v="4.0.253"/>
 
 <Options id="api-key" />
+
+### `storageClass?`<AvailableFrom v="4.0.305"/>
+
+An [identifier](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-compare) for the S3 storage class of the rendered media. Default: `undefined` (which is `STANDARD`).
 
 ### ~~`dumpBrowserLogs?`~~
 

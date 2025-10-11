@@ -1,5 +1,5 @@
 import {GetCallerIdentityCommand} from '@aws-sdk/client-sts';
-import type {AwsRegion} from '@remotion/lambda-client';
+import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import type {EvalDecision, SimulationResult} from './simulate-rule';
 import {simulateRule} from './simulate-rule';
@@ -21,6 +21,7 @@ export const logPermissionOutput = (output: SimulationResult) => {
 export type SimulatePermissionsInput = {
 	region: AwsRegion;
 	onSimulation?: (result: SimulationResult) => void;
+	requestHandler?: RequestHandler;
 };
 
 export type SimulatePermissionsOutput = {
@@ -36,6 +37,7 @@ export const simulatePermissions = async (
 ): Promise<SimulatePermissionsOutput> => {
 	const callerIdentity = await LambdaClientInternals.getStsClient(
 		options.region,
+		options.requestHandler,
 	).send(new GetCallerIdentityCommand({}));
 
 	if (!callerIdentity?.Arn) {
@@ -83,6 +85,7 @@ export const simulatePermissions = async (
 			region: options.region,
 			resource: per.resource,
 			retries: 2,
+			requestHandler: options.requestHandler,
 		});
 		for (const res of result) {
 			results.push(res);

@@ -2,6 +2,7 @@ import {cube} from '@remotion-dev/cube-presentation';
 import {clockWipe} from '@remotion/transitions/clock-wipe';
 import {fade} from '@remotion/transitions/fade';
 import {flip} from '@remotion/transitions/flip';
+import {iris} from '@remotion/transitions/iris';
 import {none} from '@remotion/transitions/none';
 import {slide} from '@remotion/transitions/slide';
 import {wipe} from '@remotion/transitions/wipe';
@@ -95,6 +96,23 @@ export const Presentations: React.FC<{
 							<code>{'clockWipe()'}</code>
 						</strong>
 						<div>Reveal the new scene in a circular movement</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/iris">
+				<div style={row}>
+					<PresentationPreview
+						durationRestThreshold={0.001}
+						effect={iris({
+							width: presentationCompositionWidth,
+							height: presentationCompositionHeight,
+						})}
+					/>
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'iris()'}</code>
+						</strong>
+						<div>Reveal the scene through a circular mask from center</div>
 					</div>
 				</div>
 			</TOCItem>

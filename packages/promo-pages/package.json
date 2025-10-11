@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/promo-pages",
-	"version": "4.0.274",
+	"version": "4.0.357",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -33,8 +33,8 @@
 		"eslint-config-next": "15.1.6",
 		"plyr": "^3.7.3",
 		"postcss": "8.4.47",
-		"tailwindcss": "4.0.0",
-		"@tailwindcss/cli": "4.0.0",
+		"tailwindcss": "4.1.1",
+		"@tailwindcss/cli": "4.1.1",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"tailwind-merge": "2.5.2",

@@ -17,14 +17,13 @@ There are multiple ways to retrieve information about a media such as:
 
 ### Advantages
 
-✅ It supports more containers than [`getVideoMetadata()`](/docs/get-video-metadata): MP4, MOV, WebM, AVI, MKV  
+✅ It supports more containers than [`getVideoMetadata()`](/docs/get-video-metadata): `.mp4`, `.mov`, `.webm`, `.mkv`, `.avi`, `.m3u8`, `.ts`, `.mp3`, `.wav`, `.aac`, `.m4a` and `.flac`
 ✅ It supports getting get dimensions of videos shot on iPhones, a common pitfall when using [`getVideoMetadata()`](/docs/get-video-metadata) on Linux  
 ✅ It also works on the server in Node.js and Bun.  
 ✅ It only fetches the information you request, needing to read less bytes to get the information you need.
 
 ### Disadvantages
 
-❌ The API is still unstable, although the signature for simple use cases should not change.  
 ❌ When using in the browser: Assets need to come from the same origin or be CORS-enabled.
 
 ## `getVideoMetadata()` from `@remotion/media-utils`

@@ -1,5 +1,6 @@
 import {
 	fetchCreateAdjacentFileSource,
+	fetchPreload,
 	fetchReadContent,
 	fetchReadWholeAsText,
 } from './from-fetch';
@@ -8,9 +9,9 @@ import {
 	webFileReadContent,
 	webFileReadWholeAsText,
 } from './from-web-file';
-import type {ReaderInterface} from './reader';
+import type {MediaParserReaderInterface} from './reader';
 
-export const webReader: ReaderInterface = {
+export const webReader: MediaParserReaderInterface = {
 	read: (params) => {
 		if (params.src instanceof Blob) {
 			return webFileReadContent(params);
@@ -31,5 +32,12 @@ export const webReader: ReaderInterface = {
 		}
 
 		return fetchReadWholeAsText(src);
+	},
+	preload: ({range, src, logLevel, prefetchCache}) => {
+		if (src instanceof Blob) {
+			return;
+		}
+
+		return fetchPreload({range, src, logLevel, prefetchCache});
 	},
 };

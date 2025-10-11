@@ -10,7 +10,7 @@
     "typecheck": "react-router typegen && tsc",
     "remotion:studio": "remotion studio",
     "remotion:renderlambda": "remotion lambda render remotion-react-router-example LogoAnimation out/logo-animation-lambda-rendered.mp4",
-    "remotion:deploy": "ts-node app/deploy.ts"
+    "remotion:deploy": "tsx app/deploy.ts"
   },
   "sideEffects": [
     "*.css"
@@ -28,14 +28,14 @@
     "isbot": "4.1.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-router": "7.2.0",
+    "react-router": "7.5.2",
     "react-router-dom": "7.2.0",
     "remotion": "workspace:*",
     "tailwindcss": "4.0.0",
     "tailwind-merge": "3.0.1",
-    "@tailwindcss/cli": "4.0.0",
-    "@tailwindcss/vite": "4.0.0",
-    "vite": "^5.4.12",
+    "@tailwindcss/cli": "4.1.1",
+    "@tailwindcss/vite": "4.1.1",
+    "vite": "5.4.20",
     "vite-tsconfig-paths": "^4.2.1",
     "zod": "3.22.3"
   },
@@ -48,8 +48,8 @@
     "@types/react-dom": "19.0.0",
     "dotenv": "16.0.3",
     "eslint": "9.19.0",
-    "prettier": "3.3.3",
-    "ts-node": "10.9.1",
-    "typescript": "5.5.4"
+    "prettier": "3.6.0",
+    "tsx": "4.19.3",
+    "typescript": "5.8.2"
   }
 }

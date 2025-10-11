@@ -14,7 +14,7 @@ test('mehmet video should be fast', async () => {
 		src: exampleVideos.iphonelivefoto,
 		reader: nodeReader,
 		fields: {
-			structure: true,
+			slowStructure: true,
 		},
 		onVideoTrack: () => {
 			return () => {};
@@ -23,6 +23,7 @@ test('mehmet video should be fast', async () => {
 			expect(track.codec).toBe('pcm-s16');
 			expect(track.numberOfChannels).toBe(1);
 			audioTracks++;
+
 			return () => {
 				audioSamples++;
 			};

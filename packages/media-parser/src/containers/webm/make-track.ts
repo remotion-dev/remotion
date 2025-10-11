@@ -1,11 +1,14 @@
-import {getArrayBufferIterator} from '../../buffer-iterator';
+import type {MediaParserCodecData} from '../../codec-data';
 import type {
-	AudioTrack,
 	MediaParserAudioCodec,
+	MediaParserAudioTrack,
 	MediaParserVideoCodec,
-	VideoTrack,
+	MediaParserVideoTrack,
 } from '../../get-tracks';
+import {getArrayBufferIterator} from '../../iterator/buffer-iterator';
 import {getHvc1CodecString} from '../../make-hvc1-codec-strings';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
+import {mediaParserAdvancedColorToWebCodecsColor} from '../iso-base-media/color-to-webcodecs-colors';
 import {parseAv1PrivateData} from './av1-codec-private';
 import {parseColorSegment} from './color';
 import {getAudioDescription} from './description';
@@ -45,7 +48,7 @@ const getDescription = (track: TrackEntry): undefined | Uint8Array => {
 	return undefined;
 };
 
-const getMatroskaVideoCodecWithoutConfigString = ({
+const getMatroskaVideoCodecEnum = ({
 	codecSegment: codec,
 }: {
 	codecSegment: CodecIdSegment;
@@ -106,10 +109,11 @@ const getMatroskaVideoCodecString = ({
 
 	if (codec.value === 'V_MPEGH/ISO/HEVC') {
 		const priv = getPrivateData(track);
-		const iterator = getArrayBufferIterator(
-			priv as Uint8Array,
-			(priv as Uint8Array).length,
-		);
+		const iterator = getArrayBufferIterator({
+			initialData: priv as Uint8Array,
+			maxBytes: (priv as Uint8Array).length,
+			logLevel: 'error',
+		});
 
 		return 'hvc1.' + getHvc1CodecString(iterator);
 	}
@@ -127,7 +131,7 @@ const getMatroskaVideoCodecString = ({
 	throw new Error(`Unknown codec: ${codec.value}`);
 };
 
-export const getMatroskaAudioCodecWithoutConfigString = ({
+export const getMatroskaAudioCodecEnum = ({
 	track,
 }: {
 	track: TrackEntry;
@@ -213,10 +217,11 @@ const getMatroskaAudioCodecString = (track: TrackEntry): string => {
 	if (codec.value === 'A_AAC') {
 		const priv = getPrivateData(track);
 
-		const iterator = getArrayBufferIterator(
-			priv as Uint8Array,
-			(priv as Uint8Array).length,
-		);
+		const iterator = getArrayBufferIterator({
+			initialData: priv as Uint8Array,
+			maxBytes: (priv as Uint8Array).length,
+			logLevel: 'error',
+		});
 
 		iterator.startReadingBits();
 		/**
@@ -261,7 +266,7 @@ export const getTrack = ({
 }: {
 	timescale: number;
 	track: TrackEntry;
-}): VideoTrack | AudioTrack | null => {
+}): MediaParserVideoTrack | MediaParserAudioTrack | null => {
 	const trackType = getTrackTypeSegment(track);
 
 	if (!trackType) {
@@ -302,6 +307,46 @@ export const getTrack = ({
 			return null;
 		}
 
+		const codecEnum = getMatroskaVideoCodecEnum({
+			codecSegment: codec,
+		});
+
+		const codecData: MediaParserCodecData | null =
+			codecPrivate === null
+				? null
+				: codecEnum === 'h264'
+					? {type: 'avc-sps-pps', data: codecPrivate}
+					: codecEnum === 'av1'
+						? {
+								type: 'av1c-data',
+								data: codecPrivate,
+							}
+						: codecEnum === 'h265'
+							? {
+									type: 'hvcc-data',
+									data: codecPrivate,
+								}
+							: codecEnum === 'vp8'
+								? {
+										type: 'unknown-data',
+										data: codecPrivate,
+									}
+								: codecEnum === 'vp9'
+									? {
+											type: 'unknown-data',
+											data: codecPrivate,
+										}
+									: null;
+
+		const advancedColor = colour
+			? parseColorSegment(colour)
+			: {
+					fullRange: null,
+					matrix: null,
+					primaries: null,
+					transfer: null,
+				};
+
 		return {
 			m3uStreamFormat: null,
 			type: 'video',
@@ -314,7 +359,7 @@ export const getTrack = ({
 				numerator: 1,
 				denominator: 1,
 			},
-			timescale,
+			originalTimescale: timescale,
 			codedHeight: height.value.value,
 			codedWidth: width.value.value,
 			displayAspectHeight: displayHeight
@@ -324,20 +369,14 @@ export const getTrack = ({
 				? displayWidth.value.value
 				: width.value.value,
 			rotation: 0,
-			trakBox: null,
-			codecPrivate,
-			color: colour
-				? parseColorSegment(colour)
-				: {
-						fullRange: null,
-						matrixCoefficients: null,
-						primaries: null,
-						transferCharacteristics: null,
-					},
-			codecWithoutConfig: getMatroskaVideoCodecWithoutConfigString({
-				codecSegment: codec,
-			}),
+			codecData,
+			colorSpace: mediaParserAdvancedColorToWebCodecsColor(advancedColor),
+			advancedColor,
+			codecEnum,
 			fps: null,
+			startInSeconds: 0,
+			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		};
 	}
 
@@ -349,19 +388,27 @@ export const getTrack = ({
 			throw new Error('Could not find sample rate or number of channels');
 		}
 
+		const codecString = getMatroskaAudioCodecString(track);
+
 		return {
 			type: 'audio',
 			trackId,
-			codec: getMatroskaAudioCodecString(track),
-			timescale,
+			codec: codecString,
+			originalTimescale: timescale,
 			numberOfChannels,
 			sampleRate,
 			description: getAudioDescription(track),
-			trakBox: null,
-			codecPrivate,
-			codecWithoutConfig: getMatroskaAudioCodecWithoutConfigString({
+			codecData: codecPrivate
+				? codecString === 'opus'
+					? {type: 'ogg-identification', data: codecPrivate}
+					: {type: 'unknown-data', data: codecPrivate}
+				: null,
+			codecEnum: getMatroskaAudioCodecEnum({
 				track,
 			}),
+			startInSeconds: 0,
+			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		};
 	}
 

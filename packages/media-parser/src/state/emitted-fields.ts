@@ -1,4 +1,4 @@
-import type {AllOptions, ParseMediaFields} from '../options';
+import type {AllOptions, ParseMediaFields} from '../fields';
 
 export const emittedState = () => {
 	const emittedFields: AllOptions<ParseMediaFields> = {
@@ -15,7 +15,7 @@ export const emittedState = () => {
 		name: false,
 		rotation: false,
 		size: false,
-		structure: false,
+		slowStructure: false,
 		tracks: false,
 		videoCodec: false,
 		unrotatedDimensions: false,

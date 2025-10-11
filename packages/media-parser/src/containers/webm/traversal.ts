@@ -24,7 +24,8 @@ import type {
 export const getMainSegment = (
 	segments: MatroskaSegment[],
 ): MainSegment | null => {
-	return segments.find((s) => s.type === 'Segment') as MainSegment | null;
+	return (segments.find((s) => s.type === 'Segment') ??
+		null) as MainSegment | null;
 };
 
 export const getTrackNumber = (track: TrackEntry) => {

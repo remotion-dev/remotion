@@ -37,6 +37,10 @@ export const renderFrame = ({
 	framesRenderedObj,
 	frame,
 	page,
+	imageSequencePattern,
+	trimLeftOffset,
+	trimRightOffset,
+	allFramesAndExtraFrames,
 }: {
 	attempt: number;
 	indent: boolean;
@@ -71,6 +75,10 @@ export const renderFrame = ({
 	nextFrameToRender: NextFrameToRender;
 	frame: number;
 	page: Page;
+	imageSequencePattern: string | null;
+	trimLeftOffset: number;
+	trimRightOffset: number;
+	allFramesAndExtraFrames: number[];
 }) => {
 	return new Promise<void>((resolve, reject) => {
 		renderFrameWithOptionToReject({
@@ -103,6 +111,11 @@ export const renderFrame = ({
 			onFrameUpdate,
 			frame,
 			page,
+			imageSequencePattern,
+			fps: composition.fps,
+			trimLeftOffset,
+			trimRightOffset,
+			allFramesAndExtraFrames,
 		})
 			.then(() => {
 				resolve();

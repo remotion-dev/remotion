@@ -8,7 +8,7 @@ export const Page: React.FC<{
 	return (
 		<div
 			className={clsx(
-				'overflow-y-auto w-full bg-slate-50 min-h-[100vh]',
+				'overflow-y-auto w-full bg-slate-50 min-h-screen',
 				className,
 			)}
 		>

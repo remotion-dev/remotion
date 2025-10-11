@@ -2,6 +2,7 @@ mod commands;
 mod errors;
 mod extract_audio;
 mod ffmpeg;
+mod fix_dimensions;
 mod frame_cache;
 mod frame_cache_manager;
 mod get_silent_parts;

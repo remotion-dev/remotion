@@ -1,8 +1,8 @@
-import type {Dimensions} from '@remotion/media-parser';
+import type {MediaParserDimensions} from '@remotion/media-parser';
 import type {ResizeOperation} from '@remotion/webcodecs';
 
 export const getInitialResizeSuggestion = (
-	rotatedDimensions: Dimensions | null,
+	rotatedDimensions: MediaParserDimensions | null,
 ): ResizeOperation => {
 	if (rotatedDimensions === null) {
 		return {

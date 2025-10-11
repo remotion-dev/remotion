@@ -8,12 +8,14 @@ import {type RenderMediaOnDownload} from './assets/download-and-map-assets-to-fi
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import type {OnLog} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
 import {validateQualitySettings} from './crf';
+import {defaultOnLog} from './default-on-log';
 import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -78,6 +80,7 @@ import {wrapWithErrorHandling} from './wrap-with-error-handling';
 export type StitchingState = 'encoding' | 'muxing';
 
 const SLOWEST_FRAME_COUNT = 10;
+const MAX_RECENT_FRAME_TIMINGS = 150;
 
 export type SlowFrame = {frame: number; time: number};
 
@@ -99,8 +102,8 @@ export type InternalRenderMediaOptions = {
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
 	crf: number | null;
-	imageFormat: VideoImageFormat;
-	pixelFormat: PixelFormat;
+	imageFormat: VideoImageFormat | null;
+	pixelFormat: PixelFormat | null;
 	envVariables: Record<string, string>;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
@@ -129,6 +132,7 @@ export type InternalRenderMediaOptions = {
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
 	metadata: Record<string, string> | null;
+	onLog: OnLog;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -185,6 +189,7 @@ export type RenderMediaOptions = Prettify<{
 	binariesDirectory?: string | null;
 	onArtifact?: OnArtifact;
 	metadata?: Record<string, string> | null;
+	compositionStart?: number;
 }> &
 	Partial<MoreRenderMediaOptions>;
 
@@ -199,9 +204,9 @@ const internalRenderMediaRaw = ({
 	proResProfile,
 	x264Preset,
 	crf,
-	composition,
+	composition: compositionWithPossibleUnevenDimensions,
 	serializedInputPropsWithCustomSchema,
-	pixelFormat,
+	pixelFormat: userPixelFormat,
 	codec,
 	envVariables,
 	frameRange,
@@ -252,11 +257,18 @@ const internalRenderMediaRaw = ({
 	hardwareAcceleration,
 	chromeMode,
 	offthreadVideoThreads,
+	mediaCacheSizeInBytes,
+	onLog,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
+	const pixelFormat =
+		userPixelFormat ??
+		compositionWithPossibleUnevenDimensions.defaultPixelFormat ??
+		DEFAULT_PIXEL_FORMAT;
+
 	if (repro) {
 		enableRepro({
 			serveUrl,
-			compositionName: composition.id,
+			compositionName: compositionWithPossibleUnevenDimensions.id,
 			serializedInputPropsWithCustomSchema,
 			serializedResolvedPropsWithCustomSchema,
 		});
@@ -275,6 +287,8 @@ const internalRenderMediaRaw = ({
 	});
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
+	validateBitrate(encodingMaxRate, 'encodingMaxRate');
+	validateBitrate(encodingBufferSize, 'encodingBufferSize');
 
 	validateSelectedCodecAndProResCombination({
 		codec,
@@ -318,14 +332,14 @@ const internalRenderMediaRaw = ({
 	let encodedDoneIn: number | null = null;
 	let cancelled = false;
 	let renderEstimatedTime = 0;
-	let totalTimeSpentOnFrames = 0;
+	const recentFrameTimings: number[] = [];
 
 	const renderStart = Date.now();
 
 	const {estimatedUsage, freeMemory, hasEnoughMemory} =
 		shouldUseParallelEncoding({
-			height: composition.height,
-			width: composition.width,
+			height: compositionWithPossibleUnevenDimensions.height,
+			width: compositionWithPossibleUnevenDimensions.width,
 			logLevel,
 		});
 	const parallelEncoding =
@@ -405,7 +419,9 @@ const internalRenderMediaRaw = ({
 
 	const imageFormat: VideoImageFormat = isAudioCodec(codec)
 		? 'none'
-		: provisionalImageFormat;
+		: (provisionalImageFormat ??
+			compositionWithPossibleUnevenDimensions.defaultVideoImageFormat ??
+			DEFAULT_VIDEO_IMAGE_FORMAT);
 
 	validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
@@ -427,15 +443,24 @@ const internalRenderMediaRaw = ({
 		onCtrlCExit(`Delete ${workingDir}`, () => deleteDirectory(workingDir));
 	}
 
-	validateEvenDimensionsWithCodec({
-		codec,
-		height: composition.height,
-		scale,
-		width: composition.width,
-		wantsImageSequence: false,
-		indent,
-		logLevel,
-	});
+	const {actualWidth: widthEvenDimensions, actualHeight: heightEvenDimensions} =
+		validateEvenDimensionsWithCodec({
+			codec,
+			height: compositionWithPossibleUnevenDimensions.height,
+			scale,
+			width: compositionWithPossibleUnevenDimensions.width,
+			wantsImageSequence: false,
+			indent,
+			logLevel,
+		});
+	const actualWidth = widthEvenDimensions * scale;
+	const actualHeight = heightEvenDimensions * scale;
+
+	const composition = {
+		...compositionWithPossibleUnevenDimensions,
+		height: heightEvenDimensions,
+		width: widthEvenDimensions,
+	};
 
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
@@ -484,8 +509,8 @@ const internalRenderMediaRaw = ({
 	const createPrestitcherIfNecessary = () => {
 		if (preEncodedFileLocation) {
 			preStitcher = prespawnFfmpeg({
-				width: composition.width * scale,
-				height: composition.height * scale,
+				width: actualWidth,
+				height: actualHeight,
 				fps,
 				outputLocation: preEncodedFileLocation,
 				pixelFormat,
@@ -591,17 +616,28 @@ const internalRenderMediaRaw = ({
 			})
 			.then(({server, cleanupServer}) => {
 				cleanupServerFn = cleanupServer;
+				let timeOfLastFrame = Date.now();
 				const renderFramesProc = internalRenderFrames({
 					composition,
-					onFrameUpdate: (
-						frame: number,
-						frameIndex: number,
-						timeToRenderInMilliseconds,
-					) => {
+					onFrameUpdate: (frame: number, frameIndex: number) => {
 						renderedFrames = frame;
 
-						totalTimeSpentOnFrames += timeToRenderInMilliseconds;
-						const newAverage = totalTimeSpentOnFrames / renderedFrames;
+						const now = Date.now();
+						const timeToRenderInMilliseconds = now - timeOfLastFrame;
+						timeOfLastFrame = now;
+
+						// Track recent frame timings (at most 50)
+						recentFrameTimings.push(timeToRenderInMilliseconds);
+						if (recentFrameTimings.length > MAX_RECENT_FRAME_TIMINGS) {
+							recentFrameTimings.shift();
+						}
+
+						// Calculate average using only recent timings for better estimation
+						const recentTimingsSum = recentFrameTimings.reduce(
+							(sum, time) => sum + time,
+							0,
+						);
+						const newAverage = recentTimingsSum / recentFrameTimings.length;
 
 						const remainingFrames = totalFramesToRender - renderedFrames;
 
@@ -677,6 +713,9 @@ const internalRenderMediaRaw = ({
 					onBrowserDownload,
 					onArtifact,
 					chromeMode,
+					imageSequencePattern: null,
+					mediaCacheSizeInBytes,
+					onLog,
 				});
 
 				return renderFramesProc;
@@ -701,8 +740,8 @@ const internalRenderMediaRaw = ({
 
 				const stitchStart = Date.now();
 				return internalStitchFramesToVideo({
-					width: composition.width * scale,
-					height: composition.height * scale,
+					width: actualWidth,
+					height: actualHeight,
 					fps,
 					outputLocation: absoluteOutputLocation,
 					preEncodedFileLocation,
@@ -905,6 +944,8 @@ export const renderMedia = ({
 	hardwareAcceleration,
 	chromeMode,
 	offthreadVideoThreads,
+	compositionStart,
+	mediaCacheSizeInBytes,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -936,9 +977,9 @@ export const renderMedia = ({
 		everyNthFrame: everyNthFrame ?? 1,
 		ffmpegOverride: ffmpegOverride ?? undefined,
 		frameRange: frameRange ?? null,
-		imageFormat: imageFormat ?? DEFAULT_VIDEO_IMAGE_FORMAT,
+		imageFormat: imageFormat ?? null,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},
@@ -952,7 +993,7 @@ export const renderMedia = ({
 		onStart: onStart ?? (() => undefined),
 		outputLocation: outputLocation ?? null,
 		overwrite: overwrite ?? DEFAULT_OVERWRITE,
-		pixelFormat: pixelFormat ?? DEFAULT_PIXEL_FORMAT,
+		pixelFormat: pixelFormat ?? null,
 		port: port ?? null,
 		puppeteerInstance: puppeteerInstance ?? undefined,
 		scale: scale ?? 1,
@@ -966,7 +1007,7 @@ export const renderMedia = ({
 		onCtrlCExit: () => undefined,
 		server: undefined,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: composition.props ?? {},
@@ -987,9 +1028,10 @@ export const renderMedia = ({
 			}),
 		onArtifact: onArtifact ?? null,
 		metadata: metadata ?? null,
-		// TODO: In the future, introduce this as a public API when launching the distributed rendering API
-		compositionStart: 0,
+		compositionStart: compositionStart ?? 0,
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		onLog: defaultOnLog,
 	});
 };

@@ -1,0 +1,76 @@
+---
+image: /generated/articles-docs-audio-visualization.png
+title: Audio Visualization
+sidebar_label: Visualizing audio
+id: visualization
+crumb: 'Audio'
+---
+
+Remotion has APIs for visualizing audio, for example for creating audiograms or music visualizers.
+
+The `@remotion/media-utils` package provides helper functions for reading and processing audio. Using the [`getAudioData()`](/docs/get-audio-data) API you can read audio, and using the [`useAudioData()`](/docs/use-audio-data) helper hook you can load this audio data directly into your component.
+
+## Bar visualization
+
+Using the [`visualizeAudio()`](/docs/visualize-audio) API, you can get an audio spectrum for the current frame.
+
+Bar visualizations are ideal for visualizing music.
+
+```tsx twoslash
+import {useAudioData, visualizeAudio} from '@remotion/media-utils';
+import {Html5Audio, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+
+const music = staticFile('music.mp3');
+
+export const MyComponent: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {width, height, fps} = useVideoConfig();
+  const audioData = useAudioData(music);
+
+  if (!audioData) {
+    return null;
+  }
+
+  const visualization = visualizeAudio({
+    fps,
+    frame,
+    audioData,
+    numberOfSamples: 16,
+  }); // [0.22, 0.1, 0.01, 0.01, 0.01, 0.02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+  // Render a bar chart for each frequency, the higher the amplitude,
+  // the longer the bar
+  return (
+    <div>
+      <Html5Audio src={music} />
+      {visualization.map((v) => {
+        return <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />;
+      })}
+    </div>
+  );
+};
+```
+
+## Waveform visualization
+
+See an example for a waveform visualizations using [`visualizeAudioWaveform()`](/docs/media-utils/visualize-audio-waveform) here.
+
+import {AudioWaveFormExample} from '../../components/AudioWaveformExamples.tsx';
+
+<AudioWaveFormExample type="moving" />
+
+## Working with large files
+
+[`useAudioData()`](/docs/use-audio-data) loads the entire audio file into memory.
+This is fine for small files, but for large files, it can be slow and consume a lot of memory.
+
+Use [`useWindowedAudioData()`](/docs/use-windowed-audio-data) to only load a portion of the audio around the current frame.
+The tradeoff is that this API only works with `.wav` files.
+
+## See also
+
+- [Using audio](/docs/using-audio)
+- [`useAudioData()`](/docs/use-audio-data)
+- [`useWindowedAudioData()`](/docs/use-windowed-audio-data)
+- [`visualizeAudio()`](/docs/visualize-audio)
+- [`visualizeAudioWaveform()`](/docs/media-utils/visualize-audio-waveform)

@@ -1,5 +1,10 @@
-import type {MediaParserContainer, VideoTrack} from '@remotion/media-parser';
+import type {
+	MediaParserContainer,
+	MediaParserVideoTrack,
+} from '@remotion/media-parser';
 import type {ConvertMediaContainer} from './get-available-containers';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import {isSameVideoCodec} from './is-different-video-codec';
 import type {ResizeOperation} from './resizing/mode';
 import {normalizeVideoRotation} from './rotate-and-resize-video-frame';
 import {calculateNewDimensionsFromRotateAndScale} from './rotation';
@@ -10,11 +15,13 @@ export const canCopyVideoTrack = ({
 	inputContainer,
 	resizeOperation,
 	inputTrack,
+	outputVideoCodec,
 }: {
 	inputContainer: MediaParserContainer;
-	inputTrack: VideoTrack;
+	inputTrack: MediaParserVideoTrack;
 	rotationToApply: number;
 	outputContainer: ConvertMediaContainer;
+	outputVideoCodec: ConvertMediaVideoCodec | null;
 	resizeOperation: ResizeOperation | null;
 }) => {
 	if (
@@ -24,12 +31,25 @@ export const canCopyVideoTrack = ({
 		return false;
 	}
 
+	if (outputVideoCodec) {
+		if (
+			!isSameVideoCodec({
+				inputVideoCodec: inputTrack.codecEnum,
+				outputCodec: outputVideoCodec,
+			})
+		) {
+			return false;
+		}
+	}
+
+	const needsToBeMultipleOfTwo = inputTrack.codecEnum === 'h264';
+
 	const newDimensions = calculateNewDimensionsFromRotateAndScale({
 		height: inputTrack.height,
 		resizeOperation,
 		rotation: rotationToApply,
-		videoCodec: inputTrack.codecWithoutConfig,
 		width: inputTrack.width,
+		needsToBeMultipleOfTwo,
 	});
 	if (
 		newDimensions.height !== inputTrack.height ||
@@ -39,16 +59,12 @@ export const canCopyVideoTrack = ({
 	}
 
 	if (outputContainer === 'webm') {
-		return (
-			inputTrack.codecWithoutConfig === 'vp8' ||
-			inputTrack.codecWithoutConfig === 'vp9'
-		);
+		return inputTrack.codecEnum === 'vp8' || inputTrack.codecEnum === 'vp9';
 	}
 
 	if (outputContainer === 'mp4') {
 		return (
-			(inputTrack.codecWithoutConfig === 'h264' ||
-				inputTrack.codecWithoutConfig === 'h265') &&
+			(inputTrack.codecEnum === 'h264' || inputTrack.codecEnum === 'h265') &&
 			(inputContainer === 'mp4' ||
 				inputContainer === 'avi' ||
 				(inputContainer === 'm3u8' && inputTrack.m3uStreamFormat === 'mp4'))

@@ -4,27 +4,27 @@
  */
 
 import type {
-	AudioTrack,
-	LogLevel,
-	OnAudioTrack,
+	MediaParserAudioTrack,
+	MediaParserInternalTypes,
+	MediaParserLogLevel,
+	MediaParserOnAudioTrack,
+	MediaParserVideoTrack,
 	Options,
 	ParseMediaFields,
 	ParseMediaOptions,
-	VideoTrack,
-	WriterInterface,
 } from '@remotion/media-parser';
 import {
 	defaultSelectM3uAssociatedPlaylists,
 	defaultSelectM3uStreamFn,
 	MediaParserAbortError,
 	MediaParserInternals,
-	type OnVideoTrack,
+	type MediaParserOnVideoTrack,
 } from '@remotion/media-parser';
 
-import type {ParseMediaCallbacks} from '@remotion/media-parser';
 import {webReader} from '@remotion/media-parser/web';
 import {autoSelectWriter} from './auto-select-writer';
 import {calculateProgress} from './calculate-progress';
+import {createMedia} from './create-media';
 import {makeProgressTracker} from './create/progress-tracker';
 import {withResolversAndWaitForReturn} from './create/with-resolvers';
 import {generateOutputFilename} from './generate-output-filename';
@@ -43,7 +43,6 @@ import {type ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
 import {makeVideoTrackHandler} from './on-video-track';
 import {type ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
 import type {ResizeOperation} from './resizing/mode';
-import {selectContainerCreator} from './select-container-creator';
 import {sendUsageEvent} from './send-telemetry-event';
 import {throttledStateUpdate} from './throttled-state-update';
 import {
@@ -71,11 +70,11 @@ export type ConvertMediaResult = {
 export type ConvertMediaOnProgress = (state: ConvertMediaProgress) => void;
 export type ConvertMediaOnVideoFrame = (options: {
 	frame: VideoFrame;
-	track: VideoTrack;
+	track: MediaParserVideoTrack;
 }) => Promise<VideoFrame> | VideoFrame;
 export type ConvertMediaOnAudioData = (options: {
 	audioData: AudioData;
-	track: AudioTrack;
+	track: MediaParserAudioTrack;
 }) => Promise<AudioData> | AudioData;
 
 export const convertMedia = async function <
@@ -122,7 +121,7 @@ export const convertMedia = async function <
 	onSlowKeyframes,
 	onSlowNumberOfFrames,
 	onSlowVideoBitrate,
-	onStructure,
+	onSlowStructure,
 	onTracks,
 	onUnrotatedDimensions,
 	onVideoCodec,
@@ -130,6 +129,8 @@ export const convertMedia = async function <
 	selectM3uStream,
 	selectM3uAssociatedPlaylists,
 	expectedDurationInSeconds,
+	expectedFrameRate,
+	seekingHints,
 	...more
 }: {
 	src: ParseMediaOptions<F>['src'];
@@ -145,16 +146,18 @@ export const convertMedia = async function <
 	selectM3uStream?: ParseMediaOptions<F>['selectM3uStream'];
 	selectM3uAssociatedPlaylists?: ParseMediaOptions<F>['selectM3uAssociatedPlaylists'];
 	expectedDurationInSeconds?: number | null;
+	expectedFrameRate?: number | null;
 	reader?: ParseMediaOptions<F>['reader'];
-	logLevel?: LogLevel;
-	writer?: WriterInterface;
+	logLevel?: MediaParserLogLevel;
+	writer?: MediaParserInternalTypes['WriterInterface'];
 	progressIntervalInMs?: number;
 	rotate?: number;
 	resize?: ResizeOperation;
 	apiKey?: string | null;
 	fields?: F;
-} & ParseMediaCallbacks): Promise<ConvertMediaResult> {
-	if (controller._internals.signal.aborted) {
+	seekingHints?: ParseMediaOptions<F>['seekingHints'];
+} & MediaParserInternalTypes['ParseMediaCallbacks']): Promise<ConvertMediaResult> {
+	if (controller._internals._mediaParserController._internals.signal.aborted) {
 		return Promise.reject(new MediaParserAbortError('Aborted'));
 	}
 
@@ -180,7 +183,9 @@ export const convertMedia = async function <
 	const abortConversion = (errCause: Error) => {
 		reject(errCause);
 
-		if (!controller._internals.signal.aborted) {
+		if (
+			!controller._internals._mediaParserController._internals.signal.aborted
+		) {
 			controller.abort();
 		}
 	};
@@ -189,19 +194,21 @@ export const convertMedia = async function <
 		abortConversion(new MediaParserAbortError('Conversion aborted by user'));
 	};
 
-	controller._internals.signal.addEventListener('abort', onUserAbort);
-
-	const creator = selectContainerCreator(container);
+	controller._internals._mediaParserController._internals.signal.addEventListener(
+		'abort',
+		onUserAbort,
+	);
 
 	const throttledState = throttledStateUpdate({
 		updateFn: onProgressDoNotCallDirectly ?? null,
 		everyMilliseconds: progressIntervalInMs ?? 100,
-		signal: controller._internals.signal,
+		signal: controller._internals._mediaParserController._internals.signal,
 	});
 
 	const progressTracker = makeProgressTracker();
 
-	const state = await creator({
+	const state = await createMedia({
+		container,
 		filename: generateOutputFilename(src, container),
 		writer: await autoSelectWriter(writer, logLevel),
 		onBytesProgress: (bytesWritten) => {
@@ -231,9 +238,11 @@ export const convertMedia = async function <
 		logLevel,
 		progressTracker,
 		expectedDurationInSeconds: expectedDurationInSeconds ?? null,
+		expectedFrameRate: expectedFrameRate ?? null,
 	});
 
-	const onVideoTrack: OnVideoTrack = makeVideoTrackHandler({
+	const onVideoTrack: MediaParserOnVideoTrack = makeVideoTrackHandler({
+		progressTracker,
 		state,
 		onVideoFrame: onVideoFrame ?? null,
 		onMediaStateUpdate: throttledState.update ?? null,
@@ -244,11 +253,11 @@ export const convertMedia = async function <
 		logLevel,
 		outputContainer: container,
 		rotate: rotate ?? 0,
-		progress: progressTracker,
 		resizeOperation: resize ?? null,
 	});
 
-	const onAudioTrack: OnAudioTrack = makeAudioTrackHandler({
+	const onAudioTrack: MediaParserOnAudioTrack = makeAudioTrackHandler({
+		progressTracker,
 		abortConversion,
 		defaultAudioCodec: audioCodec ?? null,
 		controller,
@@ -257,7 +266,6 @@ export const convertMedia = async function <
 		onAudioTrack: userAudioResolver ?? null,
 		logLevel,
 		outputContainer: container,
-		progressTracker,
 		onAudioData: onAudioData ?? null,
 	});
 
@@ -266,7 +274,7 @@ export const convertMedia = async function <
 		src,
 		onVideoTrack,
 		onAudioTrack,
-		controller,
+		controller: controller._internals._mediaParserController,
 		fields: {
 			...fields,
 			durationInSeconds: true,
@@ -325,7 +333,7 @@ export const convertMedia = async function <
 		onSlowKeyframes: onSlowKeyframes ?? null,
 		onSlowNumberOfFrames: onSlowNumberOfFrames ?? null,
 		onSlowVideoBitrate: onSlowVideoBitrate ?? null,
-		onStructure: onStructure ?? null,
+		onSlowStructure: onSlowStructure ?? null,
 		onTracks: onTracks ?? null,
 		onUnrotatedDimensions: onUnrotatedDimensions ?? null,
 		onVideoCodec: onVideoCodec ?? null,
@@ -334,7 +342,9 @@ export const convertMedia = async function <
 		selectM3uStream: selectM3uStream ?? defaultSelectM3uStreamFn,
 		selectM3uAssociatedPlaylists:
 			selectM3uAssociatedPlaylists ?? defaultSelectM3uAssociatedPlaylists,
-		mp4HeaderSegment: null,
+		makeSamplesStartAtZero: false,
+		m3uPlaylistContext: null,
+		seekingHints: seekingHints ?? null,
 	})
 		.then(() => {
 			return state.waitForFinish();
@@ -364,6 +374,9 @@ export const convertMedia = async function <
 		});
 
 	return getPromiseToImmediatelyReturn().finally(() => {
-		controller._internals.signal.removeEventListener('abort', onUserAbort);
+		controller._internals._mediaParserController._internals.signal.removeEventListener(
+			'abort',
+			onUserAbort,
+		);
 	});
 };

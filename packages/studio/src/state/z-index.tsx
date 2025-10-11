@@ -50,19 +50,30 @@ export const HigherZIndex: React.FC<{
 	readonly onEscape: () => void;
 	readonly onOutsideClick: (target: Node) => void;
 	readonly children: React.ReactNode;
-}> = ({children, onEscape, onOutsideClick}) => {
+	readonly disabled?: boolean;
+}> = ({children, onEscape, onOutsideClick, disabled}) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const currentIndex = context.currentIndex + 1;
+	const currentIndex = disabled
+		? context.currentIndex
+		: context.currentIndex + 1;
 
 	useEffect(() => {
+		if (disabled) {
+			return;
+		}
+
 		highestContext.registerZIndex(currentIndex);
 		return () => highestContext.unregisterZIndex(currentIndex);
-	}, [currentIndex, highestContext]);
+	}, [currentIndex, highestContext, disabled]);
 
 	useEffect(() => {
+		if (disabled) {
+			return;
+		}
+
 		let onUp: ((upEvent: MouseEvent) => void) | null = null;
 
 		const listener = (downEvent: MouseEvent) => {
@@ -103,7 +114,7 @@ export const HigherZIndex: React.FC<{
 
 			return window.removeEventListener('pointerdown', listener);
 		};
-	}, [currentIndex, highestContext.highestIndex, onOutsideClick]);
+	}, [currentIndex, disabled, highestContext.highestIndex, onOutsideClick]);
 
 	const value = useMemo((): ZIndex => {
 		return {
@@ -113,7 +124,7 @@ export const HigherZIndex: React.FC<{
 
 	return (
 		<ZIndexContext.Provider value={value}>
-			<EscapeHook onEscape={onEscape} />
+			{disabled ? null : <EscapeHook onEscape={onEscape} />}
 			<div ref={containerRef} style={margin}>
 				{children}
 			</div>

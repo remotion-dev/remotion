@@ -79,6 +79,8 @@ export const startStudio = async ({
 	bufferStateDelayInMilliseconds,
 	binariesDirectory,
 	forceIPv4,
+	audioLatencyHint,
+	enableCrossSiteIsolation,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -98,6 +100,8 @@ export const startStudio = async ({
 	getRenderDefaults: () => RenderDefaults;
 	getRenderQueue: () => RenderJob[];
 	numberOfAudioTags: number;
+	audioLatencyHint: AudioContextLatencyCategory | null;
+	enableCrossSiteIsolation: boolean;
 	queueMethods: QueueMethods;
 	parsedCliOpen: boolean;
 	previewEntry: string;
@@ -115,7 +119,7 @@ export const startStudio = async ({
 		}
 	} catch {}
 
-	watchRootFile(remotionRoot);
+	watchRootFile(remotionRoot, previewEntry);
 	const publicDir = getAbsolutePublicDir({
 		relativePublicDir,
 		remotionRoot,
@@ -174,6 +178,8 @@ export const startStudio = async ({
 		bufferStateDelayInMilliseconds,
 		binariesDirectory,
 		forceIPv4,
+		audioLatencyHint,
+		enableCrossSiteIsolation,
 	});
 
 	const cleanupLiveEventsListener = setLiveEventsListener(liveEventsServer);

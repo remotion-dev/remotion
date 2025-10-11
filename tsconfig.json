@@ -5,7 +5,7 @@
 		"declaration": true,
 		"declarationMap": false,
 		"sourceMap": false,
-		"lib": ["es2018", "dom"],
+		"lib": ["es2023", "dom"],
 		"jsx": "react-jsx",
 		"noEmit": false,
 		"strict": true,
@@ -35,9 +35,6 @@
 		},
 		{
 			"path": "./packages/create-video"
-		},
-		{
-			"path": "./packages/docs"
 		},
 		{
 			"path": "./packages/eslint-config"
@@ -130,13 +127,13 @@
 			"path": "./packages/tailwind"
 		},
 		{
-			"path": "./packages/template-skia"
-		},
-		{
 			"path": "./packages/template-still"
 		},
 		{
 			"path": "./packages/template-blank"
+		},
+		{
+			"path": "./packages/template-render-server"
 		},
 		{
 			"path": "./packages/template-next-pages"
@@ -175,7 +172,13 @@
 			"path": "./packages/template-audiogram"
 		},
 		{
+			"path": "./packages/template-music-visualization"
+		},
+		{
 			"path": "./packages/template-stargazer"
+		},
+		{
+			"path": "./packages/template-recorder"
 		},
 		{
 			"path": "./packages/studio"
@@ -227,6 +230,12 @@
 		},
 		{
 			"path": "./packages/zod-types"
+		},
+		{
+			"path": "./packages/media"
+		},
+		{
+			"path": "./packages/web-renderer"
 		}
 	]
 }

@@ -1,6 +1,6 @@
+import type {MediaParserTrack} from '../../get-tracks';
 import type {ParserState} from '../../state/parser-state';
 import {truthy} from '../../truthy';
-import type {AllTracks} from '../riff/get-tracks-from-avi';
 import type {TransportStreamEntry} from './parse-pmt';
 import {findProgramMapTableOrThrow} from './traversal';
 
@@ -14,8 +14,8 @@ export const filterStreamsBySupportedTypes = (
 
 export const getTracksFromTransportStream = (
 	parserState: ParserState,
-): AllTracks => {
-	const structure = parserState.getTsStructure();
+): MediaParserTrack[] => {
+	const structure = parserState.structure.getTsStructure();
 	const programMapTable = findProgramMapTableOrThrow(structure);
 	const parserTracks = parserState.callbacks.tracks.getTracks();
 
@@ -31,11 +31,7 @@ export const getTracksFromTransportStream = (
 		throw new Error('Not all tracks found');
 	}
 
-	return {
-		videoTracks: mapped.filter((track) => track.type === 'video'),
-		audioTracks: mapped.filter((track) => track.type === 'audio'),
-		otherTracks: [],
-	};
+	return mapped;
 };
 
 export const hasAllTracksFromTransportStream = (parserState: ParserState) => {

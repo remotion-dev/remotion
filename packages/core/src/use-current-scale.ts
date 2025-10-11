@@ -1,5 +1,5 @@
 import React, {createContext} from 'react';
-import {getRemotionEnvironment} from './get-remotion-environment';
+import {useRemotionEnvironment} from './use-remotion-environment';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 
 type Size = {
@@ -67,7 +67,16 @@ export const calculateScale = ({
 
 	const ratio = Math.min(heightRatio, widthRatio);
 
-	return previewSize === 'auto' ? ratio : Number(previewSize);
+	if (previewSize === 'auto') {
+		// Container may be 0x0 because it doesn't have any content yet.
+		if (ratio === 0) {
+			return 1;
+		}
+
+		return ratio;
+	}
+
+	return Number(previewSize);
 };
 
 /*
@@ -78,13 +87,14 @@ export const useCurrentScale = (options?: Options) => {
 	const hasContext = React.useContext(CurrentScaleContext);
 	const zoomContext = React.useContext(PreviewSizeContext);
 	const config = useUnsafeVideoConfig();
+	const env = useRemotionEnvironment();
 
 	if (hasContext === null || config === null || zoomContext === null) {
 		if (options?.dontThrowIfOutsideOfRemotion) {
 			return 1;
 		}
 
-		if (getRemotionEnvironment().isRendering) {
+		if (env.isRendering) {
 			return 1;
 		}
 

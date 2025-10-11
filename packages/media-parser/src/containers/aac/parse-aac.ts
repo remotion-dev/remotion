@@ -7,6 +7,7 @@ import {convertAudioOrVideoSampleToWebCodecsTimestamps} from '../../convert-audi
 import type {ParseResult} from '../../parse-result';
 import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 
 export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const {iterator} = state;
@@ -59,21 +60,30 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const data = iterator.getSlice(frameLength);
 
 	if (state.callbacks.tracks.getTracks().length === 0) {
+		state.mediaSection.addMediaSection({
+			start: startOffset,
+			size: state.contentLength - startOffset,
+		});
 		await registerAudioTrack({
-			state,
 			container: 'aac',
 			track: {
 				codec: mapAudioObjectTypeToCodecString(audioObjectType),
-				codecWithoutConfig: 'aac',
-				codecPrivate,
+				codecEnum: 'aac',
+				codecData: {type: 'aac-config', data: codecPrivate},
 				description: codecPrivate,
 				numberOfChannels: channelConfiguration,
 				sampleRate,
-				timescale: 1_000_000,
+				originalTimescale: WEBCODECS_TIMESCALE,
 				trackId: 0,
-				trakBox: null,
 				type: 'audio',
+				startInSeconds: 0,
+				timescale: WEBCODECS_TIMESCALE,
+				trackMediaTimeOffsetInTrackTimescale: 0,
 			},
+			registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
+			tracks: state.callbacks.tracks,
+			logLevel: state.logLevel,
+			onAudioTrack: state.onAudioTrack,
 		});
 		state.callbacks.tracks.setIsDone(state.logLevel);
 	}
@@ -82,24 +92,29 @@ export const parseAac = async (state: ParserState): Promise<ParseResult> => {
 	const {index} = state.aac.addSample({offset: startOffset, size: frameLength});
 	const timestamp = (1024 / sampleRate) * index;
 
+	state.aac.audioSamples.addSample({
+		timeInSeconds: timestamp,
+		offset: startOffset,
+		durationInSeconds: duration,
+	});
+
 	// One ADTS frame contains 1024 samples
-	await state.callbacks.onAudioSample(
-		0,
-		convertAudioOrVideoSampleToWebCodecsTimestamps(
-			{
-				duration,
-				type: 'key',
-				data,
-				offset: startOffset,
-				timescale: 1_000_000,
-				trackId: 0,
-				cts: timestamp,
-				dts: timestamp,
-				timestamp,
-			},
-			1,
-		),
-	);
+	const audioSample = convertAudioOrVideoSampleToWebCodecsTimestamps({
+		sample: {
+			duration,
+			type: 'key',
+			data,
+			offset: startOffset,
+			decodingTimestamp: timestamp,
+			timestamp,
+		},
+		timescale: 1,
+	});
+
+	await state.callbacks.onAudioSample({
+		audioSample,
+		trackId: 0,
+	});
 
 	return Promise.resolve(null);
 };

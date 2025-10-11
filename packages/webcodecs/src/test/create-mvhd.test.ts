@@ -65,7 +65,11 @@ const input = new Uint8Array([
 ]);
 
 test('Create mvhd box', () => {
-	const iterator = MediaParserInternals.getArrayBufferIterator(input, null);
+	const iterator = MediaParserInternals.getArrayBufferIterator({
+		initialData: input,
+		maxBytes: input.length,
+		logLevel: 'error',
+	});
 	const size = iterator.getFourByteNumber();
 	iterator.discard(4);
 

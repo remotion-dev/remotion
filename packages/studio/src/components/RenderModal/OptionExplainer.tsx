@@ -66,10 +66,14 @@ export const OptionExplainer: React.FC<{
 			<div style={padding}>
 				<div>
 					<strong style={title}>{option.name}</strong>
-					<Spacing x={1} />
-					<a style={link} href={option.docLink} target="_blank">
-						Docs
-					</a>
+					{option.docLink ? (
+						<>
+							<Spacing x={1} />
+							<a style={link} href={option.docLink} target="_blank">
+								Docs
+							</a>
+						</>
+					) : null}
 				</div>
 				<div style={description}>{option.description('ssr')}</div>
 			</div>

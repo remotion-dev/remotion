@@ -47,7 +47,7 @@ export const M3uStreamSelector: React.FC<{
 						return (
 							<SelectGroup key={stream.id}>
 								<SelectItem value={String(stream.id)}>
-									{stream.resolution ? (
+									{stream.dimensions ? (
 										<M3uStreamPickerResolutionDisplay
 											stream={stream}
 											allStreams={streams}

@@ -6,6 +6,10 @@ slug: /webcodecs/track-transformation
 crumb: '@remotion/webcodecs'
 ---
 
+:::warning
+[We are phasing out Remotion WebCodecs and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 When transforming media, there are multiple thing that can be done for each audio or video track:
 
 - Copying the track without re-encoding
@@ -56,7 +60,7 @@ await convertMedia({
   container: 'webm',
   audioCodec: 'opus',
   onVideoTrack: ({track}) => {
-    if (track.codecWithoutConfig === 'vp8') {
+    if (track.codecEnum === 'vp8') {
       return {type: 'copy'};
     }
 
@@ -77,7 +81,7 @@ The options for video codecs are:
 The options for audio codecs are:
 
 - `{"type": "copy"}` - Copy the track without re-encoding
-- `{"type": "reencode", "audioCodec": ConvertMediaAudioCodec; bitrate: number}` - Re-encode the track into the specified codec. The suggested bitrate to use is `128000`.
+- `{"type": "reencode", "audioCodec": ConvertMediaAudioCodec; bitrate: number; sampleRate: number | null;}` - Re-encode the track into the specified codec. The suggested bitrate to use is `128000`. The sample rate can be `null` to use the sample rate of the original track.
 - `{"type": "drop"}` - Remove the track from the output
 - `{"type": "fail"}` - Fail and stop the conversion process
 

@@ -121,7 +121,7 @@ test('Should be able to recognize non-arrow function', () => {
 	expect(newContents).toContain('"ghi"');
 });
 
-test.todo('should work if there is no fragment');
+// test.todo('should work if there is no fragment');
 
 test('in non-return statement', () => {
 	const {changesMade, newContents} = StudioServerInternals.parseAndApplyCodemod(

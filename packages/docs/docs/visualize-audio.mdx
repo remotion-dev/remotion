@@ -69,7 +69,7 @@ In this example, we render a bar chart visualizing the audio spectrum of an audi
 
 ```tsx twoslash
 import {useAudioData, visualizeAudio} from '@remotion/media-utils';
-import {Audio, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Html5Audio, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const MyComponent: React.FC = () => {
   const frame = useCurrentFrame();
@@ -91,7 +91,7 @@ export const MyComponent: React.FC = () => {
   // the longer the bar
   return (
     <div>
-      <Audio src={staticFile('music.mp3')} />
+      <Html5Audio src={staticFile('music.mp3')} />
       {visualization.map((v) => {
         return <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />;
       })}
@@ -149,8 +149,8 @@ const amplitudes = frequencyData.map((value) => {
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/visualize-audio.ts)
-- [Audio visualization](/docs/audio-visualization)
+- [Audio visualization](/docs/audio/visualization)
 - [`useAudioData()`](/docs/use-audio-data)
 - [`getAudioData()`](/docs/get-audio-data)
-- [`<Audio/>`](/docs/audio)
+- [`<Html5Audio/>`](/docs/html5-audio)
 - [Using audio](/docs/using-audio)

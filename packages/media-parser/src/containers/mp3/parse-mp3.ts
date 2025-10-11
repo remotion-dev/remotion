@@ -3,10 +3,22 @@ import type {ParserState} from '../../state/parser-state';
 import {parseId3} from './id3';
 import {parseID3V1} from './id3-v1';
 import {parseMpegHeader} from './parse-mpeg-header';
+import {discardUntilSyncword} from './seek/wait-until-syncword';
 
 export const parseMp3 = async (state: ParserState): Promise<ParseResult> => {
 	const {iterator} = state;
 	if (iterator.bytesRemaining() < 3) {
+		return null;
+	}
+
+	// When coming from a seek, we need to discard until the syncword
+	if (
+		state.mediaSection.isCurrentByteInMediaSection(iterator) === 'in-section'
+	) {
+		discardUntilSyncword({iterator});
+		await parseMpegHeader({
+			state,
+		});
 		return null;
 	}
 

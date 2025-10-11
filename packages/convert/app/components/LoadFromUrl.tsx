@@ -32,7 +32,10 @@ export const LoadFromUrl: React.FC = () => {
 	}, []);
 
 	const set = useCallback(() => {
-		const currentUrl = new URL(window.location.href);
+		const currentUrl = new URL(
+			window.location.pathname === '/' ? '/convert' : window.location.pathname,
+			window.location.href,
+		);
 		currentUrl.searchParams.set('url', value);
 		window.location.href = currentUrl.toString();
 	}, [value]);

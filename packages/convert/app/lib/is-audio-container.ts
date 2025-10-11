@@ -1,18 +1,20 @@
 import type {
 	MediaParserContainer,
-	MediaParserTracks,
+	MediaParserTrack,
 } from '@remotion/media-parser';
 
 export const isAudioOnly = ({
 	tracks,
 	container,
 }: {
-	tracks: MediaParserTracks | null;
+	tracks: MediaParserTrack[] | null;
 	container: MediaParserContainer | null;
 }) => {
 	if (container === 'mp3') {
 		return true;
 	}
 
-	return (tracks && tracks.videoTracks.length === 0) ?? false;
+	return (
+		(tracks && tracks.filter((t) => t.type === 'video').length === 0) ?? false
+	);
 };

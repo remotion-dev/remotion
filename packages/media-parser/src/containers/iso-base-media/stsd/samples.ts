@@ -1,5 +1,6 @@
+import type {BufferIterator} from '../../../iterator/buffer-iterator';
+import type {MediaParserLogLevel} from '../../../log';
 import type {AnySegment} from '../../../parse-result';
-import type {ParserState} from '../../../state/parser-state';
 import type {IsoBaseMediaBox} from '../base-media-box';
 import {getIsoBaseMediaChildren} from '../get-children';
 
@@ -88,6 +89,8 @@ const videoTags = [
 	'hev1',
 	'ap4h',
 	'av01',
+	'vp08',
+	'vp09',
 ];
 
 // https://developer.apple.com/documentation/quicktime-file-format/sound_sample_descriptions
@@ -117,14 +120,18 @@ const audioTags = [
 	'.mp3',
 	'mp4a',
 	'ac-3',
+	'Opus',
 ];
 
 export const processIsoFormatBox = async ({
-	state,
+	iterator,
+	logLevel,
+	contentLength,
 }: {
-	state: ParserState;
+	iterator: BufferIterator;
+	logLevel: MediaParserLogLevel;
+	contentLength: number;
 }): Promise<FormatBoxAndNext> => {
-	const {iterator} = state;
 	const fileOffset = iterator.counter.getOffset();
 	const bytesRemaining = iterator.bytesRemaining();
 	const boxSize = iterator.getUint32();
@@ -173,8 +180,11 @@ export const processIsoFormatBox = async ({
 			const sampleRate = iterator.getFixedPointUnsigned1616Number();
 
 			const children = await getIsoBaseMediaChildren({
-				state,
+				iterator,
+				logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
+				onlyIfMoovAtomExpected: null,
+				contentLength,
 			});
 
 			return {
@@ -215,8 +225,11 @@ export const processIsoFormatBox = async ({
 			const bytesPerSample = iterator.getUint32();
 
 			const children = await getIsoBaseMediaChildren({
-				state,
+				iterator,
+				logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
+				onlyIfMoovAtomExpected: null,
+				contentLength,
 			});
 
 			return {
@@ -260,8 +273,11 @@ export const processIsoFormatBox = async ({
 			const samplesPerPacket = iterator.getUint32();
 
 			const children = await getIsoBaseMediaChildren({
-				state,
+				iterator,
+				logLevel,
 				size: boxSize - (iterator.counter.getOffset() - fileOffset),
+				onlyIfMoovAtomExpected: null,
+				contentLength,
 			});
 
 			return {
@@ -313,8 +329,11 @@ export const processIsoFormatBox = async ({
 		const children: IsoBaseMediaBox[] =
 			bytesRemainingInBox > 8
 				? await getIsoBaseMediaChildren({
-						state,
+						onlyIfMoovAtomExpected: null,
+						iterator,
+						logLevel,
 						size: bytesRemainingInBox,
+						contentLength,
 					})
 				: (iterator.discard(bytesRemainingInBox), []);
 
@@ -349,12 +368,15 @@ export const processIsoFormatBox = async ({
 
 export const parseIsoFormatBoxes = async ({
 	maxBytes,
-	state,
+	logLevel,
+	iterator,
+	contentLength,
 }: {
 	maxBytes: number;
-	state: ParserState;
+	logLevel: MediaParserLogLevel;
+	iterator: BufferIterator;
+	contentLength: number;
 }): Promise<Sample[]> => {
-	const {iterator} = state;
 	const samples: Sample[] = [];
 	const initialOffset = iterator.counter.getOffset();
 
@@ -363,7 +385,9 @@ export const parseIsoFormatBoxes = async ({
 		iterator.counter.getOffset() - initialOffset < maxBytes
 	) {
 		const {sample} = await processIsoFormatBox({
-			state,
+			iterator,
+			logLevel,
+			contentLength,
 		});
 
 		if (sample) {

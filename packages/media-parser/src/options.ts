@@ -3,25 +3,29 @@ import type {
 	SelectM3uAssociatedPlaylistsFn,
 	SelectM3uStreamFn,
 } from './containers/m3u/select-stream';
-import type {Dimensions} from './get-dimensions';
+import type {MediaParserController} from './controller/media-parser-controller';
+import type {Options, ParseMediaFields} from './fields';
+import type {MediaParserDimensions} from './get-dimensions';
 import type {MediaParserLocation} from './get-location';
 import type {
-	AudioTrack,
 	MediaParserAudioCodec,
+	MediaParserTrack,
 	MediaParserVideoCodec,
-	VideoTrack,
 } from './get-tracks';
-import type {LogLevel} from './log';
-import type {MediaParserController} from './media-parser-controller';
+import type {MediaParserLogLevel} from './log';
 import type {MediaParserMetadataEntry} from './metadata/get-metadata';
 import type {
 	IsoBaseMediaStructure,
 	MediaParserStructureUnstable,
 } from './parse-result';
-import type {ReaderInterface} from './readers/reader';
+import type {MediaParserReaderInterface} from './readers/reader';
+import type {SeekingHints} from './seeking-hints';
 import type {MediaParserEmbeddedImage} from './state/images';
 import type {InternalStats} from './state/parser-state';
-import type {OnAudioTrack, OnVideoTrack} from './webcodec-sample-types';
+import type {
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from './webcodec-sample-types';
 import type {WriterInterface} from './writers/writer';
 
 export type KnownAudioCodecs =
@@ -33,44 +37,13 @@ export type KnownAudioCodecs =
 	| 'vorbis'
 	| 'unknown';
 
-export type ParseMediaFields = {
-	dimensions: boolean;
-	durationInSeconds: boolean;
-	slowDurationInSeconds: boolean;
-	structure: boolean;
-	fps: boolean;
-	slowFps: boolean;
-	videoCodec: boolean;
-	audioCodec: boolean;
-	tracks: boolean;
-	rotation: boolean;
-	unrotatedDimensions: boolean;
-	internalStats: boolean;
-	size: boolean;
-	name: boolean;
-	container: boolean;
-	isHdr: boolean;
-	metadata: boolean;
-	location: boolean;
-	mimeType: boolean;
-	keyframes: boolean;
-	slowKeyframes: boolean;
-	slowNumberOfFrames: boolean;
-	slowVideoBitrate: boolean;
-	slowAudioBitrate: boolean;
-	images: boolean;
-	sampleRate: boolean;
-	numberOfAudioChannels: boolean;
-	m3uStreams: boolean;
-};
-
 export type AllParseMediaFields = {
 	dimensions: true;
 	durationInSeconds: true;
 	slowDurationInSeconds: true;
 	slowNumberOfFrames: true;
 	slowFps: true;
-	structure: true;
+	slowStructure: true;
 	fps: true;
 	videoCodec: true;
 	audioCodec: true;
@@ -95,46 +68,6 @@ export type AllParseMediaFields = {
 	m3uStreams: true;
 };
 
-export type AllOptions<Fields extends ParseMediaFields> = {
-	dimensions: Fields['dimensions'];
-	durationInSeconds: Fields['durationInSeconds'];
-	slowDurationInSeconds: Fields['slowDurationInSeconds'];
-	slowFps: Fields['slowFps'];
-	structure: Fields['structure'];
-	fps: Fields['fps'];
-	videoCodec: Fields['videoCodec'];
-	audioCodec: Fields['audioCodec'];
-	tracks: Fields['tracks'];
-	rotation: Fields['rotation'];
-	unrotatedDimensions: Fields['unrotatedDimensions'];
-	internalStats: Fields['internalStats'];
-	size: Fields['size'];
-	name: Fields['name'];
-	container: Fields['container'];
-	isHdr: Fields['isHdr'];
-	metadata: Fields['metadata'];
-	location: Fields['location'];
-	mimeType: Fields['mimeType'];
-	keyframes: Fields['keyframes'];
-	slowKeyframes: Fields['slowKeyframes'];
-	slowNumberOfFrames: Fields['slowNumberOfFrames'];
-	images: Fields['images'];
-	sampleRate: Fields['sampleRate'];
-	numberOfAudioChannels: Fields['numberOfAudioChannels'];
-	slowVideoBitrate: Fields['slowVideoBitrate'];
-	slowAudioBitrate: Fields['slowAudioBitrate'];
-	m3uStreams: Fields['m3uStreams'];
-};
-
-export type Options<Fields extends ParseMediaFields> = Partial<
-	AllOptions<Fields>
->;
-
-export type MediaParserTracks = {
-	videoTracks: VideoTrack[];
-	audioTracks: AudioTrack[];
-};
-
 export type MediaParserContainer =
 	| 'mp4'
 	| 'webm'
@@ -157,7 +90,9 @@ export type MediaParserKeyframe = {
 export type ParseMediaCallbacksMandatory = {
 	onDimensions:
 		| null
-		| ((dimensions: Dimensions | null) => unknown | Promise<unknown>);
+		| ((
+				dimensions: MediaParserDimensions | null,
+		  ) => unknown | Promise<unknown>);
 	onDurationInSeconds:
 		| null
 		| ((durationInSeconds: number | null) => unknown | Promise<unknown>);
@@ -165,7 +100,7 @@ export type ParseMediaCallbacksMandatory = {
 		| null
 		| ((durationInSeconds: number) => unknown | Promise<unknown>);
 	onSlowFps: null | ((fps: number) => unknown | Promise<unknown>);
-	onStructure:
+	onSlowStructure:
 		| null
 		| ((structure: MediaParserStructureUnstable) => unknown | Promise<unknown>);
 	onFps: null | ((fps: number | null) => unknown | Promise<unknown>);
@@ -175,11 +110,13 @@ export type ParseMediaCallbacksMandatory = {
 	onAudioCodec:
 		| null
 		| ((codec: MediaParserAudioCodec | null) => unknown | Promise<unknown>);
-	onTracks: null | ((tracks: MediaParserTracks) => unknown | Promise<unknown>);
+	onTracks: null | ((tracks: MediaParserTrack[]) => unknown | Promise<unknown>);
 	onRotation: null | ((rotation: number | null) => unknown | Promise<unknown>);
 	onUnrotatedDimensions:
 		| null
-		| ((dimensions: Dimensions | null) => unknown | Promise<unknown>);
+		| ((
+				dimensions: MediaParserDimensions | null,
+		  ) => unknown | Promise<unknown>);
 	onInternalStats:
 		| null
 		| ((internalStats: InternalStats) => unknown | Promise<unknown>);
@@ -228,17 +165,17 @@ export type ParseMediaCallbacksMandatory = {
 export type ParseMediaCallbacks = Partial<ParseMediaCallbacksMandatory>;
 
 export interface ParseMediaData {
-	dimensions: Dimensions | null;
+	dimensions: MediaParserDimensions | null;
 	durationInSeconds: number | null;
 	slowDurationInSeconds: number;
 	slowFps: number;
-	structure: MediaParserStructureUnstable;
+	slowStructure: MediaParserStructureUnstable;
 	fps: number | null;
 	videoCodec: MediaParserVideoCodec | null;
 	audioCodec: MediaParserAudioCodec | null;
-	tracks: MediaParserTracks;
+	tracks: MediaParserTrack[];
 	rotation: number | null;
-	unrotatedDimensions: Dimensions | null;
+	unrotatedDimensions: MediaParserDimensions | null;
 	isHdr: boolean;
 	internalStats: InternalStats;
 	size: number | null;
@@ -258,13 +195,15 @@ export interface ParseMediaData {
 	m3uStreams: M3uStream[] | null;
 }
 
-export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {
-	[K in keyof T]: T[K] extends true
-		? K extends keyof ParseMediaData
-			? ParseMediaData[K]
-			: never
-		: never;
-};
+export type ParseMediaResult<T extends Partial<ParseMediaFields>> = {} extends T
+	? Record<never, never>
+	: {
+			[K in keyof T]: T[K] extends true
+				? K extends keyof ParseMediaData
+					? ParseMediaData[K]
+					: never
+				: never;
+		};
 
 export type ParseMediaProgress = {
 	bytes: number;
@@ -277,17 +216,24 @@ export type ParseMediaOnProgress = (
 ) => void | Promise<void>;
 
 type ReaderParams = {
-	reader: ReaderInterface;
+	reader: MediaParserReaderInterface;
+};
+
+export type M3uPlaylistContext = {
+	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	isLastChunkInPlaylist: boolean;
 };
 
 export type SerializeableOptionalParseMediaParams<
 	F extends Options<ParseMediaFields>,
 > = {
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 	progressIntervalInMs: number | null;
 	fields: F | null;
 	acknowledgeRemotionLicense: boolean;
-	mp4HeaderSegment: IsoBaseMediaStructure | null;
+	m3uPlaylistContext: M3uPlaylistContext | null;
+	makeSamplesStartAtZero: boolean;
+	seekingHints: SeekingHints | null;
 };
 
 type OptionalParseMediaParams<F extends Options<ParseMediaFields>> =
@@ -299,13 +245,14 @@ type OptionalParseMediaParams<F extends Options<ParseMediaFields>> =
 	};
 
 type ParseMediaSampleCallbacks = {
-	onAudioTrack: OnAudioTrack | null;
-	onVideoTrack: OnVideoTrack | null;
+	onAudioTrack: MediaParserOnAudioTrack | null;
+	onVideoTrack: MediaParserOnVideoTrack | null;
 };
 
 export type ParseMediaMode = 'query' | 'download';
 
 export type ParseMediaSrc = string | Blob | URL;
+export type ParseMediaRange = [number, number] | number | null;
 
 export type OnDiscardedData = (data: Uint8Array) => Promise<void>;
 

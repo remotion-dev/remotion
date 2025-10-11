@@ -8,11 +8,20 @@ This template is for creating "audiograms". In other words, video clips from pod
   <img src="https://github.com/marcusstenbeck/remotion-template-audiogram/raw/main/Promo.png">
 </p>
 
+## Getting started
+
+```
+npm i
+```
+
+```
+npx remotion studio
+```
+
 Start changing things like this:
 
-- Adjust size and length in `src/Root.tsx`
+- Adjust parameters in `src/Root.tsx` or in the Studio sidebar
 - Replacing audio, cover and subtitles in the `public` folder
-- Tweak `src/Audioframe.tsx`
 
 ## How do I render my video?
 
@@ -26,12 +35,24 @@ Or check out the [Remotion docs](/docs/render/). There are lots of ways to rende
 
 ## Where to get a transcript?
 
-You can supply a .srt file or a .json file that follows the [`@remotion/captions`](https://remotion.dev/docs/captions/caption) format. Examples for both are included.
+You can generate the captions or supply a .srt file or a .json file that follows the [`@remotion/captions`](https://remotion.dev/docs/captions/caption) format.
 
-**Generate them:**
+### Generate captions
 
-- Use [`@remotion/install-whisper-cpp`](https://www.remotion.dev/docs/install-whisper-cpp/) to use Whisper locally
-- Use [`@remotion/openai-whisper`](https://www.remotion.dev/docs/openai-whisper/openai-whisper-api-to-captions) to get captions from OpenAI Whisper into the right shape.
+- With the built-in transcription script using [`@remotion/install-whisper-cpp`](https://www.remotion.dev/docs/install-whisper-cpp/):
+
+  ```console
+  bun transcribe.ts
+  # With Node.js: `npx tsx transcribe.ts`
+  ```
+
+  This will:
+
+  - Ask for your audio file path (supports any ffmpeg format)
+  - Ask for the speech start time (to avoid false triggers from background music, intro jingles or noise)
+  - Generate captions.json in the public folder
+
+- Alternatively, use [`@remotion/openai-whisper`](https://www.remotion.dev/docs/openai-whisper/openai-whisper-api-to-captions) to get captions from OpenAI Whisper into the right shape.
 
 **Get it from a provider:**
 
@@ -43,34 +64,10 @@ If you supply a .srt, make sure to export subtitles that are segmented by word r
 
 ## Optimizing for long audio files
 
-If your audio is long, pass a `.wav` file instead of another format. The template will use [`useWindowedAudioData()`](/docs/use-windowed-audio-data) to only fetch the data around the current time.  
-Otherwise, the audio visualization may become a heavy duty for the browser or during rendering.
+If your audio is long, make sure to pass a `.wav` file as audio.  
+The template will use [`useWindowedAudioData()`](/docs/use-windowed-audio-data) to only fetch the data around the current time.
 
-## Commands
-
-**Install Dependencies**
-
-```console
-npm install
-```
-
-**Start Preview**
-
-```console
-npm run dev
-```
-
-**Render video**
-
-```console
-npx remotion render
-```
-
-**Upgrade Remotion**
-
-```console
-npx remotion upgrade
-```
+Otherwise, the waveform of the whole audio needs to be fetched, which may be slow.
 
 ## Docs
 
@@ -82,7 +79,18 @@ We provide help [on our Discord server](https://discord.gg/6VzzNDwUwV).
 
 ## Issues
 
-Found an issue with Remotion? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
+Found an issue with Remotion? Upgrade Remotion to receive fixes:
+
+```
+npx remotion upgrade
+```
+
+Didn't help? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
+
+## Contributing
+
+The source of this template is in the [Remotion Monorepo](https://github.com/remotion-dev/remotion/tree/main/packages/template-audiogram).  
+Don't send pull requests here, this is only a mirror.
 
 ## License
 

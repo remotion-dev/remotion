@@ -1,6 +1,6 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {BaseBox} from './base-type';
-import type {ThreeDMatrix} from './mvhd';
+import type {ThreeDMatrix} from './moov/mvhd';
 import {toUnixTimestamp} from './to-date';
 
 export interface TkhdBox extends BaseBox {

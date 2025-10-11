@@ -21,6 +21,7 @@ const {
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const stillCommand = async (
@@ -78,6 +79,9 @@ export const stillCommand = async (
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	if (!composition) {
 		Log.info(
@@ -118,7 +122,7 @@ export const stillCommand = async (
 				chromiumOptions,
 				envVariables,
 				serializedInputPropsWithCustomSchema:
-					NoReactInternals.serializeJSONWithDate({
+					NoReactInternals.serializeJSONWithSpecialTypes({
 						data: inputProps,
 						indent: undefined,
 						staticBase: null,
@@ -138,6 +142,7 @@ export const stillCommand = async (
 				}),
 				chromeMode: 'headless-shell',
 				offthreadVideoThreads: 1,
+				mediaCacheSizeInBytes,
 			});
 		composition = compositionId;
 	}
@@ -210,7 +215,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		inputProps,
 		imageFormat,
 		composition,
-		privacy,
+		privacy: privacy ?? 'public',
 		envVariables,
 		frame: stillFrame,
 		jpegQuality,

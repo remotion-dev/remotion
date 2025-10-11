@@ -125,6 +125,7 @@ const ThumbnailFn = <
 				numberOfSharedAudioTags={0}
 				initiallyMuted
 				logLevel={logLevel}
+				audioLatencyHint="playback"
 			>
 				<ThumbnailEmitterContext.Provider value={emitter}>
 					<ThumbnailUI

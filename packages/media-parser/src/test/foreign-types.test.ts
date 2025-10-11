@@ -1,7 +1,6 @@
 import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {
-	IsAGifError,
 	IsAnImageError,
 	IsAnUnsupportedFileTypeError,
 	IsAPdfError,
@@ -9,16 +8,24 @@ import {
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
-test('Should throw IsAGifError for a gif', () => {
-	const prom = parseMedia({
-		src: exampleVideos.gif,
-		reader: nodeReader,
-		fields: {
-			durationInSeconds: true,
-		},
-		acknowledgeRemotionLicense: true,
-	});
-	expect(prom).rejects.toThrowError(IsAGifError);
+test('Should throw IsAnImageError for a gif', async () => {
+	try {
+		await parseMedia({
+			src: exampleVideos.gif,
+			reader: nodeReader,
+			fields: {
+				durationInSeconds: true,
+			},
+			acknowledgeRemotionLicense: true,
+		});
+	} catch (e) {
+		if (e instanceof IsAnImageError) {
+			expect(e.dimensions).toEqual({height: 480, width: 480});
+			return;
+		}
+
+		throw e;
+	}
 });
 
 test('Should throw IsAnImageError for a png', async () => {

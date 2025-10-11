@@ -1,9 +1,12 @@
-import type {Writer} from '@remotion/media-parser';
+import type {
+	MediaParserInternalTypes,
+	MediaParserLogLevel,
+} from '@remotion/media-parser';
 import {
 	MediaParserInternals,
-	type AudioOrVideoSample,
+	type MediaParserAudioSample,
+	type MediaParserVideoSample,
 } from '@remotion/media-parser';
-import type {LogLevel} from '../../log';
 import {Log} from '../../log';
 import {
 	CLUSTER_MIN_VINT_WIDTH,
@@ -27,7 +30,7 @@ export const canFitInCluster = ({
 	timescale,
 }: {
 	clusterStartTimestamp: number;
-	chunk: AudioOrVideoSample;
+	chunk: MediaParserAudioSample | MediaParserVideoSample;
 	timescale: number;
 }) => {
 	const timecodeRelativeToCluster =
@@ -49,10 +52,10 @@ export const makeCluster = async ({
 	timescale,
 	logLevel,
 }: {
-	writer: Writer;
+	writer: MediaParserInternalTypes['Writer'];
 	clusterStartTimestamp: number;
 	timescale: number;
-	logLevel: LogLevel;
+	logLevel: MediaParserLogLevel;
 }) => {
 	Log.verbose(
 		logLevel,
@@ -72,7 +75,10 @@ export const makeCluster = async ({
 		CLUSTER_MIN_VINT_WIDTH;
 	await writer.write(cluster.bytes);
 
-	const addSample = async (chunk: AudioOrVideoSample, trackNumber: number) => {
+	const addSample = async (
+		chunk: MediaParserAudioSample | MediaParserVideoSample,
+		trackNumber: number,
+	) => {
 		const timecodeRelativeToCluster =
 			timestampToClusterTimestamp(chunk.timestamp, timescale) -
 			timestampToClusterTimestamp(clusterStartTimestamp, timescale);
@@ -108,7 +114,7 @@ export const makeCluster = async ({
 		newT,
 	}: {
 		newT: number;
-		chunk: AudioOrVideoSample;
+		chunk: MediaParserAudioSample | MediaParserVideoSample;
 		isVideo: boolean;
 	}) => {
 		const newTimestamp = timestampToClusterTimestamp(newT, timescale);

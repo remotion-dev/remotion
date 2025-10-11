@@ -1,6 +1,6 @@
 import type {
 	MediaParserContainer,
-	MediaParserTracks,
+	MediaParserTrack,
 } from '@remotion/media-parser';
 import type {ConvertMediaContainer, ResizeOperation} from '@remotion/webcodecs';
 import {useEffect, useState} from 'react';
@@ -15,13 +15,15 @@ export const useSupportedConfigs = ({
 	userRotation,
 	inputContainer,
 	resizeOperation,
+	sampleRate,
 }: {
 	outputContainer: ConvertMediaContainer;
-	tracks: MediaParserTracks | null;
+	tracks: MediaParserTrack[] | null;
 	action: RouteAction;
 	userRotation: number;
 	resizeOperation: ResizeOperation | null;
 	inputContainer: MediaParserContainer | null;
+	sampleRate: number | null;
 }) => {
 	const [state, setState] = useState<
 		Record<ConvertMediaContainer, SupportedConfigs | null>
@@ -40,6 +42,7 @@ export const useSupportedConfigs = ({
 			userRotation,
 			inputContainer,
 			resizeOperation,
+			sampleRate,
 		}).then((supportedConfigs) => {
 			setState((prev) => ({
 				...prev,
@@ -53,6 +56,7 @@ export const useSupportedConfigs = ({
 		tracks,
 		userRotation,
 		resizeOperation,
+		sampleRate,
 	]);
 
 	return state[outputContainer];

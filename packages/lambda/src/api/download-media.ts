@@ -1,4 +1,4 @@
-import type {AwsRegion} from '@remotion/lambda-client';
+import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
 import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import {REMOTION_BUCKET_PREFIX} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
@@ -22,6 +22,7 @@ export type DownloadMediaInput = {
 	customCredentials?: CustomCredentials<AwsProvider>;
 	logLevel?: LogLevel;
 	forcePathStyle?: boolean;
+	requestHandler?: RequestHandler;
 };
 
 export type DownloadMediaOutput = {
@@ -45,6 +46,7 @@ export const internalDownloadMedia = async (
 		renderId: input.renderId,
 		providerSpecifics: input.providerSpecifics,
 		forcePathStyle: input.forcePathStyle,
+		requestHandler: input.requestHandler,
 	});
 
 	if (!overallProgress.renderMetadata) {
@@ -71,6 +73,7 @@ export const internalDownloadMedia = async (
 		customCredentials,
 		logLevel: input.logLevel ?? 'info',
 		forcePathStyle: input.forcePathStyle ?? false,
+		requestHandler: input.requestHandler,
 	});
 
 	return {

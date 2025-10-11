@@ -1,11 +1,7 @@
 import type {LogLevel} from '@remotion/renderer';
 import type {Readable} from 'node:stream';
-import type {
-	CustomCredentials,
-	DownloadBehavior,
-	Privacy,
-	ServerlessRoutines,
-} from './constants';
+import type {DownloadBehavior} from 'remotion';
+import type {CustomCredentials, Privacy, ServerlessRoutines} from './constants';
 import type {RenderMetadata} from './render-metadata';
 import type {ServerlessReturnValues} from './return-values';
 import type {OnMessage} from './streaming/streaming';
@@ -24,6 +20,7 @@ type DeleteFile<Provider extends CloudProvider> = (params: {
 	region: Provider['region'];
 	customCredentials: CustomCredentials<Provider> | null;
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 }) => Promise<void>;
 
 export type BucketWithLocation<Provider extends CloudProvider> = {
@@ -37,6 +34,7 @@ type BucketExists<Provider extends CloudProvider> = (params: {
 	region: Provider['region'];
 	expectedBucketOwner: string | null;
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 }) => Promise<boolean>;
 
 type ReadFile<Provider extends CloudProvider> = (params: {
@@ -45,12 +43,14 @@ type ReadFile<Provider extends CloudProvider> = (params: {
 	region: Provider['region'];
 	expectedBucketOwner: string | null;
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 }) => Promise<Readable>;
 
 type GetBuckets<Provider extends CloudProvider> = (options: {
 	region: Provider['region'];
 	forceBucketName: string | null;
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 }) => Promise<BucketWithLocation<Provider>[]>;
 
 type CreateBucket<Provider extends CloudProvider> = (params: {
@@ -58,6 +58,7 @@ type CreateBucket<Provider extends CloudProvider> = (params: {
 	bucketName: string;
 	forcePathStyle: boolean;
 	skipPutAcl: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 }) => Promise<void>;
 
 type ApplyLifeCycle<Provider extends CloudProvider> = (params: {
@@ -66,6 +67,7 @@ type ApplyLifeCycle<Provider extends CloudProvider> = (params: {
 	region: Provider['region'];
 	customCredentials: CustomCredentials<Provider> | null;
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 }) => Promise<void>;
 
 type ListObjects<Provider extends CloudProvider> = (params: {
@@ -74,6 +76,7 @@ type ListObjects<Provider extends CloudProvider> = (params: {
 	region: Provider['region'];
 	expectedBucketOwner: string | null;
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 	continuationToken?: string;
 }) => Promise<BucketObject[]>;
 
@@ -120,6 +123,8 @@ export type WriteFileInput<Provider extends CloudProvider> = {
 	downloadBehavior: DownloadBehavior | null;
 	customCredentials: CustomCredentials<Provider> | null;
 	forcePathStyle: boolean;
+	storageClass: Provider['storageClass'] | null;
+	requestHandler: Provider['requestHandler'] | null;
 };
 
 type WriteFile<Provider extends CloudProvider> = (
@@ -132,6 +137,7 @@ type HeadFileInput<Provider extends CloudProvider> = {
 	region: Provider['region'];
 	customCredentials: CustomCredentials<Provider> | null;
 	forcePathStyle: boolean;
+	requestHandler: Provider['requestHandler'] | null;
 };
 
 export type CallFunctionAsync<Provider extends CloudProvider> = <
@@ -141,6 +147,7 @@ export type CallFunctionAsync<Provider extends CloudProvider> = <
 	payload,
 	region,
 	timeoutInTest,
+	requestHandler,
 }: CallFunctionOptions<T, Provider>) => Promise<void>;
 
 export type CallFunctionStreaming<Provider extends CloudProvider> = <

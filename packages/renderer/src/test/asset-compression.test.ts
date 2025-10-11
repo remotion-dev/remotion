@@ -15,9 +15,9 @@ test('Should compress and uncompress assets', () => {
 				playbackRate: 1,
 				type: 'video' as const,
 				volume: 1,
-				allowAmplificationDuringRender: false,
-				toneFrequency: null,
+				toneFrequency: 1,
 				audioStartFrame: 0,
+				audioStreamIndex: 0,
 			},
 		],
 		[
@@ -29,9 +29,9 @@ test('Should compress and uncompress assets', () => {
 				playbackRate: 1,
 				type: 'video' as const,
 				volume: 1,
-				allowAmplificationDuringRender: false,
-				toneFrequency: null,
+				toneFrequency: 1,
 				audioStartFrame: 0,
+				audioStreamIndex: 0,
 			},
 		],
 	].flat(1);
@@ -56,9 +56,9 @@ test('Should compress and uncompress assets', () => {
 			trimLeft: 0,
 			type: 'video',
 			volume: 1,
-			allowAmplificationDuringRender: false,
-			toneFrequency: null,
+			toneFrequency: 1,
 			audioStartFrame: 0,
+			audioStreamIndex: 0,
 		},
 	]);
 });

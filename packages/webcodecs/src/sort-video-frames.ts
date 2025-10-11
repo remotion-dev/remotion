@@ -3,20 +3,20 @@ import type {WebCodecsController} from './webcodecs-controller';
 const MAX_QUEUE_SIZE = 5;
 
 export const videoFrameSorter = ({
-	onRelease,
 	controller,
+	onOutput,
 }: {
-	onRelease: (frame: VideoFrame) => Promise<void>;
 	controller: WebCodecsController;
+	onOutput: (frame: VideoFrame) => Promise<void>;
 }) => {
 	const frames: VideoFrame[] = [];
 
 	const releaseFrame = async () => {
-		await controller._internals.checkForAbortAndPause();
+		await controller._internals._mediaParserController._internals.checkForAbortAndPause();
 
 		const frame = frames.shift();
 		if (frame) {
-			await onRelease(frame);
+			await onOutput(frame);
 		}
 	};
 
@@ -57,13 +57,24 @@ export const videoFrameSorter = ({
 			await releaseFrame();
 		}
 
-		controller._internals.signal.removeEventListener('abort', onAbort);
+		controller._internals._mediaParserController._internals.signal.removeEventListener(
+			'abort',
+			onAbort,
+		);
 	};
 
-	controller._internals.signal.addEventListener('abort', onAbort);
+	controller._internals._mediaParserController._internals.signal.addEventListener(
+		'abort',
+		onAbort,
+	);
+
+	let promise = Promise.resolve();
 
 	return {
-		inputFrame,
+		inputFrame: (frame: VideoFrame) => {
+			promise = promise.then(() => inputFrame(frame));
+		},
+		waitUntilProcessed: () => promise,
 		flush,
 	};
 };

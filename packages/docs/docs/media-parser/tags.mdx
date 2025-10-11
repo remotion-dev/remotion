@@ -7,13 +7,17 @@ slug: /media-parser/tags
 crumb: '@remotion/media-parser'
 ---
 
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 [`@remotion/media-parser`](/docs/media-parser) allows you to extract metadata that is embedded in video files, such as ID3 tags or EXIF data.
 
 ```tsx twoslash title="Extracting metadata"
 import {parseMedia} from '@remotion/media-parser';
 
 const {metadata} = await parseMedia({
-  src: 'https://example.com/my-video.mp4',
+  src: 'https://remotion.media/video.mp4',
   fields: {
     metadata: true,
   },
@@ -38,12 +42,12 @@ console.log(metadata);
 ```
 
 Some metadata refers to a certain track, such as the 'encoder' field.  
-In this case, the `trackId` field will contain a non-null value. You can get a list of tracks by setting the [`tracks`](/docs/media-parser/parse-media#tracks) field to `true`.
+In this case, the `trackId` field will contain a non-null value. You can get a list of tracks by setting the [`tracks`](/docs/media-parser/fields#tracks) field to `true`.
 
 ## Common metadata fields
 
 Here is a non-exhaustive list of commonly seen metadata that you may want to parse and display.  
-Use the [`container`](/docs/media-parser/parse-media#container) field to get the container format of the video.
+Use the [`container`](/docs/media-parser/fields#container) field to get the container format of the video.
 
 ### ISO Base Media (.mp4, .mov)
 
@@ -98,7 +102,7 @@ Use the [`container`](/docs/media-parser/parse-media#container) field to get the
 ### MP3
 
 See [here](https://exiftool.org/TagNames/ID3.html) for a list of tags that can be returned.  
-The `APIC` tag will not be returned as part of the `metadata` field, but separately as elements in the [`images`](/docs/media-parser/parse-media#images) array.
+The `APIC` tag will not be returned as part of the `metadata` field, but separately as elements in the [`images`](/docs/media-parser/fields#images) array.
 
 ### WAV
 

@@ -344,7 +344,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		links: [
 			{
 				type: 'website',
-				url: 'https://www.remotion.pro/recorder',
+				url: 'https://www.remotion.dev/recorder',
 			},
 		],
 		author: {

@@ -8,10 +8,10 @@ import fs from 'fs';
  */
 export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
 	const newExtensions = [
-		...(currentConfiguration.resolve?.extensions ?? []),
 		'.web.js',
 		'.web.ts',
 		'.web.tsx',
+		...(currentConfiguration.resolve?.extensions ?? []),
 	];
 
 	const deduplicatedExtensions = [...new Set(newExtensions)];

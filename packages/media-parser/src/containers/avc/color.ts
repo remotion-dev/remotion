@@ -1,54 +1,110 @@
-export type MatrixCoefficients =
+// https://w3c.github.io/webcodecs/#videomatrixcoefficients
+// But we may support more than that
+export type MediaParserMatrixCoefficients =
+	| 'rgb'
 	| 'bt709'
 	| 'bt470bg'
-	| 'rgb'
 	| 'smpte170m'
-	| 'bt2020';
+	| 'bt2020-ncl';
 
 export const getMatrixCoefficientsFromIndex = (
 	index: number,
-): MatrixCoefficients | null => {
-	return index === 1
-		? 'bt709'
-		: index === 5
-			? 'bt470bg'
-			: index === 6
-				? 'smpte170m'
-				: index === 9
-					? 'bt2020'
-					: null;
+): MediaParserMatrixCoefficients | null => {
+	if (index === 0) {
+		return 'rgb';
+	}
+
+	if (index === 1) {
+		return 'bt709';
+	}
+
+	if (index === 5) {
+		return 'bt470bg';
+	}
+
+	if (index === 6) {
+		return 'smpte170m';
+	}
+
+	if (index === 9) {
+		return 'bt2020-ncl';
+	}
+
+	return null;
 };
 
-export type TransferCharacteristics =
+export type MediaParserTransferCharacteristics =
 	| 'bt709'
 	| 'smpte170m'
 	| 'iec61966-2-1'
-	| 'arib-std-b67';
+	| 'linear'
+	| 'pq'
+	| 'hlg';
 
+// https://w3c.github.io/webcodecs/#videotransfercharacteristics
+// But we may support more than that
 export const getTransferCharacteristicsFromIndex = (
 	index: number,
-): TransferCharacteristics | null => {
-	return index === 1
-		? 'bt709'
-		: index === 6
-			? 'smpte170m'
-			: index === 13
-				? 'iec61966-2-1'
-				: index === 18
-					? 'arib-std-b67'
-					: null;
+): MediaParserTransferCharacteristics | null => {
+	if (index === 1) {
+		return 'bt709';
+	}
+
+	if (index === 6) {
+		return 'smpte170m';
+	}
+
+	if (index === 8) {
+		return 'linear';
+	}
+
+	if (index === 13) {
+		return 'iec61966-2-1';
+	}
+
+	if (index === 16) {
+		return 'pq';
+	}
+
+	if (index === 18) {
+		return 'hlg';
+	}
+
+	return null;
 };
 
-export type Primaries = 'bt709' | 'smpte170m' | 'bt470bg' | 'bt2020' | null;
+// https://w3c.github.io/webcodecs/#videocolorprimaries
+// But we may support more than that
+export type MediaParserPrimaries =
+	| 'bt709'
+	| 'bt470bg'
+	| 'smpte170m'
+	| 'bt2020'
+	| 'smpte432'
+	| null;
 
-export const getPrimariesFromIndex = (index: number): Primaries | null => {
-	return index === 1
-		? 'bt709'
-		: index === 5
-			? 'bt470bg'
-			: index === 6
-				? 'smpte170m'
-				: index === 9
-					? 'bt2020'
-					: null;
+export const getPrimariesFromIndex = (
+	index: number,
+): MediaParserPrimaries | null => {
+	if (index === 1) {
+		return 'bt709';
+	}
+
+	if (index === 5) {
+		return 'bt470bg';
+	}
+
+	if (index === 6) {
+		return 'smpte170m';
+	}
+
+	if (index === 9) {
+		return 'bt2020';
+	}
+
+	if (index === 12) {
+		return 'smpte432';
+	}
+
+	return null;
 };

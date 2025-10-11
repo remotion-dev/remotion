@@ -12,8 +12,7 @@ export type WebCodecsController = {
 	 * @deprecated Not public API
 	 */
 	_internals: {
-		signal: AbortSignal;
-		checkForAbortAndPause: MediaParserController['_internals']['checkForAbortAndPause'];
+		_mediaParserController: MediaParserController;
 	};
 };
 
@@ -26,6 +25,6 @@ export const webcodecsController = (): WebCodecsController => {
 		resume: controller.resume,
 		addEventListener: controller.addEventListener,
 		removeEventListener: controller.removeEventListener,
-		_internals: controller._internals,
+		_internals: {_mediaParserController: controller},
 	};
 };

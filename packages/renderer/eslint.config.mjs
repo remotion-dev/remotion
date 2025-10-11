@@ -8,15 +8,36 @@ export default [
 		rules: {
 			...config.rules,
 			'@typescript-eslint/no-use-before-define': 'off',
-			'no-restricted-imports': [
+		},
+		ignores: ['src/browser/**'],
+	},
+	{
+		rules: {
+			'@typescript-eslint/no-restricted-imports': [
 				'error',
 				{
 					patterns: ['@remotion/*/src/*', 'remotion/src/*'],
-					paths: ['remotion', 'react', 'react-dom'],
+					paths: [
+						{
+							name: 'remotion',
+							message: 'Dont import the runtime',
+							allowTypeImports: true,
+						},
+						{
+							name: 'react',
+							message: 'Dont import the runtime',
+							allowTypeImports: true,
+						},
+						{
+							name: 'react-dom',
+							message: 'Dont import the runtime',
+							allowTypeImports: true,
+						},
+					],
 				},
 			],
 		},
-		ignores: ['src/browser/**'],
+		ignores: ['src/test/**'],
 	},
 	{
 		...config,

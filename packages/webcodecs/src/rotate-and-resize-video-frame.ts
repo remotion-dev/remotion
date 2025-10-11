@@ -1,4 +1,3 @@
-import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
 import type {ResizeOperation} from './resizing/mode';
 import {
 	calculateNewDimensionsFromRotate,
@@ -12,18 +11,22 @@ export const normalizeVideoRotation = (rotation: number) => {
 export const rotateAndResizeVideoFrame = ({
 	frame,
 	rotation,
-	videoCodec,
+	needsToBeMultipleOfTwo = false,
 	resizeOperation,
 }: {
 	frame: VideoFrame;
 	rotation: number;
-	videoCodec: ConvertMediaVideoCodec;
 	resizeOperation: ResizeOperation | null;
+	needsToBeMultipleOfTwo?: boolean;
 }) => {
-	const normalized = ((rotation % 360) + 360) % 360;
+	const normalized = normalizeVideoRotation(rotation);
+
+	// In Chrome, there is "rotation", but we cannot put frames with VideoEncoder if they have a rotation.
+	// We have to draw them to a canvas and make a new frame without video rotation.
+	const mustProcess = 'rotation' in frame && frame.rotation !== 0;
 
 	// No resize, no rotation
-	if (normalized === 0 && resizeOperation === null) {
+	if (normalized === 0 && resizeOperation === null && !mustProcess) {
 		return frame;
 	}
 
@@ -31,22 +34,33 @@ export const rotateAndResizeVideoFrame = ({
 		throw new Error('Only 90 degree rotations are supported');
 	}
 
-	const {height, width} = calculateNewDimensionsFromRotateAndScale({
+	const tentativeDimensions = calculateNewDimensionsFromRotateAndScale({
 		height: frame.displayHeight,
 		width: frame.displayWidth,
 		rotation,
-		videoCodec,
+		needsToBeMultipleOfTwo,
 		resizeOperation,
 	});
 
 	// No rotation, and resize turned out to be same dimensions
 	if (
 		normalized === 0 &&
-		height === frame.displayHeight &&
-		width === frame.displayWidth
+		tentativeDimensions.height === frame.displayHeight &&
+		tentativeDimensions.width === frame.displayWidth &&
+		!mustProcess
 	) {
 		return frame;
 	}
+
+	const canvasRotationToApply = normalizeVideoRotation(normalized);
+
+	const {width, height} = calculateNewDimensionsFromRotateAndScale({
+		height: frame.displayHeight,
+		width: frame.displayWidth,
+		rotation: canvasRotationToApply,
+		needsToBeMultipleOfTwo,
+		resizeOperation,
+	});
 
 	const canvas = new OffscreenCanvas(width, height);
 	const ctx = canvas.getContext('2d');
@@ -57,22 +71,22 @@ export const rotateAndResizeVideoFrame = ({
 	canvas.width = width;
 	canvas.height = height;
 
-	if (normalized === 90) {
+	if (canvasRotationToApply === 90) {
 		ctx.translate(width, 0);
-	} else if (normalized === 180) {
+	} else if (canvasRotationToApply === 180) {
 		ctx.translate(width, height);
-	} else if (normalized === 270) {
+	} else if (canvasRotationToApply === 270) {
 		ctx.translate(0, height);
 	}
 
-	if (normalized !== 0) {
-		ctx.rotate(normalized * (Math.PI / 180));
+	if (canvasRotationToApply !== 0) {
+		ctx.rotate(canvasRotationToApply * (Math.PI / 180));
 	}
 
 	if (frame.displayHeight !== height || frame.displayWidth !== width) {
 		const dimensionsAfterRotate = calculateNewDimensionsFromRotate({
 			height: frame.displayHeight,
-			rotation,
+			rotation: canvasRotationToApply,
 			width: frame.displayWidth,
 		});
 		ctx.scale(

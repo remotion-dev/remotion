@@ -26,7 +26,10 @@ const getExplanation = (stack: string) => {
 		);
 	}
 
-	if (stack.includes('TooManyRequestsException')) {
+	if (
+		stack.includes('TooManyRequestsException') ||
+		stack.includes('ConcurrentInvocationLimitExceeded')
+	) {
 		return `AWS returned an "TooManyRequestsException" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/rate-limit`;
 	}
 

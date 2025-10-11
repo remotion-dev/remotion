@@ -118,6 +118,7 @@ export const ZodArrayEditor: React.FC<{
 										saving={saving}
 										saveDisabledByParent={saveDisabledByParent}
 										mayPad={mayPad}
+										mayRemove
 									/>
 									<SchemaArrayItemSeparationLine
 										schema={schema}

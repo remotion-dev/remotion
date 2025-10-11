@@ -25,6 +25,7 @@ export const indexHtml = ({
 	projectName,
 	installedDependencies,
 	packageManager,
+	audioLatencyHint,
 	logLevel,
 	mode,
 }: {
@@ -37,6 +38,7 @@ export const indexHtml = ({
 	studioServerCommand: string | null;
 	renderQueue: unknown | null;
 	numberOfAudioTags: number;
+	audioLatencyHint: AudioContextLatencyCategory;
 	publicFiles: StaticFile[];
 	publicFolderExists: string | null;
 	includeFavicon: boolean;
@@ -65,6 +67,7 @@ export const indexHtml = ({
 	</head>
 	<body>
 		<script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
+		<script>window.remotion_audioLatencyHint = "${audioLatencyHint}";</script>
 		${mode === 'dev' ? `<script>window.remotion_logLevel = "${logLevel}";</script>` : ''}
 		<script>window.remotion_staticBase = "${staticHash}";</script>
 		${

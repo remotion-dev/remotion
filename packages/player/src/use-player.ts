@@ -3,7 +3,6 @@ import {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import type {PlayerEmitter} from './event-emitter.js';
-import {useFrameImperative} from './use-frame-imperative.js';
 
 type UsePlayerMethods = {
 	frameBack: (frames: number) => void;
@@ -83,6 +82,8 @@ export const usePlayer = (): UsePlayerMethods => {
 				seek(0);
 			}
 
+			audioContext?.audioContext?.resume();
+
 			/**
 			 * Play silent audio tags to warm them up for autoplay
 			 */
@@ -120,8 +121,9 @@ export const usePlayer = (): UsePlayerMethods => {
 
 			setPlaying(false);
 			emitter.dispatchPause();
+			audioContext?.audioContext?.suspend();
 		}
-	}, [emitter, imperativePlaying, setPlaying]);
+	}, [emitter, imperativePlaying, setPlaying, audioContext]);
 
 	const pauseAndReturnToPlayStart = useCallback(() => {
 		if (imperativePlaying.current) {
@@ -151,10 +153,15 @@ export const usePlayer = (): UsePlayerMethods => {
 			}
 
 			setFrame((c) => {
-				const prev = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				const prevFrame = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				const newFrame = Math.max(0, prevFrame - frames);
+				if (prevFrame === newFrame) {
+					return c;
+				}
+
 				return {
 					...c,
-					[videoId]: Math.max(0, prev - frames),
+					[videoId]: newFrame,
 				};
 			});
 		},
@@ -172,17 +179,20 @@ export const usePlayer = (): UsePlayerMethods => {
 			}
 
 			setFrame((c) => {
-				const prev = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				const prevFrame = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				const newFrame = Math.min(lastFrame, prevFrame + frames);
+				if (prevFrame === newFrame) {
+					return c;
+				}
+
 				return {
 					...c,
-					[videoId]: Math.min(lastFrame, prev + frames),
+					[videoId]: newFrame,
 				};
 			});
 		},
 		[videoId, imperativePlaying, lastFrame, setFrame],
 	);
-
-	const getCurrentFrame = useFrameImperative();
 
 	const toggle = useCallback(
 		(e?: SyntheticEvent | PointerEvent) => {
@@ -206,12 +216,11 @@ export const usePlayer = (): UsePlayerMethods => {
 			pause,
 			seek,
 			isFirstFrame,
-			getCurrentFrame,
+			getCurrentFrame: () => frameRef.current,
 			isPlaying: () => imperativePlaying.current,
 			isBuffering: () => buffering.current,
 			pauseAndReturnToPlayStart,
 			hasPlayed,
-			remotionInternal_currentFrameRef: frameRef,
 			toggle,
 		};
 	}, [
@@ -219,7 +228,6 @@ export const usePlayer = (): UsePlayerMethods => {
 		emitter,
 		frameBack,
 		frameForward,
-		getCurrentFrame,
 		hasPlayed,
 		imperativePlaying,
 		isFirstFrame,

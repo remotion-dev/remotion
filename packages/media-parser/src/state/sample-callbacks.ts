@@ -1,32 +1,36 @@
-import type {MediaParserController} from '../media-parser-controller';
+import type {MediaParserController} from '../controller/media-parser-controller';
+import type {SeekSignal} from '../controller/seek-signal';
+import type {AllOptions, Options, ParseMediaFields} from '../fields';
+import type {MediaParserLogLevel} from '../log';
+import {Log} from '../log';
+import type {ParseMediaSrc} from '../options';
 import type {
-	AllOptions,
-	Options,
-	ParseMediaFields,
-	ParseMediaSrc,
-} from '../options';
-import type {
-	AudioOrVideoSample,
-	OnAudioSample,
-	OnVideoSample,
+	MediaParserAudioSample,
+	MediaParserOnAudioSample,
+	MediaParserOnVideoSample,
+	MediaParserVideoSample,
+	OnTrackDoneCallback,
 } from '../webcodec-sample-types';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 import {makeCanSkipTracksState} from './can-skip-tracks';
 import {makeTracksSectionState} from './has-tracks-section';
 import {type KeyframesState} from './keyframes';
 import {needsToIterateOverSamples} from './need-samples-for-fields';
-import type {SlowDurationAndFpsState} from './slow-duration-fps';
+import type {SamplesObservedState} from './samples-observed/slow-duration-fps';
 import type {StructureState} from './structure';
 
-export const sampleCallback = ({
+export const callbacksState = ({
 	controller,
 	hasAudioTrackHandlers,
 	hasVideoTrackHandlers,
 	fields,
 	keyframes,
 	emittedFields,
-	slowDurationAndFpsState,
+	samplesObserved,
 	structure,
 	src,
+	seekSignal,
+	logLevel,
 }: {
 	controller: MediaParserController;
 	hasAudioTrackHandlers: boolean;
@@ -34,15 +38,19 @@ export const sampleCallback = ({
 	fields: Options<ParseMediaFields>;
 	keyframes: KeyframesState;
 	emittedFields: AllOptions<ParseMediaFields>;
-	slowDurationAndFpsState: SlowDurationAndFpsState;
+	samplesObserved: SamplesObservedState;
 	structure: StructureState;
 	src: ParseMediaSrc;
+	seekSignal: SeekSignal;
+	logLevel: MediaParserLogLevel;
 }) => {
-	const videoSampleCallbacks: Record<number, OnVideoSample> = {};
-	const audioSampleCallbacks: Record<number, OnAudioSample> = {};
+	const videoSampleCallbacks: Record<number, MediaParserOnVideoSample> = {};
+	const audioSampleCallbacks: Record<number, MediaParserOnAudioSample> = {};
 
-	const queuedAudioSamples: Record<number, AudioOrVideoSample[]> = {};
-	const queuedVideoSamples: Record<number, AudioOrVideoSample[]> = {};
+	const onTrackDoneCallback: Record<number, OnTrackDoneCallback | null> = {};
+
+	const queuedAudioSamples: Record<number, MediaParserAudioSample[]> = {};
+	const queuedVideoSamples: Record<number, MediaParserVideoSample[]> = {};
 
 	const canSkipTracksState = makeCanSkipTracksState({
 		hasAudioTrackHandlers,
@@ -53,12 +61,10 @@ export const sampleCallback = ({
 
 	const tracksState = makeTracksSectionState(canSkipTracksState, src);
 
-	const samplesForTrack: Record<number, number> = {};
-
 	return {
 		registerVideoSampleCallback: async (
 			id: number,
-			callback: OnVideoSample | null,
+			callback: MediaParserOnVideoSample | null,
 		) => {
 			if (callback === null) {
 				delete videoSampleCallbacks[id];
@@ -73,48 +79,75 @@ export const sampleCallback = ({
 
 			queuedVideoSamples[id] = [];
 		},
-		onAudioSample: async (trackId: number, audioSample: AudioOrVideoSample) => {
+		onAudioSample: async ({
+			audioSample,
+			trackId,
+		}: {
+			trackId: number;
+			audioSample: MediaParserAudioSample;
+		}) => {
 			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
-			}
-
-			if (typeof samplesForTrack[trackId] === 'undefined') {
-				samplesForTrack[trackId] = 0;
 			}
 
 			const callback = audioSampleCallbacks[trackId];
 
 			if (audioSample.data.length > 0) {
-				samplesForTrack[trackId]++;
 				// If we emit samples with data length 0, Chrome will fail
 				if (callback) {
-					await callback(audioSample);
+					if (seekSignal.getSeek() !== null) {
+						Log.trace(
+							logLevel,
+							'Not emitting sample because seek is processing',
+						);
+					} else {
+						const trackDoneCallback = await callback(audioSample);
+						onTrackDoneCallback[trackId] = trackDoneCallback ?? null;
+					}
 				}
 			}
 
 			if (needsToIterateOverSamples({emittedFields, fields})) {
-				slowDurationAndFpsState.addAudioSample(audioSample);
+				samplesObserved.addAudioSample(audioSample);
 			}
 		},
-		getSamplesForTrack: (trackId: number) => {
-			return samplesForTrack[trackId] ?? 0;
-		},
-		onVideoSample: async (trackId: number, videoSample: AudioOrVideoSample) => {
+		onVideoSample: async ({
+			trackId,
+			videoSample,
+		}: {
+			trackId: number;
+			videoSample: MediaParserVideoSample;
+		}) => {
 			if (controller._internals.signal.aborted) {
 				throw new Error('Aborted');
 			}
 
-			if (typeof samplesForTrack[trackId] === 'undefined') {
-				samplesForTrack[trackId] = 0;
-			}
-
 			if (videoSample.data.length > 0) {
-				samplesForTrack[trackId]++;
 				const callback = videoSampleCallbacks[trackId];
 				// If we emit samples with data 0, Chrome will fail
 				if (callback) {
-					await callback(videoSample);
+					if (seekSignal.getSeek() !== null) {
+						Log.trace(
+							logLevel,
+							'Not emitting sample because seek is processing',
+						);
+					} else {
+						const trackDoneCallback = await callback(videoSample);
+						onTrackDoneCallback[trackId] = trackDoneCallback ?? null;
+					}
 				}
+			}
+
+			if (videoSample.type === 'key') {
+				keyframes.addKeyframe({
+					trackId,
+					decodingTimeInSeconds:
+						videoSample.decodingTimestamp / WEBCODECS_TIMESCALE,
+					positionInBytes: videoSample.offset,
+					presentationTimeInSeconds:
+						videoSample.timestamp / WEBCODECS_TIMESCALE,
+					sizeInBytes: videoSample.data.length,
+				});
 			}
 
 			if (
@@ -123,23 +156,13 @@ export const sampleCallback = ({
 					emittedFields,
 				})
 			) {
-				if (fields.slowKeyframes && videoSample.type === 'key') {
-					keyframes.addKeyframe({
-						trackId,
-						decodingTimeInSeconds: videoSample.dts / videoSample.timescale,
-						positionInBytes: videoSample.offset,
-						presentationTimeInSeconds: videoSample.cts / videoSample.timescale,
-						sizeInBytes: videoSample.data.length,
-					});
-				}
-
-				slowDurationAndFpsState.addVideoSample(videoSample);
+				samplesObserved.addVideoSample(videoSample);
 			}
 		},
 		canSkipTracksState,
 		registerAudioSampleCallback: async (
 			id: number,
-			callback: OnAudioSample | null,
+			callback: MediaParserOnAudioSample | null,
 		) => {
 			if (callback === null) {
 				delete audioSampleCallbacks[id];
@@ -158,5 +181,14 @@ export const sampleCallback = ({
 		videoSampleCallbacks,
 		hasAudioTrackHandlers,
 		hasVideoTrackHandlers,
+		callTracksDoneCallback: async () => {
+			for (const callback of Object.values(onTrackDoneCallback)) {
+				if (callback) {
+					await callback();
+				}
+			}
+		},
 	};
 };
+
+export type CallbacksState = ReturnType<typeof callbacksState>;

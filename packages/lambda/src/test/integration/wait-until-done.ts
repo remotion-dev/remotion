@@ -18,6 +18,7 @@ export const waitUntilDone = async (bucketName: string, renderId: string) => {
 			functionName: 'remotion-dev-lambda',
 			region: 'eu-central-1',
 			timeoutInTest: 120000,
+			requestHandler: null,
 		});
 		if (progress.done) {
 			return progress;

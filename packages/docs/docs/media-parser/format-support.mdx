@@ -6,9 +6,13 @@ slug: /media-parser/format-support
 crumb: '@remotion/media-parser'
 ---
 
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 `@remotion/media-parser` supports a variety of media formats:
 
-## ISO Base Media formats (`.mp4`, `.mov`)
+## ISO Base Media formats (`.mp4`, `.mov`, `.m4a`)
 
 `@remotion/media-parser` supports the following streams: H.264 video, H.265 video, AV1 video, AAC audio.
 
@@ -24,11 +28,11 @@ Fragmented MP4s are supported.
 
 ## MPEG-2 Transport Stream (`.ts`)
 
-Is supported.
+Is supported, but only H.264 and AAC can be parsed.
 
 ## Audio Video Interleave (`.avi`)
 
-Is supported.
+H.264 and AAC streams are supported.
 
 ## WAVE (`.wav`)
 
@@ -37,6 +41,10 @@ The most common audio format inside a .wav, PCM, is supported.
 ## AAC (`.aac`)
 
 Is supported.
+
+## OGG, Opus (`.ogg`, `.opus`)
+
+Not supported, but planned.
 
 ## MP3 (`.mp3`)
 
@@ -49,7 +57,7 @@ Is supported.
 ## HLS (`.m3u8`)
 
 Is supported with `.ts` and `.m4s` segments.  
-Stream selection and audio track selection is supported.
+[Stream selection and audio track selection](/docs/media-parser/stream-selection) is supported.
 
 ## MPEG-DASH (`.mpd`)
 

@@ -1,4 +1,4 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import {parseM3u8Text} from './parse-m3u8-text';
 import type {M3uStructure} from './types';

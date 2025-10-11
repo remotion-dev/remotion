@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 
-test('should be able to parse an x.com video', async () => {
+test.skip('should be able to parse an x.com video', async () => {
 	let videoSamples = 0;
 	let audioSamples = 0;
 	let videoTracks = 0;

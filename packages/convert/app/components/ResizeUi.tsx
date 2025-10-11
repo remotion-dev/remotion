@@ -1,4 +1,4 @@
-import type {Dimensions} from '@remotion/media-parser';
+import type {MediaParserDimensions} from '@remotion/media-parser';
 import type {ResizeOperation} from '@remotion/webcodecs';
 import React, {useCallback, useMemo} from 'react';
 import {ResizeShortcuts} from './ResizeShortcuts';
@@ -21,7 +21,7 @@ const NumberInput: React.FC<{
 				min="2"
 				value={value}
 				step={requireTwoStep ? 2 : 1}
-				className="border-2 border-black border-b-4 w-20 text-center rounded font-brand h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none active:border-brand focus:border-brand active:text-brand focus:text-brand outline-none"
+				className="border-2 border-black border-b-4 w-20 text-center rounded font-brand h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none active:border-brand focus:border-brand active:text-brand focus:text-brand outline-hidden"
 				onFocus={() => {
 					ref.current?.select();
 					onFocus();
@@ -36,8 +36,8 @@ const NumberInput: React.FC<{
 };
 
 export const ResizeUi: React.FC<{
-	readonly dimensions: Dimensions;
-	readonly originalDimensions: Dimensions;
+	readonly dimensions: MediaParserDimensions;
+	readonly originalDimensions: MediaParserDimensions;
 	readonly thumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly rotation: number;
 	readonly setResizeMode: React.Dispatch<

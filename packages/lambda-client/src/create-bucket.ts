@@ -9,15 +9,25 @@ import type {AwsProvider} from './aws-provider';
 import {getS3Client} from './get-s3-client';
 
 export const createBucket: ProviderSpecifics<AwsProvider>['createBucket'] =
-	async ({region, bucketName, forcePathStyle}) => {
-		await getS3Client({region, customCredentials: null, forcePathStyle}).send(
+	async ({region, bucketName, forcePathStyle, requestHandler}) => {
+		await getS3Client({
+			region,
+			customCredentials: null,
+			forcePathStyle,
+			requestHandler,
+		}).send(
 			new CreateBucketCommand({
 				Bucket: bucketName,
 			}),
 		);
 
 		try {
-			await getS3Client({region, customCredentials: null, forcePathStyle}).send(
+			await getS3Client({
+				region,
+				customCredentials: null,
+				forcePathStyle,
+				requestHandler,
+			}).send(
 				new DeleteBucketOwnershipControlsCommand({
 					Bucket: bucketName,
 				}),
@@ -33,7 +43,12 @@ export const createBucket: ProviderSpecifics<AwsProvider>['createBucket'] =
 		}
 
 		try {
-			await getS3Client({region, customCredentials: null, forcePathStyle}).send(
+			await getS3Client({
+				region,
+				customCredentials: null,
+				forcePathStyle,
+				requestHandler,
+			}).send(
 				new DeletePublicAccessBlockCommand({
 					Bucket: bucketName,
 				}),
@@ -49,7 +64,12 @@ export const createBucket: ProviderSpecifics<AwsProvider>['createBucket'] =
 		}
 
 		try {
-			await getS3Client({region, customCredentials: null, forcePathStyle}).send(
+			await getS3Client({
+				region,
+				customCredentials: null,
+				forcePathStyle,
+				requestHandler,
+			}).send(
 				new PutBucketAclCommand({
 					Bucket: bucketName,
 					ACL: 'public-read',

@@ -25,7 +25,7 @@ const SectionLink: React.FC<{
 const CommunityStats: React.FC = () => (
 	<div className={'m-auto max-w-[700px] text-center'}>
 		<SectionTitle>Never build alone</SectionTitle>
-		<div className={'fontbrand text-center mb-10'}>
+		<div className={'fontbrand text-center mb-10 -mt-4'}>
 			Join a thriving community of developers.
 		</div>
 		<div className={'flex flex-wrap justify-between gap-4 w-full items-center'}>

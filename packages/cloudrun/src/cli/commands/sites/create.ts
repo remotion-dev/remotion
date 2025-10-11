@@ -181,6 +181,7 @@ export const sitesCreateSubcommand = async (
 			rootDir: remotionRoot,
 		},
 		indent: false,
+		privacy: parsedCloudrunCli.privacy ?? 'public',
 		logLevel,
 	});
 

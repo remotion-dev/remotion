@@ -8,7 +8,7 @@ export const OverlayInDavinci: React.FC = () => {
 		<div>
 			<video
 				ref={ref}
-				src="https://remotion-assets.s3.eu-central-1.amazonaws.com/OverlayInDavinci.mp4"
+				src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/OverlayInDavinci.mp4"
 				controls
 				autoPlay
 				loop

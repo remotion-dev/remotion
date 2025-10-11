@@ -21,68 +21,76 @@ test('Set the right version for gotest', () => {
 	);
 });
 
-test('Go package should create the same payload as normal Lambda package', async () => {
-	const goOutput = execSync('go test', {
-		cwd: path.join(process.cwd(), '..', 'lambda-go'),
-	});
-	const firstLine = goOutput.toString().split('\n')[0];
-	const parsed = JSON.parse(firstLine);
-
-	const nativeVersion =
-		await LambdaClientInternals.makeLambdaRenderMediaPayload({
-			region: 'us-east-1',
-			composition: 'react-svg',
-			functionName: 'remotion-render',
-			serveUrl: 'testbed',
-			codec: 'h264',
-			audioBitrate: null,
-			audioCodec: null,
-			chromiumOptions: {},
-			colorSpace: null,
-			concurrencyPerLambda: 1,
-			crf: undefined,
-			deleteAfter: null,
-			downloadBehavior: {type: 'play-in-browser'},
-			envVariables: {},
-			everyNthFrame: 1,
-			forceBucketName: null,
-			forceHeight: null,
-			forceWidth: null,
-			frameRange: null,
-			framesPerLambda: null,
-			imageFormat: 'jpeg',
-			jpegQuality: 80,
-			logLevel: 'info',
-			maxRetries: 1,
-			muted: false,
-			numberOfGifLoops: 0,
-			offthreadVideoCacheSizeInBytes: null,
-			offthreadVideoThreads: null,
-			outName: null,
-			overwrite: false,
-			pixelFormat: undefined,
-			privacy: 'public',
-			proResProfile: undefined,
-			rendererFunctionName: null,
-			scale: 1,
-			timeoutInMilliseconds: 30000,
-			videoBitrate: null,
-			encodingMaxRate: null,
-			encodingBufferSize: null,
-			webhook: null,
-			x264Preset: null,
-			inputProps: {},
-			preferLossless: false,
-			indent: false,
-			forcePathStyle: false,
-			metadata: {
-				Author: 'Remotion',
-			},
-			apiKey: null,
+test(
+	'Go package should create the same payload as normal Lambda package',
+	async () => {
+		const goOutput = execSync('go test', {
+			cwd: path.join(process.cwd(), '..', 'lambda-go'),
 		});
+		const firstLine = goOutput.toString().split('\n')[0];
+		const parsed = JSON.parse(firstLine);
 
-	expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));
-});
+		const nativeVersion =
+			await LambdaClientInternals.makeLambdaRenderMediaPayload({
+				region: 'us-east-1',
+				composition: 'react-svg',
+				functionName: 'remotion-render',
+				serveUrl: 'testbed',
+				codec: 'h264',
+				audioBitrate: null,
+				audioCodec: null,
+				chromiumOptions: {},
+				colorSpace: null,
+				concurrencyPerLambda: 1,
+				concurrency: null,
+				crf: undefined,
+				deleteAfter: null,
+				downloadBehavior: {type: 'play-in-browser'},
+				envVariables: {},
+				everyNthFrame: 1,
+				forceBucketName: null,
+				forceHeight: null,
+				forceWidth: null,
+				frameRange: null,
+				framesPerLambda: null,
+				imageFormat: 'jpeg',
+				jpegQuality: 80,
+				logLevel: 'info',
+				maxRetries: 1,
+				muted: false,
+				numberOfGifLoops: 0,
+				offthreadVideoCacheSizeInBytes: null,
+				offthreadVideoThreads: null,
+				outName: null,
+				overwrite: false,
+				pixelFormat: undefined,
+				privacy: 'public',
+				proResProfile: undefined,
+				rendererFunctionName: null,
+				scale: 1,
+				timeoutInMilliseconds: 30000,
+				videoBitrate: null,
+				encodingMaxRate: null,
+				encodingBufferSize: null,
+				webhook: null,
+				x264Preset: null,
+				inputProps: {},
+				preferLossless: false,
+				indent: false,
+				forcePathStyle: false,
+				metadata: {
+					Author: 'Remotion',
+				},
+				apiKey: null,
+				storageClass: null,
+				requestHandler: null,
+				mediaCacheSizeInBytes: null,
+			});
+
+		expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));
+	},
+	{timeout: 60000},
+);
 
 const removeUndefined = (data: unknown) => {
 	return JSON.parse(JSON.stringify(data));

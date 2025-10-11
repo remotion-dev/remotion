@@ -76,7 +76,9 @@ export default createRule<Options, MessageIds>({
 					name.name === 'audio' ||
 					name.name === 'Video' ||
 					name.name === 'video' ||
-					name.name === 'source'
+					name.name === 'source' ||
+					name.name === 'Html5Video' ||
+					name.name === 'Html5Audio'
 				) {
 					// Network and inline URLs are okay
 					if (stringValue.startsWith('http://')) {

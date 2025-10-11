@@ -7,7 +7,7 @@ import type {TransportStreamBox} from './containers/transport-stream/boxes';
 import type {WavStructure} from './containers/wav/types';
 import type {MatroskaSegment} from './containers/webm/segments';
 import type {MediaParserMetadataEntry} from './metadata/get-metadata';
-import type {Skip} from './skip';
+import type {FetchMoreData, Skip} from './skip';
 
 type Mp3Id3Header = {
 	type: 'id3-header';
@@ -57,4 +57,4 @@ export type MediaParserStructureUnstable =
 	| M3uStructure
 	| FlacStructure;
 
-export type ParseResult = Skip | null;
+export type ParseResult = Skip | FetchMoreData | null;

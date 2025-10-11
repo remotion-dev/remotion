@@ -1,9 +1,8 @@
+import type {MediaParserCodecData} from './codec-data';
 import type {EsdsBox} from './containers/iso-base-media/esds/esds';
-import type {MoovBox} from './containers/iso-base-media/moov/moov';
 import type {AudioSample} from './containers/iso-base-media/stsd/samples';
 import type {TrakBox} from './containers/iso-base-media/trak/trak';
-import {getStsdBox, getTraks} from './containers/iso-base-media/traversal';
-import {trakBoxContainsAudio} from './get-fps';
+import {getStsdBox} from './containers/iso-base-media/traversal';
 import {
 	getHasTracks,
 	getTracks,
@@ -15,30 +14,26 @@ import type {ParserState} from './state/parser-state';
 export const getAudioCodec = (
 	parserState: ParserState,
 ): MediaParserAudioCodec | null => {
-	const tracks = getTracks(parserState);
-	const allTracks =
-		tracks.audioTracks.length +
-		tracks.otherTracks.length +
-		tracks.videoTracks.length;
+	const tracks = getTracks(parserState, true);
 
-	if (allTracks === 0) {
+	if (tracks.length === 0) {
 		throw new Error('No tracks yet');
 	}
 
-	const audioTrack = tracks.audioTracks[0];
+	const audioTrack = tracks.find((t) => t.type === 'audio');
 	if (!audioTrack) {
 		return null;
 	}
 
 	if (audioTrack.type === 'audio') {
-		return audioTrack.codecWithoutConfig;
+		return audioTrack.codecEnum;
 	}
 
 	return null;
 };
 
 export const hasAudioCodec = (state: ParserState): boolean => {
-	return getHasTracks(state);
+	return getHasTracks(state, true);
 };
 
 const getCodecSpecificatorFromEsdsBox = ({
@@ -93,7 +88,9 @@ type AudioCodecInfo = {
 	description: Uint8Array | undefined;
 };
 
-export const getCodecPrivateFromTrak = (trakBox: TrakBox) => {
+export const getCodecPrivateFromTrak = (
+	trakBox: TrakBox,
+): MediaParserCodecData | null => {
 	const stsdBox = getStsdBox(trakBox);
 	if (!stsdBox) {
 		return null;
@@ -123,7 +120,7 @@ export const getCodecPrivateFromTrak = (trakBox: TrakBox) => {
 		return null;
 	}
 
-	return mp4a.asBytes;
+	return {type: 'aac-config', data: mp4a.asBytes};
 };
 
 const onSample = (
@@ -211,21 +208,17 @@ export const isLpcmAudioCodec = (trak: TrakBox): boolean => {
 	return getAudioCodecFromTrak(trak)?.format === 'lpcm';
 };
 
-export const getAudioCodecFromIso = (moov: MoovBox) => {
-	const traks = getTraks(moov);
-	const trakBox = traks.find(
-		(b) => b.type === 'trak-box' && trakBoxContainsAudio(b),
-	);
-	if (!trakBox) {
-		return null;
-	}
+export const isIn24AudioCodec = (trak: TrakBox): boolean => {
+	return getAudioCodecFromTrak(trak)?.format === 'in24';
+};
 
-	return getAudioCodecFromTrak(trakBox);
+export const isTwosAudioCodec = (trak: TrakBox): boolean => {
+	return getAudioCodecFromTrak(trak)?.format === 'twos';
 };
 
 export const getAudioCodecStringFromTrak = (
 	trak: TrakBox,
-): {codecString: string; description: Uint8Array | undefined} => {
+): {codecString: string; description: MediaParserCodecData | undefined} => {
 	const codec = getAudioCodecFromTrak(trak);
 	if (!codec) {
 		throw new Error('Expected codec');
@@ -234,7 +227,27 @@ export const getAudioCodecStringFromTrak = (
 	if (codec.format === 'lpcm') {
 		return {
 			codecString: 'pcm-s16',
-			description: codec.description,
+			description: codec.description
+				? {type: 'unknown-data', data: codec.description}
+				: undefined,
+		};
+	}
+
+	if (codec.format === 'twos') {
+		return {
+			codecString: 'pcm-s16',
+			description: codec.description
+				? {type: 'unknown-data', data: codec.description}
+				: undefined,
+		};
+	}
+
+	if (codec.format === 'in24') {
+		return {
+			codecString: 'pcm-s24',
+			description: codec.description
+				? {type: 'unknown-data', data: codec.description}
+				: undefined,
 		};
 	}
 
@@ -250,13 +263,43 @@ export const getAudioCodecStringFromTrak = (
 
 	// Really, MP3? 😔
 	const codecString =
-		codecStringWithoutMp3Exception === 'mp4a.6b'
+		codecStringWithoutMp3Exception.toLowerCase() === 'mp4a.6b' ||
+		codecStringWithoutMp3Exception.toLowerCase() === 'mp4a.69'
 			? 'mp3' // or "mp4a.6B" would also work, with the uppercasing, but mp3 is probably more obvious
 			: codecStringWithoutMp3Exception;
 
+	if (codecString === 'mp3') {
+		return {
+			codecString,
+			description: codec.description
+				? {
+						type: 'unknown-data',
+						data: codec.description,
+					}
+				: undefined,
+		};
+	}
+
+	if (codecString.startsWith('mp4a.')) {
+		return {
+			codecString,
+			description: codec.description
+				? {
+						type: 'aac-config',
+						data: codec.description,
+					}
+				: undefined,
+		};
+	}
+
 	return {
 		codecString,
-		description: codec.description,
+		description: codec.description
+			? {
+					type: 'unknown-data',
+					data: codec.description,
+				}
+			: undefined,
 	};
 };
 
@@ -265,6 +308,10 @@ const getAudioCodecFromAudioCodecInfo = (
 ): MediaParserAudioCodec => {
 	if (codec.format === 'twos') {
 		return 'pcm-s16';
+	}
+
+	if (codec.format === 'in24') {
+		return 'pcm-s24';
 	}
 
 	if (codec.format === 'lpcm') {
@@ -277,6 +324,10 @@ const getAudioCodecFromAudioCodecInfo = (
 
 	if (codec.format === 'ac-3') {
 		return 'ac3';
+	}
+
+	if (codec.format === 'Opus') {
+		return 'opus';
 	}
 
 	if (codec.format === 'mp4a') {

@@ -40,9 +40,25 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'restartStudio()'}</strong>
 					<div>Restart the Studio Server.</div>
 				</TOCItem>
+				<TOCItem link="/docs/studio/play">
+					<strong>{'play()'}</strong>
+					<div>Start playback in the timeline</div>
+				</TOCItem>
+				<TOCItem link="/docs/studio/pause">
+					<strong>{'pause()'}</strong>
+					<div>Pause playback in the timeline</div>
+				</TOCItem>
+				<TOCItem link="/docs/studio/toggle">
+					<strong>{'toggle()'}</strong>
+					<div>Toggle playback in the timeline</div>
+				</TOCItem>
 				<TOCItem link="/docs/studio/seek">
 					<strong>{'seek()'}</strong>
 					<div>Jump to a position in the timeline</div>
+				</TOCItem>
+				<TOCItem link="/docs/studio/go-to-composition">
+					<strong>{'goToComposition()'}</strong>
+					<div>Select a composition in the composition selector</div>
 				</TOCItem>
 				<TOCItem link="/docs/studio/focus-default-props-path">
 					<strong>{'focusDefaultPropsPath()'}</strong>
@@ -51,6 +67,10 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/studio/reevaluate-composition">
 					<strong>{'reevaluateComposition()'}</strong>
 					<div>Re-runs calculateMetadata() on the current composition</div>
+				</TOCItem>
+				<TOCItem link="/docs/studio/visual-control">
+					<strong>{'visualControl()'}</strong>
+					<div>Create a control in the right sidebar of the Studio</div>
 				</TOCItem>
 			</Grid>
 		</div>

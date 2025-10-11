@@ -3,16 +3,20 @@ import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-fi
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import type {Page} from './browser/BrowserPage';
+import {collectAssets} from './collect-assets';
 import {compressAsset} from './compress-assets';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import {onlyArtifact, onlyAudioAndVideoAssets} from './filter-asset-types';
+import {
+	onlyArtifact,
+	onlyAudioAndVideoAssets,
+	onlyInlineAudio,
+} from './filter-asset-types';
 import type {CountType} from './get-frame-padded-index';
 import {getFrameOutputFileName} from './get-frame-padded-index';
 import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
-import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {FrameAndAssets, OnArtifact} from './render-frames';
 import {seekToFrame} from './seek-to-frame';
 import {takeFrame} from './take-frame';
@@ -48,6 +52,11 @@ export const renderFrameWithOptionToReject = async ({
 	onFrameUpdate,
 	frame,
 	page,
+	imageSequencePattern,
+	fps,
+	trimLeftOffset,
+	trimRightOffset,
+	allFramesAndExtraFrames,
 }: {
 	reject: (err: Error) => void;
 	width: number;
@@ -84,6 +93,11 @@ export const renderFrameWithOptionToReject = async ({
 		  ) => void);
 	frame: number;
 	page: Page;
+	imageSequencePattern: string | null;
+	fps: number;
+	trimLeftOffset: number;
+	trimRightOffset: number;
+	allFramesAndExtraFrames: number[];
 }) => {
 	const startTime = performance.now();
 
@@ -137,33 +151,38 @@ export const renderFrameWithOptionToReject = async ({
 		);
 	}
 
-	const id = startPerfMeasure('save');
-
-	const {buffer, collectedAssets} = await takeFrame({
-		frame,
-		freePage: page,
-		height,
-		imageFormat: assetsOnly ? 'none' : imageFormat,
-		output:
-			index === null
-				? null
-				: path.join(
-						frameDir,
-						getFrameOutputFileName({
-							frame,
-							imageFormat,
-							index,
-							countType,
-							lastFrame,
-							totalFrames: framesToRender.length,
-						}),
-					),
-		jpegQuality,
-		width,
-		scale,
-		wantsBuffer: Boolean(onFrameBuffer),
-		timeoutInMilliseconds,
-	});
+	const [buffer, collectedAssets] = await Promise.all([
+		takeFrame({
+			freePage: page,
+			height,
+			imageFormat: assetsOnly ? 'none' : imageFormat,
+			output:
+				index === null
+					? null
+					: path.join(
+							frameDir,
+							getFrameOutputFileName({
+								frame,
+								imageFormat,
+								index,
+								countType,
+								lastFrame,
+								totalFrames: framesToRender.length,
+								imageSequencePattern,
+							}),
+						),
+			jpegQuality,
+			width,
+			scale,
+			wantsBuffer: Boolean(onFrameBuffer),
+			timeoutInMilliseconds,
+		}),
+		collectAssets({
+			frame,
+			freePage: page,
+			timeoutInMilliseconds,
+		}),
+	]);
 	if (onFrameBuffer && !assetsOnly) {
 		if (!buffer) {
 			throw new Error('unexpected null buffer');
@@ -171,8 +190,6 @@ export const renderFrameWithOptionToReject = async ({
 
 		onFrameBuffer(buffer, frame);
 	}
-
-	stopPerfMeasure(id);
 
 	const onlyAvailableAssets = assets.filter(truthy);
 
@@ -185,7 +202,10 @@ export const renderFrameWithOptionToReject = async ({
 		.flat(2);
 
 	const audioAndVideoAssets = onlyAudioAndVideoAssets(collectedAssets);
-	const artifactAssets = onlyArtifact(collectedAssets);
+	const artifactAssets = onlyArtifact({
+		assets: collectedAssets,
+		frameBuffer: buffer,
+	});
 
 	for (const artifact of artifactAssets) {
 		for (const previousArtifact of previousArtifactAssets) {
@@ -205,6 +225,8 @@ export const renderFrameWithOptionToReject = async ({
 		return compressAsset(previousAudioRenderAssets, asset);
 	});
 
+	const inlineAudioAssets = onlyInlineAudio(collectedAssets);
+
 	assets.push({
 		audioAndVideoAssets: compressedAssets,
 		frame,
@@ -214,7 +236,9 @@ export const renderFrameWithOptionToReject = async ({
 				filename: a.filename,
 			};
 		}),
+		inlineAudioAssets,
 	});
+
 	for (const renderAsset of compressedAssets) {
 		downloadAndMapAssetsToFileUrl({
 			renderAsset,
@@ -234,6 +258,17 @@ export const renderFrameWithOptionToReject = async ({
 					`Error while downloading ${truncateWithEllipsis}: ${(err as Error).stack}`,
 				),
 			);
+		});
+	}
+
+	for (const renderAsset of inlineAudioAssets) {
+		downloadMap.inlineAudioMixing.addAsset({
+			asset: renderAsset,
+			fps,
+			totalNumberOfFrames: allFramesAndExtraFrames.length,
+			firstFrame: allFramesAndExtraFrames[0],
+			trimLeftOffset,
+			trimRightOffset,
 		});
 	}
 

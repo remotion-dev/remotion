@@ -11,7 +11,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {RecastCodemod} from './codemods';
+import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {RequiredChromiumOptions} from './render-job';
@@ -100,6 +100,7 @@ export type AddRenderRequest = {
 	serializedInputPropsWithCustomSchema: string;
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
+	mediaCacheSizeInBytes: number | null;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	metadata: Record<string, string> | null;
@@ -127,6 +128,15 @@ export type UpdateDefaultPropsRequest = {
 	compositionId: string;
 	defaultProps: string;
 	enumPaths: EnumPath[];
+};
+
+export type ApplyVisualControlRequest = {
+	fileName: string;
+	changes: VisualControlChange[];
+};
+
+export type ApplyVisualControlResponse = {
+	success: true;
 };
 
 export type UpdateDefaultPropsResponse =
@@ -219,6 +229,10 @@ export type ApiRoutes = {
 	'/api/update-default-props': ReqAndRes<
 		UpdateDefaultPropsRequest,
 		UpdateDefaultPropsResponse
+	>;
+	'/api/apply-visual-control-change': ReqAndRes<
+		ApplyVisualControlRequest,
+		ApplyVisualControlResponse
 	>;
 	'/api/can-update-default-props': ReqAndRes<
 		CanUpdateDefaultPropsRequest,

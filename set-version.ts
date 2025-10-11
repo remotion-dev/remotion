@@ -5,6 +5,7 @@ import {
 	lstatSync,
 	readFileSync,
 	readdirSync,
+	unlinkSync,
 	writeFileSync,
 } from 'fs';
 import path from 'path';
@@ -43,6 +44,16 @@ for (const dir of [path.join('cloudrun', 'container'), ...dirs]) {
 		dir,
 		'package.json',
 	);
+	const tsconfigBuildPath = path.join(
+		process.cwd(),
+		'packages',
+		dir,
+		'tsconfig.tsbuildinfo',
+	);
+	if (existsSync(tsconfigBuildPath)) {
+		unlinkSync(tsconfigBuildPath);
+	}
+
 	const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 	packageJson.version = version;
 	writeFileSync(
@@ -63,7 +74,7 @@ execSync('bun ensure-correct-version.ts', {
 	cwd: 'packages/media-parser',
 });
 
-execSync('pnpm build', {
+execSync('bun run build', {
 	stdio: 'inherit',
 });
 
@@ -79,6 +90,13 @@ execSync('bun build.ts --all', {
 
 if (!noCommit) {
 	execSync('git add .', {stdio: 'inherit'});
-	execSync(`git commit -m "v${version}"`, {stdio: 'inherit'});
-	execSync(`git tag v${version}`, {stdio: 'inherit'});
+	execSync(`git commit --allow-empty -m "v${version}"`, {stdio: 'inherit'});
+	execSync(`git tag -d v${version} 2>/dev/null || true`, {
+		stdio: 'inherit',
+	});
+	execSync(`git push --delete origin v${version} 2>/dev/null || true`, {
+		stdio: 'inherit',
+	});
+
+	execSync(`git tag v${version} 2>/dev/null || true`, {stdio: 'inherit'});
 }

@@ -1,16 +1,32 @@
+import type {BufferIterator} from '../../iterator/buffer-iterator';
+import type {MediaParserLogLevel} from '../../log';
 import {Log} from '../../log';
 import {registerAudioTrack, registerVideoTrack} from '../../register-track';
-import type {ParserState} from '../../state/parser-state';
-import type {BoxAndNext} from './base-media-box';
+import type {FetchMoreData} from '../../skip';
+import {makeFetchMoreData} from '../../skip';
+import type {TracksState} from '../../state/has-tracks-section';
+import type {IsoBaseMediaState} from '../../state/iso-base-media/iso-state';
+import type {MovieTimeScaleState} from '../../state/iso-base-media/timescale-state';
+import type {CallbacksState} from '../../state/sample-callbacks';
+import type {MediaSectionState} from '../../state/video-section';
+import type {
+	MediaParserOnAudioTrack,
+	MediaParserOnVideoTrack,
+} from '../../webcodec-sample-types';
+import type {IsoBaseMediaBox} from './base-media-box';
+import {parseElst} from './elst';
 import {parseEsds} from './esds/esds';
 import {parseFtyp} from './ftyp';
 import {getIsoBaseMediaChildren} from './get-children';
 import {makeBaseMediaTrack} from './make-track';
+import {findTrackStartTimeInSeconds} from './mdat/get-editlist';
 import {parseMdhd} from './mdhd';
 import {parseHdlr} from './meta/hdlr';
 import {parseIlstBox} from './meta/ilst';
+import {parseTfraBox} from './mfra/tfra';
 import {parseMoov} from './moov/moov';
-import {parseMvhd} from './mvhd';
+import {parseMvhd} from './moov/mvhd';
+import {parseTrex} from './moov/trex';
 import {parseAv1C} from './stsd/av1c';
 import {parseAvcc} from './stsd/avcc';
 import {parseColorParameterBox} from './stsd/colr';
@@ -25,14 +41,53 @@ import {parseStsd} from './stsd/stsd';
 import {parseStss} from './stsd/stss';
 import {parseStsz} from './stsd/stsz';
 import {parseStts} from './stsd/stts';
+import {parseVpcc} from './stsd/vpcc';
 import {parseTfdt} from './tfdt';
 import {getTfhd} from './tfhd';
 import {parseTkhd} from './tkhd';
 import {parseTrak} from './trak/trak';
 import {parseTrun} from './trun';
 
-export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
-	const {iterator} = state;
+export type OnlyIfMoovAtomExpected = {
+	tracks: TracksState;
+	isoState: IsoBaseMediaState | null;
+	movieTimeScaleState: MovieTimeScaleState;
+	onVideoTrack: MediaParserOnVideoTrack | null;
+	onAudioTrack: MediaParserOnAudioTrack | null;
+	registerVideoSampleCallback: CallbacksState['registerVideoSampleCallback'];
+	registerAudioSampleCallback: CallbacksState['registerAudioSampleCallback'];
+};
+
+export type OnlyIfMdatAtomExpected = {
+	mediaSectionState: MediaSectionState;
+};
+
+type ProcessBoxResult =
+	| {
+			type: 'box';
+			box: IsoBaseMediaBox;
+	  }
+	| {
+			type: 'nothing';
+	  }
+	| {
+			type: 'fetch-more-data';
+			bytesNeeded: FetchMoreData;
+	  };
+
+export const processBox = async ({
+	iterator,
+	logLevel,
+	onlyIfMoovAtomExpected,
+	onlyIfMdatAtomExpected,
+	contentLength,
+}: {
+	iterator: BufferIterator;
+	logLevel: MediaParserLogLevel;
+	onlyIfMoovAtomExpected: OnlyIfMoovAtomExpected | null;
+	onlyIfMdatAtomExpected: OnlyIfMdatAtomExpected | null;
+	contentLength: number;
+}): Promise<ProcessBoxResult> => {
 	const fileOffset = iterator.counter.getOffset();
 	const {returnToCheckpoint} = iterator.startCheckpoint();
 	const bytesRemaining = iterator.bytesRemaining();
@@ -42,8 +97,11 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 
 	if (boxSizeRaw === 0) {
 		return {
-			type: 'void-box',
-			boxSize: 0,
+			type: 'box',
+			box: {
+				type: 'void-box',
+				boxSize: 0,
+			},
 		};
 	}
 
@@ -58,234 +116,410 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		);
 	}
 
+	const maxSize = contentLength - startOff;
 	const boxType = iterator.getByteString(4, false);
-	const boxSize = boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
-	Log.trace(state.logLevel, 'Found box', boxType, boxSize);
+	const boxSizeUnlimited =
+		boxSizeRaw === 1 ? iterator.getEightByteNumber() : boxSizeRaw;
+	const boxSize = Math.min(boxSizeUnlimited, maxSize);
 	const headerLength = iterator.counter.getOffset() - startOff;
 
 	if (boxType === 'mdat') {
-		state.videoSection.setVideoSection({
+		if (!onlyIfMdatAtomExpected) {
+			return {type: 'nothing'};
+		}
+
+		const {mediaSectionState} = onlyIfMdatAtomExpected;
+		mediaSectionState.addMediaSection({
 			size: boxSize - headerLength,
 			start: iterator.counter.getOffset(),
 		});
 
-		return null;
+		return {type: 'nothing'};
 	}
 
 	if (bytesRemaining < boxSize) {
 		returnToCheckpoint();
-		return null;
+		return {
+			type: 'fetch-more-data',
+			bytesNeeded: makeFetchMoreData(boxSize - bytesRemaining),
+		};
 	}
 
 	if (boxType === 'ftyp') {
-		return parseFtyp({iterator, size: boxSize, offset: fileOffset});
+		return {
+			type: 'box',
+			box: parseFtyp({iterator, size: boxSize, offset: fileOffset}),
+		};
+	}
+
+	if (boxType === 'elst') {
+		return {
+			type: 'box',
+			box: parseElst({
+				iterator,
+				size: boxSize,
+				offset: fileOffset,
+			}),
+		};
 	}
 
 	if (boxType === 'colr') {
-		return parseColorParameterBox({
-			iterator,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: parseColorParameterBox({
+				iterator,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'mvhd') {
-		return parseMvhd({iterator, offset: fileOffset, size: boxSize});
+		const mvhdBox = parseMvhd({
+			iterator,
+			offset: fileOffset,
+			size: boxSize,
+		});
+
+		if (!onlyIfMoovAtomExpected) {
+			throw new Error('State is required');
+		}
+
+		onlyIfMoovAtomExpected.movieTimeScaleState.setTrackTimescale(
+			mvhdBox.timeScale,
+		);
+		return {
+			type: 'box',
+			box: mvhdBox,
+		};
 	}
 
 	if (boxType === 'tkhd') {
-		return parseTkhd({iterator, offset: fileOffset, size: boxSize});
+		return {
+			type: 'box',
+			box: parseTkhd({iterator, offset: fileOffset, size: boxSize}),
+		};
 	}
 
 	if (boxType === 'trun') {
-		return parseTrun({iterator, offset: fileOffset, size: boxSize});
+		return {
+			type: 'box',
+			box: parseTrun({iterator, offset: fileOffset, size: boxSize}),
+		};
 	}
 
 	if (boxType === 'tfdt') {
-		return parseTfdt({iterator, size: boxSize, offset: fileOffset});
+		return {
+			type: 'box',
+			box: parseTfdt({iterator, size: boxSize, offset: fileOffset}),
+		};
 	}
 
 	if (boxType === 'stsd') {
-		return parseStsd({
-			offset: fileOffset,
-			size: boxSize,
-			state,
-		});
+		return {
+			type: 'box',
+			box: await parseStsd({
+				offset: fileOffset,
+				size: boxSize,
+				iterator,
+				logLevel,
+				contentLength,
+			}),
+		};
 	}
 
 	if (boxType === 'stsz') {
-		return parseStsz({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: parseStsz({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'stco' || boxType === 'co64') {
-		return parseStco({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-			mode64Bit: boxType === 'co64',
-		});
+		return {
+			type: 'box',
+			box: parseStco({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+				mode64Bit: boxType === 'co64',
+			}),
+		};
 	}
 
 	if (boxType === 'pasp') {
-		return parsePasp({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: parsePasp({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'stss') {
-		return parseStss({
-			iterator,
-			offset: fileOffset,
-			boxSize,
-		});
+		return {
+			type: 'box',
+			box: parseStss({
+				iterator,
+				offset: fileOffset,
+				boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'ctts') {
-		return parseCtts({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: parseCtts({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'stsc') {
-		return parseStsc({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: parseStsc({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'mebx') {
-		return parseMebx({
-			offset: fileOffset,
-			size: boxSize,
-			state,
-		});
+		return {
+			type: 'box',
+			box: await parseMebx({
+				offset: fileOffset,
+				size: boxSize,
+				iterator,
+				logLevel,
+				contentLength,
+			}),
+		};
 	}
 
 	if (boxType === 'hdlr') {
-		return parseHdlr({iterator, size: boxSize, offset: fileOffset});
+		return {
+			type: 'box',
+			box: await parseHdlr({iterator, size: boxSize, offset: fileOffset}),
+		};
 	}
 
 	if (boxType === 'keys') {
-		return parseKeys({iterator, size: boxSize, offset: fileOffset});
+		return {
+			type: 'box',
+			box: await parseKeys({iterator, size: boxSize, offset: fileOffset}),
+		};
 	}
 
 	if (boxType === 'ilst') {
-		return parseIlstBox({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: await parseIlstBox({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
+	}
+
+	if (boxType === 'tfra') {
+		return {
+			type: 'box',
+			box: await parseTfraBox({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'moov') {
-		if (state.callbacks.tracks.hasAllTracks()) {
-			iterator.discard(boxSize - 8);
-			return null;
+		if (!onlyIfMoovAtomExpected) {
+			throw new Error('State is required');
 		}
 
-		if (state.iso.moov.getMoovBox()) {
-			Log.verbose(state.logLevel, 'Moov box already parsed, skipping');
+		const {tracks, isoState} = onlyIfMoovAtomExpected;
+		if (tracks.hasAllTracks()) {
 			iterator.discard(boxSize - 8);
-			return null;
+			return {type: 'nothing'};
+		}
+
+		if (
+			isoState &&
+			isoState.moov.getMoovBoxAndPrecomputed() &&
+			!isoState.moov.getMoovBoxAndPrecomputed()?.precomputed
+		) {
+			Log.verbose(logLevel, 'Moov box already parsed, skipping');
+			iterator.discard(boxSize - 8);
+			return {type: 'nothing'};
 		}
 
 		const box = await parseMoov({
 			offset: fileOffset,
 			size: boxSize,
-			state,
+			onlyIfMoovAtomExpected,
+			iterator,
+			logLevel,
+			contentLength,
 		});
 
-		state.callbacks.tracks.setIsDone(state.logLevel);
+		tracks.setIsDone(logLevel);
 
-		return box;
+		return {type: 'box', box};
 	}
 
 	if (boxType === 'trak') {
-		const box = await parseTrak({
+		if (!onlyIfMoovAtomExpected) {
+			throw new Error('State is required');
+		}
+
+		const {tracks, onAudioTrack, onVideoTrack} = onlyIfMoovAtomExpected;
+
+		const trakBox = await parseTrak({
 			size: boxSize,
 			offsetAtStart: fileOffset,
-			state,
+			iterator,
+			logLevel,
+			contentLength,
 		});
-		const transformedTrack = makeBaseMediaTrack(box);
+
+		const movieTimeScale =
+			onlyIfMoovAtomExpected.movieTimeScaleState.getTrackTimescale();
+		if (movieTimeScale === null) {
+			throw new Error('Movie timescale is not set');
+		}
+
+		const editList = findTrackStartTimeInSeconds({movieTimeScale, trakBox});
+		const transformedTrack = makeBaseMediaTrack(trakBox, editList);
+
 		if (transformedTrack && transformedTrack.type === 'video') {
 			await registerVideoTrack({
-				state,
 				track: transformedTrack,
 				container: 'mp4',
+				logLevel,
+				onVideoTrack,
+				registerVideoSampleCallback:
+					onlyIfMoovAtomExpected.registerVideoSampleCallback,
+				tracks,
 			});
 		}
 
 		if (transformedTrack && transformedTrack.type === 'audio') {
 			await registerAudioTrack({
-				state,
 				track: transformedTrack,
 				container: 'mp4',
+				registerAudioSampleCallback:
+					onlyIfMoovAtomExpected.registerAudioSampleCallback,
+				tracks,
+				logLevel,
+				onAudioTrack,
 			});
 		}
 
-		return box;
+		return {type: 'box', box: trakBox};
 	}
 
 	if (boxType === 'stts') {
-		return parseStts({
-			data: iterator,
-			size: boxSize,
-			fileOffset,
-		});
+		return {
+			type: 'box',
+			box: parseStts({
+				data: iterator,
+				size: boxSize,
+				fileOffset,
+			}),
+		};
 	}
 
 	if (boxType === 'avcC') {
-		return parseAvcc({
-			data: iterator,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: parseAvcc({
+				data: iterator,
+				size: boxSize,
+			}),
+		};
+	}
+
+	if (boxType === 'vpcC') {
+		return {
+			type: 'box',
+			box: parseVpcc({data: iterator, size: boxSize}),
+		};
 	}
 
 	if (boxType === 'av1C') {
-		return parseAv1C({
-			data: iterator,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: parseAv1C({
+				data: iterator,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'hvcC') {
-		return parseHvcc({
-			data: iterator,
-			size: boxSize,
-			offset: fileOffset,
-		});
+		return {
+			type: 'box',
+			box: parseHvcc({
+				data: iterator,
+				size: boxSize,
+				offset: fileOffset,
+			}),
+		};
 	}
 
 	if (boxType === 'tfhd') {
-		return getTfhd({
-			iterator,
-			offset: fileOffset,
-			size: boxSize,
-		});
+		return {
+			type: 'box',
+			box: getTfhd({
+				iterator,
+				offset: fileOffset,
+				size: boxSize,
+			}),
+		};
 	}
 
 	if (boxType === 'mdhd') {
-		return parseMdhd({
-			data: iterator,
-			size: boxSize,
-			fileOffset,
-		});
+		return {
+			type: 'box',
+			box: parseMdhd({
+				data: iterator,
+				size: boxSize,
+				fileOffset,
+			}),
+		};
 	}
 
 	if (boxType === 'esds') {
-		return parseEsds({
-			data: iterator,
-			size: boxSize,
-			fileOffset,
-		});
+		return {
+			type: 'box',
+			box: parseEsds({
+				data: iterator,
+				size: boxSize,
+				fileOffset,
+			}),
+		};
+	}
+
+	if (boxType === 'trex') {
+		return {
+			type: 'box',
+			box: parseTrex({iterator, offset: fileOffset, size: boxSize}),
+		};
+	}
+
+	if (boxType === 'moof') {
+		await onlyIfMoovAtomExpected?.isoState?.mfra.triggerLoad();
 	}
 
 	if (
@@ -298,29 +532,43 @@ export const processBox = async (state: ParserState): Promise<BoxAndNext> => {
 		boxType === 'meta' ||
 		boxType === 'wave' ||
 		boxType === 'traf' ||
+		boxType === 'mfra' ||
+		boxType === 'edts' ||
+		boxType === 'mvex' ||
 		boxType === 'stsb'
 	) {
 		const children = await getIsoBaseMediaChildren({
-			state,
+			iterator,
 			size: boxSize - 8,
+			logLevel,
+			onlyIfMoovAtomExpected,
+			contentLength,
 		});
 
 		return {
-			type: 'regular-box',
-			boxType,
-			boxSize,
-			children,
-			offset: fileOffset,
+			type: 'box',
+			box: {
+				type: 'regular-box',
+				boxType,
+				boxSize,
+				children,
+				offset: fileOffset,
+			},
 		};
 	}
 
 	iterator.discard(boxSize - 8);
 
+	Log.verbose(logLevel, 'Unknown ISO Base Media Box:', boxType);
+
 	return {
-		type: 'regular-box',
-		boxType,
-		boxSize,
-		children: [],
-		offset: fileOffset,
+		type: 'box',
+		box: {
+			type: 'regular-box',
+			boxType,
+			boxSize,
+			children: [],
+			offset: fileOffset,
+		},
 	};
 };

@@ -3,13 +3,13 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/licensing"
 	},
 	"name": "@remotion/licensing",
-	"version": "4.0.274",
+	"version": "4.0.357",
 	"description": "Manage your Remotion.pro license",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src",
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"test": "bun test src/test/prod-domain.test.ts"
 	},

@@ -13,7 +13,7 @@ test('Should make a distributed GIF', async () => {
 		frameRange: [0, 24],
 		framesPerLambda: 8,
 		imageFormat: 'png',
-		logLevel: 'error',
+		logLevel: 'verbose',
 		outName: 'out.gif',
 		timeoutInMilliseconds: 12000,
 		everyNthFrame: 2,

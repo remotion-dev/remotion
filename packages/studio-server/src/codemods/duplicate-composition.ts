@@ -1,7 +1,5 @@
-import type {File} from '@babel/types';
 import type {RecastCodemod} from '@remotion/studio-shared';
-import * as recast from 'recast';
-import * as tsParser from 'recast/parsers/babel-ts';
+import {parseAst, serializeAst} from './parse-ast';
 import type {Change} from './recast-mods';
 import {applyCodemod} from './recast-mods';
 
@@ -47,9 +45,7 @@ export const parseAndApplyCodemod = ({
 	input: string;
 	codeMod: RecastCodemod;
 }): {newContents: string; changesMade: Change[]} => {
-	const ast = recast.parse(input, {
-		parser: tsParser,
-	}) as File;
+	const ast = parseAst(input);
 
 	const {newAst, changesMade} = applyCodemod({
 		file: ast,
@@ -62,9 +58,7 @@ export const parseAndApplyCodemod = ({
 		);
 	}
 
-	const output = recast.print(newAst, {
-		parser: tsParser,
-	}).code;
+	const output = serializeAst(newAst);
 
 	return {changesMade, newContents: output};
 };

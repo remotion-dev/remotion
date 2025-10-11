@@ -15,10 +15,10 @@ import type {AnyComposition} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {EditorPropsContext} from './EditorProps.js';
 import {getInputProps} from './config/input-props.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {NonceContext} from './nonce.js';
 import type {InferProps} from './props-if-has-props.js';
 import {resolveVideoConfigOrCatch} from './resolve-video-config.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
@@ -69,7 +69,13 @@ export const ResolveCompositionConfig: React.FC<
 		useState<string | null>(null);
 	const {compositions, canvasContent, currentCompositionMetadata} =
 		useContext(CompositionManager);
-	const {fastRefreshes} = useContext(NonceContext);
+	const {fastRefreshes, manualRefreshes} = useContext(NonceContext);
+
+	// don't do anything, this component should should re-render if the value changes
+	if (manualRefreshes) {
+		/** */
+	}
+
 	const selectedComposition = useMemo(() => {
 		return compositions.find(
 			(c) =>
@@ -83,12 +89,13 @@ export const ResolveCompositionConfig: React.FC<
 		(c) => c.id === currentRenderModalComposition,
 	);
 	const {props: allEditorProps} = useContext(EditorPropsContext);
+	const env = useRemotionEnvironment();
 
 	const inputProps = useMemo(() => {
-		return typeof window === 'undefined' || getRemotionEnvironment().isPlayer
+		return typeof window === 'undefined' || env.isPlayer
 			? {}
 			: (getInputProps() ?? {});
-	}, []);
+	}, [env.isPlayer]);
 
 	const [resolvedConfigs, setResolvedConfigs] = useState<
 		Record<string, VideoConfigState | undefined>
@@ -345,23 +352,6 @@ export const ResolveCompositionConfig: React.FC<
 	]);
 
 	useEffect(() => {
-		if (shouldIgnoreUpdate) {
-			// We already have the current state, we just saved it back
-			// to the file
-			return;
-		}
-
-		window.dispatchEvent(
-			new CustomEvent<{resetUnsaved: boolean}>(PROPS_UPDATED_EXTERNALLY, {
-				detail: {
-					resetUnsaved: true,
-				},
-			}),
-		);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [fastRefreshes]);
-
-	useEffect(() => {
 		if (renderModalComposition && !isTheSame) {
 			const combinedProps = {
 				...(renderModalComposition.defaultProps ?? {}),
@@ -440,6 +430,8 @@ export const useResolvedVideoConfig = (
 		return composition ? (allEditorProps[composition.id] ?? {}) : {};
 	}, [allEditorProps, composition]);
 
+	const env = useRemotionEnvironment();
+
 	return useMemo(() => {
 		if (!composition) {
 			return null;
@@ -489,13 +481,14 @@ export const useResolvedVideoConfig = (
 					props: {
 						...(composition.defaultProps ?? {}),
 						...(selectedEditorProps ?? {}),
-						...(typeof window === 'undefined' ||
-						getRemotionEnvironment().isPlayer
+						...(typeof window === 'undefined' || env.isPlayer
 							? {}
 							: (getInputProps() ?? {})),
 					},
 					defaultCodec: null,
 					defaultOutName: null,
+					defaultVideoImageFormat: null,
+					defaultPixelFormat: null,
 				},
 			};
 		}
@@ -505,5 +498,11 @@ export const useResolvedVideoConfig = (
 		}
 
 		return context[composition.id] as VideoConfigState;
-	}, [composition, context, currentCompositionMetadata, selectedEditorProps]);
+	}, [
+		composition,
+		context,
+		currentCompositionMetadata,
+		selectedEditorProps,
+		env.isPlayer,
+	]);
 };

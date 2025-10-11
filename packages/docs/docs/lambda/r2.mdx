@@ -43,6 +43,10 @@ const {bucketName, renderId, cloudWatchMainLogs} = await renderMediaOnLambda({
 });
 ```
 
+## Storing the site and assets in R2
+
+[Many Remotion users store](/docs/lambda/data-transfer-cost#option-1-use-an-alternate-cdn-for-storing-assets) their [bundle](/docs/terminology/bundle) and any assets such as input videos in R2, in order to avoid [S3 bandwidth costs](/docs/lambda/data-transfer-cost).
+
 ## See also
 
 - [Using Remotion Lambda with Supabase](/docs/lambda/supabase)

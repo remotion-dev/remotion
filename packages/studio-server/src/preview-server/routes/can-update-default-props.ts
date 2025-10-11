@@ -21,9 +21,9 @@ export const checkIfTypeScriptFile = (file: string) => {
 export const canUpdateDefaultPropsHandler: ApiHandler<
 	CanUpdateDefaultPropsRequest,
 	CanUpdateDefaultPropsResponse
-> = async ({input: {compositionId}, remotionRoot}) => {
+> = async ({input: {compositionId}, remotionRoot, entryPoint}) => {
 	try {
-		const projectInfo = await getProjectInfo(remotionRoot);
+		const projectInfo = await getProjectInfo(remotionRoot, entryPoint);
 		if (!projectInfo.rootFile) {
 			throw new Error('Cannot find root file in project');
 		}

@@ -18,7 +18,7 @@ import {
 	getExpectedOutName,
 	internalGetOrCreateBucket,
 	overallProgressKey,
-	serializeJSONWithDate,
+	serializeJSONWithSpecialTypes,
 	ServerlessRoutines,
 	validateDownloadBehavior,
 	validateOutname,
@@ -32,6 +32,7 @@ import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import {makeInitialOverallRenderProgress} from '../overall-render-progress';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
+import {removeOutnameCredentials} from '../remove-outname-credentials';
 import {validateComposition} from '../validate-composition';
 import {checkVersionMismatch} from './check-version-mismatch';
 import {sendTelemetryEvent} from './send-telemetry-event';
@@ -109,6 +110,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
 			skipPutAcl: false,
+			requestHandler: null,
 		}).then((b) => b.bucketName);
 
 	const outputDir = RenderInternals.tmpDir('remotion-render-');
@@ -125,6 +127,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		propsType: 'input-props',
 		providerSpecifics,
 		forcePathStyle: params.forcePathStyle,
+		requestHandler: null,
 	});
 
 	const serveUrl = providerSpecifics.convertToServeUrl({
@@ -176,6 +179,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		onServeUrlVisited: () => undefined,
 		providerSpecifics,
 		offthreadVideoThreads: params.offthreadVideoThreads,
+		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 	});
 
 	const renderMetadata: RenderMetadata<Provider> = {
@@ -194,7 +198,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		renderId,
-		outName: params.outName ?? undefined,
+		outName: removeOutnameCredentials(params.outName ?? undefined),
 		privacy: params.privacy,
 		audioCodec: null,
 		deleteAfter: params.deleteAfter,
@@ -205,9 +209,10 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		functionName: insideFunctionSpecifics.getCurrentFunctionName(),
 		rendererFunctionName: insideFunctionSpecifics.getCurrentFunctionName(),
 		dimensions: {
-			height: composition.height * (params.scale ?? 1),
-			width: composition.width * (params.scale ?? 1),
+			height: composition.height * params.scale,
+			width: composition.width * params.scale,
 		},
+		scale: params.scale,
 	};
 
 	const still = makeInitialOverallRenderProgress(timeoutInMilliseconds);
@@ -223,6 +228,8 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		downloadBehavior: null,
 		customCredentials: null,
 		forcePathStyle: params.forcePathStyle,
+		storageClass: null,
+		requestHandler: null,
 	});
 
 	const onBrowserDownload = () => {
@@ -270,6 +277,8 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 				downloadBehavior: params.downloadBehavior,
 				customCredentials,
 				forcePathStyle: params.forcePathStyle,
+				storageClass: params.storageClass,
+				requestHandler: null,
 			})
 			.then(() => {
 				RenderInternals.Log.info(
@@ -312,17 +321,19 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		port: null,
 		server,
 		logLevel: params.logLevel,
-		serializedResolvedPropsWithCustomSchema: serializeJSONWithDate({
+		serializedResolvedPropsWithCustomSchema: serializeJSONWithSpecialTypes({
 			indent: undefined,
 			staticBase: null,
 			data: composition.props,
 		}).serializedString,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 		binariesDirectory: null,
 		onBrowserDownload,
 		onArtifact,
 		chromeMode: 'headless-shell',
 		offthreadVideoThreads: params.offthreadVideoThreads,
+		onLog: RenderInternals.defaultOnLog,
 	});
 
 	const {size} = await fs.promises.stat(outputPath);
@@ -337,6 +348,8 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		downloadBehavior: params.downloadBehavior,
 		customCredentials,
 		forcePathStyle: params.forcePathStyle,
+		storageClass: params.storageClass,
+		requestHandler: null,
 	});
 
 	await Promise.all([

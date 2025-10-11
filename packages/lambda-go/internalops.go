@@ -37,6 +37,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		Webhook:                        options.Webhook,
 		ForceHeight:                    options.ForceHeight,
 		OffthreadVideoCacheSizeInBytes: options.OffthreadVideoCacheSizeInBytes,
+		MediaCacheSizeInBytes:          options.MediaCacheSizeInBytes,
 		OffthreadVideoThreads:          options.OffthreadVideoThreads,
 		X264Preset:                     options.X264Preset,
 		ForceWidth:                     options.ForceWidth,
@@ -123,6 +124,8 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.ConcurrencyPerLambda = options.ConcurrencyPerLambda
 	}
+
+	internalParams.Concurrency = options.Concurrency
 
 	if options.TimeoutInMilliseconds == 0 {
 		internalParams.TimeoutInMilliseconds = 30000

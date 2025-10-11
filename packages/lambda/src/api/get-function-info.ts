@@ -1,5 +1,5 @@
 import {GetFunctionCommand} from '@aws-sdk/client-lambda';
-import type {AwsRegion} from '@remotion/lambda-client';
+import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
 import {
 	getFunctionVersion,
 	LambdaClientInternals,
@@ -12,6 +12,7 @@ export type GetFunctionInfoInput = {
 	region: AwsRegion;
 	functionName: string;
 	logLevel?: LogLevel;
+	requestHandler?: RequestHandler;
 };
 
 /*
@@ -22,11 +23,16 @@ export const getFunctionInfo = async ({
 	region,
 	functionName,
 	logLevel,
+	requestHandler,
 }: GetFunctionInfoInput): Promise<FunctionInfo> => {
 	LambdaClientInternals.validateAwsRegion(region);
 
 	const [functionInfo, version] = await Promise.all([
-		LambdaClientInternals.getLambdaClient(region).send(
+		LambdaClientInternals.getLambdaClient(
+			region,
+			undefined,
+			requestHandler,
+		).send(
 			new GetFunctionCommand({
 				FunctionName: functionName,
 			}),
@@ -35,6 +41,7 @@ export const getFunctionInfo = async ({
 			functionName,
 			region,
 			logLevel: logLevel ?? 'info',
+			requestHandler,
 		}),
 	]);
 

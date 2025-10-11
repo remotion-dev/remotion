@@ -3,7 +3,6 @@ import {buildPackage} from '../.monorepo/builder';
 const external = [
 	'react',
 	'remotion',
-	'scheduler',
 	'react-dom',
 	'react',
 	'@remotion/media-utils',
@@ -14,6 +13,8 @@ const external = [
 	'@remotion/renderer/client',
 	'@remotion/renderer/pure',
 	'@remotion/renderer/error-handling',
+	'@remotion/media-parser/worker',
+	'@remotion/webcodecs',
 	'source-map',
 	'zod',
 	'remotion/no-react',
@@ -34,6 +35,7 @@ await buildPackage({
 		{
 			path: 'src/renderEntry.tsx',
 			target: 'browser',
+			splitting: true,
 		},
 		{
 			path: 'src/internals.ts',

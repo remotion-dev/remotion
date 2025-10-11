@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.274",
+	"version": "4.0.357",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -12,14 +12,17 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"scripts": {
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
-		"test": "bun test src",
+		"test": "bun test src/test",
+		"testwebcodecs": "playwright test src/it-tests",
 		"watch": "tsc -w",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"!dist/test",
+		"!dist/it-tests"
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "Remotion License (See https://remotion.dev/docs/webcodecs#license)",
@@ -32,6 +35,9 @@
 		"@types/dom-webcodecs": "0.1.11",
 		"@remotion/example-videos": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
+		"playwright": "1.51.1",
+		"vite": "5.4.20",
+		"@playwright/test": "1.51.1",
 		"eslint": "9.19.0"
 	},
 	"keywords": [],
@@ -57,11 +63,11 @@
 			"module": "./dist/esm/buffer.mjs",
 			"import": "./dist/esm/buffer.mjs"
 		},
-		"./node": {
-			"types": "./dist/writers/node.d.ts",
-			"require": "./dist/writers/node.js",
-			"module": "./dist/esm/node.mjs",
-			"import": "./dist/esm/node.mjs"
+		"./worker": {
+			"types": "./dist/worker.d.ts",
+			"require": "./dist/worker.js",
+			"module": "./dist/esm/worker.mjs",
+			"import": "./dist/esm/worker.mjs"
 		},
 		"./package.json": "./package.json"
 	},
@@ -70,8 +76,8 @@
 			"web-fs": [
 				"dist/writers/web-fs.d.ts"
 			],
-			"node": [
-				"dist/writers/node.d.ts"
+			"worker": [
+				"dist/worker.d.ts"
 			],
 			"buffer": [
 				"dist/writers/buffer.d.ts"

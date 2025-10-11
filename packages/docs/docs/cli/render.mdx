@@ -51,6 +51,17 @@ Inline JSON string isn't supported on Windows shells because it removes the `"` 
 
 [`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setvideoimageformat) The default image format is `jpeg` since v1.1.
 
+### `--image-sequence-pattern` <AvailableFrom v="4.0.313" />
+
+[Pattern for naming image sequence files. Supports `[frame]` for the zero-padded frame number and `[ext]` for the file extension.]
+
+**Example:**
+
+```bash
+npx remotion render ... --sequence --image-sequence-pattern='frame_[frame]_custom.[ext]'
+# Produces: frame_0001_custom.jpeg, frame_0002_custom.jpeg, ...
+```
+
 ### `--config`<AvailableFrom v="1.2.0" />
 
 Specify a location for the Remotion config file.
@@ -145,6 +156,10 @@ For example only every second frame, every third frame and so on. Only works for
 
 [Render a silent audio track if there wouldn't be one otherwise.](/docs/cli/render#--enforce-audio-track).
 
+### `--disallow-parallel-encoding`<AvailableFrom v="4.0.315" />
+
+Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
+
 ### `--number-of-gif-loops`<AvailableFrom v="3.1.0" />
 
 <Options id="number-of-gif-loops" />
@@ -178,7 +193,7 @@ For example only every second frame, every third frame and so on. Only works for
 Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout) in milliseconds. Default: `30000`.
 
 :::info
-Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions#--timeout).
+Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions/deploy#--timeout).
 :::
 
 ### `--ignore-certificate-errors`<AvailableFrom v="2.6.5" />
@@ -200,6 +215,10 @@ _removed in v5.0_
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `--media-cache-size-in-bytes`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
 
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 

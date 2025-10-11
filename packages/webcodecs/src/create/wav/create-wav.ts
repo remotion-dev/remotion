@@ -1,4 +1,7 @@
-import type {AudioOrVideoSample} from '@remotion/media-parser';
+import type {
+	MediaParserAudioSample,
+	MediaParserVideoSample,
+} from '@remotion/media-parser';
 import {Log} from '../../log';
 import type {MediaFn, MediaFnGeneratorInput} from '../media-fn';
 
@@ -103,7 +106,9 @@ export const createWav = async ({
 		);
 	};
 
-	const addSample = async (chunk: AudioOrVideoSample) => {
+	const addSample = async (
+		chunk: MediaParserAudioSample | MediaParserVideoSample,
+	) => {
 		Log.trace(logLevel, 'Adding sample', chunk);
 		await w.write(chunk.data);
 		onMillisecondsProgress((chunk.timestamp + (chunk.duration ?? 0)) / 1000);

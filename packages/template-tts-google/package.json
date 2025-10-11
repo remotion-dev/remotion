@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "My Remotion video",
   "scripts": {
-    "dev": "ts-node src/studio.ts",
-    "build": "ts-node src/render.ts",
+    "dev": "tsx src/studio.ts",
+    "build": "tsx src/render.ts",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc"
   },
@@ -16,9 +16,9 @@
     "@types/node": "20.12.14",
     "@types/react": "19.0.0",
     "eslint": "9.19.0",
-    "prettier": "3.3.3",
-    "ts-node": "10.9.1",
-    "typescript": "5.5.4"
+    "prettier": "3.6.0",
+    "tsx": "4.19.3",
+    "typescript": "5.8.2"
   },
   "dependencies": {
     "@google-cloud/text-to-speech": "4.2.1",

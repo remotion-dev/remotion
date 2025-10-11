@@ -1,6 +1,10 @@
 import {GetObjectCommand} from '@aws-sdk/client-s3';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
-import type {AwsProvider, AwsRegion} from '@remotion/lambda-client';
+import type {
+	AwsProvider,
+	AwsRegion,
+	RequestHandler,
+} from '@remotion/lambda-client';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -22,6 +26,7 @@ export const lambdaDownloadFileWithProgress = async ({
 	customCredentials,
 	logLevel,
 	forcePathStyle,
+	requestHandler,
 }: {
 	bucketName: string;
 	key: string;
@@ -32,11 +37,13 @@ export const lambdaDownloadFileWithProgress = async ({
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	logLevel: LogLevel;
 	forcePathStyle: boolean;
+	requestHandler: RequestHandler;
 }): Promise<{sizeInBytes: number; to: string}> => {
 	const client = LambdaClientInternals.getS3Client({
 		region,
 		customCredentials,
 		forcePathStyle,
+		requestHandler,
 	});
 	const command = new GetObjectCommand({
 		Bucket: bucketName,

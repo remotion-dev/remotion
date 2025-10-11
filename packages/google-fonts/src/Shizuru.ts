@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Shizuru',
 	importName: 'Shizuru',
-	version: 'v10',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Shizuru:ital,wght@0,400',
 	unicodeRanges: {
 		'[3]':
@@ -53,62 +53,63 @@ export const getInfo = () => ({
 		'[119]':
 			'U+20, U+2027, U+3001-3002, U+3041-307f, U+3081-308f, U+3091-3093, U+3099-309a, U+309d-309e, U+30a1-30e1, U+30e3-30ed, U+30ef-30f0, U+30f2-30f4, U+30fb-30fe, U+ff0c, U+ff0e',
 		latin:
-			'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+			'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
 	},
 	fonts: {
 		normal: {
 			'400': {
 				'[3]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.3.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.3.woff2',
 				'[54]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.54.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.54.woff2',
 				'[59]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.59.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.59.woff2',
 				'[61]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.61.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.61.woff2',
 				'[74]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.74.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.74.woff2',
 				'[79]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.79.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.79.woff2',
 				'[86]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.86.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.86.woff2',
 				'[89]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.89.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.89.woff2',
 				'[91]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.91.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.91.woff2',
 				'[97]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.97.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.97.woff2',
 				'[102]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.102.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.102.woff2',
 				'[105]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.105.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.105.woff2',
 				'[106]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.106.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.106.woff2',
 				'[107]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.107.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.107.woff2',
 				'[110]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.110.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.110.woff2',
 				'[111]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.111.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.111.woff2',
 				'[113]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.113.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.113.woff2',
 				'[114]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.114.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.114.woff2',
 				'[115]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.115.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.115.woff2',
 				'[116]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.116.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.116.woff2',
 				'[117]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.117.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.117.woff2',
 				'[118]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.118.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.118.woff2',
 				'[119]':
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.119.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i30dhhgcC_QDsqy3yixWdaNq343W7IXtV.119.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/shizuru/v10/O4ZSFGfvnxFiCA3i70UDlw.woff2',
+					'https://fonts.gstatic.com/s/shizuru/v13/O4ZSFGfvnxFiCA3i70UDlw.woff2',
 			},
 		},
 	},
+	subsets: ['japanese', 'latin'],
 });
 
 export const fontFamily = 'Shizuru' as const;
@@ -126,6 +127,7 @@ export const loadFont = <T extends keyof Variants>(
 		weights?: Variants[T]['weights'][];
 		subsets?: Variants[T]['subsets'][];
 		document?: Document;
+		ignoreTooManyRequestsWarning?: boolean;
 	},
 ) => {
 	return loadFonts(getInfo(), style, options);

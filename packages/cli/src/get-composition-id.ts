@@ -64,6 +64,7 @@ export const getCompositionId = async ({
 	binariesDirectory,
 	onBrowserDownload,
 	chromeMode,
+	mediaCacheSizeInBytes,
 }: {
 	args: (string | number)[];
 	compositionIdFromUi: string | null;
@@ -83,6 +84,7 @@ export const getCompositionId = async ({
 	binariesDirectory: string | null;
 	onBrowserDownload: OnBrowserDownload;
 	chromeMode: ChromeMode;
+	mediaCacheSizeInBytes: number | null;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -116,6 +118,7 @@ export const getCompositionId = async ({
 				onBrowserDownload,
 				onServeUrlVisited: () => undefined,
 				chromeMode,
+				mediaCacheSizeInBytes,
 			});
 
 		if (propsSize > 10_000_000) {
@@ -144,30 +147,43 @@ export const getCompositionId = async ({
 		};
 	}
 
+	const comps = await RenderInternals.internalGetCompositions({
+		puppeteerInstance,
+		envVariables,
+		timeoutInMilliseconds,
+		chromiumOptions,
+		port,
+		browserExecutable,
+		logLevel,
+		indent,
+		server,
+		serveUrlOrWebpackUrl,
+		onBrowserLog: null,
+		serializedInputPropsWithCustomSchema,
+		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
+		binariesDirectory,
+		onBrowserDownload,
+		chromeMode,
+		mediaCacheSizeInBytes,
+		onLog: RenderInternals.defaultOnLog,
+	});
+
+	if (comps.length === 1) {
+		return {
+			compositionId: comps[0]!.id,
+			reason: 'Only composition',
+			config: comps[0]!,
+			argsAfterComposition: args,
+		};
+	}
+
 	if (!process.env.CI) {
-		const comps = await RenderInternals.internalGetCompositions({
-			puppeteerInstance,
-			envVariables,
-			timeoutInMilliseconds,
-			chromiumOptions,
-			port,
-			browserExecutable,
-			logLevel,
-			indent,
-			server,
-			serveUrlOrWebpackUrl,
-			onBrowserLog: null,
-			serializedInputPropsWithCustomSchema,
-			offthreadVideoCacheSizeInBytes,
-			offthreadVideoThreads,
-			binariesDirectory,
-			onBrowserDownload,
-			chromeMode,
-		});
 		const {compositionId, reason} = await showSingleCompositionsPicker(
 			comps,
 			logLevel,
 		);
+
 		if (compositionId && typeof compositionId === 'string') {
 			return {
 				compositionId,

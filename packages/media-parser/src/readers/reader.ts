@@ -1,9 +1,11 @@
-import type {MediaParserController} from '../media-parser-controller';
-import type {ParseMediaSrc} from '../options';
+import type {MediaParserController} from '../controller/media-parser-controller';
+import type {MediaParserLogLevel} from '../log';
+import type {ParseMediaRange, ParseMediaSrc} from '../options';
+import type {PrefetchCache} from './from-fetch';
 
 export type Reader = {
 	reader: ReadableStreamDefaultReader<Uint8Array>;
-	abort: () => void;
+	abort: () => Promise<void>;
 };
 
 type ReadResult = {
@@ -16,19 +18,36 @@ type ReadResult = {
 };
 export type ReadContent = (options: {
 	src: ParseMediaSrc;
-	range: [number, number] | number | null;
+	range: ParseMediaRange;
 	controller: MediaParserController;
+	logLevel: MediaParserLogLevel;
+	prefetchCache: PrefetchCache;
 }) => Promise<ReadResult>;
 
 export type ReadWholeAsText = (src: ParseMediaSrc) => Promise<string>;
+
+export type PreloadContent = (options: {
+	src: ParseMediaSrc;
+	range: ParseMediaRange;
+	logLevel: MediaParserLogLevel;
+	prefetchCache: PrefetchCache;
+}) => void;
+
+export type ClearPreloadCache = (options: {
+	src: ParseMediaSrc;
+	range: ParseMediaRange;
+	logLevel: MediaParserLogLevel;
+	prefetchCache: PrefetchCache;
+}) => void;
 
 export type CreateAdjacentFileSource = (
 	relativePath: string,
 	src: ParseMediaSrc,
 ) => string;
 
-export type ReaderInterface = {
+export type MediaParserReaderInterface = {
 	read: ReadContent;
 	readWholeAsText: ReadWholeAsText;
 	createAdjacentFileSource: CreateAdjacentFileSource;
+	preload: PreloadContent;
 };

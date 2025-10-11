@@ -27,6 +27,8 @@ export const BooleanFlags = [
 	'ipv4',
 	BrowserSafeApis.options.beepOnFinishOption.cliFlag,
 	BrowserSafeApis.options.disableGitSourceOption.cliFlag,
+	BrowserSafeApis.options.disallowParallelEncodingOption.cliFlag,
+	BrowserSafeApis.options.forSeamlessAacConcatenationOption.cliFlag,
 	'repro',
 	'compatible-only',
 	'force-path-style',

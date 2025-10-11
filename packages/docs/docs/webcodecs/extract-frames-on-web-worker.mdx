@@ -1,0 +1,96 @@
+---
+image: /generated/articles-docs-webcodecs-extract-frames-on-web-worker.png
+id: extract-frames-on-web-worker
+title: extractFramesOnWebWorker()
+slug: /webcodecs/extract-frames-on-web-worker
+crumb: '@remotion/webcodecs'
+---
+
+:::warning
+[We are phasing out Remotion WebCodecs and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
+# extractFramesOnWebWorker()<AvailableFrom v="4.0.330"/>
+
+_Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
+
+Extracts frames from a video at specific timestamps using [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker).
+
+```tsx twoslash title="Extracting frames"
+import {extractFramesOnWebWorker} from '@remotion/webcodecs/worker';
+
+await extractFramesOnWebWorker({
+  src: 'https://remotion.media/video.mp4',
+  timestampsInSeconds: [0, 1, 2, 3, 4],
+  onFrame: (frame) => {
+    console.log(frame);
+    //           ^?
+  },
+});
+```
+
+## API
+
+### `src`
+
+A URL or `File`/`Blob`.
+
+If it is a remote URL, it must support CORS.
+
+### `timestampsInSeconds`
+
+An array of timestamps in seconds, or a function that returns a promise resolving to an array of timestamps in seconds based on the video track.
+
+Consider you wanting you to create a filmstrip of a video. You can do this by extracting as many frames as fit in a canvas.
+
+```tsx twoslash title="Extracting as many frames as fit in a canvas"
+import type {ExtractFramesTimestampsInSecondsFn} from '@remotion/webcodecs';
+
+const toSeconds = 10;
+const fromSeconds = 0;
+const canvasWidth = 500;
+const canvasHeight = 80;
+
+const timestamps: ExtractFramesTimestampsInSecondsFn = async ({track}) => {
+  const aspectRatio = track.width / track.height;
+  const amountOfFramesFit = Math.ceil(canvasWidth / (canvasHeight * aspectRatio));
+  const timestampsInSeconds: number[] = [];
+  const segmentDuration = toSeconds - fromSeconds;
+
+  for (let i = 0; i < amountOfFramesFit; i++) {
+    timestampsInSeconds.push(fromSeconds + (segmentDuration / amountOfFramesFit) * (i + 0.5));
+  }
+
+  return timestampsInSeconds;
+};
+```
+
+Note that currently, you can not get the duration of the video in seconds before the extraction.  
+For this you need currently to make another [`parseMedia()`](/docs/media-parser/parse-media) call beforehand.
+
+### `onFrame`
+
+A callback that will be called with the frame at the given timestamp.  
+Each frame is a [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) object that can for example be drawn to a canvas.
+
+### `acknowledgeRemotionLicense?`
+
+Acknowledge the [Remotion License](/docs/license) to make the console message disappear.
+
+### `signal?`
+
+An optional [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) to abort the extraction.
+
+### `logLevel?`
+
+_string_ <TsType type="LogLevel" source="@remotion/media-parser"/>
+
+One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
+Default value: `"info"`, which logs only important information.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/extract-frames.ts)
+- [`@remotion/webcodecs`](/docs/webcodecs)
+- [`parseMedia()`](/docs/media-parser/parse-media)
+- [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker)

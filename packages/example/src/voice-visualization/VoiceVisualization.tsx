@@ -1,5 +1,5 @@
 import {
-	AudioData,
+	MediaUtilsAudioData,
 	createSmoothSvgPath,
 	visualizeAudioWaveform,
 } from '@remotion/media-utils';
@@ -7,7 +7,7 @@ import React from 'react';
 import {useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const VoiceVis: React.FC<{
-	audioDataVoice: AudioData;
+	audioDataVoice: MediaUtilsAudioData;
 	padding: number;
 	numberOfSamples: number;
 	windowInSeconds: number;

@@ -2,7 +2,7 @@
 image: /generated/articles-docs-use-audio-data.png
 title: useAudioData()
 id: use-audio-data
-crumb: "@remotion/media-utils"
+crumb: '@remotion/media-utils'
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._
@@ -19,18 +19,22 @@ Using this function, you can elegantly render a component based on audio propert
 Remote audio files need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 
 <details>
-<summary>More info</summary>
-<ul>
-<li>
-Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
-</li>
-<li>
-You can use <a href="/docs/get-audio-duration-in-seconds"><code>getAudioDurationInSeconds()</code></a> without the audio needing CORS.
-</li>
-<li>
-You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
-</li>
-</ul>
+  <summary>More info</summary>
+  <ul>
+    <li>
+      Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
+    </li>
+    <li>
+      You can use{' '}
+      <a href="/docs/get-audio-duration-in-seconds">
+        <code>getAudioDurationInSeconds()</code>
+      </a>{' '}
+      without the audio needing CORS.
+    </li>
+    <li>
+      You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
+    </li>
+  </ul>
 </details>
 :::
 
@@ -48,11 +52,11 @@ A string pointing to an audio asset.
 
 ```tsx twoslash
 // ---cut---
-import { useAudioData } from "@remotion/media-utils";
-import { staticFile } from "remotion";
+import {useAudioData} from '@remotion/media-utils';
+import {staticFile} from 'remotion';
 
 export const MyComponent: React.FC = () => {
-  const audioData = useAudioData(staticFile("music.mp3"));
+  const audioData = useAudioData(staticFile('music.mp3'));
 
   if (!audioData) {
     return null;
@@ -75,4 +79,4 @@ If you want to catch the error in the component, you need to make your own inlin
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/use-audio-data.ts)
 - [`getAudioData()`](/docs/get-audio-data)
 - [`visualizeAudio()`](/docs/visualize-audio)
-- [Audio visualization](/docs/audio-visualization)
+- [Audio visualization](/docs/audio/visualization)

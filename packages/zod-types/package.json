@@ -3,14 +3,14 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/zod-types"
 	},
 	"name": "@remotion/zod-types",
-	"version": "4.0.274",
+	"version": "4.0.357",
 	"description": "Zod types for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"scripts": {
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},

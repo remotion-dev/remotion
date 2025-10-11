@@ -1,9 +1,11 @@
+import type {MediaParserCodecData} from './codec-data';
 import type {
-	MatrixCoefficients,
-	Primaries,
-	TransferCharacteristics,
+	MediaParserMatrixCoefficients,
+	MediaParserPrimaries,
+	MediaParserTransferCharacteristics,
 } from './containers/avc/color';
 import {makeBaseMediaTrack} from './containers/iso-base-media/make-track';
+import {findTrackStartTimeInSeconds} from './containers/iso-base-media/mdat/get-editlist';
 import type {MoovBox} from './containers/iso-base-media/moov/moov';
 import type {TrakBox} from './containers/iso-base-media/trak/trak';
 import {
@@ -11,7 +13,6 @@ import {
 	getMvhdBox,
 	getTraks,
 } from './containers/iso-base-media/traversal';
-import type {AllTracks} from './containers/riff/get-tracks-from-avi';
 import {
 	getTracksFromAvi,
 	hasAllTracksFromAvi,
@@ -24,17 +25,20 @@ import {
 	getTracksFromMatroska,
 	matroskaHasTracks,
 } from './containers/webm/get-ready-tracks';
+import type {M3uPlaylistContext} from './options';
+import type {IsoBaseMediaState} from './state/iso-base-media/iso-state';
 import type {ParserState} from './state/parser-state';
+import type {StructureState} from './state/structure';
 
-type SampleAspectRatio = {
+export type MediaParserSampleAspectRatio = {
 	numerator: number;
 	denominator: number;
 };
 
-export type VideoTrackColorParams = {
-	transferCharacteristics: TransferCharacteristics | null;
-	matrixCoefficients: MatrixCoefficients | null;
-	primaries: Primaries | null;
+export type MediaParserAdvancedColor = {
+	transfer: MediaParserTransferCharacteristics | null;
+	matrix: MediaParserMatrixCoefficients | null;
+	primaries: MediaParserPrimaries | null;
 	fullRange: boolean | null;
 };
 
@@ -60,49 +64,64 @@ export type MediaParserAudioCodec =
 	| 'flac'
 	| 'aiff';
 
-export type VideoTrack = {
-	type: 'video';
-	trackId: number;
-	description: Uint8Array | undefined;
-	timescale: number;
+export type MediaParserVideoTrack = {
+	// WebCodecs
 	codec: string;
-	codecWithoutConfig: MediaParserVideoCodec;
-	m3uStreamFormat: 'ts' | 'mp4' | null;
-	sampleAspectRatio: SampleAspectRatio;
-	width: number;
-	height: number;
-	displayAspectWidth: number;
-	displayAspectHeight: number;
+	description: Uint8Array | undefined;
+	colorSpace: VideoColorSpaceInit;
 	codedWidth: number;
 	codedHeight: number;
+	displayAspectWidth: number;
+	displayAspectHeight: number;
+	// Non-WebCodecs
+	type: 'video';
+	trackId: number;
+	codecEnum: MediaParserVideoCodec;
+	codecData: MediaParserCodecData | null;
+	sampleAspectRatio: MediaParserSampleAspectRatio;
+	width: number;
+	height: number;
 	rotation: number;
-	trakBox: TrakBox | null;
-	codecPrivate: Uint8Array | null;
-	color: VideoTrackColorParams;
 	fps: number | null;
+	timescale: 1_000_000;
+	originalTimescale: number;
+	advancedColor: MediaParserAdvancedColor;
+	m3uStreamFormat: 'ts' | 'mp4' | null;
+	startInSeconds: number;
+	trackMediaTimeOffsetInTrackTimescale: number;
 };
 
-export type AudioTrack = {
-	type: 'audio';
-	trackId: number;
-	timescale: number;
+export type MediaParserAudioTrack = {
+	// WebCodecs
 	codec: string;
-	codecWithoutConfig: MediaParserAudioCodec;
-	numberOfChannels: number;
 	sampleRate: number;
 	description: Uint8Array | undefined;
-	trakBox: TrakBox | null;
-	codecPrivate: Uint8Array | null;
+	numberOfChannels: number;
+	// Non-WebCodecs
+	type: 'audio';
+	trackId: number;
+	codecEnum: MediaParserAudioCodec;
+	timescale: 1_000_000;
+	originalTimescale: number;
+	codecData: MediaParserCodecData | null;
+	startInSeconds: number;
+	trackMediaTimeOffsetInTrackTimescale: number;
 };
 
-export type OtherTrack = {
+export type MediaParserOtherTrack = {
 	type: 'other';
 	trackId: number;
-	timescale: number;
+	timescale: 1_000_000;
+	originalTimescale: number;
 	trakBox: TrakBox | null;
+	startInSeconds: number;
+	trackMediaTimeOffsetInTrackTimescale: number;
 };
 
-export type Track = VideoTrack | AudioTrack | OtherTrack;
+export type MediaParserTrack =
+	| MediaParserVideoTrack
+	| MediaParserAudioTrack
+	| MediaParserOtherTrack;
 
 export const getNumberOfTracks = (moovBox: MoovBox): number => {
 	const mvHdBox = getMvhdBox(moovBox);
@@ -113,18 +132,34 @@ export const getNumberOfTracks = (moovBox: MoovBox): number => {
 	return mvHdBox.nextTrackId - 1;
 };
 
-export const isoBaseMediaHasTracks = (state: ParserState) => {
-	return Boolean(getMoovBoxFromState(state));
+export const isoBaseMediaHasTracks = (
+	state: ParserState,
+	mayUsePrecomputed: boolean,
+) => {
+	return Boolean(
+		getMoovBoxFromState({
+			structureState: state.structure,
+			isoState: state.iso,
+			mp4HeaderSegment: state.m3uPlaylistContext?.mp4HeaderSegment ?? null,
+			mayUsePrecomputed,
+		}),
+	);
 };
 
-export const getHasTracks = (state: ParserState): boolean => {
-	const structure = state.getStructure();
+export const getHasTracks = (
+	state: ParserState,
+	mayUsePrecomputed: boolean,
+): boolean => {
+	const structure = state.structure.getStructure();
 	if (structure.type === 'matroska') {
-		return matroskaHasTracks(state);
+		return matroskaHasTracks({
+			structureState: state.structure,
+			webmState: state.webm,
+		});
 	}
 
 	if (structure.type === 'iso-base-media') {
-		return isoBaseMediaHasTracks(state);
+		return isoBaseMediaHasTracks(state, mayUsePrecomputed);
 	}
 
 	if (structure.type === 'riff') {
@@ -158,84 +193,75 @@ export const getHasTracks = (state: ParserState): boolean => {
 	throw new Error('Unknown container ' + (structure satisfies never));
 };
 
-const getCategorizedTracksFromMatroska = (state: ParserState): AllTracks => {
-	const videoTracks: VideoTrack[] = [];
-	const audioTracks: AudioTrack[] = [];
-	const otherTracks: OtherTrack[] = [];
-
+const getCategorizedTracksFromMatroska = (
+	state: ParserState,
+): MediaParserTrack[] => {
 	const {resolved} = getTracksFromMatroska({
-		state,
+		structureState: state.structure,
+		webmState: state.webm,
 	});
 
-	for (const track of resolved) {
-		if (track.type === 'video') {
-			videoTracks.push(track);
-		} else if (track.type === 'audio') {
-			audioTracks.push(track);
-		} else if (track.type === 'other') {
-			otherTracks.push(track);
-		}
-	}
-
-	return {
-		videoTracks,
-		audioTracks,
-		otherTracks,
-	};
+	return resolved;
 };
 
-export const getTracksFromMoovBox = (moovBox: MoovBox) => {
-	const videoTracks: VideoTrack[] = [];
-	const audioTracks: AudioTrack[] = [];
-	const otherTracks: OtherTrack[] = [];
+export const getTracksFromMoovBox = (moovBox: MoovBox): MediaParserTrack[] => {
+	const mediaParserTracks: MediaParserTrack[] = [];
 	const tracks = getTraks(moovBox);
 
 	for (const trakBox of tracks) {
-		const track = makeBaseMediaTrack(trakBox);
+		const mvhdBox = getMvhdBox(moovBox);
+		if (!mvhdBox) {
+			throw new Error('Mvhd box is not found');
+		}
+
+		const startTime = findTrackStartTimeInSeconds({
+			movieTimeScale: mvhdBox.timeScale,
+			trakBox,
+		});
+		const track = makeBaseMediaTrack(trakBox, startTime);
 		if (!track) {
 			continue;
 		}
 
-		if (track.type === 'video') {
-			videoTracks.push(track);
-		} else if (track.type === 'audio') {
-			audioTracks.push(track);
-		} else if (track.type === 'other') {
-			otherTracks.push(track);
-		}
+		mediaParserTracks.push(track);
 	}
 
-	return {
-		videoTracks,
-		audioTracks,
-		otherTracks,
-	};
+	return mediaParserTracks;
 };
 
-export const getTracksFromIsoBaseMedia = (state: ParserState) => {
-	const moovBox = getMoovBoxFromState(state);
+export const getTracksFromIsoBaseMedia = ({
+	mayUsePrecomputed,
+	structure,
+	isoState,
+	m3uPlaylistContext,
+}: {
+	structure: StructureState;
+	isoState: IsoBaseMediaState;
+	m3uPlaylistContext: M3uPlaylistContext | null;
+	mayUsePrecomputed: boolean;
+}): MediaParserTrack[] => {
+	const moovBox = getMoovBoxFromState({
+		structureState: structure,
+		isoState,
+		mp4HeaderSegment: m3uPlaylistContext?.mp4HeaderSegment ?? null,
+		mayUsePrecomputed,
+	});
 	if (!moovBox) {
-		return {
-			videoTracks: [],
-			audioTracks: [],
-			otherTracks: [],
-		};
+		return [];
 	}
 
 	return getTracksFromMoovBox(moovBox);
 };
 
-export const defaultGetTracks = (parserState: ParserState): AllTracks => {
+export const defaultGetTracks = (
+	parserState: ParserState,
+): MediaParserTrack[] => {
 	const tracks = parserState.callbacks.tracks.getTracks();
 	if (tracks.length === 0) {
 		throw new Error('No tracks found');
 	}
 
-	return {
-		audioTracks: tracks.filter((t) => t.type === 'audio'),
-		otherTracks: [],
-		videoTracks: tracks.filter((t) => t.type === 'video'),
-	};
+	return tracks;
 };
 
 export const defaultHasallTracks = (parserState: ParserState): boolean => {
@@ -247,14 +273,22 @@ export const defaultHasallTracks = (parserState: ParserState): boolean => {
 	}
 };
 
-export const getTracks = (state: ParserState): AllTracks => {
-	const structure = state.getStructure();
+export const getTracks = (
+	state: ParserState,
+	mayUsePrecomputed: boolean,
+): MediaParserTrack[] => {
+	const structure = state.structure.getStructure();
 	if (structure.type === 'matroska') {
 		return getCategorizedTracksFromMatroska(state);
 	}
 
 	if (structure.type === 'iso-base-media') {
-		return getTracksFromIsoBaseMedia(state);
+		return getTracksFromIsoBaseMedia({
+			isoState: state.iso,
+			m3uPlaylistContext: state.m3uPlaylistContext,
+			structure: state.structure,
+			mayUsePrecomputed,
+		});
 	}
 
 	if (structure.type === 'riff') {

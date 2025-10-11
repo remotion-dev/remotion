@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {getArrayBufferIterator} from '../buffer-iterator';
 import {parseStsz} from '../containers/iso-base-media/stsd/stsz';
+import {getArrayBufferIterator} from '../iterator/buffer-iterator';
 
 test('parse stsz box 1', () => {
 	const buf = new Uint8Array([
@@ -11,7 +11,11 @@ test('parse stsz box 1', () => {
 		186, 0, 0, 2, 83, 0, 0, 2, 36, 0, 0, 2, 99, 0, 0, 2, 189, 0, 0, 2, 23, 0, 0,
 		3, 8, 0, 0, 2, 74, 0, 0, 0, 52, 115, 116, 99, 111,
 	]);
-	const iterator = getArrayBufferIterator(buf, null);
+	const iterator = getArrayBufferIterator({
+		initialData: buf,
+		maxBytes: buf.length,
+		logLevel: 'error',
+	});
 	iterator.counter.increment(8);
 	const result = parseStsz({
 		iterator,
@@ -37,7 +41,11 @@ test('parse stsz box 2', () => {
 		// actual box
 		0, 0, 0, 0, 0, 0, 3, 192, 0, 0, 0, 15, 0, 0, 0, 52, 115, 116, 99, 111,
 	]);
-	const iterator = getArrayBufferIterator(buf, null);
+	const iterator = getArrayBufferIterator({
+		initialData: buf,
+		maxBytes: buf.length,
+		logLevel: 'error',
+	});
 	iterator.counter.increment(8);
 	const result = parseStsz({
 		iterator,

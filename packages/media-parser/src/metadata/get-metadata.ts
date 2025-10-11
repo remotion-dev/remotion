@@ -14,7 +14,7 @@ export type MediaParserMetadataEntry = {
 };
 
 export const getMetadata = (state: ParserState): MediaParserMetadataEntry[] => {
-	const structure = state.getStructure();
+	const structure = state.structure.getStructure();
 	if (structure.type === 'matroska') {
 		return getMetadataFromMatroska(structure);
 	}
@@ -29,11 +29,10 @@ export const getMetadata = (state: ParserState): MediaParserMetadataEntry[] => {
 
 	if (structure.type === 'mp3') {
 		const tags = getMetadataFromMp3(structure);
-		if (tags === null) {
-			throw new Error('Failed to get metadata from mp3');
-		}
 
-		return tags;
+		// Not all MP3s file have this header.
+		// Internal link: https://discord.com/channels/809501355504959528/1001500302375125055/1408880907602890752
+		return tags ?? [];
 	}
 
 	if (structure.type === 'wav') {
@@ -68,7 +67,13 @@ export const hasMetadata = (
 		return getMetadataFromWav(structure) !== null;
 	}
 
-	if (structure.type === 'm3u' || structure.type === 'transport-stream') {
+	// M3U, Transport Stream, AAC cannot store any metadata
+
+	if (
+		structure.type === 'm3u' ||
+		structure.type === 'transport-stream' ||
+		structure.type === 'aac'
+	) {
 		return true;
 	}
 
@@ -76,6 +81,8 @@ export const hasMetadata = (
 		return getMetadataFromFlac(structure) !== null;
 	}
 
+	// The following containers (MP4, Matroska, AVI) all have mechanisms
+	// to skip over video sections, and tests for it in read-metadata.test.ts
 	if (structure.type === 'iso-base-media') {
 		return false;
 	}
@@ -86,10 +93,6 @@ export const hasMetadata = (
 
 	if (structure.type === 'riff') {
 		return false;
-	}
-
-	if (structure.type === 'aac') {
-		return true;
 	}
 
 	throw new Error('Unknown container ' + (structure as never));

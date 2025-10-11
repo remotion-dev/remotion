@@ -25,7 +25,7 @@ test('should read MP3 file', async () => {
 		slowFps,
 		slowKeyframes,
 		slowNumberOfFrames,
-		structure,
+		slowStructure,
 		unrotatedDimensions,
 		videoCodec,
 		numberOfAudioChannels,
@@ -55,7 +55,7 @@ test('should read MP3 file', async () => {
 			slowFps: true,
 			slowKeyframes: true,
 			slowNumberOfFrames: true,
-			structure: true,
+			slowStructure: true,
 			unrotatedDimensions: true,
 			videoCodec: true,
 			numberOfAudioChannels: true,
@@ -79,7 +79,7 @@ test('should read MP3 file', async () => {
 
 	expect(samples).toBe(4788);
 	expect(durationInSeconds).toBe(125.17877551020408);
-	expect(tracks.audioTracks.length).toBe(1);
+	expect(tracks.filter((t) => t.type === 'audio').length).toBe(1);
 	expect(videoCodec).toBe(null);
 	expect(audioCodec).toBe('mp3');
 	expect(container).toBe('mp3');
@@ -165,10 +165,10 @@ test('should read MP3 file', async () => {
 	expect(slowFps).toBe(0);
 	expect(slowKeyframes).toEqual([]);
 	expect(slowNumberOfFrames).toBe(0);
-	expect(structure.boxes.length).toEqual(1);
+	expect(slowStructure.boxes.length).toEqual(1);
 	expect(unrotatedDimensions).toBe(null);
 	expect(numberOfAudioChannels).toBe(2);
-	expect(slowAudioBitrate).toBe(320000.03722862975);
+	expect(slowAudioBitrate).toBe(320000.0383771932);
 	expect(slowVideoBitrate).toBe(null);
 	expect(sampleRate).toBe(44100);
 });
@@ -227,6 +227,7 @@ test('should read video fields', async () => {
 				slowDurationInSeconds: true,
 				slowNumberOfFrames: true,
 			},
+
 			acknowledgeRemotionLicense: true,
 		},
 	);
@@ -237,6 +238,7 @@ test('should read video fields', async () => {
 });
 
 test('should read short mp3 file', async () => {
+	let samples = 0;
 	const {durationInSeconds} = await parseMedia({
 		src: exampleVideos.shortmp3,
 		reader: nodeReader,
@@ -245,10 +247,13 @@ test('should read short mp3 file', async () => {
 			durationInSeconds: true,
 		},
 		onAudioTrack: () => {
-			return () => {};
+			return () => {
+				samples++;
+			};
 		},
 		acknowledgeRemotionLicense: true,
 	});
+	expect(samples).toBe(41);
 	expect(durationInSeconds).toBe(0.984);
 });
 

@@ -7,7 +7,7 @@ crumb: 'Cloud Run API'
 
 <ExperimentalBadge>
   <p>
-    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
   </p>
 </ExperimentalBadge>
 
@@ -112,7 +112,17 @@ Specify a specific bucket name to be used for the output. The resulting Google C
 
 _optional_
 
-A callback that is called with the progress of the render.
+```tsx twoslash
+import type {UpdateRenderProgress} from '@remotion/cloudrun/client';
+
+const updateRenderProgress: UpdateRenderProgress = (progress: number, error: boolean) => {
+  if (error) {
+    console.error('Render failed');
+  } else {
+    console.log(`Render progress: ${progress * 100}%`);
+  }
+};
+```
 
 ### `renderStatusWebhook?`
 
@@ -348,6 +358,10 @@ Render a silent audio track if there wouldn't be any otherwise.
 ### `preferLossless?`<AvailableFrom v="4.0.123"/>
 
 <Options id="prefer-lossless" />
+
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
 
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 

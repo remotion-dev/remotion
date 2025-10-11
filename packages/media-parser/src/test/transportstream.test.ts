@@ -3,15 +3,16 @@ import {expect, test} from 'bun:test';
 import {combineUint8Arrays} from '../combine-uint8-arrays';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
+import {WEBCODECS_TIMESCALE} from '../webcodecs-timescale';
 
 test('Transport stream', async () => {
 	let audioSamples = 0;
 	let videoSamples = 0;
 
-	let h264File = new Uint8Array([]);
+	let h264File: Uint8Array = new Uint8Array([]);
 
 	const {
-		structure,
+		slowStructure,
 		durationInSeconds,
 		dimensions,
 		container,
@@ -27,7 +28,7 @@ test('Transport stream', async () => {
 		src: exampleVideos.transportstream,
 		fields: {
 			durationInSeconds: true,
-			structure: true,
+			slowStructure: true,
 			dimensions: true,
 			container: true,
 			audioCodec: true,
@@ -43,16 +44,18 @@ test('Transport stream', async () => {
 		reader: nodeReader,
 		onAudioTrack: ({track}) => {
 			expect(track).toEqual({
+				startInSeconds: 0,
 				type: 'audio',
-				codecPrivate: new Uint8Array([9, 144]),
+				codecData: {type: 'aac-config', data: new Uint8Array([9, 144])},
 				trackId: 257,
-				trakBox: null,
-				timescale: 90000,
-				codecWithoutConfig: 'aac',
+				originalTimescale: 90000,
+				codecEnum: 'aac',
 				codec: 'mp4a.40.2',
-				description: undefined,
+				description: new Uint8Array([9, 144]),
 				numberOfChannels: 2,
 				sampleRate: 48000,
+				timescale: WEBCODECS_TIMESCALE,
+				trackMediaTimeOffsetInTrackTimescale: 0,
 			});
 			return (sample) => {
 				expect(sample.data[0]).toBe(255);
@@ -61,69 +64,73 @@ test('Transport stream', async () => {
 		},
 		onVideoTrack: ({track}) => {
 			expect(track).toEqual({
+				startInSeconds: 0,
 				m3uStreamFormat: null,
 				rotation: 0,
 				trackId: 256,
 				type: 'video',
-				timescale: 90000,
+				originalTimescale: 90000,
 				codec: 'avc1.640020',
-				codecPrivate: new Uint8Array([
-					1, // version
+				codecData: {
+					type: 'avc-sps-pps',
+					data: new Uint8Array([
+						1, // version
 
-					100, // profile, profile compatibility, level
-					0,
-					32,
-					255, // reserved
+						100, // profile, profile compatibility, level
+						0,
+						32,
+						255, // reserved
 
-					225, // reserved
-					// sps length
-					0,
-					28,
-					// sps
-					103,
-					100,
-					0,
-					32,
-					172,
-					217,
-					0,
-					180,
-					22,
-					236,
-					5,
-					168,
-					72,
-					144,
-					74,
-					0,
-					0,
-					3,
-					0,
-					2,
-					168,
-					58,
-					104,
-					0,
-					30,
-					48,
-					99,
-					44,
-					// num of pps
-					1,
-					// pps length
-					0,
-					5,
-					// pps
-					104,
-					234,
-					236,
-					178,
-					44,
-					253,
-					248,
-					248,
-					0,
-				]),
+						225, // reserved
+						// sps length
+						0,
+						28,
+						// sps
+						103,
+						100,
+						0,
+						32,
+						172,
+						217,
+						0,
+						180,
+						22,
+						236,
+						5,
+						168,
+						72,
+						144,
+						74,
+						0,
+						0,
+						3,
+						0,
+						2,
+						168,
+						58,
+						104,
+						0,
+						30,
+						48,
+						99,
+						44,
+						// num of pps
+						1,
+						// pps length
+						0,
+						5,
+						// pps
+						104,
+						234,
+						236,
+						178,
+						44,
+						253,
+						248,
+						248,
+						0,
+					]),
+				},
 				fps: null,
 				codedWidth: 720,
 				codedHeight: 720,
@@ -131,19 +138,26 @@ test('Transport stream', async () => {
 				width: 720,
 				displayAspectWidth: 720,
 				displayAspectHeight: 720,
-				trakBox: null,
-				codecWithoutConfig: 'h264',
+				codecEnum: 'h264',
 				description: undefined,
 				sampleAspectRatio: {
 					denominator: 1,
 					numerator: 1,
 				},
-				color: {
-					matrixCoefficients: 'bt2020',
-					transferCharacteristics: 'arib-std-b67',
-					primaries: 'bt2020',
+				colorSpace: {
+					matrix: 'bt2020-ncl' as VideoMatrixCoefficients,
+					transfer: 'hlg' as VideoTransferCharacteristics,
+					primaries: 'bt2020' as VideoColorPrimaries,
 					fullRange: false,
 				},
+				advancedColor: {
+					fullRange: false,
+					matrix: 'bt2020-ncl',
+					primaries: 'bt2020',
+					transfer: 'hlg',
+				},
+				timescale: WEBCODECS_TIMESCALE,
+				trackMediaTimeOffsetInTrackTimescale: 0,
 			});
 			return (sample) => {
 				h264File = combineUint8Arrays([h264File, sample.data]);
@@ -174,7 +188,7 @@ test('Transport stream', async () => {
 			throw new Error(ffmpegResult.stderr.toString('utf8'));
 		}
 
-		const output = new Uint8Array(ffmpegResult.stdout);
+		const output: Uint8Array = new Uint8Array(ffmpegResult.stdout);
 		expect(output).toEqual(h264File);
 	} else {
 		// eslint-disable-next-line no-console
@@ -190,12 +204,12 @@ test('Transport stream', async () => {
 	expect(audioSamples).toBe(234);
 	expect(audioCodec).toBe('aac');
 	expect(fps).toBe(null);
-	expect(slowFps).toBe(59.999999999999986);
-	expect(slowDurationInSeconds).toBe(4.966666666666668);
+	expect(slowFps).toBe(60);
+	expect(slowDurationInSeconds).toBe(4.983333333333333);
 	expect(isHdr).toBe(true);
 	expect(videoCodec).toBe('h264');
 	expect(videoSamples).toBe(298);
-	expect(structure.boxes[0]).toEqual({
+	expect(slowStructure.boxes[0]).toEqual({
 		type: 'transport-stream-pat-box',
 		tableId: '0',
 		pat: [
@@ -206,7 +220,7 @@ test('Transport stream', async () => {
 			},
 		],
 	});
-	expect(structure.boxes[1]).toEqual({
+	expect(slowStructure.boxes[1]).toEqual({
 		type: 'transport-stream-pmt-box',
 		tableId: 2,
 		streams: [
@@ -223,9 +237,9 @@ test('Transport stream', async () => {
 	expect(slowNumberOfFrames).toBe(298);
 	expect(slowKeyframes).toEqual([
 		{
-			decodingTimeInSeconds: 10,
+			decodingTimeInSeconds: 0,
 			positionInBytes: 564,
-			presentationTimeInSeconds: 10.033333333333333,
+			presentationTimeInSeconds: 0.03333333333333333,
 			sizeInBytes: 23814,
 			trackId: 256,
 		},

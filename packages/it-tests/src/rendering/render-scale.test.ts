@@ -22,9 +22,9 @@ test(
 	'Should be able to render video with scale 2',
 	async () => {
 		const task = execa(
-			'pnpm',
+			'bun',
 			[
-				'exec',
+				'x',
 				'remotion',
 				'render',
 				'src/index.ts',
@@ -73,12 +73,12 @@ test(
 	'Should be able to render video with scale 0.1',
 	async () => {
 		const task = execa(
-			'pnpm',
+			'bun',
 			[
-				'exec',
+				'x',
 				'remotion',
 				'render',
-				'src/index.ts',
+				'build',
 				'ten-frame-tester',
 				'--frames',
 				'0-1',

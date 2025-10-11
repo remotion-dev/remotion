@@ -1,6 +1,7 @@
 dist/test/**
 src
 .eslintrc
+eslint.config.mjs
 tsconfig.tsbuildinfo
 .prettierrc
 *.tgz
@@ -14,3 +15,5 @@ tsconfig.json
 install-toolchain.mjs
 toolchains
 toolchains.mjs
+*.ts
+!*.d.ts

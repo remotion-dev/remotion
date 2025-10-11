@@ -13,7 +13,6 @@ const EvaluateRemotionSection: React.FC = () => {
 			'/img/freelancers/antoine.jpeg',
 			'/img/freelancers/ayush.png',
 			'/img/freelancers/benjamin.jpeg',
-			'/img/freelancers/florent.jpeg',
 			'/img/freelancers/karel.jpeg',
 			'/img/freelancers/lorenzo.jpeg',
 			'/img/freelancers/mickael.jpeg',
@@ -25,6 +24,7 @@ const EvaluateRemotionSection: React.FC = () => {
 			'/img/freelancers/stephen.png',
 			'/img/freelancers/umungo.png',
 			'/img/freelancers/yehor.jpeg',
+			'/img/freelancers/andrei.png',
 			// Add more avatar paths here
 		];
 

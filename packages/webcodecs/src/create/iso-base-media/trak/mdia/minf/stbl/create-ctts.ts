@@ -1,4 +1,4 @@
-import type {SamplePosition} from '@remotion/media-parser';
+import type {MediaParserInternalTypes} from '@remotion/media-parser';
 import {combineUint8Arrays} from '../../../../../matroska/matroska-utils';
 import {
 	addSize,
@@ -18,8 +18,10 @@ const makeEntry = (entry: Entry) => {
 	]);
 };
 
-export const createCttsBox = (samplePositions: SamplePosition[]) => {
-	const offsets = samplePositions.map((s) => s.cts - s.dts);
+export const createCttsBox = (
+	samplePositions: MediaParserInternalTypes['SamplePosition'][],
+) => {
+	const offsets = samplePositions.map((s) => s.timestamp - s.decodingTimestamp);
 	const entries: Entry[] = [];
 
 	let lastOffset: null | number = null;

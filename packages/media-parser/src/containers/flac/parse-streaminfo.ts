@@ -1,7 +1,8 @@
-import type {BufferIterator} from '../../buffer-iterator';
+import type {BufferIterator} from '../../iterator/buffer-iterator';
 import type {ParseResult} from '../../parse-result';
 import {registerAudioTrack} from '../../register-track';
 import type {ParserState} from '../../state/parser-state';
+import {WEBCODECS_TIMESCALE} from '../../webcodecs-timescale';
 import type {FlacStreamInfo} from './types';
 
 export const parseStreamInfo = async ({
@@ -40,23 +41,28 @@ export const parseStreamInfo = async ({
 		totalSamples,
 	};
 
-	state.getFlacStructure().boxes.push(flacStreamInfo);
+	state.structure.getFlacStructure().boxes.push(flacStreamInfo);
 
 	await registerAudioTrack({
 		container: 'flac',
-		state,
 		track: {
 			codec: 'flac',
 			type: 'audio',
 			description: asUint8Array,
-			codecPrivate: asUint8Array,
-			codecWithoutConfig: 'flac',
+			codecData: {type: 'flac-description', data: asUint8Array},
+			codecEnum: 'flac',
 			numberOfChannels: channels,
 			sampleRate,
-			timescale: 1_000_000,
+			originalTimescale: WEBCODECS_TIMESCALE,
 			trackId: 0,
-			trakBox: null,
+			startInSeconds: 0,
+			timescale: WEBCODECS_TIMESCALE,
+			trackMediaTimeOffsetInTrackTimescale: 0,
 		},
+		registerAudioSampleCallback: state.callbacks.registerAudioSampleCallback,
+		tracks: state.callbacks.tracks,
+		logLevel: state.logLevel,
+		onAudioTrack: state.onAudioTrack,
 	});
 
 	state.callbacks.tracks.setIsDone(state.logLevel);

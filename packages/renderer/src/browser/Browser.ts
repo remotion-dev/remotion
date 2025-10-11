@@ -17,7 +17,7 @@
 import {BrowserLog} from '../browser-log';
 import type {LogLevel} from '../log-level';
 import {assert} from './assert';
-import type {Page} from './BrowserPage';
+import type {OnLog, Page} from './BrowserPage';
 import {PageEmittedEvents} from './BrowserPage';
 import type {BrowserRunner} from './BrowserRunner';
 import {makeBrowserRunner} from './BrowserRunner';
@@ -81,6 +81,7 @@ export class HeadlessBrowser extends EventEmitter {
 	#defaultContext: BrowserContext;
 	#contexts: Map<string, BrowserContext>;
 	#targets: Map<string, Target>;
+	id: string;
 
 	runner: BrowserRunner;
 
@@ -100,6 +101,8 @@ export class HeadlessBrowser extends EventEmitter {
 		super();
 		this.#defaultViewport = defaultViewport;
 		this.connection = connection;
+
+		this.id = Math.random().toString(36).substring(2, 15);
 
 		this.#defaultContext = new BrowserContext(this);
 		this.#contexts = new Map();
@@ -187,12 +190,14 @@ export class HeadlessBrowser extends EventEmitter {
 		indent,
 		pageIndex,
 		onBrowserLog,
+		onLog,
 	}: {
 		context: SourceMapGetter;
 		logLevel: LogLevel;
 		indent: boolean;
 		pageIndex: number;
 		onBrowserLog: null | ((log: BrowserLog) => void);
+		onLog: OnLog;
 	}): Promise<Page> {
 		return this.#defaultContext.newPage({
 			context,
@@ -200,6 +205,7 @@ export class HeadlessBrowser extends EventEmitter {
 			indent,
 			pageIndex,
 			onBrowserLog,
+			onLog,
 		});
 	}
 
@@ -209,12 +215,14 @@ export class HeadlessBrowser extends EventEmitter {
 		indent,
 		pageIndex,
 		onBrowserLog,
+		onLog,
 	}: {
 		context: SourceMapGetter;
 		logLevel: LogLevel;
 		indent: boolean;
 		pageIndex: number;
 		onBrowserLog: null | ((log: BrowserLog) => void);
+		onLog: OnLog;
 	}): Promise<Page> {
 		const {
 			value: {targetId},
@@ -238,6 +246,7 @@ export class HeadlessBrowser extends EventEmitter {
 			indent,
 			pageIndex,
 			onBrowserLog,
+			onLog,
 		});
 		if (!page) {
 			throw new Error(`Failed to create a page for context`);
@@ -353,12 +362,14 @@ export class BrowserContext extends EventEmitter {
 		indent,
 		pageIndex,
 		onBrowserLog,
+		onLog,
 	}: {
 		context: SourceMapGetter;
 		logLevel: LogLevel;
 		indent: boolean;
 		pageIndex: number;
 		onBrowserLog: null | ((log: BrowserLog) => void);
+		onLog: OnLog;
 	}): Promise<Page> {
 		return this.#browser._createPageInContext({
 			context,
@@ -366,6 +377,7 @@ export class BrowserContext extends EventEmitter {
 			indent,
 			pageIndex,
 			onBrowserLog,
+			onLog,
 		});
 	}
 

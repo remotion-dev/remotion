@@ -27,7 +27,7 @@ const scrollable: React.CSSProperties = {
 
 const parseJSON = (str: string, schema: z.ZodTypeAny): State => {
 	try {
-		const value = NoReactInternals.deserializeJSONWithCustomFields(str);
+		const value = NoReactInternals.deserializeJSONWithSpecialTypes(str);
 		const zodValidation = schema.safeParse(value);
 		return {str, value, validJSON: true, zodValidation};
 	} catch (e) {

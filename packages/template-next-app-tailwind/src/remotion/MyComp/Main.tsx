@@ -13,8 +13,10 @@ import React from "react";
 import { Rings } from "./Rings";
 import { TextFade } from "./TextFade";
 
-loadFont();
-
+loadFont("normal", {
+  subsets: ["latin"],
+  weights: ["400", "700"],
+});
 export const Main = ({ title }: z.infer<typeof CompositionProps>) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();

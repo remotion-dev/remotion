@@ -10,11 +10,26 @@
 		"build": "turbo run make --no-update-notifier",
 		"build-docs": "turbo run build-docs --no-update-notifier",
 		"testssr": "turbo run testssr --no-update-notifier",
+		"testwebcodecs": "turbo run testwebcodecs --no-update-notifier",
 		"testlambda": "turbo run testlambda --concurrency=1 --no-update-notifier",
 		"ci": "turbo run make test --concurrency=1 --no-update-notifier",
-		"watch": "turbo watch make --experimental-write-cache --concurrency=2",
+		"watch": "turbo watch make --concurrency=2 --experimental-write-cache",
+		"makewhisperweb": "turbo run make --filter='@remotion/whisper-web'",
+		"watchwhisperweb": "turbo watch make --experimental-write-cache --filter='@remotion/whisper-web'",
+		"makewebcodecs": "turbo run make --filter='@remotion/media-parser' --filter='@remotion/webcodecs'",
 		"watchwebcodecs": "turbo watch make --experimental-write-cache --filter='@remotion/media-parser' --filter='@remotion/webcodecs'",
+		"watchwebrenderer": "turbo watch make --experimental-write-cache --filter='@remotion/web-renderer'",
+		"makewebrenderer": "turbo run make --filter='@remotion/web-renderer'",
+		"makecore": "turbo run make --filter='remotion'",
+		"watchcore": "turbo watch make --experimental-write-cache --filter='remotion'",
+		"makeplayer": "turbo run make --filter='@remotion/player'",
+		"watchplayer": "turbo watch make --experimental-write-cache --filter='@remotion/player'",
+		"makestudio": "turbo run make --filter='@remotion/studio' --filter='@remotion/studio-server'",
+		"watchstudio": "turbo watch make --experimental-write-cache --filter='@remotion/studio' --filter='@remotion/studio-server'",
+		"makeserverless": "turbo run make --filter='@remotion/lambda' --filter='@remotion/serverless' --filter='@remotion/streaming'",
 		"watchserverless": "turbo watch make --experimental-write-cache --filter='@remotion/lambda' --filter='@remotion/serverless' --filter='@remotion/streaming'",
+		"makethree": "turbo run make --filter='@remotion/three'",
+		"watchthree": "turbo watch make --experimental-write-cache --filter='@remotion/three'",
 		"release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publishprivate",
 		"release": "pnpm recursive publish && pnpm recursive run --sequential publishprivate && git push --tags && git push",
 		"cleantypes": "rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo",
@@ -22,25 +37,32 @@
 		"cleanall": "turbo run clean && rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo"
 	},
 	"engines": {
-		"node": ">=16",
-		"pnpm": ">=3"
-	},
-	"pnpm": {
-		"overrides": {
-			"caniuse-lite": "1.0.30001690"
-		}
+		"node": ">=16"
 	},
 	"devDependencies": {
-		"@types/bun": "1.2.5",
+		"@types/bun": "1.3.0",
 		"@types/deno": "2.0.0",
 		"@types/react": "19.0.0",
 		"@types/react-dom": "19.0.0",
-		"prettier": "3.3.3",
+		"prettier": "3.6.0",
 		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"dependencies": {
-		"turbo": "2.4.4",
-		"typescript": "5.5.4"
+		"turbo": "2.5.8",
+		"typescript": "5.8.2"
 	},
-	"packageManager": "pnpm@8.10.2"
+	"packageManager": "bun@1.3.0",
+	"overrides": {
+		"caniuse-lite": "1.0.30001724"
+	},
+	"workspaces": [
+		"packages/**",
+		"!packages/lambda-php-example/vendor/remotion/lambda",
+		"!packages/player-example/.next",
+		"!packages/it-tests/whisper.cpp",
+		"!packages/cloudrun/container",
+		"!packages/template-tiktok/whisper.cpp",
+		"!packages/template-tiktok/whisper.cpp/**",
+		"!packages/bugs"
+	]
 }

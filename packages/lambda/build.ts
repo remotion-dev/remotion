@@ -23,6 +23,8 @@ await BundlerInternals.esbuild.build({
 	target: 'node16',
 	bundle: true,
 	outfile,
+	minify: true,
+	legalComments: 'none',
 	entryPoints: [template],
 	treeShaking: true,
 	external: [],

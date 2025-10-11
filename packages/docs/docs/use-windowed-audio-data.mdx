@@ -22,8 +22,7 @@ Remote audio files need to support [CORS](https://developer.mozilla.org/en-US/do
   <summary>More info</summary>
   <ul>
     <li>
-      Remotion's origin is usually <code>http://localhost:3000</code>, but it
-      may be different if rendering on Lambda or the port is busy.
+      Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
     </li>
     <li>
       You can use{' '}
@@ -33,9 +32,7 @@ Remote audio files need to support [CORS](https://developer.mozilla.org/en-US/do
       without the audio needing CORS.
     </li>
     <li>
-      You can{' '}
-      <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a>{' '}
-      during renders.
+      You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
     </li>
   </ul>
 </details>
@@ -122,7 +119,7 @@ You should pass it through to [`visualizeAudio()`](/docs/visualize-audio).
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/use-audio-data.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/use-windowed-audio-data.ts)
 - [`getAudioData()`](/docs/get-audio-data)
 - [`visualizeAudio()`](/docs/visualize-audio)
-- [Audio visualization](/docs/audio-visualization)
+- [Audio visualization](/docs/audio/visualization)

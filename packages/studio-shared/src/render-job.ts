@@ -51,6 +51,12 @@ export type BundlingState = {
 	doneIn: number | null;
 };
 
+export type BrowserProgressLog = {
+	logLevel: LogLevel;
+	previewString: string;
+	tag: string | null;
+};
+
 export type AggregateRenderProgress = {
 	rendering: RenderingProgressInput | null;
 	stitching: StitchingProgressInput | null;
@@ -58,6 +64,7 @@ export type AggregateRenderProgress = {
 	bundling: BundlingState;
 	copyingState: CopyingState;
 	artifactState: ArtifactProgress;
+	logs: BrowserProgressLog[];
 };
 
 export type ReceivedArtifact = {
@@ -104,6 +111,7 @@ type RenderJobDynamicFields =
 			frame: number;
 			scale: number;
 			offthreadVideoCacheSizeInBytes: number | null;
+			mediaCacheSizeInBytes: number | null;
 			offthreadVideoThreads: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
@@ -115,6 +123,7 @@ type RenderJobDynamicFields =
 			startFrame: number;
 			endFrame: number;
 			offthreadVideoCacheSizeInBytes: number | null;
+			mediaCacheSizeInBytes: number | null;
 			offthreadVideoThreads: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
@@ -141,6 +150,7 @@ type RenderJobDynamicFields =
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
 			offthreadVideoCacheSizeInBytes: number | null;
+			mediaCacheSizeInBytes: number | null;
 			offthreadVideoThreads: number | null;
 			colorSpace: ColorSpace;
 			forSeamlessAacConcatenation: boolean;

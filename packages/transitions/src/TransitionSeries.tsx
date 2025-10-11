@@ -16,7 +16,6 @@ import {slide} from './presentations/slide.js';
 import type {TransitionSeriesTransitionProps} from './types.js';
 import {validateDurationInFrames} from './validate.js';
 
-// eslint-disable-next-line react/function-component-definition
 const TransitionSeriesTransition = function <
 	PresentationProps extends Record<string, unknown>,
 >(

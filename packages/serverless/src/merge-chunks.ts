@@ -1,10 +1,15 @@
-import type {AudioCodec, LogLevel} from '@remotion/renderer';
+import type {
+	AudioCodec,
+	CombineChunksOnProgress,
+	FrameRange,
+	LogLevel,
+} from '@remotion/renderer';
 
+import type {DownloadBehavior} from '@remotion/serverless-client';
 import {
 	inspectErrors,
 	type CloudProvider,
 	type CustomCredentials,
-	type DownloadBehavior,
 	type PostRenderData,
 	type Privacy,
 	type ProviderSpecifics,
@@ -52,8 +57,12 @@ export const mergeChunksAndFinishRender = async <
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	forcePathStyle: boolean;
+	everyNthFrame: number;
+	frameRange: FrameRange | null;
+	storageClass: Provider['storageClass'] | null;
+	requestHandler: Provider['requestHandler'] | null;
 }): Promise<PostRenderData<Provider>> => {
-	const onProgress = (framesEncoded: number) => {
+	const onProgress: CombineChunksOnProgress = ({frames: framesEncoded}) => {
 		options.overallProgress.setCombinedFrames(framesEncoded);
 	};
 
@@ -68,7 +77,6 @@ export const mergeChunksAndFinishRender = async <
 
 	const {outfile, cleanupChunksProm} = await concatVideos({
 		onProgress,
-		numberOfFrames: options.numberOfFrames,
 		codec: options.codec,
 		fps: options.fps,
 		numberOfGifLoops: options.numberOfGifLoops,
@@ -81,9 +89,11 @@ export const mergeChunksAndFinishRender = async <
 		binariesDirectory: options.binariesDirectory,
 		cancelSignal: undefined,
 		preferLossless: options.preferLossless,
-		muted: options.renderMetadata.muted,
 		metadata: options.renderMetadata.metadata,
 		insideFunctionSpecifics: options.insideFunctionSpecifics,
+		compositionDurationInFrames: options.numberOfFrames,
+		everyNthFrame: options.everyNthFrame,
+		frameRange: options.frameRange,
 	});
 	const encodingStop = Date.now();
 	options.overallProgress.setTimeToCombine(encodingStop - encodingStart);
@@ -105,6 +115,8 @@ export const mergeChunksAndFinishRender = async <
 		downloadBehavior: options.downloadBehavior,
 		customCredentials: options.customCredentials,
 		forcePathStyle: options.forcePathStyle,
+		storageClass: options.storageClass,
+		requestHandler: options.requestHandler,
 	});
 
 	writeToBucket.end();

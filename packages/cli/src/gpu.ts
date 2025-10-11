@@ -73,6 +73,7 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 			quiet: quietFlagProvided(),
 		}),
 		chromeMode,
+		onLog: RenderInternals.defaultOnLog,
 	});
 	for (const {feature, status} of statuses) {
 		Log.info({indent: false, logLevel}, `${feature}: ${colorStatus(status)}`);
