@@ -17,7 +17,7 @@ export const validatePublicDir = (p: string) => {
 				`The public directory was specified as "${p}", and while this path exists on the filesystem, it is not a directory.`,
 			);
 		}
-	} catch (e) {
+	} catch {
 		// Path does not exist
 		// Check if the parent path exists
 		const parentPath = path.dirname(p);

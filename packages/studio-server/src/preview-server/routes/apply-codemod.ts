@@ -16,10 +16,10 @@ import {checkIfTypeScriptFile} from './can-update-default-props';
 export const applyCodemodHandler: ApiHandler<
 	ApplyCodemodRequest,
 	ApplyCodemodResponse
-> = async ({input: {codemod, dryRun}, logLevel, remotionRoot}) => {
+> = async ({input: {codemod, dryRun}, logLevel, remotionRoot, entryPoint}) => {
 	try {
 		const time = Date.now();
-		const projectInfo = await getProjectInfo(remotionRoot);
+		const projectInfo = await getProjectInfo(remotionRoot, entryPoint);
 		if (!projectInfo.rootFile) {
 			throw new Error('Cannot find root file in project');
 		}

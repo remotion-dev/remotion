@@ -2,11 +2,11 @@
 image: /generated/articles-docs-overwriting-webpack-config.png
 id: webpack
 title: Custom Webpack config
-crumb: "How To"
+crumb: 'How To'
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 Remotion ships with [it's own Webpack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts).
 
@@ -17,7 +17,7 @@ You can override it reducer-style by creating a function that takes the previous
 In your [`remotion.config.ts`](/docs/config) file, you can call [`Config.overrideWebpackConfig()`](/docs/config#overridewebpackconfig) from `@remotion/cli/config`.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((currentConfiguration) => {
   return {
@@ -42,7 +42,7 @@ Using the reducer pattern will help with type safety, give you auto-complete, en
 When using the Node.JS APIs - [`bundle()`](/docs/bundle) for SSR or [`deploySite()`](/docs/lambda/deploysite) for Lambda, you also need to provide the Webpack override, since the Node.JS APIs do not read from the config file. We recommend you put the webpack override in a separate file so you can read it from both the command line and your Node.JS script.
 
 ```ts twoslash title="src/webpack-override.ts"
-import { WebpackOverrideFn } from "@remotion/bundler";
+import {WebpackOverrideFn} from '@remotion/bundler';
 
 export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
   return {
@@ -54,12 +54,12 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 
 ```ts twoslash title="remotion.config.ts"
 // @filename: ./src/webpack-override.ts
-import { WebpackOverrideFn } from "@remotion/bundler";
+import {WebpackOverrideFn} from '@remotion/bundler';
 export const webpackOverride: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // ---cut---
-import { Config } from "@remotion/cli/config";
-import { webpackOverride } from "./src/webpack-override";
+import {Config} from '@remotion/cli/config';
+import {webpackOverride} from './src/webpack-override';
 
 Config.overrideWebpackConfig(webpackOverride);
 ```
@@ -68,16 +68,16 @@ With `bundle`:
 
 ```ts twoslash title="my-script.js"
 // @filename: ./src/webpack-override.ts
-import { WebpackOverrideFn } from "@remotion/bundler";
+import {WebpackOverrideFn} from '@remotion/bundler';
 export const webpackOverride: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // @target: esnext
 // ---cut---
-import { bundle } from "@remotion/bundler";
-import { webpackOverride } from "./src/webpack-override";
+import {bundle} from '@remotion/bundler';
+import {webpackOverride} from './src/webpack-override';
 
 await bundle({
-  entryPoint: require.resolve("./src/index.ts"),
+  entryPoint: require.resolve('./src/index.ts'),
   webpackOverride,
 });
 ```
@@ -86,23 +86,46 @@ Or while using with `deploySite`:
 
 ```ts twoslash title="my-script.js"
 // @filename: ./src/webpack-override.ts
-import { WebpackOverrideFn } from "@remotion/bundler";
+import {WebpackOverrideFn} from '@remotion/bundler';
 export const webpackOverride: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // @target: esnext
 // ---cut---
-import { deploySite } from "@remotion/lambda";
-import { webpackOverride } from "./src/webpack-override";
+import {deploySite} from '@remotion/lambda';
+import {webpackOverride} from './src/webpack-override';
 
 await deploySite({
-  entryPoint: require.resolve("./src/index.ts"),
-  region: "us-east-1",
-  bucketName: "remotionlambda-c7fsl3d",
+  entryPoint: require.resolve('./src/index.ts'),
+  region: 'us-east-1',
+  bucketName: 'remotionlambda-c7fsl3d',
   options: {
     webpackOverride,
   },
   // ...other parameters
 });
+```
+
+## Multiple Webpack overrides
+
+If you have multiple overrides, you should curry them:
+
+```tsx twoslash
+import {Config} from '@remotion/cli/config';
+import {enableScss} from '@remotion/enable-scss';
+import {enableTailwind} from '@remotion/tailwind-v4';
+
+Config.overrideWebpackConfig((c) => enableScss(enableTailwind(c)));
+```
+
+From Remotion v4.0.229, you can also use `Config.overrideWebpackConfig` multiple times, but this only works in the config file:
+
+```tsx twoslash
+import {Config} from '@remotion/cli/config';
+import {enableScss} from '@remotion/enable-scss';
+import {enableTailwind} from '@remotion/tailwind-v4';
+
+Config.overrideWebpackConfig(enableScss);
+Config.overrideWebpackConfig(enableTailwind);
 ```
 
 ## Snippets
@@ -116,7 +139,7 @@ await deploySite({
 2. Create a file with the Webpack override:
 
 ```ts twoslash title="enable-mdx.ts"
-import { WebpackOverrideFn } from "@remotion/bundler";
+import {WebpackOverrideFn} from '@remotion/bundler';
 // ---cut---
 export const enableMdx: WebpackOverrideFn = (currentConfiguration) => {
   return {
@@ -124,14 +147,12 @@ export const enableMdx: WebpackOverrideFn = (currentConfiguration) => {
     module: {
       ...currentConfiguration.module,
       rules: [
-        ...(currentConfiguration.module?.rules
-          ? currentConfiguration.module.rules
-          : []),
+        ...(currentConfiguration.module?.rules ? currentConfiguration.module.rules : []),
         {
           test: /\.mdx?$/,
           use: [
             {
-              loader: "@mdx-js/loader",
+              loader: '@mdx-js/loader',
               options: {},
             },
           ],
@@ -146,12 +167,12 @@ export const enableMdx: WebpackOverrideFn = (currentConfiguration) => {
 
 ```ts twoslash title="remotion.config.ts"
 // @filename: ./src/enable-mdx.ts
-import { WebpackOverrideFn } from "@remotion/bundler";
+import {WebpackOverrideFn} from '@remotion/bundler';
 export const enableMdx: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // ---cut---
-import { Config } from "@remotion/cli/config";
-import { enableMdx } from "./src/enable-mdx";
+import {Config} from '@remotion/cli/config';
+import {enableMdx} from './src/enable-mdx';
 
 Config.overrideWebpackConfig(enableMdx);
 ```
@@ -181,7 +202,7 @@ This allows you to enable `import` SVG files as React components.
 2. Declare an override function:
 
 ```ts twoslash title="src/enable-svgr.ts"
-import { WebpackOverrideFn } from "@remotion/bundler";
+import {WebpackOverrideFn} from '@remotion/bundler';
 
 export const enableSvgr: WebpackOverrideFn = (currentConfiguration) => {
   return {
@@ -192,25 +213,23 @@ export const enableSvgr: WebpackOverrideFn = (currentConfiguration) => {
         {
           test: /\.svg$/i,
           issuer: /\.[jt]sx?$/,
-          resourceQuery: { not: [/url/] }, // Exclude react component if *.svg?url
-          use: ["@svgr/webpack"],
+          resourceQuery: {not: [/url/]}, // Exclude react component if *.svg?url
+          use: ['@svgr/webpack'],
         },
         ...(currentConfiguration.module?.rules ?? []).map((r) => {
           if (!r) {
             return r;
           }
-          if (r === "...") {
+          if (r === '...') {
             return r;
           }
-          if (!r.test?.toString().includes("svg")) {
+          if (!r.test?.toString().includes('svg')) {
             return r;
           }
           return {
             ...r,
             // Remove Remotion loading SVGs as a URL
-            test: new RegExp(
-              r.test.toString().replace(/svg\|/g, "").slice(1, -1),
-            ),
+            test: new RegExp(r.test.toString().replace(/svg\|/g, '').slice(1, -1)),
           };
         }),
       ],
@@ -223,12 +242,12 @@ export const enableSvgr: WebpackOverrideFn = (currentConfiguration) => {
 
 ```ts twoslash title="remotion.config.ts"
 // @filename: ./src/enable-svgr.ts
-import { WebpackOverrideFn } from "@remotion/bundler";
+import {WebpackOverrideFn} from '@remotion/bundler';
 export const enableSvgr: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // ---cut---
-import { Config } from "@remotion/cli/config";
-import { enableSvgr } from "./src/enable-svgr";
+import {Config} from '@remotion/cli/config';
+import {enableSvgr} from './src/enable-svgr';
 
 Config.overrideWebpackConfig(enableSvgr);
 ```
@@ -246,7 +265,7 @@ Config.overrideWebpackConfig(enableSvgr);
 2. Declare a webpack override:
 
 ```ts twoslash title="src/enable.glsl.ts"
-import { WebpackOverrideFn } from "@remotion/bundler";
+import {WebpackOverrideFn} from '@remotion/bundler';
 
 export const enableGlsl: WebpackOverrideFn = (currentConfiguration) => {
   return {
@@ -254,13 +273,11 @@ export const enableGlsl: WebpackOverrideFn = (currentConfiguration) => {
     module: {
       ...currentConfiguration.module,
       rules: [
-        ...(currentConfiguration.module?.rules
-          ? currentConfiguration.module.rules
-          : []),
+        ...(currentConfiguration.module?.rules ? currentConfiguration.module.rules : []),
         {
           test: /\.(glsl|vs|fs|vert|frag)$/,
           exclude: /node_modules/,
-          use: ["glslify-import-loader", "raw-loader", "glslify-loader"],
+          use: ['glslify-import-loader', 'raw-loader', 'glslify-loader'],
         },
       ],
     },
@@ -270,13 +287,13 @@ export const enableGlsl: WebpackOverrideFn = (currentConfiguration) => {
 
 ```ts twoslash title="remotion.config.ts"
 // @filename: ./src/enable-glsl.ts
-import { WebpackOverrideFn } from "@remotion/bundler";
+import {WebpackOverrideFn} from '@remotion/bundler';
 export const enableGlsl: WebpackOverrideFn = (c) => c;
 
 // @filename: remotion.config.ts
 // ---cut---
-import { Config } from "@remotion/cli/config";
-import { enableGlsl } from "./src/enable-glsl";
+import {Config} from '@remotion/cli/config';
+import {enableGlsl} from './src/enable-glsl';
 
 Config.overrideWebpackConfig(enableGlsl);
 ```
@@ -284,7 +301,7 @@ Config.overrideWebpackConfig(enableGlsl);
 3. Add the following to your [entry point](/docs/terminology/entry-point) (e.g. `src/index.ts`):
 
 ```ts
-declare module "*.glsl" {
+declare module '*.glsl' {
   const value: string;
   export default value;
 }
@@ -300,7 +317,7 @@ declare module "*.glsl" {
 There are two WebAssembly modes: asynchronous and synchronous. We recommend testing both and seeing which one works for the WASM library you are trying to use.
 
 ```ts twoslash title="remotion.config.ts - synchronous"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((conf) => {
   return {
@@ -317,7 +334,7 @@ Since Webpack does not allow synchronous WebAssembly code in the main chunk, you
 :::
 
 ```ts twoslash title="remotion.config.ts - asynchronous"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((conf) => {
   return {
@@ -339,6 +356,45 @@ After restarting, you can import `.wasm` files using an import statement.
 
 Add the Webpack override to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
 
+### Change the `@jsxImportSource`
+
+```tsx twoslash
+import {Config} from '@remotion/cli/config';
+
+Config.overrideWebpackConfig((config) => {
+  return {
+    ...config,
+    module: {
+      ...config.module,
+      rules: config.module?.rules?.map((rule) => {
+        // @ts-expect-error
+        if (!rule?.use) {
+          return rule;
+        }
+
+        return {
+          // @ts-expect-error
+          ...rule,
+          // @ts-expect-error
+          use: rule?.use.map((use) => {
+            if (!use?.loader?.includes('esbuild')) {
+              return use;
+            }
+            return {
+              ...use,
+              options: {
+                ...use.options,
+                jsxImportSource: 'react',
+              },
+            };
+          }),
+        };
+      }),
+    },
+  };
+});
+```
+
 ### Use legacy babel loader
 
 See [Using legacy Babel transpilation](/docs/legacy-babel).
@@ -357,15 +413,15 @@ The [config file](/docs/config) gets executed in a CommonJS environment. If you 
 
 ```ts twoslash title="remotion.config.ts"
 // @filename: src/enable-sass.ts
-import { WebpackOverrideFn } from "@remotion/bundler";
+import {WebpackOverrideFn} from '@remotion/bundler';
 export const enableSass: WebpackOverrideFn = (c) => c;
 
 // @filename: remotion.config.ts
 // ---cut---
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig(async (currentConfiguration) => {
-  const { enableSass } = await import("./src/enable-sass");
+  const {enableSass} = await import('./src/enable-sass');
   return enableSass(currentConfiguration);
 });
 ```

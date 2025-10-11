@@ -25,7 +25,7 @@ export const zColor = () =>
 				try {
 					parseColor(value);
 					return true;
-				} catch (err) {
+				} catch {
 					return false;
 				}
 			},

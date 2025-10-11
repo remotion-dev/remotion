@@ -1,0 +1,56 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config-flat"
+	},
+	"name": "@remotion/eslint-config-flat",
+	"version": "4.0.357",
+	"description": "Default configuration for Remotion templates (ESLint >= 9)",
+	"main": "dist/esm/index.mjs",
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"lint": "eslint src",
+		"formatting": "prettier --experimental-cli src --check",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "ISC",
+	"dependencies": {
+		"typescript-eslint": "8.21.0"
+	},
+	"peerDependencies": {
+		"eslint": ">=9"
+	},
+	"devDependencies": {
+		"@remotion/eslint-plugin": "workspace:*",
+		"@eslint/js": "9.19.0",
+		"eslint-plugin-react": "7.37.4",
+		"eslint-plugin-react-hooks": "5.2.0",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
+	},
+	"keywords": [
+		"remotion",
+		"video",
+		"react",
+		"player"
+	],
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/brownfield#install-the-eslint-plugin"
+}

@@ -1,6 +1,7 @@
 import React, {useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {ModalsContext} from '../state/modals';
+import {AskAiModal} from './AskAiModal';
 import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
@@ -43,6 +44,12 @@ export const Modals: React.FC<{
 					initialLogLevel={modalContextType.initialLogLevel}
 					initialOffthreadVideoCacheSizeInBytes={
 						modalContextType.initialOffthreadVideoCacheSizeInBytes
+					}
+					initialOffthreadVideoThreads={
+						modalContextType.initialOffthreadVideoThreads
+					}
+					initialMediaCacheSizeInBytes={
+						modalContextType.initialMediaCacheSizeInBytes
 					}
 					initialConcurrency={modalContextType.initialConcurrency}
 					maxConcurrency={modalContextType.maxConcurrency}
@@ -88,6 +95,10 @@ export const Modals: React.FC<{
 					}
 					renderTypeOfLastRender={modalContextType.renderTypeOfLastRender}
 					defaultMetadata={modalContextType.defaulMetadata}
+					initialHardwareAcceleration={
+						modalContextType.initialHardwareAcceleration
+					}
+					initialChromeMode={modalContextType.initialChromeMode}
 				/>
 			)}
 
@@ -114,6 +125,7 @@ export const Modals: React.FC<{
 					initialMode={modalContextType.mode}
 				/>
 			)}
+			<AskAiModal />
 		</>
 	);
 };

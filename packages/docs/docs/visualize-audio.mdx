@@ -2,12 +2,12 @@
 image: /generated/articles-docs-visualize-audio.png
 title: visualizeAudio()
 id: visualize-audio
-crumb: "@remotion/media-utils"
+crumb: '@remotion/media-utils'
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._
 
-This function takes in `AudioData` (preferably fetched by the [`useAudioData()`](/docs/use-audio-data) hook) and processes it in a way that makes visualizing the audio that is playing at the current frame easy.
+This function takes in `AudioData` (for example fetched by [`useAudioData()`](/docs/use-audio-data)) and processes it for displaying as bars.
 
 ## Arguments
 
@@ -49,6 +49,10 @@ _`"accuracy" | "speed"`_
 
 Default `"accuracy"`. When set to `"speed"`, a faster Fast Fourier transform is used. Recommended for Remotion Lambda and when using a high number of samples. Read [user](https://discord.com/channels/809501355504959528/1189048518988550264/1190228606287360030) [experiences](https://discord.com/channels/809501355504959528/1155110845488046111/1155111360481480725) [here](https://github.com/remotion-dev/remotion/issues/2925).
 
+### `dataOffsetInSeconds`<AvailableFrom v="4.0.268" />
+
+The amount of seconds the audio is offset, pass this parameter if you are using [`useWindowedAudioData()`](/docs/use-windowed-audio-data).
+
 ## Return value
 
 `number[]`
@@ -64,13 +68,13 @@ Usually the values on left side of the array can become much larger than the val
 In this example, we render a bar chart visualizing the audio spectrum of an audio file we imported using [`useAudioData()`](/docs/use-audio-data) and `visualizeAudio()`.
 
 ```tsx twoslash
-import { useAudioData, visualizeAudio } from "@remotion/media-utils";
-import { Audio, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import {useAudioData, visualizeAudio} from '@remotion/media-utils';
+import {Html5Audio, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const MyComponent: React.FC = () => {
   const frame = useCurrentFrame();
-  const { width, height, fps } = useVideoConfig();
-  const audioData = useAudioData(staticFile("music.mp3"));
+  const {width, height, fps} = useVideoConfig();
+  const audioData = useAudioData(staticFile('music.mp3'));
 
   if (!audioData) {
     return null;
@@ -87,13 +91,9 @@ export const MyComponent: React.FC = () => {
   // the longer the bar
   return (
     <div>
-      <Audio src={staticFile("music.mp3")} />
+      <Html5Audio src={staticFile('music.mp3')} />
       {visualization.map((v) => {
-        return (
-          <div
-            style={{ width: 1000 * v, height: 15, backgroundColor: "blue" }}
-          />
-        );
+        return <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />;
       })}
     </div>
   );
@@ -105,14 +105,14 @@ export const MyComponent: React.FC = () => {
 A logarithmic representation of the audio will look more appealing than a linear one. Below is an example of a postprocessing step that looks prettier than the default one.
 
 ```tsx twoslash
-import { visualizeAudio } from "@remotion/media-utils";
+import {visualizeAudio} from '@remotion/media-utils';
 const params = {
   audioData: {
     channelWaveforms: [],
     sampleRate: 0,
     durationInSeconds: 0,
     numberOfChannels: 0,
-    resultId: "",
+    resultId: '',
     isRemote: true,
   },
   frame: 0,
@@ -149,8 +149,8 @@ const amplitudes = frequencyData.map((value) => {
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/visualize-audio.ts)
-- [Audio visualization](/docs/audio-visualization)
+- [Audio visualization](/docs/audio/visualization)
 - [`useAudioData()`](/docs/use-audio-data)
 - [`getAudioData()`](/docs/get-audio-data)
-- [`<Audio/>`](/docs/audio)
+- [`<Html5Audio/>`](/docs/html5-audio)
 - [Using audio](/docs/using-audio)

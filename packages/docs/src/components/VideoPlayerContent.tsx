@@ -48,8 +48,8 @@ export const PAGINATE_BUTTONS_WIDTH =
 	(PAGINATE_ICON_WIDTH + PAGINATE_ICON_PADDING * 2) * 2;
 
 export const VideoPlayerContent: React.FC<{
-	video: ShowcaseVideo;
-	userHasInteractedWithPage: boolean;
+	readonly video: ShowcaseVideo;
+	readonly userHasInteractedWithPage: boolean;
 }> = ({video, userHasInteractedWithPage}) => {
 	const [loaded, setLoaded] = useState(false);
 	const videoRef = useRef<HTMLVideoElement>(null);

@@ -2,7 +2,7 @@
 image: /generated/articles-docs-lambda-getawsclient.png
 id: getawsclient
 title: getAwsClient()
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 This API exposes full access to the AWS SDK that Remotion uses under the hood. You can use it to interact with your AWS infrastructure in ways that Remotion doesn't provide a function for.
@@ -11,17 +11,17 @@ This API exposes full access to the AWS SDK that Remotion uses under the hood. Y
 
 ```tsx {19-28}
 // Import from "@remotion/lambda" instead before Remotion v4.0.60
-import { getAwsClient, getRenderProgress } from "@remotion/lambda/client";
-import { Readable } from "stream";
+import {getAwsClient, getRenderProgress} from '@remotion/lambda/client';
+import {Readable} from 'stream';
 
-const bucketName = "remotionlambda-d9mafgx";
+const bucketName = 'remotionlambda-d9mafgx';
 
 const getFileAsBuffer = async () => {
   const progress = await getRenderProgress({
-    renderId: "d7nlc2y",
-    bucketName: "remotionlambda-d9mafgx",
-    functionName: "remotion-render-la8ffw",
-    region: "us-east-1",
+    renderId: 'd7nlc2y',
+    bucketName: 'remotionlambda-d9mafgx',
+    functionName: 'remotion-render-la8ffw',
+    region: 'us-east-1',
   });
 
   if (!progress.outKey) {
@@ -29,7 +29,7 @@ const getFileAsBuffer = async () => {
     return;
   }
 
-  const { client, sdk } = getAwsClient({ region: "us-east-1", service: "s3" });
+  const {client, sdk} = getAwsClient({region: 'us-east-1', service: 's3'});
 
   const data = client.send(
     new sdk.GetObjectCommand({
@@ -46,19 +46,19 @@ const getFileAsBuffer = async () => {
 
 ```tsx
 // Import from "@remotion/lambda" instead before Remotion v4.0.60
-import { getAwsClient } from "@remotion/lambda/client";
+import {getAwsClient} from '@remotion/lambda/client';
 
-const { client, sdk } = getAwsClient({ region: "us-east-1", service: "s3" });
+const {client, sdk} = getAwsClient({region: 'us-east-1', service: 's3'});
 
 client.send(
   new sdk.PutBucketCorsCommand({
-    Bucket: "[bucket-name]",
+    Bucket: '[bucket-name]',
     CORSConfiguration: {
       CORSRules: [
         {
-          AllowedMethods: ["GET", "HEAD"],
-          AllowedHeaders: ["*"],
-          AllowedOrigins: ["*"],
+          AllowedMethods: ['GET', 'HEAD'],
+          AllowedHeaders: ['*'],
+          AllowedOrigins: ['*'],
         },
       ],
     },
@@ -87,13 +87,14 @@ type CustomCredentials = {
   endpoint: string;
   accessKeyId: string | null;
   secretAccessKey: string | null;
+  region?: string;
+  forcePathStyle?: boolean;
 };
 ```
 
 ### `forcePathStyle?`<AvailableFrom v="4.0.202" />
 
 Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
-
 
 ## Return value
 

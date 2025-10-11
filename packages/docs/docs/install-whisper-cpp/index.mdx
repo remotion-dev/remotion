@@ -18,15 +18,8 @@ import {TableOfContents} from './install-whisper-cpp';
 Install Whisper `1.5.5` (the latest version at the time of writing that we find works well and supports token-level timestamps) and the `medium.en` model to the `whisper.cpp` folder.
 
 ```tsx twoslash title="install-whisper.cpp"
-// @module: esnext
-// @target: es2022
 import path from 'path';
-import {
-  downloadWhisperModel,
-  installWhisperCpp,
-  transcribe,
-  convertToCaptions,
-} from '@remotion/install-whisper-cpp';
+import {downloadWhisperModel, installWhisperCpp, transcribe, convertToCaptions} from '@remotion/install-whisper-cpp';
 
 const to = path.join(process.cwd(), 'whisper.cpp');
 
@@ -40,9 +33,14 @@ await downloadWhisperModel({
   folder: to,
 });
 
+// Convert the audio to a 16KHz wav file first if needed:
+// import {execSync} from 'child_process';
+// execSync('ffmpeg -i /path/to/audio.mp4 -ar 16000 /path/to/audio.wav -y');
+
 const {transcription} = await transcribe({
   model: 'medium.en',
   whisperPath: to,
+  whisperCppVersion: '1.5.5',
   inputPath: '/path/to/audio.wav',
   tokenLevelTimestamps: true,
 });
@@ -69,3 +67,7 @@ for (const line of captions) {
 ## License
 
 MIT
+
+## See also
+
+- [`@remotion/openai-whisper`](/docs/openai-whisper)

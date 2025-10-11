@@ -1,0 +1,4 @@
+/**
+ * @description Interpolates between two SVG paths based on the provided value, transitioning from the first path to the second.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/interpolate-path)
+ */

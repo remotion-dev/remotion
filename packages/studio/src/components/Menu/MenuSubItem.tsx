@@ -51,19 +51,24 @@ const leftSpace: React.CSSProperties = {
 export type SubMenuActivated = false | 'with-mouse' | 'without-mouse';
 
 export const MenuSubItem: React.FC<{
-	label: React.ReactNode;
-	id: string;
-	onActionChosen: (id: string, e: PointerEvent<HTMLDivElement>) => void;
-	selected: boolean;
-	onItemSelected: (id: string) => void;
-	keyHint: string | null;
-	leaveLeftSpace: boolean;
-	leftItem: React.ReactNode;
-	subMenu: SubMenu | null;
-	onQuitMenu: () => void;
-	onNextMenu: () => void;
-	subMenuActivated: SubMenuActivated;
-	setSubMenuActivated: React.Dispatch<React.SetStateAction<SubMenuActivated>>;
+	readonly label: React.ReactNode;
+	readonly id: string;
+	readonly onActionChosen: (
+		id: string,
+		e: PointerEvent<HTMLDivElement>,
+	) => void;
+	readonly selected: boolean;
+	readonly onItemSelected: (id: string) => void;
+	readonly keyHint: string | null;
+	readonly leaveLeftSpace: boolean;
+	readonly leftItem: React.ReactNode;
+	readonly subMenu: SubMenu | null;
+	readonly onQuitMenu: () => void;
+	readonly onNextMenu: () => void;
+	readonly subMenuActivated: SubMenuActivated;
+	readonly setSubMenuActivated: React.Dispatch<
+		React.SetStateAction<SubMenuActivated>
+	>;
 }> = ({
 	label,
 	leaveLeftSpace,

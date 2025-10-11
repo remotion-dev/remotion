@@ -1,0 +1,4 @@
+/**
+ * @description By rendering an `<Artifact>` tag in your Remotion markup, an extra file will get emitted during rendering.
+ * @see [Documentation](https://remotion.dev/docs/artifact)
+ */

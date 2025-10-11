@@ -44,11 +44,17 @@ export const Checkmark = () => (
 	</svg>
 );
 
+const formatPlaybackRate = (rate: number): string => {
+	const str = rate.toString();
+	// If the string doesn't contain a decimal point, add ".0"
+	return str.includes('.') ? str : str + '.0';
+};
+
 const PlaybackrateOption: React.FC<{
-	rate: number;
-	selectedRate: number;
-	onSelect: (rate: number) => void;
-	keyboardSelectedRate: number;
+	readonly rate: number;
+	readonly selectedRate: number;
+	readonly onSelect: (rate: number) => void;
+	readonly keyboardSelectedRate: number;
 }> = ({rate, onSelect, selectedRate, keyboardSelectedRate}) => {
 	const onClick: React.MouseEventHandler<HTMLDivElement> = useCallback(
 		(e) => {
@@ -91,15 +97,15 @@ const PlaybackrateOption: React.FC<{
 			<div style={checkmarkContainer}>
 				{rate === selectedRate ? <Checkmark /> : null}
 			</div>
-			{rate.toFixed(1)}x
+			{formatPlaybackRate(rate)}x
 		</div>
 	);
 };
 
 const PlaybackPopup: React.FC<{
-	setIsComponentVisible: React.Dispatch<React.SetStateAction<boolean>>;
-	playbackRates: number[];
-	canvasSize: Size;
+	readonly setIsComponentVisible: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly playbackRates: number[];
+	readonly canvasSize: Size;
 }> = ({setIsComponentVisible, playbackRates, canvasSize}) => {
 	const {setPlaybackRate, playbackRate} = useContext(
 		Internals.Timeline.TimelineContext,
@@ -229,8 +235,8 @@ const button: React.CSSProperties = {
 };
 
 export const PlaybackrateControl: React.FC<{
-	playbackRates: number[];
-	canvasSize: Size;
+	readonly playbackRates: number[];
+	readonly canvasSize: Size;
 }> = ({playbackRates, canvasSize}) => {
 	const {ref, isComponentVisible, setIsComponentVisible} =
 		useComponentVisible(false);

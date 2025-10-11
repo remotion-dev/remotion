@@ -58,13 +58,9 @@ const generate4DNoise = (seed: string | number) => {
 	return noise;
 };
 
-/**
+/*
  * @description Creates 2D noise.
  * @see [Documentation](https://www.remotion.dev/docs/noise/noise-2d)
- * @param {string | number} seed Seed value for deterministic results
- * @param {number} x First dimensional value
- * @param {number} y Second dimensional value
- * @returns {number} Between -1 and 1
  */
 export const noise2D = (
 	seed: string | number,
@@ -74,14 +70,9 @@ export const noise2D = (
 	return generate2DNoise(seed)(x, y);
 };
 
-/**
+/*
  * @description Creates 3D noise.
- * @see [Documentation](https://remotion.dev/docs/noise/noise-3d)
- * @param {string | number} seed Seed value for deterministic results
- * @param {number} x First dimensional value
- * @param {number} y Second dimensional value
- * @param {number} z Third dimensional value
- * @returns {number} Between -1 and 1
+ * @see [Documentation](https://www.remotion.dev/docs/noise/noise-3d)
  */
 export const noise3D = (
 	seed: string | number,
@@ -90,15 +81,9 @@ export const noise3D = (
 	z: number,
 ): number => generate3DNoise(random(seed))(x, y, z);
 
-/**
+/*
  * @description Creates 4D noise.
- * @see [Documentation](https://remotion.dev/docs/noise/noise-4d)
- * @param {string | number} seed Seed value for deterministic results
- * @param {number} x First dimensional value
- * @param {number} y Second dimensional value
- * @param {number} z Third dimensional value
- * @param {number} w Fourth dimensional value
- * @returns {number} Between -1 and 1
+ * @see [Documentation](https://www.remotion.dev/docs/noise/noise-4d)
  */
 export const noise4D = (
 	seed: string | number,

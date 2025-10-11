@@ -4,7 +4,7 @@ on: [push, pull_request_target]
 
 jobs:
   notify_discord:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     if: always() && github.repository == 'remotion-dev/remotion' && (github.event_name == 'pull_request_target' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
 
     steps:

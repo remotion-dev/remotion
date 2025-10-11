@@ -1,12 +1,14 @@
-import {internalGetOrCreateBucket} from '@remotion/serverless/client';
-import {expect, test} from 'vitest';
+import {LambdaClientInternals} from '@remotion/lambda-client';
+import {internalGetOrCreateBucket} from '@remotion/serverless';
+import {expect, test} from 'bun:test';
 import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';
-import {getDirFiles} from '../../api/upload-dir';
-import {mockImplementation} from '../mock-implementation';
+import {mockFullClientSpecifics} from '../mock-implementation';
+import {mockImplementation} from '../mocks/mock-implementation';
+import {getDirFiles} from '../mocks/upload-dir';
 
 test('Should throw on wrong prefix', async () => {
-	await expect(() =>
+	await expect(
 		internalDeploySite({
 			bucketName: 'wrongprefix',
 			entryPoint: 'first',
@@ -20,12 +22,14 @@ test('Should throw on wrong prefix', async () => {
 			siteName: mockImplementation.randomHash(),
 			throwIfSiteExists: true,
 			forcePathStyle: false,
+			fullClientSpecifics: mockFullClientSpecifics,
+			requestHandler: null,
 		}),
 	).rejects.toThrow(/The bucketName parameter must start /);
 });
 
 test('Should throw if invalid region was passed', () => {
-	expect(() =>
+	expect(
 		internalDeploySite({
 			bucketName: 'remotionlambda-testing',
 			entryPoint: 'first',
@@ -33,18 +37,20 @@ test('Should throw if invalid region was passed', () => {
 			region: 'ap-northeast-9',
 			siteName: 'testing',
 			gitSource: null,
-			providerSpecifics: mockImplementation,
+			providerSpecifics: LambdaClientInternals.awsImplementation,
 			indent: false,
 			logLevel: 'info',
 			options: {},
 			privacy: 'public',
 			throwIfSiteExists: true,
+			forcePathStyle: false,
+			fullClientSpecifics: mockFullClientSpecifics,
 		}),
-	).rejects.toThrow(/ap-northeast-9 is not a valid AWS region/);
+	).rejects.toThrow(/ap-northeast-9 is not a supported AWS region/);
 });
 
 test("Should throw if bucket doesn't exist", () => {
-	expect(() =>
+	expect(
 		internalDeploySite({
 			bucketName: 'remotionlambda-non-existed',
 			entryPoint: 'first',
@@ -58,6 +64,8 @@ test("Should throw if bucket doesn't exist", () => {
 			privacy: 'public',
 			throwIfSiteExists: true,
 			forcePathStyle: false,
+			fullClientSpecifics: mockFullClientSpecifics,
+			requestHandler: null,
 		}),
 	).rejects.toThrow(
 		/No bucket with the name remotionlambda-non-existed exists/,
@@ -71,6 +79,8 @@ test('Should apply name if given', async () => {
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
+		skipPutAcl: false,
+		requestHandler: null,
 	});
 	expect(
 		await internalDeploySite({
@@ -86,6 +96,8 @@ test('Should apply name if given', async () => {
 			throwIfSiteExists: true,
 			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
+			fullClientSpecifics: mockFullClientSpecifics,
+			requestHandler: null,
 		}),
 	).toEqual({
 		siteName: 'testing',
@@ -106,6 +118,8 @@ test('Should overwrite site if given siteName is already taken', async () => {
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
+		skipPutAcl: false,
+		requestHandler: null,
 	});
 
 	expect(
@@ -122,6 +136,8 @@ test('Should overwrite site if given siteName is already taken', async () => {
 			privacy: 'public',
 			throwIfSiteExists: false,
 			forcePathStyle: false,
+			fullClientSpecifics: mockFullClientSpecifics,
+			requestHandler: null,
 		}),
 	).toEqual({
 		siteName: 'testing',
@@ -142,6 +158,8 @@ test('Should delete the previous site if deploying the new one', async () => {
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
+		skipPutAcl: false,
+		requestHandler: null,
 	});
 
 	await internalDeploySite({
@@ -157,6 +175,8 @@ test('Should delete the previous site if deploying the new one', async () => {
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
+		requestHandler: null,
 	});
 	await internalDeploySite({
 		bucketName,
@@ -171,6 +191,8 @@ test('Should delete the previous site if deploying the new one', async () => {
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
+		requestHandler: null,
 	});
 
 	const files = await mockImplementation.listObjects({
@@ -180,6 +202,7 @@ test('Should delete the previous site if deploying the new one', async () => {
 		region: 'ap-northeast-1',
 		continuationToken: undefined,
 		forcePathStyle: false,
+		requestHandler: null,
 	});
 	expect(
 		files.map((f) => {
@@ -199,6 +222,8 @@ test('Should keep the previous site if deploying the new one with different ID',
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
+		skipPutAcl: false,
+		requestHandler: null,
 	});
 
 	await internalDeploySite({
@@ -214,6 +239,8 @@ test('Should keep the previous site if deploying the new one with different ID',
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
+		requestHandler: null,
 	});
 	await internalDeploySite({
 		bucketName,
@@ -228,6 +255,8 @@ test('Should keep the previous site if deploying the new one with different ID',
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
+		requestHandler: null,
 	});
 
 	const files = await mockImplementation.listObjects({
@@ -237,24 +266,9 @@ test('Should keep the previous site if deploying the new one with different ID',
 		region: 'ap-northeast-1',
 		continuationToken: undefined,
 		forcePathStyle: false,
+		requestHandler: null,
 	});
 
-	await internalDeleteSite({
-		bucketName,
-		region: 'ap-northeast-1',
-		siteName: 'testing',
-		providerSpecifics: mockImplementation,
-		forcePathStyle: false,
-		onAfterItemDeleted: null,
-	});
-	await internalDeleteSite({
-		bucketName,
-		region: 'ap-northeast-1',
-		siteName: 'testing-2',
-		providerSpecifics: mockImplementation,
-		forcePathStyle: false,
-		onAfterItemDeleted: null,
-	});
 	expect(
 		files.map((f) => {
 			return f.Key;
@@ -267,6 +281,25 @@ test('Should keep the previous site if deploying the new one with different ID',
 			return 'sites/testing-2/' + f.name;
 		}),
 	]);
+
+	await internalDeleteSite({
+		bucketName,
+		region: 'ap-northeast-1',
+		siteName: 'testing',
+		providerSpecifics: mockImplementation,
+		forcePathStyle: false,
+		onAfterItemDeleted: null,
+		requestHandler: null,
+	});
+	await internalDeleteSite({
+		bucketName,
+		region: 'ap-northeast-1',
+		siteName: 'testing-2',
+		providerSpecifics: mockImplementation,
+		forcePathStyle: false,
+		onAfterItemDeleted: null,
+		requestHandler: null,
+	});
 });
 
 test('Should not delete site with same prefix', async () => {
@@ -276,6 +309,8 @@ test('Should not delete site with same prefix', async () => {
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
+		skipPutAcl: false,
+		requestHandler: null,
 	});
 
 	await internalDeploySite({
@@ -291,6 +326,8 @@ test('Should not delete site with same prefix', async () => {
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
+		requestHandler: null,
 	});
 	await internalDeploySite({
 		gitSource: null,
@@ -305,6 +342,8 @@ test('Should not delete site with same prefix', async () => {
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
+		requestHandler: null,
 	});
 	await internalDeploySite({
 		gitSource: null,
@@ -319,6 +358,8 @@ test('Should not delete site with same prefix', async () => {
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
+		requestHandler: null,
 	});
 
 	const files = await mockImplementation.listObjects({
@@ -328,6 +369,7 @@ test('Should not delete site with same prefix', async () => {
 		region: 'ap-northeast-1',
 		continuationToken: undefined,
 		forcePathStyle: false,
+		requestHandler: null,
 	});
 	expect(
 		files.map((f) => {

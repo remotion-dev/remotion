@@ -1,23 +1,20 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
-import {BrowserSafeApis} from '@remotion/renderer/client';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import path from 'path';
-import {NoReactInternals} from 'remotion/no-react';
-import {internalDownloadMedia} from '../../api/download-media';
-import {renderStillOnLambda} from '../../api/render-still-on-lambda';
-import type {AwsProvider} from '../../functions/aws-implementation';
+import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
-} from '../../shared/constants';
-import {getS3RenderUrl} from '../../shared/get-aws-urls';
-import {validatePrivacy} from '../../shared/validate-privacy';
+} from '@remotion/lambda-client/constants';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {validatePrivacy} from '@remotion/serverless';
+import path from 'path';
+import {NoReactInternals} from 'remotion/no-react';
+import {internalDownloadMedia} from '../../api/download-media';
 import {validateMaxRetries} from '../../shared/validate-retries';
-import {validateServeUrl} from '../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
@@ -27,6 +24,7 @@ import {makeArtifactProgress} from './render/progress';
 
 const {
 	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
 	scaleOption,
 	deleteAfterOption,
 	jpegQualityOption,
@@ -35,6 +33,7 @@ const {
 	headlessOption,
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 const {
@@ -52,12 +51,12 @@ export const stillCommand = async ({
 	args,
 	remotionRoot,
 	logLevel,
-	implementation,
+	providerSpecifics,
 }: {
 	args: string[];
 	remotionRoot: string;
 	logLevel: LogLevel;
-	implementation: ProviderSpecifics<AwsProvider>;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }) => {
 	const serveUrl = args[0];
 
@@ -119,7 +118,13 @@ export const stillCommand = async ({
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
@@ -129,7 +134,7 @@ export const stillCommand = async ({
 			'No compositions passed. Fetching compositions...',
 		);
 
-		validateServeUrl(serveUrl);
+		LambdaClientInternals.validateServeUrl(serveUrl);
 
 		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 			throw Error(
@@ -138,7 +143,7 @@ export const stillCommand = async ({
 		}
 
 		const server = await RenderInternals.prepareServer({
-			concurrency: 1,
+			offthreadVideoThreads: 1,
 			indent: false,
 			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
@@ -161,7 +166,7 @@ export const stillCommand = async ({
 			chromiumOptions,
 			envVariables,
 			serializedInputPropsWithCustomSchema:
-				NoReactInternals.serializeJSONWithDate({
+				NoReactInternals.serializeJSONWithSpecialTypes({
 					indent: undefined,
 					staticBase: null,
 					data: inputProps,
@@ -173,12 +178,15 @@ export const stillCommand = async ({
 			width,
 			server,
 			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
 			binariesDirectory,
 			onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
 				indent,
 				logLevel,
 				quiet: CliInternals.quietFlagProvided(),
 			}),
+			chromeMode: 'headless-shell',
+			mediaCacheSizeInBytes: mediaCacheSizeInBytes,
 		});
 		composition = compositionId;
 	}
@@ -186,7 +194,7 @@ export const stillCommand = async ({
 	const downloadName = args[2] ?? null;
 	const outName = parsedLambdaCli['out-name'];
 
-	const functionName = await findFunctionName(logLevel);
+	const functionName = await findFunctionName({logLevel, providerSpecifics});
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
@@ -227,7 +235,7 @@ export const stillCommand = async ({
 		commandLine: parsedCli,
 	}).value;
 
-	const res = await renderStillOnLambda({
+	const res = await LambdaClientInternals.internalRenderStillOnLambda({
 		functionName,
 		serveUrl,
 		inputProps,
@@ -240,7 +248,7 @@ export const stillCommand = async ({
 		frame: stillFrame,
 		jpegQuality,
 		logLevel,
-		outName,
+		outName: outName ?? null,
 		chromiumOptions,
 		timeoutInMilliseconds,
 		scale,
@@ -264,12 +272,23 @@ export const stillCommand = async ({
 				})} (if enabled)`,
 			);
 		},
-		deleteAfter,
+		deleteAfter: deleteAfter ?? null,
+		storageClass: parsedLambdaCli['storage-class'] ?? null,
+		apiKey:
+			parsedLambdaCli[BrowserSafeApis.options.apiKeyOption.cliFlag] ?? null,
+		downloadBehavior: {type: 'play-in-browser'},
+		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
+		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
+		indent: false,
+		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads: null,
+		requestHandler: null,
+		mediaCacheSizeInBytes,
 	});
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
-			`Render ID: ${CliInternals.makeHyperlink({text: res.renderId, fallback: res.renderId, url: getS3RenderUrl({bucketName: res.bucketName, renderId: res.renderId, region: getAwsRegion()})})}`,
+			`Render ID: ${CliInternals.makeHyperlink({text: res.renderId, fallback: res.renderId, url: LambdaClientInternals.getS3RenderUrl({bucketName: res.bucketName, renderId: res.renderId, region: getAwsRegion()})})}`,
 		),
 	);
 	Log.info(
@@ -310,7 +329,7 @@ export const stillCommand = async ({
 			region,
 			renderId: res.renderId,
 			logLevel,
-			providerSpecifics: implementation,
+			providerSpecifics: providerSpecifics,
 			forcePathStyle: parsedLambdaCli['force-path-style'],
 		});
 		const relativePath = path.relative(process.cwd(), outputPath);

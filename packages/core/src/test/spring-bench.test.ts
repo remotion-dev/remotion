@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {spring} from '../spring';
 
 test('Springs should calculate fast and cache the natural duration', async () => {

@@ -8,11 +8,12 @@ const row: React.CSSProperties = {
 };
 
 export const LoopedTimelineIndicator: React.FC<{
-	loops: number;
+	readonly loops: number;
 }> = ({loops}) => {
+	const leftOver = loops % 1;
 	return (
 		<AbsoluteFill style={row}>
-			{new Array(loops).fill(true).map((_l, i) => {
+			{new Array(Math.floor(loops)).fill(true).map((_l, i) => {
 				return (
 					<React.Fragment
 						// eslint-disable-next-line
@@ -23,6 +24,7 @@ export const LoopedTimelineIndicator: React.FC<{
 					</React.Fragment>
 				);
 			})}
+			{leftOver > 0 ? <div style={{flex: leftOver}} /> : null}
 		</AbsoluteFill>
 	);
 };

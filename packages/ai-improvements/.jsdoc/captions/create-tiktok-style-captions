@@ -1,0 +1,4 @@
+/**
+ * @description Using this function, you can segment tokens to create "pages" of captions, as commonly seen on TikTok videos.
+ * @see [Documentation](https://remotion.dev/docs/captions/create-tiktok-style-captions)
+ */

@@ -33,13 +33,13 @@ Change the code or create new files in there.
 **Render video**
 
 ```console
-npm run build
+npx remotion render
 ```
 
 **Upgrade Remotion**
 
 ```console
-npm run upgrade
+npx remotion upgrade
 ```
 
 ## More examples

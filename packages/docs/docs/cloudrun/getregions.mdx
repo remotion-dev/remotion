@@ -2,11 +2,13 @@
 image: /generated/articles-docs-cloudrun-getregions.png
 id: getregions
 title: getRegions()
-crumb: "Cloud Run API"
+crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
+  </p>
 </ExperimentalBadge>
 
 Gets an array of all supported GCP regions of this release of Remotion Cloud Run.
@@ -14,9 +16,7 @@ Gets an array of all supported GCP regions of this release of Remotion Cloud Run
 ## Example
 
 ```tsx twoslash
-// @module: esnext
-// @target: es2017
-import { getRegions } from "@remotion/cloudrun/client";
+import {getRegions} from '@remotion/cloudrun/client';
 
 // ---cut---
 

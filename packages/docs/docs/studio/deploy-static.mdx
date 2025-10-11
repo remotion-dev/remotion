@@ -2,13 +2,13 @@
 image: /generated/articles-docs-studio-deploy-static.png
 title: Deploy Remotion Studio as static site
 sidebar_label: Deploy as static site
-crumb: "Remotion Studio"
+crumb: 'Remotion Studio'
 ---
 
 _available from v4.0.97_
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 You can deploy the Remotion Studio as a static site, for example to Vercel or Netlify.  
 While the Render button will be disabled, it may be used as a [Serve URL](/docs/terminology/serve-url) to pass to rendering APIs.  
@@ -60,7 +60,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - "main"
+      - 'main'
 permissions:
   contents: write
 jobs:
@@ -88,8 +88,7 @@ The --public-path flag for `npx remotion bundle` is available only from remotion
 
 <Step>3</Step> Go to the settings of your repository (github.com/[username]/[repo]/settings/pages) <br />
 
-<Step>4</Step> In the Branch section, select the <code>gh-pages</code> branch and
-click save.
+<Step>4</Step> In the Branch section, select the <code>gh-pages</code> branch and click save.
 
 ## Rendering from a URL
 
@@ -122,29 +121,27 @@ npx remotion render https://remotion-helloworld.vercel.app HelloWorld --props '{
 <TabItem value="ssr">
 
 ```tsx twoslash title="render.mjs"
-// @module: esnext
-// @target: es2017
-const outputLocation = "/path/to/frames";
+const outputLocation = '/path/to/frames';
 
-import { renderMedia, selectComposition } from "@remotion/renderer";
+import {renderMedia, selectComposition} from '@remotion/renderer';
 
 // ---cut---
 const inputProps = {
-  titleText: "Hello World",
+  titleText: 'Hello World',
 };
 
-const serveUrl = "https://remotion-helloworld.vercel.app";
+const serveUrl = 'https://remotion-helloworld.vercel.app';
 
 const composition = await selectComposition({
   serveUrl,
-  id: "HelloWorld",
+  id: 'HelloWorld',
   inputProps,
 });
 
 await renderMedia({
   composition,
   serveUrl,
-  codec: "h264",
+  codec: 'h264',
   inputProps,
 });
 ```
@@ -160,19 +157,17 @@ npx remotion lambda render https://remotion-helloworld.vercel.app HelloWorld --p
 ```
 
 ```tsx twoslash title="Node.js/Bun"
-// @module: esnext
-// @target: es2017
 // ---cut---
-import { renderMediaOnLambda } from "@remotion/lambda/client";
+import {renderMediaOnLambda} from '@remotion/lambda/client';
 
-const { bucketName, renderId } = await renderMediaOnLambda({
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  composition: "HelloWorld",
-  serveUrl: "https://remotion-helloworld.vercel.app",
-  codec: "h264",
+const {bucketName, renderId} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'HelloWorld',
+  serveUrl: 'https://remotion-helloworld.vercel.app',
+  codec: 'h264',
   inputProps: {
-    titleText: "Hello World",
+    titleText: 'Hello World',
   },
 });
 ```
@@ -188,29 +183,27 @@ npx remotion cloudrun render https://remotion-helloworld.vercel.app HelloWorld -
 ```
 
 ```tsx twoslash title="Node.js/Bun"
-// @module: esnext
-// @target: es2017
 // ---cut---
-import { renderMediaOnCloudrun } from "@remotion/cloudrun/client";
+import {renderMediaOnCloudrun} from '@remotion/cloudrun/client';
 
 const result = await renderMediaOnCloudrun({
-  region: "us-east1",
-  serviceName: "remotion-render-bds9aab",
-  composition: "HelloWorld",
-  serveUrl: "https://remotion-helloworld.vercel.app",
-  codec: "h264",
+  region: 'us-east1',
+  serviceName: 'remotion-render-bds9aab',
+  composition: 'HelloWorld',
+  serveUrl: 'https://remotion-helloworld.vercel.app',
+  codec: 'h264',
   inputProps: {
-    titleText: "Hello World",
+    titleText: 'Hello World!',
   },
 });
 
-if (result.type === "success") {
+if (result.type === 'success') {
   console.log(result.bucketName);
   console.log(result.renderId);
 }
 ```
 
-You need to complete the [Remotion Cloud Run Setup](/docs/cloudrun-alpha) first.
+You need to complete the [Remotion Cloud Run Setup](/docs/cloudrun) first.
 
   </TabItem>
 </Tabs>

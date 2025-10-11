@@ -9,14 +9,13 @@ crumb: '@remotion/install-whisper-cpp'
 Converts the output from [`transcribe()`](/docs/install-whisper-cpp/transcribe) into an array of [`Caption`](/docs/captions/caption) objects, so you can use the functions from [`@remotion/captions`](/docs/captions).
 
 ```tsx twoslash title="generate-captions.mjs"
-// @module: esnext
-// @target: es2022
 import {toCaptions, transcribe} from '@remotion/install-whisper-cpp';
 import path from 'path';
 
 const whisperCppOutput = await transcribe({
   inputPath: '/path/to/audio.wav',
   whisperPath: path.join(process.cwd(), 'whisper.cpp'),
+  whisperCppVersion: '1.5.5',
   model: 'medium.en',
   tokenLevelTimestamps: true,
 });

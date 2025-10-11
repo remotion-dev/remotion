@@ -3,16 +3,16 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/motion-blur"
 	},
 	"name": "@remotion/motion-blur",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"description": "Motion blur effect for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"scripts": {
-		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"make": "bun --env-file=../.env.bundle bundle.ts"
+		"formatting": "prettier --experimental-cli src --check",
+		"lint": "eslint src",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Matt McGillivray, Ilija Boshkov <ilija@codechem.com>, Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -37,9 +37,11 @@
 		}
 	},
 	"devDependencies": {
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
-		"remotion": "workspace:*"
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"remotion": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
 	},
 	"keywords": [
 		"remotion",

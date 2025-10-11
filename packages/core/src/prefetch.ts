@@ -1,11 +1,42 @@
 import {useContext} from 'react';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import type {LogLevel} from './log.js';
+import {Log} from './log.js';
+import {playbackLogging} from './playback-logging.js';
 import {PreloadContext, setPreloads} from './prefetch-state.js';
+
+export const removeAndGetHashFragment = (src: string) => {
+	const hashIndex = src.indexOf('#');
+	if (hashIndex === -1) {
+		return null;
+	}
+
+	return hashIndex;
+};
+
+export const getSrcWithoutHash = (src: string) => {
+	const hashIndex = removeAndGetHashFragment(src);
+	if (hashIndex === null) {
+		return src;
+	}
+
+	return src.slice(0, hashIndex);
+};
 
 export const usePreload = (src: string): string => {
 	const preloads = useContext(PreloadContext);
+	const hashFragmentIndex = removeAndGetHashFragment(src);
+	const withoutHashFragment = getSrcWithoutHash(src);
 
-	return preloads[src] ?? src;
+	if (!preloads[withoutHashFragment]) {
+		return src;
+	}
+
+	if (hashFragmentIndex !== null) {
+		return preloads[withoutHashFragment] + src.slice(hashFragmentIndex);
+	}
+
+	return preloads[withoutHashFragment];
 };
 
 type FetchAndPreload = {
@@ -48,7 +79,6 @@ const getBlobFromReader = async ({
 }): Promise<Blob> => {
 	let receivedLength = 0;
 	const chunks = [];
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const {done, value} = await reader.read();
 
@@ -76,8 +106,8 @@ const getBlobFromReader = async ({
 	});
 };
 
-/**
- * @description When you call the preFetch() function, an asset will be fetched and kept in memory so it is ready when you want to play it in a <Player>.
+/*
+ * @description When you call the prefetch() function, an asset will be fetched and kept in memory so it is ready when you want to play it in a <Player>.
  * @see [Documentation](https://www.remotion.dev/docs/prefetch)
  */
 export const prefetch = (
@@ -86,16 +116,25 @@ export const prefetch = (
 		method?: 'blob-url' | 'base64';
 		contentType?: string;
 		onProgress?: PrefetchOnProgress;
+		credentials?: RequestCredentials;
+		logLevel?: LogLevel;
 	},
 ): FetchAndPreload => {
 	const method = options?.method ?? 'blob-url';
+	const logLevel = options?.logLevel ?? 'info';
+	const srcWithoutHash = getSrcWithoutHash(src);
 
 	if (getRemotionEnvironment().isRendering) {
 		return {
 			free: () => undefined,
-			waitUntilDone: () => Promise.resolve(src),
+			waitUntilDone: () => Promise.resolve(srcWithoutHash),
 		};
 	}
+
+	Log.verbose(
+		{logLevel, tag: 'prefetch'},
+		`Starting prefetch ${srcWithoutHash}`,
+	);
 
 	let canceled = false;
 	let objectUrl: string | null = null;
@@ -110,8 +149,9 @@ export const prefetch = (
 	const controller = new AbortController();
 	let canBeAborted = true;
 
-	fetch(src, {
+	fetch(srcWithoutHash, {
 		signal: controller.signal,
+		credentials: options?.credentials ?? undefined,
 	})
 		.then((res) => {
 			canBeAborted = false;
@@ -135,12 +175,12 @@ export const prefetch = (
 			if (!hasProperContentType) {
 				// eslint-disable-next-line no-console
 				console.warn(
-					`Called prefetch() on ${src} which returned a "Content-Type" of ${headerContentType}. Prefetched content should have a proper content type (video/... or audio/...) or a contentType passed the options of prefetch(). Otherwise, prefetching will not work properly in all browsers.`,
+					`Called prefetch() on ${srcWithoutHash} which returned a "Content-Type" of ${headerContentType}. Prefetched content should have a proper content type (video/... or audio/...) or a contentType passed the options of prefetch(). Otherwise, prefetching will not work properly in all browsers.`,
 				);
 			}
 
 			if (!res.body) {
-				throw new Error(`HTTP response of ${src} has no body`);
+				throw new Error(`HTTP response of ${srcWithoutHash} has no body`);
 			}
 
 			const reader = res.body.getReader();
@@ -174,20 +214,37 @@ export const prefetch = (
 				return;
 			}
 
+			playbackLogging({
+				logLevel,
+				tag: 'prefetch',
+				message: `Finished prefetch ${srcWithoutHash} with method ${method}`,
+				mountTime: null,
+			});
+
 			objectUrl = url as string;
 
 			setPreloads((p) => ({
 				...p,
-				[src]: objectUrl as string,
+				[srcWithoutHash]: objectUrl as string,
 			}));
 			resolve(objectUrl);
 		})
 		.catch((err) => {
+			if (err?.message.includes('free() called')) {
+				return;
+			}
+
 			reject(err);
 		});
 
 	return {
 		free: () => {
+			playbackLogging({
+				logLevel,
+				tag: 'prefetch',
+				message: `Freeing ${srcWithoutHash}`,
+				mountTime: null,
+			});
 			if (objectUrl) {
 				if (method === 'blob-url') {
 					URL.revokeObjectURL(objectUrl);
@@ -195,7 +252,7 @@ export const prefetch = (
 
 				setPreloads((p) => {
 					const copy = {...p};
-					delete copy[src];
+					delete copy[srcWithoutHash];
 					return copy;
 				});
 			} else {
@@ -203,7 +260,7 @@ export const prefetch = (
 				if (canBeAborted) {
 					try {
 						controller.abort(new Error('free() called'));
-					} catch (e) {}
+					} catch {}
 				}
 			}
 		},

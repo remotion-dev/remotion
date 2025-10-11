@@ -17,7 +17,7 @@ So far we focused on streamlining the workflow for making videos. While it was a
 [This new component](/docs/still) is the same as [`<Composition />`](/docs/composition) but is meant for defining a compositions that output a still image. Since it's already implied, you don't have to define the `fps` and `durationInFrames` properties.
 
 ```tsx twoslash
-import { Still } from "remotion";
+import {Still} from 'remotion';
 const Thumbnail: React.FC = () => null;
 // ---cut---
 <Still
@@ -26,9 +26,9 @@ const Thumbnail: React.FC = () => null;
   width={1200}
   height={627}
   defaultProps={{
-    title: "Welcome to Remotion",
-    description: "Edit Video.tsx to change template",
-    slogan: "Write videos\nin React",
+    title: 'Welcome to Remotion',
+    description: 'Edit Video.tsx to change template',
+    slogan: 'Write videos\nin React',
   }}
 />;
 ```
@@ -38,14 +38,16 @@ const Thumbnail: React.FC = () => null;
 There are now icons in the sidebar for compositions, and those who are stills have an image icon.
 
 <p align="center">
-  <img style={{maxWidth: 300}} src="/img/still-thumbnail.png"/> <br/>
-  <em><sub>Now still images (compositions with a duration of 1 frame) are marked with a special icon.</sub></em>
+  <img style={{maxWidth: 300}} src="/img/still-thumbnail.png" /> <br />
+  <em>
+    <sub>Now still images (compositions with a duration of 1 frame) are marked with a special icon.</sub>
+  </em>
 </p>
 
 For still images, you don't need the timeline, so it will hide itself and give you a bigger canvas.
 
 <p align="center">
-  <img style={{maxWidth: 600}} src="/img/notimeline.png"/> <br/>
+  <img style={{maxWidth: 600}} src="/img/notimeline.png" /> <br />
 </p>
 
 ## New `remotion still` command
@@ -61,21 +63,19 @@ npx remotion still --props='{"custom": "data"}'  my-comp out.png
 If you render using the Node.JS APIs, we have a new equivalent API for rendering stills as well.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { bundle } from "@remotion/bundler";
-import { getCompositions, renderStill } from "@remotion/renderer";
+import {bundle} from '@remotion/bundler';
+import {getCompositions, renderStill} from '@remotion/renderer';
 
 // The composition you want to render
-const compositionId = "HelloWorld";
+const compositionId = 'HelloWorld';
 
 const bundleLocation = await bundle({
-  entryPoint: require.resolve("./src/index.ts"),
+  entryPoint: require.resolve('./src/index.ts'),
 });
 
 const comps = await getCompositions(bundleLocation, {
   inputProps: {
-    custom: "data",
+    custom: 'data',
   },
 });
 const composition = comps.find((c) => c.id === compositionId);
@@ -89,9 +89,9 @@ if (!composition) {
 await renderStill({
   composition,
   serveUrl: bundleLocation,
-  output: "/tmp/still.png",
+  output: '/tmp/still.png',
   inputProps: {
-    custom: "data",
+    custom: 'data',
   },
 });
 ```
@@ -115,7 +115,7 @@ We are also working on getting still image rendering working in a serverless env
 When creating a new video, you now get to choose between different templates, that give you a great starting point for your usecase.
 
 <p align="center">
-  <img style={{maxWidth: 600}} src="/img/yarncreatetemplate.png"/> <br/>
+  <img style={{maxWidth: 600}} src="/img/yarncreatetemplate.png" /> <br />
 </p>
 
 In addition to the default template and the previously announced Three.JS template, there now is also a plain-JS template, a text-to-speech template and the above mentioned Stills template.

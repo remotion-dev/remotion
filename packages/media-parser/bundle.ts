@@ -1,30 +1,47 @@
-import {build} from 'bun';
-import path from 'path';
+import {buildPackage} from '../.monorepo/builder';
 
-if (process.env.NODE_ENV !== 'production') {
-	throw new Error('This script must be run using NODE_ENV=production');
-}
-
-const output = await build({
+await buildPackage({
+	formats: {
+		esm: 'build',
+		cjs: 'use-tsc',
+	},
 	entrypoints: [
-		'src/index.ts',
-		'src/readers/from-web-file.ts',
-		'src/readers/from-fetch.ts',
-		'src/readers/from-node.ts',
-		'src/writers/buffer.ts',
-		'src/writers/web-fs.ts',
+		{
+			path: 'src/index.ts',
+			target: 'browser',
+		},
+		{
+			path: 'src/node.ts',
+			target: 'node',
+		},
+		{
+			path: 'src/web.ts',
+			target: 'browser',
+		},
+		{
+			path: 'src/universal.ts',
+			target: 'node',
+		},
+		{
+			path: 'src/node-writer.ts',
+			target: 'node',
+		},
+		{
+			path: 'src/worker-web-entry.ts',
+			target: 'browser',
+		},
+		{
+			path: 'src/worker-server-entry.ts',
+			target: 'node',
+		},
+		{
+			path: 'src/worker.module.ts',
+			target: 'browser',
+		},
+		{
+			path: 'src/server-worker.module.ts',
+			target: 'node',
+		},
 	],
 	external: ['stream'],
-	naming: '[name].mjs',
-	target: 'node',
 });
-if (!output.success) {
-	process.exit(1);
-}
-
-for (const file of output.outputs) {
-	const str = await file.text();
-	const out = path.join('dist', 'esm', file.path);
-
-	await Bun.write(out, str);
-}

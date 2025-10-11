@@ -2,7 +2,7 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/compositor-win32-x64-msvc"
 	},
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"name": "@remotion/compositor-win32-x64-msvc",
 	"os": [
 		"win32"
@@ -12,9 +12,9 @@
 	],
 	"exports": {
 		".": {
+			"types": "./index.d.ts",
 			"require": "./index.js",
-			"import": "./index.mjs",
-			"types": "./index.d.ts"
+			"import": "./index.mjs"
 		},
 		"./package.json": "./package.json"
 	},

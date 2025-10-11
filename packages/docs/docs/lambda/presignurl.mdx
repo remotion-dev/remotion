@@ -2,7 +2,7 @@
 image: /generated/articles-docs-lambda-presignurl.png
 id: presignurl
 title: presignUrl()
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Takes a private S3 object and turns it into a public URL by signing with your AWS credentials.
@@ -10,14 +10,12 @@ Takes a private S3 object and turns it into a public URL by signing with your AW
 ## Example
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { presignUrl } from "@remotion/lambda/client";
+import {presignUrl} from '@remotion/lambda/client';
 
 const url = await presignUrl({
-  region: "us-east-1",
-  bucketName: "remotionlambda-c7fsl3d",
-  objectKey: "assets/sample.png",
+  region: 'us-east-1',
+  bucketName: 'remotionlambda-c7fsl3d',
+  objectKey: 'assets/sample.png',
   expiresInSeconds: 900,
   checkIfObjectExists: true,
 });
@@ -25,9 +23,9 @@ const url = await presignUrl({
 console.log(url); // `string` - or `null` if object doesn't exist
 
 const url2 = await presignUrl({
-  region: "us-east-1",
-  bucketName: "remotionlambda-c7fsl3d",
-  objectKey: "assets/sample.png",
+  region: 'us-east-1',
+  bucketName: 'remotionlambda-c7fsl3d',
+  objectKey: 'assets/sample.png',
   expiresInSeconds: 900,
   checkIfObjectExists: false,
 });

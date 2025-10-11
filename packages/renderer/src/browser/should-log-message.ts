@@ -55,6 +55,18 @@ export const shouldLogBrowserMessage = (message: string) => {
 		return false;
 	}
 
+	if (message.includes('CVDisplayLinkCreateWithCGDisplay failed')) {
+		return false;
+	}
+
+	if (message.includes('Falling back to ALSA for audio output')) {
+		return false;
+	}
+
+	if (message.includes('VizNullHypothesis is disabled')) {
+		return false;
+	}
+
 	return true;
 };
 

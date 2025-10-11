@@ -1,9 +1,9 @@
 import React from 'react';
-import {AbsoluteFill, Series, Video} from 'remotion';
+import {AbsoluteFill, Html5Video, Series} from 'remotion';
 
 const Inside: React.FC = () => {
 	return (
-		<Video
+		<Html5Video
 			pauseWhenBuffering
 			src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 		/>

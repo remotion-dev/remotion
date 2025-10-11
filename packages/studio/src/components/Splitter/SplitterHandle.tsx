@@ -6,17 +6,15 @@ export const SPLITTER_HANDLE_SIZE = 3;
 
 const containerRow: React.CSSProperties = {
 	height: SPLITTER_HANDLE_SIZE,
-	cursor: 'row-resize',
 };
 
 const containerColumn: React.CSSProperties = {
 	width: SPLITTER_HANDLE_SIZE,
-	cursor: 'col-resize',
 };
 
 export const SplitterHandle: React.FC<{
-	allowToCollapse: 'right' | 'left' | 'none';
-	onCollapse: () => void;
+	readonly allowToCollapse: 'right' | 'left' | 'none';
+	readonly onCollapse: () => void;
 }> = ({allowToCollapse, onCollapse}) => {
 	const context = useContext(SplitterContext);
 	if (!context) {
@@ -31,10 +29,6 @@ export const SplitterHandle: React.FC<{
 			return;
 		}
 
-		if (!context.domRect) {
-			return;
-		}
-
 		const {current} = ref;
 		if (!current) {
 			return;
@@ -45,11 +39,11 @@ export const SplitterHandle: React.FC<{
 				throw new Error('cannot get value if not dragging');
 			}
 
-			if (!context.domRect) {
+			if (!context.ref.current) {
 				throw new Error('domRect is not mounted');
 			}
 
-			const {width, height} = context.domRect;
+			const {width, height} = context.ref.current.getBoundingClientRect();
 			const change = (() => {
 				if (context.orientation === 'vertical') {
 					return (
@@ -138,14 +132,56 @@ export const SplitterHandle: React.FC<{
 				cleanup();
 			}
 		};
-	}, [
-		allowToCollapse,
-		context,
-		context.domRect,
-		context.flexValue,
-		lastPointerUp,
-		onCollapse,
-	]);
+	}, [allowToCollapse, context, context.flexValue, lastPointerUp, onCollapse]);
+
+	useEffect(() => {
+		const {current} = ref;
+		if (!current) {
+			return;
+		}
+
+		let isMouseDown = false;
+
+		const onMouseDown = () => {
+			isMouseDown = true;
+		};
+
+		const onMouseUp = () => {
+			isMouseDown = false;
+		};
+
+		const onMouseEnter = (e: MouseEvent) => {
+			if (e.button !== 0) {
+				return;
+			}
+
+			if (isMouseDown) {
+				return;
+			}
+
+			current.classList.add('remotion-splitter-hover');
+		};
+
+		const onMouseLeave = (e: MouseEvent) => {
+			if (e.button !== 0) {
+				return;
+			}
+
+			current.classList.remove('remotion-splitter-hover');
+		};
+
+		current.addEventListener('mouseenter', onMouseEnter);
+		current.addEventListener('mouseleave', onMouseLeave);
+		window.addEventListener('mousedown', onMouseDown);
+		window.addEventListener('mouseup', onMouseUp);
+
+		return () => {
+			current.removeEventListener('mouseenter', onMouseEnter);
+			current.removeEventListener('mouseleave', onMouseLeave);
+			window.removeEventListener('mousedown', onMouseDown);
+			window.removeEventListener('mouseup', onMouseUp);
+		};
+	}, []);
 
 	return (
 		<div

@@ -1,112 +1,65 @@
-import type {ProviderSpecifics} from '@remotion/serverless';
-import {Readable} from 'stream';
-import type {AwsProvider} from '../functions/aws-implementation';
-import {convertToServeUrlImplementation} from '../shared/convert-to-serve-url';
+import type {AwsProvider} from '@remotion/lambda-client';
 import {
-	addMockBucket,
-	getMockBuckets,
-	getS3FilesInBucket,
-	mockBucketExists,
-	mockDeleteS3File,
-	readMockS3File,
-	writeMockS3File,
-} from './mocks/mock-store';
+	LambdaClientInternals,
+	speculateFunctionName,
+} from '@remotion/lambda-client';
+import {openBrowser} from '@remotion/renderer';
+import type {
+	FullClientSpecifics,
+	GetBrowserInstance,
+	InsideFunctionSpecifics,
+	InvokeWebhookParams,
+} from '@remotion/serverless';
+import {Log} from '../cli/log';
+import {mockBundleSite} from './mocks/mock-bundle-site';
+import {mockCreateFunction} from './mocks/mock-create-function';
+import {mockReadDirectory} from './mocks/mock-read-dir';
+import {mockUploadDir} from './mocks/upload-dir';
 
-export const mockImplementation: ProviderSpecifics<AwsProvider> = {
-	applyLifeCycle: () => Promise.resolve(),
-	getChromiumPath() {
-		return null;
+const browsersOpen: Map<string, boolean> = new Map();
+export const getBrowserInstance: GetBrowserInstance = async ({
+	logLevel,
+	indent,
+}) => {
+	const instance = await openBrowser('chrome', {logLevel});
+	browsersOpen.set(instance.id, true);
+	Log.verbose(
+		{logLevel, indent},
+		`Opening new browser instance ${instance.id}. ${browsersOpen.size} browsers open`,
+	);
+	return {instance, configurationString: 'chrome'};
+};
+
+const paramsArray: InvokeWebhookParams[] = [];
+
+export const mockServerImplementation: InsideFunctionSpecifics<AwsProvider> = {
+	forgetBrowserEventLoop: ({launchedBrowser}) => {
+		browsersOpen.delete(launchedBrowser.instance.id);
+
+		Log.verbose(
+			{logLevel: 'verbose', indent: false},
+			`Closing browser instance ${launchedBrowser.instance.id}. ${browsersOpen.size} browsers open`,
+		);
+		launchedBrowser.instance.close({silent: false});
 	},
 	getCurrentRegionInFunction: () => 'eu-central-1',
-	createBucket: (input) => {
-		addMockBucket({
-			region: input.region,
-			creationDate: 0,
-			name: input.bucketName,
-		});
+	getBrowserInstance,
+	timer: () => ({
+		end: () => {},
+	}),
+	deleteTmpDir: () => Promise.resolve(),
+	generateRandomId: LambdaClientInternals.randomHashImplementation,
+	getCurrentFunctionName: () =>
+		speculateFunctionName({
+			diskSizeInMb: 10240,
+			memorySizeInMb: 3009,
+			timeoutInSeconds: 120,
+		}),
+	getCurrentMemorySizeInMb: () => 3009,
+	invokeWebhook: (params) => {
+		paramsArray.push(params);
 		return Promise.resolve();
 	},
-	getBuckets: () => Promise.resolve(getMockBuckets()),
-	listObjects: (input) => {
-		if (!input) {
-			throw new Error('need to pass input');
-		}
-
-		const files = getS3FilesInBucket({
-			bucketName: input.bucketName,
-			region: input.region,
-		});
-
-		return Promise.resolve(
-			files
-				.filter((p) => p.key.startsWith(input.prefix))
-				.map((file) => {
-					const size =
-						typeof file.content === 'string' ? file.content.length : 0;
-					return {
-						Key: file.key,
-						ETag: 'etag',
-						LastModified: new Date(0),
-						Owner: undefined,
-						Size: size,
-						StorageClass: undefined,
-					};
-				}),
-		);
-	},
-	deleteFile: ({bucketName, key, region}) => {
-		mockDeleteS3File({
-			bucketName,
-			key,
-			region,
-		});
-		return Promise.resolve();
-	},
-	bucketExists: ({bucketName, region}) => {
-		return Promise.resolve(mockBucketExists(bucketName, region));
-	},
-	randomHash: () => 'abcdef',
-	readFile: ({bucketName, key, region}) => {
-		const file = readMockS3File({region, key, bucketName});
-		if (!file) {
-			throw new Error(`no file ${key}`);
-		}
-
-		if (typeof file.content === 'string') {
-			return Promise.resolve(Readable.from(Buffer.from(file.content)));
-		}
-
-		return Promise.resolve(file.content);
-	},
-	writeFile: ({body, bucketName, key, privacy, region}) => {
-		writeMockS3File({
-			body: body as string,
-			bucketName,
-			key,
-			privacy,
-			region,
-		});
-		return Promise.resolve(undefined);
-	},
-	headFile: ({bucketName, key, region}) => {
-		const read = readMockS3File({
-			bucketName,
-			key,
-			region,
-		});
-		if (!read) {
-			const err = new Error('File not found');
-			err.name = 'NotFound';
-			throw err;
-		}
-
-		return Promise.resolve({
-			ContentLength: read.content.toString().length,
-			LastModified: new Date(),
-		});
-	},
-	convertToServeUrl: convertToServeUrlImplementation,
-	printLoggingHelper: false,
 	getFolderFiles: () => [
 		{
 			filename: 'something',
@@ -119,4 +72,20 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 		s3Url: 'https://s3.af-south-1.amazonaws.com/bucket/key',
 		s3Key: 'key',
 	}),
+};
+
+export const resetWebhookCalls = () => {
+	paramsArray.length = 0;
+};
+
+export const getWebhookCalls = () => {
+	return paramsArray;
+};
+
+export const mockFullClientSpecifics: FullClientSpecifics<AwsProvider> = {
+	bundleSite: mockBundleSite,
+	id: '__remotion_full_client_specifics',
+	readDirectory: mockReadDirectory,
+	uploadDir: mockUploadDir,
+	createFunction: mockCreateFunction,
 };

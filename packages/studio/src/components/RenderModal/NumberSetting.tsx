@@ -7,14 +7,14 @@ import {OptionExplainerBubble} from './OptionExplainerBubble';
 import {label, optionRow, rightRow} from './layout';
 
 export const NumberSetting: React.FC<{
-	name: string;
-	value: number;
-	onValueChanged: React.Dispatch<React.SetStateAction<number>>;
-	max?: number;
-	min: number;
-	step: number;
-	formatter?: (value: string | number) => string;
-	hint?: AvailableOptions;
+	readonly name: string;
+	readonly value: number;
+	readonly onValueChanged: React.Dispatch<React.SetStateAction<number>>;
+	readonly max?: number;
+	readonly min: number;
+	readonly step: number;
+	readonly formatter?: (value: string | number) => string;
+	readonly hint?: AvailableOptions;
 }> = ({name, value, step, hint, onValueChanged, max, min, formatter}) => {
 	const onTextChanged = useCallback(
 		(e: string) => {

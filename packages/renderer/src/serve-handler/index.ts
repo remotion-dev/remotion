@@ -3,7 +3,6 @@ import type {Stats} from 'node:fs';
 import {createReadStream, promises} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path from 'node:path';
-import url from 'node:url';
 import {mimeContentType} from '../mime-types';
 // Packages
 import {isPathInside} from './is-path-inside';
@@ -112,10 +111,12 @@ export const serveHandler = async (
 	let relativePath = null;
 
 	try {
-		relativePath = decodeURIComponent(
-			url.parse(request.url as string).pathname as string,
+		const parsedUrl = new URL(
+			request.url as string,
+			`http://${request.headers.host}`,
 		);
-	} catch (err) {
+		relativePath = decodeURIComponent(parsedUrl.pathname);
+	} catch {
 		return sendError('/', response, {
 			statusCode: 400,
 			code: 'bad_request',
@@ -253,7 +254,7 @@ export const serveHandler = async (
 
 	try {
 		stream = createReadStream(absolutePath, streamOpts ?? {});
-	} catch (err) {
+	} catch {
 		return internalError(absolutePath, response);
 	}
 

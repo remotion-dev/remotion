@@ -1,0 +1,4 @@
+/**
+ * @description Given an `AudioTrack`, determine if it can be re-encoded to another track.
+ * @see [Documentation](https://www.remotion.dev/docs/webcodecs/can-reencode-audio-track)
+ */

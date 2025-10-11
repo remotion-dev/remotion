@@ -7,17 +7,23 @@ export const useRequestVideoCallbackTime = ({
 	lastSeek,
 	onVariableFpsVideoDetected,
 }: {
-	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
+	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	mediaType: 'video' | 'audio';
 	lastSeek: React.MutableRefObject<number | null>;
 	onVariableFpsVideoDetected: () => void;
 }) => {
-	const currentTime = useRef<number | null>(null);
+	const currentTime = useRef<{
+		time: number;
+		lastUpdate: number;
+	} | null>(null);
 
 	useEffect(() => {
 		const {current} = mediaRef;
 		if (current) {
-			currentTime.current = current.currentTime;
+			currentTime.current = {
+				time: current.currentTime,
+				lastUpdate: performance.now(),
+			};
 		} else {
 			currentTime.current = null;
 			return;
@@ -43,7 +49,9 @@ export const useRequestVideoCallbackTime = ({
 
 			const cb = videoTag.requestVideoFrameCallback((_, info) => {
 				if (currentTime.current !== null) {
-					const difference = Math.abs(currentTime.current - info.mediaTime);
+					const difference = Math.abs(
+						currentTime.current.time - info.mediaTime,
+					);
 					const differenceToLastSeek = Math.abs(
 						lastSeek.current === null
 							? Infinity
@@ -56,13 +64,16 @@ export const useRequestVideoCallbackTime = ({
 					if (
 						difference > 0.5 &&
 						differenceToLastSeek > 0.5 &&
-						info.mediaTime > currentTime.current
+						info.mediaTime > currentTime.current.time
 					) {
 						onVariableFpsVideoDetected();
 					}
 				}
 
-				currentTime.current = info.mediaTime;
+				currentTime.current = {
+					time: info.mediaTime,
+					lastUpdate: performance.now(),
+				};
 				request();
 			});
 

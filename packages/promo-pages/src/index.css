@@ -1,0 +1,140 @@
+@import 'tailwindcss/theme' layer(theme);
+@import 'tailwindcss/utilities' layer(utilities);
+@import './fonts.css';
+
+@layer theme, base, components, utilities;
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+:root {
+	--ifm-color-primary: #0b84f3;
+	--ifm-color-primary-dark: #0a77db;
+	--ifm-color-primary-darker: #0970cf;
+	--ifm-color-primary-darkest: #085caa;
+	--ifm-color-primary-light: #2290f5;
+	--ifm-color-primary-lighter: #2f96f6;
+	--ifm-color-primary-lightest: #53a9f7;
+	--ifm-code-font-size: 100%;
+	--ifm-font-family-base:
+		system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans,
+		sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif,
+		'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+	--ifm-font-size-base: 16px;
+	--ifm-font-family-monospace:
+		SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+		monospace;
+	--ifm-color-emphasis-200: #ebedf0;
+}
+
+[data-theme='light'] {
+	--background: #f8fafc;
+	--footer-background: #fcfcfc;
+	--footer-border: #eaeaea;
+	--text-color: #000;
+	--blue-button-color: #084696;
+	--blue-underlay: var(--ifm-color-primary);
+	--plain-button: #fff;
+	--blue-underlay-hover: #d5e5fd;
+	--light-text-color: #777;
+	--subtitle: #666;
+	--clear-hover: rgba(0, 0, 0, 0.04);
+	--border-color: rgb(234, 234, 234);
+	--box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+	--ifm-out-of-focus: #eaeaea;
+	--box-stroke: #000;
+	--ifm-background-surface-color: #fff;
+	--ifm-color-emphasis-200: #ebedf0;
+	color: var(--text-color);
+}
+
+[data-theme='dark'] {
+	--background: #18191a;
+	--footer-background: #1f1f1f;
+	--footer-border: #2f2f2f;
+	--text-color: #fff;
+	--plain-button: var(--blue-underlay);
+	--blue-underlay: #424243;
+	--blue-underlay-hover: #5b5c5e;
+	--clear-hover: rgba(255, 255, 255, 0.06);
+	--blue-button-color: white;
+	--light-text-color: #aaa;
+	--subtitle: #8d8d8d;
+	--border-color: rgb(42, 42, 42);
+	--box-shadow: 0 1px 8px rgba(255, 255, 255, 0.2);
+	--ifm-out-of-focus: #505050;
+	--box-stroke: gray;
+	--ifm-background-surface-color: #242526;
+	--ifm-color-emphasis-200: #444950;
+	color: var(--text-color);
+}
+
+html {
+	font-family:
+		ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+		'Segoe UI Symbol', 'Noto Color Emoji';
+}
+body {
+	margin: 0;
+}
+
+@keyframes click {
+	0% {
+		transform: translateY(-18px);
+		opacity: 0;
+	}
+
+	30% {
+		opacity: 0.7;
+	}
+	70% {
+		opacity: 0.7;
+	}
+	100% {
+		transform: translateY(-23px);
+		opacity: 0;
+	}
+}
+
+@keyframes jump {
+	from {
+		transform: scale(0);
+	}
+	to {
+		transform: scale(1);
+	}
+}
+
+@layer base {
+	input[type='number']::-webkit-inner-spin-button,
+	input[type='number']::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+}
+
+@theme inline {
+	--color-brand: #0b84f3;
+	--font-brand: 'GTPlanar', sans-serif;
+	--color-pane: var(--ifm-background-surface-color);
+	--color-muted: var(--subtitle);
+	--color-text: var(--text-color);
+}
+
+@utility border-effect {
+	border: 2px solid var(--box-stroke);
+	border-bottom: 4px solid var(--box-stroke);
+	border-radius: var(--radius-lg);
+}
+
+@utility bluelink {
+	@apply text-brand no-underline hover:underline underline-offset-2;
+}
+
+@utility card {
+	@apply border-effect bg-pane p-5;
+}
+
+@utility fontbrand {
+	@apply font-brand;
+	font-feature-settings: 'ss03' on;
+}

@@ -1,0 +1,4 @@
+/**
+ * @description Takes an array of Instruction's and reduces the amount of instruction types so that the path only consists of M, L, C, and Z instructions.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/reduce-instructions)
+ */

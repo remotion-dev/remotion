@@ -15,7 +15,7 @@ const outfile = path.join(outdir, 'index.js');
 fs.rmSync(outdir, {recursive: true});
 fs.mkdirSync(outdir, {recursive: true});
 const template = require.resolve(
-	path.join(__dirname, 'src', 'functions', 'index'),
+	path.join(__dirname, 'dist', 'functions', 'index'),
 );
 
 await esbuild.build({
@@ -23,6 +23,8 @@ await esbuild.build({
 	target: 'node16',
 	bundle: true,
 	outfile,
+	minify: true,
+	legalComments: 'none',
 	entryPoints: [template],
 	treeShaking: true,
 	external: [],
@@ -54,6 +56,7 @@ fs.cpSync(
 	),
 	`${outdir}/mappings.wasm`,
 );
+
 await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);
 
 fs.rmSync(outdir, {recursive: true});

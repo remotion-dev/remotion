@@ -17,6 +17,7 @@
 		{"path": "../core"},
 		{"path": "../babel-loader"},
 		{"path": "../bundler"},
+		{"path": "../captions"},
 		{"path": "../cli"},
 		{"path": "../eslint-config"},
 		{"path": "../eslint-plugin"},
@@ -34,8 +35,11 @@
 		{"path": "../three"},
 		{"path": "../transitions"},
 		{"path": "../zod-types"},
+		{"path": "../svg-3d-engine"},
 		{"path": "../media-parser"},
 		{"path": "../webcodecs"},
-		{"path": "../layout-utils"}
+		{"path": "../whisper-web"},
+		{"path": "../layout-utils"},
+		{"path": "../media"}
 	]
 }

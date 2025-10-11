@@ -1,7 +1,7 @@
 import type {AnimationItem} from 'lottie-web';
 import lottie from 'lottie-web';
 import {useEffect, useRef, useState} from 'react';
-import {continueRender, delayRender, useCurrentFrame} from 'remotion';
+import {useCurrentFrame, useDelayRender} from 'remotion';
 import type {LottieProps} from './types';
 import {getLottieFrame} from './utils';
 import {validateLoop} from './validate-loop';
@@ -32,16 +32,26 @@ export const Lottie = ({
 	validatePlaybackRate(playbackRate);
 	validateLoop(loop);
 
-	const animationRef = useRef<AnimationItem>();
+	const animationRef = useRef<AnimationItem | null>(null);
 	const currentFrameRef = useRef<number | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const onAnimationLoadedRef = useRef<LottieProps['onAnimationLoaded']>();
+	const onAnimationLoadedRef =
+		useRef<LottieProps['onAnimationLoaded']>(onAnimationLoaded);
 	onAnimationLoadedRef.current = onAnimationLoaded;
+	const {delayRender, continueRender} = useDelayRender();
 
 	const [handle] = useState(() =>
 		delayRender('Waiting for Lottie animation to load'),
 	);
+
+	// If component unmounts, continue the render
+	useEffect(() => {
+		return () => {
+			continueRender(handle);
+		};
+	}, [handle, continueRender]);
+
 	const frame = useCurrentFrame();
 	currentFrameRef.current = frame;
 
@@ -97,6 +107,7 @@ export const Lottie = ({
 		playbackRate,
 		preserveAspectRatio,
 		renderer,
+		continueRender,
 	]);
 
 	useEffect(() => {
@@ -156,7 +167,7 @@ export const Lottie = ({
 				img.href.baseVal as string,
 			);
 		});
-	}, [direction, frame, loop, playbackRate]);
+	}, [direction, frame, loop, playbackRate, delayRender, continueRender]);
 
 	return <div ref={containerRef} className={className} style={style} />;
 };

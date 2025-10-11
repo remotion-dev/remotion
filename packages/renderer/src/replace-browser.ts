@@ -38,7 +38,7 @@ export const handleBrowserCrash = (
 			try {
 				replacing = true;
 				await _instance
-					.close(true, logLevel, indent)
+					.close({silent: true})
 					.then(() => {
 						Log.info(
 							{indent, logLevel},

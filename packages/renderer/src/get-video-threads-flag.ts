@@ -1,6 +1,6 @@
-import {getAvailableMemory} from './get-available-memory';
 import {getCpuCount} from './get-cpu-count';
 import type {LogLevel} from './log-level';
+import {getAvailableMemory} from './memory/get-available-memory';
 
 const MEMORY_USAGE_PER_THREAD = 400_000_000; // 400MB
 const RESERVED_MEMORY = 2_000_000_000;

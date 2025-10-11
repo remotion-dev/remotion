@@ -15,16 +15,22 @@ export const getAudioChannelsAndDurationWithoutCache = async ({
 	logLevel,
 	binariesDirectory,
 	cancelSignal,
+	audioStreamIndex,
 }: {
 	src: string;
 	indent: boolean;
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
+	audioStreamIndex: number | undefined;
 }) => {
 	const args = [
 		['-v', 'error'],
-		['-show_entries', 'stream=channels:format=duration'],
+		['-select_streams', audioStreamIndex ? `a:${audioStreamIndex}` : 'a:0'],
+		[
+			'-show_entries',
+			'stream=channels:stream=start_time:format=duration:format=format_name',
+		],
 		['-of', 'default=nw=1'],
 		[src],
 	]
@@ -42,10 +48,17 @@ export const getAudioChannelsAndDurationWithoutCache = async ({
 		});
 		const channels = task.stdout.match(/channels=([0-9]+)/);
 		const duration = task.stdout.match(/duration=([0-9.]+)/);
+		const startTime = task.stdout.match(/start_time=([0-9.]+)/);
+		const container = task.stdout.match(/format_name=([a-zA-Z0-9.]+)/);
+
+		const isMP3 = container ? container[1] === 'mp3' : false;
 
 		const result: AudioChannelsAndDurationResultCache = {
 			channels: channels ? parseInt(channels[1], 10) : 0,
 			duration: duration ? parseFloat(duration[1]) : null,
+			// We ignore the start time for MP3 because that is an inherent encoder thing
+			// not in the sense that we want
+			startTime: startTime ? (isMP3 ? 0 : parseFloat(startTime[1])) : null,
 		};
 		return result;
 	} catch (err) {
@@ -70,6 +83,7 @@ async function getAudioChannelsAndDurationUnlimited({
 	logLevel,
 	binariesDirectory,
 	cancelSignal,
+	audioStreamIndex,
 }: {
 	downloadMap: DownloadMap;
 	src: string;
@@ -77,9 +91,11 @@ async function getAudioChannelsAndDurationUnlimited({
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
+	audioStreamIndex: number | undefined;
 }): Promise<AudioChannelsAndDurationResultCache> {
-	if (downloadMap.durationOfAssetCache[src]) {
-		return downloadMap.durationOfAssetCache[src];
+	const cacheKey = audioStreamIndex ? `${src}-${audioStreamIndex}` : src;
+	if (downloadMap.durationOfAssetCache[cacheKey]) {
+		return downloadMap.durationOfAssetCache[cacheKey];
 	}
 
 	const result = await getAudioChannelsAndDurationWithoutCache({
@@ -88,9 +104,10 @@ async function getAudioChannelsAndDurationUnlimited({
 		logLevel,
 		binariesDirectory,
 		cancelSignal,
+		audioStreamIndex,
 	});
 
-	downloadMap.durationOfAssetCache[src] = result;
+	downloadMap.durationOfAssetCache[cacheKey] = result;
 
 	return result;
 }
@@ -102,6 +119,7 @@ export const getAudioChannelsAndDuration = ({
 	logLevel,
 	binariesDirectory,
 	cancelSignal,
+	audioStreamIndex,
 }: {
 	downloadMap: DownloadMap;
 	src: string;
@@ -109,6 +127,7 @@ export const getAudioChannelsAndDuration = ({
 	logLevel: LogLevel;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
+	audioStreamIndex: number | undefined;
 }): Promise<AudioChannelsAndDurationResultCache> => {
 	return limit(() =>
 		getAudioChannelsAndDurationUnlimited({
@@ -118,6 +137,7 @@ export const getAudioChannelsAndDuration = ({
 			logLevel,
 			binariesDirectory,
 			cancelSignal,
+			audioStreamIndex,
 		}),
 	);
 };

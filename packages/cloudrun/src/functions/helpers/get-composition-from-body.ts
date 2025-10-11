@@ -24,11 +24,14 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 				body.delayRenderTimeoutInMilliseconds ??
 				RenderInternals.DEFAULT_TIMEOUT,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads: body.offthreadVideoThreads,
 			binariesDirectory: null,
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in Cloud Run');
 			},
 			onServeUrlVisited: () => undefined,
+			chromeMode: 'headless-shell',
+			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
 		},
 	);
 

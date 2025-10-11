@@ -1,26 +1,28 @@
-export class Pool<T> {
-	resources: T[];
-	waiters: ((r: T) => void)[];
+import type {Page} from './browser/BrowserPage';
 
-	constructor(resources: T[]) {
+export class Pool {
+	resources: Page[];
+	waiters: ((r: Page) => void)[];
+
+	constructor(resources: Page[]) {
 		this.resources = resources;
 		this.waiters = [];
 	}
 
-	acquire(): Promise<T> {
+	acquire(): Promise<Page> {
 		const resource = this.resources.shift();
 		if (resource !== undefined) {
 			return Promise.resolve(resource);
 		}
 
 		return new Promise((resolve) => {
-			this.waiters.push((freeResource: T) => {
+			this.waiters.push((freeResource: Page) => {
 				resolve(freeResource);
 			});
 		});
 	}
 
-	release(resource: T): void {
+	release(resource: Page): void {
 		const waiter = this.waiters.shift();
 		if (waiter === undefined) {
 			this.resources.push(resource);

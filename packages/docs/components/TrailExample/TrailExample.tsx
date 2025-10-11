@@ -68,9 +68,9 @@ const MyComposition = ({
   layers,
   lagInFrames,
 }: {
-  trailOpacity: number;
-  layers: number;
-  lagInFrames: number;
+  readonly trailOpacity: number;
+  readonly layers: number;
+  readonly lagInFrames: number;
 }) => {
   return (
     <AbsoluteFill

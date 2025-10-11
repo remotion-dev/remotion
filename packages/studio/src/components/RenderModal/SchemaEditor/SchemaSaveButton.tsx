@@ -9,8 +9,8 @@ const icon: React.CSSProperties = {
 };
 
 export const SchemaSaveButton: React.FC<{
-	onClick: () => void;
-	disabled: boolean;
+	readonly onClick: () => void;
+	readonly disabled: boolean;
 }> = ({onClick, disabled}) => {
 	const renderAction: RenderInlineAction = useCallback(
 		(color) => {

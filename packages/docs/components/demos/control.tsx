@@ -25,9 +25,9 @@ export const Control = ({
 	value,
 	setValue,
 }: {
-	option: Option;
-	value: number | string | boolean;
-	setValue: (value: number | string | boolean | null) => void;
+	readonly option: Option;
+	readonly value: number | string | boolean;
+	readonly setValue: (value: number | string | boolean | null) => void;
 }) => {
 	const enabled = value !== null;
 

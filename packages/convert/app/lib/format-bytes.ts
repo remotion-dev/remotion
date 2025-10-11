@@ -69,6 +69,7 @@ export const formatBytes = (
 		locale: 'en-US',
 		signed: false,
 		maximumFractionDigits: 1,
+		minimumFractionDigits: 1,
 	},
 ) => {
 	if (!Number.isFinite(number)) {

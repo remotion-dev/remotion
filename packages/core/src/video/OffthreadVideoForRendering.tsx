@@ -15,46 +15,50 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
 import {cancelRender} from '../cancel-render.js';
-import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
-import {continueRender, delayRender} from '../delay-render.js';
+import {OBJECTFIT_CONTAIN_CLASS_NAME} from '../default-css.js';
+import type {delayRender as delayRenderGlobal} from '../delay-render.js';
 import {random} from '../random.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {truthy} from '../truthy.js';
 import {useCurrentFrame} from '../use-current-frame.js';
+import {useDelayRender} from '../use-delay-render.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
+import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import {getExpectedMediaFrameUncorrected} from './get-current-time.js';
 import {getOffthreadVideoSource} from './offthread-video-source.js';
-import type {OffthreadVideoProps} from './props.js';
+import type {AllOffthreadVideoProps} from './props.js';
 
 type SrcAndHandle = {
 	src: string;
-	handle: ReturnType<typeof delayRender>;
+	handle: ReturnType<typeof delayRenderGlobal>;
 };
 
-export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
+export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	onError,
 	volume: volumeProp,
 	playbackRate,
 	src,
 	muted,
 	allowAmplificationDuringRender,
-	transparent = false,
-	toneMapped = true,
+	transparent,
+	toneMapped,
 	toneFrequency,
 	name,
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
 	onVideoFrame,
+	// Remove crossOrigin prop during rendering
+	// https://discord.com/channels/809501355504959528/844143007183667220/1311639632496033813
+	crossOrigin,
+	audioStreamIndex,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
-	const volumePropsFrame = useFrameForVolumeProp(
-		loopVolumeCurveBehavior ?? 'repeat',
-	);
+	const volumePropsFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
 	const videoConfig = useUnsafeVideoConfig();
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
@@ -71,7 +75,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const id = useMemo(
 		() =>
 			`offthreadvideo-${random(
-				src ?? '',
+				src,
 			)}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
 		[
 			src,
@@ -89,8 +93,9 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		volume: volumeProp,
 		frame: volumePropsFrame,
 		mediaVolume: 1,
-		allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 	});
+
+	warnAboutTooHighVolume(volume);
 
 	useEffect(() => {
 		if (!src) {
@@ -116,10 +121,10 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			frame: absoluteFrame,
 			volume,
 			mediaFrame: frame,
-			playbackRate: playbackRate ?? 1,
-			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
-			toneFrequency: toneFrequency ?? null,
+			playbackRate,
+			toneFrequency,
 			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
+			audioStreamIndex,
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -133,9 +138,9 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		frame,
 		absoluteFrame,
 		playbackRate,
-		allowAmplificationDuringRender,
 		toneFrequency,
 		sequenceContext?.relativeFrom,
+		audioStreamIndex,
 	]);
 
 	const currentTime = useMemo(() => {
@@ -158,6 +163,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	}, [toneMapped, currentTime, src, transparent]);
 
 	const [imageSrc, setImageSrc] = useState<SrcAndHandle | null>(null);
+	const {delayRender, continueRender} = useDelayRender();
 
 	useLayoutEffect(() => {
 		if (!window.remotion_videoEnabled) {
@@ -178,6 +184,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			try {
 				const res = await fetch(actualSrc, {
 					signal: controller.signal,
+					cache: 'no-store',
 				});
 				if (res.status !== 200) {
 					if (res.status === 500) {
@@ -251,6 +258,8 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		onError,
+		continueRender,
+		delayRender,
 	]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
@@ -263,7 +272,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		}, [imageSrc, onError]);
 
 	const className = useMemo(() => {
-		return [OFFTHREAD_VIDEO_CLASS_NAME, props.className]
+		return [OBJECTFIT_CONTAIN_CLASS_NAME, props.className]
 			.filter(truthy)
 			.join(' ');
 	}, [props.className]);
@@ -286,12 +295,12 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	return (
 		<Img
 			src={imageSrc.src}
-			className={className}
 			delayRenderRetries={delayRenderRetries}
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 			onImageFrame={onImageFrame}
 			{...props}
 			onError={onErr}
+			className={className}
 		/>
 	);
 };

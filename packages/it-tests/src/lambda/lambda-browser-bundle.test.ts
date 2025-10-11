@@ -43,7 +43,8 @@ describe('Should be able to bundle @remotion/lambda/client with ESBuild', () => 
 
 	test('Bundle should not include Renderer', async () => {
 		const file = await fs.promises.readFile(outfile, 'utf-8');
-		expect(file).not.toContain('@remotion/renderer');
+		expect(file.includes('"@remotion/renderer"')).toBe(false);
+		expect(file.includes("'@remotion/renderer'")).toBe(false);
 	});
 
 	test('Should be able to delete it', () => {

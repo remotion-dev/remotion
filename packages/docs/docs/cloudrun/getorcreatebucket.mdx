@@ -3,11 +3,13 @@ image: /generated/articles-docs-cloudrun-getorcreatebucket.png
 id: getorcreatebucket
 title: getOrCreateBucket()
 slug: /cloudrun/getorcreatebucket
-crumb: "Cloud Run API"
+crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
+  </p>
 </ExperimentalBadge>
 
 Creates a Cloud Storage bucket for Remotion Cloud Run in your GCP project. If one already exists, it will get returned instead.
@@ -15,12 +17,10 @@ Creates a Cloud Storage bucket for Remotion Cloud Run in your GCP project. If on
 **Only 1 bucket per region** is necessary for Remotion Cloud Run to function.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { getOrCreateBucket } from "@remotion/cloudrun";
+import {getOrCreateBucket} from '@remotion/cloudrun';
 
-const { bucketName, alreadyExisted } = await getOrCreateBucket({
-  region: "us-east1",
+const {bucketName, alreadyExisted} = await getOrCreateBucket({
+  region: 'us-east1',
 });
 
 console.log(bucketName); // "remotioncloudrun-32df3p"

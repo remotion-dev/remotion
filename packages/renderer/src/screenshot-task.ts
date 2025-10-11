@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import type {ClipRegion} from 'remotion/no-react';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
@@ -12,7 +11,6 @@ export const screenshotTask = async ({
 	width,
 	path,
 	jpegQuality,
-	clipRegion,
 	scale,
 }: {
 	page: Page;
@@ -22,24 +20,20 @@ export const screenshotTask = async ({
 	omitBackground: boolean;
 	width: number;
 	height: number;
-	clipRegion: ClipRegion | null;
 	scale: number;
-}): Promise<Buffer | string> => {
+}): Promise<Buffer> => {
 	const client = page._client();
 	const target = page.target();
-
-	const perfTarget = startPerfMeasure('activate-target');
 
 	await client.send('Target.activateTarget', {
 		targetId: target._targetId,
 	});
-	stopPerfMeasure(perfTarget);
 
-	const shouldSetDefaultBackground = omitBackground;
-	if (shouldSetDefaultBackground)
+	if (omitBackground) {
 		await client.send('Emulation.setDefaultBackgroundColorOverride', {
 			color: {r: 0, g: 0, b: 0, a: 0},
 		});
+	}
 
 	const cap = startPerfMeasure('capture');
 	try {
@@ -72,22 +66,13 @@ export const screenshotTask = async ({
 			const {value} = await client.send('Page.captureScreenshot', {
 				format,
 				quality: jpegQuality,
-				clip:
-					clipRegion !== null && clipRegion !== 'hide'
-						? {
-								x: clipRegion.x,
-								y: clipRegion.y,
-								height: clipRegion.height,
-								scale: 1,
-								width: clipRegion.width,
-							}
-						: {
-								x: 0,
-								y: 0,
-								height: height * scaleFactor,
-								scale: 1,
-								width: width * scaleFactor,
-							},
+				clip: {
+					x: 0,
+					y: 0,
+					height: height * scaleFactor,
+					scale: 1,
+					width: width * scaleFactor,
+				},
 				captureBeyondViewport: true,
 				optimizeForSpeed: true,
 				fromSurface,
@@ -96,14 +81,15 @@ export const screenshotTask = async ({
 		}
 
 		stopPerfMeasure(cap);
-		if (shouldSetDefaultBackground)
+		if (omitBackground) {
 			await client.send('Emulation.setDefaultBackgroundColorOverride');
-
-		const saveMarker = startPerfMeasure('save');
+		}
 
 		const buffer = Buffer.from(result.data, 'base64');
-		if (path) await fs.promises.writeFile(path, buffer);
-		stopPerfMeasure(saveMarker);
+		if (path) {
+			await fs.promises.writeFile(path, buffer as never as Uint8Array);
+		}
+
 		return buffer;
 	} catch (err) {
 		if ((err as Error).message.includes('Unable to capture screenshot')) {

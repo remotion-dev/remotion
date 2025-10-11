@@ -8,8 +8,11 @@ const FPS = 30;
 
 export const RemotionRoot = () => {
   const calculateMetadata: CalculateMetadataFunction<MainProps> = useCallback(
-    async ({ props, abortSignal }) => {
-      await waitForNoInput(abortSignal, 500);
+    async ({ props, abortSignal, isRendering }) => {
+      // don't debounce user input during rendering
+      if (!isRendering) {
+        await waitForNoInput(abortSignal, 500);
+      }
 
       const stargazers = await fetchStargazers({
         repoOrg: props.repoOrg,

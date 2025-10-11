@@ -1,12 +1,9 @@
-import type {
-	InstallPackageResponse,
-	InstallablePackage,
-} from '@remotion/studio-shared';
+import type {InstallPackageResponse} from '@remotion/studio-shared';
 import {getRemotionEnvironment} from 'remotion';
 import {callApi} from '../components/call-api';
 
 export const installPackages = (
-	packageNames: InstallablePackage[],
+	packageNames: string[],
 ): Promise<InstallPackageResponse> => {
 	if (!getRemotionEnvironment().isStudio) {
 		throw new Error('installPackages() is only available in the Studio');

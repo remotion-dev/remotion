@@ -17,7 +17,6 @@ export const DotGrid: React.FC = () => {
 				return new Array(rows).fill(true).map((_j, j) => {
 					return (
 						<circle
-							// eslint-disable-next-line react/no-array-index-key
 							key={j}
 							r={2}
 							cx={i * dotSpacing}

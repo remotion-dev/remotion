@@ -1,0 +1,18 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"composite": true,
+		"rootDir": "./src",
+		"outDir": "dist",
+		"skipLibCheck": true
+	},
+	"include": ["src"],
+	"references": [
+		{
+			"path": "../licensing"
+		},
+		{
+			"path": "../streaming"
+		}
+	]
+}

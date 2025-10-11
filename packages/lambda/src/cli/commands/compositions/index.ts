@@ -1,9 +1,13 @@
 import {CliInternals} from '@remotion/cli';
+import {
+	AwsProvider,
+	getCompositionsOnLambda,
+	LambdaClientInternals,
+} from '@remotion/lambda-client';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {getCompositionsOnLambda} from '../../..';
-import {BINARY_NAME} from '../../../shared/constants';
-import {validateServeUrl} from '../../../shared/validate-serveurl';
+import {ProviderSpecifics} from '@remotion/serverless';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
@@ -19,10 +23,15 @@ const {
 	headlessOption,
 } = BrowserSafeApis.options;
 
-export const compositionsCommand = async (
-	args: string[],
-	logLevel: LogLevel,
-) => {
+export const compositionsCommand = async ({
+	args,
+	logLevel,
+	providerSpecifics,
+}: {
+	args: string[];
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}) => {
 	const serveUrl = args[0];
 
 	if (!serveUrl) {
@@ -72,8 +81,8 @@ export const compositionsCommand = async (
 	};
 
 	const region = getAwsRegion();
-	validateServeUrl(serveUrl);
-	const functionName = await findFunctionName(logLevel);
+	LambdaClientInternals.validateServeUrl(serveUrl);
+	const functionName = await findFunctionName({logLevel, providerSpecifics});
 
 	const comps = await getCompositionsOnLambda({
 		functionName,
@@ -85,6 +94,7 @@ export const compositionsCommand = async (
 		logLevel,
 		timeoutInMilliseconds: puppeteerTimeout,
 		forceBucketName: parsedLambdaCli['force-bucket-name'],
+		requestHandler: null,
 	});
 
 	CliInternals.printCompositions(comps, logLevel);

@@ -4,9 +4,9 @@ import { useThemeColors } from "./calculate-metadata/theme";
 import React from "react";
 
 const Step: React.FC<{
-  index: number;
-  currentStep: number;
-  currentStepProgress: number;
+  readonly index: number;
+  readonly currentStep: number;
+  readonly currentStepProgress: number;
 }> = ({ index, currentStep, currentStepProgress }) => {
   const themeColors = useThemeColors();
 
@@ -42,7 +42,7 @@ const Step: React.FC<{
   );
 };
 
-export function ProgressBar({ steps }: { steps: unknown[] }) {
+export function ProgressBar({ steps }: { readonly steps: unknown[] }) {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
 

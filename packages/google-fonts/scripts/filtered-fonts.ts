@@ -1,11 +1,7 @@
-import { googleFonts } from "./google-fonts";
+import {googleFonts} from './google-fonts';
+import {incompatibleFonts} from './incompatible-fonts';
 
 export const filteredFonts = googleFonts.filter((f) => {
-  // Has no unicode range
-  return (
-    !f.family.includes("Material Icons") &&
-    !f.family.includes("Material Symbols") &&
-    !f.family.includes("Material Symbols Rounded") &&
-    !f.family.includes("Wavefont")
-  );
+	// Has no unicode range
+	return !incompatibleFonts.some((i) => f.family.includes(i));
 });

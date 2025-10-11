@@ -1,0 +1,11 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "dist",
+		"module": "Preserve",
+		"lib": ["ES2021", "DOM"],
+		"moduleResolution": "Bundler"
+	},
+	"include": ["src"]
+}

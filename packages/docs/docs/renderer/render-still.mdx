@@ -16,8 +16,6 @@ If you want to render a video, use [renderMedia()](/docs/renderer/render-media) 
 You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr) for an example how to come up with the `bundleLocation` and `composition` variables.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
 import {bundle} from '@remotion/bundler';
 import {getCompositions, renderStill} from '@remotion/renderer';
 
@@ -113,7 +111,11 @@ Sets the JPEG quality - must be an integer between 0 and 100 and can only be pas
 
 _optional - default `null`_
 
-An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+
+:::note
+Despite the name, not actually compatible with `puppeteer`, only with [`openBrowser()`](/docs/renderer/open-browser).
+:::
 
 ### `envVariables?`
 
@@ -197,9 +199,17 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `offthreadVideoThreads?`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
 
 ### `binariesDirectory?`<AvailableFrom v="4.0.120" />
 
@@ -208,6 +218,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 
 <Options id="on-browser-download" />
+
+### `chromeMode?`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
 
 ### ~~`dumpBrowserLogs?`~~
 

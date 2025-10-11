@@ -1,4 +1,3 @@
-/* eslint-disable max-depth */
 // Taken from https://github.com/microsoft/rushstack/blob/main/eslint/eslint-patch/src/modern-module-resolution.ts
 
 // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
@@ -43,7 +42,6 @@ export const allowESLintShareableConfig = () => {
 
 	// Probe for the ESLint >=8.0.0 layout:
 	for (let currentModule = module; ; ) {
-		// eslint-disable-next-line no-negated-condition
 		if (!eslintrcBundlePath) {
 			if (currentModule.filename.endsWith('eslintrc.cjs')) {
 				// For ESLint >=8.0.0, all @eslint/eslintrc code is bundled at this path:

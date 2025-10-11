@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-getfunctions.png
 title: getFunctions()
 id: getfunctions
 slug: /lambda/getfunctions
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Retrieves a list of functions that Remotion deployed to AWS Lambda in a certain region.
@@ -21,13 +21,10 @@ If you are sure that a function exists, you can also guess the name of it using 
 ## Example
 
 ```ts twoslash
-// @module: esnext
-// @target: es2017
-
-import { getFunctions } from "@remotion/lambda/client";
+import {getFunctions} from '@remotion/lambda/client';
 
 const info = await getFunctions({
-  region: "eu-central-1",
+  region: 'eu-central-1',
   compatibleOnly: true,
 });
 
@@ -54,7 +51,7 @@ The [AWS region](/docs/lambda/region-selection) that you would like to query.
 
 ### `logLevel?`<AvailableFrom v="4.0.115"/>
 
-<Options id="log"/>
+<Options id="log" />
 
 ### `compatibleOnly`
 

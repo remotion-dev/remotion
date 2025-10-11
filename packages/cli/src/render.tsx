@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
@@ -22,6 +21,7 @@ const {
 	enforceAudioOption,
 	mutedOption,
 	colorSpaceOption,
+	disallowParallelEncodingOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
@@ -38,6 +38,12 @@ const {
 	publicPathOption,
 	publicDirOption,
 	metadataOption,
+	hardwareAccelerationOption,
+	chromeModeOption,
+	offthreadVideoThreadsOption,
+	audioLatencyHintOption,
+	imageSequencePatternOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -107,6 +113,9 @@ export const render = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
 	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: parsedCli,
@@ -121,7 +130,9 @@ export const render = async (
 	const colorSpace = colorSpaceOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-
+	const disallowParallelEncoding = disallowParallelEncodingOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const crf = shouldOutputImageSequence
 		? null
 		: crfOption.getValue({commandLine: parsedCli}).value;
@@ -165,6 +176,7 @@ export const render = async (
 	}).value;
 	const metadata = metadataOption.getValue({commandLine: parsedCli}).value;
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
+	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -177,6 +189,18 @@ export const render = async (
 
 	const audioCodec = audioCodecOption.getValue({commandLine: parsedCli}).value;
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
+	const hardwareAcceleration = hardwareAccelerationOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const audioLatencyHint = audioLatencyHintOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const imageSequencePattern = imageSequencePatternOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	await renderVideoFlow({
 		fullEntryPoint,
@@ -191,7 +215,7 @@ export const render = async (
 		publicDir,
 		envVariables,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps,
@@ -210,8 +234,8 @@ export const render = async (
 		frameRange,
 		jpegQuality,
 		onProgress: () => undefined,
-		addCleanupCallback: (c) => {
-			registerCleanupJob(c);
+		addCleanupCallback: (label, c) => {
+			registerCleanupJob(label, c);
 		},
 		outputLocationFromUI: null,
 		uiCodec: null,
@@ -230,8 +254,9 @@ export const render = async (
 		encodingBufferSize,
 		numberOfGifLoops,
 		audioCodec,
-		disallowParallelEncoding: false,
+		disallowParallelEncoding,
 		offthreadVideoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
 		colorSpace,
 		repro,
 		binariesDirectory,
@@ -239,5 +264,10 @@ export const render = async (
 		separateAudioTo,
 		publicPath,
 		metadata,
+		hardwareAcceleration,
+		chromeMode,
+		offthreadVideoThreads,
+		audioLatencyHint,
+		imageSequencePattern,
 	});
 };

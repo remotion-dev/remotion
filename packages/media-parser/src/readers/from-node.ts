@@ -1,15 +1,29 @@
-import {createReadStream} from 'fs';
-import {stat} from 'node:fs/promises';
-import {Readable} from 'stream';
-import type {ReaderInterface} from './reader';
+import {createReadStream, existsSync, promises, statSync} from 'fs';
+import {dirname, join, relative, sep} from 'path';
+import type {
+	CreateAdjacentFileSource,
+	MediaParserReaderInterface,
+	ReadContent,
+	ReadWholeAsText,
+} from './reader';
 
-export const nodeReader: ReaderInterface = {
-	read: async (src, range, signal) => {
-		if (typeof src !== 'string') {
-			throw new Error('src must be a string when using `nodeReader`');
+export const nodeReadContent: ReadContent = async ({
+	src,
+	range,
+	controller,
+}) => {
+	if (typeof src !== 'string') {
+		throw new Error('src must be a string when using `nodeReader`');
+	}
+
+	await Promise.resolve();
+
+	const ownController = new AbortController();
+
+	try {
+		if (!existsSync(src)) {
+			throw new Error(`File does not exist: ${src}`);
 		}
-
-		const controller = new AbortController();
 
 		const stream = createReadStream(src, {
 			start: range === null ? 0 : typeof range === 'number' ? range : range[0],
@@ -19,25 +33,47 @@ export const nodeReader: ReaderInterface = {
 					: typeof range === 'number'
 						? Infinity
 						: range[1],
-			signal: controller.signal,
 		});
 
-		signal?.addEventListener(
+		controller._internals.signal.addEventListener(
 			'abort',
 			() => {
-				controller.abort();
+				ownController.abort();
 			},
 			{once: true},
 		);
 
-		const stats = await stat(src);
+		const stats = statSync(src);
 
-		const reader = Readable.toWeb(
-			stream,
-		).getReader() as ReadableStreamDefaultReader<Uint8Array>;
+		let readerCancelled = false;
+		const reader = new ReadableStream({
+			start(c) {
+				if (readerCancelled) {
+					return;
+				}
 
-		if (signal) {
-			signal.addEventListener(
+				stream.on('data', (chunk) => {
+					c.enqueue(chunk);
+				});
+				stream.on('end', () => {
+					if (readerCancelled) {
+						return;
+					}
+
+					c.close();
+				});
+				stream.on('error', (err) => {
+					c.error(err);
+				});
+			},
+			cancel() {
+				readerCancelled = true;
+				stream.destroy();
+			},
+		}).getReader() as ReadableStreamDefaultReader<Uint8Array>;
+
+		if (controller) {
+			controller._internals.signal.addEventListener(
 				'abort',
 				() => {
 					reader.cancel().catch(() => {});
@@ -46,24 +82,60 @@ export const nodeReader: ReaderInterface = {
 			);
 		}
 
-		return {
+		return Promise.resolve({
 			reader: {
 				reader,
-				abort: () => {
-					controller.abort();
+				abort: async () => {
+					try {
+						stream.destroy();
+						ownController.abort();
+						await reader.cancel();
+					} catch {}
 				},
 			},
 			contentLength: stats.size,
-			name: src.split('/').pop() as string,
+			contentType: null,
+			name: src.split(sep).pop() as string,
 			supportsContentRange: true,
-		};
-	},
-	getLength: async (src) => {
-		if (typeof src !== 'string') {
-			throw new Error('src must be a string when using `nodeReader`');
-		}
+			needsContentRange: true,
+		});
+	} catch (err) {
+		return Promise.reject(err);
+	}
+};
 
-		const stats = await stat(src);
-		return stats.size;
+export const nodeReadWholeAsText: ReadWholeAsText = (src) => {
+	if (typeof src !== 'string') {
+		throw new Error('src must be a string when using `nodeReader`');
+	}
+
+	return promises.readFile(src, 'utf8');
+};
+
+export const nodeCreateAdjacentFileSource: CreateAdjacentFileSource = (
+	relativePath,
+	src,
+) => {
+	if (typeof src !== 'string') {
+		throw new Error('src must be a string when using `nodeReader`');
+	}
+
+	const result = join(dirname(src), relativePath);
+	const rel = relative(dirname(src), result);
+	if (rel.startsWith('..')) {
+		throw new Error(
+			'Path is outside of the parent directory - not allowing reading of arbitrary files',
+		);
+	}
+
+	return result;
+};
+
+export const nodeReader: MediaParserReaderInterface = {
+	read: nodeReadContent,
+	readWholeAsText: nodeReadWholeAsText,
+	createAdjacentFileSource: nodeCreateAdjacentFileSource,
+	preload: () => {
+		// doing nothing, it's just for when fetching over the network
 	},
 };

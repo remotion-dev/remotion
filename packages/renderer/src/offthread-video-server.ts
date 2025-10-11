@@ -49,15 +49,15 @@ const REQUEST_CLOSED_TOKEN = 'Request closed';
 
 export const startOffthreadVideoServer = ({
 	downloadMap,
-	concurrency,
 	logLevel,
 	indent,
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
+	offthreadVideoThreads,
 }: {
 	downloadMap: DownloadMap;
 	offthreadVideoCacheSizeInBytes: number | null;
-	concurrency: number;
+	offthreadVideoThreads: number;
 	logLevel: LogLevel;
 	indent: boolean;
 	binariesDirectory: string | null;
@@ -70,7 +70,7 @@ export const startOffthreadVideoServer = ({
 	const compositor = startCompositor({
 		type: 'StartLongRunningProcess',
 		payload: {
-			concurrency,
+			concurrency: offthreadVideoThreads,
 			maximum_frame_cache_size_in_bytes: offthreadVideoCacheSizeInBytes,
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
@@ -143,6 +143,7 @@ export const startOffthreadVideoServer = ({
 				binariesDirectory,
 				cancelSignalForAudioAnalysis: undefined,
 				shouldAnalyzeAudioImmediately: true,
+				audioStreamIndex: undefined,
 			})
 				.then((to) => {
 					return new Promise<Uint8Array>((resolve, reject) => {

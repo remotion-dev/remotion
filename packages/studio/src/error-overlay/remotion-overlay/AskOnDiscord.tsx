@@ -6,7 +6,7 @@ import {useKeybinding} from '../../helpers/use-keybinding';
 import {ShortcutHint} from './ShortcutHint';
 
 export const AskOnDiscord: React.FC<{
-	canHaveKeyboardShortcuts: boolean;
+	readonly canHaveKeyboardShortcuts: boolean;
 }> = ({canHaveKeyboardShortcuts}) => {
 	const openInBrowser = useCallback(() => {
 		window.open(DISCORD_LINK, '_blank');

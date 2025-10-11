@@ -3,18 +3,18 @@ image: /generated/articles-docs-dataset-render.png
 id: dataset-render
 sidebar_label: Render a dataset
 title: Render videos programmatically from a dataset
-crumb: "Tutorials"
+crumb: 'Tutorials'
 ---
 
-import { Player } from "@remotion/player";
-import { DatasetDemo } from "../components/Dataset/DatasetDemo";
+import {Player} from '@remotion/player';
+import {DatasetDemo} from '../components/Dataset/DatasetDemo';
 
 You can use Remotion to do a batch render to create many videos based on a dataset. In the following example, we are going to turn a JSON dataset into a series of videos.
 
 We'll start by creating a blank Remotion project:
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 <Tabs
 defaultValue="npm"
@@ -63,14 +63,14 @@ JSON is the most convenient format to import in Remotion. If your dataset is in 
 ```ts title="my-data.ts"
 export const data = [
   {
-    name: "React",
-    repo: "facebook/react",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
+    name: 'React',
+    repo: 'facebook/react',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg',
   },
   {
-    name: "Remotion",
-    repo: "remotion-dev/remotion",
-    logo: "https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png",
+    name: 'Remotion',
+    repo: 'remotion-dev/remotion',
+    logo: 'https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png',
   },
 ];
 ```
@@ -80,15 +80,8 @@ export const data = [
 This component will animate a title, subtitle and image using Remotion. Replace the contents of the `src/Composition.tsx` file with the following:
 
 ```tsx title="Composition.tsx"
-import React from "react";
-import {
-  AbsoluteFill,
-  Img,
-  interpolate,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from "remotion";
+import React from 'react';
+import {AbsoluteFill, Img, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
 type Props = {
   name: string;
@@ -96,9 +89,9 @@ type Props = {
   repo: string;
 };
 
-export const MyComposition: React.FC<Props> = ({ name, repo, logo }) => {
+export const MyComposition: React.FC<Props> = ({name, repo, logo}) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const {fps} = useVideoConfig();
 
   const scale = spring({
     fps,
@@ -109,29 +102,29 @@ export const MyComposition: React.FC<Props> = ({ name, repo, logo }) => {
   });
 
   const opacity = interpolate(frame, [30, 40], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
   });
   const moveY = interpolate(frame, [20, 30], [10, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
   });
 
   return (
     <AbsoluteFill
       style={{
         scale: String(scale),
-        backgroundColor: "white",
-        fontWeight: "bold",
-        justifyContent: "center",
-        alignItems: "center",
+        backgroundColor: 'white',
+        fontWeight: 'bold',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
       <div
         style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
           gap: 20,
         }}
       >
@@ -143,8 +136,8 @@ export const MyComposition: React.FC<Props> = ({ name, repo, logo }) => {
         />
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
           <div
@@ -181,17 +174,15 @@ This can be done by using the [`bundle()`](/docs/bundle) function from the [`@re
 
 ```ts twoslash
 // @filename: webpack-override.ts
-import type { WebpackOverrideFn } from "@remotion/bundler";
+import type {WebpackOverrideFn} from '@remotion/bundler';
 export const webpackOverride: WebpackOverrideFn = (f) => f;
 // @filename: script.ts
-// @module: esnext
-// @target: es2022
 // ---cut---
-import { bundle } from "@remotion/bundler";
-import { webpackOverride } from "./webpack-override";
+import {bundle} from '@remotion/bundler';
+import {webpackOverride} from './webpack-override';
 
 const bundleLocation = await bundle({
-  entryPoint: "./src/index.ts",
+  entryPoint: './src/index.ts',
   // If you have a webpack override, don't forget to add it
   webpackOverride: webpackOverride,
 });
@@ -206,28 +197,26 @@ Fetch the composition metadata for each render using [`selectComposition()`](/do
 Trigger a render using [`renderMedia()`](/docs/renderer/render-media) and pass the data entry as [`inputProps`](/docs/renderer/render-media#inputprops). This will pass the object as React props to the component above.
 
 ```ts twoslash
-// @module: esnext
-// @target: es2022
 // @filename: dataset.ts
 export const data = [
   {
-    name: "React",
-    repo: "facebook/react",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
+    name: 'React',
+    repo: 'facebook/react',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg',
   },
   {
-    name: "Remotion",
-    repo: "remotion-dev/remotion",
-    logo: "https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png",
+    name: 'Remotion',
+    repo: 'remotion-dev/remotion',
+    logo: 'https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png',
   },
 ];
 
 // @filename: render.ts
-const compositionId = "MyComp";
-const bundleLocation = "xxx";
+const compositionId = 'MyComp';
+const bundleLocation = 'xxx';
 // ---cut---
-import { renderMedia, selectComposition } from "@remotion/renderer";
-import { data } from "./dataset";
+import {renderMedia, selectComposition} from '@remotion/renderer';
+import {data} from './dataset';
 
 for (const entry of data) {
   const composition = await selectComposition({
@@ -239,7 +228,7 @@ for (const entry of data) {
   await renderMedia({
     composition,
     serveUrl: bundleLocation,
-    codec: "h264",
+    codec: 'h264',
     outputLocation: `out/${entry.name}.mp4`,
     inputProps: entry,
   });
@@ -247,7 +236,7 @@ for (const entry of data) {
 ```
 
 :::note
-It is not recommended to render more than one video at once.
+It is not recommended to render more than one video at a time, because each render already tries to use as many resources as your machine gives.
 :::
 
 ## Full script
@@ -256,34 +245,32 @@ It is not recommended to render more than one video at once.
 // @filename: dataset.ts
 export const data = [
   {
-    name: "React",
-    repo: "facebook/react",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
+    name: 'React',
+    repo: 'facebook/react',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg',
   },
   {
-    name: "Remotion",
-    repo: "remotion-dev/remotion",
-    logo: "https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png",
+    name: 'Remotion',
+    repo: 'remotion-dev/remotion',
+    logo: 'https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png',
   },
 ];
 
 // @filename: webpack-override.ts
-import type { WebpackOverrideFn } from "@remotion/bundler";
+import type {WebpackOverrideFn} from '@remotion/bundler';
 export const webpackOverride: WebpackOverrideFn = (f) => f;
 
 // @filename: render.ts
 // ---cut---
-// @module: ESNext
-// @target: ESNext
-import { selectComposition, renderMedia } from "@remotion/renderer";
-import { webpackOverride } from "./webpack-override";
-import { bundle } from "@remotion/bundler";
-import { data } from "./dataset";
+import {selectComposition, renderMedia} from '@remotion/renderer';
+import {webpackOverride} from './webpack-override';
+import {bundle} from '@remotion/bundler';
+import {data} from './dataset';
 
-const compositionId = "MyComp";
+const compositionId = 'MyComp';
 
 const bundleLocation = await bundle({
-  entryPoint: "./src/index.ts",
+  entryPoint: './src/index.ts',
   // If you have a webpack override in remotion.config.ts, pass it here as well.
   webpackOverride: webpackOverride,
 });
@@ -298,7 +285,7 @@ for (const entry of data) {
   await renderMedia({
     composition,
     serveUrl: bundleLocation,
-    codec: "h264",
+    codec: 'h264',
     outputLocation: `out/${entry.name}.mp4`,
     inputProps: entry,
   });
@@ -345,16 +332,16 @@ Use a package like [`csv2json`](https://www.npmjs.com/package/csv2json) to conve
 <Credits
   contributors={[
     {
-      username: "alexfernandez803",
-      contribution: "Author",
+      username: 'alexfernandez803',
+      contribution: 'Author',
     },
     {
-      username: "ThePerfectSystem",
-      contribution: "Author",
+      username: 'ThePerfectSystem',
+      contribution: 'Author',
     },
     {
-      username: "JonnyBurger",
-      contribution: "Editor",
+      username: 'JonnyBurger',
+      contribution: 'Editor',
     },
   ]}
 />

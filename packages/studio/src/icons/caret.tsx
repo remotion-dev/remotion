@@ -34,7 +34,7 @@ export const CaretDown = () => {
 };
 
 export const AngleDown: React.FC<{
-	down: boolean;
+	readonly down: boolean;
 }> = ({down}) => {
 	const style = useMemo(() => {
 		return {

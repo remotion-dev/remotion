@@ -7,6 +7,7 @@ import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {cloudrunDeleteFile, cloudrunLs} from '../functions/helpers/io';
+import type {Privacy} from '../shared/constants';
 import {getSitesKey} from '../shared/constants';
 import {getStorageDiffOperations} from '../shared/get-storage-operations';
 import {makeStorageServeUrl} from '../shared/make-storage-url';
@@ -31,6 +32,7 @@ type Options = {
 type OptionalParameters = {
 	siteName: string;
 	options: Options;
+	privacy: Privacy;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.deploySiteCloudRun>;
 
 export type RawDeploySiteInput = {
@@ -63,6 +65,7 @@ export const internalDeploySiteRaw = async ({
 	bucketName,
 	siteName,
 	options,
+	privacy,
 }: RawDeploySiteInput): DeploySiteOutput => {
 	validateBucketName(bucketName, {mustStartWithRemotion: true});
 
@@ -96,6 +99,7 @@ export const internalDeploySiteRaw = async ({
 			onPublicDirCopyProgress: () => undefined,
 			onSymlinkDetected: () => undefined,
 			outDir: null,
+			audioLatencyHint: null,
 		}),
 	]);
 
@@ -112,6 +116,7 @@ export const internalDeploySiteRaw = async ({
 			onProgress: options?.onUploadProgress ?? (() => undefined),
 			keyPrefix: subFolder,
 			toUpload,
+			privacy: privacy ?? 'public',
 		}),
 		Promise.all(
 			toDelete.map((d) => {
@@ -135,13 +140,9 @@ export const internalDeploySiteRaw = async ({
 };
 
 const errorHandled = wrapWithErrorHandling(internalDeploySiteRaw);
-/**
+/*
  * @description Deploys a Remotion project to a GCP storage bucket to prepare it for rendering on Cloud Run.
- * @link https://remotion.dev/docs/cloudrun/deploysite
- * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
- * @param {string} params.bucketName The name of the bucket to deploy your project into.
- * @param {string} params.siteName The name of the folder in which the project gets deployed to.
- * @param {object} params.options Further options, see documentation page for this function.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/deploysite)
  */
 export const deploySite = (input: DeploySiteInput): DeploySiteOutput => {
 	return errorHandled({
@@ -151,5 +152,6 @@ export const deploySite = (input: DeploySiteInput): DeploySiteOutput => {
 		logLevel: 'info',
 		options: input.options ?? {},
 		siteName: input.siteName ?? randomHash(),
+		privacy: input?.privacy ?? 'public',
 	});
 };

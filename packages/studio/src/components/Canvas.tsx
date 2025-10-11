@@ -51,8 +51,7 @@ const ZOOM_PX_FACTOR = 0.003;
 export const Canvas: React.FC<{
 	readonly canvasContent: CanvasContent;
 	readonly size: Size;
-	readonly isRefreshing: boolean;
-}> = ({canvasContent, size, isRefreshing}) => {
+}> = ({canvasContent, size}) => {
 	const {setSize, size: previewSize} = useContext(Internals.PreviewSizeContext);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 	const keybindings = useKeybinding();
@@ -339,7 +338,6 @@ export const Canvas: React.FC<{
 						contentDimensions={contentDimensions}
 						canvasSize={size}
 						assetMetadata={assetResolution}
-						isRefreshing={isRefreshing}
 					/>
 				) : null}
 				{isFit ? null : (

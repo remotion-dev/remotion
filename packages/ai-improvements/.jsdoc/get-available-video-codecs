@@ -1,0 +1,4 @@
+/**
+ * @description Given a container, get a list of video codecs that the container can hold.
+ * @see [Documentation](https://remotion.dev/docs/webcodecs/get-available-video-codecs)
+ */

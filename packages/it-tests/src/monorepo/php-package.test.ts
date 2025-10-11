@@ -1,5 +1,6 @@
-import {LambdaInternals} from '@remotion/lambda';
-import {describe, expect, test} from 'bun:test';
+import {LambdaClientInternals} from '@remotion/lambda-client';
+import {$} from 'bun';
+import {beforeAll, describe, expect, test} from 'bun:test';
 import {execSync} from 'child_process';
 import {readFileSync, writeFileSync} from 'fs';
 import path from 'path';
@@ -10,6 +11,12 @@ const referenceVersion = readFileSync(
 );
 const referenceVersionJson = JSON.parse(referenceVersion);
 const version = referenceVersionJson.version;
+
+beforeAll(async () => {
+	await $`php composer.phar update --quiet --lock`.cwd(
+		path.join(process.cwd(), '..', 'lambda-php'),
+	);
+});
 
 describe('These should run serially', () => {
 	test('Set the right version for phpunit', () => {
@@ -61,83 +68,91 @@ class Semantic
 		execSync('php composer.phar --quiet install', {
 			cwd: path.join(process.cwd(), '..', 'lambda-php'),
 		});
-		const phpOutput = execSync('phpunit ./tests/PHPClientTest.php', {
+		const phpOutput = execSync('php phpunit.phar ./tests/PHPClientTest.php', {
 			cwd: path.join(process.cwd(), '..', 'lambda-php'),
 		});
 		const output = phpOutput.toString().split('\n');
 		const toParse = output[5];
-		const nativeVersion = await LambdaInternals.makeLambdaRenderMediaPayload({
-			region: 'us-east-1',
-			composition: 'react-svg',
-			functionName: 'remotion-render',
-			serveUrl: 'testbed',
-			codec: 'h264',
-			inputProps: {
-				hi: 'there',
-			},
-			audioBitrate: null,
-			audioCodec: null,
-			chromiumOptions: {},
-			colorSpace: null,
-			concurrencyPerLambda: 1,
-			crf: undefined,
-			deleteAfter: null,
-			downloadBehavior: {type: 'play-in-browser'},
-			envVariables: {},
-			everyNthFrame: 1,
-			forceBucketName: null,
-			forceHeight: null,
-			forceWidth: null,
-			frameRange: null,
-			framesPerLambda: null,
-			imageFormat: 'jpeg',
-			jpegQuality: 80,
-			logLevel: 'info',
-			maxRetries: 1,
-			muted: false,
-			numberOfGifLoops: 0,
-			offthreadVideoCacheSizeInBytes: null,
-			outName: null,
-			overwrite: false,
-			pixelFormat: undefined,
-			privacy: 'public',
-			proResProfile: undefined,
-			rendererFunctionName: null,
-			scale: 1,
-			timeoutInMilliseconds: 30000,
-			videoBitrate: null,
-			encodingMaxRate: null,
-			encodingBufferSize: null,
-			webhook: null,
-			x264Preset: null,
-			preferLossless: false,
-			indent: false,
-			forcePathStyle: false,
-			metadata: {
-				Author: 'Remotion',
-			},
-		});
+		const nativeVersion =
+			await LambdaClientInternals.makeLambdaRenderMediaPayload({
+				region: 'us-east-1',
+				composition: 'react-svg',
+				functionName: 'remotion-render',
+				serveUrl: 'testbed',
+				codec: 'h264',
+				inputProps: {
+					hi: 'there',
+				},
+				audioBitrate: null,
+				audioCodec: null,
+				chromiumOptions: {},
+				colorSpace: null,
+				concurrencyPerLambda: 1,
+				concurrency: null,
+				crf: undefined,
+				deleteAfter: null,
+				downloadBehavior: {type: 'play-in-browser'},
+				envVariables: {},
+				everyNthFrame: 1,
+				forceBucketName: null,
+				forceHeight: null,
+				forceWidth: null,
+				frameRange: null,
+				framesPerLambda: null,
+				imageFormat: 'jpeg',
+				jpegQuality: 80,
+				logLevel: 'info',
+				maxRetries: 1,
+				muted: false,
+				numberOfGifLoops: 0,
+				offthreadVideoCacheSizeInBytes: null,
+				offthreadVideoThreads: null,
+				outName: null,
+				overwrite: false,
+				pixelFormat: undefined,
+				privacy: 'public',
+				proResProfile: undefined,
+				rendererFunctionName: null,
+				scale: 1,
+				timeoutInMilliseconds: 30000,
+				videoBitrate: null,
+				encodingMaxRate: null,
+				encodingBufferSize: null,
+				webhook: null,
+				x264Preset: null,
+				preferLossless: false,
+				indent: false,
+				forcePathStyle: false,
+				metadata: {
+					Author: 'Remotion',
+				},
+				apiKey: null,
+				storageClass: null,
+				requestHandler: null,
+				mediaCacheSizeInBytes: null,
+			});
 		const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
 		const parsedJson = JSON.parse(jsonOutput);
 
-		expect(
-			removeUndefined({
-				...parsedJson,
-				type: 'start',
-			}),
-		).toEqual(removeUndefined(nativeVersion));
+		expect({
+			...parsedJson,
+			type: 'start',
+		}).toEqual(nativeVersion);
 	});
 
 	test('PHP package should create the same progress payload as normal Lambda package', async () => {
 		execSync('php composer.phar --quiet install', {
 			cwd: path.join(process.cwd(), '..', 'lambda-php'),
 		});
-		const phpOutput = execSync('phpunit ./tests/PHPRenderProgressTest.php', {
-			cwd: path.join(process.cwd(), '..', 'lambda-php'),
-		});
+		const phpOutput = execSync(
+			'php phpunit.phar ./tests/PHPRenderProgressTest.php',
+			{
+				cwd: path.join(process.cwd(), '..', 'lambda-php'),
+			},
+		);
 		const output = phpOutput.toString().split('\n');
 		const toParse = output[5];
-		const nativeVersion = LambdaInternals.getRenderProgressPayload({
+		const nativeVersion = LambdaClientInternals.getRenderProgressPayload({
 			region: 'us-east-1',
 			functionName: 'remotion-render',
 			bucketName: 'remotion-render',
@@ -148,8 +163,4 @@ class Semantic
 		const parsedJson = JSON.parse(jsonOutput);
 		expect(parsedJson).toEqual({...nativeVersion, s3OutputProvider: null});
 	});
-
-	const removeUndefined = (data: unknown) => {
-		return JSON.parse(JSON.stringify(data));
-	};
 });

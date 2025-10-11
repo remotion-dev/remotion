@@ -1,0 +1,45 @@
+---
+image: /generated/articles-docs-media-parser-parse-media-on-web-worker.png
+id: parse-media-on-web-worker
+title: parseMediaOnWebWorker()
+slug: /media-parser/parse-media-on-web-worker
+crumb: '@remotion/media-parser'
+---
+
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
+This API works the same as [`parseMedia()`](/docs/media-parser/parse-media), except that it executes the parse on a [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers). Web Workers are only available in Browsers and in Bun.
+
+This is useful if you are processing large files which parsing process would block the UI thread for a longer time.
+
+This API abstracts the communication between the main thread and the worker with the goal to keep the same API as [`parseMedia()`](/docs/media-parser/parse-media), including capabilities like supporting [`mediaParserController()`](/docs/media-parser/media-parser-controller) all async callback functions.
+
+The only difference in API is that the [`reader`](/docs/media-parser/parse-media#reader) option is not available. This is because you cannot pass a function to a Web Worker.
+
+```tsx twoslash title="Parsing a video on a Web Worker"
+import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
+
+const result = await parseMediaOnWebWorker({
+  src: 'https://remotion.media/video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+});
+
+console.log(result.durationInSeconds); // 10
+console.log(result.dimensions); // {width: 1920, height: 1080}
+```
+
+## API
+
+Same as [`parseMedia()`](/docs/media-parser/parse-media), but without the option to pass a [`reader`](/docs/media-parser/parse-media#reader).
+
+The [`reader`](/docs/media-parser/parse-media#reader) option in the worker is hardcoded to [`webReader`](/docs/media-parser/web-reader).
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/worker.module.ts)
+- [`parseMedia()`](/docs/media-parser/parse-media)

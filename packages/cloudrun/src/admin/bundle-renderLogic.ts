@@ -12,7 +12,9 @@ export const bundleRenderLogic = async () => {
 
 	(fs.rmSync ?? fs.rmdirSync)(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
-	const template = require.resolve(path.join(__dirname, '../functions/index'));
+	const template = require.resolve(
+		path.join(__dirname, '../../dist/functions/index'),
+	);
 
 	await esbuild.build({
 		platform: 'node',
@@ -52,6 +54,4 @@ export const bundleRenderLogic = async () => {
 		),
 		`${outdir}/mappings.wasm`,
 	);
-
-	console.log('distribution bundled.');
 };

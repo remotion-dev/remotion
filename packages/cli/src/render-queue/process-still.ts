@@ -19,7 +19,7 @@ export const processStill = async ({
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
-	addCleanupCallback: (cb: () => void) => void;
+	addCleanupCallback: (label: string, cb: () => void) => void;
 }) => {
 	if (job.type !== 'still') {
 		throw new Error('Expected still job');
@@ -66,7 +66,11 @@ export const processStill = async ({
 		cancelSignal: job.cancelToken.cancelSignal,
 		outputLocationFromUi: job.outName,
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads: job.offthreadVideoThreads,
 		binariesDirectory: job.binariesDirectory,
 		publicPath: null,
+		chromeMode: job.chromeMode,
+		audioLatencyHint: null,
+		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 	});
 };

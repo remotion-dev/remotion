@@ -1,15 +1,15 @@
 ---
 image: /generated/articles-docs-troubleshooting-video-flicker.png
 id: player-flicker
-title: "Avoiding flickering in <Player>"
+title: 'Avoiding flickering in <Player>'
 sidebar_label: Avoiding flickers
-crumb: "Frame-perfection"
+crumb: 'Frame-perfection'
 ---
 
 Consider the following markup:
 
 ```tsx twoslash title="MyComponent.tsx"
-import { AbsoluteFill, Sequence, OffthreadVideo } from "remotion";
+import {AbsoluteFill, Sequence, OffthreadVideo} from 'remotion';
 
 const MyComponent: React.FC = () => {
   return (
@@ -37,11 +37,28 @@ This effect is only happening in the Remotion Studio and the Remotion Player, an
 
 ### Option 2: Pause the `<Player />` when media is buffering
 
+<strong style={{color: 'var(--ifm-color-primary)'}}>Recommended</strong>: This will become the default behavior in Remotion 5.0
+
 You may want to pause the `<Player>` temporarily to allow loading of the assets and resume once the assets are ready for playback.
 
-You can do so by adding a `pauseWhenBuffering` prop to your [`<OffthreadVideo>`](/docs/video/#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo/#pausewhenbuffering), [`<Audio>`](/docs/audio/#pausewhenbuffering) and [`<Img>`](/docs/img#pausewhenloading) tags. [Learn more about the buffer state.](/docs/player/buffer-state)
+You can do so by adding a `pauseWhenBuffering` prop to your [`<Html5Video>`](/docs/html5-video/#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo/#pausewhenbuffering), [`<Html5Audio>`](/docs/html5-audio/#pausewhenbuffering) and [`<Img>`](/docs/img#pausewhenloading) tags. [Learn more about the buffer state.](/docs/player/buffer-state)
 
-### Option 3: Preloading to avoid network request
+:::note
+The `pauseWhenBuffering` prop is enabled by default for [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media).
+:::
+
+### Option 3: Premounting the video<AvailableFrom v="4.0.140"/>
+
+<strong style={{color: 'var(--ifm-color-primary)'}}>Recommended</strong>: This is the most effective solution.
+
+You can mount a sequence a few frames earlier than when it starts to appear.  
+This will give it time to load before it is visible to the user, which can help to avoid flickering.
+
+See [Premounting](/docs/player/premounting) for an example.
+
+### Option 4: Preloading to avoid network request
+
+<strong>Recommended</strong>: This helps reduce the network loading time.
 
 You may signal to the browser to preload videos and other assets, so that when the embedded element appears in the video, it can save the network request.
 
@@ -51,22 +68,25 @@ See [Preloading](/docs/player/preloading) for instructions on how to achieve thi
 The signal that you give to the browser may be ignored, for example if the device has data saver or battery saver mode enabled. This is specifically a concern for mobile devices.
 :::
 
-### Option 4: Premounting the video<AvailableFrom v="4.0.140"/>
-
-You can mount a sequence a few frames earlier than when it starts to appear.  
-This will give it time to load before it is visible to the user, which can help to avoid flickering.
-
-See [Premounting](/docs/player/premounting) for an example.
-
 ### Option 5: Prefetching as blob URL to more aggressively avoid network request
 
-By [prefetching](/docs/prefetch) an asset, it will be downloaded and cached into memory. Unlike preloading, you force the browser to download the asset, however, you can only use the loaded asset once it has fully downloaded.
+<strong>Not recommended</strong>: Memory intensive, and only useful if prefetched before the Player is mounted, and often misused.
+
+By [prefetching](/docs/prefetch) an asset, it will be downloaded and cached into memory.  
+Unlike preloading, you force the browser to download the asset, however, you can only use the loaded asset once it has fully downloaded.
+
+Once fully downloaded, URLs in media tags will be replaced with blob URLs.  
+You must ensure that URLs are not replaced inmidst playback, otherwise playback may become worse.
+
+It only makes sense if the prefetching finished before the media element is mounted.
 
 :::note
 Even a preloaded asset or prefetched needs to be mounted in the DOM and be decoded by the browser, which can take a short amount of time.
 :::
 
 ### Option 6: Prefetching as Base64 to avoid network request and local HTTP server
+
+<strong>Not recommended</strong>: Same drawbacks as prefetching, but with an additional performance hit, especially for large assets.
 
 In Safari prefetching as described in Option <InlineStep>5</InlineStep> is not enough, since the Blob URL will be saved to disk and a slight delay may still occur even if the asset is pre-saved.
 
@@ -75,7 +95,6 @@ Alternatively, the [`prefetch()`](/docs/prefetch) function allows to fetch an as
 ## See also
 
 - [Preloading assets](/docs/player/preloading)
-- [Displaying a buffer state](/docs/buffer-state)
 - [`prefetch()`](/docs/prefetch)
 - [`@remotion/preload` vs `prefetch()`](/docs/player/preloading#remotionpreload-vs-prefetch)
 - [`preloadVideo()`](/docs/preload/preload-video)

@@ -15,7 +15,7 @@ export const getOffthreadVideoSource = ({
 		window.remotion_proxyPort
 	}/proxy?src=${encodeURIComponent(
 		getAbsoluteSrc(src),
-	)}&time=${encodeURIComponent(currentTime)}&transparent=${String(
+	)}&time=${encodeURIComponent(Math.max(0, currentTime))}&transparent=${String(
 		transparent,
 	)}&toneMapped=${String(toneMapped)}`;
 };

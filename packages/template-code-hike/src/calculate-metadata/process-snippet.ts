@@ -2,12 +2,13 @@ import { highlight } from "codehike/code";
 import { createTwoslashFromCDN } from "twoslash-cdn";
 import { PublicFolderFile } from "./get-files";
 import { Theme } from "./theme";
-import { CompilerOptions, JsxEmit, ScriptTarget } from "typescript";
+import { CompilerOptions, JsxEmit, ModuleKind, ScriptTarget } from "typescript";
 
 const compilerOptions: CompilerOptions = {
   lib: ["dom", "es2023"],
   jsx: JsxEmit.ReactJSX,
   target: ScriptTarget.ES2023,
+  module: ModuleKind.ESNext,
 };
 
 const twoslash = createTwoslashFromCDN({

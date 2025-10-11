@@ -11,6 +11,7 @@ const label: React.CSSProperties = {
 	color: 'white',
 	fontSize: 15,
 	fontFamily: 'Arial, Helvetica, sans-serif',
+	whiteSpace: 'nowrap',
 };
 
 const pushWithMaxSize = (
@@ -23,7 +24,7 @@ const pushWithMaxSize = (
 };
 
 export const FpsCounter: React.FC<{
-	playbackSpeed: number;
+	readonly playbackSpeed: number;
 }> = ({playbackSpeed}) => {
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const [playing] = Internals.Timeline.usePlayingState();

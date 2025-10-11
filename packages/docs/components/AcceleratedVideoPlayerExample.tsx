@@ -1,6 +1,6 @@
 import {Player} from '@remotion/player';
 import React from 'react';
-import {interpolate, Sequence, useCurrentFrame, Video} from 'remotion';
+import {Html5Video, interpolate, Sequence, useCurrentFrame} from 'remotion';
 
 const remapSpeed = ({
 	frame,
@@ -31,8 +31,8 @@ const AcceleratedVideo: React.FC = () => {
 
 	return (
 		<Sequence from={frame}>
-			<Video
-				startFrom={Math.round(remappedFrame)}
+			<Html5Video
+				trimBefore={Math.round(remappedFrame)}
 				playbackRate={speedFunction(frame)}
 				src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#disable"
 			/>

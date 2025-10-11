@@ -1,13 +1,15 @@
 import {CliInternals} from '@remotion/cli';
+import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ProviderSpecifics} from '@remotion/serverless';
+import {
+	DOCS_URL,
+	FullClientSpecifics,
+	type ProviderSpecifics,
+} from '@remotion/serverless';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
-import {BINARY_NAME} from '../defaults';
-import type {AwsProvider} from '../functions/aws-implementation';
-import {awsImplementation} from '../functions/aws-implementation';
-import {checkCredentials} from '../shared/check-credentials';
-import {DOCS_URL} from '../shared/docs-url';
+import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import {parsedLambdaCli} from './args';
 import {
 	COMPOSITIONS_COMMAND,
@@ -24,7 +26,6 @@ import {SITES_COMMAND, sitesCommand} from './commands/sites';
 import {STILL_COMMAND, stillCommand} from './commands/still';
 import {printHelp} from './help';
 import {quit} from './helpers/quit';
-import {setIsCli} from './is-cli';
 import {Log} from './log';
 
 const requiresCredentials = (args: string[]) => {
@@ -45,23 +46,35 @@ const requiresCredentials = (args: string[]) => {
 	return true;
 };
 
-const matchCommand = (
-	args: string[],
-	remotionRoot: string,
-	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsProvider>,
-) => {
+const matchCommand = ({
+	args,
+	remotionRoot,
+	logLevel,
+	providerSpecifics,
+	fullClientSpecifics,
+}: {
+	args: string[];
+	remotionRoot: string;
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+}) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp(logLevel);
 		quit(0);
 	}
 
 	if (requiresCredentials(args)) {
-		checkCredentials();
+		providerSpecifics.checkCredentials();
 	}
 
 	if (args[0] === RENDER_COMMAND) {
-		return renderCommand(args.slice(1), remotionRoot, logLevel, implementation);
+		return renderCommand({
+			args: args.slice(1),
+			remotionRoot,
+			logLevel,
+			providerSpecifics,
+		});
 	}
 
 	if (args[0] === STILL_COMMAND) {
@@ -69,16 +82,25 @@ const matchCommand = (
 			args: args.slice(1),
 			remotionRoot,
 			logLevel,
-			implementation,
+			providerSpecifics: providerSpecifics,
 		});
 	}
 
 	if (args[0] === COMPOSITIONS_COMMAND) {
-		return compositionsCommand(args.slice(1), logLevel);
+		return compositionsCommand({
+			args: args.slice(1),
+			logLevel,
+			providerSpecifics,
+		});
 	}
 
 	if (args[0] === FUNCTIONS_COMMAND) {
-		return functionsCommand(args.slice(1), logLevel);
+		return functionsCommand({
+			args: args.slice(1),
+			logLevel,
+			fullClientSpecifics,
+			providerSpecifics,
+		});
 	}
 
 	if (args[0] === QUOTAS_COMMAND) {
@@ -94,7 +116,12 @@ const matchCommand = (
 	}
 
 	if (args[0] === SITES_COMMAND) {
-		return sitesCommand(args.slice(1), remotionRoot, logLevel, implementation);
+		return sitesCommand(
+			args.slice(1),
+			remotionRoot,
+			logLevel,
+			providerSpecifics,
+		);
 	}
 
 	if (args[0] === 'upload') {
@@ -150,16 +177,19 @@ export const executeCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsProvider> | null,
+	_providerSpecifics: ProviderSpecifics<AwsProvider> | null,
+	fullClientSpecifics: FullClientSpecifics<AwsProvider> | null,
 ) => {
 	try {
-		setIsCli(true);
-		await matchCommand(
+		const providerSpecifics =
+			_providerSpecifics ?? LambdaClientInternals.awsImplementation;
+		await matchCommand({
 			args,
 			remotionRoot,
 			logLevel,
-			implementation ?? awsImplementation,
-		);
+			providerSpecifics: providerSpecifics,
+			fullClientSpecifics: fullClientSpecifics ?? awsFullClientSpecifics,
+		});
 	} catch (err) {
 		const error = err as Error;
 		if (
@@ -210,17 +240,32 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 			);
 		}
 
+		if (error.stack?.includes('ConcurrentInvocationLimitExceeded')) {
+			Log.error(
+				{indent: false, logLevel},
+				`
+AWS returned an "ConcurrentInvocationLimitExceeded" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
+`.trim(),
+			);
+		}
+
 		if (
 			error.stack?.includes(
 				'The security token included in the request is invalid',
 			)
 		) {
 			const keyButDoesntStartWithAki =
-				process.env.REMOTION_AWS_ACCESS_KEY_ID &&
-				!process.env.REMOTION_AWS_ACCESS_KEY_ID.startsWith('AKI');
+				LambdaClientInternals.getEnvVariable('REMOTION_AWS_ACCESS_KEY_ID') &&
+				!(
+					LambdaClientInternals.getEnvVariable(
+						'REMOTION_AWS_ACCESS_KEY_ID',
+					) as string
+				).startsWith('AKI');
 			const pureKeyButDoesntStartWithAki =
-				process.env.AWS_ACCESS_KEY_ID &&
-				!process.env.AWS_ACCESS_KEY_ID.startsWith('AKI');
+				LambdaClientInternals.getEnvVariable('AWS_ACCESS_KEY_ID') &&
+				!(
+					LambdaClientInternals.getEnvVariable('AWS_ACCESS_KEY_ID') as string
+				).startsWith('AKI');
 			if (keyButDoesntStartWithAki || pureKeyButDoesntStartWithAki) {
 				Log.error(
 					{indent: false, logLevel},
@@ -266,6 +311,7 @@ export const cli = async (logLevel: LogLevel) => {
 		parsedLambdaCli._,
 		remotionRoot,
 		logLevel,
-		awsImplementation,
+		LambdaClientInternals.awsImplementation,
+		awsFullClientSpecifics,
 	);
 };

@@ -3,14 +3,17 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/paths"
 	},
 	"name": "@remotion/paths",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"description": "Utilities for working with SVG paths",
 	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"scripts": {
-		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"test": "bun test src"
+		"formatting": "prettier --experimental-cli src --check",
+		"lint": "eslint src",
+		"test": "bun test src",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
@@ -22,6 +25,19 @@
 		"path",
 		"utilities"
 	],
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		}
+	},
 	"publishConfig": {
 		"access": "public"
 	},

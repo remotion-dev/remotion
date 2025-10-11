@@ -8,6 +8,7 @@ const {
 	x264Option,
 	audioBitrateOption,
 	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
 	scaleOption,
 	jpegQualityOption,
 	videoBitrateOption,
@@ -26,6 +27,9 @@ const {
 	headlessOption,
 	forSeamlessAacConcatenationOption,
 	audioCodecOption,
+	hardwareAccelerationOption,
+	chromeModeOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -50,6 +54,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const defaultScale = scaleOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -99,6 +106,15 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const audioCodec = audioCodecOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const hardwareAcceleration = hardwareAccelerationOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const chromeMode = chromeModeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
@@ -140,6 +156,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 		ignoreCertificateErrors,
 		openGlRenderer: gl,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		colorSpace,
 		multiProcessOnLinux,
 		userAgent,
@@ -148,5 +165,8 @@ export const getRenderDefaults = (): RenderDefaults => {
 		beepOnFinish,
 		forSeamlessAacConcatenation,
 		metadata,
+		hardwareAcceleration,
+		chromeMode,
+		mediaCacheSizeInBytes,
 	};
 };

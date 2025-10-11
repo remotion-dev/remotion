@@ -31,7 +31,12 @@ npm i
 npm run dev
 ```
 
-5. Open the right sidebar, enter your repo name and click "Render".
+5. Open the right sidebar, enter your repo name and click "Render".  
+   Or use the command line:
+
+```
+npx remotion render
+```
 
 ## Make your own video (GitHub Actions)
 
@@ -55,6 +60,12 @@ npm run dev
 
 7. By clicking on this you can get your Stargazer video.
    <img src="https://user-images.githubusercontent.com/1911623/121809394-fb364100-cc32-11eb-8a82-e9a6d25f37cf.png" width="720"/>
+
+## Upgrade Remotion
+
+```
+npx remotion upgrade
+```
 
 ## Credits
 

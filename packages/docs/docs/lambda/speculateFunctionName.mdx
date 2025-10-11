@@ -8,7 +8,7 @@ crumb: 'Lambda API'
 
 _available from v3.3.75_
 
-Speculate the name of the Lambda function that will be created by [`deployFunction()`](/docs/lambda/deployfunction) or its CLI equivalent, [`npx remotion lambda functions deploy`](/docs/lambda/cli/functions). This could be useful in cases when the configuration of the Lambda function is known in advance, and the name of the function is needed.
+Speculate the name of the Lambda function that will be created by [`deployFunction()`](/docs/lambda/deployfunction) or its CLI equivalent, [`npx remotion lambda functions deploy`](/docs/lambda/cli/functions/deploy). This could be useful in cases when the configuration of the Lambda function is known in advance, and the name of the function is needed.
 
 If you are not sure whether a function exists, use [`getFunctionInfo()`](/docs/lambda/getfunctioninfo) and catch the error that gets thrown if it does not exist.
 
@@ -32,9 +32,6 @@ remotion-render-3-3-63-mem2048mb-disk2048mb-240sec
 ## Example
 
 ```ts twoslash
-// @module: esnext
-// @target: es2017
-
 import {speculateFunctionName} from '@remotion/lambda/client';
 
 const speculatedFunctionName = speculateFunctionName({
@@ -71,4 +68,4 @@ A string with the name of the function that will be created.
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/speculate-function-name.ts)
 - [Function name convention](/docs/lambda/naming-convention)
 - [`deployFunction()`](/docs/lambda/deployfunction)
-- CLI version of `deployFunction()`: [`npx remotion lambda functions deploy`](/docs/lambda/cli/functions#deploy)
+- CLI version of `deployFunction()`: [`npx remotion lambda functions deploy`](/docs/lambda/cli/functions/deploy)

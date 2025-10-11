@@ -6,8 +6,8 @@ const flex: React.CSSProperties = {
 };
 
 export const SchemaVerticalGuide: React.FC<{
-	isRoot: boolean;
-	children: React.ReactNode;
+	readonly isRoot: boolean;
+	readonly children: React.ReactNode;
 }> = ({isRoot, children}) => {
 	const outer: React.CSSProperties = useMemo(() => {
 		return {

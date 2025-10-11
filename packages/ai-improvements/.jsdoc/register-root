@@ -1,0 +1,4 @@
+/**
+ * @description Registers the root component of the Remotion project.
+ * @see [Documentation](https://www.remotion.dev/docs/register-root)
+ */

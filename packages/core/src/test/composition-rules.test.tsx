@@ -1,12 +1,13 @@
-/**
- * @vitest-environment jsdom
- */
-import {render} from '@testing-library/react';
+import {cleanup, render} from '@testing-library/react';
+import {afterEach, describe, expect, test} from 'bun:test';
 import React from 'react';
-import {describe, expect, test} from 'vitest';
 import {Composition} from '../Composition.js';
 import {RemotionRoot} from '../RemotionRoot.js';
 import {expectToThrow} from './expect-to-throw.js';
+
+afterEach(() => {
+	cleanup();
+});
 
 const AnyComp: React.FC = () => null;
 
@@ -49,7 +50,13 @@ describe('Render composition-rules should throw with invalid props', () => {
 		expectToThrow(
 			() =>
 				render(
-					<RemotionRoot numberOfAudioTags={0}>
+					<RemotionRoot
+						numberOfAudioTags={0}
+						logLevel="info"
+						onlyRenderComposition={null}
+						currentCompositionMetadata={null}
+						audioLatencyHint="interactive"
+					>
 						<Composition
 							lazyComponent={() => Promise.resolve({default: AnyComp})}
 							durationInFrames={100}

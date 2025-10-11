@@ -1,0 +1,4 @@
+/**
+ * @description Ensures a browser is locally installed so a Remotion render can be executed.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/ensure-browser)
+ */

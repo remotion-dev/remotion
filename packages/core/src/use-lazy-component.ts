@@ -13,31 +13,49 @@ type LazyExoticComponent<T extends ComponentType<any>> = ExoticComponent<
 };
 
 // Expected, it can be any component props
-export const useLazyComponent = <Props>(
-	compProps: CompProps<Props>,
-): LazyExoticComponent<ComponentType<Props>> => {
+export const useLazyComponent = <Props>({
+	compProps,
+	componentName,
+	noSuspense,
+}: {
+	compProps: CompProps<Props>;
+	componentName: string;
+	noSuspense: boolean;
+}): LazyExoticComponent<ComponentType<Props>> => {
 	const lazy = useMemo(() => {
-		if (
-			'lazyComponent' in compProps &&
-			typeof compProps.lazyComponent !== 'undefined'
-		) {
-			return React.lazy(
-				compProps.lazyComponent as () => Promise<{
-					default: ComponentType<Props>;
-				}>,
-			);
-		}
-
 		if ('component' in compProps) {
 			// In SSR, suspense is not yet supported, we cannot use React.lazy
-			if (typeof document === 'undefined') {
+			if (typeof document === 'undefined' || noSuspense) {
 				return compProps.component as unknown as React.LazyExoticComponent<
 					ComponentType<Props>
 				>;
 			}
 
+			if (typeof compProps.component === 'undefined') {
+				throw new Error(
+					`A value of \`undefined\` was passed to the \`component\` prop. Check the value you are passing to the <${componentName}/> component.`,
+				);
+			}
+
 			return React.lazy(() =>
 				Promise.resolve({default: compProps.component as ComponentType<Props>}),
+			);
+		}
+
+		if (
+			'lazyComponent' in compProps &&
+			typeof compProps.lazyComponent !== 'undefined'
+		) {
+			if (typeof compProps.lazyComponent === 'undefined') {
+				throw new Error(
+					`A value of \`undefined\` was passed to the \`lazyComponent\` prop. Check the value you are passing to the <${componentName}/> component.`,
+				);
+			}
+
+			return React.lazy(
+				compProps.lazyComponent as () => Promise<{
+					default: ComponentType<Props>;
+				}>,
 			);
 		}
 

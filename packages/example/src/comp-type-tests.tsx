@@ -4,8 +4,8 @@ import {Still} from 'remotion';
 import {z} from 'zod';
 
 type MyComponentProps = {
-	a: number;
-	b: string;
+	readonly a: number;
+	readonly b: string;
 };
 
 function MyComponent(props: MyComponentProps) {
@@ -35,7 +35,7 @@ function MyComponent(props: MyComponentProps) {
 
 // React.FC syntax
 const MyComponent2: React.FC<{
-	c: number;
+	readonly c: number;
 }> = ({c}) => {
 	return <div>{c}</div>;
 };
@@ -53,7 +53,7 @@ const MyComponent2: React.FC<{
 
 // React.FC syntax
 const MyComponent3: React.FC<{
-	a: number;
+	readonly a: number;
 }> = ({a}) => {
 	return <div>{a}</div>;
 };

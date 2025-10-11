@@ -2,6 +2,7 @@ import type {ApiRoutes} from '@remotion/studio-shared';
 import type {ApiHandler} from './api-types';
 import {handleAddRender} from './routes/add-render';
 import {applyCodemodHandler} from './routes/apply-codemod';
+import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {canUpdateDefaultPropsHandler} from './routes/can-update-default-props';
 import {handleCancelRender} from './routes/cancel-render';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
@@ -28,6 +29,7 @@ export const allApiRoutes: {
 	'/api/remove-render': handleRemoveRender,
 	'/api/open-in-file-explorer': handleOpenInFileExplorer,
 	'/api/update-default-props': updateDefaultPropsHandler,
+	'/api/apply-visual-control-change': applyVisualControlHandler,
 	'/api/apply-codemod': applyCodemodHandler,
 	'/api/can-update-default-props': canUpdateDefaultPropsHandler,
 	'/api/update-available': handleUpdate,

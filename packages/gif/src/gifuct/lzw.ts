@@ -1,6 +1,5 @@
 /* eslint-disable no-multi-assign */
 /* eslint-disable no-redeclare */
-/* eslint-disable no-bitwise */
 /* eslint-disable no-var */
 /**
  * javascript port of java LZW decompression

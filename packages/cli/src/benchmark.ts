@@ -38,6 +38,7 @@ const {
 	mutedOption,
 	videoCodecOption,
 	colorSpaceOption,
+	disallowParallelEncodingOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
@@ -51,6 +52,10 @@ const {
 	publicPathOption,
 	publicDirOption,
 	metadataOption,
+	hardwareAccelerationOption,
+	chromeModeOption,
+	offthreadVideoThreadsOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 const getValidConcurrency = (cliConcurrency: number | string | null) => {
@@ -60,7 +65,7 @@ const getValidConcurrency = (cliConcurrency: number | string | null) => {
 		return [RenderInternals.resolveConcurrency(cliConcurrency)];
 	}
 
-	return (concurrencies as string)
+	return String(concurrencies)
 		.split(',')
 		.map((c) => parseInt(c.trim(), 10));
 };
@@ -225,6 +230,7 @@ export const benchmarkCommand = async (
 	const headless = headlessOption.getValue({commandLine: parsedCli}).value;
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
+	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
@@ -248,6 +254,7 @@ export const benchmarkCommand = async (
 		indent,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
@@ -259,6 +266,7 @@ export const benchmarkCommand = async (
 		viewport: null,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
@@ -270,7 +278,9 @@ export const benchmarkCommand = async (
 			indentOutput: false,
 			logLevel,
 			onDirectoryCreated: (dir) => {
-				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
+				registerCleanupJob(`Delete ${dir}`, () =>
+					RenderInternals.deleteDirectory(dir),
+				);
 			},
 			quietProgress: false,
 			quietFlag: quietFlagProvided(),
@@ -280,14 +290,15 @@ export const benchmarkCommand = async (
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
 			publicPath,
+			audioLatencyHint: null,
 		});
 
-	registerCleanupJob(() => cleanupBundle());
+	registerCleanupJob(`Deleting bundle`, () => cleanupBundle());
 
 	const puppeteerInstance = await browserInstance;
 
 	const serializedInputPropsWithCustomSchema =
-		NoReactInternals.serializeJSONWithDate({
+		NoReactInternals.serializeJSONWithSpecialTypes({
 			data: inputProps ?? {},
 			indent: undefined,
 			staticBase: null,
@@ -313,10 +324,18 @@ export const benchmarkCommand = async (
 			offthreadVideoCacheSizeInBytesOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+		offthreadVideoThreads: offthreadVideoThreadsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		binariesDirectory: binariesDirectoryOption.getValue({
 			commandLine: parsedCli,
 		}).value,
 		onBrowserDownload,
+		chromeMode,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		onLog: RenderInternals.defaultOnLog,
 	});
 
 	const ids = (
@@ -364,6 +383,9 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
+	const disallowParallelEncoding = disallowParallelEncodingOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -459,7 +481,7 @@ export const benchmarkCommand = async (
 					concurrency: con,
 					audioCodec: null,
 					cancelSignal: undefined,
-					disallowParallelEncoding: false,
+					disallowParallelEncoding,
 					indent: false,
 					onBrowserLog: null,
 					onCtrlCExit: () => undefined,
@@ -468,11 +490,14 @@ export const benchmarkCommand = async (
 					preferLossless: false,
 					server: undefined,
 					serializedResolvedPropsWithCustomSchema:
-						NoReactInternals.serializeJSONWithDate({
+						NoReactInternals.serializeJSONWithSpecialTypes({
 							data: composition.props,
 							indent: undefined,
 							staticBase: null,
 						}).serializedString,
+					offthreadVideoThreads: offthreadVideoThreadsOption.getValue({
+						commandLine: parsedCli,
+					}).value,
 					offthreadVideoCacheSizeInBytes:
 						offthreadVideoCacheSizeInBytesOption.getValue({
 							commandLine: parsedCli,
@@ -493,6 +518,14 @@ export const benchmarkCommand = async (
 					onBrowserDownload,
 					onArtifact: () => undefined,
 					metadata,
+					hardwareAcceleration: hardwareAccelerationOption.getValue({
+						commandLine: parsedCli,
+					}).value,
+					chromeMode,
+					mediaCacheSizeInBytes: mediaCacheSizeInBytesOption.getValue({
+						commandLine: parsedCli,
+					}).value,
+					onLog: RenderInternals.defaultOnLog,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

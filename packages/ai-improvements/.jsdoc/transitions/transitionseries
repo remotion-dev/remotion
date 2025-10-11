@@ -1,0 +1,4 @@
+/**
+ * @description Manages a series of transitions and sequences for advanced animation controls in Remotion projects, handling cases with varying timings and presentations.
+ * @see [Documentation](https://www.remotion.dev/docs/transitions/transitionseries)
+ */

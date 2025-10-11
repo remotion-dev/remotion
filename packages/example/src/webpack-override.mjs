@@ -1,6 +1,6 @@
 import {enableScss} from '@remotion/enable-scss';
 import {enableSkia} from '@remotion/skia/enable';
-import {enableTailwind} from '@remotion/tailwind';
+import {enableTailwind} from '@remotion/tailwind-v4';
 
 import path from 'node:path';
 
@@ -12,6 +12,8 @@ const resolveCwd = (p) => {
 	});
 };
 
+// this is so the studio live reloads when the CJS modules are changed
+// probably a bad idea and we should slowly get rid of the ones which compile MJS with turbo
 const aliases = {
 	'@remotion/gif': resolveCwd('@remotion/gif'),
 	'@remotion/layout-utils': resolveCwd('@remotion/layout-utils'),
@@ -25,19 +27,9 @@ const aliases = {
 	'@remotion/preload': resolveCwd('@remotion/preload'),
 	'@remotion/rive': resolveCwd('@remotion/rive'),
 	'@remotion/shapes': resolveCwd('@remotion/shapes'),
-	'@remotion/studio/internals': resolveCwd('@remotion/studio/internals'),
-	'@remotion/studio': resolveCwd('@remotion/studio'),
 	'@remotion/animated-emoji': resolveCwd('@remotion/animated-emoji'),
 	'@remotion/skia': resolveCwd('@remotion/skia'),
 	'@remotion/three': resolveCwd('@remotion/three'),
-	'@remotion/webcodecs': resolveCwd('@remotion/webcodecs'),
-	'@remotion/media-parser/fetch': resolveCwd('@remotion/media-parser/fetch'),
-	'@remotion/media-parser/buffer': resolveCwd('@remotion/media-parser/buffer'),
-	'@remotion/media-parser/web-fs': resolveCwd('@remotion/media-parser/web-fs'),
-	'@remotion/media-parser/web-file': resolveCwd(
-		'@remotion/media-parser/web-file',
-	),
-	'@remotion/media-parser': resolveCwd('@remotion/media-parser'),
 	'@remotion/transitions/fade': resolveCwd('@remotion/transitions/fade'),
 	'@remotion/transitions/slide': resolveCwd('@remotion/transitions/slide'),
 	'@remotion/transitions/flip': resolveCwd('@remotion/transitions/flip'),

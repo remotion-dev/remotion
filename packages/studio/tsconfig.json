@@ -24,7 +24,13 @@
 			"path": "../renderer"
 		},
 		{
+			"path": "../webcodecs"
+		},
+		{
 			"path": "../player"
+		},
+		{
+			"path": "../web-renderer"
 		}
 	]
 }

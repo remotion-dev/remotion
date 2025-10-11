@@ -69,5 +69,5 @@ test('Legacy SSR way of rendering videos should still work', async () => {
 	expect(probe.stderr).toMatch(/Video: h264/);
 
 	RenderInternals.deleteDirectory(framesDir);
-	await puppeteerInstance.close(false, 'info', false);
+	await puppeteerInstance.close({silent: false});
 });

@@ -14,6 +14,10 @@ const candidates = [
 	path.join('remotion', 'index.ts'),
 	path.join('remotion', 'index.js'),
 	path.join('remotion', 'index.mjs'),
+	path.join('src', 'remotion', 'index.tsx'),
+	path.join('src', 'remotion', 'index.ts'),
+	path.join('src', 'remotion', 'index.js'),
+	path.join('src', 'remotion', 'index.mjs'),
 ];
 
 const findCommonPath = (remotionRoot: string) => {

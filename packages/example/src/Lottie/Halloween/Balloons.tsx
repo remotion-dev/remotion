@@ -2,11 +2,10 @@ import {Lottie, LottieAnimationData} from '@remotion/lottie';
 import React, {useEffect, useState} from 'react';
 import {
 	Sequence,
-	continueRender,
-	delayRender,
 	interpolate,
 	staticFile,
 	useCurrentFrame,
+	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
 import HeaderAndCredits from './HeaderAndCredits';
@@ -21,6 +20,7 @@ const Balloons = () => {
 		[0, 1, 1, 0],
 	);
 
+	const {delayRender, continueRender} = useDelayRender();
 	const [error, setError] = useState<Error | null>(null);
 	const [handle] = useState(() => delayRender('Loading Lottie animation'));
 

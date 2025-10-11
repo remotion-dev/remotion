@@ -1,0 +1,30 @@
+---
+image: /generated/articles-docs-media-support.png
+title: Supported media
+sidebar_label: Supported media
+crumb: '@remotion/media'
+---
+
+The new [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) tags from `@remotion/media` are based on [Mediabunny](https://mediabunny.dev) and WebCodecs.
+
+## CORS
+
+Any assets must be either CORS-enabled or served from the bundle using [`staticFile()`](/docs/staticfile).
+
+## Supported formats and codecs
+
+The supported formats and codecs are defined here: [Mediabunny - Supported formats and codecs](/docs/mediabunny/formats).
+
+## Matroska limitation
+
+Matroska-based files (`.mkv`, `.webm`) are supported, but for the audio to be extracted, the entire audio up to the point of extraction must be extracted as well because Matroska containers only store millisecond-precise timestamps in the container, but more precision is needed correctly concatenate audio parts.
+
+For example: If you want to render the third minute of a 10 minute audio, the first 2 minutes of the audio must be decoded as well because only then the precise timestamps of the audio will be unveiled.
+
+Prefer non-Matroska-based files (`.mp4`, `.mov`, `.m4a`) when you are doing distributed rendering (e.g. on Lambda) if possible.
+
+## Fallback to `<OffthreadVideo>`
+
+If a media file cannot be decoded, be it because of an unsupported codec or because it does not support CORS, then `@remotion/media` automatically falls back to [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Html5Audio>`](/docs/html5-audio) from the [`remotion`](/docs/remotion) package.
+
+See: [Fallback from `@remotion/media` to `<OffthreadVideo>` or `<Html5Audio>`](/docs/media/fallback)

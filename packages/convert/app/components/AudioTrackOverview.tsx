@@ -1,34 +1,47 @@
-import type {AudioTrack} from '@remotion/media-parser';
+import type {
+	MediaParserAudioTrack,
+	MediaParserLocation,
+	MediaParserMetadataEntry,
+} from '@remotion/media-parser';
+import {renderHumanReadableAudioCodec} from '~/lib/render-codec-label';
+import {MetadataDisplay} from './MetadataTable';
 import {Table, TableBody, TableCell, TableRow} from './ui/table';
 
 export const AudioTrackOverview: React.FC<{
-	readonly track: AudioTrack;
-}> = ({track}) => {
+	readonly track: MediaParserAudioTrack;
+	readonly metadata: MediaParserMetadataEntry[] | null;
+	location: MediaParserLocation | null;
+}> = ({track, metadata, location}) => {
 	return (
-		<Table>
+		<Table className="table-fixed">
 			<TableBody>
 				<TableRow>
-					<TableCell colSpan={3}>Type</TableCell>
+					<TableCell className="font-brand">Type</TableCell>
 					<TableCell className="text-right">Audio</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Codec</TableCell>
+					<TableCell className="font-brand">Codec</TableCell>
 					<TableCell className="text-right">
-						{track.codecWithoutConfig}
+						{renderHumanReadableAudioCodec(track.codecEnum)}
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>WebCodecs Codec String</TableCell>
+					<TableCell className="font-brand">WebCodecs Codec String</TableCell>
 					<TableCell className="text-right">{track.codec}</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Channels</TableCell>
+					<TableCell className="font-brand">Channels</TableCell>
 					<TableCell className="text-right">{track.numberOfChannels}</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Sample Rate</TableCell>
+					<TableCell className="font-brand">Sample Rate</TableCell>
 					<TableCell className="text-right">{track.sampleRate}</TableCell>
 				</TableRow>
+				<MetadataDisplay
+					location={location}
+					metadata={metadata ?? []}
+					trackId={track.trackId}
+				/>
 			</TableBody>
 		</Table>
 	);

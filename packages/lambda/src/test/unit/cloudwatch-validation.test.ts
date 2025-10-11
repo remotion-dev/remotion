@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {validateCloudWatchRetentionPeriod} from '../../shared/validate-retention-period';
 
 test('Should be a valid cloudwatch retention period', () => {

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/openai-whisper"
 	},
 	"name": "@remotion/openai-whisper",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"description": "Work with the output of the OpenAI Whisper API",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -11,9 +11,10 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"scripts": {
-		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"test": "bun test src"
+		"formatting": "prettier --experimental-cli src --check",
+		"lint": "eslint src",
+		"test": "bun test src",
+		"make": "tsc -d"
 	},
 	"files": [
 		"dist"
@@ -25,7 +26,9 @@
 	},
 	"peerDependencies": {},
 	"devDependencies": {
-		"openai": "4.67.1"
+		"openai": "4.67.1",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
 	},
 	"keywords": [
 		"remotion"

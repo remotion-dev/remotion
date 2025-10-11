@@ -5,13 +5,9 @@ export type DeleteSiteInput = {
 	siteName: string;
 };
 
-/**
- *
- * @description Deletes a deployed site from your Cloud Run bucket. The opposite of deploySite().
+/*
+ * @description Removes a Remotion project from your Cloud Storage bucket.
  * @see [Documentation](https://remotion.dev/docs/cloudrun/deletesite)
- * @param params.bucketName The name of the Cloud Storage bucket where the site resides in.
- * @param params.siteName The ID of the site to delete.
- * @returns {Promise<void>} Nothing. Throws if the site failed to delete.
  */
 export const deleteSite = ({
 	bucketName,

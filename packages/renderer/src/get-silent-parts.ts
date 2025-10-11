@@ -9,17 +9,9 @@ import type {LogLevel} from './log-level';
 
 export type {SilentPart};
 
-/**
- * Analyzes the silent parts of a video or audio file and returns both the silent and audible segments.
- * @description Uses thresholds defined for noise and duration to identify silent stretches in a media file.
- * @see [Documentation](https://remotion.dev/docs/renderer/get-silent-parts)
- * @param {Object} params Configuration parameters for determining silent parts
- * @param {string} params.src The path to the local video or audio file
- * @param {number} [params.noiseThresholdInDecibels=-20] The decibel level below which sound is considered silent
- * @param {number} [params.minDurationInSeconds=1] The minimum duration (in seconds) to consider a silence as significant
- * @param {string|null} [params.binariesDirectory] Optional directory path for external binaries
- * @param {LogLevel} [params.logLevel] The logging level to be used (debug, verbose, info, warn, error)
- * @returns {Promise<GetSilentPartsResponse>} An object containing arrays of silent and audible parts, along with the overall duration
+/*
+ * @description Gets the silent parts of a video or audio in Node.js. Useful for cutting out silence from a video.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/get-silent-parts)
  */
 export const getSilentParts = async ({
 	src,
@@ -39,6 +31,7 @@ export const getSilentParts = async ({
 		logLevel: logLevel ?? 'info',
 		indent: false,
 		binariesDirectory: binariesDirectory ?? null,
+		extraThreads: 0,
 	});
 
 	const minDurationInSeconds = passedMinDuration ?? 1;

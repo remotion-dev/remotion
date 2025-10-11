@@ -17,7 +17,7 @@ export const getZodIfPossible = async (): Promise<ZodType | null> => {
 	try {
 		const {z} = await import('zod');
 		return z;
-	} catch (err) {
+	} catch {
 		return null;
 	}
 };
@@ -26,7 +26,7 @@ export const getZTypesIfPossible = async (): Promise<ZodTypesType | null> => {
 	try {
 		const mod = await import('@remotion/zod-types');
 		return mod;
-	} catch (err) {
+	} catch {
 		return null;
 	}
 };
@@ -49,7 +49,7 @@ type ContextType = {
 const ZodContext = createContext<ContextType | null>(null);
 
 export const ZodProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [zod, setZod] = useState<ZodType | null>(null);
 	const [zodTypes, setZodTypes] = useState<ZodTypesType | null>(null);

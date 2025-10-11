@@ -15,7 +15,7 @@ Print list of composition IDs from a serve URL, fetched from inside a Lambda fun
 npx remotion lambda compositions <serve-url>
 ```
 
-- Obtain a [Serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites#create) command or by calling [`deploySite()`](/docs/lambda/deploysite).
+- Obtain a [Serve URL](/docs/terminology/serve-url) using the [`sites create`](/docs/lambda/cli/sites/create) command or by calling [`deploySite()`](/docs/lambda/deploysite).
 
 <details>
   <summary>Show output</summary>
@@ -96,7 +96,7 @@ If you don't feel like passing command line flags every time, consider creating 
 Define how long it may take to resolve all [`delayRender()`](/docs/delay-render) calls before the composition fetching times out in milliseconds. Default: `30000`.
 
 :::info
-Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions#--timeout).
+Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions/deploy#--timeout).
 :::
 
 ### `--ignore-certificate-errors`
@@ -109,7 +109,7 @@ This will most notably disable CORS in Chrome among other security features.
 
 ### ~`--disable-headless`~
 
-<Options id="disable-headless"  />
+<Options id="disable-headless" />
 
 ### `--quiet`, `--q`
 
@@ -123,13 +123,25 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
+### `--media-cache-size-in-bytes`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
+### `--offthreadvideo-video-threads`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
+
 ### `--force-path-style`<AvailableFrom v="4.0.202" />
 
 Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+
+### ~`--disable-headless`~
+
+<Options id="disable-headless" />
 
 ## See also
 

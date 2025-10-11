@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-deployfunction.png
 id: deployfunction
 title: deployFunction()
 slug: /lambda/deployfunction
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function in your AWS account that will be able to render a video in the cloud.
@@ -13,13 +13,10 @@ If a function with the same version, memory size and timeout already existed, it
 ## Example
 
 ```ts twoslash
-// @module: esnext
-// @target: es2017
+import {deployFunction} from '@remotion/lambda';
 
-import { deployFunction } from "@remotion/lambda";
-
-const { functionName } = await deployFunction({
-  region: "us-east-1",
+const {functionName} = await deployFunction({
+  region: 'us-east-1',
   timeoutInSeconds: 120,
   memorySizeInMb: 2048,
   createCloudWatchLogGroup: true,
@@ -57,10 +54,10 @@ Retention period for the CloudWatch Logs. Default: 14 days.
 
 Sets the amount of disk storage that is available in the Lambda function. Must be between 512MB and 10240MB (10GB). Set this higher if you want to render longer videos. See also: [Disk size](/docs/lambda/disk-size)
 
-| Remotion Version | Default       |
-|------------------|---------------|
-| &lt;5.0.0        | 2048MB        |
-| &gt;=5.0.0       | 10240MB       |
+| Remotion Version | Default |
+| ---------------- | ------- |
+| &lt;5.0.0        | 2048MB  |
+| &gt;=5.0.0       | 10240MB |
 
 ### `customRoleArn?`
 
@@ -69,10 +66,6 @@ Use a custom role for the function instead of the default (`arn:aws:iam::[aws-ac
 ### `enableLambdaInsights?`<AvailableFrom v="4.0.61" />
 
 <Options id="enable-lambda-insights" />
-
-### `enableV5Runtime?`<AvailableFrom v="4.0.148" />
-
-Enable the [upcoming v5 runtime](/docs/lambda/runtime#runtime-changes-in-remotion-50) with newer Chrome and Node versions early.
 
 ### `runtimePreference?`<AvailableFrom v="4.0.205" />
 
@@ -97,6 +90,6 @@ An object with the following values:
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-function.ts)
-- [CLI equivalent: `npx remotion lambda functions deploy`](/docs/lambda/cli/functions#deploy)
+- [CLI equivalent: `npx remotion lambda functions deploy`](/docs/lambda/cli/functions/deploy)
 - [`deleteFunction()`](/docs/lambda/deletefunction)
 - [`getFunctions()`](/docs/lambda/getfunctions)

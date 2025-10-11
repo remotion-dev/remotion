@@ -1,6 +1,6 @@
 # @remotion/tailwind
  
-Enable TailwindCSS support in Remotion
+Enable TailwindCSS support in Remotion (TailwindCSS v3)
  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/tailwind.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/tailwind?minimal=true)
  

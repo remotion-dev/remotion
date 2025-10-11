@@ -1,19 +1,22 @@
-import type {
-	AudioCodec,
-	ChromiumOptions,
-	FrameRange,
-	LogLevel,
-	PixelFormat,
-	ProResProfile,
-	ToOptions,
-	VideoImageFormat,
+import {
+	type AudioCodec,
+	type ChromiumOptions,
+	type FrameRange,
+	type LogLevel,
+	type PixelFormat,
+	type ProResProfile,
+	type ToOptions,
+	type VideoImageFormat,
 } from '@remotion/renderer';
-import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
+import type {z} from 'zod';
+import type {Privacy} from '../defaults';
 import type {
 	CloudRunCrashResponse,
+	CloudRunPayload,
 	CloudRunPayloadType,
 	DownloadBehavior,
 	ErrorResponsePayload,
@@ -35,11 +38,11 @@ type InternalRenderMediaOnCloudrun = {
 	serveUrl: string;
 	composition: string;
 	inputProps: Record<string, unknown>;
-	privacy: 'public' | 'private' | undefined;
+	privacy: Privacy | undefined;
 	forceBucketName: string | undefined;
 	outName: string | undefined;
 	updateRenderProgress:
-		| ((progress: number, error?: boolean) => void)
+		| ((progress: number, error: boolean) => void)
 		| undefined;
 	codec: CloudrunCodec;
 	audioCodec: AudioCodec | undefined;
@@ -59,20 +62,25 @@ type InternalRenderMediaOnCloudrun = {
 	logLevel: LogLevel;
 	downloadBehavior: DownloadBehavior;
 	metadata?: Record<string, string> | null;
-} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
+	renderIdOverride: z.infer<typeof CloudRunPayload>['renderIdOverride'];
+	renderStatusWebhook: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
+} & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>;
+
+export type UpdateRenderProgress = (progress: number, error: boolean) => void;
 
 export type RenderMediaOnCloudrunInput = {
-	cloudRunUrl?: string;
-	serviceName?: string;
 	region: GcpRegion;
 	serveUrl: string;
 	composition: string;
+	renderId?: string | undefined;
+	codec: CloudrunCodec;
+	cloudRunUrl?: string;
+	serviceName?: string;
 	inputProps?: Record<string, unknown>;
-	privacy?: 'public' | 'private';
+	privacy?: Privacy;
 	forceBucketName?: string;
 	outName?: string;
-	updateRenderProgress?: (progress: number, error?: boolean) => void;
-	codec: CloudrunCodec;
+	updateRenderProgress?: UpdateRenderProgress;
 	audioCodec?: AudioCodec;
 	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
@@ -89,6 +97,8 @@ export type RenderMediaOnCloudrunInput = {
 	preferLossless?: boolean;
 	downloadBehavior?: DownloadBehavior;
 	metadata?: Record<string, string> | null;
+	renderIdOverride?: z.infer<typeof CloudRunPayload>['renderIdOverride'];
+	renderStatusWebhook?: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
 
 const internalRenderMediaOnCloudrunRaw = async ({
@@ -103,6 +113,8 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	privacy,
 	outName,
 	updateRenderProgress,
+	renderIdOverride,
+	renderStatusWebhook,
 	jpegQuality,
 	audioCodec,
 	audioBitrate,
@@ -129,9 +141,11 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	enforceAudioTrack,
 	preferLossless,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	colorSpace,
 	downloadBehavior,
 	metadata,
+	mediaCacheSizeInBytes,
 }: InternalRenderMediaOnCloudrun): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -153,7 +167,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		serveUrl,
 		codec: actualCodec,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},
@@ -177,7 +191,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		chromiumOptions,
 		muted: muted ?? false,
 		outputBucket,
-		privacy,
+		privacy: privacy ?? 'public',
 		outName,
 		forceWidth,
 		forceHeight,
@@ -188,10 +202,14 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		preferLossless: preferLossless ?? false,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		colorSpace: colorSpace ?? null,
 		clientVersion: VERSION,
 		downloadBehavior,
 		metadata: metadata ?? null,
+		renderIdOverride,
+		renderStatusWebhook,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -226,7 +244,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 			try {
 				parsedData = JSON.parse(accumulatedChunks.trim());
 				accumulatedChunks = ''; // Clear the buffer after successful parsing.
-			} catch (e) {
+			} catch {
 				// eslint-disable-next-line no-console
 				console.error('Could not parse progress: ', accumulatedChunks.trim());
 				// If parsing fails, it means we don't have a complete JSON string yet.
@@ -237,7 +255,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 			if (parsedData.response) {
 				response = parsedData.response;
 			} else if (parsedData.onProgress) {
-				updateRenderProgress?.(parsedData.onProgress);
+				updateRenderProgress?.(parsedData.onProgress, false);
 			}
 
 			if (parsedData.type === 'error') {
@@ -280,47 +298,9 @@ export const internalRenderMediaOnCloudrun = wrapWithErrorHandling(
 	internalRenderMediaOnCloudrunRaw,
 ) as typeof internalRenderMediaOnCloudrunRaw;
 
-/**
- * @description Triggers a render on a GCP Cloud Run service given a composition and a Cloud Run URL.
- * @see [Documentation](https://remotion.dev/docs/cloudrun/renderMediaOnGcp)
- * @param params.cloudRunUrl The URL of the Cloud Run service that should be used. Use either this or serviceName.
- * @param params.serviceName The name of the Cloud Run service that should be used. Use either this or cloudRunUrl.
- * @param params.region The region that the Cloud Run service is deployed in.
- * @param params.serveUrl The URL of the deployed project
- * @param params.composition The ID of the composition which should be rendered.
- * @param params.inputProps The input props that should be passed to the composition.
- * @param params.codec The media codec which should be used for encoding.
- * @param params.forceBucketName The name of the bucket that the output file should be uploaded to.
- * @param params.privacy Whether the output file should be public or private.
- * @param params.outName The name of the output file.
- * @param params.updateRenderProgress A callback that is called with the progress of the render.
- * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
- * @param params.audioCodec The encoding of the audio of the output video.
- * @param params.audioBitrate The target bitrate for the audio of the generated video.
- * @param params.videoBitrate The target bitrate of the generated video.
- * @param params.encodingBufferSize The decoder buffer size, which determines the variability of the generated video bitrate.
- * @param params.encodingMaxRate The maximum bitrate tolerance to be used, this is only used in conjunction with encodingBufferSize.
- * @param params.proResProfile Sets a ProRes profile. Only applies to videos rendered with prores codec.
- * @param params.x264Preset Sets a Preset profile. Only applies to videos rendered with h.264 codec.
- * @param params.crf Constant Rate Factor, controlling the quality.
- * @param params.pixelFormat Custom pixel format to use. Usually used for special use cases like transparent videos.
- * @param params.imageFormat Which image format the frames should be rendered in.
- * @param params.scale Scales the output dimensions by a factor.
- * @param params.everyNthFrame Only used if rendering gigs - renders only every nth frame.
- * @param params.numberOfGifLoops Only used if rendering gigs - how many times the gif should loop. Null means infinite.
- * @param params.frameRange Specify a single frame (a number) or a range of frames (a tuple [number, number]) to be rendered.
- * @param params.envVariables Object containing environment variables to be injected in your project.
- * @param params.chromiumOptions Allows you to set certain Chromium / Google Chrome flags.
- * @param params.muted If set to true, no audio is rendered.
- * @param params.forceWidth Overrides default composition width.
- * @param params.forceHeight Overrides default composition height.
- * @param params.logLevel Level of logging that Cloud Run service should perform. Default "info".
- * @param params.delayRenderTimeoutInMilliseconds A number describing how long the render may take to resolve all delayRender() calls before it times out.
- * @param params.concurrency A number or a string describing how many browser tabs should be opened. Default "50%".
- * @param params.enforceAudioTrack Render a silent audio track if there wouldn't be any otherwise.
- * @param params.preferLossless Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.
- * @param params.metadata Metadata to be attached to the output file.
- * @returns {Promise<RenderMediaOnCloudrunOutput>} See documentation for detailed structure
+/*
+ * @description Initiates a media rendering process on the Remotion Cloud Run service, facilitating configurations like service region, project composition, and output settings.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/rendermediaoncloudrun)
  */
 export const renderMediaOnCloudrun = ({
 	cloudRunUrl,
@@ -363,6 +343,10 @@ export const renderMediaOnCloudrun = ({
 	colorSpace,
 	downloadBehavior,
 	metadata,
+	renderIdOverride,
+	renderStatusWebhook,
+	offthreadVideoThreads,
+	mediaCacheSizeInBytes,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -378,38 +362,42 @@ export const renderMediaOnCloudrun = ({
 		privacy: privacy ?? undefined,
 		outName: outName ?? undefined,
 		updateRenderProgress: updateRenderProgress ?? undefined,
-		jpegQuality: jpegQuality ?? undefined,
+		jpegQuality: jpegQuality ?? 80,
 		audioCodec: audioCodec ?? undefined,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
 		encodingMaxRate: encodingMaxRate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,
 		proResProfile: proResProfile ?? undefined,
-		x264Preset: x264Preset ?? undefined,
+		x264Preset: x264Preset ?? null,
 		crf: crf ?? undefined,
 		pixelFormat: pixelFormat ?? undefined,
 		imageFormat: imageFormat ?? undefined,
-		scale: scale ?? undefined,
+		scale: scale ?? 1,
 		everyNthFrame: everyNthFrame ?? undefined,
 		numberOfGifLoops: numberOfGifLoops ?? null,
 		frameRange: frameRange ?? undefined,
 		envVariables: envVariables ?? undefined,
 		chromiumOptions: chromiumOptions ?? undefined,
-		muted: muted ?? undefined,
+		muted: muted ?? false,
 		forceWidth: forceWidth ?? null,
 		forceHeight: forceHeight ?? null,
 		logLevel: logLevel ?? 'info',
 		delayRenderTimeoutInMilliseconds:
-			delayRenderTimeoutInMilliseconds ?? undefined,
+			delayRenderTimeoutInMilliseconds ?? BrowserSafeApis.DEFAULT_TIMEOUT,
 		concurrency: concurrency ?? null,
-		enforceAudioTrack: enforceAudioTrack ?? undefined,
-		preferLossless: preferLossless ?? undefined,
-		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? undefined,
-		colorSpace: colorSpace ?? undefined,
+		enforceAudioTrack: enforceAudioTrack ?? false,
+		preferLossless: preferLossless ?? false,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		colorSpace: colorSpace ?? null,
 		indent: false,
 		downloadBehavior: downloadBehavior ?? {
 			type: 'play-in-browser',
 		},
 		metadata: metadata ?? null,
+		renderIdOverride: renderIdOverride ?? undefined,
+		renderStatusWebhook: renderStatusWebhook ?? undefined,
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 	});
 };

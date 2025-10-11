@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {beforeEach, expect, test} from 'bun:test';
+import {afterEach, beforeEach, expect, test} from 'bun:test';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
@@ -11,13 +11,18 @@ beforeEach(() => {
 		fs.unlinkSync(outputPath);
 	}
 });
+afterEach(() => {
+	if (fs.existsSync(outputPath)) {
+		fs.unlinkSync(outputPath);
+	}
+});
 
 test(
 	'Should be able to render a MP3 audio file',
 	async () => {
 		const task = execa(
-			'pnpm',
-			['exec', 'remotion', 'render', 'audio-testing-base64', outputPath],
+			'bun',
+			['x', 'remotion', 'render', 'audio-testing-base64', outputPath],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
 			},

@@ -1,28 +1,57 @@
-import {getMoovBox} from './boxes/iso-base-media/traversal';
-import {getMainSegment} from './boxes/webm/traversal';
-import type {ParseMediaContainer} from './options';
-import type {AnySegment} from './parse-result';
+import {isRiffAvi} from './containers/riff/traversal';
+import type {MediaParserContainer} from './options';
+import type {MediaParserStructureUnstable} from './parse-result';
 
 export const getContainer = (
-	segments: AnySegment[],
-): ParseMediaContainer | null => {
-	const moovBox = getMoovBox(segments);
-	if (moovBox) {
+	segments: MediaParserStructureUnstable,
+): MediaParserContainer => {
+	if (segments.type === 'iso-base-media') {
 		return 'mp4';
 	}
 
-	const mainSegment = getMainSegment(segments);
-	if (mainSegment) {
+	if (segments.type === 'matroska') {
 		return 'webm';
 	}
 
-	return null;
+	if (segments.type === 'transport-stream') {
+		return 'transport-stream';
+	}
+
+	if (segments.type === 'mp3') {
+		return 'mp3';
+	}
+
+	if (segments.type === 'wav') {
+		return 'wav';
+	}
+
+	if (segments.type === 'flac') {
+		return 'flac';
+	}
+
+	if (segments.type === 'riff') {
+		if (isRiffAvi(segments)) {
+			return 'avi';
+		}
+
+		throw new Error('Unknown RIFF container ' + segments.type);
+	}
+
+	if (segments.type === 'aac') {
+		return 'aac';
+	}
+
+	if (segments.type === 'm3u') {
+		return 'm3u8';
+	}
+
+	throw new Error('Unknown container ' + (segments satisfies never));
 };
 
-export const hasContainer = (boxes: AnySegment[]): boolean => {
+export const hasContainer = (boxes: MediaParserStructureUnstable): boolean => {
 	try {
 		return getContainer(boxes) !== null;
-	} catch (e) {
+	} catch {
 		return false;
 	}
 };

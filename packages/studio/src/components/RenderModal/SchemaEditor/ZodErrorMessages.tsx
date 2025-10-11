@@ -25,8 +25,8 @@ const triangleStyle: React.CSSProperties = {
 };
 
 export const ZodErrorMessages: React.FC<{
-	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
-	viewTab: 'schema' | 'json';
+	readonly zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
+	readonly viewTab: 'schema' | 'json';
 }> = ({zodValidationResult, viewTab}) => {
 	if (zodValidationResult.success) {
 		throw new Error('Expected error');

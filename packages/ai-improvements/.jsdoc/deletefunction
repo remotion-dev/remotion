@@ -1,0 +1,4 @@
+/**
+ * @description Deletes a deployed Lambda function based on its name.
+ * @see [Documentation](https://remotion.dev/docs/lambda/deletefunction)
+ */

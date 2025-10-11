@@ -1,0 +1,4 @@
+/**
+ * @description Turns the output from openai.audio.transcriptions.create from the openai package into an array of Caption objects.
+ * @see [Documentation](https://www.remotion.dev/docs/openai-whisper/openai-whisper-api-to-captions)
+ */

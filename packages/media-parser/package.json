@@ -3,19 +3,23 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
 	"name": "@remotion/media-parser",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
-		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
+		"formatting": "prettier --experimental-cli src --check",
+		"lint": "eslint src",
 		"test": "bun test src/test",
-		"watch": "tsc -w",
-		"make": "bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
+		"prepublishOnly": "bun ensure-correct-version.ts"
 	},
 	"devDependencies": {
-		"@remotion/renderer": "workspace:*",
-		"@types/wicg-file-system-access": "2023.10.5"
+		"@remotion/example-videos": "workspace:*",
+		"@types/wicg-file-system-access": "2023.10.5",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0",
+		"mediabunny": "1.23.0",
+		"@types/bun": "1.3.0"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -24,65 +28,92 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"exports": {
+		"./package.json": "./package.json",
 		".": {
+			"types": "./dist/index.d.ts",
 			"require": "./dist/index.js",
 			"module": "./dist/esm/index.mjs",
-			"types": "./dist/index.d.ts",
 			"import": "./dist/esm/index.mjs"
 		},
 		"./node": {
-			"require": "./dist/readers/from-node.js",
-			"module": "./dist/esm/from-node.mjs",
-			"types": "./dist/readers/from-node.d.ts",
-			"import": "./dist/esm/from-node.mjs"
+			"types": "./dist/node.d.ts",
+			"require": "./dist/node.js",
+			"module": "./dist/esm/node.mjs",
+			"import": "./dist/esm/node.mjs"
 		},
-		"./fetch": {
-			"require": "./dist/readers/from-fetch.js",
-			"module": "./dist/esm/from-fetch.mjs",
-			"types": "./dist/readers/from-fetch.d.ts",
-			"import": "./dist/esm/from-fetch.mjs"
+		"./web": {
+			"types": "./dist/web.d.ts",
+			"require": "./dist/web.js",
+			"module": "./dist/esm/web.mjs",
+			"import": "./dist/esm/web.mjs"
 		},
-		"./web-file": {
-			"require": "./dist/readers/from-web-file.js",
-			"module": "./dist/esm/from-web-file.mjs",
-			"types": "./dist/readers/from-web-file.d.ts",
-			"import": "./dist/esm/from-web-file.mjs"
+		"./universal": {
+			"types": "./dist/universal.d.ts",
+			"require": "./dist/universal.js",
+			"module": "./dist/esm/universal.mjs",
+			"import": "./dist/esm/universal.mjs"
 		},
-		"./web-fs": {
-			"require": "./dist/writers/web-fs.js",
-			"module": "./dist/esm/web-fs.mjs",
-			"types": "./dist/writers/web-fs.d.ts",
-			"import": "./dist/esm/web-fs.mjs"
+		"./node-writer": {
+			"types": "./dist/node-writer.d.ts",
+			"require": "./dist/node-writer.js",
+			"module": "./dist/esm/node-writer.mjs",
+			"import": "./dist/esm/node-writer.mjs"
 		},
-		"./buffer": {
-			"require": "./dist/writers/buffer.js",
-			"module": "./dist/esm/buffer.mjs",
-			"types": "./dist/writers/buffer.d.ts",
-			"import": "./dist/esm/buffer.mjs"
+		"./worker-web-entry": {
+			"types": "./dist/worker-web-entry.d.ts",
+			"require": "./dist/worker-web-entry.js",
+			"module": "./dist/esm/worker-web-entry.mjs",
+			"import": "./dist/esm/worker-web-entry.mjs"
 		},
-		"./package.json": "./package.json"
+		"./worker-server-entry": {
+			"types": "./dist/worker-server-entry.d.ts",
+			"require": "./dist/worker-server-entry.js",
+			"module": "./dist/esm/worker-server-entry.mjs",
+			"import": "./dist/esm/worker-server-entry.mjs"
+		},
+		"./worker": {
+			"types": "./dist/worker.d.ts",
+			"require": "./dist/worker.js",
+			"module": "./dist/esm/worker.mjs",
+			"import": "./dist/esm/worker.mjs"
+		},
+		"./server-worker": {
+			"types": "./dist/server-worker.d.ts",
+			"require": "./dist/server-worker.js",
+			"module": "./dist/esm/server-worker.mjs",
+			"import": "./dist/esm/server-worker.mjs"
+		}
 	},
 	"typesVersions": {
 		">=1.0": {
 			"node": [
-				"dist/readers/from-node.d.ts"
+				"./dist/node.d.ts"
 			],
-			"fetch": [
-				"dist/readers/from-fetch.d.ts"
+			"web": [
+				"./dist/web.d.ts"
 			],
-			"web-file": [
-				"dist/readers/from-web-file.d.ts"
+			"universal": [
+				"./dist/universal.d.ts"
 			],
-			"web-fs": [
-				"dist/writers/web-fs.d.ts"
+			"node-writer": [
+				"./dist/node-writer.d.ts"
 			],
-			"buffer": [
-				"dist/writers/buffer.d.ts"
+			"worker-web-entry": [
+				"./dist/worker-web-entry.d.ts"
+			],
+			"worker-server-entry": [
+				"./dist/worker-server-entry.d.ts"
+			],
+			"worker": [
+				"./dist/worker.d.ts"
+			],
+			"server-worker": [
+				"./dist/server-worker.d.ts"
 			]
 		}
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
-	"license": "SEE LICENSE IN LICENSE.md",
+	"license": "Remotion License https://remotion.dev/license",
 	"keywords": [
 		"remotion",
 		"ffmpeg",

@@ -3,25 +3,39 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/shapes"
 	},
 	"name": "@remotion/shapes",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"description": "Generate SVG shapes",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
-		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"test": "bun test src"
+		"formatting": "prettier --experimental-cli src --check",
+		"lint": "eslint src",
+		"test": "bun test src",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
 	"author": "Alex Fernandez, Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		}
+	},
 	"devDependencies": {
-		"@testing-library/react": "15.0.7",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
-		"@happy-dom/global-registrator": "14.5.1"
+		"@testing-library/react": "16.1.0",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"@happy-dom/global-registrator": "14.5.1",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
 	},
 	"keywords": [
 		"svg",

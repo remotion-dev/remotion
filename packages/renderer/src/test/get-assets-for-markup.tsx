@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-imports */
 import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {
@@ -108,7 +107,13 @@ export const getAssetsForMarkup = async (
 
 		return (
 			<Internals.CanUseRemotionHooksProvider>
-				<Internals.RemotionRoot numberOfAudioTags={0}>
+				<Internals.RemotionRoot
+					numberOfAudioTags={0}
+					logLevel="info"
+					onlyRenderComposition={null}
+					currentCompositionMetadata={null}
+					audioLatencyHint="interactive"
+				>
 					<Internals.CompositionManager.Provider value={value}>
 						<Internals.RenderAssetManager.Provider value={assetContext}>
 							<Internals.ResolveCompositionConfig>

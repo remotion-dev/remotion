@@ -1,13 +1,13 @@
 import {getRemotionEnvironment} from 'remotion';
+import type {ZodTypesType} from '../components/get-zod-if-possible';
 import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import {callUpdateDefaultPropsApi} from '../components/RenderQueue/actions';
 import type {UpdateDefaultPropsFunction} from './helpers/calc-new-props';
 import {calcNewProps} from './helpers/calc-new-props';
 
-/**
- * Saves the defaultProps for a composition back to the root file.
- * @param {string} compositionId The ID of the composition to save the defaultProps for.
- * @param {SafeDefaultPropsFunction} defaultProps A function that returns the new defaultProps for the composition.
+/*
+ * @description Saves the defaultProps for a composition back to the root file.
+ * @see [Documentation](https://www.remotion.dev/docs/studio/save-default-props)
  */
 export const saveDefaultProps = async ({
 	compositionId,
@@ -33,6 +33,10 @@ export const saveDefaultProps = async ({
 	}
 
 	const z = await import('zod');
+	let zodTypes: ZodTypesType | null = null;
+	try {
+		zodTypes = await import('@remotion/zod-types');
+	} catch {}
 
 	const {generatedDefaultProps, composition} = calcNewProps(
 		compositionId,
@@ -42,7 +46,14 @@ export const saveDefaultProps = async ({
 	const res = await callUpdateDefaultPropsApi(
 		compositionId,
 		generatedDefaultProps,
-		composition.schema ? extractEnumJsonPaths(composition.schema, z, []) : [],
+		composition.schema
+			? extractEnumJsonPaths({
+					schema: composition.schema,
+					zodRuntime: z,
+					currentPath: [],
+					zodTypes,
+				})
+			: [],
 	);
 
 	if (res.success) {

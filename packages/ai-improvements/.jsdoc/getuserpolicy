@@ -1,0 +1,4 @@
+/**
+ * @description Returns an inline JSON policy to be assigned to the AWS user whose credentials are being used for executing CLI commands or calling Node.JS functions.
+ * @see [Documentation](https://remotion.dev/docs/lambda/getuserpolicy)
+ */

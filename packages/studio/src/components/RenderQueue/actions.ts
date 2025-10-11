@@ -1,5 +1,6 @@
 import type {
 	AudioCodec,
+	ChromeMode,
 	Codec,
 	ColorSpace,
 	LogLevel,
@@ -9,6 +10,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {
 	ApplyCodemodRequest,
 	CanUpdateDefaultPropsResponse,
@@ -17,6 +19,7 @@ import type {
 	RecastCodemod,
 	RenderJob,
 	RequiredChromiumOptions,
+	VisualControlChange,
 } from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 import {callApi} from '../call-api';
@@ -34,9 +37,12 @@ export const addStillRenderJob = ({
 	envVariables,
 	inputProps,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	multiProcessOnLinux,
 	beepOnFinish,
 	metadata,
+	chromeMode,
+	mediaCacheSizeInBytes,
 }: {
 	compositionId: string;
 	outName: string;
@@ -50,9 +56,12 @@ export const addStillRenderJob = ({
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	metadata: Record<string, string> | null;
+	chromeMode: ChromeMode;
+	mediaCacheSizeInBytes: number | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -67,15 +76,18 @@ export const addStillRenderJob = ({
 		delayRenderTimeout,
 		envVariables,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
 				staticBase: window.remotion_staticBase,
 				indent: undefined,
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		multiProcessOnLinux,
 		beepOnFinish,
 		metadata,
+		chromeMode,
+		mediaCacheSizeInBytes,
 	});
 };
 
@@ -93,12 +105,15 @@ export const addSequenceRenderJob = ({
 	inputProps,
 	concurrency,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	jpegQuality,
 	disallowParallelEncoding,
 	multiProcessOnLinux,
 	beepOnFinish,
 	repro,
 	metadata,
+	chromeMode,
+	mediaCacheSizeInBytes,
 }: {
 	compositionId: string;
 	outName: string;
@@ -114,11 +129,14 @@ export const addSequenceRenderJob = ({
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	disallowParallelEncoding: boolean;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	repro: boolean;
 	metadata: Record<string, string> | null;
+	chromeMode: ChromeMode;
+	mediaCacheSizeInBytes: number | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -135,17 +153,20 @@ export const addSequenceRenderJob = ({
 		envVariables,
 		concurrency,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
 				staticBase: window.remotion_staticBase,
 				indent: undefined,
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		disallowParallelEncoding,
 		multiProcessOnLinux,
 		beepOnFinish,
 		repro,
 		metadata,
+		chromeMode,
+		mediaCacheSizeInBytes,
 	});
 };
 
@@ -177,6 +198,7 @@ export const addVideoRenderJob = ({
 	envVariables,
 	inputProps,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	colorSpace,
 	multiProcessOnLinux,
 	encodingMaxRate,
@@ -186,6 +208,9 @@ export const addVideoRenderJob = ({
 	forSeamlessAacConcatenation,
 	separateAudioTo,
 	metadata,
+	hardwareAcceleration,
+	chromeMode,
+	mediaCacheSizeInBytes,
 }: {
 	compositionId: string;
 	outName: string;
@@ -214,6 +239,7 @@ export const addVideoRenderJob = ({
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	colorSpace: ColorSpace;
 	multiProcessOnLinux: boolean;
 	encodingMaxRate: string | null;
@@ -223,6 +249,9 @@ export const addVideoRenderJob = ({
 	forSeamlessAacConcatenation: boolean;
 	separateAudioTo: string | null;
 	metadata: Record<string, string> | null;
+	hardwareAcceleration: HardwareAccelerationOption;
+	chromeMode: ChromeMode;
+	mediaCacheSizeInBytes: number | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -252,12 +281,13 @@ export const addVideoRenderJob = ({
 		chromiumOptions,
 		envVariables,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
 				staticBase: window.remotion_staticBase,
 				indent: undefined,
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		colorSpace,
 		multiProcessOnLinux,
 		encodingBufferSize,
@@ -267,6 +297,9 @@ export const addVideoRenderJob = ({
 		forSeamlessAacConcatenation,
 		separateAudioTo,
 		metadata,
+		hardwareAcceleration,
+		chromeMode,
+		mediaCacheSizeInBytes,
 	});
 };
 
@@ -344,7 +377,7 @@ export const callUpdateDefaultPropsApi = (
 ) => {
 	return callApi('/api/update-default-props', {
 		compositionId,
-		defaultProps: NoReactInternals.serializeJSONWithDate({
+		defaultProps: NoReactInternals.serializeJSONWithSpecialTypes({
 			data: defaultProps,
 			indent: undefined,
 			staticBase: window.remotion_staticBase,
@@ -366,5 +399,18 @@ export const canUpdateDefaultProps = (
 
 	return callApi('/api/can-update-default-props', {
 		compositionId,
+	});
+};
+
+export const applyVisualControlChange = ({
+	fileName,
+	changes,
+}: {
+	fileName: string;
+	changes: VisualControlChange[];
+}) => {
+	return callApi('/api/apply-visual-control-change', {
+		fileName,
+		changes,
 	});
 };

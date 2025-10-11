@@ -1,8 +1,8 @@
 ---
 image: /generated/articles-docs-player-thumbnail.png
 id: thumbnail
-title: "<Thumbnail>"
-crumb: "@remotion/player"
+title: '<Thumbnail>'
+crumb: '@remotion/player'
 ---
 
 _available from v3.2.41_
@@ -12,12 +12,12 @@ A component which can be rendered in a regular React App (for example: for examp
 ```tsx twoslash title="MyApp.tsx"
 // @allowUmdGlobalAccess
 // @filename: ./remotion/MyVideo.tsx
-export const MyVideo: React.FC<{ title: string }> = ({ title }) => <>{title}</>;
+export const MyVideo: React.FC<{title: string}> = ({title}) => <>{title}</>;
 
 // @filename: index.tsx
 // ---cut---
-import { Thumbnail } from "@remotion/player";
-import { MyVideo } from "./remotion/MyVideo";
+import {Thumbnail} from '@remotion/player';
+import {MyVideo} from './remotion/MyVideo';
 
 export const App: React.FC = () => {
   return (
@@ -29,7 +29,7 @@ export const App: React.FC = () => {
       durationInFrames={120}
       fps={30}
       inputProps={{
-        title: "Foo",
+        title: 'Foo',
       }}
     />
   );
@@ -98,9 +98,9 @@ A callback function that allows you to return a custom UI that gets displayed wh
 The first parameter of the callback function contains the `height` and `width` of the thumbnail as it gets rendered.
 
 ```tsx twoslash
-import { RenderLoading, Thumbnail } from "@remotion/player";
-import { useCallback } from "react";
-import { AbsoluteFill } from "remotion";
+import {RenderLoading, Thumbnail} from '@remotion/player';
+import {useCallback} from 'react';
+import {AbsoluteFill} from 'remotion';
 
 const Component: React.FC = () => null;
 
@@ -108,25 +108,15 @@ const Component: React.FC = () => null;
 
 const MyApp: React.FC = () => {
   // `RenderLoading` type can be imported from "@remotion/player"
-  const renderLoading: RenderLoading = useCallback(({ height, width }) => {
+  const renderLoading: RenderLoading = useCallback(({height, width}) => {
     return (
-      <AbsoluteFill style={{ backgroundColor: "gray" }}>
+      <AbsoluteFill style={{backgroundColor: 'gray'}}>
         Loading thumbnail ({height}x{width})
       </AbsoluteFill>
     );
   }, []);
 
-  return (
-    <Thumbnail
-      fps={30}
-      component={Component}
-      durationInFrames={100}
-      compositionWidth={1080}
-      compositionHeight={1080}
-      frameToDisplay={30}
-      renderLoading={renderLoading}
-    />
-  );
+  return <Thumbnail fps={30} component={Component} durationInFrames={100} compositionWidth={1080} compositionHeight={1080} frameToDisplay={30} renderLoading={renderLoading} />;
 };
 ```
 
@@ -156,6 +146,14 @@ A HTML class name to be applied to the container.
 
 Makes the Player render things outside of the canvas. Useful if you have interactive elements in the video such as draggable elements.
 
+### `logLevel?`<AvailableFrom v="4.0.250" />
+
+<Options id="log" />
+
+### `noSuspense`<AvailableFrom v="4.0.271" />
+
+Disables React Suspense, which is [useful for writing tests](/docs/player/thumbnail).
+
 ## ThumbnailRef
 
 You may attach a ref to the thumbnail and get some layout info.
@@ -168,9 +166,9 @@ export const MyComposition: React.FC = () => null;
 
 // @filename: index.tsx
 // ---cut---
-import { Thumbnail, ThumbnailRef } from "@remotion/player";
-import { useEffect, useRef } from "react";
-import { MyComposition } from "./MyComposition";
+import {Thumbnail, ThumbnailRef} from '@remotion/player';
+import {useEffect, useRef} from 'react';
+import {MyComposition} from './MyComposition';
 
 const MyComp: React.FC = () => {
   const thumbnailRef = useRef<ThumbnailRef>(null);
@@ -203,8 +201,8 @@ The following methods are available on the thumbnail ref:
 Gets the container `HTMLDivElement` of the thumbnail. Useful if you'd like to manually attach listeners to the thumbnail element.
 
 ```tsx twoslash
-import { ThumbnailRef } from "@remotion/player";
-import { useEffect, useRef } from "react";
+import {ThumbnailRef} from '@remotion/player';
+import {useEffect, useRef} from 'react';
 // ---cut---
 const thumbnailRef = useRef<ThumbnailRef>(null);
 
@@ -218,12 +216,12 @@ useEffect(() => {
   }
 
   const onClick = () => {
-    console.log("thumbnail got clicked");
+    console.log('thumbnail got clicked');
   };
 
-  container.addEventListener("click", onClick);
+  container.addEventListener('click', onClick);
   return () => {
-    container.removeEventListener("click", onClick);
+    container.removeEventListener('click', onClick);
   };
 }, []);
 ```
@@ -245,8 +243,8 @@ Stop listening to an event. See the [Events](#events) section to see the functio
 Using a [thumbnail ref](#thumbnailref), you can bind event listeners to get notified of certain events of the thumbnail.
 
 ```tsx twoslash
-import { ThumbnailRef } from "@remotion/player";
-import { useEffect, useRef } from "react";
+import {ThumbnailRef} from '@remotion/player';
+import {useEffect, useRef} from 'react';
 // ---cut---
 const thumbnailRef = useRef<ThumbnailRef>(null);
 
@@ -255,8 +253,8 @@ useEffect(() => {
     return;
   }
 
-  thumbnailRef.current.addEventListener("error", (e) => {
-    console.log("error", e.detail.error);
+  thumbnailRef.current.addEventListener('error', (e) => {
+    console.log('error', e.detail.error);
   });
 }, []);
 ```
@@ -268,12 +266,12 @@ Fires when an error or uncaught exception has happened in the thumbnail.
 You may get the error by reading the `e.detail.error` value:
 
 ```tsx twoslash
-import { ThumbnailRef } from "@remotion/player";
-import { useRef } from "react";
+import {ThumbnailRef} from '@remotion/player';
+import {useRef} from 'react';
 const ref = useRef<ThumbnailRef>(null);
 // ---cut---
-ref.current?.addEventListener("error", (e) => {
-  console.log("error ", e.detail.error); // error [Error: undefined is not a function]
+ref.current?.addEventListener('error', (e) => {
+  console.log('error ', e.detail.error); // error [Error: undefined is not a function]
 });
 ```
 
@@ -302,8 +300,8 @@ See: [`<Player>` -> Handling errors](/docs/player/player#handling-errors)
 <Credits
   contributors={[
     {
-      username: "Slashgear",
-      contribution: "Implementation",
+      username: 'Slashgear',
+      contribution: 'Implementation',
     },
   ]}
 />

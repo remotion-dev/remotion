@@ -1,44 +1,45 @@
-import {getVideoMetadata} from '@remotion/media-utils';
-import {CalculateMetadataFunction, Loop, OffthreadVideo} from 'remotion';
-
-type Props = {
-	src: string;
-};
+import {parseMedia} from '@remotion/media-parser';
+import {StudioInternals} from '@remotion/studio';
+import {CalculateMetadataFunction, OffthreadVideo, staticFile} from 'remotion';
 
 const fps = 30;
+const src = staticFile('bigbuckbunny.mp4') + '#t=lol';
 
-export const calculateMetadataFn: CalculateMetadataFunction<Props> = async ({
-	props,
-}) => {
-	const {src} = props;
-	const {durationInSeconds, width, height} = await getVideoMetadata(src);
+export const calculateMetadataFn: CalculateMetadataFunction<
+	Record<string, unknown>
+> = async () => {
+	const {slowDurationInSeconds, dimensions} = await parseMedia({
+		src,
+		acknowledgeRemotionLicense: true,
+		fields: {
+			slowDurationInSeconds: true,
+			dimensions: true,
+		},
+	});
+
+	if (dimensions === null) {
+		throw new Error('Dimensions are null');
+	}
 
 	return {
-		durationInFrames: Math.round(durationInSeconds * fps),
+		durationInFrames: Math.round(slowDurationInSeconds * fps),
 		fps,
-		width: width * 2,
-		height,
+		width: Math.floor(dimensions.width / 2) * 2,
+		height: Math.floor(dimensions.height / 2) * 2,
 	};
 };
 
-export const LoopedOffthreadVideo: React.FC<{
-	durationInFrames: number;
-	src: string;
-	muted?: boolean;
-}> = ({durationInFrames, src}) => {
-	if (durationInFrames <= 0) {
-		throw new Error('durationInFrames must be greater than 0');
-	}
-
+const Component = () => {
 	return (
-		<Loop durationInFrames={durationInFrames}>
-			<OffthreadVideo muted src={src} />
-		</Loop>
+		<>
+			<OffthreadVideo src={src} />
+		</>
 	);
 };
 
-export const OffthreadRemoteVideo: React.FC<{
-	src: string;
-}> = ({src}) => {
-	return <LoopedOffthreadVideo durationInFrames={100} src={src} />;
-};
+export const OffthreadRemoteVideo = StudioInternals.createComposition({
+	component: Component,
+	id: 'OffthreadRemoteVideo',
+	calculateMetadata: calculateMetadataFn,
+	fps,
+});

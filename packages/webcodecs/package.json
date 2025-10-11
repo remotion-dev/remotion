@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -12,26 +12,78 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"scripts": {
-		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
-		"watch": "tsc -w"
+		"formatting": "prettier --experimental-cli src --check",
+		"lint": "eslint src",
+		"test": "bun test src/test",
+		"testwebcodecs": "playwright test src/it-tests",
+		"watch": "tsc -w",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"!dist/test",
+		"!dist/it-tests"
 	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
-	"license": "SEE LICENSE IN LICENSE.md",
+	"license": "Remotion License (See https://remotion.dev/docs/webcodecs#license)",
 	"dependencies": {
-		"@remotion/media-parser": "workspace:*"
+		"@remotion/media-parser": "workspace:*",
+		"@remotion/licensing": "workspace:*"
 	},
 	"peerDependencies": {},
 	"devDependencies": {
-		"@types/dom-webcodecs": "0.1.11"
+		"@types/dom-webcodecs": "0.1.11",
+		"@remotion/example-videos": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"playwright": "1.51.1",
+		"vite": "5.4.20",
+		"@playwright/test": "1.51.1",
+		"eslint": "9.19.0"
 	},
 	"keywords": [],
 	"publishConfig": {
 		"access": "public"
 	},
-	"description": "Media conversion in the browser"
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./web-fs": {
+			"types": "./dist/writers/web-fs.d.ts",
+			"require": "./dist/writers/web-fs.js",
+			"module": "./dist/esm/web-fs.mjs",
+			"import": "./dist/esm/web-fs.mjs"
+		},
+		"./buffer": {
+			"types": "./dist/writers/buffer.d.ts",
+			"require": "./dist/writers/buffer.js",
+			"module": "./dist/esm/buffer.mjs",
+			"import": "./dist/esm/buffer.mjs"
+		},
+		"./worker": {
+			"types": "./dist/worker.d.ts",
+			"require": "./dist/worker.js",
+			"module": "./dist/esm/worker.mjs",
+			"import": "./dist/esm/worker.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"web-fs": [
+				"dist/writers/web-fs.d.ts"
+			],
+			"worker": [
+				"dist/worker.d.ts"
+			],
+			"buffer": [
+				"dist/writers/buffer.d.ts"
+			]
+		}
+	},
+	"description": "Media conversion in the browser",
+	"homepage": "https://remotion.dev/webcodecs"
 }

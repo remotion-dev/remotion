@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 import {
 	forwardRef,
 	useEffect,
@@ -38,8 +39,10 @@ const calcArgs = (
 				canvasSize.width / frameSize.width,
 				canvasSize.height / frameSize.height,
 			);
+
 			const centerX = (canvasSize.width - frameSize.width * ratio) / 2;
 			const centerY = (canvasSize.height - frameSize.height * ratio) / 2;
+
 			return [
 				0,
 				0,
@@ -59,6 +62,7 @@ const calcArgs = (
 			);
 			const centerX = (canvasSize.width - frameSize.width * ratio) / 2;
 			const centerY = (canvasSize.height - frameSize.height * ratio) / 2;
+
 			return [
 				0,
 				0,
@@ -91,13 +95,13 @@ const makeCanvas = () => {
 };
 
 type Props = {
-	index: number;
-	frames: ImageData[];
-	width?: number;
-	height?: number;
-	fit: GifFillMode;
-	className?: string;
-	style?: React.CSSProperties;
+	readonly index: number;
+	readonly frames: ImageData[];
+	readonly width?: number;
+	readonly height?: number;
+	readonly fit: GifFillMode;
+	readonly className?: string;
+	readonly style?: React.CSSProperties;
 };
 
 export const Canvas = forwardRef(

@@ -2,10 +2,10 @@
 image: /generated/articles-docs-sequence.png
 id: sequence
 title: <Sequence>
-crumb: "API"
+crumb: 'API'
 ---
 
-import { SequenceForwardExample } from "../components/SequenceExamples/SequenceForward";
+import {SequenceForwardExample} from '../components/SequenceExamples/SequenceForward';
 
 ```twoslash include example
 const BlueSquare: React.FC = () => <div></div>
@@ -15,7 +15,7 @@ const BlueSquare: React.FC = () => <div></div>
 By using a sequence, you can time-shift the display of your components or parts of your animation in the video.
 
 ```tsx twoslash title="MyTrailer.tsx"
-import { Sequence } from "remotion";
+import {Sequence} from 'remotion';
 
 export const Intro = () => <></>;
 export const Clip = () => <></>;
@@ -43,21 +43,21 @@ const MyTrailer = () => {
 <sub>
   <em>
     <code>&lt;Intro&gt;</code>
-  </em>{" "}
+  </em>{' '}
   will show from frame 0-29.
 </sub>
 <br />
 <sub>
   <em>
     <code>&lt;Clip&gt;</code>
-  </em>{" "}
+  </em>{' '}
   will show from frame 30 on until frame 59.
 </sub>
 <br />
 <sub>
   <em>
     <code>&lt;Outro&gt;</code>
-  </em>{" "}
+  </em>{' '}
   will show from frame 60 on until the end of the composition.
 </sub>
 <br />
@@ -66,7 +66,7 @@ const MyTrailer = () => {
 All children of a `<Sequence>` that call [`useCurrentFrame()`](/docs/use-current-frame) will receive a value that is shifted by [`from`](#from).
 
 ```tsx twoslash title="MyTrailer.tsx"
-import { Sequence, useCurrentFrame } from "remotion";
+import {Sequence, useCurrentFrame} from 'remotion';
 
 const Intro = () => <div>{useCurrentFrame()}</div>;
 
@@ -83,13 +83,11 @@ const MyTrailer = () => {
 ```
 
 <sub>
-  At frame <code>0</code>, this would render{" "}
-  <code>&lt;div&gt;0&lt;/div&gt;</code>.
+  At frame <code>0</code>, this would render <code>&lt;div&gt;0&lt;/div&gt;</code>.
 </sub>
 <br />
 <sub>
-  At frame <code>30</code>, this would render{" "}
-  <code>&lt;div&gt;30&lt;/div&gt;&lt;div&gt;0&lt;/div&gt;</code>.
+  At frame <code>30</code>, this would render <code>&lt;div&gt;30&lt;/div&gt;&lt;div&gt;0&lt;/div&gt;</code>.
 </sub>
 <br />
 <br />
@@ -128,7 +126,7 @@ If you would like to delay the content by say 30 frames, you can wrap it in <br/
 
 ```tsx twoslash title="delay.tsx"
 // @include: example-BlueSquare
-import { Sequence } from "remotion";
+import {Sequence} from 'remotion';
 // ---cut---
 const MyVideo = () => {
   return (
@@ -148,7 +146,7 @@ Wrap your component in a `<Sequence>` with a finite `durationInFrames` prop to m
 
 ```tsx twoslash title="trim-end.tsx"
 // @include: example-BlueSquare
-import { Sequence } from "remotion";
+import {Sequence} from 'remotion';
 // ---cut---
 const ClipExample: React.FC = () => {
   return (
@@ -188,7 +186,7 @@ To the outer one we pass a positive value `from={30}` to then shift it forwards 
 
 ```tsx twoslash title="trim-and-delay.tsx"
 // @include: example-BlueSquare
-import { Sequence } from "remotion";
+import {Sequence} from 'remotion';
 // ---cut---
 const TrimAndDelayExample: React.FC = () => {
   return (
@@ -264,6 +262,20 @@ _optional_
 
 [Premount](/docs/player/premounting) the sequence for a set number of frames.
 
+### `postmountFor`<AvailableFrom v="4.0.340" />
+
+_optional_
+
+Same as `premountFor`, but for after the sequence has ended.  
+Use this only if you expect the user to frequently seek backwards in the timeline and you want to avoid flickers for this behavior.
+
+### `styleWhilePremounted`<AvailableFrom v="4.0.252" />
+
+_optional_
+
+CSS styles to be applied to the container while the sequence is premounted.  
+The `style` is still applied, but `styleWhilePremounted` can override properties.
+
 ### `showInTimeline`<AvailableFrom v="4.0.110" />
 
 _optional_
@@ -277,8 +289,8 @@ This behavior is stable as of v4.0.110, previously the behavior was different, b
 You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to an `<Sequence>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
 
 ```tsx twoslash
-import { useRef } from "react";
-import { Sequence } from "remotion";
+import {useRef} from 'react';
+import {Sequence} from 'remotion';
 
 const content = <div>Hello, World</div>;
 // ---cut---

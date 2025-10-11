@@ -1,0 +1,4 @@
+/**
+ * @description Takes an image src, retrieves the dimensions of an image.
+ * @see [Documentation](https://remotion.dev/docs/get-image-dimensions)
+ */

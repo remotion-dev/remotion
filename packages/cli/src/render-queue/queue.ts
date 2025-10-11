@@ -58,7 +58,7 @@ const processJob = async ({
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
-	addCleanupCallback: (cb: () => void) => void;
+	addCleanupCallback: (label: string, cb: () => void) => void;
 	logLevel: LogLevel;
 }) => {
 	if (job.type === 'still') {
@@ -155,7 +155,7 @@ const processJobIfPossible = async ({
 		return;
 	}
 
-	const jobCleanups: (() => void)[] = [];
+	const jobCleanups: {label: string; job: () => void}[] = [];
 
 	try {
 		updateJob(nextJob.id, (job) => {
@@ -211,8 +211,8 @@ const processJobIfPossible = async ({
 					throw new Error('Unknown job type');
 				});
 			},
-			addCleanupCallback: (cleanup) => {
-				jobCleanups.push(cleanup);
+			addCleanupCallback: (label, cleanup) => {
+				jobCleanups.push({label, job: cleanup});
 			},
 			logLevel,
 		});
@@ -254,7 +254,7 @@ const processJobIfPossible = async ({
 	} catch (err) {
 		Log.error(
 			{indent: false, logLevel},
-			chalk.gray('╰─ '),
+			chalk.gray('\n╰─ '),
 			chalk.red('Failed to render'),
 		);
 
@@ -279,7 +279,12 @@ const processJobIfPossible = async ({
 			});
 		});
 	} finally {
-		await Promise.all(jobCleanups.map((c) => c()));
+		await Promise.all(
+			jobCleanups.map(({job, label}) => {
+				Log.verbose({indent: false, logLevel}, 'Cleanup: ' + label);
+				return job();
+			}),
+		);
 	}
 
 	processJobIfPossible({remotionRoot, entryPoint, logLevel});

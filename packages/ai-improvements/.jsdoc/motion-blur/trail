@@ -1,0 +1,4 @@
+/**
+ * @description The <Trail> component duplicates its children and adds a time offset to each layer in order to create a trail effect.
+ * @see [Documentation](https://www.remotion.dev/docs/motion-blur/trail)
+ */

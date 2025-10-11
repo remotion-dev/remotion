@@ -1,49 +1,63 @@
 import { Composition, staticFile } from "remotion";
-import { AudioGramSchema, AudiogramComposition, fps } from "./Composition";
-import "./style.css";
+import { Audiogram } from "./Audiogram/Main";
+import { audiogramSchema } from "./Audiogram/schema";
+import { getSubtitles } from "./helpers/fetch-captions";
+import { FPS } from "./helpers/ms-to-frame";
+import { parseMedia } from "@remotion/media-parser";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
         id="Audiogram"
-        component={AudiogramComposition}
-        fps={fps}
+        component={Audiogram}
         width={1080}
         height={1080}
-        schema={AudioGramSchema}
+        schema={audiogramSchema}
         defaultProps={{
-          // Audio settings
-          audioOffsetInSeconds: 6.9,
-
-          // Title settings
-          audioFileName: staticFile("audio.mp3"),
-          coverImgFileName: staticFile("cover.jpg"),
-          titleText:
-            "#234 – Money, Kids, and Choosing Your Market with Justin Jackson of Transistor.fm",
+          // audio settings
+          audioOffsetInSeconds: 0,
+          audioFileUrl: staticFile("audio.wav"),
+          // podcast data
+          coverImageUrl: staticFile("podcast-cover.jpeg"),
+          titleText: "Ep 550 - Supper Club × Remotion React",
           titleColor: "rgba(186, 186, 186, 0.93)",
-
-          // Subtitles settings
-          subtitlesFileName: staticFile("subtitles.srt"),
+          // captions settings
+          captions: null,
+          captionsFileName: staticFile("captions.json"),
           onlyDisplayCurrentSentence: true,
-          subtitlesTextColor: "rgba(255, 255, 255, 0.93)",
-          subtitlesLinePerPage: 4,
-          subtitlesZoomMeasurerSize: 10,
-          subtitlesLineHeight: 98,
-
-          // Wave settings
-          waveColor: "#a3a5ae",
-          waveFreqRangeStartIndex: 7,
-          waveLinesToDisplay: 29,
-          waveNumberOfSamples: "256", // This is string for Remotion controls and will be converted to a number
-          mirrorWave: true,
-          durationInSeconds: 29.5,
+          captionsTextColor: "rgba(255, 255, 255, 0.93)",
+          // visualizer settings
+          visualizer: {
+            type: "oscilloscope",
+            color: "#F4B941",
+            numberOfSamples: "64" as const,
+            windowInSeconds: 0.1,
+            posterization: 3,
+            amplitude: 4,
+            padding: 50,
+          },
         }}
         // Determine the length of the video based on the duration of the audio file
-        calculateMetadata={({ props }) => {
+        calculateMetadata={async ({ props }) => {
+          const captions = await getSubtitles(props.captionsFileName);
+          const { slowDurationInSeconds } = await parseMedia({
+            src: props.audioFileUrl,
+            acknowledgeRemotionLicense: true,
+            fields: {
+              slowDurationInSeconds: true,
+            },
+          });
+
           return {
-            durationInFrames: props.durationInSeconds * fps,
-            props,
+            durationInFrames: Math.floor(
+              (slowDurationInSeconds - props.audioOffsetInSeconds) * FPS,
+            ),
+            props: {
+              ...props,
+              captions,
+            },
+            fps: FPS,
           };
         }}
       />

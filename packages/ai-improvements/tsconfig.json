@@ -1,0 +1,15 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "./src",
+		"outDir": "./dist/cjs",
+		"module": "Preserve",
+		"esModuleInterop": true,
+		"resolveJsonModule": false,
+		"skipLibCheck": true,
+		"jsx": "react-jsx",
+		"noEmit": true
+	},
+	"include": ["./", "../docs/src/data/articles.ts"],
+	"references": []
+}

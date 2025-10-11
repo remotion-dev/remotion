@@ -30,7 +30,11 @@ const isVsCodeDerivative = (editor: Editor) => {
 		editor === 'Code.exe' ||
 		editor === 'vscodium' ||
 		editor === 'VSCodium.exe' ||
-		editor === 'Code - Insiders.exe'
+		editor === 'Code - Insiders.exe' ||
+		editor === 'cursor' ||
+		editor === 'Cursor.exe' ||
+		editor === 'windsurf' ||
+		editor === 'Windsurf.exe'
 	);
 };
 
@@ -45,6 +49,7 @@ function isTerminalEditor(editor: Editor) {
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const editorNames = [
 	'atom',
 	'/Applications/Atom Beta.app/Contents/MacOS/Atom Beta',
@@ -102,6 +107,13 @@ const editorNames = [
 	'rider.exe',
 	'rider64.exe',
 	'nano',
+	'cursor',
+	'/Applications/Cursor.app/Contents/MacOS/Cursor',
+	'Cursor.exe',
+	'windsurf',
+	'/Applications/Windsurf.app/Contents/MacOS/Windsurf',
+	'Windsurf.exe',
+	'zed',
 ] as const;
 
 const displayNameForEditor: {[key in Editor]: string} = {
@@ -122,9 +134,13 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	'/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl':
 		'Sublime Text',
 	'/Applications/WebStorm.app/Contents/MacOS/webstorm': 'WebStorm',
+	'/Applications/Cursor.app/Contents/MacOS/Cursor': 'Cursor',
+	'/Applications/Windsurf.app/Contents/MacOS/Windsurf': 'Windsurf',
 	'Brackets.exe': 'Brackets',
 	'Code - Insiders.exe': 'VS Code Insiders',
 	'Code.exe': 'VS Code',
+	'Cursor.exe': 'Cursor',
+	'Windsurf.exe': 'Windsurf',
 	'VSCodium.exe': 'VS Codium',
 	'atom.exe': 'Atom',
 	'clion.exe': 'CLion',
@@ -149,6 +165,9 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	atom: 'Atom',
 	brackets: 'Brackets',
 	code: 'VS Code',
+	cursor: 'Cursor',
+	windsurf: 'Windsurf',
+	zed: 'Zed',
 	emacs: 'emacs',
 	goland: 'GoLand',
 	gvim: 'GVim',
@@ -204,6 +223,8 @@ const COMMON_EDITORS_OSX: Record<string, Editor> = {
 	'/Applications/Visual Studio Code - Insiders.app/Contents/MacOS/Electron':
 		'code-insiders',
 	'/Applications/VSCodium.app/Contents/MacOS/Electron': 'vscodium',
+	'/Applications/Cursor.app/Contents/MacOS/Cursor': 'cursor',
+	'/Applications/Windsurf.app/Contents/MacOS/Electron': 'windsurf',
 	'/Applications/AppCode.app/Contents/MacOS/appcode':
 		'/Applications/AppCode.app/Contents/MacOS/appcode',
 	'/Applications/CLion.app/Contents/MacOS/clion':
@@ -232,6 +253,9 @@ const COMMON_EDITORS_LINUX: Record<string, Editor> = {
 	Brackets: 'brackets',
 	code: 'code',
 	'code-insiders': 'code-insiders',
+	cursor: 'cursor',
+	windsurf: 'windsurf',
+	zed: 'zed',
 	vscodium: 'vscodium',
 	emacs: 'emacs',
 	gvim: 'gvim',
@@ -251,6 +275,8 @@ const COMMON_EDITORS_WIN: Editor[] = [
 	'Code.exe',
 	'Code - Insiders.exe',
 	'VSCodium.exe',
+	'Cursor.exe',
+	'Windsurf.exe',
 	'atom.exe',
 	'sublime_text.exe',
 	'notepad++.exe',
@@ -320,7 +346,13 @@ function getArgumentsForLineNumber(
 		case 'Code - Insiders':
 		case 'vscodium':
 		case 'VSCodium':
+		case 'cursor':
+		case 'Cursor':
+		case 'windsurf':
+		case 'Windsurf':
 			return ['-g', fileName + ':' + lineNumber + ':' + colNumber];
+		case 'zed':
+			return ['--new', fileName + ':' + lineNumber + ':' + colNumber];
 		case 'appcode':
 		case 'clion':
 		case 'clion64':
@@ -417,7 +449,7 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 
 			return availableEditors;
 		}
-	} catch (error) {
+	} catch {
 		// Ignore...
 	}
 

@@ -6,6 +6,7 @@ import {getOutputLocation} from './user-passed-output-location';
 export const getOutputFilename = ({
 	imageSequence,
 	compositionName,
+	compositionDefaultOutName,
 	defaultExtension,
 	args,
 	fromUi,
@@ -14,6 +15,7 @@ export const getOutputFilename = ({
 }: {
 	imageSequence: boolean;
 	compositionName: string;
+	compositionDefaultOutName: string | null;
 	defaultExtension: string;
 	args: (string | number)[];
 	fromUi: string | null;
@@ -30,6 +32,7 @@ export const getOutputFilename = ({
 		args,
 		type: imageSequence ? 'sequence' : 'asset',
 		outputLocationFromUi: null,
+		compositionDefaultOutName,
 	});
 
 	const extension = RenderInternals.getExtensionOfFilename(String(filename));

@@ -1,5 +1,6 @@
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
+import {RenderInternals} from '.';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -10,6 +11,7 @@ import {handleJavascriptException} from './error-handling/handle-javascript-exce
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {Log} from './logger';
+import {getAvailableMemory} from './memory/get-available-memory';
 import type {ChromiumOptions} from './open-browser';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
@@ -56,7 +58,7 @@ type CleanupFn = () => Promise<unknown>;
 
 type InnerSelectCompositionConfig = Omit<
 	InternalSelectCompositionsConfig,
-	'port'
+	'port' | 'offthreadVideoThreads' | 'onBrowserLog'
 > & {
 	page: Page;
 	port: number;
@@ -64,7 +66,6 @@ type InnerSelectCompositionConfig = Omit<
 
 const innerSelectComposition = async ({
 	page,
-	onBrowserLog,
 	serializedInputPropsWithCustomSchema,
 	envVariables,
 	serveUrl,
@@ -74,17 +75,8 @@ const innerSelectComposition = async ({
 	indent,
 	logLevel,
 	onServeUrlVisited,
+	mediaCacheSizeInBytes,
 }: InnerSelectCompositionConfig): Promise<InternalReturnType> => {
-	if (onBrowserLog) {
-		page.on('console', (log) => {
-			onBrowserLog({
-				stackTrace: log.stackTrace(),
-				text: log.text,
-				type: log.type,
-			});
-		});
-	}
-
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	await setPropsAndEnv({
@@ -101,6 +93,9 @@ const innerSelectComposition = async ({
 		indent,
 		logLevel,
 		onServeUrlVisited,
+		isMainTab: true,
+		mediaCacheSizeInBytes,
+		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -154,7 +149,16 @@ const innerSelectComposition = async ({
 		ReturnType<typeof window.remotion_calculateComposition>
 	>;
 
-	const {width, durationInFrames, fps, height, defaultCodec} = res;
+	const {
+		width,
+		durationInFrames,
+		fps,
+		height,
+		defaultCodec,
+		defaultOutName,
+		defaultVideoImageFormat,
+		defaultPixelFormat,
+	} = res;
 	return {
 		metadata: {
 			id,
@@ -162,13 +166,16 @@ const innerSelectComposition = async ({
 			height,
 			fps,
 			durationInFrames,
-			props: NoReactInternals.deserializeJSONWithCustomFields(
+			props: NoReactInternals.deserializeJSONWithSpecialTypes(
 				res.serializedResolvedPropsWithCustomSchema,
 			),
-			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				res.serializedDefaultPropsWithCustomSchema,
 			),
 			defaultCodec,
+			defaultOutName,
+			defaultVideoImageFormat,
+			defaultPixelFormat,
 		},
 		propsSize: size,
 	};
@@ -201,6 +208,8 @@ export const internalSelectCompositionRaw = async (
 		binariesDirectory,
 		onBrowserDownload,
 		onServeUrlVisited,
+		chromeMode,
+		mediaCacheSizeInBytes,
 	} = options;
 
 	const [{page, cleanupPage}, serverUsed] = await Promise.all([
@@ -212,6 +221,10 @@ export const internalSelectCompositionRaw = async (
 			indent,
 			logLevel,
 			onBrowserDownload,
+			chromeMode,
+			pageIndex: 0,
+			onBrowserLog,
+			onLog: RenderInternals.defaultOnLog,
 		}),
 		makeOrReuseServer(
 			options.server,
@@ -219,7 +232,7 @@ export const internalSelectCompositionRaw = async (
 				webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 				port,
 				remotionRoot: findRemotionRoot(),
-				concurrency: 1,
+				offthreadVideoThreads: 0,
 				logLevel,
 				indent,
 				offthreadVideoCacheSizeInBytes,
@@ -257,7 +270,6 @@ export const internalSelectCompositionRaw = async (
 			envVariables,
 			id,
 			serializedInputPropsWithCustomSchema,
-			onBrowserLog,
 			timeoutInMilliseconds,
 			logLevel,
 			indent,
@@ -267,6 +279,8 @@ export const internalSelectCompositionRaw = async (
 			binariesDirectory,
 			onBrowserDownload,
 			onServeUrlVisited,
+			chromeMode,
+			mediaCacheSizeInBytes,
 		})
 			.then((data) => {
 				return resolve(data);
@@ -290,8 +304,8 @@ export const internalSelectComposition = wrapWithErrorHandling(
 	internalSelectCompositionRaw,
 );
 
-/**
- * @description Gets a composition defined in a Remotion project based on a Webpack bundle.
+/*
+ * @description Evaluates the list of compositions from a Remotion Bundle by evaluating the Remotion Root and evaluating `calculateMetadata()` on the specified composition.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/select-composition)
  */
 export const selectComposition = async (
@@ -313,10 +327,13 @@ export const selectComposition = async (
 		offthreadVideoCacheSizeInBytes,
 		binariesDirectory,
 		onBrowserDownload,
+		chromeMode,
+		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	} = options;
 
 	const indent = false;
-	const logLevel = (passedLogLevel ?? verbose) ? 'verbose' : 'info';
+	const logLevel = passedLogLevel ?? (verbose ? 'verbose' : 'info');
 
 	const data = await internalSelectComposition({
 		id,
@@ -325,7 +342,7 @@ export const selectComposition = async (
 		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},
@@ -347,6 +364,9 @@ export const selectComposition = async (
 				api: 'selectComposition()',
 			}),
 		onServeUrlVisited: () => undefined,
+		chromeMode: chromeMode ?? 'headless-shell',
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 	});
 	return data.metadata;
 };

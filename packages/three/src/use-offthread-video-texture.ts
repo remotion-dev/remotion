@@ -2,19 +2,21 @@ import {useCallback, useLayoutEffect, useMemo, useState} from 'react';
 import {
 	Internals,
 	cancelRender,
-	continueRender,
-	delayRender,
-	getRemotionEnvironment,
 	useCurrentFrame,
+	useDelayRender,
+	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import type {Texture} from 'three';
 
 export type UseOffthreadVideoTextureOptions = {
 	src: string;
 	playbackRate?: number;
 	transparent?: boolean;
 	toneMapped?: boolean;
+	delayRenderRetries?: number;
+	delayRenderTimeoutInMilliseconds?: number;
 };
 
 export const useInnerVideoTexture = ({
@@ -22,11 +24,15 @@ export const useInnerVideoTexture = ({
 	src,
 	transparent,
 	toneMapped,
+	delayRenderRetries,
+	delayRenderTimeoutInMilliseconds,
 }: {
 	playbackRate: number;
 	src: string;
 	transparent: boolean;
 	toneMapped: boolean;
+	delayRenderRetries?: number;
+	delayRenderTimeoutInMilliseconds?: number;
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -55,12 +61,16 @@ export const useInnerVideoTexture = ({
 		() => import('three/src/loaders/TextureLoader.js'),
 	);
 
-	const [imageTexture, setImageTexture] = useState<THREE.Texture | null>(null);
+	const [imageTexture, setImageTexture] = useState<Texture | null>(null);
+	const {delayRender, continueRender} = useDelayRender();
 
 	const fetchTexture = useCallback(() => {
-		const imageTextureHandle = delayRender('fetch offthread video frame');
+		const imageTextureHandle = delayRender('fetch offthread video frame', {
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		});
 
-		let textureLoaded: THREE.Texture | null = null;
+		let textureLoaded: Texture | null = null;
 		let cleanedUp = false;
 
 		textLoaderPromise.then((loader) => {
@@ -85,7 +95,14 @@ export const useInnerVideoTexture = ({
 			textureLoaded?.dispose();
 			continueRender(imageTextureHandle);
 		};
-	}, [offthreadVideoFrameSrc, textLoaderPromise]);
+	}, [
+		offthreadVideoFrameSrc,
+		textLoaderPromise,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		continueRender,
+		delayRender,
+	]);
 
 	useLayoutEffect(() => {
 		const cleanup = fetchTexture();
@@ -98,28 +115,37 @@ export const useInnerVideoTexture = ({
 	return imageTexture;
 };
 
-/**
+/*
  * @description Allows you to use a video in React Three Fiber that is synchronized with Remotion's `useCurrentFrame()` using the `<OffthreadVideo>`.
- * @see [Documentation](https://remotion.dev/docs/use-offthread-video-texture)
- * @param {UseOffthreadVideoTextureOptions} options Configuration options including the video source (`src`), playback rate (`playbackRate`), transparency (`transparent`), and tone mapping (`toneMapped`).
- * @returns {THREE.Texture | null} A THREE.Texture if available, otherwise null. To be used as a texture in 3D objects in React Three Fiber.
+ * @see [Documentation](https://www.remotion.dev/docs/use-offthread-video-texture)
  */
 export function useOffthreadVideoTexture({
 	src,
 	playbackRate = 1,
 	transparent = false,
 	toneMapped = true,
+	delayRenderRetries,
+	delayRenderTimeoutInMilliseconds,
 }: UseOffthreadVideoTextureOptions) {
 	if (!src) {
 		throw new Error('src must be provided to useOffthreadVideoTexture');
 	}
 
-	const {isRendering} = getRemotionEnvironment();
+	const env = useRemotionEnvironment();
+
+	const {isRendering} = env;
 	if (!isRendering) {
 		throw new Error(
-			'useOffthreadVideoTexture() can only be used during rendering. Use getRemotionEnvironment().isRendering to render it conditionally.',
+			'useOffthreadVideoTexture() can only be used during rendering. Use useRemotionEnvironment().isRendering to render it conditionally.',
 		);
 	}
 
-	return useInnerVideoTexture({playbackRate, src, transparent, toneMapped});
+	return useInnerVideoTexture({
+		playbackRate,
+		src,
+		transparent,
+		toneMapped,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+	});
 }

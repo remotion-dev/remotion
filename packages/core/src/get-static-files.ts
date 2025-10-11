@@ -27,9 +27,9 @@ const warnPlayerOnce = () => {
 	);
 };
 
-/**
- * @description The function array containing all files in the public/ folder. You can reference them by using staticFile().
- * @see [Documentation](https://www.remotion.dev/docs/getstaticfiles)
+/*
+ * @description Gets an array containing all files in the `public/` folder. You can reference them by using `staticFile()`.
+ * @see [Documentation](https://remotion.dev/docs/getstaticfiles)
  */
 export const getStaticFiles = (): StaticFile[] => {
 	if (ENABLE_V5_BREAKING_CHANGES) {
@@ -53,7 +53,7 @@ export const getStaticFiles = (): StaticFile[] => {
 
 export type StaticFile = {
 	/**
-	 * A string that you can pass to the `src` attribute of an `<Audio>`, `<Img>` and `<Video>` element.
+	 * A string that you can pass to the `src` attribute of an `<Audio>`, `<Img>`, `<Video>`, `<Html5Audio>`, `<Html5Video>` or `<OffthreadVideo>` element.
 	 */
 	src: string;
 	/**

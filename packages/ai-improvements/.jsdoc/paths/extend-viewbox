@@ -1,0 +1,4 @@
+/**
+ * @description Widens an SVG viewBox in all directions by a certain scale factor.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/extend-viewbox)
+ */

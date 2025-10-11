@@ -1,0 +1,4 @@
+/**
+ * @description A function that modifies the default Webpack configuration to make the necessary changes to support SASS/SCSS.
+ * @see [Documentation](https://remotion.dev/docs/enable-scss/enable-scss)
+ */

@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-getfunctioninfo.png
 id: getfunctioninfo
 title: getFunctionInfo()
 slug: /lambda/getfunctioninfo
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Gets information about a function given its name and region.
@@ -15,14 +15,11 @@ To deploy a function, use [`deployFunction()`](/docs/lambda/deployfunction).
 ## Example
 
 ```ts twoslash
-// @module: esnext
-// @target: es2017
-
-import { getFunctionInfo } from "@remotion/lambda";
+import {getFunctionInfo} from '@remotion/lambda';
 
 const info = await getFunctionInfo({
-  functionName: "remotion-render-d7nd2a9f",
-  region: "eu-central-1",
+  functionName: 'remotion-render-d7nd2a9f',
+  region: 'eu-central-1',
 });
 console.log(info.functionName); // remotion-render-d7nd2a9f
 console.log(info.memorySizeInMb); // 1500
@@ -45,7 +42,7 @@ The name of the function.
 
 ### `logLevel?`<AvailableFrom v="4.0.115"/>
 
-<Options id="log"/>
+<Options id="log" />
 
 ## Return value
 

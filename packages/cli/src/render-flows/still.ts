@@ -4,6 +4,7 @@ import type {
 	Browser,
 	BrowserExecutable,
 	CancelSignal,
+	ChromeMode,
 	ChromiumOptions,
 	LogLevel,
 	RenderMediaOnDownload,
@@ -44,6 +45,7 @@ import {
 	getOutputLocation,
 	getUserPassedOutputLocation,
 } from '../user-passed-output-location';
+import {addLogToAggregateProgress} from './add-log-to-aggregate-progress';
 
 export const renderStillFlow = async ({
 	remotionRoot,
@@ -75,6 +77,10 @@ export const renderStillFlow = async ({
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
 	publicPath,
+	chromeMode,
+	offthreadVideoThreads,
+	audioLatencyHint,
+	mediaCacheSizeInBytes,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -99,12 +105,16 @@ export const renderStillFlow = async ({
 	logLevel: LogLevel;
 	onProgress: JobProgressCallback;
 	indent: boolean;
-	addCleanupCallback: (cb: () => void) => void;
+	addCleanupCallback: (label: string, cb: () => void) => void;
 	cancelSignal: CancelSignal | null;
 	outputLocationFromUi: string | null;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	binariesDirectory: string | null;
 	publicPath: string | null;
+	chromeMode: ChromeMode;
+	audioLatencyHint: AudioContextLatencyCategory | null;
+	mediaCacheSizeInBytes: number | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	Log.verbose(
@@ -151,6 +161,7 @@ export const renderStillFlow = async ({
 		indent,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
@@ -162,6 +173,7 @@ export const renderStillFlow = async ({
 		viewport: null,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
@@ -180,7 +192,7 @@ export const renderStillFlow = async ({
 			indentOutput: indent,
 			logLevel,
 			onDirectoryCreated: (dir) => {
-				registerCleanupJob(() => {
+				registerCleanupJob(`Delete ${dir}`, () => {
 					RenderInternals.deleteDirectory(dir);
 				});
 			},
@@ -192,11 +204,14 @@ export const renderStillFlow = async ({
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
 			publicPath,
+			audioLatencyHint,
 		},
 	);
 
 	const server = await RenderInternals.prepareServer({
-		concurrency: 1,
+		offthreadVideoThreads:
+			offthreadVideoThreads ??
+			RenderInternals.DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 		indent,
 		port,
 		remotionRoot,
@@ -207,12 +222,14 @@ export const renderStillFlow = async ({
 		forceIPv4: false,
 	});
 
-	addCleanupCallback(() => server.closeServer(false));
+	addCleanupCallback(`Close server`, () => server.closeServer(false));
 
-	addCleanupCallback(() => cleanupBundle());
+	addCleanupCallback(`Cleanup bundle`, () => cleanupBundle());
 
 	const puppeteerInstance = await browserInstance;
-	addCleanupCallback(() => puppeteerInstance.close(false, logLevel, indent));
+	addCleanupCallback(`Close browser`, () =>
+		puppeteerInstance.close({silent: false}),
+	);
 
 	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({
@@ -232,8 +249,11 @@ export const renderStillFlow = async ({
 			logLevel,
 			server,
 			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
 			binariesDirectory,
 			onBrowserDownload,
+			chromeMode,
+			mediaCacheSizeInBytes,
 		});
 
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
@@ -255,6 +275,7 @@ export const renderStillFlow = async ({
 		args: argsAfterComposition,
 		type: 'asset',
 		outputLocationFromUi,
+		compositionDefaultOutName: config.defaultOutName,
 	});
 
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
@@ -354,7 +375,7 @@ export const renderStillFlow = async ({
 		onBrowserLog: null,
 		logLevel,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: config.props,
@@ -363,6 +384,22 @@ export const renderStillFlow = async ({
 		binariesDirectory,
 		onBrowserDownload,
 		onArtifact,
+		chromeMode,
+		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
+		onLog: ({logLevel: logLogLevel, previewString, tag}) => {
+			addLogToAggregateProgress({
+				logs: aggregate.logs,
+				logLogLevel,
+				previewString,
+				tag,
+				logLevel,
+			});
+			updateRenderProgress({
+				newline: false,
+				printToConsole: true,
+			});
+		},
 	});
 
 	aggregate.rendering = {

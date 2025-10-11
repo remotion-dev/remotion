@@ -1,0 +1,68 @@
+---
+image: /generated/articles-docs-media-parser-workers.png
+id: workers
+title: Parsing on Web Workers
+sidebar_label: Web Workers
+slug: /media-parser/workers
+crumb: '@remotion/media-parser'
+---
+
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
+Parsing using [`parseMedia()`](/docs/media-parser/parse-media) will block the main thread of JavaScript, which is undesirable if you are displaying a UI in the browser, or are serving requests on a web server.
+
+You can run the parse on a [`Worker`](https://developer.mozilla.org/en-US/docs/Web/API/Worker) instead of on the main thread using [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker).
+
+The API takes care of exchanging messages between the main thread and the Web Worker, so that [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker) can be used as a drop-in replacement for [`parseMedia()`](/docs/media-parser/parse-media).
+
+## Example
+
+```tsx twoslash title="Parsing a video on a Web Worker"
+import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
+
+const result = await parseMediaOnWebWorker({
+  src: 'https://remotion.media/video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+});
+
+console.log(result.durationInSeconds); // 10
+console.log(result.dimensions); // {width: 1920, height: 1080}
+```
+
+## Parsing on the server using a worker
+
+[Bun](https://bun.sh) also implements the [`Worker`](https://developer.mozilla.org/en-US/docs/Web/API/Worker) object.  
+To use it, you can use the [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker) API.
+
+```tsx twoslash title="Parsing a video on a Web Worker on Bun"
+import {parseMediaOnServerWorker} from '@remotion/media-parser/server-worker';
+
+const result = await parseMediaOnServerWorker({
+  src: '/tmp/video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+  },
+});
+
+console.log(result.durationInSeconds); // 10
+console.log(result.dimensions); // {width: 1920, height: 1080}
+```
+
+The difference to [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker) is that it also supports from reading local file paths.
+
+## API Differences
+
+The [`parseMediaOnWebWorker`](/docs/media-parser/parse-media-on-web-worker) and [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker) APIs don't accept the [`reader`](/docs/media-parser/parse-media#reader) field.
+
+It is hardcoded to [`webReader`](/docs/media-parser/web-reader) and [`universalReader`](/docs/media-parser/universal-reader) respectively.
+
+## See also
+
+- [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker)
+- [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker)

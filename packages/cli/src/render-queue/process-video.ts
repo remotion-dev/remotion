@@ -21,7 +21,7 @@ export const processVideoJob = async ({
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
-	addCleanupCallback: (cb: () => void) => void;
+	addCleanupCallback: (label: string, cb: () => void) => void;
 	logLevel: LogLevel;
 }) => {
 	if (job.type !== 'video' && job.type !== 'sequence') {
@@ -96,5 +96,12 @@ export const processVideoJob = async ({
 		separateAudioTo: job.type === 'video' ? job.separateAudioTo : null,
 		publicPath: null,
 		metadata: job.metadata,
+		hardwareAcceleration:
+			job.type === 'video' ? job.hardwareAcceleration : 'disable',
+		chromeMode: job.chromeMode,
+		offthreadVideoThreads: job.offthreadVideoThreads,
+		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+		audioLatencyHint: null,
+		imageSequencePattern: null,
 	});
 };

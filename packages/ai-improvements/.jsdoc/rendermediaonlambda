@@ -1,0 +1,4 @@
+/**
+ * @description Kicks off a render process on Remotion Lambda. The progress can be tracked using getRenderProgress().
+ * @see [Documentation](https://remotion.dev/docs/lambda/rendermediaonlambda)
+ */

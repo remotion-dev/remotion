@@ -29,6 +29,7 @@ import {parseAndApplyCodemod} from './codemods/duplicate-composition';
 import {installFileWatcher} from './file-watcher';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {getInstalledDependencies} from './helpers/get-installed-dependencies';
+import {getInstallCommand} from './helpers/install-command';
 import {
 	getMaxTimelineTracks,
 	setMaxTimelineTracks,
@@ -38,7 +39,6 @@ import {
 	lockFilePaths,
 } from './preview-server/get-package-manager';
 import {waitForLiveEventsListener} from './preview-server/live-events';
-import {getInstallCommand} from './preview-server/routes/install-dependency';
 import {getRemotionVersion} from './preview-server/update-available';
 import {startStudio} from './start-studio';
 

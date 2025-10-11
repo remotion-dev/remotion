@@ -7,6 +7,7 @@ import {Log} from './logger';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {redirectStatusCodes} from './redirect-status-codes';
+import {truthy} from './truthy';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 type SetPropsAndEnv = {
@@ -23,6 +24,9 @@ type SetPropsAndEnv = {
 	indent: boolean;
 	logLevel: LogLevel;
 	onServeUrlVisited: () => void;
+	isMainTab: boolean;
+	mediaCacheSizeInBytes: number | null;
+	initialMemoryAvailable: number | null;
 };
 
 const innerSetPropsAndEnv = async ({
@@ -39,6 +43,9 @@ const innerSetPropsAndEnv = async ({
 	indent,
 	logLevel,
 	onServeUrlVisited,
+	isMainTab,
+	mediaCacheSizeInBytes,
+	initialMemoryAvailable,
 }: SetPropsAndEnv): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
@@ -47,25 +54,38 @@ const innerSetPropsAndEnv = async ({
 
 	const urlToVisit = normalizeServeUrl(serveUrl);
 
-	await page.evaluateOnNewDocument((timeout: number) => {
-		window.remotion_puppeteerTimeout = timeout;
+	await page.evaluateOnNewDocument(
+		(
+			timeout: number,
+			mainTab: boolean,
+			cacheSizeInBytes: number | null,
+			initMemoryAvailable: number | null,
+		) => {
+			window.remotion_puppeteerTimeout = timeout;
+			window.remotion_isMainTab = mainTab;
+			window.remotion_mediaCacheSizeInBytes = cacheSizeInBytes;
+			window.remotion_initialMemoryAvailable = initMemoryAvailable;
+			// To make useRemotionEnvironment() work
+			if (window.process === undefined) {
+				// @ts-expect-error
+				window.process = {};
+			}
 
-		// To make getRemotionEnvironment() work
-		if (window.process === undefined) {
-			// @ts-expect-error
-			window.process = {};
-		}
+			if (window.process.env === undefined) {
+				window.process.env = {};
+			}
 
-		if (window.process.env === undefined) {
-			window.process.env = {};
-		}
+			window.process.env.NODE_ENV = 'production';
+		},
+		actualTimeout,
+		isMainTab,
+		mediaCacheSizeInBytes,
+		initialMemoryAvailable,
+	);
 
-		window.process.env.NODE_ENV = 'production';
-	}, actualTimeout);
-
-	await page.evaluateOnNewDocument((input: string) => {
-		window.remotion_inputProps = input;
-	}, serializedInputPropsWithCustomSchema);
+	await page.evaluateOnNewDocument(
+		'window.remotion_broadcastChannel = new BroadcastChannel("remotion-video-frame-extraction")',
+	);
 
 	if (envVariables) {
 		await page.evaluateOnNewDocument((input: string) => {
@@ -73,53 +93,57 @@ const innerSetPropsAndEnv = async ({
 		}, JSON.stringify(envVariables));
 	}
 
-	await page.evaluateOnNewDocument((key: number) => {
-		window.remotion_initialFrame = key;
-	}, initialFrame);
+	await page.evaluateOnNewDocument(
+		(
+			input: string,
+			key: number,
+			port: number,
+			audEnabled: boolean,
+			vidEnabled: boolean,
+			level: LogLevel,
+			// eslint-disable-next-line max-params
+		) => {
+			window.remotion_inputProps = input;
+			window.remotion_initialFrame = key;
+			window.remotion_attempt = 1;
+			window.remotion_proxyPort = port;
+			window.remotion_audioEnabled = audEnabled;
+			window.remotion_videoEnabled = vidEnabled;
+			window.remotion_logLevel = level;
 
-	await page.evaluateOnNewDocument(() => {
-		window.remotion_attempt = 1;
-	});
+			window.alert = (message) => {
+				if (message) {
+					window.window.remotion_cancelledError = new Error(
+						`alert("${message}") was called. It cannot be called in a headless browser.`,
+					).stack;
+				} else {
+					window.window.remotion_cancelledError = new Error(
+						'alert() was called. It cannot be called in a headless browser.',
+					).stack;
+				}
+			};
 
-	await page.evaluateOnNewDocument((port: number) => {
-		window.remotion_proxyPort = port;
-	}, proxyPort);
+			window.confirm = (message) => {
+				if (message) {
+					window.remotion_cancelledError = new Error(
+						`confirm("${message}") was called. It cannot be called in a headless browser.`,
+					).stack;
+				} else {
+					window.remotion_cancelledError = new Error(
+						'confirm() was called. It cannot be called in a headless browser.',
+					).stack;
+				}
 
-	await page.evaluateOnNewDocument((enabled: boolean) => {
-		window.remotion_audioEnabled = enabled;
-	}, audioEnabled);
-
-	await page.evaluateOnNewDocument((enabled: boolean) => {
-		window.remotion_videoEnabled = enabled;
-	}, videoEnabled);
-
-	await page.evaluateOnNewDocument(() => {
-		window.alert = (message) => {
-			if (message) {
-				window.window.remotion_cancelledError = new Error(
-					`alert("${message}") was called. It cannot be called in a headless browser.`,
-				).stack;
-			} else {
-				window.window.remotion_cancelledError = new Error(
-					'alert() was called. It cannot be called in a headless browser.',
-				).stack;
-			}
-		};
-
-		window.confirm = (message) => {
-			if (message) {
-				window.remotion_cancelledError = new Error(
-					`confirm("${message}") was called. It cannot be called in a headless browser.`,
-				).stack;
-			} else {
-				window.remotion_cancelledError = new Error(
-					'confirm() was called. It cannot be called in a headless browser.',
-				).stack;
-			}
-
-			return false;
-		};
-	});
+				return false;
+			};
+		},
+		serializedInputPropsWithCustomSchema,
+		initialFrame,
+		proxyPort,
+		audioEnabled,
+		videoEnabled,
+		logLevel,
+	);
 
 	const retry = async () => {
 		await new Promise<void>((resolve) => {
@@ -142,6 +166,9 @@ const innerSetPropsAndEnv = async ({
 			indent,
 			logLevel,
 			onServeUrlVisited,
+			isMainTab,
+			mediaCacheSizeInBytes,
+			initialMemoryAvailable,
 		});
 	};
 
@@ -294,7 +321,15 @@ export const setPropsAndEnv = async (params: SetPropsAndEnv) => {
 				timeout = setTimeout(() => {
 					reject(
 						new Error(
-							`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser. This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding. Optimize the site or increase the browser timeout.`,
+							[
+								`Timed out after ${params.timeoutInMilliseconds}ms while setting up the headless browser.`,
+								'This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding.',
+								process.platform === 'linux'
+									? 'Make sure you have installed the Linux depdendencies: https://www.remotion.dev/docs/miscellaneous/linux-dependencies'
+									: null,
+							]
+								.filter(truthy)
+								.join('\n'),
 						),
 					);
 				}, params.timeoutInMilliseconds);

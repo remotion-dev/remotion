@@ -12,7 +12,10 @@ import {getServiceInfo} from './api/get-service-info';
 import {getServices} from './api/get-services';
 import {getSites as deprecatedGetSites} from './api/get-sites';
 import {testPermissions} from './api/iam-validation/testPermissions';
-import type {RenderMediaOnCloudrunInput} from './api/render-media-on-cloudrun';
+import type {
+	RenderMediaOnCloudrunInput,
+	UpdateRenderProgress,
+} from './api/render-media-on-cloudrun';
 import {renderMediaOnCloudrun as deprecatedRenderMediaOnCloudrun} from './api/render-media-on-cloudrun';
 import {renderStillOnCloudrun as deprecatedRenderStillOnCloudrun} from './api/render-still-on-cloudrun';
 import {speculateServiceName} from './api/speculate-service-name';
@@ -57,4 +60,5 @@ export type {
 	GcpRegion,
 	RenderMediaOnCloudrunInput,
 	RenderMediaOnCloudrunOutput,
+	UpdateRenderProgress,
 };

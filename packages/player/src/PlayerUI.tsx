@@ -26,7 +26,8 @@ import {
 	calculateOuterStyle,
 } from './calculate-scale.js';
 import {ErrorBoundary} from './error-boundary.js';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import {RenderWarningIfBlacklist} from './license-blacklist.js';
+import {playerCssClassname} from './player-css-classname.js';
 import type {PlayerMethods, PlayerRef} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {usePlayback} from './use-playback.js';
@@ -75,6 +76,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly showPosterWhenEnded: boolean;
 		readonly showPosterWhenUnplayed: boolean;
 		readonly showPosterWhenBuffering: boolean;
+		readonly showPosterWhenBufferingAndPaused: boolean;
 		readonly inFrame: number | null;
 		readonly outFrame: number | null;
 		readonly initiallyShowControls: number | boolean;
@@ -89,6 +91,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly hideControlsWhenPointerDoesntMove: boolean | number;
 		readonly overflowVisible: boolean;
 		readonly browserMediaControlsBehavior: BrowserMediaControlsBehavior;
+		readonly overrideInternalClassName: string | undefined;
+		readonly noSuspense: boolean;
 	}
 > = (
 	{
@@ -112,6 +116,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		showPosterWhenEnded,
 		showPosterWhenPaused,
 		showPosterWhenBuffering,
+		showPosterWhenBufferingAndPaused,
 		inFrame,
 		outFrame,
 		initiallyShowControls,
@@ -126,6 +131,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		hideControlsWhenPointerDoesntMove,
 		overflowVisible,
 		browserMediaControlsBehavior,
+		overrideInternalClassName,
+		noSuspense,
 	},
 	ref,
 ) => {
@@ -155,13 +162,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, []);
 
 	const player = usePlayer();
+	const playerToggle = player.toggle;
 	usePlayback({
 		loop,
 		playbackRate,
 		moveToBeginningWhenEnded,
 		inFrame,
 		outFrame,
-		frameRef: player.remotionInternal_currentFrameRef,
+		getCurrentFrame: player.getCurrentFrame,
 		browserMediaControlsBehavior,
 	});
 
@@ -201,13 +209,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const toggle = useCallback(
 		(e?: SyntheticEvent | PointerEvent) => {
-			if (player.isPlaying()) {
-				player.pause();
-			} else {
-				player.play(e);
-			}
+			playerToggle(e);
 		},
-		[player],
+		[playerToggle],
 	);
 
 	const requestFullscreen = useCallback(() => {
@@ -481,21 +485,23 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return calculateContainerStyle({
-			canvasSize,
 			config,
 			layout,
 			scale,
 			overflowVisible,
 		});
-	}, [canvasSize, config, layout, overflowVisible, scale]);
+	}, [config, layout, overflowVisible, scale]);
+
+	const playerPause = player.pause;
+	const playerDispatchError = player.emitter.dispatchError;
 
 	const onError = useCallback(
 		(error: Error) => {
-			player.pause();
+			playerPause();
 			// Pay attention to `this context`
-			player.emitter.dispatchError(error);
+			playerDispatchError(error);
 		},
-		[player],
+		[playerDispatchError, playerPause],
 	);
 
 	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
@@ -607,6 +613,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			showPosterWhenEnded && player.isLastFrame && !player.isPlaying(),
 			showPosterWhenUnplayed && !player.hasPlayed && !player.isPlaying(),
 			showPosterWhenBuffering && showBufferIndicator && player.isPlaying(),
+			showPosterWhenBufferingAndPaused &&
+				showBufferIndicator &&
+				!player.isPlaying(),
 		].some(Boolean);
 
 	const {left, top, width, height, ...outerWithoutScale} = outer;
@@ -618,17 +627,18 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				onPointerDown={clickToPlay ? handlePointerDown : undefined}
 				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
 			>
-				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
+				<div
+					style={containerStyle}
+					className={playerCssClassname(overrideInternalClassName)}
+				>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
-							<Internals.ClipComposition>
-								<Internals.CurrentScaleContext.Provider value={currentScale}>
-									<VideoComponent
-										{...(video?.props ?? {})}
-										{...(inputProps ?? {})}
-									/>
-								</Internals.CurrentScaleContext.Provider>
-							</Internals.ClipComposition>
+							<Internals.CurrentScaleContext.Provider value={currentScale}>
+								<VideoComponent
+									{...(video?.props ?? {})}
+									{...(inputProps ?? {})}
+								/>
+							</Internals.CurrentScaleContext.Provider>
 						</ErrorBoundary>
 					) : null}
 					{shouldShowPoster && posterFillMode === 'composition-size' ? (
@@ -647,6 +657,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 						</div>
 					) : null}
 				</div>
+				<RenderWarningIfBlacklist />
 			</div>
 			{shouldShowPoster && posterFillMode === 'player-size' ? (
 				<div
@@ -662,8 +673,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			{controls ? (
 				<Controls
 					fps={config.fps}
+					playing={player.playing}
+					toggle={player.toggle}
 					durationInFrames={config.durationInFrames}
-					player={player}
 					containerRef={container}
 					onFullscreenButtonClick={onFullscreenButtonClick}
 					isFullscreen={isFullscreen}
@@ -699,7 +711,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			) : null}
 		</>
 	);
-	if (IS_NODE && !doesReactVersionSupportSuspense) {
+	if (noSuspense || (IS_NODE && !doesReactVersionSupportSuspense)) {
 		return (
 			<div ref={container} style={outerStyle} className={className}>
 				{content}

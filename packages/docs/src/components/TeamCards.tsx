@@ -270,6 +270,105 @@ export const TeamCardsLayout: React.FC<{}> = () => {
 			<Spacer />
 			<Spacer />
 			<Spacer />
+			<div style={step}>
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+					}}
+				>
+					<img
+						src={'/img/team/igor.jpg'}
+						style={{
+							width: 250,
+							height: 250,
+							boxShadow: 'var(--box-shadow)',
+							borderRadius: 1500,
+						}}
+					/>
+				</div>
+				<Spacer />
+				<Spacer />
+				<Spacer />
+				<Spacer />
+				<Spacer />
+
+				<h2 style={stepTitle}>Igor</h2>
+				<strong style={center}>Product Engineer</strong>
+
+				<ul style={{...list, flex: 1}}>
+					<li>
+						{
+							'With a background in music industry and a passion for coding, I’ve been building tools to help musicians create. Remotion is the perfect place to blend my tech skills and creativity.'
+						}
+					</li>
+				</ul>
+				<div style={row}>
+					{
+						<>
+							<div style={flex}>
+								<a
+									style={docsButton}
+									target="_blank"
+									href="https://x.com/tequilafunks"
+								>
+									<BlueButton loading={false} fullWidth size="sm">
+										<TwitterLogo /> Twitter
+									</BlueButton>
+								</a>
+							</div>
+							<Spacer />
+							<Spacer />
+						</>
+					}
+					<div style={flex}>
+						<a
+							style={docsButton}
+							target="_blank"
+							href="https://www.linkedin.com/in/samohovets/"
+						>
+							<BlueButton loading={false} fullWidth size="sm">
+								<LinkedInLogo /> LinkedIn
+							</BlueButton>
+						</a>
+					</div>
+				</div>
+				<div style={{height: 10}} />
+				<div style={row}>
+					{
+						<>
+							<div style={flex}>
+								<a
+									style={docsButton}
+									target="_blank"
+									href="https://github.com/samohovets"
+								>
+									<BlueButton loading={false} fullWidth size="sm">
+										<GitHubLogo /> GitHub
+									</BlueButton>
+								</a>
+							</div>
+							<Spacer />
+							<Spacer />
+							<div style={flex}>
+								<a
+									style={docsButton}
+									target="_blank"
+									href="mailto:igor@remotion.dev"
+								>
+									<BlueButton loading={false} fullWidth size="sm">
+										<EmailLogo /> E-Mail
+									</BlueButton>
+								</a>
+							</div>
+						</>
+					}
+				</div>
+			</div>
+			<Spacer />
+			<Spacer />
+			<Spacer />
 		</div>
 	);
 };

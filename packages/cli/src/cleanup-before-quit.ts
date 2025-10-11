@@ -1,7 +1,7 @@
 import type {LogLevel} from '@remotion/renderer';
 import {Log} from './log';
 
-const cleanupJobs: (() => void)[] = [];
+const cleanupJobs: {label: string; job: () => void}[] = [];
 
 export const cleanupBeforeQuit = ({
 	indent,
@@ -13,14 +13,15 @@ export const cleanupBeforeQuit = ({
 	Log.verbose({indent, logLevel}, 'Cleaning up...');
 	const time = Date.now();
 	for (const job of cleanupJobs) {
-		job();
+		job.job();
+		Log.verbose({indent, logLevel}, `Cleanup job "${job.label}" done`);
 	}
 
 	Log.verbose({indent, logLevel}, `Cleanup done in ${Date.now() - time}ms`);
 };
 
-export const registerCleanupJob = (job: () => void) => {
-	cleanupJobs.push(job);
+export const registerCleanupJob = (label: string, job: () => void) => {
+	cleanupJobs.push({job, label});
 };
 
 export const handleCtrlC = ({

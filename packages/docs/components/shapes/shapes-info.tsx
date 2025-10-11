@@ -1,6 +1,7 @@
 import {
 	makeCircle,
 	makeEllipse,
+	makeHeart,
 	makePie,
 	makePolygon,
 	makeRect,
@@ -55,6 +56,34 @@ export const shapeComponents: ShapeComponent[] = [
 		],
 	},
 	{
+		shape: 'Heart',
+		fn: makeHeart,
+		params: [
+			{
+				name: 'height',
+				type: 'number',
+				description: 'The height of the heart.',
+			},
+			{
+				name: 'aspectRatio',
+				type: 'number',
+				description: 'The aspect ratio of the heart. Default 1.1.',
+			},
+			{
+				name: 'bottomRoundnessAdjustment',
+				type: 'number',
+				description:
+					'The amount of bottom roundness deviation from the default. Negative values make the bottom point sharper, positive values make it rounder.',
+			},
+			{
+				name: 'depthAdjustment',
+				type: 'number',
+				description:
+					'The deviation of the default depth (how deep the top of the heart is). Negative values make the heart deeper, positive values make it shallower.',
+			},
+		],
+	},
+	{
 		shape: 'Pie',
 		fn: makePie,
 		params: [
@@ -91,7 +120,7 @@ export const shapeComponents: ShapeComponent[] = [
 			},
 			{
 				name: 'rotation',
-				type: 'boolean',
+				type: 'number',
 				description: (
 					<>
 						Add rotation to the path. <code>0</code> means no rotation,{' '}
@@ -257,8 +286,8 @@ const globalParams: Param[] = [
 ];
 
 export const ShapeOptions: React.FC<{
-	shape: string;
-	all: boolean;
+	readonly shape: string;
+	readonly all: boolean;
 }> = ({shape, all}) => {
 	const shapeComponent = shapeComponents.find(
 		(c) => c.shape.toLowerCase() === shape.toLowerCase(),
@@ -326,7 +355,7 @@ export const ShapeOptions: React.FC<{
 };
 
 export const MakeShapeReturnType: React.FC<{
-	shape: string;
+	readonly shape: string;
 }> = ({shape}) => {
 	const shapeComponent = shapeComponents.find(
 		(c) => c.shape.toLowerCase() === shape.toLowerCase(),
@@ -388,7 +417,7 @@ export const MakeShapeReturnType: React.FC<{
 };
 
 export const MakeShapeSeeAlso: React.FC<{
-	shape: string;
+	readonly shape: string;
 }> = ({shape}) => {
 	const shapeComponent = shapeComponents.find(
 		(c) => c.shape.toLowerCase() === shape.toLowerCase(),
@@ -402,7 +431,7 @@ export const MakeShapeSeeAlso: React.FC<{
 		<ul>
 			<li>
 				<a
-					href={`/docs/shapes/make-${shapeComponent.shape.toLowerCase()}`}
+					href={`/docs/shapes/${shapeComponent.shape.toLowerCase()}`}
 				>{`<${shapeComponent.shape} />`}</a>
 			</li>
 			<li>
@@ -422,7 +451,7 @@ export const MakeShapeSeeAlso: React.FC<{
 };
 
 export const ShapeSeeAlso: React.FC<{
-	shape: string;
+	readonly shape: string;
 }> = ({shape}) => {
 	const shapeComponent = shapeComponents.find(
 		(c) => c.shape.toLowerCase() === shape.toLowerCase(),

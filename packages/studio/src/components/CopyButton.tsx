@@ -39,9 +39,9 @@ const labelStyle: React.CSSProperties = {
 };
 
 export const CopyButton: React.FC<{
-	textToCopy: string;
-	label: string;
-	labelWhenCopied: string;
+	readonly textToCopy: string;
+	readonly label: string;
+	readonly labelWhenCopied: string;
 }> = ({textToCopy, label, labelWhenCopied}) => {
 	const [copied, setCopied] = useState<false | number>(false);
 

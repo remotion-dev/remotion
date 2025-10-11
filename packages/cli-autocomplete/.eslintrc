@@ -1,7 +1,0 @@
-{
-  "extends": [
-    "plugin:@typescript-eslint/recommended",
-    "plugin:@withfig/fig-linter/recommended",
-    "plugin:compat/recommended"
-  ]
-}

@@ -86,7 +86,6 @@ export const Editor: React.FC<{
 						<Internals.CanUseRemotionHooksProvider>
 							<EditorContent readOnlyStudio={readOnlyStudio}>
 								<TopPanel
-									size={size}
 									drawRef={drawRef}
 									bufferStateDelayInMilliseconds={
 										BUFFER_STATE_DELAY_IN_MILLISECONDS

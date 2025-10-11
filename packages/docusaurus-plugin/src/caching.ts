@@ -1,6 +1,8 @@
+/* eslint-disable no-console */
 import type {TwoSlashReturn} from '@typescript/twoslash';
 import type {UserConfigSettings} from 'shiki-twoslash';
 import {runTwoSlash} from 'shiki-twoslash';
+import {ModuleKind, ScriptTarget} from 'typescript';
 
 /**
  * Keeps a cache of the JSON responses to a twoslash call in node_modules/.cache/twoslash
@@ -12,21 +14,6 @@ export const cachedTwoslashCall = (
 	lang: string,
 	settings: UserConfigSettings,
 ): TwoSlashReturn => {
-	const isWebWorker =
-		typeof self !== 'undefined' &&
-		// @ts-expect-error
-		typeof self.WorkerGlobalScope !== 'undefined';
-	const isBrowser =
-		isWebWorker ||
-		(typeof window !== 'undefined' &&
-			typeof window.document !== 'undefined' &&
-			typeof fetch !== 'undefined');
-
-	if (isBrowser) {
-		// Not in Node, run un-cached
-		return runTwoSlash(code, lang, settings);
-	}
-
 	const {createHash} = require('crypto');
 	const {readFileSync, existsSync, mkdirSync, writeFileSync} = require('fs');
 	const {join} = require('path');
@@ -55,7 +42,14 @@ export const cachedTwoslashCall = (
 		return JSON.parse(readFileSync(cachePath, 'utf8'));
 	}
 
-	const results = runTwoSlash(code, lang, settings);
+	const results = runTwoSlash(code, lang, {
+		...settings,
+		defaultCompilerOptions: {
+			...settings.defaultCompilerOptions,
+			target: ScriptTarget.ESNext,
+			module: ModuleKind.ESNext,
+		},
+	});
 	if (!existsSync(cacheRoot)) mkdirSync(cacheRoot, {recursive: true});
 	writeFileSync(cachePath, JSON.stringify(results), 'utf8');
 	return results;

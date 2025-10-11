@@ -5,12 +5,15 @@
 		"outDir": "dist",
 		"jsx": "react-jsx",
 		"skipLibCheck": true,
-		"typeRoots": ["./node_modules/@types", "./src/types"]
+		"target": "ES2020"
 	},
 	"include": ["src"],
 	"references": [
 		{
 			"path": "../media-parser"
+		},
+		{
+			"path": "../licensing"
 		}
 	]
 }

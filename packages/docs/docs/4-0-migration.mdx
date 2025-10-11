@@ -2,7 +2,7 @@
 image: /generated/articles-docs-4-0-migration.png
 id: 4-0-migration
 title: v4.0 Migration
-crumb: "Version Upgrade"
+crumb: 'Version Upgrade'
 ---
 
 When upgrading from Remotion 3 to Remotion 4, note the following changes and apply them to your project.
@@ -157,14 +157,9 @@ The [@remotion/renderer](/docs/renderer) `ImageFormat` Type got replaced by the 
 - `getParts()` has been removed. Use [`getSubpaths()`](/docs/paths/get-subpaths) instead:
 
 ```tsx twoslash title="paths.ts"
-import {
-  getLength,
-  getPointAtLength,
-  getSubpaths,
-  getTangentAtLength,
-} from "@remotion/paths";
+import {getLength, getPointAtLength, getSubpaths, getTangentAtLength} from '@remotion/paths';
 
-const path = "M 0 0 L 100 100";
+const path = 'M 0 0 L 100 100';
 const parts = getSubpaths(path[0]);
 const length = getLength(parts[0]);
 const start = getPointAtLength(parts[0], 0);
@@ -205,7 +200,7 @@ Previously you were able to set a value for `crf` when rendering a GIF. This was
 Previously, [`staticFile()`](/docs/staticfile) did not handle URI-unsafe characters contained in the provided path:
 
 ```tsx title="Before v4"
-staticFile("my-image#portrait.png"); //output: "my-image#portrait.png"
+staticFile('my-image#portrait.png'); //output: "my-image#portrait.png"
 ```
 
 This could lead to problems, when unsafe characters such as `#`, `?` and `&` were part of the filename.
@@ -213,7 +208,7 @@ This could lead to problems, when unsafe characters such as `#`, `?` and `&` wer
 Now, [`staticFile()`](/docs/staticfile) encodes the filename using `encodeURIComponent`:
 
 ```tsx title="Since v4.0.0"
-staticFile("my-image#portrait.png"); // "my-image%23portrait.png"
+staticFile('my-image#portrait.png'); // "my-image%23portrait.png"
 ```
 
 ## Type `WebpackOverrideFn` moved
@@ -230,7 +225,7 @@ Remotion no longer aliases `react-native` automatically to `react-native-web`.
 If you are using `react-native-web`, override the Webpack config like this to restore the previous behavior:
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((config) => {
   return {
@@ -239,7 +234,7 @@ Config.overrideWebpackConfig((config) => {
       ...config.resolve,
       alias: {
         ...config.resolve?.alias,
-        "react-native$": "react-native-web",
+        'react-native$': 'react-native-web',
       },
     },
   };
@@ -259,7 +254,7 @@ export type TComposition<Schema extends AnyZodObject, Props> = {};
 If you need a type for a generic composition, you can use the new `AnyComposition` type:
 
 ```ts
-import { AnyComposition } from "remotion";
+import {AnyComposition} from 'remotion';
 
 const composition: AnyComposition = {
   width: 1920,
@@ -293,13 +288,7 @@ const Hi = (props: MyProps) => {
   return <div>{props.title}</div>;
 };
 
-<Still
-  component={Hi}
-  id="interface-props"
-  defaultProps={{ title: "hi" }}
-  height={1080}
-  width={1080}
-/>;
+<Still component={Hi} id="interface-props" defaultProps={{title: 'hi'}} height={1080} width={1080} />;
 ```
 
 This is because props must now be an object and satisfy the shape `Record<string, unknown>`.  
@@ -322,14 +311,11 @@ If you register a composition with a component that requires some props, you now
 [`renderMedia()`](/docs/renderer/render-media) accepts a `VideoConfig` object for the `composition` option, which now has a `props` field:
 
 ```tsx twoslash {5-7}
-// @module: esnext
-// @target: es2022
-
-import { renderMedia } from "@remotion/renderer";
+import {renderMedia} from '@remotion/renderer';
 
 const options = {
-  codec: "h264",
-  serveUrl: "https://example.com",
+  codec: 'h264',
+  serveUrl: 'https://example.com',
 } as const;
 
 const composition = {
@@ -337,9 +323,12 @@ const composition = {
   height: 1080,
   fps: 30,
   durationInFrames: 30 * 5,
-  id: "comp-name",
+  id: 'comp-name',
   defaultProps: {},
   defaultCodec: null,
+  defaultOutName: null,
+  defaultVideoImageFormat: null,
+  defaultPixelFormat: null,
 } as const;
 
 // ---cut---
@@ -348,11 +337,11 @@ await renderMedia({
   composition: {
     ...composition,
     props: {
-      title: "Hello world",
+      title: 'Hello world',
     },
   },
   inputProps: {
-    title: "Hi there",
+    title: 'Hi there',
   },
 });
 ```
@@ -372,7 +361,7 @@ The recommended way is to get the `composition` object using [`selectComposition
 - **remotion**: [`imageFormat`](/docs/offthreadvideo#imageformat-) has been removed from `<OffthreadVideo>`
 - **remotion**: [`transparent`](/docs/offthreadvideo#transparent) has been added to `<OffthreadVideo>`.
 - **remotion**: [`<Img>`](/docs/img) will cancel the render if the image cannot be loaded
-- **remotion**: If an [`<Audio>`](/docs/audio) tag cannot be loaded, it will cancel the render.
+- **remotion**: If an [`<Html5Audio>`](/docs/html5-audio) tag cannot be loaded, it will cancel the render.
 - **remotion**: The `TComposition` type now requires a Zod schema as a generic.
 - **remotion**: Type `WebpackOverrideFn` moved from `remotion` to `@remotion/bundler`
 - **remotion**: [`staticFile()`](/docs/staticfile#handling-uri-unsafe-characters) now supports URI-unsafe characters by default

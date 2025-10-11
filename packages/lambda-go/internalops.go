@@ -37,8 +37,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		Webhook:                        options.Webhook,
 		ForceHeight:                    options.ForceHeight,
 		OffthreadVideoCacheSizeInBytes: options.OffthreadVideoCacheSizeInBytes,
+		MediaCacheSizeInBytes:          options.MediaCacheSizeInBytes,
+		OffthreadVideoThreads:          options.OffthreadVideoThreads,
 		X264Preset:                     options.X264Preset,
 		ForceWidth:                     options.ForceWidth,
+		ApiKey:                         options.ApiKey,
 		BucketName:                     options.BucketName,
 		AudioCodec:                     options.AudioCodec,
 		ForceBucketName:                options.ForceBucketName,
@@ -71,7 +74,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.ImageFormat = options.ImageFormat
 	}
-	internalParams.Crf = options.Crf
+	if options.Crf == 0 {
+		internalParams.Crf = nil
+	} else {
+		internalParams.Crf = options.Crf
+	}
 	if options.Privacy == "" {
 		internalParams.Privacy = "public"
 	} else {
@@ -117,6 +124,8 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.ConcurrencyPerLambda = options.ConcurrencyPerLambda
 	}
+
+	internalParams.Concurrency = options.Concurrency
 
 	if options.TimeoutInMilliseconds == 0 {
 		internalParams.TimeoutInMilliseconds = 30000

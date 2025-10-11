@@ -5,10 +5,9 @@ export type ConvertToCaptionCaption = {
 	startInSeconds: number;
 };
 
-/**
- *
- * @deprecated Use the `toCaptions()` function from `@remotion/install-whisper-cpp` instead
- * and then process the captions using `createTikTokStyleCaptions()` from `@remotion/captions`.
+/*
+ * @description Converts the JSON transcription data into captions with start times based on the defined millisecond threshold.
+ * @see [Documentation](https://remotion.dev/docs/install-whisper-cpp/convert-to-captions)
  */
 export function convertToCaptions({
 	transcription,

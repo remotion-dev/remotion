@@ -1,11 +1,15 @@
+import {apiKeyOption} from './api-key';
 import {audioBitrateOption} from './audio-bitrate';
 import {audioCodecOption} from './audio-codec';
 import {beepOnFinishOption} from './beep-on-finish';
 import {binariesDirectoryOption} from './binaries-directory';
+import {chromeModeOption} from './chrome-mode';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
+import {enableCrossSiteIsolationOption} from './cross-site-isolation';
 import {deleteAfterOption} from './delete-after';
 import {disableGitSourceOption} from './disable-git-source';
+import {disallowParallelEncodingOption} from './disallow-parallel-encoding';
 import {enableLambdaInsights} from './enable-lambda-insights';
 import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
@@ -14,13 +18,17 @@ import {enforceAudioOption} from './enforce-audio';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {glOption} from './gl';
+import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
+import {imageSequencePatternOption} from './image-sequence-pattern';
 import {jpegQualityOption} from './jpeg-quality';
+import {audioLatencyHintOption} from './latency-hint';
 import {logLevelOption} from './log-level';
 import {metadataOption} from './metadata';
 import {mutedOption} from './mute';
 import {numberOfGifLoopsOption} from './number-of-gif-loops';
 import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
+import {offthreadVideoThreadsOption} from './offthreadvideo-threads';
 import {onBrowserDownloadOption} from './on-browser-download';
 import type {AnyRemotionOption} from './option';
 import {overwriteOption} from './overwrite';
@@ -33,6 +41,7 @@ import {separateAudioOption} from './separate-audio';
 import {throwIfSiteExistsOption} from './throw-if-site-exists';
 import {delayRenderTimeoutInMillisecondsOption} from './timeout';
 import {videoBitrateOption} from './video-bitrate';
+import {mediaCacheSizeInBytesOption} from './video-cache-size';
 import {videoCodecOption} from './video-codec';
 import {webhookCustomDataOption} from './webhook-custom-data';
 import {x264Option} from './x264-preset';
@@ -48,9 +57,11 @@ export const allOptions = {
 	mutedOption,
 	videoCodecOption,
 	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
 	webhookCustomDataOption,
 	colorSpaceOption,
 	deleteAfterOption,
+	disallowParallelEncodingOption,
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
@@ -75,6 +86,13 @@ export const allOptions = {
 	throwIfSiteExistsOption,
 	disableGitSourceOption,
 	metadataOption,
+	hardwareAccelerationOption,
+	chromeModeOption,
+	apiKeyOption,
+	audioLatencyHintOption,
+	enableCrossSiteIsolationOption,
+	imageSequencePatternOption,
+	mediaCacheSizeInBytesOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

@@ -1,71 +1,67 @@
-import type {ReaderInterface} from './reader';
+import type {
+	CreateAdjacentFileSource,
+	MediaParserReaderInterface,
+	ReadContent,
+	ReadWholeAsText,
+} from './reader';
 
-export const webFileReader: ReaderInterface = {
-	read: (file, range, signal) => {
-		if (typeof file === 'string') {
-			throw new Error('`inputTypeFileReader` only supports `File` objects');
-		}
+export const webFileReadContent: ReadContent = ({src, range, controller}) => {
+	if (typeof src === 'string' || src instanceof URL) {
+		throw new Error('`inputTypeFileReader` only supports `File` objects');
+	}
 
-		const part =
-			range === null
-				? file
-				: typeof range === 'number'
-					? file.slice(range)
-					: file.slice(range[0], range[1]);
+	const part =
+		range === null
+			? src
+			: typeof range === 'number'
+				? src.slice(range)
+				: src.slice(range[0], range[1] + 1);
 
-		const reader = new FileReader();
-		reader.readAsArrayBuffer(file);
+	const stream = part.stream();
+	const streamReader = stream.getReader();
 
-		const controller = new AbortController();
+	if (controller) {
+		controller._internals.signal.addEventListener(
+			'abort',
+			() => {
+				streamReader.cancel();
+			},
+			{once: true},
+		);
+	}
 
-		if (controller) {
-			controller.signal.addEventListener(
-				'abort',
-				() => {
-					reader.abort();
-				},
-				{once: true},
-			);
-		}
+	return Promise.resolve({
+		reader: {
+			reader: streamReader,
+			async abort() {
+				try {
+					await streamReader.cancel();
+				} catch {}
 
-		if (signal) {
-			signal.addEventListener(
-				'abort',
-				() => {
-					controller.abort();
-				},
-				{once: true},
-			);
-		}
+				return Promise.resolve();
+			},
+		},
+		contentLength: src.size,
+		name: src instanceof File ? src.name : src.toString(),
+		supportsContentRange: true,
+		contentType: src.type,
+		needsContentRange: true,
+	});
+};
 
-		return new Promise((resolve, reject) => {
-			reader.onload = () => {
-				const stream = part.stream();
-				const streamReader = stream.getReader();
-				resolve({
-					reader: {
-						reader: streamReader,
-						abort() {
-							streamReader.cancel();
-							controller.abort();
-						},
-					},
-					contentLength: file.size,
-					name: file.name,
-					supportsContentRange: true,
-				});
-			};
+export const webFileReadWholeAsText: ReadWholeAsText = () => {
+	throw new Error('`webFileReader` cannot read auxiliary files.');
+};
 
-			reader.onerror = (error) => {
-				reject(error);
-			};
-		});
-	},
-	getLength: (src) => {
-		if (typeof src === 'string') {
-			throw new Error('`inputTypeFileReader` only supports `File` objects');
-		}
+export const webFileCreateAdjacentFileSource: CreateAdjacentFileSource = () => {
+	throw new Error('`webFileReader` cannot create adjacent file sources.');
+};
 
-		return Promise.resolve(src.size);
+export const webFileReader: MediaParserReaderInterface = {
+	read: webFileReadContent,
+	readWholeAsText: webFileReadWholeAsText,
+	createAdjacentFileSource: webFileCreateAdjacentFileSource,
+	preload: () => {
+		// doing nothing, it's just for when fetching over the network
 	},
 };

@@ -1,44 +1,70 @@
-import type {ConvertMediaAudioCodec} from './codec-id';
+import {
+	MediaParserAbortError,
+	type MediaParserLogLevel,
+} from '@remotion/media-parser';
+import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
+import type {IoSynchronizer} from './io-manager/io-synchronizer';
+import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import {getWaveAudioEncoder} from './wav-audio-encoder';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export type WebCodecsAudioEncoder = {
-	encodeFrame: (audioData: AudioData) => Promise<void>;
+	encode: (audioData: AudioData) => void;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
-	getQueueSize: () => number;
 	flush: () => Promise<void>;
+	ioSynchronizer: IoSynchronizer;
+};
+
+export type AudioEncoderInit = {
+	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
+	onError: (error: Error) => void;
+	codec: ConvertMediaAudioCodec;
+	controller: WebCodecsController;
+	config: AudioEncoderConfig;
+	logLevel: MediaParserLogLevel;
+	onNewAudioSampleRate: (sampleRate: number) => void;
 };
 
 export const createAudioEncoder = ({
 	onChunk,
 	onError,
 	codec,
-	signal,
+	controller,
 	config: audioEncoderConfig,
-}: {
-	onChunk: (chunk: EncodedAudioChunk) => Promise<void>;
-	onError: (error: DOMException) => void;
-	codec: ConvertMediaAudioCodec;
-	signal: AbortSignal;
-	config: AudioEncoderConfig;
-}): WebCodecsAudioEncoder => {
-	if (signal.aborted) {
-		throw new Error('Not creating audio encoder, already aborted');
+	logLevel,
+	onNewAudioSampleRate,
+}: AudioEncoderInit): WebCodecsAudioEncoder => {
+	if (controller._internals._mediaParserController._internals.signal.aborted) {
+		throw new MediaParserAbortError(
+			'Not creating audio encoder, already aborted',
+		);
 	}
 
-	let prom = Promise.resolve();
-	let outputQueue = 0;
-	let dequeueResolver = () => {};
+	const ioSynchronizer = makeIoSynchronizer({
+		logLevel,
+		label: 'Audio encoder',
+		controller,
+	});
+
+	if (codec === 'wav') {
+		return getWaveAudioEncoder({
+			onChunk,
+			controller,
+			config: audioEncoderConfig,
+			ioSynchronizer,
+		});
+	}
 
 	const encoder = new AudioEncoder({
-		output: (chunk) => {
-			outputQueue++;
-			prom = prom
-				.then(() => onChunk(chunk))
-				.then(() => {
-					outputQueue--;
-					dequeueResolver();
-					return Promise.resolve();
-				});
+		output: async (chunk) => {
+			try {
+				await onChunk(chunk);
+			} catch (err) {
+				onError(err as Error);
+			}
+
+			ioSynchronizer.onOutput(chunk.timestamp);
 		},
 		error(error) {
 			onError(error);
@@ -46,8 +72,11 @@ export const createAudioEncoder = ({
 	});
 
 	const close = () => {
-		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		signal.removeEventListener('abort', onAbort);
+		controller._internals._mediaParserController._internals.signal.removeEventListener(
+			'abort',
+			// eslint-disable-next-line @typescript-eslint/no-use-before-define
+			onAbort,
+		);
 		if (encoder.state === 'closed') {
 			return;
 		}
@@ -59,68 +88,53 @@ export const createAudioEncoder = ({
 		close();
 	};
 
-	signal.addEventListener('abort', onAbort);
+	controller._internals._mediaParserController._internals.signal.addEventListener(
+		'abort',
+		onAbort,
+	);
 
-	if (codec !== 'opus') {
-		throw new Error('Only `codec: "opus"` is supported currently');
+	if (codec !== 'opus' && codec !== 'aac') {
+		throw new Error(
+			'Only `codec: "opus"` and `codec: "aac"` is supported currently',
+		);
 	}
 
-	const getQueueSize = () => {
-		return encoder.encodeQueueSize + outputQueue;
-	};
+	const wantedSampleRate = audioEncoderConfig.sampleRate;
 
-	encoder.configure(audioEncoderConfig);
-
-	const waitForDequeue = async () => {
-		await new Promise<void>((r) => {
-			dequeueResolver = r;
-
-			// @ts-expect-error exists
-			encoder.addEventListener('dequeue', () => r(), {
-				once: true,
-			});
-		});
-	};
-
-	const waitForFinish = async () => {
-		while (getQueueSize() > 0) {
-			await waitForDequeue();
-		}
-	};
-
-	const encodeFrame = async (audioData: AudioData) => {
+	const encodeFrame = (audioData: AudioData) => {
 		if (encoder.state === 'closed') {
 			return;
 		}
 
-		while (getQueueSize() > 10) {
-			await waitForDequeue();
-		}
-
-		// @ts-expect-error - can have changed in the meanwhile
-		if (encoder.state === 'closed') {
-			return;
+		if (encoder.state === 'unconfigured') {
+			if (audioData.sampleRate === wantedSampleRate) {
+				encoder.configure(audioEncoderConfig);
+			} else {
+				encoder.configure({
+					...audioEncoderConfig,
+					sampleRate: audioData.sampleRate,
+				});
+				onNewAudioSampleRate(audioData.sampleRate);
+			}
 		}
 
 		encoder.encode(audioData);
+
+		ioSynchronizer.inputItem(audioData.timestamp);
 	};
 
-	let queue = Promise.resolve();
-
 	return {
-		encodeFrame: (audioData: AudioData) => {
-			queue = queue.then(() => encodeFrame(audioData));
-			return queue;
+		encode: (audioData: AudioData) => {
+			encodeFrame(audioData);
 		},
 		waitForFinish: async () => {
 			await encoder.flush();
-			await waitForFinish();
-			await prom;
+			await ioSynchronizer.waitForQueueSize(0);
 		},
 		close,
-		getQueueSize,
 		flush: async () => {
 			await encoder.flush();
 		},
+		ioSynchronizer,
 	};
 };

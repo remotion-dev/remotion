@@ -1,0 +1,4 @@
+/**
+ * @description Retrieves input properties passed from the command line or specified via the Node.JS API, useful when props are needed outside of a composition context.
+ * @see [Documentation](https://remotion.dev/docs/get-input-props)
+ */

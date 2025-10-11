@@ -1,5 +1,6 @@
 import type {
 	AudioCodec,
+	ChromeMode,
 	Codec,
 	ColorSpace,
 	LogLevel,
@@ -9,8 +10,8 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import type {RecastCodemod} from './codemods';
-import type {InstallablePackage} from './installable-packages';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {RequiredChromiumOptions} from './render-job';
@@ -38,6 +39,7 @@ type AddRenderRequestDynamicFields =
 			frame: number;
 			scale: number;
 			logLevel: LogLevel;
+			chromeMode: ChromeMode;
 	  }
 	| {
 			type: 'sequence';
@@ -50,6 +52,7 @@ type AddRenderRequestDynamicFields =
 			endFrame: number;
 			disallowParallelEncoding: boolean;
 			repro: boolean;
+			chromeMode: ChromeMode;
 	  }
 	| {
 			type: 'video';
@@ -79,6 +82,8 @@ type AddRenderRequestDynamicFields =
 			repro: boolean;
 			forSeamlessAacConcatenation: boolean;
 			separateAudioTo: string | null;
+			hardwareAcceleration: HardwareAccelerationOption;
+			chromeMode: ChromeMode;
 	  };
 
 export type CancelRenderRequest = {
@@ -94,6 +99,8 @@ export type AddRenderRequest = {
 	envVariables: Record<string, string>;
 	serializedInputPropsWithCustomSchema: string;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
+	mediaCacheSizeInBytes: number | null;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	metadata: Record<string, string> | null;
@@ -121,6 +128,15 @@ export type UpdateDefaultPropsRequest = {
 	compositionId: string;
 	defaultProps: string;
 	enumPaths: EnumPath[];
+};
+
+export type ApplyVisualControlRequest = {
+	fileName: string;
+	changes: VisualControlChange[];
+};
+
+export type ApplyVisualControlResponse = {
+	success: true;
 };
 
 export type UpdateDefaultPropsResponse =
@@ -193,7 +209,7 @@ export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
 
 export type InstallPackageRequest = {
-	packageNames: InstallablePackage[];
+	packageNames: string[];
 };
 export type InstallPackageResponse = {};
 
@@ -213,6 +229,10 @@ export type ApiRoutes = {
 	'/api/update-default-props': ReqAndRes<
 		UpdateDefaultPropsRequest,
 		UpdateDefaultPropsResponse
+	>;
+	'/api/apply-visual-control-change': ReqAndRes<
+		ApplyVisualControlRequest,
+		ApplyVisualControlResponse
 	>;
 	'/api/can-update-default-props': ReqAndRes<
 		CanUpdateDefaultPropsRequest,

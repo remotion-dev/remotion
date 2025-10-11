@@ -8,6 +8,13 @@ type Bug = {
 
 export const bugs: Bug[] = [
 	{
+		title: 'Broken Lambda',
+		description:
+			'This version of Remotion does not allow you to use the Remotion Lambda package. Upgrade to 4.0.298.',
+		link: 'https://remotion.dev/changelog',
+		versions: ['4.0.297'],
+	},
+	{
 		title: 'Broken release',
 		description:
 			'This version of Remotion was not published correctly. Upgrade to 4.0.199.',

@@ -1,16 +1,11 @@
-import { shade, tint } from 'polished';
+import {shade, tint} from 'polished';
 import React from 'react';
-import {
-  interpolate,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from "remotion";
-import { getReadableColor } from './readable-color';
-import { defaultStyles } from './styles';
+import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {getReadableColor} from './readable-color';
+import {defaultStyles} from './styles';
 
 export const Palette: React.FC<{
-	color: string;
+	readonly color: string;
 }> = ({color}) => {
 	const {width, height, fps} = useVideoConfig();
 	const frame = useCurrentFrame();

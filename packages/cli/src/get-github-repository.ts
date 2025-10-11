@@ -1,8 +1,10 @@
 import {BundlerInternals} from '@remotion/bundler';
+import type {LogLevel} from '@remotion/renderer';
 import type {GitSource} from '@remotion/studio-shared';
 import {execSync} from 'child_process';
 import {existsSync, readFileSync} from 'fs';
 import path from 'path';
+import {Log} from './log';
 
 export type ParsedGitRemote = {
 	type: 'github';
@@ -96,10 +98,16 @@ export const normalizeGitRemoteUrl = (url: string): ParsedGitRemote | null => {
 	return null;
 };
 
-export const getGifRef = (): string | null => {
+export const getGifRef = (logLevel: LogLevel): string | null => {
 	try {
-		return execSync('git rev-parse --abbrev-ref HEAD').toString('utf-8').trim();
+		const ret = execSync('git rev-parse --abbrev-ref HEAD', {
+			stdio: ['ignore', 'pipe', 'ignore'],
+		})
+			.toString('utf-8')
+			.trim();
+		return ret;
 	} catch (err) {
+		Log.verbose({logLevel, indent: false}, 'Could not get git ref', err);
 		return null;
 	}
 };
@@ -132,9 +140,11 @@ const getFromEnvVariables = (): GitSource | null => {
 export const getGitSource = ({
 	remotionRoot,
 	disableGitSource,
+	logLevel,
 }: {
 	remotionRoot: string;
 	disableGitSource: boolean;
+	logLevel: LogLevel;
 }): GitSource | null => {
 	if (disableGitSource) {
 		return null;
@@ -145,7 +155,7 @@ export const getGitSource = ({
 		return getFromEnvVariables();
 	}
 
-	const ref = getGifRef();
+	const ref = getGifRef(logLevel);
 	if (!ref) {
 		return null;
 	}

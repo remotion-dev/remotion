@@ -2,7 +2,7 @@
 image: /generated/articles-docs-lambda-insights.png
 sidebar_label: Insights
 title: Enable Lambda Insights
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
 # Enable Lambda Insights<AvailableFrom v="4.0.61"/>
@@ -11,7 +11,7 @@ You may enable [AWS Lambda Insights](https://docs.aws.amazon.com/AmazonCloudWatc
 
 ## Prerequisites
 
-<Step>1</Step> Ensure you are on at least Remotion v4.0.61. <br/>
+<Step>1</Step> Ensure you are on at least Remotion v4.0.61. <br />
 <Step>2</Step> If you started using Remotion before v4.0.61, update both your <a href="/docs/lambda/permissions#user-permissions">AWS user permission</a> and <a href="/docs/lambda/permissions#role-permissions">AWS role permission</a>, since now more permissions are needed.
 
 ## Enable Lambda Insights
@@ -27,15 +27,13 @@ If the function already existed before, you need to delete it beforehand.
 **Via Node.js APIs:**
 
 ```tsx twoslash title="deploy.ts" {8, 11-13}
-// @module: ESNext
-// @target: ESNext
-import assert from "assert";
+import assert from 'assert';
 // ---cut---
-import { deployFunction } from "@remotion/lambda";
+import {deployFunction} from '@remotion/lambda';
 
-const { alreadyExisted } = await deployFunction({
+const {alreadyExisted} = await deployFunction({
   createCloudWatchLogGroup: true,
-  region: "us-east-1",
+  region: 'us-east-1',
   timeoutInSeconds: 120,
   memorySizeInMb: 3009,
   enableLambdaInsights: true,
@@ -64,6 +62,11 @@ In your CloudWatch dashboard ([link for `us-east-1`](https://eu-central-1.consol
 A link to the Lambda insights is also included in the return value of [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
 
 If you render via the CLI with the `--log=verbose` flag, a link to the Lambda insights is also printed, regardless of if Lambda insights are enabled or not.
+
+## Unsupported regions
+
+Lambda Insights is not supported by AWS in `ap-southeast-4` and `ap-southeast-5` and `eu-central-2`.  
+If you deploy a Lambda function in one of these regions and attempt to enable Lambda Insight, an error will be thrown.
 
 ## See also
 

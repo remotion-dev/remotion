@@ -16,9 +16,9 @@ const baseAsset: MediaAsset = {
 	volume: 1,
 	id: '1',
 	playbackRate: 1,
-	allowAmplificationDuringRender: false,
-	toneFrequency: null,
+	toneFrequency: 1,
 	audioStartFrame: 0,
+	audioStreamIndex: 0,
 };
 
 const expandAsset = ({
@@ -51,11 +51,12 @@ test('Should create a basic filter correctly', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:6666666.666666667us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=0us:6666666.666666667us[a0]',
 		pad_end: null,
 		pad_start: null,
 	});
@@ -99,11 +100,12 @@ test('Trim the end', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:704000.0000000001us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=0us:704000us[a0]',
 		pad_end: 'apad=pad_len=' + padding,
 		pad_start: null,
 	});
@@ -148,11 +150,12 @@ test('Should handle trim correctly', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0.3333333333333333,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1037333.3333333335us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=333333.3333333333us:1037333.3333333335us[a0]',
 		pad_end: 'apad=pad_len=128000',
 		pad_start: null,
 	});
@@ -184,11 +187,12 @@ test('Should add padding if audio is too short', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0.3333333333333333,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
 		pad_end: `apad=pad_len=${padding}`,
 		pad_start: null,
 	});
@@ -231,11 +235,12 @@ test('Should handle delay correctly', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0.3333333333333333,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
 		pad_end: 'apad=pad_len=1792',
 		pad_start: 'adelay=2667|2667',
 	});
@@ -278,11 +283,12 @@ test('Should offset multiple channels', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0.3333333333333333,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
 		pad_end: 'apad=pad_len=1792',
 		pad_start: 'adelay=2667|2667|2667|2667',
 	});
@@ -319,9 +325,9 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 					trimLeft: 0,
 					startInVideo: 0,
 					playbackRate: 16,
-					allowAmplificationDuringRender: false,
-					toneFrequency: null,
+					toneFrequency: 1,
 					audioStartFrame: 0,
+					audioStreamIndex: 0,
 				},
 				extraFramesToCaptureAssets: [
 					...extraFramesToCaptureAssetsFrontend,
@@ -337,11 +343,12 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 			volume: flattenVolumeArray(baseAsset.volume),
 			indent: false,
 			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
 		}),
 	).toEqual({
 		actualTrimLeft: 0,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:33333333.000000004us,atempo=2.00000,atempo=2.00000,atempo=2.00000,atempo=2.00000[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atempo=2.00000,atempo=2.00000,atempo=2.00000,atempo=2.00000,atrim=0us:2083333.3125000002us[a0]',
 		pad_end: `apad=pad_len=${expectedPadLength}`,
 		pad_start: null,
 	});

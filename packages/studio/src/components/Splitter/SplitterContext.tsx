@@ -7,8 +7,8 @@ export type SplitterOrientation = 'horizontal' | 'vertical';
 export type TSplitterContext = {
 	flexValue: number;
 	setFlexValue: React.Dispatch<React.SetStateAction<number>>;
-	domRect: DOMRect | DOMRectReadOnly | null;
 	orientation: SplitterOrientation;
+	ref: React.RefObject<HTMLDivElement | null>;
 	maxFlex: number;
 	minFlex: number;
 	defaultFlex: number;
@@ -25,7 +25,7 @@ export type TSplitterContext = {
 
 export const SplitterContext = React.createContext<TSplitterContext>({
 	flexValue: 1,
-	domRect: null,
+	ref: {current: null},
 	setFlexValue: () => undefined,
 	isDragging: {current: false},
 	orientation: 'horizontal',

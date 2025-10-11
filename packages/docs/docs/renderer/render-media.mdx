@@ -10,8 +10,6 @@ _Available since v3.0 - Part of the `@remotion/renderer` package._
 Render a video or an audio programmatically.
 
 ```tsx twoslash title="render.mjs"
-// @module: esnext
-// @target: es2017
 const serveUrl = '/path/to/bundle';
 const outputLocation = '/path/to/frames';
 
@@ -203,6 +201,10 @@ _boolean - optional_
 
 If set to true, no audio is being rendered.
 
+### `hardwareAcceleration?`<AvailableFrom v="4.0.228" />
+
+<Options id="hardware-acceleration" />
+
 ### `enforceAudioTrack?`<AvailableFrom v="3.2.1" />
 
 _boolean - optional_
@@ -213,7 +215,11 @@ Render a silent audio track if there wouldn't be any otherwise.
 
 _puppeteer.Browser - optional_
 
-An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+
+:::note
+Despite the name, not actually compatible with `puppeteer`, only with [`openBrowser()`](/docs/renderer/open-browser).
+:::
 
 ### `scale?`
 
@@ -268,13 +274,7 @@ const onProgress: RenderMediaOnProgress = ({progress}) => {
 ```tsx twoslash title="Advanced example - Fine-grained progress values"
 import {RenderMediaOnProgress} from '@remotion/renderer';
 
-const onProgress: RenderMediaOnProgress = ({
-  renderedFrames,
-  encodedFrames,
-  encodedDoneIn,
-  renderedDoneIn,
-  stitchStage,
-}) => {
+const onProgress: RenderMediaOnProgress = ({renderedFrames, encodedFrames, encodedDoneIn, renderedDoneIn, stitchStage}) => {
   if (stitchStage === 'encoding') {
     // First pass, parallel rendering of frames and encoding into video
     console.log('Encoding...');
@@ -401,6 +401,10 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 <Options id="gl" />
 
+### `chromeMode?`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
+
 #### `userAgent?`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
@@ -422,7 +426,7 @@ const ffmpegOverride: FfmpegOverrideFn = ({type, args}) => {
 
 The function you pass must accept an object as it's only parameter which contains the following properties:
 
-- `type`: Either `"stitcher"` or `"pre-stitcher"`. If enough memory and CPU is available, Remotion may use parallel rendering and encoding, which means that a pre-stitcher process gets spawned before all frames are rendered. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
+- `type`: Either `"stitcher"` or `"pre-stitcher"`. If enough memory and CPU is available, Remotion may use a two-pass process for the video generation. `pre-stitcher` is the encoding phase and `stitcher` is the muxing phase. If the override function is only called once with `stitcher`, then encoding and muxing is done in the same step. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
 - `args`: An array of strings that is passed as arguments to the FFMPEG command.
 
 Your function must return a modified array of strings.
@@ -437,13 +441,21 @@ Using this feature is discouraged. Before using it, we want to make you aware of
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
 
-### `disallowParallelEncoding`<AvailableFrom v="3.2.29" />
+### `disallowParallelEncoding?`<AvailableFrom v="3.2.29" />
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
+
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
 
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `offthreadVideoThreads?`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
 
 ### `colorSpace?`<AvailableFrom v="4.0.28"/>
 
@@ -466,6 +478,10 @@ _boolean - default `false`_
 ### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.123" />
 
 <Options id="for-seamless-aac-concatenation" />
+
+### `compositionStart?`<AvailableFrom v="4.0.279"/>
+
+An option to be used only if implementing a distributed renderer, see [Distributed rendering](/docs/distributed-rendering#2-invoking-render-functions) for what to set it to.
 
 ### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 

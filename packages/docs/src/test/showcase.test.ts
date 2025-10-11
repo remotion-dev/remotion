@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import {showcaseVideos} from '../data/showcase-videos';
 
 describe('Showcase videos should adhere to format guidelines', () => {

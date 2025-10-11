@@ -1,29 +1,8 @@
-import {useContext, useEffect} from 'react';
-import {NativeLayersContext} from './NativeLayers.js';
-
+/**
+ * @deprecated <Null /> has been removed as of Remotion v4.0.228. The native clipping APIs were experimental and subject to removal at any time. We removed them because they were sparingly used and made rendering often slower rather than faster.
+ */
 export const Null: React.FC = () => {
-	const {setClipRegion} = useContext(NativeLayersContext);
-
-	useEffect(() => {
-		setClipRegion((c) => {
-			if (c === null) {
-				return 'hide';
-			}
-
-			// Rendering multiple <Null> is fine, because they are all hidden
-			if (c === 'hide') {
-				return 'hide';
-			}
-
-			throw new Error(
-				'Cannot render <Null>, because another component clipping the region was already rendered (most likely <Clipper>)',
-			);
-		});
-
-		return () => {
-			setClipRegion(null);
-		};
-	}, [setClipRegion]);
-
-	return null;
+	throw new Error(
+		'<Null> has been removed as of Remotion v4.0.228. The native clipping APIs were experimental and subject to removal at any time. We removed them because they were sparingly used and made rendering often slower rather than faster.',
+	);
 };

@@ -19,7 +19,7 @@ const getVersion = async (
 		const file = await fs.promises.readFile(remotionPkgJson, 'utf-8');
 		const packageJson = JSON.parse(file);
 		return {version: packageJson.version, path: remotionPkgJson};
-	} catch (err) {
+	} catch {
 		return null;
 	}
 };
@@ -139,10 +139,10 @@ export const versionsCommand = async (
 	for (const version of installedVersions) {
 		Log.info({indent: false, logLevel}, `On version: ${version}`);
 		for (const pkg of grouped[version] ?? []) {
-			Log.info({indent: false, logLevel}, `- ${pkg}`);
+			Log.info({indent: false, logLevel}, `- ${pkg.pkg}`);
 			Log.verbose(
 				{indent: false, logLevel},
-				`  ${resolveFrom(remotionRoot, `${pkg}/package.json`)}`,
+				`  ${resolveFrom(remotionRoot, `${pkg.pkg}/package.json`)}`,
 			);
 		}
 

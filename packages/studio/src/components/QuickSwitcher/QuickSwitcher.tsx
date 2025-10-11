@@ -4,9 +4,9 @@ import type {QuickSwitcherMode} from './NoResults';
 import {QuickSwitcherContent} from './QuickSwitcherContent';
 
 const QuickSwitcher: React.FC<{
-	initialMode: QuickSwitcherMode;
-	invocationTimestamp: number;
-	readOnlyStudio: boolean;
+	readonly initialMode: QuickSwitcherMode;
+	readonly invocationTimestamp: number;
+	readonly readOnlyStudio: boolean;
 }> = ({initialMode, invocationTimestamp, readOnlyStudio}) => {
 	return (
 		<DismissableModal>

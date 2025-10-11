@@ -7,8 +7,11 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
+import type {z} from 'zod';
+import type {Privacy} from '../defaults';
 import type {
 	CloudRunCrashResponse,
+	CloudRunPayload,
 	CloudRunPayloadType,
 	DownloadBehavior,
 	ErrorResponsePayload,
@@ -32,7 +35,7 @@ type OptionalParameters = {
 	cloudRunUrl: string | null;
 	serviceName: string | null;
 	inputProps: Record<string, unknown>;
-	privacy: 'public' | 'private';
+	privacy: Privacy;
 	forceBucketName: string | null;
 	outName: string | null;
 	envVariables: Record<string, string>;
@@ -42,6 +45,8 @@ type OptionalParameters = {
 	forceHeight: number | null;
 	indent: boolean;
 	downloadBehavior: DownloadBehavior;
+	renderIdOverride: z.infer<typeof CloudRunPayload>['renderIdOverride'];
+	renderStatusWebhook: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderStillOnCloudRun>;
 
 export type RenderStillOnCloudrunInput = Partial<OptionalParameters> &
@@ -94,7 +99,11 @@ const internalRenderStillOnCloudRun = async ({
 	logLevel,
 	delayRenderTimeoutInMilliseconds,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	downloadBehavior,
+	renderIdOverride,
+	renderStatusWebhook,
+	mediaCacheSizeInBytes,
 }: OptionalParameters & MandatoryParameters): Promise<
 	RenderStillOnCloudrunOutput | ErrorResponsePayload | CloudRunCrashResponse
 > => {
@@ -114,7 +123,7 @@ const internalRenderStillOnCloudRun = async ({
 		composition,
 		serveUrl,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: inputProps ?? {},
@@ -134,8 +143,12 @@ const internalRenderStillOnCloudRun = async ({
 		logLevel,
 		delayRenderTimeoutInMilliseconds,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		clientVersion: VERSION,
 		downloadBehavior,
+		renderIdOverride,
+		renderStatusWebhook,
+		mediaCacheSizeInBytes,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -169,7 +182,7 @@ const internalRenderStillOnCloudRun = async ({
 			try {
 				parsedData = JSON.parse(accumulatedChunks.trim());
 				accumulatedChunks = ''; // Clear the buffer after successful parsing.
-			} catch (e) {
+			} catch {
 				// If parsing fails, it means we don't have a complete JSON string yet.
 				// We'll wait for more chunks.
 				return;
@@ -234,6 +247,7 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		logLevel: options.logLevel ?? 'info',
 		offthreadVideoCacheSizeInBytes:
 			options.offthreadVideoCacheSizeInBytes ?? null,
+		offthreadVideoThreads: options.offthreadVideoThreads ?? null,
 		outName: options.outName ?? null,
 		privacy: options.privacy ?? 'public',
 		region: options.region,
@@ -241,5 +255,8 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		serveUrl: options.serveUrl,
 		serviceName: options.serviceName ?? null,
 		downloadBehavior: options.downloadBehavior ?? {type: 'play-in-browser'},
+		renderIdOverride: options.renderIdOverride ?? undefined,
+		renderStatusWebhook: options.renderStatusWebhook ?? undefined,
+		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 	});
 };

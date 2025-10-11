@@ -44,7 +44,7 @@ export const Greenscreen: React.FC<{
 				<OffthreadVideo
 					style={{opacity: 0}}
 					onVideoFrame={onVideoFrame}
-					src="https://remotion-assets.s3.eu-central-1.amazonaws.com/just-do-it-short.mp4"
+					src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/just-do-it-short.mp4"
 				/>
 			</AbsoluteFill>
 			<AbsoluteFill>
@@ -82,7 +82,7 @@ export const VideoOnCanvas: React.FC = () => {
 				<OffthreadVideo
 					onVideoFrame={onVideoFrame}
 					style={{opacity: 0}}
-					startFrom={300}
+					trimBefore={300}
 					src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 				/>
 			</AbsoluteFill>

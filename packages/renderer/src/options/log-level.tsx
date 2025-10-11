@@ -12,11 +12,10 @@ export const logLevelOption = {
 	ssrName: 'logLevel',
 	description: () => (
 		<>
-			One of <code>verbose</code>, <code>info</code>, <code>warn</code>,{' '}
-			<code>error</code>.<br /> Determines how much is being logged to the
-			console.
-			<br /> <code>verbose</code> will also log <code>console.log</code>
-			{"'"}s from the browser.
+			One of <code>trace</code>, <code>verbose</code>, <code>info</code>,{' '}
+			<code>warn</code>, <code>error</code>.<br /> Determines how much info is
+			being logged to the console.
+			<br />
 			<br /> Default <code>info</code>.
 		</>
 	),

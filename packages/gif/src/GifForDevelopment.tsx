@@ -1,5 +1,5 @@
+/* eslint-disable no-console */
 import {forwardRef, useEffect, useRef, useState} from 'react';
-import {continueRender, delayRender} from 'remotion';
 import {Canvas} from './canvas';
 import {manuallyManagedGifCache, volatileGifCache} from './gif-cache';
 import {isCorsError} from './is-cors-error';
@@ -45,10 +45,6 @@ export const GifForDevelopment = forwardRef<
 		});
 		const [error, setError] = useState<Error | null>(null);
 
-		const [id] = useState(() =>
-			delayRender(`Rendering <Gif/> with src="${resolvedSrc}"`),
-		);
-
 		const currentOnLoad = useRef(onLoad);
 		const currentOnError = useRef(onError);
 		currentOnLoad.current = onLoad;
@@ -58,7 +54,6 @@ export const GifForDevelopment = forwardRef<
 			let done = false;
 			let aborted = false;
 			const {prom, cancel} = parseWithWorker(resolvedSrc);
-			const newHandle = delayRender('Loading <Gif /> with src=' + resolvedSrc);
 
 			prom
 				.then((parsed) => {
@@ -66,12 +61,9 @@ export const GifForDevelopment = forwardRef<
 					update(parsed);
 					volatileGifCache.set(resolvedSrc, parsed);
 					done = true;
-					continueRender(newHandle);
-					continueRender(id);
 				})
 				.catch((err) => {
 					if (aborted) {
-						continueRender(newHandle);
 						return;
 					}
 
@@ -87,10 +79,8 @@ export const GifForDevelopment = forwardRef<
 					aborted = true;
 					cancel();
 				}
-
-				continueRender(newHandle);
 			};
-		}, [id, resolvedSrc]);
+		}, [resolvedSrc]);
 
 		if (error) {
 			console.error(error.stack);

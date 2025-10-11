@@ -33,13 +33,13 @@ npm run dev
 **Render MP4 video**
 
 ```console
-npm run build
+npx remotion render
 ```
 
 **Upgrade Remotion**
 
 ```console
-npm run upgrade
+npx remotion upgrade
 ```
 
 ## Docs

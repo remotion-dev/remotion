@@ -8,11 +8,11 @@ import type {SubMenuActivated} from './MenuSubItem';
 import {portals} from './portals';
 
 export const SubMenuComponent: React.FC<{
-	portalStyle: React.CSSProperties;
-	subMenu: SubMenu;
-	onQuitFullMenu: () => void;
-	onQuitSubMenu: () => void;
-	subMenuActivated: SubMenuActivated;
+	readonly portalStyle: React.CSSProperties;
+	readonly subMenu: SubMenu;
+	readonly onQuitFullMenu: () => void;
+	readonly onQuitSubMenu: () => void;
+	readonly subMenuActivated: SubMenuActivated;
 }> = ({
 	portalStyle,
 	subMenuActivated,

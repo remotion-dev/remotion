@@ -3,10 +3,10 @@ import {
 	AddLayerVersionPermissionCommand,
 	PublishLayerVersionCommand,
 } from '@aws-sdk/client-lambda';
+import {LambdaClientInternals, type AwsRegion} from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
 import {getRegions} from '../api/get-regions';
 import {quit} from '../cli/helpers/quit';
-import {getLambdaClient} from '../shared/aws-clients';
 import type {HostedLayers} from '../shared/hosted-layers';
 
 const layerInfo: HostedLayers = {
@@ -31,12 +31,17 @@ const layerInfo: HostedLayers = {
 	'me-south-1': [],
 	'sa-east-1': [],
 	'us-west-1': [],
+	'ap-southeast-4': [],
+	'ap-southeast-5': [],
+	'eu-central-2': [],
 };
 
-const V5_RUNTIME = true;
+const getBucketName = (region: AwsRegion) => {
+	return `remotionlambda-binaries-${region}`;
+};
 
 const makeLayerPublic = async () => {
-	const runtimes: Runtime[] = [V5_RUNTIME ? 'nodejs20.x' : 'nodejs18.x'];
+	const runtimes: Runtime[] = ['nodejs20.x'];
 
 	const layers = [
 		'fonts',
@@ -48,23 +53,20 @@ const makeLayerPublic = async () => {
 	for (const region of getRegions()) {
 		for (const layer of layers) {
 			const layerName = `remotion-binaries-${layer}-arm64`;
-			const {Version, LayerArn} = await getLambdaClient(region).send(
+			const {Version, LayerArn} = await LambdaClientInternals.getLambdaClient(
+				region,
+				undefined,
+				null,
+			).send(
 				new PublishLayerVersionCommand({
 					Content: {
-						S3Bucket: 'remotionlambda-binaries-' + region,
-						S3Key:
-							layer === 'emoji-apple'
-								? 'remotion-layer-emoji-v1-arm64.zip'
-								: V5_RUNTIME
-									? `remotion-layer-${layer}-v11-arm64.zip`
-									: `remotion-layer-${layer}-v10-arm64.zip`,
+						S3Bucket: getBucketName(region),
+						S3Key: `remotion-layer-${layer}-v14-arm64.zip`,
 					},
 					LayerName: layerName,
 					LicenseInfo:
 						layer === 'chromium'
-							? V5_RUNTIME
-								? 'Chromium 123.0.6312.86, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
-								: 'Chromium 114, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
+							? 'Chromium 133.0.6943.141, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
 							: layer === 'emoji-apple'
 								? 'Apple Emojis (https://github.com/samuelngs/apple-emoji-linux). For educational purposes only - Apple is a trademark of Apple Inc., registered in the U.S. and other countries.'
 								: layer === 'emoji-google'
@@ -76,7 +78,11 @@ const makeLayerPublic = async () => {
 					Description: VERSION,
 				}),
 			);
-			await getLambdaClient(region).send(
+			await LambdaClientInternals.getLambdaClient(
+				region,
+				undefined,
+				undefined,
+			).send(
 				new AddLayerVersionPermissionCommand({
 					Action: 'lambda:GetLayerVersion',
 					LayerName: layerName,
@@ -85,8 +91,8 @@ const makeLayerPublic = async () => {
 					StatementId: 'public-layer',
 				}),
 			);
-			if (!layerInfo[region]) {
-				layerInfo[region] = [];
+			if (!layerInfo[region as AwsRegion]) {
+				layerInfo[region as AwsRegion] = [];
 			}
 
 			if (!LayerArn) {

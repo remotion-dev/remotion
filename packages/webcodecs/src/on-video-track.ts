@@ -1,13 +1,21 @@
-import type {MediaFn, OnVideoTrack, VideoTrack} from '@remotion/media-parser';
-import type {ConvertMediaVideoCodec} from './codec-id';
-import type {ConvertMediaState} from './convert-media';
-import Error from './error-cause';
-import type {ResolveVideoActionFn} from './resolve-video-action';
-import {resolveVideoAction} from './resolve-video-action';
-import {createVideoDecoder} from './video-decoder';
-import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
-import {createVideoEncoder} from './video-encoder';
-import {getVideoEncoderConfig} from './video-encoder-config';
+import type {
+	MediaParserLogLevel,
+	MediaParserOnVideoTrack,
+} from '@remotion/media-parser';
+import {canCopyVideoTrack} from './can-copy-video-track';
+import type {ConvertMediaOnVideoFrame} from './convert-media';
+import {copyVideoTrack} from './copy-video-track';
+import type {MediaFn} from './create/media-fn';
+import type {ProgressTracker} from './create/progress-tracker';
+import {defaultOnVideoTrackHandler} from './default-on-video-track-handler';
+import type {ConvertMediaContainer} from './get-available-containers';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import {getDefaultVideoCodec} from './get-default-video-codec';
+import type {ConvertMediaOnVideoTrackHandler} from './on-video-track-handler';
+import {reencodeVideoTrack} from './reencode-video-track';
+import type {ResizeOperation} from './resizing/mode';
+import type {ConvertMediaProgressFn} from './throttled-state-update';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export const makeVideoTrackHandler =
 	({
@@ -15,139 +23,86 @@ export const makeVideoTrackHandler =
 		onVideoFrame,
 		onMediaStateUpdate,
 		abortConversion,
-		convertMediaState,
 		controller,
-		videoCodec,
+		defaultVideoCodec,
 		onVideoTrack,
+		logLevel,
+		outputContainer,
+		rotate,
+		resizeOperation,
+		progressTracker,
 	}: {
 		state: MediaFn;
-		onVideoFrame:
-			| null
-			| ((frame: VideoFrame, track: VideoTrack) => Promise<void>);
-		onMediaStateUpdate: null | ((state: ConvertMediaState) => void);
+		onVideoFrame: null | ConvertMediaOnVideoFrame;
+		onMediaStateUpdate: null | ConvertMediaProgressFn;
 		abortConversion: (errCause: Error) => void;
-		convertMediaState: ConvertMediaState;
-		controller: AbortController;
-		videoCodec: ConvertMediaVideoCodec;
-		onVideoTrack: ResolveVideoActionFn;
-	}): OnVideoTrack =>
-	async (track) => {
-		const videoEncoderConfig = await getVideoEncoderConfig({
-			codec: videoCodec === 'vp9' ? 'vp09.00.10.08' : videoCodec,
-			height: track.displayAspectHeight,
-			width: track.displayAspectWidth,
+		controller: WebCodecsController;
+		defaultVideoCodec: ConvertMediaVideoCodec | null;
+		onVideoTrack: ConvertMediaOnVideoTrackHandler | null;
+		logLevel: MediaParserLogLevel;
+		outputContainer: ConvertMediaContainer;
+		rotate: number;
+		resizeOperation: ResizeOperation | null;
+		progressTracker: ProgressTracker;
+	}): MediaParserOnVideoTrack =>
+	async ({track, container: inputContainer}) => {
+		if (
+			controller._internals._mediaParserController._internals.signal.aborted
+		) {
+			throw new Error('Aborted');
+		}
+
+		const canCopyTrack = canCopyVideoTrack({
+			inputContainer,
+			outputContainer,
+			rotationToApply: rotate,
+			inputTrack: track,
+			resizeOperation,
+			outputVideoCodec: defaultVideoCodec,
 		});
-		const videoDecoderConfig =
-			await getVideoDecoderConfigWithHardwareAcceleration(track);
-		const videoOperation = await resolveVideoAction({
-			videoDecoderConfig,
-			videoEncoderConfig,
+
+		const videoOperation = await (onVideoTrack ?? defaultOnVideoTrackHandler)({
 			track,
-			videoCodec,
-			resolverFunction: onVideoTrack,
+			defaultVideoCodec:
+				defaultVideoCodec ?? getDefaultVideoCodec({container: outputContainer}),
+			logLevel,
+			outputContainer,
+			rotate,
+			inputContainer,
+			canCopyTrack,
+			resizeOperation,
 		});
 
-		if (videoOperation === 'drop') {
+		if (videoOperation.type === 'drop') {
 			return null;
 		}
 
-		if (videoOperation === 'copy') {
-			const videoTrack = await state.addTrack({
-				type: 'video',
-				color: track.color,
-				width: track.codedWidth,
-				height: track.codedHeight,
-				codec: track.codecWithoutConfig,
-				codecPrivate: track.codecPrivate,
+		if (videoOperation.type === 'fail') {
+			throw new Error(
+				`Video track with ID ${track.trackId} resolved with {"type": "fail"}. This could mean that this video track could neither be copied to the output container or re-encoded. You have the option to drop the track instead of failing it: https://remotion.dev/docs/webcodecs/track-transformation`,
+			);
+		}
+
+		if (videoOperation.type === 'copy') {
+			return copyVideoTrack({
+				logLevel,
+				onMediaStateUpdate,
+				state,
+				track,
+				progressTracker,
 			});
-			return (sample) => {
-				state.addSample(
-					new EncodedVideoChunk(sample),
-					videoTrack.trackNumber,
-					true,
-				);
-				convertMediaState.decodedVideoFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
-			};
 		}
 
-		if (videoEncoderConfig === null) {
-			abortConversion(
-				new Error(
-					`Could not configure video encoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
-
-		if (videoDecoderConfig === null) {
-			abortConversion(
-				new Error(
-					`Could not configure video decoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
-
-		const {trackNumber} = await state.addTrack({
-			type: 'video',
-			color: track.color,
-			width: track.codedWidth,
-			height: track.codedHeight,
-			codec: videoCodec,
-			codecPrivate: null,
+		return reencodeVideoTrack({
+			videoOperation,
+			abortConversion,
+			controller,
+			logLevel,
+			rotate,
+			track,
+			onVideoFrame,
+			state,
+			onMediaStateUpdate,
+			progressTracker,
 		});
-
-		const videoEncoder = createVideoEncoder({
-			onChunk: async (chunk) => {
-				await state.addSample(chunk, trackNumber, true);
-				convertMediaState.encodedVideoFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
-			},
-			onError: (err) => {
-				abortConversion(
-					new Error(
-						`Video encoder of track ${track.trackId} failed (see .cause of this error)`,
-						{
-							cause: err,
-						},
-					),
-				);
-			},
-			signal: controller.signal,
-			config: videoEncoderConfig,
-		});
-
-		const videoDecoder = createVideoDecoder({
-			config: videoDecoderConfig,
-			onFrame: async (frame) => {
-				await onVideoFrame?.(frame, track);
-				await videoEncoder.encodeFrame(frame);
-				convertMediaState.decodedVideoFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
-				frame.close();
-			},
-			onError: (err) => {
-				abortConversion(
-					new Error(
-						`Video decoder of track ${track.trackId} failed (see .cause of this error)`,
-						{
-							cause: err,
-						},
-					),
-				);
-			},
-			signal: controller.signal,
-		});
-
-		state.addWaitForFinishPromise(async () => {
-			await videoDecoder.waitForFinish();
-			await videoEncoder.waitForFinish();
-			videoDecoder.close();
-			videoEncoder.close();
-		});
-
-		return async (chunk) => {
-			await videoDecoder.processSample(chunk);
-		};
 	};

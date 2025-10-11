@@ -5,9 +5,9 @@ export function RepoHeader({
   org,
   name,
 }: {
-  stars: number;
-  org: string;
-  name: string;
+  readonly stars: number;
+  readonly org: string;
+  readonly name: string;
 }) {
   return (
     <div

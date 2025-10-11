@@ -16,6 +16,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import util from 'node:util';
+import {Log} from './log';
 
 const execProm = util.promisify(exec);
 
@@ -26,7 +27,11 @@ export const isVsCodeDerivative = (editor: Editor) => {
 		editor === 'Code.exe' ||
 		editor === 'vscodium' ||
 		editor === 'VSCodium.exe' ||
-		editor === 'Code - Insiders.exe'
+		editor === 'Code - Insiders.exe' ||
+		editor === 'cursor' ||
+		editor === 'Cursor.exe' ||
+		editor === 'windsurf' ||
+		editor === 'Windsurf.exe'
 	);
 };
 
@@ -41,6 +46,7 @@ export function isTerminalEditor(editor: Editor) {
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const editorNames = [
 	'atom',
 	'/Applications/Atom Beta.app/Contents/MacOS/Atom Beta',
@@ -51,6 +57,8 @@ const editorNames = [
 	'code',
 	'code-insiders',
 	'vscodium',
+	'cursor',
+	'Cursor.exe',
 	'/Applications/AppCode.app/Contents/MacOS/appcode',
 	'/Applications/CLion.app/Contents/MacOS/clion',
 	'/Applications/IntelliJ IDEA.app/Contents/MacOS/idea',
@@ -97,6 +105,11 @@ const editorNames = [
 	'rider.exe',
 	'rider64.exe',
 	'nano',
+	'windsurf',
+	'Windsurf.exe',
+	'Zed.exe',
+	'Cursor.exe',
+	'zed',
 ] as const;
 
 const displayNameForEditor: {[key in Editor]: string} = {
@@ -121,12 +134,17 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	'Code - Insiders.exe': 'VS Code Insiders',
 	'Code.exe': 'VS Code',
 	'VSCodium.exe': 'VS Codium',
+	'Cursor.exe': 'Cursor',
+	'Windsurf.exe': 'Windsurf',
+	'Zed.exe': 'Zed',
 	'atom.exe': 'Atom',
 	'clion.exe': 'CLion',
 	'clion64.exe': 'CLion',
 	'code-insiders': 'VS Code Insiders',
+	cursor: 'Cursor',
 	'goland.exe': 'GoLand',
 	'goland64.exe': 'GoLand',
+	goland: 'GoLand',
 	'idea.exe': 'IDEA',
 	'idea64.exe': 'IDEA',
 	'notepad++.exe': 'Notepad++',
@@ -145,7 +163,8 @@ const displayNameForEditor: {[key in Editor]: string} = {
 	brackets: 'Brackets',
 	code: 'VS Code',
 	emacs: 'emacs',
-	goland: 'GoLand',
+	windsurf: 'Windsurf',
+	zed: 'Zed',
 	gvim: 'GVim',
 	idea: 'IDEA',
 	mvim: 'mvim',
@@ -192,6 +211,7 @@ const COMMON_EDITORS_OSX: Record<string, Editor> = {
 	'/Applications/Visual Studio Code - Insiders.app/Contents/MacOS/Electron':
 		'code-insiders',
 	'/Applications/VSCodium.app/Contents/MacOS/Electron': 'vscodium',
+	'/Applications/Cursor.app/Contents/MacOS/Cursor': 'cursor',
 	'/Applications/AppCode.app/Contents/MacOS/appcode':
 		'/Applications/AppCode.app/Contents/MacOS/appcode',
 	'/Applications/CLion.app/Contents/MacOS/clion':
@@ -221,6 +241,7 @@ const COMMON_EDITORS_LINUX: Record<string, Editor> = {
 	code: 'code',
 	'code-insiders': 'code-insiders',
 	vscodium: 'vscodium',
+	cursor: 'cursor',
 	emacs: 'emacs',
 	gvim: 'gvim',
 	'idea.sh': 'idea',
@@ -239,6 +260,7 @@ const COMMON_EDITORS_WIN: Editor[] = [
 	'Code.exe',
 	'Code - Insiders.exe',
 	'VSCodium.exe',
+	'Cursor.exe',
 	'atom.exe',
 	'sublime_text.exe',
 	'notepad++.exe',
@@ -304,6 +326,8 @@ function getArgumentsForLineNumber(
 		case 'Code - Insiders':
 		case 'vscodium':
 		case 'VSCodium':
+		case 'Cursor.exe':
+		case 'cursor':
 			return ['-g', fileName + ':' + lineNumber + ':' + colNumber];
 		case 'appcode':
 		case 'clion':
@@ -401,7 +425,7 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 
 			return availableEditors;
 		}
-	} catch (error) {
+	} catch {
 		// Ignore...
 	}
 
@@ -485,18 +509,16 @@ export async function launchEditor({
 		process.platform === 'win32' &&
 		!WINDOWS_FILE_NAME_WHITELIST.test(fileName.trim())
 	) {
-		console.log();
-		console.log(
-			'Could not open ' + path.basename(fileName) + ' in the editor.',
-		);
-		console.log();
-		console.log(
+		Log.info();
+		Log.info('Could not open ' + path.basename(fileName) + ' in the editor.');
+		Log.info();
+		Log.info(
 			'When running on Windows, file names are checked against a whitelist ' +
 				'to protect against remote code execution attacks. File names may ' +
 				'consist only of alphanumeric characters (all languages), periods, ' +
 				'dashes, slashes, and underscores.',
 		);
-		console.log();
+		Log.info();
 		return false;
 	}
 
@@ -555,12 +577,12 @@ export async function launchEditor({
 		_childProcess = null;
 
 		if (errorCode) {
-			console.log(`Process exited with code ${errorCode}`);
+			Log.info(`Process exited with code ${errorCode}`);
 		}
 	});
 
 	_childProcess.on('error', (error) => {
-		console.log('Error opening file in editor', fileName, error.message);
+		Log.info('Error opening file in editor', fileName, error.message);
 	});
 	return true;
 }

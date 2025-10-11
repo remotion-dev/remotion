@@ -48,13 +48,13 @@ export async function selectAsync(
 
 				this.fire();
 				// Without this, the value will be `0` instead of a string.
-				// eslint-disable-next-line @typescript-eslint/prefer-optional-chain
+
 				this.value = (this.choices[this.cursor] || {}).value;
 
 				// Support up arrow and `k` key -- no looping
 				this.up = () => {
 					let next = this.cursor;
-					// eslint-disable-next-line no-constant-condition
+
 					while (true) {
 						if (next <= 0) break;
 						next--;
@@ -75,7 +75,7 @@ export async function selectAsync(
 				// Support down arrow and `j` key -- no looping
 				this.down = () => {
 					let next = this.cursor;
-					// eslint-disable-next-line no-constant-condition
+
 					while (true) {
 						if (next >= this.choices.length - 1) break;
 						next++;

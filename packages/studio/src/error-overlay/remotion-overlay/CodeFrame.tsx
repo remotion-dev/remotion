@@ -30,8 +30,8 @@ const lineNumber: React.CSSProperties = {
 };
 
 export const CodeFrame: React.FC<{
-	source: ScriptLine[];
-	lineNumberWidth: number;
+	readonly source: ScriptLine[];
+	readonly lineNumberWidth: number;
 }> = ({source, lineNumberWidth}) => {
 	return (
 		<div style={frame} className={HORIZONTAL_SCROLLBAR_CLASSNAME}>

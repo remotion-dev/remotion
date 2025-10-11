@@ -1,5 +1,5 @@
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
-import {deserializeJSONWithCustomFields} from '../input-props-serialization.js';
+import {deserializeJSONWithSpecialTypes} from '../input-props-serialization.js';
 
 let didWarnSSRImport = false;
 
@@ -38,6 +38,6 @@ export const getInputProps = <
 		return {} as T;
 	}
 
-	const parsed = deserializeJSONWithCustomFields<T>(param);
+	const parsed = deserializeJSONWithSpecialTypes<T>(param);
 	return parsed;
 };

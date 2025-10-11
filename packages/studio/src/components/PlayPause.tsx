@@ -10,11 +10,7 @@ import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ControlButton} from './ControlButton';
-import {
-	getCurrentDuration,
-	getCurrentFps,
-	getCurrentFrame,
-} from './Timeline/imperative-state';
+import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 
 const backStyle = {
@@ -52,8 +48,8 @@ export const PlayPause: React.FC<{
 		frameForward,
 		isLastFrame,
 		isFirstFrame,
-		remotionInternal_currentFrameRef,
 		emitter,
+		getCurrentFrame,
 	} = PlayerInternals.usePlayer();
 
 	PlayerInternals.usePlayback({
@@ -62,7 +58,7 @@ export const PlayPause: React.FC<{
 		moveToBeginningWhenEnded: true,
 		inFrame,
 		outFrame,
-		frameRef: remotionInternal_currentFrameRef,
+		getCurrentFrame,
 		browserMediaControlsBehavior: {
 			mode: 'register-media-session',
 		},
@@ -127,7 +123,7 @@ export const PlayPause: React.FC<{
 				});
 			}
 		},
-		[frameBack, seek],
+		[frameBack, seek, getCurrentFrame],
 	);
 
 	const onArrowRight = useCallback(
@@ -160,7 +156,7 @@ export const PlayPause: React.FC<{
 
 			e.preventDefault();
 		},
-		[frameForward, seek],
+		[frameForward, seek, getCurrentFrame],
 	);
 
 	const oneFrameBack = useCallback(() => {

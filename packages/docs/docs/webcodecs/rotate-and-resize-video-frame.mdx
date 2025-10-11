@@ -1,0 +1,147 @@
+---
+image: /generated/articles-docs-webcodecs-rotate-and-resize-video-frame.png
+id: rotate-and-resize-video-frame
+title: rotateAndResizeVideoFrame()
+slug: /webcodecs/rotate-and-resize-video-frame
+crumb: '@remotion/webcodecs'
+---
+
+:::warning
+[We are phasing out Remotion WebCodecs and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
+# rotateAndResizeVideoFrame()<AvailableFrom v="4.0.316"/>
+
+_Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
+
+import {LicenseDisclaimer} from './LicenseDisclaimer';
+
+<details>
+  <summary>💼 Important License Disclaimer</summary>
+  <LicenseDisclaimer />
+</details>
+
+Resizes and/or rotates a [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) object.  
+Returns a new [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) object with the applied transformations, or the original frame if no transformations are applied.
+
+```tsx twoslash title="Rotating a video frame by 90 degrees"
+import {rotateAndResizeVideoFrame} from '@remotion/webcodecs';
+
+// Assume you have a VideoFrame object
+declare const frame: VideoFrame;
+
+const rotatedFrame = rotateAndResizeVideoFrame({
+  frame,
+  rotation: 90,
+  resizeOperation: null,
+});
+
+console.log('Original dimensions:', frame.displayWidth, 'x', frame.displayHeight);
+console.log('Rotated dimensions:', rotatedFrame.displayWidth, 'x', rotatedFrame.displayHeight);
+```
+
+```tsx twoslash title="Resizing a video frame by width"
+import {rotateAndResizeVideoFrame} from '@remotion/webcodecs';
+
+// Assume you have a VideoFrame object
+declare const frame: VideoFrame;
+
+const resizedFrame = rotateAndResizeVideoFrame({
+  frame,
+  rotation: 0,
+  resizeOperation: {
+    mode: 'width',
+    width: 640,
+  },
+});
+
+console.log('Resized frame width:', resizedFrame.displayWidth);
+```
+
+```tsx twoslash title="Rotating and resizing together"
+import {rotateAndResizeVideoFrame} from '@remotion/webcodecs';
+
+// Assume you have a VideoFrame object
+declare const frame: VideoFrame;
+
+const transformedFrame = rotateAndResizeVideoFrame({
+  frame,
+  rotation: 180,
+  resizeOperation: {
+    mode: 'height',
+    height: 480,
+  },
+  needsToBeMultipleOfTwo: true,
+});
+```
+
+## API
+
+### `frame`
+
+A [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) object to be transformed.
+
+### `rotation`
+
+The rotation angle in degrees. Only multiples of 90 degrees are supported (0, 90, 180, 270, etc.).
+
+### `resizeOperation`
+
+A resize operation to apply to the frame, or `null` if no resizing is needed.  
+See: [Resize modes](/docs/webcodecs/resize-a-video#resize-modes) for available options.
+
+### `needsToBeMultipleOfTwo?`
+
+_optional, default: `false`_
+
+Whether the resulting dimensions should be multiples of 2.  
+This is often required if encoding to a codec like H.264.  
+If `true`, the dimensions will be rounded down to the nearest even number.
+
+## Behavior
+
+The function returns the **original frame** unchanged in these cases:
+
+- No rotation (0°) and no resize operation is specified
+- No rotation (0°) and resize operation results in the same dimensions
+
+Otherwise, it returns a **new `VideoFrame`** object:
+
+- When rotation is applied (90°, 180°, 270°, etc.)
+- When resizing changes the dimensions
+- When both rotation and resizing are applied
+
+Additional behavior notes:
+
+- Rotation is applied first, then resizing
+- For 90° and 270° rotations, the width and height are swapped
+- The function creates a new `VideoFrame` using an `OffscreenCanvas` for the transformation
+
+## Memory Management
+
+**Important**: You are responsible for closing `VideoFrame` objects to prevent memory leaks. Since this function may return either the original frame or a new frame, you should check if a new frame was created before closing the original:
+
+```tsx twoslash title="Proper memory cleanup"
+import {rotateAndResizeVideoFrame} from '@remotion/webcodecs';
+
+// Assume you have a VideoFrame object
+declare const originalFrame: VideoFrame;
+
+const transformedFrame = rotateAndResizeVideoFrame({
+  frame: originalFrame,
+  rotation: 90,
+  resizeOperation: null,
+});
+
+// Only close the original frame if a new one was created
+if (transformedFrame !== originalFrame) {
+  originalFrame.close();
+}
+
+// Remember to also close the transformed frame when you're done with it
+// transformedFrame.close();
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/rotate-and-resize-video-frame.ts)

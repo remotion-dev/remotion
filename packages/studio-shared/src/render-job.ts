@@ -1,5 +1,6 @@
 import type {
 	AudioCodec,
+	ChromeMode,
 	Codec,
 	ColorSpace,
 	LogLevel,
@@ -50,6 +51,12 @@ export type BundlingState = {
 	doneIn: number | null;
 };
 
+export type BrowserProgressLog = {
+	logLevel: LogLevel;
+	previewString: string;
+	tag: string | null;
+};
+
 export type AggregateRenderProgress = {
 	rendering: RenderingProgressInput | null;
 	stitching: StitchingProgressInput | null;
@@ -57,6 +64,7 @@ export type AggregateRenderProgress = {
 	bundling: BundlingState;
 	copyingState: CopyingState;
 	artifactState: ArtifactProgress;
+	logs: BrowserProgressLog[];
 };
 
 export type ReceivedArtifact = {
@@ -103,6 +111,8 @@ type RenderJobDynamicFields =
 			frame: number;
 			scale: number;
 			offthreadVideoCacheSizeInBytes: number | null;
+			mediaCacheSizeInBytes: number | null;
+			offthreadVideoThreads: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
 			type: 'sequence';
@@ -113,6 +123,8 @@ type RenderJobDynamicFields =
 			startFrame: number;
 			endFrame: number;
 			offthreadVideoCacheSizeInBytes: number | null;
+			mediaCacheSizeInBytes: number | null;
+			offthreadVideoThreads: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
 			type: 'video';
@@ -138,12 +150,16 @@ type RenderJobDynamicFields =
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
 			offthreadVideoCacheSizeInBytes: number | null;
+			mediaCacheSizeInBytes: number | null;
+			offthreadVideoThreads: number | null;
 			colorSpace: ColorSpace;
 			forSeamlessAacConcatenation: boolean;
 			separateAudioTo: string | null;
+			hardwareAcceleration: HardwareAccelerationOption;
 	  } & RenderJobDynamicStatus);
 
 import type {ChromiumOptions, OpenGlRenderer} from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 
 export type RequiredChromiumOptions = Required<ChromiumOptions>;
 export type UiOpenGlOptions = OpenGlRenderer | 'default';
@@ -165,6 +181,7 @@ export type RenderJob = {
 	repro: boolean;
 	binariesDirectory: string | null;
 	metadata: Record<string, string> | null;
+	chromeMode: ChromeMode;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {

@@ -41,6 +41,7 @@ export const getAssetMetadata = async (
 	const file = await fetch(src, {
 		method: 'HEAD',
 	});
+
 	if (file.status === 404) {
 		return {type: 'not-found'};
 	}

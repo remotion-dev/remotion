@@ -1,46 +1,14 @@
+import {
+	LambdaClientInternals,
+	type RenderMediaOnLambdaInput,
+} from '@remotion/lambda-client';
 import {RenderInternals} from '@remotion/renderer';
-import {ServerlessRoutines} from '@remotion/serverless/client';
+import {ServerlessRoutines} from '@remotion/serverless';
 import path from 'path';
-import {VERSION} from 'remotion/version';
-import {makeLambdaRenderMediaPayload} from '../../api/make-lambda-payload';
-import type {RenderMediaOnLambdaInput} from '../../api/render-media-on-lambda';
-import {renderMediaOnLambdaOptionalToRequired} from '../../api/render-media-on-lambda';
-import type {AwsProvider} from '../../functions/aws-implementation';
-import {callLambda} from '../../shared/call-lambda';
-import {mockImplementation} from '../mock-implementation';
+import {mockImplementation} from '../mocks/mock-implementation';
+import {waitUntilDone} from './wait-until-done';
 
 const functionName = 'remotion-dev-render';
-
-const waitUntilDone = async (bucketName: string, renderId: string) => {
-	// eslint-disable-next-line no-constant-condition
-	while (true) {
-		const progress = await callLambda({
-			type: ServerlessRoutines.status,
-			payload: {
-				bucketName,
-				renderId,
-				version: VERSION,
-				logLevel: 'error',
-				forcePathStyle: false,
-				s3OutputProvider: null,
-			},
-			functionName: 'remotion-dev-lambda',
-			region: 'eu-central-1',
-			timeoutInTest: 120000,
-		});
-		if (progress.done) {
-			return progress;
-		}
-
-		if (progress.fatalErrorEncountered) {
-			throw new Error(progress.errors.join('\n'));
-		}
-
-		await new Promise((resolve) => {
-			setTimeout(resolve, 1000);
-		});
-	}
-};
 
 export const simulateLambdaRender = async (
 	input: Omit<RenderMediaOnLambdaInput, 'serveUrl' | 'functionName'>,
@@ -51,31 +19,33 @@ export const simulateLambdaRender = async (
 
 	const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
 		binariesDirectory: null,
-		concurrency: 1,
+		offthreadVideoThreads: 1,
 		downloadMap: RenderInternals.makeDownloadMap(),
 		indent: false,
-		logLevel: 'error',
+		logLevel: input.logLevel ?? 'info',
 		offthreadVideoCacheSizeInBytes: null,
 		port: null,
 		remotionRoot: path.dirname(exampleBuild),
 		forceIPv4: false,
 	});
 
-	const payload = await makeLambdaRenderMediaPayload(
-		renderMediaOnLambdaOptionalToRequired({
+	const payload = await LambdaClientInternals.makeLambdaRenderMediaPayload(
+		LambdaClientInternals.renderMediaOnLambdaOptionalToRequired({
 			...input,
 			serveUrl: `http://localhost:${port}`,
 			functionName,
 		}),
 	);
 
-	const res = await callLambda<AwsProvider, ServerlessRoutines.start>({
-		type: ServerlessRoutines.start,
-		payload,
-		functionName: 'remotion-dev-lambda',
-		region: 'eu-central-1',
-		timeoutInTest: 120000,
-	});
+	const res =
+		await mockImplementation.callFunctionSync<ServerlessRoutines.start>({
+			type: ServerlessRoutines.start,
+			payload,
+			functionName: 'remotion-dev-lambda',
+			region: 'eu-central-1',
+			timeoutInTest: 120000,
+			requestHandler: null,
+		});
 
 	const progress = await waitUntilDone(res.bucketName, res.renderId);
 
@@ -85,6 +55,7 @@ export const simulateLambdaRender = async (
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 		forcePathStyle: false,
+		requestHandler: null,
 	});
 
 	return {file, close, progress, renderId: res.renderId};

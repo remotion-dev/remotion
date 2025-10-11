@@ -1,181 +1,69 @@
-/* eslint-disable max-depth */
-import type {BufferIterator} from './buffer-iterator';
-import {getArrayBufferIterator} from './buffer-iterator';
-import {emitAvailableInfo} from './emit-available-info';
-import {getAvailableInfo} from './has-all-info';
-import type {
-	AllParseMediaFields,
-	Options,
-	ParseMedia,
-	ParseMediaCallbacks,
-	ParseMediaFields,
-	ParseMediaResult,
-} from './options';
-import type {ParseResult} from './parse-result';
-import {parseVideo} from './parse-video';
-import type {ParserContext} from './parser-context';
-import {makeParserState} from './parser-state';
-import {fetchReader} from './readers/from-fetch';
+import {
+	defaultSelectM3uAssociatedPlaylists,
+	defaultSelectM3uStreamFn,
+} from './containers/m3u/select-stream';
+import {internalParseMedia} from './internal-parse-media';
+import type {ParseMedia} from './options';
+import {webReader} from './web';
 
-export const parseMedia: ParseMedia = async ({
-	src,
-	fields,
-	reader: readerInterface = fetchReader,
-	onAudioTrack,
-	onVideoTrack,
-	signal,
-	...more
-}) => {
-	const state = makeParserState({
-		hasAudioCallbacks: onAudioTrack !== null,
-		hasVideoCallbacks: onVideoTrack !== null,
-		signal,
-	});
-	const {
-		reader,
-		contentLength,
-		name,
-		supportsContentRange: readerSupportsContentRange,
-	} = await readerInterface.read(src, null, signal);
-	let currentReader = reader;
-
-	const supportsContentRange =
-		readerSupportsContentRange &&
-		!(
-			typeof process !== 'undefined' &&
-			typeof process.env !== 'undefined' &&
-			process.env.DISABLE_CONTENT_RANGE === 'true'
+export const parseMedia: ParseMedia = (options) => {
+	if (!options) {
+		return Promise.reject(
+			new Error(
+				'No options provided. See https://www.remotion.dev/media-parser for how to get started.',
+			),
 		);
-
-	const returnValue = {} as ParseMediaResult<AllParseMediaFields>;
-	const moreFields = more as ParseMediaCallbacks<AllParseMediaFields>;
-
-	let iterator: BufferIterator | null = null;
-	let parseResult: ParseResult | null = null;
-
-	const options: ParserContext = {
-		canSkipVideoData: !(onAudioTrack || onVideoTrack),
-		onAudioTrack: onAudioTrack ?? null,
-		onVideoTrack: onVideoTrack ?? null,
-		parserState: state,
-		nullifySamples: !(
-			typeof process !== 'undefined' &&
-			typeof process.env !== 'undefined' &&
-			process.env.KEEP_SAMPLES === 'true'
-		),
-		supportsContentRange,
-	};
-
-	while (parseResult === null || parseResult.status === 'incomplete') {
-		if (signal?.aborted) {
-			throw new Error('Aborted');
-		}
-
-		// eslint-disable-next-line no-constant-condition
-		while (true) {
-			const result = await currentReader.reader.read();
-
-			if (iterator) {
-				if (!result.done) {
-					iterator.addData(result.value);
-				}
-			} else {
-				if (result.done) {
-					throw new Error('Unexpectedly reached EOF');
-				}
-
-				iterator = getArrayBufferIterator(
-					result.value,
-					contentLength ?? 1_000_000_000,
-				);
-			}
-
-			if (iterator.bytesRemaining() >= 0) {
-				break;
-			}
-
-			if (result.done) {
-				break;
-			}
-		}
-
-		if (!iterator) {
-			throw new Error('Unexpected null');
-		}
-
-		if (parseResult && parseResult.status === 'incomplete') {
-			parseResult = await parseResult.continueParsing();
-		} else {
-			parseResult = await parseVideo({
-				iterator,
-				options,
-				signal: signal ?? null,
-			});
-		}
-
-		const availableInfo = getAvailableInfo(fields ?? {}, parseResult, state);
-		const hasAllInfo = Object.values(availableInfo).every(Boolean);
-
-		emitAvailableInfo({
-			hasInfo: availableInfo,
-			moreFields,
-			parseResult,
-			state,
-			returnValue,
-			contentLength,
-			name,
-		});
-
-		// TODO Better: Check if no active listeners are registered
-		// Also maybe check for canSkipVideoData
-		if (hasAllInfo && !onVideoTrack && !onAudioTrack) {
-			break;
-		}
-
-		if (
-			parseResult &&
-			parseResult.status === 'incomplete' &&
-			parseResult.skipTo !== null
-		) {
-			if (!supportsContentRange) {
-				throw new Error(
-					'Content-Range header is not supported by the reader, but was asked to seek',
-				);
-			}
-
-			currentReader.abort();
-
-			const {reader: newReader} = await readerInterface.read(
-				src,
-				parseResult.skipTo,
-				signal,
-			);
-			currentReader = newReader;
-			iterator.skipTo(parseResult.skipTo, true);
-		}
 	}
 
-	// Force assign
-	emitAvailableInfo({
-		hasInfo: (
-			Object.keys(fields ?? {}) as (keyof Options<ParseMediaFields>)[]
-		).reduce(
-			(acc, key) => {
-				acc[key] = true;
-				return acc;
-			},
-			{} as Record<keyof Options<ParseMediaFields>, boolean>,
-		),
-		moreFields,
-		parseResult,
-		state,
-		returnValue,
-		contentLength,
-		name,
+	return internalParseMedia({
+		fields: options.fields ?? null,
+		logLevel: options.logLevel ?? 'info',
+		onAudioCodec: options.onAudioCodec ?? null,
+		onAudioTrack: options.onAudioTrack ?? null,
+		onContainer: options.onContainer ?? null,
+		onDimensions: options.onDimensions ?? null,
+		onDurationInSeconds: options.onDurationInSeconds ?? null,
+		onFps: options.onFps ?? null,
+		onImages: options.onImages ?? null,
+		onInternalStats: options.onInternalStats ?? null,
+		onIsHdr: options.onIsHdr ?? null,
+		onKeyframes: options.onKeyframes ?? null,
+		onLocation: options.onLocation ?? null,
+		onMetadata: options.onMetadata ?? null,
+		onMimeType: options.onMimeType ?? null,
+		onName: options.onName ?? null,
+		onNumberOfAudioChannels: options.onNumberOfAudioChannels ?? null,
+		onParseProgress: options.onParseProgress ?? null,
+		onRotation: options.onRotation ?? null,
+		onSampleRate: options.onSampleRate ?? null,
+		onSize: options.onSize ?? null,
+		onSlowAudioBitrate: options.onSlowAudioBitrate ?? null,
+		onSlowDurationInSeconds: options.onSlowDurationInSeconds ?? null,
+		onSlowFps: options.onSlowFps ?? null,
+		onSlowKeyframes: options.onSlowKeyframes ?? null,
+		onSlowNumberOfFrames: options.onSlowNumberOfFrames ?? null,
+		onSlowVideoBitrate: options.onSlowVideoBitrate ?? null,
+		onSlowStructure: options.onSlowStructure ?? null,
+		onM3uStreams: options.onM3uStreams ?? null,
+		onTracks: options.onTracks ?? null,
+		onUnrotatedDimensions: options.onUnrotatedDimensions ?? null,
+		onVideoCodec: options.onVideoCodec ?? null,
+		onVideoTrack: options.onVideoTrack ?? null,
+		progressIntervalInMs: options.progressIntervalInMs ?? null,
+		reader: options.reader ?? webReader,
+		controller: options.controller ?? undefined,
+		selectM3uStream: options.selectM3uStream ?? defaultSelectM3uStreamFn,
+		selectM3uAssociatedPlaylists:
+			options.selectM3uAssociatedPlaylists ??
+			defaultSelectM3uAssociatedPlaylists,
+		m3uPlaylistContext: options.m3uPlaylistContext ?? null,
+		src: options.src,
+		mode: 'query',
+		onDiscardedData: null,
+		onError: () => ({action: 'fail'}),
+		acknowledgeRemotionLicense: Boolean(options.acknowledgeRemotionLicense),
+		apiName: 'parseMedia()',
+		makeSamplesStartAtZero: options.makeSamplesStartAtZero ?? true,
+		seekingHints: options.seekingHints ?? null,
 	});
-
-	currentReader.abort();
-
-	iterator?.destroy();
-	return returnValue;
 };

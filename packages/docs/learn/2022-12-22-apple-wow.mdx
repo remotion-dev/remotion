@@ -17,7 +17,8 @@ import TabItem from '@theme/TabItem';
 import {AppleFireworksTutorial} from '../src/components/tutorials';
 
 Learn how to create an animation that Apple has on its website during the holiday season with this beginner-friendly Remotion tutorial!
-<img src="/img/apple-wow-tutorial/Final.gif"/>
+
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Final.gif" />
 
 ## Video version
 
@@ -70,20 +71,13 @@ yarn create video --blank
 A [`<Composition>`](https://www.remotion.dev/docs/terminology/composition) defines the dimensions and duration of the video. In the `src/Root.tsx` file, adjust the width and height to the following:
 
 ```tsx twoslash title="src/Root.tsx"
-import { Composition } from "remotion";
+import {Composition} from 'remotion';
 export const MyComposition: React.FC = () => null;
 // ---cut---
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      <Composition
-        id="MyComp"
-        component={MyComposition}
-        durationInFrames={150}
-        fps={30}
-        width={1920}
-        height={1080}
-      />
+      <Composition id="MyComp" component={MyComposition} durationInFrames={150} fps={30} width={1920} height={1080} />
     </>
   );
 };
@@ -94,14 +88,14 @@ export const RemotionRoot: React.FC = () => {
 Create a new file `src/Background.tsx` and return a background with linear gradient:
 
 ```tsx twoslash title="src/Background.tsx"
-import React from "react";
-import { AbsoluteFill } from "remotion";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
 
 export const Background: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        background: "linear-gradient(to bottom, #000021, #010024)",
+        background: 'linear-gradient(to bottom, #000021, #010024)',
       }}
     />
   );
@@ -115,9 +109,9 @@ Add the created background to the `<MyComposition/>` component, which can be fou
 export const Background: React.FC = () => null;
 
 // @filename: Composition.tsx
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { Background } from "./Background";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
 // ---cut---
 
 export const MyComposition: React.FC = () => {
@@ -131,22 +125,22 @@ export const MyComposition: React.FC = () => {
 
 This results in the following:
 
-<img src="/img/apple-wow-tutorial/Background.png"/>
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Background.png" />
 
 ## Render a dot
 
 Render a white dot by creating a new file `src/Dot.tsx` and return a centered circle.
 
 ```tsx twoslash title="src/Dot.tsx"
-import React from "react";
-import { AbsoluteFill } from "remotion";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
 
 export const Dot: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
       <div
@@ -154,7 +148,7 @@ export const Dot: React.FC = () => {
           height: 14,
           width: 14,
           borderRadius: 14 / 2,
-          backgroundColor: "#ccc",
+          backgroundColor: '#ccc',
         }}
       />
     </AbsoluteFill>
@@ -171,10 +165,10 @@ export const Dot: React.FC = () => null;
 export const Background: React.FC = () => null;
 
 // @filename: Composition.tsx
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { Background } from "./Background";
-import { Dot } from "./Dot";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dot} from './Dot';
 // ---cut---
 
 export const MyComposition: React.FC = () => {
@@ -188,19 +182,20 @@ export const MyComposition: React.FC = () => {
 ```
 
 Now we got a white dot on top of our background:
-<img src="/img/apple-wow-tutorial/Dot.png"/>
+
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Dot.png" />
 
 ## Animate the dot
 
 Let's apply some animation to the white dot we created above. We create another component called `<Shrinking>` in a new file `src/Shrinking.tsx`, which then wraps the dot in the main composition `src/Composition.tsx`.
 
 ```tsx title="src/Shrinking.tsx"
-import React from "react";
-import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 
 export const Shrinking: React.FC<{
   children: React.ReactNode;
-}> = ({ children }) => {
+}> = ({children}) => {
   const frame = useCurrentFrame();
 
   return (
@@ -208,8 +203,8 @@ export const Shrinking: React.FC<{
       style={{
         scale: String(
           interpolate(frame, [60, 90], [1, 0], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
           }),
         ),
       }}
@@ -233,11 +228,11 @@ export const Background: React.FC = () => null;
 export const Dot: React.FC = () => null;
 
 // @filename: Composition.tsx
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { Background } from "./Background";
-import { Dot } from "./Dot";
-import { Shrinking } from "./Shrinking";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dot} from './Dot';
+import {Shrinking} from './Shrinking';
 
 // ---cut---
 
@@ -254,26 +249,21 @@ export const MyComposition: React.FC = () => {
 ```
 
 Now, you have some action to show. By using `<Shrinking>` in your main composition you have created a scale out effect:
-<img src="/img/apple-wow-tutorial/Shrinking.gif"/>
+
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Shrinking.gif" />
 
 ## Move the dot
 
 Next, create a component called `<Move>`. This component has a spring animation, which by default goes from zero to one, and has a duration of four seconds (`durationInFrames: 120`) in the code snippet below:
 
 ```tsx twoslash title="src/Move.tsx"
-import React from "react";
-import {
-  AbsoluteFill,
-  interpolate,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from "remotion";
+import React from 'react';
+import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const Move: React.FC<{
   children: React.ReactNode;
-}> = ({ children }) => {
-  const { fps } = useVideoConfig();
+}> = ({children}) => {
+  const {fps} = useVideoConfig();
   const frame = useCurrentFrame();
 
   const down = spring({
@@ -305,7 +295,7 @@ Add the `<Move>` component to your composition `src/Composition.tsx`. You get a 
 // @filename: Move.tsx
 export const Move: React.FC<{
   children: React.ReactNode;
-}> = ({ children }) => null;
+}> = ({children}) => null;
 // @filename: Shrinking.tsx
 export const Shrinking: React.FC<{
   children: React.ReactNode;
@@ -316,12 +306,12 @@ export const Background: React.FC = () => null;
 export const Dot: React.FC = () => null;
 
 // @filename: Composition.tsx
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { Background } from "./Background";
-import { Dot } from "./Dot";
-import { Move } from "./Move";
-import { Shrinking } from "./Shrinking";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dot} from './Dot';
+import {Move} from './Move';
+import {Shrinking} from './Shrinking';
 
 // ---cut---
 
@@ -340,27 +330,22 @@ export const MyComposition = () => {
 ```
 
 And up goes the dot:
-<img src="/img/apple-wow-tutorial/Move.gif"/>
+
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Move.gif" />
 
 ## Duplicate the moving dot
 
 Here it gets a little bit trickier, but the following steps are going to make your animation a lot more entertaining. First, you add a `delay` prop into the `<Move>` component and then change the `frame` parameter of your `spring()` function.
 
 ```tsx twoslash title="src/Move.tsx"
-import React from "react";
-import {
-  AbsoluteFill,
-  interpolate,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from "remotion";
+import React from 'react';
+import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const Move: React.FC<{
   children: React.ReactNode;
   delay: number;
-}> = ({ children, delay }) => {
-  const { fps } = useVideoConfig();
+}> = ({children, delay}) => {
+  const {fps} = useVideoConfig();
   const frame = useCurrentFrame();
 
   const down = spring({
@@ -404,14 +389,14 @@ export const Move: React.FC<{
 
 // @filename: Trail.tsx
 // ---cut---
-import React from "react";
-import { AbsoluteFill, Sequence } from "remotion";
-import { Move } from "./Move";
+import React from 'react';
+import {AbsoluteFill, Sequence} from 'remotion';
+import {Move} from './Move';
 
 export const Trail: React.FC<{
   amount: number;
   children: React.ReactNode;
-}> = ({ amount, children }) => {
+}> = ({amount, children}) => {
   return (
     <AbsoluteFill>
       {new Array(amount).fill(true).map((a, i) => {
@@ -459,12 +444,12 @@ export const Trail: React.FC<{
 }> = () => null;
 
 // @filename: Composition.tsx
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { Background } from "./Background";
-import { Dot } from "./Dot";
-import { Shrinking } from "./Shrinking";
-import { Trail } from "./Trail";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dot} from './Dot';
+import {Shrinking} from './Shrinking';
+import {Trail} from './Trail';
 // ---cut---
 
 export const MyComposition = () => {
@@ -482,28 +467,29 @@ export const MyComposition = () => {
 ```
 
 And this is how your animation with the duplicated dots should look like:
-<img src="/img/apple-wow-tutorial/Trail.gif"/>
+
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Trail.gif" />
 
 ## Duplicating markup and arranging it in a circle
 
 Now let's create a `<Explosion>` component. It takes children and renders them for example 10 times and applies a rotation to each instance. It's worth mentioning here that a full rotation amounts to 2π, while `(i/AMOUNT)` represents a factor between 0 and 1.
 
 ```tsx twoslash title="src/Explosion.tsx"
-import React from "react";
-import { AbsoluteFill } from "remotion";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
 
 const AMOUNT = 10;
 
 export const Explosion: React.FC<{
   children: React.ReactNode;
-}> = ({ children }) => {
+}> = ({children}) => {
   return (
     <AbsoluteFill>
       {new Array(AMOUNT).fill(true).map((_, i) => {
         return (
           <AbsoluteFill
             style={{
-              rotate: (i / AMOUNT) * (2 * Math.PI) + "rad",
+              rotate: (i / AMOUNT) * (2 * Math.PI) + 'rad',
             }}
           >
             {children}
@@ -543,13 +529,13 @@ export const Trail: React.FC<{
 
 // @filename: MyComposition.tsx
 // ---cut---
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { Background } from "./Background";
-import { Dot } from "./Dot";
-import { Explosion } from "./Explosion";
-import { Shrinking } from "./Shrinking";
-import { Trail } from "./Trail";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dot} from './Dot';
+import {Explosion} from './Explosion';
+import {Shrinking} from './Shrinking';
+import {Trail} from './Trail';
 // ---cut---
 
 export const MyComposition = () => {
@@ -569,7 +555,8 @@ export const MyComposition = () => {
 ```
 
 The animated explosion should look like this:
-<img src="/img/apple-wow-tutorial/Explosion.gif"/>
+
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Explosion.gif" />
 
 ## Cleanup
 
@@ -601,12 +588,12 @@ export const Trail: React.FC<{
 
 // @filename: MyComposition.tsx
 // ---cut---
-import React from "react";
-import { Sequence } from "remotion";
-import { Dot } from "./Dot";
-import { Explosion } from "./Explosion";
-import { Shrinking } from "./Shrinking";
-import { Trail } from "./Trail";
+import React from 'react';
+import {Sequence} from 'remotion';
+import {Dot} from './Dot';
+import {Explosion} from './Explosion';
+import {Shrinking} from './Shrinking';
+import {Trail} from './Trail';
 
 export const Dots: React.FC = () => {
   return (
@@ -632,10 +619,10 @@ export const Background: React.FC<{}> = () => null;
 export const Dots: React.FC<{}> = () => null;
 
 // @filename: MyComposition.tsx
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { Background } from "./Background";
-import { Dots } from "./Dots";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dots} from './Dots';
 // ---cut---
 
 export const MyComposition = () => {
@@ -649,7 +636,8 @@ export const MyComposition = () => {
 ```
 
 Nothing has changed on the animation itself:
-<img src="/img/apple-wow-tutorial/Dots.gif"/>
+
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Dots.gif" />
 
 ## Adding hearts and stars
 
@@ -658,15 +646,15 @@ To make the animation more exciting, let's add some stars and hearts in differen
 Let's start with red hearts. First you render a red heart by creating a new file `src/RedHeart.tsx` and return a centered red heart emoji.
 
 ```tsx twoslash title="src/RedHeart.tsx"
-import React from "react";
-import { AbsoluteFill } from "remotion";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
 
 export const RedHeart: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
       ❤️
@@ -710,18 +698,18 @@ export const Trail: React.FC<{
 
 // @filename: MyComposition.tsx
 // ---cut---
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { Explosion } from "./Explosion";
-import { Move } from "./Move";
-import { RedHeart } from "./RedHeart";
-import { Shrinking } from "./Shrinking";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Explosion} from './Explosion';
+import {Move} from './Move';
+import {RedHeart} from './RedHeart';
+import {Shrinking} from './Shrinking';
 
 export const RedHearts: React.FC = () => {
   return (
     <Explosion>
       <Move delay={5}>
-        <AbsoluteFill style={{ transform: `translateY(-100px)` }}>
+        <AbsoluteFill style={{transform: `translateY(-100px)`}}>
           <Shrinking>
             <RedHeart />
           </Shrinking>
@@ -735,15 +723,15 @@ export const RedHearts: React.FC = () => {
 We do the same to get some yellow hearts in our animation:
 
 ```tsx twoslash title="src/YellowHeart.tsx"
-import React from "react";
-import { AbsoluteFill } from "remotion";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
 
 export const YellowHeart: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
       💛
@@ -785,18 +773,18 @@ export const Trail: React.FC<{
 
 // @filename: MyComposition.tsx
 // ---cut---
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { Explosion } from "./Explosion";
-import { Move } from "./Move";
-import { Shrinking } from "./Shrinking";
-import { YellowHeart } from "./YellowHeart";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Explosion} from './Explosion';
+import {Move} from './Move';
+import {Shrinking} from './Shrinking';
+import {YellowHeart} from './YellowHeart';
 
 export const YellowHearts: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        rotate: "0.3rad",
+        rotate: '0.3rad',
       }}
     >
       <Explosion>
@@ -818,25 +806,26 @@ export const YellowHearts: React.FC = () => {
 ```
 
 Your main composition should look like this:
-<img src="/img/apple-wow-tutorial/DotsAndHearts.gif"/>
 
-<br/>
-<br/>
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/DotsAndHearts.gif" />
+
+<br />
+<br />
 
 In addition to the dots and hearts let's also add stars.
 
 Create a new file `src/Star.tsx` and return a centered star emoji.
 
 ```tsx twoslash title="src/Star.tsx"
-import React from "react";
-import { AbsoluteFill } from "remotion";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
 
 export const Star: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
         fontSize: 14,
       }}
     >
@@ -861,15 +850,15 @@ export const Move: React.FC<{
 
 // @filename: Trail.tsx
 // ---cut---
-import React from "react";
-import { AbsoluteFill, Sequence } from "remotion";
-import { Move } from "./Move";
+import React from 'react';
+import {AbsoluteFill, Sequence} from 'remotion';
+import {Move} from './Move';
 
 export const Trail: React.FC<{
   amount: number;
   extraOffset: number;
   children: React.ReactNode;
-}> = ({ amount, extraOffset, children }) => {
+}> = ({amount, extraOffset, children}) => {
   return (
     <AbsoluteFill>
       {new Array(amount).fill(true).map((a, i) => {
@@ -929,18 +918,18 @@ export const Trail: React.FC<{
 
 // @filename: MyComposition.tsx
 // ---cut---
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { Explosion } from "./Explosion";
-import { Shrinking } from "./Shrinking";
-import { Star } from "./Star";
-import { Trail } from "./Trail";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Explosion} from './Explosion';
+import {Shrinking} from './Shrinking';
+import {Star} from './Star';
+import {Trail} from './Trail';
 
 export const Stars: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        rotate: "0.3rad",
+        rotate: '0.3rad',
       }}
     >
       <Explosion>
@@ -956,24 +945,19 @@ export const Stars: React.FC = () => {
 ```
 
 Here is how the almost complete firework should look like:
-<img src="/img/apple-wow-tutorial/DotsAndHeartsAndStars.gif"/>
+
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/DotsAndHeartsAndStars.gif" />
 
 ## Slow motion effect
 
 Lastly let's apply a slow motion effect to the firework. For this, create a new file `src/SlowedTrail.tsx`. It should contain a component called Slowed and a helper function `remapSpeed()` which will apply different speed levels to the firework. In the code snippet below a speed of 1.5 is applied until frame 20, afterwards the speed slows down to 0.5.
 
 ```tsx twoslash title="src/SlowedTrail.tsx"
-import React from "react";
-import { Freeze, interpolate, useCurrentFrame } from "remotion";
+import React from 'react';
+import {Freeze, interpolate, useCurrentFrame} from 'remotion';
 
 // remapSpeed() is a helper function for the component <Slowed> that takes a frame number and a speed
-const remapSpeed = ({
-  frame,
-  speed,
-}: {
-  frame: number;
-  speed: (fr: number) => number;
-}) => {
+const remapSpeed = ({frame, speed}: {frame: number; speed: (fr: number) => number}) => {
   let framesPassed = 0;
   for (let i = 0; i <= frame; i++) {
     framesPassed += speed(i);
@@ -984,13 +968,13 @@ const remapSpeed = ({
 
 export const Slowed: React.FC<{
   children: React.ReactNode;
-}> = ({ children }) => {
+}> = ({children}) => {
   const frame = useCurrentFrame();
   const remappedFrame = remapSpeed({
     frame,
     speed: (f) =>
       interpolate(f, [0, 20, 21], [1.5, 1.5, 0.5], {
-        extrapolateRight: "clamp",
+        extrapolateRight: 'clamp',
       }),
   });
 
@@ -1027,14 +1011,14 @@ export const Slowed: React.FC<{
 
 // @filename: MyComposition.tsx
 // ---cut---
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { Background } from "./Background";
-import { Dots } from "./Dots";
-import { RedHearts } from "./RedHearts";
-import { Slowed } from "./SlowedTrail";
-import { Stars } from "./Stars";
-import { YellowHearts } from "./YellowHearts";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Background} from './Background';
+import {Dots} from './Dots';
+import {RedHearts} from './RedHearts';
+import {Slowed} from './SlowedTrail';
+import {Stars} from './Stars';
+import {YellowHearts} from './YellowHearts';
 
 export const MyComposition = () => {
   return (
@@ -1052,7 +1036,8 @@ export const MyComposition = () => {
 ```
 
 Your final firework should look like this:
-<img src="/img/apple-wow-tutorial/Slowed.gif"/>
+
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Slowed.gif" />
 
 ## Adding your animoji
 
@@ -1074,27 +1059,28 @@ In addition to the `src` folder in your Remotion project, create a new one calle
 Only assets that are being used by Remotion need to be in the `public` folder. You don't need the encoded video, so you can delete it after the frames have been extracted.
 
 Here is a screenshot right before creating the series of frames:
-<img src="/img/apple-wow-tutorial/FFmpegCommand.png"/>
 
-<br/>
-<br/>
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/FFmpegCommand.png" />
+
+<br />
+<br />
 
 Alright, so far you've prepared the animoji to be used in a new component called Animoji. You can import this series of frames by using the [staticFile()](https://www.remotion.dev/docs/staticfile) API. The file name of each frame will help you to determine the current frame number.
 
 ```tsx twoslash title="src/Animoji.tsx"
-import React from "react";
-import { AbsoluteFill, Img, staticFile, useCurrentFrame } from "remotion";
+import React from 'react';
+import {AbsoluteFill, Img, staticFile, useCurrentFrame} from 'remotion';
 
 export const Animoji: React.FC = () => {
   const frame = useCurrentFrame();
 
-  const src = `frame${(frame * 2).toString().padStart(3, "0")}.png`;
+  const src = `frame${(frame * 2).toString().padStart(3, '0')}.png`;
 
   return (
     <AbsoluteFill
       style={{
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
         marginTop: 80,
       }}
     >
@@ -1140,15 +1126,15 @@ export const Slowed: React.FC<{
 
 // @filename: MyComposition.tsx
 // ---cut---
-import React from "react";
-import { AbsoluteFill } from "remotion";
-import { Animoji } from "./Animoji";
-import { Background } from "./Background";
-import { Dots } from "./Dots";
-import { RedHearts } from "./RedHearts";
-import { Slowed } from "./SlowedTrail";
-import { Stars } from "./Stars";
-import { YellowHearts } from "./YellowHearts";
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+import {Animoji} from './Animoji';
+import {Background} from './Background';
+import {Dots} from './Dots';
+import {RedHearts} from './RedHearts';
+import {Slowed} from './SlowedTrail';
+import {Stars} from './Stars';
+import {YellowHearts} from './YellowHearts';
 
 export const MyComposition = () => {
   return (
@@ -1167,6 +1153,7 @@ export const MyComposition = () => {
 ```
 
 By doing all of this you have imported a transparent version of your animoji into your composition. You can run `npm run build` to export your video as MP4. Which should look like this:
-<img src="/img/apple-wow-tutorial/Final.gif"/>
+
+<img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/Final.gif" />
 
 Congrats on your programmatically generated video! 🎉

@@ -29,6 +29,7 @@ h6 {
 	letter-spacing: -0.025em;
 	word-spacing: -0.025em;
 	font-family: 'GTPlanar';
+	font-feature-settings: 'ss03' on;
 }
 
 @font-face {
@@ -71,9 +72,10 @@ h6 {
 	--ifm-color-primary-lighter: #2f96f6;
 	--ifm-color-primary-lightest: #53a9f7;
 	--ifm-code-font-size: 100%;
-	--ifm-font-family-base: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
-		Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica,
-		Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+	--ifm-font-family-base:
+		system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans,
+		sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif,
+		'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 	--ifm-font-size-base: 16px;
 }
 
@@ -126,25 +128,12 @@ h6 {
 	padding: 0 var(--ifm-pre-padding);
 }
 
-/* Hide code blocks according to theme */
-[data-theme='light'] .shiki.github-dark {
-	display: none;
-}
-
-[data-theme='dark'] .shiki.github-light {
-	display: none;
-}
-
-/* Patches */
-pre.shiki > .code-title {
-	color: var(--ifm-color-emphasis-900) !important;
-}
-
 code {
 	background-color: transparent;
 	border-width: 0;
 	color: #0b84f3;
 	font-family: 'GTPlanar';
+	font-feature-settings: 'ss03' on;
 	vertical-align: baseline;
 	padding: 0;
 }
@@ -195,7 +184,8 @@ code {
 	}
 }
 
-.pro-item a::after {
+.pro-item > div > a::after,
+.pro-item > a::after {
 	content: 'Paid';
 	font-size: 12px;
 	opacity: 0.7;
@@ -206,6 +196,22 @@ code {
 	padding-bottom: 1px;
 	margin-left: 6px;
 	border-radius: 4px;
+	transform: none !important;
+}
+
+.wip-item > div > a::after,
+.wip-item > a::after {
+	content: 'Coming Soon';
+	font-size: 12px;
+	opacity: 0.7;
+	border: 1px solid;
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	margin-left: 6px;
+	border-radius: 4px;
+	transform: none !important;
 }
 
 .header-github-link::before {

@@ -3,13 +3,13 @@ image: /generated/articles-docs-docker.png
 id: docker
 sidebar_label: Docker
 title: Dockerizing a Remotion app
-crumb: "Building video apps"
+crumb: 'Building video apps'
 ---
 
 We recommend the following structure for your Dockerfile. Read below about the individual steps and whether you need to adjust them.
 
 ```docker title="Dockerfile"
-FROM node:20-bookworm
+FROM node:22-bookworm-slim
 
 # Install Chrome dependencies
 RUN apt-get update
@@ -25,10 +25,12 @@ RUN apt install -y \
   libxcomposite1 \
   libxdamage1 \
   libatk-bridge2.0-0 \
+  libpango-1.0-0 \
+  libcairo2 \
   libcups2
 
 # Copy everything from your project to the Docker image. Adjust if needed.
-COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* tsconfig.json* remotion.config.* ./
+COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* remotion.config.* ./
 COPY src ./src
 
 # If you have a public folder:
@@ -49,19 +51,14 @@ CMD ["node", "render.mjs"]
 [Click here](#example-render-script) to see an example for a `render.mjs` script you can use.
 :::
 
-:::note
-This Dockerfile is unable to render WebGL content. Suggestions on how to improve the Dockerfile to support it are welcomed.
-:::
-
 ## Line-by-line
 
 <p>
-  <Step>1</Step> Specify the base image for the Dockerfile. In this case, we use
-  Debian.
+  <Step>1</Step> Specify the base image for the Dockerfile. In this case, we use Debian.
 </p>
 
 ```docker
-FROM node:20-bookworm
+FROM node:22-bookworm-slim
 ```
 
 <p>
@@ -85,18 +82,13 @@ RUN apt install -y \
   libcups2
 ```
 
-
 <p>
-  <Step>3</Step> Copy the files from your project. If you have additional source
-  files, add them here. If some files do not exist, remove them. The{" "}
-  <code>COPY</code> syntax allows multiple files, but at least one file must
-  exist. It is assumed <code>package.json</code>, <code>src</code> and{" "}
-  <code>public</code> exist in your project, but you can adjust this to your
-  needs.
+  <Step>3</Step> Copy the files from your project. If you have additional source files, add them here. If some files do not exist, remove them. The <code>COPY</code> syntax allows multiple files, but at least one file must exist. It is assumed <code>package.json</code>, <code>src</code> and{' '}
+  <code>public</code> exist in your project, but you can adjust this to your needs.
 </p>
 
 ```docker
-COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* tsconfig.json* remotion.config.* ./
+COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* remotion.config.* ./
 COPY src ./src
 COPY public ./public
 ```
@@ -145,16 +137,14 @@ CMD ["node", "render.mjs"]
 Assuming you want to render the composition `MyComp`:
 
 ```tsx twoslash title="render.mjs"
-// @module: ESNext
-// @target: ESNext
-import { bundle } from "@remotion/bundler";
-import { renderMedia, selectComposition } from "@remotion/renderer";
-import { createRequire } from "node:module";
+import {bundle} from '@remotion/bundler';
+import {renderMedia, selectComposition} from '@remotion/renderer';
+import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
 
 const bundled = await bundle({
-  entryPoint: require.resolve("./src/index.ts"),
+  entryPoint: require.resolve('./src/index.ts'),
   // If you have a webpack override in remotion.config.ts, pass it here as well.
   webpackOverride: (config) => config,
 });
@@ -163,14 +153,14 @@ const inputProps = {};
 
 const composition = await selectComposition({
   serveUrl: bundled,
-  id: "MyComp",
+  id: 'MyComp',
   inputProps,
 });
 
-console.log("Starting to render composition");
+console.log('Starting to render composition');
 
 await renderMedia({
-  codec: "h264",
+  codec: 'h264',
   composition,
   serveUrl: bundled,
   outputLocation: `out/${composition.id}.mp4`,
@@ -252,6 +242,7 @@ Alpine Linux is a lightweight distribution often used in Docker. There are two k
 
 ## Changelog
 
+**November 6th, 2024**: Use node:22-bookworm-slim over node:20-bookworm to update to LTS and get a much smaller image.
 **October 11th, 2023**: Used the node:20-bookworm, which is faster to deploy and also Debian.
 
 **September 25th, 2023**: Recommend setting `enableMultiProcessOnLinux`.

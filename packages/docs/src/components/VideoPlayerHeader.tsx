@@ -43,11 +43,11 @@ const space: React.CSSProperties = {
 const VideoPlayerHeader: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	{
-		onDismiss: () => void;
-		onNext: () => void;
-		onPrevious: () => void;
-		hasNext: boolean;
-		hasPrevious: boolean;
+		readonly onDismiss: () => void;
+		readonly onNext: () => void;
+		readonly onPrevious: () => void;
+		readonly hasNext: boolean;
+		readonly hasPrevious: boolean;
 	}
 > = ({onDismiss, onNext, onPrevious, hasNext, hasPrevious}, ref) => {
 	const {colorMode} = useColorMode();

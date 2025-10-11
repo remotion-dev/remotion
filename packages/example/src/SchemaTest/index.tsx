@@ -1,4 +1,4 @@
-import {zColor, zTextarea} from '@remotion/zod-types';
+import {zColor, zMatrix, zTextarea} from '@remotion/zod-types';
 import React from 'react';
 import {AbsoluteFill, Sequence} from 'remotion';
 import {z} from 'zod';
@@ -7,6 +7,7 @@ export const schemaTestSchema = z.object({
 	title: z.string().nullable(),
 	delay: z.number().min(0).max(1000).step(0.1),
 	color: zColor(),
+	matrix: zMatrix(),
 	list: z.array(z.object({name: z.string(), age: z.number()})),
 	description: zTextarea().nullable(),
 	dropdown: z.enum(['a', 'b', 'c']),
@@ -31,6 +32,7 @@ export const schemaTestSchema = z.object({
 			value: z.number().min(1080),
 		}),
 	]),
+	tuple: z.tuple([z.string(), z.number(), z.object({a: z.string()})]),
 });
 
 export const schemaArrayTestSchema = z.array(z.number());

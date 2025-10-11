@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cli"
 	},
 	"name": "@remotion/cli",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"description": "Control Remotion features using the `npx remotion` command",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -13,9 +13,10 @@
 		"remotiond": "remotiond-cli.js"
 	},
 	"scripts": {
-		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"test": "bun test src"
+		"formatting": "prettier --experimental-cli src --check",
+		"lint": "eslint src",
+		"test": "bun test src",
+		"make": "tsc -d"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -56,13 +57,16 @@
 		"@types/minimist": "^1.2.2",
 		"@types/prompts": "^2.4.1",
 		"@types/prettier": "^2.7.2",
+		"@types/node": "20.12.14",
 		"@remotion/zod-types": "workspace:*",
-		"@remotion/tailwind": "workspace:*",
+		"@remotion/tailwind-v4": "workspace:*",
 		"@remotion/enable-scss": "workspace:*",
 		"@remotion/skia": "workspace:*",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
-		"zod": "3.23.8"
+		"zod": "3.23.8",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
 	},
 	"keywords": [
 		"remotion",

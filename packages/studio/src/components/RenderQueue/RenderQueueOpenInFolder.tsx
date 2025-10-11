@@ -7,7 +7,7 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {openInFileExplorer} from './actions';
 
 export const RenderQueueOpenInFinderItem: React.FC<{
-	job: RenderJob;
+	readonly job: RenderJob;
 }> = ({job}) => {
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {

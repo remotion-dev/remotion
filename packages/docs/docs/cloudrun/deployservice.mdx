@@ -8,12 +8,7 @@ crumb: 'Cloud Run API'
 
 <ExperimentalBadge>
   <p>
-    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs
-    may change in any version and documentation is not yet finished. See the{' '}
-    <a href="https://remotion.dev/changelog">
-      changelog to stay up to date with breaking changes
-    </a>
-    .
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
   </p>
 </ExperimentalBadge>
 
@@ -24,9 +19,6 @@ If a service with the same Remotion version, memory limit, cpu limit and timeout
 ## Example
 
 ```ts twoslash
-// @module: esnext
-// @target: es2017
-
 import {deployService} from '@remotion/cloudrun';
 
 const {shortName} = await deployService({
@@ -96,6 +88,6 @@ An object with the following values:
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/cloudrun/src/api/deploy-service.ts)
-- [CLI equivalent: npx remotion cloudrun services deploy](/docs/cloudrun/cli/services#deploy)
+- [CLI equivalent: npx remotion cloudrun services deploy](/docs/cloudrun/cli/services/deploy)
 - [deleteService()](/docs/cloudrun/deleteservice)
 - [getServices()](/docs/cloudrun/getservices)

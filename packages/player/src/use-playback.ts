@@ -5,6 +5,7 @@ import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
+import type {GetCurrentFrame} from './use-frame-imperative.js';
 import {usePlayer} from './use-player.js';
 
 export const usePlayback = ({
@@ -13,22 +14,21 @@ export const usePlayback = ({
 	moveToBeginningWhenEnded,
 	inFrame,
 	outFrame,
-	frameRef,
 	browserMediaControlsBehavior,
+	getCurrentFrame,
 }: {
 	loop: boolean;
 	playbackRate: number;
 	moveToBeginningWhenEnded: boolean;
 	inFrame: number | null;
 	outFrame: number | null;
-	frameRef: React.MutableRefObject<number>;
 	browserMediaControlsBehavior: BrowserMediaControlsBehavior;
+	getCurrentFrame: GetCurrentFrame;
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
 	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
-	const buffering = useRef<null | number>(null);
 
 	// requestAnimationFrame() does not work if the tab is not active.
 	// This means that audio will keep playing even if it has ended.
@@ -51,21 +51,6 @@ export const usePlayback = ({
 	});
 
 	//	complete code for media session API
-
-	useEffect(() => {
-		const onBufferClear = context.listenForBuffering(() => {
-			buffering.current = performance.now();
-		});
-
-		const onResumeClear = context.listenForResume(() => {
-			buffering.current = null;
-		});
-
-		return () => {
-			onBufferClear.remove();
-			onResumeClear.remove();
-		};
-	}, [context]);
 
 	useEffect(() => {
 		if (!config) {
@@ -106,11 +91,15 @@ export const usePlayback = ({
 		};
 
 		const callback = () => {
+			if (hasBeenStopped) {
+				return;
+			}
+
 			const time = performance.now() - startedTime;
 			const actualLastFrame = outFrame ?? config.durationInFrames - 1;
 			const actualFirstFrame = inFrame ?? 0;
 
-			const currentFrame = frameRef.current;
+			const currentFrame = getCurrentFrame();
 			const {nextFrame, framesToAdvance, hasEnded} = calculateNextFrame({
 				time,
 				currentFrame,
@@ -125,7 +114,7 @@ export const usePlayback = ({
 			framesAdvanced += framesToAdvance;
 
 			if (
-				nextFrame !== frameRef.current &&
+				nextFrame !== getCurrentFrame() &&
 				(!hasEnded || moveToBeginningWhenEnded)
 			) {
 				setFrame((c) => ({...c, [config.id]: nextFrame}));
@@ -138,22 +127,16 @@ export const usePlayback = ({
 				return;
 			}
 
-			if (!hasBeenStopped) {
-				queueNextFrame();
-			}
+			queueNextFrame();
 		};
 
 		const queueNextFrame = () => {
-			if (buffering.current) {
+			if (context.buffering.current) {
 				const stopListening = context.listenForResume(() => {
 					stopListening.remove();
-					if (hasBeenStopped) {
-						return;
-					}
-
 					startedTime = performance.now();
 					framesAdvanced = 0;
-					callback();
+					queueNextFrame();
 				});
 				return;
 			}
@@ -164,9 +147,10 @@ export const usePlayback = ({
 					// Note: Most likely, this will not be 1000 / fps, but the browser will throttle it to ~1/sec.
 					id: setTimeout(callback, 1000 / config.fps),
 				};
-			} else {
-				reqAnimFrameCall = {type: 'raf', id: requestAnimationFrame(callback)};
+				return;
 			}
+
+			reqAnimFrameCall = {type: 'raf', id: requestAnimationFrame(callback)};
 		};
 
 		queueNextFrame();
@@ -200,23 +184,22 @@ export const usePlayback = ({
 		outFrame,
 		moveToBeginningWhenEnded,
 		isBackgroundedRef,
-		frameRef,
-		buffering,
+		getCurrentFrame,
 		context,
 	]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			if (lastTimeUpdateEvent.current === frameRef.current) {
+			if (lastTimeUpdateEvent.current === getCurrentFrame()) {
 				return;
 			}
 
-			emitter.dispatchTimeUpdate({frame: frameRef.current as number});
-			lastTimeUpdateEvent.current = frameRef.current;
+			emitter.dispatchTimeUpdate({frame: getCurrentFrame()});
+			lastTimeUpdateEvent.current = getCurrentFrame();
 		}, 250);
 
 		return () => clearInterval(interval);
-	}, [emitter, frameRef]);
+	}, [emitter, getCurrentFrame]);
 
 	useEffect(() => {
 		emitter.dispatchFrameUpdate({frame});

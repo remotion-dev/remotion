@@ -115,7 +115,9 @@ _optional_
 
 <Options id="disable-headless" />
 
-### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
+### `--enable-multiprocess-on-linux`
+
+<AvailableFrom v="4.0.42" />
 
 <Options cli id="enable-multiprocess-on-linux" />
 
@@ -124,6 +126,10 @@ _optional_
 _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--gl)
+
+### `--chrome-mode`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
 
 ### `--timeout`
 
@@ -173,6 +179,12 @@ _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--enforce-audio-track)
 
+### `--disallow-parallel-encoding`<AvailableFrom v="4.0.315" />
+
+_optional_
+
+Inherited from [`npx remotion render`](/docs/cli/render#--disallow-parallel-encoding)
+
 ### `--browser-executable`
 
 _optional_
@@ -203,13 +215,21 @@ _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--audio-bitrate)
 
+### `--color-space`<AvailableFrom v="4.0.28"/>
+
+<Options cli id="color-space" />
+
+### `--hardware-acceleration`<AvailableFrom v="4.0.228" />
+
+<Options cli id="hardware-acceleration" />
+
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
-### `--color-space`<AvailableFrom v="4.0.28"/>
+### `--media-cache-size-in-bytes`<AvailableFrom v="4.0.352"/>
 
-<Options cli id="color-space" />
+<Options id="media-cache-size-in-bytes" />
 
 ### `--binaries-directory`<AvailableFrom v="4.0.120" />
 

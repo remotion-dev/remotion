@@ -2,9 +2,17 @@ import {Internals} from 'remotion';
 import {DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} from '../components/RenderModal/SchemaEditor/scroll-to-default-props-path';
 
 const makeDefaultGlobalCSS = () => {
+	const unhoveredDragAreaFactor = 2;
+	const fromMiddle = 50 / unhoveredDragAreaFactor;
+
+	const hoveredDragAreaFactor = 6;
+	const fromMiddleHovered = 50 / hoveredDragAreaFactor;
+
 	return `
   html {
     --remotion-cli-internals-blue: #0b84f3;
+    overscroll-behavior-y: none;
+    overscroll-behavior-x: none;
   }
   
   body {
@@ -19,43 +27,51 @@ const makeDefaultGlobalCSS = () => {
   }
   
   .remotion-splitter-horizontal {
-    transform: scaleY(2);
+    transform: scaleY(${unhoveredDragAreaFactor});
     background: linear-gradient(
       to bottom,
-      transparent 25%,
-      black 25%,
-      black 75%,
-      transparent
+      transparent ${50 - fromMiddle}%,
+      black ${50 - fromMiddle}%,
+      black ${50 + fromMiddle}%,
+      transparent ${50 + fromMiddle}%
     );
   }
   
-  .remotion-splitter-horizontal:hover,
-  .remotion-splitter-horizontal.remotion-splitter-active {
+  .remotion-splitter-horizontal.remotion-splitter-active, .remotion-splitter-horizontal.remotion-splitter-hover {
     background: linear-gradient(
       to bottom,
-      var(--remotion-cli-internals-blue),
-      var(--remotion-cli-internals-blue)
+      transparent ${50 - fromMiddleHovered}%,
+      var(--remotion-cli-internals-blue) ${50 - fromMiddleHovered}%,
+      var(--remotion-cli-internals-blue) ${50 + fromMiddleHovered}%,
+      transparent ${50 + fromMiddleHovered}%
     );
+    cursor: row-resize;
+    transform: scaleY(${hoveredDragAreaFactor});
+    z-index: 1000;
   }
   
   .remotion-splitter-vertical {
-    transform: scaleX(2);
+    transform: scaleX(${unhoveredDragAreaFactor});
     background: linear-gradient(
       to right,
-      transparent 25%,
-      black 25%,
-      black 75%,
-      transparent
+      transparent ${50 - fromMiddle}%,
+      black ${50 - fromMiddle}%,
+      black ${50 + fromMiddle}%,
+      transparent ${50 + fromMiddle}%
     );
   }
   
-  .remotion-splitter-vertical:hover,
-  .remotion-splitter-vertical.remotion-splitter-active {
+  .remotion-splitter-vertical.remotion-splitter-active, .remotion-splitter-vertical.remotion-splitter-hover {
     background: linear-gradient(
       to right,
-      var(--remotion-cli-internals-blue),
-      var(--remotion-cli-internals-blue)
+      transparent ${50 - fromMiddleHovered}%,
+      var(--remotion-cli-internals-blue) ${50 - fromMiddleHovered}%,
+      var(--remotion-cli-internals-blue) ${50 + fromMiddleHovered}%,
+      transparent ${50 + fromMiddleHovered}%
     );
+    transform: scaleX(${hoveredDragAreaFactor});
+    cursor: col-resize;
+    z-index: 1000;
   }
   
   input::-webkit-outer-spin-button,

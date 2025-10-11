@@ -45,7 +45,7 @@ export const bundleInstaller = async () => {
 
 	// A reproducible build will lead to no pending change in Git
 	if (hasGTar()) {
-		console.log('Making reproducible build with gtar');
+		console.time('Made reproducible build with gtar');
 		execSync(
 			`gtar --mtime='2023-01-01 00:00Z' --sort=name --owner=0 --group=0 --numeric-owner --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime ${tarArgs}`,
 			{
@@ -53,12 +53,14 @@ export const bundleInstaller = async () => {
 				cwd: outdir,
 			},
 		);
+		console.timeEnd('Made reproducible build with gtar');
 	} else {
-		console.log('Making non-reproducible build with tar.');
+		console.time('Made non-reproducible build with tar.');
 		execSync(`tar ${tarArgs}`, {
 			stdio: 'inherit',
 			cwd: outdir,
 		});
+		console.timeEnd('Made non-reproducible build with tar.');
 	}
 
 	rmSync(outdir, {recursive: true});

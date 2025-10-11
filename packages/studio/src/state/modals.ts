@@ -1,5 +1,6 @@
 import type {
 	AudioCodec,
+	ChromeMode,
 	Codec,
 	ColorSpace,
 	LogLevel,
@@ -10,6 +11,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {PackageManager} from '@remotion/studio-shared';
 import type React from 'react';
 import {createContext} from 'react';
@@ -43,15 +45,19 @@ export type RenderModalState = {
 	initialOpenGlRenderer: OpenGlRenderer | null;
 	initialIgnoreCertificateErrors: boolean;
 	initialHeadless: boolean;
+	initialMediaCacheSizeInBytes: number | null;
 	initialOffthreadVideoCacheSizeInBytes: number | null;
+	initialOffthreadVideoThreads: number | null;
 	initialColorSpace: ColorSpace;
 	initialMultiProcessOnLinux: boolean;
 	initialUserAgent: string | null;
 	initialEncodingMaxRate: string | null;
 	initialEncodingBufferSize: string | null;
 	initialForSeamlessAacConcatenation: boolean;
+	initialHardwareAcceleration: HardwareAccelerationOption;
 	initialBeep: boolean;
 	initialRepro: boolean;
+	initialChromeMode: ChromeMode;
 	minConcurrency: number;
 	maxConcurrency: number;
 	defaultProps: Record<string, unknown>;

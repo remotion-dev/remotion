@@ -1,28 +1,41 @@
-import {RenderInternals} from '@remotion/renderer';
+import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('Should get duration of AV1 video', async () => {
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.av1,
+		src: exampleVideos.av1,
 		fields: {
 			durationInSeconds: true,
-			boxes: true,
+			slowStructure: true,
 			dimensions: true,
 			fps: true,
+			slowFps: true,
+			slowNumberOfFrames: true,
+			numberOfAudioChannels: true,
+			sampleRate: true,
+			slowAudioBitrate: true,
+			slowVideoBitrate: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 
 	expect(parsed.durationInSeconds).toBe(1);
 	expect(parsed.fps).toBe(null);
+	expect(parsed.slowFps).toBe(25);
+	expect(parsed.slowNumberOfFrames).toBe(25);
 	expect(parsed.dimensions).toEqual({
 		width: 1920,
 		height: 1080,
 	});
+	expect(parsed.numberOfAudioChannels).toBe(null);
+	expect(parsed.sampleRate).toBe(null);
+	expect(parsed.slowAudioBitrate).toBe(null);
+	expect(parsed.slowVideoBitrate).toBe(2889408.3333333335);
 
-	expect(parsed.boxes).toEqual([
+	expect(parsed.slowStructure.boxes).toEqual([
 		{
 			type: 'Header',
 			value: [
@@ -290,23 +303,64 @@ test('Should get duration of AV1 video', async () => {
 					type: 'Tags',
 					value: [
 						{
-							type: 'Tag',
-							value: new Uint8Array([
-								99, 192, 128, 103, 200, 153, 69, 163, 135, 69, 78, 67, 79, 68,
-								69, 82, 68, 135, 140, 76, 97, 118, 102, 54, 48, 46, 51, 46, 49,
-								48, 48,
-							]),
 							minVintWidth: 1,
+							type: 'Tag',
+							value: [
+								{
+									minVintWidth: 1,
+									type: 'Targets',
+									value: [],
+								},
+								{
+									minVintWidth: 1,
+									type: 'SimpleTag',
+									value: [
+										{
+											minVintWidth: 1,
+											type: 'TagName',
+											value: 'ENCODER',
+										},
+										{
+											minVintWidth: 1,
+											type: 'TagString',
+											value: 'Lavf60.3.100',
+										},
+									],
+								},
+							],
 						},
 						{
-							type: 'Tag',
-							value: new Uint8Array([
-								99, 192, 139, 99, 197, 136, 171, 33, 113, 1, 43, 185, 2, 10,
-								103, 200, 162, 69, 163, 136, 68, 85, 82, 65, 84, 73, 79, 78, 68,
-								135, 148, 48, 48, 58, 48, 48, 58, 48, 49, 46, 48, 48, 48, 48,
-								48, 48, 48, 48, 48, 0, 0,
-							]),
 							minVintWidth: 1,
+							type: 'Tag',
+							value: [
+								{
+									minVintWidth: 1,
+									type: 'Targets',
+									value: [
+										{
+											minVintWidth: 1,
+											type: 'TagTrackUID',
+											value: '0xab2171012bb9020a',
+										},
+									],
+								},
+								{
+									minVintWidth: 1,
+									type: 'SimpleTag',
+									value: [
+										{
+											minVintWidth: 1,
+											type: 'TagName',
+											value: 'DURATION',
+										},
+										{
+											minVintWidth: 1,
+											type: 'TagString',
+											value: '00:00:01.000000000',
+										},
+									],
+								},
+							],
 						},
 					],
 					minVintWidth: 1,
@@ -317,131 +371,6 @@ test('Should get duration of AV1 video', async () => {
 							type: 'Timestamp',
 							value: {value: 0, byteLength: 1},
 							minVintWidth: 1,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 3,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 1,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
-						},
-						{
-							type: 'Block',
-							value: new Uint8Array(),
-							minVintWidth: 2,
 						},
 					],
 					type: 'Cluster',

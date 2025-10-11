@@ -1,9 +1,0 @@
-{
-	"extends": "@remotion",
-	"rules": {
-		// In Skia, style is either "fill" / "stroke"
-		"react/style-prop-object": "off",
-		"max-len": "off",
-		"@typescript-eslint/no-non-null-assertion": "off"
-	}
-}

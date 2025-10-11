@@ -5,7 +5,7 @@ sidebar_label: Using the interface
 crumb: Recorder
 ---
 
-import { RecordingButton } from "../../../components/recorder/RecordButton";
+import {RecordingButton} from '../../../components/recorder/RecordButton';
 
 The Recorder ships with its own recording interface.  
 From it, you can record a clip and add it as a scene to your project.
@@ -13,7 +13,7 @@ From it, you can record a clip and add it as a scene to your project.
 If you haven't done so, start the Remotion Recorder:
 
 ```tsx
-bun start
+bun run dev
 ```
 
 A Vite app will listen on [`http://localhost:4000`](http://localhost:4000).  
@@ -55,14 +55,14 @@ You're ready to record!
 
 <div
   style={{
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
   }}
 >
   <div>
-    To start recording, press <kbd>R</kbd> or click{" "}
+    To start recording, press <kbd>R</kbd> or click{' '}
   </div>
   <RecordingButton type="start" />
   <div>in the top left corner.</div>
@@ -70,10 +70,10 @@ You're ready to record!
 <br />
 <div
   style={{
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
   }}
 >
   <div>Once you are done with the scene, click</div>
@@ -101,12 +101,12 @@ You can also use the hosted version of the recoding interface at [record.remotio
 
 It will not allow you to select a save destination, but instead download the recordings to your `Downloads` folder.
 
-They will have names like `webcam171234567890.webm` and `display171234567890.webm`.
+They will have names like `webcam171234567890.mp4` and `display171234567890.mp4`.
 
-To copy the recordings to your Remotion project and also convert them to MP4, first open `copy.ts` in your code editor. Set the `prefix` at the top of your file to the ID of the composition that you gave when you first created a new video.
+To copy the recordings to your Remotion project, first open `copy.ts` in your code editor. Set the `prefix` at the top of your file to the ID of the composition that you gave when you first created a new video.
 
 ```ts title="copy.ts"
-const prefix = "<id-of-your-composition>";
+const prefix = '<id-of-your-composition>';
 ```
 
 Then run the `copy.ts` script whenever you want to save a take and immediately generate captions:

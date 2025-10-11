@@ -3,31 +3,34 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/eslint-config"
 	},
 	"name": "@remotion/eslint-config",
-	"version": "4.0.226",
-	"description": "Default configuration for Remotion templates",
+	"version": "4.0.357",
+	"description": "Default configuration for Remotion templates (ESLint <= 8)",
 	"main": "dist/index.js",
 	"files": [
 		"dist"
 	],
 	"scripts": {
-		"lint": "eslint src --ext ts,tsx",
-		"formatting": "prettier src --check"
+		"lint": "eslint src",
+		"formatting": "prettier --experimental-cli src --check",
+		"make": "tsc -d"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "ISC",
-	"dependencies": {
+	"dependencies": {},
+	"peerDependencies": {
+		"eslint": ">=7.15.0"
+	},
+	"devDependencies": {
 		"@remotion/eslint-plugin": "workspace:*",
 		"@typescript-eslint/eslint-plugin": "6.21.0",
 		"@typescript-eslint/parser": "6.21.0",
-		"eslint-plugin-10x": "1.5.2",
-		"eslint-plugin-react": "7.32.2",
-		"eslint-plugin-react-hooks": "4.6.0"
-	},
-	"peerDependencies": {
-		"eslint": ">=7.15.0"
+		"eslint-plugin-react": "7.37.4",
+		"eslint-plugin-react-hooks": "4.6.0",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
 	},
 	"keywords": [
 		"remotion",

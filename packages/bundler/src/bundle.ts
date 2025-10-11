@@ -71,10 +71,13 @@ export const getConfig = ({
 	onProgress?: (progress: number) => void;
 	options?: LegacyBundleOptions;
 }): Promise<Configuration> => {
-	const entry = path.resolve(__dirname, '..', './renderEntry.tsx');
-
 	return webpackConfig({
-		entry,
+		entry: path.join(
+			require.resolve('@remotion/studio/renderEntry'),
+			'..',
+			'esm',
+			'renderEntry.mjs',
+		),
 		userDefinedComponent: entryPoint,
 		outDir,
 		environment: 'production',
@@ -98,6 +101,7 @@ type NewBundleOptions = {
 	gitSource: GitSource | null;
 	maxTimelineTracks: number | null;
 	bufferStateDelayInMilliseconds: number | null;
+	audioLatencyHint: AudioContextLatencyCategory | null;
 };
 
 type MandatoryBundleOptions = {
@@ -253,6 +257,7 @@ export const internalBundle = async (
 		}
 
 		symlinkWarningShown = true;
+		// eslint-disable-next-line no-console
 		console.warn(
 			`\nFound a symbolic link in the public folder (${absolutePath}). The symlink will be forwarded into the bundle.`,
 		);
@@ -303,6 +308,10 @@ export const internalBundle = async (
 		}),
 		installedDependencies: null,
 		packageManager: 'unknown',
+		// Actual log level is set in setPropsAndEnv()
+		logLevel: 'info',
+		mode: 'bundle',
+		audioLatencyHint: actualArgs.audioLatencyHint ?? 'interactive',
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
@@ -317,9 +326,9 @@ export const internalBundle = async (
 	return outDir;
 };
 
-/**
- * @description The method bundles a Remotion project using Webpack and prepares it for rendering.
- * @see [Documentation](https://www.remotion.dev/docs/bundle)
+/*
+ * @description Bundles a Remotion project using Webpack and prepares it for rendering.
+ * @see [Documentation](https://remotion.dev/docs/bundle)
  */
 export async function bundle(...args: Arguments): Promise<string> {
 	const actualArgs = convertArgumentsIntoOptions(args);
@@ -339,6 +348,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		publicPath: actualArgs.publicPath ?? null,
 		rootDir: actualArgs.rootDir ?? null,
 		webpackOverride: actualArgs.webpackOverride ?? ((f) => f),
+		audioLatencyHint: actualArgs.audioLatencyHint ?? null,
 	});
 	return result;
 }

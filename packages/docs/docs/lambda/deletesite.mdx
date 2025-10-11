@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-deletesite.png
 id: deletesite
 title: deleteSite()
 slug: /lambda/deletesite
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Removes a Remotion project from your S3 bucket.
@@ -15,13 +15,11 @@ Each project is located in the `sites/` subdirectory of your S3 bucket. Calling 
 Gets all sites and deletes them.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { AwsRegion, deleteSite, getSites } from "@remotion/lambda";
+import {AwsRegion, deleteSite, getSites} from '@remotion/lambda';
 
-const region: AwsRegion = "eu-central-1";
+const region: AwsRegion = 'eu-central-1';
 
-const { sites } = await getSites({
+const {sites} = await getSites({
   region,
 });
 

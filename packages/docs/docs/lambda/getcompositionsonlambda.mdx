@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-getcompositionsonlambda.png
 id: getcompositionsonlambda
 title: getCompositionsOnLambda()
 slug: /lambda/getcompositionsonlambda
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 _available from v3.3.2_
@@ -17,15 +17,12 @@ You should use `getCompositionsOnLambda()` if you cannot use [`getCompositions()
 ## Example
 
 ```tsx twoslash
-// @module: esnext
-// @target: es2017
-import { getCompositionsOnLambda } from "@remotion/lambda/client";
+import {getCompositionsOnLambda} from '@remotion/lambda/client';
 
 const compositions = await getCompositionsOnLambda({
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
   inputProps: {},
 });
 
@@ -88,7 +85,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 #### `gl`
 
-<Options id="gl"  />
+<Options id="gl" />
 
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 
@@ -102,13 +99,21 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 ### `logLevel?`
 
-<Options id="log"/>
+<Options id="log" />
 
 Logs can be read through the CloudWatch URL that this function returns.
+
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
 
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `offthreadVideoThreads?`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
 
 ### ~~`dumpBrowserLogs?`~~
 
@@ -123,17 +128,17 @@ Returns a promise that resolves to an array of available compositions. Example v
 ```ts twoslash
 [
   {
-    id: "HelloWorld",
+    id: 'HelloWorld',
     width: 1920,
     height: 1080,
     fps: 30,
     durationInFrames: 120,
     defaultProps: {
-      title: "Hello World",
+      title: 'Hello World',
     },
   },
   {
-    id: "Title",
+    id: 'Title',
     width: 1080,
     height: 1080,
     fps: 30,

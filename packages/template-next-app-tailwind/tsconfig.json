@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -13,13 +17,13 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true,
     "noUnusedLocals": true,
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "incremental": true
   },
   "include": [
     "next-env.d.ts",
@@ -28,5 +32,8 @@
     ".next/types/**/*.ts",
     "remotion/webpack-override.mjs"
   ],
-  "exclude": ["node_modules", "remotion.config.ts"]
+  "exclude": [
+    "node_modules",
+    "remotion.config.ts"
+  ]
 }

@@ -17,7 +17,7 @@ import {
 	VERY_LIGHT_TEXT,
 } from '../../../helpers/colors';
 import {getGitRefUrl} from '../../../helpers/get-git-menu-item';
-import {openInEditor} from '../../../helpers/open-in-editor';
+import {openOriginalPositionInEditor} from '../../../helpers/open-in-editor';
 import {pushUrl} from '../../../helpers/url-state';
 import {useSelectAsset} from '../../InitialCompositionLoader';
 import {showNotification} from '../../Notifications/NotificationCenter';
@@ -26,11 +26,16 @@ import {Spacing} from '../../layout';
 import {getOriginalLocationFromStack} from './get-stack';
 import {getOriginalSourceAttribution} from './source-attribution';
 
+const publicPath =
+	window.remotion_publicPath === '/' ? '' : window.remotion_publicPath;
+
+const withoutSlashInTheEnd = publicPath.endsWith('/')
+	? publicPath.slice(0, -1)
+	: publicPath;
+
 // @ts-expect-error
 SourceMapConsumer.initialize({
-	'lib/mappings.wasm':
-		(window.remotion_publicPath === '/' ? '' : window.remotion_publicPath) +
-		SOURCE_MAP_ENDPOINT,
+	'lib/mappings.wasm': withoutSlashInTheEnd + SOURCE_MAP_ENDPOINT,
 });
 
 export const TimelineStack: React.FC<{
@@ -80,13 +85,7 @@ export const TimelineStack: React.FC<{
 
 		setOpening(true);
 		try {
-			await openInEditor({
-				originalColumnNumber: location.column,
-				originalFileName: location.source,
-				originalFunctionName: null,
-				originalLineNumber: location.line,
-				originalScriptCode: null,
-			});
+			await openOriginalPositionInEditor(location);
 		} catch (err) {
 			showNotification((err as Error).message, 2000);
 		} finally {
@@ -163,7 +162,7 @@ export const TimelineStack: React.FC<{
 			return;
 		}
 
-		getOriginalLocationFromStack(sequence.stack)
+		getOriginalLocationFromStack(sequence.stack, 'sequence')
 			.then((frame) => {
 				setOriginalLocation(frame);
 			})

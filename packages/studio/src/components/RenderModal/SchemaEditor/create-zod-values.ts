@@ -104,6 +104,18 @@ export const createZodValues = (
 				return '';
 			}
 
+			if (
+				zodTypes &&
+				schema._def.description ===
+					zodTypes.ZodZypesInternals.REMOTION_MATRIX_BRAND
+			) {
+				return [
+					[1, 0, 0],
+					[0, 1, 0],
+					[0, 0, 1],
+				];
+			}
+
 			return createZodValues(
 				(def as z.ZodEffectsDef).schema,
 				zodRuntime,

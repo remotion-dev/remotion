@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Render cards",
+			"type": "shell",
+			"command": "cd ${workspaceFolder}/packages/docs && bun render-cards.mjs",
+			"problemMatcher": [],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}

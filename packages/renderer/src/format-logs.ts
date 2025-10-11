@@ -1,3 +1,4 @@
+import {NoReactInternals} from 'remotion/no-react';
 import type {
 	DevtoolsRemoteObject,
 	ObjectPreview,
@@ -11,7 +12,14 @@ export const formatRemoteObject = (remoteObject: DevtoolsRemoteObject) => {
 	}
 
 	if (remoteObject.type === 'string') {
-		return chalk.reset(`${remoteObject.value}`);
+		const isDelayRenderClear = remoteObject.value.includes(
+			NoReactInternals.DELAY_RENDER_CLEAR_TOKEN,
+		);
+		if (isDelayRenderClear) {
+			return chalk.gray(`${remoteObject.value}`);
+		}
+
+		return `${remoteObject.value}`;
 	}
 
 	if (remoteObject.type === 'number') {
@@ -32,7 +40,7 @@ export const formatRemoteObject = (remoteObject: DevtoolsRemoteObject) => {
 
 	if (remoteObject.type === 'object') {
 		if (remoteObject.subtype === 'null') {
-			return chalk.white(`null`);
+			return `null`;
 		}
 
 		return chalk.reset(`Object`);

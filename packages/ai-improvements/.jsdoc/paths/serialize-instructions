@@ -1,0 +1,4 @@
+/**
+ * @description Takes an array of Instruction's and serializes it into an SVG path string.
+ * @see [Documentation](https://www.remotion.dev/docs/paths/serialize-instructions)
+ */

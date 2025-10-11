@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 
+import type {Privacy} from '../defaults';
 import type {GcpRegion} from '../pricing/gcp-regions';
 
 type servicesCommandLineOptions = {
@@ -12,11 +13,13 @@ type servicesCommandLineOptions = {
 	force: boolean;
 	['onlyAllocateCpuDuringRequestProcessing']: boolean;
 	f: boolean;
-
+	privacy: Privacy;
 	['max-retries']: number;
 	['out-name']: string | undefined;
 	['output-bucket']: string;
 	['output-folder-path']: string;
+	webhook: string;
+	['render-id-override']: string;
 };
 
 export const parsedCloudrunCli =

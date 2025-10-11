@@ -49,7 +49,7 @@ import type {PlayerRef} from '@remotion/player';
 import {useCallback, useEffect, useState} from 'react';
 
 export const PlayPauseButton: React.FC<{
-  playerRef: React.RefObject<PlayerRef>;
+  playerRef: React.RefObject<PlayerRef | null>;
 }> = ({playerRef}) => {
   const [playing, setPlaying] = useState(false);
 
@@ -123,7 +123,7 @@ export const formatTime = (frame: number, fps: number): string => {
 export const TimeDisplay: React.FC<{
   durationInFrames: number;
   fps: number;
-  playerRef: React.RefObject<PlayerRef>;
+  playerRef: React.RefObject<PlayerRef | null>;
 }> = ({durationInFrames, fps, playerRef}) => {
   const [time, setTime] = React.useState(0);
 
@@ -174,7 +174,7 @@ import type {PlayerRef} from '@remotion/player';
 import React, {useCallback, useEffect, useState} from 'react';
 
 export const FullscreenButton: React.FC<{
-  playerRef: React.RefObject<PlayerRef>;
+  playerRef: React.RefObject<PlayerRef | null>;
 }> = ({playerRef}) => {
   const [supportsFullscreen, setSupportsFullscreen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -256,7 +256,7 @@ type Size = {
 // force an update
 
 export const useElementSize = (
-  ref: React.RefObject<HTMLElement>,
+  ref: React.RefObject<HTMLElement | null>,
 ): Size | null => {
   const [size, setSize] = useState<Size | null>(() => {
     if (!ref.current) {
@@ -420,7 +420,7 @@ const findBodyInWhichDivIsLocated = (div: HTMLElement) => {
   return current;
 };
 
-export const useHoverState = (ref: React.RefObject<HTMLDivElement>) => {
+export const useHoverState = (ref: React.RefObject<HTMLDivElement | null>) => {
   const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
@@ -458,7 +458,7 @@ export const SeekBar: React.FC<{
   durationInFrames: number;
   inFrame?: number | null;
   outFrame?: number | null;
-  playerRef: React.RefObject<PlayerRef>;
+  playerRef: React.RefObject<PlayerRef | null>;
 }> = ({durationInFrames, inFrame, outFrame, playerRef}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const barHovered = useHoverState(containerRef);
@@ -757,7 +757,7 @@ import type {PlayerRef} from '@remotion/player';
 import React, {useEffect, useState} from 'react';
 
 export const VolumeSlider: React.FC<{
-  playerRef: React.RefObject<PlayerRef>;
+  playerRef: React.RefObject<PlayerRef | null>;
 }> = ({playerRef}) => {
   const [volume, setVolume] = useState(playerRef.current?.getVolume() ?? 1);
   const [muted, setMuted] = useState(playerRef.current?.isMuted() ?? false);
@@ -825,7 +825,7 @@ import type {PlayerRef} from '@remotion/player';
 import React, {useEffect, useState} from 'react';
 
 export const MuteButton: React.FC<{
-  playerRef: React.RefObject<PlayerRef>;
+  playerRef: React.RefObject<PlayerRef | null>;
 }> = ({playerRef}) => {
   const [muted, setMuted] = useState(playerRef.current?.isMuted() ?? false);
 

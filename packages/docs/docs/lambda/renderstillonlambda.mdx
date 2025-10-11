@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-renderstillonlambda.png
 id: renderstillonlambda
 title: renderStillOnLambda()
 slug: /lambda/renderstillonlambda
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Renders a still image inside a lambda function and writes it to the specified output location.
@@ -17,18 +17,17 @@ If you want to render a still locally instead, use [`renderStill()`](/docs/rende
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { renderStillOnLambda } from "@remotion/lambda/client";
+import {renderStillOnLambda} from '@remotion/lambda/client';
 
-const { estimatedPrice, url, sizeInBytes } = await renderStillOnLambda({
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
-  composition: "MyVideo",
+const {estimatedPrice, url, sizeInBytes} = await renderStillOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  composition: 'MyVideo',
   inputProps: {},
-  imageFormat: "png",
+  imageFormat: 'png',
   maxRetries: 1,
-  privacy: "public",
+  privacy: 'public',
   envVariables: {},
   frame: 10,
 });
@@ -104,27 +103,23 @@ Example usage:
 // @module: esnext
 // @target: es2022
 
-import {
-  renderStillOnLambda,
-  RenderStillOnLambdaInput,
-} from "@remotion/lambda/client";
+import {renderStillOnLambda, RenderStillOnLambdaInput} from '@remotion/lambda/client';
 
 const otherParameters: RenderStillOnLambdaInput = {
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
-  composition: "MyVideo",
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  composition: 'MyVideo',
   inputProps: {},
-  imageFormat: "png",
+  imageFormat: 'png',
   maxRetries: 1,
-  privacy: "public",
+  privacy: 'public',
   envVariables: {},
   frame: 10,
 };
 await renderStillOnLambda({
   ...otherParameters,
-  onInit: ({ cloudWatchLogs, renderId, lambdaInsightsUrl }) => {
+  onInit: ({cloudWatchLogs, renderId, lambdaInsightsUrl}) => {
     console.log(console.log(`Render invoked with ID = ${renderId}`));
     console.log(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
     console.log(`Lambda Insights (if enabled): ${lambdaInsightsUrl}`);
@@ -151,7 +146,7 @@ _optional - default `1`_
 How often a frame render may be retried until it fails.
 
 :::note
-A retry only gets executed if a the error is in the [list of flaky errors](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/shared/is-flaky-error.ts).
+A retry only gets executed if a the error is in the [list of flaky errors](https://github.com/remotion-dev/remotion/blob/main/packages/lambda-client/src/is-flaky-error.ts).
 :::
 
 ### `envVariables?`
@@ -204,9 +199,17 @@ Either:
 - `{"type": "play-in-browser"}` - the default. The video will play in the browser.
 - `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
 
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `offthreadVideoThreads?`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
 
 ### `deleteAfter?`<AvailableFrom v="4.0.32"/>
 
@@ -256,12 +259,15 @@ Logs can be read through the CloudWatch URL that this function returns.
 
 Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
 
+### `storageClass?`<AvailableFrom v="4.0.305"/>
+
+An [identifier](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-compare) for the S3 storage class of the rendered media. Default: `undefined` (which is `STANDARD`).
+
 ### ~~`dumpBrowserLogs?`~~
 
 _optional - default `false`, deprecated in v4.0_
 
 Deprecated in favor of [`logLevel`](#loglevel).
-
 
 ## Return value
 

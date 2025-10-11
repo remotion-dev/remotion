@@ -13,7 +13,14 @@ export const openAiWhisperApiToCaptions = ({
 	transcription,
 }: OpenAiToCaptionsInput): OpenAiToCaptionsOutput => {
 	const captions: Caption[] = [];
+
 	if (!transcription.words) {
+		if (transcription.task && transcription.task !== 'transcribe') {
+			throw new Error(
+				`The transcription does need to be a "transcribe" task. The input you gave is "task": "${transcription.task}"`,
+			);
+		}
+
 		throw new Error(
 			'The transcription does need to be been generated with `timestamp_granularities: ["word"]`',
 		);
@@ -21,13 +28,21 @@ export const openAiWhisperApiToCaptions = ({
 
 	let remainingText = transcription.text;
 
-	for (const word of transcription.words) {
-		const match = new RegExp(`^(^.{0,4})${word.word}([\\?,\\.]{0,3})?`).exec(
-			remainingText,
-		);
+	for (let i = 0; i < transcription.words.length; i++) {
+		const word = transcription.words[i];
+		const firstWord = i === 0;
+		// https://github.com/remotion-dev/remotion/issues/5031
+		if (firstWord) {
+			word.word = word.word.trimStart();
+		}
+
+		const punctuation = `\\?,\\.\\%\\–\\!\\;\\:\\'\\"\\-\\_\\(\\)\\[\\]\\{\\}\\@\\#\\$\\^\\&\\*\\+\\=\\/\\|\\<\\>\\~\``;
+		const match = new RegExp(
+			`^([\\s?${punctuation}]{0,4})${word.word.replace(new RegExp(`^[${punctuation}]+`), '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([${punctuation}]{0,3})?`,
+		).exec(remainingText);
 		if (!match) {
 			throw new Error(
-				`Unable to parse punctuation from OpenAI Whisper output. Could not find word "${word.word}" in text "${remainingText.slice(0, 100)}". File an issue under https://remotion.dev/issue to ask for a fix.`,
+				`Unable to parse punctuation from OpenAI Whisper output. Could not find word "${word.word}" in text "${remainingText.slice(0, 100)}". File an issue under https://remotion.dev/issue and post the input for openAiWhisperApiToCaptions() to ask for a fix.`,
 			);
 		}
 

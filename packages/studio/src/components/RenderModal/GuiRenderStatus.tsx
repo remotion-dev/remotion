@@ -33,8 +33,8 @@ const right: React.CSSProperties = {
 };
 
 const BundlingProgress: React.FC<{
-	progress: number;
-	doneIn: number | null;
+	readonly progress: number;
+	readonly doneIn: number | null;
 }> = ({progress, doneIn}) => {
 	return (
 		<div style={progressItem}>
@@ -53,7 +53,7 @@ const BundlingProgress: React.FC<{
 };
 
 const RenderingProgress: React.FC<{
-	progress: RenderingProgressInput;
+	readonly progress: RenderingProgressInput;
 }> = ({progress}) => {
 	return (
 		<div style={progressItem}>
@@ -74,7 +74,7 @@ const RenderingProgress: React.FC<{
 };
 
 const StitchingProgress: React.FC<{
-	progress: StitchingProgressInput;
+	readonly progress: StitchingProgressInput;
 }> = ({progress}) => {
 	return (
 		<div style={progressItem}>
@@ -86,8 +86,8 @@ const StitchingProgress: React.FC<{
 			<Spacing x={1} />
 			<div style={label}>
 				{progress.doneIn
-					? `Stitched ${progress.totalFrames} frames`
-					: `Stitching ${progress.frames} / ${progress.totalFrames} frames`}
+					? `Encoded ${progress.totalFrames} frames`
+					: `Encoding ${progress.frames} / ${progress.totalFrames} frames`}
 			</div>
 			{progress.doneIn ? <div style={right}>{progress.doneIn}ms</div> : null}
 		</div>
@@ -95,7 +95,7 @@ const StitchingProgress: React.FC<{
 };
 
 const DownloadsProgress: React.FC<{
-	downloads: DownloadProgress[];
+	readonly downloads: DownloadProgress[];
 }> = ({downloads}) => {
 	const allHaveProgress = downloads.every((a) => a.totalBytes);
 	const totalBytes = allHaveProgress
@@ -125,7 +125,7 @@ const DownloadsProgress: React.FC<{
 };
 
 const OpenFile: React.FC<{
-	job: RenderJob;
+	readonly job: RenderJob;
 }> = ({job}) => {
 	const labelStyle = useMemo(() => {
 		return {
@@ -158,7 +158,7 @@ const OpenFile: React.FC<{
 };
 
 export const GuiRenderStatus: React.FC<{
-	job: RenderJob;
+	readonly job: RenderJob;
 }> = ({job}) => {
 	if (job.status === 'idle' || job.status === 'failed') {
 		throw new Error(

@@ -30,17 +30,21 @@ export type Template = {
 		| 'next'
 		| 'next-tailwind'
 		| 'next-pages-dir'
-		| 'remix'
+		| 'react-router'
 		| 'three'
 		| 'still'
 		| 'tts'
 		| 'google-tts'
 		| 'audiogram'
+		| 'music-visualization'
 		| 'skia'
 		| 'overlay'
 		| 'stargazer'
 		| 'tiktok'
-		| 'code-hike';
+		| 'code-hike'
+		| 'render-server'
+		| 'recorder'
+		| 'editor-starter';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
@@ -93,7 +97,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: 'Next.js',
-		previewURL: null,
+		previewURL: 'https://next.remotion.dev',
 		templateInMonorepo: 'template-next-app',
 		allowEnableTailwind: false,
 	},
@@ -114,7 +118,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
-		previewURL: null,
+		previewURL: 'https://next.remotion.dev',
 		templateInMonorepo: 'template-next-app-tailwind',
 		allowEnableTailwind: false,
 	},
@@ -135,7 +139,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
-		previewURL: null,
+		previewURL: 'https://next.remotion.dev',
 		templateInMonorepo: 'template-next-pages',
 		allowEnableTailwind: false,
 	},
@@ -162,6 +166,27 @@ export const FEATURED_TEMPLATES: Template[] = [
 		allowEnableTailwind: true,
 	},
 	{
+		homePageLabel: 'Recorder',
+		shortName: 'Recorder',
+		org: 'remotion-dev',
+		repoName: 'recorder',
+		description: 'A video production tool built entirely in JavaScript',
+		longerDescription:
+			'The Remotion Recorder is a video production tool that allows you to record webcam and screen content, generate captions, add music, end-to-end in JavaScript. <a href="https://remotion.dev/recorder">See docs</a>',
+		promoVideo: {
+			muxId: '2A4z88QNjBTbxziIKqbI7IKLUO9iuaMp6UTZUBOItx00', // This would need a real promo video mux ID
+			height: 1080,
+			width: 1080,
+		},
+		cliId: 'recorder' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-recorder',
+		allowEnableTailwind: false,
+	},
+	{
 		homePageLabel: 'JavaScript',
 		shortName: 'Hello World (JavaScript)',
 		org: 'remotion-dev',
@@ -177,31 +202,52 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'javascript' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
-		featuredOnHomePage: 'JavaScript',
+		featuredOnHomePage: null,
 		previewURL:
 			'https://template-helloworld-javascript.vercel.app/?/HelloWorld',
 		templateInMonorepo: 'template-javascript',
 		allowEnableTailwind: true,
 	},
 	{
-		homePageLabel: 'Remix',
-		shortName: 'Remix',
+		homePageLabel: 'Render Server (Express.js)',
+		shortName: 'Render Server',
 		org: 'remotion-dev',
-		repoName: 'template-remix',
-		description: 'Remotion + Remix Starter Kit',
+		repoName: 'template-render-server',
+		description: 'An Express.js server for rendering videos with Remotion',
 		longerDescription:
-			'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Built with remix.run.',
-		promoBanner: {
-			width: 1280,
-			height: 720,
-			src: '/img/remix-template.png',
+			'A template that provides an Express.js server starting, tracking, and canceling Remotion renders.',
+		promoVideo: {
+			muxId: 'JhsWde00fJ6L00SUrIwOZv2XOl7j00DgT5kED01FVVOUJTU',
+			width: 1920,
+			height: 1080,
 		},
-		cliId: 'remix' as const,
-		type: 'image' as const,
+		cliId: 'render-server' as const,
+		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: null,
-		templateInMonorepo: 'template-remix',
+		templateInMonorepo: 'template-render-server',
+		allowEnableTailwind: false,
+	},
+	{
+		homePageLabel: 'React Router 7',
+		shortName: 'React Router',
+		org: 'remotion-dev',
+		repoName: 'template-react-router',
+		description: 'SaaS template for video generation apps',
+		longerDescription:
+			'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Built with React Router 7.',
+		promoBanner: {
+			width: 918,
+			height: 720,
+			src: '/img/remix-template.png',
+		},
+		cliId: 'react-router' as const,
+		type: 'image' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: 'React Router',
+		previewURL: null,
+		templateInMonorepo: 'template-react-router',
 		allowEnableTailwind: false,
 	},
 	{
@@ -297,7 +343,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		longerDescription:
 			'A template that turns podcast snippets into videos that can be posted on Social Media.',
 		promoVideo: {
-			muxId: 'nqGuji1CJuoPoU3iprRRhiy3HXiQN0201HLyliOg44HOU',
+			muxId: '7RwHiqZX5k5radAqZpGq7x02jJhi5j4OD8BMiM1z7nmE',
 			height: 1080,
 			width: 1080,
 		},
@@ -305,8 +351,29 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
-		previewURL: null,
+		previewURL: 'https://template-audiogram-1nrh.vercel.app',
 		templateInMonorepo: 'template-audiogram',
+		allowEnableTailwind: true,
+	},
+	{
+		homePageLabel: 'Music Visualization',
+		shortName: 'Music Visualization',
+		org: 'remotion-dev',
+		repoName: 'template-music-visualization',
+		description: 'Text and waveform visualization for podcasts',
+		longerDescription:
+			'A template that turns music snippets into videos that can be posted on Social Media.',
+		promoVideo: {
+			muxId: '8msABU02zPeFOGdvUWChssvsLVJZgFNWGWaVKA9hNAlw',
+			height: 1080,
+			width: 1080,
+		},
+		cliId: 'music-visualization' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-music-visualization',
 		allowEnableTailwind: true,
 	},
 	{
@@ -420,5 +487,19 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-tiktok',
 		allowEnableTailwind: true,
+	},
+].filter(truthy);
+
+export const PAID_TEMPLATES = [
+	{
+		homePageLabel: 'Editor Starter',
+		shortName: 'Editor Starter',
+		org: 'remotion-dev',
+		repoName: 'editor-starter',
+		description: 'A boilerplate for starting a video editor',
+		longerDescription: 'A starting point for building your own video editor.',
+		cliId: 'editor-starter' as const,
+		defaultBranch: 'main',
+		previewURL: 'https://www.remotion.pro/editor-starter',
 	},
 ].filter(truthy);

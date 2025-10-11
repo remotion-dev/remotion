@@ -24,7 +24,7 @@ function registerStackTraceLimit(limit: number = MAX_STACK_LENGTH) {
 		restoreStackTraceValue = Error.stackTraceLimit;
 		Error.stackTraceLimit = limit;
 		stackTraceRegistered = true;
-	} catch (e) {
+	} catch {
 		// Not all browsers support this so we don't care if it errors
 	}
 }
@@ -37,7 +37,7 @@ function unregisterStackTraceLimit() {
 	try {
 		Error.stackTraceLimit = restoreStackTraceValue;
 		stackTraceRegistered = false;
-	} catch (e) {
+	} catch {
 		// Not all browsers support this so we don't care if it errors
 	}
 }

@@ -5,8 +5,8 @@ import { useTypefaces } from "./AssetManager";
 import { SkiaNeon } from "./SkiaNeon";
 
 export const Drawing: React.FC<{
-  color1: string;
-  color2: string;
+  readonly color1: string;
+  readonly color2: string;
 }> = ({ color1, color2 }) => {
   const { width, height } = useVideoConfig();
   const typefaces = useTypefaces();

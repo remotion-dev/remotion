@@ -9,7 +9,7 @@ const outputLocation: React.CSSProperties = {
 };
 
 export const RenderQueueProgressMessage: React.FC<{
-	job: RenderJob;
+	readonly job: RenderJob;
 }> = ({job}) => {
 	if (job.status !== 'running') {
 		throw new Error('should not have rendered this component');

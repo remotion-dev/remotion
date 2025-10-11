@@ -1,6 +1,6 @@
 import {Gif} from '@remotion/gif';
-import {useEffect, useRef} from 'react';
-import {Sequence, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {useRef} from 'react';
+import {Sequence, staticFile, useVideoConfig} from 'remotion';
 
 const GifTest: React.FC = () => {
 	const {width, height} = useVideoConfig();
@@ -9,17 +9,6 @@ const GifTest: React.FC = () => {
 	const ref2 = useRef<HTMLCanvasElement>(null);
 	const ref3 = useRef<HTMLCanvasElement>(null);
 	const ref4 = useRef<HTMLCanvasElement>(null);
-	const frame = useCurrentFrame();
-
-	useEffect(() => {
-		console.log(
-			frame,
-			ref1.current?.tagName ?? 'Not rendered',
-			ref2.current?.tagName ?? 'Not rendered',
-			ref3.current?.tagName ?? 'Not rendered',
-			ref4.current?.tagName ?? 'Not rendered',
-		);
-	}, [frame]);
 
 	return (
 		<div style={{flex: 1, backgroundColor: 'black'}}>

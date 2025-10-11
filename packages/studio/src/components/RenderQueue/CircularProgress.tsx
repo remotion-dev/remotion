@@ -12,7 +12,7 @@ const container: React.CSSProperties = {
 };
 
 export const CircularProgress: React.FC<{
-	progress: number;
+	readonly progress: number;
 }> = ({progress}) => {
 	const r = RENDER_STATUS_INDICATOR_SIZE / 2 - STROKE_WIDTH;
 	const circumference = r * Math.PI * 2;

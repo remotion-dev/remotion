@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import type {
 	CompProps,
+	LogLevel,
 	PlayableMediaTag,
 	SetTimelineContextValue,
 	TimelineContextValue,
@@ -26,9 +27,10 @@ import type {PosterFillMode, RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
 import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import {playerCssClassname} from './player-css-classname.js';
 import type {PlayerRef} from './player-methods.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
+import {acknowledgeRemotionLicenseMessage} from './use-remotion-license-acknowledge.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 import {validateInOutFrames} from './utils/validate-in-out-frame.js';
 import {validateInitialFrame} from './utils/validate-initial-frame.js';
@@ -71,6 +73,7 @@ export type PlayerProps<
 	readonly showPosterWhenEnded?: boolean;
 	readonly showPosterWhenUnplayed?: boolean;
 	readonly showPosterWhenBuffering?: boolean;
+	readonly showPosterWhenBufferingAndPaused?: boolean;
 	readonly inFrame?: number | null;
 	readonly outFrame?: number | null;
 	readonly initiallyShowControls?: number | boolean;
@@ -87,6 +90,12 @@ export type PlayerProps<
 	readonly hideControlsWhenPointerDoesntMove?: boolean | number;
 	readonly overflowVisible?: boolean;
 	readonly browserMediaControlsBehavior?: BrowserMediaControlsBehavior;
+	readonly overrideInternalClassName?: string;
+	readonly logLevel?: LogLevel;
+	readonly noSuspense?: boolean;
+	readonly acknowledgeRemotionLicense?: boolean;
+	readonly audioLatencyHint?: AudioContextLatencyCategory;
+	readonly volumePersistenceKey?: string;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -132,6 +141,7 @@ const PlayerFn = <
 		showPosterWhenEnded,
 		showPosterWhenPaused,
 		showPosterWhenBuffering,
+		showPosterWhenBufferingAndPaused,
 		initialFrame,
 		renderPoster,
 		inFrame,
@@ -149,15 +159,18 @@ const PlayerFn = <
 		overflowVisible = false,
 		renderMuteButton,
 		browserMediaControlsBehavior: passedBrowserMediaControlsBehavior,
+		overrideInternalClassName,
+		logLevel = 'info',
+		noSuspense,
+		acknowledgeRemotionLicense,
+		audioLatencyHint = 'interactive',
+		volumePersistenceKey,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>,
 ) => {
 	if (typeof window !== 'undefined') {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		useLayoutEffect(() => {
-			window.remotion_isPlayer = true;
-		}, []);
+		window.remotion_isPlayer = true;
 	}
 
 	// @ts-expect-error
@@ -184,9 +197,18 @@ const PlayerFn = <
 		);
 	}
 
-	const component = Internals.useLazyComponent(
-		componentProps,
-	) as LazyExoticComponent<ComponentType<unknown>>;
+	useState(() =>
+		acknowledgeRemotionLicenseMessage(
+			Boolean(acknowledgeRemotionLicense),
+			logLevel,
+		),
+	);
+
+	const component = Internals.useLazyComponent({
+		compProps: componentProps,
+		componentName: 'Player',
+		noSuspense: Boolean(noSuspense),
+	}) as LazyExoticComponent<ComponentType<unknown>>;
 
 	validateInitialFrame({initialFrame, durationInFrames});
 
@@ -315,6 +337,17 @@ const PlayerFn = <
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
 
+	useState(() => {
+		Internals.playbackLogging({
+			logLevel,
+			message: `[player] Mounting <Player>. User agent = ${
+				typeof navigator === 'undefined' ? 'server' : navigator.userAgent
+			}`,
+			tag: 'player',
+			mountTime: Date.now(),
+		});
+	});
+
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
@@ -342,11 +375,11 @@ const PlayerFn = <
 			// Inject CSS only on client, and also only after the Player has hydrated
 			Internals.CSSUtils.injectCSS(
 				Internals.CSSUtils.makeDefaultPreviewCSS(
-					`.${PLAYER_CSS_CLASSNAME}`,
+					`.${playerCssClassname(overrideInternalClassName)}`,
 					'#fff',
 				),
 			);
-		}, []);
+		}, [overrideInternalClassName]);
 	}
 
 	const actualInputProps = useMemo(() => inputProps ?? {}, [inputProps]);
@@ -371,6 +404,9 @@ const PlayerFn = <
 				fps={fps}
 				numberOfSharedAudioTags={numberOfSharedAudioTags}
 				initiallyMuted={initiallyMuted}
+				logLevel={logLevel}
+				audioLatencyHint={audioLatencyHint}
+				volumePersistenceKey={volumePersistenceKey}
 			>
 				<Internals.Timeline.SetTimelineContext.Provider
 					value={setTimelineContextValue}
@@ -402,6 +438,9 @@ const PlayerFn = <
 							showPosterWhenEnded={Boolean(showPosterWhenEnded)}
 							showPosterWhenPaused={Boolean(showPosterWhenPaused)}
 							showPosterWhenBuffering={Boolean(showPosterWhenBuffering)}
+							showPosterWhenBufferingAndPaused={Boolean(
+								showPosterWhenBufferingAndPaused,
+							)}
 							renderPoster={renderPoster}
 							inFrame={inFrame ?? null}
 							outFrame={outFrame ?? null}
@@ -420,6 +459,8 @@ const PlayerFn = <
 							}
 							overflowVisible={overflowVisible}
 							browserMediaControlsBehavior={browserMediaControlsBehavior}
+							overrideInternalClassName={overrideInternalClassName ?? undefined}
+							noSuspense={Boolean(noSuspense)}
 						/>
 					</PlayerEmitterProvider>
 				</Internals.Timeline.SetTimelineContext.Provider>
@@ -435,11 +476,8 @@ const forward = forwardRef as <T, P = {}>(
 	) => React.ReactElement | null,
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
-/**
- * @description Creates and renders a customizable video player with various interactive controls for a React application.
- * @see [Documentation](https://remotion.dev/docs/player/player)
- * @param {PlayerProps<Schema, Props>} props The properties for configuring the player, including video specifics and UI controls.
- * @param {MutableRefObject<PlayerRef>} ref Reference to the player for controlling playback, volume, and other aspects.
- * @returns {JSX.Element} The rendered video player component.
+/*
+ * @description A component which can be rendered in a regular React App to display a Remotion video.
+ * @see [Documentation](https://www.remotion.dev/docs/player/player)
  */
 export const Player = forward(PlayerFn);

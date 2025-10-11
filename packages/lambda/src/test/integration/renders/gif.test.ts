@@ -1,26 +1,23 @@
 import {RenderInternals} from '@remotion/renderer';
+import {expect, test} from 'bun:test';
 import {createWriteStream, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {afterAll, expect, test} from 'vitest';
 import {simulateLambdaRender} from '../simulate-lambda-render';
-
-afterAll(async () => {
-	await RenderInternals.killAllBrowsers();
-});
 
 test('Should make a distributed GIF', async () => {
 	const {file, close} = await simulateLambdaRender({
 		codec: 'gif',
 		composition: 'framer',
-		// 61 frames, which is uneven, to challenge the frame planner
-		frameRange: [0, 60],
+		// 25 frames, which is uneven, to challenge the frame planner
+		frameRange: [0, 24],
 		framesPerLambda: 8,
 		imageFormat: 'png',
-		logLevel: 'error',
+		logLevel: 'verbose',
 		outName: 'out.gif',
 		timeoutInMilliseconds: 12000,
 		everyNthFrame: 2,
+		scale: 0.25,
 		region: 'eu-central-1',
 	});
 
@@ -38,7 +35,7 @@ test('Should make a distributed GIF', async () => {
 		cancelSignal: undefined,
 	});
 	unlinkSync(out);
-	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);
+	expect(probe.stderr).toMatch(/Video: gif, bgra, 270x270/);
 
 	await close();
 }, 90000);

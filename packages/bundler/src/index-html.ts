@@ -1,11 +1,10 @@
 import type {
 	GitSource,
-	InstallablePackage,
 	PackageManager,
 	RenderDefaults,
 } from '@remotion/studio-shared';
-import type {StaticFile} from 'remotion';
-import {Internals} from 'remotion';
+import type {LogLevel, StaticFile} from 'remotion';
+import {Internals, VERSION} from 'remotion';
 
 export const indexHtml = ({
 	publicPath,
@@ -26,6 +25,9 @@ export const indexHtml = ({
 	projectName,
 	installedDependencies,
 	packageManager,
+	audioLatencyHint,
+	logLevel,
+	mode,
 }: {
 	staticHash: string;
 	publicPath: string;
@@ -36,6 +38,7 @@ export const indexHtml = ({
 	studioServerCommand: string | null;
 	renderQueue: unknown | null;
 	numberOfAudioTags: number;
+	audioLatencyHint: AudioContextLatencyCategory;
 	publicFiles: StaticFile[];
 	publicFolderExists: string | null;
 	includeFavicon: boolean;
@@ -43,8 +46,10 @@ export const indexHtml = ({
 	renderDefaults: RenderDefaults | undefined;
 	gitSource: GitSource | null;
 	projectName: string;
-	installedDependencies: InstallablePackage[] | null;
+	installedDependencies: string[] | null;
 	packageManager: PackageManager | 'unknown';
+	logLevel: LogLevel;
+	mode: 'dev' | 'bundle';
 }) =>
 	// Must setup remotion_editorName and remotion.remotion_projectName before bundle.js is loaded
 	`
@@ -53,7 +58,6 @@ export const indexHtml = ({
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" />
 		${
 			includeFavicon
 				? `<link id="__remotion_favicon" rel="icon" type="image/png" href="${publicPath}favicon.ico" />`
@@ -63,6 +67,8 @@ export const indexHtml = ({
 	</head>
 	<body>
 		<script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
+		<script>window.remotion_audioLatencyHint = "${audioLatencyHint}";</script>
+		${mode === 'dev' ? `<script>window.remotion_logLevel = "${logLevel}";</script>` : ''}
 		<script>window.remotion_staticBase = "${staticHash}";</script>
 		${
 			editorName
@@ -112,6 +118,10 @@ export const indexHtml = ({
 		<script>window.remotion_publicFolderExists = ${
 			publicFolderExists ? `"${publicFolderExists}"` : 'null'
 		};</script>
+		<script>
+				window.siteVersion = '11';
+				window.remotion_version = '${VERSION}';
+		</script>
 		
 		<div id="video-container"></div>
 		<div id="${Internals.REMOTION_STUDIO_CONTAINER_ELEMENT}"></div>

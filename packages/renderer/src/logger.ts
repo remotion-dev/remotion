@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {chalk} from './chalk';
 import {isColorSupported} from './chalk/is-color-supported';
 import type {LogLevel} from './log-level';
@@ -25,38 +26,82 @@ export const secondverboseTag = (str: string) => {
 };
 
 export const Log = {
+	formatLogs: (
+		logLevel: LogLevel,
+		options: VerboseLogOptions,
+		args: Parameters<typeof console.log>,
+	) => {
+		return [
+			options.indent ? INDENT_TOKEN : null,
+			options.tag ? verboseTag(options.tag) : null,
+		]
+			.filter(truthy)
+			.concat(
+				args.map((a) => {
+					if (logLevel === 'warn') {
+						return chalk.yellow(a);
+					}
+
+					if (logLevel === 'error') {
+						return chalk.red(a);
+					}
+
+					if (logLevel === 'verbose' || logLevel === 'trace') {
+						return chalk.gray(a);
+					}
+
+					return a;
+				}),
+			);
+	},
+	trace: (
+		options: VerboseLogOptions,
+		...args: Parameters<typeof console.log>
+	) => {
+		writeInRepro('trace', ...args);
+		if (isEqualOrBelowLogLevel(options.logLevel, 'trace')) {
+			if (args.length === 0) {
+				// Lambda will print "undefined" otherwise
+				return process.stdout.write('\n');
+			}
+
+			return console.log(...Log.formatLogs('trace', options, args));
+		}
+	},
 	verbose: (
 		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
 		writeInRepro('verbose', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'verbose')) {
-			return console.log(
-				...[
-					options.indent ? INDENT_TOKEN : null,
-					options.tag ? verboseTag(options.tag) : null,
-				]
-					.filter(truthy)
-					.concat(args.map((a) => chalk.gray(a))),
-			);
+			if (args.length === 0) {
+				// Lambda will print "undefined" otherwise
+				return process.stdout.write('\n');
+			}
+
+			return console.log(...Log.formatLogs('verbose', options, args));
 		}
 	},
 	info: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
 		writeInRepro('info', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'info')) {
-			return console.log(
-				...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args),
-			);
+			if (args.length === 0) {
+				// Lambda will print "undefined" otherwise
+				return process.stdout.write('\n');
+			}
+
+			return console.log(...Log.formatLogs('info', options, args));
 		}
 	},
 	warn: (options: LogOptions, ...args: Parameters<typeof console.log>) => {
 		writeInRepro('warn', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'warn')) {
-			return console.warn(
-				...[options.indent ? chalk.yellow(INDENT_TOKEN) : null]
-					.filter(truthy)
-					.concat(args.map((a) => chalk.yellow(a))),
-			);
+			if (args.length === 0) {
+				// Lambda will print "undefined" otherwise
+				return process.stdout.write('\n');
+			}
+
+			return console.warn(...Log.formatLogs('warn', options, args));
 		}
 	},
 	error: (
@@ -65,14 +110,12 @@ export const Log = {
 	) => {
 		writeInRepro('error', ...args);
 		if (isEqualOrBelowLogLevel(options.logLevel, 'error')) {
-			return console.error(
-				...[
-					options.indent ? INDENT_TOKEN : null,
-					options.tag ? verboseTag(options.tag) : null,
-				]
-					.filter(truthy)
-					.concat(args.map((a) => chalk.red(a))),
-			);
+			if (args.length === 0) {
+				// Lambda will print "undefined" otherwise
+				return process.stdout.write('\n');
+			}
+
+			return console.error(...Log.formatLogs('error', options, args));
 		}
 	},
 };

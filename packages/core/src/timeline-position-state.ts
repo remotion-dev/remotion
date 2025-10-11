@@ -1,10 +1,10 @@
 import type {MutableRefObject} from 'react';
 import {createContext, useContext, useMemo} from 'react';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideo} from './use-video.js';
 
 export type PlayableMediaTag = {
-	play: () => void;
+	play: (reason: string) => void;
 	id: string;
 };
 
@@ -80,6 +80,7 @@ export const getFrameForComposition = (composition: string) => {
 export const useTimelinePosition = (): number => {
 	const videoConfig = useVideo();
 	const state = useContext(TimelineContext);
+	const env = useRemotionEnvironment();
 
 	if (!videoConfig) {
 		return typeof window === 'undefined'
@@ -89,9 +90,7 @@ export const useTimelinePosition = (): number => {
 
 	const unclamped =
 		state.frame[videoConfig.id] ??
-		(getRemotionEnvironment().isPlayer
-			? 0
-			: getFrameForComposition(videoConfig.id));
+		(env.isPlayer ? 0 : getFrameForComposition(videoConfig.id));
 
 	return Math.min(videoConfig.durationInFrames - 1, unclamped);
 };

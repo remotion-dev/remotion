@@ -3,76 +3,77 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mukta',
 	importName: 'Mukta',
-	version: 'v14',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Mukta:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		devanagari:
 			'U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B09',
 		'latin-ext':
-			'U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
+			'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
 		latin:
-			'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+			'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
 	},
 	fonts: {
 		normal: {
 			'200': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbEOjGmc8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEOjGmc8WDm7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbEOjGmT8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEOjGmT8WDm7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbEOjGmd8WA.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEOjGmd8WA.woff2',
 			},
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbFqj2mc8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbFqj2mc8WDm7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbFqj2mT8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbFqj2mT8WDm7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbFqj2md8WA.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbFqj2md8WA.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWKBXyXfDDVXbnArXyi0A.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWKBXyXfDDVXbnArXyi0A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v14/iJWKBXyXfDDVXbnPrXyi0A.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWKBXyXfDDVXbnPrXyi0A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWKBXyXfDDVXbnBrXw.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWKBXyXfDDVXbnBrXw.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbEyjmmc8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEyjmmc8WDm7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbEyjmmT8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEyjmmT8WDm7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbEyjmmd8WA.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEyjmmd8WA.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbEeiWmc8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEeiWmc8WDm7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbEeiWmT8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEeiWmT8WDm7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbEeiWmd8WA.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEeiWmd8WA.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbF6iGmc8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbF6iGmc8WDm7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbF6iGmT8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbF6iGmT8WDm7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbF6iGmd8WA.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbF6iGmd8WA.woff2',
 			},
 			'800': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbFmi2mc8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbFmi2mc8WDm7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbFmi2mT8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbFmi2mT8WDm7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v14/iJWHBXyXfDDVXbFmi2md8WA.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbFmi2md8WA.woff2',
 			},
 		},
 	},
+	subsets: ['devanagari', 'latin', 'latin-ext'],
 });
 
 export const fontFamily = 'Mukta' as const;
@@ -90,6 +91,7 @@ export const loadFont = <T extends keyof Variants>(
 		weights?: Variants[T]['weights'][];
 		subsets?: Variants[T]['subsets'][];
 		document?: Document;
+		ignoreTooManyRequestsWarning?: boolean;
 	},
 ) => {
 	return loadFonts(getInfo(), style, options);

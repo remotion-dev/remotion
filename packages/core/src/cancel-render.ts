@@ -34,9 +34,9 @@ const isErrorLike = (err: unknown): boolean => {
 	return true;
 };
 
-/**
- * @description When you invoke this function, Remotion will stop rendering all the frames without any retries
- * @see [Documentation](https://www.remotion.dev/docs/cancel-render)
+/*
+ * @description When you invoke this function, Remotion will stop rendering all the frames without any retries.
+ * @see [Documentation](https://remotion.dev/docs/cancel-render)
  */
 export function cancelRender(err: unknown): never {
 	let error: Error;

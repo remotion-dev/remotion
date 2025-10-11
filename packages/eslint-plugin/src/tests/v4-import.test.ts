@@ -5,7 +5,7 @@ const ruleTester = new ESLintUtils.RuleTester({
 	parser: '@typescript-eslint/parser',
 });
 
-ruleTester.run('no-mp4-import', rule, {
+ruleTester.run('v4-import', rule, {
 	valid: [
 		'import {interpolate} from "remotion"',
 		'import {Config} from "@remotion/cli/config"',

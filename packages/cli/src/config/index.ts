@@ -31,6 +31,7 @@ import {getStillFrame, setStillFrame} from './still-frame';
 import type {WebpackConfiguration} from '@remotion/bundler';
 import type {
 	BrowserExecutable,
+	ChromeMode,
 	CodecOrUndefined,
 	ColorSpace,
 	Crf,
@@ -40,6 +41,7 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {setBrowserExecutable} from './browser-executable';
@@ -95,9 +97,11 @@ const {
 	jpegQualityOption,
 	enforceAudioOption,
 	overwriteOption,
+	chromeModeOption,
 	mutedOption,
 	videoCodecOption,
 	colorSpaceOption,
+	disallowParallelEncodingOption,
 	deleteAfterOption,
 	folderExpiryOption,
 	enableMultiprocessOnLinuxOption,
@@ -117,6 +121,10 @@ const {
 	forSeamlessAacConcatenationOption,
 	audioCodecOption,
 	publicPathOption,
+	hardwareAccelerationOption,
+	audioLatencyHintOption,
+	enableCrossSiteIsolationOption,
+	imageSequencePatternOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -169,7 +177,7 @@ declare global {
 		 */
 		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
 		/**
-		 * Set number of shared audio tags. https://www.remotion.dev/docs/player/autoplay#use-the-numberofsharedaudiotags-property
+		 * Set number of shared audio tags. https://www.remotion.dev/docs/player/autoplay#using-the-numberofsharedaudiotags-prop
 		 * @param numberOfAudioTags
 		 * @default 0
 		 */
@@ -189,13 +197,13 @@ declare global {
 		readonly setShouldOpenBrowser: (should: boolean) => void;
 		/**
 		 * Set the log level.
-		 * Acceptable values: 'error' | 'warning' | 'info' | 'verbose'
+		 * Acceptable values: 'error' | 'warning' | 'info' | 'verbose' | 'trace'
 		 * Default value: 'info'
 		 *
 		 * Set this to 'verbose' to get browser logs and other IO.
 		 */
 		readonly setLevel: (
-			newLogLevel: 'verbose' | 'info' | 'warn' | 'error',
+			newLogLevel: 'trace' | 'verbose' | 'info' | 'warn' | 'error',
 		) => void;
 		/**
 		 * Specify executable path for the browser to use.
@@ -425,6 +433,15 @@ declare global {
 		readonly setVideoBitrate: (bitrate: string | null) => void;
 
 		/**
+		 * Set the audio latency hint that the Studio will
+		 * use when playing back audio
+		 * Default: 'interactive'
+		 */
+		readonly setAudioLatencyHint: (
+			audioLatencyHint: AudioContextLatencyCategory | null,
+		) => void;
+
+		/**
 		 * Set a maximum bitrate to be passed to FFmpeg.
 		 */
 		readonly setEncodingMaxRate: (bitrate: string | null) => void;
@@ -440,6 +457,15 @@ declare global {
 		readonly setColorSpace: (colorSpace: ColorSpace) => void;
 
 		/**
+		 * Disallows the renderer from doing rendering frames and encoding at the same time.
+		 * This makes the rendering process more memory-efficient, but possibly slower.
+		 * Default: false
+		 */
+		readonly setDisallowParallelEncoding: (
+			disallowParallelEncoding: boolean,
+		) => void;
+
+		/**
 		 * Removes the --single-process flag that gets passed to
 			Chromium on Linux by default. This will make the render faster because
 			multiple processes can be used, but may cause issues with some Linux
@@ -453,6 +479,13 @@ declare global {
 		 * Whether the Remotion Studio should play a beep sound when a render has finished.
 		 */
 		readonly setBeepOnFinish: (beepOnFinish: boolean) => void;
+
+		/**
+		 * Enable Cross-Site Isolation in the Studio (Sets Cross-Origin-Opener-Policy and Cross-Origin-Embedder-Policy HTTP headers)
+		 */
+		readonly setEnableCrossSiteIsolation: (
+			enableCrossSiteIsolation: boolean,
+		) => void;
 
 		/**
 		 * Collect information that you can submit to Remotion if asked for a reproduction.
@@ -471,6 +504,11 @@ declare global {
 		 * Prefer lossless audio encoding. Default: false
 		 */
 		readonly setPublicPath: (publicPath: string | null) => void;
+		/**
+		 * Set the pattern for naming image sequence files. Supports [frame] and [ext] replacements.
+		 * @param pattern The pattern string, e.g. 'frame_[frame].[ext]'.
+		 */
+		readonly setImageSequencePattern: (pattern: string | null) => void;
 	}
 }
 
@@ -497,7 +535,20 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setBufferStateDelayInMilliseconds: (delay: number | null) => void;
 
+		/**
+		 * Metadata to be embedded into the output video file.
+		 */
 		setMetadata: (metadata: Record<string, string>) => void;
+		/**
+		 *
+		 */
+		setHardwareAcceleration: (
+			hardwareAccelerationOption: HardwareAccelerationOption,
+		) => void;
+		/**
+		 * Choose between using Chrome Headless Shell or Chrome for Testing
+		 */
+		setChromeMode: (chromeMode: ChromeMode) => void;
 		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
@@ -604,6 +655,7 @@ export const Config: FlatConfig = {
 	setEnforceAudioTrack: enforceAudioOption.setConfig,
 	setOutputLocation,
 	setOverwriteOutput: overwriteOption.setConfig,
+	setChromeMode: chromeModeOption.setConfig,
 	setPixelFormat,
 	setCodec: videoCodecOption.setConfig,
 	setCrf: crfOption.setConfig,
@@ -612,6 +664,7 @@ export const Config: FlatConfig = {
 	setX264Preset: x264Option.setConfig,
 	setAudioBitrate: audioBitrateOption.setConfig,
 	setVideoBitrate: videoBitrateOption.setConfig,
+	setAudioLatencyHint: audioLatencyHintOption.setConfig,
 	setForSeamlessAacConcatenation: forSeamlessAacConcatenationOption.setConfig,
 	overrideHeight,
 	overrideWidth,
@@ -622,6 +675,7 @@ export const Config: FlatConfig = {
 	},
 	setDeleteAfter: deleteAfterOption.setConfig,
 	setColorSpace: colorSpaceOption.setConfig,
+	setDisallowParallelEncoding: disallowParallelEncodingOption.setConfig,
 	setBeepOnFinish: beepOnFinishOption.setConfig,
 	setEnableFolderExpiry: folderExpiryOption.setConfig,
 	setRepro: reproOption.setConfig,
@@ -629,6 +683,9 @@ export const Config: FlatConfig = {
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
 	setPreferLosslessAudio: preferLosslessOption.setConfig,
 	setPublicPath: publicPathOption.setConfig,
+	setImageSequencePattern: imageSequencePatternOption.setConfig,
+	setHardwareAcceleration: hardwareAccelerationOption.setConfig,
+	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
 };
 
 export const ConfigInternals = {

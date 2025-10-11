@@ -28,17 +28,14 @@ Via Node.JS:
 ## Example
 
 ```ts
-// @module: esnext
-// @target: es2017
+import {deployFunction} from '@remotion/lambda';
 
-import { deployFunction } from "@remotion/lambda";
-
-const { functionName } = await deployFunction({
-  region: "us-east-1",
+const {functionName} = await deployFunction({
+  region: 'us-east-1',
   timeoutInSeconds: 120,
   memorySizeInMb: 1024,
   createCloudWatchLogGroup: true,
-  architecture: "x86_64",
+  architecture: 'x86_64',
 });
 console.log(functionName);
 ```

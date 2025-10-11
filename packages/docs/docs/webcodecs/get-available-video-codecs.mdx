@@ -1,0 +1,26 @@
+---
+image: /generated/articles-docs-webcodecs-get-available-video-codecs.png
+id: get-available-video-codecs
+title: getAvailableVideoCodecs()
+slug: /webcodecs/get-available-video-codecs
+crumb: '@remotion/webcodecs'
+---
+
+:::warning
+[We are phasing out Remotion WebCodecs and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
+Given a container, get a list of video codecs that the container can hold.  
+This does not mean that a any video stream of this codec can be put into the container.  
+Use [`canReencodeVideoTrack()`](/docs/webcodecs/can-reencode-video-track) and [`canCopyVideoTrack()`](/docs/webcodecs/can-copy-video-track) to determine this.
+
+```tsx twoslash title="Get available video codecs for a container"
+import {getAvailableVideoCodecs} from '@remotion/webcodecs';
+
+getAvailableVideoCodecs({container: 'webm'}); // ['vp8', 'vp9']
+```
+
+## See also
+
+- [Track Transformation](/docs/webcodecs/track-transformation)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/get-available-video-codecs.ts)

@@ -1,5 +1,5 @@
 import {forwardRef, useEffect, useRef, useState} from 'react';
-import {continueRender, delayRender} from 'remotion';
+import {Internals, useDelayRender} from 'remotion';
 import {Canvas} from './canvas';
 import {volatileGifCache} from './gif-cache';
 import {isCorsError} from './is-cors-error';
@@ -24,6 +24,7 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 		ref,
 	) => {
 		const resolvedSrc = resolveGifSource(src);
+		const {delayRender, continueRender} = useDelayRender();
 		const [state, update] = useState<GifState>(() => {
 			const parsedGif = volatileGifCache.get(resolvedSrc);
 
@@ -40,15 +41,17 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 		});
 		const [error, setError] = useState<Error | null>(null);
 
-		const [id] = useState(() =>
+		const [renderHandle] = useState(() =>
 			delayRender(`Rendering <Gif/> with src="${resolvedSrc}"`),
 		);
 
+		const logLevel = Internals.useLogLevel();
+
 		useEffect(() => {
 			return () => {
-				continueRender(id);
+				continueRender(renderHandle);
 			};
-		}, [id]);
+		}, [renderHandle, continueRender]);
 
 		const index = useCurrentGifIndex({
 			delays: state.delays,
@@ -66,20 +69,34 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			let aborted = false;
 			const newHandle = delayRender('Loading <Gif /> with src=' + resolvedSrc);
 
+			Internals.Log.verbose(
+				{logLevel, tag: null},
+				'Loading GIF with source',
+				resolvedSrc,
+			);
+			const time = Date.now();
 			parseGif({controller, src: resolvedSrc})
 				.then((parsed) => {
+					Internals.Log.verbose(
+						{logLevel, tag: null},
+						'Parsed GIF in',
+						Date.now() - time,
+						'ms',
+					);
 					currentOnLoad.current?.(parsed);
 					update(parsed);
 					volatileGifCache.set(resolvedSrc, parsed);
 					done = true;
 					continueRender(newHandle);
-					continueRender(id);
+					continueRender(renderHandle);
 				})
 				.catch((err) => {
 					if (aborted) {
 						continueRender(newHandle);
 						return;
 					}
+
+					Internals.Log.error({logLevel, tag: null}, 'Failed to load GIF', err);
 
 					if (currentOnError.current) {
 						currentOnError.current(err);
@@ -95,11 +112,12 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 				}
 
 				continueRender(newHandle);
+				continueRender(renderHandle);
 			};
-		}, [id, resolvedSrc]);
+		}, [renderHandle, logLevel, resolvedSrc, delayRender, continueRender]);
 
 		if (error) {
-			console.error(error.stack);
+			Internals.Log.error({logLevel, tag: null}, error.stack);
 			if (isCorsError(error)) {
 				throw new Error(
 					`Failed to render GIF with source ${src}: "${error.message}". You must enable CORS for this URL.`,

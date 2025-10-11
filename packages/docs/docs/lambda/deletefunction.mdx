@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-deletefunction.png
 id: deletefunction
 title: deleteFunction()
 slug: /lambda/deletefunction
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Deletes a deployed Lambda function based on its name.
@@ -13,18 +13,15 @@ To retrieve a list of functions, call [`getFunctions()`](/docs/lambda/getfunctio
 ## Example
 
 ```ts twoslash
-// @module: esnext
-// @target: es2017
-
-import { deleteFunction, getFunctions } from "@remotion/lambda";
+import {deleteFunction, getFunctions} from '@remotion/lambda';
 
 const functions = await getFunctions({
-  region: "us-east-1",
+  region: 'us-east-1',
   compatibleOnly: false,
 });
 for (const fn of functions) {
   await deleteFunction({
-    region: "us-east-1",
+    region: 'us-east-1',
     functionName: fn.functionName,
   });
 }

@@ -6,10 +6,17 @@ import type {
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {VideoConfig} from 'remotion/no-react';
-import type {Await} from './await';
-import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './still';
+import type {
+	Await,
+	CloudProvider,
+	ProviderSpecifics,
+	VideoConfig,
+} from '@remotion/serverless-client';
+import {
+	validateDimension,
+	validateDurationInFrames,
+	validateFps,
+} from './validate';
 
 type ValidateCompositionOptions<Provider extends CloudProvider> = {
 	serveUrl: string;
@@ -25,6 +32,8 @@ type ValidateCompositionOptions<Provider extends CloudProvider> = {
 	logLevel: LogLevel;
 	server: RemotionServer | undefined;
 	offthreadVideoCacheSizeInBytes: number | null;
+	mediaCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	onBrowserDownload: OnBrowserDownload;
 	onServeUrlVisited: () => void;
 	providerSpecifics: ProviderSpecifics<Provider>;
@@ -47,6 +56,8 @@ export const validateComposition = async <Provider extends CloudProvider>({
 	onBrowserDownload,
 	onServeUrlVisited,
 	providerSpecifics,
+	offthreadVideoThreads,
+	mediaCacheSizeInBytes,
 }: ValidateCompositionOptions<Provider>): Promise<VideoConfig> => {
 	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
@@ -63,14 +74,29 @@ export const validateComposition = async <Provider extends CloudProvider>({
 		onBrowserLog: null,
 		server,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		binariesDirectory: null,
 		onBrowserDownload,
 		onServeUrlVisited,
+		chromeMode: 'headless-shell',
+		mediaCacheSizeInBytes,
 	});
 
-	return {
+	const videoConfig: VideoConfig = {
 		...comp,
 		height: forceHeight ?? comp.height,
 		width: forceWidth ?? comp.width,
 	};
+
+	const reason = `of the "<Composition />" component with the id "${composition}"`;
+
+	validateDurationInFrames(comp.durationInFrames, {
+		component: reason,
+		allowFloats: false,
+	});
+	validateFps(comp.fps, reason, false);
+	validateDimension(comp.height, 'height', reason);
+	validateDimension(comp.width, 'width', reason);
+
+	return videoConfig;
 };

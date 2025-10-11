@@ -9,7 +9,7 @@ const container: React.CSSProperties = {
 };
 
 export const ColorDot: React.FC<{
-	color: string;
+	readonly color: string;
 }> = ({color}) => {
 	const style = useMemo(() => {
 		return {

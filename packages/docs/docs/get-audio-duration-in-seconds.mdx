@@ -2,8 +2,12 @@
 image: /generated/articles-docs-get-audio-duration-in-seconds.png
 title: getAudioDurationInSeconds()
 id: get-audio-duration-in-seconds
-crumb: "@remotion/media-utils"
+crumb: '@remotion/media-utils'
 ---
+
+:::warning Deprecated
+This function has been deprecated. Use [`parseMedia()`](/docs/media-parser/parse-media) instead, which is faster and supports more formats.
+:::
 
 _Part of the `@remotion/media-utils` package of helper functions._
 
@@ -24,23 +28,17 @@ A string pointing to an audio asset
 ## Example
 
 ```tsx twoslash
-// @module: ESNext
-// @target: ESNext
-import { useCallback, useEffect } from "react";
-import { staticFile } from "remotion";
+import {useCallback, useEffect} from 'react';
+import {staticFile} from 'remotion';
 // ---cut---
-import { getAudioDurationInSeconds } from "@remotion/media-utils";
-import music from "./music.mp3";
+import {getAudioDurationInSeconds} from '@remotion/media-utils';
+import music from './music.mp3';
 
 const MyComp: React.FC = () => {
   const getDuration = useCallback(async () => {
-    const publicFile = await getAudioDurationInSeconds(
-      staticFile("voiceover.wav"),
-    ); // 33.221
+    const publicFile = await getAudioDurationInSeconds(staticFile('voiceover.wav')); // 33.221
     const imported = await getAudioDurationInSeconds(music); // 127.452
-    const remote = await getAudioDurationInSeconds(
-      "https://example.com/remote-audio.aac",
-    ); // 50.24
+    const remote = await getAudioDurationInSeconds('https://example.com/remote-audio.aac'); // 50.24
   }, []);
 
   useEffect(() => {

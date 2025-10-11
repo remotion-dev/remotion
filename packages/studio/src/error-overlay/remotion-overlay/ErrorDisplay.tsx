@@ -2,9 +2,11 @@ import {getLocationFromBuildError} from '@remotion/studio-shared';
 import React, {useMemo} from 'react';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
 import {Spacing} from '../../components/layout';
+import {getRoute} from '../../helpers/url-state';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
 import {CalculateMetadataErrorExplainer} from './CalculateMetadataErrorExplainer';
+import {CompositionIdsDropdown} from './CompositionIdsDropdown';
 import {ErrorTitle} from './ErrorTitle';
 import {HelpLink} from './HelpLink';
 import {OpenInEditor} from './OpenInEditor';
@@ -27,11 +29,11 @@ const spacer: React.CSSProperties = {
 export type OnRetry = null | (() => void);
 
 export const ErrorDisplay: React.FC<{
-	display: ErrorRecord;
-	keyboardShortcuts: boolean;
-	onRetry: OnRetry;
-	canHaveDismissButton: boolean;
-	calculateMetadata: boolean;
+	readonly display: ErrorRecord;
+	readonly keyboardShortcuts: boolean;
+	readonly onRetry: OnRetry;
+	readonly canHaveDismissButton: boolean;
+	readonly calculateMetadata: boolean;
 }> = ({
 	display,
 	keyboardShortcuts,
@@ -39,13 +41,13 @@ export const ErrorDisplay: React.FC<{
 	canHaveDismissButton,
 	calculateMetadata,
 }) => {
+	const compositionIds = window?.remotion_seenCompositionIds ?? [];
 	const highestLineNumber = Math.max(
 		...display.stackFrames
 			.map((s) => s.originalScriptCode)
 			.flat(1)
 			.map((s) => s?.lineNumber ?? 0),
 	);
-
 	const message = useMemo(() => {
 		// Format compilation errors
 		const location = getLocationFromBuildError(display.error);
@@ -64,6 +66,12 @@ export const ErrorDisplay: React.FC<{
 
 	const helpLink = getHelpLink(message);
 
+	const getCurrentCompositionId = () => {
+		const route = getRoute();
+		const id = route.startsWith('/') ? route.slice(1) : route;
+		return compositionIds.includes(id) ? id : (compositionIds[0] ?? null);
+	};
+
 	return (
 		<div>
 			<ErrorTitle
@@ -72,6 +80,7 @@ export const ErrorDisplay: React.FC<{
 				message={message}
 				canHaveDismissButton={canHaveDismissButton}
 			/>
+
 			{helpLink ? (
 				<>
 					<HelpLink
@@ -86,6 +95,15 @@ export const ErrorDisplay: React.FC<{
 					<OpenInEditor
 						canHaveKeyboardShortcuts={keyboardShortcuts}
 						stack={display.stackFrames[0]}
+					/>
+					<div style={spacer} />
+				</>
+			) : null}
+			{compositionIds.length > 0 ? (
+				<>
+					<CompositionIdsDropdown
+						compositionIds={compositionIds}
+						currentId={getCurrentCompositionId()}
 					/>
 					<div style={spacer} />
 				</>

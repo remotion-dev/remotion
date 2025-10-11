@@ -24,8 +24,8 @@ const DESIRED_FONT_SIZE = 120;
 const HIGHLIGHT_COLOR = "#39E508";
 
 export const Page: React.FC<{
-  enterProgress: number;
-  page: TikTokPage;
+  readonly enterProgress: number;
+  readonly page: TikTokPage;
 }> = ({ enterProgress, page }) => {
   const frame = useCurrentFrame();
   const { width, fps } = useVideoConfig();

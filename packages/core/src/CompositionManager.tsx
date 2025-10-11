@@ -12,13 +12,18 @@ import type {
 	BaseMetadata,
 	CanvasContent,
 	CompositionManagerContext,
+	CompositionManagerSetters,
 } from './CompositionManagerContext.js';
-import {CompositionManager} from './CompositionManagerContext.js';
+import {
+	CompositionManager,
+	CompositionSetters,
+} from './CompositionManagerContext.js';
 import type {TFolder} from './Folder.js';
 import {RenderAssetManagerProvider} from './RenderAssetManager.js';
 import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
 import {SequenceManagerProvider} from './SequenceManager.js';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
+import type {DownloadBehavior} from './download-behavior.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 
 export type TComposition<
@@ -72,15 +77,6 @@ export type AnyCompMetadata = TCompMetadata<
 	Record<string, unknown>
 >;
 
-export type SmallTCompMetadata<
-	T extends AnyZodObject,
-	Props extends Record<string, unknown>,
-> = Pick<
-	TComposition<T, Props>,
-	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
-> &
-	Partial<Pick<TComposition<T, Props>, 'defaultProps'>>;
-
 type EnhancedTSequenceData =
 	| {
 			type: 'sequence';
@@ -124,6 +120,7 @@ export type TSequence = {
 	loopDisplay: LoopDisplay | undefined;
 	stack: string | null;
 	premountDisplay: number | null;
+	postmountDisplay: number | null;
 } & EnhancedTSequenceData;
 
 export type AudioOrVideoAsset = {
@@ -134,21 +131,43 @@ export type AudioOrVideoAsset = {
 	volume: number;
 	mediaFrame: number;
 	playbackRate: number;
-	allowAmplificationDuringRender: boolean;
-	toneFrequency: number | null;
+	toneFrequency: number;
 	audioStartFrame: number;
+	audioStreamIndex: number;
 };
+
+export type InlineAudioAsset = {
+	type: 'inline-audio';
+	id: string;
+	audio: number[];
+	frame: number;
+	timestamp: number;
+	duration: number;
+	toneFrequency: number;
+};
+
+type DiscriminatedArtifact =
+	| {
+			contentType: 'binary';
+			content: string;
+	  }
+	| {
+			contentType: 'text';
+			content: string;
+	  }
+	| {
+			contentType: 'thumbnail';
+	  };
 
 export type ArtifactAsset = {
 	type: 'artifact';
 	id: string;
 	filename: string;
-	content: string | Uint8Array;
 	frame: number;
-	binary: boolean;
-};
+	downloadBehavior: DownloadBehavior | null;
+} & DiscriminatedArtifact;
 
-export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset;
+export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset | InlineAudioAsset;
 
 export const compositionsRef = React.createRef<{
 	getCompositions: () => AnyComposition[];
@@ -157,23 +176,26 @@ export const compositionsRef = React.createRef<{
 export const CompositionManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly numberOfAudioTags: number;
-}> = ({children, numberOfAudioTags}) => {
+	readonly onlyRenderComposition: string | null;
+	readonly currentCompositionMetadata: BaseMetadata | null;
+	readonly audioLatencyHint: AudioContextLatencyCategory;
+}> = ({
+	children,
+	numberOfAudioTags,
+	onlyRenderComposition,
+	currentCompositionMetadata,
+	audioLatencyHint,
+}) => {
 	// Wontfix, expected to have
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<AnyComposition[]>([]);
 	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);
 	const [folders, setFolders] = useState<TFolder[]>([]);
 	const [canvasContent, setCanvasContent] = useState<CanvasContent | null>(
 		null,
 	);
-	const [currentCompositionMetadata, setCurrentCompositionMetadata] =
-		useState<BaseMetadata | null>(null);
 
 	const updateCompositions = useCallback(
-		(
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			updateComps: (comp: AnyComposition[]) => AnyComposition[],
-		) => {
+		(updateComps: (comp: AnyComposition[]) => AnyComposition[]) => {
 			setCompositions((comps) => {
 				const updated = updateComps(comps);
 				currentcompositionsRef.current = updated;
@@ -196,7 +218,7 @@ export const CompositionManagerProvider: React.FC<{
 
 				const value = [...comps, comp]
 					.slice()
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 					.sort((a, b) => a.nonce - b.nonce) as AnyComposition[];
 				return value;
 			});
@@ -268,43 +290,48 @@ export const CompositionManagerProvider: React.FC<{
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {
 			compositions,
+			folders,
+			currentCompositionMetadata,
+			canvasContent,
+		};
+	}, [compositions, folders, currentCompositionMetadata, canvasContent]);
+
+	const setters = useMemo((): CompositionManagerSetters => {
+		return {
 			registerComposition,
 			unregisterComposition,
-			folders,
 			registerFolder,
 			unregisterFolder,
-			currentCompositionMetadata,
-			setCurrentCompositionMetadata,
-			canvasContent,
 			setCanvasContent,
 			updateCompositionDefaultProps,
+			onlyRenderComposition,
 		};
 	}, [
-		compositions,
 		registerComposition,
-		unregisterComposition,
-		folders,
 		registerFolder,
+		unregisterComposition,
 		unregisterFolder,
-		currentCompositionMetadata,
-		canvasContent,
 		updateCompositionDefaultProps,
+		onlyRenderComposition,
 	]);
 
 	return (
 		<CompositionManager.Provider value={contextValue}>
-			<SequenceManagerProvider>
-				<RenderAssetManagerProvider>
-					<ResolveCompositionConfig>
-						<SharedAudioContextProvider
-							numberOfAudioTags={numberOfAudioTags}
-							component={composition?.component ?? null}
-						>
-							{children}
-						</SharedAudioContextProvider>
-					</ResolveCompositionConfig>
-				</RenderAssetManagerProvider>
-			</SequenceManagerProvider>
+			<CompositionSetters.Provider value={setters}>
+				<SequenceManagerProvider>
+					<RenderAssetManagerProvider>
+						<ResolveCompositionConfig>
+							<SharedAudioContextProvider
+								numberOfAudioTags={numberOfAudioTags}
+								component={composition?.component ?? null}
+								audioLatencyHint={audioLatencyHint}
+							>
+								{children}
+							</SharedAudioContextProvider>
+						</ResolveCompositionConfig>
+					</RenderAssetManagerProvider>
+				</SequenceManagerProvider>
+			</CompositionSetters.Provider>
 		</CompositionManager.Provider>
 	);
 };

@@ -5,16 +5,16 @@
 		"declaration": true,
 		"declarationMap": false,
 		"sourceMap": false,
-		"lib": ["es2018", "dom"],
+		"lib": ["es2023", "dom"],
 		"jsx": "react-jsx",
 		"noEmit": false,
 		"strict": true,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
-		"incremental": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"isolatedModules": true
 	},
 	"include": [],
 	"references": [
@@ -31,16 +31,10 @@
 			"path": "./packages/cli"
 		},
 		{
-			"path": "./packages/cli-autocomplete"
-		},
-		{
 			"path": "./packages/core"
 		},
 		{
 			"path": "./packages/create-video"
-		},
-		{
-			"path": "./packages/docs"
 		},
 		{
 			"path": "./packages/eslint-config"
@@ -67,7 +61,13 @@
 			"path": "./packages/openai-whisper"
 		},
 		{
+			"path": "./packages/mcp"
+		},
+		{
 			"path": "./packages/it-tests"
+		},
+		{
+			"path": "./packages/eslint-config-internal"
 		},
 		{
 			"path": "./packages/lambda"
@@ -103,6 +103,12 @@
 			"path": "./packages/player-example"
 		},
 		{
+			"path": "./packages/lambda-client"
+		},
+		{
+			"path": "./packages/licensing"
+		},
+		{
 			"path": "./packages/preload"
 		},
 		{
@@ -121,13 +127,13 @@
 			"path": "./packages/tailwind"
 		},
 		{
-			"path": "./packages/template-skia"
-		},
-		{
 			"path": "./packages/template-still"
 		},
 		{
 			"path": "./packages/template-blank"
+		},
+		{
+			"path": "./packages/template-render-server"
 		},
 		{
 			"path": "./packages/template-next-pages"
@@ -154,7 +160,7 @@
 			"path": "./packages/template-overlay"
 		},
 		{
-			"path": "./packages/template-remix"
+			"path": "./packages/template-react-router"
 		},
 		{
 			"path": "./packages/template-tiktok"
@@ -166,7 +172,13 @@
 			"path": "./packages/template-audiogram"
 		},
 		{
+			"path": "./packages/template-music-visualization"
+		},
+		{
 			"path": "./packages/template-stargazer"
+		},
+		{
+			"path": "./packages/template-recorder"
 		},
 		{
 			"path": "./packages/studio"
@@ -199,6 +211,9 @@
 			"path": "./packages/serverless"
 		},
 		{
+			"path": "./packages/serverless-client"
+		},
+		{
 			"path": "./packages/docusaurus-plugin"
 		},
 		{
@@ -211,7 +226,16 @@
 			"path": "./packages/convert"
 		},
 		{
+			"path": "./packages/example-videos"
+		},
+		{
 			"path": "./packages/zod-types"
+		},
+		{
+			"path": "./packages/media"
+		},
+		{
+			"path": "./packages/web-renderer"
 		}
 	]
 }

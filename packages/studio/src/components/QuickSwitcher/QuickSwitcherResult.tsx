@@ -58,8 +58,8 @@ const labelContainer: React.CSSProperties = {
 };
 
 export const QuickSwitcherResult: React.FC<{
-	result: TQuickSwitcherResult;
-	selected: boolean;
+	readonly result: TQuickSwitcherResult;
+	readonly selected: boolean;
 }> = ({result, selected}) => {
 	const [hovered, setIsHovered] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
@@ -94,7 +94,7 @@ export const QuickSwitcherResult: React.FC<{
 			commandCtrlKey: false,
 			event: 'keydown',
 			preventDefault: true,
-			// Input will be focused while sleection
+			// Input will be focused while selection
 			triggerIfInputFieldFocused: true,
 			keepRegisteredWhenNotHighestContext: false,
 		});

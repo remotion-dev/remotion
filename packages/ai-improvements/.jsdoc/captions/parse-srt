@@ -1,0 +1,4 @@
+/**
+ * @description Parses the contents of a SubRip file (.srt) and returns an array of Caption items.
+ * @see [Documentation](https://remotion.dev/docs/captions/parse-srt)
+ */

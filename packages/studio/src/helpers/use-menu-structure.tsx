@@ -2,6 +2,7 @@ import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {restartStudio} from '../api/restart-studio';
+import {askAiModalRef} from '../components/AskAiModal';
 import type {Menu} from '../components/Menu/MenuItem';
 import type {
 	ComboboxValue,
@@ -10,7 +11,6 @@ import type {
 import {showNotification} from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
-import {timeValueRef} from '../components/TimeValue';
 import {inOutHandles} from '../components/TimelineInOutToggle';
 import {Row} from '../components/layout';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
@@ -161,11 +161,15 @@ export const useMenuStructure = (
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 	} = useContext(SidebarContext);
-	const sizes = getUniqueSizes(size);
+	const sizes = useMemo(() => getUniqueSizes(size), [size]);
 
 	const isFullscreenSupported = checkFullscreenSupport();
 
 	const {remotion_packageManager} = window;
+
+	const sizePreselectIndex = sizes.findIndex(
+		(s) => String(size.size) === String(s.size),
+	);
 
 	const mobileLayout = useMobileLayout();
 	const structure = useMemo((): Structure => {
@@ -291,9 +295,7 @@ export const useMenuStructure = (
 						leftItem: null,
 						subMenu: {
 							leaveLeftSpace: true,
-							preselectIndex: sizes.findIndex(
-								(s) => String(size.size) === String(s.size),
-							),
+							preselectIndex: sizePreselectIndex,
 							items: sizes.map((newSize) => ({
 								id: String(newSize.size),
 								keyHint: newSize.size === 1 ? '0' : null,
@@ -588,12 +590,12 @@ export const useMenuStructure = (
 						leftItem: null,
 						onClick: () => {
 							closeMenu();
-							timeValueRef.current?.goToFrame();
+							Internals.timeValueRef.current?.goToFrame();
 						},
 						subMenu: null,
 						type: 'item' as const,
 						value: 'clear-marks',
-						quickSwitcherLabel: 'Timeline: Clear In and Out Mark',
+						quickSwitcherLabel: 'Timeline: Go to frame',
 					},
 					{
 						id: 'fullscreen-divider',
@@ -622,6 +624,20 @@ export const useMenuStructure = (
 				label: 'Tools',
 				leaveLeftPadding: false,
 				items: [
+					{
+						id: 'ask-ai',
+						value: 'ask-ai',
+						label: 'Ask AI',
+						onClick: () => {
+							closeMenu();
+							askAiModalRef.current?.toggle();
+						},
+						leftItem: null,
+						keyHint: `${cmdOrCtrlCharacter}+I`,
+						subMenu: null,
+						type: 'item' as const,
+						quickSwitcherLabel: 'Ask AI',
+					},
 					'EyeDropper' in window
 						? {
 								id: 'color-picker',
@@ -859,9 +875,10 @@ export const useMenuStructure = (
 
 		return struct;
 	}, [
-		remotion_packageManager,
 		readOnlyStudio,
-		mobileLayout,
+		closeMenu,
+		type,
+		sizePreselectIndex,
 		sizes,
 		editorZoomGestures,
 		editorShowRulers,
@@ -870,9 +887,8 @@ export const useMenuStructure = (
 		sidebarCollapsedStateRight,
 		checkerboard,
 		isFullscreenSupported,
-		closeMenu,
-		setSelectedModal,
-		type,
+		remotion_packageManager,
+		mobileLayout,
 		size.size,
 		setSize,
 		setEditorZoomGestures,
@@ -880,6 +896,7 @@ export const useMenuStructure = (
 		setEditorShowGuides,
 		setSidebarCollapsedState,
 		setCheckerboard,
+		setSelectedModal,
 	]);
 
 	return structure;

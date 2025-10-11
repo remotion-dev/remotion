@@ -2,7 +2,7 @@
 image: /generated/articles-docs-renderer-select-composition.png
 title: selectComposition()
 id: select-composition
-crumb: "@remotion/renderer"
+crumb: '@remotion/renderer'
 ---
 
 # selectComposition()<AvailableFrom v="4.0.0"/>
@@ -14,16 +14,14 @@ If you want to get a list of all compositions, use [`getCompositions()`](/docs/r
 If no composition with the specified [ID](/docs/terminology/composition#composition-id) exists, then this function will throw.
 
 ```tsx twoslash title="Example"
-// @module: ESNext
-// @target: ESNext
 // ---cut---
-import { bundle } from "@remotion/bundler";
-import { selectComposition } from "@remotion/renderer";
+import {bundle} from '@remotion/bundler';
+import {selectComposition} from '@remotion/renderer';
 
-const bundled = await bundle({ entryPoint: require.resolve("./src/index.ts") });
+const bundled = await bundle({entryPoint: require.resolve('./src/index.ts')});
 const composition = await selectComposition({
   serveUrl: bundled,
-  id: "MyComposition",
+  id: 'MyComposition',
   inputProps: {},
 });
 
@@ -79,7 +77,11 @@ Gets called when your project calls `console.log` or another method from console
 
 ### `puppeteerInstance?`
 
-An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+
+:::note
+Despite the name, not actually compatible with `puppeteer`, only with [`openBrowser()`](/docs/renderer/open-browser).
+:::
 
 ### `envVariables?`
 
@@ -87,15 +89,27 @@ An object containing environment variables to be injected in your project.
 
 See: [Environment variables](/docs/env-variables/)
 
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `offthreadVideoThreads?`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
 
 ### `binariesDirectory?`<AvailableFrom v="4.0.120" />
 
 <Options id="binaries-directory" />
 
-#### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
+### `chromeMode?`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
+
+### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 
 <Options id="on-browser-download" />
 

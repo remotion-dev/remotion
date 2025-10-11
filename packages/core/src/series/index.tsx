@@ -28,7 +28,7 @@ const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 > = ({children}, _ref) => {
 	useRequireToBeInsideSeries();
 	// Discard ref
-	// eslint-disable-next-line react/jsx-no-useless-fragment
+
 	return <IsNotInsideSeriesProvider>{children}</IsNotInsideSeriesProvider>;
 };
 

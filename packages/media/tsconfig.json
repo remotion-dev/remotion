@@ -1,0 +1,19 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "dist",
+		"jsx": "react-jsx",
+		"skipLibCheck": true,
+		"target": "ES2020",
+		"module": "es2020",
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true
+	},
+	"include": ["src"],
+	"references": [
+		{
+			"path": "../webcodecs"
+		}
+	]
+}

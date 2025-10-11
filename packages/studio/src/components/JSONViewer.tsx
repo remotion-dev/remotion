@@ -9,7 +9,7 @@ const jsonStyle: React.CSSProperties = {
 };
 
 export const JSONViewer: React.FC<{
-	src: string;
+	readonly src: string;
 }> = ({src}) => {
 	const [json, setJson] = useState<string | null>(null);
 

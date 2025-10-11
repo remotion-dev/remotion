@@ -3,18 +3,16 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/renderer"
 	},
 	"name": "@remotion/renderer",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"description": "Render Remotion videos using Node.js or Bun",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
+		"formatting": "prettier --experimental-cli src --check",
+		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "bun build.ts --debug",
-		"build-all": "bun build.ts --all",
-		"prepublishOnly": "bun build.ts --all"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
@@ -34,12 +32,16 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@testing-library/dom": "^8.16.0",
-		"@testing-library/react": "15.0.7",
+		"@testing-library/dom": "10.4.0",
+		"@testing-library/react": "16.1.0",
 		"@happy-dom/global-registrator": "14.5.1",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
-		"@types/ws": "8.5.10"
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"@types/ws": "8.5.10",
+		"@remotion/example-videos": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0",
+		"@types/node": "20.12.14"
 	},
 	"optionalDependencies": {
 		"@remotion/compositor-darwin-arm64": "workspace:*",
@@ -60,5 +62,45 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"homepage": "https://www.remotion.dev/docs/renderer"
+	"homepage": "https://www.remotion.dev/docs/renderer",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./client": {
+			"types": "./dist/client.d.ts",
+			"require": "./dist/client.js",
+			"module": "./dist/esm/client.mjs",
+			"import": "./dist/esm/client.mjs"
+		},
+		"./pure": {
+			"types": "./dist/pure.d.ts",
+			"require": "./dist/pure.js",
+			"module": "./dist/esm/pure.mjs",
+			"import": "./dist/esm/pure.mjs"
+		},
+		"./error-handling": {
+			"types": "./dist/error-handling.d.ts",
+			"require": "./dist/error-handling.js",
+			"module": "./dist/esm/error-handling.mjs",
+			"import": "./dist/esm/error-handling.mjs"
+		}
+	},
+	"typesVersions": {
+		">=1.0": {
+			"client": [
+				"./dist/client.d.ts"
+			],
+			"pure": [
+				"./dist/pure.d.ts"
+			],
+			"error-handling": [
+				"./dist/error-handling.d.ts"
+			]
+		}
+	}
 }

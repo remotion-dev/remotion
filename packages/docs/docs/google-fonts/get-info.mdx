@@ -1,10 +1,10 @@
 ---
 image: /generated/articles-docs-google-fonts-get-info.png
 title: getInfo()
-crumb: "@remotion/google-fonts"
+crumb: '@remotion/google-fonts'
 ---
 
-import {AvailableFonts} from '../../components/AvailableFonts'
+import {AvailableFonts} from '../../components/AvailableFonts';
 
 _Part of the [`@remotion/google-fonts`](/docs/google-fonts) package_
 
@@ -15,7 +15,7 @@ Each font exports an `getInfo()` function that can be used to get various inform
 To get information about a font, you can import the `info` property:
 
 ```tsx twoslash title="Get info about the font"
-import { getInfo } from "@remotion/google-fonts/Montserrat";
+import {getInfo} from '@remotion/google-fonts/Montserrat';
 console.log(getInfo());
 ```
 
@@ -36,7 +36,8 @@ console.log(getInfo());
         "latin": "https://fonts.gstatic.com/s/titanone/v13/mFTzWbsGxbbS_J5cQcjClDgm.woff2"
       }
     }
-  }
+  },
+  "subsets": ["latin", "latin-ext"]
 }
 ```
 

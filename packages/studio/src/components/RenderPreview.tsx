@@ -20,8 +20,8 @@ const errMsgStyle: React.CSSProperties = {
 };
 
 export const RenderPreview: React.FC<{
-	path: string;
-	assetMetadata: AssetMetadata | null;
+	readonly path: string;
+	readonly assetMetadata: AssetMetadata | null;
 }> = ({path, assetMetadata}) => {
 	const fileType = getPreviewFileType(path);
 	const src = remotion_outputsBase + path;

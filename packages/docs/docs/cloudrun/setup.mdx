@@ -3,19 +3,21 @@ image: /generated/articles-docs-cloudrun-setup.png
 id: setup
 title: Setup
 slug: /cloudrun/setup
-crumb: "Cloud Run"
+crumb: 'Cloud Run'
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 <ExperimentalBadge>
-<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
+  </p>
 </ExperimentalBadge>
 
 ## 1. Install `@remotion/cloudrun`
 
-<Installation pkg="@remotion/cloudrun"/>
+<Installation pkg="@remotion/cloudrun" />
 
 ## 2. Create a GCP project
 
@@ -72,7 +74,7 @@ From within your code base, run the following command to validate the permission
 npx remotion cloudrun permissions
 ```
 
-<hr/>
+<hr />
 
 For the following steps, you may execute them on the CLI, or programmatically using the Node.JS APIs.
 
@@ -99,18 +101,17 @@ npx remotion cloudrun services deploy
 You can deploy a service that can render videos into your GCP project using [`deployService()`](/docs/cloudrun/deployservice).
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { deployService } from "@remotion/cloudrun";
+import {deployService} from '@remotion/cloudrun';
 
 // ---cut---
 const deployResult = await deployService({
-  projectID: "my-remotion-project",
-  region: "us-east1",
+  projectID: 'my-remotion-project',
+  region: 'us-east1',
 });
 ```
 
 The object that is returned contains a name field, which you'll need for rendering.
+
 </TabItem>
 </Tabs>
 
@@ -137,7 +138,7 @@ npx remotion cloudrun sites create src/index.ts --site-name=my-video
 
 A [`serveUrl`](/docs/terminology/serve-url) will be printed pointing to the deployed project.
 
-When you update your Remotion code in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites#--site-name), a unique URL will be generated on every deploy.
+When you update your Remotion code in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites/create#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites/create#--site-name), a unique URL will be generated on every deploy.
 
 </TabItem>
 <TabItem value="node">
@@ -145,32 +146,28 @@ When you update your Remotion code in the future, redeploy your site. Pass the s
 First, you need to create a Cloud Storage bucket in your preferred region. If one already exists, it will be used instead:
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import path from "path";
-import { deploySite, getOrCreateBucket } from "@remotion/cloudrun";
+import path from 'path';
+import {deploySite, getOrCreateBucket} from '@remotion/cloudrun';
 
-const { bucketName } = await getOrCreateBucket({
-  region: "us-east1",
+const {bucketName} = await getOrCreateBucket({
+  region: 'us-east1',
 });
 ```
 
 Next, upload your Remotion project to a Cloud Storage bucket. Specify the entry point of your Remotion project, this is the file where [`registerRoot()`](/docs/register-root) is called.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import path from "path";
-import { deploySite, getOrCreateBucket } from "@remotion/cloudrun";
+import path from 'path';
+import {deploySite, getOrCreateBucket} from '@remotion/cloudrun';
 
-const { bucketName } = await getOrCreateBucket({
-  region: "us-east1",
+const {bucketName} = await getOrCreateBucket({
+  region: 'us-east1',
 });
 // ---cut---
-const { serveUrl } = await deploySite({
+const {serveUrl} = await deploySite({
   bucketName,
-  entryPoint: path.resolve(process.cwd(), "src/index.ts"),
-  siteName: "my-video",
+  entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
+  siteName: 'my-video',
 });
 ```
 
@@ -293,12 +290,10 @@ values={[
 You already have the service name from a previous step. But since you only need to deploy a service once, it's useful to retrieve the name of your deployed service programmatically before rendering a video in case your Node.JS program restarts. We can call [`getServices()`](/docs/cloudrun/getservices) with the `compatibleOnly` flag to get only services with a matching version.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { getServices, renderMediaOnCloudrun } from "@remotion/cloudrun/client";
+import {getServices, renderMediaOnCloudrun} from '@remotion/cloudrun/client';
 
 const services = await getServices({
-  region: "us-east1",
+  region: 'us-east1',
   compatibleOnly: true,
 });
 
@@ -308,26 +303,23 @@ const serviceName = services[0].serviceName;
 We can now trigger a render of a video using the [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun) function.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-
-import { renderMediaOnCloudrun } from "@remotion/cloudrun/client";
-const url = "string";
-const serviceName = "string";
+import {renderMediaOnCloudrun} from '@remotion/cloudrun/client';
+const url = 'string';
+const serviceName = 'string';
 const updateRenderProgress = (progress: number) => {};
 // ---cut---
 
 const result = await renderMediaOnCloudrun({
   serviceName,
-  region: "us-east1",
+  region: 'us-east1',
   serveUrl: url,
-  composition: "HelloWorld",
+  composition: 'HelloWorld',
   inputProps: {},
-  codec: "h264",
+  codec: 'h264',
   updateRenderProgress,
 });
 
-if (result.type === "success") {
+if (result.type === 'success') {
   console.log(result.bucketName);
   console.log(result.renderId);
 }
@@ -340,18 +332,17 @@ Import from [`@remotion/cloudrun/client`](/docs/cloudrun/light-client) to not im
 The render will now run and after a while the video will be available in your cloud storage bucket. You can keep track of the render progress by passing a function to the [updateRenderProgress](/docs/cloudrun/rendermediaoncloudrun#updaterenderprogress) attribute, to receive progress as a number.
 
 Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/storage/browser) - you just rendered your first video using Remotion Cloud Run 🚀
+
 </TabItem>
 <TabItem value="still">
 
 You already have the service name from a previous step. But since you only need to deploy a service once, it's useful to retrieve the name of your deployed service programmatically before rendering a video in case your Node.JS program restarts. We can call [`getServices()`](/docs/cloudrun/getservices) with the `compatibleOnly` flag to get only services with a matching version.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { getServices, renderStillOnCloudrun } from "@remotion/cloudrun";
+import {getServices, renderStillOnCloudrun} from '@remotion/cloudrun';
 
 const services = await getServices({
-  region: "us-east1",
+  region: 'us-east1',
   compatibleOnly: true,
 });
 
@@ -361,24 +352,22 @@ const serviceName = services[0].serviceName;
 We can now trigger a render of a still using the [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun) function.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { renderStillOnCloudrun } from "@remotion/cloudrun/client";
+import {renderStillOnCloudrun} from '@remotion/cloudrun/client';
 
-const url = "string";
-const serviceName = "string";
+const url = 'string';
+const serviceName = 'string';
 // ---cut---
 
 const result = await renderStillOnCloudrun({
   serviceName,
-  region: "us-east1",
+  region: 'us-east1',
   serveUrl: url,
-  composition: "HelloWorld",
+  composition: 'HelloWorld',
   inputProps: {},
-  imageFormat: "jpeg",
+  imageFormat: 'jpeg',
 });
 
-if (result.type === "success") {
+if (result.type === 'success') {
   console.log(result.bucketName);
   console.log(result.renderId);
 }

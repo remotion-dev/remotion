@@ -1,7 +1,7 @@
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 
 // https://github.com/remotion-dev/remotion/issues/3412#issuecomment-1910120552
-// eslint-disable-next-line no-useless-concat
+
 function getEnvVar() {
 	const parts = ['proc', 'ess', '.', 'en', 'v', '.', 'NOD', 'E_EN', 'V'];
 	return parts.join('');

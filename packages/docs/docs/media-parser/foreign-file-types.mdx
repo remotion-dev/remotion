@@ -1,0 +1,63 @@
+---
+image: /generated/articles-docs-media-parser-foreign-file-types.png
+id: foreign-file-types
+title: Foreign file types
+slug: /media-parser/foreign-file-types
+crumb: '@remotion/media-parser'
+---
+
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
+If you pass a file that is not one of the supported formats, [`parseMedia()`](/docs/media-parser/parse-media) will throw an error.  
+Sometimes this error can contain useful information about the file type nonetheless.
+
+This is useful if you allow users to upload an arbitrary file and want to get information about it with just one pass.
+
+```tsx twoslash title="Get information about a video, or get the file type if it's not a video"
+import {parseMedia, IsAnImageError, IsAPdfError, IsAnUnsupportedFileTypeError} from '@remotion/media-parser';
+
+try {
+  await parseMedia({
+    src: 'https://example.com/my-video.png',
+    fields: {},
+  });
+} catch (e) {
+  if (e instanceof IsAnImageError) {
+    console.log('The file is an image of format:', e.imageType, 'dimensions:', e.dimensions);
+  } else if (e instanceof IsAPdfError) {
+    console.log('The file is a PDF');
+  } else if (e instanceof IsAnUnsupportedFileTypeError) {
+    console.log('The file is of an unsupported type');
+  }
+}
+```
+
+## Available errors
+
+### `IsAnImageError`
+
+An error if the image is a `png`, `jpeg`, `bmp`, `gif` or `webp`.
+
+- `fileName`: The name of the file - from file name or `Content-Disposition` header.
+- `sizeInBytes`: The size of the file in bytes.
+- `mimeType`: The MIME type of the file.
+- `imageType`: The type of the image (`png`, `jpeg`, `bmp`, `gif` or `webp`).
+- `dimensions`: The dimensions of the image (`width` and `height`).
+
+### `IsAPdfError`
+
+An error if the file is a PDF.
+
+- `fileName`: The name of the file - from file name or `Content-Disposition` header.
+- `sizeInBytes`: The size of the file in bytes.
+- `mimeType`: The MIME type of the file.
+
+### `IsAnUnsupportedFileTypeError`
+
+An error if the file is of a type that `@remotion/media-parser` does not recognize.
+
+- `fileName`: The name of the file - from file name or `Content-Disposition` header.
+- `sizeInBytes`: The size of the file in bytes.
+- `mimeType`: The MIME type of the file.

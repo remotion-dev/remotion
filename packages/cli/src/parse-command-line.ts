@@ -17,6 +17,7 @@ import {parsedCli} from './parsed-cli';
 const {
 	beepOnFinishOption,
 	colorSpaceOption,
+	disallowParallelEncodingOption,
 	offthreadVideoCacheSizeInBytesOption,
 	encodingBufferSizeOption,
 	encodingMaxRateOption,
@@ -31,6 +32,7 @@ const {
 	videoBitrateOption,
 	audioCodecOption,
 	publicPathOption,
+	audioLatencyHintOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -49,6 +51,9 @@ export type CommandLineOptions = {
 		typeof offthreadVideoCacheSizeInBytesOption
 	>;
 	[colorSpaceOption.cliFlag]: TypeOfOption<typeof colorSpaceOption>;
+	[disallowParallelEncodingOption.cliFlag]: TypeOfOption<
+		typeof disallowParallelEncodingOption
+	>;
 	[beepOnFinishOption.cliFlag]: TypeOfOption<typeof beepOnFinishOption>;
 	version: string;
 	codec: Codec;
@@ -97,6 +102,7 @@ export type CommandLineOptions = {
 	['browser-args']: string;
 	['user-agent']: string;
 	['out-dir']: string;
+	[audioLatencyHintOption.cliFlag]: AudioContextLatencyCategory;
 	ipv4: boolean;
 	[deleteAfterOption.cliFlag]: TypeOfOption<typeof deleteAfterOption>;
 	[folderExpiryOption.cliFlag]: TypeOfOption<typeof folderExpiryOption>;
@@ -104,6 +110,7 @@ export type CommandLineOptions = {
 		typeof enableMultiprocessOnLinuxOption
 	>;
 	repro: boolean;
+	'image-sequence-pattern': string;
 };
 
 export const parseCommandLine = () => {

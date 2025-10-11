@@ -1,27 +1,34 @@
-import {internalGetOrCreateBucket} from '@remotion/serverless/client';
-import {expect, test} from 'vitest';
+import {LambdaClientInternals} from '@remotion/lambda-client';
+import {internalGetOrCreateBucket} from '@remotion/serverless';
+import {expect, test} from 'bun:test';
 import {internalDeploySite} from '../../api/deploy-site';
-import {internalGetSites} from '../../api/get-sites';
-import {mockImplementation} from '../mock-implementation';
+import {mockFullClientSpecifics} from '../mock-implementation';
+import {mockImplementation} from '../mocks/mock-implementation';
+import {resetMockStore} from '../mocks/mock-store';
 
 test('Should have no buckets at first', async () => {
+	resetMockStore();
 	expect(
-		await internalGetSites({
+		await LambdaClientInternals.internalGetSites({
 			region: 'us-east-1',
 			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
 			forceBucketName: null,
+			requestHandler: null,
 		}),
 	).toEqual({buckets: [], sites: []});
 });
 
 test('Should have a site after deploying', async () => {
+	resetMockStore();
 	await internalGetOrCreateBucket({
 		region: 'eu-central-1',
 		providerSpecifics: mockImplementation,
 		customCredentials: null,
 		enableFolderExpiry: null,
 		forcePathStyle: false,
+		skipPutAcl: false,
+		requestHandler: null,
 	});
 	expect(
 		await internalDeploySite({
@@ -37,6 +44,8 @@ test('Should have a site after deploying', async () => {
 			throwIfSiteExists: true,
 			options: {},
 			forcePathStyle: false,
+			fullClientSpecifics: mockFullClientSpecifics,
+			requestHandler: null,
 		}),
 	).toEqual({
 		serveUrl:
@@ -49,11 +58,12 @@ test('Should have a site after deploying', async () => {
 		},
 	});
 	expect(
-		await internalGetSites({
+		await LambdaClientInternals.internalGetSites({
 			region: 'eu-central-1',
 			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
 			forceBucketName: null,
+			requestHandler: null,
 		}),
 	).toEqual({
 		buckets: [

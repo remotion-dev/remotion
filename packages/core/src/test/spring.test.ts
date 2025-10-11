@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import {isApproximatelyTheSame} from '../is-approximately-the-same';
 import {spring} from '../spring/index';
 import {measureSpring} from '../spring/measure-spring';

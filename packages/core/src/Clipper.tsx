@@ -1,36 +1,10 @@
 import type React from 'react';
-import {useContext, useEffect} from 'react';
-import {NativeLayersContext} from './NativeLayers.js';
 
-export const Clipper: React.FC<{
-	width: number;
-	height: number;
-	x: number;
-	y: number;
-}> = ({height, width, x, y}) => {
-	const {setClipRegion} = useContext(NativeLayersContext);
-
-	useEffect(() => {
-		setClipRegion((c) => {
-			if (c === 'hide') {
-				throw new Error(
-					'Cannot render <Clipper>, because another <Null> is already rendered',
-				);
-			}
-
-			if (c === null) {
-				return {height, width, x, y};
-			}
-
-			throw new Error(
-				'Cannot render <Clipper>, because another component clipping the region was already rendered (most likely <Clipper>)',
-			);
-		});
-
-		return () => {
-			setClipRegion(null);
-		};
-	}, [height, setClipRegion, width, x, y]);
-
-	return null;
+/**
+ * @deprecated <Clipper> has been removed as of Remotion v4.0.228. The native clipping APIs were experimental and subject to removal at any time. We removed them because they were sparingly used and made rendering often slower rather than faster.
+ */
+export const Clipper: React.FC<{}> = () => {
+	throw new Error(
+		'<Clipper> has been removed as of Remotion v4.0.228. The native clipping APIs were experimental and subject to removal at any time. We removed them because they were sparingly used and made rendering often slower rather than faster.',
+	);
 };

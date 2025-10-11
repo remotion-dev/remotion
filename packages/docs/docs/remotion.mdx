@@ -1,10 +1,10 @@
 ---
 image: /generated/articles-docs-remotion.png
-title: "remotion"
-crumb: "Core API Reference"
+title: 'remotion'
+crumb: 'Core API Reference'
 ---
 
-import {TableOfContents} from '../components/TableOfContents/remotion';
+import {TableOfContents} from './remotion/table-of-contents';
 
 A package containing the essential building blocks of expressing videos in Remotion.
 
@@ -19,6 +19,7 @@ import TabItem from '@theme/TabItem';
 defaultValue="npm"
 values={[
 { label: 'npm', value: 'npm', },
+{ label: 'bun', value: 'bun', },
 { label: 'pnpm', value: 'pnpm', },
 { label: 'yarn', value: 'yarn', },
 ]
@@ -27,6 +28,13 @@ values={[
 
 ```bash
 npm i remotion
+```
+
+  </TabItem>
+<TabItem value="bun">
+
+```bash
+bun i remotion
 ```
 
   </TabItem>

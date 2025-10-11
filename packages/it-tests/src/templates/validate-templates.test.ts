@@ -33,42 +33,44 @@ describe('Templates should be valid', () => {
 			const res = readFileSync(packageJson, 'utf8');
 			const body = JSON.parse(res);
 
-			if (
-				!template.shortName.includes('Remix') &&
-				!template.shortName.includes('Next') &&
-				!template.shortName.includes('Still')
-			) {
-				expect(body.scripts.build).toMatch(/render/);
-				expect(body.scripts.build).not.toContain('index');
-			}
-
 			expect(body.dependencies.remotion).toBe('workspace:*');
 			expect(body.dependencies['@remotion/cli']).toMatch('workspace:*');
-			expect(body.dependencies.react).toMatch(/^\^?18/);
-			expect(body.dependencies['react-dom']).toMatch(/^\^?18/);
+			expect(body.dependencies.react).toMatch(/^\^?19/);
+			expect(body.dependencies['react-dom']).toMatch(/^\^?19/);
 
 			if (body.dependencies['zod']) {
-				expect(body.dependencies['zod']).toBe('3.22.3');
+				expect(body.dependencies['zod']).toBe('3.23.8');
 			}
 			if (body.dependencies['@types/web']) {
 				expect(body.dependencies['@types/web']).toInclude('0.0.166');
 			}
 
-			expect(body.devDependencies.prettier).toMatch('3.3.3');
+			expect(body.devDependencies.prettier).toMatch('3.6.0');
 			expect(body.private).toBe(true);
 			expect(body.name).toStartWith('template-');
 
 			if (!template.shortName.includes('JavaScript')) {
-				expect(body.devDependencies['typescript']).toInclude('5.5.4');
+				expect(body.devDependencies['typescript']).toInclude('5.8.2');
 
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const eitherPluginOrConfig =
 					body.devDependencies['@remotion/eslint-config']?.match(
 						'workspace:*',
 					) ||
+					body.devDependencies['@remotion/eslint-config-flat']?.match(
+						'workspace:*',
+					) ||
 					body.devDependencies['@remotion/eslint-plugin']?.match('workspace:*');
 				expect(eitherPluginOrConfig).toBeTruthy();
 			}
+
+			const scripts = body.scripts;
+			expect(scripts.dev).toMatch(
+				/(remotion\sstudio)|(next dev)|(react-router dev)|(tsx watch)|(tsx src\/studio)|(bun studio\.ts)/,
+			);
+			expect(scripts.build).toMatch(
+				/(remotion\sbundle)|(react-router build)|(next\sbuild)|(tsx src\/render)|(tsc \&\& vite build)/,
+			);
 		});
 
 		it(`${template.shortName} should not have any lockfiles`, async () => {
@@ -80,6 +82,7 @@ describe('Templates should be valid', () => {
 				false,
 			);
 			expect(existsSync(getFileForTemplate(template, 'bun.lockb'))).toBe(false);
+			expect(existsSync(getFileForTemplate(template, 'bun.lock'))).toBe(false);
 		});
 
 		it(`${template.shortName} should have a standard entry point`, async () => {
@@ -88,6 +91,7 @@ describe('Templates should be valid', () => {
 				getFileForTemplate(template, 'src/index.js'),
 				getFileForTemplate(template, 'remotion/index.ts'),
 				getFileForTemplate(template, 'app/remotion/index.ts'),
+				getFileForTemplate(template, 'src/remotion/index.ts'),
 			]);
 			expect(entryPoint).toBeTruthy();
 			expect(contents).toMatch(/RemotionRoot/);
@@ -99,6 +103,8 @@ describe('Templates should be valid', () => {
 				getFileForTemplate(template, 'src/Root.jsx'),
 				getFileForTemplate(template, 'remotion/Root.tsx'),
 				getFileForTemplate(template, 'app/remotion/Root.tsx'),
+				getFileForTemplate(template, 'src/remotion/Root.tsx'),
+				getFileForTemplate(template, 'src/remotion/Root.tsx'),
 			]);
 			expect(entryPoint).toBeTruthy();
 			expect(contents).toMatch(/export const RemotionRoot/);
@@ -135,7 +141,10 @@ describe('Templates should be valid', () => {
 				expect(contents).not.toInclude('outDir');
 			}
 			expect(contents).toInclude('"forceConsistentCasingInFileNames": true');
-			expect(contents).toInclude('"incremental": true');
+
+			if (!template.shortName.includes('Next')) {
+				expect(contents).not.toInclude('"incremental": true');
+			}
 		});
 
 		it(`${template.shortName} should use correct prettier`, async () => {
@@ -149,6 +158,18 @@ describe('Templates should be valid', () => {
 }
 `);
 		});
+		it(`${template.shortName} should reference commands`, async () => {
+			const {contents} = await findFile([
+				getFileForTemplate(template, 'README.md'),
+			]);
+			expect(contents).toInclude('npx remotion upgrade');
+			expect(contents).toInclude('npx remotion render');
+
+			expect(
+				contents?.includes('npm run dev') ||
+					contents?.includes('npx remotion studio'),
+			).toBe(true);
+		});
 		it(`${template.shortName} should be registered in tsconfig.json`, async () => {
 			const tsconfig = path.join(process.cwd(), '..', '..', 'tsconfig.json');
 			const contents = readFileSync(tsconfig, 'utf8');
@@ -157,7 +178,10 @@ describe('Templates should be valid', () => {
 			const references = parsed.references.map((r: any) =>
 				r.path.replace('./packages/', ''),
 			);
-			if (!template.shortName.includes('JavaScript')) {
+			if (
+				!template.shortName.includes('JavaScript') &&
+				!template.shortName.includes('Skia')
+			) {
 				expect(references).toContain(template.templateInMonorepo);
 			}
 		});

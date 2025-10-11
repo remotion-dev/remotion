@@ -1,14 +1,21 @@
+import {createRef} from 'react';
+import {getAbsoluteSrc} from './absolute-src.js';
+import {AudioForPreview} from './audio/AudioForPreview.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
 } from './audio/shared-audio-tags.js';
-import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {
+	useFrameForVolumeProp,
+	useMediaStartsAt,
+} from './audio/use-audio-frame.js';
 import {BufferingContextReact, BufferingProvider} from './buffering.js';
+import {calculateMediaDuration} from './calculate-media-duration.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
-import {ClipComposition, type CompProps} from './Composition.js';
+import {type CompProps} from './Composition.js';
 import type {
 	TCompMetadata,
 	TComposition,
@@ -17,12 +24,17 @@ import type {
 } from './CompositionManager.js';
 import {compositionsRef} from './CompositionManager.js';
 import type {CompositionManagerContext} from './CompositionManagerContext.js';
-import {CompositionManager} from './CompositionManagerContext.js';
+import {
+	CompositionManager,
+	CompositionSetters,
+} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
+import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {
 	EditorPropsContext,
 	EditorPropsProvider,
 	editorPropsProviderRef,
+	timeValueRef,
 } from './EditorProps.js';
 import {
 	addSequenceStackTraces,
@@ -32,16 +44,20 @@ import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 } from './get-preview-dom-element.js';
-import type {RemotionEnvironment} from './get-remotion-environment.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
-import {NativeLayersProvider} from './NativeLayers.js';
-import {NonceContext} from './nonce.js';
+import type {LoggingContextValue} from './log-level-context.js';
+import {LogLevelContext, useLogLevel} from './log-level-context.js';
+import {Log} from './log.js';
+import {NonceContext, SetNonceContext} from './nonce.js';
+import {playbackLogging} from './playback-logging.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
+import type {RemotionEnvironment} from './remotion-environment-context.js';
+import {RemotionEnvironmentContext} from './remotion-environment-context.js';
 import {RemotionRoot} from './RemotionRoot.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
@@ -73,15 +89,26 @@ import {
 	PreviewSizeContext,
 } from './use-current-scale.js';
 import {useLazyComponent} from './use-lazy-component.js';
+import {
+	useBasicMediaInTimeline,
+	useMediaInTimeline,
+} from './use-media-in-timeline.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
+import {validateMediaProps} from './validate-media-props.js';
+import {
+	resolveTrimProps,
+	validateMediaTrimProps,
+} from './validate-start-from-props.js';
 import {validateRenderAsset} from './validation/validate-artifact.js';
 import {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
 } from './validation/validate-composition-id.js';
 import {DurationsContextProvider} from './video/duration-state.js';
+import {InnerOffthreadVideo} from './video/OffthreadVideo.js';
 import {isIosSafari} from './video/video-fragment.js';
+import {VideoForPreview} from './video/VideoForPreview.js';
 import type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
@@ -92,6 +119,8 @@ import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from './volume-position-state.js';
+import {evaluateVolume} from './volume-prop.js';
+import {warnAboutTooHighVolume} from './volume-safeguard.js';
 import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
 import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
 import {
@@ -99,12 +128,28 @@ import {
 	useRemotionContexts,
 } from './wrap-remotion-context.js';
 
+// needs to be in core package so gets deduplicated in studio
+const compositionSelectorRef = createRef<{
+	expandComposition: (compName: string) => void;
+	selectComposition: (compName: string) => void;
+	toggleFolder: (folderName: string, parentName: string | null) => void;
+}>();
+
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
 	useUnsafeVideoConfig,
+	useFrameForVolumeProp,
+	useTimelinePosition: TimelinePosition.useTimelinePosition,
+	evaluateVolume,
+	getAbsoluteSrc,
 	Timeline: TimelinePosition,
+	validateMediaTrimProps,
+	validateMediaProps,
+	resolveTrimProps,
+	VideoForPreview,
 	CompositionManager,
+	CompositionSetters,
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 	RemotionRoot,
@@ -112,6 +157,7 @@ export const Internals = {
 	getRoot,
 	useMediaVolumeState,
 	useMediaMutedState,
+	useMediaInTimeline,
 	useLazyComponent,
 	truthy,
 	SequenceContext,
@@ -125,6 +171,7 @@ export const Internals = {
 	SharedAudioContext,
 	SharedAudioContextProvider,
 	invalidCompositionErrorMessage,
+	calculateMediaDuration,
 	isCompositionIdValid,
 	getPreviewDomElement,
 	compositionsRef,
@@ -140,6 +187,7 @@ export const Internals = {
 	EditorPropsContext,
 	usePreload,
 	NonceContext,
+	SetNonceContext,
 	resolveVideoConfig,
 	useResolvedVideoConfig,
 	resolveCompositionsRef,
@@ -148,8 +196,6 @@ export const Internals = {
 	RenderAssetManager,
 	persistCurrentFrame,
 	useTimelineSetFrame,
-	NativeLayersProvider,
-	ClipComposition,
 	isIosSafari,
 	WATCH_REMOTION_STATIC_FILES,
 	addSequenceStackTraces,
@@ -163,21 +209,33 @@ export const Internals = {
 	editorPropsProviderRef,
 	PROPS_UPDATED_EXTERNALLY,
 	validateRenderAsset,
+	Log,
+	LogLevelContext,
+	useLogLevel,
+	playbackLogging,
+	timeValueRef,
+	compositionSelectorRef,
+	RemotionEnvironmentContext,
+	warnAboutTooHighVolume,
+	AudioForPreview,
+	OBJECTFIT_CONTAIN_CLASS_NAME,
+	InnerOffthreadVideo,
+	useBasicMediaInTimeline,
 } as const;
 
 export type {
 	CompositionManagerContext,
 	CompProps,
+	LoggingContextValue,
 	MediaVolumeContextValue,
 	RemotionEnvironment,
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,
 	SetTimelineContextValue,
-	TRenderAsset as TAsset,
 	TCompMetadata,
 	TComposition,
-	TimelinePosition as Timeline,
 	TimelineContextValue,
+	TRenderAsset,
 	TSequence,
 	WatchRemotionStaticFilesPayload,
 };

@@ -1,6 +1,6 @@
 import {GetCallerIdentityCommand} from '@aws-sdk/client-sts';
-import type {AwsRegion} from '../../regions';
-import {getStsClient} from '../../shared/aws-clients';
+import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import type {EvalDecision, SimulationResult} from './simulate-rule';
 import {simulateRule} from './simulate-rule';
 import {requiredPermissions} from './user-permissions';
@@ -21,25 +21,24 @@ export const logPermissionOutput = (output: SimulationResult) => {
 export type SimulatePermissionsInput = {
 	region: AwsRegion;
 	onSimulation?: (result: SimulationResult) => void;
+	requestHandler?: RequestHandler;
 };
 
 export type SimulatePermissionsOutput = {
 	results: SimulationResult[];
 };
 
-/**
+/*
  * @description Simulates calls using the AWS Simulator to validate the correct permissions.
- * @see [Documentation](http://remotion.dev/docs/lambda/simulatepermissions)
- * @param {AwsRegion} options.region The region which you would like to validate
- * @param {(result: SimulationResult) => void} options.onSimulation The region which you would like to validate
- * @returns {Promise<SimulatePermissionsOutput>} See documentation for detailed response structure.
+ * @see [Documentation](https://remotion.dev/docs/lambda/simulatepermissions)
  */
 export const simulatePermissions = async (
 	options: SimulatePermissionsInput,
 ): Promise<SimulatePermissionsOutput> => {
-	const callerIdentity = await getStsClient(options.region).send(
-		new GetCallerIdentityCommand({}),
-	);
+	const callerIdentity = await LambdaClientInternals.getStsClient(
+		options.region,
+		options.requestHandler,
+	).send(new GetCallerIdentityCommand({}));
 
 	if (!callerIdentity?.Arn) {
 		throw new Error('No valid AWS Caller Identity detected');
@@ -86,6 +85,7 @@ export const simulatePermissions = async (
 			region: options.region,
 			resource: per.resource,
 			retries: 2,
+			requestHandler: options.requestHandler,
 		});
 		for (const res of result) {
 			results.push(res);

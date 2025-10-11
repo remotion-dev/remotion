@@ -3,7 +3,7 @@ import type {ModalContextType, ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
 
 export const ModalsProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [modalContextType, setModalContextType] = useState<ModalState | null>(
 		null,

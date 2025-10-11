@@ -10,6 +10,7 @@ export type TikTokPage = {
 	text: string;
 	startMs: number;
 	tokens: TikTokToken[];
+	durationMs: number;
 };
 
 export type CreateTikTokStyleCaptionsInput = {
@@ -21,15 +22,29 @@ export type CreateTikTokStyleCaptionsOutput = {
 	pages: TikTokPage[];
 };
 
-export function createTikTokStyleCaptions({
+export const createTikTokStyleCaptions = ({
 	captions,
 	combineTokensWithinMilliseconds,
-}: CreateTikTokStyleCaptionsInput): CreateTikTokStyleCaptionsOutput {
+}: CreateTikTokStyleCaptionsInput): CreateTikTokStyleCaptionsOutput => {
 	const tikTokStyleCaptions: TikTokPage[] = [];
 	let currentText = '';
 	let currentTokens: TikTokToken[] = [];
 	let currentFrom = 0;
 	let currentTo = 0;
+
+	const add = () => {
+		tikTokStyleCaptions.push({
+			text: currentText.trimStart(),
+			startMs: currentFrom,
+			tokens: currentTokens,
+			durationMs: Infinity,
+		});
+		if (tikTokStyleCaptions.length > 1) {
+			tikTokStyleCaptions[tikTokStyleCaptions.length - 2].durationMs =
+				currentFrom -
+				tikTokStyleCaptions[tikTokStyleCaptions.length - 2].startMs;
+		}
+	};
 
 	captions.forEach((item, index) => {
 		const {text} = item;
@@ -39,11 +54,7 @@ export function createTikTokStyleCaptions({
 			currentTo - currentFrom > combineTokensWithinMilliseconds
 		) {
 			if (currentText !== '') {
-				tikTokStyleCaptions.push({
-					text: currentText.trimStart(),
-					startMs: currentFrom,
-					tokens: currentTokens,
-				});
+				add();
 			}
 
 			// Start a new sentence
@@ -75,13 +86,12 @@ export function createTikTokStyleCaptions({
 
 		// Ensure the last sentence is added
 		if (index === captions.length - 1 && currentText !== '') {
-			tikTokStyleCaptions.push({
-				text: currentText,
-				startMs: currentFrom,
-				tokens: currentTokens,
-			});
+			add();
+
+			tikTokStyleCaptions[tikTokStyleCaptions.length - 1].durationMs =
+				currentTo - tikTokStyleCaptions[tikTokStyleCaptions.length - 1].startMs;
 		}
 	});
 
 	return {pages: tikTokStyleCaptions};
-}
+};

@@ -2,29 +2,33 @@
 image: /generated/articles-docs-get-audio-data.png
 title: getAudioData()
 id: get-audio-data
-crumb: "@remotion/media-utils"
+crumb: '@remotion/media-utils'
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._
 
-Takes an audio `src`, loads it and returns data and metadata for the specified source.
+Takes an audio or video `src`, loads it and returns data and metadata for the specified source.
 
 :::info
 Remote audio files need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 
 <details>
-<summary>More info</summary>
-<ul>
-<li>
-Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
-</li>
-<li>
-You can use <a href="/docs/get-audio-duration-in-seconds"><code>getAudioDurationInSeconds()</code></a> without the audio needing CORS.
-</li>
-<li>
-You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
-</li>
-</ul>
+  <summary>More info</summary>
+  <ul>
+    <li>
+      Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
+    </li>
+    <li>
+      You can use{' '}
+      <a href="/docs/get-audio-duration-in-seconds">
+        <code>getAudioDurationInSeconds()</code>
+      </a>{' '}
+      without the audio needing CORS.
+    </li>
+    <li>
+      You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
+    </li>
+  </ul>
 </details>
 :::
 
@@ -89,12 +93,10 @@ Whether the audio was imported locally or from a different origin.
 ## Example
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { Audio, staticFile } from "remotion";
+import {Audio, staticFile} from 'remotion';
 // ---cut---
-import { getAudioData } from "@remotion/media-utils";
-import music from "./music.mp3";
+import {getAudioData} from '@remotion/media-utils';
+import music from './music.mp3';
 
 await getAudioData(music); /* {
   channelWaveforms: [Float32Array(4410000), Float32Array(4410000)],
@@ -104,7 +106,7 @@ await getAudioData(music); /* {
   resultId: "0.432878981",
   isRemote: false
 } */
-await getAudioData("https://example.com/remote-audio.aac"); /* {
+await getAudioData('https://example.com/remote-audio.aac'); /* {
   channelWaveforms: [Float32Array(4800000)],
   sampleRate: 48000,
   durationInSeconds: 100.0000,
@@ -112,7 +114,7 @@ await getAudioData("https://example.com/remote-audio.aac"); /* {
   resultId: "0.432324444",
   isRemote: true
 } */
-await getAudioData(staticFile("my-file.wav")); /* {
+await getAudioData(staticFile('my-file.wav')); /* {
   channelWaveforms: [Float32Array(4800000)],
   sampleRate: 48000,
   durationInSeconds: 100.0000,
@@ -145,7 +147,8 @@ Use the [`useAudioData()`](/docs/use-audio-data) helper hook to not have to do s
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/get-audio-data.ts)
 - [Using audio](/docs/using-audio)
-- [Audio visualization](/docs/audio-visualization)
-- [`<Audio/>`](/docs/audio)
+- [Audio visualization](/docs/audio/visualization)
+- [`<Html5Audio>`](/docs/html5-audio)
 - [`visualizeAudio()`](/docs/visualize-audio)
 - [`useAudioData()`](/docs/use-audio-data)
+- [`useWindowedAudioData()`](/docs/use-windowed-audio-data)

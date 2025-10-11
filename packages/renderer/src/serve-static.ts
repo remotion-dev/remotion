@@ -14,7 +14,7 @@ export const serveStatic = async (
 		port: number | null;
 		downloadMap: DownloadMap;
 		remotionRoot: string;
-		concurrency: number;
+		offthreadVideoThreads: number;
 		logLevel: LogLevel;
 		indent: boolean;
 		offthreadVideoCacheSizeInBytes: number | null;
@@ -32,7 +32,7 @@ export const serveStatic = async (
 		compositor,
 	} = startOffthreadVideoServer({
 		downloadMap: options.downloadMap,
-		concurrency: options.concurrency,
+		offthreadVideoThreads: options.offthreadVideoThreads,
 		logLevel: options.logLevel,
 		indent: options.indent,
 		offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
@@ -64,7 +64,14 @@ export const serveStatic = async (
 	});
 
 	server.on('connection', (conn) => {
-		const key = conn.remoteAddress + ':' + conn.remotePort;
+		let key;
+		// Bun 1.0.43 fails on this
+		try {
+			key = conn.remoteAddress + ':' + conn.remotePort;
+		} catch {
+			key = ':';
+		}
+
 		connections[key] = conn;
 		conn.on('close', () => {
 			delete connections[key];
@@ -94,7 +101,7 @@ export const serveStatic = async (
 							resolve(port);
 							return unlock();
 						});
-						server.on('error', (err) => {
+						server.on('error', (err: Error) => {
 							unlock();
 							reject(err);
 						});

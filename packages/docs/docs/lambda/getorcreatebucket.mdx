@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-getorcreatebucket.png
 id: getorcreatebucket
 title: getOrCreateBucket()
 slug: /lambda/getorcreatebucket
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Creates a bucket for Remotion Lambda in your S3 account. If one already exists, it will get returned instead.
@@ -11,11 +11,9 @@ Creates a bucket for Remotion Lambda in your S3 account. If one already exists, 
 **Only 1 bucket per region** is necessary for Remotion Lambda to function.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { getOrCreateBucket } from "@remotion/lambda";
+import {getOrCreateBucket} from '@remotion/lambda';
 
-const { bucketName } = await getOrCreateBucket({ region: "us-east-1" });
+const {bucketName} = await getOrCreateBucket({region: 'us-east-1'});
 
 console.log(bucketName); // "remotionlambda-32df3p"
 ```
@@ -30,7 +28,7 @@ The [AWS region](/docs/lambda/region-selection) which you want to create a bucke
 
 ### `enableFolderExpiry`<AvailableFrom v="4.0.32" />
 
-<Options id="enable-folder-expiry"/>
+<Options id="enable-folder-expiry" />
 
 ### ~~`onBucketEnsured?`~~
 

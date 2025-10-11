@@ -3,9 +3,9 @@ import {interpolateColors, random} from 'remotion';
 import {SplitterContext} from './SplitterContext';
 
 export const SplitterElement: React.FC<{
-	type: 'flexer' | 'anti-flexer';
-	children: React.ReactNode;
-	sticky: React.ReactNode | null;
+	readonly type: 'flexer' | 'anti-flexer';
+	readonly children: React.ReactNode;
+	readonly sticky: React.ReactNode | null;
 }> = ({children, type, sticky}) => {
 	const context = useContext(SplitterContext);
 

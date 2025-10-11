@@ -89,7 +89,7 @@ From v3.2.27, negative values are allowed, with `-1` being the last frame.
 Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout) in milliseconds. Default: `30000`.
 
 :::info
-Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions#--timeout).
+Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions/deploy#--timeout).
 :::
 
 ### `--ignore-certificate-errors`<AvailableFrom v="2.6.5" />
@@ -104,6 +104,10 @@ This will most notably disable CORS in Chrome among other security features.
 
 <Options id="disable-headless" />
 
+### `--chrome-mode`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
+
 ### `--gl`
 
 <Options id="gl" cli />
@@ -112,9 +116,17 @@ This will most notably disable CORS in Chrome among other security features.
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
+### `--media-cache-size-in-bytes`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `--offthreadvideo-video-threads`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
 
 ### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {GIF} from '../js-binary-schema-parser/gif';
 import {parse} from '../js-binary-schema-parser/parser';
 import {buildStream} from '../js-binary-schema-parser/uint8-parser';
@@ -42,7 +43,9 @@ export const decompressFrame = (
 		colorTable: image.descriptor.lct?.exists
 			? (image.lct as [number, number, number][])
 			: gct,
-		delay: (frame.gce?.delay ?? 10) * 10,
+		// Same behavior as FFmpeg: If delay is 0, we set it to 100ms
+		// https://github.com/FFmpeg/FFmpeg/blob/060fc4e3a5acae27e5fbf2ff06419dff08a7d318/libavformat/gifdec.c#L62-L68
+		delay: (frame.gce?.delay || 10) * 10,
 		disposalType: frame.gce ? frame.gce.extras.disposal : 1,
 		transparentIndex: frame.gce
 			? frame.gce.extras.transparentColorGiven

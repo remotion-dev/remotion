@@ -9,9 +9,9 @@ import {
 } from "remotion";
 
 interface Props {
-  name: string;
-  logo: string;
-  repo: string;
+  readonly name: string;
+  readonly logo: string;
+  readonly repo: string;
 }
 
 export const MyComp: React.FC<Props> = ({ name, repo, logo }) => {

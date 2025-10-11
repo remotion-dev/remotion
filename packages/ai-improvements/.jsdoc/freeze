@@ -1,0 +1,4 @@
+/**
+ * @description Freezes its children at the specified frame when rendering videos.
+ * @see [Documentation](https://remotion.dev/docs/freeze)
+ */

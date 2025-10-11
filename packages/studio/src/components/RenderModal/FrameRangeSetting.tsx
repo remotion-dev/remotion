@@ -1,21 +1,16 @@
 import React, {useCallback} from 'react';
-import {MultiRangeSlider} from './MultiRangeSlider';
+import {InputDragger} from '../NewComposition/InputDragger';
 import {label, optionRow, rightRow} from './layout';
+import {MultiRangeSlider} from './MultiRangeSlider';
 
-const numberWrapper: React.CSSProperties = {
-	minWidth: '39px',
-	display: 'flex',
-	justifyContent: 'flex-end',
-	alignItems: 'center',
-	fontSize: '14px',
-};
+const INPUT_WIDTH = 40;
 
 export const FrameRangeSetting: React.FC<{
-	startFrame: number;
-	endFrame: number;
-	setEndFrame: React.Dispatch<React.SetStateAction<number | null>>;
-	setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
-	durationInFrames: number;
+	readonly startFrame: number;
+	readonly endFrame: number;
+	readonly setEndFrame: React.Dispatch<React.SetStateAction<number | null>>;
+	readonly setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
+	readonly durationInFrames: number;
 }> = ({startFrame, endFrame, setEndFrame, durationInFrames, setStartFrame}) => {
 	const minStartFrame = 0;
 
@@ -35,11 +30,37 @@ export const FrameRangeSetting: React.FC<{
 		[setEndFrame],
 	);
 
+	const onStartFrameChanged = useCallback(
+		(newVal: string) => {
+			onStartFrameChangedDirectly(parseInt(newVal, 10));
+		},
+		[onStartFrameChangedDirectly],
+	);
+
+	const onEndFrameChanged = useCallback(
+		(newVal: string) => {
+			onEndFrameChangedDirectly(parseInt(newVal, 10));
+		},
+		[onEndFrameChangedDirectly],
+	);
 	return (
 		<div style={optionRow}>
 			<div style={label}>Frame range</div>
 			<div style={rightRow}>
-				<div style={numberWrapper}>{startFrame}</div>
+				<div style={{width: INPUT_WIDTH}}>
+					<InputDragger
+						min={minStartFrame}
+						max={endFrame - 1}
+						name="Start frame"
+						value={startFrame}
+						step={1}
+						onTextChange={onStartFrameChanged}
+						onValueChange={onStartFrameChangedDirectly}
+						status="ok"
+						rightAlign
+						style={{width: INPUT_WIDTH}}
+					/>
+				</div>
 				<MultiRangeSlider
 					min={minStartFrame}
 					max={maxEndFrame}
@@ -48,8 +69,21 @@ export const FrameRangeSetting: React.FC<{
 					step={1}
 					onLeftThumbDrag={onStartFrameChangedDirectly}
 					onRightThumbDrag={onEndFrameChangedDirectly}
-				/>
-				<div style={numberWrapper}>{endFrame}</div>
+				/>{' '}
+				<div style={{width: INPUT_WIDTH}}>
+					<InputDragger
+						min={startFrame + 1}
+						max={maxEndFrame}
+						name="End frame"
+						value={endFrame}
+						step={1}
+						onTextChange={onEndFrameChanged}
+						onValueChange={onEndFrameChangedDirectly}
+						status="ok"
+						rightAlign
+						style={{width: INPUT_WIDTH}}
+					/>
+				</div>
 			</div>
 		</div>
 	);

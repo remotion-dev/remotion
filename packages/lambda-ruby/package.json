@@ -1,0 +1,16 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda-ruby"
+	},
+	"name": "@remotion/lambda-ruby",
+	"private": true,
+	"version": "4.0.357",
+	"scripts": {
+		"publishprivate": "bun publish.ts"
+	},
+	"devDependencies": {
+		"remotion": "workspace:*"
+	},
+	"dependencies": {},
+	"homepage": "https://www.remotion.dev/docs/lambda/ruby"
+}

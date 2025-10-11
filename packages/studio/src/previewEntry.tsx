@@ -1,5 +1,5 @@
 import React from 'react';
-import type {render} from 'react-dom';
+
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -31,7 +31,8 @@ const renderToDOM = (content: React.ReactElement) => {
 			);
 		}
 
-		(ReactDOM as unknown as {render: typeof render}).render(
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(ReactDOM as unknown as {render: any}).render(
 			content,
 			Internals.getPreviewDomElement(),
 		);
@@ -44,6 +45,10 @@ const renderToDOM = (content: React.ReactElement) => {
 renderToDOM(<NoRegisterRoot />);
 
 Internals.waitForRoot((NewRoot) => {
+	window.remotion_isStudio = true;
+	window.remotion_isReadOnlyStudio = false;
+	Internals.enableSequenceStackTraces();
+
 	renderToDOM(<Studio readOnly={false} rootComponent={NewRoot} />);
 });
 

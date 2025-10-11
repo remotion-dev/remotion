@@ -39,6 +39,7 @@ export const calculateAssetPositions = (
 ): Assets => {
 	const assets: UnsafeAsset[] = [];
 
+	const flattened = frames.flat(1);
 	for (let frame = 0; frame < frames.length; frame++) {
 		const prev = copyAndDeduplicateAssets(frames[frame - 1] ?? []);
 		const current = copyAndDeduplicateAssets(frames[frame]);
@@ -47,7 +48,7 @@ export const calculateAssetPositions = (
 		for (const asset of current) {
 			if (!findFrom(prev, asset)) {
 				assets.push({
-					src: resolveAssetSrc(uncompressMediaAsset(frames.flat(1), asset).src),
+					src: resolveAssetSrc(uncompressMediaAsset(flattened, asset).src),
 					type: asset.type,
 					duration: null,
 					id: asset.id,
@@ -55,9 +56,9 @@ export const calculateAssetPositions = (
 					trimLeft: asset.mediaFrame,
 					volume: [],
 					playbackRate: asset.playbackRate,
-					allowAmplificationDuringRender: asset.allowAmplificationDuringRender,
 					toneFrequency: asset.toneFrequency,
 					audioStartFrame: asset.audioStartFrame,
+					audioStreamIndex: asset.audioStreamIndex,
 				});
 			}
 

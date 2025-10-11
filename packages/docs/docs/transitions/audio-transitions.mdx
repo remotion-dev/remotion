@@ -1,8 +1,8 @@
 ---
 image: /generated/articles-docs-transitions-audio-transitions.png
-crumb: "@remotion/transitions"
-sidebar_label: "Audio transitions"
-title: "Transitioning with audio"
+crumb: '@remotion/transitions'
+sidebar_label: 'Audio transitions'
+title: 'Transitioning with audio'
 ---
 
 _working from v4.0.58_
@@ -10,26 +10,18 @@ _working from v4.0.58_
 To add sound to a transition, you may use this function to wrap any [presentation](/docs/transitions/presentations/):
 
 ```tsx twoslash title="add-sound.tsx"
-import {
-  TransitionPresentation,
-  TransitionPresentationComponentProps,
-} from "@remotion/transitions";
-import { Audio } from "remotion";
+import {TransitionPresentation, TransitionPresentationComponentProps} from '@remotion/transitions';
+import {Html5Audio} from 'remotion';
 
-export function addSound<T extends Record<string, unknown>>(
-  transition: TransitionPresentation<T>,
-  src: string,
-): TransitionPresentation<T> {
-  const { component: Component, ...other } = transition;
+export function addSound<T extends Record<string, unknown>>(transition: TransitionPresentation<T>, src: string): TransitionPresentation<T> {
+  const {component: Component, ...other} = transition;
 
   const C = Component as React.FC<TransitionPresentationComponentProps<T>>;
 
-  const NewComponent: React.FC<TransitionPresentationComponentProps<T>> = (
-    p,
-  ) => {
+  const NewComponent: React.FC<TransitionPresentationComponentProps<T>> = (p) => {
     return (
       <>
-        {p.presentationDirection === "entering" ? <Audio src={src} /> : null}
+        {p.presentationDirection === 'entering' ? <Html5Audio src={src} /> : null}
         <C {...p} />
       </>
     );
@@ -42,31 +34,23 @@ export function addSound<T extends Record<string, unknown>>(
 }
 ```
 
-Customize the volume, offset, playback rate, and other properties of the [`<Audio>`](/docs/audio) component as you wish.
+Customize the volume, offset, playback rate, and other properties of the [`<Html5Audio>`](/docs/html5-audio) component as you wish.
 
 You may use it like this:
 
 ```tsx twoslash title="example.tsx"
-import {
-  TransitionPresentation,
-  TransitionPresentationComponentProps,
-} from "@remotion/transitions";
-import { Audio } from "remotion";
+import {TransitionPresentation, TransitionPresentationComponentProps} from '@remotion/transitions';
+import {Html5Audio} from 'remotion';
 
-export function addSound<T extends Record<string, unknown>>(
-  transition: TransitionPresentation<T>,
-  src: string,
-): TransitionPresentation<T> {
-  const { component: Component, ...other } = transition;
+export function addSound<T extends Record<string, unknown>>(transition: TransitionPresentation<T>, src: string): TransitionPresentation<T> {
+  const {component: Component, ...other} = transition;
 
   const C = Component as React.FC<TransitionPresentationComponentProps<T>>;
 
-  const NewComponent: React.FC<TransitionPresentationComponentProps<T>> = (
-    p,
-  ) => {
+  const NewComponent: React.FC<TransitionPresentationComponentProps<T>> = (p) => {
     return (
       <>
-        {p.presentationDirection === "entering" ? <Audio src={src} /> : null}
+        {p.presentationDirection === 'entering' ? <Html5Audio src={src} /> : null}
         <C {...p} />
       </>
     );
@@ -80,16 +64,16 @@ export function addSound<T extends Record<string, unknown>>(
 
 // ---cut---
 
-import { slide } from "@remotion/transitions/slide";
-import { staticFile } from "remotion";
+import {slide} from '@remotion/transitions/slide';
+import {staticFile} from 'remotion';
 
 const presentation = slide();
-const withSound = addSound(presentation, staticFile("whoosh.mp3"));
+const withSound = addSound(presentation, staticFile('whoosh.mp3'));
 ```
 
 Now you can use `withSound` in place of `presentation`.
 
 ## See also
 
-- [`<Audio>`](/docs/audio)
+- [`<Html5Audio>`](/docs/html5-audio)
 - [Using audio](/docs/using-audio)

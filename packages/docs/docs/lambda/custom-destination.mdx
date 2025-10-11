@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-custom-destination.png
 id: custom-destination
 sidebar_label: Custom output destination
 title: Customizing Lambda output destination
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
 By default a render artifact is saved into the same S3 bucket as where the site is located under the key `renders/${renderId}/out.{extension}` (for example: `renders/hy0k2siao8/out.mp4`)
@@ -23,32 +23,29 @@ The output name must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`.
 To render into a different bucket, specify the `outName` option to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) and pass an object with the `key` and `bucketName` values:
 
 ```tsx twoslash {13-16}
-// @module: esnext
-// @target: es2017
-import { renderMediaOnLambda } from "@remotion/lambda";
+import {renderMediaOnLambda} from '@remotion/lambda';
 // ---cut---
 
-const { bucketName, renderId } = await renderMediaOnLambda({
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  composition: "MyVideo",
-  serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
+const {bucketName, renderId} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
   inputProps: {},
-  codec: "h264",
-  imageFormat: "jpeg",
+  codec: 'h264',
+  imageFormat: 'jpeg',
   maxRetries: 1,
-  privacy: "public",
+  privacy: 'public',
   outName: {
-    key: "my-output",
-    bucketName: "output-bucket",
+    key: 'my-output',
+    bucketName: 'output-bucket',
   },
 });
 ```
 
 If you like to use this feature:
 
-- You must extend the [default Remotion policy](/docs/lambda/permissions) to allow read and write access to that bucket.
+- You must extend the [default Remotion role policy](/docs/lambda/permissions) (not user policy) to allow read and write access to that bucket.
 - The bucket must be in the same region.
 - When calling APIs such as [`downloadMedia()`](/docs/lambda/downloadmedia) or [`getRenderProgress()`](/docs/lambda/getrenderprogress), you must pass the `bucketName` where the site resides in, not the bucket where the video gets saved.
 - The `key` must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`
@@ -62,35 +59,48 @@ _Available from v3.2.23_
 
 You can upload the file to another S3-compatible provider.
 
-- List of supported providers (non-exhaustive): Cloudflare, DigitalOcean Spaces
-- List of unsupported providers (non-exhaustive): Azure Blob Storage (not S3 compatible)
+- List of working providers (non-exhaustive):
+
+  - ✅ [Supabase](/docs/lambda/supabase)
+  - ✅ [Cloudflare](/docs/lambda/r2)
+  - ✅ DigitalOcean Spaces
+  - ✅ Google Cloud Storage  
+    Notes about Google Cloud Storage:
+
+    - GCP does support allowing underscores for bucket names, but we validate against it. Do not use underscores in your bucket name.
+    - The bucket needs to have uniform access control and NOT fine-grained access.
+    - To get your `accessKeyId` and `secretAccessKey`, create a service account that has Cloud Storage read + write permissions. Then run the following command:
+
+    ```sh
+    gcloud storage hmac create insert_google_service_account_email --project=insert_project_id
+    ```
+
+- List of unsupported providers (non-exhaustive):
+  - Azure Blob Storage (not S3 compatible)
 
 You must pass an `outName` [as specified above](#customizing-the-output-bucket) and also provide an `s3OutputProvider` like in the example below.
 
 ```tsx twoslash {13-21}
-// @module: esnext
-// @target: es2017
-import { renderMediaOnLambda } from "@remotion/lambda";
+import {renderMediaOnLambda} from '@remotion/lambda';
 // ---cut---
 
-const { bucketName, renderId } = await renderMediaOnLambda({
-  region: "us-east-1",
-  functionName: "remotion-render-bds9aab",
-  composition: "MyVideo",
-  serveUrl:
-    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
+const {bucketName, renderId} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
   inputProps: {},
-  codec: "h264",
-  imageFormat: "jpeg",
+  codec: 'h264',
+  imageFormat: 'jpeg',
   maxRetries: 1,
-  privacy: "no-acl",
+  privacy: 'no-acl',
   outName: {
-    key: "my-output",
-    bucketName: "output-bucket",
+    key: 'my-output',
+    bucketName: 'output-bucket',
     s3OutputProvider: {
-      endpoint: "https://fra1.digitaloceanspaces.com",
-      accessKeyId: "<DIGITAL_OCEAN_ACCESS_KEY_ID>",
-      secretAccessKey: "<DIGITAL_OCEAN_SECRET_ACCESS_KEY>",
+      endpoint: 'https://fra1.digitaloceanspaces.com',
+      accessKeyId: '<DIGITAL_OCEAN_ACCESS_KEY_ID>',
+      secretAccessKey: '<DIGITAL_OCEAN_SECRET_ACCESS_KEY>',
     },
   },
 });
@@ -114,8 +124,8 @@ If you plan on saving to another bucket on AWS S3 and would like to use differen
 {
   "s3OutputProvider": {
     "endpoint": "https://s3.us-west-1.amazonaws.com",
-    "accessKeyId": "<DIGITAL_OCEAN_ACCESS_KEY_ID>",
-    "secretAccessKey": "<DIGITAL_OCEAN_SECRET_ACCESS_KEY>",
+    "accessKeyId": "<AWS_ACCESS_KEY_ID>",
+    "secretAccessKey": "<AWS_SECRET_ACCESS_KEY>",
     "region": "us-west-1"
   }
 }
@@ -127,3 +137,4 @@ You may need to extend your [role policy](/docs/lambda/setup#2-create-role-polic
 ## See also
 
 - Customizing the filename when a file is downloaded using `downloadBehavior`: For [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#downloadbehavior) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#downloadbehavior)
+- [Using Supabase as a custom destination](/docs/lambda/supabase)

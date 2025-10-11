@@ -13,7 +13,7 @@ export const HighestZIndexContext = createContext<HighestZIndexContainer>({
 });
 
 export const HighestZIndexProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [zIndexes, setZIndexes] = useState<number[]>([]);
 

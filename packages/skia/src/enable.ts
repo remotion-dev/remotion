@@ -7,6 +7,15 @@ import fs from 'fs';
  * @see [Documentation](https://www.remotion.dev/docs/skia/enable-skia)
  */
 export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
+	const newExtensions = [
+		'.web.js',
+		'.web.ts',
+		'.web.tsx',
+		...(currentConfiguration.resolve?.extensions ?? []),
+	];
+
+	const deduplicatedExtensions = [...new Set(newExtensions)];
+
 	return {
 		...currentConfiguration,
 		plugins: [
@@ -48,15 +57,7 @@ export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
 				fs: false,
 				path: false,
 			},
-			extensions: [
-				'.web.js',
-				'.web.ts',
-				'.web.tsx',
-				'.js',
-				'.ts',
-				'.tsx',
-				'...',
-			],
+			extensions: deduplicatedExtensions,
 			alias: {
 				...currentConfiguration.resolve?.alias,
 				'react-native-reanimated': "require('react-native-reanimated')",

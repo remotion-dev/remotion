@@ -2,7 +2,7 @@ import type {SVGProps} from 'react';
 import React from 'react';
 
 export const RenderIcon: React.FC<{
-	svgProps: SVGProps<SVGSVGElement>;
+	readonly svgProps: SVGProps<SVGSVGElement>;
 }> = (props) => {
 	return (
 		<svg
@@ -19,8 +19,8 @@ export const RenderIcon: React.FC<{
 };
 
 export const ThinRenderIcon: React.FC<{
-	svgProps: SVGProps<SVGSVGElement>;
-	fill: string;
+	readonly svgProps: SVGProps<SVGSVGElement>;
+	readonly fill: string;
 }> = (props) => {
 	return (
 		<svg

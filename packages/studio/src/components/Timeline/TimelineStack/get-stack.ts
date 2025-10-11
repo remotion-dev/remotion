@@ -1,6 +1,9 @@
 import {SourceMapConsumer} from 'source-map';
 import {getOriginalPosition} from '../../../error-overlay/react-overlay/utils/get-source-map';
-import {getLocationOfSequence} from '../../../helpers/get-location-of-sequence';
+import {
+	getLocationOfFunctionCall,
+	getLocationOfSequence,
+} from '../../../helpers/get-location-of-sequence';
 
 type Waiter = {
 	id: string;
@@ -50,8 +53,14 @@ const getSourceMapCache = async (fileName: string) => {
 	return map;
 };
 
-export const getOriginalLocationFromStack = async (stack: string) => {
-	const location = getLocationOfSequence(stack);
+export const getOriginalLocationFromStack = async (
+	stack: string,
+	type: 'sequence' | 'visual-control',
+) => {
+	const location =
+		type === 'sequence'
+			? getLocationOfSequence(stack)
+			: getLocationOfFunctionCall(stack, 'visualControl');
 
 	if (!location) {
 		return null;

@@ -1,0 +1,4 @@
+/**
+ * @description Retrieves detailed information about a specific Cloud Run service using the service name and region.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/getserviceinfo)
+ */

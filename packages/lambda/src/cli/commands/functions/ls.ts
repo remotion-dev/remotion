@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
+import {AwsProvider} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
-import {getFunctions} from '../../../api/get-functions';
+import {ProviderSpecifics} from '@remotion/serverless';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 
@@ -12,7 +13,13 @@ const VERSION_COLS = 15;
 
 export const FUNCTIONS_LS_SUBCOMMAND = 'ls';
 
-export const functionsLsCommand = async (logLevel: LogLevel) => {
+export const functionsLsCommand = async ({
+	logLevel,
+	providerSpecifics,
+}: {
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}) => {
 	const region = getAwsRegion();
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
@@ -26,7 +33,7 @@ export const functionsLsCommand = async (logLevel: LogLevel) => {
 
 	const compatibleOnly = parsedLambdaCli['compatible-only'] || false;
 
-	const functions = await getFunctions({
+	const functions = await providerSpecifics.getFunctions({
 		region,
 		compatibleOnly,
 	});

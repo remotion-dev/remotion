@@ -1,156 +1,92 @@
-import type {MediaFn, OnAudioTrack} from '@remotion/media-parser';
-import {createAudioDecoder} from './audio-decoder';
-import {getAudioDecoderConfig} from './audio-decoder-config';
-import {createAudioEncoder} from './audio-encoder';
-import {getAudioEncoderConfig} from './audio-encoder-config';
-import type {ConvertMediaAudioCodec} from './codec-id';
-import type {ConvertMediaState} from './convert-media';
-import Error from './error-cause';
-import type {ResolveAudioActionFn} from './resolve-audio-action';
-import {resolveAudioAction} from './resolve-audio-action';
+import {
+	type MediaParserLogLevel,
+	type MediaParserOnAudioTrack,
+} from '@remotion/media-parser';
+import {canCopyAudioTrack} from './can-copy-audio-track';
+import type {ConvertMediaOnAudioData} from './convert-media';
+import {copyAudioTrack} from './copy-audio-track';
+import type {MediaFn} from './create/media-fn';
+import type {ProgressTracker} from './create/progress-tracker';
+import {defaultOnAudioTrackHandler} from './default-on-audio-track-handler';
+import type {ConvertMediaAudioCodec} from './get-available-audio-codecs';
+import type {ConvertMediaContainer} from './get-available-containers';
+import {getDefaultAudioCodec} from './get-default-audio-codec';
+import type {ConvertMediaOnAudioTrackHandler} from './on-audio-track-handler';
+import {reencodeAudioTrack} from './reencode-audio-track';
+import type {ConvertMediaProgressFn} from './throttled-state-update';
+import type {WebCodecsController} from './webcodecs-controller';
 
 export const makeAudioTrackHandler =
 	({
 		state,
-		audioCodec,
-		convertMediaState,
+		defaultAudioCodec: audioCodec,
 		controller,
 		abortConversion,
 		onMediaStateUpdate,
 		onAudioTrack,
-		bitrate,
+		logLevel,
+		outputContainer,
+		onAudioData,
+		progressTracker,
 	}: {
 		state: MediaFn;
-		audioCodec: ConvertMediaAudioCodec;
-		convertMediaState: ConvertMediaState;
-		controller: AbortController;
+		defaultAudioCodec: ConvertMediaAudioCodec | null;
+		controller: WebCodecsController;
 		abortConversion: (errCause: Error) => void;
-		onMediaStateUpdate: null | ((state: ConvertMediaState) => void);
-		onAudioTrack: ResolveAudioActionFn;
-		bitrate: number;
-	}): OnAudioTrack =>
-	async (track) => {
-		const audioEncoderConfig = await getAudioEncoderConfig({
-			codec: audioCodec,
-			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
-			bitrate,
-		});
-		const audioDecoderConfig = await getAudioDecoderConfig({
-			codec: track.codec,
-			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
-			description: track.description,
+		onMediaStateUpdate: null | ConvertMediaProgressFn;
+		onAudioTrack: ConvertMediaOnAudioTrackHandler | null;
+		logLevel: MediaParserLogLevel;
+		outputContainer: ConvertMediaContainer;
+		onAudioData: ConvertMediaOnAudioData | null;
+		progressTracker: ProgressTracker;
+	}): MediaParserOnAudioTrack =>
+	async ({track, container: inputContainer}) => {
+		const canCopyTrack = canCopyAudioTrack({
+			inputCodec: track.codecEnum,
+			outputContainer,
+			inputContainer,
+			outputAudioCodec: audioCodec,
 		});
 
-		const audioOperation = await resolveAudioAction({
-			audioDecoderConfig,
-			audioEncoderConfig,
-			audioCodec,
+		const audioOperation = await (onAudioTrack ?? defaultOnAudioTrackHandler)({
+			defaultAudioCodec:
+				audioCodec ?? getDefaultAudioCodec({container: outputContainer}),
 			track,
-			resolverFunction: onAudioTrack,
+			logLevel,
+			outputContainer,
+			inputContainer,
+			canCopyTrack,
 		});
 
-		if (audioOperation === 'drop') {
+		if (audioOperation.type === 'drop') {
 			return null;
 		}
 
-		if (audioOperation === 'copy') {
-			const addedTrack = await state.addTrack({
-				type: 'audio',
-				codec: audioCodec,
-				numberOfChannels: track.numberOfChannels,
-				sampleRate: track.sampleRate,
-				codecPrivate: track.codecPrivate,
+		if (audioOperation.type === 'fail') {
+			throw new Error(
+				`Audio track with ID ${track.trackId} resolved with {"type": "fail"}. This could mean that this audio track could neither be copied to the output container or re-encoded. You have the option to drop the track instead of failing it: https://remotion.dev/docs/webcodecs/track-transformation`,
+			);
+		}
+
+		if (audioOperation.type === 'copy') {
+			return copyAudioTrack({
+				logLevel,
+				onMediaStateUpdate,
+				state,
+				track,
+				progressTracker,
 			});
-
-			return async (audioSample) => {
-				await state.addSample(
-					new EncodedAudioChunk(audioSample),
-					addedTrack.trackNumber,
-					false,
-				);
-				convertMediaState.encodedAudioFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
-			};
 		}
 
-		if (!audioEncoderConfig) {
-			abortConversion(
-				new Error(
-					`Could not configure audio encoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
-
-		if (!audioDecoderConfig) {
-			abortConversion(
-				new Error(
-					`Could not configure audio decoder of track ${track.trackId}`,
-				),
-			);
-			return null;
-		}
-
-		const {trackNumber} = await state.addTrack({
-			type: 'audio',
-			codec: audioCodec,
-			numberOfChannels: track.numberOfChannels,
-			sampleRate: track.sampleRate,
-			codecPrivate: null,
+		return reencodeAudioTrack({
+			abortConversion,
+			controller,
+			logLevel,
+			onMediaStateUpdate,
+			audioOperation,
+			onAudioData,
+			state,
+			track,
+			progressTracker,
 		});
-
-		const audioEncoder = createAudioEncoder({
-			onChunk: async (chunk) => {
-				await state.addSample(chunk, trackNumber, false);
-				convertMediaState.encodedAudioFrames++;
-				onMediaStateUpdate?.({...convertMediaState});
-			},
-			onError: (err) => {
-				abortConversion(
-					new Error(
-						`Audio encoder of ${track.trackId} failed (see .cause of this error)`,
-						{
-							cause: err,
-						},
-					),
-				);
-			},
-			codec: audioCodec,
-			signal: controller.signal,
-			config: audioEncoderConfig,
-		});
-
-		const audioDecoder = createAudioDecoder({
-			onFrame: async (frame) => {
-				await audioEncoder.encodeFrame(frame);
-				convertMediaState.decodedAudioFrames++;
-				onMediaStateUpdate?.(convertMediaState);
-				frame.close();
-			},
-			onError(error) {
-				abortConversion(
-					new Error(
-						`Audio decoder of track ${track.trackId} failed (see .cause of this error)`,
-						{
-							cause: error,
-						},
-					),
-				);
-			},
-			signal: controller.signal,
-			config: audioDecoderConfig,
-		});
-
-		state.addWaitForFinishPromise(async () => {
-			await audioDecoder.waitForFinish();
-			await audioEncoder.waitForFinish();
-			audioDecoder.close();
-			audioEncoder.close();
-		});
-
-		return async (audioSample) => {
-			await audioDecoder.processSample(audioSample);
-		};
 	};

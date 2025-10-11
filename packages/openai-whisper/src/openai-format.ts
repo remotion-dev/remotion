@@ -19,7 +19,7 @@ export interface TranscriptionSegment {
 
 export interface OpenAiVerboseTranscription {
 	duration: number | string;
-	task?: string;
+	task?: 'transcribe';
 	language: string;
 	text: string;
 	segments?: Array<TranscriptionSegment>;

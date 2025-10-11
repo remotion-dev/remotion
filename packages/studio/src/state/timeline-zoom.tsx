@@ -20,7 +20,7 @@ export const TimelineZoomCtx = createContext<{
 });
 
 export const TimelineZoomContext: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [zoom, setZoom] = useState<Record<string, number>>(() =>
 		getZoomFromLocalStorage(),

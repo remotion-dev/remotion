@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {parseEsds} from '../boxes/iso-base-media/esds/esds';
-import {getArrayBufferIterator} from '../buffer-iterator';
+import {parseEsds} from '../containers/iso-base-media/esds/esds';
+import {getArrayBufferIterator} from '../iterator/buffer-iterator';
 
 test('Parse ESDS box', () => {
 	const buf = new Uint8Array([
@@ -11,7 +11,11 @@ test('Parse ESDS box', () => {
 		0, 0, 0, 4, 226, 0, 0, 4, 226, 0, 6, 128, 128, 128, 1, 2,
 	]);
 
-	const iter = getArrayBufferIterator(buf, null);
+	const iter = getArrayBufferIterator({
+		initialData: buf,
+		maxBytes: buf.length,
+		logLevel: 'error',
+	});
 	iter.counter.increment(8);
 
 	expect(
@@ -36,11 +40,10 @@ test('Parse ESDS box', () => {
 				upStream: 0,
 				avgBitrate: 320000,
 				maxBitrate: 320000,
-				decoderSpecificConfigs: [
-					{
-						type: 'unknown-decoder-specific-config',
-					},
-				],
+				decoderSpecificConfigs: [],
+			},
+			{
+				type: 'sl-config-descriptor',
 			},
 		],
 	});
@@ -55,7 +58,11 @@ test('Parse two ESDS', () => {
 		226, 0, 5, 2, 17, 144, 6, 1, 2, 0, 0, 0, 24, 115, 116, 116, 115,
 	]);
 
-	const iter = getArrayBufferIterator(buf, null);
+	const iter = getArrayBufferIterator({
+		initialData: buf,
+		maxBytes: buf.length,
+		logLevel: 'error',
+	});
 	iter.counter.increment(8);
 
 	expect(
@@ -85,13 +92,13 @@ test('Parse two ESDS', () => {
 						audioObjectType: 2,
 						channelConfiguration: 2,
 						samplingFrequencyIndex: 3,
-						type: 'audio-specific-config',
+						type: 'mp4a-specific-config',
 						asBytes: new Uint8Array([17, 144]),
 					},
-					{
-						type: 'unknown-decoder-specific-config',
-					},
 				],
+			},
+			{
+				type: 'sl-config-descriptor',
 			},
 		],
 	});

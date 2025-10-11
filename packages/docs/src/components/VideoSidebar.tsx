@@ -35,7 +35,7 @@ const getLinkLabel = (linkType: ShowcaseLink) => {
 };
 
 export const VideoSidebar: React.FC<{
-	video: ShowcaseVideo;
+	readonly video: ShowcaseVideo;
 }> = ({video}) => {
 	return (
 		<div style={container}>

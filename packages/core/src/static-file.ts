@@ -84,7 +84,7 @@ const encodeBySplitting = (path: string): string => {
 	return merged;
 };
 
-/**
+/*
  * @description Reference a file from the public/ folder. If the file does not appear in the autocomplete, type the path manually.
  * @see [Documentation](https://www.remotion.dev/docs/staticfile)
  */

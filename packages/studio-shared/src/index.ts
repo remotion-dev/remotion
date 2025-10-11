@@ -4,6 +4,8 @@ export {
 	ApiRoutes,
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,
+	ApplyVisualControlRequest,
+	ApplyVisualControlResponse,
 	CanUpdateDefaultPropsRequest,
 	CanUpdateDefaultPropsResponse,
 	CancelRenderRequest,
@@ -28,7 +30,7 @@ export {
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
 } from './api-requests';
-export type {RecastCodemod} from './codemods';
+export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
@@ -45,18 +47,21 @@ export {
 	ModuleMap,
 	hotMiddlewareOptions,
 } from './hot-middleware';
-export {
-	InstallablePackage,
-	listOfInstallableRemotionPackages,
-} from './installable-packages';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
-export {Pkgs, apiDocs, descriptions, packages} from './package-info';
+export {
+	Pkgs,
+	apiDocs,
+	descriptions,
+	installableMap,
+	packages,
+} from './package-info';
 export {PackageManager} from './package-manager';
 export {ProjectInfo} from './project-info';
 export type {RenderDefaults} from './render-defaults';
 export {
 	AggregateRenderProgress,
 	ArtifactProgress,
+	BrowserProgressLog,
 	BundlingState,
 	CopyingState,
 	DownloadProgress,
@@ -76,3 +81,5 @@ export {
 	SymbolicatedStackFrame,
 } from './stack-types';
 export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
+
+export type {VisualControlChange} from './codemods';

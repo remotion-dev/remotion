@@ -1,49 +1,77 @@
+import {
+	MediaParserAbortError,
+	type MediaParserLogLevel,
+} from '@remotion/media-parser';
+import {convertToCorrectVideoFrame} from './convert-to-correct-videoframe';
+import type {ConvertMediaVideoCodec} from './get-available-video-codecs';
+import type {IoSynchronizer} from './io-manager/io-synchronizer';
+import {makeIoSynchronizer} from './io-manager/io-synchronizer';
+import {Log} from './log';
+import type {WebCodecsController} from './webcodecs-controller';
+
 export type WebCodecsVideoEncoder = {
-	encodeFrame: (videoFrame: VideoFrame) => Promise<void>;
+	encode: (videoFrame: VideoFrame) => void;
 	waitForFinish: () => Promise<void>;
 	close: () => void;
-	getQueueSize: () => number;
 	flush: () => Promise<void>;
+	ioSynchronizer: IoSynchronizer;
 };
 
 export const createVideoEncoder = ({
 	onChunk,
 	onError,
-	signal,
+	controller,
 	config,
+	logLevel,
+	outputCodec,
+	keyframeInterval,
 }: {
-	onChunk: (chunk: EncodedVideoChunk) => Promise<void>;
-	onError: (error: DOMException) => void;
-	signal: AbortSignal;
+	onChunk: (
+		chunk: EncodedVideoChunk,
+		metadata: EncodedVideoChunkMetadata | null,
+	) => Promise<void>;
+	onError: (error: Error) => void;
+	controller: WebCodecsController;
 	config: VideoEncoderConfig;
+	logLevel: MediaParserLogLevel;
+	outputCodec: ConvertMediaVideoCodec;
+	keyframeInterval: number;
 }): WebCodecsVideoEncoder => {
-	if (signal.aborted) {
-		throw new Error('Not creating video encoder, already aborted');
+	if (controller._internals._mediaParserController._internals.signal.aborted) {
+		throw new MediaParserAbortError(
+			'Not creating video encoder, already aborted',
+		);
 	}
 
-	let outputQueue = Promise.resolve();
-	let outputQueueSize = 0;
-	let dequeueResolver = () => {};
+	const ioSynchronizer = makeIoSynchronizer({
+		logLevel,
+		label: 'Video encoder',
+		controller,
+	});
 
 	const encoder = new VideoEncoder({
 		error(error) {
 			onError(error);
 		},
-		output(chunk) {
-			outputQueueSize++;
-			outputQueue = outputQueue
-				.then(() => onChunk(chunk))
-				.then(() => {
-					outputQueueSize--;
-					dequeueResolver();
-					return Promise.resolve();
-				});
+		async output(chunk, metadata) {
+			const timestamp = chunk.timestamp + (chunk.duration ?? 0);
+
+			try {
+				await onChunk(chunk, metadata ?? null);
+			} catch (err) {
+				onError(err as Error);
+			}
+
+			ioSynchronizer.onOutput(timestamp);
 		},
 	});
 
 	const close = () => {
-		// eslint-disable-next-line @typescript-eslint/no-use-before-define
-		signal.removeEventListener('abort', onAbort);
+		controller._internals._mediaParserController._internals.signal.removeEventListener(
+			'abort',
+			// eslint-disable-next-line @typescript-eslint/no-use-before-define
+			onAbort,
+		);
 		if (encoder.state === 'closed') {
 			return;
 		}
@@ -55,67 +83,50 @@ export const createVideoEncoder = ({
 		close();
 	};
 
-	signal.addEventListener('abort', onAbort);
+	controller._internals._mediaParserController._internals.signal.addEventListener(
+		'abort',
+		onAbort,
+	);
 
-	const getQueueSize = () => {
-		return encoder.encodeQueueSize + outputQueueSize;
-	};
-
+	Log.verbose(logLevel, 'Configuring video encoder', config);
 	encoder.configure(config);
 
 	let framesProcessed = 0;
 
-	const waitForDequeue = async () => {
-		await new Promise<void>((r) => {
-			dequeueResolver = r;
-			encoder.addEventListener('dequeue', () => r(), {
-				once: true,
-			});
-		});
-	};
-
-	const waitForFinish = async () => {
-		while (getQueueSize() > 0) {
-			await waitForDequeue();
-		}
-	};
-
-	const encodeFrame = async (frame: VideoFrame) => {
+	const encodeFrame = (frame: VideoFrame) => {
 		if (encoder.state === 'closed') {
 			return;
 		}
 
-		while (getQueueSize() > 10) {
-			await waitForDequeue();
-		}
+		const keyFrame = framesProcessed % keyframeInterval === 0;
 
-		// @ts-expect-error - can have changed in the meanwhile
-		if (encoder.state === 'closed') {
-			return;
-		}
+		encoder.encode(
+			convertToCorrectVideoFrame({videoFrame: frame, outputCodec}),
+			{
+				keyFrame,
+				// @ts-expect-error
+				vp9: {
+					quantizer: 36,
+				},
+			},
+		);
 
-		encoder.encode(frame, {
-			keyFrame: framesProcessed % 40 === 0,
-		});
+		ioSynchronizer.inputItem(frame.timestamp);
 		framesProcessed++;
 	};
 
-	let inputQueue = Promise.resolve();
-
 	return {
-		encodeFrame: (frame: VideoFrame) => {
-			inputQueue = inputQueue.then(() => encodeFrame(frame));
-			return inputQueue;
+		encode: (frame: VideoFrame) => {
+			encodeFrame(frame);
 		},
 		waitForFinish: async () => {
 			await encoder.flush();
-			await outputQueue;
-			await waitForFinish();
+			await ioSynchronizer.waitForQueueSize(0);
 		},
 		close,
-		getQueueSize,
 		flush: async () => {
 			await encoder.flush();
 		},
+		ioSynchronizer,
 	};
 };

@@ -4,29 +4,35 @@
   "description": "My Remotion video",
   "scripts": {
     "dev": "remotion studio",
-    "build": "remotion render Audiogram out/video.mp4",
+    "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "test": "eslint src --ext ts,tsx,js,jsx && tsc"
+    "lint": "eslint src && tsc"
   },
+  "author": "Marcus Stenbeck, Jonny Burger, Alex Fernandez",
   "repository": {},
   "license": "UNLICENSED",
   "dependencies": {
     "@remotion/cli": "workspace:*",
     "@remotion/media-utils": "workspace:*",
+    "@remotion/media-parser": "workspace:*",
+    "@remotion/captions": "workspace:*",
     "@remotion/zod-types": "workspace:*",
-    "parse-srt": "1.0.0-alpha",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "@remotion/google-fonts": "workspace:*",
+    "@remotion/layout-utils": "workspace:*",
+    "@remotion/install-whisper-cpp": "workspace:*",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "remotion": "workspace:*",
-    "zod": "3.22.3"
+    "zod": "3.23.8"
   },
   "devDependencies": {
-    "@remotion/eslint-config": "workspace:*",
-    "@types/react": "18.3.1",
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@types/react": "19.0.0",
     "@types/web": "0.0.166",
-    "eslint": "8.56.0",
-    "prettier": "3.3.3",
-    "typescript": "5.5.4"
+    "eslint": "9.19.0",
+    "prettier": "3.6.0",
+    "typescript": "5.8.2",
+    "@types/node": "20.12.14"
   },
   "private": true
 }

@@ -99,7 +99,7 @@ export class ExecutionContext {
 
 			return returnByValue
 				? valueFromRemoteObject(_remoteObject)
-				: _createJSHandle(this, _remoteObject);
+				: (_createJSHandle(this, _remoteObject) as ReturnType);
 		}
 
 		if (typeof pageFunction !== 'function') {
@@ -161,7 +161,7 @@ export class ExecutionContext {
 
 		return returnByValue
 			? valueFromRemoteObject(remoteObject)
-			: _createJSHandle(this, remoteObject);
+			: (_createJSHandle(this, remoteObject) as ReturnType);
 
 		function convertArgument(
 			this: ExecutionContext,

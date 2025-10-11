@@ -36,10 +36,10 @@ const spacer: React.CSSProperties = {
 };
 
 export const ErrorTitle: React.FC<{
-	name: string;
-	message: string;
-	symbolicating: boolean;
-	canHaveDismissButton: boolean;
+	readonly name: string;
+	readonly message: string;
+	readonly symbolicating: boolean;
+	readonly canHaveDismissButton: boolean;
 }> = ({name, message, symbolicating, canHaveDismissButton}) => {
 	return (
 		<div style={title} className="css-reset">

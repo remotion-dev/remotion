@@ -67,7 +67,7 @@ const docsButton: React.CSSProperties = {
 };
 
 export const VideoApps: React.FC<{
-	active: 'remotion' | 'player' | 'lambda';
+	readonly active: 'remotion' | 'player' | 'lambda';
 }> = ({active}) => {
 	const {colorMode} = useColorMode();
 

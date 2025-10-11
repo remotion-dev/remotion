@@ -1,5 +1,6 @@
 import type {
 	AudioCodec,
+	ChromeMode,
 	Codec,
 	ColorSpace,
 	LogLevel,
@@ -10,6 +11,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
 	RequiredChromiumOptions,
@@ -220,6 +222,7 @@ type RenderModalProps = {
 	readonly initialGl: OpenGlRenderer | null;
 	readonly initialIgnoreCertificateErrors: boolean;
 	readonly initialOffthreadVideoCacheSizeInBytes: number | null;
+	readonly initialMediaCacheSizeInBytes: number | null;
 	readonly initialHeadless: boolean;
 	readonly initialColorSpace: ColorSpace;
 	readonly initialEncodingMaxRate: string | null;
@@ -234,7 +237,10 @@ type RenderModalProps = {
 	readonly defaultConfigurationVideoCodec: Codec | null;
 	readonly defaultConfigurationAudioCodec: AudioCodec | null;
 	readonly initialForSeamlessAacConcatenation: boolean;
+	readonly initialHardwareAcceleration: HardwareAccelerationOption;
 	readonly renderTypeOfLastRender: RenderType | null;
+	readonly initialChromeMode: ChromeMode;
+	readonly initialOffthreadVideoThreads: number | null;
 	readonly defaultMetadata: Record<string, string> | null;
 };
 
@@ -267,9 +273,12 @@ const RenderModal: React.FC<
 	initialDisableWebSecurity,
 	initialGl,
 	initialHeadless,
+
 	initialIgnoreCertificateErrors,
 	initialEncodingBufferSize,
 	initialEncodingMaxRate,
+	initialOffthreadVideoThreads,
+	initialMediaCacheSizeInBytes,
 	initialUserAgent,
 	defaultProps,
 	inFrameMark,
@@ -282,7 +291,9 @@ const RenderModal: React.FC<
 	initialRepro,
 	initialForSeamlessAacConcatenation,
 	renderTypeOfLastRender,
+	initialHardwareAcceleration,
 	defaultMetadata,
+	initialChromeMode,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -363,6 +374,7 @@ const RenderModal: React.FC<
 							)
 						: initialStillImageFormat,
 			type: 'asset',
+			compositionDefaultOutName: resolvedComposition.defaultOutName,
 		});
 	});
 
@@ -391,6 +403,7 @@ const RenderModal: React.FC<
 		() => initialDisableWebSecurity,
 	);
 	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
+
 	const [beepOnFinish, setBeepOnFinish] = useState<boolean>(() => initialBeep);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(() => initialIgnoreCertificateErrors);
@@ -410,21 +423,21 @@ const RenderModal: React.FC<
 
 	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
 		return {
-			headless,
 			disableWebSecurity,
 			ignoreCertificateErrors,
 			gl: openGlOption === 'default' ? null : openGlOption,
 			userAgent:
 				userAgent === null ? null : userAgent.trim() === '' ? null : userAgent,
 			enableMultiProcessOnLinux: multiProcessOnLinux,
+			headless,
 		};
 	}, [
-		headless,
 		disableWebSecurity,
 		ignoreCertificateErrors,
 		openGlOption,
 		userAgent,
 		multiProcessOnLinux,
+		headless,
 	]);
 
 	const [outName, setOutName] = useState(() => initialOutName);
@@ -440,6 +453,8 @@ const RenderModal: React.FC<
 	const [x264PresetSetting, setx264Preset] = useState<X264Preset>(
 		() => initialx264Preset,
 	);
+	const [hardwareAcceleration, setHardwareAcceleration] =
+		useState<HardwareAccelerationOption>(() => initialHardwareAcceleration);
 
 	const [userPreferredPixelFormat, setPixelFormat] = useState<PixelFormat>(
 		() => initialPixelFormat,
@@ -475,9 +490,17 @@ const RenderModal: React.FC<
 	const [delayRenderTimeout, setDelayRenderTimeout] = useState(
 		() => initialDelayRenderTimeout,
 	);
+	const [chromeMode, setChromeMode] = useState(() => initialChromeMode);
 
 	const [offthreadVideoCacheSizeInBytes, setOffthreadVideoCacheSizeInBytes] =
 		useState<number | null>(initialOffthreadVideoCacheSizeInBytes);
+	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
+		number | null
+	>(initialMediaCacheSizeInBytes);
+
+	const [offthreadVideoThreads, setOffthreadVideoThreads] = useState<
+		number | null
+	>(() => initialOffthreadVideoThreads);
 
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {
@@ -744,6 +767,9 @@ const RenderModal: React.FC<
 			multiProcessOnLinux,
 			beepOnFinish,
 			metadata,
+			chromeMode,
+			offthreadVideoThreads,
+			mediaCacheSizeInBytes,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -771,6 +797,9 @@ const RenderModal: React.FC<
 		beepOnFinish,
 		setSelectedModal,
 		metadata,
+		chromeMode,
+		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
@@ -843,6 +872,10 @@ const RenderModal: React.FC<
 			forSeamlessAacConcatenation,
 			separateAudioTo,
 			metadata,
+			hardwareAcceleration,
+			chromeMode,
+			offthreadVideoThreads,
+			mediaCacheSizeInBytes,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -893,6 +926,10 @@ const RenderModal: React.FC<
 		separateAudioTo,
 		setSelectedModal,
 		metadata,
+		hardwareAcceleration,
+		chromeMode,
+		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	]);
 
 	const onClickSequence = useCallback(() => {
@@ -920,6 +957,9 @@ const RenderModal: React.FC<
 			beepOnFinish,
 			repro,
 			metadata,
+			chromeMode,
+			offthreadVideoThreads,
+			mediaCacheSizeInBytes,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -951,6 +991,9 @@ const RenderModal: React.FC<
 		repro,
 		setSelectedModal,
 		metadata,
+		chromeMode,
+		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	]);
 
 	useEffect(() => {
@@ -1295,6 +1338,8 @@ const RenderModal: React.FC<
 							endFrame={endFrame}
 							setEndFrame={setEndFrame}
 							setStartFrame={setStartFrame}
+							setVerboseLogging={setLogLevel}
+							logLevel={logLevel}
 							startFrame={startFrame}
 							validationMessage={
 								outnameValidation.valid ? null : outnameValidation.error.message
@@ -1329,6 +1374,8 @@ const RenderModal: React.FC<
 							setEncodingBufferSize={setEncodingBufferSize}
 							encodingMaxRate={encodingMaxRate}
 							setEncodingMaxRate={setEncodingMaxRate}
+							compositionWidth={resolvedComposition.width}
+							compositionHeight={resolvedComposition.height}
 						/>
 					) : tab === 'audio' ? (
 						<RenderModalAudio
@@ -1385,8 +1432,6 @@ const RenderModal: React.FC<
 							minConcurrency={minConcurrency}
 							renderMode={renderMode}
 							setConcurrency={setConcurrency}
-							setVerboseLogging={setLogLevel}
-							logLevel={logLevel}
 							delayRenderTimeout={delayRenderTimeout}
 							setDelayRenderTimeout={setDelayRenderTimeout}
 							disallowParallelEncoding={disallowParallelEncoding}
@@ -1402,9 +1447,13 @@ const RenderModal: React.FC<
 							setEnvVariables={setEnvVariables}
 							envVariables={envVariables}
 							offthreadVideoCacheSizeInBytes={offthreadVideoCacheSizeInBytes}
+							setMediaCacheSizeInBytes={setMediaCacheSizeInBytes}
+							mediaCacheSizeInBytes={mediaCacheSizeInBytes}
 							setOffthreadVideoCacheSizeInBytes={
 								setOffthreadVideoCacheSizeInBytes
 							}
+							offthreadVideoThreads={offthreadVideoThreads}
+							setOffthreadVideoThreads={setOffthreadVideoThreads}
 							enableMultiProcessOnLinux={multiProcessOnLinux}
 							setChromiumMultiProcessOnLinux={setChromiumMultiProcessOnLinux}
 							codec={codec}
@@ -1414,6 +1463,10 @@ const RenderModal: React.FC<
 							beep={beepOnFinish}
 							repro={repro}
 							setRepro={setRepro}
+							hardwareAcceleration={hardwareAcceleration}
+							setHardwareAcceleration={setHardwareAcceleration}
+							chromeModeOption={chromeMode}
+							setChromeModeOption={setChromeMode}
 						/>
 					)}
 				</div>

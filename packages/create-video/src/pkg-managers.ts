@@ -1,5 +1,6 @@
 import {exec} from 'node:child_process';
 import path from 'node:path';
+import {Log} from './log';
 import type {Template} from './templates';
 
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
@@ -34,7 +35,7 @@ const shouldUsePnpm = (): boolean => {
 	try {
 		const conf = JSON.parse(process.env.npm_config_argv);
 		return conf.remain[0] === 'dlx';
-	} catch (err) {
+	} catch {
 		return false;
 	}
 };
@@ -131,9 +132,29 @@ export const getRenderCommand = (manager: PackageManager) => {
 	throw new TypeError('unknown package manager');
 };
 
+export const getUpgradeCommand = (manager: PackageManager) => {
+	if (manager === 'npm') {
+		return `npx remotion upgrade`;
+	}
+
+	if (manager === 'yarn') {
+		return `yarn remotion upgrade`;
+	}
+
+	if (manager === 'pnpm') {
+		return `pnpm exec remotion upgrade`;
+	}
+
+	if (manager === 'bun') {
+		return `bunx remotion upgrade`;
+	}
+
+	throw new TypeError('unknown package manager');
+};
+
 export const getDevCommand = (manager: PackageManager, template: Template) => {
 	if (
-		template.cliId === 'remix' ||
+		template.cliId === 'react-router' ||
 		template.cliId === 'next' ||
 		template.cliId === 'next-tailwind' ||
 		template.cliId === 'next-pages-dir'
@@ -172,8 +193,8 @@ export const getPackageManagerVersionOrNull = async (
 	try {
 		const version = await getPackageManagerVersion(manager);
 		return version;
-	} catch (err) {
-		console.warn(`Could not determine the version of ${manager}.`);
+	} catch {
+		Log.warn(`Could not determine the version of ${manager}.`);
 		return null;
 	}
 };

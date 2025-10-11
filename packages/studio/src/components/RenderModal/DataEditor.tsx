@@ -5,8 +5,8 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import type {AnyComposition, SerializedJSONWithCustomFields} from 'remotion';
-import {Internals, getInputProps} from 'remotion';
+import type {_InternalTypes, SerializedJSONWithCustomFields} from 'remotion';
+import {getInputProps, Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {type z} from 'zod';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -19,7 +19,7 @@ import {
 } from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
-import {useZodIfPossible} from '../get-zod-if-possible';
+import {useZodIfPossible, useZodTypesIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
 import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
@@ -112,7 +112,7 @@ const setPersistedShowWarningState = (val: boolean) => {
 };
 
 export const DataEditor: React.FC<{
-	readonly unresolvedComposition: AnyComposition;
+	readonly unresolvedComposition: _InternalTypes['AnyComposition'];
 	readonly defaultProps: Record<string, unknown>;
 	readonly setDefaultProps: React.Dispatch<
 		React.SetStateAction<Record<string, unknown>>
@@ -137,7 +137,7 @@ export const DataEditor: React.FC<{
 		() => getPersistedShowWarningState(),
 	);
 	const {updateCompositionDefaultProps} = useContext(
-		Internals.CompositionManager,
+		Internals.CompositionSetters,
 	);
 
 	const inJSONEditor = mode === 'json';
@@ -147,7 +147,7 @@ export const DataEditor: React.FC<{
 		}
 
 		const value = defaultProps;
-		return NoReactInternals.serializeJSONWithDate({
+		return NoReactInternals.serializeJSONWithSpecialTypes({
 			data: value,
 			indent: 2,
 			staticBase: window.remotion_staticBase,
@@ -161,6 +161,7 @@ export const DataEditor: React.FC<{
 		});
 
 	const z = useZodIfPossible();
+	const zodTypes = useZodTypesIfPossible();
 
 	const schema = useMemo(() => {
 		if (!z) {
@@ -300,7 +301,7 @@ export const DataEditor: React.FC<{
 		callUpdateDefaultPropsApi(
 			unresolvedComposition.id,
 			defaultProps,
-			extractEnumJsonPaths(schema, z, []),
+			extractEnumJsonPaths({schema, zodRuntime: z, currentPath: [], zodTypes}),
 		).then((response) => {
 			if (!response.success) {
 				showNotification(
@@ -309,7 +310,7 @@ export const DataEditor: React.FC<{
 				);
 			}
 		});
-	}, [unresolvedComposition.id, defaultProps, schema, z]);
+	}, [schema, z, unresolvedComposition.id, defaultProps, zodTypes]);
 
 	const onSave = useCallback(
 		(
@@ -326,7 +327,12 @@ export const DataEditor: React.FC<{
 			callUpdateDefaultPropsApi(
 				unresolvedComposition.id,
 				newDefaultProps,
-				extractEnumJsonPaths(schema, z, []),
+				extractEnumJsonPaths({
+					schema,
+					zodRuntime: z,
+					currentPath: [],
+					zodTypes,
+				}),
 			)
 				.then((response) => {
 					if (!response.success) {
@@ -353,6 +359,7 @@ export const DataEditor: React.FC<{
 		[
 			schema,
 			z,
+			zodTypes,
 			fastRefreshes,
 			setSaving,
 			unresolvedComposition.defaultProps,

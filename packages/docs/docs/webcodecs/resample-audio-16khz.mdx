@@ -1,0 +1,78 @@
+---
+image: /generated/articles-docs-webcodecs-resample-audio-16khz.png
+id: resample-audio-16khz
+title: Resample audio to 16kHz
+slug: /webcodecs/resample-audio-16khz
+crumb: '@remotion/webcodecs'
+---
+
+:::warning
+[We are phasing out Remotion WebCodecs and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
+For using Whisper, Whisper.cpp, [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp) and Whisper.wasm, you need to provide a 16-bit, 16KHz, WAVE audio file.
+
+This page describes approaches for converting your audio in the browser and on the server.
+
+## In the browser
+
+You can use [`convertMedia()`](/docs/webcodecs/convert-media) to convert any of the [supported video and audio formats](/docs/media-parser/format-support) and resample it to 16kHz.
+
+import {LicenseDisclaimer} from './LicenseDisclaimer';
+
+<details>
+  <summary>💼 Important `@remotion/webcodecs` License Disclaimer</summary>
+  <LicenseDisclaimer />
+</details>
+
+```tsx twoslash title="Resample audio to 16kHz"
+import {convertMedia, canReencodeAudioTrack} from '@remotion/webcodecs';
+
+const output = await convertMedia({
+  src: 'https://example.com/input.mp4',
+  container: 'wav',
+  onAudioTrack: async ({track}) => {
+    if (
+      await canReencodeAudioTrack({
+        audioCodec: 'wav',
+        track,
+        // Ignore this, bitrate is not used for WAV files
+        bitrate: 128000,
+        sampleRate: 16000,
+      })
+    ) {
+      return {
+        type: 'reencode',
+        audioCodec: 'wav',
+        bitrate: 128000,
+        sampleRate: 16000,
+      };
+    }
+
+    // If this conversion is not supported, return an error
+    return {
+      type: 'fail',
+    };
+  },
+});
+
+const blob = await output.save(); // returns a `Blob`
+```
+
+## On the server
+
+You can use [`ffmpeg`](https://ffmpeg.org/) to convert your audio to a 16-bit, 16KHz, WAVE file.
+
+```bash
+ffmpeg -i /path/to/audio.mp4 -ar 16000 /path/to/audio.wav -y
+```
+
+If you don't want to install FFmpeg, you can also use the [smaller FFmpeg binary](/docs/cli/ffmpeg) provided by Remotion.
+
+```bash
+npx remotion ffmpeg -i input.mp4 -ar 16000 output.wav -y
+```
+
+## On remotion.dev/convert
+
+If you are looking for a GUI, [remotion.dev/convert](https://remotion.dev/convert) is our free offering that allows you to convert your audio to a 16-bit, 16KHz, WAVE file, powered by [`@remotion/webcodecs`](/docs/webcodecs), offline and fast.

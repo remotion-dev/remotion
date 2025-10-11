@@ -26,8 +26,8 @@ const labelStyle: React.CSSProperties = {
 };
 
 export const TemplateIcon: React.FC<{
-	label: string;
-	children: React.ReactNode;
+	readonly label: string;
+	readonly children: React.ReactNode;
 }> = ({children, label}) => {
 	const mobileLayout = useMobileLayout();
 

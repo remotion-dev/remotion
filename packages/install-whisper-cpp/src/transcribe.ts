@@ -65,6 +65,8 @@ type Result = {
 	language: string;
 };
 
+type AdditionalArgs = string[] | [string, string][];
+
 export type TranscriptionJson<WithTokenLevelTimestamp extends boolean> = {
 	systeminfo: string;
 	model: Model;
@@ -94,7 +96,11 @@ export type TranscribeOnProgress = (progress: number) => void;
 // https://github.com/ggerganov/whisper.cpp/blob/fe36c909715e6751277ddb020e7892c7670b61d4/examples/main/main.cpp#L989-L999
 // https://github.com/remotion-dev/remotion/issues/4168
 export const modelToDtw = (model: WhisperModel): string => {
-	if (model === 'large-v3' || model === 'large-v3-turbo') {
+	if (model === 'large-v3-turbo') {
+		return 'large.v3.turbo';
+	}
+
+	if (model === 'large-v3') {
 		return 'large.v3';
 	}
 
@@ -112,6 +118,7 @@ export const modelToDtw = (model: WhisperModel): string => {
 const transcribeToTemporaryFile = async ({
 	fileToTranscribe,
 	whisperPath,
+	whisperCppVersion,
 	model,
 	tmpJSONPath,
 	modelFolder,
@@ -123,9 +130,12 @@ const transcribeToTemporaryFile = async ({
 	splitOnWord,
 	signal,
 	onProgress,
+	flashAttention,
+	additionalArgs,
 }: {
 	fileToTranscribe: string;
 	whisperPath: string;
+	whisperCppVersion: string;
 	model: WhisperModel;
 	tmpJSONPath: string;
 	modelFolder: string | null;
@@ -137,6 +147,8 @@ const transcribeToTemporaryFile = async ({
 	splitOnWord: boolean | null;
 	signal: AbortSignal | null;
 	onProgress: TranscribeOnProgress | null;
+	flashAttention?: boolean;
+	additionalArgs?: AdditionalArgs;
 }): Promise<{
 	outputPath: string;
 }> => {
@@ -150,7 +162,7 @@ const transcribeToTemporaryFile = async ({
 		);
 	}
 
-	const executable = getWhisperExecutablePath(whisperPath);
+	const executable = getWhisperExecutablePath(whisperPath, whisperCppVersion);
 
 	const args = [
 		'-f',
@@ -166,13 +178,15 @@ const transcribeToTemporaryFile = async ({
 		translate ? '-tr' : null,
 		language ? ['-l', language.toLowerCase()] : null,
 		splitOnWord ? ['--split-on-word', splitOnWord] : null,
+		flashAttention ? ['--flash-attn', 'true'] : null,
+		...(additionalArgs ?? []),
 	]
 		.flat(1)
 		.filter(Boolean) as string[];
 
 	const outputPath = await new Promise<string>((resolve, reject) => {
 		const task = spawn(executable, args, {
-			cwd: whisperPath,
+			cwd: path.resolve(process.cwd(), whisperPath),
 			signal: signal ?? undefined,
 		});
 		const predictedPath = `${tmpJSONPath}.json`;
@@ -195,10 +209,14 @@ const transcribeToTemporaryFile = async ({
 			}
 		};
 
+		let stderr = '';
+
 		const onStderr = (data: Buffer) => {
 			onData(data);
+			const utf8 = data.toString('utf-8');
+			stderr += utf8;
 			if (printOutput) {
-				process.stderr.write(data.toString('utf-8'));
+				process.stderr.write(utf8);
 			}
 		};
 
@@ -229,6 +247,14 @@ const transcribeToTemporaryFile = async ({
 				return;
 			}
 
+			if (stderr.includes('must be 16 kHz')) {
+				reject(
+					new Error(
+						'wav file must be 16 kHz - See https://www.remotion.dev/docs/webcodecs/resample-audio-16khz#on-the-server on how to convert your audio to a 16-bit, 16KHz, WAVE file',
+					),
+				);
+			}
+
 			reject(
 				new Error(
 					`No transcription was created (process exited with code ${code}): ${output}`,
@@ -243,6 +269,7 @@ const transcribeToTemporaryFile = async ({
 export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	inputPath,
 	whisperPath,
+	whisperCppVersion,
 	model,
 	modelFolder,
 	translateToEnglish = false,
@@ -253,9 +280,12 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	splitOnWord,
 	signal,
 	onProgress,
+	flashAttention,
+	additionalArgs,
 }: {
 	inputPath: string;
 	whisperPath: string;
+	whisperCppVersion: string;
 	model: WhisperModel;
 	tokenLevelTimestamps: HasTokenLevelTimestamps;
 	modelFolder?: string;
@@ -266,6 +296,8 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	splitOnWord?: boolean;
 	signal?: AbortSignal;
 	onProgress?: TranscribeOnProgress;
+	flashAttention?: boolean;
+	additionalArgs?: AdditionalArgs;
 }): Promise<TranscriptionJson<HasTokenLevelTimestamps>> => {
 	if (!existsSync(whisperPath)) {
 		throw new Error(
@@ -279,7 +311,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 
 	if (!isWavFile(inputPath)) {
 		throw new Error(
-			'Invalid inputFile type. The provided file is not a wav file!',
+			'Invalid inputFile type. The provided file is not a wav file! Convert the file to a 16KHz wav file first: "ffmpeg -i input.mp4 -ar 16000 output.wav -y"',
 		);
 	}
 
@@ -288,6 +320,7 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 	const {outputPath: tmpJSONPath} = await transcribeToTemporaryFile({
 		fileToTranscribe: inputPath,
 		whisperPath,
+		whisperCppVersion,
 		model,
 		tmpJSONPath: tmpJSONDir,
 		modelFolder: modelFolder ?? null,
@@ -299,6 +332,8 @@ export const transcribe = async <HasTokenLevelTimestamps extends boolean>({
 		signal: signal ?? null,
 		splitOnWord: splitOnWord ?? null,
 		onProgress: onProgress ?? null,
+		flashAttention,
+		additionalArgs,
 	});
 
 	const json = (await readJson(

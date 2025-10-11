@@ -18,7 +18,7 @@ type Props = React.DetailedHTMLProps<
 	React.InputHTMLAttributes<HTMLTextAreaElement>,
 	HTMLTextAreaElement
 > & {
-	status: 'error' | 'warning' | 'ok';
+	readonly status: 'error' | 'warning' | 'ok';
 };
 
 const inputBaseStyle: React.CSSProperties = {

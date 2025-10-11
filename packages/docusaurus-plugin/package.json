@@ -1,11 +1,12 @@
 {
 	"name": "@remotion/docusaurus-plugin",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"lint": "eslint src --ext ts,tsx"
+		"lint": "eslint src",
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "UNLICENSED",
@@ -19,8 +20,12 @@
 		"fenceparser": "^2.2.0",
 		"shiki": "0.10.1",
 		"@typescript/twoslash": "3.2.1",
-		"@docusaurus/types": "3.4.0",
+		"@docusaurus/types": "3.6.0",
 		"@types/dom-webcodecs": "0.1.11"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
 	},
 	"private": true,
 	"repository": {

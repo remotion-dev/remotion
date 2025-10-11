@@ -9,7 +9,7 @@ export const RemotionRoot = () => {
     <>
       <Composition
         // You can take the "id" to render a video:
-        // npx remotion render src/index.jsx <id> out/video.mp4
+        // npx remotion render HelloWorld
         id="HelloWorld"
         component={HelloWorld}
         durationInFrames={150}

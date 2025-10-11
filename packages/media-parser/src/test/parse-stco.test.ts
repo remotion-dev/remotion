@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {parseStco} from '../boxes/iso-base-media/stsd/stco';
-import {getArrayBufferIterator} from '../buffer-iterator';
+import {parseStco} from '../containers/iso-base-media/stsd/stco';
+import {getArrayBufferIterator} from '../iterator/buffer-iterator';
 
 test('Parse stco box', () => {
 	const buf = new Uint8Array([
@@ -12,7 +12,11 @@ test('Parse stco box', () => {
 		246,
 	]);
 
-	const iterator = getArrayBufferIterator(buf, null);
+	const iterator = getArrayBufferIterator({
+		initialData: buf,
+		maxBytes: buf.length,
+		logLevel: 'error',
+	});
 	iterator.counter.increment(8);
 	const result = parseStco({
 		iterator,
@@ -41,7 +45,11 @@ test('Parse stco box with empty chunk', () => {
 		172,
 	]);
 
-	const iterator = getArrayBufferIterator(buf, null);
+	const iterator = getArrayBufferIterator({
+		initialData: buf,
+		maxBytes: buf.length,
+		logLevel: 'error',
+	});
 	iterator.counter.increment(8);
 	const result = parseStco({
 		iterator,

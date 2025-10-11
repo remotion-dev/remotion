@@ -128,17 +128,22 @@ export const AssetSelector: React.FC<{
 				e.preventDefault();
 				e.stopPropagation();
 				const {files} = e.dataTransfer;
-				const assetPath = dropLocation || '/';
+				const assetPath = dropLocation ?? null;
+
+				const makePath = (file: File) => {
+					return [assetPath, file.name].filter(Boolean).join('/');
+				};
+
 				for (const file of files) {
 					const body = await file.arrayBuffer();
 					await writeStaticFile({
 						contents: body,
-						filePath: file.name,
+						filePath: makePath(file),
 					});
 				}
 
 				if (files.length === 1) {
-					showNotification(`Added ${files[0].name} to ${assetPath}`, 3000);
+					showNotification(`Created ${makePath(files[0])}`, 3000);
 				} else {
 					showNotification(`Added ${files.length} files to ${assetPath}`, 3000);
 				}

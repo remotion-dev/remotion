@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
+import {getSites} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
-import {getSites} from '../../../api/get-sites';
 import {getAwsRegion} from '../../get-aws-region';
 import {dateString} from '../../helpers/date-string';
 

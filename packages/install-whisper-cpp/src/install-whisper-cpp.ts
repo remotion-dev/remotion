@@ -1,8 +1,10 @@
+/* eslint-disable no-console */
 import {spawn, type StdioOptions} from 'child_process';
 import fs, {existsSync, rmSync} from 'fs';
 import os from 'os';
 import path from 'path';
 import {downloadFile} from './download';
+import {compareVersions} from './utils';
 
 const getIsSemVer = (str: string) => {
 	return /^[\d]{1}\.[\d]{1,2}\.+/.test(str);
@@ -133,10 +135,29 @@ const installWhisperForUnix = async ({
 	});
 };
 
-export const getWhisperExecutablePath = (whisperPath: string) => {
+export const getWhisperExecutablePath = (
+	whisperPath: string,
+	whisperCppVersion: string,
+) => {
+	// INFO: 'main.exe' is deprecated.
+	let cppBin: string[] = ['main'];
+	let cppFolder: string[] = [];
+	if (compareVersions(whisperCppVersion, '1.7.4') >= 0) {
+		cppBin = ['whisper-cli'];
+		cppFolder = ['build', 'bin'];
+	}
+
 	return os.platform() === 'win32'
-		? path.join(whisperPath, 'main.exe')
-		: path.join(whisperPath, './main');
+		? path.join(
+				path.resolve(process.cwd(), whisperPath),
+				...cppFolder,
+				`${cppBin}.exe`,
+			)
+		: path.join(
+				path.resolve(process.cwd(), whisperPath),
+				...cppFolder,
+				`./${cppBin}`,
+			);
 };
 
 export const installWhisperCpp = async ({
@@ -153,10 +174,13 @@ export const installWhisperCpp = async ({
 	alreadyExisted: boolean;
 }> => {
 	if (existsSync(to)) {
-		if (!existsSync(getWhisperExecutablePath(to))) {
+		if (!existsSync(getWhisperExecutablePath(to, version))) {
 			if (printOutput) {
 				throw new Error(
-					`Whisper folder ${to} exists but the executable (${getWhisperExecutablePath(to)}) is missing. Delete ${to} and try again.`,
+					`Whisper folder ${to} exists but the executable (${getWhisperExecutablePath(
+						to,
+						version,
+					)}) is missing. Delete ${to} and try again.`,
 				);
 			}
 
@@ -181,7 +205,12 @@ export const installWhisperCpp = async ({
 	}
 
 	if (process.platform === 'win32') {
-		await installForWindows({version, to, printOutput, signal: signal ?? null});
+		await installForWindows({
+			version,
+			to,
+			printOutput,
+			signal: signal ?? null,
+		});
 		return Promise.resolve({alreadyExisted: false});
 	}
 

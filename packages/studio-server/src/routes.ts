@@ -31,18 +31,20 @@ import {serveStatic} from './preview-server/serve-static';
 
 const editorGuess = guessEditor();
 
-const static404 = (response: ServerResponse) => {
+const static404 = (response: ServerResponse): Promise<void> => {
 	response.writeHead(404);
 	response.end(
 		'The static/ prefix has been changed, this URL is no longer valid.',
 	);
+	return Promise.resolve();
 };
 
-const output404 = (response: ServerResponse) => {
+const output404 = (response: ServerResponse): Promise<void> => {
 	response.writeHead(404);
 	response.end(
 		'The outputs/ prefix has been changed, this URL is no longer valid.',
 	);
+	return Promise.resolve();
 };
 
 const handleFallback = async ({
@@ -55,7 +57,10 @@ const handleFallback = async ({
 	getRenderQueue,
 	getRenderDefaults,
 	numberOfAudioTags,
+	audioLatencyHint,
 	gitSource,
+	logLevel,
+	enableCrossSiteIsolation,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -66,13 +71,20 @@ const handleFallback = async ({
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
 	numberOfAudioTags: number;
+	audioLatencyHint: AudioContextLatencyCategory | null;
 	gitSource: GitSource | null;
+	logLevel: LogLevel;
+	enableCrossSiteIsolation: boolean;
 }) => {
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
 
 	response.setHeader('content-type', 'text/html');
-	response.writeHead(200);
+	if (enableCrossSiteIsolation) {
+		response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+		response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+	}
+
 	const packageManager = getPackageManager(remotionRoot, undefined, 0);
 	fetchFolder({publicDir, staticHash: hash});
 
@@ -104,6 +116,9 @@ const handleFallback = async ({
 			installedDependencies,
 			packageManager:
 				packageManager === 'unknown' ? 'unknown' : packageManager.manager,
+			logLevel,
+			mode: 'dev',
+			audioLatencyHint: audioLatencyHint ?? 'interactive',
 		}),
 	);
 };
@@ -118,11 +133,11 @@ const handleFileSource = async ({
 	remotionRoot: string;
 	search: string;
 	response: ServerResponse;
-}) => {
+}): Promise<void> => {
 	if (method === 'OPTIONS') {
 		response.writeHead(200);
 		response.end();
-		return;
+		return Promise.resolve();
 	}
 
 	if (!search.startsWith('?')) {
@@ -138,7 +153,8 @@ const handleFileSource = async ({
 	const data = await getFileSource(remotionRoot, decodeURIComponent(f));
 	response.writeHead(200);
 	response.write(data);
-	return response.end();
+	response.end();
+	return Promise.resolve();
 };
 
 const handleOpenInEditor = async (
@@ -179,7 +195,7 @@ const handleOpenInEditor = async (
 				success: didOpen,
 			}),
 		);
-	} catch (err) {
+	} catch {
 		res.setHeader('content-type', 'application/json');
 		res.writeHead(200);
 
@@ -201,7 +217,7 @@ const handleAddAsset = ({
 	res: ServerResponse;
 	search: string;
 	publicDir: string;
-}): void => {
+}): Promise<void> => {
 	try {
 		const query = new URLSearchParams(search);
 
@@ -229,9 +245,14 @@ const handleAddAsset = ({
 		res.statusCode = 500;
 		res.end(JSON.stringify({error: (err as Error).message}));
 	}
+
+	return Promise.resolve();
 };
 
-const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
+const handleFavicon = (
+	_: IncomingMessage,
+	response: ServerResponse,
+): Promise<void> => {
 	const filePath = path.join(__dirname, '..', 'web', 'favicon.png');
 	const stat = statSync(filePath);
 
@@ -242,9 +263,13 @@ const handleFavicon = (_: IncomingMessage, response: ServerResponse) => {
 
 	const readStream = createReadStream(filePath);
 	readStream.pipe(response);
+	return Promise.resolve();
 };
 
-const handleBeep = (_: IncomingMessage, response: ServerResponse) => {
+const handleBeep = (
+	_: IncomingMessage,
+	response: ServerResponse,
+): Promise<void> => {
 	const filePath = path.join(__dirname, '..', 'web', 'beep.wav');
 	const stat = statSync(filePath);
 
@@ -255,9 +280,13 @@ const handleBeep = (_: IncomingMessage, response: ServerResponse) => {
 
 	const readStream = createReadStream(filePath);
 	readStream.pipe(response);
+	return Promise.resolve();
 };
 
-const handleWasm = (_: IncomingMessage, response: ServerResponse) => {
+const handleWasm = (
+	_: IncomingMessage,
+	response: ServerResponse,
+): Promise<void> => {
 	const filePath = path.resolve(
 		require.resolve('source-map'),
 		'..',
@@ -274,6 +303,7 @@ const handleWasm = (_: IncomingMessage, response: ServerResponse) => {
 
 	const readStream = createReadStream(filePath);
 	readStream.pipe(response);
+	return Promise.resolve();
 };
 
 export const handleRoutes = ({
@@ -296,6 +326,8 @@ export const handleRoutes = ({
 	queueMethods: methods,
 	gitSource,
 	binariesDirectory,
+	audioLatencyHint,
+	enableCrossSiteIsolation,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -316,7 +348,9 @@ export const handleRoutes = ({
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
-}) => {
+	audioLatencyHint: AudioContextLatencyCategory | null;
+	enableCrossSiteIsolation: boolean;
+}): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
 	if (url.pathname === '/api/file-source') {
@@ -427,5 +461,8 @@ export const handleRoutes = ({
 		getRenderDefaults,
 		numberOfAudioTags,
 		gitSource,
+		logLevel,
+		audioLatencyHint,
+		enableCrossSiteIsolation,
 	});
 };

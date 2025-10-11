@@ -1,10 +1,5 @@
 import type {PackageManager, Pkgs} from '@remotion/studio-shared';
-import {
-	apiDocs,
-	descriptions,
-	listOfInstallableRemotionPackages,
-	type InstallablePackage,
-} from '@remotion/studio-shared';
+import {apiDocs, descriptions, installableMap} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useEffect} from 'react';
 import {VERSION} from 'remotion';
 import {installPackages} from '../api/install-package';
@@ -54,37 +49,11 @@ export const InstallPackageModal: React.FC<{
 	readonly packageManager: PackageManager;
 }> = ({packageManager}) => {
 	const [state, setState] = React.useState<State>({type: 'idle'});
-	const [map, setMap] = React.useState<{[key in InstallablePackage]: boolean}>({
-		'@remotion/animated-emoji': false,
-		'@remotion/gif': false,
-		'@remotion/lottie': false,
-		'@remotion/media-utils': false,
-		'@remotion/animation-utils': false,
-		'@remotion/cloudrun': false,
-		'@remotion/google-fonts': false,
-		'@remotion/enable-scss': false,
-		'@remotion/lambda': false,
-		'@remotion/layout-utils': false,
-		'@remotion/media-parser': false,
-		'@remotion/motion-blur': false,
-		'@remotion/noise': false,
-		'@remotion/paths': false,
-		'@remotion/rive': false,
-		'@remotion/shapes': false,
-		'@remotion/skia': false,
-		'@remotion/studio': false,
-		'@remotion/tailwind': false,
-		'@remotion/three': false,
-		'@remotion/transitions': false,
-		'@remotion/zod-types': false,
-		'@remotion/captions': false,
-		'@remotion/openai-whisper': false,
-	});
+
+	const [map, setMap] = React.useState<Record<string, boolean>>({});
 	const {previewServerState: ctx} = useContext(StudioServerConnectionCtx);
 
-	const selectedPackages = (Object.keys(map) as InstallablePackage[]).filter(
-		(pkg) => map[pkg],
-	);
+	const selectedPackages = Object.keys(map).filter((pkg) => map[pkg]);
 
 	const onClick = useCallback(async () => {
 		if (state.type === 'done') {
@@ -149,40 +118,43 @@ export const InstallPackageModal: React.FC<{
 					</div>
 				) : (
 					<div style={text}>
-						{listOfInstallableRemotionPackages.map((pkg) => {
-							const isInstalled =
-								window.remotion_installedPackages?.includes(pkg) ?? false;
-							const link = apiDocs[pkg.replace('@remotion/', '') as Pkgs];
-							const description =
-								descriptions[pkg.replace('@remotion/', '') as Pkgs];
-							if (!link) {
-								throw new Error('No link for ' + pkg);
-							}
+						{Object.entries(installableMap)
+							.filter(([, install]) => install)
+							.map(([pkgShort]) => {
+								const pkg =
+									pkgShort === 'core' ? 'remotion' : `@remotion/${pkgShort}`;
+								const isInstalled =
+									window.remotion_installedPackages?.includes(pkg) ?? false;
+								const link = apiDocs[pkgShort as Pkgs];
+								const description = descriptions[pkgShort as Pkgs];
+								if (!link) {
+									throw new Error('No link for ' + pkg);
+								}
 
-							if (!description) {
-								throw new Error('No description for ' + pkg);
-							}
+								if (!description) {
+									throw new Error('No description for ' + pkg);
+								}
 
-							return (
-								<Row key={pkg} align="center">
-									<Checkbox
-										checked={map[pkg]}
-										name={pkg}
-										onChange={() => {
-											setMap((prev) => ({...prev, [pkg]: !prev[pkg]}));
-										}}
-										disabled={!canSelectPackages || isInstalled}
-									/>
-									<Spacing x={1.5} />
-									<InstallablePackageComp
-										description={description}
-										isInstalled={isInstalled}
-										link={link}
-										pkg={pkg}
-									/>
-								</Row>
-							);
-						})}
+								return (
+									<Row key={pkg} align="center">
+										<Checkbox
+											checked={map[pkg]}
+											name={pkg}
+											onChange={() => {
+												setMap((prev) => ({...prev, [pkg]: !prev[pkg]}));
+											}}
+											disabled={!canSelectPackages || isInstalled}
+										/>
+										<Spacing x={1.5} />
+										<InstallablePackageComp
+											description={description}
+											isInstalled={isInstalled}
+											link={link}
+											pkg={pkg}
+										/>
+									</Row>
+								);
+							})}
 					</div>
 				)}
 			</div>

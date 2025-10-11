@@ -1,4 +1,4 @@
-import type {BufferIterator} from './buffer-iterator';
+import type {BufferIterator} from './iterator/buffer-iterator';
 
 export const getHvc1CodecString = (data: BufferIterator) => {
 	const configurationVersion = data.getUint8();
@@ -13,19 +13,19 @@ export const getHvc1CodecString = (data: BufferIterator) => {
 	//	unsigned int(5) general_profile_idc;
 
 	const generalProfileSpace = generalProfileSpaceTierFlagAndIdc >> 6;
-	const generalTierFlag = generalProfileSpaceTierFlagAndIdc >> 5;
-	const generalProfileIdc = generalProfileSpaceTierFlagAndIdc >> 0;
+	const generalTierFlag = (generalProfileSpaceTierFlagAndIdc & 0x20) >> 5;
+	const generalProfileIdc = generalProfileSpaceTierFlagAndIdc & 0x1f;
 
 	// general_constraint_indicator_flags(48)
 	const generalConstraintIndicator = data.getSlice(6);
 	const generalLevelIdc = data.getUint8();
 
-	let reversedGeneralProfileSpace = 0;
+	let profileId = 0;
 	for (let i = 0; i < 32; i++) {
-		reversedGeneralProfileSpace |= generalProfileCompatibility & 1;
+		profileId |= generalProfileCompatibility & 1;
 		if (i === 31) break;
 
-		reversedGeneralProfileSpace <<= 1;
+		profileId <<= 1;
 		generalProfileCompatibility >>= 1;
 	}
 
@@ -51,5 +51,5 @@ export const getHvc1CodecString = (data: BufferIterator) => {
 		}
 	}
 
-	return `${profileSpaceChar}${generalProfileIdc.toString(16)}.${reversedGeneralProfileSpace.toString(16)}.${generalTierChar}${generalLevelIdc}.${generalConstraintString}`;
+	return `${profileSpaceChar}${generalProfileIdc.toString(16)}.${profileId.toString(16)}.${generalTierChar}${generalLevelIdc}${generalConstraintString ? '.' : ''}${generalConstraintString}`;
 };

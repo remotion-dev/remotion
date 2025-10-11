@@ -41,15 +41,11 @@ const frameStyle: React.CSSProperties = {
 	paddingRight: 10,
 };
 
-export const timeValueRef = React.createRef<{
-	goToFrame: () => void;
-}>();
-
 export const TimeValue: React.FC = () => {
 	const frame = useCurrentFrame();
 	const config = Internals.useUnsafeVideoConfig();
 	const isStill = useIsStill();
-	const {seek} = PlayerInternals.usePlayer();
+	const {seek, play, pause, toggle} = PlayerInternals.usePlayer();
 	const keybindings = useKeybinding();
 	const ref = useRef<HTMLButtonElement>(null);
 
@@ -67,13 +63,17 @@ export const TimeValue: React.FC = () => {
 	);
 
 	useImperativeHandle(
-		timeValueRef,
+		Internals.timeValueRef,
 		() => ({
 			goToFrame: () => {
 				ref.current?.click();
 			},
+			seek,
+			play,
+			pause,
+			toggle,
 		}),
-		[],
+		[seek, play, pause, toggle],
 	);
 
 	useEffect(() => {

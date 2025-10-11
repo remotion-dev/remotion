@@ -1,7 +1,7 @@
 type UrlHandling = 'spa' | 'query-string';
 
 const getUrlHandlingType = (): UrlHandling => {
-	if (window.process.env.NODE_ENV === 'production') {
+	if (window.remotion_isReadOnlyStudio) {
 		return 'query-string';
 	}
 

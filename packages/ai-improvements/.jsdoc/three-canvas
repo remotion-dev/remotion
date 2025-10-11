@@ -1,0 +1,4 @@
+/**
+ * @description A wrapper for React Three Fiber's <Canvas /> which synchronizes with Remotion's useCurrentFrame().
+ * @see [Documentation](https://www.remotion.dev/docs/three-canvas)
+ */

@@ -1,16 +1,12 @@
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
-import {rendersPrefix} from '@remotion/serverless/client';
+import {rendersPrefix} from '@remotion/serverless';
+import {expect, test} from 'bun:test';
 import {createWriteStream, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'path';
-import {afterAll, expect, test} from 'vitest';
-import {internalDeleteRender} from '../../../api/delete-render';
-import {mockImplementation} from '../../mock-implementation';
+import {mockImplementation} from '../../mocks/mock-implementation';
 import {simulateLambdaRender} from '../simulate-lambda-render';
-
-afterAll(async () => {
-	await RenderInternals.killAllBrowsers();
-});
 
 test('Should make muted render audio', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
@@ -18,7 +14,7 @@ test('Should make muted render audio', async () => {
 		composition: 'framer',
 		frameRange: [100, 110],
 		imageFormat: 'jpeg',
-		logLevel: 'error',
+		logLevel: 'verbose',
 		region: 'eu-central-1',
 		inputProps: {},
 		muted: true,
@@ -53,11 +49,12 @@ test('Should make muted render audio', async () => {
 		expectedBucketOwner: 'abc',
 		prefix: rendersPrefix(renderId),
 		forcePathStyle: false,
+		requestHandler: null,
 	});
 
 	expect(files.length).toBe(2);
 
-	await internalDeleteRender({
+	await LambdaClientInternals.internalDeleteRender({
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		renderId,
@@ -71,6 +68,7 @@ test('Should make muted render audio', async () => {
 		expectedBucketOwner: 'abc',
 		prefix: rendersPrefix(renderId),
 		forcePathStyle: false,
+		requestHandler: null,
 	});
 
 	expect(expectFiles.length).toBe(0);

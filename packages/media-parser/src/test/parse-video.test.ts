@@ -1,17 +1,18 @@
-import {RenderInternals} from '@remotion/renderer';
+import {exampleVideos} from '@remotion/example-videos';
 import {expect, test} from 'bun:test';
 import {parseMedia} from '../parse-media';
 import {nodeReader} from '../readers/from-node';
 
 test('Parse Big Buck bunny', async () => {
 	const data = await parseMedia({
-		src: RenderInternals.exampleVideos.bigBuckBunny,
+		src: exampleVideos.bigBuckBunny,
 		fields: {
-			boxes: true,
+			slowStructure: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
-	expect(data.boxes.slice(0, 2)).toEqual([
+	expect(data.slowStructure.boxes.slice(0, 2)).toEqual([
 		{
 			offset: 0,
 			boxSize: 32,
@@ -32,13 +33,14 @@ test('Parse Big Buck bunny', async () => {
 
 test('Parse framer', async () => {
 	const parsed = await parseMedia({
-		src: RenderInternals.exampleVideos.framerWithoutFileExtension,
+		src: exampleVideos.framerWithoutFileExtension,
 		fields: {
-			boxes: true,
+			slowStructure: true,
 		},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
-	expect(parsed.boxes.slice(0, 2)).toEqual([
+	expect(parsed.slowStructure.boxes.slice(0, 2)).toEqual([
 		{
 			offset: 0,
 			boxSize: 32,
@@ -59,13 +61,14 @@ test('Parse framer', async () => {
 
 test('Parse a full video', async () => {
 	const data = await parseMedia({
-		src: RenderInternals.exampleVideos.framer24fps,
-		fields: {boxes: true},
+		src: exampleVideos.framer24fps,
+		fields: {slowStructure: true},
 		reader: nodeReader,
+		acknowledgeRemotionLicense: true,
 	});
 	if (!data) throw new Error('No data');
 
-	const [first, second, third] = data.boxes;
+	const [first, second] = data.slowStructure.boxes;
 
 	expect(first).toEqual({
 		offset: 0,
@@ -82,20 +85,15 @@ test('Parse a full video', async () => {
 		type: 'regular-box',
 		children: [],
 	});
-	expect(third).toEqual({
-		type: 'mdat-box',
-		boxSize: 57014,
-		status: 'samples-skipped',
-		fileOffset: 40,
-	});
 });
 
 test('Should warn if missing node reader', () => {
 	const data = parseMedia({
-		src: RenderInternals.exampleVideos.framer24fps,
+		src: exampleVideos.framer24fps,
 		fields: {
-			boxes: true,
+			slowStructure: true,
 		},
+		acknowledgeRemotionLicense: true,
 	});
 	expect(data).rejects.toThrow(/node/);
 });

@@ -1,100 +1,98 @@
 {
 	"$schema": "https://turbo.build/schema.json",
+	"ui": "stream",
+	"globalEnv": ["ENABLE_EXPERIMENTAL_COREPACK"],
 	"tasks": {
+		"formatting": {
+			"dependsOn": [],
+			"outputLogs": "new-only"
+		},
 		"clean": {},
+		"testssr": {
+			"dependsOn": ["^make", "@remotion/example#bundle"]
+		},
+		"testlambda": {
+			"dependsOn": ["^make", "@remotion/example#bundle"]
+		},
+		"testwebcodecs": {
+			"dependsOn": ["@remotion/webcodecs#make"]
+		},
 		"make": {
-			"dependsOn": ["^make", "//#ts-build"],
-			"outputs": ["dist/esm/**"],
-			"outputLogs": "new-only"
-		},
-		"//#ts-build": {
-			"outputs": [
-				"packages/**/dist/**.js",
-				"packages/**/dist/**.d.ts",
-				"packages/**/tsconfig.tsbuildinfo",
-				"packages/**/dist/tsconfig.tsbuildinfo"
-			],
-			"outputLogs": "new-only"
-		},
-		"@remotion/example#make": {
 			"dependsOn": ["^make"],
+			"outputs": ["dist"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/example#bundle": {
+			"dependsOn": ["^make", "make"],
 			"outputs": ["build", "./node_modules/.cache"],
 			"outputLogs": "new-only"
 		},
 		"build-docs": {
-			"dependsOn": ["^make", "make"],
-			"outputs": [".docusaurus", "build", "node_modules/.cache"]
+			"dependsOn": ["^make", "make", "@remotion/convert#build-spa"],
+			"outputs": [".docusaurus", "build", "node_modules/.cache/twoslash"],
+			"outputLogs": "new-only"
 		},
 		"test": {
 			"dependsOn": ["^make", "make"],
-			"outputs": []
+			"outputs": [],
+			"outputLogs": "new-only"
 		},
-
 		"@remotion/renderer#test": {
 			"dependsOn": [
 				"^make",
 				"make",
 				"@remotion/lambda#make",
 				"@remotion/it-tests#test",
-				"@remotion/cloudrun#make"
+				"@remotion/example#bundle"
 			],
-			"outputs": []
+			"outputs": [],
+			"outputLogs": "new-only"
 		},
 		"lint": {
-			"dependsOn": ["//#ts-build"],
-			"outputs": []
-		},
-		"formatting": {
-			"dependsOn": ["//#ts-build"],
-			"outputs": []
-		},
-		"@remotion/example#lint": {
-			"dependsOn": ["@remotion/eslint-config#make"]
+			"dependsOn": [
+				"@remotion/eslint-config-internal#make",
+				"@remotion/eslint-config#make",
+				"^make"
+			],
+			"outputs": [],
+			"outputLogs": "new-only"
 		},
 		"@remotion/google-fonts#make": {
-			"outputs": ["src", ".cache-css", "dist/esm"],
+			"outputs": ["src", ".cache-css", "dist"],
+			"dependsOn": ["^make"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/fig-autocomplete#make": {
+			"outputs": ["src"],
 			"dependsOn": ["^make"],
 			"outputLogs": "new-only"
 		},
 		"@remotion/cloudrun#make": {
-			"dependsOn": ["^make", "//#ts-build"],
-			"outputs": [
-				"dist/shared/sa-permissions.json",
-				"container/dist",
-				"gcpInstaller/gcpInstaller.tar"
+			"dependsOn": ["^make"],
+			"outputs": ["dist", "container/dist", "gcpInstaller/gcpInstaller.tar"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/compositor#make": {
+			"outputs": ["target/debug/build", "target/release/build"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/it-tests#test": {
+			"dependsOn": [
+				"^make",
+				"@remotion/studio#make",
+				"@remotion/example#bundle"
 			],
 			"outputLogs": "new-only"
 		},
-		"@remotion/renderer#make": {
-			"outputs": ["target/debug/build", "target/release/build"],
-			"dependsOn": ["^make"],
-			"outputLogs": "new-only"
-		},
-
-		"@remotion/it-tests#test": {
-			"dependsOn": [
-				"//#ts-build",
-				"^make",
-				"@remotion/example#test",
-				"@remotion/example#make",
-				"@remotion/studio#make"
-			]
-		},
-		"@remotion/media-parser#build": {
-			"dependsOn": ["//#ts-build"],
-			"outputs": ["dist/esm"]
-		},
-		"@remotion/webcodecs#make": {
-			"dependsOn": ["^@remotion/media-parser#make"],
-			"outputs": ["dist/esm"],
-			"outputLogs": "new-only"
-		},
 		"@remotion/convert#build-page": {
-			"dependsOn": ["^@remotion/webcodecs#make"]
+			"dependsOn": ["^make"],
+			"outputs": ["build", ".vercel"],
+			"outputLogs": "new-only"
 		},
-		"convert": {
-			"dependsOn": ["^@remotion/convert#build-page"],
-			"outputs": ["build"]
+		"@remotion/convert#build-spa": {
+			"dependsOn": ["^make"],
+			"outputs": ["spa-dist"],
+			"outputLogs": "new-only"
 		}
 	}
 }

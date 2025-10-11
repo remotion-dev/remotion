@@ -14,7 +14,6 @@ import {
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {useNonce} from './nonce.js';
 import {
 	TimelineContext,
@@ -24,11 +23,15 @@ import {useVideoConfig} from './use-video-config.js';
 
 import {Freeze} from './freeze.js';
 import {useCurrentFrame} from './use-current-frame';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 
 export type AbsoluteFillLayout = {
 	layout?: 'absolute-fill';
 	premountFor?: number;
+	postmountFor?: number;
 	style?: React.CSSProperties;
+	styleWhilePremounted?: React.CSSProperties;
+	styleWhilePostmounted?: React.CSSProperties;
 	className?: string;
 };
 
@@ -56,11 +59,19 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
+	readonly _remotionInternalPostmountDisplay?: number | null;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	readonly _remotionInternalStack?: string;
 	/**
 	 * @deprecated For internal use only.
 	 */
 	readonly _remotionInternalIsPremounting?: boolean;
+	/**
+	 * @deprecated For internal use only.
+	 */
+	readonly _remotionInternalIsPostmounting?: boolean;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -82,6 +93,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
 		_remotionInternalPremountDisplay: premountDisplay,
+		_remotionInternalPostmountDisplay: postmountDisplay,
 		...other
 	},
 	ref,
@@ -145,11 +157,20 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	const premounting = useMemo(() => {
+		// || is intentional, ?? would not trigger on `false`
 		return (
-			parentSequence?.premounting ??
+			parentSequence?.premounting ||
 			Boolean(other._remotionInternalIsPremounting)
 		);
 	}, [other._remotionInternalIsPremounting, parentSequence?.premounting]);
+
+	const postmounting = useMemo(() => {
+		// || is intentional, ?? would not trigger on `false`
+		return (
+			parentSequence?.postmounting ||
+			Boolean(other._remotionInternalIsPostmounting)
+		);
+	}, [other._remotionInternalIsPostmounting, parentSequence?.postmounting]);
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
@@ -161,6 +182,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			height: height ?? parentSequence?.height ?? null,
 			width: width ?? parentSequence?.width ?? null,
 			premounting,
+			postmounting,
+			premountDisplay: premountDisplay ?? null,
+			postmountDisplay: postmountDisplay ?? null,
 		};
 	}, [
 		cumulatedFrom,
@@ -171,14 +195,19 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		height,
 		width,
 		premounting,
+		postmounting,
+		premountDisplay,
+		postmountDisplay,
 	]);
 
 	const timelineClipName = useMemo(() => {
 		return name ?? '';
 	}, [name]);
 
+	const env = useRemotionEnvironment();
+
 	useEffect(() => {
-		if (!getRemotionEnvironment().isStudio) {
+		if (!env.isStudio) {
 			return;
 		}
 
@@ -195,6 +224,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			loopDisplay,
 			stack: stack ?? null,
 			premountDisplay: premountDisplay ?? null,
+			postmountDisplay: postmountDisplay ?? null,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -215,6 +245,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		loopDisplay,
 		stack,
 		premountDisplay,
+		postmountDisplay,
+		env.isStudio,
 	]);
 
 	// Ceil to support floats
@@ -269,7 +301,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 const RegularSequence = forwardRef(RegularSequenceRefForwardingFunction);
 
-const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SequenceProps
 > = (props, ref) => {
@@ -277,55 +309,89 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (props.layout === 'none') {
 		throw new Error(
-			'`<Sequence>` with `premountFor` prop does not support layout="none"',
+			'`<Sequence>` with `premountFor` and `postmountFor` props does not support layout="none"',
 		);
 	}
 
-	const {style: passedStyle, from = 0, premountFor = 0, ...otherProps} = props;
+	const {
+		style: passedStyle,
+		from = 0,
+		durationInFrames = Infinity,
+		premountFor = 0,
+		postmountFor = 0,
+		styleWhilePremounted,
+		styleWhilePostmounted,
+		...otherProps
+	} = props;
 
+	const endThreshold = Math.ceil(from + durationInFrames - 1);
 	const premountingActive = frame < from && frame >= from - premountFor;
+	const postmountingActive =
+		frame > endThreshold && frame <= endThreshold + postmountFor;
+
+	// Determine which freeze frame to use
+	const freezeFrame = premountingActive
+		? from
+		: postmountingActive
+			? from + durationInFrames - 1
+			: 0;
+	const isFreezingActive = premountingActive || postmountingActive;
 
 	const style = useMemo(() => {
 		return {
 			...passedStyle,
-			opacity: premountingActive ? 0 : 1,
-			pointerEvents: premountingActive
-				? 'none'
-				: (passedStyle?.pointerEvents ?? undefined),
+			opacity: premountingActive || postmountingActive ? 0 : 1,
+			pointerEvents:
+				premountingActive || postmountingActive
+					? 'none'
+					: (passedStyle?.pointerEvents ?? undefined),
+			...(premountingActive ? styleWhilePremounted : {}),
+			...(postmountingActive ? styleWhilePostmounted : {}),
 		};
-	}, [premountingActive, passedStyle]);
+	}, [
+		passedStyle,
+		premountingActive,
+		postmountingActive,
+		styleWhilePremounted,
+		styleWhilePostmounted,
+	]);
 
 	return (
-		<Freeze frame={from} active={premountingActive}>
+		<Freeze frame={freezeFrame} active={isFreezingActive}>
 			<Sequence
 				ref={ref}
 				from={from}
+				durationInFrames={durationInFrames}
 				style={style}
 				_remotionInternalPremountDisplay={premountFor}
+				_remotionInternalPostmountDisplay={postmountFor}
 				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
 				{...otherProps}
 			/>
 		</Freeze>
 	);
 };
 
-const PremountedSequence = forwardRef(PremountedSequenceRefForwardingFunction);
+const PremountedPostmountedSequence = forwardRef(
+	PremountedPostmountedSequenceRefForwardingFunction,
+);
+
 const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SequenceProps
 > = (props, ref) => {
-	if (
-		props.layout !== 'none' &&
-		props.premountFor &&
-		!getRemotionEnvironment().isRendering
-	) {
-		return <PremountedSequence {...props} ref={ref} />;
+	const env = useRemotionEnvironment();
+	if (props.layout !== 'none' && !env.isRendering) {
+		if (props.premountFor || props.postmountFor) {
+			return <PremountedPostmountedSequence {...props} ref={ref} />;
+		}
 	}
 
 	return <RegularSequence {...props} ref={ref} />;
 };
 
-/**
+/*
  * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
  * @see [Documentation](https://www.remotion.dev/docs/sequence)
  */

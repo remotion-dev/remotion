@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import {measureSpring, spring} from '../spring/index.js';
 import {expectToThrow} from './expect-to-throw.js';
 

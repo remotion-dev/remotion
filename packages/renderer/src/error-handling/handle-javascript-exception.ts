@@ -94,6 +94,7 @@ export const handleJavascriptException = ({
 		const cleanErrorMessage = cleanUpErrorMessage(exception);
 
 		if (!cleanErrorMessage) {
+			// eslint-disable-next-line no-console
 			console.error(exception);
 			const err = new Error(rawErrorMessage);
 			err.stack = rawErrorMessage;

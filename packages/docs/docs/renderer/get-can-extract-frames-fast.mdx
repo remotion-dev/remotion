@@ -2,7 +2,7 @@
 image: /generated/articles-docs-renderer-get-can-extract-frames-fast.png
 title: getCanExtractFramesFast()
 id: get-can-extract-frames-fast
-crumb: "@remotion/renderer"
+crumb: '@remotion/renderer'
 ---
 
 :::warning
@@ -14,12 +14,10 @@ _Available since v3.3.2, removed in v4.0 - Part of the `@remotion/renderer` pack
 Probes whether frames of a video can be efficiently extracted when using [`<OffthreadVideo>`](/docs/offthreadvideo).
 
 ```ts
-// @module: ESNext
-// @target: ESNext
-import { getCanExtractFramesFast } from "@remotion/renderer";
+import {getCanExtractFramesFast} from '@remotion/renderer';
 
 const result = await getCanExtractFramesFast({
-  src: "/var/path/to/video.mp4",
+  src: '/var/path/to/video.mp4',
 });
 
 console.log(result.canExtractFramesFast); // false

@@ -1,4 +1,4 @@
-FROM node:20-bookworm
+FROM node:22-bookworm-slim
 
 WORKDIR /usr/app
 
@@ -10,6 +10,7 @@ RUN node /usr/app/ensure.mjs
 
 RUN apt update
 RUN apt install -y \
+  git \
   libnss3 \
   libdbus-1-3 \
   libatk1.0-0 \
@@ -21,6 +22,8 @@ RUN apt install -y \
   libxcomposite1 \
   libxdamage1 \
   libatk-bridge2.0-0 \
+  libpango-1.0-0 \
+  libcairo2 \
   libcups2
 
 RUN npm config set update-notifier false

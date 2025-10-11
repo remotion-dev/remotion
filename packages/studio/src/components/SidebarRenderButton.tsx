@@ -10,7 +10,7 @@ import type {
 } from '@remotion/renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
-import type {AnyCompMetadata} from 'remotion';
+import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {useMobileLayout} from '../helpers/mobile-layout';
@@ -21,7 +21,7 @@ import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 
 export const SidebarRenderButton: React.FC<{
-	readonly composition: AnyCompMetadata;
+	readonly composition: _InternalTypes['AnyCompMetadata'];
 	readonly visible: boolean;
 }> = ({composition, visible}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
@@ -77,6 +77,7 @@ export const SidebarRenderButton: React.FC<{
 				initialHeadless: defaults.headless,
 				initialOffthreadVideoCacheSizeInBytes:
 					defaults.offthreadVideoCacheSizeInBytes,
+				initialOffthreadVideoThreads: defaults.offthreadVideoThreads,
 				initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
 				defaultProps: props[composition.id] ?? composition.defaultProps,
 				inFrameMark: null,
@@ -93,6 +94,9 @@ export const SidebarRenderButton: React.FC<{
 					defaults.forSeamlessAacConcatenation,
 				renderTypeOfLastRender: null,
 				defaulMetadata: defaults.metadata,
+				initialHardwareAcceleration: defaults.hardwareAcceleration,
+				initialChromeMode: defaults.chromeMode,
+				initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
 			});
 
 			if (isMobileLayout) {

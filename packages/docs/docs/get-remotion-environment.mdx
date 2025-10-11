@@ -2,28 +2,34 @@
 image: /generated/articles-docs-get-remotion-environment.png
 title: getRemotionEnvironment()
 id: get-remotion-environment
-crumb: "API"
+crumb: 'API'
 ---
 
 # getRemotionEnvironment()<AvailableFrom v="4.0.25" />
 
 With the `getRemotionEnvironment()` function, you can retrieve information about the current Remotion Environment.
+
+:::info
+Consider using the [`useRemotionEnvironment()`](/docs/use-remotion-environment) hook instead, as it is future-proof for browser rendering scenarios.
+:::
 It returns an object with the following properties:
 
 - `isStudio`: Whether the function got called in the [Remotion Studio](/docs/cli/studio).
-- `isRendering`: Whether the function got called in a render.
+- `isRendering`: Whether the function got called in a render. Also available in the [`calculateMetadata()`](/docs/calculate-metadata) function.
 - `isPlayer`: Whether a [`<Player>`](/docs/player) is mounted on the current page.
+- `isReadOnlyStudio`: Whether in a [statically deployed studio](https://www.remotion.dev/docs/studio/deploy-static), where the [`@remotion/studio`](/docs/studio/api) APIs cannot be used (_available from v4.0.238_)
+- `isClientSideRendering`: Whether the function [got called in a client-side rendering context](/docs/miscellaneous/render-in-browser) (_available from v4.0.344_)
 
 This can be useful if you want components or functions to behave differently depending on the environment.
 
 ### Example
 
 ```tsx twoslash
-import React from "react";
-import { getRemotionEnvironment } from "remotion";
+import React from 'react';
+import {getRemotionEnvironment} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  const { isStudio, isPlayer, isRendering } = getRemotionEnvironment();
+  const {isStudio, isPlayer, isRendering} = getRemotionEnvironment();
 
   if (isStudio) {
     return <div>I'm in the Studio!</div>;
@@ -45,6 +51,7 @@ A more realistic use case: You might want to debounce a request during editing i
 
 ## See also
 
+- [useRemotionEnvironment()](/docs/use-remotion-environment) - a new preferred way to get the environment information
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/get-remotion-environment.ts)
 - [useVideoConfig()](/docs/use-video-config)
-- [`<OffthreadVideo/> while rendering`](/docs/miscellaneous/snippets/offthread-video-while-rendering)
+- [`<OffthreadVideo/> while rendering`](/docs/video-tags#using-a-different-tag-in-preview-and-rendering)

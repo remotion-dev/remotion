@@ -15,7 +15,7 @@ const makeSquircle = (w = 100, h = 100, curvature = 0.5): string => {
 };
 
 export const Circle: React.FC<{
-	size: number;
+	readonly size: number;
 }> = ({size}) => {
 	const videoConfig = useVideoConfig();
 	const frame = useCurrentFrame();

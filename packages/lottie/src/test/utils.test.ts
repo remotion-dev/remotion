@@ -8,7 +8,14 @@ describe('getNextFrame', () => {
 		});
 
 		it('returns the last frame if current frame is bigger than total frames', () => {
-			expect(getLottieFrame({currentFrame: 23, totalFrames: 20})).toBe(20);
+			expect(getLottieFrame({currentFrame: 23, totalFrames: 20})).toBe(19);
+		});
+
+		it('freezes on last valid frame to prevent animation disappearing', () => {
+			// This test specifically validates the fix for the issue where
+			// non-looping animations disappear after playing once
+			expect(getLottieFrame({currentFrame: 100, totalFrames: 30})).toBe(29);
+			expect(getLottieFrame({currentFrame: 1000, totalFrames: 60})).toBe(59);
 		});
 	});
 
@@ -44,7 +51,7 @@ describe('getNextFrame', () => {
 					totalFrames: 20,
 					direction: 'backward',
 				}),
-			).toBe(0);
+			).toBe(1);
 		});
 	});
 

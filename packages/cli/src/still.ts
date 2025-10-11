@@ -22,6 +22,10 @@ const {
 	binariesDirectoryOption,
 	publicPathOption,
 	publicDirOption,
+	chromeModeOption,
+	offthreadVideoThreadsOption,
+	audioLatencyHintOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -89,6 +93,12 @@ export const still = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -108,6 +118,12 @@ export const still = async (
 		commandLine: parsedCli,
 	}).value;
 	const publicDir = publicDirOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const chromeMode = chromeModeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const audioLatencyHint = audioLatencyHintOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
@@ -131,7 +147,7 @@ export const still = async (
 		envVariables,
 		height,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps,
 				indent: undefined,
 				staticBase: null,
@@ -149,13 +165,17 @@ export const still = async (
 		logLevel,
 		onProgress: () => undefined,
 		indent: false,
-		addCleanupCallback: (c) => {
-			registerCleanupJob(c);
+		addCleanupCallback: (label, c) => {
+			registerCleanupJob(label, c);
 		},
 		cancelSignal: null,
 		outputLocationFromUi: null,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		binariesDirectory,
 		publicPath,
+		chromeMode,
+		audioLatencyHint,
+		mediaCacheSizeInBytes,
 	});
 };

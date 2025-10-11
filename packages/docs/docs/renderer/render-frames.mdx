@@ -61,11 +61,7 @@ In `v3.0.0`, a second argument was added: `frame`, returning the frame number th
 In `v3.2.30`, a third argument was rendered: `timeToRenderInMilliseconds`, describing the time it took to render that frame in milliseconds.
 
 ```ts twoslash
-const onFrameUpdate = (
-  framesRendered: number,
-  frame: number,
-  timeToRenderInMilliseconds: number,
-) => {
+const onFrameUpdate = (framesRendered: number, frame: number, timeToRenderInMilliseconds: number) => {
   console.log(`${framesRendered} frames rendered.`);
 
   // From v3.0.0
@@ -98,6 +94,25 @@ _optional since v4.0 - default "jpeg"_
 - Choose `jpeg` by default because it is the fastest.
 - Choose `png` if you want your image sequence to have an alpha channel (for transparency).
 - Choose `none` if you only want to render audio.
+
+### `imageSequencePattern?` <AvailableFrom v="4.0.313" />
+
+A string pattern for naming the output image sequence files. You can use the following magic replacements:
+
+- `[frame]`: Will be replaced with the zero-padded frame number (e.g. 0001, 0002, ...)
+- `[ext]`: Will be replaced with the image format extension (e.g. jpeg, png)
+
+Default: `element-[frame].[ext]`
+
+**Example:**
+
+```js
+renderFrames({
+  ...otherOptions,
+  imageSequencePattern: 'frame_[frame]_custom.[ext]',
+});
+// Produces: frame_0001_custom.jpeg, frame_0002_custom.jpeg, ...
+```
 
 ### `concurrency?`
 
@@ -147,7 +162,11 @@ Disables audio output. This option may only be set in combination with a video c
 
 _optional_
 
-An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+
+:::note
+Despite the name, not actually compatible with `puppeteer`, only with [`openBrowser()`](/docs/renderer/open-browser).
+:::
 
 ### `envVariables?`<AvailableFrom v="2.2.0" />
 
@@ -187,31 +206,10 @@ interface ConsoleMessageLocation {
 type BrowserLog = {
   text: string;
   stackTrace: ConsoleMessageLocation[];
-  type:
-    | 'log'
-    | 'debug'
-    | 'info'
-    | 'error'
-    | 'warning'
-    | 'dir'
-    | 'dirxml'
-    | 'table'
-    | 'trace'
-    | 'clear'
-    | 'startGroup'
-    | 'startGroupCollapsed'
-    | 'endGroup'
-    | 'assert'
-    | 'profile'
-    | 'profileEnd'
-    | 'count'
-    | 'timeEnd'
-    | 'verbose';
+  type: 'log' | 'debug' | 'info' | 'error' | 'warning' | 'dir' | 'dirxml' | 'table' | 'trace' | 'clear' | 'startGroup' | 'startGroupCollapsed' | 'endGroup' | 'assert' | 'profile' | 'profileEnd' | 'count' | 'timeEnd' | 'verbose';
 };
 
-const renderFrames = (options: {
-  onBrowserLog?: (log: BrowserLog) => void;
-}) => {};
+const renderFrames = (options: {onBrowserLog?: (log: BrowserLog) => void}) => {};
 // ---cut---
 renderFrames({
   onBrowserLog: (info) => {
@@ -303,6 +301,14 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
+### `offthreadVideoThreads?`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
+
 ### `binariesDirectory?`<AvailableFrom v="4.0.120" />
 
 <Options id="binaries-directory" />
@@ -310,6 +316,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 #### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 
 <Options id="on-browser-download" />
+
+### `chromeMode?`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
 
 ### ~~`quality?`~~
 

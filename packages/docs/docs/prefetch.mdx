@@ -9,7 +9,7 @@ _Available in v3.2.23_
 
 By calling `prefetch()`, an asset will be fetched and kept in memory so it is ready when you want to play it in a [`<Player>`](/docs/player).
 
-If you pass the original URL into either an [`<Audio>`](/docs/audio), [`<Video>`](/docs/video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img) tag and the asset is fully fetched, those components will use Blob URL instead.
+If you pass the original URL into either an [`<Html5Audio>`](/docs/html5-audio), [`<Audio>`](/docs/media/audio), [`<Video>`](/docs/media/video), [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img) tag and the asset is fully fetched, those components will use Blob URL instead.
 
 :::note
 Remote assets need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
@@ -18,13 +18,10 @@ Remote assets need to support [CORS](https://developer.mozilla.org/en-US/docs/We
   <summary>More info</summary>
   <ul>
     <li>
-      Remotion's origin is usually <code>http://localhost:3000</code>, but it
-      may be different if rendering on Lambda or the port is busy.
+      Remotion's origin is usually <code>http://localhost:3000</code>, but it may be different if rendering on Lambda or the port is busy.
     </li>
     <li>
-      You can{' '}
-      <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a>{' '}
-      during renders.
+      You can <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a> during renders.
     </li>
   </ul>
 </details>
@@ -51,11 +48,9 @@ An alternative to `prefetch()` are the [`@remotion/preload`](/docs/preload) APIs
 
 ## API
 
-## Arguments
-
 ### `src`
 
-The function takes a `src`, which can be a remote URL, an imported asset or an asset loaded using [`staticFile()`](/docs/staticfile) (see: [Importing assets](/docs/assets)). Once called, prefetching starts and an object with two properties are returned:
+The function takes a `src`, which can be a remote URL, an imported asset or an asset loaded using [`staticFile()`](/docs/staticfile) (see: [Importing assets](/docs/assets)).
 
 ### `options`
 
@@ -74,6 +69,10 @@ Read below for which option is suitable for you.
 
 Set a content type for the blob. By default, the content type from the HTTP response is taken. We recommend setting an appropriate content type for the media, e.g `video/mp4` only if the HTTP resource does not contain the right one by default.
 
+#### `credentials?`<AvailableFrom v="4.0.229" />
+
+Set a value for [`credentials`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#including_credentials) when calling `fetch()`.
+
 #### `onProgress?`<AvailableFrom v="4.0.85" />
 
 Callback for progress events.
@@ -90,10 +89,7 @@ const onProgress: PrefetchOnProgress = (progress) => {
     return;
   }
 
-  console.log(
-    'Loading progress:',
-    Math.round(progress.loadedBytes / progress.totalBytes / 100) + '%',
-  );
+  console.log('Loading progress:', Math.round((progress.loadedBytes / progress.totalBytes) * 100) + '%');
 };
 
 prefetch('https://example.com/video.mp4', {
@@ -101,9 +97,13 @@ prefetch('https://example.com/video.mp4', {
 });
 ```
 
+### `logLevel?`<AvailableFrom v="4.0.250" />
+
+<Options id="log" />
+
 ## Return value
 
-An object with:
+Once called, prefetching starts and an object with two properties are returned:
 
 ### `free()`
 
@@ -118,7 +118,7 @@ The `string` that is being returned is either:
 - A `blob:` URL or `data:` Base 64 data respectively
 - The same `src` you passed as input, if in a rendering environment.
 
-You don't need to use this URL in [`<Audio>`](/docs/audio), [`<Video>`](/docs/video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img), which will automatically use it.
+You don't need to use this URL in [`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img), which will automatically use it.
 
 If you neeed the URL somewhere (like for [`mask-image`](/docs/troubleshooting/background-image)), you can grab it from `waitUntilDone()`.
 

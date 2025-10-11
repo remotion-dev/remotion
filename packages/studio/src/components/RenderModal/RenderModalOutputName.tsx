@@ -5,12 +5,12 @@ import {Column, Spacing} from '../layout';
 import {label, optionRow, rightRow} from './layout';
 
 type Props = {
-	existence: boolean;
-	inputStyle: React.CSSProperties;
-	outName: string;
-	onValueChange: React.ChangeEventHandler<HTMLInputElement>;
-	validationMessage: string | null;
-	label: string;
+	readonly existence: boolean;
+	readonly inputStyle: React.CSSProperties;
+	readonly outName: string;
+	readonly onValueChange: React.ChangeEventHandler<HTMLInputElement>;
+	readonly validationMessage: string | null;
+	readonly label: string;
 };
 
 export const RenderModalOutputName = ({

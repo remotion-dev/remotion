@@ -1,9 +1,9 @@
 import {CliInternals} from '@remotion/cli';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {AwsRegion, DeleteAfter} from '../client';
+import type {AwsRegion, DeleteAfter, RuntimePreference} from '../client';
 
-import type {Privacy} from '@remotion/serverless/client';
-import type {RuntimePreference} from '../shared/get-layers';
+import {StorageClass} from '@aws-sdk/client-s3';
+import type {Privacy} from '@remotion/serverless';
 
 type LambdaCommandLineOptions = {
 	help: boolean;
@@ -25,6 +25,7 @@ type LambdaCommandLineOptions = {
 	[BrowserSafeApis.options.enableLambdaInsights.cliFlag]: boolean;
 	['max-retries']?: number;
 	['frames-per-lambda']?: number;
+	['concurrency']?: number;
 	['concurrency-per-lambda']?: number;
 	['out-name']: string | undefined;
 	['custom-role-arn']: string | undefined;
@@ -42,6 +43,7 @@ type LambdaCommandLineOptions = {
 	['compatible-only']: boolean;
 	['force-path-style']: boolean;
 	['runtime-preference']: RuntimePreference;
+	['storage-class']: StorageClass | undefined;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(

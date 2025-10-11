@@ -46,12 +46,13 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				job.serializedInputPropsWithCustomSchema,
 			),
 			inFrameMark: null,
 			outFrameMark: null,
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
+			initialOffthreadVideoThreads: job.offthreadVideoThreads,
 			initialColorSpace: defaults.colorSpace as ColorSpace,
 			initialMultiProcessOnLinux: job.multiProcessOnLinux,
 			defaultConfigurationVideoCodec: defaults.codec as Codec,
@@ -63,6 +64,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
 			defaulMetadata: job.metadata,
 			renderTypeOfLastRender: 'still',
+			initialHardwareAcceleration: defaults.hardwareAcceleration,
+			initialChromeMode: job.chromeMode,
+			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 		};
 	}
 
@@ -78,6 +82,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
+			initialHeadless: job.chromiumOptions.headless,
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
 			initialProResProfile: defaults.proResProfile as ProResProfile,
@@ -91,16 +96,16 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEnvVariables: job.envVariables,
 			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
 			initialOpenGlRenderer: job.chromiumOptions.gl,
-			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				job.serializedInputPropsWithCustomSchema,
 			),
 			initialStillImageFormat: defaults.stillImageFormat,
 			inFrameMark: job.startFrame,
 			outFrameMark: job.endFrame,
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
+			initialOffthreadVideoThreads: job.offthreadVideoThreads,
 			initialColorSpace: defaults.colorSpace as ColorSpace,
 			initialMultiProcessOnLinux: job.multiProcessOnLinux,
 			defaultConfigurationVideoCodec: defaults.codec as Codec,
@@ -113,6 +118,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
 			defaulMetadata: job.metadata,
 			renderTypeOfLastRender: 'sequence',
+			initialHardwareAcceleration: defaults.hardwareAcceleration,
+			initialChromeMode: job.chromeMode,
+			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 		};
 	}
 
@@ -143,15 +151,16 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEnvVariables: job.envVariables,
 			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
 			initialOpenGlRenderer: job.chromiumOptions.gl,
-			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
+			initialHeadless: job.chromiumOptions.headless,
+			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				job.serializedInputPropsWithCustomSchema,
 			),
 			inFrameMark: job.startFrame,
 			outFrameMark: job.endFrame,
 			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
+			initialOffthreadVideoThreads: job.offthreadVideoThreads,
 			initialColorSpace: job.colorSpace,
 			initialMultiProcessOnLinux: job.multiProcessOnLinux,
 			defaultConfigurationVideoCodec: job.codec,
@@ -164,6 +173,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialForSeamlessAacConcatenation: job.forSeamlessAacConcatenation,
 			defaulMetadata: job.metadata,
 			renderTypeOfLastRender: 'video',
+			initialHardwareAcceleration: job.hardwareAcceleration,
+			initialChromeMode: job.chromeMode,
+			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 		};
 	}
 

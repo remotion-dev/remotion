@@ -1,0 +1,4 @@
+/**
+ * @description Simplifies the process of setting up a Lambda Webhook in your Next.js app which is using Pages Router.
+ * @see [Documentation](https://www.remotion.dev/docs/lambda/pagesrouterwebhook)
+ */

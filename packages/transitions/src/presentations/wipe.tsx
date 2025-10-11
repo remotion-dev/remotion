@@ -226,11 +226,9 @@ const WipePresentation: React.FC<
 	);
 };
 
-/**
+/*
  * @description A presentation where the entering slide slides over the exiting slide.
- * @see [Documentation](https://remotion.dev/docs/transitions/presentations/wipe)
- * @param {WipeProps} [props] - Optional properties to configure the transition.
- * @returns {TransitionPresentation<WipeProps>} Transition presentation object setup for wipe effect.
+ * @see [Documentation](https://www.remotion.dev/docs/transitions/presentations/wipe)
  */
 export const wipe = (props?: WipeProps): TransitionPresentation<WipeProps> => {
 	return {

@@ -1,4 +1,3 @@
-/* eslint-disable no-bitwise */
 // Default stream and parsers for Uint8TypedArray data type
 
 import type {GifSchema} from './parser';

@@ -14,6 +14,32 @@
 					"value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
 				}
 			]
+		},
+		{
+			"source": "/transcribe(.*)",
+			"headers": [
+				{
+					"key": "Cross-Origin-Embedder-Policy",
+					"value": "require-corp"
+				},
+				{
+					"key": "Cross-Origin-Opener-Policy",
+					"value": "same-origin"
+				}
+			]
+		},
+		{
+			"source": "/convert/assets/(.*)",
+			"headers": [
+				{
+					"key": "Cross-Origin-Embedder-Policy",
+					"value": "require-corp"
+				},
+				{
+					"key": "Cross-Origin-Opener-Policy",
+					"value": "same-origin"
+				}
+			]
 		}
 	],
 	"redirects": [
@@ -143,6 +169,11 @@
 			"permanent": true
 		},
 		{
+			"source": "/webcodecs",
+			"destination": "/docs/webcodecs",
+			"permanent": true
+		},
+		{
 			"source": "/docs/player/api",
 			"destination": "/docs/player/player",
 			"permanent": true
@@ -228,6 +259,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/ask-in-public",
+			"destination": "https://www.remotion.dev/docs/ask-in-public",
+			"permanent": false
+		},
+		{
 			"source": "/native",
 			"destination": "https://remotion.dev/docs/react-native",
 			"permanent": false
@@ -273,8 +309,8 @@
 			"permanent": false
 		},
 		{
-			"source": "/docs/timeline",
-			"destination": "/docs/studio",
+			"source": "/templates/remix",
+			"destination": "/templates/react-router",
 			"permanent": false
 		},
 		{
@@ -323,13 +359,38 @@
 			"permanent": false
 		},
 		{
+			"source": "/chrome-for-testing",
+			"destination": "/docs/miscellaneous/chrome-headless-shell#using-chrome-for-testing-instead",
+			"permanent": false
+		},
+		{
 			"source": "/media-parser",
+			"destination": "/docs/media-parser",
+			"permanent": false
+		},
+		{
+			"source": "/editor-starter",
+			"destination": "/docs/editor-starter",
+			"permanent": false
+		},
+		{
+			"source": "/docs/system-prompt",
+			"destination": "/docs/ai/system-prompt",
+			"permanent": false
+		},
+		{
+			"source": "/media-parser/",
 			"destination": "/docs/media-parser",
 			"permanent": false
 		},
 		{
 			"source": "/docs/chrome-headless-shell",
 			"destination": "/docs/miscellaneous/chrome-headless-shell",
+			"permanent": false
+		},
+		{
+			"source": "/docs/audio-visualization",
+			"destination": "/docs/audio/visualization",
 			"permanent": false
 		},
 		{
@@ -353,6 +414,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/docs/video-vs-offthreadvideo",
+			"destination": "/docs/video-tags",
+			"permanent": false
+		},
+		{
 			"source": "/bbb.webm",
 			"destination": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.720p.vp9.webm",
 			"permanent": false
@@ -368,6 +434,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/discord-blue-badges",
+			"destination": "https://github.com/remotion-dev/business/issues/347",
+			"permanent": false
+		},
+		{
 			"source": "/content",
 			"destination": "https://github.com/orgs/remotion-dev/projects/16/views/1?layout=board",
 			"permanent": false
@@ -375,6 +446,31 @@
 		{
 			"source": "/docs/snippets/fps-converter",
 			"destination": "/docs/multiple-fps",
+			"permanent": false
+		},
+		{
+			"source": "/system-prompt",
+			"destination": "/docs/ai/system-prompt",
+			"permanent": false
+		},
+		{
+			"source": "/investors",
+			"destination": "/docs/investors",
+			"permanent": false
+		},
+		{
+			"destination": "/docs/video-tags#using-a-different-tag-in-preview-and-rendering",
+			"permanent": false,
+			"source": "/docs/miscellaneous/snippets/offthread-video-while-rendering"
+		},
+		{
+			"source": "/docs/video",
+			"destination": "/docs/html5-video",
+			"permanent": false
+		},
+		{
+			"source": "/docs/audio",
+			"destination": "/docs/html5-audio",
 			"permanent": false
 		}
 	]

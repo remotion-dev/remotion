@@ -2,7 +2,7 @@
 image: /generated/articles-docs-install-whisper-cpp-install-whisper-cpp.png
 slug: install-whisper-cpp
 title: installWhisperCpp()
-crumb: "@remotion/install-whisper-cpp"
+crumb: '@remotion/install-whisper-cpp'
 ---
 
 # installWhisperCpp()<AvailableFrom v="4.0.115"/>
@@ -10,26 +10,27 @@ crumb: "@remotion/install-whisper-cpp"
 Installs a Whisper.cpp version into a folder.
 
 ```tsx twoslash title="install-whisper.mjs"
-// @module: esnext
-// @target: es2022
-import path from "path";
-import { installWhisperCpp } from "@remotion/install-whisper-cpp";
+import path from 'path';
+import {installWhisperCpp} from '@remotion/install-whisper-cpp';
 
-const { alreadyExisted } = await installWhisperCpp({
-  to: path.join(process.cwd(), "whisper.cpp"),
-  version: "1.5.5", // A Whisper.cpp semver or git tag
+const {alreadyExisted} = await installWhisperCpp({
+  to: path.join(process.cwd(), 'whisper.cpp'),
+  version: '1.5.5', // A Whisper.cpp semver or git tag
 });
 ```
 
-On Windows, if the provided version is not in semantic version format (e.g., `1.5.4`), the installation will throw an error. The function expects a precompiled semantic versioned release available for download.
+## Which Whisper.cpp version to select?
 
-On other platforms, the source is cloned from GitHub and built.
+- Generally, the source is cloned from Whisper.cpp GitHub and built.
+- On Windows, a binary is downloaded. Only semantic version format (e.g. `1.5.4` is supported).
+- On Windows, there are no binaries newer than `1.6.0` available.
+- From `1.7.3` and later, `cmake` is required for Whisper.cpp to be built.
 
-If you install Whisper.cpp into a folder which is in a Git repository, you should add the folder to the `.gitignore` file.
+## Note this
 
-If the output folder already exists, the function will not do anything and return `{ alreadyExisted: true }`.
-
-You also need to download a model for Whisper.cpp to work. You can do this with the [`downloadWhisperModel()`](/docs/install-whisper-cpp/download-whisper-model) function.
+- You should add the folder you install Whisper.cpp into to the `.gitignore` file.
+- If the output folder already exists, the function will not do anything and return `{ alreadyExisted: true }`.
+- You also need to download a model for Whisper.cpp to work. You can do this with the [`downloadWhisperModel()`](/docs/install-whisper-cpp/download-whisper-model) function.
 
 ## Options
 
@@ -66,4 +67,5 @@ Whether the folder already existed. If it did, and contains the necessary execut
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/install-whisper-cpp/src/install-whisper-cpp.ts)
 - [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)
+- [`@remotion/openai-whisper`](/docs/openai-whisper)
 - [`downloadWhisperModel()`](/docs/install-whisper-cpp/download-whisper-model)

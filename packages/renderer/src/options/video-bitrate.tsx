@@ -17,7 +17,7 @@ export const videoBitrateOption = {
 		</>
 	),
 	ssrName: 'videoBitrate',
-	docLink: 'https://www.remotion.dev/docs/renderer/render-media#videobitrate-',
+	docLink: 'https://www.remotion.dev/docs/renderer/render-media#videobitrate',
 	type: '' as string | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

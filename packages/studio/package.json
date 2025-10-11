@@ -3,15 +3,15 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio"
 	},
 	"name": "@remotion/studio",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"description": "APIs for interacting with the Remotion Studio",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
-		"lint": "eslint src --ext ts,tsx",
-		"make": "bun --env-file=../.env.bundle bundle.ts",
+		"lint": "eslint src",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"test": "bun test src",
-		"formatting": "prettier src --check"
+		"formatting": "prettier --experimental-cli src --check"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -19,23 +19,34 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
 	"dependencies": {
 		"semver": "7.5.3",
 		"remotion": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
+		"@remotion/media-parser": "workspace:*",
 		"@remotion/renderer": "workspace:*",
+		"@remotion/web-renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
+		"@remotion/webcodecs": "workspace:*",
+		"@remotion/zod-types": "workspace:*",
 		"memfs": "3.4.3",
 		"source-map": "0.7.3",
-		"open": "^8.4.2"
+		"open": "^8.4.2",
+		"zod": "3.22.3"
 	},
 	"devDependencies": {
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
 		"@types/semver": "^7.3.4",
 		"zod": "3.23.8",
-		"@remotion/zod-types": "workspace:*"
+		"@remotion/zod-types": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
 	},
 	"publishConfig": {
 		"access": "public"
@@ -44,17 +55,41 @@
 		"./package.json": "./package.json",
 		".": {
 			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
 			"module": "./dist/esm/index.mjs",
-			"import": "./dist/esm/index.mjs",
-			"require": "./dist/index.js"
+			"import": "./dist/esm/index.mjs"
 		},
-		"./entry": "./dist/previewEntry.js",
+		"./renderEntry": {
+			"types": "./dist/renderEntry.d.ts",
+			"require": "./dist/renderEntry.js",
+			"module": "./dist/esm/renderEntry.mjs",
+			"import": "./dist/esm/renderEntry.mjs"
+		},
 		"./internals": {
 			"types": "./dist/internals.d.ts",
+			"require": "./dist/internals.js",
 			"module": "./dist/esm/internals.mjs",
-			"import": "./dist/esm/internals.mjs",
-			"require": "./dist/internals.js"
+			"import": "./dist/esm/internals.mjs"
+		},
+		"./previewEntry": {
+			"types": "./dist/previewEntry.d.ts",
+			"require": "./dist/previewEntry.js",
+			"module": "./dist/esm/previewEntry.mjs",
+			"import": "./dist/esm/previewEntry.mjs"
 		}
 	},
-	"homepage": "https://www.remotion.dev/docs/studio/api"
+	"homepage": "https://www.remotion.dev/docs/studio/api",
+	"typesVersions": {
+		">=1.0": {
+			"renderEntry": [
+				"./dist/renderEntry.d.ts"
+			],
+			"internals": [
+				"./dist/internals.d.ts"
+			],
+			"previewEntry": [
+				"./dist/previewEntry.d.ts"
+			]
+		}
+	}
 }

@@ -15,23 +15,16 @@ export const Studio: React.FC<{
 	readonly readOnly: boolean;
 }> = ({rootComponent, readOnly}) => {
 	useLayoutEffect(() => {
-		window.remotion_isStudio = true;
-		window.remotion_isReadOnlyStudio = readOnly;
-		Internals.enableSequenceStackTraces();
-
-		return () => {
-			window.remotion_isStudio = false;
-			window.remotion_isReadOnlyStudio = false;
-		};
-	}, [readOnly]);
-
-	useLayoutEffect(() => {
 		injectCSS();
 	}, []);
 
 	return (
 		<Internals.RemotionRoot
+			logLevel={window.remotion_logLevel}
 			numberOfAudioTags={window.remotion_numberOfAudioTags}
+			onlyRenderComposition={null}
+			currentCompositionMetadata={null}
+			audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 		>
 			<EditorContexts readOnlyStudio={readOnly}>
 				<Editor readOnlyStudio={readOnly} Root={rootComponent} />

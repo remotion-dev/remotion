@@ -1,10 +1,7 @@
+import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
+import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {getSitesKey} from '@remotion/lambda-client/constants';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import {getSitesKey} from '../defaults';
-import type {AwsProvider} from '../functions/aws-implementation';
-import {awsImplementation} from '../functions/aws-implementation';
-import type {AwsRegion} from '../regions';
-import {getAccountId} from '../shared/get-account-id';
-import {cleanItems} from './clean-items';
 
 type MandatoryParameters = {
 	bucketName: string;
@@ -17,6 +14,7 @@ type OptionalParameters = {
 		| ((data: {bucketName: string; itemName: string}) => void)
 		| null;
 	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
 };
 
 export type DeleteSiteInput = MandatoryParameters & OptionalParameters;
@@ -34,10 +32,11 @@ export const internalDeleteSite = async ({
 	onAfterItemDeleted,
 	providerSpecifics,
 	forcePathStyle,
+	requestHandler,
 }: DeleteSiteInput & {
 	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }): Promise<DeleteSiteOutput> => {
-	const accountId = await getAccountId({region});
+	const accountId = await providerSpecifics.getAccountId({region});
 
 	let files = await providerSpecifics.listObjects({
 		bucketName,
@@ -46,6 +45,7 @@ export const internalDeleteSite = async ({
 		region,
 		expectedBucketOwner: accountId,
 		forcePathStyle,
+		requestHandler: null,
 	});
 
 	let totalSize = 0;
@@ -54,7 +54,7 @@ export const internalDeleteSite = async ({
 		totalSize += files.reduce((a, b) => {
 			return a + (b.Size ?? 0);
 		}, 0);
-		await cleanItems({
+		await LambdaClientInternals.cleanItems({
 			list: files.map((f) => f.Key as string),
 			bucket: bucketName as string,
 			onAfterItemDeleted: onAfterItemDeleted ?? (() => undefined),
@@ -62,6 +62,7 @@ export const internalDeleteSite = async ({
 			region,
 			providerSpecifics,
 			forcePathStyle,
+			requestHandler,
 		});
 		files = await providerSpecifics.listObjects({
 			bucketName,
@@ -70,6 +71,7 @@ export const internalDeleteSite = async ({
 			region,
 			expectedBucketOwner: accountId,
 			forcePathStyle,
+			requestHandler,
 		});
 	}
 
@@ -78,15 +80,9 @@ export const internalDeleteSite = async ({
 	};
 };
 
-/**
- *
- * @description Deletes a deployed site from your S3 bucket. The opposite of deploySite().
- * @see [Documentation](https://remotion.dev/docs/lambda/deletesite)
- * @param params.bucketName The S3 bucket name where the site resides in.
- * @param params.siteName The ID of the site that you want to delete.
- * @param {AwsRegion} params.region The region in where the S3 bucket resides in.
- * @param params.onAfterItemDeleted Function that gets called after each file that gets deleted, useful for showing progress.
- * @returns {Promise<DeleteSiteOutput>} Object containing info about how much space was freed.
+/*
+ * @description Removes a Remotion project from your Cloud Storage bucket.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/deletesite)
  */
 export const deleteSite = (
 	props: DeleteSiteOptionalInput,
@@ -95,6 +91,7 @@ export const deleteSite = (
 		...props,
 		onAfterItemDeleted: props.onAfterItemDeleted ?? null,
 		forcePathStyle: props.forcePathStyle ?? false,
-		providerSpecifics: awsImplementation,
+		providerSpecifics: LambdaClientInternals.awsImplementation,
+		requestHandler: props.requestHandler ?? null,
 	});
 };

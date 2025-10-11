@@ -2,6 +2,7 @@ import {createRef, useCallback, useImperativeHandle, useState} from 'react';
 import {BACKGROUND} from '../helpers/colors';
 import {AssetSelector} from './AssetSelector';
 import {CompositionSelector} from './CompositionSelector';
+import {CompSelectorRef} from './CompSelectorRef';
 import {Tab, Tabs} from './Tabs';
 
 const container: React.CSSProperties = {
@@ -69,25 +70,27 @@ export const ExplorerPanel: React.FC<{
 	}, []);
 
 	return (
-		<div style={container} className="css-reset">
-			<div style={tabsContainer}>
-				<Tabs>
-					<Tab
-						selected={panel === 'compositions'}
-						onClick={onCompositionsSelected}
-					>
-						Compositions
-					</Tab>
-					<Tab selected={panel === 'assets'} onClick={onAssetsSelected}>
-						Assets
-					</Tab>
-				</Tabs>
+		<CompSelectorRef>
+			<div style={container} className="css-reset">
+				<div style={tabsContainer}>
+					<Tabs>
+						<Tab
+							selected={panel === 'compositions'}
+							onClick={onCompositionsSelected}
+						>
+							Compositions
+						</Tab>
+						<Tab selected={panel === 'assets'} onClick={onAssetsSelected}>
+							Assets
+						</Tab>
+					</Tabs>
+				</div>
+				{panel === 'compositions' ? (
+					<CompositionSelector />
+				) : (
+					<AssetSelector readOnlyStudio={readOnlyStudio} />
+				)}
 			</div>
-			{panel === 'compositions' ? (
-				<CompositionSelector />
-			) : (
-				<AssetSelector readOnlyStudio={readOnlyStudio} />
-			)}
-		</div>
+		</CompSelectorRef>
 	);
 };

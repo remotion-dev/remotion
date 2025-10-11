@@ -5,12 +5,12 @@ import styles from './button.module.css';
 import {RED, UNDERLAY_RED} from './colors';
 
 type ExtraProps = {
-	size: Size;
-	fullWidth: boolean;
-	background: string;
-	hoverColor?: string;
-	color: string;
-	loading: boolean;
+	readonly size: Size;
+	readonly fullWidth: boolean;
+	readonly background: string;
+	readonly hoverColor?: string;
+	readonly color: string;
+	readonly loading: boolean;
 };
 
 type Size = 'sm' | 'bg';

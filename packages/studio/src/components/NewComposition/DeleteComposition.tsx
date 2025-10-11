@@ -58,7 +58,7 @@ const DeleteCompositionLoaded: React.FC<{
 					<CodemodFooter
 						errorNotification={`Could not delete composition`}
 						loadingNotification={'Deleting'}
-						succeessNotifcation={`Deleted ${unresolved.id}`}
+						successNotification={`Deleted ${unresolved.id}`}
 						genericSubmitLabel={`Delete`}
 						submitLabel={({relativeRootPath}) =>
 							`Delete from ${relativeRootPath}`

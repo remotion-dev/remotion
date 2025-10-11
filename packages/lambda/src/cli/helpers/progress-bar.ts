@@ -8,7 +8,7 @@ export type BundleProgress = {
 
 export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
 	return [
-		`${doneIn === null ? 'Bundling' : 'Bundled'} video`.padEnd(
+		`${doneIn === null ? 'Bundling' : 'Bundled'} site`.padEnd(
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),

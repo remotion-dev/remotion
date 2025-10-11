@@ -4,7 +4,10 @@ import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {
 	CompositionManagerContext,
+	LoggingContextValue,
+	LogLevel,
 	MediaVolumeContextValue,
+	RemotionEnvironment,
 	SetMediaVolumeContextValue,
 	TimelineContextValue,
 } from 'remotion';
@@ -23,6 +26,9 @@ export const SharedPlayerContexts: React.FC<{
 	readonly component: LazyExoticComponent<ComponentType<unknown>>;
 	readonly numberOfSharedAudioTags: number;
 	readonly initiallyMuted: boolean;
+	readonly logLevel: LogLevel;
+	readonly audioLatencyHint: AudioContextLatencyCategory;
+	readonly volumePersistenceKey?: string;
 }> = ({
 	children,
 	timelineContext,
@@ -33,6 +39,9 @@ export const SharedPlayerContexts: React.FC<{
 	component,
 	numberOfSharedAudioTags,
 	initiallyMuted,
+	logLevel,
+	audioLatencyHint,
+	volumePersistenceKey,
 }) => {
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		const context: CompositionManagerContext = {
@@ -54,22 +63,15 @@ export const SharedPlayerContexts: React.FC<{
 				},
 			],
 			folders: [],
-			registerFolder: () => undefined,
-			unregisterFolder: () => undefined,
-			registerComposition: () => undefined,
-			unregisterComposition: () => undefined,
 			currentCompositionMetadata: null,
-			setCurrentCompositionMetadata: () => undefined,
 			canvasContent: {type: 'composition', compositionId: 'player-comp'},
-			setCanvasContent: () => undefined,
-			updateCompositionDefaultProps: () => undefined,
 		};
 		return context;
 	}, [component, durationInFrames, compositionHeight, compositionWidth, fps]);
 
 	const [mediaMuted, setMediaMuted] = useState<boolean>(() => initiallyMuted);
 	const [mediaVolume, setMediaVolume] = useState<number>(() =>
-		getPreferredVolume(),
+		getPreferredVolume(volumePersistenceKey ?? null),
 	);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
@@ -79,10 +81,13 @@ export const SharedPlayerContexts: React.FC<{
 		};
 	}, [mediaMuted, mediaVolume]);
 
-	const setMediaVolumeAndPersist = useCallback((vol: number) => {
-		setMediaVolume(vol);
-		persistVolume(vol);
-	}, []);
+	const setMediaVolumeAndPersist = useCallback(
+		(vol: number) => {
+			setMediaVolume(vol);
+			persistVolume(vol, logLevel, volumePersistenceKey ?? null);
+		},
+		[logLevel, volumePersistenceKey],
+	);
 
 	const setMediaVolumeContextValue = useMemo((): SetMediaVolumeContextValue => {
 		return {
@@ -91,38 +96,58 @@ export const SharedPlayerContexts: React.FC<{
 		};
 	}, [setMediaVolumeAndPersist]);
 
+	const logLevelContext: LoggingContextValue = useMemo(() => {
+		return {
+			logLevel,
+			mountTime: Date.now(),
+		};
+	}, [logLevel]);
+
+	const env: RemotionEnvironment = useMemo(() => {
+		return {
+			isPlayer: true,
+			isRendering: false,
+			isStudio: false,
+			isClientSideRendering: false,
+			isReadOnlyStudio: false,
+		};
+	}, []);
+
 	return (
-		<Internals.CanUseRemotionHooksProvider>
-			<Internals.Timeline.TimelineContext.Provider value={timelineContext}>
-				<Internals.CompositionManager.Provider
-					value={compositionManagerContext}
-				>
-					<Internals.ResolveCompositionConfig>
-						<Internals.PrefetchProvider>
-							<Internals.DurationsContextProvider>
-								<Internals.MediaVolumeContext.Provider
-									value={mediaVolumeContextValue}
-								>
-									<Internals.NativeLayersProvider>
-										<Internals.SetMediaVolumeContext.Provider
-											value={setMediaVolumeContextValue}
+		<Internals.RemotionEnvironmentContext.Provider value={env}>
+			<Internals.LogLevelContext.Provider value={logLevelContext}>
+				<Internals.CanUseRemotionHooksProvider>
+					<Internals.Timeline.TimelineContext.Provider value={timelineContext}>
+						<Internals.CompositionManager.Provider
+							value={compositionManagerContext}
+						>
+							<Internals.ResolveCompositionConfig>
+								<Internals.PrefetchProvider>
+									<Internals.DurationsContextProvider>
+										<Internals.MediaVolumeContext.Provider
+											value={mediaVolumeContextValue}
 										>
-											<Internals.SharedAudioContextProvider
-												numberOfAudioTags={numberOfSharedAudioTags}
-												component={component}
+											<Internals.SetMediaVolumeContext.Provider
+												value={setMediaVolumeContextValue}
 											>
-												<Internals.BufferingProvider>
-													{children}
-												</Internals.BufferingProvider>
-											</Internals.SharedAudioContextProvider>
-										</Internals.SetMediaVolumeContext.Provider>
-									</Internals.NativeLayersProvider>
-								</Internals.MediaVolumeContext.Provider>
-							</Internals.DurationsContextProvider>
-						</Internals.PrefetchProvider>
-					</Internals.ResolveCompositionConfig>
-				</Internals.CompositionManager.Provider>
-			</Internals.Timeline.TimelineContext.Provider>
-		</Internals.CanUseRemotionHooksProvider>
+												<Internals.SharedAudioContextProvider
+													numberOfAudioTags={numberOfSharedAudioTags}
+													component={component}
+													audioLatencyHint={audioLatencyHint}
+												>
+													<Internals.BufferingProvider>
+														{children}
+													</Internals.BufferingProvider>
+												</Internals.SharedAudioContextProvider>
+											</Internals.SetMediaVolumeContext.Provider>
+										</Internals.MediaVolumeContext.Provider>
+									</Internals.DurationsContextProvider>
+								</Internals.PrefetchProvider>
+							</Internals.ResolveCompositionConfig>
+						</Internals.CompositionManager.Provider>
+					</Internals.Timeline.TimelineContext.Provider>
+				</Internals.CanUseRemotionHooksProvider>
+			</Internals.LogLevelContext.Provider>
+		</Internals.RemotionEnvironmentContext.Provider>
 	);
 };

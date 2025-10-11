@@ -30,11 +30,11 @@ export const renderStillSingleThread = async (
 		}
 
 		throw new Error(
-			`Version mismatch: When calling renderMediaOnCloudRun(), you called a service, which has the version ${VERSION}, but the @remotion/cloudrun package you used to invoke the function has version ${VERSION}. Deploy a new service and use it to call renderMediaOnCloudrun().`,
+			`Version mismatch: When calling renderMediaOnCloudRun(), you called a service, which has the version ${VERSION}, but the @remotion/cloudrun package you used to invoke the function has version ${body.clientVersion}. Deploy a new service and use it to call renderMediaOnCloudrun().`,
 		);
 	}
 
-	const renderId = randomHash({randomInTests: true});
+	const renderId = body.renderIdOverride ?? randomHash({randomInTests: true});
 
 	try {
 		Log.verbose(
@@ -71,7 +71,7 @@ export const renderStillSingleThread = async (
 			serializedInputPropsWithCustomSchema:
 				body.serializedInputPropsWithCustomSchema,
 			serializedResolvedPropsWithCustomSchema:
-				NoReactInternals.serializeJSONWithDate({
+				NoReactInternals.serializeJSONWithSpecialTypes({
 					data: composition.props,
 					indent: undefined,
 					staticBase: null,
@@ -94,6 +94,7 @@ export const renderStillSingleThread = async (
 			puppeteerInstance: null,
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads: body.offthreadVideoThreads,
 			binariesDirectory: null,
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in Cloud Run');
@@ -101,6 +102,9 @@ export const renderStillSingleThread = async (
 			onArtifact: () => {
 				throw new Error('Emitting artifacts is not supported in Cloud Run');
 			},
+			chromeMode: 'headless-shell',
+			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
+			onLog: RenderInternals.defaultOnLog,
 		});
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 

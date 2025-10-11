@@ -1,8 +1,8 @@
+import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel, LogOptions} from '@remotion/renderer';
+import {ProviderSpecifics} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {getFunctions} from '../../api/get-functions';
-import {speculateFunctionName} from '../../client';
-import {BINARY_NAME} from '../../shared/constants';
 import {parsedLambdaCli} from '../args';
 import {FUNCTIONS_COMMAND} from '../commands/functions';
 import {FUNCTIONS_DEPLOY_SUBCOMMAND} from '../commands/functions/deploy';
@@ -12,8 +12,14 @@ import {getAwsRegion} from '../get-aws-region';
 import {Log} from '../log';
 import {quit} from './quit';
 
-export const findFunctionName = async (logLevel: LogLevel) => {
-	const remotionLambdas = await getFunctions({
+export const findFunctionName = async ({
+	logLevel,
+	providerSpecifics,
+}: {
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}) => {
+	const remotionLambdas = await providerSpecifics.getFunctions({
 		region: getAwsRegion(),
 		compatibleOnly: false,
 	});
@@ -34,7 +40,7 @@ export const findFunctionName = async (logLevel: LogLevel) => {
 		if (!compatibleFunctionExists) {
 			Log.warn(
 				{indent: false, logLevel},
-				`Function "${cliFlag}" does not match naming convention ${speculateFunctionName({diskSizeInMb: '[disk]', memorySizeInMb: '[memory]', timeoutInSeconds: '[timeout]'})}.`,
+				`The name passed to --function-name "${cliFlag}" does not match the naming convention this version of the CLI expects: ${LambdaClientInternals.innerSpeculateFunctionName({diskSizeInMb: '[disk]', memorySizeInMb: '[memory]', timeoutInSeconds: '[timeout]'})}.`,
 			);
 			Log.warn(
 				{indent: false, logLevel},
@@ -49,7 +55,7 @@ export const findFunctionName = async (logLevel: LogLevel) => {
 
 				Log.info(
 					logOptions,
-					'Prefer using one of those functions by passing their name to  `--function-name` or removing it entirely.',
+					'Prefer using one of those functions by passing their name to `--function-name` or removing it entirely.',
 				);
 			}
 		}

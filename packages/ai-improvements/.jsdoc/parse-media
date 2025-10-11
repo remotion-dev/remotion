@@ -1,0 +1,4 @@
+/**
+ * @description Parses media files to extract various details using the provided options, which can include video attributes, metadata, and custom streaming or reading behaviors.
+ * @see [Documentation](https://remotion.dev/docs/media-parser/parse-media)
+ */

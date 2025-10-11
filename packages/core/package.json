@@ -3,17 +3,17 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/core"
 	},
 	"name": "remotion",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"description": "Make videos programmatically",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
-		"formatting": "prettier src --check",
+		"formatting": "prettier --experimental-cli src --check",
 		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md .",
-		"lint": "eslint src --ext ts,tsx",
-		"test": "vitest --run",
-		"make": "bun --env-file=../.env.bundle bundle.ts"
+		"lint": "eslint src",
+		"test": "bun test src/test",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -25,19 +25,24 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"@testing-library/react": "15.0.7",
+		"@testing-library/react": "16.1.0",
+		"@testing-library/dom": "10.4.0",
 		"@happy-dom/global-registrator": "14.5.1",
-		"happy-dom": "14.5.1",
 		"jsdom": "21.1.0",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
 		"vitest": "0.31.1",
-		"zod": "3.23.8"
+		"@types/dom-webcodecs": "0.1.11",
+		"happy-dom": "15.10.2",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"webpack": "5.96.1",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"zod": "3.23.8",
+		"eslint": "9.19.0"
 	},
 	"keywords": [
-		"remotion",
-		"ffmpeg",
 		"video",
+		"creation",
+		"editor",
 		"react",
 		"player"
 	],

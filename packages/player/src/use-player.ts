@@ -19,10 +19,7 @@ type UsePlayerMethods = {
 	isPlaying: () => boolean;
 	hasPlayed: boolean;
 	isBuffering: () => boolean;
-	/**
-	 * @deprecated Remotion internal API
-	 */
-	remotionInternal_currentFrameRef: React.MutableRefObject<number>;
+	toggle: (e?: SyntheticEvent | PointerEvent) => void;
 };
 
 export const usePlayer = (): UsePlayerMethods => {
@@ -85,6 +82,8 @@ export const usePlayer = (): UsePlayerMethods => {
 				seek(0);
 			}
 
+			audioContext?.audioContext?.resume();
+
 			/**
 			 * Play silent audio tags to warm them up for autoplay
 			 */
@@ -96,7 +95,9 @@ export const usePlayer = (): UsePlayerMethods => {
 			 * Play audios and videos directly here so they can benefit from
 			 * being triggered by a click
 			 */
-			audioAndVideoTags.current.forEach((a) => a.play());
+			audioAndVideoTags.current.forEach((a) =>
+				a.play('player play() was called and playing audio from a click'),
+			);
 
 			imperativePlaying.current = true;
 			setPlaying(true);
@@ -120,8 +121,9 @@ export const usePlayer = (): UsePlayerMethods => {
 
 			setPlaying(false);
 			emitter.dispatchPause();
+			audioContext?.audioContext?.suspend();
 		}
-	}, [emitter, imperativePlaying, setPlaying]);
+	}, [emitter, imperativePlaying, setPlaying, audioContext]);
 
 	const pauseAndReturnToPlayStart = useCallback(() => {
 		if (imperativePlaying.current) {
@@ -151,10 +153,15 @@ export const usePlayer = (): UsePlayerMethods => {
 			}
 
 			setFrame((c) => {
-				const prev = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				const prevFrame = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				const newFrame = Math.max(0, prevFrame - frames);
+				if (prevFrame === newFrame) {
+					return c;
+				}
+
 				return {
 					...c,
-					[videoId]: Math.max(0, prev - frames),
+					[videoId]: newFrame,
 				};
 			});
 		},
@@ -172,14 +179,30 @@ export const usePlayer = (): UsePlayerMethods => {
 			}
 
 			setFrame((c) => {
-				const prev = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				const prevFrame = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				const newFrame = Math.min(lastFrame, prevFrame + frames);
+				if (prevFrame === newFrame) {
+					return c;
+				}
+
 				return {
 					...c,
-					[videoId]: Math.min(lastFrame, prev + frames),
+					[videoId]: newFrame,
 				};
 			});
 		},
 		[videoId, imperativePlaying, lastFrame, setFrame],
+	);
+
+	const toggle = useCallback(
+		(e?: SyntheticEvent | PointerEvent) => {
+			if (imperativePlaying.current) {
+				pause();
+			} else {
+				play(e);
+			}
+		},
+		[imperativePlaying, pause, play],
 	);
 
 	const returnValue: UsePlayerMethods = useMemo(() => {
@@ -198,22 +221,23 @@ export const usePlayer = (): UsePlayerMethods => {
 			isBuffering: () => buffering.current,
 			pauseAndReturnToPlayStart,
 			hasPlayed,
-			remotionInternal_currentFrameRef: frameRef,
+			toggle,
 		};
 	}, [
+		buffering,
+		emitter,
 		frameBack,
 		frameForward,
-		isLastFrame,
-		emitter,
-		playing,
-		play,
-		pause,
-		seek,
-		isFirstFrame,
-		pauseAndReturnToPlayStart,
 		hasPlayed,
 		imperativePlaying,
-		buffering,
+		isFirstFrame,
+		isLastFrame,
+		pause,
+		pauseAndReturnToPlayStart,
+		play,
+		playing,
+		seek,
+		toggle,
 	]);
 
 	return returnValue;

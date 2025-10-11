@@ -9,12 +9,7 @@ crumb: 'Cloud Run CLI Reference'
 
 <ExperimentalBadge>
   <p>
-    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs
-    may change in any version and documentation is not yet finished. See the{' '}
-    <a href="https://remotion.dev/changelog">
-      changelog to stay up to date with breaking changes
-    </a>
-    .
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
   </p>
 </ExperimentalBadge>
 
@@ -26,7 +21,7 @@ The structure of a command is as follows:
 npx remotion cloudrun render <serve-url> [<composition-id>] [<output-location>]
 ```
 
-- The serve URL is obtained by deploying a Remotion project to a GCP Storage Bucket using the [`sites create`](/docs/cloudrun/cli/sites#create) command or calling [`deployService()`](/docs/cloudrun/deployservice).
+- The serve URL is obtained by deploying a Remotion project to a GCP Storage Bucket using the [`sites create`](/docs/cloudrun/cli/sites/create) command or calling [`deployService()`](/docs/cloudrun/deployservice).
 - The [composition ID](/docs/terminology/composition#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
 - The `output-location` parameter is optional. If you don't specify it, the video is stored in your Cloud Storage bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
@@ -130,6 +125,42 @@ Specify the name of the service which should be used to perform the render. This
 
 <Options id="video-bitrate" />
 
+### `--webhook`
+
+Your webhook URL that will be called with the progress of the render. This will be sent using a POST request.
+
+Example:
+
+```bash
+--webhook=https://example.com/webhook
+```
+
+The webhook will receive a POST request with a JSON body containing:
+
+```json
+{
+  "progress": 0.1,
+  "renderedFrames": 100,
+  "encodedFrames": 100,
+  "renderId": "1234567890",
+  "projectId": "1234567890"
+}
+```
+
+### `--render-id-override`
+
+Provide a specific render ID for the render. Otherwise a random one will be generated.
+
+Example:
+
+```bash
+--render-id-override=my-custom-render-id
+```
+
+:::note
+You will be responsible for ensuring that the render ID is unique, otherwise it will overwrite existing renders with the same configured Render ID.
+:::
+
 ### `--prores-profile`
 
 [Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.
@@ -160,9 +191,17 @@ For example only every second frame, every third frame and so on. Only works for
 
 [Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames.
 
+### `--media-cache-size-in-bytes`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `--offthreadvideo-video-threads`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
 
 ### `--color-space`<AvailableFrom v="4.0.28"/>
 

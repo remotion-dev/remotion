@@ -2,6 +2,7 @@
 image: /generated/articles-docs-captions-caption.png
 title: Caption
 crumb: '@remotion/captions'
+no_ai: true
 ---
 
 # Caption<AvailableFrom v="4.0.216"/>
@@ -43,6 +44,12 @@ Otherwise, it is not defined, but may be the average of the start and end timest
 ### `confidence`
 
 A number between 0 and 1 that indicates how confident the transcription is.
+
+## Whitespace sensitivity
+
+The [`text`](#text) field is whitespace sensitive. You should include spaces in it, ideally before each word.
+
+While rendering, apply the [`white-space: pre`](https://developer.mozilla.org/en-US/docs/Web/CSS/white-space) CSS property to the container of the caption to ensure that the spaces are preserved.
 
 ## See also
 

@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-imports */
 import {expect, test} from 'bun:test';
 import React from 'react';
 import {Artifact, useCurrentFrame} from 'remotion';
@@ -31,6 +30,10 @@ test('Should be able to collect artifacts', async () => {
 	const sec = second[0];
 	if (sec.type !== 'artifact') {
 		throw new Error('Expected artifact');
+	}
+
+	if (sec.contentType !== 'text') {
+		throw new Error('Expected text');
 	}
 
 	expect(sec.filename).toEqual('hi.txt');

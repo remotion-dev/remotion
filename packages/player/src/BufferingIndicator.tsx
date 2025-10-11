@@ -22,7 +22,7 @@ const studioStyle: React.CSSProperties = {
 };
 
 export const BufferingIndicator: React.FC<{
-	type: 'player' | 'studio';
+	readonly type: 'player' | 'studio';
 }> = ({type}) => {
 	const style: React.CSSProperties =
 		type === 'player' ? playerStyle : studioStyle;

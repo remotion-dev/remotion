@@ -11,9 +11,11 @@ import {getStringBeforeSuffix} from './get-string-before-suffix';
 import {input, label, optionRow, rightRow} from './layout';
 
 export const SeparateAudioOptionInput: React.FC<{
-	setSeparateAudioTo: React.Dispatch<React.SetStateAction<string | null>>;
-	separateAudioTo: string;
-	audioCodec: AudioCodec;
+	readonly setSeparateAudioTo: React.Dispatch<
+		React.SetStateAction<string | null>
+	>;
+	readonly separateAudioTo: string;
+	readonly audioCodec: AudioCodec;
 }> = ({separateAudioTo, setSeparateAudioTo, audioCodec}) => {
 	const existence = useFileExistence(separateAudioTo);
 
@@ -48,10 +50,12 @@ export const SeparateAudioOptionInput: React.FC<{
 };
 
 export const SeparateAudioOption: React.FC<{
-	setSeparateAudioTo: React.Dispatch<React.SetStateAction<string | null>>;
-	separateAudioTo: string | null;
-	audioCodec: AudioCodec;
-	outName: string;
+	readonly setSeparateAudioTo: React.Dispatch<
+		React.SetStateAction<string | null>
+	>;
+	readonly separateAudioTo: string | null;
+	readonly audioCodec: AudioCodec;
+	readonly outName: string;
 }> = ({separateAudioTo, setSeparateAudioTo, audioCodec, outName}) => {
 	const onSeparateAudioChange = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {

@@ -8,7 +8,17 @@
 	"references": [
 		{
 			"path": "../renderer"
+		},
+		{
+			"path": "../example-videos"
 		}
 	],
-	"include": ["src"]
+	"include": ["src"],
+	"exclude": [
+		"./src/worker.module.ts",
+		"./src/test/worker.test.ts",
+		"./src/test/seeking/seek-on-worker.test.ts",
+		"./src/server-worker.module.ts",
+		"./src/bench/vs-mediabunny.ts"
+	]
 }

@@ -3,6 +3,7 @@ import type {
 	Browser,
 	BrowserExecutable,
 	CancelSignal,
+	ChromeMode,
 	ChromiumOptions,
 	Codec,
 	ColorSpace,
@@ -11,6 +12,7 @@ import type {
 	FrameRange,
 	LogLevel,
 	NumberOfGifLoops,
+	OnLog,
 	PixelFormat,
 	ProResProfile,
 	RenderMediaOnDownload,
@@ -18,6 +20,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
 	AggregateRenderProgress,
@@ -55,6 +58,7 @@ import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
 import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
+import {addLogToAggregateProgress} from './add-log-to-aggregate-progress';
 
 export const renderVideoFlow = async ({
 	remotionRoot,
@@ -103,6 +107,7 @@ export const renderVideoFlow = async ({
 	serializedInputPropsWithCustomSchema,
 	disallowParallelEncoding,
 	offthreadVideoCacheSizeInBytes,
+	offthreadVideoThreads,
 	colorSpace,
 	repro,
 	binariesDirectory,
@@ -110,6 +115,11 @@ export const renderVideoFlow = async ({
 	separateAudioTo,
 	publicPath,
 	metadata,
+	hardwareAcceleration,
+	chromeMode,
+	audioLatencyHint,
+	imageSequencePattern,
+	mediaCacheSizeInBytes,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -138,7 +148,7 @@ export const renderVideoFlow = async ({
 	everyNthFrame: number;
 	jpegQuality: number | undefined;
 	onProgress: JobProgressCallback;
-	addCleanupCallback: (cb: () => void) => void;
+	addCleanupCallback: (label: string, cb: () => void) => void;
 	crf: Crf | null;
 	cancelSignal: CancelSignal | null;
 	uiCodec: Codec | null;
@@ -157,6 +167,7 @@ export const renderVideoFlow = async ({
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
 	colorSpace: ColorSpace | null;
 	repro: boolean;
 	binariesDirectory: string | null;
@@ -164,6 +175,11 @@ export const renderVideoFlow = async ({
 	separateAudioTo: string | null;
 	publicPath: string | null;
 	metadata: Record<string, string> | null;
+	hardwareAcceleration: HardwareAccelerationOption;
+	chromeMode: ChromeMode;
+	audioLatencyHint: AudioContextLatencyCategory | null;
+	imageSequencePattern: string | null;
+	mediaCacheSizeInBytes: number | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
@@ -188,6 +204,7 @@ export const renderVideoFlow = async ({
 		indent,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
@@ -199,6 +216,7 @@ export const renderVideoFlow = async ({
 		viewport: null,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
 	});
 
 	let isUsingParallelEncoding = false;
@@ -222,6 +240,7 @@ export const renderVideoFlow = async ({
 		bytes: 0,
 		doneIn: null,
 	};
+	const logsProgress: AggregateRenderProgress['logs'] = [];
 
 	let artifactState: ArtifactProgress = {received: []};
 
@@ -239,6 +258,7 @@ export const renderVideoFlow = async ({
 			bundling: bundlingProgress,
 			copyingState,
 			artifactState,
+			logs: logsProgress,
 		};
 
 		const {output, message, progress} = makeRenderingAndStitchingProgress({
@@ -265,7 +285,9 @@ export const renderVideoFlow = async ({
 			indentOutput: indent,
 			logLevel,
 			onDirectoryCreated: (dir) => {
-				addCleanupCallback(() => RenderInternals.deleteDirectory(dir));
+				addCleanupCallback(`Delete ${dir}`, () =>
+					RenderInternals.deleteDirectory(dir),
+				);
 			},
 			quietProgress: updatesDontOverwrite,
 			quietFlag: quietFlagProvided(),
@@ -275,10 +297,11 @@ export const renderVideoFlow = async ({
 			bufferStateDelayInMilliseconds: null,
 			maxTimelineTracks: null,
 			publicPath,
+			audioLatencyHint,
 		},
 	);
 
-	addCleanupCallback(() => cleanupBundle());
+	addCleanupCallback(`Cleanup bundle`, () => cleanupBundle());
 
 	const onDownload: RenderMediaOnDownload = makeOnDownload({
 		downloads,
@@ -290,11 +313,15 @@ export const renderVideoFlow = async ({
 	});
 
 	const puppeteerInstance = await browserInstance;
-	addCleanupCallback(() => puppeteerInstance.close(false, logLevel, indent));
+	addCleanupCallback(`Closing browser instance`, () =>
+		puppeteerInstance.close({silent: false}),
+	);
 
 	const resolvedConcurrency = RenderInternals.resolveConcurrency(concurrency);
 	const server = await RenderInternals.prepareServer({
-		concurrency: resolvedConcurrency,
+		offthreadVideoThreads:
+			offthreadVideoThreads ??
+			RenderInternals.DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 		indent,
 		port,
 		remotionRoot,
@@ -305,7 +332,7 @@ export const renderVideoFlow = async ({
 		forceIPv4: false,
 	});
 
-	addCleanupCallback(() => server.closeServer(false));
+	addCleanupCallback(`Close server`, () => server.closeServer(false));
 
 	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({
@@ -325,15 +352,21 @@ export const renderVideoFlow = async ({
 			logLevel,
 			server,
 			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
 			binariesDirectory,
 			onBrowserDownload,
+			chromeMode,
+			mediaCacheSizeInBytes,
 		});
 
 	const {onArtifact} = handleOnArtifact({
 		artifactState,
 		onProgress: (progress) => {
 			artifactState = progress;
-			updateRenderProgress({newline: false, printToConsole: true});
+			updateRenderProgress({
+				newline: false,
+				printToConsole: !updatesDontOverwrite,
+			});
 		},
 		compositionId,
 	});
@@ -361,11 +394,14 @@ export const renderVideoFlow = async ({
 		codec,
 		scale,
 		wantsImageSequence: shouldOutputImageSequence,
+		indent,
+		logLevel,
 	});
 
 	const relativeOutputLocation = getOutputFilename({
 		imageSequence: shouldOutputImageSequence,
 		compositionName: compositionId,
+		compositionDefaultOutName: config.defaultOutName,
 		defaultExtension: RenderInternals.getFileExtensionFromCodec(
 			codec,
 			audioCodec,
@@ -446,6 +482,32 @@ export const renderVideoFlow = async ({
 		uiImageFormat,
 	});
 
+	const onLog: OnLog = ({logLevel: logLogLevel, previewString, tag}) => {
+		addLogToAggregateProgress({
+			logs: logsProgress,
+			logLogLevel,
+			previewString,
+			tag,
+			logLevel,
+		});
+
+		if (!updatesDontOverwrite) {
+			updateRenderProgress({
+				newline: false,
+				printToConsole: !updatesDontOverwrite,
+			});
+		} else {
+			Log[logLogLevel](
+				{
+					indent,
+					logLevel,
+					tag,
+				},
+				previewString,
+			);
+		}
+	};
+
 	if (shouldOutputImageSequence) {
 		fs.mkdirSync(absoluteOutputFile, {
 			recursive: true,
@@ -497,21 +559,26 @@ export const renderVideoFlow = async ({
 			onFrameBuffer: null,
 			logLevel,
 			serializedResolvedPropsWithCustomSchema:
-				NoReactInternals.serializeJSONWithDate({
+				NoReactInternals.serializeJSONWithSpecialTypes({
 					indent: undefined,
 					staticBase: null,
 					data: config.props,
 				}).serializedString,
 			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
 			parallelEncodingEnabled: isUsingParallelEncoding,
 			binariesDirectory,
 			compositionStart: 0,
 			forSeamlessAacConcatenation,
 			onBrowserDownload,
 			onArtifact,
+			chromeMode,
+			imageSequencePattern,
+			mediaCacheSizeInBytes,
+			onLog,
 		});
 
-		Log.info({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
+		Log.info({indent, logLevel}, chalk.blue(`\n▶ ${absoluteOutputFile}`));
 		return;
 	}
 
@@ -585,12 +652,13 @@ export const renderVideoFlow = async ({
 		onBrowserLog: null,
 		onStart: () => undefined,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: config.props,
 				indent: undefined,
 				staticBase: null,
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads,
 		colorSpace,
 		repro: repro ?? false,
 		binariesDirectory,
@@ -600,6 +668,10 @@ export const renderVideoFlow = async ({
 		onBrowserDownload,
 		onArtifact,
 		metadata: metadata ?? null,
+		hardwareAcceleration,
+		chromeMode,
+		mediaCacheSizeInBytes,
+		onLog,
 	});
 	if (!updatesDontOverwrite) {
 		updateRenderProgress({newline: true, printToConsole: true});

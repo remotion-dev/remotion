@@ -1,9 +1,8 @@
 import {createRef, useCallback, useImperativeHandle, useState} from 'react';
 import {
-	Experimental,
+	Html5Video,
 	Img,
 	Sequence,
-	Video,
 	interpolate,
 	staticFile,
 	useCurrentFrame,
@@ -11,9 +10,9 @@ import {
 } from 'remotion';
 
 type Props = {
-	title: string;
-	bgColor: string;
-	color: string;
+	readonly title: string;
+	readonly bgColor: string;
+	readonly color: string;
 };
 
 export const playerExampleComp = createRef<{
@@ -53,7 +52,6 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 				top: 0,
 			}}
 		>
-			<Experimental.Clipper height={100} width={100} x={0} y={0} />
 			<Sequence>
 				<h1
 					style={{
@@ -77,7 +75,7 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 				}}
 			/>
 			<Sequence from={10}>
-				<Video
+				<Html5Video
 					style={{
 						height: 200,
 					}}

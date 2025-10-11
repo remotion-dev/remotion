@@ -11,9 +11,13 @@ import {checkIfTypeScriptFile} from './can-update-default-props';
 export const updateDefaultPropsHandler: ApiHandler<
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse
-> = async ({input: {compositionId, defaultProps, enumPaths}, remotionRoot}) => {
+> = async ({
+	input: {compositionId, defaultProps, enumPaths},
+	remotionRoot,
+	entryPoint,
+}) => {
 	try {
-		const projectInfo = await getProjectInfo(remotionRoot);
+		const projectInfo = await getProjectInfo(remotionRoot, entryPoint);
 		if (!projectInfo.rootFile) {
 			throw new Error('Cannot find root file in project');
 		}

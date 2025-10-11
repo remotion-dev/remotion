@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/bundler"
 	},
 	"name": "@remotion/bundler",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"description": "Bundle Remotion compositions using Webpack",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -11,9 +11,10 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"scripts": {
-		"formatting": "prettier src --check",
-		"lint": "eslint src --ext ts,tsx",
-		"test": "bun test src"
+		"formatting": "prettier --experimental-cli src --check",
+		"lint": "eslint src",
+		"test": "bun test src",
+		"make": "tsc -d"
 	},
 	"files": [
 		"dist",
@@ -29,7 +30,8 @@
 		"remotion": "workspace:*",
 		"@remotion/studio": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
-		"style-loader": "2.0.0",
+		"@remotion/media-parser": "workspace:*",
+		"style-loader": "4.0.0",
 		"source-map": "0.7.3",
 		"@rspack/core": "1.0.14",
 		"@rspack/plugin-react-refresh": "1.0.0"
@@ -39,8 +41,10 @@
 		"react-dom": ">=16.8.0"
 	},
 	"devDependencies": {
-		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
 	},
 	"keywords": [
 		"remotion",

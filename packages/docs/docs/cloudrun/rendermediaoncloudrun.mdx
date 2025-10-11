@@ -7,12 +7,7 @@ crumb: 'Cloud Run API'
 
 <ExperimentalBadge>
   <p>
-    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs
-    may change in any version and documentation is not yet finished. See the{' '}
-    <a href="https://remotion.dev/changelog">
-      changelog to stay up to date with breaking changes
-    </a>
-    .
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
   </p>
 </ExperimentalBadge>
 
@@ -24,8 +19,6 @@ A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology/serve-url
 ## Example
 
 ```tsx twoslash
-// @module: esnext
-// @target: es2017
 // ---cut---
 import {renderMediaOnCloudrun} from '@remotion/cloudrun/client';
 
@@ -33,8 +26,7 @@ const result = await renderMediaOnCloudrun({
   region: 'us-east1',
   serviceName: 'remotion-render-bds9aab',
   composition: 'MyVideo',
-  serveUrl:
-    'https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh',
+  serveUrl: 'https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh',
   codec: 'h264',
 });
 
@@ -120,7 +112,65 @@ Specify a specific bucket name to be used for the output. The resulting Google C
 
 _optional_
 
-A callback that is called with the progress of the render.
+```tsx twoslash
+import type {UpdateRenderProgress} from '@remotion/cloudrun/client';
+
+const updateRenderProgress: UpdateRenderProgress = (progress: number, error: boolean) => {
+  if (error) {
+    console.error('Render failed');
+  } else {
+    console.log(`Render progress: ${progress * 100}%`);
+  }
+};
+```
+
+### `renderStatusWebhook?`
+
+_optional_
+
+Your webhook URL that will be called with the progress of the render. This will be sent using a POST request.
+
+#### Arguments
+
+- `url`: The webhook URL endpoint.
+- `headers`: The headers to send. `Content-Type: application/json` is added automatically.
+- `data`: The data that you want to be sent alongside the progress data.
+- `webhookProgressInterval (optional)`: The interval at which the webhook is called. Defaults to 0.1 (10%). (min: 0.01, max: 1)
+
+```json title="Example Webhook URL Declaration"
+{
+  "url": "https://example.com/webhook",
+  "headers": {
+    "Authorization": "Bearer 1234567890"
+  },
+  "data": {
+    "projectId": "1234567890"
+  },
+  "webhookProgressInterval": 0.1
+}
+```
+
+#### Example Webhook Response
+
+```json title="Example Webhook Response"
+{
+  "progress": 0.1,
+  "renderedFrames": 100,
+  "encodedFrames": 100,
+  "renderId": "1234567890",
+  "projectId": "1234567890"
+}
+```
+
+### `renderIdOverride`
+
+_optional_
+
+Provide a specific render ID for the render. Otherwise a random one will be generated.
+
+:::note
+You will be responsible for ensuring that the render ID is unique, otherwise it will overwrite existing renders with the same configured Render ID.
+:::
 
 ### `audioCodec?`
 
@@ -309,9 +359,17 @@ Render a silent audio track if there wouldn't be any otherwise.
 
 <Options id="prefer-lossless" />
 
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `offthreadVideoThreads`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
 
 ### `colorSpace?`<AvailableFrom v="4.0.28"/>
 

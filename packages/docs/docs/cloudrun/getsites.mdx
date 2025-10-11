@@ -3,11 +3,13 @@ image: /generated/articles-docs-cloudrun-getsites.png
 id: getsites
 title: getSites()
 slug: /cloudrun/getsites
-crumb: "Cloud Run API"
+crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
+  </p>
 </ExperimentalBadge>
 
 Gets an array of Remotion projects in Cloud Storage, in your GCP project.
@@ -19,11 +21,9 @@ The projects are located in the `sites/` subdirectory of your Cloud Storage buck
 Gets all sites and logs information about them.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { getSites } from "@remotion/cloudrun";
+import {getSites} from '@remotion/cloudrun';
 
-const { sites, buckets } = await getSites("europe-west4");
+const {sites, buckets} = await getSites('europe-west4');
 
 for (const site of sites) {
   console.log(site.id); // A unique ID for referring to that project
@@ -48,11 +48,9 @@ An object with the following properties:
 The [GCP region](/docs/cloudrun/region-selection) which you want to query. Alternatively, you can pass 'all regions' to return sites across all regions.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { getSites } from "@remotion/cloudrun";
+import {getSites} from '@remotion/cloudrun';
 
-const { sites, buckets } = await getSites("all regions");
+const {sites, buckets} = await getSites('all regions');
 ```
 
 ## Return value

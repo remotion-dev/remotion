@@ -3,11 +3,13 @@ image: /generated/articles-docs-cloudrun-getservices.png
 title: getServices()
 id: getservices
 slug: /cloudrun/getservices
-crumb: "Cloud Run API"
+crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
+  </p>
 </ExperimentalBadge>
 
 Retrieves a list of Remotion services deployed to GCP Cloud Run.
@@ -25,13 +27,10 @@ If you are sure that a service exists, you can also guess the name of it using [
 ## Example
 
 ```ts twoslash
-// @module: esnext
-// @target: es2017
-
-import { getServices } from "@remotion/cloudrun/client";
+import {getServices} from '@remotion/cloudrun/client';
 
 const info = await getServices({
-  region: "us-east1",
+  region: 'us-east1',
   compatibleOnly: true,
 });
 
@@ -60,13 +59,10 @@ An object containing the following properties:
 The [GCP region](/docs/cloudrun/region-selection) that you would like to query.
 
 ```ts twoslash
-// @module: esnext
-// @target: es2017
-
-import { getServices } from "@remotion/cloudrun";
+import {getServices} from '@remotion/cloudrun';
 
 const info = await getServices({
-  region: "us-west1",
+  region: 'us-west1',
   compatibleOnly: true,
 });
 

@@ -1,0 +1,98 @@
+---
+image: /generated/articles-docs-media-parser-samples.png
+id: samples
+title: Extract samples
+slug: /media-parser/samples
+crumb: '@remotion/media-parser'
+---
+
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
+With [`parseMedia()`](/docs/media-parser/parse-media), you can extract video and audio samples from a variety of [media formats](/docs/media-parser/format-support).
+
+## Getting tracks
+
+Use [`onVideoTrack`](/docs/media-parser/parse-media#onvideotrack) and/or [`onAudioTrack`](/docs/media-parser/parse-media#onaudiotrack) to get information about a video track.
+
+```tsx twoslash title="Extract tracks from a video"
+import {parseMedia} from '@remotion/media-parser';
+
+const samples = await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  onVideoTrack: ({track, container}) => {
+    console.log(track.codecEnum);
+    //                ^?
+    return null;
+  },
+});
+```
+
+See the type definitions for [`MediaParserVideoTrack`](/docs/media-parser/types#mediaparservideotrack) and [`MediaParserAudioTrack`](/docs/media-parser/types#mediaparseraudiotrack) for more information.
+
+Return `null` if you are not interested in getting samples from the track.
+
+## Getting samples
+
+If you return a callback from [`onVideoTrack`](/docs/media-parser/parse-media#onvideotrack) and/or [`onAudioTrack`](/docs/media-parser/parse-media#onaudiotrack), you can get samples from the track.
+
+```tsx twoslash title="Extract samples from a video"
+import {parseMedia} from '@remotion/media-parser';
+
+const samples = await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  onVideoTrack: ({track, container}) => {
+    return (sample) => {
+      console.log(sample);
+      //              ^?
+    };
+  },
+});
+```
+
+See the type definitions for [`MediaParserVideoSample`](/docs/media-parser/types#mediaparservideosample) and [`MediaParserAudioSample`](/docs/media-parser/types#mediaparseraudiosample) for more information.
+
+## Check if a sample was the last one<AvailableFrom v="4.0.307"/>
+
+If you would like to execute code when the last sample of a track has been parsed, you can return a callback from the sample callback that will be called when the last sample has been parsed.
+
+```tsx twoslash title="Execute code when the last sample of a track has been parsed"
+import {parseMedia} from '@remotion/media-parser';
+
+const samples = await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  onVideoTrack: ({track, container}) => {
+    return (sample) => {
+      return () => {
+        console.log(sample, 'is the last sample');
+      };
+    };
+  },
+});
+```
+
+## Seeking in callbacks
+
+In all types of callbacks, you can pause, resume, seek and abort.
+
+```tsx twoslash title="Looping the parse"
+import {parseMedia, mediaParserController} from '@remotion/media-parser';
+
+const controller = mediaParserController();
+
+const samples = await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  controller,
+  onVideoTrack: ({track, container}) => {
+    return (sample) => {
+      return () => {
+        // When it's the last sample, seek to the beginning
+        controller.seek(0);
+      };
+    };
+  },
+});
+```
+
+See: [`mediaParserController()`](/docs/media-parser/media-parser-controller) and [Seeking](/docs/media-parser/seeking).

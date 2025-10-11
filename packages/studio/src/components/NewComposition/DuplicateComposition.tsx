@@ -62,7 +62,6 @@ const DuplicateCompositionLoaded: React.FC<{
 		const initialName = resolved.result.id.replace(/([0-9]+)$/, '');
 		let currentName = initialName;
 
-		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			currentName = initialName + prefix;
 
@@ -359,7 +358,7 @@ const DuplicateCompositionLoaded: React.FC<{
 					<CodemodFooter
 						loadingNotification={'Duplicating...'}
 						errorNotification={'Could not duplicate composition'}
-						succeessNotifcation={`Duplicated ${unresolved.id}`}
+						successNotification={`Duplicated ${unresolved.id} as ${newId}`}
 						genericSubmitLabel={'Duplicate'}
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
 						codemod={codemod}

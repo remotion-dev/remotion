@@ -13,7 +13,7 @@ export const setPreloads = (updater: (p: Value) => Value) => {
 };
 
 export const PrefetchProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [_preloads, _setPreloads] = useState<Value>(() => preloads);
 

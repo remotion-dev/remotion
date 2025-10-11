@@ -22,6 +22,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
 	binariesDirectoryOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const stillCommand = async (
@@ -77,10 +78,14 @@ export const stillCommand = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
+
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 
@@ -99,7 +104,7 @@ export const stillCommand = async (
 		}
 
 		const server = RenderInternals.prepareServer({
-			concurrency: 1,
+			offthreadVideoThreads: 1,
 			indent: false,
 			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
@@ -123,7 +128,7 @@ export const stillCommand = async (
 				chromiumOptions,
 				envVariables,
 				serializedInputPropsWithCustomSchema:
-					NoReactInternals.serializeJSONWithDate({
+					NoReactInternals.serializeJSONWithSpecialTypes({
 						data: inputProps,
 						indent: undefined,
 						staticBase: null,
@@ -141,6 +146,9 @@ export const stillCommand = async (
 					logLevel,
 					quiet: CliInternals.quietFlagProvided(),
 				}),
+				chromeMode: 'headless-shell',
+				offthreadVideoThreads: 1,
+				mediaCacheSizeInBytes,
 			});
 		composition = compositionId;
 	}
@@ -213,7 +221,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		inputProps,
 		imageFormat,
 		composition,
-		privacy,
+		privacy: privacy ?? 'public',
 		envVariables,
 		frame: stillFrame,
 		jpegQuality,

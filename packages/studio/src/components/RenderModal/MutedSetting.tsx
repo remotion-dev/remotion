@@ -6,9 +6,9 @@ import {OptionExplainerBubble} from './OptionExplainerBubble';
 import {label, optionRow, rightRow} from './layout';
 
 export const MutedSetting: React.FC<{
-	muted: boolean;
-	setMuted: React.Dispatch<React.SetStateAction<boolean>>;
-	enforceAudioTrack: boolean;
+	readonly muted: boolean;
+	readonly setMuted: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly enforceAudioTrack: boolean;
 }> = ({muted, setMuted, enforceAudioTrack}) => {
 	const onMutedChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {

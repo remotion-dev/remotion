@@ -1,4 +1,4 @@
-import type {AnyComposition, StaticFile, TFolder} from 'remotion';
+import type {_InternalTypes, StaticFile, TFolder} from 'remotion';
 import type {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';
 
@@ -168,7 +168,7 @@ const createFolderIfDoesNotExist = (
 };
 
 export const createFolderTree = (
-	comps: AnyComposition[],
+	comps: _InternalTypes['AnyComposition'][],
 	folders: TFolder[],
 	foldersExpanded: Record<string, boolean>,
 ): CompositionSelectorItemType[] => {

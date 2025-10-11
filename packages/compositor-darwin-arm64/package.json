@@ -2,7 +2,7 @@
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/compositor-darwin-arm64"
 	},
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"name": "@remotion/compositor-darwin-arm64",
 	"os": [
 		"darwin"
@@ -12,9 +12,9 @@
 	],
 	"exports": {
 		".": {
+			"types": "./index.d.ts",
 			"require": "./index.js",
-			"import": "./index.mjs",
-			"types": "./index.d.ts"
+			"import": "./index.mjs"
 		},
 		"./package.json": "./package.json"
 	},

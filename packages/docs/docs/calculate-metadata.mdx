@@ -2,7 +2,7 @@
 image: /generated/articles-docs-calculate-metadata.png
 id: calculate-metadata
 title: calculateMetadata()
-crumb: "API"
+crumb: 'API'
 ---
 
 # calculateMetadata()<AvailableFrom v="4.0.0" />
@@ -11,14 +11,22 @@ crumb: "API"
 
 Use it if you:
 
-<Step>1</Step> need to make the duration, width, height, or fps <a href="/docs/dynamic-metadata">dynamic based on some data</a>
-<br />
-<Step>2</Step> want to transform the props passed to the composition, for example
-to do <a href="/docs/data-fetching">data fetching</a>
-<br />
+<div>
+  <Step>1</Step> need to make the `durationInFrames`, `width`, `height`, or `fps` <a href="/docs/dynamic-metadata">dynamic based on some data</a>
+</div>
+<div>
+
+<Step>2</Step> want to transform the props passed to the composition, for example to do <a href="/docs/data-fetching">data fetching</a>
+</div>
+<div>
 <Step>3</Step> want to add a per-composition default codec
-<br />
-<Step>4</Step> want to run code once, before the actual render starts.
+</div>
+<div>
+<Step>4</Step> want to add per-composition default video image format or pixel format
+</div>
+<div>
+<Step>5</Step> want to run code once, before the actual render starts.
+</div>
 
 The `calculateMetadata()` function is called a single time, independently from the concurrency of the render.  
 It runs in a separate tab, as part of the render process calling [`selectComposition()`](/docs/renderer/select-composition).
@@ -29,34 +37,34 @@ Define a function, you may type it using `CalculateMetadataFunction` - the gener
 
 ```tsx twoslash title="src/Root.tsx"
 // @filename: MyComp.tsx
-import React from "react";
+import React from 'react';
 export type MyComponentProps = {
   text: string;
   duration: number;
 };
 
-export const MyComponent: React.FC<MyComponentProps> = ({ text }) => {
+export const MyComponent: React.FC<MyComponentProps> = ({text}) => {
   return <div>{text}</div>;
 };
 
 // @filename: Vid.tsx
 // ---cut---
-import React from "react";
-import { CalculateMetadataFunction, Composition } from "remotion";
-import { MyComponent, MyComponentProps } from "./MyComp";
+import React from 'react';
+import {CalculateMetadataFunction, Composition} from 'remotion';
+import {MyComponent, MyComponentProps} from './MyComp';
 
-const calculateMetadata: CalculateMetadataFunction<MyComponentProps> = ({
-  props,
-  defaultProps,
-  abortSignal,
-}) => {
+const calculateMetadata: CalculateMetadataFunction<MyComponentProps> = ({props, defaultProps, abortSignal, isRendering}) => {
   return {
     // Change the metadata
     durationInFrames: props.duration,
     // or transform some props
     props,
     // or add per-composition default codec
-    defaultCodec: "h264",
+    defaultCodec: 'h264',
+    // or add per-composition default video image format
+    defaultVideoImageFormat: 'png',
+    // or add per-composition default pixel format
+    defaultPixelFormat: 'yuv420p',
   };
 };
 
@@ -70,7 +78,7 @@ export const Root: React.FC = () => {
       width={1920}
       height={1080}
       defaultProps={{
-        text: "Hello World",
+        text: 'Hello World',
         duration: 1,
       }}
       calculateMetadata={calculateMetadata}
@@ -85,6 +93,7 @@ As argument, you get an object with the following properties:
 - `props`: The [resolved props](/docs/props-resolution), taking input props into account.
 - `abortSignal`: An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) which you can use to abort network requests if [the default props have been changed](/docs/data-fetching#aborting-stale-requests) in the meanwhile.
 - `compositionId` (_available from v4.0.98_): The ID of the current composition
+- `isRendering` (_available from v4.0.342_): A boolean indicating whether the function is being called during rendering (`true`) or in other contexts like the Studio (`false`)
 
 The function must return an pure JSON-serializable object, which can contain the following properties:
 
@@ -94,6 +103,9 @@ The function must return an pure JSON-serializable object, which can contain the
 - `height` _optional_: The height of the composition in pixels
 - `fps` _optional_: The frames per second of the composition
 - `defaultCodec` _optional_: The default codec to use for the composition.
+- `defaultOutName` _optional_: The default output name when rendering (without file extension) <AvailableFrom v="4.0.268" />
+- `defaultVideoImageFormat` _optional_: The default video image format (`'png'`, `'jpeg'`, or `'none'`) <AvailableFrom v="4.0.316" />
+- `defaultPixelFormat` _optional_: The default pixel format (`'yuv420p'`, `'yuva420p'`, `'yuv422p'`, `'yuv444p'`, `'yuv420p10le'`, `'yuv422p10le'`, `'yuv444p10le'`, or `'yuva444p10le'`) <AvailableFrom v="4.0.316" />
 
 If you return a field, it will take precendence over the props directly passed to the composition. The defaultCodec returned will have a higher priority than the config file, but less priority than explicitly passing the option to renderMedia() i.e. the composition will be rendered with this codec if nothing with higher priority was specified.
 

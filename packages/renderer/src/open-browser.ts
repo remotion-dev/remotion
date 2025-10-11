@@ -3,7 +3,6 @@ import os from 'node:os';
 import path from 'node:path';
 import type {NoReactInternals} from 'remotion/no-react';
 import type {Browser} from './browser';
-import {addHeadlessBrowser} from './browser-instances';
 import type {HeadlessBrowser} from './browser/Browser';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {launchChrome} from './browser/Launcher';
@@ -13,22 +12,13 @@ import {getLocalBrowserExecutable} from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
 import {type LogLevel} from './log-level';
 import {Log} from './logger';
+import type {ChromeMode} from './options/chrome-mode';
 import type {validOpenGlRenderers} from './options/gl';
 import {DEFAULT_OPENGL_RENDERER, validateOpenGlRenderer} from './options/gl';
-import type {OnBrowserDownload} from './options/on-browser-download';
+import type {ToOptions} from './options/option';
+import type {optionsMap} from './options/options-map';
 
 type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
-
-type OnlyV4Options =
-	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
-		? {}
-		: {
-				/**
-				 * @deprecated - Will be removed in v5.
-				 * Chrome Headless shell does not allow disabling headless mode anymore.
-				 */
-				headless?: boolean;
-			};
 
 // ⚠️ When adding new options, also add them to the hash in lambda/get-browser-instance.ts!
 export type ChromiumOptions = {
@@ -37,7 +27,8 @@ export type ChromiumOptions = {
 	gl?: OpenGlRenderer | null;
 	userAgent?: string | null;
 	enableMultiProcessOnLinux?: boolean;
-} & OnlyV4Options;
+	headless?: boolean;
+};
 
 const featuresToEnable = (option?: OpenGlRenderer | null) => {
 	const renderer = option ?? DEFAULT_OPENGL_RENDERER;
@@ -69,9 +60,11 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	if (renderer === 'vulkan') {
 		return [
 			'--use-angle=vulkan',
-			'--use-vulkan=swiftshader',
+			'--use-vulkan=native',
 			'--disable-vulkan-fallback-to-gl-for-testing',
-			'--dignore-gpu-blocklist',
+			'--disable-vulkan-surface',
+			'--ignore-gpu-blocklist',
+			'--enable-gpu',
 		];
 	}
 
@@ -89,9 +82,7 @@ type InternalOpenBrowserOptions = {
 	viewport: Viewport | null;
 	indent: boolean;
 	browser: Browser;
-	logLevel: LogLevel;
-	onBrowserDownload: OnBrowserDownload;
-};
+} & ToOptions<typeof optionsMap.openBrowser>;
 
 type LogOptions =
 	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
@@ -103,6 +94,7 @@ type LogOptions =
 export type OpenBrowserOptions = {
 	browserExecutable?: string | null;
 	chromiumOptions?: ChromiumOptions;
+	chromeMode?: ChromeMode;
 	forceDeviceScaleFactor?: number;
 } & LogOptions;
 
@@ -115,6 +107,7 @@ export const internalOpenBrowser = async ({
 	viewport,
 	logLevel,
 	onBrowserDownload,
+	chromeMode,
 }: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
 	// @ts-expect-error Firefox
 	if (browser === 'firefox') {
@@ -123,14 +116,22 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
+	Log.verbose({indent, logLevel}, 'Ensuring browser executable');
 	await internalEnsureBrowser({
 		browserExecutable,
 		logLevel,
 		indent,
 		onBrowserDownload,
+		chromeMode,
 	});
+	Log.verbose({indent, logLevel}, 'Ensured browser is available.');
 
-	const executablePath = getLocalBrowserExecutable(browserExecutable);
+	const executablePath = getLocalBrowserExecutable({
+		preferredBrowserExecutable: browserExecutable,
+		logLevel,
+		indent,
+		chromeMode,
+	});
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
 	const enableMultiProcessOnLinux =
@@ -143,7 +144,7 @@ export const internalOpenBrowser = async ({
 
 	if (chromiumOptions.userAgent) {
 		Log.verbose(
-			{indent, logLevel: 'verbose', tag: 'openBrowser()'},
+			{indent, logLevel, tag: 'openBrowser()'},
 			`Using custom user agent: ${chromiumOptions.userAgent}`,
 		);
 	}
@@ -157,6 +158,7 @@ export const internalOpenBrowser = async ({
 		logLevel,
 		indent,
 		userDataDir,
+		timeout: 25000,
 		args: [
 			'about:blank',
 			'--allow-pre-commit-input',
@@ -172,8 +174,10 @@ export const internalOpenBrowser = async ({
 			'--no-proxy-server',
 			"--proxy-server='direct://'",
 			'--proxy-bypass-list=*',
+			'--force-gpu-mem-available-mb=4096',
 			'--disable-hang-monitor',
 			'--disable-extensions',
+			'--allow-chrome-scheme-url',
 			'--disable-ipc-flooding-protection',
 			'--disable-popup-blocking',
 			'--disable-prompt-on-repost',
@@ -190,7 +194,11 @@ export const internalOpenBrowser = async ({
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
-			(chromiumOptions.headless ?? true) ? '--headless=old' : null,
+			chromeMode === 'chrome-for-testing'
+				? chromiumOptions.headless
+					? null
+					: '--headless=new'
+				: '--headless=old',
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			...customGlRenderer,
@@ -236,15 +244,14 @@ export const internalOpenBrowser = async ({
 		},
 	});
 
-	const pages = await browserInstance.pages(logLevel, indent);
-	await pages[0].close();
+	const pages = await browserInstance.pages();
+	await pages[0]?.close();
 
-	addHeadlessBrowser(browserInstance);
 	return browserInstance;
 };
 
-/**
- * @description Opens a Chrome or Chromium browser instance.
+/*
+ * @description Opens a Chrome or Chromium browser instance. By reusing an instance across various rendering and compositional API calls, significant time can be saved by avoiding the repeated opening and closing of browsers.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/open-browser)
  */
 export const openBrowser = (
@@ -255,8 +262,7 @@ export const openBrowser = (
 		options ?? {};
 
 	const indent = false;
-	const logLevel =
-		options?.logLevel ?? (options?.shouldDumpIo ? 'verbose' : 'info');
+	const logLevel = options?.logLevel ?? 'info';
 
 	return internalOpenBrowser({
 		browser,
@@ -271,5 +277,6 @@ export const openBrowser = (
 			logLevel,
 			api: 'openBrowser()',
 		}),
+		chromeMode: options?.chromeMode ?? 'headless-shell',
 	});
 };

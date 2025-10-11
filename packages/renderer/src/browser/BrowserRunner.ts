@@ -59,7 +59,7 @@ export const makeBrowserRunner = async ({
 	const dumpio = isEqualOrBelowLogLevel(logLevel, 'verbose');
 	const stdio: ('ignore' | 'pipe')[] = dumpio
 		? ['ignore', 'pipe', 'pipe']
-		: ['pipe', 'ignore', 'pipe'];
+		: ['pipe', 'pipe', 'pipe'];
 
 	const proc = childProcess.spawn(executablePath, processArguments, {
 		// On non-windows platforms, `detached: true` makes child process a
@@ -71,7 +71,12 @@ export const makeBrowserRunner = async ({
 		stdio,
 	});
 
-	const browserWSEndpoint = await waitForWSEndpoint(proc, timeout);
+	const browserWSEndpoint = await waitForWSEndpoint({
+		browserProcess: proc,
+		timeout,
+		indent,
+		logLevel,
+	});
 	const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
 	const connection = new Connection(transport);
 
@@ -95,12 +100,20 @@ export const makeBrowserRunner = async ({
 					// a minus sign. The process group id is the group leader's pid.
 					const processGroupId = -proc.pid;
 
+					Log.verbose(
+						{indent, logLevel},
+						`Trying to kill browser process group ${processGroupId}`,
+					);
 					try {
 						process.kill(processGroupId, 'SIGKILL');
 					} catch (error) {
 						// Killing the process group can fail due e.g. to missing permissions.
 						// Let's kill the process via Node API. This delays killing of all child
 						// processes of `this.proc` until the main Node.js process dies.
+						Log.verbose(
+							{indent, logLevel},
+							`Could not kill browser process group ${processGroupId}. Killing process via Node.js API`,
+						);
 						proc.kill('SIGKILL');
 					}
 				}
@@ -125,6 +138,10 @@ export const makeBrowserRunner = async ({
 			return Promise.resolve();
 		}
 
+		Log.verbose(
+			{indent, logLevel},
+			'Received SIGTERM signal. Killing browser process',
+		);
 		killProcess();
 
 		deleteDirectory(userDataDir);
@@ -235,23 +252,41 @@ export const makeBrowserRunner = async ({
 	};
 };
 
-function waitForWSEndpoint(
-	browserProcess: childProcess.ChildProcess,
-	timeout: number,
-): Promise<string> {
+function waitForWSEndpoint({
+	browserProcess,
+	timeout,
+	logLevel,
+	indent,
+}: {
+	browserProcess: childProcess.ChildProcess;
+	timeout: number;
+	logLevel: LogLevel;
+	indent: boolean;
+}): Promise<string> {
 	const browserStderr = browserProcess.stderr;
+	const browserStdout = browserProcess.stdout;
 	assert(browserStderr, '`browserProcess` does not have stderr.');
+	assert(browserStdout, '`browserProcess` does not have stdout.');
 
-	let stderrString = '';
+	let stdioString = '';
 
 	return new Promise((resolve, reject) => {
-		browserStderr.addListener('data', onData);
+		browserStderr.addListener('data', onStdIoData);
+		browserStdout.addListener('data', onStdIoData);
 		browserStderr.addListener('close', onClose);
 		const listeners = [
-			() => browserStderr.removeListener('data', onData),
+			() => browserStderr.removeListener('data', onStdIoData),
+			() => browserStdout.removeListener('data', onStdIoData),
 			() => browserStderr.removeListener('close', onClose),
-			addEventListener(browserProcess, 'exit', () => {
-				return onClose();
+			addEventListener(browserProcess, 'exit', (code, signal) => {
+				Log.verbose(
+					{indent, logLevel},
+					'Browser process exited with code',
+					code,
+					'signal',
+					signal,
+				);
+				return onClose(new Error(`Closed with ${code} signal: ${signal}`));
 			}),
 			addEventListener(browserProcess, 'error', (error) => {
 				return onClose(error);
@@ -265,8 +300,8 @@ function waitForWSEndpoint(
 				new Error(
 					[
 						'Failed to launch the browser process!',
-						error ? error.message : null,
-						stderrString,
+						error ? error.stack : null,
+						stdioString,
 						'Troubleshooting: https://remotion.dev/docs/troubleshooting/browser-launch',
 					]
 						.filter(truthy)
@@ -279,14 +314,14 @@ function waitForWSEndpoint(
 			cleanup();
 			reject(
 				new TimeoutError(
-					`Timed out after ${timeout} ms while trying to connect to the browser! Chrome logged the following: ${stderrString}`,
+					`Timed out after ${timeout} ms while trying to connect to the browser! Chrome logged the following: ${stdioString}`,
 				),
 			);
 		}
 
-		function onData(data: Buffer) {
-			stderrString += data.toString('utf8');
-			const match = stderrString.match(/DevTools listening on (ws:\/\/.*)/);
+		function onStdIoData(data: Buffer) {
+			stdioString += data.toString('utf8');
+			const match = stdioString.match(/DevTools listening on (ws:\/\/.*)/);
 			if (!match) {
 				return;
 			}

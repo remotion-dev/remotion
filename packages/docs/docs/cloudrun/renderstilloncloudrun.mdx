@@ -7,12 +7,7 @@ crumb: 'Cloud Run API'
 
 <ExperimentalBadge>
   <p>
-    Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs
-    may change in any version and documentation is not yet finished. See the{' '}
-    <a href="https://remotion.dev/changelog">
-      changelog to stay up to date with breaking changes
-    </a>
-    .
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
   </p>
 </ExperimentalBadge>
 
@@ -24,8 +19,6 @@ A [site](/docs/cloudrun/deploysite) or a [Serve URL](/docs/terminology/serve-url
 ## Example
 
 ```tsx twoslash
-// @module: esnext
-// @target: es2017
 // ---cut---
 import {renderStillOnCloudrun} from '@remotion/cloudrun/client';
 
@@ -34,8 +27,7 @@ const result = await renderStillOnCloudrun({
   serviceName: 'remotion-render-bds9aab',
   composition: 'MyStill',
   imageFormat: 'png',
-  serveUrl:
-    'https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh',
+  serveUrl: 'https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh',
 });
 
 if (result.type === 'success') {
@@ -198,9 +190,17 @@ _optional_
 
 A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `offthreadVideoThreads`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
 
 ## Return value
 

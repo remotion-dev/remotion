@@ -1,17 +1,20 @@
-import type {CttsBox} from './boxes/iso-base-media/stsd/ctts';
-import type {StcoBox} from './boxes/iso-base-media/stsd/stco';
-import type {StscBox} from './boxes/iso-base-media/stsd/stsc';
-import type {StssBox} from './boxes/iso-base-media/stsd/stss';
-import type {StszBox} from './boxes/iso-base-media/stsd/stsz';
-import type {SttsBox} from './boxes/iso-base-media/stsd/stts';
+import type {CttsBox} from './containers/iso-base-media/stsd/ctts';
+import type {StcoBox} from './containers/iso-base-media/stsd/stco';
+import type {StscBox} from './containers/iso-base-media/stsd/stsc';
+import type {StssBox} from './containers/iso-base-media/stsd/stss';
+import type {StszBox} from './containers/iso-base-media/stsd/stsz';
+import type {SttsBox} from './containers/iso-base-media/stsd/stts';
 
 export type SamplePosition = {
 	offset: number;
 	size: number;
 	isKeyframe: boolean;
-	dts: number;
-	cts: number;
+	decodingTimestamp: number;
+	timestamp: number;
 	duration: number;
+	chunk: number;
+	bigEndian: boolean;
+	chunkSize: number | null;
 };
 
 export const getSamplePositions = ({
@@ -53,11 +56,9 @@ export const getSamplePositions = ({
 	let samplesPerChunk = 1;
 
 	for (let i = 0; i < chunks.length; i++) {
-		const hasEntry = stscBox.entries.find(
-			(entry) => entry.firstChunk === i + 1,
-		);
-		if (hasEntry) {
-			samplesPerChunk = hasEntry.samplesPerChunk;
+		const hasEntry = stscBox.entries.get(i + 1);
+		if (hasEntry !== undefined) {
+			samplesPerChunk = hasEntry;
 		}
 
 		let offsetInThisChunk = 0;
@@ -69,7 +70,7 @@ export const getSamplePositions = ({
 					: stszBox.entries[samples.length];
 
 			const isKeyframe = stssBox
-				? stssBox.sampleNumber.includes(samples.length + 1)
+				? stssBox.sampleNumber.has(samples.length + 1)
 				: true;
 
 			const delta = sttsDeltas[samples.length];
@@ -80,9 +81,12 @@ export const getSamplePositions = ({
 				offset: Number(chunks[i]) + offsetInThisChunk,
 				size,
 				isKeyframe,
-				dts,
-				cts,
+				decodingTimestamp: dts,
+				timestamp: cts,
 				duration: delta,
+				chunk: i,
+				bigEndian: false,
+				chunkSize: null,
 			});
 			dts += delta;
 			offsetInThisChunk += size;

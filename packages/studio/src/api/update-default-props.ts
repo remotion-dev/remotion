@@ -28,5 +28,14 @@ export const updateDefaultProps = ({
 		};
 	});
 
-	window.dispatchEvent(new CustomEvent(Internals.PROPS_UPDATED_EXTERNALLY));
+	window.dispatchEvent(
+		new CustomEvent<{resetUnsaved: string | null}>(
+			Internals.PROPS_UPDATED_EXTERNALLY,
+			{
+				detail: {
+					resetUnsaved: null,
+				},
+			},
+		),
+	);
 };

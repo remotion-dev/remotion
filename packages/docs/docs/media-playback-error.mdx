@@ -1,9 +1,9 @@
 ---
 image: /generated/articles-docs-media-playback-error.png
 id: media-playback-error
-title: "Could not play video/audio with src"
+title: 'Could not play video/audio with src'
 sidebar_label: Media playback error
-crumb: "Troubleshooting"
+crumb: 'Troubleshooting'
 ---
 
 The following error may occur in your Remotion project during development or while rendering:
@@ -18,19 +18,12 @@ or
 - Error: Could not play audio with src [source] [object MediaError]
 ```
 
-This error happens when you are trying to embed a `<Video/>` or `<Audio/>` tag in your Remotion project but the browser is unable to load and play the media. Although the browser does not report the exact error, there are two common reasons for this error.
+This error happens when you are trying to embed a [`<Html5Video/>`](/docs/html5-video) or [`<Html5Audio/>`](/docs/html5-audio) tag in your Remotion project but the browser is unable to load and play the media. Although the browser does not report the exact error, there are two common reasons for this error.
 
-## Codec not supported by Chromium
+## Codec not supported by Chrome
 
-Unlike Google Chrome, the Chromium Browser does not include proprietary codecs. This means you cannot play MP4/H.264 videos and some audio codecs (more codecs may not be supported).
-
-**Workaround 1**: Use Chrome, not Chromium.
-
-**Workaround 2**: Convert videos to WebM, [use Chrome instead of Chromium](/docs/config#setbrowserexecutable), or use [`<OffthreadVideo>`](/docs/offthreadvideo).
-
-:::note
-Since `v4.0.18`, [downloads a browser](/docs/miscellaneous/chrome-headless-shell) that includes codecs automatically if you don't have a local browser.  
-:::
+Chrome does not support all codecs for playback. For example: HEVC on Linux, `.avi`, `.flv`, `.m3u8`.  
+Convert the video to a format that is supported by Chrome.
 
 ## Invalid source
 
@@ -60,19 +53,16 @@ The error message might contain `error creating media player`, appearing if too 
 First check that you are not accidentially creating an infite render loop. For example, changing the `key` frequently will re-create the video tag on every frame:
 
 ```tsx twoslash
-const uuidv4 = () => "";
+const uuidv4 = () => '';
 
 // ---cut---
-import { Video } from "remotion";
+import {Html5Video} from 'remotion';
 
 export default function SBSVideo() {
   return (
     <>
-      {[
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-      ].map((video, i) => {
-        return <Video key={uuidv4()} src={video} />;
+      {['https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'].map((video, i) => {
+        return <Html5Video key={uuidv4()} src={video} />;
       })}
     </>
   );
@@ -83,7 +73,7 @@ If you ruled out this possibility, use [`<OffthreadVideo>`](/docs/offthreadvideo
 
 ## Recover from this error<AvailableFrom v="3.3.89" />
 
-You can handle this error and replace it with a different video by passing the `onError()` prop to the `<Video>` or `<OffthreadVideo>` component.
+You can handle this error and replace it with a different video by passing the `onError()` prop to the `<Html5Video>` or `<OffthreadVideo>` component.
 
 ## See also
 

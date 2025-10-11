@@ -12,7 +12,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import type {CompProps, TimelineContextValue} from 'remotion';
+import type {CompProps, LogLevel, TimelineContextValue} from 'remotion';
 import {Internals, random} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import {ThumbnailEmitterContext} from './emitter-context.js';
@@ -38,6 +38,9 @@ export type ThumbnailProps<
 		readonly errorFallback?: ErrorFallback;
 		readonly renderLoading?: RenderLoading;
 		readonly className?: string;
+		readonly overrideInternalClassName?: string;
+		readonly logLevel?: LogLevel;
+		readonly noSuspense?: boolean;
 	};
 
 export type ThumbnailPropsWithoutZod<Props extends Record<string, unknown>> =
@@ -59,6 +62,9 @@ const ThumbnailFn = <
 		errorFallback = () => '⚠️',
 		renderLoading,
 		overflowVisible = false,
+		overrideInternalClassName,
+		logLevel = 'info',
+		noSuspense,
 		...componentProps
 	}: ThumbnailProps<Schema, Props>,
 	ref: MutableRefObject<ThumbnailMethods>,
@@ -95,9 +101,11 @@ const ThumbnailFn = <
 
 	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
 
-	const Component = Internals.useLazyComponent(
-		componentProps,
-	) as LazyExoticComponent<ComponentType<unknown>>;
+	const Component = Internals.useLazyComponent({
+		compProps: componentProps,
+		componentName: 'Thumbnail',
+		noSuspense: Boolean(noSuspense),
+	}) as LazyExoticComponent<ComponentType<unknown>>;
 
 	const [emitter] = useState(() => new ThumbnailEmitter());
 
@@ -116,6 +124,8 @@ const ThumbnailFn = <
 				fps={fps}
 				numberOfSharedAudioTags={0}
 				initiallyMuted
+				logLevel={logLevel}
+				audioLatencyHint="playback"
 			>
 				<ThumbnailEmitterContext.Provider value={emitter}>
 					<ThumbnailUI
@@ -126,6 +136,8 @@ const ThumbnailFn = <
 						renderLoading={renderLoading}
 						style={style}
 						overflowVisible={overflowVisible}
+						overrideInternalClassName={overrideInternalClassName}
+						noSuspense={Boolean(noSuspense)}
 					/>
 				</ThumbnailEmitterContext.Provider>
 			</SharedPlayerContexts>
@@ -140,8 +152,8 @@ const forward = forwardRef as <T, P = {}>(
 	) => React.ReactElement | null,
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
-/**
- * @description A component which can be rendered in a regular React App (for example: Next.js, Vite) to display a single frame of a video.
+/*
+ * @description A component which can be rendered in a regular React App (for example: for example: Next.JS, Vite.js, Create React App) to display a single frame of a video.
  * @see [Documentation](https://www.remotion.dev/docs/player/thumbnail)
  */
 

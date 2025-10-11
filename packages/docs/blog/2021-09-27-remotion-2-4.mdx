@@ -39,7 +39,7 @@ To get an overview of all keyboard shortcuts, you can now press <kbd>?</kbd> to 
 For those true hackers that don't use mouses, we optimized the whole new UI to be usable with just the keyboard. Use the <kbd>Tab</kbd> key to focus items, the arrow keys to navigate through menus. Press <kbd>Enter</kbd> or <kbd>Space</kbd> to click on items. Use <kbd>Escape</kbd> to quit modals and menus.
 
 <p align="center">
-  <img src="/img/keyboard-navigation.gif" style={{maxWidth: 600}} />
+  <img src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/keyboard-navigation.gif" style={{maxWidth: 600}} />
 </p>
 
 ## Built with 0 dependencies
@@ -50,7 +50,7 @@ We want to add new features to the Preview, but not bloat Remotion by adding ton
 
 - **New `<Series />` component**: Introduced in 2.3.2, we added a new [`<Series />`](/docs/series) component that helps you layout many sequences in a row. See this post ([Instagram](https://www.instagram.com/p/CTMCMX1q-Lm/) | [Twitter](https://twitter.com/JNYBGR/status/1432225492116123651)) for additional infographic explanation!
 
-- **Better handling for browser autoplay policies**: If you use the [`<Player />`](/docs/player) and include audio in it, you might hit a browser limitation where audio cannot be played because of a browsers autoplay policy. Remotion can now avoid some of those scenarios by playing some silent audio when the user actively triggers a play on the Remotion Player. If you then later in the video want to play some audio, Remotion will route that audio to an `<audio />` tag that was already playing silent audio and was already freed from the playback restrictions of the browser. You can control the amount of silent audio tags that Remotion should place using the [`numberOfSharedAudioTags`](/docs/player/autoplay#use-the-numberofsharedaudiotags-property) prop.
+- **Better handling for browser autoplay policies**: If you use the [`<Player />`](/docs/player) and include audio in it, you might hit a browser limitation where audio cannot be played because of a browsers autoplay policy. Remotion can now avoid some of those scenarios by playing some silent audio when the user actively triggers a play on the Remotion Player. If you then later in the video want to play some audio, Remotion will route that audio to an `<audio />` tag that was already playing silent audio and was already freed from the playback restrictions of the browser. You can control the amount of silent audio tags that Remotion should place using the [`numberOfSharedAudioTags`](/docs/player/autoplay#using-the-numberofsharedaudiotags-prop) prop.
 
 - **Better handling of invalid dimensions**: It turns out that MP4s can only have even dimensions. So while a 1000x1000px MP4 is completely fine, a 999x999px MP4 is not possible according to the spec. Instead of erroring out when rendering, we now warn you early using a new ESLint rule, and also when you use the "New composition" dialog.
 

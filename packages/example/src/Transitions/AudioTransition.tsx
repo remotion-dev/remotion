@@ -3,7 +3,7 @@ import {
 	TransitionPresentationComponentProps,
 } from '@remotion/transitions';
 import React from 'react';
-import {Audio, staticFile} from 'remotion';
+import {Html5Audio, staticFile} from 'remotion';
 
 export function addSound<T extends Record<string, unknown>>(
 	transition: TransitionPresentation<T>,
@@ -18,7 +18,9 @@ export function addSound<T extends Record<string, unknown>>(
 	) => {
 		return (
 			<>
-				{p.presentationDirection === 'entering' ? <Audio src={src} /> : null}
+				{p.presentationDirection === 'entering' ? (
+					<Html5Audio src={src} />
+				) : null}
 				<C {...p} />
 			</>
 		);
@@ -36,8 +38,8 @@ import {wipe} from '@remotion/transitions/wipe';
 import {AbsoluteFill} from 'remotion';
 
 export const Letter: React.FC<{
-	children: React.ReactNode;
-	color: string;
+	readonly children: React.ReactNode;
+	readonly color: string;
 }> = ({children, color}) => {
 	return (
 		<AbsoluteFill

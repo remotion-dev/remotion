@@ -41,9 +41,9 @@ const WarningTriangle: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 };
 
 export const WarningIndicatorButton: React.FC<{
-	setShowWarning: React.Dispatch<React.SetStateAction<boolean>>;
-	showWarning: boolean;
-	warningCount: number;
+	readonly setShowWarning: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly showWarning: boolean;
+	readonly warningCount: number;
 }> = ({setShowWarning, showWarning, warningCount}) => {
 	const onClick = useCallback(() => {
 		setShowWarning((s) => !s);

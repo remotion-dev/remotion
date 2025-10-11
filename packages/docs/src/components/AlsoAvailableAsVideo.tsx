@@ -39,10 +39,10 @@ const wouldYouRather: React.CSSProperties = {
 };
 
 export const AlsoAvailableAsVideo: React.FC<{
-	minutes: number;
-	playbackId: string;
-	title: string;
-	thumb: string;
+	readonly minutes: number;
+	readonly playbackId: string;
+	readonly title: string;
+	readonly thumb: string;
 }> = ({minutes, title, thumb, playbackId}) => {
 	const [showVideo, setShowVideo] = React.useState(false);
 

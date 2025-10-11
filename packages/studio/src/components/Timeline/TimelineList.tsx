@@ -11,7 +11,7 @@ const container: React.CSSProperties = {
 };
 
 export const TimelineList: React.FC<{
-	timeline: TrackWithHash[];
+	readonly timeline: TrackWithHash[];
 }> = ({timeline}) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const size = PlayerInternals.useElementSize(ref, {

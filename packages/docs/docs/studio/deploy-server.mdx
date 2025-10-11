@@ -2,15 +2,10 @@
 image: /generated/articles-docs-studio-deploy-server.png
 title: Deploy the Remotion Studio on a VPS
 sidebar_label: Deploy to a VPS
-crumb: "Remotion Studio"
+crumb: 'Remotion Studio'
 ---
 
-<YouTube
-  minutes={3}
-  href="https://www.youtube.com/watch?v=430B9xSs06U"
-  thumb="https://i.ytimg.com/vi/430B9xSs06U/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCFJ4FoC-8enbWW4aU8uo9NLhEl6w"
-  title="Deploy the Remotion Studio"
-/>
+<YouTube minutes={3} href="https://www.youtube.com/watch?v=430B9xSs06U" thumb="https://i.ytimg.com/vi/430B9xSs06U/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCFJ4FoC-8enbWW4aU8uo9NLhEl6w" title="Deploy the Remotion Studio" />
 
 _available from v4.0.46_
 
@@ -26,7 +21,7 @@ The following examples have been tested with the [Hello World](/templates/hello-
 ## Dockerizing the Remotion Studio
 
 ```docker title="Dockerfile"
-FROM node:20-bookworm
+FROM node:22-bookworm-slim
 
 # Install Chrome dependencies
 RUN apt-get update
@@ -42,10 +37,12 @@ RUN apt install -y \
   libxcomposite1 \
   libxdamage1 \
   libatk-bridge2.0-0 \
+  libpango-1.0-0 \
+  libcairo2 \
   libcups2
 
 # Copy everything from your project to the Docker image. Adjust if needed.
-COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* tsconfig.json* remotion.config.* ./
+COPY package.json package*.json yarn.lock* pnpm-lock.yaml* bun.lockb* bun.lock* tsconfig.json* remotion.config.* ./
 COPY src ./src
 
 # If you have a public folder:
@@ -57,7 +54,7 @@ RUN npm i
 # Install Chrome
 RUN npx remotion browser ensure
 
-CMD ["npx", "remotion studio"]
+CMD ["npx", "remotion", "studio"]
 ```
 
 ## Fly.io
@@ -68,8 +65,8 @@ To deploy the Remotion Studio to [Fly.io](https://fly.io):
 - Make the following change to the `Dockerfile` (works from v4.0.125):
 
 ```diff
-- CMD ["npx", "remotion studio"]
-+ CMD ["npx", "remotion studio", "--ipv4"]
+- CMD ["npx", "remotion", "studio"]
++ CMD ["npx", "remotion", "studio", "--ipv4"]
 ```
 
 - Ensure you are on a paid plan (free plan has too little memory)

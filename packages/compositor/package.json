@@ -1,0 +1,21 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/compositor"
+	},
+	"name": "@remotion/compositor",
+	"version": "4.0.357",
+	"description": "Rust binary for Remotion",
+	"sideEffects": false,
+	"scripts": {
+		"build-all": "bun build.ts --all"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {},
+	"peerDependencies": {},
+	"devDependencies": {},
+	"private": true
+}

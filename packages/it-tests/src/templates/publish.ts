@@ -38,6 +38,7 @@ const publish = async (template: Template) => {
 		.toString('utf-8')
 		.trim()
 		.split('\n')) {
+		if (file === '') continue;
 		await $`rm ${file}`.cwd(workingDir).quiet();
 	}
 

@@ -4,33 +4,35 @@
   "description": "My Remotion video",
   "scripts": {
     "dev": "remotion studio",
-    "build": "remotion render HelloWorld out/video.mp4",
+    "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "test": "eslint src --ext ts,tsx,js,jsx && tsc"
+    "lint": "eslint src && tsc"
   },
   "private": true,
   "repository": {},
   "license": "UNLICENSED",
   "dependencies": {
-    "@aws-sdk/client-s3": "3.645.0",
+    "@aws-sdk/client-s3": "3.787.0",
     "@remotion/cli": "workspace:*",
     "@remotion/media-utils": "workspace:*",
     "@remotion/zod-types": "workspace:*",
     "md5": "2.3.0",
     "microsoft-cognitiveservices-speech-sdk": "1.17.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "remotion": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "20.12.14",
-    "@remotion/eslint-config": "workspace:*",
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@remotion/eslint-plugin": "workspace:*",
     "@types/md5": "2.3.0",
-    "@types/react": "18.3.1",
-    "eslint": "8.56.0",
-    "prettier": "3.3.3",
+    "@types/react": "19.0.0",
+    "eslint": "9.19.0",
     "ts-node": "10.9.1",
-    "typescript": "5.5.4",
-    "zod": "3.22.3"
+    "zod": "3.23.8",
+    "prettier": "3.6.0",
+    "tsx": "4.19.3",
+    "typescript": "5.8.2"
   }
 }

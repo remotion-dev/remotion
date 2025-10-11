@@ -16,7 +16,8 @@ export const getVisualization = ({
 	frame,
 	fps,
 	maxInt,
-	optimizeFor = 'accuracy',
+	optimizeFor,
+	dataOffsetInSeconds,
 }: {
 	sampleSize: number;
 	data: Float32Array;
@@ -25,6 +26,7 @@ export const getVisualization = ({
 	fps: number;
 	maxInt: number;
 	optimizeFor: OptimizeFor;
+	dataOffsetInSeconds: number;
 }): number[] => {
 	const isPowerOfTwo = sampleSize > 0 && (sampleSize & (sampleSize - 1)) === 0;
 	if (!isPowerOfTwo) {
@@ -43,7 +45,7 @@ export const getVisualization = ({
 		);
 	}
 
-	const start = Math.floor((frame / fps) * sampleRate);
+	const start = Math.floor((frame / fps - dataOffsetInSeconds) * sampleRate);
 
 	const actualStart = Math.max(0, start - sampleSize / 2);
 

@@ -6,32 +6,32 @@
   "license": "UNLICENSED",
   "type": "module",
   "dependencies": {
-    "@code-hike/lighter": "0.9.4",
+    "@code-hike/lighter": "1.0.3",
     "@remotion/cli": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "@remotion/studio": "workspace:*",
     "@remotion/layout-utils": "workspace:*",
-    "codehike": "1.0.0-beta.2",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "codehike": "1.0.4",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "remotion": "workspace:*",
-    "twoslash-cdn": "0.2.9",
+    "twoslash-cdn": "0.3.1",
     "polished": "4.3.1",
-    "zod": "3.22.3"
+    "zod": "3.23.8"
   },
   "devDependencies": {
-    "@remotion/eslint-config": "workspace:*",
-    "@types/react": "18.3.1",
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@types/react": "19.0.0",
     "@types/web": "0.0.166",
-    "eslint": "8.56.0",
-    "prettier": "3.3.3",
-    "typescript": "5.5.4"
+    "eslint": "9.19.0",
+    "prettier": "3.6.0",
+    "typescript": "5.8.2"
   },
   "scripts": {
     "dev": "remotion studio",
-    "build": "remotion render Main out/video.mp4",
+    "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "test": "eslint src --ext ts,tsx,js,jsx && tsc"
+    "lint": "tsc && eslint src"
   },
   "private": true
 }

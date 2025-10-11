@@ -33,7 +33,9 @@ export const loadFont = async ({
 	format,
 	variant,
 }: LoadFontOptions): Promise<void> => {
-	const waitForFont = delayRender();
+	const waitForFont = delayRender(
+		`Loading font ${family} (url: ${url}, format: ${format}, weight: ${weight}, style: ${style}, variant: ${variant}, ascentOverride: ${ascentOverride}, descentOverride: ${descentOverride}, display: ${display}, featureSettings: ${featureSettings}, lineGapOverride: ${lineGapOverride}, stretch: ${stretch}, unicodeRange: ${unicodeRange})`,
+	);
 	try {
 		const fontFormat = format ?? getFontFormat(url);
 		const font = new FontFace(family, `url('${url}') format('${fontFormat}')`, {
@@ -46,7 +48,8 @@ export const loadFont = async ({
 			style,
 			unicodeRange,
 			weight,
-			// @ts-expect-error - Types are incorrect
+			// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+			// @ts-ignore variant is not in the FontFace constructor
 			variant,
 		});
 		await font.load();

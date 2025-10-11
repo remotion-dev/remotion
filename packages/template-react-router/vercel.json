@@ -1,0 +1,3 @@
+{
+  "buildCommand": "node deploy.mjs && npx react-router build"
+}

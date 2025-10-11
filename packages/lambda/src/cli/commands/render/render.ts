@@ -6,23 +6,21 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import path from 'path';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../../api/download-media';
-import {getRenderProgress} from '../../../api/get-render-progress';
-import {internalRenderMediaOnLambdaRaw} from '../../../api/render-media-on-lambda';
 
-import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
-import type {ServerlessCodec} from '@remotion/serverless/client';
-import type {AwsProvider} from '../../../functions/aws-implementation';
-import {parseFunctionName} from '../../../functions/helpers/parse-function-name';
+import {
+	AwsProvider,
+	getRenderProgress,
+	LambdaClientInternals,
+} from '@remotion/lambda-client';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
 	DEFAULT_OUTPUT_PRIVACY,
-} from '../../../shared/constants';
+} from '@remotion/lambda-client/constants';
+import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
+import {validatePrivacy, type ServerlessCodec} from '@remotion/serverless';
 import {sleep} from '../../../shared/sleep';
-import {validateFramesPerLambda} from '../../../shared/validate-frames-per-lambda';
-import {validatePrivacy} from '../../../shared/validate-privacy';
 import {validateMaxRetries} from '../../../shared/validate-retries';
-import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
@@ -37,6 +35,7 @@ const {
 	x264Option,
 	audioBitrateOption,
 	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
 	scaleOption,
 	crfOption,
 	jpegQualityOption,
@@ -55,14 +54,20 @@ const {
 	binariesDirectoryOption,
 	preferLosslessOption,
 	metadataOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
-export const renderCommand = async (
-	args: string[],
-	remotionRoot: string,
-	logLevel: LogLevel,
-	implementation: ProviderSpecifics<AwsProvider>,
-) => {
+export const renderCommand = async ({
+	args,
+	remotionRoot,
+	logLevel,
+	providerSpecifics,
+}: {
+	args: string[];
+	remotionRoot: string;
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
 		Log.error({indent: false, logLevel}, 'No serve URL passed.');
@@ -109,6 +114,12 @@ export const renderCommand = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const scale = scaleOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -179,13 +190,14 @@ export const renderCommand = async (
 	};
 
 	let composition: string = args[1];
+
 	if (!composition) {
 		Log.info(
 			{indent: false, logLevel},
 			'No compositions passed. Fetching compositions...',
 		);
 
-		validateServeUrl(serveUrl);
+		LambdaClientInternals.validateServeUrl(serveUrl);
 
 		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 			throw Error(
@@ -194,7 +206,7 @@ export const renderCommand = async (
 		}
 
 		const server = await RenderInternals.prepareServer({
-			concurrency: 1,
+			offthreadVideoThreads: 1,
 			indent: false,
 			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
@@ -217,7 +229,7 @@ export const renderCommand = async (
 				height,
 				indent,
 				serializedInputPropsWithCustomSchema:
-					NoReactInternals.serializeJSONWithDate({
+					NoReactInternals.serializeJSONWithSpecialTypes({
 						indent: undefined,
 						staticBase: null,
 						data: inputProps,
@@ -230,12 +242,15 @@ export const renderCommand = async (
 				width,
 				server,
 				offthreadVideoCacheSizeInBytes,
+				offthreadVideoThreads,
 				binariesDirectory,
 				onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
 					indent,
 					logLevel,
 					quiet: CliInternals.quietFlagProvided(),
 				}),
+				chromeMode: 'headless-shell',
+				mediaCacheSizeInBytes: mediaCacheSizeInBytes,
 			});
 		composition = compositionId;
 	}
@@ -262,7 +277,7 @@ export const renderCommand = async (
 		uiImageFormat: null,
 	});
 
-	const functionName = await findFunctionName(logLevel);
+	const functionName = await findFunctionName({logLevel, providerSpecifics});
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
@@ -270,11 +285,12 @@ export const renderCommand = async (
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy, true);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
-	validateFramesPerLambda({framesPerLambda, durationInFrames: 1});
+	const concurrency = parsedLambdaCli['concurrency'] ?? undefined;
+	const concurrencyPerLambda = parsedLambdaCli['concurrency-per-lambda'] ?? 1;
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
 
-	const res = await internalRenderMediaOnLambdaRaw({
+	const res = await LambdaClientInternals.internalRenderMediaOnLambdaRaw({
 		functionName,
 		serveUrl,
 		inputProps,
@@ -289,6 +305,7 @@ export const renderCommand = async (
 		maxRetries,
 		composition,
 		framesPerLambda: framesPerLambda ?? null,
+		concurrency: concurrency ?? null,
 		privacy,
 		logLevel,
 		frameRange: frameRange ?? null,
@@ -298,7 +315,7 @@ export const renderCommand = async (
 		scale,
 		numberOfGifLoops,
 		everyNthFrame,
-		concurrencyPerLambda: parsedLambdaCli['concurrency-per-lambda'] ?? 1,
+		concurrencyPerLambda,
 		muted,
 		overwrite,
 		audioBitrate,
@@ -322,11 +339,17 @@ export const renderCommand = async (
 		colorSpace,
 		downloadBehavior: {type: 'play-in-browser'},
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		x264Preset: x264Preset ?? null,
 		preferLossless,
 		indent: false,
 		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
 		metadata: metadata ?? null,
+		apiKey:
+			parsedLambdaCli[BrowserSafeApis.options.apiKeyOption.cliFlag] ?? null,
+		storageClass: parsedLambdaCli['storage-class'] ?? null,
+		requestHandler: null,
 	});
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({
@@ -416,7 +439,8 @@ export const renderCommand = async (
 		);
 	}
 
-	const adheresToFunctionNameConvention = parseFunctionName(functionName);
+	const adheresToFunctionNameConvention =
+		LambdaClientInternals.parseFunctionName(functionName);
 
 	const status = await getRenderProgress({
 		functionName,
@@ -476,7 +500,7 @@ export const renderCommand = async (
 							false,
 						);
 					},
-					providerSpecifics: implementation,
+					providerSpecifics: providerSpecifics,
 					forcePathStyle: parsedLambdaCli['force-path-style'],
 				});
 				downloadOrNothing = download;

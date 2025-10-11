@@ -1,4 +1,3 @@
-import {bundle} from '@remotion/bundler';
 import {
 	RenderInternals,
 	renderMedia,
@@ -6,33 +5,30 @@ import {
 	selectComposition,
 	StillImageFormat,
 } from '@remotion/renderer';
+import {$} from 'bun';
+import {beforeAll, expect, test} from 'bun:test';
 import {execSync} from 'node:child_process';
 import {existsSync, readFileSync, unlinkSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
-import {afterAll, beforeAll, expect, test} from 'vitest';
-// @ts-expect-error it does work
-import {webpackOverride} from '../webpack-override.mjs';
 
-let bundled = 'none';
+if (process.platform === 'win32') {
+	process.exit(0);
+}
+
+const exampleDir = path.join(__dirname, '..', '..');
 
 beforeAll(async () => {
-	bundled = await bundle({
-		entryPoint: path.join(process.cwd(), 'src/index.ts'),
-		webpackOverride,
-	});
-}, 30000);
-
-afterAll(() => {
-	RenderInternals.deleteDirectory(bundled);
+	await $`bunx remotion browser ensure`.cwd(exampleDir);
+	await $`bunx remotion bundle`.cwd(exampleDir);
 });
 
 test(
 	'Can render a still png using Node.JS APIs',
 	async () => {
 		const composition = await selectComposition({
-			serveUrl: bundled,
+			serveUrl: path.join(exampleDir, 'build'),
 			id: 'react-svg',
 			inputProps: {},
 		});
@@ -42,30 +38,30 @@ test(
 
 		const fileOSRoot = path.parse(__dirname).root;
 
-		await expect(() =>
+		await expect(
 			renderStill({
 				composition,
 				output: testOut,
-				serveUrl: bundled,
+				serveUrl: path.join(exampleDir, 'build'),
 				frame: 500,
 			}),
 		).rejects.toThrow(
 			/Cannot use frame 500: Duration of composition is 300, therefore the highest frame that can be rendered is 299/,
 		);
 
-		await expect(() =>
+		await expect(
 			renderStill({
 				composition,
 				output: process.platform === 'win32' ? fileOSRoot : '/var',
-				serveUrl: bundled,
+				serveUrl: path.join(exampleDir, 'build'),
 			}),
 		).rejects.toThrow(/already exists, but is not a file/);
 
-		await expect(() =>
+		await expect(
 			renderStill({
 				composition,
 				output: 'src/index.ts',
-				serveUrl: bundled,
+				serveUrl: path.join(exampleDir, 'build'),
 				overwrite: false,
 			}),
 		).rejects.toThrow(
@@ -75,7 +71,7 @@ test(
 		await renderStill({
 			composition,
 			output: testOut,
-			serveUrl: bundled,
+			serveUrl: path.join(exampleDir, 'build'),
 			frame: 100,
 		});
 
@@ -96,17 +92,17 @@ test(
 		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
 
 		const composition = await selectComposition({
-			serveUrl: bundled,
+			serveUrl: path.join(exampleDir, 'build'),
 			id: 'tiles',
 			inputProps: {},
 		});
 
-		const testOut = path.join(folder, `.${imageFormat}`);
+		const testOut = path.join(folder, `edgecase.${imageFormat}`);
 
 		await renderStill({
 			composition,
 			output: testOut,
-			serveUrl: bundled,
+			serveUrl: path.join(exampleDir, 'build'),
 			frame: 15,
 			imageFormat,
 		});
@@ -124,14 +120,14 @@ test(
 
 test('Bt709 encoding should work', async () => {
 	const composition = await selectComposition({
-		serveUrl: bundled,
+		serveUrl: path.join(exampleDir, 'build'),
 		id: 'green',
 		inputProps: {},
 	});
 
 	const still = await renderStill({
 		composition,
-		serveUrl: bundled,
+		serveUrl: path.join(exampleDir, 'build'),
 	});
 
 	const img = await sharp(still.buffer as Buffer)
@@ -151,14 +147,15 @@ test('Bt709 encoding should work', async () => {
 		codec: 'h264',
 		composition,
 		imageFormat: 'png',
-		serveUrl: bundled,
+		serveUrl: path.join(exampleDir, 'build'),
 		muted: true,
 	});
 
 	writeFileSync('out.mp4', new Uint8Array(buffer as Buffer));
 
-	execSync('pnpm exec remotion ffmpeg -i - -frames:v 1 -c:v png out%02d.png', {
+	execSync('bunx remotion ffmpeg -i - -frames:v 1 -c:v png out%02d.png', {
 		input: new Uint8Array(buffer as Buffer),
+		stdio: ['pipe', 'ignore', 'ignore'],
 	});
 
 	const pngBuffer = readFileSync('out01.png');

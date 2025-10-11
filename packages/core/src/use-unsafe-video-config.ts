@@ -24,6 +24,9 @@ export const useUnsafeVideoConfig = (): VideoConfig | null => {
 			defaultProps,
 			props,
 			defaultCodec,
+			defaultOutName,
+			defaultVideoImageFormat,
+			defaultPixelFormat,
 		} = video;
 
 		return {
@@ -35,6 +38,9 @@ export const useUnsafeVideoConfig = (): VideoConfig | null => {
 			defaultProps,
 			props,
 			defaultCodec,
+			defaultOutName,
+			defaultVideoImageFormat,
+			defaultPixelFormat,
 		};
 	}, [ctxDuration, ctxHeight, ctxWidth, video]);
 };

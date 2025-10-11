@@ -1,0 +1,4 @@
+/**
+ * @description Creates an AWS Lambda function in your account that will be able to render a video in the cloud.
+ * @see [Documentation](https://remotion.dev/docs/lambda/deployfunction)
+ */

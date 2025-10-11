@@ -2,8 +2,6 @@
 	Source code adapted from https://github.com/facebook/create-react-app/tree/main/packages/react-error-overlay and refactored in Typescript. This file is MIT-licensed.
 */
 
-/* eslint-disable eqeqeq */
-/* eslint-disable no-eq-null */
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  *

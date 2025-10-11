@@ -1,82 +1,110 @@
 import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
-import type {VideoTrack} from '@remotion/media-parser';
+import type {
+	MediaParserKeyframe,
+	MediaParserLocation,
+	MediaParserMetadataEntry,
+	MediaParserVideoTrack,
+} from '@remotion/media-parser';
 import React from 'react';
+import {renderHumanReadableVideoCodec} from '~/lib/render-codec-label';
+import {KeyframesInfo} from './KeyframesInfo';
+import {MetadataDisplay} from './MetadataTable';
 
 export const VideoTrackOverview: React.FC<{
-	readonly track: VideoTrack;
-}> = ({track}) => {
+	readonly track: MediaParserVideoTrack;
+	readonly metadata: MediaParserMetadataEntry[] | null;
+	readonly location: MediaParserLocation | null;
+	readonly keyframes: MediaParserKeyframe[] | null;
+	readonly durationInSeconds: number | null;
+}> = ({track, metadata, location, keyframes, durationInSeconds}) => {
 	return (
-		<Table>
+		<Table className="table-fixed">
 			<TableBody>
 				<TableRow>
-					<TableCell colSpan={3}>Type</TableCell>
+					<TableCell className="font-brand">Type</TableCell>
 					<TableCell className="text-right">Video</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Codec</TableCell>
+					<TableCell className="font-brand">Codec</TableCell>
 					<TableCell className="text-right">
-						{track.codecWithoutConfig}
+						{renderHumanReadableVideoCodec(track.codecEnum)}
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>WebCodecs Codec String</TableCell>
+					<TableCell className="font-brand">WebCodecs Codec String</TableCell>
 					<TableCell className="text-right">{track.codec}</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Dimensions</TableCell>
+					<TableCell className="font-brand">Dimensions</TableCell>
 					<TableCell className="text-right">
 						{track.width}x{track.height}
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Timescale</TableCell>
-					<TableCell className="text-right">{track.timescale}</TableCell>
+					<TableCell className="font-brand">Timescale</TableCell>
+					<TableCell className="text-right">
+						{track.originalTimescale}
+					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Sample Aspect Ratio</TableCell>
+					<TableCell className="font-brand">Sample Aspect Ratio</TableCell>
 					<TableCell className="text-right">
 						{track.sampleAspectRatio.numerator}:
 						{track.sampleAspectRatio.denominator}
 					</TableCell>
 				</TableRow>
+				{keyframes !== null ? (
+					<KeyframesInfo
+						durationInSeconds={durationInSeconds}
+						keyframes={keyframes}
+						trackId={track.trackId}
+					/>
+				) : null}
 				<TableRow>
-					<TableCell colSpan={3}>Rotation</TableCell>
+					<TableCell className="font-brand">Rotation</TableCell>
 					<TableCell className="text-right">{track.rotation}°</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Unrotated dimensions</TableCell>
+					<TableCell className="font-brand">Unrotated dimensions</TableCell>
 					<TableCell className="text-right">
 						{track.codedWidth}x{track.codedHeight}
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Color Primaries</TableCell>
+					<TableCell className="font-brand">Color Primaries</TableCell>
 					<TableCell className="text-right">
-						{track.color.primaries ?? 'N/A'}
+						{track.colorSpace.primaries ?? 'N/A'}
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Color Matrix</TableCell>
+					<TableCell className="font-brand">Color Matrix</TableCell>
 					<TableCell className="text-right">
-						{track.color.matrixCoefficients ?? 'N/A'}
+						{track.colorSpace.matrix ?? 'N/A'}
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Color Transfer Characteristics</TableCell>
+					<TableCell className="font-brand">
+						Color Transfer Characteristics
+					</TableCell>
 					<TableCell className="text-right">
-						{track.color.transferCharacteristics ?? 'N/A'}
+						{track.colorSpace.transfer ?? 'N/A'}
 					</TableCell>
 				</TableRow>
 				<TableRow>
-					<TableCell colSpan={3}>Color Full Range</TableCell>
+					<TableCell className="font-brand">Color Full Range</TableCell>
 					<TableCell className="text-right">
-						{track.color.fullRange
+						{track.colorSpace.fullRange
 							? 'Yes'
-							: track.color.fullRange === false
+							: track.colorSpace.fullRange === false
 								? 'No'
 								: 'N/A'}
 					</TableCell>
 				</TableRow>
+				<MetadataDisplay
+					location={location}
+					metadata={metadata ?? []}
+					trackId={track.trackId}
+				/>
 			</TableBody>
 		</Table>
 	);

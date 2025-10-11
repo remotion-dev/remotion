@@ -38,44 +38,36 @@ You can use these headers to verify the authenticity of the request, to check th
 The request body has the following structure:
 
 ```ts
-type WebhookPayload =
-  | {
-      type: 'error';
-      errors: {
-        message: string;
-        name: string;
-        stack: string;
-      }[];
-      renderId: string;
-      expectedBucketOwner: string;
-      bucketName: string;
-      customData: Record<string, unkown>;
-    }
-  | {
-      type: 'success';
-      lambdaErrors: EnhancedErrorInfo[];
-      outputUrl: string | undefined;
-      outputFile: string | undefined;
-      timeToFinish: number | undefined;
-      renderId: string;
-      expectedBucketOwner: string;
-      bucketName: string;
-      customData: Record<string, unkown>;
-      // Available from v3.3.11
-      costs: {
-        estimatedCost: number;
-        estimatedDisplayCost: string;
-        currency: string;
-        disclaimer: string;
-      };
-    }
-  | {
-      type: 'timeout';
-      renderId: string;
-      expectedBucketOwner: string;
-      bucketName: string;
-      customData: Record<string, unkown>;
-    };
+type StaticWebhookPayload = {
+  renderId: string;
+  expectedBucketOwner: string;
+  bucketName: string;
+  customData: Record<string, unknown> | null;
+};
+
+export type WebhookErrorPayload = StaticWebhookPayload & {
+  type: 'error';
+  errors: {
+    message: string;
+    name: string;
+    stack: string;
+  }[];
+};
+
+export type WebhookSuccessPayload = StaticWebhookPayload & {
+  type: 'success';
+  lambdaErrors: EnhancedErrorInfo[];
+  outputUrl: string | undefined;
+  outputFile: string | undefined;
+  timeToFinish: number | undefined;
+  costs: AfterRenderCost;
+};
+
+export type WebhookTimeoutPayload = StaticWebhookPayload & {
+  type: 'timeout';
+};
+
+export type WebhookPayload = WebhookErrorPayload | WebhookSuccessPayload | WebhookTimeoutPayload;
 ```
 
 The fields [`renderId`](/docs/lambda/rendermediaonlambda#renderid), [`bucketName`](/docs/lambda/rendermediaonlambda#bucketname) will be returned [just like they are returned by `renderMediaOnLambda()` itself](/docs/lambda/rendermediaonlambda#return-value).
@@ -147,180 +139,136 @@ Instead of validating the signature yourself, you can use the [`validateWebhookS
 
 ## Example webhook endpoint (Express)
 
-You can use any web framework and language to set up your webhook endpoint. The following example is written in JavaScript using the Express framework.
+You can use any web framework and language to set up your webhook endpoint. The following example is written in JavaScript using the Express framework, we are using [`expressWebhook()`](/docs/lambda/expresswebhook) to simplify the process.
 
-```javascript title="server.js"
-import express from "express";
-import bodyParser from "body-parser";
-import * as Crypto from "crypto";
-import {
-  validateWebhookSignature,
-  WebhookPayload,
-} from "@remotion/lambda/client";
+```javascript twoslash title="server.js"
+const ENABLE_TESTING = false;
+
+// ---cut---
+import express from 'express';
+import bodyParser from 'body-parser';
+import {expressWebhook} from '@remotion/lambda/client';
 
 const router = express();
-
-// You'll need to add a JSON parser middleware globally or
-// for the webhook route in order to get access to the request
-// body.
 const jsonParser = bodyParser.json();
 
-// Enable testing through the tool below
-const ENABLE_TESTING = true;
+const handler = expressWebhook({
+  secret: 'mysecret',
+  testing: ENABLE_TESTING,
+  onSuccess: ({renderId}) => console.log('Finished render', renderId),
+  onTimeout: ({renderId}) => console.log('Time out', renderId),
+  onError: ({renderId}) => console.log('Error', renderId),
+});
 
-// Express API endpoint
-router.post("/my-remotion-webhook-endpoint", jsonParser, (req, res) => {
+router.post('/webhook', jsonParser, handler);
+
+router.options('/webhook', jsonParser, handler);
+
+router.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
+```
+
+This can also be done manually, to have the maximum control over the endpoint's logic:
+
+```javascript twoslash title="server.js"
+import express from 'express';
+import bodyParser from 'body-parser';
+import {validateWebhookSignature} from '@remotion/lambda/client';
+
+const router = express();
+const jsonParser = bodyParser.json();
+
+const handler = (req, res) => {
+  //  add headers to enable  testing
+  const ENABLE_TESTING = true;
+
   if (ENABLE_TESTING) {
-    res.setHeader("Access-Control-Allow-Origin", "https://www.remotion.dev");
-    res.setHeader("Access-Control-Allow-Methods", "OPTIONS,POST");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode"
-    );
+    res.setHeader('Access-Control-Allow-Origin', 'https://www.remotion.dev');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode');
   }
 
-  if (req.method === "OPTIONS") {
+  // dont go forward if just testing
+  if (req.method === 'OPTIONS') {
+    // custom code to handle OPTIONS request
+    // logger(req).info('OPTIONS request received');
     res.status(200).end();
     return;
   }
 
-
+  // validate the webhook signature
   validateWebhookSignature({
-    signatureHeader: req.header("X-Remotion-Signature"),
+    signatureHeader: req.header('X-Remotion-Signature'),
     body: req.body,
-    secret: process.env.WEBHOOK_SECRET as string
+    secret: 'mysecret',
   });
 
-  const status = req.header("X-Remotion-Status"); // success, timeout, error
-  const mode = req.header("X-Remotion-Mode"); // demo or production
-
-  const payload = JSON.parse(req.body) as WebhookPayload;
-  if (payload.type === "success") {
-    // ...
-  } else if (payload.type === "timeout") {
-    // ...
+  //  custom logic
+  const payload = req.body;
+  if (payload.type === 'success') {
+    //success logic here
+  } else if (payload.type === 'error') {
+    //error logic here
+  } else if (payload.type === 'timeout') {
+    //timeout logic here
   }
+
+  // send response
+  res.status(200).json({success: true});
+};
+
+router.post('/webhook', jsonParser, handler);
+
+router.options('/webhook', jsonParser, handler);
+
+router.listen(3000, () => {
+  console.log('Server is running on port 3000');
 });
 ```
 
 ## Example webhook endpoint (Next.JS App Router)
 
-Similary, here is an example endpoint in Next.JS for the App Router.
-
-Since this endpoint is going to be executed in an AWS Lambda function on its own, you want to import the Remotion functions from [`@remotion/lambda/client`](/docs/lambda/light-client).
+Similarly, here is an example endpoint in Next.JS for the App Router using [`appRouterWebhook()`](/docs/lambda/approuterwebhook). Available from v4.0.246.
 
 ```tsx twoslash title="app/api/webhook.ts"
-import {
-  validateWebhookSignature,
-  WebhookPayload,
-} from '@remotion/lambda/client';
+const ENABLE_TESTING = false;
 
-// Enable testing through the tool below
-// You may disable it in production
-const ENABLE_TESTING = true;
+// ---cut---
+import {appRouterWebhook} from '@remotion/lambda/client';
 
-export const POST = async (req: Request, res: Response) => {
-  let headers = {};
-
-  if (ENABLE_TESTING) {
-    const testingheaders = {
-      'Access-Control-Allow-Origin': 'https://www.remotion.dev',
-      'Access-Control-Allow-Headers':
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode',
-      'Access-Control-Allow-Methods': 'OPTIONS,POST',
-    };
-    headers = {...headers, ...testingheaders};
-  }
-
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      headers,
-    });
-  }
-
-  // Parse the body properly
-  const body = await req.json();
-
-  validateWebhookSignature({
-    secret: process.env.WEBHOOK_SECRET as string,
-    body: body,
-    signatureHeader: req.headers.get('X-Remotion-Signature') as string,
-  });
-
-  const payload = body as WebhookPayload;
-
-  if (payload.type === 'success') {
-    //...
-  } else if (payload.type === 'timeout') {
-    //...
-  }
-
-  return new Response(JSON.stringify({success: true}));
-};
+export const POST = appRouterWebhook({
+  secret: 'mysecret',
+  // Enable testing through the tool below
+  testing: ENABLE_TESTING,
+  onSuccess: ({renderId}) => console.log('Finished render', renderId),
+  onTimeout: ({renderId}) => console.log('Time out', renderId),
+  onError: ({renderId}) => console.log('Error', renderId),
+});
 
 export const OPTIONS = POST;
 ```
 
 ## Example webhook endpoint (Next.JS Pages Router)
 
-The same endpoint as above, but using the Pages Router.
+The same endpoint as above, but using the Pages Router with the help of [`pagesRouterWebhook()`](/docs/lambda/pagesrouterwebhook). Available from v4.0.246.
 
 ```tsx twoslash title="pages/api/webhook.ts"
-type NextApiRequest = {
-  body: object;
-  headers: Record<string, string>;
-  method: string;
-};
-type NextApiResponse = {
-  status: (code: number) => {json: (body: object) => void; end: () => void};
-  setHeader: (key: string, value: string) => void;
-  end: () => void;
-};
+const ENABLE_TESTING = false;
+
 // ---cut---
-import {
-  validateWebhookSignature,
-  WebhookPayload,
-} from '@remotion/lambda/client';
 
-// Enable testing through the tool below
-// You may disable it in production
-const ENABLE_TESTING = true;
+import {pagesRouterWebhook} from '@remotion/lambda/client';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
-  if (ENABLE_TESTING) {
-    res.setHeader('Access-Control-Allow-Origin', 'https://www.remotion.dev');
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
-    res.setHeader(
-      'Access-Control-Allow-Headers',
-      'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Remotion-Status, X-Remotion-Signature, X-Remotion-Mode',
-    );
-  }
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-
-  validateWebhookSignature({
-    secret: process.env.WEBHOOK_SECRET as string,
-    body: req.body,
-    signatureHeader: req.headers['x-remotion-signature'] as string,
-  });
-
-  // If code reaches this path, the webhook is authentic.
-  const payload = req.body as WebhookPayload;
-  if (payload.type === 'success') {
-    // ...
-  } else if (payload.type === 'timeout') {
-    // ...
-  }
-
-  res.status(200).json({
-    success: true,
-  });
-}
+const handler = pagesRouterWebhook({
+  secret: 'mysecret',
+  // Enable testing through the tool below
+  testing: ENABLE_TESTING,
+  onSuccess: ({renderId}) => console.log('Finished render', renderId),
+  onTimeout: ({renderId}) => console.log('Time out', renderId),
+  onError: ({renderId}) => console.log('Error', renderId),
+});
+export default handler;
 ```
 
 ## Test your webhook endpoint

@@ -1,0 +1,4 @@
+/**
+ * @description Saves the defaultProps for a composition back to the root file.
+ * @see [Documentation](https://www.remotion.dev/docs/studio/save-default-props)
+ */

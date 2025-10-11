@@ -2,7 +2,7 @@
 image: /generated/articles-docs-use-offthread-video-texture.png
 id: use-offthread-video-texture
 title: useOffthreadVideoTexture()
-crumb: "@remotion/three"
+crumb: '@remotion/three'
 ---
 
 _available from v4.0.83_
@@ -11,57 +11,44 @@ Allows you to use a video in React Three Fiber that is synchronized with Remotio
 
 This hook only works during rendering. In the Player and the Remotion Studio, use [`useVideoTexture()`](/docs/use-video-texture) instead. See below for an example.
 
-This hook was designed to combat limitations of the default `<Video>` element that is used with `useVideoTexture()` hook.
-See: [`<OffthreadVideo> vs <Video>`](/docs/video-vs-offthreadvideo)
+This hook was designed to combat limitations of the default `<Html5Video>` element that is used with `useVideoTexture()` hook.
+See: [Comparison of video tags](/docs/video-tags)
 
 The return type of it is a `THREE.Texture | null` which you can assign as a `map` to for example `meshBasicMaterial`. We recommend to only render the material when the texture is not `null` to prevent bugs.
 
 ## Example
 
 ```tsx twoslash title="Simple usage (only works during rendering)"
-import { ThreeCanvas, useOffthreadVideoTexture } from "@remotion/three";
-import { staticFile, useVideoConfig } from "remotion";
+import {ThreeCanvas, useOffthreadVideoTexture} from '@remotion/three';
+import {staticFile, useVideoConfig} from 'remotion';
 
-const videoSrc = staticFile("/vid.mp4");
+const videoSrc = staticFile('/vid.mp4');
 
 const My3DVideo = () => {
-  const { width, height } = useVideoConfig();
+  const {width, height} = useVideoConfig();
 
-  const videoTexture = useOffthreadVideoTexture({ src: videoSrc });
+  const videoTexture = useOffthreadVideoTexture({src: videoSrc});
 
   return (
     <ThreeCanvas width={width} height={height}>
-      <mesh>
-        {videoTexture ? <meshBasicMaterial map={videoTexture} /> : null}
-      </mesh>
+      <mesh>{videoTexture ? <meshBasicMaterial map={videoTexture} /> : null}</mesh>
     </ThreeCanvas>
   );
 };
 ```
 
 ```tsx twoslash title="Use useVideoTexture() only during rendering"
-import {
-  ThreeCanvas,
-  useOffthreadVideoTexture,
-  useVideoTexture,
-} from "@remotion/three";
-import { useRef } from "react";
-import {
-  getRemotionEnvironment,
-  staticFile,
-  useVideoConfig,
-  Video,
-} from "remotion";
+import {ThreeCanvas, useOffthreadVideoTexture, useVideoTexture} from '@remotion/three';
+import {useRef} from 'react';
+import {staticFile, useRemotionEnvironment, useVideoConfig, Html5Video} from 'remotion';
 
-const videoSrc = staticFile("/vid.mp4");
+const videoSrc = staticFile('/vid.mp4');
 
-const useVideoOrOffthreadVideoTexture = (
-  videoSrc: string,
-  videoRef: React.RefObject<HTMLVideoElement>,
-) => {
-  if (getRemotionEnvironment().isRendering) {
+const useVideoOrOffthreadVideoTexture = (videoSrc: string, videoRef: React.RefObject<HTMLVideoElement | null>) => {
+  const env = useRemotionEnvironment();
+  if (env.isRendering) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useOffthreadVideoTexture({ src: videoSrc });
+    return useOffthreadVideoTexture({src: videoSrc});
   }
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -69,24 +56,17 @@ const useVideoOrOffthreadVideoTexture = (
 };
 
 const My3DVideo = () => {
-  const { width, height } = useVideoConfig();
+  const {width, height} = useVideoConfig();
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const videoTexture = useVideoOrOffthreadVideoTexture(videoSrc, videoRef);
+  const env = useRemotionEnvironment();
 
   return (
     <>
-      {getRemotionEnvironment().isRendering ? null : (
-        <Video
-          ref={videoRef}
-          src={videoSrc}
-          style={{ position: "absolute", opacity: 0 }}
-        />
-      )}
+      {env.isRendering ? null : <Html5Video ref={videoRef} src={videoSrc} style={{position: 'absolute', opacity: 0}} />}
       <ThreeCanvas width={width} height={height}>
-        <mesh>
-          {videoTexture ? <meshBasicMaterial map={videoTexture} /> : null}
-        </mesh>
+        <mesh>{videoTexture ? <meshBasicMaterial map={videoTexture} /> : null}</mesh>
       </ThreeCanvas>
     </>
   );
@@ -105,6 +85,10 @@ The video source. Can be a URL or a [`staticFile()`](/docs/staticfile).
 
 The playback rate of the video. Defaults to `1`.
 
+:::note
+Playing a video in reverse is not supported.
+:::
+
 ### `transparent`
 
 _optional, boolean_
@@ -122,13 +106,21 @@ Disabling tone mapping will speed up rendering, but may result in less vibrant c
 
 Prior to Remotion 4.0.117, tone mapping was always disabled, and the `toneMapped` prop was not available.
 
+### `delayRenderTimeoutInMilliseconds`<AvailableFrom v="4.0.271" />
+
+Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delayRender()`](/docs/delay-render) call that this hook makes.
+
+### `delayRenderRetries`<AvailableFrom v="4.0.271" />
+
+Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this hook makes.
+
 ## Looping a texture
 
-Like `<OffthreadVideo>`, looping a video [is not supported out of the box](/docs/offthreadvideo#looping-a-video) but can be achieved with the `<Loop>` component.
+Like `<OffthreadVideo>`, looping a video [is not supported out of the box](/docs/offthreadvideo#looping-a-offthreadvideo) but can be achieved with the `<Loop>` component.
 
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/three/src/use-offthread-video-texture.ts)
 - [`useVideoTexture()`](/docs/use-video-texture)
 - [`<ThreeCanvas />`](/docs/three-canvas)
-- [`<OffthreadVideo> vs <Video>`](/docs/video-vs-offthreadvideo)
+- [Comparison of video tags](/docs/video-tags)

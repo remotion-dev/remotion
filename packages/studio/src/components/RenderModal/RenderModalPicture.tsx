@@ -33,33 +33,41 @@ const container: React.CSSProperties = {
 };
 
 export const RenderModalPicture: React.FC<{
-	renderMode: RenderType;
-	scale: number;
-	setScale: React.Dispatch<React.SetStateAction<number>>;
-	pixelFormat: PixelFormat;
-	colorSpace: ColorSpace;
-	setColorSpace: React.Dispatch<React.SetStateAction<ColorSpace>>;
-	imageFormatOptions: SegmentedControlItem[];
-	setQualityControl: React.Dispatch<React.SetStateAction<QualityControl>>;
-	qualityControlType: QualityControl | null;
-	videoImageFormat: VideoImageFormat;
-	stillImageFormat: StillImageFormat;
-	setJpegQuality: React.Dispatch<React.SetStateAction<number>>;
-	jpegQuality: number;
-	maxCrf: number;
-	minCrf: number;
-	setCrf: React.Dispatch<React.SetStateAction<number>>;
-	setCustomTargetVideoBitrateValue: React.Dispatch<
+	readonly renderMode: RenderType;
+	readonly scale: number;
+	readonly setScale: React.Dispatch<React.SetStateAction<number>>;
+	readonly pixelFormat: PixelFormat;
+	readonly colorSpace: ColorSpace;
+	readonly setColorSpace: React.Dispatch<React.SetStateAction<ColorSpace>>;
+	readonly imageFormatOptions: SegmentedControlItem[];
+	readonly setQualityControl: React.Dispatch<
+		React.SetStateAction<QualityControl>
+	>;
+	readonly qualityControlType: QualityControl | null;
+	readonly videoImageFormat: VideoImageFormat;
+	readonly stillImageFormat: StillImageFormat;
+	readonly setJpegQuality: React.Dispatch<React.SetStateAction<number>>;
+	readonly jpegQuality: number;
+	readonly maxCrf: number;
+	readonly minCrf: number;
+	readonly setCrf: React.Dispatch<React.SetStateAction<number>>;
+	readonly setCustomTargetVideoBitrateValue: React.Dispatch<
 		React.SetStateAction<string>
 	>;
-	crf: number;
-	customTargetVideoBitrate: string;
-	shouldDisplayQualityControlPicker: boolean;
-	pixelFormatOptions: ComboboxValue[];
-	encodingBufferSize: string | null;
-	setEncodingBufferSize: React.Dispatch<React.SetStateAction<string | null>>;
-	encodingMaxRate: string | null;
-	setEncodingMaxRate: React.Dispatch<React.SetStateAction<string | null>>;
+	readonly crf: number | null;
+	readonly customTargetVideoBitrate: string;
+	readonly shouldDisplayQualityControlPicker: boolean;
+	readonly pixelFormatOptions: ComboboxValue[];
+	readonly encodingBufferSize: string | null;
+	readonly setEncodingBufferSize: React.Dispatch<
+		React.SetStateAction<string | null>
+	>;
+	readonly encodingMaxRate: string | null;
+	readonly setEncodingMaxRate: React.Dispatch<
+		React.SetStateAction<string | null>
+	>;
+	readonly compositionWidth: number;
+	readonly compositionHeight: number;
 }> = ({
 	renderMode,
 	scale,
@@ -86,6 +94,8 @@ export const RenderModalPicture: React.FC<{
 	encodingMaxRate,
 	setEncodingBufferSize,
 	setEncodingMaxRate,
+	compositionWidth,
+	compositionHeight,
 }) => {
 	const colorSpaceOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.validColorSpaces.map((option) => {
@@ -192,12 +202,13 @@ export const RenderModalPicture: React.FC<{
 			) : null}
 			{qualityControlType === 'crf' &&
 			renderMode !== 'still' &&
-			renderMode !== 'sequence' ? (
+			renderMode !== 'sequence' &&
+			crf !== null ? (
 				<CrfSetting
 					crf={crf}
 					min={minCrf}
 					max={maxCrf}
-					setCrf={setCrf}
+					setCrf={setCrf as React.Dispatch<React.SetStateAction<number>>}
 					option="crfOption"
 				/>
 			) : null}
@@ -287,7 +298,12 @@ export const RenderModalPicture: React.FC<{
 				</>
 			) : null}
 			{renderMode === 'video' ? <RenderModalHr /> : null}
-			<ScaleSetting scale={scale} setScale={setScale} />
+			<ScaleSetting
+				scale={scale}
+				setScale={setScale}
+				compositionWidth={compositionWidth}
+				compositionHeight={compositionHeight}
+			/>
 			{renderMode === 'video' ? <RenderModalHr /> : null}
 			{renderMode === 'video' ? (
 				<div style={optionRow}>

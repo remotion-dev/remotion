@@ -2,13 +2,17 @@
 image: /generated/articles-docs-renderer-get-video-metadata.png
 id: get-video-metadata
 title: getVideoMetadata()
-crumb: "@remotion/renderer"
+crumb: '@remotion/renderer'
 ---
 
 # getVideoMetadata()<AvailableFrom v="4.0.6" />
 
 :::note
-This function is meant to be used **in Node.js applications**. For browsers, use [`getVideoMetadata()`](/docs/get-video-metadata) from `@remotion/media-utils` instead.
+Deprecated. Use [`parseMedia()`](/docs/media-parser/parse-media) instead.
+:::
+
+:::note
+Only works in Node.js and Bun.
 :::
 
 Gets metadata about a video file in Node.js. Useful for calculating metadata on a server.
@@ -16,26 +20,11 @@ Gets metadata about a video file in Node.js. Useful for calculating metadata on 
 ## Example
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { getVideoMetadata, VideoMetadata } from "@remotion/renderer";
+import {getVideoMetadata, VideoMetadata} from '@remotion/renderer';
 
-const videoMetadata: VideoMetadata = await getVideoMetadata(
-  "/Users/john/Documents/bunny.mp4",
-);
+const videoMetadata: VideoMetadata = await getVideoMetadata('/Users/john/Documents/bunny.mp4');
 
-const {
-  width,
-  height,
-  fps,
-  durationInSeconds,
-  codec,
-  supportsSeeking,
-  colorSpace,
-  audioCodec,
-  audioFileExtension,
-  pixelFormat,
-} = videoMetadata;
+const {width, height, fps, durationInSeconds, codec, supportsSeeking, colorSpace, audioCodec, audioFileExtension, pixelFormat} = videoMetadata;
 ```
 
 :::info
@@ -107,7 +96,7 @@ A prediction whether the video will be seekable in the browser. The algorithm is
 5. Otherwise, it is not seekable (`false`).
 
 If a video is not seekable, you might run into the ["Non-seekable media"](/docs/non-seekable-media) error.  
-This means that the video might fail to render if embedded in a `<Video>` tag and be slow if embedded in a `<OffthreadVideo>` tag.
+This means that the video might fail to render if embedded in a `<Html5Video>` tag and be slow if embedded in a `<OffthreadVideo>` tag.
 
 You may consider re-encoding the video using FFmpeg to make it seekable.
 

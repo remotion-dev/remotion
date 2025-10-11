@@ -11,7 +11,7 @@ export const mutedOption = {
 	cliFlag,
 	description: () => <>The Audio of the video will be omitted.</>,
 	ssrName: 'muted',
-	docLink: 'https://www.remotion.dev/docs/using-audio/#muted-property',
+	docLink: 'https://www.remotion.dev/docs/audio/muting',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		// we set in minimist `muted` default as null

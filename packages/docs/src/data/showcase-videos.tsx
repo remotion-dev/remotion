@@ -118,7 +118,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			},
 			{
 				type: 'source_code',
-				url: 'https://github.com/remotion-dev/github-unwrapped-2023',
+				url: 'https://github.com/remotion-dev/github-unwrapped',
 			},
 		],
 		author: {
@@ -207,7 +207,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		},
 	},
 	{
-		title: 'Watercolor Map - Animated map',
+		title: 'Watercolor Map - Animated Map',
 		type: 'mux_video',
 		time: '1',
 		muxId: 'Wd02W8GdZsjQ3JSKUsOjKtpEGxXBNbXRg8hiwmYx7cTM',
@@ -219,7 +219,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		links: [
 			{
 				type: 'source_code',
-				url: 'https://github.com/remotion-dev/github-unwrapped-2023',
+				url: 'https://www.remotion.pro/watercolor-map',
 			},
 		],
 		author: {
@@ -344,7 +344,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		links: [
 			{
 				type: 'website',
-				url: 'https://www.remotion.pro/recorder',
+				url: 'https://www.remotion.dev/recorder',
 			},
 		],
 		author: {

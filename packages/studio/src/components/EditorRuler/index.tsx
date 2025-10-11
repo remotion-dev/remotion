@@ -35,10 +35,10 @@ const originBlockStyles: React.CSSProperties = {
 };
 
 export const EditorRulers: React.FC<{
-	canvasSize: Size;
-	contentDimensions: Dimensions | 'none' | null;
-	assetMetadata: AssetMetadata | null;
-	containerRef: React.RefObject<HTMLDivElement>;
+	readonly canvasSize: Size;
+	readonly contentDimensions: Dimensions | 'none' | null;
+	readonly assetMetadata: AssetMetadata | null;
+	readonly containerRef: React.RefObject<HTMLDivElement | null>;
 }> = ({contentDimensions, canvasSize, assetMetadata, containerRef}) => {
 	const {scale, canvasPosition} = useStudioCanvasDimensions({
 		canvasSize,

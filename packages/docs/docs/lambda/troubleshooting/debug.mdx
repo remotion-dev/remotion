@@ -6,33 +6,28 @@ title: Debugging failed Lambda renders
 crumb: 'Lambda'
 ---
 
-<YouTube
-  minutes={11}
-  href="https://youtu.be/pwVEzTQ6VYE"
-  thumb="https://i.ytimg.com/vi/pwVEzTQ6VYE/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLDGudSHhI9u7kkShN_awBk3hbQ9mA"
-  title="How to troubleshoot and debug for Remotion Lambda"
-/>
+<YouTube minutes={11} href="https://youtu.be/pwVEzTQ6VYE" thumb="https://i.ytimg.com/vi/pwVEzTQ6VYE/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLDGudSHhI9u7kkShN_awBk3hbQ9mA" title="How to troubleshoot and debug for Remotion Lambda" />
 
 ## General debugging strategy
 
-<Step>1</Step> Reproduce a render via the [`npx remotion lambda
-render`](/docs/lambda/cli/render) command.
-- Use `--props` to pass in a JSON file with the same input props as the render
-you want to debug. - Use `--log=verbose` to get detailed debugging information.<br />
+<Step>1</Step> Reproduce a render via the [`npx remotion lambda render`](/docs/lambda/cli/render) command.
 
-<Step>2</Step> Wait for the render to fully time out or throw an error.<br/>
-<Step>3</Step> Read the error message carefully and use the log links that were
-printed.
+- Use `--props` to pass in a JSON file with the same input props as the render you want to debug.
+- Use `--log=verbose` to get detailed debugging information.
+
+<div>
+  <Step>2</Step> Wait for the render to fully time out or throw an error.
+</div>
+<Step>3</Step> Read the error message carefully and use the log links that were printed.
 
 ## Reasons a render may fail
 
 There are four reasons renders may fail:
 
 - <Step>1</Step> An error occurs in your React code.
-- <Step>2</Step> A timeout occurs after calling
-  [`delayRender()`](/docs/delay-render).
+- <Step>2</Step> A timeout occurs after calling [`delayRender()`](/docs/delay-render).
 - <Step>3</Step> The Lambda function rendering one of the chunks times out.
-- <Step>4</Step> The main Lambda function times out.{' '}
+- <Step>4</Step> The main Lambda function times out.
 
 ## Error in React code
 
@@ -50,11 +45,9 @@ You can increase the timeout by passing `timeoutInMilliseconds` to [`renderMedia
 :::
 
 <br />
-If your error message reads that the main Lambda function has timed out, it
-means that the render was still ongoing, but the maximum execution duration of
-the Lambda function has been hit. This is caused by either: <br /> <br />
+If your error message reads that the main Lambda function has timed out, it means that the render was still ongoing, but the maximum execution duration of the Lambda function has been hit. This is caused by either: <br /> <br />
 
-- A render that takes too long to complete within the specified duration. In that case, you should increase the function timeout by passing `--timeout` to the CLI [when deploying a function](/docs/lambda/cli/functions).
+- A render that takes too long to complete within the specified duration. In that case, you should increase the function timeout by passing `--timeout` to the CLI [when deploying a function](/docs/lambda/cli/functions/deploy).
 - A render that has a bottleneck and completes slowly on Lambda. In that case, you should identify the bottleneck by measuring and optimizing the render. See [Optimizing for speed](/docs/lambda/optimizing-speed) for more tips.
 - A chunk is getting stuck, making it impossible for the main function to complete the task of concatenating the chunks. You should identify the chunk that is getting stuck by looking at the logs. See below for how to do this.
 
@@ -92,7 +85,7 @@ In the logstream, you will see debug logging from Remotion as well as any `conso
 
 ### Find the logs of the main function
 
-Tweakt the query to find the logs of the main function:
+Tweak the query to find the logs of the main function:
 
 ```
 method=launch,renderId=[render-id]
@@ -103,13 +96,12 @@ Click the blue link in the `Log stream name` column to open the log stream. If y
 
 ### Finding the chunk that failed
 
-To find which chunks failed to render, add `--log=verbose` to the Lambda render while rendering via the CLI. Look for a log statement `Render folder: ` to find the link to the render folder in S3.  
-When using [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), you will get a `folderInS3Console` field in the return value.
+To find which chunks failed to render, add `--log=verbose` to the Lambda render while rendering via the CLI.  
+Look for the link pointing to `progress.json`.  
+When using [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), you will get a `folderInS3Console` field in the return value, which you can open and locate the `progress.json` file therein.
 
-After opening the link, open the `chunks` subfolder. Go through each existing chunk and find the ones that are missing. The missing chunks are the ones that failed to render.
-
-<img src="/img/chunks.png" /> <br />
-<br />
+Within the `progress.json` file, you will find a `chunks` array.  
+The chunks that are missing are the ones that failed to render.
 
 After you've identified which chunks are missing, [inspect the logs](#inspecting-the-logs) for that chunk to find the cause of the error.
 
@@ -118,13 +110,19 @@ After you've identified which chunks are missing, [inspect the logs](#inspecting
 Note that two types of timeouts come into play in Remotion:
 
 - The `delayRender()` timeout. This is the timeout that is defined using `--timeout` when calling [`npx remotion lambda render`](/docs/lambda/cli/render) or using `timeoutInMilliseconds` when calling [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
-- The Lambda function timeout. This is the timeout that is defined using `--timeout` when calling [`npx remotion lambda functions deploy`](/docs/lambda/cli/functions) or using `timeoutInSeconds` when calling [`deployFunction()`](/docs/lambda/deployfunction).
+- The Lambda function timeout. This is the timeout that is defined using `--timeout` when calling [`npx remotion lambda functions deploy`](/docs/lambda/cli/functions/deploy) or using `timeoutInSeconds` when calling [`deployFunction()`](/docs/lambda/deployfunction).
 
 ### Reporting an issue
 
-You may report an issue on [GitHub](https://remotion.dev/help) and [Discord](https://remotion.dev/discord).  
-Include the `progress.json` that lies in the S3 folder of the render, because it includes all informations to reproduce a render.  
-If you include CloudWatch logs, post the full ones (click "Load more messages" until there are no more to load.)
+You may report an issue on [GitHub](https://remotion.dev/help) and [Discord](https://remotion.dev/discord).
+
+To share a reproducible render, share the `progress.json` that lies in the S3 folder of the failed render under `renders/[render-id]/progress.json`.
+
+If you use [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), this function returns a link [`folderInS3Console`](/docs/lambda/rendermediaonlambda#folderins3console) pointing you to the right location in the S3 console.
+
+If you use `npx remotion lambda render`, add `--log=verbose` to print the link to the file in the S3 console.
+
+If you include CloudWatch logs in your report, post the full logs (click "Load more messages" until there are no more to load.)
 
 ## See also
 

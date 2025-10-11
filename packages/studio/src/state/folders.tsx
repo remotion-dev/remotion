@@ -25,7 +25,7 @@ export const FolderContext = createContext<TFolderContext>({
 });
 
 export const FolderContextProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [compositionFoldersExpanded, setCompositionFoldersExpanded] =
 		useState<ExpandedFoldersState>(() => loadExpandedFolders('compositions'));

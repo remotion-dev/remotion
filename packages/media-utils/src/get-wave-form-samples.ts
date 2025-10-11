@@ -1,11 +1,25 @@
-const filterData = (audioBuffer: Float32Array, samples: number) => {
-	const blockSize = Math.floor(audioBuffer.length / samples); // the number of samples in each subdivision
+import {normalizeData} from './normalize-data';
+
+export type SampleOutputRange = 'minus-one-to-one' | 'zero-to-one';
+
+export const getWaveformSamples = ({
+	audioBuffer,
+	numberOfSamples,
+	outputRange,
+	normalize,
+}: {
+	audioBuffer: Float32Array;
+	numberOfSamples: number;
+	outputRange: SampleOutputRange;
+	normalize: boolean;
+}) => {
+	const blockSize = Math.floor(audioBuffer.length / numberOfSamples); // the number of samples in each subdivision
 	if (blockSize === 0) {
 		return [];
 	}
 
 	const filteredData = [];
-	for (let i = 0; i < samples; i++) {
+	for (let i = 0; i < numberOfSamples; i++) {
 		const blockStart = blockSize * i; // the location of the first sample in the block
 		let sum = 0;
 		for (let j = 0; j < blockSize; j++) {
@@ -15,17 +29,29 @@ const filterData = (audioBuffer: Float32Array, samples: number) => {
 		filteredData.push(sum / blockSize); // divide the sum by the block size to get the average
 	}
 
+	if (normalize) {
+		if (outputRange === 'minus-one-to-one') {
+			return normalizeData(filteredData).map((n, i) => {
+				if (i % 2 === 0) {
+					return n * -1;
+				}
+
+				return n;
+			});
+		}
+
+		return normalizeData(filteredData);
+	}
+
+	if (outputRange === 'minus-one-to-one') {
+		return filteredData.map((n, i) => {
+			if (i % 2 === 0) {
+				return n * -1;
+			}
+
+			return n;
+		});
+	}
+
 	return filteredData;
-};
-
-const normalizeData = (filteredData: number[]) => {
-	const multiplier = Math.max(...filteredData) ** -1;
-	return filteredData.map((n) => n * multiplier);
-};
-
-export const getWaveformSamples = (
-	waveform: Float32Array,
-	sampleAmount: number,
-) => {
-	return normalizeData(filterData(waveform, sampleAmount));
 };

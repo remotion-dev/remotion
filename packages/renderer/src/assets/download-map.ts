@@ -1,14 +1,20 @@
-import fs, {mkdirSync} from 'node:fs';
+import {mkdirSync} from 'node:fs';
 import path from 'node:path';
+import {VERSION} from 'remotion/version';
 import {deleteDirectory} from '../delete-directory';
 import {OffthreadVideoServerEmitter} from '../offthread-video-server';
 import type {FrameAndAssets} from '../render-frames';
 import {tmpDir} from '../tmp-dir';
 import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
+import {
+	makeInlineAudioMixing,
+	type InlineAudioMixing,
+} from './inline-audio-mixing';
 
 export type AudioChannelsAndDurationResultCache = {
 	channels: number;
 	duration: number | null;
+	startTime: number | null;
 };
 
 export type DownloadMap = {
@@ -39,10 +45,10 @@ export type DownloadMap = {
 	stitchFrames: string;
 	assetDir: string;
 	compositingDir: string;
-	compositorCache: {[key: string]: string};
 	preventCleanup: () => void;
 	allowCleanup: () => void;
 	isPreventedFromCleanup: () => boolean;
+	inlineAudioMixing: InlineAudioMixing;
 };
 
 export type RenderAssetInfo = {
@@ -56,24 +62,14 @@ export type RenderAssetInfo = {
 	forSeamlessAacConcatenation: boolean;
 };
 
-const makeAndReturn = (dir: string, name: string) => {
+export const makeAndReturn = (dir: string, name: string) => {
 	const p = path.join(dir, name);
 	mkdirSync(p);
 	return p;
 };
 
-const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
-
-const packageJson = fs.existsSync(packageJsonPath)
-	? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
-	: null;
-
 export const makeDownloadMap = (): DownloadMap => {
-	const dir = tmpDir(
-		packageJson
-			? `remotion-v${packageJson.version.replace(/\./g, '-')}-assets`
-			: 'remotion-assets',
-	);
+	const dir = tmpDir(`remotion-v${VERSION}-assets`);
 
 	let prevented = false;
 
@@ -92,7 +88,6 @@ export const makeDownloadMap = (): DownloadMap => {
 		audioPreprocessing: makeAndReturn(dir, 'remotion-audio-preprocessing'),
 		stitchFrames: makeAndReturn(dir, 'remotion-stitch-temp-dir'),
 		compositingDir: makeAndReturn(dir, 'remotion-compositing-temp-dir'),
-		compositorCache: {},
 		emitter: new OffthreadVideoServerEmitter(),
 		preventCleanup: () => {
 			prevented = true;
@@ -103,6 +98,7 @@ export const makeDownloadMap = (): DownloadMap => {
 		isPreventedFromCleanup: () => {
 			return prevented;
 		},
+		inlineAudioMixing: makeInlineAudioMixing(dir),
 	};
 };
 
@@ -114,6 +110,9 @@ export const cleanDownloadMap = (downloadMap: DownloadMap) => {
 	deleteDirectory(downloadMap.downloadDir);
 	deleteDirectory(downloadMap.complexFilter);
 	deleteDirectory(downloadMap.compositingDir);
+
+	downloadMap.inlineAudioMixing.cleanup();
+
 	// Assets dir must be last since the others are contained
 	deleteDirectory(downloadMap.assetDir);
 };

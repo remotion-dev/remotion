@@ -1,0 +1,230 @@
+---
+image: /generated/articles-docs-webcodecs-create-audio-decoder.png
+sidebar_label: createAudioDecoder()
+title: createAudioDecoder()
+slug: /webcodecs/create-audio-decoder
+crumb: '@remotion/webcodecs'
+---
+
+:::warning
+[We are phasing out Remotion WebCodecs and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
+import {UnstableDisclaimer} from './UnstableDisclaimer';
+
+:::warning
+
+<UnstableDisclaimer />
+:::
+
+# createAudioDecoder()<AvailableFrom v="4.0.307" />
+
+This function is a wrapper around the [`AudioDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/AudioDecoder) Web API.
+
+```tsx twoslash title="Create an audio decoder"
+import type {MediaParserAudioTrack} from '@remotion/media-parser';
+
+const track = {} as unknown as MediaParserAudioTrack;
+
+// ---cut---
+
+import {createAudioDecoder} from '@remotion/webcodecs';
+
+const decoder = await createAudioDecoder({
+  track,
+  onFrame: console.log,
+  onError: console.error,
+});
+```
+
+## Differences to `AudioDecoder`
+
+- Samples with a `codec` of `pcm-s16` are accepted and passed through, even if the `AudioDecoder` object does not exist or support it.
+- Two new methods are added: [`.waitForQueueToBeLessThan()`](#waitforqueuetobelessthan) and `.waitForFinish()`.
+- The [`dequeue`](https://developer.mozilla.org/en-US/docs/Web/API/AudioDecoder/dequeue_event) event is not supported as it is not reliable across browsers.
+- In addition to [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk), [`EncodedAudioChunkInit`](https://www.w3.org/TR/webcodecs/#dictdef-encodedaudiochunkinit) objects are also accepted for `.decode()`.
+- A [`webcodecsController()`](/docs/webcodecs/webcodecs-controller) instance can be passed in to the function, allowing for decoding to be paused, resumed and aborted.
+- `.decode()` is async, and returns a promise, allowing for a halt if the decoder is paused.
+- Only samples with a size of 16 bytes or more are actually being input, [to avoid a bug in Chrome](https://github.com/remotion-dev/remotion/blob/c7f18a85bcb1bc58d3811efcd9e68c96ff38ccae/packages/webcodecs/src/create-audio-decoder.ts#L121-L129).
+- A [`logLevel`](#loglevel) can be passed in to the function, allowing the queue to be debugged.
+- The [`onFrame`](#onframe) callback is being awaited. When rejected, the error lands in the [`onError`](#onerror) callback. When resolved, only then the queue size counter will be decreased.
+
+## API
+
+Takes an object with the following properties:
+
+### `track`
+
+An [`AudioDecoderConfig`](https://www.w3.org/TR/webcodecs/#dictdef-audiodecoderconfig) object.  
+You may pass a [`MediaParserAudioTrack`](/docs/media-parser/types#mediaparseraudiotrack) object from [`parseMedia()`](/docs/media-parser/parse-media), which also is an `AudioDecoderConfig` object.
+
+### `onFrame`
+
+A callback that is called when an audio frame is decoded.
+
+Takes a single argument, which is an [`AudioData`](https://developer.mozilla.org/en-US/docs/Web/API/AudioData) object.
+
+If the passed callback is asynchronous, the queue size counter will be decreased only after the callback has been resolved.
+
+However, the callback for the next frame may already be called while your callback is still running.  
+We do not ensure that callbacks are running sequentially.
+
+### `onError`
+
+A callback that is called when an error occurs or the decode is aborted through the controller.
+
+Takes a single argument, which is an [`Error`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) object.
+
+### `controller?`
+
+A [`webcodecsController()`](/docs/webcodecs/webcodecs-controller) instance.
+
+If provided, you can call [`.pause()`](/docs/webcodecs/webcodecs-controller#pause), [`.resume()`](/docs/webcodecs/webcodecs-controller#resume) and [`.abort()`](/docs/webcodecs/webcodecs-controller#abort) on the controller to pause, resume and abort the decoding.
+
+### `logLevel?`
+
+_string_ <TsType type="LogLevel" source="@remotion/media-parser"/>
+
+One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
+Default value: `"info"`, which logs only important information.
+
+## Return type
+
+Returns an object with the following properties:
+
+### `decode(sample: EncodedAudioChunkInit | EncodedAudioChunk)`
+
+Decodes a sample. Same as [`AudioDecoder.decode()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioDecoder/decode).  
+You can pass in a [`MediaParserAudioSample`](/docs/media-parser/types#mediaparseraudiosample) object from [`parseMedia()`](/docs/media-parser/parse-media), which also satisfies the [`EncodedAudioChunkInit`](https://www.w3.org/TR/webcodecs/#dictdef-encodedaudiochunkinit) interface.
+
+### `waitForQueueToBeLessThan()`
+
+Pass a number to wait for the queue to be less than the given number.
+
+A promise that resolves when the queue size is less than the given number.  
+The queue is only decremented when the[ `onFrame`](#onframe) callback resolves.
+
+### `flush()`
+
+Flushes the decoder, forcing the queue to be cleared. Returns a promise that resolves when all frames have been cleared and the [`onFrame()`](#onframe) callback has beeen resolved for all frames.
+
+### `reset()`
+
+Clears the queue and resets the decoder. Same as [`AudioDecoder.reset()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioDecoder/reset) + [`AudioDecoder.configure()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioDecoder/close).
+
+### `close()`
+
+Closes the decoder. Same as [`AudioDecoder.close()`](https://developer.mozilla.org/en-US/docs/Web/API/AudioDecoder/close).
+
+### `checkReset()`<AvailableFrom v="4.0.312" />
+
+Returns a handle with a `wasReset()` function. If the decoder was reset inbetween the call to `.checkReset()` and the call to `wasReset()`, `wasReset()` will return `true`. See [below](#checking-if-the-decoder-was-reset) for an example.
+
+### `getMostRecentSampleInput()`<AvailableFrom v="4.0.312" />
+
+Return the `.timestamp` of the most recently input sample.
+
+## Example usage with `@remotion/media-parser`
+
+In this example, the whole audio track is decoded and the decoder is closed when the track is done.  
+By using `async` / `await`, the [`parseMedia()`](/docs/media-parser/parse-media) call is artificially slowed down to not flood the `AudioDecoder` and cause much memory to be allocated.
+
+```tsx twoslash title="Decode an audio track"
+import {parseMedia} from '@remotion/media-parser';
+import {createAudioDecoder} from '@remotion/webcodecs';
+
+await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  onAudioTrack: async ({track, container}) => {
+    const decoder = await createAudioDecoder({
+      track,
+      onFrame: console.log,
+      onError: console.error,
+    });
+
+    return async (sample) => {
+      // Called on every sample
+      await decoder.waitForQueueToBeLessThan(10);
+      await decoder.decode(sample);
+
+      return async () => {
+        // Called when the track is done
+        await decoder.flush();
+        decoder.close();
+      };
+    };
+  },
+});
+```
+
+## Checking if the decoder was reset
+
+A potential race condition you may face is that `decoder.reset()` is called while a sample is waiting for the queue to be less than a certain number. Use `.checkReset()` to check if the decoder was reset after any asynchronous operation, and abort the processing of the sample if needed.
+
+```tsx twoslash title="Check if the decoder was reset"
+import {parseMedia} from '@remotion/media-parser';
+import {createAudioDecoder} from '@remotion/webcodecs';
+
+await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  onAudioTrack: async ({track, container}) => {
+    const decoder = await createAudioDecoder({
+      track,
+      onFrame: console.log,
+      onError: console.error,
+    });
+
+    return async (sample) => {
+      const {wasReset} = decoder.checkReset();
+
+      await decoder.waitForQueueToBeLessThan(10);
+      if (wasReset()) {
+        return;
+      }
+
+      await decoder.decode(sample);
+      if (wasReset()) {
+        return;
+      }
+
+      return async () => {
+        if (wasReset()) {
+          return;
+        }
+
+        // Called when the track is done
+        await decoder.flush();
+        decoder.close();
+      };
+    };
+  },
+});
+```
+
+## Undecodable audio<AvailableFrom v="4.0.333" />
+
+If the audio cannot be decoded by the browser, an `AudioUndecodableError` will be thrown.
+
+```tsx twoslash title="Undecodable audio"
+import {AudioUndecodableError, createAudioDecoder} from '@remotion/webcodecs';
+
+try {
+  await createAudioDecoder({
+    // @ts-expect-error - Invalid codec
+    track: {codec: 'invalid'},
+    onFrame: console.log,
+    onError: console.error,
+  });
+} catch (error) {
+  if (error instanceof AudioUndecodableError) {
+    console.log('The audio cannot be decoded by this browser');
+  } else {
+    throw error;
+  }
+}
+```
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/create-audio-decoder.ts)
+- [`@remotion/webcodecs`](/docs/webcodecs)

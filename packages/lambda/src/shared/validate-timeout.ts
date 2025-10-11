@@ -1,4 +1,4 @@
-import {MAX_TIMEOUT, MIN_TIMEOUT} from './constants';
+import {MAX_TIMEOUT, MIN_TIMEOUT} from '@remotion/lambda-client/constants';
 
 export const validateTimeout = (timeoutInSeconds: unknown) => {
 	if (typeof timeoutInSeconds !== 'number') {

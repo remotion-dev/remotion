@@ -1,12 +1,11 @@
 import {CreateVideoInternals} from 'create-video';
 import React from 'react';
-import {Composition, Folder, Still} from 'remotion';
+import {Folder, Still} from 'remotion';
 import {articles} from '../data/articles';
 import {experts} from '../data/experts';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
 import {Expert} from './Expert';
-import {HomepageVideoComp, calculateMetadata} from './HomepageVideo/Comp';
 import {TemplateComp} from './Template';
 
 export const RemotionRoot: React.FC = () => {
@@ -66,7 +65,7 @@ export const RemotionRoot: React.FC = () => {
 				height={630}
 				id="template-all"
 			/>
-			<Composition
+			{/* <Composition
 				component={HomepageVideoComp}
 				id="HomepageVideo"
 				width={640}
@@ -105,7 +104,7 @@ export const RemotionRoot: React.FC = () => {
 					updateCardOrder: () => {},
 				}}
 				calculateMetadata={calculateMetadata}
-			/>
+			/> */}
 		</>
 	);
 };

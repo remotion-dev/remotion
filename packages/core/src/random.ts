@@ -1,4 +1,3 @@
-/* eslint-disable no-bitwise */
 function mulberry32(a: number) {
 	let t = a + 0x6d2b79f5;
 	t = Math.imul(t ^ (t >>> 15), t | 1);
@@ -22,9 +21,9 @@ function hashCode(str: string) {
 
 export type RandomSeed = number | string | null;
 
-/**
+/*
  * @description A deterministic pseudo-random number generator. Pass in the same seed and get the same pseudorandom number.
- * @see [Documentation](https://remotion.dev/docs/random)
+ * @see [Documentation](https://www.remotion.dev/docs/random)
  */
 export const random = (seed: RandomSeed, dummy?: unknown) => {
 	if (dummy !== undefined) {

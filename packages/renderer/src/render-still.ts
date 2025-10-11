@@ -3,42 +3,45 @@ import path from 'node:path';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import type {DownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
-import type {ConsoleMessage} from './browser/ConsoleMessage';
+import type {OnLog} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
-import type {Compositor} from './compositor/compositor';
+import {collectAssets} from './collect-assets';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
+import {defaultOnLog} from './default-on-log';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {onlyArtifact} from './filter-asset-types';
 import {findRemotionRoot} from './find-closest-package-json';
-import type {StillImageFormat} from './image-format';
+import type {StillImageFormat, VideoImageFormat} from './image-format';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
 	validateStillImageFormat,
 } from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
+import {getAvailableMemory} from './memory/get-available-memory';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import {DEFAULT_OVERWRITE} from './overwrite';
+import type {PixelFormat} from './pixel-format';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import type {OnArtifact} from './render-frames';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import {takeFrameAndCompose} from './take-frame-and-compose';
+import {takeFrame} from './take-frame';
 import {
 	validateDimension,
 	validateDurationInFrames,
@@ -69,8 +72,8 @@ type InternalRenderStillOptions = {
 	server: RemotionServer | undefined;
 	serveUrl: string;
 	port: number | null;
-	offthreadVideoCacheSizeInBytes: number | null;
 	onArtifact: OnArtifact | null;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.renderStill>;
 
 export type RenderStillOptions = {
@@ -127,20 +130,19 @@ const innerRenderStill = async ({
 	cancelSignal,
 	jpegQuality,
 	onBrowserLog,
-	compositor,
 	sourceMapGetter,
-	downloadMap,
 	logLevel,
 	indent,
 	serializedResolvedPropsWithCustomSchema,
 	onBrowserDownload,
 	onArtifact,
+	chromeMode,
+	mediaCacheSizeInBytes,
+	onLog,
 }: InternalRenderStillOptions & {
-	downloadMap: DownloadMap;
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
-	compositor: Compositor;
 	sourceMapGetter: SourceMapGetter;
 }): Promise<RenderStillReturnValue> => {
 	validateDimension(
@@ -212,8 +214,16 @@ const innerRenderStill = async ({
 			viewport: null,
 			logLevel,
 			onBrowserDownload,
+			chromeMode,
 		}));
-	const page = await browserInstance.newPage(sourceMapGetter, logLevel, indent);
+	const page = await browserInstance.newPage({
+		context: sourceMapGetter,
+		logLevel,
+		indent,
+		pageIndex: 0,
+		onBrowserLog,
+		onLog,
+	});
 	await page.setViewport({
 		width: composition.width,
 		height: composition.height,
@@ -231,23 +241,14 @@ const innerRenderStill = async ({
 		frame: null,
 	});
 
-	const logCallback = (log: ConsoleMessage) => {
-		onBrowserLog?.({
-			stackTrace: log.stackTrace(),
-			text: log.text,
-			type: log.type,
-		});
-	};
-
 	const cleanup = async () => {
 		cleanUpJSException();
-		page.off('console', logCallback);
 
 		if (puppeteerInstance) {
 			await page.close();
 		} else {
-			browserInstance.close(true, logLevel, indent).catch((err) => {
-				console.log('Unable to close browser', err);
+			browserInstance.close({silent: true}).catch((err) => {
+				Log.error({indent, logLevel}, 'Unable to close browser', err);
 			});
 		}
 	};
@@ -255,10 +256,6 @@ const innerRenderStill = async ({
 	cancelSignal?.(() => {
 		cleanup();
 	});
-
-	if (onBrowserLog) {
-		page.on('console', logCallback);
-	}
 
 	await setPropsAndEnv({
 		serializedInputPropsWithCustomSchema,
@@ -274,6 +271,9 @@ const innerRenderStill = async ({
 		indent,
 		logLevel,
 		onServeUrlVisited: () => undefined,
+		isMainTab: true,
+		mediaCacheSizeInBytes,
+		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -286,6 +286,9 @@ const innerRenderStill = async ({
 			height: number,
 			width: number,
 			defaultCodec: Codec,
+			defaultOutName: string | null,
+			defaultVideoImageFormat: VideoImageFormat | null,
+			defaultPixelFormat: PixelFormat | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -296,6 +299,9 @@ const innerRenderStill = async ({
 				compositionHeight: height,
 				compositionWidth: width,
 				compositionDefaultCodec: defaultCodec,
+				compositionDefaultOutName: defaultOutName,
+				compositionDefaultVideoImageFormat: defaultVideoImageFormat,
+				compositionDefaultPixelFormat: defaultPixelFormat,
 			});
 		},
 		args: [
@@ -306,6 +312,9 @@ const innerRenderStill = async ({
 			composition.height,
 			composition.width,
 			composition.defaultCodec,
+			composition.defaultOutName,
+			composition.defaultVideoImageFormat,
+			composition.defaultPixelFormat,
 		],
 		frame: null,
 		page,
@@ -321,22 +330,29 @@ const innerRenderStill = async ({
 		attempt: 0,
 	});
 
-	const {buffer, collectedAssets} = await takeFrameAndCompose({
-		frame: stillFrame,
-		freePage: page,
-		height: composition.height,
-		width: composition.width,
-		imageFormat,
-		scale,
-		output,
-		jpegQuality,
-		wantsBuffer: !output,
-		compositor,
-		downloadMap,
-		timeoutInMilliseconds,
-	});
+	const [buffer, collectedAssets] = await Promise.all([
+		takeFrame({
+			freePage: page,
+			height: composition.height,
+			width: composition.width,
+			imageFormat,
+			scale,
+			output,
+			jpegQuality,
+			wantsBuffer: !output,
+			timeoutInMilliseconds,
+		}),
+		collectAssets({
+			frame,
+			freePage: page,
+			timeoutInMilliseconds,
+		}),
+	]);
 
-	const artifactAssets = onlyArtifact(collectedAssets);
+	const artifactAssets = onlyArtifact({
+		assets: collectedAssets,
+		frameBuffer: buffer,
+	});
 	const previousArtifactAssets = [];
 
 	for (const artifact of artifactAssets) {
@@ -372,7 +388,7 @@ const internalRenderStillRaw = (
 				webpackConfigOrServeUrl: options.serveUrl,
 				port: options.port,
 				remotionRoot: findRemotionRoot(),
-				concurrency: 1,
+				offthreadVideoThreads: options.offthreadVideoThreads ?? 2,
 				logLevel: options.logLevel,
 				indent: options.indent,
 				offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
@@ -385,22 +401,14 @@ const internalRenderStillRaw = (
 		)
 			.then(({server, cleanupServer}) => {
 				cleanup.push(() => cleanupServer(false));
-				const {
-					serveUrl,
-					offthreadPort,
-					compositor,
-					sourceMap: sourceMapGetter,
-					downloadMap,
-				} = server;
+				const {serveUrl, offthreadPort, sourceMap: sourceMapGetter} = server;
 
 				return innerRenderStill({
 					...options,
 					serveUrl,
 					onError,
 					proxyPort: offthreadPort,
-					compositor,
 					sourceMapGetter,
-					downloadMap,
 				});
 			})
 
@@ -409,7 +417,7 @@ const internalRenderStillRaw = (
 			.finally(() => {
 				cleanup.forEach((c) => {
 					c().catch((err) => {
-						console.log('Cleanup error:', err);
+						Log.error(options, 'Cleanup error:', err);
 					});
 				});
 			});
@@ -429,11 +437,9 @@ export const internalRenderStill = wrapWithErrorHandling(
 	internalRenderStillRaw,
 );
 
-/**
+/*
  * @description Renders a single frame to an image and writes it to the specified output location.
- * @see [Documentation](https://remotion.dev/docs/renderer/render-still)
- * @param {RenderStillOptions} options Configuration options for rendering the still image
- * @returns {Promise<RenderStillReturnValue>} A promise that resolves to an object with a buffer key containing the image data if no output path is defined, otherwise null.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/render-still)
  */
 export const renderStill = (
 	options: RenderStillOptions,
@@ -465,6 +471,9 @@ export const renderStill = (
 		binariesDirectory,
 		onBrowserDownload,
 		onArtifact,
+		chromeMode,
+		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -473,15 +482,17 @@ export const renderStill = (
 		);
 	}
 
-	if (quality) {
-		console.warn(
-			'Passing `quality()` to `renderStill` is deprecated. Use `jpegQuality` instead.',
-		);
-	}
+	const indent = false;
 
 	const logLevel =
 		passedLogLevel ?? (verbose || dumpBrowserLogs ? 'verbose' : 'info');
-	const indent = false;
+
+	if (quality) {
+		Log.warn(
+			{indent, logLevel},
+			'Passing `quality()` to `renderStill` is deprecated. Use `jpegQuality` instead.',
+		);
+	}
 
 	return internalRenderStill({
 		composition,
@@ -493,7 +504,7 @@ export const renderStill = (
 		imageFormat: imageFormat ?? DEFAULT_STILL_IMAGE_FORMAT,
 		indent,
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				staticBase: null,
 				indent: undefined,
 				data: inputProps ?? {},
@@ -511,7 +522,7 @@ export const renderStill = (
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		logLevel,
 		serializedResolvedPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				indent: undefined,
 				staticBase: null,
 				data: composition.props ?? {},
@@ -520,7 +531,15 @@ export const renderStill = (
 		binariesDirectory: binariesDirectory ?? null,
 		onBrowserDownload:
 			onBrowserDownload ??
-			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderStill()'}),
+			defaultBrowserDownloadProgress({
+				indent,
+				logLevel,
+				api: 'renderStill()',
+			}),
 		onArtifact: onArtifact ?? null,
+		chromeMode: chromeMode ?? 'headless-shell',
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		onLog: defaultOnLog,
 	});
 };

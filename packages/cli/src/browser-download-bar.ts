@@ -1,4 +1,4 @@
-import type {LogLevel, OnBrowserDownload} from '@remotion/renderer';
+import type {ChromeMode, LogLevel, OnBrowserDownload} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {Log} from './log';
@@ -11,15 +11,21 @@ const makeDownloadProgress = ({
 	bytesDownloaded,
 	totalBytes,
 	doneIn,
+	chromeMode,
 }: {
 	totalBytes: number;
 	bytesDownloaded: number;
 	doneIn: number | null;
+	chromeMode: ChromeMode;
 }) => {
 	const progress = bytesDownloaded / totalBytes;
 
 	return [
-		`${doneIn ? 'Got' : 'Getting'} Headless Shell`.padEnd(LABEL_WIDTH, ' '),
+		`${doneIn ? 'Got' : 'Getting'} ${
+			chromeMode === 'chrome-for-testing'
+				? 'Chrome for Testing'
+				: 'Headless Shell'
+		}`.padEnd(LABEL_WIDTH, ' '),
 		makeProgressBar(progress, false),
 		doneIn === null
 			? (progress * 100).toFixed(0) + '%'
@@ -38,15 +44,27 @@ export const defaultBrowserDownloadProgress = ({
 	logLevel: LogLevel;
 	quiet: boolean;
 }): OnBrowserDownload => {
-	return () => {
-		Log.info(
-			{indent, logLevel},
-			chalk.gray(
-				'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
-			),
-		);
+	return ({chromeMode}) => {
+		if (chromeMode === 'chrome-for-testing') {
+			Log.info(
+				{indent, logLevel},
+				'Downloading Chrome for Testing https://www.remotion.dev/chrome-for-testing',
+			);
+		} else {
+			Log.info(
+				{indent, logLevel},
+				chalk.gray(
+					'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
+				),
+			);
+		}
 
 		const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
+
+		const productName =
+			chromeMode === 'chrome-for-testing'
+				? 'Chrome for Testing'
+				: 'Headless Shell';
 
 		if (updatesDontOverwrite) {
 			let lastProgress = 0;
@@ -58,7 +76,7 @@ export const defaultBrowserDownloadProgress = ({
 
 						Log.info(
 							{indent, logLevel},
-							`Getting Headless Shell - ${RenderInternals.toMegabytes(
+							`Getting ${productName} - ${RenderInternals.toMegabytes(
 								progress.downloadedBytes,
 							)}/${RenderInternals.toMegabytes(
 								progress.totalSizeInBytes as number,
@@ -67,7 +85,7 @@ export const defaultBrowserDownloadProgress = ({
 					}
 
 					if (progress.percent === 1) {
-						Log.info({indent, logLevel}, `Got Headless Shell`);
+						Log.info({indent, logLevel}, `Got ${productName}`);
 					}
 				},
 			};
@@ -95,6 +113,7 @@ export const defaultBrowserDownloadProgress = ({
 						doneIn,
 						bytesDownloaded: progress.downloadedBytes,
 						totalBytes: progress.totalSizeInBytes,
+						chromeMode,
 					}),
 					progress.percent === 1,
 				);

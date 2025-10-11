@@ -74,12 +74,14 @@ export const useElementSize = (
 			const probableCssParentScale =
 				contentRect.width === 0 ? 1 : newSize[0].width / contentRect.width;
 
-			const width = options.shouldApplyCssTransforms
-				? newSize[0].width
-				: newSize[0].width * (1 / probableCssParentScale);
-			const height = options.shouldApplyCssTransforms
-				? newSize[0].height
-				: newSize[0].height * (1 / probableCssParentScale);
+			const width =
+				options.shouldApplyCssTransforms || probableCssParentScale === 0
+					? newSize[0].width
+					: newSize[0].width * (1 / probableCssParentScale);
+			const height =
+				options.shouldApplyCssTransforms || probableCssParentScale === 0
+					? newSize[0].height
+					: newSize[0].height * (1 / probableCssParentScale);
 
 			setSize({
 				width,

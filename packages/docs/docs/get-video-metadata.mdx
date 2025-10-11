@@ -2,13 +2,18 @@
 image: /generated/articles-docs-get-video-metadata.png
 title: getVideoMetadata()
 id: get-video-metadata
-crumb: "@remotion/media-utils"
+crumb: '@remotion/media-utils'
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._
 
 :::note
-This function is meant to be used **in the browser**. For Node.js, use [`getVideoMetadata()`](/docs/renderer/get-video-metadata) from `@remotion/renderer` instead.
+Deprecated: Does not support H.265 videos on Linux and also fails on some other formats.  
+Use [`parseMedia()`](/docs/media-parser/parse-media) to get video metadata instead, which is faster and supports more formats.
+:::
+
+:::note
+Only works in the browser.
 :::
 
 Takes a `src` to a video, loads it and returns metadata for the specified source.
@@ -38,20 +43,18 @@ Ensure handling for `Infinity` for user-provided videos and re-encode videos wit
 ## Example
 
 ```tsx twoslash
-// @module: ESNext
-// @target: ESNext
-import { staticFile } from "remotion";
+import {staticFile} from 'remotion';
 // ---cut---
-import { getVideoMetadata } from "@remotion/media-utils";
+import {getVideoMetadata} from '@remotion/media-utils';
 
-await getVideoMetadata(staticFile("video.mp4")); /* {
+await getVideoMetadata(staticFile('video.mp4')); /* {
   durationInSeconds: 100.00,
   width: 1280,
   height: 720,
   aspectRatio: 1.77777778,
   isRemote: false
 } */
-await getVideoMetadata("https://example.com/remote-audio.webm"); /* {
+await getVideoMetadata('https://example.com/remote-audio.webm'); /* {
   durationInSeconds: 40.213,
   width: 1920,
   height: 1080,
@@ -69,4 +72,3 @@ If you pass in the same argument to `src` multiple times, it will return a cache
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/get-video-metadata.ts)
 - [Using videos](/docs/assets#using-videos)
-- [`<Video/>`](/docs/video)

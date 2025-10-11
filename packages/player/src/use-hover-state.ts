@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 
 export const useHoverState = (
-	ref: React.RefObject<HTMLDivElement>,
+	ref: React.RefObject<HTMLDivElement | null>,
 	hideControlsWhenPointerDoesntMove: boolean | number,
 ) => {
 	const [hovered, setHovered] = useState(false);

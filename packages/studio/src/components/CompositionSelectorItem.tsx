@@ -1,6 +1,6 @@
 import type {KeyboardEvent, MouseEvent} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
-import {type AnyComposition} from 'remotion';
+import {type _InternalTypes} from 'remotion';
 import {
 	BACKGROUND,
 	LIGHT_TEXT,
@@ -13,10 +13,10 @@ import {FilmIcon} from '../icons/video';
 import {ModalsContext} from '../state/modals';
 import {CompositionContextButton} from './CompositionContextButton';
 import {ContextMenu} from './ContextMenu';
+import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {SidebarRenderButton} from './SidebarRenderButton';
-import {Row, Spacing} from './layout';
 
 const COMPOSITION_ITEM_HEIGHT = 32;
 
@@ -58,7 +58,7 @@ export type CompositionSelectorItemType =
 	| {
 			key: string;
 			type: 'composition';
-			composition: AnyComposition;
+			composition: _InternalTypes['AnyComposition'];
 	  }
 	| {
 			key: string;
@@ -73,7 +73,10 @@ export const CompositionSelectorItem: React.FC<{
 	readonly item: CompositionSelectorItemType;
 	readonly currentComposition: string | null;
 	readonly tabIndex: number;
-	readonly selectComposition: (c: AnyComposition, push: boolean) => void;
+	readonly selectComposition: (
+		c: _InternalTypes['AnyComposition'],
+		push: boolean,
+	) => void;
 	readonly toggleFolder: (
 		folderName: string,
 		parentName: string | null,

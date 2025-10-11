@@ -19,6 +19,7 @@ const {
 	audioBitrateOption,
 	x264Option,
 	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
 	scaleOption,
 	crfOption,
 	jpegQualityOption,
@@ -35,6 +36,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
 	metadataOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -93,6 +95,9 @@ export const renderCommand = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -104,6 +109,10 @@ export const renderCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	let composition: string = args[1];
@@ -132,7 +141,7 @@ export const renderCommand = async (
 		}
 
 		const server = RenderInternals.prepareServer({
-			concurrency: 1,
+			offthreadVideoThreads: 1,
 			indent: false,
 			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
 			remotionRoot,
@@ -162,18 +171,21 @@ export const renderCommand = async (
 				width,
 				server: await server,
 				serializedInputPropsWithCustomSchema:
-					NoReactInternals.serializeJSONWithDate({
+					NoReactInternals.serializeJSONWithSpecialTypes({
 						data: inputProps,
 						indent: undefined,
 						staticBase: null,
 					}).serializedString,
 				offthreadVideoCacheSizeInBytes,
+				offthreadVideoThreads,
 				binariesDirectory,
 				onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
 					indent,
 					logLevel,
 					quiet: CliInternals.quietFlagProvided(),
 				}),
+				chromeMode: 'headless-shell',
+				mediaCacheSizeInBytes,
 			});
 		composition = compositionId;
 	}
@@ -290,7 +302,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		inputProps,
 		codec: codec as CloudrunCodec,
 		forceBucketName,
-		privacy,
+		privacy: parsedCloudrunCli.privacy ?? 'public',
 		outName,
 		updateRenderProgress,
 		jpegQuality,
@@ -325,6 +337,17 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		indent: false,
 		downloadBehavior: {type: 'play-in-browser'},
 		metadata,
+		renderIdOverride: parsedCloudrunCli['render-id-override'] ?? null,
+		renderStatusWebhook: parsedCloudrunCli.webhook
+			? {
+					url: parsedCloudrunCli.webhook,
+					headers: {},
+					data: null,
+					webhookProgressInterval: null,
+				}
+			: null,
+		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	});
 
 	if (res.type === 'crash') {

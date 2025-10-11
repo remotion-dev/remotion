@@ -111,12 +111,9 @@ const takeMeasurement = ({
 	};
 };
 
-/**
- * Calculates the width and height of specified text to be used for layout calculations.
- * Only works in the browser, not in Node.js or Bun.
+/*
+ * @description Calculates the width and height of specified text to be used for layout calculations. Only works in the browser, not in Node.js or Bun.
  * @see [Documentation](https://remotion.dev/docs/layout-utils/measure-text)
- * @param {Word} wordOptions - The text options to measure, including the text itself, font properties, and additional styles.
- * @returns {Dimensions} The dimensions object containing the measured width and height of the text.
  */
 export const measureText = ({
 	text,
@@ -127,8 +124,9 @@ export const measureText = ({
 	fontVariantNumeric,
 	validateFontIsLoaded = true,
 	additionalStyles,
+	textTransform,
 }: Word): Dimensions => {
-	const key = `${text}-${fontFamily}-${fontWeight}-${fontSize}-${letterSpacing}-${JSON.stringify(additionalStyles)}`;
+	const key = `${text}-${fontFamily}-${fontWeight}-${fontSize}-${letterSpacing}-${textTransform}-${JSON.stringify(additionalStyles)}`;
 
 	if (wordCache.has(key)) {
 		return wordCache.get(key) as Dimensions;
@@ -142,6 +140,7 @@ export const measureText = ({
 		fontWeight,
 		letterSpacing,
 		additionalStyles,
+		textTransform,
 	});
 
 	if (validateFontIsLoaded && text.trim().length > 0) {
@@ -156,13 +155,19 @@ export const measureText = ({
 			fontWeight,
 			letterSpacing,
 			additionalStyles,
+			textTransform,
 		});
 
 		const sameAsFallbackFont =
 			boundingBox.height === boundingBoxOfFallbackFont.height &&
 			boundingBox.width === boundingBoxOfFallbackFont.width;
 
-		if (sameAsFallbackFont && computedFallback !== computedFontFamily) {
+		// Ensure there are at least 4 unique characters, with just a few, there is more likely to be a false positive
+		if (
+			sameAsFallbackFont &&
+			computedFallback !== computedFontFamily &&
+			new Set(text).size > 4
+		) {
 			const err = [
 				`Called measureText() with "fontFamily": ${JSON.stringify(
 					fontFamily,

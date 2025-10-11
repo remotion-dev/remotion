@@ -43,7 +43,6 @@ function AltCodemodRootFragment() {
 			/>
 			<Folder name="infolder">
 				<Composition
-					// eslint-disable-next-line react/jsx-curly-brace-presence
 					id={'seven'}
 					component={DynamicDuration}
 					width={1080}

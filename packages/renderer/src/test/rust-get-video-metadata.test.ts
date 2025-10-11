@@ -10,6 +10,7 @@ test('Should return video metadata', async () => {
 		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,
+		extraThreads: 0,
 	});
 
 	const videoFile = path.join(
@@ -52,6 +53,7 @@ test('Should return an error due to non existing file', async () => {
 		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,
+		extraThreads: 0,
 	});
 
 	try {
@@ -71,6 +73,7 @@ test('Should return an error due to using a audio file', async () => {
 		logLevel: 'info',
 		indent: false,
 		binariesDirectory: null,
+		extraThreads: 0,
 	});
 
 	const audioFile = path.join(

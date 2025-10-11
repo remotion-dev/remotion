@@ -60,9 +60,7 @@ export const SpeedSegments = () => {
   const frame = useCurrentFrame();
   const accumulated = accumulateSegments();
 
-  const currentSegment = accumulated.find(
-    (segment) => frame > segment.start && frame <= segment.end,
-  );
+  const currentSegment = accumulated.find((segment) => frame > segment.start && frame <= segment.end);
 
   if (!currentSegment) {
     return;
@@ -72,9 +70,9 @@ export const SpeedSegments = () => {
     <Sequence from={currentSegment.start}>
       <OffthreadVideo
         pauseWhenBuffering
-        startFrom={currentSegment.passedVideoTime}
+        trimBefore={currentSegment.passedVideoTime}
         // Remotion will automatically add a time fragment to the end of the video URL
-        // based on `startFrom`. Opt out of this by adding one yourself.
+        // based on `trimBefore`. Opt out of this by adding one yourself.
         // https://www.remotion.dev/docs/media-fragments
         src={`${staticFile('bigbuckbunny.mp4')}#t=0,`}
         playbackRate={currentSegment.speed}

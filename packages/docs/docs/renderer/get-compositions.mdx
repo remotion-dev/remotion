@@ -12,10 +12,7 @@ Gets a list of compositions defined in a Remotion project based on a [Remotion B
 For every compositions their [`calculateMetadata()`](/docs/composition#calculatemetadata) function is evaluated. If you just want to evaluate one composition that you want to render, use [`selectComposition()`](/docs/renderer/select-composition).
 
 ```ts
-const getCompositions: (
-  serveUrlOrWebpackUrl: string,
-  options?: GetCompositionsConfig,
-) => Promise<TComposition[]>;
+const getCompositions: (serveUrlOrWebpackUrl: string, options?: GetCompositionsConfig) => Promise<TComposition[]>;
 ```
 
 ## Arguments
@@ -43,7 +40,11 @@ You may transform input props using [`calculateMetadata()`](/docs/calculate-meta
 
 _optional_
 
-An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+
+:::note
+Despite the name, not actually compatible with `puppeteer`, only with [`openBrowser()`](/docs/renderer/open-browser).
+:::
 
 #### `browserExecutable?`<AvailableFrom v="2.3.1" />
 
@@ -81,31 +82,10 @@ interface ConsoleMessageLocation {
 type BrowserLog = {
   text: string;
   stackTrace: ConsoleMessageLocation[];
-  type:
-    | 'log'
-    | 'debug'
-    | 'info'
-    | 'error'
-    | 'warning'
-    | 'dir'
-    | 'dirxml'
-    | 'table'
-    | 'trace'
-    | 'clear'
-    | 'startGroup'
-    | 'startGroupCollapsed'
-    | 'endGroup'
-    | 'assert'
-    | 'profile'
-    | 'profileEnd'
-    | 'count'
-    | 'timeEnd'
-    | 'verbose';
+  type: 'log' | 'debug' | 'info' | 'error' | 'warning' | 'dir' | 'dirxml' | 'table' | 'trace' | 'clear' | 'startGroup' | 'startGroupCollapsed' | 'endGroup' | 'assert' | 'profile' | 'profileEnd' | 'count' | 'timeEnd' | 'verbose';
 };
 
-const getCompositions = (options: {
-  onBrowserLog?: (log: BrowserLog) => void;
-}) => {};
+const getCompositions = (options: {onBrowserLog?: (log: BrowserLog) => void}) => {};
 // ---cut---
 getCompositions({
   // ...
@@ -144,6 +124,14 @@ Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
+### `offthreadVideoThreads?`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
+
 ### `binariesDirectory?`<AvailableFrom v="4.0.120" />
 
 <Options id="binaries-directory" />
@@ -151,6 +139,10 @@ Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](
 ### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 
 <Options id="on-browser-download" />
+
+### `chromeMode?`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
 
 ### ~~`ffmpegExecutable`~~
 

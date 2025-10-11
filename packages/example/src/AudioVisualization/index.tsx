@@ -1,11 +1,16 @@
-import {useAudioData, visualizeAudio} from '@remotion/media-utils';
+import {
+	useAudioData,
+	visualizeAudio,
+	visualizeAudioWaveform,
+} from '@remotion/media-utils';
 import {transparentize} from 'polished';
 import React from 'react';
 import {
 	AbsoluteFill,
-	Audio,
+	Html5Audio,
 	Img,
 	interpolate,
+	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
@@ -37,17 +42,18 @@ const Orb = styled.div`
 	justify-content: center;
 	align-items: center;
 	font-size: 70px;
-	font-family: --apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-		Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	font-family:
+		--apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	font-weight: bold;
 	text-transform: lowercase;
 	flex-direction: column;
 `;
 
 const Text: React.FC<{
-	color: string;
-	transform: string;
-	blur: number;
+	readonly color: string;
+	readonly transform: string;
+	readonly blur: number;
 }> = ({color, transform, blur}) => {
 	const frame = useCurrentFrame();
 	const cool = (offset: number) => Math.sin((frame + offset) / 10);
@@ -81,12 +87,14 @@ const Text: React.FC<{
 	);
 };
 
+const WAVEFORM_SAMPLES = 32;
+
 const AudioVisualization: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
 	const audioData = useAudioData(music);
-
-	if (!audioData) {
+	const audioDataVoice = useAudioData(staticFile('podcast.wav'));
+	if (!audioData || !audioDataVoice) {
 		return null;
 	}
 
@@ -96,6 +104,15 @@ const AudioVisualization: React.FC = () => {
 		audioData,
 		numberOfSamples: 32,
 	});
+	const waveform = visualizeAudioWaveform({
+		fps,
+		frame,
+		audioData: audioDataVoice,
+		numberOfSamples: WAVEFORM_SAMPLES,
+		windowInSeconds: 1 / fps,
+		channel: 0,
+	});
+	console.log({waveform});
 
 	const scale =
 		1 +
@@ -159,7 +176,7 @@ const AudioVisualization: React.FC = () => {
 				})}
 			/>
 
-			<Audio src={music} />
+			<Html5Audio src={music} />
 			<FullSize>
 				{circlesToUse.map((v, i) => {
 					const leftNeighbour =

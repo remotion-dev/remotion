@@ -1,6 +1,7 @@
 import type {Configuration} from '@rspack/core';
 import webpack, {ProgressPlugin} from '@rspack/core';
 import ReactRefreshPlugin from '@rspack/plugin-react-refresh';
+import path from 'node:path';
 import ReactDOM from 'react-dom';
 import {NoReactInternals} from 'remotion/no-react';
 import {CaseSensitivePathsPlugin} from './case-sensitive-paths';
@@ -146,18 +147,39 @@ export const webpackConfig = async ({
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
 		},
 		resolve: {
-			extensions: ['.ts', '.tsx', '.web.js', '.js', '.jsx'],
+			extensions: ['.ts', '.tsx', '.web.js', '.js', '.jsx', '.mjs', '.cjs'],
 			alias: {
 				// Only one version of react
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
 				'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
 				react: require.resolve('react'),
+				// Needed to not fail on this: https://github.com/remotion-dev/remotion/issues/5045
+				'remotion/no-react': path.resolve(
+					require.resolve('remotion'),
+					'..',
+					'..',
+					'esm',
+					'no-react.mjs',
+				),
+				remotion: path.resolve(
+					require.resolve('remotion'),
+					'..',
+					'..',
+					'esm',
+					'index.mjs',
+				),
+
+				'@remotion/media-parser/worker': path.resolve(
+					require.resolve('@remotion/media-parser'),
+					'..',
+					'esm',
+					'worker.mjs',
+				),
+				// test visual controls before removing this
+				'@remotion/studio': require.resolve('@remotion/studio'),
 				'react-dom/client': shouldUseReactDomClient
 					? require.resolve('react-dom/client')
 					: require.resolve('react-dom'),
-				// Note: Order matters here! "remotion/no-react" must be matched before "remotion"
-				'remotion/no-react': require.resolve('remotion/no-react'),
-				remotion: require.resolve('remotion'),
 			},
 		},
 		module: {

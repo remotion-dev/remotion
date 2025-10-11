@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {makeS3Key} from '../../shared/make-s3-key';
 
 test('makeS3Key should return POSIX syntax cross-platform', () => {

@@ -2,12 +2,13 @@
 image: /generated/articles-docs-video-manipulation.png
 id: video-manipulation
 title: Video manipulation
-crumb: "How To"
+sidebar_label: Manipulating pixels
+crumb: 'How To'
 ---
 
-import { VideoCanvasExamples } from "../components/GreenscreenExamples/index";
+import {VideoCanvasExamples} from '../components/GreenscreenExamples/index';
 
-You can draw frames of an [`<OffthreadVideo>`](/docs/offthreadvideo) or a [`<Video>`](/docs/video) onto a `<canvas>` element using the [`drawImage()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage) API.
+You can draw frames of a [`<OffthreadVideo>`](/docs/offthreadvideo), [`<Video>`](/docs/media/video) or a [`<Html5Video>`](/docs/html5-video) onto a `<canvas>` element using the [`drawImage()`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage) API.
 
 :::note
 During preview, makes use of the [`requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback) API.  
@@ -19,39 +20,42 @@ Browser support: Firefox 130 (August 2024), Chrome 83, Safari 15.4.
 In this example, an [`<OffthreadVideo>`](/docs/offthreadvideo) is rendered and made invisible.  
 Every frame that is emitted is drawn to a Canvas and a grayscale [`filter`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter) is applied.
 
-<VideoCanvasExamples type="base"/>
-<br/>
+<VideoCanvasExamples type="base" />
+<br />
 
 ```tsx twoslash
-import React, { useCallback, useEffect, useRef } from "react";
-import { AbsoluteFill, useVideoConfig, OffthreadVideo } from "remotion";
+import React, {useCallback, useEffect, useRef} from 'react';
+import {AbsoluteFill, useVideoConfig, OffthreadVideo} from 'remotion';
 // ---cut---
 export const VideoOnCanvas: React.FC = () => {
   const video = useRef<HTMLVideoElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
-  const { width, height } = useVideoConfig();
+  const {width, height} = useVideoConfig();
 
   // Process a frame
-  const onVideoFrame = useCallback((frame: CanvasImageSource) => {
-    if (!canvas.current ) {
-      return;
-    }
-    const context = canvas.current.getContext("2d");
+  const onVideoFrame = useCallback(
+    (frame: CanvasImageSource) => {
+      if (!canvas.current) {
+        return;
+      }
+      const context = canvas.current.getContext('2d');
 
-    if (!context) {
-      return;
-    }
+      if (!context) {
+        return;
+      }
 
-    context.filter = "grayscale(100%)";
-    context.drawImage(frame, 0, 0, width, height);
-  }, [height, width]);
+      context.filter = 'grayscale(100%)';
+      context.drawImage(frame, 0, 0, width, height);
+    },
+    [height, width],
+  );
 
   return (
     <AbsoluteFill>
       <AbsoluteFill>
         <OffthreadVideo
           // Hide the original video tag
-          style={{ opacity: 0 }}
+          style={{opacity: 0}}
           onVideoFrame={onVideoFrame}
           src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
         />
@@ -68,8 +72,8 @@ export const VideoOnCanvas: React.FC = () => {
 
 In this example, we loop over each pixel in the image buffer and if it's green, we transparentize it. Drag the slider below to turn the video transparent.
 
-<VideoCanvasExamples type="greenscreen"/>
-<br/>
+<VideoCanvasExamples type="greenscreen" />
+<br />
 
 ```tsx twoslash
 declare global {
@@ -87,29 +91,27 @@ declare global {
   }
   type VideoFrameRequestCallbackId = number;
   interface HTMLVideoElement extends HTMLMediaElement {
-    requestVideoFrameCallback(
-      callback: (now: DOMHighResTimeStamp, metadata: VideoFrameMetadata) => any
-    ): VideoFrameRequestCallbackId;
+    requestVideoFrameCallback(callback: (now: DOMHighResTimeStamp, metadata: VideoFrameMetadata) => any): VideoFrameRequestCallbackId;
     cancelVideoFrameCallback(handle: VideoFrameRequestCallbackId): void;
   }
 }
-import React, { useCallback, useEffect, useRef } from "react";
-import { AbsoluteFill, useVideoConfig, OffthreadVideo } from "remotion";
+import React, {useCallback, useEffect, useRef} from 'react';
+import {AbsoluteFill, useVideoConfig, OffthreadVideo} from 'remotion';
 
 // ---cut---
 export const Greenscreen: React.FC<{
   opacity: number;
-}> = ({ opacity }) => {
+}> = ({opacity}) => {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const { width, height } = useVideoConfig();
+  const {width, height} = useVideoConfig();
 
   // Process a frame
   const onVideoFrame = useCallback(
     (frame: CanvasImageSource) => {
-      if (!canvas.current ) {
+      if (!canvas.current) {
         return;
       }
-      const context = canvas.current.getContext("2d");
+      const context = canvas.current.getContext('2d');
 
       if (!context) {
         return;
@@ -117,7 +119,7 @@ export const Greenscreen: React.FC<{
 
       context.drawImage(frame, 0, 0, width, height);
       const imageFrame = context.getImageData(0, 0, width, height);
-      const { length } = imageFrame.data;
+      const {length} = imageFrame.data;
 
       // If the pixel is very green, reduce the alpha channel
       for (let i = 0; i < length; i += 4) {
@@ -130,18 +132,13 @@ export const Greenscreen: React.FC<{
       }
       context.putImageData(imageFrame, 0, 0);
     },
-    [height, width]
+    [height, width],
   );
-
 
   return (
     <AbsoluteFill>
       <AbsoluteFill>
-        <OffthreadVideo
-          style={{ opacity: 0 }}
-          onVideoFrame={onVideoFrame}
-          src="https://remotion-assets.s3.eu-central-1.amazonaws.com/just-do-it-short.mp4"
-        />
+        <OffthreadVideo style={{opacity: 0}} onVideoFrame={onVideoFrame} src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/just-do-it-short.mp4" />
       </AbsoluteFill>
       <AbsoluteFill>
         <canvas ref={canvas} width={width} height={height} />
@@ -153,6 +150,6 @@ export const Greenscreen: React.FC<{
 
 ## Before v4.0.190
 
-Before v4.0.190, the `onVideoFrame` prop of [`<OffthreadVideo>`](/docs/offthreadvideo) and [`<Video>`](/docs/video) was not supported.  
-You could only manipulate a `<Video>` using the `requestVideoFrameCallback` API.  
+Before v4.0.190, the `onVideoFrame` prop of [`<OffthreadVideo>`](/docs/offthreadvideo) and [`<Html5Video>`](/docs/html5-video) was not supported.  
+You could only manipulate a `<Html5Video>` using the `requestVideoFrameCallback` API.  
 Click [here](https://github.com/remotion-dev/remotion/blob/b966d0e99cfb91478ca697675f822284da1f9055/packages/docs/docs/video-manipulation.mdx) to see the old version of this page.

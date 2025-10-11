@@ -1,5 +1,10 @@
-import { interpolate } from "remotion";
-import { Audio, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import {
+  Html5Audio,
+  interpolate,
+  spring,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
 import { RequestMetadata } from "../lib/interfaces";
 
 export const Text: React.FC<RequestMetadata> = (props) => {
@@ -12,7 +17,7 @@ export const Text: React.FC<RequestMetadata> = (props) => {
   return (
     <>
       {props.audioUrl && (
-        <Audio id="TTS Audio" about="TTS Audio" src={props.audioUrl} />
+        <Html5Audio id="TTS Audio" about="TTS Audio" src={props.audioUrl} />
       )}
 
       <h1

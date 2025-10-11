@@ -6,7 +6,7 @@ import {
 } from '../state/editor-zoom-gestures';
 
 export const ZoomGesturesProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [editorZoomGestures, setEditorZoomGesturesState] = useState(() =>
 		loadEditorZoomGesturesOption(),

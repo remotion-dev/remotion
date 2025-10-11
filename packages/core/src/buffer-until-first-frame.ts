@@ -1,16 +1,29 @@
 import {useCallback, useMemo, useRef} from 'react';
+import type {LogLevel} from './log';
+import {playbackLogging} from './playback-logging';
 import {useBufferState} from './use-buffer-state';
+
+const isSafariWebkit = () => {
+	const isSafari = /^((?!chrome|android).)*safari/i.test(
+		window.navigator.userAgent,
+	);
+	return isSafari;
+};
 
 export const useBufferUntilFirstFrame = ({
 	mediaRef,
 	mediaType,
 	onVariableFpsVideoDetected,
 	pauseWhenBuffering,
+	logLevel,
+	mountTime,
 }: {
-	mediaRef: React.RefObject<HTMLVideoElement | HTMLAudioElement>;
+	mediaRef: React.RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	mediaType: 'video' | 'audio';
 	onVariableFpsVideoDetected: () => void;
 	pauseWhenBuffering: boolean;
+	logLevel: LogLevel;
+	mountTime: number | null;
 }) => {
 	const bufferingRef = useRef<boolean>(false);
 	const {delayPlayback} = useBufferState();
@@ -31,11 +44,34 @@ export const useBufferUntilFirstFrame = ({
 				return;
 			}
 
+			if (current.readyState >= current.HAVE_FUTURE_DATA && !isSafariWebkit()) {
+				playbackLogging({
+					logLevel,
+					message: `Not using buffer until first frame, because readyState is ${current.readyState} and is not Safari or Desktop Chrome`,
+					mountTime,
+					tag: 'buffer',
+				});
+				return;
+			}
+
 			if (!current.requestVideoFrameCallback) {
+				playbackLogging({
+					logLevel,
+					message: `Not using buffer until first frame, because requestVideoFrameCallback is not supported`,
+					mountTime,
+					tag: 'buffer',
+				});
 				return;
 			}
 
 			bufferingRef.current = true;
+
+			playbackLogging({
+				logLevel,
+				message: `Buffering ${mediaRef.current?.src} until the first frame is received`,
+				mountTime,
+				tag: 'buffer',
+			});
 
 			const playback = delayPlayback();
 
@@ -75,8 +111,10 @@ export const useBufferUntilFirstFrame = ({
 		},
 		[
 			delayPlayback,
+			logLevel,
 			mediaRef,
 			mediaType,
+			mountTime,
 			onVariableFpsVideoDetected,
 			pauseWhenBuffering,
 		],

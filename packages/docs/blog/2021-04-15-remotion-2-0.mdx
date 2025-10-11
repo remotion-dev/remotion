@@ -27,7 +27,7 @@ With newly introduced audio visualization APIs, you can make your visuals react 
 
 What you need are the new [`getAudioData()`](/docs/get-audio-data) and [`visualizeAudio()`](/docs/visualize-audio) APIs that have been published [in it's own package](/docs/media-utils/).
 
-Read more about [audio visualization](/docs/audio-visualization) in the docs or [watch a sample video](https://twitter.com/JNYBGR/status/1378444074634592262) (the source can be found [here](https://github.com/yuta0801/remotion/blob/1103092f4902fb11f41877a05398dab6ce7203e7/packages/example/src/AudioVisualization/index.tsx)).
+Read more about [audio visualization](/docs/audio/visualization) in the docs or [watch a sample video](https://twitter.com/JNYBGR/status/1378444074634592262) (the source can be found [here](https://github.com/yuta0801/remotion/blob/1103092f4902fb11f41877a05398dab6ce7203e7/packages/example/src/AudioVisualization/index.tsx)).
 
 ## Export as MP3, AAC, WAV
 
@@ -94,7 +94,7 @@ Learn more about the [`--frames`](/docs/config#setframerange) CLI option.
 
 <div>
   <video width="100%" height="100%" controls playsInline autoPlay muted loop>
-    <source src="/img/gif.mp4" type="video/mp4" />
+    <source src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/gif.mp4" type="video/mp4" />
   </video>
 </div>
 
@@ -117,11 +117,7 @@ In the editor, you can now resize the timeline as well as the left sidebar. Than
 `interpolate()` now supports arrays with lengths bigger than 2. Really useful for a lot of scenarios - for example you can create a combined fade in/fade out transition with one line.
 
 ```tsx
-const opacity = interpolate(
-  frame,
-  [0, 10, durationInFrames - 10, durationInFrames],
-  [0, 1, 1, 0],
-);
+const opacity = interpolate(frame, [0, 10, durationInFrames - 10, durationInFrames], [0, 1, 1, 0]);
 ```
 
 ## 170+ tests added

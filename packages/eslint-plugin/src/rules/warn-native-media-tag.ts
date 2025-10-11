@@ -17,9 +17,9 @@ const NoNativeImgTag =
 const NoNativeIFrameTag =
 	"Prefer the <IFrame /> tag from 'remotion' package, because it will wait until the iframe is loaded when you are rendering your video.";
 const NoNativeAudioTag =
-	"Use the <Audio /> tag from 'remotion' package, because it will synchronize with the Remotion timeline.";
+	"Use the <Audio /> tag from '@remotion/media' package, because it will synchronize with the Remotion timeline.";
 const NoNativeVideoTag =
-	"Use the <Video /> tag from 'remotion' package, because it will synchronize with the Remotion timeline.";
+	"Use the <Video /> tag from '@remotion/media' package, because it will synchronize with the Remotion timeline.";
 
 export default createRule<Options, MessageIds>({
 	name: 'warn-native-media-tag',

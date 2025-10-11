@@ -5,18 +5,18 @@ type WatcherCallback = (newFiles: StaticFile[]) => void;
 
 export const WATCH_REMOTION_STATIC_FILES = 'remotion_staticFilesChanged';
 
-/**
- * @description Watch for changes in the public folder.
- * @param {Function} callback - A callback function to be called when the file changes.
- * @returns {{cancel: () => void}} A function that can be used to cancel the event listener.
- * @see [Documentation](https://remotion.dev/docs/studio/watch-public-folder)
+/*
+ * @description Watches for changes in the public directory and calls a callback function when a file is added, removed, or modified.
+ * @see [Documentation](https://www.remotion.dev/docs/studio/watch-public-folder)
  */
 export const watchPublicFolder = (
 	callback: WatcherCallback,
 ): {cancel: () => void} => {
 	if (!getRemotionEnvironment().isStudio) {
 		// eslint-disable-next-line no-console
-		console.warn('The API is only available while using the Remotion Studio.');
+		console.warn(
+			'The watchPublicFolder() API is only available while using the Remotion Studio.',
+		);
 		return {cancel: () => undefined};
 	}
 

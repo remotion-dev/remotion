@@ -8,8 +8,8 @@ import React from 'react';
 import {AbsoluteFill, Sequence} from 'remotion';
 
 export const Letter: React.FC<{
-	children: React.ReactNode;
-	color: string;
+	readonly children: React.ReactNode;
+	readonly color: string;
 }> = ({children, color}) => {
 	const {
 		entering,

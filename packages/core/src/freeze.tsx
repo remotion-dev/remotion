@@ -1,4 +1,5 @@
 import React, {useContext, useMemo} from 'react';
+import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import type {TimelineContextValue} from './timeline-position-state.js';
 import {TimelineContext} from './timeline-position-state.js';
@@ -6,14 +7,14 @@ import {useCurrentFrame} from './use-current-frame.js';
 import {useVideoConfig} from './use-video-config.js';
 
 type FreezeProps = {
-	frame: number;
-	children: React.ReactNode;
-	active?: boolean | ((f: number) => boolean);
+	readonly frame: number;
+	readonly children: React.ReactNode;
+	readonly active?: boolean | ((f: number) => boolean);
 };
 
-/**
- * @description This method freezes all of its children to the frame that you specify as a prop
- * @see [Documentation](https://www.remotion.dev/docs/freeze)
+/*
+ * @description Freezes its children at the specified frame when rendering videos.
+ * @see [Documentation](https://remotion.dev/docs/freeze)
  */
 export const Freeze: React.FC<FreezeProps> = ({
 	frame: frameToFreeze,
@@ -79,9 +80,23 @@ export const Freeze: React.FC<FreezeProps> = ({
 		};
 	}, [isActive, timelineContext, videoConfig.id, frameToFreeze, relativeFrom]);
 
+	const newSequenceContext: SequenceContextType | null = useMemo(() => {
+		if (!sequenceContext) {
+			return null;
+		}
+
+		return {
+			...sequenceContext,
+			relativeFrom: 0,
+			cumulatedFrom: 0,
+		};
+	}, [sequenceContext]);
+
 	return (
 		<TimelineContext.Provider value={timelineValue}>
-			{children}
+			<SequenceContext.Provider value={newSequenceContext}>
+				{children}
+			</SequenceContext.Provider>
 		</TimelineContext.Provider>
 	);
 };

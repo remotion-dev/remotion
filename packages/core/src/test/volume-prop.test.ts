@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'vitest';
+import {describe, expect, test} from 'bun:test';
 import {evaluateVolume} from '../volume-prop.js';
 import {expectToThrow} from './expect-to-throw.js';
 
@@ -8,7 +8,6 @@ describe('EvaluateVolume does not throw', () => {
 			frame: 10,
 			volume: undefined,
 			mediaVolume: 1,
-			allowAmplificationDuringRender: false,
 		};
 		expect(evaluateVolume(toEvaluate)).toEqual(1);
 	});
@@ -18,7 +17,6 @@ describe('EvaluateVolume does not throw', () => {
 			frame: 10,
 			volume: smallVolume,
 			mediaVolume: 1,
-			allowAmplificationDuringRender: false,
 		};
 		expect(evaluateVolume(toEvaluate)).toEqual(smallVolume);
 	});
@@ -27,7 +25,6 @@ describe('EvaluateVolume does not throw', () => {
 			frame: 10,
 			volume: 10,
 			mediaVolume: 1,
-			allowAmplificationDuringRender: true,
 		};
 		expect(evaluateVolume(toEvaluate)).toBe(10);
 	});
@@ -36,7 +33,6 @@ describe('EvaluateVolume does not throw', () => {
 			frame: 1,
 			volume: (frame: number) => frame * 0.5,
 			mediaVolume: 1,
-			allowAmplificationDuringRender: false,
 		};
 		expect(evaluateVolume(toEvaluate)).toBe(0.5);
 	});
@@ -45,9 +41,8 @@ describe('EvaluateVolume does not throw', () => {
 			frame: 10,
 			volume: (frame: number) => frame,
 			mediaVolume: 1,
-			allowAmplificationDuringRender: false,
 		};
-		expect(evaluateVolume(toEvaluate)).toBe(1);
+		expect(evaluateVolume(toEvaluate)).toBe(10);
 	});
 });
 
@@ -75,7 +70,6 @@ describe('evaluateVolume throws exception', () => {
 			frame: 1,
 			volume: () => invalidVolume,
 			mediaVolume: 1,
-			allowAmplificationDuringRender: false,
 		};
 		expectToThrow(() => {
 			evaluateVolume(toEvaluate);
@@ -87,7 +81,6 @@ describe('evaluateVolume throws exception', () => {
 			frame: 1,
 			volume: () => invalidVolume,
 			mediaVolume: 1,
-			allowAmplificationDuringRender: false,
 		};
 		expectToThrow(() => {
 			evaluateVolume(toEvaluate);

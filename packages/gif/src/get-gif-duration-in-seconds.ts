@@ -2,6 +2,7 @@ import {getRemotionEnvironment} from 'remotion';
 import {manuallyManagedGifCache, volatileGifCache} from './gif-cache';
 import type {GifState} from './props';
 import {parseGif, parseWithWorker} from './react-tools';
+import {resolveGifSource} from './resolve-gif-source';
 
 const calcDuration = (parsed: GifState) => {
 	return (
@@ -9,12 +10,12 @@ const calcDuration = (parsed: GifState) => {
 	);
 };
 
-/**
- * @description Gets the duration in seconds of a GIF
- * @see [Documentation](https://www.remotion.dev/docs/gif/get-gif-duration-in-seconds)
+/*
+ * @description Gets the duration in seconds of a GIF.
+ * @see [Documentation](https://remotion.dev/docs/gif/get-gif-duration-in-seconds)
  */
 export const getGifDurationInSeconds = async (src: string) => {
-	const resolvedSrc = new URL(src, window.origin).href;
+	const resolvedSrc = resolveGifSource(src);
 	const inCache =
 		volatileGifCache.get(resolvedSrc) ??
 		manuallyManagedGifCache.get(resolvedSrc);

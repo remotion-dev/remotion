@@ -1,5 +1,3 @@
-import { VERSION } from "remotion/version";
-
 /**
  * Use autocomplete to get a list of available regions.
  * @type {import('@remotion/lambda').AwsRegion}

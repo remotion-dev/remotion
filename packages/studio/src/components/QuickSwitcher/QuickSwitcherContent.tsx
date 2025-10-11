@@ -15,7 +15,6 @@ import {
 	useMenuStructure,
 } from '../../helpers/use-menu-structure';
 import {ModalsContext} from '../../state/modals';
-import {compositionSelectorRef} from '../CompositionSelector';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {KeyboardShortcutsExplainer} from '../KeyboardShortcutsExplainer';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -129,9 +128,9 @@ type AlgoliaState =
 	  };
 
 export const QuickSwitcherContent: React.FC<{
-	initialMode: QuickSwitcherMode;
-	invocationTimestamp: number;
-	readOnlyStudio: boolean;
+	readonly initialMode: QuickSwitcherMode;
+	readonly invocationTimestamp: number;
+	readonly readOnlyStudio: boolean;
 }> = ({initialMode, invocationTimestamp, readOnlyStudio}) => {
 	const {compositions} = useContext(Internals.CompositionManager);
 	const [state, setState] = useState(() => {
@@ -195,11 +194,10 @@ export const QuickSwitcherContent: React.FC<{
 
 						const selector = `.__remotion-composition[data-compname="${c.id}"]`;
 
-						compositionSelectorRef.current?.expandComposition(c.id);
+						Internals.compositionSelectorRef.current?.expandComposition(c.id);
 						waitForElm(selector).then(() => {
 							document
 								.querySelector(selector)
-
 								?.scrollIntoView({block: 'center'});
 						});
 					},

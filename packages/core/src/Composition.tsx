@@ -1,26 +1,28 @@
-import type {ComponentType, PropsWithChildren} from 'react';
-import React, {Suspense, useContext, useEffect, useMemo} from 'react';
+import type {ComponentType} from 'react';
+import React, {Suspense, useContext, useEffect} from 'react';
 import {createPortal} from 'react-dom';
 import type {AnyZodObject, z} from 'zod';
-import {AbsoluteFill} from './AbsoluteFill.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
-import {CompositionManager} from './CompositionManagerContext.js';
+import {CompositionSetters} from './CompositionManagerContext.js';
 import {FolderContext} from './Folder.js';
-import {NativeLayersContext} from './NativeLayers.js';
-import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
+import {
+	PROPS_UPDATED_EXTERNALLY,
+	useResolvedVideoConfig,
+} from './ResolveCompositionConfig.js';
 import type {Codec} from './codec.js';
-import {continueRender, delayRender} from './delay-render.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import {useIsPlayer} from './is-player.js';
 import {Loading} from './loading-indicator.js';
 import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
+import type {PixelFormat, VideoImageFormat} from './render-types.js';
+import {useDelayRender} from './use-delay-render.js';
 import {useLazyComponent} from './use-lazy-component.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
 import {validateDefaultAndInputProps} from './validation/validate-default-props.js';
@@ -42,6 +44,9 @@ export type CalcMetadataReturnType<T extends Record<string, unknown>> = {
 	height?: number;
 	props?: T;
 	defaultCodec?: Codec;
+	defaultOutName?: string;
+	defaultVideoImageFormat?: VideoImageFormat;
+	defaultPixelFormat?: PixelFormat;
 };
 
 export type CalculateMetadataFunction<T extends Record<string, unknown>> =
@@ -50,6 +55,7 @@ export type CalculateMetadataFunction<T extends Record<string, unknown>> =
 		props: T;
 		abortSignal: AbortSignal;
 		compositionId: string;
+		isRendering: boolean;
 	}) => Promise<CalcMetadataReturnType<T>> | CalcMetadataReturnType<T>;
 
 type OptionalDimensions<
@@ -98,27 +104,6 @@ export type StillProps<
 	CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
-export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
-	const {clipRegion} = useContext(NativeLayersContext);
-	const style: React.CSSProperties = useMemo(() => {
-		return {
-			display: 'flex',
-			flexDirection: 'row',
-			opacity: clipRegion === 'hide' ? 0 : 1,
-			clipPath:
-				clipRegion && clipRegion !== 'hide'
-					? `polygon(${clipRegion.x}px ${clipRegion.y}px, ${clipRegion.x}px ${
-							clipRegion.height + clipRegion.y
-						}px, ${clipRegion.width + clipRegion.x}px ${
-							clipRegion.height + clipRegion.y
-						}px, ${clipRegion.width + clipRegion.x}px ${clipRegion.y}px)`
-					: undefined,
-		};
-	}, [clipRegion]);
-
-	return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
-};
-
 export type CompositionProps<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
@@ -130,19 +115,15 @@ export type CompositionProps<
 	PropsIfHasProps<Schema, Props>;
 
 const Fallback: React.FC = () => {
+	const {continueRender, delayRender} = useDelayRender();
 	useEffect(() => {
 		const fallback = delayRender('Waiting for Root component to unsuspend');
 		return () => continueRender(fallback);
-	}, []);
+	}, [continueRender, delayRender]);
 	return null;
 };
 
-/**
- * @description This component is used to register a video to make it renderable and make it show in the sidebar, in dev mode.
- * @see [Documentation](https://www.remotion.dev/docs/composition)
- */
-
-export const Composition = <
+const InnerComposition = <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 >({
@@ -155,16 +136,32 @@ export const Composition = <
 	schema,
 	...compProps
 }: CompositionProps<Schema, Props>) => {
-	const {registerComposition, unregisterComposition} =
-		useContext(CompositionManager);
+	const compManager = useContext(CompositionSetters);
+
+	const {registerComposition, unregisterComposition} = compManager;
+
 	const video = useVideo();
 
-	const lazy = useLazyComponent<Props>(compProps as CompProps<Props>);
+	const lazy = useLazyComponent<Props>({
+		compProps: compProps as CompProps<Props>,
+		componentName: 'Composition',
+		noSuspense: false,
+	});
+
 	const nonce = useNonce();
+
 	const isPlayer = useIsPlayer();
-	const environment = getRemotionEnvironment();
+	const environment = useRemotionEnvironment();
 
 	const canUseComposition = useContext(CanUseRemotionHooks);
+
+	// Record seen composition IDs as early as possible so that overlays can access them
+	if (typeof window !== 'undefined') {
+		window.remotion_seenCompositionIds = Array.from(
+			new Set([...(window.remotion_seenCompositionIds ?? []), id]),
+		);
+	}
+
 	if (canUseComposition) {
 		if (isPlayer) {
 			throw new Error(
@@ -215,42 +212,59 @@ export const Composition = <
 		id,
 		folderName,
 		defaultProps,
-		registerComposition,
-		unregisterComposition,
 		width,
 		nonce,
 		parentName,
 		schema,
 		compProps.calculateMetadata,
+		registerComposition,
+		unregisterComposition,
 	]);
+
+	useEffect(() => {
+		window.dispatchEvent(
+			new CustomEvent<{resetUnsaved: string | null}>(PROPS_UPDATED_EXTERNALLY, {
+				detail: {
+					resetUnsaved: id,
+				},
+			}),
+		);
+	}, [defaultProps, id]);
+
 	const resolved = useResolvedVideoConfig(id);
 
 	if (environment.isStudio && video && video.component === lazy) {
 		const Comp = lazy;
-		if (resolved === null || resolved.type !== 'success') {
+		if (
+			resolved === null ||
+			(resolved.type !== 'success' &&
+				resolved.type !== 'success-and-refreshing')
+		) {
 			return null;
 		}
 
 		return createPortal(
-			<ClipComposition>
-				<CanUseRemotionHooksProvider>
-					<Suspense fallback={<Loading />}>
-						<Comp
-							{
-								// eslint-disable-next-line @typescript-eslint/no-explicit-any
-								...((resolved.result.props ?? {}) as any)
-							}
-						/>
-					</Suspense>
-				</CanUseRemotionHooksProvider>
-			</ClipComposition>,
+			<CanUseRemotionHooksProvider>
+				<Suspense fallback={<Loading />}>
+					<Comp
+						{
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							...((resolved.result.props ?? {}) as any)
+						}
+					/>
+				</Suspense>
+			</CanUseRemotionHooksProvider>,
 			portalNode(),
 		);
 	}
 
 	if (environment.isRendering && video && video.component === lazy) {
 		const Comp = lazy;
-		if (resolved === null || resolved.type !== 'success') {
+		if (
+			resolved === null ||
+			(resolved.type !== 'success' &&
+				resolved.type !== 'success-and-refreshing')
+		) {
 			return null;
 		}
 
@@ -270,4 +284,24 @@ export const Composition = <
 	}
 
 	return null;
+};
+
+/*
+ * @description This component is used to register a video to make it renderable and make it show in the sidebar, in dev mode.
+ * @see [Documentation](https://remotion.dev/docs/composition)
+ */
+export const Composition = <
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+>(
+	props: CompositionProps<Schema, Props>,
+) => {
+	const {onlyRenderComposition} = useContext(CompositionSetters);
+
+	if (onlyRenderComposition && onlyRenderComposition !== props.id) {
+		return null;
+	}
+
+	// @ts-expect-error
+	return <InnerComposition {...props} />;
 };

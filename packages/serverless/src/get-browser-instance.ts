@@ -1,11 +1,18 @@
 import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {VERSION} from 'remotion/version';
-import type {Await} from './await';
-import type {ProviderSpecifics} from './provider-implementation';
-import type {CloudProvider} from './still';
+import type {
+	Await,
+	CloudProvider,
+	ProviderSpecifics,
+} from '@remotion/serverless-client';
+import {VERSION} from '@remotion/serverless-client';
+import type {
+	ForgetBrowserEventLoop,
+	GetBrowserInstance,
+	InsideFunctionSpecifics,
+} from './provider-implementation';
 
-type LaunchedBrowser = {
+export type LaunchedBrowser = {
 	instance: Await<ReturnType<typeof openBrowser>>;
 	configurationString: string;
 };
@@ -45,25 +52,32 @@ const waitForLaunched = () => {
 	});
 };
 
-export const forgetBrowserEventLoop = (logLevel: LogLevel) => {
+export const forgetBrowserEventLoopImplementation: ForgetBrowserEventLoop = ({
+	logLevel,
+	launchedBrowser,
+}) => {
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
 		'Keeping browser open for next invocation',
 	);
-	_browserInstance?.instance.runner.forgetEventLoop();
-	_browserInstance?.instance.runner.deleteBrowserCaches();
+	launchedBrowser.instance.runner.forgetEventLoop();
+	launchedBrowser.instance.runner.deleteBrowserCaches();
 };
 
-export const getBrowserInstance = async <Provider extends CloudProvider>({
+export const getBrowserInstanceImplementation: GetBrowserInstance = async <
+	Provider extends CloudProvider,
+>({
 	logLevel,
 	indent,
 	chromiumOptions,
 	providerSpecifics,
+	insideFunctionSpecifics,
 }: {
 	logLevel: LogLevel;
 	indent: boolean;
 	chromiumOptions: ChromiumOptions;
 	providerSpecifics: ProviderSpecifics<Provider>;
+	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }): Promise<LaunchedBrowser> => {
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,
@@ -111,14 +125,18 @@ export const getBrowserInstance = async <Provider extends CloudProvider>({
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in serverless');
 			},
+			chromeMode: 'headless-shell',
 		});
 		instance.on('disconnected', () => {
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
 				'Browser disconnected or crashed.',
 			);
-			forgetBrowserEventLoop(logLevel);
-			_browserInstance?.instance?.close(true, logLevel, indent).catch((err) => {
+			insideFunctionSpecifics.forgetBrowserEventLoop({
+				logLevel,
+				launchedBrowser: _browserInstance as LaunchedBrowser,
+			});
+			_browserInstance?.instance?.close({silent: true}).catch((err) => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
 					'Could not close browser instance',
@@ -142,13 +160,14 @@ export const getBrowserInstance = async <Provider extends CloudProvider>({
 			'Warm function, but Browser configuration changed. Killing old browser instance.',
 		);
 		_browserInstance.instance.runner.rememberEventLoop();
-		await _browserInstance.instance.close(true, logLevel, indent);
+		await _browserInstance.instance.close({silent: true});
 		_browserInstance = null;
-		return getBrowserInstance({
+		return insideFunctionSpecifics.getBrowserInstance({
 			logLevel,
 			indent,
 			chromiumOptions,
 			providerSpecifics,
+			insideFunctionSpecifics,
 		});
 	}
 

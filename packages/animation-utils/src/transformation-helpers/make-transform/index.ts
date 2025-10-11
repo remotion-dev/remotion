@@ -23,11 +23,11 @@ import {
 	translateZ,
 } from './transform-functions';
 
-export function makeTransform(
+export const makeTransform = (
 	transforms: TransformFunctionReturnType[],
-): string {
+): string => {
 	return transforms.join(' ');
-}
+};
 
 export {
 	matrix,

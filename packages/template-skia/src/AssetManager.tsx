@@ -16,9 +16,9 @@ interface TAssetManagerContext {
 const AssetManagerContext = createContext<TAssetManagerContext | null>(null);
 
 interface RemotionCanvasProps {
-  images: ImagesToLoad;
-  typefaces: TypefacesToLoad;
-  children: ReactNode;
+  readonly images: ImagesToLoad;
+  readonly typefaces: TypefacesToLoad;
+  readonly children: ReactNode;
 }
 
 const useAssetManager = () => {

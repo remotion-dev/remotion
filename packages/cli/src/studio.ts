@@ -31,8 +31,12 @@ const getPort = () => {
 	return null;
 };
 
-const {binariesDirectoryOption, publicDirOption, disableGitSourceOption} =
-	BrowserSafeApis.options;
+const {
+	binariesDirectoryOption,
+	publicDirOption,
+	disableGitSourceOption,
+	enableCrossSiteIsolationOption,
+} = BrowserSafeApis.options;
 
 export const studioCommand = async (
 	remotionRoot: string,
@@ -109,10 +113,14 @@ export const studioCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const gitSource = getGitSource({remotionRoot, disableGitSource});
+	const enableCrossSiteIsolation = enableCrossSiteIsolationOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const gitSource = getGitSource({remotionRoot, disableGitSource, logLevel});
 
 	await StudioServerInternals.startStudio({
-		previewEntry: require.resolve('@remotion/studio/entry'),
+		previewEntry: require.resolve('@remotion/studio/previewEntry'),
 		browserArgs: parsedCli['browser-args'],
 		browserFlag: parsedCli.browser,
 		logLevel,
@@ -144,6 +152,8 @@ export const studioCommand = async (
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
 		binariesDirectory,
 		forceIPv4: parsedCli.ipv4,
+		audioLatencyHint: parsedCli['audio-latency-hint'],
+		enableCrossSiteIsolation,
 	});
 
 	// If the server is restarted through the UI, let's do the whole thing again.

@@ -5,17 +5,17 @@ import {ZodSwitch} from './ZodSwitch';
 import type {JSONPath} from './zod-types';
 
 export const ZodDefaultEditor: React.FC<{
-	showSaveButton: boolean;
-	jsonPath: JSONPath;
-	value: unknown;
-	defaultValue: unknown;
-	schema: z.ZodTypeAny;
-	setValue: UpdaterFunction<unknown>;
-	onSave: UpdaterFunction<unknown>;
-	onRemove: null | (() => void);
-	saving: boolean;
-	saveDisabledByParent: boolean;
-	mayPad: boolean;
+	readonly showSaveButton: boolean;
+	readonly jsonPath: JSONPath;
+	readonly value: unknown;
+	readonly defaultValue: unknown;
+	readonly schema: z.ZodTypeAny;
+	readonly setValue: UpdaterFunction<unknown>;
+	readonly onSave: UpdaterFunction<unknown>;
+	readonly onRemove: null | (() => void);
+	readonly saving: boolean;
+	readonly saveDisabledByParent: boolean;
+	readonly mayPad: boolean;
 }> = ({
 	jsonPath,
 	schema,

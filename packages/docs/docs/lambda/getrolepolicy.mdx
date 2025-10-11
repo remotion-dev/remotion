@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-getrolepolicy.png
 id: getrolepolicy
 title: getRolePolicy()
 slug: /lambda/getrolepolicy
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Returns an inline JSON policy to be assigned to the 'remotion-lambda-role' role that needs to be created in your AWS account.
@@ -15,7 +15,7 @@ See [Setup tutorial](/docs/lambda/setup) for setting up Lambda from scratch or [
 ## Example
 
 ```ts twoslash
-import { getRolePolicy } from "@remotion/lambda";
+import {getRolePolicy} from '@remotion/lambda';
 
 console.log(getRolePolicy()); /* `
 {
@@ -29,6 +29,6 @@ console.log(getRolePolicy()); /* `
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/iam-validation/role-permissions.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/iam-validation/suggested-policy.ts)
 - [getUserPolicy()](/docs/lambda/getuserpolicy)
 - [Permissions](/docs/lambda/permissions)

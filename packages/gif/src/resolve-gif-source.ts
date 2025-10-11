@@ -1,4 +1,7 @@
 export const resolveGifSource = (src: string): string => {
-	return new URL(src, typeof window === 'undefined' ? undefined : window.origin)
-		.href;
+	if (typeof window === 'undefined') {
+		return src;
+	}
+
+	return new URL(src, window.origin).href;
 };

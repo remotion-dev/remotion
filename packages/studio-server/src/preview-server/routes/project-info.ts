@@ -8,7 +8,7 @@ import {getProjectInfo} from '../project-info';
 export const projectInfoHandler: ApiHandler<
 	ProjectInfoRequest,
 	ProjectInfoResponse
-> = async ({remotionRoot}) => {
-	const info = await getProjectInfo(remotionRoot);
+> = async ({remotionRoot, entryPoint}) => {
+	const info = await getProjectInfo(remotionRoot, entryPoint);
 	return {projectInfo: info};
 };

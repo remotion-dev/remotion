@@ -3,20 +3,18 @@ image: /generated/articles-docs-lambda-deleterender.png
 id: deleterender
 title: deleteRender()
 slug: /lambda/deleterender
-crumb: "Lambda API"
+crumb: 'Lambda API'
 ---
 
 Deletes a rendered video, audio or still and its associated metada.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { deleteRender } from "@remotion/lambda";
+import {deleteRender} from '@remotion/lambda';
 
-const { freedBytes } = await deleteRender({
-  bucketName: "remotionlambda-r42fs9fk",
-  region: "us-east-1",
-  renderId: "8hfxlw",
+const {freedBytes} = await deleteRender({
+  bucketName: 'remotionlambda-r42fs9fk',
+  region: 'us-east-1',
+  renderId: '8hfxlw',
 });
 
 console.log(freedBytes); // 21249541
@@ -47,7 +45,6 @@ If the render was saved to a [different cloud](/docs/lambda/custom-destination#s
 ### `forcePathStyle?`<AvailableFrom v="4.0.202" />
 
 Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
-
 
 ## Return value
 

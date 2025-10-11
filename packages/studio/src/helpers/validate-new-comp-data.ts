@@ -1,9 +1,9 @@
-import type {AnyComposition} from 'remotion';
+import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 
 export const validateCompositionName = (
 	compName: string,
-	compositions: AnyComposition[],
+	compositions: _InternalTypes['AnyComposition'][],
 ): string | null => {
 	if (!Internals.isCompositionIdValid(compName)) {
 		return Internals.invalidCompositionErrorMessage;

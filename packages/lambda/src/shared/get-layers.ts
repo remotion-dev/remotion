@@ -1,19 +1,20 @@
-import type {AwsRegion} from '../regions';
+import type {AwsRegion, RuntimePreference} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import type {AwsLayer} from './hosted-layers';
-import {hostedLayers, v5HostedLayers} from './hosted-layers';
-
-const runtimePreferenceOptions = ['default', 'apple-emojis', 'cjk'] as const;
-
-export type RuntimePreference = (typeof runtimePreferenceOptions)[number];
+import {hostedLayers} from './hosted-layers';
 
 export const validateRuntimePreference = (option: unknown) => {
 	if (!option) {
 		return;
 	}
 
-	if (!runtimePreferenceOptions.includes(option as RuntimePreference)) {
+	if (
+		!LambdaClientInternals.runtimePreferenceOptions.includes(
+			option as RuntimePreference,
+		)
+	) {
 		throw new Error(
-			`Invalid runtime preference ${option}. Must be one of ${runtimePreferenceOptions.join(
+			`Invalid runtime preference ${option}. Must be one of ${LambdaClientInternals.runtimePreferenceOptions.join(
 				', ',
 			)}`,
 		);
@@ -23,16 +24,11 @@ export const validateRuntimePreference = (option: unknown) => {
 export const getLayers = ({
 	option,
 	region,
-	enableV5Runtime,
 }: {
 	option: RuntimePreference;
 	region: AwsRegion;
-	enableV5Runtime: boolean;
 }): AwsLayer[] => {
-	const layers = enableV5Runtime
-		? v5HostedLayers[region]
-		: hostedLayers[region];
-
+	const layers = hostedLayers[region];
 	return layers.filter((layer) => {
 		if (layer.layerArn.includes('emoji-apple')) {
 			return option === 'apple-emojis';

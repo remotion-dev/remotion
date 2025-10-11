@@ -1,5 +1,9 @@
-import {VideoTrack} from '@remotion/media-parser';
-import {ConvertMediaState, convertMedia} from '@remotion/webcodecs';
+import {MediaParserVideoTrack} from '@remotion/media-parser';
+import {
+	ConvertMediaProgress,
+	convertMedia,
+	webcodecsController,
+} from '@remotion/webcodecs';
 import React, {useCallback, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {AbsoluteFill} from 'remotion';
@@ -9,7 +13,7 @@ const CANVAS_WIDTH = 1024 / 4;
 const CANVAS_HEIGHT = (CANVAS_WIDTH / 16) * 9;
 
 const SampleLabel: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	return (
 		<div
@@ -33,8 +37,8 @@ const SampleLabel: React.FC<{
 };
 
 const SampleCount: React.FC<{
-	count: number;
-	label: string;
+	readonly count: number;
+	readonly label: string;
 }> = ({count, label}) => {
 	return (
 		<div style={{display: 'inline-block', color: 'white'}}>
@@ -45,14 +49,18 @@ const SampleCount: React.FC<{
 };
 
 export const SrcEncoder: React.FC<{
-	src: string;
-	label: string;
+	readonly src: string;
+	readonly label: string;
 }> = ({src, label}) => {
-	const [state, setState] = useState<ConvertMediaState>({
+	const [state, setState] = useState<ConvertMediaProgress>({
 		decodedAudioFrames: 0,
 		decodedVideoFrames: 0,
 		encodedVideoFrames: 0,
 		encodedAudioFrames: 0,
+		bytesWritten: 0,
+		millisecondsWritten: 0,
+		expectedOutputDurationInMs: null,
+		overallProgress: null,
 	});
 
 	const [downloadFn, setDownloadFn] = useState<null | (() => void)>(null);
@@ -64,7 +72,13 @@ export const SrcEncoder: React.FC<{
 	const i = useRef(0);
 
 	const onVideoFrame = useCallback(
-		async (inputFrame: VideoFrame, track: VideoTrack) => {
+		async ({
+			frame,
+			track,
+		}: {
+			frame: VideoFrame;
+			track: MediaParserVideoTrack;
+		}) => {
 			i.current++;
 
 			if (i.current % 10 === 1) {
@@ -88,18 +102,18 @@ export const SrcEncoder: React.FC<{
 					},
 				});
 
-				const image = await createImageBitmap(inputFrame, {
+				const image = await createImageBitmap(frame, {
 					resizeHeight: fitted.height * 2,
 					resizeWidth: fitted.width * 2,
 				});
 
 				if (!ref.current) {
-					return;
+					return frame;
 				}
 
 				const context = ref.current.getContext('2d');
 				if (!context) {
-					return;
+					return frame;
 				}
 				ref.current.width = CANVAS_WIDTH;
 				ref.current.height = CANVAS_HEIGHT;
@@ -120,26 +134,28 @@ export const SrcEncoder: React.FC<{
 					context.drawImage(image, fitted.left, 0, fitted.width, fitted.height);
 				}
 			}
+
+			return frame;
 		},
 		[],
 	);
 
 	const onClick = useCallback(async () => {
 		try {
-			const abortController = new AbortController();
+			const abortController = webcodecsController();
 			setAbortFn(() => () => abortController.abort());
 			const fn = await convertMedia({
 				src,
 				onVideoFrame,
-				onMediaStateUpdate: (s) => {
+				onProgress: (s) => {
 					flushSync(() => {
 						setState(() => s);
 					});
 				},
 				videoCodec: 'vp9',
 				audioCodec: 'opus',
-				to: 'webm',
-				signal: abortController.signal,
+				container: 'webm',
+				controller: abortController,
 			});
 			setDownloadFn(() => {
 				return async () => {

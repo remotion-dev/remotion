@@ -1,6 +1,8 @@
 import {CliInternals} from '@remotion/cli';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
-import {BINARY_NAME} from '../../../shared/constants';
+import {FullClientSpecifics, ProviderSpecifics} from '@remotion/serverless';
+import {AwsProvider} from '../../../client';
 import {quit} from '../../helpers/quit';
 import {FUNCTIONS_DEPLOY_SUBCOMMAND, functionsDeploySubcommand} from './deploy';
 import {FUNCTIONS_LS_SUBCOMMAND, functionsLsCommand} from './ls';
@@ -54,9 +56,19 @@ const printFunctionsHelp = (logLevel: LogLevel) => {
 	);
 };
 
-export const functionsCommand = (args: string[], logLevel: LogLevel) => {
+export const functionsCommand = ({
+	args,
+	logLevel,
+	fullClientSpecifics,
+	providerSpecifics,
+}: {
+	args: string[];
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
+}) => {
 	if (args[0] === FUNCTIONS_LS_SUBCOMMAND) {
-		return functionsLsCommand(logLevel);
+		return functionsLsCommand({logLevel, providerSpecifics});
 	}
 
 	if (args[0] === FUNCTIONS_RM_SUBCOMMAND) {
@@ -64,11 +76,15 @@ export const functionsCommand = (args: string[], logLevel: LogLevel) => {
 	}
 
 	if (args[0] === FUNCTIONS_RMALL_SUBCOMMAND) {
-		return functionsRmallCommand(logLevel);
+		return functionsRmallCommand({logLevel, providerSpecifics});
 	}
 
 	if (args[0] === FUNCTIONS_DEPLOY_SUBCOMMAND) {
-		return functionsDeploySubcommand(logLevel);
+		return functionsDeploySubcommand({
+			logLevel,
+			fullClientSpecifics,
+			providerSpecifics,
+		});
 	}
 
 	if (args[0]) {

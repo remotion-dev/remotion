@@ -3,11 +3,13 @@ image: /generated/articles-docs-cloudrun-deletesite.png
 id: deletesite
 title: deleteSite()
 slug: /cloudrun/deletesite
-crumb: "Cloud Run API"
+crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
+  </p>
 </ExperimentalBadge>
 
 Removes a Remotion project from your Cloud Storage bucket.
@@ -19,13 +21,11 @@ Each project is located in the `sites/` subdirectory of your Cloud Storage bucke
 Gets all sites and deletes them.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import { GcpRegion, deleteSite, getSites } from "@remotion/cloudrun";
+import {GcpRegion, deleteSite, getSites} from '@remotion/cloudrun';
 
-const region: GcpRegion = "australia-southeast1";
+const region: GcpRegion = 'australia-southeast1';
 
-const { sites } = await getSites(region);
+const {sites} = await getSites(region);
 
 for (const site of sites) {
   await deleteSite({

@@ -8,7 +8,10 @@ import {
 import React, { useMemo } from "react";
 import { loadFont } from "@remotion/google-fonts/Roboto";
 
-const { fontFamily } = loadFont();
+const { fontFamily } = loadFont("normal", {
+  subsets: ["latin"],
+  weights: ["400", "700"],
+});
 
 const title: React.CSSProperties = {
   fontFamily,
@@ -67,7 +70,7 @@ export const Overlay: React.FC = () => {
     <AbsoluteFill>
       <div style={container}>
         <div style={title}>Look</div>
-        <div style={text}>I'm an overlay!</div>
+        <div style={text}>I&apos;m an overlay!</div>
       </div>
     </AbsoluteFill>
   );

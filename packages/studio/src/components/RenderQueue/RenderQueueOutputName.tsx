@@ -3,7 +3,7 @@ import React, {useMemo} from 'react';
 import {renderQueueItemSubtitleStyle} from './item-style';
 
 export const RenderQueueOutputName: React.FC<{
-	job: RenderJob;
+	readonly job: RenderJob;
 }> = ({job}) => {
 	const style = useMemo((): React.CSSProperties => {
 		return {

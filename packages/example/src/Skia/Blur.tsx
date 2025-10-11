@@ -7,12 +7,7 @@ import {
 	useImage,
 } from '@shopify/react-native-skia';
 import React, {useState} from 'react';
-import {
-	continueRender,
-	delayRender,
-	staticFile,
-	useCurrentFrame,
-} from 'remotion';
+import {staticFile, useCurrentFrame, useDelayRender} from 'remotion';
 
 type Value = string | number;
 type Values = Value[];
@@ -117,6 +112,7 @@ vec4 transition(vec2 uv) {
 
 export const RuntimeShaderZoomBlur = () => {
 	React.useState(0);
+	const {delayRender, continueRender} = useDelayRender();
 	const [handle] = useState(() => delayRender());
 
 	const image1 = useImage(staticFile('1.jpg'));

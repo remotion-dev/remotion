@@ -7,8 +7,9 @@ export type TransitionState = {
 	isInTransitionSeries: boolean;
 };
 
-/**
- * Gets the progress and direction of a transition with a context() presentation.
+/*
+ * @description A hook that can be used inside a child of a <TransitionSeries.Sequence> to get the progress of the transition to directly manipulate the objects inside the scene.
+ * @see [Documentation](https://www.remotion.dev/docs/transitions/use-transition-progress)
  */
 export const useTransitionProgress = (): TransitionState => {
 	const entering = React.useContext(EnteringContext);

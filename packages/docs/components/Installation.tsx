@@ -11,32 +11,18 @@ const LightAndDark: React.FC<{
 	readonly text: string;
 }> = ({text}) => {
 	return (
-		<>
-			<CodeBlock
-				className="shiki github-light"
-				language="bash"
-				style={{
-					backgroundColor: 'rgb(255, 255, 255)',
-					color: 'rgb(36, 41, 47)',
-				}}
-			>
-				<div className="code-container">
-					<div className="line">{text}</div>
-				</div>
-			</CodeBlock>
-			<CodeBlock
-				className="shiki github-dark"
-				language="bash"
-				style={{
-					backgroundColor: 'rgb(13, 17, 23)',
-					color: 'rgb(201, 209, 217)',
-				}}
-			>
-				<div className="code-container">
-					<div className="line">{text}</div>
-				</div>
-			</CodeBlock>
-		</>
+		<CodeBlock
+			className="shiki github-dark"
+			language="bash"
+			style={{
+				backgroundColor: 'rgb(13, 17, 23)',
+				color: 'rgb(201, 209, 217)',
+			}}
+		>
+			<div className="code-container">
+				<div className="line">{text}</div>
+			</div>
+		</CodeBlock>
 	);
 };
 

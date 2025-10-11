@@ -4,9 +4,10 @@
   "description": "My Remotion video",
   "scripts": {
     "dev": "remotion studio",
-    "build": "remotion render HelloSkia out/video.mp4",
+    "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "test": "eslint src --ext ts,tsx,js,jsx && tsc"
+    "lint": "eslint src",
+    "typecheck": "tsc"
   },
   "repository": {},
   "license": "UNLICENSED",
@@ -14,20 +15,19 @@
     "@remotion/cli": "workspace:*",
     "@remotion/skia": "workspace:*",
     "@remotion/zod-types": "workspace:*",
-    "@shopify/react-native-skia": "1.3.13",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "@shopify/react-native-skia": "2.0.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "remotion": "workspace:*",
-    "zod": "3.22.3"
+    "zod": "3.23.8"
   },
   "devDependencies": {
-    "@remotion/eslint-config": "workspace:*",
+    "@remotion/eslint-config-flat": "workspace:*",
     "@types/dom-webcodecs": "0.1.11",
-    "@types/react": "18.3.1",
     "@types/web": "0.0.166",
-    "eslint": "8.56.0",
-    "prettier": "3.3.3",
-    "typescript": "5.5.4"
+    "eslint": "9.19.0",
+    "prettier": "3.6.0",
+    "typescript": "5.8.2"
   },
   "private": true
 }

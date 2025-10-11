@@ -1,14 +1,9 @@
 import {startLongRunningCompositor} from './compositor/compositor';
 import type {LogLevel} from './log-level';
 
-/**
- * @description Extracts the audio from a video source and saves it at the specified output path without changing the audio format.
- * @see [Documentation](https://remotion.dev/docs/renderer/extract-audio)
- * @param options.videoSource The path to the video source from which the audio will be extracted.
- * @param options.audioOutput The path where the extracted audio will be saved. Must use the correct file extension which matches the audio codec.
- * @param options.logLevel The level of logging desired (optional).
- * @param options.binariesDirectory The directory for binary dependencies (optional).
- * @returns {Promise<void>} Resolves once the audio extraction is complete.
+/*
+ * @description Extracts the audio from a video source and saves it to the specified output path. It does not convert the audio to a different format.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/extract-audio)
  */
 export const extractAudio = async (options: {
 	videoSource: string;
@@ -21,6 +16,7 @@ export const extractAudio = async (options: {
 		logLevel: options?.logLevel ?? 'info',
 		indent: false,
 		binariesDirectory: options.binariesDirectory ?? null,
+		extraThreads: 0,
 	});
 	await compositor.executeCommand('ExtractAudio', {
 		input_path: options.videoSource,

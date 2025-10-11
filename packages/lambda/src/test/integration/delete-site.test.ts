@@ -1,8 +1,9 @@
-import {internalGetOrCreateBucket} from '@remotion/serverless/client';
-import {expect, test} from 'vitest';
+import {internalGetOrCreateBucket} from '@remotion/serverless';
+import {expect, test} from 'bun:test';
 import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';
-import {mockImplementation} from '../mock-implementation';
+import {mockFullClientSpecifics} from '../mock-implementation';
+import {mockImplementation} from '../mocks/mock-implementation';
 
 test('Return 0 total size if site did not exist', async () => {
 	const {bucketName} = await internalGetOrCreateBucket({
@@ -11,6 +12,8 @@ test('Return 0 total size if site did not exist', async () => {
 		customCredentials: null,
 		enableFolderExpiry: null,
 		forcePathStyle: false,
+		skipPutAcl: false,
+		requestHandler: null,
 	});
 	expect(
 		await internalDeleteSite({
@@ -20,6 +23,7 @@ test('Return 0 total size if site did not exist', async () => {
 			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
 			onAfterItemDeleted: null,
+			requestHandler: null,
 		}),
 	).toEqual({totalSizeInBytes: 0});
 });
@@ -30,6 +34,8 @@ test('Return more than 0 total size if site did not exist', async () => {
 		customCredentials: null,
 		enableFolderExpiry: null,
 		forcePathStyle: false,
+		skipPutAcl: false,
+		requestHandler: null,
 	});
 	const {siteName} = await internalDeploySite({
 		bucketName,
@@ -44,6 +50,8 @@ test('Return more than 0 total size if site did not exist', async () => {
 		throwIfSiteExists: false,
 		siteName: mockImplementation.randomHash(),
 		forcePathStyle: false,
+		fullClientSpecifics: mockFullClientSpecifics,
+		requestHandler: null,
 	});
 	expect(
 		(
@@ -54,6 +62,7 @@ test('Return more than 0 total size if site did not exist', async () => {
 				providerSpecifics: mockImplementation,
 				forcePathStyle: false,
 				onAfterItemDeleted: null,
+				requestHandler: null,
 			})
 		).totalSizeInBytes,
 	).toBeGreaterThan(0);

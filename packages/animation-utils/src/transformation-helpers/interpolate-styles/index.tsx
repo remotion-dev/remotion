@@ -255,9 +255,9 @@ function checkStylesRange(arr: readonly Style[]) {
 	}
 }
 
-/**
+/*
  * @description A function that interpolates between two styles based on an input range.
- * @see [Documentation](https://www.remotion.dev/docs/animation-utils/interpolate-styles)
+ * @see [Documentation](https://remotion.dev/docs/animation-utils/interpolate-styles)
  */
 export const interpolateStyles = (
 	input: number,

@@ -154,6 +154,7 @@ export const downloadAsset = async ({
 	shouldAnalyzeAudioImmediately,
 	binariesDirectory,
 	cancelSignalForAudioAnalysis,
+	audioStreamIndex,
 }: {
 	src: string;
 	downloadMap: DownloadMap;
@@ -162,6 +163,7 @@ export const downloadAsset = async ({
 	shouldAnalyzeAudioImmediately: boolean;
 	binariesDirectory: string | null;
 	cancelSignalForAudioAnalysis: CancelSignal | undefined;
+	audioStreamIndex: number | undefined;
 }): Promise<string> => {
 	if (isAssetCompressed(src)) {
 		return src;
@@ -178,13 +180,11 @@ export const downloadAsset = async ({
 			return claimedDownloadLocation;
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		downloadMap.hasBeenDownloadedMap[src]![downloadDir] = null;
 		if (!downloadMap.isDownloadingMap[src]) {
 			downloadMap.isDownloadingMap[src] = {};
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		downloadMap.isDownloadingMap[src]![downloadDir] = false;
 	}
 
@@ -230,7 +230,7 @@ export const downloadAsset = async ({
 		ensureOutputDirectory(output);
 
 		const buff = Buffer.from(assetData, encoding);
-		await fs.promises.writeFile(output, buff);
+		await fs.promises.writeFile(output, buff as never as Uint8Array);
 		notifyAssetIsDownloaded({src, downloadMap, downloadDir, to: output});
 		return output;
 	}
@@ -265,6 +265,7 @@ export const downloadAsset = async ({
 			indent,
 			logLevel,
 			cancelSignal: cancelSignalForAudioAnalysis,
+			audioStreamIndex,
 		});
 	}
 
@@ -389,6 +390,7 @@ export const downloadAndMapAssetsToFileUrl = async ({
 		shouldAnalyzeAudioImmediately,
 		binariesDirectory,
 		cancelSignalForAudioAnalysis,
+		audioStreamIndex: renderAsset.audioStreamIndex,
 	});
 	cleanup();
 

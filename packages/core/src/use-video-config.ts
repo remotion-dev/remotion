@@ -4,10 +4,9 @@ import {useIsPlayer} from './is-player.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import type {VideoConfig} from './video-config.js';
 
-/**
- * @description Get some info about the context of the video that you are making.
+/*
+ * @description Retrieves information about the composition context in which it is used, including dimensions, frame rate, duration, and more.
  * @see [Documentation](https://www.remotion.dev/docs/use-video-config)
- * @returns Returns an object containing `fps`, `width`, `height`, `durationInFrames`, `id` and `defaultProps`.
  */
 export const useVideoConfig = (): VideoConfig => {
 	const videoConfig = useUnsafeVideoConfig();

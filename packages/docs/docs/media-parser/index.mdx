@@ -1,37 +1,155 @@
 ---
 image: /generated/articles-docs-media-parser-index.png
 sidebar_label: Overview
-title: "@remotion/media-parser"
+title: '@remotion/media-parser'
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
-import {TableOfContents} from "./TableOfContents";
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {TableOfContents, MediaParserGuideTableOfContents, ReadersTableOfContents, WritersTableOfContents, TypesTableOfContents} from './TableOfContents';
 
-_available from v4.0.190_
-
-This is an experimental package that parses video and other media files in order to extract relevant metadata.
+# @remotion/media-parser
 
 :::warning
-**Unstable API**: This package is experimental. We might change the API at any time, until we remove this notice.
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
 :::
+
+<img src="/img/media-parser.png" alt="Media Parser" />
+<br />
+<br />
+
+This is a package that parses video and audio files to extract metadata and samples.
 
 Design goals:
 
-- Work in the browser, and server runtimes (Node.js, Bun, Edge, etc.)
-- Stream the content, only download as much data as necessary
-- Functional TypeScript API
-- Solve problems that are relevant for Remotion users
+- [Support all major containers](/docs/media-parser/format-support): `.mp4`, `.mov`, `.webm`, `.mkv`, `.avi`, `.m3u8`, `.ts`, `.mp3`, `.wav`, `.aac`, `.m4a` and `.flac`.
+- [Easily get various information](/docs/media-parser/fields) from multimedia files
+- [Work in the browser, Node.js and Bun](/docs/media-parser/runtime-support)
+- [Satisfy your query with minimal fetching](/docs/media-parser/fast-and-slow)
+- [Functional TypeScript API](/docs/media-parser/parse-media)
+- [Be useful when passing unsupported media](/docs/media-parser/foreign-file-types)
+- [Allow decoding video frames and audio samples using WebCodecs](/docs/media-parser/webcodecs)
+- [Pausable, resumable and cancellable](/docs/media-parser/pause-resume-abort)
+- [Be able to seek to a different position in a media file](/docs/media-parser/seeking)
+- No dependencies
+
+## Introduction video
+
+<iframe
+  style={{
+    width: '100%',
+    aspectRatio: '16 / 9',
+  }}
+  src="https://www.youtube.com/embed/r3dUGdfVnkM"
+  title="YouTube video player"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+/>
+<br />
 
 ## Installation
 
 <Installation pkg="@remotion/media-parser" />
+
+## Hello World
+
+Get metadata from a video file - [over 20 different fields are supported.](/docs/media-parser/fields)
+
+```tsx twoslash title="Get the duration and codec of a video"
+import {parseMedia} from '@remotion/media-parser';
+
+const {durationInSeconds, videoCodec} = await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  fields: {
+    durationInSeconds: true,
+    videoCodec: true,
+  },
+});
+
+console.log(durationInSeconds); // 5.056;
+console.log(videoCodec); // 'h264';
+```
+
+Extract samples from a video file - [supports WebCodecs](/docs/media-parser/webcodecs).
+
+```tsx twoslash title="Extract samples from a video"
+import {parseMedia} from '@remotion/media-parser';
+
+await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  onVideoTrack: ({track}) => {
+    // Get information about the
+    console.log(track.width);
+    console.log(track.height);
+    return (sample) => {
+      // Retrieve samples as they are extracted
+      console.log(sample.timestamp); // 0
+      console.log(sample.data); // Uint8Array(12345)
+    };
+  },
+});
+```
+
+<details>
+<summary>What are samples?</summary>
+
+Samples contain audio or video data - but they are compressed using codecs like AAC for audio or H.264 for video.  
+You can turn audio samples into a waveform and video samples into images by decoding them.
+
+</details>
+
+## Guide
+
+<MediaParserGuideTableOfContents />
 
 ## APIs
 
 The following APIs are available:
 
 <TableOfContents />
+
+## Readers
+
+Choose the appropriate reader for your file source:
+
+<ReadersTableOfContents />
+
+## Writers
+
+Choose how to store files downloaded using [`downloadAndParseMedia()`](/docs/media-parser/download-and-parse-media):
+
+<WritersTableOfContents />
+
+## Types
+
+<TypesTableOfContents />
+
+## How does this compare to FFmpeg?
+
+- Media Parser specializes for JavaScript and on the web.  
+  It is designed to embrace the language and make use of the APIs that JavaScript has to offer.
+- Unlike FFmpeg, Remotion Media Parser does not have functionality for decoding and encoding – it only parses media files.  
+  Instead, we hope you combine it with WebCodecs, the native API built into browsers.
+- Media Parser has no command line interface and cannot be integrated into native applications.
+
+## How does this compare to MP4Box.js?
+
+MP4Box.js does a better job at parsing the ISO Base Media Format (`.mp4`, `.m4a`, `.mov`) and supports reading more information from it.  
+Remotion Media Parser supports more [container formats](/docs/media-parser/format-support), with the goal that it can handle arbitrary user-provided media files.
+
+## Thank you
+
+<table>
+  <tr>
+    <td>
+      <img style={{width: 100}} src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/tellahq_logo.jpeg" />
+    </td>
+    <td>
+      <a href="https://tella.com">Tella</a> for boosting the development of @remotion/media-parser with $10.000!
+    </td>
+  </tr>
+</table>
 
 ## License
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import fs, {existsSync} from 'fs';
 import path from 'path';
 import {downloadFile, type OnProgress} from './download';
@@ -29,13 +30,13 @@ const modelSizes: {[key in WhisperModel]: number} = {
 	'small.en': 487614201,
 	'tiny.en': 77704715,
 	base: 147951465,
-	medium: 1533774781,
+	medium: 1533763059,
 };
 
 export type WhisperModel = (typeof models)[number];
 
 export const getModelPath = (folder: string, model: WhisperModel) => {
-	return path.join(folder, `ggml-${model}.bin`);
+	return path.join(path.resolve(process.cwd(), folder), `ggml-${model}.bin`);
 };
 
 export const downloadWhisperModel = async ({

@@ -5,7 +5,7 @@ export const useEmitVideoFrame = ({
 	ref,
 	onVideoFrame,
 }: {
-	ref: React.RefObject<HTMLVideoElement>;
+	ref: React.RefObject<HTMLVideoElement | null>;
 	onVideoFrame: OnVideoFrame | null;
 }) => {
 	useEffect(() => {

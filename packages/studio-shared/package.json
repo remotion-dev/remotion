@@ -3,13 +3,14 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-shared"
 	},
 	"name": "@remotion/studio-shared",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"description": "Internal package for shared objects between the Studio backend and frontend",
 	"main": "dist",
 	"sideEffects": false,
 	"scripts": {
-		"lint": "eslint src --ext ts,tsx",
-		"formatting": "prettier src --check"
+		"lint": "eslint src",
+		"formatting": "prettier --experimental-cli src --check",
+		"make": "tsc -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -21,7 +22,9 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"@remotion/renderer": "workspace:*"
+		"@remotion/renderer": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
 	},
 	"publishConfig": {
 		"access": "public"

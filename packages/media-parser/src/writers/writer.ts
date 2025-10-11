@@ -1,13 +1,19 @@
+import type {MediaParserLogLevel} from '../log';
+
 export type Writer = {
 	write: (arr: Uint8Array) => Promise<void>;
-	save: () => Promise<File>;
+	finish: () => Promise<void>;
 	getWrittenByteCount: () => number;
 	updateDataAt: (position: number, data: Uint8Array) => Promise<void>;
-	waitForFinish: () => Promise<void>;
 	remove: () => Promise<void>;
+	getBlob: () => Promise<Blob>;
 };
 
-type CreateContent = () => Promise<Writer>;
+export type CreateContent = (options: {
+	filename: string;
+	mimeType: string;
+	logLevel: MediaParserLogLevel;
+}) => Promise<Writer>;
 
 export type WriterInterface = {
 	createContent: CreateContent;

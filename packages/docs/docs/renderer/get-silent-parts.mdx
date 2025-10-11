@@ -2,15 +2,10 @@
 image: /generated/articles-docs-renderer-get-silent-parts.png
 id: get-silent-parts
 title: getSilentParts()
-crumb: "@remotion/renderer"
+crumb: '@remotion/renderer'
 ---
 
-<YouTube
-  minutes={2}
-  href="https://www.youtube.com/watch?v=OHrvTMgiXWc"
-  thumb="https://i.ytimg.com/vi/OHrvTMgiXWc/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLC35vhR28KkxA7Bxr5XRqbIsMxe3g"
-  title="Remove silence from videos programmatically"
-/>
+<YouTube minutes={2} href="https://www.youtube.com/watch?v=OHrvTMgiXWc" thumb="https://i.ytimg.com/vi/OHrvTMgiXWc/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLC35vhR28KkxA7Bxr5XRqbIsMxe3g" title="Remove silence from videos programmatically" />
 
 # getSilentParts()<AvailableFrom v="4.0.18" />
 
@@ -23,12 +18,10 @@ Gets the silent parts of a video or audio in Node.js. Useful for cutting out sil
 ## Example
 
 ```ts twoslash title="silent-parts.mjs"
-// @module: ESNext
-// @target: ESNext
-import { getSilentParts } from "@remotion/renderer";
+import {getSilentParts} from '@remotion/renderer';
 
-const { silentParts, durationInSeconds } = await getSilentParts({
-  src: "/Users/john/Documents/bunny.mp4",
+const {silentParts, durationInSeconds} = await getSilentParts({
+  src: '/Users/john/Documents/bunny.mp4',
   noiseThresholdInDecibels: -20,
   minDurationInSeconds: 1,
 });
@@ -64,7 +57,7 @@ The minimum duration of a silent part in seconds. The default is `1`.
 
 ### `logLevel?`
 
-<Options id="log"/>
+<Options id="log" />
 
 ### `binariesDirectory?`<AvailableFrom v="4.0.120" />
 

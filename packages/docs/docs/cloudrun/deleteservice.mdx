@@ -3,11 +3,13 @@ image: /generated/articles-docs-cloudrun-deleteservice.png
 id: deleteservice
 title: deleteService()
 slug: /cloudrun/deleteservice
-crumb: "Cloud Run API"
+crumb: 'Cloud Run API'
 ---
 
 <ExperimentalBadge>
-<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
+  </p>
 </ExperimentalBadge>
 
 Deletes a deployed Cloud Run service based on its name.
@@ -17,18 +19,15 @@ To retrieve a list of services, call [`getServices()`](/docs/cloudrun/getservice
 ## Example
 
 ```ts twoslash
-// @module: esnext
-// @target: es2017
-
-import { deleteService, getServices } from "@remotion/cloudrun";
+import {deleteService, getServices} from '@remotion/cloudrun';
 
 const services = await getServices({
-  region: "us-east1",
+  region: 'us-east1',
   compatibleOnly: false,
 });
 for (const service of services) {
   await deleteService({
-    region: "us-east1",
+    region: 'us-east1',
     serviceName: service.serviceName,
   });
 }

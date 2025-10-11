@@ -32,6 +32,28 @@ const findTitle = (split) => {
 	return title;
 };
 
+const findSlug = (split) => {
+	const slugSearch = split.find((s) => s.startsWith('slug: '));
+	if (!slugSearch) {
+		return null;
+	}
+
+	const slug = slugSearch.replace(/^slug:\s/, '');
+	if (slug.startsWith('"') || slug.startsWith("'")) {
+		return slug.substr(1, slug.length - 2);
+	}
+
+	return slug;
+};
+
+const findNoAi = (split) => {
+	const slugSearch = split.find((s) => s.startsWith('no_ai: true'));
+	if (slugSearch) {
+		return true;
+	}
+	return false;
+};
+
 const findCrumb = (split) => {
 	const crumb = split
 		.find((s) => s.startsWith('crumb: '))
@@ -59,6 +81,9 @@ for (const page of pages) {
 		opened.match(/---\n((.|\n)*?)---\n/) ??
 		opened.match(/---\r\n((.|\r\n)*?)---\r\n/);
 	if (!frontmatter) {
+		if (page.endsWith('.ts')) {
+			continue;
+		}
 		console.log('No frontmatter for', page);
 		continue;
 	}
@@ -66,6 +91,8 @@ for (const page of pages) {
 	const split = frontmatter[1].split(os.EOL);
 	const id = findId(split, page).replaceAll(path.sep, path.posix.sep);
 	const title = findTitle(split);
+	const slug = findSlug(split);
+	const noAi = findNoAi(split);
 	const crumb = findCrumb(split);
 
 	const relativePath = page
@@ -77,8 +104,28 @@ for (const page of pages) {
 		relativePath
 			.replaceAll(path.posix.sep, '-')
 			.replace(/.md$/, '')
+			.replace(/^\//, '')
 			.replace(/.mdx$/, '');
-	data.push({id, title, relativePath, compId, crumb});
+	data.push({
+		id,
+		title,
+		relativePath,
+		compId,
+		crumb,
+		noAi,
+		slug: (slug && slug.startsWith('/')
+			? slug
+			: path.join(
+					path.dirname(
+						relativePath
+							.replace(/^docs\//, '')
+							.replace(/.md$/, '')
+							.replace(/.mdx$/, ''),
+					),
+					path.basename(slug ?? id),
+				)
+		).replace(/^\//, ''),
+	});
 }
 
 fs.writeFileSync(

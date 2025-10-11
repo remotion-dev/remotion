@@ -16,6 +16,7 @@ const layout: React.CSSProperties = {
 	margin: 'auto',
 	paddingLeft: 16,
 	paddingRight: 16,
+	paddingTop: 30,
 };
 
 const header: React.CSSProperties = {
@@ -244,11 +245,7 @@ export default () => {
 					</div>
 				</a>
 				{expert.videocall ? (
-					<a
-						style={socialLink}
-						href={`https://cal.com/${expert.videocall}`}
-						target={'_blank'}
-					>
+					<a style={socialLink} href={expert.videocall} target={'_blank'}>
 						<div style={socialRow}>
 							<div style={socialIconContainer}>
 								<svg
@@ -325,8 +322,9 @@ export default () => {
 							</defs>
 						</svg>
 						<div style={{flex: 1}}>
-							Remotion Experts are independent freelancers that have proven
-							their Remotion expertise.
+							Remotion Experts are independent freelancers with proven Remotion
+							expertise and portfolios. However, due diligence is recommended
+							before hiring.
 						</div>
 					</div>
 					<Spacer />

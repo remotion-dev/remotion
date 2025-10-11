@@ -6,11 +6,16 @@ import type {
 	TransitionPresentation,
 	TransitionTiming,
 } from '@remotion/transitions';
-import {TransitionSeries, springTiming} from '@remotion/transitions';
+import {
+	TransitionSeries,
+	linearTiming,
+	springTiming,
+} from '@remotion/transitions';
 import {clockWipe} from '@remotion/transitions/clock-wipe';
 import {fade} from '@remotion/transitions/fade';
 import type {FlipDirection} from '@remotion/transitions/flip';
 import {flip} from '@remotion/transitions/flip';
+import {iris} from '@remotion/transitions/iris';
 import {none} from '@remotion/transitions/none';
 import type {SlideDirection} from '@remotion/transitions/slide';
 import {slide} from '@remotion/transitions/slide';
@@ -148,8 +153,19 @@ export const ClockWipeDemo: React.FC<{}> = () => {
 
 	return (
 		<SampleTransition
-			// @ts-expect-error
 			effect={clockWipe({width, height})}
+			durationRestThreshold={0.001}
+		/>
+	);
+};
+
+export const IrisDemo: React.FC<{}> = () => {
+	const {width, height} = useVideoConfig();
+
+	return (
+		<SampleTransition
+			effect={iris({width, height})}
+			transition={linearTiming({durationInFrames: 30})}
 			durationRestThreshold={0.001}
 		/>
 	);
@@ -160,7 +176,6 @@ export const CubeDemo: React.FC<{readonly direction: CubeDirection}> = ({
 }) => {
 	return (
 		<SampleTransition
-			// @ts-expect-error
 			effect={cube({direction})}
 			durationRestThreshold={0.001}
 		/>
@@ -172,7 +187,6 @@ export const CustomTransitionDemo: React.FC<{}> = () => {
 
 	return (
 		<SampleTransition
-			// @ts-expect-error
 			effect={customPresentation({height, width})}
 			durationRestThreshold={0.001}
 		/>

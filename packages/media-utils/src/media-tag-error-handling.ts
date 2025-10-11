@@ -1,6 +1,6 @@
 async function fetchWithTimeout(
 	url: string,
-	options: FetchRequestInit,
+	options: RequestInit,
 	timeout = 3000,
 ) {
 	const controller = new AbortController();
@@ -11,7 +11,7 @@ async function fetchWithTimeout(
 		const response = await fetch(url, options);
 		clearTimeout(id);
 		return response;
-	} catch (e) {
+	} catch {
 		clearTimeout(id);
 		throw new Error(`Fetch timed out after ${timeout}ms`);
 	}
@@ -43,7 +43,7 @@ const checkFor404OrSkip = async ({
 
 	try {
 		return await checkFor404(src);
-	} catch (e) {
+	} catch {
 		return Promise.resolve(null);
 	}
 };
@@ -81,7 +81,7 @@ export const onMediaError = ({
 						)
 					: new Error(
 							[
-								`Failed to execute ${api}, Received a MediaError loading "${src}".`,
+								`Failed to execute ${api}, Received a MediaError loading "${src}". Consider using parseMedia() instead which supports more codecs: https://www.remotion.dev/docs/miscellaneous/parse-media-vs-get-video-metadata`,
 								status === null
 									? null
 									: `HTTP Status code of the file: ${status}.`,

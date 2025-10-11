@@ -6,12 +6,7 @@ sidebar_label: Visual editing
 crumb: 'How To'
 ---
 
-<YouTube
-  minutes={6}
-  href="https://www.youtube.com/watch?v=NX9YTOsLGpQ"
-  thumb="https://i.ytimg.com/vi/NX9YTOsLGpQ/hq720.jpg"
-  title="Visual editing"
-/>
+<YouTube minutes={6} href="https://www.youtube.com/watch?v=NX9YTOsLGpQ" thumb="https://i.ytimg.com/vi/NX9YTOsLGpQ/hq720.jpg" title="Visual editing" />
 
 You can edit the default props of a component visually, first register a [`schema`](/docs/composition#schema) with your [`<Composition>`](/docs/composition).
 
@@ -40,6 +35,7 @@ Controls are implemented for:
 - `z.enum()`
 - [`zColor()`](/docs/zod-types/z-color) (from `@remotion/zod-types`)
 - [`zTextarea()`](/docs/zod-types/z-textarea) (from `@remotion/zod-types`)
+- [`zMatrix()`](/docs/zod-types/z-matrix) (from `@remotion/zod-types`)
 - [`staticFile()`](/docs/staticfile) assets by typing as `z.string()` and using `staticFile()` in your code
 - `.min()`
 - `.max()`
@@ -63,10 +59,7 @@ export const myCompSchema = z.object({
   propTwo: z.string(),
 });
 
-export const MyComponent: React.FC<z.infer<typeof myCompSchema>> = ({
-  propOne,
-  propTwo,
-}) => {
+export const MyComponent: React.FC<z.infer<typeof myCompSchema>> = ({propOne, propTwo}) => {
   return (
     <div>
       <h1>{propOne}</h1>

@@ -104,9 +104,9 @@ export const TimelineTimeIndicators: React.FC = () => {
 };
 
 const Inner: React.FC<{
-	windowWidth: number;
-	fps: number;
-	durationInFrames: number;
+	readonly windowWidth: number;
+	readonly fps: number;
+	readonly durationInFrames: number;
 }> = ({windowWidth, durationInFrames, fps}) => {
 	const ref = useRef<HTMLDivElement>(null);
 

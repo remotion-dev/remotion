@@ -9,6 +9,7 @@ const link: React.CSSProperties = {
 
 const label: React.CSSProperties = {
 	fontSize: '0.9em',
+	fontFeatureSettings: "'ss03' on",
 	border: '1px solid var(--ifm-color-emphasis-300)',
 	color: 'var(--ifm-color-emphasis-600)',
 	fontFamily: 'GTPlanar',
@@ -27,7 +28,7 @@ export const AvailableFrom: React.FC<{
 	}
 
 	if (v.startsWith('v')) {
-		throw new Error('do not include v');
+		v = v.slice(1);
 	}
 
 	return (

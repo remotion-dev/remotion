@@ -1,39 +1,43 @@
 {
-  "editor.tabSize": 2,
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": "never",
-    "source.fixAll": "explicit"
-  },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "[rust]": {
-    "editor.defaultFormatter": "rust-lang.rust-analyzer"
-  },
-  "python.analysis.extraPaths": [
-    "./packages/lambda-python/src",
-    "./packages/lambda-python/remotion_lambda_sdk"
-  ],
-  "[python]": {
-    "editor.defaultFormatter": "ms-python.autopep8"
-  },
-  "[javascript]": {
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescript]": {
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescriptreact]": {
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[go]": {
-    "editor.defaultFormatter": "golang.go"
-  },
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "python.terminal.activateEnvironment": false,
-  "rust-analyzer.linkedProjects": ["packages/renderer/Cargo.toml"],
-  "search.exclude": {
-    "packages/**/dist": true
-  }
+	"editor.tabSize": 2,
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": "never",
+		"source.fixAll": "explicit"
+	},
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[rust]": {
+		"editor.defaultFormatter": "rust-lang.rust-analyzer"
+	},
+	"python.analysis.extraPaths": [
+		"./packages/lambda-python/src",
+		"./packages/lambda-python/remotion_lambda_sdk"
+	],
+	"[python]": {
+		"editor.defaultFormatter": "ms-python.autopep8"
+	},
+	"[javascript]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[typescript]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[typescriptreact]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[go]": {
+		"editor.defaultFormatter": "golang.go"
+	},
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"python.terminal.activateEnvironment": false,
+	"rust-analyzer.linkedProjects": ["packages/compositor/Cargo.toml"],
+	"search.exclude": {
+		"packages/**/dist": true
+	},
+	"files.associations": {
+		"*.mdx": "markdown"
+	},
+	"typescript.tsserver.maxTsServerMemory": 4096
 }

@@ -11,8 +11,7 @@
 		"noImplicitAny": false,
 		"strictNullChecks": true,
 		"strict": false,
-		"noEmit": true,
-		"incremental": true
+		"noEmit": true
 	},
 	"paths": {
 		"@site/*": ["./*"]
@@ -37,6 +36,7 @@
 		{"path": "../paths"},
 		{"path": "../google-fonts"},
 		{"path": "../preload"},
+		{"path": "../promo-pages"},
 		{"path": "../rive"},
 		{"path": "../skia"},
 		{"path": "../three"},
@@ -47,7 +47,9 @@
 		{"path": "../lambda"},
 		{"path": "../bundler"},
 		{"path": "../renderer"},
+		{"path": "../svg-3d-engine"},
 		{"path": "../transitions"},
 		{"path": "../cli"}
-	]
+	],
+	"exclude": ["copy-convert.ts"]
 }

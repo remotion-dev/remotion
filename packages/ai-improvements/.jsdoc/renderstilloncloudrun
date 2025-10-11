@@ -1,0 +1,4 @@
+/**
+ * @description Kicks off a still rendering process on Remotion Cloud Run.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/renderstilloncloudrun)
+ */

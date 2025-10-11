@@ -8,10 +8,10 @@ import {zColor} from '@remotion/zod-types';
 import React, {useEffect, useRef, useState} from 'react';
 import {
 	AbsoluteFill,
-	getRemotionEnvironment,
+	Html5Video,
 	staticFile,
+	useRemotionEnvironment,
 	useVideoConfig,
-	Video,
 } from 'remotion';
 import {z} from 'zod';
 import {Phone} from './Phone';
@@ -36,14 +36,15 @@ type MyCompSchemaType = z.infer<typeof myCompSchema>;
 const useVideoOrOffthreadVideoTexture = (
 	textureType: 'video' | 'offthreadvideo',
 	videoSrc: string,
-	videoRef: React.RefObject<HTMLVideoElement>,
+	videoRef: React.RefObject<HTMLVideoElement | null>,
 ) => {
+	const env = useRemotionEnvironment();
 	if (textureType === 'video') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		return useVideoTexture(videoRef);
 	}
 
-	if (getRemotionEnvironment().isRendering) {
+	if (env.isRendering) {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		return useOffthreadVideoTexture({src: videoSrc});
 	}
@@ -54,7 +55,7 @@ const useVideoOrOffthreadVideoTexture = (
 
 export const VideoTextureDemo: React.FC<
 	{
-		baseScale: number;
+		readonly baseScale: number;
 	} & MyCompSchemaType
 > = ({baseScale, phoneColor, deviceType, textureType}) => {
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -76,10 +77,12 @@ export const VideoTextureDemo: React.FC<
 		videoRef,
 	);
 
+	const env = useRemotionEnvironment();
+
 	return (
 		<AbsoluteFill style={container}>
-			{getRemotionEnvironment().isRendering ? null : (
-				<Video ref={videoRef} src={videoSrc} style={videoStyle} />
+			{env.isRendering ? null : (
+				<Html5Video ref={videoRef} src={videoSrc} style={videoStyle} />
 			)}
 			{videoData ? (
 				<ThreeCanvas linear width={width} height={height}>

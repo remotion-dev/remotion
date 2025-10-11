@@ -1,6 +1,5 @@
 import {NoReactInternals} from 'remotion/no-react';
-import {afterEach, beforeEach} from 'vitest';
-import {cleanFnStore} from '../../api/mock-functions';
+import {cleanFnStore} from '../mocks/mock-functions';
 
 let stdoutOutput: string[] = [];
 let stderrOutput: string[] = [];
@@ -17,7 +16,7 @@ const originalConsoleLog = console.log;
 const originalConsoleError = console.error;
 const originalStderr = process.stderr.write;
 
-beforeEach(() => {
+export const doBefore = () => {
 	stdoutOutput = [];
 	stderrOutput = [];
 	cleanFnStore();
@@ -42,11 +41,11 @@ beforeEach(() => {
 		// originalStderr(str);
 		stderrOutput.push(str);
 	};
-});
+};
 
-afterEach(() => {
+export const doAfter = () => {
 	process.stdout.write = originalStdout;
 	process.stderr.write = originalStderr;
 	console.log = originalConsoleLog;
 	console.error = originalConsoleError;
-});
+};

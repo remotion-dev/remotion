@@ -23,13 +23,19 @@ type Fence = {
 // A set of includes which can be pulled via a set ID
 const includes = new Map();
 
-function getHTML(
-	code: string,
-	fence: Fence,
-	highlighters: Highlighter[],
-	twoslash: any,
-	twoslashSettings: UserConfigSettings,
-) {
+function getHTML({
+	code,
+	fence,
+	highlighters,
+	twoslash,
+	twoslashSettings,
+}: {
+	code: string;
+	fence: Fence;
+	highlighters: Highlighter[];
+	twoslash: any;
+	twoslashSettings: UserConfigSettings;
+}) {
 	// Shiki doesn't respect json5 as an input, so switch it
 	// to json, which can handle comments in the syntax highlight
 	if (fence.lang === 'json5') {
@@ -84,14 +90,6 @@ export const runTwoSlashOnNode = (
 	{lang, meta}: {lang: string; meta: Record<string, string>},
 	settings = {},
 ) => {
-	// Offer a way to do high-perf iterations, this is less useful
-	// given that we cache the results of twoslash in the file-system
-	const shouldDisableTwoslash =
-		typeof process !== 'undefined' &&
-		process.env &&
-		Boolean(process.env.TWOSLASH_DISABLE);
-	if (shouldDisableTwoslash) return undefined;
-
 	// Only run twoslash when the meta has the attribute twoslash
 	if (meta.twoslash) {
 		const importedCode = replaceIncludesInCode(includes, code);
@@ -111,7 +109,7 @@ export const highlightersFromSettings = (
 	// console.log("i should only log once per theme")
 	// ^ uncomment this to debug if required
 	const themes =
-		settings.themes || (settings.theme ? [settings.theme] : ['light-plus']);
+		settings.themes || (settings.theme ? [settings.theme] : ['dark-plus']);
 
 	return Promise.all(
 		themes.map(async (theme) => {
@@ -169,7 +167,7 @@ const remarkVisitor =
 
 		try {
 			fence = parseFence([node.lang, node.meta].filter(Boolean).join(' '));
-		} catch (error) {
+		} catch {
 			const twoslashError = new TwoslashError(
 				'Codefence error',
 				'Could not parse the codefence for this code sample',
@@ -217,13 +215,13 @@ const remarkVisitor =
 			node.twoslash = twoslash;
 		}
 
-		const shikiHTML = getHTML(
-			node.value,
+		const shikiHTML = getHTML({
+			code: node.value,
 			fence,
 			highlighters,
 			twoslash,
 			twoslashSettings,
-		);
+		});
 		// @ts-expect-error
 		node.type = 'mdxJsxFlowElement';
 		node.name = 'div';
@@ -348,5 +346,11 @@ export const transformAttributesToHTML = (
 
 	const twoslash = runTwoSlashOnNode(code, fence, settings);
 	const newCode = (twoslash && twoslash.code) || code;
-	return getHTML(newCode, fence, highlighters, twoslash, settings);
+	return getHTML({
+		code: newCode,
+		fence,
+		highlighters,
+		twoslash,
+		twoslashSettings: settings,
+	});
 };

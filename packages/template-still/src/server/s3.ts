@@ -20,7 +20,7 @@ export const existsOnS3 = async (key: string) => {
       }),
     );
     return true;
-  } catch (err) {
+  } catch {
     return false;
   }
 };

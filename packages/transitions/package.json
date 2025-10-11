@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/transitions"
 	},
 	"name": "@remotion/transitions",
-	"version": "4.0.226",
+	"version": "4.0.357",
 	"description": "Library for creating transitions in Remotion",
 	"sideEffects": false,
 	"main": "dist/esm/index.mjs",
@@ -11,9 +11,9 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"test": "bun test src",
-		"lint": "eslint src --ext ts,tsx",
-		"formatting": "prettier src --check",
-		"make": "bun --env-file=../.env.bundle bundle.ts"
+		"lint": "eslint src",
+		"formatting": "prettier --experimental-cli src --check",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger",
 	"contributors": [],
@@ -29,10 +29,12 @@
 	"devDependencies": {
 		"@happy-dom/global-registrator": "14.5.1",
 		"remotion": "workspace:*",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
 		"@remotion/test-utils": "workspace:*",
-		"@vitejs/plugin-react": "^2.0.0"
+		"@remotion/player": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "9.19.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -47,46 +49,52 @@
 	},
 	"exports": {
 		".": {
+			"types": "./dist/index.d.ts",
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs",
-			"types": "./dist/index.d.ts",
 			"require": "./dist/index.js"
 		},
 		"./fade": {
+			"types": "./dist/presentations/fade.d.ts",
 			"module": "./dist/esm/fade.mjs",
 			"import": "./dist/esm/fade.mjs",
-			"require": "./dist/presentations/fade.js",
-			"types": "./dist/presentations/fade.d.ts"
+			"require": "./dist/presentations/fade.js"
 		},
 		"./slide": {
+			"types": "./dist/presentations/slide.d.ts",
 			"module": "./dist/esm/slide.mjs",
 			"import": "./dist/esm/slide.mjs",
-			"require": "./dist/presentations/slide.js",
-			"types": "./dist/presentations/slide.d.ts"
+			"require": "./dist/presentations/slide.js"
 		},
 		"./wipe": {
+			"types": "./dist/presentations/wipe.d.ts",
 			"module": "./dist/esm/wipe.mjs",
 			"import": "./dist/esm/wipe.mjs",
-			"require": "./dist/presentations/wipe.js",
-			"types": "./dist/presentations/wipe.d.ts"
+			"require": "./dist/presentations/wipe.js"
 		},
 		"./flip": {
+			"types": "./dist/presentations/flip.d.ts",
 			"module": "./dist/esm/flip.mjs",
 			"import": "./dist/esm/flip.mjs",
-			"require": "./dist/presentations/flip.js",
-			"types": "./dist/presentations/flip.d.ts"
+			"require": "./dist/presentations/flip.js"
 		},
 		"./clock-wipe": {
+			"types": "./dist/presentations/clock-wipe.d.ts",
 			"module": "./dist/esm/clock-wipe.mjs",
 			"import": "./dist/esm/clock-wipe.mjs",
-			"require": "./dist/presentations/clock-wipe.js",
-			"types": "./dist/presentations/clock-wipe.d.ts"
+			"require": "./dist/presentations/clock-wipe.js"
 		},
 		"./none": {
+			"types": "./dist/presentations/none.d.ts",
 			"module": "./dist/esm/none.mjs",
 			"import": "./dist/esm/none.mjs",
-			"require": "./dist/presentations/none.js",
-			"types": "./dist/presentations/none.d.ts"
+			"require": "./dist/presentations/none.js"
+		},
+		"./iris": {
+			"types": "./dist/presentations/iris.d.ts",
+			"module": "./dist/esm/iris.mjs",
+			"import": "./dist/esm/iris.mjs",
+			"require": "./dist/presentations/iris.js"
 		},
 		"./package.json": "./package.json"
 	},
@@ -109,6 +117,9 @@
 			],
 			"clock-wipe": [
 				"dist/presentations/clock-wipe.d.ts"
+			],
+			"iris": [
+				"dist/presentations/iris.d.ts"
 			]
 		}
 	},

@@ -4,23 +4,23 @@
   "description": "My Remotion video",
   "scripts": {
     "dev": "remotion studio",
-    "build": "remotion render HelloWorld out/video.mp4",
+    "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "test": "eslint src --ext ts,tsx,js,jsx"
+    "lint": "eslint src"
   },
   "repository": {},
   "license": "UNLICENSED",
   "dependencies": {
     "@remotion/cli": "workspace:*",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "remotion": "workspace:*",
-    "zod": "3.22.3"
+    "zod": "3.23.8"
   },
   "devDependencies": {
-    "@remotion/eslint-config": "workspace:*",
-    "prettier": "3.3.3",
-    "eslint": "8.56.0"
+    "@remotion/eslint-config-flat": "workspace:*",
+    "prettier": "3.6.0",
+    "eslint": "9.19.0"
   },
   "private": true
 }

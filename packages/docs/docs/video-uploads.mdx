@@ -9,14 +9,14 @@ In an app where users can upload videos and edit them, we can create a better us
 
 ## Allowing user uploads
 
-We have a component which returns a [`<Video>`](/docs/video) tag that includes an URL as source.
+We have a component which returns a [`<OffthreadVideo>`](/docs/offthreadvideo) tag that includes an URL as source.
 
 ```tsx twoslash title="MyComposition.tsx"
 const upload = async (file: File) => {
   return 'https://example.com';
 };
 // ---cut---
-import {AbsoluteFill, Video} from 'remotion';
+import {AbsoluteFill, OffthreadVideo} from 'remotion';
 
 type VideoProps = {
   videoURL: string;
@@ -25,7 +25,7 @@ type VideoProps = {
 export const MyComponent: React.FC<VideoProps> = ({videoURL}) => {
   return (
     <AbsoluteFill>
-      <Video src={videoURL} />
+      <OffthreadVideo src={videoURL} />
     </AbsoluteFill>
   );
 };
@@ -51,33 +51,21 @@ import {useState} from 'react';
 export const RemotionPlayer: React.FC = () => {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
-  const handleChange = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (event.target.files === null) {
-        return;
-      }
+  const handleChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files === null) {
+      return;
+    }
 
-      const file = event.target.files[0];
-      //upload is an example function  & returns a URL when a file is uploaded on the cloud.
-      const cloudURL = await upload(file);
-      // E.g., cloudURL = https://exampleBucketName.s3.ExampleAwsRegion.amazonaws.com
-      setVideoUrl(cloudURL);
-    },
-    [],
-  );
+    const file = event.target.files[0];
+    //upload is an example function  & returns a URL when a file is uploaded on the cloud.
+    const cloudURL = await upload(file);
+    // E.g., cloudURL = https://exampleBucketName.s3.ExampleAwsRegion.amazonaws.com
+    setVideoUrl(cloudURL);
+  }, []);
 
   return (
     <div>
-      {videoUrl === null ? null : (
-        <Player
-          component={MyComposition}
-          durationInFrames={120}
-          compositionWidth={1920}
-          compositionHeight={1080}
-          fps={30}
-          inputProps={{videoUrl}}
-        />
-      )}
+      {videoUrl === null ? null : <Player component={MyComposition} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} inputProps={{videoUrl}} />}
 
       <input type="file" onChange={handleChange} />
     </div>
@@ -89,7 +77,7 @@ The implementation of the `upload()` function is provider-specific and we do not
 
 ## Optimistic updates
 
-When we start the upload of the file, we can create a blob URL using `URL.createObjectURL()` which can be used to display the local file in a [`<Video>`](/docs/video) tag. When the file is done uploading and we get the remote URL, the component shall use remote URL as source.
+When we start the upload of the file, we can create a blob URL using `URL.createObjectURL()` which can be used to display the local file in a [`<Video>`](/docs/media/video) tag. When the file is done uploading and we get the remote URL, the component shall use remote URL as source.
 
 ```tsx twoslash title="App.tsx"
 const MyComposition: React.FC<{videoUrl: string}> = ({videoUrl}) => {
@@ -118,34 +106,22 @@ export const RemotionPlayer: React.FC = () => {
     type: 'empty',
   });
 
-  const handleChange = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (event.target.files === null) {
-        return;
-      }
+  const handleChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files === null) {
+      return;
+    }
 
-      const file = event.target.files[0];
-      const blobUrl = URL.createObjectURL(file);
-      setVideoState({type: 'blob', url: blobUrl});
-      const cloudUrl = await upload(file);
-      setVideoState({type: 'cloud', url: cloudUrl});
-      URL.revokeObjectURL(blobUrl);
-    },
-    [],
-  );
+    const file = event.target.files[0];
+    const blobUrl = URL.createObjectURL(file);
+    setVideoState({type: 'blob', url: blobUrl});
+    const cloudUrl = await upload(file);
+    setVideoState({type: 'cloud', url: cloudUrl});
+    URL.revokeObjectURL(blobUrl);
+  }, []);
 
   return (
     <div>
-      {videoState.type !== 'empty' ? (
-        <Player
-          component={MyComposition}
-          durationInFrames={120}
-          compositionWidth={1920}
-          compositionHeight={1080}
-          fps={30}
-          inputProps={{videoUrl: videoState.url}}
-        />
-      ) : null}
+      {videoState.type !== 'empty' ? <Player component={MyComposition} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} inputProps={{videoUrl: videoState.url}} /> : null}
       <input type="file" onChange={handleChange} />
     </div>
   );

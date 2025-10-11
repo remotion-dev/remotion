@@ -2,6 +2,7 @@ import { getStaticFiles, reevaluateComposition } from "@remotion/studio";
 import { useState } from "react";
 import React, { useEffect } from "react";
 import { watchPublicFolder } from "@remotion/studio";
+import { useRemotionEnvironment } from "remotion";
 
 const getCurrentHash = () => {
   const files = getStaticFiles();
@@ -12,8 +13,13 @@ const getCurrentHash = () => {
 
 export const RefreshOnCodeChange: React.FC = () => {
   const [files, setFiles] = useState(getCurrentHash());
+  const env = useRemotionEnvironment();
 
   useEffect(() => {
+    if (env.isReadOnlyStudio) {
+      return;
+    }
+
     const { cancel } = watchPublicFolder(() => {
       const hash = getCurrentHash();
       if (hash !== files) {
@@ -25,7 +31,7 @@ export const RefreshOnCodeChange: React.FC = () => {
     return () => {
       cancel();
     };
-  }, [files]);
+  }, [files, env.isReadOnlyStudio]);
 
   return null;
 };

@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {truthy} from '../truthy.js';
 
 test.each<[unknown, boolean]>([
@@ -18,6 +18,6 @@ test.each<[unknown, boolean]>([
 	[12, true],
 	[-1, true],
 	[-4, true],
-])('test with %s', (input, expected) => {
+])('test with %s', (input: unknown, expected: boolean) => {
 	expect(truthy(input)).toEqual(expected);
 });

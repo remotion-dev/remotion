@@ -1,15 +1,23 @@
 import {RenderInternals, type LogLevel} from '@remotion/renderer';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {spawn} from 'node:child_process';
+import {chalk} from './chalk';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 
-export const upgrade = async (
-	remotionRoot: string,
-	packageManager: string | undefined,
-	version: string | undefined,
-	logLevel: LogLevel,
-) => {
+export const upgradeCommand = async ({
+	remotionRoot,
+	packageManager,
+	version,
+	logLevel,
+	args,
+}: {
+	remotionRoot: string;
+	packageManager: string | undefined;
+	version: string | undefined;
+	logLevel: LogLevel;
+	args: string[];
+}) => {
 	const {
 		dependencies,
 		devDependencies,
@@ -55,27 +63,41 @@ export const upgrade = async (
 			peerDependencies.includes(u),
 	);
 
-	const task = spawn(
-		manager.manager,
-		StudioServerInternals.getInstallCommand({
-			manager: manager.manager,
-			packages: toUpgrade,
-			version: targetVersion,
-		}),
-		{
-			env: {
-				...process.env,
-				ADBLOCK: '1',
-				DISABLE_OPENCOLLECTIVE: '1',
-			},
-			stdio: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')
-				? 'inherit'
-				: 'ignore',
-		},
+	const command = StudioServerInternals.getInstallCommand({
+		manager: manager.manager,
+		packages: toUpgrade,
+		version: targetVersion,
+		additionalArgs: args,
+	});
+
+	Log.info(
+		{indent: false, logLevel},
+		chalk.gray(`$ ${manager.manager} ${command.join(' ')}`),
 	);
 
+	const task = spawn(manager.manager, command, {
+		env: {
+			...process.env,
+			ADBLOCK: '1',
+			DISABLE_OPENCOLLECTIVE: '1',
+		},
+		stdio: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')
+			? 'inherit'
+			: 'ignore',
+	});
+
 	await new Promise<void>((resolve) => {
-		task.on('close', resolve);
+		task.on('close', (code) => {
+			if (code === 0) {
+				resolve();
+			} else if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')) {
+				throw new Error('Failed to upgrade Remotion, see logs above');
+			} else {
+				throw new Error(
+					'Failed to upgrade Remotion, run with --log=info info to see logs',
+				);
+			}
+		});
 	});
 
 	Log.info({indent: false, logLevel}, '⏫ Remotion has been upgraded!');

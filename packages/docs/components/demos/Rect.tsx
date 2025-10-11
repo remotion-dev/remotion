@@ -3,12 +3,12 @@ import React from "react";
 import { AbsoluteFill } from "remotion";
 
 export const RectDemo: React.FC<{
-  width: number;
-  height: number;
-  edgeRoundness: number;
-  darkMode: boolean;
-  debug: boolean;
-  cornerRadius: number;
+  readonly width: number;
+  readonly height: number;
+  readonly edgeRoundness: number;
+  readonly darkMode: boolean;
+  readonly debug: boolean;
+  readonly cornerRadius: number;
 }> = ({ width, height, debug, edgeRoundness, cornerRadius, darkMode }) => {
   return (
     <AbsoluteFill

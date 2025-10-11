@@ -35,10 +35,10 @@ const wouldYouRather: React.CSSProperties = {
 };
 
 export const YouTube: React.FC<{
-  minutes: number;
-  href: string;
-  title: string;
-  thumb: string;
+  readonly minutes: number;
+  readonly href: string;
+  readonly title: string;
+  readonly thumb: string;
 }> = ({ minutes, href, title, thumb }) => {
   return (
     <a href={href} target="_blank" style={link}>

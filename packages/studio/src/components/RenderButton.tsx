@@ -1,3 +1,4 @@
+import {PlayerInternals} from '@remotion/player';
 import type {
 	AudioCodec,
 	Codec,
@@ -10,7 +11,7 @@ import type {
 } from '@remotion/renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
-import {Internals, useCurrentFrame} from 'remotion';
+import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {RenderIcon} from '../icons/render';
@@ -52,7 +53,7 @@ export const RenderButton: React.FC = () => {
 	}, []);
 
 	const video = Internals.useVideo();
-	const frame = useCurrentFrame();
+	const getCurrentFrame = PlayerInternals.useFrameImperative();
 
 	const {props} = useContext(Internals.EditorPropsContext);
 
@@ -70,7 +71,7 @@ export const RenderButton: React.FC = () => {
 		setSelectedModal({
 			type: 'render',
 			compositionId: video.id,
-			initialFrame: frame,
+			initialFrame: getCurrentFrame(),
 			initialStillImageFormat: defaults.stillImageFormat,
 			initialVideoImageFormat: defaults.videoImageFormat,
 			initialJpegQuality: defaults.jpegQuality,
@@ -97,6 +98,7 @@ export const RenderButton: React.FC = () => {
 			initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
 			initialOffthreadVideoCacheSizeInBytes:
 				defaults.offthreadVideoCacheSizeInBytes,
+			initialOffthreadVideoThreads: defaults.offthreadVideoThreads,
 			defaultProps: props[video.id] ?? video.defaultProps,
 			inFrameMark: inFrame,
 			outFrameMark: outFrame,
@@ -111,8 +113,11 @@ export const RenderButton: React.FC = () => {
 			initialForSeamlessAacConcatenation: defaults.forSeamlessAacConcatenation,
 			renderTypeOfLastRender: null,
 			defaulMetadata: defaults.metadata,
+			initialHardwareAcceleration: defaults.hardwareAcceleration,
+			initialChromeMode: defaults.chromeMode,
+			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
 		});
-	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
+	}, [video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame]);
 
 	if (!video) {
 		return null;

@@ -19,7 +19,7 @@ if (!__webpack_module__.hot) {
 	throw new Error('[Fast refresh] Hot Module Replacement is disabled.');
 }
 
-const hmrDocsUrl = 'https://webpack.js.org/concepts/hot-module-replacement/'; // eslint-disable-line max-len
+const hmrDocsUrl = 'https://webpack.js.org/concepts/hot-module-replacement/';
 
 let lastHash: string | undefined;
 const failureStatuses = {abort: 1, fail: 1};

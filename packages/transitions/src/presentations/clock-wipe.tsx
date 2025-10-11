@@ -79,11 +79,9 @@ const ClockWipePresentation: React.FC<
 	);
 };
 
-/**
- * Creates a clock wipe transition. This transition effect uses a circular wipe to reveal the underlying scene as the current scene exits.
- * @see [Documentation](https://remotion.dev/docs/transitions/presentations/clock-wipe)
- * @param {ClockWipeProps} props - The properties for the clock wipe effect, including dimensions and optional styles for entering and exiting states.
- * @returns {TransitionPresentation<ClockWipeProps>} An object containing the ClockWipe component and its props to be used in transition presentations.
+/*
+ * @description Creates a clock wipe transition that uses a circular wipe to reveal the underlying scene as the current scene exits.
+ * @see [Documentation](https://www.remotion.dev/docs/transitions/presentations/clock-wipe)
  */
 export const clockWipe = (
 	props: ClockWipeProps,

@@ -118,12 +118,14 @@ export const ZodArrayEditor: React.FC<{
 										saving={saving}
 										saveDisabledByParent={saveDisabledByParent}
 										mayPad={mayPad}
+										mayRemove
 									/>
 									<SchemaArrayItemSeparationLine
 										schema={schema}
 										index={i}
 										onChange={onChange}
 										isLast={i === localValue.value.length - 1}
+										showAddButton
 									/>
 								</React.Fragment>
 							);
@@ -134,6 +136,7 @@ export const ZodArrayEditor: React.FC<{
 								index={0}
 								onChange={onChange}
 								isLast
+								showAddButton
 							/>
 						) : null}
 					</SchemaVerticalGuide>

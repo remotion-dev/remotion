@@ -27,7 +27,7 @@ export const KeybindingContext = createContext<KeybindingContextType>({
 });
 
 export const KeybindingContextProvider: React.FC<{
-	children: React.ReactNode;
+	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const registered = useRef<RegisteredKeybinding[]>([]);
 

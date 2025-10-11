@@ -1,0 +1,4 @@
+/**
+ * @description Determines if an audio track can be copied to the output without re-encoding, based on the input and output media formats.
+ * @see [Documentation](https://www.remotion.dev/docs/webcodecs/can-copy-audio-track)
+ */

@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {expect, test} from 'bun:test';
 import {staticFile} from '../static-file.js';
 
 test('duplicate staticFile() should throw a warning', () => {

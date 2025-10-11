@@ -3,13 +3,16 @@ import {NoReactInternals} from 'remotion/no-react';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
-import type {Page} from './browser/BrowserPage';
+import type {OnLog, Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
+import {defaultOnLog} from './default-on-log';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
+import {getAvailableMemory} from './memory/get-available-memory';
 import type {ChromiumOptions} from './open-browser';
+import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import type {RemotionServer} from './prepare-server';
@@ -32,6 +35,7 @@ type InternalGetCompositionsOptions = {
 	server: RemotionServer | undefined;
 	indent: boolean;
 	serveUrlOrWebpackUrl: string;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.getCompositions>;
 
 export type GetCompositionsOptions = RequiredInputPropsInV5 & {
@@ -46,7 +50,6 @@ export type GetCompositionsOptions = RequiredInputPropsInV5 & {
 type InnerGetCompositionsParams = {
 	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
-	onBrowserLog: null | ((log: BrowserLog) => void);
 	serveUrl: string;
 	page: Page;
 	proxyPort: number;
@@ -56,24 +59,14 @@ type InnerGetCompositionsParams = {
 const innerGetCompositions = async ({
 	envVariables,
 	serializedInputPropsWithCustomSchema,
-	onBrowserLog,
 	page,
 	proxyPort,
 	serveUrl,
 	timeoutInMilliseconds,
 	indent,
 	logLevel,
+	mediaCacheSizeInBytes,
 }: InnerGetCompositionsParams): Promise<VideoConfig[]> => {
-	if (onBrowserLog) {
-		page.on('console', (log) => {
-			onBrowserLog({
-				stackTrace: log.stackTrace(),
-				text: log.text,
-				type: log.type,
-			});
-		});
-	}
-
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	await setPropsAndEnv({
@@ -90,6 +83,9 @@ const innerGetCompositions = async ({
 		indent,
 		logLevel,
 		onServeUrlVisited: () => undefined,
+		isMainTab: true,
+		mediaCacheSizeInBytes,
+		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -126,7 +122,17 @@ const innerGetCompositions = async ({
 	>;
 
 	return res.map((r) => {
-		const {width, durationInFrames, fps, height, id, defaultCodec} = r;
+		const {
+			width,
+			durationInFrames,
+			fps,
+			height,
+			id,
+			defaultCodec,
+			defaultOutName,
+			defaultVideoImageFormat,
+			defaultPixelFormat,
+		} = r;
 
 		return {
 			id,
@@ -134,13 +140,16 @@ const innerGetCompositions = async ({
 			height,
 			fps,
 			durationInFrames,
-			props: NoReactInternals.deserializeJSONWithCustomFields(
+			props: NoReactInternals.deserializeJSONWithSpecialTypes(
 				r.serializedResolvedPropsWithCustomSchema,
 			),
-			defaultProps: NoReactInternals.deserializeJSONWithCustomFields(
+			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				r.serializedDefaultPropsWithCustomSchema,
 			),
 			defaultCodec,
+			defaultOutName,
+			defaultVideoImageFormat,
+			defaultPixelFormat,
 		};
 	});
 };
@@ -163,6 +172,10 @@ const internalGetCompositionsRaw = async ({
 	offthreadVideoCacheSizeInBytes,
 	binariesDirectory,
 	onBrowserDownload,
+	chromeMode,
+	offthreadVideoThreads,
+	mediaCacheSizeInBytes,
+	onLog,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -172,6 +185,10 @@ const internalGetCompositionsRaw = async ({
 		indent,
 		logLevel,
 		onBrowserDownload,
+		chromeMode,
+		pageIndex: 0,
+		onBrowserLog,
+		onLog,
 	});
 
 	const cleanup: CleanupFn[] = [cleanupPage];
@@ -193,7 +210,9 @@ const internalGetCompositionsRaw = async ({
 				webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 				port,
 				remotionRoot: findRemotionRoot(),
-				concurrency: 1,
+				offthreadVideoThreads:
+					offthreadVideoThreads ??
+					DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 				logLevel,
 				indent,
 				offthreadVideoCacheSizeInBytes,
@@ -214,7 +233,6 @@ const internalGetCompositionsRaw = async ({
 				return innerGetCompositions({
 					envVariables,
 					serializedInputPropsWithCustomSchema,
-					onBrowserLog,
 					page,
 					proxyPort: offthreadPort,
 					serveUrl,
@@ -224,6 +242,9 @@ const internalGetCompositionsRaw = async ({
 					offthreadVideoCacheSizeInBytes,
 					binariesDirectory,
 					onBrowserDownload,
+					chromeMode,
+					offthreadVideoThreads,
+					mediaCacheSizeInBytes,
 				});
 			})
 
@@ -245,12 +266,9 @@ export const internalGetCompositions = wrapWithErrorHandling(
 	internalGetCompositionsRaw,
 );
 
-/**
- * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
- * @see [Documentation](https://remotion.dev/docs/get-compositions)
- * @param serveUrlOrWebpackUrl URL pointing to the Remotion Bundle.
- * @param {GetCompositionsOptions} [config] Optional configurations for getting composition details.
- * @returns {Promise<VideoConfig[]>} Returns a promise that resolves to an array of available compositions.
+/*
+ * @description Gets a list of compositions defined in a Remotion project based on a Remotion Bundle by evaluating the Remotion Root.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
  */
 export const getCompositions = (
 	serveUrlOrWebpackUrl: string,
@@ -275,6 +293,9 @@ export const getCompositions = (
 		onBrowserDownload,
 		binariesDirectory,
 		offthreadVideoCacheSizeInBytes,
+		chromeMode,
+		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	} = config ?? {};
 
 	const indent = false;
@@ -285,7 +306,7 @@ export const getCompositions = (
 		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
 		serializedInputPropsWithCustomSchema:
-			NoReactInternals.serializeJSONWithDate({
+			NoReactInternals.serializeJSONWithSpecialTypes({
 				data: inputProps ?? {},
 				indent: undefined,
 				staticBase: null,
@@ -307,5 +328,9 @@ export const getCompositions = (
 				logLevel,
 				api: 'getCompositions()',
 			}),
+		chromeMode: chromeMode ?? 'headless-shell',
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		onLog: defaultOnLog,
 	});
 };

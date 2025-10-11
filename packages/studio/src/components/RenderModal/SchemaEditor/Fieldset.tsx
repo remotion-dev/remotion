@@ -1,15 +1,15 @@
 import React, {createContext, useContext, useMemo} from 'react';
 
-const SCHEMA_EDITOR_FIELDSET_PADDING = 10;
+export const SCHEMA_EDITOR_FIELDSET_PADDING = 10;
 
 type AlreadyPaddedContext = boolean;
 
 const AlreadyPaddedRightContext = createContext<AlreadyPaddedContext>(false);
 
 export const Fieldset: React.FC<{
-	children: React.ReactNode;
-	success: boolean;
-	shouldPad: boolean;
+	readonly children: React.ReactNode;
+	readonly success: boolean;
+	readonly shouldPad: boolean;
 }> = ({children, shouldPad}) => {
 	const alreadyPadded = useContext(AlreadyPaddedRightContext);
 

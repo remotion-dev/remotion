@@ -3,7 +3,7 @@ import React from 'react';
 
 export const Plus: React.FC<
 	SVGProps<SVGSVGElement> & {
-		color: string;
+		readonly color: string;
 	}
 > = ({color, ...props}) => {
 	return (

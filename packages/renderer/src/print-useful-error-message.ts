@@ -2,18 +2,22 @@ import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {truthy} from './truthy';
 
-const alreadyPrinted: Error[] = [];
+let alreadyPrintedCache: string[] = [];
 
 export const printUsefulErrorMessage = (
 	err: Error,
 	logLevel: LogLevel,
 	indent: boolean,
 ) => {
-	if (alreadyPrinted.includes(err)) {
+	const errorStack = (err as Error).stack;
+	if (errorStack && alreadyPrintedCache.includes(errorStack)) {
 		return;
 	}
 
-	alreadyPrinted.push(err);
+	if (errorStack) {
+		alreadyPrintedCache.push(errorStack);
+		alreadyPrintedCache = alreadyPrintedCache.slice(-10);
+	}
 
 	if (err.message.includes('Could not play video with')) {
 		Log.info({indent, logLevel});
@@ -68,14 +72,32 @@ export const printUsefulErrorMessage = (
 	if (
 		err.message.includes('Member must have value less than or equal to 3008')
 	) {
-		Log.info({indent, logLevel});
-		Log.info(
+		Log.warn({indent, logLevel});
+		Log.warn(
 			{indent, logLevel},
-			'💡 This error indicates that you have a AWS account on the free tier or have been limited by your organization. Often times this can be solved by adding a credit card. See also: https://repost.aws/questions/QUKruWYNDYTSmP17jCnIz6IQ/questions/QUKruWYNDYTSmP17jCnIz6IQ/unable-to-set-lambda-memory-over-3008mb',
+			'💡 This error indicates that you have a AWS account on the free or basic tier or have been limited by your organization.',
+		);
+		Log.warn(
+			{indent, logLevel},
+			'Often times this can be solved by adding a credit card, or if already done, by contacting AWS support.',
+		);
+		Log.warn(
+			{
+				indent,
+				logLevel,
+			},
+			'Alternatively, you can decrease the memory size of your Lambda function to a value below 3008 MB. See: https://www.remotion.dev/docs/lambda/runtime#core-count--vcpus',
+		);
+		Log.warn(
+			{indent, logLevel},
+			'See also: https://repost.aws/questions/QUKruWYNDYTSmP17jCnIz6IQ/questions/QUKruWYNDYTSmP17jCnIz6IQ/unable-to-set-lambda-memory-over-3008mb',
 		);
 	}
 
-	if (err.stack?.includes('TooManyRequestsException: Rate Exceeded.')) {
+	if (
+		err.stack?.includes('TooManyRequestsException: Rate Exceeded.') ||
+		err.message?.includes('ConcurrentInvocationLimitExceeded')
+	) {
 		Log.info({indent, logLevel});
 		Log.info(
 			{indent, logLevel},
@@ -85,10 +107,18 @@ export const printUsefulErrorMessage = (
 
 	if (err.message.includes('Error creating WebGL context')) {
 		Log.info({indent, logLevel});
-		console.warn(
+		Log.warn(
+			{
+				indent,
+				logLevel,
+			},
 			'💡 You might need to set the OpenGL renderer to "angle-egl", "angle" (or "swangle" if rendering on lambda). Learn why at https://www.remotion.dev/docs/three',
 		);
-		console.warn(
+		Log.warn(
+			{
+				indent,
+				logLevel,
+			},
 			"💡 Check how it's done at https://www.remotion.dev/docs/chromium-flags#--gl",
 		);
 	}
@@ -168,5 +198,17 @@ export const printUsefulErrorMessage = (
 			{indent, logLevel},
 			'Try increasing the disk size of your Lambda function.',
 		);
+	}
+
+	if (err.message.includes('Invalid value specified for cpu')) {
+		Log.info({indent, logLevel});
+		Log.info(
+			{indent, logLevel},
+			'💡 This error indicates that your GCP account does have a limit. Try setting `--maxInstances=5` / `maxInstances: 5` when deploying this service.',
+		);
+		Log.info({
+			indent,
+			logLevel,
+		});
 	}
 };

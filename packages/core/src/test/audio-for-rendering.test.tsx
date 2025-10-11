@@ -1,9 +1,6 @@
-/**
- * @vitest-environment jsdom
- */
-import {render} from '@testing-library/react';
+import {cleanup, render} from '@testing-library/react';
+import {afterEach, beforeEach, describe, expect, mock, test} from 'bun:test';
 import React from 'react';
-import {beforeEach, describe, expect, test, vitest} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
 import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
@@ -18,10 +15,14 @@ interface MockCompositionManagerContext {
 }
 let mockContext: MockCompositionManagerContext;
 
+afterEach(() => {
+	cleanup();
+});
+
 describe('Register and unregister asset', () => {
 	function createMockContext(): MockCompositionManagerContext {
-		const registerRenderAsset = vitest.fn();
-		const unregisterRenderAsset = vitest.fn();
+		const registerRenderAsset = mock();
+		const unregisterRenderAsset = mock();
 		window.remotion_audioEnabled = true;
 		const MockProvider: React.FC<{
 			readonly children: React.ReactNode;
@@ -58,7 +59,9 @@ describe('Register and unregister asset', () => {
 			src: 'test',
 			muted: false,
 			volume: 50,
-			onDuration: vitest.fn(),
+			onDuration: mock(),
+			onNativeError: mock(),
+			audioStreamIndex: 0,
 		};
 		const {unmount} = render(
 			<CanUseRemotionHooksProvider>
@@ -78,7 +81,9 @@ describe('Register and unregister asset', () => {
 			src: undefined,
 			muted: false,
 			volume: 50,
-			onDuration: vitest.fn(),
+			onDuration: mock(),
+			onNativeError: mock(),
+			audioStreamIndex: 0,
 		};
 		expectToThrow(() => {
 			render(

@@ -9,6 +9,40 @@ function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
+const mock: TRenderAsset[][] = new Array(2934)
+	.fill(true)
+	.map((_, i) => i)
+	.map((k) => {
+		return [
+			k >= 180 && k < 220
+				? {
+						type: 'video' as const,
+						src: 'http://localhost:3000/e15ac5e3d531199ebb1828ca6a99100d.webm',
+						id: 'audio-0.6976876351982355-0-180-40-muted:undefined',
+						frame: 180,
+						volume: 1,
+						playbackRate: 1,
+						mediaFrame: 0,
+						toneFrequency: 1,
+						audioStartFrame: 0,
+						audioStreamIndex: 0,
+					}
+				: null,
+			{
+				type: 'audio' as const,
+				src: 'http://localhost:3000/4793bac32f610ffba8197b8a3422456f.mp3',
+				id: 'audio-0.24816237785853446-undefined-undefined-undefined-muted:undefined',
+				frame: k,
+				volume: 1,
+				playbackRate: 1,
+				mediaFrame: k,
+				toneFrequency: 1,
+				audioStartFrame: 0,
+				audioStreamIndex: 0,
+			},
+		].filter(truthy);
+	});
+
 test('Dont skip assets', () => {
 	const onlyAudioAndVideo = mock.map((m) => {
 		return onlyAudioAndVideoAssets(m);
@@ -25,9 +59,9 @@ test('Dont skip assets', () => {
 			trimLeft: 0,
 			volume: 1,
 			playbackRate: 1,
-			allowAmplificationDuringRender: false,
-			toneFrequency: null,
+			toneFrequency: 1,
 			audioStartFrame: 0,
+			audioStreamIndex: 0,
 		},
 		{
 			src: 'http://localhost:3000/e15ac5e3d531199ebb1828ca6a99100d.webm',
@@ -38,43 +72,9 @@ test('Dont skip assets', () => {
 			trimLeft: 0,
 			volume: 1,
 			playbackRate: 1,
-			allowAmplificationDuringRender: false,
-			toneFrequency: null,
+			toneFrequency: 1,
 			audioStartFrame: 0,
+			audioStreamIndex: 0,
 		},
 	]);
 });
-
-const mock: TRenderAsset[][] = new Array(2934)
-	.fill(true)
-	.map((_, i) => i)
-	.map((k) => {
-		return [
-			k >= 180 && k < 220
-				? {
-						type: 'video' as const,
-						src: 'http://localhost:3000/e15ac5e3d531199ebb1828ca6a99100d.webm',
-						id: 'audio-0.6976876351982355-0-180-40-muted:undefined',
-						frame: 180,
-						volume: 1,
-						playbackRate: 1,
-						mediaFrame: 0,
-						allowAmplificationDuringRender: false,
-						toneFrequency: null,
-						audioStartFrame: 0,
-					}
-				: null,
-			{
-				type: 'audio' as const,
-				src: 'http://localhost:3000/4793bac32f610ffba8197b8a3422456f.mp3',
-				id: 'audio-0.24816237785853446-undefined-undefined-undefined-muted:undefined',
-				frame: k,
-				volume: 1,
-				playbackRate: 1,
-				mediaFrame: k,
-				allowAmplificationDuringRender: false,
-				toneFrequency: null,
-				audioStartFrame: 0,
-			},
-		].filter(truthy);
-	});

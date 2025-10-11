@@ -28,13 +28,13 @@ npm run dev
 **Render video**
 
 ```console
-npm run build
+npx remotion render
 ```
 
 **Upgrade Remotion**
 
 ```console
-npm run upgrade
+npx remotion upgrade
 ```
 
 ## Using server-side rendering

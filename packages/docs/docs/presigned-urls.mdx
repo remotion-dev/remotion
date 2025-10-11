@@ -57,8 +57,6 @@ Your AWS user policy must at least have the ability to put an object and make it
 First, accept a file in your frontend, for example using `<input type="file">`. You should get a `File`, from which you can determine the content type and content length:
 
 ```ts twoslash title="App.tsx"
-// @module: ESNext
-// @target: ESNext
 import {interpolate} from 'remotion';
 const file: File = {} as unknown as File;
 // ---cut---
@@ -76,17 +74,9 @@ This example uses [`@aws-sdk/s3-request-presigner`](https://github.com/aws/aws-s
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 import {AwsRegion, getAwsClient} from '@remotion/lambda/client';
 
-export const generatePresignedUrl = async (
-  contentType: string,
-  contentLength: number,
-  expiresIn: number,
-  bucketName: string,
-  region: AwsRegion,
-): Promise<{presignedUrl: string; readUrl: string}> => {
+export const generatePresignedUrl = async (contentType: string, contentLength: number, expiresIn: number, bucketName: string, region: AwsRegion): Promise<{presignedUrl: string; readUrl: string}> => {
   if (contentLength > 1024 * 1024 * 200) {
-    throw new Error(
-      `File may not be over 200MB. Yours is ${contentLength} bytes.`,
-    );
+    throw new Error(`File may not be over 200MB. Yours is ${contentLength} bytes.`);
   }
 
   const {client, sdk} = getAwsClient({
@@ -132,23 +122,9 @@ import {NextResponse} from 'next/server';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 import {AwsRegion, getAwsClient} from '@remotion/lambda/client';
 
-const generatePresignedUrl = async ({
-  contentType,
-  contentLength,
-  expiresIn,
-  bucketName,
-  region,
-}: {
-  contentType: string;
-  contentLength: number;
-  expiresIn: number;
-  bucketName: string;
-  region: AwsRegion;
-}): Promise<{presignedUrl: string; readUrl: string}> => {
+const generatePresignedUrl = async ({contentType, contentLength, expiresIn, bucketName, region}: {contentType: string; contentLength: number; expiresIn: number; bucketName: string; region: AwsRegion}): Promise<{presignedUrl: string; readUrl: string}> => {
   if (contentLength > 1024 * 1024 * 200) {
-    throw new Error(
-      `File may not be over 200MB. Yours is ${contentLength} bytes.`,
-    );
+    throw new Error(`File may not be over 200MB. Yours is ${contentLength} bytes.`);
   }
 
   const {client, sdk} = getAwsClient({
@@ -208,8 +184,6 @@ export const POST = async (request: Request) => {
 This is how you can call it in the frontend:
 
 ```tsx twoslash title="Uploader.tsx"
-// @module: es2022
-// @target: es2017
 const file: File = {} as unknown as File;
 // ---cut---
 const presignedResponse = await fetch('/api/upload', {
@@ -238,8 +212,6 @@ This example does not implement any rate limiting or authentication.
 Send the presigned URL back to the client. Afterwards, you can now perform an upload using the built-in [`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) function:
 
 ```ts twoslash title="upload-with-fetch.ts"
-// @module: ESNext
-// @target: ESNext
 import {interpolate} from 'remotion';
 const presignedUrl = 'hi';
 const file: File = {} as unknown as File;
@@ -270,15 +242,7 @@ export type UploadProgress = {
 
 export type OnUploadProgress = (options: UploadProgress) => void;
 
-export const uploadWithProgress = ({
-  file,
-  url,
-  onProgress,
-}: {
-  file: File;
-  url: string;
-  onProgress: OnUploadProgress;
-}): Promise<void> => {
+export const uploadWithProgress = ({file, url, onProgress}: {file: File; url: string; onProgress: OnUploadProgress}): Promise<void> => {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
 

@@ -9,12 +9,7 @@ crumb: 'Lambda'
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-<YouTube
-  minutes={18}
-  href="https://www.youtube.com/watch?v=kFVd3KnfwYY"
-  thumb="https://i.ytimg.com/vi/kFVd3KnfwYY/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLCJOz2mu_A24NvjFQGm6GjUVssnUQ"
-  title="How to set up Remotion Lambda"
-/>
+<YouTube minutes={18} href="https://www.youtube.com/watch?v=kFVd3KnfwYY" thumb="https://i.ytimg.com/vi/kFVd3KnfwYY/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLCJOz2mu_A24NvjFQGm6GjUVssnUQ" title="How to set up Remotion Lambda" />
 
 ## 1. Install `@remotion/lambda`
 
@@ -26,8 +21,8 @@ import TabItem from '@theme/TabItem';
 - Click on "Create policy"
 - Click on JSON
 - In your project, type `npx remotion lambda policies role` in the command line and copy it into the "JSON" field on AWS.
-- Click next. On the tags page, you don't need to fill in anything. Click next again.
-- Give the policy **exactly** the name `remotion-lambda-policy`. The other fields can be left as they are.
+- Click next. Give the policy **exactly** the name `remotion-lambda-policy`. The other fields can be left as they are.
+- On the tags page, you don't need to fill in anything. Click next again.
 
 ## 3. Create a role
 
@@ -111,8 +106,6 @@ npx remotion lambda functions deploy
 You can deploy a function that can render videos into your AWS account using [`deployFunction()`](/docs/lambda/deployfunction).
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
 import {deployFunction} from '@remotion/lambda';
 
 // ---cut---
@@ -150,7 +143,7 @@ npx remotion lambda sites create src/index.ts --site-name=my-video
 
 A [Serve URL](/docs/terminology/serve-url) will be printed pointing to the deployed project.
 
-When you update your Remotion code in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites#--site-name), a unique URL will be generated on every deploy.
+When you update your Remotion code in the future, redeploy your site. Pass the same [`--site-name`](/docs/lambda/cli/sites/create#--site-name) to overwrite the previous deploy. If you don't pass [`--site-name`](/docs/lambda/cli/sites/create#--site-name), a unique URL will be generated on every deploy.
 
 </TabItem>
 <TabItem value="node">
@@ -158,8 +151,6 @@ When you update your Remotion code in the future, redeploy your site. Pass the s
 First, you need to create an S3 bucket in your preferred region. If one already exists, it will be used instead:
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
 import path from 'path';
 import {deploySite, getOrCreateBucket} from '@remotion/lambda';
 
@@ -171,8 +162,6 @@ const {bucketName} = await getOrCreateBucket({
 Next, upload your Remotion project to an S3 bucket. Specify the entry point of your Remotion project, this is the file where [`registerRoot()`](/docs/register-root) is called.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
 import path from 'path';
 import {deploySite, getOrCreateBucket} from '@remotion/lambda';
 
@@ -228,13 +217,7 @@ Progress will be printed until the video finished rendering. Congrats! You rende
 You already have the function name from a previous step. But since you only need to deploy a function once, it's useful to retrieve the name of your deployed function programmatically before rendering a video in case your Node.JS program restarts. We can call [`getFunctions()`](/docs/lambda/getfunctions) with the `compatibleOnly` flag to get only functions with a matching version.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import {
-  getFunctions,
-  renderMediaOnLambda,
-  getRenderProgress,
-} from '@remotion/lambda';
+import {getFunctions, renderMediaOnLambda, getRenderProgress} from '@remotion/lambda/client';
 
 const functions = await getFunctions({
   region: 'us-east-1',
@@ -247,13 +230,7 @@ const functionName = functions[0].functionName;
 We can now trigger a render using the [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) function.
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import {
-  getFunctions,
-  renderMediaOnLambda,
-  getRenderProgress,
-} from '@remotion/lambda';
+import {getFunctions, renderMediaOnLambda, getRenderProgress} from '@remotion/lambda/client';
 
 const url = 'string';
 const functions = await getFunctions({
@@ -281,13 +258,7 @@ const {renderId, bucketName} = await renderMediaOnLambda({
 The render will now run and after a while the video will be available in your S3 bucket. You can at any time get the status of the video render by calling [`getRenderProgress()`](/docs/lambda/getrenderprogress).
 
 ```ts twoslash
-// @module: ESNext
-// @target: ESNext
-import {
-  getFunctions,
-  renderMediaOnLambda,
-  getRenderProgress,
-} from '@remotion/lambda';
+import {getFunctions, renderMediaOnLambda, getRenderProgress} from '@remotion/lambda/client';
 
 const url = 'string';
 const functions = await getFunctions({

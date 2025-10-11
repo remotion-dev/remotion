@@ -1,30 +1,34 @@
-import {
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-} from "@remix-run/react";
-import "./tailwind.css";
+import {DEFAULT_FAVICON} from './lib/default-favicon';
+import './tailwind.css';
 
-export function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
-  );
-}
+import {Links, Outlet, Scripts, ScrollRestoration} from '@remix-run/react';
 
-export default function App() {
-  return <Outlet />;
-}
+export const Layout = ({children}: {readonly children: React.ReactNode}) => {
+	return (
+		<html lang="en">
+			<head>
+				<meta charSet="utf-8" />
+				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<title>Remotion Convert</title>
+				<meta name="description" content="Remotion Convert" />
+				<link rel="icon" href={DEFAULT_FAVICON} />
+				<link
+					rel="manifest"
+					href={`${import.meta.env.BASE_URL}manifest.json`}
+				/>
+				<Links />
+			</head>
+			<body>
+				{children}
+				<ScrollRestoration />
+				<Scripts />
+			</body>
+		</html>
+	);
+};
+
+const App = () => {
+	return <Outlet />;
+};
+
+export default App;

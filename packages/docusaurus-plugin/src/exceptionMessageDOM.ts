@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {TwoslashError} from '@typescript/twoslash';
 import type {Node} from './unist-types';
 

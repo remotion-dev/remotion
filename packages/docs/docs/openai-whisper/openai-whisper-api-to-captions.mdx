@@ -13,9 +13,6 @@ This package performs processing on the captions in order to retain the punctuat
 This function can be used in any JavaScript environment, but you should not use the OpenAI API in the browser because your API key will be exposed to the browser.
 
 ```tsx twoslash title="Example usage"
-// @module: ESNext
-// @target: ESNext
-
 import fs from 'fs';
 import {OpenAI} from 'openai';
 import {openAiWhisperApiToCaptions} from '@remotion/openai-whisper';

@@ -34,7 +34,7 @@ const timeLabel: React.CSSProperties = {
 };
 
 export const V4Countdown: React.FC<{
-	setShowCountdown: React.Dispatch<SetStateAction<boolean>>;
+	readonly setShowCountdown: React.Dispatch<SetStateAction<boolean>>;
 }> = ({setShowCountdown}) => {
 	const [countdown, setCountdown] = useState<[string, string, string, string]>([
 		'00',
