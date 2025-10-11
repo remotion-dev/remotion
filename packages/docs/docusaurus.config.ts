@@ -16,6 +16,18 @@ const config: Config = {
 			removeLegacyPostBuildHeadAttribute: true,
 		},
 	},
+	headTags: [
+		{
+			tagName: 'script',
+			attributes: {
+				src: 'https://crawlchat.app/embed.js',
+				id: 'crawlchat-script',
+				'data-id': '67c0a28c5b075f0bb35e5366',
+				'data-tag-sidepanel': 'true',
+				'data-hide-ask-ai': 'true',
+			},
+		},
+	],
 	themeConfig: {
 		algolia: {
 			appId: 'PLSDUOL1CA',
@@ -107,6 +119,19 @@ const config: Config = {
 					position: 'right',
 					className: 'header-x-link',
 					'aria-label': 'X / Twitter',
+				},
+				{
+					type: 'html',
+					position: 'right',
+					value: `<button 
+						class="crawlchat-nav-askai" 
+						onclick="window.crawlchatEmbed.toggleSidePanel()">
+							<span class="crawlchat-button-text">Ask AI</span>
+							<span class="keyboard-keys">
+								<kbd>⌘</kbd>
+								<kbd>I</kbd>
+							</span>
+						</button>`,
 				},
 			].filter(Boolean),
 		},

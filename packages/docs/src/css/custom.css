@@ -255,3 +255,144 @@ code {
 .header-x-link:hover::before {
 	background-color: var(--ifm-navbar-link-hover-color);
 }
+/* CrawlChat Sidepanel Styles */
+.theme-back-to-top-button {
+	display: none; /* hides the back to top button - blocks the sidepanel view */
+}
+
+.crawlchat-nav-askai {
+	align-items: center;
+	background-color: var(
+		--docsearch-searchbox-background,
+		var(--ifm-color-emphasis-100)
+	);
+	border: 0;
+	border-radius: 40px;
+	color: var(--docsearch-muted-color, #969faf);
+	cursor: pointer;
+	display: flex;
+	font-size: 1rem;
+	font-weight: 500;
+	height: 36px;
+	justify-content: space-between;
+	margin: 0;
+	padding: 0 8px;
+	user-select: none;
+	transition: all var(--ifm-transition-fast)
+		var(--ifm-transition-timing-default);
+}
+
+.crawlchat-nav-askai:active,
+.crawlchat-nav-askai:focus,
+.crawlchat-nav-askai:hover {
+	background-color: var(
+		--docsearch-searchbox-focus-background,
+		var(--ifm-color-emphasis-200)
+	);
+	box-shadow: var(
+		--docsearch-searchbox-shadow,
+		0 0 0 2px var(--ifm-color-primary)
+	);
+	color: var(--docsearch-text-color, var(--ifm-font-color-base));
+	outline: none;
+}
+
+[data-theme='dark'] .crawlchat-nav-askai {
+	color: var(--docsearch-muted-color, #7f8497);
+	background-color: var(--docsearch-searchbox-background, #090a11);
+}
+
+[data-theme='dark'] .crawlchat-nav-askai:active,
+[data-theme='dark'] .crawlchat-nav-askai:focus,
+[data-theme='dark'] .crawlchat-nav-askai:hover {
+	background-color: var(--docsearch-searchbox-focus-background, #000);
+}
+
+.crawlchat-button-text {
+	padding: 0 12px 0 6px;
+}
+
+.crawlchat-nav-askai .keyboard-keys {
+	display: flex;
+	min-width: calc(40px + 0.8em);
+}
+
+.crawlchat-nav-askai kbd {
+	align-items: center;
+	background: var(
+		--docsearch-key-gradient,
+		linear-gradient(-225deg, #d5dbe4, #f8f8f8)
+	);
+	border: 0;
+	border-radius: 3px;
+	box-shadow: var(
+		--docsearch-key-shadow,
+		inset 0 -2px 0 0 #cdcde6,
+		inset 0 0 1px 1px #fff,
+		0 1px 2px 1px rgba(30, 35, 90, 0.4)
+	);
+	color: var(--docsearch-muted-color, #969faf);
+	display: flex;
+	height: 18px;
+	justify-content: center;
+	margin-right: 0.4em;
+	padding: 0 0 2px;
+	position: relative;
+	top: -1px;
+	width: 20px;
+}
+
+[data-theme='dark'] .crawlchat-nav-askai kbd {
+	background: var(
+		--docsearch-key-gradient,
+		linear-gradient(-26.5deg, #565872, #31355b)
+	);
+	box-shadow: var(
+		--docsearch-key-shadow,
+		inset 0 -2px 0 0 #282d55,
+		inset 0 0 1px 1px #51577d,
+		0 2px 2px 0 rgba(3, 4, 9, 0.3)
+	);
+	color: var(--docsearch-muted-color, #7f8497);
+}
+
+/* Hide keyboard shortcuts on mobile */
+@media screen and (max-width: 996px) {
+	.crawlchat-nav-askai .keyboard-keys {
+		display: none;
+	}
+}
+
+/* Make navbar right items container use flexbox for ordering */
+.navbar__items--right {
+	display: flex !important;
+	flex-direction: row;
+}
+
+/* Reorder navbar right items - Social handles first */
+.navbar__items--right > .navbar__item[href*='github'],
+.navbar__items--right > .navbar__item[href*='discord'],
+.navbar__items--right > .navbar__item[href*='twitter'],
+.navbar__items--right > .navbar__item[href*='x.com'] {
+	order: 1;
+}
+
+/* Theme switcher second */
+.navbar__items--right > button[class*='colorMode'],
+.navbar__items--right > .navbar__item > button[class*='colorMode'],
+.navbar__items--right > *[class*='colorMode'] {
+	order: 2;
+}
+
+/* Search third */
+.navbar__items--right > .DocSearch,
+.navbar__items--right > .navbar__item:has(.DocSearch),
+.navbar__items--right > *:has(.DocSearch) {
+	order: 3;
+}
+
+/* Ask AI button last */
+.navbar__items--right > .navbar__item:has(.crawlchat-nav-askai),
+.navbar__items--right > *:has(.crawlchat-nav-askai) {
+	order: 4;
+}

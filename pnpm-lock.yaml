@@ -734,6 +734,9 @@ importers:
       copy-text-to-clipboard:
         specifier: ^2
         version: 2.2.0
+      crawlchat-client:
+        specifier: ^1.0.2
+        version: 1.0.2
       create-video:
         specifier: workspace:*
         version: link:../create-video
@@ -19569,6 +19572,12 @@ packages:
       typescript: 5.8.2
     dev: false
 
+  /crawlchat-client@1.0.2:
+    resolution: {integrity: sha512-eTq11jrvQ35rSNO6SccOeMJRisgme8nUF8ff4Dz8ioB6q/1hD8HoWxAFmyqGgLSg38wkdic/su1+KofdCoNxUA==}
+    dependencies:
+      react: 16.14.0
+    dev: false
+
   /crc-32@1.2.2:
     resolution: {integrity: sha512-ROmzCKrTnOwybPcJApAA6WBWij23HVfGVNKqqrZpuyZOHqK2CwHSvpGuyt/UNNvaIjEd8X5IFGp4Mh+Ie1IHJQ==}
     engines: {node: '>=0.8'}
@@ -29321,6 +29330,15 @@ packages:
     dependencies:
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
+
+  /react@16.14.0:
+    resolution: {integrity: sha512-0X2CImDkJGApiAlcf0ODKIneSwBPhqJawOa5wCtKbu7ZECrmS26NvtSILynQ66cgkT/RJ4LidJOc3bUESwmU8g==}
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
+      prop-types: 15.8.1
+    dev: false
 
   /react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
