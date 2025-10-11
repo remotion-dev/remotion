@@ -7,6 +7,10 @@
 			"dependsOn": [],
 			"outputLogs": "new-only"
 		},
+		"publishprivate": {
+			"dependsOn": [],
+			"outputLogs": "new-only"
+		},
 		"clean": {},
 		"testssr": {
 			"dependsOn": ["^make", "@remotion/example#bundle"]
