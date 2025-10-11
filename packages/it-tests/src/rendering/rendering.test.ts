@@ -461,7 +461,7 @@ test(
 	{timeout: 15000},
 );
 
-test.only(
+test(
 	'Should render a still that uses the staticFile() API and should apply props',
 	async () => {
 		const out = outputPath.replace('.mp4', '.png');
@@ -477,7 +477,7 @@ test.only(
 				out,
 				'--log=verbose',
 				'--props',
-				'{"flag": true}',
+				JSON.stringify({flag: true}),
 			],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
@@ -508,7 +508,7 @@ test(
 				'build',
 				'dynamic-duration',
 				`--props`,
-				`{"duration": ` + randomDuration + `, "offthread": true}`,
+				JSON.stringify({duration: randomDuration, offthread: true}),
 				'--separate-audio-to',
 				'audio.wav',
 				outputPath,
