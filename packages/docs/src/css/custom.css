@@ -312,57 +312,6 @@ code {
 	padding: 0 3px 0 3px;
 }
 
-.crawlchat-nav-askai .keyboard-keys {
-	display: flex;
-	min-width: calc(40px + 0.8em);
-}
-
-.crawlchat-nav-askai kbd {
-	align-items: center;
-	background: var(
-		--docsearch-key-gradient,
-		linear-gradient(-225deg, #d5dbe4, #f8f8f8)
-	);
-	border: 0;
-	border-radius: 3px;
-	box-shadow: var(
-		--docsearch-key-shadow,
-		inset 0 -2px 0 0 #cdcde6,
-		inset 0 0 1px 1px #fff,
-		0 1px 2px 1px rgba(30, 35, 90, 0.4)
-	);
-	color: var(--docsearch-muted-color, #969faf);
-	display: flex;
-	height: 18px;
-	justify-content: center;
-	margin-right: 0.4em;
-	padding: 0 0 2px;
-	position: relative;
-	top: -1px;
-	width: 20px;
-}
-
-[data-theme='dark'] .crawlchat-nav-askai kbd {
-	background: var(
-		--docsearch-key-gradient,
-		linear-gradient(-26.5deg, #565872, #31355b)
-	);
-	box-shadow: var(
-		--docsearch-key-shadow,
-		inset 0 -2px 0 0 #282d55,
-		inset 0 0 1px 1px #51577d,
-		0 2px 2px 0 rgba(3, 4, 9, 0.3)
-	);
-	color: var(--docsearch-muted-color, #7f8497);
-}
-
-/* Hide keyboard shortcuts on mobile */
-@media screen and (max-width: 996px) {
-	.crawlchat-nav-askai .keyboard-keys {
-		display: none;
-	}
-}
-
 /* Make navbar right items container use flexbox for ordering */
 .navbar__items--right {
 	display: flex !important;
@@ -395,4 +344,34 @@ code {
 .navbar__items--right > .navbar__item:has(.crawlchat-nav-askai),
 .navbar__items--right > *:has(.crawlchat-nav-askai) {
 	order: 4;
+}
+
+/* Reduce spacing between navbar items on desktop */
+@media screen and (min-width: 997px) {
+	/* Slightly tighter gap for icon-only items */
+	.navbar .header-github-link,
+	.navbar .header-discord-link,
+	.navbar .header-x-link {
+		margin-left: 4px;
+		margin-right: 4px;
+		padding-left: 4px;
+		padding-right: 4px;
+	}
+}
+
+/* Hide DocSearch shortcut hints without !important */
+.navbar .DocSearch-Button .DocSearch-Button-Keys {
+	display: none;
+}
+
+/* Compact the right side inside the DocSearch button */
+.navbar .navbar__items--right .DocSearch-Button {
+	padding-right: 6px;
+}
+.navbar .navbar__items--right .DocSearch-Button .DocSearch-Button-Container {
+	padding-right: 3px;
+}
+.navbar .navbar__items--right .DocSearch-Button .DocSearch-Button-Placeholder {
+	margin-right: 0;
+	padding-right: 0;
 }
