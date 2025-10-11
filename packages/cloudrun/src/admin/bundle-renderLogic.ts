@@ -1,5 +1,5 @@
-import {BundlerInternals} from '@remotion/bundler';
 import {dir} from '@remotion/compositor-linux-x64-gnu';
+import esbuild from 'esbuild';
 import fs from 'fs';
 import path from 'path';
 
@@ -16,7 +16,7 @@ export const bundleRenderLogic = async () => {
 		path.join(__dirname, '../../dist/functions/index'),
 	);
 
-	await BundlerInternals.esbuild.build({
+	await esbuild.build({
 		platform: 'node',
 		target: 'node18',
 		bundle: true,

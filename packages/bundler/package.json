@@ -26,7 +26,6 @@
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"css-loader": "5.2.7",
-		"esbuild": "0.25.0",
 		"react-refresh": "0.9.0",
 		"remotion": "workspace:*",
 		"@remotion/studio": "workspace:*",
@@ -34,7 +33,8 @@
 		"@remotion/media-parser": "workspace:*",
 		"style-loader": "4.0.0",
 		"source-map": "0.7.3",
-		"webpack": "5.96.1"
+		"@rspack/core": "1.0.14",
+		"@rspack/plugin-react-refresh": "1.0.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -51,7 +51,6 @@
 		"ffmpeg",
 		"video",
 		"react",
-		"webpack",
 		"player"
 	],
 	"publishConfig": {
