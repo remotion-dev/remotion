@@ -45,6 +45,7 @@ export type RenderDefaults = {
 	mediaCacheSizeInBytes: number | null;
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
+	headless: boolean;
 	colorSpace: ColorSpace;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
