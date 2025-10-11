@@ -40,7 +40,13 @@ const result = await Bun.build({
 	],
 });
 
-console.log('Outputs', result.outputs.length);
+console.log(result.success);
+
+if (!result.success) {
+	console.log(result.logs.join('\n'));
+	process.exit(1);
+}
+
 for (const output of result.outputs) {
 	console.log('Writing', output.path);
 	await Bun.write('dist/' + output.path, await output.text());
