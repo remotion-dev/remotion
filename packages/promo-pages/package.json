@@ -10,6 +10,7 @@
 		"dev": "bun server.ts"
 	},
 	"exports": {
+		"./package.json": "./package.json",
 		"./dist/homepage/Pricing.js": "./dist/homepage/Pricing.js",
 		"./dist/Homepage.css": "./dist/Homepage.css",
 		"./dist/Homepage.js": "./dist/Homepage.js",
