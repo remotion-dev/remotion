@@ -82,6 +82,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
+			initialHeadless: job.chromiumOptions.headless,
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
 			initialProResProfile: defaults.proResProfile as ProResProfile,
@@ -95,7 +96,6 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEnvVariables: job.envVariables,
 			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
 			initialOpenGlRenderer: job.chromiumOptions.gl,
-			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
 			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
@@ -151,9 +151,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEnvVariables: job.envVariables,
 			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
 			initialOpenGlRenderer: job.chromiumOptions.gl,
-			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
+			initialHeadless: job.chromiumOptions.headless,
 			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				job.serializedInputPropsWithCustomSchema,
 			),
