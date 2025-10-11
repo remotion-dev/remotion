@@ -3348,6 +3348,15 @@ export const articles = [
 		slug: 'mediabunny/index',
 	},
 	{
+		id: 'mediabunny/metadata',
+		title: 'Getting metadata from a video in JavaScript',
+		relativePath: 'docs/mediabunny/metadata.mdx',
+		compId: 'articles-docs-mediabunny-metadata',
+		crumb: 'Mediabunny',
+		noAi: false,
+		slug: 'mediabunny/metadata',
+	},
+	{
 		id: 'mediabunny/new-video',
 		title: 'New <Video> and <Audio> tags',
 		relativePath: 'docs/mediabunny/new-video.mdx',
