@@ -274,7 +274,7 @@ code {
 	font-size: 1rem;
 	font-weight: 500;
 	height: 36px;
-	justify-content: space-between;
+	justify-content: center;
 	margin: 0;
 	padding: 0 8px;
 	user-select: none;
@@ -309,7 +309,7 @@ code {
 }
 
 .crawlchat-button-text {
-	padding: 0 12px 0 6px;
+	padding: 0 3px 0 3px;
 }
 
 .crawlchat-nav-askai .keyboard-keys {
