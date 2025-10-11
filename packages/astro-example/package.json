@@ -23,7 +23,7 @@
 		"@remotion/three": "workspace:*",
 		"@remotion/transitions": "workspace:*",
 		"lottie-web": "5.13.0",
-		"astro": "5.13.1",
+		"astro": "5.14.3",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"remotion": "workspace:*"
