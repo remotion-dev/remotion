@@ -28,6 +28,7 @@ const makeConfigurationString = (
 		`log-level-${logLevel}`,
 		`gl-${options.gl ?? null}`,
 		`userAgent-${options.userAgent ?? null}`,
+		`headless-${options.headless ?? false}`,
 	].join('/');
 };
 

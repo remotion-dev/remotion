@@ -94,6 +94,7 @@ export const RenderButton: React.FC = () => {
 			initialEnvVariables: window.process.env as Record<string, string>,
 			initialDisableWebSecurity: defaults.disableWebSecurity,
 			initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
+			initialHeadless: defaults.headless,
 			initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
 			initialOffthreadVideoCacheSizeInBytes:
 				defaults.offthreadVideoCacheSizeInBytes,

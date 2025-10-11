@@ -272,6 +272,8 @@ const RenderModal: React.FC<
 	initialEnvVariables,
 	initialDisableWebSecurity,
 	initialGl,
+	initialHeadless,
+
 	initialIgnoreCertificateErrors,
 	initialEncodingBufferSize,
 	initialEncodingMaxRate,
@@ -400,6 +402,8 @@ const RenderModal: React.FC<
 	const [disableWebSecurity, setDisableWebSecurity] = useState<boolean>(
 		() => initialDisableWebSecurity,
 	);
+	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
+
 	const [beepOnFinish, setBeepOnFinish] = useState<boolean>(() => initialBeep);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(() => initialIgnoreCertificateErrors);
@@ -1432,6 +1436,8 @@ const RenderModal: React.FC<
 							setDisallowParallelEncoding={setDisallowParallelEncoding}
 							setDisableWebSecurity={setDisableWebSecurity}
 							setIgnoreCertificateErrors={setIgnoreCertificateErrors}
+							setHeadless={setHeadless}
+							headless={headless}
 							ignoreCertificateErrors={ignoreCertificateErrors}
 							disableWebSecurity={disableWebSecurity}
 							openGlOption={openGlOption}

@@ -38,6 +38,7 @@ export type ChromiumOptions = {
 	gl?: OpenGlRenderer | null;
 	userAgent?: string | null;
 	enableMultiProcessOnLinux?: boolean;
+	headless?: boolean;
 } & OnlyV4Options;
 
 const featuresToEnable = (option?: OpenGlRenderer | null) => {
@@ -204,7 +205,11 @@ export const internalOpenBrowser = async ({
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
-			chromeMode === 'chrome-for-testing' ? '--headless=new' : '--headless=old',
+			chromeMode === 'chrome-for-testing'
+				? chromiumOptions.headless
+					? null
+					: '--headless=new'
+				: '--headless=old',
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			...customGlRenderer,

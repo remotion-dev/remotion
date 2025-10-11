@@ -74,6 +74,7 @@ export const SidebarRenderButton: React.FC<{
 				initialEnvVariables: window.process.env as Record<string, string>,
 				initialDisableWebSecurity: defaults.disableWebSecurity,
 				initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
+				initialHeadless: defaults.headless,
 				initialOffthreadVideoCacheSizeInBytes:
 					defaults.offthreadVideoCacheSizeInBytes,
 				initialOffthreadVideoThreads: defaults.offthreadVideoThreads,
