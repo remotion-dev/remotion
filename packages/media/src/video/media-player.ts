@@ -8,11 +8,19 @@ import {
 } from 'mediabunny';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
-import {resolvePlaybackTime} from './resolve-playback-time';
+import {getTimeInSeconds} from '../get-time-in-seconds';
+import {isNetworkError} from '../is-network-error';
 import {sleep, withTimeout} from './timeout-utils';
 
 export const SEEK_THRESHOLD = 0.05;
 const AUDIO_BUFFER_TOLERANCE_THRESHOLD = 0.1;
+
+export type MediaPlayerInitResult =
+	| {type: 'success'; durationInSeconds: number}
+	| {type: 'unknown-container-format'}
+	| {type: 'cannot-decode'}
+	| {type: 'network-error'}
+	| {type: 'no-tracks'};
 
 export class MediaPlayer {
 	private canvas: HTMLCanvasElement | null;
@@ -20,6 +28,7 @@ export class MediaPlayer {
 	private src: string;
 	private logLevel: LogLevel;
 	private playbackRate: number;
+	private audioStreamIndex: number;
 
 	private canvasSink: CanvasSink | null = null;
 	private videoFrameIterator: AsyncGenerator<
@@ -40,18 +49,21 @@ export class MediaPlayer {
 	private queuedAudioNodes: Set<AudioBufferSourceNode> = new Set();
 
 	private gainNode: GainNode | null = null;
+	private currentVolume: number = 1;
 
 	private sharedAudioContext: AudioContext;
 
-	// audioDelay = mediaTimestamp + audioSyncAnchor - sharedAudioContext.currentTime
+	// this is the time difference between Web Audio timeline
+	// and media file timeline
 	private audioSyncAnchor: number = 0;
 
 	private playing = false;
 	private muted = false;
 	private loop = false;
+	private fps: number;
 
-	private trimBeforeSeconds: number | undefined;
-	private trimAfterSeconds: number | undefined;
+	private trimBefore: number | undefined;
+	private trimAfter: number | undefined;
 
 	private animationFrameId: number | null = null;
 
@@ -77,18 +89,22 @@ export class MediaPlayer {
 		logLevel,
 		sharedAudioContext,
 		loop,
-		trimBeforeSeconds,
-		trimAfterSeconds,
+		trimBefore,
+		trimAfter,
 		playbackRate,
+		audioStreamIndex,
+		fps,
 	}: {
 		canvas: HTMLCanvasElement | null;
 		src: string;
 		logLevel: LogLevel;
 		sharedAudioContext: AudioContext;
 		loop: boolean;
-		trimBeforeSeconds: number | undefined;
-		trimAfterSeconds: number | undefined;
+		trimBefore: number | undefined;
+		trimAfter: number | undefined;
 		playbackRate: number;
+		audioStreamIndex: number;
+		fps: number;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -96,12 +112,14 @@ export class MediaPlayer {
 		this.sharedAudioContext = sharedAudioContext;
 		this.playbackRate = playbackRate;
 		this.loop = loop;
-		this.trimBeforeSeconds = trimBeforeSeconds;
-		this.trimAfterSeconds = trimAfterSeconds;
+		this.trimBefore = trimBefore;
+		this.trimAfter = trimAfter;
+		this.audioStreamIndex = audioStreamIndex ?? 0;
+		this.fps = fps;
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
-				alpha: false,
+				alpha: true,
 				desynchronized: true,
 			});
 
@@ -129,7 +147,9 @@ export class MediaPlayer {
 		return this.isBuffering && Boolean(this.bufferingStartedAtMs);
 	}
 
-	public async initialize(startTimeUnresolved: number): Promise<void> {
+	public async initialize(
+		startTimeUnresolved: number,
+	): Promise<MediaPlayerInitResult> {
 		try {
 			const urlSource = new UrlSource(this.src);
 
@@ -140,18 +160,44 @@ export class MediaPlayer {
 
 			this.input = input;
 
-			const [duration, videoTrack, audioTrack] = await Promise.all([
+			try {
+				await this.input.getFormat();
+			} catch (error) {
+				const err = error as Error;
+
+				if (isNetworkError(err)) {
+					throw error;
+				}
+
+				Internals.Log.error(
+					{logLevel: this.logLevel, tag: '@remotion/media'},
+					`[MediaPlayer] Failed to recognize format for ${this.src}`,
+					error,
+				);
+
+				return {type: 'unknown-container-format'};
+			}
+
+			const [durationInSeconds, videoTrack, audioTracks] = await Promise.all([
 				input.computeDuration(),
 				input.getPrimaryVideoTrack(),
-				input.getPrimaryAudioTrack(),
+				input.getAudioTracks(),
 			]);
-			this.totalDuration = duration;
+			this.totalDuration = durationInSeconds;
+
+			const audioTrack = audioTracks[this.audioStreamIndex] ?? null;
 
 			if (!videoTrack && !audioTrack) {
-				throw new Error(`No video or audio track found for ${this.src}`);
+				return {type: 'no-tracks'};
 			}
 
 			if (videoTrack && this.canvas && this.context) {
+				const canDecode = await videoTrack.canDecode();
+
+				if (!canDecode) {
+					return {type: 'cannot-decode'};
+				}
+
 				this.canvasSink = new CanvasSink(videoTrack, {
 					poolSize: 2,
 					fit: 'contain',
@@ -167,14 +213,22 @@ export class MediaPlayer {
 				this.gainNode.connect(this.sharedAudioContext.destination);
 			}
 
-			const startTime = resolvePlaybackTime({
-				absolutePlaybackTimeInSeconds: startTimeUnresolved,
+			const startTime = getTimeInSeconds({
+				unloopedTimeInSeconds: startTimeUnresolved,
 				playbackRate: this.playbackRate,
 				loop: this.loop,
-				trimBeforeInSeconds: this.trimBeforeSeconds,
-				trimAfterInSeconds: this.trimAfterSeconds,
+				trimBefore: this.trimBefore,
+				trimAfter: this.trimAfter,
 				mediaDurationInSeconds: this.totalDuration,
+				fps: this.fps,
+				ifNoMediaDuration: 'infinity',
+				src: this.src,
 			});
+
+			if (startTime === null) {
+				this.clearCanvas();
+				return {type: 'success', durationInSeconds: this.totalDuration};
+			}
 
 			if (this.sharedAudioContext) {
 				this.audioSyncAnchor = this.sharedAudioContext.currentTime - startTime;
@@ -188,13 +242,32 @@ export class MediaPlayer {
 			]);
 
 			this.startRenderLoop();
+
+			return {type: 'success', durationInSeconds};
 		} catch (error) {
+			const err = error as Error;
+
+			if (isNetworkError(err)) {
+				Internals.Log.error(
+					{logLevel: this.logLevel, tag: '@remotion/media'},
+					`[MediaPlayer] Network/CORS error for ${this.src}`,
+					err,
+				);
+				return {type: 'network-error'};
+			}
+
 			Internals.Log.error(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
 				'[MediaPlayer] Failed to initialize',
 				error,
 			);
 			throw error;
+		}
+	}
+
+	private clearCanvas(): void {
+		if (this.context && this.canvas) {
+			this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		}
 	}
 
@@ -218,16 +291,28 @@ export class MediaPlayer {
 	public async seekTo(time: number): Promise<void> {
 		if (!this.isReady()) return;
 
-		const newTime = resolvePlaybackTime({
-			absolutePlaybackTimeInSeconds: time,
+		const newTime = getTimeInSeconds({
+			unloopedTimeInSeconds: time,
 			playbackRate: this.playbackRate,
 			loop: this.loop,
-			trimBeforeInSeconds: this.trimBeforeSeconds,
-			trimAfterInSeconds: this.trimAfterSeconds,
-			mediaDurationInSeconds: this.totalDuration,
+			trimBefore: this.trimBefore,
+			trimAfter: this.trimAfter,
+			mediaDurationInSeconds: this.totalDuration ?? null,
+			fps: this.fps,
+			ifNoMediaDuration: 'infinity',
+			src: this.src,
 		});
+
+		if (newTime === null) {
+			this.clearCanvas();
+			await this.cleanAudioIteratorAndNodes();
+			return;
+		}
+
 		const currentPlaybackTime = this.getPlaybackTime();
+
 		const isSignificantSeek =
+			currentPlaybackTime === null ||
 			Math.abs(newTime - currentPlaybackTime) > SEEK_THRESHOLD;
 
 		if (isSignificantSeek) {
@@ -271,8 +356,8 @@ export class MediaPlayer {
 
 	public setMuted(muted: boolean): void {
 		this.muted = muted;
-		if (muted) {
-			this.cleanupAudioQueue();
+		if (this.gainNode) {
+			this.gainNode.gain.value = muted ? 0 : this.currentVolume;
 		}
 	}
 
@@ -282,11 +367,18 @@ export class MediaPlayer {
 		}
 
 		const appliedVolume = Math.max(0, volume);
-		this.gainNode.gain.value = appliedVolume;
+		this.currentVolume = appliedVolume;
+		if (!this.muted) {
+			this.gainNode.gain.value = appliedVolume;
+		}
 	}
 
 	public setPlaybackRate(rate: number): void {
 		this.playbackRate = rate;
+	}
+
+	public setFps(fps: number): void {
+		this.fps = fps;
 	}
 
 	public setLoop(loop: boolean): void {
@@ -302,16 +394,7 @@ export class MediaPlayer {
 	}
 
 	private getPlaybackTime(): number {
-		const absoluteTime =
-			this.sharedAudioContext.currentTime - this.audioSyncAnchor;
-		return resolvePlaybackTime({
-			absolutePlaybackTimeInSeconds: absoluteTime,
-			playbackRate: this.playbackRate,
-			loop: this.loop,
-			trimBeforeInSeconds: this.trimBeforeSeconds,
-			trimAfterInSeconds: this.trimAfterSeconds,
-			mediaDurationInSeconds: this.totalDuration,
-		});
+		return this.sharedAudioContext.currentTime - this.audioSyncAnchor;
 	}
 
 	private scheduleAudioChunk(
@@ -404,11 +487,16 @@ export class MediaPlayer {
 	};
 
 	private shouldRenderFrame(): boolean {
+		const playbackTime = this.getPlaybackTime();
+		if (playbackTime === null) {
+			return false;
+		}
+
 		return (
 			!this.isBuffering &&
 			this.canRenderVideo() &&
 			this.nextFrame !== null &&
-			this.nextFrame.timestamp <= this.getPlaybackTime()
+			this.nextFrame.timestamp <= playbackTime
 		);
 	}
 
@@ -513,7 +601,12 @@ export class MediaPlayer {
 					break;
 				}
 
-				if (newNextFrame.timestamp <= this.getPlaybackTime()) {
+				const playbackTime = this.getPlaybackTime();
+				if (playbackTime === null) {
+					continue;
+				}
+
+				if (newNextFrame.timestamp <= playbackTime) {
 					continue;
 				} else {
 					this.nextFrame = newNextFrame;
@@ -632,7 +725,7 @@ export class MediaPlayer {
 
 				this.maybeResumeFromBuffering(totalBufferDuration / this.playbackRate);
 
-				if (this.playing && !this.muted) {
+				if (this.playing) {
 					if (isFirstBuffer) {
 						this.audioSyncAnchor =
 							this.sharedAudioContext.currentTime - timestamp;
@@ -648,10 +741,19 @@ export class MediaPlayer {
 					this.scheduleAudioChunk(buffer, timestamp);
 				}
 
-				if (timestamp - this.getPlaybackTime() >= 1) {
+				const playbackTime = this.getPlaybackTime();
+				if (playbackTime === null) {
+					continue;
+				}
+
+				if (timestamp - playbackTime >= 1) {
 					await new Promise<void>((resolve) => {
 						const check = () => {
-							if (timestamp - this.getPlaybackTime() < 1) {
+							const currentPlaybackTime = this.getPlaybackTime();
+							if (
+								currentPlaybackTime !== null &&
+								timestamp - currentPlaybackTime < 1
+							) {
 								resolve();
 							} else {
 								requestAnimationFrame(check);

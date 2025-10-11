@@ -1,4 +1,0 @@
-/**
- * @description Wraps the native `<video>` element to include video in your component that is synchronized with Remotion's time.
- * @see [Documentation](https://www.remotion.dev/docs/video)
- */

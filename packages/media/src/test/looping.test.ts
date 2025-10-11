@@ -23,6 +23,7 @@ test('when looping with a lot of concurrency, it must be frame-accurate', async 
 			trimAfter,
 			trimBefore,
 			unloopedTimeInSeconds: timeInFrames / fps,
+			ifNoMediaDuration: 'fail',
 		});
 		realTimestamps.push(realTimestamp);
 

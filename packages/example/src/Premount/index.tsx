@@ -1,8 +1,8 @@
 import React from 'react';
-import {AbsoluteFill, Sequence, staticFile, Video} from 'remotion';
+import {AbsoluteFill, Html5Video, Sequence, staticFile} from 'remotion';
 
 const ShouldNotUnmount: React.FC = () => {
-	return <Video pauseWhenBuffering src={staticFile('framer.webm')} />;
+	return <Html5Video pauseWhenBuffering src={staticFile('framer.webm')} />;
 };
 
 export const PremountedExample: React.FC = () => {

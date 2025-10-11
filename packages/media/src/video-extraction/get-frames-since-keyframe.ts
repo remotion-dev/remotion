@@ -126,7 +126,7 @@ export const getSinks = async (src: string) => {
 		return audioSinksPromise[index];
 	};
 
-	return new WeakRef({
+	return {
 		getVideo: () => getVideoSinksPromise(),
 		getAudio: (index: number) => getAudioSinksPromise(index),
 		actualMatroskaTimestamps: rememberActualMatroskaTimestamps(isMatroska),
@@ -134,7 +134,7 @@ export const getSinks = async (src: string) => {
 		getDuration: () => {
 			return input.computeDuration();
 		},
-	});
+	};
 };
 
 export type GetSink = Awaited<ReturnType<typeof getSinks>>;

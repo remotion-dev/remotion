@@ -1,9 +1,9 @@
-import {interpolate, Loop, Video} from 'remotion';
+import {Html5Video, interpolate, Loop} from 'remotion';
 
 const InfinityVideo: React.FC = () => {
 	return (
 		<Loop durationInFrames={10 * 30 * 60}>
-			<Video
+			<Html5Video
 				volume={(f) =>
 					interpolate(f, [0, 500], [1, 0], {extrapolateRight: 'clamp'})
 				}

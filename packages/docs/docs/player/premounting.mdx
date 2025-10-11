@@ -40,13 +40,13 @@ Add the [`premountFor`](/docs/sequence#premountfor) prop to the [`<Sequence>`](/
 The number you pass is the number in frames you premount the component for.
 
 ```tsx twoslash title="Premounted.tsx"
-import {Sequence, staticFile, Video} from 'remotion';
+import {Sequence, staticFile, OffthreadVideo} from 'remotion';
 
 // ---cut---
 const MyComp: React.FC = () => {
   return (
     <Sequence premountFor={100}>
-      <Video src={staticFile('bigbuckbunny.mp4')}></Video>
+      <OffthreadVideo src={staticFile('bigbuckbunny.mp4')}></OffthreadVideo>
     </Sequence>
   );
 };
@@ -101,7 +101,7 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
     return {
       ...passedStyle,
       opacity: active ? 0 : 1,
-      // @ts-expect-error Only in the docs - it will not give a type error in a Remotion project
+      // @ts-ignore Only in the docs - it will not give a type error in a Remotion project
       pointerEvents: active ? 'none' : (passedStyle?.pointerEvents ?? 'auto'),
     };
   }, [active, passedStyle]);
@@ -124,7 +124,7 @@ You can achieve this for example by using a React context.
 
 ## Usage together with the buffer state
 
-If you also use the [buffer state](/docs/player/buffer-state), the [`<Audio>`](/docs/audio#pausewhenbuffering), [`<Video>`](/docs/video#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo#pausewhenbuffering) and [`<Img>`](/docs/img#pausewhenloading) tags are aware of premounting and don't trigger the buffer state while in a premounted [`<Sequence>`](/docs/sequence).
+If you also use the [buffer state](/docs/player/buffer-state), the [`<Html5Audio>`](/docs/html5-audio#pausewhenbuffering), [`<Html5Video>`](/docs/html5-video#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo#pausewhenbuffering) and [`<Img>`](/docs/img#pausewhenloading) tags are aware of premounting and don't trigger the buffer state while in a premounted [`<Sequence>`](/docs/sequence).
 
 Otherwise it would lead to pausing playback while a scene is not even visible yet.
 

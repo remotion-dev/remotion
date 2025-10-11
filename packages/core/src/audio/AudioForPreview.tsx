@@ -102,7 +102,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	if (!src) {
-		throw new TypeError("No 'src' was passed to <Audio>.");
+		throw new TypeError("No 'src' was passed to <Html5Audio>.");
 	}
 
 	const preloadedSrc = usePreload(src);
@@ -187,6 +187,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		showInTimeline,
 		premountDisplay: sequenceContext?.premountDisplay ?? null,
 		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
+		loopDisplay: undefined,
 	});
 
 	// putting playback before useVolume

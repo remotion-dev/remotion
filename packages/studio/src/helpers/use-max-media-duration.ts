@@ -5,7 +5,7 @@ import {
 } from '@remotion/media-parser';
 import {getVideoMetadata} from '@remotion/media-utils';
 import {useEffect, useState} from 'react';
-import type {TSequence} from 'remotion';
+import {type TSequence} from 'remotion';
 
 const cache = new Map<string, number>();
 
@@ -51,16 +51,16 @@ export const useMaxMediaDuration = (s: TSequence, fps: number) => {
 			}
 
 			// In case of CORS errors, fall back to getVideoMetadata
-			getVideoMetadata(src)
+			return getVideoMetadata(src)
 				.then((metadata) => {
 					const durationOrInfinity = metadata.durationInSeconds ?? Infinity;
 
 					cache.set(src, Math.floor(durationOrInfinity * fps));
 					setMaxMediaDuration(Math.floor(durationOrInfinity * fps));
 				})
-				.catch(() => {});
-
-			throw e;
+				.catch(() => {
+					// Silently handle getVideoMetadata failures to prevent unhandled rejections
+				});
 		});
 
 		return () => {

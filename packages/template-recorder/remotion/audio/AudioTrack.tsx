@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Audio, interpolate, Sequence, useVideoConfig } from "remotion";
+import { Html5Audio, interpolate, Sequence, useVideoConfig } from "remotion";
 import type { CanvasLayout } from "../../config/layout";
 import type { SceneAndMetadata } from "../../config/scenes";
 import {
@@ -83,9 +83,9 @@ const AudioClip: React.FC<{
   }, [durationInFrames, loudParts]);
 
   return (
-    <Audio
+    <Html5Audio
       // Lint false positive: https://github.com/remotion-dev/remotion/issues/2706
-      // eslint-disable-next-line @remotion/volume-callback
+
       volume={volumeFunction}
       loopVolumeCurveBehavior="extend"
       src={src}

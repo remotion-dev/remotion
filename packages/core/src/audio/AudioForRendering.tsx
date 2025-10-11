@@ -151,10 +151,13 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		const newHandle = delayRender('Loading <Audio> duration with src=' + src, {
-			retries: delayRenderRetries ?? undefined,
-			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
-		});
+		const newHandle = delayRender(
+			'Loading <Html5Audio> duration with src=' + src,
+			{
+				retries: delayRenderRetries ?? undefined,
+				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+			},
+		);
 		const {current} = audioRef;
 
 		const didLoad = () => {

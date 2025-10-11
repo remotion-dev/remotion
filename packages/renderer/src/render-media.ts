@@ -80,7 +80,7 @@ import {wrapWithErrorHandling} from './wrap-with-error-handling';
 export type StitchingState = 'encoding' | 'muxing';
 
 const SLOWEST_FRAME_COUNT = 10;
-const MAX_RECENT_FRAME_TIMINGS = 50;
+const MAX_RECENT_FRAME_TIMINGS = 150;
 
 export type SlowFrame = {frame: number; time: number};
 
@@ -616,14 +616,15 @@ const internalRenderMediaRaw = ({
 			})
 			.then(({server, cleanupServer}) => {
 				cleanupServerFn = cleanupServer;
+				let timeOfLastFrame = Date.now();
 				const renderFramesProc = internalRenderFrames({
 					composition,
-					onFrameUpdate: (
-						frame: number,
-						frameIndex: number,
-						timeToRenderInMilliseconds,
-					) => {
+					onFrameUpdate: (frame: number, frameIndex: number) => {
 						renderedFrames = frame;
+
+						const now = Date.now();
+						const timeToRenderInMilliseconds = now - timeOfLastFrame;
+						timeOfLastFrame = now;
 
 						// Track recent frame timings (at most 50)
 						recentFrameTimings.push(timeToRenderInMilliseconds);

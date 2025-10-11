@@ -65,7 +65,7 @@ export const makeAudioIterator = ({
 
 		const {value: sample, done} = await sampleIterator.next();
 		if (done) {
-			fullDuration = cache.getNewestTimestamp() ?? null;
+			fullDuration = cache.getNewestTimestamp();
 			return null;
 		}
 
@@ -103,6 +103,13 @@ export const makeAudioIterator = ({
 			durationInSeconds,
 		);
 
+		const newestTimestamp = cache.getNewestTimestamp();
+		if (newestTimestamp !== null) {
+			if (newestTimestamp >= timestamp + durationInSeconds - 0.0000000001) {
+				return samples;
+			}
+		}
+
 		while (true) {
 			const sample = await getNextSample();
 
@@ -135,15 +142,18 @@ export const makeAudioIterator = ({
 	};
 
 	const logOpenFrames = () => {
-		Internals.Log.verbose(
-			{logLevel, tag: '@remotion/media'},
-			'Open audio samples for src',
-			src,
-			cache
-				.getOpenTimestamps()
-				.map((t) => t.toFixed(3))
-				.join(', '),
-		);
+		const openTimestamps = cache.getOpenTimestamps();
+		if (openTimestamps.length > 0) {
+			const first = openTimestamps[0];
+			const last = openTimestamps[openTimestamps.length - 1];
+
+			Internals.Log.verbose(
+				{logLevel, tag: '@remotion/media'},
+				'Open audio samples for src',
+				src,
+				`${first.toFixed(3)}...${last.toFixed(3)}`,
+			);
+		}
 	};
 
 	const getCacheStats = () => {
@@ -164,12 +174,13 @@ export const makeAudioIterator = ({
 		);
 	};
 
-	const prepareForDeletion = async () => {
+	const prepareForDeletion = () => {
 		cache.deleteAll();
-		const {value} = await sampleIterator.return();
-		if (value) {
-			value.close();
-		}
+		sampleIterator.return().then((value) => {
+			if (value.value) {
+				value.value.close();
+			}
+		});
 
 		fullDuration = null;
 	};
@@ -192,6 +203,9 @@ export const makeAudioIterator = ({
 		getLastUsed: () => lastUsed,
 		prepareForDeletion,
 		startTimestamp,
+		clearBeforeThreshold: cache.clearBeforeThreshold,
+		getOldestTimestamp: cache.getOldestTimestamp,
+		getNewestTimestamp: cache.getNewestTimestamp,
 	};
 };
 

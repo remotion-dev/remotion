@@ -9,7 +9,7 @@ _Available in v3.2.23_
 
 By calling `prefetch()`, an asset will be fetched and kept in memory so it is ready when you want to play it in a [`<Player>`](/docs/player).
 
-If you pass the original URL into either an [`<Audio>`](/docs/audio), [`<Video>`](/docs/video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img) tag and the asset is fully fetched, those components will use Blob URL instead.
+If you pass the original URL into either an [`<Html5Audio>`](/docs/html5-audio), [`<Audio>`](/docs/media/audio), [`<Video>`](/docs/media/video), [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img) tag and the asset is fully fetched, those components will use Blob URL instead.
 
 :::note
 Remote assets need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
@@ -89,7 +89,7 @@ const onProgress: PrefetchOnProgress = (progress) => {
     return;
   }
 
-  console.log('Loading progress:', Math.round(progress.loadedBytes / progress.totalBytes * 100) + '%');
+  console.log('Loading progress:', Math.round((progress.loadedBytes / progress.totalBytes) * 100) + '%');
 };
 
 prefetch('https://example.com/video.mp4', {
@@ -118,7 +118,7 @@ The `string` that is being returned is either:
 - A `blob:` URL or `data:` Base 64 data respectively
 - The same `src` you passed as input, if in a rendering environment.
 
-You don't need to use this URL in [`<Audio>`](/docs/audio), [`<Video>`](/docs/video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img), which will automatically use it.
+You don't need to use this URL in [`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img), which will automatically use it.
 
 If you neeed the URL somewhere (like for [`mask-image`](/docs/troubleshooting/background-image)), you can grab it from `waitUntilDone()`.
 

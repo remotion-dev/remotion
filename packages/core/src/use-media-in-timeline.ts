@@ -1,7 +1,9 @@
 import {useContext, useEffect, useMemo, useState} from 'react';
+import type {LoopDisplay} from './CompositionManager.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {calculateMediaDuration} from './calculate-media-duration.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {useNonce} from './nonce.js';
 import {TimelineContext} from './timeline-position-state.js';
@@ -21,47 +23,45 @@ const warnOnce = (message: string) => {
 	didWarn[message] = true;
 };
 
-export const useMediaInTimeline = ({
+export const useBasicMediaInTimeline = ({
 	volume,
 	mediaVolume,
-	src,
 	mediaType,
-	playbackRate,
+	src,
 	displayName,
-	id,
-	stack,
-	showInTimeline,
-	premountDisplay,
-	postmountDisplay,
+	trimBefore,
+	trimAfter,
+	playbackRate,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
-	src: string | undefined;
 	mediaType: 'audio' | 'video';
-	playbackRate: number;
+	src: string | undefined;
 	displayName: string | null;
-	id: string;
-	stack: string | null;
-	showInTimeline: boolean;
-	premountDisplay: number | null;
-	postmountDisplay: number | null;
+	trimBefore: number | undefined;
+	trimAfter: number | undefined;
+	playbackRate: number;
 }) => {
-	const videoConfig = useVideoConfig();
-	const parentSequence = useContext(SequenceContext);
-	const actualFrom = parentSequence
-		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
-		: 0;
+	if (!src) {
+		throw new Error('No src passed');
+	}
+
 	const startsAt = useMediaStartsAt();
-	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
+	const parentSequence = useContext(SequenceContext);
+	const videoConfig = useVideoConfig();
+
 	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
 
-	const nonce = useNonce();
-	const {rootId} = useContext(TimelineContext);
+	const mediaDuration = calculateMediaDuration({
+		mediaDurationInFrames: videoConfig.durationInFrames,
+		playbackRate,
+		trimBefore,
+		trimAfter,
+	});
 
 	const duration = parentSequence
-		? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
-		: videoConfig.durationInFrames;
-	const doesVolumeChange = typeof volume === 'function';
+		? Math.min(parentSequence.durationInFrames, mediaDuration)
+		: mediaDuration;
 
 	const volumes: string | number = useMemo(() => {
 		if (typeof volume === 'number') {
@@ -88,14 +88,79 @@ export const useMediaInTimeline = ({
 		}
 	}, [initialVolume, mediaType, src, volume]);
 
+	const doesVolumeChange = typeof volume === 'function';
+
+	const nonce = useNonce();
+	const {rootId} = useContext(TimelineContext);
 	const env = useRemotionEnvironment();
+
+	return {
+		volumes,
+		duration,
+		doesVolumeChange,
+		nonce,
+		rootId,
+		isStudio: env.isStudio,
+		finalDisplayName: displayName ?? getAssetDisplayName(src),
+	};
+};
+
+export const useMediaInTimeline = ({
+	volume,
+	mediaVolume,
+	src,
+	mediaType,
+	playbackRate,
+	displayName,
+	id,
+	stack,
+	showInTimeline,
+	premountDisplay,
+	postmountDisplay,
+	loopDisplay,
+}: {
+	volume: VolumeProp | undefined;
+	mediaVolume: number;
+	src: string | undefined;
+	mediaType: 'audio' | 'video';
+	playbackRate: number;
+	displayName: string | null;
+	id: string;
+	stack: string | null;
+	showInTimeline: boolean;
+	premountDisplay: number | null;
+	postmountDisplay: number | null;
+	loopDisplay: LoopDisplay | undefined;
+}) => {
+	const parentSequence = useContext(SequenceContext);
+	const startsAt = useMediaStartsAt();
+	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
+
+	const {
+		volumes,
+		duration,
+		doesVolumeChange,
+		nonce,
+		rootId,
+		isStudio,
+		finalDisplayName,
+	} = useBasicMediaInTimeline({
+		volume,
+		mediaVolume,
+		mediaType,
+		src,
+		displayName,
+		trimAfter: undefined,
+		trimBefore: undefined,
+		playbackRate,
+	});
 
 	useEffect(() => {
 		if (!src) {
 			throw new Error('No src passed');
 		}
 
-		if (!env.isStudio && window.process?.env?.NODE_ENV !== 'test') {
+		if (!isStudio && window.process?.env?.NODE_ENV !== 'test') {
 			return;
 		}
 
@@ -110,43 +175,43 @@ export const useMediaInTimeline = ({
 			duration,
 			from: 0,
 			parent: parentSequence?.id ?? null,
-			displayName: displayName ?? getAssetDisplayName(src),
+			displayName: finalDisplayName,
 			rootId,
 			volume: volumes,
 			showInTimeline: true,
 			nonce,
 			startMediaFrom: 0 - startsAt,
 			doesVolumeChange,
-			loopDisplay: undefined,
+			loopDisplay,
 			playbackRate,
 			stack,
 			premountDisplay,
 			postmountDisplay,
 		});
+
 		return () => {
 			unregisterSequence(id);
 		};
 	}, [
-		actualFrom,
 		duration,
 		id,
 		parentSequence,
 		src,
 		registerSequence,
-		rootId,
 		unregisterSequence,
-		videoConfig,
 		volumes,
 		doesVolumeChange,
 		nonce,
 		mediaType,
 		startsAt,
 		playbackRate,
-		displayName,
 		stack,
 		showInTimeline,
 		premountDisplay,
 		postmountDisplay,
-		env.isStudio,
+		isStudio,
+		loopDisplay,
+		rootId,
+		finalDisplayName,
 	]);
 };

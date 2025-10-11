@@ -6,7 +6,7 @@ crumb: 'API - @remotion/media'
 
 :::note
 This is documentation for the upcoming new `<Video>` tag.  
-Not to be confused with the older [`<Video>`](/docs/video) tag from `remotion`.
+Not to be confused with the older [`<Html5Video>` / `<Video>`](/docs/html5-video) tag from `remotion`.
 :::
 
 :::warning
@@ -243,11 +243,6 @@ export const MyComposition = () => {
 };
 ```
 
-:::note
-Currently only works during rendering.  
-Planning to support it during preview as well.
-:::
-
 ### `toneFrequency?`
 
 Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
@@ -291,6 +286,6 @@ Pass this prop to disable the fallback and fail the render instead.
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/media/src/video/video.tsx)
-- [`<Audio />` (from `@remotion/media`)](/docs/media/audio)
-- [`<Video />` (from `remotion`)](/docs/video)
+- [`<Audio>` (from `@remotion/media`)](/docs/media/audio)
+- [`<Html5Video>` (from `remotion`)](/docs/html5-video)
 - [`<OffthreadVideo>`](/docs/offthreadvideo)

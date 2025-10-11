@@ -15,7 +15,7 @@ If your composition plays well there, you should have no problems elsewhere.
 
 ## Trigger the play from a user event
 
-If you autoplay audio (through an `<Audio>`, `<OffthreadVideo>` or `<Video>` tag) on site load, browsers will block the audio.
+If you autoplay audio (through an `<Audio>`, `<Html5Audio>`, `<Video>`, `<OffthreadVideo>`, or `<Html5Video>` tag) on site load, browsers will block the audio.
 
 The [`autoPlay`](/docs/player/player#autoplay) prop of the [`<Player>`](/docs/player/player) is therefore discouraged if your video contains any audio.
 
@@ -64,21 +64,15 @@ Media that contains audio and that plays without user interaction requires speci
 Consider the following scenario:
 
 ```tsx twoslash
-import {
-  AbsoluteFill,
-  Audio,
-  OffthreadVideo,
-  Sequence,
-  staticFile,
-} from 'remotion';
+import {AbsoluteFill, Html5Audio, OffthreadVideo, Sequence, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComp = () => {
   return (
     <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} />
+      <Html5Audio src={staticFile('audio.mp3')} />
       <Sequence from={120}>
-        <Audio src={staticFile('audio2.mp3')} />
+        <Html5Audio src={staticFile('audio2.mp3')} />
       </Sequence>
       <Sequence from={120}>
         <OffthreadVideo src={staticFile('video.mp4')} />
@@ -90,9 +84,9 @@ export const MyComp = () => {
 
 There are three different cases here:
 
-<Step>1</Step> An `<Audio>` tag that plays immediately.  ✅ This is fine because we have user interaction.
+<Step>1</Step> An `<Html5Audio>` tag that plays immediately.  ✅ This is fine because we have user interaction.
 <div style={{marginTop: -14}} />
-<Step>2</Step> An `<Audio>` tag that plays after 120 frames. ⚠️ May be subject to browser autoplay policies, but there is a workaround
+<Step>2</Step> An `<Html5Audio>` tag that plays after 120 frames. ⚠️ May be subject to browser autoplay policies, but there is a workaround
 → [Using the `numberOfSharedAudioTags` prop](/docs/player/autoplay#using-the-numberofsharedaudiotags-prop)
 <div style={{marginTop: -14}} />
 <Step>3</Step> A `<OffthreadVideo>` tag that plays after 120 frames. ⛔ May be subject to browser autoplay policies, which might restrict the video from playing with audio → [Dealing with an autoplay failure](/docs/player/autoplay#dealing-with-an-autoplay-failure)
@@ -100,9 +94,9 @@ There are three different cases here:
 ## Using the `numberOfSharedAudioTags` prop
 
 By default, Remotion will mount 5 auxiliary `<audio>` tags that will "warm" up with the first user interaction.  
-If an `<Audio>` tag is played after the first user interaction, it will be mounted into one of the auxiliary tags and will be allowed to play.
+If an `<Html5Audio>` tag is played after the first user interaction, it will be mounted into one of the auxiliary tags and will be allowed to play.
 
-If you have more than 5 `<Audio>` tags that play at the same time, you can increase the number of auxiliary tags by passing the [`numberOfSharedAudioTags`](/docs/player/player#numberofsharedaudiotags) prop to the `<Player>`, because otherwise an error will be thrown.
+If you have more than 5 `<Html5Audio>` tags that play at the same time, you can increase the number of auxiliary tags by passing the [`numberOfSharedAudioTags`](/docs/player/player#numberofsharedaudiotags) prop to the `<Player>`, because otherwise an error will be thrown.
 
 ## Dealing with an autoplay failure<AvailableFrom v="4.0.187" />
 

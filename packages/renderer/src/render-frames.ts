@@ -344,7 +344,7 @@ const innerRenderFrames = async ({
 
 	// Render the extra frames at the beginning of the video first,
 	// then the regular frames, then the extra frames at the end of the video.
-	// While the order technically doesn't matter, components such as <Video> are
+	// While the order technically doesn't matter, components such as <Html5Video> are
 	// not always frame perfect and give a flicker.
 	// We reduce the chance of flicker by rendering the frames in order.
 

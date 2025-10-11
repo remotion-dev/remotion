@@ -1,8 +1,8 @@
-import {interpolate, Video} from 'remotion';
+import {Html5Video, interpolate} from 'remotion';
 
 const RemoteVideo: React.FC = () => {
 	return (
-		<Video
+		<Html5Video
 			volume={(f) =>
 				interpolate(f, [0, 500], [1, 0], {extrapolateRight: 'clamp'})
 			}

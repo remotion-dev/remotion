@@ -6,17 +6,17 @@ crumb: 'API - @remotion/media'
 
 :::note
 This is documentation for the upcoming new `<Audio>` tag.  
-Not to be confused with the older [`<Audio>`](/docs/audio) tag from `remotion`.
+Not to be confused with the older [`<Html5Audio>` / `<Audio>`](/docs/html5-audio) tag from `remotion`.
 :::
 
 :::warning
 **Experimental**: This component is in an early stage and not yet feature complete.
-We recommend that you use [`<Audio />`](/docs/audio) for now.
+We recommend that you use [`<Html5Audio />`](/docs/html5-audio) for now.
 
 See the [progress of this component on our issue tracker](https://github.com/remotion-dev/remotion/issues/5650).
 :::
 
-This component imports and displays a video, similar to [`<Audio />`](/docs/audio) from `remotion` but during rendering, extracts the exact audio using [Mediabunny](/docs/mediabunny) instead of FFmpeg.
+This component imports and displays a video, similar to [`<Html5Audio />`](/docs/html5-audio) from `remotion` but during rendering, extracts the exact audio using [Mediabunny](/docs/mediabunny) instead of FFmpeg.
 
 ## Example
 
@@ -177,10 +177,6 @@ export const MyComposition = () => {
 };
 ```
 
-### `pauseWhenBuffering?`
-
-If set to `true` and the audio is loading, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
-
 ### `showInTimeline?`
 
 If set to `false`, no layer will be shown in the timeline of the Remotion Studio. The default is `true`.
@@ -211,11 +207,6 @@ export const MyComposition = () => {
 };
 ```
 
-:::note
-Currently only works during rendering.  
-Planning to support it during preview as well.
-:::
-
 ### `toneFrequency?`
 
 Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
@@ -226,30 +217,34 @@ The value must stay the same across the entire time the video tag is mounted.
 
 ### `fallbackHtml5AudioProps?`
 
-When a [fallback to `<Audio>` from `remotion`](/docs/media/fallback) happens, this prop allows you to pass props to the fallback `<Audio>` component.  
+When a [fallback to `<Html5Audio>` from `remotion`](/docs/media/fallback) happens, this prop allows you to pass props to the fallback `<Html5Audio>` component.  
 Only props that are not supported by `<Audio>` from `@remotion/media` need to be specified here - props that apply for both tags will automatically be forwarded and do not need to be specified here.
 
 #### `onError?`
 
-Maps to [`<Audio />` -> `onError`](/docs/audio#onerror)
+Maps to [`<Html5Audio />` -> `onError`](/docs/html5-audio#onerror)
 
 #### `useWebAudioApi?`
 
-Maps to [`<Audio />` -> `useWebAudioApi`](/docs/audio#usewebaudioapi)
+Maps to [`<Html5Audio />` -> `useWebAudioApi`](/docs/html5-audio#usewebaudioapi)
 
 #### `acceptableTimeShiftInSeconds?`
 
-Maps to [`<Audio />` -> `acceptableTimeShiftInSeconds`](/docs/audio#acceptabletimeshiftinseconds)
+Maps to [`<Html5Audio />` -> `acceptableTimeShiftInSeconds`](/docs/html5-audio#acceptabletimeshiftinseconds)
+
+#### `pauseWhenBuffering?`
+
+Maps to [`<Html5Audio />` -> `pauseWhenBuffering`](/docs/html5-audio#pausewhenbuffering)
 
 ### `disallowFallbackToHtml5Audio?`<AvailableFrom v="3.0.356" />
 
-By default, if the video cannot be embedded using this tag, [a fallback to `<Audio>` from `remotion`](/docs/media/fallback) will be attempted.
+By default, if the video cannot be embedded using this tag, [a fallback to `<Html5Audio>` from `remotion`](/docs/media/fallback) will be attempted.
 
 Pass this prop to disable the fallback and fail the render instead.
 
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/media/src/audio/audio.tsx)
-- [`<Audio />` (from `remotion`)](/docs/audio)
+- [`<Html5Audio />` (from `remotion`)](/docs/html5-audio)
 - [`<Video />` (from `@remotion/media`)](/docs/media/video)
 - [`<OffthreadVideo>`](/docs/offthreadvideo)

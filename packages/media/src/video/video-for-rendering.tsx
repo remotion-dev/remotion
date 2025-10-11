@@ -21,14 +21,13 @@ import {
 	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
-import {calculateLoopDuration} from '../../../core/src/calculate-loop';
+import {calculateMediaDuration} from '../../../core/src/calculate-media-duration';
 import {applyVolume} from '../convert-audiodata/apply-volume';
+import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {FallbackOffthreadVideoProps} from './props';
 
-// TODO: Combining `loop` + trimAfter / trimBefore
-// is not consistent across preview and rendering
 type InnerVideoProps = {
 	readonly className: string | undefined;
 	readonly loop: boolean;
@@ -284,11 +283,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						type: 'inline-audio',
 						id,
 						audio: Array.from(audio.data),
-						sampleRate: audio.sampleRate,
-						numberOfChannels: audio.numberOfChannels,
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
-						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
+						duration: (audio.numberOfFrames / TARGET_SAMPLE_RATE) * 1_000_000,
 						toneFrequency,
 					});
 				}
@@ -391,7 +388,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			return (
 				<Loop
 					layout="none"
-					durationInFrames={calculateLoopDuration({
+					durationInFrames={calculateMediaDuration({
 						trimAfter: trimAfterValue,
 						mediaDurationInFrames:
 							replaceWithOffthreadVideo.durationInSeconds * fps,

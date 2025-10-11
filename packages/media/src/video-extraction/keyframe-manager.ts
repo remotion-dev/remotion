@@ -5,6 +5,7 @@ import {
 	getTotalCacheStats,
 	SAFE_BACK_WINDOW_IN_SECONDS,
 } from '../caches';
+import {renderTimestampRange} from '../render-timestamp-range';
 import {getFramesSinceKeyframe} from './get-frames-since-keyframe';
 import {type KeyframeBank} from './keyframe-bank';
 
@@ -41,7 +42,7 @@ export const makeKeyframeManager = () => {
 
 				Internals.Log.verbose(
 					{logLevel, tag: '@remotion/media'},
-					`Open frames for src ${src}: ${timestamps.join(', ')}`,
+					`Open frames for src ${src}: ${renderTimestampRange(timestamps)}`,
 				);
 			}
 		}
@@ -270,15 +271,39 @@ export const makeKeyframeManager = () => {
 				const bank =
 					await sources[src][startTimeInSeconds as unknown as number];
 
-				await bank.prepareForDeletion(logLevel);
+				bank.prepareForDeletion(logLevel);
 				delete sources[src][startTimeInSeconds as unknown as number];
 			}
 		}
 	};
 
+	let queue = Promise.resolve<unknown>(undefined);
+
 	return {
-		requestKeyframeBank,
-		addKeyframeBank,
+		requestKeyframeBank: ({
+			packetSink,
+			timestamp,
+			videoSampleSink,
+			src,
+			logLevel,
+		}: {
+			packetSink: EncodedPacketSink;
+			timestamp: number;
+			videoSampleSink: VideoSampleSink;
+			src: string;
+			logLevel: LogLevel;
+		}) => {
+			queue = queue.then(() =>
+				requestKeyframeBank({
+					packetSink,
+					timestamp,
+					videoSampleSink,
+					src,
+					logLevel,
+				}),
+			);
+			return queue as Promise<KeyframeBank | null>;
+		},
 		getCacheStats,
 		clearAll,
 	};

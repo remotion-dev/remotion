@@ -1,5 +1,5 @@
 import type {AudioSampleSink} from 'mediabunny';
-import type {LogLevel} from 'remotion';
+import {Internals, type LogLevel} from 'remotion';
 import {getMaxVideoCacheSize, getTotalCacheStats} from '../caches';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import type {AudioSampleIterator} from './audio-iterator';
@@ -22,7 +22,7 @@ export const makeAudioManager = () => {
 		isMatroska: boolean;
 		actualMatroskaTimestamps: RememberActualMatroskaTimestamps;
 		logLevel: LogLevel;
-	}) => {
+	}): AudioSampleIterator => {
 		const iterator = makeAudioIterator({
 			audioSampleSink,
 			isMatroska,
@@ -51,11 +51,30 @@ export const makeAudioManager = () => {
 		return mostInThePastIterator;
 	};
 
-	const deleteOldestIterator = async () => {
+	const deleteOldestIterator = () => {
 		const iterator = getIteratorMostInThePast();
 		if (iterator) {
-			await iterator.prepareForDeletion();
+			iterator.prepareForDeletion();
 			iterators.splice(iterators.indexOf(iterator), 1);
+		}
+	};
+
+	const deleteDuplicateIterators = (logLevel: LogLevel) => {
+		const seenKeys = new Set<string>();
+		for (let i = 0; i < iterators.length; i++) {
+			const iterator = iterators[i];
+			const key = `${iterator.src}-${iterator.getOldestTimestamp()}-${iterator.getNewestTimestamp()}`;
+
+			if (seenKeys.has(key)) {
+				iterator.prepareForDeletion();
+				iterators.splice(iterators.indexOf(iterator), 1);
+				Internals.Log.verbose(
+					{logLevel, tag: '@remotion/media'},
+					`Deleted duplicate iterator for ${iterator.src}`,
+				);
+			}
+
+			seenKeys.add(key);
 		}
 	};
 
@@ -76,7 +95,7 @@ export const makeAudioManager = () => {
 	}) => {
 		const maxCacheSize = getMaxVideoCacheSize(logLevel);
 		while ((await getTotalCacheStats()).totalSize > maxCacheSize) {
-			await deleteOldestIterator();
+			deleteOldestIterator();
 		}
 
 		for (const iterator of iterators) {
@@ -89,13 +108,16 @@ export const makeAudioManager = () => {
 			}
 		}
 
-		for (const iterator of iterators) {
-			// delete iterator with same starting timestamp
+		for (let i = 0; i < iterators.length; i++) {
+			const iterator = iterators[i];
+			// delete iterator with same starting timestamp as requested
 			if (iterator.src === src && iterator.startTimestamp === timeInSeconds) {
-				await iterator.prepareForDeletion();
+				iterator.prepareForDeletion();
 				iterators.splice(iterators.indexOf(iterator), 1);
 			}
 		}
+
+		deleteDuplicateIterators(logLevel);
 
 		return makeIterator({
 			src,
@@ -125,11 +147,39 @@ export const makeAudioManager = () => {
 		}
 	};
 
+	let queue = Promise.resolve<unknown>(undefined);
+
 	return {
-		makeIterator,
-		getIterator,
+		getIterator: ({
+			src,
+			timeInSeconds,
+			audioSampleSink,
+			isMatroska,
+			actualMatroskaTimestamps,
+			logLevel,
+		}: {
+			src: string;
+			timeInSeconds: number;
+			audioSampleSink: AudioSampleSink;
+			isMatroska: boolean;
+			actualMatroskaTimestamps: RememberActualMatroskaTimestamps;
+			logLevel: LogLevel;
+		}) => {
+			queue = queue.then(() =>
+				getIterator({
+					src,
+					timeInSeconds,
+					audioSampleSink,
+					isMatroska,
+					actualMatroskaTimestamps,
+					logLevel,
+				}),
+			);
+			return queue as Promise<AudioSampleIterator>;
+		},
 		getCacheStats,
 		getIteratorMostInThePast,
 		logOpenFrames,
+		deleteDuplicateIterators,
 	};
 };

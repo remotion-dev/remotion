@@ -462,6 +462,16 @@
 			"destination": "/docs/video-tags#using-a-different-tag-in-preview-and-rendering",
 			"permanent": false,
 			"source": "/docs/miscellaneous/snippets/offthread-video-while-rendering"
+		},
+		{
+			"source": "/docs/video",
+			"destination": "/docs/html5-video",
+			"permanent": false
+		},
+		{
+			"source": "/docs/audio",
+			"destination": "/docs/html5-audio",
+			"permanent": false
 		}
 	]
 }

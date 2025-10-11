@@ -1,4 +1,4 @@
-export const calculateLoopDuration = ({
+export const calculateMediaDuration = ({
 	trimAfter,
 	mediaDurationInFrames,
 	playbackRate,

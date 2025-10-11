@@ -13,11 +13,11 @@ const ruleTester = new ESLintUtils.RuleTester({
 ruleTester.run('volume-callback', rule, {
 	valid: [
 		`
-import {Video} from 'remotion';
+import {Html5Video} from 'remotion';
 
 export const Re = () => {
   return (
-    <Video volume={1} />
+    <Html5Video volume={1} />
   );
 }
           `,
@@ -31,11 +31,20 @@ export const Re = () => {
 }
           `,
 		`
-import {Audio} from 'remotion';
+import {Video} from '@remotion/media';
 
 export const Re = () => {
   return (
-    <Audio volume={1} />
+    <Video volume={f => f / 29} />
+  );
+}
+          `,
+		`
+import {Html5Audio} from 'remotion';
+
+export const Re = () => {
+  return (
+    <Html5Audio volume={1} />
   );
 }
           `,
@@ -60,11 +69,11 @@ export const Re = () => {
 }
           `,
 		`
-import {Audio} from 'remotion';
+import {Html5Audio} from 'remotion';
 
 export const Re = () => {
   return (
-    <Audio volume={function(f) { return f / 30; }} />
+    <Html5Audio volume={function(f) { return f / 30; }} />
   );
 }
           `,
@@ -90,13 +99,13 @@ export const Re = () => {
 		},
 		{
 			code: `
-import {Video, useCurrentFrame} from 'remotion';
+import {Html5Video, useCurrentFrame} from 'remotion';
 
 export const Re = () => {
   const frame = useCurrentFrame();
 
   return (
-    <Audio volume={frame / 20} />
+    <Html5Video volume={frame / 20} />
   );
 }
       `,

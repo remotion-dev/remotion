@@ -6,6 +6,7 @@ import type {
 	AnyCompMetadata,
 	AnyComposition,
 	AudioOrVideoAsset,
+	LoopDisplay,
 	TRenderAsset,
 } from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
@@ -118,7 +119,7 @@ checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
 export * from './animated-image/index.js';
 export {Artifact} from './Artifact.js';
-export * from './audio/index.js';
+export {Audio, Html5Audio, RemotionAudioProps} from './audio/index.js';
 export type {LoopVolumeCurveBehavior} from './audio/use-audio-frame.js';
 export {cancelRender} from './cancel-render.js';
 export {
@@ -180,7 +181,15 @@ export {useRemotionEnvironment} from './use-remotion-environment.js';
 export * from './use-video-config.js';
 export * from './version.js';
 export * from './video-config.js';
-export * from './video/index.js';
+export {
+	Html5Video,
+	OffthreadVideo,
+	OffthreadVideoProps,
+	RemotionMainVideoProps,
+	RemotionOffthreadVideoProps,
+	RemotionVideoProps,
+	Video,
+} from './video/index.js';
 export type {OnVideoFrame} from './video/props.js';
 export type {VolumeProp} from './volume-prop.js';
 export {watchStaticFile} from './watch-static-file.js';
@@ -245,4 +254,5 @@ export type _InternalTypes = {
 	AnyCompMetadata: AnyCompMetadata;
 	AudioOrVideoAsset: AudioOrVideoAsset;
 	TRenderAsset: TRenderAsset;
+	LoopDisplay: LoopDisplay;
 };

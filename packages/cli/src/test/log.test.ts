@@ -11,7 +11,7 @@ describe('test loglevel getter and setter', () => {
 	});
 	test.each<LogLevel>(['verbose', 'warn', 'error', 'info'])(
 		'test for %s',
-		(loglevel) => {
+		(loglevel: LogLevel) => {
 			logLevelOption.setConfig(loglevel);
 
 			expect(logLevelOption.getValue({commandLine: {}}).value).toEqual(
@@ -33,7 +33,7 @@ describe('loglevel comparison', () => {
 		['warn', 'warn'],
 		['warn', 'error'],
 		['error', 'error'],
-	])('%s is equal or below %s', (level1, level2) => {
+	])('%s is equal or below %s', (level1: LogLevel, level2: LogLevel) => {
 		logLevelOption.setConfig(level1);
 		expect(
 			RenderInternals.isEqualOrBelowLogLevel(
@@ -50,7 +50,7 @@ describe('loglevel comparison', () => {
 		['warn', 'info'],
 		['error', 'info'],
 		['error', 'warn'],
-	])('%s is not equal or below %s', (level1, level2) => {
+	])('%s is not equal or below %s', (level1: LogLevel, level2: LogLevel) => {
 		logLevelOption.setConfig(level1);
 		expect(
 			RenderInternals.isEqualOrBelowLogLevel(

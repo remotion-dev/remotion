@@ -73,7 +73,7 @@ export const SITE_NAME = process.env.VERCEL_ENV === 'production' ? 'remotion-edi
 Is very simple: When no item is selected in the Editor Starter, a Render button shows up in the [inspector](/docs/editor-starter/tracks-items-assets#inspectors) (i.e., composition inspector).
 
 The backend endpoint [`/api/render`](/docs/editor-starter/backend-routes#post-apirender) is invoked to trigger a render.  
-Once triggered, [`/api/progress`](/docs/editor-starter/backend-routes#get-apiprogress) is polled to check the progress of the render.
+Once triggered, [`/api/progress`](/docs/editor-starter/backend-routes#post-apiprogress) is polled to check the progress of the render.
 
 Once the render is done, it is being uploaded to your S3 bucket and is publicly available.  
 Tweak the params you pass to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) to change various settings - for example the privacy settings, the output format, quality, etc.

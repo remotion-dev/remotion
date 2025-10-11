@@ -14,7 +14,7 @@ In order to decode a delta frame, the last keyframe and all the delta frames sin
 
 Due to Remotion's [multithreaded rendering and each frame being independent](/docs/flickering), it is not guaranteed that video frames are needed in their natural order.
 
-The cache is shared across all of the instances of [`<Video>`](/docs/video) and [`<Audio>`](/docs/audio).  
+The cache is shared across all of the instances of [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio).  
 Therefore, the settings for the cache are per-render, not per tag.
 
 ## Default cache size

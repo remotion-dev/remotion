@@ -8,10 +8,10 @@ import {zColor} from '@remotion/zod-types';
 import React, {useEffect, useRef, useState} from 'react';
 import {
 	AbsoluteFill,
+	Html5Video,
 	staticFile,
 	useRemotionEnvironment,
 	useVideoConfig,
-	Video,
 } from 'remotion';
 import {z} from 'zod';
 import {Phone} from './Phone';
@@ -82,7 +82,7 @@ export const VideoTextureDemo: React.FC<
 	return (
 		<AbsoluteFill style={container}>
 			{env.isRendering ? null : (
-				<Video ref={videoRef} src={videoSrc} style={videoStyle} />
+				<Html5Video ref={videoRef} src={videoSrc} style={videoStyle} />
 			)}
 			{videoData ? (
 				<ThreeCanvas linear width={width} height={height}>

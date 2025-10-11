@@ -11,6 +11,8 @@ const makeDefaultGlobalCSS = () => {
 	return `
   html {
     --remotion-cli-internals-blue: #0b84f3;
+    overscroll-behavior-y: none;
+    overscroll-behavior-x: none;
   }
   
   body {

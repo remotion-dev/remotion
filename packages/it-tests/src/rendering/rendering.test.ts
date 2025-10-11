@@ -14,7 +14,7 @@ beforeAll(async () => {
 	if (process.env.CI) {
 		return;
 	}
-	await execa('pnpm', ['exec', 'remotion', 'bundle'], {
+	await execa('bun', ['x', 'remotion', 'bundle'], {
 		cwd: path.join(process.cwd(), '..', 'example'),
 	});
 });
@@ -35,9 +35,9 @@ test(
 	'Should be able to render video with custom port',
 	async () => {
 		const task = execa(
-			'pnpm',
+			'bun',
 			[
-				'exec',
+				'x',
 				'remotion',
 				'render',
 				'build',
@@ -82,9 +82,9 @@ test(
 	'Should fail to render out of range CRF',
 	async () => {
 		const task = await execa(
-			'pnpm',
+			'bun',
 			[
-				'exec',
+				'x',
 				'remotion',
 				'render',
 				'build',
@@ -116,13 +116,12 @@ test(
 		const out = outputPath.replace('.mp4', '');
 
 		const task = await execa(
-			'pnpm',
+			'bun',
 			[
-				'exec',
+				'x',
 				'remotion',
 				'render',
 				'build',
-
 				'ten-frame-tester',
 				'--sequence',
 				'--frames=10',
@@ -138,16 +137,16 @@ test(
 			'Frame number is out of range, must be between 0 and 9',
 		);
 	},
-	{timeout: 15000},
+	{timeout: 30000},
 );
 
 test(
 	'Should fail to render out of range frame when range is a string',
 	async () => {
 		const task = await execa(
-			'pnpm',
+			'bun',
 			[
-				'exec',
+				'x',
 				'remotion',
 				'render',
 				'build',
@@ -172,9 +171,9 @@ test(
 	async () => {
 		const out = outputPath.replace('.mp4', '.mov');
 		const task = await execa(
-			'pnpm',
+			'bun',
 			[
-				'exec',
+				'x',
 				'remotion',
 				'render',
 				'build',
@@ -217,9 +216,9 @@ test(
 		const outDir = outputPath.replace('.mp4', '');
 		const outImg = path.join(outDir, 'element-2.png');
 		const task = await execa(
-			'pnpm',
+			'bun',
 			[
-				'exec',
+				'x',
 				'remotion',
 				'render',
 				'build',
@@ -257,8 +256,8 @@ test(
 	async () => {
 		const out = outputPath.replace('mp4', 'wav');
 		const task = execa(
-			'pnpm',
-			['exec', 'remotion', 'render', 'build', 'audio-testing', out],
+			'bun',
+			['x', 'remotion', 'render', 'build', 'audio-testing', out],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
 			},
@@ -295,8 +294,8 @@ test(
 	async () => {
 		const out = outputPath.replace('mp4', 'mp3');
 		const task = execa(
-			'pnpm',
-			['exec', 'remotion', 'render', 'build', 'audio-testing', out],
+			'bun',
+			['x', 'remotion', 'render', 'build', 'audio-testing', out],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
 			},
@@ -331,8 +330,8 @@ test(
 	async () => {
 		const out = outputPath.replace('mp4', 'aac');
 		const task = execa(
-			'pnpm',
-			['exec', 'remotion', 'render', 'build', 'audio-testing', out],
+			'bun',
+			['x', 'remotion', 'render', 'build', 'audio-testing', out],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
 			},
@@ -368,16 +367,8 @@ test(
 	'Should render a video with GIFs',
 	async () => {
 		const task = await execa(
-			'pnpm',
-			[
-				'exec',
-				'remotion',
-				'render',
-				'build',
-				'gif',
-				'--frames=0-47',
-				outputPath,
-			],
+			'bun',
+			['x', 'remotion', 'render', 'build', 'gif', '--frames=0-47', outputPath],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
 			},
@@ -415,8 +406,8 @@ test(
 		const out = outputPath.replace('.mp4', '.mp3');
 
 		const task = await execa(
-			'pnpm',
-			['exec', 'remotion', 'render', 'build', 'offline-audio-buffer', out],
+			'bun',
+			['x', 'remotion', 'render', 'build', 'offline-audio-buffer', out],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
 			},
@@ -447,8 +438,8 @@ test(
 	async () => {
 		const out = outputPath.replace('.mp4', '.mp3');
 		const task = await execa(
-			'pnpm',
-			['exec', 'remotion', 'render', 'build', 'ten-frame-tester', out],
+			'bun',
+			['x', 'remotion', 'render', 'build', 'ten-frame-tester', out],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
 			},
@@ -476,16 +467,15 @@ test(
 		const out = outputPath.replace('.mp4', '.png');
 		await Bun.write('props.json', JSON.stringify({flag: true}));
 		const task = await execa(
-			'pnpm',
+			'node_modules/.bin/remotion',
 			[
-				'exec',
-				'remotion',
 				'still',
 				'build',
 				'static-demo',
 				out,
 				'--log=verbose',
-				`--props={\"flag\": true}`,
+				'--props',
+				JSON.stringify({flag: true}),
 			],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
@@ -508,15 +498,13 @@ test(
 
 		const randomDuration = Math.round(Math.random() * 18 + 2);
 		const task = await execa(
-			'pnpm',
+			'node_modules/.bin/remotion',
 			[
-				'exec',
-				'remotion',
 				'render',
 				'build',
 				'dynamic-duration',
 				`--props`,
-				`{"duration": ${randomDuration}, "offthread": true}`,
+				JSON.stringify({duration: randomDuration, offthread: true}),
 				'--separate-audio-to',
 				'audio.wav',
 				outputPath,
@@ -574,9 +562,9 @@ test(
 	'Should be able to render a huge payload that gets serialized',
 	async () => {
 		const task = await execa(
-			'pnpm',
+			'bun',
 			[
-				'exec',
+				'x',
 				'remotion',
 				'still',
 				'build',
@@ -591,16 +579,16 @@ test(
 		expect(task.exitCode).toBe(0);
 		fs.unlinkSync(outputPath.replace('.mp4', '.png'));
 	},
-	{timeout: 10000},
+	{timeout: 20000},
 );
 
 test(
 	'If timeout, the error should be shown',
 	async () => {
 		const task = await execa(
-			'pnpm',
+			'bun',
 			[
-				'exec',
+				'x',
 				'remotion',
 				'render',
 				'build',
@@ -623,11 +611,11 @@ test(
 );
 
 test(
-	'Should be able to call pnpm exec compositions',
+	'Should be able to call bunx compositions',
 	async () => {
 		const task = await execa(
-			'pnpm',
-			['exec', 'remotion', 'compositions', 'build'],
+			'bun',
+			['x', 'remotion', 'compositions', 'build'],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
 				reject: false,
@@ -645,8 +633,8 @@ test(
 	'Should be able to render video that was wrapped in context',
 	async () => {
 		await execa(
-			'pnpm',
-			['exec', 'remotion', 'still', 'build', 'wrapped-in-context', outputPath],
+			'bun',
+			['x', 'remotion', 'still', 'build', 'wrapped-in-context', outputPath],
 			{
 				cwd: path.join(process.cwd(), '..', 'example'),
 			},

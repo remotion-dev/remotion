@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/it-tests"
 	},
 	"name": "@remotion/it-tests",
-	"version": "4.0.356",
+	"version": "4.0.357",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"scripts": {
 		"test": " node --test src/node-version/media-parser.mjs && bun test src/rendering --run ",
@@ -14,6 +14,7 @@
 	},
 	"private": true,
 	"devDependencies": {
+		"@types/node": "20.12.14",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/lambda": "workspace:*",

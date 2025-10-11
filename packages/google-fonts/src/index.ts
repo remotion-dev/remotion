@@ -746,6 +746,21 @@ export const getAvailableFonts = () => [
 		load: () => import('./B612Mono') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'BBH Sans Bartle',
+		importName: 'BBHSansBartle',
+		load: () => import('./BBHSansBartle') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'BBH Sans Bogle',
+		importName: 'BBHSansBogle',
+		load: () => import('./BBHSansBogle') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'BBH Sans Hegarty',
+		importName: 'BBHSansHegarty',
+		load: () => import('./BBHSansHegarty') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'BIZ UDGothic',
 		importName: 'BIZUDGothic',
 		load: () => import('./BIZUDGothic') as Promise<GoogleFont>,

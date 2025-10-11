@@ -1,12 +1,10 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
-import type {
-	LogLevel,
-	LoopVolumeCurveBehavior,
-	OnVideoFrame,
-	VolumeProp,
-} from 'remotion';
-import {Internals, useBufferState, useCurrentFrame} from 'remotion';
+import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
+import {Html5Video, Internals, useBufferState, useCurrentFrame} from 'remotion';
+import {useLoopDisplay} from '../show-in-timeline';
+import {useMediaInTimeline} from '../use-media-in-timeline';
 import {MediaPlayer} from './media-player';
+import type {FallbackOffthreadVideoProps} from './props';
 
 const {
 	useUnsafeVideoConfig,
@@ -18,8 +16,8 @@ const {
 	evaluateVolume,
 	warnAboutTooHighVolume,
 	usePreload,
-	useMediaInTimeline,
 	SequenceContext,
+	SequenceVisibilityToggleContext,
 } = Internals;
 
 type NewVideoForPreviewProps = {
@@ -38,10 +36,13 @@ type NewVideoForPreviewProps = {
 	readonly trimAfter: number | undefined;
 	readonly trimBefore: number | undefined;
 	readonly stack: string | null;
+	readonly disallowFallbackToOffthreadVideo: boolean;
+	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
+	readonly audioStreamIndex: number;
 };
 
-const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
-	src,
+export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
+	src: unpreloadedSrc,
 	style,
 	playbackRate,
 	logLevel,
@@ -56,13 +57,20 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 	trimAfter,
 	trimBefore,
 	stack,
+	disallowFallbackToOffthreadVideo,
+	fallbackOffthreadVideoProps,
+	audioStreamIndex,
 }) => {
+	const src = usePreload(unpreloadedSrc);
+
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
+		useState(false);
 
 	const [playing] = Timeline.usePlayingState();
 	const timelineContext = useContext(Timeline.TimelineContext);
@@ -72,6 +80,11 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	const [mediaMuted] = useMediaMutedState();
 	const [mediaVolume] = useMediaVolumeState();
+	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
+		number | null
+	>(null);
+
+	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	const volumePropFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
 
@@ -83,23 +96,33 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	warnAboutTooHighVolume(userPreferredVolume);
 
-	const [timelineId] = useState(() => String(Math.random()));
-
 	const parentSequence = useContext(SequenceContext);
 
-	useMediaInTimeline({
+	const loopDisplay = useLoopDisplay({
+		loop,
+		mediaDurationInSeconds,
+		playbackRate,
+		trimAfter,
+		trimBefore,
+	});
+
+	const {id: timelineId} = useMediaInTimeline({
 		volume,
-		mediaVolume,
 		mediaType: 'video',
 		src,
 		playbackRate,
 		displayName: name ?? null,
-		id: timelineId,
 		stack,
 		showInTimeline,
 		premountDisplay: parentSequence?.premountDisplay ?? null,
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,
+		loopDisplay,
+		mediaVolume,
+		trimAfter,
+		trimBefore,
 	});
+
+	const isSequenceHidden = hidden[timelineId] ?? false;
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
@@ -128,19 +151,82 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 				logLevel,
 				sharedAudioContext: sharedAudioContext.audioContext,
 				loop,
-				trimAfterSeconds: trimAfter ? trimAfter / videoConfig.fps : undefined,
-				trimBeforeSeconds: trimBefore
-					? trimBefore / videoConfig.fps
-					: undefined,
+				trimAfter,
+				trimBefore,
+				fps: videoConfig.fps,
 				playbackRate,
+				audioStreamIndex,
 			});
 
 			mediaPlayerRef.current = player;
 
 			player
 				.initialize(currentTimeRef.current)
-				.then(() => {
-					setMediaPlayerReady(true);
+				.then((result) => {
+					if (result.type === 'unknown-container-format') {
+						if (disallowFallbackToOffthreadVideo) {
+							throw new Error(
+								`Unknown container format ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
+							);
+						}
+
+						Internals.Log.warn(
+							{logLevel, tag: '@remotion/media'},
+							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <OffthreadVideo>`,
+						);
+						setShouldFallbackToNativeVideo(true);
+						return;
+					}
+
+					if (result.type === 'network-error') {
+						if (disallowFallbackToOffthreadVideo) {
+							throw new Error(
+								`Network error fetching ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
+							);
+						}
+
+						Internals.Log.warn(
+							{logLevel, tag: '@remotion/media'},
+							`Network error fetching ${preloadedSrc}, falling back to <OffthreadVideo>`,
+						);
+						setShouldFallbackToNativeVideo(true);
+						return;
+					}
+
+					if (result.type === 'cannot-decode') {
+						if (disallowFallbackToOffthreadVideo) {
+							throw new Error(
+								`Cannot decode ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
+							);
+						}
+
+						Internals.Log.warn(
+							{logLevel, tag: '@remotion/media'},
+							`Cannot decode ${preloadedSrc}, falling back to <OffthreadVideo>`,
+						);
+						setShouldFallbackToNativeVideo(true);
+						return;
+					}
+
+					if (result.type === 'no-tracks') {
+						if (disallowFallbackToOffthreadVideo) {
+							throw new Error(
+								`No video or audio tracks found for ${preloadedSrc}, and 'disallowFallbackToOffthreadVideo' was set.`,
+							);
+						}
+
+						Internals.Log.warn(
+							{logLevel, tag: '@remotion/media'},
+							`No video or audio tracks found for ${preloadedSrc}, falling back to <OffthreadVideo>`,
+						);
+						setShouldFallbackToNativeVideo(true);
+						return;
+					}
+
+					if (result.type === 'success') {
+						setMediaPlayerReady(true);
+						setMediaDurationInSeconds(result.durationInSeconds);
+					}
 				})
 				.catch((error) => {
 					Internals.Log.error(
@@ -148,6 +234,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 						'[NewVideoForPreview] Failed to initialize MediaPlayer',
 						error,
 					);
+					setShouldFallbackToNativeVideo(true);
 				});
 		} catch (error) {
 			Internals.Log.error(
@@ -155,6 +242,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 				'[NewVideoForPreview] MediaPlayer initialization failed',
 				error,
 			);
+			setShouldFallbackToNativeVideo(true);
 		}
 
 		return () => {
@@ -168,6 +256,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			}
 
 			setMediaPlayerReady(false);
+			setShouldFallbackToNativeVideo(false);
 		};
 	}, [
 		preloadedSrc,
@@ -178,6 +267,8 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		trimBefore,
 		videoConfig.fps,
 		playbackRate,
+		disallowFallbackToOffthreadVideo,
+		audioStreamIndex,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -248,7 +339,8 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		};
 	}, [mediaPlayerReady, buffer, logLevel]);
 
-	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
+	const effectiveMuted =
+		isSequenceHidden || muted || mediaMuted || userPreferredVolume <= 0;
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -264,7 +356,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		}
 
 		mediaPlayer.setVolume(userPreferredVolume);
-	}, [userPreferredVolume, mediaPlayerReady, logLevel]);
+	}, [userPreferredVolume, mediaPlayerReady]);
 
 	const effectivePlaybackRate = useMemo(
 		() => playbackRate * globalPlaybackRate,
@@ -278,7 +370,7 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		}
 
 		mediaPlayer.setPlaybackRate(effectivePlaybackRate);
-	}, [effectivePlaybackRate, mediaPlayerReady, logLevel]);
+	}, [effectivePlaybackRate, mediaPlayerReady]);
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -288,6 +380,15 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 		mediaPlayer.setLoop(loop);
 	}, [loop, mediaPlayerReady]);
+
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setFps(videoConfig.fps);
+	}, [videoConfig.fps, mediaPlayerReady]);
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -302,71 +403,43 @@ const NewVideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		};
 	}, [onVideoFrame, mediaPlayerReady]);
 
+	const actualStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...style,
+			opacity: isSequenceHidden ? 0 : (style?.opacity ?? 1),
+		};
+	}, [isSequenceHidden, style]);
+
+	if (shouldFallbackToNativeVideo && !disallowFallbackToOffthreadVideo) {
+		// <Video> will fallback to <VideoForPreview> anyway
+		// not using <OffthreadVideo> because it does not support looping
+		return (
+			<Html5Video
+				src={src}
+				style={actualStyle}
+				className={className}
+				muted={muted}
+				volume={volume}
+				trimAfter={trimAfter}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
+				name={name}
+				loop={loop}
+				showInTimeline={showInTimeline}
+				stack={stack ?? undefined}
+				{...fallbackOffthreadVideoProps}
+			/>
+		);
+	}
+
 	return (
 		<canvas
 			ref={canvasRef}
 			width={videoConfig.width}
 			height={videoConfig.height}
-			style={style}
+			style={actualStyle}
 			className={classNameValue}
-		/>
-	);
-};
-
-type InnerVideoProps = {
-	readonly className: string | undefined;
-	readonly loop: boolean;
-	readonly src: string;
-	readonly logLevel: LogLevel;
-	readonly muted: boolean;
-	readonly name: string | undefined;
-	readonly volume: VolumeProp;
-	readonly loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
-	readonly onVideoFrame: OnVideoFrame | undefined;
-	readonly playbackRate: number;
-	readonly style: React.CSSProperties;
-	readonly showInTimeline: boolean;
-	readonly trimAfter: number | undefined;
-	readonly trimBefore: number | undefined;
-	readonly stack: string | null;
-};
-
-export const VideoForPreview: React.FC<InnerVideoProps> = ({
-	className,
-	loop,
-	src,
-	logLevel,
-	muted,
-	name,
-	volume,
-	loopVolumeCurveBehavior,
-	onVideoFrame,
-	playbackRate,
-	style,
-	showInTimeline,
-	trimAfter,
-	trimBefore,
-	stack,
-}) => {
-	const preloadedSrc = usePreload(src);
-
-	return (
-		<NewVideoForPreview
-			className={className}
-			logLevel={logLevel}
-			muted={muted}
-			onVideoFrame={onVideoFrame}
-			playbackRate={playbackRate}
-			src={preloadedSrc}
-			style={style}
-			volume={volume}
-			name={name}
-			trimAfter={trimAfter}
-			trimBefore={trimBefore}
-			loop={loop}
-			loopVolumeCurveBehavior={loopVolumeCurveBehavior}
-			showInTimeline={showInTimeline}
-			stack={stack}
 		/>
 	);
 };

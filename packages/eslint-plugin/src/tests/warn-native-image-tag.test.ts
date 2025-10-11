@@ -15,7 +15,8 @@ ruleTester.run('warn-native-media-tag', rule, {
 		'const hi = <Img></Img>',
 		'const hi = <IFrame/>',
 		'const hi = <Audio/>',
-		'const hi = styled(Audio)``',
+		'const hi = <Html5Audio/>',
+		'const hi = styled(Html5Audio)``',
 	],
 	invalid: [
 		{

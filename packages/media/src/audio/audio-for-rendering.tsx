@@ -1,8 +1,8 @@
 import type React from 'react';
 import {useContext, useLayoutEffect, useMemo, useState} from 'react';
 import {
-	Audio,
 	cancelRender,
+	Html5Audio,
 	Internals,
 	random,
 	useCurrentFrame,
@@ -10,6 +10,7 @@ import {
 	useRemotionEnvironment,
 } from 'remotion';
 import {applyVolume} from '../convert-audiodata/apply-volume';
+import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
 import type {AudioProps} from './props';
@@ -79,6 +80,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		const timestamp = frame / fps;
 		const durationInSeconds = 1 / fps;
 
+		if (replaceWithHtml5Audio) {
+			return;
+		}
+
 		const newHandle = delayRender(`Extracting audio for frame ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
@@ -123,7 +128,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 					Internals.Log.warn(
 						{logLevel, tag: '@remotion/media'},
-						`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Audio>`,
+						`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
 					);
 					setReplaceWithHtml5Audio(true);
 					return;
@@ -140,7 +145,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 					Internals.Log.warn(
 						{logLevel, tag: '@remotion/media'},
-						`Cannot decode ${src}, falling back to <Audio>`,
+						`Cannot decode ${src}, falling back to <Html5Audio>`,
 					);
 					setReplaceWithHtml5Audio(true);
 					return;
@@ -157,7 +162,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 					Internals.Log.warn(
 						{logLevel, tag: '@remotion/media'},
-						`Network error fetching ${src}, falling back to <Audio>`,
+						`Network error fetching ${src}, falling back to <Html5Audio>`,
 					);
 					setReplaceWithHtml5Audio(true);
 					return;
@@ -187,11 +192,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						type: 'inline-audio',
 						id,
 						audio: Array.from(audio.data),
-						sampleRate: audio.sampleRate,
-						numberOfChannels: audio.numberOfChannels,
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
-						duration: (audio.numberOfFrames / audio.sampleRate) * 1_000_000,
+						duration: (audio.numberOfFrames / TARGET_SAMPLE_RATE) * 1_000_000,
 						toneFrequency: toneFrequency ?? 1,
 					});
 				}
@@ -231,12 +234,12 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		toneFrequency,
 		trimAfter,
 		trimBefore,
+		replaceWithHtml5Audio,
 	]);
 
 	if (replaceWithHtml5Audio) {
-		// TODO: Loop and other props
 		return (
-			<Audio
+			<Html5Audio
 				src={src}
 				playbackRate={playbackRate}
 				muted={muted}

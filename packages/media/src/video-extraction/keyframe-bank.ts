@@ -1,11 +1,12 @@
 import type {VideoSample} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
+import {renderTimestampRange} from '../render-timestamp-range';
 
 export type KeyframeBank = {
 	startTimestampInSeconds: number;
 	endTimestampInSeconds: number;
 	getFrameFromTimestamp: (timestamp: number) => Promise<VideoSample | null>;
-	prepareForDeletion: (logLevel: LogLevel) => Promise<void>;
+	prepareForDeletion: (logLevel: LogLevel) => void;
 	deleteFramesBeforeTimestamp: ({
 		logLevel,
 		src,
@@ -140,16 +141,19 @@ export const makeKeyframeBank = ({
 		return (await getFrameFromTimestamp(timestamp)) !== null;
 	};
 
-	const prepareForDeletion = async (logLevel: LogLevel) => {
+	const prepareForDeletion = (logLevel: LogLevel) => {
 		Internals.Log.verbose(
 			{logLevel, tag: '@remotion/media'},
 			`Preparing for deletion of keyframe bank from ${startTimestampInSeconds}sec to ${endTimestampInSeconds}sec`,
 		);
 		// Cleanup frames that have been extracted that might not have been retrieved yet
-		const {value} = await sampleIterator.return();
-		if (value) {
-			value.close();
-		}
+		sampleIterator.return().then((result) => {
+			if (result.value) {
+				result.value.close();
+			}
+
+			return null;
+		});
 
 		for (const frameTimestamp of frameTimestamps) {
 			if (!frames[frameTimestamp]) {
@@ -199,7 +203,7 @@ export const makeKeyframeBank = ({
 		if (deletedTimestamps.length > 0) {
 			Internals.Log.verbose(
 				{logLevel, tag: '@remotion/media'},
-				`Deleted frames ${deletedTimestamps.join(', ')} for src ${src} because it is lower than ${timestampInSeconds}. Remaining: ${frameTimestamps}`,
+				`Deleted ${deletedTimestamps.length} frame${deletedTimestamps.length === 1 ? '' : 's'} ${renderTimestampRange(deletedTimestamps)} for src ${src} because it is lower than ${timestampInSeconds}. Remaining: ${renderTimestampRange(frameTimestamps)}`,
 			);
 		}
 	};
@@ -215,11 +219,19 @@ export const makeKeyframeBank = ({
 		return lastUsed;
 	};
 
+	let queue = Promise.resolve<unknown>(undefined);
+
 	const keyframeBank: KeyframeBank = {
 		startTimestampInSeconds,
 		endTimestampInSeconds,
-		getFrameFromTimestamp,
-		prepareForDeletion,
+		getFrameFromTimestamp: (timestamp: number) => {
+			queue = queue.then(() => getFrameFromTimestamp(timestamp));
+			return queue as Promise<VideoSample | null>;
+		},
+		prepareForDeletion: (logLevel: LogLevel) => {
+			queue = queue.then(() => prepareForDeletion(logLevel));
+			return queue as Promise<void>;
+		},
 		hasTimestampInSecond,
 		addFrame,
 		deleteFramesBeforeTimestamp,

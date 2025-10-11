@@ -2,7 +2,7 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {Sequence} from '../Sequence.js';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {calculateLoopDuration} from '../calculate-loop.js';
+import {calculateMediaDuration} from '../calculate-media-duration.js';
 import {cancelRender} from '../cancel-render.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Loop} from '../loop/index.js';
@@ -50,7 +50,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {durations, setDurations} = useContext(DurationsContext);
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
-			`The \`<Audio>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+			`The \`<Html5Audio>\` tag requires a string for \`src\`, but got ${JSON.stringify(
 				props.src,
 			)} instead.`,
 		);
@@ -106,7 +106,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	if (loop && durationFetched !== undefined) {
 		if (!Number.isFinite(durationFetched)) {
 			return (
-				<Audio
+				<Html5Audio
 					{...propsOtherThanLoop}
 					ref={ref}
 					_remotionInternalNativeLoopPassed
@@ -119,14 +119,14 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		return (
 			<Loop
 				layout="none"
-				durationInFrames={calculateLoopDuration({
+				durationInFrames={calculateMediaDuration({
 					trimAfter: trimAfterValue,
 					mediaDurationInFrames: duration,
 					playbackRate: props.playbackRate ?? 1,
 					trimBefore: trimBeforeValue,
 				})}
 			>
-				<Audio
+				<Html5Audio
 					{...propsOtherThanLoop}
 					ref={ref}
 					_remotionInternalNativeLoopPassed
@@ -147,7 +147,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 				durationInFrames={trimAfterValue}
 				name={name}
 			>
-				<Audio
+				<Html5Audio
 					_remotionInternalNeedsDurationCalculation={Boolean(loop)}
 					pauseWhenBuffering={pauseWhenBuffering ?? false}
 					{...otherProps}
@@ -159,7 +159,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	validateMediaProps(
 		{playbackRate: props.playbackRate, volume: props.volume},
-		'Audio',
+		'Html5Audio',
 	);
 
 	if (environment.isRendering) {
@@ -195,10 +195,15 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 };
 
-/*
+/**
  * @description With this component, you can add audio to your video. All audio formats which are supported by Chromium are supported by the component.
- * @see [Documentation](https://remotion.dev/docs/audio)
+ * @see [Documentation](https://remotion.dev/docs/html5-audio)
  */
-export const Audio = forwardRef(AudioRefForwardingFunction);
+export const Html5Audio = forwardRef(AudioRefForwardingFunction);
+addSequenceStackTraces(Html5Audio);
 
-addSequenceStackTraces(Audio);
+/**
+ * @deprecated This component has been renamed to `Html5Audio`.
+ * @see [Documentation](https://remotion.dev/docs/mediabunny/new-video)
+ */
+export const Audio = Html5Audio;

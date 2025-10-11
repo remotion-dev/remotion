@@ -9,8 +9,7 @@ const {validateMediaProps} = Internals;
 export const Audio: React.FC<AudioProps> = (props) => {
 	// Should only destruct `trimBefore` and `trimAfter` from props,
 	// rest gets drilled down
-	const {name, pauseWhenBuffering, stack, showInTimeline, loop, ...otherProps} =
-		props;
+	const {name, stack, showInTimeline, ...otherProps} = props;
 	const environment = useRemotionEnvironment();
 
 	if (typeof props.src !== 'string') {
@@ -30,20 +29,7 @@ export const Audio: React.FC<AudioProps> = (props) => {
 		return <AudioForRendering {...otherProps} />;
 	}
 
-	const {
-		delayRenderRetries,
-		delayRenderTimeoutInMilliseconds,
-		...propsForPreview
-	} = otherProps;
-
-	return (
-		<AudioForPreview
-			loop={loop}
-			name={name}
-			{...propsForPreview}
-			stack={stack ?? null}
-		/>
-	);
+	return <AudioForPreview name={name} {...otherProps} stack={stack ?? null} />;
 };
 
 // TODO: Doesn't work

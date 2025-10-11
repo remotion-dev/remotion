@@ -2,7 +2,7 @@ import type {VolumeProp} from './volume-prop.js';
 
 export const validateMediaProps = (
 	props: {volume: VolumeProp | undefined; playbackRate: number | undefined},
-	component: 'Video' | 'Audio',
+	component: 'Html5Video' | 'Html5Audio' | 'Audio' | 'Video',
 ) => {
 	if (
 		typeof props.volume !== 'number' &&
