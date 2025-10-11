@@ -429,6 +429,7 @@ const RenderModal: React.FC<
 			userAgent:
 				userAgent === null ? null : userAgent.trim() === '' ? null : userAgent,
 			enableMultiProcessOnLinux: multiProcessOnLinux,
+			headless,
 		};
 	}, [
 		disableWebSecurity,
@@ -436,6 +437,7 @@ const RenderModal: React.FC<
 		openGlOption,
 		userAgent,
 		multiProcessOnLinux,
+		headless,
 	]);
 
 	const [outName, setOutName] = useState(() => initialOutName);
