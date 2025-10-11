@@ -18,7 +18,6 @@ const {
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
-
 	overwriteOption,
 	binariesDirectoryOption,
 	publicPathOption,

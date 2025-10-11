@@ -26,11 +26,11 @@ const {
 	videoBitrateOption,
 	enforceAudioOption,
 	mutedOption,
-	headlessOption,
 	colorSpaceOption,
 	numberOfGifLoopsOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	headlessOption,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	delayRenderTimeoutInMillisecondsOption,
@@ -105,12 +105,13 @@ export const renderCommand = async (
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-	const binariesDirectory = binariesDirectoryOption.getValue({
-		commandLine: CliInternals.parsedCli,
-	}).value;
 	const headless = headlessOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;

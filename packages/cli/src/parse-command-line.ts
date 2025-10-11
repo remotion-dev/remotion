@@ -45,7 +45,6 @@ export type CommandLineOptions = {
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
-	['disable-headless']: boolean;
 	['every-nth-frame']: number;
 	[numberOfGifLoopsOption.cliFlag]: TypeOfOption<typeof numberOfGifLoopsOption>;
 	['number-of-shared-audio-tags']: number;
@@ -88,6 +87,7 @@ export type CommandLineOptions = {
 	help: boolean;
 	port: number;
 	frame: string | number;
+	['disable-headless']: boolean;
 	['disable-keyboard-shortcuts']: boolean;
 	muted: boolean;
 	height: number;

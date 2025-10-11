@@ -24,6 +24,7 @@ const {
 	reproOption,
 	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
 	forSeamlessAacConcatenationOption,
 	audioCodecOption,
 	hardwareAccelerationOption,

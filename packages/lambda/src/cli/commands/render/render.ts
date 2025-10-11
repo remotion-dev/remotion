@@ -45,6 +45,7 @@ const {
 	deleteAfterOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
+	headlessOption,
 	numberOfGifLoopsOption,
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
@@ -146,6 +147,9 @@ export const renderCommand = async ({
 	const gl = glOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -180,6 +184,7 @@ export const renderCommand = async ({
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
+		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	};

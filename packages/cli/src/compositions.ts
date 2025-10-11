@@ -17,6 +17,8 @@ const {
 	offthreadVideoCacheSizeInBytesOption,
 	offthreadVideoThreadsOption,
 	glOption,
+	headlessOption,
+
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
 	publicPathOption,

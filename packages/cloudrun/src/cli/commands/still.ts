@@ -20,9 +20,9 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
 	binariesDirectoryOption,
 	mediaCacheSizeInBytesOption,
-	headlessOption,
 } = BrowserSafeApis.options;
 
 export const stillCommand = async (

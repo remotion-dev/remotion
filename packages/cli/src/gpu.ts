@@ -13,8 +13,8 @@ const {
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
-	chromeModeOption,
 	headlessOption,
+	chromeModeOption,
 } = BrowserSafeApis.options;
 
 export const gpuCommand = async (logLevel: LogLevel) => {
