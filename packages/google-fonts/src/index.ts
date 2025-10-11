@@ -4,8 +4,8 @@
 type Variants = Record<
 	string,
 	{
-		weights?: string;
-		subsets?: string;
+		weights: string;
+		subsets: string;
 	}
 >;
 
@@ -26,8 +26,8 @@ export type GoogleFont = {
 		style?: T | undefined,
 		options?:
 			| {
-					weights: Variants[T]['weights'][];
-					subsets: Variants[T]['subsets'][];
+					weights?: Variants[T]['weights'][] | undefined;
+					subsets?: Variants[T]['subsets'][] | undefined;
 					document?: Document | undefined;
 			  }
 			| undefined,
