@@ -230,8 +230,14 @@ The [command line flag](/docs/cli/render#--ignore-certificate-errors) `--ignore-
 
 ## ~`setChromiumHeadlessMode()`<AvailableFrom v="2.6.5" />~
 
-_removed in v5.0_
+<Options id="disable-headless" />
 
+````tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+
+Config.setChromiumHeadlessMode(false);
 ## `setChromiumMultiProcessOnLinux()`<AvailableFrom v="4.0.42" />
 
 <Options id="enable-multiprocess-on-linux" cli />
@@ -242,7 +248,7 @@ import {Config} from '@remotion/cli/config';
 // ---cut---
 
 Config.setChromiumMultiProcessOnLinux(true);
-```
+````
 
 ## `setChromeMode()`<AvailableFrom v="4.0.248" />
 

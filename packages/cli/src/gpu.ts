@@ -14,6 +14,7 @@ const {
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
 	chromeModeOption,
+	headlessOption,
 } = BrowserSafeApis.options;
 
 export const gpuCommand = async (logLevel: LogLevel) => {
@@ -33,6 +34,9 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const chromeMode = chromeModeOption.getValue({
@@ -57,6 +61,7 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
+		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	};

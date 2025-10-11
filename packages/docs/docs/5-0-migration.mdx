@@ -93,11 +93,6 @@ This will add a miniscule cost to your renders technically, but will lead to mor
 `renderMediaOnLambda()`, `getRenderProgress()`, `renderStillOnLambda()`, `presignUrl()`, `getSites()` have been removed from `@remotion/lambda`.  
 They are now available in `@remotion/lambda/client`.
 
-## `--disable-headless` and `headless: false` are removed
-
-Since the introduction of [Chrome Headless Shell](/docs/miscellaneous/chrome-headless-shell), it is not possible to disable headless mode anymore.  
-This flag was a no-op and has now been removed.
-
 ## `@remotion/google-fonts` requires specifying weights and subsets
 
 When using `loadFonts()` from `@remotion/google-fonts`, you must now specify which font weights and subsets you want to load. Loading all weights and subsets by default is no longer supported as it can lead to timeouts.

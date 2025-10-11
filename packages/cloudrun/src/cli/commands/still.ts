@@ -22,6 +22,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
 	mediaCacheSizeInBytesOption,
+	headlessOption,
 } = BrowserSafeApis.options;
 
 export const stillCommand = async (
@@ -61,10 +62,14 @@ export const stillCommand = async (
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
+	const headless = headlessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const chromiumOptions: ChromiumOptions = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
+		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	};
@@ -73,6 +78,7 @@ export const stillCommand = async (
 		offthreadVideoCacheSizeInBytesOption.getValue({
 			commandLine: CliInternals.parsedCli,
 		}).value;
+
 	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;

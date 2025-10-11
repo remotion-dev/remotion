@@ -45,6 +45,7 @@ const {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
 	overwriteOption,
 	binariesDirectoryOption,
 	forSeamlessAacConcatenationOption,
@@ -226,6 +227,7 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const headless = headlessOption.getValue({commandLine: parsedCli}).value;
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
 	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
@@ -234,6 +236,7 @@ export const benchmarkCommand = async (
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
+		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	};

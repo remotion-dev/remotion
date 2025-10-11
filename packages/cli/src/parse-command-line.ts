@@ -45,6 +45,7 @@ export type CommandLineOptions = {
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
+	['disable-headless']: boolean;
 	['every-nth-frame']: number;
 	[numberOfGifLoopsOption.cliFlag]: TypeOfOption<typeof numberOfGifLoopsOption>;
 	['number-of-shared-audio-tags']: number;

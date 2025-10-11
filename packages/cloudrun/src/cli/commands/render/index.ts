@@ -26,6 +26,7 @@ const {
 	videoBitrateOption,
 	enforceAudioOption,
 	mutedOption,
+	headlessOption,
 	colorSpaceOption,
 	numberOfGifLoopsOption,
 	enableMultiprocessOnLinuxOption,
@@ -107,6 +108,9 @@ export const renderCommand = async (
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -116,6 +120,7 @@ export const renderCommand = async (
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
+		headless,
 		ignoreCertificateErrors,
 		userAgent,
 	};
