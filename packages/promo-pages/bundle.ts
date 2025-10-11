@@ -29,6 +29,7 @@ const result = await build({
 		'./src/components/homepage/Pricing.tsx',
 		'./src/components/team.tsx',
 	],
+	outdir: 'dist',
 	format: 'esm',
 	external: [
 		'react',
@@ -40,8 +41,6 @@ const result = await build({
 		'zod',
 	],
 });
-
-console.log(result.success);
 
 if (!result.success) {
 	console.log(result.logs.join('\n'));

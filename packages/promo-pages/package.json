@@ -9,14 +9,6 @@
 		"lint": "tsc && eslint src",
 		"dev": "bun server.ts"
 	},
-	"exports": {
-		"./package.json": "./package.json",
-		"./dist/homepage/Pricing.js": "./dist/homepage/Pricing.js",
-		"./dist/Homepage.css": "./dist/Homepage.css",
-		"./dist/Homepage.js": "./dist/Homepage.js",
-		"./dist/tailwind.css": "./dist/tailwind.css",
-		"./dist/team.js": "./dist/team.js"
-	},
 	"type": "module",
 	"dependencies": {
 		"@remotion/animated-emoji": "workspace:*",
