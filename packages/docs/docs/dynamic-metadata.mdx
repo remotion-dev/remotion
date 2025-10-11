@@ -84,6 +84,10 @@ export const Root: React.FC = () => {
 };
 ```
 
+:::note
+See [Getting metadata using Mediabunny](/docs/mediabunny/metadata) for the snippet for `get-media-metadata.ts`.
+:::
+
 The `props` defaults to the `defaultProps` specified, but may be overriden by [passing input props to the render](/docs/props-resolution).
 
 Return an object with `durationInFrames` to change the duration of the video.
@@ -93,30 +97,57 @@ It is also possible to transform the props [passed to the component by returning
 
 ## With `useEffect()` and `getInputProps()`
 
-In the following example, Remotion is instructed to wait for the [`parseMedia()`](/docs/media-parser/parse-media) promise to resolve before evaluating the composition.
+In the following example, Remotion is instructed to wait for the [`getMediaMetadata()`](/docs/mediabunny/metadata) promise to resolve before evaluating the composition.
 
 By calling [`delayRender()`](/docs/delay-render), Remotion will be blocked from proceeding until [`continueRender()`](/docs/continue-render) is called.
 
 ```tsx twoslash title="src/Root.tsx"
+// @filename: get-media-metadata.ts
+import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
+
+export const getMediaMetadata = async (src: string) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src, {
+      getRetryDelay: () => null,
+    }),
+  });
+
+  const durationInSeconds = await input.computeDuration();
+  const videoTrack = await input.getPrimaryVideoTrack();
+  const dimensions = videoTrack
+    ? {
+        width: videoTrack.displayWidth,
+        height: videoTrack.displayHeight,
+      }
+    : null;
+  const packetStats = await videoTrack?.computePacketStats();
+  const fps = packetStats?.averagePacketRate ?? null;
+
+  return {
+    durationInSeconds,
+    dimensions,
+    fps,
+  };
+};
+
+// @filename: index.tsx
+// ---cut---
 import {useEffect, useState} from 'react';
 import {Composition, continueRender, delayRender} from 'remotion';
+import React from 'react';
 const VideoTesting: React.FC = () => null;
 // ---cut---
-import {parseMedia} from '@remotion/media-parser';
+import {getMediaMetadata} from './get-media-metadata';
 
 export const Index: React.FC = () => {
   const [handle] = useState(() => delayRender());
   const [duration, setDuration] = useState(1);
 
   useEffect(() => {
-    parseMedia({
-      src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-      fields: {
-        slowDurationInSeconds: true,
-      },
-    })
-      .then(({slowDurationInSeconds}) => {
-        setDuration(Math.round(slowDurationInSeconds * 30));
+    getMediaMetadata('https://remotion.media/video.mp4')
+      .then(({durationInSeconds}) => {
+        setDuration(Math.round(durationInSeconds * 30));
         continueRender(handle);
       })
       .catch((err) => {
@@ -127,6 +158,10 @@ export const Index: React.FC = () => {
   return <Composition id="dynamic-duration" component={VideoTesting} width={1080} height={1080} fps={30} durationInFrames={duration} />;
 };
 ```
+
+:::note
+See [Getting metadata using Mediabunny](/docs/mediabunny/metadata) for the snippet for `get-media-metadata.ts`.
+:::
 
 To dynamically pass a video asset, you [may pass input props](/docs/props-resolution) when rendering and retrieve them inside your React code using [`getInputProps()`](/docs/get-input-props).
 
@@ -164,24 +199,50 @@ The [`<Player>`](/docs/player) will react if the metadata being passed to it cha
 </p>
 
 ```tsx twoslash title="MyApp.tsx"
+// @filename: get-media-metadata.ts
+import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
+
+export const getMediaMetadata = async (src: string) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src, {
+      getRetryDelay: () => null,
+    }),
+  });
+
+  const durationInSeconds = await input.computeDuration();
+  const videoTrack = await input.getPrimaryVideoTrack();
+  const dimensions = videoTrack
+    ? {
+        width: videoTrack.displayWidth,
+        height: videoTrack.displayHeight,
+      }
+    : null;
+  const packetStats = await videoTrack?.computePacketStats();
+  const fps = packetStats?.averagePacketRate ?? null;
+
+  return {
+    durationInSeconds,
+    dimensions,
+    fps,
+  };
+};
+
+// @filename: index.tsx
 const VideoTesting: React.FC = () => null;
 // ---cut---
-import {parseMedia} from '@remotion/media-parser';
+import React from 'react';
 import {useEffect, useState} from 'react';
 import {Player} from '@remotion/player';
+import {getMediaMetadata} from './get-media-metadata';
 
 export const Index: React.FC = () => {
   const [duration, setDuration] = useState(1);
 
   useEffect(() => {
-    parseMedia({
-      src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-      fields: {
-        slowDurationInSeconds: true,
-      },
-    })
-      .then(({slowDurationInSeconds}) => {
-        setDuration(Math.round(slowDurationInSeconds * 30));
+    getMediaMetadata('https://remotion.media/video.mp4')
+      .then(({durationInSeconds}) => {
+        setDuration(Math.round(durationInSeconds * 30));
       })
       .catch((err) => {
         console.log(`Error fetching metadata: ${err}`);
