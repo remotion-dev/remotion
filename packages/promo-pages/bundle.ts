@@ -1,4 +1,5 @@
-import {$} from 'bun';
+import {$, build} from 'bun';
+
 import {NoReactInternals} from 'remotion/no-react';
 
 if (process.env.NODE_ENV !== 'production') {
@@ -22,7 +23,7 @@ if (nodeVersion.trim() === 'undefined') {
 
 await $`bunx tailwindcss -i src/index.css -o dist/tailwind.css`;
 
-const result = await Bun.build({
+const result = await build({
 	entrypoints: [
 		'./src/components/Homepage.tsx',
 		'./src/components/homepage/Pricing.tsx',
