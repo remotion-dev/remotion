@@ -64,7 +64,7 @@ Inside a component, regular HTML and SVG tags can be returned.
 There are special tags for video and audio.
 Those special tags accept regular CSS styles.
 
-If a video is included in the component it should use the "<Video>" tag from "@remotion/media".
+If a video is included in the component it should use the "<Video>" tag.
 
 \`\`\`tsx
 import {Video} from '@remotion/media';

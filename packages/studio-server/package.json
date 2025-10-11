@@ -40,7 +40,8 @@
 		"@babel/types": "7.24.0",
 		"@types/semver": "^7.3.4",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "9.19.0",
+		"@types/node": "20.12.14"
 	},
 	"exports": {
 		".": "./dist/index.js",

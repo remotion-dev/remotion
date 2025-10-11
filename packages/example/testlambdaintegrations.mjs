@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const functionName = execSync(
-	`pnpm exec remotion lambda functions ls -q --compatible-only`,
+	`bunx remotion lambda functions ls -q --compatible-only`,
 )
 	.toString('utf8')
 	.trim()

@@ -101,7 +101,7 @@ const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
     return {
       ...passedStyle,
       opacity: active ? 0 : 1,
-      // @ts-expect-error Only in the docs - it will not give a type error in a Remotion project
+      // @ts-ignore Only in the docs - it will not give a type error in a Remotion project
       pointerEvents: active ? 'none' : (passedStyle?.pointerEvents ?? 'auto'),
     };
   }, [active, passedStyle]);

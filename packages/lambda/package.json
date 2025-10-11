@@ -51,7 +51,8 @@
 		"eslint": "9.19.0",
 		"next": "15.4.7",
 		"pureimage": "0.4.13",
-		"zip-lib": "^0.7.2"
+		"zip-lib": "^0.7.2",
+		"@types/node": "20.12.14"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"

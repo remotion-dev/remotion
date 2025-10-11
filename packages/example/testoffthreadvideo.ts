@@ -10,7 +10,7 @@ const files = readdirSync('public/offthreadvideoregression').filter(
 for (const file of files) {
 	console.log(`Rendering ${file}`);
 	execSync(
-		`pnpm exec remotion render OffthreadRemoteVideo --props='{"src": "offthreadvideoregression/${file}"}' out/regressions/${file}.mp4 --log=verbose`,
+		`bunx remotion render OffthreadRemoteVideo --props='{"src": "offthreadvideoregression/${file}"}' out/regressions/${file}.mp4 --log=verbose`,
 		{stdio: 'inherit'},
 	);
 }

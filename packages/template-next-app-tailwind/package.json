@@ -45,6 +45,8 @@
     "eslint": "9.19.0",
     "@next/eslint-plugin-next": "15.1.6",
     "eslint-config-next": "15.1.6",
+    "@typescript-eslint/eslint-plugin": "8.46.0",
+    "@typescript-eslint/parser": "8.46.0",
     "postcss": "8.4.47",
     "prettier": "3.6.0",
     "tailwindcss": "4.0.3",
