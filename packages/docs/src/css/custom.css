@@ -462,3 +462,104 @@ div[class*='colorModeToggle'] button.clean-btn:hover {
 .navbar .navbar__items--right .DocSearch-Button .DocSearch-Button-Placeholder {
 	display: none;
 }
+
+/* Hide theme switcher in mobile navbar view with higher specificity */
+@media screen and (max-width: 996px) {
+	/* Adjust to 1200px if using custom breakpoint */
+	.navbar .navbar__items--right .toggle_OLSw.colorModeToggle_Hg9V {
+		display: none;
+	}
+}
+
+/* Hide TOC (using partial class match for reliability) and expand content when sidepanel is open */
+
+/* Hide the TOC desktop sidebar */
+body.crawlchat-open main [class*='theme-doc-toc-desktop'] {
+	display: none !important;
+}
+
+body.crawlchat-open div[class*='tableOfContents'] {
+	display: none !important;
+}
+
+/* Target the TOC column specifically (col--3 is typically TOC) */
+body.crawlchat-open main [class*='docMainContainer'] .row > .col.col--3 {
+	display: none !important;
+}
+
+body.crawlchat-open
+	main
+	[class*='docMainContainer']
+	.row
+	> [class*='col'][class*='col--3'] {
+	display: none !important;
+}
+
+/* Expand the main content column to fill available space */
+body.crawlchat-open
+	main
+	[class*='docMainContainer']
+	.row
+	> [class*='docItemCol'] {
+	width: 100% !important;
+	max-width: 100% !important;
+	flex: 1 1 100% !important;
+}
+
+body.crawlchat-open
+	main
+	[class*='docMainContainer']
+	.row
+	> .col[class*='docItemCol'] {
+	width: 100% !important;
+	max-width: 100% !important;
+	flex: 1 1 100% !important;
+}
+
+/* Ensure the container itself is full width */
+body.crawlchat-open main [class*='docMainContainer'] {
+	max-width: 100% !important;
+	width: 100% !important;
+}
+
+body.crawlchat-open main [class*='docMainContainer'] .container {
+	max-width: 100% !important;
+	width: 100% !important;
+}
+
+body.crawlchat-open main [class*='docMainContainer'] .row {
+	max-width: 100% !important;
+	width: 100% !important;
+	margin: 0 !important;
+}
+
+/* Expand the article content */
+body.crawlchat-open article[class*='docItemContainer'] {
+	max-width: 100% !important;
+}
+
+body.crawlchat-open .markdown {
+	max-width: 100% !important;
+}
+
+/* Additional failsafe: target by element structure */
+body.crawlchat-open main.docMainContainer_namt .row > .col.col--3 {
+	display: none !important;
+}
+
+body.crawlchat-open main.docMainContainer_namt .row > .col.docItemCol_YAwJ {
+	width: 100% !important;
+	max-width: 100% !important;
+	flex: 1 1 100% !important;
+}
+
+/* Smooth transition for better UX */
+main [class*='docMainContainer'] .row > [class*='docItemCol'],
+main [class*='docMainContainer'] .row > .col[class*='docItemCol'],
+main [class*='theme-doc-toc-desktop'],
+div[class*='tableOfContents'] {
+	transition:
+		opacity 0.2s ease,
+		width 0.2s ease,
+		max-width 0.2s ease;
+}
