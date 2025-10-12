@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.357",
+	"version": "4.0.359",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",

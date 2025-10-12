@@ -1,0 +1,112 @@
+---
+image: /generated/articles-docs-mediabunny-metadata.png
+title: Getting metadata from a video in JavaScript
+crumb: 'Mediabunny'
+sidebar_label: Getting metadata
+---
+
+If you would like to obtain metadata from a video or audio in JavaScript, such as:
+
+- Duration
+- Width and height (Dimensions)
+- Frame rate (FPS)
+
+then [Mediabunny](https://mediabunny.dev) is the ideal library for doing so.
+
+## Getting metadata from a URL
+
+```tsx twoslash title="get-media-metadata.ts"
+import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
+
+export const getMediaMetadata = async (src: string) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src, {
+      getRetryDelay: () => null,
+    }),
+  });
+
+  const durationInSeconds = await input.computeDuration();
+  const videoTrack = await input.getPrimaryVideoTrack();
+  const dimensions = videoTrack
+    ? {
+        width: videoTrack.displayWidth,
+        height: videoTrack.displayHeight,
+      }
+    : null;
+  const packetStats = await videoTrack?.computePacketStats();
+  const fps = packetStats?.averagePacketRate ?? null;
+
+  return {
+    durationInSeconds,
+    dimensions,
+    fps,
+  };
+};
+```
+
+<details>
+  <summary>Explanation</summary>
+  <p>We load a URL (e.g. `https://remotion.media/video.mp4`) and parse it using Mediabunny.</p>
+  <p>We don't care which format, so we load all parsers using `ALL_FORMATS`.</p>
+  <p>By setting `getRetryDelay` to `() => null`, we prevent Mediabunny from infinitely retrying if the request fails.</p>
+  <p>We compute the duration, the dimensions and the frame rate. If the media file is an audio file, we return `null` for the dimensions and the frame rate.</p>
+</details>
+
+```tsx twoslash title="Usage example"
+// @filename: get-media-metadata.ts
+import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
+
+export const getMediaMetadata = async (src: string) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src, {
+      getRetryDelay: () => null,
+    }),
+  });
+
+  const durationInSeconds = await input.computeDuration();
+  const videoTrack = await input.getPrimaryVideoTrack();
+  const dimensions = videoTrack
+    ? {
+        width: videoTrack.displayWidth,
+        height: videoTrack.displayHeight,
+      }
+    : null;
+  const packetStats = await videoTrack?.computePacketStats();
+  const fps = packetStats?.averagePacketRate ?? null;
+
+  return {
+    durationInSeconds,
+    dimensions,
+    fps,
+  };
+};
+
+// @filename: index.ts
+// ---cut---
+import {getMediaMetadata} from './get-media-metadata';
+
+const metadata = await getMediaMetadata('https://remotion.media/video.mp4');
+
+console.log(metadata);
+//             ^?
+```
+
+## Why we recommend Mediabunny
+
+Mediabunny is a dependency-free and fast library.
+
+It works in the browser, but also works in Node.js and Bun.
+
+It supports more container formats than the browser.
+
+It does not need to mount a `<video>` tag, which would result in other work being done (DOM manipulation and video decoding).
+
+It can return more metadata than the browser, for example the frame rate or the codec.
+
+## When not to use Mediabunny
+
+The assets are loaded using `fetch()`, so they must be accessible for the current website and not be blocked by CORS.
+
+In that case, you are better off using the [`getVideoMetadata()`](/docs/get-video-metadata) function from the [`@remotion/media-utils`](/docs/media-utils) package, which uses the `<video>` tag internally.

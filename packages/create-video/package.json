@@ -3,14 +3,16 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/create-video"
 	},
 	"name": "create-video",
-	"version": "4.0.357",
+	"version": "4.0.359",
 	"description": "Create a new Remotion project",
 	"main": "dist/index.js",
 	"bin": {
 		"create-video": "bin.js"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"bin.js",
+		"cli.js"
 	],
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",

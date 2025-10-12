@@ -149,7 +149,6 @@ export const EnterpriseLicense: React.FC = () => {
 
 const SEAT_PRICE = 25;
 const RENDER_UNIT_PRICE = 10;
-const WEBCODECS_UNIT_PRICE = 10;
 
 const icon: React.CSSProperties = {
 	height: 16,
@@ -159,7 +158,6 @@ const icon: React.CSSProperties = {
 export const CompanyPricing: React.FC = () => {
 	const [devSeatCount, setDevSeatCount] = React.useState(1);
 	const [cloudRenders, setCloudRenders] = React.useState(1000);
-	const [creations, setCreations] = React.useState(1000);
 
 	const formatPrice = useCallback((price: number) => {
 		const formatter = new Intl.NumberFormat('en-US', {
@@ -173,11 +171,9 @@ export const CompanyPricing: React.FC = () => {
 	const totalPrice = useMemo(() => {
 		return Math.max(
 			100,
-			devSeatCount * SEAT_PRICE +
-				(cloudRenders / 1000) * RENDER_UNIT_PRICE +
-				(creations / 1000) * WEBCODECS_UNIT_PRICE,
+			devSeatCount * SEAT_PRICE + (cloudRenders / 1000) * RENDER_UNIT_PRICE,
 		);
-	}, [cloudRenders, devSeatCount, creations]);
+	}, [cloudRenders, devSeatCount]);
 
 	const totalPriceString = useMemo(() => {
 		return formatPrice(totalPrice);
@@ -219,10 +215,10 @@ export const CompanyPricing: React.FC = () => {
 			<div style={{height: 14}} />
 			<div className={'flex flex-col md:flex-row md:items-center'}>
 				<div style={textUnitWrapper}>
-					<div className={'fontbrand font-bold text-lg'}>Server renders</div>
+					<div className={'fontbrand font-bold text-lg'}>Video renders</div>
 					<div className={'text-muted fontbrand text-sm'}>
 						<a
-							href="https://www.remotion.dev/docs/compare-ssr"
+							href="https://www.remotion.dev/docs/render"
 							className="underline underline-offset-4 text-inherit"
 						>
 							Renders per month (self-hosted)
@@ -246,37 +242,6 @@ export const CompanyPricing: React.FC = () => {
 				</div>
 			</div>
 			<div style={{height: 14}} />
-			<div className={'flex flex-col md:flex-row md:items-center'}>
-				<div style={textUnitWrapper}>
-					<div className={'fontbrand font-bold text-lg'}>
-						WebCodecs video creations
-					</div>
-					<div className={'text-muted fontbrand text-sm'}>
-						<a
-							className="underline underline-offset-4 text-inherit"
-							href="https://remotion.dev/webcodecs"
-						>
-							Client-side video creations per month
-						</a>
-					</div>
-				</div>
-				<div style={{flex: 3}} className="hidden md:block" />
-				<div className="flex flex-row items-center justify-between mt-3 md:mt-0">
-					<Counter
-						count={creations}
-						setCount={setCreations}
-						minCount={0}
-						step={1000}
-					/>
-					<SmallPriceTag>
-						$
-						{new Intl.NumberFormat('en-US', {
-							maximumFractionDigits: 0,
-						}).format((creations / 1000) * WEBCODECS_UNIT_PRICE)}
-					</SmallPriceTag>
-				</div>
-			</div>
-			<div style={{height: 20}} />
 			<div className={'flex flex-row justify-end'}>
 				<div style={{...textUnitWrapper, alignItems: 'flex-end'}}>
 					<PriceTag>{totalPriceString}/mo</PriceTag>
