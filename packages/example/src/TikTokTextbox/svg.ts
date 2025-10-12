@@ -63,12 +63,32 @@ export const makeSvg = ({
 				y: yOffset,
 			});
 		}
-
-		instructions.push({
-			type: 'L',
-			x: xOffset + cornerRounding.width + horizontalPadding * 2,
-			y: yOffset + cornerRounding.height,
-		});
+		if (cornerRounding.bottomRight) {
+			instructions.push({
+				type: 'L',
+				x: xOffset + cornerRounding.width + horizontalPadding * 2,
+				y: yOffset + cornerRounding.height - CORNER_RADIUS,
+			});
+			instructions.push({
+				type: 'C',
+				cp1x: xOffset + cornerRounding.width + horizontalPadding * 2,
+				cp1y: yOffset + cornerRounding.height,
+				cp2x: xOffset + cornerRounding.width + horizontalPadding * 2,
+				cp2y: yOffset + cornerRounding.height,
+				x:
+					xOffset +
+					cornerRounding.width +
+					horizontalPadding * 2 -
+					CORNER_RADIUS,
+				y: yOffset + cornerRounding.height,
+			});
+		} else {
+			instructions.push({
+				type: 'L',
+				x: xOffset + cornerRounding.width + horizontalPadding * 2,
+				y: yOffset + cornerRounding.height,
+			});
+		}
 		yOffset += cornerRounding.height;
 	}
 	for (let i = cornerRoundings.length - 1; i >= 0; i--) {
