@@ -14,11 +14,12 @@ const fontWeight = 'bold';
 export const fitTextOnNLinesSchema = z.object({
 	line: z.string(),
 	maxLines: z.number(),
+	textAlign: z.enum(['left', 'center']),
 });
 
 export const FitTextOnNLines: React.FC<
 	z.infer<typeof fitTextOnNLinesSchema>
-> = ({line, maxLines}) => {
+> = ({line, maxLines, textAlign}) => {
 	const {fontSize: bestFontSize, lines} = fitTextOnNLines({
 		maxLines,
 		maxBoxWidth: boxWidth - TIKTOK_TEXT_BOX_HORIZONTAL_PADDING * 2,
@@ -55,8 +56,9 @@ export const FitTextOnNLines: React.FC<
 					textColor="black"
 					lines={lines}
 					fontFamily={fontFamily}
-					textAlign="center"
-				></TikTokTextBox>
+					textAlign={textAlign}
+					fontSize={fontSize}
+				/>
 			</div>
 		</AbsoluteFill>
 	);

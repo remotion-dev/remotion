@@ -3,157 +3,21 @@
  * and improved: https://discord.com/channels/809501355504959528/833092843290624050/1379446302903107624
  */
 
-import {measureText, TextTransform} from '@remotion/layout-utils';
+import {getBoundingBox} from '@remotion/paths';
+import {CornerRounding, getCornerRoundings} from './get-corner-roundings';
 import {getActualBorderRadius, getPathForCorner} from './rounded-corner';
+import {makeSvg} from './svg';
 
 interface TikTokTextBoxProps {
 	lines: string[];
-	textAlign: React.CSSProperties['textAlign'];
+	textAlign: 'left' | 'center' | 'right';
 	fontFamily: string;
 	bgColor?: string;
 	textColor?: string;
 	className?: string;
 	borderRadius?: number;
-}
-
-interface CornerRounding {
-	topLeft: boolean;
-	topRight: boolean;
-	bottomLeft: boolean;
-	bottomRight: boolean;
-	cornerTopLeft: boolean;
-	cornerTopRight: boolean;
-	cornerBottomLeft: boolean;
-	cornerBottomRight: boolean;
-	cornerLeft: boolean;
-	cornerRight: boolean;
-	widthDifferenceToPrevious: number | undefined;
-	widthDifferenceToNext: number | undefined;
-	align: React.CSSProperties['textAlign'];
-}
-
-const getCornerRoundings = ({
-	lines,
-	fontFamily,
-	fontSize,
-	additionalStyles,
-	fontVariantNumeric,
-	fontWeight,
-	letterSpacing,
-	textTransform,
-	align,
-}: {
-	lines: string[];
-	fontFamily: string;
 	fontSize: number;
-	additionalStyles: React.CSSProperties;
-	fontVariantNumeric: string;
-	fontWeight: number;
-	letterSpacing: string;
-	textTransform: TextTransform;
-	align: React.CSSProperties['textAlign'];
-}): CornerRounding[] => {
-	const lengths = lines.map((line) =>
-		measureText({
-			text: line,
-			fontFamily,
-			fontSize,
-			additionalStyles,
-			fontVariantNumeric,
-			fontWeight,
-			letterSpacing,
-			textTransform,
-			validateFontIsLoaded: true,
-		}),
-	);
-	const n = lengths.length;
-
-	return lines.map((_, i) => {
-		const isFirst = i === 0;
-		const isLast = i === n - 1;
-		const prevLen = i > 0 ? lengths[i - 1] : undefined;
-		const nextLen = i < n - 1 ? lengths[i + 1] : undefined;
-		const currLen = lengths[i];
-
-		const widthDifferenceToPrevious =
-			prevLen !== undefined ? currLen.width - prevLen.width : undefined;
-		const widthDifferenceToNext =
-			nextLen !== undefined ? currLen.width - nextLen.width : undefined;
-
-		// Determine rounded corners
-		let topLeft =
-			isFirst ||
-			(prevLen !== undefined &&
-				currLen.width - 0 > prevLen.width &&
-				align !== 'left');
-		let topRight =
-			isFirst ||
-			(prevLen !== undefined &&
-				currLen.width - 0 > prevLen.width &&
-				align !== 'right');
-		let bottomLeft =
-			isLast ||
-			(nextLen !== undefined &&
-				currLen.width - 0 > nextLen.width &&
-				align !== 'left');
-		let bottomRight =
-			isLast ||
-			(nextLen !== undefined &&
-				currLen.width - 0 > nextLen.width &&
-				align !== 'right');
-
-		if (!isFirst && !isLast) {
-			if (align === 'left') {
-				topLeft = bottomLeft = false;
-			} else if (align === 'right') {
-				topRight = bottomRight = false;
-			}
-		}
-
-		// Determine corner properties
-		let cornerTopLeft = false;
-		let cornerTopRight = false;
-		let cornerBottomLeft = false;
-		let cornerBottomRight = false;
-		const cornerLeft = false;
-		const cornerRight = false;
-
-		if (align === 'left') {
-			cornerBottomRight = !bottomRight;
-			cornerTopRight = !topRight;
-		} else if (align === 'right') {
-			cornerBottomLeft = !bottomLeft;
-			cornerTopLeft = !topLeft;
-		} else if (align === 'center') {
-			// LEFT side
-
-			cornerTopLeft = !topLeft;
-			cornerBottomLeft = !bottomLeft;
-			// RIGHT side
-
-			cornerTopRight = !topRight;
-			cornerBottomRight = !bottomRight;
-		}
-
-		const roundings: CornerRounding = {
-			topLeft,
-			topRight,
-			bottomLeft,
-			bottomRight,
-			cornerTopLeft,
-			cornerTopRight,
-			cornerBottomLeft,
-			cornerBottomRight,
-			cornerLeft,
-			cornerRight,
-
-			align,
-			widthDifferenceToPrevious,
-			widthDifferenceToNext,
-		};
-		return roundings;
-	});
-};
+}
 
 const getBorderRadius = (rounding: CornerRounding, radius: number) => {
 	return [
@@ -381,8 +245,8 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 	bgColor = 'white',
 	textColor,
 	borderRadius = 10,
+	fontSize,
 }) => {
-	const fontSize = 16;
 	const fontWeight = 400;
 	const roundings = getCornerRoundings({
 		lines,
@@ -395,6 +259,8 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 		textTransform: 'none',
 		align,
 	});
+	const svg = makeSvg(roundings, align);
+	const boundingBox = getBoundingBox(svg);
 
 	return (
 		<div
@@ -413,6 +279,7 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 				width: 'fit-content',
 				lineHeight: 1.5,
 				fontWeight,
+				position: 'relative',
 			}}
 		>
 			{lines.map((line, i) => (
@@ -427,6 +294,16 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 					borderRadiusValue={borderRadius}
 				/>
 			))}
+			<svg
+				viewBox={boundingBox.viewBox}
+				style={{
+					position: 'absolute',
+					width: boundingBox.width,
+					height: boundingBox.height,
+				}}
+			>
+				<path d={svg} fill="rgba(255, 0, 0, 0.5)" />
+			</svg>
 		</div>
 	);
 };
@@ -451,11 +328,13 @@ export const TikTokTextBoxPlayground = () => {
 				textAlign="left"
 				fontFamily="Arial"
 				bgColor="red"
+				fontSize={16}
 			/>
 			<TikTokTextBox
 				lines={['Align Center', 'short', 'Third Line']}
 				textAlign="center"
 				fontFamily="Proxima Nova Semibold"
+				fontSize={16}
 			/>
 			<TikTokTextBox
 				lines={['Align Right', 'with two lines', 'Third Line']}
@@ -463,11 +342,13 @@ export const TikTokTextBoxPlayground = () => {
 				bgColor="#FF683E"
 				fontFamily="Proxima Nova Semibold"
 				textColor="black"
+				fontSize={16}
 			/>
 			<TikTokTextBox
 				lines={['short1', 'short']}
 				textAlign="center"
 				fontFamily="Proxima Nova Semibold"
+				fontSize={16}
 			/>
 		</div>
 	);

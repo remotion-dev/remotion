@@ -634,6 +634,7 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						line: 'No matter how much text I am adding, the text always fits on 2 lines and there is corner rounding like on TikTok.',
 						maxLines: 2,
+						textAlign: 'center',
 					}}
 				/>
 				<Composition
