@@ -226,7 +226,6 @@ const TikTokTextLine: React.FC<{
 						backgroundColor: bgColor ?? 'white',
 						padding: `0px ${TIKTOK_TEXT_BOX_HORIZONTAL_PADDING}px`,
 						borderRadius: borderRadius,
-						width: 'fit-content',
 						...style,
 					} as React.CSSProperties
 				}
@@ -259,7 +258,11 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 		textTransform: 'none',
 		align,
 	});
-	const svg = makeSvg(roundings, align);
+	const svg = makeSvg({
+		cornerRoundings: roundings,
+		textAlign: align,
+		horizontalPadding: TIKTOK_TEXT_BOX_HORIZONTAL_PADDING,
+	});
 	const boundingBox = getBoundingBox(svg);
 
 	return (
