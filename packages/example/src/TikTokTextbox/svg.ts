@@ -19,40 +19,59 @@ export const makeSvg = ({
 
 	let yOffset = 0;
 
-	for (const cornerRounding of cornerRoundings) {
+	for (let i = 0; i < cornerRoundings.length; i++) {
+		const cornerRounding = cornerRoundings[i];
 		let xOffset = 0;
 		if (textAlign === 'center') {
 			xOffset = (maxWidth - (cornerRounding.width + horizontalPadding * 2)) / 2;
 		} else if (textAlign === 'right') {
 			xOffset = maxWidth - (cornerRounding.width + horizontalPadding * 2);
 		}
-		instructions.push({
-			type: 'M',
-			x: xOffset,
-			y: yOffset,
-		});
+
+		if (i === 0) {
+			instructions.push({
+				type: 'M',
+				x: xOffset,
+				y: yOffset,
+			});
+		}
 		instructions.push({
 			type: 'L',
 			x: xOffset + cornerRounding.width + horizontalPadding * 2,
 			y: yOffset,
 		});
+
 		instructions.push({
 			type: 'L',
 			x: xOffset + cornerRounding.width + horizontalPadding * 2,
 			y: yOffset + cornerRounding.height,
-		});
-		instructions.push({
-			type: 'L',
-			x: xOffset,
-			y: yOffset + cornerRounding.height,
-		});
-		instructions.push({
-			type: 'L',
-			x: xOffset,
-			y: yOffset,
 		});
 		yOffset += cornerRounding.height;
 	}
+	for (let i = cornerRoundings.length - 1; i >= 0; i--) {
+		const cornerRounding = cornerRoundings[i];
+		let xOffset = 0;
+		if (textAlign === 'center') {
+			xOffset = (maxWidth - (cornerRounding.width + horizontalPadding * 2)) / 2;
+		} else if (textAlign === 'right') {
+			xOffset = maxWidth - (cornerRounding.width + horizontalPadding * 2);
+		}
+
+		instructions.push({
+			type: 'L',
+			x: xOffset,
+			y: yOffset,
+		});
+		instructions.push({
+			type: 'L',
+			x: xOffset,
+			y: yOffset - cornerRounding.height,
+		});
+		yOffset -= cornerRounding.height;
+	}
+	instructions.push({
+		type: 'Z',
+	});
 
 	return serializeInstructions(instructions);
 };
