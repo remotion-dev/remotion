@@ -123,11 +123,29 @@ export const makeSvg = ({
 			});
 		}
 
-		instructions.push({
-			type: 'L',
-			x: xOffset,
-			y: yOffset - cornerRounding.height,
-		});
+		if (cornerRounding.topLeft) {
+			instructions.push({
+				type: 'L',
+				x: xOffset,
+				y: yOffset - cornerRounding.height + CORNER_RADIUS,
+			});
+			instructions.push({
+				type: 'C',
+				cp1x: xOffset,
+				cp1y: yOffset - cornerRounding.height,
+				cp2x: xOffset,
+				cp2y: yOffset - cornerRounding.height,
+				x: xOffset + CORNER_RADIUS,
+				y: yOffset - cornerRounding.height,
+			});
+		} else {
+			instructions.push({
+				type: 'L',
+				x: xOffset,
+				y: yOffset - cornerRounding.height,
+			});
+		}
+
 		yOffset -= cornerRounding.height;
 	}
 	instructions.push({
