@@ -323,9 +323,40 @@ Consider using [another video tag](/docs/video-tags) for looping.
 You can use the following `<LoopableOffthreadVideo>` component that uses [`@remotion/media-parser`](/docs/media-parser/) to loop a video.
 
 ```tsx twoslash title="src/LoopableOffthreadVideo.tsx"
-import {mediaParserController, parseMedia} from '@remotion/media-parser';
+// @filename: get-media-metadata.ts
+import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
+
+export const getMediaMetadata = async (src: string) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src, {
+      getRetryDelay: () => null,
+    }),
+  });
+
+  const durationInSeconds = await input.computeDuration();
+  const videoTrack = await input.getPrimaryVideoTrack();
+  const dimensions = videoTrack
+    ? {
+        width: videoTrack.displayWidth,
+        height: videoTrack.displayHeight,
+      }
+    : null;
+  const packetStats = await videoTrack?.computePacketStats();
+  const fps = packetStats?.averagePacketRate ?? null;
+
+  return {
+    durationInSeconds,
+    dimensions,
+    fps,
+  };
+};
+
+// @filename: index.tsx
+// ---cut---
 import React, {useEffect, useState} from 'react';
 import {cancelRender, continueRender, delayRender, Loop, OffthreadVideo, RemotionOffthreadVideoProps, useRemotionEnvironment, useVideoConfig, Html5Video} from 'remotion';
+import {getMediaMetadata} from './get-media-metadata';
 
 const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
   const [duration, setDuration] = useState<number | null>(null);
@@ -333,18 +364,9 @@ const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
   const {fps} = useVideoConfig();
 
   useEffect(() => {
-    const controller = mediaParserController();
-
-    parseMedia({
-      src: props.src,
-      acknowledgeRemotionLicense: true,
-      controller,
-      fields: {
-        slowDurationInSeconds: true,
-      },
-    })
-      .then(({slowDurationInSeconds}) => {
-        setDuration(slowDurationInSeconds);
+    getMediaMetadata(props.src)
+      .then(({durationInSeconds}) => {
+        setDuration(durationInSeconds);
         continueRender(handle);
       })
       .catch((err) => {
@@ -353,7 +375,6 @@ const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
 
     return () => {
       continueRender(handle);
-      controller.abort();
     };
   }, [handle, props.src]);
 
