@@ -1,6 +1,8 @@
 import {Instruction, serializeInstructions} from '@remotion/paths';
 import {CornerRounding} from './get-corner-roundings';
 
+const CORNER_RADIUS = 30;
+
 export const makeSvg = ({
 	cornerRoundings,
 	textAlign,
@@ -35,11 +37,32 @@ export const makeSvg = ({
 				y: yOffset,
 			});
 		}
-		instructions.push({
-			type: 'L',
-			x: xOffset + cornerRounding.width + horizontalPadding * 2,
-			y: yOffset,
-		});
+		if (cornerRounding.topRight) {
+			instructions.push({
+				type: 'L',
+				x:
+					xOffset +
+					cornerRounding.width +
+					horizontalPadding * 2 -
+					CORNER_RADIUS,
+				y: yOffset,
+			});
+			instructions.push({
+				type: 'C',
+				cp1x: xOffset + cornerRounding.width + horizontalPadding * 2,
+				cp1y: yOffset,
+				cp2x: xOffset + cornerRounding.width + horizontalPadding * 2,
+				cp2y: yOffset,
+				x: xOffset + cornerRounding.width + horizontalPadding * 2,
+				y: yOffset + CORNER_RADIUS,
+			});
+		} else {
+			instructions.push({
+				type: 'L',
+				x: xOffset + cornerRounding.width + horizontalPadding * 2,
+				y: yOffset,
+			});
+		}
 
 		instructions.push({
 			type: 'L',
