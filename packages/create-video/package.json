@@ -10,7 +10,9 @@
 		"create-video": "bin.js"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"bin.js",
+		"cli.js"
 	],
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",
