@@ -100,11 +100,29 @@ export const makeSvg = ({
 			xOffset = maxWidth - (cornerRounding.width + horizontalPadding * 2);
 		}
 
-		instructions.push({
-			type: 'L',
-			x: xOffset,
-			y: yOffset,
-		});
+		if (cornerRounding.bottomLeft) {
+			instructions.push({
+				type: 'L',
+				x: xOffset + CORNER_RADIUS,
+				y: yOffset,
+			});
+			instructions.push({
+				type: 'C',
+				cp1x: xOffset,
+				cp1y: yOffset,
+				cp2x: xOffset,
+				cp2y: yOffset,
+				x: xOffset,
+				y: yOffset - CORNER_RADIUS,
+			});
+		} else {
+			instructions.push({
+				type: 'L',
+				x: xOffset,
+				y: yOffset,
+			});
+		}
+
 		instructions.push({
 			type: 'L',
 			x: xOffset,
