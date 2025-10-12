@@ -70,7 +70,6 @@ const config: Config = {
 						{to: '/lambda', label: 'Lambda'},
 						{to: '/docs/editor-starter', label: 'Editor Starter'},
 						{to: '/docs/timeline', label: 'Timeline'},
-						{to: '/docs/media-parser', label: 'Media Parser'},
 						{to: '/docs/webcodecs', label: 'WebCodecs'},
 						{to: '/docs/recorder', label: 'Recorder'},
 					],
@@ -127,11 +126,8 @@ const config: Config = {
 				{
 					type: 'html',
 					position: 'right',
-					value: `<button 
-						class="crawlchat-nav-askai" 
-						onclick="window.crawlchatEmbed.toggleSidePanel()">
-							<span class="crawlchat-button-text">Ask AI</span>
-						</button>`,
+					value:
+						'<button aria-label="Ask AI" class="crawlchat-nav-askai header-ask-ai-link" onclick="window.crawlchatEmbed.toggleSidePanel()"></button>',
 				},
 			].filter(Boolean),
 		},

@@ -93,6 +93,10 @@
         "@remotion/bundler": "workspace:*",
       },
     },
+    "packages/bugs": {
+      "name": "bugs",
+      "version": "4.0.357",
+    },
     "packages/bundler": {
       "name": "@remotion/bundler",
       "version": "4.0.359",
@@ -131,10 +135,7 @@
       "name": "@remotion/cli",
       "version": "4.0.359",
       "bin": {
-        "remotion": "remotion-cli.js",
-        "remotionb": "remotionb-cli.js",
-        "remotiond": "remotiond-cli.js",
-      },
+        "remotion": "remotion-cli.js",        "remotionb": "remotionb-cli.js",        "remotiond": "remotiond-cli.js"      },
       "dependencies": {
         "@remotion/bundler": "workspace:*",
         "@remotion/media-utils": "workspace:*",
@@ -191,6 +192,14 @@
         "@types/minimist": "1.2.2",
         "@types/node": "20.12.14",
         "eslint": "9.19.0",
+      },
+    },
+    "packages/cloudrun/container": {
+      "name": "cloud-run-render",
+      "version": "4.0.357",
+      "dependencies": {
+        "@google-cloud/functions-framework": "^3.1.3",
+        "@puppeteer/browsers": "^2.3.0",
       },
     },
     "packages/compositor": {
@@ -293,7 +302,7 @@
       "name": "create-video",
       "version": "4.0.359",
       "bin": {
-        "create-video": "bin.js",
+        "create-video": "bin.js"
       },
       "dependencies": {
         "chalk": "4.1.2",
@@ -854,7 +863,7 @@
       "name": "@remotion/mcp",
       "version": "4.0.359",
       "bin": {
-        "remotion-mcp": "./dist/esm/index.mjs",
+        "remotion-mcp": "./dist/esm/index.mjs"
       },
       "dependencies": {
         "@modelcontextprotocol/sdk": "1.5.0",
@@ -4134,6 +4143,8 @@
 
     "buffer-from": ["buffer-from@1.1.2", "", {}, "sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ=="],
 
+    "bugs": ["bugs@workspace:packages/bugs"],
+
     "bun": ["bun@1.3.0", "", { "optionalDependencies": { "@oven/bun-darwin-aarch64": "1.3.0", "@oven/bun-darwin-x64": "1.3.0", "@oven/bun-darwin-x64-baseline": "1.3.0", "@oven/bun-linux-aarch64": "1.3.0", "@oven/bun-linux-aarch64-musl": "1.3.0", "@oven/bun-linux-x64": "1.3.0", "@oven/bun-linux-x64-baseline": "1.3.0", "@oven/bun-linux-x64-musl": "1.3.0", "@oven/bun-linux-x64-musl-baseline": "1.3.0", "@oven/bun-windows-x64": "1.3.0", "@oven/bun-windows-x64-baseline": "1.3.0" }, "os": [ "linux", "win32", "darwin", ], "cpu": [ "x64", "arm64", ], "bin": { "bun": "bin/bun.exe", "bunx": "bin/bunx.exe" } }, "sha512-YI7mFs7iWc/VsGsh2aw6eAPD2cjzn1j+LKdYVk09x1CrdTWKYIHyd+dG5iQoN9//3hCDoZj8U6vKpZzEf5UARA=="],
 
     "bun-plugin-tailwind": ["bun-plugin-tailwind@0.0.13", "", { "dependencies": { "tailwindcss": "4.0.0-beta.9" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-rTbzx+pK3F3cqgbtfbYibfWfKSWdcMNjdPTHgm+BbPhZWzMkBR6NpGqmKExJuIvdKRZgqoA0vd2/lke6rwZqMA=="],
@@ -4235,6 +4246,8 @@
     "clone": ["clone@2.1.2", "", {}, "sha512-3Pe/CF1Nn94hyhIYpjtiLhdCoEoz0DqQ+988E9gmeEdQZlojxnOb74wctFyuwWQHzqyf9X7C7MG8juUpqBJT8w=="],
 
     "clone-deep": ["clone-deep@4.0.1", "", { "dependencies": { "is-plain-object": "2.0.4", "kind-of": "6.0.3", "shallow-clone": "3.0.1" } }, "sha512-neHB9xuzh/wk0dIHweyAXv2aPGZIVk3pLMe+/RNzINf17fe0OG96QroktYAUm7SM1PBnzTabaLboqqxDyMU+SQ=="],
+
+    "cloud-run-render": ["cloud-run-render@workspace:packages/cloudrun/container"],
 
     "cloudevents": ["cloudevents@8.0.2", "", { "dependencies": { "ajv": "8.11.0", "ajv-formats": "2.1.1", "json-bigint": "1.0.0", "process": "0.11.10", "util": "0.12.5", "uuid": "8.3.2" } }, "sha512-93KKRR61D2NNE+2lg2HmLbl17beVTKpf1UYd/8BcXpuiDxbU2fb8gAfriSmVGmj1xX/Oh2t5Fh/xGOWFdu6F4A=="],
 

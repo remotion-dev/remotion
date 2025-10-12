@@ -16,6 +16,11 @@
 	-moz-osx-font-smoothing: grayscale; /* Firefox */
 }
 
+.navbar {
+	zoom: 0.85;
+	padding: 0 0.5rem;
+}
+
 html {
 	scroll-padding-top: 80px;
 }
@@ -64,6 +69,7 @@ h6 {
 }
 
 :root {
+	--ifm-navbar-item-padding-horizontal: 0.5rem;
 	--ifm-color-primary: #0b84f3;
 	--ifm-color-primary-dark: #0a77db;
 	--ifm-color-primary-darker: #0970cf;
@@ -255,6 +261,22 @@ code {
 .header-x-link:hover::before {
 	background-color: var(--ifm-navbar-link-hover-color);
 }
+
+.header-ask-ai-link::before {
+	content: '';
+	width: 22px;
+	height: 22px;
+	display: flex;
+	background-color: var(--docsearch-text-color, var(--ifm-font-color-base));
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 640'%3E%3Cpath d='M423.5 117.2C419 118.9 416 123.2 416 128C416 132.8 419 137.1 423.5 138.8L480 160L501.2 216.5C502.9 221 507.2 224 512 224C516.8 224 521.1 221 522.8 216.5L544 160L600.5 138.8C605 137.1 608 132.8 608 128C608 123.2 605 118.9 600.5 117.2L544 96L522.8 39.5C521.1 35 516.8 32 512 32C507.2 32 502.9 35 501.2 39.5L480 96L423.5 117.2zM238.5 137.3C235.9 131.6 230.2 128 224 128C217.8 128 212.1 131.6 209.5 137.3L156.4 252.3L41.4 305.4C35.6 308.1 32 313.8 32 320C32 326.2 35.6 331.9 41.3 334.5L156.3 387.6L209.4 502.6C212 508.3 217.7 511.9 223.9 511.9C230.1 511.9 235.8 508.3 238.4 502.6L291.5 387.6L406.5 334.5C412.2 331.9 415.8 326.2 415.8 320C415.8 313.8 412.2 308.1 406.5 305.5L291.5 252.4L238.4 137.4zM448 480L391.5 501.2C387 502.9 384 507.2 384 512C384 516.8 387 521.1 391.5 522.8L448 544L469.2 600.5C470.9 605 475.2 608 480 608C484.8 608 489.1 605 490.8 600.5L512 544L568.5 522.8C573 521.1 576 516.8 576 512C576 507.2 573 502.9 568.5 501.2L512 480L490.8 423.5C489.1 419 484.8 416 480 416C475.2 416 470.9 419 469.2 423.5L448 480z'/%3E%3C/svg%3E");
+	transition: background-color var(--ifm-transition-fast)
+		var(--ifm-transition-timing-default);
+}
+
+.header-ask-ai-link:hover::before {
+	background-color: var(--ifm-navbar-link-hover-color);
+}
+
 /* CrawlChat Sidepanel Styles */
 .theme-back-to-top-button {
 	display: none; /* hides the back to top button - blocks the sidepanel view */
@@ -268,7 +290,7 @@ code {
 	);
 	border: 0;
 	border-radius: 40px;
-	color: var(--docsearch-muted-color, #969faf);
+	color: var(--docsearch-text-color, var(--ifm-font-color-base));
 	cursor: pointer;
 	display: flex;
 	font-size: 1rem;
@@ -298,7 +320,6 @@ code {
 }
 
 [data-theme='dark'] .crawlchat-nav-askai {
-	color: var(--docsearch-muted-color, #7f8497);
 	background-color: var(--docsearch-searchbox-background, #090a11);
 }
 
@@ -306,6 +327,69 @@ code {
 [data-theme='dark'] .crawlchat-nav-askai:focus,
 [data-theme='dark'] .crawlchat-nav-askai:hover {
 	background-color: var(--docsearch-searchbox-focus-background, #000);
+}
+
+div[class*='colorModeToggle'] {
+	align-items: center;
+	background-color: var(
+		--docsearch-searchbox-background,
+		var(--ifm-color-emphasis-100)
+	);
+	border: 0;
+	border-radius: 40px;
+	color: var(--docsearch-text-color, var(--ifm-font-color-base));
+	cursor: pointer;
+	display: flex;
+	font-size: 1rem;
+	font-weight: 500;
+	height: 36px;
+	justify-content: center;
+	margin: 0;
+	padding: 0;
+	user-select: none;
+	width: 36px;
+	transition: all var(--ifm-transition-fast)
+		var(--ifm-transition-timing-default);
+}
+
+div[class*='colorModeToggle']:active,
+div[class*='colorModeToggle']:focus,
+div[class*='colorModeToggle']:hover {
+	background-color: var(
+		--docsearch-searchbox-focus-background,
+		var(--ifm-color-emphasis-200)
+	);
+	box-shadow: var(
+		--docsearch-searchbox-shadow,
+		0 0 0 2px var(--ifm-color-primary)
+	);
+	color: var(--docsearch-text-color, var(--ifm-font-color-base));
+	outline: none;
+}
+
+[data-theme='dark'] div[class*='colorModeToggle'] {
+	background-color: var(--docsearch-searchbox-background, #090a11);
+}
+
+[data-theme='dark'] div[class*='colorModeToggle']:active,
+[data-theme='dark'] div[class*='colorModeToggle']:focus,
+[data-theme='dark'] div[class*='colorModeToggle']:hover {
+	background-color: var(--docsearch-searchbox-focus-background, #000);
+}
+
+div[class*='colorModeToggle'] button.clean-btn {
+	background-color: transparent;
+	border: none;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+}
+
+div[class*='colorModeToggle'] button.clean-btn:hover {
+	background-color: transparent;
 }
 
 .crawlchat-button-text {
@@ -357,6 +441,10 @@ code {
 		padding-left: 4px;
 		padding-right: 4px;
 	}
+
+	div[class*='colorModeToggle'] {
+		margin-left: 8px;
+	}
 }
 
 /* Hide DocSearch shortcut hints without !important */
@@ -372,6 +460,5 @@ code {
 	padding-right: 3px;
 }
 .navbar .navbar__items--right .DocSearch-Button .DocSearch-Button-Placeholder {
-	margin-right: 0;
-	padding-right: 0;
+	display: none;
 }
