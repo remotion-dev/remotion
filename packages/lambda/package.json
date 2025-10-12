@@ -36,7 +36,7 @@
 		"@remotion/streaming": "workspace:*",
 		"@smithy/abort-controller": "4.0.1",
 		"remotion": "workspace:*",
-		"zod": "3.22.3"
+		"zod": "3.23.8"
 	},
 	"devDependencies": {
 		"@remotion/bundler": "workspace:*",

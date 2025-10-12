@@ -273,6 +273,7 @@ const RenderModal: React.FC<
 	initialDisableWebSecurity,
 	initialGl,
 	initialHeadless,
+
 	initialIgnoreCertificateErrors,
 	initialEncodingBufferSize,
 	initialEncodingMaxRate,
@@ -402,6 +403,7 @@ const RenderModal: React.FC<
 		() => initialDisableWebSecurity,
 	);
 	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
+
 	const [beepOnFinish, setBeepOnFinish] = useState<boolean>(() => initialBeep);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(() => initialIgnoreCertificateErrors);
@@ -421,21 +423,21 @@ const RenderModal: React.FC<
 
 	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
 		return {
-			headless,
 			disableWebSecurity,
 			ignoreCertificateErrors,
 			gl: openGlOption === 'default' ? null : openGlOption,
 			userAgent:
 				userAgent === null ? null : userAgent.trim() === '' ? null : userAgent,
 			enableMultiProcessOnLinux: multiProcessOnLinux,
+			headless,
 		};
 	}, [
-		headless,
 		disableWebSecurity,
 		ignoreCertificateErrors,
 		openGlOption,
 		userAgent,
 		multiProcessOnLinux,
+		headless,
 	]);
 
 	const [outName, setOutName] = useState(() => initialOutName);
