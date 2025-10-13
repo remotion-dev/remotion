@@ -201,6 +201,28 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					return;
 				}
 
+				if (result.type === 'cannot-decode-alpha') {
+					if (disallowFallbackToOffthreadVideo) {
+						cancelRender(
+							new Error(
+								`Cannot decode alpha component for ${src}, and 'disallowFallbackToOffthreadVideo' was set. Failing the render.`,
+							),
+						);
+					}
+
+					if (window.remotion_isMainTab) {
+						Internals.Log.info(
+							{logLevel, tag: '@remotion/media'},
+							`Cannot decode alpha component for ${src}, falling back to <OffthreadVideo>`,
+						);
+					}
+
+					setReplaceWithOffthreadVideo({
+						durationInSeconds: result.durationInSeconds,
+					});
+					return;
+				}
+
 				if (result.type === 'network-error') {
 					if (disallowFallbackToOffthreadVideo) {
 						cancelRender(
@@ -228,7 +250,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				} = result;
 				if (imageBitmap) {
 					onVideoFrame?.(imageBitmap);
-					const context = canvasRef.current?.getContext('2d');
+					const context = canvasRef.current?.getContext('2d', {
+						alpha: true,
+					});
 					if (!context) {
 						return;
 					}
@@ -249,7 +273,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					// In the case of https://discord.com/channels/809501355504959528/809501355504959531/1424400511070765086
 					// A video that only starts at time 0.033sec
 					// we shall not crash here but clear the canvas
-					const context = canvasRef.current?.getContext('2d');
+					const context = canvasRef.current?.getContext('2d', {
+						alpha: true,
+					});
 					if (context) {
 						context.clearRect(
 							0,
@@ -351,7 +377,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				}
 				style={style}
 				allowAmplificationDuringRender
-				transparent={fallbackOffthreadVideoProps?.transparent ?? false}
+				transparent={fallbackOffthreadVideoProps?.transparent ?? true}
 				toneMapped={fallbackOffthreadVideoProps?.toneMapped ?? true}
 				audioStreamIndex={audioStreamIndex ?? 0}
 				name={name}

@@ -151,6 +151,12 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					return;
 				}
 
+				if (result.type === 'cannot-decode-alpha') {
+					throw new Error(
+						`Cannot decode alpha component for ${src}, and 'disallowFallbackToHtml5Audio' was set. But this should never happen, since you used the <Audio> tag. Please report this as a bug.`,
+					);
+				}
+
 				if (result.type === 'network-error') {
 					if (disallowFallbackToHtml5Audio) {
 						cancelRender(

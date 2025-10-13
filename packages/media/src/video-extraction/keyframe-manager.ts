@@ -1,5 +1,6 @@
 import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
+import {canBrowserUseWebGl2} from '../browser-can-use-webgl2';
 import {
 	getMaxVideoCacheSize,
 	getTotalCacheStats,
@@ -173,10 +174,14 @@ export const makeKeyframeManager = () => {
 		videoSampleSink: VideoSampleSink;
 		src: string;
 		logLevel: LogLevel;
-	}): Promise<KeyframeBank | null> => {
+	}): Promise<KeyframeBank | 'has-alpha' | null> => {
 		const startPacket = await packetSink.getKeyPacket(timestamp, {
 			verifyKeyPackets: true,
 		});
+		const hasAlpha = startPacket?.sideData.alpha;
+		if (hasAlpha && !canBrowserUseWebGl2()) {
+			return 'has-alpha';
+		}
 
 		if (!startPacket) {
 			// e.g. https://discord.com/channels/809501355504959528/809501355504959531/1424400511070765086
@@ -302,7 +307,7 @@ export const makeKeyframeManager = () => {
 					logLevel,
 				}),
 			);
-			return queue as Promise<KeyframeBank | null>;
+			return queue as Promise<KeyframeBank | 'has-alpha' | null>;
 		},
 		getCacheStats,
 		clearAll,
