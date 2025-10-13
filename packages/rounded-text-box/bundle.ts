@@ -5,11 +5,11 @@ await buildPackage({
 		cjs: 'build',
 		esm: 'build',
 	},
-	external: ['@typescript-eslint/utils'],
+	external: ['@remotion/layout-utils', '@remotion/paths'],
 	entrypoints: [
 		{
 			path: 'src/index.ts',
-			target: 'browser',
+			target: 'node',
 		},
 	],
 });
