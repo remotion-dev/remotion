@@ -201,6 +201,7 @@ export class MediaPlayer {
 				this.canvasSink = new CanvasSink(videoTrack, {
 					poolSize: 2,
 					fit: 'contain',
+					alpha: true,
 				});
 
 				this.canvas.width = videoTrack.displayWidth;
@@ -502,6 +503,7 @@ export class MediaPlayer {
 
 	private drawCurrentFrame(): void {
 		if (this.context && this.nextFrame) {
+			this.context.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
 			this.context.drawImage(this.nextFrame.canvas, 0, 0);
 		}
 
