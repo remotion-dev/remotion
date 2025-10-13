@@ -391,7 +391,7 @@
         "mediabunny": "1.23.0",
         "mux-embed": "^4.16.0",
         "next": "15.4.7",
-        "plyr": "^3.7.3",
+        "plyr": "3.7.3",
         "polished": "4.1.2",
         "react": "19.0.0",
         "react-dom": "19.0.0",
@@ -1039,7 +1039,7 @@
         "clsx": "2.1.1",
         "eslint": "9.19.0",
         "eslint-config-next": "15.1.6",
-        "plyr": "^3.7.3",
+        "plyr": "3.7.3",
         "postcss": "8.4.47",
         "react": "19.0.0",
         "react-dom": "19.0.0",
@@ -5741,7 +5741,7 @@
 
     "playwright-core": ["playwright-core@1.51.1", "", { "bin": { "playwright-core": "cli.js" } }, "sha512-/crRMj8+j/Nq5s8QcvegseuyeZPxpQCZb6HNk3Sos3BlZyAknRjoyJPFWkpNn8v0+P3WiwqFF8P+zQo4eqiNuw=="],
 
-    "plyr": ["plyr@3.8.3", "", { "dependencies": { "core-js": "^3.45.1", "custom-event-polyfill": "^1.0.7", "loadjs": "^4.3.0", "rangetouch": "^2.0.1", "url-polyfill": "^1.1.13" } }, "sha512-0+iI5uw0WRvtKBpgPCkmQQv7ucHVQKTEo6UFJjgJ8cy/JZhy0dQqshHQVitHXV6l2O3MzhgnuvQ95VSkWcWeSw=="],
+    "plyr": ["plyr@3.7.3", "", { "dependencies": { "core-js": "^3.26.1", "custom-event-polyfill": "^1.0.7", "loadjs": "^4.2.0", "rangetouch": "^2.0.1", "url-polyfill": "^1.1.12" } }, "sha512-ORULENBvEvvzMYXRQBALDmEi8P+wZt1Hr/NvHqchu/t7E2xJKNkRYWx0qCA1HETIGZ6zobrOVgqeAUqWimS7fQ=="],
 
     "pngjs": ["pngjs@7.0.0", "", {}, "sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow=="],
 
