@@ -55,6 +55,7 @@
 		"@remotion/motion-blur": "workspace:*",
 		"@remotion/noise": "workspace:*",
 		"@remotion/paths": "workspace:*",
+		"@remotion/rounded-text-box": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/openai-whisper": "workspace:*",
 		"@remotion/preload": "workspace:*",

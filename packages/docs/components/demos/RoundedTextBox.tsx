@@ -1,39 +1,47 @@
+import {loadFont} from '@remotion/google-fonts/Figtree';
 import {fitTextOnNLines, measureText} from '@remotion/layout-utils';
+import type {TextAlign} from '@remotion/rounded-text-box';
 import {createRoundedTextBox} from '@remotion/rounded-text-box';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
-import {z} from 'zod';
-import {TIKTOK_TEXT_BOX_HORIZONTAL_PADDING} from '../TikTokTextbox/TikTokTextBox';
 
-const boxWidth = 1500;
-const fontFamily = 'Proxima Nova';
-const fontWeight = 400;
-const horizontalPadding = 30;
-const cornerRadius = 20;
+type Props = {
+	readonly textAlign: TextAlign;
+	readonly maxLines: number;
+	readonly borderRadius: number;
+	readonly horizontalPadding: number;
+	readonly text: string;
+};
+
+const fontWeight = '700';
+const boxWidth = 1100;
 const lineHeight = 1.5;
-const maxFontSize = 100;
+const maxFontSize = 200;
 
-export const fitTextOnNLinesSchema = z.object({
-	text: z.string(),
-	maxLines: z.number().step(1),
-	textAlign: z.enum(['left', 'center', 'right']),
+const {waitUntilDone, fontFamily} = loadFont('normal', {
+	weights: [fontWeight],
+	subsets: ['latin'],
 });
 
-export const FitTextOnNLines: React.FC<
-	z.infer<typeof fitTextOnNLinesSchema>
-> = ({text: line, maxLines, textAlign}) => {
+const RoundedTextBoxInner: React.FC<Props> = ({
+	textAlign,
+	maxLines,
+	borderRadius,
+	horizontalPadding,
+	text,
+}) => {
 	const {fontSize, lines} = fitTextOnNLines({
 		maxLines,
-		maxBoxWidth: boxWidth - TIKTOK_TEXT_BOX_HORIZONTAL_PADDING * 2,
+		maxBoxWidth: boxWidth - horizontalPadding * 2,
 		fontFamily,
-		text: line,
+		text,
 		fontWeight,
 		maxFontSize,
 	});
 
-	const textMeasurements = lines.map((text) =>
+	const textMeasurements = lines.map((t) =>
 		measureText({
-			text,
+			text: t,
 			fontFamily,
 			fontSize,
 			additionalStyles: {
@@ -50,7 +58,7 @@ export const FitTextOnNLines: React.FC<
 		textMeasurements,
 		textAlign,
 		horizontalPadding,
-		borderRadius: cornerRadius,
+		borderRadius,
 	});
 
 	const lineStyle = React.useMemo<React.CSSProperties>(
@@ -62,12 +70,19 @@ export const FitTextOnNLines: React.FC<
 			textAlign,
 			paddingLeft: horizontalPadding,
 			paddingRight: horizontalPadding,
+			color: 'black',
 		}),
-		[fontSize, textAlign],
+		[fontSize, textAlign, horizontalPadding],
 	);
 
 	return (
-		<AbsoluteFill className="items-center justify-center bg-black">
+		<AbsoluteFill
+			style={{
+				backgroundColor: '#ddd',
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}
+		>
 			<div
 				style={{
 					width: boundingBox.width,
@@ -87,6 +102,7 @@ export const FitTextOnNLines: React.FC<
 				</svg>
 				<div style={{position: 'relative'}}>
 					{lines.map((line, i) => (
+						// eslint-disable-next-line react/no-array-index-key
 						<div key={i} style={lineStyle}>
 							{line}
 						</div>
@@ -95,4 +111,24 @@ export const FitTextOnNLines: React.FC<
 			</div>
 		</AbsoluteFill>
 	);
+};
+
+export const RoundedTextBox: React.FC<Props> = (props) => {
+	const [fontsLoaded, setFontsLoaded] = useState(false);
+
+	useEffect(() => {
+		waitUntilDone()
+			.then(() => {
+				setFontsLoaded(true);
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+	}, [fontsLoaded]);
+
+	if (!fontsLoaded) {
+		return null;
+	}
+
+	return <RoundedTextBoxInner {...props} />;
 };

@@ -236,6 +236,9 @@
 		},
 		{
 			"path": "./packages/web-renderer"
+		},
+		{
+			"path": "./packages/rounded-text-box"
 		}
 	]
 }

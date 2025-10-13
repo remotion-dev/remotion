@@ -57,6 +57,7 @@
 		"@remotion/player": "workspace:*",
 		"@remotion/preload": "workspace:*",
 		"@remotion/renderer": "workspace:*",
+		"@remotion/rounded-text-box": "workspace:*",
 		"@remotion/rive": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/skia": "workspace:*",
