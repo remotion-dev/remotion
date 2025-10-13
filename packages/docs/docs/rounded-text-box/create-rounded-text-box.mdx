@@ -10,7 +10,89 @@ Creates a SVG path for rendering a text box with rounded corners, as pioneered b
 
 <Demo type="rounded-text-box" />
 
-[View demo component source code](https://github.com/remotion-dev/remotion/blob/main/packages/docs/components/demos/RoundedTextBox.tsx)
+The above example combines [`fitTextOnNLines()`](/docs/layout-utils/fit-text-on-n-lines) and [`measureText()`](/docs/layout-utils/measure-text) to get the text measurements, and then creates a rounded text box.  
+[View the source code here.](https://github.com/remotion-dev/remotion/blob/main/packages/docs/components/demos/RoundedTextBox.tsx)
+
+## Example
+
+```tsx twoslash title="Simple usage example"
+import {fitTextOnNLines, measureText} from '@remotion/layout-utils';
+import {createRoundedTextBox} from '@remotion/rounded-text-box';
+
+const maxLines = 3;
+const fontFamily = 'Figtree';
+const fontWeight = '700';
+const horizontalPadding = 20;
+const borderRadius = 20;
+const fontSize = 36;
+const lineHeight = 1.5;
+const textAlign = 'center';
+
+const lines = ['Hello World', 'This is a test', 'This is another test'];
+
+const textMeasurements = lines.map((t) =>
+  measureText({
+    text: t,
+    fontFamily,
+    fontSize,
+    additionalStyles: {
+      lineHeight,
+    },
+    fontVariantNumeric: 'normal',
+    fontWeight,
+    letterSpacing: 'normal',
+    textTransform: 'none',
+    validateFontIsLoaded: true,
+  }),
+);
+
+const {d, boundingBox} = createRoundedTextBox({
+  textMeasurements,
+  textAlign,
+  horizontalPadding,
+  borderRadius,
+});
+
+const markup = (
+  <div
+    style={{
+      width: boundingBox.width,
+      height: boundingBox.height,
+    }}
+  >
+    <svg
+      viewBox={boundingBox.viewBox}
+      style={{
+        position: 'absolute',
+        width: boundingBox.width,
+        height: boundingBox.height,
+        overflow: 'visible',
+      }}
+    >
+      <path fill="white" d={d} />
+    </svg>
+    <div style={{position: 'relative'}}>
+      {lines.map((line, i) => (
+        <div
+          key={i}
+          style={{
+            fontSize,
+            fontWeight,
+            fontFamily,
+            lineHeight,
+            textAlign,
+            paddingLeft: horizontalPadding,
+            paddingRight: horizontalPadding,
+            color: 'black',
+          }}
+        >
+          {line}
+        </div>
+      ))}
+    </div>
+  </div>
+);
+```
 
 ## API
 
@@ -73,5 +155,6 @@ The SVG path instructions as an array, for use with the [`@remotion/paths`](/doc
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/rounded-text-box/src/create-rounded-text-box.ts)
 - [`@remotion/rounded-text-box`](/docs/rounded-text-box)
 - [`@remotion/paths`](/docs/paths)
+- [`fitTextOnNLines()`](/docs/layout-utils/fit-text-on-n-lines)
 - [`measureText()`](/docs/layout-utils/measure-text)
 - [`getBoundingBox()`](/docs/paths/get-bounding-box)
