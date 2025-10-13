@@ -2,6 +2,7 @@ import {fitTextOnNLines, measureText} from '@remotion/layout-utils';
 import {getBoundingBox} from '@remotion/paths';
 import {createRoundedTextBox} from '@remotion/rounded-text-box';
 import React from 'react';
+import {AbsoluteFill} from 'remotion';
 import {z} from 'zod';
 import {TIKTOK_TEXT_BOX_HORIZONTAL_PADDING} from '../TikTokTextbox/TikTokTextBox';
 
@@ -68,32 +69,32 @@ export const FitTextOnNLines: React.FC<
 	);
 
 	return (
-		<div
-			style={{
-				justifyContent: 'center',
-				alignItems: 'center',
-				width: boundingBox.width,
-				height: boundingBox.height,
-			}}
-		>
-			<svg
-				viewBox={boundingBox.viewBox}
+		<AbsoluteFill className="items-center justify-center bg-black">
+			<div
 				style={{
-					position: 'absolute',
 					width: boundingBox.width,
 					height: boundingBox.height,
-					overflow: 'visible',
 				}}
 			>
-				<path fill="white" d={svg} />
-			</svg>
-			<div style={{position: 'relative'}}>
-				{lines.map((line, i) => (
-					<div key={i} style={lineStyle}>
-						{line}
-					</div>
-				))}
+				<svg
+					viewBox={boundingBox.viewBox}
+					style={{
+						position: 'absolute',
+						width: boundingBox.width,
+						height: boundingBox.height,
+						overflow: 'visible',
+					}}
+				>
+					<path fill="white" d={svg} />
+				</svg>
+				<div style={{position: 'relative'}}>
+					{lines.map((line, i) => (
+						<div key={i} style={lineStyle}>
+							{line}
+						</div>
+					))}
+				</div>
 			</div>
-		</div>
+		</AbsoluteFill>
 	);
 };
