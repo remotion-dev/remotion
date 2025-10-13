@@ -5,7 +5,7 @@
 
 import {measureText} from '@remotion/layout-utils';
 import {getBoundingBox} from '@remotion/paths';
-import {createRoundedTextBox} from './svg';
+import {createRoundedTextBox} from '@remotion/rounded-text-box';
 
 interface TikTokTextBoxProps {
 	lines: string[];
@@ -99,7 +99,7 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 					overflow: 'visible',
 				}}
 			>
-				<path fill="white" d={svg} strokeWidth={3} />
+				<path fill="white" d={svg} />
 			</svg>
 
 			{lines.map((line, i) => (
