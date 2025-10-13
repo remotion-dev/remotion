@@ -50,6 +50,11 @@ export type Option = {
 			default: string;
 			values: string[];
 	  }
+	| {
+			type: 'string';
+			default: string;
+			optional: 'no';
+	  }
 );
 
 export type DemoType = {
@@ -694,8 +699,8 @@ export const wipePresentationDemo: DemoType = {
 
 export const roundedTextBoxDemo: DemoType = {
 	comp: RoundedTextBox,
-	compHeight: 1080,
-	compWidth: 1920,
+	compHeight: 720,
+	compWidth: 1280,
 	durationInFrames: 60,
 	fps: 30,
 	id: 'rounded-text-box',
@@ -729,10 +734,17 @@ export const roundedTextBoxDemo: DemoType = {
 		{
 			type: 'numeric',
 			name: 'horizontalPadding',
-			default: 30,
+			default: 20,
 			max: 100,
 			step: 1,
 			min: 0,
+			optional: 'no',
+		},
+		{
+			type: 'string',
+			name: 'text',
+			default:
+				'Try editing this text and the parameters! A rounded text box, like you see on TikTok, will be created.',
 			optional: 'no',
 		},
 	],

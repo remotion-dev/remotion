@@ -1,7 +1,8 @@
+import {loadFont} from '@remotion/google-fonts/Figtree';
 import {fitTextOnNLines, measureText} from '@remotion/layout-utils';
 import type {TextAlign} from '@remotion/rounded-text-box';
 import {createRoundedTextBox} from '@remotion/rounded-text-box';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
 
 type Props = {
@@ -9,27 +10,29 @@ type Props = {
 	readonly maxLines: number;
 	readonly borderRadius: number;
 	readonly horizontalPadding: number;
+	readonly text: string;
 };
 
-const TIKTOK_TEXT_BOX_HORIZONTAL_PADDING = 20;
-const text =
-	'No matter how much text I am adding, the text always fits on 3 lines and there is corner rounding like on TikTok.';
-
-const boxWidth = 1500;
-const fontFamily = 'Proxima Nova';
-const fontWeight = 400;
+const fontWeight = '700';
+const boxWidth = 1100;
 const lineHeight = 1.5;
-const maxFontSize = 200;
+const maxFontSize = 70;
 
-export const RoundedTextBox: React.FC<Props> = ({
+const {waitUntilDone, fontFamily} = loadFont('normal', {
+	weights: [fontWeight],
+	subsets: ['latin'],
+});
+
+const RoundedTextBoxInner: React.FC<Props> = ({
 	textAlign,
 	maxLines,
 	borderRadius,
 	horizontalPadding,
+	text,
 }) => {
 	const {fontSize, lines} = fitTextOnNLines({
 		maxLines,
-		maxBoxWidth: boxWidth - TIKTOK_TEXT_BOX_HORIZONTAL_PADDING * 2,
+		maxBoxWidth: boxWidth - horizontalPadding * 2,
 		fontFamily,
 		text,
 		fontWeight,
@@ -67,7 +70,7 @@ export const RoundedTextBox: React.FC<Props> = ({
 			textAlign,
 			paddingLeft: horizontalPadding,
 			paddingRight: horizontalPadding,
-			color: 'white',
+			color: 'black',
 		}),
 		[fontSize, textAlign, horizontalPadding],
 	);
@@ -75,7 +78,7 @@ export const RoundedTextBox: React.FC<Props> = ({
 	return (
 		<AbsoluteFill
 			style={{
-				backgroundColor: 'var(--background)',
+				backgroundColor: '#eee',
 				justifyContent: 'center',
 				alignItems: 'center',
 			}}
@@ -95,7 +98,7 @@ export const RoundedTextBox: React.FC<Props> = ({
 						overflow: 'visible',
 					}}
 				>
-					<path fill="black" d={d} />
+					<path fill="white" d={d} />
 				</svg>
 				<div style={{position: 'relative'}}>
 					{lines.map((line, i) => (
@@ -108,4 +111,24 @@ export const RoundedTextBox: React.FC<Props> = ({
 			</div>
 		</AbsoluteFill>
 	);
+};
+
+export const RoundedTextBox: React.FC<Props> = (props) => {
+	const [fontsLoaded, setFontsLoaded] = useState(false);
+
+	useEffect(() => {
+		waitUntilDone()
+			.then(() => {
+				setFontsLoaded(true);
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+	}, [fontsLoaded]);
+
+	if (!fontsLoaded) {
+		return null;
+	}
+
+	return <RoundedTextBoxInner {...props} />;
 };
