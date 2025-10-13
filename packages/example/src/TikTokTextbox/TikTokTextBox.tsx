@@ -191,39 +191,10 @@ const TikTokTextLine: React.FC<{
 }) => {
 	return (
 		<div style={{position: 'relative'}}>
-			{cornerRounding.cornerTopLeft && (
-				<TopLeftCorner
-					bgColor={bgColor}
-					borderRadiusValue={borderRadiusValue}
-					widthDifference={cornerRounding.widthDifferenceToPrevious}
-				/>
-			)}
-			{cornerRounding.cornerBottomLeft && (
-				<BottomLeftCorner
-					bgColor={bgColor}
-					borderRadiusValue={borderRadiusValue}
-					widthDifference={cornerRounding.widthDifferenceToNext}
-				/>
-			)}
-			{cornerRounding.cornerTopRight && (
-				<TopRightCorner
-					bgColor={bgColor}
-					borderRadiusValue={borderRadiusValue}
-					widthDifference={cornerRounding.widthDifferenceToPrevious}
-				/>
-			)}
-			{cornerRounding.cornerBottomRight && (
-				<BottomRightCorner
-					bgColor={bgColor}
-					borderRadiusValue={borderRadiusValue}
-					widthDifference={cornerRounding.widthDifferenceToNext}
-				/>
-			)}
 			<div
 				style={
 					{
 						textAlign: align,
-						backgroundColor: bgColor ?? 'white',
 						padding: `0px ${TIKTOK_TEXT_BOX_HORIZONTAL_PADDING}px`,
 						borderRadius: borderRadius,
 						...style,
@@ -279,10 +250,8 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 				textAlign: align,
 				fontFamily,
 				color: textColor ?? 'black',
-				width: 'fit-content',
 				lineHeight: 1.5,
 				fontWeight,
-				position: 'relative',
 			}}
 		>
 			{lines.map((line, i) => (
@@ -303,9 +272,15 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 					position: 'absolute',
 					width: boundingBox.width,
 					height: boundingBox.height,
+					overflow: 'visible',
 				}}
 			>
-				<path d={svg} fill="rgba(255, 0, 0, 0.5)" />
+				<path
+					fill="none"
+					d={svg}
+					stroke="rgba(255, 0, 0, 0.8)"
+					strokeWidth={3}
+				/>
 			</svg>
 		</div>
 	);

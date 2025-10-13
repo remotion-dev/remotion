@@ -68,25 +68,17 @@ export const getCornerRoundings = ({
 
 		// Determine rounded corners
 		let topLeft =
-			isFirst ||
-			(prevLen !== undefined &&
-				currLen.width - 0 > prevLen.width &&
-				align !== 'left');
+			prevLen === undefined ||
+			(currLen.width - 0 > prevLen.width && align !== 'left');
 		let topRight =
-			isFirst ||
-			(prevLen !== undefined &&
-				currLen.width - 0 > prevLen.width &&
-				align !== 'right');
+			prevLen === undefined ||
+			(currLen.width - 0 > prevLen.width && align !== 'right');
 		let bottomLeft =
-			isLast ||
-			(nextLen !== undefined &&
-				currLen.width - 0 > nextLen.width &&
-				align !== 'left');
+			nextLen === undefined ||
+			(currLen.width - 0 > nextLen.width && align !== 'left');
 		let bottomRight =
-			isLast ||
-			(nextLen !== undefined &&
-				currLen.width - 0 > nextLen.width &&
-				align !== 'right');
+			nextLen === undefined ||
+			(currLen.width - 0 > nextLen.width && align !== 'right');
 
 		if (!isFirst && !isLast) {
 			if (align === 'left') {

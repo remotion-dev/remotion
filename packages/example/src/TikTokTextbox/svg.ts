@@ -1,7 +1,11 @@
 import {Instruction, serializeInstructions} from '@remotion/paths';
 import {CornerRounding} from './get-corner-roundings';
 
-const CORNER_RADIUS = 30;
+const CORNER_RADIUS = 10;
+
+const clamp = (val: number, min: number, max: number) => {
+	return Math.min(Math.max(val, min), max);
+};
 
 export const makeSvg = ({
 	cornerRoundings,
@@ -22,7 +26,9 @@ export const makeSvg = ({
 	let yOffset = 0;
 
 	for (let i = 0; i < cornerRoundings.length; i++) {
+		const prevCornerRounding = cornerRoundings[i - 1];
 		const cornerRounding = cornerRoundings[i];
+		const nextCornerRounding = cornerRoundings[i + 1];
 		let xOffset = 0;
 		if (textAlign === 'center') {
 			xOffset = (maxWidth - (cornerRounding.width + horizontalPadding * 2)) / 2;
@@ -37,24 +43,36 @@ export const makeSvg = ({
 				y: yOffset,
 			});
 		}
-		if (cornerRounding.topRight) {
+
+		const topRightWidthDifference = prevCornerRounding
+			? prevCornerRounding.width - cornerRounding.width
+			: -Infinity;
+		const topRightCornerRadius = clamp(
+			topRightWidthDifference / 4,
+			-CORNER_RADIUS,
+			CORNER_RADIUS,
+		);
+		// Top Right Corner
+		if (topRightCornerRadius !== 0) {
 			instructions.push({
 				type: 'L',
 				x:
 					xOffset +
 					cornerRounding.width +
-					horizontalPadding * 2 -
-					CORNER_RADIUS,
+					horizontalPadding * 2 +
+					topRightCornerRadius,
 				y: yOffset,
 			});
+			// Arc for rounded corner (top right)
 			instructions.push({
-				type: 'C',
-				cp1x: xOffset + cornerRounding.width + horizontalPadding * 2,
-				cp1y: yOffset,
-				cp2x: xOffset + cornerRounding.width + horizontalPadding * 2,
-				cp2y: yOffset,
+				type: 'A',
+				rx: Math.abs(topRightCornerRadius),
+				ry: Math.abs(topRightCornerRadius),
+				xAxisRotation: 0,
+				largeArcFlag: false,
+				sweepFlag: topRightCornerRadius < 0,
 				x: xOffset + cornerRounding.width + horizontalPadding * 2,
-				y: yOffset + CORNER_RADIUS,
+				y: yOffset + Math.abs(topRightCornerRadius),
 			});
 		} else {
 			instructions.push({
@@ -63,23 +81,36 @@ export const makeSvg = ({
 				y: yOffset,
 			});
 		}
-		if (cornerRounding.bottomRight) {
+
+		const bottomRightWidthDifference = nextCornerRounding
+			? nextCornerRounding.width - cornerRounding.width
+			: -Infinity;
+		const bottomRightCornerRadius = clamp(
+			bottomRightWidthDifference / 4,
+			-CORNER_RADIUS,
+			CORNER_RADIUS,
+		);
+
+		// Bottom Right Corner
+		if (bottomRightCornerRadius !== 0) {
 			instructions.push({
 				type: 'L',
 				x: xOffset + cornerRounding.width + horizontalPadding * 2,
-				y: yOffset + cornerRounding.height - CORNER_RADIUS,
+				y: yOffset + cornerRounding.height - Math.abs(bottomRightCornerRadius),
 			});
+			// Arc for rounded corner (bottom right)
 			instructions.push({
-				type: 'C',
-				cp1x: xOffset + cornerRounding.width + horizontalPadding * 2,
-				cp1y: yOffset + cornerRounding.height,
-				cp2x: xOffset + cornerRounding.width + horizontalPadding * 2,
-				cp2y: yOffset + cornerRounding.height,
+				type: 'A',
+				rx: Math.abs(bottomRightCornerRadius),
+				ry: Math.abs(bottomRightCornerRadius),
+				xAxisRotation: 0,
+				largeArcFlag: false,
+				sweepFlag: bottomRightCornerRadius < 0,
 				x:
 					xOffset +
 					cornerRounding.width +
-					horizontalPadding * 2 -
-					CORNER_RADIUS,
+					horizontalPadding * 2 +
+					bottomRightCornerRadius,
 				y: yOffset + cornerRounding.height,
 			});
 		} else {
@@ -91,6 +122,7 @@ export const makeSvg = ({
 		}
 		yOffset += cornerRounding.height;
 	}
+
 	for (let i = cornerRoundings.length - 1; i >= 0; i--) {
 		const cornerRounding = cornerRoundings[i];
 		let xOffset = 0;
@@ -100,18 +132,23 @@ export const makeSvg = ({
 			xOffset = maxWidth - (cornerRounding.width + horizontalPadding * 2);
 		}
 
-		if (cornerRounding.bottomLeft) {
+		const bottomLeft = i === cornerRoundings.length - 1;
+		const topLeft = i === 0;
+		// Bottom Left Corner
+		if (bottomLeft) {
 			instructions.push({
 				type: 'L',
 				x: xOffset + CORNER_RADIUS,
 				y: yOffset,
 			});
+			// Arc for rounded corner (bottom left)
 			instructions.push({
-				type: 'C',
-				cp1x: xOffset,
-				cp1y: yOffset,
-				cp2x: xOffset,
-				cp2y: yOffset,
+				type: 'A',
+				rx: CORNER_RADIUS,
+				ry: CORNER_RADIUS,
+				xAxisRotation: 0,
+				largeArcFlag: false,
+				sweepFlag: true,
 				x: xOffset,
 				y: yOffset - CORNER_RADIUS,
 			});
@@ -123,18 +160,21 @@ export const makeSvg = ({
 			});
 		}
 
-		if (cornerRounding.topLeft) {
+		// Top Left Corner
+		if (topLeft) {
 			instructions.push({
 				type: 'L',
 				x: xOffset,
 				y: yOffset - cornerRounding.height + CORNER_RADIUS,
 			});
+			// Arc for rounded corner (top left)
 			instructions.push({
-				type: 'C',
-				cp1x: xOffset,
-				cp1y: yOffset - cornerRounding.height,
-				cp2x: xOffset,
-				cp2y: yOffset - cornerRounding.height,
+				type: 'A',
+				rx: CORNER_RADIUS,
+				ry: CORNER_RADIUS,
+				xAxisRotation: 0,
+				largeArcFlag: false,
+				sweepFlag: true,
 				x: xOffset + CORNER_RADIUS,
 				y: yOffset - cornerRounding.height,
 			});
