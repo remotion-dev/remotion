@@ -5,16 +5,16 @@ const clamp = (val: number, min: number, max: number) => {
 	return Math.min(Math.max(val, min), max);
 };
 
-export const makeSvg = ({
+export const createRoundedTextBox = ({
 	textMeasurements,
 	textAlign,
 	horizontalPadding,
-	maxCornerRadius = 10,
+	cornerRadius: unclampedMaxCornerRadius,
 }: {
 	textMeasurements: Dimensions[];
 	textAlign: 'left' | 'center' | 'right';
 	horizontalPadding: number;
-	maxCornerRadius?: number;
+	cornerRadius: number;
 }) => {
 	const instructions: Instruction[] = [];
 
@@ -35,6 +35,11 @@ export const makeSvg = ({
 		} else if (textAlign === 'right') {
 			xOffset = maxWidth - (cornerRounding.width + horizontalPadding * 2);
 		}
+		const maxCornerRadius = clamp(
+			unclampedMaxCornerRadius,
+			0,
+			cornerRounding.height / 2,
+		);
 
 		if (i === 0) {
 			instructions.push({
@@ -143,6 +148,12 @@ export const makeSvg = ({
 		const bottomLeftWidthDifference = prevCornerRounding
 			? prevCornerRounding.width - cornerRounding.width
 			: -Infinity;
+
+		const maxCornerRadius = clamp(
+			unclampedMaxCornerRadius,
+			0,
+			cornerRounding.height / 2,
+		);
 
 		const bottomLeftCornerRadius = clamp(
 			prevCornerRounding

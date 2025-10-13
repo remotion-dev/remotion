@@ -5,7 +5,7 @@
 
 import {measureText} from '@remotion/layout-utils';
 import {getBoundingBox} from '@remotion/paths';
-import {makeSvg} from './svg';
+import {createRoundedTextBox} from './svg';
 
 interface TikTokTextBoxProps {
 	lines: string[];
@@ -64,10 +64,11 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 		}),
 	);
 	const horizontalPadding = 20;
-	const svg = makeSvg({
+	const svg = createRoundedTextBox({
 		textMeasurements: roundings,
 		textAlign: align,
 		horizontalPadding,
+		cornerRadius: 20,
 	});
 	const boundingBox = getBoundingBox(svg);
 
