@@ -1,5 +1,9 @@
 import type {Dimensions} from '@remotion/layout-utils';
-import type {Instruction} from '@remotion/paths';
+import type {
+	BoundingBox,
+	Instruction,
+	ReducedInstruction,
+} from '@remotion/paths';
 import {
 	PathInternals,
 	reduceInstructions,
@@ -16,14 +20,20 @@ export type CreateRoundedTextBoxProps = {
 	textMeasurements: Dimensions[];
 	textAlign: TextAlign;
 	horizontalPadding: number;
-	cornerRadius: number;
+	borderRadius: number;
+};
+
+export type CreateRoundedTextBoxResult = {
+	d: string;
+	boundingBox: BoundingBox;
+	instructions: ReducedInstruction[];
 };
 
 export const createRoundedTextBox = ({
 	textMeasurements,
 	textAlign,
 	horizontalPadding,
-	cornerRadius: unclampedMaxCornerRadius,
+	borderRadius: unclampedMaxCornerRadius,
 }: CreateRoundedTextBoxProps) => {
 	const instructions: Instruction[] = [];
 
@@ -254,7 +264,11 @@ export const createRoundedTextBox = ({
 
 	const reduced = reduceInstructions(instructions);
 
-	PathInternals.getBoundingBoxFromInstructions(reduced);
+	const boundingBox = PathInternals.getBoundingBoxFromInstructions(reduced);
 
-	return serializeInstructions(reduced);
+	return {
+		d: serializeInstructions(reduced),
+		boundingBox,
+		instructions: reduced,
+	};
 };

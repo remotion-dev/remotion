@@ -1,0 +1,71 @@
+---
+image: /generated/articles-docs-rounded-text-box-create-rounded-text-box.png
+title: 'createRoundedTextBox()'
+crumb: '@remotion/rounded-text-box'
+---
+
+_Part of the [`@remotion/rounded-text-box`](/docs/rounded-text-box) package._
+
+## API
+
+_object_ <TsType type="CreateRoundedTextBoxProps" source="@remotion/rounded-text-box" />
+
+Accepts an object with the following properties:
+
+### `textMeasurements`
+
+_array_ <TsType type="Dimensions[]" source="@remotion/layout-utils" />
+
+An array of text measurements, each containing the `width` and `height` of a line of text.  
+Should be obtained using the [`measureText()`](/docs/layout-utils/measure-text) function.
+
+### `textAlign`
+
+_string_ <TsType type="TextAlign" source="@remotion/rounded-text-box" />
+
+The alignment of the text.  
+Can be `'left'`, `'center'`, or `'right'`.
+
+### `horizontalPadding`
+
+_number_
+
+The horizontal padding of the text box.
+
+### `borderRadius`
+
+_number_
+
+The border radius of the text box.
+
+## Return value
+
+_object_ <TsType type="CreateRoundedTextBoxResult" source="@remotion/rounded-text-box" />
+
+An object containing the following properties:
+
+### `d`
+
+_string_
+
+The SVG path.
+
+### `boundingBox`
+
+_object_ <TsType type="BoundingBox" source="@remotion/paths" />
+
+The bounding box of the text box. See [`getBoundingBox()`](/docs/paths/get-bounding-box) for the shape.
+
+### `instructions`
+
+_array_ <TsType type="ReducedInstruction[]" source="@remotion/paths" />
+
+The SVG path instructions as an array, for use with the [`@remotion/paths`](/docs/paths) package.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/rounded-text-box/src/create-rounded-text-box.ts)
+- [`@remotion/rounded-text-box`](/docs/rounded-text-box)
+- [`@remotion/paths`](/docs/paths)
+- [`measureText()`](/docs/layout-utils/measure-text)
+- [`getBoundingBox()`](/docs/paths/get-bounding-box)

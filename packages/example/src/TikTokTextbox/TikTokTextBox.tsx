@@ -4,7 +4,6 @@
  */
 
 import {measureText} from '@remotion/layout-utils';
-import {getBoundingBox} from '@remotion/paths';
 import {createRoundedTextBox} from '@remotion/rounded-text-box';
 
 interface TikTokTextBoxProps {
@@ -67,13 +66,12 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 		}),
 	);
 	const horizontalPadding = 30;
-	const svg = createRoundedTextBox({
+	const {d, boundingBox} = createRoundedTextBox({
 		textMeasurements: roundings,
 		textAlign: align,
 		horizontalPadding,
-		cornerRadius: 20,
+		borderRadius: 20,
 	});
-	const boundingBox = getBoundingBox(svg);
 
 	return (
 		<div
@@ -102,7 +100,7 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 					overflow: 'visible',
 				}}
 			>
-				<path fill="white" d={svg} />
+				<path fill="white" d={d} />
 			</svg>
 
 			{lines.map((line, i) => (

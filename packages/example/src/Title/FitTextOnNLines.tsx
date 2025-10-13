@@ -1,5 +1,4 @@
 import {fitTextOnNLines, measureText} from '@remotion/layout-utils';
-import {getBoundingBox} from '@remotion/paths';
 import {createRoundedTextBox} from '@remotion/rounded-text-box';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
@@ -32,9 +31,9 @@ export const FitTextOnNLines: React.FC<
 		maxFontSize,
 	});
 
-	const roundings = lines.map((line) =>
+	const textMeasurements = lines.map((text) =>
 		measureText({
-			text: line,
+			text,
 			fontFamily,
 			fontSize,
 			additionalStyles: {
@@ -47,13 +46,12 @@ export const FitTextOnNLines: React.FC<
 			validateFontIsLoaded: true,
 		}),
 	);
-	const svg = createRoundedTextBox({
-		textMeasurements: roundings,
-		textAlign: textAlign,
+	const {d, boundingBox} = createRoundedTextBox({
+		textMeasurements,
+		textAlign,
 		horizontalPadding,
-		cornerRadius,
+		borderRadius: cornerRadius,
 	});
-	const boundingBox = getBoundingBox(svg);
 
 	const lineStyle = React.useMemo<React.CSSProperties>(
 		() => ({
@@ -85,7 +83,7 @@ export const FitTextOnNLines: React.FC<
 						overflow: 'visible',
 					}}
 				>
-					<path fill="white" d={svg} />
+					<path fill="white" d={d} />
 				</svg>
 				<div style={{position: 'relative'}}>
 					{lines.map((line, i) => (
