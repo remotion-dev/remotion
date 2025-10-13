@@ -34,7 +34,7 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const packetStats = await videoTrack?.computePacketStats();
+  const packetStats = await videoTrack?.computePacketStats(50);
   const fps = packetStats?.averagePacketRate ?? null;
 
   return {
@@ -51,6 +51,7 @@ export const getMediaMetadata = async (src: string) => {
   <p>We don't care which format, so we load all parsers using `ALL_FORMATS`.</p>
   <p>By setting `getRetryDelay` to `() => null`, we prevent Mediabunny from infinitely retrying if the request fails.</p>
   <p>We compute the duration, the dimensions and the frame rate. If the media file is an audio file, we return `null` for the dimensions and the frame rate.</p>
+  <p>To avoid reading the entire file, we at most read 50 packets to compute the frame rate.</p>
 </details>
 
 ```tsx twoslash title="Usage example"
@@ -73,7 +74,7 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const packetStats = await videoTrack?.computePacketStats();
+  const packetStats = await videoTrack?.computePacketStats(50);
   const fps = packetStats?.averagePacketRate ?? null;
 
   return {
