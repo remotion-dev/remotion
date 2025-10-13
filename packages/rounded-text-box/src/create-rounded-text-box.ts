@@ -35,20 +35,20 @@ export const createRoundedTextBox = ({
 	let yOffset = 0;
 
 	for (let i = 0; i < textMeasurements.length; i++) {
-		const prevCornerRounding = textMeasurements[i - 1];
-		const cornerRounding = textMeasurements[i];
-		const nextCornerRounding = textMeasurements[i + 1];
+		const previousLine = textMeasurements[i - 1];
+		const currentLine = textMeasurements[i];
+		const nextLine = textMeasurements[i + 1];
 		let xOffset = 0;
 		if (textAlign === 'center') {
-			xOffset = (maxWidth - (cornerRounding.width + horizontalPadding * 2)) / 2;
+			xOffset = (maxWidth - (currentLine.width + horizontalPadding * 2)) / 2;
 		} else if (textAlign === 'right') {
-			xOffset = maxWidth - (cornerRounding.width + horizontalPadding * 2);
+			xOffset = maxWidth - (currentLine.width + horizontalPadding * 2);
 		}
 
 		const maxCornerRadius = clamp(
 			unclampedMaxCornerRadius,
 			0,
-			cornerRounding.height / 2,
+			currentLine.height / 2,
 		);
 
 		if (i === 0) {
@@ -60,12 +60,12 @@ export const createRoundedTextBox = ({
 		}
 
 		const topRightCornerRadius = clamp(
-			prevCornerRounding
+			previousLine
 				? textAlign === 'right'
 					? 0
 					: textAlign === 'left'
-						? (prevCornerRounding.width - cornerRounding.width) / 2
-						: (prevCornerRounding.width - cornerRounding.width) / 4
+						? (previousLine.width - currentLine.width) / 2
+						: (previousLine.width - currentLine.width) / 4
 				: -Infinity,
 			-maxCornerRadius,
 			maxCornerRadius,
@@ -76,7 +76,7 @@ export const createRoundedTextBox = ({
 				type: 'L',
 				x:
 					xOffset +
-					cornerRounding.width +
+					currentLine.width +
 					horizontalPadding * 2 +
 					topRightCornerRadius,
 				y: yOffset,
@@ -89,24 +89,24 @@ export const createRoundedTextBox = ({
 				xAxisRotation: 0,
 				largeArcFlag: false,
 				sweepFlag: topRightCornerRadius < 0,
-				x: xOffset + cornerRounding.width + horizontalPadding * 2,
+				x: xOffset + currentLine.width + horizontalPadding * 2,
 				y: yOffset + Math.abs(topRightCornerRadius),
 			});
 		} else {
 			instructions.push({
 				type: 'L',
-				x: xOffset + cornerRounding.width + horizontalPadding * 2,
+				x: xOffset + currentLine.width + horizontalPadding * 2,
 				y: yOffset,
 			});
 		}
 
 		const bottomRightCornerRadius = clamp(
-			nextCornerRounding
+			nextLine
 				? textAlign === 'right'
 					? 0
 					: textAlign === 'left'
-						? (nextCornerRounding.width - cornerRounding.width) / 2
-						: (nextCornerRounding.width - cornerRounding.width) / 4
+						? (nextLine.width - currentLine.width) / 2
+						: (nextLine.width - currentLine.width) / 4
 				: -Infinity,
 			-maxCornerRadius,
 			maxCornerRadius,
@@ -116,8 +116,8 @@ export const createRoundedTextBox = ({
 		if (bottomRightCornerRadius !== 0) {
 			instructions.push({
 				type: 'L',
-				x: xOffset + cornerRounding.width + horizontalPadding * 2,
-				y: yOffset + cornerRounding.height - Math.abs(bottomRightCornerRadius),
+				x: xOffset + currentLine.width + horizontalPadding * 2,
+				y: yOffset + currentLine.height - Math.abs(bottomRightCornerRadius),
 			});
 			// Arc for rounded corner (bottom right)
 			instructions.push({
@@ -129,20 +129,20 @@ export const createRoundedTextBox = ({
 				sweepFlag: bottomRightCornerRadius < 0,
 				x:
 					xOffset +
-					cornerRounding.width +
+					currentLine.width +
 					horizontalPadding * 2 +
 					bottomRightCornerRadius,
-				y: yOffset + cornerRounding.height,
+				y: yOffset + currentLine.height,
 			});
 		} else {
 			instructions.push({
 				type: 'L',
-				x: xOffset + cornerRounding.width + horizontalPadding * 2,
-				y: yOffset + cornerRounding.height,
+				x: xOffset + currentLine.width + horizontalPadding * 2,
+				y: yOffset + currentLine.height,
 			});
 		}
 
-		yOffset += cornerRounding.height;
+		yOffset += currentLine.height;
 	}
 
 	for (let i = textMeasurements.length - 1; i >= 0; i--) {

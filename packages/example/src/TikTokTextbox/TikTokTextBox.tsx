@@ -49,13 +49,16 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 	textColor,
 	fontSize,
 }) => {
+	const lineHeight = 1.5;
 	const fontWeight = 400;
 	const roundings = lines.map((line) =>
 		measureText({
 			text: line,
 			fontFamily,
 			fontSize,
-			additionalStyles: {},
+			additionalStyles: {
+				lineHeight,
+			},
 			fontVariantNumeric: 'normal',
 			fontWeight,
 			letterSpacing: 'normal',
@@ -63,7 +66,7 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 			validateFontIsLoaded: true,
 		}),
 	);
-	const horizontalPadding = 20;
+	const horizontalPadding = 30;
 	const svg = createRoundedTextBox({
 		textMeasurements: roundings,
 		textAlign: align,
@@ -86,7 +89,7 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 				textAlign: align,
 				fontFamily,
 				color: textColor ?? 'black',
-				lineHeight: 1.5,
+				lineHeight,
 				fontWeight,
 			}}
 		>

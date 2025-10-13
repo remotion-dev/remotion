@@ -1,63 +1,99 @@
-import {fitTextOnNLines} from '@remotion/layout-utils';
+import {fitTextOnNLines, measureText} from '@remotion/layout-utils';
+import {getBoundingBox} from '@remotion/paths';
+import {createRoundedTextBox} from '@remotion/rounded-text-box';
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
 import {z} from 'zod';
-import {
-	TIKTOK_TEXT_BOX_HORIZONTAL_PADDING,
-	TikTokTextBox,
-} from '../TikTokTextbox/TikTokTextBox';
+import {TIKTOK_TEXT_BOX_HORIZONTAL_PADDING} from '../TikTokTextbox/TikTokTextBox';
 
-const boxWidth = 1200;
+const boxWidth = 1500;
 const fontFamily = 'Proxima Nova';
-const fontWeight = 'bold';
+const fontWeight = 400;
+const horizontalPadding = 30;
+const cornerRadius = 20;
+const lineHeight = 1.5;
+const maxFontSize = 100;
 
 export const fitTextOnNLinesSchema = z.object({
-	line: z.string(),
+	text: z.string(),
 	maxLines: z.number().step(1),
 	textAlign: z.enum(['left', 'center', 'right']),
 });
 
 export const FitTextOnNLines: React.FC<
 	z.infer<typeof fitTextOnNLinesSchema>
-> = ({line, maxLines, textAlign}) => {
+> = ({text: line, maxLines, textAlign}) => {
 	const {fontSize, lines} = fitTextOnNLines({
 		maxLines,
 		maxBoxWidth: boxWidth - TIKTOK_TEXT_BOX_HORIZONTAL_PADDING * 2,
 		fontFamily,
 		text: line,
 		fontWeight,
-		maxFontSize: 100,
+		maxFontSize,
 	});
 
+	const roundings = lines.map((line) =>
+		measureText({
+			text: line,
+			fontFamily,
+			fontSize,
+			additionalStyles: {
+				lineHeight,
+			},
+			fontVariantNumeric: 'normal',
+			fontWeight,
+			letterSpacing: 'normal',
+			textTransform: 'none',
+			validateFontIsLoaded: true,
+		}),
+	);
+	const svg = createRoundedTextBox({
+		textMeasurements: roundings,
+		textAlign: textAlign,
+		horizontalPadding,
+		cornerRadius,
+	});
+	const boundingBox = getBoundingBox(svg);
+
+	const lineStyle = React.useMemo<React.CSSProperties>(
+		() => ({
+			fontSize,
+			fontWeight,
+			fontFamily,
+			lineHeight,
+			textAlign,
+			paddingLeft: horizontalPadding,
+			paddingRight: horizontalPadding,
+		}),
+		[fontSize, textAlign],
+	);
+
 	return (
-		<AbsoluteFill
+		<div
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
-				backgroundColor: '#1F2429',
+				width: boundingBox.width,
+				height: boundingBox.height,
 			}}
 		>
-			<div
+			<svg
+				viewBox={boundingBox.viewBox}
 				style={{
-					width: boxWidth,
-					fontSize,
-					overflow: 'auto',
-					fontWeight,
-					fontFamily,
-					display: 'flex',
-					flexDirection: 'column',
-					alignItems: 'center',
-					color: 'black',
+					position: 'absolute',
+					width: boundingBox.width,
+					height: boundingBox.height,
+					overflow: 'visible',
 				}}
 			>
-				<TikTokTextBox
-					textColor="black"
-					lines={lines}
-					fontFamily={fontFamily}
-					textAlign={textAlign}
-					fontSize={fontSize}
-				/>
+				<path fill="white" d={svg} />
+			</svg>
+			<div style={{position: 'relative'}}>
+				{lines.map((line, i) => (
+					<div key={i} style={lineStyle}>
+						{line}
+					</div>
+				))}
 			</div>
-		</AbsoluteFill>
+		</div>
 	);
 };
