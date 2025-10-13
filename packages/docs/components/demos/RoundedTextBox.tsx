@@ -16,7 +16,7 @@ type Props = {
 const fontWeight = '700';
 const boxWidth = 1100;
 const lineHeight = 1.5;
-const maxFontSize = 70;
+const maxFontSize = 200;
 
 const {waitUntilDone, fontFamily} = loadFont('normal', {
 	weights: [fontWeight],
@@ -78,7 +78,7 @@ const RoundedTextBoxInner: React.FC<Props> = ({
 	return (
 		<AbsoluteFill
 			style={{
-				backgroundColor: '#eee',
+				backgroundColor: '#ddd',
 				justifyContent: 'center',
 				alignItems: 'center',
 			}}
