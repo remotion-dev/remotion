@@ -4,191 +4,27 @@
  */
 
 import {getBoundingBox} from '@remotion/paths';
-import {CornerRounding, getCornerRoundings} from './get-corner-roundings';
-import {getActualBorderRadius, getPathForCorner} from './rounded-corner';
+import {getCornerRoundings} from './get-corner-roundings';
 import {makeSvg} from './svg';
 
 interface TikTokTextBoxProps {
 	lines: string[];
 	textAlign: 'left' | 'center' | 'right';
 	fontFamily: string;
-	bgColor?: string;
 	textColor?: string;
 	className?: string;
 	borderRadius?: number;
 	fontSize: number;
 }
 
-const getBorderRadius = (rounding: CornerRounding, radius: number) => {
-	return [
-		rounding.topLeft
-			? `${getActualBorderRadius({desiredBorderRadius: radius, widthDifference: rounding.widthDifferenceToPrevious})}px`
-			: '0',
-		rounding.topRight
-			? `${getActualBorderRadius({desiredBorderRadius: radius, widthDifference: rounding.widthDifferenceToPrevious})}px`
-			: '0',
-		rounding.bottomRight
-			? `${getActualBorderRadius({desiredBorderRadius: radius, widthDifference: rounding.widthDifferenceToNext})}px`
-			: '0',
-		rounding.bottomLeft
-			? `${getActualBorderRadius({desiredBorderRadius: radius, widthDifference: rounding.widthDifferenceToNext})}px`
-			: '0',
-	].join(' ');
-};
-
 export const TIKTOK_TEXT_BOX_HORIZONTAL_PADDING = 20;
-
-const TopLeftCorner: React.FC<{
-	bgColor: string;
-	borderRadiusValue: number;
-	widthDifference: number | undefined;
-}> = ({bgColor, borderRadiusValue, widthDifference}) => {
-	const {d, borderRadius, width} = getPathForCorner({
-		corner: 'top-right',
-		desiredBorderRadius: borderRadiusValue,
-		widthDifference,
-	});
-	return (
-		<div
-			style={{
-				position: 'absolute',
-				left: -width,
-				top: 0,
-				width: width,
-			}}
-		>
-			<svg
-				style={{
-					width,
-					height: width,
-					overflow: 'visible',
-				}}
-				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
-			>
-				<path fill={bgColor} d={d} />
-			</svg>
-		</div>
-	);
-};
-
-const TopRightCorner: React.FC<{
-	bgColor: string;
-	borderRadiusValue: number;
-	widthDifference: number | undefined;
-}> = ({bgColor, borderRadiusValue, widthDifference}) => {
-	const {d, borderRadius, width} = getPathForCorner({
-		corner: 'top-left',
-		desiredBorderRadius: borderRadiusValue,
-		widthDifference,
-	});
-	return (
-		<div
-			style={{
-				position: 'absolute',
-				right: -width,
-				top: 0,
-				width: width,
-			}}
-		>
-			<svg
-				style={{
-					width,
-					height: width,
-					overflow: 'visible',
-				}}
-				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
-			>
-				<path fill={bgColor} d={d} />
-			</svg>
-		</div>
-	);
-};
-
-const BottomLeftCorner: React.FC<{
-	bgColor: string;
-	borderRadiusValue: number;
-	widthDifference: number | undefined;
-}> = ({bgColor, borderRadiusValue, widthDifference}) => {
-	const {d, borderRadius, width} = getPathForCorner({
-		corner: 'bottom-right',
-		desiredBorderRadius: borderRadiusValue,
-		widthDifference,
-	});
-	return (
-		<div
-			style={{
-				position: 'absolute',
-				left: -width,
-				bottom: 0,
-				width: width,
-			}}
-		>
-			<svg
-				style={{
-					width,
-					height: width,
-					overflow: 'visible',
-				}}
-				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
-			>
-				<path fill={bgColor} d={d} />
-			</svg>
-		</div>
-	);
-};
-
-const BottomRightCorner: React.FC<{
-	bgColor: string;
-	borderRadiusValue: number;
-	widthDifference: number | undefined;
-}> = ({bgColor, borderRadiusValue, widthDifference}) => {
-	const {d, borderRadius, width} = getPathForCorner({
-		corner: 'bottom-left',
-		desiredBorderRadius: borderRadiusValue,
-		widthDifference,
-	});
-	return (
-		<div
-			style={{
-				position: 'absolute',
-				right: -width,
-				bottom: 0,
-				width: width,
-			}}
-		>
-			<svg
-				style={{
-					width,
-					height: width,
-					overflow: 'visible',
-				}}
-				viewBox={`0 0 ${borderRadius} ${borderRadius}`}
-			>
-				<path fill={bgColor} d={d} />
-			</svg>
-		</div>
-	);
-};
 
 const TikTokTextLine: React.FC<{
 	text: string;
 	align?: React.CSSProperties['textAlign'];
-	bgColor: string;
-	borderRadius: string;
 	className?: string;
 	style?: React.CSSProperties;
-	cornerRounding: CornerRounding;
-	borderRadiusValue: number;
-}> = ({
-	text,
-	align,
-	bgColor,
-	borderRadius,
-	className,
-	style,
-	cornerRounding,
-	borderRadiusValue,
-}) => {
+}> = ({text, align, className, style}) => {
 	return (
 		<div style={{position: 'relative'}}>
 			<div
@@ -196,7 +32,6 @@ const TikTokTextLine: React.FC<{
 					{
 						textAlign: align,
 						padding: `0px ${TIKTOK_TEXT_BOX_HORIZONTAL_PADDING}px`,
-						borderRadius: borderRadius,
 						...style,
 					} as React.CSSProperties
 				}
@@ -212,9 +47,7 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 	lines,
 	textAlign: align,
 	fontFamily = 'Arial',
-	bgColor = 'white',
 	textColor,
-	borderRadius = 10,
 	fontSize,
 }) => {
 	const fontWeight = 400;
@@ -254,18 +87,6 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 				fontWeight,
 			}}
 		>
-			{lines.map((line, i) => (
-				<TikTokTextLine
-					key={i}
-					text={line}
-					align={align}
-					bgColor={bgColor}
-					borderRadius={getBorderRadius(roundings[i], borderRadius)}
-					style={{}}
-					cornerRounding={roundings[i]}
-					borderRadiusValue={borderRadius}
-				/>
-			))}
 			<svg
 				viewBox={boundingBox.viewBox}
 				style={{
@@ -275,13 +96,12 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 					overflow: 'visible',
 				}}
 			>
-				<path
-					fill="none"
-					d={svg}
-					stroke="rgba(255, 0, 0, 0.8)"
-					strokeWidth={3}
-				/>
+				<path fill="white" d={svg} strokeWidth={3} />
 			</svg>
+
+			{lines.map((line, i) => (
+				<TikTokTextLine key={i} text={line} align={align} style={{}} />
+			))}
 		</div>
 	);
 };
@@ -305,7 +125,6 @@ export const TikTokTextBoxPlayground = () => {
 				lines={['Align Left', 'with two lines', 'Third Line']}
 				textAlign="left"
 				fontFamily="Arial"
-				bgColor="red"
 				fontSize={16}
 			/>
 			<TikTokTextBox
@@ -317,7 +136,6 @@ export const TikTokTextBoxPlayground = () => {
 			<TikTokTextBox
 				lines={['Align Right', 'with two lines', 'Third Line']}
 				textAlign="right"
-				bgColor="#FF683E"
 				fontFamily="Proxima Nova Semibold"
 				textColor="black"
 				fontSize={16}

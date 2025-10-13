@@ -39,16 +39,19 @@ export const makeSvg = ({
 		if (i === 0) {
 			instructions.push({
 				type: 'M',
-				x: xOffset,
+				x: xOffset + CORNER_RADIUS,
 				y: yOffset,
 			});
 		}
 
-		const topRightWidthDifference = prevCornerRounding
-			? prevCornerRounding.width - cornerRounding.width
-			: -Infinity;
 		const topRightCornerRadius = clamp(
-			topRightWidthDifference / 4,
+			prevCornerRounding
+				? textAlign === 'right'
+					? 0
+					: textAlign === 'left'
+						? (prevCornerRounding.width - cornerRounding.width) / 2
+						: (prevCornerRounding.width - cornerRounding.width) / 4
+				: -Infinity,
 			-CORNER_RADIUS,
 			CORNER_RADIUS,
 		);
@@ -82,11 +85,14 @@ export const makeSvg = ({
 			});
 		}
 
-		const bottomRightWidthDifference = nextCornerRounding
-			? nextCornerRounding.width - cornerRounding.width
-			: -Infinity;
 		const bottomRightCornerRadius = clamp(
-			bottomRightWidthDifference / 4,
+			nextCornerRounding
+				? textAlign === 'right'
+					? 0
+					: textAlign === 'left'
+						? (nextCornerRounding.width - cornerRounding.width) / 2
+						: (nextCornerRounding.width - cornerRounding.width) / 4
+				: -Infinity,
 			-CORNER_RADIUS,
 			CORNER_RADIUS,
 		);
@@ -125,6 +131,8 @@ export const makeSvg = ({
 
 	for (let i = cornerRoundings.length - 1; i >= 0; i--) {
 		const cornerRounding = cornerRoundings[i];
+		const prevCornerRounding = cornerRoundings[i + 1];
+		const nextCornerRounding = cornerRoundings[i - 1];
 		let xOffset = 0;
 		if (textAlign === 'center') {
 			xOffset = (maxWidth - (cornerRounding.width + horizontalPadding * 2)) / 2;
@@ -132,25 +140,39 @@ export const makeSvg = ({
 			xOffset = maxWidth - (cornerRounding.width + horizontalPadding * 2);
 		}
 
-		const bottomLeft = i === cornerRoundings.length - 1;
-		const topLeft = i === 0;
+		const bottomLeftWidthDifference = prevCornerRounding
+			? prevCornerRounding.width - cornerRounding.width
+			: -Infinity;
+
+		const bottomLeftCornerRadius = clamp(
+			prevCornerRounding
+				? textAlign === 'left'
+					? 0
+					: textAlign === 'right'
+						? bottomLeftWidthDifference / 2
+						: bottomLeftWidthDifference / 4
+				: -Infinity,
+			-CORNER_RADIUS,
+			CORNER_RADIUS,
+		);
+
 		// Bottom Left Corner
-		if (bottomLeft) {
+		if (bottomLeftCornerRadius !== 0) {
 			instructions.push({
 				type: 'L',
-				x: xOffset + CORNER_RADIUS,
+				x: xOffset - bottomLeftCornerRadius,
 				y: yOffset,
 			});
 			// Arc for rounded corner (bottom left)
 			instructions.push({
 				type: 'A',
-				rx: CORNER_RADIUS,
-				ry: CORNER_RADIUS,
+				rx: Math.abs(bottomLeftCornerRadius),
+				ry: Math.abs(bottomLeftCornerRadius),
 				xAxisRotation: 0,
 				largeArcFlag: false,
-				sweepFlag: true,
+				sweepFlag: bottomLeftCornerRadius < 0,
 				x: xOffset,
-				y: yOffset - CORNER_RADIUS,
+				y: yOffset - Math.abs(bottomLeftCornerRadius),
 			});
 		} else {
 			instructions.push({
@@ -160,22 +182,37 @@ export const makeSvg = ({
 			});
 		}
 
+		const topLeftWidthDifference = nextCornerRounding
+			? nextCornerRounding.width - cornerRounding.width
+			: -Infinity;
+		const topLeftCornerRadius = clamp(
+			nextCornerRounding
+				? textAlign === 'left'
+					? 0
+					: textAlign === 'right'
+						? topLeftWidthDifference / 2
+						: topLeftWidthDifference / 4
+				: -Infinity,
+			-CORNER_RADIUS,
+			CORNER_RADIUS,
+		);
+
 		// Top Left Corner
-		if (topLeft) {
+		if (topLeftCornerRadius !== 0) {
 			instructions.push({
 				type: 'L',
 				x: xOffset,
-				y: yOffset - cornerRounding.height + CORNER_RADIUS,
+				y: yOffset - cornerRounding.height + Math.abs(topLeftCornerRadius),
 			});
 			// Arc for rounded corner (top left)
 			instructions.push({
 				type: 'A',
-				rx: CORNER_RADIUS,
-				ry: CORNER_RADIUS,
+				rx: Math.abs(topLeftCornerRadius),
+				ry: Math.abs(topLeftCornerRadius),
 				xAxisRotation: 0,
 				largeArcFlag: false,
-				sweepFlag: true,
-				x: xOffset + CORNER_RADIUS,
+				sweepFlag: topLeftCornerRadius < 0,
+				x: xOffset - topLeftCornerRadius,
 				y: yOffset - cornerRounding.height,
 			});
 		} else {

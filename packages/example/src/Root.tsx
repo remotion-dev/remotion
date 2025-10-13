@@ -632,9 +632,9 @@ export const Index: React.FC = () => {
 					height={350}
 					schema={fitTextOnNLinesSchema}
 					defaultProps={{
-						line: 'No matter how much text I am adding, the text always fits on 2 lines and there is corner rounding like on TikT.',
-						maxLines: 2,
-						textAlign: 'center' as const,
+						line: 'No matter how much text I am adding, the text always fits on 3 lines and there is corner rounding like on TikTok.',
+						maxLines: 3,
+						textAlign: 'right' as const,
 					}}
 				/>
 				<Composition

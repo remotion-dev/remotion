@@ -13,8 +13,8 @@ const fontWeight = 'bold';
 
 export const fitTextOnNLinesSchema = z.object({
 	line: z.string(),
-	maxLines: z.number(),
-	textAlign: z.enum(['left', 'center']),
+	maxLines: z.number().step(1),
+	textAlign: z.enum(['left', 'center', 'right']),
 });
 
 export const FitTextOnNLines: React.FC<
@@ -52,7 +52,6 @@ export const FitTextOnNLines: React.FC<
 				}}
 			>
 				<TikTokTextBox
-					bgColor="white"
 					textColor="black"
 					lines={lines}
 					fontFamily={fontFamily}
