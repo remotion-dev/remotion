@@ -24,6 +24,7 @@ import {
 	polygonDemo,
 	rectDemo,
 	rotateDemo,
+	roundedTextBoxDemo,
 	scaleDemo,
 	skewDemo,
 	slidePresentationDemo,
@@ -69,6 +70,7 @@ const demos: DemoType[] = [
 	irisPresentationDemo,
 	cubePresentationDemo,
 	animationMathDemo,
+	roundedTextBoxDemo,
 ];
 
 export const Demo: React.FC<{
