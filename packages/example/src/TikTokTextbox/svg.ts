@@ -1,34 +1,34 @@
+import {Dimensions} from '@remotion/layout-utils';
 import {Instruction, serializeInstructions} from '@remotion/paths';
-import {CornerRounding} from './get-corner-roundings';
-
-const CORNER_RADIUS = 10;
 
 const clamp = (val: number, min: number, max: number) => {
 	return Math.min(Math.max(val, min), max);
 };
 
 export const makeSvg = ({
-	cornerRoundings,
+	textMeasurements,
 	textAlign,
 	horizontalPadding,
+	maxCornerRadius = 10,
 }: {
-	cornerRoundings: CornerRounding[];
+	textMeasurements: Dimensions[];
 	textAlign: 'left' | 'center' | 'right';
 	horizontalPadding: number;
+	maxCornerRadius?: number;
 }) => {
 	const instructions: Instruction[] = [];
 
 	let maxWidth = 0;
-	for (const cornerRounding of cornerRoundings) {
+	for (const cornerRounding of textMeasurements) {
 		maxWidth = Math.max(maxWidth, cornerRounding.width + horizontalPadding * 2);
 	}
 
 	let yOffset = 0;
 
-	for (let i = 0; i < cornerRoundings.length; i++) {
-		const prevCornerRounding = cornerRoundings[i - 1];
-		const cornerRounding = cornerRoundings[i];
-		const nextCornerRounding = cornerRoundings[i + 1];
+	for (let i = 0; i < textMeasurements.length; i++) {
+		const prevCornerRounding = textMeasurements[i - 1];
+		const cornerRounding = textMeasurements[i];
+		const nextCornerRounding = textMeasurements[i + 1];
 		let xOffset = 0;
 		if (textAlign === 'center') {
 			xOffset = (maxWidth - (cornerRounding.width + horizontalPadding * 2)) / 2;
@@ -39,7 +39,7 @@ export const makeSvg = ({
 		if (i === 0) {
 			instructions.push({
 				type: 'M',
-				x: xOffset + CORNER_RADIUS,
+				x: xOffset + maxCornerRadius,
 				y: yOffset,
 			});
 		}
@@ -52,8 +52,8 @@ export const makeSvg = ({
 						? (prevCornerRounding.width - cornerRounding.width) / 2
 						: (prevCornerRounding.width - cornerRounding.width) / 4
 				: -Infinity,
-			-CORNER_RADIUS,
-			CORNER_RADIUS,
+			-maxCornerRadius,
+			maxCornerRadius,
 		);
 		// Top Right Corner
 		if (topRightCornerRadius !== 0) {
@@ -93,8 +93,8 @@ export const makeSvg = ({
 						? (nextCornerRounding.width - cornerRounding.width) / 2
 						: (nextCornerRounding.width - cornerRounding.width) / 4
 				: -Infinity,
-			-CORNER_RADIUS,
-			CORNER_RADIUS,
+			-maxCornerRadius,
+			maxCornerRadius,
 		);
 
 		// Bottom Right Corner
@@ -129,10 +129,10 @@ export const makeSvg = ({
 		yOffset += cornerRounding.height;
 	}
 
-	for (let i = cornerRoundings.length - 1; i >= 0; i--) {
-		const cornerRounding = cornerRoundings[i];
-		const prevCornerRounding = cornerRoundings[i + 1];
-		const nextCornerRounding = cornerRoundings[i - 1];
+	for (let i = textMeasurements.length - 1; i >= 0; i--) {
+		const cornerRounding = textMeasurements[i];
+		const prevCornerRounding = textMeasurements[i + 1];
+		const nextCornerRounding = textMeasurements[i - 1];
 		let xOffset = 0;
 		if (textAlign === 'center') {
 			xOffset = (maxWidth - (cornerRounding.width + horizontalPadding * 2)) / 2;
@@ -152,8 +152,8 @@ export const makeSvg = ({
 						? bottomLeftWidthDifference / 2
 						: bottomLeftWidthDifference / 4
 				: -Infinity,
-			-CORNER_RADIUS,
-			CORNER_RADIUS,
+			-maxCornerRadius,
+			maxCornerRadius,
 		);
 
 		// Bottom Left Corner
@@ -193,8 +193,8 @@ export const makeSvg = ({
 						? topLeftWidthDifference / 2
 						: topLeftWidthDifference / 4
 				: -Infinity,
-			-CORNER_RADIUS,
-			CORNER_RADIUS,
+			-maxCornerRadius,
+			maxCornerRadius,
 		);
 
 		// Top Left Corner

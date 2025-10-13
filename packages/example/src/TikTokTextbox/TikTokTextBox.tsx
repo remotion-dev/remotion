@@ -3,8 +3,8 @@
  * and improved: https://discord.com/channels/809501355504959528/833092843290624050/1379446302903107624
  */
 
+import {measureText} from '@remotion/layout-utils';
 import {getBoundingBox} from '@remotion/paths';
-import {getCornerRoundings} from './get-corner-roundings';
 import {makeSvg} from './svg';
 
 interface TikTokTextBoxProps {
@@ -31,7 +31,6 @@ const TikTokTextLine: React.FC<{
 				style={
 					{
 						textAlign: align,
-						padding: `0px ${TIKTOK_TEXT_BOX_HORIZONTAL_PADDING}px`,
 						...style,
 					} as React.CSSProperties
 				}
@@ -51,21 +50,24 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 	fontSize,
 }) => {
 	const fontWeight = 400;
-	const roundings = getCornerRoundings({
-		lines,
-		fontFamily,
-		fontSize,
-		additionalStyles: {},
-		fontVariantNumeric: 'normal',
-		fontWeight,
-		letterSpacing: 'normal',
-		textTransform: 'none',
-		align,
-	});
+	const roundings = lines.map((line) =>
+		measureText({
+			text: line,
+			fontFamily,
+			fontSize,
+			additionalStyles: {},
+			fontVariantNumeric: 'normal',
+			fontWeight,
+			letterSpacing: 'normal',
+			textTransform: 'none',
+			validateFontIsLoaded: true,
+		}),
+	);
+	const horizontalPadding = 20;
 	const svg = makeSvg({
-		cornerRoundings: roundings,
+		textMeasurements: roundings,
 		textAlign: align,
-		horizontalPadding: TIKTOK_TEXT_BOX_HORIZONTAL_PADDING,
+		horizontalPadding,
 	});
 	const boundingBox = getBoundingBox(svg);
 
@@ -100,7 +102,14 @@ export const TikTokTextBox: React.FC<TikTokTextBoxProps> = ({
 			</svg>
 
 			{lines.map((line, i) => (
-				<TikTokTextLine key={i} text={line} align={align} style={{}} />
+				<TikTokTextLine
+					key={i}
+					text={line}
+					align={align}
+					style={{
+						padding: `0px ${horizontalPadding}px`,
+					}}
+				/>
 			))}
 		</div>
 	);

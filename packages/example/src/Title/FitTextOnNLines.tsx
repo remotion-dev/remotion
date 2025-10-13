@@ -20,7 +20,7 @@ export const fitTextOnNLinesSchema = z.object({
 export const FitTextOnNLines: React.FC<
 	z.infer<typeof fitTextOnNLinesSchema>
 > = ({line, maxLines, textAlign}) => {
-	const {fontSize: bestFontSize, lines} = fitTextOnNLines({
+	const {fontSize, lines} = fitTextOnNLines({
 		maxLines,
 		maxBoxWidth: boxWidth - TIKTOK_TEXT_BOX_HORIZONTAL_PADDING * 2,
 		fontFamily,
@@ -28,7 +28,6 @@ export const FitTextOnNLines: React.FC<
 		fontWeight,
 		maxFontSize: 100,
 	});
-	const fontSize = bestFontSize;
 
 	return (
 		<AbsoluteFill
