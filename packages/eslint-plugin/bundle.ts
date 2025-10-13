@@ -9,7 +9,7 @@ await buildPackage({
 	entrypoints: [
 		{
 			path: 'src/index.ts',
-			target: 'browser',
+			target: 'node',
 		},
 	],
 });
