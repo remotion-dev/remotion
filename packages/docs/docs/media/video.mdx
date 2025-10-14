@@ -201,6 +201,11 @@ export const MyComposition = () => {
 };
 ```
 
+:::note
+When a video ends (and `loop` is not set), the last frame of the video remains visible by default.  
+This matches the behavior of [`<Html5Video>`](/docs/html5-video#loop).
+:::
+
 ### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.354" />
 
 Controls the `frame` which is returned when using the [`volume`](#volume) callback function and adding the [`loop`](#loop) attribute.
