@@ -307,6 +307,9 @@ export class MediaPlayer {
 		});
 
 		if (newTime === null) {
+			// invalidate in-flight video operations
+			this.videoAsyncId++;
+			this.nextFrame = null;
 			this.clearCanvas();
 			await this.cleanAudioIteratorAndNodes();
 			return;
