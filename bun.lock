@@ -574,6 +574,7 @@
         "dotenv": "9.0.2",
         "hls.js": "^0.14.17",
         "lottie-web": "5.13.0",
+        "mediabunny": "1.23.0",
         "opentype.js": "^1.3.4",
         "polished": "^4.0.5",
         "prettier": "3.6.0",
