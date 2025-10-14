@@ -2,6 +2,13 @@
 export const sleep = (ms: number) =>
 	new Promise((resolve) => setTimeout(resolve, ms));
 
+export class TimeoutError extends Error {
+	constructor(message: string = 'Operation timed out') {
+		super(message);
+		this.name = 'TimeoutError';
+	}
+}
+
 export function withTimeout<T>(
 	promise: Promise<T>,
 	timeoutMs: number,
@@ -11,7 +18,7 @@ export function withTimeout<T>(
 
 	const timeoutPromise = new Promise<never>((_, reject) => {
 		timeoutId = window.setTimeout(() => {
-			reject(new Error(errorMessage));
+			reject(new TimeoutError(errorMessage));
 		}, timeoutMs);
 	});
 
