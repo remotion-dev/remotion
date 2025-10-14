@@ -20,6 +20,7 @@ const label: React.CSSProperties = {
 
 const textAreaStyle: React.CSSProperties = {
 	fontFamily: 'monospace',
+	minHeight: 200,
 };
 
 const codeSnippet: React.CSSProperties = {
@@ -45,9 +46,14 @@ const isValidJSON = (value: string) => {
 };
 
 const Inner: React.FC<{}> = () => {
-	const [value, setValue] = useState<string | null>(() =>
-		Internals.getInputPropsOverride(),
-	);
+	const [value, setValue] = useState<string | null>(() => {
+		const override = Internals.getInputPropsOverride();
+		if (override) {
+			return JSON.stringify(override, null, 2);
+		}
+
+		return null;
+	});
 
 	const {setSelectedModal} = useContext(ModalsContext);
 

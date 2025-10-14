@@ -2,7 +2,7 @@ const getKey = () => {
 	return `remotion_inputPropsOverride` + window.location.origin;
 };
 
-export const getInputPropsOverride = () => {
+export const getInputPropsOverride = (): Record<string, unknown> | null => {
 	if (typeof localStorage === 'undefined') return null;
 
 	const override = localStorage.getItem(getKey());
