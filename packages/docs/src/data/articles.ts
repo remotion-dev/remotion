@@ -6246,7 +6246,7 @@ export const articles = [
 		title: 'Comparison of video tags',
 		relativePath: 'docs/video-tags.mdx',
 		compId: 'articles-docs-video-tags',
-		crumb: '<Video>, <OffthreadVideo>, @remotion/media',
+		crumb: '<Video>, <Html5Video>, <OffthreadVideo>',
 		noAi: false,
 		slug: 'video-tags',
 	},
