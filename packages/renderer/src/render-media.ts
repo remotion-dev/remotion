@@ -740,8 +740,8 @@ const internalRenderMediaRaw = ({
 
 				const stitchStart = Date.now();
 				return internalStitchFramesToVideo({
-					width: actualWidth,
-					height: actualHeight,
+					width: Math.round(actualWidth),
+					height: Math.round(actualHeight),
 					fps,
 					outputLocation: absoluteOutputLocation,
 					preEncodedFileLocation,
