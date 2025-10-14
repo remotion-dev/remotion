@@ -55,22 +55,24 @@ const getFileMenu = ({
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void;
 }) => {
 	const items: ComboboxValue[] = [
-		{
-			id: 'input-props-override',
-			value: 'input-props-override',
-			label: 'Set input props...',
-			onClick: () => {
-				closeMenu();
-				setSelectedModal({
-					type: 'input-props-override',
-				});
-			},
-			type: 'item' as const,
-			keyHint: null,
-			leftItem: null,
-			subMenu: null,
-			quickSwitcherLabel: 'Override input props',
-		},
+		window.remotion_isReadOnlyStudio
+			? {
+					id: 'input-props-override',
+					value: 'input-props-override',
+					label: 'Set input props...',
+					onClick: () => {
+						closeMenu();
+						setSelectedModal({
+							type: 'input-props-override',
+						});
+					},
+					type: 'item' as const,
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'Override input props',
+				}
+			: null,
 		readOnlyStudio
 			? null
 			: {
