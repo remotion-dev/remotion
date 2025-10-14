@@ -11,8 +11,15 @@ export const getInputPropsOverride = () => {
 	return JSON.parse(override);
 };
 
-export const setInputPropsOverride = (override: Record<string, unknown>) => {
+export const setInputPropsOverride = (
+	override: Record<string, unknown> | null,
+) => {
 	if (typeof localStorage === 'undefined') return;
+
+	if (override === null) {
+		localStorage.removeItem(getKey());
+		return;
+	}
 
 	localStorage.setItem(getKey(), JSON.stringify(override));
 };

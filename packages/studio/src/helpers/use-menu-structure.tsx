@@ -47,17 +47,24 @@ const getFileMenu = ({
 	readOnlyStudio,
 	closeMenu,
 	previewServerState,
+	setSelectedModal,
 }: {
 	readOnlyStudio: boolean;
 	closeMenu: () => void;
 	previewServerState: 'connected' | 'init' | 'disconnected';
+	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void;
 }) => {
 	const items: ComboboxValue[] = [
 		{
 			id: 'input-props-override',
 			value: 'input-props-override',
-			label: 'Set input props',
-			onClick: () => {},
+			label: 'Set input props...',
+			onClick: () => {
+				closeMenu();
+				setSelectedModal({
+					type: 'input-props-override',
+				});
+			},
 			type: 'item' as const,
 			keyHint: null,
 			leftItem: null,
@@ -290,6 +297,7 @@ export const useMenuStructure = (
 				readOnlyStudio,
 				closeMenu,
 				previewServerState: type,
+				setSelectedModal,
 			}),
 			{
 				id: 'view' as const,

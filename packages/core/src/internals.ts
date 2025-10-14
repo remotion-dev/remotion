@@ -45,6 +45,10 @@ import {
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 } from './get-preview-dom-element.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {
+	getInputPropsOverride,
+	setInputPropsOverride,
+} from './input-props-override.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
@@ -221,6 +225,8 @@ export const Internals = {
 	OBJECTFIT_CONTAIN_CLASS_NAME,
 	InnerOffthreadVideo,
 	useBasicMediaInTimeline,
+	getInputPropsOverride,
+	setInputPropsOverride,
 } as const;
 
 export type {
