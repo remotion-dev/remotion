@@ -53,6 +53,17 @@ const getFileMenu = ({
 	previewServerState: 'connected' | 'init' | 'disconnected';
 }) => {
 	const items: ComboboxValue[] = [
+		{
+			id: 'input-props-override',
+			value: 'input-props-override',
+			label: 'Set input props',
+			onClick: () => {},
+			type: 'item' as const,
+			keyHint: null,
+			leftItem: null,
+			subMenu: null,
+			quickSwitcherLabel: 'Override input props',
+		},
 		readOnlyStudio
 			? null
 			: {
