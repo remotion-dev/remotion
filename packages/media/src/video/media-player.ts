@@ -10,7 +10,7 @@ import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {isNetworkError} from '../is-network-error';
-import {sleep, withTimeout} from './timeout-utils';
+import {sleep, TimeoutError, withTimeout} from './timeout-utils';
 
 export const SEEK_THRESHOLD = 0.05;
 const AUDIO_BUFFER_TOLERANCE_THRESHOLD = 0.1;
@@ -80,6 +80,8 @@ export class MediaPlayer {
 	private audioBufferHealth = 0;
 	private audioIteratorStarted = false;
 	private readonly HEALTHY_BUFER_THRESHOLD_SECONDS = 1;
+
+	private mediaEnded = false;
 
 	private onVideoFrameCallback?: (frame: CanvasImageSource) => void;
 
@@ -319,6 +321,7 @@ export class MediaPlayer {
 		if (isSignificantSeek) {
 			this.nextFrame = null;
 			this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
+			this.mediaEnded = false;
 
 			if (this.audioSink) {
 				await this.cleanAudioIteratorAndNodes();
@@ -600,6 +603,7 @@ export class MediaPlayer {
 					(await this.videoFrameIterator.next()).value ?? null;
 
 				if (!newNextFrame) {
+					this.mediaEnded = true;
 					break;
 				}
 
@@ -706,13 +710,18 @@ export class MediaPlayer {
 						BUFFERING_TIMEOUT_MS,
 						'Iterator timeout',
 					);
-				} catch {
-					this.setBufferingState(true);
+				} catch (error) {
+					if (error instanceof TimeoutError && !this.mediaEnded) {
+						this.setBufferingState(true);
+					}
+
 					await sleep(10);
 					continue;
 				}
 
+				// media has ended
 				if (result.done || !result.value) {
+					this.mediaEnded = true;
 					break;
 				}
 
