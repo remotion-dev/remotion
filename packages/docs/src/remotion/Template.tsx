@@ -58,12 +58,12 @@ export const TemplateComp: React.FC<{
 						style={{
 							backgroundColor: '#0B84F3',
 							display: 'flex',
-							padding: 50,
-							minWidth: 500,
+							padding: 40,
+							minWidth: 400,
 							width: '100%',
 							color: 'white',
 							fontFamily: 'GTPlanar',
-							fontSize: 50,
+							fontSize: 42,
 							alignItems: 'center',
 						}}
 					>
@@ -71,10 +71,10 @@ export const TemplateComp: React.FC<{
 						template!.cliId === 'next-tailwind' ||
 						template!.cliId === 'next-pages-dir' ? null : (
 							<>
-								<IconForTemplate scale={1.6} template={template!} />{' '}
+								<IconForTemplate scale={1.3} template={template!} />{' '}
 								<div
 									style={{
-										width: 25,
+										width: 20,
 										display: 'inline-block',
 									}}
 								/>
