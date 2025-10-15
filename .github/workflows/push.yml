@@ -34,6 +34,26 @@ jobs:
         timeout-minutes: 10
         run: |
           cd packages/lambda && bun test src/test/integration --run
+  nextjs-tests:
+    runs-on: ubuntu-latest
+    name: Next.js SSR build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: oven-sh/setup-bun@v2.0.2
+        with:
+          bun-version: 1.3.0
+      - name: Install
+        run: bun i
+      - name: Test Lambda IT
+        run: |
+          bun run build
+      - name: IT tests
+        timeout-minutes: 10
+        run: |
+          cd packages/player-example && bun run build-site
   webcodecs-tests:
     runs-on: macos-latest
     name: Webcodecs tests
