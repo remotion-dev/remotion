@@ -181,7 +181,6 @@ export const makeKeyframeManager = () => {
 				bank.deleteFramesBeforeTimestamp({
 					timestampInSeconds: threshold,
 					logLevel,
-					src,
 				});
 			}
 		}
@@ -227,6 +226,7 @@ export const makeKeyframeManager = () => {
 				videoSampleSink,
 				startPacket,
 				logLevel,
+				src,
 			});
 
 			addKeyframeBank({src, bank: newKeyframeBank, startTimestampInSeconds});
@@ -255,6 +255,7 @@ export const makeKeyframeManager = () => {
 			videoSampleSink,
 			startPacket,
 			logLevel,
+			src,
 		});
 
 		addKeyframeBank({src, bank: replacementKeybank, startTimestampInSeconds});

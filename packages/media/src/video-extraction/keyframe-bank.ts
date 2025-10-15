@@ -3,18 +3,17 @@ import {Internals, type LogLevel} from 'remotion';
 import {renderTimestampRange} from '../render-timestamp-range';
 
 export type KeyframeBank = {
+	src: string;
 	startTimestampInSeconds: number;
 	endTimestampInSeconds: number;
 	getFrameFromTimestamp: (timestamp: number) => Promise<VideoSample | null>;
 	prepareForDeletion: (logLevel: LogLevel) => {framesDeleted: number};
 	deleteFramesBeforeTimestamp: ({
 		logLevel,
-		src,
 		timestampInSeconds,
 	}: {
 		timestampInSeconds: number;
 		logLevel: LogLevel;
-		src: string;
 	}) => void;
 	hasTimestampInSecond: (timestamp: number) => Promise<boolean>;
 	addFrame: (frame: VideoSample) => void;
@@ -35,11 +34,13 @@ export const makeKeyframeBank = ({
 	endTimestampInSeconds,
 	sampleIterator,
 	logLevel: parentLogLevel,
+	src,
 }: {
 	startTimestampInSeconds: number;
 	endTimestampInSeconds: number;
 	sampleIterator: AsyncGenerator<VideoSample, void, unknown>;
 	logLevel: LogLevel;
+	src: string;
 }) => {
 	Internals.Log.verbose(
 		{logLevel: parentLogLevel, tag: '@remotion/media'},
@@ -51,6 +52,44 @@ export const makeKeyframeBank = ({
 	let lastUsed = Date.now();
 
 	let allocationSize = 0;
+
+	const deleteFramesBeforeTimestamp = ({
+		logLevel,
+		timestampInSeconds,
+	}: {
+		timestampInSeconds: number;
+		logLevel: LogLevel;
+	}) => {
+		const deletedTimestamps = [];
+		for (const frameTimestamp of frameTimestamps.slice()) {
+			const isLast =
+				frameTimestamp === frameTimestamps[frameTimestamps.length - 1];
+			// Don't delete the last frame, since it may be the last one in the video!
+			if (isLast) {
+				continue;
+			}
+
+			if (frameTimestamp < timestampInSeconds) {
+				if (!frames[frameTimestamp]) {
+					continue;
+				}
+
+				allocationSize -= frames[frameTimestamp].allocationSize();
+
+				frameTimestamps.splice(frameTimestamps.indexOf(frameTimestamp), 1);
+				frames[frameTimestamp].close();
+				delete frames[frameTimestamp];
+				deletedTimestamps.push(frameTimestamp);
+			}
+		}
+
+		if (deletedTimestamps.length > 0) {
+			Internals.Log.verbose(
+				{logLevel, tag: '@remotion/media'},
+				`Deleted ${deletedTimestamps.length} frame${deletedTimestamps.length === 1 ? '' : 's'} ${renderTimestampRange(deletedTimestamps)} for src ${src} because it is lower than ${timestampInSeconds}. Remaining: ${renderTimestampRange(frameTimestamps)}`,
+			);
+		}
+	};
 
 	const hasDecodedEnoughForTimestamp = (timestamp: number) => {
 		const lastFrameTimestamp = frameTimestamps[frameTimestamps.length - 1];
@@ -78,8 +117,8 @@ export const makeKeyframeBank = ({
 		lastUsed = Date.now();
 	};
 
-	const ensureEnoughFramesForTimestamp = async (timestamp: number) => {
-		while (!hasDecodedEnoughForTimestamp(timestamp)) {
+	const ensureEnoughFramesForTimestamp = async (timestampInSeconds: number) => {
+		while (!hasDecodedEnoughForTimestamp(timestampInSeconds)) {
 			const sample = await sampleIterator.next();
 
 			if (sample.value) {
@@ -89,6 +128,11 @@ export const makeKeyframeBank = ({
 			if (sample.done) {
 				break;
 			}
+
+			deleteFramesBeforeTimestamp({
+				logLevel: parentLogLevel,
+				timestampInSeconds,
+			});
 		}
 
 		lastUsed = Date.now();
@@ -172,46 +216,6 @@ export const makeKeyframeBank = ({
 		return {framesDeleted};
 	};
 
-	const deleteFramesBeforeTimestamp = ({
-		logLevel,
-		src,
-		timestampInSeconds,
-	}: {
-		timestampInSeconds: number;
-		logLevel: LogLevel;
-		src: string;
-	}) => {
-		const deletedTimestamps = [];
-		for (const frameTimestamp of frameTimestamps.slice()) {
-			const isLast =
-				frameTimestamp === frameTimestamps[frameTimestamps.length - 1];
-			// Don't delete the last frame, since it may be the last one in the video!
-			if (isLast) {
-				continue;
-			}
-
-			if (frameTimestamp < timestampInSeconds) {
-				if (!frames[frameTimestamp]) {
-					continue;
-				}
-
-				allocationSize -= frames[frameTimestamp].allocationSize();
-
-				frameTimestamps.splice(frameTimestamps.indexOf(frameTimestamp), 1);
-				frames[frameTimestamp].close();
-				delete frames[frameTimestamp];
-				deletedTimestamps.push(frameTimestamp);
-			}
-		}
-
-		if (deletedTimestamps.length > 0) {
-			Internals.Log.verbose(
-				{logLevel, tag: '@remotion/media'},
-				`Deleted ${deletedTimestamps.length} frame${deletedTimestamps.length === 1 ? '' : 's'} ${renderTimestampRange(deletedTimestamps)} for src ${src} because it is lower than ${timestampInSeconds}. Remaining: ${renderTimestampRange(frameTimestamps)}`,
-			);
-		}
-	};
-
 	const getOpenFrameCount = () => {
 		return {
 			size: allocationSize,
@@ -236,6 +240,7 @@ export const makeKeyframeBank = ({
 		hasTimestampInSecond,
 		addFrame,
 		deleteFramesBeforeTimestamp,
+		src,
 		getOpenFrameCount,
 		getLastUsed,
 	};
