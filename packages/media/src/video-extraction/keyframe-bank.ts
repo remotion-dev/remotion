@@ -1,5 +1,6 @@
 import type {VideoSample} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
+import {SAFE_BACK_WINDOW_IN_SECONDS} from '../caches';
 import {renderTimestampRange} from '../render-timestamp-range';
 
 export type KeyframeBank = {
@@ -131,7 +132,7 @@ export const makeKeyframeBank = ({
 
 			deleteFramesBeforeTimestamp({
 				logLevel: parentLogLevel,
-				timestampInSeconds,
+				timestampInSeconds: timestampInSeconds - SAFE_BACK_WINDOW_IN_SECONDS,
 			});
 		}
 

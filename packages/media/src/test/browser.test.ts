@@ -99,7 +99,7 @@ test('Should be able to extract the last frame', async () => {
 	assert(!audio);
 
 	const cacheStats = await keyframeManager.getCacheStats();
-	expect(cacheStats.count).toBe(93);
+	expect(cacheStats.count).toBe(1);
 });
 
 test('Should manage the cache', async () => {
