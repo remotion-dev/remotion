@@ -20,6 +20,8 @@ export const Studio: React.FC<{
 
 	return (
 		<Internals.RemotionRoot
+			audioEnabled={window.remotion_audioEnabled}
+			videoEnabled={window.remotion_videoEnabled}
 			logLevel={window.remotion_logLevel}
 			numberOfAudioTags={window.remotion_numberOfAudioTags}
 			onlyRenderComposition={null}

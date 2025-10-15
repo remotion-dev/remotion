@@ -97,6 +97,10 @@ export const renderMediaOnWeb = async ({
 		>
 			<Internals.RemotionRoot
 				// TODO: Hardcoded
+				audioEnabled
+				// TODO: Hardcoded
+				videoEnabled
+				// TODO: Hardcoded
 				logLevel="info"
 				// TODO: Hardcoded
 				numberOfAudioTags={0}

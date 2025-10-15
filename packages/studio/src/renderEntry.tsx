@@ -224,6 +224,8 @@ const renderContent = (Root: React.FC) => {
 	if (bundleMode.type === 'composition') {
 		const markup = (
 			<Internals.RemotionRoot
+				audioEnabled={window.remotion_audioEnabled}
+				videoEnabled={window.remotion_videoEnabled}
 				logLevel={window.remotion_logLevel}
 				numberOfAudioTags={0}
 				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
@@ -254,6 +256,8 @@ const renderContent = (Root: React.FC) => {
 	if (bundleMode.type === 'evaluation') {
 		const markup = (
 			<Internals.RemotionRoot
+				audioEnabled={window.remotion_audioEnabled}
+				videoEnabled={window.remotion_videoEnabled}
 				logLevel={window.remotion_logLevel}
 				numberOfAudioTags={0}
 				onlyRenderComposition={null}
