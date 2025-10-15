@@ -8,11 +8,13 @@ import {
 	staticFile,
 } from 'remotion';
 
-preloadVideo(
-	'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-);
+if (typeof window !== 'undefined') {
+	preloadVideo(
+		'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+	);
 
-preloadAudio(staticFile('sample.mp3'));
+	preloadAudio(staticFile('sample.mp3'));
+}
 
 export const VideoautoplayDemo = () => {
 	return (

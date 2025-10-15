@@ -52,7 +52,11 @@ type ExtractFrameResponse =
 	  };
 
 // Doesn't exist in studio
-if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
+if (
+	typeof window !== 'undefined' &&
+	window.remotion_broadcastChannel &&
+	window.remotion_isMainTab
+) {
 	window.remotion_broadcastChannel.addEventListener(
 		'message',
 		async (event) => {

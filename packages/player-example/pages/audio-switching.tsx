@@ -37,7 +37,7 @@ export default function ErrorRemake() {
 				<select
 					name="composition"
 					id="composition"
-					onChange={(e: any) => {
+					onChange={(e) => {
 						setActiveCompositionId(e.target.value);
 					}}
 				>
@@ -52,7 +52,7 @@ export default function ErrorRemake() {
 				<select
 					name="audio"
 					id="audio"
-					onChange={(e: any) => {
+					onChange={(e) => {
 						prefetch(e.target.value)
 							.waitUntilDone()
 							.then(() => {

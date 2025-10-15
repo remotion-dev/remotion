@@ -23,7 +23,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
-	logLevel = window.remotion_logLevel,
+	logLevel,
 	loop,
 	fallbackHtml5AudioProps,
 	audioStreamIndex,
@@ -106,7 +106,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			timeInSeconds: timestamp,
 			durationInSeconds,
 			playbackRate: playbackRate ?? 1,
-			logLevel,
+			logLevel: logLevel ?? window.remotion_logLevel,
 			includeAudio: shouldRenderAudio,
 			includeVideo: false,
 			isClientSideRendering: environment.isClientSideRendering,
@@ -127,7 +127,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					}
 
 					Internals.Log.warn(
-						{logLevel, tag: '@remotion/media'},
+						{
+							logLevel: logLevel ?? window.remotion_logLevel,
+							tag: '@remotion/media',
+						},
 						`Unknown container format for ${src} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
 					);
 					setReplaceWithHtml5Audio(true);
@@ -144,7 +147,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					}
 
 					Internals.Log.warn(
-						{logLevel, tag: '@remotion/media'},
+						{
+							logLevel: logLevel ?? window.remotion_logLevel,
+							tag: '@remotion/media',
+						},
 						`Cannot decode ${src}, falling back to <Html5Audio>`,
 					);
 					setReplaceWithHtml5Audio(true);
@@ -167,7 +173,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					}
 
 					Internals.Log.warn(
-						{logLevel, tag: '@remotion/media'},
+						{
+							logLevel: logLevel ?? window.remotion_logLevel,
+							tag: '@remotion/media',
+						},
 						`Network error fetching ${src}, falling back to <Html5Audio>`,
 					);
 					setReplaceWithHtml5Audio(true);
