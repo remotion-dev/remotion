@@ -20,10 +20,12 @@
 		"next": "15.4.7",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
-		"remotion": "workspace:*"
+		"remotion": "workspace:*",
+		"@remotion/media": "workspace:*"
 	},
 	"devDependencies": {
-		"eslint": "9.19.0"
+		"eslint": "9.19.0",
+		"@types/node": "20.12.14"
 	},
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",

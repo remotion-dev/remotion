@@ -996,6 +996,7 @@
         "@remotion/eslint-config-flat": "workspace:*",
         "@remotion/gif": "workspace:*",
         "@remotion/google-fonts": "workspace:*",
+        "@remotion/media": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/preload": "workspace:*",
         "next": "15.4.7",
@@ -1004,6 +1005,7 @@
         "remotion": "workspace:*",
       },
       "devDependencies": {
+        "@types/node": "20.12.14",
         "eslint": "9.19.0",
       },
     },

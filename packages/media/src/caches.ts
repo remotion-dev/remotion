@@ -21,6 +21,7 @@ export const getTotalCacheStats = async () => {
 
 const getUncachedMaxCacheSize = (logLevel: LogLevel) => {
 	if (
+		typeof window !== 'undefined' &&
 		window.remotion_mediaCacheSizeInBytes !== undefined &&
 		window.remotion_mediaCacheSizeInBytes !== null
 	) {
@@ -48,6 +49,7 @@ const getUncachedMaxCacheSize = (logLevel: LogLevel) => {
 	}
 
 	if (
+		typeof window !== 'undefined' &&
 		window.remotion_initialMemoryAvailable !== undefined &&
 		window.remotion_initialMemoryAvailable !== null
 	) {
