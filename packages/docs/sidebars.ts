@@ -902,6 +902,7 @@ const sidebars: SidebarsConfig = {
 				'artifacts',
 				'metadata',
 				'hardware-acceleration',
+				'hdr',
 			],
 		},
 		{

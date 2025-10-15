@@ -1764,6 +1764,15 @@ export const articles = [
 		slug: 'hardware-acceleration',
 	},
 	{
+		id: 'hdr',
+		title: 'High Dynamic Range and Remotion',
+		relativePath: 'docs/hdr.mdx',
+		compId: 'articles-docs-hdr',
+		crumb: 'How to deal with HDR',
+		noAi: false,
+		slug: 'hdr',
+	},
+	{
 		id: 'props-resolution',
 		title: 'How props get resolved',
 		relativePath: 'docs/how-props-flow.mdx',
