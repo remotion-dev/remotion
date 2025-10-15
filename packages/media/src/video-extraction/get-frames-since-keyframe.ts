@@ -144,11 +144,13 @@ export const getFramesSinceKeyframe = async ({
 	videoSampleSink,
 	startPacket,
 	logLevel,
+	src,
 }: {
 	packetSink: EncodedPacketSink;
 	videoSampleSink: VideoSampleSink;
 	startPacket: EncodedPacket;
 	logLevel: LogLevel;
+	src: string;
 }) => {
 	const nextKeyPacket = await packetSink.getNextKeyPacket(startPacket, {
 		verifyKeyPackets: true,
@@ -164,6 +166,7 @@ export const getFramesSinceKeyframe = async ({
 		endTimestampInSeconds: nextKeyPacket ? nextKeyPacket.timestamp : Infinity,
 		sampleIterator,
 		logLevel,
+		src,
 	});
 
 	return keyframeBank;
