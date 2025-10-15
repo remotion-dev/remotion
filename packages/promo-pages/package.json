@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/promo-pages",
-	"version": "4.0.361",
+	"version": "4.0.362",
 	"publishConfig": {
 		"access": "public"
 	},
