@@ -77,6 +77,8 @@ export const makeKeyframeManager = () => {
 		let mostInThePast = null;
 		let mostInThePastBank = null;
 
+		let numberOfBanks = 0;
+
 		for (const src in sources) {
 			for (const b in sources[src]) {
 				const bank = await sources[src][b];
@@ -86,6 +88,8 @@ export const makeKeyframeManager = () => {
 					mostInThePast = lastUsed;
 					mostInThePastBank = {src, bank};
 				}
+
+				numberOfBanks++;
 			}
 		}
 
@@ -93,31 +97,54 @@ export const makeKeyframeManager = () => {
 			throw new Error('No keyframe bank found');
 		}
 
-		return mostInThePastBank;
+		return {mostInThePastBank, numberOfBanks};
 	};
 
-	const deleteOldestKeyframeBank = async (logLevel: LogLevel) => {
-		const {bank: mostInThePastBank, src: mostInThePastSrc} =
-			await getTheKeyframeBankMostInThePast();
+	const deleteOldestKeyframeBank = async (
+		logLevel: LogLevel,
+	): Promise<{finish: boolean}> => {
+		const {
+			mostInThePastBank: {bank: mostInThePastBank, src: mostInThePastSrc},
+			numberOfBanks,
+		} = await getTheKeyframeBankMostInThePast();
+
+		if (numberOfBanks < 2) {
+			return {finish: true};
+		}
 
 		if (mostInThePastBank) {
-			await mostInThePastBank.prepareForDeletion(logLevel);
+			const {framesDeleted} = mostInThePastBank.prepareForDeletion(logLevel);
 			delete sources[mostInThePastSrc][
 				mostInThePastBank.startTimestampInSeconds
 			];
 			Internals.Log.verbose(
 				{logLevel, tag: '@remotion/media'},
-				`Deleted frames for src ${mostInThePastSrc} from ${mostInThePastBank.startTimestampInSeconds}sec to ${mostInThePastBank.endTimestampInSeconds}sec to free up memory.`,
+				`Deleted ${framesDeleted} frames for src ${mostInThePastSrc} from ${mostInThePastBank.startTimestampInSeconds}sec to ${mostInThePastBank.endTimestampInSeconds}sec to free up memory.`,
 			);
 		}
+
+		return {finish: false};
 	};
 
 	const ensureToStayUnderMaxCacheSize = async (logLevel: LogLevel) => {
 		let cacheStats = await getTotalCacheStats();
 
 		const maxCacheSize = getMaxVideoCacheSize(logLevel);
+
 		while (cacheStats.totalSize > maxCacheSize) {
-			await deleteOldestKeyframeBank(logLevel);
+			const {finish} = await deleteOldestKeyframeBank(logLevel);
+			if (finish) {
+				break;
+			}
+
+			Internals.Log.verbose(
+				{logLevel, tag: '@remotion/media'},
+				'Deleted oldest keyframe bank to stay under max cache size',
+				(cacheStats.totalSize / 1024 / 1024).toFixed(1),
+				'out of',
+				(maxCacheSize / 1024 / 1024).toFixed(1),
+			);
+
 			cacheStats = await getTotalCacheStats();
 		}
 	};
@@ -144,7 +171,7 @@ export const makeKeyframeManager = () => {
 			const {endTimestampInSeconds, startTimestampInSeconds} = bank;
 
 			if (endTimestampInSeconds < threshold) {
-				await bank.prepareForDeletion(logLevel);
+				bank.prepareForDeletion(logLevel);
 				Internals.Log.verbose(
 					{logLevel, tag: '@remotion/media'},
 					`[Video] Cleared frames for src ${src} from ${startTimestampInSeconds}sec to ${endTimestampInSeconds}sec`,

@@ -6,7 +6,7 @@ export type KeyframeBank = {
 	startTimestampInSeconds: number;
 	endTimestampInSeconds: number;
 	getFrameFromTimestamp: (timestamp: number) => Promise<VideoSample | null>;
-	prepareForDeletion: (logLevel: LogLevel) => void;
+	prepareForDeletion: (logLevel: LogLevel) => {framesDeleted: number};
 	deleteFramesBeforeTimestamp: ({
 		logLevel,
 		src,
@@ -155,6 +155,8 @@ export const makeKeyframeBank = ({
 			return null;
 		});
 
+		let framesDeleted = 0;
+
 		for (const frameTimestamp of frameTimestamps) {
 			if (!frames[frameTimestamp]) {
 				continue;
@@ -163,9 +165,11 @@ export const makeKeyframeBank = ({
 			allocationSize -= frames[frameTimestamp].allocationSize();
 			frames[frameTimestamp].close();
 			delete frames[frameTimestamp];
+			framesDeleted++;
 		}
 
 		frameTimestamps.length = 0;
+		return {framesDeleted};
 	};
 
 	const deleteFramesBeforeTimestamp = ({
@@ -228,10 +232,7 @@ export const makeKeyframeBank = ({
 			queue = queue.then(() => getFrameFromTimestamp(timestamp));
 			return queue as Promise<VideoSample | null>;
 		},
-		prepareForDeletion: (logLevel: LogLevel) => {
-			queue = queue.then(() => prepareForDeletion(logLevel));
-			return queue as Promise<void>;
-		},
+		prepareForDeletion,
 		hasTimestampInSecond,
 		addFrame,
 		deleteFramesBeforeTimestamp,
