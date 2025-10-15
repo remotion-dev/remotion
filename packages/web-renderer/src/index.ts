@@ -1,1 +1,1 @@
-export {renderMediaOnWeb} from './render-media-on-web';
+export {renderStillOnWeb} from './render-still-on-web';

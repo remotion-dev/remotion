@@ -6,18 +6,20 @@ import {compose} from './compose';
 import {findCanvasElements} from './find-canvas-elements';
 import {waitForReady} from './wait-for-ready';
 
-export const renderMediaOnWeb = async ({
+export const renderStillOnWeb = async ({
 	Component,
 	width,
 	height,
 	fps,
 	durationInFrames,
+	frame,
 }: {
 	Component: LazyExoticComponent<ComponentType<Record<string, unknown>>>;
 	width: number;
 	height: number;
 	fps: number;
 	durationInFrames: number;
+	frame: number;
 }) => {
 	const div = document.createElement('div');
 
@@ -141,6 +143,9 @@ export const renderMediaOnWeb = async ({
 			</Internals.RemotionRoot>
 		</Internals.RemotionEnvironmentContext>,
 	);
+
+	// TODO: Doesn't work at all 🙈
+	window.remotion_setFrame(frame, 'markup', frame);
 
 	await waitForReady(delayRenderTimeoutInMilliseconds);
 	const canvasElements = findCanvasElements(div);
