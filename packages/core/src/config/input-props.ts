@@ -1,4 +1,5 @@
 import {getRemotionEnvironment} from '../get-remotion-environment.js';
+import {getInputPropsOverride} from '../input-props-override.js';
 import {deserializeJSONWithSpecialTypes} from '../input-props-serialization.js';
 
 let didWarnSSRImport = false;
@@ -31,6 +32,11 @@ export const getInputProps = <
 		throw new Error(
 			'You cannot call `getInputProps()` from a <Player>. Instead, the props are available as React props from component that you passed as `component` prop.',
 		);
+	}
+
+	const override = getInputPropsOverride();
+	if (override) {
+		return override as T;
 	}
 
 	const param = window.remotion_inputProps;
