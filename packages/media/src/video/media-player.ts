@@ -1,4 +1,4 @@
-import type {WrappedAudioBuffer, WrappedCanvas} from 'mediabunny';
+import type {WrappedAudioBuffer} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	AudioBufferSink,
@@ -42,8 +42,6 @@ export class MediaPlayer {
 
 	private canvasSink: CanvasSink | null = null;
 	private videoFrameIterator: VideoIterator | null = null;
-
-	private nextFrame: WrappedCanvas | null = null;
 
 	private audioSink: AudioBufferSink | null = null;
 	private audioBufferIterator: AudioIterator | null = null;
@@ -306,7 +304,7 @@ export class MediaPlayer {
 
 		if (newTime === null) {
 			// invalidate in-flight video operations
-			this.nextFrame = null;
+			this.videoFrameIterator?.clearNextFrame();
 			this.clearCanvas();
 			this.cleanAudioIteratorAndNodes();
 			return;
@@ -319,7 +317,7 @@ export class MediaPlayer {
 			Math.abs(newTime - currentPlaybackTime) > SEEK_THRESHOLD;
 
 		if (isSignificantSeek) {
-			this.nextFrame = null;
+			this.videoFrameIterator?.clearNextFrame();
 			this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 			this.mediaEnded = false;
 
@@ -500,15 +498,19 @@ export class MediaPlayer {
 		return (
 			!this.isBuffering &&
 			this.canRenderVideo() &&
-			this.nextFrame !== null &&
-			this.nextFrame.timestamp <= playbackTime
+			(this.videoFrameIterator?.getNextFrame() ?? false) &&
+			this.videoFrameIterator!.getNextFrame()!.timestamp <= playbackTime
 		);
 	}
 
 	private drawCurrentFrame(): void {
-		if (this.context && this.nextFrame) {
+		if (this.context && this.videoFrameIterator?.getNextFrame()) {
 			this.context.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
-			this.context.drawImage(this.nextFrame.canvas, 0, 0);
+			this.context.drawImage(
+				this.videoFrameIterator.getNextFrame()!.canvas,
+				0,
+				0,
+			);
 			this.drawDebugOverlay();
 		}
 
@@ -516,7 +518,7 @@ export class MediaPlayer {
 			this.onVideoFrameCallback(this.canvas);
 		}
 
-		this.nextFrame = null;
+		this.videoFrameIterator?.clearNextFrame();
 		this.updateNextFrame();
 	}
 
@@ -542,7 +544,10 @@ export class MediaPlayer {
 	private drawDebugOverlay(): void {
 		if (!this.debugOverlay) return;
 		if (this.context && this.canvas) {
-			drawPreviewOverlay(this.context, this.nextFrame!);
+			drawPreviewOverlay(
+				this.context,
+				this.videoFrameIterator?.getNextFrame() ?? null,
+			);
 		}
 	}
 
@@ -577,7 +582,12 @@ export class MediaPlayer {
 				return;
 			}
 
-			this.nextFrame = secondFrame ?? null;
+			if (secondFrame) {
+				this.videoFrameIterator?.setNextFrame(secondFrame);
+			} else {
+				this.videoFrameIterator?.clearNextFrame();
+			}
+
 			this.drawDebugOverlay();
 
 			if (secondFrame) {
@@ -618,7 +628,7 @@ export class MediaPlayer {
 				if (newNextFrame.timestamp <= playbackTime) {
 					continue;
 				} else {
-					this.nextFrame = newNextFrame;
+					this.videoFrameIterator?.setNextFrame(newNextFrame);
 					Internals.Log.trace(
 						{logLevel: this.logLevel, tag: '@remotion/media'},
 						`[MediaPlayer] Buffered next frame ${newNextFrame.timestamp.toFixed(3)}s`,
