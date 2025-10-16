@@ -555,22 +555,23 @@ export class MediaPlayer {
 				return;
 			}
 
-			let frame: WrappedCanvas | null = null;
 			if (nextFrame.type === 'got-frame-or-end') {
-				frame = nextFrame.frame ?? null;
+				if (nextFrame.frame) {
+					this.drawFrame(nextFrame.frame);
+				}
 			} else {
 				if (nonce !== this.currentRenderNonce) {
 					return;
 				}
 
-				frame = (await nextFrame.waitPromise()) ?? null;
+				const frame = (await nextFrame.waitPromise()) ?? null;
 				if (this.videoFrameIterator.isDestroyed()) {
 					return;
 				}
-			}
 
-			if (frame) {
-				this.drawFrame(frame);
+				if (frame) {
+					this.drawFrame(frame);
+				}
 			}
 		}
 
