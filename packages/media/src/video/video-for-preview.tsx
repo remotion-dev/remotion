@@ -158,10 +158,13 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 			});
 
 			mediaPlayerRef.current = player;
-
 			player
 				.initialize(currentTimeRef.current)
 				.then((result) => {
+					if (result.type === 'disposed') {
+						return;
+					}
+
 					if (result.type === 'unknown-container-format') {
 						if (disallowFallbackToOffthreadVideo) {
 							throw new Error(

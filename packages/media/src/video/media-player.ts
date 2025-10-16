@@ -30,7 +30,8 @@ export type MediaPlayerInitResult =
 	| {type: 'unknown-container-format'}
 	| {type: 'cannot-decode'}
 	| {type: 'network-error'}
-	| {type: 'no-tracks'};
+	| {type: 'no-tracks'}
+	| {type: 'disposed'};
 
 export class MediaPlayer {
 	private canvas: HTMLCanvasElement | null;
@@ -77,6 +78,8 @@ export class MediaPlayer {
 	private debugOverlay = false;
 
 	private onVideoFrameCallback?: (frame: CanvasImageSource) => void;
+
+	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
 	constructor({
 		canvas,
@@ -134,7 +137,11 @@ export class MediaPlayer {
 	private input: Input<UrlSource> | null = null;
 
 	private isReady(): boolean {
-		return this.initialized && Boolean(this.sharedAudioContext);
+		return (
+			this.initialized &&
+			Boolean(this.sharedAudioContext) &&
+			!this.input?.disposed
+		);
 	}
 
 	private hasAudio(): boolean {
@@ -145,7 +152,19 @@ export class MediaPlayer {
 		return this.isBuffering && Boolean(this.bufferingStartedAtMs);
 	}
 
-	public async initialize(
+	private isDisposalError(): boolean {
+		return this.input?.disposed === true;
+	}
+
+	public initialize(
+		startTimeUnresolved: number,
+	): Promise<MediaPlayerInitResult> {
+		const promise = this._initialize(startTimeUnresolved);
+		this.initializationPromise = promise;
+		return promise;
+	}
+
+	private async _initialize(
 		startTimeUnresolved: number,
 	): Promise<MediaPlayerInitResult> {
 		try {
@@ -158,9 +177,17 @@ export class MediaPlayer {
 
 			this.input = input;
 
+			if (input.disposed) {
+				return {type: 'disposed'};
+			}
+
 			try {
-				await this.input.getFormat();
+				await input.getFormat();
 			} catch (error) {
+				if (this.isDisposalError()) {
+					return {type: 'disposed'};
+				}
+
 				const err = error as Error;
 
 				if (isNetworkError(err)) {
@@ -235,10 +262,22 @@ export class MediaPlayer {
 
 			this.initialized = true;
 
-			await Promise.all([
-				this.startAudioIterator(startTime),
-				this.startVideoIterator(startTime),
-			]);
+			try {
+				await Promise.all([
+					this.startAudioIterator(startTime),
+					this.startVideoIterator(startTime),
+				]);
+			} catch (error) {
+				if (this.isDisposalError()) {
+					return {type: 'disposed'};
+				}
+
+				Internals.Log.error(
+					{logLevel: this.logLevel, tag: '@remotion/media'},
+					'[MediaPlayer] Failed to start audio and video iterators',
+					error,
+				);
+			}
 
 			this.startRenderLoop();
 
@@ -373,7 +412,20 @@ export class MediaPlayer {
 		this.loop = loop;
 	}
 
-	public dispose(): void {
+	public async dispose(): Promise<void> {
+		this.initialized = false;
+
+		if (this.initializationPromise) {
+			try {
+				// wait for the init to finished
+				// otherwise we might get errors like:
+				// Error: Response stream reader stopped unexpectedly before all requested data was read. from UrlSource
+				await this.initializationPromise;
+			} catch {
+				// Ignore initialization errors during disposal
+			}
+		}
+
 		this.input?.dispose();
 		this.stopRenderLoop();
 		this.videoFrameIterator?.destroy();
@@ -516,6 +568,10 @@ export class MediaPlayer {
 			this.audioBufferIterator = iterator;
 			this.runAudioIterator(startFromSecond, iterator);
 		} catch (error) {
+			if (this.isDisposalError()) {
+				return;
+			}
+
 			Internals.Log.error(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
 				'[MediaPlayer] Failed to start audio iterator',
@@ -579,6 +635,10 @@ export class MediaPlayer {
 				);
 			}
 		} catch (error) {
+			if (this.isDisposalError()) {
+				return;
+			}
+
 			Internals.Log.error(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
 				'[MediaPlayer] Failed to start video iterator',
@@ -620,6 +680,10 @@ export class MediaPlayer {
 				}
 			}
 		} catch (error) {
+			if (this.isDisposalError()) {
+				return;
+			}
+
 			Internals.Log.error(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
 				'[MediaPlayer] Failed to update next frame',
@@ -770,6 +834,10 @@ export class MediaPlayer {
 				}
 			}
 		} catch (error) {
+			if (this.isDisposalError()) {
+				return;
+			}
+
 			Internals.Log.error(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
 				'[MediaPlayer] Failed to run audio iterator',
