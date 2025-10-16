@@ -580,10 +580,6 @@ export class MediaPlayer {
 				delayHandle?.unblock();
 
 				if (!this.videoFrameIterator.isDestroyed() && frame) {
-					return;
-				}
-
-				if (frame) {
 					this.drawFrame(frame);
 				}
 			}
