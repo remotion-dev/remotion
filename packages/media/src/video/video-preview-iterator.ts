@@ -58,16 +58,32 @@ export const createVideoIterator = (
 	): Promise<
 		| {
 				type: 'not-satisfied';
+				reason: string;
 		  }
 		| {
 				type: 'satisfied';
 				frame: WrappedCanvas;
 		  }
 	> => {
-		if (lastReturnedFrame && time < lastReturnedFrame.timestamp) {
-			return {
-				type: 'not-satisfied' as const,
-			};
+		if (lastReturnedFrame) {
+			const frameTimestamp = roundTo4Digits(lastReturnedFrame.timestamp);
+			if (roundTo4Digits(time) < frameTimestamp) {
+				return {
+					type: 'not-satisfied' as const,
+					reason: `iterator is too far, most recently returned ${frameTimestamp}`,
+				};
+			}
+
+			const frameEndTimestamp = roundTo4Digits(
+				lastReturnedFrame.timestamp + lastReturnedFrame.duration,
+			);
+			const timestamp = roundTo4Digits(time);
+			if (frameTimestamp <= timestamp && frameEndTimestamp > timestamp) {
+				return {
+					type: 'satisfied' as const,
+					frame: lastReturnedFrame,
+				};
+			}
 		}
 
 		if (iteratorEnded) {
@@ -80,6 +96,7 @@ export const createVideoIterator = (
 
 			return {
 				type: 'not-satisfied' as const,
+				reason: 'iterator ended',
 			};
 		}
 
@@ -88,6 +105,7 @@ export const createVideoIterator = (
 			if (frame.type === 'need-to-wait-for-it') {
 				return {
 					type: 'not-satisfied' as const,
+					reason: 'iterator did not have frame ready',
 				};
 			}
 
@@ -103,6 +121,7 @@ export const createVideoIterator = (
 
 					return {
 						type: 'not-satisfied' as const,
+						reason: 'iterator ended and did not have frame ready',
 					};
 				}
 

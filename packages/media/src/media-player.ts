@@ -13,6 +13,7 @@ import {
 	makeAudioIterator,
 	type AudioIterator,
 } from './audio/audio-preview-iterator';
+import type {DebugStats} from './debug-overlay/preview-overlay';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getTimeInSeconds} from './get-time-in-seconds';
 import {roundTo4Digits} from './helpers/round-to-4-digits';
@@ -43,7 +44,10 @@ export class MediaPlayer {
 
 	private canvasSink: CanvasSink | null = null;
 	private videoFrameIterator: VideoIterator | null = null;
-	private videoIteratorsCreated: number = 0;
+	private debugStats: DebugStats = {
+		videoIteratorsCreated: 0,
+		framesRendered: 0,
+	};
 
 	private audioSink: AudioBufferSink | null = null;
 	private audioBufferIterator: AudioIterator | null = null;
@@ -312,17 +316,15 @@ export class MediaPlayer {
 	}
 
 	private currentSeekNonce = 0;
+	private seekPromiseChain: Promise<void> = Promise.resolve();
 
 	public async seekTo(time: number): Promise<void> {
 		this.currentSeekNonce++;
 		const nonce = this.currentSeekNonce;
-		if (this.renderSeekPromiseChain) {
-			await this.renderSeekPromiseChain;
-		}
+		await this.seekPromiseChain;
 
-		this.renderSeekPromiseChain = this.seekToDoNotCallDirectly(time, nonce);
-		await this.renderSeekPromiseChain;
-		this.renderSeekPromiseChain = null;
+		this.seekPromiseChain = this.seekToDoNotCallDirectly(time, nonce);
+		await this.seekPromiseChain;
 	}
 
 	public async seekToDoNotCallDirectly(
@@ -526,18 +528,16 @@ export class MediaPlayer {
 	}
 
 	private currentRenderNonce = 0;
-	private renderSeekPromiseChain: Promise<void> | null = null;
+	private renderPromiseChain: Promise<void> = Promise.resolve();
 
 	private render = async (): Promise<void> => {
 		this.currentRenderNonce++;
 		const nonce = this.currentRenderNonce;
-		if (this.renderSeekPromiseChain) {
-			await this.renderSeekPromiseChain;
-		}
+		await this.renderPromiseChain;
+		await this.seekPromiseChain;
+		this.renderPromiseChain = this.renderDoNotCallDirectly(nonce);
+		await this.renderPromiseChain;
 
-		this.renderSeekPromiseChain = this.renderDoNotCallDirectly(nonce);
-		await this.renderSeekPromiseChain;
-		this.renderSeekPromiseChain = null;
 		if (this.playing) {
 			this.animationFrameId = requestAnimationFrame(this.render);
 		} else if (this.animationFrameId !== null) {
@@ -553,6 +553,8 @@ export class MediaPlayer {
 
 		this.context.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
 		this.context.drawImage(frame.canvas, 0, 0);
+		this.debugStats.framesRendered++;
+
 		this.drawDebugOverlay();
 		if (this.onVideoFrameCallback && this.canvas) {
 			this.onVideoFrameCallback(this.canvas);
@@ -602,6 +604,7 @@ export class MediaPlayer {
 				const delayHandle = this.bufferState?.delayPlayback();
 				const frame = (await nextFrame.waitPromise()) ?? null;
 				delayHandle?.unblock();
+
 				this.sharedAudioContext.resume();
 
 				if (!this.videoFrameIterator.isDestroyed() && frame) {
@@ -663,7 +666,7 @@ export class MediaPlayer {
 	private drawDebugOverlay(): void {
 		if (!this.debugOverlay) return;
 		if (this.context && this.canvas) {
-			drawPreviewOverlay(this.context, this.videoIteratorsCreated);
+			drawPreviewOverlay(this.context, this.debugStats);
 		}
 	}
 
@@ -674,7 +677,7 @@ export class MediaPlayer {
 
 		this.videoFrameIterator?.destroy();
 		const iterator = createVideoIterator(timeToSeek, this.canvasSink);
-		this.videoIteratorsCreated++;
+		this.debugStats.videoIteratorsCreated++;
 		this.videoFrameIterator = iterator;
 
 		this.render();
