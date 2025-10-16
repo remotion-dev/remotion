@@ -79,7 +79,7 @@ export class MediaPlayer {
 
 	private audioBufferHealth = 0;
 	private audioIteratorStarted = false;
-	private readonly HEALTHY_BUFER_THRESHOLD_SECONDS = 1;
+	private readonly HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
 
 	private mediaEnded = false;
 
@@ -458,7 +458,7 @@ export class MediaPlayer {
 		return (
 			!this.hasAudio() ||
 			(this.audioIteratorStarted &&
-				this.audioBufferHealth >= this.HEALTHY_BUFER_THRESHOLD_SECONDS)
+				this.audioBufferHealth >= this.HEALTHY_BUFFER_THRESHOLD_SECONDS)
 		);
 	}
 
@@ -661,7 +661,7 @@ export class MediaPlayer {
 
 		const minTimeElapsed = bufferingDuration >= this.minBufferingTimeoutMs;
 		const bufferHealthy =
-			currentBufferDuration >= this.HEALTHY_BUFER_THRESHOLD_SECONDS;
+			currentBufferDuration >= this.HEALTHY_BUFFER_THRESHOLD_SECONDS;
 
 		if (minTimeElapsed && bufferHealthy) {
 			Internals.Log.trace(

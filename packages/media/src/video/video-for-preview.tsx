@@ -20,7 +20,7 @@ const {
 	SequenceVisibilityToggleContext,
 } = Internals;
 
-type NewVideoForPreviewProps = {
+type VideoForPreviewProps = {
 	readonly src: string;
 	readonly style: React.CSSProperties | undefined;
 	readonly playbackRate: number;
@@ -41,7 +41,7 @@ type NewVideoForPreviewProps = {
 	readonly audioStreamIndex: number;
 };
 
-export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
+export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 	src: unpreloadedSrc,
 	style,
 	playbackRate,
@@ -126,10 +126,6 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 	if (!videoConfig) {
 		throw new Error('No video config found');
-	}
-
-	if (!src) {
-		throw new TypeError('No `src` was passed to <NewVideoForPreview>.');
 	}
 
 	const currentTime = frame / videoConfig.fps;
@@ -231,7 +227,7 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 				.catch((error) => {
 					Internals.Log.error(
 						{logLevel, tag: '@remotion/media'},
-						'[NewVideoForPreview] Failed to initialize MediaPlayer',
+						'[VideoForPreview] Failed to initialize MediaPlayer',
 						error,
 					);
 					setShouldFallbackToNativeVideo(true);
@@ -239,7 +235,7 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		} catch (error) {
 			Internals.Log.error(
 				{logLevel, tag: '@remotion/media'},
-				'[NewVideoForPreview] MediaPlayer initialization failed',
+				'[VideoForPreview] MediaPlayer initialization failed',
 				error,
 			);
 			setShouldFallbackToNativeVideo(true);
@@ -249,7 +245,7 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			if (mediaPlayerRef.current) {
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},
-					`[NewVideoForPreview] Disposing MediaPlayer`,
+					`[VideoForPreview] Disposing MediaPlayer`,
 				);
 				mediaPlayerRef.current.dispose();
 				mediaPlayerRef.current = null;
@@ -285,7 +281,7 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 			mediaPlayer.play().catch((error) => {
 				Internals.Log.error(
 					{logLevel, tag: '@remotion/media'},
-					'[NewVideoForPreview] Failed to play',
+					'[VideoForPreview] Failed to play',
 					error,
 				);
 			});
@@ -301,7 +297,7 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 		mediaPlayer.seekTo(currentTime);
 		Internals.Log.trace(
 			{logLevel, tag: '@remotion/media'},
-			`[NewVideoForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
+			`[VideoForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
 		);
 	}, [currentTime, logLevel, mediaPlayerReady]);
 
@@ -317,7 +313,7 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},
-					'[NewVideoForPreview] MediaPlayer buffering - blocking Remotion playback',
+					'[VideoForPreview] MediaPlayer buffering - blocking Remotion playback',
 				);
 			} else if (!newBufferingState && currentBlock) {
 				currentBlock.unblock();
@@ -325,7 +321,7 @@ export const VideoForPreview: React.FC<NewVideoForPreviewProps> = ({
 
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},
-					'[NewVideoForPreview] MediaPlayer unbuffering - unblocking Remotion playback',
+					'[VideoForPreview] MediaPlayer unbuffering - unblocking Remotion playback',
 				);
 			}
 		});
