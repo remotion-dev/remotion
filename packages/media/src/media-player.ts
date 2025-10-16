@@ -12,15 +12,15 @@ import {
 	HEALTHY_BUFFER_THRESHOLD_SECONDS,
 	makeAudioIterator,
 	type AudioIterator,
-} from '../audio/audio-preview-iterator';
-import {drawPreviewOverlay} from '../debug-overlay/preview-overlay';
-import {getTimeInSeconds} from '../get-time-in-seconds';
-import {isNetworkError} from '../is-network-error';
-import {sleep, TimeoutError, withTimeout} from './timeout-utils';
+} from './audio/audio-preview-iterator';
+import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
+import {getTimeInSeconds} from './get-time-in-seconds';
+import {isNetworkError} from './is-network-error';
+import {sleep, TimeoutError, withTimeout} from './video/timeout-utils';
 import {
 	createVideoIterator,
 	type VideoIterator,
-} from './video-preview-iterator';
+} from './video/video-preview-iterator';
 
 export const SEEK_THRESHOLD = 0.05;
 const AUDIO_BUFFER_TOLERANCE_THRESHOLD = 0.1;
