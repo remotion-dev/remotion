@@ -53,7 +53,7 @@ export const createVideoIterator = (
 		iterator.return().catch(() => undefined);
 	};
 
-	const tryToSatisfySeekOrDestroy = async (
+	const tryToSatisfySeek = async (
 		time: number,
 	): Promise<
 		| {
@@ -134,7 +134,7 @@ export const createVideoIterator = (
 		isDestroyed: () => {
 			return destroyed;
 		},
-		tryToSatisfySeekOrDestroy,
+		tryToSatisfySeek,
 		getLastReturnedFrame: () => lastReturnedFrame,
 	};
 };

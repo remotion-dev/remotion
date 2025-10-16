@@ -343,7 +343,7 @@ export class MediaPlayer {
 		}
 
 		const satisfyResult =
-			await this.videoFrameIterator?.tryToSatisfySeekOrDestroy(newTime);
+			await this.videoFrameIterator?.tryToSatisfySeek(newTime);
 
 		if (satisfyResult?.type === 'satisfied') {
 			this.drawFrame(satisfyResult.frame);
