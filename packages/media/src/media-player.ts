@@ -43,6 +43,7 @@ export class MediaPlayer {
 
 	private canvasSink: CanvasSink | null = null;
 	private videoFrameIterator: VideoIterator | null = null;
+	private videoIteratorsCreated: number = 0;
 
 	private audioSink: AudioBufferSink | null = null;
 	private audioBufferIterator: AudioIterator | null = null;
@@ -310,7 +311,28 @@ export class MediaPlayer {
 		}
 	}
 
+	private currentSeekNonce = 0;
+
 	public async seekTo(time: number): Promise<void> {
+		this.currentSeekNonce++;
+		const nonce = this.currentSeekNonce;
+		if (this.renderSeekPromiseChain) {
+			await this.renderSeekPromiseChain;
+		}
+
+		this.renderSeekPromiseChain = this.seekToDoNotCallDirectly(time, nonce);
+		await this.renderSeekPromiseChain;
+		this.renderSeekPromiseChain = null;
+	}
+
+	public async seekToDoNotCallDirectly(
+		time: number,
+		nonce: number,
+	): Promise<void> {
+		if (nonce !== this.currentSeekNonce) {
+			return;
+		}
+
 		if (!this.isReady()) return;
 
 		const newTime = getTimeInSeconds({
@@ -504,18 +526,18 @@ export class MediaPlayer {
 	}
 
 	private currentRenderNonce = 0;
-	private renderPromiseChain: Promise<void> | null = null;
+	private renderSeekPromiseChain: Promise<void> | null = null;
 
 	private render = async (): Promise<void> => {
 		this.currentRenderNonce++;
 		const nonce = this.currentRenderNonce;
-		if (this.renderPromiseChain) {
-			await this.renderPromiseChain;
+		if (this.renderSeekPromiseChain) {
+			await this.renderSeekPromiseChain;
 		}
 
-		this.renderPromiseChain = this.renderDoNotCallDirectly(nonce);
-		await this.renderPromiseChain;
-		this.renderPromiseChain = null;
+		this.renderSeekPromiseChain = this.renderDoNotCallDirectly(nonce);
+		await this.renderSeekPromiseChain;
+		this.renderSeekPromiseChain = null;
 		if (this.playing) {
 			this.animationFrameId = requestAnimationFrame(this.render);
 		} else if (this.animationFrameId !== null) {
@@ -575,9 +597,12 @@ export class MediaPlayer {
 
 				// Frame is not immediately available, so we are buffering
 				// until it is
+				// TODO: Race conditions with shared audio context
+				this.sharedAudioContext.suspend();
 				const delayHandle = this.bufferState?.delayPlayback();
 				const frame = (await nextFrame.waitPromise()) ?? null;
 				delayHandle?.unblock();
+				this.sharedAudioContext.resume();
 
 				if (!this.videoFrameIterator.isDestroyed() && frame) {
 					this.drawFrame(frame);
@@ -638,7 +663,7 @@ export class MediaPlayer {
 	private drawDebugOverlay(): void {
 		if (!this.debugOverlay) return;
 		if (this.context && this.canvas) {
-			drawPreviewOverlay(this.context);
+			drawPreviewOverlay(this.context, this.videoIteratorsCreated);
 		}
 	}
 
@@ -649,6 +674,7 @@ export class MediaPlayer {
 
 		this.videoFrameIterator?.destroy();
 		const iterator = createVideoIterator(timeToSeek, this.canvasSink);
+		this.videoIteratorsCreated++;
 		this.videoFrameIterator = iterator;
 
 		this.render();
