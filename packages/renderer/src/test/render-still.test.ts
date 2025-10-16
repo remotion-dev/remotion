@@ -1,19 +1,12 @@
-import {beforeAll, expect, test} from 'bun:test';
+import {expect, test} from 'bun:test';
 import {ensureBrowser} from '../ensure-browser';
 import {renderStill} from '../render-still';
-
-beforeAll(
-	async () => {
-		await ensureBrowser();
-	},
-	{
-		timeout: 30000,
-	},
-);
 
 test(
 	'Need to pass valid metadata',
 	async () => {
+		await ensureBrowser();
+
 		await expect(() =>
 			renderStill({
 				composition: {
@@ -45,6 +38,8 @@ test(
 test(
 	'Returns buffer in promise result',
 	async () => {
+		await ensureBrowser();
+
 		const {buffer} = await renderStill({
 			composition: {
 				width: 1000,
@@ -74,6 +69,8 @@ test(
 test(
 	'Need to pass valid metadata',
 	async () => {
+		await ensureBrowser();
+
 		await expect(() =>
 			renderStill({
 				composition: {
@@ -104,7 +101,9 @@ test(
 
 test(
 	'Catches invalid image format',
-	() => {
+	async () => {
+		await ensureBrowser();
+
 		return expect(() =>
 			renderStill({
 				composition: {
