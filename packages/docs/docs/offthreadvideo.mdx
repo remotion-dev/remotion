@@ -320,6 +320,11 @@ If you don't care about color accuracy, you can set `toneMapped` to `false` as w
 Unlike [`<Html5Video>`](/docs/html5-video), `OffthreadVideo` does not implement the `loop` property.  
 Consider using [another video tag](/docs/video-tags) for looping.
 
+:::note
+When a video ends, the last frame of the video remains visible by default.  
+This matches the behavior of [`<Html5Video>`](/docs/html5-video#loop).
+:::
+
 You can use the following `<LoopableOffthreadVideo>` component that uses [`@remotion/media-parser`](/docs/media-parser/) to loop a video.
 
 ```tsx twoslash title="src/LoopableOffthreadVideo.tsx"

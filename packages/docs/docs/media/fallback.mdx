@@ -15,6 +15,7 @@ Here are some cases where [`@remotion/media`](/docs/media) may fall back to [`<O
 - The resource fails to load due to [CORS restrictions](/docs/cors-issues)
 - The container format is not supported by [Mediabunny](/docs/mediabunny/formats)
 - The codec cannot be decoded by WebCodecs (e.g. a H.265 stream during rendering)
+- The video has an alpha channel and the browser does not support WebGL which is required to decode the alpha channel. The default configuration of the headless browser does not have WebGL enabled.
 
 ## Observing when a fallback happens
 

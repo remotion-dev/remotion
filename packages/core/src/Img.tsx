@@ -192,7 +192,9 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				}
 
 				unblock();
-				continueRender(newHandle);
+				requestAnimationFrame(() => {
+					continueRender(newHandle);
+				});
 			};
 
 			if (!imageRef.current) {

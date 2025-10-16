@@ -584,6 +584,15 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/rounded-text-box',
+			link: {
+				type: 'doc',
+				id: 'rounded-text-box/index',
+			},
+			items: ['rounded-text-box/create-rounded-text-box'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/shapes',
 			link: {
 				type: 'doc',
@@ -893,6 +902,7 @@ const sidebars: SidebarsConfig = {
 				'artifacts',
 				'metadata',
 				'hardware-acceleration',
+				'hdr',
 			],
 		},
 		{

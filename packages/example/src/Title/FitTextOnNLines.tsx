@@ -1,62 +1,97 @@
-import {fitTextOnNLines} from '@remotion/layout-utils';
+import {fitTextOnNLines, measureText} from '@remotion/layout-utils';
+import {createRoundedTextBox} from '@remotion/rounded-text-box';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {z} from 'zod';
-import {
-	TIKTOK_TEXT_BOX_HORIZONTAL_PADDING,
-	TikTokTextBox,
-} from '../TikTokTextbox/TikTokTextBox';
+import {TIKTOK_TEXT_BOX_HORIZONTAL_PADDING} from '../TikTokTextbox/TikTokTextBox';
 
-const boxWidth = 1200;
+const boxWidth = 1500;
 const fontFamily = 'Proxima Nova';
-const fontWeight = 'bold';
+const fontWeight = 400;
+const horizontalPadding = 30;
+const cornerRadius = 20;
+const lineHeight = 1.5;
+const maxFontSize = 100;
 
 export const fitTextOnNLinesSchema = z.object({
-	line: z.string(),
-	maxLines: z.number(),
+	text: z.string(),
+	maxLines: z.number().step(1),
+	textAlign: z.enum(['left', 'center', 'right']),
 });
 
 export const FitTextOnNLines: React.FC<
 	z.infer<typeof fitTextOnNLinesSchema>
-> = ({line, maxLines}) => {
-	const {fontSize: bestFontSize, lines} = fitTextOnNLines({
+> = ({text: line, maxLines, textAlign}) => {
+	const {fontSize, lines} = fitTextOnNLines({
 		maxLines,
 		maxBoxWidth: boxWidth - TIKTOK_TEXT_BOX_HORIZONTAL_PADDING * 2,
 		fontFamily,
 		text: line,
 		fontWeight,
-		maxFontSize: 100,
+		maxFontSize,
 	});
-	const fontSize = bestFontSize;
+
+	const textMeasurements = lines.map((text) =>
+		measureText({
+			text,
+			fontFamily,
+			fontSize,
+			additionalStyles: {
+				lineHeight,
+			},
+			fontVariantNumeric: 'normal',
+			fontWeight,
+			letterSpacing: 'normal',
+			textTransform: 'none',
+			validateFontIsLoaded: true,
+		}),
+	);
+	const {d, boundingBox} = createRoundedTextBox({
+		textMeasurements,
+		textAlign,
+		horizontalPadding,
+		borderRadius: cornerRadius,
+	});
+
+	const lineStyle = React.useMemo<React.CSSProperties>(
+		() => ({
+			fontSize,
+			fontWeight,
+			fontFamily,
+			lineHeight,
+			textAlign,
+			paddingLeft: horizontalPadding,
+			paddingRight: horizontalPadding,
+		}),
+		[fontSize, textAlign],
+	);
 
 	return (
-		<AbsoluteFill
-			style={{
-				justifyContent: 'center',
-				alignItems: 'center',
-				backgroundColor: '#1F2429',
-			}}
-		>
+		<AbsoluteFill className="items-center justify-center bg-black">
 			<div
 				style={{
-					width: boxWidth,
-					fontSize,
-					overflow: 'auto',
-					fontWeight,
-					fontFamily,
-					display: 'flex',
-					flexDirection: 'column',
-					alignItems: 'center',
-					color: 'black',
+					width: boundingBox.width,
+					height: boundingBox.height,
 				}}
 			>
-				<TikTokTextBox
-					bgColor="white"
-					textColor="black"
-					lines={lines}
-					fontFamily={fontFamily}
-					textAlign="center"
-				></TikTokTextBox>
+				<svg
+					viewBox={boundingBox.viewBox}
+					style={{
+						position: 'absolute',
+						width: boundingBox.width,
+						height: boundingBox.height,
+						overflow: 'visible',
+					}}
+				>
+					<path fill="white" d={d} />
+				</svg>
+				<div style={{position: 'relative'}}>
+					{lines.map((line, i) => (
+						<div key={i} style={lineStyle}>
+							{line}
+						</div>
+					))}
+				</div>
 			</div>
 		</AbsoluteFill>
 	);

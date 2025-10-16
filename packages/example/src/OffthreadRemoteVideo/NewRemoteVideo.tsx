@@ -1,7 +1,7 @@
 import {Video} from '@remotion/media';
-import {parseMedia} from '@remotion/media-parser';
 import {StudioInternals} from '@remotion/studio';
 import {CalculateMetadataFunction} from 'remotion';
+import {getMediaMetadata} from '../get-media-metadata';
 
 const fps = 30;
 const src = 'https://remotion.media/video.mp4' + '#t=lol';
@@ -9,17 +9,10 @@ const src = 'https://remotion.media/video.mp4' + '#t=lol';
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>
 > = async () => {
-	const {slowDurationInSeconds, dimensions} = await parseMedia({
-		src,
-		acknowledgeRemotionLicense: true,
-		fields: {
-			slowDurationInSeconds: true,
-			dimensions: true,
-		},
-	});
+	const {durationInSeconds, dimensions} = await getMediaMetadata(src);
 
 	return {
-		durationInFrames: Math.round(slowDurationInSeconds * fps),
+		durationInFrames: Math.round(durationInSeconds * fps),
 		fps,
 		width: dimensions?.width ?? 100,
 		height: dimensions?.height ?? 100,

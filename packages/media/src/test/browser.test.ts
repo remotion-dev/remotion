@@ -33,6 +33,10 @@ test('Should be able to extract a frame', async () => {
 		throw new Error('Unknown container format');
 	}
 
+	if (result.type === 'cannot-decode-alpha') {
+		throw new Error('Cannot decode alpha');
+	}
+
 	const {audio, frame} = result;
 	assert(audio);
 
@@ -83,6 +87,10 @@ test('Should be able to extract the last frame', async () => {
 		throw new Error('Unknown container format');
 	}
 
+	if (result.type === 'cannot-decode-alpha') {
+		throw new Error('Cannot decode alpha');
+	}
+
 	const {audio, frame} = result;
 
 	assert(frame);
@@ -91,7 +99,7 @@ test('Should be able to extract the last frame', async () => {
 	assert(!audio);
 
 	const cacheStats = await keyframeManager.getCacheStats();
-	expect(cacheStats.count).toBe(93);
+	expect(cacheStats.count).toBe(1);
 });
 
 test('Should manage the cache', async () => {
@@ -149,6 +157,10 @@ test('Should be apply volume correctly', async () => {
 		throw new Error('Unknown container format');
 	}
 
+	if (result.type === 'cannot-decode-alpha') {
+		throw new Error('Cannot decode alpha');
+	}
+
 	const {audio: audioAtFullVolume, frame} = result;
 
 	const totalAudioAtFullVolume = audioAtFullVolume?.data.reduce((acc, curr) => {
@@ -196,6 +208,10 @@ test('Should be able to loop', async () => {
 
 	if (result.type === 'unknown-container-format') {
 		throw new Error('Unknown container format');
+	}
+
+	if (result.type === 'cannot-decode-alpha') {
+		throw new Error('Cannot decode alpha');
 	}
 
 	const {frame} = result;

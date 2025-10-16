@@ -6,6 +6,7 @@ import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
 import {RenameComposition} from './NewComposition/RenameComposition';
+import {OverrideInputPropsModal} from './OverrideInputProps';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderModalWithLoader} from './RenderModal/RenderModal';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
@@ -32,6 +33,9 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'rename-comp' && (
 				<RenameComposition compositionId={modalContextType.compositionId} />
+			)}
+			{modalContextType && modalContextType.type === 'input-props-override' && (
+				<OverrideInputPropsModal />
 			)}
 
 			{modalContextType && canRender && modalContextType.type === 'render' && (

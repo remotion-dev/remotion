@@ -48,6 +48,14 @@ export const Control = ({
 		[],
 	);
 
+	const textInputStyle = useMemo<React.CSSProperties>(
+		() => ({
+			width: '100%',
+			marginRight: 2,
+		}),
+		[],
+	);
+
 	return (
 		<label style={labelStyle} className={styles.item}>
 			<div style={left}>
@@ -106,6 +114,12 @@ export const Control = ({
 					style={check}
 					checked={value as boolean}
 					type={'checkbox'}
+				/>
+			) : option.type === 'string' ? (
+				<input
+					onChange={(e) => setValue(e.target.value)}
+					style={textInputStyle}
+					value={value as string}
 				/>
 			) : null}
 		</label>

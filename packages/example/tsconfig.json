@@ -40,6 +40,7 @@
 		{"path": "../webcodecs"},
 		{"path": "../whisper-web"},
 		{"path": "../layout-utils"},
-		{"path": "../media"}
+		{"path": "../media"},
+		{"path": "../rounded-text-box"}
 	]
 }

@@ -11,6 +11,7 @@ type ExtractFrameResult =
 			durationInSeconds: number | null;
 	  }
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
+	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
 	| {type: 'unknown-container-format'};
 
 type ExtractFrameParams = {
@@ -83,6 +84,13 @@ const extractFrameInternal = async ({
 		src,
 		logLevel,
 	});
+
+	if (keyframeBank === 'has-alpha') {
+		return {
+			type: 'cannot-decode-alpha',
+			durationInSeconds: await sink.getDuration(),
+		};
+	}
 
 	if (!keyframeBank) {
 		return {

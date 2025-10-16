@@ -38,6 +38,11 @@ type ExtractFrameResponse =
 			durationInSeconds: number | null;
 	  }
 	| {
+			type: 'response-cannot-decode-alpha';
+			id: string;
+			durationInSeconds: number | null;
+	  }
+	| {
 			type: 'response-network-error';
 			id: string;
 	  }
@@ -47,7 +52,11 @@ type ExtractFrameResponse =
 	  };
 
 // Doesn't exist in studio
-if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
+if (
+	typeof window !== 'undefined' &&
+	window.remotion_broadcastChannel &&
+	window.remotion_isMainTab
+) {
 	window.remotion_broadcastChannel.addEventListener(
 		'message',
 		async (event) => {
@@ -77,6 +86,19 @@ if (window.remotion_broadcastChannel && window.remotion_isMainTab) {
 						};
 
 						window.remotion_broadcastChannel!.postMessage(cannotDecodeResponse);
+						return;
+					}
+
+					if (result.type === 'cannot-decode-alpha') {
+						const cannotDecodeAlphaResponse: ExtractFrameResponse = {
+							type: 'response-cannot-decode-alpha',
+							id: data.id,
+							durationInSeconds: result.durationInSeconds,
+						};
+
+						window.remotion_broadcastChannel!.postMessage(
+							cannotDecodeAlphaResponse,
+						);
 						return;
 					}
 
@@ -146,6 +168,7 @@ export type ExtractFrameViaBroadcastChannelResult =
 			durationInSeconds: number | null;
 	  }
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
+	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
 	| {type: 'network-error'}
 	| {type: 'unknown-container-format'};
 
@@ -205,6 +228,7 @@ export const extractFrameViaBroadcastChannel = ({
 				durationInSeconds: number | null;
 		  }
 		| {type: 'cannot-decode'; durationInSeconds: number | null}
+		| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
 		| {type: 'network-error'}
 		| {type: 'unknown-container-format'}
 	>((resolve, reject) => {
@@ -267,6 +291,18 @@ export const extractFrameViaBroadcastChannel = ({
 
 			if (data.type === 'response-unknown-container-format') {
 				resolve({type: 'unknown-container-format'});
+				window.remotion_broadcastChannel!.removeEventListener(
+					'message',
+					onMessage,
+				);
+				return;
+			}
+
+			if (data.type === 'response-cannot-decode-alpha') {
+				resolve({
+					type: 'cannot-decode-alpha',
+					durationInSeconds: data.durationInSeconds,
+				});
 				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,

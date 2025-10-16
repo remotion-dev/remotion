@@ -56,7 +56,7 @@ export const fitTextOnNLines = ({
 
 		for (const word of words) {
 			const result = textBox.add({
-				text: word + ' ',
+				text: lines[currentLine].length === 0 ? word : ' ' + word,
 				fontFamily,
 				fontWeight,
 				fontSize,
@@ -88,6 +88,10 @@ export const fitTextOnNLines = ({
 		} else {
 			right = mid - 1;
 		}
+	}
+
+	for (let i = 0; i < optimalLines.length; i++) {
+		optimalLines[i] = optimalLines[i].trimEnd();
 	}
 
 	return {

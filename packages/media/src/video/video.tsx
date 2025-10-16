@@ -146,7 +146,10 @@ export const Video: React.FC<VideoProps> = ({
 				disallowFallbackToOffthreadVideo ?? false
 			}
 			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps ?? {}}
-			logLevel={logLevel ?? window.remotion_logLevel}
+			logLevel={
+				logLevel ??
+				(typeof window !== 'undefined' ? window.remotion_logLevel : 'info')
+			}
 			loop={loop ?? false}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
 			muted={muted ?? false}

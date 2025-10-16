@@ -33,7 +33,11 @@ const transformArgs = ({
 		arr.unshift(Symbol.for(`__remotion_level_${logLevel}`));
 	}
 
-	if (tag) {
+	if (
+		tag &&
+		getRemotionEnvironment().isRendering &&
+		!getRemotionEnvironment().isClientSideRendering
+	) {
 		arr.unshift(Symbol.for(`__remotion_tag_${tag}`));
 	}
 

@@ -72,6 +72,13 @@ export const extractFrameAndAudio = async ({
 			return {type: 'unknown-container-format'};
 		}
 
+		if (frame?.type === 'cannot-decode-alpha') {
+			return {
+				type: 'cannot-decode-alpha',
+				durationInSeconds: frame.durationInSeconds,
+			};
+		}
+
 		if (audio === 'unknown-container-format') {
 			if (frame !== null) {
 				frame?.frame?.close();

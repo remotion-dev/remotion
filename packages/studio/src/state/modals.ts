@@ -83,6 +83,9 @@ export type ModalState =
 			type: 'rename-comp';
 			compositionId: string;
 	  }
+	| {
+			type: 'input-props-override';
+	  }
 	| RenderModalState
 	| {
 			type: 'render-progress';

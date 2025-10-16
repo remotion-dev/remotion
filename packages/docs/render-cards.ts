@@ -6,7 +6,15 @@ import os from 'os';
 import path from 'path';
 import {readDir} from './get-pages.mjs';
 
-const data = [];
+const data: {
+	id: string;
+	title: string;
+	relativePath: string;
+	compId: string;
+	crumb: string | null;
+	noAi: boolean;
+	slug: string;
+}[] = [];
 const root = path.join(process.cwd(), 'docs');
 
 const findId = (split, page) => {
@@ -161,6 +169,9 @@ for (const composition of compositions.filter(
 
 for (const entry of data) {
 	const composition = compositions.find((c) => c.id === entry.compId);
+	if (!composition) {
+		continue;
+	}
 	const output = `static/generated/${composition.id}.png`;
 	if (fs.existsSync(output)) {
 		continue;

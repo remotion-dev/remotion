@@ -5,13 +5,13 @@ crumb: 'API - @remotion/media'
 ---
 
 :::note
-This is documentation for the upcoming new `<Audio>` tag.  
+This is documentation for the new `<Audio>` tag.  
 Not to be confused with the older [`<Html5Audio>` / `<Audio>`](/docs/html5-audio) tag from `remotion`.
 :::
 
 :::warning
-**Experimental**: This component is in an early stage and not yet feature complete.
-We recommend that you use [`<Html5Audio />`](/docs/html5-audio) for now.
+**Experimental**: This component is in beta.
+Use [`<Html5Audio />`](/docs/html5-audio) for the most stable experience, but give us feedback on this component.
 
 See the [progress of this component on our issue tracker](https://github.com/remotion-dev/remotion/issues/5650).
 :::
@@ -214,6 +214,10 @@ Accepts a number between `0.01` and `2`, where `1` represents the original pitch
 A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 
 The value must stay the same across the entire time the video tag is mounted.
+
+:::warn
+Only works during rendering.  
+:::
 
 ### `fallbackHtml5AudioProps?`
 
