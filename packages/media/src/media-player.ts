@@ -1,4 +1,4 @@
-import type {WrappedAudioBuffer} from 'mediabunny';
+import type {WrappedAudioBuffer, WrappedCanvas} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	AudioBufferSink,
@@ -511,7 +511,26 @@ export class MediaPlayer {
 		}
 	}
 
+	private currentRenderNonce = 0;
+	private renderPromiseChain: Promise<void> | null = null;
+
 	private render = async (): Promise<void> => {
+		this.currentRenderNonce++;
+		const nonce = this.currentRenderNonce;
+		if (this.renderPromiseChain) {
+			await this.renderPromiseChain;
+		}
+
+		this.renderPromiseChain = this.renderDoNotCallDirectly(nonce);
+		await this.renderPromiseChain;
+		this.renderPromiseChain = null;
+	};
+
+	private renderDoNotCallDirectly = async (nonce: number): Promise<void> => {
+		if (nonce !== this.currentRenderNonce) {
+			return;
+		}
+
 		if (this.isBuffering) {
 			this.maybeForceResumeFromBuffering();
 		}
@@ -523,9 +542,23 @@ export class MediaPlayer {
 
 			const nextFrame =
 				await this.videoFrameIterator.getNextOrNullIfNotAvailable();
-			const frame = await (nextFrame.type === 'got-frame-or-end'
-				? nextFrame.frame
-				: nextFrame.waitPromise());
+			if (this.videoFrameIterator.isDestroyed()) {
+				return;
+			}
+
+			let frame: WrappedCanvas | null = null;
+			if (nextFrame.type === 'got-frame-or-end') {
+				frame = nextFrame.frame ?? null;
+			} else {
+				if (nonce !== this.currentRenderNonce) {
+					return;
+				}
+
+				frame = (await nextFrame.waitPromise()) ?? null;
+				if (this.videoFrameIterator.isDestroyed()) {
+					return;
+				}
+			}
 
 			if (this.context && frame) {
 				this.context.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
