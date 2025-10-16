@@ -1,9 +1,9 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
 import {Html5Video, Internals, useBufferState, useCurrentFrame} from 'remotion';
+import {MediaPlayer} from '../media-player';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
-import {MediaPlayer} from './media-player';
 import type {FallbackOffthreadVideoProps} from './props';
 
 const {

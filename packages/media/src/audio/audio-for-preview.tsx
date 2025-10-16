@@ -6,9 +6,9 @@ import {
 	useBufferState,
 	useCurrentFrame,
 } from 'remotion';
+import {MediaPlayer} from '../media-player';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
-import {MediaPlayer} from '../video/media-player';
 import type {FallbackHtml5AudioProps} from './props';
 
 const {
