@@ -358,9 +358,7 @@ export class MediaPlayer {
 				this.startAudioIterator(newTime),
 				this.startVideoIterator(newTime),
 			]);
-		}
-
-		if (!this.playing) {
+		} else if (!this.playing) {
 			await this.render();
 		}
 	}
@@ -517,7 +515,33 @@ export class MediaPlayer {
 		}
 
 		if (this.shouldRenderNewFrame()) {
-			await this.drawNewFrame();
+			if (!this.videoFrameIterator) {
+				throw new Error('Video iterator not initialized');
+			}
+
+			const nextFrame =
+				await this.videoFrameIterator?.getNextOrNullIfNotAvailable();
+			const frame = await (nextFrame.type === 'got-frame-or-end'
+				? nextFrame.frame
+				: nextFrame.waitPromise());
+
+			if (this.context && frame) {
+				this.context.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
+				this.context.drawImage(frame.canvas, 0, 0);
+				this.drawDebugOverlay();
+				if (this.onVideoFrameCallback && this.canvas) {
+					this.onVideoFrameCallback(this.canvas);
+				}
+
+				this.drawnFrame = {
+					timestamp: frame.timestamp,
+					endTimestamp: frame.timestamp + frame.duration,
+				};
+				Internals.Log.trace(
+					{logLevel: this.logLevel, tag: '@remotion/media'},
+					`[MediaPlayer] Drew frame ${frame.timestamp.toFixed(3)}s`,
+				);
+			}
 		}
 
 		if (this.playing) {
@@ -542,36 +566,6 @@ export class MediaPlayer {
 		}
 
 		return this.drawnFrame.endTimestamp >= playbackTime;
-	}
-
-	private async drawNewFrame(): Promise<void> {
-		if (!this.videoFrameIterator) {
-			throw new Error('Video iterator not initialized');
-		}
-
-		const nextFrame =
-			await this.videoFrameIterator?.getNextOrNullIfNotAvailable();
-		const frame = await (nextFrame.type === 'got-frame-or-end'
-			? nextFrame.frame
-			: nextFrame.waitPromise());
-
-		if (this.context && frame) {
-			this.context.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
-			this.context.drawImage(frame.canvas, 0, 0);
-			this.drawDebugOverlay();
-			if (this.onVideoFrameCallback && this.canvas) {
-				this.onVideoFrameCallback(this.canvas);
-			}
-
-			this.drawnFrame = {
-				timestamp: frame.timestamp,
-				endTimestamp: frame.timestamp + frame.duration,
-			};
-			Internals.Log.trace(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				`[MediaPlayer] Drew frame ${frame.timestamp.toFixed(3)}s`,
-			);
-		}
 	}
 
 	private startAudioIterator = (startFromSecond: number): void => {
