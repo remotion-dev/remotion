@@ -148,6 +148,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 				canvas: null,
 				playbackRate,
 				audioStreamIndex: audioStreamIndex ?? 0,
+				debugOverlay: false,
 			});
 
 			mediaPlayerRef.current = player;

@@ -39,6 +39,7 @@ type VideoForPreviewProps = {
 	readonly disallowFallbackToOffthreadVideo: boolean;
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 	readonly audioStreamIndex: number;
+	readonly debugOverlay: boolean;
 };
 
 export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
@@ -60,6 +61,7 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 	disallowFallbackToOffthreadVideo,
 	fallbackOffthreadVideoProps,
 	audioStreamIndex,
+	debugOverlay,
 }) => {
 	const src = usePreload(unpreloadedSrc);
 
@@ -152,6 +154,7 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 				fps: videoConfig.fps,
 				playbackRate,
 				audioStreamIndex,
+				debugOverlay,
 			});
 
 			mediaPlayerRef.current = player;
@@ -265,6 +268,7 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 		playbackRate,
 		disallowFallbackToOffthreadVideo,
 		audioStreamIndex,
+		debugOverlay,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -353,6 +357,15 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 
 		mediaPlayer.setVolume(userPreferredVolume);
 	}, [userPreferredVolume, mediaPlayerReady]);
+
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setDebugOverlay(debugOverlay);
+	}, [debugOverlay, mediaPlayerReady]);
 
 	const effectivePlaybackRate = useMemo(
 		() => playbackRate * globalPlaybackRate,

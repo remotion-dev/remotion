@@ -8,6 +8,7 @@ import {
 } from 'mediabunny';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
+import {drawPreviewOverlay} from '../debug-overlay/preview-overlay';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {isNetworkError} from '../is-network-error';
 import {sleep, TimeoutError, withTimeout} from './timeout-utils';
@@ -83,6 +84,8 @@ export class MediaPlayer {
 
 	private mediaEnded = false;
 
+	private debugOverlay = false;
+
 	private onVideoFrameCallback?: (frame: CanvasImageSource) => void;
 
 	constructor({
@@ -96,6 +99,7 @@ export class MediaPlayer {
 		playbackRate,
 		audioStreamIndex,
 		fps,
+		debugOverlay,
 	}: {
 		canvas: HTMLCanvasElement | null;
 		src: string;
@@ -107,6 +111,7 @@ export class MediaPlayer {
 		playbackRate: number;
 		audioStreamIndex: number;
 		fps: number;
+		debugOverlay: boolean;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -118,6 +123,7 @@ export class MediaPlayer {
 		this.trimAfter = trimAfter;
 		this.audioStreamIndex = audioStreamIndex ?? 0;
 		this.fps = fps;
+		this.debugOverlay = debugOverlay;
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
@@ -380,6 +386,10 @@ export class MediaPlayer {
 		}
 	}
 
+	public setDebugOverlay(debugOverlay: boolean): void {
+		this.debugOverlay = debugOverlay;
+	}
+
 	public setPlaybackRate(rate: number): void {
 		this.playbackRate = rate;
 	}
@@ -511,6 +521,7 @@ export class MediaPlayer {
 		if (this.context && this.nextFrame) {
 			this.context.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
 			this.context.drawImage(this.nextFrame.canvas, 0, 0);
+			this.drawDebugOverlay();
 		}
 
 		if (this.onVideoFrameCallback && this.canvas) {
@@ -546,6 +557,13 @@ export class MediaPlayer {
 		}
 	};
 
+	private drawDebugOverlay(): void {
+		if (!this.debugOverlay) return;
+		if (this.context && this.canvas) {
+			drawPreviewOverlay(this.context, this.nextFrame!);
+		}
+	}
+
 	private startVideoIterator = async (timeToSeek: number): Promise<void> => {
 		if (!this.canvasSink) {
 			return;
@@ -572,13 +590,10 @@ export class MediaPlayer {
 					`[MediaPlayer] Drew initial frame ${firstFrame.timestamp.toFixed(3)}s`,
 				);
 				this.context.drawImage(firstFrame.canvas, 0, 0);
-
-				if (this.onVideoFrameCallback && this.canvas) {
-					this.onVideoFrameCallback(this.canvas);
-				}
 			}
 
 			this.nextFrame = secondFrame ?? null;
+			this.drawDebugOverlay();
 
 			if (secondFrame) {
 				Internals.Log.trace(
