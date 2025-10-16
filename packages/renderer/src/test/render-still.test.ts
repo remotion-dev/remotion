@@ -2,9 +2,14 @@ import {beforeAll, expect, test} from 'bun:test';
 import {ensureBrowser} from '../ensure-browser';
 import {renderStill} from '../render-still';
 
-beforeAll(async () => {
-	await ensureBrowser();
-});
+beforeAll(
+	async () => {
+		await ensureBrowser();
+	},
+	{
+		timeout: 30000,
+	},
+);
 
 test(
 	'Need to pass valid metadata',
