@@ -1,5 +1,6 @@
 import Hls from 'hls.js';
 import type Plyr from 'plyr';
+// eslint-disable-next-line no-restricted-imports
 import 'plyr/dist/plyr.css';
 import type {MutableRefObject} from 'react';
 import React, {

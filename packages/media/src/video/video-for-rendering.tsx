@@ -21,7 +21,6 @@ import {
 	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
-import {calculateMediaDuration} from '../../../core/src/calculate-media-duration';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
@@ -414,7 +413,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			return (
 				<Loop
 					layout="none"
-					durationInFrames={calculateMediaDuration({
+					durationInFrames={Internals.calculateMediaDuration({
 						trimAfter: trimAfterValue,
 						mediaDurationInFrames:
 							replaceWithOffthreadVideo.durationInSeconds * fps,
