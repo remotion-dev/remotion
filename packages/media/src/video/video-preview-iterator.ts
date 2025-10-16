@@ -1,4 +1,5 @@
-import type {CanvasSink} from 'mediabunny';
+import type {CanvasSink, WrappedCanvas} from 'mediabunny';
+import {roundTo4Digits} from '../helpers/round-to-4-digits';
 
 export const createVideoIterator = (
 	timeToSeek: number,
@@ -6,6 +7,8 @@ export const createVideoIterator = (
 ) => {
 	let destroyed = false;
 	const iterator = videoSink.canvases(timeToSeek);
+	let lastReturnedFrame: WrappedCanvas | null = null;
+	let iteratorEnded = false;
 
 	const getNextOrNullIfNotAvailable = async () => {
 		const next = iterator.next();
@@ -15,34 +18,124 @@ export const createVideoIterator = (
 				Promise.resolve().then(() => resolve());
 			}),
 		]);
+
 		if (!result) {
 			return {
 				type: 'need-to-wait-for-it' as const,
 				waitPromise: async () => {
 					const res = await next;
+					if (res.value) {
+						lastReturnedFrame = res.value;
+					} else {
+						iteratorEnded = true;
+					}
+
 					return res.value;
 				},
 			};
 		}
 
+		if (result.value) {
+			lastReturnedFrame = result.value;
+		} else {
+			iteratorEnded = true;
+		}
+
 		return {
 			type: 'got-frame-or-end' as const,
-			frame: result.value,
+			frame: result.value ?? null,
 		};
+	};
+
+	const destroy = () => {
+		destroyed = true;
+		lastReturnedFrame = null;
+		iterator.return().catch(() => undefined);
+	};
+
+	const tryToSatisfySeekOrDestroy = async (
+		time: number,
+	): Promise<
+		| {
+				type: 'not-satisfied';
+		  }
+		| {
+				type: 'satisfied';
+				frame: WrappedCanvas;
+		  }
+	> => {
+		if (lastReturnedFrame && time < lastReturnedFrame.timestamp) {
+			return {
+				type: 'not-satisfied' as const,
+			};
+		}
+
+		if (iteratorEnded) {
+			if (lastReturnedFrame) {
+				return {
+					type: 'satisfied' as const,
+					frame: lastReturnedFrame,
+				};
+			}
+
+			return {
+				type: 'not-satisfied' as const,
+			};
+		}
+
+		while (true) {
+			const frame = await getNextOrNullIfNotAvailable();
+			if (frame.type === 'need-to-wait-for-it') {
+				return {
+					type: 'not-satisfied' as const,
+				};
+			}
+
+			if (frame.type === 'got-frame-or-end') {
+				if (frame.frame === null) {
+					iteratorEnded = true;
+					if (lastReturnedFrame) {
+						return {
+							type: 'satisfied' as const,
+							frame: lastReturnedFrame,
+						};
+					}
+
+					return {
+						type: 'not-satisfied' as const,
+					};
+				}
+
+				const frameTimestamp = roundTo4Digits(frame.frame.timestamp);
+				const frameEndTimestamp = roundTo4Digits(
+					frame.frame.timestamp + frame.frame.duration,
+				);
+				const timestamp = roundTo4Digits(time);
+				if (frameTimestamp <= timestamp && frameEndTimestamp > timestamp) {
+					return {
+						type: 'satisfied' as const,
+						frame: frame.frame,
+					};
+				}
+
+				continue;
+			}
+
+			throw new Error('Unreachable');
+		}
 	};
 
 	return {
 		getNextOrNullIfNotAvailable,
-		destroy: () => {
-			destroyed = true;
-			iterator.return().catch(() => undefined);
-		},
+		destroy,
 		getNext: () => {
 			return iterator.next();
 		},
 		isDestroyed: () => {
 			return destroyed;
 		},
+		tryToSatisfySeekOrDestroy,
+		getLastReturnedFrame: () => lastReturnedFrame,
 	};
 };
 

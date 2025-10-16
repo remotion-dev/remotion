@@ -23,7 +23,6 @@ import {
 	type VideoIterator,
 } from './video/video-preview-iterator';
 
-export const SEEK_THRESHOLD = 0.05;
 const AUDIO_BUFFER_TOLERANCE_THRESHOLD = 0.1;
 
 export type MediaPlayerInitResult =
@@ -33,11 +32,6 @@ export type MediaPlayerInitResult =
 	| {type: 'network-error'}
 	| {type: 'no-tracks'}
 	| {type: 'disposed'};
-
-type DrawnFrame = {
-	timestamp: number;
-	endTimestamp: number;
-};
 
 export class MediaPlayer {
 	private canvas: HTMLCanvasElement | null;
@@ -86,8 +80,6 @@ export class MediaPlayer {
 	private onVideoFrameCallback?: (frame: CanvasImageSource) => void;
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
-
-	private drawnFrame: DrawnFrame | null = null;
 
 	constructor({
 		canvas,
@@ -347,22 +339,21 @@ export class MediaPlayer {
 			return;
 		}
 
-		const isSignificantSeek =
-			currentPlaybackTime === null ||
-			Math.abs(newTime - currentPlaybackTime) > SEEK_THRESHOLD;
+		const satisfyResult =
+			await this.videoFrameIterator?.tryToSatisfySeekOrDestroy(newTime);
 
+		if (satisfyResult?.type === 'satisfied') {
+			this.drawFrame(satisfyResult.frame);
+			return;
+		}
+
+		this.mediaEnded = false;
 		this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 
-		if (isSignificantSeek) {
-			this.mediaEnded = false;
-
-			await Promise.all([
-				this.startAudioIterator(newTime),
-				this.startVideoIterator(newTime),
-			]);
-		} else if (!this.playing) {
-			this.render();
-		}
+		await Promise.all([
+			this.startAudioIterator(newTime),
+			this.startVideoIterator(newTime),
+		]);
 	}
 
 	public async play(): Promise<void> {
@@ -526,6 +517,24 @@ export class MediaPlayer {
 		this.renderPromiseChain = null;
 	};
 
+	private drawFrame = (frame: WrappedCanvas): void => {
+		if (!this.context) {
+			throw new Error('Context not initialized');
+		}
+
+		this.context.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
+		this.context.drawImage(frame.canvas, 0, 0);
+		this.drawDebugOverlay();
+		if (this.onVideoFrameCallback && this.canvas) {
+			this.onVideoFrameCallback(this.canvas);
+		}
+
+		Internals.Log.trace(
+			{logLevel: this.logLevel, tag: '@remotion/media'},
+			`[MediaPlayer] Drew frame ${frame.timestamp.toFixed(3)}s`,
+		);
+	};
+
 	private renderDoNotCallDirectly = async (nonce: number): Promise<void> => {
 		if (nonce !== this.currentRenderNonce) {
 			return;
@@ -560,22 +569,8 @@ export class MediaPlayer {
 				}
 			}
 
-			if (this.context && frame) {
-				this.context.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
-				this.context.drawImage(frame.canvas, 0, 0);
-				this.drawDebugOverlay();
-				if (this.onVideoFrameCallback && this.canvas) {
-					this.onVideoFrameCallback(this.canvas);
-				}
-
-				this.drawnFrame = {
-					timestamp: frame.timestamp,
-					endTimestamp: frame.timestamp + frame.duration,
-				};
-				Internals.Log.trace(
-					{logLevel: this.logLevel, tag: '@remotion/media'},
-					`[MediaPlayer] Drew frame ${frame.timestamp.toFixed(3)}s`,
-				);
+			if (frame) {
+				this.drawFrame(frame);
 			}
 		}
 
@@ -596,13 +591,19 @@ export class MediaPlayer {
 			return false;
 		}
 
-		if (this.drawnFrame === null) {
+		if (this.videoFrameIterator === null) {
+			return true;
+		}
+
+		const lastReturnedFrame = this.videoFrameIterator.getLastReturnedFrame();
+		if (lastReturnedFrame === null) {
 			return true;
 		}
 
 		return (
-			roundTo4Digits(this.drawnFrame.endTimestamp) <=
-			roundTo4Digits(playbackTime)
+			roundTo4Digits(
+				lastReturnedFrame.timestamp + lastReturnedFrame.duration,
+			) <= roundTo4Digits(playbackTime)
 		);
 	}
 
