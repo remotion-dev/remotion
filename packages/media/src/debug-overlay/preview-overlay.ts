@@ -1,19 +1,28 @@
-import type {WrappedCanvas} from 'mediabunny';
+export type DebugStats = {
+	videoIteratorsCreated: number;
+	framesRendered: number;
+};
 
 export const drawPreviewOverlay = (
 	context: CanvasRenderingContext2D,
-	nextFrame: WrappedCanvas | null,
+	stats: DebugStats,
+	audioContextState: AudioContextState,
+	audioSyncAnchor: number,
 ) => {
 	// Optionally, set a background for text legibility
 	context.fillStyle = 'rgba(0, 0, 0, 1)';
-	context.fillRect(20, 20, 300, 100);
+	context.fillRect(20, 20, 600, 180);
 
 	context.fillStyle = 'white';
 	context.font = '24px sans-serif';
 	context.textBaseline = 'top';
+	context.fillText(`Debug overlay`, 30, 30);
 	context.fillText(
-		`next: ${nextFrame ? nextFrame.timestamp.toFixed(3) + 's' : null}`,
+		`Video iterators created: ${stats.videoIteratorsCreated}`,
 		30,
-		30,
+		60,
 	);
+	context.fillText(`Frames rendered: ${stats.framesRendered}`, 30, 90);
+	context.fillText(`Audio context state: ${audioContextState}`, 30, 120);
+	context.fillText(`Audio time: ${audioSyncAnchor.toFixed(3)}s`, 30, 150);
 };
