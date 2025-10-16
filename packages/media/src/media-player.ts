@@ -86,7 +86,7 @@ export class MediaPlayer {
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
-	private bufferState: ReturnType<typeof useBufferState> | null = null;
+	private bufferState: ReturnType<typeof useBufferState>;
 
 	constructor({
 		canvas,
@@ -322,6 +322,7 @@ export class MediaPlayer {
 		this.currentSeekNonce++;
 		const nonce = this.currentSeekNonce;
 		await this.seekPromiseChain;
+		await this.renderPromiseChain;
 
 		this.seekPromiseChain = this.seekToDoNotCallDirectly(time, nonce);
 		await this.seekPromiseChain;
@@ -599,15 +600,14 @@ export class MediaPlayer {
 
 				// Frame is not immediately available, so we are buffering
 				// until it is
-				// TODO: Race conditions with shared audio context
-				this.sharedAudioContext.suspend();
 				const delayHandle = this.bufferState?.delayPlayback();
 				const frame = (await nextFrame.waitPromise()) ?? null;
 				delayHandle?.unblock();
 
-				this.sharedAudioContext.resume();
-
 				if (!this.videoFrameIterator.isDestroyed() && frame) {
+					this.audioSyncAnchor =
+						this.sharedAudioContext.currentTime - frame.timestamp;
+
 					this.drawFrame(frame);
 				}
 			}
@@ -666,7 +666,12 @@ export class MediaPlayer {
 	private drawDebugOverlay(): void {
 		if (!this.debugOverlay) return;
 		if (this.context && this.canvas) {
-			drawPreviewOverlay(this.context, this.debugStats);
+			drawPreviewOverlay(
+				this.context,
+				this.debugStats,
+				this.sharedAudioContext.state,
+				this.sharedAudioContext.currentTime,
+			);
 		}
 	}
 
