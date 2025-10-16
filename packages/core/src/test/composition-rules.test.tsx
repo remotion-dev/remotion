@@ -51,6 +51,8 @@ describe('Render composition-rules should throw with invalid props', () => {
 			() =>
 				render(
 					<RemotionRoot
+						videoEnabled
+						audioEnabled
 						numberOfAudioTags={0}
 						logLevel="info"
 						onlyRenderComposition={null}

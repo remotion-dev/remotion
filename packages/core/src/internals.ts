@@ -93,6 +93,7 @@ import {
 	PreviewSizeContext,
 } from './use-current-scale.js';
 import {useLazyComponent} from './use-lazy-component.js';
+import {useAudioEnabled, useVideoEnabled} from './use-media-enabled.js';
 import {
 	useBasicMediaInTimeline,
 	useMediaInTimeline,
@@ -227,6 +228,8 @@ export const Internals = {
 	useBasicMediaInTimeline,
 	getInputPropsOverride,
 	setInputPropsOverride,
+	useVideoEnabled,
+	useAudioEnabled,
 } as const;
 
 export type {

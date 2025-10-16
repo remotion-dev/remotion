@@ -114,6 +114,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		FallbackToOffthreadVideo | false
 	>(false);
 
+	const audioEnabled = Internals.useAudioEnabled();
+	const videoEnabled = Internals.useVideoEnabled();
+
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
 			return;
@@ -132,7 +135,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		});
 
 		const shouldRenderAudio = (() => {
-			if (!window.remotion_audioEnabled) {
+			if (!audioEnabled) {
 				return false;
 			}
 
@@ -150,7 +153,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			playbackRate,
 			logLevel,
 			includeAudio: shouldRenderAudio,
-			includeVideo: window.remotion_videoEnabled,
+			includeVideo: videoEnabled,
 			isClientSideRendering: environment.isClientSideRendering,
 			loop,
 			audioStreamIndex,
@@ -269,8 +272,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					context.drawImage(imageBitmap, 0, 0);
 
 					imageBitmap.close();
-				} else if (window.remotion_videoEnabled) {
-					// In the case of https://discord.com/channels/809501355504959528/809501355504959531/1424400511070765086
+				} else if (videoEnabled) {
 					// A video that only starts at time 0.033sec
 					// we shall not crash here but clear the canvas
 					const context = canvasRef.current?.getContext('2d', {
@@ -353,6 +355,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		toneFrequency,
 		trimAfterValue,
 		trimBeforeValue,
+		audioEnabled,
+		videoEnabled,
 	]);
 
 	const classNameValue = useMemo(() => {
