@@ -429,6 +429,7 @@ export class MediaPlayer {
 		this.input?.dispose();
 		this.stopRenderLoop();
 		this.videoFrameIterator?.destroy();
+		this.videoFrameIterator = null;
 		this.audioBufferIterator?.destroy();
 		this.audioBufferIterator = null;
 	}
@@ -530,12 +531,20 @@ export class MediaPlayer {
 			return false;
 		}
 
-		return (
-			!this.isBuffering &&
-			this.canRenderVideo() &&
-			(this.videoFrameIterator?.getNextFrame() ?? false) &&
-			this.videoFrameIterator!.getNextFrame()!.timestamp <= playbackTime
-		);
+		if (this.isBuffering) {
+			return false;
+		}
+
+		if (!this.canRenderVideo()) {
+			return false;
+		}
+
+		const nextFrame = this.videoFrameIterator?.getNextFrame();
+		if (!nextFrame) {
+			return false;
+		}
+
+		return nextFrame.timestamp <= playbackTime;
 	}
 
 	private drawCurrentFrame(): void {
