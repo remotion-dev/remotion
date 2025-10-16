@@ -578,7 +578,6 @@ export class MediaPlayer {
 
 		try {
 			const firstFrame = (await this.videoFrameIterator.next()).value ?? null;
-			const secondFrame = (await this.videoFrameIterator.next()).value ?? null;
 
 			if (currentAsyncId !== this.videoAsyncId) {
 				return;
@@ -590,6 +589,12 @@ export class MediaPlayer {
 					`[MediaPlayer] Drew initial frame ${firstFrame.timestamp.toFixed(3)}s`,
 				);
 				this.context.drawImage(firstFrame.canvas, 0, 0);
+				this.drawDebugOverlay();
+			}
+
+			const secondFrame = (await this.videoFrameIterator.next()).value ?? null;
+			if (currentAsyncId !== this.videoAsyncId) {
+				return;
 			}
 
 			this.nextFrame = secondFrame ?? null;
