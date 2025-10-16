@@ -155,10 +155,13 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 			});
 
 			mediaPlayerRef.current = player;
-
 			player
 				.initialize(currentTimeRef.current)
 				.then((result) => {
+					if (result.type === 'disposed') {
+						return;
+					}
+
 					if (result.type === 'unknown-container-format') {
 						if (disallowFallbackToOffthreadVideo) {
 							throw new Error(
@@ -247,7 +250,13 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 					{logLevel, tag: '@remotion/media'},
 					`[VideoForPreview] Disposing MediaPlayer`,
 				);
-				mediaPlayerRef.current.dispose();
+				mediaPlayerRef.current.dispose().catch((error) => {
+					Internals.Log.error(
+						{logLevel, tag: '@remotion/media'},
+						'[VideoForPreview] Failed to dispose MediaPlayer',
+						error,
+					);
+				});
 				mediaPlayerRef.current = null;
 			}
 

@@ -20,7 +20,8 @@ export type MediaPlayerInitResult =
 	| {type: 'unknown-container-format'}
 	| {type: 'cannot-decode'}
 	| {type: 'network-error'}
-	| {type: 'no-tracks'};
+	| {type: 'no-tracks'}
+	| {type: 'disposed'};
 
 export class MediaPlayer {
 	private canvas: HTMLCanvasElement | null;
@@ -85,6 +86,8 @@ export class MediaPlayer {
 
 	private onVideoFrameCallback?: (frame: CanvasImageSource) => void;
 
+	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
+
 	constructor({
 		canvas,
 		src,
@@ -138,7 +141,11 @@ export class MediaPlayer {
 	private input: Input<UrlSource> | null = null;
 
 	private isReady(): boolean {
-		return this.initialized && Boolean(this.sharedAudioContext);
+		return (
+			this.initialized &&
+			Boolean(this.sharedAudioContext) &&
+			!this.input?.disposed
+		);
 	}
 
 	private hasAudio(): boolean {
@@ -149,7 +156,15 @@ export class MediaPlayer {
 		return this.isBuffering && Boolean(this.bufferingStartedAtMs);
 	}
 
-	public async initialize(
+	public initialize(
+		startTimeUnresolved: number,
+	): Promise<MediaPlayerInitResult> {
+		const promise = this._initialize(startTimeUnresolved);
+		this.initializationPromise = promise;
+		return promise;
+	}
+
+	private async _initialize(
 		startTimeUnresolved: number,
 	): Promise<MediaPlayerInitResult> {
 		try {
@@ -162,8 +177,12 @@ export class MediaPlayer {
 
 			this.input = input;
 
+			if (input.disposed) {
+				return {type: 'disposed'};
+			}
+
 			try {
-				await this.input.getFormat();
+				await input.getFormat();
 			} catch (error) {
 				const err = error as Error;
 
@@ -392,7 +411,15 @@ export class MediaPlayer {
 		this.loop = loop;
 	}
 
-	public dispose(): void {
+	public async dispose(): Promise<void> {
+		this.initialized = false;
+
+		if (this.initializationPromise) {
+			await this.initializationPromise.catch(() => {
+				// Ignore initialization errors during disposal
+			});
+		}
+
 		this.input?.dispose();
 		this.stopRenderLoop();
 		this.videoFrameIterator?.return();
