@@ -6,12 +6,14 @@ export const makeAudioIterator = (
 	audioSink: AudioBufferSink,
 	startFromSecond: number,
 ) => {
+	let destroyed = false;
 	const iterator = audioSink.buffers(startFromSecond);
 	let audioIteratorStarted = false;
 	let audioBufferHealth = 0;
 
 	return {
 		destroy: () => {
+			destroyed = true;
 			iterator.return().catch(() => undefined);
 		},
 		isReadyToPlay: () => {
@@ -25,6 +27,9 @@ export const makeAudioIterator = (
 		},
 		setAudioBufferHealth: (health: number) => {
 			audioBufferHealth = health;
+		},
+		isDestroyed: () => {
+			return destroyed;
 		},
 	};
 };
