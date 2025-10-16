@@ -253,13 +253,7 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 					{logLevel, tag: '@remotion/media'},
 					`[VideoForPreview] Disposing MediaPlayer`,
 				);
-				mediaPlayerRef.current.dispose().catch((error) => {
-					Internals.Log.error(
-						{logLevel, tag: '@remotion/media'},
-						'[VideoForPreview] Failed to dispose MediaPlayer',
-						error,
-					);
-				});
+				mediaPlayerRef.current.dispose();
 				mediaPlayerRef.current = null;
 			}
 

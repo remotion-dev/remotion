@@ -162,6 +162,10 @@ export class MediaPlayer {
 		return this.isBuffering && Boolean(this.bufferingStartedAtMs);
 	}
 
+	private isDisposalError(): boolean {
+		return this.input?.disposed === true;
+	}
+
 	public initialize(
 		startTimeUnresolved: number,
 	): Promise<MediaPlayerInitResult> {
@@ -190,6 +194,10 @@ export class MediaPlayer {
 			try {
 				await input.getFormat();
 			} catch (error) {
+				if (this.isDisposalError()) {
+					return {type: 'disposed'};
+				}
+
 				const err = error as Error;
 
 				if (isNetworkError(err)) {
@@ -264,10 +272,22 @@ export class MediaPlayer {
 
 			this.initialized = true;
 
-			await Promise.all([
-				this.startAudioIterator(startTime),
-				this.startVideoIterator(startTime),
-			]);
+			try {
+				await Promise.all([
+					this.startAudioIterator(startTime),
+					this.startVideoIterator(startTime),
+				]);
+			} catch (error) {
+				if (this.isDisposalError()) {
+					return {type: 'disposed'};
+				}
+
+				Internals.Log.error(
+					{logLevel: this.logLevel, tag: '@remotion/media'},
+					'[MediaPlayer] Failed to start audio and video iterators',
+					error,
+				);
+			}
 
 			this.startRenderLoop();
 
@@ -425,9 +445,14 @@ export class MediaPlayer {
 		this.initialized = false;
 
 		if (this.initializationPromise) {
-			await this.initializationPromise.catch(() => {
+			try {
+				// wait for the init to finished
+				// otherwise we might get errors like:
+				// Error: Response stream reader stopped unexpectedly before all requested data was read. from UrlSource
+				await this.initializationPromise;
+			} catch {
 				// Ignore initialization errors during disposal
-			});
+			}
 		}
 
 		this.input?.dispose();
@@ -576,6 +601,10 @@ export class MediaPlayer {
 			this.audioBufferIterator = this.audioSink!.buffers(startFromSecond);
 			this.runAudioIterator(startFromSecond, currentAsyncId);
 		} catch (error) {
+			if (this.isDisposalError()) {
+				return;
+			}
+
 			Internals.Log.error(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
 				'[MediaPlayer] Failed to start audio iterator',
@@ -629,6 +658,10 @@ export class MediaPlayer {
 				);
 			}
 		} catch (error) {
+			if (this.isDisposalError()) {
+				return;
+			}
+
 			Internals.Log.error(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
 				'[MediaPlayer] Failed to start video iterator',
@@ -670,6 +703,10 @@ export class MediaPlayer {
 				}
 			}
 		} catch (error) {
+			if (this.isDisposalError()) {
+				return;
+			}
+
 			Internals.Log.error(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
 				'[MediaPlayer] Failed to update next frame',
@@ -821,6 +858,10 @@ export class MediaPlayer {
 				}
 			}
 		} catch (error) {
+			if (this.isDisposalError()) {
+				return;
+			}
+
 			Internals.Log.error(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
 				'[MediaPlayer] Failed to run audio iterator',
