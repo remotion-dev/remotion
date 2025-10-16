@@ -155,6 +155,7 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 				playbackRate,
 				audioStreamIndex,
 				debugOverlay,
+				bufferState: buffer,
 			});
 
 			mediaPlayerRef.current = player;
@@ -272,6 +273,7 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 		disallowFallbackToOffthreadVideo,
 		audioStreamIndex,
 		debugOverlay,
+		buffer,
 	]);
 
 	const classNameValue = useMemo(() => {

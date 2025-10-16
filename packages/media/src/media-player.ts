@@ -6,7 +6,7 @@ import {
 	Input,
 	UrlSource,
 } from 'mediabunny';
-import type {LogLevel} from 'remotion';
+import type {LogLevel, useBufferState} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	HEALTHY_BUFFER_THRESHOLD_SECONDS,
@@ -81,6 +81,8 @@ export class MediaPlayer {
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
+	private bufferState: ReturnType<typeof useBufferState> | null = null;
+
 	constructor({
 		canvas,
 		src,
@@ -93,6 +95,7 @@ export class MediaPlayer {
 		audioStreamIndex,
 		fps,
 		debugOverlay,
+		bufferState,
 	}: {
 		canvas: HTMLCanvasElement | null;
 		src: string;
@@ -105,6 +108,7 @@ export class MediaPlayer {
 		audioStreamIndex: number;
 		fps: number;
 		debugOverlay: boolean;
+		bufferState: ReturnType<typeof useBufferState>;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -117,6 +121,7 @@ export class MediaPlayer {
 		this.audioStreamIndex = audioStreamIndex ?? 0;
 		this.fps = fps;
 		this.debugOverlay = debugOverlay;
+		this.bufferState = bufferState;
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
@@ -263,10 +268,8 @@ export class MediaPlayer {
 			this.initialized = true;
 
 			try {
-				await Promise.all([
-					this.startAudioIterator(startTime),
-					this.startVideoIterator(startTime),
-				]);
+				this.startAudioIterator(startTime);
+				this.startVideoIterator(startTime);
 			} catch (error) {
 				if (this.isDisposalError()) {
 					return {type: 'disposed'};
@@ -350,10 +353,8 @@ export class MediaPlayer {
 		this.mediaEnded = false;
 		this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 
-		await Promise.all([
-			this.startAudioIterator(newTime),
-			this.startVideoIterator(newTime),
-		]);
+		this.startAudioIterator(newTime);
+		this.startVideoIterator(newTime);
 	}
 
 	public async play(): Promise<void> {
@@ -515,6 +516,12 @@ export class MediaPlayer {
 		this.renderPromiseChain = this.renderDoNotCallDirectly(nonce);
 		await this.renderPromiseChain;
 		this.renderPromiseChain = null;
+		if (this.playing) {
+			this.animationFrameId = requestAnimationFrame(this.render);
+		} else if (this.animationFrameId !== null) {
+			cancelAnimationFrame(this.animationFrameId);
+			this.animationFrameId = null;
+		}
 	};
 
 	private drawFrame = (frame: WrappedCanvas): void => {
@@ -558,14 +565,21 @@ export class MediaPlayer {
 			if (nextFrame.type === 'got-frame-or-end') {
 				if (nextFrame.frame) {
 					this.drawFrame(nextFrame.frame);
+				} else {
+					// TODO: Media ended
 				}
 			} else {
 				if (nonce !== this.currentRenderNonce) {
 					return;
 				}
 
+				// Frame is not immediately available, so we are buffering
+				// until it is
+				const delayHandle = this.bufferState?.delayPlayback();
 				const frame = (await nextFrame.waitPromise()) ?? null;
-				if (this.videoFrameIterator.isDestroyed()) {
+				delayHandle?.unblock();
+
+				if (!this.videoFrameIterator.isDestroyed() && frame) {
 					return;
 				}
 
@@ -573,12 +587,6 @@ export class MediaPlayer {
 					this.drawFrame(frame);
 				}
 			}
-		}
-
-		if (this.playing) {
-			this.animationFrameId = requestAnimationFrame(this.render);
-		} else {
-			this.animationFrameId = null;
 		}
 	};
 

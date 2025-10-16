@@ -149,6 +149,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 				playbackRate,
 				audioStreamIndex: audioStreamIndex ?? 0,
 				debugOverlay: false,
+				bufferState: buffer,
 			});
 
 			mediaPlayerRef.current = player;
@@ -271,6 +272,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		videoConfig.fps,
 		audioStreamIndex,
 		disallowFallbackToHtml5Audio,
+		buffer,
 	]);
 
 	useEffect(() => {
