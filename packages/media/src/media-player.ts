@@ -15,6 +15,7 @@ import {
 } from './audio/audio-preview-iterator';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getTimeInSeconds} from './get-time-in-seconds';
+import {roundTo4Digits} from './helpers/round-to-4-digits';
 import {isNetworkError} from './is-network-error';
 import {sleep, TimeoutError, withTimeout} from './video/timeout-utils';
 import {
@@ -350,8 +351,9 @@ export class MediaPlayer {
 			currentPlaybackTime === null ||
 			Math.abs(newTime - currentPlaybackTime) > SEEK_THRESHOLD;
 
+		this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
+
 		if (isSignificantSeek) {
-			this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 			this.mediaEnded = false;
 
 			await Promise.all([
@@ -359,7 +361,7 @@ export class MediaPlayer {
 				this.startVideoIterator(newTime),
 			]);
 		} else if (!this.playing) {
-			await this.render();
+			this.render();
 		}
 	}
 
@@ -520,7 +522,7 @@ export class MediaPlayer {
 			}
 
 			const nextFrame =
-				await this.videoFrameIterator?.getNextOrNullIfNotAvailable();
+				await this.videoFrameIterator.getNextOrNullIfNotAvailable();
 			const frame = await (nextFrame.type === 'got-frame-or-end'
 				? nextFrame.frame
 				: nextFrame.waitPromise());
@@ -565,7 +567,10 @@ export class MediaPlayer {
 			return true;
 		}
 
-		return this.drawnFrame.endTimestamp >= playbackTime;
+		return (
+			roundTo4Digits(this.drawnFrame.endTimestamp) <=
+			roundTo4Digits(playbackTime)
+		);
 	}
 
 	private startAudioIterator = (startFromSecond: number): void => {
