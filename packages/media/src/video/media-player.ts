@@ -46,8 +46,6 @@ export class MediaPlayer {
 	private audioSink: AudioBufferSink | null = null;
 	private audioBufferIterator: AudioIterator | null = null;
 
-	private queuedAudioNodes: Set<AudioBufferSourceNode> = new Set();
-
 	private gainNode: GainNode | null = null;
 	private currentVolume: number = 1;
 
@@ -272,21 +270,6 @@ export class MediaPlayer {
 		}
 	}
 
-	private cleanupAudioQueue(): void {
-		for (const node of this.queuedAudioNodes) {
-			node.stop();
-		}
-
-		this.queuedAudioNodes.clear();
-	}
-
-	private cleanAudioIteratorAndNodes(): void {
-		this.audioBufferIterator?.destroy();
-		this.audioBufferIterator = null;
-
-		this.cleanupAudioQueue();
-	}
-
 	public async seekTo(time: number): Promise<void> {
 		if (!this.isReady()) return;
 
@@ -304,9 +287,13 @@ export class MediaPlayer {
 
 		if (newTime === null) {
 			// invalidate in-flight video operations
-			this.videoFrameIterator?.clearNextFrame();
+			this.videoFrameIterator?.destroy();
+			this.videoFrameIterator = null;
+
 			this.clearCanvas();
-			this.cleanAudioIteratorAndNodes();
+			this.audioBufferIterator?.destroy();
+			this.audioBufferIterator = null;
+
 			return;
 		}
 
@@ -317,13 +304,8 @@ export class MediaPlayer {
 			Math.abs(newTime - currentPlaybackTime) > SEEK_THRESHOLD;
 
 		if (isSignificantSeek) {
-			this.videoFrameIterator?.clearNextFrame();
 			this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 			this.mediaEnded = false;
-
-			if (this.audioSink) {
-				this.cleanAudioIteratorAndNodes();
-			}
 
 			await Promise.all([
 				this.startAudioIterator(newTime),
@@ -352,7 +334,7 @@ export class MediaPlayer {
 
 	public pause(): void {
 		this.playing = false;
-		this.cleanupAudioQueue();
+		this.audioBufferIterator?.cleanupAudioQueue();
 		this.stopRenderLoop();
 	}
 
@@ -395,7 +377,8 @@ export class MediaPlayer {
 		this.input?.dispose();
 		this.stopRenderLoop();
 		this.videoFrameIterator?.destroy();
-		this.cleanAudioIteratorAndNodes();
+		this.audioBufferIterator?.destroy();
+		this.audioBufferIterator = null;
 	}
 
 	private getPlaybackTime(): number {
@@ -420,8 +403,8 @@ export class MediaPlayer {
 			node.start(this.sharedAudioContext.currentTime, -delay);
 		}
 
-		this.queuedAudioNodes.add(node);
-		node.onended = () => this.queuedAudioNodes.delete(node);
+		this.audioBufferIterator?.addQueuedAudioNode(node);
+		node.onended = () => this.audioBufferIterator?.removeQueuedAudioNode(node);
 	}
 
 	public onBufferingChange(
@@ -557,7 +540,6 @@ export class MediaPlayer {
 		}
 
 		this.videoFrameIterator?.destroy();
-
 		const iterator = createVideoIterator(timeToSeek, this.canvasSink);
 		this.videoFrameIterator = iterator;
 

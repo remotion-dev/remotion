@@ -11,6 +11,7 @@ export const createVideoIterator = (
 	return {
 		destroy: () => {
 			destroyed = true;
+			nextFrame = null;
 			iterator.return().catch(() => undefined);
 		},
 		getNext: () => {

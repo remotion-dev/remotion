@@ -10,9 +10,20 @@ export const makeAudioIterator = (
 	const iterator = audioSink.buffers(startFromSecond);
 	let audioIteratorStarted = false;
 	let audioBufferHealth = 0;
+	const queuedAudioNodes: Set<AudioBufferSourceNode> = new Set();
+
+	const cleanupAudioQueue = () => {
+		for (const node of queuedAudioNodes) {
+			node.stop();
+		}
+
+		queuedAudioNodes.clear();
+	};
 
 	return {
+		cleanupAudioQueue,
 		destroy: () => {
+			cleanupAudioQueue();
 			destroyed = true;
 			iterator.return().catch(() => undefined);
 		},
@@ -30,6 +41,12 @@ export const makeAudioIterator = (
 		},
 		isDestroyed: () => {
 			return destroyed;
+		},
+		addQueuedAudioNode: (node: AudioBufferSourceNode) => {
+			queuedAudioNodes.add(node);
+		},
+		removeQueuedAudioNode: (node: AudioBufferSourceNode) => {
+			queuedAudioNodes.delete(node);
 		},
 	};
 };
