@@ -33,6 +33,11 @@ export type MediaPlayerInitResult =
 	| {type: 'no-tracks'}
 	| {type: 'disposed'};
 
+type DrawnFrame = {
+	timestamp: number;
+	endTimestamp: number;
+};
+
 export class MediaPlayer {
 	private canvas: HTMLCanvasElement | null;
 	private context: CanvasRenderingContext2D | null;
@@ -80,6 +85,8 @@ export class MediaPlayer {
 	private onVideoFrameCallback?: (frame: CanvasImageSource) => void;
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
+
+	private drawnFrame: DrawnFrame | null = null;
 
 	constructor({
 		canvas,
@@ -279,8 +286,6 @@ export class MediaPlayer {
 				);
 			}
 
-			this.startRenderLoop();
-
 			return {type: 'success', durationInSeconds};
 		} catch (error) {
 			const err = error as Error;
@@ -337,6 +342,9 @@ export class MediaPlayer {
 		}
 
 		const currentPlaybackTime = this.getPlaybackTime();
+		if (currentPlaybackTime === newTime) {
+			return;
+		}
 
 		const isSignificantSeek =
 			currentPlaybackTime === null ||
@@ -353,7 +361,7 @@ export class MediaPlayer {
 		}
 
 		if (!this.playing) {
-			this.render();
+			await this.render();
 		}
 	}
 
@@ -488,12 +496,6 @@ export class MediaPlayer {
 		};
 	}
 
-	private canRenderVideo(): boolean {
-		return (
-			!this.hasAudio() || this.audioBufferIterator?.isReadyToPlay() || false
-		);
-	}
-
 	private startRenderLoop(): void {
 		if (this.animationFrameId !== null) {
 			return;
@@ -509,13 +511,13 @@ export class MediaPlayer {
 		}
 	}
 
-	private render = (): void => {
+	private render = async (): Promise<void> => {
 		if (this.isBuffering) {
 			this.maybeForceResumeFromBuffering();
 		}
 
-		if (this.shouldRenderFrame()) {
-			this.drawCurrentFrame();
+		if (this.shouldRenderNewFrame()) {
+			await this.drawNewFrame();
 		}
 
 		if (this.playing) {
@@ -525,7 +527,7 @@ export class MediaPlayer {
 		}
 	};
 
-	private shouldRenderFrame(): boolean {
+	private shouldRenderNewFrame(): boolean {
 		const playbackTime = this.getPlaybackTime();
 		if (playbackTime === null) {
 			return false;
@@ -535,35 +537,41 @@ export class MediaPlayer {
 			return false;
 		}
 
-		if (!this.canRenderVideo()) {
-			return false;
+		if (this.drawnFrame === null) {
+			return true;
 		}
 
-		const nextFrame = this.videoFrameIterator?.getNextFrame();
-		if (!nextFrame) {
-			return false;
-		}
-
-		return nextFrame.timestamp <= playbackTime;
+		return this.drawnFrame.endTimestamp >= playbackTime;
 	}
 
-	private drawCurrentFrame(): void {
-		if (this.context && this.videoFrameIterator?.getNextFrame()) {
+	private async drawNewFrame(): Promise<void> {
+		if (!this.videoFrameIterator) {
+			throw new Error('Video iterator not initialized');
+		}
+
+		const nextFrame =
+			await this.videoFrameIterator?.getNextOrNullIfNotAvailable();
+		const frame = await (nextFrame.type === 'got-frame-or-end'
+			? nextFrame.frame
+			: nextFrame.waitPromise());
+
+		if (this.context && frame) {
 			this.context.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
-			this.context.drawImage(
-				this.videoFrameIterator.getNextFrame()!.canvas,
-				0,
-				0,
-			);
+			this.context.drawImage(frame.canvas, 0, 0);
 			this.drawDebugOverlay();
-		}
+			if (this.onVideoFrameCallback && this.canvas) {
+				this.onVideoFrameCallback(this.canvas);
+			}
 
-		if (this.onVideoFrameCallback && this.canvas) {
-			this.onVideoFrameCallback(this.canvas);
+			this.drawnFrame = {
+				timestamp: frame.timestamp,
+				endTimestamp: frame.timestamp + frame.duration,
+			};
+			Internals.Log.trace(
+				{logLevel: this.logLevel, tag: '@remotion/media'},
+				`[MediaPlayer] Drew frame ${frame.timestamp.toFixed(3)}s`,
+			);
 		}
-
-		this.videoFrameIterator?.clearNextFrame();
-		this.updateNextFrame();
 	}
 
 	private startAudioIterator = (startFromSecond: number): void => {
@@ -592,14 +600,11 @@ export class MediaPlayer {
 	private drawDebugOverlay(): void {
 		if (!this.debugOverlay) return;
 		if (this.context && this.canvas) {
-			drawPreviewOverlay(
-				this.context,
-				this.videoFrameIterator?.getNextFrame() ?? null,
-			);
+			drawPreviewOverlay(this.context);
 		}
 	}
 
-	private startVideoIterator = async (timeToSeek: number): Promise<void> => {
+	private startVideoIterator = (timeToSeek: number): void => {
 		if (!this.canvasSink) {
 			return;
 		}
@@ -608,97 +613,7 @@ export class MediaPlayer {
 		const iterator = createVideoIterator(timeToSeek, this.canvasSink);
 		this.videoFrameIterator = iterator;
 
-		try {
-			const firstFrame = (await iterator.getNext()).value ?? null;
-
-			if (iterator.isDestroyed()) {
-				return;
-			}
-
-			if (firstFrame && this.context) {
-				Internals.Log.trace(
-					{logLevel: this.logLevel, tag: '@remotion/media'},
-					`[MediaPlayer] Drew initial frame ${firstFrame.timestamp.toFixed(3)}s`,
-				);
-				this.context.drawImage(firstFrame.canvas, 0, 0);
-				this.drawDebugOverlay();
-			}
-
-			const secondFrame = (await iterator.getNext()).value ?? null;
-			if (iterator.isDestroyed()) {
-				return;
-			}
-
-			if (secondFrame) {
-				this.videoFrameIterator?.setNextFrame(secondFrame);
-			} else {
-				this.videoFrameIterator?.clearNextFrame();
-			}
-
-			this.drawDebugOverlay();
-
-			if (secondFrame) {
-				Internals.Log.trace(
-					{logLevel: this.logLevel, tag: '@remotion/media'},
-					`[MediaPlayer] Buffered next frame ${secondFrame.timestamp.toFixed(3)}s`,
-				);
-			}
-		} catch (error) {
-			if (this.isDisposalError()) {
-				return;
-			}
-
-			Internals.Log.error(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				'[MediaPlayer] Failed to start video iterator',
-				error,
-			);
-		}
-	};
-
-	private updateNextFrame = async (): Promise<void> => {
-		if (!this.videoFrameIterator) {
-			return;
-		}
-
-		try {
-			while (true) {
-				const newNextFrame =
-					(await this.videoFrameIterator.getNext()).value ?? null;
-
-				if (!newNextFrame) {
-					this.mediaEnded = true;
-					break;
-				}
-
-				const playbackTime = this.getPlaybackTime();
-				if (playbackTime === null) {
-					continue;
-				}
-
-				if (newNextFrame.timestamp <= playbackTime) {
-					continue;
-				} else {
-					this.videoFrameIterator?.setNextFrame(newNextFrame);
-					Internals.Log.trace(
-						{logLevel: this.logLevel, tag: '@remotion/media'},
-						`[MediaPlayer] Buffered next frame ${newNextFrame.timestamp.toFixed(3)}s`,
-					);
-
-					break;
-				}
-			}
-		} catch (error) {
-			if (this.isDisposalError()) {
-				return;
-			}
-
-			Internals.Log.error(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				'[MediaPlayer] Failed to update next frame',
-				error,
-			);
-		}
+		this.render();
 	};
 
 	private bufferingStartedAtMs: number | null = null;

@@ -1,4 +1,4 @@
-import type {CanvasSink, WrappedCanvas} from 'mediabunny';
+import type {CanvasSink} from 'mediabunny';
 
 export const createVideoIterator = (
 	timeToSeek: number,
@@ -6,12 +6,35 @@ export const createVideoIterator = (
 ) => {
 	let destroyed = false;
 	const iterator = videoSink.canvases(timeToSeek);
-	let nextFrame: WrappedCanvas | null = null;
+
+	const getNextOrNullIfNotAvailable = async () => {
+		const next = iterator.next();
+		const result = await Promise.race([
+			next,
+			new Promise<void>((resolve) => {
+				Promise.resolve().then(() => resolve());
+			}),
+		]);
+		if (!result) {
+			return {
+				type: 'need-to-wait-for-it' as const,
+				waitPromise: async () => {
+					const res = await next;
+					return res.value;
+				},
+			};
+		}
+
+		return {
+			type: 'got-frame-or-end' as const,
+			frame: result.value,
+		};
+	};
 
 	return {
+		getNextOrNullIfNotAvailable,
 		destroy: () => {
 			destroyed = true;
-			nextFrame = null;
 			iterator.return().catch(() => undefined);
 		},
 		getNext: () => {
@@ -19,15 +42,6 @@ export const createVideoIterator = (
 		},
 		isDestroyed: () => {
 			return destroyed;
-		},
-		getNextFrame: () => {
-			return nextFrame;
-		},
-		setNextFrame: (frame: WrappedCanvas) => {
-			nextFrame = frame;
-		},
-		clearNextFrame: () => {
-			nextFrame = null;
 		},
 	};
 };
