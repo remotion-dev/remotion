@@ -11,7 +11,6 @@ export const makeAudioIterator = (
 	let audioBufferHealth = 0;
 
 	return {
-		iterator,
 		destroy: () => {
 			iterator.return().catch(() => undefined);
 		},

@@ -12,11 +12,15 @@ import {
 	HEALTHY_BUFFER_THRESHOLD_SECONDS,
 	makeAudioIterator,
 	type AudioIterator,
-} from '../audio/audio-iterator';
+} from '../audio/audio-preview-iterator';
 import {drawPreviewOverlay} from '../debug-overlay/preview-overlay';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {isNetworkError} from '../is-network-error';
 import {sleep, TimeoutError, withTimeout} from './timeout-utils';
+import {
+	createVideoIterator,
+	type VideoIterator,
+} from './video-preview-iterator';
 
 export const SEEK_THRESHOLD = 0.05;
 const AUDIO_BUFFER_TOLERANCE_THRESHOLD = 0.1;
@@ -37,11 +41,7 @@ export class MediaPlayer {
 	private audioStreamIndex: number;
 
 	private canvasSink: CanvasSink | null = null;
-	private videoFrameIterator: AsyncGenerator<
-		WrappedCanvas,
-		void,
-		unknown
-	> | null = null;
+	private videoFrameIterator: VideoIterator | null = null;
 
 	private nextFrame: WrappedCanvas | null = null;
 
@@ -400,7 +400,7 @@ export class MediaPlayer {
 	public dispose(): void {
 		this.input?.dispose();
 		this.stopRenderLoop();
-		this.videoFrameIterator?.return();
+		this.videoFrameIterator?.destroy();
 		this.cleanAudioIteratorAndNodes();
 		this.videoAsyncId++;
 	}
@@ -564,12 +564,13 @@ export class MediaPlayer {
 		this.videoAsyncId++;
 		const currentAsyncId = this.videoAsyncId;
 
-		this.videoFrameIterator?.return().catch(() => undefined);
+		this.videoFrameIterator?.destroy();
 
-		this.videoFrameIterator = this.canvasSink.canvases(timeToSeek);
+		this.videoFrameIterator = createVideoIterator(timeToSeek, this.canvasSink);
 
 		try {
-			const firstFrame = (await this.videoFrameIterator.next()).value ?? null;
+			const firstFrame =
+				(await this.videoFrameIterator.getNext()).value ?? null;
 
 			if (currentAsyncId !== this.videoAsyncId) {
 				return;
@@ -584,7 +585,8 @@ export class MediaPlayer {
 				this.drawDebugOverlay();
 			}
 
-			const secondFrame = (await this.videoFrameIterator.next()).value ?? null;
+			const secondFrame =
+				(await this.videoFrameIterator.getNext()).value ?? null;
 			if (currentAsyncId !== this.videoAsyncId) {
 				return;
 			}
@@ -615,7 +617,7 @@ export class MediaPlayer {
 		try {
 			while (true) {
 				const newNextFrame =
-					(await this.videoFrameIterator.next()).value ?? null;
+					(await this.videoFrameIterator.getNext()).value ?? null;
 
 				if (!newNextFrame) {
 					this.mediaEnded = true;
