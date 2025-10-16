@@ -1,4 +1,4 @@
-import type {WrappedAudioBuffer, WrappedCanvas} from 'mediabunny';
+import type {WrappedAudioBuffer} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	AudioBufferSink,
@@ -8,10 +8,19 @@ import {
 } from 'mediabunny';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
+import {
+	HEALTHY_BUFFER_THRESHOLD_SECONDS,
+	makeAudioIterator,
+	type AudioIterator,
+} from '../audio/audio-preview-iterator';
 import {drawPreviewOverlay} from '../debug-overlay/preview-overlay';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {isNetworkError} from '../is-network-error';
 import {sleep, TimeoutError, withTimeout} from './timeout-utils';
+import {
+	createVideoIterator,
+	type VideoIterator,
+} from './video-preview-iterator';
 
 export const SEEK_THRESHOLD = 0.05;
 const AUDIO_BUFFER_TOLERANCE_THRESHOLD = 0.1;
@@ -33,22 +42,10 @@ export class MediaPlayer {
 	private audioStreamIndex: number;
 
 	private canvasSink: CanvasSink | null = null;
-	private videoFrameIterator: AsyncGenerator<
-		WrappedCanvas,
-		void,
-		unknown
-	> | null = null;
-
-	private nextFrame: WrappedCanvas | null = null;
+	private videoFrameIterator: VideoIterator | null = null;
 
 	private audioSink: AudioBufferSink | null = null;
-	private audioBufferIterator: AsyncGenerator<
-		WrappedAudioBuffer,
-		void,
-		unknown
-	> | null = null;
-
-	private queuedAudioNodes: Set<AudioBufferSourceNode> = new Set();
+	private audioBufferIterator: AudioIterator | null = null;
 
 	private gainNode: GainNode | null = null;
 	private currentVolume: number = 1;
@@ -69,19 +66,12 @@ export class MediaPlayer {
 
 	private animationFrameId: number | null = null;
 
-	private videoAsyncId = 0;
-	private audioAsyncId = 0;
-
 	private initialized = false;
 	private totalDuration: number | undefined;
 
 	// for remotion buffer state
 	private isBuffering = false;
 	private onBufferingChangeCallback?: (isBuffering: boolean) => void;
-
-	private audioBufferHealth = 0;
-	private audioIteratorStarted = false;
-	private readonly HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
 
 	private mediaEnded = false;
 
@@ -319,23 +309,6 @@ export class MediaPlayer {
 		}
 	}
 
-	private cleanupAudioQueue(): void {
-		for (const node of this.queuedAudioNodes) {
-			node.stop();
-		}
-
-		this.queuedAudioNodes.clear();
-	}
-
-	private async cleanAudioIteratorAndNodes(): Promise<void> {
-		await this.audioBufferIterator?.return();
-		this.audioBufferIterator = null;
-		this.audioIteratorStarted = false;
-		this.audioBufferHealth = 0;
-
-		this.cleanupAudioQueue();
-	}
-
 	public async seekTo(time: number): Promise<void> {
 		if (!this.isReady()) return;
 
@@ -353,10 +326,13 @@ export class MediaPlayer {
 
 		if (newTime === null) {
 			// invalidate in-flight video operations
-			this.videoAsyncId++;
-			this.nextFrame = null;
+			this.videoFrameIterator?.destroy();
+			this.videoFrameIterator = null;
+
 			this.clearCanvas();
-			await this.cleanAudioIteratorAndNodes();
+			this.audioBufferIterator?.destroy();
+			this.audioBufferIterator = null;
+
 			return;
 		}
 
@@ -367,13 +343,8 @@ export class MediaPlayer {
 			Math.abs(newTime - currentPlaybackTime) > SEEK_THRESHOLD;
 
 		if (isSignificantSeek) {
-			this.nextFrame = null;
 			this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 			this.mediaEnded = false;
-
-			if (this.audioSink) {
-				await this.cleanAudioIteratorAndNodes();
-			}
 
 			await Promise.all([
 				this.startAudioIterator(newTime),
@@ -402,7 +373,7 @@ export class MediaPlayer {
 
 	public pause(): void {
 		this.playing = false;
-		this.cleanupAudioQueue();
+		this.audioBufferIterator?.cleanupAudioQueue();
 		this.stopRenderLoop();
 	}
 
@@ -457,9 +428,9 @@ export class MediaPlayer {
 
 		this.input?.dispose();
 		this.stopRenderLoop();
-		this.videoFrameIterator?.return();
-		this.cleanAudioIteratorAndNodes();
-		this.videoAsyncId++;
+		this.videoFrameIterator?.destroy();
+		this.audioBufferIterator?.destroy();
+		this.audioBufferIterator = null;
 	}
 
 	private getPlaybackTime(): number {
@@ -484,8 +455,8 @@ export class MediaPlayer {
 			node.start(this.sharedAudioContext.currentTime, -delay);
 		}
 
-		this.queuedAudioNodes.add(node);
-		node.onended = () => this.queuedAudioNodes.delete(node);
+		this.audioBufferIterator?.addQueuedAudioNode(node);
+		node.onended = () => this.audioBufferIterator?.removeQueuedAudioNode(node);
 	}
 
 	public onBufferingChange(
@@ -518,9 +489,7 @@ export class MediaPlayer {
 
 	private canRenderVideo(): boolean {
 		return (
-			!this.hasAudio() ||
-			(this.audioIteratorStarted &&
-				this.audioBufferHealth >= this.HEALTHY_BUFFER_THRESHOLD_SECONDS)
+			!this.hasAudio() || this.audioBufferIterator?.isReadyToPlay() || false
 		);
 	}
 
@@ -564,15 +533,19 @@ export class MediaPlayer {
 		return (
 			!this.isBuffering &&
 			this.canRenderVideo() &&
-			this.nextFrame !== null &&
-			this.nextFrame.timestamp <= playbackTime
+			(this.videoFrameIterator?.getNextFrame() ?? false) &&
+			this.videoFrameIterator!.getNextFrame()!.timestamp <= playbackTime
 		);
 	}
 
 	private drawCurrentFrame(): void {
-		if (this.context && this.nextFrame) {
+		if (this.context && this.videoFrameIterator?.getNextFrame()) {
 			this.context.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
-			this.context.drawImage(this.nextFrame.canvas, 0, 0);
+			this.context.drawImage(
+				this.videoFrameIterator.getNextFrame()!.canvas,
+				0,
+				0,
+			);
 			this.drawDebugOverlay();
 		}
 
@@ -580,26 +553,20 @@ export class MediaPlayer {
 			this.onVideoFrameCallback(this.canvas);
 		}
 
-		this.nextFrame = null;
+		this.videoFrameIterator?.clearNextFrame();
 		this.updateNextFrame();
 	}
 
-	private startAudioIterator = async (
-		startFromSecond: number,
-	): Promise<void> => {
+	private startAudioIterator = (startFromSecond: number): void => {
 		if (!this.hasAudio()) return;
 
-		this.audioAsyncId++;
-		const currentAsyncId = this.audioAsyncId;
-
 		// Clean up existing audio iterator
-		await this.audioBufferIterator?.return();
-		this.audioIteratorStarted = false;
-		this.audioBufferHealth = 0;
+		this.audioBufferIterator?.destroy();
 
 		try {
-			this.audioBufferIterator = this.audioSink!.buffers(startFromSecond);
-			this.runAudioIterator(startFromSecond, currentAsyncId);
+			const iterator = makeAudioIterator(this.audioSink!, startFromSecond);
+			this.audioBufferIterator = iterator;
+			this.runAudioIterator(startFromSecond, iterator);
 		} catch (error) {
 			if (this.isDisposalError()) {
 				return;
@@ -616,7 +583,10 @@ export class MediaPlayer {
 	private drawDebugOverlay(): void {
 		if (!this.debugOverlay) return;
 		if (this.context && this.canvas) {
-			drawPreviewOverlay(this.context, this.nextFrame!);
+			drawPreviewOverlay(
+				this.context,
+				this.videoFrameIterator?.getNextFrame() ?? null,
+			);
 		}
 	}
 
@@ -625,17 +595,14 @@ export class MediaPlayer {
 			return;
 		}
 
-		this.videoAsyncId++;
-		const currentAsyncId = this.videoAsyncId;
-
-		this.videoFrameIterator?.return().catch(() => undefined);
-
-		this.videoFrameIterator = this.canvasSink.canvases(timeToSeek);
+		this.videoFrameIterator?.destroy();
+		const iterator = createVideoIterator(timeToSeek, this.canvasSink);
+		this.videoFrameIterator = iterator;
 
 		try {
-			const firstFrame = (await this.videoFrameIterator.next()).value ?? null;
+			const firstFrame = (await iterator.getNext()).value ?? null;
 
-			if (currentAsyncId !== this.videoAsyncId) {
+			if (iterator.isDestroyed()) {
 				return;
 			}
 
@@ -648,12 +615,17 @@ export class MediaPlayer {
 				this.drawDebugOverlay();
 			}
 
-			const secondFrame = (await this.videoFrameIterator.next()).value ?? null;
-			if (currentAsyncId !== this.videoAsyncId) {
+			const secondFrame = (await iterator.getNext()).value ?? null;
+			if (iterator.isDestroyed()) {
 				return;
 			}
 
-			this.nextFrame = secondFrame ?? null;
+			if (secondFrame) {
+				this.videoFrameIterator?.setNextFrame(secondFrame);
+			} else {
+				this.videoFrameIterator?.clearNextFrame();
+			}
+
 			this.drawDebugOverlay();
 
 			if (secondFrame) {
@@ -683,7 +655,7 @@ export class MediaPlayer {
 		try {
 			while (true) {
 				const newNextFrame =
-					(await this.videoFrameIterator.next()).value ?? null;
+					(await this.videoFrameIterator.getNext()).value ?? null;
 
 				if (!newNextFrame) {
 					this.mediaEnded = true;
@@ -698,7 +670,7 @@ export class MediaPlayer {
 				if (newNextFrame.timestamp <= playbackTime) {
 					continue;
 				} else {
-					this.nextFrame = newNextFrame;
+					this.videoFrameIterator?.setNextFrame(newNextFrame);
 					Internals.Log.trace(
 						{logLevel: this.logLevel, tag: '@remotion/media'},
 						`[MediaPlayer] Buffered next frame ${newNextFrame.timestamp.toFixed(3)}s`,
@@ -745,7 +717,7 @@ export class MediaPlayer {
 
 		const minTimeElapsed = bufferingDuration >= this.minBufferingTimeoutMs;
 		const bufferHealthy =
-			currentBufferDuration >= this.HEALTHY_BUFFER_THRESHOLD_SECONDS;
+			currentBufferDuration >= HEALTHY_BUFFER_THRESHOLD_SECONDS;
 
 		if (minTimeElapsed && bufferHealthy) {
 			Internals.Log.trace(
@@ -774,17 +746,17 @@ export class MediaPlayer {
 
 	private runAudioIterator = async (
 		startFromSecond: number,
-		audioAsyncId: number,
+		audioIterator: AudioIterator,
 	): Promise<void> => {
-		if (!this.hasAudio() || !this.audioBufferIterator) return;
+		if (!this.hasAudio()) return;
 
 		try {
 			let totalBufferDuration = 0;
 			let isFirstBuffer = true;
-			this.audioIteratorStarted = true;
+			audioIterator.setAudioIteratorStarted(true);
 
 			while (true) {
-				if (audioAsyncId !== this.audioAsyncId) {
+				if (audioIterator.isDestroyed()) {
 					return;
 				}
 
@@ -793,7 +765,7 @@ export class MediaPlayer {
 				let result: IteratorResult<WrappedAudioBuffer, void>;
 				try {
 					result = await withTimeout(
-						this.audioBufferIterator.next(),
+						audioIterator.getNext(),
 						BUFFERING_TIMEOUT_MS,
 						'Iterator timeout',
 					);
@@ -816,9 +788,8 @@ export class MediaPlayer {
 
 				totalBufferDuration += duration;
 
-				this.audioBufferHealth = Math.max(
-					0,
-					totalBufferDuration / this.playbackRate,
+				audioIterator.setAudioBufferHealth(
+					Math.max(0, totalBufferDuration / this.playbackRate),
 				);
 
 				this.maybeResumeFromBuffering(totalBufferDuration / this.playbackRate);
