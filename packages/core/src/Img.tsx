@@ -249,6 +249,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			ref={imageRef}
 			crossOrigin={crossOriginValue}
 			onError={didGetError}
+			decoding="sync"
 		/>
 	);
 };
