@@ -1,4 +1,4 @@
-import type {WrappedCanvas} from 'mediabunny';
+import type {WrappedAudioBuffer, WrappedCanvas} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	AudioBufferSink,
@@ -9,6 +9,7 @@ import {
 import type {LogLevel, useBufferState} from 'remotion';
 import {Internals} from 'remotion';
 import {
+	isAlreadyQueued,
 	makeAudioIterator,
 	type AudioIterator,
 } from './audio/audio-preview-iterator';
@@ -41,6 +42,7 @@ export class MediaPlayer {
 	private videoFrameIterator: VideoIterator | null = null;
 	private debugStats: DebugStats = {
 		videoIteratorsCreated: 0,
+		audioIteratorsCreated: 0,
 		framesRendered: 0,
 	};
 
@@ -349,16 +351,15 @@ export class MediaPlayer {
 			return;
 		}
 
-		const [videoSatisfyResult, audioSatisfyResult] = await Promise.all([
-			this.videoFrameIterator?.tryToSatisfySeek(newTime),
-			this.audioBufferIterator?.tryToSatisfySeek(newTime),
-		]);
-
 		const newAudioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 		const diff = Math.abs(newAudioSyncAnchor - this.audioSyncAnchor);
 		if (diff > 0.1) {
 			this.setPlaybackTime(newTime);
 		}
+
+		// Should return immediately, so it's okay to not use Promise.all here
+		const videoSatisfyResult =
+			await this.videoFrameIterator?.tryToSatisfySeek(newTime);
 
 		if (videoSatisfyResult?.type === 'satisfied') {
 			this.drawFrame(videoSatisfyResult.frame);
@@ -366,13 +367,65 @@ export class MediaPlayer {
 			this.startVideoIterator(newTime, nonce);
 		}
 
-		if (audioSatisfyResult?.type === 'satisfied') {
-			this.scheduleAudioChunk(
-				audioSatisfyResult.buffer.buffer,
-				audioSatisfyResult.buffer.timestamp,
+		const queuedPeriod = this.audioBufferIterator?.getQueuedPeriod();
+
+		const currentTimeIsAlreadyQueued = isAlreadyQueued(newTime, queuedPeriod);
+		console.log({currentTimeIsAlreadyQueued});
+		const toBeScheduled: WrappedAudioBuffer[] = [];
+
+		if (!currentTimeIsAlreadyQueued) {
+			const audioSatisfyResult =
+				await this.audioBufferIterator?.tryToSatisfySeek(newTime);
+
+			if (this.currentSeekNonce !== nonce) {
+				return;
+			}
+
+			if (!audioSatisfyResult) {
+				return;
+			}
+
+			if (audioSatisfyResult.type === 'not-satisfied') {
+				this.startAudioIterator(newTime, nonce);
+				return;
+			}
+
+			toBeScheduled.push(...audioSatisfyResult.buffers);
+		}
+
+		// TODO: What is this is beyond the end of the video
+		const nextTime = newTime + 1 / this.fps;
+		const nextIsAlreadyQueued = isAlreadyQueued(nextTime, queuedPeriod);
+		if (!nextIsAlreadyQueued) {
+			const audioSatisfyResult =
+				await this.audioBufferIterator?.tryToSatisfySeek(nextTime);
+			console.log({audioSatisfyResult, nextTime});
+
+			if (this.currentSeekNonce !== nonce) {
+				return;
+			}
+
+			if (!audioSatisfyResult) {
+				return;
+			}
+
+			if (audioSatisfyResult.type === 'not-satisfied') {
+				this.startAudioIterator(nextTime, nonce);
+				return;
+			}
+
+			toBeScheduled.push(...audioSatisfyResult.buffers);
+		}
+
+		for (const buffer of toBeScheduled) {
+			console.log(
+				'buffering',
+				buffer.timestamp,
+				'-',
+				buffer.timestamp + buffer.duration,
+				this.getPlaybackTime(),
 			);
-		} else if (audioSatisfyResult && this.currentSeekNonce === nonce) {
-			this.startAudioIterator(newTime, nonce);
+			this.scheduleAudioChunk(buffer.buffer, buffer.timestamp, buffer.duration);
 		}
 	}
 
@@ -460,6 +513,7 @@ export class MediaPlayer {
 	private scheduleAudioChunk(
 		buffer: AudioBuffer,
 		mediaTimestamp: number,
+		duration: number,
 	): void {
 		const targetTime = mediaTimestamp + this.audioSyncAnchor;
 		const delay = targetTime - this.sharedAudioContext.currentTime;
@@ -475,8 +529,14 @@ export class MediaPlayer {
 			node.start(this.sharedAudioContext.currentTime, -delay);
 		}
 
-		this.audioBufferIterator?.addQueuedAudioNode(node);
-		node.onended = () => this.audioBufferIterator?.removeQueuedAudioNode(node);
+		this.audioBufferIterator?.addQueuedAudioNode(
+			node,
+			mediaTimestamp,
+			duration,
+		);
+		node.onended = () => {
+			return this.audioBufferIterator?.removeQueuedAudioNode(node);
+		};
 	}
 
 	public onVideoFrame(
@@ -523,6 +583,8 @@ export class MediaPlayer {
 
 		this.audioBufferIterator?.destroy();
 		const iterator = makeAudioIterator(this.audioSink!, startFromSecond);
+		this.debugStats.audioIteratorsCreated++;
+		console.log('new audio iterator');
 		this.audioBufferIterator = iterator;
 
 		const result = await iterator.getNext();
@@ -547,7 +609,8 @@ export class MediaPlayer {
 		const {buffer, timestamp} = result.value;
 
 		if (this.playing) {
-			this.scheduleAudioChunk(buffer, timestamp);
+			// TODO: Keep it ready for future use if it is not playing
+			this.scheduleAudioChunk(buffer, timestamp, buffer.duration);
 		}
 	};
 

@@ -3,20 +3,26 @@ import {roundTo4Digits} from '../helpers/round-to-4-digits';
 
 export const HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
 
+export type QueuedNode = {
+	node: AudioBufferSourceNode;
+	timestamp: number;
+	duration: number;
+};
+
 export const makeAudioIterator = (
 	audioSink: AudioBufferSink,
 	startFromSecond: number,
 ) => {
 	let destroyed = false;
 	const iterator = audioSink.buffers(startFromSecond);
-	const queuedAudioNodes: Set<AudioBufferSourceNode> = new Set();
+	const queuedAudioNodes: QueuedNode[] = [];
 
 	const cleanupAudioQueue = () => {
 		for (const node of queuedAudioNodes) {
-			node.stop();
+			node.node.stop();
 		}
 
-		queuedAudioNodes.clear();
+		queuedAudioNodes.length = 0;
 	};
 
 	let lastReturnedBuffer: WrappedAudioBuffer | null = null;
@@ -68,39 +74,37 @@ export const makeAudioIterator = (
 		  }
 		| {
 				type: 'satisfied';
-				buffer: WrappedAudioBuffer;
+				buffers: WrappedAudioBuffer[];
 		  }
 	> => {
 		if (lastReturnedBuffer) {
 			const bufferTimestamp = roundTo4Digits(lastReturnedBuffer.timestamp);
-			if (roundTo4Digits(time) < bufferTimestamp) {
-				return {
-					type: 'not-satisfied' as const,
-					reason: `iterator is too far, most recently returned ${bufferTimestamp}`,
-				};
-			}
-
 			const bufferEndTimestamp = roundTo4Digits(
 				lastReturnedBuffer.timestamp + lastReturnedBuffer.duration,
 			);
-			if (roundTo4Digits(time) > bufferEndTimestamp) {
+
+			if (roundTo4Digits(time) < bufferTimestamp) {
 				return {
 					type: 'not-satisfied' as const,
-					reason: `iterator is too far, most recently returned ${bufferEndTimestamp}`,
+					reason: `iterator is too far, most recently returned ${bufferTimestamp}-${bufferEndTimestamp}, requested ${time}`,
 				};
 			}
 
-			return {
-				type: 'satisfied' as const,
-				buffer: lastReturnedBuffer,
-			};
+			if (roundTo4Digits(time) <= bufferEndTimestamp) {
+				return {
+					type: 'satisfied' as const,
+					buffers: [lastReturnedBuffer],
+				};
+			}
+
+			// fall through
 		}
 
 		if (iteratorEnded) {
 			if (lastReturnedBuffer) {
 				return {
 					type: 'satisfied' as const,
-					buffer: lastReturnedBuffer,
+					buffers: [lastReturnedBuffer],
 				};
 			}
 
@@ -109,6 +113,8 @@ export const makeAudioIterator = (
 				reason: 'iterator ended',
 			};
 		}
+
+		const toBeReturned: WrappedAudioBuffer[] = [];
 
 		while (true) {
 			const buffer = await getNextOrNullIfNotAvailable();
@@ -125,7 +131,7 @@ export const makeAudioIterator = (
 					if (lastReturnedBuffer) {
 						return {
 							type: 'satisfied' as const,
-							buffer: lastReturnedBuffer,
+							buffers: [lastReturnedBuffer],
 						};
 					}
 
@@ -140,12 +146,15 @@ export const makeAudioIterator = (
 					buffer.buffer.timestamp + buffer.buffer.duration,
 				);
 				const timestamp = roundTo4Digits(time);
+
 				if (bufferTimestamp <= timestamp && bufferEndTimestamp > timestamp) {
 					return {
 						type: 'satisfied' as const,
-						buffer: buffer.buffer,
+						buffers: [...toBeReturned, buffer.buffer],
 					};
 				}
+
+				toBeReturned.push(buffer.buffer);
 
 				continue;
 			}
@@ -167,14 +176,48 @@ export const makeAudioIterator = (
 		isDestroyed: () => {
 			return destroyed;
 		},
-		addQueuedAudioNode: (node: AudioBufferSourceNode) => {
-			queuedAudioNodes.add(node);
+		addQueuedAudioNode: (
+			node: AudioBufferSourceNode,
+			timestamp: number,
+			duration: number,
+		) => {
+			queuedAudioNodes.push({node, timestamp, duration});
 		},
 		removeQueuedAudioNode: (node: AudioBufferSourceNode) => {
-			queuedAudioNodes.delete(node);
+			queuedAudioNodes.splice(
+				queuedAudioNodes.findIndex((n) => n.node === node),
+				1,
+			);
+		},
+		getQueuedPeriod: () => {
+			const lastNode = queuedAudioNodes[queuedAudioNodes.length - 1];
+			if (!lastNode) {
+				return null;
+			}
+
+			const firstNode = queuedAudioNodes[0];
+			if (!firstNode) {
+				return null;
+			}
+
+			return {
+				from: firstNode.timestamp,
+				until: lastNode.timestamp + lastNode.duration,
+			};
 		},
 		tryToSatisfySeek,
 	};
 };
 
 export type AudioIterator = ReturnType<typeof makeAudioIterator>;
+
+export const isAlreadyQueued = (
+	time: number,
+	queuedPeriod: {from: number; until: number} | undefined | null,
+) => {
+	if (!queuedPeriod) {
+		return false;
+	}
+
+	return time >= queuedPeriod.from && time < queuedPeriod.until;
+};
