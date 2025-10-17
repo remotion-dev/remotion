@@ -577,41 +577,29 @@ export class MediaPlayer {
 		this.debugStats.videoIteratorsCreated++;
 		this.videoFrameIterator = iterator;
 
-		const nextFrame = await iterator.getNextOrNullIfNotAvailable();
+		const delayHandle = this.bufferState?.delayPlayback();
+		const frameResult = await iterator.getNext();
+		delayHandle?.unblock();
+
 		if (iterator.isDestroyed()) {
 			return;
 		}
 
-		if (nextFrame.type === 'got-frame-or-end') {
-			if (nextFrame.frame) {
-				this.drawFrame(nextFrame.frame);
-			} else {
-				// TODO: Media ended
-			}
+		if (nonce !== this.currentSeekNonce) {
+			return;
+		}
+
+		if (this.videoFrameIterator.isDestroyed()) {
+			return;
+		}
+
+		if (frameResult.value) {
+			this.audioSyncAnchor =
+				this.sharedAudioContext.currentTime - frameResult.value.timestamp;
+
+			this.drawFrame(frameResult.value);
 		} else {
-			if (nonce !== this.currentSeekNonce) {
-				return;
-			}
-
-			// Frame is not immediately available, so we are buffering
-			// until it is
-			const delayHandle = this.bufferState?.delayPlayback();
-			const frame = (await nextFrame.waitPromise()) ?? null;
-			delayHandle?.unblock();
-			if (nonce !== this.currentSeekNonce) {
-				return;
-			}
-
-			if (this.videoFrameIterator.isDestroyed()) {
-				return;
-			}
-
-			if (frame) {
-				this.audioSyncAnchor =
-					this.sharedAudioContext.currentTime - frame.timestamp;
-
-				this.drawFrame(frame);
-			}
+			// media ended
 		}
 	};
 
