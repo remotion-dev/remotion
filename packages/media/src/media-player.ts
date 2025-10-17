@@ -21,8 +21,6 @@ import {
 	type VideoIterator,
 } from './video/video-preview-iterator';
 
-const AUDIO_BUFFER_TOLERANCE_THRESHOLD = 0.1;
-
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
 	| {type: 'unknown-container-format'}
@@ -70,10 +68,7 @@ export class MediaPlayer {
 	private totalDuration: number | undefined;
 
 	// for remotion buffer state
-	private isBuffering = false;
 	private onBufferingChangeCallback?: (isBuffering: boolean) => void;
-
-	private mediaEnded = false;
 
 	private debugOverlay = false;
 
@@ -264,7 +259,7 @@ export class MediaPlayer {
 			this.initialized = true;
 
 			try {
-				this.startAudioIterator(startTime);
+				this.startAudioIterator(startTime, this.currentSeekNonce);
 				await this.startVideoIterator(startTime, this.currentSeekNonce);
 			} catch (error) {
 				if (this.isDisposalError()) {
@@ -357,23 +352,33 @@ export class MediaPlayer {
 			return;
 		}
 
-		const satisfyResult =
-			await this.videoFrameIterator?.tryToSatisfySeek(newTime);
+		const [videoSatisfyResult, audioSatisfyResult] = await Promise.all([
+			this.videoFrameIterator?.tryToSatisfySeek(newTime),
+			this.audioBufferIterator?.tryToSatisfySeek(newTime),
+		]);
 
-		if (satisfyResult?.type === 'satisfied') {
-			this.drawFrame(satisfyResult.frame);
-			return;
+		const newAudioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
+		const diff = Math.abs(newAudioSyncAnchor - this.audioSyncAnchor);
+		if (diff > 0.1) {
+			this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 		}
 
-		if (this.currentSeekNonce !== nonce) {
-			return;
+		if (videoSatisfyResult?.type === 'satisfied') {
+			this.drawFrame(videoSatisfyResult.frame);
+		} else if (this.currentSeekNonce === nonce) {
+			this.startVideoIterator(newTime, nonce);
 		}
 
-		this.mediaEnded = false;
-		this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
+		if (audioSatisfyResult?.type === 'satisfied') {
+			this.scheduleAudioChunk(
+				audioSatisfyResult.buffer.buffer,
+				audioSatisfyResult.buffer.timestamp,
+			);
+		} else if (this.currentSeekNonce === nonce) {
+			this.startAudioIterator(newTime, nonce);
+		}
 
-		this.startAudioIterator(newTime);
-		this.startVideoIterator(newTime, nonce);
+		this.startAudioIterator(newTime, nonce);
 	}
 
 	public async play(): Promise<void> {
@@ -523,26 +528,39 @@ export class MediaPlayer {
 		);
 	};
 
-	private startAudioIterator = (startFromSecond: number): void => {
+	private startAudioIterator = async (
+		startFromSecond: number,
+		nonce: number,
+	): Promise<void> => {
 		if (!this.hasAudio()) return;
 
-		// Clean up existing audio iterator
 		this.audioBufferIterator?.destroy();
+		const iterator = makeAudioIterator(this.audioSink!, startFromSecond);
+		this.audioBufferIterator = iterator;
 
-		try {
-			const iterator = makeAudioIterator(this.audioSink!, startFromSecond);
-			this.audioBufferIterator = iterator;
-			this.runAudioIterator(startFromSecond, iterator);
-		} catch (error) {
-			if (this.isDisposalError()) {
-				return;
-			}
+		const result = await iterator.getNext();
 
-			Internals.Log.error(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				'[MediaPlayer] Failed to start audio iterator',
-				error,
-			);
+		if (iterator.isDestroyed()) {
+			return;
+		}
+
+		if (nonce !== this.currentSeekNonce) {
+			return;
+		}
+
+		if (this.audioBufferIterator.isDestroyed()) {
+			return;
+		}
+
+		if (!result.value) {
+			// media ended
+			return;
+		}
+
+		const {buffer, timestamp} = result.value;
+
+		if (this.playing) {
+			this.scheduleAudioChunk(buffer, timestamp);
 		}
 	};
 
@@ -587,89 +605,11 @@ export class MediaPlayer {
 			return;
 		}
 
-		if (frameResult.value) {
-			this.audioSyncAnchor =
-				this.sharedAudioContext.currentTime - frameResult.value.timestamp;
-
-			this.drawFrame(frameResult.value);
-		} else {
+		if (!frameResult.value) {
 			// media ended
+			return;
 		}
-	};
 
-	private runAudioIterator = async (
-		startFromSecond: number,
-		audioIterator: AudioIterator,
-	): Promise<void> => {
-		if (!this.hasAudio()) return;
-
-		try {
-			let isFirstBuffer = true;
-
-			while (true) {
-				if (audioIterator.isDestroyed()) {
-					return;
-				}
-
-				const result = await audioIterator.getNext();
-
-				// media has ended
-				if (result.done || !result.value) {
-					this.mediaEnded = true;
-					break;
-				}
-
-				const {buffer, timestamp} = result.value;
-
-				if (this.playing) {
-					if (isFirstBuffer) {
-						this.audioSyncAnchor =
-							this.sharedAudioContext.currentTime - timestamp;
-						isFirstBuffer = false;
-					}
-
-					// if timestamp is less than timeToSeek, skip
-					// context: for some reason, mediabunny returns buffer at 9.984s, when requested at 10s
-					if (timestamp < startFromSecond - AUDIO_BUFFER_TOLERANCE_THRESHOLD) {
-						continue;
-					}
-
-					this.scheduleAudioChunk(buffer, timestamp);
-				}
-
-				const playbackTime = this.getPlaybackTime();
-				if (playbackTime === null) {
-					continue;
-				}
-
-				if (timestamp - playbackTime >= 1) {
-					await new Promise<void>((resolve) => {
-						const check = () => {
-							const currentPlaybackTime = this.getPlaybackTime();
-							if (
-								currentPlaybackTime !== null &&
-								timestamp - currentPlaybackTime < 1
-							) {
-								resolve();
-							} else {
-								requestAnimationFrame(check);
-							}
-						};
-
-						check();
-					});
-				}
-			}
-		} catch (error) {
-			if (this.isDisposalError()) {
-				return;
-			}
-
-			Internals.Log.error(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				'[MediaPlayer] Failed to run audio iterator',
-				error,
-			);
-		}
+		this.drawFrame(frameResult.value);
 	};
 }
