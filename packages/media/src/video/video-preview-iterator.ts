@@ -145,7 +145,6 @@ export const createVideoIterator = (
 	};
 
 	return {
-		getNextOrNullIfNotAvailable,
 		destroy,
 		getNext: () => {
 			return iterator.next();
