@@ -510,12 +510,15 @@ export class MediaPlayer {
 	private currentRenderNonce = 0;
 	private renderPromiseChain: Promise<void> = Promise.resolve();
 
-	private render = async (): Promise<void> => {
+	private render = async (requestedTime: number): Promise<void> => {
 		this.currentRenderNonce++;
 		const nonce = this.currentRenderNonce;
 		await this.renderPromiseChain;
 		await this.seekPromiseChain;
-		this.renderPromiseChain = this.renderDoNotCallDirectly(nonce);
+		this.renderPromiseChain = this.renderDoNotCallDirectly(
+			nonce,
+			requestedTime,
+		);
 		await this.renderPromiseChain;
 	};
 
@@ -539,7 +542,10 @@ export class MediaPlayer {
 		);
 	};
 
-	private renderDoNotCallDirectly = async (nonce: number): Promise<void> => {
+	private renderDoNotCallDirectly = async (
+		nonce: number,
+		requestedTime: number,
+	): Promise<void> => {
 		if (nonce !== this.currentRenderNonce) {
 			return;
 		}
@@ -548,7 +554,7 @@ export class MediaPlayer {
 			this.maybeForceResumeFromBuffering();
 		}
 
-		if (this.shouldRenderNewFrame()) {
+		if (this.shouldRenderNewFrame(requestedTime)) {
 			if (!this.videoFrameIterator) {
 				throw new Error('Video iterator not initialized');
 			}
@@ -586,9 +592,8 @@ export class MediaPlayer {
 		}
 	};
 
-	private shouldRenderNewFrame(): boolean {
-		const playbackTime = this.getPlaybackTime();
-		if (playbackTime === null) {
+	private shouldRenderNewFrame(requestedTime: number): boolean {
+		if (requestedTime === null) {
 			return false;
 		}
 
@@ -608,7 +613,7 @@ export class MediaPlayer {
 		return (
 			roundTo4Digits(
 				lastReturnedFrame.timestamp + lastReturnedFrame.duration,
-			) <= roundTo4Digits(playbackTime)
+			) <= roundTo4Digits(requestedTime)
 		);
 	}
 
@@ -657,7 +662,7 @@ export class MediaPlayer {
 		this.debugStats.videoIteratorsCreated++;
 		this.videoFrameIterator = iterator;
 
-		this.render();
+		this.render(timeToSeek);
 	};
 
 	private bufferingStartedAtMs: number | null = null;
