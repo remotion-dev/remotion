@@ -272,7 +272,7 @@ export class MediaPlayer {
 
 			try {
 				this.startAudioIterator(startTime);
-				this.startVideoIterator(startTime);
+				await this.startVideoIterator(startTime);
 			} catch (error) {
 				if (this.isDisposalError()) {
 					return {type: 'disposed'};
@@ -377,7 +377,7 @@ export class MediaPlayer {
 		this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 
 		this.startAudioIterator(newTime);
-		this.startVideoIterator(newTime);
+		await this.startVideoIterator(newTime);
 	}
 
 	public async play(): Promise<void> {
@@ -510,18 +510,6 @@ export class MediaPlayer {
 	private currentRenderNonce = 0;
 	private renderPromiseChain: Promise<void> = Promise.resolve();
 
-	private render = async (requestedTime: number): Promise<void> => {
-		this.currentRenderNonce++;
-		const nonce = this.currentRenderNonce;
-		await this.renderPromiseChain;
-		await this.seekPromiseChain;
-		this.renderPromiseChain = this.renderDoNotCallDirectly(
-			nonce,
-			requestedTime,
-		);
-		await this.renderPromiseChain;
-	};
-
 	private drawFrame = (frame: WrappedCanvas): void => {
 		if (!this.context) {
 			throw new Error('Context not initialized');
@@ -652,7 +640,7 @@ export class MediaPlayer {
 		}
 	}
 
-	private startVideoIterator = (timeToSeek: number): void => {
+	private startVideoIterator = async (timeToSeek: number): Promise<void> => {
 		if (!this.canvasSink) {
 			return;
 		}
@@ -662,7 +650,11 @@ export class MediaPlayer {
 		this.debugStats.videoIteratorsCreated++;
 		this.videoFrameIterator = iterator;
 
-		this.render(timeToSeek);
+		this.currentRenderNonce++;
+		const nonce = this.currentRenderNonce;
+		await this.renderPromiseChain;
+		this.renderPromiseChain = this.renderDoNotCallDirectly(nonce, timeToSeek);
+		await this.renderPromiseChain;
 	};
 
 	private bufferingStartedAtMs: number | null = null;
