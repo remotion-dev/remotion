@@ -317,40 +317,6 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 		);
 	}, [currentTime, logLevel, mediaPlayerReady]);
 
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) return;
-
-		let currentBlock: {unblock: () => void} | null = null;
-
-		const unsubscribe = mediaPlayer.onBufferingChange((newBufferingState) => {
-			if (newBufferingState && !currentBlock) {
-				currentBlock = buffer.delayPlayback();
-
-				Internals.Log.trace(
-					{logLevel, tag: '@remotion/media'},
-					'[VideoForPreview] MediaPlayer buffering - blocking Remotion playback',
-				);
-			} else if (!newBufferingState && currentBlock) {
-				currentBlock.unblock();
-				currentBlock = null;
-
-				Internals.Log.trace(
-					{logLevel, tag: '@remotion/media'},
-					'[VideoForPreview] MediaPlayer unbuffering - unblocking Remotion playback',
-				);
-			}
-		});
-
-		return () => {
-			unsubscribe();
-			if (currentBlock) {
-				currentBlock.unblock();
-				currentBlock = null;
-			}
-		};
-	}, [mediaPlayerReady, buffer, logLevel]);
-
 	const effectiveMuted =
 		isSequenceHidden || muted || mediaMuted || userPreferredVolume <= 0;
 

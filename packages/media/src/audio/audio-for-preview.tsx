@@ -303,28 +303,6 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		);
 	}, [currentTime, logLevel, mediaPlayerReady]);
 
-	useEffect(() => {
-		const audioPlayer = mediaPlayerRef.current;
-		if (!audioPlayer || !mediaPlayerReady) return;
-
-		audioPlayer.onBufferingChange((newBufferingState) => {
-			if (newBufferingState && !delayHandleRef.current) {
-				delayHandleRef.current = buffer.delayPlayback();
-				Internals.Log.trace(
-					{logLevel, tag: '@remotion/media'},
-					'[NewAudioForPreview] MediaPlayer buffering - blocking Remotion playback',
-				);
-			} else if (!newBufferingState && delayHandleRef.current) {
-				delayHandleRef.current.unblock();
-				delayHandleRef.current = null;
-				Internals.Log.trace(
-					{logLevel, tag: '@remotion/media'},
-					'[NewAudioForPreview] MediaPlayer unbuffering - unblocking Remotion playback',
-				);
-			}
-		});
-	}, [mediaPlayerReady, buffer, logLevel]);
-
 	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
 
 	useEffect(() => {

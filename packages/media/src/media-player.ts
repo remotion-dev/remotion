@@ -67,9 +67,6 @@ export class MediaPlayer {
 	private initialized = false;
 	private totalDuration: number | undefined;
 
-	// for remotion buffer state
-	private onBufferingChangeCallback?: (isBuffering: boolean) => void;
-
 	private debugOverlay = false;
 
 	private onVideoFrameCallback?: (frame: CanvasImageSource) => void;
@@ -253,7 +250,7 @@ export class MediaPlayer {
 			}
 
 			if (this.sharedAudioContext) {
-				this.audioSyncAnchor = this.sharedAudioContext.currentTime - startTime;
+				this.setPlaybackTime(startTime);
 			}
 
 			this.initialized = true;
@@ -360,12 +357,12 @@ export class MediaPlayer {
 		const newAudioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 		const diff = Math.abs(newAudioSyncAnchor - this.audioSyncAnchor);
 		if (diff > 0.1) {
-			this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
+			this.setPlaybackTime(newTime);
 		}
 
 		if (videoSatisfyResult?.type === 'satisfied') {
 			this.drawFrame(videoSatisfyResult.frame);
-		} else if (this.currentSeekNonce === nonce) {
+		} else if (videoSatisfyResult && this.currentSeekNonce === nonce) {
 			this.startVideoIterator(newTime, nonce);
 		}
 
@@ -374,11 +371,9 @@ export class MediaPlayer {
 				audioSatisfyResult.buffer.buffer,
 				audioSatisfyResult.buffer.timestamp,
 			);
-		} else if (this.currentSeekNonce === nonce) {
+		} else if (audioSatisfyResult && this.currentSeekNonce === nonce) {
 			this.startAudioIterator(newTime, nonce);
 		}
-
-		this.startAudioIterator(newTime, nonce);
 	}
 
 	public async play(): Promise<void> {
@@ -458,6 +453,10 @@ export class MediaPlayer {
 		return this.sharedAudioContext.currentTime - this.audioSyncAnchor;
 	}
 
+	private setPlaybackTime(time: number): void {
+		this.audioSyncAnchor = this.sharedAudioContext.currentTime - time;
+	}
+
 	private scheduleAudioChunk(
 		buffer: AudioBuffer,
 		mediaTimestamp: number,
@@ -478,18 +477,6 @@ export class MediaPlayer {
 
 		this.audioBufferIterator?.addQueuedAudioNode(node);
 		node.onended = () => this.audioBufferIterator?.removeQueuedAudioNode(node);
-	}
-
-	public onBufferingChange(
-		callback: (isBuffering: boolean) => void,
-	): () => void {
-		this.onBufferingChangeCallback = callback;
-
-		return () => {
-			if (this.onBufferingChangeCallback === callback) {
-				this.onBufferingChangeCallback = undefined;
-			}
-		};
 	}
 
 	public onVideoFrame(
