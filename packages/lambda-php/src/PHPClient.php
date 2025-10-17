@@ -65,7 +65,7 @@ class PHPClient
     /**
      * Generate a SHA256 hash for the payload
      */
-    private function generateHash(string $payload): string
+    protected function generateHash(string $payload): string
     {
         return hash('sha256', $payload);
     }
@@ -73,7 +73,7 @@ class PHPClient
     /**
      * Generate a random hash for bucket operations
      */
-    private function generateRandomHash(): string
+    protected function generateRandomHash(): string
     {
         $alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
         
@@ -83,7 +83,7 @@ class PHPClient
     /**
      * Generate a bucket name following Remotion conventions
      */
-    private function makeBucketName(): string
+    protected function makeBucketName(): string
     {
         $regionNoDashes = str_replace('-', '', $this->region);
         $randomSuffix = $this->generateRandomHash();
@@ -94,7 +94,7 @@ class PHPClient
     /**
      * Generate S3 key for input props
      */
-    private function inputPropsKey(string $hash): string
+    protected function inputPropsKey(string $hash): string
     {
         return "input-props/{$hash}.json";
     }
@@ -209,7 +209,7 @@ class PHPClient
     /**
      * Determine if payload needs to be uploaded to S3
      */
-    private function needsUpload(int $payloadSize, string $renderType): bool
+    protected function needsUpload(int $payloadSize, string $renderType): bool
     {
         // Constants based on AWS Lambda limits with margin for other payload data
         $margin = 5_000 + 1_024; // 5KB margin + 1KB for webhook data
@@ -236,9 +236,6 @@ class PHPClient
 
     /**
      * Normalize payload to ensure valid JSON object is returned
-     *
-     * @param string|null $payload The JSON payload to normalize
-     * @return string Valid JSON string, defaulting to empty object if invalid
      */
     private function ensureValidPayload(?string $payload): string
     {
@@ -364,7 +361,7 @@ class PHPClient
     /**
      * Serialize inputProps to a format compatible with Lambda
      */
-    private function serializeInputProps($inputProps, string $region, string $type, ?string $userSpecifiedBucketName): array
+    protected function serializeInputProps($inputProps, string $region, string $type, ?string $userSpecifiedBucketName): array
     {
         try {
             $payload = json_encode($inputProps, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
