@@ -192,7 +192,9 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				}
 
 				unblock();
-				continueRender(newHandle);
+				requestAnimationFrame(() => {
+					continueRender(newHandle);
+				});
 			};
 
 			if (!imageRef.current) {
@@ -201,20 +203,24 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			}
 
 			current.src = actualSrc;
-			current
-				.decode()
-				.then(onComplete)
-				.catch((err) => {
-					// fall back to onload event if decode() fails
-					// eslint-disable-next-line no-console
-					console.warn(err);
+			if (current.complete) {
+				onComplete();
+			} else {
+				current
+					.decode()
+					.then(onComplete)
+					.catch((err) => {
+						// fall back to onload event if decode() fails
+						// eslint-disable-next-line no-console
+						console.warn(err);
 
-					if (current.complete) {
-						onComplete();
-					} else {
-						current.addEventListener('load', onComplete);
-					}
-				});
+						if (current.complete) {
+							onComplete();
+						} else {
+							current.addEventListener('load', onComplete);
+						}
+					});
+			}
 
 			// If tag gets unmounted, clear pending handles because image is not going to load
 			return () => {
