@@ -16,7 +16,6 @@ import {
 import type {DebugStats} from './debug-overlay/preview-overlay';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getTimeInSeconds} from './get-time-in-seconds';
-import {roundTo4Digits} from './helpers/round-to-4-digits';
 import {isNetworkError} from './is-network-error';
 import {sleep, TimeoutError, withTimeout} from './video/timeout-utils';
 import {
@@ -530,27 +529,6 @@ export class MediaPlayer {
 		);
 	};
 
-	private shouldRenderNewFrame(requestedTime: number): boolean {
-		if (this.isBuffering) {
-			return false;
-		}
-
-		if (this.videoFrameIterator === null) {
-			return true;
-		}
-
-		const lastReturnedFrame = this.videoFrameIterator.getLastReturnedFrame();
-		if (lastReturnedFrame === null) {
-			return true;
-		}
-
-		return (
-			roundTo4Digits(
-				lastReturnedFrame.timestamp + lastReturnedFrame.duration,
-			) <= roundTo4Digits(requestedTime)
-		);
-	}
-
 	private startAudioIterator = (startFromSecond: number): void => {
 		if (!this.hasAudio()) return;
 
@@ -599,42 +577,40 @@ export class MediaPlayer {
 		this.debugStats.videoIteratorsCreated++;
 		this.videoFrameIterator = iterator;
 
-		if (this.shouldRenderNewFrame(timeToSeek)) {
-			const nextFrame = await iterator.getNextOrNullIfNotAvailable();
-			if (iterator.isDestroyed()) {
+		const nextFrame = await iterator.getNextOrNullIfNotAvailable();
+		if (iterator.isDestroyed()) {
+			return;
+		}
+
+		if (nextFrame.type === 'got-frame-or-end') {
+			if (nextFrame.frame) {
+				this.drawFrame(nextFrame.frame);
+			} else {
+				// TODO: Media ended
+			}
+		} else {
+			if (nonce !== this.currentSeekNonce) {
 				return;
 			}
 
-			if (nextFrame.type === 'got-frame-or-end') {
-				if (nextFrame.frame) {
-					this.drawFrame(nextFrame.frame);
-				} else {
-					// TODO: Media ended
-				}
-			} else {
-				if (nonce !== this.currentSeekNonce) {
-					return;
-				}
+			// Frame is not immediately available, so we are buffering
+			// until it is
+			const delayHandle = this.bufferState?.delayPlayback();
+			const frame = (await nextFrame.waitPromise()) ?? null;
+			delayHandle?.unblock();
+			if (nonce !== this.currentSeekNonce) {
+				return;
+			}
 
-				// Frame is not immediately available, so we are buffering
-				// until it is
-				const delayHandle = this.bufferState?.delayPlayback();
-				const frame = (await nextFrame.waitPromise()) ?? null;
-				delayHandle?.unblock();
-				if (nonce !== this.currentSeekNonce) {
-					return;
-				}
+			if (this.videoFrameIterator.isDestroyed()) {
+				return;
+			}
 
-				if (this.videoFrameIterator.isDestroyed()) {
-					return;
-				}
+			if (frame) {
+				this.audioSyncAnchor =
+					this.sharedAudioContext.currentTime - frame.timestamp;
 
-				if (frame) {
-					this.audioSyncAnchor =
-						this.sharedAudioContext.currentTime - frame.timestamp;
-
-					this.drawFrame(frame);
-				}
+				this.drawFrame(frame);
 			}
 		}
 	};

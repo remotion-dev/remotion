@@ -154,7 +154,6 @@ export const createVideoIterator = (
 			return destroyed;
 		},
 		tryToSatisfySeek,
-		getLastReturnedFrame: () => lastReturnedFrame,
 	};
 };
 
