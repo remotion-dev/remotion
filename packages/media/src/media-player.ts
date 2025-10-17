@@ -272,7 +272,7 @@ export class MediaPlayer {
 
 			try {
 				this.startAudioIterator(startTime);
-				this.startVideoIterator(startTime);
+				await this.startVideoIterator(startTime);
 			} catch (error) {
 				if (this.isDisposalError()) {
 					return {type: 'disposed'};
@@ -377,7 +377,7 @@ export class MediaPlayer {
 		this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 
 		this.startAudioIterator(newTime);
-		this.startVideoIterator(newTime);
+		await this.startVideoIterator(newTime);
 	}
 
 	public async play(): Promise<void> {
@@ -510,15 +510,6 @@ export class MediaPlayer {
 	private currentRenderNonce = 0;
 	private renderPromiseChain: Promise<void> = Promise.resolve();
 
-	private render = async (): Promise<void> => {
-		this.currentRenderNonce++;
-		const nonce = this.currentRenderNonce;
-		await this.renderPromiseChain;
-		await this.seekPromiseChain;
-		this.renderPromiseChain = this.renderDoNotCallDirectly(nonce);
-		await this.renderPromiseChain;
-	};
-
 	private drawFrame = (frame: WrappedCanvas): void => {
 		if (!this.context) {
 			throw new Error('Context not initialized');
@@ -539,7 +530,10 @@ export class MediaPlayer {
 		);
 	};
 
-	private renderDoNotCallDirectly = async (nonce: number): Promise<void> => {
+	private renderDoNotCallDirectly = async (
+		nonce: number,
+		requestedTime: number,
+	): Promise<void> => {
 		if (nonce !== this.currentRenderNonce) {
 			return;
 		}
@@ -548,7 +542,7 @@ export class MediaPlayer {
 			this.maybeForceResumeFromBuffering();
 		}
 
-		if (this.shouldRenderNewFrame()) {
+		if (this.shouldRenderNewFrame(requestedTime)) {
 			if (!this.videoFrameIterator) {
 				throw new Error('Video iterator not initialized');
 			}
@@ -586,9 +580,8 @@ export class MediaPlayer {
 		}
 	};
 
-	private shouldRenderNewFrame(): boolean {
-		const playbackTime = this.getPlaybackTime();
-		if (playbackTime === null) {
+	private shouldRenderNewFrame(requestedTime: number): boolean {
+		if (requestedTime === null) {
 			return false;
 		}
 
@@ -608,7 +601,7 @@ export class MediaPlayer {
 		return (
 			roundTo4Digits(
 				lastReturnedFrame.timestamp + lastReturnedFrame.duration,
-			) <= roundTo4Digits(playbackTime)
+			) <= roundTo4Digits(requestedTime)
 		);
 	}
 
@@ -647,7 +640,7 @@ export class MediaPlayer {
 		}
 	}
 
-	private startVideoIterator = (timeToSeek: number): void => {
+	private startVideoIterator = async (timeToSeek: number): Promise<void> => {
 		if (!this.canvasSink) {
 			return;
 		}
@@ -657,7 +650,11 @@ export class MediaPlayer {
 		this.debugStats.videoIteratorsCreated++;
 		this.videoFrameIterator = iterator;
 
-		this.render();
+		this.currentRenderNonce++;
+		const nonce = this.currentRenderNonce;
+		await this.renderPromiseChain;
+		this.renderPromiseChain = this.renderDoNotCallDirectly(nonce, timeToSeek);
+		await this.renderPromiseChain;
 	};
 
 	private bufferingStartedAtMs: number | null = null;
