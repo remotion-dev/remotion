@@ -69,8 +69,6 @@ export class MediaPlayer {
 	private trimBefore: number | undefined;
 	private trimAfter: number | undefined;
 
-	private animationFrameId: number | null = null;
-
 	private initialized = false;
 	private totalDuration: number | undefined;
 
@@ -391,15 +389,12 @@ export class MediaPlayer {
 			}
 
 			this.playing = true;
-
-			this.startRenderLoop();
 		}
 	}
 
 	public pause(): void {
 		this.playing = false;
 		this.audioBufferIterator?.cleanupAudioQueue();
-		this.stopRenderLoop();
 	}
 
 	public setMuted(muted: boolean): void {
@@ -452,7 +447,6 @@ export class MediaPlayer {
 		}
 
 		this.input?.dispose();
-		this.stopRenderLoop();
 		this.videoFrameIterator?.destroy();
 		this.videoFrameIterator = null;
 		this.audioBufferIterator?.destroy();
@@ -513,21 +507,6 @@ export class MediaPlayer {
 		};
 	}
 
-	private startRenderLoop(): void {
-		if (this.animationFrameId !== null) {
-			return;
-		}
-
-		this.render();
-	}
-
-	private stopRenderLoop(): void {
-		if (this.animationFrameId !== null) {
-			cancelAnimationFrame(this.animationFrameId);
-			this.animationFrameId = null;
-		}
-	}
-
 	private currentRenderNonce = 0;
 	private renderPromiseChain: Promise<void> = Promise.resolve();
 
@@ -538,13 +517,6 @@ export class MediaPlayer {
 		await this.seekPromiseChain;
 		this.renderPromiseChain = this.renderDoNotCallDirectly(nonce);
 		await this.renderPromiseChain;
-
-		if (this.playing) {
-			this.animationFrameId = requestAnimationFrame(this.render);
-		} else if (this.animationFrameId !== null) {
-			cancelAnimationFrame(this.animationFrameId);
-			this.animationFrameId = null;
-		}
 	};
 
 	private drawFrame = (frame: WrappedCanvas): void => {
