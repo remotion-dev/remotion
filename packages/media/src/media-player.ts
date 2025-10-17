@@ -1,4 +1,4 @@
-import type {WrappedAudioBuffer, WrappedCanvas} from 'mediabunny';
+import type {WrappedCanvas} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	AudioBufferSink,
@@ -9,7 +9,6 @@ import {
 import type {LogLevel, useBufferState} from 'remotion';
 import {Internals} from 'remotion';
 import {
-	HEALTHY_BUFFER_THRESHOLD_SECONDS,
 	makeAudioIterator,
 	type AudioIterator,
 } from './audio/audio-preview-iterator';
@@ -17,7 +16,6 @@ import type {DebugStats} from './debug-overlay/preview-overlay';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getTimeInSeconds} from './get-time-in-seconds';
 import {isNetworkError} from './is-network-error';
-import {sleep, TimeoutError, withTimeout} from './video/timeout-utils';
 import {
 	createVideoIterator,
 	type VideoIterator,
@@ -153,10 +151,6 @@ export class MediaPlayer {
 
 	private hasAudio(): boolean {
 		return Boolean(this.audioSink && this.sharedAudioContext && this.gainNode);
-	}
-
-	private isCurrentlyBuffering(): boolean {
-		return this.isBuffering && Boolean(this.bufferingStartedAtMs);
 	}
 
 	private isDisposalError(): boolean {
@@ -615,42 +609,6 @@ export class MediaPlayer {
 		}
 	};
 
-	private bufferingStartedAtMs: number | null = null;
-	private minBufferingTimeoutMs: number = 500;
-
-	private setBufferingState(isBuffering: boolean): void {
-		if (this.isBuffering !== isBuffering) {
-			this.isBuffering = isBuffering;
-
-			if (isBuffering) {
-				this.bufferingStartedAtMs = performance.now();
-				this.onBufferingChangeCallback?.(true);
-			} else {
-				this.bufferingStartedAtMs = null;
-				this.onBufferingChangeCallback?.(false);
-			}
-		}
-	}
-
-	private maybeResumeFromBuffering(currentBufferDuration: number): void {
-		if (!this.isCurrentlyBuffering()) return;
-
-		const now = performance.now();
-		const bufferingDuration = now - this.bufferingStartedAtMs!;
-
-		const minTimeElapsed = bufferingDuration >= this.minBufferingTimeoutMs;
-		const bufferHealthy =
-			currentBufferDuration >= HEALTHY_BUFFER_THRESHOLD_SECONDS;
-
-		if (minTimeElapsed && bufferHealthy) {
-			Internals.Log.trace(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				`[MediaPlayer] Resuming from buffering after ${bufferingDuration}ms - buffer recovered`,
-			);
-			this.setBufferingState(false);
-		}
-	}
-
 	private runAudioIterator = async (
 		startFromSecond: number,
 		audioIterator: AudioIterator,
@@ -658,32 +616,14 @@ export class MediaPlayer {
 		if (!this.hasAudio()) return;
 
 		try {
-			let totalBufferDuration = 0;
 			let isFirstBuffer = true;
-			audioIterator.setAudioIteratorStarted(true);
 
 			while (true) {
 				if (audioIterator.isDestroyed()) {
 					return;
 				}
 
-				const BUFFERING_TIMEOUT_MS = 50;
-
-				let result: IteratorResult<WrappedAudioBuffer, void>;
-				try {
-					result = await withTimeout(
-						audioIterator.getNext(),
-						BUFFERING_TIMEOUT_MS,
-						'Iterator timeout',
-					);
-				} catch (error) {
-					if (error instanceof TimeoutError && !this.mediaEnded) {
-						this.setBufferingState(true);
-					}
-
-					await sleep(10);
-					continue;
-				}
+				const result = await audioIterator.getNext();
 
 				// media has ended
 				if (result.done || !result.value) {
@@ -691,15 +631,7 @@ export class MediaPlayer {
 					break;
 				}
 
-				const {buffer, timestamp, duration} = result.value;
-
-				totalBufferDuration += duration;
-
-				audioIterator.setAudioBufferHealth(
-					Math.max(0, totalBufferDuration / this.playbackRate),
-				);
-
-				this.maybeResumeFromBuffering(totalBufferDuration / this.playbackRate);
+				const {buffer, timestamp} = result.value;
 
 				if (this.playing) {
 					if (isFirstBuffer) {

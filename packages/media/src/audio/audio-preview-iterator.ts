@@ -8,8 +8,6 @@ export const makeAudioIterator = (
 ) => {
 	let destroyed = false;
 	const iterator = audioSink.buffers(startFromSecond);
-	let audioIteratorStarted = false;
-	let audioBufferHealth = 0;
 	const queuedAudioNodes: Set<AudioBufferSourceNode> = new Set();
 
 	const cleanupAudioQueue = () => {
@@ -27,17 +25,8 @@ export const makeAudioIterator = (
 			destroyed = true;
 			iterator.return().catch(() => undefined);
 		},
-		isReadyToPlay: () => {
-			return audioIteratorStarted && audioBufferHealth > 0;
-		},
-		setAudioIteratorStarted: (started: boolean) => {
-			audioIteratorStarted = started;
-		},
 		getNext: () => {
 			return iterator.next();
-		},
-		setAudioBufferHealth: (health: number) => {
-			audioBufferHealth = health;
 		},
 		isDestroyed: () => {
 			return destroyed;
