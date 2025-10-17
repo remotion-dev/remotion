@@ -272,7 +272,7 @@ export class MediaPlayer {
 
 			try {
 				this.startAudioIterator(startTime);
-				await this.startVideoIterator(startTime);
+				await this.startVideoIterator(startTime, this.currentSeekNonce);
 			} catch (error) {
 				if (this.isDisposalError()) {
 					return {type: 'disposed'};
@@ -320,7 +320,6 @@ export class MediaPlayer {
 		this.currentSeekNonce++;
 		const nonce = this.currentSeekNonce;
 		await this.seekPromiseChain;
-		await this.renderPromiseChain;
 
 		this.seekPromiseChain = this.seekToDoNotCallDirectly(time, nonce);
 		await this.seekPromiseChain;
@@ -373,11 +372,15 @@ export class MediaPlayer {
 			return;
 		}
 
+		if (this.currentSeekNonce !== nonce) {
+			return;
+		}
+
 		this.mediaEnded = false;
 		this.audioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 
 		this.startAudioIterator(newTime);
-		await this.startVideoIterator(newTime);
+		this.startVideoIterator(newTime, nonce);
 	}
 
 	public async play(): Promise<void> {
@@ -507,9 +510,6 @@ export class MediaPlayer {
 		};
 	}
 
-	private currentRenderNonce = 0;
-	private renderPromiseChain: Promise<void> = Promise.resolve();
-
 	private drawFrame = (frame: WrappedCanvas): void => {
 		if (!this.context) {
 			throw new Error('Context not initialized');
@@ -530,61 +530,7 @@ export class MediaPlayer {
 		);
 	};
 
-	private renderDoNotCallDirectly = async (
-		nonce: number,
-		requestedTime: number,
-	): Promise<void> => {
-		if (nonce !== this.currentRenderNonce) {
-			return;
-		}
-
-		if (this.isBuffering) {
-			this.maybeForceResumeFromBuffering();
-		}
-
-		if (this.shouldRenderNewFrame(requestedTime)) {
-			if (!this.videoFrameIterator) {
-				throw new Error('Video iterator not initialized');
-			}
-
-			const nextFrame =
-				await this.videoFrameIterator.getNextOrNullIfNotAvailable();
-			if (this.videoFrameIterator.isDestroyed()) {
-				return;
-			}
-
-			if (nextFrame.type === 'got-frame-or-end') {
-				if (nextFrame.frame) {
-					this.drawFrame(nextFrame.frame);
-				} else {
-					// TODO: Media ended
-				}
-			} else {
-				if (nonce !== this.currentRenderNonce) {
-					return;
-				}
-
-				// Frame is not immediately available, so we are buffering
-				// until it is
-				const delayHandle = this.bufferState?.delayPlayback();
-				const frame = (await nextFrame.waitPromise()) ?? null;
-				delayHandle?.unblock();
-
-				if (!this.videoFrameIterator.isDestroyed() && frame) {
-					this.audioSyncAnchor =
-						this.sharedAudioContext.currentTime - frame.timestamp;
-
-					this.drawFrame(frame);
-				}
-			}
-		}
-	};
-
 	private shouldRenderNewFrame(requestedTime: number): boolean {
-		if (requestedTime === null) {
-			return false;
-		}
-
 		if (this.isBuffering) {
 			return false;
 		}
@@ -640,7 +586,10 @@ export class MediaPlayer {
 		}
 	}
 
-	private startVideoIterator = async (timeToSeek: number): Promise<void> => {
+	private startVideoIterator = async (
+		timeToSeek: number,
+		nonce: number,
+	): Promise<void> => {
 		if (!this.canvasSink) {
 			return;
 		}
@@ -650,11 +599,44 @@ export class MediaPlayer {
 		this.debugStats.videoIteratorsCreated++;
 		this.videoFrameIterator = iterator;
 
-		this.currentRenderNonce++;
-		const nonce = this.currentRenderNonce;
-		await this.renderPromiseChain;
-		this.renderPromiseChain = this.renderDoNotCallDirectly(nonce, timeToSeek);
-		await this.renderPromiseChain;
+		if (this.shouldRenderNewFrame(timeToSeek)) {
+			const nextFrame = await iterator.getNextOrNullIfNotAvailable();
+			if (iterator.isDestroyed()) {
+				return;
+			}
+
+			if (nextFrame.type === 'got-frame-or-end') {
+				if (nextFrame.frame) {
+					this.drawFrame(nextFrame.frame);
+				} else {
+					// TODO: Media ended
+				}
+			} else {
+				if (nonce !== this.currentSeekNonce) {
+					return;
+				}
+
+				// Frame is not immediately available, so we are buffering
+				// until it is
+				const delayHandle = this.bufferState?.delayPlayback();
+				const frame = (await nextFrame.waitPromise()) ?? null;
+				delayHandle?.unblock();
+				if (nonce !== this.currentSeekNonce) {
+					return;
+				}
+
+				if (this.videoFrameIterator.isDestroyed()) {
+					return;
+				}
+
+				if (frame) {
+					this.audioSyncAnchor =
+						this.sharedAudioContext.currentTime - frame.timestamp;
+
+					this.drawFrame(frame);
+				}
+			}
+		}
 	};
 
 	private bufferingStartedAtMs: number | null = null;
@@ -688,22 +670,6 @@ export class MediaPlayer {
 			Internals.Log.trace(
 				{logLevel: this.logLevel, tag: '@remotion/media'},
 				`[MediaPlayer] Resuming from buffering after ${bufferingDuration}ms - buffer recovered`,
-			);
-			this.setBufferingState(false);
-		}
-	}
-
-	private maybeForceResumeFromBuffering(): void {
-		if (!this.isCurrentlyBuffering()) return;
-
-		const now = performance.now();
-		const bufferingDuration = now - this.bufferingStartedAtMs!;
-		const forceTimeout = bufferingDuration > this.minBufferingTimeoutMs * 10;
-
-		if (forceTimeout) {
-			Internals.Log.trace(
-				{logLevel: this.logLevel, tag: '@remotion/media'},
-				`[MediaPlayer] Force resuming from buffering after ${bufferingDuration}ms`,
 			);
 			this.setBufferingState(false);
 		}

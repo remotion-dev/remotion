@@ -1,4 +1,11 @@
-import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
 import {Html5Video, Internals, useBufferState, useCurrentFrame} from 'remotion';
 import {MediaPlayer} from '../media-player';
@@ -299,7 +306,7 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 		}
 	}, [playing, logLevel, mediaPlayerReady]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
 
