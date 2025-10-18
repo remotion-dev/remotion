@@ -108,9 +108,7 @@ const ConvertUI = ({
 		Record<number, string>
 	>({});
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
-	const [selectedM3uId, setSelectedM3uId] = useState<number | null>(null);
-	const [selectAssociatedPlaylistId, setSelectedAssociatedPlaylistId] =
-		useState<number | null>(null);
+	useState<number | null>(null);
 	const [enableConvert, setEnableConvert] = useState(() =>
 		isConvertEnabledByDefault(action),
 	);
