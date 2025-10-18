@@ -20,6 +20,18 @@ const config: Config = {
 			removeLegacyPostBuildHeadAttribute: true,
 		},
 	},
+	headTags: [
+		{
+			tagName: 'script',
+			attributes: {
+				src: 'https://crawlchat.app/embed.js',
+				id: 'crawlchat-script',
+				'data-id': '67c0a28c5b075f0bb35e5366',
+				'data-tag-sidepanel': 'true',
+				'data-hide-ask-ai': 'true',
+			},
+		},
+	],
 	themeConfig: {
 		algolia: {
 			appId: 'PLSDUOL1CA',
@@ -58,7 +70,6 @@ const config: Config = {
 						{to: '/lambda', label: 'Lambda'},
 						{to: '/docs/editor-starter', label: 'Editor Starter'},
 						{to: '/docs/timeline', label: 'Timeline'},
-						{to: '/docs/media-parser', label: 'Media Parser'},
 						{to: '/docs/webcodecs', label: 'WebCodecs'},
 						{to: '/docs/recorder', label: 'Recorder'},
 					],
@@ -111,6 +122,12 @@ const config: Config = {
 					position: 'right',
 					className: 'header-x-link',
 					'aria-label': 'X / Twitter',
+				},
+				{
+					type: 'html',
+					position: 'right',
+					value:
+						'<button aria-label="Ask AI" class="crawlchat-nav-askai header-ask-ai-link" onclick="window.crawlchatEmbed.toggleSidePanel()"></button>',
 				},
 			].filter(Boolean),
 		},

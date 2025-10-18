@@ -42,7 +42,7 @@ export const GetStarted: React.FC = () => {
 					target="_blank"
 				>
 					<PlainButton size="sm" loading={false} className="w-full">
-						Watch demo
+						Demo
 					</PlainButton>
 				</a>
 			</div>
