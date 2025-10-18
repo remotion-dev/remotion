@@ -1,6 +1,5 @@
 import React from 'react';
 import {LoadFromUrl} from './LoadFromUrl';
-import {LoadFromX} from './LoadFromX';
 
 export const AlternativePickFileOptions: React.FC<{
 	readonly onSampleFile: () => void;
@@ -15,8 +14,6 @@ export const AlternativePickFileOptions: React.FC<{
 			</a>
 			<div className="w-4" />
 			<LoadFromUrl />
-			<div className="w-4" />
-			<LoadFromX />
 		</div>
 	);
 };

@@ -1,12 +1,10 @@
-import type {
-	ConvertMediaContainer,
-	ConvertMediaProgress,
-} from '@remotion/webcodecs';
+import type {ConvertMediaContainer} from '@remotion/webcodecs';
 import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatElapsedTime} from '~/lib/format-elapsed-time';
 import {formatSeconds} from '~/lib/format-seconds';
 import {getNewName} from '~/lib/generate-new-name';
+import type {ConvertProgressType} from '~/lib/progress';
 import {
 	useAddOutputFilenameToTitle,
 	useAddProgressToTitle,
@@ -20,7 +18,7 @@ import {VideoThumbnail} from './VideoThumbnail';
 export const convertProgressRef = createRef<VideoThumbnailRef>();
 
 export const ConvertProgress: React.FC<{
-	readonly state: ConvertMediaProgress;
+	readonly state: ConvertProgressType;
 	readonly name: string | null;
 	readonly container: ConvertMediaContainer;
 	readonly done: boolean;
@@ -42,11 +40,7 @@ export const ConvertProgress: React.FC<{
 	startTime,
 	completedTime,
 }) => {
-	const progress = done
-		? 1
-		: duration === null
-			? null
-			: state.millisecondsWritten / 1000 / duration;
+	const progress = done ? 1 : state.overallProgress;
 
 	useAddProgressToTitle(progress);
 	const newName = name ? getNewName(name, container) : null;

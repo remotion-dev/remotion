@@ -1,10 +1,11 @@
 import type {MediaParserContainer} from '@remotion/media-parser';
 import type {ConvertMediaContainer} from '@remotion/webcodecs';
-import {getAvailableContainers} from '@remotion/webcodecs';
 import {renderHumanReadableContainer} from './lib/render-codec-label';
 
 export const inputContainers: MediaParserContainer[] = ['mp4', 'webm', 'avi'];
-export const outputContainers = getAvailableContainers();
+export const outputContainers = ['mp4', 'webm', 'wav'] as const;
+
+export type OutputContainer = (typeof outputContainers)[number];
 
 export const parseConvertRouteAction = (action: string) => {
 	const split = action.split('-to-');

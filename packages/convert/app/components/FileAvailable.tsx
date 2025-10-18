@@ -106,7 +106,6 @@ export const FileAvailable: React.FC<{
 										dimensions={probeResult.dimensions}
 										durationInSeconds={probeResult.durationInSeconds ?? null}
 										fps={probeResult.fps ?? null}
-										logLevel="verbose"
 										action={routeAction}
 										enableRotateOrMirror={enableRotateOrMirrow}
 										setEnableRotateOrMirror={setEnableRotateOrMirror}
@@ -118,7 +117,6 @@ export const FileAvailable: React.FC<{
 										setFlipVertical={setFlipVertical}
 										videoThumbnailRef={videoThumbnailRef}
 										rotation={probeResult.rotation}
-										probeController={probeResult.controller}
 										sampleRate={probeResult.sampleRate}
 									/>
 								</div>
