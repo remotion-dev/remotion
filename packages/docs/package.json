@@ -100,7 +100,7 @@
 		"https-proxy-agent": "^7.0.2",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.19.0",
-		"mediabunny": "1.23.0"
+		"mediabunny": "1.24.0"
 	},
 	"devDependencies": {
 		"@tsconfig/docusaurus": "^1.0.5",
