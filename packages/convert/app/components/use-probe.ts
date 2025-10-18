@@ -1,5 +1,4 @@
 import type {
-	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
 	MediaParserController,
@@ -59,7 +58,6 @@ export const useProbe = ({
 	);
 	const [sampleRate, setSampleRate] = useState<number | null>(null);
 	const [images, setImages] = useState<MediaParserEmbeddedImage[] | null>(null);
-	const [m3u, setM3u] = useState<M3uStream[] | null>(null);
 	const [done, setDone] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
 
@@ -75,9 +73,6 @@ export const useProbe = ({
 			controller,
 			onMetadata: (newMetadata) => {
 				setMetadata(newMetadata);
-			},
-			onM3uStreams: (m) => {
-				setM3u(m);
 			},
 			onContainer(c) {
 				setContainer(c);
@@ -182,7 +177,6 @@ export const useProbe = ({
 			keyframes,
 			unrotatedDimensions,
 			images,
-			m3u,
 			controller,
 			sampleRate,
 		};
@@ -205,7 +199,6 @@ export const useProbe = ({
 		keyframes,
 		unrotatedDimensions,
 		images,
-		m3u,
 		controller,
 		sampleRate,
 	]);

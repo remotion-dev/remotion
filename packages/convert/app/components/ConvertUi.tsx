@@ -1,6 +1,5 @@
 import {Button} from '@/components/ui/button';
 import type {
-	M3uStream,
 	MediaParserAudioCodec,
 	MediaParserContainer,
 	MediaParserDimensions,
@@ -41,7 +40,6 @@ import {ConvertUiSection} from './ConvertUiSection';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
 import {getDefaultContainerForConversion} from './guess-codec-from-source';
-import {M3uStreamSelector} from './M3uStreamSelector';
 import {MirrorComponents} from './MirrorComponents';
 import {PauseResumeAndCancel} from './PauseResumeAndCancel';
 import {ResampleUi} from './ResampleUi';
@@ -71,7 +69,6 @@ const ConvertUI = ({
 	videoThumbnailRef,
 	rotation,
 	dimensions,
-	m3uStreams,
 	sampleRate,
 	name,
 }: {
@@ -87,7 +84,6 @@ const ConvertUI = ({
 	readonly fps: number | null;
 	readonly rotation: number | null;
 	readonly inputContainer: MediaParserContainer | null;
-	readonly m3uStreams: M3uStream[] | null;
 	readonly action: RouteAction;
 	readonly name: string | null;
 	readonly enableRotateOrMirror: RotateOrMirrorState;
@@ -476,15 +472,6 @@ const ConvertUI = ({
 	return (
 		<>
 			<div className="w-full gap-4 flex flex-col">
-				{m3uStreams ? (
-					<M3uStreamSelector
-						streams={m3uStreams}
-						selectedId={selectedM3uId}
-						setSelectedM3uId={setSelectedM3uId}
-						selectedAssociatedPlaylistId={selectAssociatedPlaylistId}
-						setSelectedAssociatedPlaylistId={setSelectedAssociatedPlaylistId}
-					/>
-				) : null}
 				{order.map((section) => {
 					if (section === 'convert') {
 						return (
