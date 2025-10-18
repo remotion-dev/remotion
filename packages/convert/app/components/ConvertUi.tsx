@@ -6,7 +6,7 @@ import type {
 	MediaParserTrack,
 	MediaParserVideoCodec,
 } from '@remotion/media-parser';
-import type {ResizeOperation, WebCodecsController} from '@remotion/webcodecs';
+import type {WebCodecsController} from '@remotion/webcodecs';
 import {webcodecsController, WebCodecsInternals} from '@remotion/webcodecs';
 import type {Rotation} from 'mediabunny';
 import {
@@ -28,6 +28,8 @@ import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
 import {isReencoding} from '~/lib/is-reencoding';
 import {isSubmitDisabled} from '~/lib/is-submit-enabled';
 import {generateOutputFilename} from '~/lib/make-output-filename';
+import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
+import {calculateMediabunnyResizeOption} from '~/lib/mediabunny-calculate-resize-option';
 import {getMediabunnyOutput} from '~/lib/output-container';
 import type {ConvertProgressType} from '~/lib/progress';
 import {makeWaveformVisualizer} from '~/lib/waveform-visualizer';
@@ -113,7 +115,7 @@ const ConvertUI = ({
 		isConvertEnabledByDefault(action),
 	);
 	const [resizeOperation, setResizeOperation] =
-		useState<ResizeOperation | null>(() => {
+		useState<MediabunnyResize | null>(() => {
 			return (action.type === 'resize-format' ||
 				action.type === 'generic-resize') &&
 				dimensions
@@ -233,26 +235,38 @@ const ConvertUI = ({
 			const conversion = await Conversion.init({
 				input,
 				output,
-				video: {
-					process(sample) {
-						const flipped = flipVideoFrame({
-							frame: sample.toVideoFrame(),
-							horizontal: flipHorizontal && enableRotateOrMirror === 'mirror',
-							vertical: flipVertical && enableRotateOrMirror === 'mirror',
-						});
-						if (videoFrames % 15 === 0) {
-							convertProgressRef.current?.draw(flipped);
-						}
+				video: (videoTrack, n) => {
+					if (n > 1) {
+						// TODO: Discard any other than first video tracks?
+						// Keep only the first video track
+						return {discard: true};
+					}
 
-						progress.millisecondsWritten = sample.timestamp * 1000;
+					return {
+						height: Math.min(videoTrack.displayHeight, 1080),
+						process(sample) {
+							const flipped = flipVideoFrame({
+								frame: sample.toVideoFrame(),
+								horizontal: flipHorizontal && enableRotateOrMirror === 'mirror',
+								vertical: flipVertical && enableRotateOrMirror === 'mirror',
+							});
+							if (videoFrames % 15 === 0) {
+								convertProgressRef.current?.draw(flipped);
+							}
 
-						videoFrames++;
-						return flipped;
-					},
-					rotate: userRotation as Rotation,
-					// TODO: Support resize
-					// TODO: Support discard
-					// TODO: Support force transcode
+							progress.millisecondsWritten = sample.timestamp * 1000;
+
+							videoFrames++;
+							return flipped;
+						},
+						rotate: userRotation as Rotation,
+						...calculateMediabunnyResizeOption(
+							resizeOperation,
+							dimensions ?? null,
+						),
+						// TODO: Support discard
+						// TODO: Support force transcode
+					};
 				},
 				audio: {
 					process(sample) {
@@ -313,6 +327,8 @@ const ConvertUI = ({
 		enableRotateOrMirror,
 		flipHorizontal,
 		flipVertical,
+		dimensions,
+		resizeOperation,
 		onWaveformBars,
 		outputContainer,
 		src,

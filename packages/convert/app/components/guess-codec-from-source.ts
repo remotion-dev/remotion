@@ -1,7 +1,6 @@
 import type {MediaParserContainer} from '@remotion/media-parser';
-import type {ConvertMediaContainer} from '@remotion/webcodecs';
 import type {Source} from '~/lib/convert-state';
-import type {RouteAction} from '~/seo';
+import type {OutputContainer, RouteAction} from '~/seo';
 
 const guessFromExtension = (src: string): MediaParserContainer => {
 	if (src.endsWith('.webm')) {
@@ -110,7 +109,7 @@ const shouldKeepSameContainerByDefault = (action: RouteAction) => {
 export const getDefaultContainerForConversion = (
 	source: Source,
 	action: RouteAction,
-): ConvertMediaContainer => {
+): OutputContainer => {
 	const guessed = guessContainerFromSource(source);
 	const keepSame = shouldKeepSameContainerByDefault(action);
 

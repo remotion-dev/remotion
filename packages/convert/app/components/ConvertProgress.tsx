@@ -1,4 +1,3 @@
-import type {ConvertMediaContainer} from '@remotion/webcodecs';
 import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatElapsedTime} from '~/lib/format-elapsed-time';
@@ -9,6 +8,7 @@ import {
 	useAddOutputFilenameToTitle,
 	useAddProgressToTitle,
 } from '~/lib/title-context';
+import type {OutputContainer} from '~/seo';
 import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
 import {Card} from './ui/card';
 import {Skeleton} from './ui/skeleton';
@@ -20,7 +20,7 @@ export const convertProgressRef = createRef<VideoThumbnailRef>();
 export const ConvertProgress: React.FC<{
 	readonly state: ConvertProgressType;
 	readonly name: string | null;
-	readonly container: ConvertMediaContainer;
+	readonly container: OutputContainer;
 	readonly done: boolean;
 	readonly duration: number | null;
 	readonly isReencoding: boolean;

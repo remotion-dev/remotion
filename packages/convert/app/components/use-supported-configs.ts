@@ -2,9 +2,9 @@ import type {
 	MediaParserContainer,
 	MediaParserTrack,
 } from '@remotion/media-parser';
-import type {ConvertMediaContainer, ResizeOperation} from '@remotion/webcodecs';
+import type {ResizeOperation} from '@remotion/webcodecs';
 import {useEffect, useState} from 'react';
-import type {RouteAction} from '~/seo';
+import type {OutputContainer, RouteAction} from '~/seo';
 import type {SupportedConfigs} from './get-supported-configs';
 import {getSupportedConfigs} from './get-supported-configs';
 
@@ -17,7 +17,7 @@ export const useSupportedConfigs = ({
 	resizeOperation,
 	sampleRate,
 }: {
-	outputContainer: ConvertMediaContainer;
+	outputContainer: OutputContainer;
 	tracks: MediaParserTrack[] | null;
 	action: RouteAction;
 	userRotation: number;
@@ -26,7 +26,7 @@ export const useSupportedConfigs = ({
 	sampleRate: number | null;
 }) => {
 	const [state, setState] = useState<
-		Record<ConvertMediaContainer, SupportedConfigs | null>
+		Record<OutputContainer, SupportedConfigs | null>
 	>({mp4: null, webm: null, wav: null});
 
 	useEffect(() => {

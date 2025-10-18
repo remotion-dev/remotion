@@ -1,6 +1,6 @@
 import type {MediaParserDimensions} from '@remotion/media-parser';
-import type {ResizeOperation} from '@remotion/webcodecs';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
+import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 import {useThumbnailCopy} from '~/lib/use-thumbnail-copy';
 import {ResizeCorner} from './ResizeCorner';
 import type {VideoThumbnailRef} from './VideoThumbnail';
@@ -32,7 +32,7 @@ export const ResizeThumbnail: React.FC<{
 	readonly rotation: number;
 	readonly scale: number;
 	readonly setResizeMode: React.Dispatch<
-		React.SetStateAction<ResizeOperation | null>
+		React.SetStateAction<MediabunnyResize | null>
 	>;
 	readonly inputFocused: boolean;
 }> = ({

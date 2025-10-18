@@ -1,13 +1,13 @@
 import type {MediaParserDimensions} from '@remotion/media-parser';
-import type {ResizeOperation} from '@remotion/webcodecs';
 import React, {useCallback} from 'react';
+import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 
 export const ResizeCorner: React.FC<{
 	readonly innerDimensions: MediaParserDimensions;
 	readonly outerDimensions: MediaParserDimensions;
 	readonly videoDimensions: MediaParserDimensions;
 	readonly setResizeMode: React.Dispatch<
-		React.SetStateAction<ResizeOperation | null>
+		React.SetStateAction<MediabunnyResize | null>
 	>;
 	readonly onStart: () => void;
 	readonly onEnd: () => void;
@@ -52,7 +52,7 @@ export const ResizeCorner: React.FC<{
 				const snapPoint = isCloseToSnapPoint ?? newSmallerSide;
 				const scale = (snapPoint / newSmallerSide) * newScaleX;
 
-				const newResizeMode: ResizeOperation = {
+				const newResizeMode: MediabunnyResize = {
 					mode: 'scale',
 					scale,
 				};

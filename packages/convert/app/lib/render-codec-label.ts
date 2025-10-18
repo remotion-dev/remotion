@@ -3,10 +3,8 @@ import type {
 	MediaParserContainer,
 	MediaParserVideoCodec,
 } from '@remotion/media-parser';
-import type {
-	ConvertMediaAudioCodec,
-	ConvertMediaContainer,
-} from '@remotion/webcodecs';
+import type {ConvertMediaAudioCodec} from '@remotion/webcodecs';
+import type {OutputContainer} from '~/seo';
 
 export const renderHumanReadableAudioCodec = (
 	codec: MediaParserAudioCodec | ConvertMediaAudioCodec,
@@ -95,7 +93,7 @@ export const renderHumanReadableVideoCodec = (codec: MediaParserVideoCodec) => {
 };
 
 export const renderHumanReadableContainer = (
-	container: MediaParserContainer | ConvertMediaContainer,
+	container: MediaParserContainer | OutputContainer,
 ) => {
 	if (container === 'webm') {
 		return '.webm';

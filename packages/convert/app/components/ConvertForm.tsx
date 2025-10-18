@@ -2,7 +2,6 @@ import type {
 	MediaParserAudioCodec,
 	MediaParserVideoCodec,
 } from '@remotion/media-parser';
-import type {ConvertMediaContainer} from '@remotion/webcodecs';
 import {getAvailableContainers} from '@remotion/webcodecs';
 import React from 'react';
 import {
@@ -11,6 +10,7 @@ import {
 } from '~/lib/get-audio-video-config-index';
 import {getAudioOperationId, getVideoOperationId} from '~/lib/operation-key';
 import {renderHumanReadableContainer} from '~/lib/render-codec-label';
+import type {OutputContainer} from '~/seo';
 import {AudioCodecSelection} from './AudioCodecSelection';
 import type {SupportedConfigs} from './get-supported-configs';
 import {SelectionSkeleton} from './SelectionSkeleton';
@@ -27,10 +27,8 @@ import {
 import {VideoCodecSelection} from './VideoCodecSelection';
 
 export const ConvertForm: React.FC<{
-	readonly container: ConvertMediaContainer;
-	readonly setContainer: React.Dispatch<
-		React.SetStateAction<ConvertMediaContainer>
-	>;
+	readonly container: OutputContainer;
+	readonly setContainer: React.Dispatch<React.SetStateAction<OutputContainer>>;
 	readonly supportedConfigs: SupportedConfigs | null;
 	readonly videoConfigIndexSelection: Record<number, string>;
 	readonly audioConfigIndexSelection: Record<number, string>;
@@ -55,7 +53,7 @@ export const ConvertForm: React.FC<{
 				<Label htmlFor="container">Container</Label>
 				<Select
 					value={container}
-					onValueChange={(v) => setContainer(v as ConvertMediaContainer)}
+					onValueChange={(v) => setContainer(v as OutputContainer)}
 				>
 					<SelectTrigger id="container">
 						<SelectValue placeholder="Select a container" />

@@ -1,4 +1,3 @@
-import type {WebCodecsController} from '@remotion/webcodecs';
 import React, {useEffect, useLayoutEffect, useMemo} from 'react';
 import type {VideoThumbnailRef} from '~/components/VideoThumbnail';
 import type {RouteAction} from '~/seo';
@@ -130,28 +129,6 @@ export const useAddProgressToTitle = (progress: number | null) => {
 			setProgress(null);
 		};
 	}, [progress, setProgress]);
-};
-
-export const useAddPausedToTitle = (controller: WebCodecsController) => {
-	const {setPaused} = useTitle();
-
-	useEffect(() => {
-		const onPause = () => {
-			setPaused(true);
-		};
-
-		const onResume = () => {
-			setPaused(false);
-		};
-
-		controller.addEventListener('pause', onPause);
-		controller.addEventListener('resume', onResume);
-
-		return () => {
-			controller.removeEventListener('pause', onPause);
-			controller.removeEventListener('resume', onResume);
-		};
-	}, [controller, setPaused]);
 };
 
 export const useCopyThumbnailToFavicon = (

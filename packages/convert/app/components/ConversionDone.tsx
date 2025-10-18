@@ -1,8 +1,8 @@
-import type {ConvertMediaContainer} from '@remotion/webcodecs';
 import React, {useCallback} from 'react';
 import {canUseOutputAsInput} from '~/lib/can-use-output-as-input';
 import type {ConvertState, Source} from '~/lib/convert-state';
 import {getNewName} from '~/lib/generate-new-name';
+import type {OutputContainer} from '~/seo';
 import {CloneIcon} from './icons/clone';
 import {UndoIcon} from './icons/undo';
 import {Button} from './ui/button';
@@ -11,7 +11,7 @@ export const ConversionDone: React.FC<{
 	readonly state: ConvertState;
 	readonly setState: React.Dispatch<React.SetStateAction<ConvertState>>;
 	readonly name: string | null;
-	readonly container: ConvertMediaContainer;
+	readonly container: OutputContainer;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 }> = ({state, name, container, setState, setSrc}) => {
 	if (state.type !== 'done') {

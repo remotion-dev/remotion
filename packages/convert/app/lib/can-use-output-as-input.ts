@@ -1,6 +1,6 @@
-import type {ConvertMediaContainer} from '@remotion/webcodecs';
+import type {OutputContainer} from '~/seo';
 
-export const canUseOutputAsInput = (container: ConvertMediaContainer) => {
+export const canUseOutputAsInput = (container: OutputContainer) => {
 	if (container === 'wav') {
 		return true;
 	}

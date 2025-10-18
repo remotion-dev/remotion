@@ -1,9 +1,6 @@
-import type {ConvertMediaContainer} from '@remotion/webcodecs';
+import type {OutputContainer} from '~/seo';
 
-export const getNewName = (
-	name: string,
-	newContainer: ConvertMediaContainer,
-) => {
+export const getNewName = (name: string, newContainer: OutputContainer) => {
 	const parts = name.split('.');
 
 	parts.pop();
