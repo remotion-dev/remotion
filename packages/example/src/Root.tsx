@@ -134,7 +134,7 @@ import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoExample} from './NewVideo/NewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
-import {NewRemoteVideo} from './OffthreadRemoteVideo/NewRemoteVideo';
+import {NewVideoComp} from './OffthreadRemoteVideo/NewRemoteVideo';
 import {OffthreadRemoteSeries} from './OffthreadRemoteVideo/OffthreadRemoteSeries';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
@@ -808,7 +808,7 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<OffthreadRemoteVideo />
-				<NewRemoteVideo />
+				<NewVideoComp />
 				<OffthreadRemoteSeries />
 				<LoopedOffthreadRemoteVideo />
 				<MultiChannelAudio />
