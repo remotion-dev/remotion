@@ -77,7 +77,6 @@ export const Probe: React.FC<{
 
 	const {err: thumbnailError} = useThumbnailAndWaveform({
 		src,
-		logLevel: 'verbose',
 		onVideoThumbnail,
 		onDone,
 		onWaveformBars,

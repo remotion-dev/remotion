@@ -19,7 +19,7 @@ export const AudioWaveForm: React.FC<{readonly bars: number[]}> = ({bars}) => {
 	return (
 		<>
 			{padded.map((bar, i) => {
-				const height = ((bar ?? 0) / 255) * 40;
+				const height = (bar ?? 0) * 40;
 
 				return (
 					<div
