@@ -13,10 +13,10 @@ import type {Rotation} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	BlobSource,
-	BufferTarget,
 	Conversion,
 	Input,
 	Output,
+	StreamTarget,
 	UrlSource,
 } from 'mediabunny';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
@@ -28,9 +28,11 @@ import {getActualVideoOperation} from '~/lib/get-audio-video-config-index';
 import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
 import {isReencoding} from '~/lib/is-reencoding';
 import {isSubmitDisabled} from '~/lib/is-submit-enabled';
+import {generateOutputFilename} from '~/lib/make-output-filename';
 import {getMediabunnyOutput} from '~/lib/output-container';
 import type {ConvertProgressType} from '~/lib/progress';
 import {makeWaveformVisualizer} from '~/lib/waveform-visualizer';
+import {makeWebFsTarget} from '~/lib/web-fs-target';
 import type {OutputContainer, RouteAction} from '~/seo';
 import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
@@ -71,6 +73,7 @@ const ConvertUI = ({
 	dimensions,
 	m3uStreams,
 	sampleRate,
+	name,
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -86,6 +89,7 @@ const ConvertUI = ({
 	readonly inputContainer: MediaParserContainer | null;
 	readonly m3uStreams: M3uStream[] | null;
 	readonly action: RouteAction;
+	readonly name: string | null;
 	readonly enableRotateOrMirror: RotateOrMirrorState;
 	readonly setEnableRotateOrMirror: React.Dispatch<
 		React.SetStateAction<RotateOrMirrorState | null>
@@ -108,8 +112,6 @@ const ConvertUI = ({
 		Record<number, string>
 	>({});
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
-	// TODO: Set name
-	const [name] = useState<string | null>(null);
 	const [selectedM3uId, setSelectedM3uId] = useState<number | null>(null);
 	const [selectAssociatedPlaylistId, setSelectedAssociatedPlaylistId] =
 		useState<number | null>(null);
@@ -215,16 +217,17 @@ const ConvertUI = ({
 				src.type === 'file' ? new BlobSource(src.file) : new UrlSource(src.url),
 		});
 
-		const output = new Output({
-			format: getMediabunnyOutput(outputContainer),
-			// TODO: File System API
-			target: new BufferTarget(),
-		});
-
 		let cancelConversion = () => {};
 
 		const run = async () => {
-			// TODO: .setName()
+			const filename = generateOutputFilename(src, outputContainer);
+			const {getBlob, stream, getWrittenByteCount, close} =
+				await makeWebFsTarget(filename);
+
+			const output = new Output({
+				format: getMediabunnyOutput(outputContainer),
+				target: new StreamTarget(stream),
+			});
 
 			const duration = await input.computeDuration();
 			waveform.setDuration(duration);
@@ -281,7 +284,7 @@ const ConvertUI = ({
 
 			conversion.onProgress = (newProg) => {
 				progress.overallProgress = newProg;
-				progress.bytesWritten = output.target.buffer?.byteLength ?? 0;
+				progress.bytesWritten = getWrittenByteCount();
 
 				setState({
 					type: 'in-progress',
@@ -293,11 +296,13 @@ const ConvertUI = ({
 
 			await conversion.execute();
 
+			close();
+
 			setState({
 				type: 'done',
-				download: () => {
-					//  TODO: Download
-					return Promise.resolve(new Blob());
+				download: async () => {
+					const blob = await getBlob();
+					return blob;
 				},
 				state: progress,
 				startTime,
@@ -306,8 +311,6 @@ const ConvertUI = ({
 		};
 
 		run();
-
-		// TODO: Check if aborted, special error
 
 		return () => {
 			cancelConversion();
