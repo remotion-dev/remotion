@@ -1,4 +1,3 @@
-import type {WebCodecsController} from '@remotion/webcodecs';
 import type {ConvertProgressType} from './progress';
 
 export type Source =
@@ -17,7 +16,7 @@ export type ConvertState =
 	  }
 	| {
 			type: 'in-progress';
-			controller: WebCodecsController;
+			onAbort: () => void;
 			state: ConvertProgressType;
 			startTime: number;
 	  }

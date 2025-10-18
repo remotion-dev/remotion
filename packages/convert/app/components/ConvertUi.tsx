@@ -269,6 +269,10 @@ const ConvertUI = ({
 
 			cancelConversion = () => {
 				conversion.cancel();
+
+				setState({
+					type: 'idle',
+				});
 			};
 
 			if (input.disposed) {
@@ -281,7 +285,7 @@ const ConvertUI = ({
 
 				setState({
 					type: 'in-progress',
-					controller,
+					onAbort: cancelConversion,
 					state: progress,
 					startTime,
 				});
@@ -417,7 +421,7 @@ const ConvertUI = ({
 					startTime={state.startTime}
 				/>
 				<div className="h-2" />
-				<PauseResumeAndCancel controller={state.controller} />
+				<PauseResumeAndCancel onAbort={state.onAbort} />
 			</>
 		);
 	}
