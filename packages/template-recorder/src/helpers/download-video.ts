@@ -1,7 +1,6 @@
 import { ProcessStatus } from "../components/ProcessingStatus";
 import { convertInBrowser } from "./convert-in-browser";
 import { getExtension } from "./find-good-supported-codec";
-import { formatMilliseconds } from "./format-time";
 
 export const downloadVideo = async ({
   data,
@@ -21,19 +20,21 @@ export const downloadVideo = async ({
     webcamchunks.push(data);
   }
 
-  const result = await convertInBrowser({
+  const saved = await convertInBrowser({
     src: data,
     mimeType,
-    onProgress: ({ millisecondsWritten }, abortFn) => {
+    onProgress: (progress, abortFn) => {
       setStatus({
         title: `Converting ${prefix}${endDate}.${getExtension(mimeType)}`,
-        description: `${formatMilliseconds(millisecondsWritten)} processed`,
+        description: `${Math.round(progress * 100)}% progress`,
         abort: abortFn,
       });
     },
   });
 
-  const saved = await result.save();
+  if (!saved) {
+    throw new Error("Conversion failed");
+  }
 
   const link = document.createElement("a");
   const blobUrl = URL.createObjectURL(saved);
