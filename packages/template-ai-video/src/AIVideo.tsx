@@ -13,6 +13,21 @@ export const aiVideoSchema = z.object({
   hasWatermark: z.boolean(),
 });
 
+const calculateFrameTiming = (
+  startMs: number,
+  endMs: number,
+  options: { includeIntro?: boolean; addIntroOffset?: boolean } = {},
+) => {
+  const { includeIntro = false, addIntroOffset = false } = options;
+
+  const startFrame =
+    (startMs * FPS) / 1000 + (addIntroOffset ? IntoFrameDuration : 0);
+  const duration =
+    ((endMs - startMs) * FPS) / 1000 + (includeIntro ? IntoFrameDuration : 0);
+
+  return { startFrame, duration };
+};
+
 export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
   timelineFile,
 }) => {
@@ -70,16 +85,17 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
           </Sequence>
 
           {timeline.elements.map((element, index) => {
-            const elementStartFrame = (element.startMs * FPS) / 1000;
-            const durationInFrames =
-              ((element.endMs - element.startMs) * FPS) / 1000 +
-              (index === 0 ? IntoFrameDuration : 0);
+            const { startFrame, duration } = calculateFrameTiming(
+              element.startMs,
+              element.endMs,
+              { includeIntro: index === 0 },
+            );
 
             return (
               <Sequence
                 key={`element-${index}`}
-                from={elementStartFrame}
-                durationInFrames={durationInFrames}
+                from={startFrame}
+                durationInFrames={duration}
               >
                 <Background item={element} />
               </Sequence>
@@ -87,33 +103,35 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
           })}
 
           {timeline.text.map((element, index) => {
-            const elementStartFrame =
-              (element.startMs * FPS) / 1000 + IntoFrameDuration;
-            const durationInFrames =
-              ((element.endMs - element.startMs) * FPS) / 1000;
+            const { startFrame, duration } = calculateFrameTiming(
+              element.startMs,
+              element.endMs,
+              { addIntroOffset: true },
+            );
 
             return (
               <Sequence
                 key={`element-${index}`}
-                from={elementStartFrame}
-                durationInFrames={durationInFrames}
+                from={startFrame}
+                durationInFrames={duration}
               >
-                <Subtitle key={index} text={element.text} />;
+                <Subtitle key={index} text={element.text} />
               </Sequence>
             );
           })}
 
           {timeline.audio.map((element, index) => {
-            const elementStartFrame =
-              (element.startMs * FPS) / 1000 + IntoFrameDuration;
-            const durationInFrames =
-              ((element.endMs - element.startMs) * FPS) / 1000;
+            const { startFrame, duration } = calculateFrameTiming(
+              element.startMs,
+              element.endMs,
+              { addIntroOffset: true },
+            );
 
             return (
               <Sequence
                 key={`element-${index}`}
-                from={elementStartFrame}
-                durationInFrames={durationInFrames}
+                from={startFrame}
+                durationInFrames={duration}
               >
                 <Html5Audio src={element.audioUrl} />
               </Sequence>
