@@ -96,7 +96,7 @@ export const FileAvailable: React.FC<{
 										videoThumbnailRef={videoThumbnailRef}
 										rotation={probeResult.rotation}
 										sampleRate={probeResult.sampleRate}
-										name={probeResult.name ?? null}
+										name={probeResult.name}
 									/>
 								</div>
 							</div>

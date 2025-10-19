@@ -27,7 +27,10 @@ export const useProbe = ({src}: {src: Source}) => {
 	);
 	const [unrotatedDimensions, setUnrotatedDimensions] =
 		useState<Dimensions | null>(null);
-	const [name, setName] = useState<string | null>(null);
+	const name = useMemo(
+		() => (src.type === 'url' ? src.url.split('/').pop()! : src.file.name),
+		[src],
+	);
 	const [videoCodec, setVideoCodec] = useState<
 		InputVideoTrack['codec'] | undefined | null
 	>(undefined);
@@ -45,9 +48,9 @@ export const useProbe = ({src}: {src: Source}) => {
 
 	const getStart = useCallback(() => {
 		// TODO: Name
-		// TODO: HDR
 		// TODO: Keyframes
 		// TODO: Smart parallelization
+
 		const input = new Input({
 			formats: ALL_FORMATS,
 			source:
@@ -84,6 +87,7 @@ export const useProbe = ({src}: {src: Source}) => {
 						width: track.codedWidth,
 						height: track.codedHeight,
 					});
+					setHdr(await track.hasHighDynamicRange());
 				} else if (track.isAudioTrack()) {
 					const {codec} = track;
 					setAudioCodec(codec);
