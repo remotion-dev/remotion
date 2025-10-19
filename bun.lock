@@ -1316,6 +1316,26 @@
         "@remotion/bundler": "workspace:*",
       },
     },
+    "packages/template-ai-video": {
+      "name": "template-ai-video",
+      "version": "1.0.0",
+      "dependencies": {
+        "@remotion/cli": "workspace:*",
+        "@remotion/zod-types": "workspace:*",
+        "react": "19.0.0",
+        "react-dom": "19.0.0",
+        "remotion": "workspace:*",
+        "zod": "3.22.3",
+      },
+      "devDependencies": {
+        "@remotion/eslint-config-flat": "workspace:*",
+        "@types/react": "19.0.0",
+        "@types/web": "0.0.166",
+        "eslint": "9.19.0",
+        "prettier": "3.6.0",
+        "typescript": "5.8.2",
+      },
+    },
     "packages/template-audiogram": {
       "name": "template-audiogram",
       "version": "1.0.0",
@@ -6451,6 +6471,8 @@
     "tar-stream": ["tar-stream@2.2.0", "", { "dependencies": { "bl": "4.1.0", "end-of-stream": "1.4.4", "fs-constants": "1.0.0", "inherits": "2.0.4", "readable-stream": "3.6.0" } }, "sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ=="],
 
     "teeny-request": ["teeny-request@9.0.0", "", { "dependencies": { "http-proxy-agent": "5.0.0", "https-proxy-agent": "5.0.1", "node-fetch": "2.6.9", "stream-events": "1.0.5", "uuid": "9.0.1" } }, "sha512-resvxdc6Mgb7YEThw6G6bExlXKkv6+YbuzGg9xuXxSgxJF7Ozs+o8Y9+2R3sArdWdW8nOokoQb1yrpFB0pQK2g=="],
+
+    "template-ai-video": ["template-ai-video@workspace:packages/template-ai-video"],
 
     "template-audiogram": ["template-audiogram@workspace:packages/template-audiogram"],
 
