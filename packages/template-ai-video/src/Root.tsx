@@ -8,13 +8,12 @@ import {
 import { AIVideo, aiVideoSchema } from "./AIVideo";
 import { useCallback, useEffect, useState } from "react";
 import { Timeline } from "./types";
+import { FPS } from "./constants";
 
 interface InputProps extends Record<string, unknown> {
   timelineFileName?: string;
   hasWatermark?: boolean;
 }
-
-const TargetFps = 60;
 
 export const RemotionRoot: React.FC = () => {
   const inputProps = getInputProps<InputProps>();
@@ -34,7 +33,7 @@ export const RemotionRoot: React.FC = () => {
 
       const lengthMs =
         newTimeline.elements[newTimeline.elements.length - 1].endMs / 1000;
-      const legthFrames = Math.floor(lengthMs * TargetFps);
+      const legthFrames = Math.floor(lengthMs * FPS);
 
       setFrameLength(legthFrames);
       setTimeline(newTimeline);
@@ -54,7 +53,7 @@ export const RemotionRoot: React.FC = () => {
         id="AIVideo"
         component={AIVideo}
         durationInFrames={frameLength}
-        fps={TargetFps}
+        fps={FPS}
         width={1080}
         height={1920}
         schema={aiVideoSchema}
