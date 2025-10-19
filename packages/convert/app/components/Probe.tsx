@@ -1,4 +1,3 @@
-import type {MediaParserEmbeddedImage} from '@remotion/media-parser';
 import clsx from 'clsx';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
@@ -126,12 +125,16 @@ export const Probe: React.FC<{
 	useAddFilenameToTitle(name);
 	useCopyThumbnailToFavicon(videoThumbnailRef);
 
+	const images = useMemo(() => {
+		return metadata?.images ?? null;
+	}, [metadata]);
+
 	return (
 		<div className="w-full lg:w-[350px]">
 			<Card className="overflow-hidden lg:w-[350px]">
 				<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
-					{(images?.length ?? 0) > 0 ? (
-						<EmbeddedImage images={images as MediaParserEmbeddedImage[]} />
+					{images ? (
+						<EmbeddedImage images={images} />
 					) : isAudio ? (
 						<AudioWaveformContainer>
 							<AudioWaveForm bars={waveform} />
