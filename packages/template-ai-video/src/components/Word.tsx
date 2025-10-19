@@ -42,6 +42,7 @@ export const Word: React.FC<{
           ]),
           fontFamily,
           textTransform: "uppercase",
+          textAlign: "center",
         }}
       >
         {text}
