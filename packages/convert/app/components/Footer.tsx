@@ -70,10 +70,10 @@ export const Footer: React.FC<{
 			) : (
 				<a
 					target="_blank"
-					href="https://remotion.dev/webcodecs"
+					href="https://mediabunny.dev"
 					className="text-sm text-muted-foreground font-medium hover:text-foreground"
 				>
-					Powered by @remotion/webcodecs
+					Powered by Mediabunny
 				</a>
 			)}
 			<div className="w-6" />
