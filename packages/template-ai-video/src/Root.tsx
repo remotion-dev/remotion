@@ -3,12 +3,11 @@ import {
   continueRender,
   delayRender,
   getInputProps,
-  staticFile,
 } from "remotion";
 import { AIVideo, aiVideoSchema } from "./AIVideo";
-import { useCallback, useEffect, useState } from "react";
-import { Timeline } from "./types";
-import { FPS } from "./constants";
+import { useEffect, useState } from "react";
+import { FPS, WindowsHeight, WindowsWidth } from "./constants";
+import { loadTimelineFromFile } from "./utils";
 
 interface InputProps extends Record<string, unknown> {
   timelineFileName?: string;
@@ -18,34 +17,25 @@ interface InputProps extends Record<string, unknown> {
 export const RemotionRoot: React.FC = () => {
   const inputProps = getInputProps<InputProps>();
   const [frameLength, setFrameLength] = useState(1);
-  const [timeline, setTimeline] = useState<Timeline | null>(null);
-  const [handle] = useState(() => delayRender());
 
-  const fetchConfig = useCallback(
-    async (props: InputProps) => {
-      const timelineFile =
-        props.timelineFileName ?? "content/demo/timeline.json";
-      const res = await fetch(staticFile(timelineFile));
-      const json = await res.json();
-
-      const newTimeline = json as Timeline;
-      newTimeline.elements.sort((a, b) => a.startMs - b.startMs);
-
-      const lengthMs =
-        newTimeline.elements[newTimeline.elements.length - 1].endMs / 1000;
-      const legthFrames = Math.floor(lengthMs * FPS);
-
-      setFrameLength(legthFrames);
-      setTimeline(newTimeline);
-
-      continueRender(handle);
-    },
-    [handle],
-  );
+  const timelineFile =
+    inputProps.timelineFileName ?? "content/demo/timeline.json";
 
   useEffect(() => {
-    fetchConfig(inputProps);
-  }, [inputProps, fetchConfig]);
+    const handle = delayRender("Calculating FPS duration...");
+
+    const fetchConfig = async () => {
+      const { lengthFrames } = await loadTimelineFromFile(timelineFile);
+      setFrameLength(lengthFrames);
+      continueRender(handle);
+    };
+
+    fetchConfig();
+
+    return () => {
+      continueRender(handle);
+    };
+  }, [timelineFile]);
 
   return (
     <>
@@ -54,12 +44,12 @@ export const RemotionRoot: React.FC = () => {
         component={AIVideo}
         durationInFrames={frameLength}
         fps={FPS}
-        width={1080}
-        height={1920}
+        width={WindowsWidth}
+        height={WindowsHeight}
         schema={aiVideoSchema}
         defaultProps={{
-          timeline: timeline!,
-          hasWatermark: inputProps.hasWatermark,
+          timelineFile,
+          hasWatermark: !!inputProps.hasWatermark,
         }}
       />
     </>
