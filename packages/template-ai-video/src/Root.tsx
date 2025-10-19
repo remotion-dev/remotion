@@ -1,18 +1,67 @@
-import { Composition } from "remotion";
+import {
+  Composition,
+  continueRender,
+  delayRender,
+  getInputProps,
+  staticFile,
+} from "remotion";
 import { AIVideo, aiVideoSchema } from "./AIVideo";
+import { useCallback, useEffect, useState } from "react";
+import { Timeline } from "./types";
+
+interface InputProps extends Record<string, unknown> {
+  timelineFileName?: string;
+  hasWatermark?: boolean;
+}
+
+const TargetFps = 60;
 
 export const RemotionRoot: React.FC = () => {
+  const inputProps = getInputProps<InputProps>();
+  const [frameLength, setFrameLength] = useState(1);
+  const [timeline, setTimeline] = useState<Timeline | null>(null);
+  const [handle] = useState(() => delayRender());
+
+  const fetchConfig = useCallback(
+    async (props: InputProps) => {
+      const timelineFile =
+        props.timelineFileName ?? "content/demo/timeline.json";
+      const res = await fetch(staticFile(timelineFile));
+      const json = await res.json();
+
+      const newTimeline = json as Timeline;
+      newTimeline.elements.sort((a, b) => a.startMs - b.startMs);
+
+      const lengthMs =
+        newTimeline.elements[newTimeline.elements.length - 1].endMs / 1000;
+      const legthFrames = Math.floor(lengthMs * TargetFps);
+
+      setFrameLength(legthFrames);
+      setTimeline(newTimeline);
+
+      continueRender(handle);
+    },
+    [handle],
+  );
+
+  useEffect(() => {
+    fetchConfig(inputProps);
+  }, [inputProps, fetchConfig]);
+
   return (
     <>
       <Composition
         id="AIVideo"
         component={AIVideo}
-        durationInFrames={150}
-        fps={30}
+        durationInFrames={frameLength}
+        fps={TargetFps}
         width={1080}
         height={1920}
         schema={aiVideoSchema}
-        defaultProps={{}}
+        defaultProps={{
+          timeline: timeline!,
+          hasWatermark: inputProps.hasWatermark,
+        }}
       />
     </>
   );
