@@ -1,17 +1,8 @@
-import type {
-	MediaParserAudioCodec,
-	MediaParserContainer,
-	MediaParserVideoCodec,
-} from '@remotion/media-parser';
-import type {ConvertMediaAudioCodec} from '@remotion/webcodecs';
 import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
 import type {OutputContainer} from '~/seo';
 
 export const renderHumanReadableAudioCodec = (
-	codec:
-		| InputAudioTrack['codec']
-		| MediaParserAudioCodec
-		| ConvertMediaAudioCodec,
+	codec: InputAudioTrack['codec'],
 ) => {
 	if (codec === 'opus') {
 		return 'Opus';
@@ -47,10 +38,6 @@ export const renderHumanReadableAudioCodec = (
 
 	if (codec === 'vorbis') {
 		return 'Vorbis';
-	}
-
-	if (codec === 'wav') {
-		return 'WAV';
 	}
 
 	if (codec === 'flac') {
@@ -109,7 +96,7 @@ export const renderHumanReadableAudioCodec = (
 };
 
 export const renderHumanReadableVideoCodec = (
-	codec: InputVideoTrack['codec'] | MediaParserVideoCodec,
+	codec: InputVideoTrack['codec'],
 ) => {
 	if (codec === 'vp8') {
 		return 'VP8';
@@ -150,9 +137,7 @@ export const renderHumanReadableVideoCodec = (
 	throw new Error(`Unknown video codec ${codec satisfies never}`);
 };
 
-export const renderHumanReadableContainer = (
-	container: MediaParserContainer | OutputContainer,
-) => {
+export const renderHumanReadableContainer = (container: OutputContainer) => {
 	if (container === 'webm') {
 		return '.webm';
 	}

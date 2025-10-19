@@ -1,5 +1,5 @@
-import type {VideoOperation} from '@remotion/webcodecs';
 import type {InputVideoTrack} from 'mediabunny';
+import type {VideoOperation} from '~/lib/audio-operation';
 import {renderHumanReadableVideoCodec} from '~/lib/render-codec-label';
 
 export const VideoOperationOption: React.FC<{

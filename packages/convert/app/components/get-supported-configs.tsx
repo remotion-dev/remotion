@@ -1,14 +1,4 @@
-import type {
-	MediaParserAudioCodec,
-	MediaParserContainer,
-	MediaParserTrack,
-} from '@remotion/media-parser';
-import type {
-	AudioOperation,
-	ConvertMediaContainer,
-	ResizeOperation,
-	VideoOperation,
-} from '@remotion/webcodecs';
+import type {MediaParserContainer} from '@remotion/media-parser';
 import {
 	canCopyAudioTrack,
 	canCopyVideoTrack,
@@ -17,7 +7,10 @@ import {
 	getAvailableAudioCodecs,
 	getAvailableVideoCodecs,
 } from '@remotion/webcodecs';
-import type {RouteAction} from '~/seo';
+import type {InputAudioTrack, InputTrack} from 'mediabunny';
+import type {AudioOperation, VideoOperation} from '~/lib/audio-operation';
+import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
+import type {OutputContainer, RouteAction} from '~/seo';
 
 export type VideoTrackOption = {
 	trackId: number;
@@ -27,7 +20,7 @@ export type VideoTrackOption = {
 export type AudioTrackOption = {
 	trackId: number;
 	operations: AudioOperation[];
-	audioCodec: MediaParserAudioCodec;
+	audioCodec: InputAudioTrack['codec'];
 };
 
 export type SupportedConfigs = {
@@ -93,13 +86,13 @@ export const getSupportedConfigs = async ({
 	resizeOperation,
 	sampleRate,
 }: {
-	tracks: MediaParserTrack[];
-	container: ConvertMediaContainer;
+	tracks: InputTrack[];
+	container: OutputContainer;
 	bitrate: number;
 	action: RouteAction;
 	userRotation: number;
 	inputContainer: MediaParserContainer;
-	resizeOperation: ResizeOperation | null;
+	resizeOperation: MediabunnyResize | null;
 	sampleRate: number | null;
 }): Promise<SupportedConfigs> => {
 	const availableVideoCodecs = getAvailableVideoCodecs({container});

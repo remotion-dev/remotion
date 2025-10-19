@@ -4,11 +4,8 @@ import type {
 	MediaParserContainer,
 	MediaParserDimensions,
 	MediaParserTrack,
-	MediaParserVideoCodec,
 } from '@remotion/media-parser';
-import type {WebCodecsController} from '@remotion/webcodecs';
-import {webcodecsController, WebCodecsInternals} from '@remotion/webcodecs';
-import type {Rotation} from 'mediabunny';
+import type {InputVideoTrack, Rotation} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	BlobSource,
@@ -18,7 +15,7 @@ import {
 	StreamTarget,
 	UrlSource,
 } from 'mediabunny';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
 import type {ConvertState, Source} from '~/lib/convert-state';
 import type {ConvertSections, RotateOrMirrorState} from '~/lib/default-ui';
@@ -77,7 +74,7 @@ const ConvertUI = ({
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: MediaParserAudioCodec | null;
-	readonly currentVideoCodec: MediaParserVideoCodec | null;
+	readonly currentVideoCodec: InputVideoTrack['codec'] | null;
 	readonly tracks: MediaParserTrack[] | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly unrotatedDimensions: MediaParserDimensions | null;
@@ -185,8 +182,6 @@ const ConvertUI = ({
 		}));
 	}, []);
 
-	const controllerRef = useRef<WebCodecsController | null>(null);
-
 	const [bars, setBars] = useState<number[]>([]);
 
 	const onWaveformBars = useCallback((b: number[]) => {
@@ -194,9 +189,6 @@ const ConvertUI = ({
 	}, []);
 
 	const onClick = useCallback(() => {
-		const controller = webcodecsController();
-		controllerRef.current = controller;
-
 		const progress: ConvertProgressType = {
 			bytesWritten: 0,
 			millisecondsWritten: 0,
@@ -337,14 +329,6 @@ const ConvertUI = ({
 
 	const dimissError = useCallback(() => {
 		setState({type: 'idle'});
-	}, []);
-
-	useEffect(() => {
-		return () => {
-			if (controllerRef.current) {
-				controllerRef.current.abort();
-			}
-		};
 	}, []);
 
 	const onMirrorClick = useCallback(() => {

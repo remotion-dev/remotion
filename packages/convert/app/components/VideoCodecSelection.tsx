@@ -1,6 +1,6 @@
-import type {VideoOperation} from '@remotion/webcodecs';
 import type {InputVideoTrack} from 'mediabunny';
 import React from 'react';
+import type {VideoOperation} from '~/lib/audio-operation';
 import {getVideoOperationId} from '~/lib/operation-key';
 import {
 	Select,

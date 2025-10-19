@@ -1,6 +1,6 @@
 import type {ParseMediaOnProgress} from '@remotion/media-parser';
-import {WebCodecsInternals} from '@remotion/webcodecs';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import type {RotateOrMirrorState} from '~/lib/default-ui';
 import {defaultRotateOrMirorState} from '~/lib/default-ui';
@@ -64,7 +64,7 @@ export const FileAvailable: React.FC<{
 			return 0;
 		}
 
-		return WebCodecsInternals.normalizeVideoRotation(userRotation);
+		return normalizeVideoRotation(userRotation);
 	}, [enableRotateOrMirrow, userRotation]);
 
 	return (
