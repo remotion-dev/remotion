@@ -1,9 +1,9 @@
-import type {OutputContainer} from '~/seo';
+import type {OutputFormat} from 'mediabunny';
 
-export const getNewName = (name: string, newContainer: OutputContainer) => {
+export const getNewName = (name: string, newContainer: OutputFormat) => {
 	const parts = name.split('.');
 
 	parts.pop();
 
-	return [...parts, newContainer].join('.');
+	return [...parts].join('.') + newContainer.fileExtension;
 };

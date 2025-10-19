@@ -1,5 +1,5 @@
-import type {MediaParserDimensions} from '@remotion/media-parser';
 import React, {useCallback, useMemo} from 'react';
+import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 import {ResizeShortcuts} from './ResizeShortcuts';
 import {getThumbnailDimensions, ResizeThumbnail} from './ResizeThumbnail';
@@ -36,8 +36,8 @@ const NumberInput: React.FC<{
 };
 
 export const ResizeUi: React.FC<{
-	readonly dimensions: MediaParserDimensions;
-	readonly originalDimensions: MediaParserDimensions;
+	readonly dimensions: Dimensions;
+	readonly originalDimensions: Dimensions;
 	readonly thumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly rotation: number;
 	readonly setResizeMode: React.Dispatch<

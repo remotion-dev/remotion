@@ -1,33 +1,31 @@
 import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
 import type {
-	MediaParserContainer,
-	MediaParserDimensions,
-	MediaParserLocation,
-	MediaParserMetadataEntry,
-} from '@remotion/media-parser';
-import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
+	InputAudioTrack,
+	InputFormat,
+	InputVideoTrack,
+	MetadataTags,
+} from 'mediabunny';
 import React from 'react';
+import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
 import {
 	renderHumanReadableAudioCodec,
-	renderHumanReadableContainer,
 	renderHumanReadableVideoCodec,
 } from '~/lib/render-codec-label';
 import {MetadataDisplay} from './MetadataTable';
 import {Skeleton} from './ui/skeleton';
 
 export const ContainerOverview: React.FC<{
-	readonly dimensions: MediaParserDimensions | null | undefined;
+	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null | undefined;
 	readonly videoCodec: InputVideoTrack['codec'] | null;
 	readonly audioCodec: InputAudioTrack['codec'] | null | undefined;
 	readonly size: number | null;
 	readonly fps: number | null | undefined;
-	readonly container: MediaParserContainer | null;
+	readonly container: InputFormat | null;
 	readonly isHdr: boolean | undefined;
-	readonly metadata: MediaParserMetadataEntry[] | null;
-	readonly location: MediaParserLocation | null;
+	readonly metadata: MetadataTags | null;
 	readonly isAudioOnly: boolean;
 	readonly sampleRate: number | null;
 }> = ({
@@ -40,7 +38,6 @@ export const ContainerOverview: React.FC<{
 	fps,
 	isHdr,
 	metadata,
-	location,
 	isAudioOnly,
 	sampleRate,
 }) => {
@@ -51,7 +48,7 @@ export const ContainerOverview: React.FC<{
 					<TableCell className="font-brand">Container</TableCell>
 					<TableCell className="text-right">
 						{container ? (
-							<>{renderHumanReadableContainer(container)}</>
+							container.name
 						) : (
 							<Skeleton className="h-3 w-[100px] inline-block" />
 						)}
@@ -155,11 +152,7 @@ export const ContainerOverview: React.FC<{
 						</TableCell>
 					</TableRow>
 				)}
-				<MetadataDisplay
-					location={location}
-					metadata={metadata ?? []}
-					trackId={null}
-				/>
+				{metadata ? <MetadataDisplay metadata={metadata} /> : null}
 			</TableBody>
 		</Table>
 	);

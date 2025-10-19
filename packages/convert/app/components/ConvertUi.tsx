@@ -1,11 +1,11 @@
 import {Button} from '@/components/ui/button';
 import type {
-	MediaParserAudioCodec,
-	MediaParserContainer,
-	MediaParserDimensions,
-	MediaParserTrack,
-} from '@remotion/media-parser';
-import type {InputVideoTrack, Rotation} from 'mediabunny';
+	InputAudioTrack,
+	InputFormat,
+	InputTrack,
+	InputVideoTrack,
+	Rotation,
+} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	BlobSource,
@@ -16,15 +16,18 @@ import {
 	UrlSource,
 } from 'mediabunny';
 import React, {useCallback, useMemo, useState} from 'react';
+import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
+import {calculateNewDimensionsFromRotateAndScale} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
 import type {ConvertState, Source} from '~/lib/convert-state';
 import type {ConvertSections, RotateOrMirrorState} from '~/lib/default-ui';
 import {getOrderOfSections, isConvertEnabledByDefault} from '~/lib/default-ui';
+import {getNewName} from '~/lib/generate-new-name';
 import {getActualVideoOperation} from '~/lib/get-audio-video-config-index';
+import {getDefaultOutputFormat} from '~/lib/get-default-output-format';
 import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
 import {isReencoding} from '~/lib/is-reencoding';
 import {isSubmitDisabled} from '~/lib/is-submit-enabled';
-import {generateOutputFilename} from '~/lib/make-output-filename';
 import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 import {calculateMediabunnyResizeOption} from '~/lib/mediabunny-calculate-resize-option';
 import {getMediabunnyOutput} from '~/lib/output-container';
@@ -38,7 +41,6 @@ import {ConvertProgress, convertProgressRef} from './ConvertProgress';
 import {ConvertUiSection} from './ConvertUiSection';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
-import {getDefaultContainerForConversion} from './guess-codec-from-source';
 import {MirrorComponents} from './MirrorComponents';
 import {PauseResumeAndCancel} from './PauseResumeAndCancel';
 import {ResampleUi} from './ResampleUi';
@@ -73,18 +75,18 @@ const ConvertUI = ({
 }: {
 	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
-	readonly currentAudioCodec: MediaParserAudioCodec | null;
+	readonly currentAudioCodec: InputAudioTrack['codec'] | null;
 	readonly currentVideoCodec: InputVideoTrack['codec'] | null;
-	readonly tracks: MediaParserTrack[] | null;
+	readonly tracks: InputTrack[] | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
-	readonly unrotatedDimensions: MediaParserDimensions | null;
-	readonly dimensions: MediaParserDimensions | null | undefined;
+	readonly unrotatedDimensions: Dimensions | null;
+	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null;
 	readonly fps: number | null;
 	readonly rotation: number | null;
-	readonly inputContainer: MediaParserContainer | null;
+	readonly inputContainer: InputFormat;
 	readonly action: RouteAction;
-	readonly name: string | null;
+	readonly name: string;
 	readonly enableRotateOrMirror: RotateOrMirrorState;
 	readonly setEnableRotateOrMirror: React.Dispatch<
 		React.SetStateAction<RotateOrMirrorState | null>
@@ -97,8 +99,8 @@ const ConvertUI = ({
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly sampleRate: number | null;
 }) => {
-	const [outputContainer, setContainer] = useState<OutputContainer>(() =>
-		getDefaultContainerForConversion(src, action),
+	const [outputContainer, setOutputContainer] = useState<OutputContainer>(() =>
+		getDefaultOutputFormat(inputContainer),
 	);
 	const [videoOperationSelection, setVideoOperationKey] = useState<
 		Record<number, string>
@@ -132,9 +134,8 @@ const ConvertUI = ({
 		useState(false);
 	const [resampleRate, setResampleRate] = useState<number>(16000);
 
-	const canResample = useMemo(() => {
-		return outputContainer === 'wav';
-	}, [outputContainer]);
+	// TODO: No
+	const canResample = false;
 
 	const actualResampleRate = useMemo(() => {
 		if (!canResample) {
@@ -165,7 +166,7 @@ const ConvertUI = ({
 			videoConfigIndexSelection: videoOperationSelection,
 			operations: o.operations,
 		});
-		return operation.type === 'reencode' && operation.videoCodec === 'h264';
+		return operation.type === 'reencode' && operation.videoCodec === 'avc';
 	});
 
 	const setVideoConfigIndex = useCallback((trackId: number, key: string) => {
@@ -208,12 +209,17 @@ const ConvertUI = ({
 		let cancelConversion = () => {};
 
 		const run = async () => {
-			const filename = generateOutputFilename(src, outputContainer);
+			if (!outputContainer) {
+				throw new Error('No output container selected');
+			}
+
+			const outputFormat = getMediabunnyOutput(outputContainer);
+			const filename = getNewName(name, outputFormat);
 			const {getBlob, stream, getWrittenByteCount, close} =
 				await makeWebFsTarget(filename);
 
 			const output = new Output({
-				format: getMediabunnyOutput(outputContainer),
+				format: outputFormat,
 				target: new StreamTarget(stream),
 			});
 
@@ -291,6 +297,7 @@ const ConvertUI = ({
 					onAbort: cancelConversion,
 					state: progress,
 					startTime,
+					newName: filename,
 				});
 			};
 
@@ -307,6 +314,7 @@ const ConvertUI = ({
 				state: progress,
 				startTime,
 				completedTime: Date.now(),
+				newName: filename,
 			});
 		};
 
@@ -319,10 +327,11 @@ const ConvertUI = ({
 		enableRotateOrMirror,
 		flipHorizontal,
 		flipVertical,
+		outputContainer,
+		name,
 		dimensions,
 		resizeOperation,
 		onWaveformBars,
-		outputContainer,
 		src,
 		userRotation,
 	]);
@@ -366,7 +375,7 @@ const ConvertUI = ({
 			return null;
 		}
 
-		return WebCodecsInternals.calculateNewDimensionsFromDimensions({
+		return calculateNewDimensionsFromRotateAndScale({
 			...unrotatedDimensions,
 			rotation: userRotation - (rotation ?? 0),
 			resizeOperation,
@@ -401,8 +410,7 @@ const ConvertUI = ({
 			<>
 				<ConvertProgress
 					state={state.state}
-					name={name}
-					container={outputContainer}
+					newName={state.newName}
 					done={false}
 					duration={durationInSeconds}
 					isReencoding={
@@ -429,8 +437,7 @@ const ConvertUI = ({
 				<ConvertProgress
 					done
 					state={state.state}
-					name={name}
-					container={outputContainer}
+					newName={state.newName}
 					duration={durationInSeconds}
 					isReencoding={
 						supportedConfigs !== null &&
@@ -486,7 +493,7 @@ const ConvertUI = ({
 										<ConvertForm
 											{...{
 												container: outputContainer,
-												setContainer,
+												setContainer: setOutputContainer,
 												flipHorizontal,
 												flipVertical,
 												setFlipHorizontal,

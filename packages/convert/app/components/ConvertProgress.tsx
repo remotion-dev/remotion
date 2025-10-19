@@ -2,13 +2,11 @@ import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatElapsedTime} from '~/lib/format-elapsed-time';
 import {formatSeconds} from '~/lib/format-seconds';
-import {getNewName} from '~/lib/generate-new-name';
 import type {ConvertProgressType} from '~/lib/progress';
 import {
 	useAddOutputFilenameToTitle,
 	useAddProgressToTitle,
 } from '~/lib/title-context';
-import type {OutputContainer} from '~/seo';
 import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
 import {Card} from './ui/card';
 import {Skeleton} from './ui/skeleton';
@@ -19,8 +17,7 @@ export const convertProgressRef = createRef<VideoThumbnailRef>();
 
 export const ConvertProgress: React.FC<{
 	readonly state: ConvertProgressType;
-	readonly name: string | null;
-	readonly container: OutputContainer;
+	readonly newName: string | null;
 	readonly done: boolean;
 	readonly duration: number | null;
 	readonly isReencoding: boolean;
@@ -30,9 +27,8 @@ export const ConvertProgress: React.FC<{
 	readonly completedTime?: number;
 }> = ({
 	state,
-	name,
+	newName,
 	bars,
-	container,
 	done,
 	isReencoding,
 	duration,
@@ -43,8 +39,6 @@ export const ConvertProgress: React.FC<{
 	const progress = done ? 1 : state.overallProgress;
 
 	useAddProgressToTitle(progress);
-	const newName = name ? getNewName(name, container) : null;
-
 	useAddOutputFilenameToTitle(newName);
 
 	return (
@@ -83,7 +77,7 @@ export const ConvertProgress: React.FC<{
 			) : null}
 			<div className="p-2">
 				<div>
-					{name ? (
+					{newName ? (
 						<strong className="font-brand ">{newName}</strong>
 					) : (
 						<Skeleton className="h-4 w-[200px]" />

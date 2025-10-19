@@ -1,10 +1,8 @@
-import type {ParseMediaOnProgress} from '@remotion/media-parser';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useMemo, useRef, useState} from 'react';
 import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import type {RotateOrMirrorState} from '~/lib/default-ui';
 import {defaultRotateOrMirorState} from '~/lib/default-ui';
-import {formatBytes} from '~/lib/format-bytes';
 import type {RouteAction} from '~/seo';
 import {BackButton} from './BackButton';
 import ConvertUI from './ConvertUi';
@@ -27,32 +25,11 @@ export const FileAvailable: React.FC<{
 
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
-	const onProgress: ParseMediaOnProgress = useCallback(
-		async ({bytes, percentage}) => {
-			await new Promise((resolve) => {
-				window.requestAnimationFrame(resolve);
-			});
-			const notDone = document.getElementById('not-done');
-			if (notDone) {
-				if (percentage === null) {
-					notDone.innerHTML = `${formatBytes(bytes)} read`;
-				} else {
-					notDone.innerHTML = `${Math.round(
-						percentage * 100,
-					)}% read (${formatBytes(bytes)})`;
-				}
-			}
-		},
-		[],
-	);
-
 	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
 		useState<RotateOrMirrorState>(() => defaultRotateOrMirorState(routeAction));
 
 	const probeResult = useProbe({
 		src,
-		logLevel: 'verbose',
-		onProgress,
 	});
 
 	const [userRotation, setRotation] = useState(90);
@@ -86,7 +63,9 @@ export const FileAvailable: React.FC<{
 						mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
 					/>
 					{routeAction.type !== 'generic-probe' &&
-					routeAction.type !== 'transcribe' ? (
+					routeAction.type !== 'transcribe' &&
+					probeResult.container !== null &&
+					probeResult.name !== null ? (
 						<>
 							<div className="h-8 lg:h-0 lg:w-8" />
 							<div

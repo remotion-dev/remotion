@@ -1,5 +1,5 @@
-import type {MediaParserDimensions} from '@remotion/media-parser';
 import type {ConversionVideoOptions} from 'mediabunny';
+import type {Dimensions} from './calculate-new-dimensions-from-dimensions';
 
 export type MediabunnyResize =
 	| {
@@ -17,7 +17,7 @@ export type MediabunnyResize =
 
 export const calculateMediabunnyResizeOption = (
 	resizeOperation: MediabunnyResize | null,
-	rotatedDimensions: MediaParserDimensions | null,
+	rotatedDimensions: Dimensions | null,
 ): ConversionVideoOptions => {
 	if (resizeOperation === null) {
 		return {};

@@ -97,9 +97,7 @@ export const Probe: React.FC<{
 		rotation,
 		error,
 		metadata,
-		location,
 		keyframes,
-		images,
 		sampleRate,
 	} = probeResult;
 
@@ -108,7 +106,7 @@ export const Probe: React.FC<{
 	}, [setProbeDetails]);
 
 	const sortedTracks = useMemo(
-		() => (tracks ? tracks.slice().sort((a, b) => a.trackId - b.trackId) : []),
+		() => (tracks ? tracks.slice().sort((a, b) => a.id - b.id) : []),
 		[tracks],
 	);
 
@@ -123,7 +121,7 @@ export const Probe: React.FC<{
 		return sortedTracks[trackDetails];
 	}, [probeDetails, sortedTracks, trackDetails]);
 
-	const isAudio = isAudioOnly({tracks, container});
+	const isAudio = isAudioOnly({tracks});
 
 	useAddFilenameToTitle(name);
 	useCopyThumbnailToFavicon(videoThumbnailRef);
@@ -203,23 +201,16 @@ export const Probe: React.FC<{
 									fps={fps}
 									metadata={metadata}
 									isHdr={isHdr}
-									location={location}
 									sampleRate={sampleRate}
 								/>
-							) : selectedTrack.type === 'video' ? (
+							) : selectedTrack.isVideoTrack() ? (
 								<VideoTrackOverview
-									location={location}
-									metadata={metadata}
 									track={selectedTrack}
 									keyframes={keyframes}
 									durationInSeconds={durationInSeconds ?? null}
 								/>
-							) : selectedTrack.type === 'audio' ? (
-								<AudioTrackOverview
-									location={location}
-									metadata={metadata}
-									track={selectedTrack}
-								/>
+							) : selectedTrack.isAudioTrack() ? (
+								<AudioTrackOverview track={selectedTrack} />
 							) : null}
 						</ScrollArea>
 						<Separator orientation="horizontal" />

@@ -1,4 +1,3 @@
-import type {MediaParserContainer} from '@remotion/media-parser';
 import {
 	canCopyAudioTrack,
 	canCopyVideoTrack,
@@ -7,7 +6,7 @@ import {
 	getAvailableAudioCodecs,
 	getAvailableVideoCodecs,
 } from '@remotion/webcodecs';
-import type {InputAudioTrack, InputTrack} from 'mediabunny';
+import type {InputAudioTrack, InputFormat, InputTrack} from 'mediabunny';
 import type {AudioOperation, VideoOperation} from '~/lib/audio-operation';
 import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 import type {OutputContainer, RouteAction} from '~/seo';
@@ -91,107 +90,108 @@ export const getSupportedConfigs = async ({
 	bitrate: number;
 	action: RouteAction;
 	userRotation: number;
-	inputContainer: MediaParserContainer;
+	inputContainer: InputFormat;
 	resizeOperation: MediabunnyResize | null;
 	sampleRate: number | null;
 }): Promise<SupportedConfigs> => {
 	const availableVideoCodecs = getAvailableVideoCodecs({container});
+	const availableAudioCodecs = getAvailableAudioCodecs({container});
 
+	const audioTrackOptions: AudioTrackOption[] = [];
 	const videoTrackOptions: VideoTrackOption[] = [];
 
 	const prioritizeCopyOverReencode =
 		shouldPrioritizeVideoCopyOverReencode(action);
 
-	for (const track of tracks.filter((t) => t.type === 'video')) {
-		const options: VideoOperation[] = [];
-		const canCopy = canCopyVideoTrack({
-			inputTrack: track,
-			outputContainer: container,
-			rotationToApply: userRotation,
-			inputContainer,
-			resizeOperation,
-			outputVideoCodec: null,
-		});
-		if (canCopy && prioritizeCopyOverReencode) {
-			options.push({
-				type: 'copy',
-			});
-		}
-
-		for (const outputCodec of availableVideoCodecs) {
-			const canReencode = await canReencodeVideoTrack({
-				videoCodec: outputCodec,
-				track,
+	for (const track of tracks) {
+		if (track.isVideoTrack()) {
+			const options: VideoOperation[] = [];
+			const canCopy = canCopyVideoTrack({
+				inputTrack: track,
+				outputContainer: container,
+				rotationToApply: userRotation,
+				inputContainer,
 				resizeOperation,
-				rotate: userRotation,
+				outputVideoCodec: null,
 			});
-			if (canReencode) {
+			if (canCopy && prioritizeCopyOverReencode) {
 				options.push({
-					type: 'reencode',
-					videoCodec: outputCodec,
-					resize: resizeOperation,
+					type: 'copy',
 				});
 			}
-		}
 
-		if (canCopy && !prioritizeCopyOverReencode) {
+			for (const outputCodec of availableVideoCodecs) {
+				const canReencode = await canReencodeVideoTrack({
+					videoCodec: outputCodec,
+					track,
+					resizeOperation,
+					rotate: userRotation,
+				});
+				if (canReencode) {
+					options.push({
+						type: 'reencode',
+						videoCodec: outputCodec,
+						resize: resizeOperation,
+					});
+				}
+			}
+
+			if (canCopy && !prioritizeCopyOverReencode) {
+				options.push({
+					type: 'copy',
+				});
+			}
+
 			options.push({
-				type: 'copy',
+				type: 'drop',
+			});
+			videoTrackOptions.push({
+				trackId: track.id,
+				operations: options,
 			});
 		}
 
-		options.push({
-			type: 'drop',
-		});
-		videoTrackOptions.push({
-			trackId: track.trackId,
-			operations: options,
-		});
-	}
+		if (track.isAudioTrack()) {
+			const audioTrackOperations: AudioOperation[] = [];
 
-	const availableAudioCodecs = getAvailableAudioCodecs({container});
-	const audioTrackOptions: AudioTrackOption[] = [];
-
-	for (const track of tracks.filter((t) => t.type === 'audio')) {
-		const audioTrackOperations: AudioOperation[] = [];
-
-		const canCopy = canCopyAudioTrack({
-			inputCodec: track.codecEnum,
-			outputContainer: container,
-			inputContainer,
-			outputAudioCodec: null,
-		});
-
-		if (canCopy) {
-			audioTrackOperations.push({type: 'copy'});
-		}
-
-		for (const audioCodec of availableAudioCodecs) {
-			const canReencode = await canReencodeAudioTrack({
-				audioCodec,
-				track,
-				bitrate,
-				sampleRate,
+			const canCopy = canCopyAudioTrack({
+				inputCodec: track.codec,
+				outputContainer: container,
+				inputContainer,
+				outputAudioCodec: null,
 			});
 
-			if (canReencode) {
-				audioTrackOperations.push({
-					type: 'reencode',
+			if (canCopy) {
+				audioTrackOperations.push({type: 'copy'});
+			}
+
+			for (const audioCodec of availableAudioCodecs) {
+				const canReencode = await canReencodeAudioTrack({
 					audioCodec,
+					track,
 					bitrate,
 					sampleRate,
 				});
-			}
-		}
 
-		audioTrackOperations.push({
-			type: 'drop',
-		});
-		audioTrackOptions.push({
-			trackId: track.trackId,
-			operations: audioTrackOperations,
-			audioCodec: track.codecEnum,
-		});
+				if (canReencode) {
+					audioTrackOperations.push({
+						type: 'reencode',
+						audioCodec,
+						bitrate,
+						sampleRate,
+					});
+				}
+			}
+
+			audioTrackOperations.push({
+				type: 'drop',
+			});
+			audioTrackOptions.push({
+				trackId: track.id,
+				operations: audioTrackOperations,
+				audioCodec: track.codec,
+			});
+		}
 	}
 
 	return {videoTrackOptions, audioTrackOptions};

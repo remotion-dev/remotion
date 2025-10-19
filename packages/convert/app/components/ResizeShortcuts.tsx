@@ -1,5 +1,5 @@
-import type {MediaParserDimensions} from '@remotion/media-parser';
 import React, {useCallback, useMemo} from 'react';
+import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 
 export const ResizeOption: React.FC<{
@@ -38,8 +38,8 @@ export const ResizeOption: React.FC<{
 };
 
 export const ResizeShortcuts: React.FC<{
-	readonly originalDimensions: MediaParserDimensions;
-	readonly resolvedDimensions: MediaParserDimensions;
+	readonly originalDimensions: Dimensions;
+	readonly resolvedDimensions: Dimensions;
 	readonly setResizeMode: React.Dispatch<
 		React.SetStateAction<MediabunnyResize | null>
 	>;

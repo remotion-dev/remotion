@@ -1,7 +1,4 @@
-import type {
-	MediaParserContainer,
-	MediaParserTrack,
-} from '@remotion/media-parser';
+import type {InputFormat, InputTrack} from 'mediabunny';
 import {useEffect, useState} from 'react';
 import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 import type {OutputContainer, RouteAction} from '~/seo';
@@ -18,16 +15,20 @@ export const useSupportedConfigs = ({
 	sampleRate,
 }: {
 	outputContainer: OutputContainer;
-	tracks: MediaParserTrack[] | null;
+	tracks: InputTrack[] | null;
 	action: RouteAction;
 	userRotation: number;
 	resizeOperation: MediabunnyResize | null;
-	inputContainer: MediaParserContainer | null;
+	inputContainer: InputFormat | null;
 	sampleRate: number | null;
 }) => {
 	const [state, setState] = useState<
-		Record<OutputContainer, SupportedConfigs | null>
-	>({mp4: null, webm: null, wav: null});
+		Record<OutputContainer, SupportedConfigs | null | undefined>
+	>({
+		mp4: null,
+		webm: null,
+		wav: null,
+	});
 
 	useEffect(() => {
 		if (!tracks || !inputContainer) {
@@ -59,5 +60,5 @@ export const useSupportedConfigs = ({
 		sampleRate,
 	]);
 
-	return state[outputContainer];
+	return state[outputContainer] ?? null;
 };

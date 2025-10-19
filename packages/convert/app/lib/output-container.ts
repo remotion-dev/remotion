@@ -16,19 +16,3 @@ export const getMediabunnyOutput = (container: OutputContainer) => {
 
 	throw new Error('Unsupported mime type: ' + container);
 };
-
-export const getExtension = (container: OutputContainer) => {
-	if (container === 'mp4') {
-		return 'mp4';
-	}
-
-	if (container === 'webm') {
-		return 'webm';
-	}
-
-	if (container === 'wav') {
-		return 'wav';
-	}
-
-	throw new Error('Unsupported container: ' + container);
-};

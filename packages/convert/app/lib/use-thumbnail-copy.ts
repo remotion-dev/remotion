@@ -1,6 +1,6 @@
-import type {MediaParserDimensions} from '@remotion/media-parser';
 import {useCallback, useEffect, useState} from 'react';
 import type {VideoThumbnailRef} from '~/components/VideoThumbnail';
+import type {Dimensions} from './calculate-new-dimensions-from-dimensions';
 
 export const useThumbnailCopy = ({
 	sourceRef,
@@ -9,7 +9,7 @@ export const useThumbnailCopy = ({
 }: {
 	sourceRef: React.RefObject<VideoThumbnailRef | null>;
 	targetRef: React.RefObject<HTMLCanvasElement | null> | null;
-	dimensions: MediaParserDimensions;
+	dimensions: Dimensions;
 }) => {
 	const [drawn, setDrawn] = useState(
 		() => sourceRef.current?.hasBitmap ?? false,

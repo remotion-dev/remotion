@@ -19,6 +19,7 @@ export type ConvertState =
 			onAbort: () => void;
 			state: ConvertProgressType;
 			startTime: number;
+			newName: string;
 	  }
 	| {
 			type: 'done';
@@ -26,6 +27,7 @@ export type ConvertState =
 			state: ConvertProgressType;
 			startTime: number;
 			completedTime: number;
+			newName: string;
 	  }
 	| {
 			type: 'error';

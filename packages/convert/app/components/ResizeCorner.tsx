@@ -1,11 +1,11 @@
-import type {MediaParserDimensions} from '@remotion/media-parser';
 import React, {useCallback} from 'react';
+import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 
 export const ResizeCorner: React.FC<{
-	readonly innerDimensions: MediaParserDimensions;
-	readonly outerDimensions: MediaParserDimensions;
-	readonly videoDimensions: MediaParserDimensions;
+	readonly innerDimensions: Dimensions;
+	readonly outerDimensions: Dimensions;
+	readonly videoDimensions: Dimensions;
 	readonly setResizeMode: React.Dispatch<
 		React.SetStateAction<MediabunnyResize | null>
 	>;

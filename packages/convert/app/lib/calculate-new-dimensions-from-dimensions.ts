@@ -1,6 +1,6 @@
 import type {MediabunnyResize} from './mediabunny-calculate-resize-option';
 
-type Dimensions = {
+export type Dimensions = {
 	width: number;
 	height: number;
 };

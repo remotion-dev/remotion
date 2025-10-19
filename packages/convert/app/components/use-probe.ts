@@ -1,9 +1,4 @@
-import type {
-	MediaParserController,
-	MediaParserDimensions,
-	MediaParserKeyframe,
-} from '@remotion/media-parser';
-import {mediaParserController} from '@remotion/media-parser';
+import type {MediaParserKeyframe} from '@remotion/media-parser';
 import type {
 	InputAudioTrack,
 	InputFormat,
@@ -13,6 +8,7 @@ import type {
 } from 'mediabunny';
 import {ALL_FORMATS, BlobSource, Input, UrlSource} from 'mediabunny';
 import {useCallback, useEffect, useMemo, useState} from 'react';
+import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 
 export type ProbeResult = ReturnType<typeof useProbe>;
@@ -26,11 +22,11 @@ export const useProbe = ({src}: {src: Source}) => {
 	const [durationInSeconds, setDurationInSeconds] = useState<
 		number | null | undefined
 	>(undefined);
-	const [dimensions, setDimensions] = useState<
-		MediaParserDimensions | undefined | null
-	>(undefined);
+	const [dimensions, setDimensions] = useState<Dimensions | undefined | null>(
+		undefined,
+	);
 	const [unrotatedDimensions, setUnrotatedDimensions] =
-		useState<MediaParserDimensions | null>(null);
+		useState<Dimensions | null>(null);
 	const [name, setName] = useState<string | null>(null);
 	const [videoCodec, setVideoCodec] = useState<
 		InputVideoTrack['codec'] | undefined | null
@@ -46,10 +42,6 @@ export const useProbe = ({src}: {src: Source}) => {
 	const [sampleRate, setSampleRate] = useState<number | null>(null);
 	const [done, setDone] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
-
-	const [controller] = useState<MediaParserController>(() =>
-		mediaParserController(),
-	);
 
 	const getStart = useCallback(() => {
 		// TODO: Name
@@ -138,7 +130,6 @@ export const useProbe = ({src}: {src: Source}) => {
 			metadata,
 			keyframes,
 			unrotatedDimensions,
-			controller,
 			sampleRate,
 		};
 	}, [
@@ -158,7 +149,6 @@ export const useProbe = ({src}: {src: Source}) => {
 		metadata,
 		keyframes,
 		unrotatedDimensions,
-		controller,
 		sampleRate,
 	]);
 };

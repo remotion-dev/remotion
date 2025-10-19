@@ -243,7 +243,6 @@
         "@remotion/captions": "workspace:*",
         "@remotion/media-parser": "workspace:*",
         "@remotion/shapes": "workspace:*",
-        "@remotion/webcodecs": "workspace:*",
         "@remotion/whisper-web": "workspace:*",
         "@vercel/remix": "^2.15.2",
         "class-variance-authority": "^0.7.0",

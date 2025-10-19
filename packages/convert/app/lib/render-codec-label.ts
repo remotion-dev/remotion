@@ -1,5 +1,5 @@
 import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
-import type {OutputContainer} from '~/seo';
+import type {InputContainer, OutputContainer} from '~/seo';
 
 export const renderHumanReadableAudioCodec = (
 	codec: InputAudioTrack['codec'],
@@ -137,7 +137,9 @@ export const renderHumanReadableVideoCodec = (
 	throw new Error(`Unknown video codec ${codec satisfies never}`);
 };
 
-export const renderHumanReadableContainer = (container: OutputContainer) => {
+export const renderHumanReadableContainer = (
+	container: InputContainer | OutputContainer,
+) => {
 	if (container === 'webm') {
 		return '.webm';
 	}
@@ -150,28 +152,12 @@ export const renderHumanReadableContainer = (container: OutputContainer) => {
 		return '.wav';
 	}
 
-	if (container === 'avi') {
-		return '.avi';
+	if (container === 'mov') {
+		return '.mov';
 	}
 
-	if (container === 'mp3') {
-		return '.mp3';
-	}
-
-	if (container === 'aac') {
-		return '.aac';
-	}
-
-	if (container === 'transport-stream') {
-		return '.ts';
-	}
-
-	if (container === 'flac') {
-		return '.flac';
-	}
-
-	if (container === 'm3u8') {
-		return '.m3u8';
+	if (container === 'mkv') {
+		return '.mkv';
 	}
 
 	throw new Error(`Unknown container ${container satisfies never}`);

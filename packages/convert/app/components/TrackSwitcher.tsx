@@ -1,10 +1,10 @@
-import type {MediaParserTrack} from '@remotion/media-parser';
+import type {InputTrack} from 'mediabunny';
 import React from 'react';
 import {Button} from './ui/button';
 import {Separator} from './ui/separator';
 
 export const TrackSwitcher: React.FC<{
-	readonly sortedTracks: MediaParserTrack[];
+	readonly sortedTracks: InputTrack[];
 	readonly onTrack: (trackNumber: number | null) => void;
 	readonly selectedTrack: number | null;
 }> = ({sortedTracks, onTrack, selectedTrack}) => {
@@ -26,15 +26,14 @@ export const TrackSwitcher: React.FC<{
 						</Button>
 						{sortedTracks.map((trk, i) => {
 							return (
-								<React.Fragment key={trk.trackId}>
+								<React.Fragment key={trk.id}>
 									<Separator orientation="vertical" />
 									<Button
 										className="rounded-none"
 										variant={selectedTrack === i ? 'secondary' : 'ghost'}
 										onClick={() => onTrack(i)}
 									>
-										Track {trk.trackId} (
-										{trk.type === 'audio' ? 'Audio' : 'Video'})
+										Track {trk.id} ({trk.type === 'audio' ? 'Audio' : 'Video'})
 									</Button>
 								</React.Fragment>
 							);
