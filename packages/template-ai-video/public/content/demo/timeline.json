@@ -1,0 +1,1335 @@
+{
+  "text": [
+    {
+      "text": "In 2012, ",
+      "endMs": 1370,
+      "startMs": 0,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -6.241814031811098,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "scientists ",
+      "endMs": 1962,
+      "startMs": 1370,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "discovered ",
+      "endMs": 2473,
+      "startMs": 1962,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "an ",
+      "endMs": 2635,
+      "startMs": 2473,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "underwater ",
+      "endMs": 3216,
+      "startMs": 2635,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 8.675968479802927,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "river at the ",
+      "endMs": 3808,
+      "startMs": 3216,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -7.351100219935402,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "bottom of ",
+      "endMs": 4238,
+      "startMs": 3808,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0.06342549764921879,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "the Black Sea.",
+      "endMs": 4923,
+      "startMs": 4238,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -2.688267362235037,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.6668409556238707,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "This river, ",
+      "endMs": 5666,
+      "startMs": 4923,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.5777696316685244,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "complete ",
+      "endMs": 6003,
+      "startMs": 5666,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.6630797308800843,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "with trees ",
+      "endMs": 6456,
+      "startMs": 6003,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -6.189399244871341,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "and leaves, ",
+      "endMs": 7257,
+      "startMs": 6456,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -1.299757099038057,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "snakes ",
+      "endMs": 7466,
+      "startMs": 7257,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "through the ",
+      "endMs": 7953,
+      "startMs": 7466,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 5.755492293271276,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 0.5131951569121614,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "sea bed like ",
+      "endMs": 8464,
+      "startMs": 7953,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 0.6310645152750947,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "a hidden world.",
+      "endMs": 9103,
+      "startMs": 8464,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 0.695390195780089,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "It is so ",
+      "endMs": 9869,
+      "startMs": 9103,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 9.111545499261505,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "large that ",
+      "endMs": 10380,
+      "startMs": 9869,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -0.8034394443138271,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.6442416553612305,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "if it were ",
+      "endMs": 10926,
+      "startMs": 10380,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -2.345797686238651,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "on land, it ",
+      "endMs": 11564,
+      "startMs": 10926,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "would be the ",
+      "endMs": 12203,
+      "startMs": 11564,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -6.204234490090734,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 0.638385065770432,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "sixth-largest ",
+      "endMs": 13039,
+      "startMs": 12203,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "river in the world.",
+      "endMs": 13840,
+      "startMs": 13039,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -9.394805967165409,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "The ",
+      "endMs": 14200,
+      "startMs": 13840,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -4.189079363777132,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.5041451572066585,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "mysterious ",
+      "endMs": 14804,
+      "startMs": 14200,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.6839265059020809,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "phenomenon ",
+      "endMs": 15489,
+      "startMs": 14804,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.6812350956986389,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "is caused by ",
+      "endMs": 16185,
+      "startMs": 15489,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "the high ",
+      "endMs": 16777,
+      "startMs": 16185,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 0.6639595003794697,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "salinity of ",
+      "endMs": 17404,
+      "startMs": 16777,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.5206367333917523,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "the water, ",
+      "endMs": 18310,
+      "startMs": 17404,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "which makes ",
+      "endMs": 19018,
+      "startMs": 18310,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "it denser ",
+      "endMs": 19575,
+      "startMs": 19018,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "and causes ",
+      "endMs": 20133,
+      "startMs": 19575,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 4.813699655582793,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.5932744503084951,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "it to flow ",
+      "endMs": 20725,
+      "startMs": 20133,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0.459350604502744,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 0.6075095798109468,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "downward ",
+      "endMs": 21236,
+      "startMs": 20725,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.657788702201715,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "like a river.",
+      "endMs": 21503,
+      "startMs": 21236,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 4.816891204446692,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "Explorers ",
+      "endMs": 22467,
+      "startMs": 21503,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -1.699881943461752,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 0.654074994623422,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "and marine ",
+      "endMs": 23082,
+      "startMs": 22467,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0.6860478683455429,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.6621468949664628,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "biologists ",
+      "endMs": 23779,
+      "startMs": 23082,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -5.939251651476651,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "continue to ",
+      "endMs": 24464,
+      "startMs": 23779,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -8.492680637263012,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.5148904464016304,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "study this ",
+      "endMs": 25137,
+      "startMs": 24464,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 2.684549343162226,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.5441884365079986,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "enigmatic ",
+      "endMs": 25834,
+      "startMs": 25137,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 2.770609243512785,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "and ",
+      "endMs": 26089,
+      "startMs": 25834,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 0.7189665184792982,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 0.5784255347420383,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        }
+      ]
+    },
+    {
+      "text": "otherworldly ",
+      "endMs": 26948,
+      "startMs": 26089,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": 7.685816506488175,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 1,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    },
+    {
+      "text": "aquatic landscape.",
+      "endMs": 27726,
+      "startMs": 26948,
+      "position": "center",
+      "animations": [
+        {
+          "to": 0,
+          "from": -4.098349388732498,
+          "type": "rotate",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1.25,
+          "from": 0.6338857334957155,
+          "type": "scale",
+          "endMs": 300,
+          "startMs": 0
+        },
+        {
+          "to": 1,
+          "from": 1.25,
+          "type": "scale",
+          "endMs": 500,
+          "startMs": 300
+        }
+      ]
+    }
+  ],
+  "audio": [
+    {
+      "endMs": 4923,
+      "startMs": 0,
+      "audioUrl": "https://stories.matolabs.dev/1e91daf1-32c6-487b-af1a-b55e633044c8-audio-0.mp3"
+    },
+    {
+      "endMs": 9103,
+      "startMs": 4923,
+      "audioUrl": "https://stories.matolabs.dev/1e91daf1-32c6-487b-af1a-b55e633044c8-audio-1.mp3"
+    },
+    {
+      "endMs": 13840,
+      "startMs": 9103,
+      "audioUrl": "https://stories.matolabs.dev/1e91daf1-32c6-487b-af1a-b55e633044c8-audio-2.mp3"
+    },
+    {
+      "endMs": 21503,
+      "startMs": 13840,
+      "audioUrl": "https://stories.matolabs.dev/1e91daf1-32c6-487b-af1a-b55e633044c8-audio-3.mp3"
+    },
+    {
+      "endMs": 27726,
+      "startMs": 21503,
+      "audioUrl": "https://stories.matolabs.dev/1e91daf1-32c6-487b-af1a-b55e633044c8-audio-4.mp3"
+    }
+  ],
+  "elements": [
+    {
+      "endMs": 4923,
+      "startMs": 0,
+      "imageUrl": "https://stories.matolabs.dev/1e91daf1-32c6-487b-af1a-b55e633044c8-0-0.jpg",
+      "animations": [
+        {
+          "to": 1,
+          "from": 1.5,
+          "type": "scale",
+          "endMs": 4923,
+          "startMs": 0
+        },
+        {
+          "to": -3.197558487589267,
+          "from": 0,
+          "type": "rotate",
+          "endMs": 4923,
+          "startMs": 0
+        }
+      ],
+      "exitTransition": "blur",
+      "enterTransition": "blur"
+    },
+    {
+      "endMs": 9103,
+      "startMs": 4923,
+      "imageUrl": "https://stories.matolabs.dev/1e91daf1-32c6-487b-af1a-b55e633044c8-1-0.jpg",
+      "animations": [
+        {
+          "to": 1.5,
+          "from": 1,
+          "type": "scale",
+          "endMs": 4180,
+          "startMs": 0
+        },
+        {
+          "to": 0,
+          "from": -6.060903269034625,
+          "type": "rotate",
+          "endMs": 4180,
+          "startMs": 0
+        }
+      ],
+      "exitTransition": "blur",
+      "enterTransition": "blur"
+    },
+    {
+      "endMs": 13840,
+      "startMs": 9103,
+      "imageUrl": "https://stories.matolabs.dev/1e91daf1-32c6-487b-af1a-b55e633044c8-2-0.jpg",
+      "animations": [
+        {
+          "to": 1,
+          "from": 1.5,
+          "type": "scale",
+          "endMs": 4737,
+          "startMs": 0
+        },
+        {
+          "to": 0,
+          "from": -8.443021468201962,
+          "type": "rotate",
+          "endMs": 4737,
+          "startMs": 0
+        }
+      ],
+      "exitTransition": "blur",
+      "enterTransition": "blur"
+    },
+    {
+      "endMs": 21503,
+      "startMs": 13840,
+      "imageUrl": "https://stories.matolabs.dev/1e91daf1-32c6-487b-af1a-b55e633044c8-3-0.jpg",
+      "animations": [
+        {
+          "to": 1.5,
+          "from": 1,
+          "type": "scale",
+          "endMs": 7663,
+          "startMs": 0
+        },
+        {
+          "to": 0,
+          "from": -6.571383632983783,
+          "type": "rotate",
+          "endMs": 7663,
+          "startMs": 0
+        }
+      ],
+      "exitTransition": "blur",
+      "enterTransition": "blur"
+    },
+    {
+      "endMs": 27726,
+      "startMs": 21503,
+      "imageUrl": "https://stories.matolabs.dev/1e91daf1-32c6-487b-af1a-b55e633044c8-4-0.jpg",
+      "animations": [
+        {
+          "to": 1,
+          "from": 1.5,
+          "type": "scale",
+          "endMs": 6223,
+          "startMs": 0
+        },
+        {
+          "to": 0,
+          "from": -3.331646297233046,
+          "type": "rotate",
+          "endMs": 6223,
+          "startMs": 0
+        }
+      ],
+      "exitTransition": "blur",
+      "enterTransition": "blur"
+    }
+  ],
+  "shortTitle": "Underwater Treasures"
+}
