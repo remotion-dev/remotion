@@ -65,3 +65,31 @@ export {
   AudioElementSchema,
   TimelineSchema,
 };
+
+export const AiVideoSlideSchema = z.object({
+  uid: z.string(),
+  text: z.string(),
+  imageDesc: z.string(),
+});
+
+export type AiVideoSlide = z.infer<typeof AiVideoSlideSchema>;
+
+export const StoryScript = z.object({
+  text: z.string(),
+});
+
+export const StoryWithImages = z.object({
+  result: z.array(
+    z.object({
+      text: z.string(),
+      imageDescription: z.string(),
+    }),
+  ),
+});
+
+export const VoiceDescriptorSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+
+export type VoiceDescriptor = z.infer<typeof VoiceDescriptorSchema>;
