@@ -1,5 +1,6 @@
 import type {MediaParserAudioCodec} from '@remotion/media-parser';
 import type {AudioOperation} from '@remotion/webcodecs';
+import type {InputAudioTrack} from 'mediabunny';
 import React from 'react';
 import {getAudioOperationId} from '~/lib/operation-key';
 import {AudioCodecDropWarning} from './AudioCodecDropWarning';
@@ -17,7 +18,10 @@ export const AudioCodecSelection: React.FC<{
 	readonly audioTrackOptions: AudioOperation[];
 	readonly index: string;
 	readonly setIndex: (v: string) => void;
-	readonly currentAudioCodec: MediaParserAudioCodec | null;
+	readonly currentAudioCodec:
+		| InputAudioTrack['codec']
+		| MediaParserAudioCodec
+		| null;
 }> = ({audioTrackOptions, index, setIndex, currentAudioCodec}) => {
 	if (!currentAudioCodec) {
 		throw new Error('No current audio codec, should not render this component');

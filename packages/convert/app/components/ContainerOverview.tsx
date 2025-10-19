@@ -1,12 +1,11 @@
 import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
 import type {
-	MediaParserAudioCodec,
 	MediaParserContainer,
 	MediaParserDimensions,
 	MediaParserLocation,
 	MediaParserMetadataEntry,
-	MediaParserVideoCodec,
 } from '@remotion/media-parser';
+import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
 import React from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
@@ -21,8 +20,8 @@ import {Skeleton} from './ui/skeleton';
 export const ContainerOverview: React.FC<{
 	readonly dimensions: MediaParserDimensions | null | undefined;
 	readonly durationInSeconds: number | null | undefined;
-	readonly videoCodec: MediaParserVideoCodec | null;
-	readonly audioCodec: MediaParserAudioCodec | null | undefined;
+	readonly videoCodec: InputVideoTrack['codec'] | null;
+	readonly audioCodec: InputAudioTrack['codec'] | null | undefined;
 	readonly size: number | null;
 	readonly fps: number | null | undefined;
 	readonly container: MediaParserContainer | null;

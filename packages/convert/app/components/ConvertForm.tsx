@@ -3,6 +3,7 @@ import type {
 	MediaParserVideoCodec,
 } from '@remotion/media-parser';
 import {getAvailableContainers} from '@remotion/webcodecs';
+import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
 import React from 'react';
 import {
 	getActualAudioConfigIndex,
@@ -34,8 +35,14 @@ export const ConvertForm: React.FC<{
 	readonly audioConfigIndexSelection: Record<number, string>;
 	readonly setAudioConfigIndex: (trackId: number, key: string) => void;
 	readonly setVideoConfigIndex: (trackId: number, key: string) => void;
-	readonly currentAudioCodec: MediaParserAudioCodec | null;
-	readonly currentVideoCodec: MediaParserVideoCodec | null;
+	readonly currentAudioCodec:
+		| InputAudioTrack['codec']
+		| MediaParserAudioCodec
+		| null;
+	readonly currentVideoCodec:
+		| InputVideoTrack['codec']
+		| MediaParserVideoCodec
+		| null;
 }> = ({
 	container,
 	setContainer,

@@ -1,5 +1,5 @@
-import type {MediaParserVideoCodec} from '@remotion/media-parser';
 import type {VideoOperation} from '@remotion/webcodecs';
+import type {InputVideoTrack} from 'mediabunny';
 import React from 'react';
 import {getVideoOperationId} from '~/lib/operation-key';
 import {
@@ -16,7 +16,7 @@ export const VideoCodecSelection: React.FC<{
 	readonly videoOperations: VideoOperation[];
 	readonly index: string;
 	readonly setIndex: (v: string) => void;
-	readonly currentVideoCodec: MediaParserVideoCodec | null;
+	readonly currentVideoCodec: InputVideoTrack['codec'] | null;
 }> = ({videoOperations, index, setIndex, currentVideoCodec}) => {
 	return (
 		<Select

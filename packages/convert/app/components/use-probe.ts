@@ -9,11 +9,12 @@ import type {
 	MediaParserLogLevel,
 	MediaParserMetadataEntry,
 	MediaParserTrack,
-	MediaParserVideoCodec,
 	ParseMediaOnProgress,
 } from '@remotion/media-parser';
 import {mediaParserController} from '@remotion/media-parser';
 import {parseMediaOnWebWorker} from '@remotion/media-parser/worker';
+import type {InputVideoTrack} from 'mediabunny';
+import {ALL_FORMATS, BlobSource, Input, UrlSource} from 'mediabunny';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 
@@ -43,7 +44,7 @@ export const useProbe = ({
 		useState<MediaParserDimensions | null>(null);
 	const [name, setName] = useState<string | null>(null);
 	const [videoCodec, setVideoCodec] = useState<
-		MediaParserVideoCodec | undefined | null
+		InputVideoTrack['codec'] | undefined | null
 	>(undefined);
 	const [rotation, setRotation] = useState<number | null>(null);
 	const [size, setSize] = useState<number | null>(null);
@@ -66,6 +67,27 @@ export const useProbe = ({
 	);
 
 	const getStart = useCallback(() => {
+		const input = new Input({
+			formats: ALL_FORMATS,
+			source:
+				src.type === 'file' ? new BlobSource(src.file) : new UrlSource(src.url),
+		});
+
+		const run = async () => {
+			const duration = await input.computeDuration();
+			setDurationInSeconds(duration);
+
+			const videoTrack = await input.getPrimaryVideoTrack();
+			if (videoTrack) {
+				const {codec} = videoTrack;
+				setVideoCodec(codec);
+				const packetStats = await videoTrack.computePacketStats(50);
+				setFps(packetStats.averagePacketRate);
+			}
+		};
+
+		run();
+
 		parseMediaOnWebWorker({
 			logLevel,
 			src: src.type === 'file' ? src.file : src.url,
@@ -80,14 +102,8 @@ export const useProbe = ({
 			onAudioCodec: (codec) => {
 				setAudioCodec(codec);
 			},
-			onFps: (f) => {
-				setFps(f);
-			},
 			onIsHdr: (hdr) => {
 				setHdr(hdr);
-			},
-			onDurationInSeconds: (d) => {
-				setDurationInSeconds(d);
 			},
 			onRotation(newRotation) {
 				setRotation(newRotation);
@@ -100,9 +116,6 @@ export const useProbe = ({
 			},
 			onUnrotatedDimensions(dim) {
 				setUnrotatedDimensions(dim);
-			},
-			onVideoCodec: (codec) => {
-				setVideoCodec(codec);
 			},
 			onTracks: (trx) => {
 				setTracks(trx);
@@ -147,13 +160,15 @@ export const useProbe = ({
 				setDone(true);
 			});
 
-		return controller;
+		return () => {
+			input.dispose();
+		};
 	}, [src, logLevel, onProgress, controller]);
 
 	useEffect(() => {
-		const start = getStart();
+		const cleanup = getStart();
 		return () => {
-			start.abort(new Error('Cancelled (strict mode)'));
+			cleanup();
 		};
 	}, [getStart]);
 
