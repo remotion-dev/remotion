@@ -1320,7 +1320,10 @@
       "name": "template-ai-video",
       "version": "1.0.0",
       "dependencies": {
+        "@remotion/animation-utils": "workspace:*",
         "@remotion/cli": "workspace:*",
+        "@remotion/google-fonts": "workspace:*",
+        "@remotion/layout-utils": "workspace:*",
         "@remotion/zod-types": "workspace:*",
         "react": "19.0.0",
         "react-dom": "19.0.0",
