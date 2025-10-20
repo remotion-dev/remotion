@@ -1,4 +1,5 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {MediaFox} from '@mediafox/core';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import type {RotateOrMirrorState} from '~/lib/default-ui';
@@ -34,6 +35,12 @@ export const FileAvailable: React.FC<{
 		src,
 	});
 
+	const [mediaFox, setMediaFox] = useState<MediaFox | null>(null);
+
+	useEffect(() => {
+		setMediaFox(new MediaFox());
+	}, []);
+
 	const [userRotation, setRotation] = useState(90);
 	const [flipHorizontal, setFlipHorizontal] = useState(true);
 	const [flipVertical, setFlipVertical] = useState(false);
@@ -58,24 +65,34 @@ export const FileAvailable: React.FC<{
 			<div>
 				<BackButton setSrc={setSrc} />
 				<div className="h-4" />
-				<VideoPlayer src={src} isAudio={isAudio} waveform={waveform} />
+				{mediaFox ? (
+					<VideoPlayer
+						src={src}
+						isAudio={isAudio}
+						waveform={waveform}
+						mediaFox={mediaFox}
+					/>
+				) : null}
 				<div className="h-8" />
 				<div className="lg:inline-flex lg:flex-row items-start">
-					<Probe
-						isAudio={isAudio}
-						src={src}
-						probeDetails={probeDetails}
-						setProbeDetails={setProbeDetails}
-						probeResult={probeResult}
-						videoThumbnailRef={videoThumbnailRef}
-						userRotation={actualUserRotation}
-						mirrorHorizontal={
-							flipHorizontal && enableRotateOrMirrow === 'mirror'
-						}
-						mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
-						waveform={waveform}
-						onWaveformBars={onWaveformBars}
-					/>
+					{mediaFox ? (
+						<Probe
+							mediaFox={mediaFox}
+							isAudio={isAudio}
+							src={src}
+							probeDetails={probeDetails}
+							setProbeDetails={setProbeDetails}
+							probeResult={probeResult}
+							videoThumbnailRef={videoThumbnailRef}
+							userRotation={actualUserRotation}
+							mirrorHorizontal={
+								flipHorizontal && enableRotateOrMirrow === 'mirror'
+							}
+							mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
+							waveform={waveform}
+							onWaveformBars={onWaveformBars}
+						/>
+					) : null}
 					{routeAction.type !== 'generic-probe' &&
 					routeAction.type !== 'transcribe' ? (
 						<>
@@ -84,9 +101,12 @@ export const FileAvailable: React.FC<{
 								data-disabled={!(probeResult.done && !probeResult.error)}
 								className="w-full lg:w-[350px] data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
 							>
-								{probeResult.container !== null && probeResult.name !== null ? (
+								{probeResult.container !== null &&
+								probeResult.name !== null &&
+								mediaFox ? (
 									<div className="gap-4">
 										<ConvertUI
+											mediafox={mediaFox}
 											inputContainer={probeResult.container}
 											currentAudioCodec={probeResult.audioCodec ?? null}
 											currentVideoCodec={probeResult.videoCodec ?? null}
@@ -115,8 +135,12 @@ export const FileAvailable: React.FC<{
 							</div>
 						</>
 					) : null}
-					{routeAction.type === 'transcribe' ? (
-						<Transcribe src={src} name={probeResult.name ?? ''} />
+					{routeAction.type === 'transcribe' && mediaFox ? (
+						<Transcribe
+							src={src}
+							name={probeResult.name ?? ''}
+							mediaFox={mediaFox}
+						/>
 					) : null}
 				</div>
 				<div className="h-16" />

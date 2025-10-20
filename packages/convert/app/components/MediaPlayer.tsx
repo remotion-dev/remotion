@@ -1,5 +1,5 @@
-import {MediaFox} from '@mediafox/core';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import type {MediaFox} from '@mediafox/core';
+import {useEffect, useMemo, useRef} from 'react';
 import type {Source} from '~/lib/convert-state';
 import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
 import {PlayerVolume} from './player/mute-button';
@@ -22,13 +22,14 @@ export function VideoPlayer({
 	src: source,
 	isAudio,
 	waveform,
+	mediaFox,
 }: {
 	readonly src: Source;
 	readonly waveform: number[];
 	readonly isAudio: boolean;
+	readonly mediaFox: MediaFox;
 }) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const playerRef = useRef<MediaFox>(null);
 
 	const src = useMemo(() => {
 		if (source.type === 'url') {
@@ -38,23 +39,16 @@ export function VideoPlayer({
 		return source.file;
 	}, [source]);
 
-	const [mediaFox, setMediaFox] = useState<MediaFox | null>(null);
-
 	useEffect(() => {
-		const player = new MediaFox({
-			renderTarget: canvasRef.current!,
-		});
-		setMediaFox(player);
-
-		playerRef.current = player;
+		mediaFox.setRenderTarget(canvasRef.current!);
 
 		// Load media
-		player.load(src).then(() => {});
+		mediaFox.load(src).then(() => {});
 
 		return () => {
-			player.dispose();
+			mediaFox.dispose();
 		};
-	}, [src]);
+	}, [src, mediaFox]);
 
 	return (
 		<div
@@ -63,7 +57,7 @@ export function VideoPlayer({
 		>
 			{isAudio ? (
 				<AudioWaveformContainer>
-					<AudioWaveForm bars={waveform} />
+					<AudioWaveForm bars={waveform} mediafox={mediaFox} />
 				</AudioWaveformContainer>
 			) : null}
 			<canvas

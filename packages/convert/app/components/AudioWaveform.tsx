@@ -1,9 +1,13 @@
+import type MediaFox from '@mediafox/core';
 import React, {useMemo} from 'react';
 import {useAudioPlayback} from '~/lib/use-audio-playback';
 import {AMOUNT_OF_BARS} from '~/lib/waveform-visualizer';
 import {THUMBNAIL_HEIGHT} from './VideoThumbnail';
 
-export const AudioWaveForm: React.FC<{readonly bars: number[]}> = ({bars}) => {
+export const AudioWaveForm: React.FC<{
+	readonly bars: number[];
+	readonly mediafox: MediaFox;
+}> = ({bars, mediafox}) => {
 	const padded = useMemo(() => {
 		const p: (number | null)[] = [...bars];
 		while (p.length < AMOUNT_OF_BARS) {
@@ -13,7 +17,7 @@ export const AudioWaveForm: React.FC<{readonly bars: number[]}> = ({bars}) => {
 		return p;
 	}, [bars]);
 
-	const {time, duration, playing} = useAudioPlayback();
+	const {time, duration, playing} = useAudioPlayback(mediafox);
 	const progress = time / duration;
 
 	return (

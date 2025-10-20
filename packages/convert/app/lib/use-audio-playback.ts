@@ -1,51 +1,35 @@
+import type MediaFox from '@mediafox/core';
 import {useCallback, useEffect, useState} from 'react';
-import {audioPlaybackRef} from '~/components/AudioPlayback';
 
-export const useAudioPlayback = () => {
-	const [playing, setPlaying] = useState(
-		() => !(audioPlaybackRef.current?.paused ?? true),
+export const useAudioPlayback = (mediaFox: MediaFox) => {
+	const [playing, setPlaying] = useState(() => !mediaFox.paused);
+	const [time, setTime] = useState(() => mediaFox.currentTime);
+	const [duration, setDuration] = useState(() => mediaFox.duration);
+
+	const seekToPercentage = useCallback(
+		(percentage: number) => {
+			mediaFox.currentTime = (percentage / 100) * mediaFox.duration;
+		},
+		[mediaFox],
 	);
-	const [time, setTime] = useState(0);
-	const [duration, setDuration] = useState(0);
-
-	const seekToPercentage = useCallback((percentage: number) => {
-		if (!audioPlaybackRef.current) {
-			return;
-		}
-
-		audioPlaybackRef.current.currentTime =
-			(percentage / 100) * (audioPlaybackRef.current.duration ?? 0);
-	}, []);
 
 	useEffect(() => {
-		if (!audioPlaybackRef.current) {
-			return;
-		}
-
 		const onPlay = () => setPlaying(true);
 		const onPause = () => setPlaying(false);
-		const onTimeUpdate = () =>
-			setTime(audioPlaybackRef.current?.currentTime ?? 0);
-		const onDurationChange = () =>
-			setDuration(audioPlaybackRef.current?.duration ?? 0);
+		const onTimeUpdate = () => setTime(mediaFox.currentTime);
+		const onDurationChange = () => setDuration(mediaFox.duration);
 
-		audioPlaybackRef.current.addEventListener('play', onPlay);
-		audioPlaybackRef.current.addEventListener('pause', onPause);
-		audioPlaybackRef.current.addEventListener('timeupdate', onTimeUpdate);
-		audioPlaybackRef.current.addEventListener(
-			'durationchange',
-			onDurationChange,
-		);
+		mediaFox.on('play', onPlay);
+		mediaFox.on('pause', onPause);
+		mediaFox.on('timeupdate', onTimeUpdate);
+		mediaFox.on('durationchange', onDurationChange);
 		return () => {
-			audioPlaybackRef.current?.removeEventListener('play', onPlay);
-			audioPlaybackRef.current?.removeEventListener('pause', onPause);
-			audioPlaybackRef.current?.removeEventListener('timeupdate', onTimeUpdate);
-			audioPlaybackRef.current?.removeEventListener(
-				'durationchange',
-				onDurationChange,
-			);
+			mediaFox.off('play', onPlay);
+			mediaFox.off('pause', onPause);
+			mediaFox.off('timeupdate', onTimeUpdate);
+			mediaFox.off('durationchange', onDurationChange);
 		};
-	}, []);
+	}, [mediaFox]);
 
 	return {playing, time, duration, seekToPercentage};
 };

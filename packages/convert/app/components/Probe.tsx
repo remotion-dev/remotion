@@ -1,3 +1,4 @@
+import type MediaFox from '@mediafox/core';
 import clsx from 'clsx';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
@@ -7,9 +8,7 @@ import {
 	useCopyThumbnailToFavicon,
 } from '~/lib/title-context';
 import {useThumbnailAndWaveform} from '~/lib/use-thumbnail';
-import {AudioPlayback} from './AudioPlayback';
 import {AudioTrackOverview} from './AudioTrackOverview';
-import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
 import {ContainerOverview} from './ContainerOverview';
 import {EmbeddedImage} from './EmbeddedImage';
 import {SourceLabel} from './SourceLabel';
@@ -40,6 +39,7 @@ export const Probe: React.FC<{
 	readonly onWaveformBars: (bars: number[]) => void;
 	readonly waveform: number[];
 	readonly isAudio: boolean;
+	readonly mediaFox: MediaFox;
 }> = ({
 	src,
 	probeDetails,
@@ -52,6 +52,7 @@ export const Probe: React.FC<{
 	onWaveformBars,
 	waveform,
 	isAudio,
+	mediaFox,
 }) => {
 	const bestBrightness = useRef<number | null>(null);
 
@@ -130,17 +131,7 @@ export const Probe: React.FC<{
 		<div className="w-full lg:w-[350px]">
 			<Card className="overflow-hidden lg:w-[350px]">
 				<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
-					{images ? (
-						<EmbeddedImage images={images} />
-					) : isAudio ? (
-						<>
-							<AudioWaveformContainer>
-								<AudioWaveForm bars={waveform} />
-								<AudioPlayback src={src} />
-							</AudioWaveformContainer>
-							<div className="border-b-2 border-black" />
-						</>
-					) : null}
+					{images ? <EmbeddedImage images={images} /> : null}
 					{error ? null : thumbnailError ? null : isAudio ? null : (
 						<VideoThumbnail
 							ref={videoThumbnailRef}
