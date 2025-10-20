@@ -30,9 +30,9 @@ export const getAudioTranscodingOptions = async ({
 
 	for (const codec of supportedCodecsByContainer) {
 		const codecs = await getEncodableAudioCodecs([codec], {
-			numberOfChannels: inputTrack.numberOfChannels,
 			sampleRate: inputTrack.sampleRate,
 		});
+
 		if (codecs.includes(codec)) {
 			configs.push({
 				type: 'reencode',
