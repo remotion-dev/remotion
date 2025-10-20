@@ -229,6 +229,7 @@
       "name": "@remotion/convert",
       "version": "4.0.363",
       "dependencies": {
+        "@mediabunny/mp3-encoder": "1.24.0",
         "@radix-ui/react-checkbox": "^1.1.2",
         "@radix-ui/react-dialog": "^1.1.0",
         "@radix-ui/react-label": "^2.1.0",
@@ -241,7 +242,6 @@
         "@remix-run/react": "^2.15.2",
         "@remix-run/serve": "^2.15.2",
         "@remotion/captions": "workspace:*",
-        "@remotion/media-parser": "workspace:*",
         "@remotion/shapes": "workspace:*",
         "@remotion/whisper-web": "workspace:*",
         "@vercel/remix": "^2.15.2",
@@ -2923,6 +2923,8 @@
     "@mdx-js/mdx": ["@mdx-js/mdx@2.3.0", "", { "dependencies": { "@types/estree-jsx": "1.0.0", "@types/mdx": "2.0.5", "estree-util-build-jsx": "2.2.2", "estree-util-is-identifier-name": "2.1.0", "estree-util-to-js": "1.2.0", "estree-walker": "3.0.3", "hast-util-to-estree": "2.3.3", "markdown-extensions": "1.1.1", "periscopic": "3.1.0", "remark-mdx": "2.3.0", "remark-parse": "10.0.1", "remark-rehype": "10.1.0", "unified": "10.1.2", "unist-util-position-from-estree": "1.1.2", "unist-util-stringify-position": "3.0.3", "unist-util-visit": "4.1.2", "vfile": "5.3.7" } }, "sha512-jLuwRlz8DQfQNiUCJR50Y09CGPq3fLtmtUQfVrj79E0JWu3dvsVcxVIcfhR5h0iXu+/z++zDrYeiJqifRynJkA=="],
 
     "@mdx-js/react": ["@mdx-js/react@2.3.0", "", { "dependencies": { "@types/mdx": "2.0.5", "@types/react": "19.0.0" }, "peerDependencies": { "react": "19.0.0" } }, "sha512-zQH//gdOmuu7nt2oJR29vFhDv88oGPmVw6BggmrHeMI+xgEkp1B2dX9/bMBSYtK0dyLX/aOmesKS09g222K1/g=="],
+
+    "@mediabunny/mp3-encoder": ["@mediabunny/mp3-encoder@1.24.0", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-svQ2/UfdFh47hIImYwpnPP3TYi1/uwLwDvfE06Jw9qUYqtvlLVQtocEcKVuPjFtQCYKxnNLG1zxPIbTxKhUdyA=="],
 
     "@mediapipe/tasks-vision": ["@mediapipe/tasks-vision@0.10.17", "", {}, "sha512-CZWV/q6TTe8ta61cZXjfnnHsfWIdFhms03M9T7Cnd5y2mdpylJM0rF1qRq+wsQVRMLz1OYPVEBU9ph2Bx8cxrg=="],
 
