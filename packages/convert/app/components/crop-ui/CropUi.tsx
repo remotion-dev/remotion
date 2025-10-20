@@ -2,23 +2,19 @@ import type {MediaFox, PlayerStateData} from '@mediafox/core';
 import type {CropRectangle} from 'mediabunny';
 import type React from 'react';
 import {useEffect, useMemo, useRef, useState} from 'react';
+import {CropBackdrop} from './Backdrop';
 import {ResizeHandle} from './ResizeHandle';
 
 export const CropUI: React.FC<{
 	readonly mediaFox: MediaFox;
-}> = ({mediaFox}) => {
+	readonly unclampedRect: CropRectangle;
+	readonly setUnclampedRect: React.Dispatch<
+		React.SetStateAction<CropRectangle>
+	>;
+}> = ({mediaFox, unclampedRect, setUnclampedRect}) => {
 	const [state, setState] = useState<PlayerStateData | null>(() =>
 		mediaFox.getState(),
 	);
-
-	const [unclampedRect, setUnclampedRect] = useState<CropRectangle>(() => {
-		return {
-			left: 0,
-			top: 0,
-			width: Infinity,
-			height: Infinity,
-		};
-	});
 
 	const ref = useRef<HTMLDivElement>(null);
 
@@ -88,6 +84,7 @@ export const CropUI: React.FC<{
 				aspectRatio: `${dimensions.width} / ${dimensions.height}`,
 			}}
 		>
+			<CropBackdrop rect={rect} dimensions={dimensions} />
 			<div
 				className="border-brand absolute border-4 rounded-md "
 				style={{

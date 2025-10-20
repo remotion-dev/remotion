@@ -1,4 +1,5 @@
 import type {MediaFox} from '@mediafox/core';
+import type {CropRectangle} from 'mediabunny';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 import {cn} from '~/lib/utils';
@@ -26,11 +27,19 @@ export function VideoPlayer({
 	isAudio,
 	waveform,
 	mediaFox,
+	crop,
+	setUnclampedRect,
+	unclampedRect,
 }: {
 	readonly src: Source;
 	readonly waveform: number[];
 	readonly isAudio: boolean;
 	readonly mediaFox: MediaFox;
+	readonly crop: boolean;
+	readonly unclampedRect: CropRectangle;
+	readonly setUnclampedRect: React.Dispatch<
+		React.SetStateAction<CropRectangle>
+	>;
 }) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -80,8 +89,6 @@ export function VideoPlayer({
 		}
 	}, [containerRef]);
 
-	const [showCropUI, setShowCropUI] = useState(false);
-
 	return (
 		<div
 			ref={containerRef}
@@ -99,7 +106,7 @@ export function VideoPlayer({
 				className={cn(
 					'border-2',
 					'rounded-md',
-					showCropUI ? 'border-transparent' : 'border-black',
+					crop ? 'border-transparent' : 'border-black',
 					'overflow-hidden',
 				)}
 			>
@@ -114,6 +121,14 @@ export function VideoPlayer({
 					className="group-fullscreen:flex-1"
 				/>
 			</div>
+			{crop ? (
+				<CropUI
+					setUnclampedRect={setUnclampedRect}
+					unclampedRect={unclampedRect}
+					mediaFox={mediaFox}
+				/>
+			) : null}
+
 			<div className="h-2" />
 			{mediaFox ? (
 				<div
@@ -144,13 +159,6 @@ export function VideoPlayer({
 					/>
 				</div>
 			) : null}
-			{showCropUI ? <CropUI mediaFox={mediaFox} /> : null}
-
-			<input
-				type="checkbox"
-				checked={showCropUI}
-				onChange={() => setShowCropUI(!showCropUI)}
-			/>
 		</div>
 	);
 }

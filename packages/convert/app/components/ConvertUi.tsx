@@ -1,6 +1,7 @@
 import {Button} from '@/components/ui/button';
 import type MediaFox from '@mediafox/core';
 import type {
+	CropRectangle,
 	Input,
 	InputAudioTrack,
 	InputFormat,
@@ -70,6 +71,9 @@ const ConvertUI = ({
 	name,
 	input,
 	mediafox,
+	crop,
+	setCrop,
+	cropRect,
 }: {
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: InputAudioTrack['codec'] | null;
@@ -94,8 +98,11 @@ const ConvertUI = ({
 	readonly flipVertical: boolean;
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly crop: boolean;
+	readonly setCrop: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly sampleRate: number | null;
 	readonly mediafox: MediaFox;
+	readonly cropRect: CropRectangle;
 }) => {
 	const [outputContainer, setOutputContainer] = useState<OutputContainer>(() =>
 		getDefaultOutputFormat(inputContainer),
@@ -286,6 +293,7 @@ const ConvertUI = ({
 								videoFrames++;
 								return flipped;
 							},
+							crop: crop ? cropRect : undefined,
 							rotate: userRotation as Rotation,
 							forceTranscode: true,
 							...calculateMediabunnyResizeOption(
@@ -404,6 +412,8 @@ const ConvertUI = ({
 		supportedConfigs,
 		userRotation,
 		videoOperationSelection,
+		crop,
+		cropRect,
 	]);
 
 	const dimissError = useCallback(() => {
@@ -653,6 +663,16 @@ const ConvertUI = ({
 										currentSampleRate={sampleRate}
 									/>
 								) : null}
+							</div>
+						);
+					}
+
+					if (section === 'crop') {
+						return (
+							<div key="crop">
+								<ConvertUiSection active={crop} setActive={setCrop}>
+									Crop
+								</ConvertUiSection>
 							</div>
 						);
 					}

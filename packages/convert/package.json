@@ -29,6 +29,7 @@
 		"@remix-run/react": "^2.15.2",
 		"@remix-run/serve": "^2.15.2",
 		"@remotion/captions": "workspace:*",
+		"@remotion/paths": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/whisper-web": "workspace:*",
 		"@vercel/remix": "^2.15.2",

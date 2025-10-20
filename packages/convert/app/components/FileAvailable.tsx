@@ -1,4 +1,5 @@
 import {MediaFox} from '@mediafox/core';
+import type {CropRectangle} from 'mediabunny';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
@@ -47,6 +48,15 @@ export const FileAvailable: React.FC<{
 	const [userRotation, setRotation] = useState(90);
 	const [flipHorizontal, setFlipHorizontal] = useState(true);
 	const [flipVertical, setFlipVertical] = useState(false);
+	const [cropOperation, setCropOperation] = useState<CropRectangle>(() => {
+		return {
+			left: 0,
+			top: 0,
+			width: Infinity,
+			height: Infinity,
+		};
+	});
+	const [crop, setCrop] = useState<boolean>(false);
 
 	const [waveform, setWaveform] = useState<number[]>([]);
 
@@ -74,6 +84,9 @@ export const FileAvailable: React.FC<{
 						isAudio={isAudio}
 						waveform={waveform}
 						mediaFox={mediaFox}
+						crop={crop}
+						setUnclampedRect={setCropOperation}
+						unclampedRect={cropOperation}
 					/>
 				) : null}
 				<div className="h-8" />
@@ -107,6 +120,8 @@ export const FileAvailable: React.FC<{
 								mediaFox ? (
 									<div className="gap-4">
 										<ConvertUI
+											crop={crop}
+											setCrop={setCrop}
 											mediafox={mediaFox}
 											inputContainer={probeResult.container}
 											currentAudioCodec={probeResult.audioCodec ?? null}
@@ -130,6 +145,7 @@ export const FileAvailable: React.FC<{
 											sampleRate={probeResult.sampleRate}
 											name={probeResult.name}
 											input={probeResult.input}
+											cropRect={cropOperation}
 										/>
 									</div>
 								) : null}

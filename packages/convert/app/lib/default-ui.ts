@@ -109,6 +109,7 @@ export type ConvertSections =
 	| 'rotate'
 	| 'mirror'
 	| 'resize'
+	| 'crop'
 	| 'resample';
 
 export const getOrderOfSections = (
@@ -118,6 +119,7 @@ export const getOrderOfSections = (
 		return {
 			rotate: 0,
 			resize: 1,
+			crop: 2,
 			mirror: 2,
 			convert: 3,
 			resample: 4,
@@ -128,6 +130,7 @@ export const getOrderOfSections = (
 		return {
 			convert: 0,
 			resize: 1,
+			crop: 2,
 			rotate: 2,
 			mirror: 3,
 			resample: 4,
@@ -138,6 +141,7 @@ export const getOrderOfSections = (
 		return {
 			convert: 0,
 			resize: 1,
+			crop: 2,
 			rotate: 2,
 			mirror: 3,
 			resample: 4,
@@ -148,6 +152,7 @@ export const getOrderOfSections = (
 		return {
 			mirror: 0,
 			resize: 1,
+			crop: 2,
 			rotate: 2,
 			convert: 3,
 			resample: 4,
@@ -163,6 +168,7 @@ export const getOrderOfSections = (
 		return {
 			resize: 0,
 			rotate: 1,
+			crop: 2,
 			mirror: 2,
 			convert: 3,
 			resample: 4,
