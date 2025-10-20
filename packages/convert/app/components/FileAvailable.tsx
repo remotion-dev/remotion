@@ -7,6 +7,7 @@ import type {RouteAction} from '~/seo';
 import {BackButton} from './BackButton';
 import ConvertUI from './ConvertUi';
 import {Footer} from './Footer';
+import {VideoPlayer} from './MediaPlayer';
 import {Page} from './Page';
 import {Probe} from './Probe';
 import {ReplaceVideo} from './ReplaceVideo';
@@ -49,6 +50,9 @@ export const FileAvailable: React.FC<{
 			<div>
 				<BackButton setSrc={setSrc} />
 				<div className="h-4" />
+				<VideoPlayer src={src} />
+				<div className="h-4" />
+
 				<div className="lg:inline-flex lg:flex-row items-start">
 					<Probe
 						src={src}

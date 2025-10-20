@@ -230,6 +230,8 @@
       "version": "4.0.363",
       "dependencies": {
         "@mediabunny/mp3-encoder": "1.24.0",
+        "@mediafox/core": "^1.0.4",
+        "@mediafox/react": "^1.0.4",
         "@radix-ui/react-checkbox": "^1.1.2",
         "@radix-ui/react-dialog": "^1.1.0",
         "@radix-ui/react-label": "^2.1.0",
@@ -2925,6 +2927,10 @@
     "@mdx-js/react": ["@mdx-js/react@2.3.0", "", { "dependencies": { "@types/mdx": "2.0.5", "@types/react": "19.0.0" }, "peerDependencies": { "react": "19.0.0" } }, "sha512-zQH//gdOmuu7nt2oJR29vFhDv88oGPmVw6BggmrHeMI+xgEkp1B2dX9/bMBSYtK0dyLX/aOmesKS09g222K1/g=="],
 
     "@mediabunny/mp3-encoder": ["@mediabunny/mp3-encoder@1.24.0", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-svQ2/UfdFh47hIImYwpnPP3TYi1/uwLwDvfE06Jw9qUYqtvlLVQtocEcKVuPjFtQCYKxnNLG1zxPIbTxKhUdyA=="],
+
+    "@mediafox/core": ["@mediafox/core@1.0.4", "", { "peerDependencies": { "mediabunny": "^1.23.0", "typescript": ">=5.0.0" } }, "sha512-1j8PKp835RUVzZt1vcymrgZqhaMobfP7SswbTisusvTgIZL8y5n2QFhSCnn7dze+a53VgnWyzkHOYdtVR1Gdew=="],
+
+    "@mediafox/react": ["@mediafox/react@1.0.4", "", { "peerDependencies": { "@mediafox/core": "^1.0.4", "react": ">=18.0.0" } }, "sha512-2HsQBqIU1X6QBfPk+da3LX29zMCclHJ8xBpxKsSR54GSPcSfbR9xMNzCq6mIItU0AUw8e5Y4KD92p1G2LoRcww=="],
 
     "@mediapipe/tasks-vision": ["@mediapipe/tasks-vision@0.10.17", "", {}, "sha512-CZWV/q6TTe8ta61cZXjfnnHsfWIdFhms03M9T7Cnd5y2mdpylJM0rF1qRq+wsQVRMLz1OYPVEBU9ph2Bx8cxrg=="],
 

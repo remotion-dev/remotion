@@ -14,6 +14,9 @@
 		"lint": "tsc && eslint --cache --cache-location ./node_modules/.cache/eslint app"
 	},
 	"dependencies": {
+		"@mediabunny/mp3-encoder": "1.24.0",
+		"@mediafox/core": "^1.0.4",
+		"@mediafox/react": "^1.0.4",
 		"@radix-ui/react-checkbox": "^1.1.2",
 		"@radix-ui/react-dialog": "^1.1.0",
 		"@radix-ui/react-label": "^2.1.0",
@@ -26,8 +29,8 @@
 		"@remix-run/react": "^2.15.2",
 		"@remix-run/serve": "^2.15.2",
 		"@remotion/captions": "workspace:*",
-		"@remotion/whisper-web": "workspace:*",
 		"@remotion/shapes": "workspace:*",
+		"@remotion/whisper-web": "workspace:*",
 		"@vercel/remix": "^2.15.2",
 		"class-variance-authority": "^0.7.0",
 		"clsx": "2.1.1",
@@ -35,7 +38,6 @@
 		"isbot": "4.1.0",
 		"lucide-react": "^0.439.0",
 		"mediabunny": "1.24.0",
-		"@mediabunny/mp3-encoder": "1.24.0",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"tailwind-merge": "2.5.2",
