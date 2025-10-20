@@ -5,7 +5,6 @@ import {TitleProvider} from '~/lib/title-context';
 import type {RouteAction} from '~/seo';
 import {getHeaderTitle} from '~/seo';
 import {FileAvailable} from './FileAvailable';
-import {GlobalApisInConsole} from './GlobalApis';
 import {PickFile} from './PickFile';
 
 export const Main: React.FC<{
@@ -42,7 +41,6 @@ export const Main: React.FC<{
 					/>
 				)}
 			</div>
-			<GlobalApisInConsole />
 		</TitleProvider>
 	);
 };

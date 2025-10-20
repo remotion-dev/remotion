@@ -1,51 +1,42 @@
 import {Button} from '@/components/ui/button';
 import type {
-	M3uStream,
-	MediaParserAudioCodec,
-	MediaParserContainer,
-	MediaParserController,
-	MediaParserDimensions,
-	MediaParserLogLevel,
-	MediaParserTrack,
-	MediaParserVideoCodec,
-} from '@remotion/media-parser';
-import {
-	defaultSelectM3uAssociatedPlaylists,
-	hasBeenAborted,
-	MediaParserInternals,
-} from '@remotion/media-parser';
-import type {
-	ConvertMediaContainer,
-	ResizeOperation,
-	WebCodecsController,
-} from '@remotion/webcodecs';
-import {
-	convertMedia,
-	webcodecsController,
-	WebCodecsInternals,
-} from '@remotion/webcodecs';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+	Input,
+	InputAudioTrack,
+	InputFormat,
+	InputTrack,
+	InputVideoTrack,
+	Rotation,
+} from 'mediabunny';
+import {Conversion, Output, StreamTarget} from 'mediabunny';
+import React, {useCallback, useMemo, useState} from 'react';
+import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
+import {calculateNewDimensionsFromRotateAndScale} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
 import type {ConvertState, Source} from '~/lib/convert-state';
 import type {ConvertSections, RotateOrMirrorState} from '~/lib/default-ui';
 import {getOrderOfSections, isConvertEnabledByDefault} from '~/lib/default-ui';
+import {getNewName} from '~/lib/generate-new-name';
 import {
-	getActualAudioConfigIndex,
+	getActualAudioOperation,
 	getActualVideoOperation,
 } from '~/lib/get-audio-video-config-index';
+import {getDefaultOutputFormat} from '~/lib/get-default-output-format';
 import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
 import {isReencoding} from '~/lib/is-reencoding';
 import {isSubmitDisabled} from '~/lib/is-submit-enabled';
+import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
+import {calculateMediabunnyResizeOption} from '~/lib/mediabunny-calculate-resize-option';
+import {getMediabunnyOutput} from '~/lib/output-container';
+import type {ConvertProgressType} from '~/lib/progress';
 import {makeWaveformVisualizer} from '~/lib/waveform-visualizer';
-import type {RouteAction} from '~/seo';
+import {makeWebFsTarget} from '~/lib/web-fs-target';
+import type {OutputContainer, RouteAction} from '~/seo';
 import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
 import {ConvertUiSection} from './ConvertUiSection';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
-import {getDefaultContainerForConversion} from './guess-codec-from-source';
-import {M3uStreamSelector} from './M3uStreamSelector';
 import {MirrorComponents} from './MirrorComponents';
 import {PauseResumeAndCancel} from './PauseResumeAndCancel';
 import {ResampleUi} from './ResampleUi';
@@ -55,14 +46,11 @@ import {useSupportedConfigs} from './use-supported-configs';
 import type {VideoThumbnailRef} from './VideoThumbnail';
 
 const ConvertUI = ({
-	src,
 	currentAudioCodec,
 	currentVideoCodec,
 	tracks,
 	setSrc,
 	durationInSeconds,
-	fps,
-	logLevel,
 	action,
 	enableRotateOrMirror,
 	setEnableRotateOrMirror,
@@ -77,25 +65,23 @@ const ConvertUI = ({
 	videoThumbnailRef,
 	rotation,
 	dimensions,
-	m3uStreams,
-	probeController,
 	sampleRate,
+	name,
+	input,
 }: {
-	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
-	readonly currentAudioCodec: MediaParserAudioCodec | null;
-	readonly currentVideoCodec: MediaParserVideoCodec | null;
-	readonly tracks: MediaParserTrack[] | null;
+	readonly currentAudioCodec: InputAudioTrack['codec'] | null;
+	readonly currentVideoCodec: InputVideoTrack['codec'] | null;
+	readonly tracks: InputTrack[] | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
-	readonly unrotatedDimensions: MediaParserDimensions | null;
-	readonly dimensions: MediaParserDimensions | null | undefined;
+	readonly unrotatedDimensions: Dimensions | null;
+	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null;
-	readonly fps: number | null;
 	readonly rotation: number | null;
-	readonly inputContainer: MediaParserContainer | null;
-	readonly logLevel: MediaParserLogLevel;
-	readonly m3uStreams: M3uStream[] | null;
+	readonly inputContainer: InputFormat;
 	readonly action: RouteAction;
+	readonly name: string;
+	readonly input: Input;
 	readonly enableRotateOrMirror: RotateOrMirrorState;
 	readonly setEnableRotateOrMirror: React.Dispatch<
 		React.SetStateAction<RotateOrMirrorState | null>
@@ -106,11 +92,10 @@ const ConvertUI = ({
 	readonly flipVertical: boolean;
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
-	readonly probeController: MediaParserController;
 	readonly sampleRate: number | null;
 }) => {
-	const [outputContainer, setContainer] = useState<ConvertMediaContainer>(() =>
-		getDefaultContainerForConversion(src, action),
+	const [outputContainer, setOutputContainer] = useState<OutputContainer>(() =>
+		getDefaultOutputFormat(inputContainer),
 	);
 	const [videoOperationSelection, setVideoOperationKey] = useState<
 		Record<number, string>
@@ -119,15 +104,12 @@ const ConvertUI = ({
 		Record<number, string>
 	>({});
 	const [state, setState] = useState<ConvertState>({type: 'idle'});
-	const [name, setName] = useState<string | null>(null);
-	const [selectedM3uId, setSelectedM3uId] = useState<number | null>(null);
-	const [selectAssociatedPlaylistId, setSelectedAssociatedPlaylistId] =
-		useState<number | null>(null);
+	useState<number | null>(null);
 	const [enableConvert, setEnableConvert] = useState(() =>
 		isConvertEnabledByDefault(action),
 	);
 	const [resizeOperation, setResizeOperation] =
-		useState<ResizeOperation | null>(() => {
+		useState<MediabunnyResize | null>(() => {
 			return (action.type === 'resize-format' ||
 				action.type === 'generic-resize') &&
 				dimensions
@@ -148,8 +130,8 @@ const ConvertUI = ({
 	const [resampleRate, setResampleRate] = useState<number>(16000);
 
 	const canResample = useMemo(() => {
-		return outputContainer === 'wav';
-	}, [outputContainer]);
+		return tracks?.find((t) => t.isAudioTrack());
+	}, [tracks]);
 
 	const actualResampleRate = useMemo(() => {
 		if (!canResample) {
@@ -180,7 +162,7 @@ const ConvertUI = ({
 			videoConfigIndexSelection: videoOperationSelection,
 			operations: o.operations,
 		});
-		return operation.type === 'reencode' && operation.videoCodec === 'h264';
+		return operation.type === 'reencode' && operation.videoCodec === 'avc';
 	});
 
 	const setVideoConfigIndex = useCallback((trackId: number, key: string) => {
@@ -197,8 +179,6 @@ const ConvertUI = ({
 		}));
 	}, []);
 
-	const controllerRef = useRef<WebCodecsController | null>(null);
-
 	const [bars, setBars] = useState<number[]>([]);
 
 	const onWaveformBars = useCallback((b: number[]) => {
@@ -206,178 +186,199 @@ const ConvertUI = ({
 	}, []);
 
 	const onClick = useCallback(() => {
-		const controller = webcodecsController();
-		controllerRef.current = controller;
+		const progress: ConvertProgressType = {
+			bytesWritten: 0,
+			millisecondsWritten: 0,
+			overallProgress: 0,
+			hasVideo: false,
+		};
 
-		let videoFrames = 0;
 		const waveform = makeWaveformVisualizer({
 			onWaveformBars,
 		});
-		if (durationInSeconds) {
-			waveform.setDuration(durationInSeconds);
-		}
 
-		const startTime = Date.now();
+		const format = getMediabunnyOutput(outputContainer);
 
-		probeController
-			.getSeekingHints()
-			.then((seekingHints) => {
-				return convertMedia({
-					src: src.type === 'url' ? src.url : src.file,
-					seekingHints,
-					onVideoFrame: ({frame}) => {
-						const flipped = flipVideoFrame({
-							frame,
-							horizontal: flipHorizontal && enableRotateOrMirror === 'mirror',
-							vertical: flipVertical && enableRotateOrMirror === 'mirror',
-						});
-						if (videoFrames % 15 === 0) {
-							convertProgressRef.current?.draw(flipped);
-						}
+		let cancelConversion = () => {};
 
-						videoFrames++;
-						return flipped;
-					},
-					onAudioData: ({audioData}) => {
-						waveform.add(audioData);
-						return audioData;
-					},
-					expectedDurationInSeconds: durationInSeconds,
-					expectedFrameRate: fps,
-					rotate: userRotation,
-					logLevel,
-					onProgress: (s) => {
-						setState({
-							type: 'in-progress',
-							controller,
-							state: s,
-							startTime,
-						});
-					},
-					container: outputContainer,
-					controller,
-					fields: {
-						name: true,
-					},
-					onName: (n) => {
-						setName(n);
-					},
-					onAudioTrack: ({track}) => {
-						const options = supportedConfigs?.audioTrackOptions.find((trk) => {
-							return trk.trackId === track.trackId;
-						});
-						if (!options) {
-							throw new Error('Found no options for audio track');
-						}
+		const run = async () => {
+			const filename = getNewName(name, format);
+			const {getBlob, stream, getWrittenByteCount, close} =
+				await makeWebFsTarget(filename);
 
-						const operation = getActualAudioConfigIndex({
-							enableConvert,
-							audioConfigIndexSelection: audioOperationSelection,
-							trackNumber: track.trackId,
-							operations: options.operations,
-						});
-
-						MediaParserInternals.Log.info(
-							'info',
-							`Selected operation for audio track ${track.trackId}`,
-							operation,
-						);
-
-						return operation;
-					},
-					onVideoTrack: ({track}) => {
-						const options = supportedConfigs?.videoTrackOptions.find((trk) => {
-							return trk.trackId === track.trackId;
-						});
-						if (!options) {
-							throw new Error('Found no options for video track');
-						}
-
-						const operation = getActualVideoOperation({
-							enableConvert,
-							videoConfigIndexSelection: videoOperationSelection,
-							trackNumber: track.trackId,
-							operations: options.operations,
-						});
-
-						MediaParserInternals.Log.info(
-							'info',
-							`Selected operation for video track ${track.trackId}`,
-							operation,
-						);
-						return operation;
-					},
-					selectM3uStream: ({streams}) => {
-						return selectedM3uId ?? streams[0].id;
-					},
-					selectM3uAssociatedPlaylists: ({associatedPlaylists}) => {
-						if (selectAssociatedPlaylistId === null) {
-							return defaultSelectM3uAssociatedPlaylists({associatedPlaylists});
-						}
-
-						return associatedPlaylists.filter(
-							(playlist) => selectAssociatedPlaylistId === playlist.id,
-						);
-					},
-					// Remotion team can see usage on https://www.remotion.pro/projects/remotiondevconvert/
-					apiKey: 'rm_pub_9a996d341238eaa34e696b099968d8510420b9f6ba4aa0ee',
-				});
-			})
-
-			.then(({save, finalState}) => {
-				const completedTime = Date.now();
-				setState({
-					type: 'done',
-					download: save,
-					state: finalState,
-					startTime,
-					completedTime,
-				});
-			})
-			.catch((e) => {
-				if (hasBeenAborted(e)) {
-					setState({type: 'idle'});
-					return;
-				}
-
-				MediaParserInternals.Log.error(logLevel, e);
-				setState({type: 'error', error: e as Error});
+			const output = new Output({
+				format,
+				target: new StreamTarget(stream),
 			});
 
+			const duration = await input.computeDuration();
+			waveform.setDuration(duration);
+
+			let videoFrames = 0;
+
+			const startTime = Date.now();
+
+			if (!supportedConfigs) {
+				throw new Error('No supported configs');
+			}
+
+			const conversion = await Conversion.init({
+				input,
+				output,
+				video: (videoTrack) => {
+					const operation = getActualVideoOperation({
+						enableConvert,
+						trackNumber: videoTrack.id,
+						videoConfigIndexSelection: videoOperationSelection,
+						operations:
+							supportedConfigs.videoTrackOptions.find(
+								(o) => o.trackId === videoTrack.id,
+							)?.operations ?? [],
+					});
+
+					if (operation.type === 'drop') {
+						return {discard: true};
+					}
+
+					if (operation.type === 'copy') {
+						progress.hasVideo = true;
+						return {};
+					}
+
+					if (operation.type === 'fail') {
+						throw new Error('videoOperation.type === "fail"');
+					}
+
+					progress.hasVideo = true;
+					return {
+						height: Math.min(videoTrack.displayHeight, 1080),
+						process(sample) {
+							const flipped = flipVideoFrame({
+								frame: sample.toVideoFrame(),
+								horizontal: flipHorizontal && enableRotateOrMirror === 'mirror',
+								vertical: flipVertical && enableRotateOrMirror === 'mirror',
+							});
+							if (videoFrames % 15 === 0) {
+								convertProgressRef.current?.draw(flipped);
+							}
+
+							progress.millisecondsWritten = sample.timestamp * 1000;
+
+							videoFrames++;
+							return flipped;
+						},
+						rotate: userRotation as Rotation,
+						forceTranscode: true,
+						...calculateMediabunnyResizeOption(
+							resizeOperation,
+							dimensions ?? null,
+						),
+						codec: operation.videoCodec,
+					};
+				},
+				audio: (audioTrack) => {
+					const operations =
+						supportedConfigs.audioTrackOptions.find((o) => {
+							return o.trackId === audioTrack.id;
+						})?.operations ?? [];
+					const operation = getActualAudioOperation({
+						audioConfigIndexSelection: audioOperationSelection,
+						enableConvert,
+						operations,
+						trackNumber: audioTrack.id,
+					});
+
+					if (operation.type === 'fail') {
+						throw new Error('audioOperation.type === "fail"');
+					}
+
+					if (operation.type === 'copy') {
+						return {};
+					}
+
+					if (operation.type === 'drop') {
+						return {discard: true};
+					}
+
+					return {
+						sampleRate: operation.sampleRate ?? undefined,
+						process(sample) {
+							if (!progress.hasVideo) {
+								waveform.add(sample.toAudioBuffer());
+							}
+
+							return sample;
+						},
+					};
+				},
+			});
+
+			cancelConversion = () => {
+				conversion.cancel();
+
+				setState({
+					type: 'idle',
+				});
+			};
+
+			if (input.disposed) {
+				throw new Error('Input disposed');
+			}
+
+			conversion.onProgress = (newProg) => {
+				progress.overallProgress = newProg;
+				progress.bytesWritten = getWrittenByteCount();
+
+				setState({
+					type: 'in-progress',
+					onAbort: cancelConversion,
+					state: progress,
+					startTime,
+					newName: filename,
+				});
+			};
+
+			await conversion.execute();
+
+			close();
+
+			setState({
+				type: 'done',
+				download: async () => {
+					const blob = await getBlob();
+					return blob;
+				},
+				state: progress,
+				startTime,
+				completedTime: Date.now(),
+				newName: filename,
+			});
+		};
+
+		run();
+
 		return () => {
-			controller.abort();
+			cancelConversion();
 		};
 	}, [
-		onWaveformBars,
-		durationInSeconds,
-		fps,
-		src,
-		userRotation,
-		logLevel,
-		outputContainer,
-		flipHorizontal,
-		enableRotateOrMirror,
-		flipVertical,
-		supportedConfigs?.audioTrackOptions,
-		supportedConfigs?.videoTrackOptions,
-		enableConvert,
 		audioOperationSelection,
+		dimensions,
+		enableConvert,
+		enableRotateOrMirror,
+		flipHorizontal,
+		flipVertical,
+		input,
+		name,
+		onWaveformBars,
+		outputContainer,
+		resizeOperation,
+		supportedConfigs,
+		userRotation,
 		videoOperationSelection,
-		selectedM3uId,
-		selectAssociatedPlaylistId,
-		probeController,
 	]);
 
 	const dimissError = useCallback(() => {
 		setState({type: 'idle'});
-	}, []);
-
-	useEffect(() => {
-		return () => {
-			if (controllerRef.current) {
-				controllerRef.current.abort();
-			}
-		};
 	}, []);
 
 	const onMirrorClick = useCallback(() => {
@@ -410,12 +411,16 @@ const ConvertUI = ({
 		});
 	}, [dimensions]);
 
+	const inputIsAudioExclusively = useMemo(() => {
+		return (tracks?.filter((t) => t.isVideoTrack()).length ?? 0) === 0;
+	}, [tracks]);
+
 	const newDimensions = useMemo(() => {
 		if (unrotatedDimensions === null) {
 			return null;
 		}
 
-		return WebCodecsInternals.calculateNewDimensionsFromDimensions({
+		return calculateNewDimensionsFromRotateAndScale({
 			...unrotatedDimensions,
 			rotation: userRotation - (rotation ?? 0),
 			resizeOperation,
@@ -428,10 +433,6 @@ const ConvertUI = ({
 		rotation,
 		userRotation,
 	]);
-
-	const isAudioExclusively = useMemo(() => {
-		return (tracks?.filter((t) => t.type === 'video').length ?? 0) === 0;
-	}, [tracks]);
 
 	if (state.type === 'error') {
 		return (
@@ -450,8 +451,7 @@ const ConvertUI = ({
 			<>
 				<ConvertProgress
 					state={state.state}
-					name={name}
-					container={outputContainer}
+					newName={state.newName}
 					done={false}
 					duration={durationInSeconds}
 					isReencoding={
@@ -463,11 +463,10 @@ const ConvertUI = ({
 						})
 					}
 					bars={bars}
-					isAudioOnly={isAudioExclusively}
 					startTime={state.startTime}
 				/>
 				<div className="h-2" />
-				<PauseResumeAndCancel controller={state.controller} />
+				<PauseResumeAndCancel onAbort={state.onAbort} />
 			</>
 		);
 	}
@@ -478,8 +477,7 @@ const ConvertUI = ({
 				<ConvertProgress
 					done
 					state={state.state}
-					name={name}
-					container={outputContainer}
+					newName={state.newName}
 					duration={durationInSeconds}
 					isReencoding={
 						supportedConfigs !== null &&
@@ -490,7 +488,6 @@ const ConvertUI = ({
 						})
 					}
 					bars={bars}
-					isAudioOnly={isAudioExclusively}
 					startTime={state.startTime}
 					completedTime={state.completedTime}
 				/>
@@ -519,15 +516,6 @@ const ConvertUI = ({
 	return (
 		<>
 			<div className="w-full gap-4 flex flex-col">
-				{m3uStreams ? (
-					<M3uStreamSelector
-						streams={m3uStreams}
-						selectedId={selectedM3uId}
-						setSelectedM3uId={setSelectedM3uId}
-						selectedAssociatedPlaylistId={selectAssociatedPlaylistId}
-						setSelectedAssociatedPlaylistId={setSelectedAssociatedPlaylistId}
-					/>
-				) : null}
 				{order.map((section) => {
 					if (section === 'convert') {
 						return (
@@ -544,7 +532,7 @@ const ConvertUI = ({
 										<ConvertForm
 											{...{
 												container: outputContainer,
-												setContainer,
+												setContainer: setOutputContainer,
 												flipHorizontal,
 												flipVertical,
 												setFlipHorizontal,
@@ -565,7 +553,7 @@ const ConvertUI = ({
 					}
 
 					if (section === 'mirror') {
-						if (isAudioExclusively) {
+						if (inputIsAudioExclusively) {
 							return null;
 						}
 
@@ -591,7 +579,7 @@ const ConvertUI = ({
 					}
 
 					if (section === 'rotate') {
-						if (isAudioExclusively) {
+						if (inputIsAudioExclusively) {
 							return null;
 						}
 
@@ -639,7 +627,7 @@ const ConvertUI = ({
 					}
 
 					if (section === 'resize') {
-						if (isAudioExclusively) {
+						if (inputIsAudioExclusively) {
 							return null;
 						}
 

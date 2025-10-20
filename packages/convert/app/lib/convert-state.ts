@@ -1,7 +1,4 @@
-import type {
-	ConvertMediaProgress,
-	WebCodecsController,
-} from '@remotion/webcodecs';
+import type {ConvertProgressType} from './progress';
 
 export type Source =
 	| {
@@ -19,16 +16,18 @@ export type ConvertState =
 	  }
 	| {
 			type: 'in-progress';
-			controller: WebCodecsController;
-			state: ConvertMediaProgress;
+			onAbort: () => void;
+			state: ConvertProgressType;
 			startTime: number;
+			newName: string;
 	  }
 	| {
 			type: 'done';
 			download: () => Promise<Blob>;
-			state: ConvertMediaProgress;
+			state: ConvertProgressType;
 			startTime: number;
 			completedTime: number;
+			newName: string;
 	  }
 	| {
 			type: 'error';

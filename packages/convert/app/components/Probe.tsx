@@ -1,4 +1,3 @@
-import type {MediaParserEmbeddedImage} from '@remotion/media-parser';
 import clsx from 'clsx';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
@@ -76,11 +75,10 @@ export const Probe: React.FC<{
 	}, []);
 
 	const {err: thumbnailError} = useThumbnailAndWaveform({
-		src,
-		logLevel: 'verbose',
 		onVideoThumbnail,
 		onDone,
 		onWaveformBars,
+		input: probeResult.input,
 	});
 
 	const {
@@ -98,9 +96,6 @@ export const Probe: React.FC<{
 		rotation,
 		error,
 		metadata,
-		location,
-		keyframes,
-		images,
 		sampleRate,
 	} = probeResult;
 
@@ -109,7 +104,7 @@ export const Probe: React.FC<{
 	}, [setProbeDetails]);
 
 	const sortedTracks = useMemo(
-		() => (tracks ? tracks.slice().sort((a, b) => a.trackId - b.trackId) : []),
+		() => (tracks ? tracks.slice().sort((a, b) => a.id - b.id) : []),
 		[tracks],
 	);
 
@@ -124,17 +119,21 @@ export const Probe: React.FC<{
 		return sortedTracks[trackDetails];
 	}, [probeDetails, sortedTracks, trackDetails]);
 
-	const isAudio = isAudioOnly({tracks, container});
+	const isAudio = isAudioOnly({tracks});
 
 	useAddFilenameToTitle(name);
 	useCopyThumbnailToFavicon(videoThumbnailRef);
+
+	const images = useMemo(() => {
+		return metadata?.images ?? null;
+	}, [metadata]);
 
 	return (
 		<div className="w-full lg:w-[350px]">
 			<Card className="overflow-hidden lg:w-[350px]">
 				<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
-					{(images?.length ?? 0) > 0 ? (
-						<EmbeddedImage images={images as MediaParserEmbeddedImage[]} />
+					{images ? (
+						<EmbeddedImage images={images} />
 					) : isAudio ? (
 						<AudioWaveformContainer>
 							<AudioWaveForm bars={waveform} />
@@ -204,23 +203,12 @@ export const Probe: React.FC<{
 									fps={fps}
 									metadata={metadata}
 									isHdr={isHdr}
-									location={location}
 									sampleRate={sampleRate}
 								/>
-							) : selectedTrack.type === 'video' ? (
-								<VideoTrackOverview
-									location={location}
-									metadata={metadata}
-									track={selectedTrack}
-									keyframes={keyframes}
-									durationInSeconds={durationInSeconds ?? null}
-								/>
-							) : selectedTrack.type === 'audio' ? (
-								<AudioTrackOverview
-									location={location}
-									metadata={metadata}
-									track={selectedTrack}
-								/>
+							) : selectedTrack.isVideoTrack() ? (
+								<VideoTrackOverview track={selectedTrack} />
+							) : selectedTrack.isAudioTrack() ? (
+								<AudioTrackOverview track={selectedTrack} />
 							) : null}
 						</ScrollArea>
 						<Separator orientation="horizontal" />

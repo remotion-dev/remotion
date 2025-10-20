@@ -1,13 +1,13 @@
-import type {MediaParserDimensions} from '@remotion/media-parser';
-import type {ResizeOperation} from '@remotion/webcodecs';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
+import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
+import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 import {useThumbnailCopy} from '~/lib/use-thumbnail-copy';
 import {ResizeCorner} from './ResizeCorner';
 import type {VideoThumbnailRef} from './VideoThumbnail';
 
 const MAX_THUMBNAIL_SIZE = 150;
 
-export const getThumbnailDimensions = (dimensions: MediaParserDimensions) => {
+export const getThumbnailDimensions = (dimensions: Dimensions) => {
 	if (dimensions.height > dimensions.width) {
 		return {
 			height: MAX_THUMBNAIL_SIZE,
@@ -26,13 +26,13 @@ export const getThumbnailDimensions = (dimensions: MediaParserDimensions) => {
 };
 
 export const ResizeThumbnail: React.FC<{
-	readonly dimensions: MediaParserDimensions;
-	readonly unrotatedDimensions: MediaParserDimensions;
+	readonly dimensions: Dimensions;
+	readonly unrotatedDimensions: Dimensions;
 	readonly thumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly rotation: number;
 	readonly scale: number;
 	readonly setResizeMode: React.Dispatch<
-		React.SetStateAction<ResizeOperation | null>
+		React.SetStateAction<MediabunnyResize | null>
 	>;
 	readonly inputFocused: boolean;
 }> = ({

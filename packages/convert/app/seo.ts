@@ -1,10 +1,18 @@
-import type {MediaParserContainer} from '@remotion/media-parser';
-import type {ConvertMediaContainer} from '@remotion/webcodecs';
-import {getAvailableContainers} from '@remotion/webcodecs';
 import {renderHumanReadableContainer} from './lib/render-codec-label';
 
-export const inputContainers: MediaParserContainer[] = ['mp4', 'webm', 'avi'];
-export const outputContainers = getAvailableContainers();
+export const inputContainers = ['mp4', 'webm', 'mov', 'mkv'] as const;
+export const outputContainers = [
+	'mp4',
+	'webm',
+	'mov',
+	'wav',
+	'mkv',
+	'aac',
+	'mp3',
+] as const;
+
+export type InputContainer = (typeof inputContainers)[number];
+export type OutputContainer = (typeof outputContainers)[number];
 
 export const parseConvertRouteAction = (action: string) => {
 	const split = action.split('-to-');
@@ -17,16 +25,16 @@ export const parseConvertRouteAction = (action: string) => {
 	}
 
 	return {
-		input: split[0] as ConvertMediaContainer,
-		output: split[1] as ConvertMediaContainer,
+		input: split[0] as InputContainer,
+		output: split[1] as OutputContainer,
 	};
 };
 
 export type RouteAction =
 	| {
 			type: 'convert';
-			input: ConvertMediaContainer | MediaParserContainer;
-			output: ConvertMediaContainer;
+			input: InputContainer;
+			output: OutputContainer;
 	  }
 	| {
 			type: 'generic-convert';
@@ -36,14 +44,14 @@ export type RouteAction =
 	  }
 	| {
 			type: 'rotate-format';
-			format: MediaParserContainer | ConvertMediaContainer;
+			format: OutputContainer;
 	  }
 	| {
 			type: 'generic-mirror';
 	  }
 	| {
 			type: 'mirror-format';
-			format: MediaParserContainer | ConvertMediaContainer;
+			format: OutputContainer;
 	  }
 	| {
 			type: 'generic-resize';
@@ -53,7 +61,7 @@ export type RouteAction =
 	  }
 	| {
 			type: 'resize-format';
-			format: MediaParserContainer | ConvertMediaContainer;
+			format: OutputContainer;
 	  }
 	| {
 			type: 'generic-probe';

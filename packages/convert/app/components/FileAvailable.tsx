@@ -1,10 +1,8 @@
-import type {ParseMediaOnProgress} from '@remotion/media-parser';
-import {WebCodecsInternals} from '@remotion/webcodecs';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useMemo, useRef, useState} from 'react';
+import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import type {RotateOrMirrorState} from '~/lib/default-ui';
 import {defaultRotateOrMirorState} from '~/lib/default-ui';
-import {formatBytes} from '~/lib/format-bytes';
 import type {RouteAction} from '~/seo';
 import {BackButton} from './BackButton';
 import ConvertUI from './ConvertUi';
@@ -27,32 +25,11 @@ export const FileAvailable: React.FC<{
 
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
-	const onProgress: ParseMediaOnProgress = useCallback(
-		async ({bytes, percentage}) => {
-			await new Promise((resolve) => {
-				window.requestAnimationFrame(resolve);
-			});
-			const notDone = document.getElementById('not-done');
-			if (notDone) {
-				if (percentage === null) {
-					notDone.innerHTML = `${formatBytes(bytes)} read`;
-				} else {
-					notDone.innerHTML = `${Math.round(
-						percentage * 100,
-					)}% read (${formatBytes(bytes)})`;
-				}
-			}
-		},
-		[],
-	);
-
 	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
 		useState<RotateOrMirrorState>(() => defaultRotateOrMirorState(routeAction));
 
 	const probeResult = useProbe({
 		src,
-		logLevel: 'verbose',
-		onProgress,
 	});
 
 	const [userRotation, setRotation] = useState(90);
@@ -64,7 +41,7 @@ export const FileAvailable: React.FC<{
 			return 0;
 		}
 
-		return WebCodecsInternals.normalizeVideoRotation(userRotation);
+		return normalizeVideoRotation(userRotation);
 	}, [enableRotateOrMirrow, userRotation]);
 
 	return (
@@ -86,7 +63,9 @@ export const FileAvailable: React.FC<{
 						mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
 					/>
 					{routeAction.type !== 'generic-probe' &&
-					routeAction.type !== 'transcribe' ? (
+					routeAction.type !== 'transcribe' &&
+					probeResult.container !== null &&
+					probeResult.name !== null ? (
 						<>
 							<div className="h-8 lg:h-0 lg:w-8" />
 							<div
@@ -95,18 +74,14 @@ export const FileAvailable: React.FC<{
 							>
 								<div className="gap-4">
 									<ConvertUI
-										m3uStreams={probeResult.m3u}
 										inputContainer={probeResult.container}
 										currentAudioCodec={probeResult.audioCodec ?? null}
 										currentVideoCodec={probeResult.videoCodec ?? null}
-										src={src}
 										tracks={probeResult.tracks}
 										setSrc={setSrc}
 										unrotatedDimensions={probeResult.unrotatedDimensions}
 										dimensions={probeResult.dimensions}
 										durationInSeconds={probeResult.durationInSeconds ?? null}
-										fps={probeResult.fps ?? null}
-										logLevel="verbose"
 										action={routeAction}
 										enableRotateOrMirror={enableRotateOrMirrow}
 										setEnableRotateOrMirror={setEnableRotateOrMirror}
@@ -118,8 +93,9 @@ export const FileAvailable: React.FC<{
 										setFlipVertical={setFlipVertical}
 										videoThumbnailRef={videoThumbnailRef}
 										rotation={probeResult.rotation}
-										probeController={probeResult.controller}
 										sampleRate={probeResult.sampleRate}
+										name={probeResult.name}
+										input={probeResult.input}
 									/>
 								</div>
 							</div>

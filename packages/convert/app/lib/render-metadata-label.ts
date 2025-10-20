@@ -1,8 +1,3 @@
-import type {
-	MediaParserLocation,
-	MediaParserMetadataEntry,
-} from '@remotion/media-parser';
-
 export const renderMetadataLabel = (key: string) => {
 	if (key === 'com.apple.quicktime.location.accuracy.horizontal') {
 		return 'Location Accuracy (Horizontal)';
@@ -191,86 +186,6 @@ export const renderMetadataLabel = (key: string) => {
 	return key;
 };
 
-export const sortMetadataByRelevance = (
-	metadata: MediaParserMetadataEntry[],
-) => {
-	const metadataKeys = [
-		// General metadata sorted by relevance
-		'title',
-		'artist',
-		'album',
-		'releaseDate',
-		'genre',
-		'composer',
-		'writer',
-		'director',
-		'producer',
-		'description',
-		'duration',
-		'comment',
-		'encoder',
-		'copyright',
-
-		// Apple-specific metadata sorted by relevance
-		'com.apple.quicktime.creationdate', // Relevant: useful for sorting by creation date
-		'com.apple.quicktime.make', // Relevant: manufacturer information
-		'com.apple.quicktime.model', // Relevant: device information can be interesting
-		'com.apple.quicktime.camera.lens_model', // Relevant: for photography enthusiasts
-		'com.apple.quicktime.camera.focal_length.35mm_equivalent', // Relevant: for photography enthusiasts
-		'com.apple.quicktime.software', // Less relevant: technical detail
-		'com.apple.quicktime.location.ISO6709', // Relevant: location information can be useful
-		'com.apple.quicktime.location.accuracy.horizontal', // Relevant: complements location data
-		'com.apple.quicktime.content.identifier', // Less relevant: unique identifier
-		'com.apple.quicktime.information', // Less relevant: technical detail
-		'com.apple.quicktime.live-photo.vitality-score', // Less relevant: specific to live photos
-		'com.apple.quicktime.live-photo.vitality-scoring-version', // Less relevant: specific to live photos
-		'com.apple.quicktime.live-photo.auto', // Less relevant: specific to live photos
-		'com.apple.quicktime.full-frame-rate-playback-intent', // Less relevant: playback detail
-		'major_brand',
-		'minor_version',
-		'compatible_brands',
-		'handler_name',
-		'TIT2',
-		'TPE1',
-		'TALB',
-		'TCON',
-		'TCOM',
-		'TCMP',
-		'COMM',
-		'TYER',
-	];
-
-	return metadata.slice().sort((a, b) => {
-		const aIndex = metadataKeys.indexOf(a.key);
-		const bIndex = metadataKeys.indexOf(b.key);
-
-		if (aIndex === -1 && bIndex === -1) {
-			return a.key.localeCompare(b.key);
-		}
-
-		if (aIndex === -1) {
-			return 1;
-		}
-
-		if (bIndex === -1) {
-			return -1;
-		}
-
-		return aIndex - bIndex;
-	});
-};
-
-export function displayLocationData(location: MediaParserLocation): string {
-	const {latitude, longitude, altitude} = location;
-
-	return [
-		`${latitude.toFixed(4)}°, ${longitude.toFixed(4)}°`,
-		altitude !== null ? `Altitude ${altitude.toFixed(2)}m` : null,
-	]
-		.filter(Boolean)
-		.join('\n');
-}
-
 function formatDateString(dateString: string): string {
 	// Parse the date string into a Date object
 	const date = new Date(dateString);
@@ -297,17 +212,11 @@ function formatDateString(dateString: string): string {
 export const renderMetadataValue = ({
 	key,
 	value,
-	location,
 }: {
 	key: string;
 	value: string | number;
-	location: MediaParserLocation | null;
 }) => {
 	if (key === 'com.apple.quicktime.location.ISO6709') {
-		if (location) {
-			return displayLocationData(location);
-		}
-
 		return String(value);
 	}
 
