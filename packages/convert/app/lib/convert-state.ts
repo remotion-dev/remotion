@@ -7,7 +7,7 @@ export type Source =
 	  }
 	| {
 			type: 'file';
-			file: Blob;
+			file: File;
 	  };
 
 export type ConvertState =
@@ -23,7 +23,7 @@ export type ConvertState =
 	  }
 	| {
 			type: 'done';
-			download: () => Promise<Blob>;
+			download: () => Promise<File>;
 			state: ConvertProgressType;
 			startTime: number;
 			completedTime: number;

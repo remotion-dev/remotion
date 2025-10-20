@@ -22,13 +22,7 @@ export const Main: React.FC<{
 			<div className="font-sans min-h-screen">
 				{src ? (
 					<FileAvailable
-						key={
-							src.type === 'url'
-								? src.url
-								: src.file instanceof File
-									? src.file.name
-									: src.file.toString()
-						}
+						key={src.type === 'url' ? src.url : src.file.name}
 						routeAction={routeAction}
 						src={src}
 						setSrc={setSrc}
