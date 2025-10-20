@@ -38,7 +38,10 @@ export const FileAvailable: React.FC<{
 	const [mediaFox, setMediaFox] = useState<MediaFox | null>(null);
 
 	useEffect(() => {
-		setMediaFox(new MediaFox());
+		const fox = new MediaFox();
+		setMediaFox(fox);
+
+		return () => {};
 	}, []);
 
 	const [userRotation, setRotation] = useState(90);
