@@ -75,10 +75,10 @@ export const Probe: React.FC<{
 	}, []);
 
 	const {err: thumbnailError} = useThumbnailAndWaveform({
-		src,
 		onVideoThumbnail,
 		onDone,
 		onWaveformBars,
+		input: probeResult.input,
 	});
 
 	const {
@@ -96,7 +96,6 @@ export const Probe: React.FC<{
 		rotation,
 		error,
 		metadata,
-		keyframes,
 		sampleRate,
 	} = probeResult;
 
@@ -207,11 +206,7 @@ export const Probe: React.FC<{
 									sampleRate={sampleRate}
 								/>
 							) : selectedTrack.isVideoTrack() ? (
-								<VideoTrackOverview
-									track={selectedTrack}
-									keyframes={keyframes}
-									durationInSeconds={durationInSeconds ?? null}
-								/>
+								<VideoTrackOverview track={selectedTrack} />
 							) : selectedTrack.isAudioTrack() ? (
 								<AudioTrackOverview track={selectedTrack} />
 							) : null}

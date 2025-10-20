@@ -1,20 +1,13 @@
 import {Button} from '@/components/ui/button';
 import type {
+	Input,
 	InputAudioTrack,
 	InputFormat,
 	InputTrack,
 	InputVideoTrack,
 	Rotation,
 } from 'mediabunny';
-import {
-	ALL_FORMATS,
-	BlobSource,
-	Conversion,
-	Input,
-	Output,
-	StreamTarget,
-	UrlSource,
-} from 'mediabunny';
+import {Conversion, Output, StreamTarget} from 'mediabunny';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {calculateNewDimensionsFromRotateAndScale} from '~/lib/calculate-new-dimensions-from-dimensions';
@@ -53,7 +46,6 @@ import {useSupportedConfigs} from './use-supported-configs';
 import type {VideoThumbnailRef} from './VideoThumbnail';
 
 const ConvertUI = ({
-	src,
 	currentAudioCodec,
 	currentVideoCodec,
 	tracks,
@@ -75,8 +67,8 @@ const ConvertUI = ({
 	dimensions,
 	sampleRate,
 	name,
+	input,
 }: {
-	readonly src: Source;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: InputAudioTrack['codec'] | null;
 	readonly currentVideoCodec: InputVideoTrack['codec'] | null;
@@ -85,11 +77,11 @@ const ConvertUI = ({
 	readonly unrotatedDimensions: Dimensions | null;
 	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null;
-	readonly fps: number | null;
 	readonly rotation: number | null;
 	readonly inputContainer: InputFormat;
 	readonly action: RouteAction;
 	readonly name: string;
+	readonly input: Input;
 	readonly enableRotateOrMirror: RotateOrMirrorState;
 	readonly setEnableRotateOrMirror: React.Dispatch<
 		React.SetStateAction<RotateOrMirrorState | null>
@@ -205,12 +197,6 @@ const ConvertUI = ({
 
 		const waveform = makeWaveformVisualizer({
 			onWaveformBars,
-		});
-
-		const input = new Input({
-			formats: ALL_FORMATS,
-			source:
-				src.type === 'file' ? new BlobSource(src.file) : new UrlSource(src.url),
 		});
 
 		const format = getMediabunnyOutput(outputContainer);
@@ -375,21 +361,21 @@ const ConvertUI = ({
 			cancelConversion();
 		};
 	}, [
+		audioOperationSelection,
 		dimensions,
 		enableConvert,
 		enableRotateOrMirror,
 		flipHorizontal,
 		flipVertical,
+		input,
 		isAudioExclusively,
 		name,
 		onWaveformBars,
 		outputContainer,
 		resizeOperation,
-		src,
 		supportedConfigs,
 		userRotation,
 		videoOperationSelection,
-		audioOperationSelection,
 	]);
 
 	const dimissError = useCallback(() => {

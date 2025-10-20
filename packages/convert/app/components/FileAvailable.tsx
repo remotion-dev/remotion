@@ -77,13 +77,11 @@ export const FileAvailable: React.FC<{
 										inputContainer={probeResult.container}
 										currentAudioCodec={probeResult.audioCodec ?? null}
 										currentVideoCodec={probeResult.videoCodec ?? null}
-										src={src}
 										tracks={probeResult.tracks}
 										setSrc={setSrc}
 										unrotatedDimensions={probeResult.unrotatedDimensions}
 										dimensions={probeResult.dimensions}
 										durationInSeconds={probeResult.durationInSeconds ?? null}
-										fps={probeResult.fps ?? null}
 										action={routeAction}
 										enableRotateOrMirror={enableRotateOrMirrow}
 										setEnableRotateOrMirror={setEnableRotateOrMirror}
@@ -97,6 +95,7 @@ export const FileAvailable: React.FC<{
 										rotation={probeResult.rotation}
 										sampleRate={probeResult.sampleRate}
 										name={probeResult.name}
+										input={probeResult.input}
 									/>
 								</div>
 							</div>

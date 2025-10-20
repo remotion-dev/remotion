@@ -1,22 +1,15 @@
-import {
-	ALL_FORMATS,
-	AudioBufferSink,
-	BlobSource,
-	Input,
-	UrlSource,
-	VideoSampleSink,
-} from 'mediabunny';
+import type {Input} from 'mediabunny';
+import {AudioBufferSink, VideoSampleSink} from 'mediabunny';
 import {useCallback, useEffect, useMemo, useState} from 'react';
-import type {Source} from './convert-state';
 import {makeWaveformVisualizer} from './waveform-visualizer';
 
 export const useThumbnailAndWaveform = ({
-	src,
+	input,
 	onVideoThumbnail,
 	onDone,
 	onWaveformBars,
 }: {
-	src: Source;
+	input: Input;
 	onVideoThumbnail: (videoFrame: VideoFrame) => Promise<void>;
 	onWaveformBars: (bars: number[]) => void;
 	onDone: () => void;
@@ -30,12 +23,6 @@ export const useThumbnailAndWaveform = ({
 	}, [onWaveformBars]);
 
 	const execute = useCallback(() => {
-		const input = new Input({
-			formats: ALL_FORMATS,
-			source:
-				src.type === 'file' ? new BlobSource(src.file) : new UrlSource(src.url),
-		});
-
 		const getDuration = async () => {
 			const duration = await input.computeDuration();
 			waveform.setDuration(duration);
@@ -87,7 +74,7 @@ export const useThumbnailAndWaveform = ({
 		return () => {
 			input.dispose();
 		};
-	}, [onDone, onVideoThumbnail, src, waveform]);
+	}, [onDone, onVideoThumbnail, waveform, input]);
 
 	useEffect(() => {
 		execute();

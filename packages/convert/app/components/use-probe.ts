@@ -42,14 +42,15 @@ export const useProbe = ({src}: {src: Source}) => {
 	const [done, setDone] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
 
-	const getStart = useCallback(() => {
-		// TODO: Reuse input
-		const input = new Input({
+	const input = useMemo(() => {
+		return new Input({
 			formats: ALL_FORMATS,
 			source:
 				src.type === 'file' ? new BlobSource(src.file) : new UrlSource(src.url),
 		});
+	}, [src]);
 
+	const getStart = useCallback(() => {
 		const run = async () => {
 			input.getFormat().then((format) => setContainer(format));
 			input.source.getSize().then((s) => setSize(s));
@@ -95,7 +96,7 @@ export const useProbe = ({src}: {src: Source}) => {
 		return () => {
 			input.dispose();
 		};
-	}, [src]);
+	}, [input]);
 
 	useEffect(() => {
 		const cleanup = getStart();
@@ -122,6 +123,7 @@ export const useProbe = ({src}: {src: Source}) => {
 			metadata,
 			unrotatedDimensions,
 			sampleRate,
+			input,
 		};
 	}, [
 		tracks,
@@ -140,5 +142,6 @@ export const useProbe = ({src}: {src: Source}) => {
 		metadata,
 		unrotatedDimensions,
 		sampleRate,
+		input,
 	]);
 };
