@@ -275,6 +275,10 @@ const ConvertUI = ({
 						}
 
 						progress.hasVideo = true;
+
+						const dimensionsAfterCrop =
+							dimensions && crop ? applyCrop(dimensions, cropRect) : dimensions;
+
 						return {
 							height: Math.min(videoTrack.displayHeight, 1080),
 							process(sample) {
@@ -298,7 +302,7 @@ const ConvertUI = ({
 							forceTranscode: true,
 							...calculateMediabunnyResizeOption(
 								resizeOperation,
-								dimensions ?? null,
+								dimensionsAfterCrop ?? null,
 							),
 							codec: operation.videoCodec,
 						};
@@ -469,8 +473,12 @@ const ConvertUI = ({
 			return null;
 		}
 
+		if (enableRotateOrMirror !== 'crop') {
+			return dimensions;
+		}
+
 		return applyCrop(dimensions, cropRect);
-	}, [dimensions, cropRect]);
+	}, [dimensions, cropRect, enableRotateOrMirror]);
 
 	const newDimensions = useMemo(() => {
 		if (unrotatedDimensions === null) {
@@ -722,6 +730,9 @@ const ConvertUI = ({
 											rotation={userRotation - (rotation ?? 0)}
 											setResizeMode={setResizeOperation}
 											requireTwoStep={Boolean(isH264Reencode)}
+											crop={enableRotateOrMirror === 'crop'}
+											cropRect={cropRect}
+											dimensionsBeforeCrop={dimensions}
 										/>
 									</>
 								) : null}
