@@ -45,9 +45,7 @@ export const useProbe = ({src}: {src: Source}) => {
 	const [error, setError] = useState<Error | null>(null);
 
 	const getStart = useCallback(() => {
-		// TODO: Name
 		// TODO: Keyframes
-		// TODO: Smart parallelization
 
 		const input = new Input({
 			formats: ALL_FORMATS,
@@ -56,17 +54,12 @@ export const useProbe = ({src}: {src: Source}) => {
 		});
 
 		const run = async () => {
-			const format = await input.getFormat();
-			setContainer(format);
-
-			const s = await input.source.getSize();
-			setSize(s);
-
-			const duration = await input.computeDuration();
-			setDurationInSeconds(duration);
-
-			const metadataTags = await input.getMetadataTags();
-			setMetadata(metadataTags);
+			input.getFormat().then((format) => setContainer(format));
+			input.source.getSize().then((s) => setSize(s));
+			input
+				.computeDuration()
+				.then((duration) => setDurationInSeconds(duration));
+			input.getMetadataTags().then((tags) => setMetadata(tags));
 
 			const trx = await input.getTracks();
 			setTracks(trx);
@@ -74,8 +67,9 @@ export const useProbe = ({src}: {src: Source}) => {
 				if (track.isVideoTrack()) {
 					const {codec} = track;
 					setVideoCodec(codec);
-					const packetStats = await track.computePacketStats(50);
-					setFps(packetStats.averagePacketRate);
+					track
+						.computePacketStats(50)
+						.then((stats) => setFps(stats.averagePacketRate));
 					setDimensions({
 						width: track.displayWidth,
 						height: track.displayHeight,
@@ -85,10 +79,9 @@ export const useProbe = ({src}: {src: Source}) => {
 						width: track.codedWidth,
 						height: track.codedHeight,
 					});
-					setHdr(await track.hasHighDynamicRange());
+					track.hasHighDynamicRange().then((hdr) => setHdr(hdr));
 				} else if (track.isAudioTrack()) {
-					const {codec} = track;
-					setAudioCodec(codec);
+					setAudioCodec(track.codec);
 					setSampleRate(track.sampleRate);
 				}
 			}
