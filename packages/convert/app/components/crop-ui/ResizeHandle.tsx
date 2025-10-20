@@ -13,6 +13,8 @@ const clamp = (val: number, min: number, max: number) => {
 	return Math.min(Math.max(val, min), max);
 };
 
+const MIN_SIZE = 120;
+
 export const ResizeHandle: React.FC<{
 	readonly position: Position;
 	readonly divRef: React.RefObject<HTMLDivElement | null>;
@@ -110,14 +112,17 @@ export const ResizeHandle: React.FC<{
 
 				if (position === 'top-left') {
 					updateRect((prev) => {
-						const diffX = cropPixelsX - prev.left;
-						const diffY = cropPixelsY - prev.top;
+						const x = Math.min(cropPixelsX, prev.width + prev.left - MIN_SIZE);
+						const y = Math.min(cropPixelsY, prev.height + prev.top - MIN_SIZE);
+
+						const diffX = x - prev.left;
+						const diffY = y - prev.top;
 						return {
 							...prev,
-							left: cropPixelsX,
-							top: cropPixelsY,
-							width: Math.max(2, prev.width - diffX),
-							height: Math.max(2, prev.height - diffY),
+							left: x,
+							top: y,
+							width: prev.width - diffX,
+							height: prev.height - diffY,
 						};
 					});
 				}
@@ -125,25 +130,28 @@ export const ResizeHandle: React.FC<{
 				if (position === 'top-right') {
 					updateRect((prev) => {
 						const newHeight = prev.height - (cropPixelsY - prev.top);
+						const y = Math.min(cropPixelsY, prev.height + prev.top - MIN_SIZE);
 
 						return {
 							...prev,
-							width: Math.max(2, cropPixelsX - prev.left),
-							height: Math.max(2, newHeight),
-							top: cropPixelsY,
+							width: Math.max(MIN_SIZE, cropPixelsX - prev.left),
+							height: Math.max(MIN_SIZE, newHeight),
+							top: y,
 						};
 					});
 				}
 
 				if (position === 'bottom-left') {
 					updateRect((prev) => {
-						const diffX = cropPixelsX - prev.left;
+						const x = Math.min(cropPixelsX, prev.width + prev.left - MIN_SIZE);
+
+						const diffX = x - prev.left;
 
 						return {
 							...prev,
-							height: Math.max(2, cropPixelsY - prev.top),
-							left: cropPixelsX,
-							width: Math.max(2, prev.width - diffX),
+							height: Math.max(MIN_SIZE, cropPixelsY - prev.top),
+							left: x,
+							width: prev.width - diffX,
 						};
 					});
 				}
@@ -151,8 +159,8 @@ export const ResizeHandle: React.FC<{
 				if (position === 'bottom-right') {
 					updateRect((prev) => ({
 						...prev,
-						width: cropPixelsX - prev.left,
-						height: cropPixelsY - prev.top,
+						width: Math.max(MIN_SIZE, cropPixelsX - prev.left),
+						height: Math.max(MIN_SIZE, cropPixelsY - prev.top),
 					}));
 				}
 
