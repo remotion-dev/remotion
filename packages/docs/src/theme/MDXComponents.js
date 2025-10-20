@@ -14,6 +14,7 @@ import {
 import {Credits} from '../components/Credits';
 import {Options} from '../components/Options';
 import {TsType} from '../components/TsType';
+import RawMarkdownCarrier from './RawMarkdownCarrier/index';
 
 export default {
 	...MDXComponents,
@@ -31,4 +32,5 @@ export default {
 	Installation,
 	TitleStep,
 	JumpToVideoLink,
+	RawMarkdownCarrier,
 };
