@@ -704,13 +704,15 @@ const ConvertUI = ({
 								<ConvertUiSection active={crop} setActive={onCropClick}>
 									Crop
 								</ConvertUiSection>
-								<div className="bg-white border-2 border-b-4 rounded-md border-black text-sm p-3 mt-4">
-									Applied Crop: <br />
-									Left: {cropRect.left} <br />
-									Top: {cropRect.top} <br />
-									Width: {cropRect.width} <br />
-									Height: {cropRect.height} <br />
-								</div>
+								{crop ? (
+									<div className="bg-white border-2 border-b-4 rounded-md border-black text-sm p-3 mt-4">
+										Applied Crop: <br />
+										Left: {cropRect.left} <br />
+										Top: {cropRect.top} <br />
+										Width: {cropRect.width} <br />
+										Height: {cropRect.height} <br />
+									</div>
+								) : null}
 							</div>
 						);
 					}
