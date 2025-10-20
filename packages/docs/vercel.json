@@ -485,10 +485,6 @@
 			"source": "/docs/audio",
 			"destination": "/docs/html5-audio",
 			"permanent": false
-		},
-		{
-			"source": "/docs/:path*.md",
-			"destination": "/_raw/docs/:path*.md"
 		}
 	]
 }
