@@ -3,7 +3,7 @@ import type {CropRectangle} from 'mediabunny';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
-import type {RotateOrMirrorState} from '~/lib/default-ui';
+import type {RotateOrMirrorOrCropState} from '~/lib/default-ui';
 import {defaultRotateOrMirorState} from '~/lib/default-ui';
 import {isAudioOnly} from '~/lib/is-audio-container';
 import type {RouteAction} from '~/seo';
@@ -30,7 +30,9 @@ export const FileAvailable: React.FC<{
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
 	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
-		useState<RotateOrMirrorState>(() => defaultRotateOrMirorState(routeAction));
+		useState<RotateOrMirrorOrCropState>(() =>
+			defaultRotateOrMirorState(routeAction),
+		);
 
 	const probeResult = useProbe({
 		src,
@@ -58,7 +60,6 @@ export const FileAvailable: React.FC<{
 			height: Infinity,
 		};
 	});
-	const [crop, setCrop] = useState<boolean>(false);
 
 	const [waveform, setWaveform] = useState<number[]>([]);
 
@@ -86,7 +87,7 @@ export const FileAvailable: React.FC<{
 						isAudio={isAudio}
 						waveform={waveform}
 						mediaFox={mediaFox}
-						crop={crop}
+						crop={enableRotateOrMirrow === 'crop'}
 						setUnclampedRect={setCropOperation}
 						unclampedRect={cropOperation}
 					/>
@@ -122,8 +123,7 @@ export const FileAvailable: React.FC<{
 								mediaFox ? (
 									<div className="gap-4">
 										<ConvertUI
-											crop={crop}
-											setCrop={setCrop}
+											crop={enableRotateOrMirrow === 'crop'}
 											mediafox={mediaFox}
 											inputContainer={probeResult.container}
 											currentAudioCodec={probeResult.audioCodec ?? null}

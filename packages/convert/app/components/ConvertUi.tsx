@@ -16,7 +16,10 @@ import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {calculateNewDimensionsFromRotateAndScale} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
 import type {ConvertState, Source} from '~/lib/convert-state';
-import type {ConvertSections, RotateOrMirrorState} from '~/lib/default-ui';
+import type {
+	ConvertSections,
+	RotateOrMirrorOrCropState,
+} from '~/lib/default-ui';
 import {getOrderOfSections, isConvertEnabledByDefault} from '~/lib/default-ui';
 import {getNewName} from '~/lib/generate-new-name';
 import {
@@ -72,7 +75,6 @@ const ConvertUI = ({
 	input,
 	mediafox,
 	crop,
-	setCrop,
 	cropRect,
 }: {
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -87,9 +89,9 @@ const ConvertUI = ({
 	readonly action: RouteAction;
 	readonly name: string;
 	readonly input: Input;
-	readonly enableRotateOrMirror: RotateOrMirrorState;
+	readonly enableRotateOrMirror: RotateOrMirrorOrCropState;
 	readonly setEnableRotateOrMirror: React.Dispatch<
-		React.SetStateAction<RotateOrMirrorState | null>
+		React.SetStateAction<RotateOrMirrorOrCropState | null>
 	>;
 	readonly userRotation: number;
 	readonly setRotation: React.Dispatch<React.SetStateAction<number>>;
@@ -98,7 +100,6 @@ const ConvertUI = ({
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly crop: boolean;
-	readonly setCrop: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly sampleRate: number | null;
 	readonly mediafox: MediaFox;
 	readonly cropRect: CropRectangle;
@@ -439,6 +440,16 @@ const ConvertUI = ({
 		});
 	}, [setEnableRotateOrMirror]);
 
+	const onCropClick = useCallback(() => {
+		setEnableRotateOrMirror((m) => {
+			if (m !== 'crop') {
+				return 'crop';
+			}
+
+			return null;
+		});
+	}, [setEnableRotateOrMirror]);
+
 	const onResizeClick = useCallback(() => {
 		setResizeOperation((r) => {
 			if (r !== null || !dimensions) {
@@ -677,7 +688,7 @@ const ConvertUI = ({
 					if (section === 'crop') {
 						return (
 							<div key="crop">
-								<ConvertUiSection active={crop} setActive={setCrop}>
+								<ConvertUiSection active={crop} setActive={onCropClick}>
 									Crop
 								</ConvertUiSection>
 							</div>

@@ -1,10 +1,10 @@
 import type {RouteAction} from '~/seo';
 
-export type RotateOrMirrorState = 'rotate' | 'mirror' | null;
+export type RotateOrMirrorOrCropState = 'rotate' | 'mirror' | 'crop' | null;
 
 export const defaultRotateOrMirorState = (
 	action: RouteAction,
-): RotateOrMirrorState => {
+): RotateOrMirrorOrCropState => {
 	if (action.type === 'convert') {
 		return null;
 	}
