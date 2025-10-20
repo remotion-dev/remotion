@@ -120,20 +120,20 @@ export const getOrderOfSections = (
 			rotate: 0,
 			resize: 1,
 			crop: 2,
-			mirror: 2,
-			convert: 3,
-			resample: 4,
+			mirror: 3,
+			convert: 4,
+			resample: 5,
 		};
 	}
 
 	if (action.type === 'convert' || action.type === 'generic-convert') {
 		return {
 			convert: 0,
-			resize: 1,
-			crop: 2,
-			rotate: 2,
-			mirror: 3,
-			resample: 4,
+			crop: 1,
+			resize: 2,
+			rotate: 3,
+			mirror: 4,
+			resample: 5,
 		};
 	}
 
@@ -142,9 +142,9 @@ export const getOrderOfSections = (
 			convert: 0,
 			resize: 1,
 			crop: 2,
-			rotate: 2,
-			mirror: 3,
-			resample: 4,
+			rotate: 3,
+			mirror: 4,
+			resample: 5,
 		};
 	}
 
@@ -153,9 +153,9 @@ export const getOrderOfSections = (
 			mirror: 0,
 			resize: 1,
 			crop: 2,
-			rotate: 2,
-			convert: 3,
-			resample: 4,
+			rotate: 3,
+			convert: 4,
+			resample: 5,
 		};
 	}
 
@@ -169,9 +169,9 @@ export const getOrderOfSections = (
 			resize: 0,
 			rotate: 1,
 			crop: 2,
-			mirror: 2,
-			convert: 3,
-			resample: 4,
+			mirror: 3,
+			convert: 4,
+			resample: 5,
 		};
 	}
 
