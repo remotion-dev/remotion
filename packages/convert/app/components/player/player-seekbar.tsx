@@ -255,13 +255,13 @@ export const PlayerSeekBar: React.FC<{
 			width: KNOB_SIZE,
 			borderRadius: KNOB_SIZE / 2,
 			position: 'absolute',
+			backgroundColor: 'white',
 			top: VERTICAL_PADDING - KNOB_SIZE / 2 + 5 / 2,
-			backgroundColor: 'black',
 			left: Math.max(
 				0,
 				(frame / Math.max(1, playerRef.duration - 1)) * width - KNOB_SIZE / 2,
 			),
-			outline: '2px solid rgba(0, 0, 0, 0.25)',
+			outline: '2px solid #000',
 			opacity: Number(barHovered),
 			transition: 'opacity 0.s ease',
 		};

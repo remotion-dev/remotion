@@ -51,7 +51,7 @@ export const FileAvailable: React.FC<{
 				<BackButton setSrc={setSrc} />
 				<div className="h-4" />
 				<VideoPlayer src={src} />
-				<div className="h-4" />
+				<div className="h-8" />
 
 				<div className="lg:inline-flex lg:flex-row items-start">
 					<Probe
