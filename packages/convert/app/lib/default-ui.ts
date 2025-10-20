@@ -49,6 +49,14 @@ export const defaultRotateOrMirorState = (
 		return null;
 	}
 
+	if (action.type === 'generic-crop') {
+		return 'crop';
+	}
+
+	if (action.type === 'crop-format') {
+		return 'crop';
+	}
+
 	throw new Error(
 		'Rotate is not enabled by default ' + (action satisfies never),
 	);
@@ -99,6 +107,14 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 		return true;
 	}
 
+	if (action.type === 'generic-crop') {
+		return true;
+	}
+
+	if (action.type === 'crop-format') {
+		return true;
+	}
+
 	throw new Error(
 		'Convert is not enabled by default ' + (action satisfies never),
 	);
@@ -115,6 +131,17 @@ export type ConvertSections =
 export const getOrderOfSections = (
 	action: RouteAction,
 ): {[key in ConvertSections]: number} => {
+	if (action.type === 'generic-crop' || action.type === 'crop-format') {
+		return {
+			crop: 0,
+			resize: 1,
+			rotate: 2,
+			mirror: 3,
+			convert: 4,
+			resample: 5,
+		};
+	}
+
 	if (action.type === 'generic-rotate' || action.type === 'rotate-format') {
 		return {
 			rotate: 0,
