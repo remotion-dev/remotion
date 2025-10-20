@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
-import {isAudioOnly} from '~/lib/is-audio-container';
 import {useIsNarrow} from '~/lib/is-narrow';
 import {
 	useAddFilenameToTitle,
@@ -38,6 +37,9 @@ export const Probe: React.FC<{
 	readonly userRotation: number;
 	readonly mirrorHorizontal: boolean;
 	readonly mirrorVertical: boolean;
+	readonly onWaveformBars: (bars: number[]) => void;
+	readonly waveform: number[];
+	readonly isAudio: boolean;
 }> = ({
 	src,
 	probeDetails,
@@ -47,8 +49,10 @@ export const Probe: React.FC<{
 	userRotation,
 	mirrorHorizontal,
 	mirrorVertical,
+	onWaveformBars,
+	waveform,
+	isAudio,
 }) => {
-	const [waveform, setWaveform] = useState<number[]>([]);
 	const bestBrightness = useRef<number | null>(null);
 
 	const onVideoThumbnail = useCallback(
@@ -69,10 +73,6 @@ export const Probe: React.FC<{
 	const onDone = useCallback(() => {
 		videoThumbnailRef.current?.onDone();
 	}, [videoThumbnailRef]);
-
-	const onWaveformBars = useCallback((bars: number[]) => {
-		setWaveform(bars);
-	}, []);
 
 	const {err: thumbnailError} = useThumbnailAndWaveform({
 		onVideoThumbnail,
@@ -119,8 +119,6 @@ export const Probe: React.FC<{
 		return sortedTracks[trackDetails];
 	}, [probeDetails, sortedTracks, trackDetails]);
 
-	const isAudio = isAudioOnly({tracks});
-
 	useAddFilenameToTitle(name);
 	useCopyThumbnailToFavicon(videoThumbnailRef);
 
@@ -135,10 +133,13 @@ export const Probe: React.FC<{
 					{images ? (
 						<EmbeddedImage images={images} />
 					) : isAudio ? (
-						<AudioWaveformContainer>
-							<AudioWaveForm bars={waveform} />
-							<AudioPlayback src={src} />
-						</AudioWaveformContainer>
+						<>
+							<AudioWaveformContainer>
+								<AudioWaveForm bars={waveform} />
+								<AudioPlayback src={src} />
+							</AudioWaveformContainer>
+							<div className="border-b-2 border-black" />
+						</>
 					) : null}
 					{error ? null : thumbnailError ? null : isAudio ? null : (
 						<VideoThumbnail

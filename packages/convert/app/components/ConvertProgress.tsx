@@ -69,9 +69,12 @@ export const ConvertProgress: React.FC<{
 					) : null}
 				</>
 			) : duration && !state.hasVideo ? (
-				<AudioWaveformContainer>
-					<AudioWaveForm bars={bars} />
-				</AudioWaveformContainer>
+				<>
+					<AudioWaveformContainer>
+						<AudioWaveForm bars={bars} />
+					</AudioWaveformContainer>
+					<div className="border-b-2 border-black" />
+				</>
 			) : null}
 			<div className="p-2">
 				<div>

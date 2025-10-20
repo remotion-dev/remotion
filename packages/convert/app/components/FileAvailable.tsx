@@ -1,8 +1,9 @@
-import React, {useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import type {RotateOrMirrorState} from '~/lib/default-ui';
 import {defaultRotateOrMirorState} from '~/lib/default-ui';
+import {isAudioOnly} from '~/lib/is-audio-container';
 import type {RouteAction} from '~/seo';
 import {BackButton} from './BackButton';
 import ConvertUI from './ConvertUi';
@@ -37,6 +38,8 @@ export const FileAvailable: React.FC<{
 	const [flipHorizontal, setFlipHorizontal] = useState(true);
 	const [flipVertical, setFlipVertical] = useState(false);
 
+	const [waveform, setWaveform] = useState<number[]>([]);
+
 	const actualUserRotation = useMemo(() => {
 		if (enableRotateOrMirrow !== 'rotate') {
 			return 0;
@@ -45,16 +48,21 @@ export const FileAvailable: React.FC<{
 		return normalizeVideoRotation(userRotation);
 	}, [enableRotateOrMirrow, userRotation]);
 
+	const onWaveformBars = useCallback((bars: number[]) => {
+		setWaveform(bars);
+	}, []);
+	const isAudio = isAudioOnly({tracks: probeResult.tracks});
+
 	return (
 		<Page className="lg:justify-center pt-6 pb-10 px-4 lg:flex">
 			<div>
 				<BackButton setSrc={setSrc} />
 				<div className="h-4" />
-				<VideoPlayer src={src} />
+				<VideoPlayer src={src} isAudio={isAudio} waveform={waveform} />
 				<div className="h-8" />
-
 				<div className="lg:inline-flex lg:flex-row items-start">
 					<Probe
+						isAudio={isAudio}
 						src={src}
 						probeDetails={probeDetails}
 						setProbeDetails={setProbeDetails}
@@ -65,6 +73,8 @@ export const FileAvailable: React.FC<{
 							flipHorizontal && enableRotateOrMirrow === 'mirror'
 						}
 						mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
+						waveform={waveform}
+						onWaveformBars={onWaveformBars}
 					/>
 					{routeAction.type !== 'generic-probe' &&
 					routeAction.type !== 'transcribe' ? (

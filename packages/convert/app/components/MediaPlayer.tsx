@@ -1,6 +1,7 @@
 import {MediaFox} from '@mediafox/core';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
+import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
 import {PlayerVolume} from './player/mute-button';
 import {PlayPauseButton} from './player/play-button';
 import {PlayerSeekBar} from './player/player-seekbar';
@@ -17,7 +18,15 @@ const Separator: React.FC = () => {
 	);
 };
 
-export function VideoPlayer({src: source}: {readonly src: Source}) {
+export function VideoPlayer({
+	src: source,
+	isAudio,
+	waveform,
+}: {
+	readonly src: Source;
+	readonly waveform: number[];
+	readonly isAudio: boolean;
+}) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const playerRef = useRef<MediaFox>(null);
 
@@ -52,7 +61,15 @@ export function VideoPlayer({src: source}: {readonly src: Source}) {
 			style={{maxWidth: 732}}
 			className="border-2 border-b-4 border-black rounded-md overflow-hidden"
 		>
-			<canvas ref={canvasRef} style={{width: '100%'}} />
+			{isAudio ? (
+				<AudioWaveformContainer>
+					<AudioWaveForm bars={waveform} />
+				</AudioWaveformContainer>
+			) : null}
+			<canvas
+				ref={canvasRef}
+				style={{width: '100%', display: isAudio ? 'none' : 'block'}}
+			/>
 			{mediaFox ? (
 				<div className="flex row border-t-2 border-t-black items-center ">
 					<PlayPauseButton playerRef={mediaFox} />

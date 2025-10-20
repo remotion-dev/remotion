@@ -49,7 +49,7 @@ export const AudioWaveformContainer: React.FC<{
 			style={{
 				height: THUMBNAIL_HEIGHT,
 			}}
-			className="relative bg-slate-100 border-b-2 border-black justify-center items-center flex flex-row gap-px"
+			className="relative bg-slate-100 justify-center items-center flex flex-row gap-px"
 		>
 			{children}
 		</div>
