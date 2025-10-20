@@ -1,11 +1,45 @@
-import type {InputVideoTrack, OutputFormat} from 'mediabunny';
-import {getEncodableVideoCodecs} from 'mediabunny';
-import type {VideoOperation} from './audio-operation';
+import type {InputAudioTrack, InputVideoTrack, OutputFormat} from 'mediabunny';
+import {getEncodableAudioCodecs, getEncodableVideoCodecs} from 'mediabunny';
+import type {AudioOperation, VideoOperation} from './audio-operation';
 import {
 	calculateNewDimensionsFromRotateAndScale,
 	normalizeVideoRotation,
 } from './calculate-new-dimensions-from-dimensions';
 import type {MediabunnyResize} from './mediabunny-calculate-resize-option';
+
+export const getAudioTranscodingOptions = async ({
+	inputTrack,
+	outputContainer,
+	sampleRate,
+}: {
+	inputTrack: InputAudioTrack;
+	outputContainer: OutputFormat;
+	sampleRate: number | null;
+}): Promise<AudioOperation[]> => {
+	if (inputTrack.codec === null) {
+		return [];
+	}
+
+	const supportedCodecsByContainer = outputContainer.getSupportedAudioCodecs();
+
+	const configs: AudioOperation[] = [];
+
+	for (const codec of supportedCodecsByContainer) {
+		const codecs = await getEncodableAudioCodecs([codec], {
+			numberOfChannels: inputTrack.numberOfChannels,
+			sampleRate: inputTrack.sampleRate,
+		});
+		if (codecs.includes(inputTrack.codec)) {
+			configs.push({
+				type: 'reencode',
+				audioCodec: codec,
+				sampleRate,
+			});
+		}
+	}
+
+	return configs;
+};
 
 export const getVideoTranscodingOptions = async ({
 	inputTrack,
@@ -87,6 +121,26 @@ export const canCopyVideoTrack = ({
 		newDimensions.height !== inputTrack.displayHeight ||
 		newDimensions.width !== inputTrack.displayWidth
 	) {
+		return false;
+	}
+
+	return outputContainer.getSupportedCodecs().includes(inputTrack.codec);
+};
+
+export const canCopyAudioTrack = ({
+	inputTrack,
+	outputContainer,
+	sampleRate,
+}: {
+	inputTrack: InputAudioTrack;
+	outputContainer: OutputFormat;
+	sampleRate: number | null;
+}) => {
+	if (!inputTrack.codec) {
+		return false;
+	}
+
+	if (sampleRate && inputTrack.sampleRate !== sampleRate) {
 		return false;
 	}
 

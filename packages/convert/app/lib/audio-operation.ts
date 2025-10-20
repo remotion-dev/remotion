@@ -4,7 +4,6 @@ import type {MediabunnyResize} from './mediabunny-calculate-resize-option';
 export type AudioOperation =
 	| {
 			type: 'reencode';
-			bitrate: number;
 			audioCodec: AudioCodec;
 			sampleRate: number | null;
 	  }

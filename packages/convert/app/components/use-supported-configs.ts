@@ -1,5 +1,11 @@
-import type {InputFormat, InputTrack} from 'mediabunny';
-import {useEffect, useState} from 'react';
+import {
+	Mp4OutputFormat,
+	WavOutputFormat,
+	WebMOutputFormat,
+	type InputFormat,
+	type InputTrack,
+} from 'mediabunny';
+import {useEffect, useMemo, useState} from 'react';
 import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 import type {OutputContainer, RouteAction} from '~/seo';
 import type {SupportedConfigs} from './get-supported-configs';
@@ -30,6 +36,24 @@ export const useSupportedConfigs = ({
 		wav: null,
 	});
 
+	const outputFormat = useMemo(() => {
+		if (outputContainer === 'mp4') {
+			return new Mp4OutputFormat();
+		}
+
+		if (outputContainer === 'wav') {
+			return new WavOutputFormat();
+		}
+
+		if (outputContainer === 'webm') {
+			return new WebMOutputFormat();
+		}
+
+		throw new Error(
+			'should not reach here' + (outputContainer satisfies never),
+		);
+	}, [outputContainer]);
+
 	useEffect(() => {
 		if (!tracks || !inputContainer) {
 			return;
@@ -37,11 +61,9 @@ export const useSupportedConfigs = ({
 
 		getSupportedConfigs({
 			tracks,
-			container: outputContainer,
-			bitrate: 128000,
+			container: outputFormat,
 			action,
 			userRotation,
-			inputContainer,
 			resizeOperation,
 			sampleRate,
 		}).then((supportedConfigs) => {
@@ -54,9 +76,10 @@ export const useSupportedConfigs = ({
 		action,
 		inputContainer,
 		outputContainer,
+		outputFormat,
+		resizeOperation,
 		tracks,
 		userRotation,
-		resizeOperation,
 		sampleRate,
 	]);
 

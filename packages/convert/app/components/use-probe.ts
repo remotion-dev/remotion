@@ -39,9 +39,7 @@ export const useProbe = ({src}: {src: Source}) => {
 	const [metadata, setMetadata] = useState<MetadataTags | null>(null);
 	const [tracks, setTracks] = useState<InputTrack[] | null>(null);
 	const [container, setContainer] = useState<InputFormat | null>(null);
-	const [keyframes, setKeyframes] = useState<MediaParserKeyframe[] | null>(
-		null,
-	);
+	const [keyframes] = useState<MediaParserKeyframe[] | null>(null);
 	const [sampleRate, setSampleRate] = useState<number | null>(null);
 	const [done, setDone] = useState(false);
 	const [error, setError] = useState<Error | null>(null);

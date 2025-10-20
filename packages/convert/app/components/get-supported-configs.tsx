@@ -1,13 +1,11 @@
-import {canCopyAudioTrack, canReencodeAudioTrack} from '@remotion/webcodecs';
-import type {
-	InputAudioTrack,
-	InputFormat,
-	InputTrack,
-	OutputFormat,
-} from 'mediabunny';
+import type {InputAudioTrack, InputTrack, OutputFormat} from 'mediabunny';
 import type {AudioOperation, VideoOperation} from '~/lib/audio-operation';
-import {canCopyVideoTrack} from '~/lib/can-copy-video-track';
-import {getVideoTranscodingOptions} from '~/lib/can-transcode-video-track';
+import {
+	canCopyAudioTrack,
+	canCopyVideoTrack,
+	getAudioTranscodingOptions,
+	getVideoTranscodingOptions,
+} from '~/lib/can-transcode-or-copy';
 import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 import type {RouteAction} from '~/seo';
 
@@ -78,19 +76,15 @@ const shouldPrioritizeVideoCopyOverReencode = (routeAction: RouteAction) => {
 export const getSupportedConfigs = async ({
 	tracks,
 	container,
-	bitrate,
 	action,
 	userRotation,
-	inputContainer,
 	resizeOperation,
 	sampleRate,
 }: {
 	tracks: InputTrack[];
 	container: OutputFormat;
-	bitrate: number;
 	action: RouteAction;
 	userRotation: number;
-	inputContainer: InputFormat;
 	resizeOperation: MediabunnyResize | null;
 	sampleRate: number | null;
 }): Promise<SupportedConfigs> => {
@@ -142,33 +136,21 @@ export const getSupportedConfigs = async ({
 			const audioTrackOperations: AudioOperation[] = [];
 
 			const canCopy = canCopyAudioTrack({
-				inputCodec: track.codec,
 				outputContainer: container,
-				inputContainer,
-				outputAudioCodec: null,
+				inputTrack: track,
+				sampleRate,
 			});
 
 			if (canCopy) {
 				audioTrackOperations.push({type: 'copy'});
 			}
 
-			for (const audioCodec of availableAudioCodecs) {
-				const canReencode = await canReencodeAudioTrack({
-					audioCodec,
-					track,
-					bitrate,
-					sampleRate,
-				});
-
-				if (canReencode) {
-					audioTrackOperations.push({
-						type: 'reencode',
-						audioCodec,
-						bitrate,
-						sampleRate,
-					});
-				}
-			}
+			const options = await getAudioTranscodingOptions({
+				inputTrack: track,
+				outputContainer: container,
+				sampleRate,
+			});
+			options.push(...options);
 
 			audioTrackOperations.push({
 				type: 'drop',
