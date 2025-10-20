@@ -236,141 +236,149 @@ const ConvertUI = ({
 				newName: filename,
 			});
 
-			const conversion = await Conversion.init({
-				input,
-				output,
-				video: (videoTrack) => {
-					const operation = getActualVideoOperation({
-						enableConvert,
-						trackNumber: videoTrack.id,
-						videoConfigIndexSelection: videoOperationSelection,
-						operations:
-							supportedConfigs.videoTrackOptions.find(
-								(o) => o.trackId === videoTrack.id,
-							)?.operations ?? [],
-					});
+			try {
+				const conversion = await Conversion.init({
+					input,
+					output,
+					video: (videoTrack) => {
+						const operation = getActualVideoOperation({
+							enableConvert,
+							trackNumber: videoTrack.id,
+							videoConfigIndexSelection: videoOperationSelection,
+							operations:
+								supportedConfigs.videoTrackOptions.find(
+									(o) => o.trackId === videoTrack.id,
+								)?.operations ?? [],
+						});
 
-					if (operation.type === 'drop') {
-						return {discard: true};
-					}
+						if (operation.type === 'drop') {
+							return {discard: true};
+						}
 
-					if (operation.type === 'copy') {
+						if (operation.type === 'copy') {
+							progress.hasVideo = true;
+							return {};
+						}
+
+						if (operation.type === 'fail') {
+							throw new Error('videoOperation.type === "fail"');
+						}
+
 						progress.hasVideo = true;
-						return {};
-					}
+						return {
+							height: Math.min(videoTrack.displayHeight, 1080),
+							process(sample) {
+								const flipped = flipVideoFrame({
+									frame: sample.toVideoFrame(),
+									horizontal:
+										flipHorizontal && enableRotateOrMirror === 'mirror',
+									vertical: flipVertical && enableRotateOrMirror === 'mirror',
+								});
+								if (videoFrames % 15 === 0) {
+									convertProgressRef.current?.draw(flipped);
+								}
 
-					if (operation.type === 'fail') {
-						throw new Error('videoOperation.type === "fail"');
-					}
+								progress.millisecondsWritten = sample.timestamp * 1000;
 
-					progress.hasVideo = true;
-					return {
-						height: Math.min(videoTrack.displayHeight, 1080),
-						process(sample) {
-							const flipped = flipVideoFrame({
-								frame: sample.toVideoFrame(),
-								horizontal: flipHorizontal && enableRotateOrMirror === 'mirror',
-								vertical: flipVertical && enableRotateOrMirror === 'mirror',
-							});
-							if (videoFrames % 15 === 0) {
-								convertProgressRef.current?.draw(flipped);
-							}
+								videoFrames++;
+								return flipped;
+							},
+							rotate: userRotation as Rotation,
+							forceTranscode: true,
+							...calculateMediabunnyResizeOption(
+								resizeOperation,
+								dimensions ?? null,
+							),
+							codec: operation.videoCodec,
+						};
+					},
+					audio: (audioTrack) => {
+						const operations =
+							supportedConfigs.audioTrackOptions.find((o) => {
+								return o.trackId === audioTrack.id;
+							})?.operations ?? [];
+						const operation = getActualAudioOperation({
+							audioConfigIndexSelection: audioOperationSelection,
+							enableConvert,
+							operations,
+							trackNumber: audioTrack.id,
+						});
 
-							progress.millisecondsWritten = sample.timestamp * 1000;
+						if (operation.type === 'fail') {
+							throw new Error('audioOperation.type === "fail"');
+						}
 
-							videoFrames++;
-							return flipped;
-						},
-						rotate: userRotation as Rotation,
-						forceTranscode: true,
-						...calculateMediabunnyResizeOption(
-							resizeOperation,
-							dimensions ?? null,
-						),
-						codec: operation.videoCodec,
-					};
-				},
-				audio: (audioTrack) => {
-					const operations =
-						supportedConfigs.audioTrackOptions.find((o) => {
-							return o.trackId === audioTrack.id;
-						})?.operations ?? [];
-					const operation = getActualAudioOperation({
-						audioConfigIndexSelection: audioOperationSelection,
-						enableConvert,
-						operations,
-						trackNumber: audioTrack.id,
-					});
+						if (operation.type === 'copy') {
+							return {};
+						}
 
-					if (operation.type === 'fail') {
-						throw new Error('audioOperation.type === "fail"');
-					}
+						if (operation.type === 'drop') {
+							return {discard: true};
+						}
 
-					if (operation.type === 'copy') {
-						return {};
-					}
+						return {
+							sampleRate: operation.sampleRate ?? undefined,
+							process(sample) {
+								if (!progress.hasVideo) {
+									waveform.add(sample.toAudioBuffer());
+								}
 
-					if (operation.type === 'drop') {
-						return {discard: true};
-					}
-
-					return {
-						sampleRate: operation.sampleRate ?? undefined,
-						process(sample) {
-							if (!progress.hasVideo) {
-								waveform.add(sample.toAudioBuffer());
-							}
-
-							return sample;
-						},
-					};
-				},
-			});
-
-			if (stopped) {
-				return;
-			}
-
-			cancelConversion = () => {
-				conversion.cancel();
-
-				setState({
-					type: 'idle',
+								return sample;
+							},
+						};
+					},
 				});
-			};
 
-			if (input.disposed) {
-				throw new Error('Input disposed');
-			}
+				if (stopped) {
+					return;
+				}
 
-			conversion.onProgress = (newProg) => {
-				progress.overallProgress = newProg;
-				progress.bytesWritten = getWrittenByteCount();
+				cancelConversion = () => {
+					conversion.cancel();
+
+					setState({
+						type: 'idle',
+					});
+				};
+
+				if (input.disposed) {
+					throw new Error('Input disposed');
+				}
+
+				conversion.onProgress = (newProg) => {
+					progress.overallProgress = newProg;
+					progress.bytesWritten = getWrittenByteCount();
+
+					setState({
+						type: 'in-progress',
+						onAbort: cancelConversion,
+						state: progress,
+						startTime,
+						newName: filename,
+					});
+				};
+
+				await conversion.execute();
+
+				close();
 
 				setState({
-					type: 'in-progress',
-					onAbort: cancelConversion,
+					type: 'done',
+					download: async () => {
+						const blob = await getBlob();
+						return blob;
+					},
 					state: progress,
 					startTime,
+					completedTime: Date.now(),
 					newName: filename,
 				});
-			};
-
-			await conversion.execute();
-
-			close();
-
-			setState({
-				type: 'done',
-				download: async () => {
-					const blob = await getBlob();
-					return blob;
-				},
-				state: progress,
-				startTime,
-				completedTime: Date.now(),
-				newName: filename,
-			});
+			} catch (error) {
+				setState({
+					type: 'error',
+					error: error as Error,
+				});
+			}
 		};
 
 		run();
