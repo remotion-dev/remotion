@@ -3,9 +3,14 @@
 		{
 			"source": "/_raw/docs/(.*).md",
 			"headers": [
-				{"key": "Content-Type", "value": "text/plain; charset=utf-8"},
-				{"key": "Access-Control-Allow-Origin", "value": "*"},
-				{"key": "Vary", "value": "Accept"}
+				{
+					"key": "Content-Type",
+					"value": "text/plain; charset=utf-8"
+				},
+				{
+					"key": "Vary",
+					"value": "Accept"
+				}
 			]
 		},
 		{
