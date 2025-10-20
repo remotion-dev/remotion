@@ -145,12 +145,12 @@ export const getSupportedConfigs = async ({
 				audioTrackOperations.push({type: 'copy'});
 			}
 
-			const options = await getAudioTranscodingOptions({
+			const reencodeOptions = await getAudioTranscodingOptions({
 				inputTrack: track,
 				outputContainer: container,
 				sampleRate,
 			});
-			options.push(...options);
+			audioTrackOperations.push(...reencodeOptions);
 
 			audioTrackOperations.push({
 				type: 'drop',

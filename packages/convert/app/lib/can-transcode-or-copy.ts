@@ -20,6 +20,10 @@ export const getAudioTranscodingOptions = async ({
 		return [];
 	}
 
+	if (!(await inputTrack.canDecode())) {
+		return [];
+	}
+
 	const supportedCodecsByContainer = outputContainer.getSupportedAudioCodecs();
 
 	const configs: AudioOperation[] = [];
@@ -29,7 +33,7 @@ export const getAudioTranscodingOptions = async ({
 			numberOfChannels: inputTrack.numberOfChannels,
 			sampleRate: inputTrack.sampleRate,
 		});
-		if (codecs.includes(inputTrack.codec)) {
+		if (codecs.includes(codec)) {
 			configs.push({
 				type: 'reencode',
 				audioCodec: codec,
@@ -56,6 +60,10 @@ export const getVideoTranscodingOptions = async ({
 		return [];
 	}
 
+	if (!(await inputTrack.canDecode())) {
+		return [];
+	}
+
 	const {height, width} = calculateNewDimensionsFromRotateAndScale({
 		height: inputTrack.displayHeight,
 		resizeOperation,
@@ -72,7 +80,8 @@ export const getVideoTranscodingOptions = async ({
 			height,
 			width,
 		});
-		if (codecs.includes(inputTrack.codec)) {
+
+		if (codecs.includes(codec)) {
 			configs.push({
 				type: 'reencode',
 				videoCodec: codec,
