@@ -128,7 +128,6 @@ export function VideoPlayer({
 					mediaFox={mediaFox}
 				/>
 			) : null}
-
 			<div className="h-2" />
 			{mediaFox ? (
 				<div

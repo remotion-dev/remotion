@@ -86,14 +86,18 @@ export const CropUI: React.FC<{
 		>
 			<CropBackdrop rect={rect} dimensions={dimensions} />
 			<div
-				className="border-brand absolute border-4 rounded-md "
+				className="border-brand absolute border-4 rounded-md flex flex-col items-center justify-center pb-2"
 				style={{
 					width: (rect.width / dimensions.width) * 100 + '%',
 					height: (rect.height / dimensions.height) * 100 + '%',
 					left: (rect.left / dimensions.width) * 100 + '%',
 					top: (rect.top / dimensions.height) * 100 + '%',
 				}}
-			/>
+			>
+				<div className="bg-brand inline-block text-white px-3 py-1 text-sm font-brand rounded-full">
+					{rect.width}x{rect.height}
+				</div>
+			</div>
 			<ResizeHandle
 				divRef={ref}
 				position="top-left"
