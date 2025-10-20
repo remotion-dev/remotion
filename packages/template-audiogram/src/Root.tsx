@@ -17,7 +17,7 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           // audio settings
           audioOffsetInSeconds: 0,
-          audioFileUrl: staticFile("audio.wav"),
+          audioFileUrl: staticFile("dialogue.wav"),
           // podcast data
           coverImageUrl: staticFile("podcast-cover.jpeg"),
           titleText: "Ep 550 - Supper Club × Remotion React",
