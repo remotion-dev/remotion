@@ -1,4 +1,5 @@
 import {Button} from '@/components/ui/button';
+import type MediaFox from '@mediafox/core';
 import type {
 	Input,
 	InputAudioTrack,
@@ -68,6 +69,7 @@ const ConvertUI = ({
 	sampleRate,
 	name,
 	input,
+	mediafox,
 }: {
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: InputAudioTrack['codec'] | null;
@@ -93,6 +95,7 @@ const ConvertUI = ({
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly sampleRate: number | null;
+	readonly mediafox: MediaFox;
 }) => {
 	const [outputContainer, setOutputContainer] = useState<OutputContainer>(() =>
 		getDefaultOutputFormat(inputContainer),
@@ -476,6 +479,7 @@ const ConvertUI = ({
 		return (
 			<>
 				<ConvertProgress
+					mediafox={mediafox}
 					state={state.state}
 					newName={state.newName}
 					done={false}
@@ -502,6 +506,7 @@ const ConvertUI = ({
 			<>
 				<ConvertProgress
 					done
+					mediafox={mediafox}
 					state={state.state}
 					newName={state.newName}
 					duration={durationInSeconds}
