@@ -1,3 +1,4 @@
+import type MediaFox from '@mediafox/core';
 import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatElapsedTime} from '~/lib/format-elapsed-time';
@@ -24,6 +25,7 @@ export const ConvertProgress: React.FC<{
 	readonly bars: number[];
 	readonly startTime?: number;
 	readonly completedTime?: number;
+	readonly mediafox: MediaFox;
 }> = ({
 	state,
 	newName,
@@ -33,6 +35,7 @@ export const ConvertProgress: React.FC<{
 	duration,
 	startTime,
 	completedTime,
+	mediafox,
 }) => {
 	const progress = done ? 1 : state.overallProgress;
 
@@ -69,9 +72,12 @@ export const ConvertProgress: React.FC<{
 					) : null}
 				</>
 			) : duration && !state.hasVideo ? (
-				<AudioWaveformContainer>
-					<AudioWaveForm bars={bars} />
-				</AudioWaveformContainer>
+				<>
+					<AudioWaveformContainer>
+						<AudioWaveForm bars={bars} mediafox={mediafox} />
+					</AudioWaveformContainer>
+					<div className="border-b-2 border-black" />
+				</>
 			) : null}
 			<div className="p-2">
 				<div>

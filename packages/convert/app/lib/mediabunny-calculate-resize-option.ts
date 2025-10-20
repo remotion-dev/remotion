@@ -29,7 +29,7 @@ export const calculateMediabunnyResizeOption = (
 
 	if (resizeOperation.mode === 'scale') {
 		return {
-			height: rotatedDimensions.height * resizeOperation.scale,
+			height: Math.round(rotatedDimensions.height * resizeOperation.scale),
 		};
 	}
 

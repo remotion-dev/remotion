@@ -4,6 +4,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@variant fullscreen (&:fullscreen);
+
 @theme {
 	--font-*: initial;
 	--font-brand: GTPlanar;

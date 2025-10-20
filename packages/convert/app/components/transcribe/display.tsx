@@ -1,4 +1,5 @@
 /* eslint-disable react/no-array-index-key */
+import type MediaFox from '@mediafox/core';
 import type {Caption} from '@remotion/captions';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {useAudioPlayback} from '~/lib/use-audio-playback';
@@ -37,10 +38,12 @@ const SingleToken: React.FC<{
 
 export default function Display({
 	result: unfilteredResult,
+	mediaFox,
 }: {
 	readonly result: Caption[];
+	readonly mediaFox: MediaFox;
 }) {
-	const {time} = useAudioPlayback();
+	const {time} = useAudioPlayback(mediaFox);
 	const [tokens, setTokens] = useState<boolean>(false);
 
 	const result = useMemo(() => {

@@ -1,4 +1,5 @@
 import {Button} from '@/components/ui/button';
+import type MediaFox from '@mediafox/core';
 import type {
 	Input,
 	InputAudioTrack,
@@ -68,6 +69,7 @@ const ConvertUI = ({
 	sampleRate,
 	name,
 	input,
+	mediafox,
 }: {
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: InputAudioTrack['codec'] | null;
@@ -93,6 +95,7 @@ const ConvertUI = ({
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly sampleRate: number | null;
+	readonly mediafox: MediaFox;
 }) => {
 	const [outputContainer, setOutputContainer] = useState<OutputContainer>(() =>
 		getDefaultOutputFormat(inputContainer),
@@ -222,137 +225,163 @@ const ConvertUI = ({
 				throw new Error('No supported configs');
 			}
 
-			const conversion = await Conversion.init({
-				input,
-				output,
-				video: (videoTrack) => {
-					const operation = getActualVideoOperation({
-						enableConvert,
-						trackNumber: videoTrack.id,
-						videoConfigIndexSelection: videoOperationSelection,
-						operations:
-							supportedConfigs.videoTrackOptions.find(
-								(o) => o.trackId === videoTrack.id,
-							)?.operations ?? [],
-					});
-
-					if (operation.type === 'drop') {
-						return {discard: true};
-					}
-
-					if (operation.type === 'copy') {
-						progress.hasVideo = true;
-						return {};
-					}
-
-					if (operation.type === 'fail') {
-						throw new Error('videoOperation.type === "fail"');
-					}
-
-					progress.hasVideo = true;
-					return {
-						height: Math.min(videoTrack.displayHeight, 1080),
-						process(sample) {
-							const flipped = flipVideoFrame({
-								frame: sample.toVideoFrame(),
-								horizontal: flipHorizontal && enableRotateOrMirror === 'mirror',
-								vertical: flipVertical && enableRotateOrMirror === 'mirror',
-							});
-							if (videoFrames % 15 === 0) {
-								convertProgressRef.current?.draw(flipped);
-							}
-
-							progress.millisecondsWritten = sample.timestamp * 1000;
-
-							videoFrames++;
-							return flipped;
-						},
-						rotate: userRotation as Rotation,
-						forceTranscode: true,
-						...calculateMediabunnyResizeOption(
-							resizeOperation,
-							dimensions ?? null,
-						),
-						codec: operation.videoCodec,
-					};
-				},
-				audio: (audioTrack) => {
-					const operations =
-						supportedConfigs.audioTrackOptions.find((o) => {
-							return o.trackId === audioTrack.id;
-						})?.operations ?? [];
-					const operation = getActualAudioOperation({
-						audioConfigIndexSelection: audioOperationSelection,
-						enableConvert,
-						operations,
-						trackNumber: audioTrack.id,
-					});
-
-					if (operation.type === 'fail') {
-						throw new Error('audioOperation.type === "fail"');
-					}
-
-					if (operation.type === 'copy') {
-						return {};
-					}
-
-					if (operation.type === 'drop') {
-						return {discard: true};
-					}
-
-					return {
-						sampleRate: operation.sampleRate ?? undefined,
-						process(sample) {
-							if (!progress.hasVideo) {
-								waveform.add(sample.toAudioBuffer());
-							}
-
-							return sample;
-						},
-					};
-				},
-			});
-
-			cancelConversion = () => {
-				conversion.cancel();
-
-				setState({
-					type: 'idle',
-				});
-			};
-
-			if (input.disposed) {
-				throw new Error('Input disposed');
-			}
-
-			conversion.onProgress = (newProg) => {
-				progress.overallProgress = newProg;
-				progress.bytesWritten = getWrittenByteCount();
-
-				setState({
-					type: 'in-progress',
-					onAbort: cancelConversion,
-					state: progress,
-					startTime,
-					newName: filename,
-				});
-			};
-
-			await conversion.execute();
-
-			close();
-
+			let stopped = false;
 			setState({
-				type: 'done',
-				download: async () => {
-					const blob = await getBlob();
-					return blob;
+				type: 'in-progress',
+				onAbort: () => {
+					setState({
+						type: 'idle',
+					});
+					stopped = true;
 				},
 				state: progress,
 				startTime,
-				completedTime: Date.now(),
 				newName: filename,
 			});
+
+			try {
+				const conversion = await Conversion.init({
+					input,
+					output,
+					video: (videoTrack) => {
+						const operation = getActualVideoOperation({
+							enableConvert,
+							trackNumber: videoTrack.id,
+							videoConfigIndexSelection: videoOperationSelection,
+							operations:
+								supportedConfigs.videoTrackOptions.find(
+									(o) => o.trackId === videoTrack.id,
+								)?.operations ?? [],
+						});
+
+						if (operation.type === 'drop') {
+							return {discard: true};
+						}
+
+						if (operation.type === 'copy') {
+							progress.hasVideo = true;
+							return {};
+						}
+
+						if (operation.type === 'fail') {
+							throw new Error('videoOperation.type === "fail"');
+						}
+
+						progress.hasVideo = true;
+						return {
+							height: Math.min(videoTrack.displayHeight, 1080),
+							process(sample) {
+								const flipped = flipVideoFrame({
+									frame: sample.toVideoFrame(),
+									horizontal:
+										flipHorizontal && enableRotateOrMirror === 'mirror',
+									vertical: flipVertical && enableRotateOrMirror === 'mirror',
+								});
+								if (videoFrames % 15 === 0) {
+									convertProgressRef.current?.draw(flipped);
+								}
+
+								progress.millisecondsWritten = sample.timestamp * 1000;
+
+								videoFrames++;
+								return flipped;
+							},
+							rotate: userRotation as Rotation,
+							forceTranscode: true,
+							...calculateMediabunnyResizeOption(
+								resizeOperation,
+								dimensions ?? null,
+							),
+							codec: operation.videoCodec,
+						};
+					},
+					audio: (audioTrack) => {
+						const operations =
+							supportedConfigs.audioTrackOptions.find((o) => {
+								return o.trackId === audioTrack.id;
+							})?.operations ?? [];
+						const operation = getActualAudioOperation({
+							audioConfigIndexSelection: audioOperationSelection,
+							enableConvert,
+							operations,
+							trackNumber: audioTrack.id,
+						});
+
+						if (operation.type === 'fail') {
+							throw new Error('audioOperation.type === "fail"');
+						}
+
+						if (operation.type === 'copy') {
+							return {};
+						}
+
+						if (operation.type === 'drop') {
+							return {discard: true};
+						}
+
+						return {
+							sampleRate: operation.sampleRate ?? undefined,
+							process(sample) {
+								if (!progress.hasVideo) {
+									waveform.add(sample.toAudioBuffer());
+								}
+
+								return sample;
+							},
+						};
+					},
+				});
+
+				if (stopped) {
+					return;
+				}
+
+				cancelConversion = () => {
+					conversion.cancel();
+
+					setState({
+						type: 'idle',
+					});
+				};
+
+				if (input.disposed) {
+					throw new Error('Input disposed');
+				}
+
+				conversion.onProgress = (newProg) => {
+					progress.overallProgress = newProg;
+					progress.bytesWritten = getWrittenByteCount();
+
+					setState({
+						type: 'in-progress',
+						onAbort: cancelConversion,
+						state: progress,
+						startTime,
+						newName: filename,
+					});
+				};
+
+				await conversion.execute();
+
+				close();
+
+				setState({
+					type: 'done',
+					download: async () => {
+						const blob = await getBlob();
+						return blob;
+					},
+					state: progress,
+					startTime,
+					completedTime: Date.now(),
+					newName: filename,
+				});
+			} catch (error) {
+				setState({
+					type: 'error',
+					error: error as Error,
+				});
+			}
 		};
 
 		run();
@@ -450,6 +479,7 @@ const ConvertUI = ({
 		return (
 			<>
 				<ConvertProgress
+					mediafox={mediafox}
 					state={state.state}
 					newName={state.newName}
 					done={false}
@@ -476,6 +506,7 @@ const ConvertUI = ({
 			<>
 				<ConvertProgress
 					done
+					mediafox={mediafox}
 					state={state.state}
 					newName={state.newName}
 					duration={durationInSeconds}
