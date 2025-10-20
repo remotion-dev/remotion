@@ -129,8 +129,9 @@ const ConvertUI = ({
 		useState(false);
 	const [resampleRate, setResampleRate] = useState<number>(16000);
 
-	// TODO: No
-	const canResample = false;
+	const canResample = useMemo(() => {
+		return tracks?.find((t) => t.isAudioTrack());
+	}, [tracks]);
 
 	const actualResampleRate = useMemo(() => {
 		if (!canResample) {
