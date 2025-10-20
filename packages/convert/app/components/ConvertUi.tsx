@@ -447,6 +447,11 @@ const ConvertUI = ({
 	const onCropClick = useCallback(() => {
 		setEnableRotateOrMirror((m) => {
 			if (m !== 'crop') {
+				// Scroll to top of the page when crop is activated
+				if (typeof window !== 'undefined') {
+					window.scrollTo({top: 0, behavior: 'smooth'});
+				}
+
 				return 'crop';
 			}
 
@@ -699,6 +704,13 @@ const ConvertUI = ({
 								<ConvertUiSection active={crop} setActive={onCropClick}>
 									Crop
 								</ConvertUiSection>
+								<div className="bg-white border-2 border-b-4 rounded-md border-black text-sm p-3 mt-4">
+									Applied Crop: <br />
+									Left: {cropRect.left} <br />
+									Top: {cropRect.top} <br />
+									Width: {cropRect.width} <br />
+									Height: {cropRect.height} <br />
+								</div>
 							</div>
 						);
 					}
