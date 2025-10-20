@@ -17,13 +17,18 @@ export const useAudioPlayback = (mediaFox: MediaFox) => {
 		const onPlay = () => setPlaying(true);
 		const onPause = () => setPlaying(false);
 		const onTimeUpdate = () => setTime(mediaFox.currentTime);
-		const onDurationChange = () => setDuration(mediaFox.duration);
+		const onDurationChange = () => {
+			return setDuration(mediaFox.duration);
+		};
 
+		mediaFox.on('loadedmetadata', onDurationChange);
 		mediaFox.on('play', onPlay);
 		mediaFox.on('pause', onPause);
 		mediaFox.on('timeupdate', onTimeUpdate);
 		mediaFox.on('durationchange', onDurationChange);
+
 		return () => {
+			mediaFox.off('loadedmetadata', onDurationChange);
 			mediaFox.off('play', onPlay);
 			mediaFox.off('pause', onPause);
 			mediaFox.off('timeupdate', onTimeUpdate);

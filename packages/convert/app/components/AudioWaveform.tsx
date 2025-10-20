@@ -2,7 +2,6 @@ import type MediaFox from '@mediafox/core';
 import React, {useMemo} from 'react';
 import {useAudioPlayback} from '~/lib/use-audio-playback';
 import {AMOUNT_OF_BARS} from '~/lib/waveform-visualizer';
-import {THUMBNAIL_HEIGHT} from './VideoThumbnail';
 
 export const AudioWaveForm: React.FC<{
 	readonly bars: number[];
@@ -49,12 +48,7 @@ export const AudioWaveformContainer: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	return (
-		<div
-			style={{
-				height: THUMBNAIL_HEIGHT,
-			}}
-			className="relative bg-slate-100 justify-center items-center flex flex-row gap-px"
-		>
+		<div className="relative bg-slate-100 justify-center items-center flex flex-row gap-px h-[197px] group-fullscreen:flex-1">
 			{children}
 		</div>
 	);
