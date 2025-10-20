@@ -3,8 +3,93 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import DocBreadcrumbs from '@theme-original/DocBreadcrumbs';
 import type DocBreadcrumbsType from '@theme/DocBreadcrumbs';
 import React, {type ReactNode, useCallback, useState} from 'react';
+import {
+	AnthropicIcon,
+	CopyIcon,
+	CursorIcon,
+	ExternalLinkIcon,
+	OpenAIIcon,
+	VSCodeIcon,
+} from './icons';
 
 type Props = WrapperProps<typeof DocBreadcrumbsType>;
+
+const dropdownItemStyle: React.CSSProperties = {
+	padding: '6px',
+	fontSize: '0.875rem',
+	cursor: 'pointer',
+	borderRadius: '12px',
+	outline: 'none',
+	display: 'flex',
+	alignItems: 'center',
+	gap: '4px',
+};
+
+const iconContainerStyle: React.CSSProperties = {
+	border: '1px solid var(--border-color)',
+	borderRadius: '8px',
+	padding: '6px',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+};
+
+const itemContentStyle: React.CSSProperties = {
+	flex: 1,
+	paddingLeft: '4px',
+};
+
+const itemTitleStyle: React.CSSProperties = {
+	fontSize: '0.875rem',
+	fontWeight: 500,
+	color: 'var(--text-color)',
+	display: 'flex',
+	alignItems: 'center',
+	gap: '4px',
+};
+
+const itemDescriptionStyle: React.CSSProperties = {
+	fontSize: '0.75rem',
+	color: 'var(--light-text-color)',
+};
+
+interface DropdownItemProps {
+	readonly icon: ReactNode;
+	readonly title: string;
+	readonly description: string;
+	readonly onClick?: () => void;
+	readonly showExternalIcon?: boolean;
+}
+
+function AiDropdownItemComponent({
+	icon,
+	title,
+	description,
+	onClick,
+	showExternalIcon = false,
+}: DropdownItemProps) {
+	return (
+		<DropdownMenu.Item
+			onClick={onClick}
+			style={dropdownItemStyle}
+			onMouseEnter={(e) => {
+				e.currentTarget.style.backgroundColor = 'var(--clear-hover)';
+			}}
+			onMouseLeave={(e) => {
+				e.currentTarget.style.backgroundColor = 'transparent';
+			}}
+		>
+			<div style={iconContainerStyle}>{icon}</div>
+			<div style={itemContentStyle}>
+				<div style={itemTitleStyle}>
+					{title}
+					{showExternalIcon && <ExternalLinkIcon />}
+				</div>
+				<div style={itemDescriptionStyle}>{description}</div>
+			</div>
+		</DropdownMenu.Item>
+	);
+}
 
 async function copy(text: string) {
 	if (navigator.clipboard?.writeText) {
@@ -55,6 +140,23 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 		}
 	}, []);
 
+	const getPrompt = useCallback((): string => {
+		const currentUrl = window.location.href;
+		return `Please read the documentation from ${currentUrl} and help me understand it. I may have questions about the content, features, and how to use what's described on this page.`;
+	}, []);
+
+	const handleOpenInChatGPT = useCallback(() => {
+		const prompt = getPrompt();
+		const chatgptUrl = `https://chatgpt.com/?hints=search&prompt=${encodeURIComponent(prompt)}`;
+		window.open(chatgptUrl, '_blank');
+	}, [getPrompt]);
+
+	const handleOpenInClaude = useCallback(() => {
+		const prompt = getPrompt();
+		const claudeUrl = `https://claude.ai/?q=${encodeURIComponent(prompt)}`;
+		window.open(claudeUrl, '_blank');
+	}, [getPrompt]);
+
 	return (
 		<div
 			style={{
@@ -96,7 +198,7 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 							d="M384 336H192c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16l140.1 0L400 115.9V320c0 8.8-7.2 16-16 16zM192 384H384c35.3 0 64-28.7 64-64V115.9c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1H192c-35.3 0-64 28.7-64 64V320c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H256c35.3 0 64-28.7 64-64V416H272v32c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192c0-8.8 7.2-16 16-16H96V128H64z"
 						/>
 					</svg>
-					{copied ? 'Copied' : 'Copy page'}
+					{copied ? 'Copied' : 'Ask AI'}
 				</button>
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger asChild>
@@ -133,32 +235,49 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 							style={{
 								backgroundColor: 'var(--background)',
 								border: '1px solid var(--border-color)',
-								borderRadius: '6px',
+								borderRadius: '12px',
 								padding: '4px',
-								minWidth: '180px',
+								minWidth: '280px',
 								boxShadow: 'var(--box-shadow)',
 								zIndex: 9999,
 							}}
 						>
-							<DropdownMenu.Item
+							<AiDropdownItemComponent
+								icon={<CopyIcon />}
+								title="Copy page"
+								description="Copy page as Markdown for LLMs"
 								onClick={handleCopyMarkdown}
-								style={{
-									padding: '8px 12px',
-									fontSize: '0.875rem',
-									cursor: 'pointer',
-									borderRadius: '4px',
-									outline: 'none',
-									color: 'var(--text-color)',
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.backgroundColor = 'var(--clear-hover)';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.backgroundColor = 'transparent';
-								}}
-							>
-								Copy as Markdown
-							</DropdownMenu.Item>
+							/>
+
+							<AiDropdownItemComponent
+								icon={<OpenAIIcon />}
+								title="Open in ChatGPT"
+								description="Ask questions about this page"
+								onClick={handleOpenInChatGPT}
+								showExternalIcon
+							/>
+
+							<AiDropdownItemComponent
+								icon={<AnthropicIcon />}
+								title="Open in Claude"
+								description="Ask questions about this page"
+								onClick={handleOpenInClaude}
+								showExternalIcon
+							/>
+
+							<AiDropdownItemComponent
+								icon={<CursorIcon />}
+								title="Connect to Cursor"
+								description="Install MCP Server on Cursor"
+								showExternalIcon
+							/>
+
+							<AiDropdownItemComponent
+								icon={<VSCodeIcon />}
+								title="Connect to VS Code"
+								description="Install MCP Server on VS Code"
+								showExternalIcon
+							/>
 						</DropdownMenu.Content>
 					</DropdownMenu.Portal>
 				</DropdownMenu.Root>
