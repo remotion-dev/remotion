@@ -1,15 +1,11 @@
 import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
-import type {MediaParserKeyframe} from '@remotion/media-parser';
 import type {InputVideoTrack} from 'mediabunny';
 import React, {useEffect, useState} from 'react';
 import {renderHumanReadableVideoCodec} from '~/lib/render-codec-label';
-import {KeyframesInfo} from './KeyframesInfo';
 
 export const VideoTrackOverview: React.FC<{
 	readonly track: InputVideoTrack;
-	readonly keyframes: MediaParserKeyframe[] | null;
-	readonly durationInSeconds: number | null;
-}> = ({track, keyframes, durationInSeconds}) => {
+}> = ({track}) => {
 	const [colorSpace, setColorSpace] = useState<VideoColorSpaceInit | null>(
 		null,
 	);
@@ -46,13 +42,6 @@ export const VideoTrackOverview: React.FC<{
 					<TableCell className="font-brand">Timescale</TableCell>
 					<TableCell className="text-right">{track.timeResolution}</TableCell>
 				</TableRow>
-				{keyframes !== null ? (
-					<KeyframesInfo
-						durationInSeconds={durationInSeconds}
-						keyframes={keyframes}
-						trackId={track.id}
-					/>
-				) : null}
 				<TableRow>
 					<TableCell className="font-brand">Rotation</TableCell>
 					<TableCell className="text-right">{track.rotation}°</TableCell>

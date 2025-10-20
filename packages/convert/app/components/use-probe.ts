@@ -1,4 +1,3 @@
-import type {MediaParserKeyframe} from '@remotion/media-parser';
 import type {
 	InputAudioTrack,
 	InputFormat,
@@ -39,14 +38,12 @@ export const useProbe = ({src}: {src: Source}) => {
 	const [metadata, setMetadata] = useState<MetadataTags | null>(null);
 	const [tracks, setTracks] = useState<InputTrack[] | null>(null);
 	const [container, setContainer] = useState<InputFormat | null>(null);
-	const [keyframes] = useState<MediaParserKeyframe[] | null>(null);
 	const [sampleRate, setSampleRate] = useState<number | null>(null);
 	const [done, setDone] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
 
 	const getStart = useCallback(() => {
-		// TODO: Keyframes
-
+		// TODO: Reuse input
 		const input = new Input({
 			formats: ALL_FORMATS,
 			source:
@@ -123,7 +120,6 @@ export const useProbe = ({src}: {src: Source}) => {
 			error,
 			rotation,
 			metadata,
-			keyframes,
 			unrotatedDimensions,
 			sampleRate,
 		};
@@ -142,7 +138,6 @@ export const useProbe = ({src}: {src: Source}) => {
 		error,
 		rotation,
 		metadata,
-		keyframes,
 		unrotatedDimensions,
 		sampleRate,
 	]);
