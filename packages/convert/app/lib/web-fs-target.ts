@@ -2,7 +2,7 @@ import type {StreamTargetChunk} from 'mediabunny';
 
 export const makeWebFsTarget = async (filename: string) => {
 	const directoryHandle = await navigator.storage.getDirectory();
-	const actualFilename = `__remotion_mediaparser:${filename}`;
+	const actualFilename = `__remotion_convert:${filename}`;
 
 	const remove = async () => {
 		try {
