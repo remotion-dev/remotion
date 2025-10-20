@@ -1,7 +1,7 @@
 import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
 import React from 'react';
 import {
-	getActualAudioConfigIndex,
+	getActualAudioOperation,
 	getActualVideoOperation,
 } from '~/lib/get-audio-video-config-index';
 import {getAudioOperationId, getVideoOperationId} from '~/lib/operation-key';
@@ -107,7 +107,7 @@ export const ConvertForm: React.FC<{
 							/>
 							<AudioCodecSelection
 								index={getAudioOperationId(
-									getActualAudioConfigIndex({
+									getActualAudioOperation({
 										audioConfigIndexSelection,
 										enableConvert: true,
 										operations: track.operations,

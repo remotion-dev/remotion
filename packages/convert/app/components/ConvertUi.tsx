@@ -23,7 +23,10 @@ import type {ConvertState, Source} from '~/lib/convert-state';
 import type {ConvertSections, RotateOrMirrorState} from '~/lib/default-ui';
 import {getOrderOfSections, isConvertEnabledByDefault} from '~/lib/default-ui';
 import {getNewName} from '~/lib/generate-new-name';
-import {getActualVideoOperation} from '~/lib/get-audio-video-config-index';
+import {
+	getActualAudioOperation,
+	getActualVideoOperation,
+} from '~/lib/get-audio-video-config-index';
 import {getDefaultOutputFormat} from '~/lib/get-default-output-format';
 import {getInitialResizeSuggestion} from '~/lib/get-initial-resize-suggestion';
 import {isReencoding} from '~/lib/is-reencoding';
@@ -189,6 +192,10 @@ const ConvertUI = ({
 		setBars(b);
 	}, []);
 
+	const isAudioExclusively = useMemo(() => {
+		return (tracks?.filter((t) => t.isVideoTrack()).length ?? 0) === 0;
+	}, [tracks]);
+
 	const onClick = useCallback(() => {
 		const progress: ConvertProgressType = {
 			bytesWritten: 0,
@@ -206,20 +213,17 @@ const ConvertUI = ({
 				src.type === 'file' ? new BlobSource(src.file) : new UrlSource(src.url),
 		});
 
+		const format = getMediabunnyOutput(outputContainer);
+
 		let cancelConversion = () => {};
 
 		const run = async () => {
-			if (!outputContainer) {
-				throw new Error('No output container selected');
-			}
-
-			const outputFormat = getMediabunnyOutput(outputContainer);
-			const filename = getNewName(name, outputFormat);
+			const filename = getNewName(name, format);
 			const {getBlob, stream, getWrittenByteCount, close} =
 				await makeWebFsTarget(filename);
 
 			const output = new Output({
-				format: outputFormat,
+				format,
 				target: new StreamTarget(stream),
 			});
 
@@ -230,14 +234,34 @@ const ConvertUI = ({
 
 			const startTime = Date.now();
 
+			if (!supportedConfigs) {
+				throw new Error('No supported configs');
+			}
+
 			const conversion = await Conversion.init({
 				input,
 				output,
-				video: (videoTrack, n) => {
-					if (n > 1) {
-						// TODO: Discard any other than first video tracks?
-						// Keep only the first video track
+				video: (videoTrack) => {
+					const operation = getActualVideoOperation({
+						enableConvert,
+						trackNumber: videoTrack.id,
+						videoConfigIndexSelection: videoOperationSelection,
+						operations:
+							supportedConfigs.videoTrackOptions.find(
+								(o) => o.trackId === videoTrack.id,
+							)?.operations ?? [],
+					});
+
+					if (operation.type === 'drop') {
 						return {discard: true};
+					}
+
+					if (operation.type === 'copy') {
+						return {};
+					}
+
+					if (operation.type === 'fail') {
+						throw new Error('videoOperation.type === "fail"');
 					}
 
 					return {
@@ -258,21 +282,48 @@ const ConvertUI = ({
 							return flipped;
 						},
 						rotate: userRotation as Rotation,
+						forceTranscode: true,
 						...calculateMediabunnyResizeOption(
 							resizeOperation,
 							dimensions ?? null,
 						),
-						// TODO: Support discard
-						// TODO: Support force transcode
+						codec: operation.videoCodec,
 					};
 				},
-				audio: {
-					process(sample) {
-						// TODO: Only do this if it is an audio-only conversion
-						waveform.add(sample.toAudioBuffer());
+				audio: (audioTrack) => {
+					const operations =
+						supportedConfigs.audioTrackOptions.find((o) => {
+							return o.trackId === audioTrack.id;
+						})?.operations ?? [];
+					const operation = getActualAudioOperation({
+						audioConfigIndexSelection: audioOperationSelection,
+						enableConvert,
+						operations,
+						trackNumber: audioTrack.id,
+					});
 
-						return sample;
-					},
+					if (operation.type === 'fail') {
+						throw new Error('audioOperation.type === "fail"');
+					}
+
+					if (operation.type === 'copy') {
+						return {};
+					}
+
+					if (operation.type === 'drop') {
+						return {discard: true};
+					}
+
+					return {
+						sampleRate: operation.sampleRate ?? undefined,
+						process(sample) {
+							if (isAudioExclusively) {
+								waveform.add(sample.toAudioBuffer());
+							}
+
+							return sample;
+						},
+					};
 				},
 			});
 
@@ -324,16 +375,21 @@ const ConvertUI = ({
 			cancelConversion();
 		};
 	}, [
+		dimensions,
+		enableConvert,
 		enableRotateOrMirror,
 		flipHorizontal,
 		flipVertical,
-		outputContainer,
+		isAudioExclusively,
 		name,
-		dimensions,
-		resizeOperation,
 		onWaveformBars,
+		outputContainer,
+		resizeOperation,
 		src,
+		supportedConfigs,
 		userRotation,
+		videoOperationSelection,
+		audioOperationSelection,
 	]);
 
 	const dimissError = useCallback(() => {
@@ -388,10 +444,6 @@ const ConvertUI = ({
 		rotation,
 		userRotation,
 	]);
-
-	const isAudioExclusively = useMemo(() => {
-		return (tracks?.filter((t) => t.type === 'video').length ?? 0) === 0;
-	}, [tracks]);
 
 	if (state.type === 'error') {
 		return (

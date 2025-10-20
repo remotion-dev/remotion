@@ -1,7 +1,15 @@
 import {renderHumanReadableContainer} from './lib/render-codec-label';
 
 export const inputContainers = ['mp4', 'webm', 'mov', 'mkv'] as const;
-export const outputContainers = ['mp4', 'webm', 'wav'] as const;
+export const outputContainers = [
+	'mp4',
+	'webm',
+	'mov',
+	'wav',
+	'mkv',
+	'aac',
+	'mp3',
+] as const;
 
 export type InputContainer = (typeof inputContainers)[number];
 export type OutputContainer = (typeof outputContainers)[number];

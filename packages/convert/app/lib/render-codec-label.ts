@@ -160,5 +160,13 @@ export const renderHumanReadableContainer = (
 		return '.mkv';
 	}
 
+	if (container === 'aac') {
+		return '.aac';
+	}
+
+	if (container === 'mp3') {
+		return '.mp3';
+	}
+
 	throw new Error(`Unknown container ${container satisfies never}`);
 };

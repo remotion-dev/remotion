@@ -1,12 +1,8 @@
-import {
-	Mp4OutputFormat,
-	WavOutputFormat,
-	WebMOutputFormat,
-	type InputFormat,
-	type InputTrack,
-} from 'mediabunny';
+import type {OutputFormat} from 'mediabunny';
+import {type InputFormat, type InputTrack} from 'mediabunny';
 import {useEffect, useMemo, useState} from 'react';
 import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
+import {getMediabunnyOutput} from '~/lib/output-container';
 import type {OutputContainer, RouteAction} from '~/seo';
 import type {SupportedConfigs} from './get-supported-configs';
 import {getSupportedConfigs} from './get-supported-configs';
@@ -29,29 +25,11 @@ export const useSupportedConfigs = ({
 	sampleRate: number | null;
 }) => {
 	const [state, setState] = useState<
-		Record<OutputContainer, SupportedConfigs | null | undefined>
-	>({
-		mp4: null,
-		webm: null,
-		wav: null,
-	});
+		Record<OutputFormat['mimeType'], SupportedConfigs | null | undefined>
+	>({});
 
 	const outputFormat = useMemo(() => {
-		if (outputContainer === 'mp4') {
-			return new Mp4OutputFormat();
-		}
-
-		if (outputContainer === 'wav') {
-			return new WavOutputFormat();
-		}
-
-		if (outputContainer === 'webm') {
-			return new WebMOutputFormat();
-		}
-
-		throw new Error(
-			'should not reach here' + (outputContainer satisfies never),
-		);
+		return getMediabunnyOutput(outputContainer);
 	}, [outputContainer]);
 
 	useEffect(() => {
