@@ -51,7 +51,15 @@ export function middleware(request: NextRequest) {
 	}
 
 	if (pathname.endsWith('.md')) {
-		return NextResponse.next();
+		const markdownPath = pathname.replace(/^\/docs\//, '/_raw/docs/');
+
+		const url = request.nextUrl.clone();
+		url.pathname = markdownPath;
+
+		const response = NextResponse.rewrite(url);
+		response.headers.set('Content-Type', 'text/plain; charset=utf-8');
+
+		return response;
 	}
 
 	const acceptHeader = request.headers.get('accept');
