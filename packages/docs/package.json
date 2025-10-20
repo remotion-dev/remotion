@@ -9,7 +9,7 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"docusaurus": "docusaurus",
 		"start": "bun copy-raw-docs.ts && bun update-prompt.ts && cd .. && bun run build && cd docs && docusaurus start --host 0.0.0.0",
-		"build-docs": "DOCUSAURUS_IGNORE_SSG_WARNINGS=true docusaurus build && bun copy-raw-docs.ts && bun copy-convert.ts && bun count-pages.ts",
+		"build-docs": "bun copy-raw-docs.ts && DOCUSAURUS_IGNORE_SSG_WARNINGS=true docusaurus build && bun copy-convert.ts && bun count-pages.ts",
 		"swizzle": "docusaurus swizzle",
 		"deploy": "docusaurus deploy",
 		"serve": "docusaurus serve",

@@ -1,3 +1,6 @@
+import type {NextRequest} from 'next/server';
+import {NextResponse} from 'next/server';
+
 export const config = {
 	matcher: '/docs/:path*',
 };
@@ -41,27 +44,24 @@ function prefersMarkdown(acceptHeader: string | null): boolean {
 	return false;
 }
 
-export default function middleware(request: Request) {
-	const url = new URL(request.url);
-	const pathname = url.pathname;
+export default function middleware(request: NextRequest) {
+	const pathname = request.nextUrl.pathname;
 
 	if (!pathname.startsWith('/docs/')) {
-		return;
+		return NextResponse.next();
 	}
 
 	if (pathname.endsWith('.md')) {
 		const markdownPath = pathname.replace(/^\/docs\//, '/_raw/docs/');
-		url.pathname = markdownPath;
-
-		return new Request(url, request);
+		return NextResponse.rewrite(new URL(markdownPath, request.url));
 	}
 
 	const acceptHeader = request.headers.get('accept');
 
 	if (prefersMarkdown(acceptHeader)) {
 		const markdownPath = `/_raw${pathname}.md`;
-		url.pathname = markdownPath;
-
-		return new Request(url, request);
+		return NextResponse.rewrite(new URL(markdownPath, request.url));
 	}
+
+	return NextResponse.next();
 }
