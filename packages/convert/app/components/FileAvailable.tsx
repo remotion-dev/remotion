@@ -77,7 +77,6 @@ export const FileAvailable: React.FC<{
 				<div className="lg:inline-flex lg:flex-row items-start">
 					{mediaFox ? (
 						<Probe
-							mediaFox={mediaFox}
 							isAudio={isAudio}
 							src={src}
 							probeDetails={probeDetails}
@@ -89,7 +88,6 @@ export const FileAvailable: React.FC<{
 								flipHorizontal && enableRotateOrMirrow === 'mirror'
 							}
 							mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
-							waveform={waveform}
 							onWaveformBars={onWaveformBars}
 						/>
 					) : null}

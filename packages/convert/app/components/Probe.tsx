@@ -1,4 +1,3 @@
-import type MediaFox from '@mediafox/core';
 import clsx from 'clsx';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
@@ -37,9 +36,7 @@ export const Probe: React.FC<{
 	readonly mirrorHorizontal: boolean;
 	readonly mirrorVertical: boolean;
 	readonly onWaveformBars: (bars: number[]) => void;
-	readonly waveform: number[];
 	readonly isAudio: boolean;
-	readonly mediaFox: MediaFox;
 }> = ({
 	src,
 	probeDetails,
@@ -50,9 +47,7 @@ export const Probe: React.FC<{
 	mirrorHorizontal,
 	mirrorVertical,
 	onWaveformBars,
-	waveform,
 	isAudio,
-	mediaFox,
 }) => {
 	const bestBrightness = useRef<number | null>(null);
 
