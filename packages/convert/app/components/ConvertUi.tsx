@@ -11,6 +11,7 @@ import type {
 } from 'mediabunny';
 import {Conversion, Output, StreamTarget} from 'mediabunny';
 import React, {useCallback, useMemo, useState} from 'react';
+import {applyCrop} from '~/lib/apply-crop';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {calculateNewDimensionsFromRotateAndScale} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
@@ -63,7 +64,6 @@ const ConvertUI = ({
 	setFlipHorizontal,
 	setFlipVertical,
 	inputContainer,
-	unrotatedDimensions,
 	videoThumbnailRef,
 	rotation,
 	dimensions,
@@ -80,7 +80,6 @@ const ConvertUI = ({
 	readonly currentVideoCodec: InputVideoTrack['codec'] | null;
 	readonly tracks: InputTrack[] | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
-	readonly unrotatedDimensions: Dimensions | null;
 	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null;
 	readonly rotation: number | null;
@@ -454,6 +453,14 @@ const ConvertUI = ({
 		return (tracks?.filter((t) => t.isVideoTrack()).length ?? 0) === 0;
 	}, [tracks]);
 
+	const unrotatedDimensions = useMemo(() => {
+		if (!dimensions) {
+			return null;
+		}
+
+		return applyCrop(dimensions, cropRect);
+	}, [dimensions, cropRect]);
+
 	const newDimensions = useMemo(() => {
 		if (unrotatedDimensions === null) {
 			return null;
@@ -692,7 +699,9 @@ const ConvertUI = ({
 								</ConvertUiSection>
 								{resizeOperation !== null &&
 								newDimensions !== null &&
-								unrotatedDimensions !== null ? (
+								unrotatedDimensions !== null &&
+								dimensions !== null &&
+								dimensions !== undefined ? (
 									<>
 										<div className="h-2" />
 										<ResizeUi

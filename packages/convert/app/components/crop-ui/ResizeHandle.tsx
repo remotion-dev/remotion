@@ -111,7 +111,7 @@ export const ResizeHandle: React.FC<{
 				);
 
 				if (position === 'top-left') {
-					updateRect((prev) => {
+					return updateRect((prev) => {
 						const x = Math.min(cropPixelsX, prev.width + prev.left - MIN_SIZE);
 						const y = Math.min(cropPixelsY, prev.height + prev.top - MIN_SIZE);
 
@@ -128,7 +128,7 @@ export const ResizeHandle: React.FC<{
 				}
 
 				if (position === 'top-right') {
-					updateRect((prev) => {
+					return updateRect((prev) => {
 						const newHeight = prev.height - (cropPixelsY - prev.top);
 						const y = Math.min(cropPixelsY, prev.height + prev.top - MIN_SIZE);
 
@@ -142,7 +142,7 @@ export const ResizeHandle: React.FC<{
 				}
 
 				if (position === 'bottom-left') {
-					updateRect((prev) => {
+					return updateRect((prev) => {
 						const x = Math.min(cropPixelsX, prev.width + prev.left - MIN_SIZE);
 
 						const diffX = x - prev.left;
@@ -162,6 +162,7 @@ export const ResizeHandle: React.FC<{
 						width: Math.max(MIN_SIZE, cropPixelsX - prev.left),
 						height: Math.max(MIN_SIZE, cropPixelsY - prev.top),
 					}));
+					return;
 				}
 
 				throw new Error('Unknown position: ' + JSON.stringify(position));

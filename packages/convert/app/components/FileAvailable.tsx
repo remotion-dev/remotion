@@ -130,7 +130,6 @@ export const FileAvailable: React.FC<{
 											currentVideoCodec={probeResult.videoCodec ?? null}
 											tracks={probeResult.tracks}
 											setSrc={setSrc}
-											unrotatedDimensions={probeResult.unrotatedDimensions}
 											dimensions={probeResult.dimensions}
 											durationInSeconds={probeResult.durationInSeconds ?? null}
 											action={routeAction}
