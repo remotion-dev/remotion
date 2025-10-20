@@ -1,20 +1,10 @@
-import { VoiceDescriptor } from "./types";
 import z from "zod";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject } from "ai";
-
-export const voices: VoiceDescriptor[] = [
-  { id: "alloy", name: "Alloy" },
-  { id: "ash", name: "Ash" },
-  { id: "ballad", name: "Ballad" },
-  { id: "coral", name: "Coral" },
-  { id: "echo", name: "Echo" },
-  { id: "fable", name: "Fable" },
-  { id: "nova", name: "Nova" },
-  { id: "onyx", name: "Onyx" },
-  { id: "sage", name: "Sage" },
-  { id: "shimme", name: "Shimme" },
-];
+import { experimental_generateImage as generateImage } from "ai";
+import * as fs from "fs";
+import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
+import { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api";
 
 let apiKey: string | null = null;
 
@@ -22,17 +12,21 @@ export const setApiKey = (key: string) => {
   apiKey = key;
 };
 
-export const openaiStructuredCompletion = async (
-  prompt: string,
-  schema: z.ZodType<unknown>,
-) => {
+const getOpenAiProvider = () => {
   if (!apiKey) {
     throw "Missing OpenAI API KEY";
   }
 
-  const openai = createOpenAI({
+  return createOpenAI({
     apiKey,
   });
+};
+
+export const openaiStructuredCompletion = async (
+  prompt: string,
+  schema: z.ZodType<unknown>,
+) => {
+  const openai = getOpenAiProvider();
 
   const { object } = await generateObject({
     model: openai("gpt-4.1"),
@@ -41,6 +35,23 @@ export const openaiStructuredCompletion = async (
   });
 
   return object;
+};
+
+function saveUint8ArrayToPng(uint8Array: Uint8Array, filePath: string) {
+  const buffer = Buffer.from(uint8Array);
+  fs.writeFileSync(filePath, buffer as Uint8Array);
+}
+
+export const generateAiImage = async (prompt: string, path: string) => {
+  const openai = getOpenAiProvider();
+
+  const { image } = await generateImage({
+    model: openai.image("dall-e-3"),
+    prompt,
+    size: `1024x1792`,
+  });
+
+  saveUint8ArrayToPng(image.uint8Array, path);
 };
 
 export const getGenerateStoryPrompt = (title: string, topic: string) => {
@@ -75,4 +86,29 @@ export const getGenerateImageDescriptionPrompt = (storyText: string) => {
   </story>`;
 
   return prompt;
+};
+
+const saveBase64ToMp3 = (data: string, path: string) => {
+  const buffer = Buffer.from(data, "base64");
+  fs.writeFileSync(path, buffer as Uint8Array);
+};
+
+export const generateVoice = async (
+  text: string,
+  apiKey: string,
+  path: string,
+): Promise<CharacterAlignmentResponseModel> => {
+  const client = new ElevenLabsClient({
+    environment: "https://api.elevenlabs.io",
+    apiKey,
+  });
+
+  const voiceId = "21m00Tcm4TlvDq8ikWAM";
+
+  const data = await client.textToSpeech.convertWithTimestamps(voiceId, {
+    text,
+  });
+
+  saveBase64ToMp3(data.audioBase64, path);
+  return data.alignment!;
 };

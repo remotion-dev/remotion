@@ -7,6 +7,8 @@ import ora from "ora";
 import chalk from "chalk";
 import * as dotenv from "dotenv";
 import {
+  generateAiImage,
+  generateVoice,
   getGenerateImageDescriptionPrompt,
   getGenerateStoryPrompt,
   openaiStructuredCompletion,
@@ -21,6 +23,7 @@ dotenv.config();
 
 interface GenerateOptions {
   apiKey?: string;
+  elevenlabsApiKey?: string;
   title?: string;
   topic?: string;
 }
@@ -50,6 +53,16 @@ class ContentFS {
     return p;
   }
 
+  getImagePath(uid: string): string {
+    const dirPath = this.getDir("images");
+    return path.join(dirPath, `${uid}.png`);
+  }
+
+  getAudioPath(uid: string): string {
+    const dirPath = this.getDir("audio");
+    return path.join(dirPath, `${uid}.mp3`);
+  }
+
   getSlug(): string {
     return this.title
       .toLowerCase()
@@ -61,6 +74,8 @@ class ContentFS {
 async function generateStory(options: GenerateOptions) {
   try {
     let apiKey = options.apiKey || process.env.OPENAI_API_KEY;
+    let elevenlabsApiKey =
+      options.elevenlabsApiKey || process.env.ELEVENLABS_API_KEY;
 
     if (!apiKey) {
       const response = await prompts({
@@ -76,6 +91,23 @@ async function generateStory(options: GenerateOptions) {
       }
 
       apiKey = response.apiKey;
+    }
+
+    if (!elevenlabsApiKey) {
+      const response = await prompts({
+        type: "password",
+        name: "elevenlabsApiKey",
+        message: "Enter your ElevenLabs API key:",
+        validate: (value) =>
+          value.length > 0 || "ElevenLabs API key is required",
+      });
+
+      if (!response.elevenlabsApiKey) {
+        console.log(chalk.red("API key is required. Exiting..."));
+        process.exit(1);
+      }
+
+      elevenlabsApiKey = response.elevenlabsApiKey;
     }
 
     let { title, topic } = options;
@@ -139,11 +171,17 @@ async function generateStory(options: GenerateOptions) {
     const contentFs = new ContentFS(title!);
     contentFs.saveSlides(storySlides);
 
-    const imagesSpinner = ora("Generating images...").start();
+    const imagesSpinner = ora("Generating images and voice...").start();
+    for (const slide of storySlides) {
+      await generateAiImage(slide.imageDesc, contentFs.getImagePath(slide.uid));
+      await generateVoice(
+        slide.text,
+        elevenlabsApiKey!,
+        contentFs.getAudioPath(slide.uid),
+      );
+      break;
+    }
     imagesSpinner.succeed(chalk.green("Images generated!"));
-
-    const audioSpinner = ora("Generating audio...").start();
-    audioSpinner.succeed(chalk.green("Audio generated!"));
 
     const finalSpinner = ora("Generating final result...").start();
     finalSpinner.succeed(chalk.green("Final result generated!"));

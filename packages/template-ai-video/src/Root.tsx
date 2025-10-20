@@ -6,7 +6,7 @@ import {
 } from "remotion";
 import { AIVideo, aiVideoSchema } from "./AIVideo";
 import { useEffect, useState } from "react";
-import { FPS, WindowsHeight, WindowsWidth } from "./constants";
+import { FPS, WindowHeight, WindowWidth } from "./constants";
 import { loadTimelineFromFile } from "./utils";
 
 interface InputProps extends Record<string, unknown> {
@@ -44,8 +44,8 @@ export const RemotionRoot: React.FC = () => {
         component={AIVideo}
         durationInFrames={frameLength}
         fps={FPS}
-        width={WindowsWidth}
-        height={WindowsHeight}
+        width={WindowWidth}
+        height={WindowHeight}
         schema={aiVideoSchema}
         defaultProps={{
           timelineFile,

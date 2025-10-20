@@ -1,5 +1,5 @@
 import { AbsoluteFill, Img, useCurrentFrame } from "remotion";
-import { FPS, WindowsHeight, WindowsWidth } from "../constants";
+import { FPS, WindowHeight, WindowWidth } from "../constants";
 import { BackgroundElement } from "../types";
 
 const EXTRA_SCALE = 0.2;
@@ -38,7 +38,7 @@ export const Background: React.FC<{
   // const durationFrames = ((item.endMs - item.startMs) * FPS)/1000;
   const localMs = (frame / FPS) * 1000;
 
-  const viewSize = { width: WindowsWidth, height: WindowsHeight };
+  const viewSize = { width: WindowWidth, height: WindowHeight };
   const imageRatio = 1.0;
 
   const imgWidth = viewSize.height;
