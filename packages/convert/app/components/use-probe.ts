@@ -61,8 +61,11 @@ export const useProbe = ({src}: {src: Source}) => {
 
 			const trx = await input.getTracks();
 			setTracks(trx);
+			let hasAudioTrack = false;
+			let hasVideoTrack = false;
 			for (const track of trx) {
 				if (track.isVideoTrack()) {
+					hasVideoTrack = true;
 					const {codec} = track;
 					setVideoCodec(codec);
 					track
@@ -79,9 +82,23 @@ export const useProbe = ({src}: {src: Source}) => {
 					});
 					track.hasHighDynamicRange().then((hdr) => setHdr(hdr));
 				} else if (track.isAudioTrack()) {
+					hasAudioTrack = true;
 					setAudioCodec(track.codec);
 					setSampleRate(track.sampleRate);
 				}
+			}
+
+			if (!hasAudioTrack) {
+				setAudioCodec(null);
+				setSampleRate(null);
+			}
+
+			if (!hasVideoTrack) {
+				setVideoCodec(null);
+				setFps(null);
+				setDimensions(null);
+				setUnrotatedDimensions(null);
+				setHdr(false);
 			}
 		};
 
