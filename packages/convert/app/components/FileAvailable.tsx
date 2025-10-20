@@ -39,7 +39,9 @@ export const FileAvailable: React.FC<{
 	const [mediaFox, setMediaFox] = useState<MediaFox | null>(null);
 
 	useEffect(() => {
-		const fox = new MediaFox();
+		const fox = new MediaFox({
+			renderer: 'webgl',
+		});
 		setMediaFox(fox);
 
 		return () => {};
