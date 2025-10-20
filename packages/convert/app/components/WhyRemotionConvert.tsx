@@ -21,8 +21,7 @@ export const WhyRemotionConvert: React.FC = () => {
 						</div>
 						<div className="font-brand text-black/90">
 							Remotion Convert leverages WebCodecs technology, taking full
-							advantage of the hardware acceleration of your device. No other
-							site can do this!
+							advantage of the hardware acceleration of your device.
 						</div>
 					</div>
 					<div className="w-[300px] text-left">
@@ -48,15 +47,15 @@ export const WhyRemotionConvert: React.FC = () => {
 							This site is free to use and has no ads.
 						</div>
 						<div className="font-brand">
-							It simply serves as a demo of{' '}
+							It simply serves as a GUI for{' '}
 							<a
-								href="https://remotion.dev/webcodecs"
+								href="https://mediabunny.dev"
 								target="_blank"
 								className="text-brand hover:underline underline-offset-4"
 							>
-								our solution for developers to convert videos programmatically
-								in the browser!
+								Mediabunny
 							</a>
+							, an open-source multimedia library we love!
 						</div>
 					</div>
 				</div>

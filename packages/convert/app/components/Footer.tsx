@@ -1,5 +1,6 @@
 import React from 'react';
 import type {RouteAction} from '~/seo';
+import {MediabunnyLogo} from './MediabunnyLogo';
 
 const Logo: React.FC = () => {
 	return (
@@ -68,13 +69,16 @@ export const Footer: React.FC<{
 					Powered by @remotion/whisper-web
 				</a>
 			) : (
-				<a
-					target="_blank"
-					href="https://mediabunny.dev"
-					className="text-sm text-muted-foreground font-medium hover:text-foreground"
-				>
-					Powered by Mediabunny
-				</a>
+				<div className="row flex items-center">
+					<a
+						target="_blank"
+						href="https://mediabunny.dev"
+						className="text-sm text-pink-500 font-medium"
+					>
+						Powered by Mediabunny
+					</a>
+					<MediabunnyLogo />
+				</div>
 			)}
 			<div className="w-6" />
 			<a
