@@ -222,6 +222,20 @@ const ConvertUI = ({
 				throw new Error('No supported configs');
 			}
 
+			let stopped = false;
+			setState({
+				type: 'in-progress',
+				onAbort: () => {
+					setState({
+						type: 'idle',
+					});
+					stopped = true;
+				},
+				state: progress,
+				startTime,
+				newName: filename,
+			});
+
 			const conversion = await Conversion.init({
 				input,
 				output,
@@ -312,6 +326,10 @@ const ConvertUI = ({
 					};
 				},
 			});
+
+			if (stopped) {
+				return;
+			}
 
 			cancelConversion = () => {
 				conversion.cancel();

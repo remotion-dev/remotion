@@ -63,41 +63,41 @@ export const FileAvailable: React.FC<{
 						mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
 					/>
 					{routeAction.type !== 'generic-probe' &&
-					routeAction.type !== 'transcribe' &&
-					probeResult.container !== null &&
-					probeResult.name !== null ? (
+					routeAction.type !== 'transcribe' ? (
 						<>
 							<div className="h-8 lg:h-0 lg:w-8" />
 							<div
 								data-disabled={!(probeResult.done && !probeResult.error)}
 								className="w-full lg:w-[350px] data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
 							>
-								<div className="gap-4">
-									<ConvertUI
-										inputContainer={probeResult.container}
-										currentAudioCodec={probeResult.audioCodec ?? null}
-										currentVideoCodec={probeResult.videoCodec ?? null}
-										tracks={probeResult.tracks}
-										setSrc={setSrc}
-										unrotatedDimensions={probeResult.unrotatedDimensions}
-										dimensions={probeResult.dimensions}
-										durationInSeconds={probeResult.durationInSeconds ?? null}
-										action={routeAction}
-										enableRotateOrMirror={enableRotateOrMirrow}
-										setEnableRotateOrMirror={setEnableRotateOrMirror}
-										userRotation={actualUserRotation}
-										setRotation={setRotation}
-										flipHorizontal={flipHorizontal}
-										setFlipHorizontal={setFlipHorizontal}
-										flipVertical={flipVertical}
-										setFlipVertical={setFlipVertical}
-										videoThumbnailRef={videoThumbnailRef}
-										rotation={probeResult.rotation}
-										sampleRate={probeResult.sampleRate}
-										name={probeResult.name}
-										input={probeResult.input}
-									/>
-								</div>
+								{probeResult.container !== null && probeResult.name !== null ? (
+									<div className="gap-4">
+										<ConvertUI
+											inputContainer={probeResult.container}
+											currentAudioCodec={probeResult.audioCodec ?? null}
+											currentVideoCodec={probeResult.videoCodec ?? null}
+											tracks={probeResult.tracks}
+											setSrc={setSrc}
+											unrotatedDimensions={probeResult.unrotatedDimensions}
+											dimensions={probeResult.dimensions}
+											durationInSeconds={probeResult.durationInSeconds ?? null}
+											action={routeAction}
+											enableRotateOrMirror={enableRotateOrMirrow}
+											setEnableRotateOrMirror={setEnableRotateOrMirror}
+											userRotation={actualUserRotation}
+											setRotation={setRotation}
+											flipHorizontal={flipHorizontal}
+											setFlipHorizontal={setFlipHorizontal}
+											flipVertical={flipVertical}
+											setFlipVertical={setFlipVertical}
+											videoThumbnailRef={videoThumbnailRef}
+											rotation={probeResult.rotation}
+											sampleRate={probeResult.sampleRate}
+											name={probeResult.name}
+											input={probeResult.input}
+										/>
+									</div>
+								) : null}
 							</div>
 						</>
 					) : null}
