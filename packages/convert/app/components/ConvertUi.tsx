@@ -184,15 +184,12 @@ const ConvertUI = ({
 		setBars(b);
 	}, []);
 
-	const isAudioExclusively = useMemo(() => {
-		return (tracks?.filter((t) => t.isVideoTrack()).length ?? 0) === 0;
-	}, [tracks]);
-
 	const onClick = useCallback(() => {
 		const progress: ConvertProgressType = {
 			bytesWritten: 0,
 			millisecondsWritten: 0,
 			overallProgress: 0,
+			hasVideo: false,
 		};
 
 		const waveform = makeWaveformVisualizer({
@@ -243,6 +240,7 @@ const ConvertUI = ({
 					}
 
 					if (operation.type === 'copy') {
+						progress.hasVideo = true;
 						return {};
 					}
 
@@ -250,6 +248,7 @@ const ConvertUI = ({
 						throw new Error('videoOperation.type === "fail"');
 					}
 
+					progress.hasVideo = true;
 					return {
 						height: Math.min(videoTrack.displayHeight, 1080),
 						process(sample) {
@@ -303,7 +302,7 @@ const ConvertUI = ({
 					return {
 						sampleRate: operation.sampleRate ?? undefined,
 						process(sample) {
-							if (isAudioExclusively) {
+							if (!progress.hasVideo) {
 								waveform.add(sample.toAudioBuffer());
 							}
 
@@ -368,7 +367,6 @@ const ConvertUI = ({
 		flipHorizontal,
 		flipVertical,
 		input,
-		isAudioExclusively,
 		name,
 		onWaveformBars,
 		outputContainer,
@@ -411,6 +409,10 @@ const ConvertUI = ({
 			return getInitialResizeSuggestion(dimensions);
 		});
 	}, [dimensions]);
+
+	const inputIsAudioExclusively = useMemo(() => {
+		return (tracks?.filter((t) => t.isVideoTrack()).length ?? 0) === 0;
+	}, [tracks]);
 
 	const newDimensions = useMemo(() => {
 		if (unrotatedDimensions === null) {
@@ -460,7 +462,6 @@ const ConvertUI = ({
 						})
 					}
 					bars={bars}
-					isAudioOnly={isAudioExclusively}
 					startTime={state.startTime}
 				/>
 				<div className="h-2" />
@@ -486,7 +487,6 @@ const ConvertUI = ({
 						})
 					}
 					bars={bars}
-					isAudioOnly={isAudioExclusively}
 					startTime={state.startTime}
 					completedTime={state.completedTime}
 				/>
@@ -552,7 +552,7 @@ const ConvertUI = ({
 					}
 
 					if (section === 'mirror') {
-						if (isAudioExclusively) {
+						if (inputIsAudioExclusively) {
 							return null;
 						}
 
@@ -578,7 +578,7 @@ const ConvertUI = ({
 					}
 
 					if (section === 'rotate') {
-						if (isAudioExclusively) {
+						if (inputIsAudioExclusively) {
 							return null;
 						}
 
@@ -626,7 +626,7 @@ const ConvertUI = ({
 					}
 
 					if (section === 'resize') {
-						if (isAudioExclusively) {
+						if (inputIsAudioExclusively) {
 							return null;
 						}
 

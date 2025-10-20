@@ -21,7 +21,6 @@ export const ConvertProgress: React.FC<{
 	readonly done: boolean;
 	readonly duration: number | null;
 	readonly isReencoding: boolean;
-	readonly isAudioOnly: boolean;
 	readonly bars: number[];
 	readonly startTime?: number;
 	readonly completedTime?: number;
@@ -32,7 +31,6 @@ export const ConvertProgress: React.FC<{
 	done,
 	isReencoding,
 	duration,
-	isAudioOnly,
 	startTime,
 	completedTime,
 }) => {
@@ -43,7 +41,7 @@ export const ConvertProgress: React.FC<{
 
 	return (
 		<Card className="overflow-hidden">
-			{isReencoding && !isAudioOnly ? (
+			{isReencoding && state.hasVideo ? (
 				<>
 					<VideoThumbnail
 						ref={convertProgressRef}
@@ -70,7 +68,7 @@ export const ConvertProgress: React.FC<{
 						</>
 					) : null}
 				</>
-			) : duration && isAudioOnly ? (
+			) : duration && !state.hasVideo ? (
 				<AudioWaveformContainer>
 					<AudioWaveForm bars={bars} />
 				</AudioWaveformContainer>
