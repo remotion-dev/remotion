@@ -1,11 +1,11 @@
-import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
+import type {AudioCodec, VideoCodec} from 'mediabunny';
 import type {MediabunnyResize} from './mediabunny-calculate-resize-option';
 
 export type AudioOperation =
 	| {
 			type: 'reencode';
 			bitrate: number;
-			audioCodec: InputAudioTrack['codec'];
+			audioCodec: AudioCodec;
 			sampleRate: number | null;
 	  }
 	| {type: 'copy'}
@@ -15,7 +15,7 @@ export type AudioOperation =
 export type VideoOperation =
 	| {
 			type: 'reencode';
-			videoCodec: InputVideoTrack['codec'];
+			videoCodec: VideoCodec;
 			rotate?: number;
 			resize?: MediabunnyResize | null;
 	  }

@@ -1,15 +1,15 @@
-import {
-	canCopyAudioTrack,
-	canCopyVideoTrack,
-	canReencodeAudioTrack,
-	canReencodeVideoTrack,
-	getAvailableAudioCodecs,
-	getAvailableVideoCodecs,
-} from '@remotion/webcodecs';
-import type {InputAudioTrack, InputFormat, InputTrack} from 'mediabunny';
+import {canCopyAudioTrack, canReencodeAudioTrack} from '@remotion/webcodecs';
+import type {
+	InputAudioTrack,
+	InputFormat,
+	InputTrack,
+	OutputFormat,
+} from 'mediabunny';
 import type {AudioOperation, VideoOperation} from '~/lib/audio-operation';
+import {canCopyVideoTrack} from '~/lib/can-copy-video-track';
+import {getVideoTranscodingOptions} from '~/lib/can-transcode-video-track';
 import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
-import type {OutputContainer, RouteAction} from '~/seo';
+import type {RouteAction} from '~/seo';
 
 export type VideoTrackOption = {
 	trackId: number;
@@ -86,7 +86,7 @@ export const getSupportedConfigs = async ({
 	sampleRate,
 }: {
 	tracks: InputTrack[];
-	container: OutputContainer;
+	container: OutputFormat;
 	bitrate: number;
 	action: RouteAction;
 	userRotation: number;
@@ -94,9 +94,6 @@ export const getSupportedConfigs = async ({
 	resizeOperation: MediabunnyResize | null;
 	sampleRate: number | null;
 }): Promise<SupportedConfigs> => {
-	const availableVideoCodecs = getAvailableVideoCodecs({container});
-	const availableAudioCodecs = getAvailableAudioCodecs({container});
-
 	const audioTrackOptions: AudioTrackOption[] = [];
 	const videoTrackOptions: VideoTrackOption[] = [];
 
@@ -110,9 +107,7 @@ export const getSupportedConfigs = async ({
 				inputTrack: track,
 				outputContainer: container,
 				rotationToApply: userRotation,
-				inputContainer,
 				resizeOperation,
-				outputVideoCodec: null,
 			});
 			if (canCopy && prioritizeCopyOverReencode) {
 				options.push({
@@ -120,21 +115,13 @@ export const getSupportedConfigs = async ({
 				});
 			}
 
-			for (const outputCodec of availableVideoCodecs) {
-				const canReencode = await canReencodeVideoTrack({
-					videoCodec: outputCodec,
-					track,
-					resizeOperation,
-					rotate: userRotation,
-				});
-				if (canReencode) {
-					options.push({
-						type: 'reencode',
-						videoCodec: outputCodec,
-						resize: resizeOperation,
-					});
-				}
-			}
+			const reencodeOptions = await getVideoTranscodingOptions({
+				inputTrack: track,
+				outputContainer: container,
+				resizeOperation,
+				rotate: userRotation,
+			});
+			options.push(...reencodeOptions);
 
 			if (canCopy && !prioritizeCopyOverReencode) {
 				options.push({
