@@ -1,6 +1,3 @@
-import type {NextRequest} from 'next/server';
-import {NextResponse} from 'next/server';
-
 export const config = {
 	matcher: '/docs/:path*',
 };
@@ -44,24 +41,36 @@ function prefersMarkdown(acceptHeader: string | null): boolean {
 	return false;
 }
 
-export default function middleware(request: NextRequest) {
-	const pathname = request.nextUrl.pathname;
+export default async function middleware(request: Request) {
+	const url = new URL(request.url);
+	const pathname = url.pathname;
 
 	if (!pathname.startsWith('/docs/')) {
-		return NextResponse.next();
+		return;
 	}
+
+	let targetPath: string | null = null;
 
 	if (pathname.endsWith('.md')) {
-		const markdownPath = pathname.replace(/^\/docs\//, '/_raw/docs/');
-		return NextResponse.rewrite(new URL(markdownPath, request.url));
+		targetPath = pathname.replace(/^\/docs\//, '/_raw/docs/');
+	} else {
+		const acceptHeader = request.headers.get('accept');
+		if (prefersMarkdown(acceptHeader)) {
+			targetPath = `/_raw${pathname}.md`;
+		}
 	}
 
-	const acceptHeader = request.headers.get('accept');
+	if (targetPath) {
+		const rewriteUrl = new URL(targetPath, request.url);
+		const response = await fetch(rewriteUrl.toString(), {
+			headers: request.headers,
+			method: request.method,
+		});
 
-	if (prefersMarkdown(acceptHeader)) {
-		const markdownPath = `/_raw${pathname}.md`;
-		return NextResponse.rewrite(new URL(markdownPath, request.url));
+		return new Response(response.body, {
+			status: response.status,
+			statusText: response.statusText,
+			headers: response.headers,
+		});
 	}
-
-	return NextResponse.next();
 }
