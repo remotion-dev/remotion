@@ -47,6 +47,7 @@ export const RemotionRoot: React.FC = () => {
         fps={FPS}
         width={WindowWidth}
         height={WindowHeight}
+        // @ts-expect-error zod version mismatch
         schema={aiVideoSchema}
         defaultProps={{
           projectName: projectDir,
