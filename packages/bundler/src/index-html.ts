@@ -112,6 +112,14 @@ export const indexHtml = ({
 					)};</script>`
 				: ''
 		}
+		${
+			mode === 'dev'
+				? `
+		<script>window.remotion_isStudio = true;</script>
+		<script>window.remotion_isReadOnlyStudio = false;</script>`
+				: ''
+		}
+
 		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
 		<script>window.remotion_installedPackages = ${JSON.stringify(installedDependencies)}</script>
 		<script>window.remotion_packageManager = ${JSON.stringify(packageManager)}</script>
