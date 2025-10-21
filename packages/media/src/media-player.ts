@@ -305,7 +305,6 @@ export class MediaPlayer {
 	private seekPromiseChain: Promise<void> = Promise.resolve();
 
 	public async seekTo(time: number): Promise<void> {
-		console.log('seeking', {time});
 		this.currentSeekNonce++;
 		const nonce = this.currentSeekNonce;
 		await this.seekPromiseChain;
@@ -553,9 +552,7 @@ export class MediaPlayer {
 		}
 
 		this.audioBufferIterator!.addQueuedAudioNode(node, mediaTimestamp, buffer);
-		console.log('added queued audio node', mediaTimestamp);
 		node.onended = () => {
-			console.log('removed', mediaTimestamp);
 			return this.audioBufferIterator!.removeQueuedAudioNode(node);
 		};
 	}
