@@ -3,6 +3,7 @@ import type {CropRectangle} from 'mediabunny';
 import type React from 'react';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {CropBackdrop} from './Backdrop';
+import {EdgeHandle} from './EdgeHandle';
 import {ResizeHandle} from './ResizeHandle';
 
 export const CropUI: React.FC<{
@@ -122,6 +123,34 @@ export const CropUI: React.FC<{
 			<ResizeHandle
 				divRef={ref}
 				position="bottom-right"
+				dimensions={dimensions}
+				rect={rect}
+				updateRect={setUnclampedRect}
+			/>
+			<EdgeHandle
+				divRef={ref}
+				position="top"
+				dimensions={dimensions}
+				rect={rect}
+				updateRect={setUnclampedRect}
+			/>
+			<EdgeHandle
+				divRef={ref}
+				position="right"
+				dimensions={dimensions}
+				rect={rect}
+				updateRect={setUnclampedRect}
+			/>
+			<EdgeHandle
+				divRef={ref}
+				position="bottom"
+				dimensions={dimensions}
+				rect={rect}
+				updateRect={setUnclampedRect}
+			/>
+			<EdgeHandle
+				divRef={ref}
+				position="left"
 				dimensions={dimensions}
 				rect={rect}
 				updateRect={setUnclampedRect}
