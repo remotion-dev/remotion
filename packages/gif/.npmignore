@@ -4,3 +4,7 @@ src
 tsconfig.json
 .eslintrc
 .prettierrc.js
+.turbo
+bundle.ts
+eslint.config.mjs
+.prettierignore

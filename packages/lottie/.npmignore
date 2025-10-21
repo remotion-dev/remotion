@@ -1,6 +1,6 @@
 dist/test/**
 src
-.eslintrc
+eslint.config.mjs
 tsconfig.tsbuildinfo
 .prettierrc
 *.tgz
@@ -8,3 +8,4 @@ tsconfig.tsbuildinfo
 dist/tsconfig.tsbuildinfo
 tsconfig.json
 .prettierrc.js
+bundle.ts

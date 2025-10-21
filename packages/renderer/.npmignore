@@ -17,3 +17,4 @@ toolchains
 toolchains.mjs
 *.ts
 !*.d.ts
+.prettierignore

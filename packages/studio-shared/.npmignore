@@ -4,3 +4,4 @@ dist/test
 .eslintrc.js
 eslint.config.mjs
 .prettierrc.js
+.turbo

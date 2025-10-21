@@ -1,6 +1,6 @@
 dist/test/**
 src
-.eslintrc
+eslint.config.mjs
 tsconfig.tsbuildinfo
 .prettierrc
 *.tgz
@@ -10,3 +10,4 @@ tsconfig.json
 ensure-correct-version.ts
 .prettierrc.js
 happydom.ts
+bundle.ts
