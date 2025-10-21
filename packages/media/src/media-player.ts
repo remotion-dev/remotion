@@ -604,7 +604,7 @@ export class MediaPlayer {
 
 		this.audioBufferIterator?.destroy();
 		this.audioChunksForAfterResuming = [];
-		const delayHandle = this.bufferState?.delayPlayback();
+		const delayHandle = this.bufferState.delayPlayback();
 
 		const iterator = makeAudioIterator(this.audioSink!, startFromSecond);
 		this.debugStats.audioIteratorsCreated++;
@@ -615,23 +615,18 @@ export class MediaPlayer {
 			const result = await iterator.getNext();
 
 			if (iterator.isDestroyed()) {
-				delayHandle?.unblock();
+				delayHandle.unblock();
 				return;
 			}
 
 			if (nonce !== this.currentSeekNonce) {
-				delayHandle?.unblock();
-				return;
-			}
-
-			if (this.audioBufferIterator.isDestroyed()) {
-				delayHandle?.unblock();
+				delayHandle.unblock();
 				return;
 			}
 
 			if (!result.value) {
 				// media ended
-				delayHandle?.unblock();
+				delayHandle.unblock();
 				return;
 			}
 
@@ -647,7 +642,7 @@ export class MediaPlayer {
 			}
 		}
 
-		delayHandle?.unblock();
+		delayHandle.unblock();
 	};
 
 	private drawDebugOverlay(): void {
@@ -679,9 +674,9 @@ export class MediaPlayer {
 		this.debugStats.videoIteratorsCreated++;
 		this.videoFrameIterator = iterator;
 
-		const delayHandle = this.bufferState?.delayPlayback();
+		const delayHandle = this.bufferState.delayPlayback();
 		const frameResult = await iterator.getNext();
-		delayHandle?.unblock();
+		delayHandle.unblock();
 
 		if (iterator.isDestroyed()) {
 			return;
