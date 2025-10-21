@@ -13,18 +13,18 @@ import {
   getGenerateStoryPrompt,
   openaiStructuredCompletion,
   setApiKey,
-} from "./src/service";
+} from "./service";
 import {
   ContentItemWithDetails,
   StoryMetadataWithDetails,
   StoryScript,
   StoryWithImages,
   Timeline,
-} from "./src/types";
+} from "../src/types";
 import { v4 as uuidv4 } from "uuid";
 import * as fs from "fs";
 import * as path from "path";
-import { createTimeLineFromStoryWithDetails } from "./src/timeline";
+import { createTimeLineFromStoryWithDetails } from "./timeline";
 
 dotenv.config();
 

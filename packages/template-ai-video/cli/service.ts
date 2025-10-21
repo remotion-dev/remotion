@@ -22,10 +22,10 @@ const getOpenAiProvider = () => {
   });
 };
 
-export const openaiStructuredCompletion = async (
+export const openaiStructuredCompletion = async <T>(
   prompt: string,
-  schema: z.ZodType<unknown>,
-) => {
+  schema: z.ZodType<T>,
+): Promise<T> => {
   const openai = getOpenAiProvider();
 
   const { object } = await generateObject({
@@ -34,7 +34,7 @@ export const openaiStructuredCompletion = async (
     prompt,
   });
 
-  return object;
+  return object as T;
 };
 
 function saveUint8ArrayToPng(uint8Array: Uint8Array, filePath: string) {

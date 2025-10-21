@@ -4,7 +4,7 @@ import type {
   StoryMetadataWithDetails,
   TextElement,
   Timeline,
-} from "./types";
+} from "../src/types";
 
 export const createTimeLineFromStoryWithDetails = (
   storyWithDetails: StoryMetadataWithDetails,
@@ -75,12 +75,12 @@ export const createTimeLineFromStoryWithDetails = (
       }
 
       currentText += `${word} `;
-      for (const char of word) {
+      for (let i = 0; i < word.length; i++) {
         currentEndMs =
           character_end_times_seconds[currentCharIndex] * 1000 + durationMs;
         currentCharIndex++;
       }
-      // Add space character time
+
       currentEndMs =
         character_end_times_seconds[currentCharIndex] * 1000 + durationMs;
       currentCharIndex++;

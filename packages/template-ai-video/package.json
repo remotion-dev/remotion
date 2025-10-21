@@ -6,7 +6,8 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "lint": "eslint src && tsc"
+    "lint": "eslint src && tsc",
+    "gen": "bun cli/cli.ts"
   },
   "repository": {},
   "license": "UNLICENSED",
