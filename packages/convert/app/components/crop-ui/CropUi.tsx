@@ -99,34 +99,6 @@ export const CropUI: React.FC<{
 					{rect.width}x{rect.height}
 				</div>
 			</div>
-			<ResizeHandle
-				divRef={ref}
-				position="top-left"
-				dimensions={dimensions}
-				rect={rect}
-				updateRect={setUnclampedRect}
-			/>
-			<ResizeHandle
-				divRef={ref}
-				position="top-right"
-				dimensions={dimensions}
-				rect={rect}
-				updateRect={setUnclampedRect}
-			/>
-			<ResizeHandle
-				divRef={ref}
-				position="bottom-left"
-				dimensions={dimensions}
-				rect={rect}
-				updateRect={setUnclampedRect}
-			/>
-			<ResizeHandle
-				divRef={ref}
-				position="bottom-right"
-				dimensions={dimensions}
-				rect={rect}
-				updateRect={setUnclampedRect}
-			/>
 			<EdgeHandle
 				divRef={ref}
 				position="top"
@@ -151,6 +123,34 @@ export const CropUI: React.FC<{
 			<EdgeHandle
 				divRef={ref}
 				position="left"
+				dimensions={dimensions}
+				rect={rect}
+				updateRect={setUnclampedRect}
+			/>
+			<ResizeHandle
+				divRef={ref}
+				position="top-left"
+				dimensions={dimensions}
+				rect={rect}
+				updateRect={setUnclampedRect}
+			/>
+			<ResizeHandle
+				divRef={ref}
+				position="top-right"
+				dimensions={dimensions}
+				rect={rect}
+				updateRect={setUnclampedRect}
+			/>
+			<ResizeHandle
+				divRef={ref}
+				position="bottom-left"
+				dimensions={dimensions}
+				rect={rect}
+				updateRect={setUnclampedRect}
+			/>
+			<ResizeHandle
+				divRef={ref}
+				position="bottom-right"
 				dimensions={dimensions}
 				rect={rect}
 				updateRect={setUnclampedRect}
