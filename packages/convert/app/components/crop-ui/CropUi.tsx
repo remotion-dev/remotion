@@ -86,7 +86,7 @@ export const CropUI: React.FC<{
 		>
 			<CropBackdrop rect={rect} dimensions={dimensions} />
 			<div
-				className="border-brand absolute border-4 rounded-md flex flex-col items-center justify-center pb-2"
+				className="border-brand absolute border-4 rounded-md flex flex-col items-center justify-center"
 				style={{
 					width: (rect.width / dimensions.width) * 100 + '%',
 					height: (rect.height / dimensions.height) * 100 + '%',

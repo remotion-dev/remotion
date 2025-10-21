@@ -105,7 +105,7 @@ export function VideoPlayer({
 			<div
 				className={cn(
 					'border-2',
-					'rounded-md',
+					crop ? null : 'rounded-md',
 					crop ? 'border-transparent' : 'border-black',
 					'overflow-hidden',
 				)}

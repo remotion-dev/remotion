@@ -705,12 +705,8 @@ const ConvertUI = ({
 									Crop
 								</ConvertUiSection>
 								{crop ? (
-									<div className="bg-white border-2 border-b-4 rounded-md border-black text-sm p-3 mt-4">
-										Applied Crop: <br />
-										Left: {cropRect.left} <br />
-										Top: {cropRect.top} <br />
-										Width: {cropRect.width} <br />
-										Height: {cropRect.height} <br />
+									<div className="text-gray-700 text-sm mt-2">
+										Use the handles to crop the video
 									</div>
 								) : null}
 							</div>
