@@ -76,7 +76,8 @@ export default function middleware(request: Request) {
 	const acceptHeader = request.headers.get('accept');
 	const userAgent = request.headers.get('user-agent');
 	if (prefersMarkdown(acceptHeader, userAgent)) {
-		const targetPath = `/_raw${pathname}.md`;
+		const cleanPathname = pathname.replace(/\/$/, '');
+		const targetPath = `/_raw${cleanPathname}.md`;
 		return rewrite(new URL(targetPath, request.url));
 	}
 }
