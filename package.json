@@ -61,6 +61,8 @@
 		"!packages/player-example/.next",
 		"!packages/it-tests/whisper.cpp",
 		"!packages/cloudrun/container",
+		"!packages/template-recorder/whisper.cpp",
+		"!packages/template-recorder/whisper.cpp/**",
 		"!packages/template-tiktok/whisper.cpp",
 		"!packages/template-tiktok/whisper.cpp/**",
 		"!packages/bugs"
