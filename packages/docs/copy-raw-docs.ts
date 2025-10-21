@@ -31,11 +31,10 @@ function copyRawDocs() {
 			continue;
 		}
 
-		// Copy .mdx file as .md to output directory
-		const destPath = path.join(
-			OUTPUT_DIR,
-			relativePathWithoutDocs.replace(/\.mdx$/, '.md'),
-		);
+		// Use slug to determine destination path (handles cases like transitions.mdx → transitioning.md)
+		// Special case: empty slug (homepage) should be index.md
+		const slugPath = article.slug === '' ? 'index' : article.slug;
+		const destPath = path.join(OUTPUT_DIR, `${slugPath}.md`);
 
 		const destDir = path.dirname(destPath);
 		if (!fs.existsSync(destDir)) {
@@ -46,7 +45,7 @@ function copyRawDocs() {
 		copiedCount++;
 
 		// For index routes, also create a flat .md file so /player.md works
-		// Example: player/index.mdx → both player/index.md AND player.md
+		// Example: player/index → both player/index.md AND player.md
 		if (article.slug.endsWith('/index')) {
 			const slugWithoutIndex = article.slug.replace(/\/index$/, '');
 			if (slugWithoutIndex) {
