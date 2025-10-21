@@ -4,3 +4,4 @@ eslint.config.mjs
 tsconfig.json
 tsconfig.tsbuildinfo
 src
+dist/test

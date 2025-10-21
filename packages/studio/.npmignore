@@ -7,3 +7,4 @@ eslint.config.mjs
 *.ts
 !*.d.ts
 .turbo
+tsconfig.tsbuildinfo

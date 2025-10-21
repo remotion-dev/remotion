@@ -3,3 +3,4 @@ tsconfig.json
 dist/test
 eslint.config.mjs
 .turbo
+tsconfig.tsbuildinfo

@@ -4,3 +4,5 @@ eslint.config.mjs
 src
 dist/cjs/test
 dist/test
+tsconfig.json
+dist/tsconfig.tsbuildinfo

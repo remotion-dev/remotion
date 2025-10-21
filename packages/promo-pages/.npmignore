@@ -4,3 +4,4 @@ eslint.config.mjs
 src
 server.ts
 vite.config.ts
+tsconfig.json

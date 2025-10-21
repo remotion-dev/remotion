@@ -3,3 +3,5 @@ bundle.ts
 eslint.config.mjs
 src
 dist/test
+tsconfig.json
+tsconfig.tsbuildinfo

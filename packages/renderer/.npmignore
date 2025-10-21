@@ -18,3 +18,6 @@ toolchains.mjs
 *.ts
 !*.d.ts
 .prettierignore
+dist/test
+package
+ensure-browser.mjs

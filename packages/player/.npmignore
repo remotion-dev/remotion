@@ -11,3 +11,4 @@ ensure-correct-version.ts
 .prettierrc.js
 happydom.ts
 bundle.ts
+dist/cjs/test

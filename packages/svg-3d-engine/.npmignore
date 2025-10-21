@@ -3,3 +3,4 @@ src
 eslint.config.mjs
 .turbo
 bundle.ts
+dist/tsconfig.tsbuildinfo

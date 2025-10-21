@@ -4,3 +4,4 @@ tsconfig.json
 .turbo
 bundle.ts
 eslint.config.mjs
+dist/tsconfig.tsbuildinfo
