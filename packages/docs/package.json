@@ -80,6 +80,7 @@
 		"@shopify/react-native-skia": "2.0.0",
 		"@swc/core": "^1.3.80",
 		"@types/uuid": "^8.3.4",
+		"@vercel/functions": "^3.1.4",
 		"chalk": "4.1.2",
 		"clipboard": "^2.0.8",
 		"clsx": "^1.1.1",
@@ -90,6 +91,7 @@
 		"hls.js": "^0.14.17",
 		"https-proxy-agent": "^7.0.2",
 		"lottie-web": "5.13.0",
+		"mediabunny": "1.24.1",
 		"mux-embed": "^4.16.0",
 		"next": "15.4.7",
 		"plyr": "3.7.3",
@@ -100,8 +102,7 @@
 		"remotion": "workspace:*",
 		"three": "0.178.0",
 		"uuid": "^8.3.2",
-		"zod": "3.22.3",
-		"mediabunny": "1.24.1"
+		"zod": "3.22.3"
 	},
 	"devDependencies": {
 		"@tsconfig/docusaurus": "^1.0.5",
