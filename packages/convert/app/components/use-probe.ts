@@ -24,8 +24,6 @@ export const useProbe = ({src}: {src: Source}) => {
 	const [dimensions, setDimensions] = useState<Dimensions | undefined | null>(
 		undefined,
 	);
-	const [unrotatedDimensions, setUnrotatedDimensions] =
-		useState<Dimensions | null>(null);
 	const name = useMemo(
 		() => (src.type === 'url' ? src.url.split('/').pop()! : src.file.name),
 		[src],
@@ -76,10 +74,6 @@ export const useProbe = ({src}: {src: Source}) => {
 						height: track.displayHeight,
 					});
 					setRotation(track.rotation);
-					setUnrotatedDimensions({
-						width: track.codedWidth,
-						height: track.codedHeight,
-					});
 					track.hasHighDynamicRange().then((hdr) => setHdr(hdr));
 				} else if (track.isAudioTrack()) {
 					hasAudioTrack = true;
@@ -97,7 +91,6 @@ export const useProbe = ({src}: {src: Source}) => {
 				setVideoCodec(null);
 				setFps(null);
 				setDimensions(null);
-				setUnrotatedDimensions(null);
 				setHdr(false);
 			}
 		};
@@ -138,7 +131,6 @@ export const useProbe = ({src}: {src: Source}) => {
 			error,
 			rotation,
 			metadata,
-			unrotatedDimensions,
 			sampleRate,
 			input,
 		};
@@ -157,7 +149,6 @@ export const useProbe = ({src}: {src: Source}) => {
 		error,
 		rotation,
 		metadata,
-		unrotatedDimensions,
 		sampleRate,
 		input,
 	]);

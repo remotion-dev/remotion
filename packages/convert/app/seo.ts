@@ -44,14 +44,21 @@ export type RouteAction =
 	  }
 	| {
 			type: 'rotate-format';
-			format: OutputContainer;
+			format: InputContainer;
 	  }
 	| {
 			type: 'generic-mirror';
 	  }
 	| {
 			type: 'mirror-format';
-			format: OutputContainer;
+			format: InputContainer;
+	  }
+	| {
+			type: 'generic-crop';
+	  }
+	| {
+			type: 'crop-format';
+			format: InputContainer;
 	  }
 	| {
 			type: 'generic-resize';
@@ -115,6 +122,14 @@ export const getHeaderTitle = (routeAction: RouteAction) => {
 		return 'Fast video and audio transcription in the browser';
 	}
 
+	if (routeAction.type === 'generic-crop') {
+		return 'Fast video cropping in the browser';
+	}
+
+	if (routeAction.type === 'crop-format') {
+		return `Fast ${renderHumanReadableContainer(routeAction.format)} cropping in the browser`;
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
@@ -161,6 +176,14 @@ export const getPageTitle = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'transcribe') {
 		return `Online Audio and Video Transcriber - Remotion Convert`;
+	}
+
+	if (routeAction.type === 'generic-crop') {
+		return 'Online Video Cropper - Remotion Convert';
+	}
+
+	if (routeAction.type === 'crop-format') {
+		return `Online ${renderHumanReadableContainer(routeAction.format)} Cropper - Remotion Convert`;
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
@@ -217,6 +240,14 @@ export const getDescription = (routeAction: RouteAction) => {
 		return `A free and local online audio and video transcriber, powered by Whisper. No upload required, no watermarks, no limits.`;
 	}
 
+	if (routeAction.type === 'generic-crop') {
+		return `The fastest online video cropper, powered by WebCodecs. No upload required, no watermarks, no limits.`;
+	}
+
+	if (routeAction.type === 'crop-format') {
+		return `The fastest online ${renderHumanReadableContainer(routeAction.format)} cropper, powered by WebCodecs. No upload required, no watermarks, no limits.`;
+	}
+
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);
 };
 
@@ -263,6 +294,14 @@ export const makeSlug = (routeAction: RouteAction) => {
 
 	if (routeAction.type === 'transcribe') {
 		return '/transcribe';
+	}
+
+	if (routeAction.type === 'generic-crop') {
+		return '/crop';
+	}
+
+	if (routeAction.type === 'crop-format') {
+		return `/crop/${routeAction.format}`;
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);

@@ -1,6 +1,7 @@
 import {Button} from '@/components/ui/button';
 import type MediaFox from '@mediafox/core';
 import type {
+	CropRectangle,
 	Input,
 	InputAudioTrack,
 	InputFormat,
@@ -10,11 +11,15 @@ import type {
 } from 'mediabunny';
 import {Conversion, Output, StreamTarget} from 'mediabunny';
 import React, {useCallback, useMemo, useState} from 'react';
+import {applyCrop} from '~/lib/apply-crop';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {calculateNewDimensionsFromRotateAndScale} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
 import type {ConvertState, Source} from '~/lib/convert-state';
-import type {ConvertSections, RotateOrMirrorState} from '~/lib/default-ui';
+import type {
+	ConvertSections,
+	RotateOrMirrorOrCropState,
+} from '~/lib/default-ui';
 import {getOrderOfSections, isConvertEnabledByDefault} from '~/lib/default-ui';
 import {getNewName} from '~/lib/generate-new-name';
 import {
@@ -62,7 +67,6 @@ const ConvertUI = ({
 	setFlipHorizontal,
 	setFlipVertical,
 	inputContainer,
-	unrotatedDimensions,
 	videoThumbnailRef,
 	rotation,
 	dimensions,
@@ -70,13 +74,14 @@ const ConvertUI = ({
 	name,
 	input,
 	mediafox,
+	crop,
+	cropRect,
 }: {
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentAudioCodec: InputAudioTrack['codec'] | null;
 	readonly currentVideoCodec: InputVideoTrack['codec'] | null;
 	readonly tracks: InputTrack[] | null;
 	readonly videoThumbnailRef: React.RefObject<VideoThumbnailRef | null>;
-	readonly unrotatedDimensions: Dimensions | null;
 	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null;
 	readonly rotation: number | null;
@@ -84,9 +89,9 @@ const ConvertUI = ({
 	readonly action: RouteAction;
 	readonly name: string;
 	readonly input: Input;
-	readonly enableRotateOrMirror: RotateOrMirrorState;
+	readonly enableRotateOrMirror: RotateOrMirrorOrCropState;
 	readonly setEnableRotateOrMirror: React.Dispatch<
-		React.SetStateAction<RotateOrMirrorState | null>
+		React.SetStateAction<RotateOrMirrorOrCropState | null>
 	>;
 	readonly userRotation: number;
 	readonly setRotation: React.Dispatch<React.SetStateAction<number>>;
@@ -94,8 +99,10 @@ const ConvertUI = ({
 	readonly flipVertical: boolean;
 	readonly setFlipHorizontal: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly crop: boolean;
 	readonly sampleRate: number | null;
 	readonly mediafox: MediaFox;
+	readonly cropRect: CropRectangle;
 }) => {
 	const [outputContainer, setOutputContainer] = useState<OutputContainer>(() =>
 		getDefaultOutputFormat(inputContainer),
@@ -268,6 +275,10 @@ const ConvertUI = ({
 						}
 
 						progress.hasVideo = true;
+
+						const dimensionsAfterCrop =
+							dimensions && crop ? applyCrop(dimensions, cropRect) : dimensions;
+
 						return {
 							height: Math.min(videoTrack.displayHeight, 1080),
 							process(sample) {
@@ -286,11 +297,23 @@ const ConvertUI = ({
 								videoFrames++;
 								return flipped;
 							},
+							crop: crop
+								? {
+										width: Number.isFinite(cropRect.width)
+											? cropRect.width
+											: dimensions!.width - cropRect.left,
+										height: Number.isFinite(cropRect.height)
+											? cropRect.height
+											: dimensions!.height - cropRect.top,
+										left: cropRect.left,
+										top: cropRect.top,
+									}
+								: undefined,
 							rotate: userRotation as Rotation,
 							forceTranscode: true,
 							...calculateMediabunnyResizeOption(
 								resizeOperation,
-								dimensions ?? null,
+								dimensionsAfterCrop ?? null,
 							),
 							codec: operation.videoCodec,
 						};
@@ -404,6 +427,8 @@ const ConvertUI = ({
 		supportedConfigs,
 		userRotation,
 		videoOperationSelection,
+		crop,
+		cropRect,
 	]);
 
 	const dimissError = useCallback(() => {
@@ -430,6 +455,21 @@ const ConvertUI = ({
 		});
 	}, [setEnableRotateOrMirror]);
 
+	const onCropClick = useCallback(() => {
+		setEnableRotateOrMirror((m) => {
+			if (m !== 'crop') {
+				// Scroll to top of the page when crop is activated
+				if (typeof window !== 'undefined') {
+					window.scrollTo({top: 0, behavior: 'smooth'});
+				}
+
+				return 'crop';
+			}
+
+			return null;
+		});
+	}, [setEnableRotateOrMirror]);
+
 	const onResizeClick = useCallback(() => {
 		setResizeOperation((r) => {
 			if (r !== null || !dimensions) {
@@ -443,6 +483,18 @@ const ConvertUI = ({
 	const inputIsAudioExclusively = useMemo(() => {
 		return (tracks?.filter((t) => t.isVideoTrack()).length ?? 0) === 0;
 	}, [tracks]);
+
+	const unrotatedDimensions = useMemo(() => {
+		if (!dimensions) {
+			return null;
+		}
+
+		if (enableRotateOrMirror !== 'crop') {
+			return dimensions;
+		}
+
+		return applyCrop(dimensions, cropRect);
+	}, [dimensions, cropRect, enableRotateOrMirror]);
 
 	const newDimensions = useMemo(() => {
 		if (unrotatedDimensions === null) {
@@ -657,6 +709,21 @@ const ConvertUI = ({
 						);
 					}
 
+					if (section === 'crop') {
+						return (
+							<div key="crop">
+								<ConvertUiSection active={crop} setActive={onCropClick}>
+									Crop
+								</ConvertUiSection>
+								{crop ? (
+									<div className="text-gray-700 text-sm mt-2">
+										Use the handles above to crop the video.
+									</div>
+								) : null}
+							</div>
+						);
+					}
+
 					if (section === 'resize') {
 						if (inputIsAudioExclusively) {
 							return null;
@@ -672,7 +739,9 @@ const ConvertUI = ({
 								</ConvertUiSection>
 								{resizeOperation !== null &&
 								newDimensions !== null &&
-								unrotatedDimensions !== null ? (
+								unrotatedDimensions !== null &&
+								dimensions !== null &&
+								dimensions !== undefined ? (
 									<>
 										<div className="h-2" />
 										<ResizeUi
@@ -682,6 +751,9 @@ const ConvertUI = ({
 											rotation={userRotation - (rotation ?? 0)}
 											setResizeMode={setResizeOperation}
 											requireTwoStep={Boolean(isH264Reencode)}
+											crop={enableRotateOrMirror === 'crop'}
+											cropRect={cropRect}
+											dimensionsBeforeCrop={dimensions}
 										/>
 									</>
 								) : null}

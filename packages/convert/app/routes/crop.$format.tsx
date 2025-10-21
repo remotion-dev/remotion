@@ -8,7 +8,7 @@ const Index = () => {
 
 	const routeAction: RouteAction = useMemo(() => {
 		return {
-			type: 'mirror-format',
+			type: 'crop-format',
 			format,
 		};
 	}, [format]);

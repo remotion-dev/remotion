@@ -1,7 +1,10 @@
 import type {MediaFox} from '@mediafox/core';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import type {CropRectangle} from 'mediabunny';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
+import {cn} from '~/lib/utils';
 import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
+import {CropUI} from './crop-ui/CropUi';
 import {PlayerVolume} from './player/mute-button';
 import {PlayPauseButton} from './player/play-button';
 import {PlayerFullscreen} from './player/player-fullscreen';
@@ -24,11 +27,19 @@ export function VideoPlayer({
 	isAudio,
 	waveform,
 	mediaFox,
+	crop,
+	setUnclampedRect,
+	unclampedRect,
 }: {
 	readonly src: Source;
 	readonly waveform: number[];
 	readonly isAudio: boolean;
 	readonly mediaFox: MediaFox;
+	readonly crop: boolean;
+	readonly unclampedRect: CropRectangle;
+	readonly setUnclampedRect: React.Dispatch<
+		React.SetStateAction<CropRectangle>
+	>;
 }) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -66,7 +77,7 @@ export function VideoPlayer({
 		};
 	}, []);
 
-	const toggleFullscreen = () => {
+	const toggleFullscreen = useCallback(() => {
 		if (!containerRef.current) {
 			return;
 		}
@@ -76,26 +87,61 @@ export function VideoPlayer({
 		} else {
 			document.exitFullscreen();
 		}
-	};
+	}, [containerRef]);
 
 	return (
 		<div
 			ref={containerRef}
 			style={{maxWidth: 732}}
-			className="border-2 border-b-4 border-black rounded-md overflow-hidden flex flex-col group group-fullscreen:border-b-0 group-fullscreen:rounded-none"
+			className={cn(
+				'flex',
+				'flex-col',
+				'group',
+				'group-fullscreen:border-b-0',
+				'group-fullscreen:rounded-none',
+				'relative',
+			)}
 		>
-			{isAudio ? (
-				<AudioWaveformContainer>
-					<AudioWaveForm bars={waveform} mediafox={mediaFox} />
-				</AudioWaveformContainer>
+			<div
+				className={cn(
+					crop ? 'border-0' : 'border-2',
+					'rounded-md',
+					crop ? 'border-transparent' : 'border-black',
+					'overflow-hidden',
+				)}
+			>
+				{isAudio ? (
+					<AudioWaveformContainer>
+						<AudioWaveForm bars={waveform} mediafox={mediaFox} />
+					</AudioWaveformContainer>
+				) : null}
+				<canvas
+					ref={canvasRef}
+					style={{width: '100%', display: isAudio ? 'none' : 'block'}}
+					className="group-fullscreen:flex-1"
+				/>
+			</div>
+			{crop ? (
+				<CropUI
+					setUnclampedRect={setUnclampedRect}
+					unclampedRect={unclampedRect}
+					mediaFox={mediaFox}
+				/>
 			) : null}
-			<canvas
-				ref={canvasRef}
-				style={{width: '100%', display: isAudio ? 'none' : 'block'}}
-				className="group-fullscreen:flex-1"
-			/>
+			<div className="h-2" />
 			{mediaFox ? (
-				<div className="flex row border-t-2 border-t-black items-center bg-white">
+				<div
+					className={cn(
+						'flex',
+						'row',
+						'border-2',
+						'border-b-4',
+						'rounded-md',
+						'border-black',
+						'items-center',
+						'bg-white',
+					)}
+				>
 					<PlayPauseButton playerRef={mediaFox} />
 					<Separator />
 					<PlayerVolume playerRef={mediaFox} />
