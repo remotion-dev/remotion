@@ -303,7 +303,7 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 		if (!mediaPlayer) return;
 
 		if (playing && !isPlayerBuffering) {
-			mediaPlayer.play();
+			mediaPlayer.play(currentTimeRef.current);
 		} else {
 			mediaPlayer.pause();
 		}

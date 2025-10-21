@@ -290,7 +290,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		if (!audioPlayer) return;
 
 		if (playing && !isPlayerBuffering) {
-			audioPlayer.play();
+			audioPlayer.play(currentTimeRef.current);
 		} else {
 			audioPlayer.pause();
 		}

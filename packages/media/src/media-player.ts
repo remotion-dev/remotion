@@ -386,7 +386,7 @@ export class MediaPlayer {
 			}
 
 			if (audioSatisfyResult.type === 'not-satisfied') {
-				this.startAudioIterator(newTime, nonce);
+				await this.startAudioIterator(newTime, nonce);
 				return;
 			}
 
@@ -397,9 +397,9 @@ export class MediaPlayer {
 		const nextTime =
 			newTime +
 			// start of next frame
-			1 / this.fps +
+			(1 / this.fps) * this.playbackRate +
 			// need the full duration of the next frame to be queued
-			1 / this.fps;
+			(1 / this.fps) * this.playbackRate;
 		const nextIsAlreadyQueued = isAlreadyQueued(nextTime, queuedPeriod);
 		if (!nextIsAlreadyQueued) {
 			const audioSatisfyResult =
@@ -414,7 +414,7 @@ export class MediaPlayer {
 			}
 
 			if (audioSatisfyResult.type === 'not-satisfied') {
-				this.startAudioIterator(nextTime, nonce);
+				await this.startAudioIterator(nextTime, nonce);
 				return;
 			}
 
@@ -433,10 +433,10 @@ export class MediaPlayer {
 		}
 	}
 
-	public play(): void {
+	public play(time: number): void {
 		if (!this.isReady()) return;
 
-		this.setPlaybackTime(this.getPlaybackTime());
+		this.setPlaybackTime(time);
 
 		this.playing = true;
 		for (const chunk of this.audioChunksForAfterResuming) {
@@ -537,16 +537,28 @@ export class MediaPlayer {
 		buffer: AudioBuffer,
 		mediaTimestamp: number,
 	): void {
-		const targetTime = mediaTimestamp + this.audioSyncAnchor;
-		const delay = targetTime - this.sharedAudioContext.currentTime;
+		// TODO: Might already be scheduled, and then the playback rate changes
+		// TODO: Playbackrate does not yet work
+		const targetTime =
+			(mediaTimestamp - (this.trimBefore ?? 0) / this.fps) / this.playbackRate;
+		const delay =
+			targetTime + this.audioSyncAnchor - this.sharedAudioContext.currentTime;
 
 		const node = this.sharedAudioContext.createBufferSource();
 		node.buffer = buffer;
 		node.playbackRate.value = this.playbackRate;
 		node.connect(this.gainNode!);
 
+		console.log(
+			'scheduleAudioChunk',
+			mediaTimestamp,
+			targetTime,
+			delay,
+			this.trimBefore,
+		);
+
 		if (delay >= 0) {
-			node.start(targetTime);
+			node.start(targetTime + this.audioSyncAnchor);
 		} else {
 			node.start(this.sharedAudioContext.currentTime, -delay);
 		}
@@ -629,14 +641,10 @@ export class MediaPlayer {
 
 			const {buffer, timestamp} = result.value;
 
-			if (this.playing) {
-				this.scheduleAudioChunk(buffer, timestamp);
-			} else {
-				this.audioChunksForAfterResuming.push({
-					buffer,
-					timestamp,
-				});
-			}
+			this.audioChunksForAfterResuming.push({
+				buffer,
+				timestamp,
+			});
 		}
 
 		delayHandle.unblock();
