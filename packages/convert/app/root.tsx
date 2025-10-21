@@ -1,3 +1,4 @@
+import {ForceSpecificCursor} from './components/crop-ui/force-specific-cursor';
 import {DEFAULT_FAVICON} from './lib/default-favicon';
 import './tailwind.css';
 
@@ -20,6 +21,7 @@ export const Layout = ({children}: {readonly children: React.ReactNode}) => {
 			</head>
 			<body>
 				{children}
+				<ForceSpecificCursor />
 				<ScrollRestoration />
 				<Scripts />
 			</body>

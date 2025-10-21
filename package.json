@@ -15,6 +15,7 @@
 		"ci": "turbo run make test --concurrency=1 --no-update-notifier",
 		"watch": "turbo watch make --concurrency=2 --experimental-write-cache",
 		"makewhisperweb": "turbo run make --filter='@remotion/whisper-web'",
+		"watchmedia": "turbo watch make --experimental-write-cache --filter='@remotion/media'",
 		"watchwhisperweb": "turbo watch make --experimental-write-cache --filter='@remotion/whisper-web'",
 		"makewebcodecs": "turbo run make --filter='@remotion/media-parser' --filter='@remotion/webcodecs'",
 		"watchwebcodecs": "turbo watch make --experimental-write-cache --filter='@remotion/media-parser' --filter='@remotion/webcodecs'",

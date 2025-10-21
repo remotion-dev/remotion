@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import type {Video} from 'remotion';
 import {cancelRender, useCurrentFrame, useDelayRender} from 'remotion';
+// eslint-disable-next-line no-restricted-imports
 import type {VideoTexture} from 'three/src/textures/VideoTexture';
 
 export type UseVideoTextureOptions = React.ComponentProps<typeof Video>;

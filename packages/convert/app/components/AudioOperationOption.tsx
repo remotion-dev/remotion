@@ -1,10 +1,10 @@
-import type {MediaParserAudioCodec} from '@remotion/media-parser';
-import type {AudioOperation} from '@remotion/webcodecs';
+import type {InputAudioTrack} from 'mediabunny';
+import type {AudioOperation} from '~/lib/audio-operation';
 import {renderHumanReadableAudioCodec} from '~/lib/render-codec-label';
 
 export const AudioOperationOption: React.FC<{
 	readonly operation: AudioOperation;
-	readonly currentAudioCodec: MediaParserAudioCodec;
+	readonly currentAudioCodec: InputAudioTrack['codec'];
 }> = ({operation, currentAudioCodec}) => {
 	if (operation.type === 'reencode') {
 		return renderHumanReadableAudioCodec(operation.audioCodec);

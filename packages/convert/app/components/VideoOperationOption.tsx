@@ -1,10 +1,10 @@
-import type {MediaParserVideoCodec} from '@remotion/media-parser';
-import type {VideoOperation} from '@remotion/webcodecs';
+import type {InputVideoTrack} from 'mediabunny';
+import type {VideoOperation} from '~/lib/audio-operation';
 import {renderHumanReadableVideoCodec} from '~/lib/render-codec-label';
 
 export const VideoOperationOption: React.FC<{
 	readonly operation: VideoOperation;
-	currentVideoCodec: MediaParserVideoCodec | null;
+	currentVideoCodec: InputVideoTrack['codec'] | null;
 }> = ({operation, currentVideoCodec}) => {
 	if (operation.type === 'reencode') {
 		return renderHumanReadableVideoCodec(operation.videoCodec);

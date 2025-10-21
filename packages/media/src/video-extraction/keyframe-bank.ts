@@ -1,6 +1,7 @@
 import type {VideoSample} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {SAFE_BACK_WINDOW_IN_SECONDS} from '../caches';
+import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import {renderTimestampRange} from '../render-timestamp-range';
 
 export type KeyframeBank = {
@@ -23,11 +24,6 @@ export type KeyframeBank = {
 		timestamps: number[];
 	};
 	getLastUsed: () => number;
-};
-
-// Round to only 4 digits, because WebM has a timescale of 1_000, e.g. framer.webm
-const roundTo4Digits = (timestamp: number) => {
-	return Math.round(timestamp * 1_000) / 1_000;
 };
 
 export const makeKeyframeBank = ({

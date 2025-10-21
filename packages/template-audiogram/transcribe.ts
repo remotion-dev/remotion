@@ -13,7 +13,7 @@ import { execSync } from "child_process";
 import * as readline from "readline";
 
 const SPEECH_START_SECONDS_DEFAULT = 0;
-const DEFAULT_AUDIO_PATH = "./public/audio.wav";
+const DEFAULT_AUDIO_PATH = "./public/dialogue.wav";
 
 interface TranscriptionOptions {
   audioPath: string;

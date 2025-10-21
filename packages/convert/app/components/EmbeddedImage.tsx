@@ -1,10 +1,10 @@
-import type {MediaParserEmbeddedImage} from '@remotion/media-parser';
+import type {AttachedImage} from 'mediabunny';
 import type React from 'react';
 import {useEffect, useState} from 'react';
 import {THUMBNAIL_HEIGHT} from './VideoThumbnail';
 
 export const EmbeddedImage: React.FC<{
-	readonly images: MediaParserEmbeddedImage[];
+	readonly images: AttachedImage[];
 }> = ({images}) => {
 	const [url, setUrl] = useState<string | null>(null);
 

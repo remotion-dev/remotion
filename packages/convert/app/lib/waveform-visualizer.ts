@@ -4,30 +4,27 @@ export const makeWaveformVisualizer = (options: {
 	onWaveformBars: (bars: number[]) => void;
 }) => {
 	const bars = {
-		durationInMicroseconds: 0,
+		durationInSeconds: 0,
 	};
 	let duration: number | null = null;
 
 	const combinedBars: number[] = [];
 
 	return {
-		add: (frame: AudioData) => {
-			bars.durationInMicroseconds += frame.duration ?? 0;
+		add: (frame: AudioBuffer) => {
+			bars.durationInSeconds += frame.duration ?? 0;
 			if (duration !== null) {
-				const progress = bars.durationInMicroseconds / 1_000_000 / duration;
+				const progress = bars.durationInSeconds / duration;
 				const bar = Math.round(progress * AMOUNT_OF_BARS);
+				const channelData = frame.getChannelData(0);
+
 				while (combinedBars.length < bar) {
-					const allocationSize = frame.allocationSize({
-						planeIndex: 0,
-						format: 's16',
-					});
-					const arr = new Uint8Array(allocationSize);
-
-					frame.copyTo(arr, {planeIndex: 0, format: 's16'});
-
-					const average = arr.reduce((a, b) => a + b, 0) / arr.length;
-
+					const average =
+						// * 4 is arbitrary, looks good though
+						channelData.reduce((a, b) => a + Math.abs(b) * 4, 0) /
+						channelData.length;
 					combinedBars.push(average);
+
 					options.onWaveformBars([...combinedBars]);
 				}
 			}

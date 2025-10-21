@@ -32,5 +32,4 @@ export const Audio: React.FC<AudioProps> = (props) => {
 	return <AudioForPreview name={name} {...otherProps} stack={stack ?? null} />;
 };
 
-// TODO: Doesn't work
 Internals.addSequenceStackTraces(Audio);

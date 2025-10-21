@@ -27,6 +27,7 @@ import {
 	getInitialFrameState,
 } from './timeline-position-state.js';
 import {useDelayRender} from './use-delay-render.js';
+import {MediaEnabledProvider} from './use-media-enabled.js';
 import {DurationsContextProvider} from './video/duration-state.js';
 
 declare const __webpack_module__: {
@@ -42,6 +43,8 @@ export const RemotionRoot: React.FC<{
 	readonly onlyRenderComposition: string | null;
 	readonly currentCompositionMetadata: BaseMetadata | null;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
+	readonly videoEnabled: boolean | null;
+	readonly audioEnabled: boolean | null;
 }> = ({
 	children,
 	numberOfAudioTags,
@@ -49,6 +52,8 @@ export const RemotionRoot: React.FC<{
 	onlyRenderComposition,
 	currentCompositionMetadata,
 	audioLatencyHint,
+	videoEnabled,
+	audioEnabled,
 }) => {
 	const [remotionRootId] = useState(() => String(random(null)));
 	const [frame, setFrame] = useState<Record<string, number>>(() =>
@@ -155,20 +160,25 @@ export const RemotionRoot: React.FC<{
 				<SetNonceContext.Provider value={setNonceContext}>
 					<TimelineContext.Provider value={timelineContextValue}>
 						<SetTimelineContext.Provider value={setTimelineContextValue}>
-							<EditorPropsProvider>
-								<PrefetchProvider>
-									<CompositionManagerProvider
-										numberOfAudioTags={numberOfAudioTags}
-										onlyRenderComposition={onlyRenderComposition}
-										currentCompositionMetadata={currentCompositionMetadata}
-										audioLatencyHint={audioLatencyHint}
-									>
-										<DurationsContextProvider>
-											<BufferingProvider>{children}</BufferingProvider>
-										</DurationsContextProvider>
-									</CompositionManagerProvider>
-								</PrefetchProvider>
-							</EditorPropsProvider>
+							<MediaEnabledProvider
+								videoEnabled={videoEnabled}
+								audioEnabled={audioEnabled}
+							>
+								<EditorPropsProvider>
+									<PrefetchProvider>
+										<CompositionManagerProvider
+											numberOfAudioTags={numberOfAudioTags}
+											onlyRenderComposition={onlyRenderComposition}
+											currentCompositionMetadata={currentCompositionMetadata}
+											audioLatencyHint={audioLatencyHint}
+										>
+											<DurationsContextProvider>
+												<BufferingProvider>{children}</BufferingProvider>
+											</DurationsContextProvider>
+										</CompositionManagerProvider>
+									</PrefetchProvider>
+								</EditorPropsProvider>
+							</MediaEnabledProvider>
 						</SetTimelineContext.Provider>
 					</TimelineContext.Provider>
 				</SetNonceContext.Provider>

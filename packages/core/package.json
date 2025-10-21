@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/core"
 	},
 	"name": "remotion",
-	"version": "4.0.362",
+	"version": "4.0.363",
 	"description": "Make videos programmatically",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -29,7 +29,7 @@
 		"@testing-library/dom": "10.4.0",
 		"@happy-dom/global-registrator": "14.5.1",
 		"@types/dom-webcodecs": "0.1.11",
-		"happy-dom": "15.10.2",
+		"happy-dom": "20.0.2",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
 		"webpack": "5.96.1",
