@@ -131,7 +131,6 @@ import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {NewAudioExample} from './NewAudio/NewAudio';
-import {NewVideoExample} from './NewVideo/NewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
 import {NewVideoComp} from './OffthreadRemoteVideo/NewRemoteVideo';
@@ -671,37 +670,6 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="new-media-tags">
-				<Composition
-					id="new-video"
-					component={NewVideoExample}
-					fps={30}
-					defaultProps={{
-						src: staticFile('demo_smpte_h264_pcm.mkv'),
-					}}
-					calculateMetadata={async ({props}) => {
-						const fps = 30;
-
-						const {slowDurationInSeconds, dimensions} = await parseMedia({
-							src: props.src as string,
-							fields: {
-								slowDurationInSeconds: true,
-								dimensions: true,
-							},
-						});
-
-						if (dimensions === null) {
-							throw new Error('Dimensions are null');
-						}
-
-						return {
-							props: props,
-							durationInFrames: Math.round(slowDurationInSeconds * fps),
-							fps,
-							width: dimensions.width,
-							height: dimensions.height,
-						};
-					}}
-				/>
 				<Composition
 					id="new-audio"
 					component={NewAudioExample}
