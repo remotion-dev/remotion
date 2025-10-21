@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media",
-	"version": "4.0.363",
+	"version": "4.0.364",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -21,7 +21,7 @@
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {
-		"mediabunny": "1.23.0",
+		"mediabunny": "1.24.1",
 		"remotion": "workspace:*",
 		"webdriverio": "9.19.2"
 	},

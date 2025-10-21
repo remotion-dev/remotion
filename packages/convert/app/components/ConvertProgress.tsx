@@ -1,12 +1,9 @@
-import type {
-	ConvertMediaContainer,
-	ConvertMediaProgress,
-} from '@remotion/webcodecs';
+import type MediaFox from '@mediafox/core';
 import React, {createRef} from 'react';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatElapsedTime} from '~/lib/format-elapsed-time';
 import {formatSeconds} from '~/lib/format-seconds';
-import {getNewName} from '~/lib/generate-new-name';
+import type {ConvertProgressType} from '~/lib/progress';
 import {
 	useAddOutputFilenameToTitle,
 	useAddProgressToTitle,
@@ -20,42 +17,34 @@ import {VideoThumbnail} from './VideoThumbnail';
 export const convertProgressRef = createRef<VideoThumbnailRef>();
 
 export const ConvertProgress: React.FC<{
-	readonly state: ConvertMediaProgress;
-	readonly name: string | null;
-	readonly container: ConvertMediaContainer;
+	readonly state: ConvertProgressType;
+	readonly newName: string | null;
 	readonly done: boolean;
 	readonly duration: number | null;
 	readonly isReencoding: boolean;
-	readonly isAudioOnly: boolean;
 	readonly bars: number[];
 	readonly startTime?: number;
 	readonly completedTime?: number;
+	readonly mediafox: MediaFox;
 }> = ({
 	state,
-	name,
+	newName,
 	bars,
-	container,
 	done,
 	isReencoding,
 	duration,
-	isAudioOnly,
 	startTime,
 	completedTime,
+	mediafox,
 }) => {
-	const progress = done
-		? 1
-		: duration === null
-			? null
-			: state.millisecondsWritten / 1000 / duration;
+	const progress = done ? 1 : state.overallProgress;
 
 	useAddProgressToTitle(progress);
-	const newName = name ? getNewName(name, container) : null;
-
 	useAddOutputFilenameToTitle(newName);
 
 	return (
 		<Card className="overflow-hidden">
-			{isReencoding && !isAudioOnly ? (
+			{isReencoding && state.hasVideo ? (
 				<>
 					<VideoThumbnail
 						ref={convertProgressRef}
@@ -82,14 +71,17 @@ export const ConvertProgress: React.FC<{
 						</>
 					) : null}
 				</>
-			) : duration && isAudioOnly ? (
-				<AudioWaveformContainer>
-					<AudioWaveForm bars={bars} />
-				</AudioWaveformContainer>
+			) : duration && !state.hasVideo ? (
+				<>
+					<AudioWaveformContainer>
+						<AudioWaveForm bars={bars} mediafox={mediafox} />
+					</AudioWaveformContainer>
+					<div className="border-b-2 border-black" />
+				</>
 			) : null}
 			<div className="p-2">
 				<div>
-					{name ? (
+					{newName ? (
 						<strong className="font-brand ">{newName}</strong>
 					) : (
 						<Skeleton className="h-4 w-[200px]" />

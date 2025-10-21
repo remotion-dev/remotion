@@ -1,20 +1,7 @@
-import type {
-	MediaParserContainer,
-	MediaParserTrack,
-} from '@remotion/media-parser';
+import {type InputTrack} from 'mediabunny';
 
-export const isAudioOnly = ({
-	tracks,
-	container,
-}: {
-	tracks: MediaParserTrack[] | null;
-	container: MediaParserContainer | null;
-}) => {
-	if (container === 'mp3') {
-		return true;
-	}
-
+export const isAudioOnly = ({tracks}: {tracks: InputTrack[] | null}) => {
 	return (
-		(tracks && tracks.filter((t) => t.type === 'video').length === 0) ?? false
+		(tracks && tracks.filter((t) => t.isVideoTrack()).length === 0) ?? false
 	);
 };

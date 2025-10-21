@@ -1,6 +1,7 @@
-import type {MediaParserDimensions} from '@remotion/media-parser';
-import type {ResizeOperation} from '@remotion/webcodecs';
+import type {CropRectangle} from 'mediabunny';
 import React, {useCallback, useMemo} from 'react';
+import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
+import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 import {ResizeShortcuts} from './ResizeShortcuts';
 import {getThumbnailDimensions, ResizeThumbnail} from './ResizeThumbnail';
 import type {VideoThumbnailRef} from './VideoThumbnail';
@@ -36,14 +37,17 @@ const NumberInput: React.FC<{
 };
 
 export const ResizeUi: React.FC<{
-	readonly dimensions: MediaParserDimensions;
-	readonly originalDimensions: MediaParserDimensions;
+	readonly dimensions: Dimensions;
+	readonly originalDimensions: Dimensions;
+	readonly dimensionsBeforeCrop: Dimensions;
 	readonly thumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly rotation: number;
 	readonly setResizeMode: React.Dispatch<
-		React.SetStateAction<ResizeOperation | null>
+		React.SetStateAction<MediabunnyResize | null>
 	>;
 	readonly requireTwoStep: boolean;
+	readonly cropRect: CropRectangle;
+	readonly crop: boolean;
 }> = ({
 	dimensions,
 	thumbnailRef,
@@ -51,6 +55,9 @@ export const ResizeUi: React.FC<{
 	rotation,
 	setResizeMode,
 	requireTwoStep,
+	cropRect,
+	crop,
+	dimensionsBeforeCrop,
 }) => {
 	const outer: React.CSSProperties = useMemo(() => {
 		return {...getThumbnailDimensions(dimensions), outlineStyle: 'solid'};
@@ -109,7 +116,7 @@ export const ResizeUi: React.FC<{
 				<div className="flex-1" />
 				<div
 					style={outer}
-					className="rounded bg-white transition-all flex justify-center items-center outline-2 outline-slate-300"
+					className="rounded bg-white flex justify-center items-center outline-2 outline-slate-300"
 				>
 					<ResizeThumbnail
 						dimensions={rotatedDimensions}
@@ -119,6 +126,9 @@ export const ResizeUi: React.FC<{
 						setResizeMode={setResizeMode}
 						unrotatedDimensions={originalDimensions}
 						inputFocused={widthFocused || heightFocused}
+						cropRect={cropRect}
+						crop={crop}
+						dimensionsBeforeCrop={dimensionsBeforeCrop}
 					/>
 				</div>
 				<div className="flex-1 flex flex-row items-center ml-[2px]">

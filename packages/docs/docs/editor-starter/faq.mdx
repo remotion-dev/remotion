@@ -90,6 +90,16 @@ If you want to render on a long-running server, you can modify the architecture 
 - Copy the [frontend code](/docs/editor-starter/setup) into your existing project
 - For the [backend routes](/docs/editor-starter/backend-routes), implement them in your long-running server. For how to implement the rendering endpoints, you can take the [Render Server](/templates/render-server) as a reference.
 
+## Can I export the videos generated with the Editor Starter as Remotion compositions?
+
+The Editor Starter previews and renders it's videos using the regular Remotion APIs.  
+The state is stored as a JSON and being fed as [input props](/docs/terminology/input-props) to the [`<Player />`](/docs/player) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+
+So yes, the Editor Starter produces just Remotion compositions and they can also be rendered if they are decoupled from the editor user interface.
+
+The Remotion composition that powers the Editor Starter is located in the `src/remotion` folder of the project.  
+You can also use the [`npx remotion studio`](/docs/cli/studio) and [`npx remotion render`](/docs/cli/studio) commands as usual.
+
 ## Is Remotion launching its own video editor?
 
 No - we hope to enable developers to launch their own products rather than entering the space ourselves.

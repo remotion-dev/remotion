@@ -4,13 +4,12 @@ import {Log} from './log.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {truthy} from './truthy.js';
 
-if (typeof window !== 'undefined') {
-	window.remotion_renderReady = false;
-}
-
 let handles: number[] = [];
 if (typeof window !== 'undefined') {
-	window.remotion_delayRenderTimeouts = {};
+	window.remotion_renderReady = false;
+	if (!window.remotion_delayRenderTimeouts) {
+		window.remotion_delayRenderTimeouts = {};
+	}
 }
 
 export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';

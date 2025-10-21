@@ -1,33 +1,255 @@
 <?php
 namespace Remotion\LambdaPhp;
 
-use Aws\Lambda\LambdaClient;
-use Exception;
 use stdClass;
+use Exception;
+use Aws\S3\S3Client;
+use Aws\Lambda\LambdaClient;
+use InvalidArgumentException;
+use Aws\Exception\AwsException;
 
 class PHPClient
 {
+    private const BUCKET_NAME_PREFIX = 'remotionlambda-';
+    private const REGION_US_EAST = 'us-east-1';
+
     protected $client;
+    protected $s3Client;
     protected $region;
     protected $serveUrl;
     protected $functionName;
+    protected $credential;
+    protected $forcePathStyle;
 
-    public function __construct(string $region, string $serveUrl, string $functionName, ?callable $credential)
+    public function __construct(string $region, string $serveUrl, string $functionName, ?callable $credential, bool $forcePathStyle = false)
     {
         $this->client = new LambdaClient([
             'version' => '2015-03-31',
             'region' => $region,
             'credentials' => $credential,
         ]);
+        $this->credential = $credential;
+        $this->forcePathStyle = $forcePathStyle;
         $this->setRegion($region);
         $this->setServeUrl($serveUrl);
         $this->setFunctionName($functionName);
     }
 
+    /**
+     * Create S3 client with appropriate credentials
+     */
+    private function createS3Client(): S3Client
+    {
+        if ($this->s3Client !== null) {
+            return $this->s3Client;
+        }
+
+        $config = [
+            'version' => 'latest',
+            'region' => $this->region,
+        ];
+
+        if ($this->forcePathStyle) {
+            $config['use_path_style_endpoint'] = true;
+        }
+
+        if ($this->credential !== null) {
+            $config['credentials'] = $this->credential;
+        }
+
+        $this->s3Client = new S3Client($config);
+
+        return $this->s3Client;
+    }
+
+    /**
+     * Generate a SHA256 hash for the payload
+     */
+    protected function generateHash(string $payload): string
+    {
+        return hash('sha256', $payload);
+    }
+
+    /**
+     * Generate a random hash for bucket operations
+     */
+    protected function generateRandomHash(): string
+    {
+        $alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        
+        return substr(str_shuffle(str_repeat($alphabet, 10)), 0, 10);
+    }
+
+    /**
+     * Generate a bucket name following Remotion conventions
+     */
+    protected function makeBucketName(): string
+    {
+        $regionNoDashes = str_replace('-', '', $this->region);
+        $randomSuffix = $this->generateRandomHash();
+
+        return self::BUCKET_NAME_PREFIX . $regionNoDashes . '-' . $randomSuffix;
+    }
+
+    /**
+     * Generate S3 key for input props
+     */
+    protected function inputPropsKey(string $hash): string
+    {
+        return "input-props/{$hash}.json";
+    }
+
+    /**
+     * Check if a bucket is in the current region
+     */
+    private function isBucketInCurrentRegion(S3Client $s3Client, string $bucket): bool
+    {
+        try {
+            $result = $s3Client->getBucketLocation(['Bucket' => $bucket]);
+            $location = $result['LocationConstraint'];
+
+            return $location === $this->region || ($location === null && $this->region === self::REGION_US_EAST);
+        } catch (AwsException $exception) {
+            return false;
+        }
+    }
+
+    /**
+     * Get all Remotion buckets in the current region
+     */
+    private function getRemotionBuckets(): array
+    {
+        $s3Client = $this->createS3Client();
+
+        try {
+            $result = $s3Client->listBuckets();
+        } catch (AwsException $exception) {
+            error_log("Could not list S3 buckets: " . $exception->getMessage());
+            return [];
+        }
+
+        $buckets = [];
+
+        foreach ($result['Buckets'] as $bucket) {
+            $name = $bucket['Name'];
+
+            if (strpos($name, self::BUCKET_NAME_PREFIX) !== 0) {
+                continue;
+            }
+
+            if ($this->isBucketInCurrentRegion($s3Client, $name)) {
+                $buckets[] = $name;
+            }
+        }
+
+        return $buckets;
+    }
+
+    /**
+     * Get existing bucket or create a new one following JS SDK logic
+     */
+    private function getOrCreateBucket(): string
+    {
+        $buckets = $this->getRemotionBuckets();
+
+        if (count($buckets) > 1) {
+            throw new Exception(
+                sprintf(
+                    "You have multiple buckets (%s) in your S3 region (%s) starting with \"remotionlambda-\". " .
+                    "Please see https://remotion.dev/docs/lambda/multiple-buckets.",
+                    implode(', ', $buckets),
+                    $this->region
+                )
+            );
+        }
+
+        if (count($buckets) === 1) {
+            return $buckets[0];
+        }
+
+        $bucket = $this->makeBucketName();
+        $s3Client = $this->createS3Client();
+
+        try {
+            $params = ['Bucket' => $bucket];
+
+            if ($this->region !== self::REGION_US_EAST) {
+                $params['CreateBucketConfiguration'] = [
+                    'LocationConstraint' => $this->region
+                ];
+            }
+
+            $s3Client->createBucket($params);
+
+            return $bucket;
+        } catch (AwsException $exception) {
+            throw new Exception("Failed to create bucket: " . $exception->getMessage());
+        }
+    }
+
+    /**
+     * Upload payload to S3
+     */
+    private function uploadToS3(string $bucket, string $key, string $payload): void
+    {
+        $s3Client = $this->createS3Client();
+
+        try {
+            $s3Client->putObject([
+                'Bucket' => $bucket,
+                'Key' => $key,
+                'Body' => $payload,
+                'ContentType' => 'application/json',
+            ]);
+        } catch (AwsException $exception) {
+            throw new Exception("Failed to upload to S3: {$exception->getMessage()}");
+        }
+    }
+
+    /**
+     * Determine if payload needs to be uploaded to S3
+     */
+    protected function needsUpload(int $payloadSize, string $renderType): bool
+    {
+        // Constants based on AWS Lambda limits with margin for other payload data
+        $margin = 5_000 + 1_024; // 5KB margin + 1KB for webhook data
+        $maxStillInlineSize = 5_000_000 - $margin;
+        $maxVideoInlineSize = 200_000 - $margin;
+
+        $maxSize = ($renderType === 'still') ? $maxStillInlineSize : $maxVideoInlineSize;
+
+        if ($payloadSize < $maxSize) {
+            return false;
+        }
+
+        $message = sprintf(
+            "Warning: The props are over %dKB (%dKB) in size. Uploading them to S3 to " .
+            "circumvent AWS Lambda payload size, which may lead to slowdown.",
+            round($maxSize / 1000),
+            ceil($payloadSize / 1024)
+        );
+
+        error_log($message);
+
+        return true;
+    }
+
+    /**
+     * Normalize payload to ensure valid JSON object is returned
+     */
+    private function ensureValidPayload(?string $payload): string
+    {
+        if (is_null($payload) || empty($payload) || $payload === "null") {
+            return json_encode(new stdClass());
+        }
+
+        return $payload;
+    }
+
     public function constructInternals(RenderParams $render)
     {
         if (empty($render->getComposition())) {
-            throw new ValidationException("'composition' is required.");
+            throw new InvalidArgumentException("'composition' is required.");
         }
 
         $input = $this->serializeInputProps(
@@ -54,7 +276,7 @@ class PHPClient
 
     public function makeRenderProgressPayload(string $renderId, string $bucketName, string $logLevel = "info", $forcePathStyle = false)
     {
-        $params = array(
+        return json_encode([
             'renderId' => $renderId,
             'bucketName' => $bucketName,
             'type' => 'status',
@@ -62,9 +284,7 @@ class PHPClient
             "s3OutputProvider" => null,
             "logLevel" => $logLevel,
             "forcePathStyle" => $forcePathStyle,
-        );
-        $result = json_encode($params);
-        return $result;
+        ]);
     }
 
     public function getRenderProgress(string $renderId, string $bucketName, string $logLevel = "info", $forcePathStyle = false): GetRenderProgressResponse
@@ -104,9 +324,11 @@ class PHPClient
         if ($response['type'] === 'error') {
             throw new Exception($response['message']);
         }
+
         $classResponse->type = $response['type'];
         $classResponse->renderId = $response['renderId'];
         $classResponse->bucketName = $response['bucketName'];
+
         return $classResponse;
     }
 
@@ -132,29 +354,36 @@ class PHPClient
         $classResponse->renderSize = $response['renderSize'];
         $classResponse->timeToFinish = $response['timeToFinish'];
         $classResponse->type = $response['type'];
+
         return $classResponse;
     }
 
-    private function serializeInputProps($inputProps, string $region, string $type, ?string $userSpecifiedBucketName): array
+    /**
+     * Serialize inputProps to a format compatible with Lambda
+     */
+    protected function serializeInputProps($inputProps, string $region, string $type, ?string $userSpecifiedBucketName): array
     {
         try {
-            $payload = json_encode($inputProps);
-            $MAX_INLINE_PAYLOAD_SIZE = $type === 'still' ? 5000000 : 200000;
+            $payload = json_encode($inputProps, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $payloadSize = strlen($payload);
 
-            if (strlen($payload) > $MAX_INLINE_PAYLOAD_SIZE) {
-                throw new Exception(
-                    sprintf(
-                        "Warning: inputProps are over %dKB (%dKB) in size.\n This is not currently supported.",
-                        round($MAX_INLINE_PAYLOAD_SIZE / 1000),
-                        ceil(strlen($payload) / 1024)
-                    )
-                );
+            if (! $this->needsUpload($payloadSize, $type)) {
+                return [
+                    'type' => 'payload',
+                    'payload' => $this->ensureValidPayload($payload),
+                ];
             }
 
+            $hash = $this->generateHash($payload);
+            $bucketName = $this->getOrCreateBucket();
+            $key = $this->inputPropsKey($hash);
+
+            $this->uploadToS3($bucketName, $key, $payload);
+
             return [
-                'type' => 'payload',
-                'payload' => !is_null($payload) && !empty($payload) && $payload !== "null" ?
-                $payload : json_encode(new stdClass()),
+                'hash' => $hash,
+                'type' => 'bucket-url',
+                'bucketName' => $bucketName,
             ];
         } catch (Exception $e) {
             throw new Exception(

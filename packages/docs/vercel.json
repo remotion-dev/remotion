@@ -1,6 +1,19 @@
 {
 	"headers": [
 		{
+			"source": "/_raw/docs/(.*).md",
+			"headers": [
+				{
+					"key": "Content-Type",
+					"value": "text/plain; charset=utf-8"
+				},
+				{
+					"key": "Vary",
+					"value": "Accept"
+				}
+			]
+		},
+		{
 			"source": "/img/gt-planar(.*)",
 			"headers": [
 				{"key": "Access-Control-Allow-Credentials", "value": "true"},
