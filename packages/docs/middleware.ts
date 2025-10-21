@@ -17,7 +17,19 @@ function parseAcceptHeader(acceptHeader: string): string[] {
 		.map((item) => item.mediaType);
 }
 
-function prefersMarkdown(acceptHeader: string | null): boolean {
+function prefersMarkdown(
+	acceptHeader: string | null,
+	userAgent: string | null,
+): boolean {
+	if (userAgent) {
+		const llmAgents = ['Claude-User', 'opencode'];
+		for (const agent of llmAgents) {
+			if (userAgent.includes(agent)) {
+				return true;
+			}
+		}
+	}
+
 	if (!acceptHeader) {
 		return false;
 	}
@@ -58,10 +70,12 @@ export default function middleware(request: Request) {
 		return rewrite(new URL(targetPath, request.url));
 	}
 
-	// Case 2: Accept header prefers markdown - rewrite to raw markdown
+	// Case 2: Accept header or user agent prefers markdown - rewrite to raw markdown
 	// Example: /docs/preview + Accept: text/markdown → /_raw/docs/preview.md
+	// Example: /docs/preview + User-Agent: Claude → /_raw/docs/preview.md
 	const acceptHeader = request.headers.get('accept');
-	if (prefersMarkdown(acceptHeader)) {
+	const userAgent = request.headers.get('user-agent');
+	if (prefersMarkdown(acceptHeader, userAgent)) {
 		const targetPath = `/_raw${pathname}.md`;
 		return rewrite(new URL(targetPath, request.url));
 	}
