@@ -40,19 +40,19 @@
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
-			"types": "./dist/index.d.ts",
+			"types": "./dist/cjs/index.d.ts",
 			"require": "./dist/cjs/index.js",
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
 		"./constants": {
-			"types": "./dist/constants.d.ts",
+			"types": "./dist/cjs/constants.d.ts",
 			"require": "./dist/cjs/constants.js",
 			"module": "./dist/esm/constants.mjs",
 			"import": "./dist/esm/constants.mjs"
 		},
 		"./regions": {
-			"types": "./dist/regions.d.ts",
+			"types": "./dist/cjs/regions.d.ts",
 			"require": "./dist/cjs/regions.js",
 			"module": "./dist/esm/regions.mjs",
 			"import": "./dist/esm/regions.mjs"
@@ -61,10 +61,10 @@
 	"typesVersions": {
 		">=1.0": {
 			"constants": [
-				"./dist/constants.d.ts"
+				"./dist/cjs/constants.d.ts"
 			],
 			"regions": [
-				"./dist/regions.d.ts"
+				"./dist/cjs/regions.d.ts"
 			]
 		}
 	}

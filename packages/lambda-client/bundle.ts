@@ -17,7 +17,4 @@ await buildPackage({
 		},
 		{path: 'src/regions.ts', target: 'browser'},
 	],
-	filterExternal: (external) => {
-		return external.filter((e) => e !== '@aws-sdk/credential-provider-ini');
-	},
 });
