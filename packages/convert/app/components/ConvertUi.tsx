@@ -297,7 +297,18 @@ const ConvertUI = ({
 								videoFrames++;
 								return flipped;
 							},
-							crop: crop ? cropRect : undefined,
+							crop: crop
+								? {
+										width: Number.isFinite(cropRect.width)
+											? cropRect.width
+											: dimensions!.width - cropRect.left,
+										height: Number.isFinite(cropRect.height)
+											? cropRect.height
+											: dimensions!.height - cropRect.top,
+										left: cropRect.left,
+										top: cropRect.top,
+									}
+								: undefined,
 							rotate: userRotation as Rotation,
 							forceTranscode: true,
 							...calculateMediabunnyResizeOption(
