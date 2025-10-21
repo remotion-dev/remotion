@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/lambda-client",
 	"version": "4.0.363",
-	"main": "dist/index.js",
+	"main": "dist/cli/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",
