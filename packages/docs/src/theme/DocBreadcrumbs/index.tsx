@@ -106,8 +106,12 @@ async function copy(text: string) {
 	ta.style.left = '-9999px';
 	document.body.appendChild(ta);
 	ta.select();
-	document.execCommand('copy');
+	const success = document.execCommand('copy');
 	document.body.removeChild(ta);
+
+	if (!success) {
+		throw new Error('Copy command failed');
+	}
 }
 
 export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
