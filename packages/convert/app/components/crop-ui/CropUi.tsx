@@ -6,6 +6,10 @@ import {CropBackdrop} from './Backdrop';
 import {DragHandle} from './DragHandle';
 import {EdgeHandle} from './EdgeHandle';
 import {ResizeHandle} from './ResizeHandle';
+import {
+	HorizontalPositionIndicator,
+	VerticalPositionIndicator,
+} from './VerticalPositionIndicator';
 
 export const CropUI: React.FC<{
 	readonly mediaFox: MediaFox;
@@ -17,6 +21,8 @@ export const CropUI: React.FC<{
 	const [state, setState] = useState<PlayerStateData | null>(() =>
 		mediaFox.getState(),
 	);
+
+	const [isDragging, setMarkAsDragging] = useState(false);
 
 	const ref = useRef<HTMLDivElement>(null);
 
@@ -86,6 +92,26 @@ export const CropUI: React.FC<{
 				aspectRatio: `${dimensions.width} / ${dimensions.height}`,
 			}}
 		>
+			<VerticalPositionIndicator
+				xPosition={rect.left}
+				width={dimensions.width}
+				isDragging={isDragging}
+			/>
+			<VerticalPositionIndicator
+				xPosition={rect.left + rect.width}
+				width={dimensions.width}
+				isDragging={isDragging}
+			/>
+			<HorizontalPositionIndicator
+				yPosition={rect.top}
+				height={dimensions.height}
+				isDragging={isDragging}
+			/>
+			<HorizontalPositionIndicator
+				yPosition={rect.top + rect.height}
+				height={dimensions.height}
+				isDragging={isDragging}
+			/>
 			<CropBackdrop rect={rect} dimensions={dimensions} />
 			<div
 				className="border-brand absolute border-2 rounded-md flex flex-col items-center justify-center pointer-events-none"
@@ -105,6 +131,7 @@ export const CropUI: React.FC<{
 				dimensions={dimensions}
 				rect={rect}
 				updateRect={setUnclampedRect}
+				setMarkAsDragging={setMarkAsDragging}
 			/>
 			<EdgeHandle
 				divRef={ref}
@@ -112,6 +139,7 @@ export const CropUI: React.FC<{
 				dimensions={dimensions}
 				rect={rect}
 				updateRect={setUnclampedRect}
+				setMarkAsDragging={setMarkAsDragging}
 			/>
 			<EdgeHandle
 				divRef={ref}
@@ -119,6 +147,7 @@ export const CropUI: React.FC<{
 				dimensions={dimensions}
 				rect={rect}
 				updateRect={setUnclampedRect}
+				setMarkAsDragging={setMarkAsDragging}
 			/>
 			<EdgeHandle
 				divRef={ref}
@@ -126,6 +155,7 @@ export const CropUI: React.FC<{
 				dimensions={dimensions}
 				rect={rect}
 				updateRect={setUnclampedRect}
+				setMarkAsDragging={setMarkAsDragging}
 			/>
 			<EdgeHandle
 				divRef={ref}
@@ -133,6 +163,7 @@ export const CropUI: React.FC<{
 				dimensions={dimensions}
 				rect={rect}
 				updateRect={setUnclampedRect}
+				setMarkAsDragging={setMarkAsDragging}
 			/>
 			<ResizeHandle
 				divRef={ref}
@@ -140,6 +171,7 @@ export const CropUI: React.FC<{
 				dimensions={dimensions}
 				rect={rect}
 				updateRect={setUnclampedRect}
+				setMarkAsDragging={setMarkAsDragging}
 			/>
 			<ResizeHandle
 				divRef={ref}
@@ -147,6 +179,7 @@ export const CropUI: React.FC<{
 				dimensions={dimensions}
 				rect={rect}
 				updateRect={setUnclampedRect}
+				setMarkAsDragging={setMarkAsDragging}
 			/>
 			<ResizeHandle
 				divRef={ref}
@@ -154,6 +187,7 @@ export const CropUI: React.FC<{
 				dimensions={dimensions}
 				rect={rect}
 				updateRect={setUnclampedRect}
+				setMarkAsDragging={setMarkAsDragging}
 			/>
 			<ResizeHandle
 				divRef={ref}
@@ -161,6 +195,7 @@ export const CropUI: React.FC<{
 				dimensions={dimensions}
 				rect={rect}
 				updateRect={setUnclampedRect}
+				setMarkAsDragging={setMarkAsDragging}
 			/>
 		</div>
 	);

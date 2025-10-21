@@ -15,7 +15,8 @@ export const DragHandle: React.FC<{
 	readonly dimensions: Dimensions;
 	readonly rect: CropRectangle;
 	readonly updateRect: React.Dispatch<React.SetStateAction<CropRectangle>>;
-}> = ({divRef, dimensions, rect, updateRect}) => {
+	readonly setMarkAsDragging: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({divRef, dimensions, rect, updateRect, setMarkAsDragging}) => {
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			position: 'absolute' as const,
@@ -36,6 +37,7 @@ export const DragHandle: React.FC<{
 			}
 
 			forceSpecificCursor('move');
+			setMarkAsDragging(true);
 
 			const boxOffset = divRef.current?.getBoundingClientRect()!;
 			const factor = boxOffset.width / dimensions.width;
@@ -63,16 +65,8 @@ export const DragHandle: React.FC<{
 				const newTop = initialTop + deltaCropY;
 
 				// Clamp to boundaries
-				const clampedLeft = clamp(
-					newLeft,
-					0,
-					dimensions.width - rect.width,
-				);
-				const clampedTop = clamp(
-					newTop,
-					0,
-					dimensions.height - rect.height,
-				);
+				const clampedLeft = clamp(newLeft, 0, dimensions.width - rect.width);
+				const clampedTop = clamp(newTop, 0, dimensions.height - rect.height);
 
 				updateRect((prev) => ({
 					...prev,
@@ -92,6 +86,7 @@ export const DragHandle: React.FC<{
 				evt.stopPropagation();
 
 				stopForcingSpecificCursor();
+				setMarkAsDragging(false);
 
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
@@ -100,7 +95,14 @@ export const DragHandle: React.FC<{
 			window.addEventListener('pointermove', onPointerMove);
 			window.addEventListener('pointerup', onPointerUp);
 		},
-		[dimensions.height, dimensions.width, divRef, rect, updateRect],
+		[
+			dimensions.height,
+			dimensions.width,
+			divRef,
+			rect,
+			updateRect,
+			setMarkAsDragging,
+		],
 	);
 
 	return (

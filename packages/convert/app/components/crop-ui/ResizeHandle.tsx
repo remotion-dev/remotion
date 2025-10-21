@@ -47,7 +47,8 @@ export const ResizeHandle: React.FC<{
 	readonly dimensions: Dimensions;
 	readonly rect: CropRectangle;
 	readonly updateRect: React.Dispatch<React.SetStateAction<CropRectangle>>;
-}> = ({position, divRef, dimensions, rect, updateRect}) => {
+	readonly setMarkAsDragging: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({position, divRef, dimensions, rect, updateRect, setMarkAsDragging}) => {
 	const style: React.CSSProperties = useMemo(() => {
 		if (position === 'top-left') {
 			return {
@@ -117,6 +118,7 @@ export const ResizeHandle: React.FC<{
 			}
 
 			forceSpecificCursor(getCursor(position));
+			setMarkAsDragging(true);
 
 			const move = (evt: PointerEvent) => {
 				evt.preventDefault();
@@ -207,6 +209,7 @@ export const ResizeHandle: React.FC<{
 				evt.stopPropagation();
 
 				stopForcingSpecificCursor();
+				setMarkAsDragging(false);
 
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
@@ -215,7 +218,14 @@ export const ResizeHandle: React.FC<{
 			window.addEventListener('pointermove', onPointerMove);
 			window.addEventListener('pointerup', onPointerUp);
 		},
-		[dimensions.height, dimensions.width, divRef, position, updateRect],
+		[
+			dimensions.height,
+			dimensions.width,
+			divRef,
+			position,
+			updateRect,
+			setMarkAsDragging,
+		],
 	);
 
 	return (
