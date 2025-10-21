@@ -2,23 +2,29 @@ import type {Codec} from '../codec';
 import type {AnyRemotionOption} from './option';
 import {separateAudioOption} from './separate-audio';
 
-export const validAudioCodecs = ['pcm-16', 'aac', 'mp3', 'opus'] as const;
+export const validAudioCodecs = [
+	'pcm-16',
+	'aac',
+	'mp3',
+	'opus',
+	'pcm-24',
+] as const;
 
 export type AudioCodec = (typeof validAudioCodecs)[number];
 
 export const supportedAudioCodecs = {
-	h264: ['aac', 'pcm-16', 'mp3'] as const,
-	'h264-mkv': ['pcm-16', 'mp3'] as const,
-	'h264-ts': ['pcm-16', 'aac'] as const,
-	aac: ['aac', 'pcm-16'] as const,
+	h264: ['aac', 'pcm-16', 'pcm-24', 'mp3'] as const,
+	'h264-mkv': ['pcm-16', 'pcm-24', 'mp3'] as const,
+	'h264-ts': ['pcm-16', 'pcm-24', 'aac'] as const,
+	aac: ['aac'] as const,
 	avi: [] as const,
 	gif: [] as const,
-	h265: ['aac', 'pcm-16'] as const,
+	h265: ['aac', 'pcm-16', 'pcm-24'] as const,
 	mp3: ['mp3', 'pcm-16'] as const,
 	prores: ['aac', 'pcm-16'] as const,
 	vp8: ['opus', 'pcm-16'] as const,
 	vp9: ['opus', 'pcm-16'] as const,
-	wav: ['pcm-16'] as const,
+	wav: ['pcm-16', 'pcm-24'] as const,
 } as const;
 
 const _satisfies: {[key in Codec]: readonly AudioCodec[]} =
@@ -30,6 +36,7 @@ if (_satisfies) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const audioCodecNames = [
 	'pcm_s16le',
+	'pcm_s24le',
 	'libfdk_aac',
 	'libmp3lame',
 	'libopus',
@@ -56,7 +63,11 @@ export const mapAudioCodecToFfmpegAudioCodecName = (
 		return 'pcm_s16le';
 	}
 
-	throw new Error('unknown audio codec: ' + audioCodec);
+	if (audioCodec === 'pcm-24') {
+		return 'pcm_s24le';
+	}
+
+	throw new Error('unknown audio codec: ' + (audioCodec satisfies never));
 };
 
 const cliFlag = 'audio-codec' as const;
@@ -78,7 +89,7 @@ export const defaultAudioCodecs: {
 		compressed: 'aac',
 	},
 	aac: {
-		lossless: 'pcm-16',
+		lossless: null,
 		compressed: 'aac',
 	},
 	gif: {
@@ -120,6 +131,7 @@ const extensionMap = {
 	mp3: 'mp3',
 	opus: 'opus',
 	'pcm-16': 'wav',
+	'pcm-24': 'wav',
 } as const;
 
 export const getExtensionFromAudioCodec = (audioCodec: AudioCodec) => {

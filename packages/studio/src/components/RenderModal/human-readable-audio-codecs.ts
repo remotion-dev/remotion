@@ -13,7 +13,13 @@ export const humanReadableAudioCodec = (audioCodec: AudioCodec) => {
 		return 'Lossless';
 	}
 
+	if (audioCodec === 'pcm-24') {
+		return 'PCM 24-bit';
+	}
+
 	if (audioCodec === 'opus') {
 		return 'Opus';
 	}
+
+	throw new Error('unknown audio codec: ' + (audioCodec satisfies never));
 };

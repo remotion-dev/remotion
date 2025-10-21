@@ -34,6 +34,7 @@ export const defaultFileExtensionMap: {
 		default: 'mkv',
 		forAudioCodec: {
 			'pcm-16': {possible: ['mkv'], default: 'mkv'},
+			'pcm-24': {possible: ['mkv'], default: 'mkv'},
 			mp3: {possible: ['mkv'], default: 'mkv'},
 		},
 	},
@@ -41,6 +42,7 @@ export const defaultFileExtensionMap: {
 		default: 'ts',
 		forAudioCodec: {
 			'pcm-16': {possible: ['ts'], default: 'ts'},
+			'pcm-24': {possible: ['ts'], default: 'ts'},
 			aac: {possible: ['ts'], default: 'ts'},
 		},
 	},
@@ -50,10 +52,6 @@ export const defaultFileExtensionMap: {
 			aac: {
 				possible: ['aac', '3gp', 'm4a', 'm4b', 'mpg', 'mpeg'],
 				default: 'aac',
-			},
-			'pcm-16': {
-				possible: ['wav'],
-				default: 'wav',
 			},
 		},
 	},
@@ -67,6 +65,7 @@ export const defaultFileExtensionMap: {
 			'pcm-16': {possible: ['mkv', 'mov'], default: 'mkv'},
 			aac: {possible: ['mp4', 'mkv', 'mov'], default: 'mp4'},
 			mp3: {possible: ['mp4', 'mkv', 'mov'], default: 'mp4'},
+			'pcm-24': {possible: ['mp4', 'mkv', 'mov'], default: 'mp4'},
 		},
 	},
 	h265: {
@@ -74,6 +73,7 @@ export const defaultFileExtensionMap: {
 		forAudioCodec: {
 			aac: {possible: ['mp4', 'mkv', 'hevc'], default: 'mp4'},
 			'pcm-16': {possible: ['mkv'], default: 'mkv'},
+			'pcm-24': {possible: ['mkv'], default: 'mkv'},
 		},
 	},
 	mp3: {
@@ -108,6 +108,7 @@ export const defaultFileExtensionMap: {
 		default: 'wav',
 		forAudioCodec: {
 			'pcm-16': {possible: ['wav'], default: 'wav'},
+			'pcm-24': {possible: ['wav'], default: 'wav'},
 		},
 	},
 };
