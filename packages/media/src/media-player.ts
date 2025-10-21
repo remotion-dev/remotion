@@ -258,6 +258,7 @@ export class MediaPlayer {
 			this.initialized = true;
 
 			try {
+				// intentionally not awaited
 				this.startAudioIterator(startTime, this.currentSeekNonce);
 				await this.startVideoIterator(startTime, this.currentSeekNonce);
 			} catch (error) {
@@ -421,25 +422,36 @@ export class MediaPlayer {
 		}
 
 		for (const buffer of toBeScheduled) {
-			this.scheduleAudioChunk(buffer.buffer, buffer.timestamp, buffer.duration);
+			this.scheduleAudioChunk(buffer.buffer, buffer.timestamp);
 		}
 	}
 
-	public async play(): Promise<void> {
+	public play(): void {
 		if (!this.isReady()) return;
 
-		if (!this.playing) {
-			if (this.sharedAudioContext.state === 'suspended') {
-				await this.sharedAudioContext.resume();
-			}
+		this.setPlaybackTime(this.getPlaybackTime());
 
-			this.playing = true;
+		this.playing = true;
+		for (const chunk of this.audioChunksForAfterResuming) {
+			this.scheduleAudioChunk(chunk.buffer, chunk.timestamp);
 		}
+
+		this.audioChunksForAfterResuming.length = 0;
 	}
 
 	public pause(): void {
 		this.playing = false;
-		this.audioBufferIterator?.cleanupAudioQueue();
+		const toQueue =
+			this.audioBufferIterator?.removeAndReturnAllQueuedAudioNodes();
+
+		if (toQueue) {
+			for (const chunk of toQueue) {
+				this.audioChunksForAfterResuming.push({
+					buffer: chunk.buffer,
+					timestamp: chunk.timestamp,
+				});
+			}
+		}
 	}
 
 	public setMuted(muted: boolean): void {
@@ -506,10 +518,14 @@ export class MediaPlayer {
 		this.audioSyncAnchor = this.sharedAudioContext.currentTime - time;
 	}
 
+	private audioChunksForAfterResuming: {
+		buffer: AudioBuffer;
+		timestamp: number;
+	}[] = [];
+
 	private scheduleAudioChunk(
 		buffer: AudioBuffer,
 		mediaTimestamp: number,
-		duration: number,
 	): void {
 		const targetTime = mediaTimestamp + this.audioSyncAnchor;
 		const delay = targetTime - this.sharedAudioContext.currentTime;
@@ -525,11 +541,7 @@ export class MediaPlayer {
 			node.start(this.sharedAudioContext.currentTime, -delay);
 		}
 
-		this.audioBufferIterator?.addQueuedAudioNode(
-			node,
-			mediaTimestamp,
-			duration,
-		);
+		this.audioBufferIterator?.addQueuedAudioNode(node, mediaTimestamp, buffer);
 		node.onended = () => {
 			return this.audioBufferIterator?.removeQueuedAudioNode(node);
 		};
@@ -612,10 +624,12 @@ export class MediaPlayer {
 			const {buffer, timestamp} = result.value;
 
 			if (this.playing) {
-				console.log('yes good');
-				// TODO: Need a few more
-				// TODO: Keep it ready for future use if it is not playing
-				this.scheduleAudioChunk(buffer, timestamp, buffer.duration);
+				this.scheduleAudioChunk(buffer, timestamp);
+			} else {
+				this.audioChunksForAfterResuming.push({
+					buffer,
+					timestamp,
+				});
 			}
 		}
 

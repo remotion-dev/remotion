@@ -9,7 +9,11 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from './audio/use-audio-frame.js';
-import {BufferingContextReact, BufferingProvider} from './buffering.js';
+import {
+	BufferingContextReact,
+	BufferingProvider,
+	useIsPlayerBuffering,
+} from './buffering.js';
 import {calculateMediaDuration} from './calculate-media-duration.js';
 import {
 	CanUseRemotionHooks,
@@ -230,6 +234,7 @@ export const Internals = {
 	setInputPropsOverride,
 	useVideoEnabled,
 	useAudioEnabled,
+	useIsPlayerBuffering,
 } as const;
 
 export type {

@@ -132,6 +132,16 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		trimBefore,
 	});
 
+	const buffering = useContext(Internals.BufferingContextReact);
+
+	if (!buffering) {
+		throw new Error(
+			'useMediaPlayback must be used inside a <BufferingContext>',
+		);
+	}
+
+	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
+
 	useEffect(() => {
 		if (!sharedAudioContext) return;
 		if (!sharedAudioContext.audioContext) return;
@@ -279,18 +289,12 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		const audioPlayer = mediaPlayerRef.current;
 		if (!audioPlayer) return;
 
-		if (playing) {
-			audioPlayer.play().catch((error) => {
-				Internals.Log.error(
-					{logLevel, tag: '@remotion/media'},
-					'[NewAudioForPreview] Failed to play',
-					error,
-				);
-			});
+		if (playing && !isPlayerBuffering) {
+			audioPlayer.play();
 		} else {
 			audioPlayer.pause();
 		}
-	}, [playing, logLevel, mediaPlayerReady]);
+	}, [isPlayerBuffering, logLevel, playing]);
 
 	useEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;

@@ -143,6 +143,15 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 	currentTimeRef.current = currentTime;
 
 	const preloadedSrc = usePreload(src);
+	const buffering = useContext(Internals.BufferingContextReact);
+
+	if (!buffering) {
+		throw new Error(
+			'useMediaPlayback must be used inside a <BufferingContext>',
+		);
+	}
+
+	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
 
 	useEffect(() => {
 		if (!canvasRef.current) return;
@@ -293,18 +302,12 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer) return;
 
-		if (playing) {
-			mediaPlayer.play().catch((error) => {
-				Internals.Log.error(
-					{logLevel, tag: '@remotion/media'},
-					'[VideoForPreview] Failed to play',
-					error,
-				);
-			});
+		if (playing && !isPlayerBuffering) {
+			mediaPlayer.play();
 		} else {
 			mediaPlayer.pause();
 		}
-	}, [playing, logLevel, mediaPlayerReady]);
+	}, [isPlayerBuffering, playing, logLevel, mediaPlayerReady]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

@@ -6,7 +6,7 @@ export const HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
 export type QueuedNode = {
 	node: AudioBufferSourceNode;
 	timestamp: number;
-	duration: number;
+	buffer: AudioBuffer;
 };
 
 export const makeAudioIterator = (
@@ -179,15 +179,24 @@ export const makeAudioIterator = (
 		addQueuedAudioNode: (
 			node: AudioBufferSourceNode,
 			timestamp: number,
-			duration: number,
+			buffer: AudioBuffer,
 		) => {
-			queuedAudioNodes.push({node, timestamp, duration});
+			queuedAudioNodes.push({node, timestamp, buffer});
 		},
 		removeQueuedAudioNode: (node: AudioBufferSourceNode) => {
 			const index = queuedAudioNodes.findIndex((n) => n.node === node);
 			if (index !== -1) {
 				queuedAudioNodes.splice(index, 1);
 			}
+		},
+		removeAndReturnAllQueuedAudioNodes: () => {
+			const nodes = queuedAudioNodes;
+			for (const node of nodes) {
+				node.node.stop();
+			}
+
+			queuedAudioNodes.length = 0;
+			return nodes;
 		},
 		getQueuedPeriod: () => {
 			const lastNode = queuedAudioNodes[queuedAudioNodes.length - 1];
@@ -202,7 +211,7 @@ export const makeAudioIterator = (
 
 			return {
 				from: firstNode.timestamp,
-				until: lastNode.timestamp + lastNode.duration,
+				until: lastNode.timestamp + lastNode.buffer.duration,
 			};
 		},
 		tryToSatisfySeek,
