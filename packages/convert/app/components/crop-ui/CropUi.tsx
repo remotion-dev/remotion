@@ -3,6 +3,7 @@ import type {CropRectangle} from 'mediabunny';
 import type React from 'react';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {CropBackdrop} from './Backdrop';
+import {DragHandle} from './DragHandle';
 import {EdgeHandle} from './EdgeHandle';
 import {ResizeHandle} from './ResizeHandle';
 
@@ -87,7 +88,7 @@ export const CropUI: React.FC<{
 		>
 			<CropBackdrop rect={rect} dimensions={dimensions} />
 			<div
-				className="border-brand absolute border-4 rounded-md flex flex-col items-center justify-center"
+				className="border-brand absolute border-4 rounded-md flex flex-col items-center justify-center pointer-events-none"
 				style={{
 					width: (rect.width / dimensions.width) * 100 + '%',
 					height: (rect.height / dimensions.height) * 100 + '%',
@@ -99,6 +100,12 @@ export const CropUI: React.FC<{
 					{rect.width}x{rect.height}
 				</div>
 			</div>
+			<DragHandle
+				divRef={ref}
+				dimensions={dimensions}
+				rect={rect}
+				updateRect={setUnclampedRect}
+			/>
 			<EdgeHandle
 				divRef={ref}
 				position="top"

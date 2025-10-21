@@ -706,7 +706,7 @@ const ConvertUI = ({
 								</ConvertUiSection>
 								{crop ? (
 									<div className="text-gray-700 text-sm mt-2">
-										Use the handles to crop the video
+										Use the handles above to crop the video.
 									</div>
 								) : null}
 							</div>
