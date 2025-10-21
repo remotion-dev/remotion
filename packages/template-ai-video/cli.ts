@@ -14,7 +14,12 @@ import {
   openaiStructuredCompletion,
   setApiKey,
 } from "./src/service";
-import { AiVideoSlide, StoryScript, StoryWithImages } from "./src/types";
+import {
+  ContentItemWithDetails,
+  StoryMetadataWithDetails,
+  StoryScript,
+  StoryWithImages,
+} from "./src/types";
 import { v4 as uuidv4 } from "uuid";
 import * as fs from "fs";
 import * as path from "path";
@@ -37,10 +42,10 @@ class ContentFS {
     this.slug = this.getSlug();
   }
 
-  saveSlides(slides: AiVideoSlide[]) {
+  saveDescriptor(descriptor: StoryMetadataWithDetails) {
     const dirPath = this.getDir();
-    const filePath = path.join(dirPath, "slides.json");
-    fs.writeFileSync(filePath, JSON.stringify(slides, null, 2));
+    const filePath = path.join(dirPath, "descriptor.json");
+    fs.writeFileSync(filePath, JSON.stringify(descriptor, null, 2));
   }
 
   getDir(dir?: string): string {
@@ -142,6 +147,11 @@ async function generateStory(options: GenerateOptions) {
     console.log(chalk.blue(`\n📖 Creating story: "${title}"`));
     console.log(chalk.blue(`📝 Topic: ${topic}\n`));
 
+    const storyWithDetails: StoryMetadataWithDetails = {
+      shortTitle: title!,
+      content: [],
+    };
+
     const storySpinner = ora("Generating story...").start();
     setApiKey(apiKey!);
     const storyRes = await openaiStructuredCompletion(
@@ -157,30 +167,40 @@ async function generateStory(options: GenerateOptions) {
     );
     descriptionsSpinner.succeed(chalk.green("Image descriptions generated!"));
 
-    const storySlides: AiVideoSlide[] = [];
     for (const item of storyWithImagesRes.result) {
-      storySlides.push({
-        uid: uuidv4(),
+      const contentWithDetails: ContentItemWithDetails = {
         text: item.text,
-        imageDesc: item.imageDescription,
-      });
+        imageDescription: item.imageDescription,
+        uid: uuidv4(),
+        audioTimestamps: {
+          characters: [],
+          characterStartTimesSeconds: [],
+          characterEndTimesSeconds: [],
+        },
+      };
+
+      storyWithDetails.content.push(contentWithDetails);
     }
 
-    console.log(storySlides);
-
     const contentFs = new ContentFS(title!);
-    contentFs.saveSlides(storySlides);
+    contentFs.saveDescriptor(storyWithDetails);
 
     const imagesSpinner = ora("Generating images and voice...").start();
-    for (const slide of storySlides) {
-      await generateAiImage(slide.imageDesc, contentFs.getImagePath(slide.uid));
+    for (let i = 0; i < storyWithDetails.content.length; i++) {
+      const storyItem = storyWithDetails.content[i];
+
+      await generateAiImage(
+        storyItem.imageDescription,
+        contentFs.getImagePath(storyItem.uid),
+      );
       await generateVoice(
-        slide.text,
+        storyItem.text,
         elevenlabsApiKey!,
-        contentFs.getAudioPath(slide.uid),
+        contentFs.getAudioPath(storyItem.uid),
       );
       break;
     }
+    contentFs.saveDescriptor(storyWithDetails);
     imagesSpinner.succeed(chalk.green("Images generated!"));
 
     const finalSpinner = ora("Generating final result...").start();
