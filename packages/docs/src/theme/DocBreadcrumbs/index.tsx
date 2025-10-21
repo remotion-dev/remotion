@@ -1,13 +1,13 @@
 import type {WrapperProps} from '@docusaurus/types';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import type DocBreadcrumbsType from '@theme-original/DocBreadcrumbs';
 import DocBreadcrumbs from '@theme-original/DocBreadcrumbs';
-import type DocBreadcrumbsType from '@theme/DocBreadcrumbs';
 import React, {type ReactNode, useCallback, useState} from 'react';
 import {
 	AnthropicIcon,
-	CopyIcon,
 	CursorIcon,
 	ExternalLinkIcon,
+	MarkdownIcon,
 	OpenAIIcon,
 	VSCodeIcon,
 } from './icons';
@@ -157,6 +157,12 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 		window.open(claudeUrl, '_blank');
 	}, [getPrompt]);
 
+	const handleViewAsMarkdown = useCallback(() => {
+		const currentPath = window.location.pathname.replace(/\/$/, '');
+		const markdownUrl = `${currentPath}.md`;
+		window.open(markdownUrl, '_blank');
+	}, []);
+
 	return (
 		<div
 			style={{
@@ -243,10 +249,10 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 							}}
 						>
 							<AiDropdownItemComponent
-								icon={<CopyIcon />}
-								title="Copy page"
-								description="Copy page as Markdown for LLMs"
-								onClick={handleCopyMarkdown}
+								icon={<MarkdownIcon />}
+								title="View as Markdown"
+								description="Open this page in Markdown"
+								onClick={handleViewAsMarkdown}
 							/>
 
 							<AiDropdownItemComponent
