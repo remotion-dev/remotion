@@ -1,41 +1,41 @@
 import fs from 'fs';
 import path from 'path';
+import {articles} from './src/data/articles';
 
 const DOCS_DIR = path.join(__dirname, 'docs');
 const OUTPUT_DIR = path.join(__dirname, 'static', '_raw', 'docs');
 
-function getAllMdxFiles(dir: string, baseDir: string = dir): string[] {
-	const files: string[] = [];
-	const entries = fs.readdirSync(dir, {withFileTypes: true});
-
-	for (const entry of entries) {
-		const fullPath = path.join(dir, entry.name);
-		if (entry.isDirectory()) {
-			files.push(...getAllMdxFiles(fullPath, baseDir));
-		} else if (entry.name.endsWith('.mdx')) {
-			const relativePath = path.relative(baseDir, fullPath);
-			files.push(relativePath);
-		}
-	}
-
-	return files;
-}
-
 function copyRawDocs() {
 	console.log('📄 Copying raw docs to static/_raw/docs/...');
 
+	// Clean output directory
 	if (fs.existsSync(OUTPUT_DIR)) {
 		fs.rmSync(OUTPUT_DIR, {recursive: true});
 	}
 
 	fs.mkdirSync(OUTPUT_DIR, {recursive: true});
 
-	const mdxFiles = getAllMdxFiles(DOCS_DIR);
-
 	let copiedCount = 0;
-	for (const file of mdxFiles) {
-		const sourcePath = path.join(DOCS_DIR, file);
-		const destPath = path.join(OUTPUT_DIR, file).replace(/\.mdx$/, '.md');
+
+	for (const article of articles) {
+		// Skip docs marked as noAi
+		if (article.noAi) {
+			continue;
+		}
+
+		// Remove 'docs/' prefix from relativePath since we're already in docs/
+		const relativePathWithoutDocs = article.relativePath.replace(/^docs\//, '');
+		const sourcePath = path.join(DOCS_DIR, relativePathWithoutDocs);
+		if (!fs.existsSync(sourcePath)) {
+			console.warn(`⚠️  Source file not found: ${sourcePath}`);
+			continue;
+		}
+
+		// Copy .mdx file as .md to output directory
+		const destPath = path.join(
+			OUTPUT_DIR,
+			relativePathWithoutDocs.replace(/\.mdx$/, '.md'),
+		);
 
 		const destDir = path.dirname(destPath);
 		if (!fs.existsSync(destDir)) {
@@ -44,6 +44,21 @@ function copyRawDocs() {
 
 		fs.copyFileSync(sourcePath, destPath);
 		copiedCount++;
+
+		// For index routes, also create a flat .md file so /player.md works
+		// Example: player/index.mdx → both player/index.md AND player.md
+		if (article.slug.endsWith('/index')) {
+			const slugWithoutIndex = article.slug.replace(/\/index$/, '');
+			if (slugWithoutIndex) {
+				const flatPath = path.join(OUTPUT_DIR, `${slugWithoutIndex}.md`);
+				const flatDir = path.dirname(flatPath);
+				if (!fs.existsSync(flatDir)) {
+					fs.mkdirSync(flatDir, {recursive: true});
+				}
+				fs.copyFileSync(sourcePath, flatPath);
+				copiedCount++;
+			}
+		}
 	}
 
 	console.log(`✅ Copied ${copiedCount} files to static/_raw/docs/`);
