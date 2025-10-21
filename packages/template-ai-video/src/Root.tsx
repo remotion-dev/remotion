@@ -7,10 +7,10 @@ import {
 import { AIVideo, aiVideoSchema } from "./AIVideo";
 import { useEffect, useState } from "react";
 import { FPS, WindowHeight, WindowWidth } from "./constants";
-import { loadTimelineFromFile } from "./utils";
+import { getTimelinePath, loadTimelineFromFile } from "./utils";
 
 interface InputProps extends Record<string, unknown> {
-  timelineFileName?: string;
+  projectDir?: string;
   hasWatermark?: boolean;
 }
 
@@ -18,14 +18,15 @@ export const RemotionRoot: React.FC = () => {
   const inputProps = getInputProps<InputProps>();
   const [frameLength, setFrameLength] = useState(1);
 
-  const timelineFile =
-    inputProps.timelineFileName ?? "content/demo/timeline.json";
+  const projectDir = inputProps.projectDir ?? "history_of_venus";
 
   useEffect(() => {
     const handle = delayRender("Calculating FPS duration...");
 
     const fetchConfig = async () => {
-      const { lengthFrames } = await loadTimelineFromFile(timelineFile);
+      const { lengthFrames } = await loadTimelineFromFile(
+        getTimelinePath(projectDir),
+      );
       setFrameLength(lengthFrames);
       continueRender(handle);
     };
@@ -35,7 +36,7 @@ export const RemotionRoot: React.FC = () => {
     return () => {
       continueRender(handle);
     };
-  }, [timelineFile]);
+  }, []);
 
   return (
     <>
@@ -48,7 +49,7 @@ export const RemotionRoot: React.FC = () => {
         height={WindowHeight}
         schema={aiVideoSchema}
         defaultProps={{
-          timelineFile,
+          projectName: projectDir,
           hasWatermark: !!inputProps.hasWatermark,
         }}
       />

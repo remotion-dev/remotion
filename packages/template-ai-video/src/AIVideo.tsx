@@ -1,4 +1,10 @@
-import { AbsoluteFill, Html5Audio, Sequence, useDelayRender } from "remotion";
+import {
+  AbsoluteFill,
+  Html5Audio,
+  Sequence,
+  staticFile,
+  useDelayRender,
+} from "remotion";
 import { z } from "zod";
 import { Timeline } from "./types";
 import { IntoFrameDuration, FPS } from "./constants";
@@ -6,10 +12,10 @@ import { loadFont } from "@remotion/google-fonts/Signika";
 import { Background } from "./components/Background";
 import Subtitle from "./components/Subtitle";
 import { useEffect, useState } from "react";
-import { loadTimelineFromFile } from "./utils";
+import { getAudioPath, getTimelinePath, loadTimelineFromFile } from "./utils";
 
 export const aiVideoSchema = z.object({
-  timelineFile: z.string().min(1),
+  projectName: z.string().min(1),
   hasWatermark: z.boolean(),
 });
 
@@ -29,7 +35,7 @@ const calculateFrameTiming = (
 };
 
 export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
-  timelineFile,
+  projectName,
 }) => {
   const { fontFamily } = loadFont();
   const [timeline, setTimeline] = useState<Timeline | null>();
@@ -39,7 +45,9 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
     const handle = delayRender("Loading timeline...");
 
     const fetchConfig = async () => {
-      const { timeline } = await loadTimelineFromFile(timelineFile);
+      const { timeline } = await loadTimelineFromFile(
+        getTimelinePath(projectName),
+      );
       setTimeline(timeline);
       continueRender(handle);
     };
@@ -49,7 +57,7 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
     return () => {
       continueRender(handle);
     };
-  }, [timelineFile]);
+  }, [projectName]);
 
   const ready = true;
 
@@ -97,7 +105,7 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
                 from={startFrame}
                 durationInFrames={duration}
               >
-                <Background item={element} />
+                <Background project={projectName} item={element} />
               </Sequence>
             );
           })}
@@ -133,7 +141,9 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
                 from={startFrame}
                 durationInFrames={duration}
               >
-                <Html5Audio src={element.audioUrl} />
+                <Html5Audio
+                  src={staticFile(getAudioPath(projectName, element.audioUrl))}
+                />
               </Sequence>
             );
           })}

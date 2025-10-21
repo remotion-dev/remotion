@@ -19,10 +19,12 @@ import {
   StoryMetadataWithDetails,
   StoryScript,
   StoryWithImages,
+  Timeline,
 } from "./src/types";
 import { v4 as uuidv4 } from "uuid";
 import * as fs from "fs";
 import * as path from "path";
+import { createTimeLineFromStoryWithDetails } from "./src/timeline";
 
 dotenv.config();
 
@@ -46,6 +48,12 @@ class ContentFS {
     const dirPath = this.getDir();
     const filePath = path.join(dirPath, "descriptor.json");
     fs.writeFileSync(filePath, JSON.stringify(descriptor, null, 2));
+  }
+
+  saveTimeline(timeline: Timeline) {
+    const dirPath = this.getDir();
+    const filePath = path.join(dirPath, "timeline.json");
+    fs.writeFileSync(filePath, JSON.stringify(timeline, null, 2));
   }
 
   getDir(dir?: string): string {
@@ -193,17 +201,19 @@ async function generateStory(options: GenerateOptions) {
         storyItem.imageDescription,
         contentFs.getImagePath(storyItem.uid),
       );
-      await generateVoice(
+      const timings = await generateVoice(
         storyItem.text,
         elevenlabsApiKey!,
         contentFs.getAudioPath(storyItem.uid),
       );
-      break;
+      storyItem.audioTimestamps = timings;
     }
     contentFs.saveDescriptor(storyWithDetails);
     imagesSpinner.succeed(chalk.green("Images generated!"));
 
     const finalSpinner = ora("Generating final result...").start();
+    const timeline = createTimeLineFromStoryWithDetails(storyWithDetails);
+    contentFs.saveTimeline(timeline);
     finalSpinner.succeed(chalk.green("Final result generated!"));
 
     console.log(chalk.green.bold("\n✨ Story generation complete!\n"));

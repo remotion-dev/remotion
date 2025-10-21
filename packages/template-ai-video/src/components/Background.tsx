@@ -1,6 +1,7 @@
-import { AbsoluteFill, Img, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Img, staticFile, useCurrentFrame } from "remotion";
 import { FPS, WindowHeight, WindowWidth } from "../constants";
 import { BackgroundElement } from "../types";
+import { getImagePath } from "../utils";
 
 const EXTRA_SCALE = 0.2;
 
@@ -33,7 +34,8 @@ const calcBlur = ({
 
 export const Background: React.FC<{
   item: BackgroundElement;
-}> = ({ item }) => {
+  project: string;
+}> = ({ item, project }) => {
   const frame = useCurrentFrame();
   // const durationFrames = ((item.endMs - item.startMs) * FPS)/1000;
   const localMs = (frame / FPS) * 1000;
@@ -72,7 +74,7 @@ export const Background: React.FC<{
   return (
     <AbsoluteFill style={{ backgroundColor: "blue" }}>
       <Img
-        src={item.imageUrl}
+        src={staticFile(getImagePath(project, item.imageUrl))}
         style={{
           width: imgWidth * imgScale,
           height: imgHeight * imgScale,
