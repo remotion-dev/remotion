@@ -305,6 +305,7 @@ export class MediaPlayer {
 	private seekPromiseChain: Promise<void> = Promise.resolve();
 
 	public async seekTo(time: number): Promise<void> {
+		console.log('seeking', {time});
 		this.currentSeekNonce++;
 		const nonce = this.currentSeekNonce;
 		await this.seekPromiseChain;
@@ -422,7 +423,14 @@ export class MediaPlayer {
 		}
 
 		for (const buffer of toBeScheduled) {
-			this.scheduleAudioChunk(buffer.buffer, buffer.timestamp);
+			if (this.playing) {
+				this.scheduleAudioChunk(buffer.buffer, buffer.timestamp);
+			} else {
+				this.audioChunksForAfterResuming.push({
+					buffer: buffer.buffer,
+					timestamp: buffer.timestamp,
+				});
+			}
 		}
 	}
 
@@ -437,6 +445,7 @@ export class MediaPlayer {
 		}
 
 		this.audioChunksForAfterResuming.length = 0;
+		this.drawDebugOverlay();
 	}
 
 	public pause(): void {
@@ -452,6 +461,8 @@ export class MediaPlayer {
 				});
 			}
 		}
+
+		this.drawDebugOverlay();
 	}
 
 	public setMuted(muted: boolean): void {
@@ -541,9 +552,11 @@ export class MediaPlayer {
 			node.start(this.sharedAudioContext.currentTime, -delay);
 		}
 
-		this.audioBufferIterator?.addQueuedAudioNode(node, mediaTimestamp, buffer);
+		this.audioBufferIterator!.addQueuedAudioNode(node, mediaTimestamp, buffer);
+		console.log('added queued audio node', mediaTimestamp);
 		node.onended = () => {
-			return this.audioBufferIterator?.removeQueuedAudioNode(node);
+			console.log('removed', mediaTimestamp);
+			return this.audioBufferIterator!.removeQueuedAudioNode(node);
 		};
 	}
 
@@ -590,6 +603,7 @@ export class MediaPlayer {
 		if (!this.hasAudio()) return;
 
 		this.audioBufferIterator?.destroy();
+		this.audioChunksForAfterResuming = [];
 		const delayHandle = this.bufferState?.delayPlayback();
 
 		const iterator = makeAudioIterator(this.audioSink!, startFromSecond);
@@ -646,6 +660,8 @@ export class MediaPlayer {
 				audioContextState: this.sharedAudioContext.state,
 				audioSyncAnchor: this.audioSyncAnchor,
 				audioIterator: this.audioBufferIterator,
+				audioChunksForAfterResuming: this.audioChunksForAfterResuming,
+				playing: this.playing,
 			});
 		}
 	}
