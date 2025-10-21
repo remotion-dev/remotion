@@ -14,7 +14,8 @@
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "UNLICENSED",
-	"dependencies": {
+	"dependencies": {},
+	"devDependencies": {
 		"@aws-sdk/client-cloudwatch-logs": "3.787.0",
 		"@aws-sdk/client-iam": "3.787.0",
 		"@aws-sdk/client-lambda": "3.787.0",
@@ -23,9 +24,7 @@
 		"@aws-sdk/client-service-quotas": "3.787.0",
 		"@aws-sdk/client-sts": "3.787.0",
 		"@aws-sdk/lib-storage": "3.787.0",
-		"mime-types": "2.1.34"
-	},
-	"devDependencies": {
+		"mime-types": "2.1.34",
 		"@aws-sdk/credential-provider-ini": "3.787.0",
 		"@remotion/serverless-client": "workspace:*",
 		"@types/express": "^5.0.0",
@@ -42,19 +41,19 @@
 		"./package.json": "./package.json",
 		".": {
 			"types": "./dist/index.d.ts",
-			"require": "./dist/index.js",
+			"require": "./dist/cjs/index.js",
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
 		"./constants": {
 			"types": "./dist/constants.d.ts",
-			"require": "./dist/constants.js",
+			"require": "./dist/cjs/constants.js",
 			"module": "./dist/esm/constants.mjs",
 			"import": "./dist/esm/constants.mjs"
 		},
 		"./regions": {
 			"types": "./dist/regions.d.ts",
-			"require": "./dist/regions.js",
+			"require": "./dist/cjs/regions.js",
 			"module": "./dist/esm/regions.mjs",
 			"import": "./dist/esm/regions.mjs"
 		}
