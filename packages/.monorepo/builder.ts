@@ -151,7 +151,6 @@ export const buildPackage = async ({
 				action === 'use-tsc'
 					? `${cjsOutDir}/${firstName}.js`
 					: `./dist/${format}/${firstName}.${format === 'cjs' ? 'js' : 'mjs'}`;
-			console.log({outputName});
 			newExports[exportName] = sortObject({
 				types: `${cjsOutDir}/${firstName}.d.ts`,
 				...(format === 'cjs'
