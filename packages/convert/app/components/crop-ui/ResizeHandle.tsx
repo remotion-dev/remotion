@@ -5,6 +5,7 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from './force-specific-cursor';
+import {preventBodyScroll} from './prevent-body-scroll';
 
 const baseStyle: React.CSSProperties = {
 	width: 12,
@@ -111,14 +112,16 @@ export const ResizeHandle: React.FC<{
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent) => {
-			e.preventDefault();
-			e.stopPropagation();
 			if (e.button !== 0) {
 				return;
 			}
 
+			e.preventDefault();
+			e.stopPropagation();
+
 			forceSpecificCursor(getCursor(position));
 			setMarkAsDragging(true);
+			const restoreBody = preventBodyScroll();
 
 			const move = (evt: PointerEvent) => {
 				evt.preventDefault();
@@ -210,6 +213,7 @@ export const ResizeHandle: React.FC<{
 
 				stopForcingSpecificCursor();
 				setMarkAsDragging(false);
+				restoreBody();
 
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
@@ -230,7 +234,7 @@ export const ResizeHandle: React.FC<{
 
 	return (
 		<div
-			className="w-4 h-4 bg-white absolute rounded-full border-2 border-black"
+			className="w-4 h-4 select-none touch-none bg-white absolute rounded-full border-2 border-black"
 			style={style}
 			onPointerDown={onPointerDown}
 		/>

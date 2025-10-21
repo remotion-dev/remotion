@@ -5,6 +5,7 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from './force-specific-cursor';
+import {preventBodyScroll} from './prevent-body-scroll';
 
 type EdgePosition = 'top' | 'right' | 'bottom' | 'left';
 
@@ -108,6 +109,9 @@ export const EdgeHandle: React.FC<{
 			forceSpecificCursor(getCursor(position));
 			setMarkAsDragging(true);
 
+			// Prevent body scrolling
+			const restoreBody = preventBodyScroll();
+
 			const move = (evt: PointerEvent) => {
 				evt.preventDefault();
 				evt.stopPropagation();
@@ -182,6 +186,9 @@ export const EdgeHandle: React.FC<{
 				stopForcingSpecificCursor();
 				setMarkAsDragging(false);
 
+				// Restore body scroll
+				restoreBody();
+
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 			};
@@ -200,10 +207,6 @@ export const EdgeHandle: React.FC<{
 	);
 
 	return (
-		<div
-			style={style}
-			onPointerDown={onPointerDown}
-			// No visible styling - invisible hit area
-		/>
+		<div style={style} className="touch-none" onPointerDown={onPointerDown} />
 	);
 };

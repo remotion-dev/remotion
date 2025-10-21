@@ -79,7 +79,10 @@ export const CropBackdrop: React.FC<{
 	];
 	const d2 = serializeInstructions(path2);
 	return (
-		<svg viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}>
+		<svg
+			viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
+			className="rounded-md"
+		>
 			<path d={d1} fill="black" strokeWidth={10} opacity={0.5} />
 			<path d={d2} fill="black" strokeWidth={10} opacity={0.5} />
 		</svg>

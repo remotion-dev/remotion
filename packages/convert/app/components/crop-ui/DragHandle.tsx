@@ -5,6 +5,7 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from './force-specific-cursor';
+import {preventBodyScroll} from './prevent-body-scroll';
 
 const clamp = (val: number, min: number, max: number) => {
 	return Math.min(Math.max(val, min), max);
@@ -38,6 +39,8 @@ export const DragHandle: React.FC<{
 
 			forceSpecificCursor('move');
 			setMarkAsDragging(true);
+
+			const restoreBody = preventBodyScroll();
 
 			const boxOffset = divRef.current?.getBoundingClientRect()!;
 			const factor = boxOffset.width / dimensions.width;
@@ -87,6 +90,7 @@ export const DragHandle: React.FC<{
 
 				stopForcingSpecificCursor();
 				setMarkAsDragging(false);
+				restoreBody();
 
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
@@ -108,6 +112,7 @@ export const DragHandle: React.FC<{
 	return (
 		<div
 			style={style}
+			className="touch-none"
 			onPointerDown={onPointerDown}
 			// No visible styling - invisible hit area
 		/>

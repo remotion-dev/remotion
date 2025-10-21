@@ -8,7 +8,7 @@ export const VerticalPositionIndicator: React.FC<{
 }> = ({xPosition, width, isDragging}) => {
 	return (
 		<div
-			className="absolute font-brand text-sm text-gray-500 transition-opacity"
+			className="absolute hidden lg:block font-brand text-sm text-gray-500 transition-opacity"
 			style={{
 				left: `${(xPosition / width) * 100}%`,
 				top: -25,
@@ -31,7 +31,7 @@ export const HorizontalPositionIndicator: React.FC<{
 }> = ({yPosition, height, isDragging}) => {
 	return (
 		<div
-			className="absolute font-brand text-sm text-gray-500 pr-2 transition-opacity"
+			className="absolute hidden lg:block font-brand text-sm text-gray-500 pr-2 transition-opacity"
 			style={{
 				top: `${(yPosition / height) * 100}%`,
 				left: -INDICATOR_HEIGHT,
