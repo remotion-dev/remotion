@@ -1,3 +1,4 @@
+import type {CropRectangle} from 'mediabunny';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
@@ -28,6 +29,7 @@ export const getThumbnailDimensions = (dimensions: Dimensions) => {
 export const ResizeThumbnail: React.FC<{
 	readonly dimensions: Dimensions;
 	readonly unrotatedDimensions: Dimensions;
+	readonly dimensionsBeforeCrop: Dimensions;
 	readonly thumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly rotation: number;
 	readonly scale: number;
@@ -35,6 +37,8 @@ export const ResizeThumbnail: React.FC<{
 		React.SetStateAction<MediabunnyResize | null>
 	>;
 	readonly inputFocused: boolean;
+	readonly cropRect: CropRectangle;
+	readonly crop: boolean;
 }> = ({
 	thumbnailRef,
 	dimensions,
@@ -43,6 +47,9 @@ export const ResizeThumbnail: React.FC<{
 	rotation,
 	unrotatedDimensions,
 	inputFocused,
+	cropRect,
+	crop,
+	dimensionsBeforeCrop,
 }) => {
 	const ref = useRef<HTMLCanvasElement>(null);
 	const thumbnailDimensions = useMemo(() => {
@@ -70,12 +77,15 @@ export const ResizeThumbnail: React.FC<{
 		setDragging(true);
 	}, []);
 
-	const animate = !dragging && !inputFocused;
+	const animate = !dragging && !inputFocused && !crop;
 
 	const drawn = useThumbnailCopy({
 		sourceRef: thumbnailRef,
 		targetRef: ref,
 		dimensions: unrotatedThumbnailDimensions,
+		cropRect,
+		crop,
+		fullDimensionsBeforeCrop: dimensionsBeforeCrop,
 	});
 
 	return (

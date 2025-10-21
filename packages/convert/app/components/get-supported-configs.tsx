@@ -70,6 +70,14 @@ const shouldPrioritizeVideoCopyOverReencode = (routeAction: RouteAction) => {
 		return false;
 	}
 
+	if (routeAction.type === 'generic-crop') {
+		return false;
+	}
+
+	if (routeAction.type === 'crop-format') {
+		return false;
+	}
+
 	throw new Error('Unsupported route action' + (routeAction satisfies never));
 };
 

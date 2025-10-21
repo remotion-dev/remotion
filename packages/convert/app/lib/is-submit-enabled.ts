@@ -1,6 +1,6 @@
 import type {SupportedConfigs} from '~/components/get-supported-configs';
 import {canRotateOrMirror} from './can-rotate-or-mirror';
-import type {RotateOrMirrorState} from './default-ui';
+import type {RotateOrMirrorOrCropState} from './default-ui';
 import {isDroppingEverything} from './is-reencoding';
 
 export const isSubmitDisabled = ({
@@ -14,7 +14,7 @@ export const isSubmitDisabled = ({
 	audioConfigIndexSelection: Record<number, string>;
 	videoConfigIndexSelection: Record<number, string>;
 	enableConvert: boolean;
-	enableRotateOrMirror: RotateOrMirrorState;
+	enableRotateOrMirror: RotateOrMirrorOrCropState;
 }) => {
 	if (!supportedConfigs) {
 		return true;

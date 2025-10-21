@@ -1,10 +1,10 @@
 import {useParams} from '@remix-run/react';
 import {useMemo} from 'react';
 import {Main} from '~/components/Main';
-import type {OutputContainer, RouteAction} from '~/seo';
+import type {InputContainer, RouteAction} from '~/seo';
 
 const Index = () => {
-	const format = useParams().format as OutputContainer;
+	const format = useParams().format as InputContainer;
 
 	const routeAction: RouteAction = useMemo(() => {
 		return {

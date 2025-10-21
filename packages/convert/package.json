@@ -29,6 +29,7 @@
 		"@remix-run/react": "^2.15.2",
 		"@remix-run/serve": "^2.15.2",
 		"@remotion/captions": "workspace:*",
+		"@remotion/paths": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/whisper-web": "workspace:*",
 		"@vercel/remix": "^2.15.2",
@@ -51,7 +52,7 @@
 		"eslint": "9.19.0",
 		"postcss": "8.4.47",
 		"tailwindcss": "4.1.10",
-		"vite": "5.4.20",
+		"vite": "5.4.21",
 		"vite-tsconfig-paths": "^4.2.1"
 	},
 	"engines": {

@@ -1,8 +1,9 @@
 import {MediaFox} from '@mediafox/core';
+import type {CropRectangle} from 'mediabunny';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
-import type {RotateOrMirrorState} from '~/lib/default-ui';
+import type {RotateOrMirrorOrCropState} from '~/lib/default-ui';
 import {defaultRotateOrMirorState} from '~/lib/default-ui';
 import {isAudioOnly} from '~/lib/is-audio-container';
 import type {RouteAction} from '~/seo';
@@ -29,7 +30,9 @@ export const FileAvailable: React.FC<{
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
 	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
-		useState<RotateOrMirrorState>(() => defaultRotateOrMirorState(routeAction));
+		useState<RotateOrMirrorOrCropState>(() =>
+			defaultRotateOrMirorState(routeAction),
+		);
 
 	const probeResult = useProbe({
 		src,
@@ -38,12 +41,25 @@ export const FileAvailable: React.FC<{
 	const [mediaFox, setMediaFox] = useState<MediaFox | null>(null);
 
 	useEffect(() => {
-		setMediaFox(new MediaFox());
+		const fox = new MediaFox({
+			renderer: 'webgl',
+		});
+		setMediaFox(fox);
+
+		return () => {};
 	}, []);
 
 	const [userRotation, setRotation] = useState(90);
 	const [flipHorizontal, setFlipHorizontal] = useState(true);
 	const [flipVertical, setFlipVertical] = useState(false);
+	const [cropOperation, setCropOperation] = useState<CropRectangle>(() => {
+		return {
+			left: 0,
+			top: 0,
+			width: Infinity,
+			height: Infinity,
+		};
+	});
 
 	const [waveform, setWaveform] = useState<number[]>([]);
 
@@ -71,6 +87,9 @@ export const FileAvailable: React.FC<{
 						isAudio={isAudio}
 						waveform={waveform}
 						mediaFox={mediaFox}
+						crop={enableRotateOrMirrow === 'crop'}
+						setUnclampedRect={setCropOperation}
+						unclampedRect={cropOperation}
 					/>
 				) : null}
 				<div className="h-8" />
@@ -104,13 +123,13 @@ export const FileAvailable: React.FC<{
 								mediaFox ? (
 									<div className="gap-4">
 										<ConvertUI
+											crop={enableRotateOrMirrow === 'crop'}
 											mediafox={mediaFox}
 											inputContainer={probeResult.container}
 											currentAudioCodec={probeResult.audioCodec ?? null}
 											currentVideoCodec={probeResult.videoCodec ?? null}
 											tracks={probeResult.tracks}
 											setSrc={setSrc}
-											unrotatedDimensions={probeResult.unrotatedDimensions}
 											dimensions={probeResult.dimensions}
 											durationInSeconds={probeResult.durationInSeconds ?? null}
 											action={routeAction}
@@ -127,6 +146,7 @@ export const FileAvailable: React.FC<{
 											sampleRate={probeResult.sampleRate}
 											name={probeResult.name}
 											input={probeResult.input}
+											cropRect={cropOperation}
 										/>
 									</div>
 								) : null}
