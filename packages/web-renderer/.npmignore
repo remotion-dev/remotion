@@ -1,8 +1,6 @@
-src
+tsconfig.json
 eslint.config.mjs
 tsconfig.tsbuildinfo
-*.tgz
+src
 .turbo
-tsconfig.json
-.prettierrc.js
 bundle.ts

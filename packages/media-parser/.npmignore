@@ -5,5 +5,5 @@ tsconfig.json
 tsconfig.tsbuildinfo
 bundle.ts
 .turbo
-.eslintrc
+eslint.config.mjs
 ensure-correct-version.ts

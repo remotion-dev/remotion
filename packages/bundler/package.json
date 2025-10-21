@@ -16,12 +16,6 @@
 		"test": "bun test src",
 		"make": "tsc -d"
 	},
-	"files": [
-		"dist",
-		"react-shim.js",
-		"renderEntry.tsx",
-		"favicon.ico"
-	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
