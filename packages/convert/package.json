@@ -51,7 +51,7 @@
 		"eslint": "9.19.0",
 		"postcss": "8.4.47",
 		"tailwindcss": "4.1.10",
-		"vite": "5.4.20",
+		"vite": "5.4.21",
 		"vite-tsconfig-paths": "^4.2.1"
 	},
 	"engines": {
