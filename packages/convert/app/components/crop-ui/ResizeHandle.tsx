@@ -54,8 +54,8 @@ export const ResizeHandle: React.FC<{
 				...baseStyle,
 				top: (rect.top / dimensions.height) * 100 + '%',
 				left: (rect.left / dimensions.width) * 100 + '%',
-				marginLeft: -3,
-				marginTop: -3,
+				marginLeft: -4,
+				marginTop: -4,
 				cursor: 'nwse-resize',
 			};
 		}
@@ -68,8 +68,8 @@ export const ResizeHandle: React.FC<{
 					((dimensions.width - (rect.width + rect.left)) / dimensions.width) *
 						100 +
 					'%',
-				marginRight: -3,
-				marginTop: -3,
+				marginRight: -4,
+				marginTop: -4,
 				cursor: 'nesw-resize',
 			};
 		}
@@ -82,8 +82,8 @@ export const ResizeHandle: React.FC<{
 						100 +
 					'%',
 				left: (rect.left / dimensions.width) * 100 + '%',
-				marginLeft: -3,
-				marginBottom: -3,
+				marginLeft: -4,
+				marginBottom: -4,
 				cursor: 'nesw-resize',
 			};
 		}
@@ -99,8 +99,8 @@ export const ResizeHandle: React.FC<{
 					((dimensions.width - (rect.width + rect.left)) / dimensions.width) *
 						100 +
 					'%',
-				marginRight: -3,
-				marginBottom: -3,
+				marginRight: -4,
+				marginBottom: -4,
 				cursor: 'nwse-resize',
 			};
 		}
@@ -220,7 +220,7 @@ export const ResizeHandle: React.FC<{
 
 	return (
 		<div
-			className="w-3 h-3 bg-white absolute rounded-full border-2 border-black"
+			className="w-4 h-4 bg-white absolute rounded-full border-2 border-black"
 			style={style}
 			onPointerDown={onPointerDown}
 		/>
