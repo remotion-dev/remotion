@@ -20,7 +20,7 @@ import {
   StoryScript,
   StoryWithImages,
   Timeline,
-} from "../src/types";
+} from "../src/lib/types";
 import { v4 as uuidv4 } from "uuid";
 import * as fs from "fs";
 import * as path from "path";

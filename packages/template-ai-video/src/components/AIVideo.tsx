@@ -6,13 +6,17 @@ import {
   useDelayRender,
 } from "remotion";
 import { z } from "zod";
-import { Timeline } from "./types";
-import { IntoFrameDuration, FPS } from "./constants";
+import { Timeline } from "../lib/types";
+import { IntoFrameDuration, FPS } from "../lib/constants";
 import { loadFont } from "@remotion/google-fonts/Signika";
-import { Background } from "./components/Background";
-import Subtitle from "./components/Subtitle";
+import { Background } from "./Background";
+import Subtitle from "./Subtitle";
 import { useEffect, useState } from "react";
-import { getAudioPath, getTimelinePath, loadTimelineFromFile } from "./utils";
+import {
+  getAudioPath,
+  getTimelinePath,
+  loadTimelineFromFile,
+} from "../lib/utils";
 
 export const aiVideoSchema = z.object({
   projectName: z.string().min(1),

@@ -4,7 +4,7 @@ import type {
   StoryMetadataWithDetails,
   TextElement,
   Timeline,
-} from "../src/types";
+} from "../src/lib/types";
 
 export const createTimeLineFromStoryWithDetails = (
   storyWithDetails: StoryMetadataWithDetails,

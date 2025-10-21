@@ -1,7 +1,7 @@
 import { AbsoluteFill, Img, staticFile, useCurrentFrame } from "remotion";
-import { FPS, WindowHeight, WindowWidth } from "../constants";
-import { BackgroundElement } from "../types";
-import { getImagePath } from "../utils";
+import { FPS, WindowHeight, WindowWidth } from "../lib/constants";
+import { BackgroundElement } from "../lib/types";
+import { getImagePath } from "../lib/utils";
 
 const EXTRA_SCALE = 0.2;
 

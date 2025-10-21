@@ -4,10 +4,10 @@ import {
   delayRender,
   getInputProps,
 } from "remotion";
-import { AIVideo, aiVideoSchema } from "./AIVideo";
+import { AIVideo, aiVideoSchema } from "./components/AIVideo";
 import { useEffect, useState } from "react";
-import { FPS, WindowHeight, WindowWidth } from "./constants";
-import { getTimelinePath, loadTimelineFromFile } from "./utils";
+import { FPS, WindowHeight, WindowWidth } from "./lib/constants";
+import { getTimelinePath, loadTimelineFromFile } from "./lib/utils";
 
 interface InputProps extends Record<string, unknown> {
   projectDir?: string;
