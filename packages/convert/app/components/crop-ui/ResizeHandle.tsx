@@ -1,6 +1,10 @@
 import type {CropRectangle} from 'mediabunny';
 import React, {useCallback, useMemo} from 'react';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from './force-specific-cursor';
 
 const baseStyle: React.CSSProperties = {
 	width: 12,
@@ -14,6 +18,28 @@ const clamp = (val: number, min: number, max: number) => {
 };
 
 const MIN_SIZE = 120;
+
+const getCursor = (position: Position) => {
+	if (position === 'top-left') {
+		return 'nwse-resize';
+	}
+
+	if (position === 'top-right') {
+		return 'nesw-resize';
+	}
+
+	if (position === 'bottom-left') {
+		return 'nesw-resize';
+	}
+
+	if (position === 'bottom-right') {
+		return 'nwse-resize';
+	}
+
+	throw new Error(
+		'Unknown position: ' + JSON.stringify(position satisfies never),
+	);
+};
 
 export const ResizeHandle: React.FC<{
 	readonly position: Position;
@@ -89,6 +115,8 @@ export const ResizeHandle: React.FC<{
 			if (e.button !== 0) {
 				return;
 			}
+
+			forceSpecificCursor(getCursor(position));
 
 			const move = (evt: PointerEvent) => {
 				evt.preventDefault();
@@ -177,6 +205,8 @@ export const ResizeHandle: React.FC<{
 			const onPointerUp = (evt: PointerEvent) => {
 				evt.preventDefault();
 				evt.stopPropagation();
+
+				stopForcingSpecificCursor();
 
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
