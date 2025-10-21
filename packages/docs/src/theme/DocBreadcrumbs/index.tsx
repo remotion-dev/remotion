@@ -163,6 +163,26 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 		window.open(markdownUrl, '_blank');
 	}, []);
 
+	const handleConnectToCursor = useCallback(() => {
+		const config = {
+			command: 'npx',
+			args: ['@remotion/mcp@latest'],
+		};
+		const base64Config = btoa(JSON.stringify(config));
+		const cursorUrl = `cursor://anysphere.cursor-deeplink/mcp/install?name=remotion-documentation&config=${base64Config}`;
+		window.location.href = cursorUrl;
+	}, []);
+
+	const handleConnectToVSCode = useCallback(() => {
+		const config = {
+			name: 'remotion-documentation',
+			command: 'npx',
+			args: ['@remotion/mcp@latest'],
+		};
+		const vscodeUrl = `vscode:mcp/install?${encodeURIComponent(JSON.stringify(config))}`;
+		window.location.href = vscodeUrl;
+	}, []);
+
 	return (
 		<div
 			style={{
@@ -275,6 +295,7 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 								icon={<CursorIcon />}
 								title="Connect to Cursor"
 								description="Install MCP Server on Cursor"
+								onClick={handleConnectToCursor}
 								showExternalIcon
 							/>
 
@@ -282,6 +303,7 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 								icon={<VSCodeIcon />}
 								title="Connect to VS Code"
 								description="Install MCP Server on VS Code"
+								onClick={handleConnectToVSCode}
 								showExternalIcon
 							/>
 						</DropdownMenu.Content>
