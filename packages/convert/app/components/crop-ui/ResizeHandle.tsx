@@ -1,16 +1,12 @@
 import type {CropRectangle} from 'mediabunny';
 import React, {useCallback, useMemo} from 'react';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
+import {cn} from '~/lib/utils';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from './force-specific-cursor';
 import {preventBodyScroll} from './prevent-body-scroll';
-
-const baseStyle: React.CSSProperties = {
-	width: 12,
-	height: 12,
-};
 
 type Position = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
@@ -53,46 +49,36 @@ export const ResizeHandle: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		if (position === 'top-left') {
 			return {
-				...baseStyle,
 				top: (rect.top / dimensions.height) * 100 + '%',
 				left: (rect.left / dimensions.width) * 100 + '%',
-				marginLeft: -4,
-				marginTop: -4,
 				cursor: 'nwse-resize',
 			};
 		}
 
 		if (position === 'top-right') {
 			return {
-				...baseStyle,
 				top: (rect.top / dimensions.height) * 100 + '%',
 				right:
 					((dimensions.width - (rect.width + rect.left)) / dimensions.width) *
 						100 +
 					'%',
-				marginRight: -4,
-				marginTop: -4,
 				cursor: 'nesw-resize',
 			};
 		}
 
 		if (position === 'bottom-left') {
 			return {
-				...baseStyle,
 				bottom:
 					((dimensions.height - (rect.height + rect.top)) / dimensions.height) *
 						100 +
 					'%',
 				left: (rect.left / dimensions.width) * 100 + '%',
-				marginLeft: -4,
-				marginBottom: -4,
 				cursor: 'nesw-resize',
 			};
 		}
 
 		if (position === 'bottom-right') {
 			return {
-				...baseStyle,
 				bottom:
 					((dimensions.height - (rect.height + rect.top)) / dimensions.height) *
 						100 +
@@ -101,14 +87,27 @@ export const ResizeHandle: React.FC<{
 					((dimensions.width - (rect.width + rect.left)) / dimensions.width) *
 						100 +
 					'%',
-				marginRight: -4,
-				marginBottom: -4,
 				cursor: 'nwse-resize',
 			};
 		}
 
 		throw new Error('Unknown position: ' + JSON.stringify(position));
 	}, [position, rect, dimensions]);
+
+	const className = useMemo(() => {
+		return cn(
+			'w-4 h-4 select-none touch-none bg-white absolute rounded-full border-3 lg:border-2 border-black',
+			'lg:w-3 lg:h-3',
+			position === 'top-left' &&
+				'ml-[-5px] mt-[-5px] lg:ml-[-4px] lg:mt-[-4px]',
+			position === 'top-right' &&
+				'mr-[-5px] mt-[-5px] lg:mr-[-4px] lg:mt-[-4px]',
+			position === 'bottom-left' &&
+				'ml-[-5px] mb-[-5px] lg:ml-[-4px] lg:mb-[-4px]',
+			position === 'bottom-right' &&
+				'mr-[-5px] mb-[-5px] lg:mr-[-4px] lg:mb-[-4px]',
+		);
+	}, [position]);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent) => {
@@ -233,10 +232,6 @@ export const ResizeHandle: React.FC<{
 	);
 
 	return (
-		<div
-			className="w-4 h-4 select-none touch-none bg-white absolute rounded-full border-2 border-black"
-			style={style}
-			onPointerDown={onPointerDown}
-		/>
+		<div className={className} style={style} onPointerDown={onPointerDown} />
 	);
 };
