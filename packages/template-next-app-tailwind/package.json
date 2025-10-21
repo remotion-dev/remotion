@@ -26,7 +26,7 @@
     "@remotion/shapes": "workspace:*",
     "@remotion/tailwind-v4": "workspace:*",
     "clsx": "2.1.1",
-    "next": "15.4.7",
+    "next": "15.5.6",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "remotion": "workspace:*",
