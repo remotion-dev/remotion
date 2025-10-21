@@ -23,9 +23,6 @@
 		"postcss": "8.4.47",
 		"prettier": "3.6.0"
 	},
-	"files": [
-		"dist"
-	],
 	"types": "dist/cjs/index.d.ts",
 	"typesVersions": {
 		">=1.0": {

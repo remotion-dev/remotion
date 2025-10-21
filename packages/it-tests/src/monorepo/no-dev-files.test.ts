@@ -24,13 +24,14 @@ for (const pkg of packages) {
 				const [, , filename] = file.split(' ');
 				if (
 					filename.includes('eslint.config.mjs') ||
-					// 	filename.includes('tsconfig') ||
+					filename.includes('tsconfig') ||
 					filename.includes('.turbo') ||
 					filename.includes('happydom') ||
 					filename.includes('prettier') ||
 					filename.startsWith('vite') ||
 					filename.startsWith('src/') ||
-					//	filename.includes('/test/') ||
+					filename.startsWith('.env') ||
+					filename.includes('/test/') ||
 					(filename.endsWith('.ts') && !filename.endsWith('.d.ts'))
 				) {
 					console.log(filename);

@@ -9,3 +9,4 @@ dist/tsconfig.tsbuildinfo
 tsconfig.json
 .prettierrc.js
 bundle.ts
+dist/cjs/test

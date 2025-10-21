@@ -2,3 +2,6 @@ dist/test
 eslint.config.mjs
 tsconfig.tsbuildinfo
 remotionlambda-x64.zip
+src
+tsconfig.json
+.turbo

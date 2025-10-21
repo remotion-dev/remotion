@@ -1,7 +1,7 @@
 dist/test
 src
+.turbo
 tsconfig.json
 tsconfig.tsbuildinfo
 bundle.ts
-.turbo
 eslint.config.mjs

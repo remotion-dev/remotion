@@ -9,3 +9,4 @@ eslint.config.mjs
 tsconfig.tsbuildinfo
 .turbo
 build.ts
+dist/api/test

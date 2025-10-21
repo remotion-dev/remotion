@@ -16,9 +16,6 @@
 		"test": "bun test src",
 		"make": "tsc -d"
 	},
-	"files": [
-		"dist"
-	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
 	"dependencies": {},
