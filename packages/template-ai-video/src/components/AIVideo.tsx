@@ -7,12 +7,13 @@ import {
 } from "remotion";
 import { z } from "zod";
 import { Timeline } from "../lib/types";
-import { IntoFrameDuration, FPS } from "../lib/constants";
+import { IntoFrameDuration } from "../lib/constants";
 import { loadFont } from "@remotion/google-fonts/BreeSerif";
 import { Background } from "./Background";
 import Subtitle from "./Subtitle";
 import { useEffect, useState } from "react";
 import {
+  calculateFrameTiming,
   getAudioPath,
   getTimelinePath,
   loadTimelineFromFile,
@@ -22,21 +23,6 @@ export const aiVideoSchema = z.object({
   projectName: z.string().min(1),
   hasWatermark: z.boolean(),
 });
-
-const calculateFrameTiming = (
-  startMs: number,
-  endMs: number,
-  options: { includeIntro?: boolean; addIntroOffset?: boolean } = {},
-) => {
-  const { includeIntro = false, addIntroOffset = false } = options;
-
-  const startFrame =
-    (startMs * FPS) / 1000 + (addIntroOffset ? IntoFrameDuration : 0);
-  const duration =
-    ((endMs - startMs) * FPS) / 1000 + (includeIntro ? IntoFrameDuration : 0);
-
-  return { startFrame, duration };
-};
 
 export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
   projectName,

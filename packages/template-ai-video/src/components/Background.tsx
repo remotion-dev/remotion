@@ -7,36 +7,9 @@ import {
   WindowWidth,
 } from "../lib/constants";
 import { BackgroundElement } from "../lib/types";
-import { getImagePath } from "../lib/utils";
+import { calculateBlur, getImagePath } from "../lib/utils";
 
 const EXTRA_SCALE = 0.2;
-
-const calcBlur = ({
-  item,
-  localMs,
-}: {
-  item: BackgroundElement;
-  localMs: number;
-}) => {
-  const maxBlur = 1;
-  const fadeMs = 1000;
-
-  const startMs = item.startMs;
-  const endMs = item.endMs;
-
-  const { enterTransition } = item;
-  const { exitTransition } = item;
-
-  if (enterTransition === "blur" && localMs < fadeMs) {
-    return (1 - localMs / fadeMs) * maxBlur;
-  }
-
-  if (exitTransition === "blur" && localMs > endMs - startMs - fadeMs) {
-    return (1 - (endMs - startMs - localMs) / fadeMs) * maxBlur;
-  }
-
-  return 0;
-};
 
 export const Background: React.FC<{
   item: BackgroundElement;
@@ -71,7 +44,7 @@ export const Background: React.FC<{
   const top = -(imgHeight * imgScale - viewSize.height) / 2;
   const left = -(imgWidth * imgScale - viewSize.width) / 2;
 
-  const blur = calcBlur({ item, localMs });
+  const blur = calculateBlur({ item, localMs });
   const maxBlur = 25;
 
   const currentBlur = maxBlur * blur;
