@@ -5,6 +5,7 @@ import { experimental_generateImage as generateImage } from "ai";
 import * as fs from "fs";
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api";
+import { ImageHeight, ImageWidth } from "../src/lib/constants";
 
 let apiKey: string | null = null;
 
@@ -48,7 +49,7 @@ export const generateAiImage = async (prompt: string, path: string) => {
   const { image } = await generateImage({
     model: openai.image("dall-e-3"),
     prompt,
-    size: `1024x1792`,
+    size: `${ImageWidth}x${ImageHeight}`,
   });
 
   saveUint8ArrayToPng(image.uint8Array, path);
