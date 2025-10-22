@@ -1,4 +1,4 @@
-# Remotion video
+# Remotion AI Video template
 
 <p align="center">
   <a href="https://github.com/remotion-dev/logo">
@@ -9,7 +9,9 @@
   </a>
 </p>
 
-Welcome to your Remotion AI Video project!
+Using this template you can create high quality AI videos for TikTok or Instagram.
+
+It includes a simple CLI that will generate story script, images and voiceover with OpenAI and ElevenLabs (other AI providers can be easily added).
 
 ## Commands
 
