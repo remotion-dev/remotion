@@ -41,7 +41,7 @@ export const Background: React.FC<{
   const localMs = (frame / FPS) * 1000;
 
   const viewSize = { width: WindowWidth, height: WindowHeight };
-  const imageRatio = 1.0;
+  const imageRatio = 1.75;
 
   const imgWidth = viewSize.height;
   const imgHeight = imgWidth * imageRatio;
