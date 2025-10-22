@@ -1,12 +1,10 @@
 # Remotion AI Video template
 
 <p align="center">
-  <a href="https://github.com/remotion-dev/logo">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-dark.gif">
-      <img alt="Animated Remotion Logo" src="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-light.gif">
+  <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://cdn.webmonch.dev/img/remotion-template-promo.png">
+      <img alt="Animated Remotion Logo" src="https://cdn.webmonch.dev/img/remotion-template-promo.png">
     </picture>
-  </a>
 </p>
 
 Using this template you can create high quality AI videos for TikTok or Instagram.
