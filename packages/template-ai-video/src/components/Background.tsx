@@ -37,7 +37,6 @@ export const Background: React.FC<{
   project: string;
 }> = ({ item, project }) => {
   const frame = useCurrentFrame();
-  // const durationFrames = ((item.endMs - item.startMs) * FPS)/1000;
   const localMs = (frame / FPS) * 1000;
 
   const viewSize = { width: WindowWidth, height: WindowHeight };
