@@ -8,7 +8,7 @@ import {
 import { z } from "zod";
 import { Timeline } from "../lib/types";
 import { IntoFrameDuration, FPS } from "../lib/constants";
-import { loadFont } from "@remotion/google-fonts/Signika";
+import { loadFont } from "@remotion/google-fonts/BreeSerif";
 import { Background } from "./Background";
 import Subtitle from "./Subtitle";
 import { useEffect, useState } from "react";
@@ -89,6 +89,8 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
                   textTransform: "uppercase",
                   backgroundColor: "yellow",
                   paddingTop: 20,
+                  paddingBottom: 20,
+                  border: "10px solid black",
                 }}
               >
                 {timeline.shortTitle}
