@@ -11,33 +11,45 @@ Using this template you can create high quality AI videos for TikTok or Instagra
 
 It includes a simple CLI that will generate story script, images and voiceover with OpenAI and ElevenLabs (other AI providers can be easily added).
 
-## Commands
+## Getting started
 
 **Install Dependencies**
 
 ```console
-npm install
+bun install
 ```
 
-**Start Preview**
+**Start Preview with demo video**
 
 ```console
-npm run dev
+bun dev
 ```
 
-**Render video**
+## Creating your own videos
+
+You can easily create your own videos using provided CLI.
+
+It will generate a script, images, voiceover and timeline based on your story title and topic. (topic can be e.g. history, eli5, fun facts, science, etc)
+
+**Configure environment variables**
+Create .env file with following env vars (you can also find them in .env.example):
+
+```
+OPENAI_API_KEY=
+ELEVENLABS_API_KEY=
+```
+
+If you do not create env file - you will be prompted for these variables when using CLI.
+
+**Generate srory timeline**
 
 ```console
-npx remotion render
+bun gen
 ```
 
-**Upgrade Remotion**
+You will be prompted API keys (if you haven't added them to .env file), story title and topic.
 
-```console
-npx remotion upgrade
-```
-
-This template allows you to create generated AI Videos for social media.
+After that CLI will generate text, images and audio with timestamps, and combine all those into a timeline that van be used by this template to render a video.
 
 ## Docs
 
