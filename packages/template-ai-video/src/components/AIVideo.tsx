@@ -49,11 +49,9 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
     };
   }, [projectName]);
 
-  const ready = true;
-
   return (
     <AbsoluteFill style={{ backgroundColor: "white" }}>
-      {ready && timeline && (
+      {timeline && (
         <>
           <Sequence durationInFrames={IntoFrameDuration}>
             <AbsoluteFill
