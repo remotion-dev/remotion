@@ -36,6 +36,14 @@ We also provide copy-pasteable backend endpoints for Next.js.
 
 Read the [Setup](/docs/editor-starter/setup) and [Dependencies](/docs/editor-starter/dependencies) sections to get a better idea of how to integrate the Editor Starter into your existing project.
 
+## Will the Editor Starter conflict with my existing shadcn/ui theme?
+
+If your project already uses shadcn/ui with custom theme configuration, conflicts are unlikely unless you've made external modifications to your Tailwind theme.
+
+The Editor Starter uses some shadcn components but doesn't include a custom theme implementation. Since the Editor Starter has minimal CSS variables defined, integration should be relatively straightforward.
+
+Potential issues primarily arise only if you've customized Tailwind's theme configuration outside of standard approaches.
+
 ## Feature X is missing, can you add it?
 
 Don't assume that we will add features, even crucial ones, to the Editor Starter that are not listed in the [Features](/docs/editor-starter/features) section.  
