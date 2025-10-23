@@ -2,18 +2,30 @@ import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
 import type {InputVideoTrack} from 'mediabunny';
 import React, {useEffect, useState} from 'react';
 import {renderHumanReadableVideoCodec} from '~/lib/render-codec-label';
+import {PacketList} from './PacketList';
+import {TextButtonWithChevron} from './TexrButtonWithChevron';
+import {usePackets} from './use-packets';
 
 export const VideoTrackOverview: React.FC<{
 	readonly track: InputVideoTrack;
-}> = ({track}) => {
+	readonly showPackets: boolean;
+	readonly setShowPackets: (showPackets: boolean) => void;
+}> = ({track, showPackets, setShowPackets}) => {
 	const [colorSpace, setColorSpace] = useState<VideoColorSpaceInit | null>(
 		null,
 	);
+
 	useEffect(() => {
 		track.getColorSpace().then((space) => {
 			setColorSpace(space);
 		});
 	}, [track]);
+
+	const packets = usePackets({track});
+
+	if (showPackets) {
+		return <PacketList packets={packets} />;
+	}
 
 	return (
 		<Table className="table-fixed">
@@ -21,6 +33,14 @@ export const VideoTrackOverview: React.FC<{
 				<TableRow>
 					<TableCell className="font-brand">Type</TableCell>
 					<TableCell className="text-right">Video</TableCell>
+				</TableRow>
+				<TableRow>
+					<TableCell className="font-brand">Packets</TableCell>
+					<TableCell className="text-right">
+						<TextButtonWithChevron onClick={() => setShowPackets(true)}>
+							{packets.length}
+						</TextButtonWithChevron>
+					</TableCell>
 				</TableRow>
 				<TableRow>
 					<TableCell className="font-brand">Codec</TableCell>
