@@ -433,7 +433,7 @@ export class MediaPlayer {
 		}
 	}
 
-	public play(time: number): void {
+	public async play(time: number): Promise<void> {
 		if (!this.isReady()) return;
 
 		this.setPlaybackTime(time);
@@ -441,6 +441,10 @@ export class MediaPlayer {
 		this.playing = true;
 		for (const chunk of this.audioChunksForAfterResuming) {
 			this.scheduleAudioChunk(chunk.buffer, chunk.timestamp);
+		}
+
+		if (this.sharedAudioContext.state === 'suspended') {
+			await this.sharedAudioContext.resume();
 		}
 
 		this.audioChunksForAfterResuming.length = 0;
@@ -548,14 +552,6 @@ export class MediaPlayer {
 		node.buffer = buffer;
 		node.playbackRate.value = this.playbackRate;
 		node.connect(this.gainNode!);
-
-		console.log(
-			'scheduleAudioChunk',
-			mediaTimestamp,
-			targetTime,
-			delay,
-			this.trimBefore,
-		);
 
 		if (delay >= 0) {
 			node.start(targetTime + this.audioSyncAnchor);
