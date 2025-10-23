@@ -24,12 +24,12 @@ type QualityLevel =
 	| null;
 
 export const CompressUi: React.FC<{
-	videoQuality: QualityLevel;
-	setVideoQuality: (quality: QualityLevel) => void;
-	audioQuality: QualityLevel;
-	setAudioQuality: (quality: QualityLevel) => void;
-	hasVideo: boolean;
-	hasAudio: boolean;
+	readonly videoQuality: QualityLevel;
+	readonly setVideoQuality: (quality: QualityLevel) => void;
+	readonly audioQuality: QualityLevel;
+	readonly setAudioQuality: (quality: QualityLevel) => void;
+	readonly hasVideo: boolean;
+	readonly hasAudio: boolean;
 }> = ({
 	videoQuality,
 	setVideoQuality,
