@@ -10,21 +10,21 @@ import { FPS, WindowHeight, WindowWidth } from "./lib/constants";
 import { getTimelinePath, loadTimelineFromFile } from "./lib/utils";
 
 interface InputProps extends Record<string, unknown> {
-  projectDir?: string;
+  projectName?: string;
 }
 
 export const RemotionRoot: React.FC = () => {
   const inputProps = getInputProps<InputProps>();
   const [frameLength, setFrameLength] = useState(1);
 
-  const projectDir = inputProps.projectDir ?? "history_of_venus";
+  const resolvedProjectName = inputProps.projectName ?? "history_of_venus";
 
   useEffect(() => {
     const handle = delayRender("Calculating FPS duration...");
 
     const fetchConfig = async () => {
       const { lengthFrames } = await loadTimelineFromFile(
-        getTimelinePath(projectDir),
+        getTimelinePath(resolvedProjectName),
       );
       setFrameLength(lengthFrames);
       continueRender(handle);
@@ -49,7 +49,7 @@ export const RemotionRoot: React.FC = () => {
         // @ts-expect-error zod version mismatch
         schema={aiVideoSchema}
         defaultProps={{
-          projectName: projectDir,
+          projectName: resolvedProjectName,
         }}
       />
     </>
