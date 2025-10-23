@@ -116,12 +116,16 @@ export const FileAvailable: React.FC<{
 							<div className="h-8 lg:h-0 lg:w-8" />
 							<div
 								data-disabled={!(probeResult.done && !probeResult.error)}
-								className="w-full lg:w-[350px] data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+								className="w-full lg:w-[350px] data-[expanded=true]:w-[0px] data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+								data-expanded={probeDetails}
 							>
 								{probeResult.container !== null &&
 								probeResult.name !== null &&
 								mediaFox ? (
-									<div className="gap-4">
+									<div
+										className="gap-4 data-[hidden=true]:invisible"
+										data-hidden={probeDetails}
+									>
 										<ConvertUI
 											crop={enableRotateOrMirrow === 'crop'}
 											mediafox={mediaFox}

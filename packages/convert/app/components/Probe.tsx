@@ -115,6 +115,8 @@ export const Probe: React.FC<{
 		return sortedTracks[trackDetails];
 	}, [probeDetails, sortedTracks, trackDetails]);
 
+	const [showPackets, setShowPackets] = useState(false);
+
 	useAddFilenameToTitle(name);
 	useCopyThumbnailToFavicon(videoThumbnailRef);
 
@@ -123,8 +125,14 @@ export const Probe: React.FC<{
 	}, [metadata]);
 
 	return (
-		<div className="w-full lg:w-[350px]">
-			<Card className="overflow-hidden lg:w-[350px]">
+		<div
+			className="w-full lg:w-[350px] data-[expanded=true]:w-[732px]"
+			data-expanded={probeDetails}
+		>
+			<Card
+				className="overflow-hidden lg:w-[350px] data-[expanded=true]:w-[732px]"
+				data-expanded={probeDetails}
+			>
 				<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
 					{images ? <EmbeddedImage images={images} /> : null}
 					{error ? null : thumbnailError ? null : isAudio ? null : (
@@ -164,7 +172,24 @@ export const Probe: React.FC<{
 						</CardDescription>
 					</CardHeader>
 				</div>
-				{sortedTracks.length && probeDetails ? (
+				{showPackets ? (
+					<div className="pr-6 border-b-2 border-black overflow-y-auto">
+						<Button variant="link" onClick={() => setShowPackets(false)}>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 448 512"
+								style={{height: 16}}
+							>
+								<path
+									fill="currentcolor"
+									d="M18.2 273l-17-17 17-17L171.8 85.4l17-17 33.9 33.9-17 17L93.1 232 424 232l24 0 0 48-24 0L93.1 280 205.8 392.6l17 17-33.9 33.9-17-17L18.2 273z"
+								/>
+							</svg>
+							<div className="w-2" />
+							Track {selectedTrack?.id} Packets
+						</Button>
+					</div>
+				) : sortedTracks.length && probeDetails ? (
 					<div className="pr-6 border-b-2 border-black overflow-y-auto">
 						<TrackSwitcher
 							selectedTrack={trackDetails}
@@ -193,9 +218,17 @@ export const Probe: React.FC<{
 									sampleRate={sampleRate}
 								/>
 							) : selectedTrack.isVideoTrack() ? (
-								<VideoTrackOverview track={selectedTrack} />
+								<VideoTrackOverview
+									track={selectedTrack}
+									showPackets={showPackets}
+									setShowPackets={setShowPackets}
+								/>
 							) : selectedTrack.isAudioTrack() ? (
-								<AudioTrackOverview track={selectedTrack} />
+								<AudioTrackOverview
+									showPackets={showPackets}
+									setShowPackets={setShowPackets}
+									track={selectedTrack}
+								/>
 							) : null}
 						</ScrollArea>
 						<Separator orientation="horizontal" />
