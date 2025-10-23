@@ -21,7 +21,6 @@ import {
 
 export const aiVideoSchema = z.object({
   projectName: z.string().min(1),
-  hasWatermark: z.boolean(),
 });
 
 export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({

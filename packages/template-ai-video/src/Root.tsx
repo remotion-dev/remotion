@@ -11,7 +11,6 @@ import { getTimelinePath, loadTimelineFromFile } from "./lib/utils";
 
 interface InputProps extends Record<string, unknown> {
   projectDir?: string;
-  hasWatermark?: boolean;
 }
 
 export const RemotionRoot: React.FC = () => {
@@ -51,7 +50,6 @@ export const RemotionRoot: React.FC = () => {
         schema={aiVideoSchema}
         defaultProps={{
           projectName: projectDir,
-          hasWatermark: !!inputProps.hasWatermark,
         }}
       />
     </>
