@@ -7,27 +7,14 @@ import type {
 	InputFormat,
 	InputTrack,
 	InputVideoTrack,
-	Rotation,
-} from 'mediabunny';
-import {
-	Conversion,
-	Output,
 	QUALITY_HIGH,
 	QUALITY_LOW,
-	QUALITY_MEDIUM,
 	QUALITY_VERY_HIGH,
 	QUALITY_VERY_LOW,
-	StreamTarget,
+	Rotation,
 } from 'mediabunny';
+import {Conversion, Output, QUALITY_MEDIUM, StreamTarget} from 'mediabunny';
 import React, {useCallback, useMemo, useState} from 'react';
-
-type QualityLevel =
-	| typeof QUALITY_VERY_LOW
-	| typeof QUALITY_LOW
-	| typeof QUALITY_MEDIUM
-	| typeof QUALITY_HIGH
-	| typeof QUALITY_VERY_HIGH
-	| null;
 import {applyCrop} from '~/lib/apply-crop';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {calculateNewDimensionsFromRotateAndScale} from '~/lib/calculate-new-dimensions-from-dimensions';
@@ -68,6 +55,14 @@ import {ResizeUi} from './ResizeUi';
 import {RotateComponents} from './RotateComponents';
 import {useSupportedConfigs} from './use-supported-configs';
 import type {VideoThumbnailRef} from './VideoThumbnail';
+
+type QualityLevel =
+	| typeof QUALITY_VERY_LOW
+	| typeof QUALITY_LOW
+	| typeof QUALITY_MEDIUM
+	| typeof QUALITY_HIGH
+	| typeof QUALITY_VERY_HIGH
+	| null;
 
 const ConvertUI = ({
 	currentAudioCodec,
@@ -158,8 +153,10 @@ const ConvertUI = ({
 	const [resampleRate, setResampleRate] = useState<number>(16000);
 
 	const [compressActive, setCompressActive] = useState(false);
-	const [videoQuality, setVideoQuality] = useState<QualityLevel>(QUALITY_MEDIUM);
-	const [audioQuality, setAudioQuality] = useState<QualityLevel>(QUALITY_MEDIUM);
+	const [videoQuality, setVideoQuality] =
+		useState<QualityLevel>(QUALITY_MEDIUM);
+	const [audioQuality, setAudioQuality] =
+		useState<QualityLevel>(QUALITY_MEDIUM);
 
 	const canResample = useMemo(() => {
 		return tracks?.find((t) => t.isAudioTrack());
@@ -189,6 +186,7 @@ const ConvertUI = ({
 		if (!hasVideo || !compressActive) {
 			return null;
 		}
+
 		return videoQuality;
 	}, [videoQuality, hasVideo, compressActive]);
 
@@ -196,6 +194,7 @@ const ConvertUI = ({
 		if (!hasAudio || !compressActive) {
 			return null;
 		}
+
 		return audioQuality;
 	}, [audioQuality, hasAudio, compressActive]);
 
@@ -360,7 +359,7 @@ const ConvertUI = ({
 								dimensionsAfterCrop ?? null,
 							),
 							codec: operation.videoCodec,
-							quality: actualVideoQuality ?? undefined,
+							bitrate: actualVideoQuality ?? undefined,
 						};
 					},
 					audio: (audioTrack) => {
@@ -396,7 +395,7 @@ const ConvertUI = ({
 
 								return sample;
 							},
-							quality: actualAudioQuality ?? undefined,
+							bitrate: actualAudioQuality ?? undefined,
 						};
 					},
 				});
