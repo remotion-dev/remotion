@@ -20,10 +20,11 @@ const LimitedWidthLabel: React.FC<{
 export const MetadataDisplay: React.FC<{
 	readonly metadata: MetadataTags;
 }> = ({metadata}) => {
+	console.log(Object.entries(metadata));
 	return (
 		<>
 			{Object.entries(metadata).map(([key, value]) => {
-				if (typeof value !== 'string' || typeof value !== 'number') {
+				if (typeof value !== 'string' && typeof value !== 'number') {
 					return null;
 				}
 
