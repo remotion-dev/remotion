@@ -9,9 +9,9 @@
 
 Using this template you can create high quality AI videos for TikTok or Instagram.
 
-It includes a simple CLI that will generate story script, images and voiceover with OpenAI and ElevenLabs (other AI providers can be easily added).
+It includes a simple CLI that will generate story script, images and voiceover using OpenAI and ElevenLabs (its pretty straightforward to add other providers as Vercel AI SDK is used under the hood).
 
-## Getting started
+## Getting started with demo video
 
 **Install Dependencies**
 
@@ -19,7 +19,7 @@ It includes a simple CLI that will generate story script, images and voiceover w
 bun install
 ```
 
-**Start Preview with demo video**
+**Start Preview**
 
 ```console
 bun dev
@@ -32,6 +32,7 @@ You can easily create your own videos using provided CLI.
 It will generate a script, images, voiceover and timeline based on your story title and topic. (topic can be e.g. history, eli5, fun facts, science, etc)
 
 **Configure environment variables**
+
 Create .env file with following env vars (you can also find them in .env.example):
 
 ```
