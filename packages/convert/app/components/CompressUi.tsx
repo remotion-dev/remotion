@@ -1,3 +1,10 @@
+import {
+	QUALITY_HIGH,
+	QUALITY_LOW,
+	QUALITY_MEDIUM,
+	QUALITY_VERY_HIGH,
+	QUALITY_VERY_LOW,
+} from 'mediabunny';
 import React from 'react';
 import {Label} from './ui/label';
 import {
@@ -8,84 +15,97 @@ import {
 	SelectValue,
 } from './ui/select';
 
-const formatBitrate = (bitrate: number): string => {
-	if (bitrate >= 1000000) {
-		return `${(bitrate / 1000000).toFixed(1)} Mbps`;
-	}
-	return `${(bitrate / 1000).toFixed(0)} Kbps`;
-};
+type QualityLevel =
+	| typeof QUALITY_VERY_LOW
+	| typeof QUALITY_LOW
+	| typeof QUALITY_MEDIUM
+	| typeof QUALITY_HIGH
+	| typeof QUALITY_VERY_HIGH
+	| null;
 
 export const CompressUi: React.FC<{
-	videoBitrate: number | null;
-	setVideoBitrate: (bitrate: number | null) => void;
-	audioBitrate: number | null;
-	setAudioBitrate: (bitrate: number | null) => void;
+	videoQuality: QualityLevel;
+	setVideoQuality: (quality: QualityLevel) => void;
+	audioQuality: QualityLevel;
+	setAudioQuality: (quality: QualityLevel) => void;
 	hasVideo: boolean;
 	hasAudio: boolean;
 }> = ({
-	videoBitrate,
-	setVideoBitrate,
-	audioBitrate,
-	setAudioBitrate,
+	videoQuality,
+	setVideoQuality,
+	audioQuality,
+	setAudioQuality,
 	hasVideo,
 	hasAudio,
 }) => {
+	const getQualityValue = (quality: QualityLevel): string => {
+		if (quality === null) return 'none';
+		if (quality === QUALITY_VERY_LOW) return 'very-low';
+		if (quality === QUALITY_LOW) return 'low';
+		if (quality === QUALITY_MEDIUM) return 'medium';
+		if (quality === QUALITY_HIGH) return 'high';
+		if (quality === QUALITY_VERY_HIGH) return 'very-high';
+		return 'none';
+	};
+
+	const setQualityFromValue = (value: string): QualityLevel => {
+		if (value === 'very-low') return QUALITY_VERY_LOW;
+		if (value === 'low') return QUALITY_LOW;
+		if (value === 'medium') return QUALITY_MEDIUM;
+		if (value === 'high') return QUALITY_HIGH;
+		if (value === 'very-high') return QUALITY_VERY_HIGH;
+		return null;
+	};
+
 	return (
 		<div>
 			<div className="h-4" />
 			{hasVideo ? (
 				<>
-					<Label htmlFor="video-bitrate">Video bitrate</Label>
+					<Label htmlFor="video-quality">Video quality</Label>
 					<Select
-						value={String(videoBitrate ?? 'none')}
-						onValueChange={(val) =>
-							setVideoBitrate(val === 'none' ? null : Number(val))
-						}
+						value={getQualityValue(videoQuality)}
+						onValueChange={(val) => setVideoQuality(setQualityFromValue(val))}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder="Select video bitrate" />
+							<SelectValue placeholder="Select video quality" />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="none">No compression</SelectItem>
-							<SelectItem value="500000">{formatBitrate(500000)}</SelectItem>
-							<SelectItem value="1000000">{formatBitrate(1000000)}</SelectItem>
-							<SelectItem value="2000000">{formatBitrate(2000000)}</SelectItem>
-							<SelectItem value="3000000">{formatBitrate(3000000)}</SelectItem>
-							<SelectItem value="5000000">{formatBitrate(5000000)}</SelectItem>
-							<SelectItem value="8000000">{formatBitrate(8000000)}</SelectItem>
-							<SelectItem value="10000000">{formatBitrate(10000000)}</SelectItem>
+							<SelectItem value="very-low">Very Low</SelectItem>
+							<SelectItem value="low">Low</SelectItem>
+							<SelectItem value="medium">Medium</SelectItem>
+							<SelectItem value="high">High</SelectItem>
+							<SelectItem value="very-high">Very High</SelectItem>
 						</SelectContent>
 					</Select>
 					<div className="text-sm mt-2 text-muted-foreground">
-						Lower bitrate reduces file size but may affect quality.
+						Lower quality reduces file size but may affect visual quality.
 					</div>
 				</>
 			) : null}
 			{hasVideo && hasAudio ? <div className="h-4" /> : null}
 			{hasAudio ? (
 				<>
-					<Label htmlFor="audio-bitrate">Audio bitrate</Label>
+					<Label htmlFor="audio-quality">Audio quality</Label>
 					<Select
-						value={String(audioBitrate ?? 'none')}
-						onValueChange={(val) =>
-							setAudioBitrate(val === 'none' ? null : Number(val))
-						}
+						value={getQualityValue(audioQuality)}
+						onValueChange={(val) => setAudioQuality(setQualityFromValue(val))}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder="Select audio bitrate" />
+							<SelectValue placeholder="Select audio quality" />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="none">No compression</SelectItem>
-							<SelectItem value="64000">{formatBitrate(64000)}</SelectItem>
-							<SelectItem value="96000">{formatBitrate(96000)}</SelectItem>
-							<SelectItem value="128000">{formatBitrate(128000)}</SelectItem>
-							<SelectItem value="192000">{formatBitrate(192000)}</SelectItem>
-							<SelectItem value="256000">{formatBitrate(256000)}</SelectItem>
-							<SelectItem value="320000">{formatBitrate(320000)}</SelectItem>
+							<SelectItem value="very-low">Very Low</SelectItem>
+							<SelectItem value="low">Low</SelectItem>
+							<SelectItem value="medium">Medium</SelectItem>
+							<SelectItem value="high">High</SelectItem>
+							<SelectItem value="very-high">Very High</SelectItem>
 						</SelectContent>
 					</Select>
 					<div className="text-sm mt-2 text-muted-foreground">
-						Lower bitrate reduces file size but may affect audio quality.
+						Lower quality reduces file size but may affect audio quality.
 					</div>
 				</>
 			) : null}

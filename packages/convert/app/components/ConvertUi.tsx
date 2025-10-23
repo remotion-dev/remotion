@@ -9,8 +9,25 @@ import type {
 	InputVideoTrack,
 	Rotation,
 } from 'mediabunny';
-import {Conversion, Output, StreamTarget} from 'mediabunny';
+import {
+	Conversion,
+	Output,
+	QUALITY_HIGH,
+	QUALITY_LOW,
+	QUALITY_MEDIUM,
+	QUALITY_VERY_HIGH,
+	QUALITY_VERY_LOW,
+	StreamTarget,
+} from 'mediabunny';
 import React, {useCallback, useMemo, useState} from 'react';
+
+type QualityLevel =
+	| typeof QUALITY_VERY_LOW
+	| typeof QUALITY_LOW
+	| typeof QUALITY_MEDIUM
+	| typeof QUALITY_HIGH
+	| typeof QUALITY_VERY_HIGH
+	| null;
 import {applyCrop} from '~/lib/apply-crop';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {calculateNewDimensionsFromRotateAndScale} from '~/lib/calculate-new-dimensions-from-dimensions';
@@ -141,8 +158,8 @@ const ConvertUI = ({
 	const [resampleRate, setResampleRate] = useState<number>(16000);
 
 	const [compressActive, setCompressActive] = useState(false);
-	const [videoBitrate, setVideoBitrate] = useState<number | null>(2000000);
-	const [audioBitrate, setAudioBitrate] = useState<number | null>(128000);
+	const [videoQuality, setVideoQuality] = useState<QualityLevel>(QUALITY_MEDIUM);
+	const [audioQuality, setAudioQuality] = useState<QualityLevel>(QUALITY_MEDIUM);
 
 	const canResample = useMemo(() => {
 		return tracks?.find((t) => t.isAudioTrack());
@@ -168,19 +185,19 @@ const ConvertUI = ({
 		return (tracks?.filter((t) => t.isAudioTrack()).length ?? 0) > 0;
 	}, [tracks]);
 
-	const actualVideoBitrate = useMemo(() => {
+	const actualVideoQuality = useMemo(() => {
 		if (!hasVideo || !compressActive) {
 			return null;
 		}
-		return videoBitrate;
-	}, [videoBitrate, hasVideo, compressActive]);
+		return videoQuality;
+	}, [videoQuality, hasVideo, compressActive]);
 
-	const actualAudioBitrate = useMemo(() => {
+	const actualAudioQuality = useMemo(() => {
 		if (!hasAudio || !compressActive) {
 			return null;
 		}
-		return audioBitrate;
-	}, [audioBitrate, hasAudio, compressActive]);
+		return audioQuality;
+	}, [audioQuality, hasAudio, compressActive]);
 
 	const supportedConfigs = useSupportedConfigs({
 		outputContainer,
@@ -343,7 +360,7 @@ const ConvertUI = ({
 								dimensionsAfterCrop ?? null,
 							),
 							codec: operation.videoCodec,
-							bitrate: actualVideoBitrate ?? undefined,
+							quality: actualVideoQuality ?? undefined,
 						};
 					},
 					audio: (audioTrack) => {
@@ -379,7 +396,7 @@ const ConvertUI = ({
 
 								return sample;
 							},
-							bitrate: actualAudioBitrate ?? undefined,
+							quality: actualAudioQuality ?? undefined,
 						};
 					},
 				});
@@ -458,8 +475,8 @@ const ConvertUI = ({
 		videoOperationSelection,
 		crop,
 		cropRect,
-		actualVideoBitrate,
-		actualAudioBitrate,
+		actualVideoQuality,
+		actualAudioQuality,
 	]);
 
 	const dimissError = useCallback(() => {
@@ -803,10 +820,10 @@ const ConvertUI = ({
 								</ConvertUiSection>
 								{compressActive ? (
 									<CompressUi
-										videoBitrate={videoBitrate}
-										setVideoBitrate={setVideoBitrate}
-										audioBitrate={audioBitrate}
-										setAudioBitrate={setAudioBitrate}
+										videoQuality={videoQuality}
+										setVideoQuality={setVideoQuality}
+										audioQuality={audioQuality}
+										setAudioQuality={setAudioQuality}
 										hasVideo={hasVideo}
 										hasAudio={hasAudio}
 									/>
