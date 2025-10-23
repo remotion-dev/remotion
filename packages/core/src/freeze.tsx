@@ -85,12 +85,16 @@ export const Freeze: React.FC<FreezeProps> = ({
 			return null;
 		}
 
+		if (!isActive) {
+			return sequenceContext;
+		}
+
 		return {
 			...sequenceContext,
 			relativeFrom: 0,
 			cumulatedFrom: 0,
 		};
-	}, [sequenceContext]);
+	}, [sequenceContext, isActive]);
 
 	return (
 		<TimelineContext.Provider value={timelineValue}>
