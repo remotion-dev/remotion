@@ -132,6 +132,16 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		trimBefore,
 	});
 
+	const buffering = useContext(Internals.BufferingContextReact);
+
+	if (!buffering) {
+		throw new Error(
+			'useMediaPlayback must be used inside a <BufferingContext>',
+		);
+	}
+
+	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
+
 	useEffect(() => {
 		if (!sharedAudioContext) return;
 		if (!sharedAudioContext.audioContext) return;
@@ -279,18 +289,12 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		const audioPlayer = mediaPlayerRef.current;
 		if (!audioPlayer) return;
 
-		if (playing) {
-			audioPlayer.play().catch((error) => {
-				Internals.Log.error(
-					{logLevel, tag: '@remotion/media'},
-					'[NewAudioForPreview] Failed to play',
-					error,
-				);
-			});
+		if (playing && !isPlayerBuffering) {
+			audioPlayer.play(currentTimeRef.current);
 		} else {
 			audioPlayer.pause();
 		}
-	}, [playing, logLevel, mediaPlayerReady]);
+	}, [isPlayerBuffering, logLevel, playing]);
 
 	useEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;
@@ -302,28 +306,6 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 			`[NewAudioForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
 		);
 	}, [currentTime, logLevel, mediaPlayerReady]);
-
-	useEffect(() => {
-		const audioPlayer = mediaPlayerRef.current;
-		if (!audioPlayer || !mediaPlayerReady) return;
-
-		audioPlayer.onBufferingChange((newBufferingState) => {
-			if (newBufferingState && !delayHandleRef.current) {
-				delayHandleRef.current = buffer.delayPlayback();
-				Internals.Log.trace(
-					{logLevel, tag: '@remotion/media'},
-					'[NewAudioForPreview] MediaPlayer buffering - blocking Remotion playback',
-				);
-			} else if (!newBufferingState && delayHandleRef.current) {
-				delayHandleRef.current.unblock();
-				delayHandleRef.current = null;
-				Internals.Log.trace(
-					{logLevel, tag: '@remotion/media'},
-					'[NewAudioForPreview] MediaPlayer unbuffering - unblocking Remotion playback',
-				);
-			}
-		});
-	}, [mediaPlayerReady, buffer, logLevel]);
 
 	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
 

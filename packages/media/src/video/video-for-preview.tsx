@@ -143,6 +143,15 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 	currentTimeRef.current = currentTime;
 
 	const preloadedSrc = usePreload(src);
+	const buffering = useContext(Internals.BufferingContextReact);
+
+	if (!buffering) {
+		throw new Error(
+			'useMediaPlayback must be used inside a <BufferingContext>',
+		);
+	}
+
+	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
 
 	useEffect(() => {
 		if (!canvasRef.current) return;
@@ -293,18 +302,12 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer) return;
 
-		if (playing) {
-			mediaPlayer.play().catch((error) => {
-				Internals.Log.error(
-					{logLevel, tag: '@remotion/media'},
-					'[VideoForPreview] Failed to play',
-					error,
-				);
-			});
+		if (playing && !isPlayerBuffering) {
+			mediaPlayer.play(currentTimeRef.current);
 		} else {
 			mediaPlayer.pause();
 		}
-	}, [playing, logLevel, mediaPlayerReady]);
+	}, [isPlayerBuffering, playing, logLevel, mediaPlayerReady]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -316,40 +319,6 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 			`[VideoForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
 		);
 	}, [currentTime, logLevel, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) return;
-
-		let currentBlock: {unblock: () => void} | null = null;
-
-		const unsubscribe = mediaPlayer.onBufferingChange((newBufferingState) => {
-			if (newBufferingState && !currentBlock) {
-				currentBlock = buffer.delayPlayback();
-
-				Internals.Log.trace(
-					{logLevel, tag: '@remotion/media'},
-					'[VideoForPreview] MediaPlayer buffering - blocking Remotion playback',
-				);
-			} else if (!newBufferingState && currentBlock) {
-				currentBlock.unblock();
-				currentBlock = null;
-
-				Internals.Log.trace(
-					{logLevel, tag: '@remotion/media'},
-					'[VideoForPreview] MediaPlayer unbuffering - unblocking Remotion playback',
-				);
-			}
-		});
-
-		return () => {
-			unsubscribe();
-			if (currentBlock) {
-				currentBlock.unblock();
-				currentBlock = null;
-			}
-		};
-	}, [mediaPlayerReady, buffer, logLevel]);
 
 	const effectiveMuted =
 		isSequenceHidden || muted || mediaMuted || userPreferredVolume <= 0;
