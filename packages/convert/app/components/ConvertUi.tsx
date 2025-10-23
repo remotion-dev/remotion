@@ -37,6 +37,7 @@ import type {ConvertProgressType} from '~/lib/progress';
 import {makeWaveformVisualizer} from '~/lib/waveform-visualizer';
 import {makeWebFsTarget} from '~/lib/web-fs-target';
 import type {OutputContainer, RouteAction} from '~/seo';
+import {CompressUi} from './CompressUi';
 import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
@@ -139,6 +140,10 @@ const ConvertUI = ({
 		useState(false);
 	const [resampleRate, setResampleRate] = useState<number>(16000);
 
+	const [compressActive, setCompressActive] = useState(false);
+	const [videoBitrate, setVideoBitrate] = useState<number | null>(2000000);
+	const [audioBitrate, setAudioBitrate] = useState<number | null>(128000);
+
 	const canResample = useMemo(() => {
 		return tracks?.find((t) => t.isAudioTrack());
 	}, [tracks]);
@@ -154,6 +159,28 @@ const ConvertUI = ({
 
 		return resampleRate;
 	}, [resampleRate, canResample, resampleUserPreferenceActive]);
+
+	const hasVideo = useMemo(() => {
+		return (tracks?.filter((t) => t.isVideoTrack()).length ?? 0) > 0;
+	}, [tracks]);
+
+	const hasAudio = useMemo(() => {
+		return (tracks?.filter((t) => t.isAudioTrack()).length ?? 0) > 0;
+	}, [tracks]);
+
+	const actualVideoBitrate = useMemo(() => {
+		if (!hasVideo || !compressActive) {
+			return null;
+		}
+		return videoBitrate;
+	}, [videoBitrate, hasVideo, compressActive]);
+
+	const actualAudioBitrate = useMemo(() => {
+		if (!hasAudio || !compressActive) {
+			return null;
+		}
+		return audioBitrate;
+	}, [audioBitrate, hasAudio, compressActive]);
 
 	const supportedConfigs = useSupportedConfigs({
 		outputContainer,
@@ -316,6 +343,7 @@ const ConvertUI = ({
 								dimensionsAfterCrop ?? null,
 							),
 							codec: operation.videoCodec,
+							bitrate: actualVideoBitrate ?? undefined,
 						};
 					},
 					audio: (audioTrack) => {
@@ -351,6 +379,7 @@ const ConvertUI = ({
 
 								return sample;
 							},
+							bitrate: actualAudioBitrate ?? undefined,
 						};
 					},
 				});
@@ -429,6 +458,8 @@ const ConvertUI = ({
 		videoOperationSelection,
 		crop,
 		cropRect,
+		actualVideoBitrate,
+		actualAudioBitrate,
 	]);
 
 	const dimissError = useCallback(() => {
@@ -756,6 +787,29 @@ const ConvertUI = ({
 											dimensionsBeforeCrop={dimensions}
 										/>
 									</>
+								) : null}
+							</div>
+						);
+					}
+
+					if (section === 'compress') {
+						return (
+							<div key="compress">
+								<ConvertUiSection
+									active={compressActive}
+									setActive={setCompressActive}
+								>
+									Compress
+								</ConvertUiSection>
+								{compressActive ? (
+									<CompressUi
+										videoBitrate={videoBitrate}
+										setVideoBitrate={setVideoBitrate}
+										audioBitrate={audioBitrate}
+										setAudioBitrate={setAudioBitrate}
+										hasVideo={hasVideo}
+										hasAudio={hasAudio}
+									/>
 								) : null}
 							</div>
 						);
