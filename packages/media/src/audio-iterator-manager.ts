@@ -113,7 +113,7 @@ export const audioIteratorManager = ({
 		audioBufferIterator.addQueuedAudioNode(node, mediaTimestamp, buffer);
 		node.onended = () => {
 			if (!audioBufferIterator) {
-				throw new Error('Audio buffer iterator not found');
+				return;
 			}
 
 			return audioBufferIterator.removeQueuedAudioNode(node);

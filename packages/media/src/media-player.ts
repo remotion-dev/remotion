@@ -211,7 +211,6 @@ export class MediaPlayer {
 			});
 
 			if (startTime === null) {
-				this.clearCanvas();
 				return {type: 'success', durationInSeconds: this.totalDuration};
 			}
 
@@ -276,12 +275,6 @@ export class MediaPlayer {
 		}
 	}
 
-	private clearCanvas(): void {
-		if (this.context && this.canvas) {
-			this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		}
-	}
-
 	private currentSeekNonce = 0;
 	private seekPromiseChain: Promise<void> = Promise.resolve();
 
@@ -317,9 +310,7 @@ export class MediaPlayer {
 		if (newTime === null) {
 			// invalidate in-flight video operations
 			this.videoIteratorManager?.destroy();
-
-			this.clearCanvas();
-			this.audioIteratorManager?.getAudioBufferIterator()?.destroy();
+			this.audioIteratorManager?.destroy();
 
 			return;
 		}

@@ -117,6 +117,7 @@ export const videoIteratorManager = ({
 		seek,
 		destroy: () => {
 			videoFrameIterator?.destroy();
+			context.clearRect(0, 0, canvas.width, canvas.height);
 			videoFrameIterator = null;
 		},
 		getVideoFrameIterator: () => videoFrameIterator,
