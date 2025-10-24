@@ -16,6 +16,10 @@ export const makeAudioIterator = (
 	let destroyed = false;
 	const iterator = audioSink.buffers(startFromSecond);
 	const queuedAudioNodes: QueuedNode[] = [];
+	const audioChunksForAfterResuming: {
+		buffer: AudioBuffer;
+		timestamp: number;
+	}[] = [];
 
 	const cleanupAudioQueue = () => {
 		for (const node of queuedAudioNodes) {
@@ -163,11 +167,37 @@ export const makeAudioIterator = (
 		}
 	};
 
+	const removeAndReturnAllQueuedAudioNodes = () => {
+		const nodes = queuedAudioNodes.slice();
+		for (const node of nodes) {
+			node.node.stop();
+		}
+
+		queuedAudioNodes.length = 0;
+		return nodes;
+	};
+
+	const addChunkForAfterResuming = (buffer: AudioBuffer, timestamp: number) => {
+		audioChunksForAfterResuming.push({buffer, timestamp});
+	};
+
+	const pause = () => {
+		const toQueue = removeAndReturnAllQueuedAudioNodes();
+		for (const chunk of toQueue) {
+			addChunkForAfterResuming(chunk.buffer, chunk.timestamp);
+		}
+	};
+
+	const getNumberOfChunksAfterResuming = () => {
+		return audioChunksForAfterResuming.length;
+	};
+
 	return {
 		destroy: () => {
 			cleanupAudioQueue();
 			destroyed = true;
 			iterator.return().catch(() => undefined);
+			audioChunksForAfterResuming.length = 0;
 		},
 		getNext: () => {
 			return iterator.next();
@@ -188,14 +218,10 @@ export const makeAudioIterator = (
 				queuedAudioNodes.splice(index, 1);
 			}
 		},
-		removeAndReturnAllQueuedAudioNodes: () => {
-			const nodes = queuedAudioNodes.slice();
-			for (const node of nodes) {
-				node.node.stop();
-			}
-
-			queuedAudioNodes.length = 0;
-			return nodes;
+		getAndClearAudioChunksForAfterResuming: () => {
+			const chunks = audioChunksForAfterResuming.slice();
+			audioChunksForAfterResuming.length = 0;
+			return chunks;
 		},
 		getQueuedPeriod: () => {
 			const lastNode = queuedAudioNodes[queuedAudioNodes.length - 1];
@@ -214,6 +240,9 @@ export const makeAudioIterator = (
 			};
 		},
 		tryToSatisfySeek,
+		addChunkForAfterResuming,
+		pause,
+		getNumberOfChunksAfterResuming,
 	};
 };
 

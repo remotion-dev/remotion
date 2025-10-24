@@ -20,10 +20,6 @@ export const audioIteratorManager = ({
 	let muted = false;
 	let currentVolume = 1;
 
-	let audioChunksForAfterResuming: {
-		buffer: AudioBuffer;
-		timestamp: number;
-	}[] = [];
 	const gainNode = sharedAudioContext.createGain();
 	gainNode.connect(sharedAudioContext.destination);
 
@@ -33,7 +29,6 @@ export const audioIteratorManager = ({
 
 	const startAudioIterator = async (startFromSecond: number, nonce: Nonce) => {
 		audioBufferIterator?.destroy();
-		audioChunksForAfterResuming = [];
 		const delayHandle = bufferState.delayPlayback();
 
 		const iterator = makeAudioIterator(audioSink, startFromSecond);
@@ -62,10 +57,7 @@ export const audioIteratorManager = ({
 
 			const {buffer, timestamp} = result.value;
 
-			audioChunksForAfterResuming.push({
-				buffer,
-				timestamp,
-			});
+			iterator.addChunkForAfterResuming(buffer, timestamp);
 		}
 
 		delayHandle.unblock();
@@ -122,13 +114,7 @@ export const audioIteratorManager = ({
 			return;
 		}
 
-		const toQueue = audioBufferIterator.removeAndReturnAllQueuedAudioNodes();
-		for (const chunk of toQueue) {
-			audioChunksForAfterResuming.push({
-				buffer: chunk.buffer,
-				timestamp: chunk.timestamp,
-			});
-		}
+		audioBufferIterator.pause();
 	};
 
 	const seek = async ({
@@ -197,7 +183,6 @@ export const audioIteratorManager = ({
 
 			if (audioSatisfyResult.type === 'not-satisfied') {
 				await startAudioIterator(nextTime, nonce);
-
 				return;
 			}
 
@@ -215,10 +200,10 @@ export const audioIteratorManager = ({
 					audioSyncAnchor,
 				});
 			} else {
-				audioChunksForAfterResuming.push({
-					buffer: buffer.buffer,
-					timestamp: buffer.timestamp,
-				});
+				audioBufferIterator.addChunkForAfterResuming(
+					buffer.buffer,
+					buffer.timestamp,
+				);
 			}
 		}
 	};
@@ -234,7 +219,11 @@ export const audioIteratorManager = ({
 		playbackRate: number;
 		audioSyncAnchor: number;
 	}) => {
-		for (const chunk of audioChunksForAfterResuming) {
+		if (!audioBufferIterator) {
+			return;
+		}
+
+		for (const chunk of audioBufferIterator.getAndClearAudioChunksForAfterResuming()) {
 			scheduleAudioChunk({
 				buffer: chunk.buffer,
 				mediaTimestamp: chunk.timestamp,
@@ -244,8 +233,6 @@ export const audioIteratorManager = ({
 				audioSyncAnchor,
 			});
 		}
-
-		audioChunksForAfterResuming = [];
 	};
 
 	return {
@@ -253,11 +240,9 @@ export const audioIteratorManager = ({
 		resumeScheduledAudioChunks: resumePlayback,
 		pausePlayback,
 		getAudioBufferIterator: () => audioBufferIterator,
-		getNumberOfChunksAfterResuming: () => audioChunksForAfterResuming.length,
 		destroy: () => {
 			audioBufferIterator?.destroy();
 			audioBufferIterator = null;
-			audioChunksForAfterResuming = [];
 		},
 		seek,
 		getAudioIteratorsCreated: () => audioIteratorsCreated,
