@@ -126,7 +126,8 @@ export type ConvertSections =
 	| 'mirror'
 	| 'resize'
 	| 'crop'
-	| 'resample';
+	| 'resample'
+	| 'compress';
 
 export const getOrderOfSections = (
 	action: RouteAction,
@@ -139,6 +140,7 @@ export const getOrderOfSections = (
 			mirror: 3,
 			convert: 4,
 			resample: 5,
+			compress: 6,
 		};
 	}
 
@@ -150,6 +152,7 @@ export const getOrderOfSections = (
 			mirror: 3,
 			convert: 4,
 			resample: 5,
+			compress: 6,
 		};
 	}
 
@@ -161,6 +164,7 @@ export const getOrderOfSections = (
 			rotate: 3,
 			mirror: 4,
 			resample: 5,
+			compress: 6,
 		};
 	}
 
@@ -172,6 +176,7 @@ export const getOrderOfSections = (
 			rotate: 3,
 			mirror: 4,
 			resample: 5,
+			compress: 6,
 		};
 	}
 
@@ -183,6 +188,7 @@ export const getOrderOfSections = (
 			rotate: 3,
 			convert: 4,
 			resample: 5,
+			compress: 6,
 		};
 	}
 
@@ -199,6 +205,7 @@ export const getOrderOfSections = (
 			mirror: 3,
 			convert: 4,
 			resample: 5,
+			compress: 6,
 		};
 	}
 

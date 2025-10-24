@@ -7,9 +7,13 @@ import type {
 	InputFormat,
 	InputTrack,
 	InputVideoTrack,
+	QUALITY_HIGH,
+	QUALITY_LOW,
+	QUALITY_VERY_HIGH,
+	QUALITY_VERY_LOW,
 	Rotation,
 } from 'mediabunny';
-import {Conversion, Output, StreamTarget} from 'mediabunny';
+import {Conversion, Output, QUALITY_MEDIUM, StreamTarget} from 'mediabunny';
 import React, {useCallback, useMemo, useState} from 'react';
 import {applyCrop} from '~/lib/apply-crop';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
@@ -37,6 +41,7 @@ import type {ConvertProgressType} from '~/lib/progress';
 import {makeWaveformVisualizer} from '~/lib/waveform-visualizer';
 import {makeWebFsTarget} from '~/lib/web-fs-target';
 import type {OutputContainer, RouteAction} from '~/seo';
+import {CompressUi} from './CompressUi';
 import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
@@ -50,6 +55,14 @@ import {ResizeUi} from './ResizeUi';
 import {RotateComponents} from './RotateComponents';
 import {useSupportedConfigs} from './use-supported-configs';
 import type {VideoThumbnailRef} from './VideoThumbnail';
+
+type QualityLevel =
+	| typeof QUALITY_VERY_LOW
+	| typeof QUALITY_LOW
+	| typeof QUALITY_MEDIUM
+	| typeof QUALITY_HIGH
+	| typeof QUALITY_VERY_HIGH
+	| null;
 
 const ConvertUI = ({
 	currentAudioCodec,
@@ -139,6 +152,12 @@ const ConvertUI = ({
 		useState(false);
 	const [resampleRate, setResampleRate] = useState<number>(16000);
 
+	const [compressActive, setCompressActive] = useState(false);
+	const [videoQuality, setVideoQuality] =
+		useState<QualityLevel>(QUALITY_MEDIUM);
+	const [audioQuality, setAudioQuality] =
+		useState<QualityLevel>(QUALITY_MEDIUM);
+
 	const canResample = useMemo(() => {
 		return tracks?.find((t) => t.isAudioTrack());
 	}, [tracks]);
@@ -154,6 +173,30 @@ const ConvertUI = ({
 
 		return resampleRate;
 	}, [resampleRate, canResample, resampleUserPreferenceActive]);
+
+	const hasVideo = useMemo(() => {
+		return (tracks?.filter((t) => t.isVideoTrack()).length ?? 0) > 0;
+	}, [tracks]);
+
+	const hasAudio = useMemo(() => {
+		return (tracks?.filter((t) => t.isAudioTrack()).length ?? 0) > 0;
+	}, [tracks]);
+
+	const actualVideoQuality = useMemo(() => {
+		if (!hasVideo || !compressActive) {
+			return null;
+		}
+
+		return videoQuality;
+	}, [videoQuality, hasVideo, compressActive]);
+
+	const actualAudioQuality = useMemo(() => {
+		if (!hasAudio || !compressActive) {
+			return null;
+		}
+
+		return audioQuality;
+	}, [audioQuality, hasAudio, compressActive]);
 
 	const supportedConfigs = useSupportedConfigs({
 		outputContainer,
@@ -316,6 +359,7 @@ const ConvertUI = ({
 								dimensionsAfterCrop ?? null,
 							),
 							codec: operation.videoCodec,
+							bitrate: actualVideoQuality ?? undefined,
 						};
 					},
 					audio: (audioTrack) => {
@@ -351,6 +395,7 @@ const ConvertUI = ({
 
 								return sample;
 							},
+							bitrate: actualAudioQuality ?? undefined,
 						};
 					},
 				});
@@ -429,6 +474,8 @@ const ConvertUI = ({
 		videoOperationSelection,
 		crop,
 		cropRect,
+		actualVideoQuality,
+		actualAudioQuality,
 	]);
 
 	const dimissError = useCallback(() => {
@@ -756,6 +803,29 @@ const ConvertUI = ({
 											dimensionsBeforeCrop={dimensions}
 										/>
 									</>
+								) : null}
+							</div>
+						);
+					}
+
+					if (section === 'compress') {
+						return (
+							<div key="compress">
+								<ConvertUiSection
+									active={compressActive}
+									setActive={setCompressActive}
+								>
+									Compress
+								</ConvertUiSection>
+								{compressActive ? (
+									<CompressUi
+										videoQuality={videoQuality}
+										setVideoQuality={setVideoQuality}
+										audioQuality={audioQuality}
+										setAudioQuality={setAudioQuality}
+										hasVideo={hasVideo}
+										hasAudio={hasAudio}
+									/>
 								) : null}
 							</div>
 						);
