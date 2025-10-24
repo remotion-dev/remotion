@@ -64,6 +64,16 @@ Text and audio are self explanatory. The only special thing about them is that t
 
 You can customize the generation of the timeline in **createTimeLineFromStoryWithDetails()** function.
 
+## Deploying on a remove server
+
+Current project nees light modification if you want to deploy it as a remote service.
+
+Remotion renderer with template bundle shuold be deployed as per usual.
+
+Then you have to update Root.tsx to use timeline url that you will pass as a prop (instead of project name).
+
+The last thing - you have to upload generated resources (images and audio) to server and use urls to them instead of file names when generating a timeline.
+
 ## Help
 
 We provide help on our [Discord server](https://discord.gg/6VzzNDwUwV).
