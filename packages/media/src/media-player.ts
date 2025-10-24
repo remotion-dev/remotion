@@ -31,8 +31,12 @@ export type MediaPlayerInitResult =
 	| {type: 'disposed'};
 
 export class MediaPlayer {
-	private canvas: HTMLCanvasElement | null;
-	private context: CanvasRenderingContext2D | null;
+	private canvas: HTMLCanvasElement | OffscreenCanvas | null;
+	private context:
+		| OffscreenCanvasRenderingContext2D
+		| CanvasRenderingContext2D
+		| null;
+
 	private src: string;
 	private logLevel: LogLevel;
 	private playbackRate: number;
@@ -40,7 +44,7 @@ export class MediaPlayer {
 
 	private canvasSink: CanvasSink | null = null;
 	private videoFrameIterator: VideoIterator | null = null;
-	private debugStats: DebugStats = {
+	debugStats: DebugStats = {
 		videoIteratorsCreated: 0,
 		audioIteratorsCreated: 0,
 		framesRendered: 0,
@@ -91,7 +95,7 @@ export class MediaPlayer {
 		debugOverlay,
 		bufferState,
 	}: {
-		canvas: HTMLCanvasElement | null;
+		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
 		logLevel: LogLevel;
 		sharedAudioContext: AudioContext;
@@ -121,7 +125,7 @@ export class MediaPlayer {
 			const context = canvas.getContext('2d', {
 				alpha: true,
 				desynchronized: true,
-			});
+			}) as OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
 
 			if (!context) {
 				throw new Error('Could not get 2D context from canvas');

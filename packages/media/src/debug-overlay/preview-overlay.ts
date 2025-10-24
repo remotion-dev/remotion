@@ -16,7 +16,7 @@ export const drawPreviewOverlay = ({
 	audioChunksForAfterResuming,
 	playing,
 }: {
-	context: CanvasRenderingContext2D;
+	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
 	stats: DebugStats;
 	audioTime: number;
 	audioContextState: AudioContextState;
