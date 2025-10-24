@@ -304,7 +304,7 @@ export class MediaPlayer {
 		const nonce = this.nonceManager.createAsyncOperation();
 		await this.seekPromiseChain;
 
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(time, nonce);
+		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
 		await this.seekPromiseChain;
 	}
 

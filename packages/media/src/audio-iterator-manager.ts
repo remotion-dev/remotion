@@ -41,16 +41,16 @@ export const audioIteratorManager = ({
 			mediaTimestamp: number,
 		) => void;
 	}) => {
+		if (!audioBufferIterator) {
+			throw new Error('Audio buffer iterator not found');
+		}
+
 		const node = sharedAudioContext.createBufferSource();
 		node.buffer = buffer;
 		node.playbackRate.value = playbackRate;
 		node.connect(gainNode);
 
 		scheduleAudioNode(node, mediaTimestamp);
-
-		if (!audioBufferIterator) {
-			throw new Error('Audio buffer iterator not found');
-		}
 
 		const iterator = audioBufferIterator;
 
