@@ -18,19 +18,19 @@
     "@remotion/renderer": "workspace:*",
     "@remotion/zod-types": "workspace:*",
     "express": "5.1.0",
-    "react": "catalog:",
-    "react-dom": "catalog:",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "remotion": "workspace:*",
-    "zod": "catalog:"
+    "zod": "3.22.3"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
     "@remotion/eslint-plugin": "workspace:*",
     "@types/express": "5.0.1",
-    "@types/react": "catalog:",
-    "@types/web": "catalog:",
-    "eslint": "catalog:",
-    "prettier": "catalog:",
+    "@types/react": "19.0.0",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.6.0",
     "tsx": "4.19.3",
     "typescript": "5.8.2"
   },
