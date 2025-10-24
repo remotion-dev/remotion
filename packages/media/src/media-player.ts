@@ -395,10 +395,12 @@ export class MediaPlayer {
 		}
 
 		iterator.moveQueuedChunksToPauseQueue();
-		this.audioIteratorManager.resumeScheduledAudioChunks({
-			playbackRate: rate,
-			scheduleAudioNode: this.scheduleAudioNode,
-		});
+		if (this.playing) {
+			this.audioIteratorManager.resumeScheduledAudioChunks({
+				playbackRate: rate,
+				scheduleAudioNode: this.scheduleAudioNode,
+			});
+		}
 	}
 
 	public setFps(fps: number): void {
