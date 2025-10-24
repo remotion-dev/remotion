@@ -236,7 +236,13 @@ export class MediaPlayer {
 			try {
 				// intentionally not awaited
 				if (this.audioIteratorManager) {
-					this.audioIteratorManager.startAudioIterator(startTime, nonce);
+					this.audioIteratorManager.startAudioIterator({
+						nonce,
+						playbackRate: this.playbackRate,
+						startFromSecond: startTime,
+						getIsPlaying: () => this.playing,
+						scheduleAudioNode: this.scheduleAudioNode,
+					});
 				}
 
 				await this.videoIteratorManager?.startVideoIterator(startTime, nonce);
@@ -330,9 +336,8 @@ export class MediaPlayer {
 			nonce,
 			fps: this.fps,
 			playbackRate: this.playbackRate,
-			audioSyncAnchor: this.audioSyncAnchor,
-			trimBefore: this.trimBefore,
 			getIsPlaying: () => this.playing,
+			scheduleAudioNode: this.scheduleAudioNode,
 		});
 	}
 
@@ -342,10 +347,8 @@ export class MediaPlayer {
 
 		if (this.audioIteratorManager) {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
-				audioSyncAnchor: this.audioSyncAnchor,
-				fps: this.fps,
 				playbackRate: this.playbackRate,
-				trimBefore: this.trimBefore,
+				scheduleAudioNode: this.scheduleAudioNode,
 			});
 		}
 
@@ -407,6 +410,24 @@ export class MediaPlayer {
 		this.videoIteratorManager?.destroy();
 		this.audioIteratorManager?.destroy();
 	}
+
+	private scheduleAudioNode = (
+		node: AudioBufferSourceNode,
+		mediaTimestamp: number,
+	) => {
+		// TODO: Might already be scheduled, and then the playback rate changes
+		// TODO: Playbackrate does not yet work
+		const targetTime =
+			(mediaTimestamp - (this.trimBefore ?? 0) / this.fps) / this.playbackRate;
+		const delay =
+			targetTime + this.audioSyncAnchor - this.sharedAudioContext.currentTime;
+
+		if (delay >= 0) {
+			node.start(targetTime + this.audioSyncAnchor);
+		} else {
+			node.start(this.sharedAudioContext.currentTime, -delay);
+		}
+	};
 
 	private getPlaybackTime(): number {
 		return this.sharedAudioContext.currentTime - this.audioSyncAnchor;

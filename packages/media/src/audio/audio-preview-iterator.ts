@@ -32,14 +32,16 @@ export const makeAudioIterator = (
 	let lastReturnedBuffer: WrappedAudioBuffer | null = null;
 	let iteratorEnded = false;
 
-	const getNextOrNullIfNotAvailable = async () => {
+	const getNextOrNullIfNotAvailable = async (allowWait: boolean) => {
 		const next = iterator.next();
-		const result = await Promise.race([
-			next,
-			new Promise<void>((resolve) => {
-				Promise.resolve().then(() => resolve());
-			}),
-		]);
+		const result = allowWait
+			? await next
+			: await Promise.race([
+					next,
+					new Promise<void>((resolve) => {
+						Promise.resolve().then(() => resolve());
+					}),
+				]);
 
 		if (!result) {
 			return {
@@ -71,6 +73,7 @@ export const makeAudioIterator = (
 
 	const tryToSatisfySeek = async (
 		time: number,
+		allowWait: boolean,
 	): Promise<
 		| {
 				type: 'not-satisfied';
@@ -105,23 +108,16 @@ export const makeAudioIterator = (
 		}
 
 		if (iteratorEnded) {
-			if (lastReturnedBuffer) {
-				return {
-					type: 'satisfied' as const,
-					buffers: [lastReturnedBuffer],
-				};
-			}
-
 			return {
-				type: 'not-satisfied' as const,
-				reason: 'iterator ended',
+				type: 'satisfied' as const,
+				buffers: lastReturnedBuffer ? [lastReturnedBuffer] : [],
 			};
 		}
 
 		const toBeReturned: WrappedAudioBuffer[] = [];
 
 		while (true) {
-			const buffer = await getNextOrNullIfNotAvailable();
+			const buffer = await getNextOrNullIfNotAvailable(allowWait);
 			if (buffer.type === 'need-to-wait-for-it') {
 				return {
 					type: 'not-satisfied' as const,
@@ -132,16 +128,9 @@ export const makeAudioIterator = (
 			if (buffer.type === 'got-buffer-or-end') {
 				if (buffer.buffer === null) {
 					iteratorEnded = true;
-					if (lastReturnedBuffer) {
-						return {
-							type: 'satisfied' as const,
-							buffers: [lastReturnedBuffer],
-						};
-					}
-
 					return {
-						type: 'not-satisfied' as const,
-						reason: 'iterator ended and did not have buffer ready',
+						type: 'satisfied' as const,
+						buffers: lastReturnedBuffer ? [lastReturnedBuffer] : [],
 					};
 				}
 
@@ -223,20 +212,32 @@ export const makeAudioIterator = (
 			audioChunksForAfterResuming.length = 0;
 			return chunks;
 		},
-		getQueuedPeriod: () => {
-			const lastNode = queuedAudioNodes[queuedAudioNodes.length - 1];
-			if (!lastNode) {
-				return null;
+		getQueuedPeriod: (pendingBuffers: WrappedAudioBuffer[]) => {
+			let until = -Infinity;
+			let from = Infinity;
+
+			for (const buffer of pendingBuffers) {
+				until = Math.max(until, buffer.timestamp + buffer.duration);
+				from = Math.min(from, buffer.timestamp);
 			}
 
-			const firstNode = queuedAudioNodes[0];
-			if (!firstNode) {
+			for (const node of queuedAudioNodes) {
+				until = Math.max(until, node.timestamp + node.buffer.duration);
+				from = Math.min(from, node.timestamp);
+			}
+
+			for (const chunk of audioChunksForAfterResuming) {
+				until = Math.max(until, chunk.timestamp + chunk.buffer.duration);
+				from = Math.min(from, chunk.timestamp);
+			}
+
+			if (!Number.isFinite(from) || !Number.isFinite(until)) {
 				return null;
 			}
 
 			return {
-				from: firstNode.timestamp,
-				until: lastNode.timestamp + lastNode.buffer.duration,
+				from,
+				until,
 			};
 		},
 		tryToSatisfySeek,
