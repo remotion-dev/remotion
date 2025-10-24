@@ -398,7 +398,7 @@ export class MediaPlayer {
 		this.drawDebugOverlay();
 	}
 
-	private delayPlaybackHandleIfNotPremounting() {
+	private delayPlaybackHandleIfNotPremounting = () => {
 		if (this.isPremounting || this.isPostmounting) {
 			return {
 				unblock: () => {},
@@ -406,7 +406,7 @@ export class MediaPlayer {
 		}
 
 		return this.bufferState.delayPlayback();
-	}
+	};
 
 	public pause(): void {
 		this.playing = false;

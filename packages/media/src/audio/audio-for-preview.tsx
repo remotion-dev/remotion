@@ -310,7 +310,9 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		const audioPlayer = mediaPlayerRef.current;
 		if (!audioPlayer || !mediaPlayerReady) return;
 
-		audioPlayer.seekTo(currentTime);
+		audioPlayer.seekTo(currentTime).catch(() => {
+			// Might be disposed
+		});
 		Internals.Log.trace(
 			{logLevel, tag: '@remotion/media'},
 			`[AudioForPreview] Updating target time to ${currentTime.toFixed(3)}s`,

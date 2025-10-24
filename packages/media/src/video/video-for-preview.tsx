@@ -328,7 +328,9 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
 
-		mediaPlayer.seekTo(currentTime);
+		mediaPlayer.seekTo(currentTime).catch(() => {
+			// Might be disposed
+		});
 		Internals.Log.trace(
 			{logLevel, tag: '@remotion/media'},
 			`[VideoForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
