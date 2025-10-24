@@ -97,11 +97,20 @@ export const videoIteratorManager = ({
 		const videoSatisfyResult =
 			await videoFrameIterator.tryToSatisfySeek(newTime);
 
+		// Doing this before the staleness check, because
+		// frame might be better than what we currently have
+		// TODO: check if this is actually true
 		if (videoSatisfyResult.type === 'satisfied') {
 			drawFrame(videoSatisfyResult.frame);
-		} else if (!nonce.isStale()) {
-			startVideoIterator(newTime, nonce);
+			return;
 		}
+
+		if (nonce.isStale()) {
+			return;
+		}
+
+		// Intentionally not awaited, letting audio start as well
+		startVideoIterator(newTime, nonce);
 	};
 
 	return {

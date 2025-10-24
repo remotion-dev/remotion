@@ -149,9 +149,11 @@ export const audioIteratorManager = ({
 		getIsPlaying: () => boolean;
 	}) => {
 		if (!audioBufferIterator) {
-			throw new Error('Audio buffer iterator not found');
+			await startAudioIterator(newTime, nonce);
+			return;
 		}
 
+		// TODO: This should account for audio chunks after resuming
 		const queuedPeriod = audioBufferIterator.getQueuedPeriod();
 
 		const currentTimeIsAlreadyQueued = isAlreadyQueued(newTime, queuedPeriod);
@@ -165,13 +167,8 @@ export const audioIteratorManager = ({
 				return;
 			}
 
-			if (!audioSatisfyResult) {
-				return;
-			}
-
 			if (audioSatisfyResult.type === 'not-satisfied') {
 				await startAudioIterator(newTime, nonce);
-
 				return;
 			}
 
