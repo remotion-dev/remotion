@@ -382,15 +382,11 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady || !onVideoFrame) {
+		if (!mediaPlayer || !mediaPlayerReady) {
 			return;
 		}
 
-		const unsubscribe = mediaPlayer.onVideoFrame(onVideoFrame);
-
-		return () => {
-			unsubscribe();
-		};
+		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
 	}, [onVideoFrame, mediaPlayerReady]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {

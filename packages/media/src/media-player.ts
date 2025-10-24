@@ -47,12 +47,12 @@ export class MediaPlayer {
 	private trimBefore: number | undefined;
 	private trimAfter: number | undefined;
 
-	private initialized = false;
 	private totalDuration: number | undefined;
 
 	private debugOverlay = false;
 
-	private onVideoFrameCallback?: (frame: CanvasImageSource) => void;
+	private onVideoFrameCallback: null | ((frame: CanvasImageSource) => void) =
+		null;
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
@@ -192,7 +192,7 @@ export class MediaPlayer {
 					bufferState: this.bufferState,
 					context: this.context,
 					canvas: this.canvas,
-					onVideoFrameCallback: this.onVideoFrameCallback ?? null,
+					getOnVideoFrameCallback: () => this.onVideoFrameCallback,
 					logLevel: this.logLevel,
 					drawDebugOverlay: this.drawDebugOverlay,
 				});
@@ -223,8 +223,6 @@ export class MediaPlayer {
 					sharedAudioContext: this.sharedAudioContext,
 				});
 			}
-
-			this.initialized = true;
 
 			try {
 				// intentionally not awaited
@@ -311,7 +309,6 @@ export class MediaPlayer {
 			// invalidate in-flight video operations
 			this.videoIteratorManager?.destroy();
 			this.audioIteratorManager?.destroy();
-
 			return;
 		}
 
@@ -400,8 +397,6 @@ export class MediaPlayer {
 	}
 
 	public async dispose(): Promise<void> {
-		this.initialized = false;
-
 		if (this.initializationPromise) {
 			try {
 				// wait for the init to finished
@@ -426,20 +421,10 @@ export class MediaPlayer {
 		this.audioSyncAnchor = this.sharedAudioContext.currentTime - time;
 	}
 
-	public onVideoFrame(
-		callback: (frame: CanvasImageSource) => void,
-	): () => void {
+	public setVideoFrameCallback(
+		callback: null | ((frame: CanvasImageSource) => void),
+	) {
 		this.onVideoFrameCallback = callback;
-
-		if (this.initialized && callback && this.canvas) {
-			callback(this.canvas);
-		}
-
-		return () => {
-			if (this.onVideoFrameCallback === callback) {
-				this.onVideoFrameCallback = undefined;
-			}
-		};
 	}
 
 	private drawDebugOverlay = () => {

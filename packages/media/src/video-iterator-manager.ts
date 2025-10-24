@@ -13,14 +13,14 @@ export const videoIteratorManager = ({
 	context,
 	drawDebugOverlay,
 	logLevel,
-	onVideoFrameCallback,
+	getOnVideoFrameCallback,
 	videoTrack,
 }: {
 	videoTrack: InputVideoTrack;
 	bufferState: ReturnType<typeof useBufferState>;
 	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
 	canvas: OffscreenCanvas | HTMLCanvasElement;
-	onVideoFrameCallback: null | ((frame: CanvasImageSource) => void);
+	getOnVideoFrameCallback: () => null | ((frame: CanvasImageSource) => void);
 	logLevel: LogLevel;
 	drawDebugOverlay: () => void;
 }) => {
@@ -43,8 +43,9 @@ export const videoIteratorManager = ({
 		framesRendered++;
 
 		drawDebugOverlay();
-		if (onVideoFrameCallback) {
-			onVideoFrameCallback(canvas);
+		const callback = getOnVideoFrameCallback();
+		if (callback) {
+			callback(canvas);
 		}
 
 		Internals.Log.trace(
