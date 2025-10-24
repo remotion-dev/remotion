@@ -1,18 +1,12 @@
 import type {WrappedAudioBuffer, WrappedCanvas} from 'mediabunny';
-import {
-	ALL_FORMATS,
-	AudioBufferSink,
-	CanvasSink,
-	Input,
-	UrlSource,
-} from 'mediabunny';
+import {ALL_FORMATS, CanvasSink, Input, UrlSource} from 'mediabunny';
 import type {LogLevel, useBufferState} from 'remotion';
 import {Internals} from 'remotion';
 import {
-	isAlreadyQueued,
-	makeAudioIterator,
-	type AudioIterator,
-} from './audio/audio-preview-iterator';
+	audioIteratorManager,
+	type AudioIteratorManager,
+} from './audio-iterator-manager';
+import {isAlreadyQueued} from './audio/audio-preview-iterator';
 import type {DebugStats} from './debug-overlay/preview-overlay';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getTimeInSeconds} from './get-time-in-seconds';
@@ -46,17 +40,15 @@ export class MediaPlayer {
 	private videoFrameIterator: VideoIterator | null = null;
 	debugStats: DebugStats = {
 		videoIteratorsCreated: 0,
-		audioIteratorsCreated: 0,
 		framesRendered: 0,
 	};
-
-	private audioSink: AudioBufferSink | null = null;
-	private audioBufferIterator: AudioIterator | null = null;
 
 	private gainNode: GainNode | null = null;
 	private currentVolume: number = 1;
 
 	private sharedAudioContext: AudioContext;
+
+	private audioIteratorManager: AudioIteratorManager | null = null;
 
 	// this is the time difference between Web Audio timeline
 	// and media file timeline
@@ -147,10 +139,6 @@ export class MediaPlayer {
 		);
 	}
 
-	private hasAudio(): boolean {
-		return Boolean(this.audioSink && this.sharedAudioContext && this.gainNode);
-	}
-
 	private isDisposalError(): boolean {
 		return this.input?.disposed === true;
 	}
@@ -233,7 +221,10 @@ export class MediaPlayer {
 			}
 
 			if (audioTrack && this.sharedAudioContext) {
-				this.audioSink = new AudioBufferSink(audioTrack);
+				this.audioIteratorManager = audioIteratorManager(
+					audioTrack,
+					this.bufferState,
+				);
 				this.gainNode = this.sharedAudioContext.createGain();
 				this.gainNode.connect(this.sharedAudioContext.destination);
 			}
@@ -263,7 +254,14 @@ export class MediaPlayer {
 
 			try {
 				// intentionally not awaited
-				this.startAudioIterator(startTime, this.currentSeekNonce);
+				if (this.audioIteratorManager) {
+					this.audioIteratorManager.startAudioIterator(
+						startTime,
+						this.currentSeekNonce,
+						() => this.currentSeekNonce,
+					);
+				}
+
 				await this.startVideoIterator(startTime, this.currentSeekNonce);
 			} catch (error) {
 				if (this.isDisposalError()) {
@@ -345,8 +343,7 @@ export class MediaPlayer {
 			this.videoFrameIterator = null;
 
 			this.clearCanvas();
-			this.audioBufferIterator?.destroy();
-			this.audioBufferIterator = null;
+			this.audioIteratorManager?.getAudioBufferIterator()?.destroy();
 
 			return;
 		}
@@ -372,14 +369,17 @@ export class MediaPlayer {
 			this.startVideoIterator(newTime, nonce);
 		}
 
-		const queuedPeriod = this.audioBufferIterator?.getQueuedPeriod();
+		const queuedPeriod = this.audioIteratorManager
+			?.getAudioBufferIterator()
+			?.getQueuedPeriod();
 
 		const currentTimeIsAlreadyQueued = isAlreadyQueued(newTime, queuedPeriod);
 		const toBeScheduled: WrappedAudioBuffer[] = [];
 
 		if (!currentTimeIsAlreadyQueued) {
-			const audioSatisfyResult =
-				await this.audioBufferIterator?.tryToSatisfySeek(newTime);
+			const audioSatisfyResult = await this.audioIteratorManager
+				?.getAudioBufferIterator()
+				?.tryToSatisfySeek(newTime);
 
 			if (this.currentSeekNonce !== nonce) {
 				return;
@@ -390,7 +390,14 @@ export class MediaPlayer {
 			}
 
 			if (audioSatisfyResult.type === 'not-satisfied') {
-				await this.startAudioIterator(newTime, nonce);
+				if (this.audioIteratorManager) {
+					await this.audioIteratorManager.startAudioIterator(
+						newTime,
+						nonce,
+						() => this.currentSeekNonce,
+					);
+				}
+
 				return;
 			}
 
@@ -406,8 +413,9 @@ export class MediaPlayer {
 			(1 / this.fps) * this.playbackRate;
 		const nextIsAlreadyQueued = isAlreadyQueued(nextTime, queuedPeriod);
 		if (!nextIsAlreadyQueued) {
-			const audioSatisfyResult =
-				await this.audioBufferIterator?.tryToSatisfySeek(nextTime);
+			const audioSatisfyResult = await this.audioIteratorManager
+				?.getAudioBufferIterator()
+				?.tryToSatisfySeek(nextTime);
 
 			if (this.currentSeekNonce !== nonce) {
 				return;
@@ -418,7 +426,14 @@ export class MediaPlayer {
 			}
 
 			if (audioSatisfyResult.type === 'not-satisfied') {
-				await this.startAudioIterator(nextTime, nonce);
+				if (this.audioIteratorManager) {
+					await this.audioIteratorManager.startAudioIterator(
+						nextTime,
+						nonce,
+						() => this.currentSeekNonce,
+					);
+				}
+
 				return;
 			}
 
@@ -428,8 +443,8 @@ export class MediaPlayer {
 		for (const buffer of toBeScheduled) {
 			if (this.playing) {
 				this.scheduleAudioChunk(buffer.buffer, buffer.timestamp);
-			} else {
-				this.audioChunksForAfterResuming.push({
+			} else if (this.audioIteratorManager) {
+				this.audioIteratorManager.getAudioChunksForAfterResuming().push({
 					buffer: buffer.buffer,
 					timestamp: buffer.timestamp,
 				});
@@ -443,26 +458,32 @@ export class MediaPlayer {
 		this.setPlaybackTime(time);
 
 		this.playing = true;
-		for (const chunk of this.audioChunksForAfterResuming) {
-			this.scheduleAudioChunk(chunk.buffer, chunk.timestamp);
+		if (this.audioIteratorManager) {
+			for (const chunk of this.audioIteratorManager.getAudioChunksForAfterResuming()) {
+				this.scheduleAudioChunk(chunk.buffer, chunk.timestamp);
+			}
 		}
 
 		if (this.sharedAudioContext.state === 'suspended') {
 			await this.sharedAudioContext.resume();
 		}
 
-		this.audioChunksForAfterResuming.length = 0;
+		if (this.audioIteratorManager) {
+			this.audioIteratorManager.getAudioChunksForAfterResuming().length = 0;
+		}
+
 		this.drawDebugOverlay();
 	}
 
 	public pause(): void {
 		this.playing = false;
-		const toQueue =
-			this.audioBufferIterator?.removeAndReturnAllQueuedAudioNodes();
+		const toQueue = this.audioIteratorManager
+			?.getAudioBufferIterator()
+			?.removeAndReturnAllQueuedAudioNodes();
 
-		if (toQueue) {
+		if (toQueue && this.audioIteratorManager) {
 			for (const chunk of toQueue) {
-				this.audioChunksForAfterResuming.push({
+				this.audioIteratorManager.getAudioChunksForAfterResuming().push({
 					buffer: chunk.buffer,
 					timestamp: chunk.timestamp,
 				});
@@ -524,8 +545,7 @@ export class MediaPlayer {
 		this.input?.dispose();
 		this.videoFrameIterator?.destroy();
 		this.videoFrameIterator = null;
-		this.audioBufferIterator?.destroy();
-		this.audioBufferIterator = null;
+		this.audioIteratorManager?.getAudioBufferIterator()?.destroy();
 	}
 
 	private getPlaybackTime(): number {
@@ -535,11 +555,6 @@ export class MediaPlayer {
 	private setPlaybackTime(time: number): void {
 		this.audioSyncAnchor = this.sharedAudioContext.currentTime - time;
 	}
-
-	private audioChunksForAfterResuming: {
-		buffer: AudioBuffer;
-		timestamp: number;
-	}[] = [];
 
 	private scheduleAudioChunk(
 		buffer: AudioBuffer,
@@ -563,9 +578,13 @@ export class MediaPlayer {
 			node.start(this.sharedAudioContext.currentTime, -delay);
 		}
 
-		this.audioBufferIterator!.addQueuedAudioNode(node, mediaTimestamp, buffer);
+		this.audioIteratorManager
+			?.getAudioBufferIterator()!
+			.addQueuedAudioNode(node, mediaTimestamp, buffer);
 		node.onended = () => {
-			return this.audioBufferIterator!.removeQueuedAudioNode(node);
+			return this.audioIteratorManager
+				?.getAudioBufferIterator()!
+				.removeQueuedAudioNode(node);
 		};
 	}
 
@@ -605,51 +624,6 @@ export class MediaPlayer {
 		);
 	};
 
-	private startAudioIterator = async (
-		startFromSecond: number,
-		nonce: number,
-	): Promise<void> => {
-		if (!this.hasAudio()) return;
-
-		this.audioBufferIterator?.destroy();
-		this.audioChunksForAfterResuming = [];
-		const delayHandle = this.bufferState.delayPlayback();
-
-		const iterator = makeAudioIterator(this.audioSink!, startFromSecond);
-		this.debugStats.audioIteratorsCreated++;
-		this.audioBufferIterator = iterator;
-
-		// Schedule up to 3 buffers ahead of the current time
-		for (let i = 0; i < 3; i++) {
-			const result = await iterator.getNext();
-
-			if (iterator.isDestroyed()) {
-				delayHandle.unblock();
-				return;
-			}
-
-			if (nonce !== this.currentSeekNonce) {
-				delayHandle.unblock();
-				return;
-			}
-
-			if (!result.value) {
-				// media ended
-				delayHandle.unblock();
-				return;
-			}
-
-			const {buffer, timestamp} = result.value;
-
-			this.audioChunksForAfterResuming.push({
-				buffer,
-				timestamp,
-			});
-		}
-
-		delayHandle.unblock();
-	};
-
 	private drawDebugOverlay(): void {
 		if (!this.debugOverlay) return;
 		if (this.context && this.canvas) {
@@ -659,8 +633,7 @@ export class MediaPlayer {
 				audioTime: this.sharedAudioContext.currentTime,
 				audioContextState: this.sharedAudioContext.state,
 				audioSyncAnchor: this.audioSyncAnchor,
-				audioIterator: this.audioBufferIterator,
-				audioChunksForAfterResuming: this.audioChunksForAfterResuming,
+				audioIteratorManager: this.audioIteratorManager,
 				playing: this.playing,
 			});
 		}

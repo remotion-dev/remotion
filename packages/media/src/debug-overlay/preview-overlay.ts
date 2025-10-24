@@ -1,8 +1,7 @@
-import type {AudioIterator} from '../audio/audio-preview-iterator';
+import type {AudioIteratorManager} from '../audio-iterator-manager';
 
 export type DebugStats = {
 	videoIteratorsCreated: number;
-	audioIteratorsCreated: number;
 	framesRendered: number;
 };
 
@@ -11,42 +10,42 @@ export const drawPreviewOverlay = ({
 	stats,
 	audioTime,
 	audioContextState,
-	audioIterator,
 	audioSyncAnchor,
-	audioChunksForAfterResuming,
 	playing,
+	audioIteratorManager,
 }: {
 	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
 	stats: DebugStats;
 	audioTime: number;
 	audioContextState: AudioContextState;
 	audioSyncAnchor: number;
-	audioIterator: AudioIterator | null;
-	audioChunksForAfterResuming: {
-		buffer: AudioBuffer;
-		timestamp: number;
-	}[];
 	playing: boolean;
+	audioIteratorManager: AudioIteratorManager | null;
 }) => {
 	// Collect all lines to be rendered
 	const lines: string[] = [
 		'Debug overlay',
 		`Video iterators created: ${stats.videoIteratorsCreated}`,
-		`Audio iterators created: ${stats.audioIteratorsCreated}`,
+		`Audio iterators created: ${audioIteratorManager?.getAudioIteratorsCreated()}`,
 		`Frames rendered: ${stats.framesRendered}`,
 		`Audio context state: ${audioContextState}`,
 		`Audio time: ${(audioTime - audioSyncAnchor).toFixed(3)}s`,
 	];
 
-	if (audioIterator) {
-		const queuedPeriod = audioIterator.getQueuedPeriod();
+	if (audioIteratorManager) {
+		const queuedPeriod = audioIteratorManager
+			.getAudioBufferIterator()
+			?.getQueuedPeriod();
 		if (queuedPeriod) {
 			lines.push(
 				`Audio queued until: ${(queuedPeriod.until - (audioTime - audioSyncAnchor)).toFixed(3)}s`,
 			);
-		} else if (audioChunksForAfterResuming.length > 0) {
+		} else if (
+			audioIteratorManager?.getAudioChunksForAfterResuming()?.length &&
+			audioIteratorManager?.getAudioChunksForAfterResuming()?.length > 0
+		) {
 			lines.push(
-				`Audio chunks for after resuming: ${audioChunksForAfterResuming.length}`,
+				`Audio chunks for after resuming: ${audioIteratorManager?.getAudioChunksForAfterResuming()?.length}`,
 			);
 		}
 
