@@ -19,7 +19,7 @@
     "@remotion/paths": "workspace:*",
     "@remotion/player": "workspace:*",
     "@remotion/shapes": "workspace:*",
-    "next": "16.0.0",
+    "next": "catalog:next",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "remotion": "workspace:*",
