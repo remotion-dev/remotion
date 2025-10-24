@@ -1,8 +1,8 @@
 import {hasBeenAborted, WEBCODECS_TIMESCALE} from '@remotion/media-parser';
 import {rotateAndResizeVideoFrame} from '@remotion/webcodecs';
-import {extractFramesOnWebWorker} from '@remotion/webcodecs/worker';
 import React, {useEffect, useRef, useState} from 'react';
 import {useVideoConfig} from 'remotion';
+import {extractFrames} from '../../helpers/extract-frames-mediabunny';
 import type {FrameDatabaseKey} from '../../helpers/frame-database';
 import {
 	aspectRatioCache,
@@ -334,9 +334,12 @@ export const TimelineVideoInfo: React.FC<{
 
 		clearOldFrames();
 
-		extractFramesOnWebWorker({
-			acknowledgeRemotionLicense: true,
-			timestampsInSeconds: ({track}) => {
+		extractFrames({
+			timestampsInSeconds: ({
+				track,
+			}: {
+				track: {height: number; width: number};
+			}) => {
 				aspectRatio.current = track.width / track.height;
 				aspectRatioCache.set(src, aspectRatio.current);
 
@@ -353,7 +356,7 @@ export const TimelineVideoInfo: React.FC<{
 				);
 			},
 			src,
-			onFrame: (frame) => {
+			onFrame: (frame: VideoFrame) => {
 				const scale = (HEIGHT / frame.displayHeight) * window.devicePixelRatio;
 
 				const transformed = rotateAndResizeVideoFrame({
@@ -413,12 +416,12 @@ export const TimelineVideoInfo: React.FC<{
 					fromSeconds,
 				});
 			})
-			.catch((e) => {
+			.catch((e: unknown) => {
 				if (hasBeenAborted(e)) {
 					return;
 				}
 
-				setError(e);
+				setError(e as Error);
 			})
 			.finally(() => {
 				clearOldFrames();
