@@ -116,14 +116,6 @@ export class MediaPlayer {
 
 	private input: Input<UrlSource> | null = null;
 
-	private isReady(): boolean {
-		return (
-			this.initialized &&
-			Boolean(this.sharedAudioContext) &&
-			!this.input?.disposed
-		);
-	}
-
 	private isDisposalError(): boolean {
 		return this.input?.disposed === true;
 	}
@@ -204,17 +196,6 @@ export class MediaPlayer {
 					logLevel: this.logLevel,
 					drawDebugOverlay: this.drawDebugOverlay,
 				});
-
-				this.canvas.width = videoTrack.displayWidth;
-				this.canvas.height = videoTrack.displayHeight;
-			}
-
-			if (audioTrack && this.sharedAudioContext) {
-				this.audioIteratorManager = audioIteratorManager({
-					audioTrack,
-					bufferState: this.bufferState,
-					sharedAudioContext: this.sharedAudioContext,
-				});
 			}
 
 			const startTime = getTimeInSeconds({
@@ -234,8 +215,14 @@ export class MediaPlayer {
 				return {type: 'success', durationInSeconds: this.totalDuration};
 			}
 
-			if (this.sharedAudioContext) {
-				this.setPlaybackTime(startTime);
+			this.setPlaybackTime(startTime);
+
+			if (audioTrack) {
+				this.audioIteratorManager = audioIteratorManager({
+					audioTrack,
+					bufferState: this.bufferState,
+					sharedAudioContext: this.sharedAudioContext,
+				});
 			}
 
 			this.initialized = true;
@@ -315,8 +302,6 @@ export class MediaPlayer {
 			return;
 		}
 
-		if (!this.isReady()) return;
-
 		const newTime = getTimeInSeconds({
 			unloopedTimeInSeconds: time,
 			playbackRate: this.playbackRate,
@@ -378,11 +363,9 @@ export class MediaPlayer {
 	}
 
 	public async play(time: number): Promise<void> {
-		if (!this.isReady()) return;
-
 		this.setPlaybackTime(time);
-
 		this.playing = true;
+
 		if (this.audioIteratorManager) {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
 				audioSyncAnchor: this.audioSyncAnchor,

@@ -28,6 +28,9 @@ export const videoIteratorManager = ({
 	let videoFrameIterator: VideoIterator | null = null;
 	let framesRendered = 0;
 
+	canvas.width = videoTrack.displayWidth;
+	canvas.height = videoTrack.displayHeight;
+
 	const canvasSink = new CanvasSink(videoTrack, {
 		poolSize: 2,
 		fit: 'contain',
