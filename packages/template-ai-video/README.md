@@ -9,7 +9,7 @@
 
 Using this template you can create high quality AI videos for TikTok or Instagram.
 
-It includes a simple CLI that will generate story script, images and voiceover using OpenAI and ElevenLabs (its pretty straightforward to add other providers as Vercel AI SDK is used under the hood).
+It includes a simple CLI that will generate story script, images and voiceover using OpenAI and ElevenLabs.
 
 ## Getting started with demo video
 
