@@ -427,6 +427,14 @@ export class MediaPlayer {
 		this.audioIteratorManager.setVolume(volume);
 	}
 
+	public setTrimBefore(trimBefore: number | undefined): void {
+		this.trimBefore = trimBefore;
+	}
+
+	public setTrimAfter(trimAfter: number | undefined): void {
+		this.trimAfter = trimAfter;
+	}
+
 	public setDebugOverlay(debugOverlay: boolean): void {
 		this.debugOverlay = debugOverlay;
 	}
