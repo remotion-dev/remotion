@@ -179,6 +179,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 				audioStreamIndex,
 				debugOverlay,
 				bufferState: buffer,
+				globalPlaybackRate,
 			});
 
 			mediaPlayerRef.current = player;
@@ -297,6 +298,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 		audioStreamIndex,
 		debugOverlay,
 		buffer,
+		globalPlaybackRate,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -355,10 +357,14 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 		mediaPlayer.setDebugOverlay(debugOverlay);
 	}, [debugOverlay, mediaPlayerReady]);
 
-	const effectivePlaybackRate = useMemo(
-		() => playbackRate * globalPlaybackRate,
-		[playbackRate, globalPlaybackRate],
-	);
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setPlaybackRate(playbackRate);
+	}, [playbackRate, mediaPlayerReady]);
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -366,8 +372,8 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 			return;
 		}
 
-		mediaPlayer.setPlaybackRate(effectivePlaybackRate);
-	}, [effectivePlaybackRate, mediaPlayerReady]);
+		mediaPlayer.setGlobalPlaybackRate(globalPlaybackRate);
+	}, [globalPlaybackRate, mediaPlayerReady]);
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

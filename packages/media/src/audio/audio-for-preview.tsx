@@ -162,6 +162,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				audioStreamIndex: audioStreamIndex ?? 0,
 				debugOverlay: false,
 				bufferState: buffer,
+				globalPlaybackRate,
 			});
 
 			mediaPlayerRef.current = player;
@@ -285,6 +286,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		audioStreamIndex,
 		disallowFallbackToHtml5Audio,
 		buffer,
+		globalPlaybackRate,
 	]);
 
 	useEffect(() => {
@@ -327,10 +329,14 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		audioPlayer.setVolume(userPreferredVolume);
 	}, [userPreferredVolume, mediaPlayerReady]);
 
-	const effectivePlaybackRate = useMemo(
-		() => playbackRate * globalPlaybackRate,
-		[playbackRate, globalPlaybackRate],
-	);
+	useEffect(() => {
+		const audioPlayer = mediaPlayerRef.current;
+		if (!audioPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		audioPlayer.setPlaybackRate(playbackRate);
+	}, [playbackRate, mediaPlayerReady]);
 
 	useEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;
@@ -338,8 +344,8 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 			return;
 		}
 
-		audioPlayer.setPlaybackRate(effectivePlaybackRate);
-	}, [effectivePlaybackRate, mediaPlayerReady]);
+		audioPlayer.setGlobalPlaybackRate(globalPlaybackRate);
+	}, [globalPlaybackRate, mediaPlayerReady]);
 
 	useEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;

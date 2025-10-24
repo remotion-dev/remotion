@@ -32,6 +32,7 @@ export class MediaPlayer {
 	private src: string;
 	private logLevel: LogLevel;
 	private playbackRate: number;
+	private globalPlaybackRate: number;
 	private audioStreamIndex: number;
 
 	private sharedAudioContext: AudioContext;
@@ -74,6 +75,7 @@ export class MediaPlayer {
 		trimBefore,
 		trimAfter,
 		playbackRate,
+		globalPlaybackRate,
 		audioStreamIndex,
 		fps,
 		debugOverlay,
@@ -87,6 +89,7 @@ export class MediaPlayer {
 		trimBefore: number | undefined;
 		trimAfter: number | undefined;
 		playbackRate: number;
+		globalPlaybackRate: number;
 		audioStreamIndex: number;
 		fps: number;
 		debugOverlay: boolean;
@@ -97,6 +100,7 @@ export class MediaPlayer {
 		this.logLevel = logLevel ?? window.remotion_logLevel;
 		this.sharedAudioContext = sharedAudioContext;
 		this.playbackRate = playbackRate;
+		this.globalPlaybackRate = globalPlaybackRate;
 		this.loop = loop;
 		this.trimBefore = trimBefore;
 		this.trimAfter = trimAfter;
@@ -226,7 +230,10 @@ export class MediaPlayer {
 				throw new Error(`should have asserted that the time is not null`);
 			}
 
-			this.setPlaybackTime(startTime, this.playbackRate);
+			this.setPlaybackTime(
+				startTime,
+				this.playbackRate * this.globalPlaybackRate,
+			);
 
 			if (audioTrack) {
 				this.audioIteratorManager = audioIteratorManager({
@@ -243,7 +250,7 @@ export class MediaPlayer {
 				if (this.audioIteratorManager) {
 					this.audioIteratorManager.startAudioIterator({
 						nonce,
-						playbackRate: this.playbackRate,
+						playbackRate: this.playbackRate * this.globalPlaybackRate,
 						startFromSecond: startTime,
 						getIsPlaying: () => this.playing,
 						scheduleAudioNode: this.scheduleAudioNode,
@@ -323,10 +330,14 @@ export class MediaPlayer {
 		}
 
 		const newAudioSyncAnchor =
-			this.sharedAudioContext.currentTime - newTime / this.playbackRate;
+			this.sharedAudioContext.currentTime -
+			newTime / (this.playbackRate * this.globalPlaybackRate);
 		const diff = Math.abs(newAudioSyncAnchor - this.audioSyncAnchor);
 		if (diff > 0.04) {
-			this.setPlaybackTime(newTime, this.playbackRate);
+			this.setPlaybackTime(
+				newTime,
+				this.playbackRate * this.globalPlaybackRate,
+			);
 		}
 
 		await this.videoIteratorManager?.seek({
@@ -338,7 +349,7 @@ export class MediaPlayer {
 			newTime,
 			nonce,
 			fps: this.fps,
-			playbackRate: this.playbackRate,
+			playbackRate: this.playbackRate * this.globalPlaybackRate,
 			getIsPlaying: () => this.playing,
 			scheduleAudioNode: this.scheduleAudioNode,
 		});
@@ -360,12 +371,12 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		this.setPlaybackTime(newTime, this.playbackRate);
+		this.setPlaybackTime(newTime, this.playbackRate * this.globalPlaybackRate);
 		this.playing = true;
 
 		if (this.audioIteratorManager) {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
-				playbackRate: this.playbackRate,
+				playbackRate: this.playbackRate * this.globalPlaybackRate,
 				scheduleAudioNode: this.scheduleAudioNode,
 			});
 		}
@@ -400,13 +411,15 @@ export class MediaPlayer {
 		this.debugOverlay = debugOverlay;
 	}
 
-	public setPlaybackRate(rate: number): void {
-		this.playbackRate = rate;
+	private updateAfterPlaybackRateChange(): void {
 		if (!this.audioIteratorManager) {
 			return;
 		}
 
-		this.setPlaybackTime(this.getPlaybackTime(), rate);
+		this.setPlaybackTime(
+			this.getPlaybackTime(),
+			this.playbackRate * this.globalPlaybackRate,
+		);
 
 		const iterator = this.audioIteratorManager.getAudioBufferIterator();
 		if (!iterator) {
@@ -416,10 +429,20 @@ export class MediaPlayer {
 		iterator.moveQueuedChunksToPauseQueue();
 		if (this.playing) {
 			this.audioIteratorManager.resumeScheduledAudioChunks({
-				playbackRate: rate,
+				playbackRate: this.playbackRate * this.globalPlaybackRate,
 				scheduleAudioNode: this.scheduleAudioNode,
 			});
 		}
+	}
+
+	public setPlaybackRate(rate: number): void {
+		this.playbackRate = rate;
+		this.updateAfterPlaybackRateChange();
+	}
+
+	public setGlobalPlaybackRate(rate: number): void {
+		this.globalPlaybackRate = rate;
+		this.updateAfterPlaybackRateChange();
 	}
 
 	public setFps(fps: number): void {
@@ -453,10 +476,10 @@ export class MediaPlayer {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 	) => {
-		// TODO: Playbackrate does not yet work
 		const currentTime = this.getPlaybackTime();
 		const delayWithoutPlaybackRate = mediaTimestamp - currentTime;
-		const delay = delayWithoutPlaybackRate / this.playbackRate;
+		const delay =
+			delayWithoutPlaybackRate / (this.playbackRate * this.globalPlaybackRate);
 
 		if (delay >= 0) {
 			node.start(this.sharedAudioContext.currentTime + delay);
@@ -469,7 +492,7 @@ export class MediaPlayer {
 		return calculatePlaybackTime({
 			audioSyncAnchor: this.audioSyncAnchor,
 			currentTime: this.sharedAudioContext.currentTime,
-			playbackRate: this.playbackRate,
+			playbackRate: this.playbackRate * this.globalPlaybackRate,
 		});
 	}
 
