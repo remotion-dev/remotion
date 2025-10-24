@@ -1,26 +1,18 @@
-import type {WrappedAudioBuffer, WrappedCanvas} from 'mediabunny';
-import {
-	ALL_FORMATS,
-	AudioBufferSink,
-	CanvasSink,
-	Input,
-	UrlSource,
-} from 'mediabunny';
+import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import type {LogLevel, useBufferState} from 'remotion';
 import {Internals} from 'remotion';
 import {
-	isAlreadyQueued,
-	makeAudioIterator,
-	type AudioIterator,
-} from './audio/audio-preview-iterator';
-import type {DebugStats} from './debug-overlay/preview-overlay';
+	audioIteratorManager,
+	type AudioIteratorManager,
+} from './audio-iterator-manager';
+import {calculatePlaybackTime} from './calculate-playbacktime';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getTimeInSeconds} from './get-time-in-seconds';
 import {isNetworkError} from './is-network-error';
-import {
-	createVideoIterator,
-	type VideoIterator,
-} from './video/video-preview-iterator';
+import type {Nonce, NonceManager} from './nonce-manager';
+import {makeNonceManager} from './nonce-manager';
+import type {VideoIteratorManager} from './video-iterator-manager';
+import {videoIteratorManager} from './video-iterator-manager';
 
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
@@ -31,51 +23,48 @@ export type MediaPlayerInitResult =
 	| {type: 'disposed'};
 
 export class MediaPlayer {
-	private canvas: HTMLCanvasElement | null;
-	private context: CanvasRenderingContext2D | null;
+	private canvas: HTMLCanvasElement | OffscreenCanvas | null;
+	private context:
+		| OffscreenCanvasRenderingContext2D
+		| CanvasRenderingContext2D
+		| null;
+
 	private src: string;
 	private logLevel: LogLevel;
 	private playbackRate: number;
+	private globalPlaybackRate: number;
 	private audioStreamIndex: number;
 
-	private canvasSink: CanvasSink | null = null;
-	private videoFrameIterator: VideoIterator | null = null;
-	private debugStats: DebugStats = {
-		videoIteratorsCreated: 0,
-		audioIteratorsCreated: 0,
-		framesRendered: 0,
-	};
-
-	private audioSink: AudioBufferSink | null = null;
-	private audioBufferIterator: AudioIterator | null = null;
-
-	private gainNode: GainNode | null = null;
-	private currentVolume: number = 1;
-
 	private sharedAudioContext: AudioContext;
+
+	audioIteratorManager: AudioIteratorManager | null = null;
+	videoIteratorManager: VideoIteratorManager | null = null;
 
 	// this is the time difference between Web Audio timeline
 	// and media file timeline
 	private audioSyncAnchor: number = 0;
 
 	private playing = false;
-	private muted = false;
 	private loop = false;
 	private fps: number;
 
 	private trimBefore: number | undefined;
 	private trimAfter: number | undefined;
 
-	private initialized = false;
 	private totalDuration: number | undefined;
 
 	private debugOverlay = false;
 
-	private onVideoFrameCallback?: (frame: CanvasImageSource) => void;
+	private nonceManager: NonceManager;
+
+	private onVideoFrameCallback: null | ((frame: CanvasImageSource) => void) =
+		null;
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
 	private bufferState: ReturnType<typeof useBufferState>;
+
+	private seekPromiseChain: Promise<void> = Promise.resolve();
 
 	constructor({
 		canvas,
@@ -86,12 +75,13 @@ export class MediaPlayer {
 		trimBefore,
 		trimAfter,
 		playbackRate,
+		globalPlaybackRate,
 		audioStreamIndex,
 		fps,
 		debugOverlay,
 		bufferState,
 	}: {
-		canvas: HTMLCanvasElement | null;
+		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
 		logLevel: LogLevel;
 		sharedAudioContext: AudioContext;
@@ -99,6 +89,7 @@ export class MediaPlayer {
 		trimBefore: number | undefined;
 		trimAfter: number | undefined;
 		playbackRate: number;
+		globalPlaybackRate: number;
 		audioStreamIndex: number;
 		fps: number;
 		debugOverlay: boolean;
@@ -109,6 +100,7 @@ export class MediaPlayer {
 		this.logLevel = logLevel ?? window.remotion_logLevel;
 		this.sharedAudioContext = sharedAudioContext;
 		this.playbackRate = playbackRate;
+		this.globalPlaybackRate = globalPlaybackRate;
 		this.loop = loop;
 		this.trimBefore = trimBefore;
 		this.trimAfter = trimAfter;
@@ -116,12 +108,18 @@ export class MediaPlayer {
 		this.fps = fps;
 		this.debugOverlay = debugOverlay;
 		this.bufferState = bufferState;
+		this.nonceManager = makeNonceManager();
+
+		this.input = new Input({
+			source: new UrlSource(this.src),
+			formats: ALL_FORMATS,
+		});
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
 				alpha: true,
 				desynchronized: true,
-			});
+			}) as OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
 
 			if (!context) {
 				throw new Error('Could not get 2D context from canvas');
@@ -133,22 +131,10 @@ export class MediaPlayer {
 		}
 	}
 
-	private input: Input<UrlSource> | null = null;
-
-	private isReady(): boolean {
-		return (
-			this.initialized &&
-			Boolean(this.sharedAudioContext) &&
-			!this.input?.disposed
-		);
-	}
-
-	private hasAudio(): boolean {
-		return Boolean(this.audioSink && this.sharedAudioContext && this.gainNode);
-	}
+	private input: Input<UrlSource>;
 
 	private isDisposalError(): boolean {
-		return this.input?.disposed === true;
+		return this.input.disposed === true;
 	}
 
 	public initialize(
@@ -163,21 +149,12 @@ export class MediaPlayer {
 		startTimeUnresolved: number,
 	): Promise<MediaPlayerInitResult> {
 		try {
-			const urlSource = new UrlSource(this.src);
-
-			const input = new Input({
-				source: urlSource,
-				formats: ALL_FORMATS,
-			});
-
-			this.input = input;
-
-			if (input.disposed) {
+			if (this.input.disposed) {
 				return {type: 'disposed'};
 			}
 
 			try {
-				await input.getFormat();
+				await this.input.getFormat();
 			} catch (error) {
 				if (this.isDisposalError()) {
 					return {type: 'disposed'};
@@ -199,10 +176,14 @@ export class MediaPlayer {
 			}
 
 			const [durationInSeconds, videoTrack, audioTracks] = await Promise.all([
-				input.computeDuration(),
-				input.getPrimaryVideoTrack(),
-				input.getAudioTracks(),
+				this.input.computeDuration(),
+				this.input.getPrimaryVideoTrack(),
+				this.input.getAudioTracks(),
 			]);
+			if (this.input.disposed) {
+				return {type: 'disposed'};
+			}
+
 			this.totalDuration = durationInSeconds;
 
 			const audioTrack = audioTracks[this.audioStreamIndex] ?? null;
@@ -218,20 +199,19 @@ export class MediaPlayer {
 					return {type: 'cannot-decode'};
 				}
 
-				this.canvasSink = new CanvasSink(videoTrack, {
-					poolSize: 2,
-					fit: 'contain',
-					alpha: true,
+				if (this.input.disposed) {
+					return {type: 'disposed'};
+				}
+
+				this.videoIteratorManager = videoIteratorManager({
+					videoTrack,
+					bufferState: this.bufferState,
+					context: this.context,
+					canvas: this.canvas,
+					getOnVideoFrameCallback: () => this.onVideoFrameCallback,
+					logLevel: this.logLevel,
+					drawDebugOverlay: this.drawDebugOverlay,
 				});
-
-				this.canvas.width = videoTrack.displayWidth;
-				this.canvas.height = videoTrack.displayHeight;
-			}
-
-			if (audioTrack && this.sharedAudioContext) {
-				this.audioSink = new AudioBufferSink(audioTrack);
-				this.gainNode = this.sharedAudioContext.createGain();
-				this.gainNode.connect(this.sharedAudioContext.destination);
 			}
 
 			const startTime = getTimeInSeconds({
@@ -247,20 +227,37 @@ export class MediaPlayer {
 			});
 
 			if (startTime === null) {
-				this.clearCanvas();
-				return {type: 'success', durationInSeconds: this.totalDuration};
+				throw new Error(`should have asserted that the time is not null`);
 			}
 
-			if (this.sharedAudioContext) {
-				this.setPlaybackTime(startTime);
+			this.setPlaybackTime(
+				startTime,
+				this.playbackRate * this.globalPlaybackRate,
+			);
+
+			if (audioTrack) {
+				this.audioIteratorManager = audioIteratorManager({
+					audioTrack,
+					bufferState: this.bufferState,
+					sharedAudioContext: this.sharedAudioContext,
+				});
 			}
 
-			this.initialized = true;
+			const nonce = this.nonceManager.createAsyncOperation();
 
 			try {
 				// intentionally not awaited
-				this.startAudioIterator(startTime, this.currentSeekNonce);
-				await this.startVideoIterator(startTime, this.currentSeekNonce);
+				if (this.audioIteratorManager) {
+					this.audioIteratorManager.startAudioIterator({
+						nonce,
+						playbackRate: this.playbackRate * this.globalPlaybackRate,
+						startFromSecond: startTime,
+						getIsPlaying: () => this.playing,
+						scheduleAudioNode: this.scheduleAudioNode,
+					});
+				}
+
+				await this.videoIteratorManager?.startVideoIterator(startTime, nonce);
 			} catch (error) {
 				if (this.isDisposalError()) {
 					return {type: 'disposed'};
@@ -295,34 +292,7 @@ export class MediaPlayer {
 		}
 	}
 
-	private clearCanvas(): void {
-		if (this.context && this.canvas) {
-			this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		}
-	}
-
-	private currentSeekNonce = 0;
-	private seekPromiseChain: Promise<void> = Promise.resolve();
-
 	public async seekTo(time: number): Promise<void> {
-		this.currentSeekNonce++;
-		const nonce = this.currentSeekNonce;
-		await this.seekPromiseChain;
-
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(time, nonce);
-		await this.seekPromiseChain;
-	}
-
-	public async seekToDoNotCallDirectly(
-		time: number,
-		nonce: number,
-	): Promise<void> {
-		if (nonce !== this.currentSeekNonce) {
-			return;
-		}
-
-		if (!this.isReady()) return;
-
 		const newTime = getTimeInSeconds({
 			unloopedTimeInSeconds: time,
 			playbackRate: this.playbackRate,
@@ -336,14 +306,21 @@ export class MediaPlayer {
 		});
 
 		if (newTime === null) {
-			// invalidate in-flight video operations
-			this.videoFrameIterator?.destroy();
-			this.videoFrameIterator = null;
+			throw new Error(`should have asserted that the time is not null`);
+		}
 
-			this.clearCanvas();
-			this.audioBufferIterator?.destroy();
-			this.audioBufferIterator = null;
+		const nonce = this.nonceManager.createAsyncOperation();
+		await this.seekPromiseChain;
 
+		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
+		await this.seekPromiseChain;
+	}
+
+	public async seekToDoNotCallDirectly(
+		newTime: number,
+		nonce: Nonce,
+	): Promise<void> {
+		if (nonce.isStale()) {
 			return;
 		}
 
@@ -352,147 +329,120 @@ export class MediaPlayer {
 			return;
 		}
 
-		const newAudioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
+		const newAudioSyncAnchor =
+			this.sharedAudioContext.currentTime -
+			newTime / (this.playbackRate * this.globalPlaybackRate);
 		const diff = Math.abs(newAudioSyncAnchor - this.audioSyncAnchor);
-		if (diff > 0.1) {
-			this.setPlaybackTime(newTime);
+		if (diff > 0.04) {
+			this.setPlaybackTime(
+				newTime,
+				this.playbackRate * this.globalPlaybackRate,
+			);
 		}
 
-		// Should return immediately, so it's okay to not use Promise.all here
-		const videoSatisfyResult =
-			await this.videoFrameIterator?.tryToSatisfySeek(newTime);
+		await this.videoIteratorManager?.seek({
+			newTime,
+			nonce,
+		});
 
-		if (videoSatisfyResult?.type === 'satisfied') {
-			this.drawFrame(videoSatisfyResult.frame);
-		} else if (videoSatisfyResult && this.currentSeekNonce === nonce) {
-			this.startVideoIterator(newTime, nonce);
-		}
-
-		const queuedPeriod = this.audioBufferIterator?.getQueuedPeriod();
-
-		const currentTimeIsAlreadyQueued = isAlreadyQueued(newTime, queuedPeriod);
-		const toBeScheduled: WrappedAudioBuffer[] = [];
-
-		if (!currentTimeIsAlreadyQueued) {
-			const audioSatisfyResult =
-				await this.audioBufferIterator?.tryToSatisfySeek(newTime);
-
-			if (this.currentSeekNonce !== nonce) {
-				return;
-			}
-
-			if (!audioSatisfyResult) {
-				return;
-			}
-
-			if (audioSatisfyResult.type === 'not-satisfied') {
-				await this.startAudioIterator(newTime, nonce);
-				return;
-			}
-
-			toBeScheduled.push(...audioSatisfyResult.buffers);
-		}
-
-		// TODO: What is this is beyond the end of the video
-		const nextTime =
-			newTime +
-			// start of next frame
-			(1 / this.fps) * this.playbackRate +
-			// need the full duration of the next frame to be queued
-			(1 / this.fps) * this.playbackRate;
-		const nextIsAlreadyQueued = isAlreadyQueued(nextTime, queuedPeriod);
-		if (!nextIsAlreadyQueued) {
-			const audioSatisfyResult =
-				await this.audioBufferIterator?.tryToSatisfySeek(nextTime);
-
-			if (this.currentSeekNonce !== nonce) {
-				return;
-			}
-
-			if (!audioSatisfyResult) {
-				return;
-			}
-
-			if (audioSatisfyResult.type === 'not-satisfied') {
-				await this.startAudioIterator(nextTime, nonce);
-				return;
-			}
-
-			toBeScheduled.push(...audioSatisfyResult.buffers);
-		}
-
-		for (const buffer of toBeScheduled) {
-			if (this.playing) {
-				this.scheduleAudioChunk(buffer.buffer, buffer.timestamp);
-			} else {
-				this.audioChunksForAfterResuming.push({
-					buffer: buffer.buffer,
-					timestamp: buffer.timestamp,
-				});
-			}
-		}
+		await this.audioIteratorManager?.seek({
+			newTime,
+			nonce,
+			fps: this.fps,
+			playbackRate: this.playbackRate * this.globalPlaybackRate,
+			getIsPlaying: () => this.playing,
+			scheduleAudioNode: this.scheduleAudioNode,
+		});
 	}
 
 	public async play(time: number): Promise<void> {
-		if (!this.isReady()) return;
+		const newTime = getTimeInSeconds({
+			unloopedTimeInSeconds: time,
+			playbackRate: this.playbackRate,
+			loop: this.loop,
+			trimBefore: this.trimBefore,
+			trimAfter: this.trimAfter,
+			mediaDurationInSeconds: this.totalDuration ?? null,
+			fps: this.fps,
+			ifNoMediaDuration: 'infinity',
+			src: this.src,
+		});
+		if (newTime === null) {
+			throw new Error(`should have asserted that the time is not null`);
+		}
 
-		this.setPlaybackTime(time);
-
+		this.setPlaybackTime(newTime, this.playbackRate * this.globalPlaybackRate);
 		this.playing = true;
-		for (const chunk of this.audioChunksForAfterResuming) {
-			this.scheduleAudioChunk(chunk.buffer, chunk.timestamp);
+
+		if (this.audioIteratorManager) {
+			this.audioIteratorManager.resumeScheduledAudioChunks({
+				playbackRate: this.playbackRate * this.globalPlaybackRate,
+				scheduleAudioNode: this.scheduleAudioNode,
+			});
 		}
 
 		if (this.sharedAudioContext.state === 'suspended') {
 			await this.sharedAudioContext.resume();
 		}
 
-		this.audioChunksForAfterResuming.length = 0;
 		this.drawDebugOverlay();
 	}
 
 	public pause(): void {
 		this.playing = false;
-		const toQueue =
-			this.audioBufferIterator?.removeAndReturnAllQueuedAudioNodes();
-
-		if (toQueue) {
-			for (const chunk of toQueue) {
-				this.audioChunksForAfterResuming.push({
-					buffer: chunk.buffer,
-					timestamp: chunk.timestamp,
-				});
-			}
-		}
+		this.audioIteratorManager?.pausePlayback();
 
 		this.drawDebugOverlay();
 	}
 
 	public setMuted(muted: boolean): void {
-		this.muted = muted;
-		if (this.gainNode) {
-			this.gainNode.gain.value = muted ? 0 : this.currentVolume;
-		}
+		this.audioIteratorManager?.setMuted(muted);
 	}
 
 	public setVolume(volume: number): void {
-		if (!this.gainNode) {
+		if (!this.audioIteratorManager) {
 			return;
 		}
 
-		const appliedVolume = Math.max(0, volume);
-		this.currentVolume = appliedVolume;
-		if (!this.muted) {
-			this.gainNode.gain.value = appliedVolume;
-		}
+		this.audioIteratorManager.setVolume(volume);
 	}
 
 	public setDebugOverlay(debugOverlay: boolean): void {
 		this.debugOverlay = debugOverlay;
 	}
 
+	private updateAfterPlaybackRateChange(): void {
+		if (!this.audioIteratorManager) {
+			return;
+		}
+
+		this.setPlaybackTime(
+			this.getPlaybackTime(),
+			this.playbackRate * this.globalPlaybackRate,
+		);
+
+		const iterator = this.audioIteratorManager.getAudioBufferIterator();
+		if (!iterator) {
+			return;
+		}
+
+		iterator.moveQueuedChunksToPauseQueue();
+		if (this.playing) {
+			this.audioIteratorManager.resumeScheduledAudioChunks({
+				playbackRate: this.playbackRate * this.globalPlaybackRate,
+				scheduleAudioNode: this.scheduleAudioNode,
+			});
+		}
+	}
+
 	public setPlaybackRate(rate: number): void {
 		this.playbackRate = rate;
+		this.updateAfterPlaybackRateChange();
+	}
+
+	public setGlobalPlaybackRate(rate: number): void {
+		this.globalPlaybackRate = rate;
+		this.updateAfterPlaybackRateChange();
 	}
 
 	public setFps(fps: number): void {
@@ -504,8 +454,6 @@ export class MediaPlayer {
 	}
 
 	public async dispose(): Promise<void> {
-		this.initialized = false;
-
 		if (this.initializationPromise) {
 			try {
 				// wait for the init to finished
@@ -517,185 +465,60 @@ export class MediaPlayer {
 			}
 		}
 
-		this.input?.dispose();
-		this.videoFrameIterator?.destroy();
-		this.videoFrameIterator = null;
-		this.audioBufferIterator?.destroy();
-		this.audioBufferIterator = null;
+		// Mark all async operations as stale
+		this.nonceManager.createAsyncOperation();
+		this.videoIteratorManager?.destroy();
+		this.audioIteratorManager?.destroy();
+		this.input.dispose();
 	}
 
-	private getPlaybackTime(): number {
-		return this.sharedAudioContext.currentTime - this.audioSyncAnchor;
-	}
-
-	private setPlaybackTime(time: number): void {
-		this.audioSyncAnchor = this.sharedAudioContext.currentTime - time;
-	}
-
-	private audioChunksForAfterResuming: {
-		buffer: AudioBuffer;
-		timestamp: number;
-	}[] = [];
-
-	private scheduleAudioChunk(
-		buffer: AudioBuffer,
+	private scheduleAudioNode = (
+		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
-	): void {
-		// TODO: Might already be scheduled, and then the playback rate changes
-		// TODO: Playbackrate does not yet work
-		const targetTime =
-			(mediaTimestamp - (this.trimBefore ?? 0) / this.fps) / this.playbackRate;
+	) => {
+		const currentTime = this.getPlaybackTime();
+		const delayWithoutPlaybackRate = mediaTimestamp - currentTime;
 		const delay =
-			targetTime + this.audioSyncAnchor - this.sharedAudioContext.currentTime;
-
-		const node = this.sharedAudioContext.createBufferSource();
-		node.buffer = buffer;
-		node.playbackRate.value = this.playbackRate;
-		node.connect(this.gainNode!);
+			delayWithoutPlaybackRate / (this.playbackRate * this.globalPlaybackRate);
 
 		if (delay >= 0) {
-			node.start(targetTime + this.audioSyncAnchor);
+			node.start(this.sharedAudioContext.currentTime + delay);
 		} else {
 			node.start(this.sharedAudioContext.currentTime, -delay);
 		}
+	};
 
-		this.audioBufferIterator!.addQueuedAudioNode(node, mediaTimestamp, buffer);
-		node.onended = () => {
-			return this.audioBufferIterator!.removeQueuedAudioNode(node);
-		};
+	private getPlaybackTime(): number {
+		return calculatePlaybackTime({
+			audioSyncAnchor: this.audioSyncAnchor,
+			currentTime: this.sharedAudioContext.currentTime,
+			playbackRate: this.playbackRate * this.globalPlaybackRate,
+		});
 	}
 
-	public onVideoFrame(
-		callback: (frame: CanvasImageSource) => void,
-	): () => void {
+	private setPlaybackTime(time: number, playbackRate: number): void {
+		this.audioSyncAnchor =
+			this.sharedAudioContext.currentTime - time / playbackRate;
+	}
+
+	public setVideoFrameCallback(
+		callback: null | ((frame: CanvasImageSource) => void),
+	) {
 		this.onVideoFrameCallback = callback;
-
-		if (this.initialized && callback && this.canvas) {
-			callback(this.canvas);
-		}
-
-		return () => {
-			if (this.onVideoFrameCallback === callback) {
-				this.onVideoFrameCallback = undefined;
-			}
-		};
 	}
 
-	private drawFrame = (frame: WrappedCanvas): void => {
-		if (!this.context) {
-			throw new Error('Context not initialized');
-		}
-
-		this.context.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
-		this.context.drawImage(frame.canvas, 0, 0);
-		this.debugStats.framesRendered++;
-
-		this.drawDebugOverlay();
-		if (this.onVideoFrameCallback && this.canvas) {
-			this.onVideoFrameCallback(this.canvas);
-		}
-
-		Internals.Log.trace(
-			{logLevel: this.logLevel, tag: '@remotion/media'},
-			`[MediaPlayer] Drew frame ${frame.timestamp.toFixed(3)}s`,
-		);
-	};
-
-	private startAudioIterator = async (
-		startFromSecond: number,
-		nonce: number,
-	): Promise<void> => {
-		if (!this.hasAudio()) return;
-
-		this.audioBufferIterator?.destroy();
-		this.audioChunksForAfterResuming = [];
-		const delayHandle = this.bufferState.delayPlayback();
-
-		const iterator = makeAudioIterator(this.audioSink!, startFromSecond);
-		this.debugStats.audioIteratorsCreated++;
-		this.audioBufferIterator = iterator;
-
-		// Schedule up to 3 buffers ahead of the current time
-		for (let i = 0; i < 3; i++) {
-			const result = await iterator.getNext();
-
-			if (iterator.isDestroyed()) {
-				delayHandle.unblock();
-				return;
-			}
-
-			if (nonce !== this.currentSeekNonce) {
-				delayHandle.unblock();
-				return;
-			}
-
-			if (!result.value) {
-				// media ended
-				delayHandle.unblock();
-				return;
-			}
-
-			const {buffer, timestamp} = result.value;
-
-			this.audioChunksForAfterResuming.push({
-				buffer,
-				timestamp,
-			});
-		}
-
-		delayHandle.unblock();
-	};
-
-	private drawDebugOverlay(): void {
+	private drawDebugOverlay = () => {
 		if (!this.debugOverlay) return;
 		if (this.context && this.canvas) {
 			drawPreviewOverlay({
 				context: this.context,
-				stats: this.debugStats,
 				audioTime: this.sharedAudioContext.currentTime,
 				audioContextState: this.sharedAudioContext.state,
 				audioSyncAnchor: this.audioSyncAnchor,
-				audioIterator: this.audioBufferIterator,
-				audioChunksForAfterResuming: this.audioChunksForAfterResuming,
+				audioIteratorManager: this.audioIteratorManager,
 				playing: this.playing,
+				videoIteratorManager: this.videoIteratorManager,
 			});
 		}
-	}
-
-	private startVideoIterator = async (
-		timeToSeek: number,
-		nonce: number,
-	): Promise<void> => {
-		if (!this.canvasSink) {
-			return;
-		}
-
-		this.videoFrameIterator?.destroy();
-		const iterator = createVideoIterator(timeToSeek, this.canvasSink);
-		this.debugStats.videoIteratorsCreated++;
-		this.videoFrameIterator = iterator;
-
-		const delayHandle = this.bufferState.delayPlayback();
-		const frameResult = await iterator.getNext();
-		delayHandle.unblock();
-
-		if (iterator.isDestroyed()) {
-			return;
-		}
-
-		if (nonce !== this.currentSeekNonce) {
-			return;
-		}
-
-		if (this.videoFrameIterator.isDestroyed()) {
-			return;
-		}
-
-		if (!frameResult.value) {
-			// media ended
-			return;
-		}
-
-		this.drawFrame(frameResult.value);
 	};
 }

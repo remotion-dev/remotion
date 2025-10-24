@@ -1,52 +1,48 @@
-import type {AudioIterator} from '../audio/audio-preview-iterator';
-
-export type DebugStats = {
-	videoIteratorsCreated: number;
-	audioIteratorsCreated: number;
-	framesRendered: number;
-};
+import type {AudioIteratorManager} from '../audio-iterator-manager';
+import type {VideoIteratorManager} from '../video-iterator-manager';
 
 export const drawPreviewOverlay = ({
 	context,
-	stats,
 	audioTime,
 	audioContextState,
-	audioIterator,
 	audioSyncAnchor,
-	audioChunksForAfterResuming,
 	playing,
+	audioIteratorManager,
+	videoIteratorManager,
 }: {
-	context: CanvasRenderingContext2D;
-	stats: DebugStats;
+	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
 	audioTime: number;
 	audioContextState: AudioContextState;
 	audioSyncAnchor: number;
-	audioIterator: AudioIterator | null;
-	audioChunksForAfterResuming: {
-		buffer: AudioBuffer;
-		timestamp: number;
-	}[];
 	playing: boolean;
+	audioIteratorManager: AudioIteratorManager | null;
+	videoIteratorManager: VideoIteratorManager | null;
 }) => {
 	// Collect all lines to be rendered
 	const lines: string[] = [
 		'Debug overlay',
-		`Video iterators created: ${stats.videoIteratorsCreated}`,
-		`Audio iterators created: ${stats.audioIteratorsCreated}`,
-		`Frames rendered: ${stats.framesRendered}`,
+		`Video iterators created: ${videoIteratorManager?.getVideoIteratorsCreated()}`,
+		`Audio iterators created: ${audioIteratorManager?.getAudioIteratorsCreated()}`,
+		`Frames rendered: ${videoIteratorManager?.getFramesRendered()}`,
 		`Audio context state: ${audioContextState}`,
 		`Audio time: ${(audioTime - audioSyncAnchor).toFixed(3)}s`,
 	];
 
-	if (audioIterator) {
-		const queuedPeriod = audioIterator.getQueuedPeriod();
+	if (audioIteratorManager) {
+		const queuedPeriod = audioIteratorManager
+			.getAudioBufferIterator()
+			?.getQueuedPeriod([]);
+
+		const numberOfChunksAfterResuming = audioIteratorManager
+			?.getAudioBufferIterator()
+			?.getNumberOfChunksAfterResuming();
 		if (queuedPeriod) {
 			lines.push(
 				`Audio queued until: ${(queuedPeriod.until - (audioTime - audioSyncAnchor)).toFixed(3)}s`,
 			);
-		} else if (audioChunksForAfterResuming.length > 0) {
+		} else if (numberOfChunksAfterResuming) {
 			lines.push(
-				`Audio chunks for after resuming: ${audioChunksForAfterResuming.length}`,
+				`Audio chunks for after resuming: ${numberOfChunksAfterResuming}`,
 			);
 		}
 

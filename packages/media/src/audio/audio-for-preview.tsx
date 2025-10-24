@@ -5,7 +5,9 @@ import {
 	Audio as RemotionAudio,
 	useBufferState,
 	useCurrentFrame,
+	useVideoConfig,
 } from 'remotion';
+import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
@@ -43,7 +45,7 @@ type NewAudioForPreviewProps = {
 	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
 };
 
-const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
+const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	src,
 	playbackRate,
 	logLevel,
@@ -160,6 +162,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 				audioStreamIndex: audioStreamIndex ?? 0,
 				debugOverlay: false,
 				bufferState: buffer,
+				globalPlaybackRate,
 			});
 
 			mediaPlayerRef.current = player;
@@ -231,14 +234,14 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 						setMediaPlayerReady(true);
 						Internals.Log.trace(
 							{logLevel, tag: '@remotion/media'},
-							`[NewAudioForPreview] MediaPlayer initialized successfully`,
+							`[AudioForPreview] MediaPlayer initialized successfully`,
 						);
 					}
 				})
 				.catch((error) => {
 					Internals.Log.error(
 						{logLevel, tag: '@remotion/media'},
-						'[NewAudioForPreview] Failed to initialize MediaPlayer',
+						'[AudioForPreview] Failed to initialize MediaPlayer',
 						error,
 					);
 					setShouldFallbackToNativeAudio(true);
@@ -246,7 +249,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		} catch (error) {
 			Internals.Log.error(
 				{logLevel, tag: '@remotion/media'},
-				'[NewAudioForPreview] MediaPlayer initialization failed',
+				'[AudioForPreview] MediaPlayer initialization failed',
 				error,
 			);
 			setShouldFallbackToNativeAudio(true);
@@ -261,7 +264,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 			if (mediaPlayerRef.current) {
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},
-					`[NewAudioForPreview] Disposing MediaPlayer`,
+					`[AudioForPreview] Disposing MediaPlayer`,
 				);
 				mediaPlayerRef.current.dispose();
 				mediaPlayerRef.current = null;
@@ -283,6 +286,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		audioStreamIndex,
 		disallowFallbackToHtml5Audio,
 		buffer,
+		globalPlaybackRate,
 	]);
 
 	useEffect(() => {
@@ -303,7 +307,7 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		audioPlayer.seekTo(currentTime);
 		Internals.Log.trace(
 			{logLevel, tag: '@remotion/media'},
-			`[NewAudioForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
+			`[AudioForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
 		);
 	}, [currentTime, logLevel, mediaPlayerReady]);
 
@@ -325,10 +329,14 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		audioPlayer.setVolume(userPreferredVolume);
 	}, [userPreferredVolume, mediaPlayerReady]);
 
-	const effectivePlaybackRate = useMemo(
-		() => playbackRate * globalPlaybackRate,
-		[playbackRate, globalPlaybackRate],
-	);
+	useEffect(() => {
+		const audioPlayer = mediaPlayerRef.current;
+		if (!audioPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		audioPlayer.setPlaybackRate(playbackRate);
+	}, [playbackRate, mediaPlayerReady]);
 
 	useEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;
@@ -336,8 +344,8 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 			return;
 		}
 
-		audioPlayer.setPlaybackRate(effectivePlaybackRate);
-	}, [effectivePlaybackRate, mediaPlayerReady]);
+		audioPlayer.setGlobalPlaybackRate(globalPlaybackRate);
+	}, [globalPlaybackRate, mediaPlayerReady]);
 
 	useEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;
@@ -420,8 +428,40 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 }) => {
 	const preloadedSrc = usePreload(src);
 
+	const frame = useCurrentFrame();
+	const videoConfig = useVideoConfig();
+	const currentTime = frame / videoConfig.fps;
+
+	const showShow = useMemo(() => {
+		return (
+			getTimeInSeconds({
+				unloopedTimeInSeconds: currentTime,
+				playbackRate: playbackRate ?? 1,
+				loop: loop ?? false,
+				trimBefore,
+				trimAfter,
+				mediaDurationInSeconds: Infinity,
+				fps: videoConfig.fps,
+				ifNoMediaDuration: 'infinity',
+				src,
+			}) !== null
+		);
+	}, [
+		currentTime,
+		loop,
+		playbackRate,
+		src,
+		trimAfter,
+		trimBefore,
+		videoConfig.fps,
+	]);
+
+	if (!showShow) {
+		return null;
+	}
+
 	return (
-		<NewAudioForPreview
+		<AudioForPreviewAssertedShowing
 			audioStreamIndex={audioStreamIndex ?? 0}
 			src={preloadedSrc}
 			playbackRate={playbackRate ?? 1}
