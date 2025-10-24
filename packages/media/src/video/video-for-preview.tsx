@@ -7,7 +7,14 @@ import React, {
 	useState,
 } from 'react';
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
-import {Html5Video, Internals, useBufferState, useCurrentFrame} from 'remotion';
+import {
+	Html5Video,
+	Internals,
+	useBufferState,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
+import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
@@ -49,7 +56,7 @@ type VideoForPreviewProps = {
 	readonly debugOverlay: boolean;
 };
 
-export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
+const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	src: unpreloadedSrc,
 	style,
 	playbackRate,
@@ -176,6 +183,7 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 				bufferState: buffer,
 				isPremounting,
 				isPostmounting,
+				globalPlaybackRate,
 			});
 
 			mediaPlayerRef.current = player;
@@ -296,6 +304,7 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 		buffer,
 		isPremounting,
 		isPostmounting,
+		globalPlaybackRate,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -354,10 +363,14 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 		mediaPlayer.setDebugOverlay(debugOverlay);
 	}, [debugOverlay, mediaPlayerReady]);
 
-	const effectivePlaybackRate = useMemo(
-		() => playbackRate * globalPlaybackRate,
-		[playbackRate, globalPlaybackRate],
-	);
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setPlaybackRate(playbackRate);
+	}, [playbackRate, mediaPlayerReady]);
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -365,8 +378,8 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 			return;
 		}
 
-		mediaPlayer.setPlaybackRate(effectivePlaybackRate);
-	}, [effectivePlaybackRate, mediaPlayerReady]);
+		mediaPlayer.setGlobalPlaybackRate(globalPlaybackRate);
+	}, [globalPlaybackRate, mediaPlayerReady]);
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -406,15 +419,11 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady || !onVideoFrame) {
+		if (!mediaPlayer || !mediaPlayerReady) {
 			return;
 		}
 
-		const unsubscribe = mediaPlayer.onVideoFrame(onVideoFrame);
-
-		return () => {
-			unsubscribe();
-		};
+		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
 	}, [onVideoFrame, mediaPlayerReady]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
@@ -456,4 +465,40 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 			className={classNameValue}
 		/>
 	);
+};
+
+export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
+	const frame = useCurrentFrame();
+	const videoConfig = useVideoConfig();
+	const currentTime = frame / videoConfig.fps;
+
+	const showShow = useMemo(() => {
+		return (
+			getTimeInSeconds({
+				unloopedTimeInSeconds: currentTime,
+				playbackRate: props.playbackRate,
+				loop: props.loop,
+				trimBefore: props.trimBefore,
+				trimAfter: props.trimAfter,
+				mediaDurationInSeconds: Infinity,
+				fps: videoConfig.fps,
+				ifNoMediaDuration: 'infinity',
+				src: props.src,
+			}) !== null
+		);
+	}, [
+		currentTime,
+		props.loop,
+		props.playbackRate,
+		props.src,
+		props.trimAfter,
+		props.trimBefore,
+		videoConfig.fps,
+	]);
+
+	if (!showShow) {
+		return null;
+	}
+
+	return <VideoForPreviewAssertedShowing {...props} />;
 };
