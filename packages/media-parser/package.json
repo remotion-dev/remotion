@@ -18,7 +18,7 @@
 		"@types/wicg-file-system-access": "2023.10.5",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.19.0",
-		"mediabunny": "1.24.2",
+		"mediabunny": "catalog:mediabunny",
 		"@types/bun": "1.3.0"
 	},
 	"publishConfig": {
