@@ -74,13 +74,14 @@ Then you have to update Root.tsx to use timeline url that you will pass as a pro
 
 The last thing - you have to upload generated resources (images and audio) to server and use urls to them instead of file names when generating a timeline.
 
-## Help
+## Optimisations
 
-We provide help on our [Discord server](https://discord.gg/6VzzNDwUwV).
+You can significantly speed up the story generation by generating audio and images in parallel.
 
-## Issues
+## Contributing
 
-Found an issue with Remotion? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
+The source of this template is in the [Remotion Monorepo](https://github.com/remotion-dev/remotion/tree/main/packages/template-ai-video).  
+Don't send pull requests here, this is only a mirror.
 
 ## License
 
