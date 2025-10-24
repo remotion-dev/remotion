@@ -1,9 +1,9 @@
 import {
 	ALL_FORMATS,
-	CanvasSink,
 	Input,
 	InputDisposedError,
 	UrlSource,
+	VideoSampleSink,
 } from 'mediabunny';
 
 export type ExtractFramesTimestampsInSecondsFn = (options: {
@@ -67,22 +67,18 @@ export async function extractFrames({
 			return;
 		}
 
-		const sink = new CanvasSink(videoTrack, {
-			poolSize: 1,
-		});
+		const sink = new VideoSampleSink(videoTrack);
 
-		for await (const wrappedCanvas of sink.canvasesAtTimestamps(timestamps)) {
+		for await (const videoSample of sink.samplesAtTimestamps(timestamps)) {
 			if (signal?.aborted) {
 				break;
 			}
 
-			if (!wrappedCanvas) {
+			if (!videoSample) {
 				continue;
 			}
 
-			const videoFrame = new VideoFrame(wrappedCanvas.canvas, {
-				timestamp: wrappedCanvas.timestamp * 1_000_000,
-			});
+			const videoFrame = videoSample.toVideoFrame();
 
 			onFrame(videoFrame);
 		}
