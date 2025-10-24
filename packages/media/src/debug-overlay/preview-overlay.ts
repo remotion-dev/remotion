@@ -32,16 +32,16 @@ export const drawPreviewOverlay = ({
 		const queuedPeriod = audioIteratorManager
 			.getAudioBufferIterator()
 			?.getQueuedPeriod();
+
+		const numberOfChunksAfterResuming =
+			audioIteratorManager?.getNumberOfChunksAfterResuming();
 		if (queuedPeriod) {
 			lines.push(
 				`Audio queued until: ${(queuedPeriod.until - (audioTime - audioSyncAnchor)).toFixed(3)}s`,
 			);
-		} else if (
-			audioIteratorManager?.getAudioChunksForAfterResuming()?.length &&
-			audioIteratorManager?.getAudioChunksForAfterResuming()?.length > 0
-		) {
+		} else if (numberOfChunksAfterResuming) {
 			lines.push(
-				`Audio chunks for after resuming: ${audioIteratorManager?.getAudioChunksForAfterResuming()?.length}`,
+				`Audio chunks for after resuming: ${numberOfChunksAfterResuming}`,
 			);
 		}
 
