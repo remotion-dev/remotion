@@ -25,7 +25,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"author": "Yehor Misiats (https://github.com/satelllte)",
 	"maintainers": [

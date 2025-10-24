@@ -16,17 +16,17 @@
     "@remotion/skia": "workspace:*",
     "@remotion/zod-types": "workspace:*",
     "@shopify/react-native-skia": "2.0.0",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "remotion": "workspace:*",
-    "zod": "3.22.3"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
-    "@types/dom-webcodecs": "0.1.11",
-    "@types/web": "0.0.166",
-    "eslint": "9.19.0",
-    "prettier": "3.6.0",
+    "@types/dom-webcodecs": "catalog:",
+    "@types/web": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
     "typescript": "5.8.2"
   },
   "private": true

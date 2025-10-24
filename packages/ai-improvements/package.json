@@ -4,7 +4,7 @@
 	},
 	"name": "ai-improvements",
 	"dependencies": {
-		"openai": "4.67.1",
+		"openai": "catalog:",
 		"recast": "0.23.11",
 		"@babel/types": "7.24.0"
 	},

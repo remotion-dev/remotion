@@ -18,20 +18,20 @@
     "@remotion/zod-types": "workspace:*",
     "md5": "2.3.0",
     "microsoft-cognitiveservices-speech-sdk": "1.17.0",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "remotion": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "20.12.14",
+    "@types/node": "catalog:",
     "@remotion/eslint-config-flat": "workspace:*",
     "@remotion/eslint-plugin": "workspace:*",
     "@types/md5": "2.3.0",
-    "@types/react": "19.0.0",
-    "eslint": "9.19.0",
-    "prettier": "3.6.0",
+    "@types/react": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
     "tsx": "4.19.3",
     "typescript": "5.8.2",
-    "zod": "3.22.3"
+    "zod": "catalog:"
   }
 }

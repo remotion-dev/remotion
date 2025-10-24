@@ -12,15 +12,15 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@remotion/cli": "workspace:*",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "remotion": "workspace:*",
-    "zod": "3.22.3"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
-    "prettier": "3.6.0",
-    "eslint": "9.19.0"
+    "prettier": "catalog:",
+    "eslint": "catalog:"
   },
   "private": true
 }

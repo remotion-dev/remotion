@@ -18,7 +18,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

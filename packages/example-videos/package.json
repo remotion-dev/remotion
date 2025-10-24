@@ -20,7 +20,7 @@
 	"dependencies": {},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0",
+		"eslint": "catalog:",
 		"dotenv": "9.0.2"
 	},
 	"private": true

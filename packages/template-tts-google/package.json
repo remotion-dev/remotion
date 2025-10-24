@@ -13,10 +13,10 @@
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
     "@types/md5": "2.3.0",
-    "@types/node": "20.12.14",
-    "@types/react": "19.0.0",
-    "eslint": "9.19.0",
-    "prettier": "3.6.0",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
     "tsx": "4.19.3",
     "typescript": "5.8.2"
   },
@@ -34,10 +34,10 @@
     "express": "4.21.0",
     "firebase": "9.19.1",
     "md5": "2.3.0",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "remotion": "workspace:*",
-    "zod": "3.22.3"
+    "zod": "catalog:"
   },
   "private": true
 }

@@ -27,7 +27,7 @@
 		"@remotion/streaming": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"exports": {
 		"./package.json": "./package.json",

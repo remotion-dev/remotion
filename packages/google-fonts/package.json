@@ -21,7 +21,7 @@
 		"@types/css-font-loading-module": "0.0.14",
 		"@types/prettier": "^2.7.1",
 		"postcss": "8.4.47",
-		"prettier": "3.6.0"
+		"prettier": "catalog:"
 	},
 	"types": "dist/cjs/index.d.ts",
 	"typesVersions": {

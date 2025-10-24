@@ -36,7 +36,7 @@
 		"@remotion/streaming": "workspace:*",
 		"@smithy/abort-controller": "4.0.1",
 		"remotion": "workspace:*",
-		"zod": "3.22.3"
+		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@remotion/bundler": "workspace:*",
@@ -48,11 +48,11 @@
 		"@types/mime-types": "2.1.1",
 		"@types/minimist": "1.2.2",
 		"@types/prompt": "^1.1.0",
-		"eslint": "9.19.0",
-		"next": "catalog:next",
+		"eslint": "catalog:",
+		"next": "catalog:",
 		"pureimage": "0.4.13",
 		"zip-lib": "^0.7.2",
-		"@types/node": "20.12.14"
+		"@types/node": "catalog:"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"

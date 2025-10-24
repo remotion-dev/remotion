@@ -30,7 +30,7 @@
 		"eslint-plugin-react": "7.37.4",
 		"eslint-plugin-react-hooks": "4.6.0",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"keywords": [
 		"remotion",

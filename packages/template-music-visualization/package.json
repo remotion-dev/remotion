@@ -17,17 +17,17 @@
     "@remotion/media-utils": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "@remotion/zod-types": "workspace:*",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "remotion": "workspace:*",
-    "zod": "3.22.3"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
-    "@types/react": "19.0.0",
-    "@types/web": "0.0.166",
-    "eslint": "9.19.0",
-    "prettier": "3.6.0",
+    "@types/react": "catalog:",
+    "@types/web": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
     "typescript": "5.8.2"
   },
   "private": true

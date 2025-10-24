@@ -26,14 +26,14 @@
 		"@remotion/renderer": "workspace:*",
 		"google-auth-library": "8.7.0",
 		"remotion": "workspace:*",
-		"zod": "3.22.3"
+		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@remotion/compositor-linux-x64-gnu": "workspace:*",
 		"@types/minimist": "1.2.2",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0",
-		"@types/node": "20.12.14"
+		"eslint": "catalog:",
+		"@types/node": "catalog:"
 	},
 	"exports": {
 		"./package.json": "./package.json",

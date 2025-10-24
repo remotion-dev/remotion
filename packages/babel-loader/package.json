@@ -33,7 +33,7 @@
 		"@remotion/bundler": "workspace:*",
 		"remotion": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"

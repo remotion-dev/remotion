@@ -5,7 +5,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",

@@ -26,8 +26,8 @@
     "@remotion/paths": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "isbot": "4.1.0",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "react-router": "7.5.2",
     "react-router-dom": "7.2.0",
     "remotion": "workspace:*",
@@ -37,18 +37,18 @@
     "@tailwindcss/vite": "4.1.1",
     "vite": "5.4.21",
     "vite-tsconfig-paths": "^4.2.1",
-    "zod": "3.22.3"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@react-router/dev": "7.2.0",
     "@remotion/eslint-config-flat": "workspace:*",
     "@remotion/eslint-plugin": "workspace:*",
-    "@types/node": "20.12.14",
-    "@types/react": "19.0.0",
-    "@types/react-dom": "19.0.0",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
     "dotenv": "16.0.3",
-    "eslint": "9.19.0",
-    "prettier": "3.6.0",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
     "tsx": "4.19.3",
     "typescript": "5.8.2"
   }

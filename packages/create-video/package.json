@@ -28,9 +28,9 @@
 		"@types/minimist": "1.2.2",
 		"@types/prompts": "^2.0.12",
 		"@types/tar": "6.1.1",
-		"react": "19.0.0",
+		"react": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"exports": {
 		"./package.json": "./package.json",
