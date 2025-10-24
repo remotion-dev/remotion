@@ -136,7 +136,7 @@ test('should not create too many iterators when the audio ends', async () => {
 	const created = manager.getAudioIteratorsCreated();
 	expect(created).toBe(1);
 
-	expect(scheduledChunks).toEqual([9.962666666666667, 9.984]);
+	expect(scheduledChunks).toEqual([9.962666666666667, 9.984, 9.984, 9.984]);
 });
 
 test('should create more iterators when seeking ', async () => {
