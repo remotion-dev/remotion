@@ -2,7 +2,7 @@ import {hasBeenAborted, WEBCODECS_TIMESCALE} from '@remotion/media-parser';
 import {rotateAndResizeVideoFrame} from '@remotion/webcodecs';
 import React, {useEffect, useRef, useState} from 'react';
 import {useVideoConfig} from 'remotion';
-import {extractFrames} from '../../helpers/extract-frames-mediabunny';
+import {extractFrames} from '../../helpers/extract-frames';
 import type {FrameDatabaseKey} from '../../helpers/frame-database';
 import {
 	aspectRatioCache,
