@@ -12,17 +12,15 @@
   "repository": {},
   "license": "UNLICENSED",
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.53",
     "@remotion/animation-utils": "workspace:*",
     "@remotion/cli": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "@remotion/layout-utils": "workspace:*",
     "@remotion/zod-types": "workspace:*",
-    "ai": "^5.0.76",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "remotion": "workspace:*",
-    "zod": "^4.1.12"
+    "zod": "3.22.3"
   },
   "devDependencies": {
     "@elevenlabs/elevenlabs-js": "^2.20.0",
@@ -40,7 +38,8 @@
     "tsx": "^4.20.6",
     "typescript": "5.8.2",
     "uuid": "^13.0.0",
-    "yargs": "^18.0.0"
+    "yargs": "^18.0.0",
+    "zod-to-json-schema": "^3.24.6"
   },
   "private": true
 }

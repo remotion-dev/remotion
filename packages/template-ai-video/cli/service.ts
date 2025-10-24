@@ -1,11 +1,9 @@
 import z from "zod";
-import { createOpenAI } from "@ai-sdk/openai";
-import { generateObject } from "ai";
-import { experimental_generateImage as generateImage } from "ai";
 import * as fs from "fs";
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api";
 import { ImageHeight, ImageWidth } from "../src/lib/constants";
+import { zodToJsonSchema } from "zod-to-json-schema";
 
 let apiKey: string | null = null;
 
@@ -13,29 +11,49 @@ export const setApiKey = (key: string) => {
   apiKey = key;
 };
 
-const getOpenAiProvider = () => {
-  if (!apiKey) {
-    throw "Missing OpenAI API KEY";
-  }
-
-  return createOpenAI({
-    apiKey,
-  });
-};
-
 export const openaiStructuredCompletion = async <T>(
   prompt: string,
   schema: z.ZodType<T>,
 ): Promise<T> => {
-  const openai = getOpenAiProvider();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const jsonSchema = zodToJsonSchema(schema) as any;
 
-  const { object } = await generateObject({
-    model: openai("gpt-4.1"),
-    schema,
-    prompt,
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "gpt-4.1",
+      messages: [{ role: "user", content: prompt }],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: "response",
+          schema: {
+            type: jsonSchema.type || "object",
+            properties: jsonSchema.properties,
+            required: jsonSchema.required,
+            additionalProperties: jsonSchema.additionalProperties ?? false,
+          },
+          strict: true,
+        },
+      },
+    }),
   });
 
-  return object as T;
+  if (!res.ok) throw new Error(`OpenAI error: ${await res.text()}`);
+
+  const data = await res.json();
+  const content = data.choices[0]?.message?.content;
+
+  if (!content) {
+    throw new Error("No content in OpenAI response");
+  }
+
+  const parsed = JSON.parse(content);
+  return schema.parse(parsed);
 };
 
 function saveUint8ArrayToPng(uint8Array: Uint8Array, filePath: string) {
@@ -44,15 +62,27 @@ function saveUint8ArrayToPng(uint8Array: Uint8Array, filePath: string) {
 }
 
 export const generateAiImage = async (prompt: string, path: string) => {
-  const openai = getOpenAiProvider();
-
-  const { image } = await generateImage({
-    model: openai.image("dall-e-3"),
-    prompt,
-    size: `${ImageWidth}x${ImageHeight}`,
+  const res = await fetch("https://api.openai.com/v1/images/generations", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "dall-e-3",
+      prompt,
+      size: `${ImageWidth}x${ImageHeight}`,
+      response_format: "b64_json",
+    }),
   });
 
-  saveUint8ArrayToPng(image.uint8Array, path);
+  if (!res.ok) throw new Error(`OpenAI error: ${await res.text()}`);
+
+  const data = await res.json();
+  const buffer = Buffer.from(data.data[0].b64_json, "base64");
+  const uint8Array = new Uint8Array(buffer);
+
+  saveUint8ArrayToPng(uint8Array, path);
 };
 
 export const getGenerateStoryPrompt = (title: string, topic: string) => {

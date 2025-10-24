@@ -5,7 +5,7 @@ import {
   getInputProps,
 } from "remotion";
 import { AIVideo, aiVideoSchema } from "./components/AIVideo";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FPS, WindowHeight, WindowWidth } from "./lib/constants";
 import { getTimelinePath, loadTimelineFromFile } from "./lib/utils";
 
@@ -17,7 +17,10 @@ export const RemotionRoot: React.FC = () => {
   const inputProps = getInputProps<InputProps>();
   const [frameLength, setFrameLength] = useState(1);
 
-  const resolvedProjectName = inputProps.projectName ?? "history_of_venus";
+  const resolvedProjectName = useMemo(
+    () => inputProps.projectName ?? "history_of_venus",
+    [inputProps],
+  );
 
   useEffect(() => {
     const handle = delayRender("Calculating FPS duration...");
@@ -35,7 +38,7 @@ export const RemotionRoot: React.FC = () => {
     return () => {
       continueRender(handle);
     };
-  }, []);
+  }, [resolvedProjectName]);
 
   return (
     <>
@@ -46,7 +49,6 @@ export const RemotionRoot: React.FC = () => {
         fps={FPS}
         width={WindowWidth}
         height={WindowHeight}
-        // @ts-expect-error zod version mismatch
         schema={aiVideoSchema}
         defaultProps={{
           projectName: resolvedProjectName,
