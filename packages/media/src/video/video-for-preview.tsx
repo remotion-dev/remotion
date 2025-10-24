@@ -106,6 +106,8 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 	warnAboutTooHighVolume(userPreferredVolume);
 
 	const parentSequence = useContext(SequenceContext);
+	const isPremounting = Boolean(parentSequence?.premounting);
+	const isPostmounting = Boolean(parentSequence?.postmounting);
 
 	const loopDisplay = useLoopDisplay({
 		loop,
@@ -172,6 +174,8 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 				audioStreamIndex,
 				debugOverlay,
 				bufferState: buffer,
+				isPremounting,
+				isPostmounting,
 			});
 
 			mediaPlayerRef.current = player;
@@ -290,6 +294,8 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 		audioStreamIndex,
 		debugOverlay,
 		buffer,
+		isPremounting,
+		isPostmounting,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -370,6 +376,24 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 
 		mediaPlayer.setLoop(loop);
 	}, [loop, mediaPlayerReady]);
+
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setIsPremounting(isPremounting);
+	}, [isPremounting, mediaPlayerReady]);
+
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setIsPostmounting(isPostmounting);
+	}, [isPostmounting, mediaPlayerReady]);
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

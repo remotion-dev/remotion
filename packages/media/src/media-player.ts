@@ -77,6 +77,9 @@ export class MediaPlayer {
 
 	private bufferState: ReturnType<typeof useBufferState>;
 
+	private isPremounting: boolean;
+	private isPostmounting: boolean;
+
 	constructor({
 		canvas,
 		src,
@@ -90,6 +93,8 @@ export class MediaPlayer {
 		fps,
 		debugOverlay,
 		bufferState,
+		isPremounting,
+		isPostmounting,
 	}: {
 		canvas: HTMLCanvasElement | null;
 		src: string;
@@ -103,6 +108,8 @@ export class MediaPlayer {
 		fps: number;
 		debugOverlay: boolean;
 		bufferState: ReturnType<typeof useBufferState>;
+		isPremounting: boolean;
+		isPostmounting: boolean;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -116,6 +123,8 @@ export class MediaPlayer {
 		this.fps = fps;
 		this.debugOverlay = debugOverlay;
 		this.bufferState = bufferState;
+		this.isPremounting = isPremounting;
+		this.isPostmounting = isPostmounting;
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
@@ -499,6 +508,14 @@ export class MediaPlayer {
 		this.fps = fps;
 	}
 
+	public setIsPremounting(isPremounting: boolean): void {
+		this.isPremounting = isPremounting;
+	}
+
+	public setIsPostmounting(isPostmounting: boolean): void {
+		this.isPostmounting = isPostmounting;
+	}
+
 	public setLoop(loop: boolean): void {
 		this.loop = loop;
 	}
@@ -601,6 +618,16 @@ export class MediaPlayer {
 		);
 	};
 
+	private delayPlaybackHandleIfNotPremounting() {
+		if (this.isPremounting || this.isPostmounting) {
+			return {
+				unblock: () => {},
+			};
+		}
+
+		return this.bufferState.delayPlayback();
+	}
+
 	private startAudioIterator = async (
 		startFromSecond: number,
 		nonce: number,
@@ -609,7 +636,7 @@ export class MediaPlayer {
 
 		this.audioBufferIterator?.destroy();
 		this.audioChunksForAfterResuming = [];
-		const delayHandle = this.bufferState.delayPlayback();
+		const delayHandle = this.delayPlaybackHandleIfNotPremounting();
 
 		const iterator = makeAudioIterator(this.audioSink!, startFromSecond);
 		this.debugStats.audioIteratorsCreated++;
@@ -675,7 +702,7 @@ export class MediaPlayer {
 		this.debugStats.videoIteratorsCreated++;
 		this.videoFrameIterator = iterator;
 
-		const delayHandle = this.bufferState.delayPlayback();
+		const delayHandle = this.delayPlaybackHandleIfNotPremounting();
 		const frameResult = await iterator.getNext();
 		delayHandle.unblock();
 

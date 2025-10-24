@@ -107,6 +107,8 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 	const preloadedSrc = usePreload(src);
 
 	const parentSequence = useContext(SequenceContext);
+	const isPremounting = Boolean(parentSequence?.premounting);
+	const isPostmounting = Boolean(parentSequence?.postmounting);
 
 	const loopDisplay = useLoopDisplay({
 		loop,
@@ -160,6 +162,8 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 				audioStreamIndex: audioStreamIndex ?? 0,
 				debugOverlay: false,
 				bufferState: buffer,
+				isPostmounting,
+				isPremounting,
 			});
 
 			mediaPlayerRef.current = player;
@@ -283,6 +287,8 @@ const NewAudioForPreview: React.FC<NewAudioForPreviewProps> = ({
 		audioStreamIndex,
 		disallowFallbackToHtml5Audio,
 		buffer,
+		isPremounting,
+		isPostmounting,
 	]);
 
 	useEffect(() => {
