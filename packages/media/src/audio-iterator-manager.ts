@@ -41,9 +41,6 @@ export const audioIteratorManager = ({
 			mediaTimestamp: number,
 		) => void;
 	}) => {
-		// TODO: Might already be scheduled, and then the playback rate changes
-		// TODO: Playbackrate does not yet work
-
 		const node = sharedAudioContext.createBufferSource();
 		node.buffer = buffer;
 		node.playbackRate.value = playbackRate;
@@ -158,7 +155,7 @@ export const audioIteratorManager = ({
 			return;
 		}
 
-		audioBufferIterator.pause();
+		audioBufferIterator.moveQueuedChunksToPauseQueue();
 	};
 
 	const seek = async ({
@@ -269,7 +266,7 @@ export const audioIteratorManager = ({
 		}
 	};
 
-	const resumePlayback = ({
+	const resumeScheduledAudioChunks = ({
 		playbackRate,
 		scheduleAudioNode,
 	}: {
@@ -295,7 +292,7 @@ export const audioIteratorManager = ({
 
 	return {
 		startAudioIterator,
-		resumeScheduledAudioChunks: resumePlayback,
+		resumeScheduledAudioChunks,
 		pausePlayback,
 		getAudioBufferIterator: () => audioBufferIterator,
 		destroy: () => {

@@ -170,7 +170,7 @@ export const makeAudioIterator = (
 		audioChunksForAfterResuming.push({buffer, timestamp});
 	};
 
-	const pause = () => {
+	const moveQueuedChunksToPauseQueue = () => {
 		const toQueue = removeAndReturnAllQueuedAudioNodes();
 		for (const chunk of toQueue) {
 			addChunkForAfterResuming(chunk.buffer, chunk.timestamp);
@@ -249,7 +249,7 @@ export const makeAudioIterator = (
 		},
 		tryToSatisfySeek,
 		addChunkForAfterResuming,
-		pause,
+		moveQueuedChunksToPauseQueue,
 		getNumberOfChunksAfterResuming,
 	};
 };

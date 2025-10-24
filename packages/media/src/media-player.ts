@@ -385,6 +385,20 @@ export class MediaPlayer {
 
 	public setPlaybackRate(rate: number): void {
 		this.playbackRate = rate;
+		if (!this.audioIteratorManager) {
+			return;
+		}
+
+		const iterator = this.audioIteratorManager.getAudioBufferIterator();
+		if (!iterator) {
+			return;
+		}
+
+		iterator.moveQueuedChunksToPauseQueue();
+		this.audioIteratorManager.resumeScheduledAudioChunks({
+			playbackRate: rate,
+			scheduleAudioNode: this.scheduleAudioNode,
+		});
 	}
 
 	public setFps(fps: number): void {
@@ -418,7 +432,6 @@ export class MediaPlayer {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 	) => {
-		// TODO: Might already be scheduled, and then the playback rate changes
 		// TODO: Playbackrate does not yet work
 		const targetTime =
 			(mediaTimestamp - (this.trimBefore ?? 0) / this.fps) / this.playbackRate;
