@@ -6,6 +6,7 @@ import {
 	isAlreadyQueued,
 	makeAudioIterator,
 } from './audio/audio-preview-iterator';
+import type {Nonce} from './nonce-manager';
 
 export const audioIteratorManager = ({
 	audioTrack,
@@ -30,11 +31,7 @@ export const audioIteratorManager = ({
 	let audioBufferIterator: AudioIterator | null = null;
 	let audioIteratorsCreated = 0;
 
-	const startAudioIterator = async (
-		startFromSecond: number,
-		nonce: number,
-		getSeekNonce: () => number,
-	) => {
+	const startAudioIterator = async (startFromSecond: number, nonce: Nonce) => {
 		audioBufferIterator?.destroy();
 		audioChunksForAfterResuming = [];
 		const delayHandle = bufferState.delayPlayback();
@@ -52,7 +49,7 @@ export const audioIteratorManager = ({
 				return;
 			}
 
-			if (nonce !== getSeekNonce()) {
+			if (nonce.isStale()) {
 				delayHandle.unblock();
 				return;
 			}
@@ -137,7 +134,6 @@ export const audioIteratorManager = ({
 	const seek = async ({
 		newTime,
 		nonce,
-		getSeekNonce,
 		fps,
 		playbackRate,
 		audioSyncAnchor,
@@ -145,8 +141,7 @@ export const audioIteratorManager = ({
 		getIsPlaying,
 	}: {
 		newTime: number;
-		nonce: number;
-		getSeekNonce: () => number;
+		nonce: Nonce;
 		fps: number;
 		playbackRate: number;
 		audioSyncAnchor: number;
@@ -166,7 +161,7 @@ export const audioIteratorManager = ({
 			const audioSatisfyResult =
 				await audioBufferIterator.tryToSatisfySeek(newTime);
 
-			if (getSeekNonce() !== nonce) {
+			if (nonce.isStale()) {
 				return;
 			}
 
@@ -175,7 +170,7 @@ export const audioIteratorManager = ({
 			}
 
 			if (audioSatisfyResult.type === 'not-satisfied') {
-				await startAudioIterator(newTime, nonce, getSeekNonce);
+				await startAudioIterator(newTime, nonce);
 
 				return;
 			}
@@ -195,7 +190,7 @@ export const audioIteratorManager = ({
 			const audioSatisfyResult =
 				await audioBufferIterator.tryToSatisfySeek(nextTime);
 
-			if (getSeekNonce() !== nonce) {
+			if (nonce.isStale()) {
 				return;
 			}
 
@@ -204,7 +199,7 @@ export const audioIteratorManager = ({
 			}
 
 			if (audioSatisfyResult.type === 'not-satisfied') {
-				await startAudioIterator(nextTime, nonce, getSeekNonce);
+				await startAudioIterator(nextTime, nonce);
 
 				return;
 			}

@@ -8,6 +8,8 @@ import {
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getTimeInSeconds} from './get-time-in-seconds';
 import {isNetworkError} from './is-network-error';
+import type {Nonce, NonceManager} from './nonce-manager';
+import {makeNonceManager} from './nonce-manager';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
 
@@ -51,12 +53,16 @@ export class MediaPlayer {
 
 	private debugOverlay = false;
 
+	private nonceManager: NonceManager;
+
 	private onVideoFrameCallback: null | ((frame: CanvasImageSource) => void) =
 		null;
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
 	private bufferState: ReturnType<typeof useBufferState>;
+
+	private seekPromiseChain: Promise<void> = Promise.resolve();
 
 	constructor({
 		canvas,
@@ -97,6 +103,7 @@ export class MediaPlayer {
 		this.fps = fps;
 		this.debugOverlay = debugOverlay;
 		this.bufferState = bufferState;
+		this.nonceManager = makeNonceManager();
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
@@ -224,21 +231,15 @@ export class MediaPlayer {
 				});
 			}
 
+			const nonce = this.nonceManager.createAsyncOperation();
+
 			try {
 				// intentionally not awaited
 				if (this.audioIteratorManager) {
-					this.audioIteratorManager.startAudioIterator(
-						startTime,
-						this.currentSeekNonce,
-						() => this.currentSeekNonce,
-					);
+					this.audioIteratorManager.startAudioIterator(startTime, nonce);
 				}
 
-				await this.videoIteratorManager?.startVideoIterator(
-					startTime,
-					this.currentSeekNonce,
-					() => this.currentSeekNonce,
-				);
+				await this.videoIteratorManager?.startVideoIterator(startTime, nonce);
 			} catch (error) {
 				if (this.isDisposalError()) {
 					return {type: 'disposed'};
@@ -273,12 +274,8 @@ export class MediaPlayer {
 		}
 	}
 
-	private currentSeekNonce = 0;
-	private seekPromiseChain: Promise<void> = Promise.resolve();
-
 	public async seekTo(time: number): Promise<void> {
-		this.currentSeekNonce++;
-		const nonce = this.currentSeekNonce;
+		const nonce = this.nonceManager.createAsyncOperation();
 		await this.seekPromiseChain;
 
 		this.seekPromiseChain = this.seekToDoNotCallDirectly(time, nonce);
@@ -287,9 +284,9 @@ export class MediaPlayer {
 
 	public async seekToDoNotCallDirectly(
 		time: number,
-		nonce: number,
+		nonce: Nonce,
 	): Promise<void> {
-		if (nonce !== this.currentSeekNonce) {
+		if (nonce.isStale()) {
 			return;
 		}
 
@@ -326,13 +323,11 @@ export class MediaPlayer {
 		await this.videoIteratorManager?.seek({
 			newTime,
 			nonce,
-			getSeekNonce: () => this.currentSeekNonce,
 		});
 
 		await this.audioIteratorManager?.seek({
 			newTime,
 			nonce,
-			getSeekNonce: () => this.currentSeekNonce,
 			fps: this.fps,
 			playbackRate: this.playbackRate,
 			audioSyncAnchor: this.audioSyncAnchor,

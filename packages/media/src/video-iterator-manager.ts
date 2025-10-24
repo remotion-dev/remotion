@@ -2,6 +2,7 @@ import type {InputVideoTrack, WrappedCanvas} from 'mediabunny';
 import {CanvasSink} from 'mediabunny';
 import type {LogLevel} from 'remotion';
 import {Internals, type useBufferState} from 'remotion';
+import type {Nonce} from './nonce-manager';
 import {
 	createVideoIterator,
 	type VideoIterator,
@@ -56,8 +57,7 @@ export const videoIteratorManager = ({
 
 	const startVideoIterator = async (
 		timeToSeek: number,
-		nonce: number,
-		getSeekNonce: () => number,
+		nonce: Nonce,
 	): Promise<void> => {
 		videoFrameIterator?.destroy();
 		const iterator = createVideoIterator(timeToSeek, canvasSink);
@@ -72,7 +72,7 @@ export const videoIteratorManager = ({
 			return;
 		}
 
-		if (nonce !== getSeekNonce()) {
+		if (nonce.isStale()) {
 			return;
 		}
 
@@ -88,15 +88,7 @@ export const videoIteratorManager = ({
 		drawFrame(frameResult.value);
 	};
 
-	const seek = async ({
-		getSeekNonce,
-		newTime,
-		nonce,
-	}: {
-		newTime: number;
-		nonce: number;
-		getSeekNonce: () => number;
-	}) => {
+	const seek = async ({newTime, nonce}: {newTime: number; nonce: Nonce}) => {
 		if (!videoFrameIterator) {
 			return;
 		}
@@ -107,8 +99,8 @@ export const videoIteratorManager = ({
 
 		if (videoSatisfyResult.type === 'satisfied') {
 			drawFrame(videoSatisfyResult.frame);
-		} else if (getSeekNonce() === nonce) {
-			startVideoIterator(newTime, nonce, getSeekNonce);
+		} else if (!nonce.isStale()) {
+			startVideoIterator(newTime, nonce);
 		}
 	};
 
