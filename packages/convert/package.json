@@ -47,7 +47,7 @@
 	"devDependencies": {
 		"@remix-run/dev": "^2.15.2",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"@tailwindcss/postcss": "^4.1.10",
+		"@tailwindcss/postcss": "4.1.1",
 		"@types/dom-webcodecs": "0.1.11",
 		"eslint": "9.19.0",
 		"postcss": "8.4.47",

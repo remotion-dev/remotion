@@ -9,7 +9,6 @@ import {
 import { CompositionProps } from "../../../types/constants";
 import { NextLogo } from "./NextLogo";
 import { loadFont, fontFamily } from "@remotion/google-fonts/Inter";
-import React from "react";
 import { Rings } from "./Rings";
 import { TextFade } from "./TextFade";
 

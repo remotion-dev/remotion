@@ -31,7 +31,7 @@
 		"express": "4.21.0",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "9.19.0",
-		"next": "15.4.7",
+		"next": "16.0.0",
 		"@types/mime-types": "2.1.1"
 	},
 	"publishConfig": {
