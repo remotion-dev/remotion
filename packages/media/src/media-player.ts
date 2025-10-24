@@ -64,6 +64,8 @@ export class MediaPlayer {
 
 	private bufferState: ReturnType<typeof useBufferState>;
 
+	private isPremounting: boolean;
+	private isPostmounting: boolean;
 	private seekPromiseChain: Promise<void> = Promise.resolve();
 
 	constructor({
@@ -80,6 +82,8 @@ export class MediaPlayer {
 		fps,
 		debugOverlay,
 		bufferState,
+		isPremounting,
+		isPostmounting,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -94,6 +98,8 @@ export class MediaPlayer {
 		fps: number;
 		debugOverlay: boolean;
 		bufferState: ReturnType<typeof useBufferState>;
+		isPremounting: boolean;
+		isPostmounting: boolean;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -108,6 +114,8 @@ export class MediaPlayer {
 		this.fps = fps;
 		this.debugOverlay = debugOverlay;
 		this.bufferState = bufferState;
+		this.isPremounting = isPremounting;
+		this.isPostmounting = isPostmounting;
 		this.nonceManager = makeNonceManager();
 
 		this.input = new Input({
@@ -205,7 +213,8 @@ export class MediaPlayer {
 
 				this.videoIteratorManager = videoIteratorManager({
 					videoTrack,
-					bufferState: this.bufferState,
+					delayPlaybackHandleIfNotPremounting:
+						this.delayPlaybackHandleIfNotPremounting,
 					context: this.context,
 					canvas: this.canvas,
 					getOnVideoFrameCallback: () => this.onVideoFrameCallback,
@@ -238,7 +247,8 @@ export class MediaPlayer {
 			if (audioTrack) {
 				this.audioIteratorManager = audioIteratorManager({
 					audioTrack,
-					bufferState: this.bufferState,
+					delayPlaybackHandleIfNotPremounting:
+						this.delayPlaybackHandleIfNotPremounting,
 					sharedAudioContext: this.sharedAudioContext,
 				});
 			}
@@ -388,6 +398,16 @@ export class MediaPlayer {
 		this.drawDebugOverlay();
 	}
 
+	private delayPlaybackHandleIfNotPremounting = () => {
+		if (this.isPremounting || this.isPostmounting) {
+			return {
+				unblock: () => {},
+			};
+		}
+
+		return this.bufferState.delayPlayback();
+	};
+
 	public pause(): void {
 		this.playing = false;
 		this.audioIteratorManager?.pausePlayback();
@@ -405,6 +425,14 @@ export class MediaPlayer {
 		}
 
 		this.audioIteratorManager.setVolume(volume);
+	}
+
+	public setTrimBefore(trimBefore: number | undefined): void {
+		this.trimBefore = trimBefore;
+	}
+
+	public setTrimAfter(trimAfter: number | undefined): void {
+		this.trimAfter = trimAfter;
 	}
 
 	public setDebugOverlay(debugOverlay: boolean): void {
@@ -447,6 +475,14 @@ export class MediaPlayer {
 
 	public setFps(fps: number): void {
 		this.fps = fps;
+	}
+
+	public setIsPremounting(isPremounting: boolean): void {
+		this.isPremounting = isPremounting;
+	}
+
+	public setIsPostmounting(isPostmounting: boolean): void {
+		this.isPostmounting = isPostmounting;
 	}
 
 	public setLoop(loop: boolean): void {

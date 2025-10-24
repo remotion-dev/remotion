@@ -1,5 +1,4 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
-import type {useBufferState} from 'remotion';
 import {expect, test} from 'vitest';
 import {audioIteratorManager} from '../audio-iterator-manager';
 import {makeNonceManager} from '../nonce-manager';
@@ -16,11 +15,9 @@ const prepare = async () => {
 
 	const manager = audioIteratorManager({
 		audioTrack,
-		bufferState: {
-			delayPlayback: () => {
-				return {unblock() {}};
-			},
-		} as ReturnType<typeof useBufferState>,
+		delayPlaybackHandleIfNotPremounting: () => ({
+			unblock: () => {},
+		}),
 		sharedAudioContext: new AudioContext(),
 	});
 

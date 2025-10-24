@@ -113,6 +113,8 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	warnAboutTooHighVolume(userPreferredVolume);
 
 	const parentSequence = useContext(SequenceContext);
+	const isPremounting = Boolean(parentSequence?.premounting);
+	const isPostmounting = Boolean(parentSequence?.postmounting);
 
 	const loopDisplay = useLoopDisplay({
 		loop,
@@ -179,6 +181,8 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 				audioStreamIndex,
 				debugOverlay,
 				bufferState: buffer,
+				isPremounting,
+				isPostmounting,
 				globalPlaybackRate,
 			});
 
@@ -298,6 +302,8 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 		audioStreamIndex,
 		debugOverlay,
 		buffer,
+		isPremounting,
+		isPostmounting,
 		globalPlaybackRate,
 	]);
 
@@ -322,7 +328,9 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
 
-		mediaPlayer.seekTo(currentTime);
+		mediaPlayer.seekTo(currentTime).catch(() => {
+			// Might be disposed
+		});
 		Internals.Log.trace(
 			{logLevel, tag: '@remotion/media'},
 			`[VideoForPreview] Updating target time to ${currentTime.toFixed(3)}s`,
@@ -390,6 +398,24 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 			return;
 		}
 
+		mediaPlayer.setIsPremounting(isPremounting);
+	}, [isPremounting, mediaPlayerReady]);
+
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setIsPostmounting(isPostmounting);
+	}, [isPostmounting, mediaPlayerReady]);
+
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
 		mediaPlayer.setFps(videoConfig.fps);
 	}, [videoConfig.fps, mediaPlayerReady]);
 
@@ -401,6 +427,24 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 
 		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
 	}, [onVideoFrame, mediaPlayerReady]);
+
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setTrimBefore(trimBefore);
+	}, [trimBefore, mediaPlayerReady]);
+
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setTrimAfter(trimAfter);
+	}, [trimAfter, mediaPlayerReady]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
