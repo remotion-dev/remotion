@@ -1,6 +1,5 @@
 import type {InputAudioTrack, WrappedAudioBuffer} from 'mediabunny';
 import {AudioBufferSink} from 'mediabunny';
-import type {useBufferState} from 'remotion';
 import type {AudioIterator} from './audio/audio-preview-iterator';
 import {
 	isAlreadyQueued,
@@ -10,11 +9,11 @@ import type {Nonce} from './nonce-manager';
 
 export const audioIteratorManager = ({
 	audioTrack,
-	bufferState,
+	delayPlaybackHandleIfNotPremounting,
 	sharedAudioContext,
 }: {
 	audioTrack: InputAudioTrack;
-	bufferState: ReturnType<typeof useBufferState>;
+	delayPlaybackHandleIfNotPremounting: () => {unblock: () => void};
 	sharedAudioContext: AudioContext;
 }) => {
 	let muted = false;
@@ -113,7 +112,7 @@ export const audioIteratorManager = ({
 		) => void;
 	}) => {
 		audioBufferIterator?.destroy();
-		const delayHandle = bufferState.delayPlayback();
+		const delayHandle = delayPlaybackHandleIfNotPremounting();
 
 		const iterator = makeAudioIterator(audioSink, startFromSecond);
 		audioIteratorsCreated++;

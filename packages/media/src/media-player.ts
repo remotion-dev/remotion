@@ -213,7 +213,8 @@ export class MediaPlayer {
 
 				this.videoIteratorManager = videoIteratorManager({
 					videoTrack,
-					bufferState: this.bufferState,
+					delayPlaybackHandleIfNotPremounting:
+						this.delayPlaybackHandleIfNotPremounting,
 					context: this.context,
 					canvas: this.canvas,
 					getOnVideoFrameCallback: () => this.onVideoFrameCallback,
@@ -246,7 +247,8 @@ export class MediaPlayer {
 			if (audioTrack) {
 				this.audioIteratorManager = audioIteratorManager({
 					audioTrack,
-					bufferState: this.bufferState,
+					delayPlaybackHandleIfNotPremounting:
+						this.delayPlaybackHandleIfNotPremounting,
 					sharedAudioContext: this.sharedAudioContext,
 				});
 			}
@@ -394,6 +396,16 @@ export class MediaPlayer {
 		}
 
 		this.drawDebugOverlay();
+	}
+
+	private delayPlaybackHandleIfNotPremounting() {
+		if (this.isPremounting || this.isPostmounting) {
+			return {
+				unblock: () => {},
+			};
+		}
+
+		return this.bufferState.delayPlayback();
 	}
 
 	public pause(): void {

@@ -1,7 +1,7 @@
 import type {InputVideoTrack, WrappedCanvas} from 'mediabunny';
 import {CanvasSink} from 'mediabunny';
 import type {LogLevel} from 'remotion';
-import {Internals, type useBufferState} from 'remotion';
+import {Internals} from 'remotion';
 import type {Nonce} from './nonce-manager';
 import {
 	createVideoIterator,
@@ -9,7 +9,7 @@ import {
 } from './video/video-preview-iterator';
 
 export const videoIteratorManager = ({
-	bufferState,
+	delayPlaybackHandleIfNotPremounting,
 	canvas,
 	context,
 	drawDebugOverlay,
@@ -18,7 +18,7 @@ export const videoIteratorManager = ({
 	videoTrack,
 }: {
 	videoTrack: InputVideoTrack;
-	bufferState: ReturnType<typeof useBufferState>;
+	delayPlaybackHandleIfNotPremounting: () => {unblock: () => void};
 	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
 	canvas: OffscreenCanvas | HTMLCanvasElement;
 	getOnVideoFrameCallback: () => null | ((frame: CanvasImageSource) => void);
@@ -64,7 +64,7 @@ export const videoIteratorManager = ({
 		videoIteratorsCreated++;
 		videoFrameIterator = iterator;
 
-		const delayHandle = bufferState.delayPlayback();
+		const delayHandle = delayPlaybackHandleIfNotPremounting();
 		const frameResult = await iterator.getNext();
 		delayHandle.unblock();
 
