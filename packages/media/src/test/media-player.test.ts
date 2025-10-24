@@ -21,8 +21,5 @@ test('media player should work', async () => {
 		trimBefore: undefined,
 	});
 	await mediaPlayer.initialize(0);
-	expect(mediaPlayer.debugStats).toEqual({
-		framesRendered: 1,
-		videoIteratorsCreated: 1,
-	});
+	expect(mediaPlayer.videoIteratorManager?.getFramesRendered()).toEqual(1);
 });

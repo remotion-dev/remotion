@@ -1,33 +1,29 @@
 import type {AudioIteratorManager} from '../audio-iterator-manager';
-
-export type DebugStats = {
-	videoIteratorsCreated: number;
-	framesRendered: number;
-};
+import type {VideoIteratorManager} from '../video-iterator-manager';
 
 export const drawPreviewOverlay = ({
 	context,
-	stats,
 	audioTime,
 	audioContextState,
 	audioSyncAnchor,
 	playing,
 	audioIteratorManager,
+	videoIteratorManager,
 }: {
 	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-	stats: DebugStats;
 	audioTime: number;
 	audioContextState: AudioContextState;
 	audioSyncAnchor: number;
 	playing: boolean;
 	audioIteratorManager: AudioIteratorManager | null;
+	videoIteratorManager: VideoIteratorManager | null;
 }) => {
 	// Collect all lines to be rendered
 	const lines: string[] = [
 		'Debug overlay',
-		`Video iterators created: ${stats.videoIteratorsCreated}`,
+		`Video iterators created: ${videoIteratorManager?.getVideoIteratorsCreated()}`,
 		`Audio iterators created: ${audioIteratorManager?.getAudioIteratorsCreated()}`,
-		`Frames rendered: ${stats.framesRendered}`,
+		`Frames rendered: ${videoIteratorManager?.getFramesRendered()}`,
 		`Audio context state: ${audioContextState}`,
 		`Audio time: ${(audioTime - audioSyncAnchor).toFixed(3)}s`,
 	];

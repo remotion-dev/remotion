@@ -4,10 +4,13 @@ import type {useBufferState} from 'remotion';
 import type {AudioIterator} from './audio/audio-preview-iterator';
 import {makeAudioIterator} from './audio/audio-preview-iterator';
 
-export const audioIteratorManager = (
-	audioTrack: InputAudioTrack,
-	bufferState: ReturnType<typeof useBufferState>,
-) => {
+export const audioIteratorManager = ({
+	audioTrack,
+	bufferState,
+}: {
+	audioTrack: InputAudioTrack;
+	bufferState: ReturnType<typeof useBufferState>;
+}) => {
 	let audioChunksForAfterResuming: {
 		buffer: AudioBuffer;
 		timestamp: number;
@@ -68,7 +71,7 @@ export const audioIteratorManager = (
 		destroy: () => {
 			audioBufferIterator?.destroy();
 			audioBufferIterator = null;
-			audioChunksForAfterResuming.length = 0;
+			audioChunksForAfterResuming = [];
 		},
 		getAudioIteratorsCreated: () => audioIteratorsCreated,
 	};
