@@ -226,7 +226,7 @@ export class MediaPlayer {
 				throw new Error(`should have asserted that the time is not null`);
 			}
 
-			this.setPlaybackTime(startTime);
+			this.setPlaybackTime(startTime, this.playbackRate);
 
 			if (audioTrack) {
 				this.audioIteratorManager = audioIteratorManager({
@@ -322,10 +322,11 @@ export class MediaPlayer {
 			return;
 		}
 
-		const newAudioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
+		const newAudioSyncAnchor =
+			this.sharedAudioContext.currentTime - newTime / this.playbackRate;
 		const diff = Math.abs(newAudioSyncAnchor - this.audioSyncAnchor);
 		if (diff > 0.04) {
-			this.setPlaybackTime(newTime);
+			this.setPlaybackTime(newTime, this.playbackRate);
 		}
 
 		await this.videoIteratorManager?.seek({
@@ -359,7 +360,7 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		this.setPlaybackTime(newTime);
+		this.setPlaybackTime(newTime, this.playbackRate);
 		this.playing = true;
 
 		if (this.audioIteratorManager) {
@@ -404,6 +405,8 @@ export class MediaPlayer {
 		if (!this.audioIteratorManager) {
 			return;
 		}
+
+		this.setPlaybackTime(this.getPlaybackTime(), rate);
 
 		const iterator = this.audioIteratorManager.getAudioBufferIterator();
 		if (!iterator) {
@@ -470,8 +473,9 @@ export class MediaPlayer {
 		});
 	}
 
-	private setPlaybackTime(time: number): void {
-		this.audioSyncAnchor = this.sharedAudioContext.currentTime - time;
+	private setPlaybackTime(time: number, playbackRate: number): void {
+		this.audioSyncAnchor =
+			this.sharedAudioContext.currentTime - time / playbackRate;
 	}
 
 	public setVideoFrameCallback(
