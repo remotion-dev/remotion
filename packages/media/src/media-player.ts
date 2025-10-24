@@ -322,7 +322,7 @@ export class MediaPlayer {
 
 		const newAudioSyncAnchor = this.sharedAudioContext.currentTime - newTime;
 		const diff = Math.abs(newAudioSyncAnchor - this.audioSyncAnchor);
-		if (diff > 0.1) {
+		if (diff > 0.04) {
 			this.setPlaybackTime(newTime);
 		}
 

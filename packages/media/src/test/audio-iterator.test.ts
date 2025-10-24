@@ -43,6 +43,12 @@ test('media player should work', async () => {
 		mediaTimestamp: number,
 	) => {
 		node.start(mediaTimestamp);
+		setTimeout(
+			() => {
+				node.stop();
+			},
+			(node.buffer?.duration ?? 0) * 1000,
+		);
 		scheduledChunks.push(mediaTimestamp);
 	};
 
@@ -93,6 +99,12 @@ test('should not create too many iterators when the audio ends', async () => {
 		mediaTimestamp: number,
 	) => {
 		node.start(mediaTimestamp);
+		setTimeout(
+			() => {
+				node.stop();
+			},
+			(node.buffer?.duration ?? 0) * 1000,
+		);
 		scheduledChunks.push(mediaTimestamp);
 	};
 
@@ -136,6 +148,12 @@ test('should create more iterators when seeking ', async () => {
 		mediaTimestamp: number,
 	) => {
 		node.start(mediaTimestamp);
+		setTimeout(
+			() => {
+				node.stop();
+			},
+			(node.buffer?.duration ?? 0) * 1000,
+		);
 		scheduledChunks.push(mediaTimestamp);
 	};
 

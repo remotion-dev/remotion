@@ -188,8 +188,15 @@ export const makeAudioIterator = (
 			iterator.return().catch(() => undefined);
 			audioChunksForAfterResuming.length = 0;
 		},
-		getNext: () => {
-			return iterator.next();
+		getNext: async () => {
+			const next = await iterator.next();
+			if (next.value) {
+				lastReturnedBuffer = next.value;
+			} else {
+				iteratorEnded = true;
+			}
+
+			return next;
 		},
 		isDestroyed: () => {
 			return destroyed;

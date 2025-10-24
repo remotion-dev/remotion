@@ -55,13 +55,14 @@ export const audioIteratorManager = ({
 			throw new Error('Audio buffer iterator not found');
 		}
 
-		audioBufferIterator.addQueuedAudioNode(node, mediaTimestamp, buffer);
-		node.onended = () => {
-			if (!audioBufferIterator) {
-				return;
-			}
+		const iterator = audioBufferIterator;
 
-			return audioBufferIterator.removeQueuedAudioNode(node);
+		iterator.addQueuedAudioNode(node, mediaTimestamp, buffer);
+		node.onended = () => {
+			// Some leniancy is needed as we find that sometimes onended is fired a bit too early
+			setTimeout(() => {
+				iterator.removeQueuedAudioNode(node);
+			}, 30);
 		};
 	};
 
@@ -189,8 +190,6 @@ export const audioIteratorManager = ({
 			return;
 		}
 
-		// TODO: This should account for audio chunks after resuming
-
 		const currentTimeIsAlreadyQueued = isAlreadyQueued(
 			newTime,
 			audioBufferIterator.getQueuedPeriod([]),
@@ -221,7 +220,6 @@ export const audioIteratorManager = ({
 			toBeScheduled.push(...audioSatisfyResult.buffers);
 		}
 
-		// TODO: What is this is beyond the end of the video
 		const nextTime =
 			newTime +
 			// start of next frame
