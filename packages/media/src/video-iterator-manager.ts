@@ -87,9 +87,34 @@ export const videoIteratorManager = ({
 		drawFrame(frameResult.value);
 	};
 
+	const seek = async ({
+		getSeekNonce,
+		newTime,
+		nonce,
+	}: {
+		newTime: number;
+		nonce: number;
+		getSeekNonce: () => number;
+	}) => {
+		if (!videoFrameIterator) {
+			return;
+		}
+
+		// Should return immediately, so it's okay to not use Promise.all here
+		const videoSatisfyResult =
+			await videoFrameIterator.tryToSatisfySeek(newTime);
+
+		if (videoSatisfyResult.type === 'satisfied') {
+			drawFrame(videoSatisfyResult.frame);
+		} else if (getSeekNonce() === nonce) {
+			startVideoIterator(newTime, nonce, getSeekNonce);
+		}
+	};
+
 	return {
 		startVideoIterator,
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
+		seek,
 		destroy: () => {
 			videoFrameIterator?.destroy();
 			videoFrameIterator = null;

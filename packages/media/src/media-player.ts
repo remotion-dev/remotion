@@ -335,20 +335,11 @@ export class MediaPlayer {
 			this.setPlaybackTime(newTime);
 		}
 
-		// Should return immediately, so it's okay to not use Promise.all here
-		const videoSatisfyResult = await this.videoIteratorManager
-			?.getVideoFrameIterator()
-			?.tryToSatisfySeek(newTime);
-
-		if (videoSatisfyResult?.type === 'satisfied') {
-			this.videoIteratorManager?.drawFrame(videoSatisfyResult.frame);
-		} else if (videoSatisfyResult && this.currentSeekNonce === nonce) {
-			this.videoIteratorManager?.startVideoIterator(
-				newTime,
-				nonce,
-				() => this.currentSeekNonce,
-			);
-		}
+		await this.videoIteratorManager?.seek({
+			newTime,
+			nonce,
+			getSeekNonce: () => this.currentSeekNonce,
+		});
 
 		await this.audioIteratorManager?.seek({
 			newTime,
