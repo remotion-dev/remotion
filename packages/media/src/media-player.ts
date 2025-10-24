@@ -5,6 +5,7 @@ import {
 	audioIteratorManager,
 	type AudioIteratorManager,
 } from './audio-iterator-manager';
+import {calculatePlaybackTime} from './calculate-playbacktime';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getTimeInSeconds} from './get-time-in-seconds';
 import {isNetworkError} from './is-network-error';
@@ -343,7 +344,22 @@ export class MediaPlayer {
 	}
 
 	public async play(time: number): Promise<void> {
-		this.setPlaybackTime(time);
+		const newTime = getTimeInSeconds({
+			unloopedTimeInSeconds: time,
+			playbackRate: this.playbackRate,
+			loop: this.loop,
+			trimBefore: this.trimBefore,
+			trimAfter: this.trimAfter,
+			mediaDurationInSeconds: this.totalDuration ?? null,
+			fps: this.fps,
+			ifNoMediaDuration: 'infinity',
+			src: this.src,
+		});
+		if (newTime === null) {
+			throw new Error(`should have asserted that the time is not null`);
+		}
+
+		this.setPlaybackTime(newTime);
 		this.playing = true;
 
 		if (this.audioIteratorManager) {
@@ -435,20 +451,23 @@ export class MediaPlayer {
 		mediaTimestamp: number,
 	) => {
 		// TODO: Playbackrate does not yet work
-		const targetTime =
-			(mediaTimestamp - (this.trimBefore ?? 0) / this.fps) / this.playbackRate;
-		const delay =
-			targetTime + this.audioSyncAnchor - this.sharedAudioContext.currentTime;
+		const currentTime = this.getPlaybackTime();
+		const delayWithoutPlaybackRate = mediaTimestamp - currentTime;
+		const delay = delayWithoutPlaybackRate / this.playbackRate;
 
 		if (delay >= 0) {
-			node.start(targetTime + this.audioSyncAnchor);
+			node.start(this.sharedAudioContext.currentTime + delay);
 		} else {
 			node.start(this.sharedAudioContext.currentTime, -delay);
 		}
 	};
 
 	private getPlaybackTime(): number {
-		return this.sharedAudioContext.currentTime - this.audioSyncAnchor;
+		return calculatePlaybackTime({
+			audioSyncAnchor: this.audioSyncAnchor,
+			currentTime: this.sharedAudioContext.currentTime,
+			playbackRate: this.playbackRate,
+		});
 	}
 
 	private setPlaybackTime(time: number): void {
