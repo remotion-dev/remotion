@@ -110,7 +110,9 @@ export const videoIteratorManager = ({
 		}
 
 		// Intentionally not awaited, letting audio start as well
-		startVideoIterator(newTime, nonce);
+		startVideoIterator(newTime, nonce).catch(() => {
+			// Ignore errors, might be stale or disposed
+		});
 	};
 
 	return {

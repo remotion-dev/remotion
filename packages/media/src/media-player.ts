@@ -105,6 +105,11 @@ export class MediaPlayer {
 		this.bufferState = bufferState;
 		this.nonceManager = makeNonceManager();
 
+		this.input = new Input({
+			source: new UrlSource(this.src),
+			formats: ALL_FORMATS,
+		});
+
 		if (canvas) {
 			const context = canvas.getContext('2d', {
 				alpha: true,
@@ -121,10 +126,10 @@ export class MediaPlayer {
 		}
 	}
 
-	private input: Input<UrlSource> | null = null;
+	private input: Input<UrlSource>;
 
 	private isDisposalError(): boolean {
-		return this.input?.disposed === true;
+		return this.input.disposed === true;
 	}
 
 	public initialize(
@@ -139,21 +144,12 @@ export class MediaPlayer {
 		startTimeUnresolved: number,
 	): Promise<MediaPlayerInitResult> {
 		try {
-			const urlSource = new UrlSource(this.src);
-
-			const input = new Input({
-				source: urlSource,
-				formats: ALL_FORMATS,
-			});
-
-			this.input = input;
-
-			if (input.disposed) {
+			if (this.input.disposed) {
 				return {type: 'disposed'};
 			}
 
 			try {
-				await input.getFormat();
+				await this.input.getFormat();
 			} catch (error) {
 				if (this.isDisposalError()) {
 					return {type: 'disposed'};
@@ -175,10 +171,14 @@ export class MediaPlayer {
 			}
 
 			const [durationInSeconds, videoTrack, audioTracks] = await Promise.all([
-				input.computeDuration(),
-				input.getPrimaryVideoTrack(),
-				input.getAudioTracks(),
+				this.input.computeDuration(),
+				this.input.getPrimaryVideoTrack(),
+				this.input.getAudioTracks(),
 			]);
+			if (this.input.disposed) {
+				return {type: 'disposed'};
+			}
+
 			this.totalDuration = durationInSeconds;
 
 			const audioTrack = audioTracks[this.audioStreamIndex] ?? null;
@@ -192,6 +192,10 @@ export class MediaPlayer {
 
 				if (!canDecode) {
 					return {type: 'cannot-decode'};
+				}
+
+				if (this.input.disposed) {
+					return {type: 'disposed'};
 				}
 
 				this.videoIteratorManager = videoIteratorManager({
@@ -218,7 +222,7 @@ export class MediaPlayer {
 			});
 
 			if (startTime === null) {
-				return {type: 'success', durationInSeconds: this.totalDuration};
+				throw new Error(`should have asserted that the time is not null`);
 			}
 
 			this.setPlaybackTime(startTime);
@@ -281,21 +285,6 @@ export class MediaPlayer {
 	}
 
 	public async seekTo(time: number): Promise<void> {
-		const nonce = this.nonceManager.createAsyncOperation();
-		await this.seekPromiseChain;
-
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(time, nonce);
-		await this.seekPromiseChain;
-	}
-
-	public async seekToDoNotCallDirectly(
-		time: number,
-		nonce: Nonce,
-	): Promise<void> {
-		if (nonce.isStale()) {
-			return;
-		}
-
 		const newTime = getTimeInSeconds({
 			unloopedTimeInSeconds: time,
 			playbackRate: this.playbackRate,
@@ -309,9 +298,21 @@ export class MediaPlayer {
 		});
 
 		if (newTime === null) {
-			// invalidate in-flight video operations
-			this.videoIteratorManager?.destroy();
-			this.audioIteratorManager?.destroy();
+			throw new Error(`should have asserted that the time is not null`);
+		}
+
+		const nonce = this.nonceManager.createAsyncOperation();
+		await this.seekPromiseChain;
+
+		this.seekPromiseChain = this.seekToDoNotCallDirectly(time, nonce);
+		await this.seekPromiseChain;
+	}
+
+	public async seekToDoNotCallDirectly(
+		newTime: number,
+		nonce: Nonce,
+	): Promise<void> {
+		if (nonce.isStale()) {
 			return;
 		}
 
@@ -406,9 +407,11 @@ export class MediaPlayer {
 			}
 		}
 
-		this.input?.dispose();
+		// Mark all async operations as stale
+		this.nonceManager.createAsyncOperation();
 		this.videoIteratorManager?.destroy();
 		this.audioIteratorManager?.destroy();
+		this.input.dispose();
 	}
 
 	private scheduleAudioNode = (

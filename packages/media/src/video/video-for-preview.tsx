@@ -7,7 +7,14 @@ import React, {
 	useState,
 } from 'react';
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
-import {Html5Video, Internals, useBufferState, useCurrentFrame} from 'remotion';
+import {
+	Html5Video,
+	Internals,
+	useBufferState,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
+import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {useLoopDisplay} from '../show-in-timeline';
 import {useMediaInTimeline} from '../use-media-in-timeline';
@@ -49,7 +56,7 @@ type VideoForPreviewProps = {
 	readonly debugOverlay: boolean;
 };
 
-export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
+const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	src: unpreloadedSrc,
 	style,
 	playbackRate,
@@ -428,4 +435,40 @@ export const VideoForPreview: React.FC<VideoForPreviewProps> = ({
 			className={classNameValue}
 		/>
 	);
+};
+
+export const VideoForPreview: React.FC<VideoForPreviewProps> = (props) => {
+	const frame = useCurrentFrame();
+	const videoConfig = useVideoConfig();
+	const currentTime = frame / videoConfig.fps;
+
+	const showShow = useMemo(() => {
+		return (
+			getTimeInSeconds({
+				unloopedTimeInSeconds: currentTime,
+				playbackRate: props.playbackRate,
+				loop: props.loop,
+				trimBefore: props.trimBefore,
+				trimAfter: props.trimAfter,
+				mediaDurationInSeconds: Infinity,
+				fps: videoConfig.fps,
+				ifNoMediaDuration: 'infinity',
+				src: props.src,
+			}) !== null
+		);
+	}, [
+		currentTime,
+		props.loop,
+		props.playbackRate,
+		props.src,
+		props.trimAfter,
+		props.trimBefore,
+		videoConfig.fps,
+	]);
+
+	if (!showShow) {
+		return null;
+	}
+
+	return <VideoForPreviewAssertedShowing {...props} />;
 };
