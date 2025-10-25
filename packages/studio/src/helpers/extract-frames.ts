@@ -6,11 +6,15 @@ import {
 	VideoSampleSink,
 } from 'mediabunny';
 
-export type ExtractFramesTimestampsInSecondsFn = (options: {
+type Options = {
 	track: {width: number; height: number};
 	container: string;
 	durationInSeconds: number | null;
-}) => Promise<number[]> | number[];
+};
+
+export type ExtractFramesTimestampsInSecondsFn = (
+	options: Options,
+) => Promise<number[]> | number[];
 
 export type ExtractFramesProps = {
 	src: string;
@@ -30,33 +34,30 @@ export async function extractFrames({
 		source: new UrlSource(src),
 	});
 
+	const dispose = () => {
+		input.dispose();
+	};
+
 	if (signal) {
-		signal.addEventListener(
-			'abort',
-			() => {
-				input.dispose();
-			},
-			{once: true},
-		);
+		signal.addEventListener('abort', dispose, {once: true});
 	}
 
 	try {
-		const videoTrack = await input.getPrimaryVideoTrack();
+		const [durationInSeconds, format, videoTrack] = await Promise.all([
+			input.computeDuration(),
+			input.getFormat(),
+			input.getPrimaryVideoTrack(),
+		]);
 		if (!videoTrack) {
 			throw new Error('No video track found in the input');
 		}
-
-		const [durationInSeconds, format] = await Promise.all([
-			input.computeDuration(),
-			input.getFormat(),
-		]);
 
 		const timestamps =
 			typeof timestampsInSeconds === 'function'
 				? await timestampsInSeconds({
 						track: {
-							width: videoTrack.codedWidth,
-							height: videoTrack.codedHeight,
+							width: videoTrack.displayWidth,
+							height: videoTrack.displayHeight,
 						},
 						container: format.name,
 						durationInSeconds,
@@ -89,6 +90,9 @@ export async function extractFrames({
 
 		throw error;
 	} finally {
-		input.dispose();
+		dispose();
+		if (signal) {
+			signal.removeEventListener('abort', dispose);
+		}
 	}
 }
