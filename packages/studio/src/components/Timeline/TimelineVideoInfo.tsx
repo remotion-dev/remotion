@@ -1,4 +1,4 @@
-import {hasBeenAborted, WEBCODECS_TIMESCALE} from '@remotion/media-parser';
+import {WEBCODECS_TIMESCALE} from '@remotion/media-parser';
 import React, {useEffect, useRef, useState} from 'react';
 import {useVideoConfig} from 'remotion';
 import {extractFrames} from '../../helpers/extract-frames';
@@ -412,10 +412,6 @@ export const TimelineVideoInfo: React.FC<{
 				});
 			})
 			.catch((e: unknown) => {
-				if (hasBeenAborted(e)) {
-					return;
-				}
-
 				setError(e as Error);
 			})
 			.finally(() => {
