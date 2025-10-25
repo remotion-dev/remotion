@@ -42,7 +42,7 @@ ELEVENLABS_API_KEY=
 
 If you do not create env file - you will be prompted for these variables when using CLI.
 
-**Configure voice**
+**Select voice**
 
 In **generateVoice()** function replace the voice id from ElevenLabs with the one you like. You can use their API for this. Alternatively, you can open any voice on their website and extract the Voice Id from the url (id comes after **voiceId=**)
 
