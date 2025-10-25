@@ -8,7 +8,10 @@ export const loadTimelineFromFile = async (filename: string) => {
   const timeline = json as Timeline;
   timeline.elements.sort((a, b) => a.startMs - b.startMs);
 
-  const lengthMs = timeline.elements[timeline.elements.length - 1].endMs / 1000;
+  const lengthMs =
+    timeline.elements.length > 0
+      ? timeline.elements[timeline.elements.length - 1].endMs / 1000
+      : 0;
   const lengthFrames = Math.floor(lengthMs * FPS);
 
   return { timeline, lengthFrames };

@@ -140,6 +140,10 @@ export const generateVoice = async (
     text,
   });
 
+  if (!data.alignment || !data.alignment.characterEndTimesSeconds.length) {
+    throw new Error("ElevenLabs response missing timestamps");
+  }
+
   saveBase64ToMp3(data.audioBase64, path);
-  return data.alignment!;
+  return data.alignment;
 };
