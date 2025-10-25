@@ -17,9 +17,9 @@
 		"@remotion/example-videos": "workspace:*",
 		"@types/wicg-file-system-access": "2023.10.5",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0",
-		"mediabunny": "catalog:mediabunny",
-		"@types/bun": "1.3.0"
+		"eslint": "catalog:",
+		"mediabunny": "catalog:",
+		"@types/bun": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

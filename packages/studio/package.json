@@ -38,14 +38,14 @@
 		"memfs": "3.4.3",
 		"source-map": "0.7.3",
 		"open": "^8.4.2",
-		"zod": "3.22.3"
+		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"react": "19.0.0",
-		"react-dom": "19.0.0",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"@types/semver": "^7.3.4",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

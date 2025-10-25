@@ -30,8 +30,8 @@
 		"@types/express": "^5.0.0",
 		"express": "4.21.0",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0",
-		"next": "catalog:next",
+		"eslint": "catalog:",
+		"next": "catalog:",
 		"@types/mime-types": "2.1.1"
 	},
 	"publishConfig": {

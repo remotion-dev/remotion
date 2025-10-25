@@ -14,7 +14,7 @@
 	},
 	"private": true,
 	"devDependencies": {
-		"@types/node": "20.12.14",
+		"@types/node": "catalog:",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/lambda": "workspace:*",

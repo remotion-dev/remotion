@@ -19,7 +19,7 @@
 	},
 	"private": true,
 	"devDependencies": {
-		"eslint": "9.19.0",
+		"eslint": "catalog:",
 		"@types/eslint__eslintrc": "2.1.2"
 	},
 	"dependencies": {

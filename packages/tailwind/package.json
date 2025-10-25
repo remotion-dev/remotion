@@ -35,7 +35,7 @@
 		"@remotion/bundler": "workspace:*",
 		"autoprefixer": "10.4.20",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"keywords": [
 		"remotion",
