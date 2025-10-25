@@ -17,15 +17,15 @@
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/preload": "workspace:*",
-		"next": "catalog:next",
-		"react": "19.0.0",
-		"react-dom": "19.0.0",
+		"next": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"remotion": "workspace:*",
 		"@remotion/media": "workspace:*"
 	},
 	"devDependencies": {
-		"eslint": "9.19.0",
-		"@types/node": "20.12.14"
+		"eslint": "catalog:",
+		"@types/node": "catalog:"
 	},
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",

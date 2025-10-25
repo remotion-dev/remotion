@@ -23,9 +23,9 @@
 	},
 	"peerDependencies": {},
 	"devDependencies": {
-		"openai": "4.67.1",
+		"openai": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"keywords": [
 		"remotion"

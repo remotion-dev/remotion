@@ -36,12 +36,12 @@
 	},
 	"devDependencies": {
 		"ast-types": "0.16.1",
-		"react": "19.0.0",
+		"react": "catalog:",
 		"@babel/types": "7.24.0",
 		"@types/semver": "^7.3.4",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0",
-		"@types/node": "20.12.14"
+		"eslint": "catalog:",
+		"@types/node": "catalog:"
 	},
 	"exports": {
 		".": "./dist/index.js",

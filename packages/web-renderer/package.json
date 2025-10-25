@@ -18,9 +18,9 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0",
-		"react": "19.0.0",
-		"react-dom": "19.0.0"
+		"eslint": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:"
 	},
 	"peerDependencies": {
 		"react": ">=18.0.0",

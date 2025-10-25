@@ -35,13 +35,13 @@
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.1.0",
 		"@happy-dom/global-registrator": "14.5.1",
-		"react": "19.0.0",
-		"react-dom": "19.0.0",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"@types/ws": "8.5.10",
 		"@remotion/example-videos": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0",
-		"@types/node": "20.12.14"
+		"eslint": "catalog:",
+		"@types/node": "catalog:"
 	},
 	"optionalDependencies": {
 		"@remotion/compositor-darwin-arm64": "workspace:*",
