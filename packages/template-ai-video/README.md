@@ -56,9 +56,13 @@ https://elevenlabs.io/app/voice-library?voiceId=aTxZrSrp47xsP6Ot4Kgd
 bun gen
 ```
 
-You will be prompted API keys (if you haven't added them to .env file), story title and topic.
+You will be prompted to enter story title and topic.
 
-After that CLI will generate text, images and audio with timestamps, and combine all those into a timeline that van be used by this template to render a video.
+Title can be a vague one or long and detailed. Short title on the first slide will be generated based on it.
+
+Topic can be e.g. History, Interesting facts, ELI5 etc.
+
+After you enter title and topic, CLI will generate text, images and audio with timestamps, and combine all those into a timeline that van be used by this template to render a video.
 
 ## Technical overview
 
