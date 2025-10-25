@@ -37,6 +37,7 @@ export type Template = {
 		| 'google-tts'
 		| 'audiogram'
 		| 'music-visualization'
+		| 'ai-video'
 		| 'skia'
 		| 'overlay'
 		| 'stargazer'
@@ -374,6 +375,27 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: 'template-music-visualization',
+		allowEnableTailwind: true,
+	},
+	{
+		homePageLabel: 'AI Video',
+		shortName: 'AI Video',
+		org: 'remotion-dev',
+		repoName: 'template-ai-video',
+		description: 'Create AI Videos from description',
+		longerDescription:
+			'A template that turns video descriptions into full videos that can be posted on Social Media.',
+		promoVideo: {
+			muxId: 'FGl01Rw6c5YOjBCTdVhn5wrmVaRWDOjDeT28iY3Sv47w',
+			height: 1920,
+			width: 1080,
+		},
+		cliId: 'ai-video' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-ai-video',
 		allowEnableTailwind: true,
 	},
 	{
