@@ -3340,7 +3340,7 @@ export const articles = [
 	},
 	{
 		id: 'mediabunny/extract-frames',
-		title: 'Extracting video frames',
+		title: 'Extracting frames from a video in JavaScript',
 		relativePath: 'docs/mediabunny/extract-frames.mdx',
 		compId: 'articles-docs-mediabunny-extract-frames',
 		crumb: 'Mediabunny',

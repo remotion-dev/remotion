@@ -1,20 +1,11 @@
 ---
 image: /generated/articles-docs-mediabunny-extract-frames.png
-title: Extracting video frames
+title: Extracting frames from a video in JavaScript
 crumb: 'Mediabunny'
 sidebar_label: Extracting video frames
 ---
 
-Extracting frames from a video file is useful for creating thumbnails, filmstrips, or analyzing video content.
-
-This guide shows how to extract frames at specific timestamps using mediabunny.
-
-## Use cases
-
-- **Video thumbnails**: Generate preview images for video players or galleries
-- **Filmstrip previews**: Show a timeline preview with frames from the video (like in the Remotion Studio)
-- **Frame analysis**: Extract frames for image processing or computer vision tasks
-- **Sprite sheets**: Create a sprite sheet of video frames for efficient seeking
+Extracting frames from a video file, for example to display a filmstrip in an editing interface, can be done using [Mediabunny](https://mediabunny.dev).
 
 ## Implementation
 
@@ -23,7 +14,13 @@ Here's a complete implementation using mediabunny's `VideoSampleSink`:
 ```ts twoslash title="extractFrames() API snippet"
 import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSampleSink} from 'mediabunny';
 
-export type ExtractFramesTimestampsInSecondsFn = (options: {track: {width: number; height: number}; container: string; durationInSeconds: number | null}) => Promise<number[]> | number[];
+type Options = {
+  track: {width: number; height: number};
+  container: string;
+  durationInSeconds: number | null;
+};
+
+export type ExtractFramesTimestampsInSecondsFn = (options: Options) => Promise<number[]> | number[];
 
 export type ExtractFramesProps = {
   src: string;
@@ -38,30 +35,26 @@ export async function extractFrames({src, timestampsInSeconds, onFrame, signal}:
     source: new UrlSource(src),
   });
 
+  const dispose = () => {
+    input.dispose();
+  };
+
   if (signal) {
-    signal.addEventListener(
-      'abort',
-      () => {
-        input.dispose();
-      },
-      {once: true},
-    );
+    signal.addEventListener('abort', dispose, {once: true});
   }
 
   try {
-    const videoTrack = await input.getPrimaryVideoTrack();
+    const [durationInSeconds, format, videoTrack] = await Promise.all([input.computeDuration(), input.getFormat(), input.getPrimaryVideoTrack()]);
     if (!videoTrack) {
       throw new Error('No video track found in the input');
     }
-
-    const [durationInSeconds, format] = await Promise.all([input.computeDuration(), input.getFormat()]);
 
     const timestamps =
       typeof timestampsInSeconds === 'function'
         ? await timestampsInSeconds({
             track: {
-              width: videoTrack.codedWidth,
-              height: videoTrack.codedHeight,
+              width: videoTrack.displayWidth,
+              height: videoTrack.displayHeight,
             },
             container: format.name,
             durationInSeconds,
@@ -94,7 +87,10 @@ export async function extractFrames({src, timestampsInSeconds, onFrame, signal}:
 
     throw error;
   } finally {
-    input.dispose();
+    dispose();
+    if (signal) {
+      signal.removeEventListener('abort', dispose);
+    }
   }
 }
 ```
@@ -105,7 +101,7 @@ export async function extractFrames({src, timestampsInSeconds, onFrame, signal}:
 
 ```ts
 await extractFrames({
-  src: 'https://example.com/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   timestampsInSeconds: [0, 1, 2, 3, 4],
   onFrame: (frame) => {
     // Draw frame to canvas
