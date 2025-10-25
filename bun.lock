@@ -1201,7 +1201,6 @@
       "name": "@remotion/studio",
       "version": "4.0.365",
       "dependencies": {
-        "@remotion/media-parser": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",
