@@ -34,7 +34,7 @@
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
-		"mediabunny": "catalog:mediabunny",
+		"mediabunny": "catalog:",
 		"memfs": "3.4.3",
 		"source-map": "0.7.3",
 		"open": "^8.4.2",
