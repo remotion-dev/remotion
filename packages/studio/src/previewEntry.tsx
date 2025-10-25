@@ -45,8 +45,6 @@ const renderToDOM = (content: React.ReactElement) => {
 renderToDOM(<NoRegisterRoot />);
 
 Internals.waitForRoot((NewRoot) => {
-	window.remotion_isStudio = true;
-	window.remotion_isReadOnlyStudio = false;
 	Internals.enableSequenceStackTraces();
 
 	renderToDOM(<Studio readOnly={false} rootComponent={NewRoot} />);

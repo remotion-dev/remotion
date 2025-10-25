@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.363",
+	"version": "4.0.365",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -32,13 +32,13 @@
 	},
 	"peerDependencies": {},
 	"devDependencies": {
-		"@types/dom-webcodecs": "0.1.11",
+		"@types/dom-webcodecs": "catalog:",
 		"@remotion/example-videos": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"playwright": "1.51.1",
-		"vite": "5.4.20",
-		"@playwright/test": "1.51.1",
-		"eslint": "9.19.0"
+		"playwright": "1.55.1",
+		"vite": "5.4.21",
+		"@playwright/test": "1.55.1",
+		"eslint": "catalog:"
 	},
 	"keywords": [],
 	"publishConfig": {

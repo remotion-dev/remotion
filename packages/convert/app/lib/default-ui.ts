@@ -1,10 +1,10 @@
 import type {RouteAction} from '~/seo';
 
-export type RotateOrMirrorState = 'rotate' | 'mirror' | null;
+export type RotateOrMirrorOrCropState = 'rotate' | 'mirror' | 'crop' | null;
 
 export const defaultRotateOrMirorState = (
 	action: RouteAction,
-): RotateOrMirrorState => {
+): RotateOrMirrorOrCropState => {
 	if (action.type === 'convert') {
 		return null;
 	}
@@ -47,6 +47,14 @@ export const defaultRotateOrMirorState = (
 
 	if (action.type === 'transcribe') {
 		return null;
+	}
+
+	if (action.type === 'generic-crop') {
+		return 'crop';
+	}
+
+	if (action.type === 'crop-format') {
+		return 'crop';
 	}
 
 	throw new Error(
@@ -99,6 +107,14 @@ export const isConvertEnabledByDefault = (action: RouteAction) => {
 		return true;
 	}
 
+	if (action.type === 'generic-crop') {
+		return true;
+	}
+
+	if (action.type === 'crop-format') {
+		return true;
+	}
+
 	throw new Error(
 		'Convert is not enabled by default ' + (action satisfies never),
 	);
@@ -109,28 +125,42 @@ export type ConvertSections =
 	| 'rotate'
 	| 'mirror'
 	| 'resize'
+	| 'crop'
 	| 'resample';
 
 export const getOrderOfSections = (
 	action: RouteAction,
 ): {[key in ConvertSections]: number} => {
+	if (action.type === 'generic-crop' || action.type === 'crop-format') {
+		return {
+			crop: 0,
+			resize: 1,
+			rotate: 2,
+			mirror: 3,
+			convert: 4,
+			resample: 5,
+		};
+	}
+
 	if (action.type === 'generic-rotate' || action.type === 'rotate-format') {
 		return {
 			rotate: 0,
 			resize: 1,
-			mirror: 2,
-			convert: 3,
-			resample: 4,
+			crop: 2,
+			mirror: 3,
+			convert: 4,
+			resample: 5,
 		};
 	}
 
 	if (action.type === 'convert' || action.type === 'generic-convert') {
 		return {
 			convert: 0,
-			resize: 1,
-			rotate: 2,
-			mirror: 3,
-			resample: 4,
+			crop: 1,
+			resize: 2,
+			rotate: 3,
+			mirror: 4,
+			resample: 5,
 		};
 	}
 
@@ -138,9 +168,10 @@ export const getOrderOfSections = (
 		return {
 			convert: 0,
 			resize: 1,
-			rotate: 2,
-			mirror: 3,
-			resample: 4,
+			crop: 2,
+			rotate: 3,
+			mirror: 4,
+			resample: 5,
 		};
 	}
 
@@ -148,9 +179,10 @@ export const getOrderOfSections = (
 		return {
 			mirror: 0,
 			resize: 1,
-			rotate: 2,
-			convert: 3,
-			resample: 4,
+			crop: 2,
+			rotate: 3,
+			convert: 4,
+			resample: 5,
 		};
 	}
 
@@ -163,9 +195,10 @@ export const getOrderOfSections = (
 		return {
 			resize: 0,
 			rotate: 1,
-			mirror: 2,
-			convert: 3,
-			resample: 4,
+			crop: 2,
+			mirror: 3,
+			convert: 4,
+			resample: 5,
 		};
 	}
 

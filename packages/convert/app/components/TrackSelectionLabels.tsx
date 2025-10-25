@@ -1,4 +1,4 @@
-import type {MediaParserAudioCodec} from '@remotion/media-parser';
+import type {InputAudioTrack} from 'mediabunny';
 import React from 'react';
 import {renderHumanReadableAudioCodec} from '~/lib/render-codec-label';
 import {Label} from './ui/label';
@@ -17,7 +17,7 @@ export const VideoTrackLabel: React.FC<{
 export const AudioTrackLabel: React.FC<{
 	readonly trackId: number;
 	readonly totalAudioTracks: number;
-	readonly audioCodec: MediaParserAudioCodec;
+	readonly audioCodec: InputAudioTrack['codec'];
 }> = ({trackId, totalAudioTracks, audioCodec}) => {
 	if (totalAudioTracks === 1) {
 		return <Label htmlFor="audioCodec">Audio Codec</Label>;

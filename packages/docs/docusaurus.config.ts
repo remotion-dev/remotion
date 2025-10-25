@@ -1,4 +1,5 @@
 import type {Config} from '@docusaurus/types';
+import remarkExportRaw from './plugins/remark-export-raw.js';
 
 const config: Config = {
 	title: 'Remotion | Make videos programmatically',
@@ -256,6 +257,7 @@ const config: Config = {
 					editUrl:
 						'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
 					showLastUpdateTime: true,
+					remarkPlugins: [remarkExportRaw],
 				},
 				blog: {
 					onInlineAuthors: 'ignore',
@@ -322,6 +324,7 @@ const config: Config = {
 				blogSidebarTitle: 'Learn',
 				onUntruncatedBlogPosts: 'ignore',
 				onInlineAuthors: 'ignore',
+				remarkPlugins: [remarkExportRaw],
 			},
 		],
 		'./route-plugin',

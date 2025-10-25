@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/serverless"
 	},
 	"name": "@remotion/serverless",
-	"version": "4.0.363",
+	"version": "4.0.365",
 	"description": "A runtime for distributed rendering",
 	"main": "dist",
 	"sideEffects": false,
@@ -30,7 +30,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"exports": {
 		".": "./dist/index.js",

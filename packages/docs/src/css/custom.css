@@ -255,3 +255,9 @@ code {
 .header-x-link:hover::before {
 	background-color: var(--ifm-navbar-link-hover-color);
 }
+
+@media screen and (max-width: 996px) {
+	.copy-markdown-btn {
+		display: none !important;
+	}
+}

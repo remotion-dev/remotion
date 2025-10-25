@@ -89,12 +89,12 @@
 			"outputLogs": "new-only"
 		},
 		"@remotion/convert#build-page": {
-			"dependsOn": ["^make"],
+			"dependsOn": ["make", "^make"],
 			"outputs": ["build", ".vercel"],
 			"outputLogs": "new-only"
 		},
 		"@remotion/convert#build-spa": {
-			"dependsOn": ["^make"],
+			"dependsOn": ["make", "^make"],
 			"outputs": ["spa-dist"],
 			"outputLogs": "new-only"
 		}

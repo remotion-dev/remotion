@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/whisper-web"
 	},
 	"name": "@remotion/whisper-web",
-	"version": "4.0.363",
+	"version": "4.0.365",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -18,7 +18,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

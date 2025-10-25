@@ -31,7 +31,7 @@ export const getTimeInSeconds = ({
 		? Internals.calculateMediaDuration({
 				trimAfter,
 				mediaDurationInFrames: mediaDurationInSeconds
-					? mediaDurationInSeconds! * fps
+					? mediaDurationInSeconds * fps
 					: Infinity,
 				// Playback rate was already specified before
 				playbackRate: 1,

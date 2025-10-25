@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-utils"
 	},
 	"name": "@remotion/media-utils",
-	"version": "4.0.363",
+	"version": "4.0.365",
 	"description": "Utilities for working with media files",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -26,7 +26,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"keywords": [
 		"remotion",
