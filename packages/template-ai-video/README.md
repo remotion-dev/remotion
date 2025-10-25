@@ -7,9 +7,9 @@
     </picture>
 </p>
 
-Using this template you can create high quality AI videos for TikTok or Instagram.
+Using this template you can create high quality **AI videos for TikTok or Instagram**.
 
-It includes a simple CLI that will generate story script, images and voiceover using OpenAI and ElevenLabs.
+It includes a CLI that will generate story script, images and voiceover using OpenAI and ElevenLabs.
 
 ## Getting started with demo video
 
@@ -40,7 +40,7 @@ OPENAI_API_KEY=
 ELEVENLABS_API_KEY=
 ```
 
-If you do not create env file - you will be prompted for these variables when using CLI.
+If you did not create env file - you will be prompted for these variables when using CLI.
 
 **Select voice**
 
