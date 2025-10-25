@@ -7,11 +7,9 @@ sidebar_label: Extracting video frames
 
 Extracting frames from a video file, for example to display a filmstrip in an editing interface, can be done using [Mediabunny](https://mediabunny.dev).
 
-## Implementation
+Here's a `extractFrames()` function you can use coyp and paste into your project:
 
-Here's a complete implementation using mediabunny's `VideoSampleSink`:
-
-```ts twoslash title="extractFrames() API snippet"
+```ts twoslash title="extract-frames.ts"
 import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSampleSink} from 'mediabunny';
 
 type Options = {
