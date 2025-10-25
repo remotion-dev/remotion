@@ -1,4 +1,3 @@
-import {WEBCODECS_TIMESCALE} from '@remotion/media-parser';
 import React, {useEffect, useRef, useState} from 'react';
 import {useVideoConfig} from 'remotion';
 import {extractFrames} from '../../helpers/extract-frames';
@@ -27,6 +26,7 @@ const containerStyle: React.CSSProperties = {
 	fontFamily: 'Arial, Helvetica',
 };
 
+const WEBCODECS_TIMESCALE = 1_000_000;
 const MAX_TIME_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
 
 const getDurationOfOneFrame = ({

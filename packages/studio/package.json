@@ -28,7 +28,6 @@
 		"remotion": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
-		"@remotion/media-parser": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/web-renderer": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
