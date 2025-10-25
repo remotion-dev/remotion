@@ -1227,6 +1227,7 @@ const sidebars: SidebarsConfig = {
 				'mediabunny/index',
 				'mediabunny/new-video',
 				'mediabunny/metadata',
+				'mediabunny/extract-frames',
 				'mediabunny/formats',
 				'mediabunny/version',
 			],
