@@ -6,11 +6,11 @@ import type {
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
-	ProResProfile,
 	X264Preset,
 } from '@remotion/renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
+import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
@@ -82,7 +82,8 @@ export const RenderButton: React.FC = () => {
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
-			initialProResProfile: defaults.proResProfile as ProResProfile,
+			initialProResProfile:
+				defaults.proResProfile as _InternalTypes['ProResProfile'],
 			initialx264Preset: defaults.x264Preset as X264Preset,
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
 			initialAudioBitrate: defaults.audioBitrate,

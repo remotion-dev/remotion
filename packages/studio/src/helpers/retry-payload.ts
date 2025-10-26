@@ -3,10 +3,10 @@ import type {
 	Codec,
 	ColorSpace,
 	PixelFormat,
-	ProResProfile,
 	X264Preset,
 } from '@remotion/renderer';
 import type {RenderJob} from '@remotion/studio-shared';
+import type {_InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderModalState} from '../state/modals';
 
@@ -31,7 +31,8 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
-			initialProResProfile: defaults.proResProfile as ProResProfile,
+			initialProResProfile:
+				defaults.proResProfile as _InternalTypes['ProResProfile'],
 			initialx264Preset: defaults.x264Preset as X264Preset,
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
 			initialAudioBitrate: defaults.audioBitrate,
@@ -84,7 +85,8 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
-			initialProResProfile: defaults.proResProfile as ProResProfile,
+			initialProResProfile:
+				defaults.proResProfile as _InternalTypes['ProResProfile'],
 			initialx264Preset: defaults.x264Preset as X264Preset,
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
 			initialAudioBitrate: defaults.audioBitrate,
@@ -140,7 +142,8 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialMuted: job.muted,
 			initialEnforceAudioTrack: job.enforceAudioTrack,
 			initialProResProfile:
-				job.proResProfile ?? (defaults.proResProfile as ProResProfile),
+				job.proResProfile ??
+				(defaults.proResProfile as _InternalTypes['ProResProfile']),
 			initialx264Preset: job.x264Preset ?? (defaults.x264Preset as X264Preset),
 			initialPixelFormat: job.pixelFormat,
 			initialAudioBitrate: job.audioBitrate,

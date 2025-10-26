@@ -113,7 +113,6 @@ export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
 export {X264Preset} from './options/x264-preset';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
-export {ProResProfile} from './prores-profile';
 export {OnArtifact, RenderFramesOptions, renderFrames} from './render-frames';
 export {
 	InternalRenderMediaOptions,

@@ -15,6 +15,7 @@ import {useIsPlayer} from './is-player.js';
 import type {LogLevel} from './log.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import {Null} from './Null.js';
+import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import {Sequence} from './Sequence.js';
 import type {VideoConfig} from './video-config.js';
@@ -255,4 +256,5 @@ export type _InternalTypes = {
 	AudioOrVideoAsset: AudioOrVideoAsset;
 	TRenderAsset: TRenderAsset;
 	LoopDisplay: LoopDisplay;
+	ProResProfile: ProResProfile;
 };

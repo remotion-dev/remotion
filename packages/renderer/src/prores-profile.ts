@@ -1,22 +1,13 @@
+import {type _InternalTypes} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {Codec} from './codec';
-
-export const proResProfileOptions = [
-	'4444-xq',
-	'4444',
-	'hq',
-	'standard',
-	'light',
-	'proxy',
-] as const;
-
-export type ProResProfile = (typeof proResProfileOptions)[number];
 
 export const validateSelectedCodecAndProResCombination = ({
 	codec,
 	proResProfile,
 }: {
 	codec: Codec;
-	proResProfile: ProResProfile | undefined;
+	proResProfile: _InternalTypes['ProResProfile'] | undefined;
 }) => {
 	if (typeof proResProfile !== 'undefined' && codec !== 'prores') {
 		throw new TypeError(
@@ -26,10 +17,12 @@ export const validateSelectedCodecAndProResCombination = ({
 
 	if (
 		proResProfile !== undefined &&
-		!proResProfileOptions.includes(proResProfile as ProResProfile)
+		!NoReactInternals.proResProfileOptions.includes(
+			proResProfile as _InternalTypes['ProResProfile'],
+		)
 	) {
 		throw new TypeError(
-			`The ProRes profile "${proResProfile}" is not valid. Valid options are ${proResProfileOptions
+			`The ProRes profile "${proResProfile}" is not valid. Valid options are ${NoReactInternals.proResProfileOptions
 				.map((p) => `"${p}"`)
 				.join(', ')}`,
 		);

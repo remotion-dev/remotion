@@ -5,7 +5,6 @@ import type {
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
-	ProResProfile,
 	X264Preset,
 } from '@remotion/renderer';
 import type {SVGProps} from 'react';
@@ -62,7 +61,8 @@ export const SidebarRenderButton: React.FC<{
 				minConcurrency: defaults.minConcurrency,
 				initialMuted: defaults.muted,
 				initialEnforceAudioTrack: defaults.enforceAudioTrack,
-				initialProResProfile: defaults.proResProfile as ProResProfile,
+				initialProResProfile:
+					defaults.proResProfile as _InternalTypes['ProResProfile'],
 				initialx264Preset: defaults.x264Preset as X264Preset,
 				initialPixelFormat: defaults.pixelFormat as PixelFormat,
 				initialAudioBitrate: defaults.audioBitrate,

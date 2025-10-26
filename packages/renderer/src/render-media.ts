@@ -2,6 +2,7 @@ import type {ExecaChildProcess} from 'execa';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import {type RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -54,7 +55,6 @@ import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
-import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import type {OnArtifact} from './render-frames';
 import {internalRenderFrames} from './render-frames';
@@ -111,7 +111,7 @@ export type InternalRenderMediaOptions = {
 	overwrite: boolean;
 	onProgress: RenderMediaOnProgress;
 	onDownload: RenderMediaOnDownload;
-	proResProfile: ProResProfile | undefined;
+	proResProfile: _InternalTypes['ProResProfile'] | undefined;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
 	chromiumOptions: ChromiumOptions;
@@ -159,7 +159,7 @@ export type RenderMediaOptions = Prettify<{
 	overwrite?: boolean;
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
-	proResProfile?: ProResProfile;
+	proResProfile?: _InternalTypes['ProResProfile'];
 	/**
 	 * @deprecated Use "logLevel": "verbose" instead
 	 */

@@ -1,3 +1,4 @@
+import {NoReactInternals} from 'remotion/no-react';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {validCodecs} from './codec';
 import {
@@ -32,7 +33,6 @@ import {
 	validPixelFormats,
 	validPixelFormatsForCodec,
 } from './pixel-format';
-import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
 export {AvailableOptions, TypeOfOption} from './options';
 export {HardwareAccelerationOption} from './options/hardware-acceleration';
@@ -43,7 +43,7 @@ export const BrowserSafeApis = {
 	validAudioCodecs,
 	getDefaultCrfForCodec,
 	getValidCrfRanges,
-	proResProfileOptions,
+	proResProfileOptions: NoReactInternals.proResProfileOptions,
 	x264PresetOptions,
 	hardwareAccelerationOptions,
 	validPixelFormats,

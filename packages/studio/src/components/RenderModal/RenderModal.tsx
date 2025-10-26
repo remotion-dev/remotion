@@ -6,7 +6,6 @@ import type {
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
-	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
 	X264Preset,
@@ -27,6 +26,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {_InternalTypes} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
 import {
@@ -209,7 +209,7 @@ type RenderModalProps = {
 	readonly maxConcurrency: number;
 	readonly initialMuted: boolean;
 	readonly initialEnforceAudioTrack: boolean;
-	readonly initialProResProfile: ProResProfile;
+	readonly initialProResProfile: _InternalTypes['ProResProfile'];
 	readonly initialx264Preset: X264Preset;
 	readonly initialPixelFormat: PixelFormat;
 	readonly initialVideoBitrate: string | null;
@@ -445,9 +445,9 @@ const RenderModal: React.FC<
 	const [startFrameOrNull, setStartFrame] = useState<number | null>(
 		() => inFrameMark ?? null,
 	);
-	const [proResProfileSetting, setProResProfile] = useState<ProResProfile>(
-		() => initialProResProfile,
-	);
+	const [proResProfileSetting, setProResProfile] = useState<
+		_InternalTypes['ProResProfile']
+	>(() => initialProResProfile);
 	const [x264PresetSetting, setx264Preset] = useState<X264Preset>(
 		() => initialx264Preset,
 	);

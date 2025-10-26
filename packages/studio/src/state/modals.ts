@@ -6,7 +6,6 @@ import type {
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
-	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
 	X264Preset,
@@ -15,6 +14,7 @@ import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {PackageManager} from '@remotion/studio-shared';
 import type React from 'react';
 import {createContext} from 'react';
+import type {_InternalTypes} from 'remotion';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
@@ -32,7 +32,7 @@ export type RenderModalState = {
 	initialConcurrency: number;
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;
-	initialProResProfile: ProResProfile;
+	initialProResProfile: _InternalTypes['ProResProfile'];
 	initialx264Preset: X264Preset;
 	initialPixelFormat: PixelFormat;
 	initialVideoBitrate: string | null;
