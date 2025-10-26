@@ -27,6 +27,7 @@ test('Should be able to cancel render', async () => {
 				defaultOutName: null,
 				defaultVideoImageFormat: null,
 				defaultPixelFormat: null,
+				defaultProResProfile: null,
 			},
 			cancelSignal,
 			imageFormat: 'jpeg',

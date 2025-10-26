@@ -35,6 +35,7 @@ import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import type {PixelFormat} from './pixel-format';
+import type {ProResProfile} from './prores-profile';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -289,6 +290,7 @@ const innerRenderStill = async ({
 			defaultOutName: string | null,
 			defaultVideoImageFormat: VideoImageFormat | null,
 			defaultPixelFormat: PixelFormat | null,
+			defaultProResProfile: ProResProfile | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -302,6 +304,7 @@ const innerRenderStill = async ({
 				compositionDefaultOutName: defaultOutName,
 				compositionDefaultVideoImageFormat: defaultVideoImageFormat,
 				compositionDefaultPixelFormat: defaultPixelFormat,
+				compositionDefaultProResProfile: defaultProResProfile,
 			});
 		},
 		args: [
@@ -315,6 +318,7 @@ const innerRenderStill = async ({
 			composition.defaultOutName,
 			composition.defaultVideoImageFormat,
 			composition.defaultPixelFormat,
+			composition.defaultProResProfile,
 		],
 		frame: null,
 		page,

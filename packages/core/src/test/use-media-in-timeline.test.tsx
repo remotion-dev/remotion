@@ -33,6 +33,7 @@ beforeAll(() => {
 		defaultOutName: null,
 		defaultVideoImageFormat: null,
 		defaultPixelFormat: null,
+		defaultProResProfile: null,
 	}));
 });
 afterAll(() => {

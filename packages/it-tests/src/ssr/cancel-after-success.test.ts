@@ -21,6 +21,7 @@ test('Cancelling after success should not throw error', async () => {
 			defaultCodec: null,
 			defaultOutName: null,
 			defaultPixelFormat: null,
+			defaultProResProfile: null,
 			defaultVideoImageFormat: null,
 		},
 		concurrency: 1,

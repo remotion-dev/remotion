@@ -19,6 +19,7 @@ test('Fatal error on frame 10 should yield correct error', async () => {
 				defaultOutName: null,
 				defaultVideoImageFormat: null,
 				defaultPixelFormat: null,
+				defaultProResProfile: null,
 			},
 			logLevel: 'error',
 			outputLocation: 'out/render.mp4',
