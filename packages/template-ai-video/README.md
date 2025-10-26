@@ -25,6 +25,16 @@ bun install
 bun dev
 ```
 
+## How do I render my video?
+
+Run this:
+
+```console
+npx remotion render
+```
+
+Or check out the [Remotion docs](/docs/render/). There are lots of ways to render.
+
 ## Creating your own videos
 
 You can easily create your own videos using provided CLI.
@@ -89,6 +99,16 @@ The last thing - you have to upload generated resources (images and audio) to se
 ## Optimisations
 
 You can significantly speed up the story generation by generating audio and images in parallel.
+
+## Issues
+
+Found an issue with Remotion? Upgrade Remotion to receive fixes:
+
+```
+npx remotion upgrade
+```
+
+Didn't help? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
 
 ## Contributing
 
