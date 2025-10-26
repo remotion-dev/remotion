@@ -243,6 +243,7 @@ const renderContent = (Root: React.FC) => {
 					defaultVideoImageFormat:
 						bundleMode.compositionDefaultVideoImageFormat,
 					defaultPixelFormat: bundleMode.compositionDefaultPixelFormat,
+					defaultProResProfile: bundleMode.compositionDefaultProResProfile,
 				}}
 			>
 				<Root />

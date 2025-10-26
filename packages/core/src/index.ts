@@ -101,6 +101,7 @@ export type BundleCompositionState = {
 	compositionDefaultOutName: string | null;
 	compositionDefaultVideoImageFormat: VideoImageFormat | null;
 	compositionDefaultPixelFormat: PixelFormat | null;
+	compositionDefaultProResProfile: ProResProfile | null;
 };
 
 export type BundleIndexState = {

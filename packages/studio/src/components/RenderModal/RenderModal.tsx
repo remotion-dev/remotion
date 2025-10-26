@@ -13,6 +13,7 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {
+	RenderDefaults,
 	RequiredChromiumOptions,
 	UiOpenGlOptions,
 } from '@remotion/studio-shared';
@@ -199,7 +200,7 @@ const outer: React.CSSProperties = {
 type RenderModalProps = {
 	readonly compositionId: string;
 	readonly initialFrame: number;
-	readonly initialVideoImageFormat: VideoImageFormat;
+	readonly initialVideoImageFormat: VideoImageFormat | null;
 	readonly initialStillImageFormat: StillImageFormat;
 	readonly initialJpegQuality: number;
 	readonly initialScale: number;
@@ -209,9 +210,9 @@ type RenderModalProps = {
 	readonly maxConcurrency: number;
 	readonly initialMuted: boolean;
 	readonly initialEnforceAudioTrack: boolean;
-	readonly initialProResProfile: _InternalTypes['ProResProfile'];
+	readonly initialProResProfile: _InternalTypes['ProResProfile'] | null;
 	readonly initialx264Preset: X264Preset;
-	readonly initialPixelFormat: PixelFormat;
+	readonly initialPixelFormat: PixelFormat | null;
 	readonly initialVideoBitrate: string | null;
 	readonly initialAudioBitrate: string | null;
 	readonly initialEveryNthFrame: number;
@@ -242,6 +243,7 @@ type RenderModalProps = {
 	readonly initialChromeMode: ChromeMode;
 	readonly initialOffthreadVideoThreads: number | null;
 	readonly defaultMetadata: Record<string, string> | null;
+	readonly renderDefaults: RenderDefaults;
 };
 
 const RenderModal: React.FC<
@@ -293,6 +295,7 @@ const RenderModal: React.FC<
 	initialHardwareAcceleration,
 	defaultMetadata,
 	initialChromeMode,
+	renderDefaults,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -340,7 +343,10 @@ const RenderModal: React.FC<
 		() => initialStillImageFormat,
 	);
 	const [videoImageFormat, setVideoImageFormat] = useState<VideoImageFormat>(
-		() => initialVideoImageFormat,
+		() =>
+			initialVideoImageFormat ??
+			resolvedComposition.defaultVideoImageFormat ??
+			renderDefaults.videoImageFormat,
 	);
 	const [sequenceImageFormat, setSequenceImageFormat] =
 		useState<VideoImageFormat>(() =>
@@ -447,7 +453,10 @@ const RenderModal: React.FC<
 	);
 	const [proResProfileSetting, setProResProfile] = useState<
 		_InternalTypes['ProResProfile']
-	>(() => initialProResProfile);
+	>(
+		() =>
+			initialProResProfile ?? resolvedComposition.defaultProResProfile ?? 'hq',
+	);
 	const [x264PresetSetting, setx264Preset] = useState<X264Preset>(
 		() => initialx264Preset,
 	);
@@ -455,7 +464,10 @@ const RenderModal: React.FC<
 		useState<HardwareAccelerationOption>(() => initialHardwareAcceleration);
 
 	const [userPreferredPixelFormat, setPixelFormat] = useState<PixelFormat>(
-		() => initialPixelFormat,
+		() =>
+			initialPixelFormat ??
+			resolvedComposition.defaultPixelFormat ??
+			renderDefaults.pixelFormat,
 	);
 	const [preferredQualityControlType, setQualityControl] =
 		useState<QualityControl>(() =>

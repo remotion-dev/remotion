@@ -1766,6 +1766,14 @@ export const Index: React.FC = () => {
 				defaultProps={{
 					cornerRadius: 10,
 				}}
+				calculateMetadata={() => {
+					return {
+						defaultPixelFormat: 'yuva444p10le',
+						defaultCodec: 'prores',
+						defaultProResProfile: '4444',
+						defaultVideoImageFormat: 'png',
+					};
+				}}
 			/>
 		</>
 	);

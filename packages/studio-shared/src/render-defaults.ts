@@ -28,7 +28,7 @@ export type RenderDefaults = {
 	videoImageFormat: VideoImageFormat;
 	audioCodec: AudioCodec | null;
 	enforceAudioTrack: boolean;
-	proResProfile: _InternalTypes['ProResProfile'];
+	proResProfile: _InternalTypes['ProResProfile'] | null;
 	x264Preset: X264Preset;
 	pixelFormat: PixelFormat;
 	audioBitrate: string | null;

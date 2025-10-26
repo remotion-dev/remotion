@@ -1,3 +1,4 @@
+import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
 import type {BrowserLog} from './browser-log';
 import type {OnLog, Page} from './browser/BrowserPage';
@@ -7,7 +8,6 @@ import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import {getAvailableMemory} from './memory/get-available-memory';
 import type {PixelFormat} from './pixel-format';
-import type {ProResProfile} from './prores-profile';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import type {BrowserReplacer} from './replace-browser';
 import {setPropsAndEnv} from './set-props-and-env';
@@ -99,7 +99,7 @@ export const makePage = async ({
 			defaultOutName: string | null,
 			defaultVideoImageFormat: VideoImageFormat | null,
 			defaultPixelFormat: PixelFormat | null,
-			defaultProResProfile: ProResProfile | null,
+			defaultProResProfile: _InternalTypes['ProResProfile'] | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',

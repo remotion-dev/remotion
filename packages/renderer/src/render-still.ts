@@ -1,5 +1,6 @@
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
+import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -35,7 +36,6 @@ import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import type {PixelFormat} from './pixel-format';
-import type {ProResProfile} from './prores-profile';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -290,7 +290,7 @@ const innerRenderStill = async ({
 			defaultOutName: string | null,
 			defaultVideoImageFormat: VideoImageFormat | null,
 			defaultPixelFormat: PixelFormat | null,
-			defaultProResProfile: ProResProfile | null,
+			defaultProResProfile: _InternalTypes['ProResProfile'] | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',

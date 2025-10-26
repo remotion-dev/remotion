@@ -108,7 +108,7 @@ The function must return an pure JSON-serializable object, which can contain the
 - `defaultOutName` _optional_: The default output name when rendering (without file extension) <AvailableFrom v="4.0.268" />
 - `defaultVideoImageFormat` _optional_: The default video image format (`'png'`, `'jpeg'`, or `'none'`) <AvailableFrom v="4.0.316" />
 - `defaultPixelFormat` _optional_: The default pixel format (`'yuv420p'`, `'yuva420p'`, `'yuv422p'`, `'yuv444p'`, `'yuv420p10le'`, `'yuv422p10le'`, `'yuv444p10le'`, or `'yuva444p10le'`) <AvailableFrom v="4.0.316" />
-- `defaultProResProfile` _optional_: The default ProRes profile (`'4444-xq'`, `'4444'`, `'hq'`, `'standard'`, `'light'`, or `'proxy'`) <AvailableFrom v="4.0.316" />
+- `defaultProResProfile` _optional_: The default ProRes profile (`'4444-xq'`, `'4444'`, `'hq'`, `'standard'`, `'light'`, or `'proxy'`) <AvailableFrom v="4.0.367" />
 
 If you return a field, it will take precendence over the props directly passed to the composition. The defaultCodec returned will have a higher priority than the config file, but less priority than explicitly passing the option to renderMedia() i.e. the composition will be rendered with this codec if nothing with higher priority was specified.
 

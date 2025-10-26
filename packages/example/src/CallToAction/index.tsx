@@ -50,7 +50,7 @@ export const CTAEndCard: React.FC = () => {
 	const {height, width, fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
-	const stat = frame * 0.0005;
+	const stat = frame * 0.0002;
 
 	const jumpUp =
 		spring({
@@ -67,14 +67,14 @@ export const CTAEndCard: React.FC = () => {
 			fps,
 			frame,
 			durationInFrames: 25,
-			delay: 40,
+			delay: 60,
 			config: {
 				damping: 14,
 			},
 		}) + stat;
 
-	const WIDTH = interpolate(progress, [0, 1], [350, 350 * 8]);
-	const HEIGHT = interpolate(progress, [0, 1], [100, 400 * 4]);
+	const WIDTH = interpolate(progress, [0, 1], [350, 350 * 10]);
+	const HEIGHT = interpolate(progress, [0, 1], [100, 400 * 6]);
 
 	const up = interpolate(jumpUp, [0, 1], [600, 0]);
 
@@ -88,7 +88,7 @@ export const CTAEndCard: React.FC = () => {
 				<div style={{position: 'absolute'}}>
 					<DepthContext value={50}>
 						<RotateX radians={visualControl('x', -0.4) * jumpUp + 0.1}>
-							<RotateY radians={visualControl('y', -0.8) * jumpUp}>
+							<RotateY radians={visualControl('y', -0.4) * jumpUp}>
 								<TranslateX px={(width - WIDTH) / 2}>
 									<TranslateY px={(height - HEIGHT) / 2 + up + 200}>
 										<CallToAction

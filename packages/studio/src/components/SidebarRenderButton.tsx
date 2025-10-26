@@ -4,7 +4,6 @@ import type {
 	ColorSpace,
 	LogLevel,
 	OpenGlRenderer,
-	PixelFormat,
 	X264Preset,
 } from '@remotion/renderer';
 import type {SVGProps} from 'react';
@@ -64,7 +63,7 @@ export const SidebarRenderButton: React.FC<{
 				initialProResProfile:
 					defaults.proResProfile as _InternalTypes['ProResProfile'],
 				initialx264Preset: defaults.x264Preset as X264Preset,
-				initialPixelFormat: defaults.pixelFormat as PixelFormat,
+				initialPixelFormat: null,
 				initialAudioBitrate: defaults.audioBitrate,
 				initialVideoBitrate: defaults.videoBitrate,
 				initialEveryNthFrame: defaults.everyNthFrame,
@@ -97,6 +96,7 @@ export const SidebarRenderButton: React.FC<{
 				initialHardwareAcceleration: defaults.hardwareAcceleration,
 				initialChromeMode: defaults.chromeMode,
 				initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+				renderDefaults: defaults,
 			});
 
 			if (isMobileLayout) {
