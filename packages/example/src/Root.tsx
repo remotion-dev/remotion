@@ -122,6 +122,7 @@ import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
 import Amplify from './AudioTesting/Amplify';
+import {CTAEndCard} from './CallToAction';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
@@ -1754,6 +1755,17 @@ export const Index: React.FC = () => {
 				height={2160}
 				fps={30}
 				durationInFrames={500}
+			/>
+			<Composition
+				id="CallToAction"
+				component={CTAEndCard}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+				defaultProps={{
+					cornerRadius: 10,
+				}}
 			/>
 		</>
 	);
