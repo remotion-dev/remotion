@@ -48,6 +48,7 @@
 		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"dependencies": {
+		"p-limit": "7.2.0",
 		"turbo": "2.5.8",
 		"typescript": "5.8.2"
 	},
