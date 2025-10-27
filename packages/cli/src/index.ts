@@ -1,6 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import {StudioServerInternals} from '@remotion/studio-server';
 import minimist from 'minimist';
+import {addCommand} from './add';
 import {benchmarkCommand} from './benchmark';
 import {BROWSER_COMMAND, browserCommand} from './browser';
 import {defaultBrowserDownloadProgress} from './browser-download-bar';
@@ -41,7 +42,6 @@ import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {still} from './still';
 import {studioCommand} from './studio';
 import {upgradeCommand} from './upgrade';
-import {addCommand} from './add';
 import {
 	VERSIONS_COMMAND,
 	validateVersionsBeforeCommand,
