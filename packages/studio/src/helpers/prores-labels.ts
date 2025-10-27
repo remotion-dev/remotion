@@ -1,6 +1,8 @@
-import type {ProResProfile} from '@remotion/renderer';
+import type {_InternalTypes} from 'remotion';
 
-export const labelProResProfile = (profile: ProResProfile) => {
+export const labelProResProfile = (
+	profile: _InternalTypes['ProResProfile'],
+) => {
 	if (profile === '4444') {
 		return '4444';
 	}

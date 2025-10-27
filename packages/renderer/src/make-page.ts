@@ -1,3 +1,4 @@
+import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
 import type {BrowserLog} from './browser-log';
 import type {OnLog, Page} from './browser/BrowserPage';
@@ -98,6 +99,7 @@ export const makePage = async ({
 			defaultOutName: string | null,
 			defaultVideoImageFormat: VideoImageFormat | null,
 			defaultPixelFormat: PixelFormat | null,
+			defaultProResProfile: _InternalTypes['ProResProfile'] | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -111,6 +113,7 @@ export const makePage = async ({
 				compositionDefaultOutName: defaultOutName,
 				compositionDefaultVideoImageFormat: defaultVideoImageFormat,
 				compositionDefaultPixelFormat: defaultPixelFormat,
+				compositionDefaultProResProfile: defaultProResProfile,
 			});
 		},
 		args: [
@@ -124,6 +127,7 @@ export const makePage = async ({
 			composition.defaultOutName,
 			composition.defaultVideoImageFormat,
 			composition.defaultPixelFormat,
+			composition.defaultProResProfile,
 		],
 		frame: null,
 		page,

@@ -6,12 +6,12 @@ import type {
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
-	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {_InternalTypes} from 'remotion';
 import type {GitSource} from './git-source';
 import type {PackageManager} from './package-manager';
 
@@ -28,7 +28,7 @@ export type RenderDefaults = {
 	videoImageFormat: VideoImageFormat;
 	audioCodec: AudioCodec | null;
 	enforceAudioTrack: boolean;
-	proResProfile: ProResProfile;
+	proResProfile: _InternalTypes['ProResProfile'] | null;
 	x264Preset: X264Preset;
 	pixelFormat: PixelFormat;
 	audioBitrate: string | null;

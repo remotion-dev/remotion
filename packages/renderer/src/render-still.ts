@@ -1,5 +1,6 @@
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
+import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -289,6 +290,7 @@ const innerRenderStill = async ({
 			defaultOutName: string | null,
 			defaultVideoImageFormat: VideoImageFormat | null,
 			defaultPixelFormat: PixelFormat | null,
+			defaultProResProfile: _InternalTypes['ProResProfile'] | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -302,6 +304,7 @@ const innerRenderStill = async ({
 				compositionDefaultOutName: defaultOutName,
 				compositionDefaultVideoImageFormat: defaultVideoImageFormat,
 				compositionDefaultPixelFormat: defaultPixelFormat,
+				compositionDefaultProResProfile: defaultProResProfile,
 			});
 		},
 		args: [
@@ -315,6 +318,7 @@ const innerRenderStill = async ({
 			composition.defaultOutName,
 			composition.defaultVideoImageFormat,
 			composition.defaultPixelFormat,
+			composition.defaultProResProfile,
 		],
 		frame: null,
 		page,

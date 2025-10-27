@@ -5,7 +5,6 @@ import type {
 	ColorSpace,
 	LogLevel,
 	PixelFormat,
-	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
 	X264Preset,
@@ -21,6 +20,7 @@ import type {
 	RequiredChromiumOptions,
 	VisualControlChange,
 } from '@remotion/studio-shared';
+import type {_InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {callApi} from '../call-api';
 
@@ -225,7 +225,7 @@ export const addVideoRenderJob = ({
 	endFrame: number;
 	muted: boolean;
 	enforceAudioTrack: boolean;
-	proResProfile: ProResProfile | null;
+	proResProfile: _InternalTypes['ProResProfile'] | null;
 	x264Preset: X264Preset | null;
 	pixelFormat: PixelFormat;
 	audioBitrate: string | null;
