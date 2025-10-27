@@ -1,0 +1,53 @@
+---
+image: /generated/articles-docs-cli-add.png
+title: npx remotion add
+sidebar_label: add
+crumb: CLI Reference
+---
+
+Adds a Remotion package to your project with the same version as your other Remotion packages.
+
+```
+npx remotion add <package-name>
+```
+
+## Example
+
+```bash
+npx remotion add @remotion/transitions
+```
+
+This command will:
+1. Verify that the package name is a valid Remotion package
+2. Check if the package is already installed
+3. Detect the version of your currently installed Remotion packages
+4. Install the specified package with the matching version
+
+## Flags
+
+### `--package-manager`<AvailableFrom v="4.0.367"/>
+
+_optional_
+
+Forces a specific package manager to be used. By default, Remotion will auto-detect the package manager based on your lockfile.
+
+Acceptable values are `npm`, `yarn` and `pnpm`
+
+## Package manager support
+
+`npm`, `yarn` and `pnpm` are all supported.
+
+## Additional arguments
+
+Any additional arguments you pass to this command will be forwarded as flags to the package manager, before the package name.
+
+## Use case
+
+This command is useful when you want to add a new Remotion package to your project and ensure it's installed with the same version as your other Remotion packages. This helps avoid version mismatches that could cause compatibility issues.
+
+For example, if you have `remotion@4.0.100` installed and you want to add `@remotion/transitions`, running `npx remotion add @remotion/transitions` will install `@remotion/transitions@4.0.100`.
+
+## See also
+
+- [npx remotion upgrade](/docs/cli/upgrade)
+- [npx remotion versions](/docs/cli/versions)

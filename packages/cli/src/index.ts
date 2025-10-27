@@ -41,6 +41,7 @@ import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {still} from './still';
 import {studioCommand} from './studio';
 import {upgradeCommand} from './upgrade';
+import {addCommand} from './add';
 import {
 	VERSIONS_COMMAND,
 	validateVersionsBeforeCommand,
@@ -117,6 +118,21 @@ export const cli = async () => {
 				version: parsedCli.version,
 				logLevel,
 				args,
+			});
+		} else if (command === 'add') {
+			const packageName = args[0];
+			if (!packageName) {
+				throw new Error(
+					'Please specify a package name. Example: npx remotion add @remotion/transitions',
+				);
+			}
+
+			await addCommand({
+				remotionRoot,
+				packageManager: parsedCli['package-manager'],
+				packageName,
+				logLevel,
+				args: args.slice(1),
 			});
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
