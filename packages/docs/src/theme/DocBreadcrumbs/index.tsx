@@ -9,6 +9,7 @@ import {
 	ExternalLinkIcon,
 	MarkdownIcon,
 	OpenAIIcon,
+	RemotionIcon,
 	VSCodeIcon,
 } from './icons';
 
@@ -187,6 +188,11 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 		window.location.href = vscodeUrl;
 	}, []);
 
+	const handleAskAI = useCallback(() => {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(window as any).crawlchatEmbed?.show();
+	}, []);
+
 	return (
 		<div
 			style={{
@@ -272,6 +278,13 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 								zIndex: 9999,
 							}}
 						>
+							<AiDropdownItemComponent
+								icon={<RemotionIcon />}
+								title="Ask AI"
+								description="Ask a question to our AI assistant"
+								onClick={handleAskAI}
+							/>
+
 							<AiDropdownItemComponent
 								icon={<MarkdownIcon />}
 								title="View as Markdown"
