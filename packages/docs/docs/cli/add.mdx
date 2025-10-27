@@ -14,16 +14,19 @@ npx remotion add <package-name...>
 ## Examples
 
 Add a single package:
+
 ```bash
 npx remotion add @remotion/transitions
 ```
 
 Add multiple packages at once:
+
 ```bash
 npx remotion add @remotion/transitions @remotion/three @remotion/lottie
 ```
 
 This command will:
+
 1. Verify that all package names are valid Remotion packages
 2. Check which packages are already installed (and skip them)
 3. Detect the version of your currently installed Remotion packages
@@ -53,9 +56,10 @@ This command is useful when you want to add new Remotion packages to your projec
 
 For example, if you have `remotion@4.0.100` installed and you want to add `@remotion/transitions`, running `npx remotion add @remotion/transitions` will install `@remotion/transitions@4.0.100`.
 
-When adding multiple packages, the command will install all of them in a single operation with the same version number, making it efficient to set up multiple dependencies at once.
+When adding multiple packages, the command will install all of them in a single operation with the same version number.
 
 ## See also
 
+- [Source code of this command](https://github.com/remotion-dev/remotion/blob/main/packages/cli/src/add.ts)
 - [npx remotion upgrade](/docs/cli/upgrade)
 - [npx remotion versions](/docs/cli/versions)
