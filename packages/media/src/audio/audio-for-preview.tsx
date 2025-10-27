@@ -518,7 +518,12 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			audioStreamIndex={audioStreamIndex ?? 0}
 			src={preloadedSrc}
 			playbackRate={playbackRate ?? 1}
-			logLevel={logLevel ?? window.remotion_logLevel}
+			logLevel={
+				logLevel ??
+				(typeof window !== 'undefined'
+					? (window.remotion_logLevel ?? 'info')
+					: 'info')
+			}
 			muted={muted ?? false}
 			volume={volume ?? 1}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
