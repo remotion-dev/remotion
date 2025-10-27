@@ -9,6 +9,7 @@ import {
 	ExternalLinkIcon,
 	MarkdownIcon,
 	OpenAIIcon,
+	RemotionIcon,
 	VSCodeIcon,
 } from './icons';
 
@@ -278,7 +279,7 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 							}}
 						>
 							<AiDropdownItemComponent
-								icon={<AnthropicIcon />}
+								icon={<RemotionIcon />}
 								title="Ask AI"
 								description="Ask a question to our AI assistant"
 								onClick={handleAskAI}
