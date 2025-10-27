@@ -1,5 +1,5 @@
 import type {InputAudioTrack, WrappedAudioBuffer} from 'mediabunny';
-import {AudioBufferSink} from 'mediabunny';
+import {AudioBufferSink, InputDisposedError} from 'mediabunny';
 import type {AudioIterator} from './audio/audio-preview-iterator';
 import {
 	isAlreadyQueued,
@@ -120,7 +120,18 @@ export const audioIteratorManager = ({
 
 		// Schedule up to 3 buffers ahead of the current time
 		for (let i = 0; i < 3; i++) {
-			const result = await iterator.getNext();
+			const result = await iterator.getNext().catch((err) => {
+				if (iterator.isDestroyed() || err instanceof InputDisposedError) {
+					// Fall through
+				} else {
+					throw err;
+				}
+			});
+
+			if (!result) {
+				delayHandle.unblock();
+				return;
+			}
 
 			if (iterator.isDestroyed()) {
 				delayHandle.unblock();
