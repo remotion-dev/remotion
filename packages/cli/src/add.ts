@@ -8,20 +8,23 @@ import {Log} from './log';
 export const addCommand = async ({
 	remotionRoot,
 	packageManager,
-	packageName,
+	packageNames,
 	logLevel,
 	args,
 }: {
 	remotionRoot: string;
 	packageManager: string | undefined;
-	packageName: string;
+	packageNames: string[];
 	logLevel: LogLevel;
 	args: string[];
 }) => {
-	// Validate that the package name is a Remotion package
-	if (!listOfRemotionPackages.includes(packageName)) {
+	// Validate that all package names are Remotion packages
+	const invalidPackages = packageNames.filter(
+		(pkg) => !listOfRemotionPackages.includes(pkg),
+	);
+	if (invalidPackages.length > 0) {
 		throw new Error(
-			`Package "${packageName}" is not a Remotion package. Must be one of ${listOfRemotionPackages.join(', ')}.`,
+			`The following packages are not Remotion packages: ${invalidPackages.join(', ')}. Must be one of the Remotion packages.`,
 		);
 	}
 
@@ -32,7 +35,7 @@ export const addCommand = async ({
 		peerDependencies,
 	} = StudioServerInternals.getInstalledDependencies(remotionRoot);
 
-	// Check if the package is already installed
+	// Check if packages are already installed
 	const allDeps = [
 		...dependencies,
 		...devDependencies,
@@ -40,11 +43,19 @@ export const addCommand = async ({
 		...peerDependencies,
 	];
 
-	if (allDeps.includes(packageName)) {
+	const alreadyInstalled = packageNames.filter((pkg) => allDeps.includes(pkg));
+	const toInstall = packageNames.filter((pkg) => !allDeps.includes(pkg));
+
+	// Log already installed packages
+	for (const pkg of alreadyInstalled) {
 		Log.info(
 			{indent: false, logLevel},
-			`○ ${packageName} ${chalk.gray('(already installed)')}`,
+			`○ ${pkg} ${chalk.gray('(already installed)')}`,
 		);
+	}
+
+	// If nothing to install, return early
+	if (toInstall.length === 0) {
 		return;
 	}
 
@@ -66,9 +77,13 @@ export const addCommand = async ({
 	try {
 		const packageJson = require(packageJsonPath);
 		targetVersion = packageJson.version;
+		const packageList =
+			toInstall.length === 1
+				? toInstall[0]
+				: `${toInstall.length} packages (${toInstall.join(', ')})`;
 		Log.info(
 			{indent: false, logLevel},
-			`Installing ${packageName}@${targetVersion} to match your other Remotion packages`,
+			`Installing ${packageList}@${targetVersion} to match your other Remotion packages`,
 		);
 	} catch (err) {
 		throw new Error(
@@ -92,7 +107,7 @@ export const addCommand = async ({
 
 	const command = StudioServerInternals.getInstallCommand({
 		manager: manager.manager,
-		packages: [packageName],
+		packages: toInstall,
 		version: targetVersion,
 		additionalArgs: args,
 	});
@@ -118,14 +133,23 @@ export const addCommand = async ({
 			if (code === 0) {
 				resolve();
 			} else if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')) {
-				throw new Error(`Failed to install ${packageName}, see logs above`);
+				throw new Error(`Failed to install packages, see logs above`);
 			} else {
 				throw new Error(
-					`Failed to install ${packageName}, run with --log=info to see logs`,
+					`Failed to install packages, run with --log=info to see logs`,
 				);
 			}
 		});
 	});
 
-	Log.info({indent: false, logLevel}, `+ ${packageName}@${targetVersion}`);
+	for (const pkg of alreadyInstalled) {
+		Log.info(
+			{indent: false, logLevel},
+			`○ ${pkg}@${targetVersion} ${chalk.gray('(already installed)')}`,
+		);
+	}
+
+	for (const pkg of toInstall) {
+		Log.info({indent: false, logLevel}, `+ ${pkg}@${targetVersion}`);
+	}
 };

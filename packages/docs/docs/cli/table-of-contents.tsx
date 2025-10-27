@@ -52,7 +52,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/cli/add">
           <strong>add</strong>
-          <div>Add a Remotion package with matching version</div>
+          <div>Add Remotion packages with matching version</div>
         </TOCItem>
         <TOCItem link="/docs/cli/gpu">
           <strong>gpu</strong>

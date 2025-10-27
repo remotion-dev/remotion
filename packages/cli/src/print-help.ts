@@ -136,11 +136,11 @@ export const printHelp = (logLevel: LogLevel) => {
 	Log.info({indent: false, logLevel});
 	Log.info(
 		{indent: false, logLevel},
-		chalk.blue('remotion add') + chalk.gray(' <package-name>'),
+		chalk.blue('remotion add') + chalk.gray(' <package-name...>'),
 	);
 	Log.info(
 		{indent: false, logLevel},
-		'Add a Remotion package with the correct version.',
+		'Add Remotion packages with the correct version.',
 	);
 	Log.info(
 		{indent: false, logLevel},

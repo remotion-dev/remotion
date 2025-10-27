@@ -120,19 +120,23 @@ export const cli = async () => {
 				args,
 			});
 		} else if (command === 'add') {
-			const packageName = args[0];
-			if (!packageName) {
+			if (args.length === 0) {
 				throw new Error(
-					'Please specify a package name. Example: npx remotion add @remotion/transitions',
+					'Please specify at least one package name. Example: npx remotion add @remotion/transitions',
 				);
 			}
+
+			// Find where additional flags start (arguments starting with -)
+			const flagIndex = args.findIndex((arg) => arg.startsWith('-'));
+			const packageNames = flagIndex === -1 ? args : args.slice(0, flagIndex);
+			const additionalArgs = flagIndex === -1 ? [] : args.slice(flagIndex);
 
 			await addCommand({
 				remotionRoot,
 				packageManager: parsedCli['package-manager'],
-				packageName,
+				packageNames,
 				logLevel,
-				args: args.slice(1),
+				args: additionalArgs,
 			});
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);

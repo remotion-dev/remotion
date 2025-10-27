@@ -5,23 +5,29 @@ sidebar_label: add
 crumb: CLI Reference
 ---
 
-Adds a Remotion package to your project with the same version as your other Remotion packages.
+Adds one or more Remotion packages to your project with the same version as your other Remotion packages.
 
 ```
-npx remotion add <package-name>
+npx remotion add <package-name...>
 ```
 
-## Example
+## Examples
 
+Add a single package:
 ```bash
 npx remotion add @remotion/transitions
 ```
 
+Add multiple packages at once:
+```bash
+npx remotion add @remotion/transitions @remotion/three @remotion/lottie
+```
+
 This command will:
-1. Verify that the package name is a valid Remotion package
-2. Check if the package is already installed
+1. Verify that all package names are valid Remotion packages
+2. Check which packages are already installed (and skip them)
 3. Detect the version of your currently installed Remotion packages
-4. Install the specified package with the matching version
+4. Install the specified packages with the matching version
 
 ## Flags
 
@@ -43,9 +49,11 @@ Any additional arguments you pass to this command will be forwarded as flags to 
 
 ## Use case
 
-This command is useful when you want to add a new Remotion package to your project and ensure it's installed with the same version as your other Remotion packages. This helps avoid version mismatches that could cause compatibility issues.
+This command is useful when you want to add new Remotion packages to your project and ensure they're installed with the same version as your other Remotion packages. This helps avoid version mismatches that could cause compatibility issues.
 
 For example, if you have `remotion@4.0.100` installed and you want to add `@remotion/transitions`, running `npx remotion add @remotion/transitions` will install `@remotion/transitions@4.0.100`.
+
+When adding multiple packages, the command will install all of them in a single operation with the same version number, making it efficient to set up multiple dependencies at once.
 
 ## See also
 
