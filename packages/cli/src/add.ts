@@ -21,7 +21,7 @@ export const addCommand = async ({
 	// Validate that the package name is a Remotion package
 	if (!listOfRemotionPackages.includes(packageName)) {
 		throw new Error(
-			`Package "${packageName}" is not a Remotion package. Run "npx remotion versions" to see installed Remotion packages.`,
+			`Package "${packageName}" is not a Remotion package. Must be one of ${listOfRemotionPackages.join(', ')}.`,
 		);
 	}
 
@@ -43,7 +43,7 @@ export const addCommand = async ({
 	if (allDeps.includes(packageName)) {
 		Log.info(
 			{indent: false, logLevel},
-			chalk.yellow(`Package "${packageName}" is already installed.`),
+			`○ ${packageName} ${chalk.gray('(already installed)')}`,
 		);
 		return;
 	}
@@ -64,7 +64,6 @@ export const addCommand = async ({
 	let targetVersion: string;
 
 	try {
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
 		const packageJson = require(packageJsonPath);
 		targetVersion = packageJson.version;
 		Log.info(
@@ -119,9 +118,7 @@ export const addCommand = async ({
 			if (code === 0) {
 				resolve();
 			} else if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')) {
-				throw new Error(
-					`Failed to install ${packageName}, see logs above`,
-				);
+				throw new Error(`Failed to install ${packageName}, see logs above`);
 			} else {
 				throw new Error(
 					`Failed to install ${packageName}, run with --log=info to see logs`,
@@ -130,8 +127,5 @@ export const addCommand = async ({
 		});
 	});
 
-	Log.info(
-		{indent: false, logLevel},
-		`✅ ${packageName} has been installed!`,
-	);
+	Log.info({indent: false, logLevel}, `+ ${packageName}@${targetVersion}`);
 };
