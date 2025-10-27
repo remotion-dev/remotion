@@ -27,12 +27,6 @@ const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', {
 	encoding: 'utf-8',
 }).trim();
 
-if (currentBranch !== 'main') {
-	throw new Error(
-		`You must be on the main branch to set a version. Current branch: ${currentBranch}`,
-	);
-}
-
 const dirs = readdirSync('packages')
 	.filter((dir) =>
 		lstatSync(path.join(process.cwd(), 'packages', dir)).isDirectory(),
