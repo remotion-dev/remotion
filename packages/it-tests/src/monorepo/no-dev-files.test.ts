@@ -6,7 +6,7 @@ import {getAllPackages} from './get-all-packages';
 const packages = getAllPackages();
 
 for (const pkg of packages) {
-	test(
+	test.concurrent(
 		'should not publish any dev files for @remotion/' + pkg.pkg,
 		async () => {
 			const packageJson = await Bun.file(pkg.path).json();
