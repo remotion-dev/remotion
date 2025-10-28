@@ -1,6 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 import {StudioServerInternals} from '@remotion/studio-server';
 import minimist from 'minimist';
+import {addCommand} from './add';
 import {benchmarkCommand} from './benchmark';
 import {BROWSER_COMMAND, browserCommand} from './browser';
 import {defaultBrowserDownloadProgress} from './browser-download-bar';
@@ -117,6 +118,25 @@ export const cli = async () => {
 				version: parsedCli.version,
 				logLevel,
 				args,
+			});
+		} else if (command === 'add') {
+			if (args.length === 0) {
+				throw new Error(
+					'Please specify at least one package name. Example: npx remotion add @remotion/transitions',
+				);
+			}
+
+			// Find where additional flags start (arguments starting with -)
+			const flagIndex = args.findIndex((arg) => arg.startsWith('-'));
+			const packageNames = flagIndex === -1 ? args : args.slice(0, flagIndex);
+			const additionalArgs = flagIndex === -1 ? [] : args.slice(flagIndex);
+
+			await addCommand({
+				remotionRoot,
+				packageManager: parsedCli['package-manager'],
+				packageNames,
+				logLevel,
+				args: additionalArgs,
 			});
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
