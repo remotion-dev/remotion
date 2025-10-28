@@ -118,9 +118,10 @@ export const SharedAudioContext = createContext<SharedContext | null>(null);
 export const SharedAudioContextProvider: React.FC<{
 	readonly numberOfAudioTags: number;
 	readonly children: React.ReactNode;
-	readonly component: LazyExoticComponent<
-		ComponentType<Record<string, unknown>>
-	> | null;
+	readonly component:
+		| LazyExoticComponent<ComponentType<Record<string, unknown>>>
+		| ComponentType<Record<string, unknown>>
+		| null;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 }> = ({children, numberOfAudioTags, component, audioLatencyHint}) => {
 	const audios = useRef<AudioElem[]>([]);

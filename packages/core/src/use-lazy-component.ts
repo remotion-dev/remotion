@@ -21,7 +21,7 @@ export const useLazyComponent = <Props>({
 	compProps: CompProps<Props>;
 	componentName: string;
 	noSuspense: boolean;
-}): LazyExoticComponent<ComponentType<Props>> => {
+}): LazyExoticComponent<ComponentType<Props>> | ComponentType<Props> => {
 	const lazy = useMemo(() => {
 		if ('component' in compProps) {
 			// In SSR, suspense is not yet supported, we cannot use React.lazy
@@ -37,9 +37,7 @@ export const useLazyComponent = <Props>({
 				);
 			}
 
-			return React.lazy(() =>
-				Promise.resolve({default: compProps.component as ComponentType<Props>}),
-			);
+			return compProps.component as ComponentType<Props>;
 		}
 
 		if (
