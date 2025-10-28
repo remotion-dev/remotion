@@ -22,7 +22,7 @@ bun install
 **Start Preview**
 
 ```console
-bun dev
+npm run dev
 ```
 
 ## How do I render my video?
