@@ -24,9 +24,9 @@ test('Extract accuracy', async () => {
 
 	assert(audio1);
 	assert(audio1.data);
-	expect(audio1.data.data.length).toBe(3842);
+	expect(audio1.data.data.length).toBe(3840);
 	expect(audio1.data.timestamp).toBe(0);
-	expect(audio1.data.numberOfFrames).toBe(1921);
+	expect(audio1.data.numberOfFrames).toBe(1920);
 
 	const audio2 = await extractAudio({
 		audioStreamIndex: 0,
@@ -76,7 +76,7 @@ test('Extract accuracy', async () => {
 
 	assert(audio3);
 	assert(audio3.data);
-	expect(audio3.data.data.length).toBe(3842);
+	expect(audio3.data.data.length).toBe(3840);
 	expect(audio3.data.timestamp).toBe(159978.83333333334);
-	expect(audio3.data.numberOfFrames).toBe(1921);
+	expect(audio3.data.numberOfFrames).toBe(1920);
 });

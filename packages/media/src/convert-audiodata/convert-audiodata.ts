@@ -19,6 +19,14 @@ export type PcmS16AudioData = {
 	timestamp: number;
 };
 
+const ceilButNotIfFloatingPointIssue = (value: number) => {
+	if (value % 1 < 0.0000001) {
+		return Math.floor(value);
+	}
+
+	return Math.ceil(value);
+};
+
 export const convertAudioData = ({
 	audioData,
 	trimStartInSeconds,
@@ -44,8 +52,8 @@ export const convertAudioData = ({
 		numberOfFrames -
 		(trimEndInSeconds + trimStartInSeconds) * audioData.sampleRate;
 
-	const frameCount = Math.ceil(unroundedFrameCount);
-	const newNumberOfFrames = Math.ceil(
+	const frameCount = ceilButNotIfFloatingPointIssue(unroundedFrameCount);
+	const newNumberOfFrames = ceilButNotIfFloatingPointIssue(
 		unroundedFrameCount / ratio / playbackRate,
 	);
 
