@@ -31,8 +31,8 @@ test('Extract accuracy over 100 frames', async () => {
 		assert(audio);
 		assert(audio.data);
 
+		// All chunks must have consistent sizes for clean audio
 		expect(audio.data.data.length).toBe(3840);
-		// timestamp = i * (1 / FPS) * 80000 (step size between frames)
 		expect(audio.data.timestamp).toBe(i * 80000);
 		expect(audio.data.numberOfFrames).toBe(1920);
 	}

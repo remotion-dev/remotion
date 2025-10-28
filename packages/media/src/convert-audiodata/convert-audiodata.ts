@@ -19,12 +19,21 @@ export type PcmS16AudioData = {
 	timestamp: number;
 };
 
-const ceilButNotIfFloatingPointIssue = (value: number) => {
+const fixFloatingPoint = (value: number) => {
 	if (value % 1 < 0.0000001) {
 		return Math.floor(value);
 	}
 
-	return Math.ceil(value);
+	if (value % 1 > 0.9999999) {
+		return Math.ceil(value);
+	}
+
+	return value;
+};
+
+const ceilButNotIfFloatingPointIssue = (value: number) => {
+	const fixed = fixFloatingPoint(value);
+	return Math.ceil(fixed);
 };
 
 export const convertAudioData = ({
@@ -47,7 +56,9 @@ export const convertAudioData = ({
 	// This might lead to overlapping, hopefully aligning perfectly!
 	// Test case: https://github.com/remotion-dev/remotion/issues/5758
 
-	const frameOffset = Math.floor(trimStartInSeconds * audioData.sampleRate);
+	const frameOffset = Math.floor(
+		fixFloatingPoint(trimStartInSeconds * audioData.sampleRate),
+	);
 	const unroundedFrameCount =
 		numberOfFrames -
 		(trimEndInSeconds + trimStartInSeconds) * audioData.sampleRate;
