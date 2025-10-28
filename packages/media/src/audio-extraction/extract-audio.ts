@@ -167,7 +167,15 @@ const extractAudioInternal = async ({
 
 	const combined = combineAudioDataAndClosePrevious(audioDataArray);
 
-	return {data: combined, durationInSeconds: mediaDurationInSeconds};
+	// Use the requested timeInSeconds as the timestamp (converted to microseconds)
+	// rather than the first chunk's timestamp, to ensure perfect alignment
+	// between consecutive audio extractions
+	const alignedTimestamp = timeInSeconds * 1_000_000;
+
+	return {
+		data: {...combined, timestamp: alignedTimestamp},
+		durationInSeconds: mediaDurationInSeconds,
+	};
 };
 
 let queue = Promise.resolve<ExtractAudioReturnType | undefined>(undefined);
