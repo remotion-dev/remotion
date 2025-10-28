@@ -14,7 +14,9 @@ export const renderStillOnWeb = async ({
 	durationInFrames,
 	frame,
 }: {
-	Component: LazyExoticComponent<ComponentType<Record<string, unknown>>>;
+	Component:
+		| LazyExoticComponent<ComponentType<Record<string, unknown>>>
+		| ComponentType<Record<string, unknown>>;
 	width: number;
 	height: number;
 	fps: number;
