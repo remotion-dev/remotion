@@ -58,6 +58,11 @@ test('media player should work', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		bufferState: {
+			delayPlayback: () => ({
+				unblock: () => {},
+			}),
+		},
 	});
 
 	await manager.seek({
@@ -67,6 +72,11 @@ test('media player should work', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		bufferState: {
+			delayPlayback: () => ({
+				unblock: () => {},
+			}),
+		},
 	});
 
 	await manager.seek({
@@ -76,6 +86,11 @@ test('media player should work', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		bufferState: {
+			delayPlayback: () => ({
+				unblock: () => {},
+			}),
+		},
 	});
 
 	const created = manager.getAudioIteratorsCreated();
@@ -84,6 +99,7 @@ test('media player should work', async () => {
 	expect(scheduledChunks).toEqual([
 		9.941333333333333, 9.962666666666667, 9.984, 0, 0.021333333333333333,
 		0.042666666666666665, 0.064, 0.08533333333333333, 0.10666666666666667,
+		0.128,
 	]);
 });
 
@@ -112,6 +128,11 @@ test('should not create too many iterators when the audio ends', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		bufferState: {
+			delayPlayback: () => ({
+				unblock: () => {},
+			}),
+		},
 	});
 	await manager.seek({
 		newTime: 9.98,
@@ -120,6 +141,11 @@ test('should not create too many iterators when the audio ends', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		bufferState: {
+			delayPlayback: () => ({
+				unblock: () => {},
+			}),
+		},
 	});
 	await manager.seek({
 		newTime: 9.99,
@@ -128,6 +154,11 @@ test('should not create too many iterators when the audio ends', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		bufferState: {
+			delayPlayback: () => ({
+				unblock: () => {},
+			}),
+		},
 	});
 
 	const created = manager.getAudioIteratorsCreated();
@@ -161,6 +192,11 @@ test('should create more iterators when seeking ', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		bufferState: {
+			delayPlayback: () => ({
+				unblock: () => {},
+			}),
+		},
 	});
 	await manager.seek({
 		newTime: 1,
@@ -169,6 +205,11 @@ test('should create more iterators when seeking ', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
+		bufferState: {
+			delayPlayback: () => ({
+				unblock: () => {},
+			}),
+		},
 	});
 
 	const created = manager.getAudioIteratorsCreated();
