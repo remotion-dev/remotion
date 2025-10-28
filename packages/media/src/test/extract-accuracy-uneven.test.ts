@@ -1,10 +1,10 @@
 import {assert, expect, test} from 'vitest';
 import {extractAudio} from '../audio-extraction/extract-audio';
 
-test('Extract accuracy over 100 frames with playback rate 2', async () => {
+test('Extract accuracy over 100 frames with playback rate 1.75', async () => {
 	const FPS = 25;
 	const NUM_FRAMES = 100;
-	const PLAYBACK_RATE = 2;
+	const PLAYBACK_RATE = 1.75;
 
 	for (let i = 0; i < NUM_FRAMES; i++) {
 		const timeInSeconds = i / FPS;
