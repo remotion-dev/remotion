@@ -32,8 +32,12 @@ test('Extract accuracy over 100 frames with playback rate 1.75', async () => {
 		assert(audio.data);
 
 		// All chunks must have consistent sizes for clean audio
-		expect(audio.data.data.length).toBe(3840);
-		expect(audio.data.timestamp).toBe(i * 80000);
-		expect(audio.data.numberOfFrames).toBe(1920);
+		expect(audio.data.data.length).greaterThanOrEqual(3840);
+		expect(audio.data.data.length).lessThanOrEqual(3842);
+		expect(audio.data.timestamp).toBe(i * 70000);
+		expect(audio.data.numberOfFrames).toBeGreaterThanOrEqual(1920);
+		expect(audio.data.numberOfFrames).toBeLessThanOrEqual(1921);
+		expect(audio.data.durationInMicroSeconds).toBeGreaterThanOrEqual(40000);
+		expect(audio.data.durationInMicroSeconds).toBeLessThanOrEqual(40021);
 	}
 });

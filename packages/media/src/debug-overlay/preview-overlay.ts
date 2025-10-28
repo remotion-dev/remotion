@@ -31,7 +31,7 @@ export const drawPreviewOverlay = ({
 	if (audioIteratorManager) {
 		const queuedPeriod = audioIteratorManager
 			.getAudioBufferIterator()
-			?.getQueuedPeriod([]);
+			?.getQueuedPeriod();
 
 		const numberOfChunksAfterResuming = audioIteratorManager
 			?.getAudioBufferIterator()

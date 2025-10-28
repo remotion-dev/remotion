@@ -1,5 +1,6 @@
 import type {InputAudioTrack, WrappedAudioBuffer} from 'mediabunny';
 import {AudioBufferSink} from 'mediabunny';
+import type {useBufferState} from 'remotion';
 import type {AudioIterator} from './audio/audio-preview-iterator';
 import {
 	isAlreadyQueued,
@@ -164,12 +165,14 @@ export const audioIteratorManager = ({
 		playbackRate,
 		getIsPlaying,
 		scheduleAudioNode,
+		bufferState,
 	}: {
 		newTime: number;
 		nonce: Nonce;
 		fps: number;
 		playbackRate: number;
 		getIsPlaying: () => boolean;
+		bufferState: ReturnType<typeof useBufferState>;
 		scheduleAudioNode: (
 			node: AudioBufferSourceNode,
 			mediaTimestamp: number,
@@ -188,14 +191,23 @@ export const audioIteratorManager = ({
 
 		const currentTimeIsAlreadyQueued = isAlreadyQueued(
 			newTime,
-			audioBufferIterator.getQueuedPeriod([]),
+			audioBufferIterator.getQueuedPeriod(),
 		);
-		const toBeScheduled: WrappedAudioBuffer[] = [];
 
 		if (!currentTimeIsAlreadyQueued) {
 			const audioSatisfyResult = await audioBufferIterator.tryToSatisfySeek(
 				newTime,
-				false,
+				null,
+				(buffer) => {
+					if (!nonce.isStale()) {
+						onAudioChunk({
+							getIsPlaying,
+							buffer,
+							playbackRate,
+							scheduleAudioNode,
+						});
+					}
+				},
 			);
 
 			if (nonce.isStale()) {
@@ -212,20 +224,16 @@ export const audioIteratorManager = ({
 				});
 				return;
 			}
-
-			toBeScheduled.push(...audioSatisfyResult.buffers);
 		}
 
 		const nextTime =
 			newTime +
-			// start of next frame
-			(1 / fps) * playbackRate +
-			// need the full duration of the next frame to be queued
-			(1 / fps) * playbackRate;
+			// 3 frames ahead to get enough of a buffer
+			(1 / fps) * Math.max(1, playbackRate) * 3;
 
 		const nextIsAlreadyQueued = isAlreadyQueued(
 			nextTime,
-			audioBufferIterator.getQueuedPeriod(toBeScheduled),
+			audioBufferIterator.getQueuedPeriod(),
 		);
 
 		if (!nextIsAlreadyQueued) {
@@ -234,7 +242,25 @@ export const audioIteratorManager = ({
 			// because we already know we are in the right spot
 			const audioSatisfyResult = await audioBufferIterator.tryToSatisfySeek(
 				nextTime,
-				true,
+				{
+					type: 'allow-wait',
+					waitCallback: () => {
+						const handle = bufferState.delayPlayback();
+						return () => {
+							handle.unblock();
+						};
+					},
+				},
+				(buffer) => {
+					if (!nonce.isStale()) {
+						onAudioChunk({
+							getIsPlaying,
+							buffer,
+							playbackRate,
+							scheduleAudioNode,
+						});
+					}
+				},
 			);
 
 			if (nonce.isStale()) {
@@ -249,19 +275,7 @@ export const audioIteratorManager = ({
 					getIsPlaying,
 					scheduleAudioNode,
 				});
-				return;
 			}
-
-			toBeScheduled.push(...audioSatisfyResult.buffers);
-		}
-
-		for (const buffer of toBeScheduled) {
-			onAudioChunk({
-				getIsPlaying,
-				buffer,
-				playbackRate,
-				scheduleAudioNode,
-			});
 		}
 	};
 

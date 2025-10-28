@@ -362,6 +362,7 @@ export class MediaPlayer {
 			playbackRate: this.playbackRate * this.globalPlaybackRate,
 			getIsPlaying: () => this.playing,
 			scheduleAudioNode: this.scheduleAudioNode,
+			bufferState: this.bufferState,
 		});
 	}
 

@@ -35,5 +35,6 @@ test('Extract accuracy over 100 frames with playback rate 2', async () => {
 		expect(audio.data.data.length).toBe(3840);
 		expect(audio.data.timestamp).toBe(i * 80000);
 		expect(audio.data.numberOfFrames).toBe(1920);
+		expect(audio.data.durationInMicroSeconds).toBe(40000);
 	}
 });
