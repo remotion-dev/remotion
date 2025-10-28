@@ -151,6 +151,7 @@ const extractAudioInternal = async ({
 			trimStartInSeconds,
 			trimEndInSeconds,
 			playbackRate,
+			audioDataTimestamp: sample.timestamp,
 		});
 		audioDataRaw.close();
 
