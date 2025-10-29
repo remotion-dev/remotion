@@ -7,6 +7,8 @@ import {findCanvasElements} from './find-canvas-elements';
 import {findSvgElements} from './find-svg-elements';
 import {waitForReady} from './wait-for-ready';
 
+const COMP_ID = 'markup';
+
 export const renderStillOnWeb = async ({
 	Component,
 	width,
@@ -29,9 +31,10 @@ export const renderStillOnWeb = async ({
 	// Match same behavior as renderEntry.tsx
 	div.style.display = 'flex';
 	div.style.backgroundColor = 'transparent';
-	div.style.position = 'absolute';
+	div.style.position = 'fixed';
 	div.style.width = `${width}px`;
 	div.style.height = `${height}px`;
+	div.style.zIndex = '-9999';
 
 	document.body.appendChild(div);
 
@@ -69,7 +72,7 @@ export const renderStillOnWeb = async ({
 		compositions: [
 			{
 				// TODO: Make dynamic
-				id: 'markup',
+				id: COMP_ID,
 				component: Component,
 				nonce: 0,
 				defaultProps: undefined,
@@ -85,7 +88,7 @@ export const renderStillOnWeb = async ({
 		],
 		canvasContent: {
 			type: 'composition',
-			compositionId: 'markup',
+			compositionId: COMP_ID,
 		},
 	};
 
@@ -139,24 +142,42 @@ export const renderStillOnWeb = async ({
 				audioLatencyHint="interactive"
 			>
 				<Internals.CanUseRemotionHooks value>
-					<Internals.CompositionManager.Provider
-						// TODO: This context is double-wrapped
-						value={compositionManagerContext}
+					<Internals.TimelinePosition.TimelineContext.Provider
+						value={{
+							// TODO: TimelineContext is already provided by RemotionRoot
+							frame: {
+								[COMP_ID]: frame,
+							},
+							playing: false,
+							rootId: '',
+							playbackRate: 1,
+							imperativePlaying: {
+								current: false,
+							},
+							setPlaybackRate: () => {
+								throw new Error('setPlaybackRate');
+							},
+							audioAndVideoTags: {current: []},
+						}}
 					>
-						<Component />
-					</Internals.CompositionManager.Provider>
+						<Internals.CompositionManager.Provider
+							// TODO: This context is double-wrapped
+							value={compositionManagerContext}
+						>
+							<Component />
+						</Internals.CompositionManager.Provider>
+					</Internals.TimelinePosition.TimelineContext.Provider>
 				</Internals.CanUseRemotionHooks>
 			</Internals.RemotionRoot>
 		</Internals.RemotionEnvironmentContext>,
 	);
 
 	// TODO: Doesn't work at all 🙈
-	window.remotion_setFrame(frame, 'markup', frame);
+	window.remotion_setFrame(frame, 'markup', 0);
 
 	await waitForReady(delayRenderTimeoutInMilliseconds);
 	const canvasElements = findCanvasElements(div);
 	const svgElements = findSvgElements(div);
-	console.log({canvasElements, svgElements});
 	const composed = await compose({
 		composables: [...canvasElements, ...svgElements],
 		width,
