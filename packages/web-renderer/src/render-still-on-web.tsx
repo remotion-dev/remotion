@@ -4,6 +4,7 @@ import type {CompositionManagerContext} from 'remotion';
 import {Internals} from 'remotion';
 import {compose} from './compose';
 import {findCanvasElements} from './find-canvas-elements';
+import {findSvgElements} from './find-svg-elements';
 import {waitForReady} from './wait-for-ready';
 
 export const renderStillOnWeb = async ({
@@ -154,8 +155,10 @@ export const renderStillOnWeb = async ({
 
 	await waitForReady(delayRenderTimeoutInMilliseconds);
 	const canvasElements = findCanvasElements(div);
-	const composed = compose({
-		composables: canvasElements,
+	const svgElements = findSvgElements(div);
+	console.log({canvasElements, svgElements});
+	const composed = await compose({
+		composables: [...canvasElements, ...svgElements],
 		width,
 		height,
 	});

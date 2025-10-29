@@ -1,4 +1,4 @@
-import type {Composable} from './compose';
+import type {Composable} from './composable';
 
 export const findCanvasElements = (element: HTMLDivElement) => {
 	const canvasElements = element.querySelectorAll('canvas');
@@ -7,7 +7,10 @@ export const findCanvasElements = (element: HTMLDivElement) => {
 
 	Array.from(canvasElements).forEach((canvasElement) => {
 		const canvas = canvasElement as HTMLCanvasElement;
-		composables.push(canvas);
+		composables.push({
+			type: 'canvas',
+			element: canvas,
+		});
 	});
 
 	return composables;
