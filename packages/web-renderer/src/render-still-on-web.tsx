@@ -172,9 +172,6 @@ export const renderStillOnWeb = async ({
 		</Internals.RemotionEnvironmentContext>,
 	);
 
-	// TODO: Doesn't work at all 🙈
-	window.remotion_setFrame(frame, 'markup', 0);
-
 	await waitForReady(delayRenderTimeoutInMilliseconds);
 	const canvasElements = findCanvasElements(div);
 	const svgElements = findSvgElements(div);
