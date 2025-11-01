@@ -1,84 +1,87 @@
-import {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
+import {cn} from '../../cn';
 import {Outer} from './Outer';
+import {useHoverTransforms} from './hover-transforms';
 
-export const ButtonDemo = () => {
+export const ButtonDemo: React.FC<{
+	readonly children?: React.ReactNode;
+	readonly className?: string;
+}> = ({children, className}) => {
 	const [dimensions, setDimensions] = useState<{
 		width: number;
 		height: number;
 		borderRadius: number;
 	} | null>(null);
 	const ref = useRef<HTMLDivElement>(null);
+	const {isHovered, progress} = useHoverTransforms(ref);
 
-	const onPointerEnter = useCallback(() => {
-		setDimensions((prevDim) => {
-			if (prevDim) {
-				return prevDim;
+	const onPointerEnter = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (e.pointerType !== 'mouse') {
+				return;
 			}
 
-			if (!ref.current) {
-				throw new Error('Ref is not set');
-			}
+			setDimensions((prevDim) => {
+				if (prevDim) {
+					return prevDim;
+				}
 
-			const {childNodes} = ref.current;
-			if (childNodes.length === 0) {
-				throw new Error('No child nodes');
-			}
+				if (!ref.current) {
+					throw new Error('Ref is not set');
+				}
 
-			const childNode = childNodes[0] as HTMLElement;
-			if (!childNode) {
-				throw new Error('No child node');
-			}
+				const {childNodes} = ref.current;
+				if (childNodes.length === 0) {
+					throw new Error('No child nodes');
+				}
 
-			const rect = childNode.getBoundingClientRect();
-			const cornerRadius = parseInt(
-				getComputedStyle(childNode).borderRadius ?? '0',
-				10,
-			);
+				const childNode = childNodes[0] as HTMLElement;
+				if (!childNode) {
+					throw new Error('No child node');
+				}
 
-			return {
-				width: rect.width,
-				height: rect.height,
-				borderRadius: cornerRadius,
-			};
-		});
-	}, []);
+				const rect = childNode.getBoundingClientRect();
+				const {borderRadius} = getComputedStyle(childNode);
+				const cornerRadius = borderRadius.includes('e+0')
+					? Infinity
+					: parseInt(borderRadius ?? '0', 10);
 
-	const onPointerLeave = useCallback(() => {
-		setDimensions(null);
-	}, []);
+				return {
+					width: rect.width,
+					height: rect.height,
+					borderRadius: Math.min(cornerRadius, rect.width / 2, rect.height / 2),
+				};
+			});
+		},
+		[],
+	);
 
 	const content = (
-		<div
-			style={{
-				fontFamily: 'GT Planar',
-				backgroundColor: 'white',
-			}}
-			className="text-black flex justify-center items-center font-sans border-solid rounded-md border-black cursor-pointer px-4 py-2"
+		<button
+			type="button"
+			className={cn(
+				'text-black flex justify-center bg-white items-center font-brand border-solid text-[1em] rounded-md border-black border-2 border-b-4 cursor-pointer px-4 py-3',
+				className,
+			)}
 		>
-			This is a button
-		</div>
+			{children}
+		</button>
 	);
 
 	return (
-		<div className="flex absolute h-full w-full justify-center items-center bg-[#F9FAFC]">
-			<div
-				ref={ref}
-				className="contents"
-				onPointerEnter={onPointerEnter}
-				onPointerLeave={onPointerLeave}
-			>
-				{dimensions ? (
-					<Outer
-						width={dimensions.width}
-						height={dimensions.height}
-						cornerRadius={dimensions.borderRadius}
-					>
-						{content}
-					</Outer>
-				) : (
-					content
-				)}
-			</div>
+		<div ref={ref} className="contents" onPointerEnter={onPointerEnter}>
+			{dimensions && (isHovered || progress > 0) ? (
+				<Outer
+					width={dimensions.width}
+					height={dimensions.height}
+					cornerRadius={dimensions.borderRadius}
+					hoverTransform={progress}
+				>
+					{content}
+				</Outer>
+			) : (
+				content
+			)}
 		</div>
 	);
 };

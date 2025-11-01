@@ -32,7 +32,6 @@ export const Outer: React.FC<{
 	const hoverTransform = useHoverTransforms(ref);
 	const clickTransform = useClickTransforms(ref);
 	const angle = useMousePosition(ref);
-	// const angle = 0
 
 	const transformationUnhovered: MatrixTransform4D = reduceMatrices([
 		rotateX(-Math.PI / 20),

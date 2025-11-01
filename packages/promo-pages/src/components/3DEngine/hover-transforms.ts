@@ -1,9 +1,17 @@
 import React, {useEffect, useState} from 'react';
 
+type State = {
+	progress: number;
+	isHovered: boolean;
+};
+
 export const useHoverTransforms = (
 	ref: React.RefObject<HTMLDivElement | null>,
 ) => {
-	const [hoverProgress, setHoverProgress] = React.useState(0);
+	const [state, setState] = React.useState<State>({
+		progress: 0,
+		isHovered: false,
+	});
 
 	React.useEffect(() => {
 		const element = ref.current;
@@ -16,7 +24,10 @@ export const useHoverTransforms = (
 		const animate = (timestamp: number) => {
 			if (start === null) start = timestamp;
 			const progress = Math.min((timestamp - start) / 150, 1);
-			setHoverProgress(isHovered ? progress : 1 - progress);
+			setState(() => ({
+				isHovered,
+				progress: isHovered ? progress : 1 - progress,
+			}));
 
 			if (progress < 1) {
 				animationFrame = requestAnimationFrame(animate);
@@ -24,6 +35,10 @@ export const useHoverTransforms = (
 		};
 
 		const handleMouseEnter = () => {
+			setState((prevState) => ({
+				...prevState,
+				isHovered: true,
+			}));
 			isHovered = true;
 			start = null;
 			cancelAnimationFrame(animationFrame);
@@ -31,6 +46,10 @@ export const useHoverTransforms = (
 		};
 
 		const handleMouseLeave = () => {
+			setState((prevState) => ({
+				...prevState,
+				isHovered: false,
+			}));
 			isHovered = false;
 			start = null;
 			cancelAnimationFrame(animationFrame);
@@ -47,7 +66,7 @@ export const useHoverTransforms = (
 		};
 	}, [ref]);
 
-	return hoverProgress;
+	return state;
 };
 
 export const useClickTransforms = (
@@ -107,7 +126,9 @@ export const useMousePosition = (
 
 	useEffect(() => {
 		const element = ref.current;
-		if (!element) return;
+		if (!element) {
+			return;
+		}
 
 		const onMouseMove = (e: MouseEvent) => {
 			const clientRect = element.getClientRects();
@@ -119,8 +140,9 @@ export const useMousePosition = (
 				x: clientRect[0].x + clientRect[0].width / 2,
 				y: clientRect[0].y + clientRect[0].height / 2,
 			};
+			const angleX = Math.atan2(e.clientY - center.y, e.clientX - center.x);
 
-			setAngle(Math.atan2(e.clientY - center.y, e.clientX - center.x));
+			setAngle(angleX);
 		};
 
 		window.addEventListener('mousemove', onMouseMove);
