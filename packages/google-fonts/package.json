@@ -26,9 +26,6 @@
 	"types": "dist/cjs/index.d.ts",
 	"typesVersions": {
 		">=1.0": {
-			"from-info": [
-				"./dist/cjs/from-info.d.ts"
-			],
 			"ABeeZee": [
 				"dist/cjs/ABeeZee.d.ts"
 			],
@@ -2858,6 +2855,15 @@
 			"Molle": [
 				"dist/cjs/Molle.d.ts"
 			],
+			"MomoSignature": [
+				"dist/cjs/MomoSignature.d.ts"
+			],
+			"MomoTrustDisplay": [
+				"dist/cjs/MomoTrustDisplay.d.ts"
+			],
+			"MomoTrustSans": [
+				"dist/cjs/MomoTrustSans.d.ts"
+			],
 			"MonaSans": [
 				"dist/cjs/MonaSans.d.ts"
 			],
@@ -3496,6 +3502,9 @@
 			],
 			"NotoSansSyriacEastern": [
 				"dist/cjs/NotoSansSyriacEastern.d.ts"
+			],
+			"NotoSansSyriacWestern": [
+				"dist/cjs/NotoSansSyriacWestern.d.ts"
 			],
 			"NotoSansTC": [
 				"dist/cjs/NotoSansTC.d.ts"
@@ -5386,6 +5395,9 @@
 			],
 			"ZillaSlabHighlight": [
 				"dist/cjs/ZillaSlabHighlight.d.ts"
+			],
+			"from-info": [
+				"./dist/cjs/from-info.d.ts"
 			]
 		}
 	},
