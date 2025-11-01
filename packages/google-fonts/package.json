@@ -10,7 +10,6 @@
 	"scripts": {
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"generate": "bun --env-file=.env scripts/update-font-db.ts",
-		"prepublishOnly": "bun run generate",
 		"formatting": "prettier --experimental-cli src --check"
 	},
 	"license": "SEE LICENSE IN LICENSE.md",
