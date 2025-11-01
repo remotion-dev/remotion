@@ -29,7 +29,6 @@ export const Outer: React.FC<{
 
 	const clickTransform = useClickTransforms(ref);
 	const angle = useMousePosition(ref);
-	// const angle = 0
 
 	const appropriateScale = Math.min(1.1, (20 + width) / width);
 
@@ -40,7 +39,6 @@ export const Outer: React.FC<{
 		scaled(appropriateScale),
 		rotateX(-Math.PI / 16),
 		rotateX(Math.sin(angle) / 4),
-		// rotateY(-Math.PI / 8),
 		rotateY(-Math.cos(angle) / 4),
 	]);
 
@@ -50,8 +48,8 @@ export const Outer: React.FC<{
 		transformationHovered,
 	);
 
-	const depthFromClick = clickTransform * 20;
-	const depthFromHover = interpolate(hoverTransform, [0, 1], [20, 30]);
+	const depthFromClick = clickTransform * 15;
+	const depthFromHover = interpolate(hoverTransform, [0, 1], [10, 20]);
 	const depth = depthFromHover;
 
 	const frontFace = reduceMatrices([

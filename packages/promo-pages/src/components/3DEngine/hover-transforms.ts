@@ -1,17 +1,28 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 
 type State = {
 	progress: number;
-	isHovered: boolean;
+	isActive: boolean;
 };
 
 export const useHoverTransforms = (
 	ref: React.RefObject<HTMLDivElement | null>,
+	disabled: boolean,
 ) => {
 	const [state, setState] = React.useState<State>({
 		progress: 0,
-		isHovered: false,
+		isActive: false,
 	});
+
+	const eventTarget = useMemo(() => new EventTarget(), []);
+
+	useEffect(() => {
+		if (disabled) {
+			eventTarget.dispatchEvent(new Event('disabled'));
+		} else {
+			eventTarget.dispatchEvent(new Event('enabled'));
+		}
+	}, [disabled, eventTarget]);
 
 	React.useEffect(() => {
 		const element = ref.current;
@@ -20,13 +31,14 @@ export const useHoverTransforms = (
 		let animationFrame: number;
 		let start: number | null = null;
 		let isHovered = false;
+		let internalDisabled = disabled;
 
 		const animate = (timestamp: number) => {
 			if (start === null) start = timestamp;
 			const progress = Math.min((timestamp - start) / 150, 1);
 			setState(() => ({
-				isHovered,
-				progress: isHovered ? progress : 1 - progress,
+				isActive: isHovered && !internalDisabled,
+				progress: isHovered && !internalDisabled ? progress : 1 - progress,
 			}));
 
 			if (progress < 1) {
@@ -34,37 +46,60 @@ export const useHoverTransforms = (
 			}
 		};
 
-		const handleMouseEnter = () => {
-			setState((prevState) => ({
-				...prevState,
-				isHovered: true,
-			}));
-			isHovered = true;
+		const animateIn = () => {
 			start = null;
 			cancelAnimationFrame(animationFrame);
 			animationFrame = requestAnimationFrame(animate);
 		};
 
+		const handleMouseEnter = () => {
+			isHovered = true;
+			if (internalDisabled) {
+				return;
+			}
+
+			animateIn();
+		};
+
 		const handleMouseLeave = () => {
-			setState((prevState) => ({
-				...prevState,
-				isHovered: false,
-			}));
 			isHovered = false;
-			start = null;
-			cancelAnimationFrame(animationFrame);
-			animationFrame = requestAnimationFrame(animate);
+			animateIn();
+		};
+
+		const handleDisabled = () => {
+			internalDisabled = true;
+
+			if (!isHovered) {
+				return;
+			}
+
+			animateIn();
+		};
+
+		const handleEnabled = () => {
+			internalDisabled = false;
+
+			if (!isHovered) {
+				return;
+			}
+
+			animateIn();
 		};
 
 		element.addEventListener('mouseenter', handleMouseEnter);
 		element.addEventListener('mouseleave', handleMouseLeave);
+		eventTarget.addEventListener('disabled', handleDisabled);
+		eventTarget.addEventListener('enabled', handleEnabled);
 
 		return () => {
 			element.removeEventListener('mouseenter', handleMouseEnter);
 			element.removeEventListener('mouseleave', handleMouseLeave);
+			eventTarget.removeEventListener('disabled', handleDisabled);
+			eventTarget.removeEventListener('enabled', handleEnabled);
 			cancelAnimationFrame(animationFrame);
 		};
-	}, [ref]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ref, eventTarget]);
 
 	return state;
 };

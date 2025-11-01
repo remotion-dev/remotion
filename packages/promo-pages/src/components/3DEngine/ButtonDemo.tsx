@@ -3,17 +3,16 @@ import {cn} from '../../cn';
 import {Outer} from './Outer';
 import {useHoverTransforms} from './hover-transforms';
 
-export const ButtonDemo: React.FC<{
-	readonly children?: React.ReactNode;
-	readonly className?: string;
-}> = ({children, className}) => {
+export const Button3D: React.FC<
+	React.ButtonHTMLAttributes<HTMLButtonElement>
+> = ({children, className, disabled, ...buttonProps}) => {
 	const [dimensions, setDimensions] = useState<{
 		width: number;
 		height: number;
 		borderRadius: number;
 	} | null>(null);
 	const ref = useRef<HTMLDivElement>(null);
-	const {isHovered, progress} = useHoverTransforms(ref);
+	const {isActive, progress} = useHoverTransforms(ref, Boolean(disabled));
 
 	const onPointerEnter = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -59,10 +58,29 @@ export const ButtonDemo: React.FC<{
 	const content = (
 		<button
 			type="button"
+			disabled={disabled}
 			className={cn(
-				'text-black flex justify-center bg-white items-center font-brand border-solid text-[1em] rounded-md border-black border-2 border-b-4 cursor-pointer px-4 py-3',
+				'text-black',
+				'flex',
+				'justify-center',
+				'bg-white',
+				'items-center',
+				'font-brand',
+				'border-solid',
+				'text-[1em]',
+				'rounded-md',
+				'border-black',
+				'border-2',
+				'border-b-4',
+				'cursor-pointer',
+				'px-4',
+				'py-3',
+				'disabled:border-gray-500',
+				'disabled:text-gray-500',
+				'transition-colors',
 				className,
 			)}
+			{...buttonProps}
 		>
 			{children}
 		</button>
@@ -70,7 +88,7 @@ export const ButtonDemo: React.FC<{
 
 	return (
 		<div ref={ref} className="contents" onPointerEnter={onPointerEnter}>
-			{dimensions && (isHovered || progress > 0) ? (
+			{dimensions && (isActive || progress > 0) ? (
 				<Outer
 					width={dimensions.width}
 					height={dimensions.height}
