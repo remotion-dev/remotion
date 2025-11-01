@@ -50,11 +50,14 @@ export const Outer: React.FC<{
 		transformationHovered,
 	);
 
-	const depthFromClick = -clickTransform * 20;
+	const depthFromClick = clickTransform * 20;
 	const depthFromHover = interpolate(hoverTransform, [0, 1], [20, 30]);
-	const depth = depthFromHover + depthFromClick;
+	const depth = depthFromHover;
 
-	const frontFace = reduceMatrices([translateZ(-depth / 2), transformation]);
+	const frontFace = reduceMatrices([
+		translateZ(-depth / 2 + depthFromClick),
+		transformation,
+	]);
 	const centerOriented = reduceMatrices([
 		translateX(-width / 2),
 		translateY(-height / 2),
@@ -71,6 +74,7 @@ export const Outer: React.FC<{
 		sideColor: 'black',
 		crispEdges: false,
 		depth,
+		pressInDepth: depthFromClick,
 		points: parsePath(path),
 		description: 'rect',
 		transformations: centerOriented,
