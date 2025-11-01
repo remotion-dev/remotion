@@ -54,7 +54,7 @@ export const Outer: React.FC<{
 	const depth =
 		interpolate(hoverTransform, [0, 1], [20, 30]) - clickTransform * 20;
 
-	const frontFace = reduceMatrices([translateZ(-depth), transformation]);
+	const frontFace = reduceMatrices([translateZ(-depth / 2), transformation]);
 	const centerOriented = reduceMatrices([
 		translateX(-width / 2),
 		translateY(-height / 2),
