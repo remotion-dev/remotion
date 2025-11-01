@@ -29,7 +29,8 @@ export const getDefaultCodecs = ({
 				? 'mp3'
 				: userPreferredVideoCodec === 'wav'
 					? 'wav'
-					: defaultConfigurationAudioCodec === 'pcm-16'
+					: defaultConfigurationAudioCodec === 'pcm-16' ||
+						  defaultConfigurationAudioCodec === 'pcm-24'
 						? 'wav'
 						: defaultConfigurationAudioCodec === 'mp3'
 							? 'mp3'
