@@ -83,6 +83,11 @@ execSync('bun run build', {
 	stdio: 'inherit',
 });
 
+execSync('bun run generate', {
+	stdio: 'inherit',
+	cwd: 'packages/google-fonts',
+});
+
 execSync('bun test src/monorepo', {
 	cwd: 'packages/it-tests',
 	stdio: 'inherit',
