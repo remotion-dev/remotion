@@ -13,7 +13,6 @@ import {
 	translateY,
 	translateZ,
 } from '@remotion/svg-3d-engine';
-import {useRef} from 'react';
 import {interpolate} from 'remotion';
 import {Faces} from './Faces';
 import {useClickTransforms, useMousePosition} from './hover-transforms';
@@ -24,11 +23,10 @@ export const Outer: React.FC<{
 	height: number;
 	cornerRadius: number;
 	hoverTransform: number;
-}> = ({children, width, height, cornerRadius, hoverTransform}) => {
-	const ref = useRef<HTMLDivElement>(null);
-
-	const clickTransform = useClickTransforms(ref);
-	const angle = useMousePosition(ref);
+	parentRef: React.RefObject<HTMLDivElement | null>;
+}> = ({children, width, height, cornerRadius, hoverTransform, parentRef}) => {
+	const clickTransform = useClickTransforms(parentRef);
+	const angle = useMousePosition(parentRef);
 
 	const appropriateScale = Math.min(1.1, (20 + width) / width);
 
@@ -79,7 +77,7 @@ export const Outer: React.FC<{
 	});
 
 	return (
-		<div ref={ref} className="relative" style={{width, height}}>
+		<div className="relative" style={{width, height}}>
 			<svg
 				viewBox={viewBox}
 				style={{

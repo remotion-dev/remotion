@@ -23,7 +23,7 @@ const Comp: React.FC = () => {
 			<div className="flex flex-row gap-4">
 				<Button3D>Button with label</Button3D>
 				<Button3D onClick={onClick} disabled={!submitButtonActive}>
-					Button with label
+					Save
 				</Button3D>
 			</div>
 			<div className="h-8" />

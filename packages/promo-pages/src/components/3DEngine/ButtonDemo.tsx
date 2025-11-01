@@ -90,6 +90,7 @@ export const Button3D: React.FC<
 		<div ref={ref} className="contents" onPointerEnter={onPointerEnter}>
 			{dimensions && (isActive || progress > 0) ? (
 				<Outer
+					parentRef={ref}
 					width={dimensions.width}
 					height={dimensions.height}
 					cornerRadius={dimensions.borderRadius}

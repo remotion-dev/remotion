@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
+import {getChildNodeFrom} from './get-child-node-from';
 
 type State = {
 	progress: number;
@@ -33,12 +34,16 @@ export const useHoverTransforms = (
 		let isHovered = false;
 		let internalDisabled = disabled;
 
+		const getIsActive = () => {
+			return isHovered && !internalDisabled;
+		};
+
 		const animate = (timestamp: number) => {
 			if (start === null) start = timestamp;
 			const progress = Math.min((timestamp - start) / 150, 1);
 			setState(() => ({
-				isActive: isHovered && !internalDisabled,
-				progress: isHovered && !internalDisabled ? progress : 1 - progress,
+				isActive: getIsActive(),
+				progress: getIsActive() ? progress : 1 - progress,
 			}));
 
 			if (progress < 1) {
@@ -53,8 +58,10 @@ export const useHoverTransforms = (
 		};
 
 		const handleMouseEnter = () => {
+			const prevIsActive = getIsActive();
+
 			isHovered = true;
-			if (internalDisabled) {
+			if (prevIsActive === getIsActive()) {
 				return;
 			}
 
@@ -62,14 +69,21 @@ export const useHoverTransforms = (
 		};
 
 		const handleMouseLeave = () => {
+			const prevIsActive = getIsActive();
 			isHovered = false;
+
+			if (prevIsActive === getIsActive()) {
+				return;
+			}
+
 			animateIn();
 		};
 
 		const handleDisabled = () => {
+			const prevIsActive = getIsActive();
 			internalDisabled = true;
 
-			if (!isHovered) {
+			if (prevIsActive === getIsActive()) {
 				return;
 			}
 
@@ -77,9 +91,10 @@ export const useHoverTransforms = (
 		};
 
 		const handleEnabled = () => {
+			const prevIsActive = getIsActive();
 			internalDisabled = false;
 
-			if (!isHovered) {
+			if (prevIsActive === getIsActive()) {
 				return;
 			}
 
@@ -110,8 +125,10 @@ export const useClickTransforms = (
 	const [hoverProgress, setHoverProgress] = React.useState(0);
 
 	React.useEffect(() => {
-		const element = ref.current;
-		if (!element) return;
+		const element = getChildNodeFrom(ref.current);
+		if (!element) {
+			return;
+		}
 
 		let animationFrame: number;
 		let start: number | null = null;
@@ -154,10 +171,42 @@ export const useClickTransforms = (
 	return hoverProgress;
 };
 
+const getAngle = (
+	ref: HTMLDivElement | null,
+	coordinates: {y: number; x: number} | null,
+) => {
+	const element = getChildNodeFrom(ref);
+	if (!element) {
+		return 0;
+	}
+
+	if (coordinates === null) {
+		return 0;
+	}
+
+	const clientRect = element.getClientRects();
+	if (!clientRect) {
+		return 0;
+	}
+
+	if (clientRect.length === 0) {
+		return 0;
+	}
+
+	const center = {
+		x: clientRect[0].x + clientRect[0].width / 2,
+		y: clientRect[0].y + clientRect[0].height / 2,
+	};
+	const angle = Math.atan2(coordinates.y - center.y, coordinates.x - center.x);
+	return angle;
+};
+
+let lastCoordinates: {y: number; x: number} | null = null;
+
 export const useMousePosition = (
 	ref: React.RefObject<HTMLDivElement | null>,
 ) => {
-	const [angle, setAngle] = useState(0);
+	const [angle, setAngle] = useState(getAngle(ref.current, lastCoordinates));
 
 	useEffect(() => {
 		const element = ref.current;
@@ -171,13 +220,9 @@ export const useMousePosition = (
 				return;
 			}
 
-			const center = {
-				x: clientRect[0].x + clientRect[0].width / 2,
-				y: clientRect[0].y + clientRect[0].height / 2,
-			};
-			const angleX = Math.atan2(e.clientY - center.y, e.clientX - center.x);
+			lastCoordinates = {y: e.clientY, x: e.clientX};
 
-			setAngle(angleX);
+			setAngle(getAngle(element, {y: e.clientY, x: e.clientX}));
 		};
 
 		window.addEventListener('mousemove', onMouseMove);
