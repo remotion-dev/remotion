@@ -235,6 +235,7 @@ export const Internals = {
 	useVideoEnabled,
 	useAudioEnabled,
 	useIsPlayerBuffering,
+	TimelinePosition,
 } as const;
 
 export type {
