@@ -75,6 +75,7 @@ export const Button3D: React.FC<
 				'cursor-pointer',
 				'px-4',
 				'py-3',
+				'disabled:cursor-default',
 				'disabled:border-gray-500',
 				'disabled:text-gray-500',
 				'transition-colors',

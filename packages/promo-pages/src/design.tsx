@@ -22,9 +22,12 @@ const Comp: React.FC = () => {
 		<>
 			<div className="flex flex-row gap-4">
 				<Button3D>Button with label</Button3D>
+				<Button3D disabled>Disabled</Button3D>
+				<Button3D className="bg-brand text-white">Primary</Button3D>
 				<Button3D onClick={onClick} disabled={!submitButtonActive}>
-					Save
+					Click to disable
 				</Button3D>
+				<Button3D className="rounded-full">Rounded</Button3D>
 			</div>
 			<div className="h-8" />
 			<Button3D className="w-full">Choose a template</Button3D>
