@@ -10,7 +10,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({text}) => {
 	return (
 		<span
 			className="relative inline-block ml-1 text-gray-600 cursor-default"
-			onMouseEnter={() => setIsVisible(true)}
+			onPointerEnter={() => setIsVisible(true)}
 			onMouseLeave={() => setIsVisible(false)}
 		>
 			<span style={{fontSize: '1rem'}}>ⓘ</span>

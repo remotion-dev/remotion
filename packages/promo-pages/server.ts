@@ -1,4 +1,5 @@
 import {serve} from 'bun';
+import design from './design.html';
 import homepage from './homepage.html';
 import team from './team.html';
 
@@ -6,6 +7,7 @@ const server = serve({
 	routes: {
 		'/': homepage,
 		'/about': team,
+		'/design': design,
 	},
 	development: true,
 	async fetch(req) {

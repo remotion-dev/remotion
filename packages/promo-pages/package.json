@@ -17,6 +17,7 @@
 		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/shapes": "workspace:*",
+		"@remotion/svg-3d-engine": "workspace:*",
 		"create-video": "workspace:*",
 		"hls.js": "1.5.19",
 		"polished": "4.3.1",

@@ -1,8 +1,7 @@
-import {StudioInternals} from '@remotion/studio';
 import {AbsoluteFill} from 'remotion';
 import {Outer} from './Outer';
 
-const Comp = () => {
+export const Comp = () => {
 	const width = 200;
 	const height = 70;
 
@@ -28,10 +27,3 @@ const Comp = () => {
 		</AbsoluteFill>
 	);
 };
-
-export const ThreeDEngine = StudioInternals.createStill({
-	component: Comp,
-	id: 'ThreeDEngine',
-	height: 1080,
-	width: 1080,
-});
