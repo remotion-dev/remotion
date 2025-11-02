@@ -30,6 +30,7 @@ const result = await build({
 		'./src/components/team.tsx',
 		'./src/components/design.tsx',
 		'./src/components/templates.tsx',
+		'./src/components/template-modal-content.tsx',
 	],
 	outdir: 'dist',
 	format: 'esm',

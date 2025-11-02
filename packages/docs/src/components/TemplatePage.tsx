@@ -36,16 +36,18 @@ export default () => {
 	const imgSrc = `/generated/template-${template.cliId}.png`;
 
 	return (
-		<Layout>
-			<Head>
-				{Seo.renderTitle(`${template.shortName} | Remotion Template`)}
-				{Seo.renderDescription(template.description)}
-				{Seo.renderImage(imgSrc, context.siteConfig.url)}
-			</Head>
-			<br />
-			<div style={layout}>
-				<TemplateModalContent template={template} />
-			</div>
-		</Layout>
+		<div style={{width: '100%', backgroundColor: 'var(--background)'}}>
+			<Layout>
+				<Head>
+					{Seo.renderTitle(`${template.shortName} | Remotion Template`)}
+					{Seo.renderDescription(template.description)}
+					{Seo.renderImage(imgSrc, context.siteConfig.url)}
+				</Head>
+				<br />
+				<div style={layout}>
+					<TemplateModalContent template={template} />
+				</div>
+			</Layout>
+		</div>
 	);
 };
