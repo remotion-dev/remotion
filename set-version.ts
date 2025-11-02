@@ -22,6 +22,11 @@ if (version.startsWith('v')) {
 	version = version.slice(1);
 }
 
+// Ensure we are on the main branch
+const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', {
+	encoding: 'utf-8',
+}).trim();
+
 const dirs = readdirSync('packages')
 	.filter((dir) =>
 		lstatSync(path.join(process.cwd(), 'packages', dir)).isDirectory(),
@@ -76,6 +81,11 @@ execSync('bun ensure-correct-version.ts', {
 
 execSync('bun run build', {
 	stdio: 'inherit',
+});
+
+execSync('bun run generate', {
+	stdio: 'inherit',
+	cwd: 'packages/google-fonts',
 });
 
 execSync('bun test src/monorepo', {

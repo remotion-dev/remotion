@@ -19,6 +19,7 @@ import {Loading} from './loading-indicator.js';
 import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
+import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useLazyComponent} from './use-lazy-component.js';
@@ -47,6 +48,7 @@ export type CalcMetadataReturnType<T extends Record<string, unknown>> = {
 	defaultOutName?: string;
 	defaultVideoImageFormat?: VideoImageFormat;
 	defaultPixelFormat?: PixelFormat;
+	defaultProResProfile?: ProResProfile;
 };
 
 export type CalculateMetadataFunction<T extends Record<string, unknown>> =

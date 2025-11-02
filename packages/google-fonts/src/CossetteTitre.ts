@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cossette Titre',
 	importName: 'CossetteTitre',
-	version: 'v1',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Cossette+Titre:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cossettetitre/v1/11hYGpvKz1nGbxMXUWz9OdPzuhEQpva08Q.woff2',
+					'https://fonts.gstatic.com/s/cossettetitre/v3/11hYGpvKz1nGbxMXUWz9OdPzuhEQpva08Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cossettetitre/v1/11hYGpvKz1nGbxMXUWz9OdPzuhEepvY.woff2',
+					'https://fonts.gstatic.com/s/cossettetitre/v3/11hYGpvKz1nGbxMXUWz9OdPzuhEepvY.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cossettetitre/v1/11hbGpvKz1nGbxMXUWz9OdPzuhmlg-OF0N0PRQ.woff2',
+					'https://fonts.gstatic.com/s/cossettetitre/v3/11hbGpvKz1nGbxMXUWz9OdPzuhmlg-OF0N0PRQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cossettetitre/v1/11hbGpvKz1nGbxMXUWz9OdPzuhmlg-OL0N0.woff2',
+					'https://fonts.gstatic.com/s/cossettetitre/v3/11hbGpvKz1nGbxMXUWz9OdPzuhmlg-OL0N0.woff2',
 			},
 		},
 	},

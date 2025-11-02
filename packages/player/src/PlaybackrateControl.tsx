@@ -88,8 +88,8 @@ const PlaybackrateOption: React.FC<{
 	return (
 		<div
 			key={rate}
-			onMouseEnter={onMouseEnter}
-			onMouseLeave={onMouseLeave}
+			onPointerEnter={onMouseEnter}
+			onPointerLeave={onMouseLeave}
 			tabIndex={0}
 			style={actualStyle}
 			onClick={onClick}

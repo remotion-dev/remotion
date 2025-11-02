@@ -1,3 +1,4 @@
+import {Card} from '@remotion/design';
 import React from 'react';
 import {AwesomeIcon} from './AwesomeIcon';
 import {BoltIcon} from './BoltIcon';
@@ -10,10 +11,10 @@ export const WhyRemotionConvert: React.FC = () => {
 			<h2 className="font-brand text-xl font-bold mt-14">
 				Why use Remotion Convert?
 			</h2>
-			<div className="h-20" />
+			<div className="h-10" />
 			<div className="m-auto inline-block">
-				<div className="inline-flex flex-col lg:flex-row gap-12">
-					<div className="w-[300px] text-left">
+				<div className="inline-flex flex-col lg:flex-row gap-8">
+					<Card className="lg:w-[300px] text-left px-4 py-6">
 						<BoltIcon />
 						<div className="h-4" />
 						<div className="font-brand font-bold text-2xl mb-2">
@@ -23,8 +24,8 @@ export const WhyRemotionConvert: React.FC = () => {
 							Remotion Convert leverages WebCodecs technology, taking full
 							advantage of the hardware acceleration of your device.
 						</div>
-					</div>
-					<div className="w-[300px] text-left">
+					</Card>
+					<Card className="lg:w-[300px] text-left px-4 py-6">
 						<LockIcon />
 						<div className="h-4" />
 						<div className="font-brand font-bold text-2xl mb-2">
@@ -36,8 +37,8 @@ export const WhyRemotionConvert: React.FC = () => {
 							this device.
 							<br />
 						</div>
-					</div>
-					<div className="w-[300px] text-left">
+					</Card>
+					<Card className="lg:w-[300px] text-left px-4 py-6">
 						<AwesomeIcon />
 						<div className="h-4" />
 						<div className="font-brand font-bold text-2xl mb-2">
@@ -57,7 +58,7 @@ export const WhyRemotionConvert: React.FC = () => {
 							</a>
 							, an open-source multimedia library we love!
 						</div>
-					</div>
+					</Card>
 				</div>
 				<div className="h-20" />
 				<Footer routeAction={{type: 'generic-convert'}} />

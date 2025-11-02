@@ -33,8 +33,8 @@ export const CompositionIdListItem: React.FC<{
 	return (
 		<div
 			role="button"
-			onMouseEnter={() => setHover(true)}
-			onMouseLeave={() => setHover(false)}
+			onPointerEnter={() => setHover(true)}
+			onPointerLeave={() => setHover(false)}
 			onClick={() => onSelect(id)}
 			style={{
 				...listItemStyle,

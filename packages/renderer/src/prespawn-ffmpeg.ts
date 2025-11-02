@@ -1,3 +1,4 @@
+import type {_InternalTypes} from 'remotion';
 import {callFf} from './call-ffmpeg';
 import type {HardwareAccelerationOption} from './client';
 import type {Codec} from './codec';
@@ -17,7 +18,6 @@ import {
 	DEFAULT_PIXEL_FORMAT,
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
-import type {ProResProfile} from './prores-profile';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 
@@ -45,7 +45,7 @@ type PreStitcherOptions = {
 	crf: number | null | undefined;
 	x264Preset: X264Preset | null;
 	onProgress: (progress: number) => void;
-	proResProfile: ProResProfile | undefined;
+	proResProfile: _InternalTypes['ProResProfile'] | undefined;
 	logLevel: LogLevel;
 	imageFormat: VideoImageFormat;
 	ffmpegOverride: FfmpegOverrideFn;

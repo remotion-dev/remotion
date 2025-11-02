@@ -9,13 +9,6 @@ This is documentation for the new `<Video>` tag.
 Not to be confused with the older [`<Html5Video>` / `<Video>`](/docs/html5-video) tag from `remotion`.
 :::
 
-:::warning
-**Experimental**: This component is in beta.
-Use [`<OffthreadVideo />`](/docs/offthreadvideo) for the most stable experience, but give us feedback on this component.
-
-See the [progress of this component on our issue tracker](https://github.com/remotion-dev/remotion/issues/5650).
-:::
-
 This component imports and displays a video, similar to [`<OffthreadVideo/>`](/docs/offthreadvideo) but during rendering, extracts the exact frame from the video using [Mediabunny](/docs/mediabunny) and displays it in a `<canvas>` tag.
 
 This component has [native buffering support](/docs/player/buffer-state) enabled by default. When used in the Player, it automatically pauses playback when buffering and resumes when ready.
@@ -256,7 +249,7 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 
 The value must stay the same across the entire time the video tag is mounted.
 
-:::warn
+:::warning
 Only works during rendering.  
 :::
 

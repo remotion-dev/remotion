@@ -23,6 +23,7 @@
 		"makewebrenderer": "turbo run make --filter='@remotion/web-renderer'",
 		"makecore": "turbo run make --filter='remotion'",
 		"watchcore": "turbo watch make --experimental-write-cache --filter='remotion'",
+		"watchcli": "turbo watch make --experimental-write-cache --filter='@remotion/cli'",
 		"makeplayer": "turbo run make --filter='@remotion/player'",
 		"watchplayer": "turbo watch make --experimental-write-cache --filter='@remotion/player'",
 		"makestudio": "turbo run make --filter='@remotion/studio' --filter='@remotion/studio-server'",
@@ -48,6 +49,7 @@
 		"prettier-plugin-organize-imports": "3.2.4"
 	},
 	"dependencies": {
+		"p-limit": "7.2.0",
 		"turbo": "2.5.8",
 		"typescript": "5.8.2"
 	},

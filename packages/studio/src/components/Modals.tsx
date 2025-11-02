@@ -103,6 +103,7 @@ export const Modals: React.FC<{
 						modalContextType.initialHardwareAcceleration
 					}
 					initialChromeMode={modalContextType.initialChromeMode}
+					renderDefaults={modalContextType.renderDefaults}
 				/>
 			)}
 

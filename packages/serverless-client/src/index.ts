@@ -43,7 +43,6 @@ export type {
 	FrameRange,
 	LogLevel,
 	PixelFormat,
-	ProResProfile,
 	StillImageFormat,
 	ToOptions,
 	VideoImageFormat,
@@ -52,6 +51,7 @@ export type {
 export type {BrowserSafeApis} from '@remotion/renderer/client';
 export {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 export {makeStreamer, makeStreamPayloadMessage} from '@remotion/streaming';
+export type {_InternalTypes} from 'remotion';
 export type {DownloadBehavior, VideoConfig} from 'remotion/no-react';
 export {VERSION} from 'remotion/version';
 export {Await} from './await';

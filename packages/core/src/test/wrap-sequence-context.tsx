@@ -10,12 +10,10 @@ import {LogLevelContext} from '../log-level-context.js';
 const Comp: React.FC = () => null;
 
 const mockCompositionContext: CompositionManagerContext = {
-	assets: [],
 	compositions: [
 		{
 			id: 'my-comp',
 			durationInFrames: 1000000,
-			// @ts-expect-error
 			component: Comp,
 			defaultProps: {},
 			folderName: null,
@@ -25,14 +23,12 @@ const mockCompositionContext: CompositionManagerContext = {
 			parentFolderName: null,
 			nonce: 0,
 			calculateMetadata: null,
+			schema: null,
 		},
 	],
 	folders: [],
-	registerComposition: () => undefined,
-	registerFolder: () => undefined,
-	unregisterComposition: () => undefined,
-	unregisterFolder: () => undefined,
 	canvasContent: {type: 'composition', compositionId: 'my-comp'},
+	currentCompositionMetadata: null,
 };
 
 const logContext: LoggingContextValue = {

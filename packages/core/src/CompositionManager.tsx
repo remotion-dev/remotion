@@ -37,7 +37,7 @@ export type TComposition<
 	id: string;
 	folderName: string | null;
 	parentFolderName: string | null;
-	component: LazyExoticComponent<ComponentType<Props>>;
+	component: LazyExoticComponent<ComponentType<Props>> | ComponentType<Props>;
 	nonce: number;
 	schema: Schema | null;
 	calculateMetadata: CalculateMetadataFunction<

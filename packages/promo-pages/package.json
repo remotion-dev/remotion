@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/promo-pages",
-	"version": "4.0.365",
+	"version": "4.0.370",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -12,17 +12,19 @@
 	"type": "module",
 	"dependencies": {
 		"@remotion/animated-emoji": "workspace:*",
+		"@remotion/design": "workspace:*",
 		"@remotion/lambda": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/shapes": "workspace:*",
+		"@remotion/svg-3d-engine": "workspace:*",
 		"create-video": "workspace:*",
 		"hls.js": "1.5.19",
 		"polished": "4.3.1",
 		"remotion": "workspace:*",
 		"zod": "catalog:",
-		"bun-plugin-tailwind": "0.0.15"
+		"bun-plugin-tailwind": "0.1.2"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
@@ -38,7 +40,6 @@
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"tailwind-merge": "2.5.2",
-		"bun-plugin-tailwind": "0.0.13",
 		"clsx": "2.1.1"
 	},
 	"repository": {

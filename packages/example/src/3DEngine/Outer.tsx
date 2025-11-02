@@ -32,7 +32,6 @@ export const Outer: React.FC<{
 	const hoverTransform = useHoverTransforms(ref);
 	const clickTransform = useClickTransforms(ref);
 	const angle = useMousePosition(ref);
-	// const angle = 0
 
 	const transformationUnhovered: MatrixTransform4D = reduceMatrices([
 		rotateX(-Math.PI / 20),
@@ -54,7 +53,7 @@ export const Outer: React.FC<{
 	const depth =
 		interpolate(hoverTransform, [0, 1], [20, 30]) - clickTransform * 20;
 
-	const frontFace = reduceMatrices([translateZ(-depth), transformation]);
+	const frontFace = reduceMatrices([translateZ(-depth / 2), transformation]);
 	const centerOriented = reduceMatrices([
 		translateX(-width / 2),
 		translateY(-height / 2),
@@ -76,6 +75,7 @@ export const Outer: React.FC<{
 		points: parsePath(path),
 		description: 'rect',
 		transformations: centerOriented,
+		pressInDepth: 0,
 	});
 
 	return (

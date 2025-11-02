@@ -68,6 +68,7 @@ const validateCalculated = ({
 	const defaultOutName = calculated?.defaultOutName;
 	const defaultVideoImageFormat = calculated?.defaultVideoImageFormat;
 	const defaultPixelFormat = calculated?.defaultPixelFormat;
+	const defaultProResProfile = calculated?.defaultProResProfile;
 
 	return {
 		width,
@@ -78,6 +79,7 @@ const validateCalculated = ({
 		defaultOutName,
 		defaultVideoImageFormat,
 		defaultPixelFormat,
+		defaultProResProfile,
 	};
 };
 
@@ -131,6 +133,7 @@ export const resolveVideoConfig = ({
 				defaultOutName,
 				defaultVideoImageFormat,
 				defaultPixelFormat,
+				defaultProResProfile,
 			} = validateCalculated({
 				calculated: c,
 				compositionDurationInFrames,
@@ -151,6 +154,7 @@ export const resolveVideoConfig = ({
 				defaultOutName: defaultOutName ?? null,
 				defaultVideoImageFormat: defaultVideoImageFormat ?? null,
 				defaultPixelFormat: defaultPixelFormat ?? null,
+				defaultProResProfile: defaultProResProfile ?? null,
 			};
 		});
 	}
@@ -174,6 +178,7 @@ export const resolveVideoConfig = ({
 			defaultOutName: null,
 			defaultVideoImageFormat: null,
 			defaultPixelFormat: null,
+			defaultProResProfile: null,
 		};
 	}
 
@@ -188,6 +193,7 @@ export const resolveVideoConfig = ({
 		defaultOutName: calculatedProm.defaultOutName ?? null,
 		defaultVideoImageFormat: calculatedProm.defaultVideoImageFormat ?? null,
 		defaultPixelFormat: calculatedProm.defaultPixelFormat ?? null,
+		defaultProResProfile: calculatedProm.defaultProResProfile ?? null,
 	};
 };
 

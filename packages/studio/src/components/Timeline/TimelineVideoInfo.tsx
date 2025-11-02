@@ -1,8 +1,6 @@
-import {hasBeenAborted, WEBCODECS_TIMESCALE} from '@remotion/media-parser';
-import {rotateAndResizeVideoFrame} from '@remotion/webcodecs';
-import {extractFramesOnWebWorker} from '@remotion/webcodecs/worker';
 import React, {useEffect, useRef, useState} from 'react';
 import {useVideoConfig} from 'remotion';
+import {extractFrames} from '../../helpers/extract-frames';
 import type {FrameDatabaseKey} from '../../helpers/frame-database';
 import {
 	aspectRatioCache,
@@ -12,6 +10,7 @@ import {
 	getTimestampFromFrameDatabaseKey,
 	makeFrameDatabaseKey,
 } from '../../helpers/frame-database';
+import {resizeVideoFrame} from '../../helpers/resize-video-frame';
 import {getTimelineLayerHeight} from '../../helpers/timeline-layout';
 
 const HEIGHT = getTimelineLayerHeight('video') - 2;
@@ -27,6 +26,7 @@ const containerStyle: React.CSSProperties = {
 	fontFamily: 'Arial, Helvetica',
 };
 
+const WEBCODECS_TIMESCALE = 1_000_000;
 const MAX_TIME_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
 
 const getDurationOfOneFrame = ({
@@ -334,9 +334,12 @@ export const TimelineVideoInfo: React.FC<{
 
 		clearOldFrames();
 
-		extractFramesOnWebWorker({
-			acknowledgeRemotionLicense: true,
-			timestampsInSeconds: ({track}) => {
+		extractFrames({
+			timestampsInSeconds: ({
+				track,
+			}: {
+				track: {height: number; width: number};
+			}) => {
 				aspectRatio.current = track.width / track.height;
 				aspectRatioCache.set(src, aspectRatio.current);
 
@@ -353,17 +356,12 @@ export const TimelineVideoInfo: React.FC<{
 				);
 			},
 			src,
-			onFrame: (frame) => {
+			onFrame: (frame: VideoFrame) => {
 				const scale = (HEIGHT / frame.displayHeight) * window.devicePixelRatio;
 
-				const transformed = rotateAndResizeVideoFrame({
+				const transformed = resizeVideoFrame({
 					frame,
-					resizeOperation: {
-						mode: 'scale',
-						scale,
-					},
-					rotation: 0,
-					needsToBeMultipleOfTwo: false,
+					scale,
 				});
 
 				if (transformed !== frame) {
@@ -413,12 +411,8 @@ export const TimelineVideoInfo: React.FC<{
 					fromSeconds,
 				});
 			})
-			.catch((e) => {
-				if (hasBeenAborted(e)) {
-					return;
-				}
-
-				setError(e);
+			.catch((e: unknown) => {
+				setError(e as Error);
 			})
 			.finally(() => {
 				clearOldFrames();

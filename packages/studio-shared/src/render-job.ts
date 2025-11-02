@@ -6,7 +6,6 @@ import type {
 	LogLevel,
 	makeCancelSignal,
 	PixelFormat,
-	ProResProfile,
 	StillImageFormat,
 	StitchingState,
 	VideoImageFormat,
@@ -139,7 +138,7 @@ type RenderJobDynamicFields =
 			endFrame: number;
 			muted: boolean;
 			enforceAudioTrack: boolean;
-			proResProfile: ProResProfile | null;
+			proResProfile: _InternalTypes['ProResProfile'] | null;
 			x264Preset: X264Preset | null;
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
@@ -160,6 +159,7 @@ type RenderJobDynamicFields =
 
 import type {ChromiumOptions, OpenGlRenderer} from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {_InternalTypes} from 'remotion';
 
 export type RequiredChromiumOptions = Required<ChromiumOptions>;
 export type UiOpenGlOptions = OpenGlRenderer | 'default';

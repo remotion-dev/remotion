@@ -55,6 +55,7 @@ const inverseInstruction = (
 
 type ExtrudeElementOptions = {
 	depth: number;
+	pressInDepth: number;
 	sideColor: string;
 	points: Instruction[];
 	description?: string;
@@ -66,6 +67,7 @@ export const extrudeElement = ({
 	sideColor,
 	points,
 	crispEdges,
+	pressInDepth,
 }: ExtrudeElementOptions): FaceType[] => {
 	const threeD = turnInto3D(points);
 	const instructions: FaceType = {
@@ -90,7 +92,7 @@ export const extrudeElement = ({
 		const movingOver: Vector4D = [
 			nextPoint[0],
 			nextPoint[1],
-			nextPoint[2] - depth,
+			nextPoint[2] - depth + pressInDepth,
 			nextPoint[3],
 		];
 
@@ -98,7 +100,7 @@ export const extrudeElement = ({
 			inverseInstruction(nextInstruction, currentPoint),
 			0,
 			0,
-			-depth,
+			-depth + pressInDepth,
 		);
 		const newInstructions: ThreeDReducedInstruction[] = [
 			{

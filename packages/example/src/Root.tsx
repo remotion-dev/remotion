@@ -53,6 +53,7 @@ import {
 } from './Postmount/PostmountExample';
 import {PremountedExample} from './Premount';
 import {PremountedRemoteVideos} from './Premount/RemoteVideos';
+import ReactSvg from './ReactSvg';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {RetryDelayRender} from './RetryDelayRender';
@@ -118,10 +119,10 @@ import {parseMedia} from '@remotion/media-parser';
 import {zMatrix} from '@remotion/zod-types';
 import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
-import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
 import Amplify from './AudioTesting/Amplify';
+import {CTAEndCard} from './CallToAction';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
@@ -659,7 +660,7 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="react-svg"
-					lazyComponent={() => import('./ReactSvg')}
+					component={ReactSvg}
 					width={1920}
 					height={1080}
 					fps={60}
@@ -1665,7 +1666,6 @@ export const Index: React.FC = () => {
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
 			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
 			<Folder name="3DEngine">
-				<ThreeDEngine />
 				<Composition
 					id="3DCheck"
 					component={ThreeDCheck}
@@ -1754,6 +1754,25 @@ export const Index: React.FC = () => {
 				height={2160}
 				fps={30}
 				durationInFrames={500}
+			/>
+			<Composition
+				id="CallToAction"
+				component={CTAEndCard}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+				defaultProps={{
+					cornerRadius: 10,
+				}}
+				calculateMetadata={() => {
+					return {
+						defaultPixelFormat: 'yuva444p10le',
+						defaultCodec: 'prores',
+						defaultProResProfile: '4444',
+						defaultVideoImageFormat: 'png',
+					};
+				}}
 			/>
 		</>
 	);

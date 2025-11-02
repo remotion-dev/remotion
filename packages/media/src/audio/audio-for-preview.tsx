@@ -1,4 +1,11 @@
-import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
 import {
 	Internals,
@@ -76,10 +83,12 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const globalPlaybackRate = timelineContext.playbackRate;
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
-	const delayHandleRef = useRef<{unblock: () => void} | null>(null);
 
 	const [mediaMuted] = useMediaMutedState();
 	const [mediaVolume] = useMediaVolumeState();
+	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
+		number | null
+	>(null);
 
 	const volumePropFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
@@ -114,7 +123,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 
 	const loopDisplay = useLoopDisplay({
 		loop,
-		mediaDurationInSeconds: videoConfig.durationInFrames,
+		mediaDurationInSeconds,
 		playbackRate,
 		trimAfter,
 		trimBefore,
@@ -174,6 +183,10 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 			player
 				.initialize(currentTimeRef.current)
 				.then((result) => {
+					if (result.type === 'disposed') {
+						return;
+					}
+
 					if (result.type === 'unknown-container-format') {
 						if (disallowFallbackToHtml5Audio) {
 							throw new Error(
@@ -236,6 +249,8 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 
 					if (result.type === 'success') {
 						setMediaPlayerReady(true);
+						setMediaDurationInSeconds(result.durationInSeconds);
+
 						Internals.Log.trace(
 							{logLevel, tag: '@remotion/media'},
 							`[AudioForPreview] MediaPlayer initialized successfully`,
@@ -260,11 +275,6 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		}
 
 		return () => {
-			if (delayHandleRef.current) {
-				delayHandleRef.current.unblock();
-				delayHandleRef.current = null;
-			}
-
 			if (mediaPlayerRef.current) {
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},
@@ -306,7 +316,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		}
 	}, [isPlayerBuffering, logLevel, playing]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;
 		if (!audioPlayer || !mediaPlayerReady) return;
 
@@ -518,7 +528,12 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			audioStreamIndex={audioStreamIndex ?? 0}
 			src={preloadedSrc}
 			playbackRate={playbackRate ?? 1}
-			logLevel={logLevel ?? window.remotion_logLevel}
+			logLevel={
+				logLevel ??
+				(typeof window !== 'undefined'
+					? (window.remotion_logLevel ?? 'info')
+					: 'info')
+			}
 			muted={muted ?? false}
 			volume={volume ?? 1}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
