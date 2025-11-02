@@ -6,7 +6,7 @@ const Explainer: React.FC<{
 }> = ({children}) => {
 	return (
 		<div>
-			<div className="text-gray-500">{children}</div>
+			<div className="text-gray-500 font-brand text-sm mb-2">{children}</div>
 		</div>
 	);
 };
@@ -31,22 +31,34 @@ export const DesignPage: React.FC = () => {
 				<br />
 				<h2 className="text-brand">&lt;Button /&gt;</h2>
 				<Explainer>Button with label</Explainer>
-				<Button>Button with label</Button>
-				<Button disabled>Disabled</Button>
+				<Button>Click me</Button>
+				<br />
+				<Explainer>Disabled</Explainer>
+				<Button disabled>{"Don't"} click me</Button>
+				<br />
+				<Explainer>Primary</Explainer>
 				<Button className="bg-brand text-white">Primary</Button>
+				<br />
+				<Explainer>Click to disable</Explainer>
 				<Button onClick={onClick} disabled={!submitButtonActive}>
-					Click to disable
+					Submit
 				</Button>
+				<br />
+				<Explainer>Rounded</Explainer>
 				<Button className="rounded-full">Rounded</Button>
-				<div className="h-8" />
+				<br />
+				<Explainer>Full width</Explainer>
 				<Button className="w-full">Choose a template</Button>
-				<div className="h-8" />
+				<br />
+				<Explainer>Full width rounded</Explainer>
 				<Button className="w-full rounded-full">Fully rounded</Button>
 				<div className="h-8" />
+				<Explainer>Circular</Explainer>
 				<Button className="rounded-full bg-brand w-12 h-12" />
 				<div className="h-8" />
+				<h2 className="text-brand">&lt;Counter /&gt;</h2>
 				<Counter count={count} setCount={setCount} minCount={1} step={1} />
-				<div className="h-8" />
+				<br /> <h2 className="text-brand">&lt;Switch /&gt;</h2>
 				<Switch active={active} onToggle={() => setActive((e) => !e)} />
 			</div>
 		</div>
