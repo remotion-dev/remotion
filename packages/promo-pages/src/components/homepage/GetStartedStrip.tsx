@@ -1,6 +1,6 @@
+import {Button} from '@remotion/design';
 import React, {useState} from 'react';
 import {GithubButton} from './GitHubButton';
-import {PlainButton} from './layout/Button';
 
 export const GetStarted: React.FC = () => {
 	const [clicked, setClicked] = useState<number | null>(null);
@@ -41,16 +41,12 @@ export const GetStarted: React.FC = () => {
 					href="https://www.youtube.com/watch?v=deg8bOoziaE"
 					target="_blank"
 				>
-					<PlainButton size="sm" loading={false} className="w-full">
-						Watch demo
-					</PlainButton>
+					<Button className="w-full">Watch demo</Button>
 				</a>
 			</div>
 			<div style={{width: 10, height: 10}} />
 			<a className={'no-underline w-full lg:w-auto'} href="/docs">
-				<PlainButton size="sm" loading={false} className="w-full">
-					Docs
-				</PlainButton>
+				<Button className="w-full">Docs</Button>
 			</a>
 			<div className="w-2 h-2" />
 			<a
@@ -58,9 +54,7 @@ export const GetStarted: React.FC = () => {
 				href="https://remotion.dev/discord"
 				target="_blank"
 			>
-				<PlainButton size="sm" loading={false} className="w-full">
-					Discord
-				</PlainButton>
+				<Button className="w-full">Discord</Button>
 			</a>
 			<div className="w-2 h-2" />
 			<a
@@ -68,9 +62,9 @@ export const GetStarted: React.FC = () => {
 				href="https://github.com/remotion-dev/remotion"
 				target="_blank"
 			>
-				<PlainButton size="sm" loading={false} className="w-full">
+				<Button className="w-full">
 					<GithubButton />
-				</PlainButton>
+				</Button>
 			</a>
 		</div>
 	);

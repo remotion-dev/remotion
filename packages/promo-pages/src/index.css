@@ -119,6 +119,7 @@ body {
 	--color-pane: var(--ifm-background-surface-color);
 	--color-muted: var(--subtitle);
 	--color-text: var(--text-color);
+	--color-button-bg: var(--plain-button);
 }
 
 @utility border-effect {

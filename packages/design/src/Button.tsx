@@ -22,10 +22,6 @@ export const Button: React.FC<
 			}
 
 			setDimensions((prevDim) => {
-				if (prevDim) {
-					return prevDim;
-				}
-
 				if (!ref.current) {
 					throw new Error('Ref is not set');
 				}
@@ -42,14 +38,29 @@ export const Button: React.FC<
 
 				const rect = childNode.getBoundingClientRect();
 				const {borderRadius} = getComputedStyle(childNode);
+
 				const cornerRadius = borderRadius.includes('e+0')
 					? Infinity
 					: parseInt(borderRadius ?? '0', 10);
 
+				const newCornerRadius = Math.min(
+					cornerRadius,
+					rect.width / 2,
+					rect.height / 2,
+				);
+
+				if (prevDim) {
+					return {
+						width: rect.width,
+						height: rect.height,
+						borderRadius: prevDim.borderRadius,
+					};
+				}
+
 				return {
 					width: rect.width,
 					height: rect.height,
-					borderRadius: Math.min(cornerRadius, rect.width / 2, rect.height / 2),
+					borderRadius: newCornerRadius,
 				};
 			});
 		},
@@ -61,10 +72,10 @@ export const Button: React.FC<
 			type="button"
 			disabled={disabled}
 			className={cn(
-				'text-black',
+				'text-text',
 				'flex',
 				'justify-center',
-				'bg-white',
+				'bg-button-bg',
 				'items-center',
 				'font-brand',
 				'border-solid',
@@ -75,11 +86,13 @@ export const Button: React.FC<
 				'border-b-4',
 				'cursor-pointer',
 				'px-4',
-				'py-3',
+				'h-12',
+				'flex',
+				'flex-row',
+				'items-center',
 				'disabled:cursor-default',
 				'disabled:border-gray-500',
 				'disabled:text-gray-500',
-				'transition-colors',
 				className,
 			)}
 			{...buttonProps}
