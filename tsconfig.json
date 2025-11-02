@@ -172,7 +172,7 @@
 			"path": "./packages/template-audiogram"
 		},
 		{
-			"path": "./packages/template-ai-video"
+			"path": "./packages/template-prompt-to-video"
 		},
 		{
 			"path": "./packages/template-music-visualization"

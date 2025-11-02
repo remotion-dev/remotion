@@ -37,7 +37,7 @@ export type Template = {
 		| 'google-tts'
 		| 'audiogram'
 		| 'music-visualization'
-		| 'ai-video'
+		| 'prompt-to-video'
 		| 'skia'
 		| 'overlay'
 		| 'stargazer'
@@ -378,24 +378,24 @@ export const FEATURED_TEMPLATES: Template[] = [
 		allowEnableTailwind: true,
 	},
 	{
-		homePageLabel: 'AI Video',
-		shortName: 'AI Video',
+		homePageLabel: 'Prompt to Video',
+		shortName: 'Prompt to Video',
 		org: 'remotion-dev',
-		repoName: 'template-ai-video',
-		description: 'Create AI Videos from description',
+		repoName: 'template-prompt-to-video',
+		description: 'Create a story with images and voiceover from a prompt',
 		longerDescription:
-			'A template that turns video descriptions into full videos that can be posted on Social Media.',
+			'A template that turns prompts into short videos with a script, images and voiceover.',
 		promoVideo: {
 			muxId: 'FGl01Rw6c5YOjBCTdVhn5wrmVaRWDOjDeT28iY3Sv47w',
 			height: 1920,
 			width: 1080,
 		},
-		cliId: 'ai-video' as const,
+		cliId: 'prompt-to-video' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
 		featuredOnHomePage: null,
 		previewURL: null,
-		templateInMonorepo: 'template-ai-video',
+		templateInMonorepo: 'template-prompt-to-video',
 		allowEnableTailwind: true,
 	},
 	{
