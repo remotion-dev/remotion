@@ -61,28 +61,56 @@ function saveUint8ArrayToPng(uint8Array: Uint8Array, filePath: string) {
   fs.writeFileSync(filePath, buffer as Uint8Array);
 }
 
-export const generateAiImage = async (prompt: string, path: string) => {
-  const res = await fetch("https://api.openai.com/v1/images/generations", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "dall-e-3",
-      prompt,
-      size: `${IMAGE_WIDTH}x${IMAGE_HEIGHT}`,
-      response_format: "b64_json",
-    }),
-  });
+export const generateAiImage = async ({
+  prompt,
+  path,
+  onRetry,
+}: {
+  prompt: string;
+  path: string;
+  onRetry: (attempt: number) => void;
+}) => {
+  const maxRetries = 3;
+  let attempt = 0;
+  let lastError: Error | null = null;
 
-  if (!res.ok) throw new Error(`OpenAI error: ${await res.text()}`);
+  while (attempt < maxRetries) {
+    const res = await fetch("https://api.openai.com/v1/images/generations", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "dall-e-3",
+        prompt,
+        size: `${IMAGE_WIDTH}x${IMAGE_HEIGHT}`,
+        response_format: "b64_json",
+      }),
+    });
 
-  const data = await res.json();
-  const buffer = Buffer.from(data.data[0].b64_json, "base64");
-  const uint8Array = new Uint8Array(buffer);
+    if (res.ok) {
+      const data = await res.json();
+      const buffer = Buffer.from(data.data[0].b64_json, "base64");
+      const uint8Array = new Uint8Array(buffer);
 
-  saveUint8ArrayToPng(uint8Array, path);
+      saveUint8ArrayToPng(uint8Array, path);
+      return;
+    } else {
+      lastError = new Error(
+        `OpenAI error (attempt ${attempt + 1}): ${await res.text()}`,
+      );
+      attempt++;
+      if (attempt < maxRetries) {
+        // Wait 1 second before retrying
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+      onRetry(attempt);
+    }
+  }
+
+  // Ran out of retries, throw the last error
+  throw lastError!;
 };
 
 export const getGenerateStoryPrompt = (title: string, topic: string) => {

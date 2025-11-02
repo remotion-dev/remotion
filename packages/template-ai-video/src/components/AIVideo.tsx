@@ -1,4 +1,4 @@
-import { AbsoluteFill, Sequence, staticFile } from "remotion";
+import { AbsoluteFill, Sequence, staticFile, useVideoConfig } from "remotion";
 import { z } from "zod";
 import { Audio } from "@remotion/media";
 import { TimelineSchema } from "../lib/types";
@@ -9,19 +9,19 @@ import Subtitle from "./Subtitle";
 import { calculateFrameTiming, getAudioPath } from "../lib/utils";
 
 export const aiVideoSchema = z.object({
-  projectName: z.string().min(1),
   timeline: TimelineSchema.nullable(),
 });
 
 const { fontFamily } = loadFont();
 
 export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
-  projectName,
   timeline,
 }) => {
   if (!timeline) {
     throw new Error("Expected timeline to be fetched");
   }
+
+  const { id } = useVideoConfig();
 
   return (
     <AbsoluteFill style={{ backgroundColor: "white" }}>
@@ -68,7 +68,7 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
             durationInFrames={duration}
             premountFor={3 * FPS}
           >
-            <Background project={projectName} item={element} />
+            <Background project={id} item={element} />
           </Sequence>
         );
       })}
@@ -105,9 +105,7 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
             durationInFrames={duration}
             premountFor={3 * FPS}
           >
-            <Audio
-              src={staticFile(getAudioPath(projectName, element.audioUrl))}
-            />
+            <Audio src={staticFile(getAudioPath(id, element.audioUrl))} />
           </Sequence>
         );
       })}

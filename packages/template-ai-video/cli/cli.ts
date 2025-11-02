@@ -79,8 +79,8 @@ class ContentFS {
   getSlug(): string {
     return this.title
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "_")
-      .replace(/^_+|_+$/g, "");
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   }
 }
 
@@ -130,14 +130,14 @@ async function generateStory(options: GenerateOptions) {
         {
           type: "text",
           name: "title",
-          message: "Enter the title of the story:",
+          message: "Title of the story:",
           initial: title,
           validate: (value) => value.length > 0 || "Title is required",
         },
         {
           type: "text",
           name: "topic",
-          message: "Enter the topic of the story:",
+          message: "Topic of the story:",
           initial: topic,
           validate: (value) => value.length > 0 || "Topic is required",
         },
@@ -197,10 +197,13 @@ async function generateStory(options: GenerateOptions) {
     for (let i = 0; i < storyWithDetails.content.length; i++) {
       const storyItem = storyWithDetails.content[i];
       imagesSpinner.text = `[${i * 2 + 1}/${storyWithDetails.content.length * 2}] Generating image for ${storyItem.text}`;
-      await generateAiImage(
-        storyItem.imageDescription,
-        contentFs.getImagePath(storyItem.uid),
-      );
+      await generateAiImage({
+        prompt: storyItem.imageDescription,
+        path: contentFs.getImagePath(storyItem.uid),
+        onRetry: (attempt) => {
+          imagesSpinner.text = `[${i * 2 + 1}/${storyWithDetails.content.length * 2}] Generating image for ${storyItem.text} (retry ${attempt + 1})`;
+        },
+      });
       imagesSpinner.text = `[${i * 2 + 2}/${storyWithDetails.content.length * 2}] Generating voice for ${storyItem.text}`;
       const timings = await generateVoice(
         storyItem.text,
@@ -218,6 +221,7 @@ async function generateStory(options: GenerateOptions) {
     finalSpinner.succeed(chalk.green("Final result generated!"));
 
     console.log(chalk.green.bold("\n✨ Story generation complete!\n"));
+    console.log("Run " + chalk.blue("npm run dev") + " to preview the story");
 
     return {};
   } catch (error) {

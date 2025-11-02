@@ -50,7 +50,7 @@ export const Background: React.FC<{
   const currentBlur = maxBlur * blur;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "blue" }}>
+    <AbsoluteFill>
       <Img
         src={staticFile(getImagePath(project, item.imageUrl))}
         style={{
