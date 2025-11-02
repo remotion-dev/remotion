@@ -25,7 +25,7 @@ const Item: React.FC<{
 					dangerouslySetInnerHTML={{
 						__html: description,
 					}}
-					className="text-sm mt-2.5 text-gray-500 mb-2.5"
+					className="text-sm mt-2.5 text-gray-500 dark:text-gray-200 mb-2.5"
 				/>
 			</div>
 		</div>
@@ -41,7 +41,7 @@ export const Templates: React.FC = () => {
 					<br />
 					template
 				</h1>
-				<p className="text-center mb-[50px]">
+				<p className="text-center mb-[50px] font-brand">
 					Jumpstart your project with a template that fits your usecase.
 				</p>
 				<h3>Free templates</h3>
@@ -53,7 +53,10 @@ export const Templates: React.FC = () => {
 								href={`/templates/${template.cliId}`}
 								className="no-underline"
 							>
-								<Button className="items-start justify-start text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full">
+								<Button
+									depth={0.5}
+									className="items-start justify-start text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full"
+								>
 									<Item
 										label={template.homePageLabel}
 										description={template.description}
@@ -74,7 +77,10 @@ export const Templates: React.FC = () => {
 						className="no-underline"
 						href={`https://www.remotion.pro/editor-starter`}
 					>
-						<Button className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full">
+						<Button
+							depth={0.5}
+							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full"
+						>
 							<Item
 								label={'Editor Starter'}
 								description={'A boilerplate for starting your own video editor'}
@@ -93,7 +99,10 @@ export const Templates: React.FC = () => {
 						className="no-underline"
 						href={`https://www.remotion.pro/mapbox-globe`}
 					>
-						<Button className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full">
+						<Button
+							depth={0.5}
+							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full"
+						>
 							<Item
 								label={'Mapbox Globe'}
 								description={'A rotateable and zoomeable 3D Globe'}
@@ -115,7 +124,10 @@ export const Templates: React.FC = () => {
 						className="no-underline"
 						href={`https://www.remotion.pro/watercolor-map`}
 					>
-						<Button className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full">
+						<Button
+							depth={0.5}
+							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full"
+						>
 							<Item
 								label={'Watercolor Map'}
 								description={'A beautiful 2D map for travel videos'}
@@ -134,7 +146,10 @@ export const Templates: React.FC = () => {
 						className="no-underline"
 						href={`https://www.remotion.pro/timeline`}
 					>
-						<Button className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full">
+						<Button
+							depth={0.5}
+							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full"
+						>
 							<Item
 								label={'<Timeline />'}
 								description={
@@ -152,8 +167,8 @@ export const Templates: React.FC = () => {
 				</div>
 
 				<br />
-				<p className="text-center text-gray-500">
-					{"Couldn't"} find what you need? Check out the list of{' '}
+				<p className="text-center text-gray-500 font-brand text-sm">
+					{"Couldn't"} find what you need? Find more in the list of{' '}
 					<a href={'/docs/resources'}>Resources</a>.
 				</p>
 			</div>
