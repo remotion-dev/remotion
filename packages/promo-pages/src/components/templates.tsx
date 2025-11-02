@@ -1,4 +1,4 @@
-import {Card} from '@remotion/design';
+import {Button} from '@remotion/design';
 import {CreateVideoInternals} from 'create-video';
 import React from 'react';
 import {IconForTemplate} from './homepage/IconForTemplate';
@@ -12,7 +12,7 @@ const Item: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children, label, description}) => {
 	return (
-		<div>
+		<div className="h-full w-full flex-1">
 			<div className="flex flex-row items-center">
 				<div className="flex mr-2.5 h-[30px] w-[30px] justify-center items-center">
 					{children}
@@ -53,14 +53,14 @@ export const Templates: React.FC = () => {
 								href={`/templates/${template.cliId}`}
 								className="no-underline"
 							>
-								<Card className="p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full">
+								<Button className="items-start justify-start text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full">
 									<Item
 										label={template.homePageLabel}
 										description={template.description}
 									>
 										<IconForTemplate scale={0.7} template={template} />
 									</Item>
-								</Card>
+								</Button>
 							</a>
 						);
 					})}
@@ -74,7 +74,7 @@ export const Templates: React.FC = () => {
 						className="no-underline"
 						href={`https://www.remotion.pro/editor-starter`}
 					>
-						<Card className="p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full">
+						<Button className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full">
 							<Item
 								label={'Editor Starter'}
 								description={'A boilerplate for starting your own video editor'}
@@ -86,14 +86,14 @@ export const Templates: React.FC = () => {
 									}}
 								/>
 							</Item>
-						</Card>
+						</Button>
 					</a>
 					<a
 						key={'mapbox-globe'}
 						className="no-underline"
 						href={`https://www.remotion.pro/mapbox-globe`}
 					>
-						<Card className="p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full">
+						<Button className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full">
 							<Item
 								label={'Mapbox Globe'}
 								description={'A rotateable and zoomeable 3D Globe'}
@@ -108,14 +108,14 @@ export const Templates: React.FC = () => {
 									/>
 								</svg>
 							</Item>
-						</Card>
+						</Button>
 					</a>
 					<a
 						key={'watercolor-map'}
 						className="no-underline"
 						href={`https://www.remotion.pro/watercolor-map`}
 					>
-						<Card className="p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full">
+						<Button className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full">
 							<Item
 								label={'Watercolor Map'}
 								description={'A beautiful 2D map for travel videos'}
@@ -127,14 +127,14 @@ export const Templates: React.FC = () => {
 									}}
 								/>
 							</Item>
-						</Card>
+						</Button>
 					</a>
 					<a
 						key={'timeline'}
 						className="no-underline"
 						href={`https://www.remotion.pro/timeline`}
 					>
-						<Card className="p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full">
+						<Button className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full">
 							<Item
 								label={'<Timeline />'}
 								description={
@@ -147,7 +147,7 @@ export const Templates: React.FC = () => {
 									}}
 								/>
 							</Item>
-						</Card>
+						</Button>
 					</a>
 				</div>
 
