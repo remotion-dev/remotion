@@ -1,6 +1,6 @@
+import {Counter} from '@remotion/design';
 import React, {useCallback, useMemo} from 'react';
 import {cn} from '../../cn';
-import {Counter} from './Counter';
 import {InfoTooltip} from './InfoTooltip';
 import {PricingBulletPoint} from './PricingBulletPoint';
 

@@ -9,7 +9,6 @@ import EvaluateRemotionSection from './homepage/EvaluateRemotion';
 import {IfYouKnowReact} from './homepage/IfYouKnowReact';
 import type {ColorMode} from './homepage/layout/use-color-mode';
 import {ColorModeProvider} from './homepage/layout/use-color-mode';
-import {MoreVideoPowerSection} from './homepage/MoreVideoPowerSection';
 import {NewsletterButton} from './homepage/NewsletterButton';
 import {ParameterizeAndEdit} from './homepage/ParameterizeAndEdit';
 import {Pricing} from './homepage/Pricing';
@@ -64,14 +63,6 @@ export const NewLanding: React.FC<{
 						<br />
 						<EditorStarterSection />
 						<br />
-						<br />
-						<br />
-
-						<SectionTitle>Even more power to developers</SectionTitle>
-						<div className={'fontbrand text-center mb-10 -mt-4'}>
-							Innovative video products that you might enjoy.
-						</div>
-						<MoreVideoPowerSection />
 						<br />
 						<br />
 						<br />

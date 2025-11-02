@@ -132,6 +132,8 @@ export const Demo: React.FC = () => {
 					style={style}
 					initiallyMuted
 					inputProps={props}
+					acknowledgeRemotionLicense
+					numberOfSharedAudioTags={0}
 					loop
 				/>
 				<PlayerControls playerRef={ref} durationInFrames={120} fps={30}>

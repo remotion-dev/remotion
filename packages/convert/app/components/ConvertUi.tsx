@@ -1,5 +1,5 @@
-import {Button} from '@/components/ui/button';
 import type MediaFox from '@mediafox/core';
+import {Button} from '@remotion/design';
 import type {
 	CropRectangle,
 	Input,
@@ -44,7 +44,6 @@ import {ConvertUiSection} from './ConvertUiSection';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
 import {MirrorComponents} from './MirrorComponents';
-import {PauseResumeAndCancel} from './PauseResumeAndCancel';
 import {ResampleUi} from './ResampleUi';
 import {ResizeUi} from './ResizeUi';
 import {RotateComponents} from './RotateComponents';
@@ -548,7 +547,9 @@ const ConvertUI = ({
 					startTime={state.startTime}
 				/>
 				<div className="h-2" />
-				<PauseResumeAndCancel onAbort={state.onAbort} />
+				<Button key="cancel" className="w-full" onClick={state.onAbort}>
+					Cancel
+				</Button>
 			</>
 		);
 	}
@@ -766,9 +767,8 @@ const ConvertUI = ({
 			</div>
 			<div className="h-8" />
 			<Button
-				className="block w-full"
+				className="block w-full rounded-full bg-brand text-white"
 				type="button"
-				variant="brand"
 				disabled={disableSubmit}
 				onClick={onClick}
 			>

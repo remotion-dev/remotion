@@ -1,5 +1,5 @@
 import type {RefObject} from 'react';
-import type {LogLevel} from './log';
+import {Log, type LogLevel} from './log';
 import {playbackLogging} from './playback-logging';
 
 export const playAndHandleNotAllowedError = ({
@@ -87,15 +87,19 @@ export const playAndHandleNotAllowedError = ({
 				return;
 			}
 
-			// eslint-disable-next-line no-console
-			console.log(`The video will be muted and we'll retry playing it.`);
 			if (mediaType === 'video' && isPlayer) {
-				// eslint-disable-next-line no-console
-				console.log('Use onAutoPlayError() to handle this error yourself.');
-			}
+				Log.info(
+					{logLevel, tag: '<' + mediaType + '>'},
+					`The video will be muted and we'll retry playing it.`,
+				);
 
-			current.muted = true;
-			current.play();
+				Log.info(
+					{logLevel, tag: '<' + mediaType + '>'},
+					'Use onAutoPlayError() to handle this error yourself.',
+				);
+				current.muted = true;
+				current.play();
+			}
 		}
 	});
 };

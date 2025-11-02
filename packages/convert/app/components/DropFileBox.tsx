@@ -1,6 +1,6 @@
+import {Button} from '@remotion/design';
 import React, {useCallback, useRef} from 'react';
 import type {Source} from '~/lib/convert-state';
-import {Button} from './ui/button';
 
 export const DropFileBox: React.FC<{
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
@@ -29,7 +29,12 @@ export const DropFileBox: React.FC<{
 				className="hidden"
 				onChange={handleFileChange}
 			/>
-			<Button onClick={() => ref.current?.click()}>Choose file</Button>
+			<Button
+				onClick={() => ref.current?.click()}
+				className="bg-brand text-white rounded-full px-10"
+			>
+				Choose file
+			</Button>
 		</div>
 	);
 };
