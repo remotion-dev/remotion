@@ -136,22 +136,6 @@ export const getBgAnimations = (durationMs: number, zoomIn: boolean) => {
     endMs,
   });
 
-  // eslint-disable-next-line @remotion/deterministic-randomness
-  const randomDir = Math.random() > 0.5 ? 1 : -1;
-  // eslint-disable-next-line @remotion/deterministic-randomness
-  const randomDeg = Math.random() * 10 * randomDir;
-  // eslint-disable-next-line @remotion/deterministic-randomness
-  const startAtZero = Math.random() > 0.5;
-
-  // rotate
-  animations.push({
-    type: "rotate",
-    from: startAtZero ? 0 : randomDeg,
-    to: startAtZero ? randomDeg : 0,
-    startMs,
-    endMs,
-  });
-
   return animations;
 };
 
@@ -162,22 +146,6 @@ export const getTextAnimations = () => {
 
   const startMs = 0;
   const endMs = durationMs;
-
-  // eslint-disable-next-line @remotion/deterministic-randomness
-  const randomDir = Math.random() > 0.5 ? 1 : -1;
-  // eslint-disable-next-line @remotion/deterministic-randomness
-  const randomDeg = Math.random() * 10 * randomDir;
-  // eslint-disable-next-line @remotion/deterministic-randomness
-  const dontRotate = Math.random() > 0.5;
-
-  // rotate
-  animations.push({
-    type: "rotate",
-    from: dontRotate ? 0 : randomDeg,
-    to: 0,
-    startMs,
-    endMs,
-  });
 
   // start scale from 0.5 to 0.7
   // eslint-disable-next-line @remotion/deterministic-randomness

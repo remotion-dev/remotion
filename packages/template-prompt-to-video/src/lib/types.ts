@@ -13,7 +13,7 @@ const TimelineElementSchema = z.object({
 });
 
 const ElementAnimationSchema = TimelineElementSchema.extend({
-  type: z.union([z.literal("scale"), z.literal("rotate")]),
+  type: z.literal("scale"),
   from: z.number(),
   to: z.number(),
 });

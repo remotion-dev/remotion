@@ -13,13 +13,6 @@
           "to": 1,
           "startMs": 0,
           "endMs": 7616
-        },
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": -7.105360115918952,
-          "startMs": 0,
-          "endMs": 7616
         }
       ]
     },
@@ -34,13 +27,6 @@
           "type": "scale",
           "from": 1,
           "to": 1.5,
-          "startMs": 0,
-          "endMs": 4319
-        },
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": -4.835479712748861,
           "startMs": 0,
           "endMs": 4319
         }
@@ -59,13 +45,6 @@
           "to": 1,
           "startMs": 0,
           "endMs": 6827
-        },
-        {
-          "type": "rotate",
-          "from": 1.9870856892182087,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 6827
         }
       ]
     },
@@ -80,13 +59,6 @@
           "type": "scale",
           "from": 1,
           "to": 1.5,
-          "startMs": 0,
-          "endMs": 5991
-        },
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": -8.6385189197096,
           "startMs": 0,
           "endMs": 5991
         }
@@ -105,13 +77,6 @@
           "to": 1,
           "startMs": 0,
           "endMs": 4133
-        },
-        {
-          "type": "rotate",
-          "from": 1.0522832008779737,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 4133
         }
       ]
     },
@@ -126,13 +91,6 @@
           "type": "scale",
           "from": 1,
           "to": 1.5,
-          "startMs": 0,
-          "endMs": 5201
-        },
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 1.3607085888199189,
           "startMs": 0,
           "endMs": 5201
         }
@@ -151,13 +109,6 @@
           "to": 1,
           "startMs": 0,
           "endMs": 6409
-        },
-        {
-          "type": "rotate",
-          "from": -4.804644959713991,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 6409
         }
       ]
     },
@@ -174,13 +125,6 @@
           "to": 1.5,
           "startMs": 0,
           "endMs": 13560
-        },
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": -2.2489889673202015,
-          "startMs": 0,
-          "endMs": 13560
         }
       ]
     }
@@ -192,13 +136,6 @@
       "text": "Once upon a",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 1,
@@ -222,13 +159,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.5070892202427698,
           "to": 1,
@@ -243,13 +173,6 @@
       "text": "before",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 7.41129280579405,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.650247613480069,
@@ -273,13 +196,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": -0.11120221155174304,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -294,13 +210,6 @@
       "text": "watched the",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 9.750771800621902,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 1,
@@ -317,13 +226,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 8.39953751401852,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.5312906191856691,
           "to": 1,
@@ -338,13 +240,6 @@
       "text": "looked up and",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.6984326431081123,
@@ -368,13 +263,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 4.810947315043355,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.6445892502264121,
           "to": 1.25,
@@ -396,13 +284,6 @@
       "text": "star, not",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0.7876225703042095,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 1,
@@ -426,13 +307,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": -7.638214320691771,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1.25,
@@ -455,13 +329,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -476,13 +343,6 @@
       "text": "The ancient",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": -9.327898518604613,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 1,
@@ -506,13 +366,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.662161653933625,
           "to": 1.25,
@@ -535,13 +388,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 4.508359665555006,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -556,13 +402,6 @@
       "text": "goddess of",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.6388131110354789,
@@ -579,13 +418,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.6323294044608418,
           "to": 1,
@@ -601,13 +433,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -622,13 +447,6 @@
       "text": "beautiful",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.689881743853058,
@@ -652,13 +470,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": -9.201159551524198,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.5843134627873369,
           "to": 1,
@@ -674,13 +485,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": -2.16017933512608,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -695,13 +499,6 @@
       "text": "there were",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.6822711271671517,
@@ -725,13 +522,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.6171702148398952,
           "to": 1.25,
@@ -753,13 +543,6 @@
       "text": "called both",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 1,
@@ -783,13 +566,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 2.8532779795346332,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.6213784824708739,
           "to": 1,
@@ -805,13 +581,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": -4.941277294991979,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -826,13 +595,6 @@
       "text": "'Evening",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.679307191316065,
@@ -856,13 +618,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 4.788781402097829,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.6175949484127287,
           "to": 1.25,
@@ -884,13 +639,6 @@
       "text": "realized they",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 8.934363232174972,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 1,
@@ -914,13 +662,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -935,13 +676,6 @@
       "text": "planet!",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": -1.2693799782520299,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 1,
@@ -965,13 +699,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": -5.637661922079329,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.59875153690998,
           "to": 1.25,
@@ -993,13 +720,6 @@
       "text": "other planet,",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 3.533298688930447,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.5666186805089255,
@@ -1023,13 +743,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": -3.630883509152363,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.6654676119000248,
           "to": 1.25,
@@ -1052,13 +765,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": -9.736131114877832,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.6171542494318256,
           "to": 1,
@@ -1073,13 +779,6 @@
       "text": "the Sun rises",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.6799068445538758,
@@ -1103,13 +802,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.6524040045014661,
           "to": 1.25,
@@ -1131,13 +823,6 @@
       "text": "and sets in",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": -3.137604031495914,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.6973740497614885,
@@ -1161,13 +846,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": -9.091707303457586,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -1183,13 +861,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.5017647501826319,
           "to": 1,
@@ -1204,13 +875,6 @@
       "text": "longer than",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.5972452883935493,
@@ -1234,13 +898,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.564986619802243,
           "to": 1.25,
@@ -1263,13 +920,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 2.489366052844666,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.6018507711057028,
           "to": 1,
@@ -1285,13 +935,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.5782847024126105,
           "to": 1,
@@ -1306,13 +949,6 @@
       "text": "up there.",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": -4.190740069548097,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.5055966053795952,
@@ -1336,13 +972,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": -4.914984260179916,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.5629222453413919,
           "to": 1,
@@ -1357,13 +986,6 @@
       "text": "cover much of",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 6.033671475696686,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.5699858221834716,
@@ -1380,13 +1002,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.5950691148336467,
           "to": 1,
@@ -1401,13 +1016,6 @@
       "text": "but thick",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": -6.155938430802468,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.5566802724360221,
@@ -1424,13 +1032,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.5366881194737613,
           "to": 1,
@@ -1446,13 +1047,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0.6156000954485374,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -1467,13 +1061,6 @@
       "text": "them from our",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": -0.2956705455966857,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.6484750077540622,
@@ -1497,13 +1084,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.5735095017110776,
           "to": 1.25,
@@ -1525,13 +1105,6 @@
       "text": "Although it is",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 1,
@@ -1555,13 +1128,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": -9.088208117785825,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.6985425271710941,
           "to": 1,
@@ -1576,13 +1142,6 @@
       "text": "in size, Venus",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.6887989441787467,
@@ -1599,13 +1158,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.6311379480437896,
           "to": 1,
@@ -1620,13 +1172,6 @@
       "text": "planet, with",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 3.0880349550652064,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.5681166169682664,
@@ -1650,13 +1195,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.654541893694066,
           "to": 1.25,
@@ -1679,13 +1217,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -1700,13 +1231,6 @@
       "text": "high enough to",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.6818260316184099,
@@ -1723,13 +1247,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.5424967449824123,
           "to": 1,
@@ -1744,13 +1261,6 @@
       "text": "Despite its",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": -7.735823281290651,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.5271325069222614,
@@ -1767,13 +1277,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -1789,13 +1292,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -1810,13 +1306,6 @@
       "text": "it continues",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.6036401812144718,
@@ -1840,13 +1329,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": -3.853160721805775,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -1861,13 +1343,6 @@
       "text": "imagination,",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 1,
@@ -1891,13 +1366,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -1913,13 +1381,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -1934,13 +1395,6 @@
       "text": "often hide in",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.6491396876752396,
@@ -1964,13 +1418,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.6418804091035437,
           "to": 1.25,
@@ -1993,13 +1440,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.5264743831317681,
           "to": 1,
@@ -2014,13 +1454,6 @@
       "text": "that one day,",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": -7.039075133181622,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 1,
@@ -2037,13 +1470,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.5898792305191535,
           "to": 1,
@@ -2058,13 +1484,6 @@
       "text": "a way to",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 1.6760108455025668,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.6063143077570282,
@@ -2088,13 +1507,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": 0.19277359187750642,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 0.6772011243839006,
           "to": 1.25,
@@ -2117,13 +1529,6 @@
       "position": "center",
       "animations": [
         {
-          "type": "rotate",
-          "from": -3.0010986713851064,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
-        {
           "type": "scale",
           "from": 1,
           "to": 1,
@@ -2138,13 +1543,6 @@
       "text": "up close.",
       "position": "center",
       "animations": [
-        {
-          "type": "rotate",
-          "from": 0,
-          "to": 0,
-          "startMs": 0,
-          "endMs": 300
-        },
         {
           "type": "scale",
           "from": 0.6598653425552847,
