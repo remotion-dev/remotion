@@ -80,7 +80,7 @@ export const Button: React.FC<
 				'font-brand',
 				'border-solid',
 				'text-[1em]',
-				'rounded-md',
+				'rounded-lg',
 				'border-black',
 				'border-2',
 				'border-b-4',

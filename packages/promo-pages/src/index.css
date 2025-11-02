@@ -45,6 +45,7 @@
 	--box-stroke: #000;
 	--ifm-background-surface-color: #fff;
 	--ifm-color-emphasis-200: #ebedf0;
+	--card-bg: #fff;
 	color: var(--text-color);
 }
 
@@ -66,6 +67,7 @@
 	--box-stroke: gray;
 	--ifm-background-surface-color: #242526;
 	--ifm-color-emphasis-200: #444950;
+	--card-bg: #3b3b3b;
 	color: var(--text-color);
 }
 
@@ -114,14 +116,15 @@ body {
 }
 
 @theme inline {
-	--font-brand: 'GTPlanar', sans-serif;
 	--color-pane: var(--ifm-background-surface-color);
 	--color-muted: var(--subtitle);
 	/* The following colors are required for the design system to work */
+	--font-brand: 'GTPlanar', sans-serif;
+	--font-brand--font-feature-settings: 'ss03' 1;
 	--color-brand: #0b84f3;
 	--color-text: var(--text-color);
 	--color-button-bg: var(--plain-button);
-	--color-card-bg: white;
+	--color-card-bg: var(--card-bg);
 }
 
 @utility border-effect {

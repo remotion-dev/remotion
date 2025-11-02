@@ -1,4 +1,4 @@
-import {Button, Counter, Switch} from '@remotion/design';
+import {Button, Card, Counter, Switch} from '@remotion/design';
 import {useCallback, useState} from 'react';
 
 const Explainer: React.FC<{
@@ -60,6 +60,14 @@ export const DesignPage: React.FC = () => {
 				<Counter count={count} setCount={setCount} minCount={1} step={1} />
 				<br /> <h2 className="text-brand">&lt;Switch /&gt;</h2>
 				<Switch active={active} onToggle={() => setActive((e) => !e)} />
+				<br /> <h2 className="text-brand">&lt;Card /&gt;</h2>
+				<Card className="px-4 py-4">
+					<h3 className="text-black">Card</h3>
+					<div className="text-gray-500">
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+						eiusmod tempor incididunt ut labore et dolore magna aliqua.
+					</div>
+				</Card>
 			</div>
 		</div>
 	);

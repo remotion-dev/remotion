@@ -16,7 +16,7 @@ export const GetStarted: React.FC = () => {
 								animation: 'click 0.7s linear',
 								animationFillMode: 'forwards',
 							}}
-							className="absolute z-0 top-[-20px] font-mono text-sm text-center w-full"
+							className="absolute z-0 top-[-10px] font-mono text-sm text-center w-full"
 						>
 							Copied!
 						</div>

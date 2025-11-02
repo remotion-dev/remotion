@@ -1,5 +1,6 @@
 import type {ChangeEvent} from 'react';
 import React from 'react';
+import {Card} from './Card';
 import {cn} from './helpers/cn';
 
 const Triangle: React.FC<{
@@ -26,9 +27,7 @@ const container: React.CSSProperties = {
 	flexDirection: 'row',
 	justifyContent: 'flex-end',
 	alignItems: 'center',
-	borderRadius: 4,
 	height: 42,
-	overflow: 'hidden',
 	flexShrink: 0,
 };
 
@@ -39,7 +38,6 @@ const buttonContainer: React.CSSProperties = {
 	height: 20,
 	justifyContent: 'center',
 	alignItems: 'center',
-	backgroundColor: 'inherit',
 	cursor: 'pointer',
 };
 
@@ -67,10 +65,13 @@ export const Counter: React.FC<CounterProps> = ({
 	};
 
 	return (
-		<div style={container} className={cn('border-effect w-[140px] text-text')}>
+		<Card
+			style={container}
+			className={cn('w-[140px] flex flex-row overflow-hidden')}
+		>
 			<input
 				className={
-					'fontbrand text-2xl font-medium min-w-[80px] border-0 text-end bg-transparent outline-0 text-text rounded-md overflow-hidden'
+					'fontbrand text-2xl font-medium min-w-[80px] border-0 text-end outline-0 text-text overflow-hidden flex-1 px-0 py-0 pr-2 w-full h-full tabular-nums'
 				}
 				type="number"
 				onClick={(e) => e.currentTarget.select()}
@@ -93,10 +94,10 @@ export const Counter: React.FC<CounterProps> = ({
 					}
 				}}
 			/>
-			<div className="flex flex-col ml-3 h-full">
+			<div className="flex flex-col  h-full">
 				<button
 					type="button"
-					className="border-0 border-l-2 border-l-solid border-b-2 flex-1 border-text border-b-[var(--box-stroke)] border-l-[var(--box-stroke)]"
+					className="border-0 flex-1 border-text border-b-[var(--box-stroke)] border-l-[var(--box-stroke)] bg-transparent"
 					style={{
 						...buttonContainer,
 					}}
@@ -106,7 +107,7 @@ export const Counter: React.FC<CounterProps> = ({
 				</button>
 				<button
 					type="button"
-					className="border-0 border-l-2 border-l-solid flex-1 border-text  border-l-[var(--box-stroke)]"
+					className="border-0 flex-1 border-text  border-l-[var(--box-stroke)] bg-transparent"
 					style={{
 						...buttonContainer,
 					}}
@@ -115,6 +116,6 @@ export const Counter: React.FC<CounterProps> = ({
 					<Triangle rotated />
 				</button>
 			</div>
-		</div>
+		</Card>
 	);
 };
