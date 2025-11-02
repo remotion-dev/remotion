@@ -1353,6 +1353,7 @@
         "@remotion/cli": "workspace:*",
         "@remotion/google-fonts": "workspace:*",
         "@remotion/layout-utils": "workspace:*",
+        "@remotion/media": "workspace:*",
         "@remotion/zod-types": "workspace:*",
         "react": "19.0.0",
         "react-dom": "19.0.0",

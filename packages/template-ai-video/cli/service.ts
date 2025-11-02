@@ -2,7 +2,7 @@ import z from "zod";
 import * as fs from "fs";
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api";
-import { ImageHeight, ImageWidth } from "../src/lib/constants";
+import { IMAGE_HEIGHT, IMAGE_WIDTH } from "../src/lib/constants";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 let apiKey: string | null = null;
@@ -71,7 +71,7 @@ export const generateAiImage = async (prompt: string, path: string) => {
     body: JSON.stringify({
       model: "dall-e-3",
       prompt,
-      size: `${ImageWidth}x${ImageHeight}`,
+      size: `${IMAGE_WIDTH}x${IMAGE_HEIGHT}`,
       response_format: "b64_json",
     }),
   });

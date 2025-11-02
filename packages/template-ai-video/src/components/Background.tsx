@@ -1,11 +1,11 @@
-import { AbsoluteFill, Img, staticFile, useCurrentFrame } from "remotion";
 import {
-  FPS,
-  ImageHeight,
-  ImageWidth,
-  WindowHeight,
-  WindowWidth,
-} from "../lib/constants";
+  AbsoluteFill,
+  Img,
+  staticFile,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
+import { FPS, IMAGE_HEIGHT, IMAGE_WIDTH } from "../lib/constants";
 import { BackgroundElement } from "../lib/types";
 import { calculateBlur, getImagePath } from "../lib/utils";
 
@@ -17,11 +17,11 @@ export const Background: React.FC<{
 }> = ({ item, project }) => {
   const frame = useCurrentFrame();
   const localMs = (frame / FPS) * 1000;
+  const { width, height } = useVideoConfig();
 
-  const viewSize = { width: WindowWidth, height: WindowHeight };
-  const imageRatio = ImageHeight / ImageWidth;
+  const imageRatio = IMAGE_HEIGHT / IMAGE_WIDTH;
 
-  const imgWidth = viewSize.height;
+  const imgWidth = height;
   const imgHeight = imgWidth * imageRatio;
   let animScale = 1 + EXTRA_SCALE;
 
@@ -41,8 +41,8 @@ export const Background: React.FC<{
   }
 
   const imgScale = animScale;
-  const top = -(imgHeight * imgScale - viewSize.height) / 2;
-  const left = -(imgWidth * imgScale - viewSize.width) / 2;
+  const top = -(imgHeight * imgScale - height) / 2;
+  const left = -(imgWidth * imgScale - width) / 2;
 
   const blur = calculateBlur({ item, localMs });
   const maxBlur = 25;

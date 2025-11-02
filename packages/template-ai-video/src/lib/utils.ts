@@ -1,6 +1,6 @@
 import { staticFile } from "remotion";
 import { BackgroundElement, Timeline } from "./types";
-import { FPS, IntoFrameDuration } from "./constants";
+import { FPS, INTRO_DURATION } from "./constants";
 
 export const loadTimelineFromFile = async (filename: string) => {
   const res = await fetch(staticFile(filename));
@@ -25,9 +25,9 @@ export const calculateFrameTiming = (
   const { includeIntro = false, addIntroOffset = false } = options;
 
   const startFrame =
-    (startMs * FPS) / 1000 + (addIntroOffset ? IntoFrameDuration : 0);
+    (startMs * FPS) / 1000 + (addIntroOffset ? INTRO_DURATION : 0);
   const duration =
-    ((endMs - startMs) * FPS) / 1000 + (includeIntro ? IntoFrameDuration : 0);
+    ((endMs - startMs) * FPS) / 1000 + (includeIntro ? INTRO_DURATION : 0);
 
   return { startFrame, duration };
 };

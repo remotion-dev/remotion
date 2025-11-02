@@ -26,7 +26,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { createTimeLineFromStoryWithDetails } from "./timeline";
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 interface GenerateOptions {
   apiKey?: string;
@@ -196,11 +196,12 @@ async function generateStory(options: GenerateOptions) {
     const imagesSpinner = ora("Generating images and voice...").start();
     for (let i = 0; i < storyWithDetails.content.length; i++) {
       const storyItem = storyWithDetails.content[i];
-
+      imagesSpinner.text = `[${i * 2 + 1}/${storyWithDetails.content.length * 2}] Generating image for ${storyItem.text}`;
       await generateAiImage(
         storyItem.imageDescription,
         contentFs.getImagePath(storyItem.uid),
       );
+      imagesSpinner.text = `[${i * 2 + 2}/${storyWithDetails.content.length * 2}] Generating voice for ${storyItem.text}`;
       const timings = await generateVoice(
         storyItem.text,
         elevenlabsApiKey!,
