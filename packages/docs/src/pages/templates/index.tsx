@@ -10,15 +10,17 @@ export default () => {
 	const context = useDocusaurusContext();
 
 	return (
-		<Layout>
-			<Head>
-				{Seo.renderTitle(`Starter Templates | Remotion`)}
-				{Seo.renderDescription(
-					'Jumpstart your Remotion project with a template.',
-				)}
-				{Seo.renderImage(imgSrc, context.siteConfig.url)}
-			</Head>
-			<Templates />
-		</Layout>
+		<div style={{width: '100%', backgroundColor: 'var(--background)'}}>
+			<Layout>
+				<Head>
+					{Seo.renderTitle(`Starter Templates | Remotion`)}
+					{Seo.renderDescription(
+						'Jumpstart your Remotion project with a template.',
+					)}
+					{Seo.renderImage(imgSrc, context.siteConfig.url)}
+				</Head>
+				<Templates />
+			</Layout>
+		</div>
 	);
 };
