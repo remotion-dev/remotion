@@ -1244,7 +1244,6 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
-        "@types/react": "catalog:",
         "@types/semver": "^7.3.4",
         "eslint": "catalog:",
         "react": "catalog:",
