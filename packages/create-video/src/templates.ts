@@ -37,14 +37,14 @@ export type Template = {
 		| 'google-tts'
 		| 'audiogram'
 		| 'music-visualization'
+		| 'prompt-to-video'
 		| 'skia'
 		| 'overlay'
 		| 'stargazer'
 		| 'tiktok'
 		| 'code-hike'
 		| 'render-server'
-		| 'recorder'
-		| 'editor-starter';
+		| 'recorder';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
@@ -374,6 +374,27 @@ export const FEATURED_TEMPLATES: Template[] = [
 		featuredOnHomePage: null,
 		previewURL: null,
 		templateInMonorepo: 'template-music-visualization',
+		allowEnableTailwind: true,
+	},
+	{
+		homePageLabel: 'Prompt to Video',
+		shortName: 'Prompt to Video',
+		org: 'remotion-dev',
+		repoName: 'template-prompt-to-video',
+		description: 'Create a story with images and voiceover from a prompt',
+		longerDescription:
+			'A template that turns prompts into short videos with a script, images and voiceover. Uses OpenAI and ElevenLabs to generate the content.',
+		promoVideo: {
+			muxId: 'FGl01Rw6c5YOjBCTdVhn5wrmVaRWDOjDeT28iY3Sv47w',
+			height: 1920,
+			width: 1080,
+		},
+		cliId: 'prompt-to-video' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-prompt-to-video',
 		allowEnableTailwind: true,
 	},
 	{
