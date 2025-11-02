@@ -41,6 +41,7 @@
 	"devDependencies": {
 		"react": "catalog:",
 		"react-dom": "catalog:",
+		"@types/react": "catalog:",
 		"@types/semver": "^7.3.4",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:"
