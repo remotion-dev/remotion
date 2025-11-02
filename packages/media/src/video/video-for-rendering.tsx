@@ -395,8 +395,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				crossOrigin={undefined}
 				onAutoPlayError={() => undefined}
 				pauseWhenBuffering={false}
-				trimAfter={undefined}
-				trimBefore={undefined}
+				trimAfter={trimAfterValue}
+				trimBefore={trimBeforeValue}
 				useWebAudioApi={false}
 				startFrom={undefined}
 				endAt={undefined}
