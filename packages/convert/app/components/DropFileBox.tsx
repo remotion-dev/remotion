@@ -1,6 +1,6 @@
+import {Button} from '@remotion/design';
 import React, {useCallback, useRef} from 'react';
 import type {Source} from '~/lib/convert-state';
-import {Button} from './ui/button';
 
 export const DropFileBox: React.FC<{
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;

@@ -11,6 +11,9 @@
 	"references": [
 		{
 			"path": "../svg-3d-engine"
+		},
+		{
+			"path": "../design"
 		}
 	]
 }

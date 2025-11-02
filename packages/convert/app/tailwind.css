@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@source "../node_modules/@remotion/design";
 
 @plugin 'tailwindcss-animate';
 

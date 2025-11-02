@@ -47,8 +47,8 @@
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
-    "@types/react": "19.0.0",
-    "@types/react-dom": "19.0.0",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
     "@vitejs/plugin-react-swc": "3.0.0",
     "autoprefixer": "10.4.16",
     "postcss": "8.4.31",

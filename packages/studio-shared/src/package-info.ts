@@ -79,6 +79,7 @@ export const packages = [
 	'whisper-web',
 	'media',
 	'web-renderer',
+	'design',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
@@ -169,6 +170,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'serverless-client': null,
 	media: 'Experimental WebCodecs-based media tags',
 	'web-renderer': 'Render videos in the browser (not yet released)',
+	design: 'Design system',
 };
 export const installableMap: {[key in Pkgs]: boolean} = {
 	'svg-3d-engine': false,
@@ -251,6 +253,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'example-videos': false,
 	media: true,
 	'web-renderer': false,
+	design: false,
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -338,4 +341,5 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	media: 'https://remotion.dev/docs/media',
 	// TODO: Add docs
 	'web-renderer': null,
+	design: 'https://www.remotion.dev/design',
 };

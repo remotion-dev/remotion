@@ -1,8 +1,6 @@
+import {Button, Counter, Switch} from '@remotion/design';
 import React, {StrictMode, useCallback, useState} from 'react';
 import {createRoot} from 'react-dom/client';
-import {Button3D} from './components/3DEngine/ButtonDemo';
-import {Switch} from './components/3DEngine/Switch';
-import {Counter} from './components/homepage/Counter';
 import './index.css';
 
 const Comp: React.FC = () => {
@@ -21,20 +19,20 @@ const Comp: React.FC = () => {
 	return (
 		<>
 			<div className="flex flex-row gap-4">
-				<Button3D>Button with label</Button3D>
-				<Button3D disabled>Disabled</Button3D>
-				<Button3D className="bg-brand text-white">Primary</Button3D>
-				<Button3D onClick={onClick} disabled={!submitButtonActive}>
+				<Button>Button with label</Button>
+				<Button disabled>Disabled</Button>
+				<Button className="bg-brand text-white">Primary</Button>
+				<Button onClick={onClick} disabled={!submitButtonActive}>
 					Click to disable
-				</Button3D>
-				<Button3D className="rounded-full">Rounded</Button3D>
+				</Button>
+				<Button className="rounded-full">Rounded</Button>
 			</div>
 			<div className="h-8" />
-			<Button3D className="w-full">Choose a template</Button3D>
+			<Button className="w-full">Choose a template</Button>
 			<div className="h-8" />
-			<Button3D className="w-full rounded-full">Fully rounded</Button3D>
+			<Button className="w-full rounded-full">Fully rounded</Button>
 			<div className="h-8" />
-			<Button3D className="rounded-full bg-brand w-12 h-12" />
+			<Button className="rounded-full bg-brand w-12 h-12" />
 			<div className="h-8" />
 			<Counter count={count} setCount={setCount} minCount={1} step={1} />
 			<div className="h-8" />
