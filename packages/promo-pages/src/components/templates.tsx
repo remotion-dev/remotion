@@ -148,7 +148,7 @@ export const Templates: React.FC = () => {
 					>
 						<Button
 							depth={0.5}
-							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full"
+							className="text-left p-3.5 flex flex-col relative cursor-pointer text-[var(--text-color)] no-underline h-full w-full"
 						>
 							<Item
 								label={'<Timeline />'}
