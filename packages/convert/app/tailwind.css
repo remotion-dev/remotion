@@ -41,6 +41,9 @@
 	--color-destructive-foreground: hsl(var(--destructive-foreground));
 
 	--color-brand: #0b84f3;
+	--color-button-bg: white;
+	--color-text: black;
+	--color-card-bg: white;
 
 	--color-border: hsl(var(--border));
 	--color-input: hsl(var(--input));

@@ -43,7 +43,7 @@ export const PickFile: React.FC<{
 			onDragOver={onDragOver}
 			onDrop={onDrop}
 		>
-			<div className="bg-slate-50 w-full">
+			<div className="bg-[#F9FAFC] w-full">
 				<div className="h-10" />
 				<TextMarkLogo />
 				<div className="h-5" />
@@ -57,12 +57,11 @@ export const PickFile: React.FC<{
 					<DropFileBox setSrc={setSrc} />
 				</div>
 				<div className="h-4" />
-				<div className="font-brand">or </div>
 				<div className="h-4" />
 				<AlternativePickFileOptions onSampleFile={onSampleFile} />
 				<div className="h-10" />
 			</div>
-			<div className="w-full bg-white border-t-2 border-black">
+			<div className="w-full bg-slate-50">
 				<WhyRemotionConvert />
 			</div>
 		</div>

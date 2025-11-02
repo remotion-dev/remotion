@@ -1,3 +1,4 @@
+import {Button as RemotionButton} from '@remotion/design';
 import React, {useCallback} from 'react';
 import type {ConvertState, Source} from '~/lib/convert-state';
 import {CloneIcon} from './icons/clone';
@@ -43,9 +44,9 @@ export const ConversionDone: React.FC<{
 
 	return (
 		<>
-			<Button className="block w-full" type="button" onClick={onDownload}>
+			<RemotionButton className="block w-full" onClick={onDownload}>
 				Download
-			</Button>
+			</RemotionButton>
 			<>
 				<div className="h-2" />
 				<Button

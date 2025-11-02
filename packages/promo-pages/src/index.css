@@ -114,12 +114,14 @@ body {
 }
 
 @theme inline {
-	--color-brand: #0b84f3;
 	--font-brand: 'GTPlanar', sans-serif;
 	--color-pane: var(--ifm-background-surface-color);
 	--color-muted: var(--subtitle);
+	/* The following colors are required for the design system to work */
+	--color-brand: #0b84f3;
 	--color-text: var(--text-color);
 	--color-button-bg: var(--plain-button);
+	--color-card-bg: white;
 }
 
 @utility border-effect {
