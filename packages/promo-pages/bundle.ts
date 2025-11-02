@@ -29,6 +29,7 @@ const result = await build({
 		'./src/components/homepage/Pricing.tsx',
 		'./src/components/team.tsx',
 		'./src/components/design.tsx',
+		'./src/components/templates.tsx',
 	],
 	outdir: 'dist',
 	format: 'esm',
