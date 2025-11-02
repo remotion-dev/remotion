@@ -50,6 +50,7 @@
 			"import": "./dist/esm/index.mjs"
 		},
 		"./package.json": "./package.json",
+		"./register": "./index.css",
 		"./tailwind.css": "./dist/esm/index.css"
 	},
 	"description": "3D design components for Remotion"
