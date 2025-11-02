@@ -31,7 +31,7 @@ export const DropFileBox: React.FC<{
 			/>
 			<Button
 				onClick={() => ref.current?.click()}
-				className="bg-brand text-white"
+				className="bg-brand text-white rounded-full px-10"
 			>
 				Choose file
 			</Button>

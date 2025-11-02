@@ -4,8 +4,10 @@ import {useHoverTransforms} from './helpers/hover-transforms';
 import {Outer} from './helpers/Outer';
 
 export const Button: React.FC<
-	React.ButtonHTMLAttributes<HTMLButtonElement>
-> = ({children, className, disabled, ...buttonProps}) => {
+	React.ButtonHTMLAttributes<HTMLButtonElement> & {
+		readonly depth?: number;
+	}
+> = ({children, className, disabled, depth, ...buttonProps}) => {
 	const [dimensions, setDimensions] = useState<{
 		width: number;
 		height: number;
@@ -110,6 +112,7 @@ export const Button: React.FC<
 					height={dimensions.height}
 					cornerRadius={dimensions.borderRadius}
 					hoverTransform={progress}
+					depthFactor={depth ?? 1}
 				>
 					{content}
 				</Outer>

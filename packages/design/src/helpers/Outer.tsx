@@ -24,11 +24,23 @@ export const Outer: React.FC<{
 	cornerRadius: number;
 	hoverTransform: number;
 	parentRef: React.RefObject<HTMLDivElement | null>;
-}> = ({children, width, height, cornerRadius, hoverTransform, parentRef}) => {
+	depthFactor: number;
+}> = ({
+	children,
+	width,
+	height,
+	cornerRadius,
+	hoverTransform,
+	parentRef,
+	depthFactor,
+}) => {
 	const clickTransform = useClickTransforms(parentRef);
 	const angle = useMousePosition(parentRef);
 
-	const appropriateScale = Math.min(1.1, (20 + width) / width);
+	const appropriateScale = Math.min(
+		1 + 0.1 * depthFactor,
+		(20 + width) / width,
+	);
 
 	const transformationUnhovered: MatrixTransform4D = reduceMatrices([
 		rotateX(-Math.PI / 20),
@@ -46,8 +58,9 @@ export const Outer: React.FC<{
 		transformationHovered,
 	);
 
-	const depthFromClick = clickTransform * 15;
-	const depthFromHover = interpolate(hoverTransform, [0, 1], [10, 20]);
+	const depthFromClick = clickTransform * 15 * depthFactor;
+	const depthFromHover =
+		interpolate(hoverTransform, [0, 1], [10, 20]) * depthFactor;
 	const depth = depthFromHover;
 
 	const frontFace = reduceMatrices([
