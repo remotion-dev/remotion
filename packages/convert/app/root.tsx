@@ -1,4 +1,3 @@
-import '@remotion/design/tailwind.css';
 import {ForceSpecificCursor} from './components/crop-ui/force-specific-cursor';
 import {DEFAULT_FAVICON} from './lib/default-favicon';
 import './tailwind.css';
