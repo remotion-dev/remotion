@@ -1,6 +1,5 @@
+import {Button} from '@remotion/design';
 import React, {useCallback, useState} from 'react';
-import {BlueButton} from './layout/Button';
-import {Spacer} from './Spacer';
 import {SectionTitle} from './VideoAppsTitle';
 
 export const NewsletterButton: React.FC<{}> = () => {
@@ -57,28 +56,25 @@ export const NewsletterButton: React.FC<{}> = () => {
 								Read about new features and noteworthy updates we have made on
 								Remotion once in a while.{' '}
 							</div>
-
-							<input
-								className="w-full dark:bg-[#121212] rounded-lg border-effect border-black outline-none px-3 py-3 fontbrand text-lg box-border focus:border-brand"
-								disabled={submitting}
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-								type={'email'}
-								required
-								placeholder="animator@gmail.com"
-							/>
-							<Spacer />
-							<Spacer />
-							<div>
-								<BlueButton
-									type="submit"
-									className="w-full"
-									loading={submitting}
-									disabled={submitting || subscribed}
-									size="sm"
-								>
-									{subscribed ? 'Subscribed!' : 'Subscribe'}
-								</BlueButton>
+							<div className="flex flex-col md:flex-row gap-2 justify-center">
+								<input
+									className="w-full dark:bg-[#121212] md:max-w-[400px] rounded-md border-effect border-black outline-none h-14 px-3 fontbrand text-lg box-border"
+									disabled={submitting}
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+									type={'email'}
+									required
+									placeholder="animator@gmail.com"
+								/>
+								<div>
+									<Button
+										type="submit"
+										className="w-full h-14 px-6 bg-brand text-white font-bold disabled:text-white/50 disabled:border-black"
+										disabled={submitting || subscribed}
+									>
+										{subscribed ? 'Subscribed!' : 'Subscribe'}
+									</Button>
+								</div>
 							</div>
 						</form>
 					</div>

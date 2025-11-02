@@ -369,6 +369,7 @@
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/cloudrun": "workspace:*",
+        "@remotion/design": "workspace:*",
         "@remotion/docusaurus-plugin": "workspace:*",
         "@remotion/enable-scss": "workspace:*",
         "@remotion/eslint-config-internal": "workspace:*",
