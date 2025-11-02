@@ -75,6 +75,7 @@ export const Outer: React.FC<{
 		points: parsePath(path),
 		description: 'rect',
 		transformations: centerOriented,
+		pressInDepth: 0,
 	});
 
 	return (
