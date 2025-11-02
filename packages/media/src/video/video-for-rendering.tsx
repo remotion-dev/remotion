@@ -389,7 +389,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				volume={volumeProp}
 				id={id}
 				onError={fallbackOffthreadVideoProps?.onError}
-				toneFrequency={fallbackOffthreadVideoProps?.toneFrequency ?? 1}
+				toneFrequency={toneFrequency}
 				// these shouldn't matter during rendering / should not appear at all
 				showInTimeline={false}
 				crossOrigin={undefined}
