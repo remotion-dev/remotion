@@ -44,8 +44,7 @@ export type Template = {
 		| 'tiktok'
 		| 'code-hike'
 		| 'render-server'
-		| 'recorder'
-		| 'editor-starter';
+		| 'recorder';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
@@ -384,7 +383,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		repoName: 'template-prompt-to-video',
 		description: 'Create a story with images and voiceover from a prompt',
 		longerDescription:
-			'A template that turns prompts into short videos with a script, images and voiceover.',
+			'A template that turns prompts into short videos with a script, images and voiceover. Uses OpenAI and ElevenLabs to generate the content.',
 		promoVideo: {
 			muxId: 'FGl01Rw6c5YOjBCTdVhn5wrmVaRWDOjDeT28iY3Sv47w',
 			height: 1920,

@@ -7,8 +7,10 @@ import {JSIcon} from '../icons/js';
 import {MusicIcon} from '../icons/music';
 import {NextIcon} from '../icons/next';
 import {OverlayIcon} from '../icons/overlay';
+import {PromptToVideoIcon} from '../icons/prompt-to-video';
 import {Recorder} from '../icons/recorder';
 import {ReactRouterIcon} from '../icons/remix';
+import {RenderServerIcon} from '../icons/render-server';
 import {SkiaIcon} from '../icons/skia';
 import {Stargazer} from '../icons/stargazer';
 import {StillIcon} from '../icons/still';
@@ -136,6 +138,10 @@ export const IconForTemplate: React.FC<{
 		return <OverlayIcon style={{height: scale * 42}} />;
 	}
 
+	if (template.cliId === 'render-server') {
+		return <RenderServerIcon style={{height: scale * 36}} />;
+	}
+
 	if (template.cliId === 'recorder') {
 		return <Recorder style={{height: scale * 36}} />;
 	}
@@ -160,11 +166,9 @@ export const IconForTemplate: React.FC<{
 		return <CodeHike style={{height: scale * 36}} />;
 	}
 
-	return (
-		<Blank
-			style={{
-				height: scale * 40,
-			}}
-		/>
-	);
+	if (template.cliId === 'prompt-to-video') {
+		return <PromptToVideoIcon style={{height: scale * 36}} />;
+	}
+
+	throw new Error(`Unknown template: ${template.cliId satisfies never}`);
 };

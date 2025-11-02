@@ -17,6 +17,9 @@
 		},
 		{
 			"path": "../player"
+		},
+		{
+			"path": "../create-video"
 		}
 	]
 }
