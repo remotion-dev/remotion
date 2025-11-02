@@ -62,7 +62,7 @@ export const DesignPage: React.FC = () => {
 				<Switch active={active} onToggle={() => setActive((e) => !e)} />
 				<br /> <h2 className="text-brand">&lt;Card /&gt;</h2>
 				<Card className="px-4 py-4">
-					<h3 className="text-black">Card</h3>
+					<h3 className="text-text">Card</h3>
 					<div className="text-gray-500">
 						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
 						eiusmod tempor incididunt ut labore et dolore magna aliqua.

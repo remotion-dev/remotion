@@ -34,7 +34,6 @@ const container: React.CSSProperties = {
 const buttonContainer: React.CSSProperties = {
 	display: 'flex',
 	width: 30,
-	padding: 2,
 	height: 20,
 	justifyContent: 'center',
 	alignItems: 'center',
@@ -97,7 +96,7 @@ export const Counter: React.FC<CounterProps> = ({
 			<div className="flex flex-col  h-full">
 				<button
 					type="button"
-					className="border-0 flex-1 border-text border-b-[var(--box-stroke)] border-l-[var(--box-stroke)] bg-transparent"
+					className="border-0 flex-1 p-0 pt-[5px] bg-transparent"
 					style={{
 						...buttonContainer,
 					}}
@@ -107,7 +106,7 @@ export const Counter: React.FC<CounterProps> = ({
 				</button>
 				<button
 					type="button"
-					className="border-0 flex-1 border-text  border-l-[var(--box-stroke)] bg-transparent"
+					className="border-0 flex-1 p-0 bg-transparent pb-[5px] pl-[1px]"
 					style={{
 						...buttonContainer,
 					}}
