@@ -1,6 +1,7 @@
 @import 'tailwindcss/theme' layer(theme);
 @import 'tailwindcss/utilities' layer(utilities);
 @import './fonts.css';
+@source "../node_modules/@remotion/design";
 
 @layer theme, base, components, utilities;
 
