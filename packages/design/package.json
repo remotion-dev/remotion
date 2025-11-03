@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/design",
-	"version": "4.0.370",
+	"version": "4.0.371",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -53,5 +53,6 @@
 		"./register": "./index.css",
 		"./tailwind.css": "./dist/esm/index.css"
 	},
-	"description": "3D design components for Remotion"
+	"description": "Design system",
+	"homepage": "https://www.remotion.dev/design"
 }
