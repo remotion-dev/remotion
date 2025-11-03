@@ -26,7 +26,7 @@ export const DesignPage: React.FC = () => {
 
 	return (
 		<div className="bg-[var(--background)] relative">
-			<div className="w-[800px] mx-auto pt-10 pb-10">
+			<div className="max-w-[800px] mx-auto pt-10 pb-10 px-4">
 				<h1>@remotion/design</h1>
 				<br />
 				<h2 className="text-brand">&lt;Button /&gt;</h2>
