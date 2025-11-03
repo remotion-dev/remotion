@@ -4,3 +4,4 @@ export {CheckIcon} from './CheckIcon';
 export {Counter} from './Counter';
 export {PlanePaperIcon} from './PaperPlaneIcon';
 export {Switch} from './Switch';
+export {Triangle} from './Triangle';

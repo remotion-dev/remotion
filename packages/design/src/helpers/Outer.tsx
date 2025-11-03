@@ -108,6 +108,8 @@ export const Outer: React.FC<{
 			<div
 				style={{
 					transform: makeMatrix3dTransform(frontFace),
+					width,
+					height,
 				}}
 			>
 				{children}
