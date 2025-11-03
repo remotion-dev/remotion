@@ -112,13 +112,24 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		serializedInputPropsWithCustomSchema,
 	);
 	const startTime = Date.now();
+	let validateCompositionTimeout = params.timeoutInMilliseconds;
+	const remainingTime = options.getRemainingTimeInMillis();
+	if (remainingTime / 2 < params.timeoutInMilliseconds) {
+		validateCompositionTimeout = Math.round(remainingTime / 2);
+		RenderInternals.Log.info(
+			logOptions,
+			`Lowering "timeoutInMilliseconds" to ${validateCompositionTimeout}ms (half the remaining function lifetime) so that any stuck processes will surface their errors`,
+			validateCompositionTimeout,
+		);
+	}
+
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
 		browserInstance: instance,
 		serializedInputPropsWithCustomSchema,
 		envVariables: params.envVariables ?? {},
-		timeoutInMilliseconds: params.timeoutInMilliseconds,
+		timeoutInMilliseconds: validateCompositionTimeout,
 		chromiumOptions: params.chromiumOptions,
 		port: null,
 		forceHeight: params.forceHeight,
