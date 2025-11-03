@@ -1,5 +1,5 @@
 import type {InputAudioTrack, WrappedAudioBuffer} from 'mediabunny';
-import {AudioBufferSink} from 'mediabunny';
+import {AudioBufferSink, InputDisposedError} from 'mediabunny';
 import type {useBufferState} from 'remotion';
 import type {AudioIterator} from './audio/audio-preview-iterator';
 import {
@@ -119,35 +119,45 @@ export const audioIteratorManager = ({
 		audioIteratorsCreated++;
 		audioBufferIterator = iterator;
 
-		// Schedule up to 3 buffers ahead of the current time
-		for (let i = 0; i < 3; i++) {
-			const result = await iterator.getNext();
+		try {
+			// Schedule up to 3 buffers ahead of the current time
+			for (let i = 0; i < 3; i++) {
+				const result = await iterator.getNext();
 
-			if (iterator.isDestroyed()) {
-				delayHandle.unblock();
+				if (iterator.isDestroyed()) {
+					delayHandle.unblock();
+					return;
+				}
+
+				if (nonce.isStale()) {
+					delayHandle.unblock();
+					return;
+				}
+
+				if (!result.value) {
+					// media ended
+					delayHandle.unblock();
+					return;
+				}
+
+				onAudioChunk({
+					getIsPlaying,
+					buffer: result.value,
+					playbackRate,
+					scheduleAudioNode,
+				});
+			}
+		} catch (e) {
+			if (e instanceof InputDisposedError) {
+				// iterator was disposed by a newer startAudioIteerator call
+				// this is expected during rapid seeking
 				return;
 			}
 
-			if (nonce.isStale()) {
-				delayHandle.unblock();
-				return;
-			}
-
-			if (!result.value) {
-				// media ended
-				delayHandle.unblock();
-				return;
-			}
-
-			onAudioChunk({
-				getIsPlaying,
-				buffer: result.value,
-				playbackRate,
-				scheduleAudioNode,
-			});
+			throw e;
+		} finally {
+			delayHandle.unblock();
 		}
-
-		delayHandle.unblock();
 	};
 
 	const pausePlayback = () => {
