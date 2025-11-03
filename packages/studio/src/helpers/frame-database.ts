@@ -52,3 +52,18 @@ export const clearOldFrames = () => {
 		frameDatabase.delete(key);
 	}
 };
+
+export const clearFramesForSrc = (src: string) => {
+	const keysToRemove: FrameDatabaseKey[] = [];
+
+	for (const [key, frame] of frameDatabase.entries()) {
+		if (key.startsWith(src)) {
+			frame.frame.close();
+			keysToRemove.push(key);
+		}
+	}
+
+	for (const key of keysToRemove) {
+		frameDatabase.delete(key);
+	}
+};

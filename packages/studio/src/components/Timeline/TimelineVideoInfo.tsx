@@ -4,6 +4,7 @@ import {extractFrames} from '../../helpers/extract-frames';
 import type {FrameDatabaseKey} from '../../helpers/frame-database';
 import {
 	aspectRatioCache,
+	clearFramesForSrc,
 	clearOldFrames,
 	frameDatabase,
 	getAspectRatioFromCache,
@@ -328,6 +329,7 @@ export const TimelineVideoInfo: React.FC<{
 				return () => {
 					current.removeChild(canvas);
 					clearOldFrames();
+					clearFramesForSrc(src);
 				};
 			}
 		}
@@ -422,6 +424,7 @@ export const TimelineVideoInfo: React.FC<{
 		return () => {
 			controller.abort();
 			current.removeChild(canvas);
+			clearFramesForSrc(src);
 		};
 	}, [durationInFrames, error, fps, src, startFrom, visualizationWidth]);
 
