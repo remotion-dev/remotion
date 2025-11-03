@@ -63,10 +63,9 @@ export const TemplateModalContent: React.FC<{
 				await navigator.clipboard.writeText(command);
 				setCopied(command);
 			}
-		} catch (err) {
+		} catch {
 			// eslint-disable-next-line no-alert
 			alert('Copying is not supported on this device');
-			console.log('Could not copy command', err);
 		}
 
 		copyTimeout = setTimeout(() => {
