@@ -149,7 +149,7 @@ export const audioIteratorManager = ({
 			}
 		} catch (e) {
 			if (e instanceof InputDisposedError) {
-				// iterator was disposed by a newer startAudioIteerator call
+				// iterator was disposed by a newer startAudioIterator call
 				// this is expected during rapid seeking
 				return;
 			}
