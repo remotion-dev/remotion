@@ -10,7 +10,7 @@ Extracting frames from a video file, for example to display a filmstrip in an ed
 Here's a `extractFrames()` function you can use coyp and paste into your project:
 
 ```ts twoslash title="extract-frames.ts"
-import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSampleSink} from 'mediabunny';
+import {ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink} from 'mediabunny';
 
 type Options = {
   track: {width: number; height: number};
@@ -23,11 +23,11 @@ export type ExtractFramesTimestampsInSecondsFn = (options: Options) => Promise<n
 export type ExtractFramesProps = {
   src: string;
   timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
-  onFrame: (frame: VideoFrame) => void;
+  onVideoSample: (sample: VideoSample) => void;
   signal?: AbortSignal;
 };
 
-export async function extractFrames({src, timestampsInSeconds, onFrame, signal}: ExtractFramesProps): Promise<void> {
+export async function extractFrames({src, timestampsInSeconds, onVideoSample, signal}: ExtractFramesProps): Promise<void> {
   const input = new Input({
     formats: ALL_FORMATS,
     source: new UrlSource(src),
@@ -74,9 +74,7 @@ export async function extractFrames({src, timestampsInSeconds, onFrame, signal}:
         continue;
       }
 
-      const videoFrame = videoSample.toVideoFrame();
-
-      onFrame(videoFrame);
+      onVideoSample(videoSample);
     }
   } catch (error) {
     if (error instanceof InputDisposedError) {
@@ -101,7 +99,10 @@ export async function extractFrames({src, timestampsInSeconds, onFrame, signal}:
 await extractFrames({
   src: 'https://remotion.media/video.mp4',
   timestampsInSeconds: [0, 1, 2, 3, 4],
-  onFrame: (frame) => {
+  onVideoSample: (sample) => {
+    // Convert sample to VideoFrame
+    const frame = sample.toVideoFrame();
+
     // Draw frame to canvas
     const canvas = document.createElement('canvas');
     canvas.width = frame.displayWidth;
@@ -139,9 +140,14 @@ await extractFrames({
 
     return timestamps;
   },
-  onFrame: (frame) => {
-    // Process each frame
-    console.log(`Frame at ${frame.timestamp / 1_000_000}s`);
+  onVideoSample: (sample) => {
+    // Convert to VideoFrame if needed
+    const frame = sample.toVideoFrame();
+
+    // Process the frame
+    console.log(`Frame at ${sample.timestamp}s`);
+
+    // Clean up
     frame.close();
   },
 });
@@ -151,10 +157,12 @@ await extractFrames({
 
 ### Memory management
 
-Always close `VideoFrame` objects when you're done with them to prevent memory leaks:
+The `onVideoSample` callback receives a `VideoSample` object. You need to convert it to a `VideoFrame` using `.toVideoFrame()`, and always close the `VideoFrame` when you're done with it to prevent memory leaks:
 
 ```ts
-onFrame: (frame) => {
+onVideoSample: (sample) => {
+  const frame = sample.toVideoFrame();
+
   // Use the frame
   ctx.drawImage(frame, 0, 0);
 
@@ -176,7 +184,8 @@ setTimeout(() => controller.abort(), 5000);
 await extractFrames({
   src: 'https://example.com/video.mp4',
   timestampsInSeconds: [0, 1, 2, 3, 4],
-  onFrame: (frame) => {
+  onVideoSample: (sample) => {
+    const frame = sample.toVideoFrame();
     // Process frame
     frame.close();
   },
@@ -184,12 +193,9 @@ await extractFrames({
 });
 ```
 
-### VideoFrame timestamps
-
-`VideoFrame.timestamp` is in **microseconds**, while mediabunny's `VideoSample.timestamp` is in **seconds**. The conversion is handled automatically by `.toVideoFrame()`.
-
 ## See also
 
 - [Mediabunny Documentation](https://mediabunny.dev)
+- [Packets & samples in Mediabunny](https://mediabunny.dev/guide/packets-and-samples)
 - [VideoSampleSink API](https://mediabunny.dev/api/class/VideoSampleSink)
 - [Supported formats](/docs/mediabunny/formats)

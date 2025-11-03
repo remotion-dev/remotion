@@ -356,7 +356,8 @@ export const TimelineVideoInfo: React.FC<{
 				);
 			},
 			src,
-			onFrame: (frame: VideoFrame) => {
+			onVideoSample: (sample) => {
+				const frame = sample.toVideoFrame();
 				const scale = (HEIGHT / frame.displayHeight) * window.devicePixelRatio;
 
 				const transformed = resizeVideoFrame({
