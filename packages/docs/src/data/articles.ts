@@ -504,6 +504,15 @@ export const articles = [
 		slug: 'chromium-flags',
 	},
 	{
+		id: 'cli/add',
+		title: 'npx remotion add',
+		relativePath: 'docs/cli/add.mdx',
+		compId: 'articles-docs-cli-add',
+		crumb: 'CLI Reference',
+		noAi: false,
+		slug: 'cli/add',
+	},
+	{
 		id: 'cli/benchmark',
 		title: 'npx remotion benchmark',
 		relativePath: 'docs/cli/benchmark.mdx',
@@ -3337,6 +3346,15 @@ export const articles = [
 		crumb: 'API - @remotion/media',
 		noAi: false,
 		slug: 'media/video',
+	},
+	{
+		id: 'mediabunny/can-decode',
+		title: 'Check if a video can be decoded using Mediabunny',
+		relativePath: 'docs/mediabunny/can-decode.mdx',
+		compId: 'articles-docs-mediabunny-can-decode',
+		crumb: 'Mediabunny',
+		noAi: false,
+		slug: 'mediabunny/can-decode',
 	},
 	{
 		id: 'mediabunny/extract-frames',
