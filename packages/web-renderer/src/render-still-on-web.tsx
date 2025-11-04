@@ -196,6 +196,5 @@ export const renderStillOnWeb = async ({
 	});
 
 	// download image
-	const blob = new Blob([imageData], {type: 'image/png'});
-	return blob;
+	return imageData;
 };

@@ -1,10 +1,11 @@
+import {webdriverio} from '@vitest/browser-webdriverio';
 import path from 'node:path';
 import {defineConfig} from 'vitest/config';
 
 export default defineConfig({
 	test: {
 		browser: {
-			provider: 'webdriverio',
+			provider: webdriverio(),
 			instances: [{browser: 'chrome'}],
 			headless: true,
 			screenshotFailures: false,

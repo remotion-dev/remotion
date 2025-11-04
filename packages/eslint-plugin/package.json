@@ -26,7 +26,7 @@
 		"eslint": ">=7.0.0"
 	},
 	"devDependencies": {
-		"vitest": "0.31.1",
+		"vitest": "4.0.7",
 		"eslint": "8.57.0"
 	},
 	"exports": {
