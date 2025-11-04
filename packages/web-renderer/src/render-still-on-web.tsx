@@ -195,6 +195,8 @@ export const renderStillOnWeb = async ({
 		type: 'image/png',
 	});
 
-	// download image
+	root.unmount();
+	div.remove();
+
 	return imageData;
 };
