@@ -7,6 +7,7 @@ export const findCanvasElements = (element: HTMLDivElement) => {
 
 	Array.from(canvasElements).forEach((canvasElement) => {
 		const canvas = canvasElement as HTMLCanvasElement;
+
 		composables.push({
 			type: 'canvas',
 			element: canvas,
