@@ -13,12 +13,6 @@ pub mod payloads {
         pub backtrace: String,
     }
 
-    #[derive(Serialize, Deserialize, Debug)]
-    pub enum ImageFormat {
-        Png,
-        Jpeg,
-    }
-
     #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct ExtractFrameCommand {
         pub src: String,
