@@ -279,7 +279,6 @@ const ConvertUI = ({
 							dimensions && crop ? applyCrop(dimensions, cropRect) : dimensions;
 
 						return {
-							height: Math.min(videoTrack.displayHeight, 1080),
 							process(sample) {
 								const flipped = flipVideoFrame({
 									frame: sample.toVideoFrame(),
