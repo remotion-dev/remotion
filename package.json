@@ -12,7 +12,7 @@
 		"testssr": "turbo run testssr --no-update-notifier",
 		"testwebcodecs": "turbo run testwebcodecs --no-update-notifier",
 		"testlambda": "turbo run testlambda --concurrency=1 --no-update-notifier",
-		"ci": "turbo run make test --concurrency=1 --no-update-notifier",
+		"ci": "turbo run make test --no-update-notifier",
 		"watch": "turbo watch make --concurrency=2 --experimental-write-cache",
 		"makewhisperweb": "turbo run make --filter='@remotion/whisper-web'",
 		"watchmedia": "turbo watch make --experimental-write-cache --filter='@remotion/media'",
@@ -50,7 +50,7 @@
 	},
 	"dependencies": {
 		"p-limit": "7.2.0",
-		"turbo": "2.5.8",
+		"turbo": "2.6.0",
 		"typescript": "5.8.2"
 	},
 	"packageManager": "bun@1.3.0",
