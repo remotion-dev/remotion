@@ -1,29 +1,43 @@
-import {useCallback} from 'react';
-import type {DelayRenderOptions} from './delay-render.js';
+import {createContext, useCallback, useContext} from 'react';
+import type {DelayRenderOptions, DelayRenderScope} from './delay-render.js';
 import {continueRenderInternal, delayRenderInternal} from './delay-render.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 
 type DelayRenderFn = (label?: string, options?: DelayRenderOptions) => number;
 type ContinueRenderFn = (handle: number) => void;
 
+export const DelayRenderContextType = createContext<DelayRenderScope | null>(
+	null,
+);
+
 export const useDelayRender = (): {
 	delayRender: DelayRenderFn;
 	continueRender: ContinueRenderFn;
 } => {
 	const environment = useRemotionEnvironment();
+	const scope = useContext(DelayRenderContextType);
 
 	const delayRender = useCallback<DelayRenderFn>(
 		(label?: string, options?: DelayRenderOptions) => {
-			return delayRenderInternal(environment, label, options);
+			return delayRenderInternal(
+				scope ?? (typeof window !== 'undefined' ? window : undefined),
+				environment,
+				label,
+				options,
+			);
 		},
-		[environment],
+		[environment, scope],
 	);
 
 	const continueRender = useCallback<ContinueRenderFn>(
 		(handle: number) => {
-			continueRenderInternal(handle, environment);
+			continueRenderInternal(
+				scope ?? (typeof window !== 'undefined' ? window : undefined),
+				handle,
+				environment,
+			);
 		},
-		[environment],
+		[environment, scope],
 	);
 
 	return {delayRender, continueRender};

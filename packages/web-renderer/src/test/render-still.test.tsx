@@ -2,7 +2,7 @@ import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 
 test('should render still on web', async () => {
-	await renderStillOnWeb({
+	const blob = await renderStillOnWeb({
 		Component: () => {
 			return (
 				<svg viewBox="0 0 100 100">
@@ -16,4 +16,6 @@ test('should render still on web', async () => {
 		durationInFrames: 30,
 		frame: 0,
 	});
+
+	console.log(blob);
 });

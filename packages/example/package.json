@@ -22,7 +22,6 @@
 		"test": "tsc && bun test src --timeout 60000",
 		"render": "remotion render react-svg",
 		"bundle": "remotion bundle",
-		"make": "remotion bundle",
 		"render-js": "remotion render src/entry.jsx framer",
 		"render-gif": "remotion render framer out/video.gif --codec=gif --every-nth-frame=2",
 		"render-transparent": "remotion render --image-format=png --pixel-format=yuva420p --codec=vp8 react-svg out/video.webm"

@@ -9,6 +9,7 @@ import type {
 	LoopDisplay,
 	TRenderAsset,
 } from './CompositionManager.js';
+import type {DelayRenderScope} from './delay-render.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
@@ -258,4 +259,5 @@ export type _InternalTypes = {
 	TRenderAsset: TRenderAsset;
 	LoopDisplay: LoopDisplay;
 	ProResProfile: ProResProfile;
+	DelayRenderScope: DelayRenderScope;
 };

@@ -27,6 +27,13 @@ export const TriggerWebRender = () => {
 			fps: video.fps,
 			durationInFrames: video.durationInFrames,
 			frame,
+		}).then((blob) => {
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = 'composed.png';
+			a.click();
+			URL.revokeObjectURL(url);
 		});
 	}, [video, frame]);
 
