@@ -8,6 +8,7 @@ import {
 	clearOldFrames,
 	frameDatabase,
 	getAspectRatioFromCache,
+	getFrameDatabaseKeyPrefix,
 	getTimestampFromFrameDatabaseKey,
 	makeFrameDatabaseKey,
 } from '../../helpers/frame-database';
@@ -167,8 +168,9 @@ const fillWithCachedFrames = ({
 	segmentDuration: number;
 	fromSeconds: number;
 }) => {
+	const prefix = getFrameDatabaseKeyPrefix(src);
 	const keys = Array.from(frameDatabase.keys()).filter((k) =>
-		k.startsWith(src),
+		k.startsWith(prefix),
 	);
 	const targets = Array.from(filledSlots.keys());
 

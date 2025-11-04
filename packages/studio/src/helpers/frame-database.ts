@@ -2,10 +2,16 @@
 
 export type FrameDatabaseKey = string & {__brand: 'FrameDatabaseKey'};
 
+const KEY_SEPARATOR = '|';
+
 export const makeFrameDatabaseKey = (
 	src: string,
 	timestamp: number,
-): FrameDatabaseKey => `${src}|${timestamp}` as FrameDatabaseKey;
+): FrameDatabaseKey => `${src}${KEY_SEPARATOR}${timestamp}` as FrameDatabaseKey;
+
+export const getFrameDatabaseKeyPrefix = (src: string): string => {
+	return `${src}${KEY_SEPARATOR}`;
+};
 
 type VideoFrameAndLastUsed = {
 	frame: VideoFrame;
@@ -17,7 +23,7 @@ export const frameDatabase: Map<FrameDatabaseKey, VideoFrameAndLastUsed> =
 export const aspectRatioCache: Map<string, number> = new Map();
 
 export const getTimestampFromFrameDatabaseKey = (key: FrameDatabaseKey) => {
-	const split = key.split('|');
+	const split = key.split(KEY_SEPARATOR);
 	return Number(split[split.length - 1]);
 };
 
@@ -55,9 +61,10 @@ export const clearOldFrames = () => {
 
 export const clearFramesForSrc = (src: string) => {
 	const keysToRemove: FrameDatabaseKey[] = [];
+	const prefix = getFrameDatabaseKeyPrefix(src);
 
 	for (const [key, frame] of frameDatabase.entries()) {
-		if (key.startsWith(src)) {
+		if (key.startsWith(prefix)) {
 			frame.frame.close();
 			keysToRemove.push(key);
 		}
