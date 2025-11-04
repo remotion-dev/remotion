@@ -18,6 +18,12 @@ export const canDecode = async (src: string) => {
     source: new UrlSource(src),
   });
 
+  try {
+    await input.getFormat();
+  } catch {
+    return false;
+  }
+
   const videoTrack = await input.getPrimaryVideoTrack();
   if (videoTrack && !(await videoTrack.canDecode())) {
     return false;
