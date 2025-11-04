@@ -5,7 +5,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from './ui/select';
+} from '@remotion/design';
 
 const formatSampleRate = (rate: number): string => {
 	return `${(rate / 1000).toFixed(3)} Hz`;
