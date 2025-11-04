@@ -461,7 +461,14 @@ export const TemplateModalContent: React.FC<{
 						) : null}
 					</div>
 				</div>
-				<div className="flex flex-row w-full">
+				<div
+					className={cn(
+						'flex flex-row w-full',
+						template.contributedBy !== null && mobileLayout
+							? 'flex-col'
+							: 'flex-row',
+					)}
+				>
 					<div
 						// eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={{
@@ -473,13 +480,42 @@ export const TemplateModalContent: React.FC<{
 						)}
 					/>
 					<div
-						style={{width: RESERVED_FOR_SIDEBAR}}
+						style={{width: mobileLayout ? '100%' : RESERVED_FOR_SIDEBAR}}
 						className={cn(
-							mobileLayout ? 'hidden' : 'flex',
-							'items-center justify-end px-8 text-brand dark:text-white gap-2',
+							mobileLayout && template.contributedBy === null
+								? 'hidden'
+								: 'flex',
+							template.contributedBy !== null && mobileLayout
+								? 'border-t-2 border-black w-full py-4 justify-start px-5'
+								: 'pl-5 pr-8 justify-end ',
+							'items-center  text-brand dark:text-white gap-2',
 						)}
 					>
-						<Triangle className="h-7" />
+						{template.contributedBy ? (
+							<div
+								className={cn(
+									'flex flex-row pt-1 pb-1 pr-4 gap-2 text-text font-brand items-center',
+								)}
+							>
+								<img
+									src={`https://github.com/${template.contributedBy}.png`}
+									className="w-6 h-6 rounded-full"
+								/>
+								<div className="text-text leading-tight">
+									Thanks to{' '}
+									<a
+										href={`https://github.com/${template.contributedBy}`}
+										target="_blank"
+										className="text-inherit underline"
+									>
+										{template.contributedBy}
+									</a>{' '}
+									for contributing this template!
+								</div>
+							</div>
+						) : (
+							<Triangle className="h-7" />
+						)}
 					</div>
 				</div>
 			</Card>

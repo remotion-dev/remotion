@@ -114,3 +114,7 @@ Don't send pull requests here, this is only a mirror.
 ## License
 
 Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
+
+## Credits
+
+Thanks to [@webmonch](https://github.com/webmonch) for contributing this template!
