@@ -115,7 +115,8 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	let validateCompositionTimeout = params.timeoutInMilliseconds;
 	const remainingTime = options.getRemainingTimeInMillis();
 	if (remainingTime / 2 < params.timeoutInMilliseconds) {
-		validateCompositionTimeout = Math.round(remainingTime / 2);
+		// delayRender() subtracts 2 seconds, must be positive
+		validateCompositionTimeout = Math.max(3000, Math.round(remainingTime / 2));
 		RenderInternals.Log.info(
 			logOptions,
 			`Lowering "timeoutInMilliseconds" to ${validateCompositionTimeout}ms (half the remaining function lifetime) so that any stuck processes will surface their errors`,
