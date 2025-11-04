@@ -1,6 +1,6 @@
 import {AbsoluteFill} from 'remotion';
 
-export const AtRemotionButton: React.FC<{progress: number}> = ({progress}) => {
+export const AtRemotionButton: React.FC<{progress: number}> = () => {
 	return (
 		<AbsoluteFill className="bg-black justify-center items-center border-2 border-solid border-white rounded-full">
 			<div
