@@ -1,12 +1,11 @@
 import React from 'react';
-import {useCurrentFrame, useVideoConfig} from 'remotion';
+import {useVideoConfig} from 'remotion';
 import {COLOR_1, COLOR_2} from './config';
 
 export const Atom: React.FC<{
 	readonly scale: number;
 }> = ({scale}) => {
 	const config = useVideoConfig();
-	const frame = useCurrentFrame();
 	return (
 		<svg
 			viewBox={`0 0 ${config.width} ${config.height}`}
@@ -27,16 +26,6 @@ export const Atom: React.FC<{
 				cy={config.height / 2}
 				fill="url(#gradient2)"
 			/>
-			<text
-				x="50%"
-				y="50%"
-				textAnchor="middle"
-				dominantBaseline="middle"
-				fontSize="100px"
-				fill="black"
-			>
-				{frame}
-			</text>
 		</svg>
 	);
 };
