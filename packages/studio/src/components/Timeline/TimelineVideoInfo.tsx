@@ -4,9 +4,11 @@ import {extractFrames} from '../../helpers/extract-frames';
 import type {FrameDatabaseKey} from '../../helpers/frame-database';
 import {
 	aspectRatioCache,
+	clearFramesForSrc,
 	clearOldFrames,
 	frameDatabase,
 	getAspectRatioFromCache,
+	getFrameDatabaseKeyPrefix,
 	getTimestampFromFrameDatabaseKey,
 	makeFrameDatabaseKey,
 } from '../../helpers/frame-database';
@@ -166,8 +168,9 @@ const fillWithCachedFrames = ({
 	segmentDuration: number;
 	fromSeconds: number;
 }) => {
+	const prefix = getFrameDatabaseKeyPrefix(src);
 	const keys = Array.from(frameDatabase.keys()).filter((k) =>
-		k.startsWith(src),
+		k.startsWith(prefix),
 	);
 	const targets = Array.from(filledSlots.keys());
 
@@ -274,6 +277,13 @@ export const TimelineVideoInfo: React.FC<{
 	const aspectRatio = useRef<number | null>(getAspectRatioFromCache(src));
 
 	useEffect(() => {
+		return () => {
+			clearFramesForSrc(src);
+		};
+	}, [src]);
+
+	// for rendering frames
+	useEffect(() => {
 		if (error) {
 			return;
 		}
@@ -356,7 +366,8 @@ export const TimelineVideoInfo: React.FC<{
 				);
 			},
 			src,
-			onFrame: (frame: VideoFrame) => {
+			onVideoSample: (sample) => {
+				const frame = sample.toVideoFrame();
 				const scale = (HEIGHT / frame.displayHeight) * window.devicePixelRatio;
 
 				const transformed = resizeVideoFrame({
