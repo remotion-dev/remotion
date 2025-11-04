@@ -991,6 +991,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/faq',
 				'lambda/light-client',
 				'lambda/custom-layers',
+				'lambda/separate-environments',
 				'lambda/custom-destination',
 				'lambda/checklist',
 				'lambda/webhooks',

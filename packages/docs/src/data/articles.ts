@@ -2601,6 +2601,15 @@ export const articles = [
 		slug: 'lambda/s3-public-access',
 	},
 	{
+		id: 'separate-environments',
+		title: 'Separating production and testing environments',
+		relativePath: 'docs/lambda/separate-environments.mdx',
+		compId: 'articles-docs-lambda-separate-environments',
+		crumb: null,
+		noAi: false,
+		slug: 'lambda/separate-environments',
+	},
+	{
 		id: 'lambda/serverless-framework-integration',
 		title: 'Using the Serverless Framework with Remotion Lambda',
 		relativePath: 'docs/lambda/serverless-framework-integration.mdx',
