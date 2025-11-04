@@ -17,19 +17,15 @@ export const canDecode = async (src: string) => {
     formats: ALL_FORMATS,
     source: new UrlSource(src),
   });
+
   const videoTrack = await input.getPrimaryVideoTrack();
-  if (videoTrack) {
-    if (!(await videoTrack.canDecode())) {
-      return false;
-    }
+  if (videoTrack && !(await videoTrack.canDecode())) {
+    return false;
   }
 
   const audioTrack = await input.getPrimaryAudioTrack();
-
-  if (audioTrack) {
-    if (!(await audioTrack.canDecode())) {
-      return false;
-    }
+  if (audioTrack && !(await audioTrack.canDecode())) {
+    return false;
   }
 
   return true;
