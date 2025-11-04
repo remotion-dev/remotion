@@ -45,6 +45,7 @@ export const getAssetsForMarkup = async (
 	const Wrapped = () => {
 		window.remotion_audioEnabled = true;
 		window.remotion_videoEnabled = true;
+		window.remotion_logLevel = 'info';
 		const [renderAssets, setAssets] = useState<TRenderAsset[]>([]);
 
 		const registerRenderAsset = useCallback((renderAsset: TRenderAsset) => {

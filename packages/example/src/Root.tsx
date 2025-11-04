@@ -119,7 +119,6 @@ import {parseMedia} from '@remotion/media-parser';
 import {zMatrix} from '@remotion/zod-types';
 import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
-import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
 import Amplify from './AudioTesting/Amplify';
@@ -1667,7 +1666,6 @@ export const Index: React.FC = () => {
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
 			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
 			<Folder name="3DEngine">
-				<ThreeDEngine />
 				<Composition
 					id="3DCheck"
 					component={ThreeDCheck}
@@ -1683,7 +1681,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={273}
 					schema={whatIsRemotionSchema}
-					defaultProps={{fade: false, whiteBackground: true, reel: false}}
+					defaultProps={{fade: false, whiteBackground: false, reel: false}}
 					calculateMetadata={whatIsRemotionCalculateMetadata}
 				/>
 				<Composition

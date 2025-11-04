@@ -9,7 +9,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from './ui/select';
+} from '@remotion/design';
 import {VideoOperationOption} from './VideoOperationOption';
 
 export const VideoCodecSelection: React.FC<{

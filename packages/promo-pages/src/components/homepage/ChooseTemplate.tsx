@@ -22,11 +22,9 @@ export const ChooseTemplate: React.FC = () => {
 				<div
 					className="no-scroll-bar"
 					style={{
-						backgroundColor: 'var(--plain-button)',
 						display: 'inline-flex',
 						flexDirection: 'row',
 						justifyContent: 'space-around',
-						boxShadow: '0 0 4px 0px var(--ifm-color-emphasis-200)',
 						borderRadius: 50,
 						alignItems: 'center',
 						padding: 8,

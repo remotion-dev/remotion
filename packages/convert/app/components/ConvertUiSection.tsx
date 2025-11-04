@@ -1,5 +1,5 @@
+import {Switch} from '@remotion/design';
 import React, {useCallback} from 'react';
-import {Switch} from './ui/switch';
 
 export const ConvertUiSection: React.FC<{
 	readonly children: React.ReactNode;

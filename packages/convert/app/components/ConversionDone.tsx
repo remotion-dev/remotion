@@ -1,8 +1,8 @@
+import {Button, Button as RemotionButton} from '@remotion/design';
 import React, {useCallback} from 'react';
 import type {ConvertState, Source} from '~/lib/convert-state';
 import {CloneIcon} from './icons/clone';
 import {UndoIcon} from './icons/undo';
-import {Button} from './ui/button';
 
 export const ConversionDone: React.FC<{
 	readonly state: ConvertState;
@@ -43,32 +43,32 @@ export const ConversionDone: React.FC<{
 
 	return (
 		<>
-			<Button className="block w-full" type="button" onClick={onDownload}>
+			<RemotionButton className="block w-full" onClick={onDownload}>
 				Download
-			</Button>
-			<>
-				<div className="h-2" />
+			</RemotionButton>
+			<div className="h-2" />
+			<div className="flex flex-row gap-2">
 				<Button
-					variant="ghost"
-					className="w-full flex flex-row justify-start"
+					className="w-full flex-1 flex-row justify-start rounded-full text-sm h-10"
 					type="button"
 					onClick={useAsInput}
+					depth={0.2}
 				>
 					<CloneIcon className="size-4" />
 					<div className="w-2" />
 					Use as input
 				</Button>
-			</>
-			<Button
-				variant="ghost"
-				className="w-full flex flex-row justify-start"
-				type="button"
-				onClick={startOver}
-			>
-				<UndoIcon className="size-4" />
-				<div className="w-2" />
-				Start over
-			</Button>
+				<Button
+					className="w-full flex-1 flex-row justify-start rounded-full text-sm h-10"
+					type="button"
+					onClick={startOver}
+					depth={0.2}
+				>
+					<UndoIcon className="size-4" />
+					<div className="w-2" />
+					Start over
+				</Button>
+			</div>
 		</>
 	);
 };

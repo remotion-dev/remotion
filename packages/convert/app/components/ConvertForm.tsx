@@ -19,7 +19,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from './ui/select';
+} from '@remotion/design';
 import {VideoCodecSelection} from './VideoCodecSelection';
 
 export const ConvertForm: React.FC<{

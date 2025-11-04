@@ -1,3 +1,4 @@
+import type {VideoSample} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	Input,
@@ -19,14 +20,14 @@ export type ExtractFramesTimestampsInSecondsFn = (
 export type ExtractFramesProps = {
 	src: string;
 	timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
-	onFrame: (frame: VideoFrame) => void;
+	onVideoSample: (sample: VideoSample) => void;
 	signal?: AbortSignal;
 };
 
 export async function extractFrames({
 	src,
 	timestampsInSeconds,
-	onFrame,
+	onVideoSample,
 	signal,
 }: ExtractFramesProps): Promise<void> {
 	const input = new Input({
@@ -79,9 +80,7 @@ export async function extractFrames({
 				continue;
 			}
 
-			const videoFrame = videoSample.toVideoFrame();
-
-			onFrame(videoFrame);
+			onVideoSample(videoSample);
 		}
 	} catch (error) {
 		if (error instanceof InputDisposedError) {

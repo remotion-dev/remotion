@@ -80,4 +80,5 @@ export const listOfRemotionPackages = [
 	'@remotion/whisper-web',
 	'@remotion/media',
 	'@remotion/web-renderer',
+	'@remotion/design',
 ];
