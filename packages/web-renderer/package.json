@@ -20,7 +20,10 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
 		"react": "catalog:",
-		"react-dom": "catalog:"
+		"react-dom": "catalog:",
+		"vitest": "3.2.4",
+		"webdriverio": "9.19.2",
+		"@vitest/browser": "3.2.4"
 	},
 	"peerDependencies": {
 		"react": ">=18.0.0",
