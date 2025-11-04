@@ -275,6 +275,13 @@ export const TimelineVideoInfo: React.FC<{
 	const aspectRatio = useRef<number | null>(getAspectRatioFromCache(src));
 
 	useEffect(() => {
+		return () => {
+			clearFramesForSrc(src);
+		};
+	}, [src]);
+
+	// for rendering frames
+	useEffect(() => {
 		if (error) {
 			return;
 		}
@@ -329,7 +336,6 @@ export const TimelineVideoInfo: React.FC<{
 				return () => {
 					current.removeChild(canvas);
 					clearOldFrames();
-					clearFramesForSrc(src);
 				};
 			}
 		}
@@ -424,7 +430,6 @@ export const TimelineVideoInfo: React.FC<{
 		return () => {
 			controller.abort();
 			current.removeChild(canvas);
-			clearFramesForSrc(src);
 		};
 	}, [durationInFrames, error, fps, src, startFrom, visualizationWidth]);
 
