@@ -23,7 +23,9 @@
 		"@remotion/shapes": "workspace:*",
 		"@remotion/svg-3d-engine": "workspace:*",
 		"clsx": "^2.1.1",
-		"remotion": "workspace:*"
+		"remotion": "workspace:*",
+		"@radix-ui/react-select": "2.1.1",
+		"lucide-react": "0.439.0"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

@@ -11,7 +11,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from './ui/select';
+} from '@remotion/design';
 
 export const AudioCodecSelection: React.FC<{
 	readonly audioTrackOptions: AudioOperation[];

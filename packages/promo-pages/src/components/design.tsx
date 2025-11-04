@@ -1,4 +1,14 @@
-import {Button, Card, Counter, Switch} from '@remotion/design';
+import {
+	Button,
+	Card,
+	Counter,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+	Switch,
+} from '@remotion/design';
 import {useCallback, useState} from 'react';
 
 const Explainer: React.FC<{
@@ -28,6 +38,14 @@ export const DesignPage: React.FC = () => {
 		<div className="bg-[var(--background)] relative">
 			<div className="max-w-[800px] mx-auto pt-10 pb-10 px-4">
 				<h1>@remotion/design</h1>
+				<a
+					href="https://github.com/remotion-dev/remotion/blob/main/packages/promo-pages/src/components/design.tsx"
+					className="font-brand text-brand"
+					target="_blank"
+				>
+					View source
+				</a>
+				<br />
 				<br />
 				<h2 className="text-brand">&lt;Button /&gt;</h2>
 				<Explainer>Button with label</Explainer>
@@ -68,6 +86,18 @@ export const DesignPage: React.FC = () => {
 						eiusmod tempor incididunt ut labore et dolore magna aliqua.
 					</div>
 				</Card>
+				<br />
+				<h2 className="text-brand">&lt;Select /&gt;</h2>
+				<Select defaultValue="option1">
+					<SelectTrigger style={{width: '200px'}}>
+						<SelectValue placeholder="Select an option" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="option1">Option 1</SelectItem>
+						<SelectItem value="option2">Option 2</SelectItem>
+						<SelectItem value="option3">Option 3</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 		</div>
 	);

@@ -15,7 +15,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '../ui/select';
+} from '@remotion/design';
 
 export default function DownloadModel({
 	selectedModel,
