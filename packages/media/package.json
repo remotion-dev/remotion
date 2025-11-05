@@ -22,8 +22,7 @@
 	},
 	"dependencies": {
 		"mediabunny": "catalog:",
-		"remotion": "workspace:*",
-		"webdriverio": "9.19.2"
+		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -31,11 +30,12 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"@vitest/browser": "^3.2.4",
+		"@vitest/browser-webdriverio": "4.0.7",
 		"eslint": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"vitest": "3.2.4"
+		"vitest": "4.0.7",
+		"webdriverio": "9.19.2"
 	},
 	"keywords": [],
 	"publishConfig": {

@@ -1,10 +1,13 @@
 import {type ComponentType, type LazyExoticComponent} from 'react';
 import ReactDOM from 'react-dom/client';
-import type {CompositionManagerContext} from 'remotion';
+import type {_InternalTypes, CompositionManagerContext} from 'remotion';
 import {Internals} from 'remotion';
 import {compose} from './compose';
 import {findCanvasElements} from './find-canvas-elements';
+import {findSvgElements} from './find-svg-elements';
 import {waitForReady} from './wait-for-ready';
+
+const COMP_ID = 'markup';
 
 export const renderStillOnWeb = async ({
 	Component,
@@ -28,9 +31,10 @@ export const renderStillOnWeb = async ({
 	// Match same behavior as renderEntry.tsx
 	div.style.display = 'flex';
 	div.style.backgroundColor = 'transparent';
-	div.style.position = 'absolute';
+	div.style.position = 'fixed';
 	div.style.width = `${width}px`;
 	div.style.height = `${height}px`;
+	div.style.zIndex = '-9999';
 
 	document.body.appendChild(div);
 
@@ -68,7 +72,7 @@ export const renderStillOnWeb = async ({
 		compositions: [
 			{
 				// TODO: Make dynamic
-				id: 'markup',
+				id: COMP_ID,
 				component: Component,
 				nonce: 0,
 				defaultProps: undefined,
@@ -84,11 +88,18 @@ export const renderStillOnWeb = async ({
 		],
 		canvasContent: {
 			type: 'composition',
-			compositionId: 'markup',
+			compositionId: COMP_ID,
 		},
 	};
 
 	const root = ReactDOM.createRoot(div);
+
+	const delayRenderScope: _InternalTypes['DelayRenderScope'] = {
+		remotion_renderReady: true,
+		remotion_delayRenderTimeouts: {},
+		remotion_puppeteerTimeout: delayRenderTimeoutInMilliseconds,
+		remotion_attempt: 0,
+	};
 
 	root.render(
 		<Internals.RemotionEnvironmentContext
@@ -100,62 +111,82 @@ export const renderStillOnWeb = async ({
 				isClientSideRendering: true,
 			}}
 		>
-			<Internals.RemotionRoot
-				// TODO: Hardcoded
-				audioEnabled
-				// TODO: Hardcoded
-				videoEnabled
-				// TODO: Hardcoded
-				logLevel="info"
-				// TODO: Hardcoded
-				numberOfAudioTags={0}
-				// TODO: Hardcoded
-				onlyRenderComposition={null}
-				// TODO: Hardcoded
-				currentCompositionMetadata={{
-					// TODO: Empty
-					props: {},
+			<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
+				<Internals.RemotionRoot
 					// TODO: Hardcoded
-					durationInFrames,
+					audioEnabled
 					// TODO: Hardcoded
-					fps,
+					videoEnabled
 					// TODO: Hardcoded
-					height,
+					logLevel="info"
 					// TODO: Hardcoded
-					width,
+					numberOfAudioTags={0}
 					// TODO: Hardcoded
-					defaultCodec: null,
+					onlyRenderComposition={null}
 					// TODO: Hardcoded
-					defaultOutName: null,
+					currentCompositionMetadata={{
+						// TODO: Empty
+						props: {},
+						// TODO: Hardcoded
+						durationInFrames,
+						// TODO: Hardcoded
+						fps,
+						// TODO: Hardcoded
+						height,
+						// TODO: Hardcoded
+						width,
+						// TODO: Hardcoded
+						defaultCodec: null,
+						// TODO: Hardcoded
+						defaultOutName: null,
+						// TODO: Hardcoded
+						defaultVideoImageFormat: null,
+						// TODO: Hardcoded
+						defaultPixelFormat: null,
+						// TODO: Hardcoded
+						defaultProResProfile: null,
+					}}
 					// TODO: Hardcoded
-					defaultVideoImageFormat: null,
-					// TODO: Hardcoded
-					defaultPixelFormat: null,
-					// TODO: Hardcoded
-					defaultProResProfile: null,
-				}}
-				// TODO: Hardcoded
-				audioLatencyHint="interactive"
-			>
-				<Internals.CanUseRemotionHooks value>
-					<Internals.CompositionManager.Provider
-						// TODO: This context is double-wrapped
-						value={compositionManagerContext}
-					>
-						<Component />
-					</Internals.CompositionManager.Provider>
-				</Internals.CanUseRemotionHooks>
-			</Internals.RemotionRoot>
+					audioLatencyHint="interactive"
+				>
+					<Internals.CanUseRemotionHooks value>
+						<Internals.TimelinePosition.TimelineContext.Provider
+							value={{
+								// TODO: TimelineContext is already provided by RemotionRoot
+								frame: {
+									[COMP_ID]: frame,
+								},
+								playing: false,
+								rootId: '',
+								playbackRate: 1,
+								imperativePlaying: {
+									current: false,
+								},
+								setPlaybackRate: () => {
+									throw new Error('setPlaybackRate');
+								},
+								audioAndVideoTags: {current: []},
+							}}
+						>
+							<Internals.CompositionManager.Provider
+								// TODO: This context is double-wrapped
+								value={compositionManagerContext}
+							>
+								<Component />
+							</Internals.CompositionManager.Provider>
+						</Internals.TimelinePosition.TimelineContext.Provider>
+					</Internals.CanUseRemotionHooks>
+				</Internals.RemotionRoot>
+			</Internals.DelayRenderContextType.Provider>
 		</Internals.RemotionEnvironmentContext>,
 	);
 
-	// TODO: Doesn't work at all 🙈
-	window.remotion_setFrame(frame, 'markup', frame);
-
-	await waitForReady(delayRenderTimeoutInMilliseconds);
+	// TODO: Scope cancelRender()
+	await waitForReady(delayRenderTimeoutInMilliseconds, delayRenderScope);
 	const canvasElements = findCanvasElements(div);
-	const composed = compose({
-		composables: canvasElements,
+	const svgElements = findSvgElements(div);
+	const composed = await compose({
+		composables: [...canvasElements, ...svgElements],
 		width,
 		height,
 	});
@@ -164,15 +195,8 @@ export const renderStillOnWeb = async ({
 		type: 'image/png',
 	});
 
-	// download image
-	const blob = new Blob([imageData], {type: 'image/png'});
-	const url = URL.createObjectURL(blob);
-	const a = document.createElement('a');
-	a.href = url;
-	a.download = 'composed.png';
-	a.click();
-	URL.revokeObjectURL(url);
-
 	root.unmount();
 	div.remove();
+
+	return imageData;
 };

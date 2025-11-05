@@ -96,6 +96,7 @@ import {
 	CurrentScaleContext,
 	PreviewSizeContext,
 } from './use-current-scale.js';
+import {DelayRenderContextType} from './use-delay-render.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useAudioEnabled, useVideoEnabled} from './use-media-enabled.js';
 import {
@@ -235,6 +236,8 @@ export const Internals = {
 	useVideoEnabled,
 	useAudioEnabled,
 	useIsPlayerBuffering,
+	TimelinePosition,
+	DelayRenderContextType,
 } as const;
 
 export type {

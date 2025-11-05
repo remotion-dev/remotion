@@ -6,7 +6,7 @@
 	"version": "4.0.372",
 	"description": "Rules for writing Remotion code",
 	"scripts": {
-		"test": "vitest --run",
+		"test": "node src/tests/execute.mjs",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"main": "dist/index.js",
@@ -26,7 +26,7 @@
 		"eslint": ">=7.0.0"
 	},
 	"devDependencies": {
-		"vitest": "0.31.1",
+		"vitest": "4.0.7",
 		"eslint": "8.57.0"
 	},
 	"exports": {

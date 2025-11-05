@@ -9,7 +9,8 @@
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
+		"test": "node src/test/execute.mjs"
 	},
 	"author": "Remotion <jonny@remotion.dev>",
 	"license": "UNLICENSED",
@@ -18,9 +19,13 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@vitejs/plugin-react": "^5.1.0",
+		"@vitest/browser-webdriverio": "4.0.7",
 		"eslint": "catalog:",
 		"react": "catalog:",
-		"react-dom": "catalog:"
+		"react-dom": "catalog:",
+		"vitest": "4.0.7",
+		"vitest-browser-react": "^2.0.2"
 	},
 	"peerDependencies": {
 		"react": ">=18.0.0",
