@@ -1,6 +1,10 @@
 import {type ComponentType, type LazyExoticComponent} from 'react';
 import ReactDOM from 'react-dom/client';
-import type {_InternalTypes, CompositionManagerContext} from 'remotion';
+import type {
+	_InternalTypes,
+	CompositionManagerContext,
+	LogLevel,
+} from 'remotion';
 import {Internals} from 'remotion';
 import {compose} from './compose';
 import {findCanvasElements} from './find-canvas-elements';
