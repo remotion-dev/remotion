@@ -10,8 +10,10 @@ export const testImage = async ({
 }) => {
 	const img = document.createElement('img');
 	img.src = URL.createObjectURL(blob);
-	img.dataset.testid = 'test-img';
+	img.dataset.testid = testId;
 	document.body.appendChild(img);
 
 	await expect(page.getByTestId(testId)).toMatchScreenshot(testId);
+
+	document.body.removeChild(img);
 };
