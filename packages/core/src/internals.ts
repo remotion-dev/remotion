@@ -88,6 +88,7 @@ import {
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
 import {
+	SetTimelineContext,
 	TimelineContext,
 	type SetTimelineContextValue,
 	type TimelineContextValue,
@@ -190,6 +191,7 @@ export const Internals = {
 	compositionsRef,
 	portalNode,
 	waitForRoot,
+	SetTimelineContext,
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
 	PrefetchProvider,
