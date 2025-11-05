@@ -2,6 +2,7 @@ import {cleanup, render} from '@testing-library/react';
 import {afterEach, describe, expect, test} from 'bun:test';
 import React from 'react';
 import {Composition} from '../Composition.js';
+import {CompositionManagerProvider} from '../CompositionManagerProvider.js';
 import {RemotionRoot} from '../RemotionRoot.js';
 import {expectToThrow} from './expect-to-throw.js';
 
@@ -50,32 +51,36 @@ describe('Render composition-rules should throw with invalid props', () => {
 		expectToThrow(
 			() =>
 				render(
-					<RemotionRoot
-						videoEnabled
-						audioEnabled
-						numberOfAudioTags={0}
-						logLevel="info"
+					<CompositionManagerProvider
 						onlyRenderComposition={null}
 						currentCompositionMetadata={null}
-						audioLatencyHint="interactive"
+						initialCompositions={[]}
 					>
-						<Composition
-							lazyComponent={() => Promise.resolve({default: AnyComp})}
-							durationInFrames={100}
-							fps={30}
-							height={100}
-							width={100}
-							id="id"
-						/>
-						<Composition
-							lazyComponent={() => Promise.resolve({default: AnyComp})}
-							durationInFrames={100}
-							fps={30}
-							height={100}
-							width={100}
-							id="id"
-						/>
-					</RemotionRoot>,
+						<RemotionRoot
+							videoEnabled
+							audioEnabled
+							numberOfAudioTags={0}
+							logLevel="info"
+							audioLatencyHint="interactive"
+						>
+							<Composition
+								lazyComponent={() => Promise.resolve({default: AnyComp})}
+								durationInFrames={100}
+								fps={30}
+								height={100}
+								width={100}
+								id="id"
+							/>
+							<Composition
+								lazyComponent={() => Promise.resolve({default: AnyComp})}
+								durationInFrames={100}
+								fps={30}
+								height={100}
+								width={100}
+								id="id"
+							/>
+						</RemotionRoot>
+					</CompositionManagerProvider>,
 				),
 			/Multiple composition with id id/,
 		);

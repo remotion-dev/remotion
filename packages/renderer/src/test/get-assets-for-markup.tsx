@@ -108,23 +108,27 @@ export const getAssetsForMarkup = async (
 
 		return (
 			<Internals.CanUseRemotionHooksProvider>
-				<Internals.RemotionRoot
-					audioEnabled
-					videoEnabled
-					numberOfAudioTags={0}
-					logLevel="info"
+				<Internals.CompositionManagerProvider
 					onlyRenderComposition={null}
 					currentCompositionMetadata={null}
-					audioLatencyHint="interactive"
+					initialCompositions={[]}
 				>
-					<Internals.CompositionManager.Provider value={value}>
-						<Internals.RenderAssetManager.Provider value={assetContext}>
-							<Internals.ResolveCompositionConfig>
-								<Markup />
-							</Internals.ResolveCompositionConfig>
-						</Internals.RenderAssetManager.Provider>
-					</Internals.CompositionManager.Provider>
-				</Internals.RemotionRoot>
+					<Internals.RemotionRoot
+						audioEnabled
+						videoEnabled
+						numberOfAudioTags={0}
+						logLevel="info"
+						audioLatencyHint="interactive"
+					>
+						<Internals.CompositionManager.Provider value={value}>
+							<Internals.RenderAssetManager.Provider value={assetContext}>
+								<Internals.ResolveCompositionConfig>
+									<Markup />
+								</Internals.ResolveCompositionConfig>
+							</Internals.RenderAssetManager.Provider>
+						</Internals.CompositionManager.Provider>
+					</Internals.RemotionRoot>
+				</Internals.CompositionManagerProvider>
 			</Internals.CanUseRemotionHooksProvider>
 		);
 	};

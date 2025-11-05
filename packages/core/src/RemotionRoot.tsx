@@ -5,8 +5,6 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {BaseMetadata} from './CompositionManagerContext.js';
-import {CompositionManagerProvider} from './CompositionManagerProvider.js';
 import {EditorPropsProvider} from './EditorProps.js';
 import {RenderAssetManagerProvider} from './RenderAssetManager.js';
 import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
@@ -44,8 +42,6 @@ export const RemotionRoot: React.FC<{
 	readonly children: React.ReactNode;
 	readonly numberOfAudioTags: number;
 	readonly logLevel: LogLevel;
-	readonly onlyRenderComposition: string | null;
-	readonly currentCompositionMetadata: BaseMetadata | null;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly videoEnabled: boolean | null;
 	readonly audioEnabled: boolean | null;
@@ -53,8 +49,6 @@ export const RemotionRoot: React.FC<{
 	children,
 	numberOfAudioTags,
 	logLevel,
-	onlyRenderComposition,
-	currentCompositionMetadata,
 	audioLatencyHint,
 	videoEnabled,
 	audioEnabled,
@@ -171,27 +165,20 @@ export const RemotionRoot: React.FC<{
 							>
 								<EditorPropsProvider>
 									<PrefetchProvider>
-										<CompositionManagerProvider
-											onlyRenderComposition={onlyRenderComposition}
-											currentCompositionMetadata={currentCompositionMetadata}
-										>
-											<SequenceManagerProvider>
-												<RenderAssetManagerProvider>
-													<ResolveCompositionConfig>
-														<SharedAudioContextProvider
-															numberOfAudioTags={numberOfAudioTags}
-															audioLatencyHint={audioLatencyHint}
-														>
-															<DurationsContextProvider>
-																<BufferingProvider>
-																	{children}
-																</BufferingProvider>
-															</DurationsContextProvider>
-														</SharedAudioContextProvider>
-													</ResolveCompositionConfig>
-												</RenderAssetManagerProvider>
-											</SequenceManagerProvider>
-										</CompositionManagerProvider>
+										<SequenceManagerProvider>
+											<RenderAssetManagerProvider>
+												<ResolveCompositionConfig>
+													<SharedAudioContextProvider
+														numberOfAudioTags={numberOfAudioTags}
+														audioLatencyHint={audioLatencyHint}
+													>
+														<DurationsContextProvider>
+															<BufferingProvider>{children}</BufferingProvider>
+														</DurationsContextProvider>
+													</SharedAudioContextProvider>
+												</ResolveCompositionConfig>
+											</RenderAssetManagerProvider>
+										</SequenceManagerProvider>
 									</PrefetchProvider>
 								</EditorPropsProvider>
 							</MediaEnabledProvider>

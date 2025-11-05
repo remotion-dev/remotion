@@ -32,6 +32,7 @@ import {
 	CompositionManager,
 	CompositionSetters,
 } from './CompositionManagerContext.js';
+import {CompositionManagerProvider} from './CompositionManagerProvider.js';
 import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {
@@ -163,6 +164,7 @@ export const Internals = {
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 	RemotionRoot,
+	CompositionManagerProvider,
 	useVideo,
 	getRoot,
 	useMediaVolumeState,

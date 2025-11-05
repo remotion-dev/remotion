@@ -24,16 +24,19 @@ export const CompositionManagerProvider = ({
 	children,
 	onlyRenderComposition,
 	currentCompositionMetadata,
+	initialCompositions,
 }: {
 	readonly children: React.ReactNode;
 	readonly onlyRenderComposition: string | null;
 	readonly currentCompositionMetadata: BaseMetadata | null;
+	readonly initialCompositions: AnyComposition[];
 }) => {
 	const [folders, setFolders] = useState<TFolder[]>([]);
 	const [canvasContent, setCanvasContent] = useState<CanvasContent | null>(
 		null,
 	);
-	const [compositions, setCompositions] = useState<AnyComposition[]>([]);
+	const [compositions, setCompositions] =
+		useState<AnyComposition[]>(initialCompositions);
 
 	// CompositionManagerProvider state
 	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);

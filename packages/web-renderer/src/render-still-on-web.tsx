@@ -1,18 +1,11 @@
 import {type ComponentType, type LazyExoticComponent} from 'react';
 import ReactDOM from 'react-dom/client';
-import type {
-	_InternalTypes,
-	CompositionManagerContext,
-	LogLevel,
-} from 'remotion';
+import type {_InternalTypes, LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import {compose} from './compose';
 import {findCanvasElements} from './find-canvas-elements';
 import {findSvgElements} from './find-svg-elements';
-import {makeCompositionManagerContext} from './make-composition-manager-context';
 import {waitForReady} from './wait-for-ready';
-
-const COMP_ID = 'markup';
 
 type MandatoryRenderStillOnWebOptions = {
 	Component:
@@ -35,6 +28,8 @@ type InternalRenderStillOnWebOptions = MandatoryRenderStillOnWebOptions &
 
 type RenderStillOnWebOptions = MandatoryRenderStillOnWebOptions &
 	Partial<OptionalRenderStillOnWebOptions>;
+
+const COMP_ID = 'markup';
 
 const internalRenderStillOnWeb = async ({
 	Component,
@@ -71,15 +66,6 @@ const internalRenderStillOnWeb = async ({
 	// TODO: Video config
 	// TODO: window.remotion_isPlayer
 
-	const compositionManagerContext: CompositionManagerContext =
-		makeCompositionManagerContext({
-			durationInFrames,
-			fps,
-			height,
-			width,
-			Component,
-		});
-
 	const root = ReactDOM.createRoot(div);
 
 	const delayRenderScope: _InternalTypes['DelayRenderScope'] = {
@@ -100,14 +86,7 @@ const internalRenderStillOnWeb = async ({
 			}}
 		>
 			<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
-				<Internals.RemotionRoot
-					// TODO: Hardcoded
-					audioEnabled={false}
-					// TODO: Hardcoded
-					videoEnabled
-					logLevel={logLevel}
-					numberOfAudioTags={0}
-					// TODO: Hardcoded
+				<Internals.CompositionManagerProvider
 					onlyRenderComposition={null}
 					// TODO: Hardcoded
 					currentCompositionMetadata={{
@@ -123,37 +102,58 @@ const internalRenderStillOnWeb = async ({
 						defaultPixelFormat: null,
 						defaultProResProfile: null,
 					}}
-					// TODO: Hardcoded
-					audioLatencyHint="interactive"
+					initialCompositions={[
+						{
+							id: COMP_ID,
+							component: Component,
+							nonce: 0,
+							// TODO: Do we need to allow to set this?
+							defaultProps: undefined,
+							folderName: null,
+							parentFolderName: null,
+							schema: null,
+							calculateMetadata: null,
+							durationInFrames,
+							fps,
+							height,
+							width,
+						},
+					]}
 				>
-					<Internals.CanUseRemotionHooks value>
-						<Internals.TimelinePosition.TimelineContext.Provider
-							value={{
-								// TODO: TimelineContext is already provided by RemotionRoot
-								frame: {
-									[COMP_ID]: frame,
-								},
-								playing: false,
-								rootId: '',
-								playbackRate: 1,
-								imperativePlaying: {
-									current: false,
-								},
-								setPlaybackRate: () => {
-									throw new Error('setPlaybackRate');
-								},
-								audioAndVideoTags: {current: []},
-							}}
-						>
-							<Internals.CompositionManager.Provider
-								// TODO: This context is double-wrapped
-								value={compositionManagerContext}
+					<Internals.RemotionRoot
+						// TODO: Hardcoded
+						audioEnabled={false}
+						// TODO: Hardcoded
+						videoEnabled
+						logLevel={logLevel}
+						numberOfAudioTags={0}
+						// TODO: Hardcoded
+						audioLatencyHint="interactive"
+					>
+						<Internals.CanUseRemotionHooks value>
+							<Internals.TimelinePosition.TimelineContext.Provider
+								value={{
+									// TODO: TimelineContext is already provided by RemotionRoot
+									frame: {
+										[COMP_ID]: frame,
+									},
+									playing: false,
+									rootId: '',
+									playbackRate: 1,
+									imperativePlaying: {
+										current: false,
+									},
+									setPlaybackRate: () => {
+										throw new Error('setPlaybackRate');
+									},
+									audioAndVideoTags: {current: []},
+								}}
 							>
 								<Component />
-							</Internals.CompositionManager.Provider>
-						</Internals.TimelinePosition.TimelineContext.Provider>
-					</Internals.CanUseRemotionHooks>
-				</Internals.RemotionRoot>
+							</Internals.TimelinePosition.TimelineContext.Provider>
+						</Internals.CanUseRemotionHooks>
+					</Internals.RemotionRoot>
+				</Internals.CompositionManagerProvider>
 			</Internals.DelayRenderContextType.Provider>
 		</Internals.RemotionEnvironmentContext>,
 	);
