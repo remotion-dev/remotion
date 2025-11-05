@@ -1,7 +1,7 @@
-import {expect, test} from 'vitest';
-import {page} from 'vitest/browser';
+import {test} from 'vitest';
 
 import {renderStillOnWeb} from '../render-still-on-web';
+import {testImage} from './utils';
 
 test('should render still on web', async () => {
 	const blob = await renderStillOnWeb({
@@ -24,5 +24,5 @@ test('should render still on web', async () => {
 	img.dataset.testid = 'test-img';
 	document.body.appendChild(img);
 
-	await expect(page.getByTestId('test-img')).toMatchScreenshot('test-img');
+	await testImage({blob, testId: 'test-img'});
 });
