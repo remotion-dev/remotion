@@ -19,10 +19,5 @@ test('should render still on web', async () => {
 		frame: 0,
 	});
 
-	const img = document.createElement('img');
-	img.src = URL.createObjectURL(blob);
-	img.dataset.testid = 'test-img';
-	document.body.appendChild(img);
-
 	await testImage({blob, testId: 'test-img'});
 });
