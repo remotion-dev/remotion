@@ -112,8 +112,10 @@ export const getAssetsForMarkup = async (
 					onlyRenderComposition={null}
 					currentCompositionMetadata={null}
 					initialCompositions={[]}
+					initialCanvasContent={null}
 				>
 					<Internals.RemotionRoot
+						frameState={null}
 						audioEnabled
 						videoEnabled
 						numberOfAudioTags={0}

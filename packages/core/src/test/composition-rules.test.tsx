@@ -55,8 +55,10 @@ describe('Render composition-rules should throw with invalid props', () => {
 						onlyRenderComposition={null}
 						currentCompositionMetadata={null}
 						initialCompositions={[]}
+						initialCanvasContent={null}
 					>
 						<RemotionRoot
+							frameState={null}
 							videoEnabled
 							audioEnabled
 							numberOfAudioTags={0}

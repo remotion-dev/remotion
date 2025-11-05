@@ -1,14 +1,9 @@
-import React, {
-	useEffect,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {EditorPropsProvider} from './EditorProps.js';
 import {RenderAssetManagerProvider} from './RenderAssetManager.js';
 import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
 import {SequenceManagerProvider} from './SequenceManager.js';
+import {TimelineContextProvider} from './TimelineContext.js';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import {BufferingProvider} from './buffering.js';
 import type {LoggingContextValue} from './log-level-context.js';
@@ -17,18 +12,6 @@ import type {LogLevel} from './log.js';
 import type {TNonceContext, TSetNonceContext} from './nonce.js';
 import {NonceContext, SetNonceContext} from './nonce.js';
 import {PrefetchProvider} from './prefetch-state.js';
-import {random} from './random.js';
-import type {
-	PlayableMediaTag,
-	SetTimelineContextValue,
-	TimelineContextValue,
-} from './timeline-position-state.js';
-import {
-	SetTimelineContext,
-	TimelineContext,
-	getInitialFrameState,
-} from './timeline-position-state.js';
-import {useDelayRender} from './use-delay-render.js';
 import {MediaEnabledProvider} from './use-media-enabled.js';
 import {DurationsContextProvider} from './video/duration-state.js';
 
@@ -45,6 +28,7 @@ export const RemotionRoot: React.FC<{
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly videoEnabled: boolean | null;
 	readonly audioEnabled: boolean | null;
+	readonly frameState: Record<string, number> | null;
 }> = ({
 	children,
 	numberOfAudioTags,
@@ -52,73 +36,10 @@ export const RemotionRoot: React.FC<{
 	audioLatencyHint,
 	videoEnabled,
 	audioEnabled,
+	frameState,
 }) => {
-	const [remotionRootId] = useState(() => String(random(null)));
-	const [frame, setFrame] = useState<Record<string, number>>(() =>
-		getInitialFrameState(),
-	);
-	const [playing, setPlaying] = useState<boolean>(false);
-	const imperativePlaying = useRef<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
 	const [manualRefreshes, setManualRefreshes] = useState(0);
-	const [playbackRate, setPlaybackRate] = useState(1);
-	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
-
-	const {delayRender, continueRender} = useDelayRender();
-
-	if (typeof window !== 'undefined') {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		useLayoutEffect(() => {
-			window.remotion_setFrame = (f: number, composition: string, attempt) => {
-				window.remotion_attempt = attempt;
-				const id = delayRender(`Setting the current frame to ${f}`);
-
-				let asyncUpdate = true;
-
-				setFrame((s) => {
-					const currentFrame = s[composition] ?? window.remotion_initialFrame;
-					// Avoid cloning the object
-					if (currentFrame === f) {
-						asyncUpdate = false;
-						return s;
-					}
-
-					return {
-						...s,
-						[composition]: f,
-					};
-				});
-
-				// After setting the state, need to wait until it is applied in the next cycle
-				if (asyncUpdate) {
-					requestAnimationFrame(() => continueRender(id));
-				} else {
-					continueRender(id);
-				}
-			};
-
-			window.remotion_isPlayer = false;
-		}, [continueRender, delayRender]);
-	}
-
-	const timelineContextValue = useMemo((): TimelineContextValue => {
-		return {
-			frame,
-			playing,
-			imperativePlaying,
-			rootId: remotionRootId,
-			playbackRate,
-			setPlaybackRate,
-			audioAndVideoTags,
-		};
-	}, [frame, playbackRate, playing, remotionRootId]);
-
-	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
-		return {
-			setFrame,
-			setPlaying,
-		};
-	}, []);
 
 	const nonceContext = useMemo((): TNonceContext => {
 		let counter = 0;
@@ -157,33 +78,31 @@ export const RemotionRoot: React.FC<{
 		<LogLevelContext.Provider value={logging}>
 			<NonceContext.Provider value={nonceContext}>
 				<SetNonceContext.Provider value={setNonceContext}>
-					<TimelineContext.Provider value={timelineContextValue}>
-						<SetTimelineContext.Provider value={setTimelineContextValue}>
-							<MediaEnabledProvider
-								videoEnabled={videoEnabled}
-								audioEnabled={audioEnabled}
-							>
-								<EditorPropsProvider>
-									<PrefetchProvider>
-										<SequenceManagerProvider>
-											<RenderAssetManagerProvider>
-												<ResolveCompositionConfig>
-													<SharedAudioContextProvider
-														numberOfAudioTags={numberOfAudioTags}
-														audioLatencyHint={audioLatencyHint}
-													>
-														<DurationsContextProvider>
-															<BufferingProvider>{children}</BufferingProvider>
-														</DurationsContextProvider>
-													</SharedAudioContextProvider>
-												</ResolveCompositionConfig>
-											</RenderAssetManagerProvider>
-										</SequenceManagerProvider>
-									</PrefetchProvider>
-								</EditorPropsProvider>
-							</MediaEnabledProvider>
-						</SetTimelineContext.Provider>
-					</TimelineContext.Provider>
+					<TimelineContextProvider frameState={frameState}>
+						<MediaEnabledProvider
+							videoEnabled={videoEnabled}
+							audioEnabled={audioEnabled}
+						>
+							<EditorPropsProvider>
+								<PrefetchProvider>
+									<SequenceManagerProvider>
+										<RenderAssetManagerProvider>
+											<ResolveCompositionConfig>
+												<SharedAudioContextProvider
+													numberOfAudioTags={numberOfAudioTags}
+													audioLatencyHint={audioLatencyHint}
+												>
+													<DurationsContextProvider>
+														<BufferingProvider>{children}</BufferingProvider>
+													</DurationsContextProvider>
+												</SharedAudioContextProvider>
+											</ResolveCompositionConfig>
+										</RenderAssetManagerProvider>
+									</SequenceManagerProvider>
+								</PrefetchProvider>
+							</EditorPropsProvider>
+						</MediaEnabledProvider>
+					</TimelineContextProvider>
 				</SetNonceContext.Provider>
 			</NonceContext.Provider>
 		</LogLevelContext.Provider>

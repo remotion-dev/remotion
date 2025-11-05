@@ -224,6 +224,7 @@ const renderContent = (Root: React.FC) => {
 	if (bundleMode.type === 'composition') {
 		const markup = (
 			<Internals.CompositionManagerProvider
+				initialCanvasContent={null}
 				onlyRenderComposition={bundleMode.compositionName}
 				currentCompositionMetadata={{
 					props: NoReactInternals.deserializeJSONWithSpecialTypes(
@@ -243,6 +244,7 @@ const renderContent = (Root: React.FC) => {
 				initialCompositions={[]}
 			>
 				<Internals.RemotionRoot
+					frameState={null}
 					audioEnabled={window.remotion_audioEnabled}
 					videoEnabled={window.remotion_videoEnabled}
 					logLevel={window.remotion_logLevel}
@@ -261,11 +263,13 @@ const renderContent = (Root: React.FC) => {
 	if (bundleMode.type === 'evaluation') {
 		const markup = (
 			<Internals.CompositionManagerProvider
+				initialCanvasContent={null}
 				onlyRenderComposition={null}
 				currentCompositionMetadata={null}
 				initialCompositions={[]}
 			>
 				<Internals.RemotionRoot
+					frameState={null}
 					audioEnabled={window.remotion_audioEnabled}
 					videoEnabled={window.remotion_videoEnabled}
 					logLevel={window.remotion_logLevel}

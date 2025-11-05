@@ -87,6 +87,10 @@ const internalRenderStillOnWeb = async ({
 		>
 			<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
 				<Internals.CompositionManagerProvider
+					initialCanvasContent={{
+						type: 'composition',
+						compositionId: COMP_ID,
+					}}
 					onlyRenderComposition={null}
 					// TODO: Hardcoded
 					currentCompositionMetadata={{
@@ -129,28 +133,12 @@ const internalRenderStillOnWeb = async ({
 						numberOfAudioTags={0}
 						// TODO: Hardcoded
 						audioLatencyHint="interactive"
+						frameState={{
+							[COMP_ID]: frame,
+						}}
 					>
 						<Internals.CanUseRemotionHooks value>
-							<Internals.TimelinePosition.TimelineContext.Provider
-								value={{
-									// TODO: TimelineContext is already provided by RemotionRoot
-									frame: {
-										[COMP_ID]: frame,
-									},
-									playing: false,
-									rootId: '',
-									playbackRate: 1,
-									imperativePlaying: {
-										current: false,
-									},
-									setPlaybackRate: () => {
-										throw new Error('setPlaybackRate');
-									},
-									audioAndVideoTags: {current: []},
-								}}
-							>
-								<Component />
-							</Internals.TimelinePosition.TimelineContext.Provider>
+							<Component />
 						</Internals.CanUseRemotionHooks>
 					</Internals.RemotionRoot>
 				</Internals.CompositionManagerProvider>

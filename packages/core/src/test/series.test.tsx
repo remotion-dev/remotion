@@ -5,7 +5,7 @@ import {AbsoluteFill} from '../AbsoluteFill.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Internals} from '../internals.js';
 import {Series} from '../series/index.js';
-import {TimelineContext} from '../timeline-position-state.js';
+import {TimelineContext} from '../TimelineContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 

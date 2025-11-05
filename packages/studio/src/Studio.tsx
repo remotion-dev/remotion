@@ -23,8 +23,10 @@ export const Studio: React.FC<{
 			onlyRenderComposition={null}
 			currentCompositionMetadata={null}
 			initialCompositions={[]}
+			initialCanvasContent={null}
 		>
 			<Internals.RemotionRoot
+				frameState={null}
 				audioEnabled={window.remotion_audioEnabled}
 				videoEnabled={window.remotion_videoEnabled}
 				logLevel={window.remotion_logLevel}

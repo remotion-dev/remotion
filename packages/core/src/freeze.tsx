@@ -1,8 +1,8 @@
 import React, {useContext, useMemo} from 'react';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
-import type {TimelineContextValue} from './timeline-position-state.js';
-import {TimelineContext} from './timeline-position-state.js';
+import type {TimelineContextValue} from './TimelineContext.js';
+import {TimelineContext} from './TimelineContext.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useVideoConfig} from './use-video-config.js';
 

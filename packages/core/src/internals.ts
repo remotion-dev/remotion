@@ -82,15 +82,16 @@ import {
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
-import type {
-	SetTimelineContextValue,
-	TimelineContextValue,
-} from './timeline-position-state.js';
 import * as TimelinePosition from './timeline-position-state.js';
 import {
 	persistCurrentFrame,
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
+import {
+	TimelineContext,
+	type SetTimelineContextValue,
+	type TimelineContextValue,
+} from './TimelineContext.js';
 import {truthy} from './truthy.js';
 import {
 	calculateScale,
@@ -240,6 +241,7 @@ export const Internals = {
 	useIsPlayerBuffering,
 	TimelinePosition,
 	DelayRenderContextType,
+	TimelineContext,
 } as const;
 
 export type {
