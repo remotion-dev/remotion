@@ -9,6 +9,7 @@ import {Internals} from 'remotion';
 import {compose} from './compose';
 import {findCanvasElements} from './find-canvas-elements';
 import {findSvgElements} from './find-svg-elements';
+import {makeCompositionManagerContext} from './make-composition-manager-context';
 import {waitForReady} from './wait-for-ready';
 
 const COMP_ID = 'markup';
@@ -69,44 +70,15 @@ const internalRenderStillOnWeb = async ({
 	// TODO: delayRender()
 	// TODO: Video config
 	// TODO: window.remotion_isPlayer
-	// TODO: Log Level
 
-	const compositionManagerContext: CompositionManagerContext = {
-		currentCompositionMetadata: {
+	const compositionManagerContext: CompositionManagerContext =
+		makeCompositionManagerContext({
 			durationInFrames,
 			fps,
 			height,
 			width,
-			props: {},
-			defaultCodec: null,
-			defaultOutName: null,
-			defaultVideoImageFormat: null,
-			defaultPixelFormat: null,
-			defaultProResProfile: null,
-		},
-		folders: [],
-		compositions: [
-			{
-				// TODO: Make dynamic
-				id: COMP_ID,
-				component: Component,
-				nonce: 0,
-				defaultProps: undefined,
-				folderName: null,
-				parentFolderName: null,
-				schema: null,
-				calculateMetadata: null,
-				durationInFrames,
-				fps,
-				height,
-				width,
-			},
-		],
-		canvasContent: {
-			type: 'composition',
-			compositionId: COMP_ID,
-		},
-	};
+			Component,
+		});
 
 	const root = ReactDOM.createRoot(div);
 
