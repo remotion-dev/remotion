@@ -9,14 +9,7 @@ import {waitForReady} from './wait-for-ready';
 
 const COMP_ID = 'markup';
 
-export const renderStillOnWeb = async ({
-	Component,
-	width,
-	height,
-	fps,
-	durationInFrames,
-	frame,
-}: {
+type MandatoryRenderStillOnWebOptions = {
 	Component:
 		| LazyExoticComponent<ComponentType<Record<string, unknown>>>
 		| ComponentType<Record<string, unknown>>;
@@ -25,7 +18,29 @@ export const renderStillOnWeb = async ({
 	fps: number;
 	durationInFrames: number;
 	frame: number;
-}) => {
+};
+
+type OptionalRenderStillOnWebOptions = {
+	delayRenderTimeoutInMilliseconds: number;
+	logLevel: LogLevel;
+};
+
+type InternalRenderStillOnWebOptions = MandatoryRenderStillOnWebOptions &
+	OptionalRenderStillOnWebOptions;
+
+type RenderStillOnWebOptions = MandatoryRenderStillOnWebOptions &
+	Partial<OptionalRenderStillOnWebOptions>;
+
+const internalRenderStillOnWeb = async ({
+	Component,
+	width,
+	height,
+	fps,
+	durationInFrames,
+	frame,
+	delayRenderTimeoutInMilliseconds,
+	logLevel,
+}: InternalRenderStillOnWebOptions) => {
 	const div = document.createElement('div');
 
 	// Match same behavior as renderEntry.tsx
@@ -37,9 +52,6 @@ export const renderStillOnWeb = async ({
 	div.style.zIndex = '-9999';
 
 	document.body.appendChild(div);
-
-	// TODO: Hardcoded
-	const delayRenderTimeoutInMilliseconds = 10000;
 
 	if (!ReactDOM.createRoot) {
 		throw new Error('@remotion/web-renderer requires React 18 or higher');
@@ -114,12 +126,10 @@ export const renderStillOnWeb = async ({
 			<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
 				<Internals.RemotionRoot
 					// TODO: Hardcoded
-					audioEnabled
+					audioEnabled={false}
 					// TODO: Hardcoded
 					videoEnabled
-					// TODO: Hardcoded
-					logLevel="info"
-					// TODO: Hardcoded
+					logLevel={logLevel}
 					numberOfAudioTags={0}
 					// TODO: Hardcoded
 					onlyRenderComposition={null}
@@ -127,23 +137,14 @@ export const renderStillOnWeb = async ({
 					currentCompositionMetadata={{
 						// TODO: Empty
 						props: {},
-						// TODO: Hardcoded
 						durationInFrames,
-						// TODO: Hardcoded
 						fps,
-						// TODO: Hardcoded
 						height,
-						// TODO: Hardcoded
 						width,
-						// TODO: Hardcoded
 						defaultCodec: null,
-						// TODO: Hardcoded
 						defaultOutName: null,
-						// TODO: Hardcoded
 						defaultVideoImageFormat: null,
-						// TODO: Hardcoded
 						defaultPixelFormat: null,
-						// TODO: Hardcoded
 						defaultProResProfile: null,
 					}}
 					// TODO: Hardcoded
@@ -199,4 +200,13 @@ export const renderStillOnWeb = async ({
 	div.remove();
 
 	return imageData;
+};
+
+export const renderStillOnWeb = (options: RenderStillOnWebOptions) => {
+	return internalRenderStillOnWeb({
+		...options,
+		delayRenderTimeoutInMilliseconds:
+			options.delayRenderTimeoutInMilliseconds ?? 30000,
+		logLevel: options.logLevel ?? 'info',
+	});
 };
