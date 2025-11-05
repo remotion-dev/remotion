@@ -4,3 +4,6 @@ tsconfig.tsbuildinfo
 src
 .turbo
 bundle.ts
+vitest.config.ts
+.vitest-attachments
+dist/test
