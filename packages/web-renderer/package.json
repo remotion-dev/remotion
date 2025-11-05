@@ -10,7 +10,7 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
-		"test": "vitest src/test --browser --run"
+		"test": "node src/test/execute.mjs"
 	},
 	"author": "Remotion <jonny@remotion.dev>",
 	"license": "UNLICENSED",
