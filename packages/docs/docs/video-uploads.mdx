@@ -210,12 +210,7 @@ export const ValidatedUploader: React.FC = () => {
       const isCompatible = await canDecode(blobUrl);
       URL.revokeObjectURL(blobUrl);
 
-      if (isCompatible) {
-        // Video is compatible, upload directly
-        setState({type: 'uploading'});
-        const url = await upload(file);
-        setState({type: 'ready', url});
-      } else {
+      if (!isCompatible) {
         // Video needs re-encoding
         setState({type: 'reencoding'});
         const formData = new FormData();
@@ -228,7 +223,15 @@ export const ValidatedUploader: React.FC = () => {
 
         const {url} = await response.json();
         setState({type: 'ready', url});
+        return;
       }
+
+      // Video is compatible, upload directly
+      setState({type: 'uploading'});
+
+      const url = await upload(file);
+
+      setState({type: 'ready', url});
     } catch (error) {
       setState({type: 'error', message: 'Failed to process video'});
     }
