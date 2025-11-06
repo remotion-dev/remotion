@@ -32,6 +32,7 @@ import {
 	CompositionManager,
 	CompositionSetters,
 } from './CompositionManagerContext.js';
+import {CompositionManagerProvider} from './CompositionManagerProvider.js';
 import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {
@@ -81,15 +82,17 @@ import {
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
-import type {
-	SetTimelineContextValue,
-	TimelineContextValue,
-} from './timeline-position-state.js';
 import * as TimelinePosition from './timeline-position-state.js';
 import {
 	persistCurrentFrame,
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
+import {
+	SetTimelineContext,
+	TimelineContext,
+	type SetTimelineContextValue,
+	type TimelineContextValue,
+} from './TimelineContext.js';
 import {truthy} from './truthy.js';
 import {
 	calculateScale,
@@ -163,6 +166,7 @@ export const Internals = {
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 	RemotionRoot,
+	CompositionManagerProvider,
 	useVideo,
 	getRoot,
 	useMediaVolumeState,
@@ -187,6 +191,7 @@ export const Internals = {
 	compositionsRef,
 	portalNode,
 	waitForRoot,
+	SetTimelineContext,
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
 	PrefetchProvider,
@@ -238,6 +243,7 @@ export const Internals = {
 	useIsPlayerBuffering,
 	TimelinePosition,
 	DelayRenderContextType,
+	TimelineContext,
 } as const;
 
 export type {

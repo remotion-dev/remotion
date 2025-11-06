@@ -107,9 +107,7 @@ const PlaybackPopup: React.FC<{
 	readonly playbackRates: number[];
 	readonly canvasSize: Size;
 }> = ({setIsComponentVisible, playbackRates, canvasSize}) => {
-	const {setPlaybackRate, playbackRate} = useContext(
-		Internals.Timeline.TimelineContext,
-	);
+	const {setPlaybackRate, playbackRate} = useContext(Internals.TimelineContext);
 
 	const [keyboardSelectedRate, setKeyboardSelectedRate] =
 		useState<number>(playbackRate);
@@ -240,7 +238,7 @@ export const PlaybackrateControl: React.FC<{
 }> = ({playbackRates, canvasSize}) => {
 	const {ref, isComponentVisible, setIsComponentVisible} =
 		useComponentVisible(false);
-	const {playbackRate} = useContext(Internals.Timeline.TimelineContext);
+	const {playbackRate} = useContext(Internals.TimelineContext);
 
 	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {

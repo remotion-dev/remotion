@@ -81,9 +81,7 @@ export const PreviewToolbar: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly bufferStateDelayInMilliseconds: number;
 }> = ({readOnlyStudio, bufferStateDelayInMilliseconds}) => {
-	const {playbackRate, setPlaybackRate} = useContext(
-		Internals.Timeline.TimelineContext,
-	);
+	const {playbackRate, setPlaybackRate} = useContext(Internals.TimelineContext);
 
 	const {mediaMuted} = useContext(Internals.MediaVolumeContext);
 	const {setMediaMuted} = useContext(Internals.SetMediaVolumeContext);

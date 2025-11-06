@@ -408,9 +408,7 @@ const PlayerFn = <
 				audioLatencyHint={audioLatencyHint}
 				volumePersistenceKey={volumePersistenceKey}
 			>
-				<Internals.Timeline.SetTimelineContext.Provider
-					value={setTimelineContextValue}
-				>
+				<Internals.SetTimelineContext.Provider value={setTimelineContextValue}>
 					<PlayerEmitterProvider currentPlaybackRate={currentPlaybackRate}>
 						<PlayerUI
 							ref={rootRef}
@@ -463,7 +461,7 @@ const PlayerFn = <
 							noSuspense={Boolean(noSuspense)}
 						/>
 					</PlayerEmitterProvider>
-				</Internals.Timeline.SetTimelineContext.Provider>
+				</Internals.SetTimelineContext.Provider>
 			</SharedPlayerContexts>
 		</Internals.IsPlayerContextProvider>
 	);

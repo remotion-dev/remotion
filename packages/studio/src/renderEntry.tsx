@@ -223,12 +223,8 @@ const renderContent = (Root: React.FC) => {
 
 	if (bundleMode.type === 'composition') {
 		const markup = (
-			<Internals.RemotionRoot
-				audioEnabled={window.remotion_audioEnabled}
-				videoEnabled={window.remotion_videoEnabled}
-				logLevel={window.remotion_logLevel}
-				numberOfAudioTags={0}
-				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+			<Internals.CompositionManagerProvider
+				initialCanvasContent={null}
 				onlyRenderComposition={bundleMode.compositionName}
 				currentCompositionMetadata={{
 					props: NoReactInternals.deserializeJSONWithSpecialTypes(
@@ -245,10 +241,20 @@ const renderContent = (Root: React.FC) => {
 					defaultPixelFormat: bundleMode.compositionDefaultPixelFormat,
 					defaultProResProfile: bundleMode.compositionDefaultProResProfile,
 				}}
+				initialCompositions={[]}
 			>
-				<Root />
-				<GetVideoComposition state={bundleMode} />
-			</Internals.RemotionRoot>
+				<Internals.RemotionRoot
+					frameState={null}
+					audioEnabled={window.remotion_audioEnabled}
+					videoEnabled={window.remotion_videoEnabled}
+					logLevel={window.remotion_logLevel}
+					numberOfAudioTags={0}
+					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+				>
+					<Root />
+					<GetVideoComposition state={bundleMode} />
+				</Internals.RemotionRoot>
+			</Internals.CompositionManagerProvider>
 		);
 
 		renderToDOM(markup);
@@ -256,17 +262,23 @@ const renderContent = (Root: React.FC) => {
 
 	if (bundleMode.type === 'evaluation') {
 		const markup = (
-			<Internals.RemotionRoot
-				audioEnabled={window.remotion_audioEnabled}
-				videoEnabled={window.remotion_videoEnabled}
-				logLevel={window.remotion_logLevel}
-				numberOfAudioTags={0}
+			<Internals.CompositionManagerProvider
+				initialCanvasContent={null}
 				onlyRenderComposition={null}
 				currentCompositionMetadata={null}
-				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+				initialCompositions={[]}
 			>
-				<Root />
-			</Internals.RemotionRoot>
+				<Internals.RemotionRoot
+					frameState={null}
+					audioEnabled={window.remotion_audioEnabled}
+					videoEnabled={window.remotion_videoEnabled}
+					logLevel={window.remotion_logLevel}
+					numberOfAudioTags={0}
+					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+				>
+					<Root />
+				</Internals.RemotionRoot>
+			</Internals.CompositionManagerProvider>
 		);
 
 		renderToDOM(markup);

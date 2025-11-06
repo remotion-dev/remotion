@@ -15,11 +15,9 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 			<Internals.CompositionManager.Provider
 				value={makeMockCompositionManagerContext()}
 			>
-				<Internals.Timeline.TimelineContext.Provider
-					value={makeTimelineContext(frame)}
-				>
+				<Internals.TimelineContext.Provider value={makeTimelineContext(frame)}>
 					{markup}
-				</Internals.Timeline.TimelineContext.Provider>
+				</Internals.TimelineContext.Provider>
 			</Internals.CompositionManager.Provider>
 		</Internals.CanUseRemotionHooksProvider>,
 	);

@@ -19,24 +19,30 @@ export const Studio: React.FC<{
 	}, []);
 
 	return (
-		<Internals.RemotionRoot
-			audioEnabled={window.remotion_audioEnabled}
-			videoEnabled={window.remotion_videoEnabled}
-			logLevel={window.remotion_logLevel}
-			numberOfAudioTags={window.remotion_numberOfAudioTags}
+		<Internals.CompositionManagerProvider
 			onlyRenderComposition={null}
 			currentCompositionMetadata={null}
-			audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+			initialCompositions={[]}
+			initialCanvasContent={null}
 		>
-			<EditorContexts readOnlyStudio={readOnly}>
-				<Editor readOnlyStudio={readOnly} Root={rootComponent} />
-				{readOnly
-					? null
-					: createPortal(
-							<ServerDisconnected />,
-							getServerDisconnectedDomElement() as HTMLElement,
-						)}
-			</EditorContexts>
-		</Internals.RemotionRoot>
+			<Internals.RemotionRoot
+				frameState={null}
+				audioEnabled={window.remotion_audioEnabled}
+				videoEnabled={window.remotion_videoEnabled}
+				logLevel={window.remotion_logLevel}
+				numberOfAudioTags={window.remotion_numberOfAudioTags}
+				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+			>
+				<EditorContexts readOnlyStudio={readOnly}>
+					<Editor readOnlyStudio={readOnly} Root={rootComponent} />
+					{readOnly
+						? null
+						: createPortal(
+								<ServerDisconnected />,
+								getServerDisconnectedDomElement() as HTMLElement,
+							)}
+				</EditorContexts>
+			</Internals.RemotionRoot>
+		</Internals.CompositionManagerProvider>
 	);
 };
