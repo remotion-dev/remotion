@@ -221,6 +221,10 @@ export const ValidatedUploader: React.FC = () => {
           body: formData,
         });
 
+        if (!response.ok) {
+          throw new Error('Failed to re-encode video');
+        }
+
         const {url} = await response.json();
         setState({type: 'ready', url});
         return;
