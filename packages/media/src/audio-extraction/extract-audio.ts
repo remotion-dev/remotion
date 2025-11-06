@@ -95,7 +95,6 @@ const extractAudioInternal = async ({
 
 	audioManager.logOpenFrames();
 
-	// Tolerance for timing discrepancies when the first sample starts slightly after the requested time due to floating-point precision or media file timing variations
 	const trimStartToleranceInSeconds = 0.002;
 
 	const audioDataArray: PcmS16AudioData[] = [];

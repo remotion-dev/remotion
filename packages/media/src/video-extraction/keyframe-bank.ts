@@ -144,8 +144,8 @@ export const makeKeyframeBank = ({
 		const maxClampToleranceInSeconds = 0.1;
 
 		// If the requested timestamp is before the start of this bank, clamp it to the start if within tolerance. This handles videos that don't start at timestamp 0.
-
 		// For example, requesting frame at 0sec when video starts at 0.04sec should return the frame at 0.04sec.
+
 		let adjustedTimestamp = timestampInSeconds;
 
 		if (timestampInSeconds < startTimestampInSeconds) {
