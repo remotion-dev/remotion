@@ -135,6 +135,140 @@ As soon as possible, replace the `blob:` URL with the real URL.
 Since `blob:` URLs don't support the HTTP `Range` header, video seeking performance is degraded when using `blob:` URLs.
 :::
 
+## Validating video compatibility
+
+After a user uploads a video, you should validate whether the browser can decode it. The recommended best practice is:
+
+1. Use Mediabunny's [canDecode()](/docs/mediabunny/can-decode) function to check if the video can be played
+2. If it can be decoded, use the video directly
+3. If it cannot be decoded, either re-encode it with FFmpeg or reject the upload
+
+### Check if video can be decoded
+
+Use the `canDecode()` snippet to validate the uploaded video:
+
+```ts twoslash title="can-decode.ts"
+import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+
+export const canDecode = async (src: string) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src),
+  });
+
+  try {
+    await input.getFormat();
+  } catch {
+    return false;
+  }
+
+  const videoTrack = await input.getPrimaryVideoTrack();
+  if (videoTrack && !(await videoTrack.canDecode())) {
+    return false;
+  }
+
+  const audioTrack = await input.getPrimaryAudioTrack();
+  if (audioTrack && !(await audioTrack.canDecode())) {
+    return false;
+  }
+
+  return true;
+};
+```
+
+### Handle incompatible videos
+
+If a video cannot be decoded, re-encode it using FFmpeg:
+
+```ts title="reencode.ts"
+import {execa} from 'execa';
+
+export const reencodeVideo = async (inputPath: string, outputPath: string) => {
+  await execa('ffmpeg', [
+    '-i',
+    inputPath,
+    '-c:v',
+    'libx264', // H.264 video codec (widely supported)
+    '-preset',
+    'fast',
+    '-crf',
+    '23',
+    '-c:a',
+    'aac', // AAC audio codec
+    '-b:a',
+    '128k',
+    outputPath,
+  ]);
+
+  return outputPath;
+};
+```
+
+### Complete example with validation
+
+```tsx twoslash title="ValidatedUploader.tsx"
+const canDecode = async (src: string) => {
+  return true;
+};
+const upload = async (file: File) => {
+  return 'https://example.com/video.mp4';
+};
+const reencodeVideo = async (src: string) => {
+  return 'https://example.com/reencoded.mp4';
+};
+const MyComposition: React.FC<{videoUrl: string}> = ({videoUrl}) => {
+  return null;
+};
+// ---cut---
+import {Player} from '@remotion/player';
+import {useCallback, useState} from 'react';
+
+type UploadState = {type: 'idle'} | {type: 'uploading'} | {type: 'validating'} | {type: 'reencoding'} | {type: 'ready'; url: string} | {type: 'error'; message: string};
+
+export const ValidatedUploader: React.FC = () => {
+  const [state, setState] = useState<UploadState>({type: 'idle'});
+
+  const handleUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setState({type: 'uploading'});
+      const url = await upload(file);
+
+      setState({type: 'validating'});
+      const isCompatible = await canDecode(url);
+
+      if (isCompatible) {
+        setState({type: 'ready', url});
+        return;
+      }
+
+      // Re-encode incompatible videos
+      setState({type: 'reencoding'});
+      const reencodedUrl = await reencodeVideo(url);
+      setState({type: 'ready', url: reencodedUrl});
+    } catch (error) {
+      setState({type: 'error', message: 'Failed to process video'});
+    }
+  }, []);
+
+  return (
+    <div>
+      <input type="file" accept="video/*" onChange={handleUpload} />
+
+      {state.type === 'uploading' && <p>Uploading...</p>}
+      {state.type === 'validating' && <p>Checking compatibility...</p>}
+      {state.type === 'reencoding' && <p>Re-encoding video...</p>}
+      {state.type === 'error' && <p>Error: {state.message}</p>}
+      {state.type === 'ready' && <Player component={MyComposition} durationInFrames={120} compositionWidth={1920} compositionHeight={1080} fps={30} inputProps={{videoUrl: state.url}} />}
+    </div>
+  );
+};
+```
+
 ## See also
 
 - [Uploading with presigned URLs](/docs/presigned-urls)
+- [Check if video can be decoded](/docs/mediabunny/can-decode)
+- [Mediabunny Documentation](https://mediabunny.dev)
