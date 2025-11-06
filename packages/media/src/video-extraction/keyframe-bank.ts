@@ -141,19 +141,11 @@ export const makeKeyframeBank = ({
 		lastUsed = Date.now();
 
 		if (timestampInSeconds < startTimestampInSeconds) {
-			return Promise.reject(
-				new Error(
-					`Timestamp is before start timestamp (requested: ${timestampInSeconds}sec, start: ${startTimestampInSeconds})`,
-				),
-			);
+			return null;
 		}
 
 		if (timestampInSeconds > endTimestampInSeconds) {
-			return Promise.reject(
-				new Error(
-					`Timestamp is after end timestamp (requested: ${timestampInSeconds}sec, end: ${endTimestampInSeconds})`,
-				),
-			);
+			return null;
 		}
 
 		await ensureEnoughFramesForTimestamp(timestampInSeconds);
