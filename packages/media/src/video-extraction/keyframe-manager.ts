@@ -201,9 +201,14 @@ export const makeKeyframeManager = () => {
 		src: string;
 		logLevel: LogLevel;
 	}): Promise<KeyframeBank | 'has-alpha' | null> => {
-		const startPacket = await packetSink.getKeyPacket(timestamp, {
-			verifyKeyPackets: true,
-		});
+		// Try to get the keypacket at the requested timestamp.
+		// If it returns null (timestamp is before the first keypacket), fall back to the first packet.
+		// This matches mediabunny's internal behavior and handles videos that don't start at timestamp 0.
+		const startPacket =
+			(await packetSink.getKeyPacket(timestamp, {
+				verifyKeyPackets: true,
+			})) ?? (await packetSink.getFirstPacket({verifyKeyPackets: true}));
+
 		const hasAlpha = startPacket?.sideData.alpha;
 		if (hasAlpha && !canBrowserUseWebGl2()) {
 			return 'has-alpha';
