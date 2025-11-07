@@ -6305,6 +6305,15 @@ export const articles = [
 		slug: 'video-uploads',
 	},
 	{
+		id: 'validating-user-videos',
+		title: 'Validating user videos',
+		relativePath: 'docs/validating-user-videos.mdx',
+		compId: 'articles-docs-validating-user-videos',
+		crumb: 'Building video apps',
+		noAi: false,
+		slug: 'validating-user-videos',
+	},
+	{
 		id: 'videos/index',
 		title: 'Embedding videos into Remotion',
 		relativePath: 'docs/videos/index.mdx',
