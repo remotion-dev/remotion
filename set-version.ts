@@ -27,6 +27,10 @@ const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', {
 	encoding: 'utf-8',
 }).trim();
 
+if (currentBranch !== 'main') {
+	throw new Error('Please be on the main branch');
+}
+
 const dirs = readdirSync('packages')
 	.filter((dir) =>
 		lstatSync(path.join(process.cwd(), 'packages', dir)).isDirectory(),
