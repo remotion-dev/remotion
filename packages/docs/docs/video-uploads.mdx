@@ -139,42 +139,13 @@ Since `blob:` URLs don't support the HTTP `Range` header, video seeking performa
 
 Before uploading a video, you should validate whether the browser can decode it. This saves bandwidth and provides immediate feedback to the user. The recommended best practice is:
 
-1. Check the video locally using a blob URL with Mediabunny's [canDecode()](/docs/mediabunny/can-decode) function
+1. Check the video locally using a blob URL with Remotion's [canDecode()](/docs/mediabunny/can-decode) snippet based on [Mediabunny](/docs/mediabunny)
 2. If it can be decoded, upload it to the cloud
-3. If it cannot be decoded, either re-encode it with FFmpeg or reject the upload
+3. If it cannot be decoded, either re-encode it with FFmpeg on the server or reject the upload
 
-### Check if video can be decoded
-
-Use the `canDecode()` snippet to validate the video before uploading:
-
-```ts twoslash title="can-decode.ts"
-import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
-
-export const canDecode = async (src: string) => {
-  const input = new Input({
-    formats: ALL_FORMATS,
-    source: new UrlSource(src),
-  });
-
-  try {
-    await input.getFormat();
-  } catch {
-    return false;
-  }
-
-  const videoTrack = await input.getPrimaryVideoTrack();
-  if (videoTrack && !(await videoTrack.canDecode())) {
-    return false;
-  }
-
-  const audioTrack = await input.getPrimaryAudioTrack();
-  if (audioTrack && !(await audioTrack.canDecode())) {
-    return false;
-  }
-
-  return true;
-};
-```
+:::note
+The `canDecode()` function checks if a video can be loaded into [`<Video>`](/docs/media/video) from `@remotion/media`. Note that [`<Html5Video>`](/docs/media/html5-video) and [`<OffthreadVideo>`](/docs/offthreadvideo) have different format compatibilities. Learn more about the supported media formats: [Video formats](/docs/miscellaneous/video-formats)
+:::
 
 ### Complete example with validation
 
@@ -230,7 +201,6 @@ export const ValidatedUploader: React.FC = () => {
         return;
       }
 
-      // Video is compatible, upload directly
       setState({type: 'uploading'});
 
       const url = await upload(file);
@@ -255,94 +225,9 @@ export const ValidatedUploader: React.FC = () => {
 };
 ```
 
-### Server-side re-encoding API
-
-Create an API endpoint that receives the video, re-encodes it using FFmpeg, and returns the URL:
-
-```ts title="server.ts"
-import express from 'express';
-import multer from 'multer';
-import {execa} from 'execa';
-import path from 'path';
-import fs from 'fs/promises';
-
-const app = express();
-const upload = multer({dest: 'uploads/'});
-
-app.post('/api/reencode-video', upload.single('video'), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({error: 'No video file provided'});
-  }
-
-  const inputPath = req.file.path;
-  const outputPath = path.join('uploads', `reencoded-${Date.now()}.mp4`);
-
-  try {
-    await execa('ffmpeg', [
-      '-i',
-      inputPath,
-      '-c:v',
-      'libx264', // H.264 video codec (widely supported)
-      '-preset',
-      'fast',
-      '-crf',
-      '23',
-      '-c:a',
-      'aac',
-      '-b:a',
-      '128k',
-      outputPath,
-    ]);
-
-    // Upload re-encoded video to cloud storage
-    // This is provider-specific (S3, GCS, etc.)
-    const cloudUrl = await uploadToCloud(outputPath);
-
-    // Clean up temporary files
-    await fs.unlink(inputPath);
-    await fs.unlink(outputPath);
-
-    res.json({url: cloudUrl});
-  } catch (error) {
-    // Clean up on error
-    await fs.unlink(inputPath).catch(() => {});
-    await fs.unlink(outputPath).catch(() => {});
-
-    res.status(500).json({error: 'Failed to re-encode video'});
-  }
-});
-
-// Example cloud upload function (implementation depends on your provider)
-async function uploadToCloud(filePath: string): Promise<string> {
-  // Example using AWS S3:
-  // const fileContent = await fs.readFile(filePath);
-  // const s3 = new S3Client({region: 'us-east-1'});
-  // await s3.send(new PutObjectCommand({
-  //   Bucket: 'my-bucket',
-  //   Key: `videos/${path.basename(filePath)}`,
-  //   Body: fileContent,
-  // }));
-  // return `https://my-bucket.s3.amazonaws.com/videos/${path.basename(filePath)}`;
-
-  return `https://example.com/videos/${path.basename(filePath)}`;
-}
-
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
-});
-```
-
-The API endpoint:
-
-1. Receives the video file via multipart form data
-2. Saves it temporarily using multer
-3. Re-encodes it with FFmpeg to H.264/AAC format
-4. Uploads the re-encoded video to cloud storage
-5. Cleans up temporary files
-6. Returns the cloud URL to the client
-
 ## See also
 
 - [Uploading with presigned URLs](/docs/presigned-urls)
+- [Video formats](/docs/miscellaneous/video-formats)
 - [Check if video can be decoded](/docs/mediabunny/can-decode)
 - [Mediabunny Documentation](https://mediabunny.dev)
