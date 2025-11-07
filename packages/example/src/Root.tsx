@@ -53,6 +53,7 @@ import {
 } from './Postmount/PostmountExample';
 import {PremountedExample} from './Premount';
 import {PremountedRemoteVideos} from './Premount/RemoteVideos';
+import ReactSvg from './ReactSvg';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {RetryDelayRender} from './RetryDelayRender';
@@ -118,10 +119,10 @@ import {parseMedia} from '@remotion/media-parser';
 import {zMatrix} from '@remotion/zod-types';
 import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
-import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
 import Amplify from './AudioTesting/Amplify';
+import {CTAEndCard} from './CallToAction';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
@@ -131,10 +132,9 @@ import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {NewAudioExample} from './NewAudio/NewAudio';
-import {NewVideoExample} from './NewVideo/NewVideo';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
-import {NewRemoteVideo} from './OffthreadRemoteVideo/NewRemoteVideo';
+import {NewVideoComp} from './OffthreadRemoteVideo/NewRemoteVideo';
 import {OffthreadRemoteSeries} from './OffthreadRemoteVideo/OffthreadRemoteSeries';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
@@ -660,7 +660,7 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="react-svg"
-					lazyComponent={() => import('./ReactSvg')}
+					component={ReactSvg}
 					width={1920}
 					height={1080}
 					fps={60}
@@ -671,37 +671,6 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="new-media-tags">
-				<Composition
-					id="new-video"
-					component={NewVideoExample}
-					fps={30}
-					defaultProps={{
-						src: staticFile('demo_smpte_h264_pcm.mkv'),
-					}}
-					calculateMetadata={async ({props}) => {
-						const fps = 30;
-
-						const {slowDurationInSeconds, dimensions} = await parseMedia({
-							src: props.src as string,
-							fields: {
-								slowDurationInSeconds: true,
-								dimensions: true,
-							},
-						});
-
-						if (dimensions === null) {
-							throw new Error('Dimensions are null');
-						}
-
-						return {
-							props: props,
-							durationInFrames: Math.round(slowDurationInSeconds * fps),
-							fps,
-							width: dimensions.width,
-							height: dimensions.height,
-						};
-					}}
-				/>
 				<Composition
 					id="new-audio"
 					component={NewAudioExample}
@@ -808,7 +777,7 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<OffthreadRemoteVideo />
-				<NewRemoteVideo />
+				<NewVideoComp />
 				<OffthreadRemoteSeries />
 				<LoopedOffthreadRemoteVideo />
 				<MultiChannelAudio />
@@ -1697,7 +1666,6 @@ export const Index: React.FC = () => {
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
 			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
 			<Folder name="3DEngine">
-				<ThreeDEngine />
 				<Composition
 					id="3DCheck"
 					component={ThreeDCheck}
@@ -1713,7 +1681,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={273}
 					schema={whatIsRemotionSchema}
-					defaultProps={{fade: false, whiteBackground: true, reel: false}}
+					defaultProps={{fade: false, whiteBackground: false, reel: false}}
 					calculateMetadata={whatIsRemotionCalculateMetadata}
 				/>
 				<Composition
@@ -1786,6 +1754,25 @@ export const Index: React.FC = () => {
 				height={2160}
 				fps={30}
 				durationInFrames={500}
+			/>
+			<Composition
+				id="CallToAction"
+				component={CTAEndCard}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+				defaultProps={{
+					cornerRadius: 10,
+				}}
+				calculateMetadata={() => {
+					return {
+						defaultPixelFormat: 'yuva444p10le',
+						defaultCodec: 'prores',
+						defaultProResProfile: '4444',
+						defaultVideoImageFormat: 'png',
+					};
+				}}
 			/>
 		</>
 	);

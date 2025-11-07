@@ -1,7 +1,8 @@
-import {renderMediaOnWeb} from '@remotion/web-renderer';
+import {renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback} from 'react';
 import {Internals} from 'remotion';
 import {Button} from '../Button';
+import {getCurrentFrame} from '../Timeline/imperative-state';
 
 const button: React.CSSProperties = {
 	paddingLeft: 7,
@@ -12,20 +13,29 @@ const button: React.CSSProperties = {
 
 export const TriggerWebRender = () => {
 	const video = Internals.useVideo();
+	const frame = getCurrentFrame();
 
 	const onClick = useCallback(() => {
 		if (!video) {
 			throw new Error('No video found');
 		}
 
-		renderMediaOnWeb({
+		renderStillOnWeb({
 			Component: video.component,
 			width: video.width,
 			height: video.height,
 			fps: video.fps,
 			durationInFrames: video.durationInFrames,
+			frame,
+		}).then((blob) => {
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = 'composed.png';
+			a.click();
+			URL.revokeObjectURL(url);
 		});
-	}, [video]);
+	}, [video, frame]);
 
 	return (
 		<Button

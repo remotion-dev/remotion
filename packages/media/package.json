@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media",
-	"version": "4.0.362",
+	"version": "4.0.373",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -21,9 +21,8 @@
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {
-		"mediabunny": "1.23.0",
-		"remotion": "workspace:*",
-		"webdriverio": "9.19.2"
+		"mediabunny": "catalog:",
+		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -31,11 +30,12 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"@vitest/browser": "^3.2.4",
-		"eslint": "9.19.0",
-		"react": "19.0.0",
-		"react-dom": "19.0.0",
-		"vitest": "3.2.4"
+		"@vitest/browser-webdriverio": "4.0.7",
+		"eslint": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"vitest": "4.0.7",
+		"webdriverio": "9.19.2"
 	},
 	"keywords": [],
 	"publishConfig": {

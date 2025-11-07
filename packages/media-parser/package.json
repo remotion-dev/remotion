@@ -3,13 +3,13 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
 	},
 	"name": "@remotion/media-parser",
-	"version": "4.0.362",
+	"version": "4.0.373",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
-		"test": "bun test src/test",
+		"testwebcodecs": "bun test src/test --timeout=30000",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"prepublishOnly": "bun ensure-correct-version.ts"
 	},
@@ -17,9 +17,9 @@
 		"@remotion/example-videos": "workspace:*",
 		"@types/wicg-file-system-access": "2023.10.5",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0",
-		"mediabunny": "1.23.0",
-		"@types/bun": "1.3.0"
+		"eslint": "catalog:",
+		"mediabunny": "catalog:",
+		"@types/bun": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

@@ -42,7 +42,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 		ConfigInternals.getConcurrency(),
 	);
 	const pixelFormat = ConfigInternals.getPixelFormat();
-	const proResProfile = ConfigInternals.getProResProfile() ?? 'hq';
+	const proResProfile = ConfigInternals.getProResProfile() ?? null;
 
 	const x264Preset = x264Option.getValue({
 		commandLine: parsedCli,

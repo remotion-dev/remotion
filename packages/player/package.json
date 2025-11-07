@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player"
 	},
 	"name": "@remotion/player",
-	"version": "4.0.362",
+	"version": "4.0.373",
 	"description": "React component for embedding a Remotion preview into your app",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -45,12 +45,12 @@
 		"@testing-library/react": "16.1.0",
 		"@happy-dom/global-registrator": "14.5.1",
 		"csstype": "^3.1.1",
-		"react": "19.0.0",
-		"react-dom": "19.0.0",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"webpack": "5.96.1",
-		"zod": "3.22.3",
+		"zod": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"keywords": [
 		"remotion",

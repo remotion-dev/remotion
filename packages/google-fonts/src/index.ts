@@ -2271,6 +2271,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Electrolize') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Elms Sans',
+		importName: 'ElmsSans',
+		load: () => import('./ElmsSans') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Elsie',
 		importName: 'Elsie',
 		load: () => import('./Elsie') as Promise<GoogleFont>,
@@ -4756,6 +4761,21 @@ export const getAvailableFonts = () => [
 		load: () => import('./Molle') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Momo Signature',
+		importName: 'MomoSignature',
+		load: () => import('./MomoSignature') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Momo Trust Display',
+		importName: 'MomoTrustDisplay',
+		load: () => import('./MomoTrustDisplay') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Momo Trust Sans',
+		importName: 'MomoTrustSans',
+		load: () => import('./MomoTrustSans') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Mona Sans',
 		importName: 'MonaSans',
 		load: () => import('./MonaSans') as Promise<GoogleFont>,
@@ -5820,6 +5840,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Noto Sans Syriac Eastern',
 		importName: 'NotoSansSyriacEastern',
 		load: () => import('./NotoSansSyriacEastern') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Noto Sans Syriac Western',
+		importName: 'NotoSansSyriacWestern',
+		load: () => import('./NotoSansSyriacWestern') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Noto Sans TC',
@@ -7995,6 +8020,21 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Staatliches',
 		importName: 'Staatliches',
 		load: () => import('./Staatliches') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Stack Sans Headline',
+		importName: 'StackSansHeadline',
+		load: () => import('./StackSansHeadline') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Stack Sans Notch',
+		importName: 'StackSansNotch',
+		load: () => import('./StackSansNotch') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Stack Sans Text',
+		importName: 'StackSansText',
+		load: () => import('./StackSansText') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Stalemate',

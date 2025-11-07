@@ -1,4 +1,4 @@
-import type {AudioOperation, VideoOperation} from '@remotion/webcodecs';
+import type {AudioOperation, VideoOperation} from './audio-operation';
 
 export const getVideoOperationId = (operation: VideoOperation) => {
 	if (operation.type === 'copy') {
@@ -32,7 +32,7 @@ export const getAudioOperationId = (operation: AudioOperation) => {
 	}
 
 	if (operation.type === 'reencode') {
-		return `reencode-${operation.audioCodec}-${operation.bitrate}`;
+		return `reencode-${operation.audioCodec}`;
 	}
 
 	if (operation.type === 'fail') {

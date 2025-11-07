@@ -21,7 +21,6 @@ import {
 	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
-import {calculateMediaDuration} from '../../../core/src/calculate-media-duration';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
@@ -114,6 +113,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		FallbackToOffthreadVideo | false
 	>(false);
 
+	const audioEnabled = Internals.useAudioEnabled();
+	const videoEnabled = Internals.useVideoEnabled();
+
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
 			return;
@@ -132,7 +134,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		});
 
 		const shouldRenderAudio = (() => {
-			if (!window.remotion_audioEnabled) {
+			if (!audioEnabled) {
 				return false;
 			}
 
@@ -150,7 +152,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			playbackRate,
 			logLevel,
 			includeAudio: shouldRenderAudio,
-			includeVideo: window.remotion_videoEnabled,
+			includeVideo: videoEnabled,
 			isClientSideRendering: environment.isClientSideRendering,
 			loop,
 			audioStreamIndex,
@@ -269,8 +271,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					context.drawImage(imageBitmap, 0, 0);
 
 					imageBitmap.close();
-				} else if (window.remotion_videoEnabled) {
-					// In the case of https://discord.com/channels/809501355504959528/809501355504959531/1424400511070765086
+				} else if (videoEnabled) {
 					// A video that only starts at time 0.033sec
 					// we shall not crash here but clear the canvas
 					const context = canvasRef.current?.getContext('2d', {
@@ -353,6 +354,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		toneFrequency,
 		trimAfterValue,
 		trimBeforeValue,
+		audioEnabled,
+		videoEnabled,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -386,14 +389,14 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				volume={volumeProp}
 				id={id}
 				onError={fallbackOffthreadVideoProps?.onError}
-				toneFrequency={fallbackOffthreadVideoProps?.toneFrequency ?? 1}
+				toneFrequency={toneFrequency}
 				// these shouldn't matter during rendering / should not appear at all
 				showInTimeline={false}
 				crossOrigin={undefined}
 				onAutoPlayError={() => undefined}
 				pauseWhenBuffering={false}
-				trimAfter={undefined}
-				trimBefore={undefined}
+				trimAfter={trimAfterValue}
+				trimBefore={trimBeforeValue}
 				useWebAudioApi={false}
 				startFrom={undefined}
 				endAt={undefined}
@@ -414,7 +417,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			return (
 				<Loop
 					layout="none"
-					durationInFrames={calculateMediaDuration({
+					durationInFrames={Internals.calculateMediaDuration({
 						trimAfter: trimAfterValue,
 						mediaDurationInFrames:
 							replaceWithOffthreadVideo.durationInSeconds * fps,

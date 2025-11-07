@@ -2,7 +2,9 @@
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
 		"rootDir": "src",
-		"outDir": "dist"
+		"outDir": "dist",
+		"module": "ESNext",
+		"moduleResolution": "bundler"
 	},
 	"include": ["src"],
 	"references": [{"path": "../core"}]

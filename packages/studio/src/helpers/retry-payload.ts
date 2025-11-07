@@ -3,7 +3,6 @@ import type {
 	Codec,
 	ColorSpace,
 	PixelFormat,
-	ProResProfile,
 	X264Preset,
 } from '@remotion/renderer';
 import type {RenderJob} from '@remotion/studio-shared';
@@ -22,7 +21,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			compositionId: job.compositionId,
 			initialFrame: job.frame,
 			initialStillImageFormat: job.imageFormat,
-			initialVideoImageFormat: defaults.videoImageFormat,
+			initialVideoImageFormat: null,
 			initialJpegQuality: job.jpegQuality ?? defaults.jpegQuality,
 			initialScale: job.scale,
 			initialLogLevel: job.logLevel,
@@ -31,7 +30,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
-			initialProResProfile: defaults.proResProfile as ProResProfile,
+			initialProResProfile: null,
 			initialx264Preset: defaults.x264Preset as X264Preset,
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
 			initialAudioBitrate: defaults.audioBitrate,
@@ -67,6 +66,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHardwareAcceleration: defaults.hardwareAcceleration,
 			initialChromeMode: job.chromeMode,
 			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+			renderDefaults: defaults,
 		};
 	}
 
@@ -75,7 +75,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			type: 'render',
 			initialFrame: 0,
 			compositionId: job.compositionId,
-			initialVideoImageFormat: defaults.videoImageFormat,
+			initialVideoImageFormat: null,
 			initialJpegQuality: job.jpegQuality ?? defaults.jpegQuality,
 			initialScale: job.scale,
 			initialLogLevel: job.logLevel,
@@ -84,7 +84,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
-			initialProResProfile: defaults.proResProfile as ProResProfile,
+			initialProResProfile: null,
 			initialx264Preset: defaults.x264Preset as X264Preset,
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
 			initialAudioBitrate: defaults.audioBitrate,
@@ -121,6 +121,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHardwareAcceleration: defaults.hardwareAcceleration,
 			initialChromeMode: job.chromeMode,
 			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+			renderDefaults: defaults,
 		};
 	}
 
@@ -139,8 +140,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: job.muted,
 			initialEnforceAudioTrack: job.enforceAudioTrack,
-			initialProResProfile:
-				job.proResProfile ?? (defaults.proResProfile as ProResProfile),
+			initialProResProfile: job.proResProfile ?? null,
 			initialx264Preset: job.x264Preset ?? (defaults.x264Preset as X264Preset),
 			initialPixelFormat: job.pixelFormat,
 			initialAudioBitrate: job.audioBitrate,
@@ -176,6 +176,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHardwareAcceleration: job.hardwareAcceleration,
 			initialChromeMode: job.chromeMode,
 			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+			renderDefaults: defaults,
 		};
 	}
 

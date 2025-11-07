@@ -2,7 +2,6 @@ import {
 	normalizeVideoRotation,
 	rotateAndResizeVideoFrame,
 } from './rotate-and-resize-video-frame';
-import {calculateNewDimensionsFromRotateAndScale} from './rotation';
 import {setRemotionImported} from './set-remotion-imported';
 
 export {createAudioEncoder} from './audio-encoder';
@@ -66,8 +65,6 @@ export type {WebCodecsController} from './webcodecs-controller';
 export const WebCodecsInternals = {
 	rotateAndResizeVideoFrame,
 	normalizeVideoRotation,
-	calculateNewDimensionsFromDimensions:
-		calculateNewDimensionsFromRotateAndScale,
 };
 
 setRemotionImported();

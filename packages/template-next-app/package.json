@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "remotion": "remotion studio",
     "render": "remotion render",
     "deploy": "node deploy.mjs"
@@ -19,7 +19,7 @@
     "@remotion/paths": "workspace:*",
     "@remotion/player": "workspace:*",
     "@remotion/shapes": "workspace:*",
-    "next": "15.4.7",
+    "next": "16.0.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "remotion": "workspace:*",
@@ -29,6 +29,7 @@
     "@remotion/eslint-config-flat": "workspace:*",
     "@remotion/eslint-plugin": "workspace:*",
     "@types/node": "20.12.14",
+    "@eslint/js": "9.38.0",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
     "@types/web": "0.0.166",
@@ -39,6 +40,7 @@
     "@typescript-eslint/parser": "8.46.0",
     "eslint-config-next": "15.1.6",
     "typescript": "5.8.2",
+    "typescript-eslint": "8.46.0",
     "prettier": "3.6.0",
     "@eslint/eslintrc": "3.1.0"
   }

@@ -29,6 +29,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 	stack,
 	toneFrequency,
 	showInTimeline,
+	debugOverlay,
 }) => {
 	const environment = useRemotionEnvironment();
 
@@ -107,6 +108,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 			stack={stack ?? null}
 			disallowFallbackToOffthreadVideo={disallowFallbackToOffthreadVideo}
 			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
+			debugOverlay={debugOverlay ?? false}
 		/>
 	);
 };
@@ -133,6 +135,7 @@ export const Video: React.FC<VideoProps> = ({
 	volume,
 	stack,
 	toneFrequency,
+	debugOverlay,
 }) => {
 	return (
 		<InnerVideo
@@ -148,7 +151,9 @@ export const Video: React.FC<VideoProps> = ({
 			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps ?? {}}
 			logLevel={
 				logLevel ??
-				(typeof window !== 'undefined' ? window.remotion_logLevel : 'info')
+				(typeof window !== 'undefined'
+					? (window.remotion_logLevel ?? 'info')
+					: 'info')
 			}
 			loop={loop ?? false}
 			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
@@ -164,6 +169,7 @@ export const Video: React.FC<VideoProps> = ({
 			volume={volume ?? 1}
 			toneFrequency={toneFrequency ?? 1}
 			stack={stack}
+			debugOverlay={debugOverlay ?? false}
 		/>
 	);
 };

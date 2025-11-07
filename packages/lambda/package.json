@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda"
 	},
 	"name": "@remotion/lambda",
-	"version": "4.0.362",
+	"version": "4.0.373",
 	"description": "Render Remotion videos on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -36,7 +36,7 @@
 		"@remotion/streaming": "workspace:*",
 		"@smithy/abort-controller": "4.0.1",
 		"remotion": "workspace:*",
-		"zod": "3.22.3"
+		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@remotion/bundler": "workspace:*",
@@ -48,11 +48,10 @@
 		"@types/mime-types": "2.1.1",
 		"@types/minimist": "1.2.2",
 		"@types/prompt": "^1.1.0",
-		"eslint": "9.19.0",
-		"next": "15.4.7",
+		"eslint": "catalog:",
+		"next": "catalog:",
 		"pureimage": "0.4.13",
-		"zip-lib": "^0.7.2",
-		"@types/node": "20.12.14"
+		"@types/node": "catalog:"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"

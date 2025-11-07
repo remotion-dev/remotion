@@ -21,6 +21,7 @@ test(
 					defaultOutName: null,
 					defaultVideoImageFormat: null,
 					defaultPixelFormat: null,
+					defaultProResProfile: null,
 				},
 				frame: 0,
 				output: '/file/output.png',
@@ -53,6 +54,7 @@ test(
 				defaultOutName: null,
 				defaultVideoImageFormat: null,
 				defaultPixelFormat: null,
+				defaultProResProfile: null,
 			},
 			frame: 0,
 			serveUrl:
@@ -85,6 +87,7 @@ test(
 					defaultOutName: null,
 					defaultVideoImageFormat: null,
 					defaultPixelFormat: null,
+					defaultProResProfile: null,
 				},
 				frame: 200,
 				output: '/file/output.png',
@@ -118,6 +121,7 @@ test(
 					defaultOutName: null,
 					defaultVideoImageFormat: null,
 					defaultPixelFormat: null,
+					defaultProResProfile: null,
 				},
 				// @ts-expect-error
 				imageFormat: 'jjj',

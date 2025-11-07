@@ -55,7 +55,7 @@ export const PlayerVolume: React.FC<{
 	return (
 		<div
 			className={'relative cursor-pointer block pl-4 pr-4 h-full'}
-			onMouseEnter={() => setIsHovered(true)}
+			onPointerEnter={() => setIsHovered(true)}
 		>
 			<button
 				type="button"

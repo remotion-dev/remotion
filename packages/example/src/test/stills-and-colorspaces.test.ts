@@ -21,7 +21,6 @@ const exampleDir = path.join(__dirname, '..', '..');
 
 beforeAll(async () => {
 	await $`bunx remotion browser ensure`.cwd(exampleDir);
-	await $`bunx remotion bundle`.cwd(exampleDir);
 });
 
 test(

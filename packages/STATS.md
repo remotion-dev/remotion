@@ -17,6 +17,7 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/convert.svg?style=flat&color=black&label=@remotion/convert)](https://npmcharts.com/compare/@remotion/convert?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/remotion.svg?style=flat&color=black&label=remotion)](https://npmcharts.com/compare/remotion?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/create-video.svg?style=flat&color=black&label=create-video)](https://npmcharts.com/compare/create-video?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/design.svg?style=flat&color=black&label=@remotion/design)](https://npmcharts.com/compare/@remotion/design?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/enable-scss.svg?style=flat&color=black&label=@remotion/enable-scss)](https://npmcharts.com/compare/@remotion/enable-scss?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/eslint-config.svg?style=flat&color=black&label=@remotion/eslint-config)](https://npmcharts.com/compare/@remotion/eslint-config?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/eslint-config-flat.svg?style=flat&color=black&label=@remotion/eslint-config-flat)](https://npmcharts.com/compare/@remotion/eslint-config-flat?minimal=true)  

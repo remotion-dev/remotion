@@ -4,12 +4,12 @@ import type {
 	Codec,
 	OpenGlRenderer,
 	PixelFormat,
-	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
 import type {TypeOfOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {_InternalTypes} from 'remotion';
 import {Config, ConfigInternals} from './config';
 import {Log} from './log';
 import {parsedCli} from './parsed-cli';
@@ -39,7 +39,7 @@ export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: VideoImageFormat | StillImageFormat;
-	['prores-profile']: ProResProfile;
+	['prores-profile']: _InternalTypes['ProResProfile'];
 	[x264Option.cliFlag]: TypeOfOption<typeof x264Option>;
 	['bundle-cache']: string;
 	['env-file']: string;
@@ -175,7 +175,7 @@ export const parseCommandLine = () => {
 
 	if (parsedCli['prores-profile']) {
 		Config.setProResProfile(
-			String(parsedCli['prores-profile']) as ProResProfile,
+			String(parsedCli['prores-profile']) as _InternalTypes['ProResProfile'],
 		);
 	}
 

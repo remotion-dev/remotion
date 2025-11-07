@@ -1,5 +1,6 @@
 import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
+	_InternalTypes,
 	AudioCodec,
 	BrowserSafeApis,
 	ChromiumOptions,
@@ -8,7 +9,6 @@ import type {
 	OutNameInput,
 	PixelFormat,
 	Privacy,
-	ProResProfile,
 	ServerlessCodec,
 	ToOptions,
 	VideoImageFormat,
@@ -42,7 +42,7 @@ export type RenderMediaOnLambdaInput = {
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
-	proResProfile?: ProResProfile;
+	proResProfile?: _InternalTypes['ProResProfile'];
 	privacy?: Privacy;
 	/**
 	 * @deprecated Renamed to `jpegQuality`

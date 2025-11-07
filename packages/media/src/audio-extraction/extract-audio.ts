@@ -95,6 +95,8 @@ const extractAudioInternal = async ({
 
 	audioManager.logOpenFrames();
 
+	const trimStartToleranceInSeconds = 0.002;
+
 	const audioDataArray: PcmS16AudioData[] = [];
 	for (let i = 0; i < samples.length; i++) {
 		const sample = samples[i];
@@ -124,7 +126,10 @@ const extractAudioInternal = async ({
 
 		if (isFirstSample) {
 			trimStartInSeconds = timeInSeconds - sample.timestamp;
-			if (trimStartInSeconds < 0 && trimStartInSeconds > -1e-10) {
+			if (
+				trimStartInSeconds < 0 &&
+				trimStartInSeconds > -trimStartToleranceInSeconds
+			) {
 				trimStartInSeconds = 0;
 			}
 
@@ -151,6 +156,8 @@ const extractAudioInternal = async ({
 			trimStartInSeconds,
 			trimEndInSeconds,
 			playbackRate,
+			audioDataTimestamp: sample.timestamp,
+			isLast: isLastSample,
 		});
 		audioDataRaw.close();
 

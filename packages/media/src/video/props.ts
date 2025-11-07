@@ -7,7 +7,6 @@ import type {
 
 export type FallbackOffthreadVideoProps = {
 	acceptableTimeShiftInSeconds?: number;
-	toneFrequency?: number;
 	transparent?: boolean;
 	toneMapped?: boolean;
 	onError?: (err: Error) => void;
@@ -46,6 +45,7 @@ type OptionalVideoProps = {
 	trimBefore: number | undefined;
 	toneFrequency: number;
 	showInTimeline: boolean;
+	debugOverlay: boolean;
 };
 
 export type InnerVideoProps = MandatoryVideoProps &

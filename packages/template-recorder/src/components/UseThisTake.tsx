@@ -5,7 +5,6 @@ import { cancelTranscribeOnServer } from "../helpers/cancel-transcribe";
 import { convertInBrowser } from "../helpers/convert-in-browser";
 import { downloadVideo } from "../helpers/download-video";
 import { getExtension } from "../helpers/find-good-supported-codec";
-import { formatMilliseconds } from "../helpers/format-time";
 import { Prefix } from "../helpers/prefixes";
 import { transcribeVideoOnServer } from "../helpers/transcribe-video";
 import { uploadFileToServer } from "../helpers/upload-file";
@@ -52,16 +51,15 @@ export const UseThisTake: React.FC<{
           return convertInBrowser({
             src: src,
             mimeType: blob.mimeType,
-            onProgress: ({ millisecondsWritten }, abortFn) => {
+            onProgress: (progress, abortFn) => {
               setStatus({
                 title: `Converting ${blob.prefix}${blob.endDate}.${extension}`,
-                description: `${formatMilliseconds(millisecondsWritten)} processed`,
+                description: `${Math.round(progress * 100)}% progress`,
                 abort: abortFn,
               });
             },
           });
         })
-        .then((d) => d.save())
         .then((convertedBlob) => {
           setStatus({
             title: `Copying to public folder ${blob.prefix}${blob.endDate}.${extension}`,

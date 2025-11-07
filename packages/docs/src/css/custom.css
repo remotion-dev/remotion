@@ -563,3 +563,8 @@ div[class*='tableOfContents'] {
 		width 0.2s ease,
 		max-width 0.2s ease;
 }
+@media screen and (max-width: 996px) {
+	.copy-markdown-btn {
+		display: none !important;
+	}
+}

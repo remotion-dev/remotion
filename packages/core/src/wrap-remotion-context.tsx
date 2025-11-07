@@ -3,20 +3,17 @@
 // for them to be useable
 
 import React, {useMemo} from 'react';
+import {BufferingContextReact} from './buffering.js';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
 import {CompositionManager} from './CompositionManagerContext.js';
+import {LogLevelContext} from './log-level-context.js';
+import {NonceContext} from './nonce.js';
+import {PreloadContext} from './prefetch-state.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {ResolveCompositionContext} from './ResolveCompositionConfig.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
-import {BufferingContextReact} from './buffering.js';
-import {LogLevelContext} from './log-level-context.js';
-import {NonceContext} from './nonce.js';
-import {PreloadContext} from './prefetch-state.js';
-import {
-	SetTimelineContext,
-	TimelineContext,
-} from './timeline-position-state.js';
+import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
 
 export function useRemotionContexts() {
 	const compositionManagerCtx = React.useContext(CompositionManager);

@@ -9,7 +9,11 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from './audio/use-audio-frame.js';
-import {BufferingContextReact, BufferingProvider} from './buffering.js';
+import {
+	BufferingContextReact,
+	BufferingProvider,
+	useIsPlayerBuffering,
+} from './buffering.js';
 import {calculateMediaDuration} from './calculate-media-duration.js';
 import {
 	CanUseRemotionHooks,
@@ -28,6 +32,7 @@ import {
 	CompositionManager,
 	CompositionSetters,
 } from './CompositionManagerContext.js';
+import {CompositionManagerProvider} from './CompositionManagerProvider.js';
 import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {
@@ -77,22 +82,26 @@ import {
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
-import type {
-	SetTimelineContextValue,
-	TimelineContextValue,
-} from './timeline-position-state.js';
 import * as TimelinePosition from './timeline-position-state.js';
 import {
 	persistCurrentFrame,
 	useTimelineSetFrame,
 } from './timeline-position-state.js';
+import {
+	SetTimelineContext,
+	TimelineContext,
+	type SetTimelineContextValue,
+	type TimelineContextValue,
+} from './TimelineContext.js';
 import {truthy} from './truthy.js';
 import {
 	calculateScale,
 	CurrentScaleContext,
 	PreviewSizeContext,
 } from './use-current-scale.js';
+import {DelayRenderContextType} from './use-delay-render.js';
 import {useLazyComponent} from './use-lazy-component.js';
+import {useAudioEnabled, useVideoEnabled} from './use-media-enabled.js';
 import {
 	useBasicMediaInTimeline,
 	useMediaInTimeline,
@@ -157,6 +166,7 @@ export const Internals = {
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 	RemotionRoot,
+	CompositionManagerProvider,
 	useVideo,
 	getRoot,
 	useMediaVolumeState,
@@ -181,6 +191,7 @@ export const Internals = {
 	compositionsRef,
 	portalNode,
 	waitForRoot,
+	SetTimelineContext,
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
 	PrefetchProvider,
@@ -227,6 +238,12 @@ export const Internals = {
 	useBasicMediaInTimeline,
 	getInputPropsOverride,
 	setInputPropsOverride,
+	useVideoEnabled,
+	useAudioEnabled,
+	useIsPlayerBuffering,
+	TimelinePosition,
+	DelayRenderContextType,
+	TimelineContext,
 } as const;
 
 export type {

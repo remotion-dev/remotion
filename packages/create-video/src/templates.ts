@@ -37,19 +37,20 @@ export type Template = {
 		| 'google-tts'
 		| 'audiogram'
 		| 'music-visualization'
+		| 'prompt-to-video'
 		| 'skia'
 		| 'overlay'
 		| 'stargazer'
 		| 'tiktok'
 		| 'code-hike'
 		| 'render-server'
-		| 'recorder'
-		| 'editor-starter';
+		| 'recorder';
 	defaultBranch: string;
 	featuredOnHomePage: string | null;
 	previewURL: string | null;
 	templateInMonorepo: string;
 	allowEnableTailwind: boolean;
+	contributedBy: string | null;
 } & DynamicTemplate;
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
@@ -79,6 +80,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: 'https://remotion-helloworld.vercel.app/?/HelloWorld',
 		templateInMonorepo: 'template-helloworld',
 		allowEnableTailwind: true,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'Next.js (App dir)',
@@ -100,6 +102,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: 'https://next.remotion.dev',
 		templateInMonorepo: 'template-next-app',
 		allowEnableTailwind: false,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'Next.js (App dir + TailwindCSS)',
@@ -121,6 +124,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: 'https://next.remotion.dev',
 		templateInMonorepo: 'template-next-app-tailwind',
 		allowEnableTailwind: false,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'Next.js (Pages dir)',
@@ -142,6 +146,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: 'https://next.remotion.dev',
 		templateInMonorepo: 'template-next-pages',
 		allowEnableTailwind: false,
+		contributedBy: null,
 	},
 
 	{
@@ -164,6 +169,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: 'https://template-empty.vercel.app/?/MyComp',
 		templateInMonorepo: 'template-blank',
 		allowEnableTailwind: true,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'Recorder',
@@ -185,6 +191,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-recorder',
 		allowEnableTailwind: false,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'JavaScript',
@@ -207,6 +214,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			'https://template-helloworld-javascript.vercel.app/?/HelloWorld',
 		templateInMonorepo: 'template-javascript',
 		allowEnableTailwind: true,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'Render Server (Express.js)',
@@ -228,6 +236,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-render-server',
 		allowEnableTailwind: false,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'React Router 7',
@@ -249,6 +258,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-react-router',
 		allowEnableTailwind: false,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: '3D',
@@ -270,6 +280,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: 'https://template-three-remotion.vercel.app/',
 		templateInMonorepo: 'template-three',
 		allowEnableTailwind: false,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'Stills',
@@ -291,6 +302,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: 'https://template-still.vercel.app/?/PreviewCard',
 		templateInMonorepo: 'template-still',
 		allowEnableTailwind: false,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Azure)',
@@ -312,6 +324,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-tts-azure',
 		allowEnableTailwind: false,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Google)',
@@ -333,6 +346,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-tts-google',
 		allowEnableTailwind: false,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'Audiogram',
@@ -354,6 +368,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: 'https://template-audiogram-1nrh.vercel.app',
 		templateInMonorepo: 'template-audiogram',
 		allowEnableTailwind: true,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'Music Visualization',
@@ -375,6 +390,29 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-music-visualization',
 		allowEnableTailwind: true,
+		contributedBy: null,
+	},
+	{
+		homePageLabel: 'Prompt to Video',
+		shortName: 'Prompt to Video',
+		org: 'remotion-dev',
+		repoName: 'template-prompt-to-video',
+		description: 'Create a story with images and voiceover from a prompt',
+		longerDescription:
+			'A template that turns prompts into short videos with a script, images and voiceover. Uses OpenAI and ElevenLabs to generate the content.',
+		promoVideo: {
+			muxId: 'FGl01Rw6c5YOjBCTdVhn5wrmVaRWDOjDeT28iY3Sv47w',
+			height: 1920,
+			width: 1080,
+		},
+		cliId: 'prompt-to-video' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		templateInMonorepo: 'template-prompt-to-video',
+		allowEnableTailwind: true,
+		contributedBy: 'webmonch',
 	},
 	{
 		homePageLabel: 'Skia',
@@ -395,6 +433,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-skia',
 		allowEnableTailwind: false,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'Overlay',
@@ -421,6 +460,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-overlay',
 		allowEnableTailwind: true,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'Code Hike',
@@ -445,6 +485,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: 'https://template-code-hike.vercel.app/',
 		templateInMonorepo: 'template-code-hike',
 		allowEnableTailwind: false,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'Stargazer',
@@ -466,6 +507,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-stargazer',
 		allowEnableTailwind: true,
+		contributedBy: null,
 	},
 	{
 		homePageLabel: 'TikTok',
@@ -487,6 +529,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewURL: null,
 		templateInMonorepo: 'template-tiktok',
 		allowEnableTailwind: true,
+		contributedBy: null,
 	},
 ].filter(truthy);
 

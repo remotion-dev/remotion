@@ -7,3 +7,4 @@ vitest.config.mts
 *.tgz
 .turbo
 tsconfig.json
+bundle.ts

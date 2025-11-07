@@ -1,15 +1,8 @@
-import type {
-	MediaParserAudioCodec,
-	MediaParserContainer,
-	MediaParserVideoCodec,
-} from '@remotion/media-parser';
-import type {
-	ConvertMediaAudioCodec,
-	ConvertMediaContainer,
-} from '@remotion/webcodecs';
+import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
+import type {InputContainer, OutputContainer} from '~/seo';
 
 export const renderHumanReadableAudioCodec = (
-	codec: MediaParserAudioCodec | ConvertMediaAudioCodec,
+	codec: InputAudioTrack['codec'],
 ) => {
 	if (codec === 'opus') {
 		return 'Opus';
@@ -17,10 +10,6 @@ export const renderHumanReadableAudioCodec = (
 
 	if (codec === 'aac') {
 		return 'AAC';
-	}
-
-	if (codec === 'aiff') {
-		return 'AIFF';
 	}
 
 	if (codec === 'mp3') {
@@ -51,22 +40,64 @@ export const renderHumanReadableAudioCodec = (
 		return 'Vorbis';
 	}
 
-	if (codec === 'wav') {
-		return 'WAV';
-	}
-
 	if (codec === 'flac') {
 		return 'FLAC';
+	}
+
+	if (codec === 'alaw') {
+		return 'A-law';
+	}
+
+	if (codec === 'ulaw') {
+		return 'μ-law';
+	}
+
+	if (codec === 'pcm-s8') {
+		return 'PCM 8-bit signed integer';
+	}
+
+	if (codec === 'pcm-s16be') {
+		return 'PCM 16-bit big-endian signed integer';
+	}
+
+	if (codec === 'pcm-s24be') {
+		return 'PCM 24-bit big-endian signed integer';
+	}
+
+	if (codec === 'pcm-s32be') {
+		return 'PCM 32-bit big-endian signed integer';
+	}
+
+	if (codec === 'pcm-f32be') {
+		return 'PCM 32-bit big-endian float';
+	}
+
+	if (codec === 'pcm-f64be') {
+		return 'PCM 64-bit big-endian float';
+	}
+
+	if (codec === 'pcm-f64') {
+		return 'PCM 64-bit little-endian float';
 	}
 
 	if (codec === 'ac3') {
 		return 'AC3';
 	}
 
+	if (codec === 'aiff') {
+		return 'AIFF';
+	}
+
+	if (codec === null) {
+		return 'Unknown';
+	}
+
 	throw new Error(`Unknown audio codec ${codec satisfies never}`);
 };
 
-export const renderHumanReadableVideoCodec = (codec: MediaParserVideoCodec) => {
+export const renderHumanReadableVideoCodec = (
+	codec: InputVideoTrack['codec'],
+) => {
 	if (codec === 'vp8') {
 		return 'VP8';
 	}
@@ -79,6 +110,18 @@ export const renderHumanReadableVideoCodec = (codec: MediaParserVideoCodec) => {
 		return 'AV1';
 	}
 
+	if (codec === 'avc') {
+		return 'H.264';
+	}
+
+	if (codec === 'hevc') {
+		return 'H.265';
+	}
+
+	if (codec === 'prores') {
+		return 'ProRes';
+	}
+
 	if (codec === 'h264') {
 		return 'H.264';
 	}
@@ -87,15 +130,15 @@ export const renderHumanReadableVideoCodec = (codec: MediaParserVideoCodec) => {
 		return 'H.265';
 	}
 
-	if (codec === 'prores') {
-		return 'ProRes';
+	if (codec === null) {
+		return 'Unknown';
 	}
 
 	throw new Error(`Unknown video codec ${codec satisfies never}`);
 };
 
 export const renderHumanReadableContainer = (
-	container: MediaParserContainer | ConvertMediaContainer,
+	container: InputContainer | OutputContainer,
 ) => {
 	if (container === 'webm') {
 		return '.webm';
@@ -109,28 +152,20 @@ export const renderHumanReadableContainer = (
 		return '.wav';
 	}
 
-	if (container === 'avi') {
-		return '.avi';
+	if (container === 'mov') {
+		return '.mov';
 	}
 
-	if (container === 'mp3') {
-		return '.mp3';
+	if (container === 'mkv') {
+		return '.mkv';
 	}
 
 	if (container === 'aac') {
 		return '.aac';
 	}
 
-	if (container === 'transport-stream') {
-		return '.ts';
-	}
-
-	if (container === 'flac') {
-		return '.flac';
-	}
-
-	if (container === 'm3u8') {
-		return '.m3u8';
+	if (container === 'mp3') {
+		return '.mp3';
 	}
 
 	throw new Error(`Unknown container ${container satisfies never}`);

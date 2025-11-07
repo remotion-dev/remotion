@@ -1,0 +1,60 @@
+---
+image: /generated/articles-docs-mediabunny-can-decode.png
+title: Check if a video can be decoded using Mediabunny
+crumb: 'Mediabunny'
+sidebar_label: Check if video can be decoded
+---
+
+Before attempting to load a video into [`<Video>`](/docs/media/video), you may want to check if the video can be decoded by the browser. This can be done using [Mediabunny](https://mediabunny.dev).
+
+Here's a `canDecode()` function you can copy and paste into your project:
+
+```ts twoslash title="can-decode.ts"
+import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+
+export const canDecode = async (src: string) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src),
+  });
+
+  try {
+    await input.getFormat();
+  } catch {
+    return false;
+  }
+
+  const videoTrack = await input.getPrimaryVideoTrack();
+  if (videoTrack && !(await videoTrack.canDecode())) {
+    return false;
+  }
+
+  const audioTrack = await input.getPrimaryAudioTrack();
+  if (audioTrack && !(await audioTrack.canDecode())) {
+    return false;
+  }
+
+  return true;
+};
+```
+
+## Usage
+
+### Check if a video can be decoded
+
+```ts
+const src = 'https://remotion.media/video.mp4';
+const isDecodable = await canDecode(src);
+
+if (isDecodable) {
+  console.log('Video can be decoded');
+} else {
+  console.log('Video cannot be decoded');
+}
+```
+
+## See also
+
+- [Mediabunny Documentation](https://mediabunny.dev)
+- [Extracting video frames](/docs/mediabunny/extract-frames)
+- [Supported formats](/docs/mediabunny/formats)

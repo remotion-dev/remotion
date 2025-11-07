@@ -117,7 +117,7 @@ export const SharedPlayerContexts: React.FC<{
 		<Internals.RemotionEnvironmentContext.Provider value={env}>
 			<Internals.LogLevelContext.Provider value={logLevelContext}>
 				<Internals.CanUseRemotionHooksProvider>
-					<Internals.Timeline.TimelineContext.Provider value={timelineContext}>
+					<Internals.TimelineContext.Provider value={timelineContext}>
 						<Internals.CompositionManager.Provider
 							value={compositionManagerContext}
 						>
@@ -132,7 +132,6 @@ export const SharedPlayerContexts: React.FC<{
 											>
 												<Internals.SharedAudioContextProvider
 													numberOfAudioTags={numberOfSharedAudioTags}
-													component={component}
 													audioLatencyHint={audioLatencyHint}
 												>
 													<Internals.BufferingProvider>
@@ -145,7 +144,7 @@ export const SharedPlayerContexts: React.FC<{
 								</Internals.PrefetchProvider>
 							</Internals.ResolveCompositionConfig>
 						</Internals.CompositionManager.Provider>
-					</Internals.Timeline.TimelineContext.Provider>
+					</Internals.TimelineContext.Provider>
 				</Internals.CanUseRemotionHooksProvider>
 			</Internals.LogLevelContext.Provider>
 		</Internals.RemotionEnvironmentContext.Provider>

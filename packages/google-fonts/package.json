@@ -3,14 +3,13 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.362",
+	"version": "4.0.373",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"generate": "bun --env-file=.env scripts/update-font-db.ts",
-		"prepublishOnly": "bun run generate",
 		"formatting": "prettier --experimental-cli src --check"
 	},
 	"license": "SEE LICENSE IN LICENSE.md",
@@ -21,11 +20,8 @@
 		"@types/css-font-loading-module": "0.0.14",
 		"@types/prettier": "^2.7.1",
 		"postcss": "8.4.47",
-		"prettier": "3.6.0"
+		"prettier": "catalog:"
 	},
-	"files": [
-		"dist"
-	],
 	"types": "dist/cjs/index.d.ts",
 	"typesVersions": {
 		">=1.0": {
@@ -1366,6 +1362,9 @@
 			],
 			"Electrolize": [
 				"dist/cjs/Electrolize.d.ts"
+			],
+			"ElmsSans": [
+				"dist/cjs/ElmsSans.d.ts"
 			],
 			"Elsie": [
 				"dist/cjs/Elsie.d.ts"
@@ -2858,6 +2857,15 @@
 			"Molle": [
 				"dist/cjs/Molle.d.ts"
 			],
+			"MomoSignature": [
+				"dist/cjs/MomoSignature.d.ts"
+			],
+			"MomoTrustDisplay": [
+				"dist/cjs/MomoTrustDisplay.d.ts"
+			],
+			"MomoTrustSans": [
+				"dist/cjs/MomoTrustSans.d.ts"
+			],
 			"MonaSans": [
 				"dist/cjs/MonaSans.d.ts"
 			],
@@ -3496,6 +3504,9 @@
 			],
 			"NotoSansSyriacEastern": [
 				"dist/cjs/NotoSansSyriacEastern.d.ts"
+			],
+			"NotoSansSyriacWestern": [
+				"dist/cjs/NotoSansSyriacWestern.d.ts"
 			],
 			"NotoSansTC": [
 				"dist/cjs/NotoSansTC.d.ts"
@@ -4801,6 +4812,15 @@
 			],
 			"Staatliches": [
 				"dist/cjs/Staatliches.d.ts"
+			],
+			"StackSansHeadline": [
+				"dist/cjs/StackSansHeadline.d.ts"
+			],
+			"StackSansNotch": [
+				"dist/cjs/StackSansNotch.d.ts"
+			],
+			"StackSansText": [
+				"dist/cjs/StackSansText.d.ts"
 			],
 			"Stalemate": [
 				"dist/cjs/Stalemate.d.ts"

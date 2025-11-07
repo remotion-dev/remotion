@@ -1,10 +1,15 @@
-export const waitForReady = (timeoutInMilliseconds: number) => {
+import type {_InternalTypes} from 'remotion';
+
+export const waitForReady = (
+	timeoutInMilliseconds: number,
+	scope: _InternalTypes['DelayRenderScope'],
+) => {
 	const {promise, resolve, reject} = Promise.withResolvers();
 
 	const start = Date.now();
 
 	const interval = setInterval(() => {
-		if (window.remotion_renderReady === true) {
+		if (scope.remotion_renderReady === true) {
 			resolve(true);
 			clearInterval(interval);
 			return;
@@ -20,7 +25,7 @@ export const waitForReady = (timeoutInMilliseconds: number) => {
 			// TODO: Error message should be just as good
 			reject(
 				new Error(
-					Object.values(window.remotion_delayRenderTimeouts)
+					Object.values(scope.remotion_delayRenderTimeouts)
 						.map((d) => d.label)
 						.join(', '),
 				),

@@ -1,12 +1,9 @@
-import type {ConvertMediaContainer} from '@remotion/webcodecs';
+import type {OutputFormat} from 'mediabunny';
 
-export const getNewName = (
-	name: string,
-	newContainer: ConvertMediaContainer,
-) => {
+export const getNewName = (name: string, newContainer: OutputFormat) => {
 	const parts = name.split('.');
 
 	parts.pop();
 
-	return [...parts, newContainer].join('.');
+	return [...parts].join('.') + newContainer.fileExtension;
 };

@@ -2,11 +2,10 @@ import {buildPackage} from '../.monorepo/builder';
 
 await buildPackage({
 	formats: {
-		cjs: 'use-tsc',
+		cjs: 'build',
 		esm: 'build',
 	},
 	external: 'dependencies',
-
 	entrypoints: [
 		{
 			path: 'src/index.ts',
@@ -18,7 +17,4 @@ await buildPackage({
 		},
 		{path: 'src/regions.ts', target: 'browser'},
 	],
-	filterExternal: (external) => {
-		return external.filter((e) => e !== '@aws-sdk/credential-provider-ini');
-	},
 });

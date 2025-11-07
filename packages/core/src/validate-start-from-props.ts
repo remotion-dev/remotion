@@ -83,7 +83,7 @@ export const validateTrimProps = (
 		}
 	}
 
-	if ((trimAfter as number) < (trimBefore as number)) {
+	if ((trimAfter as number) <= (trimBefore as number)) {
 		throw new TypeError('trimAfter prop must be greater than trimBefore prop.');
 	}
 };

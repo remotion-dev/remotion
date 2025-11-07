@@ -1,2 +1,7 @@
-dist/test/**
+dist/test
 src
+tsconfig.json
+tsconfig.tsbuildinfo
+bundle.ts
+.turbo
+eslint.config.mjs

@@ -7,34 +7,10 @@ pub mod payloads {
     use crate::errors::ErrorWithBacktrace;
     use serde::{Deserialize, Serialize};
 
-    #[derive(Serialize, Deserialize, Debug)]
-    pub struct ImageLayer {
-        pub src: String,
-        pub x: u32,
-        pub y: u32,
-        pub width: u32,
-        pub height: u32,
-    }
-
-    #[derive(Serialize, Deserialize, Debug)]
-    pub struct SolidLayer {
-        pub fill: [u8; 4],
-        pub x: u32,
-        pub y: u32,
-        pub width: u32,
-        pub height: u32,
-    }
-
     #[derive(Serialize, Debug)]
     pub struct ErrorPayload {
         pub error: String,
         pub backtrace: String,
-    }
-
-    #[derive(Serialize, Deserialize, Debug)]
-    pub enum ImageFormat {
-        Png,
-        Jpeg,
     }
 
     #[derive(Serialize, Deserialize, Debug, Clone)]

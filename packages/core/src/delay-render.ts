@@ -4,13 +4,25 @@ import {Log} from './log.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {truthy} from './truthy.js';
 
-if (typeof window !== 'undefined') {
-	window.remotion_renderReady = false;
-}
+export type DelayRenderScope = {
+	remotion_renderReady: boolean;
+	remotion_delayRenderTimeouts: {
+		[key: string]: {
+			label: string | null;
+			timeout: number | Timer;
+			startTime: number;
+		};
+	};
+	remotion_puppeteerTimeout: number;
+	remotion_attempt: number;
+};
 
 let handles: number[] = [];
 if (typeof window !== 'undefined') {
-	window.remotion_delayRenderTimeouts = {};
+	window.remotion_renderReady = false;
+	if (!window.remotion_delayRenderTimeouts) {
+		window.remotion_delayRenderTimeouts = {};
+	}
 }
 
 export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';
@@ -32,6 +44,7 @@ export type DelayRenderOptions = {
  * @private
  */
 export const delayRenderInternal = (
+	scope: DelayRenderScope | undefined,
 	environment: RemotionEnvironment,
 	label?: string,
 	options?: DelayRenderOptions,
@@ -50,13 +63,13 @@ export const delayRenderInternal = (
 	if (environment.isRendering) {
 		const timeoutToUse =
 			(options?.timeoutInMilliseconds ??
-				(typeof window === 'undefined'
+				(typeof scope === 'undefined'
 					? defaultTimeout
-					: (window.remotion_puppeteerTimeout ?? defaultTimeout))) - 2000;
-		if (typeof window !== 'undefined') {
+					: (scope.remotion_puppeteerTimeout ?? defaultTimeout))) - 2000;
+		if (typeof scope !== 'undefined') {
 			const retriesLeft =
-				(options?.retries ?? 0) - (window.remotion_attempt - 1);
-			window.remotion_delayRenderTimeouts[handle] = {
+				(options?.retries ?? 0) - (scope.remotion_attempt - 1);
+			scope.remotion_delayRenderTimeouts[handle] = {
 				label: label ?? null,
 				startTime: Date.now(),
 				timeout: setTimeout(() => {
@@ -78,8 +91,8 @@ export const delayRenderInternal = (
 		}
 	}
 
-	if (typeof window !== 'undefined') {
-		window.remotion_renderReady = false;
+	if (typeof scope !== 'undefined') {
+		scope.remotion_renderReady = false;
 	}
 
 	return handle;
@@ -93,7 +106,12 @@ export const delayRender = (
 	label?: string,
 	options?: DelayRenderOptions,
 ): number => {
-	return delayRenderInternal(getRemotionEnvironment(), label, options);
+	return delayRenderInternal(
+		typeof window !== 'undefined' ? window : undefined,
+		getRemotionEnvironment(),
+		label,
+		options,
+	);
 };
 
 /**
@@ -101,6 +119,7 @@ export const delayRender = (
  * @private
  */
 export const continueRenderInternal = (
+	scope: DelayRenderScope | undefined,
 	handle: number,
 	environment: RemotionEnvironment,
 ): void => {
@@ -119,13 +138,13 @@ export const continueRenderInternal = (
 
 	handles = handles.filter((h) => {
 		if (h === handle) {
-			if (environment.isRendering) {
-				if (!window.remotion_delayRenderTimeouts[handle]) {
+			if (environment.isRendering && scope !== undefined) {
+				if (!scope.remotion_delayRenderTimeouts[handle]) {
 					return false;
 				}
 
 				const {label, startTime, timeout} =
-					window.remotion_delayRenderTimeouts[handle];
+					scope.remotion_delayRenderTimeouts[handle];
 				clearTimeout(timeout);
 				const message = [
 					label ? `"${label}"` : 'A handle',
@@ -135,10 +154,11 @@ export const continueRenderInternal = (
 					.filter(truthy)
 					.join(' ');
 				Log.verbose(
+					// TODO: Scope logLevel
 					{logLevel: window.remotion_logLevel, tag: 'delayRender()'},
 					message,
 				);
-				delete window.remotion_delayRenderTimeouts[handle];
+				delete scope.remotion_delayRenderTimeouts[handle];
 			}
 
 			return false;
@@ -146,8 +166,8 @@ export const continueRenderInternal = (
 
 		return true;
 	});
-	if (handles.length === 0 && typeof window !== 'undefined') {
-		window.remotion_renderReady = true;
+	if (handles.length === 0 && typeof scope !== 'undefined') {
+		scope.remotion_renderReady = true;
 	}
 };
 
@@ -156,5 +176,9 @@ export const continueRenderInternal = (
  * @see [Documentation](https://remotion.dev/docs/continue-render)
  */
 export const continueRender = (handle: number): void => {
-	continueRenderInternal(handle, getRemotionEnvironment());
+	continueRenderInternal(
+		typeof window !== 'undefined' ? window : undefined,
+		handle,
+		getRemotionEnvironment(),
+	);
 };

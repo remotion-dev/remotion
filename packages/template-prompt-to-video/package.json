@@ -1,0 +1,47 @@
+{
+  "name": "template-ai-video",
+  "version": "1.0.0",
+  "description": "Create AI videos using remotion",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc",
+    "gen": "bun cli/cli.ts"
+  },
+  "repository": {},
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/animation-utils": "workspace:*",
+    "@remotion/cli": "workspace:*",
+    "@remotion/google-fonts": "workspace:*",
+    "@remotion/layout-utils": "workspace:*",
+    "@remotion/media": "workspace:*",
+    "@remotion/zod-types": "workspace:*",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "workspace:*",
+    "zod": "3.22.3"
+  },
+  "devDependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.20.0",
+    "@remotion/eslint-config-flat": "workspace:*",
+    "@types/prompts": "^2.4.9",
+    "@types/react": "19.0.0",
+    "@types/uuid": "^11.0.0",
+    "@types/web": "0.0.166",
+    "@types/yargs": "^17.0.33",
+    "chalk": "^5.6.2",
+    "dotenv": "^17.2.3",
+    "eslint": "9.19.0",
+    "ora": "^9.0.0",
+    "prettier": "3.6.0",
+    "prompts": "^2.4.2",
+    "tsx": "^4.20.6",
+    "typescript": "5.8.2",
+    "uuid": "^13.0.0",
+    "yargs": "^18.0.0",
+    "zod-to-json-schema": "^3.24.6"
+  },
+  "private": true
+}

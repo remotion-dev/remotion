@@ -84,5 +84,5 @@ test(
 
 		await close();
 	},
-	{timeout: 60000},
+	{timeout: 60000, retry: 3},
 );

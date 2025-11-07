@@ -7,5 +7,19 @@
 		"lib": ["ES2021", "DOM"],
 		"moduleResolution": "Bundler"
 	},
-	"include": ["src"]
+	"include": ["src"],
+	"references": [
+		{
+			"path": "../svg-3d-engine"
+		},
+		{
+			"path": "../design"
+		},
+		{
+			"path": "../player"
+		},
+		{
+			"path": "../create-video"
+		}
+	]
 }

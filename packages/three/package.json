@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/three"
 	},
 	"name": "@remotion/three",
-	"version": "4.0.362",
+	"version": "4.0.373",
 	"description": "Include React Three Fiber components in a Remotion video",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -31,16 +31,16 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"@react-three/fiber": "9.2.0",
+		"@react-three/fiber": "catalog:",
 		"@types/react-reconciler": "0.32.0",
-		"@types/three": "0.170.0",
-		"@types/web": "0.0.166",
-		"react": "19.0.0",
-		"react-dom": "19.0.0",
+		"@types/three": "catalog:",
+		"@types/web": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"remotion": "workspace:*",
-		"three": "0.178.0",
+		"three": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"keywords": [
 		"remotion",

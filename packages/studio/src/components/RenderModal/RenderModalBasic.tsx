@@ -1,9 +1,9 @@
-import type {Codec, LogLevel, ProResProfile} from '@remotion/renderer';
+import type {Codec, LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {ChangeEvent} from 'react';
 import React, {useCallback, useMemo} from 'react';
-import type {VideoConfig} from 'remotion';
+import type {_InternalTypes, VideoConfig} from 'remotion';
 import {labelProResProfile} from '../../helpers/prores-labels';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkmark} from '../../icons/Checkmark';
@@ -32,9 +32,9 @@ export const RenderModalBasic: React.FC<{
 	readonly codec: Codec;
 	readonly setVideoCodec: (newCodec: Codec) => void;
 	readonly outName: string;
-	readonly proResProfile: ProResProfile | null;
+	readonly proResProfile: _InternalTypes['ProResProfile'] | null;
 	readonly setProResProfile: React.Dispatch<
-		React.SetStateAction<ProResProfile>
+		React.SetStateAction<_InternalTypes['ProResProfile']>
 	>;
 	readonly frame: number;
 	readonly setFrame: React.Dispatch<React.SetStateAction<number>>;

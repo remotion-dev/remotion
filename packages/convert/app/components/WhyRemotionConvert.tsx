@@ -1,3 +1,4 @@
+import {Card} from '@remotion/design';
 import React from 'react';
 import {AwesomeIcon} from './AwesomeIcon';
 import {BoltIcon} from './BoltIcon';
@@ -10,10 +11,10 @@ export const WhyRemotionConvert: React.FC = () => {
 			<h2 className="font-brand text-xl font-bold mt-14">
 				Why use Remotion Convert?
 			</h2>
-			<div className="h-20" />
+			<div className="h-10" />
 			<div className="m-auto inline-block">
-				<div className="inline-flex flex-col lg:flex-row gap-12">
-					<div className="w-[300px] text-left">
+				<div className="inline-flex flex-col lg:flex-row gap-8">
+					<Card className="lg:w-[300px] text-left px-4 py-6">
 						<BoltIcon />
 						<div className="h-4" />
 						<div className="font-brand font-bold text-2xl mb-2">
@@ -21,11 +22,10 @@ export const WhyRemotionConvert: React.FC = () => {
 						</div>
 						<div className="font-brand text-black/90">
 							Remotion Convert leverages WebCodecs technology, taking full
-							advantage of the hardware acceleration of your device. No other
-							site can do this!
+							advantage of the hardware acceleration of your device.
 						</div>
-					</div>
-					<div className="w-[300px] text-left">
+					</Card>
+					<Card className="lg:w-[300px] text-left px-4 py-6">
 						<LockIcon />
 						<div className="h-4" />
 						<div className="font-brand font-bold text-2xl mb-2">
@@ -37,8 +37,8 @@ export const WhyRemotionConvert: React.FC = () => {
 							this device.
 							<br />
 						</div>
-					</div>
-					<div className="w-[300px] text-left">
+					</Card>
+					<Card className="lg:w-[300px] text-left px-4 py-6">
 						<AwesomeIcon />
 						<div className="h-4" />
 						<div className="font-brand font-bold text-2xl mb-2">
@@ -48,17 +48,17 @@ export const WhyRemotionConvert: React.FC = () => {
 							This site is free to use and has no ads.
 						</div>
 						<div className="font-brand">
-							It simply serves as a demo of{' '}
+							It simply serves as a GUI for{' '}
 							<a
-								href="https://remotion.dev/webcodecs"
+								href="https://mediabunny.dev"
 								target="_blank"
 								className="text-brand hover:underline underline-offset-4"
 							>
-								our solution for developers to convert videos programmatically
-								in the browser!
+								Mediabunny
 							</a>
+							, an open-source multimedia library we love!
 						</div>
-					</div>
+					</Card>
 				</div>
 				<div className="h-20" />
 				<Footer routeAction={{type: 'generic-convert'}} />

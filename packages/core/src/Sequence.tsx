@@ -14,11 +14,9 @@ import {
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
+import {TimelineContext} from './TimelineContext.js';
 import {useNonce} from './nonce.js';
-import {
-	TimelineContext,
-	useTimelinePosition,
-} from './timeline-position-state.js';
+import {useTimelinePosition} from './timeline-position-state.js';
 import {useVideoConfig} from './use-video-config.js';
 
 import {Freeze} from './freeze.js';

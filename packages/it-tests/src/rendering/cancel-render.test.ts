@@ -1,21 +1,9 @@
-import {afterEach, beforeAll, beforeEach, expect, test} from 'bun:test';
+import {afterEach, beforeEach, expect, test} from 'bun:test';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
 
 const outputPath = path.join(process.cwd(), 'packages/example/out.mp4');
-
-beforeAll(async () => {
-	/**
-	 * Before running any of these tests, we should bundle the example project. In the CI, this is already done.
-	 */
-	if (process.env.CI) {
-		return;
-	}
-	await execa('bun', ['x', 'remotion', 'bundle'], {
-		cwd: path.join(process.cwd(), '..', 'example'),
-	});
-});
 
 beforeEach(() => {
 	if (fs.existsSync(outputPath)) {
@@ -37,7 +25,7 @@ test(
 				'x',
 				'remotion',
 				'render',
-				'build',
+				'./build',
 				'cancel-render',
 				'--frames=2-10',
 				outputPath,

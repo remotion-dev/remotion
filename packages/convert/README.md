@@ -1,10 +1,7 @@
-# convert.remotion.dev
+# remotion.dev/convert
 
-The source code for [convert.remotion.dev](https://convert.remotion.dev), a fast video converter powered by WebCodecs.
+The source code for [remotion.dev/convert](https://remotion.dev/convert), a fast video converter powered by Mediabunny.
 
 ## License
 
-This package requires [`@remotion/webcodecs`](https://remotion.dev/webcodecs) which has a commercial license.
-
-Besides this dependency, the code in this subdirectory is licensed under MIT.  
-Exceptions are the icons which are licensed from Font Awesome and the font which is licensed from Grilli Type.
+MIT
