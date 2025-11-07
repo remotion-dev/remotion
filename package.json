@@ -13,7 +13,7 @@
 		"testwebcodecs": "turbo run testwebcodecs --no-update-notifier",
 		"testlambda": "turbo run testlambda --concurrency=1 --no-update-notifier",
 		"ci": "turbo run make test --concurrency=1 --no-update-notifier",
-		"watch": "turbo watch make --concurrency=4 --experimental-write-cache",
+		"watch": "turbo watch make --concurrency=2 --experimental-write-cache",
 		"makewhisperweb": "turbo run make --filter='@remotion/whisper-web'",
 		"watchmedia": "turbo watch make --experimental-write-cache --filter='@remotion/media'",
 		"watchwhisperweb": "turbo watch make --experimental-write-cache --filter='@remotion/whisper-web'",
