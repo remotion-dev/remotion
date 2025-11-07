@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.372",
+	"version": "4.0.373",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -1362,6 +1362,9 @@
 			],
 			"Electrolize": [
 				"dist/cjs/Electrolize.d.ts"
+			],
+			"ElmsSans": [
+				"dist/cjs/ElmsSans.d.ts"
 			],
 			"Elsie": [
 				"dist/cjs/Elsie.d.ts"
@@ -4809,6 +4812,15 @@
 			],
 			"Staatliches": [
 				"dist/cjs/Staatliches.d.ts"
+			],
+			"StackSansHeadline": [
+				"dist/cjs/StackSansHeadline.d.ts"
+			],
+			"StackSansNotch": [
+				"dist/cjs/StackSansNotch.d.ts"
+			],
+			"StackSansText": [
+				"dist/cjs/StackSansText.d.ts"
 			],
 			"Stalemate": [
 				"dist/cjs/Stalemate.d.ts"
