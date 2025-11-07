@@ -16,7 +16,8 @@
 		"clear": "docusaurus clear",
 		"lint": "eslint src components",
 		"test": "bun test src",
-		"remotion": "remotion studio src/remotion/entry.ts"
+		"remotion": "remotion studio src/remotion/entry.ts",
+		"render-cards": "bun run render-cards.ts"
 	},
 	"dependencies": {
 		"@algora/sdk": "^0.1.2",
