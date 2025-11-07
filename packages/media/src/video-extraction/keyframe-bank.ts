@@ -145,10 +145,14 @@ export const makeKeyframeBank = ({
 
 		// If the requested timestamp is before the start of this bank, clamp it to the start if within tolerance. This handles videos that don't start at timestamp 0.
 		// For example, requesting frame at 0sec when video starts at 0.04sec should return the frame at 0.04sec.
+		// Test case: https://github.com/remotion-dev/remotion/issues/5915
 
 		let adjustedTimestamp = timestampInSeconds;
 
-		if (timestampInSeconds < startTimestampInSeconds) {
+		if (
+			roundTo4Digits(timestampInSeconds) <
+			roundTo4Digits(startTimestampInSeconds)
+		) {
 			const differenceInSeconds = startTimestampInSeconds - timestampInSeconds;
 
 			if (differenceInSeconds <= maxClampToleranceInSeconds) {
@@ -162,7 +166,9 @@ export const makeKeyframeBank = ({
 			}
 		}
 
-		if (adjustedTimestamp > endTimestampInSeconds) {
+		if (
+			roundTo4Digits(adjustedTimestamp) > roundTo4Digits(endTimestampInSeconds)
+		) {
 			return Promise.reject(
 				new Error(
 					`Timestamp is after end timestamp (requested: ${timestampInSeconds}sec, end: ${endTimestampInSeconds}sec)`,
