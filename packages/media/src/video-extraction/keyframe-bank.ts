@@ -140,23 +140,43 @@ export const makeKeyframeBank = ({
 	): Promise<VideoSample | null> => {
 		lastUsed = Date.now();
 
-		if (timestampInSeconds < startTimestampInSeconds) {
+		// Videos may start slightly after timestamp 0 due to encoding, but if the requested timestamp is too far before the bank start, something is likely wrong.
+		const maxClampToleranceInSeconds = 0.1;
+
+		// If the requested timestamp is before the start of this bank, clamp it to the start if within tolerance. This handles videos that don't start at timestamp 0.
+		// For example, requesting frame at 0sec when video starts at 0.04sec should return the frame at 0.04sec.
+		// Test case: https://github.com/remotion-dev/remotion/issues/5915
+
+		let adjustedTimestamp = timestampInSeconds;
+
+		if (
+			roundTo4Digits(timestampInSeconds) <
+			roundTo4Digits(startTimestampInSeconds)
+		) {
+			const differenceInSeconds = startTimestampInSeconds - timestampInSeconds;
+
+			if (differenceInSeconds <= maxClampToleranceInSeconds) {
+				adjustedTimestamp = startTimestampInSeconds;
+			} else {
+				return Promise.reject(
+					new Error(
+						`Timestamp is before start timestamp (requested: ${timestampInSeconds}sec, start: ${startTimestampInSeconds}sec, difference: ${differenceInSeconds.toFixed(3)}sec exceeds tolerance of ${maxClampToleranceInSeconds}sec)`,
+					),
+				);
+			}
+		}
+
+		if (
+			roundTo4Digits(adjustedTimestamp) > roundTo4Digits(endTimestampInSeconds)
+		) {
 			return Promise.reject(
 				new Error(
-					`Timestamp is before start timestamp (requested: ${timestampInSeconds}sec, start: ${startTimestampInSeconds})`,
+					`Timestamp is after end timestamp (requested: ${timestampInSeconds}sec, end: ${endTimestampInSeconds}sec)`,
 				),
 			);
 		}
 
-		if (timestampInSeconds > endTimestampInSeconds) {
-			return Promise.reject(
-				new Error(
-					`Timestamp is after end timestamp (requested: ${timestampInSeconds}sec, end: ${endTimestampInSeconds})`,
-				),
-			);
-		}
-
-		await ensureEnoughFramesForTimestamp(timestampInSeconds);
+		await ensureEnoughFramesForTimestamp(adjustedTimestamp);
 
 		for (let i = frameTimestamps.length - 1; i >= 0; i--) {
 			const sample = frames[frameTimestamps[i]];
@@ -165,11 +185,10 @@ export const makeKeyframeBank = ({
 			}
 
 			if (
-				roundTo4Digits(sample.timestamp) <=
-					roundTo4Digits(timestampInSeconds) ||
+				roundTo4Digits(sample.timestamp) <= roundTo4Digits(adjustedTimestamp) ||
 				// Match 0.3333333333 to 0.33355555
 				// this does not satisfy the previous condition, since one rounds up and one rounds down
-				Math.abs(sample.timestamp - timestampInSeconds) <= 0.001
+				Math.abs(sample.timestamp - adjustedTimestamp) <= 0.001
 			) {
 				return sample;
 			}
