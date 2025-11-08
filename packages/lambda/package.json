@@ -36,6 +36,7 @@
 		"@remotion/streaming": "workspace:*",
 		"@smithy/abort-controller": "4.0.1",
 		"remotion": "workspace:*",
+		"esbuild": "0.18.6",
 		"zod": "3.23.8"
 	},
 	"devDependencies": {

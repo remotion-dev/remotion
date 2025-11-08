@@ -39,7 +39,7 @@ export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
 								}
 
 								compilation.emitAsset(
-									'/canvaskit.wasm',
+									'canvaskit.wasm',
 									new webpack.sources.RawSource(
 										await fs.promises.readFile(src),
 									),

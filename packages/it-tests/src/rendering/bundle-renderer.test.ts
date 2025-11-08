@@ -1,7 +1,7 @@
-import {BundlerInternals} from '@remotion/bundler';
 import {exampleVideos} from '@remotion/example-videos';
 import {RenderInternals} from '@remotion/renderer';
 import {expect, test} from 'bun:test';
+import esbuild from 'esbuild';
 import {execSync} from 'node:child_process';
 import {copyFileSync, cpSync, readdirSync, rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
@@ -11,7 +11,7 @@ test('Should be able to bundle the renderer', async () => {
 	const outputdir = path.join(tmpdir(), `test-${Math.random()}`);
 	const outfile = path.join(outputdir, 'esbuild-test.js');
 
-	const {errors, warnings} = BundlerInternals.esbuild.buildSync({
+	const {errors, warnings} = esbuild.buildSync({
 		platform: 'node',
 		target: 'node16',
 		bundle: true,

@@ -48,7 +48,7 @@ export const startServer = async (options: {
 	liveEventsServer: LiveEventsServer;
 	close: () => Promise<void>;
 }> => {
-	const [, config] = await BundlerInternals.webpackConfig({
+	const config = await BundlerInternals.webpackConfig({
 		entry: options.entry,
 		userDefinedComponent: options.userDefinedComponent,
 		outDir: null,
@@ -61,7 +61,7 @@ export const startServer = async (options: {
 		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
 	});
 
-	const compiler = webpack(config);
+	const compiler = webpack.rspack(config);
 
 	const wdmMiddleware = wdm(compiler, options.logLevel);
 	const whm = webpackHotMiddleware(compiler, options.logLevel);
