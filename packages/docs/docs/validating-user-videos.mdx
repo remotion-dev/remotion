@@ -30,77 +30,39 @@ This is a simplified example showing the validation flow. In a real application,
 :::
 
 ```tsx twoslash title="ValidatedUploader.tsx"
-const canDecode = async (src: string) => {
+const canDecode = async (src: string | Blob) => {
   return true;
 };
 const upload = async (file: File) => {
   return 'https://example.com/video.mp4';
 };
 // ---cut---
-import {useCallback, useState} from 'react';
 
-type UploadState = {type: 'idle'} | {type: 'validating'} | {type: 'uploading'} | {type: 'ready'; url: string} | {type: 'error'; message: string};
+const handleUpload = async (file: File) => {
+  const isCompatible = await canDecode(file);
 
-export const ValidatedUploader: React.FC = () => {
-  const [state, setState] = useState<UploadState>({type: 'idle'});
+  if (!isCompatible) {
+    // Either notify user or reject the video
+    alert('Video format not supported.');
+    return;
+  }
 
-  const handleUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setState({type: 'validating'});
-      const blobUrl = URL.createObjectURL(file);
-      const isCompatible = await canDecode(blobUrl);
-      URL.revokeObjectURL(blobUrl);
-
-      if (!isCompatible) {
-        setState({
-          type: 'error',
-          message: 'Video format not supported. Please use MP4 (H.264/AAC).',
-        });
-        return;
-      }
-
-      setState({type: 'uploading'});
-      const url = await upload(file);
-      setState({type: 'ready', url});
-    } catch (error) {
-      setState({type: 'error', message: 'Failed to process video'});
-    }
-  }, []);
-
-  return (
-    <div>
-      <input type="file" accept="video/*" onChange={handleUpload} />
-      {state.type === 'error' && <p>{state.message}</p>}
-      {state.type === 'ready' && <p>Video ready: {state.url}</p>}
-    </div>
-  );
+  try {
+    const url = await upload(file);
+    console.log('Video uploaded successfully:', url);
+  } catch (error) {
+    console.error('Failed to process video:', error);
+    alert('Failed to upload video');
+  }
 };
 ```
 
 ## Handling incompatible videos
 
-When a video cannot be decoded, you have two options:
+When a video cannot be decoded, either:
 
-### 1. Reject with clear instructions (Recommended)
-
-Show a clear error message telling users what format is required (see example above).
-
-### 2. Re-encode on the backend
-
-If you need to accept videos in any format, you'll need to re-encode incompatible videos on your backend. This is a complex undertaking that requires:
-
-- **FFmpeg infrastructure** with proper resource limits and monitoring
-- **Job queueing system** to handle concurrent uploads without overloading servers
-- **Progress tracking** to inform users about re-encoding status
-- **File size validation** and limits to prevent abuse
-- **Smart codec handling** - only re-encode incompatible streams (e.g., if video codec is compatible but audio is not, copy the video stream and re-encode only the audio to preserve quality)
-- **Error handling and retry logic** for failed conversions
-- **Storage management** for temporary files during processing
-
-Building a production-grade video re-encoding pipeline is complex and requires significant infrastructure. Consider using cloud transcoding services (AWS MediaConvert, Google Transcoder API, Cloudflare Stream, Mux Video) instead of building your own.
+- reject the video and ask the user to upload a different video
+- re-encode the video on the backend.
 
 ## See also
 
