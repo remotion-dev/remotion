@@ -9,18 +9,22 @@ When building an app that accepts user video uploads, you should validate whethe
 
 ## Checking video compatibility
 
-Use Remotion's [canDecode()](/docs/mediabunny/can-decode) snippet based on [Mediabunny](/docs/mediabunny) to check if a video can be decoded by the browser.
+Use the [`canDecode()`](/docs/mediabunny/can-decode) snippet to check if a video can be decoded by the browser.
 
 The `canDecode()` function checks if a video can be played in the browser and loaded into [`<Video>`](/docs/media/video) from `@remotion/media`.
 
 :::note
 Different Remotion video components have different format compatibilities:
 
-- **[`<Video>`](/docs/media/video)**: Mediabunny-based custom video tag with broad format support
+- **[`<Video>`](/docs/media/video)**: Mediabunny-based custom video tag with support for the most important video formats.
 - **[`<Html5Video>`](/docs/html5-video)**: Uses browser's native decoding using `<video>` element
 - **[`<OffthreadVideo>`](/docs/offthreadvideo)**: Supports more formats during rendering, uses `<Html5Video>` for preview in the Player and Studio
 
 Learn more about the supported media formats: [Video formats](/docs/miscellaneous/video-formats)
+:::
+
+:::note
+Caveat: In `@remotion/media`, videos with a H.265 codec are supported in the regular browser, but during rendering, they fall back to [`<OffthreadVideo>`](/docs/offthreadvideo).
 :::
 
 ## Validation example in React
