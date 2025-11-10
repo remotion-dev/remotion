@@ -339,15 +339,17 @@ export class MediaPlayer {
 			return;
 		}
 
-		const newAudioSyncAnchor =
-			this.sharedAudioContext.currentTime -
-			newTime / (this.playbackRate * this.globalPlaybackRate);
-		const diff = Math.abs(newAudioSyncAnchor - this.audioSyncAnchor);
-		if (diff > 0.04) {
-			this.setPlaybackTime(
-				newTime,
-				this.playbackRate * this.globalPlaybackRate,
-			);
+		if (!this.playing) {
+			const newAudioSyncAnchor =
+				this.sharedAudioContext.currentTime -
+				newTime / (this.playbackRate * this.globalPlaybackRate);
+			const diff = Math.abs(newAudioSyncAnchor - this.audioSyncAnchor);
+			if (diff > 0.04) {
+				this.setPlaybackTime(
+					newTime,
+					this.playbackRate * this.globalPlaybackRate,
+				);
+			}
 		}
 
 		await this.videoIteratorManager?.seek({
