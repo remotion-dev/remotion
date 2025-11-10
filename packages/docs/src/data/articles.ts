@@ -1233,6 +1233,15 @@ export const articles = [
 		slug: 'deno',
 	},
 	{
+		id: 'detect-remotion-video',
+		title: 'Detect if a video was made with Remotion',
+		relativePath: 'docs/detect-remotion.mdx',
+		compId: 'articles-docs-detect-remotion',
+		crumb: 'Techniques',
+		noAi: false,
+		slug: 'detect-remotion-video',
+	},
+	{
 		id: 'distributed-rendering',
 		title: 'Distributed rendering',
 		relativePath: 'docs/distributed-rendering.mdx',
