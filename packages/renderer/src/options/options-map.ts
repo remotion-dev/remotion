@@ -3,6 +3,7 @@ import {audioBitrateOption} from './audio-bitrate';
 import {audioCodecOption} from './audio-codec';
 import {binariesDirectoryOption} from './binaries-directory';
 import {chromeModeOption} from './chrome-mode';
+import {chromeVersionOption} from './chrome-version';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {deleteAfterOption} from './delete-after';
@@ -57,6 +58,7 @@ export const optionsMap = {
 		onBrowserDownload: onBrowserDownloadOption,
 		hardwareAcceleration: hardwareAccelerationOption,
 		chromeMode: chromeModeOption,
+		chromeVersion: chromeVersionOption,
 	},
 	stitchFramesToVideo: {
 		separateAudioTo: separateAudioOption,
@@ -72,6 +74,7 @@ export const optionsMap = {
 		binariesDirectory: binariesDirectoryOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		chromeMode: chromeModeOption,
+		chromeVersion: chromeVersionOption,
 	},
 	getCompositions: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
@@ -82,6 +85,7 @@ export const optionsMap = {
 		binariesDirectory: binariesDirectoryOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		chromeMode: chromeModeOption,
+		chromeVersion: chromeVersionOption,
 	},
 	selectComposition: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
@@ -92,6 +96,7 @@ export const optionsMap = {
 		binariesDirectory: binariesDirectoryOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		chromeMode: chromeModeOption,
+		chromeVersion: chromeVersionOption,
 	},
 	renderFrames: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
@@ -104,6 +109,7 @@ export const optionsMap = {
 		binariesDirectory: binariesDirectoryOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		chromeMode: chromeModeOption,
+		chromeVersion: chromeVersionOption,
 		imageSequencePattern: imageSequencePatternOption,
 	},
 	renderMediaOnLambda: {
@@ -174,11 +180,13 @@ export const optionsMap = {
 		logLevel: logLevelOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		chromeMode: chromeModeOption,
+		chromeVersion: chromeVersionOption,
 	},
 	openBrowser: {
 		logLevel: logLevelOption,
 		onBrowserDownload: onBrowserDownloadOption,
 		chromeMode: chromeModeOption,
+		chromeVersion: chromeVersionOption,
 	},
 	deploySiteLambda: {
 		logLevel: logLevelOption,

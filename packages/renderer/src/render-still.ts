@@ -476,6 +476,7 @@ export const renderStill = (
 		onBrowserDownload,
 		onArtifact,
 		chromeMode,
+		chromeVersion,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
 	} = options;
@@ -539,6 +540,7 @@ export const renderStill = (
 				indent,
 				logLevel,
 				api: 'renderStill()',
+				chromeVersion: chromeVersion ?? null,
 			}),
 		onArtifact: onArtifact ?? null,
 		chromeMode: chromeMode ?? 'headless-shell',

@@ -275,6 +275,8 @@ export const openBrowser = (
 	const logLevel =
 		options?.logLevel ?? (options?.shouldDumpIo ? 'verbose' : 'info');
 
+	const chromeVersion = options?.chromeVersion ?? null;
+
 	return internalOpenBrowser({
 		browser,
 		browserExecutable: browserExecutable ?? null,
@@ -287,6 +289,7 @@ export const openBrowser = (
 			indent,
 			logLevel,
 			api: 'openBrowser()',
+			chromeVersion,
 		}),
 		chromeMode: options?.chromeMode ?? 'headless-shell',
 	});

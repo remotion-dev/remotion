@@ -330,6 +330,7 @@ export const selectComposition = async (
 		binariesDirectory,
 		onBrowserDownload,
 		chromeMode,
+		chromeVersion,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
 	} = options;
@@ -364,6 +365,7 @@ export const selectComposition = async (
 				indent,
 				logLevel,
 				api: 'selectComposition()',
+				chromeVersion: chromeVersion ?? null,
 			}),
 		onServeUrlVisited: () => undefined,
 		chromeMode: chromeMode ?? 'headless-shell',

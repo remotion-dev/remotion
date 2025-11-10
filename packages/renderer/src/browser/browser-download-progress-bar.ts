@@ -8,10 +8,12 @@ export const defaultBrowserDownloadProgress =
 		indent,
 		logLevel,
 		api,
+		chromeVersion,
 	}: {
 		indent: boolean;
 		logLevel: LogLevel;
 		api: string;
+		chromeVersion: string | null;
 	}): OnBrowserDownload =>
 	({chromeMode}) => {
 		if (chromeMode === 'chrome-for-testing') {
@@ -55,6 +57,6 @@ export const defaultBrowserDownloadProgress =
 					}
 				}
 			},
-			version: null,
+			version: chromeVersion,
 		};
 	};

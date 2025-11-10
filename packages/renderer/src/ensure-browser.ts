@@ -23,6 +23,7 @@ type InternalEnsureBrowserOptions = {
 	browserExecutable: BrowserExecutable;
 	indent: boolean;
 	chromeMode: ChromeMode;
+	chromeVersion: string | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.ensureBrowser>;
 
 export type EnsureBrowserOptions = Partial<
@@ -39,12 +40,22 @@ const internalEnsureBrowserUncapped = async ({
 	browserExecutable,
 	onBrowserDownload,
 	chromeMode,
+	chromeVersion,
 }: InternalEnsureBrowserOptions): Promise<BrowserStatus> => {
 	const status = getBrowserStatus({browserExecutable, chromeMode});
 	if (status.type === 'no-browser') {
-		const {onProgress, version} = onBrowserDownload({chromeMode});
+		const {onProgress, version} = onBrowserDownload({
+			chromeMode,
+			chromeVersion,
+		});
 
-		await downloadBrowser({indent, logLevel, onProgress, version, chromeMode});
+		await downloadBrowser({
+			indent,
+			logLevel,
+			onProgress,
+			version: version ?? chromeVersion,
+			chromeMode,
+		});
 	}
 
 	const newStatus = getBrowserStatus({browserExecutable, chromeMode});
@@ -92,6 +103,7 @@ const getBrowserStatus = ({
 export const ensureBrowser = (options?: EnsureBrowserOptions) => {
 	const indent = false;
 	const logLevel = options?.logLevel ?? 'info';
+	const chromeVersion = options?.chromeVersion ?? null;
 
 	return internalEnsureBrowser({
 		browserExecutable: options?.browserExecutable ?? null,
@@ -103,7 +115,9 @@ export const ensureBrowser = (options?: EnsureBrowserOptions) => {
 				api: 'ensureBrowser()',
 				indent: false,
 				logLevel,
+				chromeVersion,
 			}),
 		chromeMode: options?.chromeMode ?? 'headless-shell',
+		chromeVersion,
 	});
 };

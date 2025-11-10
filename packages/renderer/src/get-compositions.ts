@@ -296,6 +296,7 @@ export const getCompositions = (
 		binariesDirectory,
 		offthreadVideoCacheSizeInBytes,
 		chromeMode,
+		chromeVersion,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
 	} = config ?? {};
@@ -329,6 +330,7 @@ export const getCompositions = (
 				indent,
 				logLevel,
 				api: 'getCompositions()',
+				chromeVersion: chromeVersion ?? null,
 			}),
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,

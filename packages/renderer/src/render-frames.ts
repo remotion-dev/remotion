@@ -715,6 +715,7 @@ export const renderFrames = (
 		onBrowserDownload,
 		onArtifact,
 		chromeMode,
+		chromeVersion,
 		offthreadVideoThreads,
 		imageSequencePattern,
 		mediaCacheSizeInBytes,
@@ -788,7 +789,12 @@ export const renderFrames = (
 		forSeamlessAacConcatenation: false,
 		onBrowserDownload:
 			onBrowserDownload ??
-			defaultBrowserDownloadProgress({indent, logLevel, api: 'renderFrames()'}),
+			defaultBrowserDownloadProgress({
+				indent,
+				logLevel,
+				api: 'renderFrames()',
+				chromeVersion: chromeVersion ?? null,
+			}),
 		onArtifact: onArtifact ?? null,
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,

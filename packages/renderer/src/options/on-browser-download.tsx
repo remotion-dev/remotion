@@ -7,7 +7,10 @@ export type DownloadBrowserProgressFn = (progress: {
 	totalSizeInBytes: number;
 }) => void;
 
-export type OnBrowserDownload = (options: {chromeMode: ChromeMode}) => {
+export type OnBrowserDownload = (options: {
+	chromeMode: ChromeMode;
+	chromeVersion: string | null;
+}) => {
 	onProgress: DownloadBrowserProgressFn;
 	version: string | null;
 };

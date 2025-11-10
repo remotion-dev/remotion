@@ -15,7 +15,15 @@ import {ensureBrowser} from '@remotion/renderer';
 await ensureBrowser();
 ```
 
-```tsx twoslash title="Setting a specific Chrome version and listening to progress"
+```tsx twoslash title="Using a specific Chrome version"
+import {ensureBrowser} from '@remotion/renderer';
+
+await ensureBrowser({
+  chromeVersion: '134.0.6998.35',
+});
+```
+
+```tsx twoslash title="Listening to download progress"
 import {ensureBrowser} from '@remotion/renderer';
 
 await ensureBrowser({
@@ -23,7 +31,7 @@ await ensureBrowser({
     console.log('Downloading browser');
 
     return {
-      version: '134.0.6998.35',
+      version: null, // Use the default version or the version from chromeVersion option
       onProgress: ({percent}) => {
         console.log(`${Math.round(percent * 100)}% downloaded`);
       },
@@ -40,6 +48,28 @@ An object with the following properties, all of which are optional:
 
 <Options id="chrome-mode" />
 
+### `chromeVersion?`<AvailableFrom v="4.0.374" />
+
+Specify a custom Chrome version to download. By default, Remotion uses a tested version that is bundled with the library.
+
+**Accepted values:**
+- A version string (e.g., `'134.0.6998.35'` for Chrome Headless Shell or `'1161'` for Chrome for Testing on linux-arm64)
+- `null` (default) - Uses Remotion's tested version
+
+**Important:** Before changing the Chrome version, you must manually delete the `node_modules/.remotion` folder to clear old browser binaries.
+
+**Example:**
+
+```tsx
+await ensureBrowser({
+  chromeVersion: '134.0.6998.35',
+});
+```
+
+For available Chrome versions, see:
+- [Chrome for Testing versions](https://googlechromelabs.github.io/chrome-for-testing/)
+- [Playwright Chromium builds](https://playwright.azureedge.net/builds/chromium/) (for linux-arm64)
+
 ### `browserExecutable?`
 
 Pass a path to a browser executable that you want to use instead of downloading.  
@@ -52,8 +82,9 @@ Pass the same path to any other API that supports the `browserExecutable` option
 
 ### `onBrowserDownload`
 
-Specify a specific version of Chrome that should be used and hook into the download progress.  
-See the example below for the function signature.
+Hook into the browser download process to monitor progress or override the Chrome version.
+The callback receives an object with `chromeMode` and `chromeVersion` properties.
+For simply setting a Chrome version, use the `chromeVersion` option instead.
 
 ```tsx twoslash title="init.ts"
 import {ensureBrowser, OnBrowserDownload, DownloadBrowserProgressFn} from '@remotion/renderer';
@@ -62,17 +93,20 @@ const onProgress: DownloadBrowserProgressFn = ({percent, downloadedBytes, totalS
   console.log(`${Math.round(percent * 100)}% downloaded`);
 };
 
-const onBrowserDownload: OnBrowserDownload = () => {
+const onBrowserDownload: OnBrowserDownload = ({chromeMode, chromeVersion}) => {
   console.log('Downloading browser');
+  console.log('Chrome mode:', chromeMode);
+  console.log('Chrome version:', chromeVersion);
 
   return {
-    // Pass `null` to use Remotion's recommendation.
-    version: '134.0.6998.35',
+    // Return a version to override the chromeVersion option, or null to use it
+    version: null,
     onProgress,
   };
 };
 
 await ensureBrowser({
+  chromeVersion: '134.0.6998.35', // Can also be specified here
   onBrowserDownload,
 });
 ```
