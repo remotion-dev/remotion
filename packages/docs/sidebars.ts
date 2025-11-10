@@ -1317,7 +1317,7 @@ const sidebars: SidebarsConfig = {
 				'cors-issues',
 				'media-fragments',
 				'react-native',
-				'detect-remotion',
+				'miscellaneous/detect-remotion',
 			],
 		},
 		{
