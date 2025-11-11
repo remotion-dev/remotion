@@ -3,26 +3,29 @@ image: /generated/articles-docs-cancel-render.png
 id: cancel-render
 title: cancelRender()
 sidebar_label: cancelRender()
-crumb: "How to"
+crumb: 'How to'
 ---
 
-_Available from v3.3.44_
+# cancelRender()<AvailableFrom v="3.3.44" />
 
-By invoking `cancelRender()`, Remotion will stop rendering all the frames, and not do any retries.
+By invoking this function, Remotion will stop the current render, and not perform any retries.
 
 Pass a `string` or an `Error` (for best stack traces) to `cancelRender()` so you can identify the error when your render failed.
+
+`cancelRender()` can be imported from the [`remotion`](/docs/remotion) package, but preferrably, you should use the [`useDelayRender()`](/docs/use-delay-render) (from v3.0.374) hook instead, because it future-proofs your code for [browser rendering](/docs/miscellaneous/render-in-browser).
 
 ## Example
 
 ```tsx twoslash title="MyComposition.tsx"
-import React, { useEffect, useState } from "react";
-import { cancelRender, continueRender, delayRender } from "remotion";
+import React, {useEffect, useState} from 'react';
+import {useDelayRender} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  const [handle] = useState(() => delayRender("Fetching data..."));
+  const {delayRender, continueRender, cancelRender} = useDelayRender();
+  const [handle] = useState(() => delayRender('Fetching data...'));
 
   useEffect(() => {
-    fetch("https://example.com")
+    fetch('https://example.com')
       .then(() => {
         continueRender(handle);
       })
@@ -30,6 +33,25 @@ export const MyComp: React.FC = () => {
   }, []);
 
   return null;
+};
+```
+
+```tsx twoslash title="⚠️ Discouraged - global APIs"
+import {useEffect, useState} from 'react';
+import {delayRender, continueRender, cancelRender} from 'remotion';
+
+const MyComp: React.FC = () => {
+  const [handle] = useState(() => delayRender('Fetching data...'));
+
+  useEffect(() => {
+    fetch('https://example.com')
+      .then(() => {
+        continueRender(handle);
+      })
+      .catch((err) => cancelRender(err));
+  }, []);
+
+  return <div>My component</div>;
 };
 ```
 
