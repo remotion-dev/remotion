@@ -2,6 +2,7 @@ import {createContext, useCallback, useContext} from 'react';
 import {cancelRenderInternal} from './cancel-render.js';
 import type {DelayRenderOptions, DelayRenderScope} from './delay-render.js';
 import {continueRenderInternal, delayRenderInternal} from './delay-render.js';
+import {useLogLevel} from './log-level-context.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 
 type DelayRenderFn = (label?: string, options?: DelayRenderOptions) => number;
@@ -19,28 +20,30 @@ export const useDelayRender = (): {
 } => {
 	const environment = useRemotionEnvironment();
 	const scope = useContext(DelayRenderContextType);
+	const logLevel = useLogLevel();
 
 	const delayRender = useCallback<DelayRenderFn>(
 		(label?: string, options?: DelayRenderOptions) => {
-			return delayRenderInternal(
-				scope ?? (typeof window !== 'undefined' ? window : undefined),
+			return delayRenderInternal({
+				scope: scope ?? (typeof window !== 'undefined' ? window : undefined),
 				environment,
-				label,
-				options,
-			);
+				label: label ?? null,
+				options: options ?? {},
+			});
 		},
 		[environment, scope],
 	);
 
 	const continueRender = useCallback<ContinueRenderFn>(
 		(handle: number) => {
-			continueRenderInternal(
-				scope ?? (typeof window !== 'undefined' ? window : undefined),
+			continueRenderInternal({
+				scope: scope ?? (typeof window !== 'undefined' ? window : undefined),
 				handle,
 				environment,
-			);
+				logLevel,
+			});
 		},
-		[environment, scope],
+		[environment, logLevel, scope],
 	);
 
 	const cancelRender = useCallback<CancelRenderFn>(

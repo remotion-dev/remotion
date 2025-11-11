@@ -1,5 +1,6 @@
 import {cancelRenderInternal} from './cancel-render.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import type {LogLevel} from './log.js';
 import {Log} from './log.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {truthy} from './truthy.js';
@@ -44,13 +45,18 @@ export type DelayRenderOptions = {
  * This allows useDelayRender to control its own environment source.
  * @private
  */
-export const delayRenderInternal = (
-	scope: DelayRenderScope | undefined,
-	environment: RemotionEnvironment,
-	label?: string,
-	options?: DelayRenderOptions,
-): number => {
-	if (typeof label !== 'string' && typeof label !== 'undefined') {
+export const delayRenderInternal = ({
+	scope,
+	environment,
+	label,
+	options,
+}: {
+	scope: DelayRenderScope | undefined;
+	environment: RemotionEnvironment;
+	label: string | null;
+	options: DelayRenderOptions;
+}): number => {
+	if (typeof label !== 'string' && label !== null) {
 		throw new Error(
 			'The label parameter of delayRender() must be a string or undefined, got: ' +
 				JSON.stringify(label),
@@ -107,23 +113,29 @@ export const delayRender = (
 	label?: string,
 	options?: DelayRenderOptions,
 ): number => {
-	return delayRenderInternal(
-		typeof window !== 'undefined' ? window : undefined,
-		getRemotionEnvironment(),
-		label,
-		options,
-	);
+	return delayRenderInternal({
+		scope: typeof window !== 'undefined' ? window : undefined,
+		environment: getRemotionEnvironment(),
+		label: label ?? null,
+		options: options ?? {},
+	});
 };
 
 /**
  * Internal function that accepts environment as parameter.
  * @private
  */
-export const continueRenderInternal = (
-	scope: DelayRenderScope | undefined,
-	handle: number,
-	environment: RemotionEnvironment,
-): void => {
+export const continueRenderInternal = ({
+	scope,
+	handle,
+	environment,
+	logLevel,
+}: {
+	scope: DelayRenderScope | undefined;
+	handle: number;
+	environment: RemotionEnvironment;
+	logLevel: LogLevel;
+}): void => {
 	if (typeof handle === 'undefined') {
 		throw new TypeError(
 			'The continueRender() method must be called with a parameter that is the return value of delayRender(). No value was passed.',
@@ -154,11 +166,7 @@ export const continueRenderInternal = (
 				]
 					.filter(truthy)
 					.join(' ');
-				Log.verbose(
-					// TODO: Scope logLevel
-					{logLevel: window.remotion_logLevel, tag: 'delayRender()'},
-					message,
-				);
+				Log.verbose({logLevel, tag: 'delayRender()'}, message);
 				delete scope.remotion_delayRenderTimeouts[handle];
 			}
 
@@ -177,9 +185,10 @@ export const continueRenderInternal = (
  * @see [Documentation](https://remotion.dev/docs/continue-render)
  */
 export const continueRender = (handle: number): void => {
-	continueRenderInternal(
-		typeof window !== 'undefined' ? window : undefined,
+	continueRenderInternal({
+		scope: typeof window !== 'undefined' ? window : undefined,
 		handle,
-		getRemotionEnvironment(),
-	);
+		environment: getRemotionEnvironment(),
+		logLevel: window.remotion_logLevel,
+	});
 };
