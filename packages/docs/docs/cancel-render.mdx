@@ -10,7 +10,11 @@ crumb: 'How to'
 
 By invoking this function, Remotion will stop the current render, and not perform any retries.
 
-Pass a `string` or an `Error` (for best stack traces) to `cancelRender()` so you can identify the error when your render failed.
+Pass a `string` or an `Error` (for best stack traces) to `cancelRender()` so you can identify the error when your render failed.  
+If a `string` is passed, it will be turned into an `Error` object.
+
+[It `throw`s the error](#cancelrender-throws-an-error), so any code after it will not be executed.  
+You might have to catch it to avoid unhandled errors.
 
 `cancelRender()` can be imported from the [`remotion`](/docs/remotion) package, but preferrably, you should use the [`useDelayRender()`](/docs/use-delay-render) (from v3.0.374) hook instead, because it future-proofs your code for [browser rendering](/docs/miscellaneous/render-in-browser).
 
@@ -29,7 +33,9 @@ export const MyComp: React.FC = () => {
       .then(() => {
         continueRender(handle);
       })
-      .catch((err) => cancelRender(err));
+      .catch((err) => {
+        cancelRender(err);
+      });
   }, []);
 
   return null;
@@ -48,11 +54,32 @@ const MyComp: React.FC = () => {
       .then(() => {
         continueRender(handle);
       })
-      .catch((err) => cancelRender(err));
+      .catch((err) => {
+        cancelRender(err);
+      });
   }, []);
 
   return <div>My component</div>;
 };
+```
+
+## `cancelRender()` throws an error
+
+`cancelRender()` also throws an error, so any code after it will not be executed.  
+In [browser rendering](/docs/miscellaneous/render-in-browser), this might lead to an unhandled error that will create noise in your console or error overlay.
+
+Wrap `cancelRender()` in a `try`/`catch` block to avoid this:
+
+```tsx twoslash title="✅ Best practice - wrap cancelRender() in a try/catch block" {4-7}
+import {useDelayRender} from 'remotion';
+
+const {cancelRender} = useDelayRender();
+
+try {
+  cancelRender(new Error('This throws an error'));
+} catch {
+  // Ignore the resulting error
+}
 ```
 
 ## See also
