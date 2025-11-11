@@ -15,8 +15,8 @@ export const waitForReady = (
 			return;
 		}
 
-		if (window.remotion_cancelledError !== undefined) {
-			reject(window.remotion_cancelledError);
+		if (scope.remotion_cancelledError !== undefined) {
+			reject(scope.remotion_cancelledError);
 			clearInterval(interval);
 			return;
 		}

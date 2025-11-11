@@ -1,4 +1,4 @@
-import {cancelRender} from './cancel-render.js';
+import {cancelRenderInternal} from './cancel-render.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {Log} from './log.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
@@ -15,6 +15,7 @@ export type DelayRenderScope = {
 	};
 	remotion_puppeteerTimeout: number;
 	remotion_attempt: number;
+	remotion_cancelledError?: string;
 };
 
 let handles: number[] = [];
@@ -85,7 +86,7 @@ export const delayRenderInternal = (
 						.filter(truthy)
 						.join(' ');
 
-					cancelRender(Error(message));
+					cancelRenderInternal(scope, Error(message));
 				}, timeoutToUse),
 			};
 		}
