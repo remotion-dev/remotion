@@ -3,7 +3,7 @@
 A template for designing still images with dynamic data with built-in server for deploying to the cloud.
 
 <p align="center">
-    <img src="https://remotion-still.herokuapp.com/PreviewCard.jpeg?title=Still%20image%20generator&description=Dynamic%20images%20generation%20service%20with%20full%20design%20freedom&slogan=Powered%20by%0ARemotion&c=1">
+    <img src="cover.png">
 </p>
 
 ## Commands
