@@ -135,6 +135,14 @@ As soon as possible, replace the `blob:` URL with the real URL.
 Since `blob:` URLs don't support the HTTP `Range` header, video seeking performance is degraded when using `blob:` URLs.
 :::
 
+## Validating video compatibility
+
+Before uploading a video, you should validate whether the browser can decode it. This saves bandwidth and provides immediate feedback to the user. For a complete guide on validating user videos including handling incompatible formats, see [Validating user videos](/docs/validating-user-videos).
+
 ## See also
 
 - [Uploading with presigned URLs](/docs/presigned-urls)
+- [Validating user videos](/docs/validating-user-videos)
+- [Video formats](/docs/miscellaneous/video-formats)
+- [Check if video can be decoded](/docs/mediabunny/can-decode)
+- [Mediabunny Documentation](https://mediabunny.dev)

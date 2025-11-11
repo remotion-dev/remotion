@@ -10,12 +10,12 @@ Before attempting to load a video into [`<Video>`](/docs/media/video), you may w
 Here's a `canDecode()` function you can copy and paste into your project:
 
 ```ts twoslash title="can-decode.ts"
-import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+import {ALL_FORMATS, Input, UrlSource, BlobSource} from 'mediabunny';
 
-export const canDecode = async (src: string) => {
+export const canDecode = async (src: string | Blob) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src),
+    source: typeof src === 'string' ? new UrlSource(src) : new BlobSource(src),
   });
 
   try {

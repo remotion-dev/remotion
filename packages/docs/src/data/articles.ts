@@ -6260,6 +6260,15 @@ export const articles = [
 		slug: 'using-randomness',
 	},
 	{
+		id: 'validating-user-videos',
+		title: 'Validating user videos',
+		relativePath: 'docs/validating-user-videos.mdx',
+		compId: 'articles-docs-validating-user-videos',
+		crumb: 'Building video apps',
+		noAi: false,
+		slug: 'validating-user-videos',
+	},
+	{
 		id: 'version-mismatch',
 		title: 'Version mismatch',
 		relativePath: 'docs/version-mismatch.mdx',

@@ -1131,6 +1131,7 @@ const sidebars: SidebarsConfig = {
 				'studio-into-app',
 				'player-into-remotion-project',
 				'video-uploads',
+				'validating-user-videos',
 				'presigned-urls',
 				'font-picker',
 				'building-a-timeline',
