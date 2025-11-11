@@ -189,6 +189,9 @@ export const continueRender = (handle: number): void => {
 		scope: typeof window !== 'undefined' ? window : undefined,
 		handle,
 		environment: getRemotionEnvironment(),
-		logLevel: typeof window !== 'undefined' ? (window.remotion_logLevel ?? 'info') : 'info',
+		logLevel:
+			typeof window !== 'undefined'
+				? (window.remotion_logLevel ?? 'info')
+				: 'info',
 	});
 };
