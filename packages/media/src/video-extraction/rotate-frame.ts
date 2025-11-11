@@ -1,4 +1,4 @@
-export const rotateFrame = ({
+export const rotateFrame = async ({
 	frame,
 	rotation,
 }: {
@@ -6,7 +6,9 @@ export const rotateFrame = ({
 	rotation: number;
 }): Promise<ImageBitmap> => {
 	if (rotation === 0) {
-		return createImageBitmap(frame);
+		const directBitmap = await createImageBitmap(frame);
+		frame.close();
+		return directBitmap;
 	}
 
 	const width =
@@ -38,5 +40,7 @@ export const rotateFrame = ({
 	ctx.rotate(rotation * (Math.PI / 180));
 	ctx.drawImage(frame, 0, 0);
 
-	return createImageBitmap(canvas);
+	const bitmap = await createImageBitmap(canvas);
+	frame.close();
+	return bitmap;
 };
