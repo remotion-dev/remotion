@@ -259,8 +259,14 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 						return;
 					}
 
-					context.canvas.width = imageBitmap.width;
-					context.canvas.height = imageBitmap.height;
+					context.canvas.width =
+						imageBitmap instanceof ImageBitmap
+							? imageBitmap.width
+							: imageBitmap.displayWidth;
+					context.canvas.height =
+						imageBitmap instanceof ImageBitmap
+							? imageBitmap.height
+							: imageBitmap.displayHeight;
 					context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
 					context.drawImage(imageBitmap, 0, 0);
 

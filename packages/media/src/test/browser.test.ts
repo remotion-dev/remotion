@@ -41,6 +41,7 @@ test('Should be able to extract a frame', async () => {
 	assert(audio);
 
 	assert(frame);
+	expect((frame as VideoFrame).timestamp).toBe(1_000_000);
 
 	assert(audio);
 
@@ -93,6 +94,7 @@ test('Should be able to extract the last frame', async () => {
 	const {audio, frame} = result;
 
 	assert(frame);
+	expect((frame as VideoFrame).timestamp).toBe(59_958_333);
 
 	assert(!audio);
 
@@ -214,5 +216,5 @@ test('Should be able to loop', async () => {
 
 	const {frame} = result;
 
-	assert(frame);
+	expect((frame as VideoFrame)?.timestamp).toBe(41_000_000);
 });
