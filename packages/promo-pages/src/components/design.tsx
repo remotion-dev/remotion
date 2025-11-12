@@ -2,6 +2,7 @@ import {
 	Button,
 	Card,
 	Counter,
+	Input,
 	Select,
 	SelectContent,
 	SelectItem,
@@ -98,6 +99,24 @@ export const DesignPage: React.FC = () => {
 						<SelectItem value="option3">Option 3</SelectItem>
 					</SelectContent>
 				</Select>
+				<br />
+				<h2 className="text-brand">&lt;Input /&gt;</h2>
+				<Input placeholder="Enter your email" />
+				<br />
+				<br />
+				<br />
+				<h1>Example form set</h1>
+				<br />
+				<h2>Change email</h2>
+				<p className="font-brand">
+					A email will be sent to the new email address. You will need to click
+					on the link in the email to confirm the change.
+				</p>
+				<Input placeholder="Enter your email" className="w-full block" />
+				<div className="h-2" />
+				<div className="flex flex-row justify-end">
+					<Button className="bg-brand text-white">Change</Button>
+				</div>
 			</div>
 		</div>
 	);

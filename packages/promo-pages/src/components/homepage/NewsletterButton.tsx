@@ -58,9 +58,9 @@ export const NewsletterButton: React.FC<{}> = () => {
 							</div>
 							<div className="flex flex-col md:flex-row gap-2 justify-center">
 								<Input
-									className="w-full dark:bg-[#121212] md:max-w-[400px] rounded-lg border-effect border-black outline-none h-14 px-3 fontbrand text-lg box-border"
 									disabled={submitting}
 									value={email}
+									className="md:max-w-[400px]"
 									onChange={(e) => setEmail(e.target.value)}
 									type={'email'}
 									required
