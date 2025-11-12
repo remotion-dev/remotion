@@ -1717,7 +1717,7 @@
         "connect": "3.7.0",
         "eslint": "9.19.0",
         "lucide-react": "0.516.0",
-        "mediabunny": "1.24.3",
+        "mediabunny": "1.24.5",
         "react": "19.0.0",
         "react-dom": "19.0.0",
         "remotion": "workspace:*",
@@ -2083,7 +2083,7 @@
     "caniuse-lite": "1.0.30001724",
   },
   "catalog": {
-    "@mediabunny/mp3-encoder": "1.24.3",
+    "@mediabunny/mp3-encoder": "1.24.5",
     "@react-three/fiber": "9.2.0",
     "@types/bun": "1.3.0",
     "@types/dom-webcodecs": "0.1.11",
@@ -2093,7 +2093,7 @@
     "@types/three": "0.170.0",
     "@types/web": "0.0.166",
     "eslint": "9.19.0",
-    "mediabunny": "1.24.3",
+    "mediabunny": "1.24.5",
     "next": "16.0.0",
     "openai": "4.67.1",
     "prettier": "3.6.0",
@@ -2965,7 +2965,7 @@
 
     "@mdx-js/react": ["@mdx-js/react@2.3.0", "", { "dependencies": { "@types/mdx": "2.0.5", "@types/react": "19.0.0" }, "peerDependencies": { "react": "19.0.0" } }, "sha512-zQH//gdOmuu7nt2oJR29vFhDv88oGPmVw6BggmrHeMI+xgEkp1B2dX9/bMBSYtK0dyLX/aOmesKS09g222K1/g=="],
 
-    "@mediabunny/mp3-encoder": ["@mediabunny/mp3-encoder@1.24.3", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-h9xq70Hax0FsjwaRORd+GZnj2ReztZAFHXcQkDyyyvf0eEwVnwTA9iZshi5lVAPT2OtrguD51YO+TdpF7us7Jg=="],
+    "@mediabunny/mp3-encoder": ["@mediabunny/mp3-encoder@1.24.5", "", { "peerDependencies": { "mediabunny": "^1.0.0" } }, "sha512-9I1Q+2cmRybAXodxZ1iUIvVxcrjVSTVSyvz7vZS223dN3lrzWpTjiWCf5z6fExIhcJ7cES3RCcNk6aHYO5MrqA=="],
 
     "@mediafox/core": ["@mediafox/core@1.0.4", "", { "peerDependencies": { "mediabunny": "^1.23.0", "typescript": ">=5.0.0" } }, "sha512-1j8PKp835RUVzZt1vcymrgZqhaMobfP7SswbTisusvTgIZL8y5n2QFhSCnn7dze+a53VgnWyzkHOYdtVR1Gdew=="],
 
@@ -5495,7 +5495,7 @@
 
     "media-typer": ["media-typer@0.3.0", "", {}, "sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ=="],
 
-    "mediabunny": ["mediabunny@1.24.3", "", { "dependencies": { "@types/dom-mediacapture-transform": "^0.1.11", "@types/dom-webcodecs": "0.1.13" } }, "sha512-uQu5lXg6c3z2YUKLimAsem1qYPdGfGziQ5CKaAMJAs0C0NNw5T/Zkn0foPML0gWqQJ5ZeC0wTgCxpiBQY8m1Tw=="],
+    "mediabunny": ["mediabunny@1.24.5", "", { "dependencies": { "@types/dom-mediacapture-transform": "^0.1.11", "@types/dom-webcodecs": "0.1.13" } }, "sha512-4Sd5x8WXQiuDKZcJDAiQjyD0Lg/cg9p+dBShCM02F1pMvKdB9R6+WHZ9NFCFSqViVPX2fYSu95ZIpBUg9+TwTQ=="],
 
     "memfs": ["memfs@3.4.3", "", { "dependencies": { "fs-monkey": "1.0.3" } }, "sha512-eivjfi7Ahr6eQTn44nvTnR60e4a1Fs1Via2kCR5lHo/kyNoiMWaXCNJ/GpSd0ilXas2JSOl9B5FTIhflXu0hlg=="],
 
