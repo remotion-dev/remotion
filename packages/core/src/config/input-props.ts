@@ -34,6 +34,12 @@ export const getInputProps = <
 		);
 	}
 
+	if (getRemotionEnvironment().isClientSideRendering) {
+		throw new Error(
+			'You cannot call `getInputProps()` while client-side rendering.',
+		);
+	}
+
 	const override = getInputPropsOverride();
 	if (override) {
 		return override as T;
