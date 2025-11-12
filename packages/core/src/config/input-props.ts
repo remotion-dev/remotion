@@ -34,15 +34,18 @@ export const getInputProps = <
 		);
 	}
 
-	if (getRemotionEnvironment().isClientSideRendering) {
-		throw new Error(
-			'You cannot call `getInputProps()` while client-side rendering.',
-		);
-	}
-
 	const override = getInputPropsOverride();
 	if (override) {
 		return override as T;
+	}
+
+	if (
+		typeof window === 'undefined' ||
+		typeof window.remotion_inputProps === 'undefined'
+	) {
+		throw new Error(
+			'Cannot call `getInputProps()` - window.remotion_inputProps is not set. This API is not available if you are in the Studio, or while you are rendering server-side.',
+		);
 	}
 
 	const param = window.remotion_inputProps;

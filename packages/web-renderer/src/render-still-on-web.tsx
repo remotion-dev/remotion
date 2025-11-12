@@ -1,4 +1,5 @@
 import {type ComponentType, type LazyExoticComponent} from 'react';
+import {flushSync} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import type {_InternalTypes, LogLevel} from 'remotion';
 import {Internals} from 'remotion';
@@ -6,6 +7,7 @@ import {compose} from './compose';
 import {findCanvasElements} from './find-canvas-elements';
 import {findSvgElements} from './find-svg-elements';
 import {waitForReady} from './wait-for-ready';
+import {withResolvers} from './with-resolvers';
 
 type MandatoryRenderStillOnWebOptions<T extends Record<string, unknown>> = {
 	Component: LazyExoticComponent<ComponentType<T>> | ComponentType<T>;
@@ -67,7 +69,14 @@ async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
 	// TODO: delayRender()
 	// TODO: Video config
 
-	const root = ReactDOM.createRoot(div);
+	const {promise, resolve, reject} = withResolvers<void>();
+
+	// TODO: This might not work in React 18
+	const root = ReactDOM.createRoot(div, {
+		onUncaughtError: (err) => {
+			reject(err);
+		},
+	});
 
 	const delayRenderScope: _InternalTypes['DelayRenderScope'] = {
 		remotion_renderReady: true,
@@ -76,74 +85,79 @@ async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
 		remotion_attempt: 0,
 	};
 
-	root.render(
-		<Internals.RemotionEnvironmentContext
-			value={{
-				isStudio: false,
-				isRendering: true,
-				isPlayer: false,
-				isReadOnlyStudio: false,
-				isClientSideRendering: true,
-			}}
-		>
-			<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
-				<Internals.CompositionManagerProvider
-					initialCanvasContent={{
-						type: 'composition',
-						compositionId: COMP_ID,
-					}}
-					onlyRenderComposition={null}
-					// TODO: Hardcoded
-					currentCompositionMetadata={{
-						// TODO: Empty
-						props: {},
-						durationInFrames,
-						fps,
-						height,
-						width,
-						defaultCodec: null,
-						defaultOutName: null,
-						defaultVideoImageFormat: null,
-						defaultPixelFormat: null,
-						defaultProResProfile: null,
-					}}
-					initialCompositions={[
-						{
-							id: COMP_ID,
-							// @ts-expect-error
-							component: Component,
-							nonce: 0,
-							// TODO: Do we need to allow to set this?
-							defaultProps: undefined,
-							folderName: null,
-							parentFolderName: null,
-							schema: null,
-							calculateMetadata: null,
+	flushSync(() => {
+		root.render(
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isStudio: false,
+					isRendering: true,
+					isPlayer: false,
+					isReadOnlyStudio: false,
+					isClientSideRendering: true,
+				}}
+			>
+				<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
+					<Internals.CompositionManagerProvider
+						initialCanvasContent={{
+							type: 'composition',
+							compositionId: COMP_ID,
+						}}
+						onlyRenderComposition={null}
+						// TODO: Hardcoded
+						currentCompositionMetadata={{
+							// TODO: Empty
+							props: {},
 							durationInFrames,
 							fps,
 							height,
 							width,
-						},
-					]}
-				>
-					<Internals.RemotionRoot
-						audioEnabled={false}
-						videoEnabled
-						logLevel={logLevel}
-						numberOfAudioTags={0}
-						audioLatencyHint="interactive"
-						frameState={{
-							[COMP_ID]: frame,
+							defaultCodec: null,
+							defaultOutName: null,
+							defaultVideoImageFormat: null,
+							defaultPixelFormat: null,
+							defaultProResProfile: null,
 						}}
+						initialCompositions={[
+							{
+								id: COMP_ID,
+								// @ts-expect-error
+								component: Component,
+								nonce: 0,
+								// TODO: Do we need to allow to set this?
+								defaultProps: undefined,
+								folderName: null,
+								parentFolderName: null,
+								schema: null,
+								calculateMetadata: null,
+								durationInFrames,
+								fps,
+								height,
+								width,
+							},
+						]}
 					>
-						<Internals.CanUseRemotionHooks value>
-							<Component {...inputProps} />
-						</Internals.CanUseRemotionHooks>
-					</Internals.RemotionRoot>
-				</Internals.CompositionManagerProvider>
-			</Internals.DelayRenderContextType.Provider>
-		</Internals.RemotionEnvironmentContext>,
-	);
+						<Internals.RemotionRoot
+							audioEnabled={false}
+							videoEnabled
+							logLevel={logLevel}
+							numberOfAudioTags={0}
+							audioLatencyHint="interactive"
+							frameState={{
+								[COMP_ID]: frame,
+							}}
+						>
+							<Internals.CanUseRemotionHooks value>
+								<Component {...inputProps} />
+							</Internals.CanUseRemotionHooks>
+						</Internals.RemotionRoot>
+					</Internals.CompositionManagerProvider>
+				</Internals.DelayRenderContextType.Provider>
+			</Internals.RemotionEnvironmentContext>,
+		);
+	});
+
+	resolve();
+	await promise;
 
 	await waitForReady(delayRenderTimeoutInMilliseconds, delayRenderScope);
 	const canvasElements = findCanvasElements(div);

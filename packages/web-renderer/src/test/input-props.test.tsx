@@ -1,7 +1,8 @@
-import {test} from 'vitest';
+import {getInputProps} from 'remotion';
+import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 
-const MustNotBePlayer: React.FC<{
+const MustAcceptInputProps: React.FC<{
 	abc: string;
 }> = ({abc}) => {
 	if (abc !== 'abc') {
@@ -11,9 +12,14 @@ const MustNotBePlayer: React.FC<{
 	return abc;
 };
 
-test('should not give a false positive when the player is also mounted', async () => {
+const DisallowGetInputProps: React.FC<{}> = () => {
+	getInputProps();
+	return null;
+};
+
+test('cannot call getInputProps() while rendering client-side', async () => {
 	await renderStillOnWeb({
-		Component: MustNotBePlayer,
+		Component: MustAcceptInputProps,
 		width: 100,
 		height: 100,
 		fps: 30,
@@ -21,4 +27,20 @@ test('should not give a false positive when the player is also mounted', async (
 		frame: 20,
 		inputProps: {abc: 'abc'},
 	});
+});
+
+test('cannot call getInputProps() while rendering client-side', async () => {
+	await expect(() => {
+		return renderStillOnWeb({
+			Component: DisallowGetInputProps,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 30,
+			frame: 20,
+			inputProps: {abc: 'abc'},
+		});
+	}).rejects.toThrow(
+		'Cannot call `getInputProps()` - window.remotion_inputProps is not set. This API is not available if you are in the Studio, or while you are rendering server-side.',
+	);
 });
