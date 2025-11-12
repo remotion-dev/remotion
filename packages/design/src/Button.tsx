@@ -2,12 +2,14 @@ import React, {useCallback, useRef, useState} from 'react';
 import {cn} from './helpers/cn';
 import {useHoverTransforms} from './helpers/hover-transforms';
 import {Outer} from './helpers/Outer';
+import {Spinner} from './Spinner';
 
 export const Button: React.FC<
 	React.ButtonHTMLAttributes<HTMLButtonElement> & {
 		readonly depth?: number;
+		readonly loading?: boolean;
 	}
-> = ({children, className, disabled, depth, ...buttonProps}) => {
+> = ({children, className, disabled, depth, loading, ...buttonProps}) => {
 	const [dimensions, setDimensions] = useState<{
 		width: number;
 		height: number;
@@ -15,7 +17,10 @@ export const Button: React.FC<
 	} | null>(null);
 
 	const ref = useRef<HTMLDivElement>(null);
-	const {isActive, progress} = useHoverTransforms(ref, Boolean(disabled));
+	const {isActive, progress} = useHoverTransforms(
+		ref,
+		Boolean(disabled || loading),
+	);
 
 	const onPointerEnter = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -72,7 +77,7 @@ export const Button: React.FC<
 	const content = (
 		<button
 			type="button"
-			disabled={disabled}
+			disabled={disabled || loading}
 			className={cn(
 				'text-text',
 				'flex',
@@ -93,13 +98,25 @@ export const Button: React.FC<
 				'flex-row',
 				'items-center',
 				'disabled:cursor-default',
-				'disabled:border-gray-500',
-				'disabled:text-gray-500',
+				'disabled:opacity-50',
+				'relative',
+				'overflow-hidden',
 				className,
 			)}
 			{...buttonProps}
 		>
-			{children}
+			<div className={cn(loading && 'invisible', 'inline-flex')}>
+				{children}
+			</div>
+			{loading ? (
+				<div
+					className={cn(
+						'absolute w-full h-full flex inset-0 items-center justify-center text-inherit bg-inherit',
+					)}
+				>
+					<Spinner size={20} duration={1} />
+				</div>
+			) : null}
 		</button>
 	);
 
