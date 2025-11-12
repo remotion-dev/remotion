@@ -60,6 +60,7 @@ const internalRenderStillOnWeb = async ({
 	// TODO: Env variables
 	// TODO: Input Props
 	// TODO: Default props
+	// TODO: getInputProps()
 	// TODO: calculateMetadata()
 	// TODO: getRemotionEnvironment()
 	// TODO: delayRender()
@@ -125,13 +126,10 @@ const internalRenderStillOnWeb = async ({
 					]}
 				>
 					<Internals.RemotionRoot
-						// TODO: Hardcoded
 						audioEnabled={false}
-						// TODO: Hardcoded
 						videoEnabled
 						logLevel={logLevel}
 						numberOfAudioTags={0}
-						// TODO: Hardcoded
 						audioLatencyHint="interactive"
 						frameState={{
 							[COMP_ID]: frame,
@@ -146,7 +144,6 @@ const internalRenderStillOnWeb = async ({
 		</Internals.RemotionEnvironmentContext>,
 	);
 
-	// TODO: Scope cancelRender()
 	await waitForReady(delayRenderTimeoutInMilliseconds, delayRenderScope);
 	const canvasElements = findCanvasElements(div);
 	const svgElements = findSvgElements(div);

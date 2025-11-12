@@ -122,13 +122,15 @@ export const getAssetsForMarkup = async (
 						logLevel="info"
 						audioLatencyHint="interactive"
 					>
-						<Internals.CompositionManager.Provider value={value}>
-							<Internals.RenderAssetManager.Provider value={assetContext}>
-								<Internals.ResolveCompositionConfig>
-									<Markup />
-								</Internals.ResolveCompositionConfig>
-							</Internals.RenderAssetManager.Provider>
-						</Internals.CompositionManager.Provider>
+						<Internals.ResolveCompositionConfig>
+							<Internals.CompositionManager.Provider value={value}>
+								<Internals.RenderAssetManager.Provider value={assetContext}>
+									<Internals.ResolveCompositionConfig>
+										<Markup />
+									</Internals.ResolveCompositionConfig>
+								</Internals.RenderAssetManager.Provider>
+							</Internals.CompositionManager.Provider>
+						</Internals.ResolveCompositionConfig>
 					</Internals.RemotionRoot>
 				</Internals.CompositionManagerProvider>
 			</Internals.CanUseRemotionHooksProvider>
