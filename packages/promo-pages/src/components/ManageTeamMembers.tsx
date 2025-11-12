@@ -84,7 +84,7 @@ export const ManageTeamMembers: React.FC = () => {
 		setTimeout(() => {
 			setLoading(false);
 		}, 1000);
-	}, [members]);
+	}, []);
 
 	return (
 		<>
