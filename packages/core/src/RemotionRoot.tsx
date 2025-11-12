@@ -1,7 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {EditorPropsProvider} from './EditorProps.js';
 import {RenderAssetManagerProvider} from './RenderAssetManager.js';
-import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
 import {SequenceManagerProvider} from './SequenceManager.js';
 import {TimelineContextProvider} from './TimelineContext.js';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
@@ -87,16 +86,14 @@ export const RemotionRoot: React.FC<{
 								<PrefetchProvider>
 									<SequenceManagerProvider>
 										<RenderAssetManagerProvider>
-											<ResolveCompositionConfig>
-												<SharedAudioContextProvider
-													numberOfAudioTags={numberOfAudioTags}
-													audioLatencyHint={audioLatencyHint}
-												>
-													<DurationsContextProvider>
-														<BufferingProvider>{children}</BufferingProvider>
-													</DurationsContextProvider>
-												</SharedAudioContextProvider>
-											</ResolveCompositionConfig>
+											<SharedAudioContextProvider
+												numberOfAudioTags={numberOfAudioTags}
+												audioLatencyHint={audioLatencyHint}
+											>
+												<DurationsContextProvider>
+													<BufferingProvider>{children}</BufferingProvider>
+												</DurationsContextProvider>
+											</SharedAudioContextProvider>
 										</RenderAssetManagerProvider>
 									</SequenceManagerProvider>
 								</PrefetchProvider>

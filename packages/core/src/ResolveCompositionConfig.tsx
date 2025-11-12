@@ -414,9 +414,7 @@ export const ResolveCompositionConfig: React.FC<
 export const useResolvedVideoConfig = (
 	preferredCompositionId: string | null,
 ): VideoConfigState | null => {
-	const context = useContext(
-		ResolveCompositionContext,
-	) as ResolveCompositionConfigContect;
+	const context = useContext(ResolveCompositionContext);
 	const {props: allEditorProps} = useContext(EditorPropsContext);
 
 	const {compositions, canvasContent, currentCompositionMetadata} =
@@ -494,7 +492,7 @@ export const useResolvedVideoConfig = (
 			};
 		}
 
-		if (!context[composition.id]) {
+		if (!context || !context[composition.id]) {
 			return null;
 		}
 
