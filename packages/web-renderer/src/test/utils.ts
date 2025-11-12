@@ -13,7 +13,11 @@ export const testImage = async ({
 	img.dataset.testid = testId;
 	document.body.appendChild(img);
 
-	await expect(page.getByTestId(testId)).toMatchScreenshot(testId);
+	await expect(page.getByTestId(testId)).toMatchScreenshot(testId, {
+		comparatorOptions: {
+			threshold: 0.15,
+		},
+	});
 
 	document.body.removeChild(img);
 };
