@@ -27,11 +27,20 @@ export const DesignPage: React.FC = () => {
 	const [active, setActive] = useState<boolean>(false);
 
 	const [submitButtonActive, setSubmitButtonActive] = useState<boolean>(true);
+	const [submitButtonPrimaryActive, setSubmitButtonPrimaryActive] =
+		useState<boolean>(true);
 
 	const onClick = useCallback(() => {
 		setSubmitButtonActive(false);
 		setTimeout(() => {
 			setSubmitButtonActive(true);
+		}, 1000);
+	}, []);
+
+	const onClickPrimary = useCallback(() => {
+		setSubmitButtonPrimaryActive(false);
+		setTimeout(() => {
+			setSubmitButtonPrimaryActive(true);
 		}, 1000);
 	}, []);
 
@@ -65,15 +74,20 @@ export const DesignPage: React.FC = () => {
 				<br />
 				<Explainer>Click to disable (primary)</Explainer>
 				<Button
-					onClick={onClick}
+					onClick={onClickPrimary}
 					className="bg-brand text-white"
-					loading={!submitButtonActive}
+					loading={!submitButtonPrimaryActive}
 				>
 					Submit
 				</Button>
 				<br />
 				<Explainer>Loading state</Explainer>
 				<Button onClick={onClick} loading>
+					Loading
+				</Button>
+				<br />
+				<Explainer>Loading state (primary)</Explainer>
+				<Button onClick={onClick} className="bg-brand text-white" loading>
 					Loading
 				</Button>
 				<br />
