@@ -45,6 +45,14 @@ export const DesignPage: React.FC = () => {
 		}, 1000);
 	}, []);
 
+	const [saving, setSaving] = useState<boolean>(false);
+	const save = useCallback(() => {
+		setSaving(true);
+		setTimeout(() => {
+			setSaving(false);
+		}, 1000);
+	}, []);
+
 	return (
 		<div className="bg-[var(--background)] relative">
 			<div className="max-w-[800px] mx-auto pt-10 pb-10 px-4">
@@ -144,7 +152,13 @@ export const DesignPage: React.FC = () => {
 				<Input placeholder="Enter your email" className="w-full block" />
 				<div className="h-2" />
 				<div className="flex flex-row justify-end">
-					<Button className="bg-brand text-white">Change</Button>
+					<Button
+						className="bg-brand text-white"
+						loading={saving}
+						onClick={save}
+					>
+						Change
+					</Button>
 				</div>
 				<br />
 				<br />
