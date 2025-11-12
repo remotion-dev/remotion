@@ -126,12 +126,9 @@ if (
 
 					const {frame, audio, durationInSeconds} = result;
 
-					const videoFrame = frame;
-					const imageBitmap = videoFrame
-						? await createImageBitmap(videoFrame)
-						: null;
-					if (videoFrame) {
-						videoFrame.close();
+					const imageBitmap = frame ? await createImageBitmap(frame) : null;
+					if (frame) {
+						frame.close();
 					}
 
 					const response: ExtractFrameResponse = {
@@ -143,7 +140,6 @@ if (
 					};
 
 					window.remotion_broadcastChannel!.postMessage(response);
-					videoFrame?.close();
 				} catch (error) {
 					const response: ExtractFrameResponse = {
 						type: 'response-error',
@@ -163,7 +159,7 @@ if (
 export type ExtractFrameViaBroadcastChannelResult =
 	| {
 			type: 'success';
-			frame: ImageBitmap | VideoFrame | null;
+			frame: ImageBitmap | null;
 			audio: PcmS16AudioData | null;
 			durationInSeconds: number | null;
 	  }
