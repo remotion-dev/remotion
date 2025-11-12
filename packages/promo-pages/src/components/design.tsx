@@ -59,8 +59,22 @@ export const DesignPage: React.FC = () => {
 				<Button className="bg-brand text-white">Primary</Button>
 				<br />
 				<Explainer>Click to disable</Explainer>
-				<Button onClick={onClick} disabled={!submitButtonActive}>
+				<Button onClick={onClick} loading={!submitButtonActive}>
 					Submit
+				</Button>
+				<br />
+				<Explainer>Click to disable (primary)</Explainer>
+				<Button
+					onClick={onClick}
+					className="bg-brand text-white"
+					loading={!submitButtonActive}
+				>
+					Submit
+				</Button>
+				<br />
+				<Explainer>Loading state</Explainer>
+				<Button onClick={onClick} loading>
+					Loading
 				</Button>
 				<br />
 				<Explainer>Rounded</Explainer>
