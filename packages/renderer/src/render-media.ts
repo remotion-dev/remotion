@@ -76,6 +76,7 @@ import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
+import {registerUsageEvent} from '@remotion/licensing';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -132,6 +133,7 @@ export type InternalRenderMediaOptions = {
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
 	metadata: Record<string, string> | null;
+	apiKey: string | null;
 	onLog: OnLog;
 } & MoreRenderMediaOptions;
 
@@ -804,11 +806,35 @@ const internalRenderMediaRaw = ({
 					slowestFrames,
 				};
 
+				const sendTelemetryAndResolve = () => {
+					if (apiKey === null) {
+						resolve(result);
+						return;
+					}
+
+					registerUsageEvent({
+						apiKey,
+						event: 'cloud-render',
+						host: null,
+						succeeded: true,
+					})
+						.then(() => {
+							Log.info({indent, logLevel}, 'Usage event sent successfully');
+						})
+						.catch((err) => {
+							Log.error({indent, logLevel}, 'Failed to send usage event');
+							Log.error({indent: true, logLevel}, err);
+						})
+						.finally(() => {
+							resolve(result);
+						});
+				};
+
 				if (isReproEnabled()) {
 					getReproWriter()
 						.onRenderSucceed({indent, logLevel, output: absoluteOutputLocation})
 						.then(() => {
-							resolve(result);
+							sendTelemetryAndResolve();
 						})
 						.catch((err) => {
 							Log.error(
@@ -816,9 +842,10 @@ const internalRenderMediaRaw = ({
 								'Could not create reproduction',
 								err,
 							);
+							sendTelemetryAndResolve();
 						});
 				} else {
-					resolve(result);
+					sendTelemetryAndResolve();
 				}
 			})
 			.catch((err) => {
@@ -946,6 +973,7 @@ export const renderMedia = ({
 	offthreadVideoThreads,
 	compositionStart,
 	mediaCacheSizeInBytes,
+	apiKey,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -1032,6 +1060,7 @@ export const renderMedia = ({
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		apiKey: apiKey ?? null,
 		onLog: defaultOnLog,
 	});
 };

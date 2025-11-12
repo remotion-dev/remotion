@@ -26,8 +26,8 @@ If you are not eligible for the free license, you need to get a company license 
 
 This package makes it easier to count the number of Remotion renders without having to set up any infrastructure yourself.
 
-**For [`@remotion/webcodecs`](/docs/webcodecs)**: This package is a dependency and conversions will trigger a call to [`registerUsagePoint()`](/docs/licensing/register-usage-point) automatically.  
 **For [`@remotion/lambda`](/docs/lambda)**: This package is a dependency and renders will trigger a call to [`registerUsagePoint()`](/docs/licensing/register-usage-point) if you pass the `apiKey` option.
+**For [`@remotion/renderer`](/docs/renderer)**: You can pass the `apiKey` option to [`renderMedia()`](/docs/renderer/render-media#apikey) and [`renderStill()`](/docs/renderer/render-still#apikey) to track local render usage.
 
 ### Can I use this package to count renders if I am eligible for the free license?
 
