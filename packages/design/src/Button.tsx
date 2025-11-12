@@ -105,7 +105,9 @@ export const Button: React.FC<
 			)}
 			{...buttonProps}
 		>
-			<div className={cn(loading && 'invisible')}>{children}</div>
+			<div className={cn(loading && 'invisible', 'inline-flex')}>
+				{children}
+			</div>
 			{loading ? (
 				<div
 					className={cn(

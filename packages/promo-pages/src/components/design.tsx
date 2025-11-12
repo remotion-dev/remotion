@@ -11,6 +11,7 @@ import {
 	Switch,
 } from '@remotion/design';
 import {useCallback, useState} from 'react';
+import {ManageTeamMembers} from './ManageTeamMembers';
 
 const Explainer: React.FC<{
 	readonly children: React.ReactNode;
@@ -145,6 +146,9 @@ export const DesignPage: React.FC = () => {
 				<div className="flex flex-row justify-end">
 					<Button className="bg-brand text-white">Change</Button>
 				</div>
+				<br />
+				<br />
+				<ManageTeamMembers />
 			</div>
 		</div>
 	);
