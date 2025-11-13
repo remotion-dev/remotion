@@ -6,7 +6,7 @@ export const waitForReady = (
 	scope: _InternalTypes['DelayRenderScope'],
 ) => {
 	if (scope.remotion_renderReady === true) {
-		return;
+		return Promise.resolve();
 	}
 
 	const start = Date.now();

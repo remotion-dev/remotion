@@ -493,8 +493,9 @@ export const useResolvedVideoConfig = (
 			};
 		}
 
+		// Could be the case in selectComposition()
 		if (!context) {
-			throw new Error('ResolveCompositionContext not found');
+			return null;
 		}
 
 		if (!context[composition.id]) {
