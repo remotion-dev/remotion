@@ -97,42 +97,44 @@ async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
 				}}
 			>
 				<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
-					<Internals.CompositionManagerProvider
-						initialCanvasContent={{
-							type: 'composition',
-							compositionId: COMP_ID,
-						}}
-						onlyRenderComposition={null}
-						currentCompositionMetadata={{
-							props: inputProps,
-							durationInFrames,
-							fps,
-							height,
-							width,
-							defaultCodec: null,
-							defaultOutName: null,
-							defaultVideoImageFormat: null,
-							defaultPixelFormat: null,
-							defaultProResProfile: null,
-						}}
-						initialCompositions={[
-							{
-								id: COMP_ID,
-								// @ts-expect-error
-								component: Component,
-								nonce: 0,
-								// TODO: Do we need to allow to set this?
-								defaultProps: undefined,
-								folderName: null,
-								parentFolderName: null,
-								schema: null,
-								calculateMetadata: null,
+					<Internals.CompositionManager.Provider
+						value={{
+							compositions: [
+								{
+									id: COMP_ID,
+									// @ts-expect-error
+									component: Component,
+									nonce: 0,
+									// TODO: Do we need to allow to set this?
+									defaultProps: undefined,
+									folderName: null,
+									parentFolderName: null,
+									schema: null,
+									calculateMetadata: null,
+									durationInFrames,
+									fps,
+									height,
+									width,
+								},
+							],
+							canvasContent: {
+								type: 'composition',
+								compositionId: COMP_ID,
+							},
+							currentCompositionMetadata: {
+								props: inputProps,
 								durationInFrames,
 								fps,
 								height,
 								width,
+								defaultCodec: null,
+								defaultOutName: null,
+								defaultVideoImageFormat: null,
+								defaultPixelFormat: null,
+								defaultProResProfile: null,
 							},
-						]}
+							folders: [],
+						}}
 					>
 						<Internals.RemotionRoot
 							audioEnabled={false}
@@ -148,7 +150,7 @@ async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
 								<Component {...inputProps} />
 							</Internals.CanUseRemotionHooks>
 						</Internals.RemotionRoot>
-					</Internals.CompositionManagerProvider>
+					</Internals.CompositionManager.Provider>
 				</Internals.DelayRenderContextType.Provider>
 			</Internals.RemotionEnvironmentContext>,
 		);
