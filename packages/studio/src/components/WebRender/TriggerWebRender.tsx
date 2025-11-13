@@ -27,6 +27,7 @@ export const TriggerWebRender = () => {
 			fps: video.fps,
 			durationInFrames: video.durationInFrames,
 			frame,
+			inputProps: {},
 		}).then((blob) => {
 			const url = URL.createObjectURL(blob);
 			const a = document.createElement('a');
