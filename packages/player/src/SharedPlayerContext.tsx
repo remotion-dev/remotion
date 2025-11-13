@@ -29,6 +29,7 @@ export const SharedPlayerContexts: React.FC<{
 	readonly logLevel: LogLevel;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly volumePersistenceKey?: string;
+	readonly inputProps: Record<string, unknown>;
 }> = ({
 	children,
 	timelineContext,
@@ -42,6 +43,7 @@ export const SharedPlayerContexts: React.FC<{
 	logLevel,
 	audioLatencyHint,
 	volumePersistenceKey,
+	inputProps,
 }) => {
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		const context: CompositionManagerContext = {
@@ -63,11 +65,29 @@ export const SharedPlayerContexts: React.FC<{
 				},
 			],
 			folders: [],
-			currentCompositionMetadata: null,
+			currentCompositionMetadata: {
+				defaultCodec: null,
+				defaultOutName: null,
+				defaultPixelFormat: null,
+				defaultProResProfile: null,
+				defaultVideoImageFormat: null,
+				durationInFrames,
+				fps,
+				height: compositionHeight,
+				width: compositionWidth,
+				props: inputProps,
+			},
 			canvasContent: {type: 'composition', compositionId: 'player-comp'},
 		};
 		return context;
-	}, [component, durationInFrames, compositionHeight, compositionWidth, fps]);
+	}, [
+		component,
+		durationInFrames,
+		compositionHeight,
+		compositionWidth,
+		fps,
+		inputProps,
+	]);
 
 	const [mediaMuted, setMediaMuted] = useState<boolean>(() => initiallyMuted);
 	const [mediaVolume, setMediaVolume] = useState<number>(() =>
