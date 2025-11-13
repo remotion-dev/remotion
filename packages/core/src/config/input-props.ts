@@ -44,7 +44,7 @@ export const getInputProps = <
 		typeof window.remotion_inputProps === 'undefined'
 	) {
 		throw new Error(
-			'Cannot call `getInputProps()` - window.remotion_inputProps is not set. This API only available if you are in the Studio, or while you are rendering server-side.',
+			'Cannot call `getInputProps()` - window.remotion_inputProps is not set. This API is only available if you are in the Studio, or while you are rendering server-side.',
 		);
 	}
 
