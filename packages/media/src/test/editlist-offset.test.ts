@@ -35,10 +35,10 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 	});
 	assert(audio2 !== 'cannot-decode');
 	assert(audio2 !== 'unknown-container-format');
-	expect(audio2.data).toBeDefined();
-	expect(audio2.data?.data.length).toBe(3200);
-	expect(audio2.data?.timestamp).toBe((1 / 30) * 1_000_000);
-	expect(audio2.data?.durationInMicroSeconds).toBe((1 / 30) * 1_000_000);
+	assert(audio2.data);
+	expect(audio2.data.data.length).toBe(3200);
+	expect(audio2.data.timestamp).toBe((1 / 30) * 1_000_000);
+	expect(audio2.data.durationInMicroSeconds).toBe((1 / 30) * 1_000_000);
 	expect(audio2.durationInSeconds).toBe(5.012666666666667);
 
 	// Time: 0.066sec, should return audio
@@ -56,10 +56,10 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 	});
 	assert(audio3 !== 'cannot-decode');
 	assert(audio3 !== 'unknown-container-format');
-	expect(audio3.data).toBeDefined();
-	expect(audio3.data?.data.length).toBe(3200);
-	expect(audio3.data?.timestamp).toBe((2 / 30) * 1_000_000);
-	expect(audio3.data?.durationInMicroSeconds).approximately(
+	assert(audio3.data);
+	expect(audio3.data.data.length).toBe(3200);
+	expect(audio3.data.timestamp).toBe((2 / 30) * 1_000_000);
+	expect(audio3.data.durationInMicroSeconds).approximately(
 		(1 / 30) * 1_000_000,
 		0.000001,
 	);
