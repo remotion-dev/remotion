@@ -103,10 +103,8 @@ async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
 							compositionId: COMP_ID,
 						}}
 						onlyRenderComposition={null}
-						// TODO: Hardcoded
 						currentCompositionMetadata={{
-							// TODO: Empty
-							props: {},
+							props: inputProps,
 							durationInFrames,
 							fps,
 							height,
