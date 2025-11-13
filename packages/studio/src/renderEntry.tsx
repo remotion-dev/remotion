@@ -251,10 +251,8 @@ const renderContent = (Root: React.FC) => {
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 				>
-					<Internals.ResolveCompositionConfig>
-						<Root />
-						<GetVideoComposition state={bundleMode} />
-					</Internals.ResolveCompositionConfig>
+					<Root />
+					<GetVideoComposition state={bundleMode} />
 				</Internals.RemotionRoot>
 			</Internals.CompositionManagerProvider>
 		);
@@ -278,9 +276,7 @@ const renderContent = (Root: React.FC) => {
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 				>
-					<Internals.ResolveCompositionConfig>
-						<Root />
-					</Internals.ResolveCompositionConfig>
+					<Root />
 				</Internals.RemotionRoot>
 			</Internals.CompositionManagerProvider>
 		);

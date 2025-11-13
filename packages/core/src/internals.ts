@@ -72,7 +72,7 @@ import {RenderAssetManager} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {
 	PROPS_UPDATED_EXTERNALLY,
-	ResolveCompositionConfig,
+	ResolveCompositionConfigInStudio,
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
@@ -206,7 +206,7 @@ export const Internals = {
 	resolveVideoConfig,
 	useResolvedVideoConfig,
 	resolveCompositionsRef,
-	ResolveCompositionConfig,
+	ResolveCompositionConfigInStudio,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 	RenderAssetManager,
 	persistCurrentFrame,

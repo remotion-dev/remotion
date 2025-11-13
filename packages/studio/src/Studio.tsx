@@ -33,7 +33,7 @@ export const Studio: React.FC<{
 				numberOfAudioTags={window.remotion_numberOfAudioTags}
 				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 			>
-				<Internals.ResolveCompositionConfig>
+				<Internals.ResolveCompositionConfigInStudio>
 					<EditorContexts readOnlyStudio={readOnly}>
 						<Editor readOnlyStudio={readOnly} Root={rootComponent} />
 						{readOnly
@@ -43,7 +43,7 @@ export const Studio: React.FC<{
 									getServerDisconnectedDomElement() as HTMLElement,
 								)}
 					</EditorContexts>
-				</Internals.ResolveCompositionConfig>
+				</Internals.ResolveCompositionConfigInStudio>
 			</Internals.RemotionRoot>
 		</Internals.CompositionManagerProvider>
 	);

@@ -121,28 +121,26 @@ export const SharedPlayerContexts: React.FC<{
 						<Internals.CompositionManager.Provider
 							value={compositionManagerContext}
 						>
-							<Internals.ResolveCompositionConfig>
-								<Internals.PrefetchProvider>
-									<Internals.DurationsContextProvider>
-										<Internals.MediaVolumeContext.Provider
-											value={mediaVolumeContextValue}
+							<Internals.PrefetchProvider>
+								<Internals.DurationsContextProvider>
+									<Internals.MediaVolumeContext.Provider
+										value={mediaVolumeContextValue}
+									>
+										<Internals.SetMediaVolumeContext.Provider
+											value={setMediaVolumeContextValue}
 										>
-											<Internals.SetMediaVolumeContext.Provider
-												value={setMediaVolumeContextValue}
+											<Internals.SharedAudioContextProvider
+												numberOfAudioTags={numberOfSharedAudioTags}
+												audioLatencyHint={audioLatencyHint}
 											>
-												<Internals.SharedAudioContextProvider
-													numberOfAudioTags={numberOfSharedAudioTags}
-													audioLatencyHint={audioLatencyHint}
-												>
-													<Internals.BufferingProvider>
-														{children}
-													</Internals.BufferingProvider>
-												</Internals.SharedAudioContextProvider>
-											</Internals.SetMediaVolumeContext.Provider>
-										</Internals.MediaVolumeContext.Provider>
-									</Internals.DurationsContextProvider>
-								</Internals.PrefetchProvider>
-							</Internals.ResolveCompositionConfig>
+												<Internals.BufferingProvider>
+													{children}
+												</Internals.BufferingProvider>
+											</Internals.SharedAudioContextProvider>
+										</Internals.SetMediaVolumeContext.Provider>
+									</Internals.MediaVolumeContext.Provider>
+								</Internals.DurationsContextProvider>
+							</Internals.PrefetchProvider>
 						</Internals.CompositionManager.Provider>
 					</Internals.TimelineContext.Provider>
 				</Internals.CanUseRemotionHooksProvider>

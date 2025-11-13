@@ -60,7 +60,7 @@ export const needsResolution = (composition: AnyComposition) => {
 
 export const PROPS_UPDATED_EXTERNALLY = 'remotion.propsUpdatedExternally';
 
-export const ResolveCompositionConfig: React.FC<
+export const ResolveCompositionConfigInStudio: React.FC<
 	PropsWithChildren<{
 		children: React.ReactNode;
 	}>
@@ -415,6 +415,7 @@ export const useResolvedVideoConfig = (
 	preferredCompositionId: string | null,
 ): VideoConfigState | null => {
 	const context = useContext(ResolveCompositionContext);
+
 	const {props: allEditorProps} = useContext(EditorPropsContext);
 
 	const {compositions, canvasContent, currentCompositionMetadata} =
@@ -492,7 +493,11 @@ export const useResolvedVideoConfig = (
 			};
 		}
 
-		if (!context || !context[composition.id]) {
+		if (!context) {
+			throw new Error('ResolveCompositionContext not found');
+		}
+
+		if (!context[composition.id]) {
 			return null;
 		}
 
