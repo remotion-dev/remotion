@@ -1,4 +1,4 @@
-import {getInputProps} from 'remotion';
+import {getInputProps, useVideoConfig} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 
@@ -7,6 +7,16 @@ const MustAcceptInputProps: React.FC<{
 }> = ({abc}) => {
 	if (abc !== 'abc') {
 		throw new Error('abc is not abc');
+	}
+
+	const {props, defaultProps} = useVideoConfig();
+
+	if (JSON.stringify(defaultProps) !== JSON.stringify({})) {
+		throw new Error('Expected defaultProps to be empty');
+	}
+
+	if (JSON.stringify(props) !== JSON.stringify({abc: 'abc'})) {
+		throw new Error('Expected props to be {abc: "abc"}');
 	}
 
 	return abc;
