@@ -41,6 +41,6 @@ test('cannot call getInputProps() while rendering client-side', async () => {
 			inputProps: {abc: 'abc'},
 		});
 	}).rejects.toThrow(
-		'Cannot call `getInputProps()` - window.remotion_inputProps is not set. This API is not available if you are in the Studio, or while you are rendering server-side.',
+		'Cannot call `getInputProps()` - window.remotion_inputProps is not set. This API is only available if you are in the Studio, or while you are rendering server-side.',
 	);
 });
