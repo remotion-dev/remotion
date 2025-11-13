@@ -1,4 +1,5 @@
 import {type ComponentType, type LazyExoticComponent} from 'react';
+import {flushSync} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import type {_InternalTypes, LogLevel} from 'remotion';
 import {Internals} from 'remotion';
@@ -6,16 +7,16 @@ import {compose} from './compose';
 import {findCanvasElements} from './find-canvas-elements';
 import {findSvgElements} from './find-svg-elements';
 import {waitForReady} from './wait-for-ready';
+import {withResolvers} from './with-resolvers';
 
-type MandatoryRenderStillOnWebOptions = {
-	Component:
-		| LazyExoticComponent<ComponentType<Record<string, unknown>>>
-		| ComponentType<Record<string, unknown>>;
+type MandatoryRenderStillOnWebOptions<T extends Record<string, unknown>> = {
+	Component: LazyExoticComponent<ComponentType<T>> | ComponentType<T>;
 	width: number;
 	height: number;
 	fps: number;
 	durationInFrames: number;
 	frame: number;
+	inputProps: T;
 };
 
 type OptionalRenderStillOnWebOptions = {
@@ -23,15 +24,16 @@ type OptionalRenderStillOnWebOptions = {
 	logLevel: LogLevel;
 };
 
-type InternalRenderStillOnWebOptions = MandatoryRenderStillOnWebOptions &
-	OptionalRenderStillOnWebOptions;
+type InternalRenderStillOnWebOptions<T extends Record<string, unknown>> =
+	MandatoryRenderStillOnWebOptions<T> & OptionalRenderStillOnWebOptions;
 
-type RenderStillOnWebOptions = MandatoryRenderStillOnWebOptions &
-	Partial<OptionalRenderStillOnWebOptions>;
+type RenderStillOnWebOptions<T extends Record<string, unknown>> =
+	MandatoryRenderStillOnWebOptions<T> &
+		Partial<OptionalRenderStillOnWebOptions>;
 
 const COMP_ID = 'markup';
 
-const internalRenderStillOnWeb = async ({
+async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
 	Component,
 	width,
 	height,
@@ -40,7 +42,8 @@ const internalRenderStillOnWeb = async ({
 	frame,
 	delayRenderTimeoutInMilliseconds,
 	logLevel,
-}: InternalRenderStillOnWebOptions) => {
+	inputProps,
+}: InternalRenderStillOnWebOptions<T>) {
 	const div = document.createElement('div');
 
 	// Match same behavior as renderEntry.tsx
@@ -65,9 +68,15 @@ const internalRenderStillOnWeb = async ({
 	// TODO: getRemotionEnvironment()
 	// TODO: delayRender()
 	// TODO: Video config
-	// TODO: window.remotion_isPlayer
 
-	const root = ReactDOM.createRoot(div);
+	const {promise, resolve, reject} = withResolvers<void>();
+
+	// TODO: This might not work in React 18
+	const root = ReactDOM.createRoot(div, {
+		onUncaughtError: (err) => {
+			reject(err);
+		},
+	});
 
 	const delayRenderScope: _InternalTypes['DelayRenderScope'] = {
 		remotion_renderReady: true,
@@ -76,73 +85,79 @@ const internalRenderStillOnWeb = async ({
 		remotion_attempt: 0,
 	};
 
-	root.render(
-		<Internals.RemotionEnvironmentContext
-			value={{
-				isStudio: false,
-				isRendering: true,
-				isPlayer: false,
-				isReadOnlyStudio: false,
-				isClientSideRendering: true,
-			}}
-		>
-			<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
-				<Internals.CompositionManagerProvider
-					initialCanvasContent={{
-						type: 'composition',
-						compositionId: COMP_ID,
-					}}
-					onlyRenderComposition={null}
-					// TODO: Hardcoded
-					currentCompositionMetadata={{
-						// TODO: Empty
-						props: {},
-						durationInFrames,
-						fps,
-						height,
-						width,
-						defaultCodec: null,
-						defaultOutName: null,
-						defaultVideoImageFormat: null,
-						defaultPixelFormat: null,
-						defaultProResProfile: null,
-					}}
-					initialCompositions={[
-						{
-							id: COMP_ID,
-							component: Component,
-							nonce: 0,
-							// TODO: Do we need to allow to set this?
-							defaultProps: undefined,
-							folderName: null,
-							parentFolderName: null,
-							schema: null,
-							calculateMetadata: null,
-							durationInFrames,
-							fps,
-							height,
-							width,
-						},
-					]}
-				>
-					<Internals.RemotionRoot
-						audioEnabled={false}
-						videoEnabled
-						logLevel={logLevel}
-						numberOfAudioTags={0}
-						audioLatencyHint="interactive"
-						frameState={{
-							[COMP_ID]: frame,
+	flushSync(() => {
+		root.render(
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isStudio: false,
+					isRendering: true,
+					isPlayer: false,
+					isReadOnlyStudio: false,
+					isClientSideRendering: true,
+				}}
+			>
+				<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
+					<Internals.CompositionManager.Provider
+						value={{
+							compositions: [
+								{
+									id: COMP_ID,
+									// @ts-expect-error
+									component: Component,
+									nonce: 0,
+									// TODO: Do we need to allow to set this?
+									defaultProps: undefined,
+									folderName: null,
+									parentFolderName: null,
+									schema: null,
+									calculateMetadata: null,
+									durationInFrames,
+									fps,
+									height,
+									width,
+								},
+							],
+							canvasContent: {
+								type: 'composition',
+								compositionId: COMP_ID,
+							},
+							currentCompositionMetadata: {
+								props: inputProps,
+								durationInFrames,
+								fps,
+								height,
+								width,
+								defaultCodec: null,
+								defaultOutName: null,
+								defaultVideoImageFormat: null,
+								defaultPixelFormat: null,
+								defaultProResProfile: null,
+							},
+							folders: [],
 						}}
 					>
-						<Internals.CanUseRemotionHooks value>
-							<Component />
-						</Internals.CanUseRemotionHooks>
-					</Internals.RemotionRoot>
-				</Internals.CompositionManagerProvider>
-			</Internals.DelayRenderContextType.Provider>
-		</Internals.RemotionEnvironmentContext>,
-	);
+						<Internals.RemotionRoot
+							audioEnabled={false}
+							videoEnabled
+							logLevel={logLevel}
+							numberOfAudioTags={0}
+							audioLatencyHint="interactive"
+							frameState={{
+								[COMP_ID]: frame,
+							}}
+						>
+							<Internals.CanUseRemotionHooks value>
+								<Component {...inputProps} />
+							</Internals.CanUseRemotionHooks>
+						</Internals.RemotionRoot>
+					</Internals.CompositionManager.Provider>
+				</Internals.DelayRenderContextType.Provider>
+			</Internals.RemotionEnvironmentContext>,
+		);
+	});
+
+	resolve();
+	await promise;
 
 	await waitForReady(delayRenderTimeoutInMilliseconds, delayRenderScope);
 	const canvasElements = findCanvasElements(div);
@@ -161,9 +176,11 @@ const internalRenderStillOnWeb = async ({
 	div.remove();
 
 	return imageData;
-};
+}
 
-export const renderStillOnWeb = (options: RenderStillOnWebOptions) => {
+export const renderStillOnWeb = <T extends Record<string, unknown>>(
+	options: RenderStillOnWebOptions<T>,
+) => {
 	return internalRenderStillOnWeb({
 		...options,
 		delayRenderTimeoutInMilliseconds:

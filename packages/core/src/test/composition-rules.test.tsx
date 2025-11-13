@@ -4,7 +4,6 @@ import React from 'react';
 import {Composition} from '../Composition.js';
 import {CompositionManagerProvider} from '../CompositionManagerProvider.js';
 import {RemotionRoot} from '../RemotionRoot.js';
-import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import {expectToThrow} from './expect-to-throw.js';
 
 afterEach(() => {
@@ -66,24 +65,22 @@ describe('Render composition-rules should throw with invalid props', () => {
 							logLevel="info"
 							audioLatencyHint="interactive"
 						>
-							<ResolveCompositionConfig>
-								<Composition
-									lazyComponent={() => Promise.resolve({default: AnyComp})}
-									durationInFrames={100}
-									fps={30}
-									height={100}
-									width={100}
-									id="id"
-								/>
-								<Composition
-									lazyComponent={() => Promise.resolve({default: AnyComp})}
-									durationInFrames={100}
-									fps={30}
-									height={100}
-									width={100}
-									id="id"
-								/>
-							</ResolveCompositionConfig>
+							<Composition
+								lazyComponent={() => Promise.resolve({default: AnyComp})}
+								durationInFrames={100}
+								fps={30}
+								height={100}
+								width={100}
+								id="id"
+							/>
+							<Composition
+								lazyComponent={() => Promise.resolve({default: AnyComp})}
+								durationInFrames={100}
+								fps={30}
+								height={100}
+								width={100}
+								id="id"
+							/>
 						</RemotionRoot>
 					</CompositionManagerProvider>,
 				),

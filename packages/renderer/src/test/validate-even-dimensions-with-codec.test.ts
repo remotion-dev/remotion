@@ -9,7 +9,7 @@ describe('validateEvenDimensionsWithCodec', () => {
 	};
 
 	describe('H264/H265 codec behavior with odd dimensions', () => {
-		test.only('should round down odd width to even when using H264', () => {
+		test('should round down odd width to even when using H264', () => {
 			const result = validateEvenDimensionsWithCodec({
 				width: 4000,
 				height: 2592,

@@ -50,5 +50,6 @@ test('should not give a false positive when the player is also mounted', async (
 		fps: 30,
 		durationInFrames: 30,
 		frame: 20,
+		inputProps: {},
 	});
 });

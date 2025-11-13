@@ -28,6 +28,7 @@ test('should be able to cancel render', async () => {
 			fps: 30,
 			durationInFrames: 30,
 			frame: 20,
+			inputProps: {},
 		});
 	}).rejects.toThrow('This should be the error message');
 });

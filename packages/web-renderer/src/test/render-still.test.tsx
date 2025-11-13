@@ -18,6 +18,7 @@ test('should render still on web', async () => {
 		fps: 30,
 		durationInFrames: 30,
 		frame: 0,
+		inputProps: {},
 	});
 
 	await testImage({blob, testId: 'test-img'});
@@ -40,6 +41,7 @@ test('should be able to read frame number', async () => {
 		fps: 30,
 		durationInFrames: 30,
 		frame: 20,
+		inputProps: {},
 	});
 
 	await testImage({blob, testId: 'frame-number'});

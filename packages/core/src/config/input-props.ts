@@ -39,6 +39,15 @@ export const getInputProps = <
 		return override as T;
 	}
 
+	if (
+		typeof window === 'undefined' ||
+		typeof window.remotion_inputProps === 'undefined'
+	) {
+		throw new Error(
+			'Cannot call `getInputProps()` - window.remotion_inputProps is not set. This API is only available if you are in the Studio, or while you are rendering server-side.',
+		);
+	}
+
 	const param = window.remotion_inputProps;
 	if (!param) {
 		return {} as T;

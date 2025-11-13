@@ -7,7 +7,7 @@ afterEach(() => {
 	cleanup();
 });
 
-test.only('It should render Audio without startFrom / endAt props', () => {
+test('It should render Audio without startFrom / endAt props', () => {
 	expect(() =>
 		render(
 			<WrapSequenceContext>
