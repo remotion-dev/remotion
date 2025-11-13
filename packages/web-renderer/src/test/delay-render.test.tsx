@@ -14,6 +14,7 @@ test('should be able to use delayRender()', async () => {
 			useEffect(() => {
 				setTimeout(() => {
 					setData(true);
+
 					continueRender(handle);
 				}, 50);
 			}, [continueRender, handle]);
