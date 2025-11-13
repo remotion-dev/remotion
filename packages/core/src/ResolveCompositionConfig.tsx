@@ -480,7 +480,11 @@ export const useResolvedVideoConfig = (
 					props: {
 						...(composition.defaultProps ?? {}),
 						...(selectedEditorProps ?? {}),
-						...(typeof window === 'undefined' || env.isPlayer
+						...(typeof window === 'undefined' ||
+						env.isPlayer ||
+						// In tests, we don't set window.remotion_inputProps,
+						// otherwise it should be available here
+						!window.remotion_inputProps
 							? {}
 							: (getInputProps() ?? {})),
 					},
