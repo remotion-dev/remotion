@@ -1,3 +1,4 @@
+import {registerUsageEvent} from '@remotion/licensing';
 import type {ExecaChildProcess} from 'execa';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -76,7 +77,6 @@ import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
-import {registerUsageEvent} from '@remotion/licensing';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -261,6 +261,7 @@ const internalRenderMediaRaw = ({
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
 	onLog,
+	apiKey,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	const pixelFormat =
 		userPixelFormat ??
