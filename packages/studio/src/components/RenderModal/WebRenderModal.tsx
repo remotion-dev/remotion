@@ -1,9 +1,11 @@
 import type {LogLevel} from '@remotion/renderer';
+import {getDefaultOutLocation} from '@remotion/studio-shared';
 import type {RenderStillImageFormat} from '@remotion/web-renderer';
 import {renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {BLUE} from '../../helpers/colors';
+import {useFileExistence} from '../../helpers/use-file-existence';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import type {WebRenderModalState} from '../../state/modals';
@@ -19,9 +21,11 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {VerticalTab} from '../Tabs/vertical';
 import {DataEditor} from './DataEditor';
-import {label, optionRow, rightRow} from './layout';
+import {getStringBeforeSuffix} from './get-string-before-suffix';
+import {input, label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
+import {RenderModalOutputName} from './RenderModalOutputName';
 import {outerModalStyle} from './render-modals';
 import {
 	ResolveCompositionBeforeModal,
@@ -37,6 +41,71 @@ type WebRenderModalProps = {
 type RenderType = 'still';
 
 type TabType = 'general' | 'data' | 'advanced';
+
+const invalidCharacters = ['?', '*', '+', ':', '%'];
+
+const isValidStillExtension = (
+	extension: string,
+	stillImageFormat: RenderStillImageFormat,
+): boolean => {
+	if (stillImageFormat === 'jpeg' && extension === 'jpg') {
+		return true;
+	}
+
+	return extension === stillImageFormat;
+};
+
+const validateOutnameForStill = ({
+	outName,
+	stillImageFormat,
+}: {
+	outName: string;
+	stillImageFormat: RenderStillImageFormat;
+}): {valid: true} | {valid: false; error: Error} => {
+	try {
+		const extension = outName.substring(outName.lastIndexOf('.') + 1);
+		const prefix = outName.substring(0, outName.lastIndexOf('.'));
+
+		const hasDotAfterSlash = () => {
+			const substrings = prefix.split('/');
+			for (const str of substrings) {
+				if (str[0] === '.') {
+					return true;
+				}
+			}
+
+			return false;
+		};
+
+		const hasInvalidChar = () => {
+			return prefix.split('').some((char) => invalidCharacters.includes(char));
+		};
+
+		if (prefix.length < 1) {
+			throw new Error('The prefix must be at least 1 character long');
+		}
+
+		if (prefix[0] === '.' || hasDotAfterSlash()) {
+			throw new Error('The output name must not start with a dot');
+		}
+
+		if (hasInvalidChar()) {
+			throw new Error(
+				"Filename can't contain the following characters:  ?, *, +, %, :",
+			);
+		}
+
+		if (!isValidStillExtension(extension, stillImageFormat)) {
+			throw new Error(
+				`The extension ${extension} is not supported for still image format ${stillImageFormat}`,
+			);
+		}
+
+		return {valid: true};
+	} catch (err) {
+		return {valid: false, error: err as Error};
+	}
+};
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -130,6 +199,17 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	>(null);
 	const [saving, setSaving] = useState(false);
 
+	const [initialOutName] = useState(() => {
+		return getDefaultOutLocation({
+			compositionName: resolvedComposition.id,
+			defaultExtension: 'png',
+			type: 'asset',
+			compositionDefaultOutName: resolvedComposition.defaultOutName,
+		});
+	});
+
+	const [outName, setOutName] = useState(() => initialOutName);
+
 	const changeMediaCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number>
 	> = useCallback(
@@ -149,28 +229,39 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		[setMediaCacheSizeInBytes],
 	);
 
+	const setStillFormat = useCallback(
+		(format: RenderStillImageFormat) => {
+			setImageFormat(format);
+			setOutName((prev) => {
+				const newFileName = getStringBeforeSuffix(prev) + '.' + format;
+				return newFileName;
+			});
+		},
+		[],
+	);
+
 	const imageFormatOptions = useMemo((): SegmentedControlItem[] => {
 		return [
 			{
 				label: 'PNG',
-				onClick: () => setImageFormat('png'),
+				onClick: () => setStillFormat('png'),
 				key: 'png',
 				selected: imageFormat === 'png',
 			},
 			{
 				label: 'JPEG',
-				onClick: () => setImageFormat('jpeg'),
+				onClick: () => setStillFormat('jpeg'),
 				key: 'jpeg',
 				selected: imageFormat === 'jpeg',
 			},
 			{
 				label: 'WebP',
-				onClick: () => setImageFormat('webp'),
+				onClick: () => setStillFormat('webp'),
 				key: 'webp',
 				selected: imageFormat === 'webp',
 			},
 		];
-	}, [imageFormat]);
+	}, [imageFormat, setStillFormat]);
 
 	const renderTabOptions = useMemo((): SegmentedControlItem[] => {
 		return [
@@ -213,6 +304,20 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		[],
 	);
 
+	const onOutNameChange: React.ChangeEventHandler<HTMLInputElement> =
+		useCallback((e) => {
+			setOutName(e.target.value);
+		}, []);
+
+	const outnameValidation = useMemo(() => {
+		return validateOutnameForStill({
+			outName,
+			stillImageFormat: imageFormat,
+		});
+	}, [outName, imageFormat]);
+
+	const existence = useFileExistence(outName);
+
 	const onRender = useCallback(async () => {
 		const blob = await renderStillOnWeb({
 			component: unresolvedComposition.component,
@@ -231,8 +336,11 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		// TODO: Download name
-		a.download = `composed.${imageFormat}`;
+		// Extract just the filename from the path
+		const filename = outName.includes('/')
+			? outName.substring(outName.lastIndexOf('/') + 1)
+			: outName;
+		a.download = filename;
 		a.click();
 		URL.revokeObjectURL(url);
 	}, [
@@ -247,6 +355,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.width,
 		resolvedComposition.height,
 		resolvedComposition.fps,
+		outName,
 	]);
 
 	const toggleCustomMediaCacheSizeInBytes = useCallback(() => {
@@ -265,7 +374,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			<div style={container}>
 				<SegmentedControl items={renderTabOptions} needsWrapping={false} />
 				<div style={flexer} />
-				<Button autoFocus onClick={onRender} style={buttonStyle}>
+				<Button
+					autoFocus
+					onClick={onRender}
+					style={buttonStyle}
+					disabled={!outnameValidation.valid}
+				>
 					Render still
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
@@ -333,6 +447,16 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 									</div>
 								</div>
 							) : null}
+							<RenderModalOutputName
+								existence={existence}
+								inputStyle={input}
+								outName={outName}
+								onValueChange={onOutNameChange}
+								validationMessage={
+									outnameValidation.valid ? null : outnameValidation.error.message
+								}
+								label="Download name"
+							/>
 							<div style={optionRow}>
 								<div style={label}>
 									Verbose logging <Spacing x={0.5} />
