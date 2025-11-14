@@ -404,6 +404,7 @@
         "@remotion/tailwind-v4": "workspace:*",
         "@remotion/three": "workspace:*",
         "@remotion/transitions": "workspace:*",
+        "@remotion/web-renderer": "workspace:*",
         "@remotion/webcodecs": "workspace:*",
         "@remotion/whisper-web": "workspace:*",
         "@remotion/zod-types": "workspace:*",
