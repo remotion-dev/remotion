@@ -230,7 +230,6 @@ test('multi-level nested transforms with distinct transform-origins', async () =
 	await testImage({blob, testId: 'multi-level-transform-origins'});
 });
 
-/*
 test('three-level nested transforms with varying origins', async () => {
 	const Component: React.FC = () => {
 		return (
@@ -274,6 +273,7 @@ test('three-level nested transforms with varying origins', async () => {
 	await testImage({blob, testId: 'three-level-transform-origins'});
 });
 
+/*
 test('nested transforms with pixel-based transform-origins', async () => {
 	const Component: React.FC = () => {
 		return (
