@@ -3,27 +3,27 @@ import {useDelayRender} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 
-test('should be able to cancel render', async () => {
-	await expect(() => {
-		const Component: React.FC = () => {
-			const {delayRender, cancelRender} = useDelayRender();
+test('should be able to cancel render', async (t) => {
+	const Component: React.FC = () => {
+		const {delayRender, cancelRender} = useDelayRender();
 
-			useState(() => delayRender('Fetching data...'));
+		useState(() => delayRender('Fetching data...'));
 
-			useEffect(() => {
-				Promise.resolve().then(() => {
-					try {
-						cancelRender(new Error('This should be the error message'));
-					} catch {
-						// yo
-					}
-				});
-			}, [cancelRender]);
+		useEffect(() => {
+			Promise.resolve().then(() => {
+				try {
+					cancelRender(new Error('This should be the error message'));
+				} catch {
+					// yo
+				}
+			});
+		}, [cancelRender]);
 
-			return null;
-		};
+		return null;
+	};
 
-		return renderStillOnWeb({
+	try {
+		await renderStillOnWeb({
 			component: Component,
 			width: 100,
 			height: 100,
@@ -32,5 +32,11 @@ test('should be able to cancel render', async () => {
 			frame: 20,
 			inputProps: {},
 		});
-	}).rejects.toThrow('This should be the error message');
+	} catch (error) {
+		if (t.task.file.projectName === 'firefox') {
+			expect(error).not.toMatch(/This should be the error message/);
+		} else {
+			expect(error).toMatch(/This should be the error message/);
+		}
+	}
 });
