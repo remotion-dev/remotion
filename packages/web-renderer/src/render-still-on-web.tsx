@@ -1,16 +1,14 @@
-import {type ComponentType, type LazyExoticComponent} from 'react';
+import {type ComponentType} from 'react';
 import {flushSync} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import type {_InternalTypes, LogLevel} from 'remotion';
 import {Internals} from 'remotion';
-import {compose} from './compose';
-import {findCanvasElements} from './find-canvas-elements';
-import {findSvgElements} from './find-svg-elements';
+import {takeScreenshot} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
 import {withResolvers} from './with-resolvers';
 
 type MandatoryRenderStillOnWebOptions<T extends Record<string, unknown>> = {
-	Component: LazyExoticComponent<ComponentType<T>> | ComponentType<T>;
+	component: ComponentType<T>;
 	width: number;
 	height: number;
 	fps: number;
@@ -34,7 +32,7 @@ type RenderStillOnWebOptions<T extends Record<string, unknown>> =
 const COMP_ID = 'markup';
 
 async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
-	Component,
+	component: Component,
 	width,
 	height,
 	fps,
@@ -160,17 +158,8 @@ async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
 	await promise;
 
 	await waitForReady(delayRenderTimeoutInMilliseconds, delayRenderScope);
-	const canvasElements = findCanvasElements(div);
-	const svgElements = findSvgElements(div);
-	const composed = await compose({
-		composables: [...canvasElements, ...svgElements],
-		width,
-		height,
-	});
 
-	const imageData = await composed.convertToBlob({
-		type: 'image/png',
-	});
+	const imageData = await takeScreenshot(div, width, height);
 
 	root.unmount();
 	div.remove();

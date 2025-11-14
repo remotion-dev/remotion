@@ -6,7 +6,7 @@ import {renderStillOnWeb} from '../render-still-on-web';
 test('should be able to cancel render', async () => {
 	await expect(() => {
 		return renderStillOnWeb({
-			Component: () => {
+			component: () => {
 				const {delayRender, cancelRender} = useDelayRender();
 
 				useState(() => delayRender('Fetching data...'));

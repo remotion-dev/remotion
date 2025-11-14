@@ -6,7 +6,7 @@ import {testImage} from './utils';
 
 test('should render still on web', async () => {
 	const blob = await renderStillOnWeb({
-		Component: () => {
+		component: () => {
 			return (
 				<svg viewBox="0 0 100 100">
 					<circle cx="50" cy="50" r="50" fill="red" />
@@ -26,7 +26,7 @@ test('should render still on web', async () => {
 
 test('should be able to read frame number', async () => {
 	const blob = await renderStillOnWeb({
-		Component: () => {
+		component: () => {
 			const frame = useCurrentFrame();
 			return (
 				<svg viewBox="0 0 100 100">

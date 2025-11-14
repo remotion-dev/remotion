@@ -29,7 +29,7 @@ const DisallowGetInputProps: React.FC<{}> = () => {
 
 test('cannot call getInputProps() while rendering client-side', async () => {
 	await renderStillOnWeb({
-		Component: MustAcceptInputProps,
+		component: MustAcceptInputProps,
 		width: 100,
 		height: 100,
 		fps: 30,
@@ -42,7 +42,7 @@ test('cannot call getInputProps() while rendering client-side', async () => {
 test('cannot call getInputProps() while rendering client-side', async () => {
 	await expect(() => {
 		return renderStillOnWeb({
-			Component: DisallowGetInputProps,
+			component: DisallowGetInputProps,
 			width: 100,
 			height: 100,
 			fps: 30,

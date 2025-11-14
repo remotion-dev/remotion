@@ -6,7 +6,7 @@ import {testImage} from './utils';
 
 test('should be able to use delayRender()', async () => {
 	const blob = await renderStillOnWeb({
-		Component: () => {
+		component: () => {
 			const {delayRender, continueRender} = useDelayRender();
 			const [data, setData] = useState<boolean>(false);
 			const [handle] = useState(() => delayRender());
