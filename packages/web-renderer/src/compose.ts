@@ -27,7 +27,13 @@ export const compose = async ({
 			const imageBitmap = await svgToImageBitmap(composable.element);
 
 			if (imageBitmap) {
-				context.drawImage(imageBitmap.image, imageBitmap.left, imageBitmap.top);
+				context.drawImage(
+					imageBitmap.image,
+					imageBitmap.left,
+					imageBitmap.top,
+					imageBitmap.width,
+					imageBitmap.height,
+				);
 			}
 		}
 	}
