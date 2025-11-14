@@ -62,7 +62,7 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 		const deviationFromY = centerY - originY;
 
 		totalMatrix = totalMatrix
-			.translate(-deviationFromX, -deviationFromX)
+			.translate(-deviationFromX, -deviationFromY)
 			.multiply(transform.matrix)
 			.translate(deviationFromX, deviationFromY);
 	}
