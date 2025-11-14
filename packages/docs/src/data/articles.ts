@@ -1233,6 +1233,15 @@ export const articles = [
 		slug: 'deno',
 	},
 	{
+		id: 'detect-remotion-video',
+		title: 'Detect if a video was made with Remotion',
+		relativePath: 'docs/detect-remotion.mdx',
+		compId: 'articles-docs-detect-remotion',
+		crumb: 'Techniques',
+		noAi: false,
+		slug: 'detect-remotion-video',
+	},
+	{
 		id: 'distributed-rendering',
 		title: 'Distributed rendering',
 		relativePath: 'docs/distributed-rendering.mdx',
@@ -6258,6 +6267,15 @@ export const articles = [
 		crumb: 'Roll the dice',
 		noAi: false,
 		slug: 'using-randomness',
+	},
+	{
+		id: 'validating-user-videos',
+		title: 'Validating user videos',
+		relativePath: 'docs/validating-user-videos.mdx',
+		compId: 'articles-docs-validating-user-videos',
+		crumb: 'Building video apps',
+		noAi: false,
+		slug: 'validating-user-videos',
 	},
 	{
 		id: 'version-mismatch',

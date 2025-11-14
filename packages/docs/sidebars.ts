@@ -1131,6 +1131,7 @@ const sidebars: SidebarsConfig = {
 				'studio-into-app',
 				'player-into-remotion-project',
 				'video-uploads',
+				'validating-user-videos',
 				'presigned-urls',
 				'font-picker',
 				'building-a-timeline',
@@ -1317,6 +1318,7 @@ const sidebars: SidebarsConfig = {
 				'cors-issues',
 				'media-fragments',
 				'react-native',
+				'detect-remotion',
 			],
 		},
 		{

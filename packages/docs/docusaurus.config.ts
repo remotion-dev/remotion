@@ -233,6 +233,14 @@ const config: Config = {
 							href: 'https://remotion.dev/license',
 						},
 						{
+							label: 'Terms and Conditions',
+							href: 'https://remotion.pro/terms',
+						},
+						{
+							label: 'Privacy Policy',
+							href: 'https://remotion.pro/privacy',
+						},
+						{
 							label: 'Brand',
 							href: 'https://remotion.dev/brand',
 						},

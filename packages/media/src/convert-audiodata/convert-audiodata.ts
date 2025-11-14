@@ -23,12 +23,14 @@ export type PcmS16AudioData = {
 };
 
 export const fixFloatingPoint = (value: number) => {
-	if (value % 1 < 0.0000001) {
-		return Math.floor(value);
+	const decimal = Math.abs(value % 1);
+
+	if (decimal < 0.0000001) {
+		return value < 0 ? Math.ceil(value) : Math.floor(value);
 	}
 
-	if (value % 1 > 0.9999999) {
-		return Math.ceil(value);
+	if (decimal > 0.9999999) {
+		return value < 0 ? Math.floor(value) : Math.ceil(value);
 	}
 
 	return value;

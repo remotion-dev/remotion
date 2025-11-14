@@ -21,12 +21,13 @@ export const TriggerWebRender = () => {
 		}
 
 		renderStillOnWeb({
-			Component: video.component,
+			component: video.component,
 			width: video.width,
 			height: video.height,
 			fps: video.fps,
 			durationInFrames: video.durationInFrames,
 			frame,
+			inputProps: {},
 		}).then((blob) => {
 			const url = URL.createObjectURL(blob);
 			const a = document.createElement('a');

@@ -65,6 +65,7 @@ export const Outer: React.FC<{
 
 	const frontFace = reduceMatrices([
 		translateZ(-depth / 2 + depthFromClick),
+		translateZ(1.1),
 		transformation,
 	]);
 	const centerOriented = reduceMatrices([

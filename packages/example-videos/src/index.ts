@@ -139,6 +139,12 @@ export const exampleVideos = {
 		'wave-format-extensible.wav',
 	),
 	junk: path.join(__dirname, '..', 'videos', 'junk.wav'),
+	audioWith64msoffsetEditlist: path.join(
+		__dirname,
+		'..',
+		'videos',
+		'audio-with-64msoffset-editlist.mp4',
+	),
 };
 export {
 	getPrivateExampleVideo,

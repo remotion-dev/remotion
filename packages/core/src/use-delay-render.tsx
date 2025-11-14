@@ -1,10 +1,13 @@
 import {createContext, useCallback, useContext} from 'react';
+import {cancelRenderInternal} from './cancel-render.js';
 import type {DelayRenderOptions, DelayRenderScope} from './delay-render.js';
 import {continueRenderInternal, delayRenderInternal} from './delay-render.js';
+import {useLogLevel} from './log-level-context.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 
 type DelayRenderFn = (label?: string, options?: DelayRenderOptions) => number;
 type ContinueRenderFn = (handle: number) => void;
+type CancelRenderFn = (err: unknown) => never;
 
 export const DelayRenderContextType = createContext<DelayRenderScope | null>(
 	null,
@@ -13,32 +16,45 @@ export const DelayRenderContextType = createContext<DelayRenderScope | null>(
 export const useDelayRender = (): {
 	delayRender: DelayRenderFn;
 	continueRender: ContinueRenderFn;
+	cancelRender: CancelRenderFn;
 } => {
 	const environment = useRemotionEnvironment();
 	const scope = useContext(DelayRenderContextType);
+	const logLevel = useLogLevel();
 
 	const delayRender = useCallback<DelayRenderFn>(
 		(label?: string, options?: DelayRenderOptions) => {
-			return delayRenderInternal(
-				scope ?? (typeof window !== 'undefined' ? window : undefined),
+			return delayRenderInternal({
+				scope: scope ?? (typeof window !== 'undefined' ? window : undefined),
 				environment,
-				label,
-				options,
-			);
+				label: label ?? null,
+				options: options ?? {},
+			});
 		},
 		[environment, scope],
 	);
 
 	const continueRender = useCallback<ContinueRenderFn>(
 		(handle: number) => {
-			continueRenderInternal(
-				scope ?? (typeof window !== 'undefined' ? window : undefined),
+			continueRenderInternal({
+				scope: scope ?? (typeof window !== 'undefined' ? window : undefined),
 				handle,
 				environment,
-			);
+				logLevel,
+			});
 		},
-		[environment, scope],
+		[environment, logLevel, scope],
 	);
 
-	return {delayRender, continueRender};
+	const cancelRender = useCallback<CancelRenderFn>(
+		(err: unknown) => {
+			return cancelRenderInternal(
+				scope ?? (typeof window !== 'undefined' ? window : undefined),
+				err,
+			);
+		},
+		[scope],
+	);
+
+	return {delayRender, continueRender, cancelRender};
 };

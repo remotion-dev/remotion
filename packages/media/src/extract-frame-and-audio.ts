@@ -3,6 +3,7 @@ import {extractAudio} from './audio-extraction/extract-audio';
 import {isNetworkError} from './is-network-error';
 import {extractFrame} from './video-extraction/extract-frame';
 import type {ExtractFrameViaBroadcastChannelResult} from './video-extraction/extract-frame-via-broadcast-channel';
+import {rotateFrame} from './video-extraction/rotate-frame';
 
 export const extractFrameAndAudio = async ({
 	src,
@@ -99,9 +100,21 @@ export const extractFrameAndAudio = async ({
 			};
 		}
 
+		if (!frame?.frame) {
+			return {
+				type: 'success',
+				frame: null,
+				audio: audio?.data ?? null,
+				durationInSeconds: audio?.durationInSeconds ?? null,
+			};
+		}
+
 		return {
 			type: 'success',
-			frame: frame?.frame?.toVideoFrame() ?? null,
+			frame: await rotateFrame({
+				frame: frame.frame.toVideoFrame(),
+				rotation: frame.frame.rotation,
+			}),
 			audio: audio?.data ?? null,
 			durationInSeconds: audio?.durationInSeconds ?? null,
 		};

@@ -1,22 +1,33 @@
 import type {_InternalTypes} from 'remotion';
+import {withResolvers} from './with-resolvers';
 
 export const waitForReady = (
 	timeoutInMilliseconds: number,
 	scope: _InternalTypes['DelayRenderScope'],
 ) => {
-	const {promise, resolve, reject} = Promise.withResolvers();
+	if (scope.remotion_renderReady === true) {
+		return Promise.resolve();
+	}
 
 	const start = Date.now();
+	const {promise, resolve, reject} = withResolvers<void>();
 
 	const interval = setInterval(() => {
 		if (scope.remotion_renderReady === true) {
-			resolve(true);
+			// Wait for useEffects() to apply
+			requestAnimationFrame(() => {
+				// Firefox needs at least two frames to apply the transform
+				requestAnimationFrame(() => {
+					resolve();
+				});
+			});
+
 			clearInterval(interval);
 			return;
 		}
 
-		if (window.remotion_cancelledError !== undefined) {
-			reject(window.remotion_cancelledError);
+		if (scope.remotion_cancelledError !== undefined) {
+			reject(scope.remotion_cancelledError);
 			clearInterval(interval);
 			return;
 		}

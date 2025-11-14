@@ -1,5 +1,5 @@
 import type {Input} from 'mediabunny';
-import {AudioBufferSink, VideoSampleSink} from 'mediabunny';
+import {VideoSampleSink} from 'mediabunny';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {makeWaveformVisualizer} from './waveform-visualizer';
 
@@ -28,17 +28,6 @@ export const useThumbnailAndWaveform = ({
 			waveform.setDuration(duration);
 		};
 
-		const setAudioTrack = async () => {
-			const audioTrack = await input.getPrimaryAudioTrack();
-
-			if (audioTrack) {
-				const audioSink = new AudioBufferSink(audioTrack);
-				for await (const sample of audioSink.buffers()) {
-					waveform.add(sample.buffer);
-				}
-			}
-		};
-
 		const setVideoTrack = async () => {
 			const videoTrack = await input.getPrimaryVideoTrack();
 
@@ -61,9 +50,7 @@ export const useThumbnailAndWaveform = ({
 		};
 
 		const run = async () => {
-			await getDuration().then(() =>
-				Promise.all([setAudioTrack(), setVideoTrack()]),
-			);
+			await getDuration().then(() => Promise.all([setVideoTrack()]));
 			onDone();
 		};
 

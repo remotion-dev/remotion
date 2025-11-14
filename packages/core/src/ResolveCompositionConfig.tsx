@@ -60,7 +60,7 @@ export const needsResolution = (composition: AnyComposition) => {
 
 export const PROPS_UPDATED_EXTERNALLY = 'remotion.propsUpdatedExternally';
 
-export const ResolveCompositionConfig: React.FC<
+export const ResolveCompositionConfigInStudio: React.FC<
 	PropsWithChildren<{
 		children: React.ReactNode;
 	}>
@@ -414,9 +414,8 @@ export const ResolveCompositionConfig: React.FC<
 export const useResolvedVideoConfig = (
 	preferredCompositionId: string | null,
 ): VideoConfigState | null => {
-	const context = useContext(
-		ResolveCompositionContext,
-	) as ResolveCompositionConfigContect;
+	const context = useContext(ResolveCompositionContext);
+
 	const {props: allEditorProps} = useContext(EditorPropsContext);
 
 	const {compositions, canvasContent, currentCompositionMetadata} =
@@ -481,7 +480,11 @@ export const useResolvedVideoConfig = (
 					props: {
 						...(composition.defaultProps ?? {}),
 						...(selectedEditorProps ?? {}),
-						...(typeof window === 'undefined' || env.isPlayer
+						...(typeof window === 'undefined' ||
+						env.isPlayer ||
+						// In tests, we don't set window.remotion_inputProps,
+						// otherwise it should be available here
+						!window.remotion_inputProps
 							? {}
 							: (getInputProps() ?? {})),
 					},
@@ -492,6 +495,11 @@ export const useResolvedVideoConfig = (
 					defaultProResProfile: null,
 				},
 			};
+		}
+
+		// Could be the case in selectComposition()
+		if (!context) {
+			return null;
 		}
 
 		if (!context[composition.id]) {

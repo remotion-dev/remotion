@@ -1,4 +1,4 @@
-import {Button, CheckIcon, PlanePaperIcon} from '@remotion/design';
+import {Button, CheckIcon, Input, PlanePaperIcon} from '@remotion/design';
 import React, {useCallback, useState} from 'react';
 import {SectionTitle} from './VideoAppsTitle';
 
@@ -57,10 +57,10 @@ export const NewsletterButton: React.FC<{}> = () => {
 								Remotion once in a while.{' '}
 							</div>
 							<div className="flex flex-col md:flex-row gap-2 justify-center">
-								<input
-									className="w-full dark:bg-[#121212] md:max-w-[400px] rounded-lg border-effect border-black outline-none h-14 px-3 fontbrand text-lg box-border"
+								<Input
 									disabled={submitting}
 									value={email}
+									className="md:max-w-[400px]"
 									onChange={(e) => setEmail(e.target.value)}
 									type={'email'}
 									required
