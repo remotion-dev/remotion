@@ -1,40 +1,53 @@
-import {type ComponentType, type LazyExoticComponent} from 'react';
+import {type ComponentType} from 'react';
 import {flushSync} from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import type {_InternalTypes, LogLevel} from 'remotion';
 import {Internals} from 'remotion';
-import {compose} from './compose';
-import {findCanvasElements} from './find-canvas-elements';
-import {findSvgElements} from './find-svg-elements';
+import type {AnyZodObject} from 'zod';
+import type {PropsIfHasProps} from './props-if-has-props';
+import {takeScreenshot} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
 import {withResolvers} from './with-resolvers';
 
-type MandatoryRenderStillOnWebOptions<T extends Record<string, unknown>> = {
-	Component: LazyExoticComponent<ComponentType<T>> | ComponentType<T>;
+type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
+
+type MandatoryRenderStillOnWebOptions<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+> = {
+	component: LooseComponentType<Props>;
 	width: number;
 	height: number;
 	fps: number;
 	durationInFrames: number;
 	frame: number;
-	inputProps: T;
-};
+} & PropsIfHasProps<Schema, Props>;
 
-type OptionalRenderStillOnWebOptions = {
+type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
 	logLevel: LogLevel;
+	schema: Schema | undefined;
 };
 
-type InternalRenderStillOnWebOptions<T extends Record<string, unknown>> =
-	MandatoryRenderStillOnWebOptions<T> & OptionalRenderStillOnWebOptions;
+type InternalRenderStillOnWebOptions<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+> = MandatoryRenderStillOnWebOptions<Schema, Props> &
+	OptionalRenderStillOnWebOptions<Schema>;
 
-type RenderStillOnWebOptions<T extends Record<string, unknown>> =
-	MandatoryRenderStillOnWebOptions<T> &
-		Partial<OptionalRenderStillOnWebOptions>;
+export type RenderStillOnWebOptions<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+> = MandatoryRenderStillOnWebOptions<Schema, Props> &
+	Partial<OptionalRenderStillOnWebOptions<Schema>>;
 
 const COMP_ID = 'markup';
 
-async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
-	Component,
+async function internalRenderStillOnWeb<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+>({
+	component: Component,
 	width,
 	height,
 	fps,
@@ -43,7 +56,7 @@ async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
 	delayRenderTimeoutInMilliseconds,
 	logLevel,
 	inputProps,
-}: InternalRenderStillOnWebOptions<T>) {
+}: InternalRenderStillOnWebOptions<Schema, Props>) {
 	const div = document.createElement('div');
 
 	// Match same behavior as renderEntry.tsx
@@ -85,6 +98,8 @@ async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
 		remotion_attempt: 0,
 	};
 
+	const actualInputProps = inputProps ?? ({} as Props);
+
 	flushSync(() => {
 		root.render(
 			<Internals.RemotionEnvironmentContext
@@ -122,7 +137,7 @@ async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
 								compositionId: COMP_ID,
 							},
 							currentCompositionMetadata: {
-								props: inputProps,
+								props: inputProps ?? {},
 								durationInFrames,
 								fps,
 								height,
@@ -147,7 +162,9 @@ async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
 							}}
 						>
 							<Internals.CanUseRemotionHooks value>
-								<Component {...inputProps} />
+								{/**
+								 * @ts-expect-error	*/}
+								<Component {...actualInputProps} />
 							</Internals.CanUseRemotionHooks>
 						</Internals.RemotionRoot>
 					</Internals.CompositionManager.Provider>
@@ -160,17 +177,8 @@ async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
 	await promise;
 
 	await waitForReady(delayRenderTimeoutInMilliseconds, delayRenderScope);
-	const canvasElements = findCanvasElements(div);
-	const svgElements = findSvgElements(div);
-	const composed = await compose({
-		composables: [...canvasElements, ...svgElements],
-		width,
-		height,
-	});
 
-	const imageData = await composed.convertToBlob({
-		type: 'image/png',
-	});
+	const imageData = await takeScreenshot(div, width, height);
 
 	root.unmount();
 	div.remove();
@@ -178,13 +186,17 @@ async function internalRenderStillOnWeb<T extends Record<string, unknown>>({
 	return imageData;
 }
 
-export const renderStillOnWeb = <T extends Record<string, unknown>>(
-	options: RenderStillOnWebOptions<T>,
+export const renderStillOnWeb = <
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>,
+>(
+	options: RenderStillOnWebOptions<Schema, Props>,
 ) => {
-	return internalRenderStillOnWeb({
+	return internalRenderStillOnWeb<Schema, Props>({
 		...options,
 		delayRenderTimeoutInMilliseconds:
 			options.delayRenderTimeoutInMilliseconds ?? 30000,
 		logLevel: options.logLevel ?? 'info',
+		schema: options.schema ?? undefined,
 	});
 };

@@ -21,7 +21,7 @@ export const TriggerWebRender = () => {
 		}
 
 		renderStillOnWeb({
-			Component: video.component,
+			component: video.component,
 			width: video.width,
 			height: video.height,
 			fps: video.fps,

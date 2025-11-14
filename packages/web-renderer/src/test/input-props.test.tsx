@@ -27,9 +27,17 @@ const DisallowGetInputProps: React.FC<{}> = () => {
 	return null;
 };
 
+const HasNoProps: React.FC<{}> = () => {
+	return null;
+};
+
+const HasProps: React.FC<{abc: 'def'}> = () => {
+	return null;
+};
+
 test('cannot call getInputProps() while rendering client-side', async () => {
 	await renderStillOnWeb({
-		Component: MustAcceptInputProps,
+		component: MustAcceptInputProps,
 		width: 100,
 		height: 100,
 		fps: 30,
@@ -42,7 +50,7 @@ test('cannot call getInputProps() while rendering client-side', async () => {
 test('cannot call getInputProps() while rendering client-side', async () => {
 	await expect(() => {
 		return renderStillOnWeb({
-			Component: DisallowGetInputProps,
+			component: DisallowGetInputProps,
 			width: 100,
 			height: 100,
 			fps: 30,
@@ -53,4 +61,56 @@ test('cannot call getInputProps() while rendering client-side', async () => {
 	}).rejects.toThrow(
 		'Cannot call `getInputProps()` - window.remotion_inputProps is not set. This API is only available if you are in the Studio, or while you are rendering server-side.',
 	);
+});
+
+type MockSignature = typeof renderStillOnWeb;
+const mockFn: MockSignature = () => Promise.resolve(new Blob());
+
+test('Should be able to omit input props when component accepts no props', () => {
+	mockFn({
+		component: HasNoProps,
+		width: 100,
+		height: 100,
+		fps: 30,
+		durationInFrames: 30,
+		frame: 20,
+	});
+});
+
+test('Should not be able to omit input props when component accepts props', () => {
+	// @ts-expect-error - inputProps is required
+	mockFn({
+		component: HasProps,
+		width: 100,
+		height: 100,
+		fps: 30,
+		durationInFrames: 30,
+		frame: 20,
+	});
+
+	mockFn({
+		component: HasProps,
+		width: 100,
+		height: 100,
+		fps: 30,
+		durationInFrames: 30,
+		frame: 20,
+		inputProps: {
+			// @ts-expect-error - must match signature
+			abc: 'efg',
+		},
+	});
+
+	// No error, how it should be :)
+	mockFn({
+		component: HasProps,
+		width: 100,
+		height: 100,
+		fps: 30,
+		durationInFrames: 30,
+		frame: 20,
+		inputProps: {
+			abc: 'def',
+		},
+	});
 });
