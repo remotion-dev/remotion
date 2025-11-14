@@ -8,22 +8,84 @@ type ImgDrawable = {
 	top: number;
 };
 
+type Transform = {
+	matrix: DOMMatrix;
+	rect: HTMLElement | SVGSVGElement;
+	transformOrigin: string;
+	boundingClientRect: DOMRect | null;
+};
+
 const svgToImageBitmap = (svg: SVGSVGElement): Promise<ImgDrawable | null> => {
-	const computedStyle = getComputedStyle(svg);
+	// Compute the cumulative transform by traversing parent nodes
+	let parent: HTMLElement | SVGSVGElement | null = svg;
+	const transforms: Transform[] = [];
+	const toReset: (() => void)[] = [];
+	while (parent) {
+		const computedStyle = getComputedStyle(parent);
+		if (
+			(computedStyle.transform && computedStyle.transform !== 'none') ||
+			parent === svg
+		) {
+			const matrix = new DOMMatrix(computedStyle.transform);
+			const {transform} = parent.style;
+			parent.style.transform = 'none';
+			transforms.push({
+				matrix,
+				rect: parent,
+				transformOrigin: computedStyle.transformOrigin,
+				boundingClientRect: null,
+			});
+			const parentRef = parent;
+			toReset.push(() => {
+				parentRef!.style.transform = transform;
+			});
+		}
 
-	const {transform: originalTransform} = computedStyle;
-
-	// we remove the transform, since it skews the positioning.
-	// When we later apply the positioning again, the transform will be applied to the position.
-	svg.style.transform = 'none';
-	const svgDimensions = svg.getBoundingClientRect();
-	svg.style.transform = originalTransform;
-
-	if (svgDimensions.width === 0 || svgDimensions.height === 0) {
-		return Promise.resolve(null);
+		parent = parent.parentElement;
 	}
 
+	for (const transform of transforms) {
+		transform.boundingClientRect = transform.rect.getBoundingClientRect();
+	}
+
+	let totalMatrix = new DOMMatrix();
+	for (const transform of transforms) {
+		const [xTo, yTo] = transform.transformOrigin.split(' ');
+		const originX = parseFloat(xTo);
+		const originY = parseFloat(yTo);
+
+		if (!transform.boundingClientRect) {
+			throw new Error('Bounding client rect not found');
+		}
+
+		const centerX = transform.boundingClientRect.width / 2;
+		const centerY = transform.boundingClientRect.height / 2;
+
+		const deviationFromX = centerX - originX;
+		const deviationFromY = centerY - originY;
+
+		totalMatrix = totalMatrix
+			.translate(-deviationFromX, -deviationFromX)
+			.multiply(transform.matrix)
+			.translate(deviationFromX, deviationFromY);
+	}
+
+	const svgDimensions = transforms[0].boundingClientRect!;
+
+	// For preview: Not modifying the DOM here, but if you want
+	// you could set svg.style.transform = cumulativeTransform after getting bounding rect
+
+	const originalTransform = svg.style.transform;
+	const originalTransformOrigin = svg.style.transformOrigin;
+	svg.style.transform = totalMatrix.toString();
+	// 	svg.style.transformOrigin = '0 0';
 	const svgData = new XMLSerializer().serializeToString(svg);
+	svg.style.transform = originalTransform;
+	svg.style.transformOrigin = originalTransformOrigin;
+
+	for (const reset of toReset) {
+		reset();
+	}
 
 	return new Promise<ImgDrawable>((resolve, reject) => {
 		const image = new Image(svgDimensions.width, svgDimensions.height);
