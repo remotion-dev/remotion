@@ -1,4 +1,6 @@
-import type {LogLevel, StillImageFormat} from '@remotion/renderer';
+import type {LogLevel} from '@remotion/renderer';
+import type {RenderStillImageFormat} from '@remotion/web-renderer';
+import {renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {BLUE} from '../../helpers/colors';
@@ -118,7 +120,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 	const [renderMode] = useState<RenderType>('still');
 	const [tab, setTab] = useState<TabType>('general');
-	const [imageFormat, setImageFormat] = useState<StillImageFormat>('png');
+	const [imageFormat, setImageFormat] = useState<RenderStillImageFormat>('png');
 	const [frame, setFrame] = useState(() => initialFrame);
 	const [logLevel, setLogLevel] = useState<LogLevel>('info');
 	const [inputProps, setInputProps] = useState(() => defaultProps);
@@ -211,17 +213,41 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		[],
 	);
 
-	const onRender = () => {
-		// TODO: Implement rendering
-		console.log('Render clicked', {
-			imageFormat,
+	const onRender = useCallback(async () => {
+		const blob = await renderStillOnWeb({
+			component: unresolvedComposition.component,
 			frame,
+			imageFormat,
 			logLevel,
 			inputProps,
-			delayRenderTimeout,
+			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
 			mediaCacheSizeInBytes,
+			durationInFrames: resolvedComposition.durationInFrames,
+			width: resolvedComposition.width,
+			height: resolvedComposition.height,
+			fps: resolvedComposition.fps,
 		});
-	};
+
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		// TODO: Download name
+		a.download = 'composed.png';
+		a.click();
+		URL.revokeObjectURL(url);
+	}, [
+		unresolvedComposition.component,
+		frame,
+		imageFormat,
+		logLevel,
+		inputProps,
+		delayRenderTimeout,
+		mediaCacheSizeInBytes,
+		resolvedComposition.durationInFrames,
+		resolvedComposition.width,
+		resolvedComposition.height,
+		resolvedComposition.fps,
+	]);
 
 	const toggleCustomMediaCacheSizeInBytes = useCallback(() => {
 		setMediaCacheSizeInBytes((previous) => {

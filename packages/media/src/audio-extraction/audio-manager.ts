@@ -1,6 +1,6 @@
 import type {AudioSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
-import {getMaxVideoCacheSize, getTotalCacheStats} from '../caches';
+import {getTotalCacheStats} from '../caches';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import type {AudioSampleIterator} from './audio-iterator';
 import {makeAudioIterator} from './audio-iterator';
@@ -85,6 +85,7 @@ export const makeAudioManager = () => {
 		isMatroska,
 		actualMatroskaTimestamps,
 		logLevel,
+		maxCacheSize,
 	}: {
 		src: string;
 		timeInSeconds: number;
@@ -92,8 +93,8 @@ export const makeAudioManager = () => {
 		isMatroska: boolean;
 		actualMatroskaTimestamps: RememberActualMatroskaTimestamps;
 		logLevel: LogLevel;
+		maxCacheSize: number;
 	}) => {
-		const maxCacheSize = getMaxVideoCacheSize(logLevel);
 		while ((await getTotalCacheStats()).totalSize > maxCacheSize) {
 			deleteOldestIterator();
 		}
@@ -157,6 +158,7 @@ export const makeAudioManager = () => {
 			isMatroska,
 			actualMatroskaTimestamps,
 			logLevel,
+			maxCacheSize,
 		}: {
 			src: string;
 			timeInSeconds: number;
@@ -164,6 +166,7 @@ export const makeAudioManager = () => {
 			isMatroska: boolean;
 			actualMatroskaTimestamps: RememberActualMatroskaTimestamps;
 			logLevel: LogLevel;
+			maxCacheSize: number;
 		}) => {
 			queue = queue.then(() =>
 				getIterator({
@@ -173,6 +176,7 @@ export const makeAudioManager = () => {
 					isMatroska,
 					actualMatroskaTimestamps,
 					logLevel,
+					maxCacheSize,
 				}),
 			);
 			return queue as Promise<AudioSampleIterator>;

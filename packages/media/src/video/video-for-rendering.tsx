@@ -21,6 +21,7 @@ import {
 	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
+import {useMaxMediaCacheSize} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
@@ -116,6 +117,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	const audioEnabled = Internals.useAudioEnabled();
 	const videoEnabled = Internals.useVideoEnabled();
 
+	const maxCacheSize = useMaxMediaCacheSize(logLevel);
+
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
 			return;
@@ -159,6 +162,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			trimAfter: trimAfterValue,
 			trimBefore: trimBeforeValue,
 			fps,
+			maxCacheSize,
 		})
 			.then((result) => {
 				if (result.type === 'unknown-container-format') {
@@ -350,6 +354,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		trimBeforeValue,
 		audioEnabled,
 		videoEnabled,
+		maxCacheSize,
 	]);
 
 	const classNameValue = useMemo(() => {

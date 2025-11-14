@@ -31,6 +31,7 @@ test('should be able to cancel render', async (t) => {
 			durationInFrames: 30,
 			frame: 20,
 			inputProps: {},
+			imageFormat: 'png',
 		});
 	} catch (error) {
 		if (t.task.file.projectName === 'firefox') {

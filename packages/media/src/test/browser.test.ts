@@ -1,5 +1,5 @@
 import {assert, expect, test} from 'vitest';
-import {keyframeManager} from '../caches';
+import {getMaxVideoCacheSize, keyframeManager} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
 
@@ -19,6 +19,7 @@ test('Should be able to extract a frame', async () => {
 		trimAfter: undefined,
 		trimBefore: undefined,
 		fps: 30,
+		maxCacheSize: getMaxVideoCacheSize('info'),
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -72,6 +73,7 @@ test('Should be able to extract the last frame', async () => {
 		trimAfter: undefined,
 		trimBefore: undefined,
 		fps: 30,
+		maxCacheSize: getMaxVideoCacheSize('info'),
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -117,6 +119,7 @@ test('Should manage the cache', async () => {
 			trimAfter: undefined,
 			trimBefore: undefined,
 			fps: 30,
+			maxCacheSize: getMaxVideoCacheSize('info'),
 		});
 	}
 
@@ -141,6 +144,7 @@ test('Should be apply volume correctly', async () => {
 		trimAfter: undefined,
 		trimBefore: undefined,
 		fps: 30,
+		maxCacheSize: getMaxVideoCacheSize('info'),
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -194,6 +198,7 @@ test('Should be able to loop', async () => {
 		trimAfter: undefined,
 		trimBefore: undefined,
 		fps: 30,
+		maxCacheSize: getMaxVideoCacheSize('info'),
 	});
 
 	if (result.type === 'cannot-decode') {

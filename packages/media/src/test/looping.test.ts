@@ -1,4 +1,5 @@
 import {assert, expect, test} from 'vitest';
+import {getMaxVideoCacheSize} from '../caches';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {extractFrame} from '../video-extraction/extract-frame';
 
@@ -36,6 +37,7 @@ test('when looping with a lot of concurrency, it must be frame-accurate', async 
 			trimBefore,
 			playbackRate,
 			fps,
+			maxCacheSize: getMaxVideoCacheSize('info'),
 		});
 		expect(result.type).toBe('success');
 		assert(result.type === 'success');

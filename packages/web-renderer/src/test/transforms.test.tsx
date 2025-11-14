@@ -28,6 +28,7 @@ test('should be able to deal with a simple transform directly on the element', a
 		height: 100,
 		frame: 0,
 		inputProps: {},
+		imageFormat: 'png',
 	});
 
 	await testImage({blob, testId: 'simple-transforms'});
@@ -52,6 +53,7 @@ test('should be able to deal with a simple transform on the parent', async () =>
 		height: 100,
 		frame: 0,
 		inputProps: {},
+		imageFormat: 'png',
 	});
 
 	await testImage({blob, testId: 'parent-transforms'});
@@ -81,6 +83,7 @@ test('should be able to deal with a transform-origin on itself', async () => {
 		height: 100,
 		frame: 0,
 		inputProps: {},
+		imageFormat: 'png',
 	});
 
 	await testImage({blob, testId: 'transform-origin-itself'});
@@ -107,6 +110,7 @@ test('should be able to deal with a transform-origin on parent', async () => {
 		height: 100,
 		frame: 0,
 		inputProps: {},
+		imageFormat: 'png',
 	});
 
 	await testImage({blob, testId: 'transform-origin'});
@@ -135,6 +139,7 @@ test('accumulated transforms', async () => {
 		height: 100,
 		frame: 0,
 		inputProps: {},
+		imageFormat: 'png',
 	});
 
 	await testImage({blob, testId: 'accumulated-origin'});
@@ -180,6 +185,7 @@ test('transformed canvases', async () => {
 		height: 100,
 		frame: 0,
 		inputProps: {},
+		imageFormat: 'png',
 	});
 
 	await testImage({blob, testId: 'transformed-canvas'});
@@ -225,6 +231,7 @@ test('multi-level nested transforms with distinct transform-origins', async () =
 		height: 100,
 		frame: 0,
 		inputProps: {},
+		imageFormat: 'png',
 	});
 
 	await testImage({blob, testId: 'multi-level-transform-origins'});
@@ -268,6 +275,7 @@ test('three-level nested transforms with varying origins', async () => {
 		height: 100,
 		frame: 0,
 		inputProps: {},
+		imageFormat: 'png',
 	});
 
 	await testImage({blob, testId: 'three-level-transform-origins'});
@@ -305,6 +313,7 @@ test('nested transforms with pixel-based transform-origins', async () => {
 		height: 100,
 		frame: 0,
 		inputProps: {},
+		imageFormat: 'png',
 	});
 
 	await testImage({blob, testId: 'pixel-transform-origins'});
