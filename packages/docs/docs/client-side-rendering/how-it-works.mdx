@@ -1,0 +1,52 @@
+---
+image: /generated/articles-docs-client-side-rendering-how-it-works.png
+crumb: 'Client-side rendering'
+sidebar_label: Mechanism
+title: How client-side rendering works
+---
+
+:::warning
+This feature is not available yet, but we are already writing docs.  
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+The biggest challenge of client-side rendering is that it is not possible to capture the browser viewport.  
+Only certain HTML elements and React components such as `<canvas>`, `<svg>`, [`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), and [`<Img>`](/docs/img) can be captured.
+
+Unlike in server-side rendering, where a pixel-perfect screenshot is made, in client-side rendering Remotion only takes the capturable elements and composites them onto a single canvas.
+
+## Rendering process
+
+### Initialization
+
+First, the component is mounted in the DOM in a place where it is not visible to the user.
+
+### Frame capture process
+
+For each frame that needs to be rendered, the renderer uses `element.querySelectorAll()` to find all elements that can be captured, including `<canvas>`, `<svg>`, `<Audio>`, `<Video>`, `<img>` and other supported element types.
+
+For each capturable element, the renderer:
+
+1. Goes up the DOM tree and resets all `transform` CSS properties to `none`.
+2. Gets the bounding box using `.getBoundingClientRect()`, as well as the bounding boxes of the parent elements.
+3. Adds up the transforms and positions to determine the original placement of the element in the DOM.
+4. Captures the pixels of the element
+5. Draws them to the canvas according to the calculated placement.
+
+In addition, audio from mounted [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) elements is captured and mixed, and added to the audio track of the video.
+
+### Encoding
+
+[Mediabunny](/docs/mediabunny) is used to encode the frames and processed audio into a video file.
+
+## Context isolation
+
+Renders happen in the same browser environment as your app. This means CSS and Tailwind variables will automatically work, but you run the risk of conflicts with the host page.
+
+See [Limitations](/docs/client-side-rendering/limitations) for more details to ensure your code works with client-side rendering.
+
+## See also
+
+- [Client-side rendering](/docs/client-side-rendering/overview)
+- [Limitations](/docs/client-side-rendering/limitations)
+- [Mediabunny](/docs/mediabunny)

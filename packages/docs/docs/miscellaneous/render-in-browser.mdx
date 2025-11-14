@@ -10,18 +10,9 @@ In order to render videos, you need to hook up [server-side rendering](/docs/ssr
 
 ## Our future plan
 
-**We are planning to add support for rendering videos in the browser in the future.**  
-As of September 2025, this is our biggest priority on the roadmap and the feature is in the works.
+**We are planning to add support for rendering videos in the browser in the future** - with some [limitations](/docs/client-side-rendering/limitations).  
+See [Client-side rendering](/docs/client-side-rendering) for an overview of the project.
 
-The biggest limitation is that there is no way to capture the browser viewport.
-
-Therefore, with browser rendering, only certain tags will be supported, such as `<canvas>`, `<svg>`, `<Video>` and `<Img>`. Also, `<Audio>` can be processed.
-
-It will still be possible to layout these tags using `<div>`'s and CSS, since Remotion will be able to programmatically determine the position of the elements.
-Remotion will extract canvas-like elements from the DOM and compose them.  
-This keeps the possibility to have event handlers like `onPointerDown` attached to them. We hope this is more productive than to just have one `<canvas>` element and disable event handlers and CSS layouting.
-
-The encoding of the video will work with [Mediabunny](/docs/mediabunny).  
 We hope to launch this mode in late 2025.
 
 ## Future-proofing your code
@@ -29,7 +20,7 @@ We hope to launch this mode in late 2025.
 To prepare yourself for client-side rendering, update your code:
 
 - to use the [`useRemotionEnvironment()`](/docs/use-remotion-environment) hook instead of `getRemotionEnvironment()`
-- to use the [`useDelayRender()`](/docs/use-delay-render) hook instead of `delayRender()`
+- to use the [`useDelayRender()`](/docs/use-delay-render) hook instead of `delayRender()`, `continueRender()` and `cancelRender()`
 - Ensure your assets are available via CORS, so the client-side can access them
 
 ## See also
