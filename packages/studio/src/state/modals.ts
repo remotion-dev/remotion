@@ -24,6 +24,7 @@ export type WebRenderModalState = {
 	type: 'web-render';
 	initialFrame: number;
 	compositionId: string;
+	defaultProps: Record<string, unknown>;
 };
 
 export type RenderModalState = {

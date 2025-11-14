@@ -31,8 +31,9 @@ export const TriggerWebRender = () => {
 			type: 'web-render',
 			initialFrame: frame,
 			compositionId: video.id,
+			defaultProps: video.defaultProps,
 		});
-	}, [frame, setSelectedModal, video?.id]);
+	}, [frame, setSelectedModal, video?.id, video?.defaultProps]);
 
 	if (!video) {
 		return null;

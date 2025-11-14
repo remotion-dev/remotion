@@ -44,6 +44,7 @@ export const Modals: React.FC<{
 					type="web-render"
 					initialFrame={modalContextType.initialFrame}
 					compositionId={modalContextType.compositionId}
+					defaultProps={modalContextType.defaultProps}
 				/>
 			)}
 			{modalContextType &&
