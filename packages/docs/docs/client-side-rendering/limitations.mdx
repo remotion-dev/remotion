@@ -26,7 +26,7 @@ Only certain element types can be captured and rendered:
 You can use HTML elements like `<div>` to influence the layout of the elements, but they will not be captured visually
 
 ```tsx
-import {AbsoluteFill, Img} from 'remotion';
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 export const MyComponent: React.FC = () => {
   return (
@@ -35,7 +35,7 @@ export const MyComponent: React.FC = () => {
       {/** This text will NOT be captured but it influences the layout */}
       <div>Hello world</div>
       {/** This image WILL be captured because it is a supported element type */}
-      <Img style={staticFile('image.png')} />
+      <Img src={staticFile('image.png')} />
     </div>
   );
 };
