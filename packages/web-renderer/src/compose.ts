@@ -13,6 +13,8 @@ const svgToImageBitmap = (svg: SVGSVGElement): Promise<ImgDrawable | null> => {
 
 	const {transform: originalTransform} = computedStyle;
 
+	// we remove the transform, since it skews the positioning.
+	// When we later apply the positioning again, the transform will be applied to the position.
 	svg.style.transform = 'none';
 	const svgDimensions = svg.getBoundingClientRect();
 	svg.style.transform = originalTransform;
