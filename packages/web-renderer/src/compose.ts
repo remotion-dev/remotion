@@ -48,8 +48,10 @@ const svgToImageBitmap = (svg: SVGSVGElement): Promise<ImgDrawable | null> => {
 		transform.boundingClientRect = transform.rect.getBoundingClientRect();
 	}
 
+	const svgDimensions = transforms[0].boundingClientRect!;
+
 	let totalMatrix = new DOMMatrix();
-	for (const transform of transforms) {
+	for (const transform of transforms.slice().reverse()) {
 		const [xTo, yTo] = transform.transformOrigin.split(' ');
 		const originX = parseFloat(xTo);
 		const originY = parseFloat(yTo);
@@ -70,8 +72,6 @@ const svgToImageBitmap = (svg: SVGSVGElement): Promise<ImgDrawable | null> => {
 			.translate(deviationFromX, deviationFromY);
 	}
 
-	const svgDimensions = transforms[0].boundingClientRect!;
-
 	// For preview: Not modifying the DOM here, but if you want
 	// you could set svg.style.transform = cumulativeTransform after getting bounding rect
 
@@ -90,7 +90,7 @@ const svgToImageBitmap = (svg: SVGSVGElement): Promise<ImgDrawable | null> => {
 
 	return new Promise<ImgDrawable>((resolve, reject) => {
 		const image = new Image(svgDimensions.width, svgDimensions.height);
-		const url = 'data:image/svg+xml;base64,' + window.btoa(svgData);
+		const url = `data:image/svg+xml;base64,${btoa(svgData)}`;
 
 		image.onload = function () {
 			resolve({
@@ -136,13 +136,11 @@ export const compose = async ({
 				boundingClientRect.top,
 			);
 		} else if (composable.type === 'svg') {
-			// This already takes care of the "transform" of the SVG
-			// but not of the transforms of the parent
+			// This already accumulates the transforms of the parent
+
 			const imageBitmap = await svgToImageBitmap(composable.element);
 
 			if (imageBitmap) {
-				// transform origin
-				// Don't need to get transform from SVG
 				context.drawImage(imageBitmap.image, imageBitmap.left, imageBitmap.top);
 			}
 		}
