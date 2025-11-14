@@ -1,0 +1,31 @@
+---
+sidebar_label: Migration
+title: Migrating code to client-side rendering
+crumb: 'FAQ'
+---
+
+:::warning
+This feature is not available yet, but we are already writing docs.  
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+We try to support as much code that was written for [server-side rendering](/docs/ssr) as possible.  
+Some code is unsupported or may need changing.
+
+You may start future-proofing your code now if you are interested in using [client-side rendering](/docs/client-side-rendering) in the future.
+
+## Use `useRemotionEnvironment()` instead of `getRemotionEnvironment()`
+
+[`getRemotionEnvironment()`](/docs/get-remotion-environment) is a global API that may conflict with other Remotion instances in your project, such as when you have a [`<Player>`](/docs/player) mounted on the same page.
+
+Start using the [`useRemotionEnvironment()`](/docs/use-remotion-environment) hook instead.
+
+## Use `useDelayRender()` for of `delayRender()`, `continueRender()` and `cancelRender()`
+
+If you have multiple renders at the same time or another instance of Remotion on the same page, such as a `<Player>`, the [`delayRender()`](/docs/delay-render), [`continueRender()`](/docs/continue-render) and [`cancelRender()`](/docs/cancel-render) functions may conflict.
+
+Start using the [`useDelayRender()`](/docs/use-delay-render) hook instead, which scopes these functions to a composition.
+
+## Ensure assets are available via CORS
+
+Unlike server-side rendering, where video and audio assets are downloaded in a Node.js process, and where images can be captured even if they are [tainted](https://www.unblu.com/en/docs/latest/knowledge-base/configuration/collaboration-layers/embedded-co-browsing/html-tainted-canvas-limitation.html), in client-side rendering, CORS is enforced and images and canvas may not be tainted.

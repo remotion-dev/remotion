@@ -684,6 +684,15 @@ export const articles = [
 		slug: 'client-side-rendering/limitations',
 	},
 	{
+		id: 'client-side-rendering/migration',
+		title: 'Migrating code to client-side rendering',
+		relativePath: 'docs/client-side-rendering/migration.mdx',
+		compId: 'articles-docs-client-side-rendering-migration',
+		crumb: 'FAQ',
+		noAi: false,
+		slug: 'client-side-rendering/migration',
+	},
+	{
 		id: 'clipper',
 		title: '<Experimental.Clipper>',
 		relativePath: 'docs/clipper.mdx',
