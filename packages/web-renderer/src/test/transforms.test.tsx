@@ -1,4 +1,5 @@
-import {AbsoluteFill} from 'remotion';
+import {useEffect, useRef, useState} from 'react';
+import {AbsoluteFill, continueRender, delayRender} from 'remotion';
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {testImage} from './utils';
@@ -137,4 +138,49 @@ test('accumulated transforms', async () => {
 	});
 
 	await testImage({blob, testId: 'accumulated-origin'});
+});
+
+test('transformed canvases', async () => {
+	const Component: React.FC = () => {
+		const [handle] = useState(() => delayRender());
+		const ref = useRef<HTMLCanvasElement>(null);
+
+		useEffect(() => {
+			if (!ref.current) return;
+			const ctx = ref.current.getContext('2d');
+			if (!ctx) return;
+			ctx.fillStyle = 'orange';
+			ctx.fillRect(0, 0, 50, 50);
+			continueRender(handle);
+		}, [handle]);
+
+		return (
+			<AbsoluteFill
+				style={{
+					transform: 'rotate(45deg)',
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}
+			>
+				<canvas
+					ref={ref}
+					width="50"
+					height="50"
+					style={{width: '50px', height: '50px'}}
+				/>
+			</AbsoluteFill>
+		);
+	};
+
+	const blob = await renderStillOnWeb({
+		component: Component,
+		durationInFrames: 100,
+		fps: 30,
+		width: 100,
+		height: 100,
+		frame: 0,
+		inputProps: {},
+	});
+
+	await testImage({blob, testId: 'transformed-canvas'});
 });
