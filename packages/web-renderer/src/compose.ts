@@ -78,8 +78,9 @@ const svgToImageBitmap = (svg: SVGSVGElement): Promise<ImgDrawable | null> => {
 	const originalTransform = svg.style.transform;
 	const originalTransformOrigin = svg.style.transformOrigin;
 	svg.style.transform = totalMatrix.toString();
-	// 	svg.style.transformOrigin = '0 0';
+	svg.style.transformOrigin = '50% 50%';
 	const svgData = new XMLSerializer().serializeToString(svg);
+
 	svg.style.transform = originalTransform;
 	svg.style.transformOrigin = originalTransformOrigin;
 

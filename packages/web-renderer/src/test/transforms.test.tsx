@@ -29,7 +29,7 @@ test('should be able to deal with a simple transform directly on the element', a
 		inputProps: {},
 	});
 
-	await testImage({blob, testId: 'nested-transforms'});
+	await testImage({blob, testId: 'simple-transforms'});
 });
 
 test('should be able to deal with a simple transform on the parent', async () => {
@@ -53,10 +53,39 @@ test('should be able to deal with a simple transform on the parent', async () =>
 		inputProps: {},
 	});
 
-	await testImage({blob, testId: 'nested-transforms'});
+	await testImage({blob, testId: 'parent-transforms'});
 });
 
-test('should be able to deal with a transform-origin', async () => {
+test('should be able to deal with a transform-origin on itself', async () => {
+	const Component: React.FC = () => {
+		return (
+			<AbsoluteFill>
+				<svg
+					viewBox="0 0 100 100"
+					width="100"
+					height="100"
+					style={{transform: 'rotate(45deg)', transformOrigin: '0 0'}}
+				>
+					<rect x="0" y="0" width="50" height="50" fill="orange" />
+				</svg>
+			</AbsoluteFill>
+		);
+	};
+
+	const blob = await renderStillOnWeb({
+		component: Component,
+		durationInFrames: 100,
+		fps: 30,
+		width: 100,
+		height: 100,
+		frame: 0,
+		inputProps: {},
+	});
+
+	await testImage({blob, testId: 'transform-origin-itself'});
+});
+
+test('should be able to deal with a transform-origin on parent', async () => {
 	const Component: React.FC = () => {
 		return (
 			<AbsoluteFill
