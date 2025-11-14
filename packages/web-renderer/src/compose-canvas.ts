@@ -17,6 +17,7 @@ export const composeCanvas = (
 
 	context.setTransform(matrix);
 	context.drawImage(canvas, svgDimensions.left, svgDimensions.top);
+	context.setTransform(new DOMMatrix());
 
 	reset();
 };
