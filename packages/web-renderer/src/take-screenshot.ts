@@ -23,7 +23,7 @@ export const takeScreenshot = async ({
 	});
 
 	const imageData = await composed.convertToBlob({
-		type: imageFormat,
+		type: `image/${imageFormat}`,
 	});
 
 	return imageData;

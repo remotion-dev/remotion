@@ -232,7 +232,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		const a = document.createElement('a');
 		a.href = url;
 		// TODO: Download name
-		a.download = 'composed.png';
+		a.download = `composed.${imageFormat}`;
 		a.click();
 		URL.revokeObjectURL(url);
 	}, [
