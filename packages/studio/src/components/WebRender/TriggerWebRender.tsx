@@ -39,12 +39,7 @@ export const TriggerWebRender = () => {
 	}
 
 	return (
-		<Button
-			id="render-modal-button"
-			onClick={onClick}
-			buttonContainerStyle={button}
-			disabled={false}
-		>
+		<Button onClick={onClick} buttonContainerStyle={button} disabled={false}>
 			<span style={label}>Render on the web</span>
 		</Button>
 	);
