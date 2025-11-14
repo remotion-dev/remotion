@@ -27,6 +27,7 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
 	logLevel: LogLevel;
 	schema: Schema | undefined;
+	id: string | null;
 };
 
 type InternalRenderStillOnWebOptions<
@@ -41,8 +42,6 @@ export type RenderStillOnWebOptions<
 > = MandatoryRenderStillOnWebOptions<Schema, Props> &
 	Partial<OptionalRenderStillOnWebOptions<Schema>>;
 
-const COMP_ID = 'markup';
-
 async function internalRenderStillOnWeb<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
@@ -56,6 +55,8 @@ async function internalRenderStillOnWeb<
 	delayRenderTimeoutInMilliseconds,
 	logLevel,
 	inputProps,
+	id,
+	schema,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
 	const div = document.createElement('div');
 
@@ -73,13 +74,7 @@ async function internalRenderStillOnWeb<
 		throw new Error('@remotion/web-renderer requires React 18 or higher');
 	}
 
-	// TODO: Env variables
-	// TODO: Input Props
-	// TODO: Default props
-	// TODO: getInputProps()
 	// TODO: calculateMetadata()
-	// TODO: getRemotionEnvironment()
-	// TODO: delayRender()
 	// TODO: Video config
 
 	const {promise, resolve, reject} = withResolvers<void>();
@@ -100,6 +95,8 @@ async function internalRenderStillOnWeb<
 
 	const actualInputProps = inputProps ?? ({} as Props);
 
+	const compId = id ?? 'default';
+
 	flushSync(() => {
 		root.render(
 			<Internals.RemotionEnvironmentContext
@@ -116,15 +113,14 @@ async function internalRenderStillOnWeb<
 						value={{
 							compositions: [
 								{
-									id: COMP_ID,
+									id: compId,
 									// @ts-expect-error
 									component: Component,
 									nonce: 0,
-									// TODO: Do we need to allow to set this?
-									defaultProps: undefined,
+									defaultProps: {},
 									folderName: null,
 									parentFolderName: null,
-									schema: null,
+									schema: schema ?? null,
 									calculateMetadata: null,
 									durationInFrames,
 									fps,
@@ -134,7 +130,7 @@ async function internalRenderStillOnWeb<
 							],
 							canvasContent: {
 								type: 'composition',
-								compositionId: COMP_ID,
+								compositionId: compId,
 							},
 							currentCompositionMetadata: {
 								props: inputProps ?? {},
@@ -158,7 +154,7 @@ async function internalRenderStillOnWeb<
 							numberOfAudioTags={0}
 							audioLatencyHint="interactive"
 							frameState={{
-								[COMP_ID]: frame,
+								[compId]: frame,
 							}}
 						>
 							<Internals.CanUseRemotionHooks value>
@@ -198,5 +194,6 @@ export const renderStillOnWeb = <
 			options.delayRenderTimeoutInMilliseconds ?? 30000,
 		logLevel: options.logLevel ?? 'info',
 		schema: options.schema ?? undefined,
+		id: options.id ?? null,
 	});
 };
