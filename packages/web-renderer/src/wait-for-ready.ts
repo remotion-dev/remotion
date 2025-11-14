@@ -16,7 +16,10 @@ export const waitForReady = (
 		if (scope.remotion_renderReady === true) {
 			// Wait for useEffects() to apply
 			requestAnimationFrame(() => {
-				resolve();
+				// Firefox needs at least two frames to apply the transform
+				requestAnimationFrame(() => {
+					resolve();
+				});
 			});
 
 			clearInterval(interval);
