@@ -26,7 +26,8 @@
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"vitest": "4.0.7",
-		"vitest-browser-react": "^2.0.2"
+		"vitest-browser-react": "^2.0.2",
+		"zod": "catalog:"
 	},
 	"peerDependencies": {
 		"react": ">=18.0.0",
