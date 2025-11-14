@@ -20,8 +20,14 @@ import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
 import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
+export type WebRenderModalState = {
+	type: 'web-render';
+	initialFrame: number;
+	compositionId: string;
+};
+
 export type RenderModalState = {
-	type: 'render';
+	type: 'server-render';
 	compositionId: string;
 	initialFrame: number;
 	initialStillImageFormat: StillImageFormat;
@@ -88,6 +94,7 @@ export type ModalState =
 			type: 'input-props-override';
 	  }
 	| RenderModalState
+	| WebRenderModalState
 	| {
 			type: 'render-progress';
 			jobId: string;

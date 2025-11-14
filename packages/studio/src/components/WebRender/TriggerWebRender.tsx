@@ -1,8 +1,8 @@
-import {renderStillOnWeb} from '@remotion/web-renderer';
-import {useCallback} from 'react';
+import {PlayerInternals} from '@remotion/player';
+import {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
+import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
-import {getCurrentFrame} from '../Timeline/imperative-state';
 
 const button: React.CSSProperties = {
 	paddingLeft: 7,
@@ -11,32 +11,32 @@ const button: React.CSSProperties = {
 	paddingBottom: 7,
 };
 
+const label: React.CSSProperties = {
+	fontSize: 14,
+};
+
 export const TriggerWebRender = () => {
 	const video = Internals.useVideo();
+	const getCurrentFrame = PlayerInternals.useFrameImperative();
+
 	const frame = getCurrentFrame();
+	const {setSelectedModal} = useContext(ModalsContext);
 
 	const onClick = useCallback(() => {
-		if (!video) {
-			throw new Error('No video found');
+		if (!video?.id) {
+			return null;
 		}
 
-		renderStillOnWeb({
-			component: video.component,
-			width: video.width,
-			height: video.height,
-			fps: video.fps,
-			durationInFrames: video.durationInFrames,
-			frame,
-			inputProps: {},
-		}).then((blob) => {
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = 'composed.png';
-			a.click();
-			URL.revokeObjectURL(url);
+		setSelectedModal({
+			type: 'web-render',
+			initialFrame: frame,
+			compositionId: video.id,
 		});
-	}, [video, frame]);
+	}, [frame, setSelectedModal, video?.id]);
+
+	if (!video) {
+		return null;
+	}
 
 	return (
 		<Button
@@ -45,7 +45,7 @@ export const TriggerWebRender = () => {
 			buttonContainerStyle={button}
 			disabled={false}
 		>
-			<span>Render</span>
+			<span style={label}>Render on the web</span>
 		</Button>
 	);
 };

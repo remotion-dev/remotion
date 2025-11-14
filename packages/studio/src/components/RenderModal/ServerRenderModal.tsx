@@ -47,7 +47,6 @@ import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
-import {getMaxModalHeight, getMaxModalWidth} from '../ModalContainer';
 import {ModalHeader} from '../ModalHeader';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {DismissableModal} from '../NewComposition/DismissableModal';
@@ -79,6 +78,7 @@ import {
 import {getDefaultCodecs} from './get-default-codecs';
 import {getStringBeforeSuffix} from './get-string-before-suffix';
 import {validateOutnameGui} from './out-name-checker';
+import {outerModalStyle} from './render-modals';
 
 type State =
 	| {
@@ -187,14 +187,6 @@ const buttonStyle: React.CSSProperties = {
 
 const flexer: React.CSSProperties = {
 	flex: 1,
-};
-
-const outer: React.CSSProperties = {
-	width: getMaxModalWidth(1000),
-	height: getMaxModalHeight(640),
-	overflow: 'hidden',
-	display: 'flex',
-	flexDirection: 'column',
 };
 
 type RenderModalProps = {
@@ -1238,7 +1230,7 @@ const RenderModal: React.FC<
 	}, [availablePixelFormats, pixelFormat]);
 
 	return (
-		<div style={outer}>
+		<div style={outerModalStyle}>
 			<ModalHeader title={`Render ${resolvedComposition.id}`} />
 			<div style={container}>
 				<SegmentedControl items={renderTabOptions} needsWrapping={false} />
