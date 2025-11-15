@@ -1,7 +1,7 @@
 import {calculateTransforms} from './calculate-transforms';
 
 export const composeCanvas = (
-	canvas: HTMLCanvasElement,
+	canvas: HTMLCanvasElement | HTMLImageElement,
 	context: OffscreenCanvasRenderingContext2D,
 ) => {
 	const {totalMatrix, reset, dimensions, nativeTransformOrigin} =
