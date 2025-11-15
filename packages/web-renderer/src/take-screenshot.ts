@@ -1,5 +1,5 @@
 import {compose} from './compose';
-import {findCapturableElements} from './find-svg-elements';
+import {findCapturableElements} from './find-capturable-elements';
 import type {RenderStillOnWebImageFormat} from './render-still-on-web';
 
 export const takeScreenshot = async ({
