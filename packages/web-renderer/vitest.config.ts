@@ -1,4 +1,5 @@
 import {webdriverio} from '@vitest/browser-webdriverio';
+import path from 'node:path';
 import {defineConfig} from 'vitest/config';
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
@@ -20,4 +21,5 @@ export default defineConfig({
 			screenshotFailures: false,
 		},
 	},
+	publicDir: path.join(__dirname, '..', 'example-videos', 'videos'),
 });

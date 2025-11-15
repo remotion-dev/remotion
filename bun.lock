@@ -2023,6 +2023,7 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
+        "@remotion/media": "workspace:*",
         "@remotion/player": "workspace:*",
         "@vitejs/plugin-react": "^5.1.0",
         "@vitest/browser-webdriverio": "4.0.7",

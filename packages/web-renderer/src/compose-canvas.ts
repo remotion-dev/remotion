@@ -4,11 +4,11 @@ export const composeCanvas = (
 	canvas: HTMLCanvasElement,
 	context: OffscreenCanvasRenderingContext2D,
 ) => {
-	const {totalMatrix, reset, svgDimensions, nativeTransformOrigin} =
+	const {totalMatrix, reset, dimensions, nativeTransformOrigin} =
 		calculateTransforms(canvas);
 
-	const translateX = nativeTransformOrigin.x + svgDimensions.left;
-	const translateY = nativeTransformOrigin.y + svgDimensions.top;
+	const translateX = nativeTransformOrigin.x + dimensions.left;
+	const translateY = nativeTransformOrigin.y + dimensions.top;
 
 	const matrix = new DOMMatrix()
 		.translate(translateX, translateY)
@@ -16,7 +16,13 @@ export const composeCanvas = (
 		.translate(-translateX, -translateY);
 
 	context.setTransform(matrix);
-	context.drawImage(canvas, svgDimensions.left, svgDimensions.top);
+	context.drawImage(
+		canvas,
+		dimensions.left,
+		dimensions.top,
+		dimensions.width,
+		dimensions.height,
+	);
 	context.setTransform(new DOMMatrix());
 
 	reset();

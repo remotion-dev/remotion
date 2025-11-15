@@ -40,7 +40,7 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 		transform.boundingClientRect = transform.rect.getBoundingClientRect();
 	}
 
-	const svgDimensions = transforms[0].boundingClientRect!;
+	const dimensions = transforms[0].boundingClientRect!;
 	const nativeTransformOrigin = parseTransformOrigin(
 		transforms[0].transformOrigin,
 	);
@@ -68,7 +68,7 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 	}
 
 	return {
-		svgDimensions,
+		dimensions,
 		totalMatrix,
 		reset: () => {
 			for (const reset of toReset) {
