@@ -30,9 +30,6 @@ export const makeAudioIterator = (
 		queuedAudioNodes.length = 0;
 	};
 
-	let lastReturnedBuffer: WrappedAudioBuffer | null = null;
-	let iteratorEnded = false;
-
 	const getNextOrNullIfNotAvailable = async (allowWait: AllowWait | null) => {
 		const next = iterator.next();
 		const result = allowWait
@@ -49,21 +46,10 @@ export const makeAudioIterator = (
 				type: 'need-to-wait-for-it' as const,
 				waitPromise: async () => {
 					const res = await next;
-					if (res.value) {
-						lastReturnedBuffer = res.value;
-					} else {
-						iteratorEnded = true;
-					}
 
 					return res.value;
 				},
 			};
-		}
-
-		if (result.value) {
-			lastReturnedBuffer = result.value;
-		} else {
-			iteratorEnded = true;
 		}
 
 		return {
@@ -82,42 +68,12 @@ export const makeAudioIterator = (
 				reason: string;
 		  }
 		| {
+				type: 'ended';
+		  }
+		| {
 				type: 'satisfied';
 		  }
 	> => {
-		if (lastReturnedBuffer) {
-			const bufferTimestamp = roundTo4Digits(lastReturnedBuffer.timestamp);
-			const bufferEndTimestamp = roundTo4Digits(
-				lastReturnedBuffer.timestamp + lastReturnedBuffer.duration,
-			);
-
-			if (roundTo4Digits(time) < bufferTimestamp) {
-				return {
-					type: 'not-satisfied' as const,
-					reason: `iterator is too far, most recently returned ${bufferTimestamp}-${bufferEndTimestamp}, requested ${time}`,
-				};
-			}
-
-			if (roundTo4Digits(time) <= bufferEndTimestamp) {
-				onBufferScheduled(lastReturnedBuffer);
-				return {
-					type: 'satisfied' as const,
-				};
-			}
-
-			// fall through
-		}
-
-		if (iteratorEnded) {
-			if (lastReturnedBuffer) {
-				onBufferScheduled(lastReturnedBuffer);
-			}
-
-			return {
-				type: 'satisfied' as const,
-			};
-		}
-
 		while (true) {
 			const buffer = await getNextOrNullIfNotAvailable(allowWait);
 			if (buffer.type === 'need-to-wait-for-it') {
@@ -129,13 +85,8 @@ export const makeAudioIterator = (
 
 			if (buffer.type === 'got-buffer-or-end') {
 				if (buffer.buffer === null) {
-					iteratorEnded = true;
-					if (lastReturnedBuffer) {
-						onBufferScheduled(lastReturnedBuffer);
-					}
-
 					return {
-						type: 'satisfied' as const,
+						type: 'ended' as const,
 					};
 				}
 
@@ -144,6 +95,13 @@ export const makeAudioIterator = (
 					buffer.buffer.timestamp + buffer.buffer.duration,
 				);
 				const timestamp = roundTo4Digits(time);
+
+				if (roundTo4Digits(time) < bufferTimestamp) {
+					return {
+						type: 'not-satisfied' as const,
+						reason: `iterator is too far, most recently returned ${bufferTimestamp}-${bufferEndTimestamp}, requested ${time}`,
+					};
+				}
 
 				if (bufferTimestamp <= timestamp && bufferEndTimestamp > timestamp) {
 					onBufferScheduled(buffer.buffer);
@@ -195,12 +153,6 @@ export const makeAudioIterator = (
 		},
 		getNext: async () => {
 			const next = await iterator.next();
-			if (next.value) {
-				lastReturnedBuffer = next.value;
-			} else {
-				iteratorEnded = true;
-			}
-
 			return next;
 		},
 		isDestroyed: () => {
