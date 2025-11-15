@@ -182,7 +182,10 @@ async function internalRenderStillOnWeb<
 	resolve();
 	await promise;
 
-	await waitForReady(delayRenderTimeoutInMilliseconds, delayRenderScope);
+	await waitForReady({
+		timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+		scope: delayRenderScope,
+	});
 
 	const imageData = await takeScreenshot({div, width, height, imageFormat});
 

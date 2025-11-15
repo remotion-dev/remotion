@@ -1,6 +1,5 @@
 import {compose} from './compose';
-import {findCanvasElements} from './find-canvas-elements';
-import {findSvgElements} from './find-svg-elements';
+import {findCapturableElements} from './find-svg-elements';
 import type {RenderStillOnWebImageFormat} from './render-still-on-web';
 
 export const takeScreenshot = async ({
@@ -14,10 +13,9 @@ export const takeScreenshot = async ({
 	height: number;
 	imageFormat: RenderStillOnWebImageFormat;
 }) => {
-	const canvasElements = findCanvasElements(div);
-	const svgElements = findSvgElements(div);
+	const composables = findCapturableElements(div);
 	const composed = await compose({
-		composables: [...canvasElements, ...svgElements],
+		composables,
 		width,
 		height,
 	});

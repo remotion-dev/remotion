@@ -1,10 +1,13 @@
 import type {_InternalTypes} from 'remotion';
 import {withResolvers} from './with-resolvers';
 
-export const waitForReady = (
-	timeoutInMilliseconds: number,
-	scope: _InternalTypes['DelayRenderScope'],
-) => {
+export const waitForReady = ({
+	timeoutInMilliseconds,
+	scope,
+}: {
+	timeoutInMilliseconds: number;
+	scope: _InternalTypes['DelayRenderScope'];
+}) => {
 	if (scope.remotion_renderReady === true) {
 		return Promise.resolve();
 	}
