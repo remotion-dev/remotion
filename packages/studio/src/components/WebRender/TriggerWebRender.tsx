@@ -19,7 +19,6 @@ export const TriggerWebRender = () => {
 	const video = Internals.useVideo();
 	const getCurrentFrame = PlayerInternals.useFrameImperative();
 
-	const frame = getCurrentFrame();
 	const {setSelectedModal} = useContext(ModalsContext);
 
 	const onClick = useCallback(() => {
@@ -27,13 +26,15 @@ export const TriggerWebRender = () => {
 			return null;
 		}
 
+		const frame = getCurrentFrame();
+
 		setSelectedModal({
 			type: 'web-render',
 			initialFrame: frame,
 			compositionId: video.id,
 			defaultProps: video.defaultProps,
 		});
-	}, [frame, setSelectedModal, video?.id, video?.defaultProps]);
+	}, [getCurrentFrame, setSelectedModal, video?.id, video?.defaultProps]);
 
 	if (!video) {
 		return null;

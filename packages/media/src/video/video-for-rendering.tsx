@@ -12,7 +12,6 @@ import type {
 	VolumeProp,
 } from 'remotion';
 import {
-	cancelRender,
 	Internals,
 	Loop,
 	random,
@@ -107,7 +106,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	);
 
 	const environment = useRemotionEnvironment();
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [replaceWithOffthreadVideo, setReplaceWithOffthreadVideo] = useState<
@@ -119,6 +118,12 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 	const maxCacheSize = useMaxMediaCacheSize(logLevel);
 
+	const [error, setError] = useState<Error | null>(null);
+
+	if (error) {
+		throw error;
+	}
+
 	useLayoutEffect(() => {
 		if (!canvasRef.current) {
 			return;
@@ -126,6 +131,14 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 		if (replaceWithOffthreadVideo) {
 			return;
+		}
+
+		if (!canvasRef.current?.getContext) {
+			return setError(
+				new Error(
+					'Canvas does not have .getContext() method available. This could be because <Video> was mounted inside an <svg> tag.',
+				),
+			);
 		}
 
 		const timestamp = frame / fps;
@@ -254,6 +267,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					audio,
 					durationInSeconds: assetDurationInSeconds,
 				} = result;
+
 				if (imageBitmap) {
 					onVideoFrame?.(imageBitmap);
 					const context = canvasRef.current?.getContext('2d', {
@@ -265,6 +279,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 					context.canvas.width = imageBitmap.width;
 					context.canvas.height = imageBitmap.height;
+
 					context.canvas.style.aspectRatio = `${context.canvas.width} / ${context.canvas.height}`;
 					context.drawImage(imageBitmap, 0, 0);
 
@@ -317,8 +332,8 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 				continueRender(newHandle);
 			})
-			.catch((error) => {
-				cancelRender(error);
+			.catch((err) => {
+				cancelRender(err);
 			});
 
 		return () => {
@@ -355,6 +370,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		audioEnabled,
 		videoEnabled,
 		maxCacheSize,
+		cancelRender,
 	]);
 
 	const classNameValue = useMemo(() => {
@@ -406,11 +422,13 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 		if (loop) {
 			if (!replaceWithOffthreadVideo.durationInSeconds) {
-				cancelRender(
-					new Error(
-						`Cannot render video ${src}: @remotion/media was unable to render, and fell back to <OffthreadVideo>. Also, "loop" was set, but <OffthreadVideo> does not support looping and @remotion/media could also not determine the duration of the video.`,
-					),
+				const err = new Error(
+					`Cannot render video ${src}: @remotion/media was unable to render, and fell back to <OffthreadVideo>. Also, "loop" was set, but <OffthreadVideo> does not support looping and @remotion/media could also not determine the duration of the video.`,
 				);
+
+				cancelRender(err);
+
+				throw err;
 			}
 
 			return (

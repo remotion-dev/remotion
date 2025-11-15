@@ -11,7 +11,11 @@ type ImgDrawable = {
 export const svgToImageBitmap = (
 	svg: SVGSVGElement,
 ): Promise<ImgDrawable | null> => {
-	const {svgDimensions, totalMatrix, reset} = calculateTransforms(svg);
+	const {
+		dimensions: svgDimensions,
+		totalMatrix,
+		reset,
+	} = calculateTransforms(svg);
 
 	const originalTransform = svg.style.transform;
 	const originalTransformOrigin = svg.style.transformOrigin;
