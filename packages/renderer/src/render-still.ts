@@ -51,6 +51,7 @@ import {
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
+import {registerUsageEvent} from '@remotion/licensing';
 
 type InternalRenderStillOptions = {
 	composition: VideoConfig;
@@ -416,7 +417,29 @@ const internalRenderStillRaw = (
 				});
 			})
 
-			.then((res) => resolve(res))
+			.then((res) => {
+				if (options.apiKey === null) {
+					resolve(res);
+					return;
+				}
+
+				registerUsageEvent({
+					apiKey: options.apiKey,
+					event: 'cloud-render',
+					host: null,
+					succeeded: true,
+				})
+					.then(() => {
+						Log.info(options, 'Usage event sent successfully');
+					})
+					.catch((err) => {
+						Log.error(options, 'Failed to send usage event');
+						Log.error(options, err);
+					})
+					.finally(() => {
+						resolve(res);
+					});
+			})
 			.catch((err) => reject(err))
 			.finally(() => {
 				cleanup.forEach((c) => {
@@ -478,6 +501,7 @@ export const renderStill = (
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		apiKey,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -544,6 +568,7 @@ export const renderStill = (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		apiKey: apiKey ?? null,
 		onLog: defaultOnLog,
 	});
 };
