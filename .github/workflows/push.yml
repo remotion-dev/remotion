@@ -74,7 +74,7 @@ jobs:
           bun run testwebcodecs
   webrenderer-tests:
     runs-on: macos-latest
-    name: Webcodecs tests
+    name: Web renderer tests
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
