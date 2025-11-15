@@ -21,6 +21,9 @@
 		"testwebcodecs": {
 			"dependsOn": ["@remotion/webcodecs#make"]
 		},
+		"testwebrenderer": {
+			"dependsOn": ["@remotion/web-renderer#make"]
+		},
 		"make": {
 			"dependsOn": ["^make"],
 			"outputs": ["dist"],

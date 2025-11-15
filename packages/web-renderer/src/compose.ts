@@ -20,7 +20,7 @@ export const compose = async ({
 
 	// TODO: Consider z-index
 	for (const composable of composables) {
-		if (composable.type === 'canvas') {
+		if (composable.type === 'canvas' || composable.type === 'img') {
 			composeCanvas(composable.element, context);
 		} else if (composable.type === 'svg') {
 			// This already accumulates the transforms of the parent

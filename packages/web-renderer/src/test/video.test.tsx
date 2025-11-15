@@ -4,7 +4,13 @@ import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {testImage} from './utils';
 
-test('can extract a video frame', async () => {
+test('can extract a video frame', async (t) => {
+	if (t.task.file.projectName === 'chromium') {
+		// Chromium in CI doesn't support video codec decoding in this test environment
+		t.skip();
+		return;
+	}
+
 	const Component: React.FC = () => {
 		return (
 			<AbsoluteFill>
@@ -25,7 +31,10 @@ test('can extract a video frame', async () => {
 		delayRenderTimeoutInMilliseconds: 5000,
 	});
 
-	await testImage({blob, testId: 'video-tag'});
+	await testImage({
+		blob,
+		testId: 'video-tag',
+	});
 });
 
 test('cannot render inside an svg tag', async () => {

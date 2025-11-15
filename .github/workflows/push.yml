@@ -72,6 +72,24 @@ jobs:
       - name: Test Webcodecs
         run: |
           bun run testwebcodecs
+  webrenderer-tests:
+    runs-on: macos-latest
+    name: Web renderer tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 25
+      - uses: oven-sh/setup-bun@v2.0.2
+        with:
+          bun-version: 1.3.0
+      - name: Install
+        run: bun i
+      - name: Install deps
+        run: cd packages/web-renderer && bunx playwright install --with-deps
+      - name: Test web renderer
+        run: |
+          bun run testwebrenderer
   ssr-tests:
     runs-on: ubuntu-latest
     name: SSR integration

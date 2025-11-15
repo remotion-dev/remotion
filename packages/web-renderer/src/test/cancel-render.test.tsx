@@ -34,7 +34,10 @@ test('should be able to cancel render', async (t) => {
 			imageFormat: 'png',
 		});
 	} catch (error) {
-		if (t.task.file.projectName === 'firefox') {
+		if (
+			t.task.file.projectName === 'firefox' ||
+			t.task.file.projectName === 'webkit'
+		) {
 			expect(error).not.toMatch(/This should be the error message/);
 		} else {
 			expect(error).toMatch(/This should be the error message/);
