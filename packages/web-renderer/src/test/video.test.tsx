@@ -6,7 +6,7 @@ import {testImage} from './utils';
 
 test('can extract a video frame', async (t) => {
 	if (t.task.file.projectName === 'chromium') {
-		// In CI, doesn't work :(
+		// Chromium in CI doesn't support video codec decoding in this test environment
 		t.skip();
 		return;
 	}
