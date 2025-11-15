@@ -56,6 +56,7 @@ test('cannot render inside an svg tag', async () => {
 			imageFormat: 'png',
 			delayRenderTimeoutInMilliseconds: 5000,
 		});
+		throw new Error('Expected an error');
 	} catch (error) {
 		expect((error as Error).message).toMatch(
 			'Canvas does not have .getContext() method available',
