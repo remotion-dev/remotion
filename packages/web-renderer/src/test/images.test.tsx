@@ -3,7 +3,7 @@ import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {testImage} from './utils';
 
-test('can extract a video frame', async () => {
+test('can display an image', async () => {
 	const Component: React.FC = () => {
 		return (
 			<AbsoluteFill>
