@@ -2,6 +2,25 @@ import {compose} from './compose';
 import {findCapturableElements} from './find-capturable-elements';
 import type {RenderStillOnWebImageFormat} from './render-still-on-web';
 
+export const createFrame = async ({
+	div,
+	width,
+	height,
+}: {
+	div: HTMLDivElement;
+	width: number;
+	height: number;
+}) => {
+	const composables = findCapturableElements(div);
+	const composed = await compose({
+		composables,
+		width,
+		height,
+	});
+
+	return composed;
+};
+
 export const takeScreenshot = async ({
 	div,
 	width,
@@ -13,14 +32,9 @@ export const takeScreenshot = async ({
 	height: number;
 	imageFormat: RenderStillOnWebImageFormat;
 }) => {
-	const composables = findCapturableElements(div);
-	const composed = await compose({
-		composables,
-		width,
-		height,
-	});
+	const frame = await createFrame({div, width, height});
 
-	const imageData = await composed.convertToBlob({
+	const imageData = await frame.convertToBlob({
 		type: `image/${imageFormat}`,
 	});
 
