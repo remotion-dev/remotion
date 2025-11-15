@@ -25,8 +25,8 @@ import {getStringBeforeSuffix} from './get-string-before-suffix';
 import {input, label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
-import {RenderModalOutputName} from './RenderModalOutputName';
 import {outerModalStyle} from './render-modals';
+import {RenderModalOutputName} from './RenderModalOutputName';
 import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
@@ -229,16 +229,13 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		[setMediaCacheSizeInBytes],
 	);
 
-	const setStillFormat = useCallback(
-		(format: RenderStillImageFormat) => {
-			setImageFormat(format);
-			setOutName((prev) => {
-				const newFileName = getStringBeforeSuffix(prev) + '.' + format;
-				return newFileName;
-			});
-		},
-		[],
-	);
+	const setStillFormat = useCallback((format: RenderStillImageFormat) => {
+		setImageFormat(format);
+		setOutName((prev) => {
+			const newFileName = getStringBeforeSuffix(prev) + '.' + format;
+			return newFileName;
+		});
+	}, []);
 
 	const imageFormatOptions = useMemo((): SegmentedControlItem[] => {
 		return [
@@ -453,7 +450,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 								outName={outName}
 								onValueChange={onOutNameChange}
 								validationMessage={
-									outnameValidation.valid ? null : outnameValidation.error.message
+									outnameValidation.valid
+										? null
+										: outnameValidation.error.message
 								}
 								label="Download name"
 							/>
