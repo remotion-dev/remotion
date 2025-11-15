@@ -86,7 +86,7 @@ jobs:
       - name: Install
         run: bun i
       - name: Install deps
-        run: cd packages/webcodecs && bunx playwright install --with-deps
+        run: cd packages/web-renderer && bunx playwright install chrome firefox webkit --with-deps
       - name: Test web renderer
         run: |
           bun run testwebrenderer
