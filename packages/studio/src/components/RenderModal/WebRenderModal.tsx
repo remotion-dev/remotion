@@ -4,7 +4,6 @@ import type {RenderStillImageFormat} from '@remotion/web-renderer';
 import {renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import {BLUE} from '../../helpers/colors';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
@@ -25,7 +24,18 @@ import {getStringBeforeSuffix} from './get-string-before-suffix';
 import {input, label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
-import {outerModalStyle} from './render-modals';
+import {
+	buttonStyle,
+	container,
+	flexer,
+	horizontalLayout,
+	horizontalTab,
+	icon,
+	iconContainer,
+	leftSidebar,
+	optionsPanel,
+	outerModalStyle,
+} from './render-modals';
 import {RenderModalOutputName} from './RenderModalOutputName';
 import {
 	ResolveCompositionBeforeModal,
@@ -105,66 +115,6 @@ const validateOutnameForStill = ({
 	} catch (err) {
 		return {valid: false, error: err as Error};
 	}
-};
-
-const container: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	padding: '12px 16px',
-	borderBottom: '1px solid black',
-};
-
-const horizontalLayout: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	overflowY: 'auto',
-	flex: 1,
-};
-
-const leftSidebar: React.CSSProperties = {
-	padding: 12,
-};
-
-const horizontalTab: React.CSSProperties = {
-	width: 250,
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	textAlign: 'left',
-	fontSize: 16,
-	fontWeight: 'bold',
-	paddingLeft: 15,
-	paddingTop: 12,
-	paddingBottom: 12,
-};
-
-const iconContainer: React.CSSProperties = {
-	width: 20,
-	height: 20,
-	marginRight: 15,
-	display: 'inline-flex',
-	justifyContent: 'center',
-	alignItems: 'center',
-};
-
-const icon: React.CSSProperties = {
-	color: 'currentcolor',
-	height: 20,
-};
-
-const buttonStyle: React.CSSProperties = {
-	backgroundColor: BLUE,
-	color: 'white',
-};
-
-const flexer: React.CSSProperties = {
-	flex: 1,
-};
-
-const optionsPanel: React.CSSProperties = {
-	display: 'flex',
-	width: '100%',
 };
 
 const tabContainer: React.CSSProperties = {

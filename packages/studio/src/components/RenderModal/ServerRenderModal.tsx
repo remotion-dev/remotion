@@ -78,7 +78,18 @@ import {
 import {getDefaultCodecs} from './get-default-codecs';
 import {getStringBeforeSuffix} from './get-string-before-suffix';
 import {validateOutnameGui} from './out-name-checker';
-import {outerModalStyle} from './render-modals';
+import {
+	buttonStyle,
+	container,
+	flexer,
+	horizontalLayout,
+	horizontalTab,
+	icon,
+	iconContainer,
+	leftSidebar,
+	optionsPanel,
+	outerModalStyle,
+} from './render-modals';
 
 type State =
 	| {
@@ -127,66 +138,6 @@ const reducer = (state: State, action: Action): State => {
 	}
 
 	return state;
-};
-
-const container: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	padding: '12px 16px',
-	borderBottom: '1px solid black',
-};
-
-const optionsPanel: React.CSSProperties = {
-	display: 'flex',
-	width: '100%',
-};
-
-const horizontalLayout: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	overflowY: 'auto',
-	flex: 1,
-};
-
-const leftSidebar: React.CSSProperties = {
-	padding: 12,
-};
-
-const horizontalTab: React.CSSProperties = {
-	width: 250,
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	textAlign: 'left',
-	fontSize: 16,
-	fontWeight: 'bold',
-	paddingLeft: 15,
-	paddingTop: 12,
-	paddingBottom: 12,
-};
-
-const iconContainer: React.CSSProperties = {
-	width: 20,
-	height: 20,
-	marginRight: 15,
-	display: 'inline-flex',
-	justifyContent: 'center',
-	alignItems: 'center',
-};
-
-const icon: React.CSSProperties = {
-	color: 'currentcolor',
-	height: 20,
-};
-
-const buttonStyle: React.CSSProperties = {
-	backgroundColor: BLUE,
-	color: 'white',
-};
-
-const flexer: React.CSSProperties = {
-	flex: 1,
 };
 
 type RenderModalProps = {
