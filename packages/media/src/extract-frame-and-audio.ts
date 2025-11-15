@@ -18,6 +18,7 @@ export const extractFrameAndAudio = async ({
 	trimAfter,
 	trimBefore,
 	fps,
+	maxCacheSize,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -31,6 +32,7 @@ export const extractFrameAndAudio = async ({
 	trimAfter: number | undefined;
 	trimBefore: number | undefined;
 	fps: number;
+	maxCacheSize: number;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	try {
 		const [frame, audio] = await Promise.all([
@@ -44,6 +46,7 @@ export const extractFrameAndAudio = async ({
 						playbackRate,
 						trimBefore,
 						fps,
+						maxCacheSize,
 					})
 				: null,
 			includeAudio
@@ -58,6 +61,7 @@ export const extractFrameAndAudio = async ({
 						trimAfter,
 						fps,
 						trimBefore,
+						maxCacheSize,
 					})
 				: null,
 		]);

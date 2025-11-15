@@ -11,6 +11,8 @@ import {withResolvers} from './with-resolvers';
 
 type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
 
+export type RenderStillOnWebImageFormat = 'png' | 'jpeg' | 'webp';
+
 type MandatoryRenderStillOnWebOptions<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
@@ -21,6 +23,7 @@ type MandatoryRenderStillOnWebOptions<
 	fps: number;
 	durationInFrames: number;
 	frame: number;
+	imageFormat: RenderStillOnWebImageFormat;
 } & PropsIfHasProps<Schema, Props>;
 
 type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
@@ -28,6 +31,7 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	logLevel: LogLevel;
 	schema: Schema | undefined;
 	id: string | null;
+	mediaCacheSizeInBytes: number | null;
 };
 
 type InternalRenderStillOnWebOptions<
@@ -57,6 +61,8 @@ async function internalRenderStillOnWeb<
 	inputProps,
 	id,
 	schema,
+	imageFormat,
+	mediaCacheSizeInBytes,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
 	const div = document.createElement('div');
 
@@ -99,73 +105,77 @@ async function internalRenderStillOnWeb<
 
 	flushSync(() => {
 		root.render(
-			<Internals.RemotionEnvironmentContext
-				value={{
-					isStudio: false,
-					isRendering: true,
-					isPlayer: false,
-					isReadOnlyStudio: false,
-					isClientSideRendering: true,
-				}}
+			<Internals.MaxMediaCacheSizeContext.Provider
+				value={mediaCacheSizeInBytes}
 			>
-				<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
-					<Internals.CompositionManager.Provider
-						value={{
-							compositions: [
-								{
-									id: compId,
-									// @ts-expect-error
-									component: Component,
-									nonce: 0,
-									defaultProps: {},
-									folderName: null,
-									parentFolderName: null,
-									schema: schema ?? null,
-									calculateMetadata: null,
+				<Internals.RemotionEnvironmentContext
+					value={{
+						isStudio: false,
+						isRendering: true,
+						isPlayer: false,
+						isReadOnlyStudio: false,
+						isClientSideRendering: true,
+					}}
+				>
+					<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
+						<Internals.CompositionManager.Provider
+							value={{
+								compositions: [
+									{
+										id: compId,
+										// @ts-expect-error
+										component: Component,
+										nonce: 0,
+										defaultProps: {},
+										folderName: null,
+										parentFolderName: null,
+										schema: schema ?? null,
+										calculateMetadata: null,
+										durationInFrames,
+										fps,
+										height,
+										width,
+									},
+								],
+								canvasContent: {
+									type: 'composition',
+									compositionId: compId,
+								},
+								currentCompositionMetadata: {
+									props: inputProps ?? {},
 									durationInFrames,
 									fps,
 									height,
 									width,
+									defaultCodec: null,
+									defaultOutName: null,
+									defaultVideoImageFormat: null,
+									defaultPixelFormat: null,
+									defaultProResProfile: null,
 								},
-							],
-							canvasContent: {
-								type: 'composition',
-								compositionId: compId,
-							},
-							currentCompositionMetadata: {
-								props: inputProps ?? {},
-								durationInFrames,
-								fps,
-								height,
-								width,
-								defaultCodec: null,
-								defaultOutName: null,
-								defaultVideoImageFormat: null,
-								defaultPixelFormat: null,
-								defaultProResProfile: null,
-							},
-							folders: [],
-						}}
-					>
-						<Internals.RemotionRoot
-							audioEnabled={false}
-							videoEnabled
-							logLevel={logLevel}
-							numberOfAudioTags={0}
-							audioLatencyHint="interactive"
-							frameState={{
-								[compId]: frame,
+								folders: [],
 							}}
 						>
-							<Internals.CanUseRemotionHooks value>
-								{/**
-								 * @ts-expect-error	*/}
-								<Component {...actualInputProps} />
-							</Internals.CanUseRemotionHooks>
-						</Internals.RemotionRoot>
-					</Internals.CompositionManager.Provider>
-				</Internals.DelayRenderContextType.Provider>
-			</Internals.RemotionEnvironmentContext>,
+							<Internals.RemotionRoot
+								audioEnabled={false}
+								videoEnabled
+								logLevel={logLevel}
+								numberOfAudioTags={0}
+								audioLatencyHint="interactive"
+								frameState={{
+									[compId]: frame,
+								}}
+							>
+								<Internals.CanUseRemotionHooks value>
+									{/**
+									 * @ts-expect-error	*/}
+									<Component {...actualInputProps} />
+								</Internals.CanUseRemotionHooks>
+							</Internals.RemotionRoot>
+						</Internals.CompositionManager.Provider>
+					</Internals.DelayRenderContextType.Provider>
+				</Internals.RemotionEnvironmentContext>
+			</Internals.MaxMediaCacheSizeContext.Provider>,
 		);
 	});
 
@@ -174,7 +184,7 @@ async function internalRenderStillOnWeb<
 
 	await waitForReady(delayRenderTimeoutInMilliseconds, delayRenderScope);
 
-	const imageData = await takeScreenshot(div, width, height);
+	const imageData = await takeScreenshot({div, width, height, imageFormat});
 
 	root.unmount();
 	div.remove();
@@ -195,5 +205,6 @@ export const renderStillOnWeb = <
 		logLevel: options.logLevel ?? 'info',
 		schema: options.schema ?? undefined,
 		id: options.id ?? null,
+		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 	});
 };

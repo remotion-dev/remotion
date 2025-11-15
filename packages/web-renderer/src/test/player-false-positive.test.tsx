@@ -51,5 +51,6 @@ test('should not give a false positive when the player is also mounted', async (
 		durationInFrames: 30,
 		frame: 20,
 		inputProps: {},
+		imageFormat: 'png',
 	});
 });

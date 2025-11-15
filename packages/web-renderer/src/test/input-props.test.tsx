@@ -44,6 +44,7 @@ test('cannot call getInputProps() while rendering client-side', async () => {
 		durationInFrames: 30,
 		frame: 20,
 		inputProps: {abc: 'abc'},
+		imageFormat: 'png',
 	});
 });
 
@@ -57,6 +58,7 @@ test('cannot call getInputProps() while rendering client-side', async () => {
 			durationInFrames: 30,
 			frame: 20,
 			inputProps: {abc: 'abc'},
+			imageFormat: 'png',
 		});
 	}).rejects.toThrow(
 		'Cannot call `getInputProps()` - window.remotion_inputProps is not set. This API is only available if you are in the Studio, or while you are rendering server-side.',
@@ -74,6 +76,7 @@ test('Should be able to omit input props when component accepts no props', () =>
 		fps: 30,
 		durationInFrames: 30,
 		frame: 20,
+		imageFormat: 'png',
 	});
 });
 
@@ -86,6 +89,7 @@ test('Should not be able to omit input props when component accepts props', () =
 		fps: 30,
 		durationInFrames: 30,
 		frame: 20,
+		imageFormat: 'png',
 	});
 
 	mockFn({
@@ -99,6 +103,7 @@ test('Should not be able to omit input props when component accepts props', () =
 			// @ts-expect-error - must match signature
 			abc: 'efg',
 		},
+		imageFormat: 'png',
 	});
 
 	// No error, how it should be :)
@@ -112,5 +117,6 @@ test('Should not be able to omit input props when component accepts props', () =
 		inputProps: {
 			abc: 'def',
 		},
+		imageFormat: 'png',
 	});
 });

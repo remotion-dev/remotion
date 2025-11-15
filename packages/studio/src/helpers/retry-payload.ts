@@ -17,7 +17,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 
 	if (job.type === 'still') {
 		return {
-			type: 'render',
+			type: 'server-render',
 			compositionId: job.compositionId,
 			initialFrame: job.frame,
 			initialStillImageFormat: job.imageFormat,
@@ -72,7 +72,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 
 	if (job.type === 'sequence') {
 		return {
-			type: 'render',
+			type: 'server-render',
 			initialFrame: 0,
 			compositionId: job.compositionId,
 			initialVideoImageFormat: null,
@@ -127,7 +127,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 
 	if (job.type === 'video') {
 		return {
-			type: 'render',
+			type: 'server-render',
 			compositionId: job.compositionId,
 			initialStillImageFormat: defaults.stillImageFormat,
 			initialVideoImageFormat: job.imageFormat,

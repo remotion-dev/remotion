@@ -20,7 +20,6 @@ export function fuzzySearch(
 		let i = 0;
 		let n = -1;
 		let l;
-		// eslint-disable-next-line no-bitwise
 		for (; (l = q[i++]); ) if (!~(n = s.indexOf(l, n + 1))) return;
 		matchingIndices.push(index);
 	});

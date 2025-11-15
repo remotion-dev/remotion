@@ -32,6 +32,7 @@ test('should be able to use delayRender()', async () => {
 		height: 100,
 		frame: 0,
 		inputProps: {},
+		imageFormat: 'png',
 	});
 
 	await testImage({blob, testId: 'delay-render'});

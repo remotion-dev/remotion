@@ -26,6 +26,7 @@ type ExtractAudioParams = {
 	trimBefore: number | undefined;
 	trimAfter: number | undefined;
 	fps: number;
+	maxCacheSize: number;
 };
 
 const extractAudioInternal = async ({
@@ -39,6 +40,7 @@ const extractAudioInternal = async ({
 	trimBefore,
 	trimAfter,
 	fps,
+	maxCacheSize,
 }: ExtractAudioParams): Promise<
 	| {
 			data: PcmS16AudioData | null;
@@ -91,6 +93,7 @@ const extractAudioInternal = async ({
 		isMatroska,
 		actualMatroskaTimestamps,
 		logLevel,
+		maxCacheSize,
 	});
 
 	const durationInSeconds = durationNotYetApplyingPlaybackRate * playbackRate;
