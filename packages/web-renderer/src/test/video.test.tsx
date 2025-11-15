@@ -25,7 +25,10 @@ test('can extract a video frame', async () => {
 		delayRenderTimeoutInMilliseconds: 5000,
 	});
 
-	await testImage({blob, testId: 'video-tag'});
+	await testImage({
+		blob,
+		testId: 'video-tag',
+	});
 });
 
 test('cannot render inside an svg tag', async () => {
