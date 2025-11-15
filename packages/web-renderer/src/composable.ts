@@ -6,4 +6,8 @@ export type Composable =
 	| {
 			type: 'svg';
 			element: SVGSVGElement;
+	  }
+	| {
+			type: 'img';
+			element: HTMLImageElement;
 	  };
