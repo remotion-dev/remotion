@@ -15,7 +15,8 @@
 	"author": "Remotion <jonny@remotion.dev>",
 	"license": "UNLICENSED",
 	"dependencies": {
-		"remotion": "workspace:*"
+		"remotion": "workspace:*",
+		"mediabunny": "catalog:"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",

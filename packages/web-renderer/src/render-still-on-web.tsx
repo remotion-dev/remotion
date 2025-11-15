@@ -1,13 +1,10 @@
 import {type ComponentType} from 'react';
-import {flushSync} from 'react-dom';
-import ReactDOM from 'react-dom/client';
-import type {_InternalTypes, LogLevel} from 'remotion';
-import {Internals} from 'remotion';
+import type {LogLevel} from 'remotion';
 import type {AnyZodObject} from 'zod';
+import {createScaffold} from './create-scaffold';
 import type {PropsIfHasProps} from './props-if-has-props';
 import {takeScreenshot} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
-import {withResolvers} from './with-resolvers';
 
 type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
 
@@ -64,123 +61,22 @@ async function internalRenderStillOnWeb<
 	imageFormat,
 	mediaCacheSizeInBytes,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
-	const div = document.createElement('div');
-
-	// Match same behavior as renderEntry.tsx
-	div.style.display = 'flex';
-	div.style.backgroundColor = 'transparent';
-	div.style.position = 'fixed';
-	div.style.width = `${width}px`;
-	div.style.height = `${height}px`;
-	div.style.zIndex = '-9999';
-
-	document.body.appendChild(div);
-
-	if (!ReactDOM.createRoot) {
-		throw new Error('@remotion/web-renderer requires React 18 or higher');
-	}
-
-	// TODO: calculateMetadata()
-	// TODO: Video config
-
-	const {promise, resolve, reject} = withResolvers<void>();
-
-	// TODO: This might not work in React 18
-	const root = ReactDOM.createRoot(div, {
-		onUncaughtError: (err) => {
-			reject(err);
-		},
+	const {delayRenderScope, div, cleanupScaffold} = await createScaffold({
+		width,
+		height,
+		delayRenderTimeoutInMilliseconds,
+		logLevel,
+		inputProps: inputProps ?? {},
+		id,
+		mediaCacheSizeInBytes,
+		audioEnabled: false,
+		Component,
+		videoEnabled: true,
+		durationInFrames,
+		fps,
+		schema: schema ?? null,
+		initialFrame: frame,
 	});
-
-	const delayRenderScope: _InternalTypes['DelayRenderScope'] = {
-		remotion_renderReady: true,
-		remotion_delayRenderTimeouts: {},
-		remotion_puppeteerTimeout: delayRenderTimeoutInMilliseconds,
-		remotion_attempt: 0,
-	};
-
-	const actualInputProps = inputProps ?? ({} as Props);
-
-	const compId = id ?? 'default';
-
-	flushSync(() => {
-		root.render(
-			<Internals.MaxMediaCacheSizeContext.Provider
-				value={mediaCacheSizeInBytes}
-			>
-				<Internals.RemotionEnvironmentContext
-					value={{
-						isStudio: false,
-						isRendering: true,
-						isPlayer: false,
-						isReadOnlyStudio: false,
-						isClientSideRendering: true,
-					}}
-				>
-					<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
-						<Internals.CompositionManager.Provider
-							value={{
-								compositions: [
-									{
-										id: compId,
-										// @ts-expect-error
-										component: Component,
-										nonce: 0,
-										defaultProps: {},
-										folderName: null,
-										parentFolderName: null,
-										schema: schema ?? null,
-										calculateMetadata: null,
-										durationInFrames,
-										fps,
-										height,
-										width,
-									},
-								],
-								canvasContent: {
-									type: 'composition',
-									compositionId: compId,
-								},
-								currentCompositionMetadata: {
-									props: inputProps ?? {},
-									durationInFrames,
-									fps,
-									height,
-									width,
-									defaultCodec: null,
-									defaultOutName: null,
-									defaultVideoImageFormat: null,
-									defaultPixelFormat: null,
-									defaultProResProfile: null,
-								},
-								folders: [],
-							}}
-						>
-							<Internals.RemotionRoot
-								audioEnabled={false}
-								videoEnabled
-								logLevel={logLevel}
-								numberOfAudioTags={0}
-								audioLatencyHint="interactive"
-								frameState={{
-									[compId]: frame,
-								}}
-							>
-								<Internals.CanUseRemotionHooks value>
-									{/**
-									 * @ts-expect-error	*/}
-									<Component {...actualInputProps} />
-								</Internals.CanUseRemotionHooks>
-							</Internals.RemotionRoot>
-						</Internals.CompositionManager.Provider>
-					</Internals.DelayRenderContextType.Provider>
-				</Internals.RemotionEnvironmentContext>
-			</Internals.MaxMediaCacheSizeContext.Provider>,
-		);
-	});
-
-	resolve();
-	await promise;
 
 	await waitForReady({
 		timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
@@ -189,8 +85,7 @@ async function internalRenderStillOnWeb<
 
 	const imageData = await takeScreenshot({div, width, height, imageFormat});
 
-	root.unmount();
-	div.remove();
+	cleanupScaffold();
 
 	return imageData;
 }
