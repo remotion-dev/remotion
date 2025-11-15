@@ -45,6 +45,21 @@ export const audioIteratorManager = ({
 			throw new Error('Audio buffer iterator not found');
 		}
 
+		const queuedPeriod = audioBufferIterator.getQueuedPeriod();
+
+		if (queuedPeriod) {
+			const chunkStart = mediaTimestamp;
+			const chunkEnd = mediaTimestamp + buffer.duration;
+
+			const overlapStart = Math.max(chunkStart, queuedPeriod.from);
+			const overlapEnd = Math.min(chunkEnd, queuedPeriod.until);
+			const overlap = overlapEnd - overlapStart;
+
+			if (overlap > 0.001) {
+				return;
+			}
+		}
+
 		const node = sharedAudioContext.createBufferSource();
 		node.buffer = buffer;
 		node.playbackRate.value = playbackRate;
