@@ -24,11 +24,13 @@ test('should be able to cancel render', async (t) => {
 
 	try {
 		await renderStillOnWeb({
-			component: Component,
-			width: 100,
-			height: 100,
-			fps: 30,
-			durationInFrames: 30,
+			composition: {
+				component: Component,
+				width: 100,
+				height: 100,
+				fps: 30,
+				durationInFrames: 30,
+			},
 			frame: 20,
 			inputProps: {},
 			imageFormat: 'png',

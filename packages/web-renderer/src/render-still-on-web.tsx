@@ -1,15 +1,17 @@
-import {type ComponentType} from 'react';
-import {flushSync} from 'react-dom';
-import ReactDOM from 'react-dom/client';
-import type {_InternalTypes, LogLevel} from 'remotion';
-import {Internals} from 'remotion';
+import {
+	Internals,
+	type CalculateMetadataFunction,
+	type LogLevel,
+} from 'remotion';
 import type {AnyZodObject} from 'zod';
-import type {PropsIfHasProps} from './props-if-has-props';
+import {createScaffold} from './create-scaffold';
+import type {
+	CompositionCalculateMetadataOrExplicit,
+	InferProps,
+	PropsIfHasProps,
+} from './props-if-has-props';
 import {takeScreenshot} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
-import {withResolvers} from './with-resolvers';
-
-type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
 
 export type RenderStillOnWebImageFormat = 'png' | 'jpeg' | 'webp';
 
@@ -17,13 +19,10 @@ type MandatoryRenderStillOnWebOptions<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = {
-	component: LooseComponentType<Props>;
-	width: number;
-	height: number;
-	fps: number;
-	durationInFrames: number;
 	frame: number;
 	imageFormat: RenderStillOnWebImageFormat;
+} & {
+	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
 } & PropsIfHasProps<Schema, Props>;
 
 type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
@@ -32,6 +31,7 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	schema: Schema | undefined;
 	id: string | null;
 	mediaCacheSizeInBytes: number | null;
+	signal: AbortSignal | null;
 };
 
 type InternalRenderStillOnWebOptions<
@@ -50,11 +50,6 @@ async function internalRenderStillOnWeb<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 >({
-	component: Component,
-	width,
-	height,
-	fps,
-	durationInFrames,
 	frame,
 	delayRenderTimeoutInMilliseconds,
 	logLevel,
@@ -63,136 +58,72 @@ async function internalRenderStillOnWeb<
 	schema,
 	imageFormat,
 	mediaCacheSizeInBytes,
+	composition,
+	signal,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
-	const div = document.createElement('div');
+	const resolved = await Internals.resolveVideoConfig({
+		calculateMetadata:
+			(composition.calculateMetadata as CalculateMetadataFunction<
+				InferProps<AnyZodObject, Record<string, unknown>>
+			>) ?? null,
+		signal: signal ?? new AbortController().signal,
+		defaultProps: {},
+		originalProps: inputProps ?? {},
+		compositionId: id ?? 'default',
+		compositionDurationInFrames: composition.durationInFrames ?? null,
+		compositionFps: composition.fps ?? null,
+		compositionHeight: composition.height ?? null,
+		compositionWidth: composition.width ?? null,
+	});
 
-	// Match same behavior as renderEntry.tsx
-	div.style.display = 'flex';
-	div.style.backgroundColor = 'transparent';
-	div.style.position = 'fixed';
-	div.style.width = `${width}px`;
-	div.style.height = `${height}px`;
-	div.style.zIndex = '-9999';
-
-	document.body.appendChild(div);
-
-	if (!ReactDOM.createRoot) {
-		throw new Error('@remotion/web-renderer requires React 18 or higher');
+	if (signal?.aborted) {
+		return Promise.reject(new Error('renderStillOnWeb() was cancelled'));
 	}
 
-	// TODO: calculateMetadata()
-	// TODO: Video config
-
-	const {promise, resolve, reject} = withResolvers<void>();
-
-	// TODO: This might not work in React 18
-	const root = ReactDOM.createRoot(div, {
-		onUncaughtError: (err) => {
-			reject(err);
-		},
+	const {delayRenderScope, div, cleanupScaffold} = await createScaffold({
+		width: resolved.width,
+		height: resolved.height,
+		delayRenderTimeoutInMilliseconds,
+		logLevel,
+		inputProps: inputProps ?? {},
+		id: id ?? 'default',
+		mediaCacheSizeInBytes,
+		audioEnabled: false,
+		Component: composition.component,
+		videoEnabled: true,
+		durationInFrames: resolved.durationInFrames,
+		fps: resolved.fps,
+		schema: schema ?? null,
+		initialFrame: frame,
 	});
 
-	const delayRenderScope: _InternalTypes['DelayRenderScope'] = {
-		remotion_renderReady: true,
-		remotion_delayRenderTimeouts: {},
-		remotion_puppeteerTimeout: delayRenderTimeoutInMilliseconds,
-		remotion_attempt: 0,
-	};
+	try {
+		if (signal?.aborted) {
+			throw new Error('renderStillOnWeb() was cancelled');
+		}
 
-	const actualInputProps = inputProps ?? ({} as Props);
+		await waitForReady({
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+			scope: delayRenderScope,
+			signal,
+			apiName: 'renderStillOnWeb',
+		});
 
-	const compId = id ?? 'default';
+		if (signal?.aborted) {
+			throw new Error('renderStillOnWeb() was cancelled');
+		}
 
-	flushSync(() => {
-		root.render(
-			<Internals.MaxMediaCacheSizeContext.Provider
-				value={mediaCacheSizeInBytes}
-			>
-				<Internals.RemotionEnvironmentContext
-					value={{
-						isStudio: false,
-						isRendering: true,
-						isPlayer: false,
-						isReadOnlyStudio: false,
-						isClientSideRendering: true,
-					}}
-				>
-					<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
-						<Internals.CompositionManager.Provider
-							value={{
-								compositions: [
-									{
-										id: compId,
-										// @ts-expect-error
-										component: Component,
-										nonce: 0,
-										defaultProps: {},
-										folderName: null,
-										parentFolderName: null,
-										schema: schema ?? null,
-										calculateMetadata: null,
-										durationInFrames,
-										fps,
-										height,
-										width,
-									},
-								],
-								canvasContent: {
-									type: 'composition',
-									compositionId: compId,
-								},
-								currentCompositionMetadata: {
-									props: inputProps ?? {},
-									durationInFrames,
-									fps,
-									height,
-									width,
-									defaultCodec: null,
-									defaultOutName: null,
-									defaultVideoImageFormat: null,
-									defaultPixelFormat: null,
-									defaultProResProfile: null,
-								},
-								folders: [],
-							}}
-						>
-							<Internals.RemotionRoot
-								audioEnabled={false}
-								videoEnabled
-								logLevel={logLevel}
-								numberOfAudioTags={0}
-								audioLatencyHint="interactive"
-								frameState={{
-									[compId]: frame,
-								}}
-							>
-								<Internals.CanUseRemotionHooks value>
-									{/**
-									 * @ts-expect-error	*/}
-									<Component {...actualInputProps} />
-								</Internals.CanUseRemotionHooks>
-							</Internals.RemotionRoot>
-						</Internals.CompositionManager.Provider>
-					</Internals.DelayRenderContextType.Provider>
-				</Internals.RemotionEnvironmentContext>
-			</Internals.MaxMediaCacheSizeContext.Provider>,
-		);
-	});
+		const imageData = await takeScreenshot({
+			div,
+			width: resolved.width,
+			height: resolved.height,
+			imageFormat,
+		});
 
-	resolve();
-	await promise;
-
-	await waitForReady({
-		timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
-		scope: delayRenderScope,
-	});
-
-	const imageData = await takeScreenshot({div, width, height, imageFormat});
-
-	root.unmount();
-	div.remove();
-
-	return imageData;
+		return imageData;
+	} finally {
+		cleanupScaffold();
+	}
 }
 
 export const renderStillOnWeb = <
@@ -209,5 +140,6 @@ export const renderStillOnWeb = <
 		schema: options.schema ?? undefined,
 		id: options.id ?? null,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+		signal: options.signal ?? null,
 	});
 };

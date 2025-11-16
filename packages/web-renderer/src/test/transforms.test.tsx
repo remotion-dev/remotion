@@ -21,11 +21,13 @@ test('should be able to deal with a simple transform directly on the element', a
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		durationInFrames: 100,
-		fps: 30,
-		width: 100,
-		height: 100,
+		composition: {
+			component: Component,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 100,
+		},
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',
@@ -46,11 +48,13 @@ test('should be able to deal with a simple transform on the parent', async () =>
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		durationInFrames: 100,
-		fps: 30,
-		width: 100,
-		height: 100,
+		composition: {
+			component: Component,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 100,
+		},
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',
@@ -76,11 +80,13 @@ test('should be able to deal with a transform-origin on itself', async () => {
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		durationInFrames: 100,
-		fps: 30,
-		width: 100,
-		height: 100,
+		composition: {
+			component: Component,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 100,
+		},
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',
@@ -103,11 +109,14 @@ test('should be able to deal with a transform-origin on parent', async () => {
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		durationInFrames: 100,
-		fps: 30,
-		width: 100,
-		height: 100,
+		composition: {
+			component: Component,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 100,
+			calculateMetadata: () => Promise.resolve({}),
+		},
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',
@@ -132,11 +141,14 @@ test('accumulated transforms', async () => {
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		durationInFrames: 100,
-		fps: 30,
-		width: 100,
-		height: 100,
+		composition: {
+			component: Component,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 100,
+			calculateMetadata: () => Promise.resolve({}),
+		},
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',
@@ -178,11 +190,13 @@ test('transformed canvases', async () => {
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		durationInFrames: 100,
-		fps: 30,
-		width: 100,
-		height: 100,
+		composition: {
+			component: Component,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 100,
+		},
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',
@@ -224,11 +238,13 @@ test('multi-level nested transforms with distinct transform-origins', async () =
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		durationInFrames: 100,
-		fps: 30,
-		width: 100,
-		height: 100,
+		composition: {
+			component: Component,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 100,
+		},
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',
@@ -268,11 +284,13 @@ test('three-level nested transforms with varying origins', async () => {
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		durationInFrames: 100,
-		fps: 30,
-		width: 100,
-		height: 100,
+		composition: {
+			component: Component,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 100,
+		},
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',
@@ -306,11 +324,13 @@ test('nested transforms with pixel-based transform-origins', async () => {
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		durationInFrames: 100,
-		fps: 30,
-		width: 100,
-		height: 100,
+		composition: {
+			component: Component,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 100,
+		},
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',

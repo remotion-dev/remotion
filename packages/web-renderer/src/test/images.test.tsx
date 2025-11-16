@@ -13,11 +13,14 @@ test('can display an image', async () => {
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		durationInFrames: 1,
-		fps: 25,
-		width: 550,
-		height: 368,
+		composition: {
+			component: Component,
+			width: 550,
+			height: 368,
+			fps: 25,
+			durationInFrames: 1,
+			calculateMetadata: () => Promise.resolve({}),
+		},
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',

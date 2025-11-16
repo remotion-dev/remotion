@@ -20,11 +20,14 @@ test('can extract a video frame', async (t) => {
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		durationInFrames: 100,
-		fps: 25,
-		width: 1920 / 3,
-		height: 1080 / 3,
+		composition: {
+			component: Component,
+			width: 1920 / 3,
+			height: 1080 / 3,
+			fps: 25,
+			durationInFrames: 100,
+			calculateMetadata: () => Promise.resolve({}),
+		},
 		frame: 20,
 		inputProps: {},
 		imageFormat: 'png',
@@ -55,11 +58,14 @@ test('cannot render inside an svg tag', async () => {
 
 	try {
 		await renderStillOnWeb({
-			component: Component,
-			durationInFrames: 100,
-			fps: 30,
-			width: 100,
-			height: 100,
+			composition: {
+				component: Component,
+				width: 100,
+				height: 100,
+				fps: 30,
+				durationInFrames: 100,
+				calculateMetadata: () => Promise.resolve({}),
+			},
 			frame: 20,
 			inputProps: {},
 			imageFormat: 'png',

@@ -37,11 +37,13 @@ const HasProps: React.FC<{abc: 'def'}> = () => {
 
 test('cannot call getInputProps() while rendering client-side', async () => {
 	await renderStillOnWeb({
-		component: MustAcceptInputProps,
-		width: 100,
-		height: 100,
-		fps: 30,
-		durationInFrames: 30,
+		composition: {
+			component: MustAcceptInputProps,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 30,
+		},
 		frame: 20,
 		inputProps: {abc: 'abc'},
 		imageFormat: 'png',
@@ -51,11 +53,13 @@ test('cannot call getInputProps() while rendering client-side', async () => {
 test('cannot call getInputProps() while rendering client-side', async () => {
 	await expect(() => {
 		return renderStillOnWeb({
-			component: DisallowGetInputProps,
-			width: 100,
-			height: 100,
-			fps: 30,
-			durationInFrames: 30,
+			composition: {
+				component: DisallowGetInputProps,
+				width: 100,
+				height: 100,
+				fps: 30,
+				durationInFrames: 30,
+			},
 			frame: 20,
 			inputProps: {abc: 'abc'},
 			imageFormat: 'png',
@@ -70,11 +74,14 @@ const mockFn: MockSignature = () => Promise.resolve(new Blob());
 
 test('Should be able to omit input props when component accepts no props', () => {
 	mockFn({
-		component: HasNoProps,
-		width: 100,
-		height: 100,
-		fps: 30,
-		durationInFrames: 30,
+		composition: {
+			component: HasNoProps,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 30,
+			calculateMetadata: () => Promise.resolve({}),
+		},
 		frame: 20,
 		imageFormat: 'png',
 	});
@@ -83,21 +90,25 @@ test('Should be able to omit input props when component accepts no props', () =>
 test('Should not be able to omit input props when component accepts props', () => {
 	// @ts-expect-error - inputProps is required
 	mockFn({
-		component: HasProps,
-		width: 100,
-		height: 100,
-		fps: 30,
-		durationInFrames: 30,
+		composition: {
+			component: HasProps,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 30,
+		},
 		frame: 20,
 		imageFormat: 'png',
 	});
 
 	mockFn({
-		component: HasProps,
-		width: 100,
-		height: 100,
-		fps: 30,
-		durationInFrames: 30,
+		composition: {
+			component: HasProps,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 30,
+		},
 		frame: 20,
 		inputProps: {
 			// @ts-expect-error - must match signature
@@ -108,11 +119,13 @@ test('Should not be able to omit input props when component accepts props', () =
 
 	// No error, how it should be :)
 	mockFn({
-		component: HasProps,
-		width: 100,
-		height: 100,
-		fps: 30,
-		durationInFrames: 30,
+		composition: {
+			component: HasProps,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 30,
+		},
 		frame: 20,
 		inputProps: {
 			abc: 'def',

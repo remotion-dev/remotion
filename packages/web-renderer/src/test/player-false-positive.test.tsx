@@ -44,11 +44,14 @@ test('should not give a false positive when the player is also mounted', async (
 	});
 
 	await renderStillOnWeb({
-		component: MustNotBePlayer,
-		width: 100,
-		height: 100,
-		fps: 30,
-		durationInFrames: 30,
+		composition: {
+			component: MustNotBePlayer,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 30,
+			calculateMetadata: () => Promise.resolve({}),
+		},
 		frame: 20,
 		inputProps: {},
 		imageFormat: 'png',

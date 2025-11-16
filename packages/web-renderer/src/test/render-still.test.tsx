@@ -14,11 +14,14 @@ test('should render still on web', async () => {
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		width: 100,
-		height: 100,
-		fps: 30,
-		durationInFrames: 30,
+		composition: {
+			component: Component,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 30,
+			calculateMetadata: () => Promise.resolve({}),
+		},
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',
@@ -40,11 +43,13 @@ test('should be able to read frame number', async () => {
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		width: 100,
-		height: 100,
-		fps: 30,
-		durationInFrames: 30,
+		composition: {
+			component: Component,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 30,
+		},
 		frame: 20,
 		inputProps: {},
 		imageFormat: 'png',
