@@ -1,6 +1,5 @@
 import {
 	BufferTarget,
-	Mp4OutputFormat,
 	Output,
 	QUALITY_HIGH,
 	VideoSample,
@@ -10,6 +9,13 @@ import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import {createScaffold} from './create-scaffold';
+import type {WebRendererContainer} from './mediabunny-mappings';
+import {
+	codecToMediabunnyCodec,
+	containerToMediabunnyContainer,
+	getDefaultVideoCodecForContainer,
+	type WebRendererCodec,
+} from './mediabunny-mappings';
 import type {
 	CompositionCalculateMetadataOrExplicit,
 	InferProps,
@@ -31,6 +37,8 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	schema: Schema | undefined;
 	id: string | null;
 	mediaCacheSizeInBytes: number | null;
+	codec: WebRendererCodec;
+	container: WebRendererContainer;
 };
 
 export type RenderMediaOnWebOptions<
@@ -56,8 +64,20 @@ const internalRenderMediaOnWeb = async <
 	logLevel,
 	mediaCacheSizeInBytes,
 	schema,
+	codec,
+	container,
 }: InternalRenderMediaOnWebOptions<Schema, Props>) => {
 	const cleanupFns: (() => void)[] = [];
+	const format = containerToMediabunnyContainer(container);
+
+	if (
+		codec &&
+		!format.getSupportedCodecs().includes(codecToMediabunnyCodec(codec))
+	) {
+		return Promise.reject(
+			new Error(`Codec ${codec} is not supported for container ${container}`),
+		);
+	}
 
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
@@ -103,7 +123,7 @@ const internalRenderMediaOnWeb = async <
 		});
 
 		const output = new Output({
-			format: new Mp4OutputFormat(),
+			format,
 			target: new BufferTarget(),
 		});
 
@@ -115,9 +135,8 @@ const internalRenderMediaOnWeb = async <
 			output.cancel();
 		});
 
-		// For video, we use a CanvasSource for convenience, as we're rendering to a canvas
 		const videoSampleSource = new VideoSampleSource({
-			codec: 'avc',
+			codec: codecToMediabunnyCodec(codec),
 			bitrate: QUALITY_HIGH,
 			sizeChangeBehavior: 'deny',
 		});
@@ -154,9 +173,7 @@ const internalRenderMediaOnWeb = async <
 		videoSampleSource.close();
 		await output.finalize();
 
-		const file = output.target.buffer;
-
-		return file as ArrayBuffer;
+		return output.target.buffer as ArrayBuffer;
 	} finally {
 		cleanupFns.forEach((fn) => fn());
 	}
@@ -168,6 +185,9 @@ export const renderMediaOnWeb = <
 >(
 	options: RenderMediaOnWebOptions<Schema, Props>,
 ) => {
+	const container = options.container ?? 'mp4';
+	const codec = options.codec ?? getDefaultVideoCodecForContainer(container);
+
 	return internalRenderMediaOnWeb<Schema, Props>({
 		...options,
 		delayRenderTimeoutInMilliseconds:
@@ -176,5 +196,7 @@ export const renderMediaOnWeb = <
 		schema: options.schema ?? undefined,
 		id: options.id ?? null,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+		codec,
+		container,
 	});
 };
