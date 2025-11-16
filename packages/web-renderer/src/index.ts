@@ -9,3 +9,8 @@ export type {
 	RenderStillOnWebImageFormat as RenderStillImageFormat,
 	RenderStillOnWebOptions,
 } from './render-still-on-web';
+export type {
+	WebRendererCodec,
+	WebRendererContainer,
+	WebRendererQuality,
+} from './mediabunny-mappings';
