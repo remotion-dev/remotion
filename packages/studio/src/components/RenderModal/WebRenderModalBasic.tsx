@@ -7,13 +7,17 @@ import type {
 import type React from 'react';
 import {useMemo} from 'react';
 import type {VideoConfig} from 'remotion';
+import {Checkmark} from '../../icons/Checkmark';
 import {Spacing} from '../layout';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {Combobox} from '../NewComposition/ComboBox';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {RightAlignInput} from '../NewComposition/RemInput';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import type {RenderType} from './WebRenderModal';
 import {input, label, optionRow, rightRow} from './layout';
+import {OptionExplainerBubble} from './OptionExplainerBubble';
 import {RenderModalOutputName} from './RenderModalOutputName';
 
 type WebRenderModalBasicProps = {
@@ -90,37 +94,57 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 		];
 	}, [imageFormat, setStillFormat]);
 
-	const containerOptions = useMemo((): SegmentedControlItem[] => {
+	const containerOptions = useMemo((): ComboboxValue[] => {
 		return [
 			{
 				label: 'MP4',
 				onClick: () => setContainerFormat('mp4'),
-				key: 'mp4',
-				selected: container === 'mp4',
+				leftItem: container === 'mp4' ? <Checkmark /> : null,
+				id: 'mp4',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'mp4',
 			},
 			{
 				label: 'WebM',
 				onClick: () => setContainerFormat('webm'),
-				key: 'webm',
-				selected: container === 'webm',
+				leftItem: container === 'webm' ? <Checkmark /> : null,
+				id: 'webm',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'webm',
 			},
 		];
 	}, [container, setContainerFormat]);
 
-	const codecOptions = useMemo((): SegmentedControlItem[] => {
+	const codecOptions = useMemo((): ComboboxValue[] => {
 		if (container === 'mp4') {
 			return [
 				{
 					label: 'H.264',
 					onClick: () => setCodec('h264'),
-					key: 'h264',
-					selected: codec === 'h264',
+					leftItem: codec === 'h264' ? <Checkmark /> : null,
+					id: 'h264',
+					keyHint: null,
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'h264',
 				},
 				{
 					label: 'H.265',
 					onClick: () => setCodec('h265'),
-					key: 'h265',
-					selected: codec === 'h265',
+					leftItem: codec === 'h265' ? <Checkmark /> : null,
+					id: 'h265',
+					keyHint: null,
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'h265',
 				},
 			];
 		}
@@ -129,55 +153,95 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 			{
 				label: 'VP8',
 				onClick: () => setCodec('vp8'),
-				key: 'vp8',
-				selected: codec === 'vp8',
+				leftItem: codec === 'vp8' ? <Checkmark /> : null,
+				id: 'vp8',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'vp8',
 			},
 			{
 				label: 'VP9',
 				onClick: () => setCodec('vp9'),
-				key: 'vp9',
-				selected: codec === 'vp9',
+				leftItem: codec === 'vp9' ? <Checkmark /> : null,
+				id: 'vp9',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'vp9',
 			},
 			{
 				label: 'AV1',
 				onClick: () => setCodec('av1'),
-				key: 'av1',
-				selected: codec === 'av1',
+				leftItem: codec === 'av1' ? <Checkmark /> : null,
+				id: 'av1',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'av1',
 			},
 		];
 	}, [container, codec, setCodec]);
 
-	const qualityOptions = useMemo((): SegmentedControlItem[] => {
+	const qualityOptions = useMemo((): ComboboxValue[] => {
 		return [
 			{
 				label: 'Very Low',
 				onClick: () => setVideoBitrate('very-low'),
-				key: 'very-low',
-				selected: videoBitrate === 'very-low',
+				leftItem: videoBitrate === 'very-low' ? <Checkmark /> : null,
+				id: 'very-low',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'very-low',
 			},
 			{
 				label: 'Low',
 				onClick: () => setVideoBitrate('low'),
-				key: 'low',
-				selected: videoBitrate === 'low',
+				leftItem: videoBitrate === 'low' ? <Checkmark /> : null,
+				id: 'low',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'low',
 			},
 			{
 				label: 'Medium',
 				onClick: () => setVideoBitrate('medium'),
-				key: 'medium',
-				selected: videoBitrate === 'medium',
+				leftItem: videoBitrate === 'medium' ? <Checkmark /> : null,
+				id: 'medium',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'medium',
 			},
 			{
 				label: 'High',
 				onClick: () => setVideoBitrate('high'),
-				key: 'high',
-				selected: videoBitrate === 'high',
+				leftItem: videoBitrate === 'high' ? <Checkmark /> : null,
+				id: 'high',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'high',
 			},
 			{
 				label: 'Very High',
 				onClick: () => setVideoBitrate('very-high'),
-				key: 'very-high',
-				selected: videoBitrate === 'very-high',
+				leftItem: videoBitrate === 'very-high' ? <Checkmark /> : null,
+				id: 'very-high',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'very-high',
 			},
 		];
 	}, [videoBitrate, setVideoBitrate]);
@@ -219,19 +283,23 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 					<div style={optionRow}>
 						<div style={label}>Container</div>
 						<div style={rightRow}>
-							<SegmentedControl items={containerOptions} needsWrapping />
+							<Combobox values={containerOptions} selectedId={container} title="Container" />
 						</div>
 					</div>
 					<div style={optionRow}>
-						<div style={label}>Codec</div>
+						<div style={label}>
+							Codec
+							<Spacing x={0.5} />
+							<OptionExplainerBubble id="videoCodecOption" />
+						</div>
 						<div style={rightRow}>
-							<SegmentedControl items={codecOptions} needsWrapping />
+							<Combobox values={codecOptions} selectedId={codec} title="Codec" />
 						</div>
 					</div>
 					<div style={optionRow}>
 						<div style={label}>Quality</div>
 						<div style={rightRow}>
-							<SegmentedControl items={qualityOptions} needsWrapping />
+							<Combobox values={qualityOptions} selectedId={videoBitrate} title="Quality" />
 						</div>
 					</div>
 					<div style={optionRow}>
