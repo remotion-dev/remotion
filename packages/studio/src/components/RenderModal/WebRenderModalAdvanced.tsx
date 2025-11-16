@@ -1,9 +1,10 @@
 import type {LogLevel} from '@remotion/renderer';
 import type React from 'react';
 import {useCallback, useMemo} from 'react';
+import {Checkmark} from '../../icons/Checkmark';
 import {Spacing} from '../layout';
-import type {SegmentedControlItem} from '../SegmentedControl';
-import {SegmentedControl} from '../SegmentedControl';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {Combobox} from '../NewComposition/ComboBox';
 import {Checkbox} from '../Checkbox';
 import type {RenderType} from './WebRenderModal';
 import {label, optionRow, rightRow} from './layout';
@@ -86,25 +87,40 @@ export const WebRenderModalAdvanced: React.FC<
 		[setLogLevel],
 	);
 
-	const hardwareAccelerationOptions = useMemo((): SegmentedControlItem[] => {
+	const hardwareAccelerationOptions = useMemo((): ComboboxValue[] => {
 		return [
 			{
 				label: 'No Preference',
 				onClick: () => setHardwareAcceleration('no-preference'),
-				key: 'no-preference',
-				selected: hardwareAcceleration === 'no-preference',
+				leftItem: hardwareAcceleration === 'no-preference' ? <Checkmark /> : null,
+				id: 'no-preference',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'no-preference',
 			},
 			{
 				label: 'Prefer Hardware',
 				onClick: () => setHardwareAcceleration('prefer-hardware'),
-				key: 'prefer-hardware',
-				selected: hardwareAcceleration === 'prefer-hardware',
+				leftItem: hardwareAcceleration === 'prefer-hardware' ? <Checkmark /> : null,
+				id: 'prefer-hardware',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'prefer-hardware',
 			},
 			{
 				label: 'Prefer Software',
 				onClick: () => setHardwareAcceleration('prefer-software'),
-				key: 'prefer-software',
-				selected: hardwareAcceleration === 'prefer-software',
+				leftItem: hardwareAcceleration === 'prefer-software' ? <Checkmark /> : null,
+				id: 'prefer-software',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'prefer-software',
 			},
 		];
 	}, [hardwareAcceleration, setHardwareAcceleration]);
@@ -166,9 +182,10 @@ export const WebRenderModalAdvanced: React.FC<
 					<div style={optionRow}>
 						<div style={label}>Hardware Acceleration</div>
 						<div style={rightRow}>
-							<SegmentedControl
-								items={hardwareAccelerationOptions}
-								needsWrapping
+							<Combobox
+								values={hardwareAccelerationOptions}
+								selectedId={hardwareAcceleration}
+								title="Hardware Acceleration"
 							/>
 						</div>
 					</div>
