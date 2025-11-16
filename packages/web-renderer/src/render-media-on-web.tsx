@@ -189,6 +189,8 @@ const internalRenderMediaOnWeb = async <
 			keyFrameInterval,
 		});
 
+		console.log('videoSampleSource', navigator.userAgent);
+
 		cleanupFns.push(() => {
 			videoSampleSource.close();
 		});
@@ -196,6 +198,7 @@ const internalRenderMediaOnWeb = async <
 		output.addVideoTrack(videoSampleSource);
 
 		await output.start();
+		console.log('output started', navigator.userAgent);
 
 		if (signal?.aborted) {
 			throw new Error('renderMediaOnWeb() was cancelled');
