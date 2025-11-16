@@ -3,7 +3,6 @@ import type {
 	RenderStillImageFormat,
 	WebRendererCodec,
 	WebRendererContainer,
-	WebRendererQuality,
 } from '@remotion/web-renderer';
 import type React from 'react';
 import {useCallback, useMemo} from 'react';
@@ -123,34 +122,29 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 	}, [container, setContainerFormat]);
 
 	const codecOptions = useMemo((): ComboboxValue[] => {
-		if (container === 'mp4') {
-			return [
-				{
-					label: 'H.264',
-					onClick: () => setCodec('h264'),
-					leftItem: codec === 'h264' ? <Checkmark /> : null,
-					id: 'h264',
-					keyHint: null,
-					quickSwitcherLabel: null,
-					subMenu: null,
-					type: 'item',
-					value: 'h264',
-				},
-				{
-					label: 'H.265',
-					onClick: () => setCodec('h265'),
-					leftItem: codec === 'h265' ? <Checkmark /> : null,
-					id: 'h265',
-					keyHint: null,
-					quickSwitcherLabel: null,
-					subMenu: null,
-					type: 'item',
-					value: 'h265',
-				},
-			];
-		}
-
 		return [
+			{
+				label: 'H.264',
+				onClick: () => setCodec('h264'),
+				leftItem: codec === 'h264' ? <Checkmark /> : null,
+				id: 'h264',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'h264',
+			},
+			{
+				label: 'H.265',
+				onClick: () => setCodec('h265'),
+				leftItem: codec === 'h265' ? <Checkmark /> : null,
+				id: 'h265',
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: 'h265',
+			},
 			{
 				label: 'VP8',
 				onClick: () => setCodec('vp8'),
@@ -185,7 +179,7 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 				value: 'av1',
 			},
 		];
-	}, [container, codec, setCodec]);
+	}, [codec, setCodec]);
 
 	const onVerboseLoggingChanged = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {

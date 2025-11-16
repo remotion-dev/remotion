@@ -186,17 +186,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				const newFileName = getStringBeforeSuffix(prev) + '.' + newContainer;
 				return newFileName;
 			});
-			// Update codec if needed for container compatibility
-			if (newContainer === 'webm' && codec === 'h264') {
-				setCodec('vp8');
-			} else if (
-				newContainer === 'mp4' &&
-				(codec === 'vp8' || codec === 'vp9')
-			) {
-				setCodec('h264');
-			}
 		},
-		[codec],
+		[],
 	);
 
 	const onRenderModeChange = useCallback(
