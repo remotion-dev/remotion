@@ -34,7 +34,6 @@ export type RenderMediaOnWebProgress = {
 	renderedFrames: number;
 	encodedFrames: number;
 	// TODO: encodedDoneIn, renderEstimatedTime, progress
-	// TODO: throttling
 };
 
 export type RenderMediaOnWebProgressCallback = (
@@ -80,6 +79,8 @@ type InternalRenderMediaOnWebOptions<
 // TODO: Transparency
 // TODO: Web file system API
 // TODO: Apply defaultCodec
+// TODO: Throttle onProgress
+
 const internalRenderMediaOnWeb = async <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
@@ -249,11 +250,11 @@ const internalRenderMediaOnWeb = async <
 				),
 			});
 			progress.renderedFrames++;
-			onProgress?.(progress);
+			onProgress?.({...progress});
 
 			await videoSampleSource.add(new VideoSample(videoFrame));
 			progress.encodedFrames++;
-			onProgress?.(progress);
+			onProgress?.({...progress});
 
 			videoFrame.close();
 

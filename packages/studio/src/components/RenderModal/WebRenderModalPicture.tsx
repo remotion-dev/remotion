@@ -3,13 +3,11 @@ import type React from 'react';
 import {useCallback, useMemo} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
-import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
-import type {RenderType} from './WebRenderModal';
 import {label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
-import {OptionExplainerBubble} from './OptionExplainerBubble';
+import type {RenderType} from './WebRenderModal';
 
 const tabContainer: React.CSSProperties = {
 	flex: 1,
@@ -27,9 +25,7 @@ type WebRenderModalPictureProps = {
 	readonly setTransparent: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const WebRenderModalPicture: React.FC<
-	WebRenderModalPictureProps
-> = ({
+export const WebRenderModalPicture: React.FC<WebRenderModalPictureProps> = ({
 	renderMode,
 	videoBitrate,
 	setVideoBitrate,
@@ -114,7 +110,11 @@ export const WebRenderModalPicture: React.FC<
 			<div style={optionRow}>
 				<div style={label}>Quality</div>
 				<div style={rightRow}>
-					<Combobox values={qualityOptions} selectedId={videoBitrate} title="Quality" />
+					<Combobox
+						values={qualityOptions}
+						selectedId={videoBitrate}
+						title="Quality"
+					/>
 				</div>
 			</div>
 			<NumberSetting
@@ -127,10 +127,7 @@ export const WebRenderModalPicture: React.FC<
 				onValueChanged={setKeyframeIntervalInSeconds}
 			/>
 			<div style={optionRow}>
-				<div style={label}>
-					Transparent <Spacing x={0.5} />
-					<OptionExplainerBubble id="alphaOption" />
-				</div>
+				<div style={label}>Transparent</div>
 				<div style={rightRow}>
 					<Checkbox
 						checked={transparent}

@@ -1,15 +1,14 @@
-import type {LogLevel} from '@remotion/renderer';
 import type React from 'react';
 import {useCallback, useMemo} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
+import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
-import {Checkbox} from '../Checkbox';
-import type {RenderType} from './WebRenderModal';
 import {label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
+import type {RenderType} from './WebRenderModal';
 
 type WebRenderModalAdvancedProps = {
 	readonly renderMode: RenderType;
@@ -32,9 +31,7 @@ const tabContainer: React.CSSProperties = {
 	flex: 1,
 };
 
-export const WebRenderModalAdvanced: React.FC<
-	WebRenderModalAdvancedProps
-> = ({
+export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 	renderMode,
 	delayRenderTimeout,
 	setDelayRenderTimeout,
@@ -77,7 +74,8 @@ export const WebRenderModalAdvanced: React.FC<
 			{
 				label: 'No Preference',
 				onClick: () => setHardwareAcceleration('no-preference'),
-				leftItem: hardwareAcceleration === 'no-preference' ? <Checkmark /> : null,
+				leftItem:
+					hardwareAcceleration === 'no-preference' ? <Checkmark /> : null,
 				id: 'no-preference',
 				keyHint: null,
 				quickSwitcherLabel: null,
@@ -88,7 +86,8 @@ export const WebRenderModalAdvanced: React.FC<
 			{
 				label: 'Prefer Hardware',
 				onClick: () => setHardwareAcceleration('prefer-hardware'),
-				leftItem: hardwareAcceleration === 'prefer-hardware' ? <Checkmark /> : null,
+				leftItem:
+					hardwareAcceleration === 'prefer-hardware' ? <Checkmark /> : null,
 				id: 'prefer-hardware',
 				keyHint: null,
 				quickSwitcherLabel: null,
@@ -99,7 +98,8 @@ export const WebRenderModalAdvanced: React.FC<
 			{
 				label: 'Prefer Software',
 				onClick: () => setHardwareAcceleration('prefer-software'),
-				leftItem: hardwareAcceleration === 'prefer-software' ? <Checkmark /> : null,
+				leftItem:
+					hardwareAcceleration === 'prefer-software' ? <Checkmark /> : null,
 				id: 'prefer-software',
 				keyHint: null,
 				quickSwitcherLabel: null,
