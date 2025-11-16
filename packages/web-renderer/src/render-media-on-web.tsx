@@ -52,7 +52,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	signal: AbortSignal | null;
 	onProgress: RenderMediaOnWebProgressCallback | null;
 	hardwareAcceleration: 'no-preference' | 'prefer-hardware' | 'prefer-software';
-	keyFrameInterval: number;
+	keyframeIntervalInSeconds: number;
 	videoBitrate: number | WebRendererQuality;
 	frameRange: FrameRange | null;
 };
@@ -94,7 +94,7 @@ const internalRenderMediaOnWeb = async <
 	signal,
 	onProgress,
 	hardwareAcceleration,
-	keyFrameInterval,
+	keyframeIntervalInSeconds,
 	videoBitrate,
 	frameRange,
 }: InternalRenderMediaOnWebOptions<Schema, Props>) => {
@@ -194,7 +194,7 @@ const internalRenderMediaOnWeb = async <
 			sizeChangeBehavior: 'deny',
 			hardwareAcceleration,
 			latencyMode: 'quality',
-			keyFrameInterval,
+			keyFrameInterval: keyframeIntervalInSeconds,
 		});
 
 		cleanupFns.push(() => {
@@ -287,7 +287,7 @@ export const renderMediaOnWeb = <
 		signal: options.signal ?? null,
 		onProgress: options.onProgress ?? null,
 		hardwareAcceleration: options.hardwareAcceleration ?? 'no-preference',
-		keyFrameInterval: options.keyFrameInterval ?? 5,
+		keyframeIntervalInSeconds: options.keyframeIntervalInSeconds ?? 5,
 		videoBitrate: options.videoBitrate ?? 'medium',
 		frameRange: options.frameRange ?? null,
 	});

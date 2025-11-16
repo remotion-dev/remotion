@@ -15,11 +15,11 @@ import {InputDragger} from '../NewComposition/InputDragger';
 import {RightAlignInput} from '../NewComposition/RemInput';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
-import type {RenderType} from './WebRenderModal';
 import {FrameRangeSetting} from './FrameRangeSetting';
 import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
 import {RenderModalOutputName} from './RenderModalOutputName';
+import type {RenderType} from './WebRenderModal';
 
 type WebRenderModalBasicProps = {
 	readonly renderMode: RenderType;
@@ -42,7 +42,6 @@ type WebRenderModalBasicProps = {
 	readonly outName: string;
 	readonly onOutNameChange: React.ChangeEventHandler<HTMLInputElement>;
 	readonly validationMessage: string | null;
-	readonly existence: boolean | null;
 };
 
 const tabContainer: React.CSSProperties = {
@@ -70,7 +69,6 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 	outName,
 	onOutNameChange,
 	validationMessage,
-	existence,
 }) => {
 	const imageFormatOptions = useMemo((): SegmentedControlItem[] => {
 		return [
@@ -284,7 +282,11 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 					<div style={optionRow}>
 						<div style={label}>Container</div>
 						<div style={rightRow}>
-							<Combobox values={containerOptions} selectedId={container} title="Container" />
+							<Combobox
+								values={containerOptions}
+								selectedId={container}
+								title="Container"
+							/>
 						</div>
 					</div>
 					<div style={optionRow}>
@@ -294,13 +296,21 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 							<OptionExplainerBubble id="videoCodecOption" />
 						</div>
 						<div style={rightRow}>
-							<Combobox values={codecOptions} selectedId={codec} title="Codec" />
+							<Combobox
+								values={codecOptions}
+								selectedId={codec}
+								title="Codec"
+							/>
 						</div>
 					</div>
 					<div style={optionRow}>
 						<div style={label}>Quality</div>
 						<div style={rightRow}>
-							<Combobox values={qualityOptions} selectedId={videoBitrate} title="Quality" />
+							<Combobox
+								values={qualityOptions}
+								selectedId={videoBitrate}
+								title="Quality"
+							/>
 						</div>
 					</div>
 					<FrameRangeSetting
@@ -313,7 +323,7 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 				</>
 			)}
 			<RenderModalOutputName
-				existence={existence ?? false}
+				existence={false}
 				inputStyle={input}
 				outName={outName}
 				onValueChange={onOutNameChange}

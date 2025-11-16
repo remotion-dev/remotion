@@ -26,8 +26,10 @@ type WebRenderModalAdvancedProps = {
 	readonly setHardwareAcceleration: (
 		value: 'no-preference' | 'prefer-hardware' | 'prefer-software',
 	) => void;
-	readonly keyFrameInterval: number;
-	readonly setKeyFrameInterval: React.Dispatch<React.SetStateAction<number>>;
+	readonly keyframeIntervalInSeconds: number;
+	readonly setKeyframeIntervalInSeconds: React.Dispatch<
+		React.SetStateAction<number>
+	>;
 	readonly logLevel: LogLevel;
 	readonly setLogLevel: (level: LogLevel) => void;
 };
@@ -46,8 +48,8 @@ export const WebRenderModalAdvanced: React.FC<
 	setMediaCacheSizeInBytes,
 	hardwareAcceleration,
 	setHardwareAcceleration,
-	keyFrameInterval,
-	setKeyFrameInterval,
+	keyframeIntervalInSeconds,
+	setKeyframeIntervalInSeconds,
 	logLevel,
 	setLogLevel,
 }) => {
@@ -190,13 +192,13 @@ export const WebRenderModalAdvanced: React.FC<
 						</div>
 					</div>
 					<NumberSetting
-						name="Key Frame Interval"
-						formatter={(v) => `${v} frames`}
+						name="Keyframe Interval"
+						formatter={(v) => `${v}s`}
 						min={1}
 						max={300}
 						step={1}
-						value={keyFrameInterval}
-						onValueChanged={setKeyFrameInterval}
+						value={keyframeIntervalInSeconds}
+						onValueChanged={setKeyframeIntervalInSeconds}
 					/>
 				</>
 			) : null}

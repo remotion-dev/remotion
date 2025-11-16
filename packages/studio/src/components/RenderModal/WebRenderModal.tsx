@@ -10,7 +10,6 @@ import type {
 import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import {useFileExistence} from '../../helpers/use-file-existence';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import type {WebRenderModalState} from '../../state/modals';
@@ -133,7 +132,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		unresolved: unresolvedComposition,
 	} = context;
 
-	const [renderMode, setRenderMode] = useState<RenderType>('still');
+	const [renderMode, setRenderMode] = useState<RenderType>('video');
 	const [tab, setTab] = useState<TabType>('general');
 	const [imageFormat, setImageFormat] = useState<RenderStillImageFormat>('png');
 	const [frame, setFrame] = useState(() => initialFrame);
@@ -153,7 +152,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [hardwareAcceleration, setHardwareAcceleration] = useState<
 		'no-preference' | 'prefer-hardware' | 'prefer-software'
 	>('no-preference');
-	const [keyFrameInterval, setKeyFrameInterval] = useState(5);
+	const [keyframeIntervalInSeconds, setKeyframeIntervalInSeconds] = useState(5);
 	const [startFrame, setStartFrame] = useState<number | null>(null);
 	const [endFrame, setEndFrame] = useState<number | null>(null);
 	const [renderProgress, setRenderProgress] =
@@ -325,8 +324,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		}
 	}, [outName, imageFormat, renderMode, container]);
 
-	const existence = useFileExistence(outName);
-
 	const onRenderStill = useCallback(async () => {
 		const blob = await renderStillOnWeb({
 			composition: {
@@ -388,7 +385,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			container,
 			videoBitrate,
 			hardwareAcceleration,
-			keyFrameInterval,
+			keyframeIntervalInSeconds,
 			frameRange:
 				startFrame !== null || endFrame !== null
 					? ([
@@ -426,7 +423,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		container,
 		videoBitrate,
 		hardwareAcceleration,
-		keyFrameInterval,
+		keyframeIntervalInSeconds,
 		startFrame,
 		endFrame,
 		resolvedComposition.durationInFrames,
@@ -522,7 +519,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							validationMessage={
 								outnameValidation.valid ? null : outnameValidation.error.message
 							}
-							existence={existence}
 						/>
 					) : tab === 'data' ? (
 						<DataEditor
@@ -544,8 +540,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setMediaCacheSizeInBytes={setMediaCacheSizeInBytes}
 							hardwareAcceleration={hardwareAcceleration}
 							setHardwareAcceleration={setHardwareAcceleration}
-							keyFrameInterval={keyFrameInterval}
-							setKeyFrameInterval={setKeyFrameInterval}
+							keyframeIntervalInSeconds={keyframeIntervalInSeconds}
+							setKeyframeIntervalInSeconds={setKeyframeIntervalInSeconds}
 							logLevel={logLevel}
 							setLogLevel={setLogLevel}
 						/>
