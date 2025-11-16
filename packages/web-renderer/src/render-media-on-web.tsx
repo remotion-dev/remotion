@@ -7,10 +7,15 @@ import {
 	VideoSampleSource,
 } from 'mediabunny';
 import type {ComponentType} from 'react';
-import type {LogLevel} from 'remotion';
+import type {CalculateMetadataFunction} from 'remotion';
+import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import {createScaffold} from './create-scaffold';
-import type {PropsIfHasProps} from './props-if-has-props';
+import type {
+	CompositionCalculateMetadataOrExplicit,
+	InferProps,
+	PropsIfHasProps,
+} from './props-if-has-props';
 import {createFrame} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
 
@@ -21,11 +26,8 @@ type MandatoryRenderMediaOnWebOptions<
 	Props extends Record<string, unknown>,
 > = {
 	component: LooseComponentType<Props>;
-	width: number;
-	height: number;
-	fps: number;
-	durationInFrames: number;
-} & PropsIfHasProps<Schema, Props>;
+} & CompositionCalculateMetadataOrExplicit<Schema, Props> &
+	PropsIfHasProps<Schema, Props>;
 
 type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
@@ -62,18 +64,34 @@ const internalRenderMediaOnWeb = async <
 	logLevel,
 	mediaCacheSizeInBytes,
 	schema,
+	calculateMetadata,
 }: InternalRenderMediaOnWebOptions<Schema, Props>) => {
 	const cleanupFns: (() => void)[] = [];
 
+	const resolved = await Internals.resolveVideoConfig({
+		calculateMetadata:
+			(calculateMetadata as CalculateMetadataFunction<
+				InferProps<AnyZodObject, Record<string, unknown>>
+			>) ?? null,
+		signal: new AbortController().signal,
+		defaultProps: {},
+		originalProps: inputProps ?? {},
+		compositionId: id ?? 'default',
+		compositionDurationInFrames: durationInFrames ?? null,
+		compositionFps: fps ?? null,
+		compositionHeight: height ?? null,
+		compositionWidth: width ?? null,
+	});
+
 	const {delayRenderScope, div, cleanupScaffold, timeUpdater} =
 		await createScaffold({
-			width,
-			height,
-			fps,
-			durationInFrames,
+			width: resolved.width,
+			height: resolved.height,
+			fps: resolved.fps,
+			durationInFrames: resolved.durationInFrames,
 			Component,
 			inputProps: inputProps ?? {},
-			id,
+			id: id ?? 'default',
 			delayRenderTimeoutInMilliseconds,
 			logLevel,
 			mediaCacheSizeInBytes,
@@ -117,7 +135,7 @@ const internalRenderMediaOnWeb = async <
 
 		await output.start();
 
-		for (let i = 0; i < durationInFrames; i++) {
+		for (let i = 0; i < resolved.durationInFrames; i++) {
 			timeUpdater.current?.update(i);
 			await waitForReady({
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
@@ -126,13 +144,13 @@ const internalRenderMediaOnWeb = async <
 
 			const imageData = await createFrame({
 				div,
-				width,
-				height,
+				width: resolved.width,
+				height: resolved.height,
 			});
 			await videoSampleSource.add(
 				new VideoSample(
 					new VideoFrame(imageData, {
-						timestamp: (i / fps) * 1_000_000,
+						timestamp: (i / resolved.fps) * 1_000_000,
 					}),
 				),
 			);

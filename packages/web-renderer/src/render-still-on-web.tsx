@@ -1,8 +1,16 @@
 import {type ComponentType} from 'react';
-import type {LogLevel} from 'remotion';
+import {
+	Internals,
+	type CalculateMetadataFunction,
+	type LogLevel,
+} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import {createScaffold} from './create-scaffold';
-import type {PropsIfHasProps} from './props-if-has-props';
+import type {
+	CompositionCalculateMetadataOrExplicit,
+	InferProps,
+	PropsIfHasProps,
+} from './props-if-has-props';
 import {takeScreenshot} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
 
@@ -15,13 +23,10 @@ type MandatoryRenderStillOnWebOptions<
 	Props extends Record<string, unknown>,
 > = {
 	component: LooseComponentType<Props>;
-	width: number;
-	height: number;
-	fps: number;
-	durationInFrames: number;
 	frame: number;
 	imageFormat: RenderStillOnWebImageFormat;
-} & PropsIfHasProps<Schema, Props>;
+} & CompositionCalculateMetadataOrExplicit<Schema, Props> &
+	PropsIfHasProps<Schema, Props>;
 
 type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
@@ -60,20 +65,36 @@ async function internalRenderStillOnWeb<
 	schema,
 	imageFormat,
 	mediaCacheSizeInBytes,
+	calculateMetadata,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
+	const resolved = await Internals.resolveVideoConfig({
+		calculateMetadata:
+			(calculateMetadata as CalculateMetadataFunction<
+				InferProps<AnyZodObject, Record<string, unknown>>
+			>) ?? null,
+		signal: new AbortController().signal,
+		defaultProps: {},
+		originalProps: inputProps ?? {},
+		compositionId: id ?? 'default',
+		compositionDurationInFrames: durationInFrames ?? null,
+		compositionFps: fps ?? null,
+		compositionHeight: height ?? null,
+		compositionWidth: width ?? null,
+	});
+
 	const {delayRenderScope, div, cleanupScaffold} = await createScaffold({
-		width,
-		height,
+		width: resolved.width,
+		height: resolved.height,
 		delayRenderTimeoutInMilliseconds,
 		logLevel,
 		inputProps: inputProps ?? {},
-		id,
+		id: id ?? 'default',
 		mediaCacheSizeInBytes,
 		audioEnabled: false,
 		Component,
 		videoEnabled: true,
-		durationInFrames,
-		fps,
+		durationInFrames: resolved.durationInFrames,
+		fps: resolved.fps,
 		schema: schema ?? null,
 		initialFrame: frame,
 	});
@@ -84,7 +105,12 @@ async function internalRenderStillOnWeb<
 			scope: delayRenderScope,
 		});
 
-		const imageData = await takeScreenshot({div, width, height, imageFormat});
+		const imageData = await takeScreenshot({
+			div,
+			width: resolved.width,
+			height: resolved.height,
+			imageFormat,
+		});
 
 		return imageData;
 	} finally {

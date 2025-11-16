@@ -29,7 +29,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	delayRenderTimeoutInMilliseconds: number;
 	logLevel: LogLevel;
 	inputProps: Record<string, unknown>;
-	id: string | null;
+	id: string;
 	mediaCacheSizeInBytes: number | null;
 	initialFrame: number;
 	durationInFrames: number;
@@ -80,8 +80,6 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 
 	const actualInputProps = inputProps ?? ({} as Props);
 
-	const compId = id ?? 'default';
-
 	const timeUpdater = createRef<TimeUpdaterRef | null>();
 
 	flushSync(() => {
@@ -103,7 +101,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 							value={{
 								compositions: [
 									{
-										id: compId,
+										id,
 										// @ts-expect-error
 										component: Component,
 										nonce: 0,
@@ -120,7 +118,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 								],
 								canvasContent: {
 									type: 'composition',
-									compositionId: compId,
+									compositionId: id,
 								},
 								currentCompositionMetadata: {
 									props: inputProps ?? {},
@@ -141,7 +139,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 								audioEnabled={audioEnabled}
 								videoEnabled={videoEnabled}
 								logLevel={logLevel}
-								compId={compId}
+								compId={id}
 								initialFrame={initialFrame}
 								timeUpdater={timeUpdater}
 							>
