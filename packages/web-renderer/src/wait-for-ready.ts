@@ -5,10 +5,12 @@ export const waitForReady = ({
 	timeoutInMilliseconds,
 	scope,
 	signal,
+	apiName,
 }: {
 	timeoutInMilliseconds: number;
 	scope: _InternalTypes['DelayRenderScope'];
 	signal: AbortSignal | null;
+	apiName: 'renderMediaOnWeb' | 'renderStillOnWeb';
 }) => {
 	if (scope.remotion_renderReady === true) {
 		return Promise.resolve();
@@ -19,7 +21,7 @@ export const waitForReady = ({
 
 	const interval = setInterval(() => {
 		if (signal?.aborted) {
-			reject(new Error('renderMediaOnWeb() was cancelled'));
+			reject(new Error(`${apiName}() was cancelled`));
 			clearInterval(interval);
 			return;
 		}

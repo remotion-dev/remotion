@@ -170,6 +170,7 @@ const internalRenderMediaOnWeb = async <
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 			scope: delayRenderScope,
 			signal,
+			apiName: 'renderMediaOnWeb',
 		});
 
 		if (signal?.aborted) {
@@ -219,6 +220,7 @@ const internalRenderMediaOnWeb = async <
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 				scope: delayRenderScope,
 				signal,
+				apiName: 'renderMediaOnWeb',
 			});
 
 			if (signal?.aborted) {
