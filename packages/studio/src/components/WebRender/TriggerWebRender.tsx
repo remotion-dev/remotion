@@ -42,7 +42,7 @@ export const TriggerWebRender = () => {
 
 	return (
 		<Button onClick={onClick} buttonContainerStyle={button} disabled={false}>
-			<span style={label}>Render on the web</span>
+			<span style={label}>Render on web</span>
 		</Button>
 	);
 };
