@@ -3,6 +3,7 @@ import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import {createScaffold} from './create-scaffold';
+import {getRealFrameRange, type FrameRange} from './frame-range';
 import type {
 	WebRendererContainer,
 	WebRendererQuality,
@@ -53,6 +54,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	hardwareAcceleration: 'no-preference' | 'prefer-hardware' | 'prefer-software';
 	keyFrameInterval: number;
 	videoBitrate: number | WebRendererQuality;
+	frameRange: FrameRange | null;
 };
 
 export type RenderMediaOnWebOptions<
@@ -74,7 +76,6 @@ type InternalRenderMediaOnWebOptions<
 // TODO: Metadata
 // TODO: onArtifact
 // TODO: Validating inputs
-// TODO: Encoding quality
 // TODO: Transparency
 // TODO: Web file system API
 const internalRenderMediaOnWeb = async <
@@ -95,6 +96,7 @@ const internalRenderMediaOnWeb = async <
 	hardwareAcceleration,
 	keyFrameInterval,
 	videoBitrate,
+	frameRange,
 }: InternalRenderMediaOnWebOptions<Schema, Props>) => {
 	const cleanupFns: (() => void)[] = [];
 	const format = containerToMediabunnyContainer(container);
@@ -123,6 +125,11 @@ const internalRenderMediaOnWeb = async <
 		compositionWidth: composition.width ?? null,
 	});
 
+	const realFrameRange = getRealFrameRange(
+		resolved.durationInFrames,
+		frameRange,
+	);
+
 	if (signal?.aborted) {
 		return Promise.reject(new Error('renderMediaOnWeb() was cancelled'));
 	}
@@ -149,6 +156,11 @@ const internalRenderMediaOnWeb = async <
 		cleanupScaffold();
 	});
 
+	const output = new Output({
+		format,
+		target: new BufferTarget(),
+	});
+
 	try {
 		if (signal?.aborted) {
 			throw new Error('renderMediaOnWeb() was cancelled');
@@ -163,11 +175,6 @@ const internalRenderMediaOnWeb = async <
 		if (signal?.aborted) {
 			throw new Error('renderMediaOnWeb() was cancelled');
 		}
-
-		const output = new Output({
-			format,
-			target: new BufferTarget(),
-		});
 
 		cleanupFns.push(() => {
 			if (output.state === 'finalized' || output.state === 'canceled') {
@@ -189,8 +196,6 @@ const internalRenderMediaOnWeb = async <
 			keyFrameInterval,
 		});
 
-		console.log('videoSampleSource', navigator.userAgent);
-
 		cleanupFns.push(() => {
 			videoSampleSource.close();
 		});
@@ -198,7 +203,6 @@ const internalRenderMediaOnWeb = async <
 		output.addVideoTrack(videoSampleSource);
 
 		await output.start();
-		console.log('output started', navigator.userAgent);
 
 		if (signal?.aborted) {
 			throw new Error('renderMediaOnWeb() was cancelled');
@@ -209,7 +213,7 @@ const internalRenderMediaOnWeb = async <
 			encodedFrames: 0,
 		};
 
-		for (let i = 0; i < resolved.durationInFrames; i++) {
+		for (let i = realFrameRange[0]; i <= realFrameRange[1]; i++) {
 			timeUpdater.current?.update(i);
 			await waitForReady({
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
@@ -281,5 +285,6 @@ export const renderMediaOnWeb = <
 		hardwareAcceleration: options.hardwareAcceleration ?? 'no-preference',
 		keyFrameInterval: options.keyFrameInterval ?? 5,
 		videoBitrate: options.videoBitrate ?? 'medium',
+		frameRange: options.frameRange ?? null,
 	});
 };
