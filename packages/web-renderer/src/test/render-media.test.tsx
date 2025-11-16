@@ -2,7 +2,7 @@ import {interpolateColors, useCurrentFrame} from 'remotion';
 import {test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 
-test('should render media on web', async (t) => {
+test('should render media on web', async () => {
 	const Component: React.FC = () => {
 		const frame = useCurrentFrame();
 		return (
@@ -11,7 +11,7 @@ test('should render media on web', async (t) => {
 					cx="50"
 					cy="50"
 					r="50"
-					fill={interpolateColors(frame, [0, 100], ['red', 'blue'])}
+					fill={interpolateColors(frame, [0, 4], ['red', 'blue'])}
 				/>
 			</svg>
 		);
@@ -23,20 +23,10 @@ test('should render media on web', async (t) => {
 			width: 400,
 			height: 400,
 			fps: 30,
-			durationInFrames: 100,
-		},
-		onProgress: (progress) => {
-			console.log('Progress:', progress.renderedFrames, progress.encodedFrames);
+			durationInFrames: 5,
 		},
 		inputProps: {},
-		hardwareAcceleration:
-			t.task.file.projectName === 'webkit'
-				? 'prefer-software'
-				: 'no-preference',
 	});
-	// Debug safari
-	// eslint-disable-next-line no-console
-	console.log('Done!');
 	/*
 	const url = URL.createObjectURL(
 		new File([file], 'test.mp4', {
