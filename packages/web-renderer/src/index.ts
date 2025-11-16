@@ -1,3 +1,8 @@
+export type {
+	WebRendererCodec,
+	WebRendererContainer,
+	WebRendererQuality,
+} from './mediabunny-mappings';
 export {renderMediaOnWeb} from './render-media-on-web';
 export type {
 	RenderMediaOnWebOptions,

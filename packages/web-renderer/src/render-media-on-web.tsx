@@ -34,7 +34,6 @@ export type RenderMediaOnWebProgress = {
 	renderedFrames: number;
 	encodedFrames: number;
 	// TODO: encodedDoneIn, renderEstimatedTime, progress
-	// TODO: throttling
 };
 
 export type RenderMediaOnWebProgressCallback = (
@@ -52,9 +51,10 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	signal: AbortSignal | null;
 	onProgress: RenderMediaOnWebProgressCallback | null;
 	hardwareAcceleration: 'no-preference' | 'prefer-hardware' | 'prefer-software';
-	keyFrameInterval: number;
+	keyframeIntervalInSeconds: number;
 	videoBitrate: number | WebRendererQuality;
 	frameRange: FrameRange | null;
+	transparent: boolean;
 };
 
 export type RenderMediaOnWebOptions<
@@ -78,6 +78,9 @@ type InternalRenderMediaOnWebOptions<
 // TODO: Validating inputs
 // TODO: Transparency
 // TODO: Web file system API
+// TODO: Apply defaultCodec
+// TODO: Throttle onProgress
+
 const internalRenderMediaOnWeb = async <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
@@ -94,9 +97,10 @@ const internalRenderMediaOnWeb = async <
 	signal,
 	onProgress,
 	hardwareAcceleration,
-	keyFrameInterval,
+	keyframeIntervalInSeconds,
 	videoBitrate,
 	frameRange,
+	transparent,
 }: InternalRenderMediaOnWebOptions<Schema, Props>) => {
 	const cleanupFns: (() => void)[] = [];
 	const format = containerToMediabunnyContainer(container);
@@ -150,6 +154,8 @@ const internalRenderMediaOnWeb = async <
 			audioEnabled: true,
 			videoEnabled: true,
 			initialFrame: 0,
+			defaultCodec: resolved.defaultCodec,
+			defaultOutName: resolved.defaultOutName,
 		});
 
 	cleanupFns.push(() => {
@@ -194,7 +200,8 @@ const internalRenderMediaOnWeb = async <
 			sizeChangeBehavior: 'deny',
 			hardwareAcceleration,
 			latencyMode: 'quality',
-			keyFrameInterval,
+			keyFrameInterval: keyframeIntervalInSeconds,
+			alpha: transparent ? 'keep' : 'discard',
 		});
 
 		cleanupFns.push(() => {
@@ -238,14 +245,16 @@ const internalRenderMediaOnWeb = async <
 			}
 
 			const videoFrame = new VideoFrame(imageData, {
-				timestamp: Math.round((i / resolved.fps) * 1_000_000),
+				timestamp: Math.round(
+					((i - realFrameRange[0]) / resolved.fps) * 1_000_000,
+				),
 			});
 			progress.renderedFrames++;
-			onProgress?.(progress);
+			onProgress?.({...progress});
 
 			await videoSampleSource.add(new VideoSample(videoFrame));
 			progress.encodedFrames++;
-			onProgress?.(progress);
+			onProgress?.({...progress});
 
 			videoFrame.close();
 
@@ -285,8 +294,9 @@ export const renderMediaOnWeb = <
 		signal: options.signal ?? null,
 		onProgress: options.onProgress ?? null,
 		hardwareAcceleration: options.hardwareAcceleration ?? 'no-preference',
-		keyFrameInterval: options.keyFrameInterval ?? 5,
+		keyframeIntervalInSeconds: options.keyframeIntervalInSeconds ?? 5,
 		videoBitrate: options.videoBitrate ?? 'medium',
 		frameRange: options.frameRange ?? null,
+		transparent: options.transparent ?? false,
 	});
 };
