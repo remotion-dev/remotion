@@ -2,7 +2,7 @@ import {interpolateColors, useCurrentFrame} from 'remotion';
 import {test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 
-test('should render still on web', async () => {
+test('should render media on web', async () => {
 	const Component: React.FC = () => {
 		const frame = useCurrentFrame();
 		return (

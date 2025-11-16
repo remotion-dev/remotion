@@ -44,6 +44,10 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	cleanupScaffold: () => void;
 	timeUpdater: React.RefObject<TimeUpdaterRef | null>;
 }> {
+	if (!ReactDOM.createRoot) {
+		throw new Error('@remotion/web-renderer requires React 18 or higher');
+	}
+
 	const div = document.createElement('div');
 
 	// Match same behavior as renderEntry.tsx
@@ -55,10 +59,6 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	div.style.zIndex = '-9999';
 
 	document.body.appendChild(div);
-
-	if (!ReactDOM.createRoot) {
-		throw new Error('@remotion/web-renderer requires React 18 or higher');
-	}
 
 	// TODO: calculateMetadata()
 

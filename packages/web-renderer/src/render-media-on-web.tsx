@@ -63,6 +63,8 @@ const internalRenderMediaOnWeb = async <
 	mediaCacheSizeInBytes,
 	schema,
 }: InternalRenderMediaOnWebOptions<Schema, Props>) => {
+	const cleanupFns: (() => void)[] = [];
+
 	const {delayRenderScope, div, cleanupScaffold, timeUpdater} =
 		await createScaffold({
 			width,
@@ -81,56 +83,70 @@ const internalRenderMediaOnWeb = async <
 			initialFrame: 0,
 		});
 
-	await waitForReady({
-		timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
-		scope: delayRenderScope,
+	cleanupFns.push(() => {
+		cleanupScaffold();
 	});
 
-	const output = new Output({
-		format: new Mp4OutputFormat(),
-		target: new BufferTarget(),
-	});
-
-	// For video, we use a CanvasSource for convenience, as we're rendering to a canvas
-	const videoSampleSource = new VideoSampleSource({
-		codec: 'avc',
-		bitrate: QUALITY_HIGH,
-		sizeChangeBehavior: 'deny',
-	});
-
-	output.addVideoTrack(videoSampleSource);
-
-	await output.start();
-
-	for (let i = 0; i < durationInFrames; i++) {
-		timeUpdater.current?.update(i);
+	try {
 		await waitForReady({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 			scope: delayRenderScope,
 		});
 
-		const imageData = await createFrame({
-			div,
-			width,
-			height,
+		const output = new Output({
+			format: new Mp4OutputFormat(),
+			target: new BufferTarget(),
 		});
-		await videoSampleSource.add(
-			new VideoSample(
-				new VideoFrame(imageData, {
-					timestamp: (i / fps) * 1_000_000,
-				}),
-			),
-		);
+
+		cleanupFns.push(() => {
+			output.cancel();
+		});
+
+		// For video, we use a CanvasSource for convenience, as we're rendering to a canvas
+		const videoSampleSource = new VideoSampleSource({
+			codec: 'avc',
+			bitrate: QUALITY_HIGH,
+			sizeChangeBehavior: 'deny',
+		});
+
+		cleanupFns.push(() => {
+			videoSampleSource.close();
+		});
+
+		output.addVideoTrack(videoSampleSource);
+
+		await output.start();
+
+		for (let i = 0; i < durationInFrames; i++) {
+			timeUpdater.current?.update(i);
+			await waitForReady({
+				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+				scope: delayRenderScope,
+			});
+
+			const imageData = await createFrame({
+				div,
+				width,
+				height,
+			});
+			await videoSampleSource.add(
+				new VideoSample(
+					new VideoFrame(imageData, {
+						timestamp: (i / fps) * 1_000_000,
+					}),
+				),
+			);
+		}
+
+		videoSampleSource.close();
+		await output.finalize();
+
+		const file = output.target.buffer;
+
+		return file as ArrayBuffer;
+	} finally {
+		cleanupFns.forEach((fn) => fn());
 	}
-
-	videoSampleSource.close();
-	await output.finalize();
-
-	const file = output.target.buffer;
-
-	cleanupScaffold();
-
-	return file as ArrayBuffer;
 };
 
 export const renderMediaOnWeb = <

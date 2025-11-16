@@ -78,16 +78,18 @@ async function internalRenderStillOnWeb<
 		initialFrame: frame,
 	});
 
-	await waitForReady({
-		timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
-		scope: delayRenderScope,
-	});
+	try {
+		await waitForReady({
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+			scope: delayRenderScope,
+		});
 
-	const imageData = await takeScreenshot({div, width, height, imageFormat});
+		const imageData = await takeScreenshot({div, width, height, imageFormat});
 
-	cleanupScaffold();
-
-	return imageData;
+		return imageData;
+	} finally {
+		cleanupScaffold();
+	}
 }
 
 export const renderStillOnWeb = <
