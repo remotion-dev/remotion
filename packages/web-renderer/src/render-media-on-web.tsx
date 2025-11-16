@@ -31,6 +31,17 @@ type MandatoryRenderMediaOnWebOptions<
 	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
 } & PropsIfHasProps<Schema, Props>;
 
+export type RenderMediaOnWebProgress = {
+	renderedFrames: number;
+	encodedFrames: number;
+	// TODO: encodedDoneIn, renderEstimatedTime, progress
+	// TODO: throttling
+};
+
+export type RenderMediaOnWebProgressCallback = (
+	progress: RenderMediaOnWebProgress,
+) => void;
+
 type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
 	logLevel: LogLevel;
@@ -39,6 +50,8 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	mediaCacheSizeInBytes: number | null;
 	codec: WebRendererCodec;
 	container: WebRendererContainer;
+	signal: AbortSignal | null;
+	onProgress: RenderMediaOnWebProgressCallback | null;
 };
 
 export type RenderMediaOnWebOptions<
@@ -80,6 +93,8 @@ const internalRenderMediaOnWeb = async <
 	schema,
 	codec,
 	container,
+	signal,
+	onProgress,
 }: InternalRenderMediaOnWebOptions<Schema, Props>) => {
 	const cleanupFns: (() => void)[] = [];
 	const format = containerToMediabunnyContainer(container);
@@ -98,7 +113,7 @@ const internalRenderMediaOnWeb = async <
 			(composition.calculateMetadata as CalculateMetadataFunction<
 				InferProps<AnyZodObject, Record<string, unknown>>
 			>) ?? null,
-		signal: new AbortController().signal,
+		signal: signal ?? new AbortController().signal,
 		defaultProps: {},
 		originalProps: inputProps ?? {},
 		compositionId: id ?? 'default',
@@ -107,6 +122,10 @@ const internalRenderMediaOnWeb = async <
 		compositionHeight: composition.height ?? null,
 		compositionWidth: composition.width ?? null,
 	});
+
+	if (signal?.aborted) {
+		return Promise.reject(new Error('renderMediaOnWeb() was cancelled'));
+	}
 
 	const {delayRenderScope, div, cleanupScaffold, timeUpdater} =
 		await createScaffold({
@@ -131,10 +150,19 @@ const internalRenderMediaOnWeb = async <
 	});
 
 	try {
+		if (signal?.aborted) {
+			throw new Error('renderMediaOnWeb() was cancelled');
+		}
+
 		await waitForReady({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 			scope: delayRenderScope,
+			signal,
 		});
+
+		if (signal?.aborted) {
+			throw new Error('renderMediaOnWeb() was cancelled');
+		}
 
 		const output = new Output({
 			format,
@@ -163,25 +191,52 @@ const internalRenderMediaOnWeb = async <
 
 		await output.start();
 
+		if (signal?.aborted) {
+			throw new Error('renderMediaOnWeb() was cancelled');
+		}
+
+		const progress: RenderMediaOnWebProgress = {
+			renderedFrames: 0,
+			encodedFrames: 0,
+		};
+
 		for (let i = 0; i < resolved.durationInFrames; i++) {
 			timeUpdater.current?.update(i);
 			await waitForReady({
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 				scope: delayRenderScope,
+				signal,
 			});
+
+			if (signal?.aborted) {
+				throw new Error('renderMediaOnWeb() was cancelled');
+			}
 
 			const imageData = await createFrame({
 				div,
 				width: resolved.width,
 				height: resolved.height,
 			});
-			await videoSampleSource.add(
-				new VideoSample(
-					new VideoFrame(imageData, {
-						timestamp: (i / resolved.fps) * 1_000_000,
-					}),
-				),
-			);
+
+			if (signal?.aborted) {
+				throw new Error('renderMediaOnWeb() was cancelled');
+			}
+
+			const videoFrame = new VideoFrame(imageData, {
+				timestamp: Math.round((i / resolved.fps) * 1_000_000),
+			});
+			progress.renderedFrames++;
+			onProgress?.(progress);
+
+			await videoSampleSource.add(new VideoSample(videoFrame));
+			progress.encodedFrames++;
+			onProgress?.(progress);
+
+			videoFrame.close();
+
+			if (signal?.aborted) {
+				throw new Error('renderMediaOnWeb() was cancelled');
+			}
 		}
 
 		videoSampleSource.close();
@@ -212,5 +267,7 @@ export const renderMediaOnWeb = <
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 		codec,
 		container,
+		signal: options.signal ?? null,
+		onProgress: options.onProgress ?? null,
 	});
 };

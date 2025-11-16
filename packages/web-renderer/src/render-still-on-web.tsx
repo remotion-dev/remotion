@@ -31,6 +31,7 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	schema: Schema | undefined;
 	id: string | null;
 	mediaCacheSizeInBytes: number | null;
+	signal: AbortSignal | null;
 };
 
 type InternalRenderStillOnWebOptions<
@@ -58,13 +59,14 @@ async function internalRenderStillOnWeb<
 	imageFormat,
 	mediaCacheSizeInBytes,
 	composition,
+	signal,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
 			(composition.calculateMetadata as CalculateMetadataFunction<
 				InferProps<AnyZodObject, Record<string, unknown>>
 			>) ?? null,
-		signal: new AbortController().signal,
+		signal: signal ?? new AbortController().signal,
 		defaultProps: {},
 		originalProps: inputProps ?? {},
 		compositionId: id ?? 'default',
@@ -73,6 +75,10 @@ async function internalRenderStillOnWeb<
 		compositionHeight: composition.height ?? null,
 		compositionWidth: composition.width ?? null,
 	});
+
+	if (signal?.aborted) {
+		return Promise.reject(new Error('renderStillOnWeb() was cancelled'));
+	}
 
 	const {delayRenderScope, div, cleanupScaffold} = await createScaffold({
 		width: resolved.width,
@@ -92,10 +98,19 @@ async function internalRenderStillOnWeb<
 	});
 
 	try {
+		if (signal?.aborted) {
+			throw new Error('renderStillOnWeb() was cancelled');
+		}
+
 		await waitForReady({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 			scope: delayRenderScope,
+			signal,
 		});
+
+		if (signal?.aborted) {
+			throw new Error('renderStillOnWeb() was cancelled');
+		}
 
 		const imageData = await takeScreenshot({
 			div,
@@ -124,5 +139,6 @@ export const renderStillOnWeb = <
 		schema: options.schema ?? undefined,
 		id: options.id ?? null,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+		signal: options.signal ?? null,
 	});
 };

@@ -4,9 +4,11 @@ import {withResolvers} from './with-resolvers';
 export const waitForReady = ({
 	timeoutInMilliseconds,
 	scope,
+	signal,
 }: {
 	timeoutInMilliseconds: number;
 	scope: _InternalTypes['DelayRenderScope'];
+	signal: AbortSignal | null;
 }) => {
 	if (scope.remotion_renderReady === true) {
 		return Promise.resolve();
@@ -16,6 +18,12 @@ export const waitForReady = ({
 	const {promise, resolve, reject} = withResolvers<void>();
 
 	const interval = setInterval(() => {
+		if (signal?.aborted) {
+			reject(new Error('renderMediaOnWeb() was cancelled'));
+			clearInterval(interval);
+			return;
+		}
+
 		if (scope.remotion_renderReady === true) {
 			// Wait for useEffects() to apply
 			requestAnimationFrame(() => {

@@ -27,6 +27,9 @@ test('should render media on web', async () => {
 		},
 		inputProps: {},
 	});
+	// Debug safari
+	// eslint-disable-next-line no-console
+	console.log('Done!');
 	/*
 	const url = URL.createObjectURL(
 		new File([file], 'test.mp4', {

@@ -1,3 +1,9 @@
+export {renderMediaOnWeb} from './render-media-on-web';
+export type {
+	RenderMediaOnWebOptions,
+	RenderMediaOnWebProgress,
+	RenderMediaOnWebProgressCallback,
+} from './render-media-on-web';
 export {renderStillOnWeb} from './render-still-on-web';
 export type {
 	RenderStillOnWebImageFormat as RenderStillImageFormat,
