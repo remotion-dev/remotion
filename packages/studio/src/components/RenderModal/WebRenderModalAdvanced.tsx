@@ -26,12 +26,6 @@ type WebRenderModalAdvancedProps = {
 	readonly setHardwareAcceleration: (
 		value: 'no-preference' | 'prefer-hardware' | 'prefer-software',
 	) => void;
-	readonly keyframeIntervalInSeconds: number;
-	readonly setKeyframeIntervalInSeconds: React.Dispatch<
-		React.SetStateAction<number>
-	>;
-	readonly logLevel: LogLevel;
-	readonly setLogLevel: (level: LogLevel) => void;
 };
 
 const tabContainer: React.CSSProperties = {
@@ -48,10 +42,6 @@ export const WebRenderModalAdvanced: React.FC<
 	setMediaCacheSizeInBytes,
 	hardwareAcceleration,
 	setHardwareAcceleration,
-	keyframeIntervalInSeconds,
-	setKeyframeIntervalInSeconds,
-	logLevel,
-	setLogLevel,
 }) => {
 	const toggleCustomMediaCacheSizeInBytes = useCallback(() => {
 		setMediaCacheSizeInBytes((previous) => {
@@ -80,13 +70,6 @@ export const WebRenderModalAdvanced: React.FC<
 			});
 		},
 		[setMediaCacheSizeInBytes],
-	);
-
-	const onVerboseLoggingChanged = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			setLogLevel(e.target.checked ? 'verbose' : 'info');
-		},
-		[setLogLevel],
 	);
 
 	const hardwareAccelerationOptions = useMemo((): ComboboxValue[] => {
@@ -165,42 +148,17 @@ export const WebRenderModalAdvanced: React.FC<
 				/>
 			)}
 
-			<div style={optionRow}>
-				<div style={label}>
-					Verbose logging <Spacing x={0.5} />
-					<OptionExplainerBubble id="logLevelOption" />
-				</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={logLevel === 'verbose'}
-						onChange={onVerboseLoggingChanged}
-						name="verbose-logging"
-					/>
-				</div>
-			</div>
-
 			{renderMode === 'video' ? (
-				<>
-					<div style={optionRow}>
-						<div style={label}>Hardware Acceleration</div>
-						<div style={rightRow}>
-							<Combobox
-								values={hardwareAccelerationOptions}
-								selectedId={hardwareAcceleration}
-								title="Hardware Acceleration"
-							/>
-						</div>
+				<div style={optionRow}>
+					<div style={label}>Hardware Acceleration</div>
+					<div style={rightRow}>
+						<Combobox
+							values={hardwareAccelerationOptions}
+							selectedId={hardwareAcceleration}
+							title="Hardware Acceleration"
+						/>
 					</div>
-					<NumberSetting
-						name="Keyframe Interval"
-						formatter={(v) => `${v}s`}
-						min={1}
-						max={300}
-						step={1}
-						value={keyframeIntervalInSeconds}
-						onValueChanged={setKeyframeIntervalInSeconds}
-					/>
-				</>
+				</div>
 			) : null}
 		</div>
 	);

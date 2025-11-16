@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import type {
 	RenderStillImageFormat,
 	WebRendererCodec,
@@ -5,9 +6,10 @@ import type {
 	WebRendererQuality,
 } from '@remotion/web-renderer';
 import type React from 'react';
-import {useMemo} from 'react';
+import {useCallback, useMemo} from 'react';
 import type {VideoConfig} from 'remotion';
 import {Checkmark} from '../../icons/Checkmark';
+import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
@@ -33,8 +35,6 @@ type WebRenderModalBasicProps = {
 	readonly setContainerFormat: (container: WebRendererContainer) => void;
 	readonly codec: WebRendererCodec;
 	readonly setCodec: (codec: WebRendererCodec) => void;
-	readonly videoBitrate: WebRendererQuality;
-	readonly setVideoBitrate: (quality: WebRendererQuality) => void;
 	readonly startFrame: number | null;
 	readonly setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	readonly endFrame: number | null;
@@ -42,6 +42,8 @@ type WebRenderModalBasicProps = {
 	readonly outName: string;
 	readonly onOutNameChange: React.ChangeEventHandler<HTMLInputElement>;
 	readonly validationMessage: string | null;
+	readonly logLevel: LogLevel;
+	readonly setLogLevel: (level: LogLevel) => void;
 };
 
 const tabContainer: React.CSSProperties = {
@@ -60,8 +62,6 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 	setContainerFormat,
 	codec,
 	setCodec,
-	videoBitrate,
-	setVideoBitrate,
 	startFrame,
 	setStartFrame,
 	endFrame,
@@ -69,6 +69,8 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 	outName,
 	onOutNameChange,
 	validationMessage,
+	logLevel,
+	setLogLevel,
 }) => {
 	const imageFormatOptions = useMemo((): SegmentedControlItem[] => {
 		return [
@@ -185,65 +187,12 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 		];
 	}, [container, codec, setCodec]);
 
-	const qualityOptions = useMemo((): ComboboxValue[] => {
-		return [
-			{
-				label: 'Very Low',
-				onClick: () => setVideoBitrate('very-low'),
-				leftItem: videoBitrate === 'very-low' ? <Checkmark /> : null,
-				id: 'very-low',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'very-low',
-			},
-			{
-				label: 'Low',
-				onClick: () => setVideoBitrate('low'),
-				leftItem: videoBitrate === 'low' ? <Checkmark /> : null,
-				id: 'low',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'low',
-			},
-			{
-				label: 'Medium',
-				onClick: () => setVideoBitrate('medium'),
-				leftItem: videoBitrate === 'medium' ? <Checkmark /> : null,
-				id: 'medium',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'medium',
-			},
-			{
-				label: 'High',
-				onClick: () => setVideoBitrate('high'),
-				leftItem: videoBitrate === 'high' ? <Checkmark /> : null,
-				id: 'high',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'high',
-			},
-			{
-				label: 'Very High',
-				onClick: () => setVideoBitrate('very-high'),
-				leftItem: videoBitrate === 'very-high' ? <Checkmark /> : null,
-				id: 'very-high',
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'very-high',
-			},
-		];
-	}, [videoBitrate, setVideoBitrate]);
+	const onVerboseLoggingChanged = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			setLogLevel(e.target.checked ? 'verbose' : 'info');
+		},
+		[setLogLevel],
+	);
 
 	return (
 		<div style={tabContainer}>
@@ -303,16 +252,6 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 							/>
 						</div>
 					</div>
-					<div style={optionRow}>
-						<div style={label}>Quality</div>
-						<div style={rightRow}>
-							<Combobox
-								values={qualityOptions}
-								selectedId={videoBitrate}
-								title="Quality"
-							/>
-						</div>
-					</div>
 					<FrameRangeSetting
 						durationInFrames={resolvedComposition.durationInFrames}
 						startFrame={startFrame ?? 0}
@@ -330,6 +269,19 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 				validationMessage={validationMessage}
 				label="Download name"
 			/>
+			<div style={optionRow}>
+				<div style={label}>
+					Verbose logging <Spacing x={0.5} />
+					<OptionExplainerBubble id="logLevelOption" />
+				</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={logLevel === 'verbose'}
+						onChange={onVerboseLoggingChanged}
+						name="verbose-logging"
+					/>
+				</div>
+			</div>
 		</div>
 	);
 };

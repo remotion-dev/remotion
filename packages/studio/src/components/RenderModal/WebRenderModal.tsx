@@ -12,6 +12,7 @@ import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
+import {PicIcon} from '../../icons/frame';
 import type {WebRenderModalState} from '../../state/modals';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -40,6 +41,7 @@ import {
 } from './ResolveCompositionBeforeModal';
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
+import {WebRenderModalPicture} from './WebRenderModalPicture';
 
 type WebRenderModalProps = {
 	readonly compositionId: string;
@@ -49,7 +51,7 @@ type WebRenderModalProps = {
 
 export type RenderType = 'still' | 'video';
 
-type TabType = 'general' | 'data' | 'advanced';
+type TabType = 'general' | 'data' | 'picture' | 'advanced';
 
 const invalidCharacters = ['?', '*', '+', ':', '%'];
 
@@ -147,8 +149,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	// Video-specific state
 	const [codec, setCodec] = useState<WebRendererCodec>('h264');
 	const [container, setContainer] = useState<WebRendererContainer>('mp4');
-	const [videoBitrate, setVideoBitrate] =
-		useState<WebRendererQuality>('medium');
+	const [videoBitrate, setVideoBitrate] = useState<WebRendererQuality>('high');
 	const [hardwareAcceleration, setHardwareAcceleration] = useState<
 		'no-preference' | 'prefer-hardware' | 'prefer-software'
 	>('no-preference');
@@ -161,9 +162,10 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [initialOutName] = useState(() => {
 		return getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
-			defaultExtension: 'png',
+			defaultExtension: container,
 			type: 'asset',
 			compositionDefaultOutName: resolvedComposition.defaultOutName,
+			clientSideRender: true,
 		});
 	});
 
@@ -483,6 +485,18 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						</div>
 						Input Props
 					</VerticalTab>
+					{renderMode === 'video' ? (
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'picture'}
+							onClick={() => setTab('picture')}
+						>
+							<div style={iconContainer}>
+								<PicIcon style={icon} />
+							</div>
+							Picture
+						</VerticalTab>
+					) : null}
 					<VerticalTab
 						style={horizontalTab}
 						selected={tab === 'advanced'}
@@ -508,8 +522,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setContainerFormat={setContainerFormat}
 							codec={codec}
 							setCodec={setCodec}
-							videoBitrate={videoBitrate}
-							setVideoBitrate={setVideoBitrate}
 							startFrame={startFrame}
 							setStartFrame={setStartFrame}
 							endFrame={endFrame}
@@ -519,6 +531,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							validationMessage={
 								outnameValidation.valid ? null : outnameValidation.error.message
 							}
+							logLevel={logLevel}
+							setLogLevel={setLogLevel}
 						/>
 					) : tab === 'data' ? (
 						<DataEditor
@@ -531,6 +545,14 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setSaving={setSaving}
 							readOnlyStudio={false}
 						/>
+					) : tab === 'picture' ? (
+						<WebRenderModalPicture
+							renderMode={renderMode}
+							videoBitrate={videoBitrate}
+							setVideoBitrate={setVideoBitrate}
+							keyframeIntervalInSeconds={keyframeIntervalInSeconds}
+							setKeyframeIntervalInSeconds={setKeyframeIntervalInSeconds}
+						/>
 					) : (
 						<WebRenderModalAdvanced
 							renderMode={renderMode}
@@ -540,10 +562,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setMediaCacheSizeInBytes={setMediaCacheSizeInBytes}
 							hardwareAcceleration={hardwareAcceleration}
 							setHardwareAcceleration={setHardwareAcceleration}
-							keyframeIntervalInSeconds={keyframeIntervalInSeconds}
-							setKeyframeIntervalInSeconds={setKeyframeIntervalInSeconds}
-							logLevel={logLevel}
-							setLogLevel={setLogLevel}
 						/>
 					)}
 				</div>
