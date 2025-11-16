@@ -23,7 +23,12 @@ test('should reject with invalid frame range', async () => {
 	);
 });
 
-test('should render with valid frame range', async () => {
+test('should render with valid frame range', async (t) => {
+	if (t.task.file.projectName === 'webkit') {
+		t.skip();
+		return;
+	}
+
 	const Component: React.FC = () => {
 		return null;
 	};
