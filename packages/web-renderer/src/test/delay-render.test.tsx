@@ -25,11 +25,13 @@ test('should be able to use delayRender()', async () => {
 	};
 
 	const blob = await renderStillOnWeb({
-		component: Component,
-		durationInFrames: 100,
-		fps: 30,
-		width: 100,
-		height: 100,
+		composition: {
+			component: Component,
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 100,
+		},
 		frame: 0,
 		inputProps: {},
 		imageFormat: 'png',

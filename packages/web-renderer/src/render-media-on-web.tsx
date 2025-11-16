@@ -6,7 +6,6 @@ import {
 	VideoSample,
 	VideoSampleSource,
 } from 'mediabunny';
-import type {ComponentType} from 'react';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject} from 'zod';
@@ -19,15 +18,12 @@ import type {
 import {createFrame} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
 
-type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
-
 type MandatoryRenderMediaOnWebOptions<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = {
-	component: LooseComponentType<Props>;
-} & CompositionCalculateMetadataOrExplicit<Schema, Props> &
-	PropsIfHasProps<Schema, Props>;
+	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
+} & PropsIfHasProps<Schema, Props>;
 
 type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
@@ -53,34 +49,29 @@ const internalRenderMediaOnWeb = async <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 >({
-	width,
-	height,
-	fps,
-	durationInFrames,
-	component: Component,
+	composition,
 	inputProps,
 	id,
 	delayRenderTimeoutInMilliseconds,
 	logLevel,
 	mediaCacheSizeInBytes,
 	schema,
-	calculateMetadata,
 }: InternalRenderMediaOnWebOptions<Schema, Props>) => {
 	const cleanupFns: (() => void)[] = [];
 
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
-			(calculateMetadata as CalculateMetadataFunction<
+			(composition.calculateMetadata as CalculateMetadataFunction<
 				InferProps<AnyZodObject, Record<string, unknown>>
 			>) ?? null,
 		signal: new AbortController().signal,
 		defaultProps: {},
 		originalProps: inputProps ?? {},
 		compositionId: id ?? 'default',
-		compositionDurationInFrames: durationInFrames ?? null,
-		compositionFps: fps ?? null,
-		compositionHeight: height ?? null,
-		compositionWidth: width ?? null,
+		compositionDurationInFrames: composition.durationInFrames ?? null,
+		compositionFps: composition.fps ?? null,
+		compositionHeight: composition.height ?? null,
+		compositionWidth: composition.width ?? null,
 	});
 
 	const {delayRenderScope, div, cleanupScaffold, timeUpdater} =
@@ -89,7 +80,7 @@ const internalRenderMediaOnWeb = async <
 			height: resolved.height,
 			fps: resolved.fps,
 			durationInFrames: resolved.durationInFrames,
-			Component,
+			Component: composition.component,
 			inputProps: inputProps ?? {},
 			id: id ?? 'default',
 			delayRenderTimeoutInMilliseconds,
@@ -117,6 +108,10 @@ const internalRenderMediaOnWeb = async <
 		});
 
 		cleanupFns.push(() => {
+			if (output.state === 'finalized' || output.state === 'canceled') {
+				return;
+			}
+
 			output.cancel();
 		});
 

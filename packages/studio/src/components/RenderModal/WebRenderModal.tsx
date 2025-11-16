@@ -267,17 +267,19 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 	const onRender = useCallback(async () => {
 		const blob = await renderStillOnWeb({
-			component: unresolvedComposition.component,
+			composition: {
+				component: unresolvedComposition.component,
+				width: resolvedComposition.width,
+				height: resolvedComposition.height,
+				fps: resolvedComposition.fps,
+				durationInFrames: resolvedComposition.durationInFrames,
+			},
 			frame,
 			imageFormat,
-			logLevel,
 			inputProps,
 			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
 			mediaCacheSizeInBytes,
-			durationInFrames: resolvedComposition.durationInFrames,
-			width: resolvedComposition.width,
-			height: resolvedComposition.height,
-			fps: resolvedComposition.fps,
+			logLevel,
 		});
 
 		const url = URL.createObjectURL(blob);

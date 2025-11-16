@@ -17,14 +17,17 @@ test('should render media on web', async () => {
 		);
 	};
 
-	const file = await renderMediaOnWeb({
-		component: Component,
-		width: 400,
-		height: 400,
-		fps: 30,
-		durationInFrames: 100,
+	await renderMediaOnWeb({
+		composition: {
+			component: Component,
+			width: 400,
+			height: 400,
+			fps: 30,
+			durationInFrames: 100,
+		},
 		inputProps: {},
 	});
+	/*
 	const url = URL.createObjectURL(
 		new File([file], 'test.mp4', {
 			type: 'video/mp4',
@@ -36,4 +39,5 @@ test('should render media on web', async () => {
 	videoTag.width = 400;
 	videoTag.height = 400;
 	document.body.appendChild(videoTag);
+*/
 });

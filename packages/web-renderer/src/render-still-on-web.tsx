@@ -1,4 +1,3 @@
-import {type ComponentType} from 'react';
 import {
 	Internals,
 	type CalculateMetadataFunction,
@@ -14,19 +13,17 @@ import type {
 import {takeScreenshot} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
 
-type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
-
 export type RenderStillOnWebImageFormat = 'png' | 'jpeg' | 'webp';
 
 type MandatoryRenderStillOnWebOptions<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = {
-	component: LooseComponentType<Props>;
 	frame: number;
 	imageFormat: RenderStillOnWebImageFormat;
-} & CompositionCalculateMetadataOrExplicit<Schema, Props> &
-	PropsIfHasProps<Schema, Props>;
+} & {
+	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
+} & PropsIfHasProps<Schema, Props>;
 
 type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
@@ -52,11 +49,6 @@ async function internalRenderStillOnWeb<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 >({
-	component: Component,
-	width,
-	height,
-	fps,
-	durationInFrames,
 	frame,
 	delayRenderTimeoutInMilliseconds,
 	logLevel,
@@ -65,21 +57,21 @@ async function internalRenderStillOnWeb<
 	schema,
 	imageFormat,
 	mediaCacheSizeInBytes,
-	calculateMetadata,
+	composition,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
-			(calculateMetadata as CalculateMetadataFunction<
+			(composition.calculateMetadata as CalculateMetadataFunction<
 				InferProps<AnyZodObject, Record<string, unknown>>
 			>) ?? null,
 		signal: new AbortController().signal,
 		defaultProps: {},
 		originalProps: inputProps ?? {},
 		compositionId: id ?? 'default',
-		compositionDurationInFrames: durationInFrames ?? null,
-		compositionFps: fps ?? null,
-		compositionHeight: height ?? null,
-		compositionWidth: width ?? null,
+		compositionDurationInFrames: composition.durationInFrames ?? null,
+		compositionFps: composition.fps ?? null,
+		compositionHeight: composition.height ?? null,
+		compositionWidth: composition.width ?? null,
 	});
 
 	const {delayRenderScope, div, cleanupScaffold} = await createScaffold({
@@ -91,7 +83,7 @@ async function internalRenderStillOnWeb<
 		id: id ?? 'default',
 		mediaCacheSizeInBytes,
 		audioEnabled: false,
-		Component,
+		Component: composition.component,
 		videoEnabled: true,
 		durationInFrames: resolved.durationInFrames,
 		fps: resolved.fps,
