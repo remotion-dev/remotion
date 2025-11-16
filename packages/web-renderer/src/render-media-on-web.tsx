@@ -55,6 +55,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	keyframeIntervalInSeconds: number;
 	videoBitrate: number | WebRendererQuality;
 	frameRange: FrameRange | null;
+	transparent: boolean;
 };
 
 export type RenderMediaOnWebOptions<
@@ -98,6 +99,7 @@ const internalRenderMediaOnWeb = async <
 	keyframeIntervalInSeconds,
 	videoBitrate,
 	frameRange,
+	transparent,
 }: InternalRenderMediaOnWebOptions<Schema, Props>) => {
 	const cleanupFns: (() => void)[] = [];
 	const format = containerToMediabunnyContainer(container);
@@ -198,6 +200,7 @@ const internalRenderMediaOnWeb = async <
 			hardwareAcceleration,
 			latencyMode: 'quality',
 			keyFrameInterval: keyframeIntervalInSeconds,
+			alpha: transparent ? 'keep' : 'discard',
 		});
 
 		cleanupFns.push(() => {
@@ -293,5 +296,6 @@ export const renderMediaOnWeb = <
 		keyframeIntervalInSeconds: options.keyframeIntervalInSeconds ?? 5,
 		videoBitrate: options.videoBitrate ?? 'medium',
 		frameRange: options.frameRange ?? null,
+		transparent: options.transparent ?? false,
 	});
 };

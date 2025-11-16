@@ -166,6 +166,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [endFrame, setEndFrame] = useState<number | null>(null);
 	const [renderProgress, setRenderProgress] =
 		useState<RenderMediaOnWebProgress | null>(null);
+	const [transparent, setTransparent] = useState(false);
 
 	const [initialOutName] = useState(() => {
 		return getDefaultOutLocation({
@@ -397,6 +398,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			onProgress: (progress) => {
 				setRenderProgress(progress);
 			},
+			transparent,
 		});
 
 		setRenderProgress(null);
@@ -432,6 +434,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.height,
 		resolvedComposition.fps,
 		outName,
+		transparent,
 	]);
 
 	const onRender = useCallback(async () => {
@@ -551,6 +554,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setVideoBitrate={setVideoBitrate}
 							keyframeIntervalInSeconds={keyframeIntervalInSeconds}
 							setKeyframeIntervalInSeconds={setKeyframeIntervalInSeconds}
+							transparent={transparent}
+							setTransparent={setTransparent}
 						/>
 					) : (
 						<WebRenderModalAdvanced

@@ -1,12 +1,15 @@
 import type {WebRendererQuality} from '@remotion/web-renderer';
 import type React from 'react';
-import {useMemo} from 'react';
+import {useCallback, useMemo} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
+import {Checkbox} from '../Checkbox';
+import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import type {RenderType} from './WebRenderModal';
 import {label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
+import {OptionExplainerBubble} from './OptionExplainerBubble';
 
 const tabContainer: React.CSSProperties = {
 	flex: 1,
@@ -20,6 +23,8 @@ type WebRenderModalPictureProps = {
 	readonly setKeyframeIntervalInSeconds: React.Dispatch<
 		React.SetStateAction<number>
 	>;
+	readonly transparent: boolean;
+	readonly setTransparent: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const WebRenderModalPicture: React.FC<
@@ -30,6 +35,8 @@ export const WebRenderModalPicture: React.FC<
 	setVideoBitrate,
 	keyframeIntervalInSeconds,
 	setKeyframeIntervalInSeconds,
+	transparent,
+	setTransparent,
 }) => {
 	const qualityOptions = useMemo((): ComboboxValue[] => {
 		return [
@@ -91,6 +98,13 @@ export const WebRenderModalPicture: React.FC<
 		];
 	}, [videoBitrate, setVideoBitrate]);
 
+	const onTransparentChanged = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			setTransparent(e.target.checked);
+		},
+		[setTransparent],
+	);
+
 	if (renderMode !== 'video') {
 		return null;
 	}
@@ -112,6 +126,19 @@ export const WebRenderModalPicture: React.FC<
 				value={keyframeIntervalInSeconds}
 				onValueChanged={setKeyframeIntervalInSeconds}
 			/>
+			<div style={optionRow}>
+				<div style={label}>
+					Transparent <Spacing x={0.5} />
+					<OptionExplainerBubble id="alphaOption" />
+				</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={transparent}
+						onChange={onTransparentChanged}
+						name="transparent"
+					/>
+				</div>
+			</div>
 		</div>
 	);
 };
