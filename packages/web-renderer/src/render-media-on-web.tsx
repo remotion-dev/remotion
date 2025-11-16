@@ -238,7 +238,9 @@ const internalRenderMediaOnWeb = async <
 			}
 
 			const videoFrame = new VideoFrame(imageData, {
-				timestamp: Math.round((i / resolved.fps) * 1_000_000),
+				timestamp: Math.round(
+					((i - realFrameRange[0]) / resolved.fps) * 1_000_000,
+				),
 			});
 			progress.renderedFrames++;
 			onProgress?.(progress);

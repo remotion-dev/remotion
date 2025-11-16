@@ -16,6 +16,7 @@ import {RightAlignInput} from '../NewComposition/RemInput';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import type {RenderType} from './WebRenderModal';
+import {FrameRangeSetting} from './FrameRangeSetting';
 import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
 import {RenderModalOutputName} from './RenderModalOutputName';
@@ -35,9 +36,9 @@ type WebRenderModalBasicProps = {
 	readonly videoBitrate: WebRendererQuality;
 	readonly setVideoBitrate: (quality: WebRendererQuality) => void;
 	readonly startFrame: number | null;
-	readonly setStartFrame: (frame: number | null) => void;
+	readonly setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	readonly endFrame: number | null;
-	readonly setEndFrame: (frame: number | null) => void;
+	readonly setEndFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	readonly outName: string;
 	readonly onOutNameChange: React.ChangeEventHandler<HTMLInputElement>;
 	readonly validationMessage: string | null;
@@ -302,52 +303,13 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 							<Combobox values={qualityOptions} selectedId={videoBitrate} title="Quality" />
 						</div>
 					</div>
-					<div style={optionRow}>
-						<div style={label}>Start Frame</div>
-						<Spacing x={0.5} />
-						<div style={rightRow}>
-							<RightAlignInput>
-								<InputDragger
-									value={startFrame ?? 0}
-									onTextChange={(e) => {
-										const val = parseFloat(e);
-										setStartFrame(Number.isNaN(val) ? null : val);
-									}}
-									placeholder="0"
-									onValueChange={(val) => setStartFrame(val)}
-									name="start-frame"
-									step={1}
-									min={0}
-									status="ok"
-									max={resolvedComposition.durationInFrames - 1}
-									rightAlign
-								/>
-							</RightAlignInput>
-						</div>
-					</div>
-					<div style={optionRow}>
-						<div style={label}>End Frame</div>
-						<Spacing x={0.5} />
-						<div style={rightRow}>
-							<RightAlignInput>
-								<InputDragger
-									value={endFrame ?? resolvedComposition.durationInFrames - 1}
-									onTextChange={(e) => {
-										const val = parseFloat(e);
-										setEndFrame(Number.isNaN(val) ? null : val);
-									}}
-									placeholder={`${resolvedComposition.durationInFrames - 1}`}
-									onValueChange={(val) => setEndFrame(val)}
-									name="end-frame"
-									step={1}
-									min={0}
-									status="ok"
-									max={resolvedComposition.durationInFrames - 1}
-									rightAlign
-								/>
-							</RightAlignInput>
-						</div>
-					</div>
+					<FrameRangeSetting
+						durationInFrames={resolvedComposition.durationInFrames}
+						startFrame={startFrame ?? 0}
+						endFrame={endFrame ?? resolvedComposition.durationInFrames - 1}
+						setStartFrame={setStartFrame}
+						setEndFrame={setEndFrame}
+					/>
 				</>
 			)}
 			<RenderModalOutputName
