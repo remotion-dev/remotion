@@ -2,7 +2,7 @@ import {interpolateColors, useCurrentFrame} from 'remotion';
 import {test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 
-test('should render media on web', async () => {
+test('should render media on web', async (t) => {
 	const Component: React.FC = () => {
 		const frame = useCurrentFrame();
 		return (
@@ -25,7 +25,14 @@ test('should render media on web', async () => {
 			fps: 30,
 			durationInFrames: 100,
 		},
+		onProgress: (progress) => {
+			console.log('Progress:', progress.renderedFrames, progress.encodedFrames);
+		},
 		inputProps: {},
+		hardwareAcceleration:
+			t.task.file.projectName === 'webkit'
+				? 'prefer-software'
+				: 'no-preference',
 	});
 	// Debug safari
 	// eslint-disable-next-line no-console

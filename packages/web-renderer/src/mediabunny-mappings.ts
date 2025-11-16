@@ -1,5 +1,11 @@
+import type {Quality} from 'mediabunny';
 import {
 	Mp4OutputFormat,
+	QUALITY_HIGH,
+	QUALITY_LOW,
+	QUALITY_MEDIUM,
+	QUALITY_VERY_HIGH,
+	QUALITY_VERY_LOW,
 	WebMOutputFormat,
 	type OutputFormat,
 	type VideoCodec,
@@ -7,6 +13,12 @@ import {
 
 export type WebRendererCodec = 'h264' | 'h265' | 'vp8' | 'vp9' | 'av1';
 export type WebRendererContainer = 'mp4' | 'webm';
+export type WebRendererQuality =
+	| 'very-low'
+	| 'low'
+	| 'medium'
+	| 'high'
+	| 'very-high';
 
 export const codecToMediabunnyCodec = (codec: WebRendererCodec): VideoCodec => {
 	switch (codec) {
@@ -48,5 +60,24 @@ export const getDefaultVideoCodecForContainer = (
 			return 'vp8';
 		default:
 			throw new Error(`Unsupported container: ${container satisfies never}`);
+	}
+};
+
+export const getQualityForWebRendererQuality = (
+	quality: WebRendererQuality,
+): Quality => {
+	switch (quality) {
+		case 'very-low':
+			return QUALITY_VERY_LOW;
+		case 'low':
+			return QUALITY_LOW;
+		case 'medium':
+			return QUALITY_MEDIUM;
+		case 'high':
+			return QUALITY_HIGH;
+		case 'very-high':
+			return QUALITY_VERY_HIGH;
+		default:
+			throw new Error(`Unsupported quality: ${quality satisfies never}`);
 	}
 };

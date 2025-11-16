@@ -1,19 +1,17 @@
-import {
-	BufferTarget,
-	Output,
-	QUALITY_HIGH,
-	VideoSample,
-	VideoSampleSource,
-} from 'mediabunny';
+import {BufferTarget, Output, VideoSample, VideoSampleSource} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import {createScaffold} from './create-scaffold';
-import type {WebRendererContainer} from './mediabunny-mappings';
+import type {
+	WebRendererContainer,
+	WebRendererQuality,
+} from './mediabunny-mappings';
 import {
 	codecToMediabunnyCodec,
 	containerToMediabunnyContainer,
 	getDefaultVideoCodecForContainer,
+	getQualityForWebRendererQuality,
 	type WebRendererCodec,
 } from './mediabunny-mappings';
 import type {
@@ -52,6 +50,9 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	container: WebRendererContainer;
 	signal: AbortSignal | null;
 	onProgress: RenderMediaOnWebProgressCallback | null;
+	hardwareAcceleration: 'no-preference' | 'prefer-hardware' | 'prefer-software';
+	keyFrameInterval: number;
+	videoBitrate: number | WebRendererQuality;
 };
 
 export type RenderMediaOnWebOptions<
@@ -67,19 +68,15 @@ type InternalRenderMediaOnWebOptions<
 	OptionalRenderMediaOnWebOptions<Schema>;
 
 // TODO: frameRange
-// TODO: keyframe interval
 // TODO: More containers
 // TODO: Audio
-// TODO: Aborting
-// TODO: Output formats
 // TODO: onFrame
 // TODO: Metadata
 // TODO: onArtifact
 // TODO: Validating inputs
 // TODO: Encoding quality
 // TODO: Transparency
-// TODO: hardware acceleration
-// TODO: onProgress
+// TODO: Web file system API
 const internalRenderMediaOnWeb = async <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
@@ -95,6 +92,9 @@ const internalRenderMediaOnWeb = async <
 	container,
 	signal,
 	onProgress,
+	hardwareAcceleration,
+	keyFrameInterval,
+	videoBitrate,
 }: InternalRenderMediaOnWebOptions<Schema, Props>) => {
 	const cleanupFns: (() => void)[] = [];
 	const format = containerToMediabunnyContainer(container);
@@ -179,8 +179,14 @@ const internalRenderMediaOnWeb = async <
 
 		const videoSampleSource = new VideoSampleSource({
 			codec: codecToMediabunnyCodec(codec),
-			bitrate: QUALITY_HIGH,
+			bitrate:
+				typeof videoBitrate === 'number'
+					? videoBitrate
+					: getQualityForWebRendererQuality(videoBitrate),
 			sizeChangeBehavior: 'deny',
+			hardwareAcceleration,
+			latencyMode: 'quality',
+			keyFrameInterval,
 		});
 
 		cleanupFns.push(() => {
@@ -269,5 +275,8 @@ export const renderMediaOnWeb = <
 		container,
 		signal: options.signal ?? null,
 		onProgress: options.onProgress ?? null,
+		hardwareAcceleration: options.hardwareAcceleration ?? 'no-preference',
+		keyFrameInterval: options.keyFrameInterval ?? 5,
+		videoBitrate: options.videoBitrate ?? 'medium',
 	});
 };
