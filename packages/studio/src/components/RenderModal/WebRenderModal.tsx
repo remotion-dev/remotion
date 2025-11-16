@@ -118,6 +118,14 @@ const validateOutnameForStill = ({
 	}
 };
 
+// TODO: Add to queue
+// TODO: Switch to server-side rendering
+// TODO: Filter out codecs that are not supported for the container
+// TODO: Add more containers
+// TODO: Shortcut: Shift + R
+// TODO: Apply initial frame range
+// TODO: Apply defaultCodec
+// TODO: Apply defaultOutName
 const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	initialFrame,
 	defaultProps,

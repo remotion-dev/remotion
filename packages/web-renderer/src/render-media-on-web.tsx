@@ -78,6 +78,7 @@ type InternalRenderMediaOnWebOptions<
 // TODO: Validating inputs
 // TODO: Transparency
 // TODO: Web file system API
+// TODO: Apply defaultCodec
 const internalRenderMediaOnWeb = async <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
@@ -150,6 +151,8 @@ const internalRenderMediaOnWeb = async <
 			audioEnabled: true,
 			videoEnabled: true,
 			initialFrame: 0,
+			defaultCodec: resolved.defaultCodec,
+			defaultOutName: resolved.defaultOutName,
 		});
 
 	cleanupFns.push(() => {

@@ -1,7 +1,7 @@
 import {createRef, type ComponentType} from 'react';
 import {flushSync} from 'react-dom';
 import ReactDOM from 'react-dom/client';
-import type {LogLevel} from 'remotion';
+import type {Codec, LogLevel} from 'remotion';
 import {Internals, type _InternalTypes} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import type {TimeUpdaterRef} from './update-time';
@@ -23,6 +23,8 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	Component,
 	audioEnabled,
 	videoEnabled,
+	defaultCodec,
+	defaultOutName,
 }: {
 	width: number;
 	height: number;
@@ -38,6 +40,8 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	Component: ComponentType<Props>;
 	audioEnabled: boolean;
 	videoEnabled: boolean;
+	defaultCodec: Codec | null;
+	defaultOutName: string | null;
 }): Promise<{
 	delayRenderScope: _InternalTypes['DelayRenderScope'];
 	div: HTMLDivElement;
@@ -126,8 +130,8 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 									fps,
 									height,
 									width,
-									defaultCodec: null,
-									defaultOutName: null,
+									defaultCodec: defaultCodec ?? null,
+									defaultOutName: defaultOutName ?? null,
 									defaultVideoImageFormat: null,
 									defaultPixelFormat: null,
 									defaultProResProfile: null,

@@ -95,6 +95,8 @@ async function internalRenderStillOnWeb<
 		fps: resolved.fps,
 		schema: schema ?? null,
 		initialFrame: frame,
+		defaultCodec: resolved.defaultCodec,
+		defaultOutName: resolved.defaultOutName,
 	});
 
 	try {
