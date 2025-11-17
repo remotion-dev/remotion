@@ -77,12 +77,6 @@ export const audioIteratorManager = ({
 			mediaTimestamp: number,
 		) => void;
 	}) => {
-		if (!audioBufferIterator) {
-			throw new Error('Audio buffer iterator not found');
-		}
-
-		audioBufferIterator.markBufferAsScheduled(buffer.timestamp);
-
 		if (getIsPlaying()) {
 			scheduleAudioChunk({
 				buffer: buffer.buffer,
@@ -91,6 +85,10 @@ export const audioIteratorManager = ({
 				scheduleAudioNode,
 			});
 		} else {
+			if (!audioBufferIterator) {
+				throw new Error('Audio buffer iterator not found');
+			}
+
 			audioBufferIterator.addChunkForAfterResuming(
 				buffer.buffer,
 				buffer.timestamp,
