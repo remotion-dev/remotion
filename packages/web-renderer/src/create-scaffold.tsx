@@ -1,7 +1,7 @@
 import {createRef, type ComponentType} from 'react';
 import {flushSync} from 'react-dom';
 import ReactDOM from 'react-dom/client';
-import type {Codec, LogLevel} from 'remotion';
+import type {Codec, LogLevel, TRenderAsset} from 'remotion';
 import {Internals, type _InternalTypes} from 'remotion';
 import type {AnyZodObject} from 'zod';
 import type {TimeUpdaterRef} from './update-time';
@@ -47,6 +47,9 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	div: HTMLDivElement;
 	cleanupScaffold: () => void;
 	timeUpdater: React.RefObject<TimeUpdaterRef | null>;
+	collectAssets: React.RefObject<{
+		collectAssets: () => TRenderAsset[];
+	} | null>;
 }> {
 	if (!ReactDOM.createRoot) {
 		throw new Error('@remotion/web-renderer requires React 18 or higher');
@@ -81,6 +84,10 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	};
 
 	const timeUpdater = createRef<TimeUpdaterRef | null>();
+
+	const collectAssets = createRef<{
+		collectAssets: () => TRenderAsset[];
+	}>();
 
 	flushSync(() => {
 		root.render(
@@ -135,20 +142,24 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 								folders: [],
 							}}
 						>
-							<UpdateTime
-								audioEnabled={audioEnabled}
-								videoEnabled={videoEnabled}
-								logLevel={logLevel}
-								compId={id}
-								initialFrame={initialFrame}
-								timeUpdater={timeUpdater}
+							<Internals.RenderAssetManagerProvider
+								collectAssets={collectAssets}
 							>
-								<Internals.CanUseRemotionHooks value>
-									{/**
-									 * @ts-expect-error	*/}
-									<Component {...resolvedProps} />
-								</Internals.CanUseRemotionHooks>
-							</UpdateTime>
+								<UpdateTime
+									audioEnabled={audioEnabled}
+									videoEnabled={videoEnabled}
+									logLevel={logLevel}
+									compId={id}
+									initialFrame={initialFrame}
+									timeUpdater={timeUpdater}
+								>
+									<Internals.CanUseRemotionHooks value>
+										{/**
+										 * @ts-expect-error	*/}
+										<Component {...resolvedProps} />
+									</Internals.CanUseRemotionHooks>
+								</UpdateTime>
+							</Internals.RenderAssetManagerProvider>
 						</Internals.CompositionManager.Provider>
 					</Internals.DelayRenderContextType.Provider>
 				</Internals.RemotionEnvironmentContext>
@@ -167,5 +178,6 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 			div.remove();
 		},
 		timeUpdater,
+		collectAssets,
 	};
 }

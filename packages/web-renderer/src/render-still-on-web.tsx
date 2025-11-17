@@ -4,6 +4,8 @@ import {
 	type LogLevel,
 } from 'remotion';
 import type {AnyZodObject} from 'zod';
+import type {OnArtifact} from './artifact';
+import {onlyArtifact} from './artifact';
 import {createScaffold} from './create-scaffold';
 import type {
 	CompositionCalculateMetadataOrExplicit,
@@ -31,6 +33,7 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	schema: Schema | undefined;
 	mediaCacheSizeInBytes: number | null;
 	signal: AbortSignal | null;
+	onArtifact: OnArtifact | null;
 };
 
 type InternalRenderStillOnWebOptions<
@@ -60,6 +63,7 @@ async function internalRenderStillOnWeb<
 	mediaCacheSizeInBytes,
 	composition,
 	signal,
+	onArtifact,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
 	const resolved = await Internals.resolveVideoConfig({
 		calculateMetadata:
@@ -80,24 +84,25 @@ async function internalRenderStillOnWeb<
 		return Promise.reject(new Error('renderStillOnWeb() was cancelled'));
 	}
 
-	const {delayRenderScope, div, cleanupScaffold} = await createScaffold({
-		width: resolved.width,
-		height: resolved.height,
-		delayRenderTimeoutInMilliseconds,
-		logLevel,
-		resolvedProps: resolved.props,
-		id: resolved.id,
-		mediaCacheSizeInBytes,
-		audioEnabled: false,
-		Component: composition.component,
-		videoEnabled: true,
-		durationInFrames: resolved.durationInFrames,
-		fps: resolved.fps,
-		schema: schema ?? null,
-		initialFrame: frame,
-		defaultCodec: resolved.defaultCodec,
-		defaultOutName: resolved.defaultOutName,
-	});
+	const {delayRenderScope, div, cleanupScaffold, collectAssets} =
+		await createScaffold({
+			width: resolved.width,
+			height: resolved.height,
+			delayRenderTimeoutInMilliseconds,
+			logLevel,
+			resolvedProps: resolved.props,
+			id: resolved.id,
+			mediaCacheSizeInBytes,
+			audioEnabled: false,
+			Component: composition.component,
+			videoEnabled: true,
+			durationInFrames: resolved.durationInFrames,
+			fps: resolved.fps,
+			schema: schema ?? null,
+			initialFrame: frame,
+			defaultCodec: resolved.defaultCodec,
+			defaultOutName: resolved.defaultOutName,
+		});
 
 	try {
 		if (signal?.aborted) {
@@ -122,6 +127,17 @@ async function internalRenderStillOnWeb<
 			imageFormat,
 		});
 
+		const artifactAssets = collectAssets.current!.collectAssets();
+		if (onArtifact) {
+			const artifacts = await onlyArtifact({
+				assets: artifactAssets,
+				frameBuffer: imageData,
+			});
+			for (const artifact of artifacts) {
+				onArtifact(artifact);
+			}
+		}
+
 		return imageData;
 	} finally {
 		cleanupScaffold();
@@ -142,5 +158,6 @@ export const renderStillOnWeb = <
 		schema: options.schema ?? undefined,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 		signal: options.signal ?? null,
+		onArtifact: options.onArtifact ?? null,
 	});
 };
