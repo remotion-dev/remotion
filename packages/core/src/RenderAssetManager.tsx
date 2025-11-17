@@ -1,10 +1,12 @@
 import {
 	createContext,
 	useCallback,
+	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useState,
 } from 'react';
+import {flushSync} from 'react-dom';
 import type {TRenderAsset} from './CompositionManager.js';
 import {validateRenderAsset} from './validation/validate-artifact.js';
 
@@ -21,9 +23,14 @@ export const RenderAssetManager = createContext<RenderAssetManagerContext>({
 	renderAssets: [],
 });
 
+export type CollectAssetsRef = {
+	collectAssets: () => TRenderAsset[];
+};
+
 export const RenderAssetManagerProvider: React.FC<{
 	children: React.ReactNode;
-}> = ({children}) => {
+	collectAssets: null | React.RefObject<CollectAssetsRef | null>;
+}> = ({children, collectAssets}) => {
 	const [renderAssets, setRenderAssets] = useState<TRenderAsset[]>([]);
 
 	const registerRenderAsset = useCallback((renderAsset: TRenderAsset) => {
@@ -32,6 +39,20 @@ export const RenderAssetManagerProvider: React.FC<{
 			return [...assets, renderAsset];
 		});
 	}, []);
+
+	if (collectAssets) {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useImperativeHandle(collectAssets, () => {
+			return {
+				collectAssets: () => {
+					flushSync(() => {
+						setRenderAssets([]); // clear assets at next render
+					});
+					return renderAssets;
+				},
+			};
+		}, [renderAssets]);
+	}
 
 	const unregisterRenderAsset = useCallback((id: string) => {
 		setRenderAssets((assts) => {

@@ -114,7 +114,7 @@ export const getAssetsForMarkup = async (
 					initialCompositions={[]}
 					initialCanvasContent={null}
 				>
-					<Internals.RemotionRoot
+					<Internals.RemotionRootContexts
 						frameState={null}
 						audioEnabled
 						videoEnabled
@@ -122,12 +122,14 @@ export const getAssetsForMarkup = async (
 						logLevel="info"
 						audioLatencyHint="interactive"
 					>
-						<Internals.CompositionManager.Provider value={value}>
-							<Internals.RenderAssetManager.Provider value={assetContext}>
-								<Markup />
-							</Internals.RenderAssetManager.Provider>
-						</Internals.CompositionManager.Provider>
-					</Internals.RemotionRoot>
+						<Internals.RenderAssetManagerProvider collectAssets={null}>
+							<Internals.CompositionManager.Provider value={value}>
+								<Internals.RenderAssetManager.Provider value={assetContext}>
+									<Markup />
+								</Internals.RenderAssetManager.Provider>
+							</Internals.CompositionManager.Provider>
+						</Internals.RenderAssetManagerProvider>
+					</Internals.RemotionRootContexts>
 				</Internals.CompositionManagerProvider>
 			</Internals.CanUseRemotionHooksProvider>
 		);

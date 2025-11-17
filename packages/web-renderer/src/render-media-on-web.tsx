@@ -2,6 +2,7 @@ import {BufferTarget, Output, VideoSample, VideoSampleSource} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
+import {handleArtifacts, type OnArtifact} from './artifact';
 import {createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
 import type {
@@ -76,6 +77,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	videoBitrate: number | WebRendererQuality;
 	frameRange: FrameRange | null;
 	transparent: boolean;
+	onArtifact: OnArtifact | null;
 };
 
 export type RenderMediaOnWebOptions<
@@ -92,14 +94,11 @@ type InternalRenderMediaOnWebOptions<
 	OptionalRenderMediaOnWebOptions<Schema> &
 	InputPropsIfHasProps<Schema, Props>;
 
-// TODO: frameRange
 // TODO: More containers
 // TODO: Audio
 // TODO: onFrame
 // TODO: Metadata
-// TODO: onArtifact
 // TODO: Validating inputs
-// TODO: Transparency
 // TODO: Web file system API
 // TODO: Apply defaultCodec
 // TODO: Throttle onProgress
@@ -124,6 +123,7 @@ const internalRenderMediaOnWeb = async <
 	videoBitrate,
 	frameRange,
 	transparent,
+	onArtifact,
 }: InternalRenderMediaOnWebOptions<Schema, Props>) => {
 	const cleanupFns: (() => void)[] = [];
 	const format = containerToMediabunnyContainer(container);
@@ -161,7 +161,7 @@ const internalRenderMediaOnWeb = async <
 		return Promise.reject(new Error('renderMediaOnWeb() was cancelled'));
 	}
 
-	const {delayRenderScope, div, cleanupScaffold, timeUpdater} =
+	const {delayRenderScope, div, cleanupScaffold, timeUpdater, collectAssets} =
 		await createScaffold({
 			width: resolved.width,
 			height: resolved.height,
@@ -180,6 +180,11 @@ const internalRenderMediaOnWeb = async <
 			defaultCodec: resolved.defaultCodec,
 			defaultOutName: resolved.defaultOutName,
 		});
+
+	const artifactsHandler = handleArtifacts({
+		ref: collectAssets,
+		onArtifact,
+	});
 
 	cleanupFns.push(() => {
 		cleanupScaffold();
@@ -263,6 +268,8 @@ const internalRenderMediaOnWeb = async <
 				height: resolved.height,
 			});
 
+			await artifactsHandler.handle({imageData, frame: i});
+
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
@@ -320,5 +327,6 @@ export const renderMediaOnWeb = <
 		videoBitrate: options.videoBitrate ?? 'medium',
 		frameRange: options.frameRange ?? null,
 		transparent: options.transparent ?? false,
+		onArtifact: options.onArtifact ?? null,
 	});
 };
