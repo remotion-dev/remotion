@@ -46,6 +46,7 @@ export const createThrottledProgressCallback = (
 					callback(pendingUpdate);
 					pendingUpdate = null;
 				}
+
 				timeoutId = null;
 			}, remainingTime);
 		}
