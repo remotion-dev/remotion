@@ -26,6 +26,7 @@ test('should be able to cancel render', async (t) => {
 		await renderStillOnWeb({
 			composition: {
 				component: Component,
+				id: 'cancel-render-test',
 				width: 100,
 				height: 100,
 				fps: 30,

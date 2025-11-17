@@ -39,10 +39,12 @@ test('cannot call getInputProps() while rendering client-side', async () => {
 	await renderStillOnWeb({
 		composition: {
 			component: MustAcceptInputProps,
+			id: 'input-props-test',
 			width: 100,
 			height: 100,
 			fps: 30,
 			durationInFrames: 30,
+			defaultProps: {abc: 'abc'},
 		},
 		frame: 20,
 		inputProps: {abc: 'abc'},
@@ -55,10 +57,12 @@ test('cannot call getInputProps() while rendering client-side', async () => {
 		return renderStillOnWeb({
 			composition: {
 				component: DisallowGetInputProps,
+				id: 'input-props-test',
 				width: 100,
 				height: 100,
 				fps: 30,
 				durationInFrames: 30,
+				defaultProps: {abc: 'abc'},
 			},
 			frame: 20,
 			inputProps: {abc: 'abc'},
@@ -81,6 +85,7 @@ test('Should be able to omit input props when component accepts no props', () =>
 			fps: 30,
 			durationInFrames: 30,
 			calculateMetadata: () => Promise.resolve({}),
+			id: 'input-props-test',
 		},
 		frame: 20,
 		imageFormat: 'png',
@@ -94,8 +99,10 @@ test('Should not be able to omit input props when component accepts props', () =
 			component: HasProps,
 			width: 100,
 			height: 100,
+			id: 'input-props-test',
 			fps: 30,
 			durationInFrames: 30,
+			defaultProps: {abc: 'def'},
 		},
 		frame: 20,
 		imageFormat: 'png',
@@ -104,10 +111,12 @@ test('Should not be able to omit input props when component accepts props', () =
 	mockFn({
 		composition: {
 			component: HasProps,
+			id: 'input-props-test',
 			width: 100,
 			height: 100,
 			fps: 30,
 			durationInFrames: 30,
+			defaultProps: {abc: 'def'},
 		},
 		frame: 20,
 		inputProps: {
@@ -121,10 +130,12 @@ test('Should not be able to omit input props when component accepts props', () =
 	mockFn({
 		composition: {
 			component: HasProps,
+			id: 'input-props-test',
 			width: 100,
 			height: 100,
 			fps: 30,
 			durationInFrames: 30,
+			defaultProps: {abc: 'def'},
 		},
 		frame: 20,
 		inputProps: {

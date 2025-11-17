@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Img, interpolate, OffthreadVideo, useVideoConfig } from "remotion";
+import { Img, interpolate, useVideoConfig } from "remotion";
 import type { BRollWithDimensions } from "../../../config/scenes";
 import { fitElementSizeInContainer } from "../../layout/fit-element";
 import type {
@@ -8,6 +8,7 @@ import type {
   Rect,
 } from "../../layout/layout-types";
 import { ScaleDownIfBRollRequiresIt } from "./ScaleDownWithBRoll";
+import { Video } from "@remotion/media";
 
 export const ScaleDownBRoll: React.FC<{
   bRollEnterDirection: BRollEnterDirection;
@@ -102,7 +103,7 @@ export const ScaleDownBRoll: React.FC<{
           <Img src={bRoll.source} style={style} />
         ) : null}
         {bRoll.type === "video" ? (
-          <OffthreadVideo src={bRoll.source} muted style={style} />
+          <Video src={bRoll.source} muted style={style} />
         ) : null}
       </ScaleDownIfBRollRequiresIt>
     </div>

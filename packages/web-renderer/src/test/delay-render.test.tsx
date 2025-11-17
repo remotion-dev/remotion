@@ -27,6 +27,7 @@ test('should be able to use delayRender()', async () => {
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
+			id: 'delay-render-test',
 			width: 100,
 			height: 100,
 			fps: 30,

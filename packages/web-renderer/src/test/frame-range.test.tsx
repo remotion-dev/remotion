@@ -10,6 +10,7 @@ test('should reject with invalid frame range', async () => {
 	const prom = renderMediaOnWeb({
 		composition: {
 			component: Component,
+			id: 'frame-range-test',
 			width: 400,
 			height: 400,
 			fps: 30,
@@ -38,6 +39,7 @@ test('should render with valid frame range', async (t) => {
 	await renderMediaOnWeb({
 		composition: {
 			component: Component,
+			id: 'frame-range-test',
 			width: 400,
 			height: 400,
 			fps: 30,

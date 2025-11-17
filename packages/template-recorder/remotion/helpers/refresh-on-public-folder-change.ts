@@ -4,7 +4,7 @@ import {
   watchPublicFolder,
 } from "@remotion/studio";
 import { useEffect, useState } from "react";
-import { StaticFile } from "remotion";
+import { StaticFile, useRemotionEnvironment } from "remotion";
 import {
   ALTERNATIVE1_PREFIX,
   ALTERNATIVE2_PREFIX,
@@ -32,8 +32,13 @@ export const useRefreshOnPublicFolderChange = (compositionId: string) => {
   const [staticFiles, setStaticFiles] = useState(() =>
     filterForCurrentComposition(getStaticFiles(), compositionId),
   );
+  const env = useRemotionEnvironment();
 
   useEffect(() => {
+    if (!env.isStudio) {
+      return;
+    }
+
     const { cancel } = watchPublicFolder(() => {
       const newStaticFiles = filterForCurrentComposition(
         getStaticFiles(),

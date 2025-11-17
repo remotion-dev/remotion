@@ -401,7 +401,7 @@ if (typeof window !== 'undefined') {
 					compositionHeight: c.height ?? null,
 					compositionWidth: c.width ?? null,
 					signal: new AbortController().signal,
-					originalProps,
+					inputProps: originalProps,
 					defaultProps: c.defaultProps ?? {},
 					compositionId: c.id,
 				});
@@ -466,7 +466,7 @@ if (typeof window !== 'undefined') {
 				compositionFps: selectedComp.fps ?? null,
 				compositionHeight: selectedComp.height ?? null,
 				compositionWidth: selectedComp.width ?? null,
-				originalProps,
+				inputProps: originalProps,
 				signal: abortController.signal,
 				defaultProps: selectedComp.defaultProps ?? {},
 				compositionId: selectedComp.id,
