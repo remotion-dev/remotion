@@ -1,7 +1,8 @@
 import { Caption } from "@remotion/captions";
 import React, { useEffect, useMemo, useState } from "react";
 import type { StaticFile } from "remotion";
-import { useDelayRender, watchStaticFile } from "remotion";
+import { useDelayRender, useRemotionEnvironment } from "remotion";
+import { watchStaticFile } from "@remotion/studio";
 import type { Theme } from "../../../config/themes";
 import { CaptionsEditor } from "./CaptionsEditor";
 import type { CaptionsContextType } from "./captions-provider";
@@ -27,7 +28,13 @@ export const CaptionOverlay: React.FC<{
     return { open: subEditorOpen, setOpen: setSubEditorOpen };
   }, [subEditorOpen, setSubEditorOpen]);
 
+  const env = useRemotionEnvironment();
+
   useEffect(() => {
+    if (!env.isStudio) {
+      return;
+    }
+
     // Don't listen to filesystem changes
     // if the sub editor is open
     if (subEditorOpen) {

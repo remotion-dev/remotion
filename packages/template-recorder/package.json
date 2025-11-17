@@ -29,6 +29,7 @@
     "@remotion/renderer": "workspace:*",
     "@remotion/shapes": "workspace:*",
     "@remotion/streaming": "workspace:*",
+    "@remotion/media": "workspace:*",
     "@remotion/studio": "workspace:*",
     "@remotion/studio-server": "workspace:*",
     "@remotion/zod-types": "workspace:*",

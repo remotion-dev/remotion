@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { OffthreadVideo, useCurrentFrame, useVideoConfig } from "remotion";
+import { useCurrentFrame, useVideoConfig } from "remotion";
 import type { CanvasLayout } from "../../../config/layout";
 import type {
   SceneAndMetadata,
@@ -8,6 +8,7 @@ import type {
 import { getDisplayPosition } from "../../animations/display-transitions";
 import { BRollStack } from "../BRoll/BRollStack";
 import { ScaleDownIfBRollRequiresIt } from "../BRoll/ScaleDownWithBRoll";
+import { Video } from "@remotion/media";
 
 const outer: React.CSSProperties = {
   position: "absolute",
@@ -81,7 +82,7 @@ export const Display: React.FC<{
           bRollType={scene.layout.bRollType}
           frame={frame}
         >
-          <OffthreadVideo
+          <Video
             trimBefore={startFrame}
             trimAfter={trimAfter}
             src={scene.cameras.display.src}
