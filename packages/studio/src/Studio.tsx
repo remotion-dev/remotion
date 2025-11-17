@@ -25,7 +25,7 @@ export const Studio: React.FC<{
 			initialCompositions={[]}
 			initialCanvasContent={null}
 		>
-			<Internals.RemotionRoot
+			<Internals.RemotionRootContexts
 				frameState={null}
 				audioEnabled={window.remotion_audioEnabled}
 				videoEnabled={window.remotion_videoEnabled}
@@ -44,7 +44,7 @@ export const Studio: React.FC<{
 								)}
 					</EditorContexts>
 				</Internals.ResolveCompositionConfigInStudio>
-			</Internals.RemotionRoot>
+			</Internals.RemotionRootContexts>
 		</Internals.CompositionManagerProvider>
 	);
 };

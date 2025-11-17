@@ -68,8 +68,11 @@ import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
-import {RemotionRoot} from './RemotionRoot.js';
-import {RenderAssetManager} from './RenderAssetManager.js';
+import {RemotionRootContexts} from './RemotionRoot.js';
+import {
+	RenderAssetManager,
+	RenderAssetManagerProvider,
+} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {
 	PROPS_UPDATED_EXTERNALLY,
@@ -167,7 +170,7 @@ export const Internals = {
 	CompositionSetters,
 	SequenceManager,
 	SequenceVisibilityToggleContext,
-	RemotionRoot,
+	RemotionRootContexts,
 	CompositionManagerProvider,
 	useVideo,
 	getRoot,
@@ -246,6 +249,7 @@ export const Internals = {
 	TimelinePosition,
 	DelayRenderContextType,
 	TimelineContext,
+	RenderAssetManagerProvider,
 } as const;
 
 export type {

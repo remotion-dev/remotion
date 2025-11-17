@@ -243,7 +243,7 @@ const renderContent = (Root: React.FC) => {
 				}}
 				initialCompositions={[]}
 			>
-				<Internals.RemotionRoot
+				<Internals.RemotionRootContexts
 					frameState={null}
 					audioEnabled={window.remotion_audioEnabled}
 					videoEnabled={window.remotion_videoEnabled}
@@ -251,9 +251,11 @@ const renderContent = (Root: React.FC) => {
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 				>
-					<Root />
-					<GetVideoComposition state={bundleMode} />
-				</Internals.RemotionRoot>
+					<Internals.RenderAssetManagerProvider collectAssets={null}>
+						<Root />
+						<GetVideoComposition state={bundleMode} />
+					</Internals.RenderAssetManagerProvider>
+				</Internals.RemotionRootContexts>
 			</Internals.CompositionManagerProvider>
 		);
 
@@ -268,7 +270,7 @@ const renderContent = (Root: React.FC) => {
 				currentCompositionMetadata={null}
 				initialCompositions={[]}
 			>
-				<Internals.RemotionRoot
+				<Internals.RemotionRootContexts
 					frameState={null}
 					audioEnabled={window.remotion_audioEnabled}
 					videoEnabled={window.remotion_videoEnabled}
@@ -276,8 +278,10 @@ const renderContent = (Root: React.FC) => {
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 				>
-					<Root />
-				</Internals.RemotionRoot>
+					<Internals.RenderAssetManagerProvider collectAssets={null}>
+						<Root />
+					</Internals.RenderAssetManagerProvider>
+				</Internals.RemotionRootContexts>
 			</Internals.CompositionManagerProvider>
 		);
 

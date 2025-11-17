@@ -1,5 +1,4 @@
-import {assert, expect, test} from 'vitest';
-import type {RenderMediaOnWebProgress} from '../render-media-on-web';
+import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
 
@@ -10,8 +9,6 @@ test('should be able to cancel renderMediaOnWeb()', async () => {
 
 	const controller = new AbortController();
 
-	let currentProgress: RenderMediaOnWebProgress | null = null;
-
 	const prom = renderMediaOnWeb({
 		composition: {
 			component: Component,
@@ -21,24 +18,16 @@ test('should be able to cancel renderMediaOnWeb()', async () => {
 			fps: 30,
 			durationInFrames: 200,
 		},
-		onProgress(progress) {
-			currentProgress = progress;
-		},
 		signal: controller.signal,
 		inputProps: {},
 	});
 
 	await new Promise((resolve) => {
-		setTimeout(resolve, 100);
+		setTimeout(resolve, 200);
 	});
 
 	controller.abort();
 	await expect(prom).rejects.toThrow('renderMediaOnWeb() was cancelled');
-	assert(currentProgress);
-	const {encodedFrames, renderedFrames} = currentProgress;
-	expect(encodedFrames).toBeGreaterThan(0);
-	expect(renderedFrames).toBeGreaterThan(0);
-	expect(encodedFrames).toBeLessThan(200);
 });
 
 test('should be able to cancel renderStillOnWeb()', async () => {

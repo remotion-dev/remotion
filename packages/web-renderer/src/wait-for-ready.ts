@@ -12,17 +12,28 @@ export const waitForReady = ({
 	signal: AbortSignal | null;
 	apiName: 'renderMediaOnWeb' | 'renderStillOnWeb';
 }) => {
-	if (scope.remotion_renderReady === true) {
-		return Promise.resolve();
-	}
-
 	const start = Date.now();
 	const {promise, resolve, reject} = withResolvers<void>();
 
-	const interval = setInterval(() => {
+	let cancelled = false;
+	// We want to wait at least for 1 frame (1 cycle)
+	let frameWaited = false;
+
+	const check = () => {
+		if (cancelled) {
+			return;
+		}
+
 		if (signal?.aborted) {
+			cancelled = true;
 			reject(new Error(`${apiName}() was cancelled`));
-			clearInterval(interval);
+			return;
+		}
+
+		if (!frameWaited) {
+			// Ensure at least one frame has passed
+			frameWaited = true;
+			requestAnimationFrame(check);
 			return;
 		}
 
@@ -34,19 +45,17 @@ export const waitForReady = ({
 					resolve();
 				});
 			});
-
-			clearInterval(interval);
 			return;
 		}
 
 		if (scope.remotion_cancelledError !== undefined) {
+			cancelled = true;
 			reject(scope.remotion_cancelledError);
-			clearInterval(interval);
 			return;
 		}
 
 		if (Date.now() - start > timeoutInMilliseconds + 3000) {
-			// TODO: Error message should be just as good
+			cancelled = true;
 			reject(
 				new Error(
 					Object.values(scope.remotion_delayRenderTimeouts)
@@ -54,9 +63,13 @@ export const waitForReady = ({
 						.join(', '),
 				),
 			);
-			clearInterval(interval);
+			return;
 		}
-	}, 50);
+
+		requestAnimationFrame(check);
+	};
+
+	requestAnimationFrame(check);
 
 	return promise;
 };

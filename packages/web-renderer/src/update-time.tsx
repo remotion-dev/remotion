@@ -32,7 +32,7 @@ export const UpdateTime: React.FC<{
 	}));
 
 	return (
-		<Internals.RemotionRoot
+		<Internals.RemotionRootContexts
 			audioEnabled={audioEnabled}
 			videoEnabled={videoEnabled}
 			logLevel={logLevel}
@@ -43,6 +43,6 @@ export const UpdateTime: React.FC<{
 			}}
 		>
 			{children}
-		</Internals.RemotionRoot>
+		</Internals.RemotionRootContexts>
 	);
 };
