@@ -29,7 +29,6 @@ type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
 	logLevel: LogLevel;
 	schema: Schema | undefined;
-	id: string | null;
 	mediaCacheSizeInBytes: number | null;
 	signal: AbortSignal | null;
 };
@@ -56,7 +55,6 @@ async function internalRenderStillOnWeb<
 	delayRenderTimeoutInMilliseconds,
 	logLevel,
 	inputProps,
-	id,
 	schema,
 	imageFormat,
 	mediaCacheSizeInBytes,
@@ -71,7 +69,7 @@ async function internalRenderStillOnWeb<
 		signal: signal ?? new AbortController().signal,
 		defaultProps: composition.defaultProps ?? {},
 		inputProps: inputProps ?? {},
-		compositionId: id ?? 'default',
+		compositionId: composition.id ?? 'default',
 		compositionDurationInFrames: composition.durationInFrames ?? null,
 		compositionFps: composition.fps ?? null,
 		compositionHeight: composition.height ?? null,
@@ -88,7 +86,7 @@ async function internalRenderStillOnWeb<
 		delayRenderTimeoutInMilliseconds,
 		logLevel,
 		resolvedProps: resolved.props,
-		id: id ?? 'default',
+		id: composition.id ?? 'default',
 		mediaCacheSizeInBytes,
 		audioEnabled: false,
 		Component: composition.component,
@@ -142,7 +140,6 @@ export const renderStillOnWeb = <
 			options.delayRenderTimeoutInMilliseconds ?? 30000,
 		logLevel: options.logLevel ?? 'info',
 		schema: options.schema ?? undefined,
-		id: options.id ?? null,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 		signal: options.signal ?? null,
 	});

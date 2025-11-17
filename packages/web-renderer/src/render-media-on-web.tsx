@@ -66,7 +66,6 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
 	logLevel: LogLevel;
 	schema: Schema | undefined;
-	id: string | null;
 	mediaCacheSizeInBytes: number | null;
 	codec: WebRendererCodec;
 	container: WebRendererContainer;
@@ -104,6 +103,7 @@ type InternalRenderMediaOnWebOptions<
 // TODO: Web file system API
 // TODO: Apply defaultCodec
 // TODO: Throttle onProgress
+// TODO: getStaticFiles()
 
 const internalRenderMediaOnWeb = async <
 	Schema extends AnyZodObject,
@@ -111,7 +111,6 @@ const internalRenderMediaOnWeb = async <
 >({
 	composition,
 	inputProps,
-	id,
 	delayRenderTimeoutInMilliseconds,
 	logLevel,
 	mediaCacheSizeInBytes,
@@ -146,7 +145,7 @@ const internalRenderMediaOnWeb = async <
 		signal: signal ?? new AbortController().signal,
 		defaultProps: composition.defaultProps ?? {},
 		inputProps: inputProps ?? {},
-		compositionId: id ?? 'default',
+		compositionId: composition.id ?? 'default',
 		compositionDurationInFrames: composition.durationInFrames ?? null,
 		compositionFps: composition.fps ?? null,
 		compositionHeight: composition.height ?? null,
@@ -170,7 +169,7 @@ const internalRenderMediaOnWeb = async <
 			durationInFrames: resolved.durationInFrames,
 			Component: composition.component,
 			resolvedProps: resolved.props,
-			id: id ?? 'default',
+			id: composition.id ?? 'default',
 			delayRenderTimeoutInMilliseconds,
 			logLevel,
 			mediaCacheSizeInBytes,
@@ -311,7 +310,6 @@ export const renderMediaOnWeb = <
 			options.delayRenderTimeoutInMilliseconds ?? 30000,
 		logLevel: options.logLevel ?? 'info',
 		schema: options.schema ?? undefined,
-		id: options.id ?? null,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 		codec,
 		container,

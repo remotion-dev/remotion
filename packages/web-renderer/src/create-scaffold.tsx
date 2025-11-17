@@ -156,8 +156,6 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 		);
 	});
 
-	console.log({resolvedProps});
-
 	resolve();
 	await promise;
 
