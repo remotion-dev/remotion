@@ -220,3 +220,68 @@ test('should create more iterators when seeking ', async () => {
 		1.0026666666666666, 1.024,
 	]);
 });
+
+// https://github.com/remotion-dev/remotion/issues/5872#issuecomment-3541004403
+test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
+	const input = new Input({
+		source: new UrlSource('https://remotion.media/video.mp4'),
+		formats: ALL_FORMATS,
+	});
+	const audioTrack = await input.getPrimaryAudioTrack();
+	if (!audioTrack) {
+		throw new Error('No audio track found');
+	}
+
+	const manager = audioIteratorManager({
+		audioTrack,
+		delayPlaybackHandleIfNotPremounting: () => ({
+			unblock: () => {},
+		}),
+		sharedAudioContext: new AudioContext(),
+	});
+
+	const scheduledChunks: number[] = [];
+	const scheduleAudioNode = (
+		node: AudioBufferSourceNode,
+		mediaTimestamp: number,
+	) => {
+		node.start(mediaTimestamp);
+		setTimeout(
+			() => {
+				node.stop();
+			},
+			(node.buffer?.duration ?? 0) * 1000,
+		);
+		scheduledChunks.push(mediaTimestamp);
+	};
+
+	const fps = 25;
+	const playbackRate = 0.5;
+
+	// Simulate sequential seeks like real playback over many frames
+	// At 25fps with playbackRate=0.5, media time advances 20ms per frame
+	// But AAC audio chunks are 21.33ms, so we keep re-encountering them
+
+	// Simulate 30 frames of playback
+	// (about 1.2 seconds real time, 0.6s media time)
+	for (let frame = 0; frame < 30; frame++) {
+		const mediaTime = frame * (1 / fps) * playbackRate;
+
+		await manager.seek({
+			newTime: mediaTime,
+			scheduleAudioNode,
+			fps,
+			getIsPlaying: () => true,
+			nonce: makeNonceManager().createAsyncOperation(),
+			playbackRate,
+			bufferState: {
+				delayPlayback: () => ({
+					unblock: () => {},
+				}),
+			},
+		});
+	}
+
+	const uniqueChunks = [...new Set(scheduledChunks)];
+	expect(scheduledChunks.length).toBe(uniqueChunks.length);
+});
