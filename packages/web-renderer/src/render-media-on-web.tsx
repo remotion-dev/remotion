@@ -92,14 +92,12 @@ type InternalRenderMediaOnWebOptions<
 	OptionalRenderMediaOnWebOptions<Schema> &
 	InputPropsIfHasProps<Schema, Props>;
 
-// TODO: frameRange
 // TODO: More containers
 // TODO: Audio
 // TODO: onFrame
 // TODO: Metadata
 // TODO: onArtifact
 // TODO: Validating inputs
-// TODO: Transparency
 // TODO: Web file system API
 // TODO: Apply defaultCodec
 // TODO: Throttle onProgress
