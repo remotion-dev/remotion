@@ -140,30 +140,18 @@ export const makeKeyframeBank = ({
 	): Promise<VideoSample | null> => {
 		lastUsed = Date.now();
 
-		// Videos may start slightly after timestamp 0 due to encoding, but if the requested timestamp is too far before the bank start, something is likely wrong.
-		const maxClampToleranceInSeconds = 0.1;
-
-		// If the requested timestamp is before the start of this bank, clamp it to the start if within tolerance. This handles videos that don't start at timestamp 0.
-		// For example, requesting frame at 0sec when video starts at 0.04sec should return the frame at 0.04sec.
+		// If the requested timestamp is before the start of this bank, clamp it to the start.
+		// This matches Chrome's behavior: render the first available frame rather than showing black.
+		// Videos don't always start at timestamp 0 due to encoding artifacts, container format quirks,
+		// and keyframe positioning. Users have no control over this, so we clamp to the first frame.
 		// Test case: https://github.com/remotion-dev/remotion/issues/5915
-
 		let adjustedTimestamp = timestampInSeconds;
 
 		if (
 			roundTo4Digits(timestampInSeconds) <
 			roundTo4Digits(startTimestampInSeconds)
 		) {
-			const differenceInSeconds = startTimestampInSeconds - timestampInSeconds;
-
-			if (differenceInSeconds <= maxClampToleranceInSeconds) {
-				adjustedTimestamp = startTimestampInSeconds;
-			} else {
-				return Promise.reject(
-					new Error(
-						`Timestamp is before start timestamp (requested: ${timestampInSeconds}sec, start: ${startTimestampInSeconds}sec, difference: ${differenceInSeconds.toFixed(3)}sec exceeds tolerance of ${maxClampToleranceInSeconds}sec)`,
-					),
-				);
-			}
+			adjustedTimestamp = startTimestampInSeconds;
 		}
 
 		if (
