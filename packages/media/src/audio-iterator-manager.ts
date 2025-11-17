@@ -45,21 +45,6 @@ export const audioIteratorManager = ({
 			throw new Error('Audio buffer iterator not found');
 		}
 
-		const queuedPeriod = audioBufferIterator.getQueuedPeriod();
-
-		if (queuedPeriod) {
-			const chunkStart = mediaTimestamp;
-			const chunkEnd = mediaTimestamp + buffer.duration;
-
-			const overlapStart = Math.max(chunkStart, queuedPeriod.from);
-			const overlapEnd = Math.min(chunkEnd, queuedPeriod.until);
-			const overlap = overlapEnd - overlapStart;
-
-			if (overlap > 0.001) {
-				return;
-			}
-		}
-
 		const node = sharedAudioContext.createBufferSource();
 		node.buffer = buffer;
 		node.playbackRate.value = playbackRate;
@@ -92,6 +77,12 @@ export const audioIteratorManager = ({
 			mediaTimestamp: number,
 		) => void;
 	}) => {
+		if (!audioBufferIterator) {
+			throw new Error('Audio buffer iterator not found');
+		}
+
+		audioBufferIterator.markBufferAsScheduled(buffer.timestamp);
+
 		if (getIsPlaying()) {
 			scheduleAudioChunk({
 				buffer: buffer.buffer,
@@ -100,10 +91,6 @@ export const audioIteratorManager = ({
 				scheduleAudioNode,
 			});
 		} else {
-			if (!audioBufferIterator) {
-				throw new Error('Audio buffer iterator not found');
-			}
-
 			audioBufferIterator.addChunkForAfterResuming(
 				buffer.buffer,
 				buffer.timestamp,

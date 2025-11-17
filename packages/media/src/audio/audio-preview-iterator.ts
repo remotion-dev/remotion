@@ -33,6 +33,22 @@ export const makeAudioIterator = (
 	let lastReturnedBuffer: WrappedAudioBuffer | null = null;
 	let iteratorEnded = false;
 
+	const scheduledBufferTimestamps = new Set<number>();
+
+	const markBufferAsScheduled = (timestamp: number) => {
+		scheduledBufferTimestamps.add(timestamp);
+	};
+
+	const scheduleBufferIfNeeded = (
+		buffer: WrappedAudioBuffer,
+		onBufferScheduled: (buffer: WrappedAudioBuffer) => void,
+	) => {
+		if (!scheduledBufferTimestamps.has(buffer.timestamp)) {
+			onBufferScheduled(buffer);
+			markBufferAsScheduled(buffer.timestamp);
+		}
+	};
+
 	const getNextOrNullIfNotAvailable = async (allowWait: AllowWait | null) => {
 		const next = iterator.next();
 		const result = allowWait
@@ -99,7 +115,8 @@ export const makeAudioIterator = (
 			}
 
 			if (roundTo4Digits(time) <= bufferEndTimestamp) {
-				onBufferScheduled(lastReturnedBuffer);
+				scheduleBufferIfNeeded(lastReturnedBuffer, onBufferScheduled);
+
 				return {
 					type: 'satisfied' as const,
 				};
@@ -110,7 +127,7 @@ export const makeAudioIterator = (
 
 		if (iteratorEnded) {
 			if (lastReturnedBuffer) {
-				onBufferScheduled(lastReturnedBuffer);
+				scheduleBufferIfNeeded(lastReturnedBuffer, onBufferScheduled);
 			}
 
 			return {
@@ -131,7 +148,7 @@ export const makeAudioIterator = (
 				if (buffer.buffer === null) {
 					iteratorEnded = true;
 					if (lastReturnedBuffer) {
-						onBufferScheduled(lastReturnedBuffer);
+						scheduleBufferIfNeeded(lastReturnedBuffer, onBufferScheduled);
 					}
 
 					return {
@@ -146,13 +163,14 @@ export const makeAudioIterator = (
 				const timestamp = roundTo4Digits(time);
 
 				if (bufferTimestamp <= timestamp && bufferEndTimestamp > timestamp) {
-					onBufferScheduled(buffer.buffer);
+					scheduleBufferIfNeeded(buffer.buffer, onBufferScheduled);
+
 					return {
 						type: 'satisfied' as const,
 					};
 				}
 
-				onBufferScheduled(buffer.buffer);
+				scheduleBufferIfNeeded(buffer.buffer, onBufferScheduled);
 
 				continue;
 			}
@@ -203,6 +221,7 @@ export const makeAudioIterator = (
 
 			return next;
 		},
+		markBufferAsScheduled,
 		isDestroyed: () => {
 			return destroyed;
 		},
