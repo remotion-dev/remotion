@@ -21,10 +21,7 @@ import type {
 	InferProps,
 } from './props-if-has-props';
 import {createFrame} from './take-screenshot';
-import {
-	type OnFrameCallback,
-	validateVideoFrame,
-} from './validate-video-frame';
+import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
 import {waitForReady} from './wait-for-ready';
 
 export type InputPropsIfHasProps<
