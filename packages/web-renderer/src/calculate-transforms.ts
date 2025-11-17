@@ -18,7 +18,12 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 			(computedStyle.transform && computedStyle.transform !== 'none') ||
 			parent === element
 		) {
-			const matrix = new DOMMatrix(computedStyle.transform);
+			const toParse =
+				computedStyle.transform === 'none' || computedStyle.transform === ''
+					? undefined
+					: computedStyle.transform;
+			const matrix = new DOMMatrix(toParse);
+
 			const {transform} = parent.style;
 			parent.style.transform = 'none';
 			transforms.push({
@@ -43,20 +48,20 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 	const dimensions = transforms[0].boundingClientRect!;
 	const nativeTransformOrigin = parseTransformOrigin(
 		transforms[0].transformOrigin,
-	);
+	) ?? {x: dimensions.width / 2, y: dimensions.height / 2};
 
 	let totalMatrix = new DOMMatrix();
 	for (const transform of transforms.slice().reverse()) {
-		const {x: originX, y: originY} = parseTransformOrigin(
-			transform.transformOrigin,
-		);
-
 		if (!transform.boundingClientRect) {
 			throw new Error('Bounding client rect not found');
 		}
 
 		const centerX = transform.boundingClientRect.width / 2;
 		const centerY = transform.boundingClientRect.height / 2;
+
+		const {x: originX, y: originY} = parseTransformOrigin(
+			transform.transformOrigin,
+		) ?? {x: centerX, y: centerY};
 
 		const deviationFromX = centerX - originX;
 		const deviationFromY = centerY - originY;
