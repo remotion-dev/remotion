@@ -144,6 +144,7 @@ import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
+import {TriangleComp} from './Triangle';
 import {VideoTestingPlayback} from './VideoTesting/playback';
 import {VideoTestingTrim} from './VideoTesting/trim';
 import {VisualControls} from './VisualControls';
@@ -1773,6 +1774,14 @@ export const Index: React.FC = () => {
 						defaultVideoImageFormat: 'png',
 					};
 				}}
+			/>
+			<Composition
+				id="Triangle"
+				component={TriangleComp}
+				width={100}
+				height={100}
+				fps={30}
+				durationInFrames={100}
 			/>
 		</>
 	);

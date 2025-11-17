@@ -23,6 +23,7 @@ type ExtractFrameParams = {
 	trimBefore: number | undefined;
 	playbackRate: number;
 	fps: number;
+	maxCacheSize: number;
 };
 
 const extractFrameInternal = async ({
@@ -34,6 +35,7 @@ const extractFrameInternal = async ({
 	trimBefore,
 	playbackRate,
 	fps,
+	maxCacheSize,
 }: ExtractFrameParams): Promise<ExtractFrameResult> => {
 	const sink = await getSink(src, logLevel);
 
@@ -83,6 +85,7 @@ const extractFrameInternal = async ({
 		timestamp: timeInSeconds,
 		src,
 		logLevel,
+		maxCacheSize,
 	});
 
 	if (keyframeBank === 'has-alpha') {

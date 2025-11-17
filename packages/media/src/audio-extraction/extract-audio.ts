@@ -2,7 +2,14 @@ import {type LogLevel} from 'remotion';
 import {audioManager} from '../caches';
 import {combineAudioDataAndClosePrevious} from '../convert-audiodata/combine-audiodata';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
-import {convertAudioData} from '../convert-audiodata/convert-audiodata';
+import {
+	convertAudioData,
+	fixFloatingPoint,
+} from '../convert-audiodata/convert-audiodata';
+import {
+	TARGET_NUMBER_OF_CHANNELS,
+	TARGET_SAMPLE_RATE,
+} from '../convert-audiodata/resample-audiodata';
 import {getSink} from '../get-sink';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 
@@ -19,6 +26,7 @@ type ExtractAudioParams = {
 	trimBefore: number | undefined;
 	trimAfter: number | undefined;
 	fps: number;
+	maxCacheSize: number;
 };
 
 const extractAudioInternal = async ({
@@ -32,6 +40,7 @@ const extractAudioInternal = async ({
 	trimBefore,
 	trimAfter,
 	fps,
+	maxCacheSize,
 }: ExtractAudioParams): Promise<
 	| {
 			data: PcmS16AudioData | null;
@@ -84,6 +93,7 @@ const extractAudioInternal = async ({
 		isMatroska,
 		actualMatroskaTimestamps,
 		logLevel,
+		maxCacheSize,
 	});
 
 	const durationInSeconds = durationNotYetApplyingPlaybackRate * playbackRate;
@@ -94,8 +104,6 @@ const extractAudioInternal = async ({
 	);
 
 	audioManager.logOpenFrames();
-
-	const trimStartToleranceInSeconds = 0.002;
 
 	const audioDataArray: PcmS16AudioData[] = [];
 	for (let i = 0; i < samples.length; i++) {
@@ -123,20 +131,23 @@ const extractAudioInternal = async ({
 		// amount of samples to shave from start and end
 		let trimStartInSeconds = 0;
 		let trimEndInSeconds = 0;
+		let leadingSilence: PcmS16AudioData | null = null;
 
 		if (isFirstSample) {
-			trimStartInSeconds = timeInSeconds - sample.timestamp;
-			if (
-				trimStartInSeconds < 0 &&
-				trimStartInSeconds > -trimStartToleranceInSeconds
-			) {
-				trimStartInSeconds = 0;
-			}
+			trimStartInSeconds = fixFloatingPoint(timeInSeconds - sample.timestamp);
 
 			if (trimStartInSeconds < 0) {
-				throw new Error(
-					`trimStartInSeconds is negative: ${trimStartInSeconds}. ${JSON.stringify({timeInSeconds, ts: sample.timestamp, d: sample.duration, isFirstSample, isLastSample, durationInSeconds, i, st: samples.map((s) => s.timestamp)})}`,
+				const silenceFrames = Math.ceil(
+					fixFloatingPoint(-trimStartInSeconds * TARGET_SAMPLE_RATE),
 				);
+				leadingSilence = {
+					data: new Int16Array(silenceFrames * TARGET_NUMBER_OF_CHANNELS),
+					numberOfFrames: silenceFrames,
+					timestamp: timeInSeconds * 1_000_000,
+					durationInMicroSeconds:
+						(silenceFrames / TARGET_SAMPLE_RATE) * 1_000_000,
+				};
+				trimStartInSeconds = 0;
 			}
 		}
 
@@ -163,6 +174,10 @@ const extractAudioInternal = async ({
 
 		if (audioData.numberOfFrames === 0) {
 			continue;
+		}
+
+		if (leadingSilence) {
+			audioDataArray.push(leadingSilence);
 		}
 
 		audioDataArray.push(audioData);

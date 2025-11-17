@@ -124,9 +124,7 @@ export const getAssetsForMarkup = async (
 					>
 						<Internals.CompositionManager.Provider value={value}>
 							<Internals.RenderAssetManager.Provider value={assetContext}>
-								<Internals.ResolveCompositionConfig>
-									<Markup />
-								</Internals.ResolveCompositionConfig>
+								<Markup />
 							</Internals.RenderAssetManager.Provider>
 						</Internals.CompositionManager.Provider>
 					</Internals.RemotionRoot>

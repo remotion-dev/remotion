@@ -9,7 +9,6 @@ import {
 	test,
 } from 'bun:test';
 import React, {useMemo} from 'react';
-import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {SequenceManager} from '../SequenceManager.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
@@ -58,7 +57,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 		return (
 			<WrapSequenceContext>
 				<SequenceManager.Provider value={sequenceManagerContext}>
-					<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
+					{children}
 				</SequenceManager.Provider>
 			</WrapSequenceContext>
 		);

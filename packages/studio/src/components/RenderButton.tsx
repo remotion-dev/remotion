@@ -68,7 +68,7 @@ export const RenderButton: React.FC = () => {
 		}
 
 		setSelectedModal({
-			type: 'render',
+			type: 'server-render',
 			compositionId: video.id,
 			initialFrame: getCurrentFrame(),
 			initialStillImageFormat: defaults.stillImageFormat,

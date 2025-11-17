@@ -1,11 +1,7 @@
 import type {EncodedPacketSink, VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {canBrowserUseWebGl2} from '../browser-can-use-webgl2';
-import {
-	getMaxVideoCacheSize,
-	getTotalCacheStats,
-	SAFE_BACK_WINDOW_IN_SECONDS,
-} from '../caches';
+import {getTotalCacheStats, SAFE_BACK_WINDOW_IN_SECONDS} from '../caches';
 import {renderTimestampRange} from '../render-timestamp-range';
 import {getFramesSinceKeyframe} from './get-frames-since-keyframe';
 import {type KeyframeBank} from './keyframe-bank';
@@ -126,10 +122,11 @@ export const makeKeyframeManager = () => {
 		return {finish: false};
 	};
 
-	const ensureToStayUnderMaxCacheSize = async (logLevel: LogLevel) => {
+	const ensureToStayUnderMaxCacheSize = async (
+		logLevel: LogLevel,
+		maxCacheSize: number,
+	) => {
 		let cacheStats = await getTotalCacheStats();
-
-		const maxCacheSize = getMaxVideoCacheSize(logLevel);
 
 		while (cacheStats.totalSize > maxCacheSize) {
 			const {finish} = await deleteOldestKeyframeBank(logLevel);
@@ -274,14 +271,16 @@ export const makeKeyframeManager = () => {
 		videoSampleSink,
 		src,
 		logLevel,
+		maxCacheSize,
 	}: {
 		timestamp: number;
 		packetSink: EncodedPacketSink;
 		videoSampleSink: VideoSampleSink;
 		src: string;
 		logLevel: LogLevel;
+		maxCacheSize: number;
 	}) => {
-		await ensureToStayUnderMaxCacheSize(logLevel);
+		await ensureToStayUnderMaxCacheSize(logLevel, maxCacheSize);
 
 		await clearKeyframeBanksBeforeTime({
 			timestampInSeconds: timestamp,
@@ -324,12 +323,14 @@ export const makeKeyframeManager = () => {
 			videoSampleSink,
 			src,
 			logLevel,
+			maxCacheSize,
 		}: {
 			packetSink: EncodedPacketSink;
 			timestamp: number;
 			videoSampleSink: VideoSampleSink;
 			src: string;
 			logLevel: LogLevel;
+			maxCacheSize: number;
 		}) => {
 			queue = queue.then(() =>
 				requestKeyframeBank({
@@ -338,6 +339,7 @@ export const makeKeyframeManager = () => {
 					videoSampleSink,
 					src,
 					logLevel,
+					maxCacheSize,
 				}),
 			);
 			return queue as Promise<KeyframeBank | 'has-alpha' | null>;

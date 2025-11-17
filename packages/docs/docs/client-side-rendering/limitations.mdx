@@ -1,0 +1,116 @@
+---
+image: /generated/articles-docs-client-side-rendering-limitations.png
+crumb: 'Client-side rendering'
+sidebar_label: Limitations
+title: Limitations of client-side rendering
+---
+
+:::warning
+This feature is not available yet, but we are already writing docs.  
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+Client-side rendering has several limitations to be aware of.
+
+## Supported element types
+
+Only certain element types can be captured and rendered:
+
+- `<canvas>` elements
+- `<svg>` elements
+- [`<Img>`](/docs/img) elements - supported, but subject to CORS restrictions
+- [`<Audio>`](/docs/media/audio) elements
+- [`<Video>`](/docs/media/video) elements
+- [`<Gif>`](/docs/gif), [`<AnimatedImage>`](/docs/animatedimage), [`<Lottie>`](/docs/lottie), [`<Rive>`](/docs/rive) elements
+
+You can use HTML elements like `<div>` to influence the layout of the elements, but they will not be captured visually
+
+```tsx
+import {AbsoluteFill, Img, staticFile} from 'remotion';
+
+export const MyComponent: React.FC = () => {
+  return (
+    /* Using Flexbox to center the elements is supported */
+    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+      {/** This text will NOT be captured but it influences the layout */}
+      <div>Hello world</div>
+      {/** This image WILL be captured because it is a supported element type */}
+      <Img src={staticFile('image.png')} />
+    </div>
+  );
+};
+```
+
+## Uncapturable elements and styles
+
+Every element that is not explicitly supported is unsupported. Some important ones are:
+
+<!-- TODO: Block Html5Video from being used -->
+
+- `<Html5Video>`, `<Html5Audio>` and `<OffthreadVideo>` from the `remotion` package
+- Text elements: `<div>`, `<span>`, `<h1>`, etc.
+
+In addition, CSS styles are not supported, except ones that change the layout of the element, such as `margin`, `left`, `transform`, etc.
+
+```tsx twoslash title="❌ Doesn't work: Cannot capture styles that don't change the layout"
+<canvas style={{backgroundColor: 'red'}} />
+```
+
+```tsx twoslash title="✅ Works: Styles that change the layout"
+<canvas style={{position: 'absolute', top: 100, left: 100}} />
+```
+
+One exception is `<svg>` elements, which can be styled.
+
+```tsx twoslash title="✅ Works: SVG elements can be styled with CSS"
+<svg style={{backgroundColor: 'red'}}>
+  <rect width="100%" height="100%" />
+</svg>
+```
+
+To get a better understanding of what works and what doesn't, read [how client-side rendering works](/docs/client-side-rendering/how-it-works) under the hood.
+
+## Z-indexing
+
+Is not implemented and `zIndex` CSS properties are ignored.  
+The rule is: Elements which are further down in the markup last will be on top.
+
+```tsx twoslash title="The blue square will be drawn on top of the red square"
+import {AbsoluteFill} from 'remotion';
+
+// ---cut---
+const MyComp = () => {
+  return (
+    <AbsoluteFill>
+      <AbsoluteFill>
+        <svg viewBox="0 0 100 100">
+          <rect x="0" y="0" width="100" height="100" fill="red" />
+        </svg>
+      </AbsoluteFill>
+      <AbsoluteFill>
+        <svg viewBox="0 0 100 100">
+          <rect x="0" y="0" width="100" height="100" fill="blue" />
+        </svg>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+```
+
+## Video and media constraints
+
+The limitations from [`@remotion/media`](/docs/media/support) apply.
+
+## Single concurrency
+
+There is no multithreading for client-side rendering.  
+However, it is fundamentally more efficient because there is less interprocess communication.  
+In addition, in the headful browser, GPU is usually available, which brings performance benefits.
+
+## See also
+
+- [Overview](/docs/client-side-rendering)
+- [How it works](/docs/client-side-rendering/how-it-works)
+- [Server-side rendering](/docs/ssr)
+- [`@remotion/renderer`](/docs/renderer)
+- [`Comparing SSR solutions`](/docs/compare-ssr)

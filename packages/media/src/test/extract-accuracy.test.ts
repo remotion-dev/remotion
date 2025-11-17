@@ -1,5 +1,6 @@
 import {assert, expect, test} from 'vitest';
 import {extractAudio} from '../audio-extraction/extract-audio';
+import {getMaxVideoCacheSize} from '../caches';
 
 test('Extract accuracy over 100 frames with playback rate 2', async () => {
 	const FPS = 25;
@@ -19,6 +20,7 @@ test('Extract accuracy over 100 frames with playback rate 2', async () => {
 			src: 'https://remotion.media/video.mp4',
 			trimBefore: undefined,
 			trimAfter: undefined,
+			maxCacheSize: getMaxVideoCacheSize('info'),
 		});
 		if (audio === 'cannot-decode') {
 			throw new Error(`Cannot decode at frame ${i}`);

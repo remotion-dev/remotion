@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media",
-	"version": "4.0.374",
+	"version": "4.0.375",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -34,7 +34,7 @@
 		"eslint": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"vitest": "4.0.7",
+		"vitest": "4.0.9",
 		"webdriverio": "9.19.2"
 	},
 	"keywords": [],

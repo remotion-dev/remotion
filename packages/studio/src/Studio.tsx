@@ -33,15 +33,17 @@ export const Studio: React.FC<{
 				numberOfAudioTags={window.remotion_numberOfAudioTags}
 				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 			>
-				<EditorContexts readOnlyStudio={readOnly}>
-					<Editor readOnlyStudio={readOnly} Root={rootComponent} />
-					{readOnly
-						? null
-						: createPortal(
-								<ServerDisconnected />,
-								getServerDisconnectedDomElement() as HTMLElement,
-							)}
-				</EditorContexts>
+				<Internals.ResolveCompositionConfigInStudio>
+					<EditorContexts readOnlyStudio={readOnly}>
+						<Editor readOnlyStudio={readOnly} Root={rootComponent} />
+						{readOnly
+							? null
+							: createPortal(
+									<ServerDisconnected />,
+									getServerDisconnectedDomElement() as HTMLElement,
+								)}
+					</EditorContexts>
+				</Internals.ResolveCompositionConfigInStudio>
 			</Internals.RemotionRoot>
 		</Internals.CompositionManagerProvider>
 	);
