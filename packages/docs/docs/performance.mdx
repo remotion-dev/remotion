@@ -30,11 +30,13 @@ Read the [considerations about using the GPU](/docs/gpu).
 
 ## Videos
 
-For embedding videos, there is an alternative component [`<OffthreadVideo>`](/docs/offthreadvideo) that can speed up rendering. See [Comparison of video tags](/docs/video-tags)
+Both [`<Html5Video>` (formerly just called `<Video>`, from the `remotion` package)] and [`<OffthreadVideo>`](/docs/offthreadvideo) are not optimized.
 
-Embedded videos can be a significant bottleneck in Remotion at the moment regardless of which component is being used. We are aware of this constraint and are encouraging users to combine Remotion with other tools such as FFmpeg to build efficient pipelines.
+We made a new [`<Video>`](/docs/media/video) tag that has the optimal performance. Consider using it if you are still using one of the old video tags.
 
-We are also working on alleviating this problem by making the `<OffthreadVideo>` component more efficent in a future update.
+See: [Comparison of video tags](/docs/video-tags)
+
+If you are still
 
 ## Slow JavaScript code
 
