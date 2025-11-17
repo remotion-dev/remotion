@@ -30,7 +30,7 @@ The package will provide APIs called `renderStillOnWeb()` and `renderMediaOnWeb(
 Here is an example of how to use it:
 
 ```tsx twoslash title="Tentative API example"
-import {renderStillOnWeb} from '@remotion/web-renderer';
+import {renderMediaOnWeb} from '@remotion/web-renderer';
 
 const Component: React.FC = () => {
   return (
@@ -40,13 +40,14 @@ const Component: React.FC = () => {
   );
 };
 
-const blob = await renderStillOnWeb({
-  component: Component,
-  durationInFrames: 100,
-  fps: 30,
-  width: 100,
-  height: 100,
-  frame: 0,
+const blob = await renderMediaOnWeb({
+  composition: {
+    component: Component,
+    durationInFrames: 100,
+    fps: 30,
+    width: 100,
+    height: 100,
+  },
   inputProps: {},
 });
 ```
