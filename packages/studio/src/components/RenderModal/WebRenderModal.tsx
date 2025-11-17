@@ -334,6 +334,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				height: resolvedComposition.height,
 				fps: resolvedComposition.fps,
 				durationInFrames: resolvedComposition.durationInFrames,
+				defaultProps: resolvedComposition.defaultProps,
+				calculateMetadata: unresolvedComposition.calculateMetadata,
 			},
 			frame,
 			imageFormat,
@@ -366,6 +368,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.height,
 		resolvedComposition.fps,
 		outName,
+		resolvedComposition.defaultProps,
+		unresolvedComposition.calculateMetadata,
 	]);
 
 	const onRenderVideo = useCallback(async () => {
@@ -378,6 +382,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				height: resolvedComposition.height,
 				fps: resolvedComposition.fps,
 				durationInFrames: resolvedComposition.durationInFrames,
+				defaultProps: resolvedComposition.defaultProps,
 			},
 			inputProps,
 			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
@@ -435,6 +440,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.fps,
 		outName,
 		transparent,
+		resolvedComposition.defaultProps,
 	]);
 
 	const onRender = useCallback(async () => {

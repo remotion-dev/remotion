@@ -147,7 +147,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 			const result = resolveVideoConfigOrCatch({
 				compositionId,
 				calculateMetadata,
-				originalProps: combinedProps,
+				inputProps: combinedProps,
 				signal,
 				defaultProps,
 				compositionDurationInFrames,

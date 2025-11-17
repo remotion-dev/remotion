@@ -8,8 +8,8 @@ import {createScaffold} from './create-scaffold';
 import type {
 	CompositionCalculateMetadataOrExplicit,
 	InferProps,
-	PropsIfHasProps,
 } from './props-if-has-props';
+import type {InputPropsIfHasProps} from './render-media-on-web';
 import {takeScreenshot} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
 
@@ -23,7 +23,7 @@ type MandatoryRenderStillOnWebOptions<
 	imageFormat: RenderStillOnWebImageFormat;
 } & {
 	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
-} & PropsIfHasProps<Schema, Props>;
+};
 
 type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
@@ -38,13 +38,15 @@ type InternalRenderStillOnWebOptions<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = MandatoryRenderStillOnWebOptions<Schema, Props> &
-	OptionalRenderStillOnWebOptions<Schema>;
+	OptionalRenderStillOnWebOptions<Schema> &
+	InputPropsIfHasProps<Schema, Props>;
 
 export type RenderStillOnWebOptions<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = MandatoryRenderStillOnWebOptions<Schema, Props> &
-	Partial<OptionalRenderStillOnWebOptions<Schema>>;
+	Partial<OptionalRenderStillOnWebOptions<Schema>> &
+	InputPropsIfHasProps<Schema, Props>;
 
 async function internalRenderStillOnWeb<
 	Schema extends AnyZodObject,
@@ -67,8 +69,8 @@ async function internalRenderStillOnWeb<
 				InferProps<AnyZodObject, Record<string, unknown>>
 			>) ?? null,
 		signal: signal ?? new AbortController().signal,
-		defaultProps: {},
-		originalProps: inputProps ?? {},
+		defaultProps: composition.defaultProps ?? {},
+		inputProps: inputProps ?? {},
 		compositionId: id ?? 'default',
 		compositionDurationInFrames: composition.durationInFrames ?? null,
 		compositionFps: composition.fps ?? null,
@@ -85,7 +87,7 @@ async function internalRenderStillOnWeb<
 		height: resolved.height,
 		delayRenderTimeoutInMilliseconds,
 		logLevel,
-		inputProps: inputProps ?? {},
+		resolvedProps: resolved.props,
 		id: id ?? 'default',
 		mediaCacheSizeInBytes,
 		audioEnabled: false,
