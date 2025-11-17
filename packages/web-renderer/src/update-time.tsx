@@ -1,4 +1,5 @@
 import React, {useImperativeHandle, useState} from 'react';
+import {flushSync} from 'react-dom';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 
@@ -27,7 +28,9 @@ export const UpdateTime: React.FC<{
 
 	useImperativeHandle(timeUpdater, () => ({
 		update: (f: number) => {
-			setFrame(f);
+			flushSync(() => {
+				setFrame(f);
+			});
 		},
 	}));
 
