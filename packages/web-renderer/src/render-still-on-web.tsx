@@ -8,8 +8,8 @@ import {createScaffold} from './create-scaffold';
 import type {
 	CompositionCalculateMetadataOrExplicit,
 	InferProps,
-	PropsIfHasProps,
 } from './props-if-has-props';
+import type {InputPropsIfHasProps} from './render-media-on-web';
 import {takeScreenshot} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
 
@@ -23,13 +23,12 @@ type MandatoryRenderStillOnWebOptions<
 	imageFormat: RenderStillOnWebImageFormat;
 } & {
 	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
-} & PropsIfHasProps<Schema, Props>;
+};
 
 type OptionalRenderStillOnWebOptions<Schema extends AnyZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
 	logLevel: LogLevel;
 	schema: Schema | undefined;
-	id: string | null;
 	mediaCacheSizeInBytes: number | null;
 	signal: AbortSignal | null;
 };
@@ -38,13 +37,15 @@ type InternalRenderStillOnWebOptions<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = MandatoryRenderStillOnWebOptions<Schema, Props> &
-	OptionalRenderStillOnWebOptions<Schema>;
+	OptionalRenderStillOnWebOptions<Schema> &
+	InputPropsIfHasProps<Schema, Props>;
 
 export type RenderStillOnWebOptions<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = MandatoryRenderStillOnWebOptions<Schema, Props> &
-	Partial<OptionalRenderStillOnWebOptions<Schema>>;
+	Partial<OptionalRenderStillOnWebOptions<Schema>> &
+	InputPropsIfHasProps<Schema, Props>;
 
 async function internalRenderStillOnWeb<
 	Schema extends AnyZodObject,
@@ -54,7 +55,6 @@ async function internalRenderStillOnWeb<
 	delayRenderTimeoutInMilliseconds,
 	logLevel,
 	inputProps,
-	id,
 	schema,
 	imageFormat,
 	mediaCacheSizeInBytes,
@@ -67,9 +67,9 @@ async function internalRenderStillOnWeb<
 				InferProps<AnyZodObject, Record<string, unknown>>
 			>) ?? null,
 		signal: signal ?? new AbortController().signal,
-		defaultProps: {},
-		originalProps: inputProps ?? {},
-		compositionId: id ?? 'default',
+		defaultProps: composition.defaultProps ?? {},
+		inputProps: inputProps ?? {},
+		compositionId: composition.id,
 		compositionDurationInFrames: composition.durationInFrames ?? null,
 		compositionFps: composition.fps ?? null,
 		compositionHeight: composition.height ?? null,
@@ -85,8 +85,8 @@ async function internalRenderStillOnWeb<
 		height: resolved.height,
 		delayRenderTimeoutInMilliseconds,
 		logLevel,
-		inputProps: inputProps ?? {},
-		id: id ?? 'default',
+		resolvedProps: resolved.props,
+		id: resolved.id,
 		mediaCacheSizeInBytes,
 		audioEnabled: false,
 		Component: composition.component,
@@ -140,7 +140,6 @@ export const renderStillOnWeb = <
 			options.delayRenderTimeoutInMilliseconds ?? 30000,
 		logLevel: options.logLevel ?? 'info',
 		schema: options.schema ?? undefined,
-		id: options.id ?? null,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 		signal: options.signal ?? null,
 	});

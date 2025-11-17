@@ -23,6 +23,7 @@ test('should be able to deal with a simple transform directly on the element', a
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
+			id: 'simple-transforms',
 			width: 100,
 			height: 100,
 			fps: 30,
@@ -50,6 +51,7 @@ test('should be able to deal with a simple transform on the parent', async () =>
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
+			id: 'parent-transforms',
 			width: 100,
 			height: 100,
 			fps: 30,
@@ -82,6 +84,7 @@ test('should be able to deal with a transform-origin on itself', async () => {
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
+			id: 'transform-origin-itself',
 			width: 100,
 			height: 100,
 			fps: 30,
@@ -111,6 +114,7 @@ test('should be able to deal with a transform-origin on parent', async () => {
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
+			id: 'transform-origin',
 			width: 100,
 			height: 100,
 			fps: 30,
@@ -143,6 +147,7 @@ test('accumulated transforms', async () => {
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
+			id: 'accumulated-origin',
 			width: 100,
 			height: 100,
 			fps: 30,
@@ -192,6 +197,7 @@ test('transformed canvases', async () => {
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
+			id: 'transformed-canvas',
 			width: 100,
 			height: 100,
 			fps: 30,
@@ -240,6 +246,7 @@ test('multi-level nested transforms with distinct transform-origins', async () =
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
+			id: 'multi-level-transform-origins',
 			width: 100,
 			height: 100,
 			fps: 30,
@@ -286,6 +293,7 @@ test('three-level nested transforms with varying origins', async () => {
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
+			id: 'three-level-transform-origins',
 			width: 100,
 			height: 100,
 			fps: 30,
@@ -326,6 +334,7 @@ test('nested transforms with pixel-based transform-origins', async () => {
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
+			id: 'pixel-transform-origins',
 			width: 100,
 			height: 100,
 			fps: 30,

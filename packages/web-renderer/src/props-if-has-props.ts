@@ -17,27 +17,27 @@ export type InferProps<
 		: // Props and schema specified
 			z.input<Schema> & Props;
 
-export type PropsIfHasProps<
+export type DefaultPropsIfHasProps<
 	Schema extends AnyZodObject,
 	Props,
 > = AnyZodObject extends Schema
 	? {} extends Props
 		? {
 				// Neither props nor schema specified
-				inputProps?: z.input<Schema> & Props;
+				defaultProps?: z.input<Schema> & Props;
 			}
 		: {
 				// Only props specified
-				inputProps: Props;
+				defaultProps: Props;
 			}
 	: {} extends Props
 		? {
 				// Only schema specified
-				inputProps: z.input<Schema>;
+				defaultProps: z.input<Schema>;
 			}
 		: {
 				// Props and schema specified
-				inputProps: z.input<Schema> & Props;
+				defaultProps: z.input<Schema> & Props;
 			};
 
 type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
@@ -47,6 +47,7 @@ type OptionalDimensions<
 	Props extends Record<string, unknown>,
 > = {
 	component: LooseComponentType<Props>;
+	id: string;
 	width?: number;
 	height?: number;
 	calculateMetadata: CalculateMetadataFunction<InferProps<Schema, Props>>;
@@ -57,15 +58,18 @@ type MandatoryDimensions<
 	Props extends Record<string, unknown>,
 > = {
 	component: LooseComponentType<Props>;
+	id: string;
 	width: number;
 	height: number;
-	calculateMetadata?: CalculateMetadataFunction<InferProps<Schema, Props>>;
+	calculateMetadata?: CalculateMetadataFunction<
+		InferProps<Schema, Props>
+	> | null;
 };
 
 export type CompositionCalculateMetadataOrExplicit<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
-> =
+> = (
 	| (OptionalDimensions<Schema, Props> & {
 			fps?: number;
 			durationInFrames?: number;
@@ -73,4 +77,6 @@ export type CompositionCalculateMetadataOrExplicit<
 	| (MandatoryDimensions<Schema, Props> & {
 			fps: number;
 			durationInFrames: number;
-	  });
+	  })
+) &
+	DefaultPropsIfHasProps<Schema, Props>;

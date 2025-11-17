@@ -13,7 +13,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	height,
 	delayRenderTimeoutInMilliseconds,
 	logLevel,
-	inputProps,
+	resolvedProps,
 	id,
 	mediaCacheSizeInBytes,
 	durationInFrames,
@@ -30,7 +30,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	height: number;
 	delayRenderTimeoutInMilliseconds: number;
 	logLevel: LogLevel;
-	inputProps: Record<string, unknown>;
+	resolvedProps: Record<string, unknown>;
 	id: string;
 	mediaCacheSizeInBytes: number | null;
 	initialFrame: number;
@@ -64,8 +64,6 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 
 	document.body.appendChild(div);
 
-	// TODO: calculateMetadata()
-
 	const {promise, resolve, reject} = withResolvers<void>();
 
 	// TODO: This might not work in React 18
@@ -81,8 +79,6 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 		remotion_puppeteerTimeout: delayRenderTimeoutInMilliseconds,
 		remotion_attempt: 0,
 	};
-
-	const actualInputProps = inputProps ?? ({} as Props);
 
 	const timeUpdater = createRef<TimeUpdaterRef | null>();
 
@@ -125,7 +121,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 									compositionId: id,
 								},
 								currentCompositionMetadata: {
-									props: inputProps ?? {},
+									props: resolvedProps,
 									durationInFrames,
 									fps,
 									height,
@@ -150,7 +146,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 								<Internals.CanUseRemotionHooks value>
 									{/**
 									 * @ts-expect-error	*/}
-									<Component {...actualInputProps} />
+									<Component {...resolvedProps} />
 								</Internals.CanUseRemotionHooks>
 							</UpdateTime>
 						</Internals.CompositionManager.Provider>

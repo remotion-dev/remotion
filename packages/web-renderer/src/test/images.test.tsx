@@ -15,6 +15,7 @@ test('can display an image', async () => {
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
+			id: 'images-test',
 			width: 550,
 			height: 368,
 			fps: 25,

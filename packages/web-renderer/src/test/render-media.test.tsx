@@ -25,6 +25,7 @@ test('should render media on web', async (t) => {
 	await renderMediaOnWeb({
 		composition: {
 			component: Component,
+			id: 'render-media-test',
 			width: 400,
 			height: 400,
 			fps: 30,
@@ -32,17 +33,4 @@ test('should render media on web', async (t) => {
 		},
 		inputProps: {},
 	});
-	/*
-	const url = URL.createObjectURL(
-		new File([file], 'test.mp4', {
-			type: 'video/mp4',
-		}),
-	);
-	const videoTag = document.createElement('video');
-	videoTag.src = url;
-	videoTag.controls = true;
-	videoTag.width = 400;
-	videoTag.height = 400;
-	document.body.appendChild(videoTag);
-*/
 });

@@ -1,7 +1,7 @@
 import {BufferTarget, Output, VideoSample, VideoSampleSource} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
-import type {AnyZodObject} from 'zod';
+import type {AnyZodObject, z} from 'zod';
 import {createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
 import type {
@@ -18,17 +18,39 @@ import {
 import type {
 	CompositionCalculateMetadataOrExplicit,
 	InferProps,
-	PropsIfHasProps,
 } from './props-if-has-props';
 import {createFrame} from './take-screenshot';
 import {waitForReady} from './wait-for-ready';
+
+export type InputPropsIfHasProps<
+	Schema extends AnyZodObject,
+	Props,
+> = AnyZodObject extends Schema
+	? {} extends Props
+		? {
+				// Neither props nor schema specified
+				inputProps?: z.input<Schema> & Props;
+			}
+		: {
+				// Only props specified
+				inputProps: Props;
+			}
+	: {} extends Props
+		? {
+				// Only schema specified
+				inputProps: z.input<Schema>;
+			}
+		: {
+				// Props and schema specified
+				inputProps: z.input<Schema> & Props;
+			};
 
 type MandatoryRenderMediaOnWebOptions<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = {
 	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
-} & PropsIfHasProps<Schema, Props>;
+};
 
 export type RenderMediaOnWebProgress = {
 	renderedFrames: number;
@@ -44,7 +66,6 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
 	logLevel: LogLevel;
 	schema: Schema | undefined;
-	id: string | null;
 	mediaCacheSizeInBytes: number | null;
 	codec: WebRendererCodec;
 	container: WebRendererContainer;
@@ -61,13 +82,15 @@ export type RenderMediaOnWebOptions<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = MandatoryRenderMediaOnWebOptions<Schema, Props> &
-	Partial<OptionalRenderMediaOnWebOptions<Schema>>;
+	Partial<OptionalRenderMediaOnWebOptions<Schema>> &
+	InputPropsIfHasProps<Schema, Props>;
 
 type InternalRenderMediaOnWebOptions<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = MandatoryRenderMediaOnWebOptions<Schema, Props> &
-	OptionalRenderMediaOnWebOptions<Schema>;
+	OptionalRenderMediaOnWebOptions<Schema> &
+	InputPropsIfHasProps<Schema, Props>;
 
 // TODO: frameRange
 // TODO: More containers
@@ -80,6 +103,7 @@ type InternalRenderMediaOnWebOptions<
 // TODO: Web file system API
 // TODO: Apply defaultCodec
 // TODO: Throttle onProgress
+// TODO: getStaticFiles()
 
 const internalRenderMediaOnWeb = async <
 	Schema extends AnyZodObject,
@@ -87,7 +111,6 @@ const internalRenderMediaOnWeb = async <
 >({
 	composition,
 	inputProps,
-	id,
 	delayRenderTimeoutInMilliseconds,
 	logLevel,
 	mediaCacheSizeInBytes,
@@ -120,9 +143,9 @@ const internalRenderMediaOnWeb = async <
 				InferProps<AnyZodObject, Record<string, unknown>>
 			>) ?? null,
 		signal: signal ?? new AbortController().signal,
-		defaultProps: {},
-		originalProps: inputProps ?? {},
-		compositionId: id ?? 'default',
+		defaultProps: composition.defaultProps ?? {},
+		inputProps: inputProps ?? {},
+		compositionId: composition.id,
 		compositionDurationInFrames: composition.durationInFrames ?? null,
 		compositionFps: composition.fps ?? null,
 		compositionHeight: composition.height ?? null,
@@ -145,8 +168,8 @@ const internalRenderMediaOnWeb = async <
 			fps: resolved.fps,
 			durationInFrames: resolved.durationInFrames,
 			Component: composition.component,
-			inputProps: inputProps ?? {},
-			id: id ?? 'default',
+			resolvedProps: resolved.props,
+			id: resolved.id,
 			delayRenderTimeoutInMilliseconds,
 			logLevel,
 			mediaCacheSizeInBytes,
@@ -287,7 +310,6 @@ export const renderMediaOnWeb = <
 			options.delayRenderTimeoutInMilliseconds ?? 30000,
 		logLevel: options.logLevel ?? 'info',
 		schema: options.schema ?? undefined,
-		id: options.id ?? null,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
 		codec,
 		container,
