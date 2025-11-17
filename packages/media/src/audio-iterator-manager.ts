@@ -224,6 +224,10 @@ export const audioIteratorManager = ({
 				return;
 			}
 
+			if (audioSatisfyResult.type === 'ended') {
+				return;
+			}
+
 			if (audioSatisfyResult.type === 'not-satisfied') {
 				await startAudioIterator({
 					nonce,
@@ -274,6 +278,10 @@ export const audioIteratorManager = ({
 			);
 
 			if (nonce.isStale()) {
+				return;
+			}
+
+			if (audioSatisfyResult.type === 'ended') {
 				return;
 			}
 
