@@ -86,7 +86,7 @@ async function internalRenderStillOnWeb<
 		delayRenderTimeoutInMilliseconds,
 		logLevel,
 		resolvedProps: resolved.props,
-		id: composition.id,
+		id: resolved.id,
 		mediaCacheSizeInBytes,
 		audioEnabled: false,
 		Component: composition.component,

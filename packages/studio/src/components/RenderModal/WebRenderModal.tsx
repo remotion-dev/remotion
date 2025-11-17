@@ -386,6 +386,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				durationInFrames: resolvedComposition.durationInFrames,
 				defaultProps: resolvedComposition.defaultProps,
 				id: resolvedComposition.id,
+				calculateMetadata: unresolvedComposition.calculateMetadata,
 			},
 			inputProps,
 			delayRenderTimeoutInMilliseconds: delayRenderTimeout,
@@ -445,6 +446,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		transparent,
 		resolvedComposition.defaultProps,
 		resolvedComposition.id,
+		unresolvedComposition.calculateMetadata,
 	]);
 
 	const onRender = useCallback(async () => {
