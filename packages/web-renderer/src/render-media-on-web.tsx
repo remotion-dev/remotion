@@ -98,7 +98,6 @@ type InternalRenderMediaOnWebOptions<
 // TODO: Audio
 // TODO: onFrame
 // TODO: Metadata
-// TODO: onArtifact
 // TODO: Validating inputs
 // TODO: Web file system API
 // TODO: Apply defaultCodec
