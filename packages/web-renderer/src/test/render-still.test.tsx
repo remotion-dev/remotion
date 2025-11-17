@@ -16,6 +16,7 @@ test('should render still on web', async () => {
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
+			id: 'render-still-test',
 			width: 100,
 			height: 100,
 			fps: 30,
@@ -45,6 +46,7 @@ test('should be able to read frame number', async () => {
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
+			id: 'frame-number-test',
 			width: 100,
 			height: 100,
 			fps: 30,

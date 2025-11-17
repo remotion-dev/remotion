@@ -15,6 +15,7 @@ test('should be able to cancel renderMediaOnWeb()', async () => {
 	const prom = renderMediaOnWeb({
 		composition: {
 			component: Component,
+			id: 'abort-render-test',
 			width: 400,
 			height: 400,
 			fps: 30,
@@ -52,6 +53,7 @@ test('should be able to cancel renderStillOnWeb()', async () => {
 		imageFormat: 'png',
 		composition: {
 			component: Component,
+			id: 'abort-render-test',
 			width: 400,
 			height: 400,
 			fps: 30,

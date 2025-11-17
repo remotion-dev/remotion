@@ -444,6 +444,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		outName,
 		transparent,
 		resolvedComposition.defaultProps,
+		resolvedComposition.id,
 	]);
 
 	const onRender = useCallback(async () => {

@@ -46,6 +46,7 @@ test('should not give a false positive when the player is also mounted', async (
 	await renderStillOnWeb({
 		composition: {
 			component: MustNotBePlayer,
+			id: 'player-false-positive-test',
 			width: 100,
 			height: 100,
 			fps: 30,

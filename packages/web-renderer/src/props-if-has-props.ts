@@ -47,8 +47,7 @@ type OptionalDimensions<
 	Props extends Record<string, unknown>,
 > = {
 	component: LooseComponentType<Props>;
-	id?: string;
-
+	id: string;
 	width?: number;
 	height?: number;
 	calculateMetadata: CalculateMetadataFunction<InferProps<Schema, Props>>;
@@ -59,7 +58,7 @@ type MandatoryDimensions<
 	Props extends Record<string, unknown>,
 > = {
 	component: LooseComponentType<Props>;
-	id?: string;
+	id: string;
 	width: number;
 	height: number;
 	calculateMetadata?: CalculateMetadataFunction<
