@@ -1,5 +1,4 @@
 import {expect, test} from 'vitest';
-import type {RenderMediaOnWebProgress} from '../render-media-on-web';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
 
@@ -10,8 +9,6 @@ test('should be able to cancel renderMediaOnWeb()', async () => {
 
 	const controller = new AbortController();
 
-	let currentProgress: RenderMediaOnWebProgress | null = null;
-
 	const prom = renderMediaOnWeb({
 		composition: {
 			component: Component,
@@ -20,9 +17,6 @@ test('should be able to cancel renderMediaOnWeb()', async () => {
 			height: 400,
 			fps: 30,
 			durationInFrames: 200,
-		},
-		onProgress(progress) {
-			currentProgress = progress;
 		},
 		signal: controller.signal,
 		inputProps: {},
