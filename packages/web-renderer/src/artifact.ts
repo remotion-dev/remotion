@@ -41,17 +41,15 @@ export const onlyArtifact = async ({
 				continue;
 			}
 
-			if (frameBuffer !== null) {
-				const ab =
-					frameBuffer instanceof Blob
-						? await frameBuffer.arrayBuffer()
-						: new Uint8Array(
-								await (
-									await frameBuffer.convertToBlob({type: 'image/png'})
-								).arrayBuffer(),
-							);
-				frameBufferUint8 = new Uint8Array(ab);
-			}
+			const ab =
+				frameBuffer instanceof Blob
+					? await frameBuffer.arrayBuffer()
+					: new Uint8Array(
+							await (
+								await frameBuffer.convertToBlob({type: 'image/png'})
+							).arrayBuffer(),
+						);
+			frameBufferUint8 = new Uint8Array(ab);
 
 			result.push({
 				frame: artifact.frame,
