@@ -67,3 +67,53 @@ export const onlyArtifact = async ({
 };
 
 export type OnArtifact = (asset: EmittedArtifact) => void;
+export type ArtifactsRef = React.RefObject<{
+	collectAssets: () => TRenderAsset[];
+} | null>;
+
+type PreviousArtifact = {
+	frame: number;
+	filename: string;
+};
+
+export const handleArtifacts = ({
+	ref,
+	onArtifact,
+}: {
+	ref: ArtifactsRef;
+	onArtifact: OnArtifact | null;
+}) => {
+	const previousArtifacts: PreviousArtifact[] = [];
+
+	const handle = async ({
+		imageData,
+		frame,
+	}: {
+		imageData: Blob | OffscreenCanvas | null;
+		frame: number;
+	}) => {
+		const artifactAssets = ref.current!.collectAssets();
+
+		if (onArtifact) {
+			const artifacts = await onlyArtifact({
+				assets: artifactAssets,
+				frameBuffer: imageData,
+			});
+			for (const artifact of artifacts) {
+				const previousArtifact = previousArtifacts.find(
+					(a) => a.filename === artifact.filename,
+				);
+				if (previousArtifact) {
+					throw new Error(
+						`An artifact with output "${artifact.filename}" was already registered at frame ${previousArtifact.frame}, but now registered again at frame ${frame}. Artifacts must have unique names. https://remotion.dev/docs/artifacts`,
+					);
+				}
+
+				onArtifact(artifact);
+				previousArtifacts.push({frame, filename: artifact.filename});
+			}
+		}
+	};
+
+	return {handle};
+};

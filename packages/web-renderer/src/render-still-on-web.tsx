@@ -5,7 +5,7 @@ import {
 } from 'remotion';
 import type {AnyZodObject} from 'zod';
 import type {OnArtifact} from './artifact';
-import {onlyArtifact} from './artifact';
+import {handleArtifacts} from './artifact';
 import {createScaffold} from './create-scaffold';
 import type {
 	CompositionCalculateMetadataOrExplicit,
@@ -104,6 +104,11 @@ async function internalRenderStillOnWeb<
 			defaultOutName: resolved.defaultOutName,
 		});
 
+	const artifactsHandler = handleArtifacts({
+		ref: collectAssets,
+		onArtifact,
+	});
+
 	try {
 		if (signal?.aborted) {
 			throw new Error('renderStillOnWeb() was cancelled');
@@ -127,16 +132,7 @@ async function internalRenderStillOnWeb<
 			imageFormat,
 		});
 
-		const artifactAssets = collectAssets.current!.collectAssets();
-		if (onArtifact) {
-			const artifacts = await onlyArtifact({
-				assets: artifactAssets,
-				frameBuffer: imageData,
-			});
-			for (const artifact of artifacts) {
-				onArtifact(artifact);
-			}
-		}
+		await artifactsHandler.handle({imageData, frame});
 
 		return imageData;
 	} finally {

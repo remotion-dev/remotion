@@ -2,7 +2,7 @@ import {BufferTarget, Output, VideoSample, VideoSampleSource} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
-import {onlyArtifact, type OnArtifact} from './artifact';
+import {handleArtifacts, type OnArtifact} from './artifact';
 import {createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
 import type {
@@ -181,6 +181,11 @@ const internalRenderMediaOnWeb = async <
 			defaultOutName: resolved.defaultOutName,
 		});
 
+	const artifactsHandler = handleArtifacts({
+		ref: collectAssets,
+		onArtifact,
+	});
+
 	cleanupFns.push(() => {
 		cleanupScaffold();
 	});
@@ -263,16 +268,7 @@ const internalRenderMediaOnWeb = async <
 				height: resolved.height,
 			});
 
-			const artifactAssets = collectAssets.current!.collectAssets();
-			if (onArtifact) {
-				const artifacts = await onlyArtifact({
-					assets: artifactAssets,
-					frameBuffer: imageData,
-				});
-				for (const artifact of artifacts) {
-					onArtifact(artifact);
-				}
-			}
+			await artifactsHandler.handle({imageData, frame: i});
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');

@@ -45,7 +45,7 @@ test('should fail to render multiple artifacts with the same filename', async ()
 
 	const artifacts: EmittedArtifact[] = [];
 
-	await renderMediaOnWeb({
+	const prom = renderMediaOnWeb({
 		composition: {
 			component: Component,
 			id: 'artifact-test',
@@ -59,16 +59,9 @@ test('should fail to render multiple artifacts with the same filename', async ()
 			artifacts.push(artifact);
 		},
 	});
-
-	// TODO: This should fail because too many artifacts are emitted
-	expect(artifacts).toEqual([
-		{
-			filename: 'test.txt',
-			content: 'Hello World!',
-			frame: 0,
-			downloadBehavior: null,
-		},
-	]);
+	await expect(prom).rejects.toThrow(
+		'An artifact with output "test.txt" was already registered at frame 0, but now registered again at frame 1. Artifacts must have unique names. https://remotion.dev/docs/artifacts',
+	);
 });
 
 test.todo('should be able to emit a thumbnail');
