@@ -17,6 +17,7 @@ type ExtractFrameRequest = {
 	trimAfter: number | undefined;
 	trimBefore: number | undefined;
 	fps: number;
+	maxCacheSize: number;
 };
 
 type ExtractFrameResponse =
@@ -76,6 +77,7 @@ if (
 						trimAfter: data.trimAfter,
 						trimBefore: data.trimBefore,
 						fps: data.fps,
+						maxCacheSize: data.maxCacheSize,
 					});
 
 					if (result.type === 'cannot-decode') {
@@ -126,12 +128,9 @@ if (
 
 					const {frame, audio, durationInSeconds} = result;
 
-					const videoFrame = frame;
-					const imageBitmap = videoFrame
-						? await createImageBitmap(videoFrame)
-						: null;
-					if (videoFrame) {
-						videoFrame.close();
+					const imageBitmap = frame ? await createImageBitmap(frame) : null;
+					if (frame) {
+						frame.close();
 					}
 
 					const response: ExtractFrameResponse = {
@@ -143,7 +142,6 @@ if (
 					};
 
 					window.remotion_broadcastChannel!.postMessage(response);
-					videoFrame?.close();
 				} catch (error) {
 					const response: ExtractFrameResponse = {
 						type: 'response-error',
@@ -163,7 +161,7 @@ if (
 export type ExtractFrameViaBroadcastChannelResult =
 	| {
 			type: 'success';
-			frame: ImageBitmap | VideoFrame | null;
+			frame: ImageBitmap | null;
 			audio: PcmS16AudioData | null;
 			durationInSeconds: number | null;
 	  }
@@ -186,6 +184,7 @@ export const extractFrameViaBroadcastChannel = ({
 	trimAfter,
 	trimBefore,
 	fps,
+	maxCacheSize,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -200,6 +199,7 @@ export const extractFrameViaBroadcastChannel = ({
 	trimAfter: number | undefined;
 	trimBefore: number | undefined;
 	fps: number;
+	maxCacheSize: number;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
@@ -215,6 +215,7 @@ export const extractFrameViaBroadcastChannel = ({
 			trimAfter,
 			trimBefore,
 			fps,
+			maxCacheSize,
 		});
 	}
 
@@ -333,6 +334,7 @@ export const extractFrameViaBroadcastChannel = ({
 		trimAfter,
 		trimBefore,
 		fps,
+		maxCacheSize,
 	};
 
 	window.remotion_broadcastChannel!.postMessage(request);

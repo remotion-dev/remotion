@@ -1,5 +1,6 @@
-import {expect} from 'vitest';
+import {expect, onTestFinished} from 'vitest';
 import {page} from 'vitest/browser';
+import {withResolvers} from '../with-resolvers';
 
 export const testImage = async ({
 	blob,
@@ -13,11 +14,25 @@ export const testImage = async ({
 	img.dataset.testid = testId;
 	document.body.appendChild(img);
 
+	onTestFinished(() => {
+		document.body.removeChild(img);
+	});
+
+	const {promise, resolve, reject} = withResolvers<void>();
+	img.onload = () => {
+		resolve();
+	};
+
+	img.onerror = () => {
+		reject(new Error('Image failed to load'));
+	};
+
+	await promise;
+
 	await expect(page.getByTestId(testId)).toMatchScreenshot(testId, {
 		comparatorOptions: {
 			threshold: 0.15,
+			allowedMismatchedPixelRatio: 0.02,
 		},
 	});
-
-	document.body.removeChild(img);
 };

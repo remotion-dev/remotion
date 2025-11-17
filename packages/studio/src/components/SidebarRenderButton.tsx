@@ -47,7 +47,7 @@ export const SidebarRenderButton: React.FC<{
 
 			e.stopPropagation();
 			setSelectedModal({
-				type: 'render',
+				type: 'server-render',
 				compositionId: composition.id,
 				initialFrame: 0,
 				initialVideoImageFormat: defaults.videoImageFormat,
