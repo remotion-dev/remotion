@@ -225,6 +225,14 @@ export const audioIteratorManager = ({
 			}
 
 			if (audioSatisfyResult.type === 'ended') {
+				// Audio iterator has ended, but we're seeking to a valid time. This happens when looping - restart the iterator from the new position.
+				await startAudioIterator({
+					nonce,
+					playbackRate,
+					startFromSecond: newTime,
+					getIsPlaying,
+					scheduleAudioNode,
+				});
 				return;
 			}
 

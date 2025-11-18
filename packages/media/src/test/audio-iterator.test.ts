@@ -285,3 +285,68 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 	const uniqueChunks = [...new Set(scheduledChunks)];
 	expect(scheduledChunks.length).toBe(uniqueChunks.length);
 });
+
+test('should schedule audio when looping back to beginning after reaching end', async () => {
+	const {manager, fps, playbackRate, getIsPlaying} = await prepare();
+
+	const scheduledChunks: number[] = [];
+	const scheduleAudioNode = (
+		node: AudioBufferSourceNode,
+		mediaTimestamp: number,
+	) => {
+		node.start(mediaTimestamp);
+		setTimeout(
+			() => {
+				node.stop();
+			},
+			(node.buffer?.duration ?? 0) * 1000,
+		);
+		scheduledChunks.push(mediaTimestamp);
+	};
+
+	// Seek near the end of the video
+	await manager.seek({
+		newTime: 9.97,
+		scheduleAudioNode,
+		fps,
+		getIsPlaying,
+		nonce: makeNonceManager().createAsyncOperation(),
+		playbackRate,
+		bufferState: {
+			delayPlayback: () => ({
+				unblock: () => {},
+			}),
+		},
+	});
+
+	// The audio iterator should now be at the end
+	const chunksBeforeLoop = scheduledChunks.length;
+	expect(chunksBeforeLoop).toBeGreaterThan(0);
+
+	// Now loop back to the beginning (simulating loop behavior)
+	await manager.seek({
+		newTime: 0,
+		scheduleAudioNode,
+		fps,
+		getIsPlaying,
+		nonce: makeNonceManager().createAsyncOperation(),
+		playbackRate,
+		bufferState: {
+			delayPlayback: () => ({
+				unblock: () => {},
+			}),
+		},
+	});
+
+	// BUG: Audio should be scheduled after looping, but it's not
+	const chunksAfterLoop = scheduledChunks.length;
+	expect(chunksAfterLoop).toBeGreaterThan(chunksBeforeLoop);
+
+	// Should have created 2 iterators: one for near the end, one for the loop
+	const created = manager.getAudioIteratorsCreated();
+	expect(created).toBe(2);
+
+	// Verify we have chunks from both the end and the beginning
+	expect(scheduledChunks.some((t) => t > 9.9)).toBe(true);
+	expect(scheduledChunks.some((t) => t < 0.1)).toBe(true);
+});
