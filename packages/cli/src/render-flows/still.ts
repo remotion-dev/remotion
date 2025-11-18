@@ -400,6 +400,7 @@ export const renderStillFlow = async ({
 				printToConsole: true,
 			});
 		},
+		apiKey: null,
 	});
 
 	aggregate.rendering = {

@@ -526,6 +526,7 @@ export const benchmarkCommand = async (
 						commandLine: parsedCli,
 					}).value,
 					onLog: RenderInternals.defaultOnLog,
+					apiKey: null,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(
