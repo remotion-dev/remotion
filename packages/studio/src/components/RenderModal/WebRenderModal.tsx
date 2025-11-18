@@ -47,6 +47,8 @@ type WebRenderModalProps = {
 	readonly compositionId: string;
 	readonly initialFrame: number;
 	readonly defaultProps: Record<string, unknown>;
+	readonly inFrameMark: number | null;
+	readonly outFrameMark: number | null;
 };
 
 export type RenderType = 'still' | 'video';
@@ -123,12 +125,13 @@ const validateOutnameForStill = ({
 // TODO: Filter out codecs that are not supported for the container
 // TODO: Add more containers
 // TODO: Shortcut: Shift + R
-// TODO: Apply initial frame range
 // TODO: Apply defaultCodec
 // TODO: Apply defaultOutName
 const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	initialFrame,
 	defaultProps,
+	inFrameMark,
+	outFrameMark,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
@@ -162,11 +165,42 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		'no-preference' | 'prefer-hardware' | 'prefer-software'
 	>('no-preference');
 	const [keyframeIntervalInSeconds, setKeyframeIntervalInSeconds] = useState(5);
-	const [startFrame, setStartFrame] = useState<number | null>(null);
-	const [endFrame, setEndFrame] = useState<number | null>(null);
+	const [startFrame, setStartFrame] = useState<number | null>(
+		() => inFrameMark ?? null,
+	);
+	const [endFrame, setEndFrame] = useState<number | null>(
+		() => outFrameMark ?? null,
+	);
 	const [renderProgress, setRenderProgress] =
 		useState<RenderMediaOnWebProgress | null>(null);
 	const [transparent, setTransparent] = useState(false);
+
+	const finalEndFrame = useMemo(() => {
+		if (endFrame === null) {
+			return resolvedComposition.durationInFrames - 1;
+		}
+
+		return Math.max(
+			0,
+			Math.min(resolvedComposition.durationInFrames - 1, endFrame),
+		);
+	}, [endFrame, resolvedComposition.durationInFrames]);
+
+	const finalStartFrame = useMemo(() => {
+		if (startFrame === null) {
+			return 0;
+		}
+
+		return Math.max(0, Math.min(finalEndFrame, startFrame));
+	}, [finalEndFrame, startFrame]);
+
+	const frameRange = useMemo(() => {
+		if (startFrame === null && endFrame === null) {
+			return null;
+		}
+
+		return [finalStartFrame, finalEndFrame] as [number, number];
+	}, [endFrame, finalEndFrame, finalStartFrame, startFrame]);
 
 	const [initialOutName] = useState(() => {
 		return getDefaultOutLocation({
@@ -397,13 +431,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			videoBitrate,
 			hardwareAcceleration,
 			keyframeIntervalInSeconds,
-			frameRange:
-				startFrame !== null || endFrame !== null
-					? ([
-							startFrame ?? 0,
-							endFrame ?? resolvedComposition.durationInFrames - 1,
-						] as [number, number])
-					: null,
+			frameRange,
 			onProgress: (progress) => {
 				setRenderProgress(progress);
 			},
@@ -436,8 +464,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		videoBitrate,
 		hardwareAcceleration,
 		keyframeIntervalInSeconds,
-		startFrame,
-		endFrame,
+		frameRange,
 		resolvedComposition.durationInFrames,
 		resolvedComposition.width,
 		resolvedComposition.height,
@@ -470,10 +497,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					disabled={!outnameValidation.valid}
 				>
 					{renderProgress
-						? `Rendering... ${renderProgress.renderedFrames}/${
-								endFrame ?? resolvedComposition.durationInFrames - 1
-							}`
+						? `Rendering... ${renderProgress.renderedFrames}/${finalEndFrame}`
 						: `Render ${renderMode}`}
+
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
 			</div>
@@ -536,9 +562,9 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setContainerFormat={setContainerFormat}
 							codec={codec}
 							setCodec={setCodec}
-							startFrame={startFrame}
+							startFrame={finalStartFrame}
 							setStartFrame={setStartFrame}
-							endFrame={endFrame}
+							endFrame={finalEndFrame}
 							setEndFrame={setEndFrame}
 							outName={outName}
 							onOutNameChange={onOutNameChange}
