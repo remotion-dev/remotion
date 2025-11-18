@@ -70,7 +70,7 @@ export const registerUsageEvent = async ({
 	} catch (err) {
 		clearTimeout(timeout);
 		if (err instanceof Error && err.name === 'AbortError') {
-			throw new Error('Request timed out after 5 seconds');
+			throw new Error('Request timed out after 10 seconds');
 		}
 
 		throw err;
