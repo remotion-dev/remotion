@@ -25,6 +25,8 @@ export type WebRenderModalState = {
 	initialFrame: number;
 	compositionId: string;
 	defaultProps: Record<string, unknown>;
+	inFrameMark: number | null;
+	outFrameMark: number | null;
 };
 
 export type RenderModalState = {

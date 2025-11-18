@@ -1,6 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
+import {useTimelineInOutFramePosition} from '../../state/in-out';
 import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
 
@@ -18,6 +19,7 @@ const label: React.CSSProperties = {
 export const TriggerWebRender = () => {
 	const video = Internals.useVideo();
 	const getCurrentFrame = PlayerInternals.useFrameImperative();
+	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -33,8 +35,17 @@ export const TriggerWebRender = () => {
 			initialFrame: frame,
 			compositionId: video.id,
 			defaultProps: video.defaultProps,
+			inFrameMark: inFrame,
+			outFrameMark: outFrame,
 		});
-	}, [getCurrentFrame, setSelectedModal, video?.id, video?.defaultProps]);
+	}, [
+		getCurrentFrame,
+		inFrame,
+		outFrame,
+		setSelectedModal,
+		video?.defaultProps,
+		video?.id,
+	]);
 
 	if (!video) {
 		return null;

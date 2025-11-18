@@ -45,6 +45,8 @@ export const Modals: React.FC<{
 					initialFrame={modalContextType.initialFrame}
 					compositionId={modalContextType.compositionId}
 					defaultProps={modalContextType.defaultProps}
+					inFrameMark={modalContextType.inFrameMark}
+					outFrameMark={modalContextType.outFrameMark}
 				/>
 			)}
 			{modalContextType &&
