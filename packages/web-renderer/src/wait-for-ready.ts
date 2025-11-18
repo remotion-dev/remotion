@@ -16,8 +16,6 @@ export const waitForReady = ({
 	const {promise, resolve, reject} = withResolvers<void>();
 
 	let cancelled = false;
-	// We want to wait at least for 1 frame (1 cycle)
-	let frameWaited = false;
 
 	const check = () => {
 		if (cancelled) {
@@ -30,21 +28,8 @@ export const waitForReady = ({
 			return;
 		}
 
-		if (!frameWaited) {
-			// Ensure at least one frame has passed
-			frameWaited = true;
-			requestAnimationFrame(check);
-			return;
-		}
-
 		if (scope.remotion_renderReady === true) {
-			// Wait for useEffects() to apply
-			requestAnimationFrame(() => {
-				// Firefox needs at least two frames to apply the transform
-				requestAnimationFrame(() => {
-					resolve();
-				});
-			});
+			resolve();
 			return;
 		}
 

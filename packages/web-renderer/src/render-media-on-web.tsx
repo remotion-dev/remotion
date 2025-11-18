@@ -21,6 +21,8 @@ import type {
 	InferProps,
 } from './props-if-has-props';
 import {createFrame} from './take-screenshot';
+import {createThrottledProgressCallback} from './throttle-progress';
+import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
 import {waitForReady} from './wait-for-ready';
 
 export type InputPropsIfHasProps<
@@ -78,6 +80,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends AnyZodObject> = {
 	frameRange: FrameRange | null;
 	transparent: boolean;
 	onArtifact: OnArtifact | null;
+	onFrame: OnFrameCallback | null;
 };
 
 export type RenderMediaOnWebOptions<
@@ -96,13 +99,10 @@ type InternalRenderMediaOnWebOptions<
 
 // TODO: More containers
 // TODO: Audio
-// TODO: onFrame
 // TODO: Metadata
 // TODO: Validating inputs
 // TODO: Web file system API
 // TODO: Apply defaultCodec
-// TODO: Throttle onProgress
-// TODO: getStaticFiles()
 
 const internalRenderMediaOnWeb = async <
 	Schema extends AnyZodObject,
@@ -124,6 +124,7 @@ const internalRenderMediaOnWeb = async <
 	frameRange,
 	transparent,
 	onArtifact,
+	onFrame,
 }: InternalRenderMediaOnWebOptions<Schema, Props>) => {
 	const cleanupFns: (() => void)[] = [];
 	const format = containerToMediabunnyContainer(container);
@@ -249,6 +250,8 @@ const internalRenderMediaOnWeb = async <
 			encodedFrames: 0,
 		};
 
+		const throttledOnProgress = createThrottledProgressCallback(onProgress);
+
 		for (let i = realFrameRange[0]; i <= realFrameRange[1]; i++) {
 			timeUpdater.current?.update(i);
 			await waitForReady({
@@ -274,24 +277,41 @@ const internalRenderMediaOnWeb = async <
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
 
+			const timestamp = Math.round(
+				((i - realFrameRange[0]) / resolved.fps) * 1_000_000,
+			);
 			const videoFrame = new VideoFrame(imageData, {
-				timestamp: Math.round(
-					((i - realFrameRange[0]) / resolved.fps) * 1_000_000,
-				),
+				timestamp,
 			});
 			progress.renderedFrames++;
-			onProgress?.({...progress});
+			throttledOnProgress?.({...progress});
 
-			await videoSampleSource.add(new VideoSample(videoFrame));
+			// Process frame through onFrame callback if provided
+			let frameToEncode = videoFrame;
+			if (onFrame) {
+				const returnedFrame = await onFrame(videoFrame);
+				frameToEncode = validateVideoFrame({
+					originalFrame: videoFrame,
+					returnedFrame,
+					expectedWidth: resolved.width,
+					expectedHeight: resolved.height,
+					expectedTimestamp: timestamp,
+				});
+			}
+
+			await videoSampleSource.add(new VideoSample(frameToEncode));
 			progress.encodedFrames++;
-			onProgress?.({...progress});
+			throttledOnProgress?.({...progress});
 
-			videoFrame.close();
+			frameToEncode.close();
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
 		}
+
+		// Call progress one final time to ensure final state is reported
+		onProgress?.({...progress});
 
 		videoSampleSource.close();
 		await output.finalize();
@@ -328,5 +348,6 @@ export const renderMediaOnWeb = <
 		frameRange: options.frameRange ?? null,
 		transparent: options.transparent ?? false,
 		onArtifact: options.onArtifact ?? null,
+		onFrame: options.onFrame ?? null,
 	});
 };

@@ -1,4 +1,5 @@
 import {useEffect, useState} from 'react';
+import {flushSync} from 'react-dom';
 import {useDelayRender} from 'remotion';
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
@@ -12,7 +13,9 @@ test('should be able to use delayRender()', async () => {
 
 		useEffect(() => {
 			setTimeout(() => {
-				setData(true);
+				flushSync(() => {
+					setData(true);
+				});
 				continueRender(handle);
 			}, 50);
 		}, [continueRender, handle]);
