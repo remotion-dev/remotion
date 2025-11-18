@@ -820,7 +820,7 @@ const internalRenderMediaRaw = ({
 						succeeded: true,
 					})
 						.then(() => {
-							Log.info({indent, logLevel}, 'Usage event sent successfully');
+							Log.verbose({indent, logLevel}, 'Usage event sent successfully');
 						})
 						.catch((err) => {
 							Log.error({indent, logLevel}, 'Failed to send usage event');

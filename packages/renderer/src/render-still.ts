@@ -1,3 +1,4 @@
+import {registerUsageEvent} from '@remotion/licensing';
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
 import type {_InternalTypes} from 'remotion';
@@ -51,7 +52,6 @@ import {
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
-import {registerUsageEvent} from '@remotion/licensing';
 
 type InternalRenderStillOptions = {
 	composition: VideoConfig;
@@ -430,7 +430,7 @@ const internalRenderStillRaw = (
 					succeeded: true,
 				})
 					.then(() => {
-						Log.info(options, 'Usage event sent successfully');
+						Log.verbose(options, 'Usage event sent successfully');
 					})
 					.catch((err) => {
 						Log.error(options, 'Failed to send usage event');
