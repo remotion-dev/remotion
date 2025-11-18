@@ -22,15 +22,15 @@ export default defineConfig({
 						},
 						actionTimeout: 5_000,
 					}),
-					viewport: {width: 1280, height: 1080},
+					viewport: {width: 1280, height: 720},
 				} as const,
 				{
 					browser: 'firefox',
-					viewport: {width: 1280, height: 1080},
+					viewport: {width: 1280, height: 720},
 				} as const,
 				{
 					browser: 'webkit',
-					viewport: {width: 1280, height: 1080},
+					viewport: {width: 1280, height: 720},
 				} as const,
 			].filter(truthy),
 			headless: true,

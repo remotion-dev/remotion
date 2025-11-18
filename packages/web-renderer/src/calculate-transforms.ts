@@ -72,6 +72,14 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 			.translate(deviationFromX, deviationFromY);
 	}
 
+	const translateX = totalMatrix.m41;
+	const translateY = totalMatrix.m42;
+
+	totalMatrix.m41 = 0;
+	totalMatrix.m42 = 0;
+	dimensions.x += translateX;
+	dimensions.y += translateY;
+
 	return {
 		dimensions,
 		totalMatrix,

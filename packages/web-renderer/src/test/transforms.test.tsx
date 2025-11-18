@@ -1,7 +1,9 @@
-import {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {AbsoluteFill, continueRender, delayRender} from 'remotion';
 import {test} from 'vitest';
+import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
+import {evenHarderCase} from './fixtures';
 import {testImage} from './utils';
 
 test('should be able to deal with a simple transform directly on the element', async () => {
@@ -349,6 +351,8 @@ test('nested transforms with pixel-based transform-origins', async () => {
 });
 
 test('complicated example', async () => {
+	await page.viewport(1080, 1080);
+
 	const Component: React.FC = () => {
 		return (
 			<AbsoluteFill>
@@ -452,7 +456,7 @@ test('complicated example', async () => {
 	const blob = await renderStillOnWeb({
 		composition: {
 			component: Component,
-			id: 'pixel-transform-origins',
+			id: 'complicated-example',
 			width: 1080,
 			height: 1080,
 			fps: 30,
@@ -464,4 +468,16 @@ test('complicated example', async () => {
 	});
 
 	await testImage({blob, testId: 'complicated-example'});
+});
+
+test('even harder case', async () => {
+	await page.viewport(1080, 1080);
+	const blob = await renderStillOnWeb({
+		composition: evenHarderCase,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'even-harder-case'});
 });
