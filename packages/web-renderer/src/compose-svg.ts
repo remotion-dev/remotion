@@ -19,18 +19,25 @@ export const svgToImageBitmap = (
 
 	const originalTransform = svg.style.transform;
 	const originalTransformOrigin = svg.style.transformOrigin;
+	const originalMarginLeft = svg.style.marginLeft;
+	const originalMarginRight = svg.style.marginRight;
+	const originalMarginTop = svg.style.marginTop;
+	const originalMarginBottom = svg.style.marginBottom;
+
 	svg.style.transform = totalMatrix.toString();
 	svg.style.transformOrigin = '50% 50%';
-
 	// Margins were already included in the positioning calculation,
 	// so we need to remove them to avoid double counting.
 	svg.style.marginLeft = '0';
 	svg.style.marginRight = '0';
 	svg.style.marginTop = '0';
 	svg.style.marginBottom = '0';
-
 	const svgData = new XMLSerializer().serializeToString(svg);
 
+	svg.style.marginLeft = originalMarginLeft;
+	svg.style.marginRight = originalMarginRight;
+	svg.style.marginTop = originalMarginTop;
+	svg.style.marginBottom = originalMarginBottom;
 	svg.style.transform = originalTransform;
 	svg.style.transformOrigin = originalTransformOrigin;
 
