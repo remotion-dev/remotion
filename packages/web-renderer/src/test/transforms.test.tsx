@@ -352,11 +352,7 @@ test.only('complicated example', async () => {
 	const Component: React.FC = () => {
 		return (
 			<AbsoluteFill>
-				<AbsoluteFill
-					style={{
-						transform: 'scale(0.7)',
-					}}
-				>
+				<AbsoluteFill style={{}}>
 					<AbsoluteFill>
 						<AbsoluteFill
 							style={{
