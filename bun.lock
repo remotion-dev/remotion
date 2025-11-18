@@ -1087,6 +1087,7 @@
       "name": "@remotion/renderer",
       "version": "4.0.375",
       "dependencies": {
+        "@remotion/licensing": "workspace:*",
         "@remotion/streaming": "workspace:*",
         "execa": "5.1.1",
         "extract-zip": "2.0.1",
@@ -1098,7 +1099,6 @@
         "@happy-dom/global-registrator": "14.5.1",
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/example-videos": "workspace:*",
-        "@remotion/licensing": "workspace:*",
         "@testing-library/dom": "10.4.0",
         "@testing-library/react": "16.1.0",
         "@types/node": "catalog:",

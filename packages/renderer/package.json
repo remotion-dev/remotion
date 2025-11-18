@@ -25,7 +25,8 @@
 		"remotion": "workspace:*",
 		"@remotion/streaming": "workspace:*",
 		"source-map": "^0.8.0-beta.0",
-		"ws": "8.17.1"
+		"ws": "8.17.1",
+		"@remotion/licensing": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -40,7 +41,6 @@
 		"@types/ws": "8.5.10",
 		"@remotion/example-videos": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"@remotion/licensing": "workspace:*",
 		"eslint": "catalog:",
 		"@types/node": "catalog:"
 	},
