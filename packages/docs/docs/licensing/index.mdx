@@ -25,6 +25,7 @@ This package makes it easier to count the number of Remotion renders without hav
 In Remotion 5.0, it will be mandatory for customers to report renders using `@remotion/licensing`.
 
 **For [`@remotion/lambda`](/docs/lambda)**: This package is a dependency and renders will trigger a call to [`registerUsagePoint()`](/docs/licensing/register-usage-point) if you pass the `apiKey` option.
+**For [`@remotion/renderer`](/docs/renderer)**: You can pass the `apiKey` option to [`renderMedia()`](/docs/renderer/render-media#apikey) and [`renderStill()`](/docs/renderer/render-still#apikey) to track local render usage.
 
 ### Can I use this package to count renders if I am eligible for the free license?
 

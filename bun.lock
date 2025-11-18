@@ -1088,6 +1088,7 @@
       "name": "@remotion/renderer",
       "version": "4.0.375",
       "dependencies": {
+        "@remotion/licensing": "workspace:*",
         "@remotion/streaming": "workspace:*",
         "execa": "5.1.1",
         "extract-zip": "2.0.1",

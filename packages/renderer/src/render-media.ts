@@ -1,3 +1,4 @@
+import {registerUsageEvent} from '@remotion/licensing';
 import type {ExecaChildProcess} from 'execa';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -132,6 +133,7 @@ export type InternalRenderMediaOptions = {
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
 	metadata: Record<string, string> | null;
+	apiKey: string | null;
 	onLog: OnLog;
 } & MoreRenderMediaOptions;
 
@@ -259,6 +261,7 @@ const internalRenderMediaRaw = ({
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
 	onLog,
+	apiKey,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	const pixelFormat =
 		userPixelFormat ??
@@ -804,11 +807,35 @@ const internalRenderMediaRaw = ({
 					slowestFrames,
 				};
 
+				const sendTelemetryAndResolve = () => {
+					if (apiKey === null) {
+						resolve(result);
+						return;
+					}
+
+					registerUsageEvent({
+						apiKey,
+						event: 'cloud-render',
+						host: null,
+						succeeded: true,
+					})
+						.then(() => {
+							Log.verbose({indent, logLevel}, 'Usage event sent successfully');
+						})
+						.catch((err) => {
+							Log.error({indent, logLevel}, 'Failed to send usage event');
+							Log.error({indent: true, logLevel}, err);
+						})
+						.finally(() => {
+							resolve(result);
+						});
+				};
+
 				if (isReproEnabled()) {
 					getReproWriter()
 						.onRenderSucceed({indent, logLevel, output: absoluteOutputLocation})
 						.then(() => {
-							resolve(result);
+							sendTelemetryAndResolve();
 						})
 						.catch((err) => {
 							Log.error(
@@ -816,9 +843,10 @@ const internalRenderMediaRaw = ({
 								'Could not create reproduction',
 								err,
 							);
+							sendTelemetryAndResolve();
 						});
 				} else {
-					resolve(result);
+					sendTelemetryAndResolve();
 				}
 			})
 			.catch((err) => {
@@ -946,6 +974,7 @@ export const renderMedia = ({
 	offthreadVideoThreads,
 	compositionStart,
 	mediaCacheSizeInBytes,
+	apiKey,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -1032,6 +1061,7 @@ export const renderMedia = ({
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		apiKey: apiKey ?? null,
 		onLog: defaultOnLog,
 	});
 };

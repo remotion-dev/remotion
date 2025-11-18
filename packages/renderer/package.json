@@ -25,7 +25,8 @@
 		"remotion": "workspace:*",
 		"@remotion/streaming": "workspace:*",
 		"source-map": "^0.8.0-beta.0",
-		"ws": "8.17.1"
+		"ws": "8.17.1",
+		"@remotion/licensing": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
