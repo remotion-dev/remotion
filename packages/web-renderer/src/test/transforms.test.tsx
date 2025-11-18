@@ -348,7 +348,7 @@ test('nested transforms with pixel-based transform-origins', async () => {
 	await testImage({blob, testId: 'pixel-transform-origins'});
 });
 
-test.only('complicated example', async () => {
+test('complicated example', async () => {
 	const Component: React.FC = () => {
 		return (
 			<AbsoluteFill>
