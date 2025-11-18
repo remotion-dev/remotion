@@ -25,11 +25,6 @@ export const validateVideoFrame = ({
 	expectedHeight,
 	expectedTimestamp,
 }: ValidateVideoFrameOptions): VideoFrame => {
-	// If onFrame returned void/undefined, use the original frame
-	if (!returnedFrame) {
-		return originalFrame;
-	}
-
 	// Validate that the returned frame is actually a VideoFrame
 	if (!(returnedFrame instanceof VideoFrame)) {
 		originalFrame.close();
