@@ -533,5 +533,3 @@ class RemotionClient:
             render_progress.__dict__.update(progress_response)
             return render_progress
         return None
-    
-    
