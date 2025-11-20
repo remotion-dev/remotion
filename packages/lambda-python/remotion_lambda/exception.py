@@ -9,4 +9,4 @@ class RemotionInvalidArgumentException(RemotionException, ValueError):
 
 class RemotionRenderingOutputError(RemotionException):
     """Raised when the Remotion rendering process returns an error."""
-    
+
