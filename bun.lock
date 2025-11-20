@@ -329,12 +329,13 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
+        "@tailwindcss/cli": "4.1.1",
         "bun-plugin-tailwind": "0.1.2",
         "eslint": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "tailwind-merge": "^2.6.0",
-        "tailwindcss": "4.1.10",
+        "tailwindcss": "4.1.1",
       },
       "peerDependencies": {
         "react": ">=16.8.0",
@@ -7810,6 +7811,8 @@
     "@remix-run/web-stream/web-streams-polyfill": ["web-streams-polyfill@3.3.3", "", {}, "sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw=="],
 
     "@remotion/design/tailwind-merge": ["tailwind-merge@2.6.0", "", {}, "sha512-P+Vu1qXfzediirmHOC3xKGAYeZtPcV9g76X+xg2FD4tYgR71ewMA35Y3sCz3zhiN/dwefRpJX0yBcgwi1fXNQA=="],
+
+    "@remotion/design/tailwindcss": ["tailwindcss@4.1.1", "", {}, "sha512-QNbdmeS979Efzim2g/bEvfuh+fTcIdp1y7gA+sb6OYSW74rt7Cr7M78AKdf6HqWT3d5AiTb7SwTT3sLQxr4/qw=="],
 
     "@remotion/eslint-config-flat/eslint-plugin-react-hooks": ["eslint-plugin-react-hooks@5.2.0", "", { "peerDependencies": { "eslint": "9.19.0" } }, "sha512-+f15FfK64YQwZdJNELETdn5ibXEUQmW1DZL6KXhNnc2heoy/sg9VJJeT7n8TlMWouzWqSWavFkIhHyIbIAEapg=="],
 
