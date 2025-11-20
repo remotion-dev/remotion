@@ -7,7 +7,7 @@ import hashlib
 from math import ceil
 from typing import Optional, Union, List, Dict, Any
 from enum import Enum
-
+import warnings
 import boto3
 from boto3.session import Session as Boto3Session # Explicitly import Session
 from botocore.config import Config
@@ -32,6 +32,7 @@ from .exception import (
     RemotionRenderingOutputError
 )
 
+
 logger = logging.getLogger(__name__)
 
 BUCKET_NAME_PREFIX = 'remotionlambda-'
@@ -48,30 +49,119 @@ class RemotionClient:
         function_name: str,
         access_key: Optional[str] = None,
         secret_key: Optional[str] = None,
-        force_path_style: bool = False, # Added type hint
+        force_path_style: bool = False,
         botocore_config: Optional[Config] = None,
-        boto_session: Optional[Boto3Session] = None, # Used Boto3Session type
+        boto_session: Optional[Boto3Session] = None,
     ):
         """
         Initialize the RemotionClient.
-        Args:
-            region (str): AWS region.
-            serve_url (str): URL for the Remotion service.
-            function_name (str): Name of the AWS Lambda function.
-            access_key (str): AWS access key (optional).
-            secret_key (str): AWS secret key (optional).
-            force_path_style (bool): Force path-style S3 URLs (optional).
-            botocore_config (botocore.config.Config): Optional botocore Config object.
-            boto_session (boto3.session.Session): Optional boto3 Session object.
+
+        Parameters
+        ----------
+        region : str
+            AWS region name (e.g., 'us-east-1')
+        serve_url : str
+            URL for the Remotion service endpoint
+        function_name : str
+            Name of the AWS Lambda function to invoke
+        access_key : Optional[str], deprecated
+            **DEPRECATED** - AWS access key ID. Use `boto_session` instead.
+            Will be removed in version 5.0.0.
+        secret_key : Optional[str], deprecated
+            **DEPRECATED** - AWS secret access key. Use `boto_session` instead.
+            Will be removed in version 5.0.0.
+        force_path_style : bool, default=False
+            Force path-style S3 URLs instead of virtual-hosted-style
+        botocore_config : Optional[Config]
+            Custom botocore configuration object
+        boto_session : Optional[Boto3Session]
+            Pre-configured boto3 Session object (recommended for authentication)
+
+        Raises
+        ------
+        RemotionInvalidArgumentException
+            If required parameters are missing or invalid combinations are provided
+
+        Warnings
+        --------
+        .. deprecated:: 4.0.377
+            Parameters `access_key` and `secret_key` are deprecated.
+            Use `boto_session` instead for improved security and flexibility.
+
+        Examples
+        --------
+        Recommended usage with boto_session:
+
+        >>> import boto3
+        >>> session = boto3.Session(profile_name='production')
+        >>> client = RemotionClient(
+        ...     region='us-east-1',
+        ...     serve_url='https://api.example.com',
+        ...     function_name='my-function',
+        ...     boto_session=session
+        ... )
+
+        Legacy usage (deprecated):
+
+        >>> client = RemotionClient(
+        ...     region='us-east-1',
+        ...     serve_url='https://api.example.com',
+        ...     function_name='my-function',
+        ...     access_key='AKIA...',
+        ...     secret_key='secret...'
+        ... )
         """
-        self.access_key = access_key
-        self.secret_key = secret_key
-        self.region = region
-        self.serve_url = serve_url
-        self.function_name = function_name
+        # Validate required parameters
+        if not region or not region.strip():
+            raise RemotionInvalidArgumentException("'region' parameter is required and cannot be empty or whitespace")
+        if not serve_url or not serve_url.strip():
+            raise RemotionInvalidArgumentException("'serve_url' parameter is required and cannot be empty or whitespace")
+        if not function_name or not function_name.strip():
+            raise RemotionInvalidArgumentException("'function_name' parameter is required and cannot be empty or whitespace")
+
+
+        # Check for conflicting authentication methods
+        if boto_session and (access_key or secret_key):
+            raise ValueError(
+                "Cannot specify both 'boto_session' and explicit credentials "
+                "('access_key'/'secret_key'). Please use only 'boto_session'."
+            )
+
+        # Handle deprecated credential parameters
+        if access_key is not None or secret_key is not None:
+            warnings.warn(
+                "Parameters 'access_key' and 'secret_key' are deprecated "
+                "as of version 4.0.376 and will be removed in version 5.0.0. "
+                "Please migrate to using 'boto_session' for improved security. "
+                "See: https://docs.remotion.dev/migration-guide",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            # Validate both keys are provided together
+            if access_key and not secret_key:
+                raise RemotionInvalidArgumentException("'secret_key' must be provided when 'access_key' is specified")
+            if secret_key and not access_key:
+                raise RemotionInvalidArgumentException("'access_key' must be provided when 'secret_key' is specified")
+
+            # Create session from deprecated credentials
+            self.boto_session = Boto3Session(
+                aws_access_key_id=access_key,
+                aws_secret_access_key=secret_key,
+                region_name=region,
+            )
+        elif boto_session:
+            # Use provided session
+            self.boto_session = boto_session
+        else:
+            # Create default session (uses credential chain)
+            self.boto_session = Boto3Session(region_name=region)
+
+        # Store configuration
+        self.region = region.strip()
+        self.serve_url = serve_url.strip().rstrip('/')
+        self.function_name = function_name.strip()
         self.force_path_style = force_path_style
-        self.botocore_config = botocore_config
-        self.boto_session = boto_session
+        self.botocore_config = botocore_config or Config()  # Provide default empty config
 
     def _generate_hash(self, payload: str) -> str: # Added type hints
         """Generate a hash for the payload."""
@@ -112,11 +202,6 @@ class RemotionClient:
         # Add config only if it's not None
         if current_config:
             client_kwargs['config'] = current_config
-
-        # Add credentials only if both are provided (and not using a session)
-        if not self.boto_session and self.access_key and self.secret_key:
-            client_kwargs['aws_access_key_id'] = self.access_key
-            client_kwargs['aws_secret_access_key'] = self.secret_key
 
         if self.boto_session:
             # Pass the prepared kwargs to the session's client method
@@ -182,7 +267,7 @@ class RemotionClient:
                 bucket_name,
                 e,
             )
-            return False
+            raise e
         except ParamValidationError as e:
             raise RemotionInvalidArgumentException(
                 f"Invalid S3 client parameters for get_bucket_location: {e}"
