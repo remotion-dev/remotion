@@ -1,4 +1,4 @@
-
+# pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught
 class RemotionException(Exception):
     """Base exception for Remotion client errors."""
 

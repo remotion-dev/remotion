@@ -33,11 +33,10 @@ logger = logging.getLogger(__name__)
 BUCKET_NAME_PREFIX = 'remotionlambda-'
 REGION_US_EAST = 'us-east-1'
 
-
+ # pylint: disable=too-many-arguments
 class RemotionClient:
     """A client for interacting with the Remotion service."""
-
-    # pylint: disable=too-many-arguments
+     # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
         region: str,
@@ -45,13 +44,12 @@ class RemotionClient:
         function_name: str,
         access_key: Optional[str] = None,
         secret_key: Optional[str] = None,
-        force_path_style=False,
-        botocore_config: Optional[Config] = None, 
-        boto_session: Optional[boto3.session.Session] = None, 
+        force_path_style = False,
+        botocore_config: Optional[Config] = None,
+        boto_session: Optional[boto3.session.Session] = None,
     ):
         """
         Initialize the RemotionClient.
-
         Args:
             region (str): AWS region.
             serve_url (str): URL for the Remotion service.
@@ -70,7 +68,6 @@ class RemotionClient:
         self.force_path_style = force_path_style
         self.botocore_config = botocore_config
         self.boto_session = boto_session
-
     def _generate_hash(self, payload):
         """Generate a hash for the payload."""
         return hashlib.sha256(payload.encode('utf-8')).hexdigest()
@@ -119,7 +116,7 @@ class RemotionClient:
         return boto3.client(service_name, **kwargs)
 
     def _create_s3_client(self):
-       return self._create_boto_client('s3')
+        return self._create_boto_client('s3')
 
     def _get_remotion_buckets(self) -> List[str]:
         s3_client = self._create_s3_client()
@@ -286,11 +283,8 @@ class RemotionClient:
             # Re-raise S3-related ClientErrors that might occur during upload
             raise e
 
-
     def _create_lambda_client(self):
         return self._create_boto_client('lambda')
-    
-    
     def _find_json_objects(self, input_string):
         """Finds and returns a list of complete JSON object strings."""
         objects = []
@@ -306,7 +300,6 @@ class RemotionClient:
                 depth -= 1
                 if depth == 0:
                     objects.append(input_string[start_index : i + 1])
-
         return objects
 
     def _parse_stream(self, stream):
@@ -331,7 +324,6 @@ class RemotionClient:
             result = response['Payload'].read().decode('utf-8')
             parsed_results = self._parse_stream(result)
             decoded_result = parsed_results[-1] if parsed_results else {}
-
         except ClientError as e:
             # Re-raise all ClientError exceptions from botocore directly
             raise e
@@ -377,12 +369,12 @@ class RemotionClient:
         if hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
             return list(obj)
         try:
-            return asdict(obj)
-        except TypeError:
-            # Fallback for objects that asdict can't handle and are not covered above
+            return asdict(obj) # type: ignore
+        except TypeError as exc: # Catch the exception as 'exc'
+        # Fallback for objects that asdict can't handle and are not covered above
             raise TypeError(
-                f"Object of type {obj.__class__.__name__} is not JSON serializable"
-            )
+            f"Object of type {obj.__class__.__name__} is not JSON serializable"
+        ) from exc # Explicitly chain the exception
 
     def construct_render_request(
         self,
@@ -541,3 +533,4 @@ class RemotionClient:
             render_progress.__dict__.update(progress_response)
             return render_progress
         return None
+    
