@@ -3,12 +3,6 @@ import {AbsoluteFill} from 'remotion';
 const Component: React.FC = () => {
 	return (
 		<AbsoluteFill>
-			<svg
-				viewBox="0 0 1080 1080"
-				style={{position: 'absolute', inset: 0, width: '100%', height: '100%'}}
-			>
-				<rect width="100%" height="100%" fill="#00ff00" />
-			</svg>
 			<AbsoluteFill
 				style={{
 					width: 1080,

@@ -1,22 +1,4 @@
-import {calculateTransforms} from './calculate-transforms';
-
-type ImgDrawable = {
-	image: HTMLImageElement;
-	width: number;
-	height: number;
-	left: number;
-	top: number;
-};
-
-export const svgToImageBitmap = (
-	svg: SVGSVGElement,
-): Promise<ImgDrawable | null> => {
-	const {
-		dimensions: svgDimensions,
-		totalMatrix,
-		reset,
-	} = calculateTransforms(svg);
-
+export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const originalTransform = svg.style.transform;
 	const originalTransformOrigin = svg.style.transformOrigin;
 	const originalMarginLeft = svg.style.marginLeft;
@@ -24,8 +6,8 @@ export const svgToImageBitmap = (
 	const originalMarginTop = svg.style.marginTop;
 	const originalMarginBottom = svg.style.marginBottom;
 
-	svg.style.transform = totalMatrix.toString();
-	svg.style.transformOrigin = '50% 50%';
+	svg.style.transform = 'none';
+	svg.style.transformOrigin = '';
 	// Margins were already included in the positioning calculation,
 	// so we need to remove them to avoid double counting.
 	svg.style.marginLeft = '0';
@@ -41,20 +23,12 @@ export const svgToImageBitmap = (
 	svg.style.transform = originalTransform;
 	svg.style.transformOrigin = originalTransformOrigin;
 
-	reset();
-
-	return new Promise<ImgDrawable>((resolve, reject) => {
-		const image = new Image(svgDimensions.width, svgDimensions.height);
+	return new Promise<HTMLImageElement>((resolve, reject) => {
+		const image = new Image();
 		const url = `data:image/svg+xml;base64,${btoa(svgData)}`;
 
 		image.onload = function () {
-			resolve({
-				image,
-				width: svgDimensions.width,
-				height: svgDimensions.height,
-				left: svgDimensions.left,
-				top: svgDimensions.top,
-			});
+			resolve(image);
 		};
 
 		image.onerror = () => {
