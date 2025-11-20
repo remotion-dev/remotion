@@ -10,7 +10,8 @@
 		"formatting": "prettier --experimental-cli src --check",
 		"lint": "eslint src",
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
-		"testwebrenderer": "vitest src/test --browser --run"
+		"testwebrenderer": "vitest src/test --browser --run",
+		"studio": "cd ../example && bunx remotion studio ../web-renderer/src/test/studio.ts"
 	},
 	"author": "Remotion <jonny@remotion.dev>",
 	"license": "UNLICENSED",
