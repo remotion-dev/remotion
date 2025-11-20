@@ -19,13 +19,7 @@ export const compose = async ({
 
 	// TODO: Consider z-index
 	for (const composable of composables) {
-		if (
-			composable.type === 'canvas' ||
-			composable.type === 'img' ||
-			composable.type === 'svg'
-		) {
-			await composeCanvas(composable.element, context);
-		}
+		await composeCanvas(composable.element, context);
 	}
 
 	return canvas;
