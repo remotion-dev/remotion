@@ -8,7 +8,7 @@ from math import ceil
 from typing import Optional, Union, List
 from enum import Enum
 import boto3
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, ParamValidationError
 from botocore.config import Config
 from .models import (
     CostsInfo,
@@ -22,6 +22,11 @@ from .models import (
     RenderType,
 )
 
+from .exception import (
+    RemotionException,
+    RemotionInvalidArgumentException,
+    RemotionRenderingOutputError
+)
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +46,8 @@ class RemotionClient:
         access_key: Optional[str] = None,
         secret_key: Optional[str] = None,
         force_path_style=False,
+        botocore_config: Optional[Config] = None, 
+        boto_session: Optional[boto3.session.Session] = None, 
     ):
         """
         Initialize the RemotionClient.
@@ -52,6 +59,8 @@ class RemotionClient:
             access_key (str): AWS access key (optional).
             secret_key (str): AWS secret key (optional).
             force_path_style (bool): Force path-style S3 URLs (optional).
+            botocore_config (botocore.config.Config): Optional botocore Config object.
+            boto_session (boto3.session.Session): Optional boto3 Session object.
         """
         self.access_key = access_key
         self.secret_key = secret_key
@@ -59,6 +68,8 @@ class RemotionClient:
         self.serve_url = serve_url
         self.function_name = function_name
         self.force_path_style = force_path_style
+        self.botocore_config = botocore_config
+        self.boto_session = boto_session
 
     def _generate_hash(self, payload):
         """Generate a hash for the payload."""
@@ -80,12 +91,21 @@ class RemotionClient:
         """Generate S3 key for input props."""
         return f"input-props/{hash_value}.json"
 
-    def _create_s3_client(self):
-        """Create S3 client with appropriate credentials."""
+    def _create_boto_client(self, service_name: str):
         kwargs = {'region_name': self.region}
 
-        if self.force_path_style:
-            kwargs['config'] = Config(s3={'addressing_style': 'path'})
+        config = self.botocore_config # Start with the base config
+
+        # Apply service-specific config if needed (like s3 path style)
+        if service_name == 's3' and self.force_path_style:
+            s3_config = Config(s3={'addressing_style': 'path'})
+            if config:
+                config = config.merge(s3_config)
+            else:
+                config = s3_config
+
+        if config:
+            kwargs['config'] = config
 
         if self.access_key and self.secret_key:
             kwargs.update(
@@ -94,8 +114,12 @@ class RemotionClient:
                     'aws_secret_access_key': self.secret_key,
                 }
             )
+        if self.boto_session:
+            return self.boto_session.client(service_name, **kwargs)
+        return boto3.client(service_name, **kwargs)
 
-        return boto3.client('s3', **kwargs)
+    def _create_s3_client(self):
+       return self._create_boto_client('s3')
 
     def _get_remotion_buckets(self) -> List[str]:
         s3_client = self._create_s3_client()
@@ -103,6 +127,9 @@ class RemotionClient:
         try:
             response = s3_client.list_buckets()
         except ClientError as e:
+            # Re-raise all ClientError exceptions
+            raise e
+        except ParamValidationError as e:
             logger.warning("Could not list S3 buckets: %s", e)
             return []
 
@@ -128,16 +155,25 @@ class RemotionClient:
             return location == self.region or (
                 location is None and self.region == REGION_US_EAST
             )
-        except ClientError:
+        except ClientError as e:
             # Ignore buckets we can't access (permission issues, etc.)
+            logger.debug(
+                "Could not get bucket location for %s (possibly permission issue): %s",
+                bucket_name,
+                e,
+            )
             return False
+        except ParamValidationError as e:
+            raise RemotionInvalidArgumentException(
+                f"Invalid S3 client parameters for get_bucket_location: {e}"
+            ) from e
 
     def _get_or_create_bucket(self):
         """Get existing bucket or create a new one following JS SDK logic."""
         buckets = self._get_remotion_buckets()
 
         if len(buckets) > 1:
-            raise ValueError(
+            raise RemotionException( # Generic RemotionException for this specific case
                 f"You have multiple buckets ({', '.join(buckets)}) in your S3 region "
                 f"({self.region}) starting with \"remotionlambda-\". "
                 "Please see https://remotion.dev/docs/lambda/multiple-buckets."
@@ -161,7 +197,12 @@ class RemotionClient:
                 )
             return bucket_name
         except ClientError as e:
-            raise ValueError(f"Failed to create bucket: {str(e)}") from e
+            # Re-raise all ClientError exceptions
+            raise e
+        except ParamValidationError as e:
+            raise RemotionInvalidArgumentException(
+                f"Invalid S3 client parameters for create_bucket: {e}"
+            ) from e
 
     def _upload_to_s3(self, bucket_name, key, payload):
         """Upload payload to S3."""
@@ -174,7 +215,12 @@ class RemotionClient:
                 ContentType='application/json',
             )
         except ClientError as e:
-            raise ValueError(f"Failed to upload to S3: {str(e)}") from e
+            # Re-raise all ClientError exceptions
+            raise e
+        except ParamValidationError as e:
+            raise RemotionInvalidArgumentException(
+                f"Invalid S3 client parameters for put_object: {e}"
+            ) from e
 
     def _needs_upload(self, payload_size, render_type):
         """Determine if payload needs to be uploaded to S3."""
@@ -231,23 +277,20 @@ class RemotionClient:
                 'type': 'payload',
                 'payload': payload if payload not in ('', 'null') else json.dumps({}),
             }
-        except (ValueError, TypeError) as error:
-            raise ValueError(
+        except (TypeError, OverflowError) as error:
+            raise RemotionInvalidArgumentException(
                 'Error serializing InputProps. Check for circular '
-                + 'references or reduce the object size.'
+                + 'references or invalid data types in the input properties.'
             ) from error
+        except ClientError as e:
+            # Re-raise S3-related ClientErrors that might occur during upload
+            raise e
+
 
     def _create_lambda_client(self):
-        if self.access_key and self.secret_key and self.region:
-            return boto3.client(
-                'lambda',
-                aws_access_key_id=self.access_key,
-                aws_secret_access_key=self.secret_key,
-                region_name=self.region,
-            )
-
-        return boto3.client('lambda', region_name=self.region)
-
+        return self._create_boto_client('lambda')
+    
+    
     def _find_json_objects(self, input_string):
         """Finds and returns a list of complete JSON object strings."""
         objects = []
@@ -269,34 +312,58 @@ class RemotionClient:
     def _parse_stream(self, stream):
         """Parses a stream of concatenated JSON objects."""
         json_objects = self._find_json_objects(stream)
-        parsed_objects = [json.loads(obj) for obj in json_objects]
+        parsed_objects = []
+        for obj in json_objects:
+            try:
+                parsed_objects.append(json.loads(obj))
+            except json.JSONDecodeError as e:
+                logger.error("Failed to decode JSON object from stream: %s", obj)
+                raise RemotionException(
+                    f"Failed to parse Lambda response stream: {e}"
+                ) from e
         return parsed_objects
 
     def _invoke_lambda(self, function_name, payload):
-
         client = self._create_lambda_client()
+        result = None # Initialize to None
         try:
             response = client.invoke(FunctionName=function_name, Payload=payload)
             result = response['Payload'].read().decode('utf-8')
-            decoded_result = self._parse_stream(result)[-1]
-        except client.exceptions.ResourceNotFoundException as e:
-            raise ValueError(f"The function {function_name} does not exist.") from e
-        except client.exceptions.InvalidRequestContentException as e:
-            raise ValueError("The request content is invalid.") from e
-        except client.exceptions.RequestTooLargeException as e:
-            raise ValueError("The request payload is too large.") from e
-        except client.exceptions.ServiceException as e:
-            raise ValueError(f"An internal service error occurred: {str(e)}") from e
-        except Exception as e:
-            raise ValueError(f"An unexpected error occurred: {str(e)}") from e
+            parsed_results = self._parse_stream(result)
+            decoded_result = parsed_results[-1] if parsed_results else {}
+
+        except ClientError as e:
+            # Re-raise all ClientError exceptions from botocore directly
+            raise e
+        except ParamValidationError as e:
+            # This is typically an SDK usage error
+            raise RemotionInvalidArgumentException(
+                f"Invalid Lambda invocation parameters: {e}"
+            ) from e
+        except json.JSONDecodeError as e:
+            # Catch errors if the final part of the stream is not valid JSON
+            raise RemotionException(
+                f"Failed to decode final Lambda response: {e}. Raw response: {result }"
+            ) from e
+        except UnicodeDecodeError as e:
+            raise RemotionException(
+                f"Failed to decode Lambda response payload: {e}"
+            ) from e
 
         if 'errorMessage' in decoded_result:
-            raise ValueError(decoded_result['errorMessage'])
+            raise RemotionRenderingOutputError(
+                f"Lambda function returned an error: {decoded_result['errorMessage']}"
+            )
 
         if 'type' in decoded_result and decoded_result['type'] == 'error':
-            raise ValueError(decoded_result['message'])
+            raise RemotionRenderingOutputError(
+                f"Remotion rendering error: {decoded_result['message']}"
+            )
         if 'type' not in decoded_result or decoded_result['type'] != 'success':
-            raise ValueError(result)
+            # This is a generic catch-all for unexpected success formats
+            raise RemotionRenderingOutputError(
+                f"Unexpected Lambda response format: {result}"
+            )
 
         return decoded_result
 
@@ -309,7 +376,13 @@ class RemotionClient:
             return obj.__dict__
         if hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
             return list(obj)
-        return asdict(obj)
+        try:
+            return asdict(obj)
+        except TypeError:
+            # Fallback for objects that asdict can't handle and are not covered above
+            raise TypeError(
+                f"Object of type {obj.__class__.__name__} is not JSON serializable"
+            )
 
     def construct_render_request(
         self,
@@ -327,12 +400,22 @@ class RemotionClient:
         """
         render_params.serve_url = self.serve_url
 
-        render_params.private_serialized_input_props = self._serialize_input_props(
-            input_props=render_params.input_props, render_type=render_type
-        )
+        try:
+            render_params.private_serialized_input_props = self._serialize_input_props(
+                input_props=render_params.input_props, render_type=render_type
+            )
+        except (RemotionInvalidArgumentException, ClientError) as e: # Catch ClientError here too
+            raise RemotionInvalidArgumentException(
+                f"Failed to serialize input properties for rendering: {e}"
+            ) from e
 
         payload = render_params.serialize_params()
-        return json.dumps(payload, default=self._custom_serializer)
+        try:
+            return json.dumps(payload, default=self._custom_serializer)
+        except (TypeError, OverflowError) as e:
+            raise RemotionInvalidArgumentException(
+                f"Failed to serialize render parameters to JSON: {e}"
+            ) from e
 
     def construct_render_progress_request(
         self,
@@ -359,7 +442,12 @@ class RemotionClient:
             log_level=log_level,
             s3_output_provider=s3_output_provider,
         )
-        return json.dumps(progress_params.serialize_params())
+        try:
+            return json.dumps(progress_params.serialize_params())
+        except (TypeError, OverflowError) as e:
+            raise RemotionInvalidArgumentException(
+                f"Failed to serialize progress parameters to JSON: {e}"
+            ) from e
 
     def render_media_on_lambda(
         self, render_params: RenderMediaParams

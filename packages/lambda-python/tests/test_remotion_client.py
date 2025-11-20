@@ -1,5 +1,14 @@
+import json
 from tests.conftest import remotion_client, mock_s3_client, remotion_client_with_creds
 from remotion_lambda.remotionclient import RemotionClient
+from remotion_lambda.models import ( RenderType )
+from remotion_lambda.exception import (
+    RemotionException,
+    RemotionInvalidArgumentException,
+    RemotionRenderingOutputError
+)
+from botocore.exceptions import ClientError, ParamValidationError
+
 import pytest
 from tests.constants import (
     TEST_FUNCTION_NAME,
@@ -8,7 +17,7 @@ from tests.constants import (
     TEST_AWS_SECRET_KEY,
     TEST_AWS_ACCESS_KEY,
 )
-from unittest.mock import patch, Mock
+from unittest.mock import MagicMock, patch, Mock
 from botocore.config import Config
 
 
@@ -174,3 +183,190 @@ def test_get_remotion_buckets_single_match_us_east_1(
 
     assert result == [test_bucket_name]
     mock_s3_client.get_bucket_location.assert_called_once_with(Bucket=test_bucket_name)
+
+
+
+@patch.object(RemotionClient, '_create_s3_client')
+def test_get_or_create_bucket_client_error_on_create_bucket(
+    mock_create_client, mock_s3_client, remotion_client
+):
+    """
+    Test that ClientError from create_bucket is re-raised directly.
+    """
+    mock_s3_client.list_buckets.return_value = {'Buckets': []} # Ensure new bucket creation path
+    mock_s3_client.create_bucket.side_effect = ClientError({"Error": {"Code": "BucketAlreadyExists"}}, "CreateBucket")
+    mock_create_client.return_value = mock_s3_client
+
+    with pytest.raises(ClientError) as excinfo:
+        remotion_client._get_or_create_bucket()
+    assert excinfo.type == ClientError
+    assert "BucketAlreadyExists" in str(excinfo.value)
+    mock_s3_client.create_bucket.assert_called_once()
+
+
+@patch.object(RemotionClient, '_create_s3_client')
+def test_upload_to_s3_client_error_on_put_object(
+    mock_create_client, mock_s3_client, remotion_client
+):
+    """
+    Test that ClientError from put_object is re-raised directly.
+    """
+    mock_s3_client.put_object.side_effect = ClientError({"Error": {"Code": "InternalError"}}, "PutObject")
+    mock_create_client.return_value = mock_s3_client
+
+    with pytest.raises(ClientError) as excinfo:
+        remotion_client._upload_to_s3("test-bucket", "test-key", "payload")
+    assert excinfo.type == ClientError
+    assert "InternalError" in str(excinfo.value)
+    mock_s3_client.put_object.assert_called_once()
+
+
+
+@patch.object(RemotionClient, '_get_remotion_buckets')
+def test_get_or_create_bucket_remotion_exception_on_multiple_buckets(
+    mock_get_remotion_buckets, remotion_client
+):
+    """
+    Test that RemotionException is raised when multiple Remotion buckets are found.
+    """
+    mock_get_remotion_buckets.return_value = [
+        'remotionlambda-us-east-1-bucket1',
+        'remotionlambda-us-east-1-bucket2',
+    ]
+
+    with pytest.raises(RemotionException) as excinfo:
+        remotion_client._get_or_create_bucket()
+    
+    assert excinfo.type == RemotionException
+    assert "You have multiple buckets" in str(excinfo.value)
+    mock_get_remotion_buckets.assert_called_once()
+
+
+@patch.object(RemotionClient, '_create_lambda_client')
+def test_invoke_lambda_unexpected_response_format(
+    mock_create_lambda_client, mock_lambda_client, remotion_client
+):
+    """
+    Test that _invoke_lambda raises RemotionRenderingOutputError for unexpected response types.
+    """
+    unexpected_payload = json.dumps([
+        {'type': 'log', 'level': 'info', 'message': 'Still running'},
+        {'status': 'pending', 'progress': 0.5} # Not 'success' or 'error'
+    ])
+    mock_lambda_client.invoke.return_value = {'Payload': Mock(read=lambda: unexpected_payload.encode('utf-8'))}
+    mock_create_lambda_client.return_value = mock_lambda_client
+
+    with pytest.raises(RemotionRenderingOutputError) as excinfo:
+        remotion_client._invoke_lambda("my-function", "{}")
+    
+    assert excinfo.type == RemotionRenderingOutputError
+    assert "Unexpected Lambda response format" in str(excinfo.value)
+    mock_lambda_client.invoke.assert_called_once()
+
+
+@patch.object(RemotionClient, '_create_lambda_client')
+def test_invoke_lambda_invalid_json_decode(
+    mock_create_lambda_client, mock_lambda_client, remotion_client
+):
+    """
+    Test that _invoke_lambda raises RemotionException if the stream has invalid JSON objects.
+    (Note: This uses RemotionException, not RemotionRenderingOutputError, as it's a structural parsing error).
+    """
+    invalid_stream = b'{"type":"log"} {"malformed_json" ' # Incomplete JSON
+    mock_lambda_client.invoke.return_value = {'Payload': Mock(read=lambda: invalid_stream)}
+    mock_create_lambda_client.return_value = mock_lambda_client
+
+    with pytest.raises(RemotionRenderingOutputError) as excinfo:
+        remotion_client._invoke_lambda("my-function", "{}")
+    
+    assert excinfo.type == RemotionRenderingOutputError
+    mock_lambda_client.invoke.assert_called_once()
+
+
+@patch.object(RemotionClient, '_serialize_input_props')
+def test_construct_render_request_client_error_from_serialize_input_props(
+    mock_serialize_input_props, remotion_client
+):
+    """
+    Test that construct_render_request raises RemotionInvalidArgumentException
+    if _serialize_input_props encounters and re-raises a ClientError.
+    """
+    # Simulate _serialize_input_props raising a ClientError (e.g., from _upload_to_s3)
+    mock_serialize_input_props.side_effect = ClientError({"Error": {"Code": "AccessDenied"}}, "PutObject")
+
+    mock_render_params = Mock()
+    mock_render_params.input_props = {"dummy": "data"}
+    mock_render_params.serialize_params.return_value = {"serialized": "params"}
+    
+    with pytest.raises(RemotionInvalidArgumentException) as excinfo:
+        remotion_client.construct_render_request(mock_render_params, "still")
+    
+    assert excinfo.type == RemotionInvalidArgumentException
+    assert "Failed to serialize input properties for rendering" in str(excinfo.value)
+    assert "AccessDenied" in str(excinfo.value) # Ensure the original ClientError info is present
+    mock_serialize_input_props.assert_called_once_with(
+        input_props=mock_render_params.input_props,
+        render_type="still"
+    )
+
+
+@patch('boto3.client')
+def test_create_s3_client_with_boto_session(mock_boto3_client_func):
+    """
+    Test that _create_s3_client uses the provided boto_session
+    instead of boto3.client directly.
+    """
+    # Arrange
+    mock_session = MagicMock()
+    mock_s3_client_from_session = MagicMock()
+    mock_session.client.return_value = mock_s3_client_from_session
+
+    client = RemotionClient(
+        region=TEST_REGION,
+        serve_url=TEST_SERVE_URL,
+        function_name=TEST_FUNCTION_NAME,
+        boto_session=mock_session,
+    )
+
+    # Act
+    s3_client = client._create_s3_client()
+
+    # Assert
+    assert s3_client == mock_s3_client_from_session
+    mock_session.client.assert_called_once_with('s3', region_name=TEST_REGION)
+    mock_boto3_client_func.assert_not_called() # Ensure boto3.client was not used
+
+
+@patch('boto3.client')
+def test_create_s3_client_with_custom_timeout_config(mock_boto3_client_func, mock_s3_client):
+    """
+    Test that _create_s3_client correctly applies custom timeout settings
+    provided via botocore_config.
+    """
+    # Arrange
+    custom_timeout = 10  # seconds
+    custom_config = Config(connect_timeout=custom_timeout, read_timeout=custom_timeout)
+
+    client = RemotionClient(
+        region=TEST_REGION,
+        serve_url=TEST_SERVE_URL,
+        function_name=TEST_FUNCTION_NAME,
+        botocore_config=custom_config,
+    )
+    mock_boto3_client_func.return_value = mock_s3_client
+
+    # Act
+    s3_client = client._create_s3_client()
+
+    # Assert
+    assert s3_client == mock_s3_client
+    mock_boto3_client_func.assert_called_once()
+    
+    # Extract the config argument passed to boto3.client
+    call_args, call_kwargs = mock_boto3_client_func.call_args
+    passed_config = call_kwargs.get('config')
+
+    assert isinstance(passed_config, Config)
+    assert passed_config.connect_timeout == custom_timeout
+    assert passed_config.read_timeout == custom_timeout
+    assert passed_config.s3 is None # No s3 addressing_style if not forced
