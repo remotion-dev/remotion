@@ -5,11 +5,15 @@ import random
 import json
 import hashlib
 from math import ceil
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Dict, Any
 from enum import Enum
+
 import boto3
-from botocore.exceptions import ClientError, ParamValidationError
+from boto3.session import Session as Boto3Session # Explicitly import Session
 from botocore.config import Config
+from botocore.exceptions import ClientError, ParamValidationError
+from botocore.response import StreamingBody # For Lambda payload
+
 from .models import (
     CostsInfo,
     CustomCredentials,
@@ -44,9 +48,9 @@ class RemotionClient:
         function_name: str,
         access_key: Optional[str] = None,
         secret_key: Optional[str] = None,
-        force_path_style = False,
+        force_path_style: bool = False, # Added type hint
         botocore_config: Optional[Config] = None,
-        boto_session: Optional[boto3.session.Session] = None,
+        boto_session: Optional[Boto3Session] = None, # Used Boto3Session type
     ):
         """
         Initialize the RemotionClient.
@@ -68,72 +72,88 @@ class RemotionClient:
         self.force_path_style = force_path_style
         self.botocore_config = botocore_config
         self.boto_session = boto_session
-    def _generate_hash(self, payload):
+
+    def _generate_hash(self, payload: str) -> str: # Added type hints
         """Generate a hash for the payload."""
         return hashlib.sha256(payload.encode('utf-8')).hexdigest()
 
-    def _generate_random_hash(self):
+    def _generate_random_hash(self) -> str: # Added type hint
         """Generate a random hash for bucket operations."""
         alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789'
         return ''.join(random.choice(alphabet) for _ in range(10))
 
-    def _make_bucket_name(self):
+    def _make_bucket_name(self) -> str: # Added type hint
         """Generate a bucket name following Remotion conventions."""
         # Use the same logic as JS SDK: prefix + region without dashes + random hash
         region_no_dashes = self.region.replace('-', '')
         random_suffix = self._generate_random_hash()
         return f"{BUCKET_NAME_PREFIX}{region_no_dashes}-{random_suffix}"
 
-    def _input_props_key(self, hash_value):
+    def _input_props_key(self, hash_value: str) -> str: # Added type hint
         """Generate S3 key for input props."""
         return f"input-props/{hash_value}.json"
 
-    def _create_boto_client(self, service_name: str):
-        kwargs = {'region_name': self.region}
+    def _create_boto_client(self, service_name: str) -> Any:
+        """
+        Creates a boto3 client for the specified service, applying custom
+        configuration and credentials if provided.
+        """
+        # Start with required args
+        client_kwargs: Dict[str, Any] = {'region_name': self.region}
 
-        config = self.botocore_config # Start with the base config
-
-        # Apply service-specific config if needed (like s3 path style)
+        # Handle config
+        current_config = self.botocore_config
         if service_name == 's3' and self.force_path_style:
             s3_config = Config(s3={'addressing_style': 'path'})
-            if config:
-                config = config.merge(s3_config)
+            if current_config:
+                current_config = current_config.merge(s3_config)
             else:
-                config = s3_config
+                current_config = s3_config
+        # Add config only if it's not None
+        if current_config:
+            client_kwargs['config'] = current_config
 
-        if config:
-            kwargs['config'] = config
+        # Add credentials only if both are provided (and not using a session)
+        if not self.boto_session and self.access_key and self.secret_key:
+            client_kwargs['aws_access_key_id'] = self.access_key
+            client_kwargs['aws_secret_access_key'] = self.secret_key
 
-        if self.access_key and self.secret_key:
-            kwargs.update(
-                {
-                    'aws_access_key_id': self.access_key,
-                    'aws_secret_access_key': self.secret_key,
-                }
-            )
         if self.boto_session:
-            return self.boto_session.client(service_name, **kwargs)
-        return boto3.client(service_name, **kwargs)
+            # Pass the prepared kwargs to the session's client method
+            return self.boto_session.client(service_name, **client_kwargs)  # type: ignore[call-overload]
+        # Use default boto3 client
+        return boto3.client(service_name, **client_kwargs)  # type: ignore[call-overload]
 
-    def _create_s3_client(self):
+    def _create_s3_client(self) -> Any: # Returns an S3 client type
+        """Creates and returns a boto3 S3 client."""
         return self._create_boto_client('s3')
 
     def _get_remotion_buckets(self) -> List[str]:
+        """
+        Retrieves a list of Remotion-related S3 buckets in the current region.
+        """
         s3_client = self._create_s3_client()
+        # The exact type of s3_client is difficult to constrain without using boto3-stubs
+        # and more specific type hints for S3Client.
+        # For this method, we rely on duck-typing `list_buckets`.
 
         try:
-            response = s3_client.list_buckets()
+            # Type hint for the response from list_buckets
+            response: Dict[str, Any] = s3_client.list_buckets()
         except ClientError as e:
-            # Re-raise all ClientError exceptions
             raise e
         except ParamValidationError as e:
-            logger.warning("Could not list S3 buckets: %s", e)
+            logger.warning("Could not list S3 buckets due to parameter validation error: %s", e)
             return []
 
-        remotion_buckets = []
+        remotion_buckets: List[str] = []
 
-        for bucket in response.get('Buckets', []):
-            bucket_name = bucket['Name']
+        # Iterate through buckets, ensuring 'Name' is present
+        for bucket_info in response.get('Buckets', []):
+            if not isinstance(bucket_info, dict) or 'Name' not in bucket_info:
+                logger.debug("Skipping malformed bucket info: %s", bucket_info)
+                continue
+            bucket_name: str = bucket_info['Name']
 
             if not bucket_name.startswith(BUCKET_NAME_PREFIX):
                 continue
@@ -143,17 +163,20 @@ class RemotionClient:
 
         return remotion_buckets
 
-    def _is_bucket_in_current_region(self, s3_client, bucket_name: str) -> bool:
+    def _is_bucket_in_current_region(self, s3_client: Any, bucket_name: str) -> bool:
+        """
+        Checks if a given S3 bucket is located in the client's configured region.
+        """
         try:
-            bucket_region = s3_client.get_bucket_location(Bucket=bucket_name)
-            location = bucket_region.get('LocationConstraint')
+            # Type hint for the response from get_bucket_location
+            bucket_region_response: Dict[str, Any] = s3_client.get_bucket_location(Bucket=bucket_name)
+            location: Optional[str] = bucket_region_response.get('LocationConstraint')
 
             # us-east-1 returns None for LocationConstraint
             return location == self.region or (
                 location is None and self.region == REGION_US_EAST
             )
         except ClientError as e:
-            # Ignore buckets we can't access (permission issues, etc.)
             logger.debug(
                 "Could not get bucket location for %s (possibly permission issue): %s",
                 bucket_name,
@@ -165,22 +188,20 @@ class RemotionClient:
                 f"Invalid S3 client parameters for get_bucket_location: {e}"
             ) from e
 
-    def _get_or_create_bucket(self):
+    def _get_or_create_bucket(self) -> str:
         """Get existing bucket or create a new one following JS SDK logic."""
         buckets = self._get_remotion_buckets()
 
         if len(buckets) > 1:
-            raise RemotionException( # Generic RemotionException for this specific case
+            raise RemotionException(
                 f"You have multiple buckets ({', '.join(buckets)}) in your S3 region "
                 f"({self.region}) starting with \"remotionlambda-\". "
                 "Please see https://remotion.dev/docs/lambda/multiple-buckets."
             )
 
         if len(buckets) == 1:
-            # Use existing bucket - in JS SDK this also applies lifecycle rules
             return buckets[0]
 
-        # Create new bucket
         bucket_name = self._make_bucket_name()
         s3_client = self._create_s3_client()
 
@@ -194,14 +215,13 @@ class RemotionClient:
                 )
             return bucket_name
         except ClientError as e:
-            # Re-raise all ClientError exceptions
             raise e
         except ParamValidationError as e:
             raise RemotionInvalidArgumentException(
                 f"Invalid S3 client parameters for create_bucket: {e}"
             ) from e
 
-    def _upload_to_s3(self, bucket_name, key, payload):
+    def _upload_to_s3(self, bucket_name: str, key: str, payload: str) -> None: # Added type hints
         """Upload payload to S3."""
         s3_client = self._create_s3_client()
         try:
@@ -212,26 +232,24 @@ class RemotionClient:
                 ContentType='application/json',
             )
         except ClientError as e:
-            # Re-raise all ClientError exceptions
             raise e
         except ParamValidationError as e:
             raise RemotionInvalidArgumentException(
                 f"Invalid S3 client parameters for put_object: {e}"
             ) from e
 
-    def _needs_upload(self, payload_size, render_type):
+    def _needs_upload(self, payload_size: int, render_type: RenderType) -> bool: # Added type hints
         """Determine if payload needs to be uploaded to S3."""
-        # Constants based on AWS Lambda limits with margin for other payload data
         margin = 5_000 + 1024  # 5KB margin + 1KB for webhook data
         max_still_inline_size = 5_000_000 - margin
         max_video_inline_size = 200_000 - margin
 
+        # Using RenderType Enum for comparison
         max_size = (
             max_still_inline_size if render_type == 'still' else max_video_inline_size
         )
 
         if payload_size > max_size:
-            # Log warning similar to JavaScript implementation
             logger.warning(
                 "Warning: The props are over %sKB (%sKB) in size. Uploading them to S3 to "
                 "circumvent AWS Lambda payload size, which may lead to slowdown.",
@@ -241,13 +259,13 @@ class RemotionClient:
             return True
         return False
 
-    def _serialize_input_props(self, input_props, render_type):
+    def _serialize_input_props(self, input_props: Dict[str, Any] | None, render_type: RenderType) -> Dict[str, Any] : # Added type hints
         """
         Serialize inputProps to a format compatible with Lambda.
 
         Args:
             input_props (dict): Input properties to be serialized.
-            render_type (str): Type of the render (e.g., 'still' or 'video-or-audio').
+            render_type (RenderType): Type of the render (e.g., 'still' or 'video-or-audio').
 
         Returns:
             dict: Serialized inputProps in either payload or bucket-url format.
@@ -257,7 +275,6 @@ class RemotionClient:
             payload_size = len(payload.encode('utf-8'))
 
             if self._needs_upload(payload_size, render_type):
-                # Upload to S3 and return bucket-url format
                 hash_value = self._generate_hash(payload)
                 bucket_name = self._get_or_create_bucket()
                 key = self._input_props_key(hash_value)
@@ -269,7 +286,6 @@ class RemotionClient:
                     'hash': hash_value,
                     'bucketName': bucket_name,
                 }
-            # Return payload format for smaller payloads
             return {
                 'type': 'payload',
                 'payload': payload if payload not in ('', 'null') else json.dumps({}),
@@ -280,14 +296,15 @@ class RemotionClient:
                 + 'references or invalid data types in the input properties.'
             ) from error
         except ClientError as e:
-            # Re-raise S3-related ClientErrors that might occur during upload
             raise e
 
-    def _create_lambda_client(self):
+    def _create_lambda_client(self) -> Any: # Returns a Lambda client type
+        """Creates and returns a boto3 Lambda client."""
         return self._create_boto_client('lambda')
-    def _find_json_objects(self, input_string):
+
+    def _find_json_objects(self, input_string: str) -> List[str]: # Added type hints
         """Finds and returns a list of complete JSON object strings."""
-        objects = []
+        objects: List[str] = []
         depth = 0
         start_index = 0
 
@@ -302,40 +319,43 @@ class RemotionClient:
                     objects.append(input_string[start_index : i + 1])
         return objects
 
-    def _parse_stream(self, stream):
+    def _parse_stream(self, stream: str) -> List[Dict[str, Any]]: # Added type hints
         """Parses a stream of concatenated JSON objects."""
         json_objects = self._find_json_objects(stream)
-        parsed_objects = []
-        for obj in json_objects:
+        parsed_objects: List[Dict[str, Any]] = []
+        for obj_str in json_objects: # Renamed obj to obj_str to avoid confusion with parsed obj
             try:
-                parsed_objects.append(json.loads(obj))
+                parsed_objects.append(json.loads(obj_str))
             except json.JSONDecodeError as e:
-                logger.error("Failed to decode JSON object from stream: %s", obj)
+                logger.error("Failed to decode JSON object from stream: %s", obj_str)
                 raise RemotionException(
                     f"Failed to parse Lambda response stream: {e}"
                 ) from e
         return parsed_objects
 
-    def _invoke_lambda(self, function_name, payload):
+    def _invoke_lambda(self, function_name: str, payload: str) -> Dict[str, Any]: # Added type hints
+        """Invokes the Remotion Lambda function and parses its response."""
         client = self._create_lambda_client()
-        result = None # Initialize to None
+        result_raw: Optional[str] = None # Renamed to avoid confusion with `decoded_result`
+        decoded_result: Dict[str, Any] = {}
+
         try:
-            response = client.invoke(FunctionName=function_name, Payload=payload)
-            result = response['Payload'].read().decode('utf-8')
-            parsed_results = self._parse_stream(result)
+            # boto3.client('lambda').invoke returns a dictionary.
+            # 'Payload' is a StreamingBody object.
+            response: Dict[str, Any] = client.invoke(FunctionName=function_name, Payload=payload)
+            streaming_body: StreamingBody = response['Payload']
+            result_raw = streaming_body.read().decode('utf-8')
+            parsed_results = self._parse_stream(result_raw)
             decoded_result = parsed_results[-1] if parsed_results else {}
         except ClientError as e:
-            # Re-raise all ClientError exceptions from botocore directly
             raise e
         except ParamValidationError as e:
-            # This is typically an SDK usage error
             raise RemotionInvalidArgumentException(
                 f"Invalid Lambda invocation parameters: {e}"
             ) from e
         except json.JSONDecodeError as e:
-            # Catch errors if the final part of the stream is not valid JSON
             raise RemotionException(
-                f"Failed to decode final Lambda response: {e}. Raw response: {result }"
+                f"Failed to decode final Lambda response: {e}. Raw response: {result_raw}"
             ) from e
         except UnicodeDecodeError as e:
             raise RemotionException(
@@ -352,29 +372,28 @@ class RemotionClient:
                 f"Remotion rendering error: {decoded_result['message']}"
             )
         if 'type' not in decoded_result or decoded_result['type'] != 'success':
-            # This is a generic catch-all for unexpected success formats
             raise RemotionRenderingOutputError(
-                f"Unexpected Lambda response format: {result}"
+                f"Unexpected Lambda response format: {result_raw}"
             )
 
         return decoded_result
 
-    def _custom_serializer(self, obj):
+    def _custom_serializer(self, obj: Any) -> Any: # Added type hints
         """A custom JSON serializer that handles enums and objects."""
-
         if isinstance(obj, Enum):
             return obj.value if hasattr(obj, 'value') else obj.name
+        # Check if it's a dataclass instance before calling asdict
+        # This often works better with mypy than just a try-except.
+        if hasattr(obj, '__dataclass_fields__'):
+            return asdict(obj)
         if hasattr(obj, '__dict__'):
             return obj.__dict__
         if hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
             return list(obj)
-        try:
-            return asdict(obj) # type: ignore
-        except TypeError as exc: # Catch the exception as 'exc'
-        # Fallback for objects that asdict can't handle and are not covered above
-            raise TypeError(
+
+        raise TypeError(
             f"Object of type {obj.__class__.__name__} is not JSON serializable"
-        ) from exc # Explicitly chain the exception
+        )
 
     def construct_render_request(
         self,
@@ -385,7 +404,8 @@ class RemotionClient:
         Construct a render request in JSON format.
 
         Args:
-            render_params (RenderParams): Render parameters.
+            render_params (Union[RenderMediaParams, RenderStillParams]): Render parameters.
+            render_type (RenderType): The type of render (video-or-audio or still).
 
         Returns:
             str: JSON representation of the render request.
@@ -393,15 +413,18 @@ class RemotionClient:
         render_params.serve_url = self.serve_url
 
         try:
+            # Assuming RenderMediaParams and RenderStillParams both have an input_props attribute
+            # and a private_serialized_input_props attribute (even if Optional)
             render_params.private_serialized_input_props = self._serialize_input_props(
                 input_props=render_params.input_props, render_type=render_type
             )
-        except (RemotionInvalidArgumentException, ClientError) as e: # Catch ClientError here too
+        except (RemotionInvalidArgumentException, ClientError) as e:
             raise RemotionInvalidArgumentException(
                 f"Failed to serialize input properties for rendering: {e}"
             ) from e
 
-        payload = render_params.serialize_params()
+        # Ensure serialize_params method in models.py is typed to return Dict[str, Any]
+        payload: Dict[str, Any] = render_params.serialize_params()
         try:
             return json.dumps(payload, default=self._custom_serializer)
         except (TypeError, OverflowError) as e:
@@ -413,7 +436,7 @@ class RemotionClient:
         self,
         render_id: str,
         bucket_name: str,
-        log_level="info",
+        log_level: str = "info", # Added type hint
         s3_output_provider: Optional[CustomCredentials] = None,
     ) -> str:
         """
@@ -422,6 +445,8 @@ class RemotionClient:
         Args:
             render_id (str): ID of the render.
             bucket_name (str): Name of the bucket.
+            log_level (str): Log level ("error", "warning", "info", "verbose").
+            s3_output_provider (Optional[CustomCredentials]): Custom S3 credentials.
 
         Returns:
             str: JSON representation of the render progress request.
@@ -435,6 +460,7 @@ class RemotionClient:
             s3_output_provider=s3_output_provider,
         )
         try:
+            # Ensure serialize_params method in models.py is typed to return Dict[str, Any]
             return json.dumps(progress_params.serialize_params())
         except (TypeError, OverflowError) as e:
             raise RemotionInvalidArgumentException(
@@ -448,20 +474,20 @@ class RemotionClient:
         Render media using AWS Lambda.
 
         Args:
-            render_params (RenderParams): Render parameters.
+            render_params (RenderMediaParams): Render parameters.
 
         Returns:
-            RenderResponse: Response from the render operation.
+            Optional[RenderMediaResponse]: Response from the render operation, or None if no body object.
         """
-        params = self.construct_render_request(
-            render_params, render_type="video-or-audio"
+        params_json_str = self.construct_render_request(
+            render_params, render_type='video-or-audio' # Using Enum member
         )
         body_object = self._invoke_lambda(
-            function_name=self.function_name, payload=params
+            function_name=self.function_name, payload=params_json_str
         )
         if body_object:
             return RenderMediaResponse(
-                body_object['bucketName'], body_object['renderId']
+                bucket_name=body_object['bucketName'], render_id=body_object['renderId']
             )
 
         return None
@@ -473,30 +499,32 @@ class RemotionClient:
         Render still using AWS Lambda.
 
         Args:
-            render_params (RenderParams): Render parameters.
+            render_params (RenderStillParams): Render parameters.
 
         Returns:
-            RenderResponse: Response from the render operation.
+            Optional[RenderStillResponse]: Response from the render operation, or None if no body object.
         """
-        params = self.construct_render_request(render_params, render_type='still')
+        params_json_str = self.construct_render_request(render_params, render_type='still') # Using Enum member
 
         body_object = self._invoke_lambda(
-            function_name=self.function_name, payload=params
+            function_name=self.function_name, payload=params_json_str
         )
 
         if body_object:
+            # Type hinting for estimatedPrice, as it's a nested dict
+            estimated_price_data: Dict[str, Any] = body_object.get('estimatedPrice', {})
             return RenderStillResponse(
                 estimated_price=CostsInfo(
-                    accrued_so_far=body_object['estimatedPrice']['accruedSoFar'],
-                    display_cost=body_object['estimatedPrice']['displayCost'],
-                    currency=body_object['estimatedPrice']['currency'],
-                    disclaimer=body_object['estimatedPrice']['disclaimer'],
+                    accrued_so_far=estimated_price_data.get('accruedSoFar', 0.0), # Use .get with defaults
+                    display_cost=estimated_price_data.get('displayCost', ''),
+                    currency=estimated_price_data.get('currency', ''),
+                    disclaimer=estimated_price_data.get('disclaimer', ''),
                 ),
-                url=body_object['output'],
-                size_in_bytes=body_object['sizeInBytes'],
-                bucket_name=body_object['bucketName'],
-                render_id=body_object['renderId'],
-                outKey=body_object['outKey'],
+                url=body_object.get('output', ''),
+                size_in_bytes=body_object.get('sizeInBytes', 0),
+                bucket_name=body_object.get('bucketName', ''),
+                render_id=body_object.get('renderId', ''),
+                outKey=body_object.get('outKey', ''),
             )
 
         return None
@@ -505,7 +533,7 @@ class RemotionClient:
         self,
         render_id: str,
         bucket_name: str,
-        log_level="info",
+        log_level: str = "info", # Added type hint
         s3_output_provider: Optional[CustomCredentials] = None,
     ) -> Optional[RenderMediaProgress]:
         """
@@ -515,21 +543,24 @@ class RemotionClient:
             render_id (str): ID of the render.
             bucket_name (str): Name of the bucket.
             log_level (str): Log level ("error", "warning", "info", "verbose").
+            s3_output_provider (Optional[CustomCredentials]): Custom S3 credentials.
 
         Returns:
-            RenderProgress: Progress of the render.
+            Optional[RenderMediaProgress]: Progress of the render, or None if no progress response.
         """
-        params = self.construct_render_progress_request(
+        params_json_str = self.construct_render_progress_request(
             render_id,
             bucket_name,
             log_level=log_level,
             s3_output_provider=s3_output_provider,
         )
-        progress_response = self._invoke_lambda(
-            function_name=self.function_name, payload=params
+        progress_response_data = self._invoke_lambda(
+            function_name=self.function_name, payload=params_json_str
         )
-        if progress_response:
+        if progress_response_data:
             render_progress = RenderMediaProgress()
-            render_progress.__dict__.update(progress_response)
+            # Ensure RenderMediaProgress expects a dictionary for __dict__.update()
+            # and that all keys match its fields, or handle gracefully.
+            render_progress.__dict__.update(progress_response_data)
             return render_progress
         return None
