@@ -1,6 +1,7 @@
 import {useMemo} from 'react';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
+import {useRemotionEnvironment} from '../use-remotion-environment';
 
 let warned = false;
 
@@ -24,7 +25,13 @@ export const useSingletonAudioContext = (
 	logLevel: LogLevel,
 	latencyHint: AudioContextLatencyCategory,
 ) => {
+	const env = useRemotionEnvironment();
+
 	const audioContext = useMemo(() => {
+		if (env.isRendering) {
+			return null;
+		}
+
 		if (typeof AudioContext === 'undefined') {
 			warnOnce(logLevel);
 			return null;
@@ -33,7 +40,7 @@ export const useSingletonAudioContext = (
 		return new AudioContext({
 			latencyHint,
 		});
-	}, [logLevel, latencyHint]);
+	}, [logLevel, latencyHint, env.isRendering]);
 
 	return audioContext;
 };
