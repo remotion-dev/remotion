@@ -67,6 +67,13 @@ export const shouldLogBrowserMessage = (message: string) => {
 		return false;
 	}
 
+	// Noisy warning that appears even though we pass --mute-audio
+	// https://github.com/remotion-dev/remotion/issues/5974
+	// https://github.com/remotion-dev/remotion/issues/5769
+	if (message.includes('ASR: No room in socket buffer.')) {
+		return false;
+	}
+
 	return true;
 };
 
