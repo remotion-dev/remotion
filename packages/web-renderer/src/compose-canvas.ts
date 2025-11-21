@@ -7,15 +7,7 @@ export const composeCanvas = async (
 ) => {
 	const {totalMatrix, reset, dimensions} = calculateTransforms(canvas);
 
-	const translateX = dimensions.left + dimensions.width / 2;
-	const translateY = dimensions.top + dimensions.height / 2;
-
-	const matrix = new DOMMatrix()
-		.translate(translateX, translateY)
-		.multiply(totalMatrix)
-		.translate(-translateX, -translateY);
-
-	context.setTransform(matrix);
+	context.setTransform(totalMatrix);
 	const drawable =
 		canvas instanceof SVGSVGElement
 			? await turnSvgIntoDrawable(canvas)
