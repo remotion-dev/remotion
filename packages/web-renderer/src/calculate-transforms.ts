@@ -70,7 +70,7 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 	const dimensions = transforms[0].boundingClientRect!;
 	const nativeTransformOrigin = getInternalTransformOrigin(transforms[0]);
 
-	let totalMatrix = new DOMMatrix();
+	const totalMatrix = new DOMMatrix();
 	for (const transform of transforms.slice().reverse()) {
 		if (!transform.boundingClientRect) {
 			throw new Error('Bounding client rect not found');
@@ -78,16 +78,12 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 
 		const globalTransformOrigin = getGlobalTransformOrigin(transform);
 
-		const transformedTransformOrigin = totalMatrix.transformPoint(
-			new DOMPoint(globalTransformOrigin.x, globalTransformOrigin.y),
-		);
-
 		const transformMatrix = new DOMMatrix()
-			.translate(transformedTransformOrigin.x, transformedTransformOrigin.y)
+			.translate(globalTransformOrigin.x, globalTransformOrigin.y)
 			.multiply(transform.matrix)
-			.translate(-transformedTransformOrigin.x, -transformedTransformOrigin.y);
+			.translate(-globalTransformOrigin.x, -globalTransformOrigin.y);
 
-		totalMatrix = transformMatrix.multiply(totalMatrix);
+		totalMatrix.multiplySelf(transformMatrix);
 	}
 
 	return {
