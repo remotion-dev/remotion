@@ -60,7 +60,7 @@ Set a codec. See the [encoding guide](/docs/encoding) for available values and g
 
 ### `audioCodec?`<AvailableFrom v="3.3.41" />
 
-_"pcm-16" | "aac" | "mp3" | "opus"_
+_"pcm-16" | "aac" | "mp3" | "opus" | "pcm-24"_
 
 Choose the encoding of your audio.
 
@@ -68,6 +68,7 @@ Choose the encoding of your audio.
 - Choose `pcm-16` if you need uncompressed audio.
 - Not all video containers support all audio codecs.
 - This option takes precedence if the `codec` option also specifies an audio codec.
+- `pcm-24` outputs 24-bit audio, however note that Remotion's audio processing is limited to 16-bit.
 
 Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
 
