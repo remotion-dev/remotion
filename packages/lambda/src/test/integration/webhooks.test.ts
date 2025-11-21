@@ -7,14 +7,9 @@ import {getWebhookCalls, resetWebhookCalls} from '../mock-implementation';
 import {mockImplementation} from '../mocks/mock-implementation';
 import {waitUntilDone} from './wait-until-done';
 
-beforeAll(
-	async () => {
-		await ensureBrowser();
-	},
-	{
-		timeout: 60_000,
-	},
-);
+beforeAll(async () => {
+	await ensureBrowser();
+});
 
 const TEST_URL = 'http://localhost:8000';
 const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
