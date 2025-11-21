@@ -19,7 +19,7 @@ export const compose = async ({
 
 	// TODO: Consider z-index
 	for (const composable of composables) {
-		await composeCanvas(composable.element, context, width, height);
+		await composeCanvas(composable.element, context);
 	}
 
 	return canvas;
