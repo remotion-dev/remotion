@@ -2,6 +2,7 @@
 import React from 'react';
 import {Composition} from 'remotion';
 import {evenHarderCase} from './fixtures';
+import {marginsTest} from './margins';
 import {transformOriginFixture} from './transform-origin-fixture';
 
 export const Root: React.FC = () => {
@@ -9,6 +10,7 @@ export const Root: React.FC = () => {
 		<>
 			<Composition {...evenHarderCase} />
 			<Composition {...transformOriginFixture} />
+			<Composition {...marginsTest} />
 		</>
 	);
 };
