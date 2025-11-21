@@ -319,6 +319,10 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
+		if (this.shouldPrepareLoopTransition(newTime)) {
+			// TODO: implement seamless looping
+		}
+
 		const nonce = this.nonceManager.createAsyncOperation();
 		await this.seekPromiseChain;
 
@@ -477,6 +481,44 @@ export class MediaPlayer {
 
 	public setLoop(loop: boolean): void {
 		this.loop = loop;
+	}
+
+	private calculateLoopDuration(): number | null {
+		if (!this.loop || !this.totalDuration) {
+			return null;
+		}
+
+		const loopDurationInSeconds =
+			Internals.calculateMediaDuration({
+				trimAfter: this.trimAfter,
+				mediaDurationInFrames: this.totalDuration * this.fps,
+				playbackRate: 1, // this function is used AFTER `getTimeInSeconds`, so playbackRate is already applied
+				trimBefore: this.trimBefore,
+			}) / this.fps;
+
+		return loopDurationInSeconds;
+	}
+
+	private shouldPrepareLoopTransition(currentTimeInSeconds: number): boolean {
+		if (!this.loop || !this.audioIteratorManager) {
+			return false;
+		}
+
+		const loopDuration = this.calculateLoopDuration();
+		if (loopDuration === null || loopDuration === Infinity) {
+			return false;
+		}
+
+		const timeInCurrentLoop = currentTimeInSeconds % loopDuration;
+		const timeUntilLoopEnd = loopDuration - timeInCurrentLoop;
+
+		const LOOKAHEAD_THRESHOLD_SEC = 0.5;
+		const MIN_THRESHOLD_SEC = 0.05;
+
+		return (
+			timeUntilLoopEnd <= LOOKAHEAD_THRESHOLD_SEC &&
+			timeUntilLoopEnd > MIN_THRESHOLD_SEC
+		);
 	}
 
 	public async dispose(): Promise<void> {
