@@ -8,8 +8,7 @@ from math import ceil
 from typing import Optional, Union, List, Dict, Any
 from enum import Enum
 import warnings
-import boto3
-from boto3.session import Session as Boto3Session # Explicitly import Session
+from boto3.session import Session # Explicitly import Session
 from botocore.config import Config
 from botocore.exceptions import ClientError, ParamValidationError
 from botocore.response import StreamingBody # For Lambda payload
@@ -50,8 +49,8 @@ class RemotionClient:
         access_key: Optional[str] = None,
         secret_key: Optional[str] = None,
         force_path_style: bool = False,
-        botocore_config: Optional[Config] = None,
-        boto_session: Optional[Boto3Session] = None,
+        session: Optional[Session] = None,
+        config: Optional[Config] = None,
     ):
         """
         Initialize the RemotionClient.
@@ -65,16 +64,16 @@ class RemotionClient:
         function_name : str
             Name of the AWS Lambda function to invoke
         access_key : Optional[str], deprecated
-            **DEPRECATED** - AWS access key ID. Use `boto_session` instead.
+            **DEPRECATED** - AWS access key ID. Use `session` instead.
             Will be removed in version 5.0.0.
         secret_key : Optional[str], deprecated
-            **DEPRECATED** - AWS secret access key. Use `boto_session` instead.
+            **DEPRECATED** - AWS secret access key. Use `session` instead.
             Will be removed in version 5.0.0.
         force_path_style : bool, default=False
             Force path-style S3 URLs instead of virtual-hosted-style
-        botocore_config : Optional[Config]
+        config : Optional[Config]
             Custom botocore configuration object
-        boto_session : Optional[Boto3Session]
+        session : Optional[Session]
             Pre-configured boto3 Session object (recommended for authentication)
 
         Raises
@@ -86,11 +85,11 @@ class RemotionClient:
         --------
         .. deprecated:: 4.0.377
             Parameters `access_key` and `secret_key` are deprecated.
-            Use `boto_session` instead for improved security and flexibility.
+            Use `session` instead for improved security and flexibility.
 
         Examples
         --------
-        Recommended usage with boto_session:
+        Recommended usage with session:
 
         >>> import boto3
         >>> session = boto3.Session(profile_name='production')
@@ -98,7 +97,59 @@ class RemotionClient:
         ...     region='us-east-1',
         ...     serve_url='https://api.example.com',
         ...     function_name='my-function',
-        ...     boto_session=session
+        ...     session=session
+        ... )
+
+        Using STS AssumeRole for cross-account or temporary credentials:
+
+        >>> import boto3
+        >>>
+        >>> # Create STS client using your base credentials
+        >>> sts_client = boto3.client('sts')
+        >>>
+        >>> # Assume a role (cross-account or for temporary elevated permissions)
+        >>> assumed_role = sts_client.assume_role(
+        ...     RoleArn='arn:aws:iam::123456789012:role/RemotionRenderRole',
+        ...     RoleSessionName='remotion-render-session',
+        ...     DurationSeconds=3600  # Optional: 1 hour (default is 1 hour, max depends on role)
+        ... )
+        >>>
+        >>> # Extract temporary credentials from the response
+        >>> credentials = assumed_role['Credentials']
+        >>>
+        >>> # Create a session with the temporary credentials
+        >>> session = boto3.Session(
+        ...     aws_access_key_id=credentials['AccessKeyId'],
+        ...     aws_secret_access_key=credentials['SecretAccessKey'],
+        ...     aws_session_token=credentials['SessionToken'],
+        ...     region_name='us-east-1'
+        ... )
+        >>>
+        >>> # Use the session with RemotionClient
+        >>> client = RemotionClient(
+        ...     region='us-east-1',
+        ...     serve_url='https://api.example.com',
+        ...     function_name='my-function',
+        ...     session=session
+        ... )
+
+        Using custom config with timeouts and retries:
+
+        >>> from botocore.config import Config
+        >>> import boto3
+        >>>
+        >>> config = Config(
+        ...     connect_timeout=5,
+        ...     read_timeout=30,
+        ...     retries={'max_attempts': 3, 'mode': 'adaptive'}
+        ... )
+        >>> session = boto3.Session(profile_name='production')
+        >>> client = RemotionClient(
+        ...     region='us-east-1',
+        ...     serve_url='https://api.example.com',
+        ...     function_name='my-function',
+        ...     session=session,
+        ...     config=config
         ... )
 
         Legacy usage (deprecated):
@@ -111,7 +162,7 @@ class RemotionClient:
         ...     secret_key='secret...'
         ... )
         """
-        # Validate required parameters
+       # Validate required parameters at construction time
         if not region or not region.strip():
             raise RemotionInvalidArgumentException("'region' parameter is required and cannot be empty or whitespace")
         if not serve_url or not serve_url.strip():
@@ -121,10 +172,10 @@ class RemotionClient:
 
 
         # Check for conflicting authentication methods
-        if boto_session and (access_key or secret_key):
+        if session and (access_key or secret_key):
             raise ValueError(
-                "Cannot specify both 'boto_session' and explicit credentials "
-                "('access_key'/'secret_key'). Please use only 'boto_session'."
+                "Cannot specify both 'session' and explicit credentials "
+                "('access_key'/'secret_key'). Please use only 'session'."
             )
 
         # Handle deprecated credential parameters
@@ -132,7 +183,7 @@ class RemotionClient:
             warnings.warn(
                 "Parameters 'access_key' and 'secret_key' are deprecated "
                 "as of version 4.0.376 and will be removed in version 5.0.0. "
-                "Please migrate to using 'boto_session' for improved security. "
+                "Please migrate to using 'session' for improved security. "
                 "See: https://docs.remotion.dev/migration-guide",
                 DeprecationWarning,
                 stacklevel=2,
@@ -144,24 +195,24 @@ class RemotionClient:
                 raise RemotionInvalidArgumentException("'access_key' must be provided when 'secret_key' is specified")
 
             # Create session from deprecated credentials
-            self.boto_session = Boto3Session(
+            self.session = Session(
                 aws_access_key_id=access_key,
                 aws_secret_access_key=secret_key,
                 region_name=region,
             )
-        elif boto_session:
+        elif session:
             # Use provided session
-            self.boto_session = boto_session
+            self.session = session
         else:
             # Create default session (uses credential chain)
-            self.boto_session = Boto3Session(region_name=region)
+            self.session = Session(region_name=region)
 
         # Store configuration
         self.region = region.strip()
         self.serve_url = serve_url.strip().rstrip('/')
         self.function_name = function_name.strip()
         self.force_path_style = force_path_style
-        self.botocore_config = botocore_config or Config()  # Provide default empty config
+        self.config = config or Config()  # Provide default empty config
 
     def _generate_hash(self, payload: str) -> str: # Added type hints
         """Generate a hash for the payload."""
@@ -192,22 +243,21 @@ class RemotionClient:
         client_kwargs: Dict[str, Any] = {'region_name': self.region}
 
         # Handle config
-        current_config = self.botocore_config
+        current_config = self.config
+
         if service_name == 's3' and self.force_path_style:
             s3_config = Config(s3={'addressing_style': 'path'})
             if current_config:
                 current_config = current_config.merge(s3_config)
             else:
                 current_config = s3_config
+
+
         # Add config only if it's not None
         if current_config:
             client_kwargs['config'] = current_config
 
-        if self.boto_session:
-            # Pass the prepared kwargs to the session's client method
-            return self.boto_session.client(service_name, **client_kwargs)  # type: ignore[call-overload]
-        # Use default boto3 client
-        return boto3.client(service_name, **client_kwargs)  # type: ignore[call-overload]
+        return self.session.client(service_name, **client_kwargs)  # type: ignore[call-overload]
 
     def _create_s3_client(self) -> Any: # Returns an S3 client type
         """Creates and returns a boto3 S3 client."""
@@ -344,7 +394,7 @@ class RemotionClient:
             return True
         return False
 
-    def _serialize_input_props(self, input_props: Dict[str, Any] | None, render_type: RenderType) -> Dict[str, Any] : # Added type hints
+    def _serialize_input_props(self, input_props: Optional[Dict[str, Any]], render_type: RenderType) -> Dict[str, Any] : # Added type hints
         """
         Serialize inputProps to a format compatible with Lambda.
 

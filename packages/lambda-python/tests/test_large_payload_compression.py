@@ -1,6 +1,5 @@
 import unittest
-from unittest.mock import patch, MagicMock
-from remotion_lambda.models import RenderMediaParams
+from unittest.mock import patch
 from remotion_lambda.remotionclient import RemotionClient, RemotionException
 
 

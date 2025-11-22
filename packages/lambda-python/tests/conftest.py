@@ -37,3 +37,9 @@ def mock_s3_client():
 def mock_lambda_client():
     """Fixture for a mocked boto3 Lambda client."""
     return Mock()
+
+
+@pytest.fixture
+def mock_boto_client():
+    """Fixture for a mocked boto3 Lambda client."""
+    return Mock()
