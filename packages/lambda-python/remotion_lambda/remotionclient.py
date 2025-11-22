@@ -173,7 +173,7 @@ class RemotionClient:
 
         # Check for conflicting authentication methods
         if session and (access_key or secret_key):
-            raise ValueError(
+            raise RemotionInvalidArgumentException(
                 "Cannot specify both 'session' and explicit credentials "
                 "('access_key'/'secret_key'). Please use only 'session'."
             )
@@ -183,8 +183,7 @@ class RemotionClient:
             warnings.warn(
                 "Parameters 'access_key' and 'secret_key' are deprecated "
                 "as of version 4.0.376 and will be removed in version 5.0.0. "
-                "Please migrate to using 'session' for improved security. "
-                "See: https://docs.remotion.dev/migration-guide",
+                "Please migrate to using 'session' for improved security. ",
                 DeprecationWarning,
                 stacklevel=2,
             )

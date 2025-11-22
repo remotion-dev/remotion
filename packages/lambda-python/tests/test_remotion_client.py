@@ -7,6 +7,7 @@ from remotion_lambda.exception import (
     RemotionInvalidArgumentException,
     RemotionRenderingOutputError
 )
+
 from botocore.exceptions import ClientError, ParamValidationError
 
 import pytest
@@ -19,6 +20,7 @@ from tests.constants import (
 )
 from unittest.mock import patch, Mock
 from botocore.config import Config
+import boto3
 
 
 def test_bucket_name_format(remotion_client: RemotionClient):
@@ -71,7 +73,7 @@ def test_generate_hash_basic_string(remotion_client: RemotionClient):
 
 
 @patch('remotion_lambda.remotionclient.Session')
-def test_create_s3_client_partial_creds(mock_session_class):
+def test_create_client_partial_creds(mock_session_class):
     with pytest.raises(RemotionInvalidArgumentException):
         RemotionClient(
             region=TEST_REGION,
@@ -79,6 +81,29 @@ def test_create_s3_client_partial_creds(mock_session_class):
             function_name=TEST_FUNCTION_NAME,
             secret_key=TEST_AWS_SECRET_KEY,
         )
+
+
+@patch('remotion_lambda.remotionclient.Session')
+def test_create_client_partial_creds_and_session(mock_session_class):
+    with pytest.raises(RemotionInvalidArgumentException) as excinfo:
+        custom_boto_session = boto3.Session(
+            #region_name=REMOTION_APP_REGION,
+            # profile_name='your_aws_profile', # Uncomment if you use AWS profiles
+            # If you provide aws_access_key_id, aws_secret_access_key here,
+            # it will override the ones passed to RemotionClient directly.
+            # aws_access_key_id='YOUR_ACCESS_KEY',
+            # aws_secret_access_key='YOUR_SECRET_KEY',
+        )
+        RemotionClient(
+            region=TEST_REGION,
+            serve_url=TEST_SERVE_URL,
+            function_name=TEST_FUNCTION_NAME,
+            secret_key=TEST_AWS_SECRET_KEY,
+            session=custom_boto_session
+        )
+
+    assert excinfo.type == RemotionInvalidArgumentException
+    assert "Cannot specify both 'session' and explicit credentials" in str(excinfo.value)
 
 
 @patch('remotion_lambda.remotionclient.Session')
@@ -98,7 +123,7 @@ def test_session_created_with_creds(mock_session_class):
     )
 
 @patch('remotion_lambda.remotionclient.Session')
-def test_create_s3_client_with_path_style(mock_session_class, mock_s3_client, ):
+def test_create_client_with_path_style(mock_session_class, mock_s3_client, ):
    # Create the client (this creates a mock session instance)
     remotion_client = RemotionClient(
         region=TEST_REGION,
@@ -201,7 +226,7 @@ def test_get_or_create_bucket_client_error_on_create_bucket(
 
 
 @patch.object(RemotionClient, '_create_s3_client')
-def test_upload_to_s3_client_error_on_put_object(
+def test_upload_to_client_error_on_put_object(
     mock_create_client, mock_s3_client, remotion_client
 ):
     """
@@ -307,15 +332,15 @@ def test_construct_render_request_client_error_from_serialize_input_props(
 
 
 @patch('boto3.client')
-def test_create_s3_client_with_session(mock_boto3_client_func):
+def test_create_client_with_session(mock_boto3_client_func):
     """
     Test that _create_s3_client uses the provided session
     instead of boto3.client directly.
     """
     # Arrange
     mock_session = Mock()
-    mock_s3_client_from_session = Mock()
-    mock_session.client.return_value = mock_s3_client_from_session
+    mock_client_from_session = Mock()
+    mock_session.client.return_value = mock_client_from_session
 
     config = Config()
     client = RemotionClient(
@@ -330,12 +355,12 @@ def test_create_s3_client_with_session(mock_boto3_client_func):
     s3_client = client._create_s3_client()
 
     # Assert
-    assert s3_client == mock_s3_client_from_session
+    assert s3_client == mock_client_from_session
     mock_session.client.assert_called_once_with('s3', region_name=TEST_REGION, config=config)
 
 
 @patch('remotion_lambda.remotionclient.Session')
-def test_create_s3_client_with_custom_timeout_config(mock_session_class, mock_s3_client):
+def test_create_client_with_custom_timeout_config(mock_session_class, mock_s3_client):
     """
     Test that _create_s3_client correctly applies custom timeout settings
     provided via config.
