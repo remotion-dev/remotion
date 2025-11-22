@@ -1,6 +1,5 @@
 import type {Composable} from './composable';
 import {composeCanvas} from './compose-canvas';
-import {svgToImageBitmap} from './compose-svg';
 
 export const compose = async ({
 	composables,
@@ -20,22 +19,7 @@ export const compose = async ({
 
 	// TODO: Consider z-index
 	for (const composable of composables) {
-		if (composable.type === 'canvas' || composable.type === 'img') {
-			composeCanvas(composable.element, context);
-		} else if (composable.type === 'svg') {
-			// This already accumulates the transforms of the parent
-			const imageBitmap = await svgToImageBitmap(composable.element);
-
-			if (imageBitmap) {
-				context.drawImage(
-					imageBitmap.image,
-					imageBitmap.left,
-					imageBitmap.top,
-					imageBitmap.width,
-					imageBitmap.height,
-				);
-			}
-		}
+		await composeCanvas(composable.element, context);
 	}
 
 	return canvas;

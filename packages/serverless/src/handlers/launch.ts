@@ -69,6 +69,12 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		throw new Error('Expected launch type');
 	}
 
+	if (params.chromiumOptions.gl === 'angle') {
+		throw new Error(
+			'gl=angle is not supported in Lambda. Use gl=swangle instead.',
+		);
+	}
+
 	const startedDate = Date.now();
 
 	const browserInstance = insideFunctionSpecifics.getBrowserInstance({
