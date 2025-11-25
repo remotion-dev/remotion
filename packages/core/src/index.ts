@@ -125,6 +125,7 @@ export {Artifact} from './Artifact.js';
 export {Audio, Html5Audio, RemotionAudioProps} from './audio/index.js';
 export type {LoopVolumeCurveBehavior} from './audio/use-audio-frame.js';
 export {cancelRender} from './cancel-render.js';
+export type {Codec} from './codec.js';
 export {
 	CalculateMetadataFunction,
 	Composition,

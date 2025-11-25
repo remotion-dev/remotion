@@ -1,7 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {EditorPropsProvider} from './EditorProps.js';
-import {RenderAssetManagerProvider} from './RenderAssetManager.js';
-import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
 import {SequenceManagerProvider} from './SequenceManager.js';
 import {TimelineContextProvider} from './TimelineContext.js';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
@@ -21,7 +19,7 @@ declare const __webpack_module__: {
 	};
 };
 
-export const RemotionRoot: React.FC<{
+export const RemotionRootContexts: React.FC<{
 	readonly children: React.ReactNode;
 	readonly numberOfAudioTags: number;
 	readonly logLevel: LogLevel;
@@ -86,18 +84,14 @@ export const RemotionRoot: React.FC<{
 							<EditorPropsProvider>
 								<PrefetchProvider>
 									<SequenceManagerProvider>
-										<RenderAssetManagerProvider>
-											<ResolveCompositionConfig>
-												<SharedAudioContextProvider
-													numberOfAudioTags={numberOfAudioTags}
-													audioLatencyHint={audioLatencyHint}
-												>
-													<DurationsContextProvider>
-														<BufferingProvider>{children}</BufferingProvider>
-													</DurationsContextProvider>
-												</SharedAudioContextProvider>
-											</ResolveCompositionConfig>
-										</RenderAssetManagerProvider>
+										<SharedAudioContextProvider
+											numberOfAudioTags={numberOfAudioTags}
+											audioLatencyHint={audioLatencyHint}
+										>
+											<DurationsContextProvider>
+												<BufferingProvider>{children}</BufferingProvider>
+											</DurationsContextProvider>
+										</SharedAudioContextProvider>
 									</SequenceManagerProvider>
 								</PrefetchProvider>
 							</EditorPropsProvider>

@@ -1,28 +1,46 @@
 import type {_InternalTypes} from 'remotion';
+import {withResolvers} from './with-resolvers';
 
-export const waitForReady = (
-	timeoutInMilliseconds: number,
-	scope: _InternalTypes['DelayRenderScope'],
-) => {
-	const {promise, resolve, reject} = Promise.withResolvers();
-
+export const waitForReady = ({
+	timeoutInMilliseconds,
+	scope,
+	signal,
+	apiName,
+}: {
+	timeoutInMilliseconds: number;
+	scope: _InternalTypes['DelayRenderScope'];
+	signal: AbortSignal | null;
+	apiName: 'renderMediaOnWeb' | 'renderStillOnWeb';
+}) => {
 	const start = Date.now();
+	const {promise, resolve, reject} = withResolvers<void>();
 
-	const interval = setInterval(() => {
-		if (scope.remotion_renderReady === true) {
-			resolve(true);
-			clearInterval(interval);
+	let cancelled = false;
+
+	const check = () => {
+		if (cancelled) {
 			return;
 		}
 
-		if (window.remotion_cancelledError !== undefined) {
-			reject(window.remotion_cancelledError);
-			clearInterval(interval);
+		if (signal?.aborted) {
+			cancelled = true;
+			reject(new Error(`${apiName}() was cancelled`));
+			return;
+		}
+
+		if (scope.remotion_renderReady === true) {
+			resolve();
+			return;
+		}
+
+		if (scope.remotion_cancelledError !== undefined) {
+			cancelled = true;
+			reject(scope.remotion_cancelledError);
 			return;
 		}
 
 		if (Date.now() - start > timeoutInMilliseconds + 3000) {
-			// TODO: Error message should be just as good
+			cancelled = true;
 			reject(
 				new Error(
 					Object.values(scope.remotion_delayRenderTimeouts)
@@ -30,9 +48,13 @@ export const waitForReady = (
 						.join(', '),
 				),
 			);
-			clearInterval(interval);
+			return;
 		}
-	}, 50);
+
+		requestAnimationFrame(check);
+	};
+
+	requestAnimationFrame(check);
 
 	return promise;
 };

@@ -6,32 +6,36 @@ sidebar_label: delayRender()
 crumb: 'How to'
 ---
 
-By calling `delayRender()`, you are signaling that a frame should not be immediately rendered and instead should wait on an asynchronous task to complete.
+`delayRender()` pauses the render to let an asynchronous task such as data fetching complete.  
+It has no effect when you are in a preview environment (e.g. Studio or Player).
 
-This method is useful if you want to call an API to fetch data before you render.
+This API returns a handle. Once you have fetched data or finished the asynchronous task, you should call `continueRender(handle)` to let Remotion know that the render can continue.
 
-`delayRender()` returns a handle. Once you have fetched data or finished the asynchronous task, you should call `continueRender(handle)` to let Remotion know that you are now ready to render.
+If the asynchronous task fails and you cannot recover, call [`cancelRender()`](/docs/cancel-render) to cancel the render.
 
-:::info
-Consider using [`useDelayRender()`](/docs/use-delay-render) instead, which provides a better integration with React patterns and is future-proof for [browser rendering](/docs/miscellaneous/render-in-browser).
-:::
+`delayRender()` can be imported from the [`remotion`](/docs/remotion) package, but preferrably, you should use the [`useDelayRender()`](/docs/use-delay-render) hook instead, because it future-proofs your code for [browser rendering](/docs/miscellaneous/render-in-browser).
 
 ## Example
 
-```tsx twoslash {6, 13}
+```tsx twoslash {2, 6,7,  15, 17}
 import {useCallback, useEffect, useState} from 'react';
-import {continueRender, delayRender} from 'remotion';
+import {useDelayRender} from 'remotion';
 
 export const MyVideo = () => {
   const [data, setData] = useState(null);
+  const {delayRender, continueRender, cancelRender} = useDelayRender();
   const [handle] = useState(() => delayRender());
 
   const fetchData = useCallback(async () => {
-    const response = await fetch('http://example.com/api');
-    const json = await response.json();
-    setData(json);
+    try {
+      const response = await fetch('http://example.com/api');
+      const json = await response.json();
+      setData(json);
 
-    continueRender(handle);
+      continueRender(handle);
+    } catch (err) {
+      cancelRender(err);
+    }
   }, []);
 
   useEffect(() => {
@@ -44,7 +48,7 @@ export const MyVideo = () => {
 
 ## Timeout
 
-You need to call `continueRender()` within 30 seconds of page load. This is the default timeout of puppeteer and it will throw if you miss to call `continueRender()`. You can [customize the timeout](/docs/timeout#increase-timeout).
+After calling `delayRender()`, you need to call `continueRender()` within 30 seconds or the render will fail with a timeout error. You can [customize the timeout](/docs/timeout#increase-timeout).
 
 If `continueRender()` is not called within the timeout frame, the render will fail with an exception similarly to this:
 
@@ -72,19 +76,16 @@ If the call times out, the label will be referenced in the error message:
 Uncaught Error: A delayRender() "Fetching data from API..." was called but not cleared after 28000ms. See https://remotion.dev/docs/timeout for help. The delayRender was called
 ```
 
-## Concurrency
-
-Multiple pages are used for rendering, so delayRender() can be called multiple times for a render. If you are doing an API request, you can speed up the render and avoid rate limits by caching the request, for example by storing the data in `localStorage`.
-
 ## Multiple calls
 
-You can call `delayRender()` multiple times. The render will be blocked for as long as at least one blocking handle exists and that has not been cleared by `continueRender()`.
+You can call `delayRender()` multiple times. The render will be blocked for as long as at least one blocking handle exists that has not been cleared by `continueRender()`.
 
 ```tsx twoslash
 import {useEffect, useState} from 'react';
-import {continueRender, delayRender} from 'remotion';
+import {useDelayRender} from 'remotion';
 
 const MyComp: React.FC = () => {
+  const {delayRender, continueRender} = useDelayRender();
   const [handle1] = useState(() => delayRender());
   const [handle2] = useState(() => delayRender());
 
@@ -100,9 +101,9 @@ const MyComp: React.FC = () => {
 
 ## Encapsulation
 
-You should put `delayRender()` calls inside your components rather than placing them as a top-level statement, to avoid blocking a render if a different composition is rendered. Also, in the example below the call is wrapped in a `useState()` to avoid creating multiple blocking calls when the component rerenders.
+You should put `delayRender()` calls inside your components rather than placing them as a top-level statement, to avoid blocking a render if a different composition is rendered.
 
-```tsx twoslash title="❌ Don't do this" {4-7}
+```tsx twoslash title="❌ Bug - Other compositions are blocked" {4-7}
 import {useEffect} from 'react';
 import {continueRender, delayRender} from 'remotion';
 
@@ -120,7 +121,50 @@ const MyComp: React.FC = () => {
 };
 ```
 
-## Failing with an error<AvailableFrom v="3.3.44" />
+Also avoid creating a new handle on every [React render](https://react.dev/learn/render-and-commit):
+
+```tsx twoslash title="❌ Bug - New handle is create on every React re-render" {4-7}
+import {useEffect} from 'react';
+import {continueRender, delayRender} from 'remotion';
+
+const MyComp: React.FC = () => {
+  // New handle is created on every React re-render
+  const handle = delayRender();
+
+  useEffect(() => {
+    continueRender(handle);
+  }, []);
+
+  return null;
+};
+```
+
+It's best to always use [`useDelayRender()`](/docs/use-delay-render) in the first place since this mistake cannot happen and it enables [browser rendering](/docs/miscellaneous/render-in-browser) in the future.
+
+```tsx twoslash title="✅ Best practice - useDelayRender() + useState() " {4-7}
+import {useEffect, useState} from 'react';
+import {useDelayRender} from 'remotion';
+
+const MyComp: React.FC = () => {
+  const {delayRender, continueRender} = useDelayRender();
+  const [handle] = useState(() => delayRender());
+
+  useEffect(() => {
+    continueRender(handle);
+  }, []);
+
+  return null;
+};
+```
+
+## Data fetching
+
+Note that data fetching can also be performed in [`calculateMetadata()`](/docs/composition#calculatemetadata), which has 2 advantages:
+
+- It runs only once, rather than the amount of [concurrency](/docs/terminology/concurrency).
+- You don't need to call `continueRender()` or `cancelRender()` manually.
+
+## Failing with an error<AvailableFrom v="4.0.374" />
 
 If your code fails to do an asynchronous operation and you want to cancel the render, you can call [`cancelRender()`](/docs/cancel-render) with an error message. This will automatically cancel all `delayRender()` calls to not further delay the render.
 
@@ -149,41 +193,47 @@ If an operation is flaky (for example, if loading an asset from a CDN does somet
 If a `delayRender()` call is not cleared within the timeout, the whole browser tab will be closed and the frame will be retried from scratch.
 
 ```tsx twoslash title="Retrying a delayRender()"
-import {delayRender} from 'remotion';
+import {useDelayRender} from 'remotion';
 
+const {delayRender} = useDelayRender();
+// ---cut---
 delayRender('Loading asset...', {
   retries: 1, // default: 0
 });
 ```
 
-The [`<Img>`](/docs/img#delayrenderretries), [`<Html5Audio>`](/docs/html5-audio#delayrenderretries), [`<Html5Video>`](/docs/html5-video#delayrenderretries) and [`<IFrame>`](/docs/iframe#delayrenderretries) tags support a `delayRenderRetries` prop to control the value of `retries` for the `delayRender()` call that those components make.
+The [`<Img>`](/docs/img#delayrenderretries), [`<Video>`](/docs/media/video#delayrenderretries), [`<Audio>`](/docs/media/audio#delayrenderretries), [`<Html5Audio>`](/docs/html5-audio#delayrenderretries), [`<Html5Video>`](/docs/html5-video#delayrenderretries) and [`<IFrame>`](/docs/iframe#delayrenderretries) tags support a `delayRenderRetries` prop to control the value of `retries` for the `delayRender()` call that those components make.
 
 ## Modifying the timeout<AvailableFrom v="4.0.140"/>
 
 In addition to the [global timeout](/docs/timeout#increase-timeout) that can be set, the timeout can be modified on a per-`delayRender()` level.
 
 ```tsx twoslash title="Modifying the timeout of a delayRender()"
-import {delayRender} from 'remotion';
+import {useDelayRender} from 'remotion';
+const {delayRender} = useDelayRender();
 
+// ---cut---
 delayRender('Loading asset...', {
   timeoutInMilliseconds: 7000,
 });
 ```
 
-The [`<Img>`](/docs/img#delayrendertimeoutinmilliseconds), [`<Audio>`](/docs/media/audio#delayrendertimeoutinmilliseconds), [`<Video>`](/docs/media/video#delayrendertimeoutinmilliseconds), [`<Html5Audio>`](/docs/html5-audio#delayrendertimeoutinmilliseconds), [`<Html5Video>`](/docs/html5-video#delayrendertimeoutinmilliseconds) and [`<IFrame>`](/docs/iframe#delayrendertimeoutinmilliseconds) tags support a `delayRenderTimeoutInMilliseconds` prop to control the value of `timeoutInMilliseconds` for the `delayRender()` call that those components make.
+The [`<Img>`](/docs/img#delayrendertimeoutinmilliseconds), [`<Video>`](/docs/media/video#delayrendertimeoutinmilliseconds), [`<Audio>`](/docs/media/audio#delayrendertimeoutinmilliseconds), [`<Html5Audio>`](/docs/html5-audio#delayrendertimeoutinmilliseconds), [`<Html5Video>`](/docs/html5-video#delayrendertimeoutinmilliseconds) and [`<IFrame>`](/docs/iframe#delayrendertimeoutinmilliseconds) tags support a `delayRenderTimeoutInMilliseconds` prop to control the value of `timeoutInMilliseconds` for the `delayRender()` call that those components make.
 
 ## Difference to `useBufferState().delayPlayback()`
 
-[`useBufferState()`](/docs/use-buffer-state) is a different API that allows pausing playback in the [Studio](/docs/terminology/studio) and in the [Player](/docs/terminology/player).
+[`useBufferState()`](/docs/use-buffer-state) is a different API that allows pausing playback in the [Studio](/docs/terminology/studio) and in the [Player](/docs/terminology/player).  
+`delayRender()` only has an effect when a video is being rendered.
 
 If you are loading data, you might want to both delay the screenshotting of your component during rendering and start a buffering state during Preview, in which case you need to use both APIs together.
 
 ```tsx twoslash title="Using delayRender() and delayPlayback() together"
 import React from 'react';
-import {useBufferState, delayRender, continueRender} from 'remotion';
+import {useBufferState, useDelayRender} from 'remotion';
 
 const MyComp: React.FC = () => {
   const buffer = useBufferState();
+  const {delayRender, continueRender} = useDelayRender();
   const [handle] = React.useState(() => delayRender());
 
   React.useEffect(() => {
@@ -206,7 +256,7 @@ const MyComp: React.FC = () => {
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/delay-render.ts)
-- [`useDelayRender()`](/docs/use-delay-render) - React hook alternative
+- [`useDelayRender()`](/docs/use-delay-render)
+- [`continueRender()`](/docs/continue-render)
+- [`cancelRender()`](/docs/cancel-render)
 - [Data fetching](/docs/data-fetching)
-- [continueRender()](/docs/continue-render)
-- [cancelRender()](/docs/cancel-render)

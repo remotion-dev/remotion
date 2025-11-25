@@ -1,8 +1,9 @@
-import {renderStillOnWeb} from '@remotion/web-renderer';
-import {useCallback} from 'react';
+import {PlayerInternals} from '@remotion/player';
+import {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
+import {useTimelineInOutFramePosition} from '../../state/in-out';
+import {ModalsContext} from '../../state/modals';
 import {Button} from '../Button';
-import {getCurrentFrame} from '../Timeline/imperative-state';
 
 const button: React.CSSProperties = {
 	paddingLeft: 7,
@@ -11,40 +12,48 @@ const button: React.CSSProperties = {
 	paddingBottom: 7,
 };
 
+const label: React.CSSProperties = {
+	fontSize: 14,
+};
+
 export const TriggerWebRender = () => {
 	const video = Internals.useVideo();
-	const frame = getCurrentFrame();
+	const getCurrentFrame = PlayerInternals.useFrameImperative();
+	const {inFrame, outFrame} = useTimelineInOutFramePosition();
+
+	const {setSelectedModal} = useContext(ModalsContext);
 
 	const onClick = useCallback(() => {
-		if (!video) {
-			throw new Error('No video found');
+		if (!video?.id) {
+			return null;
 		}
 
-		renderStillOnWeb({
-			Component: video.component,
-			width: video.width,
-			height: video.height,
-			fps: video.fps,
-			durationInFrames: video.durationInFrames,
-			frame,
-		}).then((blob) => {
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = 'composed.png';
-			a.click();
-			URL.revokeObjectURL(url);
+		const frame = getCurrentFrame();
+
+		setSelectedModal({
+			type: 'web-render',
+			initialFrame: frame,
+			compositionId: video.id,
+			defaultProps: video.defaultProps,
+			inFrameMark: inFrame,
+			outFrameMark: outFrame,
 		});
-	}, [video, frame]);
+	}, [
+		getCurrentFrame,
+		inFrame,
+		outFrame,
+		setSelectedModal,
+		video?.defaultProps,
+		video?.id,
+	]);
+
+	if (!video) {
+		return null;
+	}
 
 	return (
-		<Button
-			id="render-modal-button"
-			onClick={onClick}
-			buttonContainerStyle={button}
-			disabled={false}
-		>
-			<span>Render</span>
+		<Button onClick={onClick} buttonContainerStyle={button} disabled={false}>
+			<span style={label}>Render on web</span>
 		</Button>
 	);
 };

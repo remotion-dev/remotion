@@ -1,3 +1,4 @@
+import React from 'react';
 import {cancelRender, Internals, type LogLevel} from 'remotion';
 import {makeAudioManager} from './audio-extraction/audio-manager';
 import {makeKeyframeManager} from './video-extraction/keyframe-manager';
@@ -89,4 +90,13 @@ export const getMaxVideoCacheSize = (logLevel: LogLevel) => {
 
 	cachedMaxCacheSize = getUncachedMaxCacheSize(logLevel);
 	return cachedMaxCacheSize;
+};
+
+export const useMaxMediaCacheSize = (logLevel: LogLevel) => {
+	const context = React.useContext(Internals.MaxMediaCacheSizeContext);
+	if (context === null) {
+		return getMaxVideoCacheSize(logLevel);
+	}
+
+	return context;
 };

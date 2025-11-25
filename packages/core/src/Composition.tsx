@@ -83,7 +83,7 @@ type StillCalculateMetadataOrExplicit<
 	Props extends Record<string, unknown>,
 > = OptionalDimensions<Schema, Props> | MandatoryDimensions<Schema, Props>;
 
-type CompositionCalculateMetadataOrExplicit<
+export type CompositionCalculateMetadataOrExplicit<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > =

@@ -96,7 +96,7 @@ _optional_
 
 A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use (e.g. `50%`), or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
 
-### `metadata`<AvailableFrom v="4.0.216" />
+### `metadata?`<AvailableFrom v="4.0.216" />
 
 _object - optional_
 
@@ -486,6 +486,10 @@ An option to be used only if implementing a distributed renderer, see [Distribut
 ### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 
 <Options id="on-browser-download" />
+
+### `apiKey?`<AvailableFrom v="4.0.375"/>
+
+<Options id="api-key" />
 
 ### ~~`parallelism?`~~
 

@@ -1,0 +1,67 @@
+---
+image: /generated/articles-docs-client-side-rendering-index.png
+crumb: 'Overview'
+sidebar_label: Overview
+title: Client-side rendering
+---
+
+:::warning
+This feature is not available yet, but we are already writing docs.  
+[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
+:::
+
+Client-side rendering is a new additional capability of Remotion that allows you to render videos, images, and audio directly in the browser, without requiring server-side infrastructure.
+
+It is currently in development and will be released as a new package called `@remotion/web-renderer`.
+
+## Key differences from server-side rendering
+
+Unlike server-side rendering with [`@remotion/renderer`](/docs/renderer), client-side rendering:
+
+- Runs in the browser - No need to setup Node servers or Remotion Lambda
+- Encodes with WebCodecs using [Mediabunny](/docs/mediabunny) instead of FFmpeg
+- Limited to a subset of HTML elements - see [limitations](/docs/client-side-rendering/limitations)
+- No bundling step - takes components and video config directly
+
+## APIs
+
+The package will provide APIs called `renderStillOnWeb()` and `renderMediaOnWeb()`.
+
+Here is an example of how to use it:
+
+```tsx twoslash title="Tentative API example"
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+const Component: React.FC = () => {
+  return (
+    <svg viewBox="0 0 100 100" width="100" height="100" style={{transform: 'rotate(45deg)'}}>
+      <polygon points="50,10 90,90 10,90" fill="orange" />
+    </svg>
+  );
+};
+
+const blob = await renderMediaOnWeb({
+  composition: {
+    component: Component,
+    durationInFrames: 100,
+    fps: 30,
+    width: 100,
+    height: 100,
+    calculateMetadata: null,
+    id: 'my-composition',
+  },
+  inputProps: {},
+});
+```
+
+## Status
+
+Client-side rendering is currently in active development.
+
+[View the current status and progress →](https://github.com/remotion-dev/remotion/issues/5913)
+
+## See also
+
+- [How it works](/docs/client-side-rendering/how-it-works)
+- [Limitations](/docs/client-side-rendering/limitations)
+- [Server-side rendering](/docs/ssr)

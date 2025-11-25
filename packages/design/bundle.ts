@@ -1,10 +1,13 @@
-import {build} from 'bun';
+import {$, build} from 'bun';
 import path from 'path';
 
 if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
 }
 console.time('Generated.');
+
+await $`bunx tailwindcss -i src/index.css -o dist/tailwind.css`;
+
 const output = await build({
 	entrypoints: ['src/index.ts'],
 	naming: '[name].mjs',

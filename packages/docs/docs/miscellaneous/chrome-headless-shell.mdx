@@ -135,6 +135,12 @@ On Lambda, the upgrade to 134.0.6998.35 is not yet available.
 
 Upgrades may happen in a patch release and will be listed here.
 
+## Changing the Chrome version
+
+On Lambda, it is not possible to change the Chrome version.
+
+If you use the [`server-side rendering APIs`](/docs/ssr), use the callback in [`ensureBrowser()`](/docs/renderer/ensure-browser#onbrowserdownload) to change the Chrome version.
+
 ## On Lambda and Cloud Run
 
 If you are using [Remotion Lambda](/docs/lambda) or [Cloud Run](/docs/cloudrun), you don't need to worry about installing a browser - it is included in the runtime already.

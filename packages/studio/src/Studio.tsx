@@ -25,7 +25,7 @@ export const Studio: React.FC<{
 			initialCompositions={[]}
 			initialCanvasContent={null}
 		>
-			<Internals.RemotionRoot
+			<Internals.RemotionRootContexts
 				frameState={null}
 				audioEnabled={window.remotion_audioEnabled}
 				videoEnabled={window.remotion_videoEnabled}
@@ -33,16 +33,18 @@ export const Studio: React.FC<{
 				numberOfAudioTags={window.remotion_numberOfAudioTags}
 				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
 			>
-				<EditorContexts readOnlyStudio={readOnly}>
-					<Editor readOnlyStudio={readOnly} Root={rootComponent} />
-					{readOnly
-						? null
-						: createPortal(
-								<ServerDisconnected />,
-								getServerDisconnectedDomElement() as HTMLElement,
-							)}
-				</EditorContexts>
-			</Internals.RemotionRoot>
+				<Internals.ResolveCompositionConfigInStudio>
+					<EditorContexts readOnlyStudio={readOnly}>
+						<Editor readOnlyStudio={readOnly} Root={rootComponent} />
+						{readOnly
+							? null
+							: createPortal(
+									<ServerDisconnected />,
+									getServerDisconnectedDomElement() as HTMLElement,
+								)}
+					</EditorContexts>
+				</Internals.ResolveCompositionConfigInStudio>
+			</Internals.RemotionRootContexts>
 		</Internals.CompositionManagerProvider>
 	);
 };

@@ -3,7 +3,6 @@ import {afterEach, beforeEach, describe, expect, mock, test} from 'bun:test';
 import React from 'react';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
-import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import {AudioForRendering} from '../audio/AudioForRendering.js';
 import {expectToThrow} from './expect-to-throw.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
@@ -37,7 +36,7 @@ describe('Register and unregister asset', () => {
 							renderAssets: [],
 						}}
 					>
-						<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
+						{children}
 					</RenderAssetManager.Provider>
 				</WrapSequenceContext>
 			);

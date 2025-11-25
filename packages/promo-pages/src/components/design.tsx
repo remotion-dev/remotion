@@ -2,14 +2,17 @@ import {
 	Button,
 	Card,
 	Counter,
+	Input,
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
 	Switch,
+	Textarea,
 } from '@remotion/design';
 import {useCallback, useState} from 'react';
+import {ManageTeamMembers} from './ManageTeamMembers';
 
 const Explainer: React.FC<{
 	readonly children: React.ReactNode;
@@ -26,11 +29,28 @@ export const DesignPage: React.FC = () => {
 	const [active, setActive] = useState<boolean>(false);
 
 	const [submitButtonActive, setSubmitButtonActive] = useState<boolean>(true);
+	const [submitButtonPrimaryActive, setSubmitButtonPrimaryActive] =
+		useState<boolean>(true);
 
 	const onClick = useCallback(() => {
 		setSubmitButtonActive(false);
 		setTimeout(() => {
 			setSubmitButtonActive(true);
+		}, 1000);
+	}, []);
+
+	const onClickPrimary = useCallback(() => {
+		setSubmitButtonPrimaryActive(false);
+		setTimeout(() => {
+			setSubmitButtonPrimaryActive(true);
+		}, 1000);
+	}, []);
+
+	const [saving, setSaving] = useState<boolean>(false);
+	const save = useCallback(() => {
+		setSaving(true);
+		setTimeout(() => {
+			setSaving(false);
 		}, 1000);
 	}, []);
 
@@ -58,8 +78,27 @@ export const DesignPage: React.FC = () => {
 				<Button className="bg-brand text-white">Primary</Button>
 				<br />
 				<Explainer>Click to disable</Explainer>
-				<Button onClick={onClick} disabled={!submitButtonActive}>
+				<Button onClick={onClick} loading={!submitButtonActive}>
 					Submit
+				</Button>
+				<br />
+				<Explainer>Click to disable (primary)</Explainer>
+				<Button
+					onClick={onClickPrimary}
+					className="bg-brand text-white"
+					loading={!submitButtonPrimaryActive}
+				>
+					Submit
+				</Button>
+				<br />
+				<Explainer>Loading state</Explainer>
+				<Button onClick={onClick} loading>
+					Loading
+				</Button>
+				<br />
+				<Explainer>Loading state (primary)</Explainer>
+				<Button onClick={onClick} className="bg-brand text-white" loading>
+					Loading
 				</Button>
 				<br />
 				<Explainer>Rounded</Explainer>
@@ -98,6 +137,37 @@ export const DesignPage: React.FC = () => {
 						<SelectItem value="option3">Option 3</SelectItem>
 					</SelectContent>
 				</Select>
+				<br />
+				<h2 className="text-brand">&lt;Input /&gt;</h2>
+				<Input placeholder="Enter your email" />
+				<br />
+				<br />
+				<h2 className="text-brand">&lt;Textarea /&gt;</h2>
+				<Textarea placeholder="Enter your message" />
+				<br />
+				<br />
+				<br />
+				<h1>Example form set</h1>
+				<br />
+				<h2>Change email</h2>
+				<p className="font-brand">
+					A email will be sent to the new email address. You will need to click
+					on the link in the email to confirm the change.
+				</p>
+				<Input placeholder="Enter your email" className="w-full block" />
+				<div className="h-2" />
+				<div className="flex flex-row justify-end">
+					<Button
+						className="bg-brand text-white"
+						loading={saving}
+						onClick={save}
+					>
+						Change
+					</Button>
+				</div>
+				<br />
+				<br />
+				<ManageTeamMembers />
 			</div>
 		</div>
 	);

@@ -41,7 +41,7 @@ const getBucketName = (region: AwsRegion) => {
 };
 
 const makeLayerPublic = async () => {
-	const runtimes: Runtime[] = ['nodejs20.x'];
+	const runtimes: Runtime[] = ['nodejs22.x'];
 
 	const layers = [
 		'fonts',

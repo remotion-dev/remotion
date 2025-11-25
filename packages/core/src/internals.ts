@@ -59,6 +59,7 @@ import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
 import {Log} from './log.js';
+import {MaxMediaCacheSizeContext} from './max-video-cache-size.js';
 import {NonceContext, SetNonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
 import {portalNode} from './portal-node.js';
@@ -67,12 +68,15 @@ import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
-import {RemotionRoot} from './RemotionRoot.js';
-import {RenderAssetManager} from './RenderAssetManager.js';
+import {RemotionRootContexts} from './RemotionRoot.js';
+import {
+	RenderAssetManager,
+	RenderAssetManagerProvider,
+} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {
 	PROPS_UPDATED_EXTERNALLY,
-	ResolveCompositionConfig,
+	ResolveCompositionConfigInStudio,
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
@@ -151,6 +155,7 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	MaxMediaCacheSizeContext,
 	useUnsafeVideoConfig,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
@@ -165,7 +170,7 @@ export const Internals = {
 	CompositionSetters,
 	SequenceManager,
 	SequenceVisibilityToggleContext,
-	RemotionRoot,
+	RemotionRootContexts,
 	CompositionManagerProvider,
 	useVideo,
 	getRoot,
@@ -206,7 +211,7 @@ export const Internals = {
 	resolveVideoConfig,
 	useResolvedVideoConfig,
 	resolveCompositionsRef,
-	ResolveCompositionConfig,
+	ResolveCompositionConfigInStudio,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 	RenderAssetManager,
 	persistCurrentFrame,
@@ -244,6 +249,7 @@ export const Internals = {
 	TimelinePosition,
 	DelayRenderContextType,
 	TimelineContext,
+	RenderAssetManagerProvider,
 } as const;
 
 export type {

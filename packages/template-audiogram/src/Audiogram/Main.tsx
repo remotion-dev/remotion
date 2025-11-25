@@ -93,6 +93,7 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
                 waveColor={visualizer.color}
                 padding={visualizer.padding}
                 audioSrc={audioFileUrl}
+                key={audioFileUrl}
                 numberOfSamples={baseNumberOfSamples}
                 windowInSeconds={visualizer.windowInSeconds}
                 posterization={visualizer.posterization}
@@ -102,6 +103,7 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
               <Spectrum
                 barColor={visualizer.color}
                 audioSrc={audioFileUrl}
+                key={audioFileUrl}
                 mirrorWave={visualizer.mirrorWave}
                 numberOfSamples={baseNumberOfSamples * 4} // since fft is used, we need to increase the number of samples to get a better resolution
                 freqRangeStartIndex={visualizer.freqRangeStartIndex}

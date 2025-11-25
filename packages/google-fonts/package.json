@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.373",
+	"version": "4.0.377",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -1746,6 +1746,9 @@
 			],
 			"GoogleSansCode": [
 				"dist/cjs/GoogleSansCode.d.ts"
+			],
+			"GoogleSansFlex": [
+				"dist/cjs/GoogleSansFlex.d.ts"
 			],
 			"Gorditas": [
 				"dist/cjs/Gorditas.d.ts"

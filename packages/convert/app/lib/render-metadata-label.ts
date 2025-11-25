@@ -1,4 +1,23 @@
-export const renderMetadataLabel = (key: string) => {
+export const parseIsMadeWithRemotion = (key: string, value: unknown) => {
+	if (key !== 'comment') {
+		return null;
+	}
+
+	const isMadeWithRemotion = String(value).includes('Made with Remotion');
+	if (!isMadeWithRemotion) {
+		return null;
+	}
+
+	const version = String(value).split(' ')[3];
+	return version;
+};
+
+export const renderMetadataLabel = (key: string, value: unknown) => {
+	const version = parseIsMadeWithRemotion(key, value);
+	if (version) {
+		return 'Made with Remotion';
+	}
+
 	if (key === 'com.apple.quicktime.location.accuracy.horizontal') {
 		return 'Location Accuracy (Horizontal)';
 	}
@@ -216,6 +235,11 @@ export const renderMetadataValue = ({
 	key: string;
 	value: string | number;
 }) => {
+	const version = parseIsMadeWithRemotion(key, value);
+	if (version) {
+		return 'v' + version;
+	}
+
 	if (key === 'com.apple.quicktime.location.ISO6709') {
 		return String(value);
 	}

@@ -5,5 +5,9 @@
 		"outDir": "dist"
 	},
 	"include": ["src"],
-	"references": [{"path": "../core"}, {"path": "../streaming"}]
+	"references": [
+		{"path": "../core"},
+		{"path": "../streaming"},
+		{"path": "../licensing"}
+	]
 }

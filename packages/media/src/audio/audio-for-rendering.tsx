@@ -9,6 +9,7 @@ import {
 	useDelayRender,
 	useRemotionEnvironment,
 } from 'remotion';
+import {useMaxMediaCacheSize} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {TARGET_SAMPLE_RATE} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
@@ -76,6 +77,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		],
 	);
 
+	const maxCacheSize = useMaxMediaCacheSize(
+		logLevel ?? window.remotion_logLevel,
+	);
+
 	useLayoutEffect(() => {
 		const timestamp = frame / fps;
 		const durationInSeconds = 1 / fps;
@@ -115,6 +120,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			trimAfter,
 			trimBefore,
 			fps,
+			maxCacheSize,
 		})
 			.then((result) => {
 				if (result.type === 'unknown-container-format') {
@@ -250,6 +256,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		trimAfter,
 		trimBefore,
 		replaceWithHtml5Audio,
+		maxCacheSize,
 	]);
 
 	if (replaceWithHtml5Audio) {

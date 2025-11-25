@@ -2911,6 +2911,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./GoogleSansCode') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Google Sans Flex',
+		importName: 'GoogleSansFlex',
+		load: () => import('./GoogleSansFlex') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Gorditas',
 		importName: 'Gorditas',
 		load: () => import('./Gorditas') as Promise<GoogleFont>,

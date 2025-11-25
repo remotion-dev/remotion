@@ -3,7 +3,8 @@ import {afterEach, describe, expect, test} from 'bun:test';
 import React from 'react';
 import {Composition} from '../Composition.js';
 import {CompositionManagerProvider} from '../CompositionManagerProvider.js';
-import {RemotionRoot} from '../RemotionRoot.js';
+import {RemotionRootContexts} from '../RemotionRoot.js';
+import {RenderAssetManagerProvider} from '../RenderAssetManager.js';
 import {expectToThrow} from './expect-to-throw.js';
 
 afterEach(() => {
@@ -57,7 +58,7 @@ describe('Render composition-rules should throw with invalid props', () => {
 						initialCompositions={[]}
 						initialCanvasContent={null}
 					>
-						<RemotionRoot
+						<RemotionRootContexts
 							frameState={null}
 							videoEnabled
 							audioEnabled
@@ -65,23 +66,25 @@ describe('Render composition-rules should throw with invalid props', () => {
 							logLevel="info"
 							audioLatencyHint="interactive"
 						>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								fps={30}
-								height={100}
-								width={100}
-								id="id"
-							/>
-							<Composition
-								lazyComponent={() => Promise.resolve({default: AnyComp})}
-								durationInFrames={100}
-								fps={30}
-								height={100}
-								width={100}
-								id="id"
-							/>
-						</RemotionRoot>
+							<RenderAssetManagerProvider collectAssets={null}>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									fps={30}
+									height={100}
+									width={100}
+									id="id"
+								/>
+								<Composition
+									lazyComponent={() => Promise.resolve({default: AnyComp})}
+									durationInFrames={100}
+									fps={30}
+									height={100}
+									width={100}
+									id="id"
+								/>
+							</RenderAssetManagerProvider>
+						</RemotionRootContexts>
 					</CompositionManagerProvider>,
 				),
 			/Multiple composition with id id/,

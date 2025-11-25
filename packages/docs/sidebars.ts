@@ -940,6 +940,20 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: 'Client-side rendering',
+			link: {
+				type: 'doc',
+				id: 'client-side-rendering/index',
+			},
+			items: [
+				'client-side-rendering/index',
+				'client-side-rendering/how-it-works',
+				'client-side-rendering/limitations',
+				'client-side-rendering/migration',
+			],
+		},
+		{
+			type: 'category',
 			link: {
 				type: 'doc',
 				id: 'player/index',
@@ -1131,6 +1145,7 @@ const sidebars: SidebarsConfig = {
 				'studio-into-app',
 				'player-into-remotion-project',
 				'video-uploads',
+				'validating-user-videos',
 				'presigned-urls',
 				'font-picker',
 				'building-a-timeline',
@@ -1317,6 +1332,7 @@ const sidebars: SidebarsConfig = {
 				'cors-issues',
 				'media-fragments',
 				'react-native',
+				'detect-remotion',
 			],
 		},
 		{
