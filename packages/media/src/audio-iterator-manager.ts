@@ -29,6 +29,7 @@ export const audioIteratorManager = ({
 
 	// secondary iterator for pre-warming loop audio
 	let loopTransitionIterator: AudioIterator | null = null;
+	let loopTransitionFirstChunk: WrappedAudioBuffer | null = null;
 	let loopSwapCount = 0;
 
 	const scheduleAudioChunk = ({
@@ -237,7 +238,19 @@ export const audioIteratorManager = ({
 					audioBufferIterator = loopTransitionIterator;
 					loopSwapCount++;
 
-					for (let i = 0; i < 3; i++) {
+					// First, schedule the stored first chunk that was pre-fetched
+					if (loopTransitionFirstChunk) {
+						onAudioChunk({
+							getIsPlaying,
+							buffer: loopTransitionFirstChunk,
+							playbackRate,
+							scheduleAudioNode,
+						});
+						loopTransitionFirstChunk = null;
+					}
+
+					// Then schedule 2 more chunks (total of 3)
+					for (let i = 0; i < 2; i++) {
 						const result = await audioBufferIterator.getNext();
 
 						if (nonce.isStale()) {
@@ -386,16 +399,22 @@ export const audioIteratorManager = ({
 		scheduleAudioChunk,
 		prepareLoopTransition: async ({startTime}: {startTime: number}) => {
 			loopTransitionIterator?.destroy();
+			loopTransitionFirstChunk = null;
 
 			loopTransitionIterator = makeAudioIterator(audioSink, startTime);
 
 			try {
-				// Mediabunny will intelligently fetch + decode ahead,
-				// so let's just get the first chunk
-				await loopTransitionIterator.getNext();
+				// Pre-warm the decoder by fetching the first chunk
+				// This initializes the AudioDecoder and starts decoding
+				// We store the chunk to schedule it later without losing audio data
+				const result = await loopTransitionIterator.getNext();
+				if (result.value) {
+					loopTransitionFirstChunk = result.value;
+				}
 			} catch (e) {
 				loopTransitionIterator?.destroy();
 				loopTransitionIterator = null;
+				loopTransitionFirstChunk = null;
 				throw e;
 			}
 		},
