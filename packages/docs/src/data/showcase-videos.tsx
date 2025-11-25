@@ -415,7 +415,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		title: 'Vibrantsnap - Record Smater, Engage Faster',
 		type: 'mux_video',
 		time: '0',
-		muxId: '3AB9opVycEfQHHws1jqNtfbBwb25gvui0KaXW3hxbWBf4oY4',
+		muxId: '2fkZsHmoL1t6yThzlFRq76FE0001dZBykFnHXgwgwyxwo',
 		description:
 			'Create product demos, training videos, and youtube tutorials with auto layouts, captions, intelligent zoom, and 4K export.',
 		height: 1080,
