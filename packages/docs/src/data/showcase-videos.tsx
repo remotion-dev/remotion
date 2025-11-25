@@ -433,7 +433,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		],
 		author: {
 			url: 'https://x.com/healsha',
-			name: 'Philippe Tedajo (@healsha)',
+			name: 'Philippe Tedajo',
 		},
 	},
 	/*
