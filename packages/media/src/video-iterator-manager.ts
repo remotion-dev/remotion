@@ -106,8 +106,8 @@ export const videoIteratorManager = ({
 			loopTransitionIterator &&
 			loopTransitionFirstFrame
 		) {
-			videoFrameIterator?.destroy();
 			videoFrameIterator = loopTransitionIterator;
+			loopTransitionIterator = null;
 			loopSwapCount++;
 
 			drawFrame(loopTransitionFirstFrame);

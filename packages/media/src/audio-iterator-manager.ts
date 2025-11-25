@@ -236,9 +236,9 @@ export const audioIteratorManager = ({
 					audioBufferIterator?.destroy();
 					// swap the iterator with pre-warmed one
 					audioBufferIterator = loopTransitionIterator;
+					loopTransitionIterator = null;
 					loopSwapCount++;
 
-					// First, schedule the stored first chunk that was pre-fetched
 					if (loopTransitionFirstChunk) {
 						onAudioChunk({
 							getIsPlaying,
@@ -249,7 +249,6 @@ export const audioIteratorManager = ({
 						loopTransitionFirstChunk = null;
 					}
 
-					// Then schedule 2 more chunks (total of 3)
 					for (let i = 0; i < 2; i++) {
 						const result = await audioBufferIterator.getNext();
 
