@@ -46,6 +46,9 @@ export class MediaPlayer {
 
 	private playing = false;
 	private loop = false;
+	private loopTransitionPreparedFromTime: number | null = null;
+	private previousUnloopedTime: number = 0;
+
 	private fps: number;
 
 	private trimBefore: number | undefined;
@@ -303,8 +306,10 @@ export class MediaPlayer {
 	}
 
 	public async seekTo(time: number): Promise<void> {
+		const unloopedTimeInSeconds = time;
+
 		const newTime = getTimeInSeconds({
-			unloopedTimeInSeconds: time,
+			unloopedTimeInSeconds,
 			playbackRate: this.playbackRate,
 			loop: this.loop,
 			trimBefore: this.trimBefore,
@@ -319,28 +324,45 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
+		const didLoopWrap = this.didCrossLoopBoundary(
+			this.previousUnloopedTime,
+			unloopedTimeInSeconds,
+		);
+
+		this.previousUnloopedTime = unloopedTimeInSeconds;
+
 		if (this.shouldPrepareLoopTransition(newTime)) {
-			// TODO: implement seamless looping
+			this.prepareSeamlessLoop(newTime);
 		}
 
 		const nonce = this.nonceManager.createAsyncOperation();
 		await this.seekPromiseChain;
 
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
+		this.seekPromiseChain = this.seekToDoNotCallDirectly(
+			newTime,
+			nonce,
+			didLoopWrap,
+		);
 		await this.seekPromiseChain;
 	}
 
 	public async seekToDoNotCallDirectly(
 		newTime: number,
 		nonce: Nonce,
+		isLoopWrap: boolean,
 	): Promise<void> {
 		if (nonce.isStale()) {
 			return;
 		}
 
 		const currentPlaybackTime = this.getPlaybackTime();
+
 		if (currentPlaybackTime === newTime) {
 			return;
+		}
+
+		if (isLoopWrap) {
+			this.loopTransitionPreparedFromTime = null;
 		}
 
 		await this.videoIteratorManager?.seek({
@@ -356,6 +378,7 @@ export class MediaPlayer {
 			getIsPlaying: () => this.playing,
 			scheduleAudioNode: this.scheduleAudioNode,
 			bufferState: this.bufferState,
+			isInLoopTransition: isLoopWrap,
 		});
 	}
 
@@ -483,42 +506,66 @@ export class MediaPlayer {
 		this.loop = loop;
 	}
 
-	private calculateLoopDuration(): number | null {
-		if (!this.loop || !this.totalDuration) {
-			return null;
+	private shouldPrepareLoopTransition(currentTimeInSeconds: number): boolean {
+		if (!this.loop || !this.audioIteratorManager || !this.totalDuration) {
+			return false;
 		}
 
-		const loopDurationInSeconds =
+		const isAlreadyPrepared =
+			this.loopTransitionPreparedFromTime !== null &&
+			Math.abs(this.loopTransitionPreparedFromTime - currentTimeInSeconds) <
+				1.0;
+
+		if (isAlreadyPrepared) {
+			return false;
+		}
+
+		const mediaDurationSec = this.totalDuration;
+		const timeUntilEnd = mediaDurationSec - currentTimeInSeconds;
+
+		// Prepare when we're within 1s of the end
+		return timeUntilEnd <= 1.0 && timeUntilEnd > 0.05;
+	}
+
+	private didCrossLoopBoundary(
+		previousUnloopedTime: number,
+		currentUnloopedTime: number,
+	): boolean {
+		if (!this.loop || !this.totalDuration) {
+			return false;
+		}
+
+		const loopDuration =
 			Internals.calculateMediaDuration({
 				trimAfter: this.trimAfter,
 				mediaDurationInFrames: this.totalDuration * this.fps,
-				playbackRate: 1, // this function is used AFTER `getTimeInSeconds`, so playbackRate is already applied
+				playbackRate: 1,
 				trimBefore: this.trimBefore,
 			}) / this.fps;
 
-		return loopDurationInSeconds;
-	}
-
-	private shouldPrepareLoopTransition(currentTimeInSeconds: number): boolean {
-		if (!this.loop || !this.audioIteratorManager) {
-			return false;
-		}
-
-		const loopDuration = this.calculateLoopDuration();
-		if (loopDuration === null || loopDuration === Infinity) {
-			return false;
-		}
-
-		const timeInCurrentLoop = currentTimeInSeconds % loopDuration;
-		const timeUntilLoopEnd = loopDuration - timeInCurrentLoop;
-
-		const LOOKAHEAD_THRESHOLD_SEC = 0.5;
-		const MIN_THRESHOLD_SEC = 0.05;
+		const previousLoopIteration = Math.floor(
+			(previousUnloopedTime * this.playbackRate) / loopDuration,
+		);
+		const currentLoopIteration = Math.floor(
+			(currentUnloopedTime * this.playbackRate) / loopDuration,
+		);
 
 		return (
-			timeUntilLoopEnd <= LOOKAHEAD_THRESHOLD_SEC &&
-			timeUntilLoopEnd > MIN_THRESHOLD_SEC
+			currentLoopIteration > previousLoopIteration &&
+			this.loopTransitionPreparedFromTime !== null
 		);
+	}
+
+	private prepareSeamlessLoop(currentTimeInSeconds: number): void {
+		if (!this.audioIteratorManager || !this.totalDuration) {
+			return;
+		}
+
+		this.loopTransitionPreparedFromTime = currentTimeInSeconds;
+
+		this.audioIteratorManager.prepareLoopTransition({
+			startTime: (this.trimBefore ?? 0) / this.fps,
+		});
 	}
 
 	public async dispose(): Promise<void> {

@@ -27,6 +27,10 @@ export const audioIteratorManager = ({
 	let audioBufferIterator: AudioIterator | null = null;
 	let audioIteratorsCreated = 0;
 
+	// secondary iterator for pre-warming loop audio
+	let loopTransitionIterator: AudioIterator | null = null;
+	let loopSwapCount = 0;
+
 	const scheduleAudioChunk = ({
 		buffer,
 		mediaTimestamp,
@@ -176,6 +180,7 @@ export const audioIteratorManager = ({
 		getIsPlaying,
 		scheduleAudioNode,
 		bufferState,
+		isInLoopTransition,
 	}: {
 		newTime: number;
 		nonce: Nonce;
@@ -187,6 +192,7 @@ export const audioIteratorManager = ({
 			node: AudioBufferSourceNode,
 			mediaTimestamp: number,
 		) => void;
+		isInLoopTransition: boolean;
 	}) => {
 		if (!audioBufferIterator) {
 			await startAudioIterator({
@@ -225,6 +231,34 @@ export const audioIteratorManager = ({
 			}
 
 			if (audioSatisfyResult.type === 'ended') {
+				if (isInLoopTransition && loopTransitionIterator) {
+					audioBufferIterator?.destroy();
+					// swap the iterator with pre-warmed one
+					audioBufferIterator = loopTransitionIterator;
+					loopSwapCount++;
+
+					for (let i = 0; i < 3; i++) {
+						const result = await audioBufferIterator.getNext();
+
+						if (nonce.isStale()) {
+							return;
+						}
+
+						if (!result.value) {
+							break;
+						}
+
+						onAudioChunk({
+							getIsPlaying,
+							buffer: result.value,
+							playbackRate,
+							scheduleAudioNode,
+						});
+					}
+
+					return;
+				}
+
 				// Audio iterator has ended, but we're seeking to a valid time. This happens when looping - restart the iterator from the new position.
 				await startAudioIterator({
 					nonce,
@@ -340,6 +374,7 @@ export const audioIteratorManager = ({
 		},
 		seek,
 		getAudioIteratorsCreated: () => audioIteratorsCreated,
+		getLoopSwapCount: () => loopSwapCount,
 		setMuted: (newMuted: boolean) => {
 			muted = newMuted;
 			gainNode.gain.value = muted ? 0 : currentVolume;
@@ -349,6 +384,21 @@ export const audioIteratorManager = ({
 			gainNode.gain.value = muted ? 0 : currentVolume;
 		},
 		scheduleAudioChunk,
+		prepareLoopTransition: async ({startTime}: {startTime: number}) => {
+			loopTransitionIterator?.destroy();
+
+			loopTransitionIterator = makeAudioIterator(audioSink, startTime);
+
+			try {
+				// Mediabunny will intelligently fetch + decode ahead,
+				// so let's just get the first chunk
+				await loopTransitionIterator.getNext();
+			} catch (e) {
+				loopTransitionIterator?.destroy();
+				loopTransitionIterator = null;
+				throw e;
+			}
+		},
 	};
 };
 
