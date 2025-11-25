@@ -368,6 +368,7 @@ export class MediaPlayer {
 		await this.videoIteratorManager?.seek({
 			newTime,
 			nonce,
+			isInLoopTransition: isLoopWrap,
 		});
 
 		await this.audioIteratorManager?.seek({
@@ -557,14 +558,19 @@ export class MediaPlayer {
 	}
 
 	private prepareSeamlessLoop(currentTimeInSeconds: number): void {
-		if (!this.audioIteratorManager || !this.totalDuration) {
+		if (!this.totalDuration) {
 			return;
 		}
 
 		this.loopTransitionPreparedFromTime = currentTimeInSeconds;
 
-		this.audioIteratorManager.prepareLoopTransition({
-			startTime: (this.trimBefore ?? 0) / this.fps,
+		const mediaStartTime = (this.trimBefore ?? 0) / this.fps;
+
+		this.audioIteratorManager?.prepareLoopTransition({
+			startTime: mediaStartTime,
+		});
+		this.videoIteratorManager?.prepareLoopTransition({
+			startTime: mediaStartTime,
 		});
 	}
 

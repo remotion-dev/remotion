@@ -29,6 +29,10 @@ export const videoIteratorManager = ({
 	let videoFrameIterator: VideoIterator | null = null;
 	let framesRendered = 0;
 
+	let loopTransitionIterator: VideoIterator | null = null;
+	let loopTransitionFirstFrame: WrappedCanvas | null = null;
+	let loopSwapCount = 0;
+
 	canvas.width = videoTrack.displayWidth;
 	canvas.height = videoTrack.displayHeight;
 
@@ -88,7 +92,30 @@ export const videoIteratorManager = ({
 		drawFrame(frameResult.value);
 	};
 
-	const seek = async ({newTime, nonce}: {newTime: number; nonce: Nonce}) => {
+	const seek = async ({
+		newTime,
+		nonce,
+		isInLoopTransition = false,
+	}: {
+		newTime: number;
+		nonce: Nonce;
+		isInLoopTransition?: boolean;
+	}) => {
+		if (
+			isInLoopTransition &&
+			loopTransitionIterator &&
+			loopTransitionFirstFrame
+		) {
+			videoFrameIterator?.destroy();
+			videoFrameIterator = loopTransitionIterator;
+			loopSwapCount++;
+
+			drawFrame(loopTransitionFirstFrame);
+			loopTransitionFirstFrame = null;
+
+			return;
+		}
+
 		if (!videoFrameIterator) {
 			return;
 		}
@@ -121,12 +148,35 @@ export const videoIteratorManager = ({
 		seek,
 		destroy: () => {
 			videoFrameIterator?.destroy();
+			loopTransitionIterator?.destroy();
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			videoFrameIterator = null;
+			loopTransitionIterator = null;
+			loopTransitionFirstFrame = null;
 		},
 		getVideoFrameIterator: () => videoFrameIterator,
 		drawFrame,
 		getFramesRendered: () => framesRendered,
+		getLoopSwapCount: () => loopSwapCount,
+		prepareLoopTransition: async ({startTime}: {startTime: number}) => {
+			loopTransitionIterator?.destroy();
+			loopTransitionFirstFrame = null;
+
+			const iterator = createVideoIterator(startTime, canvasSink);
+			loopTransitionIterator = iterator;
+
+			try {
+				const result = await iterator.getNext();
+				if (result.value) {
+					loopTransitionFirstFrame = result.value;
+				}
+			} catch (e) {
+				loopTransitionIterator?.destroy();
+				loopTransitionIterator = null;
+				loopTransitionFirstFrame = null;
+				throw e;
+			}
+		},
 	};
 };
 
