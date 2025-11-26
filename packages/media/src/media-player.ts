@@ -46,7 +46,7 @@ export class MediaPlayer {
 
 	private playing = false;
 	private loop = false;
-	private loopTransitionPreparedFromTime: number | null = null;
+	private loopTransitionPreparedFromMediaTime: number | null = null;
 	private previousUnloopedTime: number = 0;
 
 	private fps: number;
@@ -365,7 +365,7 @@ export class MediaPlayer {
 		}
 
 		if (isLoopWrap) {
-			this.loopTransitionPreparedFromTime = null;
+			this.loopTransitionPreparedFromMediaTime = null;
 		}
 
 		await this.videoIteratorManager?.seek({
@@ -531,7 +531,7 @@ export class MediaPlayer {
 			return false;
 		}
 
-		if (this.loopTransitionPreparedFromTime !== null) {
+		if (this.loopTransitionPreparedFromMediaTime !== null) {
 			return false;
 		}
 
@@ -566,20 +566,34 @@ export class MediaPlayer {
 		return currentIteration > previousIteration;
 	}
 
-	private prepareSeamlessLoop(currentTimeInSeconds: number): void {
+	private prepareSeamlessLoop(currentMediaTimeInSeconds: number): void {
 		if (!this.mediaDurationInSeconds) {
 			return;
 		}
 
-		this.loopTransitionPreparedFromTime = currentTimeInSeconds;
+		this.loopTransitionPreparedFromMediaTime = currentMediaTimeInSeconds;
 
-		const mediaStartTime = (this.trimBefore ?? 0) / this.fps;
+		const startTimeInSeconds = getTimeInSeconds({
+			unloopedTimeInSeconds: 0,
+			playbackRate: this.playbackRate,
+			loop: this.loop,
+			trimBefore: this.trimBefore,
+			trimAfter: this.trimAfter,
+			mediaDurationInSeconds: this.mediaDurationInSeconds,
+			fps: this.fps,
+			ifNoMediaDuration: 'infinity',
+			src: this.src,
+		});
+
+		if (startTimeInSeconds === null) {
+			return;
+		}
 
 		this.audioIteratorManager?.prepareLoopTransition({
-			startTime: mediaStartTime,
+			startTimeInSeconds,
 		});
 		this.videoIteratorManager?.prepareLoopTransition({
-			startTime: mediaStartTime,
+			startTime: startTimeInSeconds,
 		});
 	}
 
