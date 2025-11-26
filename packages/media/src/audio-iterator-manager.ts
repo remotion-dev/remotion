@@ -396,11 +396,15 @@ export const audioIteratorManager = ({
 			gainNode.gain.value = muted ? 0 : currentVolume;
 		},
 		scheduleAudioChunk,
-		prepareLoopTransition: async ({startTime}: {startTime: number}) => {
+		prepareLoopTransition: async ({
+			startTimeInSeconds,
+		}: {
+			startTimeInSeconds: number;
+		}) => {
 			loopTransitionIterator?.destroy();
 			loopTransitionFirstChunk = null;
 
-			loopTransitionIterator = makeAudioIterator(audioSink, startTime);
+			loopTransitionIterator = makeAudioIterator(audioSink, startTimeInSeconds);
 
 			try {
 				// Pre-warm the decoder by fetching the first chunk
