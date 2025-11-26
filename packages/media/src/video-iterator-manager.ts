@@ -159,6 +159,7 @@ export const videoIteratorManager = ({
 		getFramesRendered: () => framesRendered,
 		getLoopSwapCount: () => loopSwapCount,
 		prepareLoopTransition: async ({startTime}: {startTime: number}) => {
+			console.log('preparing loop transition');
 			loopTransitionIterator?.destroy();
 			loopTransitionFirstFrame = null;
 
@@ -167,6 +168,7 @@ export const videoIteratorManager = ({
 
 			try {
 				const result = await iterator.getNext();
+				console.log('got the first frame!', result);
 				if (result.value) {
 					loopTransitionFirstFrame = result.value;
 				}
