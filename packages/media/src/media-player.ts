@@ -331,7 +331,10 @@ export class MediaPlayer {
 
 		this.previousUnloopedTime = unloopedTimeInSeconds;
 
-		if (this.shouldPrepareLoopTransition(newTime)) {
+		const shouldPrepareLoopTransition =
+			this.shouldPrepareLoopTransition(newTime);
+
+		if (shouldPrepareLoopTransition) {
 			this.prepareSeamlessLoop(newTime);
 		}
 
@@ -508,7 +511,7 @@ export class MediaPlayer {
 	}
 
 	private shouldPrepareLoopTransition(currentTimeInSeconds: number): boolean {
-		if (!this.loop || !this.audioIteratorManager || !this.totalDuration) {
+		if (!this.loop || !this.totalDuration) {
 			return false;
 		}
 
