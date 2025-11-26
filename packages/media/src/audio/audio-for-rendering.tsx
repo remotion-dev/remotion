@@ -21,6 +21,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	playbackRate,
 	src,
 	muted,
+	crossOrigin,
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
@@ -272,6 +273,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				style={style}
 				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
 				audioStreamIndex={audioStreamIndex}
+				crossOrigin={crossOrigin}
 				useWebAudioApi={fallbackHtml5AudioProps?.useWebAudioApi}
 				onError={fallbackHtml5AudioProps?.onError}
 				toneFrequency={toneFrequency}

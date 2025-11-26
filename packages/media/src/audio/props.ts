@@ -17,6 +17,7 @@ export type AudioProps = {
 	showInTimeline?: boolean;
 	playbackRate?: number;
 	muted?: boolean;
+	crossOrigin?: '' | 'anonymous' | 'use-credentials';
 	style?: React.CSSProperties;
 	/**
 	 * @deprecated For internal use only

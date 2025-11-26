@@ -50,6 +50,7 @@ type NewAudioForPreviewProps = {
 	readonly toneFrequency: number | undefined;
 	readonly audioStreamIndex: number | undefined;
 	readonly fallbackHtml5AudioProps: FallbackHtml5AudioProps | undefined;
+	readonly crossOrigin?: '' | 'anonymous' | 'use-credentials';
 };
 
 const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
@@ -69,6 +70,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	toneFrequency,
 	audioStreamIndex,
 	fallbackHtml5AudioProps,
+	crossOrigin,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
@@ -436,6 +438,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				toneFrequency={toneFrequency}
 				audioStreamIndex={audioStreamIndex}
 				pauseWhenBuffering={fallbackHtml5AudioProps?.pauseWhenBuffering}
+				crossOrigin={crossOrigin}
 				{...fallbackHtml5AudioProps}
 			/>
 		);
@@ -469,6 +472,7 @@ type InnerAudioProps = {
 	readonly toneFrequency?: number;
 	readonly audioStreamIndex?: number;
 	readonly fallbackHtml5AudioProps?: FallbackHtml5AudioProps;
+	readonly crossOrigin?: '' | 'anonymous' | 'use-credentials';
 };
 
 export const AudioForPreview: React.FC<InnerAudioProps> = ({
@@ -488,6 +492,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	toneFrequency,
 	audioStreamIndex,
 	fallbackHtml5AudioProps,
+	crossOrigin,
 }) => {
 	const preloadedSrc = usePreload(src);
 
@@ -546,6 +551,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			disallowFallbackToHtml5Audio={disallowFallbackToHtml5Audio ?? false}
 			toneFrequency={toneFrequency}
 			fallbackHtml5AudioProps={fallbackHtml5AudioProps}
+			crossOrigin={crossOrigin}
 		/>
 	);
 };
