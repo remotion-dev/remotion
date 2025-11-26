@@ -158,6 +158,26 @@ export const MyComposition = () => {
 };
 ```
 
+### `crossOrigin?`
+
+Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-crossorigin) attribute of the underlying `<video>` element used when `<Video>` falls back to HTML5 video rendering. Set this to `'anonymous'` or `'use-credentials'` when loading media from another domain that requires CORS.
+
+```tsx twoslash title="Loading a remote video with CORS enabled"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion-website-static-files.s3.eu-central-1.amazonaws.com/BigBuckBunny.mp4"
+        crossOrigin="anonymous"
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
 ### `style?`
 
 You can pass any style you can pass to a native HTML `<canvas>` element.
