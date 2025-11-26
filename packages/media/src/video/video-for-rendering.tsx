@@ -48,6 +48,7 @@ type InnerVideoProps = {
 	readonly toneFrequency: number;
 	readonly trimBeforeValue: number | undefined;
 	readonly trimAfterValue: number | undefined;
+	readonly crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
 };
 
 type FallbackToOffthreadVideo = {
@@ -75,6 +76,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	toneFrequency,
 	trimAfterValue,
 	trimBeforeValue,
+	crossOrigin,
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
@@ -407,7 +409,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				toneFrequency={toneFrequency}
 				// these shouldn't matter during rendering / should not appear at all
 				showInTimeline={false}
-				crossOrigin={undefined}
+				crossOrigin={crossOrigin}
 				onAutoPlayError={() => undefined}
 				pauseWhenBuffering={false}
 				trimAfter={trimAfterValue}

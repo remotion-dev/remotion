@@ -23,6 +23,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 	onVideoFrame,
 	playbackRate,
 	style,
+	crossOrigin,
 	trimAfter,
 	trimBefore,
 	volume,
@@ -80,6 +81,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 				src={src}
 				stack={stack}
 				style={style}
+				crossOrigin={crossOrigin}
 				volume={volume}
 				toneFrequency={toneFrequency}
 				trimAfterValue={trimAfterValue}
@@ -101,6 +103,7 @@ const InnerVideo: React.FC<InnerVideoProps> = ({
 			playbackRate={playbackRate}
 			src={src}
 			style={style}
+			crossOrigin={crossOrigin}
 			volume={volume}
 			showInTimeline={showInTimeline}
 			trimAfter={trimAfterValue}
@@ -130,6 +133,7 @@ export const Video: React.FC<VideoProps> = ({
 	playbackRate,
 	showInTimeline,
 	style,
+	crossOrigin,
 	trimAfter,
 	trimBefore,
 	volume,
@@ -164,6 +168,7 @@ export const Video: React.FC<VideoProps> = ({
 			showInTimeline={showInTimeline ?? true}
 			src={src}
 			style={style ?? {}}
+			crossOrigin={crossOrigin}
 			trimAfter={trimAfter}
 			trimBefore={trimBefore}
 			volume={volume ?? 1}

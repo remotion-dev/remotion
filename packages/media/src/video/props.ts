@@ -32,6 +32,7 @@ type OptionalVideoProps = {
 	delayRenderRetries: number | null;
 	delayRenderTimeoutInMilliseconds: number | null;
 	style: React.CSSProperties;
+	crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
 	/**
 	 * @deprecated For internal use only
 	 */

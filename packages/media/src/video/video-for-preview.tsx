@@ -54,6 +54,7 @@ type VideoForPreviewProps = {
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 	readonly audioStreamIndex: number;
 	readonly debugOverlay: boolean;
+	readonly crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
 };
 
 const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
@@ -76,6 +77,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	fallbackOffthreadVideoProps,
 	audioStreamIndex,
 	debugOverlay,
+	crossOrigin,
 }) => {
 	const src = usePreload(unpreloadedSrc);
 
@@ -471,6 +473,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 				loop={loop}
 				showInTimeline={showInTimeline}
 				stack={stack ?? undefined}
+				crossOrigin={crossOrigin}
 				{...fallbackOffthreadVideoProps}
 			/>
 		);
