@@ -54,7 +54,7 @@ export class MediaPlayer {
 	private trimBefore: number | undefined;
 	private trimAfter: number | undefined;
 
-	private totalDuration: number | undefined;
+	private mediaDurationInSeconds: number | undefined;
 
 	private debugOverlay = false;
 
@@ -195,7 +195,7 @@ export class MediaPlayer {
 				return {type: 'disposed'};
 			}
 
-			this.totalDuration = durationInSeconds;
+			this.mediaDurationInSeconds = durationInSeconds;
 
 			const audioTrack = audioTracks[this.audioStreamIndex] ?? null;
 
@@ -232,7 +232,7 @@ export class MediaPlayer {
 				loop: this.loop,
 				trimBefore: this.trimBefore,
 				trimAfter: this.trimAfter,
-				mediaDurationInSeconds: this.totalDuration,
+				mediaDurationInSeconds: this.mediaDurationInSeconds,
 				fps: this.fps,
 				ifNoMediaDuration: 'infinity',
 				src: this.src,
@@ -314,7 +314,7 @@ export class MediaPlayer {
 			loop: this.loop,
 			trimBefore: this.trimBefore,
 			trimAfter: this.trimAfter,
-			mediaDurationInSeconds: this.totalDuration ?? null,
+			mediaDurationInSeconds: this.mediaDurationInSeconds ?? null,
 			fps: this.fps,
 			ifNoMediaDuration: 'infinity',
 			src: this.src,
@@ -393,7 +393,7 @@ export class MediaPlayer {
 			loop: this.loop,
 			trimBefore: this.trimBefore,
 			trimAfter: this.trimAfter,
-			mediaDurationInSeconds: this.totalDuration ?? null,
+			mediaDurationInSeconds: this.mediaDurationInSeconds ?? null,
 			fps: this.fps,
 			ifNoMediaDuration: 'infinity',
 			src: this.src,
@@ -510,58 +510,64 @@ export class MediaPlayer {
 		this.loop = loop;
 	}
 
-	private shouldPrepareLoopTransition(currentTimeInSeconds: number): boolean {
-		if (!this.loop || !this.totalDuration) {
+	private getLoopDuration(): number {
+		if (!this.mediaDurationInSeconds) {
+			return 0;
+		}
+
+		const loopDurationInSeconds =
+			Internals.calculateMediaDuration({
+				trimBefore: this.trimBefore,
+				trimAfter: this.trimAfter,
+				mediaDurationInFrames: this.mediaDurationInSeconds * this.fps,
+				playbackRate: 1,
+			}) / this.fps;
+
+		return loopDurationInSeconds;
+	}
+
+	private shouldPrepareLoopTransition(mediaTime: number): boolean {
+		if (!this.loop || !this.mediaDurationInSeconds) {
 			return false;
 		}
 
-		const isAlreadyPrepared =
-			this.loopTransitionPreparedFromTime !== null &&
-			Math.abs(this.loopTransitionPreparedFromTime - currentTimeInSeconds) <
-				1.0;
-
-		if (isAlreadyPrepared) {
+		if (this.loopTransitionPreparedFromTime !== null) {
 			return false;
 		}
 
-		const mediaDurationSec = this.totalDuration;
-		const timeUntilEnd = mediaDurationSec - currentTimeInSeconds;
+		const thresholdInSeconds = 1.0;
+		const loopStartMediaTime = (this.trimBefore ?? 0) / this.fps;
 
-		// Prepare when we're within 1s of the end
-		return timeUntilEnd <= 1.0 && timeUntilEnd > 0.05;
+		const loopDuration = this.getLoopDuration();
+
+		const positionInLoop = mediaTime - loopStartMediaTime;
+		const timeUntilEndSec = loopDuration - positionInLoop;
+
+		return timeUntilEndSec <= thresholdInSeconds && timeUntilEndSec > 0;
 	}
 
 	private didCrossLoopBoundary(
 		previousUnloopedTime: number,
 		currentUnloopedTime: number,
 	): boolean {
-		if (!this.loop || !this.totalDuration) {
+		if (!this.loop || !this.mediaDurationInSeconds) {
 			return false;
 		}
 
-		const loopDuration =
-			Internals.calculateMediaDuration({
-				trimAfter: this.trimAfter,
-				mediaDurationInFrames: this.totalDuration * this.fps,
-				playbackRate: 1,
-				trimBefore: this.trimBefore,
-			}) / this.fps;
+		const loopDuration = this.getLoopDuration();
 
-		const previousLoopIteration = Math.floor(
+		const previousIteration = Math.floor(
 			(previousUnloopedTime * this.playbackRate) / loopDuration,
 		);
-		const currentLoopIteration = Math.floor(
+		const currentIteration = Math.floor(
 			(currentUnloopedTime * this.playbackRate) / loopDuration,
 		);
 
-		return (
-			currentLoopIteration > previousLoopIteration &&
-			this.loopTransitionPreparedFromTime !== null
-		);
+		return currentIteration > previousIteration;
 	}
 
 	private prepareSeamlessLoop(currentTimeInSeconds: number): void {
-		if (!this.totalDuration) {
+		if (!this.mediaDurationInSeconds) {
 			return;
 		}
 
