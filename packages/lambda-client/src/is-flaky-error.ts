@@ -100,5 +100,9 @@ export const isFlakyError = (err: Error): boolean => {
 		return true;
 	}
 
+	if (message.includes('Page crashed!')) {
+		return true;
+	}
+
 	return false;
 };
