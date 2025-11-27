@@ -1,0 +1,64 @@
+---
+image: /generated/articles-docs-editor-starter-cropping.png
+title: Cropping in the Editor Starter
+sidebar_label: Cropping
+id: cropping
+crumb: Editor Starter
+---
+
+With cropping, users can choose to cut off edges of an item in all 4 directions (left, right, top, bottom).
+
+## State
+
+Cropping was implemented in PR [#415](https://github.com/remotion-dev/editor-starter/pull/415), merged on November 27th, 2025.
+
+It introduces new fields for items:
+
+- [Croppable items](/docs/editor-starter/tracks-items-assets#items) have `cropLeft`, `cropRight`, `cropTop` and `cropBottom` fields.
+- The [global state](/docs/editor-starter/state-management) has a new field `itemSelectedForCrop` which stores whether an item is in Crop Mode.
+
+If you have existing state without these fields, the Editor Starter should handle it gracefully. If you write code that touches this logic, consider that your old persisted state may not have these fields.
+
+## Feature Flag
+
+Cropping can be globally disabled by setting the feature flag [`FEATURE_CROPPING`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_CROPPING&type=code) to `false`.
+
+## Items supporting cropping
+
+Out of the [default item types](/docs/editor-starter/tracks-items-assets#items), images, GIFs and videos support cropping.
+
+## Mechanic
+
+The `cropLeft`, `cropRight`, `cropTop` and `cropBottom` fields are ratios, where as `0` means no crop and `1` means cropping the entire axis.
+
+By using ratios instead of pixels, we can ensure that we don't lose precision when combining resizing and cropping.
+
+Throughout the code, we ensure that at least 1 pixel remains in the cropped item for each axis.
+
+We also ensure that the 2 crop values of each axis are less than 1.  
+For example, it should not be possible to have `cropLeft` set to `0.5` and `cropRight` set to `0.5`, because nothing would remain.
+
+## Ways of cropping
+
+Crop can be controlled in the inspector using sliders (feature flag: [`FEATURE_CROP_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_CROP_CONTROL&type=code)).  
+Alternatively, cropping can be done on the canvas by activating [Crop Mode](#crop-mode).
+
+## Crop Mode
+
+By double-clicking an item that is croppable on the canvas, "Crop Mode" is activated, replacing resize handles with crop handles.
+
+On any of the 8 handles, the user can drag to control the crop values.
+
+Feature flag: [`FEATURE_CROP_BACKGROUNDS`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_CROP_BACKGROUNDS&type=code)
+
+## Crop Backgrounds
+
+When crop mode is activated, the full uncropped item is shown in the background with reduced opacity, to help the user visualize the cutout area. The actual opacity of the item is overridden to be `1` temporarily to ensure contrast.
+
+## Negative crop values
+
+In Crop Mode, the user can also reposition the item on the canvas, affecting the cutout area and therefore the crop values.
+
+It is more intuitive to also allow for negative crops while dragging the item, which is why we do so. This is aligned with Figma's behavior.
+
+Once crop mode is being exited by clicking anywhere outside of the item, the crop values are being clamped to be non-negative.

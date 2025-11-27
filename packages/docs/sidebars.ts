@@ -1430,6 +1430,7 @@ const sidebars: SidebarsConfig = {
 				'editor-starter/tracks-items-assets',
 				'editor-starter/undo-redo',
 				'editor-starter/copy-paste',
+				'editor-starter/cropping',
 				'editor-starter/fonts',
 				'editor-starter/asset-uploads',
 				'editor-starter/asset-cleanup',
