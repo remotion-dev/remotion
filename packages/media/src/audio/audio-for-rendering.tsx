@@ -259,6 +259,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		trimBefore,
 		replaceWithHtml5Audio,
 		maxCacheSize,
+		crossOrigin,
 	]);
 
 	if (replaceWithHtml5Audio) {

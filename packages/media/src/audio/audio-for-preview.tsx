@@ -306,6 +306,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		isPremounting,
 		isPostmounting,
 		globalPlaybackRate,
+		crossOrigin,
 	]);
 
 	useEffect(() => {
