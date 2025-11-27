@@ -10,6 +10,7 @@ import {
 	WEBM,
 } from 'mediabunny';
 import type {LogLevel} from 'remotion';
+import {getRequestInit} from '../helpers/get-request-init';
 import {isNetworkError} from '../is-network-error';
 import {makeKeyframeBank} from './keyframe-bank';
 import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
@@ -54,11 +55,16 @@ const getFormatOrNullOrNetworkError = async (
 	}
 };
 
-export const getSinks = async (src: string) => {
+export const getSinks = async (
+	src: string,
+	crossOrigin?: '' | 'anonymous' | 'use-credentials',
+) => {
+	const requestInit = getRequestInit({crossOrigin});
 	const input = new Input({
 		formats: ALL_FORMATS,
 		source: new UrlSource(src, {
 			getRetryDelay,
+			...(requestInit ? {requestInit} : {}),
 		}),
 	});
 

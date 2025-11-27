@@ -122,6 +122,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			trimBefore,
 			fps,
 			maxCacheSize,
+			crossOrigin,
 		})
 			.then((result) => {
 				if (result.type === 'unknown-container-format') {

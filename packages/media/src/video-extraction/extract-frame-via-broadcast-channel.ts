@@ -18,6 +18,7 @@ type ExtractFrameRequest = {
 	trimBefore: number | undefined;
 	fps: number;
 	maxCacheSize: number;
+	crossOrigin?: '' | 'anonymous' | 'use-credentials';
 };
 
 type ExtractFrameResponse =
@@ -78,6 +79,7 @@ if (
 						trimBefore: data.trimBefore,
 						fps: data.fps,
 						maxCacheSize: data.maxCacheSize,
+						crossOrigin: data.crossOrigin,
 					});
 
 					if (result.type === 'cannot-decode') {
@@ -185,6 +187,7 @@ export const extractFrameViaBroadcastChannel = ({
 	trimBefore,
 	fps,
 	maxCacheSize,
+	crossOrigin,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -200,6 +203,7 @@ export const extractFrameViaBroadcastChannel = ({
 	trimBefore: number | undefined;
 	fps: number;
 	maxCacheSize: number;
+	crossOrigin?: '' | 'anonymous' | 'use-credentials';
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
@@ -216,6 +220,7 @@ export const extractFrameViaBroadcastChannel = ({
 			trimBefore,
 			fps,
 			maxCacheSize,
+			crossOrigin,
 		});
 	}
 
@@ -335,6 +340,7 @@ export const extractFrameViaBroadcastChannel = ({
 		trimBefore,
 		fps,
 		maxCacheSize,
+		crossOrigin,
 	};
 
 	window.remotion_broadcastChannel!.postMessage(request);

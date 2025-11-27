@@ -186,6 +186,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 				isPremounting,
 				isPostmounting,
 				globalPlaybackRate,
+				crossOrigin,
 			});
 
 			mediaPlayerRef.current = player;
@@ -307,6 +308,7 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 		isPremounting,
 		isPostmounting,
 		globalPlaybackRate,
+		crossOrigin,
 	]);
 
 	const classNameValue = useMemo(() => {

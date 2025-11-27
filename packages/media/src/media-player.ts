@@ -8,6 +8,7 @@ import {
 import {calculatePlaybackTime} from './calculate-playbacktime';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getTimeInSeconds} from './get-time-in-seconds';
+import {getRequestInit} from './helpers/get-request-init';
 import {isNetworkError} from './is-network-error';
 import type {Nonce, NonceManager} from './nonce-manager';
 import {makeNonceManager} from './nonce-manager';
@@ -71,6 +72,7 @@ export class MediaPlayer {
 	constructor({
 		canvas,
 		src,
+		crossOrigin,
 		logLevel,
 		sharedAudioContext,
 		loop,
@@ -92,6 +94,7 @@ export class MediaPlayer {
 		loop: boolean;
 		trimBefore: number | undefined;
 		trimAfter: number | undefined;
+		crossOrigin?: '' | 'anonymous' | 'use-credentials';
 		playbackRate: number;
 		globalPlaybackRate: number;
 		audioStreamIndex: number;
@@ -118,8 +121,10 @@ export class MediaPlayer {
 		this.isPostmounting = isPostmounting;
 		this.nonceManager = makeNonceManager();
 
+		const requestInit = getRequestInit({crossOrigin});
+
 		this.input = new Input({
-			source: new UrlSource(this.src),
+			source: new UrlSource(this.src, requestInit ? {requestInit} : undefined),
 			formats: ALL_FORMATS,
 		});
 

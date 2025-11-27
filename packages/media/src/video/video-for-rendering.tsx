@@ -178,6 +178,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			trimBefore: trimBeforeValue,
 			fps,
 			maxCacheSize,
+			crossOrigin,
 		})
 			.then((result) => {
 				if (result.type === 'unknown-container-format') {
@@ -373,6 +374,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		videoEnabled,
 		maxCacheSize,
 		cancelRender,
+		crossOrigin,
 	]);
 
 	const classNameValue = useMemo(() => {

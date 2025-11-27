@@ -5,8 +5,24 @@ import {getSinks} from './video-extraction/get-frames-since-keyframe';
 
 export const sinkPromises: Record<string, Promise<GetSink>> = {};
 
-export const getSink = (src: string, logLevel: LogLevel) => {
-	let promise = sinkPromises[src];
+const getSinkKey = (
+	src: string,
+	crossOrigin?: '' | 'anonymous' | 'use-credentials',
+) => {
+	return JSON.stringify({src, crossOrigin: crossOrigin ?? null});
+};
+
+export const getSink = ({
+	src,
+	logLevel,
+	crossOrigin,
+}: {
+	src: string;
+	logLevel: LogLevel;
+	crossOrigin?: '' | 'anonymous' | 'use-credentials';
+}) => {
+	const key = getSinkKey(src, crossOrigin);
+	let promise = sinkPromises[key];
 	if (!promise) {
 		Internals.Log.verbose(
 			{
@@ -15,8 +31,8 @@ export const getSink = (src: string, logLevel: LogLevel) => {
 			},
 			`Sink for ${src} was not found, creating new sink`,
 		);
-		promise = getSinks(src);
-		sinkPromises[src] = promise;
+		promise = getSinks(src, crossOrigin);
+		sinkPromises[key] = promise;
 	}
 
 	return promise;
