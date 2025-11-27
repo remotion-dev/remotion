@@ -19,6 +19,7 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 	});
 	assert(audio1 !== 'cannot-decode');
 	assert(audio1 !== 'unknown-container-format');
+	assert(audio1 !== 'network-error');
 	expect(audio1.data).toBe(null);
 	expect(audio1.durationInSeconds).toBe(null);
 
@@ -38,6 +39,7 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 	});
 	assert(audio2 !== 'cannot-decode');
 	assert(audio2 !== 'unknown-container-format');
+	assert(audio2 !== 'network-error');
 	assert(audio2.data);
 	expect(audio2.data.data.length).toBe(3200);
 	expect(audio2.data.timestamp).toBe((1 / 30) * 1_000_000);
@@ -60,6 +62,7 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 	});
 	assert(audio3 !== 'cannot-decode');
 	assert(audio3 !== 'unknown-container-format');
+	assert(audio3 !== 'network-error');
 	assert(audio3.data);
 	expect(audio3.data.data.length).toBe(3200);
 	expect(audio3.data.timestamp).toBe((2 / 30) * 1_000_000);

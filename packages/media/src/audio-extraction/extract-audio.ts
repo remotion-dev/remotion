@@ -48,6 +48,7 @@ const extractAudioInternal = async ({
 	  }
 	| 'cannot-decode'
 	| 'unknown-container-format'
+	| 'network-error'
 > => {
 	const {getAudio, actualMatroskaTimestamps, isMatroska, getDuration} =
 		await getSink(src, logLevel);
@@ -58,6 +59,10 @@ const extractAudioInternal = async ({
 	}
 
 	const audio = await getAudio(audioStreamIndex);
+
+	if (audio === 'network-error') {
+		return 'network-error';
+	}
 
 	if (audio === 'no-audio-track') {
 		return {data: null, durationInSeconds: null};
