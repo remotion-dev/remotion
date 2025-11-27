@@ -381,7 +381,7 @@ test('should use pre-warmed iterator when looping with prepareLoopTransition', a
 	};
 
 	// simulate loop scenario & preparing for loop
-	await manager.prepareLoopTransition({startTime: 0});
+	await manager.prepareLoopTransition({startTimeInSeconds: 0});
 
 	await manager.seek({
 		newTime: 9.97,
