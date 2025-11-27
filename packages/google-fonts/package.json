@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.377",
+	"version": "4.0.378",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -2281,6 +2281,9 @@
 			"KeaniaOne": [
 				"dist/cjs/KeaniaOne.d.ts"
 			],
+			"Kedebideri": [
+				"dist/cjs/Kedebideri.d.ts"
+			],
 			"KellySlab": [
 				"dist/cjs/KellySlab.d.ts"
 			],
@@ -4539,6 +4542,9 @@
 			],
 			"Schoolbell": [
 				"dist/cjs/Schoolbell.d.ts"
+			],
+			"ScienceGothic": [
+				"dist/cjs/ScienceGothic.d.ts"
 			],
 			"ScopeOne": [
 				"dist/cjs/ScopeOne.d.ts"
