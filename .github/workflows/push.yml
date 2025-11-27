@@ -33,7 +33,7 @@ jobs:
       - name: Lambda tests
         timeout-minutes: 10
         run: |
-          cd packages/lambda && bun test src/test/integration --run
+          cd packages/lambda && bunx remotion browser ensure && bun test src/test/integration --run
   nextjs-tests:
     runs-on: ubuntu-latest
     name: Next.js SSR build

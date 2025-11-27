@@ -7,6 +7,27 @@ type Transform = {
 	boundingClientRect: DOMRect | null;
 };
 
+const getInternalTransformOrigin = (transform: Transform) => {
+	const centerX = transform.boundingClientRect!.width / 2;
+	const centerY = transform.boundingClientRect!.height / 2;
+
+	const origin = parseTransformOrigin(transform.transformOrigin) ?? {
+		x: centerX,
+		y: centerY,
+	};
+
+	return origin;
+};
+
+const getGlobalTransformOrigin = (transform: Transform) => {
+	const {x: originX, y: originY} = getInternalTransformOrigin(transform);
+
+	return {
+		x: originX + transform.boundingClientRect!.left,
+		y: originY + transform.boundingClientRect!.top,
+	};
+};
+
 export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 	// Compute the cumulative transform by traversing parent nodes
 	let parent: HTMLElement | SVGSVGElement | null = element;
@@ -26,6 +47,7 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 
 			const {transform} = parent.style;
 			parent.style.transform = 'none';
+
 			transforms.push({
 				matrix,
 				rect: parent,
@@ -46,30 +68,22 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 	}
 
 	const dimensions = transforms[0].boundingClientRect!;
-	const nativeTransformOrigin = parseTransformOrigin(
-		transforms[0].transformOrigin,
-	) ?? {x: dimensions.width / 2, y: dimensions.height / 2};
+	const nativeTransformOrigin = getInternalTransformOrigin(transforms[0]);
 
-	let totalMatrix = new DOMMatrix();
+	const totalMatrix = new DOMMatrix();
 	for (const transform of transforms.slice().reverse()) {
 		if (!transform.boundingClientRect) {
 			throw new Error('Bounding client rect not found');
 		}
 
-		const centerX = transform.boundingClientRect.width / 2;
-		const centerY = transform.boundingClientRect.height / 2;
+		const globalTransformOrigin = getGlobalTransformOrigin(transform);
 
-		const {x: originX, y: originY} = parseTransformOrigin(
-			transform.transformOrigin,
-		) ?? {x: centerX, y: centerY};
-
-		const deviationFromX = centerX - originX;
-		const deviationFromY = centerY - originY;
-
-		totalMatrix = totalMatrix
-			.translate(-deviationFromX, -deviationFromY)
+		const transformMatrix = new DOMMatrix()
+			.translate(globalTransformOrigin.x, globalTransformOrigin.y)
 			.multiply(transform.matrix)
-			.translate(deviationFromX, deviationFromY);
+			.translate(-globalTransformOrigin.x, -globalTransformOrigin.y);
+
+		totalMatrix.multiplySelf(transformMatrix);
 	}
 
 	return {

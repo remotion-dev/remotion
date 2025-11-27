@@ -1,23 +1,20 @@
 import {calculateTransforms} from './calculate-transforms';
+import {turnSvgIntoDrawable} from './compose-svg';
 
-export const composeCanvas = (
-	canvas: HTMLCanvasElement | HTMLImageElement,
+export const composeCanvas = async (
+	canvas: HTMLCanvasElement | HTMLImageElement | SVGSVGElement,
 	context: OffscreenCanvasRenderingContext2D,
 ) => {
-	const {totalMatrix, reset, dimensions, nativeTransformOrigin} =
-		calculateTransforms(canvas);
+	const {totalMatrix, reset, dimensions} = calculateTransforms(canvas);
 
-	const translateX = nativeTransformOrigin.x + dimensions.left;
-	const translateY = nativeTransformOrigin.y + dimensions.top;
+	context.setTransform(totalMatrix);
+	const drawable =
+		canvas instanceof SVGSVGElement
+			? await turnSvgIntoDrawable(canvas)
+			: canvas;
 
-	const matrix = new DOMMatrix()
-		.translate(translateX, translateY)
-		.multiply(totalMatrix)
-		.translate(-translateX, -translateY);
-
-	context.setTransform(matrix);
 	context.drawImage(
-		canvas,
+		drawable,
 		dimensions.left,
 		dimensions.top,
 		dimensions.width,
