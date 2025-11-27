@@ -252,9 +252,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					}
 
 					if (window.remotion_isMainTab) {
-						Internals.Log.info(
+						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
-							`Network error fetching ${src}, falling back to <OffthreadVideo>`,
+							`Network error fetching ${src} (no CORS?), falling back to <OffthreadVideo>`,
 						);
 					}
 

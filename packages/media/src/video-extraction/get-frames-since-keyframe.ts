@@ -1,4 +1,4 @@
-import type {EncodedPacket, UrlSourceOptions} from 'mediabunny';
+import type {EncodedPacket, InputFormat, UrlSourceOptions} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	AudioSampleSink,
@@ -10,6 +10,7 @@ import {
 	WEBM,
 } from 'mediabunny';
 import type {LogLevel} from 'remotion';
+import {isNetworkError} from '../is-network-error';
 import {makeKeyframeBank} from './keyframe-bank';
 import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
 
@@ -26,21 +27,29 @@ export type AudioSinkResult =
 	| AudioSinks
 	| 'no-audio-track'
 	| 'cannot-decode-audio'
-	| 'unknown-container-format';
+	| 'unknown-container-format'
+	| 'network-error';
 export type VideoSinkResult =
 	| VideoSinks
 	| 'no-video-track'
 	| 'cannot-decode'
-	| 'unknown-container-format';
+	| 'unknown-container-format'
+	| 'network-error';
 
 const getRetryDelay = (() => {
 	return null;
 }) satisfies UrlSourceOptions['getRetryDelay'];
 
-const getFormatOrNull = async (input: Input) => {
+const getFormatOrNullOrNetworkError = async (
+	input: Input,
+): Promise<InputFormat | 'network-error' | null> => {
 	try {
 		return await input.getFormat();
-	} catch {
+	} catch (err) {
+		if (isNetworkError(err as Error)) {
+			return 'network-error';
+		}
+
 		return null;
 	}
 };
@@ -53,10 +62,14 @@ export const getSinks = async (src: string) => {
 		}),
 	});
 
-	const format = await getFormatOrNull(input);
+	const format = await getFormatOrNullOrNetworkError(input);
 	const isMatroska = format === MATROSKA || format === WEBM;
 
 	const getVideoSinks = async (): Promise<VideoSinkResult> => {
+		if (format === 'network-error') {
+			return 'network-error';
+		}
+
 		if (format === null) {
 			return 'unknown-container-format';
 		}
@@ -97,6 +110,10 @@ export const getSinks = async (src: string) => {
 	const getAudioSinks = async (index: number): Promise<AudioSinkResult> => {
 		if (format === null) {
 			return 'unknown-container-format';
+		}
+
+		if (format === 'network-error') {
+			return 'network-error';
 		}
 
 		const audioTracks = await input.getAudioTracks();
