@@ -3,14 +3,10 @@ image: /generated/articles-docs-lambda-php.png
 title: Triggering renders from PHP
 slug: /lambda/php
 sidebar_label: Rendering from PHP
-crumb: "@remotion/lambda"
+crumb: '@remotion/lambda'
 ---
 
 _available from v3.3.96_
-
-<ExperimentalBadge>
-This feature is new. Please report any issues you encounter. API may change inbetween patch versions.
-</ExperimentalBadge>
 
 To trigger a Lambda render using PHP, install the `remotion/lambda` package using `composer`. Use the same version as the `remotion` version you are using from NPM and pin the version by removing the `^` character in your `composer.json`.
 
@@ -23,7 +19,6 @@ Below is a snippet showing how to initiate a render request and get its status. 
   - `REMOTION_APP_REGION`
   - `REMOTION_APP_FUNCTION_NAME`
   - `REMOTION_APP_SERVE_URL`
-- Sending large input props (>200KB) is not supported with PHP at the moment.
 
 ```php title="render.php"
 <?php
