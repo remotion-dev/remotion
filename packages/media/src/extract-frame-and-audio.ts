@@ -84,12 +84,24 @@ export const extractFrameAndAudio = async ({
 			};
 		}
 
+		if (frame?.type === 'network-error') {
+			return {type: 'network-error'};
+		}
+
 		if (audio === 'unknown-container-format') {
 			if (frame !== null) {
 				frame?.frame?.close();
 			}
 
 			return {type: 'unknown-container-format'};
+		}
+
+		if (audio === 'network-error') {
+			if (frame !== null) {
+				frame?.frame?.close();
+			}
+
+			return {type: 'network-error'};
 		}
 
 		if (audio === 'cannot-decode') {

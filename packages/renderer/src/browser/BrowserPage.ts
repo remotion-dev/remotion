@@ -383,6 +383,7 @@ export class Page extends EventEmitter {
 	}
 
 	#onTargetCrashed(): void {
+		// This error message is being checked against in is-flaky-error.ts
 		this.emit('error', new Error('Page crashed!'));
 	}
 
