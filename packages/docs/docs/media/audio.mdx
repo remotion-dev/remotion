@@ -172,7 +172,7 @@ export const MyComposition = () => {
 
 ### `crossOrigin?`
 
-Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio#attr-crossorigin) attribute of the underlying `<audio>` element used when `<Audio>` falls back to HTML5 audio rendering. Set this to `'anonymous'` or `'use-credentials'` when loading media from another domain that requires CORS.
+Controls the CORS mode when the audio is fetched. Set to `'anonymous'` or `'use-credentials'` to pass the corresponding [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#credentials) options.
 
 ```tsx twoslash title="Loading a remote audio file with CORS enabled"
 import {AbsoluteFill} from 'remotion';
@@ -181,10 +181,7 @@ import {Audio} from '@remotion/media';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Audio
-        src="https://remotion.media/audio.wav"
-        crossOrigin="anonymous"
-      />
+      <Audio src="https://remotion.media/audio.wav" crossOrigin="anonymous" />
     </AbsoluteFill>
   );
 };
