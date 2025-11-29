@@ -43,6 +43,7 @@
 		"node": ">=16"
 	},
 	"devDependencies": {
+		"@types/babel__standalone": "^7.1.9",
 		"@types/bun": "catalog:",
 		"@types/deno": "2.0.0",
 		"@types/react": "catalog:",

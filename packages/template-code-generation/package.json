@@ -11,6 +11,9 @@
     "deploy": "node deploy.mjs"
   },
   "dependencies": {
+    "@babel/standalone": "^7.28.5",
+    "@monaco-editor/react": "^4.7.0",
+    "monaco-editor": "^0.55.1",
     "@remotion/bundler": "workspace:*",
     "@remotion/cli": "workspace:*",
     "@remotion/google-fonts": "workspace:*",

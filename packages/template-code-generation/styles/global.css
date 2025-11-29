@@ -50,6 +50,7 @@
   --radius-geist: var(--geist-border-radius);
   --font-geist: var(--geist-font);
   --animate-spinner: spinner 1.2s linear infinite;
+  --animate-spin: spin 1s linear infinite;
 
   @keyframes spinner {
     0% {
@@ -59,4 +60,16 @@
       opacity: 0.15;
     }
   }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }

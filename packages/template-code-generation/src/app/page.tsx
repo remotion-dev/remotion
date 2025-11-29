@@ -1,62 +1,137 @@
 "use client";
 
-import { Player } from "@remotion/player";
+import { useState, useCallback, useEffect, useRef } from "react";
 import type { NextPage } from "next";
-import { useMemo, useState } from "react";
-import { z } from "zod";
-import {
-  defaultMyCompProps,
-  CompositionProps,
-  DURATION_IN_FRAMES,
-  VIDEO_FPS,
-  VIDEO_HEIGHT,
-  VIDEO_WIDTH,
-} from "../../types/constants";
-import { RenderControls } from "../components/RenderControls";
-import { Spacing } from "../components/Spacing";
-import { Tips } from "../components/Tips";
-import { Main } from "../remotion/MyComp/Main";
+import { ExampleSelector } from "../components/ExampleSelector";
+import { CodeEditor } from "../components/CodeEditor";
+import { AnimationPlayer } from "../components/AnimationPlayer";
+import { examples, RemotionExample } from "../templates";
+import { useAnimationState } from "../hooks/useAnimationState";
 
 const Home: NextPage = () => {
-  const [text, setText] = useState<string>(defaultMyCompProps.title);
+  const [selectedExample, setSelectedExample] =
+    useState<RemotionExample | null>(examples[0] || null);
+  const [durationInFrames, setDurationInFrames] = useState(
+    examples[0]?.durationInFrames || 150
+  );
+  const [fps, setFps] = useState(examples[0]?.fps || 30);
+  const [isEditorOpen, setIsEditorOpen] = useState(true);
 
-  const inputProps: z.infer<typeof CompositionProps> = useMemo(() => {
-    return {
-      title: text,
+  const { code, Component, error, isCompiling, setCode, compileCode } =
+    useAnimationState(examples[0]?.code || "");
+
+  // Debounce compilation
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleCodeChange = useCallback(
+    (newCode: string) => {
+      setCode(newCode);
+
+      // Clear existing debounce
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+
+      // Set new debounce
+      debounceRef.current = setTimeout(() => {
+        compileCode(newCode);
+      }, 500);
+    },
+    [setCode, compileCode]
+  );
+
+  const handleExampleSelect = useCallback(
+    (example: RemotionExample) => {
+      setSelectedExample(example);
+      setCode(example.code);
+      setDurationInFrames(example.durationInFrames);
+      setFps(example.fps);
+
+      // Immediately compile the example code
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+      compileCode(example.code);
+    },
+    [setCode, compileCode]
+  );
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
     };
-  }, [text]);
+  }, []);
 
   return (
-    <div>
-      <div className="max-w-screen-md m-auto mb-5">
-        <div className="overflow-hidden rounded-geist shadow-[0_0_200px_rgba(0,0,0,0.15)] mb-10 mt-16">
-          <Player
-            component={Main}
-            inputProps={inputProps}
-            durationInFrames={DURATION_IN_FRAMES}
-            fps={VIDEO_FPS}
-            compositionHeight={VIDEO_HEIGHT}
-            compositionWidth={VIDEO_WIDTH}
-            style={{
-              // Can't use tailwind class for width since player's default styles take presedence over tailwind's,
-              // but not over inline styles
-              width: "100%",
-            }}
-            controls
-            autoPlay
-            loop
-          />
+    <div className="flex h-screen w-screen overflow-hidden bg-[#0a0a0a]">
+      <ExampleSelector
+        selectedExampleId={selectedExample?.id || null}
+        onSelectExample={handleExampleSelect}
+      />
+
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex justify-between items-center px-6 py-3 bg-[#0f0f0f] border-b border-[#2a2a2a]">
+          <div className="text-xl font-bold text-white font-sans">
+            Remotion Playground
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-[#888] font-sans">
+                Duration (frames):
+              </span>
+              <input
+                type="number"
+                min={1}
+                max={1000}
+                value={durationInFrames}
+                onChange={(e) =>
+                  setDurationInFrames(
+                    Math.max(1, parseInt(e.target.value) || 1)
+                  )
+                }
+                className="w-20 px-3 py-1.5 rounded border border-[#333] bg-[#1a1a1a] text-white text-sm font-sans"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-[#888] font-sans">FPS:</span>
+              <input
+                type="number"
+                min={1}
+                max={60}
+                value={fps}
+                onChange={(e) =>
+                  setFps(
+                    Math.max(1, Math.min(60, parseInt(e.target.value) || 30))
+                  )
+                }
+                className="w-20 px-3 py-1.5 rounded border border-[#333] bg-[#1a1a1a] text-white text-sm font-sans"
+              />
+            </div>
+            <button
+              className="px-4 py-2 rounded border-none bg-indigo-500 text-white text-sm font-medium cursor-pointer font-sans transition-colors hover:bg-indigo-600"
+              onClick={() => setIsEditorOpen(!isEditorOpen)}
+            >
+              {isEditorOpen ? "Hide Editor" : "Show Editor"}
+            </button>
+          </div>
         </div>
-        <RenderControls
-          text={text}
-          setText={setText}
-          inputProps={inputProps}
-        ></RenderControls>
-        <Spacing></Spacing>
-        <Spacing></Spacing>
-        <Spacing></Spacing>
-        <Spacing></Spacing>
-        <Tips></Tips>
+
+        <div className="flex-1 flex overflow-hidden">
+          <AnimationPlayer
+            Component={Component}
+            durationInFrames={durationInFrames}
+            fps={fps}
+            isCompiling={isCompiling}
+            error={error}
+          />
+
+          {isEditorOpen && (
+            <CodeEditor code={code} onChange={handleCodeChange} />
+          )}
+        </div>
       </div>
     </div>
   );
