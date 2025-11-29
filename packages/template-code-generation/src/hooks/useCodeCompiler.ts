@@ -24,8 +24,12 @@ export function useCodeCompiler() {
     }
 
     try {
+      // Wrap the component body in a function BEFORE transpilation
+      // Expected input: just the component body (hooks, variables, and return statement)
+      const wrappedSource = `const DynamicAnimation = () => {\n${code}\n};`;
+
       // Transpile JSX/TypeScript to JavaScript using Babel
-      const transpiled = Babel.transform(code, {
+      const transpiled = Babel.transform(wrappedSource, {
         presets: ["react", "typescript"],
         filename: "dynamic-animation.tsx",
       });
@@ -44,8 +48,9 @@ export function useCodeCompiler() {
         Sequence,
       };
 
-      // Create a function that has access to React and Remotion APIs
-      // The code should be a function expression that returns a component
+      // Add return statement for the Function constructor
+      const wrappedCode = `${transpiled.code}\nreturn DynamicAnimation;`;
+
       const createComponent = new Function(
         "React",
         "Remotion",
@@ -55,10 +60,7 @@ export function useCodeCompiler() {
         "useVideoConfig",
         "spring",
         "Sequence",
-        `
-        const DynamicAnimation = ${transpiled.code};
-        return DynamicAnimation;
-        `
+        wrappedCode,
       );
 
       const Component = createComponent(
@@ -69,7 +71,7 @@ export function useCodeCompiler() {
         useCurrentFrame,
         useVideoConfig,
         spring,
-        Sequence
+        Sequence,
       );
 
       if (typeof Component !== "function") {

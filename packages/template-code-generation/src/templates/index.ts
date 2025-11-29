@@ -16,7 +16,7 @@ export const examples: RemotionExample[] = [
     category: "Text",
     durationInFrames: 240,
     fps: 30,
-    code: `() => {
+    code: `
   const frame = Remotion.useCurrentFrame();
   const { fps } = Remotion.useVideoConfig();
 
@@ -71,8 +71,7 @@ export const examples: RemotionExample[] = [
         {words[currentWordIndex]}
       </h1>
     </Remotion.AbsoluteFill>
-  );
-}`,
+  );`,
   },
   {
     id: "chat-messages",
@@ -81,7 +80,7 @@ export const examples: RemotionExample[] = [
     category: "Text",
     durationInFrames: 180,
     fps: 30,
-    code: `() => {
+    code: `
   const frame = Remotion.useCurrentFrame();
   const { fps } = Remotion.useVideoConfig();
 
@@ -139,8 +138,7 @@ export const examples: RemotionExample[] = [
         })}
       </div>
     </Remotion.AbsoluteFill>
-  );
-}`,
+  );`,
   },
   {
     id: "counter-animation",
@@ -149,7 +147,7 @@ export const examples: RemotionExample[] = [
     category: "Charts",
     durationInFrames: 150,
     fps: 30,
-    code: `() => {
+    code: `
   const frame = Remotion.useCurrentFrame();
   const { fps, durationInFrames } = Remotion.useVideoConfig();
 
@@ -224,8 +222,7 @@ export const examples: RemotionExample[] = [
         })}
       </div>
     </Remotion.AbsoluteFill>
-  );
-}`,
+  );`,
   },
   {
     id: "histogram",
@@ -234,7 +231,7 @@ export const examples: RemotionExample[] = [
     category: "Charts",
     durationInFrames: 120,
     fps: 30,
-    code: `() => {
+    code: `
   const frame = Remotion.useCurrentFrame();
   const { fps } = Remotion.useVideoConfig();
 
@@ -319,8 +316,7 @@ export const examples: RemotionExample[] = [
         })}
       </div>
     </Remotion.AbsoluteFill>
-  );
-}`,
+  );`,
   },
   {
     id: "progress-bar",
@@ -329,7 +325,7 @@ export const examples: RemotionExample[] = [
     category: "Other",
     durationInFrames: 180,
     fps: 30,
-    code: `() => {
+    code: `
   const frame = Remotion.useCurrentFrame();
   const { durationInFrames } = Remotion.useVideoConfig();
 
@@ -405,8 +401,7 @@ export const examples: RemotionExample[] = [
         </div>
       </div>
     </Remotion.AbsoluteFill>
-  );
-}`,
+  );`,
   },
 ];
 
@@ -415,7 +410,7 @@ export function getExampleById(id: string): RemotionExample | undefined {
 }
 
 export function getExamplesByCategory(
-  category: RemotionExample["category"]
+  category: RemotionExample["category"],
 ): RemotionExample[] {
   return examples.filter((e) => e.category === category);
 }

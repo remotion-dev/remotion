@@ -5,6 +5,7 @@ import type { NextPage } from "next";
 import { ExampleSelector } from "../components/ExampleSelector";
 import { CodeEditor } from "../components/CodeEditor";
 import { AnimationPlayer } from "../components/AnimationPlayer";
+import { PromptInput } from "../components/PromptInput";
 import { examples, RemotionExample } from "../templates";
 import { useAnimationState } from "../hooks/useAnimationState";
 
@@ -12,16 +13,34 @@ const Home: NextPage = () => {
   const [selectedExample, setSelectedExample] =
     useState<RemotionExample | null>(examples[0] || null);
   const [durationInFrames, setDurationInFrames] = useState(
-    examples[0]?.durationInFrames || 150
+    examples[0]?.durationInFrames || 150,
   );
   const [fps, setFps] = useState(examples[0]?.fps || 30);
   const [isEditorOpen, setIsEditorOpen] = useState(true);
+  const [isStreaming, setIsStreaming] = useState(false);
 
   const { code, Component, error, isCompiling, setCode, compileCode } =
     useAnimationState(examples[0]?.code || "");
 
   // Debounce compilation
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const isStreamingRef = useRef(isStreaming);
+  const codeRef = useRef(code);
+
+  useEffect(() => {
+    codeRef.current = code;
+  }, [code]);
+
+  useEffect(() => {
+    const wasStreaming = isStreamingRef.current;
+    isStreamingRef.current = isStreaming;
+
+    // Compile when streaming ends
+    if (wasStreaming && !isStreaming) {
+      compileCode(codeRef.current);
+    }
+  }, [isStreaming, compileCode]);
 
   const handleCodeChange = useCallback(
     (newCode: string) => {
@@ -32,12 +51,17 @@ const Home: NextPage = () => {
         clearTimeout(debounceRef.current);
       }
 
+      // Skip compilation while streaming - will compile when streaming ends
+      if (isStreamingRef.current) {
+        return;
+      }
+
       // Set new debounce
       debounceRef.current = setTimeout(() => {
         compileCode(newCode);
       }, 500);
     },
-    [setCode, compileCode]
+    [setCode, compileCode],
   );
 
   const handleExampleSelect = useCallback(
@@ -53,7 +77,7 @@ const Home: NextPage = () => {
       }
       compileCode(example.code);
     },
-    [setCode, compileCode]
+    [setCode, compileCode],
   );
 
   // Cleanup debounce on unmount
@@ -89,7 +113,7 @@ const Home: NextPage = () => {
                 value={durationInFrames}
                 onChange={(e) =>
                   setDurationInFrames(
-                    Math.max(1, parseInt(e.target.value) || 1)
+                    Math.max(1, parseInt(e.target.value) || 1),
                   )
                 }
                 className="w-20 px-3 py-1.5 rounded border border-[#333] bg-[#1a1a1a] text-white text-sm font-sans"
@@ -104,7 +128,7 @@ const Home: NextPage = () => {
                 value={fps}
                 onChange={(e) =>
                   setFps(
-                    Math.max(1, Math.min(60, parseInt(e.target.value) || 30))
+                    Math.max(1, Math.min(60, parseInt(e.target.value) || 30)),
                   )
                 }
                 className="w-20 px-3 py-1.5 rounded border border-[#333] bg-[#1a1a1a] text-white text-sm font-sans"
@@ -129,9 +153,18 @@ const Home: NextPage = () => {
           />
 
           {isEditorOpen && (
-            <CodeEditor code={code} onChange={handleCodeChange} />
+            <CodeEditor
+              code={code}
+              onChange={handleCodeChange}
+              isStreaming={isStreaming}
+            />
           )}
         </div>
+
+        <PromptInput
+          onCodeGenerated={handleCodeChange}
+          onStreamingChange={setIsStreaming}
+        />
       </div>
     </div>
   );
