@@ -1386,6 +1386,15 @@ export const articles = [
 		slug: 'editor-starter/copy-paste',
 	},
 	{
+		id: 'cropping',
+		title: 'Cropping in the Editor Starter',
+		relativePath: 'docs/editor-starter/cropping.mdx',
+		compId: 'articles-docs-editor-starter-cropping',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/cropping',
+	},
+	{
 		id: 'editor-starter/demo',
 		title: 'Editor Starter Demo',
 		relativePath: 'docs/editor-starter/demo.mdx',

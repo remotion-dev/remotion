@@ -12,7 +12,8 @@ type ExtractFrameResult =
 	  }
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
 	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
-	| {type: 'unknown-container-format'};
+	| {type: 'unknown-container-format'}
+	| {type: 'network-error'};
 
 type ExtractFrameParams = {
 	src: string;
@@ -51,6 +52,10 @@ const extractFrameInternal = async ({
 
 	if (video === 'unknown-container-format') {
 		return {type: 'unknown-container-format'};
+	}
+
+	if (video === 'network-error') {
+		return {type: 'network-error'};
 	}
 
 	let mediaDurationInSeconds: number | null = null;

@@ -12,7 +12,7 @@
   "repository": {},
   "license": "UNLICENSED",
   "dependencies": {
-    "@aws-sdk/client-s3": "3.787.0",
+    "@aws-sdk/client-s3": "3.936.0",
     "@remotion/cli": "workspace:*",
     "@remotion/media-utils": "workspace:*",
     "@remotion/zod-types": "workspace:*",
