@@ -51,7 +51,6 @@ export function useAnimationState(initialCode: string = "") {
     if (initialCode) {
       compileCode(initialCode);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
