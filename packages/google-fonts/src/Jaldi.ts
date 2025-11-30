@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Jaldi',
 	importName: 'Jaldi',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Jaldi:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/jaldi/v13/or3sQ67z0_CI33NSbJHPBw.woff2',
+					'https://fonts.gstatic.com/s/jaldi/v14/or3sQ67z0_CI33NSbJHPBw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/jaldi/v13/or3sQ67z0_CI33NdbJHPBw.woff2',
+					'https://fonts.gstatic.com/s/jaldi/v14/or3sQ67z0_CI33NdbJHPBw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/jaldi/v13/or3sQ67z0_CI33NTbJE.woff2',
+					'https://fonts.gstatic.com/s/jaldi/v14/or3sQ67z0_CI33NTbJE.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/jaldi/v13/or3hQ67z0_CI33voSYTxJrUFng.woff2',
+					'https://fonts.gstatic.com/s/jaldi/v14/or3hQ67z0_CI33voSYTxJrUFng.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/jaldi/v13/or3hQ67z0_CI33voSYT-JrUFng.woff2',
+					'https://fonts.gstatic.com/s/jaldi/v14/or3hQ67z0_CI33voSYT-JrUFng.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/jaldi/v13/or3hQ67z0_CI33voSYTwJrU.woff2',
+					'https://fonts.gstatic.com/s/jaldi/v14/or3hQ67z0_CI33voSYTwJrU.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'ABeeZee',
 	importName: 'ABeeZee',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=ABeeZee:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/abeezee/v22/esDT31xSG-6AGleN2tCUnJ8DKpE.woff2',
+					'https://fonts.gstatic.com/s/abeezee/v23/esDT31xSG-6AGleN2tCUnJ8DKpE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/abeezee/v22/esDT31xSG-6AGleN2tCUkp8D.woff2',
+					'https://fonts.gstatic.com/s/abeezee/v23/esDT31xSG-6AGleN2tCUkp8D.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/abeezee/v22/esDR31xSG-6AGleN2tukkIcH.woff2',
+					'https://fonts.gstatic.com/s/abeezee/v23/esDR31xSG-6AGleN2tukkIcH.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/abeezee/v22/esDR31xSG-6AGleN2tWkkA.woff2',
+					'https://fonts.gstatic.com/s/abeezee/v23/esDR31xSG-6AGleN2tWkkA.woff2',
 			},
 		},
 	},

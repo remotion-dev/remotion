@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rajdhani',
 	importName: 'Rajdhani',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Rajdhani:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,43 +17,43 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDI2apCSOBg7S-QT7pasEfOqeef2kg.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDI2apCSOBg7S-QT7pasEfOqeef2kg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDI2apCSOBg7S-QT7pasEfOleef2kg.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDI2apCSOBg7S-QT7pasEfOleef2kg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDI2apCSOBg7S-QT7pasEfOreec.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDI2apCSOBg7S-QT7pasEfOreec.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDIxapCSOBg7S-QT7p4GM-aUWA.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDIxapCSOBg7S-QT7p4GM-aUWA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDIxapCSOBg7S-QT7p4JM-aUWA.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDIxapCSOBg7S-QT7p4JM-aUWA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDIxapCSOBg7S-QT7p4HM-Y.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDIxapCSOBg7S-QT7p4HM-Y.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDI2apCSOBg7S-QT7pb0EPOqeef2kg.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDI2apCSOBg7S-QT7pb0EPOqeef2kg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDI2apCSOBg7S-QT7pb0EPOleef2kg.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDI2apCSOBg7S-QT7pb0EPOleef2kg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDI2apCSOBg7S-QT7pb0EPOreec.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDI2apCSOBg7S-QT7pb0EPOreec.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDI2apCSOBg7S-QT7pbYF_Oqeef2kg.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDI2apCSOBg7S-QT7pbYF_Oqeef2kg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDI2apCSOBg7S-QT7pbYF_Oleef2kg.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDI2apCSOBg7S-QT7pbYF_Oleef2kg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDI2apCSOBg7S-QT7pbYF_Oreec.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDI2apCSOBg7S-QT7pbYF_Oreec.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDI2apCSOBg7S-QT7pa8FvOqeef2kg.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDI2apCSOBg7S-QT7pa8FvOqeef2kg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDI2apCSOBg7S-QT7pa8FvOleef2kg.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDI2apCSOBg7S-QT7pa8FvOleef2kg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rajdhani/v16/LDI2apCSOBg7S-QT7pa8FvOreec.woff2',
+					'https://fonts.gstatic.com/s/rajdhani/v17/LDI2apCSOBg7S-QT7pa8FvOreec.woff2',
 			},
 		},
 	},

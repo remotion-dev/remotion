@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Hanunoo',
 	importName: 'NotoSansHanunoo',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Hanunoo:ital,wght@0,400',
 	unicodeRanges: {
 		hanunoo: 'U+1720-1736, U+200C-200D, U+25CC',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				hanunoo:
-					'https://fonts.gstatic.com/s/notosanshanunoo/v21/f0Xs0fCv8dxkDWlZSoXOj6CphMloFvERGJk7_g.woff2',
+					'https://fonts.gstatic.com/s/notosanshanunoo/v22/f0Xs0fCv8dxkDWlZSoXOj6CphMloFvERGJk7_g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshanunoo/v21/f0Xs0fCv8dxkDWlZSoXOj6CphMloFvElGJk7_g.woff2',
+					'https://fonts.gstatic.com/s/notosanshanunoo/v22/f0Xs0fCv8dxkDWlZSoXOj6CphMloFvElGJk7_g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshanunoo/v21/f0Xs0fCv8dxkDWlZSoXOj6CphMloFvErGJk.woff2',
+					'https://fonts.gstatic.com/s/notosanshanunoo/v22/f0Xs0fCv8dxkDWlZSoXOj6CphMloFvErGJk.woff2',
 			},
 		},
 	},

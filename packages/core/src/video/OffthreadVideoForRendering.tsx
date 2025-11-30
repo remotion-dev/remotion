@@ -15,34 +15,34 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
 import {cancelRender} from '../cancel-render.js';
-import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
-import {continueRender, delayRender} from '../delay-render.js';
+import {OBJECTFIT_CONTAIN_CLASS_NAME} from '../default-css.js';
+import type {delayRender as delayRenderGlobal} from '../delay-render.js';
 import {random} from '../random.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {truthy} from '../truthy.js';
 import {useCurrentFrame} from '../use-current-frame.js';
+import {useDelayRender} from '../use-delay-render.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
+import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import {getExpectedMediaFrameUncorrected} from './get-current-time.js';
 import {getOffthreadVideoSource} from './offthread-video-source.js';
-import type {RemotionOffthreadVideoProps} from './props.js';
+import type {AllOffthreadVideoProps} from './props.js';
 
 type SrcAndHandle = {
 	src: string;
-	handle: ReturnType<typeof delayRender>;
+	handle: ReturnType<typeof delayRenderGlobal>;
 };
 
-export const OffthreadVideoForRendering: React.FC<
-	RemotionOffthreadVideoProps
-> = ({
+export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	onError,
 	volume: volumeProp,
 	playbackRate,
 	src,
 	muted,
 	allowAmplificationDuringRender,
-	transparent = false,
-	toneMapped = true,
+	transparent,
+	toneMapped,
 	toneFrequency,
 	name,
 	loopVolumeCurveBehavior,
@@ -58,9 +58,7 @@ export const OffthreadVideoForRendering: React.FC<
 	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
-	const volumePropsFrame = useFrameForVolumeProp(
-		loopVolumeCurveBehavior ?? 'repeat',
-	);
+	const volumePropsFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
 	const videoConfig = useUnsafeVideoConfig();
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
@@ -77,7 +75,7 @@ export const OffthreadVideoForRendering: React.FC<
 	const id = useMemo(
 		() =>
 			`offthreadvideo-${random(
-				src ?? '',
+				src,
 			)}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
 		[
 			src,
@@ -96,6 +94,8 @@ export const OffthreadVideoForRendering: React.FC<
 		frame: volumePropsFrame,
 		mediaVolume: 1,
 	});
+
+	warnAboutTooHighVolume(volume);
 
 	useEffect(() => {
 		if (!src) {
@@ -121,10 +121,10 @@ export const OffthreadVideoForRendering: React.FC<
 			frame: absoluteFrame,
 			volume,
 			mediaFrame: frame,
-			playbackRate: playbackRate ?? 1,
-			toneFrequency: toneFrequency ?? null,
+			playbackRate,
+			toneFrequency,
 			audioStartFrame: Math.max(0, -(sequenceContext?.relativeFrom ?? 0)),
-			audioStreamIndex: audioStreamIndex ?? 0,
+			audioStreamIndex,
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -163,6 +163,7 @@ export const OffthreadVideoForRendering: React.FC<
 	}, [toneMapped, currentTime, src, transparent]);
 
 	const [imageSrc, setImageSrc] = useState<SrcAndHandle | null>(null);
+	const {delayRender, continueRender} = useDelayRender();
 
 	useLayoutEffect(() => {
 		if (!window.remotion_videoEnabled) {
@@ -257,6 +258,8 @@ export const OffthreadVideoForRendering: React.FC<
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		onError,
+		continueRender,
+		delayRender,
 	]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
@@ -269,7 +272,7 @@ export const OffthreadVideoForRendering: React.FC<
 		}, [imageSrc, onError]);
 
 	const className = useMemo(() => {
-		return [OFFTHREAD_VIDEO_CLASS_NAME, props.className]
+		return [OBJECTFIT_CONTAIN_CLASS_NAME, props.className]
 			.filter(truthy)
 			.join(' ');
 	}, [props.className]);
@@ -292,12 +295,12 @@ export const OffthreadVideoForRendering: React.FC<
 	return (
 		<Img
 			src={imageSrc.src}
-			className={className}
 			delayRenderRetries={delayRenderRetries}
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 			onImageFrame={onImageFrame}
 			{...props}
 			onError={onErr}
+			className={className}
 		/>
 	);
 };

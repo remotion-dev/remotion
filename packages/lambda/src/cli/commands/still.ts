@@ -33,6 +33,7 @@ const {
 	headlessOption,
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 const {
@@ -123,6 +124,9 @@ export const stillCommand = async ({
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	if (!composition) {
 		Log.info(
@@ -182,6 +186,7 @@ export const stillCommand = async ({
 				quiet: CliInternals.quietFlagProvided(),
 			}),
 			chromeMode: 'headless-shell',
+			mediaCacheSizeInBytes: mediaCacheSizeInBytes,
 		});
 		composition = compositionId;
 	}
@@ -278,6 +283,7 @@ export const stillCommand = async ({
 		offthreadVideoCacheSizeInBytes,
 		offthreadVideoThreads: null,
 		requestHandler: null,
+		mediaCacheSizeInBytes,
 	});
 	Log.info(
 		{indent: false, logLevel},

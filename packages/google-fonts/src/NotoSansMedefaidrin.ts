@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Medefaidrin',
 	importName: 'NotoSansMedefaidrin',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Medefaidrin:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		medefaidrin: 'U+16E40-16E9A',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				medefaidrin:
-					'https://fonts.gstatic.com/s/notosansmedefaidrin/v28/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbf5h5YNDIU.woff2',
+					'https://fonts.gstatic.com/s/notosansmedefaidrin/v29/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbf5h5YNDIU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmedefaidrin/v28/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfeT99CQs.woff2',
+					'https://fonts.gstatic.com/s/notosansmedefaidrin/v29/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfeT99CQs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmedefaidrin/v28/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfdz99.woff2',
+					'https://fonts.gstatic.com/s/notosansmedefaidrin/v29/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfdz99.woff2',
 			},
 			'500': {
 				medefaidrin:
-					'https://fonts.gstatic.com/s/notosansmedefaidrin/v28/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbf5h5YNDIU.woff2',
+					'https://fonts.gstatic.com/s/notosansmedefaidrin/v29/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbf5h5YNDIU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmedefaidrin/v28/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfeT99CQs.woff2',
+					'https://fonts.gstatic.com/s/notosansmedefaidrin/v29/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfeT99CQs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmedefaidrin/v28/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfdz99.woff2',
+					'https://fonts.gstatic.com/s/notosansmedefaidrin/v29/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfdz99.woff2',
 			},
 			'600': {
 				medefaidrin:
-					'https://fonts.gstatic.com/s/notosansmedefaidrin/v28/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbf5h5YNDIU.woff2',
+					'https://fonts.gstatic.com/s/notosansmedefaidrin/v29/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbf5h5YNDIU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmedefaidrin/v28/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfeT99CQs.woff2',
+					'https://fonts.gstatic.com/s/notosansmedefaidrin/v29/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfeT99CQs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmedefaidrin/v28/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfdz99.woff2',
+					'https://fonts.gstatic.com/s/notosansmedefaidrin/v29/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfdz99.woff2',
 			},
 			'700': {
 				medefaidrin:
-					'https://fonts.gstatic.com/s/notosansmedefaidrin/v28/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbf5h5YNDIU.woff2',
+					'https://fonts.gstatic.com/s/notosansmedefaidrin/v29/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbf5h5YNDIU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmedefaidrin/v28/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfeT99CQs.woff2',
+					'https://fonts.gstatic.com/s/notosansmedefaidrin/v29/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfeT99CQs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmedefaidrin/v28/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfdz99.woff2',
+					'https://fonts.gstatic.com/s/notosansmedefaidrin/v29/WwkAxOq6Dk-wranENynkfeVsNbRZtbOIdLbfdz99.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Jolly Lodger',
 	importName: 'JollyLodger',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Jolly+Lodger:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/jollylodger/v20/BXRsvFTAh_bGkA1uQ48dlB3lUODS7Zw.woff2',
+					'https://fonts.gstatic.com/s/jollylodger/v21/BXRsvFTAh_bGkA1uQ48dlB3lUODS7Zw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/jollylodger/v20/BXRsvFTAh_bGkA1uQ48dlB3lXuDS.woff2',
+					'https://fonts.gstatic.com/s/jollylodger/v21/BXRsvFTAh_bGkA1uQ48dlB3lXuDS.woff2',
 			},
 		},
 	},

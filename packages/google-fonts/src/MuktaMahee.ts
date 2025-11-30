@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mukta Mahee',
 	importName: 'MuktaMahee',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Mukta+Mahee:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		gurmukhi:
@@ -17,59 +17,59 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9MFcCojLHZaZA.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9MFcCojLHZaZA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9MFcCoOLHZaZA.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9MFcCoOLHZaZA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9MFcCoALHY.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9MFcCoALHY.woff2',
 			},
 			'300': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9NhcyojLHZaZA.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9NhcyojLHZaZA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9NhcyoOLHZaZA.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9NhcyoOLHZaZA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9NhcyoALHY.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9NhcyoALHY.woff2',
 			},
 			'400': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXQ3IOIi0hcP8iVU67hA9vpUT8_DQ.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXQ3IOIi0hcP8iVU67hA9vpUT8_DQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXQ3IOIi0hcP8iVU67hA9vEUT8_DQ.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXQ3IOIi0hcP8iVU67hA9vEUT8_DQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXQ3IOIi0hcP8iVU67hA9vKUT8.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXQ3IOIi0hcP8iVU67hA9vKUT8.woff2',
 			},
 			'500': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9M5ciojLHZaZA.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9M5ciojLHZaZA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9M5cioOLHZaZA.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9M5cioOLHZaZA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9M5cioALHY.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9M5cioALHY.woff2',
 			},
 			'600': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9MVdSojLHZaZA.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9MVdSojLHZaZA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9MVdSoOLHZaZA.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9MVdSoOLHZaZA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9MVdSoALHY.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9MVdSoALHY.woff2',
 			},
 			'700': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9NxdCojLHZaZA.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9NxdCojLHZaZA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9NxdCoOLHZaZA.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9NxdCoOLHZaZA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9NxdCoALHY.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9NxdCoALHY.woff2',
 			},
 			'800': {
 				gurmukhi:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9NtdyojLHZaZA.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9NtdyojLHZaZA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9NtdyoOLHZaZA.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9NtdyoOLHZaZA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/muktamahee/v18/XRXN3IOIi0hcP8iVU67hA9NtdyoALHY.woff2',
+					'https://fonts.gstatic.com/s/muktamahee/v19/XRXN3IOIi0hcP8iVU67hA9NtdyoALHY.woff2',
 			},
 		},
 	},

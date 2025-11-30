@@ -1,5 +1,6 @@
 import {cpSync, promises, rmSync} from 'node:fs';
 import path from 'node:path';
+import type {_InternalTypes} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
@@ -33,7 +34,6 @@ import {
 	DEFAULT_PIXEL_FORMAT,
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
-import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {getShouldRenderAudio} from './render-has-audio';
 import {validateDimension, validateFps} from './validate';
@@ -58,7 +58,7 @@ type InternalStitchFramesToVideoOptions = {
 	crf: number | null;
 	onProgress?: null | ((progress: number) => void);
 	onDownload: undefined | RenderMediaOnDownload;
-	proResProfile: undefined | ProResProfile;
+	proResProfile: undefined | _InternalTypes['ProResProfile'];
 	logLevel: LogLevel;
 	cancelSignal: CancelSignal | null;
 	preEncodedFileLocation: string | null;
@@ -91,7 +91,7 @@ export type StitchFramesToVideoOptions = {
 	crf?: number | null;
 	onProgress?: (progress: number) => void;
 	onDownload?: RenderMediaOnDownload;
-	proResProfile?: ProResProfile;
+	proResProfile?: _InternalTypes['ProResProfile'];
 	verbose?: boolean;
 	cancelSignal?: CancelSignal;
 	muted?: boolean;
@@ -333,6 +333,7 @@ const innerStitchFramesToVideo = async (
 			}
 		});
 		deleteDirectory(assetsInfo.downloadMap.stitchFrames);
+		assetsInfo.downloadMap.allowCleanup();
 
 		return Promise.resolve(file);
 	}
@@ -446,11 +447,9 @@ const innerStitchFramesToVideo = async (
 		rmSync(audio);
 	}
 
-	return new Promise<Buffer | null>((resolve, reject) => {
+	const result = await new Promise<Buffer | null>((resolve, reject) => {
 		task.once('close', (code, signal) => {
 			if (code === 0) {
-				assetsInfo.downloadMap.allowCleanup();
-
 				if (tempFile === null) {
 					cleanDownloadMap(assetsInfo.downloadMap);
 					return resolve(null);
@@ -478,6 +477,9 @@ const innerStitchFramesToVideo = async (
 			}
 		});
 	});
+	assetsInfo.downloadMap.allowCleanup();
+
+	return result;
 };
 
 export const internalStitchFramesToVideo = (

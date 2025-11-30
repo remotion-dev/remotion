@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ephesis',
 	importName: 'Ephesis',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Ephesis:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/ephesis/v10/uU9PCBUS8IerL2VG3xvR38yH.woff2',
+					'https://fonts.gstatic.com/s/ephesis/v11/uU9PCBUS8IerL2VG3xvR38yH.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ephesis/v10/uU9PCBUS8IerL2VG3xrR38yH.woff2',
+					'https://fonts.gstatic.com/s/ephesis/v11/uU9PCBUS8IerL2VG3xrR38yH.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ephesis/v10/uU9PCBUS8IerL2VG3xTR3w.woff2',
+					'https://fonts.gstatic.com/s/ephesis/v11/uU9PCBUS8IerL2VG3xTR3w.woff2',
 			},
 		},
 	},

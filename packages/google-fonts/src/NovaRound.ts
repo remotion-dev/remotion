@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nova Round',
 	importName: 'NovaRound',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Nova+Round:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/novaround/v22/flU9Rqquw5UhEnlwTJYTUY7UeNtY.woff2',
+					'https://fonts.gstatic.com/s/novaround/v23/flU9Rqquw5UhEnlwTJYTUY7UeNtY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/novaround/v22/flU9Rqquw5UhEnlwTJYTUYDUeA.woff2',
+					'https://fonts.gstatic.com/s/novaround/v23/flU9Rqquw5UhEnlwTJYTUYDUeA.woff2',
 			},
 		},
 	},

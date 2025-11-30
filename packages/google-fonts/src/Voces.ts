@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Voces',
 	importName: 'Voces',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Voces:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/voces/v23/-F6_fjJyLyU8d7PIDm_opw.woff2',
+					'https://fonts.gstatic.com/s/voces/v24/-F6_fjJyLyU8d7PIDm_opw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/voces/v23/-F6_fjJyLyU8d7PGDm8.woff2',
+					'https://fonts.gstatic.com/s/voces/v24/-F6_fjJyLyU8d7PGDm8.woff2',
 			},
 		},
 	},

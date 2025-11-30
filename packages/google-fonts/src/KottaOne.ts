@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kotta One',
 	importName: 'KottaOne',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Kotta+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kottaone/v20/S6u_w41LXzPc_jlfNWq_FQft1dw.woff2',
+					'https://fonts.gstatic.com/s/kottaone/v21/S6u_w41LXzPc_jlfNWq_FQft1dw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kottaone/v20/S6u_w41LXzPc_jlfNWq_Gwft.woff2',
+					'https://fonts.gstatic.com/s/kottaone/v21/S6u_w41LXzPc_jlfNWq_Gwft.woff2',
 			},
 		},
 	},

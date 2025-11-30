@@ -4,12 +4,12 @@ import {
 	type FrameRange,
 	type LogLevel,
 	type PixelFormat,
-	type ProResProfile,
 	type ToOptions,
 	type VideoImageFormat,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import type {_InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {z} from 'zod';
@@ -47,7 +47,7 @@ type InternalRenderMediaOnCloudrun = {
 	codec: CloudrunCodec;
 	audioCodec: AudioCodec | undefined;
 	jpegQuality: number | undefined;
-	proResProfile: ProResProfile | undefined;
+	proResProfile: _InternalTypes['ProResProfile'] | undefined;
 	pixelFormat: PixelFormat | undefined;
 	imageFormat: VideoImageFormat | undefined;
 	everyNthFrame: number | undefined;
@@ -84,7 +84,7 @@ export type RenderMediaOnCloudrunInput = {
 	audioCodec?: AudioCodec;
 	encodingMaxRate?: string | null;
 	encodingBufferSize?: string | null;
-	proResProfile?: ProResProfile;
+	proResProfile?: _InternalTypes['ProResProfile'];
 	pixelFormat?: PixelFormat;
 	imageFormat?: VideoImageFormat;
 	everyNthFrame?: number;
@@ -145,6 +145,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	colorSpace,
 	downloadBehavior,
 	metadata,
+	mediaCacheSizeInBytes,
 }: InternalRenderMediaOnCloudrun): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -208,6 +209,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		metadata: metadata ?? null,
 		renderIdOverride,
 		renderStatusWebhook,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -344,6 +346,7 @@ export const renderMediaOnCloudrun = ({
 	renderIdOverride,
 	renderStatusWebhook,
 	offthreadVideoThreads,
+	mediaCacheSizeInBytes,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -395,5 +398,6 @@ export const renderMediaOnCloudrun = ({
 		renderIdOverride: renderIdOverride ?? undefined,
 		renderStatusWebhook: renderStatusWebhook ?? undefined,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 	});
 };

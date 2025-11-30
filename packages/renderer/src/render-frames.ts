@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import type {AudioOrVideoAsset, VideoConfig} from 'remotion/no-react';
+import type {
+	AudioOrVideoAsset,
+	InlineAudioAsset,
+	VideoConfig,
+} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
@@ -9,13 +13,14 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
-import type {Page} from './browser/BrowserPage';
+import type {OnLog, Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import {getShouldUsePartitionedRendering} from './can-use-parallel-encoding';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
+import {defaultOnLog} from './default-on-log';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {resolveConcurrency} from './get-concurrency';
@@ -95,6 +100,7 @@ type InternalRenderFramesOptions = {
 	parallelEncodingEnabled: boolean;
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type InnerRenderFramesOptions = {
@@ -135,6 +141,7 @@ type InnerRenderFramesOptions = {
 	parallelEncodingEnabled: boolean;
 	compositionStart: number;
 	binariesDirectory: string | null;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.renderFrames>;
 
 type ArtifactWithoutContent = {
@@ -146,6 +153,7 @@ export type FrameAndAssets = {
 	frame: number;
 	audioAndVideoAssets: AudioOrVideoAsset[];
 	artifactAssets: ArtifactWithoutContent[];
+	inlineAudioAssets: InlineAudioAsset[];
 };
 
 export type RenderFramesOptions = {
@@ -226,6 +234,8 @@ const innerRenderFrames = async ({
 	onArtifact,
 	binariesDirectory,
 	imageSequencePattern,
+	mediaCacheSizeInBytes,
+	onLog,
 }: Omit<
 	InnerRenderFramesOptions,
 	'offthreadVideoCacheSizeInBytes'
@@ -286,6 +296,9 @@ const innerRenderFrames = async ({
 			serveUrl,
 			timeoutInMilliseconds,
 			pageIndex,
+			isMainTab: pageIndex === 0,
+			mediaCacheSizeInBytes,
+			onLog,
 		});
 	};
 
@@ -331,7 +344,7 @@ const innerRenderFrames = async ({
 
 	// Render the extra frames at the beginning of the video first,
 	// then the regular frames, then the extra frames at the end of the video.
-	// While the order technically doesn't matter, components such as <Video> are
+	// While the order technically doesn't matter, components such as <Html5Video> are
 	// not always frame perfect and give a flicker.
 	// We reduce the chance of flicker by rendering the frames in order.
 
@@ -400,6 +413,9 @@ const innerRenderFrames = async ({
 				onFrameUpdate,
 				nextFrameToRender,
 				imageSequencePattern: pattern,
+				trimLeftOffset,
+				trimRightOffset,
+				allFramesAndExtraFrames,
 			});
 		}),
 	);
@@ -465,6 +481,8 @@ const internalRenderFramesRaw = ({
 	chromeMode,
 	offthreadVideoThreads,
 	imageSequencePattern,
+	mediaCacheSizeInBytes,
+	onLog,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	validateDimension(
 		composition.height,
@@ -598,6 +616,8 @@ const internalRenderFramesRaw = ({
 					chromeMode,
 					offthreadVideoThreads,
 					imageSequencePattern,
+					mediaCacheSizeInBytes,
+					onLog,
 				});
 			}),
 		])
@@ -697,6 +717,7 @@ export const renderFrames = (
 		chromeMode,
 		offthreadVideoThreads,
 		imageSequencePattern,
+		mediaCacheSizeInBytes,
 	} = options;
 
 	if (!composition) {
@@ -772,5 +793,7 @@ export const renderFrames = (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		imageSequencePattern: imageSequencePattern ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		onLog: defaultOnLog,
 	});
 };

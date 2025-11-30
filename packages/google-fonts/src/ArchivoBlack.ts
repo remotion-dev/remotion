@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Archivo Black',
 	importName: 'ArchivoBlack',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Archivo+Black:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/archivoblack/v22/HTxqL289NzCGg4MzN6KJ7eW6CYKF_i7y.woff2',
+					'https://fonts.gstatic.com/s/archivoblack/v23/HTxqL289NzCGg4MzN6KJ7eW6CYKF_i7y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/archivoblack/v22/HTxqL289NzCGg4MzN6KJ7eW6CYyF_g.woff2',
+					'https://fonts.gstatic.com/s/archivoblack/v23/HTxqL289NzCGg4MzN6KJ7eW6CYyF_g.woff2',
 			},
 		},
 	},

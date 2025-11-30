@@ -7,7 +7,7 @@ import {transparentize} from 'polished';
 import React from 'react';
 import {
 	AbsoluteFill,
-	Audio,
+	Html5Audio,
 	Img,
 	interpolate,
 	staticFile,
@@ -176,7 +176,7 @@ const AudioVisualization: React.FC = () => {
 				})}
 			/>
 
-			<Audio src={music} />
+			<Html5Audio src={music} />
 			<FullSize>
 				{circlesToUse.map((v, i) => {
 					const leftNeighbour =

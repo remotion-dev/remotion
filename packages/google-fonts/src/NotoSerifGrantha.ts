@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Grantha',
 	importName: 'NotoSerifGrantha',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Grantha:ital,wght@0,400',
 	unicodeRanges: {
 		grantha:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				grantha:
-					'https://fonts.gstatic.com/s/notoserifgrantha/v21/qkBIXuEH5NzDDvc3fLDYxPk9-Wq3WLialGhvSo7e.woff2',
+					'https://fonts.gstatic.com/s/notoserifgrantha/v22/qkBIXuEH5NzDDvc3fLDYxPk9-Wq3WLialGhvSo7e.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifgrantha/v21/qkBIXuEH5NzDDvc3fLDYxPk9-Wq3WLiaHUlKd7c.woff2',
+					'https://fonts.gstatic.com/s/notoserifgrantha/v22/qkBIXuEH5NzDDvc3fLDYxPk9-Wq3WLiaHUlKd7c.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifgrantha/v21/qkBIXuEH5NzDDvc3fLDYxPk9-Wq3WLiaE0lK.woff2',
+					'https://fonts.gstatic.com/s/notoserifgrantha/v22/qkBIXuEH5NzDDvc3fLDYxPk9-Wq3WLiaE0lK.woff2',
 			},
 		},
 	},

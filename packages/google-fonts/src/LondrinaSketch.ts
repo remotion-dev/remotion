@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Londrina Sketch',
 	importName: 'LondrinaSketch',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Londrina+Sketch:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/londrinasketch/v26/c4m41npxGMTnomOHtRU68eIJn8qvXmP4.woff2',
+					'https://fonts.gstatic.com/s/londrinasketch/v27/c4m41npxGMTnomOHtRU68eIJn8qvXmP4.woff2',
 			},
 		},
 	},

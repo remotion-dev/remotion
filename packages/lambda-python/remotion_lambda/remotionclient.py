@@ -1,25 +1,47 @@
 # pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught
+import logging
 from dataclasses import asdict
 import random
 import json
 import hashlib
 from math import ceil
-from typing import Optional, Union
+from typing import Optional, Union, List
 from enum import Enum
 import boto3
 from botocore.exceptions import ClientError
 from botocore.config import Config
-from .models import (CostsInfo, CustomCredentials, RenderMediaParams, RenderMediaProgress,
-                     RenderMediaResponse, RenderProgressParams, RenderStillResponse,
-                     RenderStillParams, RenderType)
+from .models import (
+    CostsInfo,
+    CustomCredentials,
+    RenderMediaParams,
+    RenderMediaProgress,
+    RenderMediaResponse,
+    RenderProgressParams,
+    RenderStillResponse,
+    RenderStillParams,
+    RenderType,
+)
+
+
+logger = logging.getLogger(__name__)
+
+BUCKET_NAME_PREFIX = 'remotionlambda-'
+REGION_US_EAST = 'us-east-1'
 
 
 class RemotionClient:
     """A client for interacting with the Remotion service."""
 
     # pylint: disable=too-many-arguments
-    def __init__(self, region, serve_url, function_name, access_key=None, secret_key=None,
-                 force_path_style=False):
+    def __init__(
+        self,
+        region: str,
+        serve_url: str,
+        function_name: str,
+        access_key: Optional[str] = None,
+        secret_key: Optional[str] = None,
+        force_path_style=False,
+    ):
         """
         Initialize the RemotionClient.
 
@@ -52,7 +74,7 @@ class RemotionClient:
         # Use the same logic as JS SDK: prefix + region without dashes + random hash
         region_no_dashes = self.region.replace('-', '')
         random_suffix = self._generate_random_hash()
-        return f"remotionlambda-{region_no_dashes}-{random_suffix}"
+        return f"{BUCKET_NAME_PREFIX}{region_no_dashes}-{random_suffix}"
 
     def _input_props_key(self, hash_value):
         """Generate S3 key for input props."""
@@ -60,40 +82,55 @@ class RemotionClient:
 
     def _create_s3_client(self):
         """Create S3 client with appropriate credentials."""
-        config = None
+        kwargs = {'region_name': self.region}
+
         if self.force_path_style:
-            config = Config(s3={'addressing_style': 'path'})
+            kwargs['config'] = Config(s3={'addressing_style': 'path'})
 
         if self.access_key and self.secret_key:
-            return boto3.client('s3',
-                                aws_access_key_id=self.access_key,
-                                aws_secret_access_key=self.secret_key,
-                                region_name=self.region,
-                                config=config)
-        return boto3.client('s3', region_name=self.region, config=config)
+            kwargs.update(
+                {
+                    'aws_access_key_id': self.access_key,
+                    'aws_secret_access_key': self.secret_key,
+                }
+            )
 
-    def _get_remotion_buckets(self):
-        """Get existing Remotion buckets in the region."""
+        return boto3.client('s3', **kwargs)
+
+    def _get_remotion_buckets(self) -> List[str]:
         s3_client = self._create_s3_client()
+
         try:
             response = s3_client.list_buckets()
-            buckets = []
-            for bucket in response['Buckets']:
-                bucket_name = bucket['Name']
-                if bucket_name.startswith('remotionlambda-'):
-                    # Check if bucket is in the correct region
-                    try:
-                        bucket_region = s3_client.get_bucket_location(Bucket=bucket_name)
-                        location = bucket_region.get('LocationConstraint')
-                        # us-east-1 returns None for LocationConstraint
-                        if location == self.region or (location is None and self.region == 'us-east-1'):
-                            buckets.append(bucket_name)
-                    except ClientError:
-                        # Ignore buckets we can't access
-                        continue
-            return buckets
-        except ClientError:
+        except ClientError as e:
+            logger.warning("Could not list S3 buckets: %s", e)
             return []
+
+        remotion_buckets = []
+
+        for bucket in response.get('Buckets', []):
+            bucket_name = bucket['Name']
+
+            if not bucket_name.startswith(BUCKET_NAME_PREFIX):
+                continue
+
+            if self._is_bucket_in_current_region(s3_client, bucket_name):
+                remotion_buckets.append(bucket_name)
+
+        return remotion_buckets
+
+    def _is_bucket_in_current_region(self, s3_client, bucket_name: str) -> bool:
+        try:
+            bucket_region = s3_client.get_bucket_location(Bucket=bucket_name)
+            location = bucket_region.get('LocationConstraint')
+
+            # us-east-1 returns None for LocationConstraint
+            return location == self.region or (
+                location is None and self.region == REGION_US_EAST
+            )
+        except ClientError:
+            # Ignore buckets we can't access (permission issues, etc.)
+            return False
 
     def _get_or_create_bucket(self):
         """Get existing bucket or create a new one following JS SDK logic."""
@@ -115,12 +152,12 @@ class RemotionClient:
         s3_client = self._create_s3_client()
 
         try:
-            if self.region == 'us-east-1':
+            if self.region == REGION_US_EAST:
                 s3_client.create_bucket(Bucket=bucket_name)
             else:
                 s3_client.create_bucket(
                     Bucket=bucket_name,
-                    CreateBucketConfiguration={'LocationConstraint': self.region}
+                    CreateBucketConfiguration={'LocationConstraint': self.region},
                 )
             return bucket_name
         except ClientError as e:
@@ -134,7 +171,7 @@ class RemotionClient:
                 Bucket=bucket_name,
                 Key=key,
                 Body=payload,
-                ContentType='application/json'
+                ContentType='application/json',
             )
         except ClientError as e:
             raise ValueError(f"Failed to upload to S3: {str(e)}") from e
@@ -146,14 +183,17 @@ class RemotionClient:
         max_still_inline_size = 5_000_000 - margin
         max_video_inline_size = 200_000 - margin
 
-        max_size = max_still_inline_size if render_type == 'still' else max_video_inline_size
+        max_size = (
+            max_still_inline_size if render_type == 'still' else max_video_inline_size
+        )
 
         if payload_size > max_size:
             # Log warning similar to JavaScript implementation
-            print(
-                f"Warning: The props are over {round(max_size / 1000)}KB "
-                f"({ceil(payload_size / 1024)}KB) in size. Uploading them to S3 to "
-                f"circumvent AWS Lambda payload size, which may lead to slowdown."
+            logger.warning(
+                "Warning: The props are over %sKB (%sKB) in size. Uploading them to S3 to "
+                "circumvent AWS Lambda payload size, which may lead to slowdown.",
+                round(max_size / 1000),
+                ceil(payload_size / 1024),
             )
             return True
         return False
@@ -184,27 +224,29 @@ class RemotionClient:
                 return {
                     'type': 'bucket-url',
                     'hash': hash_value,
-                    'bucketName': bucket_name
+                    'bucketName': bucket_name,
                 }
             # Return payload format for smaller payloads
             return {
                 'type': 'payload',
-                'payload': payload if payload not in ('', 'null') else json.dumps({})
+                'payload': payload if payload not in ('', 'null') else json.dumps({}),
             }
         except (ValueError, TypeError) as error:
             raise ValueError(
-                'Error serializing InputProps. Check for circular ' +
-                'references or reduce the object size.'
+                'Error serializing InputProps. Check for circular '
+                + 'references or reduce the object size.'
             ) from error
 
     def _create_lambda_client(self):
         if self.access_key and self.secret_key and self.region:
-            return boto3.client('lambda',
-                                aws_access_key_id=self.access_key,
-                                aws_secret_access_key=self.secret_key,
-                                region_name=self.region)
+            return boto3.client(
+                'lambda',
+                aws_access_key_id=self.access_key,
+                aws_secret_access_key=self.secret_key,
+                region_name=self.region,
+            )
 
-        return boto3.client('lambda',  region_name=self.region)
+        return boto3.client('lambda', region_name=self.region)
 
     def _find_json_objects(self, input_string):
         """Finds and returns a list of complete JSON object strings."""
@@ -220,7 +262,7 @@ class RemotionClient:
             elif char == '}':
                 depth -= 1
                 if depth == 0:
-                    objects.append(input_string[start_index:i + 1])
+                    objects.append(input_string[start_index : i + 1])
 
         return objects
 
@@ -234,20 +276,17 @@ class RemotionClient:
 
         client = self._create_lambda_client()
         try:
-            response = client.invoke(
-                FunctionName=function_name, Payload=payload)
+            response = client.invoke(FunctionName=function_name, Payload=payload)
             result = response['Payload'].read().decode('utf-8')
             decoded_result = self._parse_stream(result)[-1]
         except client.exceptions.ResourceNotFoundException as e:
-            raise ValueError(
-                f"The function {function_name} does not exist.") from e
+            raise ValueError(f"The function {function_name} does not exist.") from e
         except client.exceptions.InvalidRequestContentException as e:
             raise ValueError("The request content is invalid.") from e
         except client.exceptions.RequestTooLargeException as e:
             raise ValueError("The request payload is too large.") from e
         except client.exceptions.ServiceException as e:
-            raise ValueError(
-                f"An internal service error occurred: {str(e)}") from e
+            raise ValueError(f"An internal service error occurred: {str(e)}") from e
         except Exception as e:
             raise ValueError(f"An unexpected error occurred: {str(e)}") from e
 
@@ -272,8 +311,11 @@ class RemotionClient:
             return list(obj)
         return asdict(obj)
 
-    def construct_render_request(self, render_params: Union[RenderMediaParams, RenderStillParams],
-                                 render_type: RenderType) -> str:
+    def construct_render_request(
+        self,
+        render_params: Union[RenderMediaParams, RenderStillParams],
+        render_type: RenderType,
+    ) -> str:
         """
         Construct a render request in JSON format.
 
@@ -286,19 +328,19 @@ class RemotionClient:
         render_params.serve_url = self.serve_url
 
         render_params.private_serialized_input_props = self._serialize_input_props(
-            input_props=render_params.input_props,
-            render_type=render_type
+            input_props=render_params.input_props, render_type=render_type
         )
 
         payload = render_params.serialize_params()
         return json.dumps(payload, default=self._custom_serializer)
 
-    def construct_render_progress_request(self,
-                                          render_id: str,
-                                          bucket_name: str,
-                                          log_level="info",
-                                          s3_output_provider: Optional[CustomCredentials] = None
-                                          ) -> str:
+    def construct_render_progress_request(
+        self,
+        render_id: str,
+        bucket_name: str,
+        log_level="info",
+        s3_output_provider: Optional[CustomCredentials] = None,
+    ) -> str:
         """
         Construct a render progress request in JSON format.
 
@@ -315,7 +357,7 @@ class RemotionClient:
             function_name=self.function_name,
             region=self.region,
             log_level=log_level,
-            s3_output_provider=s3_output_provider
+            s3_output_provider=s3_output_provider,
         )
         return json.dumps(progress_params.serialize_params())
 
@@ -332,11 +374,15 @@ class RemotionClient:
             RenderResponse: Response from the render operation.
         """
         params = self.construct_render_request(
-            render_params, render_type="video-or-audio")
+            render_params, render_type="video-or-audio"
+        )
         body_object = self._invoke_lambda(
-            function_name=self.function_name, payload=params)
+            function_name=self.function_name, payload=params
+        )
         if body_object:
-            return RenderMediaResponse(body_object['bucketName'], body_object['renderId'])
+            return RenderMediaResponse(
+                body_object['bucketName'], body_object['renderId']
+            )
 
         return None
 
@@ -352,11 +398,11 @@ class RemotionClient:
         Returns:
             RenderResponse: Response from the render operation.
         """
-        params = self.construct_render_request(
-            render_params, render_type='still')
+        params = self.construct_render_request(render_params, render_type='still')
 
         body_object = self._invoke_lambda(
-            function_name=self.function_name, payload=params)
+            function_name=self.function_name, payload=params
+        )
 
         if body_object:
             return RenderStillResponse(
@@ -364,7 +410,7 @@ class RemotionClient:
                     accrued_so_far=body_object['estimatedPrice']['accruedSoFar'],
                     display_cost=body_object['estimatedPrice']['displayCost'],
                     currency=body_object['estimatedPrice']['currency'],
-                    disclaimer=body_object['estimatedPrice']['disclaimer']
+                    disclaimer=body_object['estimatedPrice']['disclaimer'],
                 ),
                 url=body_object['output'],
                 size_in_bytes=body_object['sizeInBytes'],
@@ -375,12 +421,13 @@ class RemotionClient:
 
         return None
 
-    def get_render_progress(self,
-                            render_id: str,
-                            bucket_name: str,
-                            log_level="info",
-                            s3_output_provider: Optional[CustomCredentials] = None
-                            ) -> Optional[RenderMediaProgress]:
+    def get_render_progress(
+        self,
+        render_id: str,
+        bucket_name: str,
+        log_level="info",
+        s3_output_provider: Optional[CustomCredentials] = None,
+    ) -> Optional[RenderMediaProgress]:
         """
         Get the progress of a render.
 
@@ -393,9 +440,14 @@ class RemotionClient:
             RenderProgress: Progress of the render.
         """
         params = self.construct_render_progress_request(
-            render_id, bucket_name, log_level=log_level, s3_output_provider=s3_output_provider)
+            render_id,
+            bucket_name,
+            log_level=log_level,
+            s3_output_provider=s3_output_provider,
+        )
         progress_response = self._invoke_lambda(
-            function_name=self.function_name, payload=params)
+            function_name=self.function_name, payload=params
+        )
         if progress_response:
             render_progress = RenderMediaProgress()
             render_progress.__dict__.update(progress_response)

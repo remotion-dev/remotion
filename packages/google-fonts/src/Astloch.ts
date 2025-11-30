@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Astloch',
 	importName: 'Astloch',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Astloch:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		latin:
@@ -13,11 +13,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/astloch/v26/TuGRUVJ8QI5GSeUjm9sbzQ.woff2',
+					'https://fonts.gstatic.com/s/astloch/v27/TuGRUVJ8QI5GSeUjm9sbzQ.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/astloch/v26/TuGUUVJ8QI5GSeUjk2A-2MRFAg.woff2',
+					'https://fonts.gstatic.com/s/astloch/v27/TuGUUVJ8QI5GSeUjk2A-2MRFAg.woff2',
 			},
 		},
 	},

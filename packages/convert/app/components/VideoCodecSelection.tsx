@@ -1,6 +1,6 @@
-import type {MediaParserVideoCodec} from '@remotion/media-parser';
-import type {VideoOperation} from '@remotion/webcodecs';
+import type {InputVideoTrack} from 'mediabunny';
 import React from 'react';
+import type {VideoOperation} from '~/lib/audio-operation';
 import {getVideoOperationId} from '~/lib/operation-key';
 import {
 	Select,
@@ -9,14 +9,14 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from './ui/select';
+} from '@remotion/design';
 import {VideoOperationOption} from './VideoOperationOption';
 
 export const VideoCodecSelection: React.FC<{
 	readonly videoOperations: VideoOperation[];
 	readonly index: string;
 	readonly setIndex: (v: string) => void;
-	readonly currentVideoCodec: MediaParserVideoCodec | null;
+	readonly currentVideoCodec: InputVideoTrack['codec'] | null;
 }> = ({videoOperations, index, setIndex, currentVideoCodec}) => {
 	return (
 		<Select

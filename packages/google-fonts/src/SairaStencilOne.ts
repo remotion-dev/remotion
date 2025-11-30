@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Saira Stencil One',
 	importName: 'SairaStencilOne',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Saira+Stencil+One:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/sairastencilone/v17/SLXSc03I6HkvZGJ1GvvipLoYSTEL9DsEYQmv2Q.woff2',
+					'https://fonts.gstatic.com/s/sairastencilone/v18/SLXSc03I6HkvZGJ1GvvipLoYSTEL9DsEYQmv2Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sairastencilone/v17/SLXSc03I6HkvZGJ1GvvipLoYSTEL9DsFYQmv2Q.woff2',
+					'https://fonts.gstatic.com/s/sairastencilone/v18/SLXSc03I6HkvZGJ1GvvipLoYSTEL9DsFYQmv2Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sairastencilone/v17/SLXSc03I6HkvZGJ1GvvipLoYSTEL9DsLYQk.woff2',
+					'https://fonts.gstatic.com/s/sairastencilone/v18/SLXSc03I6HkvZGJ1GvvipLoYSTEL9DsLYQk.woff2',
 			},
 		},
 	},

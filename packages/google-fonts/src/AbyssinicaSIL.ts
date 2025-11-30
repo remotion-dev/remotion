@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Abyssinica SIL',
 	importName: 'AbyssinicaSIL',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Abyssinica+SIL:ital,wght@0,400',
 	unicodeRanges: {
 		ethiopic:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				ethiopic:
-					'https://fonts.gstatic.com/s/abyssinicasil/v8/oY1H8ezOqK7iI3rK_45WKoc8J5UPDlKlAQ.woff2',
+					'https://fonts.gstatic.com/s/abyssinicasil/v9/oY1H8ezOqK7iI3rK_45WKoc8J5UPDlKlAQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/abyssinicasil/v8/oY1H8ezOqK7iI3rK_45WKoc8J5UQDlKlAQ.woff2',
+					'https://fonts.gstatic.com/s/abyssinicasil/v9/oY1H8ezOqK7iI3rK_45WKoc8J5UQDlKlAQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/abyssinicasil/v8/oY1H8ezOqK7iI3rK_45WKoc8J5UeDlI.woff2',
+					'https://fonts.gstatic.com/s/abyssinicasil/v9/oY1H8ezOqK7iI3rK_45WKoc8J5UeDlI.woff2',
 			},
 		},
 	},

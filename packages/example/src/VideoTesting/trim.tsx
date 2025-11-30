@@ -1,4 +1,4 @@
-import {experimental_NewVideo as NewVideo} from '@remotion/video';
+import {Video as NewVideo} from '@remotion/media';
 import {
 	OffthreadVideo,
 	Sequence,

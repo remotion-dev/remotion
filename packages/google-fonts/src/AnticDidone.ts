@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Antic Didone',
 	importName: 'AnticDidone',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Antic+Didone:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/anticdidone/v16/RWmPoKKX6u8sp8fIWdnDKqDSroEH.woff2',
+					'https://fonts.gstatic.com/s/anticdidone/v17/RWmPoKKX6u8sp8fIWdnDKqDSroEH.woff2',
 			},
 		},
 	},

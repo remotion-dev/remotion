@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Suez One',
 	importName: 'SuezOne',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Suez+One:ital,wght@0,400',
 	unicodeRanges: {
 		hebrew:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				hebrew:
-					'https://fonts.gstatic.com/s/suezone/v14/taiJGmd_EZ6rqscQgOFMmouQ-A.woff2',
+					'https://fonts.gstatic.com/s/suezone/v15/taiJGmd_EZ6rqscQgOFMmouQ-A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/suezone/v14/taiJGmd_EZ6rqscQgOFAmouQ-A.woff2',
+					'https://fonts.gstatic.com/s/suezone/v15/taiJGmd_EZ6rqscQgOFAmouQ-A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/suezone/v14/taiJGmd_EZ6rqscQgOFOmos.woff2',
+					'https://fonts.gstatic.com/s/suezone/v15/taiJGmd_EZ6rqscQgOFOmos.woff2',
 			},
 		},
 	},

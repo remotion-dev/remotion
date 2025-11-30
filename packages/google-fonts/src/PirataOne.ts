@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Pirata One',
 	importName: 'PirataOne',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Pirata+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/pirataone/v22/I_urMpiDvgLdLh0fAtofhiGOrq_B.woff2',
+					'https://fonts.gstatic.com/s/pirataone/v23/I_urMpiDvgLdLh0fAtofhiGOrq_B.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/pirataone/v22/I_urMpiDvgLdLh0fAtofhi-Org.woff2',
+					'https://fonts.gstatic.com/s/pirataone/v23/I_urMpiDvgLdLh0fAtofhi-Org.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Chilanka',
 	importName: 'Chilanka',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Chilanka:ital,wght@0,400',
 	unicodeRanges: {
 		malayalam:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				malayalam:
-					'https://fonts.gstatic.com/s/chilanka/v22/WWXRlj2DZQiMJYaYRoJPKdAwZg.woff2',
+					'https://fonts.gstatic.com/s/chilanka/v23/WWXRlj2DZQiMJYaYRoJPKdAwZg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/chilanka/v22/WWXRlj2DZQiMJYaYRoJZKdAwZg.woff2',
+					'https://fonts.gstatic.com/s/chilanka/v23/WWXRlj2DZQiMJYaYRoJZKdAwZg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/chilanka/v22/WWXRlj2DZQiMJYaYRoJXKdA.woff2',
+					'https://fonts.gstatic.com/s/chilanka/v23/WWXRlj2DZQiMJYaYRoJXKdA.woff2',
 			},
 		},
 	},

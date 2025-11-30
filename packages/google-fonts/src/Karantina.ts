@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Karantina',
 	importName: 'Karantina',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Karantina:ital,wght@0,300;0,400;0,700',
 	unicodeRanges: {
 		hebrew:
@@ -17,27 +17,27 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				hebrew:
-					'https://fonts.gstatic.com/s/karantina/v12/buExpo24ccnh31GVMABxXCgv_fRPWiw.woff2',
+					'https://fonts.gstatic.com/s/karantina/v13/buExpo24ccnh31GVMABxXCgv_fRPWiw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/karantina/v12/buExpo24ccnh31GVMABxXCgv8fRPWiw.woff2',
+					'https://fonts.gstatic.com/s/karantina/v13/buExpo24ccnh31GVMABxXCgv8fRPWiw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/karantina/v12/buExpo24ccnh31GVMABxXCgv__RP.woff2',
+					'https://fonts.gstatic.com/s/karantina/v13/buExpo24ccnh31GVMABxXCgv__RP.woff2',
 			},
 			'400': {
 				hebrew:
-					'https://fonts.gstatic.com/s/karantina/v12/buE0po24ccnh31GVMAB59Qo6wNU.woff2',
+					'https://fonts.gstatic.com/s/karantina/v13/buE0po24ccnh31GVMAB59Qo6wNU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/karantina/v12/buE0po24ccnh31GVMAB5-Qo6wNU.woff2',
+					'https://fonts.gstatic.com/s/karantina/v13/buE0po24ccnh31GVMAB5-Qo6wNU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/karantina/v12/buE0po24ccnh31GVMAB59wo6.woff2',
+					'https://fonts.gstatic.com/s/karantina/v13/buE0po24ccnh31GVMAB59wo6.woff2',
 			},
 			'700': {
 				hebrew:
-					'https://fonts.gstatic.com/s/karantina/v12/buExpo24ccnh31GVMABxTC8v_fRPWiw.woff2',
+					'https://fonts.gstatic.com/s/karantina/v13/buExpo24ccnh31GVMABxTC8v_fRPWiw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/karantina/v12/buExpo24ccnh31GVMABxTC8v8fRPWiw.woff2',
+					'https://fonts.gstatic.com/s/karantina/v13/buExpo24ccnh31GVMABxTC8v8fRPWiw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/karantina/v12/buExpo24ccnh31GVMABxTC8v__RP.woff2',
+					'https://fonts.gstatic.com/s/karantina/v13/buExpo24ccnh31GVMABxTC8v__RP.woff2',
 			},
 		},
 	},

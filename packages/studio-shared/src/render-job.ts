@@ -6,7 +6,6 @@ import type {
 	LogLevel,
 	makeCancelSignal,
 	PixelFormat,
-	ProResProfile,
 	StillImageFormat,
 	StitchingState,
 	VideoImageFormat,
@@ -51,6 +50,12 @@ export type BundlingState = {
 	doneIn: number | null;
 };
 
+export type BrowserProgressLog = {
+	logLevel: LogLevel;
+	previewString: string;
+	tag: string | null;
+};
+
 export type AggregateRenderProgress = {
 	rendering: RenderingProgressInput | null;
 	stitching: StitchingProgressInput | null;
@@ -58,6 +63,7 @@ export type AggregateRenderProgress = {
 	bundling: BundlingState;
 	copyingState: CopyingState;
 	artifactState: ArtifactProgress;
+	logs: BrowserProgressLog[];
 };
 
 export type ReceivedArtifact = {
@@ -104,6 +110,7 @@ type RenderJobDynamicFields =
 			frame: number;
 			scale: number;
 			offthreadVideoCacheSizeInBytes: number | null;
+			mediaCacheSizeInBytes: number | null;
 			offthreadVideoThreads: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
@@ -115,6 +122,7 @@ type RenderJobDynamicFields =
 			startFrame: number;
 			endFrame: number;
 			offthreadVideoCacheSizeInBytes: number | null;
+			mediaCacheSizeInBytes: number | null;
 			offthreadVideoThreads: number | null;
 	  } & RenderJobDynamicStatus)
 	| ({
@@ -130,7 +138,7 @@ type RenderJobDynamicFields =
 			endFrame: number;
 			muted: boolean;
 			enforceAudioTrack: boolean;
-			proResProfile: ProResProfile | null;
+			proResProfile: _InternalTypes['ProResProfile'] | null;
 			x264Preset: X264Preset | null;
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
@@ -141,6 +149,7 @@ type RenderJobDynamicFields =
 			numberOfGifLoops: number | null;
 			disallowParallelEncoding: boolean;
 			offthreadVideoCacheSizeInBytes: number | null;
+			mediaCacheSizeInBytes: number | null;
 			offthreadVideoThreads: number | null;
 			colorSpace: ColorSpace;
 			forSeamlessAacConcatenation: boolean;
@@ -150,6 +159,7 @@ type RenderJobDynamicFields =
 
 import type {ChromiumOptions, OpenGlRenderer} from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {_InternalTypes} from 'remotion';
 
 export type RequiredChromiumOptions = Required<ChromiumOptions>;
 export type UiOpenGlOptions = OpenGlRenderer | 'default';

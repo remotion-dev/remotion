@@ -1,17 +1,21 @@
-import type {
-	MediaParserAudioTrack,
-	MediaParserLocation,
-	MediaParserMetadataEntry,
-} from '@remotion/media-parser';
+import type {InputAudioTrack} from 'mediabunny';
 import {renderHumanReadableAudioCodec} from '~/lib/render-codec-label';
-import {MetadataDisplay} from './MetadataTable';
+import {PacketList} from './PacketList';
+import {TextButtonWithChevron} from './TexrButtonWithChevron';
 import {Table, TableBody, TableCell, TableRow} from './ui/table';
+import {usePackets} from './use-packets';
 
 export const AudioTrackOverview: React.FC<{
-	readonly track: MediaParserAudioTrack;
-	readonly metadata: MediaParserMetadataEntry[] | null;
-	location: MediaParserLocation | null;
-}> = ({track, metadata, location}) => {
+	readonly track: InputAudioTrack;
+	readonly showPackets: boolean;
+	readonly setShowPackets: (showPackets: boolean) => void;
+}> = ({track, showPackets, setShowPackets}) => {
+	const packets = usePackets({track});
+
+	if (showPackets) {
+		return <PacketList packets={packets} />;
+	}
+
 	return (
 		<Table className="table-fixed">
 			<TableBody>
@@ -20,9 +24,17 @@ export const AudioTrackOverview: React.FC<{
 					<TableCell className="text-right">Audio</TableCell>
 				</TableRow>
 				<TableRow>
+					<TableCell className="font-brand">Packets</TableCell>
+					<TableCell className="text-right">
+						<TextButtonWithChevron onClick={() => setShowPackets(true)}>
+							{packets.length}
+						</TextButtonWithChevron>
+					</TableCell>
+				</TableRow>
+				<TableRow>
 					<TableCell className="font-brand">Codec</TableCell>
 					<TableCell className="text-right">
-						{renderHumanReadableAudioCodec(track.codecEnum)}
+						{renderHumanReadableAudioCodec(track.codec)}
 					</TableCell>
 				</TableRow>
 				<TableRow>
@@ -37,11 +49,6 @@ export const AudioTrackOverview: React.FC<{
 					<TableCell className="font-brand">Sample Rate</TableCell>
 					<TableCell className="text-right">{track.sampleRate}</TableCell>
 				</TableRow>
-				<MetadataDisplay
-					location={location}
-					metadata={metadata ?? []}
-					trackId={track.trackId}
-				/>
 			</TableBody>
 		</Table>
 	);

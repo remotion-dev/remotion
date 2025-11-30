@@ -15,8 +15,8 @@ import {TableOfContents as LicensingTableOfContents} from '../../docs/licensing/
 import {TableOfContents as LottieTableOfContents} from '../../docs/lottie/table-of-contents';
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
 import {TableOfContents as MediaUtilsTableOfContents} from '../../docs/media-utils/table-of-contents';
+import {TableOfContents as NewVideoTableOfContents} from '../../docs/media/table-of-contents';
 import {TableOfContents as MotionBlurTableOfContents} from '../../docs/motion-blur/table-of-contents';
-import {TableOfContents as NewVideoTableOfContents} from '../../docs/new-video/table-of-contents';
 import {TableOfContents as NoiseTableOfContents} from '../../docs/noise/table-of-contents';
 import {TableOfContents as OpenAiWhisperTableOfContents} from '../../docs/openai-whisper/TableOfContents';
 import {TableOfContents as PathsTableOfContents} from '../../docs/paths/table-of-contents';
@@ -60,7 +60,7 @@ export const TableOfContents: React.FC = () => {
 				etc.
 			</p>
 			<RemotionTableOfContents />
-			<h2>@remotion/video</h2>
+			<h2>@remotion/media</h2>
 			<p>
 				An experimental <code>&lt;NewVideo /&gt;</code> tag for embedding
 				videos.

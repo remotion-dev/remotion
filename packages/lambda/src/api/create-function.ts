@@ -262,6 +262,7 @@ export const createFunction = async ({
 	);
 
 	const RuntimeVersionArn = `arn:aws:lambda:${region}::runtime:da57c20c4b965d5b75540f6865a35fc8030358e33ec44ecfed33e90901a27a72`;
+
 	try {
 		await LambdaClientInternals.getLambdaClient(
 			region,

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sarina',
 	importName: 'Sarina',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Sarina:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sarina/v24/-F6wfjF3ITQwasLRJ0rVniA.woff2',
+					'https://fonts.gstatic.com/s/sarina/v25/-F6wfjF3ITQwasLRJ0rVniA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sarina/v24/-F6wfjF3ITQwasLRKUrV.woff2',
+					'https://fonts.gstatic.com/s/sarina/v25/-F6wfjF3ITQwasLRKUrV.woff2',
 			},
 		},
 	},

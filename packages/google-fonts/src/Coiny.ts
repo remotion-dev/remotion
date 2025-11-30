@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Coiny',
 	importName: 'Coiny',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Coiny:ital,wght@0,400',
 	unicodeRanges: {
 		tamil: 'U+0964-0965, U+0B82-0BFA, U+200C-200D, U+20B9, U+25CC',
@@ -18,13 +18,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				tamil:
-					'https://fonts.gstatic.com/s/coiny/v16/gyByhwU1K989PUwKGFWfOw.woff2',
+					'https://fonts.gstatic.com/s/coiny/v17/gyByhwU1K989PUwKGFWfOw.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/coiny/v16/gyByhwU1K989PUwTGFWfOw.woff2',
+					'https://fonts.gstatic.com/s/coiny/v17/gyByhwU1K989PUwTGFWfOw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/coiny/v16/gyByhwU1K989PUwSGFWfOw.woff2',
+					'https://fonts.gstatic.com/s/coiny/v17/gyByhwU1K989PUwSGFWfOw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/coiny/v16/gyByhwU1K989PUwcGFU.woff2',
+					'https://fonts.gstatic.com/s/coiny/v17/gyByhwU1K989PUwcGFU.woff2',
 			},
 		},
 	},

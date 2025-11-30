@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Buda',
 	importName: 'Buda',
-	version: 'v30',
+	version: 'v31',
 	url: 'https://fonts.googleapis.com/css2?family=Buda:ital,wght@0,300',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				latin:
-					'https://fonts.gstatic.com/s/buda/v30/GFDqWAN8mnyIJSSrK7ILrg.woff2',
+					'https://fonts.gstatic.com/s/buda/v31/GFDqWAN8mnyIJSSrK7ILrg.woff2',
 			},
 		},
 	},

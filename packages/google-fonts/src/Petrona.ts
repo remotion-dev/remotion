@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Petrona',
 	importName: 'Petrona',
-	version: 'v35',
+	version: 'v36',
 	url: 'https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900',
 	unicodeRanges: {
 		vietnamese:
@@ -17,149 +17,149 @@ export const getInfo = () => ({
 		italic: {
 			'100': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdot0MV.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdot0MV.woff2',
 			},
 			'200': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdot0MV.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdot0MV.woff2',
 			},
 			'300': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdot0MV.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdot0MV.woff2',
 			},
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdot0MV.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdot0MV.woff2',
 			},
 			'500': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdot0MV.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdot0MV.woff2',
 			},
 			'600': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdot0MV.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdot0MV.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdot0MV.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdot0MV.woff2',
 			},
 			'800': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdot0MV.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdot0MV.woff2',
 			},
 			'900': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouEMV4CU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdouUMV4CU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG44_NXL7bZo9XXgXdot0MV.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG44_NXL7bZo9XXgXdot0MV.woff2',
 			},
 		},
 		normal: {
 			'100': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXJYtQ.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXJYtQ.woff2',
 			},
 			'200': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXJYtQ.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXJYtQ.woff2',
 			},
 			'300': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXJYtQ.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXJYtQ.woff2',
 			},
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXJYtQ.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXJYtQ.woff2',
 			},
 			'500': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXJYtQ.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXJYtQ.woff2',
 			},
 			'600': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXJYtQ.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXJYtQ.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXJYtQ.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXJYtQ.woff2',
 			},
 			'800': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXJYtQ.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXJYtQ.woff2',
 			},
 			'900': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgX1YtVsR.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXxYtVsR.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/petrona/v35/mtG64_NXL7bZo9XXgXJYtQ.woff2',
+					'https://fonts.gstatic.com/s/petrona/v36/mtG64_NXL7bZo9XXgXJYtQ.woff2',
 			},
 		},
 	},

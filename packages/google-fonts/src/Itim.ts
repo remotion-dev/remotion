@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Itim',
 	importName: 'Itim',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Itim:ital,wght@0,400',
 	unicodeRanges: {
 		thai: 'U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC',
@@ -17,12 +17,12 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				thai: 'https://fonts.gstatic.com/s/itim/v15/0nknC9ziJOYe8BdAkP7Z.woff2',
+				thai: 'https://fonts.gstatic.com/s/itim/v16/0nknC9ziJOYe8BdAkP7Z.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/itim/v15/0nknC9ziJOYe8AxAkP7Z.woff2',
+					'https://fonts.gstatic.com/s/itim/v16/0nknC9ziJOYe8AxAkP7Z.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/itim/v15/0nknC9ziJOYe8A1AkP7Z.woff2',
-				latin: 'https://fonts.gstatic.com/s/itim/v15/0nknC9ziJOYe8ANAkA.woff2',
+					'https://fonts.gstatic.com/s/itim/v16/0nknC9ziJOYe8A1AkP7Z.woff2',
+				latin: 'https://fonts.gstatic.com/s/itim/v16/0nknC9ziJOYe8ANAkA.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Edu SA Beginner',
 	importName: 'EduSABeginner',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Edu+SA+Beginner:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		latin:
@@ -13,19 +13,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/edusabeginner/v4/rnCw-xRb1x-1lHXnLaZZ2xOoLIG1X1oN.woff2',
+					'https://fonts.gstatic.com/s/edusabeginner/v5/rnCw-xRb1x-1lHXnLaZZ2xOoLIG1X1oN.woff2',
 			},
 			'500': {
 				latin:
-					'https://fonts.gstatic.com/s/edusabeginner/v4/rnCw-xRb1x-1lHXnLaZZ2xOoLIG1X1oN.woff2',
+					'https://fonts.gstatic.com/s/edusabeginner/v5/rnCw-xRb1x-1lHXnLaZZ2xOoLIG1X1oN.woff2',
 			},
 			'600': {
 				latin:
-					'https://fonts.gstatic.com/s/edusabeginner/v4/rnCw-xRb1x-1lHXnLaZZ2xOoLIG1X1oN.woff2',
+					'https://fonts.gstatic.com/s/edusabeginner/v5/rnCw-xRb1x-1lHXnLaZZ2xOoLIG1X1oN.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/edusabeginner/v4/rnCw-xRb1x-1lHXnLaZZ2xOoLIG1X1oN.woff2',
+					'https://fonts.gstatic.com/s/edusabeginner/v5/rnCw-xRb1x-1lHXnLaZZ2xOoLIG1X1oN.woff2',
 			},
 		},
 	},

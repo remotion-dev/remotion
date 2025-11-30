@@ -16,12 +16,13 @@ import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.
 import {playbackLogging} from './playback-logging.js';
 import {seek} from './seek.js';
 import {
-	TimelineContext,
 	usePlayingState,
 	useTimelinePosition,
 } from './timeline-position-state.js';
+import {TimelineContext} from './TimelineContext.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useMediaBuffering} from './use-media-buffering.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js';
 import {useVideoConfig} from './use-video-config.js';
 import {getMediaTime} from './video/get-current-time.js';
@@ -80,7 +81,7 @@ export const useMediaPlayback = ({
 		}
 
 		Log.verbose(
-			logLevel,
+			{logLevel, tag: null},
 			`Detected ${src} as a variable FPS video. Disabling buffering while seeking.`,
 		);
 
@@ -190,6 +191,8 @@ export const useMediaPlayback = ({
 		isPostmounting,
 	]);
 
+	const env = useRemotionEnvironment();
+
 	// This must be a useLayoutEffect, because afterwards, useVolume() looks at the playbackRate
 	// and it is also in a useLayoutEffect.
 	useLayoutEffect(() => {
@@ -203,7 +206,7 @@ export const useMediaPlayback = ({
 	}, [mediaRef, playbackRate]);
 
 	useEffect(() => {
-		const tagName = mediaType === 'audio' ? '<Audio>' : '<Video>';
+		const tagName = mediaType === 'audio' ? '<Html5Audio>' : '<Html5Video>';
 		if (!mediaRef.current) {
 			throw new Error(`No ${mediaType} ref found`);
 		}
@@ -268,6 +271,7 @@ export const useMediaPlayback = ({
 						mountTime,
 						reason:
 							'player is playing but media tag is paused, and just seeked',
+						isPlayer: env.isPlayer,
 					});
 				}
 			}
@@ -338,6 +342,7 @@ export const useMediaPlayback = ({
 				logLevel,
 				mountTime,
 				reason: `player is playing and ${reason}`,
+				isPlayer: env.isPlayer,
 			});
 			if (!isVariableFpsVideo && playbackRate > 0) {
 				bufferUntilFirstFrame(shouldBeTime);
@@ -365,5 +370,6 @@ export const useMediaPlayback = ({
 		pauseWhenBuffering,
 		mountTime,
 		mediaTagCurrentTime,
+		env.isPlayer,
 	]);
 };

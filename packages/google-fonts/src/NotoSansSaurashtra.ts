@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Saurashtra',
 	importName: 'NotoSansSaurashtra',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Saurashtra:ital,wght@0,400',
 	unicodeRanges: {
 		saurashtra: 'U+200C-200D, U+25CC, U+A880-A8DF',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				saurashtra:
-					'https://fonts.gstatic.com/s/notosanssaurashtra/v23/ea8GacQ0Wfz_XKWXe6OtoA8w8zvmYwTef-mUhBLjSA.woff2',
+					'https://fonts.gstatic.com/s/notosanssaurashtra/v24/ea8GacQ0Wfz_XKWXe6OtoA8w8zvmYwTef-mUhBLjSA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssaurashtra/v23/ea8GacQ0Wfz_XKWXe6OtoA8w8zvmYwTef-nUhBLjSA.woff2',
+					'https://fonts.gstatic.com/s/notosanssaurashtra/v24/ea8GacQ0Wfz_XKWXe6OtoA8w8zvmYwTef-nUhBLjSA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssaurashtra/v23/ea8GacQ0Wfz_XKWXe6OtoA8w8zvmYwTef-nahBI.woff2',
+					'https://fonts.gstatic.com/s/notosanssaurashtra/v24/ea8GacQ0Wfz_XKWXe6OtoA8w8zvmYwTef-nahBI.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tenor Sans',
 	importName: 'TenorSans',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Tenor+Sans:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/tenorsans/v20/bx6ANxqUneKx06UkIXISn3F4Cl2I.woff2',
+					'https://fonts.gstatic.com/s/tenorsans/v21/bx6ANxqUneKx06UkIXISn3F4Cl2I.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tenorsans/v20/bx6ANxqUneKx06UkIXISn3t4Cl2I.woff2',
+					'https://fonts.gstatic.com/s/tenorsans/v21/bx6ANxqUneKx06UkIXISn3t4Cl2I.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tenorsans/v20/bx6ANxqUneKx06UkIXISn3V4Cg.woff2',
+					'https://fonts.gstatic.com/s/tenorsans/v21/bx6ANxqUneKx06UkIXISn3V4Cg.woff2',
 			},
 		},
 	},

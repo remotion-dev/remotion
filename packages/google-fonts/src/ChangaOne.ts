@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Changa One',
 	importName: 'ChangaOne',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Changa+One:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		latin:
@@ -13,13 +13,13 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/changaone/v21/xfu20W3wXn3QLUJXhzq42ATSu5_f.woff2',
+					'https://fonts.gstatic.com/s/changaone/v22/xfu20W3wXn3QLUJXhzq42ATSu5_f.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/changaone/v21/xfu00W3wXn3QLUJXhzq42AHiuQ.woff2',
+					'https://fonts.gstatic.com/s/changaone/v22/xfu00W3wXn3QLUJXhzq42AHiuQ.woff2',
 			},
 		},
 	},

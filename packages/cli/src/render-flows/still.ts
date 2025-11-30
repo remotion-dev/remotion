@@ -45,6 +45,7 @@ import {
 	getOutputLocation,
 	getUserPassedOutputLocation,
 } from '../user-passed-output-location';
+import {addLogToAggregateProgress} from './add-log-to-aggregate-progress';
 
 export const renderStillFlow = async ({
 	remotionRoot,
@@ -79,6 +80,7 @@ export const renderStillFlow = async ({
 	chromeMode,
 	offthreadVideoThreads,
 	audioLatencyHint,
+	mediaCacheSizeInBytes,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -112,6 +114,7 @@ export const renderStillFlow = async ({
 	publicPath: string | null;
 	chromeMode: ChromeMode;
 	audioLatencyHint: AudioContextLatencyCategory | null;
+	mediaCacheSizeInBytes: number | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	Log.verbose(
@@ -250,6 +253,7 @@ export const renderStillFlow = async ({
 			binariesDirectory,
 			onBrowserDownload,
 			chromeMode,
+			mediaCacheSizeInBytes,
 		});
 
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
@@ -382,6 +386,21 @@ export const renderStillFlow = async ({
 		onArtifact,
 		chromeMode,
 		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
+		onLog: ({logLevel: logLogLevel, previewString, tag}) => {
+			addLogToAggregateProgress({
+				logs: aggregate.logs,
+				logLogLevel,
+				previewString,
+				tag,
+				logLevel,
+			});
+			updateRenderProgress({
+				newline: false,
+				printToConsole: true,
+			});
+		},
+		apiKey: null,
 	});
 
 	aggregate.rendering = {

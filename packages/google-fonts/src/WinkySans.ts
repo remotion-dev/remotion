@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Winky Sans',
 	importName: 'WinkySans',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Winky+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,89 +15,89 @@ export const getInfo = () => ({
 		italic: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYny4fvRQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll87K2SDUiG1Hpf2p06bN6gYkS4f.woff2',
 			},
 		},
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN6MokzYb.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/winkysans/v2/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
+					'https://fonts.gstatic.com/s/winkysans/v3/ll85K2SDUiG1Hpf2p06bN60okw.woff2',
 			},
 		},
 	},

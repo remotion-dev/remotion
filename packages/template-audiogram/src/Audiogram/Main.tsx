@@ -1,5 +1,11 @@
 import React from "react";
-import { AbsoluteFill, Audio, Img, Sequence, useVideoConfig } from "remotion";
+import {
+  AbsoluteFill,
+  Html5Audio,
+  Img,
+  Sequence,
+  useVideoConfig,
+} from "remotion";
 
 import { PaginatedCaptions } from "./Captions";
 import { Spectrum } from "./Spectrum";
@@ -42,7 +48,7 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
   return (
     <AbsoluteFill>
       <Sequence from={-audioOffsetInFrames}>
-        <Audio pauseWhenBuffering src={audioFileUrl} />
+        <Html5Audio pauseWhenBuffering src={audioFileUrl} />
         <div
           style={{
             display: "flex",
@@ -87,6 +93,7 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
                 waveColor={visualizer.color}
                 padding={visualizer.padding}
                 audioSrc={audioFileUrl}
+                key={audioFileUrl}
                 numberOfSamples={baseNumberOfSamples}
                 windowInSeconds={visualizer.windowInSeconds}
                 posterization={visualizer.posterization}
@@ -96,6 +103,7 @@ export const Audiogram: React.FC<AudiogramCompositionSchemaType> = ({
               <Spectrum
                 barColor={visualizer.color}
                 audioSrc={audioFileUrl}
+                key={audioFileUrl}
                 mirrorWave={visualizer.mirrorWave}
                 numberOfSamples={baseNumberOfSamples * 4} // since fft is used, we need to increase the number of samples to get a better resolution
                 freqRangeStartIndex={visualizer.freqRangeStartIndex}

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Autour One',
 	importName: 'AutourOne',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Autour+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/autourone/v24/UqyVK80cP25l3fJgbdfbo5BcV_cx.woff2',
+					'https://fonts.gstatic.com/s/autourone/v25/UqyVK80cP25l3fJgbdfbo5BcV_cx.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/autourone/v24/UqyVK80cP25l3fJgbdfbo55cVw.woff2',
+					'https://fonts.gstatic.com/s/autourone/v25/UqyVK80cP25l3fJgbdfbo55cVw.woff2',
 			},
 		},
 	},

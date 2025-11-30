@@ -7,9 +7,9 @@ crumb: 'API'
 
 _Available from Remotion 3.0.11_
 
-This component imports and displays a video, similar to [`<Video/>`](/docs/video), but during rendering, extracts the exact frame from the video and displays it in a [`<Img>`](/docs/img) tag. This extraction process happens outside the browser using FFmpeg.
+This component imports and displays a video, similar to [`<Html5Video/>`](/docs/html5-video), but during rendering, extracts the exact frame from the video and displays it in a [`<Img>`](/docs/img) tag. This extraction process happens outside the browser using FFmpeg.
 
-This component was designed to combat limitations of the default `<Video>` element. See: [`<Video>` vs `<OffthreadVideo>`](/docs/video-vs-offthreadvideo).
+This component was designed to combat limitations of the default `<Html5Video>` element. See: [Comparison of video tags](/docs/video-tags).
 
 ## Example
 
@@ -117,7 +117,7 @@ import {AbsoluteFill, interpolate, staticFile, OffthreadVideo} from 'remotion';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <OffthreadVideo volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('video.webm')} />
+      <OffthreadVideo volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={staticFile('video.webm')} />
     </AbsoluteFill>
   );
 };
@@ -240,7 +240,7 @@ import {AbsoluteFill, OffthreadVideo} from 'remotion';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <OffthreadVideo audioStreamIndex={1} src={'https://parser.media/multichannel-audio.mov'} />
+      <OffthreadVideo audioStreamIndex={1} src={'https://remotion.media/multiple-audio-streams.mov'} />
     </AbsoluteFill>
   );
 };
@@ -317,14 +317,51 @@ If you don't care about color accuracy, you can set `toneMapped` to `false` as w
 
 ## Looping a OffthreadVideo
 
-Unlike [`<Video>`](/docs/video), `OffthreadVideo` does not currently implement the `loop` property.
+Unlike [`<Html5Video>`](/docs/html5-video), `OffthreadVideo` does not implement the `loop` property.  
+Consider using [another video tag](/docs/video-tags) for looping.
+
+:::note
+When a video ends, the last frame of the video remains visible by default.  
+This matches the behavior of [`<Html5Video>`](/docs/html5-video#loop).
+:::
 
 You can use the following `<LoopableOffthreadVideo>` component that uses [`@remotion/media-parser`](/docs/media-parser/) to loop a video.
 
 ```tsx twoslash title="src/LoopableOffthreadVideo.tsx"
-import {mediaParserController, parseMedia} from '@remotion/media-parser';
+// @filename: get-media-metadata.ts
+import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
+
+export const getMediaMetadata = async (src: string) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(src, {
+      getRetryDelay: () => null,
+    }),
+  });
+
+  const durationInSeconds = await input.computeDuration();
+  const videoTrack = await input.getPrimaryVideoTrack();
+  const dimensions = videoTrack
+    ? {
+        width: videoTrack.displayWidth,
+        height: videoTrack.displayHeight,
+      }
+    : null;
+  const packetStats = await videoTrack?.computePacketStats();
+  const fps = packetStats?.averagePacketRate ?? null;
+
+  return {
+    durationInSeconds,
+    dimensions,
+    fps,
+  };
+};
+
+// @filename: index.tsx
+// ---cut---
 import React, {useEffect, useState} from 'react';
-import {cancelRender, continueRender, delayRender, getRemotionEnvironment, Loop, OffthreadVideo, RemotionOffthreadVideoProps, useVideoConfig, Video} from 'remotion';
+import {cancelRender, continueRender, delayRender, Loop, OffthreadVideo, RemotionOffthreadVideoProps, useRemotionEnvironment, useVideoConfig, Html5Video} from 'remotion';
+import {getMediaMetadata} from './get-media-metadata';
 
 const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
   const [duration, setDuration] = useState<number | null>(null);
@@ -332,18 +369,9 @@ const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
   const {fps} = useVideoConfig();
 
   useEffect(() => {
-    const controller = mediaParserController();
-
-    parseMedia({
-      src: props.src,
-      acknowledgeRemotionLicense: true,
-      controller,
-      fields: {
-        slowDurationInSeconds: true,
-      },
-    })
-      .then(({slowDurationInSeconds}) => {
-        setDuration(slowDurationInSeconds);
+    getMediaMetadata(props.src)
+      .then(({durationInSeconds}) => {
+        setDuration(durationInSeconds);
         continueRender(handle);
       })
       .catch((err) => {
@@ -352,7 +380,6 @@ const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
 
     return () => {
       continueRender(handle);
-      controller.abort();
     };
   }, [handle, props.src]);
 
@@ -372,7 +399,8 @@ export const LoopableOffthreadVideo: React.FC<
     loop?: boolean;
   }
 > = ({loop, ...props}) => {
-  if (getRemotionEnvironment().isRendering) {
+  const env = useRemotionEnvironment();
+  if (env.isRendering) {
     if (loop) {
       return <LoopedOffthreadVideo {...props} />;
     }
@@ -380,7 +408,7 @@ export const LoopableOffthreadVideo: React.FC<
     return <OffthreadVideo {...props} />;
   }
 
-  return <Video loop={loop} {...props}></Video>;
+  return <Html5Video loop={loop} {...props}></Html5Video>;
 };
 ```
 
@@ -397,5 +425,6 @@ The following codecs can be read by `<OffthreadVideo>`:
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/video/OffthreadVideo.tsx)
-- [`<Video />`](/docs/video)
-- [`<Video>` vs `<OffthreadVideo>`](/docs/video-vs-offthreadvideo)
+- [`<Html5Video />`](/docs/html5-video)
+- [`<Video />` (from `@remotion/media`)](/docs/media/video)
+- [Comparison of video tags](/docs/video-tags)

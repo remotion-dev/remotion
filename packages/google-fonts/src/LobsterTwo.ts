@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lobster Two',
 	importName: 'LobsterTwo',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		latin:
@@ -13,21 +13,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/lobstertwo/v21/BngOUXZGTXPUvIoyV6yN5-fI1qeh5A.woff2',
+					'https://fonts.gstatic.com/s/lobstertwo/v22/BngOUXZGTXPUvIoyV6yN5-fI1qeh5A.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/lobstertwo/v21/BngTUXZGTXPUvIoyV6yN5-fI3hyE8R-ifg.woff2',
+					'https://fonts.gstatic.com/s/lobstertwo/v22/BngTUXZGTXPUvIoyV6yN5-fI3hyE8R-ifg.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/lobstertwo/v21/BngMUXZGTXPUvIoyV6yN5-fN5qU.woff2',
+					'https://fonts.gstatic.com/s/lobstertwo/v22/BngMUXZGTXPUvIoyV6yN5-fN5qU.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/lobstertwo/v21/BngRUXZGTXPUvIoyV6yN5-92w7CGwR0.woff2',
+					'https://fonts.gstatic.com/s/lobstertwo/v22/BngRUXZGTXPUvIoyV6yN5-92w7CGwR0.woff2',
 			},
 		},
 	},

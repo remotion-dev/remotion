@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Akshar',
 	importName: 'Akshar',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Akshar:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,43 +17,43 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCpR5lhOc.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCpR5lhOc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCqh5lhOc.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCqh5lhOc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCpB5l.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCpB5l.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCpR5lhOc.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCpR5lhOc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCqh5lhOc.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCqh5lhOc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCpB5l.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCpB5l.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCpR5lhOc.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCpR5lhOc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCqh5lhOc.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCqh5lhOc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCpB5l.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCpB5l.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCpR5lhOc.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCpR5lhOc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCqh5lhOc.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCqh5lhOc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCpB5l.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCpB5l.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCpR5lhOc.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCpR5lhOc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCqh5lhOc.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCqh5lhOc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/akshar/v16/Yq6V-LyHWTfz9rGCpB5l.woff2',
+					'https://fonts.gstatic.com/s/akshar/v17/Yq6V-LyHWTfz9rGCpB5l.woff2',
 			},
 		},
 	},

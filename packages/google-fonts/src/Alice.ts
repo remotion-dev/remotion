@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Alice',
 	importName: 'Alice',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Alice:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,13 +18,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/alice/v20/OpNCnoEEmtHa6GcDrg7shw.woff2',
+					'https://fonts.gstatic.com/s/alice/v21/OpNCnoEEmtHa6GcDrg7shw.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/alice/v20/OpNCnoEEmtHa6GcKrg7shw.woff2',
+					'https://fonts.gstatic.com/s/alice/v21/OpNCnoEEmtHa6GcKrg7shw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/alice/v20/OpNCnoEEmtHa6GcArg7shw.woff2',
+					'https://fonts.gstatic.com/s/alice/v21/OpNCnoEEmtHa6GcArg7shw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/alice/v20/OpNCnoEEmtHa6GcOrg4.woff2',
+					'https://fonts.gstatic.com/s/alice/v21/OpNCnoEEmtHa6GcOrg4.woff2',
 			},
 		},
 	},

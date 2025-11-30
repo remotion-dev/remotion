@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Trochut',
 	importName: 'Trochut',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Trochut:ital,wght@0,400;0,700;1,400',
 	unicodeRanges: {
 		latin:
@@ -13,17 +13,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/trochut/v23/CHyhV-fDDlP9bDIw1nayfnoL.woff2',
+					'https://fonts.gstatic.com/s/trochut/v24/CHyhV-fDDlP9bDIw1nayfnoL.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/trochut/v23/CHyjV-fDDlP9bDIw1nOCfA.woff2',
+					'https://fonts.gstatic.com/s/trochut/v24/CHyjV-fDDlP9bDIw1nOCfA.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/trochut/v23/CHymV-fDDlP9bDIw3sinaV0uMw.woff2',
+					'https://fonts.gstatic.com/s/trochut/v24/CHymV-fDDlP9bDIw3sinaV0uMw.woff2',
 			},
 		},
 	},

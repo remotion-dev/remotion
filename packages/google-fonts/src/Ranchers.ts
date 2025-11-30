@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ranchers',
 	importName: 'Ranchers',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Ranchers:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ranchers/v18/zrfm0H3Lx-P2Xvs2ArDRBi_NXQ.woff2',
+					'https://fonts.gstatic.com/s/ranchers/v19/zrfm0H3Lx-P2Xvs2ArDRBi_NXQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ranchers/v18/zrfm0H3Lx-P2Xvs2ArDfBi8.woff2',
+					'https://fonts.gstatic.com/s/ranchers/v19/zrfm0H3Lx-P2Xvs2ArDfBi8.woff2',
 			},
 		},
 	},

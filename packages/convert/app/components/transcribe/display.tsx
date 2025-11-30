@@ -1,9 +1,10 @@
 /* eslint-disable react/no-array-index-key */
+import type MediaFox from '@mediafox/core';
 import type {Caption} from '@remotion/captions';
+import {Switch} from '@remotion/design';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {useAudioPlayback} from '~/lib/use-audio-playback';
 import {Card} from '../ui/card';
-import {Switch} from '../ui/switch';
 
 const SingleToken: React.FC<{
 	readonly caption: Caption;
@@ -37,10 +38,12 @@ const SingleToken: React.FC<{
 
 export default function Display({
 	result: unfilteredResult,
+	mediaFox,
 }: {
 	readonly result: Caption[];
+	readonly mediaFox: MediaFox;
 }) {
-	const {time} = useAudioPlayback();
+	const {time} = useAudioPlayback(mediaFox);
 	const [tokens, setTokens] = useState<boolean>(false);
 
 	const result = useMemo(() => {
@@ -73,7 +76,6 @@ export default function Display({
 					Show tokens
 				</div>
 				<div className="flex-1" />
-
 				<Switch active={tokens} onToggle={() => setTokens((e) => !e)} />
 			</div>
 			<div className="h-4" />

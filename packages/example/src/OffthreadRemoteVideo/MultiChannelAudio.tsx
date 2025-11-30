@@ -1,9 +1,9 @@
 import {parseMedia} from '@remotion/media-parser';
 import {StudioInternals} from '@remotion/studio';
-import {Audio, CalculateMetadataFunction} from 'remotion';
+import {CalculateMetadataFunction, Html5Audio} from 'remotion';
 
 const fps = 30;
-const src = 'https://parser.media/multichannel-audio.mov';
+const src = 'https://remotion.media/multiple-audio-streams.mov';
 
 export const calculateMetadataFn: CalculateMetadataFunction<
 	Record<string, unknown>
@@ -25,7 +25,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 const Component = () => {
 	return (
 		<>
-			<Audio src={src} audioStreamIndex={3} />
+			<Html5Audio src={src} audioStreamIndex={3} />
 		</>
 	);
 };

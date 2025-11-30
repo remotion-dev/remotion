@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Anatolian Hieroglyphs',
 	importName: 'NotoSansAnatolianHieroglyphs',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Anatolian+Hieroglyphs:ital,wght@0,400',
 	unicodeRanges: {
 		'anatolian-hieroglyphs': 'U+14400-14646',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'anatolian-hieroglyphs':
-					'https://fonts.gstatic.com/s/notosansanatolianhieroglyphs/v16/ijw9s4roRME5LLRxjsRb8A0gKPSWq4BbDmHHu6j2pEtUJzZWb4bj7moAWA.woff2',
+					'https://fonts.gstatic.com/s/notosansanatolianhieroglyphs/v17/ijw9s4roRME5LLRxjsRb8A0gKPSWq4BbDmHHu6j2pEtUJzZWb4bj7moAWA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansanatolianhieroglyphs/v16/ijw9s4roRME5LLRxjsRb8A0gKPSWq4BbDmHHu6j2pEtUJzZWby_Cy1c5.woff2',
+					'https://fonts.gstatic.com/s/notosansanatolianhieroglyphs/v17/ijw9s4roRME5LLRxjsRb8A0gKPSWq4BbDmHHu6j2pEtUJzZWby_Cy1c5.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansanatolianhieroglyphs/v16/ijw9s4roRME5LLRxjsRb8A0gKPSWq4BbDmHHu6j2pEtUJzZWbyHCyw.woff2',
+					'https://fonts.gstatic.com/s/notosansanatolianhieroglyphs/v17/ijw9s4roRME5LLRxjsRb8A0gKPSWq4BbDmHHu6j2pEtUJzZWbyHCyw.woff2',
 			},
 		},
 	},

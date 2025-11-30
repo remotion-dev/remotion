@@ -1,6 +1,6 @@
 import type {SupportedConfigs} from '~/components/get-supported-configs';
 import {
-	getActualAudioConfigIndex,
+	getActualAudioOperation,
 	getActualVideoOperation,
 } from './get-audio-video-config-index';
 
@@ -37,7 +37,7 @@ export const isDroppingEverything = ({
 }) => {
 	return (
 		supportedConfigs.audioTrackOptions.every((o) => {
-			const operation = getActualAudioConfigIndex({
+			const operation = getActualAudioOperation({
 				audioConfigIndexSelection,
 				enableConvert,
 				trackNumber: o.trackId,

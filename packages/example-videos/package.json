@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/example-videos"
 	},
 	"name": "@remotion/example-videos",
-	"version": "4.0.340",
+	"version": "4.0.379",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
@@ -20,7 +20,7 @@
 	"dependencies": {},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0",
+		"eslint": "catalog:",
 		"dotenv": "9.0.2"
 	},
 	"private": true

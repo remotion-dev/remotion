@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Hanifi Rohingya',
 	importName: 'NotoSansHanifiRohingya',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Hanifi+Rohingya:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'hanifi-rohingya':
@@ -17,35 +17,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'hanifi-rohingya':
-					'https://fonts.gstatic.com/s/notosanshanifirohingya/v29/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4OnFeEAy.woff2',
+					'https://fonts.gstatic.com/s/notosanshanifirohingya/v30/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4OnFeEAy.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshanifirohingya/v29/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4I_FeEAy.woff2',
+					'https://fonts.gstatic.com/s/notosanshanifirohingya/v30/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4I_FeEAy.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshanifirohingya/v29/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4IHFeA.woff2',
+					'https://fonts.gstatic.com/s/notosanshanifirohingya/v30/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4IHFeA.woff2',
 			},
 			'500': {
 				'hanifi-rohingya':
-					'https://fonts.gstatic.com/s/notosanshanifirohingya/v29/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4OnFeEAy.woff2',
+					'https://fonts.gstatic.com/s/notosanshanifirohingya/v30/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4OnFeEAy.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshanifirohingya/v29/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4I_FeEAy.woff2',
+					'https://fonts.gstatic.com/s/notosanshanifirohingya/v30/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4I_FeEAy.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshanifirohingya/v29/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4IHFeA.woff2',
+					'https://fonts.gstatic.com/s/notosanshanifirohingya/v30/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4IHFeA.woff2',
 			},
 			'600': {
 				'hanifi-rohingya':
-					'https://fonts.gstatic.com/s/notosanshanifirohingya/v29/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4OnFeEAy.woff2',
+					'https://fonts.gstatic.com/s/notosanshanifirohingya/v30/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4OnFeEAy.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshanifirohingya/v29/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4I_FeEAy.woff2',
+					'https://fonts.gstatic.com/s/notosanshanifirohingya/v30/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4I_FeEAy.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshanifirohingya/v29/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4IHFeA.woff2',
+					'https://fonts.gstatic.com/s/notosanshanifirohingya/v30/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4IHFeA.woff2',
 			},
 			'700': {
 				'hanifi-rohingya':
-					'https://fonts.gstatic.com/s/notosanshanifirohingya/v29/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4OnFeEAy.woff2',
+					'https://fonts.gstatic.com/s/notosanshanifirohingya/v30/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4OnFeEAy.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanshanifirohingya/v29/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4I_FeEAy.woff2',
+					'https://fonts.gstatic.com/s/notosanshanifirohingya/v30/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4I_FeEAy.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanshanifirohingya/v29/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4IHFeA.woff2',
+					'https://fonts.gstatic.com/s/notosanshanifirohingya/v30/5h1IiYsoOmIC3Yu3MDXLDw3UZCgghyOEBBY7hhLN4IHFeA.woff2',
 			},
 		},
 	},

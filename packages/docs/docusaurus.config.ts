@@ -1,4 +1,5 @@
 import type {Config} from '@docusaurus/types';
+import remarkExportRaw from './plugins/remark-export-raw.js';
 
 const config: Config = {
 	title: 'Remotion | Make videos programmatically',
@@ -6,7 +7,11 @@ const config: Config = {
 	url: 'https://www.remotion.dev',
 	baseUrl: '/',
 	onBrokenLinks: 'throw',
-	onBrokenMarkdownLinks: 'warn',
+	markdown: {
+		hooks: {
+			onBrokenMarkdownLinks: 'warn',
+		},
+	},
 	favicon: 'img/favicon.png',
 	organizationName: 'remotion-dev', // Usually your GitHub org/user name.
 	projectName: 'remotion', // Usually your repo name.
@@ -228,6 +233,14 @@ const config: Config = {
 							href: 'https://remotion.dev/license',
 						},
 						{
+							label: 'Terms and Conditions',
+							href: 'https://remotion.pro/terms',
+						},
+						{
+							label: 'Privacy Policy',
+							href: 'https://remotion.pro/privacy',
+						},
+						{
 							label: 'Brand',
 							href: 'https://remotion.dev/brand',
 						},
@@ -252,6 +265,7 @@ const config: Config = {
 					editUrl:
 						'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
 					showLastUpdateTime: true,
+					remarkPlugins: [remarkExportRaw],
 				},
 				blog: {
 					onInlineAuthors: 'ignore',
@@ -318,6 +332,7 @@ const config: Config = {
 				blogSidebarTitle: 'Learn',
 				onUntruncatedBlogPosts: 'ignore',
 				onInlineAuthors: 'ignore',
+				remarkPlugins: [remarkExportRaw],
 			},
 		],
 		'./route-plugin',

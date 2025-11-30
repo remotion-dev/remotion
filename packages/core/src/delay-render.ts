@@ -1,15 +1,30 @@
-import {cancelRender} from './cancel-render.js';
+import {cancelRenderInternal} from './cancel-render.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import type {LogLevel} from './log.js';
 import {Log} from './log.js';
+import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {truthy} from './truthy.js';
 
-if (typeof window !== 'undefined') {
-	window.remotion_renderReady = false;
-}
+export type DelayRenderScope = {
+	remotion_renderReady: boolean;
+	remotion_delayRenderTimeouts: {
+		[key: string]: {
+			label: string | null;
+			timeout: number | Timer;
+			startTime: number;
+		};
+	};
+	remotion_puppeteerTimeout: number;
+	remotion_attempt: number;
+	remotion_cancelledError?: string;
+};
 
 let handles: number[] = [];
 if (typeof window !== 'undefined') {
-	window.remotion_delayRenderTimeouts = {};
+	window.remotion_renderReady = false;
+	if (!window.remotion_delayRenderTimeouts) {
+		window.remotion_delayRenderTimeouts = {};
+	}
 }
 
 export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';
@@ -25,15 +40,23 @@ export type DelayRenderOptions = {
 	retries?: number;
 };
 
-/*
- * @description Call this function to signal that a frame should not be rendered until an asynchronous task (such as data fetching) is complete. Use continueRender(handle) to proceed with rendering once the task is complete.
- * @see [Documentation](https://remotion.dev/docs/delay-render)
+/**
+ * Internal function that accepts environment as parameter.
+ * This allows useDelayRender to control its own environment source.
+ * @private
  */
-export const delayRender = (
-	label?: string,
-	options?: DelayRenderOptions,
-): number => {
-	if (typeof label !== 'string' && typeof label !== 'undefined') {
+export const delayRenderInternal = ({
+	scope,
+	environment,
+	label,
+	options,
+}: {
+	scope: DelayRenderScope | undefined;
+	environment: RemotionEnvironment;
+	label: string | null;
+	options: DelayRenderOptions;
+}): number => {
+	if (typeof label !== 'string' && label !== null) {
 		throw new Error(
 			'The label parameter of delayRender() must be a string or undefined, got: ' +
 				JSON.stringify(label),
@@ -44,16 +67,16 @@ export const delayRender = (
 	handles.push(handle);
 	const called = Error().stack?.replace(/^Error/g, '') ?? '';
 
-	if (getRemotionEnvironment().isRendering) {
+	if (environment.isRendering) {
 		const timeoutToUse =
 			(options?.timeoutInMilliseconds ??
-				(typeof window === 'undefined'
+				(typeof scope === 'undefined'
 					? defaultTimeout
-					: (window.remotion_puppeteerTimeout ?? defaultTimeout))) - 2000;
-		if (typeof window !== 'undefined') {
+					: (scope.remotion_puppeteerTimeout ?? defaultTimeout))) - 2000;
+		if (typeof scope !== 'undefined') {
 			const retriesLeft =
-				(options?.retries ?? 0) - (window.remotion_attempt - 1);
-			window.remotion_delayRenderTimeouts[handle] = {
+				(options?.retries ?? 0) - (scope.remotion_attempt - 1);
+			scope.remotion_delayRenderTimeouts[handle] = {
 				label: label ?? null,
 				startTime: Date.now(),
 				timeout: setTimeout(() => {
@@ -69,24 +92,50 @@ export const delayRender = (
 						.filter(truthy)
 						.join(' ');
 
-					cancelRender(Error(message));
+					cancelRenderInternal(scope, Error(message));
 				}, timeoutToUse),
 			};
 		}
 	}
 
-	if (typeof window !== 'undefined') {
-		window.remotion_renderReady = false;
+	if (typeof scope !== 'undefined') {
+		scope.remotion_renderReady = false;
 	}
 
 	return handle;
 };
 
 /*
- * @description Unblock a render that has been blocked by delayRender().
- * @see [Documentation](https://remotion.dev/docs/continue-render)
+ * @description Call this function to signal that a frame should not be rendered until an asynchronous task (such as data fetching) is complete. Use continueRender(handle) to proceed with rendering once the task is complete.
+ * @see [Documentation](https://remotion.dev/docs/delay-render)
  */
-export const continueRender = (handle: number): void => {
+export const delayRender = (
+	label?: string,
+	options?: DelayRenderOptions,
+): number => {
+	return delayRenderInternal({
+		scope: typeof window !== 'undefined' ? window : undefined,
+		environment: getRemotionEnvironment(),
+		label: label ?? null,
+		options: options ?? {},
+	});
+};
+
+/**
+ * Internal function that accepts environment as parameter.
+ * @private
+ */
+export const continueRenderInternal = ({
+	scope,
+	handle,
+	environment,
+	logLevel,
+}: {
+	scope: DelayRenderScope | undefined;
+	handle: number;
+	environment: RemotionEnvironment;
+	logLevel: LogLevel;
+}): void => {
 	if (typeof handle === 'undefined') {
 		throw new TypeError(
 			'The continueRender() method must be called with a parameter that is the return value of delayRender(). No value was passed.',
@@ -102,23 +151,23 @@ export const continueRender = (handle: number): void => {
 
 	handles = handles.filter((h) => {
 		if (h === handle) {
-			if (getRemotionEnvironment().isRendering) {
-				if (!window.remotion_delayRenderTimeouts[handle]) {
+			if (environment.isRendering && scope !== undefined) {
+				if (!scope.remotion_delayRenderTimeouts[handle]) {
 					return false;
 				}
 
 				const {label, startTime, timeout} =
-					window.remotion_delayRenderTimeouts[handle];
+					scope.remotion_delayRenderTimeouts[handle];
 				clearTimeout(timeout);
 				const message = [
-					label ? `delayRender() "${label}"` : 'A delayRender()',
+					label ? `"${label}"` : 'A handle',
 					DELAY_RENDER_CLEAR_TOKEN,
 					`${Date.now() - startTime}ms`,
 				]
 					.filter(truthy)
 					.join(' ');
-				Log.verbose(window.remotion_logLevel, message);
-				delete window.remotion_delayRenderTimeouts[handle];
+				Log.verbose({logLevel, tag: 'delayRender()'}, message);
+				delete scope.remotion_delayRenderTimeouts[handle];
 			}
 
 			return false;
@@ -126,7 +175,23 @@ export const continueRender = (handle: number): void => {
 
 		return true;
 	});
-	if (handles.length === 0 && typeof window !== 'undefined') {
-		window.remotion_renderReady = true;
+	if (handles.length === 0 && typeof scope !== 'undefined') {
+		scope.remotion_renderReady = true;
 	}
+};
+
+/*
+ * @description Unblock a render that has been blocked by delayRender().
+ * @see [Documentation](https://remotion.dev/docs/continue-render)
+ */
+export const continueRender = (handle: number): void => {
+	continueRenderInternal({
+		scope: typeof window !== 'undefined' ? window : undefined,
+		handle,
+		environment: getRemotionEnvironment(),
+		logLevel:
+			typeof window !== 'undefined'
+				? (window.remotion_logLevel ?? 'info')
+				: 'info',
+	});
 };

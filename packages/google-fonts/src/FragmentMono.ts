@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fragment Mono',
 	importName: 'FragmentMono',
-	version: 'v5',
+	version: 'v6',
 	url: 'https://fonts.googleapis.com/css2?family=Fragment+Mono:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -17,21 +17,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/fragmentmono/v5/4iC16K5wfMRRjxp0DA6-2CLnB4Z3ia0M31U.woff2',
+					'https://fonts.gstatic.com/s/fragmentmono/v6/4iC16K5wfMRRjxp0DA6-2CLnB4Z3ia0M31U.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fragmentmono/v5/4iC16K5wfMRRjxp0DA6-2CLnB4Z3iq0M31U.woff2',
+					'https://fonts.gstatic.com/s/fragmentmono/v6/4iC16K5wfMRRjxp0DA6-2CLnB4Z3iq0M31U.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fragmentmono/v5/4iC16K5wfMRRjxp0DA6-2CLnB4Z3hK0M.woff2',
+					'https://fonts.gstatic.com/s/fragmentmono/v6/4iC16K5wfMRRjxp0DA6-2CLnB4Z3hK0M.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/fragmentmono/v5/4iCr6K5wfMRRjxp0DA6-2CLnB45HhrUI.woff2',
+					'https://fonts.gstatic.com/s/fragmentmono/v6/4iCr6K5wfMRRjxp0DA6-2CLnB45HhrUI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fragmentmono/v5/4iCr6K5wfMRRjxp0DA6-2CLnB41HhrUI.woff2',
+					'https://fonts.gstatic.com/s/fragmentmono/v6/4iCr6K5wfMRRjxp0DA6-2CLnB41HhrUI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fragmentmono/v5/4iCr6K5wfMRRjxp0DA6-2CLnB4NHhg.woff2',
+					'https://fonts.gstatic.com/s/fragmentmono/v6/4iCr6K5wfMRRjxp0DA6-2CLnB4NHhg.woff2',
 			},
 		},
 	},

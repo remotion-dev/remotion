@@ -24,6 +24,7 @@ const {
 	publicDirOption,
 	chromeModeOption,
 	audioLatencyHintOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const listCompositionsCommand = async (
@@ -109,6 +110,9 @@ export const listCompositionsCommand = async (
 	const audioLatencyHint = audioLatencyHintOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
@@ -163,6 +167,8 @@ export const listCompositionsCommand = async (
 			quiet: quietFlagProvided(),
 		}),
 		chromeMode,
+		mediaCacheSizeInBytes,
+		onLog: RenderInternals.defaultOnLog,
 	});
 
 	printCompositions(compositions, logLevel);

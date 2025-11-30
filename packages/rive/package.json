@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/rive"
 	},
 	"name": "@remotion/rive",
-	"version": "4.0.340",
+	"version": "4.0.379",
 	"description": "Embed Rive animations in a Remotion video",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -20,7 +20,7 @@
 	"author": "Caleb Ojo, Jonny Burger",
 	"license": "See LICENSE.md",
 	"dependencies": {
-		"@rive-app/canvas-advanced": "2.19.3",
+		"@rive-app/canvas-advanced": "2.31.5",
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
@@ -28,10 +28,10 @@
 		"react-dom": ">=18.2.0"
 	},
 	"devDependencies": {
-		"react": "19.0.0",
-		"react-dom": "19.0.0",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"publishConfig": {
 		"access": "public"

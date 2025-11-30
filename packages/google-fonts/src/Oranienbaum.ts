@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Oranienbaum',
 	importName: 'Oranienbaum',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Oranienbaum:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,13 +18,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/oranienbaum/v15/OZpHg_txtzZKMuXLIVrx-0zt5E3Hdg.woff2',
+					'https://fonts.gstatic.com/s/oranienbaum/v16/OZpHg_txtzZKMuXLIVrx-0zt5E3Hdg.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/oranienbaum/v15/OZpHg_txtzZKMuXLIVrx-0zk5E3Hdg.woff2',
+					'https://fonts.gstatic.com/s/oranienbaum/v16/OZpHg_txtzZKMuXLIVrx-0zk5E3Hdg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/oranienbaum/v15/OZpHg_txtzZKMuXLIVrx-0zu5E3Hdg.woff2',
+					'https://fonts.gstatic.com/s/oranienbaum/v16/OZpHg_txtzZKMuXLIVrx-0zu5E3Hdg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/oranienbaum/v15/OZpHg_txtzZKMuXLIVrx-0zg5E0.woff2',
+					'https://fonts.gstatic.com/s/oranienbaum/v16/OZpHg_txtzZKMuXLIVrx-0zg5E0.woff2',
 			},
 		},
 	},

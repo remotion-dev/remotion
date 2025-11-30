@@ -2,28 +2,30 @@ import type React from 'react';
 import type {LoopVolumeCurveBehavior} from '../audio/use-audio-frame.js';
 import type {VolumeProp} from '../volume-prop.js';
 
-export type RemotionMainVideoProps = {
+export type CommonVideoProps = {
 	/**
 	 * @deprecated `startFrom` was renamed to `trimBefore`
 	 */
-	startFrom?: number;
+	startFrom: number | undefined;
 	/**
 	 * @deprecated `endAt` was renamed to `trimAfter`
 	 */
-	endAt?: number;
+	endAt: number | undefined;
 	/**
-	 * Trim of th e video from the left (start) in frames.
+	 * Trim of the video from the left (start) in frames.
 	 */
-	trimBefore?: number;
+	trimBefore: number | undefined;
 	/**
 	 * Trim of the video from the right (end) in frames.
 	 */
-	trimAfter?: number;
+	trimAfter: number | undefined;
 	/**
 	 * @deprecated Only for internal `transparent` use
 	 */
-	_remotionInternalNativeLoopPassed?: boolean;
+	_remotionInternalNativeLoopPassed: boolean;
 };
+
+export type RemotionMainVideoProps = Partial<CommonVideoProps>;
 
 export type NativeVideoProps = Omit<
 	React.DetailedHTMLProps<
@@ -60,39 +62,50 @@ type DeprecatedOffthreadVideoProps = {
 	/**
 	 * @deprecated Use the `transparent` prop instead
 	 */
-	imageFormat?: never;
+	imageFormat: never;
 };
 
-export type RemotionOffthreadVideoProps = {
+type MandatoryOffthreadVideoProps = {
 	src: string;
-	className?: string;
-	name?: string;
-	id?: string;
-	style?: React.CSSProperties;
-	volume?: VolumeProp;
-	playbackRate?: number;
-	muted?: boolean;
-	onError?: (err: Error) => void;
-	acceptableTimeShiftInSeconds?: number;
-	allowAmplificationDuringRender?: boolean;
-	toneFrequency?: number;
-	transparent?: boolean;
-	toneMapped?: boolean;
-	pauseWhenBuffering?: boolean;
-	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
-	delayRenderTimeoutInMilliseconds?: number;
-	delayRenderRetries?: number;
-	useWebAudioApi?: boolean;
+};
+
+type OptionalOffthreadVideoProps = {
+	className: string | undefined;
+	name: string | undefined;
+	id: string | undefined;
+	style: React.CSSProperties | undefined;
+	volume: VolumeProp | undefined;
+	playbackRate: number;
+	muted: boolean;
+	onError: undefined | ((err: Error) => void);
+	acceptableTimeShiftInSeconds: undefined | number;
+	allowAmplificationDuringRender: boolean;
+	toneFrequency: number;
+	transparent: boolean;
+	toneMapped: boolean;
+	pauseWhenBuffering: boolean;
+	loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
+	delayRenderTimeoutInMilliseconds: number | undefined;
+	delayRenderRetries: number | undefined;
+	useWebAudioApi: boolean;
 	/**
 	 * @deprecated For internal use only
 	 */
-	stack?: string;
-	showInTimeline?: boolean;
-	onAutoPlayError?: null | (() => void);
-	onVideoFrame?: OnVideoFrame;
-	crossOrigin?: '' | 'anonymous' | 'use-credentials';
-	audioStreamIndex?: number;
-} & RemotionMainVideoProps &
-	DeprecatedOffthreadVideoProps;
+	stack: string | undefined;
+	showInTimeline: boolean;
+	onAutoPlayError: null | (() => void);
+	onVideoFrame: OnVideoFrame | undefined;
+	crossOrigin: '' | 'anonymous' | 'use-credentials' | undefined;
+	audioStreamIndex: number;
+};
+
+export type AllOffthreadVideoProps = MandatoryOffthreadVideoProps &
+	OptionalOffthreadVideoProps &
+	CommonVideoProps;
+
+export type RemotionOffthreadVideoProps = MandatoryOffthreadVideoProps &
+	Partial<OptionalOffthreadVideoProps> &
+	Partial<CommonVideoProps> &
+	Partial<DeprecatedOffthreadVideoProps>;
 
 export type OnVideoFrame = (frame: CanvasImageSource) => void;

@@ -1,15 +1,13 @@
-import type {RefObject} from 'react';
 import {useContext, useEffect, useMemo, useState} from 'react';
+import type {LoopDisplay} from './CompositionManager.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
+import {TimelineContext} from './TimelineContext.js';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {calculateMediaDuration} from './calculate-media-duration.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
-import {useLogLevel, useMountTime} from './log-level-context.js';
 import {useNonce} from './nonce.js';
-import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
-import type {PlayableMediaTag} from './timeline-position-state.js';
-import {TimelineContext} from './timeline-position-state.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 import type {VolumeProp} from './volume-prop.js';
 import {evaluateVolume} from './volume-prop.js';
@@ -25,58 +23,45 @@ const warnOnce = (message: string) => {
 	didWarn[message] = true;
 };
 
-export const useMediaInTimeline = ({
+export const useBasicMediaInTimeline = ({
 	volume,
 	mediaVolume,
-	mediaRef,
-	src,
 	mediaType,
-	playbackRate,
+	src,
 	displayName,
-	id,
-	stack,
-	showInTimeline,
-	premountDisplay,
-	postmountDisplay,
-	onAutoPlayError,
-	isPremounting,
-	isPostmounting,
+	trimBefore,
+	trimAfter,
+	playbackRate,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
-	mediaRef: RefObject<HTMLAudioElement | HTMLVideoElement | null>;
-	src: string | undefined;
 	mediaType: 'audio' | 'video';
-	playbackRate: number;
+	src: string | undefined;
 	displayName: string | null;
-	id: string;
-	stack: string | null;
-	showInTimeline: boolean;
-	premountDisplay: number | null;
-	postmountDisplay: number | null;
-	onAutoPlayError: null | (() => void);
-	isPremounting: boolean;
-	isPostmounting: boolean;
+	trimBefore: number | undefined;
+	trimAfter: number | undefined;
+	playbackRate: number;
 }) => {
-	const videoConfig = useVideoConfig();
-	const {rootId, audioAndVideoTags} = useContext(TimelineContext);
-	const parentSequence = useContext(SequenceContext);
-	const actualFrom = parentSequence
-		? parentSequence.relativeFrom + parentSequence.cumulatedFrom
-		: 0;
-	const {imperativePlaying} = useContext(TimelineContext);
-	const startsAt = useMediaStartsAt();
-	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
-	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
-	const logLevel = useLogLevel();
-	const mountTime = useMountTime();
+	if (!src) {
+		throw new Error('No src passed');
+	}
 
-	const nonce = useNonce();
+	const startsAt = useMediaStartsAt();
+	const parentSequence = useContext(SequenceContext);
+	const videoConfig = useVideoConfig();
+
+	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
+
+	const mediaDuration = calculateMediaDuration({
+		mediaDurationInFrames: videoConfig.durationInFrames,
+		playbackRate,
+		trimBefore,
+		trimAfter,
+	});
 
 	const duration = parentSequence
-		? Math.min(parentSequence.durationInFrames, videoConfig.durationInFrames)
-		: videoConfig.durationInFrames;
-	const doesVolumeChange = typeof volume === 'function';
+		? Math.min(parentSequence.durationInFrames, mediaDuration)
+		: mediaDuration;
 
 	const volumes: string | number = useMemo(() => {
 		if (typeof volume === 'number') {
@@ -103,19 +88,79 @@ export const useMediaInTimeline = ({
 		}
 	}, [initialVolume, mediaType, src, volume]);
 
-	useEffect(() => {
-		if (!mediaRef.current) {
-			return;
-		}
+	const doesVolumeChange = typeof volume === 'function';
 
+	const nonce = useNonce();
+	const {rootId} = useContext(TimelineContext);
+	const env = useRemotionEnvironment();
+
+	return {
+		volumes,
+		duration,
+		doesVolumeChange,
+		nonce,
+		rootId,
+		isStudio: env.isStudio,
+		finalDisplayName: displayName ?? getAssetDisplayName(src),
+	};
+};
+
+export const useMediaInTimeline = ({
+	volume,
+	mediaVolume,
+	src,
+	mediaType,
+	playbackRate,
+	displayName,
+	id,
+	stack,
+	showInTimeline,
+	premountDisplay,
+	postmountDisplay,
+	loopDisplay,
+}: {
+	volume: VolumeProp | undefined;
+	mediaVolume: number;
+	src: string | undefined;
+	mediaType: 'audio' | 'video';
+	playbackRate: number;
+	displayName: string | null;
+	id: string;
+	stack: string | null;
+	showInTimeline: boolean;
+	premountDisplay: number | null;
+	postmountDisplay: number | null;
+	loopDisplay: LoopDisplay | undefined;
+}) => {
+	const parentSequence = useContext(SequenceContext);
+	const startsAt = useMediaStartsAt();
+	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
+
+	const {
+		volumes,
+		duration,
+		doesVolumeChange,
+		nonce,
+		rootId,
+		isStudio,
+		finalDisplayName,
+	} = useBasicMediaInTimeline({
+		volume,
+		mediaVolume,
+		mediaType,
+		src,
+		displayName,
+		trimAfter: undefined,
+		trimBefore: undefined,
+		playbackRate,
+	});
+
+	useEffect(() => {
 		if (!src) {
 			throw new Error('No src passed');
 		}
 
-		if (
-			!getRemotionEnvironment().isStudio &&
-			window.process?.env?.NODE_ENV !== 'test'
-		) {
+		if (!isStudio && window.process?.env?.NODE_ENV !== 'test') {
 			return;
 		}
 
@@ -130,86 +175,43 @@ export const useMediaInTimeline = ({
 			duration,
 			from: 0,
 			parent: parentSequence?.id ?? null,
-			displayName: displayName ?? getAssetDisplayName(src),
+			displayName: finalDisplayName,
 			rootId,
 			volume: volumes,
 			showInTimeline: true,
 			nonce,
 			startMediaFrom: 0 - startsAt,
 			doesVolumeChange,
-			loopDisplay: undefined,
+			loopDisplay,
 			playbackRate,
 			stack,
 			premountDisplay,
 			postmountDisplay,
 		});
+
 		return () => {
 			unregisterSequence(id);
 		};
 	}, [
-		actualFrom,
 		duration,
 		id,
 		parentSequence,
 		src,
 		registerSequence,
-		rootId,
 		unregisterSequence,
-		videoConfig,
 		volumes,
 		doesVolumeChange,
 		nonce,
-		mediaRef,
 		mediaType,
 		startsAt,
 		playbackRate,
-		displayName,
 		stack,
 		showInTimeline,
 		premountDisplay,
 		postmountDisplay,
-	]);
-
-	useEffect(() => {
-		const tag: PlayableMediaTag = {
-			id,
-			play: (reason) => {
-				if (!imperativePlaying.current) {
-					// Don't play if for example in a <Freeze> state.
-					return;
-				}
-
-				if (isPremounting || isPostmounting) {
-					return;
-				}
-
-				return playAndHandleNotAllowedError({
-					mediaRef,
-					mediaType,
-					onAutoPlayError,
-					logLevel,
-					mountTime,
-					reason,
-				});
-			},
-		};
-		audioAndVideoTags.current.push(tag);
-
-		return () => {
-			audioAndVideoTags.current = audioAndVideoTags.current.filter(
-				(a) => a.id !== id,
-			);
-		};
-	}, [
-		audioAndVideoTags,
-		id,
-		mediaRef,
-		mediaType,
-		onAutoPlayError,
-		imperativePlaying,
-		isPremounting,
-		isPostmounting,
-		logLevel,
-		mountTime,
+		isStudio,
+		loopDisplay,
+		rootId,
+		finalDisplayName,
 	]);
 };

@@ -362,6 +362,10 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 If the `logLevel` is set to `verbose`, the Lambda function will not clean up artifacts, to aid debugging. Do not use it unless you are debugging a problem.
 
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
@@ -426,5 +430,5 @@ A link to the folder in the AWS console where each chunk and render is located.
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/render-media-on-lambda.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda-client/src/render-media-on-lambda.ts)
 - [getRenderProgress()](/docs/lambda/getrenderprogress)

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Give You Glory',
 	importName: 'GiveYouGlory',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Give+You+Glory:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/giveyouglory/v16/8QIQdiHOgt3vv4LR7ahjw9-XYf16DYdz6g.woff2',
+					'https://fonts.gstatic.com/s/giveyouglory/v17/8QIQdiHOgt3vv4LR7ahjw9-XYf16DYdz6g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/giveyouglory/v16/8QIQdiHOgt3vv4LR7ahjw9-XYf10DYc.woff2',
+					'https://fonts.gstatic.com/s/giveyouglory/v17/8QIQdiHOgt3vv4LR7ahjw9-XYf10DYc.woff2',
 			},
 		},
 	},

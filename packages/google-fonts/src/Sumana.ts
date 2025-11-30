@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sumana',
 	importName: 'Sumana',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Sumana:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sumana/v11/4UaDrE5TqRBjGj-29hLj36w.woff2',
+					'https://fonts.gstatic.com/s/sumana/v12/4UaDrE5TqRBjGj-29hLj36w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sumana/v11/4UaDrE5TqRBjGj-2-RLj36w.woff2',
+					'https://fonts.gstatic.com/s/sumana/v12/4UaDrE5TqRBjGj-2-RLj36w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sumana/v11/4UaDrE5TqRBjGj-29xLj.woff2',
+					'https://fonts.gstatic.com/s/sumana/v12/4UaDrE5TqRBjGj-29xLj.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sumana/v11/4UaArE5TqRBjGj--TDf24Y3M2po.woff2',
+					'https://fonts.gstatic.com/s/sumana/v12/4UaArE5TqRBjGj--TDf24Y3M2po.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sumana/v11/4UaArE5TqRBjGj--TDf27o3M2po.woff2',
+					'https://fonts.gstatic.com/s/sumana/v12/4UaArE5TqRBjGj--TDf27o3M2po.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sumana/v11/4UaArE5TqRBjGj--TDf24I3M.woff2',
+					'https://fonts.gstatic.com/s/sumana/v12/4UaArE5TqRBjGj--TDf24I3M.woff2',
 			},
 		},
 	},

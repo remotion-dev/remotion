@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tapestry',
 	importName: 'Tapestry',
-	version: 'v5',
+	version: 'v6',
 	url: 'https://fonts.googleapis.com/css2?family=Tapestry:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/tapestry/v5/SlGTmQecrosEYXhaGCIsoHFKaQ.woff2',
+					'https://fonts.gstatic.com/s/tapestry/v6/SlGTmQecrosEYXhaGCIsoHFKaQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tapestry/v5/SlGTmQecrosEYXhaGCItoHFKaQ.woff2',
+					'https://fonts.gstatic.com/s/tapestry/v6/SlGTmQecrosEYXhaGCItoHFKaQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tapestry/v5/SlGTmQecrosEYXhaGCIjoHE.woff2',
+					'https://fonts.gstatic.com/s/tapestry/v6/SlGTmQecrosEYXhaGCIjoHE.woff2',
 			},
 		},
 	},

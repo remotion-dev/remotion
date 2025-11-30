@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rhodium Libre',
 	importName: 'RhodiumLibre',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Rhodium+Libre:ital,wght@0,400',
 	unicodeRanges: {
 		devanagari:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/rhodiumlibre/v20/1q2AY5adA0tn_ukeHcQHqpx6lELBe72g.woff2',
+					'https://fonts.gstatic.com/s/rhodiumlibre/v21/1q2AY5adA0tn_ukeHcQHqpx6lELBe72g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rhodiumlibre/v20/1q2AY5adA0tn_ukeHcQHqpx6lE3Be72g.woff2',
+					'https://fonts.gstatic.com/s/rhodiumlibre/v21/1q2AY5adA0tn_ukeHcQHqpx6lE3Be72g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rhodiumlibre/v20/1q2AY5adA0tn_ukeHcQHqpx6lEPBew.woff2',
+					'https://fonts.gstatic.com/s/rhodiumlibre/v21/1q2AY5adA0tn_ukeHcQHqpx6lEPBew.woff2',
 			},
 		},
 	},

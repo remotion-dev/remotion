@@ -1,19 +1,23 @@
+import {registerUsageEvent} from '@remotion/licensing';
 import type {ExecaChildProcess} from 'execa';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import {type RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import type {OnLog} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
 import {validateQualitySettings} from './crf';
+import {defaultOnLog} from './default-on-log';
 import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -52,7 +56,6 @@ import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
-import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import type {OnArtifact} from './render-frames';
 import {internalRenderFrames} from './render-frames';
@@ -78,7 +81,7 @@ import {wrapWithErrorHandling} from './wrap-with-error-handling';
 export type StitchingState = 'encoding' | 'muxing';
 
 const SLOWEST_FRAME_COUNT = 10;
-const MAX_RECENT_FRAME_TIMINGS = 50;
+const MAX_RECENT_FRAME_TIMINGS = 150;
 
 export type SlowFrame = {frame: number; time: number};
 
@@ -109,7 +112,7 @@ export type InternalRenderMediaOptions = {
 	overwrite: boolean;
 	onProgress: RenderMediaOnProgress;
 	onDownload: RenderMediaOnDownload;
-	proResProfile: ProResProfile | undefined;
+	proResProfile: _InternalTypes['ProResProfile'] | undefined;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
 	chromiumOptions: ChromiumOptions;
@@ -130,6 +133,8 @@ export type InternalRenderMediaOptions = {
 	compositionStart: number;
 	onArtifact: OnArtifact | null;
 	metadata: Record<string, string> | null;
+	apiKey: string | null;
+	onLog: OnLog;
 } & MoreRenderMediaOptions;
 
 type Prettify<T> = {
@@ -156,7 +161,7 @@ export type RenderMediaOptions = Prettify<{
 	overwrite?: boolean;
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
-	proResProfile?: ProResProfile;
+	proResProfile?: _InternalTypes['ProResProfile'];
 	/**
 	 * @deprecated Use "logLevel": "verbose" instead
 	 */
@@ -254,6 +259,9 @@ const internalRenderMediaRaw = ({
 	hardwareAcceleration,
 	chromeMode,
 	offthreadVideoThreads,
+	mediaCacheSizeInBytes,
+	onLog,
+	apiKey,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	const pixelFormat =
 		userPixelFormat ??
@@ -442,23 +450,15 @@ const internalRenderMediaRaw = ({
 		validateEvenDimensionsWithCodec({
 			codec,
 			height: compositionWithPossibleUnevenDimensions.height,
-			// Don't apply scale yet, only ensure even dimensions
-			scale: 1,
+			scale,
 			width: compositionWithPossibleUnevenDimensions.width,
 			wantsImageSequence: false,
 			indent,
 			logLevel,
 		});
+	const actualWidth = widthEvenDimensions * scale;
+	const actualHeight = heightEvenDimensions * scale;
 
-	const {actualWidth, actualHeight} = validateEvenDimensionsWithCodec({
-		codec,
-		height: compositionWithPossibleUnevenDimensions.height,
-		scale,
-		width: compositionWithPossibleUnevenDimensions.width,
-		wantsImageSequence: false,
-		indent,
-		logLevel,
-	});
 	const composition = {
 		...compositionWithPossibleUnevenDimensions,
 		height: heightEvenDimensions,
@@ -619,14 +619,15 @@ const internalRenderMediaRaw = ({
 			})
 			.then(({server, cleanupServer}) => {
 				cleanupServerFn = cleanupServer;
+				let timeOfLastFrame = Date.now();
 				const renderFramesProc = internalRenderFrames({
 					composition,
-					onFrameUpdate: (
-						frame: number,
-						frameIndex: number,
-						timeToRenderInMilliseconds,
-					) => {
+					onFrameUpdate: (frame: number, frameIndex: number) => {
 						renderedFrames = frame;
+
+						const now = Date.now();
+						const timeToRenderInMilliseconds = now - timeOfLastFrame;
+						timeOfLastFrame = now;
 
 						// Track recent frame timings (at most 50)
 						recentFrameTimings.push(timeToRenderInMilliseconds);
@@ -716,6 +717,8 @@ const internalRenderMediaRaw = ({
 					onArtifact,
 					chromeMode,
 					imageSequencePattern: null,
+					mediaCacheSizeInBytes,
+					onLog,
 				});
 
 				return renderFramesProc;
@@ -740,8 +743,8 @@ const internalRenderMediaRaw = ({
 
 				const stitchStart = Date.now();
 				return internalStitchFramesToVideo({
-					width: actualWidth,
-					height: actualHeight,
+					width: Math.round(actualWidth),
+					height: Math.round(actualHeight),
 					fps,
 					outputLocation: absoluteOutputLocation,
 					preEncodedFileLocation,
@@ -804,11 +807,35 @@ const internalRenderMediaRaw = ({
 					slowestFrames,
 				};
 
+				const sendTelemetryAndResolve = () => {
+					if (apiKey === null) {
+						resolve(result);
+						return;
+					}
+
+					registerUsageEvent({
+						apiKey,
+						event: 'cloud-render',
+						host: null,
+						succeeded: true,
+					})
+						.then(() => {
+							Log.verbose({indent, logLevel}, 'Usage event sent successfully');
+						})
+						.catch((err) => {
+							Log.error({indent, logLevel}, 'Failed to send usage event');
+							Log.error({indent: true, logLevel}, err);
+						})
+						.finally(() => {
+							resolve(result);
+						});
+				};
+
 				if (isReproEnabled()) {
 					getReproWriter()
 						.onRenderSucceed({indent, logLevel, output: absoluteOutputLocation})
 						.then(() => {
-							resolve(result);
+							sendTelemetryAndResolve();
 						})
 						.catch((err) => {
 							Log.error(
@@ -816,9 +843,10 @@ const internalRenderMediaRaw = ({
 								'Could not create reproduction',
 								err,
 							);
+							sendTelemetryAndResolve();
 						});
 				} else {
-					resolve(result);
+					sendTelemetryAndResolve();
 				}
 			})
 			.catch((err) => {
@@ -945,6 +973,8 @@ export const renderMedia = ({
 	chromeMode,
 	offthreadVideoThreads,
 	compositionStart,
+	mediaCacheSizeInBytes,
+	apiKey,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	const indent = false;
 	const logLevel =
@@ -1030,5 +1060,8 @@ export const renderMedia = ({
 		compositionStart: compositionStart ?? 0,
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		apiKey: apiKey ?? null,
+		onLog: defaultOnLog,
 	});
 };

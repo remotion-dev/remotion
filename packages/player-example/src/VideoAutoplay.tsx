@@ -1,18 +1,20 @@
 import {preloadAudio, preloadVideo} from '@remotion/preload';
 import {
 	AbsoluteFill,
-	Audio,
+	Html5Audio,
+	Html5Video,
 	Sequence,
 	Series,
-	Video,
 	staticFile,
 } from 'remotion';
 
-preloadVideo(
-	'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-);
+if (typeof window !== 'undefined') {
+	preloadVideo(
+		'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+	);
 
-preloadAudio(staticFile('sample.mp3'));
+	preloadAudio(staticFile('sample.mp3'));
+}
 
 export const VideoautoplayDemo = () => {
 	return (
@@ -22,7 +24,7 @@ export const VideoautoplayDemo = () => {
 			}}
 		>
 			<Sequence from={20}>
-				<Audio src={staticFile('sample.mp3')} volume={0.2} />
+				<Html5Audio src={staticFile('sample.mp3')} volume={0.2} />
 			</Sequence>
 			<Series>
 				<Series.Sequence durationInFrames={10}>
@@ -30,7 +32,7 @@ export const VideoautoplayDemo = () => {
 				</Series.Sequence>
 			</Series>
 			<AbsoluteFill>
-				<Video
+				<Html5Video
 					pauseWhenBuffering
 					src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 				/>

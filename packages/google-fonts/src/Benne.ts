@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Benne',
 	importName: 'Benne',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Benne:ital,wght@0,400',
 	unicodeRanges: {
 		kannada:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				kannada:
-					'https://fonts.gstatic.com/s/benne/v23/L0xzDFAhn18E6WjsnN-aTA.woff2',
+					'https://fonts.gstatic.com/s/benne/v24/L0xzDFAhn18E6WjsnN-aTA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/benne/v23/L0xzDFAhn18E6Wj4nN-aTA.woff2',
+					'https://fonts.gstatic.com/s/benne/v24/L0xzDFAhn18E6Wj4nN-aTA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/benne/v23/L0xzDFAhn18E6Wj2nN8.woff2',
+					'https://fonts.gstatic.com/s/benne/v24/L0xzDFAhn18E6Wj2nN8.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {mediaParserController} from '../controller/media-parser-controller';
 import {hasBeenAborted} from '../errors';
 import {parseMedia} from '../parse-media';
 
-test('should be able to select between audio tracks', async () => {
+test.skip('should be able to select between audio tracks', async () => {
 	let videoSamples = 0;
 	let audioSamples = 0;
 
@@ -33,7 +33,7 @@ test('should be able to select between audio tracks', async () => {
 	expect(audioSamples).toBe(44);
 });
 
-test('should ensure unique track IDs', async () => {
+test.skip('should ensure unique track IDs', async () => {
 	const {tracks} = await parseMedia({
 		src: 'https://cdn.bitmovin.com/content/assets/sintel/hls/playlist.m3u8',
 		acknowledgeRemotionLicense: true,

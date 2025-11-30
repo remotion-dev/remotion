@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Linear B',
 	importName: 'NotoSansLinearB',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Linear+B:ital,wght@0,400',
 	unicodeRanges: {
 		'linear-b': 'U+10000-100FF, U+10100-10102, U+10107-10133, U+10137-1013F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'linear-b':
-					'https://fonts.gstatic.com/s/notosanslinearb/v17/HhyJU4wt9vSgfHoORYOiXOckKNB737IlnBMEfq4.woff2',
+					'https://fonts.gstatic.com/s/notosanslinearb/v18/HhyJU4wt9vSgfHoORYOiXOckKNB737IlnBMEfq4.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanslinearb/v17/HhyJU4wt9vSgfHoORYOiXOckKNB737Il1RMEfq4.woff2',
+					'https://fonts.gstatic.com/s/notosanslinearb/v18/HhyJU4wt9vSgfHoORYOiXOckKNB737Il1RMEfq4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanslinearb/v17/HhyJU4wt9vSgfHoORYOiXOckKNB737Il2xME.woff2',
+					'https://fonts.gstatic.com/s/notosanslinearb/v18/HhyJU4wt9vSgfHoORYOiXOckKNB737Il2xME.woff2',
 			},
 		},
 	},

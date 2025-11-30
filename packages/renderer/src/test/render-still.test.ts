@@ -1,14 +1,12 @@
-import {beforeAll, expect, test} from 'bun:test';
+import {expect, test} from 'bun:test';
 import {ensureBrowser} from '../ensure-browser';
 import {renderStill} from '../render-still';
-
-beforeAll(async () => {
-	await ensureBrowser();
-});
 
 test(
 	'Need to pass valid metadata',
 	async () => {
+		await ensureBrowser();
+
 		await expect(() =>
 			renderStill({
 				composition: {
@@ -23,6 +21,7 @@ test(
 					defaultOutName: null,
 					defaultVideoImageFormat: null,
 					defaultPixelFormat: null,
+					defaultProResProfile: null,
 				},
 				frame: 0,
 				output: '/file/output.png',
@@ -40,6 +39,8 @@ test(
 test(
 	'Returns buffer in promise result',
 	async () => {
+		await ensureBrowser();
+
 		const {buffer} = await renderStill({
 			composition: {
 				width: 1000,
@@ -53,6 +54,7 @@ test(
 				defaultOutName: null,
 				defaultVideoImageFormat: null,
 				defaultPixelFormat: null,
+				defaultProResProfile: null,
 			},
 			frame: 0,
 			serveUrl:
@@ -69,6 +71,8 @@ test(
 test(
 	'Need to pass valid metadata',
 	async () => {
+		await ensureBrowser();
+
 		await expect(() =>
 			renderStill({
 				composition: {
@@ -83,6 +87,7 @@ test(
 					defaultOutName: null,
 					defaultVideoImageFormat: null,
 					defaultPixelFormat: null,
+					defaultProResProfile: null,
 				},
 				frame: 200,
 				output: '/file/output.png',
@@ -99,7 +104,9 @@ test(
 
 test(
 	'Catches invalid image format',
-	() => {
+	async () => {
+		await ensureBrowser();
+
 		return expect(() =>
 			renderStill({
 				composition: {
@@ -114,6 +121,7 @@ test(
 					defaultOutName: null,
 					defaultVideoImageFormat: null,
 					defaultPixelFormat: null,
+					defaultProResProfile: null,
 				},
 				// @ts-expect-error
 				imageFormat: 'jjj',

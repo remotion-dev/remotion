@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ibarra Real Nova',
 	importName: 'IbarraRealNova',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Ibarra+Real+Nova:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,53 +15,53 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oHfRqDuE.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oHfRqDuE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oE_Rq.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oE_Rq.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oHfRqDuE.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oHfRqDuE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oE_Rq.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oE_Rq.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oHfRqDuE.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oHfRqDuE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oE_Rq.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oE_Rq.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oHfRqDuE.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oHfRqDuE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oE_Rq.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlZdQiA-DBIDCcaWtQzL4BZHoiDkH5oE_Rq.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHVYEexu.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHVYEexu.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHtYEQ.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHtYEQ.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHVYEexu.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHVYEexu.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHtYEQ.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHtYEQ.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHVYEexu.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHVYEexu.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHtYEQ.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHtYEQ.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHVYEexu.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHVYEexu.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ibarrarealnova/v29/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHtYEQ.woff2',
+					'https://fonts.gstatic.com/s/ibarrarealnova/v30/sZlfdQiA-DBIDCcaWtQzL4BZHoiDkHtYEQ.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Waterfall',
 	importName: 'Waterfall',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Waterfall:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/waterfall/v7/MCoRzAfo293fACdFKcwo0rv9P_E.woff2',
+					'https://fonts.gstatic.com/s/waterfall/v8/MCoRzAfo293fACdFKcwo0rv9P_E.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/waterfall/v7/MCoRzAfo293fACdFKcwo07v9P_E.woff2',
+					'https://fonts.gstatic.com/s/waterfall/v8/MCoRzAfo293fACdFKcwo07v9P_E.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/waterfall/v7/MCoRzAfo293fACdFKcwo3bv9.woff2',
+					'https://fonts.gstatic.com/s/waterfall/v8/MCoRzAfo293fACdFKcwo3bv9.woff2',
 			},
 		},
 	},

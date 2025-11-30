@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Julius Sans One',
 	importName: 'JuliusSansOne',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Julius+Sans+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/juliussansone/v19/1Pt2g8TAX_SGgBGUi0tGOYEga5WOzHsX2aE.woff2',
+					'https://fonts.gstatic.com/s/juliussansone/v20/1Pt2g8TAX_SGgBGUi0tGOYEga5WOzHsX2aE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/juliussansone/v19/1Pt2g8TAX_SGgBGUi0tGOYEga5WOwnsX.woff2',
+					'https://fonts.gstatic.com/s/juliussansone/v20/1Pt2g8TAX_SGgBGUi0tGOYEga5WOwnsX.woff2',
 			},
 		},
 	},

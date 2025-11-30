@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nixie One',
 	importName: 'NixieOne',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Nixie+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/nixieone/v16/lW-8wjkKLXjg5y2o2uUYV-ty.woff2',
+					'https://fonts.gstatic.com/s/nixieone/v17/lW-8wjkKLXjg5y2o2uUYV-ty.woff2',
 			},
 		},
 	},

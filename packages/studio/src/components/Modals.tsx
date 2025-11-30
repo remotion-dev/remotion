@@ -6,9 +6,11 @@ import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
 import {RenameComposition} from './NewComposition/RenameComposition';
+import {OverrideInputPropsModal} from './OverrideInputProps';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
-import {RenderModalWithLoader} from './RenderModal/RenderModal';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
+import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
+import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
 export const Modals: React.FC<{
@@ -33,71 +35,96 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'rename-comp' && (
 				<RenameComposition compositionId={modalContextType.compositionId} />
 			)}
+			{modalContextType && modalContextType.type === 'input-props-override' && (
+				<OverrideInputPropsModal />
+			)}
 
-			{modalContextType && canRender && modalContextType.type === 'render' && (
-				<RenderModalWithLoader
+			{modalContextType && modalContextType.type === 'web-render' && (
+				<WebRenderModalWithLoader
+					type="web-render"
 					initialFrame={modalContextType.initialFrame}
 					compositionId={modalContextType.compositionId}
-					initialVideoImageFormat={modalContextType.initialVideoImageFormat}
-					initialJpegQuality={modalContextType.initialJpegQuality}
-					initialScale={modalContextType.initialScale}
-					initialLogLevel={modalContextType.initialLogLevel}
-					initialOffthreadVideoCacheSizeInBytes={
-						modalContextType.initialOffthreadVideoCacheSizeInBytes
-					}
-					initialOffthreadVideoThreads={
-						modalContextType.initialOffthreadVideoThreads
-					}
-					initialConcurrency={modalContextType.initialConcurrency}
-					maxConcurrency={modalContextType.maxConcurrency}
-					minConcurrency={modalContextType.minConcurrency}
-					initialStillImageFormat={modalContextType.initialStillImageFormat}
-					initialMuted={modalContextType.initialMuted}
-					initialEnforceAudioTrack={modalContextType.initialEnforceAudioTrack}
-					initialProResProfile={modalContextType.initialProResProfile}
-					initialx264Preset={modalContextType.initialx264Preset}
-					initialPixelFormat={modalContextType.initialPixelFormat}
-					initialAudioBitrate={modalContextType.initialAudioBitrate}
-					initialVideoBitrate={modalContextType.initialVideoBitrate}
-					initialEveryNthFrame={modalContextType.initialEveryNthFrame}
-					initialNumberOfGifLoops={modalContextType.initialNumberOfGifLoops}
-					initialDelayRenderTimeout={modalContextType.initialDelayRenderTimeout}
-					initialEnvVariables={modalContextType.initialEnvVariables}
-					initialDisableWebSecurity={modalContextType.initialDisableWebSecurity}
-					initialGl={modalContextType.initialOpenGlRenderer}
-					initialHeadless={modalContextType.initialHeadless}
-					initialIgnoreCertificateErrors={
-						modalContextType.initialIgnoreCertificateErrors
-					}
-					initialEncodingBufferSize={modalContextType.initialEncodingBufferSize}
-					initialEncodingMaxRate={modalContextType.initialEncodingMaxRate}
-					initialUserAgent={modalContextType.initialUserAgent}
-					initialColorSpace={modalContextType.initialColorSpace}
-					initialMultiProcessOnLinux={
-						modalContextType.initialMultiProcessOnLinux
-					}
-					initialRepro={modalContextType.initialRepro}
-					initialBeep={modalContextType.initialBeep}
-					initialForSeamlessAacConcatenation={
-						modalContextType.initialForSeamlessAacConcatenation
-					}
 					defaultProps={modalContextType.defaultProps}
 					inFrameMark={modalContextType.inFrameMark}
 					outFrameMark={modalContextType.outFrameMark}
-					defaultConfigurationAudioCodec={
-						modalContextType.defaultConfigurationAudioCodec
-					}
-					defaultConfigurationVideoCodec={
-						modalContextType.defaultConfigurationVideoCodec
-					}
-					renderTypeOfLastRender={modalContextType.renderTypeOfLastRender}
-					defaultMetadata={modalContextType.defaulMetadata}
-					initialHardwareAcceleration={
-						modalContextType.initialHardwareAcceleration
-					}
-					initialChromeMode={modalContextType.initialChromeMode}
 				/>
 			)}
+			{modalContextType &&
+				canRender &&
+				modalContextType.type === 'server-render' && (
+					<RenderModalWithLoader
+						initialFrame={modalContextType.initialFrame}
+						compositionId={modalContextType.compositionId}
+						initialVideoImageFormat={modalContextType.initialVideoImageFormat}
+						initialJpegQuality={modalContextType.initialJpegQuality}
+						initialScale={modalContextType.initialScale}
+						initialLogLevel={modalContextType.initialLogLevel}
+						initialOffthreadVideoCacheSizeInBytes={
+							modalContextType.initialOffthreadVideoCacheSizeInBytes
+						}
+						initialOffthreadVideoThreads={
+							modalContextType.initialOffthreadVideoThreads
+						}
+						initialMediaCacheSizeInBytes={
+							modalContextType.initialMediaCacheSizeInBytes
+						}
+						initialConcurrency={modalContextType.initialConcurrency}
+						maxConcurrency={modalContextType.maxConcurrency}
+						minConcurrency={modalContextType.minConcurrency}
+						initialStillImageFormat={modalContextType.initialStillImageFormat}
+						initialMuted={modalContextType.initialMuted}
+						initialEnforceAudioTrack={modalContextType.initialEnforceAudioTrack}
+						initialProResProfile={modalContextType.initialProResProfile}
+						initialx264Preset={modalContextType.initialx264Preset}
+						initialPixelFormat={modalContextType.initialPixelFormat}
+						initialAudioBitrate={modalContextType.initialAudioBitrate}
+						initialVideoBitrate={modalContextType.initialVideoBitrate}
+						initialEveryNthFrame={modalContextType.initialEveryNthFrame}
+						initialNumberOfGifLoops={modalContextType.initialNumberOfGifLoops}
+						initialDelayRenderTimeout={
+							modalContextType.initialDelayRenderTimeout
+						}
+						initialEnvVariables={modalContextType.initialEnvVariables}
+						initialDisableWebSecurity={
+							modalContextType.initialDisableWebSecurity
+						}
+						initialGl={modalContextType.initialOpenGlRenderer}
+						initialHeadless={modalContextType.initialHeadless}
+						initialIgnoreCertificateErrors={
+							modalContextType.initialIgnoreCertificateErrors
+						}
+						initialEncodingBufferSize={
+							modalContextType.initialEncodingBufferSize
+						}
+						initialEncodingMaxRate={modalContextType.initialEncodingMaxRate}
+						initialUserAgent={modalContextType.initialUserAgent}
+						initialColorSpace={modalContextType.initialColorSpace}
+						initialMultiProcessOnLinux={
+							modalContextType.initialMultiProcessOnLinux
+						}
+						initialRepro={modalContextType.initialRepro}
+						initialBeep={modalContextType.initialBeep}
+						initialForSeamlessAacConcatenation={
+							modalContextType.initialForSeamlessAacConcatenation
+						}
+						defaultProps={modalContextType.defaultProps}
+						inFrameMark={modalContextType.inFrameMark}
+						outFrameMark={modalContextType.outFrameMark}
+						defaultConfigurationAudioCodec={
+							modalContextType.defaultConfigurationAudioCodec
+						}
+						defaultConfigurationVideoCodec={
+							modalContextType.defaultConfigurationVideoCodec
+						}
+						renderTypeOfLastRender={modalContextType.renderTypeOfLastRender}
+						defaultMetadata={modalContextType.defaulMetadata}
+						initialHardwareAcceleration={
+							modalContextType.initialHardwareAcceleration
+						}
+						initialChromeMode={modalContextType.initialChromeMode}
+						renderDefaults={modalContextType.renderDefaults}
+					/>
+				)}
 
 			{modalContextType &&
 				canRender &&

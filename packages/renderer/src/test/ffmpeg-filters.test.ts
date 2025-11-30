@@ -16,7 +16,7 @@ const baseAsset: MediaAsset = {
 	volume: 1,
 	id: '1',
 	playbackRate: 1,
-	toneFrequency: null,
+	toneFrequency: 1,
 	audioStartFrame: 0,
 	audioStreamIndex: 0,
 };
@@ -56,7 +56,7 @@ test('Should create a basic filter correctly', () => {
 	).toEqual({
 		actualTrimLeft: 0,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:6666666.666666667us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=0us:6666666.666666667us[a0]',
 		pad_end: null,
 		pad_start: null,
 	});
@@ -105,7 +105,7 @@ test('Trim the end', () => {
 	).toEqual({
 		actualTrimLeft: 0,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0us:704000us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=0us:704000us[a0]',
 		pad_end: 'apad=pad_len=' + padding,
 		pad_start: null,
 	});
@@ -155,7 +155,7 @@ test('Should handle trim correctly', () => {
 	).toEqual({
 		actualTrimLeft: 0.3333333333333333,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1037333.3333333335us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=333333.3333333333us:1037333.3333333335us[a0]',
 		pad_end: 'apad=pad_len=128000',
 		pad_start: null,
 	});
@@ -192,7 +192,7 @@ test('Should add padding if audio is too short', () => {
 	).toEqual({
 		actualTrimLeft: 0.3333333333333333,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
 		pad_end: `apad=pad_len=${padding}`,
 		pad_start: null,
 	});
@@ -240,7 +240,7 @@ test('Should handle delay correctly', () => {
 	).toEqual({
 		actualTrimLeft: 0.3333333333333333,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
 		pad_end: 'apad=pad_len=1792',
 		pad_start: 'adelay=2667|2667',
 	});
@@ -288,7 +288,7 @@ test('Should offset multiple channels', () => {
 	).toEqual({
 		actualTrimLeft: 0.3333333333333333,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
 		pad_end: 'apad=pad_len=1792',
 		pad_start: 'adelay=2667|2667|2667|2667',
 	});
@@ -325,7 +325,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 					trimLeft: 0,
 					startInVideo: 0,
 					playbackRate: 16,
-					toneFrequency: null,
+					toneFrequency: 1,
 					audioStartFrame: 0,
 					audioStreamIndex: 0,
 				},
@@ -348,7 +348,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 	).toEqual({
 		actualTrimLeft: 0,
 		filter:
-			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atempo=2.00000,atempo=2.00000,atempo=2.00000,atempo=2.00000,atrim=0us:2083333.3125000002us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atempo=2.00000,atempo=2.00000,atempo=2.00000,atempo=2.00000,atrim=0us:2083333.3125000002us[a0]',
 		pad_end: `apad=pad_len=${expectedPadLength}`,
 		pad_start: null,
 	});

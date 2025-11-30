@@ -1,5 +1,5 @@
 import React from 'react';
-import {Video} from 'remotion';
+import {Html5Video} from 'remotion';
 import framer from '../resources/framer-music.mp4';
 
 export const VideoSpeed: React.FC = () => {
@@ -12,7 +12,7 @@ export const VideoSpeed: React.FC = () => {
 				flex: 1,
 			}}
 		>
-			<Video src={framer} playbackRate={2} startFrom={20} />
+			<Html5Video src={framer} playbackRate={2} startFrom={20} />
 		</div>
 	);
 };

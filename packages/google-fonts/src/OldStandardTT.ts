@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Old Standard TT',
 	importName: 'OldStandardTT',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Old+Standard+TT:ital,wght@0,400;0,700;1,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,41 +20,41 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQsbh3o1vLImiwAVvYawgcf2eVer2q3bHNiZg.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQsbh3o1vLImiwAVvYawgcf2eVer2q3bHNiZg.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQsbh3o1vLImiwAVvYawgcf2eVer2q-bHNiZg.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQsbh3o1vLImiwAVvYawgcf2eVer2q-bHNiZg.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQsbh3o1vLImiwAVvYawgcf2eVer2q1bHNiZg.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQsbh3o1vLImiwAVvYawgcf2eVer2q1bHNiZg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQsbh3o1vLImiwAVvYawgcf2eVer2q0bHNiZg.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQsbh3o1vLImiwAVvYawgcf2eVer2q0bHNiZg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQsbh3o1vLImiwAVvYawgcf2eVer2q6bHM.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQsbh3o1vLImiwAVvYawgcf2eVer2q6bHM.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQubh3o1vLImiwAVvYawgcf2eVep1q4dHc.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQubh3o1vLImiwAVvYawgcf2eVep1q4dHc.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQubh3o1vLImiwAVvYawgcf2eVerlq4dHc.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQubh3o1vLImiwAVvYawgcf2eVerlq4dHc.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQubh3o1vLImiwAVvYawgcf2eVepVq4dHc.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQubh3o1vLImiwAVvYawgcf2eVepVq4dHc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQubh3o1vLImiwAVvYawgcf2eVepFq4dHc.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQubh3o1vLImiwAVvYawgcf2eVepFq4dHc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQubh3o1vLImiwAVvYawgcf2eVeqlq4.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQubh3o1vLImiwAVvYawgcf2eVeqlq4.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQrbh3o1vLImiwAVvYawgcf2eVWEX-tRlZfX80.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQrbh3o1vLImiwAVvYawgcf2eVWEX-tRlZfX80.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQrbh3o1vLImiwAVvYawgcf2eVWEX-tT1ZfX80.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQrbh3o1vLImiwAVvYawgcf2eVWEX-tT1ZfX80.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQrbh3o1vLImiwAVvYawgcf2eVWEX-tRFZfX80.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQrbh3o1vLImiwAVvYawgcf2eVWEX-tRFZfX80.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQrbh3o1vLImiwAVvYawgcf2eVWEX-tRVZfX80.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQrbh3o1vLImiwAVvYawgcf2eVWEX-tRVZfX80.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/oldstandardtt/v21/MwQrbh3o1vLImiwAVvYawgcf2eVWEX-tS1Zf.woff2',
+					'https://fonts.gstatic.com/s/oldstandardtt/v22/MwQrbh3o1vLImiwAVvYawgcf2eVWEX-tS1Zf.woff2',
 			},
 		},
 	},

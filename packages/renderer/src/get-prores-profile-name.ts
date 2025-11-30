@@ -1,9 +1,9 @@
+import type {_InternalTypes} from 'remotion';
 import type {Codec} from './codec';
-import type {ProResProfile} from './prores-profile';
 
 export const getProResProfileName = (
 	codec: Codec,
-	proResProfile: ProResProfile | undefined,
+	proResProfile: _InternalTypes['ProResProfile'] | undefined,
 ): string | null => {
 	if (codec !== 'prores') {
 		return null;

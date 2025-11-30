@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Headland One',
 	importName: 'HeadlandOne',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Headland+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/headlandone/v16/yYLu0hHR2vKnp89Tk1TCq3TB2fNSSZ0.woff2',
+					'https://fonts.gstatic.com/s/headlandone/v17/yYLu0hHR2vKnp89Tk1TCq3TB2fNSSZ0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/headlandone/v16/yYLu0hHR2vKnp89Tk1TCq3TB1_NS.woff2',
+					'https://fonts.gstatic.com/s/headlandone/v17/yYLu0hHR2vKnp89Tk1TCq3TB1_NS.woff2',
 			},
 		},
 	},

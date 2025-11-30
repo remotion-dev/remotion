@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rufina',
 	importName: 'Rufina',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Rufina:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rufina/v16/Yq6V-LyURyLy-aKCqh5lhOc.woff2',
+					'https://fonts.gstatic.com/s/rufina/v17/Yq6V-LyURyLy-aKCqh5lhOc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rufina/v16/Yq6V-LyURyLy-aKCpB5l.woff2',
+					'https://fonts.gstatic.com/s/rufina/v17/Yq6V-LyURyLy-aKCpB5l.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rufina/v16/Yq6W-LyURyLy-aKKHztwtcZfrxE.woff2',
+					'https://fonts.gstatic.com/s/rufina/v17/Yq6W-LyURyLy-aKKHztwtcZfrxE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rufina/v16/Yq6W-LyURyLy-aKKHztwu8Zf.woff2',
+					'https://fonts.gstatic.com/s/rufina/v17/Yq6W-LyURyLy-aKKHztwu8Zf.woff2',
 			},
 		},
 	},

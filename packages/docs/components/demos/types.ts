@@ -18,6 +18,7 @@ import {NoiseComp} from './NoiseDemo';
 import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
 import {RectDemo} from './Rect';
+import {RoundedTextBox} from './RoundedTextBox';
 import {StarDemo} from './Star';
 import {AnimationMath} from './SubtractAnimations';
 import {
@@ -48,6 +49,11 @@ export type Option = {
 			type: 'enum';
 			default: string;
 			values: string[];
+	  }
+	| {
+			type: 'string';
+			default: string;
+			optional: 'no';
 	  }
 );
 
@@ -687,6 +693,59 @@ export const wipePresentationDemo: DemoType = {
 				'from-bottom',
 				'from-bottom-left',
 			],
+		},
+	],
+};
+
+export const roundedTextBoxDemo: DemoType = {
+	comp: RoundedTextBox,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'rounded-text-box',
+	autoPlay: true,
+	options: [
+		{
+			type: 'enum',
+			name: 'textAlign',
+			default: 'center',
+			optional: 'no',
+			values: ['left', 'center', 'right'],
+		},
+		{
+			type: 'numeric',
+			name: 'maxLines',
+			default: 3,
+			max: 10,
+			step: 1,
+			min: 1,
+			optional: 'no',
+		},
+		{
+			type: 'numeric',
+			name: 'borderRadius',
+			default: 20,
+			max: 100,
+			step: 1,
+			min: 0,
+			optional: 'no',
+		},
+		{
+			type: 'numeric',
+			name: 'horizontalPadding',
+			default: 20,
+			max: 100,
+			step: 1,
+			min: 0,
+			optional: 'no',
+		},
+		{
+			type: 'string',
+			name: 'text',
+			default:
+				'Try editing this text and the parameters! A rounded text box, like you see on TikTok, will be created.',
+			optional: 'no',
 		},
 	],
 };

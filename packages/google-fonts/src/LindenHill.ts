@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Linden Hill',
 	importName: 'LindenHill',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Linden+Hill:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lindenhill/v26/-F63fjxoKSg9Yc3hZgO8yjFK1iEq129k.woff2',
+					'https://fonts.gstatic.com/s/lindenhill/v27/-F63fjxoKSg9Yc3hZgO8yjFK1iEq129k.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lindenhill/v26/-F63fjxoKSg9Yc3hZgO8yjFK1i8q1w.woff2',
+					'https://fonts.gstatic.com/s/lindenhill/v27/-F63fjxoKSg9Yc3hZgO8yjFK1i8q1w.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lindenhill/v26/-F61fjxoKSg9Yc3hZgO8yjFB5i0y0w.woff2',
+					'https://fonts.gstatic.com/s/lindenhill/v27/-F61fjxoKSg9Yc3hZgO8yjFB5i0y0w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lindenhill/v26/-F61fjxoKSg9Yc3hZgO8yjFP5i0.woff2',
+					'https://fonts.gstatic.com/s/lindenhill/v27/-F61fjxoKSg9Yc3hZgO8yjFP5i0.woff2',
 			},
 		},
 	},

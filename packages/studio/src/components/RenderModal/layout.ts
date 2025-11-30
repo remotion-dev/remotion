@@ -12,7 +12,7 @@ export const optionRow: React.CSSProperties = {
 };
 
 export const label: React.CSSProperties = {
-	width: 220,
+	width: 290,
 	fontSize: 15,
 	lineHeight: '40px',
 	color: LIGHT_TEXT,

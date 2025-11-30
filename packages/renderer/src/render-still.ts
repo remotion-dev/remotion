@@ -1,5 +1,7 @@
+import {registerUsageEvent} from '@remotion/licensing';
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
+import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -7,11 +9,14 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import type {OnLog} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import type {Codec} from './codec';
+import {collectAssets} from './collect-assets';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
+import {defaultOnLog} from './default-on-log';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {onlyArtifact} from './filter-asset-types';
@@ -25,6 +30,7 @@ import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
+import {getAvailableMemory} from './memory/get-available-memory';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import type {ToOptions} from './options/option';
@@ -69,6 +75,7 @@ type InternalRenderStillOptions = {
 	serveUrl: string;
 	port: number | null;
 	onArtifact: OnArtifact | null;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.renderStill>;
 
 export type RenderStillOptions = {
@@ -132,6 +139,8 @@ const innerRenderStill = async ({
 	onBrowserDownload,
 	onArtifact,
 	chromeMode,
+	mediaCacheSizeInBytes,
+	onLog,
 }: InternalRenderStillOptions & {
 	serveUrl: string;
 	onError: (err: Error) => void;
@@ -215,6 +224,7 @@ const innerRenderStill = async ({
 		indent,
 		pageIndex: 0,
 		onBrowserLog,
+		onLog,
 	});
 	await page.setViewport({
 		width: composition.width,
@@ -263,6 +273,9 @@ const innerRenderStill = async ({
 		indent,
 		logLevel,
 		onServeUrlVisited: () => undefined,
+		isMainTab: true,
+		mediaCacheSizeInBytes,
+		initialMemoryAvailable: getAvailableMemory(logLevel),
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -278,6 +291,7 @@ const innerRenderStill = async ({
 			defaultOutName: string | null,
 			defaultVideoImageFormat: VideoImageFormat | null,
 			defaultPixelFormat: PixelFormat | null,
+			defaultProResProfile: _InternalTypes['ProResProfile'] | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -291,6 +305,7 @@ const innerRenderStill = async ({
 				compositionDefaultOutName: defaultOutName,
 				compositionDefaultVideoImageFormat: defaultVideoImageFormat,
 				compositionDefaultPixelFormat: defaultPixelFormat,
+				compositionDefaultProResProfile: defaultProResProfile,
 			});
 		},
 		args: [
@@ -304,6 +319,7 @@ const innerRenderStill = async ({
 			composition.defaultOutName,
 			composition.defaultVideoImageFormat,
 			composition.defaultPixelFormat,
+			composition.defaultProResProfile,
 		],
 		frame: null,
 		page,
@@ -319,18 +335,24 @@ const innerRenderStill = async ({
 		attempt: 0,
 	});
 
-	const {buffer, collectedAssets} = await takeFrame({
-		frame: stillFrame,
-		freePage: page,
-		height: composition.height,
-		width: composition.width,
-		imageFormat,
-		scale,
-		output,
-		jpegQuality,
-		wantsBuffer: !output,
-		timeoutInMilliseconds,
-	});
+	const [buffer, collectedAssets] = await Promise.all([
+		takeFrame({
+			freePage: page,
+			height: composition.height,
+			width: composition.width,
+			imageFormat,
+			scale,
+			output,
+			jpegQuality,
+			wantsBuffer: !output,
+			timeoutInMilliseconds,
+		}),
+		collectAssets({
+			frame,
+			freePage: page,
+			timeoutInMilliseconds,
+		}),
+	]);
 
 	const artifactAssets = onlyArtifact({
 		assets: collectedAssets,
@@ -395,7 +417,29 @@ const internalRenderStillRaw = (
 				});
 			})
 
-			.then((res) => resolve(res))
+			.then((res) => {
+				if (options.apiKey === null) {
+					resolve(res);
+					return;
+				}
+
+				registerUsageEvent({
+					apiKey: options.apiKey,
+					event: 'cloud-render',
+					host: null,
+					succeeded: true,
+				})
+					.then(() => {
+						Log.verbose(options, 'Usage event sent successfully');
+					})
+					.catch((err) => {
+						Log.error(options, 'Failed to send usage event');
+						Log.error(options, err);
+					})
+					.finally(() => {
+						resolve(res);
+					});
+			})
 			.catch((err) => reject(err))
 			.finally(() => {
 				cleanup.forEach((c) => {
@@ -456,6 +500,8 @@ export const renderStill = (
 		onArtifact,
 		chromeMode,
 		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
+		apiKey,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -521,5 +567,8 @@ export const renderStill = (
 		onArtifact: onArtifact ?? null,
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		apiKey: apiKey ?? null,
+		onLog: defaultOnLog,
 	});
 };

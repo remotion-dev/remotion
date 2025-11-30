@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sanchez',
 	importName: 'Sanchez',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Sanchez:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sanchez/v16/Ycm0sZJORluHnXbIfmxh8TQA9l0.woff2',
+					'https://fonts.gstatic.com/s/sanchez/v17/Ycm0sZJORluHnXbIfmxh8TQA9l0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sanchez/v16/Ycm0sZJORluHnXbIfmxh_zQA.woff2',
+					'https://fonts.gstatic.com/s/sanchez/v17/Ycm0sZJORluHnXbIfmxh_zQA.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sanchez/v16/Ycm2sZJORluHnXbIfmdR_SwE.woff2',
+					'https://fonts.gstatic.com/s/sanchez/v17/Ycm2sZJORluHnXbIfmdR_SwE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sanchez/v16/Ycm2sZJORluHnXbIfmlR_Q.woff2',
+					'https://fonts.gstatic.com/s/sanchez/v17/Ycm2sZJORluHnXbIfmlR_Q.woff2',
 			},
 		},
 	},

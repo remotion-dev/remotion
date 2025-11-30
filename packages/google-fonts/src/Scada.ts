@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Scada',
 	importName: 'Scada',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Scada:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,45 +18,45 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/scada/v15/RLp_K5Pv5qumeVJq_TsAamvv.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLp_K5Pv5qumeVJq_TsAamvv.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/scada/v15/RLp_K5Pv5qumeVJq_TIAamvv.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLp_K5Pv5qumeVJq_TIAamvv.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/scada/v15/RLp_K5Pv5qumeVJq_TgAamvv.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLp_K5Pv5qumeVJq_TgAamvv.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/scada/v15/RLp_K5Pv5qumeVJq_TYAag.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLp_K5Pv5qumeVJq_TYAag.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/scada/v15/RLp6K5Pv5qumeVJq9Y0lf1nOYME5.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLp6K5Pv5qumeVJq9Y0lf1nOYME5.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/scada/v15/RLp6K5Pv5qumeVJq9Y0lf1DOYME5.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLp6K5Pv5qumeVJq9Y0lf1DOYME5.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/scada/v15/RLp6K5Pv5qumeVJq9Y0lf1rOYME5.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLp6K5Pv5qumeVJq9Y0lf1rOYME5.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/scada/v15/RLp6K5Pv5qumeVJq9Y0lf1TOYA.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLp6K5Pv5qumeVJq9Y0lf1TOYA.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/scada/v15/RLpxK5Pv5qumeVJizTQYbg.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLpxK5Pv5qumeVJizTQYbg.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/scada/v15/RLpxK5Pv5qumeVJrzTQYbg.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLpxK5Pv5qumeVJrzTQYbg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/scada/v15/RLpxK5Pv5qumeVJhzTQYbg.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLpxK5Pv5qumeVJhzTQYbg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/scada/v15/RLpxK5Pv5qumeVJvzTQ.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLpxK5Pv5qumeVJvzTQ.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/scada/v15/RLp8K5Pv5qumeVrU6CEqT1bWZA.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLp8K5Pv5qumeVrU6CEqT1bWZA.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/scada/v15/RLp8K5Pv5qumeVrU6CEjT1bWZA.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLp8K5Pv5qumeVrU6CEjT1bWZA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/scada/v15/RLp8K5Pv5qumeVrU6CEpT1bWZA.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLp8K5Pv5qumeVrU6CEpT1bWZA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/scada/v15/RLp8K5Pv5qumeVrU6CEnT1Y.woff2',
+					'https://fonts.gstatic.com/s/scada/v16/RLp8K5Pv5qumeVrU6CEnT1Y.woff2',
 			},
 		},
 	},

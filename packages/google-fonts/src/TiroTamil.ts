@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tiro Tamil',
 	importName: 'TiroTamil',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Tiro+Tamil:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		tamil: 'U+0964-0965, U+0B82-0BFA, U+200C-200D, U+20B9, U+25CC',
@@ -16,21 +16,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				tamil:
-					'https://fonts.gstatic.com/s/tirotamil/v10/m8JVjfVIf7OT22n3M-S_YLZVf0uH5dI.woff2',
+					'https://fonts.gstatic.com/s/tirotamil/v11/m8JVjfVIf7OT22n3M-S_YLZVf0uH5dI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tirotamil/v10/m8JVjfVIf7OT22n3M-S_YLZVZ0uH5dI.woff2',
+					'https://fonts.gstatic.com/s/tirotamil/v11/m8JVjfVIf7OT22n3M-S_YLZVZ0uH5dI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tirotamil/v10/m8JVjfVIf7OT22n3M-S_YLZVaUuH.woff2',
+					'https://fonts.gstatic.com/s/tirotamil/v11/m8JVjfVIf7OT22n3M-S_YLZVaUuH.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				tamil:
-					'https://fonts.gstatic.com/s/tirotamil/v10/m8JXjfVIf7OT22n3M-S_YKVla1OD.woff2',
+					'https://fonts.gstatic.com/s/tirotamil/v11/m8JXjfVIf7OT22n3M-S_YKVla1OD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tirotamil/v10/m8JXjfVIf7OT22n3M-S_YL1la1OD.woff2',
+					'https://fonts.gstatic.com/s/tirotamil/v11/m8JXjfVIf7OT22n3M-S_YL1la1OD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tirotamil/v10/m8JXjfVIf7OT22n3M-S_YLNlaw.woff2',
+					'https://fonts.gstatic.com/s/tirotamil/v11/m8JXjfVIf7OT22n3M-S_YLNlaw.woff2',
 			},
 		},
 	},

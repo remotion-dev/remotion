@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hubballi',
 	importName: 'Hubballi',
-	version: 'v9',
+	version: 'v10',
 	url: 'https://fonts.googleapis.com/css2?family=Hubballi:ital,wght@0,400',
 	unicodeRanges: {
 		kannada:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				kannada:
-					'https://fonts.gstatic.com/s/hubballi/v9/o-0JIpUj3WIZ1RFN55BmwhF9Yg.woff2',
+					'https://fonts.gstatic.com/s/hubballi/v10/o-0JIpUj3WIZ1RFN55BmwhF9Yg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hubballi/v9/o-0JIpUj3WIZ1RFN55BywhF9Yg.woff2',
+					'https://fonts.gstatic.com/s/hubballi/v10/o-0JIpUj3WIZ1RFN55BywhF9Yg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hubballi/v9/o-0JIpUj3WIZ1RFN55B8whE.woff2',
+					'https://fonts.gstatic.com/s/hubballi/v10/o-0JIpUj3WIZ1RFN55B8whE.woff2',
 			},
 		},
 	},

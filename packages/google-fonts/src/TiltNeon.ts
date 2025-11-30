@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Tilt Neon',
 	importName: 'TiltNeon',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Tilt+Neon:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/tiltneon/v11/E21L_d7gguXdwD9LEFY2WCeElCNtd-eBqpHp1TzrkJSmwpj5ndxquUK1UOeVJw.woff2',
+					'https://fonts.gstatic.com/s/tiltneon/v12/E21L_d7gguXdwD9LEFY2WCeElCNtd-eBqpHp1TzrkJSmwpj5ndxquUK1UOeVJw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/tiltneon/v11/E21L_d7gguXdwD9LEFY2WCeElCNtd-eBqpHp1TzrkJSmwpj5ndxquUK0UOeVJw.woff2',
+					'https://fonts.gstatic.com/s/tiltneon/v12/E21L_d7gguXdwD9LEFY2WCeElCNtd-eBqpHp1TzrkJSmwpj5ndxquUK0UOeVJw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/tiltneon/v11/E21L_d7gguXdwD9LEFY2WCeElCNtd-eBqpHp1TzrkJSmwpj5ndxquUK6UOc.woff2',
+					'https://fonts.gstatic.com/s/tiltneon/v12/E21L_d7gguXdwD9LEFY2WCeElCNtd-eBqpHp1TzrkJSmwpj5ndxquUK6UOc.woff2',
 			},
 		},
 	},

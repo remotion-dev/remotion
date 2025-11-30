@@ -1,9 +1,9 @@
-import type {MediaParserDimensions} from '@remotion/media-parser';
-import type {ResizeOperation} from '@remotion/webcodecs';
+import type {Dimensions} from './calculate-new-dimensions-from-dimensions';
+import type {MediabunnyResize} from './mediabunny-calculate-resize-option';
 
 export const getInitialResizeSuggestion = (
-	rotatedDimensions: MediaParserDimensions | null,
-): ResizeOperation => {
+	rotatedDimensions: Dimensions | null,
+): MediabunnyResize => {
 	if (rotatedDimensions === null) {
 		return {
 			mode: 'scale',

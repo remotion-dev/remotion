@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Moon Dance',
 	importName: 'MoonDance',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Moon+Dance:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/moondance/v7/WBLgrEbUbFlYW9ekmGawS23oKfio.woff2',
+					'https://fonts.gstatic.com/s/moondance/v8/WBLgrEbUbFlYW9ekmGawS23oKfio.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/moondance/v7/WBLgrEbUbFlYW9ekmGawS2zoKfio.woff2',
+					'https://fonts.gstatic.com/s/moondance/v8/WBLgrEbUbFlYW9ekmGawS2zoKfio.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/moondance/v7/WBLgrEbUbFlYW9ekmGawS2LoKQ.woff2',
+					'https://fonts.gstatic.com/s/moondance/v8/WBLgrEbUbFlYW9ekmGawS2LoKQ.woff2',
 			},
 		},
 	},

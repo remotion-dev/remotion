@@ -23,8 +23,11 @@ export const delayRenderTimeoutInMillisecondsOption = {
 			<a href="https://remotion.dev/docs/delay-render">
 				<code>delayRender()</code>
 			</a>{' '}
-			calls <a href="https://remotion.dev/docs/timeout">before it times out</a>.
-			Default: <code>30000</code>
+			calls{' '}
+			<a style={{fontSize: 'inherit'}} href="https://remotion.dev/docs/timeout">
+				before it times out
+			</a>
+			. Default: <code>30000</code>
 		</>
 	),
 	ssrName: 'timeoutInMilliseconds' as const,

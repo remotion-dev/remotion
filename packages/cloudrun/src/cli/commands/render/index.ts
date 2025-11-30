@@ -36,6 +36,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
 	metadataOption,
+	mediaCacheSizeInBytesOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -110,6 +111,9 @@ export const renderCommand = async (
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	let composition: string = args[1];
 
 	const chromiumOptions: ChromiumOptions = {
@@ -180,6 +184,7 @@ export const renderCommand = async (
 					quiet: CliInternals.quietFlagProvided(),
 				}),
 				chromeMode: 'headless-shell',
+				mediaCacheSizeInBytes,
 			});
 		composition = compositionId;
 	}
@@ -341,6 +346,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 				}
 			: null,
 		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
 	});
 
 	if (res.type === 'crash') {

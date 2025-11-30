@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Spinnaker',
 	importName: 'Spinnaker',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Spinnaker:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/spinnaker/v20/w8gYH2oyX-I0_rvR6HmX1XYKmOo.woff2',
+					'https://fonts.gstatic.com/s/spinnaker/v21/w8gYH2oyX-I0_rvR6HmX1XYKmOo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/spinnaker/v20/w8gYH2oyX-I0_rvR6HmX23YK.woff2',
+					'https://fonts.gstatic.com/s/spinnaker/v21/w8gYH2oyX-I0_rvR6HmX23YK.woff2',
 			},
 		},
 	},

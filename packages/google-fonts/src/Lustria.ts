@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lustria',
 	importName: 'Lustria',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Lustria:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/lustria/v13/9oRONYodvDEyjuhOnC8zMw.woff2',
+					'https://fonts.gstatic.com/s/lustria/v14/9oRONYodvDEyjuhOnC8zMw.woff2',
 			},
 		},
 	},

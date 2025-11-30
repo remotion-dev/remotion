@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Funnel Display',
 	importName: 'FunnelDisplay',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Funnel+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,39 +15,39 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/funneldisplay/v2/B50WF7FGv37QNVWgE0ga--4Pbb6TDYsmgQ.woff2',
+					'https://fonts.gstatic.com/s/funneldisplay/v3/B50WF7FGv37QNVWgE0ga--4Pbb6TDYsmgQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/funneldisplay/v2/B50WF7FGv37QNVWgE0ga--4Pbb6dDYs.woff2',
+					'https://fonts.gstatic.com/s/funneldisplay/v3/B50WF7FGv37QNVWgE0ga--4Pbb6dDYs.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/funneldisplay/v2/B50WF7FGv37QNVWgE0ga--4Pbb6TDYsmgQ.woff2',
+					'https://fonts.gstatic.com/s/funneldisplay/v3/B50WF7FGv37QNVWgE0ga--4Pbb6TDYsmgQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/funneldisplay/v2/B50WF7FGv37QNVWgE0ga--4Pbb6dDYs.woff2',
+					'https://fonts.gstatic.com/s/funneldisplay/v3/B50WF7FGv37QNVWgE0ga--4Pbb6dDYs.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/funneldisplay/v2/B50WF7FGv37QNVWgE0ga--4Pbb6TDYsmgQ.woff2',
+					'https://fonts.gstatic.com/s/funneldisplay/v3/B50WF7FGv37QNVWgE0ga--4Pbb6TDYsmgQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/funneldisplay/v2/B50WF7FGv37QNVWgE0ga--4Pbb6dDYs.woff2',
+					'https://fonts.gstatic.com/s/funneldisplay/v3/B50WF7FGv37QNVWgE0ga--4Pbb6dDYs.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/funneldisplay/v2/B50WF7FGv37QNVWgE0ga--4Pbb6TDYsmgQ.woff2',
+					'https://fonts.gstatic.com/s/funneldisplay/v3/B50WF7FGv37QNVWgE0ga--4Pbb6TDYsmgQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/funneldisplay/v2/B50WF7FGv37QNVWgE0ga--4Pbb6dDYs.woff2',
+					'https://fonts.gstatic.com/s/funneldisplay/v3/B50WF7FGv37QNVWgE0ga--4Pbb6dDYs.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/funneldisplay/v2/B50WF7FGv37QNVWgE0ga--4Pbb6TDYsmgQ.woff2',
+					'https://fonts.gstatic.com/s/funneldisplay/v3/B50WF7FGv37QNVWgE0ga--4Pbb6TDYsmgQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/funneldisplay/v2/B50WF7FGv37QNVWgE0ga--4Pbb6dDYs.woff2',
+					'https://fonts.gstatic.com/s/funneldisplay/v3/B50WF7FGv37QNVWgE0ga--4Pbb6dDYs.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/funneldisplay/v2/B50WF7FGv37QNVWgE0ga--4Pbb6TDYsmgQ.woff2',
+					'https://fonts.gstatic.com/s/funneldisplay/v3/B50WF7FGv37QNVWgE0ga--4Pbb6TDYsmgQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/funneldisplay/v2/B50WF7FGv37QNVWgE0ga--4Pbb6dDYs.woff2',
+					'https://fonts.gstatic.com/s/funneldisplay/v3/B50WF7FGv37QNVWgE0ga--4Pbb6dDYs.woff2',
 			},
 		},
 	},

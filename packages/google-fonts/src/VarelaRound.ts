@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Varela Round',
 	importName: 'VarelaRound',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Varela+Round:ital,wght@0,400',
 	unicodeRanges: {
 		hebrew:
@@ -19,13 +19,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				hebrew:
-					'https://fonts.gstatic.com/s/varelaround/v20/w8gdH283Tvk__Lua32TysjIfpcuPP9g.woff2',
+					'https://fonts.gstatic.com/s/varelaround/v21/w8gdH283Tvk__Lua32TysjIfpcuPP9g.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/varelaround/v20/w8gdH283Tvk__Lua32TysjIfqMuPP9g.woff2',
+					'https://fonts.gstatic.com/s/varelaround/v21/w8gdH283Tvk__Lua32TysjIfqMuPP9g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/varelaround/v20/w8gdH283Tvk__Lua32TysjIfqcuPP9g.woff2',
+					'https://fonts.gstatic.com/s/varelaround/v21/w8gdH283Tvk__Lua32TysjIfqcuPP9g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/varelaround/v20/w8gdH283Tvk__Lua32TysjIfp8uP.woff2',
+					'https://fonts.gstatic.com/s/varelaround/v21/w8gdH283Tvk__Lua32TysjIfp8uP.woff2',
 			},
 		},
 	},

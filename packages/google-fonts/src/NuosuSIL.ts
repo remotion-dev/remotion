@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nuosu SIL',
 	importName: 'NuosuSIL',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Nuosu+SIL:ital,wght@0,400',
 	unicodeRanges: {
 		yi: 'U+02C7, U+02D8-02D9, U+02DB, U+03C0, U+200C-200D, U+2010-2011, U+202F, U+2219, U+2460-2473, U+25CC, U+3000-3003, U+3005, U+3008-301B, U+30FB, U+A000-A48C, U+A490-A4C6, U+FE00, U+FF01-FF02, U+FF08-FF09, U+FF0C, U+FF0E-FF0F, U+FF1A-FF1B, U+FF1F, U+FF3B, U+FF3D, U+FF5B-FF5E, U+FF61-FF65',
@@ -15,11 +15,11 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				yi: 'https://fonts.gstatic.com/s/nuosusil/v11/8vIK7wM3wmRn_kc4uAjuMmZaC_w.woff2',
+				yi: 'https://fonts.gstatic.com/s/nuosusil/v12/8vIK7wM3wmRn_kc4uAjuMmZaC_w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/nuosusil/v11/8vIK7wM3wmRn_kc4uAjuHWZaC_w.woff2',
+					'https://fonts.gstatic.com/s/nuosusil/v12/8vIK7wM3wmRn_kc4uAjuHWZaC_w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nuosusil/v11/8vIK7wM3wmRn_kc4uAjuE2Za.woff2',
+					'https://fonts.gstatic.com/s/nuosusil/v12/8vIK7wM3wmRn_kc4uAjuE2Za.woff2',
 			},
 		},
 	},

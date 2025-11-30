@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Math',
 	importName: 'NotoSansMath',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Math:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -15,10 +15,10 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/notosansmath/v17/7Aump_cpkSecTWaHRlH2hyV5UEkF81wI8A.woff2',
-				math: 'https://fonts.gstatic.com/s/notosansmath/v17/7Aump_cpkSecTWaHRlH2hyV5UEl981wI8A.woff2',
+					'https://fonts.gstatic.com/s/notosansmath/v18/7Aump_cpkSecTWaHRlH2hyV5UEkF81wI8A.woff2',
+				math: 'https://fonts.gstatic.com/s/notosansmath/v18/7Aump_cpkSecTWaHRlH2hyV5UEl981wI8A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmath/v17/7Aump_cpkSecTWaHRlH2hyV5UEkB81w.woff2',
+					'https://fonts.gstatic.com/s/notosansmath/v18/7Aump_cpkSecTWaHRlH2hyV5UEkB81w.woff2',
 			},
 		},
 	},

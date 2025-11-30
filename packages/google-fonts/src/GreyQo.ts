@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Grey Qo',
 	importName: 'GreyQo',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Grey+Qo:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/greyqo/v10/BXRrvF_Nmv_TyXxNPONa9Ff0.woff2',
+					'https://fonts.gstatic.com/s/greyqo/v11/BXRrvF_Nmv_TyXxNPONa9Ff0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/greyqo/v10/BXRrvF_Nmv_TyXxNPOJa9Ff0.woff2',
+					'https://fonts.gstatic.com/s/greyqo/v11/BXRrvF_Nmv_TyXxNPOJa9Ff0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/greyqo/v10/BXRrvF_Nmv_TyXxNPOxa9A.woff2',
+					'https://fonts.gstatic.com/s/greyqo/v11/BXRrvF_Nmv_TyXxNPOxa9A.woff2',
 			},
 		},
 	},

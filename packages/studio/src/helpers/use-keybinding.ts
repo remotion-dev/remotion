@@ -45,6 +45,13 @@ export const useKeybinding = () => {
 				const commandKey = window.navigator.platform.startsWith('Mac')
 					? e.metaKey
 					: e.ctrlKey;
+
+				// Apparently, e.key can be undefined in Edge:
+				// https://github.com/remotion-dev/remotion/issues/5637
+				if (!e.key) {
+					return;
+				}
+
 				if (
 					e.key.toLowerCase() === options.key.toLowerCase() &&
 					options.commandCtrlKey === commandKey

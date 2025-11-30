@@ -142,11 +142,11 @@ Start the playback from a specific frame. Default `0`. Once the player is mounte
 
 _optional_
 
-If you use an [`<Audio />`](/docs/audio) tag, it might not play in some browsers (specifically iOS Safari) due to browser autoplay policies. This is why the Remotion Player pre-mounts a set of audio tags with silent audio that get played upon user interaction. These audio tags can then be used to play real audio later and will not be subject to the autoplay policy of the browser.
+If you use an [`<Html5Audio />`](/docs/html5-audio) tag, it might not play in some browsers (specifically iOS Safari) due to browser autoplay policies. This is why the Remotion Player pre-mounts a set of audio tags with silent audio that get played upon user interaction. These audio tags can then be used to play real audio later and will not be subject to the autoplay policy of the browser.
 
 This option controls how many audio tags are being rendered, the default is `5`. If you mount more audio tags than shared audio tags are available, then an error will be thrown.
 
-If you'd like to opt out of this behavior, you can pass `0` to mount native audio tags simultaneously as you mount Remotion's [`<Audio />`](/docs/audio) tags.
+If you'd like to opt out of this behavior, you can pass `0` to mount native audio tags simultaneously as you mount Remotion's [`<Html5Audio />`](/docs/html5-audio) tags.
 
 Once you have set this prop, you cannot change it anymore or an error will be thrown.
 
@@ -156,7 +156,7 @@ _optional_
 
 A number between -4 and 4 (excluding 0) for the speed that the Player will run the media.
 
-A `playbackRate` of `2` means the video plays twice as fast. A playbackRate of `0.5` means the video plays twice as slow. A playbackRate of `-1` means the video plays in reverse. Note that [`<Audio/>`](/docs/audio) and [`<Video/>`](/docs/video) tags cannot be played in reverse, this is a browser limitation.
+A `playbackRate` of `2` means the video plays twice as fast. A playbackRate of `0.5` means the video plays twice as slow. A playbackRate of `-1` means the video plays in reverse. Note that the media tags ([`<Audio>`](/docs/media/audio), [`<Video>`](/docs/media/video), [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo)) cannot be played in reverse, this is a browser limitation.
 
 Default `1`.
 

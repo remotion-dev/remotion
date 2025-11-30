@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sigmar',
 	importName: 'Sigmar',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Sigmar:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/sigmar/v8/hv-XlzJgIE8a85pkZWw2ATE.woff2',
+					'https://fonts.gstatic.com/s/sigmar/v9/hv-XlzJgIE8a85pkZWw2ATE.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sigmar/v8/hv-XlzJgIE8a85pkZGw2ATE.woff2',
+					'https://fonts.gstatic.com/s/sigmar/v9/hv-XlzJgIE8a85pkZGw2ATE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sigmar/v8/hv-XlzJgIE8a85pkamw2.woff2',
+					'https://fonts.gstatic.com/s/sigmar/v9/hv-XlzJgIE8a85pkamw2.woff2',
 			},
 		},
 	},

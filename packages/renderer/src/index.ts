@@ -72,6 +72,7 @@ export {Browser} from './browser';
 export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
 export type {HeadlessBrowser} from './browser/Browser';
+export type {OnLog} from './browser/BrowserPage';
 export {Codec, CodecOrUndefined} from './codec';
 export {
 	CombineChunksOnProgress,
@@ -112,7 +113,6 @@ export {AnyRemotionOption, RemotionOption, ToOptions} from './options/option';
 export {X264Preset} from './options/x264-preset';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
-export {ProResProfile} from './prores-profile';
 export {OnArtifact, RenderFramesOptions, renderFrames} from './render-frames';
 export {
 	InternalRenderMediaOptions,
@@ -145,6 +145,7 @@ import {
 import {codecSupportsMedia} from './codec-supports-media';
 import {internalCombineChunks} from './combine-chunks';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
+import {defaultOnLog} from './default-on-log';
 import {internalEnsureBrowser} from './ensure-browser';
 import type {AudioCodec} from './options/audio-codec';
 import {
@@ -251,6 +252,7 @@ export const RenderInternals = {
 	canConcatVideoSeamlessly,
 	canConcatAudioSeamlessly,
 	internalCombineChunks,
+	defaultOnLog,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

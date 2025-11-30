@@ -1,15 +1,22 @@
-import type {MediaParserDimensions} from '@remotion/media-parser';
+import type {CropRectangle} from 'mediabunny';
 import {useCallback, useEffect, useState} from 'react';
 import type {VideoThumbnailRef} from '~/components/VideoThumbnail';
+import type {Dimensions} from './calculate-new-dimensions-from-dimensions';
 
 export const useThumbnailCopy = ({
 	sourceRef,
 	targetRef,
 	dimensions,
+	cropRect,
+	crop,
+	fullDimensionsBeforeCrop,
 }: {
 	sourceRef: React.RefObject<VideoThumbnailRef | null>;
 	targetRef: React.RefObject<HTMLCanvasElement | null> | null;
-	dimensions: MediaParserDimensions;
+	dimensions: Dimensions;
+	cropRect: CropRectangle;
+	crop: boolean;
+	fullDimensionsBeforeCrop: Dimensions;
 }) => {
 	const [drawn, setDrawn] = useState(
 		() => sourceRef.current?.hasBitmap ?? false,
@@ -26,11 +33,32 @@ export const useThumbnailCopy = ({
 				return;
 			}
 
-			ctx.drawImage(map, 0, 0, dimensions.width, dimensions.height);
+			if (!crop) {
+				ctx.drawImage(map, 0, 0, dimensions.width, dimensions.height);
+			} else {
+				ctx.drawImage(
+					map,
+					(map.width / fullDimensionsBeforeCrop.width) * cropRect.left,
+					(map.height / fullDimensionsBeforeCrop.height) * cropRect.top,
+					(map.width / fullDimensionsBeforeCrop.width) * cropRect.width,
+					(map.height / fullDimensionsBeforeCrop.height) * cropRect.height,
+					0,
+					0,
+					dimensions.width,
+					dimensions.height,
+				);
+			}
 
 			setDrawn(true);
 		});
-	}, [sourceRef, targetRef, dimensions.width, dimensions.height]);
+	}, [
+		targetRef,
+		sourceRef,
+		crop,
+		dimensions,
+		fullDimensionsBeforeCrop,
+		cropRect,
+	]);
 
 	useEffect(() => {
 		const {current} = sourceRef;

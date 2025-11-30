@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Marchen',
 	importName: 'NotoSansMarchen',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Marchen:ital,wght@0,400',
 	unicodeRanges: {
 		marchen: 'U+25CC, U+11C70-11CBF',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				marchen:
-					'https://fonts.gstatic.com/s/notosansmarchen/v20/aFTO7OZ_Y282EP-WyG6QTOX_C8WZMEjXuIp7XLg.woff2',
+					'https://fonts.gstatic.com/s/notosansmarchen/v21/aFTO7OZ_Y282EP-WyG6QTOX_C8WZMEjXuIp7XLg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmarchen/v20/aFTO7OZ_Y282EP-WyG6QTOX_C8WZMEhGma9GZQ.woff2',
+					'https://fonts.gstatic.com/s/notosansmarchen/v21/aFTO7OZ_Y282EP-WyG6QTOX_C8WZMEhGma9GZQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmarchen/v20/aFTO7OZ_Y282EP-WyG6QTOX_C8WZMEhIma8.woff2',
+					'https://fonts.gstatic.com/s/notosansmarchen/v21/aFTO7OZ_Y282EP-WyG6QTOX_C8WZMEhIma8.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Nag Mundari',
 	importName: 'NotoSansNagMundari',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Nag+Mundari:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'nag-mundari': 'U+1E4D0-1E4F9',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'nag-mundari':
-					'https://fonts.gstatic.com/s/notosansnagmundari/v3/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcPSaLenSQ.woff2',
+					'https://fonts.gstatic.com/s/notosansnagmundari/v4/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcPSaLenSQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansnagmundari/v3/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkckweuR00.woff2',
+					'https://fonts.gstatic.com/s/notosansnagmundari/v4/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkckweuR00.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansnagmundari/v3/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcnQeu.woff2',
+					'https://fonts.gstatic.com/s/notosansnagmundari/v4/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcnQeu.woff2',
 			},
 			'500': {
 				'nag-mundari':
-					'https://fonts.gstatic.com/s/notosansnagmundari/v3/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcPSaLenSQ.woff2',
+					'https://fonts.gstatic.com/s/notosansnagmundari/v4/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcPSaLenSQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansnagmundari/v3/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkckweuR00.woff2',
+					'https://fonts.gstatic.com/s/notosansnagmundari/v4/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkckweuR00.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansnagmundari/v3/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcnQeu.woff2',
+					'https://fonts.gstatic.com/s/notosansnagmundari/v4/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcnQeu.woff2',
 			},
 			'600': {
 				'nag-mundari':
-					'https://fonts.gstatic.com/s/notosansnagmundari/v3/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcPSaLenSQ.woff2',
+					'https://fonts.gstatic.com/s/notosansnagmundari/v4/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcPSaLenSQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansnagmundari/v3/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkckweuR00.woff2',
+					'https://fonts.gstatic.com/s/notosansnagmundari/v4/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkckweuR00.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansnagmundari/v3/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcnQeu.woff2',
+					'https://fonts.gstatic.com/s/notosansnagmundari/v4/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcnQeu.woff2',
 			},
 			'700': {
 				'nag-mundari':
-					'https://fonts.gstatic.com/s/notosansnagmundari/v3/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcPSaLenSQ.woff2',
+					'https://fonts.gstatic.com/s/notosansnagmundari/v4/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcPSaLenSQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansnagmundari/v3/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkckweuR00.woff2',
+					'https://fonts.gstatic.com/s/notosansnagmundari/v4/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkckweuR00.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansnagmundari/v3/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcnQeu.woff2',
+					'https://fonts.gstatic.com/s/notosansnagmundari/v4/3qTzoi2hnSyU8TNFIdhZTyod3g5lBnKlQFkcnQeu.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Orbitron',
 	importName: 'Orbitron',
-	version: 'v34',
+	version: 'v35',
 	url: 'https://fonts.googleapis.com/css2?family=Orbitron:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		latin:
@@ -13,27 +13,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/orbitron/v34/yMJRMIlzdpvBhQQL_Qq7dy0.woff2',
+					'https://fonts.gstatic.com/s/orbitron/v35/yMJRMIlzdpvBhQQL_Qq7dy0.woff2',
 			},
 			'500': {
 				latin:
-					'https://fonts.gstatic.com/s/orbitron/v34/yMJRMIlzdpvBhQQL_Qq7dy0.woff2',
+					'https://fonts.gstatic.com/s/orbitron/v35/yMJRMIlzdpvBhQQL_Qq7dy0.woff2',
 			},
 			'600': {
 				latin:
-					'https://fonts.gstatic.com/s/orbitron/v34/yMJRMIlzdpvBhQQL_Qq7dy0.woff2',
+					'https://fonts.gstatic.com/s/orbitron/v35/yMJRMIlzdpvBhQQL_Qq7dy0.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/orbitron/v34/yMJRMIlzdpvBhQQL_Qq7dy0.woff2',
+					'https://fonts.gstatic.com/s/orbitron/v35/yMJRMIlzdpvBhQQL_Qq7dy0.woff2',
 			},
 			'800': {
 				latin:
-					'https://fonts.gstatic.com/s/orbitron/v34/yMJRMIlzdpvBhQQL_Qq7dy0.woff2',
+					'https://fonts.gstatic.com/s/orbitron/v35/yMJRMIlzdpvBhQQL_Qq7dy0.woff2',
 			},
 			'900': {
 				latin:
-					'https://fonts.gstatic.com/s/orbitron/v34/yMJRMIlzdpvBhQQL_Qq7dy0.woff2',
+					'https://fonts.gstatic.com/s/orbitron/v35/yMJRMIlzdpvBhQQL_Qq7dy0.woff2',
 			},
 		},
 	},

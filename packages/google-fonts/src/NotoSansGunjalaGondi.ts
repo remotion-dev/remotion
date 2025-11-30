@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Gunjala Gondi',
 	importName: 'NotoSansGunjalaGondi',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Gunjala+Gondi:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'gunjala-gondi': 'U+0964-0965, U+200C-200D, U+25CC, U+11D60-11DAF',
@@ -16,35 +16,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'gunjala-gondi':
-					'https://fonts.gstatic.com/s/notosansgunjalagondi/v20/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5idlV4IjKw.woff2',
+					'https://fonts.gstatic.com/s/notosansgunjalagondi/v21/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5idlV4IjKw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansgunjalagondi/v20/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5iccV4IjKw.woff2',
+					'https://fonts.gstatic.com/s/notosansgunjalagondi/v21/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5iccV4IjKw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansgunjalagondi/v20/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5icSV4I.woff2',
+					'https://fonts.gstatic.com/s/notosansgunjalagondi/v21/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5icSV4I.woff2',
 			},
 			'500': {
 				'gunjala-gondi':
-					'https://fonts.gstatic.com/s/notosansgunjalagondi/v20/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5idlV4IjKw.woff2',
+					'https://fonts.gstatic.com/s/notosansgunjalagondi/v21/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5idlV4IjKw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansgunjalagondi/v20/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5iccV4IjKw.woff2',
+					'https://fonts.gstatic.com/s/notosansgunjalagondi/v21/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5iccV4IjKw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansgunjalagondi/v20/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5icSV4I.woff2',
+					'https://fonts.gstatic.com/s/notosansgunjalagondi/v21/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5icSV4I.woff2',
 			},
 			'600': {
 				'gunjala-gondi':
-					'https://fonts.gstatic.com/s/notosansgunjalagondi/v20/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5idlV4IjKw.woff2',
+					'https://fonts.gstatic.com/s/notosansgunjalagondi/v21/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5idlV4IjKw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansgunjalagondi/v20/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5iccV4IjKw.woff2',
+					'https://fonts.gstatic.com/s/notosansgunjalagondi/v21/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5iccV4IjKw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansgunjalagondi/v20/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5icSV4I.woff2',
+					'https://fonts.gstatic.com/s/notosansgunjalagondi/v21/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5icSV4I.woff2',
 			},
 			'700': {
 				'gunjala-gondi':
-					'https://fonts.gstatic.com/s/notosansgunjalagondi/v20/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5idlV4IjKw.woff2',
+					'https://fonts.gstatic.com/s/notosansgunjalagondi/v21/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5idlV4IjKw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansgunjalagondi/v20/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5iccV4IjKw.woff2',
+					'https://fonts.gstatic.com/s/notosansgunjalagondi/v21/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5iccV4IjKw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansgunjalagondi/v20/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5icSV4I.woff2',
+					'https://fonts.gstatic.com/s/notosansgunjalagondi/v21/bWto7e7KfBziStx7lIzKPrcSMwcEnCv6DW7n5icSV4I.woff2',
 			},
 		},
 	},

@@ -3,8 +3,8 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda-client"
 	},
 	"name": "@remotion/lambda-client",
-	"version": "4.0.340",
-	"main": "dist/index.js",
+	"version": "4.0.379",
+	"main": "dist/cjs/index.js",
 	"sideEffects": false,
 	"scripts": {
 		"formatting": "prettier --experimental-cli src --check",
@@ -14,25 +14,24 @@
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "UNLICENSED",
-	"dependencies": {
-		"@aws-sdk/client-cloudwatch-logs": "3.787.0",
-		"@aws-sdk/client-iam": "3.787.0",
-		"@aws-sdk/client-lambda": "3.787.0",
-		"@aws-sdk/s3-request-presigner": "3.787.0",
-		"@aws-sdk/client-s3": "3.787.0",
-		"@aws-sdk/client-service-quotas": "3.787.0",
-		"@aws-sdk/client-sts": "3.787.0",
-		"@aws-sdk/lib-storage": "3.787.0",
-		"mime-types": "2.1.34"
-	},
+	"dependencies": {},
 	"devDependencies": {
-		"@aws-sdk/credential-provider-ini": "3.787.0",
+		"@aws-sdk/client-cloudwatch-logs": "catalog:",
+		"@aws-sdk/client-iam": "catalog:",
+		"@aws-sdk/client-lambda": "catalog:",
+		"@aws-sdk/s3-request-presigner": "catalog:",
+		"@aws-sdk/client-s3": "catalog:",
+		"@aws-sdk/client-service-quotas": "catalog:",
+		"@aws-sdk/client-sts": "catalog:",
+		"@aws-sdk/lib-storage": "catalog:",
+		"mime-types": "2.1.34",
+		"@aws-sdk/credential-provider-ini": "catalog:",
 		"@remotion/serverless-client": "workspace:*",
 		"@types/express": "^5.0.0",
 		"express": "4.21.0",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0",
-		"next": "15.2.4",
+		"eslint": "catalog:",
+		"next": "catalog:",
 		"@types/mime-types": "2.1.1"
 	},
 	"publishConfig": {
@@ -41,20 +40,20 @@
 	"exports": {
 		"./package.json": "./package.json",
 		".": {
-			"types": "./dist/index.d.ts",
-			"require": "./dist/index.js",
+			"types": "./dist/cjs/index.d.ts",
+			"require": "./dist/cjs/index.js",
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
 		"./constants": {
-			"types": "./dist/constants.d.ts",
-			"require": "./dist/constants.js",
+			"types": "./dist/cjs/constants.d.ts",
+			"require": "./dist/cjs/constants.js",
 			"module": "./dist/esm/constants.mjs",
 			"import": "./dist/esm/constants.mjs"
 		},
 		"./regions": {
-			"types": "./dist/regions.d.ts",
-			"require": "./dist/regions.js",
+			"types": "./dist/cjs/regions.d.ts",
+			"require": "./dist/cjs/regions.js",
 			"module": "./dist/esm/regions.mjs",
 			"import": "./dist/esm/regions.mjs"
 		}
@@ -62,10 +61,10 @@
 	"typesVersions": {
 		">=1.0": {
 			"constants": [
-				"./dist/constants.d.ts"
+				"./dist/cjs/constants.d.ts"
 			],
 			"regions": [
-				"./dist/regions.d.ts"
+				"./dist/cjs/regions.d.ts"
 			]
 		}
 	}

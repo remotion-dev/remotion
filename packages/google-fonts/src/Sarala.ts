@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sarala',
 	importName: 'Sarala',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Sarala:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sarala/v13/uK_y4riEZv4o1w9hDBcSAv4.woff2',
+					'https://fonts.gstatic.com/s/sarala/v14/uK_y4riEZv4o1w9hDBcSAv4.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sarala/v13/uK_y4riEZv4o1w9hAxcSAv4.woff2',
+					'https://fonts.gstatic.com/s/sarala/v14/uK_y4riEZv4o1w9hAxcSAv4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sarala/v13/uK_y4riEZv4o1w9hDRcS.woff2',
+					'https://fonts.gstatic.com/s/sarala/v14/uK_y4riEZv4o1w9hDRcS.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sarala/v13/uK_x4riEZv4o1w9ptjIHPN-ZZkM.woff2',
+					'https://fonts.gstatic.com/s/sarala/v14/uK_x4riEZv4o1w9ptjIHPN-ZZkM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sarala/v13/uK_x4riEZv4o1w9ptjIHM9-ZZkM.woff2',
+					'https://fonts.gstatic.com/s/sarala/v14/uK_x4riEZv4o1w9ptjIHM9-ZZkM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sarala/v13/uK_x4riEZv4o1w9ptjIHPd-Z.woff2',
+					'https://fonts.gstatic.com/s/sarala/v14/uK_x4riEZv4o1w9ptjIHPd-Z.woff2',
 			},
 		},
 	},

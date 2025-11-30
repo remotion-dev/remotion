@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Boogaloo',
 	importName: 'Boogaloo',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Boogaloo:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/boogaloo/v24/kmK-Zq45GAvOdnaW6y1C9ys.woff2',
+					'https://fonts.gstatic.com/s/boogaloo/v25/kmK-Zq45GAvOdnaW6y1C9ys.woff2',
 			},
 		},
 	},

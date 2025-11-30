@@ -1,12 +1,12 @@
-import type {MediaParserDimensions} from '@remotion/media-parser';
-import type {ResizeOperation} from '@remotion/webcodecs';
 import React, {useCallback, useMemo} from 'react';
+import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
+import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
 
 export const ResizeOption: React.FC<{
 	readonly max: number;
 	readonly selected: boolean;
 	readonly setResizeMode: React.Dispatch<
-		React.SetStateAction<ResizeOperation | null>
+		React.SetStateAction<MediabunnyResize | null>
 	>;
 	readonly portrait: boolean;
 }> = ({max, selected, setResizeMode, portrait}) => {
@@ -38,10 +38,10 @@ export const ResizeOption: React.FC<{
 };
 
 export const ResizeShortcuts: React.FC<{
-	readonly originalDimensions: MediaParserDimensions;
-	readonly resolvedDimensions: MediaParserDimensions;
+	readonly originalDimensions: Dimensions;
+	readonly resolvedDimensions: Dimensions;
 	readonly setResizeMode: React.Dispatch<
-		React.SetStateAction<ResizeOperation | null>
+		React.SetStateAction<MediabunnyResize | null>
 	>;
 }> = ({originalDimensions, resolvedDimensions, setResizeMode}) => {
 	const options = useMemo(() => {

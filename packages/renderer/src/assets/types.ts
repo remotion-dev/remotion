@@ -14,7 +14,7 @@ export type UnsafeAsset = Omit<
 	volume: number[];
 	id: string;
 	playbackRate: number;
-	toneFrequency: number | null;
+	toneFrequency: number;
 	audioStreamIndex: number;
 };
 

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Megrim',
 	importName: 'Megrim',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Megrim:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/megrim/v17/46kulbz5WjvLqJZVZG_hR0Q.woff2',
+					'https://fonts.gstatic.com/s/megrim/v18/46kulbz5WjvLqJZVZG_hR0Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/megrim/v17/46kulbz5WjvLqJZVam_h.woff2',
+					'https://fonts.gstatic.com/s/megrim/v18/46kulbz5WjvLqJZVam_h.woff2',
 			},
 		},
 	},

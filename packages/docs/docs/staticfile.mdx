@@ -2,7 +2,7 @@
 image: /generated/articles-docs-staticfile.png
 id: staticfile
 title: staticFile()
-crumb: "API"
+crumb: 'API'
 ---
 
 _Available from v2.5.7._
@@ -10,7 +10,7 @@ _Available from v2.5.7._
 Turns a file in your `public/` folder into an URL which you can then load into your project.
 
 ```tsx twoslash
-import { Img, staticFile } from "remotion";
+import {Img, staticFile} from 'remotion';
 
 const myImage = staticFile(`/my-image.png`);
 
@@ -42,7 +42,7 @@ The `public/` folder should always be in the same folder as your `package.json` 
 Get an URL reference of your asset:
 
 ```tsx twoslash
-import { staticFile } from "remotion";
+import {staticFile} from 'remotion';
 
 const myImage = staticFile(`/my-image.png`); // "/static-32e8nd/my-image.png"
 const font = staticFile(`/font.woff2`); // "/static-32e8nd/font.woff2"
@@ -50,7 +50,7 @@ const font = staticFile(`/font.woff2`); // "/static-32e8nd/font.woff2"
 
 You can now load the asset via:
 
-- [`<Img />`](/docs/img), [`<Audio/>`](/docs/audio), [`<Video/>`](/docs/video) tag
+- [`<Img>`](/docs/img), [`<Audio>`](/docs/media/audio), [`<Video>`](/docs/media/video), [`<OffthreadVideo>`](/docs/offthreadvideo), [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video) tags
 - Fetch API
 - [FontFace()](/docs/fonts)
 - Any other loader that supports data fetching via URL
@@ -77,14 +77,14 @@ Before `v4.0`, `staticFile()` did not handle URI-unsafe characters contained in 
 ### Example
 
 ```tsx title="Before v4"
-staticFile("my-image#portrait.png"); //output: "/my-image#portrait.png"
+staticFile('my-image#portrait.png'); //output: "/my-image#portrait.png"
 ```
 
 If this URL is passed to a component accepting an URL, the part after `#` will be left out, leading
 to an error because the file can't be found.
 
 ```tsx title="Since v4.0.0"
-staticFile("my-image#portrait.png"); // "/my-image%23portrait.png"
+staticFile('my-image#portrait.png'); // "/my-image%23portrait.png"
 ```
 
 The image will now be loaded properly, however, you must avoid to encode the filename yourself.

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Harmattan',
 	importName: 'Harmattan',
-	version: 'v21',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Harmattan:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:
@@ -17,35 +17,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/harmattan/v21/goksH6L2DkFvVvRp9XpjSUqioP0.woff2',
+					'https://fonts.gstatic.com/s/harmattan/v24/goksH6L2DkFvVvRp9XpjSUqioP0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/harmattan/v21/goksH6L2DkFvVvRp9XpjQkqioP0.woff2',
+					'https://fonts.gstatic.com/s/harmattan/v24/goksH6L2DkFvVvRp9XpjQkqioP0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/harmattan/v21/goksH6L2DkFvVvRp9XpjTEqi.woff2',
+					'https://fonts.gstatic.com/s/harmattan/v24/goksH6L2DkFvVvRp9XpjTEqi.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/harmattan/v21/gokpH6L2DkFvVvRp9Xprv2m3mtxFm6Q.woff2',
+					'https://fonts.gstatic.com/s/harmattan/v24/gokpH6L2DkFvVvRp9Xprv2m3mtxFm6Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/harmattan/v21/gokpH6L2DkFvVvRp9Xprv2m3kdxFm6Q.woff2',
+					'https://fonts.gstatic.com/s/harmattan/v24/gokpH6L2DkFvVvRp9Xprv2m3kdxFm6Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/harmattan/v21/gokpH6L2DkFvVvRp9Xprv2m3n9xF.woff2',
+					'https://fonts.gstatic.com/s/harmattan/v24/gokpH6L2DkFvVvRp9Xprv2m3n9xF.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/harmattan/v21/gokpH6L2DkFvVvRp9Xprk263mtxFm6Q.woff2',
+					'https://fonts.gstatic.com/s/harmattan/v24/gokpH6L2DkFvVvRp9Xprk263mtxFm6Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/harmattan/v21/gokpH6L2DkFvVvRp9Xprk263kdxFm6Q.woff2',
+					'https://fonts.gstatic.com/s/harmattan/v24/gokpH6L2DkFvVvRp9Xprk263kdxFm6Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/harmattan/v21/gokpH6L2DkFvVvRp9Xprk263n9xF.woff2',
+					'https://fonts.gstatic.com/s/harmattan/v24/gokpH6L2DkFvVvRp9Xprk263n9xF.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/harmattan/v21/gokpH6L2DkFvVvRp9Xpr92-3mtxFm6Q.woff2',
+					'https://fonts.gstatic.com/s/harmattan/v24/gokpH6L2DkFvVvRp9Xpr92-3mtxFm6Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/harmattan/v21/gokpH6L2DkFvVvRp9Xpr92-3kdxFm6Q.woff2',
+					'https://fonts.gstatic.com/s/harmattan/v24/gokpH6L2DkFvVvRp9Xpr92-3kdxFm6Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/harmattan/v21/gokpH6L2DkFvVvRp9Xpr92-3n9xF.woff2',
+					'https://fonts.gstatic.com/s/harmattan/v24/gokpH6L2DkFvVvRp9Xpr92-3n9xF.woff2',
 			},
 		},
 	},

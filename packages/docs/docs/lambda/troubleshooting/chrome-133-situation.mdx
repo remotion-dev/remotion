@@ -18,7 +18,7 @@ You are affected if you:
 
 - are on Remotion version 4.0.274 - 4.0.288 (inclusive)
 - are using Remotion Lambda
-- are using the [getVideoMetadata()](/docs/get-video-metadata) API from [@remotion/media-utils](/docs/media-utils) or the `<Video>` tag with an MP4 file
+- are using the [getVideoMetadata()](/docs/get-video-metadata) API from [@remotion/media-utils](/docs/media-utils) or the `<Html5Video>` tag with an MP4 file
 
 ## Solution
 
@@ -27,7 +27,7 @@ Upgrade to Remotion version v4.0.289 or higher.
 ## Workarounds
 
 - Option 1: Revert to Remotion version 4.0.273
-- Option 2: Replace [getVideoMetadata()](/docs/renderer/get-video-metadata) with [parseMedia()](/docs/media-parser/parse-media) and `<Video>` with `<OffthreadVideo>` if you can. We recommend both of these in general.
+- Option 2: Replace [getVideoMetadata()](/docs/renderer/get-video-metadata) with [parseMedia()](/docs/media-parser/parse-media) and `<Html5Video>` with `<OffthreadVideo>` if you can. We recommend both of these in general.
 
 ## Apologies
 

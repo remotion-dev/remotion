@@ -2,7 +2,7 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
-import type {Page} from './browser/BrowserPage';
+import type {OnLog, Page} from './browser/BrowserPage';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {ChromiumOptions} from './open-browser';
@@ -21,6 +21,7 @@ export const getPageAndCleanupFn = async ({
 	chromeMode,
 	pageIndex,
 	onBrowserLog,
+	onLog,
 }: {
 	passedInInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
@@ -32,6 +33,7 @@ export const getPageAndCleanupFn = async ({
 	chromeMode: ChromeMode;
 	pageIndex: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
+	onLog: OnLog;
 }): Promise<{
 	cleanupPage: () => Promise<void>;
 	page: Page;
@@ -43,6 +45,7 @@ export const getPageAndCleanupFn = async ({
 			indent,
 			pageIndex,
 			onBrowserLog,
+			onLog,
 		});
 		return {
 			page,
@@ -80,6 +83,7 @@ export const getPageAndCleanupFn = async ({
 		indent,
 		pageIndex,
 		onBrowserLog,
+		onLog,
 	});
 
 	return {

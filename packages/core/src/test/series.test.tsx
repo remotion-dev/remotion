@@ -3,8 +3,9 @@ import React from 'react';
 import {renderToString} from 'react-dom/server';
 import {AbsoluteFill} from '../AbsoluteFill.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {Internals} from '../internals.js';
 import {Series} from '../series/index.js';
-import {TimelineContext} from '../timeline-position-state.js';
+import {TimelineContext} from '../TimelineContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
@@ -427,4 +428,37 @@ test('Allow Series to be nested', () => {
 			</Series>
 		</WrapSequenceContext>,
 	);
+});
+
+test('should be the same with or without premountFor', () => {
+	const outerHTML = renderForFrame(
+		68,
+		<WrapSequenceContext>
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isRendering: false,
+					isClientSideRendering: false,
+					isPlayer: true,
+					isStudio: true,
+					isReadOnlyStudio: false,
+				}}
+			>
+				<Series>
+					<Series.Sequence durationInFrames={60}>hi</Series.Sequence>
+					<Series.Sequence durationInFrames={60}>
+						<Series>
+							<Series.Sequence
+								durationInFrames={30}
+								premountFor={60}
+								name="green"
+							>
+								this must be printed
+							</Series.Sequence>
+						</Series>
+					</Series.Sequence>
+				</Series>
+			</Internals.RemotionEnvironmentContext>
+		</WrapSequenceContext>,
+	);
+	expect(outerHTML).toContain('this must be printed');
 });

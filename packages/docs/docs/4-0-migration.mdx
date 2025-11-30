@@ -329,6 +329,7 @@ const composition = {
   defaultOutName: null,
   defaultVideoImageFormat: null,
   defaultPixelFormat: null,
+  defaultProResProfile: null,
 } as const;
 
 // ---cut---
@@ -361,7 +362,7 @@ The recommended way is to get the `composition` object using [`selectComposition
 - **remotion**: [`imageFormat`](/docs/offthreadvideo#imageformat-) has been removed from `<OffthreadVideo>`
 - **remotion**: [`transparent`](/docs/offthreadvideo#transparent) has been added to `<OffthreadVideo>`.
 - **remotion**: [`<Img>`](/docs/img) will cancel the render if the image cannot be loaded
-- **remotion**: If an [`<Audio>`](/docs/audio) tag cannot be loaded, it will cancel the render.
+- **remotion**: If an [`<Html5Audio>`](/docs/html5-audio) tag cannot be loaded, it will cancel the render.
 - **remotion**: The `TComposition` type now requires a Zod schema as a generic.
 - **remotion**: Type `WebpackOverrideFn` moved from `remotion` to `@remotion/bundler`
 - **remotion**: [`staticFile()`](/docs/staticfile#handling-uri-unsafe-characters) now supports URI-unsafe characters by default

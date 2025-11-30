@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Allan',
 	importName: 'Allan',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Allan:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/allan/v25/ea8XadU7WuTxEub_NdW18g.woff2',
+					'https://fonts.gstatic.com/s/allan/v26/ea8XadU7WuTxEub_NdW18g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/allan/v25/ea8XadU7WuTxEubxNdU.woff2',
+					'https://fonts.gstatic.com/s/allan/v26/ea8XadU7WuTxEubxNdU.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/allan/v25/ea8aadU7WuTxEu5KEMCE02t9gA.woff2',
+					'https://fonts.gstatic.com/s/allan/v26/ea8aadU7WuTxEu5KEMCE02t9gA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/allan/v25/ea8aadU7WuTxEu5KEMCK02s.woff2',
+					'https://fonts.gstatic.com/s/allan/v26/ea8aadU7WuTxEu5KEMCK02s.woff2',
 			},
 		},
 	},

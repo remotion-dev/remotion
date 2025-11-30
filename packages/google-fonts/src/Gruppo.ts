@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gruppo',
 	importName: 'Gruppo',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Gruppo:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gruppo/v22/WwkfxPmzE06v_ZW1UHrBCIE.woff2',
+					'https://fonts.gstatic.com/s/gruppo/v23/WwkfxPmzE06v_ZW1UHrBCIE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gruppo/v22/WwkfxPmzE06v_ZW1XnrB.woff2',
+					'https://fonts.gstatic.com/s/gruppo/v23/WwkfxPmzE06v_ZW1XnrB.woff2',
 			},
 		},
 	},

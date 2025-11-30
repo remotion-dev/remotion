@@ -1,0 +1,23 @@
+@import 'tailwindcss';
+
+/* This file doesn't get compiled, but it provides autocompletion for @remotion/design */
+
+[data-theme='light'] {
+	--text-color: #000;
+	--plain-button: #fff;
+}
+
+[data-theme='dark'] {
+	--text-color: #fff;
+	--plain-button: #424243;
+}
+
+@theme inline {
+	/* The following colors are required for the design system to work */
+	--font-brand: 'GTPlanar', sans-serif;
+	--font-brand--font-feature-settings: 'ss03' 1;
+	--color-brand: #0b84f3;
+	--color-text: var(--text-color);
+	--color-button-bg: var(--plain-button);
+	--color-card-bg: white;
+}

@@ -22,6 +22,15 @@ if (version.startsWith('v')) {
 	version = version.slice(1);
 }
 
+// Ensure we are on the main branch
+const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', {
+	encoding: 'utf-8',
+}).trim();
+
+if (currentBranch !== 'main') {
+	throw new Error('Please be on the main branch');
+}
+
 const dirs = readdirSync('packages')
 	.filter((dir) =>
 		lstatSync(path.join(process.cwd(), 'packages', dir)).isDirectory(),
@@ -74,8 +83,13 @@ execSync('bun ensure-correct-version.ts', {
 	cwd: 'packages/media-parser',
 });
 
-execSync('pnpm build', {
+execSync('bun run build', {
 	stdio: 'inherit',
+});
+
+execSync('bun run generate', {
+	stdio: 'inherit',
+	cwd: 'packages/google-fonts',
 });
 
 execSync('bun test src/monorepo', {
@@ -85,6 +99,10 @@ execSync('bun test src/monorepo', {
 
 execSync('bun build.ts --all', {
 	cwd: 'packages/compositor',
+	stdio: 'inherit',
+});
+
+execSync('bun i', {
 	stdio: 'inherit',
 });
 

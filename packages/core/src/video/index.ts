@@ -5,4 +5,4 @@ export type {
 	RemotionOffthreadVideoProps,
 	RemotionVideoProps,
 } from './props';
-export {Video} from './Video.js';
+export {Html5Video, Video} from './Video.js';

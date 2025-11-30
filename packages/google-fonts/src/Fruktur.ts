@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fruktur',
 	importName: 'Fruktur',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Fruktur:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -19,25 +19,25 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/fruktur/v27/SZc73FHsOru5QYsMTz_8n2LW0DI.woff2',
+					'https://fonts.gstatic.com/s/fruktur/v28/SZc73FHsOru5QYsMTz_8n2LW0DI.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/fruktur/v27/SZc73FHsOru5QYsMTz_8nWLW0DI.woff2',
+					'https://fonts.gstatic.com/s/fruktur/v28/SZc73FHsOru5QYsMTz_8nWLW0DI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fruktur/v27/SZc73FHsOru5QYsMTz_8nGLW0DI.woff2',
+					'https://fonts.gstatic.com/s/fruktur/v28/SZc73FHsOru5QYsMTz_8nGLW0DI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fruktur/v27/SZc73FHsOru5QYsMTz_8kmLW.woff2',
+					'https://fonts.gstatic.com/s/fruktur/v28/SZc73FHsOru5QYsMTz_8kmLW.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/fruktur/v27/SZc53FHsOru5QYsMTzfMkHrS.woff2',
+					'https://fonts.gstatic.com/s/fruktur/v28/SZc53FHsOru5QYsMTzfMkHrS.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/fruktur/v27/SZc53FHsOru5QYsMTzXMkHrS.woff2',
+					'https://fonts.gstatic.com/s/fruktur/v28/SZc53FHsOru5QYsMTzXMkHrS.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fruktur/v27/SZc53FHsOru5QYsMTzTMkHrS.woff2',
+					'https://fonts.gstatic.com/s/fruktur/v28/SZc53FHsOru5QYsMTzTMkHrS.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fruktur/v27/SZc53FHsOru5QYsMTzrMkA.woff2',
+					'https://fonts.gstatic.com/s/fruktur/v28/SZc53FHsOru5QYsMTzrMkA.woff2',
 			},
 		},
 	},

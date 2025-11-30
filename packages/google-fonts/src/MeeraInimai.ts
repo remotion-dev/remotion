@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Meera Inimai',
 	importName: 'MeeraInimai',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Meera+Inimai:ital,wght@0,400',
 	unicodeRanges: {
 		tamil: 'U+0964-0965, U+0B82-0BFA, U+200C-200D, U+20B9, U+25CC',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				tamil:
-					'https://fonts.gstatic.com/s/meerainimai/v13/845fNMM5EIqOW5MPuvO3ILeZ7mLCZes.woff2',
+					'https://fonts.gstatic.com/s/meerainimai/v14/845fNMM5EIqOW5MPuvO3ILeZ7mLCZes.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/meerainimai/v13/845fNMM5EIqOW5MPuvO3ILeZ-GLC.woff2',
+					'https://fonts.gstatic.com/s/meerainimai/v14/845fNMM5EIqOW5MPuvO3ILeZ-GLC.woff2',
 			},
 		},
 	},

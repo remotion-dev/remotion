@@ -6,6 +6,10 @@ title: WEBCODECS_TIMESCALE
 crumb: '@remotion/media-parser'
 ---
 
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 `@remotion/media-parser` returns all samples with normalized timestamps in microseconds.  
 This means the global timescale is `1_000_000`.
 
@@ -25,7 +29,7 @@ To get the time in seconds of a sample, you can divide the timestamp by the `WEB
 import {parseMedia, WEBCODECS_TIMESCALE} from '@remotion/media-parser';
 
 const result2 = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   onVideoTrack: ({track}) => {
     return (sample) => {
       const timeInSeconds = sample.timestamp / WEBCODECS_TIMESCALE;
@@ -44,7 +48,7 @@ Not all container formats may support this, some may return `1_000_000` instead.
 import {parseMedia} from '@remotion/media-parser';
 
 const result2 = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   onVideoTrack: ({track}) => {
     console.log(track.timescale); // 1_000_000, always
     console.log(track.originalTimescale); // 12800

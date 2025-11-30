@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Eagle Lake',
 	importName: 'EagleLake',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Eagle+Lake:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/eaglelake/v25/ptRMTiqbbuNJDOiKj9wG1Of4KDNu.woff2',
+					'https://fonts.gstatic.com/s/eaglelake/v26/ptRMTiqbbuNJDOiKj9wG1Of4KDNu.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/eaglelake/v25/ptRMTiqbbuNJDOiKj9wG1On4KA.woff2',
+					'https://fonts.gstatic.com/s/eaglelake/v26/ptRMTiqbbuNJDOiKj9wG1On4KA.woff2',
 			},
 		},
 	},

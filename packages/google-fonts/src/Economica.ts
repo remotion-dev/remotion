@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Economica',
 	importName: 'Economica',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Economica:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,29 +15,29 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/economica/v16/Qw3ZZQZaHCLgIWa29ZBbM_INKllFfQ.woff2',
+					'https://fonts.gstatic.com/s/economica/v17/Qw3ZZQZaHCLgIWa29ZBbM_INKllFfQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/economica/v16/Qw3ZZQZaHCLgIWa29ZBbM_IDKlk.woff2',
+					'https://fonts.gstatic.com/s/economica/v17/Qw3ZZQZaHCLgIWa29ZBbM_IDKlk.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/economica/v16/Qw3EZQZaHCLgIWa29ZBbM_q4D0x0XHgciw.woff2',
+					'https://fonts.gstatic.com/s/economica/v17/Qw3EZQZaHCLgIWa29ZBbM_q4D0x0XHgciw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/economica/v16/Qw3EZQZaHCLgIWa29ZBbM_q4D0x6XHg.woff2',
+					'https://fonts.gstatic.com/s/economica/v17/Qw3EZQZaHCLgIWa29ZBbM_q4D0x6XHg.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/economica/v16/Qw3fZQZaHCLgIWa29ZBbOMIBMl0.woff2',
+					'https://fonts.gstatic.com/s/economica/v17/Qw3fZQZaHCLgIWa29ZBbOMIBMl0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/economica/v16/Qw3fZQZaHCLgIWa29ZBbNsIB.woff2',
+					'https://fonts.gstatic.com/s/economica/v17/Qw3fZQZaHCLgIWa29ZBbNsIB.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/economica/v16/Qw3aZQZaHCLgIWa29ZBTjecUA3x4RHw.woff2',
+					'https://fonts.gstatic.com/s/economica/v17/Qw3aZQZaHCLgIWa29ZBTjecUA3x4RHw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/economica/v16/Qw3aZQZaHCLgIWa29ZBTjecUDXx4.woff2',
+					'https://fonts.gstatic.com/s/economica/v17/Qw3aZQZaHCLgIWa29ZBTjecUDXx4.woff2',
 			},
 		},
 	},

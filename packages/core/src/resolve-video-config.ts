@@ -3,6 +3,7 @@ import type {
 	CalcMetadataReturnType,
 	CalculateMetadataFunction,
 } from './Composition.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import type {InferProps} from './props-if-has-props.js';
 import {validateCodec} from './validation/validate-default-codec.js';
@@ -67,6 +68,7 @@ const validateCalculated = ({
 	const defaultOutName = calculated?.defaultOutName;
 	const defaultVideoImageFormat = calculated?.defaultVideoImageFormat;
 	const defaultPixelFormat = calculated?.defaultPixelFormat;
+	const defaultProResProfile = calculated?.defaultProResProfile;
 
 	return {
 		width,
@@ -77,6 +79,7 @@ const validateCalculated = ({
 		defaultOutName,
 		defaultVideoImageFormat,
 		defaultPixelFormat,
+		defaultProResProfile,
 	};
 };
 
@@ -91,14 +94,14 @@ type ResolveVideoConfigParams = {
 	> | null;
 	signal: AbortSignal;
 	defaultProps: Record<string, unknown>;
-	originalProps: Record<string, unknown>;
+	inputProps: Record<string, unknown>;
 };
 
 export const resolveVideoConfig = ({
 	calculateMetadata,
 	signal,
 	defaultProps,
-	originalProps,
+	inputProps: originalProps,
 	compositionId,
 	compositionDurationInFrames,
 	compositionFps,
@@ -111,6 +114,7 @@ export const resolveVideoConfig = ({
 				props: originalProps,
 				abortSignal: signal,
 				compositionId,
+				isRendering: getRemotionEnvironment().isRendering,
 			})
 		: null;
 
@@ -129,6 +133,7 @@ export const resolveVideoConfig = ({
 				defaultOutName,
 				defaultVideoImageFormat,
 				defaultPixelFormat,
+				defaultProResProfile,
 			} = validateCalculated({
 				calculated: c,
 				compositionDurationInFrames,
@@ -149,6 +154,7 @@ export const resolveVideoConfig = ({
 				defaultOutName: defaultOutName ?? null,
 				defaultVideoImageFormat: defaultVideoImageFormat ?? null,
 				defaultPixelFormat: defaultPixelFormat ?? null,
+				defaultProResProfile: defaultProResProfile ?? null,
 			};
 		});
 	}
@@ -172,6 +178,7 @@ export const resolveVideoConfig = ({
 			defaultOutName: null,
 			defaultVideoImageFormat: null,
 			defaultPixelFormat: null,
+			defaultProResProfile: null,
 		};
 	}
 
@@ -186,6 +193,7 @@ export const resolveVideoConfig = ({
 		defaultOutName: calculatedProm.defaultOutName ?? null,
 		defaultVideoImageFormat: calculatedProm.defaultVideoImageFormat ?? null,
 		defaultPixelFormat: calculatedProm.defaultPixelFormat ?? null,
+		defaultProResProfile: calculatedProm.defaultProResProfile ?? null,
 	};
 };
 

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bokor',
 	importName: 'Bokor',
-	version: 'v31',
+	version: 'v32',
 	url: 'https://fonts.googleapis.com/css2?family=Bokor:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/bokor/v31/m8JcjfpeeaqTiS2afojrcQ.woff2',
+					'https://fonts.gstatic.com/s/bokor/v32/m8JcjfpeeaqTiS2afojrcQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bokor/v31/m8JcjfpeeaqTiS2Rfog.woff2',
+					'https://fonts.gstatic.com/s/bokor/v32/m8JcjfpeeaqTiS2Rfog.woff2',
 			},
 		},
 	},

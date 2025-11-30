@@ -3,7 +3,7 @@ import type {VideoMetadata} from '@remotion/media-utils';
 import {getVideoMetadata} from '@remotion/media-utils';
 import {ThreeCanvas, useVideoTexture} from '@remotion/three';
 import React, {useEffect, useRef, useState} from 'react';
-import {AbsoluteFill, useVideoConfig, Video} from 'remotion';
+import {AbsoluteFill, Html5Video, useVideoConfig} from 'remotion';
 import {Phone} from './Phone';
 
 const videoStyle: React.CSSProperties = {
@@ -28,7 +28,7 @@ export const Scene: React.FC<{
 	const texture = useVideoTexture(videoRef);
 	return (
 		<AbsoluteFill>
-			<Video ref={videoRef} src={videoSrc} style={videoStyle} />
+			<Html5Video ref={videoRef} src={videoSrc} style={videoStyle} />
 			{videoData ? (
 				<ThreeCanvas width={width} height={height}>
 					<ambientLight intensity={1.5} color={0xffffff} />

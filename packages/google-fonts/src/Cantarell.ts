@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cantarell',
 	importName: 'Cantarell',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Cantarell:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,29 +15,29 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cantarell/v17/B50LF7ZDq37KMUvlO015iZJnNKuiLA.woff2',
+					'https://fonts.gstatic.com/s/cantarell/v18/B50LF7ZDq37KMUvlO015iZJnNKuiLA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cantarell/v17/B50LF7ZDq37KMUvlO015iZJpNKs.woff2',
+					'https://fonts.gstatic.com/s/cantarell/v18/B50LF7ZDq37KMUvlO015iZJpNKs.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cantarell/v17/B50WF7ZDq37KMUvlO015iZrSEb6TDYsmgQ.woff2',
+					'https://fonts.gstatic.com/s/cantarell/v18/B50WF7ZDq37KMUvlO015iZrSEb6TDYsmgQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cantarell/v17/B50WF7ZDq37KMUvlO015iZrSEb6dDYs.woff2',
+					'https://fonts.gstatic.com/s/cantarell/v18/B50WF7ZDq37KMUvlO015iZrSEb6dDYs.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cantarell/v17/B50NF7ZDq37KMUvlO015gqJrLK8.woff2',
+					'https://fonts.gstatic.com/s/cantarell/v18/B50NF7ZDq37KMUvlO015gqJrLK8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cantarell/v17/B50NF7ZDq37KMUvlO015jKJr.woff2',
+					'https://fonts.gstatic.com/s/cantarell/v18/B50NF7ZDq37KMUvlO015jKJr.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cantarell/v17/B50IF7ZDq37KMUvlO01xN4d-HY6fFY8.woff2',
+					'https://fonts.gstatic.com/s/cantarell/v18/B50IF7ZDq37KMUvlO01xN4d-HY6fFY8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cantarell/v17/B50IF7ZDq37KMUvlO01xN4d-E46f.woff2',
+					'https://fonts.gstatic.com/s/cantarell/v18/B50IF7ZDq37KMUvlO01xN4d-E46f.woff2',
 			},
 		},
 	},

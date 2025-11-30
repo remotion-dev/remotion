@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Berkshire Swash',
 	importName: 'BerkshireSwash',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Berkshire+Swash:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/berkshireswash/v21/ptRRTi-cavZOGqCvnNJDl5m5XmN_pM4zXX4.woff2',
+					'https://fonts.gstatic.com/s/berkshireswash/v22/ptRRTi-cavZOGqCvnNJDl5m5XmN_pM4zXX4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/berkshireswash/v21/ptRRTi-cavZOGqCvnNJDl5m5XmN_qs4z.woff2',
+					'https://fonts.gstatic.com/s/berkshireswash/v22/ptRRTi-cavZOGqCvnNJDl5m5XmN_qs4z.woff2',
 			},
 		},
 	},

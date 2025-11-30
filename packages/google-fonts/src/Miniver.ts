@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Miniver',
 	importName: 'Miniver',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Miniver:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/miniver/v26/eLGcP-PxIg-5H0vC37oIyg.woff2',
+					'https://fonts.gstatic.com/s/miniver/v27/eLGcP-PxIg-5H0vC37oIyg.woff2',
 			},
 		},
 	},

@@ -1,4 +1,5 @@
 import type {
+	_InternalTypes,
 	AudioCodec,
 	BrowserSafeApis,
 	ChromiumOptions,
@@ -10,7 +11,6 @@ import type {
 	OutNameInput,
 	PixelFormat,
 	Privacy,
-	ProResProfile,
 	ServerlessCodec,
 	ServerlessPayloads,
 	ServerlessStartPayload,
@@ -21,13 +21,13 @@ import type {
 	X264Preset,
 } from '@remotion/serverless-client';
 import {
-	ENABLE_V5_BREAKING_CHANGES,
-	ServerlessRoutines,
-	VERSION,
 	compressInputProps,
+	ENABLE_V5_BREAKING_CHANGES,
 	getNeedsToUpload,
 	serializeOrThrow,
+	ServerlessRoutines,
 	validateDownloadBehavior,
+	VERSION,
 } from '@remotion/serverless-client';
 import type {AwsProvider} from './aws-provider';
 import {awsImplementation} from './aws-provider';
@@ -52,7 +52,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	crf: number | undefined;
 	envVariables: Record<string, string>;
 	pixelFormat: PixelFormat | undefined;
-	proResProfile: ProResProfile | undefined;
+	proResProfile: _InternalTypes['ProResProfile'] | undefined;
 	x264Preset: X264Preset | null;
 	privacy: Privacy;
 	jpegQuality: number;
@@ -130,6 +130,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	overwrite,
 	jpegQuality,
 	offthreadVideoCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 	deleteAfter,
 	colorSpace,
 	preferLossless,
@@ -218,6 +219,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		metadata: metadata ?? null,
 		apiKey: apiKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		storageClass: storageClass ?? null,
 	};
 };
@@ -266,6 +268,8 @@ export const makeLambdaRenderStillPayload = async ({
 	apiKey,
 	storageClass,
 	requestHandler,
+	offthreadVideoThreads,
+	mediaCacheSizeInBytes,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
 > => {
@@ -317,7 +321,8 @@ export const makeLambdaRenderStillPayload = async ({
 		streamed: true,
 		forcePathStyle,
 		apiKey: apiKey ?? null,
-		offthreadVideoThreads: null,
+		offthreadVideoThreads: offthreadVideoThreads ?? null,
+		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		storageClass: storageClass ?? null,
 	};
 };

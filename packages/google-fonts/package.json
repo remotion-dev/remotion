@@ -3,14 +3,13 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.340",
+	"version": "4.0.379",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
 		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"generate": "bun --env-file=.env scripts/update-font-db.ts",
-		"prepublishOnly": "bun run generate",
 		"formatting": "prettier --experimental-cli src --check"
 	},
 	"license": "SEE LICENSE IN LICENSE.md",
@@ -21,11 +20,8 @@
 		"@types/css-font-loading-module": "0.0.14",
 		"@types/prettier": "^2.7.1",
 		"postcss": "8.4.47",
-		"prettier": "3.6.0"
+		"prettier": "catalog:"
 	},
-	"files": [
-		"dist"
-	],
 	"types": "dist/cjs/index.d.ts",
 	"typesVersions": {
 		">=1.0": {
@@ -103,6 +99,9 @@
 			],
 			"Aladin": [
 				"dist/cjs/Aladin.d.ts"
+			],
+			"AlanSans": [
+				"dist/cjs/AlanSans.d.ts"
 			],
 			"Alata": [
 				"dist/cjs/Alata.d.ts"
@@ -377,6 +376,9 @@
 			"Asar": [
 				"dist/cjs/Asar.d.ts"
 			],
+			"Asimovian": [
+				"dist/cjs/Asimovian.d.ts"
+			],
 			"Asset": [
 				"dist/cjs/Asset.d.ts"
 			],
@@ -445,6 +447,15 @@
 			],
 			"B612Mono": [
 				"dist/cjs/B612Mono.d.ts"
+			],
+			"BBHSansBartle": [
+				"dist/cjs/BBHSansBartle.d.ts"
+			],
+			"BBHSansBogle": [
+				"dist/cjs/BBHSansBogle.d.ts"
+			],
+			"BBHSansHegarty": [
+				"dist/cjs/BBHSansHegarty.d.ts"
 			],
 			"BIZUDGothic": [
 				"dist/cjs/BIZUDGothic.d.ts"
@@ -656,17 +667,35 @@
 			"BitcountGridDouble": [
 				"dist/cjs/BitcountGridDouble.d.ts"
 			],
+			"BitcountGridDoubleInk": [
+				"dist/cjs/BitcountGridDoubleInk.d.ts"
+			],
 			"BitcountGridSingle": [
 				"dist/cjs/BitcountGridSingle.d.ts"
+			],
+			"BitcountGridSingleInk": [
+				"dist/cjs/BitcountGridSingleInk.d.ts"
+			],
+			"BitcountInk": [
+				"dist/cjs/BitcountInk.d.ts"
 			],
 			"BitcountPropDouble": [
 				"dist/cjs/BitcountPropDouble.d.ts"
 			],
+			"BitcountPropDoubleInk": [
+				"dist/cjs/BitcountPropDoubleInk.d.ts"
+			],
 			"BitcountPropSingle": [
 				"dist/cjs/BitcountPropSingle.d.ts"
 			],
+			"BitcountPropSingleInk": [
+				"dist/cjs/BitcountPropSingleInk.d.ts"
+			],
 			"BitcountSingle": [
 				"dist/cjs/BitcountSingle.d.ts"
+			],
+			"BitcountSingleInk": [
+				"dist/cjs/BitcountSingleInk.d.ts"
 			],
 			"Bitter": [
 				"dist/cjs/Bitter.d.ts"
@@ -962,6 +991,9 @@
 			"Chilanka": [
 				"dist/cjs/Chilanka.d.ts"
 			],
+			"ChironGoRoundTC": [
+				"dist/cjs/ChironGoRoundTC.d.ts"
+			],
 			"ChironHeiHK": [
 				"dist/cjs/ChironHeiHK.d.ts"
 			],
@@ -1078,6 +1110,12 @@
 			],
 			"CormorantUpright": [
 				"dist/cjs/CormorantUpright.d.ts"
+			],
+			"CossetteTexte": [
+				"dist/cjs/CossetteTexte.d.ts"
+			],
+			"CossetteTitre": [
+				"dist/cjs/CossetteTitre.d.ts"
 			],
 			"Courgette": [
 				"dist/cjs/Courgette.d.ts"
@@ -1325,6 +1363,9 @@
 			"Electrolize": [
 				"dist/cjs/Electrolize.d.ts"
 			],
+			"ElmsSans": [
+				"dist/cjs/ElmsSans.d.ts"
+			],
 			"Elsie": [
 				"dist/cjs/Elsie.d.ts"
 			],
@@ -1369,6 +1410,12 @@
 			],
 			"Epilogue": [
 				"dist/cjs/Epilogue.d.ts"
+			],
+			"EpundaSans": [
+				"dist/cjs/EpundaSans.d.ts"
+			],
+			"EpundaSlab": [
+				"dist/cjs/EpundaSlab.d.ts"
 			],
 			"EricaOne": [
 				"dist/cjs/EricaOne.d.ts"
@@ -1699,6 +1746,9 @@
 			],
 			"GoogleSansCode": [
 				"dist/cjs/GoogleSansCode.d.ts"
+			],
+			"GoogleSansFlex": [
+				"dist/cjs/GoogleSansFlex.d.ts"
 			],
 			"Gorditas": [
 				"dist/cjs/Gorditas.d.ts"
@@ -2231,6 +2281,9 @@
 			"KeaniaOne": [
 				"dist/cjs/KeaniaOne.d.ts"
 			],
+			"Kedebideri": [
+				"dist/cjs/Kedebideri.d.ts"
+			],
 			"KellySlab": [
 				"dist/cjs/KellySlab.d.ts"
 			],
@@ -2417,6 +2470,9 @@
 			"LexendZetta": [
 				"dist/cjs/LexendZetta.d.ts"
 			],
+			"LibertinusKeyboard": [
+				"dist/cjs/LibertinusKeyboard.d.ts"
+			],
 			"LibertinusMath": [
 				"dist/cjs/LibertinusMath.d.ts"
 			],
@@ -2428,6 +2484,9 @@
 			],
 			"LibertinusSerif": [
 				"dist/cjs/LibertinusSerif.d.ts"
+			],
+			"LibertinusSerifDisplay": [
+				"dist/cjs/LibertinusSerifDisplay.d.ts"
 			],
 			"LibreBarcode128": [
 				"dist/cjs/LibreBarcode128.d.ts"
@@ -2803,6 +2862,15 @@
 			],
 			"Molle": [
 				"dist/cjs/Molle.d.ts"
+			],
+			"MomoSignature": [
+				"dist/cjs/MomoSignature.d.ts"
+			],
+			"MomoTrustDisplay": [
+				"dist/cjs/MomoTrustDisplay.d.ts"
+			],
+			"MomoTrustSans": [
+				"dist/cjs/MomoTrustSans.d.ts"
 			],
 			"MonaSans": [
 				"dist/cjs/MonaSans.d.ts"
@@ -3442,6 +3510,9 @@
 			],
 			"NotoSansSyriacEastern": [
 				"dist/cjs/NotoSansSyriacEastern.d.ts"
+			],
+			"NotoSansSyriacWestern": [
+				"dist/cjs/NotoSansSyriacWestern.d.ts"
 			],
 			"NotoSansTC": [
 				"dist/cjs/NotoSansTC.d.ts"
@@ -4385,6 +4456,9 @@
 			"SUSE": [
 				"dist/cjs/SUSE.d.ts"
 			],
+			"SUSEMono": [
+				"dist/cjs/SUSEMono.d.ts"
+			],
 			"Sacramento": [
 				"dist/cjs/Sacramento.d.ts"
 			],
@@ -4468,6 +4542,9 @@
 			],
 			"Schoolbell": [
 				"dist/cjs/Schoolbell.d.ts"
+			],
+			"ScienceGothic": [
+				"dist/cjs/ScienceGothic.d.ts"
 			],
 			"ScopeOne": [
 				"dist/cjs/ScopeOne.d.ts"
@@ -4582,6 +4659,9 @@
 			],
 			"SirinStencil": [
 				"dist/cjs/SirinStencil.d.ts"
+			],
+			"Sirivennela": [
+				"dist/cjs/Sirivennela.d.ts"
 			],
 			"SixCaps": [
 				"dist/cjs/SixCaps.d.ts"
@@ -4742,6 +4822,15 @@
 			"Staatliches": [
 				"dist/cjs/Staatliches.d.ts"
 			],
+			"StackSansHeadline": [
+				"dist/cjs/StackSansHeadline.d.ts"
+			],
+			"StackSansNotch": [
+				"dist/cjs/StackSansNotch.d.ts"
+			],
+			"StackSansText": [
+				"dist/cjs/StackSansText.d.ts"
+			],
 			"Stalemate": [
 				"dist/cjs/Stalemate.d.ts"
 			],
@@ -4765,6 +4854,9 @@
 			],
 			"Stoke": [
 				"dist/cjs/Stoke.d.ts"
+			],
+			"StoryScript": [
+				"dist/cjs/StoryScript.d.ts"
 			],
 			"Strait": [
 				"dist/cjs/Strait.d.ts"
@@ -4822,6 +4914,12 @@
 			],
 			"SyneTactile": [
 				"dist/cjs/SyneTactile.d.ts"
+			],
+			"TASAExplorer": [
+				"dist/cjs/TASAExplorer.d.ts"
+			],
+			"TASAOrbiter": [
+				"dist/cjs/TASAOrbiter.d.ts"
 			],
 			"TacOne": [
 				"dist/cjs/TacOne.d.ts"
@@ -4933,6 +5031,9 @@
 			],
 			"TiroTelugu": [
 				"dist/cjs/TiroTelugu.d.ts"
+			],
+			"Tirra": [
+				"dist/cjs/Tirra.d.ts"
 			],
 			"TitanOne": [
 				"dist/cjs/TitanOne.d.ts"
@@ -5065,6 +5166,9 @@
 			],
 			"Vazirmatn": [
 				"dist/cjs/Vazirmatn.d.ts"
+			],
+			"VendSans": [
+				"dist/cjs/VendSans.d.ts"
 			],
 			"VesperLibre": [
 				"dist/cjs/VesperLibre.d.ts"
@@ -5260,6 +5364,15 @@
 			],
 			"Zain": [
 				"dist/cjs/Zain.d.ts"
+			],
+			"ZalandoSans": [
+				"dist/cjs/ZalandoSans.d.ts"
+			],
+			"ZalandoSansExpanded": [
+				"dist/cjs/ZalandoSansExpanded.d.ts"
+			],
+			"ZalandoSansSemiExpanded": [
+				"dist/cjs/ZalandoSansSemiExpanded.d.ts"
 			],
 			"ZenAntique": [
 				"dist/cjs/ZenAntique.d.ts"

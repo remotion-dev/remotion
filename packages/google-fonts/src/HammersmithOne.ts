@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hammersmith One',
 	importName: 'HammersmithOne',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Hammersmith+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hammersmithone/v17/qWcyB624q4L_C4jGQ9IK0O_dFlnruxElg4M.woff2',
+					'https://fonts.gstatic.com/s/hammersmithone/v18/qWcyB624q4L_C4jGQ9IK0O_dFlnruxElg4M.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hammersmithone/v17/qWcyB624q4L_C4jGQ9IK0O_dFlnrtREl.woff2',
+					'https://fonts.gstatic.com/s/hammersmithone/v18/qWcyB624q4L_C4jGQ9IK0O_dFlnrtREl.woff2',
 			},
 		},
 	},

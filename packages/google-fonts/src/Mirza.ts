@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mirza',
 	importName: 'Mirza',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Mirza:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:
@@ -17,35 +17,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/mirza/v18/co3ImWlikiN5EtrfIsaAsg.woff2',
+					'https://fonts.gstatic.com/s/mirza/v19/co3ImWlikiN5EtrfIsaAsg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mirza/v18/co3ImWlikiN5EtrUIsaAsg.woff2',
+					'https://fonts.gstatic.com/s/mirza/v19/co3ImWlikiN5EtrUIsaAsg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mirza/v18/co3ImWlikiN5EtraIsY.woff2',
+					'https://fonts.gstatic.com/s/mirza/v19/co3ImWlikiN5EtraIsY.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/mirza/v18/co3FmWlikiN5EtIpAdO6k6bxog.woff2',
+					'https://fonts.gstatic.com/s/mirza/v19/co3FmWlikiN5EtIpAdO6k6bxog.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mirza/v18/co3FmWlikiN5EtIpAdOxk6bxog.woff2',
+					'https://fonts.gstatic.com/s/mirza/v19/co3FmWlikiN5EtIpAdOxk6bxog.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mirza/v18/co3FmWlikiN5EtIpAdO_k6Y.woff2',
+					'https://fonts.gstatic.com/s/mirza/v19/co3FmWlikiN5EtIpAdO_k6Y.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/mirza/v18/co3FmWlikiN5EtIFBtO6k6bxog.woff2',
+					'https://fonts.gstatic.com/s/mirza/v19/co3FmWlikiN5EtIFBtO6k6bxog.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mirza/v18/co3FmWlikiN5EtIFBtOxk6bxog.woff2',
+					'https://fonts.gstatic.com/s/mirza/v19/co3FmWlikiN5EtIFBtOxk6bxog.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mirza/v18/co3FmWlikiN5EtIFBtO_k6Y.woff2',
+					'https://fonts.gstatic.com/s/mirza/v19/co3FmWlikiN5EtIFBtO_k6Y.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/mirza/v18/co3FmWlikiN5EtJhB9O6k6bxog.woff2',
+					'https://fonts.gstatic.com/s/mirza/v19/co3FmWlikiN5EtJhB9O6k6bxog.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mirza/v18/co3FmWlikiN5EtJhB9Oxk6bxog.woff2',
+					'https://fonts.gstatic.com/s/mirza/v19/co3FmWlikiN5EtJhB9Oxk6bxog.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mirza/v18/co3FmWlikiN5EtJhB9O_k6Y.woff2',
+					'https://fonts.gstatic.com/s/mirza/v19/co3FmWlikiN5EtJhB9O_k6Y.woff2',
 			},
 		},
 	},

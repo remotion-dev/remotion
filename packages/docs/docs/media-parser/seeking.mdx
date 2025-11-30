@@ -6,6 +6,10 @@ slug: /media-parser/seeking
 crumb: '@remotion/media-parser'
 ---
 
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 # Seeking<AvailableFrom v="4.0.291" />
 
 In [`parseMedia()`](/docs/media-parser/parse-media), [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker) and [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker), you can seek to a different position in the media file.
@@ -20,7 +24,7 @@ const controller = mediaParserController();
 controller.seek(5); // Seek to 5 seconds
 
 await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   controller,
   onVideoTrack: () => {
     return () => {
@@ -31,7 +35,7 @@ await parseMedia({
 });
 ```
 
-Calling [`.seek()`](/docs/media-parser/media-parser-controller#seek) will **seek to the best keyframe** that comes before the time you specified.
+Calling [`.seek()`](/docs/media-parser/media-parser-controller#seektimeinseconds-number) will **seek to the best keyframe** that comes before the time you specified.
 
 If there is a keyframe at exactly this time, it may seek to this one.  
 There is no guarantee that this is the last keyframe before the time you specified.
@@ -68,11 +72,11 @@ import {parseMedia, mediaParserController} from '@remotion/media-parser';
 const controller = mediaParserController();
 
 await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   controller,
   onVideoTrack: () => {
     return async () => {
-      const result = await controller.simulateSeek(3); 
+      const result = await controller.simulateSeek(3);
       console.log(result); // { "type": "do-seek", byte: 5763, timeInSeconds: 0 }
     };
   },

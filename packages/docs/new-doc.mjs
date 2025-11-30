@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, writeFileSync } from "fs";
+import {existsSync, mkdirSync, writeFileSync} from 'fs';
 
 const template = `
 ---
@@ -28,16 +28,16 @@ For numbered items in a paragraph, use \`<InlineStep>\`: <InlineStep>1</InlineSt
 See the [Language guidelines](/docs/contributing/docs#language-guidelines) so your article fits well into the other ones available on the website.
 `.trimStart();
 
-if (!existsSync("new-docs")) {
-  mkdirSync("new-docs");
+if (!existsSync('new-docs')) {
+	mkdirSync('new-docs');
 }
 
-writeFileSync("new-docs/new-doc.md", template);
+writeFileSync('new-docs/new-doc.md', template);
 
 console.log('Created new-doc.md in "new-docs" folder.');
-console.log("You can now write your article in this file.");
+console.log('You can now write your article in this file.');
 console.log();
-console.log("To preview, run the following command:");
-console.log("pnpm exec docusaurus start --config=new-article.config.js");
+console.log('To preview, run the following command:');
+console.log('bunx docusaurus start --config=new-article.config.js');
 console.log();
 console.log('Click on "Docs" afterwards to see your page.');

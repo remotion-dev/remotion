@@ -1,9 +1,11 @@
 import {serve} from 'bun';
-import homepage from './index.html';
+import homepage from './homepage.html';
+import team from './team.html';
 
 const server = serve({
 	routes: {
 		'/': homepage,
+		'/about': team,
 	},
 	development: true,
 	async fetch(req) {

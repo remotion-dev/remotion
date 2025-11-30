@@ -1,7 +1,8 @@
 import { Caption } from "@remotion/captions";
 import React, { useEffect, useMemo, useState } from "react";
 import type { StaticFile } from "remotion";
-import { continueRender, delayRender, watchStaticFile } from "remotion";
+import { useDelayRender, useRemotionEnvironment } from "remotion";
+import { watchStaticFile } from "@remotion/studio";
 import type { Theme } from "../../../config/themes";
 import { CaptionsEditor } from "./CaptionsEditor";
 import type { CaptionsContextType } from "./captions-provider";
@@ -15,6 +16,7 @@ export const CaptionOverlay: React.FC<{
   trimStart: number;
 }> = ({ children, file, theme, trimStart }) => {
   const [captions, setCaptions] = useState<Caption[] | null>(null);
+  const { delayRender, continueRender } = useDelayRender();
   const [handle] = useState(() => delayRender("Waiting for captions "));
 
   const [subEditorOpen, setSubEditorOpen] = useState<Caption | false>(false);
@@ -26,7 +28,13 @@ export const CaptionOverlay: React.FC<{
     return { open: subEditorOpen, setOpen: setSubEditorOpen };
   }, [subEditorOpen, setSubEditorOpen]);
 
+  const env = useRemotionEnvironment();
+
   useEffect(() => {
+    if (!env.isStudio) {
+      return;
+    }
+
     // Don't listen to filesystem changes
     // if the sub editor is open
     if (subEditorOpen) {
@@ -56,7 +64,7 @@ export const CaptionOverlay: React.FC<{
         });
       setChangeStatus("unchanged");
     }
-  }, [changeStatus, file.src, handle]);
+  }, [changeStatus, file.src, handle, continueRender]);
 
   const captionState: CaptionsContextType = useMemo(() => {
     return {

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Metamorphous',
 	importName: 'Metamorphous',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Metamorphous:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/metamorphous/v21/Wnz8HA03aAXcC39ZEX5y133ENSqstTs.woff2',
+					'https://fonts.gstatic.com/s/metamorphous/v22/Wnz8HA03aAXcC39ZEX5y133ENSqstTs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/metamorphous/v21/Wnz8HA03aAXcC39ZEX5y133EOyqs.woff2',
+					'https://fonts.gstatic.com/s/metamorphous/v22/Wnz8HA03aAXcC39ZEX5y133EOyqs.woff2',
 			},
 		},
 	},

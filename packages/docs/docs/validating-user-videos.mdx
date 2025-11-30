@@ -1,0 +1,77 @@
+---
+image: /generated/articles-docs-validating-user-videos.png
+id: validating-user-videos
+title: Validating user videos
+crumb: 'Building video apps'
+---
+
+When building an app that accepts user video uploads, you might want to validate whether the browser can play the video before uploading it.
+
+## Checking video compatibility
+
+Use the [`canDecode()`](/docs/mediabunny/can-decode) snippet to check if a video can be decoded by the browser.
+
+The `canDecode()` function checks if a video can be played in the browser and loaded into [`<Video>`](/docs/media/video) from `@remotion/media`.
+
+:::note
+Different Remotion video components have different format compatibilities:
+
+- **[`<Video>`](/docs/media/video)**: Mediabunny-based custom video tag with support for the most important video formats.
+- **[`<Html5Video>`](/docs/html5-video)**: Uses browser's native decoding using `<video>` element
+- **[`<OffthreadVideo>`](/docs/offthreadvideo)**: Supports more formats during rendering, uses `<Html5Video>` for preview in the Player and Studio
+
+Learn more about the supported media formats: [Video formats](/docs/miscellaneous/video-formats)
+:::
+
+:::note
+Caveat: In `@remotion/media`, videos with a H.265 codec are supported in the regular browser, but during rendering, they fall back to [`<OffthreadVideo>`](/docs/offthreadvideo).
+:::
+
+## Validation example in React
+
+:::note
+This is a simplified example showing the validation flow. In a real application, the implementation will vary depending on your upload strategy (direct upload, presigned URLs, multipart uploads, etc.) and where you store videos (S3, GCS, your own server, etc.).
+:::
+
+```tsx twoslash title="ValidatedUploader.tsx"
+const canDecode = async (src: string | Blob) => {
+  return true;
+};
+const upload = async (file: File) => {
+  return 'https://example.com/video.mp4';
+};
+// ---cut---
+
+const handleUpload = async (file: File) => {
+  const isCompatible = await canDecode(file);
+
+  if (!isCompatible) {
+    // Either notify user or reject the video
+    alert('Video format not supported.');
+    return;
+  }
+
+  try {
+    const url = await upload(file);
+    console.log('Video uploaded successfully:', url);
+  } catch (error) {
+    console.error('Failed to process video:', error);
+    alert('Failed to upload video');
+  }
+};
+```
+
+## Handling incompatible videos
+
+When a video cannot be decoded, either:
+
+- reject the video and ask the user to upload a different video
+- re-encode the video on the backend.
+
+## See also
+
+- [Handling user video uploads](/docs/video-uploads)
+- [Uploading with presigned URLs](/docs/presigned-urls)
+- [Video formats](/docs/miscellaneous/video-formats)
+- [Check if video can be decoded](/docs/mediabunny/can-decode)
+- [Mediabunny Documentation](https://mediabunny.dev)

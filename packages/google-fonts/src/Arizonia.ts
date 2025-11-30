@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Arizonia',
 	importName: 'Arizonia',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Arizonia:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/arizonia/v22/neIIzCemt4A5qa7mv5WOFqwKUQ.woff2',
+					'https://fonts.gstatic.com/s/arizonia/v23/neIIzCemt4A5qa7mv5WOFqwKUQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arizonia/v22/neIIzCemt4A5qa7mv5WPFqwKUQ.woff2',
+					'https://fonts.gstatic.com/s/arizonia/v23/neIIzCemt4A5qa7mv5WPFqwKUQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arizonia/v22/neIIzCemt4A5qa7mv5WBFqw.woff2',
+					'https://fonts.gstatic.com/s/arizonia/v23/neIIzCemt4A5qa7mv5WBFqw.woff2',
 			},
 		},
 	},

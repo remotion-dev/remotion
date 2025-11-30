@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gwendolyn',
 	importName: 'Gwendolyn',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Gwendolyn:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		vietnamese:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/gwendolyn/v8/qkBXXvoO_M3CSss-d7eu7J5KoAU.woff2',
+					'https://fonts.gstatic.com/s/gwendolyn/v9/qkBXXvoO_M3CSss-d7eu7J5KoAU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gwendolyn/v8/qkBXXvoO_M3CSss-d7eu7Z5KoAU.woff2',
+					'https://fonts.gstatic.com/s/gwendolyn/v9/qkBXXvoO_M3CSss-d7eu7Z5KoAU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gwendolyn/v8/qkBXXvoO_M3CSss-d7eu455K.woff2',
+					'https://fonts.gstatic.com/s/gwendolyn/v9/qkBXXvoO_M3CSss-d7eu455K.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/gwendolyn/v8/qkBSXvoO_M3CSss-d7emWLtfkCTGCNg.woff2',
+					'https://fonts.gstatic.com/s/gwendolyn/v9/qkBSXvoO_M3CSss-d7emWLtfkCTGCNg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gwendolyn/v8/qkBSXvoO_M3CSss-d7emWLtfkSTGCNg.woff2',
+					'https://fonts.gstatic.com/s/gwendolyn/v9/qkBSXvoO_M3CSss-d7emWLtfkSTGCNg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gwendolyn/v8/qkBSXvoO_M3CSss-d7emWLtfnyTG.woff2',
+					'https://fonts.gstatic.com/s/gwendolyn/v9/qkBSXvoO_M3CSss-d7emWLtfnyTG.woff2',
 			},
 		},
 	},

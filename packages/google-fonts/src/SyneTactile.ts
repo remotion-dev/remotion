@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Syne Tactile',
 	importName: 'SyneTactile',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Syne+Tactile:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/synetactile/v15/11hGGpna2UTQKjMCVzjAPMKR1iEcvvI.woff2',
+					'https://fonts.gstatic.com/s/synetactile/v16/11hGGpna2UTQKjMCVzjAPMKR1iEcvvI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/synetactile/v15/11hGGpna2UTQKjMCVzjAPMKR2CEc.woff2',
+					'https://fonts.gstatic.com/s/synetactile/v16/11hGGpna2UTQKjMCVzjAPMKR2CEc.woff2',
 			},
 		},
 	},

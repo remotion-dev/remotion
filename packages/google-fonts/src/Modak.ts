@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Modak',
 	importName: 'Modak',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Modak:ital,wght@0,400',
 	unicodeRanges: {
 		devanagari:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/modak/v20/EJRYQgs1XtIEskMB-hRp7w.woff2',
+					'https://fonts.gstatic.com/s/modak/v21/EJRYQgs1XtIEskMB-hRp7w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/modak/v20/EJRYQgs1XtIEskMO-hRp7w.woff2',
+					'https://fonts.gstatic.com/s/modak/v21/EJRYQgs1XtIEskMO-hRp7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/modak/v20/EJRYQgs1XtIEskMA-hQ.woff2',
+					'https://fonts.gstatic.com/s/modak/v21/EJRYQgs1XtIEskMA-hQ.woff2',
 			},
 		},
 	},

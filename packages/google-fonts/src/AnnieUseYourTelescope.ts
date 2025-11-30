@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Annie Use Your Telescope',
 	importName: 'AnnieUseYourTelescope',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Annie+Use+Your+Telescope:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/annieuseyourtelescope/v19/daaLSS4tI2qYYl3Jq9s_Hu74xwktnlKxH6osGVGTnT3A7UU.woff2',
+					'https://fonts.gstatic.com/s/annieuseyourtelescope/v20/daaLSS4tI2qYYl3Jq9s_Hu74xwktnlKxH6osGVGTnT3A7UU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/annieuseyourtelescope/v19/daaLSS4tI2qYYl3Jq9s_Hu74xwktnlKxH6osGVGTkz3A.woff2',
+					'https://fonts.gstatic.com/s/annieuseyourtelescope/v20/daaLSS4tI2qYYl3Jq9s_Hu74xwktnlKxH6osGVGTkz3A.woff2',
 			},
 		},
 	},

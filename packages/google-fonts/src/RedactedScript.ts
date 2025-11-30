@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Redacted Script',
 	importName: 'RedactedScript',
-	version: 'v10',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Redacted+Script:ital,wght@0,300;0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,21 +15,21 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redactedscript/v10/ypvEbXGRglhokR7dcC3d1-R6zmxqHUzlkLg2x7k.woff2',
+					'https://fonts.gstatic.com/s/redactedscript/v12/ypvEbXGRglhokR7dcC3d1-R6zmxqHUzlkLg2x7k.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redactedscript/v10/ypvEbXGRglhokR7dcC3d1-R6zmxqHUzlnrg2.woff2',
+					'https://fonts.gstatic.com/s/redactedscript/v12/ypvEbXGRglhokR7dcC3d1-R6zmxqHUzlnrg2.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redactedscript/v10/ypvBbXGRglhokR7dcC3d1-R6zmxiuG7woZk.woff2',
+					'https://fonts.gstatic.com/s/redactedscript/v12/ypvBbXGRglhokR7dcC3d1-R6zmxiuG7woZk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redactedscript/v10/ypvBbXGRglhokR7dcC3d1-R6zmxitm7w.woff2',
+					'https://fonts.gstatic.com/s/redactedscript/v12/ypvBbXGRglhokR7dcC3d1-R6zmxitm7w.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redactedscript/v10/ypvEbXGRglhokR7dcC3d1-R6zmxqDUvlkLg2x7k.woff2',
+					'https://fonts.gstatic.com/s/redactedscript/v12/ypvEbXGRglhokR7dcC3d1-R6zmxqDUvlkLg2x7k.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redactedscript/v10/ypvEbXGRglhokR7dcC3d1-R6zmxqDUvlnrg2.woff2',
+					'https://fonts.gstatic.com/s/redactedscript/v12/ypvEbXGRglhokR7dcC3d1-R6zmxqDUvlnrg2.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Krona One',
 	importName: 'KronaOne',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Krona+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kronaone/v14/jAnEgHdjHcjgfIb1ZcUyOIWg7cU.woff2',
+					'https://fonts.gstatic.com/s/kronaone/v15/jAnEgHdjHcjgfIb1ZcUyOIWg7cU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kronaone/v14/jAnEgHdjHcjgfIb1ZcUyNoWg.woff2',
+					'https://fonts.gstatic.com/s/kronaone/v15/jAnEgHdjHcjgfIb1ZcUyNoWg.woff2',
 			},
 		},
 	},

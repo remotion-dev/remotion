@@ -15,37 +15,36 @@ export const Studio: React.FC<{
 	readonly readOnly: boolean;
 }> = ({rootComponent, readOnly}) => {
 	useLayoutEffect(() => {
-		window.remotion_isStudio = true;
-		window.remotion_isReadOnlyStudio = readOnly;
-		Internals.enableSequenceStackTraces();
-
-		return () => {
-			window.remotion_isStudio = false;
-			window.remotion_isReadOnlyStudio = false;
-		};
-	}, [readOnly]);
-
-	useLayoutEffect(() => {
 		injectCSS();
 	}, []);
 
 	return (
-		<Internals.RemotionRoot
-			logLevel={window.remotion_logLevel}
-			numberOfAudioTags={window.remotion_numberOfAudioTags}
+		<Internals.CompositionManagerProvider
 			onlyRenderComposition={null}
 			currentCompositionMetadata={null}
-			audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+			initialCompositions={[]}
+			initialCanvasContent={null}
 		>
-			<EditorContexts readOnlyStudio={readOnly}>
-				<Editor readOnlyStudio={readOnly} Root={rootComponent} />
-				{readOnly
-					? null
-					: createPortal(
-							<ServerDisconnected />,
-							getServerDisconnectedDomElement() as HTMLElement,
-						)}
-			</EditorContexts>
-		</Internals.RemotionRoot>
+			<Internals.RemotionRootContexts
+				frameState={null}
+				audioEnabled={window.remotion_audioEnabled}
+				videoEnabled={window.remotion_videoEnabled}
+				logLevel={window.remotion_logLevel}
+				numberOfAudioTags={window.remotion_numberOfAudioTags}
+				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+			>
+				<Internals.ResolveCompositionConfigInStudio>
+					<EditorContexts readOnlyStudio={readOnly}>
+						<Editor readOnlyStudio={readOnly} Root={rootComponent} />
+						{readOnly
+							? null
+							: createPortal(
+									<ServerDisconnected />,
+									getServerDisconnectedDomElement() as HTMLElement,
+								)}
+					</EditorContexts>
+				</Internals.ResolveCompositionConfigInStudio>
+			</Internals.RemotionRootContexts>
+		</Internals.CompositionManagerProvider>
 	);
 };

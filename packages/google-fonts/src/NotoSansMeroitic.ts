@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Meroitic',
 	importName: 'NotoSansMeroitic',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Meroitic:ital,wght@0,400',
 	unicodeRanges: {
 		meroitic: 'U+205D, U+10980-109B7, U+109BC-109CF, U+109D2-109FF',
@@ -18,15 +18,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				meroitic:
-					'https://fonts.gstatic.com/s/notosansmeroitic/v18/IFS5HfRJndhE3P4b5jnZ3ITPvC6i00Uz7jJSuKY.woff2',
+					'https://fonts.gstatic.com/s/notosansmeroitic/v19/IFS5HfRJndhE3P4b5jnZ3ITPvC6i00Uz7jJSuKY.woff2',
 				'meroitic-cursive':
-					'https://fonts.gstatic.com/s/notosansmeroitic/v18/IFS5HfRJndhE3P4b5jnZ3ITPvC6i00UzLhN3hZ8k.woff2',
+					'https://fonts.gstatic.com/s/notosansmeroitic/v19/IFS5HfRJndhE3P4b5jnZ3ITPvC6i00UzLhN3hZ8k.woff2',
 				'meroitic-hieroglyphs':
-					'https://fonts.gstatic.com/s/notosansmeroitic/v18/IFS5HfRJndhE3P4b5jnZ3ITPvC6i00UzLxN3hZ8k.woff2',
+					'https://fonts.gstatic.com/s/notosansmeroitic/v19/IFS5HfRJndhE3P4b5jnZ3ITPvC6i00UzLxN3hZ8k.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmeroitic/v18/IFS5HfRJndhE3P4b5jnZ3ITPvC6i00UziTJSuKY.woff2',
+					'https://fonts.gstatic.com/s/notosansmeroitic/v19/IFS5HfRJndhE3P4b5jnZ3ITPvC6i00UziTJSuKY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmeroitic/v18/IFS5HfRJndhE3P4b5jnZ3ITPvC6i00UzhzJS.woff2',
+					'https://fonts.gstatic.com/s/notosansmeroitic/v19/IFS5HfRJndhE3P4b5jnZ3ITPvC6i00UzhzJS.woff2',
 			},
 		},
 	},

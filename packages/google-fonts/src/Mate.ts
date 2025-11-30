@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mate',
 	importName: 'Mate',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Mate:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,16 +15,16 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mate/v18/m8JTjftRd7WZ6z-GV63WSLU.woff2',
+					'https://fonts.gstatic.com/s/mate/v19/m8JTjftRd7WZ6z-GV63WSLU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mate/v18/m8JTjftRd7WZ6z-GWa3W.woff2',
+					'https://fonts.gstatic.com/s/mate/v19/m8JTjftRd7WZ6z-GWa3W.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mate/v18/m8JdjftRd7WZ6zS2W7XS.woff2',
-				latin: 'https://fonts.gstatic.com/s/mate/v18/m8JdjftRd7WZ6zq2Ww.woff2',
+					'https://fonts.gstatic.com/s/mate/v19/m8JdjftRd7WZ6zS2W7XS.woff2',
+				latin: 'https://fonts.gstatic.com/s/mate/v19/m8JdjftRd7WZ6zq2Ww.woff2',
 			},
 		},
 	},

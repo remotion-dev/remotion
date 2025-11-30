@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mukta',
 	importName: 'Mukta',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Mukta:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		devanagari:
@@ -17,59 +17,59 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbEOjGmc8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEOjGmc8WDm7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbEOjGmT8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEOjGmT8WDm7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbEOjGmd8WA.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEOjGmd8WA.woff2',
 			},
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbFqj2mc8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbFqj2mc8WDm7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbFqj2mT8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbFqj2mT8WDm7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbFqj2md8WA.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbFqj2md8WA.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWKBXyXfDDVXbnArXyi0A.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWKBXyXfDDVXbnArXyi0A.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v16/iJWKBXyXfDDVXbnPrXyi0A.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWKBXyXfDDVXbnPrXyi0A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWKBXyXfDDVXbnBrXw.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWKBXyXfDDVXbnBrXw.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbEyjmmc8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEyjmmc8WDm7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbEyjmmT8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEyjmmT8WDm7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbEyjmmd8WA.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEyjmmd8WA.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbEeiWmc8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEeiWmc8WDm7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbEeiWmT8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEeiWmT8WDm7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbEeiWmd8WA.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbEeiWmd8WA.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbF6iGmc8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbF6iGmc8WDm7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbF6iGmT8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbF6iGmT8WDm7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbF6iGmd8WA.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbF6iGmd8WA.woff2',
 			},
 			'800': {
 				devanagari:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbFmi2mc8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbFmi2mc8WDm7Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbFmi2mT8WDm7Q.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbFmi2mT8WDm7Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mukta/v16/iJWHBXyXfDDVXbFmi2md8WA.woff2',
+					'https://fonts.gstatic.com/s/mukta/v17/iJWHBXyXfDDVXbFmi2md8WA.woff2',
 			},
 		},
 	},

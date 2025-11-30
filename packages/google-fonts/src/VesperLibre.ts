@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Vesper Libre',
 	importName: 'VesperLibre',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Vesper+Libre:ital,wght@0,400;0,500;0,700;0,900',
 	unicodeRanges: {
 		devanagari:
@@ -17,35 +17,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/vesperlibre/v20/bx6CNxyWnf-uxPdXDHUD_RdICUWM6qI.woff2',
+					'https://fonts.gstatic.com/s/vesperlibre/v21/bx6CNxyWnf-uxPdXDHUD_RdICUWM6qI.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vesperlibre/v20/bx6CNxyWnf-uxPdXDHUD_RdIBkWM6qI.woff2',
+					'https://fonts.gstatic.com/s/vesperlibre/v21/bx6CNxyWnf-uxPdXDHUD_RdIBkWM6qI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vesperlibre/v20/bx6CNxyWnf-uxPdXDHUD_RdICEWM.woff2',
+					'https://fonts.gstatic.com/s/vesperlibre/v21/bx6CNxyWnf-uxPdXDHUD_RdICEWM.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/vesperlibre/v20/bx6dNxyWnf-uxPdXDHUD_RdA-2aZ1IMLbKs.woff2',
+					'https://fonts.gstatic.com/s/vesperlibre/v21/bx6dNxyWnf-uxPdXDHUD_RdA-2aZ1IMLbKs.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vesperlibre/v20/bx6dNxyWnf-uxPdXDHUD_RdA-2aZ24MLbKs.woff2',
+					'https://fonts.gstatic.com/s/vesperlibre/v21/bx6dNxyWnf-uxPdXDHUD_RdA-2aZ24MLbKs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vesperlibre/v20/bx6dNxyWnf-uxPdXDHUD_RdA-2aZ1YML.woff2',
+					'https://fonts.gstatic.com/s/vesperlibre/v21/bx6dNxyWnf-uxPdXDHUD_RdA-2aZ1YML.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/vesperlibre/v20/bx6dNxyWnf-uxPdXDHUD_RdAs2CZ1IMLbKs.woff2',
+					'https://fonts.gstatic.com/s/vesperlibre/v21/bx6dNxyWnf-uxPdXDHUD_RdAs2CZ1IMLbKs.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vesperlibre/v20/bx6dNxyWnf-uxPdXDHUD_RdAs2CZ24MLbKs.woff2',
+					'https://fonts.gstatic.com/s/vesperlibre/v21/bx6dNxyWnf-uxPdXDHUD_RdAs2CZ24MLbKs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vesperlibre/v20/bx6dNxyWnf-uxPdXDHUD_RdAs2CZ1YML.woff2',
+					'https://fonts.gstatic.com/s/vesperlibre/v21/bx6dNxyWnf-uxPdXDHUD_RdAs2CZ1YML.woff2',
 			},
 			'900': {
 				devanagari:
-					'https://fonts.gstatic.com/s/vesperlibre/v20/bx6dNxyWnf-uxPdXDHUD_RdAi2KZ1IMLbKs.woff2',
+					'https://fonts.gstatic.com/s/vesperlibre/v21/bx6dNxyWnf-uxPdXDHUD_RdAi2KZ1IMLbKs.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vesperlibre/v20/bx6dNxyWnf-uxPdXDHUD_RdAi2KZ24MLbKs.woff2',
+					'https://fonts.gstatic.com/s/vesperlibre/v21/bx6dNxyWnf-uxPdXDHUD_RdAi2KZ24MLbKs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vesperlibre/v20/bx6dNxyWnf-uxPdXDHUD_RdAi2KZ1YML.woff2',
+					'https://fonts.gstatic.com/s/vesperlibre/v21/bx6dNxyWnf-uxPdXDHUD_RdAi2KZ1YML.woff2',
 			},
 		},
 	},

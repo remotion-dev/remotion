@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bilbo Swash Caps',
 	importName: 'BilboSwashCaps',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Bilbo+Swash+Caps:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bilboswashcaps/v22/zrf-0GXbz-H3Wb4XBsGrTgq2PVmdmAripxRf.woff2',
+					'https://fonts.gstatic.com/s/bilboswashcaps/v23/zrf-0GXbz-H3Wb4XBsGrTgq2PVmdmAripxRf.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bilboswashcaps/v22/zrf-0GXbz-H3Wb4XBsGrTgq2PVmdmATipw.woff2',
+					'https://fonts.gstatic.com/s/bilboswashcaps/v23/zrf-0GXbz-H3Wb4XBsGrTgq2PVmdmATipw.woff2',
 			},
 		},
 	},

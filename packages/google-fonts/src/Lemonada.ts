@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lemonada',
 	importName: 'Lemonada',
-	version: 'v30',
+	version: 'v31',
 	url: 'https://fonts.googleapis.com/css2?family=Lemonada:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:
@@ -19,53 +19,53 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				arabic:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tMv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tMv_SW8g.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tGv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tGv_SW8g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tHv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tHv_SW8g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tJv_Q.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tJv_Q.woff2',
 			},
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tMv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tMv_SW8g.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tGv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tGv_SW8g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tHv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tHv_SW8g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tJv_Q.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tJv_Q.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tMv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tMv_SW8g.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tGv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tGv_SW8g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tHv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tHv_SW8g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tJv_Q.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tJv_Q.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tMv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tMv_SW8g.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tGv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tGv_SW8g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tHv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tHv_SW8g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tJv_Q.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tJv_Q.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tMv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tMv_SW8g.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tGv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tGv_SW8g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tHv_SW8g.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tHv_SW8g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lemonada/v30/0QIjMXFD9oygTWy_R8tJv_Q.woff2',
+					'https://fonts.gstatic.com/s/lemonada/v31/0QIjMXFD9oygTWy_R8tJv_Q.woff2',
 			},
 		},
 	},

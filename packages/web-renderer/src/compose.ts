@@ -1,6 +1,7 @@
-export type Composable = HTMLCanvasElement;
+import type {Composable} from './composable';
+import {composeCanvas} from './compose-canvas';
 
-export const compose = ({
+export const compose = async ({
 	composables,
 	width,
 	height,
@@ -18,7 +19,7 @@ export const compose = ({
 
 	// TODO: Consider z-index
 	for (const composable of composables) {
-		context.drawImage(composable, 0, 0);
+		await composeCanvas(composable.element, context);
 	}
 
 	return canvas;

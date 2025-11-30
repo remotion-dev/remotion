@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'El Messiri',
 	importName: 'ElMessiri',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=El+Messiri:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:
@@ -18,43 +18,43 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6MoiAAhLz.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6MoiAAhLz.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6MomAAhLz.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6MomAAhLz.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6MoOAAhLz.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6MoOAAhLz.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6Mo2AAg.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6Mo2AAg.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6MoiAAhLz.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6MoiAAhLz.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6MomAAhLz.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6MomAAhLz.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6MoOAAhLz.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6MoOAAhLz.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6Mo2AAg.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6Mo2AAg.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6MoiAAhLz.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6MoiAAhLz.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6MomAAhLz.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6MomAAhLz.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6MoOAAhLz.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6MoOAAhLz.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6Mo2AAg.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6Mo2AAg.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6MoiAAhLz.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6MoiAAhLz.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6MomAAhLz.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6MomAAhLz.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6MoOAAhLz.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6MoOAAhLz.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/elmessiri/v24/K2F0fZBRmr9vQ1pHEey6Mo2AAg.woff2',
+					'https://fonts.gstatic.com/s/elmessiri/v25/K2F0fZBRmr9vQ1pHEey6Mo2AAg.woff2',
 			},
 		},
 	},

@@ -17,11 +17,13 @@ import {random} from '../random.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
+import {useMediaTag} from '../use-media-tag.js';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
 import {evaluateVolume} from '../volume-prop.js';
+import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import type {IsExact, NativeAudioProps, RemotionAudioProps} from './props.js';
 import {SharedAudioContext, useSharedAudio} from './shared-audio-tags.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
@@ -100,7 +102,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	const {hidden} = useContext(SequenceVisibilityToggleContext);
 
 	if (!src) {
-		throw new TypeError("No 'src' was passed to <Audio>.");
+		throw new TypeError("No 'src' was passed to <Html5Audio>.");
 	}
 
 	const preloadedSrc = usePreload(src);
@@ -116,6 +118,8 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		volume,
 		mediaVolume,
 	});
+
+	warnAboutTooHighVolume(userPreferredVolume);
 
 	const crossOriginValue = getCrossOriginValue({
 		crossOrigin,
@@ -174,7 +178,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	useMediaInTimeline({
 		volume,
 		mediaVolume,
-		mediaRef: audioRef,
 		src,
 		mediaType: 'audio',
 		playbackRate: playbackRate ?? 1,
@@ -182,11 +185,9 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		id: timelineId,
 		stack: _remotionInternalStack,
 		showInTimeline,
-		premountDisplay: null,
-		postmountDisplay: null,
-		onAutoPlayError: null,
-		isPremounting: Boolean(sequenceContext?.premounting),
-		isPostmounting: Boolean(sequenceContext?.postmounting),
+		premountDisplay: sequenceContext?.premountDisplay ?? null,
+		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
+		loopDisplay: undefined,
 	});
 
 	// putting playback before useVolume
@@ -201,6 +202,15 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(sequenceContext?.premounting),
 		isPostmounting: Boolean(sequenceContext?.postmounting),
 		pauseWhenBuffering,
+		onAutoPlayError: null,
+	});
+
+	useMediaTag({
+		id: timelineId,
+		isPostmounting: Boolean(sequenceContext?.postmounting),
+		isPremounting: Boolean(sequenceContext?.premounting),
+		mediaRef: audioRef,
+		mediaType: 'audio',
 		onAutoPlayError: null,
 	});
 

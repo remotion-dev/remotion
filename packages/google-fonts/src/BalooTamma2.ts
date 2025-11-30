@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Baloo Tamma Two',
 	importName: 'BalooTamma2',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Baloo+Tamma+2:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		kannada:
@@ -19,53 +19,53 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				kannada:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf1U81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf1U81-qe.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0A81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0A81-qe.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0E81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0E81-qe.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0881w.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0881w.woff2',
 			},
 			'500': {
 				kannada:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf1U81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf1U81-qe.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0A81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0A81-qe.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0E81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0E81-qe.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0881w.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0881w.woff2',
 			},
 			'600': {
 				kannada:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf1U81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf1U81-qe.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0A81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0A81-qe.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0E81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0E81-qe.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0881w.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0881w.woff2',
 			},
 			'700': {
 				kannada:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf1U81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf1U81-qe.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0A81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0A81-qe.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0E81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0E81-qe.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0881w.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0881w.woff2',
 			},
 			'800': {
 				kannada:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf1U81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf1U81-qe.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0A81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0A81-qe.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0E81-qe.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0E81-qe.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/balootamma2/v19/vEFX2_hCAgcR46PaajtrYlBbf0881w.woff2',
+					'https://fonts.gstatic.com/s/balootamma2/v20/vEFX2_hCAgcR46PaajtrYlBbf0881w.woff2',
 			},
 		},
 	},

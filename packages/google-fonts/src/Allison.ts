@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Allison',
 	importName: 'Allison',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Allison:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/allison/v12/X7nl4b88AP2nkbvZCC6a4fTg.woff2',
+					'https://fonts.gstatic.com/s/allison/v13/X7nl4b88AP2nkbvZCC6a4fTg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/allison/v12/X7nl4b88AP2nkbvZCC-a4fTg.woff2',
+					'https://fonts.gstatic.com/s/allison/v13/X7nl4b88AP2nkbvZCC-a4fTg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/allison/v12/X7nl4b88AP2nkbvZCCGa4Q.woff2',
+					'https://fonts.gstatic.com/s/allison/v13/X7nl4b88AP2nkbvZCCGa4Q.woff2',
 			},
 		},
 	},

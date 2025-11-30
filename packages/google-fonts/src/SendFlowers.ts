@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Send Flowers',
 	importName: 'SendFlowers',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Send+Flowers:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/sendflowers/v6/If2PXTjtZS-0Xqy13uCQSULfzwLikuU.woff2',
+					'https://fonts.gstatic.com/s/sendflowers/v7/If2PXTjtZS-0Xqy13uCQSULfzwLikuU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sendflowers/v6/If2PXTjtZS-0Xqy13uCQSULfzgLikuU.woff2',
+					'https://fonts.gstatic.com/s/sendflowers/v7/If2PXTjtZS-0Xqy13uCQSULfzgLikuU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sendflowers/v6/If2PXTjtZS-0Xqy13uCQSULfwALi.woff2',
+					'https://fonts.gstatic.com/s/sendflowers/v7/If2PXTjtZS-0Xqy13uCQSULfwALi.woff2',
 			},
 		},
 	},

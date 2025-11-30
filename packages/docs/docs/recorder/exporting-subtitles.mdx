@@ -25,7 +25,7 @@ If you want to burn the subtitles into the video in landscape layout, edit the [
 
 ```diff title="remotion/captions/srt/SrtPreviewAndEditor/SrtPreviewAndEditor.tsx"
 -  // During rendering, you will get the actual .srt file instead of the preview.
--  if (getRemotionEnvironment().isRendering) {
+-  if (useRemotionEnvironment().isRendering) {
 -    return null;
 -  }
 ```

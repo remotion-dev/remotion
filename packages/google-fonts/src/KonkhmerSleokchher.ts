@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Konkhmer Sleokchher',
 	importName: 'KonkhmerSleokchher',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Konkhmer+Sleokchher:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/konkhmersleokchher/v2/_Xmw-GE-rjmabA_M-aPOZOsCrUv825LFE3J-7X0d.woff2',
+					'https://fonts.gstatic.com/s/konkhmersleokchher/v3/_Xmw-GE-rjmabA_M-aPOZOsCrUv825LFE3J-7X0d.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/konkhmersleokchher/v2/_Xmw-GE-rjmabA_M-aPOZOsCrUv825LFE3d-7X0d.woff2',
+					'https://fonts.gstatic.com/s/konkhmersleokchher/v3/_Xmw-GE-rjmabA_M-aPOZOsCrUv825LFE3d-7X0d.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/konkhmersleokchher/v2/_Xmw-GE-rjmabA_M-aPOZOsCrUv825LFE3l-7Q.woff2',
+					'https://fonts.gstatic.com/s/konkhmersleokchher/v3/_Xmw-GE-rjmabA_M-aPOZOsCrUv825LFE3l-7Q.woff2',
 			},
 		},
 	},

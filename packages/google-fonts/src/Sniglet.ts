@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sniglet',
 	importName: 'Sniglet',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Sniglet:ital,wght@0,400;0,800',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sniglet/v17/cIf9MaFLtkE3UjaJ9CChYVkH.woff2',
+					'https://fonts.gstatic.com/s/sniglet/v18/cIf9MaFLtkE3UjaJ9CChYVkH.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sniglet/v17/cIf9MaFLtkE3UjaJ9C6hYQ.woff2',
+					'https://fonts.gstatic.com/s/sniglet/v18/cIf9MaFLtkE3UjaJ9C6hYQ.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sniglet/v17/cIf4MaFLtkE3UjaJ_ImHdGgmnbJk.woff2',
+					'https://fonts.gstatic.com/s/sniglet/v18/cIf4MaFLtkE3UjaJ_ImHdGgmnbJk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sniglet/v17/cIf4MaFLtkE3UjaJ_ImHdGYmnQ.woff2',
+					'https://fonts.gstatic.com/s/sniglet/v18/cIf4MaFLtkE3UjaJ_ImHdGYmnQ.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Puppies Play',
 	importName: 'PuppiesPlay',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Puppies+Play:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/puppiesplay/v10/wlp2gwHZEV99rG6M3NR9uB9fYAhTM_I.woff2',
+					'https://fonts.gstatic.com/s/puppiesplay/v11/wlp2gwHZEV99rG6M3NR9uB9fYAhTM_I.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/puppiesplay/v10/wlp2gwHZEV99rG6M3NR9uB9fYQhTM_I.woff2',
+					'https://fonts.gstatic.com/s/puppiesplay/v11/wlp2gwHZEV99rG6M3NR9uB9fYQhTM_I.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/puppiesplay/v10/wlp2gwHZEV99rG6M3NR9uB9fbwhT.woff2',
+					'https://fonts.gstatic.com/s/puppiesplay/v11/wlp2gwHZEV99rG6M3NR9uB9fbwhT.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Prosto One',
 	importName: 'ProstoOne',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Prosto+One:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/prostoone/v20/OpNJno4VhNfK-RgpwWWxlilVWyXD.woff2',
+					'https://fonts.gstatic.com/s/prostoone/v21/OpNJno4VhNfK-RgpwWWxlilVWyXD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/prostoone/v20/OpNJno4VhNfK-RgpwWWxliNVWyXD.woff2',
+					'https://fonts.gstatic.com/s/prostoone/v21/OpNJno4VhNfK-RgpwWWxliNVWyXD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/prostoone/v20/OpNJno4VhNfK-RgpwWWxli1VWw.woff2',
+					'https://fonts.gstatic.com/s/prostoone/v21/OpNJno4VhNfK-RgpwWWxli1VWw.woff2',
 			},
 		},
 	},

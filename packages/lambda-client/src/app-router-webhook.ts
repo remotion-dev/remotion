@@ -10,9 +10,9 @@ export type NextWebhookArgs = {
 	testing?: boolean;
 	extraHeaders?: Record<string, string>;
 	secret: string;
-	onSuccess?: (payload: WebhookSuccessPayload) => void;
-	onTimeout?: (payload: WebhookTimeoutPayload) => void;
-	onError?: (payload: WebhookErrorPayload) => void;
+	onSuccess?: (payload: WebhookSuccessPayload) => void | Promise<void>;
+	onTimeout?: (payload: WebhookTimeoutPayload) => void | Promise<void>;
+	onError?: (payload: WebhookErrorPayload) => void | Promise<void>;
 };
 
 export const appRouterWebhook = (
@@ -43,20 +43,29 @@ export const appRouterWebhook = (
 		// Parse the body properly
 		const body = await req.json();
 
-		validateWebhookSignature({
-			secret,
-			body,
-			signatureHeader: req.headers.get('X-Remotion-Signature') as string,
-		});
+		try {
+			validateWebhookSignature({
+				secret,
+				body,
+				signatureHeader: req.headers.get('X-Remotion-Signature') as string,
+			});
 
-		const payload = body as WebhookPayload;
-
-		if (payload.type === 'success' && onSuccess) {
-			onSuccess(payload);
-		} else if (payload.type === 'timeout' && onTimeout) {
-			onTimeout(payload);
-		} else if (payload.type === 'error' && onError) {
-			onError(payload);
+			const payload = body as WebhookPayload;
+			if (payload.type === 'success' && onSuccess) {
+				await onSuccess(payload);
+			} else if (payload.type === 'timeout' && onTimeout) {
+				await onTimeout(payload);
+			} else if (payload.type === 'error' && onError) {
+				await onError(payload);
+			}
+		} catch (err) {
+			return new Response(
+				JSON.stringify({
+					success: false,
+					error: err instanceof Error ? err.message : String(err),
+				}),
+				{status: 500, headers},
+			);
 		}
 
 		return new Response(JSON.stringify({success: true}), {headers});

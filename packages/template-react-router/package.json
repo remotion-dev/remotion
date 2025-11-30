@@ -35,7 +35,7 @@
     "tailwind-merge": "3.0.1",
     "@tailwindcss/cli": "4.1.1",
     "@tailwindcss/vite": "4.1.1",
-    "vite": "5.4.19",
+    "vite": "5.4.21",
     "vite-tsconfig-paths": "^4.2.1",
     "zod": "3.22.3"
   },

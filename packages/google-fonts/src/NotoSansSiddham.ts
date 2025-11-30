@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Siddham',
 	importName: 'NotoSansSiddham',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Siddham:ital,wght@0,400',
 	unicodeRanges: {
 		siddham: 'U+200C-200D, U+25CC, U+11580-115FF',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				siddham:
-					'https://fonts.gstatic.com/s/notosanssiddham/v20/OZpZg-FwqiNLe9PELUikxTWDoCCeGplVuFYRzn8.woff2',
+					'https://fonts.gstatic.com/s/notosanssiddham/v21/OZpZg-FwqiNLe9PELUikxTWDoCCeGplVuFYRzn8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssiddham/v20/OZpZg-FwqiNLe9PELUikxTWDoCCeGpnUmXMs9w.woff2',
+					'https://fonts.gstatic.com/s/notosanssiddham/v21/OZpZg-FwqiNLe9PELUikxTWDoCCeGpnUmXMs9w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssiddham/v20/OZpZg-FwqiNLe9PELUikxTWDoCCeGpnamXM.woff2',
+					'https://fonts.gstatic.com/s/notosanssiddham/v21/OZpZg-FwqiNLe9PELUikxTWDoCCeGpnamXM.woff2',
 			},
 		},
 	},

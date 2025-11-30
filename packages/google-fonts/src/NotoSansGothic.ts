@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Gothic',
 	importName: 'NotoSansGothic',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Gothic:ital,wght@0,400',
 	unicodeRanges: {
 		gothic: 'U+0304-0305, U+0308, U+0331, U+10330-1034A',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				gothic:
-					'https://fonts.gstatic.com/s/notosansgothic/v16/TuGKUUVzXI5FBtUq5a8bj6wRbzxTJPXy03FQ.woff2',
+					'https://fonts.gstatic.com/s/notosansgothic/v17/TuGKUUVzXI5FBtUq5a8bj6wRbzxTJPXy03FQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansgothic/v16/TuGKUUVzXI5FBtUq5a8bj6wRbzxTJMzy03FQ.woff2',
+					'https://fonts.gstatic.com/s/notosansgothic/v17/TuGKUUVzXI5FBtUq5a8bj6wRbzxTJMzy03FQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansgothic/v16/TuGKUUVzXI5FBtUq5a8bj6wRbzxTJMLy0w.woff2',
+					'https://fonts.gstatic.com/s/notosansgothic/v17/TuGKUUVzXI5FBtUq5a8bj6wRbzxTJMLy0w.woff2',
 			},
 		},
 	},

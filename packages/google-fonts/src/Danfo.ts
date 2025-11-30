@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Danfo',
 	importName: 'Danfo',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Danfo:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/danfo/v4/snf3s0u_98t16THfK1Csj3N41ZqbYDeJQ7dSkPo.woff2',
+					'https://fonts.gstatic.com/s/danfo/v5/snf3s0u_98t16THfK1Csj3N41ZqbYDeJQ7dSkPo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/danfo/v4/snf3s0u_98t16THfK1Csj3N41ZqbYDeJQrdSkPo.woff2',
+					'https://fonts.gstatic.com/s/danfo/v5/snf3s0u_98t16THfK1Csj3N41ZqbYDeJQrdSkPo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/danfo/v4/snf3s0u_98t16THfK1Csj3N41ZqbYDeJTLdS.woff2',
+					'https://fonts.gstatic.com/s/danfo/v5/snf3s0u_98t16THfK1Csj3N41ZqbYDeJTLdS.woff2',
 			},
 		},
 	},

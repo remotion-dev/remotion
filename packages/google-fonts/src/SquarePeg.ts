@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Square Peg',
 	importName: 'SquarePeg',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Square+Peg:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/squarepeg/v6/y83eW48Nzw6ZlUHc-phrNDnhHUfr.woff2',
+					'https://fonts.gstatic.com/s/squarepeg/v7/y83eW48Nzw6ZlUHc-phrNDnhHUfr.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/squarepeg/v6/y83eW48Nzw6ZlUHc-phrNDjhHUfr.woff2',
+					'https://fonts.gstatic.com/s/squarepeg/v7/y83eW48Nzw6ZlUHc-phrNDjhHUfr.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/squarepeg/v6/y83eW48Nzw6ZlUHc-phrNDbhHQ.woff2',
+					'https://fonts.gstatic.com/s/squarepeg/v7/y83eW48Nzw6ZlUHc-phrNDbhHQ.woff2',
 			},
 		},
 	},

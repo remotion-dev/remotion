@@ -41,6 +41,7 @@ export const packages = [
 	'lambda',
 	'lambda-client',
 	'layout-utils',
+	'rounded-text-box',
 	'licensing',
 	'lottie',
 	'mcp',
@@ -76,8 +77,9 @@ export const packages = [
 	'compositor',
 	'example-videos',
 	'whisper-web',
-	'video',
+	'media',
 	'web-renderer',
+	'design',
 ] as const;
 
 export type Pkgs = (typeof packages)[number];
@@ -100,6 +102,8 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	lottie: 'Include Lottie animations in Remotion',
 	licensing: 'Manage your Remotion.pro license',
 	'layout-utils': 'Utilities for working with layouts',
+	'rounded-text-box':
+		'Create a TikTok-like multiline text box SVG path with rounded corners',
 	noise: 'Noise generation functions',
 	'motion-blur': 'Motion blur effect for Remotion',
 	preload: 'Preloads assets for use in Remotion',
@@ -164,8 +168,9 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'promo-pages': null,
 	'svg-3d-engine': '3D SVG extrusion effects',
 	'serverless-client': null,
-	video: 'Experimental tag for reliable and accurate video embedding',
+	media: 'Experimental WebCodecs-based media tags',
 	'web-renderer': 'Render videos in the browser (not yet released)',
+	design: 'Design system',
 };
 export const installableMap: {[key in Pkgs]: boolean} = {
 	'svg-3d-engine': false,
@@ -213,6 +218,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	lambda: true,
 	mcp: true,
 	'layout-utils': true,
+	'rounded-text-box': true,
 	licensing: true,
 	lottie: true,
 	'media-utils': true,
@@ -245,8 +251,9 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'openai-whisper': true,
 	compositor: false,
 	'example-videos': false,
-	video: false,
+	media: true,
 	'web-renderer': false,
+	design: false,
 };
 
 export const apiDocs: {[key in Pkgs]: string | null} = {
@@ -267,6 +274,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	lottie: 'https://www.remotion.dev/docs/lottie',
 	licensing: 'https://www.remotion.dev/docs/licensing',
 	'layout-utils': 'https://www.remotion.dev/docs/layout-utils',
+	'rounded-text-box': 'https://www.remotion.dev/docs/rounded-text-box',
 	noise: 'https://www.remotion.dev/docs/noise',
 	mcp: 'https://www.remotion.dev/docs/ai/mcp',
 	'motion-blur': 'https://www.remotion.dev/docs/motion-blur',
@@ -330,7 +338,8 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'example-videos': null,
 	'promo-pages': null,
 	'svg-3d-engine': null,
-	video: null,
+	media: 'https://remotion.dev/docs/media',
 	// TODO: Add docs
 	'web-renderer': null,
+	design: 'https://www.remotion.dev/design',
 };

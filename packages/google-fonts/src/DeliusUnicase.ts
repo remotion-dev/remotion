@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Delius Unicase',
 	importName: 'DeliusUnicase',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Delius+Unicase:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		latin:
@@ -13,11 +13,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/deliusunicase/v29/845BNMEwEIOVT8BmgfSzIr_6mlLAfe8.woff2',
+					'https://fonts.gstatic.com/s/deliusunicase/v30/845BNMEwEIOVT8BmgfSzIr_6mlLAfe8.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/deliusunicase/v29/845CNMEwEIOVT8BmgfSzIr_6mlp7WPr4DGg.woff2',
+					'https://fonts.gstatic.com/s/deliusunicase/v30/845CNMEwEIOVT8BmgfSzIr_6mlp7WPr4DGg.woff2',
 			},
 		},
 	},

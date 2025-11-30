@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Vollkorn SC',
 	importName: 'VollkornSC',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Vollkorn+SC:ital,wght@0,400;0,600;0,700;0,900',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,51 +20,51 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_v6-zQ3rXpceZj9cqnViFzPn6SSg.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_v6-zQ3rXpceZj9cqnViFzPn6SSg.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_v6-zQ3rXpceZj9cqnViF6Pn6SSg.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_v6-zQ3rXpceZj9cqnViF6Pn6SSg.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_v6-zQ3rXpceZj9cqnViFxPn6SSg.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_v6-zQ3rXpceZj9cqnViFxPn6SSg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_v6-zQ3rXpceZj9cqnViFwPn6SSg.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_v6-zQ3rXpceZj9cqnViFwPn6SSg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_v6-zQ3rXpceZj9cqnViF-Pn4.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_v6-zQ3rXpceZj9cqnViF-Pn4.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVimhGmuga7L95Q.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVimhGmuga7L95Q.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVimhGmupa7L95Q.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVimhGmupa7L95Q.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVimhGmuia7L95Q.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVimhGmuia7L95Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVimhGmuja7L95Q.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVimhGmuja7L95Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVimhGmuta7I.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVimhGmuta7I.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVinFG2uga7L95Q.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVinFG2uga7L95Q.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVinFG2upa7L95Q.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVinFG2upa7L95Q.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVinFG2uia7L95Q.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVinFG2uia7L95Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVinFG2uja7L95Q.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVinFG2uja7L95Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVinFG2uta7I.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVinFG2uta7I.woff2',
 			},
 			'900': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVin9GWuga7L95Q.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVin9GWuga7L95Q.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVin9GWupa7L95Q.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVin9GWupa7L95Q.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVin9GWuia7L95Q.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVin9GWuia7L95Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVin9GWuja7L95Q.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVin9GWuja7L95Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vollkornsc/v11/j8_y6-zQ3rXpceZj9cqnVin9GWuta7I.woff2',
+					'https://fonts.gstatic.com/s/vollkornsc/v12/j8_y6-zQ3rXpceZj9cqnVin9GWuta7I.woff2',
 			},
 		},
 	},

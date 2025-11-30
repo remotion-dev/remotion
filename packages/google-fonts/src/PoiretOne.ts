@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Poiret One',
 	importName: 'PoiretOne',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Poiret+One:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/poiretone/v17/UqyVK80NJXN4zfRgbdfbo5pcV_cx.woff2',
+					'https://fonts.gstatic.com/s/poiretone/v18/UqyVK80NJXN4zfRgbdfbo5pcV_cx.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/poiretone/v17/UqyVK80NJXN4zfRgbdfbo5BcV_cx.woff2',
+					'https://fonts.gstatic.com/s/poiretone/v18/UqyVK80NJXN4zfRgbdfbo5BcV_cx.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/poiretone/v17/UqyVK80NJXN4zfRgbdfbo55cVw.woff2',
+					'https://fonts.gstatic.com/s/poiretone/v18/UqyVK80NJXN4zfRgbdfbo55cVw.woff2',
 			},
 		},
 	},

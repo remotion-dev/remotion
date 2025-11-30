@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Tifinagh',
 	importName: 'NotoSansTifinagh',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Tifinagh:ital,wght@0,400',
 	unicodeRanges: {
 		tifinagh:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				tifinagh:
-					'https://fonts.gstatic.com/s/notosanstifinagh/v20/I_uzMoCduATTei9eI8dawkHIwvmhCvbXzbPFQXc.woff2',
+					'https://fonts.gstatic.com/s/notosanstifinagh/v21/I_uzMoCduATTei9eI8dawkHIwvmhCvbXzbPFQXc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstifinagh/v20/I_uzMoCduATTei9eI8dawkHIwvmhCvbX47PFQXc.woff2',
+					'https://fonts.gstatic.com/s/notosanstifinagh/v21/I_uzMoCduATTei9eI8dawkHIwvmhCvbX47PFQXc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstifinagh/v20/I_uzMoCduATTei9eI8dawkHIwvmhCvbX7bPF.woff2',
+					'https://fonts.gstatic.com/s/notosanstifinagh/v21/I_uzMoCduATTei9eI8dawkHIwvmhCvbX7bPF.woff2',
 			},
 		},
 	},

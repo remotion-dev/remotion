@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Chelsea Market',
 	importName: 'ChelseaMarket',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Chelsea+Market:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/chelseamarket/v13/BCawqZsHqfr89WNP_IApC8tzKChsJg8eKg.woff2',
+					'https://fonts.gstatic.com/s/chelseamarket/v14/BCawqZsHqfr89WNP_IApC8tzKChsJg8eKg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/chelseamarket/v13/BCawqZsHqfr89WNP_IApC8tzKChiJg8.woff2',
+					'https://fonts.gstatic.com/s/chelseamarket/v14/BCawqZsHqfr89WNP_IApC8tzKChiJg8.woff2',
 			},
 		},
 	},

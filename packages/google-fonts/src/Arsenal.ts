@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Arsenal',
 	importName: 'Arsenal',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Arsenal:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,53 +20,53 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKpE3kQtZQ4pF3D513sD8QvpXY.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKpE3kQtZQ4pF3D513sD8QvpXY.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKpE3kQtZQ4pF3D513sBsQvpXY.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKpE3kQtZQ4pF3D513sBsQvpXY.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKpE3kQtZQ4pF3D513sDcQvpXY.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKpE3kQtZQ4pF3D513sDcQvpXY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKpE3kQtZQ4pF3D513sDMQvpXY.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKpE3kQtZQ4pF3D513sDMQvpXY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKpE3kQtZQ4pF3D513sAsQv.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKpE3kQtZQ4pF3D513sAsQv.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKsE3kQtZQ4pF3D513kueE6l1c2jdk.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKsE3kQtZQ4pF3D513kueE6l1c2jdk.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKsE3kQtZQ4pF3D513kueE6nlc2jdk.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKsE3kQtZQ4pF3D513kueE6nlc2jdk.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKsE3kQtZQ4pF3D513kueE6lVc2jdk.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKsE3kQtZQ4pF3D513kueE6lVc2jdk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKsE3kQtZQ4pF3D513kueE6lFc2jdk.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKsE3kQtZQ4pF3D513kueE6lFc2jdk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKsE3kQtZQ4pF3D513kueE6mlc2.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKsE3kQtZQ4pF3D513kueE6mlc2.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKrE3kQtZQ4pF3D51XcANwr.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKrE3kQtZQ4pF3D51XcANwr.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKrE3kQtZQ4pF3D51zcANwr.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKrE3kQtZQ4pF3D51zcANwr.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKrE3kQtZQ4pF3D51fcANwr.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKrE3kQtZQ4pF3D51fcANwr.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKrE3kQtZQ4pF3D51bcANwr.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKrE3kQtZQ4pF3D51bcANwr.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKrE3kQtZQ4pF3D51jcAA.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKrE3kQtZQ4pF3D51jcAA.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKuE3kQtZQ4pF3D7-P5Fe4KmE8y.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKuE3kQtZQ4pF3D7-P5Fe4KmE8y.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKuE3kQtZQ4pF3D7-P5FecKmE8y.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKuE3kQtZQ4pF3D7-P5FecKmE8y.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKuE3kQtZQ4pF3D7-P5FewKmE8y.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKuE3kQtZQ4pF3D7-P5FewKmE8y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKuE3kQtZQ4pF3D7-P5Fe0KmE8y.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKuE3kQtZQ4pF3D7-P5Fe0KmE8y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/arsenal/v12/wXKuE3kQtZQ4pF3D7-P5FeMKmA.woff2',
+					'https://fonts.gstatic.com/s/arsenal/v13/wXKuE3kQtZQ4pF3D7-P5FeMKmA.woff2',
 			},
 		},
 	},

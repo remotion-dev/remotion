@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'VTThreeTwoThree',
 	importName: 'VT323',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=VT323:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/vt323/v17/pxiKyp0ihIEF2isQFJXGdg.woff2',
+					'https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isQFJXGdg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/vt323/v17/pxiKyp0ihIEF2isRFJXGdg.woff2',
+					'https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isRFJXGdg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/vt323/v17/pxiKyp0ihIEF2isfFJU.woff2',
+					'https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isfFJU.woff2',
 			},
 		},
 	},

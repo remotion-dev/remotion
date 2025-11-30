@@ -3,11 +3,10 @@ import {
   AbsoluteFill,
   CalculateMetadataFunction,
   cancelRender,
-  continueRender,
-  delayRender,
   getStaticFiles,
   OffthreadVideo,
   Sequence,
+  useDelayRender,
   useVideoConfig,
   watchStaticFile,
 } from "remotion";
@@ -57,6 +56,7 @@ export const CaptionedVideo: React.FC<{
   src: string;
 }> = ({ src }) => {
   const [subtitles, setSubtitles] = useState<Caption[]>([]);
+  const { delayRender, continueRender } = useDelayRender();
   const [handle] = useState(() => delayRender());
   const { fps } = useVideoConfig();
 

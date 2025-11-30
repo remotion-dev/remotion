@@ -1,6 +1,19 @@
 {
 	"headers": [
 		{
+			"source": "/_raw/docs/(.*).md",
+			"headers": [
+				{
+					"key": "Content-Type",
+					"value": "text/plain; charset=utf-8"
+				},
+				{
+					"key": "Vary",
+					"value": "Accept"
+				}
+			]
+		},
+		{
 			"source": "/img/gt-planar(.*)",
 			"headers": [
 				{"key": "Access-Control-Allow-Credentials", "value": "true"},
@@ -414,6 +427,11 @@
 			"permanent": false
 		},
 		{
+			"source": "/docs/video-vs-offthreadvideo",
+			"destination": "/docs/video-tags",
+			"permanent": false
+		},
+		{
 			"source": "/bbb.webm",
 			"destination": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.720p.vp9.webm",
 			"permanent": false
@@ -451,6 +469,21 @@
 		{
 			"source": "/investors",
 			"destination": "/docs/investors",
+			"permanent": false
+		},
+		{
+			"destination": "/docs/video-tags#using-a-different-tag-in-preview-and-rendering",
+			"permanent": false,
+			"source": "/docs/miscellaneous/snippets/offthread-video-while-rendering"
+		},
+		{
+			"source": "/docs/video",
+			"destination": "/docs/html5-video",
+			"permanent": false
+		},
+		{
+			"source": "/docs/audio",
+			"destination": "/docs/html5-audio",
 			"permanent": false
 		}
 	]

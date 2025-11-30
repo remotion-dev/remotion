@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Caveat',
 	importName: 'Caveat',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Caveat:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,43 +18,43 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7azYYmg8.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7azYYmg8.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7YjYYmg8.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7YjYYmg8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7aDYYmg8.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7aDYYmg8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7ZjYY.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7ZjYY.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7azYYmg8.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7azYYmg8.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7YjYYmg8.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7YjYYmg8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7aDYYmg8.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7aDYYmg8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7ZjYY.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7ZjYY.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7azYYmg8.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7azYYmg8.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7YjYYmg8.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7YjYYmg8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7aDYYmg8.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7aDYYmg8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7ZjYY.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7ZjYY.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7azYYmg8.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7azYYmg8.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7YjYYmg8.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7YjYYmg8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7aDYYmg8.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7aDYYmg8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/caveat/v22/Wnz6HAc5bAfYB2Q7ZjYY.woff2',
+					'https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7ZjYY.woff2',
 			},
 		},
 	},

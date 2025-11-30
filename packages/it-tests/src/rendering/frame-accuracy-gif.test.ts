@@ -17,14 +17,15 @@ const getMissedFramesforCodec = async () => {
 	);
 	const outputPath = path.join(outputDir, 'vid.gif');
 
-	// render the VideoTesting example (which contains the Framer composition embedded with <Video>) to an image
+	// render the VideoTesting example (which contains the Framer composition embedded with <Html5Video>) to an image
 	// sequence which can be checked for accuracy
 	await execa(
-		'pnpm',
+		'bun',
 		[
-			'exec',
+			'x',
 			'remotion',
 			'render',
+			'build',
 			`video-testing-mp4-offthread`,
 			'--codec=gif',
 			'--every-nth-frame=2',

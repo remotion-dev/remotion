@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Allerta',
 	importName: 'Allerta',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Allerta:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/allerta/v18/TwMO-IAHRlkbx940YnYXSA.woff2',
+					'https://fonts.gstatic.com/s/allerta/v19/TwMO-IAHRlkbx940YnYXSA.woff2',
 			},
 		},
 	},

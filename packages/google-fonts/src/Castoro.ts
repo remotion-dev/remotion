@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Castoro',
 	importName: 'Castoro',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Castoro:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/castoro/v19/1q2EY5yMCld3-O4cLYp-wc4avEU.woff2',
+					'https://fonts.gstatic.com/s/castoro/v20/1q2EY5yMCld3-O4cLYp-wc4avEU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/castoro/v19/1q2EY5yMCld3-O4cLYp-z84a.woff2',
+					'https://fonts.gstatic.com/s/castoro/v20/1q2EY5yMCld3-O4cLYp-z84a.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/castoro/v19/1q2GY5yMCld3-O4cLYFOzdYe.woff2',
+					'https://fonts.gstatic.com/s/castoro/v20/1q2GY5yMCld3-O4cLYFOzdYe.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/castoro/v19/1q2GY5yMCld3-O4cLY9OzQ.woff2',
+					'https://fonts.gstatic.com/s/castoro/v20/1q2GY5yMCld3-O4cLY9OzQ.woff2',
 			},
 		},
 	},

@@ -1,7 +1,8 @@
 import React, {useContext, useMemo} from 'react';
+import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
-import type {TimelineContextValue} from './timeline-position-state.js';
-import {TimelineContext} from './timeline-position-state.js';
+import type {TimelineContextValue} from './TimelineContext.js';
+import {TimelineContext} from './TimelineContext.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useVideoConfig} from './use-video-config.js';
 
@@ -79,9 +80,27 @@ export const Freeze: React.FC<FreezeProps> = ({
 		};
 	}, [isActive, timelineContext, videoConfig.id, frameToFreeze, relativeFrom]);
 
+	const newSequenceContext: SequenceContextType | null = useMemo(() => {
+		if (!sequenceContext) {
+			return null;
+		}
+
+		if (!isActive) {
+			return sequenceContext;
+		}
+
+		return {
+			...sequenceContext,
+			relativeFrom: 0,
+			cumulatedFrom: 0,
+		};
+	}, [sequenceContext, isActive]);
+
 	return (
 		<TimelineContext.Provider value={timelineValue}>
-			{children}
+			<SequenceContext.Provider value={newSequenceContext}>
+				{children}
+			</SequenceContext.Provider>
 		</TimelineContext.Provider>
 	);
 };

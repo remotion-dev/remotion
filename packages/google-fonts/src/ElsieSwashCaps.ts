@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Elsie Swash Caps',
 	importName: 'ElsieSwashCaps',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Elsie+Swash+Caps:ital,wght@0,400;0,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/elsieswashcaps/v24/845DNN8xGZyVX5MVo_upKf7KnjK0TePfKVWs.woff2',
+					'https://fonts.gstatic.com/s/elsieswashcaps/v25/845DNN8xGZyVX5MVo_upKf7KnjK0TePfKVWs.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/elsieswashcaps/v24/845DNN8xGZyVX5MVo_upKf7KnjK0Te3fKQ.woff2',
+					'https://fonts.gstatic.com/s/elsieswashcaps/v25/845DNN8xGZyVX5MVo_upKf7KnjK0Te3fKQ.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/elsieswashcaps/v24/845ENN8xGZyVX5MVo_upKf7KnjK0RW74PGSNT7aw.woff2',
+					'https://fonts.gstatic.com/s/elsieswashcaps/v25/845ENN8xGZyVX5MVo_upKf7KnjK0RW74PGSNT7aw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/elsieswashcaps/v24/845ENN8xGZyVX5MVo_upKf7KnjK0RW74PGqNTw.woff2',
+					'https://fonts.gstatic.com/s/elsieswashcaps/v25/845ENN8xGZyVX5MVo_upKf7KnjK0RW74PGqNTw.woff2',
 			},
 		},
 	},

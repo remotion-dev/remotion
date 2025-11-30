@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fjord One',
 	importName: 'FjordOne',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Fjord+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/fjordone/v21/zOL-4pbEnKBY_9S1jNKb7uRB.woff2',
+					'https://fonts.gstatic.com/s/fjordone/v22/zOL-4pbEnKBY_9S1jNKb7uRB.woff2',
 			},
 		},
 	},

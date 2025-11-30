@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Junge',
 	importName: 'Junge',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Junge:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/junge/v25/gokgH670Gl1lUpAatBE.woff2',
+					'https://fonts.gstatic.com/s/junge/v26/gokgH670Gl1lUpAatBE.woff2',
 			},
 		},
 	},

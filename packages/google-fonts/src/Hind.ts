@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hind',
 	importName: 'Hind',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Hind:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,42 +17,42 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/hind/v17/5aU19_a8oxmIfMJaER2SjQpf.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU19_a8oxmIfMJaER2SjQpf.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hind/v17/5aU19_a8oxmIfMJaERKSjQpf.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU19_a8oxmIfMJaERKSjQpf.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hind/v17/5aU19_a8oxmIfMJaERySjQ.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU19_a8oxmIfMJaERySjQ.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/hind/v17/5aU69_a8oxmIdGh4BCOz.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU69_a8oxmIdGh4BCOz.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hind/v17/5aU69_a8oxmIdGd4BCOz.woff2',
-				latin: 'https://fonts.gstatic.com/s/hind/v17/5aU69_a8oxmIdGl4BA.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU69_a8oxmIdGd4BCOz.woff2',
+				latin: 'https://fonts.gstatic.com/s/hind/v18/5aU69_a8oxmIdGl4BA.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/hind/v17/5aU19_a8oxmIfJpbER2SjQpf.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU19_a8oxmIfJpbER2SjQpf.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hind/v17/5aU19_a8oxmIfJpbERKSjQpf.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU19_a8oxmIfJpbERKSjQpf.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hind/v17/5aU19_a8oxmIfJpbERySjQ.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU19_a8oxmIfJpbERySjQ.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/hind/v17/5aU19_a8oxmIfLZcER2SjQpf.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU19_a8oxmIfLZcER2SjQpf.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hind/v17/5aU19_a8oxmIfLZcERKSjQpf.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU19_a8oxmIfLZcERKSjQpf.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hind/v17/5aU19_a8oxmIfLZcERySjQ.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU19_a8oxmIfLZcERySjQ.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/hind/v17/5aU19_a8oxmIfNJdER2SjQpf.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU19_a8oxmIfNJdER2SjQpf.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hind/v17/5aU19_a8oxmIfNJdERKSjQpf.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU19_a8oxmIfNJdERKSjQpf.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hind/v17/5aU19_a8oxmIfNJdERySjQ.woff2',
+					'https://fonts.gstatic.com/s/hind/v18/5aU19_a8oxmIfNJdERySjQ.woff2',
 			},
 		},
 	},

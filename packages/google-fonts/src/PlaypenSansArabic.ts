@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Playpen Sans Arabic',
 	importName: 'PlaypenSansArabic',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Playpen+Sans+Arabic:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		'[1]':
@@ -38,235 +38,235 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
 				'[10]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
 				arabic:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
 			},
 			'200': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
 				'[10]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
 				arabic:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
 			},
 			'300': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
 				'[10]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
 				arabic:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
 			},
 			'400': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
 				'[10]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
 				arabic:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
 			},
 			'500': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
 				'[10]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
 				arabic:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
 			},
 			'600': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
 				'[10]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
 				arabic:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
 			},
 			'700': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
 				'[10]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
 				arabic:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
 			},
 			'800': {
 				'[1]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.1.woff2',
 				'[2]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.2.woff2',
 				'[3]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.3.woff2',
 				'[4]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.4.woff2',
 				'[5]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.5.woff2',
 				'[6]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.6.woff2',
 				'[7]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.7.woff2',
 				'[8]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.8.woff2',
 				'[9]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.9.woff2',
 				'[10]':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-fYsC787kbojk3Y-Z4w.10.woff2',
 				arabic:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
-				math: 'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYxg4_zg.woff2',
+				math: 'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TfVg4_zg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYdg4_zg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/playpensansarabic/v7/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
+					'https://fonts.gstatic.com/s/playpensansarabic/v8/KtkxAKiSeo38bkPvhIqjU6aCgha2der-TYlg4w.woff2',
 			},
 		},
 	},

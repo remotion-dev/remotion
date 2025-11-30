@@ -1,50 +1,13 @@
 import type {MutableRefObject} from 'react';
-import {createContext, useContext, useMemo} from 'react';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {useContext, useMemo} from 'react';
+import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideo} from './use-video.js';
 
 export type PlayableMediaTag = {
 	play: (reason: string) => void;
 	id: string;
 };
-
-export type TimelineContextValue = {
-	frame: Record<string, number>;
-	playing: boolean;
-	rootId: string;
-	playbackRate: number;
-	imperativePlaying: MutableRefObject<boolean>;
-	setPlaybackRate: (u: React.SetStateAction<number>) => void;
-	audioAndVideoTags: MutableRefObject<PlayableMediaTag[]>;
-};
-
-export type SetTimelineContextValue = {
-	setFrame: (u: React.SetStateAction<Record<string, number>>) => void;
-	setPlaying: (u: React.SetStateAction<boolean>) => void;
-};
-
-export const TimelineContext = createContext<TimelineContextValue>({
-	frame: {},
-	playing: false,
-	playbackRate: 1,
-	rootId: '',
-	imperativePlaying: {
-		current: false,
-	},
-	setPlaybackRate: () => {
-		throw new Error('default');
-	},
-	audioAndVideoTags: {current: []},
-});
-
-export const SetTimelineContext = createContext<SetTimelineContextValue>({
-	setFrame: () => {
-		throw new Error('default');
-	},
-	setPlaying: () => {
-		throw new Error('default');
-	},
-});
 
 type CurrentTimePerComposition = Record<string, number>;
 
@@ -80,6 +43,7 @@ export const getFrameForComposition = (composition: string) => {
 export const useTimelinePosition = (): number => {
 	const videoConfig = useVideo();
 	const state = useContext(TimelineContext);
+	const env = useRemotionEnvironment();
 
 	if (!videoConfig) {
 		return typeof window === 'undefined'
@@ -89,9 +53,7 @@ export const useTimelinePosition = (): number => {
 
 	const unclamped =
 		state.frame[videoConfig.id] ??
-		(getRemotionEnvironment().isPlayer
-			? 0
-			: getFrameForComposition(videoConfig.id));
+		(env.isPlayer ? 0 : getFrameForComposition(videoConfig.id));
 
 	return Math.min(videoConfig.durationInFrames - 1, unclamped);
 };

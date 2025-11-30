@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Moul',
 	importName: 'Moul',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Moul:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,8 +14,8 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/moul/v29/nuF2D__FSo_3I-hSiaCy.woff2',
-				latin: 'https://fonts.gstatic.com/s/moul/v29/nuF2D__FSo_3I-NSiQ.woff2',
+					'https://fonts.gstatic.com/s/moul/v30/nuF2D__FSo_3I-hSiaCy.woff2',
+				latin: 'https://fonts.gstatic.com/s/moul/v30/nuF2D__FSo_3I-NSiQ.woff2',
 			},
 		},
 	},

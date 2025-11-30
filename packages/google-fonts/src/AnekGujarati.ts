@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Anek Gujarati',
 	importName: 'AnekGujarati',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Anek+Gujarati:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		gujarati:
@@ -17,67 +17,67 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				gujarati:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
 			},
 			'200': {
 				gujarati:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
 			},
 			'300': {
 				gujarati:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
 			},
 			'400': {
 				gujarati:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
 			},
 			'500': {
 				gujarati:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
 			},
 			'600': {
 				gujarati:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
 			},
 			'700': {
 				gujarati:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
 			},
 			'800': {
 				gujarati:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKPSfm5Xw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKaSfm5Xw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/anekgujarati/v16/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
+					'https://fonts.gstatic.com/s/anekgujarati/v17/l7gKbj5oysqknvkCo2T_8FuiIRBA7lncQUmbIBEtPIKUSfk.woff2',
 			},
 		},
 	},

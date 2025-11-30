@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Graduate',
 	importName: 'Graduate',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Graduate:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/graduate/v18/C8cg4cs3o2n15t_2YygW43w.woff2',
+					'https://fonts.gstatic.com/s/graduate/v19/C8cg4cs3o2n15t_2YygW43w.woff2',
 			},
 		},
 	},

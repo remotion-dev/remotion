@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Modi',
 	importName: 'NotoSansModi',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Modi:ital,wght@0,400',
 	unicodeRanges: {
 		modi: 'U+200C-200D, U+25CC, U+A830-A839, U+11600-1165F',
@@ -15,11 +15,11 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				modi: 'https://fonts.gstatic.com/s/notosansmodi/v24/pe03MIySN5pO62Z5YkFyT7jeas4QU1EQVg.woff2',
+				modi: 'https://fonts.gstatic.com/s/notosansmodi/v25/pe03MIySN5pO62Z5YkFyT7jeas4QU1EQVg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansmodi/v24/pe03MIySN5pO62Z5YkFyT7jeas5jU1EQVg.woff2',
+					'https://fonts.gstatic.com/s/notosansmodi/v25/pe03MIySN5pO62Z5YkFyT7jeas5jU1EQVg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansmodi/v24/pe03MIySN5pO62Z5YkFyT7jeas5tU1E.woff2',
+					'https://fonts.gstatic.com/s/notosansmodi/v25/pe03MIySN5pO62Z5YkFyT7jeas5tU1E.woff2',
 			},
 		},
 	},

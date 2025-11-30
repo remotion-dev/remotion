@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bungee Shade',
 	importName: 'BungeeShade',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Bungee+Shade:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/bungeeshade/v16/DtVkJxarWL0t2KdzK3oI_jkc5ijTnwE.woff2',
+					'https://fonts.gstatic.com/s/bungeeshade/v17/DtVkJxarWL0t2KdzK3oI_jkc5ijTnwE.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bungeeshade/v16/DtVkJxarWL0t2KdzK3oI_jkc5yjTnwE.woff2',
+					'https://fonts.gstatic.com/s/bungeeshade/v17/DtVkJxarWL0t2KdzK3oI_jkc5yjTnwE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bungeeshade/v16/DtVkJxarWL0t2KdzK3oI_jkc6SjT.woff2',
+					'https://fonts.gstatic.com/s/bungeeshade/v17/DtVkJxarWL0t2KdzK3oI_jkc6SjT.woff2',
 			},
 		},
 	},

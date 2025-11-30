@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/streaming"
 	},
 	"name": "@remotion/streaming",
-	"version": "4.0.340",
+	"version": "4.0.379",
 	"description": "Utilities for streaming data between programs",
 	"main": "dist",
 	"sideEffects": false,
@@ -23,7 +23,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"exports": {
 		"./package.json": "./package.json",

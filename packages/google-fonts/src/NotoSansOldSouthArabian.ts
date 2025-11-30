@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Old South Arabian',
 	importName: 'NotoSansOldSouthArabian',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Old+South+Arabian:ital,wght@0,400',
 	unicodeRanges: {
 		'old-south-arabian': 'U+10A60-10A7F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'old-south-arabian':
-					'https://fonts.gstatic.com/s/notosansoldsoutharabian/v16/3qT5oiOhnSyU8TNFIdhZTice3hB_HWKsEnF--0XCHiKBi-FCf9E.woff2',
+					'https://fonts.gstatic.com/s/notosansoldsoutharabian/v17/3qT5oiOhnSyU8TNFIdhZTice3hB_HWKsEnF--0XCHiKBi-FCf9E.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansoldsoutharabian/v16/3qT5oiOhnSyU8TNFIdhZTice3hB_HWKsEnF--0XCHiKB3eFCf9E.woff2',
+					'https://fonts.gstatic.com/s/notosansoldsoutharabian/v17/3qT5oiOhnSyU8TNFIdhZTice3hB_HWKsEnF--0XCHiKB3eFCf9E.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansoldsoutharabian/v16/3qT5oiOhnSyU8TNFIdhZTice3hB_HWKsEnF--0XCHiKB0-FC.woff2',
+					'https://fonts.gstatic.com/s/notosansoldsoutharabian/v17/3qT5oiOhnSyU8TNFIdhZTice3hB_HWKsEnF--0XCHiKB0-FC.woff2',
 			},
 		},
 	},

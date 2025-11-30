@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Titan One',
 	importName: 'TitanOne',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Titan+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/titanone/v16/mFTzWbsGxbbS_J5cQcjCmjgm6Es.woff2',
+					'https://fonts.gstatic.com/s/titanone/v17/mFTzWbsGxbbS_J5cQcjCmjgm6Es.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/titanone/v16/mFTzWbsGxbbS_J5cQcjClDgm.woff2',
+					'https://fonts.gstatic.com/s/titanone/v17/mFTzWbsGxbbS_J5cQcjClDgm.woff2',
 			},
 		},
 	},

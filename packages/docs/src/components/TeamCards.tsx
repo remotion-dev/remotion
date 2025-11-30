@@ -279,7 +279,7 @@ export const TeamCardsLayout: React.FC<{}> = () => {
 					}}
 				>
 					<img
-						src={'/img/team/igor.png'}
+						src={'/img/team/igor.jpg'}
 						style={{
 							width: 250,
 							height: 250,

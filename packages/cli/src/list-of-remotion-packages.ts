@@ -42,6 +42,7 @@ export const listOfRemotionPackages = [
 	'@remotion/lambda',
 	'@remotion/lambda-client',
 	'@remotion/layout-utils',
+	'@remotion/rounded-text-box',
 	'@remotion/licensing',
 	'@remotion/lottie',
 	'@remotion/mcp',
@@ -77,6 +78,7 @@ export const listOfRemotionPackages = [
 	'@remotion/compositor',
 	'@remotion/example-videos',
 	'@remotion/whisper-web',
-	'@remotion/video',
+	'@remotion/media',
 	'@remotion/web-renderer',
+	'@remotion/design',
 ];

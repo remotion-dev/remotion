@@ -10,7 +10,7 @@ import {
 const fps = 30;
 const sources = [
 	staticFile('bigbuckbunny.mp4'),
-	'https://parser.media/video.mp4',
+	'https://remotion.media/video.mp4',
 ];
 
 type Props = {

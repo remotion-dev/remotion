@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Varela',
 	importName: 'Varela',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Varela:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/varela/v16/DPEtYwqExx0AWHX5DR4ETvw.woff2',
+					'https://fonts.gstatic.com/s/varela/v17/DPEtYwqExx0AWHX5DR4ETvw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/varela/v16/DPEtYwqExx0AWHX5Ax4E.woff2',
+					'https://fonts.gstatic.com/s/varela/v17/DPEtYwqExx0AWHX5Ax4E.woff2',
 			},
 		},
 	},

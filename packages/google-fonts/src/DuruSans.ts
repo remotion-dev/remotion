@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Duru Sans',
 	importName: 'DuruSans',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Duru+Sans:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/durusans/v20/xn7iYH8xwmSyTvEV_HOBRv3ZRN8.woff2',
+					'https://fonts.gstatic.com/s/durusans/v21/xn7iYH8xwmSyTvEV_HOBRv3ZRN8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/durusans/v20/xn7iYH8xwmSyTvEV_HOBSP3Z.woff2',
+					'https://fonts.gstatic.com/s/durusans/v21/xn7iYH8xwmSyTvEV_HOBSP3Z.woff2',
 			},
 		},
 	},

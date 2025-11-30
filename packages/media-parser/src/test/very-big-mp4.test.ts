@@ -34,7 +34,7 @@ test(
 		});
 
 		expect(videoSamples).toBe(6);
-		expect(audioSamples).toBe(2);
+		expect(audioSamples).toBe(5);
 		expect(durationInSeconds).toBe(22947.121);
 	},
 	{

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Goudy Bookletter OneNineOneOne',
 	importName: 'GoudyBookletter1911',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/goudybookletter1911/v20/sykt-z54laciWfKv-kX8krex0jDiD2HbY6IJshzW.woff2',
+					'https://fonts.gstatic.com/s/goudybookletter1911/v21/sykt-z54laciWfKv-kX8krex0jDiD2HbY6IJshzW.woff2',
 			},
 		},
 	},

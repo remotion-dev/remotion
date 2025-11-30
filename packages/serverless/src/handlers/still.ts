@@ -32,6 +32,7 @@ import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import {makeInitialOverallRenderProgress} from '../overall-render-progress';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
+import {removeOutnameCredentials} from '../remove-outname-credentials';
 import {validateComposition} from '../validate-composition';
 import {checkVersionMismatch} from './check-version-mismatch';
 import {sendTelemetryEvent} from './send-telemetry-event';
@@ -178,6 +179,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		onServeUrlVisited: () => undefined,
 		providerSpecifics,
 		offthreadVideoThreads: params.offthreadVideoThreads,
+		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 	});
 
 	const renderMetadata: RenderMetadata<Provider> = {
@@ -196,7 +198,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		renderId,
-		outName: params.outName ?? undefined,
+		outName: removeOutnameCredentials(params.outName ?? undefined),
 		privacy: params.privacy,
 		audioCodec: null,
 		deleteAfter: params.deleteAfter,
@@ -325,11 +327,14 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 			data: composition.props,
 		}).serializedString,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
+		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 		binariesDirectory: null,
 		onBrowserDownload,
 		onArtifact,
 		chromeMode: 'headless-shell',
 		offthreadVideoThreads: params.offthreadVideoThreads,
+		onLog: RenderInternals.defaultOnLog,
+		apiKey: null,
 	});
 
 	const {size} = await fs.promises.stat(outputPath);

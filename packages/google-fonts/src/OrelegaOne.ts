@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Orelega One',
 	importName: 'OrelegaOne',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Orelega+One:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,13 +18,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/orelegaone/v13/3qTpojOggD2XtAdFb-QXZFtw3kYoaQ.woff2',
+					'https://fonts.gstatic.com/s/orelegaone/v14/3qTpojOggD2XtAdFb-QXZFtw3kYoaQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/orelegaone/v13/3qTpojOggD2XtAdFb-QXZFt53kYoaQ.woff2',
+					'https://fonts.gstatic.com/s/orelegaone/v14/3qTpojOggD2XtAdFb-QXZFt53kYoaQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/orelegaone/v13/3qTpojOggD2XtAdFb-QXZFtz3kYoaQ.woff2',
+					'https://fonts.gstatic.com/s/orelegaone/v14/3qTpojOggD2XtAdFb-QXZFtz3kYoaQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/orelegaone/v13/3qTpojOggD2XtAdFb-QXZFt93kY.woff2',
+					'https://fonts.gstatic.com/s/orelegaone/v14/3qTpojOggD2XtAdFb-QXZFt93kY.woff2',
 			},
 		},
 	},

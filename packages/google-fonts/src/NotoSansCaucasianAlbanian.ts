@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Caucasian Albanian',
 	importName: 'NotoSansCaucasianAlbanian',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Caucasian+Albanian:ital,wght@0,400',
 	unicodeRanges: {
 		'caucasian-albanian':
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'caucasian-albanian':
-					'https://fonts.gstatic.com/s/notosanscaucasianalbanian/v18/nKKA-HM_FYFRJvXzVXaANsU0VzsAc46QGOkWytlTs-TXnQPNhVSoUA.woff2',
+					'https://fonts.gstatic.com/s/notosanscaucasianalbanian/v19/nKKA-HM_FYFRJvXzVXaANsU0VzsAc46QGOkWytlTs-TXnQPNhVSoUA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanscaucasianalbanian/v18/nKKA-HM_FYFRJvXzVXaANsU0VzsAc46QGOkWytlTs-TXnYnsoGmR.woff2',
+					'https://fonts.gstatic.com/s/notosanscaucasianalbanian/v19/nKKA-HM_FYFRJvXzVXaANsU0VzsAc46QGOkWytlTs-TXnYnsoGmR.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanscaucasianalbanian/v18/nKKA-HM_FYFRJvXzVXaANsU0VzsAc46QGOkWytlTs-TXnYfsoA.woff2',
+					'https://fonts.gstatic.com/s/notosanscaucasianalbanian/v19/nKKA-HM_FYFRJvXzVXaANsU0VzsAc46QGOkWytlTs-TXnYfsoA.woff2',
 			},
 		},
 	},

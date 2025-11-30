@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ropa Sans',
 	importName: 'RopaSans',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Ropa+Sans:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ropasans/v15/EYq3maNOzLlWtsZSScy6WANle5av2g.woff2',
+					'https://fonts.gstatic.com/s/ropasans/v16/EYq3maNOzLlWtsZSScy6WANle5av2g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ropasans/v15/EYq3maNOzLlWtsZSScy6WANre5Y.woff2',
+					'https://fonts.gstatic.com/s/ropasans/v16/EYq3maNOzLlWtsZSScy6WANre5Y.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ropasans/v15/EYqxmaNOzLlWtsZSScy6UzNpY5I.woff2',
+					'https://fonts.gstatic.com/s/ropasans/v16/EYqxmaNOzLlWtsZSScy6UzNpY5I.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ropasans/v15/EYqxmaNOzLlWtsZSScy6XTNp.woff2',
+					'https://fonts.gstatic.com/s/ropasans/v16/EYqxmaNOzLlWtsZSScy6XTNp.woff2',
 			},
 		},
 	},

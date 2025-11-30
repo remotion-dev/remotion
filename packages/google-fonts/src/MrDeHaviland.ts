@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mr De Haviland',
 	importName: 'MrDeHaviland',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Mr+De+Haviland:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mrdehaviland/v14/OpNVnooIhJj96FdB73296ksbOg3L60PlNQ.woff2',
+					'https://fonts.gstatic.com/s/mrdehaviland/v15/OpNVnooIhJj96FdB73296ksbOg3L60PlNQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mrdehaviland/v14/OpNVnooIhJj96FdB73296ksbOg3F60M.woff2',
+					'https://fonts.gstatic.com/s/mrdehaviland/v15/OpNVnooIhJj96FdB73296ksbOg3F60M.woff2',
 			},
 		},
 	},

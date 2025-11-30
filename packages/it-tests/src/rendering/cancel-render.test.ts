@@ -1,21 +1,9 @@
-import {afterEach, beforeAll, beforeEach, expect, test} from 'bun:test';
+import {afterEach, beforeEach, expect, test} from 'bun:test';
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
 
 const outputPath = path.join(process.cwd(), 'packages/example/out.mp4');
-
-beforeAll(async () => {
-	/**
-	 * Before running any of these tests, we should bundle the example project. In the CI, this is already done.
-	 */
-	if (process.env.CI) {
-		return;
-	}
-	await execa('pnpm', ['exec', 'remotion', 'bundle'], {
-		cwd: path.join(process.cwd(), '..', 'example'),
-	});
-});
 
 beforeEach(() => {
 	if (fs.existsSync(outputPath)) {
@@ -32,12 +20,12 @@ test(
 	'Should fail to render if cancelRender() was being used',
 	async () => {
 		const task = await execa(
-			'pnpm',
+			'bun',
 			[
-				'exec',
+				'x',
 				'remotion',
 				'render',
-				'build',
+				'./build',
 				'cancel-render',
 				'--frames=2-10',
 				outputPath,
@@ -57,7 +45,7 @@ test(
 
 		// Should symbolicate stacktrace
 		// Do not search for strings that depend on color support
-		expect(task.stdout).toContain('src/CancelRender/index.tsx:18');
+		expect(task.stdout).toContain('src/CancelRender/index.tsx:19');
 		expect(task.stdout).toContain(
 			'Worst case: Inside a promise without a catch handler',
 		);

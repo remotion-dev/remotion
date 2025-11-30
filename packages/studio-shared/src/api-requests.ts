@@ -5,12 +5,12 @@ import type {
 	ColorSpace,
 	LogLevel,
 	PixelFormat,
-	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {_InternalTypes} from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
@@ -68,7 +68,7 @@ type AddRenderRequestDynamicFields =
 			endFrame: number;
 			muted: boolean;
 			enforceAudioTrack: boolean;
-			proResProfile: ProResProfile | null;
+			proResProfile: _InternalTypes['ProResProfile'] | null;
 			x264Preset: X264Preset | null;
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
@@ -100,6 +100,7 @@ export type AddRenderRequest = {
 	serializedInputPropsWithCustomSchema: string;
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
+	mediaCacheSizeInBytes: number | null;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	metadata: Record<string, string> | null;

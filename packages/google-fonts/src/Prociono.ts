@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Prociono',
 	importName: 'Prociono',
-	version: 'v27',
+	version: 'v28',
 	url: 'https://fonts.googleapis.com/css2?family=Prociono:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/prociono/v27/r05YGLlR-KxAf9GGO_uuwjc.woff2',
+					'https://fonts.gstatic.com/s/prociono/v28/r05YGLlR-KxAf9GGO_uuwjc.woff2',
 			},
 		},
 	},

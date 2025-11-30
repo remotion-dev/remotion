@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sevillana',
 	importName: 'Sevillana',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Sevillana:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sevillana/v24/KFOlCnWFscmDt1Bfiy1fChc4EsA.woff2',
+					'https://fonts.gstatic.com/s/sevillana/v25/KFOlCnWFscmDt1Bfiy1fChc4EsA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sevillana/v24/KFOlCnWFscmDt1Bfiy1fBBc4.woff2',
+					'https://fonts.gstatic.com/s/sevillana/v25/KFOlCnWFscmDt1Bfiy1fBBc4.woff2',
 			},
 		},
 	},

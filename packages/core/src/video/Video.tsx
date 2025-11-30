@@ -2,11 +2,11 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {Sequence} from '../Sequence.js';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {calculateLoopDuration} from '../calculate-loop.js';
+import {calculateMediaDuration} from '../calculate-media-duration.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
-import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {
@@ -43,7 +43,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
-	const environment = getRemotionEnvironment();
+	const environment = useRemotionEnvironment();
 
 	const {durations, setDurations} = useContext(DurationsContext);
 
@@ -53,7 +53,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
-			`The \`<Video>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+			`The \`<Html5Video>\` tag requires a string for \`src\`, but got ${JSON.stringify(
 				props.src,
 			)} instead.`,
 		);
@@ -85,7 +85,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	if (loop && durationFetched !== undefined) {
 		if (!Number.isFinite(durationFetched)) {
 			return (
-				<Video
+				<Html5Video
 					{...propsOtherThanLoop}
 					ref={ref}
 					_remotionInternalNativeLoopPassed
@@ -97,16 +97,16 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 		return (
 			<Loop
-				durationInFrames={calculateLoopDuration({
-					endAt: trimAfterValue ?? undefined,
-					mediaDuration,
+				durationInFrames={calculateMediaDuration({
+					trimAfter: trimAfterValue,
+					mediaDurationInFrames: mediaDuration,
 					playbackRate: props.playbackRate ?? 1,
-					startFrom: trimBeforeValue ?? undefined,
+					trimBefore: trimBeforeValue,
 				})}
 				layout="none"
 				name={name}
 			>
-				<Video
+				<Html5Video
 					{...propsOtherThanLoop}
 					ref={ref}
 					_remotionInternalNativeLoopPassed
@@ -127,7 +127,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				durationInFrames={trimAfterValue}
 				name={name}
 			>
-				<Video
+				<Html5Video
 					pauseWhenBuffering={pauseWhenBuffering ?? false}
 					{...otherProps}
 					ref={ref}
@@ -136,7 +136,10 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	validateMediaProps(props, 'Video');
+	validateMediaProps(
+		{playbackRate: props.playbackRate, volume: props.volume},
+		'Html5Video',
+	);
 
 	if (environment.isRendering) {
 		return (
@@ -168,10 +171,15 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	);
 };
 
-/*
+/**
  * @description Wraps the native `<video>` element to include video in your component that is synchronized with Remotion's time.
- * @see [Documentation](https://www.remotion.dev/docs/video)
+ * @see [Documentation](https://www.remotion.dev/docs/html5-video)
  */
-export const Video = forwardRef(VideoForwardingFunction);
+export const Html5Video = forwardRef(VideoForwardingFunction);
+addSequenceStackTraces(Html5Video);
 
-addSequenceStackTraces(Video);
+/**
+ * @deprecated This component has been renamed to `Html5Video`.
+ * @see [Documentation](https://remotion.dev/docs/mediabunny/new-video)
+ */
+export const Video = Html5Video;

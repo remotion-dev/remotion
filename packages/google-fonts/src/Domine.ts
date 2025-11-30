@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Domine',
 	importName: 'Domine',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Domine:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,27 +15,27 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/domine/v24/L0x8DFMnlVwD4h3htfqndSk.woff2',
+					'https://fonts.gstatic.com/s/domine/v25/L0x8DFMnlVwD4h3htfqndSk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/domine/v24/L0x8DFMnlVwD4h3hu_qn.woff2',
+					'https://fonts.gstatic.com/s/domine/v25/L0x8DFMnlVwD4h3hu_qn.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/domine/v24/L0x8DFMnlVwD4h3htfqndSk.woff2',
+					'https://fonts.gstatic.com/s/domine/v25/L0x8DFMnlVwD4h3htfqndSk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/domine/v24/L0x8DFMnlVwD4h3hu_qn.woff2',
+					'https://fonts.gstatic.com/s/domine/v25/L0x8DFMnlVwD4h3hu_qn.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/domine/v24/L0x8DFMnlVwD4h3htfqndSk.woff2',
+					'https://fonts.gstatic.com/s/domine/v25/L0x8DFMnlVwD4h3htfqndSk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/domine/v24/L0x8DFMnlVwD4h3hu_qn.woff2',
+					'https://fonts.gstatic.com/s/domine/v25/L0x8DFMnlVwD4h3hu_qn.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/domine/v24/L0x8DFMnlVwD4h3htfqndSk.woff2',
+					'https://fonts.gstatic.com/s/domine/v25/L0x8DFMnlVwD4h3htfqndSk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/domine/v24/L0x8DFMnlVwD4h3hu_qn.woff2',
+					'https://fonts.gstatic.com/s/domine/v25/L0x8DFMnlVwD4h3hu_qn.woff2',
 			},
 		},
 	},

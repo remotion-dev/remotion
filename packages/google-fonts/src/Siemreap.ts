@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Siemreap',
 	importName: 'Siemreap',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Siemreap:ital,wght@0,400',
 	unicodeRanges: {
 		khmer:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/siemreap/v29/Gg82N5oFbgLvHAfNl1YXlg4.woff2',
+					'https://fonts.gstatic.com/s/siemreap/v30/Gg82N5oFbgLvHAfNl1YXlg4.woff2',
 			},
 		},
 	},

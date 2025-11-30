@@ -170,10 +170,7 @@ const PlayerFn = <
 	ref: MutableRefObject<PlayerRef>,
 ) => {
 	if (typeof window !== 'undefined') {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		useLayoutEffect(() => {
-			window.remotion_isPlayer = true;
-		}, []);
+		window.remotion_isPlayer = true;
 	}
 
 	// @ts-expect-error
@@ -410,10 +407,9 @@ const PlayerFn = <
 				logLevel={logLevel}
 				audioLatencyHint={audioLatencyHint}
 				volumePersistenceKey={volumePersistenceKey}
+				inputProps={actualInputProps}
 			>
-				<Internals.Timeline.SetTimelineContext.Provider
-					value={setTimelineContextValue}
-				>
+				<Internals.SetTimelineContext.Provider value={setTimelineContextValue}>
 					<PlayerEmitterProvider currentPlaybackRate={currentPlaybackRate}>
 						<PlayerUI
 							ref={rootRef}
@@ -466,7 +462,7 @@ const PlayerFn = <
 							noSuspense={Boolean(noSuspense)}
 						/>
 					</PlayerEmitterProvider>
-				</Internals.Timeline.SetTimelineContext.Provider>
+				</Internals.SetTimelineContext.Provider>
 			</SharedPlayerContexts>
 		</Internals.IsPlayerContextProvider>
 	);

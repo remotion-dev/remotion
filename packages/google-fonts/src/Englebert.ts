@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Englebert',
 	importName: 'Englebert',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Englebert:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/englebert/v23/xn7iYH8w2XGrC8AR4HSBRv3ZRN8.woff2',
+					'https://fonts.gstatic.com/s/englebert/v24/xn7iYH8w2XGrC8AR4HSBRv3ZRN8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/englebert/v23/xn7iYH8w2XGrC8AR4HSBSP3Z.woff2',
+					'https://fonts.gstatic.com/s/englebert/v24/xn7iYH8w2XGrC8AR4HSBSP3Z.woff2',
 			},
 		},
 	},

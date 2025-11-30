@@ -41,7 +41,7 @@ Inline JSON string isn't supported on Windows shells because it removes the `"` 
 
 ### `--concurrency`
 
-[How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have (In Node.JS `os.cpus().length`). You can also provide a percentage value (e.g. 50%).
+[How many CPU threads to use.](/docs/config#setconcurrency) Minimum 1. The maximum is the amount of threads you have (In Node.JS `os.cpus().length`). You can also provide a percentage value (e.g. `50%`).
 
 ### `--pixel-format`
 
@@ -215,6 +215,10 @@ This will most notably disable CORS in Chrome among other security features.
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `--media-cache-size-in-bytes`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
 
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 

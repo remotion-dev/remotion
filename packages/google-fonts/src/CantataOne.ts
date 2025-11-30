@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Cantata One',
 	importName: 'CantataOne',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Cantata+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/cantataone/v15/PlI5Fl60Nb5obNzNe2jslWxNvcGAfA.woff2',
+					'https://fonts.gstatic.com/s/cantataone/v16/PlI5Fl60Nb5obNzNe2jslWxNvcGAfA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/cantataone/v15/PlI5Fl60Nb5obNzNe2jslWxDvcE.woff2',
+					'https://fonts.gstatic.com/s/cantataone/v16/PlI5Fl60Nb5obNzNe2jslWxDvcE.woff2',
 			},
 		},
 	},

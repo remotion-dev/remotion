@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bungee Outline',
 	importName: 'BungeeOutline',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Bungee+Outline:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/bungeeoutline/v23/_6_mEDvmVP24UvU2MyiGDslL3Tg_aBNaPQ.woff2',
+					'https://fonts.gstatic.com/s/bungeeoutline/v24/_6_mEDvmVP24UvU2MyiGDslL3Tg_aBNaPQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bungeeoutline/v23/_6_mEDvmVP24UvU2MyiGDslL3Tg-aBNaPQ.woff2',
+					'https://fonts.gstatic.com/s/bungeeoutline/v24/_6_mEDvmVP24UvU2MyiGDslL3Tg-aBNaPQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bungeeoutline/v23/_6_mEDvmVP24UvU2MyiGDslL3TgwaBM.woff2',
+					'https://fonts.gstatic.com/s/bungeeoutline/v24/_6_mEDvmVP24UvU2MyiGDslL3TgwaBM.woff2',
 			},
 		},
 	},

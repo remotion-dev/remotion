@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bahiana',
 	importName: 'Bahiana',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Bahiana:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bahiana/v24/uU9PCBUV4YenPWJU3xrR38yH.woff2',
+					'https://fonts.gstatic.com/s/bahiana/v25/uU9PCBUV4YenPWJU3xrR38yH.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bahiana/v24/uU9PCBUV4YenPWJU3xTR3w.woff2',
+					'https://fonts.gstatic.com/s/bahiana/v25/uU9PCBUV4YenPWJU3xTR3w.woff2',
 			},
 		},
 	},

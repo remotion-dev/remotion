@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Quattrocento Sans',
 	importName: 'QuattrocentoSans',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Quattrocento+Sans:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,29 +15,29 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/quattrocentosans/v21/va9a4lja2NVIDdIAAoMR5MfuElaRB0zMh0P2GEHJ.woff2',
+					'https://fonts.gstatic.com/s/quattrocentosans/v22/va9a4lja2NVIDdIAAoMR5MfuElaRB0zMh0P2GEHJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/quattrocentosans/v21/va9a4lja2NVIDdIAAoMR5MfuElaRB0zMh032GA.woff2',
+					'https://fonts.gstatic.com/s/quattrocentosans/v22/va9a4lja2NVIDdIAAoMR5MfuElaRB0zMh032GA.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/quattrocentosans/v21/va9X4lja2NVIDdIAAoMR5MfuElaRB0zMj_bTDXDojYsJ.woff2',
+					'https://fonts.gstatic.com/s/quattrocentosans/v22/va9X4lja2NVIDdIAAoMR5MfuElaRB0zMj_bTDXDojYsJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/quattrocentosans/v21/va9X4lja2NVIDdIAAoMR5MfuElaRB0zMj_bTDX7ojQ.woff2',
+					'https://fonts.gstatic.com/s/quattrocentosans/v22/va9X4lja2NVIDdIAAoMR5MfuElaRB0zMj_bTDX7ojQ.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/quattrocentosans/v21/va9c4lja2NVIDdIAAoMR5MfuElaRB0zHt0_uHA.woff2',
+					'https://fonts.gstatic.com/s/quattrocentosans/v22/va9c4lja2NVIDdIAAoMR5MfuElaRB0zHt0_uHA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/quattrocentosans/v21/va9c4lja2NVIDdIAAoMR5MfuElaRB0zJt08.woff2',
+					'https://fonts.gstatic.com/s/quattrocentosans/v22/va9c4lja2NVIDdIAAoMR5MfuElaRB0zJt08.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/quattrocentosans/v21/va9Z4lja2NVIDdIAAoMR5MfuElaRB0RyklrfPXzwiQ.woff2',
+					'https://fonts.gstatic.com/s/quattrocentosans/v22/va9Z4lja2NVIDdIAAoMR5MfuElaRB0RyklrfPXzwiQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/quattrocentosans/v21/va9Z4lja2NVIDdIAAoMR5MfuElaRB0RyklrRPXw.woff2',
+					'https://fonts.gstatic.com/s/quattrocentosans/v22/va9Z4lja2NVIDdIAAoMR5MfuElaRB0RyklrRPXw.woff2',
 			},
 		},
 	},

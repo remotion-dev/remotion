@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bigshot One',
 	importName: 'BigshotOne',
-	version: 'v30',
+	version: 'v31',
 	url: 'https://fonts.googleapis.com/css2?family=Bigshot+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/bigshotone/v30/u-470qukhRkkO6BD_7cM_jxpWwM.woff2',
+					'https://fonts.gstatic.com/s/bigshotone/v31/u-470qukhRkkO6BD_7cM_jxpWwM.woff2',
 			},
 		},
 	},

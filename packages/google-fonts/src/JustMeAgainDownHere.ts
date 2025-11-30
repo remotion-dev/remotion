@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Just Me Again Down Here',
 	importName: 'JustMeAgainDownHere',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Just+Me+Again+Down+Here:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/justmeagaindownhere/v24/MwQmbgXtz-Wc6RUEGNMc0QpRrfUh2hSdBBMoAtwOtKHAcw.woff2',
+					'https://fonts.gstatic.com/s/justmeagaindownhere/v25/MwQmbgXtz-Wc6RUEGNMc0QpRrfUh2hSdBBMoAtwOtKHAcw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/justmeagaindownhere/v24/MwQmbgXtz-Wc6RUEGNMc0QpRrfUh2hSdBBMoAtwAtKE.woff2',
+					'https://fonts.gstatic.com/s/justmeagaindownhere/v25/MwQmbgXtz-Wc6RUEGNMc0QpRrfUh2hSdBBMoAtwAtKE.woff2',
 			},
 		},
 	},

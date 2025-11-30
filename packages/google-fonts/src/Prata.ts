@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Prata',
 	importName: 'Prata',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Prata:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,13 +18,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/prata/v21/6xKhdSpbNNCT-sWCCm7JLQ.woff2',
+					'https://fonts.gstatic.com/s/prata/v22/6xKhdSpbNNCT-sWCCm7JLQ.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/prata/v21/6xKhdSpbNNCT-sWLCm7JLQ.woff2',
+					'https://fonts.gstatic.com/s/prata/v22/6xKhdSpbNNCT-sWLCm7JLQ.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/prata/v21/6xKhdSpbNNCT-sWACm7JLQ.woff2',
+					'https://fonts.gstatic.com/s/prata/v22/6xKhdSpbNNCT-sWACm7JLQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/prata/v21/6xKhdSpbNNCT-sWPCm4.woff2',
+					'https://fonts.gstatic.com/s/prata/v22/6xKhdSpbNNCT-sWPCm4.woff2',
 			},
 		},
 	},

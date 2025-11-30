@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Monoton',
 	importName: 'Monoton',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Monoton:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/monoton/v21/5h1aiZUrOngCibe4Tk_LQlS7.woff2',
+					'https://fonts.gstatic.com/s/monoton/v22/5h1aiZUrOngCibe4Tk_LQlS7.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/monoton/v21/5h1aiZUrOngCibe4TkHLQg.woff2',
+					'https://fonts.gstatic.com/s/monoton/v22/5h1aiZUrOngCibe4TkHLQg.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rethink Sans',
 	importName: 'RethinkSans',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,65 +15,65 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOIz4SDuXOMCPfdoglY9JQEUWi769174g.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOIz4SDuXOMCPfdoglY9JQEUWi769174g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOIz4SDuXOMCPfdoglY9JQEUWi1690.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOIz4SDuXOMCPfdoglY9JQEUWi1690.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOIz4SDuXOMCPfdoglY9JQEUWi769174g.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOIz4SDuXOMCPfdoglY9JQEUWi769174g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOIz4SDuXOMCPfdoglY9JQEUWi1690.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOIz4SDuXOMCPfdoglY9JQEUWi1690.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOIz4SDuXOMCPfdoglY9JQEUWi769174g.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOIz4SDuXOMCPfdoglY9JQEUWi769174g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOIz4SDuXOMCPfdoglY9JQEUWi1690.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOIz4SDuXOMCPfdoglY9JQEUWi1690.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOIz4SDuXOMCPfdoglY9JQEUWi769174g.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOIz4SDuXOMCPfdoglY9JQEUWi769174g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOIz4SDuXOMCPfdoglY9JQEUWi1690.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOIz4SDuXOMCPfdoglY9JQEUWi1690.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOIz4SDuXOMCPfdoglY9JQEUWi769174g.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOIz4SDuXOMCPfdoglY9JQEUWi769174g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOIz4SDuXOMCPfdoglY9JQEUWi1690.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOIz4SDuXOMCPfdoglY9JQEUWi1690.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOWz4SDuXOMCPfdoglY9JQEWli389k.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOWz4SDuXOMCPfdoglY9JQEWli389k.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOWz4SDuXOMCPfdoglY9JQEVFi3.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOWz4SDuXOMCPfdoglY9JQEVFi3.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOWz4SDuXOMCPfdoglY9JQEWli389k.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOWz4SDuXOMCPfdoglY9JQEWli389k.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOWz4SDuXOMCPfdoglY9JQEVFi3.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOWz4SDuXOMCPfdoglY9JQEVFi3.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOWz4SDuXOMCPfdoglY9JQEWli389k.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOWz4SDuXOMCPfdoglY9JQEWli389k.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOWz4SDuXOMCPfdoglY9JQEVFi3.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOWz4SDuXOMCPfdoglY9JQEVFi3.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOWz4SDuXOMCPfdoglY9JQEWli389k.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOWz4SDuXOMCPfdoglY9JQEWli389k.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOWz4SDuXOMCPfdoglY9JQEVFi3.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOWz4SDuXOMCPfdoglY9JQEVFi3.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOWz4SDuXOMCPfdoglY9JQEWli389k.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOWz4SDuXOMCPfdoglY9JQEWli389k.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rethinksans/v6/AMOWz4SDuXOMCPfdoglY9JQEVFi3.woff2',
+					'https://fonts.gstatic.com/s/rethinksans/v7/AMOWz4SDuXOMCPfdoglY9JQEVFi3.woff2',
 			},
 		},
 	},

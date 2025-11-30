@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sacramento',
 	importName: 'Sacramento',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Sacramento:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sacramento/v16/buEzpo6gcdjy0EiZMBUG4CMf_exL.woff2',
+					'https://fonts.gstatic.com/s/sacramento/v17/buEzpo6gcdjy0EiZMBUG4CMf_exL.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sacramento/v16/buEzpo6gcdjy0EiZMBUG4C0f_Q.woff2',
+					'https://fonts.gstatic.com/s/sacramento/v17/buEzpo6gcdjy0EiZMBUG4C0f_Q.woff2',
 			},
 		},
 	},

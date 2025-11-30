@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Comforter Brush',
 	importName: 'ComforterBrush',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Comforter+Brush:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -18,13 +18,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/comforterbrush/v8/Y4GTYa1xVSggrfzZI5WMjxRaOz0Tw7j8fh8.woff2',
+					'https://fonts.gstatic.com/s/comforterbrush/v9/Y4GTYa1xVSggrfzZI5WMjxRaOz0Tw7j8fh8.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/comforterbrush/v8/Y4GTYa1xVSggrfzZI5WMjxRaOz0TyLj8fh8.woff2',
+					'https://fonts.gstatic.com/s/comforterbrush/v9/Y4GTYa1xVSggrfzZI5WMjxRaOz0TyLj8fh8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/comforterbrush/v8/Y4GTYa1xVSggrfzZI5WMjxRaOz0Tybj8fh8.woff2',
+					'https://fonts.gstatic.com/s/comforterbrush/v9/Y4GTYa1xVSggrfzZI5WMjxRaOz0Tybj8fh8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/comforterbrush/v8/Y4GTYa1xVSggrfzZI5WMjxRaOz0Tx7j8.woff2',
+					'https://fonts.gstatic.com/s/comforterbrush/v9/Y4GTYa1xVSggrfzZI5WMjxRaOz0Tx7j8.woff2',
 			},
 		},
 	},

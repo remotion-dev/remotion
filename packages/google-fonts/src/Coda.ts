@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Coda',
 	importName: 'Coda',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Coda:ital,wght@0,400;0,800',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,14 +15,14 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/coda/v21/SLXHc1jY5nQ8FUsGa6aN.woff2',
-				latin: 'https://fonts.gstatic.com/s/coda/v21/SLXHc1jY5nQ8FUUGaw.woff2',
+					'https://fonts.gstatic.com/s/coda/v22/SLXHc1jY5nQ8FUsGa6aN.woff2',
+				latin: 'https://fonts.gstatic.com/s/coda/v22/SLXHc1jY5nQ8FUUGaw.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/coda/v21/SLXIc1jY5nQ8HeIgfpeswut1.woff2',
+					'https://fonts.gstatic.com/s/coda/v22/SLXIc1jY5nQ8HeIgfpeswut1.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/coda/v21/SLXIc1jY5nQ8HeIgfpmswg.woff2',
+					'https://fonts.gstatic.com/s/coda/v22/SLXIc1jY5nQ8HeIgfpmswg.woff2',
 			},
 		},
 	},

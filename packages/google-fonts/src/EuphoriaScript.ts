@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Euphoria Script',
 	importName: 'EuphoriaScript',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Euphoria+Script:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/euphoriascript/v21/mFTpWb0X2bLb_cx6To2B8GpKoD5qmvxS5D8.woff2',
+					'https://fonts.gstatic.com/s/euphoriascript/v22/mFTpWb0X2bLb_cx6To2B8GpKoD5qmvxS5D8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/euphoriascript/v21/mFTpWb0X2bLb_cx6To2B8GpKoD5qlPxS.woff2',
+					'https://fonts.gstatic.com/s/euphoriascript/v22/mFTpWb0X2bLb_cx6To2B8GpKoD5qlPxS.woff2',
 			},
 		},
 	},

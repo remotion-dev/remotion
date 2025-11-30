@@ -94,7 +94,10 @@ export const printUsefulErrorMessage = (
 		);
 	}
 
-	if (err.stack?.includes('TooManyRequestsException: Rate Exceeded.')) {
+	if (
+		err.stack?.includes('TooManyRequestsException: Rate Exceeded.') ||
+		err.message?.includes('ConcurrentInvocationLimitExceeded')
+	) {
 		Log.info({indent, logLevel});
 		Log.info(
 			{indent, logLevel},

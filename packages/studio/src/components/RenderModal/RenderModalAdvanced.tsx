@@ -67,6 +67,10 @@ export const RenderModalAdvanced: React.FC<{
 	readonly setOffthreadVideoCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number | null>
 	>;
+	readonly mediaCacheSizeInBytes: number | null;
+	readonly setMediaCacheSizeInBytes: React.Dispatch<
+		React.SetStateAction<number | null>
+	>;
 	readonly offthreadVideoThreads: number | null;
 	readonly setOffthreadVideoThreads: React.Dispatch<
 		React.SetStateAction<number | null>
@@ -105,6 +109,8 @@ export const RenderModalAdvanced: React.FC<{
 	setx264Preset,
 	x264Preset,
 	codec,
+	setMediaCacheSizeInBytes,
+	mediaCacheSizeInBytes,
 	offthreadVideoCacheSizeInBytes,
 	setOffthreadVideoCacheSizeInBytes,
 	offthreadVideoThreads,
@@ -133,6 +139,16 @@ export const RenderModalAdvanced: React.FC<{
 			'default',
 		];
 	}, []);
+
+	const toggleCustomMediaCacheSizeInBytes = useCallback(() => {
+		setMediaCacheSizeInBytes((previous) => {
+			if (previous === null) {
+				return 1000 * 1000 * 1000;
+			}
+
+			return null;
+		});
+	}, [setMediaCacheSizeInBytes]);
 
 	const toggleCustomOffthreadVideoCacheSizeInBytes = useCallback(() => {
 		setOffthreadVideoCacheSizeInBytes((previous) => {
@@ -290,6 +306,25 @@ export const RenderModalAdvanced: React.FC<{
 		);
 	}, [hardwareAcceleration, setHardwareAcceleration]);
 
+	const changeMediaCacheSizeInBytes: React.Dispatch<
+		React.SetStateAction<number>
+	> = useCallback(
+		(cb) => {
+			setMediaCacheSizeInBytes((prev) => {
+				if (prev === null) {
+					throw new TypeError('Expected previous value');
+				}
+
+				if (typeof cb === 'function') {
+					return cb(prev);
+				}
+
+				return cb;
+			});
+		},
+		[setMediaCacheSizeInBytes],
+	);
+
 	const changeOffthreadVideoCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number>
 	> = useCallback(
@@ -397,9 +432,38 @@ export const RenderModalAdvanced: React.FC<{
 			</div>
 			{renderMode === 'audio' ? null : (
 				<div style={optionRow}>
-					<div style={label}>Custom OffthreadVideo cache</div>
-					<Spacing x={0.5} />
-					<OptionExplainerBubble id="offthreadVideoCacheSizeInBytesOption" />
+					<div style={label}>
+						Custom @remotion/media cache size
+						<Spacing x={0.5} />
+						<OptionExplainerBubble id="mediaCacheSizeInBytesOption" />
+					</div>
+					<div style={rightRow}>
+						<Checkbox
+							checked={mediaCacheSizeInBytes !== null}
+							onChange={toggleCustomMediaCacheSizeInBytes}
+							name="media-cache-size"
+						/>
+					</div>
+				</div>
+			)}
+			{renderMode === 'audio' || mediaCacheSizeInBytes === null ? null : (
+				<NumberSetting
+					min={0}
+					max={2000 * 1024 * 1024}
+					step={1024}
+					name="@remotion/media cache size"
+					formatter={(w) => `${w} bytes`}
+					onValueChanged={changeMediaCacheSizeInBytes}
+					value={mediaCacheSizeInBytes}
+				/>
+			)}
+			{renderMode === 'audio' ? null : (
+				<div style={optionRow}>
+					<div style={label}>
+						Custom OffthreadVideo cache
+						<Spacing x={0.5} />
+						<OptionExplainerBubble id="offthreadVideoCacheSizeInBytesOption" />
+					</div>
 					<div style={rightRow}>
 						<Checkbox
 							checked={offthreadVideoCacheSizeInBytes !== null}
@@ -423,9 +487,10 @@ export const RenderModalAdvanced: React.FC<{
 			)}
 			{renderMode === 'audio' ? null : (
 				<div style={optionRow}>
-					<div style={label}>OffthreadVideo threads</div>
-					<Spacing x={0.5} />
-					<OptionExplainerBubble id="offthreadVideoThreadsOption" />
+					<div style={label}>
+						OffthreadVideo threads <Spacing x={0.5} />
+						<OptionExplainerBubble id="offthreadVideoThreadsOption" />
+					</div>
 					<div style={rightRow}>
 						<Checkbox
 							checked={offthreadVideoThreads !== null}
@@ -506,9 +571,11 @@ export const RenderModalAdvanced: React.FC<{
 				</div>
 			</div>
 			<div style={optionRow}>
-				<div style={label}>Multi-process Chrome on Linux</div>
-				<Spacing x={0.5} />
-				<OptionExplainerBubble id="enableMultiprocessOnLinuxOption" />
+				<div style={label}>
+					Multi-process Chrome on Linux
+					<Spacing x={0.5} />
+					<OptionExplainerBubble id="enableMultiprocessOnLinuxOption" />
+				</div>
 				<div style={rightRow}>
 					<Checkbox
 						checked={enableMultiProcessOnLinux}

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Changa',
 	importName: 'Changa',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Changa:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		arabic:
@@ -17,59 +17,59 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				arabic:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckY5y-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckY5y-au8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckaJy-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckaJy-au8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckZpy-.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckZpy-.woff2',
 			},
 			'300': {
 				arabic:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckY5y-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckY5y-au8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckaJy-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckaJy-au8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckZpy-.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckZpy-.woff2',
 			},
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckY5y-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckY5y-au8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckaJy-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckaJy-au8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckZpy-.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckZpy-.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckY5y-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckY5y-au8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckaJy-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckaJy-au8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckZpy-.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckZpy-.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckY5y-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckY5y-au8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckaJy-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckaJy-au8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckZpy-.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckZpy-.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckY5y-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckY5y-au8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckaJy-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckaJy-au8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckZpy-.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckZpy-.woff2',
 			},
 			'800': {
 				arabic:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckY5y-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckY5y-au8.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckaJy-au8.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckaJy-au8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/changa/v28/2-cm9JNi2YuVOUckZpy-.woff2',
+					'https://fonts.gstatic.com/s/changa/v29/2-cm9JNi2YuVOUckZpy-.woff2',
 			},
 		},
 	},

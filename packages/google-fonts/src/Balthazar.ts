@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Balthazar',
 	importName: 'Balthazar',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Balthazar:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/balthazar/v17/d6lKkaajS8Gm4CVQjFEfzh7p.woff2',
+					'https://fonts.gstatic.com/s/balthazar/v18/d6lKkaajS8Gm4CVQjFEfzh7p.woff2',
 			},
 		},
 	},

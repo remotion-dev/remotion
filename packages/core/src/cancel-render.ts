@@ -1,3 +1,5 @@
+import type {DelayRenderScope} from './delay-render.js';
+
 const isErrorLike = (err: unknown): boolean => {
 	if (err instanceof Error) {
 		return true;
@@ -34,11 +36,15 @@ const isErrorLike = (err: unknown): boolean => {
 	return true;
 };
 
-/*
- * @description When you invoke this function, Remotion will stop rendering all the frames without any retries.
- * @see [Documentation](https://remotion.dev/docs/cancel-render)
+/**
+ * Internal function that accepts scope as parameter.
+ * This allows useDelayRender to control its own scope source.
+ * @private
  */
-export function cancelRender(err: unknown): never {
+export function cancelRenderInternal(
+	scope: DelayRenderScope | undefined,
+	err: unknown,
+): never {
 	let error: Error;
 
 	if (isErrorLike(err)) {
@@ -52,6 +58,20 @@ export function cancelRender(err: unknown): never {
 		error = Error('Rendering was cancelled');
 	}
 
-	window.remotion_cancelledError = error.stack;
+	if (scope) {
+		scope.remotion_cancelledError = error.stack;
+	}
+
 	throw error;
+}
+
+/*
+ * @description When you invoke this function, Remotion will stop rendering all the frames without any retries.
+ * @see [Documentation](https://remotion.dev/docs/cancel-render)
+ */
+export function cancelRender(err: unknown): never {
+	return cancelRenderInternal(
+		typeof window !== 'undefined' ? window : undefined,
+		err,
+	);
 }

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Atkinson Hyperlegible',
 	importName: 'AtkinsonHyperlegible',
-	version: 'v11',
+	version: 'v12',
 	url: 'https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,29 +15,29 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v11/9Bt43C1KxNDXMspQ1lPyU89-1h6ONRlW45G056IkUwCybQ.woff2',
+					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v12/9Bt43C1KxNDXMspQ1lPyU89-1h6ONRlW45G056IkUwCybQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v11/9Bt43C1KxNDXMspQ1lPyU89-1h6ONRlW45G056IqUwA.woff2',
+					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v12/9Bt43C1KxNDXMspQ1lPyU89-1h6ONRlW45G056IqUwA.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v11/9Bt93C1KxNDXMspQ1lPyU89-1h6ONRlW45G056qRdhWDTFieFA.woff2',
+					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v12/9Bt93C1KxNDXMspQ1lPyU89-1h6ONRlW45G056qRdhWDTFieFA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v11/9Bt93C1KxNDXMspQ1lPyU89-1h6ONRlW45G056qRdhWNTFg.woff2',
+					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v12/9Bt93C1KxNDXMspQ1lPyU89-1h6ONRlW45G056qRdhWNTFg.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v11/9Bt23C1KxNDXMspQ1lPyU89-1h6ONRlW45G07JIoSwQ.woff2',
+					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v12/9Bt23C1KxNDXMspQ1lPyU89-1h6ONRlW45G07JIoSwQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v11/9Bt23C1KxNDXMspQ1lPyU89-1h6ONRlW45G04pIo.woff2',
+					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v12/9Bt23C1KxNDXMspQ1lPyU89-1h6ONRlW45G04pIo.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v11/9Bt73C1KxNDXMspQ1lPyU89-1h6ONRlW45G8Wbc9eiWPVFw.woff2',
+					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v12/9Bt73C1KxNDXMspQ1lPyU89-1h6ONRlW45G8Wbc9eiWPVFw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v11/9Bt73C1KxNDXMspQ1lPyU89-1h6ONRlW45G8Wbc9dCWP.woff2',
+					'https://fonts.gstatic.com/s/atkinsonhyperlegible/v12/9Bt73C1KxNDXMspQ1lPyU89-1h6ONRlW45G8Wbc9dCWP.woff2',
 			},
 		},
 	},

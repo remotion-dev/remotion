@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kadwa',
 	importName: 'Kadwa',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=Kadwa:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/kadwa/v12/rnCm-x5V0g7ipiTBT8YGsw.woff2',
+					'https://fonts.gstatic.com/s/kadwa/v13/rnCm-x5V0g7ipiTBT8YGsw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kadwa/v12/rnCm-x5V0g7ipiTAT8Y.woff2',
+					'https://fonts.gstatic.com/s/kadwa/v13/rnCm-x5V0g7ipiTAT8Y.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/kadwa/v12/rnCr-x5V0g7ipix7atM4knj-SA.woff2',
+					'https://fonts.gstatic.com/s/kadwa/v13/rnCr-x5V0g7ipix7atM4knj-SA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kadwa/v12/rnCr-x5V0g7ipix7atM5kng.woff2',
+					'https://fonts.gstatic.com/s/kadwa/v13/rnCr-x5V0g7ipix7atM5kng.woff2',
 			},
 		},
 	},

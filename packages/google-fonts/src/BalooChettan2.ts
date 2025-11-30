@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Baloo Chettan Two',
 	importName: 'BalooChettan2',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		malayalam:
@@ -19,53 +19,53 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				malayalam:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv__d6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv__d6CpY.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv6Pd6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv6Pd6CpY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv6fd6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv6fd6CpY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv5_d6.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv5_d6.woff2',
 			},
 			'500': {
 				malayalam:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv__d6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv__d6CpY.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv6Pd6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv6Pd6CpY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv6fd6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv6fd6CpY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv5_d6.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv5_d6.woff2',
 			},
 			'600': {
 				malayalam:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv__d6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv__d6CpY.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv6Pd6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv6Pd6CpY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv6fd6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv6fd6CpY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv5_d6.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv5_d6.woff2',
 			},
 			'700': {
 				malayalam:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv__d6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv__d6CpY.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv6Pd6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv6Pd6CpY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv6fd6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv6fd6CpY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv5_d6.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv5_d6.woff2',
 			},
 			'800': {
 				malayalam:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv__d6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv__d6CpY.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv6Pd6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv6Pd6CpY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv6fd6CpY.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv6fd6CpY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/baloochettan2/v22/vm8udRbmXEva26PK-NtuX4ynWEzv5_d6.woff2',
+					'https://fonts.gstatic.com/s/baloochettan2/v23/vm8udRbmXEva26PK-NtuX4ynWEzv5_d6.woff2',
 			},
 		},
 	},

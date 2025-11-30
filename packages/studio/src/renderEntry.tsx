@@ -18,11 +18,12 @@ import type {
 } from 'remotion';
 import {
 	AbsoluteFill,
-	continueRender,
-	delayRender,
 	getInputProps,
 	getRemotionEnvironment,
+	continueRender as globalContinueRender,
+	delayRender as globalDelayRender,
 	Internals,
+	useDelayRender,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 
@@ -101,13 +102,14 @@ const GetVideoComposition: React.FC<{
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const portalContainer = useRef<HTMLDivElement>(null);
+	const {delayRender, continueRender} = useDelayRender();
 	const [handle] = useState(() =>
 		delayRender(`Waiting for Composition "${state.compositionName}"`),
 	);
 
 	useEffect(() => {
 		return () => continueRender(handle);
-	}, [handle]);
+	}, [handle, continueRender]);
 
 	useEffect(() => {
 		if (compositions.length === 0) {
@@ -151,7 +153,7 @@ const GetVideoComposition: React.FC<{
 		return () => {
 			current.removeChild(Internals.portalNode());
 		};
-	}, [canvasContent, handle]);
+	}, [canvasContent, handle, continueRender]);
 
 	if (!currentCompositionMetadata) {
 		return null;
@@ -173,7 +175,7 @@ const GetVideoComposition: React.FC<{
 
 const DEFAULT_ROOT_COMPONENT_TIMEOUT = 10000;
 
-const waitForRootHandle = delayRender(
+const waitForRootHandle = globalDelayRender(
 	'Loading root component - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout',
 	{
 		timeoutInMilliseconds:
@@ -221,10 +223,8 @@ const renderContent = (Root: React.FC) => {
 
 	if (bundleMode.type === 'composition') {
 		const markup = (
-			<Internals.RemotionRoot
-				logLevel={window.remotion_logLevel}
-				numberOfAudioTags={0}
-				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+			<Internals.CompositionManagerProvider
+				initialCanvasContent={null}
 				onlyRenderComposition={bundleMode.compositionName}
 				currentCompositionMetadata={{
 					props: NoReactInternals.deserializeJSONWithSpecialTypes(
@@ -239,11 +239,24 @@ const renderContent = (Root: React.FC) => {
 					defaultVideoImageFormat:
 						bundleMode.compositionDefaultVideoImageFormat,
 					defaultPixelFormat: bundleMode.compositionDefaultPixelFormat,
+					defaultProResProfile: bundleMode.compositionDefaultProResProfile,
 				}}
+				initialCompositions={[]}
 			>
-				<Root />
-				<GetVideoComposition state={bundleMode} />
-			</Internals.RemotionRoot>
+				<Internals.RemotionRootContexts
+					frameState={null}
+					audioEnabled={window.remotion_audioEnabled}
+					videoEnabled={window.remotion_videoEnabled}
+					logLevel={window.remotion_logLevel}
+					numberOfAudioTags={0}
+					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+				>
+					<Internals.RenderAssetManagerProvider collectAssets={null}>
+						<Root />
+						<GetVideoComposition state={bundleMode} />
+					</Internals.RenderAssetManagerProvider>
+				</Internals.RemotionRootContexts>
+			</Internals.CompositionManagerProvider>
 		);
 
 		renderToDOM(markup);
@@ -251,15 +264,25 @@ const renderContent = (Root: React.FC) => {
 
 	if (bundleMode.type === 'evaluation') {
 		const markup = (
-			<Internals.RemotionRoot
-				logLevel={window.remotion_logLevel}
-				numberOfAudioTags={0}
+			<Internals.CompositionManagerProvider
+				initialCanvasContent={null}
 				onlyRenderComposition={null}
 				currentCompositionMetadata={null}
-				audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+				initialCompositions={[]}
 			>
-				<Root />
-			</Internals.RemotionRoot>
+				<Internals.RemotionRootContexts
+					frameState={null}
+					audioEnabled={window.remotion_audioEnabled}
+					videoEnabled={window.remotion_videoEnabled}
+					logLevel={window.remotion_logLevel}
+					numberOfAudioTags={0}
+					audioLatencyHint={window.remotion_audioLatencyHint ?? 'interactive'}
+				>
+					<Internals.RenderAssetManagerProvider collectAssets={null}>
+						<Root />
+					</Internals.RenderAssetManagerProvider>
+				</Internals.RemotionRootContexts>
+			</Internals.CompositionManagerProvider>
 		);
 
 		renderToDOM(markup);
@@ -277,6 +300,11 @@ const renderContent = (Root: React.FC) => {
 		);
 		import('./internals')
 			.then(({StudioInternals}) => {
+				window.remotion_isStudio = true;
+				window.remotion_isReadOnlyStudio = true;
+				window.remotion_inputProps = '{}';
+
+				Internals.enableSequenceStackTraces();
 				renderToDOM(<StudioInternals.Studio readOnly rootComponent={Root} />);
 			})
 			.catch((err) => {
@@ -287,18 +315,18 @@ const renderContent = (Root: React.FC) => {
 
 Internals.waitForRoot((Root) => {
 	renderContent(Root);
-	continueRender(waitForRootHandle);
+	globalContinueRender(waitForRootHandle);
 });
 
 export const setBundleModeAndUpdate = (state: BundleState) => {
 	setBundleMode(state);
-	const delay = delayRender(
+	const delay = globalDelayRender(
 		'Waiting for root component to load - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout',
 	);
 	Internals.waitForRoot((Root) => {
 		renderContent(Root);
 		requestAnimationFrame(() => {
-			continueRender(delay);
+			globalContinueRender(delay);
 		});
 	});
 };
@@ -320,11 +348,11 @@ if (typeof window !== 'undefined') {
 		const canSerializeDefaultProps = getCanSerializeDefaultProps(compositions);
 		if (!canSerializeDefaultProps) {
 			Internals.Log.warn(
-				window.remotion_logLevel,
+				{logLevel: window.remotion_logLevel, tag: null},
 				'defaultProps are too big to serialize - trying to find the problematic composition...',
 			);
 			Internals.Log.warn(
-				window.remotion_logLevel,
+				{logLevel: window.remotion_logLevel, tag: null},
 				'Serialization:',
 				compositions,
 			);
@@ -337,7 +365,7 @@ if (typeof window !== 'undefined') {
 			}
 
 			Internals.Log.warn(
-				window.remotion_logLevel,
+				{logLevel: window.remotion_logLevel, tag: null},
 				'Could not single out a problematic composition -  The composition list as a whole is too big to serialize.',
 			);
 
@@ -361,7 +389,7 @@ if (typeof window !== 'undefined') {
 
 		return Promise.all(
 			compositions.map(async (c): Promise<VideoConfigWithSerializedProps> => {
-				const handle = delayRender(
+				const handle = globalDelayRender(
 					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`,
 				);
 
@@ -377,13 +405,13 @@ if (typeof window !== 'undefined') {
 					compositionHeight: c.height ?? null,
 					compositionWidth: c.width ?? null,
 					signal: new AbortController().signal,
-					originalProps,
+					inputProps: originalProps,
 					defaultProps: c.defaultProps ?? {},
 					compositionId: c.id,
 				});
 
 				const resolved = await Promise.resolve(comp);
-				continueRender(handle);
+				globalContinueRender(handle);
 				const {props, defaultProps, ...data} = resolved;
 
 				return {
@@ -421,7 +449,7 @@ if (typeof window !== 'undefined') {
 		}
 
 		const abortController = new AbortController();
-		const handle = delayRender(
+		const handle = globalDelayRender(
 			`Running the calculateMetadata() function for composition ${compId}`,
 		);
 
@@ -442,13 +470,13 @@ if (typeof window !== 'undefined') {
 				compositionFps: selectedComp.fps ?? null,
 				compositionHeight: selectedComp.height ?? null,
 				compositionWidth: selectedComp.width ?? null,
-				originalProps,
+				inputProps: originalProps,
 				signal: abortController.signal,
 				defaultProps: selectedComp.defaultProps ?? {},
 				compositionId: selectedComp.id,
 			}),
 		);
-		continueRender(handle);
+		globalContinueRender(handle);
 
 		const {props, defaultProps, ...data} = prom;
 		return {

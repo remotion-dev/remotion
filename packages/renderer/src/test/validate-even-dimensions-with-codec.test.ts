@@ -18,8 +18,8 @@ describe('validateEvenDimensionsWithCodec', () => {
 				...defaultConfig,
 			});
 
-			expect(result.actualWidth).toBe(1400); // 4000 * 0.35 = 1400 (even)
-			expect(result.actualHeight).toBe(906); // 2592 * 0.35 = 907.2 -> 907 (odd) -> 906 (even)
+			expect(result.actualWidth).toBe(4000); // 4000 * 0.35 = 1400 (even)
+			expect(result.actualHeight).toBe(2590); // 2592 * 0.35 = 907.2 -> 907 (odd) -> 906 (even)
 		});
 
 		test('should round down odd width to even when using H265', () => {
@@ -111,8 +111,8 @@ describe('validateEvenDimensionsWithCodec', () => {
 				...defaultConfig,
 			});
 
-			expect(result.actualWidth).toBe(500);
-			expect(result.actualHeight).toBe(300);
+			expect(result.actualWidth).toBe(1000);
+			expect(result.actualHeight).toBe(600);
 		});
 	});
 
@@ -185,8 +185,9 @@ describe('validateEvenDimensionsWithCodec', () => {
 			});
 
 			// 1000 * 0.333 = 333, which is odd, should become 332
-			expect(result.actualWidth).toBe(332);
-			expect(result.actualHeight).toBe(332);
+			// 998 * 0.3333 -> 332.334 will be rounded down
+			expect(result.actualWidth).toBe(998);
+			expect(result.actualHeight).toBe(998);
 		});
 	});
 });

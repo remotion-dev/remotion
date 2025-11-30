@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Questrial',
 	importName: 'Questrial',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Questrial:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/questrial/v18/QdVUSTchPBm7nuUeVf70sSFlq20.woff2',
+					'https://fonts.gstatic.com/s/questrial/v19/QdVUSTchPBm7nuUeVf70sSFlq20.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/questrial/v18/QdVUSTchPBm7nuUeVf70sCFlq20.woff2',
+					'https://fonts.gstatic.com/s/questrial/v19/QdVUSTchPBm7nuUeVf70sCFlq20.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/questrial/v18/QdVUSTchPBm7nuUeVf70viFl.woff2',
+					'https://fonts.gstatic.com/s/questrial/v19/QdVUSTchPBm7nuUeVf70viFl.woff2',
 			},
 		},
 	},

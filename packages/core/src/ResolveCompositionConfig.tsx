@@ -15,10 +15,10 @@ import type {AnyComposition} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {EditorPropsContext} from './EditorProps.js';
 import {getInputProps} from './config/input-props.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {NonceContext} from './nonce.js';
 import type {InferProps} from './props-if-has-props.js';
 import {resolveVideoConfigOrCatch} from './resolve-video-config.js';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
@@ -60,7 +60,7 @@ export const needsResolution = (composition: AnyComposition) => {
 
 export const PROPS_UPDATED_EXTERNALLY = 'remotion.propsUpdatedExternally';
 
-export const ResolveCompositionConfig: React.FC<
+export const ResolveCompositionConfigInStudio: React.FC<
 	PropsWithChildren<{
 		children: React.ReactNode;
 	}>
@@ -89,12 +89,13 @@ export const ResolveCompositionConfig: React.FC<
 		(c) => c.id === currentRenderModalComposition,
 	);
 	const {props: allEditorProps} = useContext(EditorPropsContext);
+	const env = useRemotionEnvironment();
 
 	const inputProps = useMemo(() => {
-		return typeof window === 'undefined' || getRemotionEnvironment().isPlayer
+		return typeof window === 'undefined' || env.isPlayer
 			? {}
 			: (getInputProps() ?? {});
-	}, []);
+	}, [env.isPlayer]);
 
 	const [resolvedConfigs, setResolvedConfigs] = useState<
 		Record<string, VideoConfigState | undefined>
@@ -146,7 +147,7 @@ export const ResolveCompositionConfig: React.FC<
 			const result = resolveVideoConfigOrCatch({
 				compositionId,
 				calculateMetadata,
-				originalProps: combinedProps,
+				inputProps: combinedProps,
 				signal,
 				defaultProps,
 				compositionDurationInFrames,
@@ -413,9 +414,8 @@ export const ResolveCompositionConfig: React.FC<
 export const useResolvedVideoConfig = (
 	preferredCompositionId: string | null,
 ): VideoConfigState | null => {
-	const context = useContext(
-		ResolveCompositionContext,
-	) as ResolveCompositionConfigContect;
+	const context = useContext(ResolveCompositionContext);
+
 	const {props: allEditorProps} = useContext(EditorPropsContext);
 
 	const {compositions, canvasContent, currentCompositionMetadata} =
@@ -428,6 +428,8 @@ export const useResolvedVideoConfig = (
 	const selectedEditorProps = useMemo(() => {
 		return composition ? (allEditorProps[composition.id] ?? {}) : {};
 	}, [allEditorProps, composition]);
+
+	const env = useRemotionEnvironment();
 
 	return useMemo(() => {
 		if (!composition) {
@@ -479,7 +481,10 @@ export const useResolvedVideoConfig = (
 						...(composition.defaultProps ?? {}),
 						...(selectedEditorProps ?? {}),
 						...(typeof window === 'undefined' ||
-						getRemotionEnvironment().isPlayer
+						env.isPlayer ||
+						// In tests, we don't set window.remotion_inputProps,
+						// otherwise it should be available here
+						!window.remotion_inputProps
 							? {}
 							: (getInputProps() ?? {})),
 					},
@@ -487,8 +492,14 @@ export const useResolvedVideoConfig = (
 					defaultOutName: null,
 					defaultVideoImageFormat: null,
 					defaultPixelFormat: null,
+					defaultProResProfile: null,
 				},
 			};
+		}
+
+		// Could be the case in selectComposition()
+		if (!context) {
+			return null;
 		}
 
 		if (!context[composition.id]) {
@@ -496,5 +507,11 @@ export const useResolvedVideoConfig = (
 		}
 
 		return context[composition.id] as VideoConfigState;
-	}, [composition, context, currentCompositionMetadata, selectedEditorProps]);
+	}, [
+		composition,
+		context,
+		currentCompositionMetadata,
+		selectedEditorProps,
+		env.isPlayer,
+	]);
 };

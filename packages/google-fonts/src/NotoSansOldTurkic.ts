@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Old Turkic',
 	importName: 'NotoSansOldTurkic',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Old+Turkic:ital,wght@0,400',
 	unicodeRanges: {
 		'old-turkic': 'U+205A, U+2E30, U+10C00-10C48',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'old-turkic':
-					'https://fonts.gstatic.com/s/notosansoldturkic/v18/yMJNMJVya43H0SUF_WmcGEQVqoEMKDKbsH3Dhk0OVw.woff2',
+					'https://fonts.gstatic.com/s/notosansoldturkic/v19/yMJNMJVya43H0SUF_WmcGEQVqoEMKDKbsH3Dhk0OVw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansoldturkic/v18/yMJNMJVya43H0SUF_WmcGEQVqoEMKDKbsH2Yhk0OVw.woff2',
+					'https://fonts.gstatic.com/s/notosansoldturkic/v19/yMJNMJVya43H0SUF_WmcGEQVqoEMKDKbsH2Yhk0OVw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansoldturkic/v18/yMJNMJVya43H0SUF_WmcGEQVqoEMKDKbsH2Whk0.woff2',
+					'https://fonts.gstatic.com/s/notosansoldturkic/v19/yMJNMJVya43H0SUF_WmcGEQVqoEMKDKbsH2Whk0.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Neonderthaw',
 	importName: 'Neonderthaw',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Neonderthaw:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/neonderthaw/v7/Iure6Yx5-oWVZI0r-17AeaZBrLRw4Q.woff2',
+					'https://fonts.gstatic.com/s/neonderthaw/v8/Iure6Yx5-oWVZI0r-17AeaZBrLRw4Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/neonderthaw/v7/Iure6Yx5-oWVZI0r-17AeaZArLRw4Q.woff2',
+					'https://fonts.gstatic.com/s/neonderthaw/v8/Iure6Yx5-oWVZI0r-17AeaZArLRw4Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/neonderthaw/v7/Iure6Yx5-oWVZI0r-17AeaZOrLQ.woff2',
+					'https://fonts.gstatic.com/s/neonderthaw/v8/Iure6Yx5-oWVZI0r-17AeaZOrLQ.woff2',
 			},
 		},
 	},

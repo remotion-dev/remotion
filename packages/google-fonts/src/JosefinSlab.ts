@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Josefin Slab',
 	importName: 'JosefinSlab',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Josefin+Slab:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		latin:
@@ -13,61 +13,61 @@ export const getInfo = () => ({
 		italic: {
 			'100': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
 			},
 			'200': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
 			},
 			'300': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
 			},
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
 			},
 			'500': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
 			},
 			'600': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-nwjwOK3Ps5GSJlNNkMalnrz6tDs8.woff2',
 			},
 		},
 		normal: {
 			'100': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
 			},
 			'200': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
 			},
 			'300': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
 			},
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
 			},
 			'500': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
 			},
 			'600': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/josefinslab/v28/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
+					'https://fonts.gstatic.com/s/josefinslab/v29/lW-5wjwOK3Ps5GSJlNNkMalnqg6v.woff2',
 			},
 		},
 	},

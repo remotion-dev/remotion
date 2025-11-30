@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Scheherazade New',
 	importName: 'ScheherazadeNew',
-	version: 'v17',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Scheherazade+New:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		arabic:
@@ -17,35 +17,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/scheherazadenew/v17/4UaZrFhTvxVnHDvUkUiHg8jprP4DOwFmO24p.woff2',
+					'https://fonts.gstatic.com/s/scheherazadenew/v20/4UaZrFhTvxVnHDvUkUiHg8jprP4DOwFmO24p.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/scheherazadenew/v17/4UaZrFhTvxVnHDvUkUiHg8jprP4DOwpmO24p.woff2',
+					'https://fonts.gstatic.com/s/scheherazadenew/v20/4UaZrFhTvxVnHDvUkUiHg8jprP4DOwpmO24p.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/scheherazadenew/v17/4UaZrFhTvxVnHDvUkUiHg8jprP4DOwRmOw.woff2',
+					'https://fonts.gstatic.com/s/scheherazadenew/v20/4UaZrFhTvxVnHDvUkUiHg8jprP4DOwRmOw.woff2',
 			},
 			'500': {
 				arabic:
-					'https://fonts.gstatic.com/s/scheherazadenew/v17/4UaerFhTvxVnHDvUkUiHg8jprP4DM_dFLlQI-bKn.woff2',
+					'https://fonts.gstatic.com/s/scheherazadenew/v20/4UaerFhTvxVnHDvUkUiHg8jprP4DM_dFLlQI-bKn.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/scheherazadenew/v17/4UaerFhTvxVnHDvUkUiHg8jprP4DM_dFLl8I-bKn.woff2',
+					'https://fonts.gstatic.com/s/scheherazadenew/v20/4UaerFhTvxVnHDvUkUiHg8jprP4DM_dFLl8I-bKn.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/scheherazadenew/v17/4UaerFhTvxVnHDvUkUiHg8jprP4DM_dFLlEI-Q.woff2',
+					'https://fonts.gstatic.com/s/scheherazadenew/v20/4UaerFhTvxVnHDvUkUiHg8jprP4DM_dFLlEI-Q.woff2',
 			},
 			'600': {
 				arabic:
-					'https://fonts.gstatic.com/s/scheherazadenew/v17/4UaerFhTvxVnHDvUkUiHg8jprP4DM9tCLlQI-bKn.woff2',
+					'https://fonts.gstatic.com/s/scheherazadenew/v20/4UaerFhTvxVnHDvUkUiHg8jprP4DM9tCLlQI-bKn.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/scheherazadenew/v17/4UaerFhTvxVnHDvUkUiHg8jprP4DM9tCLl8I-bKn.woff2',
+					'https://fonts.gstatic.com/s/scheherazadenew/v20/4UaerFhTvxVnHDvUkUiHg8jprP4DM9tCLl8I-bKn.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/scheherazadenew/v17/4UaerFhTvxVnHDvUkUiHg8jprP4DM9tCLlEI-Q.woff2',
+					'https://fonts.gstatic.com/s/scheherazadenew/v20/4UaerFhTvxVnHDvUkUiHg8jprP4DM9tCLlEI-Q.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/scheherazadenew/v17/4UaerFhTvxVnHDvUkUiHg8jprP4DM79DLlQI-bKn.woff2',
+					'https://fonts.gstatic.com/s/scheherazadenew/v20/4UaerFhTvxVnHDvUkUiHg8jprP4DM79DLlQI-bKn.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/scheherazadenew/v17/4UaerFhTvxVnHDvUkUiHg8jprP4DM79DLl8I-bKn.woff2',
+					'https://fonts.gstatic.com/s/scheherazadenew/v20/4UaerFhTvxVnHDvUkUiHg8jprP4DM79DLl8I-bKn.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/scheherazadenew/v17/4UaerFhTvxVnHDvUkUiHg8jprP4DM79DLlEI-Q.woff2',
+					'https://fonts.gstatic.com/s/scheherazadenew/v20/4UaerFhTvxVnHDvUkUiHg8jprP4DM79DLlEI-Q.woff2',
 			},
 		},
 	},

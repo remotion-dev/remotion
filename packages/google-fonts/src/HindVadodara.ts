@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Hind Vadodara',
 	importName: 'HindVadodara',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Hind+Vadodara:ital,wght@0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		gujarati:
@@ -17,43 +17,43 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				gujarati:
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neIQzCKvrIcn5pbuuuriV9tTSDn3uW8-oBOL.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neIQzCKvrIcn5pbuuuriV9tTSDn3uW8-oBOL.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neIQzCKvrIcn5pbuuuriV9tTSDn3uXo-oBOL.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neIQzCKvrIcn5pbuuuriV9tTSDn3uXo-oBOL.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neIQzCKvrIcn5pbuuuriV9tTSDn3uXQ-oA.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neIQzCKvrIcn5pbuuuriV9tTSDn3uXQ-oA.woff2',
 			},
 			'400': {
 				gujarati:
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neINzCKvrIcn5pbuuuriV9tTQInVrEsf.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neINzCKvrIcn5pbuuuriV9tTQInVrEsf.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neINzCKvrIcn5pbuuuriV9tTQJzVrEsf.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neINzCKvrIcn5pbuuuriV9tTQJzVrEsf.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neINzCKvrIcn5pbuuuriV9tTQJLVrA.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neINzCKvrIcn5pbuuuriV9tTQJLVrA.woff2',
 			},
 			'500': {
 				gujarati:
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neIQzCKvrIcn5pbuuuriV9tTSGH2uW8-oBOL.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neIQzCKvrIcn5pbuuuriV9tTSGH2uW8-oBOL.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neIQzCKvrIcn5pbuuuriV9tTSGH2uXo-oBOL.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neIQzCKvrIcn5pbuuuriV9tTSGH2uXo-oBOL.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neIQzCKvrIcn5pbuuuriV9tTSGH2uXQ-oA.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neIQzCKvrIcn5pbuuuriV9tTSGH2uXQ-oA.woff2',
 			},
 			'600': {
 				gujarati:
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neIQzCKvrIcn5pbuuuriV9tTSE3xuW8-oBOL.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neIQzCKvrIcn5pbuuuriV9tTSE3xuW8-oBOL.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neIQzCKvrIcn5pbuuuriV9tTSE3xuXo-oBOL.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neIQzCKvrIcn5pbuuuriV9tTSE3xuXo-oBOL.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neIQzCKvrIcn5pbuuuriV9tTSE3xuXQ-oA.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neIQzCKvrIcn5pbuuuriV9tTSE3xuXQ-oA.woff2',
 			},
 			'700': {
 				gujarati:
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neIQzCKvrIcn5pbuuuriV9tTSCnwuW8-oBOL.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neIQzCKvrIcn5pbuuuriV9tTSCnwuW8-oBOL.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neIQzCKvrIcn5pbuuuriV9tTSCnwuXo-oBOL.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neIQzCKvrIcn5pbuuuriV9tTSCnwuXo-oBOL.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/hindvadodara/v15/neIQzCKvrIcn5pbuuuriV9tTSCnwuXQ-oA.woff2',
+					'https://fonts.gstatic.com/s/hindvadodara/v16/neIQzCKvrIcn5pbuuuriV9tTSCnwuXQ-oA.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Geo',
 	importName: 'Geo',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Geo:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		latin:
@@ -12,12 +12,12 @@ export const getInfo = () => ({
 	fonts: {
 		italic: {
 			'400': {
-				latin: 'https://fonts.gstatic.com/s/geo/v22/CSRx4zRZluflLUplaj0.woff2',
+				latin: 'https://fonts.gstatic.com/s/geo/v23/CSRx4zRZluflLUplaj0.woff2',
 			},
 		},
 		normal: {
 			'400': {
-				latin: 'https://fonts.gstatic.com/s/geo/v22/CSRz4zRZluflKHpn.woff2',
+				latin: 'https://fonts.gstatic.com/s/geo/v23/CSRz4zRZluflKHpn.woff2',
 			},
 		},
 	},

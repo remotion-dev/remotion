@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bungee Hairline',
 	importName: 'BungeeHairline',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Bungee+Hairline:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/bungeehairline/v25/snfys0G548t04270a_ljTLUVrv-LaBecc5Y.woff2',
+					'https://fonts.gstatic.com/s/bungeehairline/v26/snfys0G548t04270a_ljTLUVrv-LaBecc5Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bungeehairline/v25/snfys0G548t04270a_ljTLUVrv-LaRecc5Y.woff2',
+					'https://fonts.gstatic.com/s/bungeehairline/v26/snfys0G548t04270a_ljTLUVrv-LaRecc5Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bungeehairline/v25/snfys0G548t04270a_ljTLUVrv-LZxec.woff2',
+					'https://fonts.gstatic.com/s/bungeehairline/v26/snfys0G548t04270a_ljTLUVrv-LZxec.woff2',
 			},
 		},
 	},

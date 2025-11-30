@@ -38,6 +38,7 @@ import {mergeChunksAndFinishRender} from '../merge-chunks';
 import type {OverallProgressHelper} from '../overall-render-progress';
 import {makeOverallRenderProgress} from '../overall-render-progress';
 import {planFrameRanges} from '../plan-frame-ranges';
+import {removeOutnameCredentials} from '../remove-outname-credentials';
 import {streamRendererFunctionWithRetry} from '../stream-renderer';
 import {validateComposition} from '../validate-composition';
 import {sendTelemetryEvent} from './send-telemetry-event';
@@ -66,6 +67,12 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 }): Promise<PostRenderData<Provider>> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
+	}
+
+	if (params.chromiumOptions.gl === 'angle') {
+		throw new Error(
+			'gl=angle is not supported in Lambda. Use gl=swangle instead.',
+		);
 	}
 
 	const startedDate = Date.now();
@@ -111,13 +118,25 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		serializedInputPropsWithCustomSchema,
 	);
 	const startTime = Date.now();
+	let validateCompositionTimeout = params.timeoutInMilliseconds;
+	const remainingTime = options.getRemainingTimeInMillis();
+	if (remainingTime / 2 < params.timeoutInMilliseconds) {
+		// delayRender() subtracts 2 seconds, must be positive
+		validateCompositionTimeout = Math.max(3000, Math.round(remainingTime / 2));
+		RenderInternals.Log.info(
+			logOptions,
+			`Lowering "timeoutInMilliseconds" to ${validateCompositionTimeout}ms (half the remaining function lifetime) so that any stuck processes will surface their errors`,
+			validateCompositionTimeout,
+		);
+	}
+
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
 		browserInstance: instance,
 		serializedInputPropsWithCustomSchema,
 		envVariables: params.envVariables ?? {},
-		timeoutInMilliseconds: params.timeoutInMilliseconds,
+		timeoutInMilliseconds: validateCompositionTimeout,
 		chromiumOptions: params.chromiumOptions,
 		port: null,
 		forceHeight: params.forceHeight,
@@ -133,6 +152,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		},
 		providerSpecifics,
 		offthreadVideoThreads: params.offthreadVideoThreads,
+		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 	});
 	overallProgress.setCompositionValidated(Date.now());
 	RenderInternals.Log.info(
@@ -286,6 +306,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			forcePathStyle: params.forcePathStyle,
 			metadata: params.metadata,
 			offthreadVideoThreads: params.offthreadVideoThreads,
+			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
 		};
 		return payload;
 	});
@@ -321,7 +342,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		memorySizeInMb: insideFunctionSpecifics.getCurrentMemorySizeInMb(),
 		region: insideFunctionSpecifics.getCurrentRegionInFunction(),
 		renderId: params.renderId,
-		outName: params.outName ?? undefined,
+		outName: removeOutnameCredentials(params.outName ?? undefined),
 		privacy: params.privacy,
 		everyNthFrame: params.everyNthFrame,
 		frameRange: realFrameRange,

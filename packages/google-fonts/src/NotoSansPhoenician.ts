@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Phoenician',
 	importName: 'NotoSansPhoenician',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Phoenician:ital,wght@0,400',
 	unicodeRanges: {
 		phoenician: 'U+10900-1091B, U+1091F',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				phoenician:
-					'https://fonts.gstatic.com/s/notosansphoenician/v17/jizFRF9Ksm4Bt9PvcTaEkIHiTVtxmFtS5U6OqN6Z5w.woff2',
+					'https://fonts.gstatic.com/s/notosansphoenician/v18/jizFRF9Ksm4Bt9PvcTaEkIHiTVtxmFtS5U6OqN6Z5w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansphoenician/v17/jizFRF9Ksm4Bt9PvcTaEkIHiTVtxmFtS5U7AqN6Z5w.woff2',
+					'https://fonts.gstatic.com/s/notosansphoenician/v18/jizFRF9Ksm4Bt9PvcTaEkIHiTVtxmFtS5U7AqN6Z5w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansphoenician/v17/jizFRF9Ksm4Bt9PvcTaEkIHiTVtxmFtS5U7OqN4.woff2',
+					'https://fonts.gstatic.com/s/notosansphoenician/v18/jizFRF9Ksm4Bt9PvcTaEkIHiTVtxmFtS5U7OqN4.woff2',
 			},
 		},
 	},

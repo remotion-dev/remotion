@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Vithkuqi',
 	importName: 'NotoSerifVithkuqi',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Vithkuqi:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		vithkuqi:
@@ -17,35 +17,35 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vithkuqi:
-					'https://fonts.gstatic.com/s/notoserifvithkuqi/v2/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45WNtQi2Qmw.woff2',
+					'https://fonts.gstatic.com/s/notoserifvithkuqi/v3/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45WNtQi2Qmw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifvithkuqi/v2/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dhMZxCp.woff2',
+					'https://fonts.gstatic.com/s/notoserifvithkuqi/v3/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dhMZxCp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifvithkuqi/v2/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dZMZw.woff2',
+					'https://fonts.gstatic.com/s/notoserifvithkuqi/v3/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dZMZw.woff2',
 			},
 			'500': {
 				vithkuqi:
-					'https://fonts.gstatic.com/s/notoserifvithkuqi/v2/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45WNtQi2Qmw.woff2',
+					'https://fonts.gstatic.com/s/notoserifvithkuqi/v3/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45WNtQi2Qmw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifvithkuqi/v2/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dhMZxCp.woff2',
+					'https://fonts.gstatic.com/s/notoserifvithkuqi/v3/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dhMZxCp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifvithkuqi/v2/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dZMZw.woff2',
+					'https://fonts.gstatic.com/s/notoserifvithkuqi/v3/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dZMZw.woff2',
 			},
 			'600': {
 				vithkuqi:
-					'https://fonts.gstatic.com/s/notoserifvithkuqi/v2/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45WNtQi2Qmw.woff2',
+					'https://fonts.gstatic.com/s/notoserifvithkuqi/v3/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45WNtQi2Qmw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifvithkuqi/v2/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dhMZxCp.woff2',
+					'https://fonts.gstatic.com/s/notoserifvithkuqi/v3/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dhMZxCp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifvithkuqi/v2/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dZMZw.woff2',
+					'https://fonts.gstatic.com/s/notoserifvithkuqi/v3/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dZMZw.woff2',
 			},
 			'700': {
 				vithkuqi:
-					'https://fonts.gstatic.com/s/notoserifvithkuqi/v2/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45WNtQi2Qmw.woff2',
+					'https://fonts.gstatic.com/s/notoserifvithkuqi/v3/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45WNtQi2Qmw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifvithkuqi/v2/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dhMZxCp.woff2',
+					'https://fonts.gstatic.com/s/notoserifvithkuqi/v3/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dhMZxCp.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifvithkuqi/v2/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dZMZw.woff2',
+					'https://fonts.gstatic.com/s/notoserifvithkuqi/v3/YA9Pr1OY7FjTf5szakutkndpw9HH-4a45dZMZw.woff2',
 			},
 		},
 	},

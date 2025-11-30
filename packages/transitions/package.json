@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/transitions"
 	},
 	"name": "@remotion/transitions",
-	"version": "4.0.340",
+	"version": "4.0.379",
 	"description": "Library for creating transitions in Remotion",
 	"sideEffects": false,
 	"main": "dist/esm/index.mjs",
@@ -29,12 +29,12 @@
 	"devDependencies": {
 		"@happy-dom/global-registrator": "14.5.1",
 		"remotion": "workspace:*",
-		"react": "19.0.0",
-		"react-dom": "19.0.0",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"@remotion/test-utils": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "9.19.0"
+		"eslint": "catalog:"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

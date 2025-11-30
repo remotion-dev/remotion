@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Abhaya Libre',
 	importName: 'AbhayaLibre',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Abhaya+Libre:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		sinhala:
@@ -17,43 +17,43 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				sinhala:
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3tmeuGtX-Co5MNzeAOqinEQYUnXkvc.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3tmeuGtX-Co5MNzeAOqinEQYUnXkvc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3tmeuGtX-Co5MNzeAOqinEQcknXkvc.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3tmeuGtX-Co5MNzeAOqinEQcknXkvc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3tmeuGtX-Co5MNzeAOqinEQfEnX.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3tmeuGtX-Co5MNzeAOqinEQfEnX.woff2',
 			},
 			'500': {
 				sinhala:
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3t5euGtX-Co5MNzeAOqinEYj2rCsNZJ2oY.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3t5euGtX-Co5MNzeAOqinEYj2rCsNZJ2oY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3t5euGtX-Co5MNzeAOqinEYj2rCo9ZJ2oY.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3t5euGtX-Co5MNzeAOqinEYj2rCo9ZJ2oY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3t5euGtX-Co5MNzeAOqinEYj2rCrdZJ.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3t5euGtX-Co5MNzeAOqinEYj2rCrdZJ.woff2',
 			},
 			'600': {
 				sinhala:
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3t5euGtX-Co5MNzeAOqinEYo23CsNZJ2oY.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3t5euGtX-Co5MNzeAOqinEYo23CsNZJ2oY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3t5euGtX-Co5MNzeAOqinEYo23Co9ZJ2oY.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3t5euGtX-Co5MNzeAOqinEYo23Co9ZJ2oY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3t5euGtX-Co5MNzeAOqinEYo23CrdZJ.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3t5euGtX-Co5MNzeAOqinEYo23CrdZJ.woff2',
 			},
 			'700': {
 				sinhala:
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3t5euGtX-Co5MNzeAOqinEYx2zCsNZJ2oY.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3t5euGtX-Co5MNzeAOqinEYx2zCsNZJ2oY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3t5euGtX-Co5MNzeAOqinEYx2zCo9ZJ2oY.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3t5euGtX-Co5MNzeAOqinEYx2zCo9ZJ2oY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3t5euGtX-Co5MNzeAOqinEYx2zCrdZJ.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3t5euGtX-Co5MNzeAOqinEYx2zCrdZJ.woff2',
 			},
 			'800': {
 				sinhala:
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3t5euGtX-Co5MNzeAOqinEY22_CsNZJ2oY.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3t5euGtX-Co5MNzeAOqinEY22_CsNZJ2oY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3t5euGtX-Co5MNzeAOqinEY22_Co9ZJ2oY.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3t5euGtX-Co5MNzeAOqinEY22_Co9ZJ2oY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/abhayalibre/v17/e3t5euGtX-Co5MNzeAOqinEY22_CrdZJ.woff2',
+					'https://fonts.gstatic.com/s/abhayalibre/v18/e3t5euGtX-Co5MNzeAOqinEY22_CrdZJ.woff2',
 			},
 		},
 	},

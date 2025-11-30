@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bubbler One',
 	importName: 'BubblerOne',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Bubbler+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/bubblerone/v21/f0Xy0eqj68ppQV9KBLmAotHO0aI_eA.woff2',
+					'https://fonts.gstatic.com/s/bubblerone/v22/f0Xy0eqj68ppQV9KBLmAotHO0aI_eA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/bubblerone/v21/f0Xy0eqj68ppQV9KBLmAotHA0aI.woff2',
+					'https://fonts.gstatic.com/s/bubblerone/v22/f0Xy0eqj68ppQV9KBLmAotHA0aI.woff2',
 			},
 		},
 	},

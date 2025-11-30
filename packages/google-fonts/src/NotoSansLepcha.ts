@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Lepcha',
 	importName: 'NotoSansLepcha',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Lepcha:ital,wght@0,400',
 	unicodeRanges: {
 		lepcha: 'U+1C00-1C4F, U+200C-200D, U+25CC',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				lepcha:
-					'https://fonts.gstatic.com/s/notosanslepcha/v19/0QI7MWlB_JWgA166SKhu05TekNS36D1mt5BX.woff2',
+					'https://fonts.gstatic.com/s/notosanslepcha/v20/0QI7MWlB_JWgA166SKhu05TekNS36D1mt5BX.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanslepcha/v19/0QI7MWlB_JWgA166SKhu05TekNS36Atmt5BX.woff2',
+					'https://fonts.gstatic.com/s/notosanslepcha/v20/0QI7MWlB_JWgA166SKhu05TekNS36Atmt5BX.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanslepcha/v19/0QI7MWlB_JWgA166SKhu05TekNS36AVmtw.woff2',
+					'https://fonts.gstatic.com/s/notosanslepcha/v20/0QI7MWlB_JWgA166SKhu05TekNS36AVmtw.woff2',
 			},
 		},
 	},

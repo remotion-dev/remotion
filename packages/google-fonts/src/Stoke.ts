@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Stoke',
 	importName: 'Stoke',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Stoke:ital,wght@0,300;0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/stoke/v25/z7NXdRb7aTMfKNvFVjxL9JnsTQ.woff2',
+					'https://fonts.gstatic.com/s/stoke/v26/z7NXdRb7aTMfKNvFVjxL9JnsTQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/stoke/v25/z7NXdRb7aTMfKNvFVjxF9Jk.woff2',
+					'https://fonts.gstatic.com/s/stoke/v26/z7NXdRb7aTMfKNvFVjxF9Jk.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/stoke/v25/z7NadRb7aTMfKNNgdCl61Q.woff2',
+					'https://fonts.gstatic.com/s/stoke/v26/z7NadRb7aTMfKNNgdCl61Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/stoke/v25/z7NadRb7aTMfKNNudCk.woff2',
+					'https://fonts.gstatic.com/s/stoke/v26/z7NadRb7aTMfKNNudCk.woff2',
 			},
 		},
 	},

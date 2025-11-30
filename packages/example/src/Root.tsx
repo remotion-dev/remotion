@@ -53,6 +53,7 @@ import {
 } from './Postmount/PostmountExample';
 import {PremountedExample} from './Premount';
 import {PremountedRemoteVideos} from './Premount/RemoteVideos';
+import ReactSvg from './ReactSvg';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import {RetryDelayRender} from './RetryDelayRender';
@@ -114,13 +115,14 @@ if (alias !== 'alias') {
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
+import {parseMedia} from '@remotion/media-parser';
 import {zMatrix} from '@remotion/zod-types';
 import {ThreeDCheck} from './3DCheck';
 import {ThreeDContext} from './3DContext';
-import {ThreeDEngine} from './3DEngine';
 import {ThreeDSvgContent} from './3DSvgContent';
 import {AnimatedImages} from './AnimatedImage/Avif';
 import Amplify from './AudioTesting/Amplify';
+import {CTAEndCard} from './CallToAction';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
@@ -129,9 +131,10 @@ import {
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
-import {NewVideoExample} from './NewVideo/NewVideo';
+import {NewAudioExample} from './NewAudio/NewAudio';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
+import {NewVideoComp} from './OffthreadRemoteVideo/NewRemoteVideo';
 import {OffthreadRemoteSeries} from './OffthreadRemoteVideo/OffthreadRemoteSeries';
 import {ParseAndDownloadMedia} from './ParseAndDownloadMedia';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
@@ -141,6 +144,7 @@ import {Seek} from './StudioApis/Seek';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
+import {TriangleComp} from './Triangle';
 import {VideoTestingPlayback} from './VideoTesting/playback';
 import {VideoTestingTrim} from './VideoTesting/trim';
 import {VisualControls} from './VisualControls';
@@ -625,12 +629,13 @@ export const Index: React.FC = () => {
 				<Still
 					id="FitTextOnNLines"
 					component={FitTextOnNLines}
-					width={1300}
-					height={350}
+					width={1600}
+					height={500}
 					schema={fitTextOnNLinesSchema}
 					defaultProps={{
-						line: 'No matter how much text I am adding, the text always fits on 2 lines and there is corner rounding like on TikTok.',
-						maxLines: 2,
+						text: 'No matter how much text I am adding, the text always fits on 3 lines and there is corner rounding like on TikTok.',
+						maxLines: 3,
+						textAlign: 'right' as const,
 					}}
 				/>
 				<Composition
@@ -656,7 +661,7 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="react-svg"
-					lazyComponent={() => import('./ReactSvg')}
+					component={ReactSvg}
 					width={1920}
 					height={1080}
 					fps={60}
@@ -666,14 +671,32 @@ export const Index: React.FC = () => {
 					}}
 				/>
 			</Folder>
-			<Folder name="new-video-tests">
+			<Folder name="new-media-tags">
 				<Composition
-					id="longVideo"
-					component={NewVideoExample}
+					id="new-audio"
+					component={NewAudioExample}
 					fps={30}
-					height={720}
-					width={1280}
-					durationInFrames={30 * 25}
+					defaultProps={{
+						src: staticFile('music.mp3'),
+					}}
+					calculateMetadata={async ({props}) => {
+						const fps = 30;
+
+						const {slowDurationInSeconds} = await parseMedia({
+							src: props.src as string,
+							fields: {
+								slowDurationInSeconds: true,
+							},
+						});
+
+						return {
+							props: props,
+							durationInFrames: Math.round(slowDurationInSeconds * fps),
+							fps,
+							width: 800,
+							height: 800,
+						};
+					}}
 				/>
 				<Composition
 					id="video-testing-playback-codec"
@@ -755,6 +778,7 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<OffthreadRemoteVideo />
+				<NewVideoComp />
 				<OffthreadRemoteSeries />
 				<LoopedOffthreadRemoteVideo />
 				<MultiChannelAudio />
@@ -1643,7 +1667,6 @@ export const Index: React.FC = () => {
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
 			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
 			<Folder name="3DEngine">
-				<ThreeDEngine />
 				<Composition
 					id="3DCheck"
 					component={ThreeDCheck}
@@ -1659,7 +1682,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={273}
 					schema={whatIsRemotionSchema}
-					defaultProps={{fade: false, whiteBackground: true, reel: false}}
+					defaultProps={{fade: false, whiteBackground: false, reel: false}}
 					calculateMetadata={whatIsRemotionCalculateMetadata}
 				/>
 				<Composition
@@ -1732,6 +1755,33 @@ export const Index: React.FC = () => {
 				height={2160}
 				fps={30}
 				durationInFrames={500}
+			/>
+			<Composition
+				id="CallToAction"
+				component={CTAEndCard}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+				defaultProps={{
+					cornerRadius: 10,
+				}}
+				calculateMetadata={() => {
+					return {
+						defaultPixelFormat: 'yuva444p10le',
+						defaultCodec: 'prores',
+						defaultProResProfile: '4444',
+						defaultVideoImageFormat: 'png',
+					};
+				}}
+			/>
+			<Composition
+				id="Triangle"
+				component={TriangleComp}
+				width={100}
+				height={100}
+				fps={30}
+				durationInFrames={100}
 			/>
 		</>
 	);

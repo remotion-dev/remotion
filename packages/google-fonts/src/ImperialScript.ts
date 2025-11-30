@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Imperial Script',
 	importName: 'ImperialScript',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Imperial+Script:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/imperialscript/v7/5DCPAKrpzy_H98IV2ISnZBbGrVNfNePkjts.woff2',
+					'https://fonts.gstatic.com/s/imperialscript/v8/5DCPAKrpzy_H98IV2ISnZBbGrVNfNePkjts.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/imperialscript/v7/5DCPAKrpzy_H98IV2ISnZBbGrVNfNOPkjts.woff2',
+					'https://fonts.gstatic.com/s/imperialscript/v8/5DCPAKrpzy_H98IV2ISnZBbGrVNfNOPkjts.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/imperialscript/v7/5DCPAKrpzy_H98IV2ISnZBbGrVNfOuPk.woff2',
+					'https://fonts.gstatic.com/s/imperialscript/v8/5DCPAKrpzy_H98IV2ISnZBbGrVNfOuPk.woff2',
 			},
 		},
 	},

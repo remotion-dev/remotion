@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Lakki Reddy',
 	importName: 'LakkiReddy',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Lakki+Reddy:ital,wght@0,400',
 	unicodeRanges: {
 		telugu:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				telugu:
-					'https://fonts.gstatic.com/s/lakkireddy/v24/S6u5w49MUSzD9jlCPmvLZTfzzdgN7w.woff2',
+					'https://fonts.gstatic.com/s/lakkireddy/v25/S6u5w49MUSzD9jlCPmvLZTfzzdgN7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lakkireddy/v24/S6u5w49MUSzD9jlCPmvLZTfvzdg.woff2',
+					'https://fonts.gstatic.com/s/lakkireddy/v25/S6u5w49MUSzD9jlCPmvLZTfvzdg.woff2',
 			},
 		},
 	},

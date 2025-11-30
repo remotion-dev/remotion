@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Alatsi',
 	importName: 'Alatsi',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Alatsi:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -19,13 +19,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/alatsi/v13/TK3iWkUJAxQ2nLN2FD8Ghe4.woff2',
+					'https://fonts.gstatic.com/s/alatsi/v14/TK3iWkUJAxQ2nLN2FD8Ghe4.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/alatsi/v13/TK3iWkUJAxQ2nLN2Fj8Ghe4.woff2',
+					'https://fonts.gstatic.com/s/alatsi/v14/TK3iWkUJAxQ2nLN2Fj8Ghe4.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/alatsi/v13/TK3iWkUJAxQ2nLN2Fz8Ghe4.woff2',
+					'https://fonts.gstatic.com/s/alatsi/v14/TK3iWkUJAxQ2nLN2Fz8Ghe4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/alatsi/v13/TK3iWkUJAxQ2nLN2GT8G.woff2',
+					'https://fonts.gstatic.com/s/alatsi/v14/TK3iWkUJAxQ2nLN2GT8G.woff2',
 			},
 		},
 	},

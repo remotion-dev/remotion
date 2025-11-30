@@ -1,6 +1,12 @@
 import {expect, test} from 'bun:test';
 import React from 'react';
-import {Audio, Sequence, Video, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Html5Audio,
+	Html5Video,
+	interpolate,
+	Sequence,
+	useCurrentFrame,
+} from 'remotion';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 import type {MediaAsset} from '../assets/types';
 import {onlyAudioAndVideoAssets} from '../filter-asset-types';
@@ -30,7 +36,7 @@ const withoutId = (asset: MediaAsset) => {
 
 test('Should be able to collect assets', async () => {
 	const assetPositions = await getPositions(() => (
-		<Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
+		<Html5Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
 	));
 	expect(assetPositions.length).toBe(1);
 	expect(withoutId(assetPositions[0])).toEqual({
@@ -41,7 +47,7 @@ test('Should be able to collect assets', async () => {
 		trimLeft: 0,
 		volume: 1,
 		playbackRate: 1,
-		toneFrequency: null,
+		toneFrequency: 1,
 		audioStartFrame: 0,
 		audioStreamIndex: 0,
 	});
@@ -50,8 +56,8 @@ test('Should be able to collect assets', async () => {
 test('Should get multiple assets', async () => {
 	const assetPositions = await getPositions(() => (
 		<div>
-			<Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
-			<Audio src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp3" />
+			<Html5Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
+			<Html5Audio src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp3" />
 		</div>
 	));
 	expect(assetPositions.length).toBe(2);
@@ -63,7 +69,7 @@ test('Should get multiple assets', async () => {
 		trimLeft: 0,
 		volume: 1,
 		playbackRate: 1,
-		toneFrequency: null,
+		toneFrequency: 1,
 		audioStartFrame: 0,
 		audioStreamIndex: 0,
 	});
@@ -75,7 +81,7 @@ test('Should get multiple assets', async () => {
 		trimLeft: 0,
 		volume: 1,
 		playbackRate: 1,
-		toneFrequency: null,
+		toneFrequency: 1,
 		audioStartFrame: 0,
 		audioStreamIndex: 0,
 	});
@@ -87,7 +93,7 @@ test('Should handle jumps inbetween', async () => {
 		return (
 			<div>
 				{frame === 20 ? null : (
-					<Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
+					<Html5Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
 				)}
 			</div>
 		);
@@ -101,7 +107,7 @@ test('Should handle jumps inbetween', async () => {
 		trimLeft: 0,
 		volume: 1,
 		playbackRate: 1,
-		toneFrequency: null,
+		toneFrequency: 1,
 		audioStartFrame: 0,
 		audioStreamIndex: 0,
 	});
@@ -113,7 +119,7 @@ test('Should handle jumps inbetween', async () => {
 		trimLeft: 21,
 		volume: 1,
 		playbackRate: 1,
-		toneFrequency: null,
+		toneFrequency: 1,
 		audioStartFrame: 0,
 		audioStreamIndex: 0,
 	});
@@ -123,7 +129,7 @@ test('Should support sequencing', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
 			<Sequence durationInFrames={30} from={-20}>
-				<Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
+				<Html5Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
 			</Sequence>
 		);
 	});
@@ -136,7 +142,7 @@ test('Should support sequencing', async () => {
 		trimLeft: 20,
 		volume: 1,
 		playbackRate: 1,
-		toneFrequency: null,
+		toneFrequency: 1,
 		audioStartFrame: 20,
 		audioStreamIndex: 0,
 	});
@@ -145,7 +151,7 @@ test('Should support sequencing', async () => {
 test('Should calculate volumes correctly', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
-			<Video
+			<Html5Video
 				volume={(f) =>
 					interpolate(f, [0, 4], [0, 1], {
 						extrapolateRight: 'clamp',
@@ -169,7 +175,7 @@ test('Should calculate volumes correctly', async () => {
 				interpolate(i, [0, 4], [0, 1], {extrapolateRight: 'clamp'}),
 			)
 			.filter((f) => f > 0),
-		toneFrequency: null,
+		toneFrequency: 1,
 		audioStartFrame: 0,
 		audioStreamIndex: 0,
 	});
@@ -179,9 +185,9 @@ test('Should calculate startFrom correctly', async () => {
 	const assetPositions = await getPositions(() => {
 		return (
 			<Sequence from={1}>
-				<Audio
-					startFrom={100}
-					endAt={200}
+				<Html5Audio
+					trimBefore={100}
+					trimAfter={200}
 					src={
 						'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4'
 					}
@@ -212,7 +218,7 @@ test('Should calculate startFrom correctly', async () => {
 				}),
 			)
 			.filter((i) => i > 0),
-		toneFrequency: null,
+		toneFrequency: 1,
 		audioStartFrame: 100,
 		audioStreamIndex: 0,
 	});

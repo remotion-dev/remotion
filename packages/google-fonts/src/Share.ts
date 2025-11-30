@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Share',
 	importName: 'Share',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Share:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,29 +15,29 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/share/v19/i7dKIFliZjKNF6VPJreedX5d.woff2',
+					'https://fonts.gstatic.com/s/share/v20/i7dKIFliZjKNF6VPJreedX5d.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/share/v19/i7dKIFliZjKNF6VPJrmedQ.woff2',
+					'https://fonts.gstatic.com/s/share/v20/i7dKIFliZjKNF6VPJrmedQ.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/share/v19/i7dPIFliZjKNF6VPLgK7YE98RWq7.woff2',
+					'https://fonts.gstatic.com/s/share/v20/i7dPIFliZjKNF6VPLgK7YE98RWq7.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/share/v19/i7dPIFliZjKNF6VPLgK7YEF8RQ.woff2',
+					'https://fonts.gstatic.com/s/share/v20/i7dPIFliZjKNF6VPLgK7YEF8RQ.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/share/v19/i7dEIFliZjKNF6VEFruGcQ.woff2',
+					'https://fonts.gstatic.com/s/share/v20/i7dEIFliZjKNF6VEFruGcQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/share/v19/i7dEIFliZjKNF6VKFrs.woff2',
+					'https://fonts.gstatic.com/s/share/v20/i7dEIFliZjKNF6VKFrs.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/share/v19/i7dJIFliZjKNF63xM663UENkQQ.woff2',
+					'https://fonts.gstatic.com/s/share/v20/i7dJIFliZjKNF63xM663UENkQQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/share/v19/i7dJIFliZjKNF63xM665UEM.woff2',
+					'https://fonts.gstatic.com/s/share/v20/i7dJIFliZjKNF63xM665UEM.woff2',
 			},
 		},
 	},

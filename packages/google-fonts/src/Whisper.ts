@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Whisper',
 	importName: 'Whisper',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Whisper:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/whisper/v6/q5uHsoqtKftx74K9qiFIBixd.woff2',
+					'https://fonts.gstatic.com/s/whisper/v7/q5uHsoqtKftx74K9qiFIBixd.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/whisper/v6/q5uHsoqtKftx74K9qiBIBixd.woff2',
+					'https://fonts.gstatic.com/s/whisper/v7/q5uHsoqtKftx74K9qiBIBixd.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/whisper/v6/q5uHsoqtKftx74K9qi5IBg.woff2',
+					'https://fonts.gstatic.com/s/whisper/v7/q5uHsoqtKftx74K9qi5IBg.woff2',
 			},
 		},
 	},

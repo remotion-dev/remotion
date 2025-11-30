@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Patrick Hand SC',
 	importName: 'PatrickHandSC',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Patrick+Hand+SC:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/patrickhandsc/v16/0nkwC9f7MfsBiWcLtY65AWDK873lgSK7FQc.woff2',
+					'https://fonts.gstatic.com/s/patrickhandsc/v17/0nkwC9f7MfsBiWcLtY65AWDK873lgSK7FQc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/patrickhandsc/v16/0nkwC9f7MfsBiWcLtY65AWDK873lgCK7FQc.woff2',
+					'https://fonts.gstatic.com/s/patrickhandsc/v17/0nkwC9f7MfsBiWcLtY65AWDK873lgCK7FQc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/patrickhandsc/v16/0nkwC9f7MfsBiWcLtY65AWDK873ljiK7.woff2',
+					'https://fonts.gstatic.com/s/patrickhandsc/v17/0nkwC9f7MfsBiWcLtY65AWDK873ljiK7.woff2',
 			},
 		},
 	},

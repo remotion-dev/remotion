@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Tagbanwa',
 	importName: 'NotoSansTagbanwa',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Tagbanwa:ital,wght@0,400',
 	unicodeRanges: {
 		tagbanwa: 'U+1735-1736, U+1760-177F, U+200C-200D, U+25CC',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				tagbanwa:
-					'https://fonts.gstatic.com/s/notosanstagbanwa/v18/Y4GWYbB8VTEp4t3MKJSMmQdIKjRtt_npJj4FWYo.woff2',
+					'https://fonts.gstatic.com/s/notosanstagbanwa/v19/Y4GWYbB8VTEp4t3MKJSMmQdIKjRtt_npJj4FWYo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanstagbanwa/v18/Y4GWYbB8VTEp4t3MKJSMmQdIKjRtt_npTz4FWYo.woff2',
+					'https://fonts.gstatic.com/s/notosanstagbanwa/v19/Y4GWYbB8VTEp4t3MKJSMmQdIKjRtt_npTz4FWYo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanstagbanwa/v18/Y4GWYbB8VTEp4t3MKJSMmQdIKjRtt_npQT4F.woff2',
+					'https://fonts.gstatic.com/s/notosanstagbanwa/v19/Y4GWYbB8VTEp4t3MKJSMmQdIKjRtt_npQT4F.woff2',
 			},
 		},
 	},

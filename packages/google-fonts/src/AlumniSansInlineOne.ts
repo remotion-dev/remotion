@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Alumni Sans Inline One',
 	importName: 'AlumniSansInlineOne',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Alumni+Sans+Inline+One:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,21 +17,21 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/alumnisansinlineone/v6/RrQDbpJx9zZ3IXTBOASKp5gJAetBdaihcjbpP3Ijfpb1TYw.woff2',
+					'https://fonts.gstatic.com/s/alumnisansinlineone/v7/RrQDbpJx9zZ3IXTBOASKp5gJAetBdaihcjbpP3Ijfpb1TYw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/alumnisansinlineone/v6/RrQDbpJx9zZ3IXTBOASKp5gJAetBdaihcjbpP3Ijf5b1TYw.woff2',
+					'https://fonts.gstatic.com/s/alumnisansinlineone/v7/RrQDbpJx9zZ3IXTBOASKp5gJAetBdaihcjbpP3Ijf5b1TYw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/alumnisansinlineone/v6/RrQDbpJx9zZ3IXTBOASKp5gJAetBdaihcjbpP3IjcZb1.woff2',
+					'https://fonts.gstatic.com/s/alumnisansinlineone/v7/RrQDbpJx9zZ3IXTBOASKp5gJAetBdaihcjbpP3IjcZb1.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/alumnisansinlineone/v6/RrQBbpJx9zZ3IXTBOASKp5gJAetBdaihcjbpP3gTc47x.woff2',
+					'https://fonts.gstatic.com/s/alumnisansinlineone/v7/RrQBbpJx9zZ3IXTBOASKp5gJAetBdaihcjbpP3gTc47x.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/alumnisansinlineone/v6/RrQBbpJx9zZ3IXTBOASKp5gJAetBdaihcjbpP3kTc47x.woff2',
+					'https://fonts.gstatic.com/s/alumnisansinlineone/v7/RrQBbpJx9zZ3IXTBOASKp5gJAetBdaihcjbpP3kTc47x.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/alumnisansinlineone/v6/RrQBbpJx9zZ3IXTBOASKp5gJAetBdaihcjbpP3cTcw.woff2',
+					'https://fonts.gstatic.com/s/alumnisansinlineone/v7/RrQBbpJx9zZ3IXTBOASKp5gJAetBdaihcjbpP3cTcw.woff2',
 			},
 		},
 	},

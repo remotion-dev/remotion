@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sometype Mono',
 	importName: 'SometypeMono',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Sometype+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,53 +15,53 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lLu745KGk_R3uxyq0WrROhKpGRTW9Gzm8.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lLu745KGk_R3uxyq0WrROhKpGRTW9Gzm8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lLu745KGk_R3uxyq0WrROhKpGRQ29G.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lLu745KGk_R3uxyq0WrROhKpGRQ29G.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lLu745KGk_R3uxyq0WrROhKpGRTW9Gzm8.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lLu745KGk_R3uxyq0WrROhKpGRTW9Gzm8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lLu745KGk_R3uxyq0WrROhKpGRQ29G.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lLu745KGk_R3uxyq0WrROhKpGRQ29G.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lLu745KGk_R3uxyq0WrROhKpGRTW9Gzm8.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lLu745KGk_R3uxyq0WrROhKpGRTW9Gzm8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lLu745KGk_R3uxyq0WrROhKpGRQ29G.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lLu745KGk_R3uxyq0WrROhKpGRQ29G.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lLu745KGk_R3uxyq0WrROhKpGRTW9Gzm8.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lLu745KGk_R3uxyq0WrROhKpGRTW9Gzm8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lLu745KGk_R3uxyq0WrROhKpGRQ29G.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lLu745KGk_R3uxyq0WrROhKpGRQ29G.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lVu745KGk_R3uxyq0WrROhKpqhQXdC.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lVu745KGk_R3uxyq0WrROhKpqhQXdC.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lVu745KGk_R3uxyq0WrROhKpShQQ.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lVu745KGk_R3uxyq0WrROhKpShQQ.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lVu745KGk_R3uxyq0WrROhKpqhQXdC.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lVu745KGk_R3uxyq0WrROhKpqhQXdC.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lVu745KGk_R3uxyq0WrROhKpShQQ.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lVu745KGk_R3uxyq0WrROhKpShQQ.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lVu745KGk_R3uxyq0WrROhKpqhQXdC.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lVu745KGk_R3uxyq0WrROhKpqhQXdC.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lVu745KGk_R3uxyq0WrROhKpShQQ.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lVu745KGk_R3uxyq0WrROhKpShQQ.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lVu745KGk_R3uxyq0WrROhKpqhQXdC.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lVu745KGk_R3uxyq0WrROhKpqhQXdC.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sometypemono/v3/70lVu745KGk_R3uxyq0WrROhKpShQQ.woff2',
+					'https://fonts.gstatic.com/s/sometypemono/v4/70lVu745KGk_R3uxyq0WrROhKpShQQ.woff2',
 			},
 		},
 	},

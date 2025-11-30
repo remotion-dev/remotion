@@ -5,7 +5,6 @@ import type {
 	ColorSpace,
 	LogLevel,
 	PixelFormat,
-	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
 	X264Preset,
@@ -21,6 +20,7 @@ import type {
 	RequiredChromiumOptions,
 	VisualControlChange,
 } from '@remotion/studio-shared';
+import type {_InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {callApi} from '../call-api';
 
@@ -42,6 +42,7 @@ export const addStillRenderJob = ({
 	beepOnFinish,
 	metadata,
 	chromeMode,
+	mediaCacheSizeInBytes,
 }: {
 	compositionId: string;
 	outName: string;
@@ -60,6 +61,7 @@ export const addStillRenderJob = ({
 	beepOnFinish: boolean;
 	metadata: Record<string, string> | null;
 	chromeMode: ChromeMode;
+	mediaCacheSizeInBytes: number | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -85,6 +87,7 @@ export const addStillRenderJob = ({
 		beepOnFinish,
 		metadata,
 		chromeMode,
+		mediaCacheSizeInBytes,
 	});
 };
 
@@ -110,6 +113,7 @@ export const addSequenceRenderJob = ({
 	repro,
 	metadata,
 	chromeMode,
+	mediaCacheSizeInBytes,
 }: {
 	compositionId: string;
 	outName: string;
@@ -132,6 +136,7 @@ export const addSequenceRenderJob = ({
 	repro: boolean;
 	metadata: Record<string, string> | null;
 	chromeMode: ChromeMode;
+	mediaCacheSizeInBytes: number | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -161,6 +166,7 @@ export const addSequenceRenderJob = ({
 		repro,
 		metadata,
 		chromeMode,
+		mediaCacheSizeInBytes,
 	});
 };
 
@@ -204,6 +210,7 @@ export const addVideoRenderJob = ({
 	metadata,
 	hardwareAcceleration,
 	chromeMode,
+	mediaCacheSizeInBytes,
 }: {
 	compositionId: string;
 	outName: string;
@@ -218,7 +225,7 @@ export const addVideoRenderJob = ({
 	endFrame: number;
 	muted: boolean;
 	enforceAudioTrack: boolean;
-	proResProfile: ProResProfile | null;
+	proResProfile: _InternalTypes['ProResProfile'] | null;
 	x264Preset: X264Preset | null;
 	pixelFormat: PixelFormat;
 	audioBitrate: string | null;
@@ -244,6 +251,7 @@ export const addVideoRenderJob = ({
 	metadata: Record<string, string> | null;
 	hardwareAcceleration: HardwareAccelerationOption;
 	chromeMode: ChromeMode;
+	mediaCacheSizeInBytes: number | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -291,6 +299,7 @@ export const addVideoRenderJob = ({
 		metadata,
 		hardwareAcceleration,
 		chromeMode,
+		mediaCacheSizeInBytes,
 	});
 };
 

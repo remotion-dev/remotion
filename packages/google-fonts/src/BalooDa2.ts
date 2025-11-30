@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Baloo Da Two',
 	importName: 'BalooDa2',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Baloo+Da+2:ital,wght@0,400;0,500;0,600;0,700;0,800',
 	unicodeRanges: {
 		bengali:
@@ -19,53 +19,53 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				bengali:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQvvdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQvvdoKFD.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQubdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQubdoKFD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQufdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQufdoKFD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQundoA.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQundoA.woff2',
 			},
 			'500': {
 				bengali:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQvvdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQvvdoKFD.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQubdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQubdoKFD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQufdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQufdoKFD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQundoA.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQundoA.woff2',
 			},
 			'600': {
 				bengali:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQvvdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQvvdoKFD.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQubdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQubdoKFD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQufdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQufdoKFD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQundoA.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQundoA.woff2',
 			},
 			'700': {
 				bengali:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQvvdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQvvdoKFD.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQubdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQubdoKFD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQufdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQufdoKFD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQundoA.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQundoA.woff2',
 			},
 			'800': {
 				bengali:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQvvdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQvvdoKFD.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQubdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQubdoKFD.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQufdoKFD.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQufdoKFD.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/balooda2/v25/2-ci9J9j0IaUMQZwAJyJQundoA.woff2',
+					'https://fonts.gstatic.com/s/balooda2/v26/2-ci9J9j0IaUMQZwAJyJQundoA.woff2',
 			},
 		},
 	},

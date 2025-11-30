@@ -1,4 +1,4 @@
-import { Audio } from "remotion";
+import { Html5Audio } from "remotion";
 import {
   AbsoluteFill,
   interpolate,
@@ -37,7 +37,7 @@ export const HelloWorld: React.FC<z.infer<typeof compSchema>> = ({
           text={text}
           titleColor={titleColor}
         />
-        <Audio src={createS3Url({ text, voice })} />
+        <Html5Audio src={createS3Url({ text, voice })} />
       </AbsoluteFill>
     </AbsoluteFill>
   );

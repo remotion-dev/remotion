@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Quattrocento',
 	importName: 'Quattrocento',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Quattrocento:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/quattrocento/v23/OZpEg_xvsDZQL_LKIF7q4jP3zWj6T4g.woff2',
+					'https://fonts.gstatic.com/s/quattrocento/v24/OZpEg_xvsDZQL_LKIF7q4jP3zWj6T4g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/quattrocento/v23/OZpEg_xvsDZQL_LKIF7q4jP3w2j6.woff2',
+					'https://fonts.gstatic.com/s/quattrocento/v24/OZpEg_xvsDZQL_LKIF7q4jP3w2j6.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/quattrocento/v23/OZpbg_xvsDZQL_LKIF7q4jP_eE3vfqnYgXc.woff2',
+					'https://fonts.gstatic.com/s/quattrocento/v24/OZpbg_xvsDZQL_LKIF7q4jP_eE3vfqnYgXc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/quattrocento/v23/OZpbg_xvsDZQL_LKIF7q4jP_eE3vcKnY.woff2',
+					'https://fonts.gstatic.com/s/quattrocento/v24/OZpbg_xvsDZQL_LKIF7q4jP_eE3vcKnY.woff2',
 			},
 		},
 	},

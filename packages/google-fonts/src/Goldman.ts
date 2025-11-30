@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Goldman',
 	importName: 'Goldman',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Goldman:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		vietnamese:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/goldman/v20/pe0uMIWbN4JFplR2HDpyB--7.woff2',
+					'https://fonts.gstatic.com/s/goldman/v21/pe0uMIWbN4JFplR2HDpyB--7.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/goldman/v20/pe0uMIWbN4JFplR2HDtyB--7.woff2',
+					'https://fonts.gstatic.com/s/goldman/v21/pe0uMIWbN4JFplR2HDtyB--7.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/goldman/v20/pe0uMIWbN4JFplR2HDVyBw.woff2',
+					'https://fonts.gstatic.com/s/goldman/v21/pe0uMIWbN4JFplR2HDVyBw.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/goldman/v20/pe0rMIWbN4JFplR2FI5XEt-aBuZr.woff2',
+					'https://fonts.gstatic.com/s/goldman/v21/pe0rMIWbN4JFplR2FI5XEt-aBuZr.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/goldman/v20/pe0rMIWbN4JFplR2FI5XEt6aBuZr.woff2',
+					'https://fonts.gstatic.com/s/goldman/v21/pe0rMIWbN4JFplR2FI5XEt6aBuZr.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/goldman/v20/pe0rMIWbN4JFplR2FI5XEtCaBg.woff2',
+					'https://fonts.gstatic.com/s/goldman/v21/pe0rMIWbN4JFplR2FI5XEtCaBg.woff2',
 			},
 		},
 	},

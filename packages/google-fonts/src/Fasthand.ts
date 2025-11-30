@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fasthand',
 	importName: 'Fasthand',
-	version: 'v32',
+	version: 'v33',
 	url: 'https://fonts.googleapis.com/css2?family=Fasthand:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/fasthand/v32/0yb9GDohyKTYn_ZEERkiaE0GrQ.woff2',
+					'https://fonts.gstatic.com/s/fasthand/v33/0yb9GDohyKTYn_ZEERkiaE0GrQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fasthand/v32/0yb9GDohyKTYn_ZEERkpaE0.woff2',
+					'https://fonts.gstatic.com/s/fasthand/v33/0yb9GDohyKTYn_ZEERkpaE0.woff2',
 			},
 		},
 	},

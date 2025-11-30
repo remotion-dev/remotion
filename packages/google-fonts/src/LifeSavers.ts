@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Life Savers',
 	importName: 'LifeSavers',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Life+Savers:ital,wght@0,400;0,700;0,800',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,21 +15,21 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lifesavers/v22/ZXuie1UftKKabUQMgxAal8liHAtruA.woff2',
+					'https://fonts.gstatic.com/s/lifesavers/v23/ZXuie1UftKKabUQMgxAal8liHAtruA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lifesavers/v22/ZXuie1UftKKabUQMgxAal8lsHAs.woff2',
+					'https://fonts.gstatic.com/s/lifesavers/v23/ZXuie1UftKKabUQMgxAal8lsHAs.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lifesavers/v22/ZXu_e1UftKKabUQMgxAal8HXOR5amcb4pA.woff2',
+					'https://fonts.gstatic.com/s/lifesavers/v23/ZXu_e1UftKKabUQMgxAal8HXOR5amcb4pA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lifesavers/v22/ZXu_e1UftKKabUQMgxAal8HXOR5UmcY.woff2',
+					'https://fonts.gstatic.com/s/lifesavers/v23/ZXu_e1UftKKabUQMgxAal8HXOR5UmcY.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/lifesavers/v22/ZXu_e1UftKKabUQMgxAal8HLOh5amcb4pA.woff2',
+					'https://fonts.gstatic.com/s/lifesavers/v23/ZXu_e1UftKKabUQMgxAal8HLOh5amcb4pA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/lifesavers/v22/ZXu_e1UftKKabUQMgxAal8HLOh5UmcY.woff2',
+					'https://fonts.gstatic.com/s/lifesavers/v23/ZXu_e1UftKKabUQMgxAal8HLOh5UmcY.woff2',
 			},
 		},
 	},

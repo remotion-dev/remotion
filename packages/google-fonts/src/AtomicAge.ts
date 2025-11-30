@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Atomic Age',
 	importName: 'AtomicAge',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Atomic+Age:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/atomicage/v28/f0Xz0eug6sdmRFkYZZGL18jn9J8G.woff2',
+					'https://fonts.gstatic.com/s/atomicage/v29/f0Xz0eug6sdmRFkYZZGL18jn9J8G.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/atomicage/v28/f0Xz0eug6sdmRFkYZZGL18bn9A.woff2',
+					'https://fonts.gstatic.com/s/atomicage/v29/f0Xz0eug6sdmRFkYZZGL18bn9A.woff2',
 			},
 		},
 	},

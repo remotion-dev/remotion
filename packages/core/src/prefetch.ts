@@ -131,7 +131,10 @@ export const prefetch = (
 		};
 	}
 
-	Log.verbose(logLevel, `[prefetch] Starting prefetch ${srcWithoutHash}`);
+	Log.verbose(
+		{logLevel, tag: 'prefetch'},
+		`Starting prefetch ${srcWithoutHash}`,
+	);
 
 	let canceled = false;
 	let objectUrl: string | null = null;

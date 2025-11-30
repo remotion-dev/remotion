@@ -77,7 +77,7 @@ The implementation of the `upload()` function is provider-specific and we do not
 
 ## Optimistic updates
 
-When we start the upload of the file, we can create a blob URL using `URL.createObjectURL()` which can be used to display the local file in a [`<Video>`](/docs/video) tag. When the file is done uploading and we get the remote URL, the component shall use remote URL as source.
+When we start the upload of the file, we can create a blob URL using `URL.createObjectURL()` which can be used to display the local file in a [`<Video>`](/docs/media/video) tag. When the file is done uploading and we get the remote URL, the component shall use remote URL as source.
 
 ```tsx twoslash title="App.tsx"
 const MyComposition: React.FC<{videoUrl: string}> = ({videoUrl}) => {
@@ -135,6 +135,14 @@ As soon as possible, replace the `blob:` URL with the real URL.
 Since `blob:` URLs don't support the HTTP `Range` header, video seeking performance is degraded when using `blob:` URLs.
 :::
 
+## Validating video compatibility
+
+Before uploading a video, you should validate whether the browser can decode it. This saves bandwidth and provides immediate feedback to the user. For a complete guide on validating user videos including handling incompatible formats, see [Validating user videos](/docs/validating-user-videos).
+
 ## See also
 
 - [Uploading with presigned URLs](/docs/presigned-urls)
+- [Validating user videos](/docs/validating-user-videos)
+- [Video formats](/docs/miscellaneous/video-formats)
+- [Check if video can be decoded](/docs/mediabunny/can-decode)
+- [Mediabunny Documentation](https://mediabunny.dev)

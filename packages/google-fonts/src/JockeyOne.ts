@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Jockey One',
 	importName: 'JockeyOne',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Jockey+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/jockeyone/v22/HTxpL2g2KjCFj4x8WI6AnI_xHLOk.woff2',
+					'https://fonts.gstatic.com/s/jockeyone/v23/HTxpL2g2KjCFj4x8WI6AnI_xHLOk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/jockeyone/v22/HTxpL2g2KjCFj4x8WI6AnIHxHA.woff2',
+					'https://fonts.gstatic.com/s/jockeyone/v23/HTxpL2g2KjCFj4x8WI6AnIHxHA.woff2',
 			},
 		},
 	},

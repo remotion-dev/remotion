@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Short Stack',
 	importName: 'ShortStack',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Short+Stack:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/shortstack/v15/bMrzmS2X6p0jZC6EcmPFX9SVe34.woff2',
+					'https://fonts.gstatic.com/s/shortstack/v16/bMrzmS2X6p0jZC6EcmPFX9SVe34.woff2',
 			},
 		},
 	},

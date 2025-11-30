@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sail',
 	importName: 'Sail',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Sail:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,8 +15,8 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sail/v16/DPEjYwiBxwYJJB3JAQYA.woff2',
-				latin: 'https://fonts.gstatic.com/s/sail/v16/DPEjYwiBxwYJJBPJAQ.woff2',
+					'https://fonts.gstatic.com/s/sail/v17/DPEjYwiBxwYJJB3JAQYA.woff2',
+				latin: 'https://fonts.gstatic.com/s/sail/v17/DPEjYwiBxwYJJBPJAQ.woff2',
 			},
 		},
 	},

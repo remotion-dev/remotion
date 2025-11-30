@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fondamento',
 	importName: 'Fondamento',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Fondamento:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fondamento/v21/4UaFrEJGsxNmFTPDnkaJ96_Z67txEwI.woff2',
+					'https://fonts.gstatic.com/s/fondamento/v22/4UaFrEJGsxNmFTPDnkaJ96_Z67txEwI.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fondamento/v21/4UaFrEJGsxNmFTPDnkaJ96_Z5btx.woff2',
+					'https://fonts.gstatic.com/s/fondamento/v22/4UaFrEJGsxNmFTPDnkaJ96_Z5btx.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fondamento/v21/4UaHrEJGsxNmFTPDnkaJ96Tp56N1.woff2',
+					'https://fonts.gstatic.com/s/fondamento/v22/4UaHrEJGsxNmFTPDnkaJ96Tp56N1.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fondamento/v21/4UaHrEJGsxNmFTPDnkaJ96rp5w.woff2',
+					'https://fonts.gstatic.com/s/fondamento/v22/4UaHrEJGsxNmFTPDnkaJ96rp5w.woff2',
 			},
 		},
 	},

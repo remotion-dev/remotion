@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Hentaigana',
 	importName: 'NotoSerifHentaigana',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Hentaigana:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		'kana-extended':
@@ -17,67 +17,67 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				'kana-extended':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
 			},
 			'300': {
 				'kana-extended':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
 			},
 			'400': {
 				'kana-extended':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
 			},
 			'500': {
 				'kana-extended':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
 			},
 			'600': {
 				'kana-extended':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
 			},
 			'700': {
 				'kana-extended':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
 			},
 			'800': {
 				'kana-extended':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
 			},
 			'900': {
 				'kana-extended':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10hnDvFCcM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10OlHKKR4.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoserifhentaigana/v16/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
+					'https://fonts.gstatic.com/s/notoserifhentaigana/v17/uk-9EHi3o6EruUbj3pGaDj3siVARn-kqgu10NFHK.woff2',
 			},
 		},
 	},

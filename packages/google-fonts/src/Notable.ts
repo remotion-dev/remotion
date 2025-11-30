@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Notable',
 	importName: 'Notable',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Notable:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/notable/v19/gNMEW3N_SIqx-WX9yHQiFQ.woff2',
+					'https://fonts.gstatic.com/s/notable/v20/gNMEW3N_SIqx-WX9yHQiFQ.woff2',
 			},
 		},
 	},

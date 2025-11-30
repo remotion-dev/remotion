@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Chela One',
 	importName: 'ChelaOne',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Chela+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/chelaone/v21/6ae-4KC7Uqgdz_JZdPIC1lHXBTM.woff2',
+					'https://fonts.gstatic.com/s/chelaone/v22/6ae-4KC7Uqgdz_JZdPIC1lHXBTM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/chelaone/v21/6ae-4KC7Uqgdz_JZdPIC2FHX.woff2',
+					'https://fonts.gstatic.com/s/chelaone/v22/6ae-4KC7Uqgdz_JZdPIC2FHX.woff2',
 			},
 		},
 	},

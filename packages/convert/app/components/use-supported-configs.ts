@@ -1,10 +1,9 @@
-import type {
-	MediaParserContainer,
-	MediaParserTrack,
-} from '@remotion/media-parser';
-import type {ConvertMediaContainer, ResizeOperation} from '@remotion/webcodecs';
-import {useEffect, useState} from 'react';
-import type {RouteAction} from '~/seo';
+import type {OutputFormat} from 'mediabunny';
+import {type InputFormat, type InputTrack} from 'mediabunny';
+import {useEffect, useMemo, useState} from 'react';
+import type {MediabunnyResize} from '~/lib/mediabunny-calculate-resize-option';
+import {getMediabunnyOutput} from '~/lib/output-container';
+import type {OutputContainer, RouteAction} from '~/seo';
 import type {SupportedConfigs} from './get-supported-configs';
 import {getSupportedConfigs} from './get-supported-configs';
 
@@ -17,17 +16,21 @@ export const useSupportedConfigs = ({
 	resizeOperation,
 	sampleRate,
 }: {
-	outputContainer: ConvertMediaContainer;
-	tracks: MediaParserTrack[] | null;
+	outputContainer: OutputContainer;
+	tracks: InputTrack[] | null;
 	action: RouteAction;
 	userRotation: number;
-	resizeOperation: ResizeOperation | null;
-	inputContainer: MediaParserContainer | null;
+	resizeOperation: MediabunnyResize | null;
+	inputContainer: InputFormat | null;
 	sampleRate: number | null;
 }) => {
 	const [state, setState] = useState<
-		Record<ConvertMediaContainer, SupportedConfigs | null>
-	>({mp4: null, webm: null, wav: null});
+		Record<OutputFormat['mimeType'], SupportedConfigs | null | undefined>
+	>({});
+
+	const outputFormat = useMemo(() => {
+		return getMediabunnyOutput(outputContainer);
+	}, [outputContainer]);
 
 	useEffect(() => {
 		if (!tracks || !inputContainer) {
@@ -36,11 +39,9 @@ export const useSupportedConfigs = ({
 
 		getSupportedConfigs({
 			tracks,
-			container: outputContainer,
-			bitrate: 128000,
+			container: outputFormat,
 			action,
 			userRotation,
-			inputContainer,
 			resizeOperation,
 			sampleRate,
 		}).then((supportedConfigs) => {
@@ -53,11 +54,12 @@ export const useSupportedConfigs = ({
 		action,
 		inputContainer,
 		outputContainer,
+		outputFormat,
+		resizeOperation,
 		tracks,
 		userRotation,
-		resizeOperation,
 		sampleRate,
 	]);
 
-	return state[outputContainer];
+	return state[outputContainer] ?? null;
 };

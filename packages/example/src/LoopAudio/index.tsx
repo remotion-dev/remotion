@@ -1,8 +1,8 @@
 import React from 'react';
-import {Audio, staticFile} from 'remotion';
+import {Html5Audio, staticFile} from 'remotion';
 
 const LoopedAudio: React.FC = () => {
-	return <Audio loop src={staticFile('22khz.wav')} />;
+	return <Html5Audio loop src={staticFile('22khz.wav')} />;
 };
 
 export default LoopedAudio;

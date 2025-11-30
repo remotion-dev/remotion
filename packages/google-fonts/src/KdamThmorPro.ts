@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kdam Thmor Pro',
 	importName: 'KdamThmorPro',
-	version: 'v6',
+	version: 'v7',
 	url: 'https://fonts.googleapis.com/css2?family=Kdam+Thmor+Pro:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/kdamthmorpro/v6/EJRPQgAzVdcI-Qdvt34jzurnGD7zhc548Q.woff2',
+					'https://fonts.gstatic.com/s/kdamthmorpro/v7/EJRPQgAzVdcI-Qdvt34jzurnGD7zhc548Q.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kdamthmorpro/v6/EJRPQgAzVdcI-Qdvt34jzurnGD72hc548Q.woff2',
+					'https://fonts.gstatic.com/s/kdamthmorpro/v7/EJRPQgAzVdcI-Qdvt34jzurnGD72hc548Q.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kdamthmorpro/v6/EJRPQgAzVdcI-Qdvt34jzurnGD74hc4.woff2',
+					'https://fonts.gstatic.com/s/kdamthmorpro/v7/EJRPQgAzVdcI-Qdvt34jzurnGD74hc4.woff2',
 			},
 		},
 	},

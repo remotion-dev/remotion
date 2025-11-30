@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Flow Rounded',
 	importName: 'FlowRounded',
-	version: 'v13',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Flow+Rounded:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,15 +20,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/flowrounded/v13/-zki91mtwsU9qlLiGwD4oQXHq5__buo.woff2',
+					'https://fonts.gstatic.com/s/flowrounded/v15/-zki91mtwsU9qlLiGwD4oQXHq5__buo.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/flowrounded/v13/-zki91mtwsU9qlLiGwD4oQXHop__buo.woff2',
+					'https://fonts.gstatic.com/s/flowrounded/v15/-zki91mtwsU9qlLiGwD4oQXHop__buo.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/flowrounded/v13/-zki91mtwsU9qlLiGwD4oQXHqZ__buo.woff2',
+					'https://fonts.gstatic.com/s/flowrounded/v15/-zki91mtwsU9qlLiGwD4oQXHqZ__buo.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/flowrounded/v13/-zki91mtwsU9qlLiGwD4oQXHqJ__buo.woff2',
+					'https://fonts.gstatic.com/s/flowrounded/v15/-zki91mtwsU9qlLiGwD4oQXHqJ__buo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/flowrounded/v13/-zki91mtwsU9qlLiGwD4oQXHpp__.woff2',
+					'https://fonts.gstatic.com/s/flowrounded/v15/-zki91mtwsU9qlLiGwD4oQXHpp__.woff2',
 			},
 		},
 	},

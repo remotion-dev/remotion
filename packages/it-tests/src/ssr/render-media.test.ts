@@ -33,6 +33,7 @@ test('Render video with browser instance open', async () => {
 		frameRange: [0, 2],
 		puppeteerInstance,
 		metadata: {Author: 'Lunar'},
+		logLevel: 'error',
 	});
 	await puppeteerInstance.close({silent: false});
 	expect(existsSync(outPath)).toBe(true);
@@ -61,6 +62,7 @@ test('Render video with browser instance not open', async () => {
 		composition: reactSvg,
 		frameRange: [0, 2],
 		metadata: {Author: 'Lunar'},
+		logLevel: 'error',
 	});
 	expect(existsSync(outPath)).toBe(true);
 });
@@ -75,6 +77,7 @@ test('should fail on invalid CRF', async () => {
 		await renderMedia({
 			outputLocation: outPath,
 			codec: 'h264',
+			logLevel: 'error',
 			serveUrl:
 				'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
 			// @ts-expect-error
@@ -91,6 +94,7 @@ test('should fail on invalid CRF', async () => {
 				defaultOutName: null,
 				defaultVideoImageFormat: null,
 				defaultPixelFormat: null,
+				defaultProResProfile: null,
 			},
 			frameRange: [0, 2],
 			puppeteerInstance: browserInstance,
@@ -122,6 +126,7 @@ test('Render video to a buffer', async () => {
 			'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
 		composition: reactSvg,
 		frameRange: [0, 2],
+		logLevel: 'error',
 	});
 
 	expect(buffer?.length).toBeGreaterThan(2000);
@@ -131,6 +136,7 @@ test('Should fail invalid serve URL', async () => {
 	try {
 		await renderMedia({
 			codec: 'h264',
+			logLevel: 'error',
 			serveUrl:
 				'https://remotionlambda-gc1w0xbfzl.s3.eu-central-1.amazonaws.com/sites/Ignition-SessionResultStoryVideo/index.html',
 			composition: {
@@ -145,6 +151,7 @@ test('Should fail invalid serve URL', async () => {
 				defaultOutName: null,
 				defaultVideoImageFormat: null,
 				defaultPixelFormat: null,
+				defaultProResProfile: null,
 			},
 		});
 	} catch (err) {

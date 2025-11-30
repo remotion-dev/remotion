@@ -243,6 +243,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 				defaultCodec: null,
 				defaultOutName: null,
 				defaultPixelFormat: null,
+				defaultProResProfile: null,
 				defaultVideoImageFormat: null,
 			},
 			imageFormat: params.imageFormat,
@@ -343,6 +344,9 @@ const renderHandler = async <Provider extends CloudProvider>({
 			hardwareAcceleration: 'disable',
 			chromeMode: 'headless-shell',
 			offthreadVideoThreads: params.offthreadVideoThreads,
+			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+			onLog: RenderInternals.defaultOnLog,
+			apiKey: null,
 		})
 			.then(({slowestFrames}) => {
 				RenderInternals.Log.verbose(

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Urbanist',
 	importName: 'Urbanist',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,113 +15,113 @@ export const getInfo = () => ({
 		italic: {
 			'100': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
 			},
 			'200': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXSFsjkK3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x4DF02iFML4hGCyMqgXS9sjg.woff2',
 			},
 		},
 		normal: {
 			'100': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqlbS0.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2',
 			},
 			'200': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqlbS0.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqlbS0.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqlbS0.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqlbS0.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2',
 			},
 			'600': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqlbS0.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqlbS0.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqlbS0.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqrbS10ig.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/urbanist/v17/L0x-DF02iFML4hGCyMqlbS0.woff2',
+					'https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2',
 			},
 		},
 	},

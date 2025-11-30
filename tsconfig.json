@@ -172,6 +172,9 @@
 			"path": "./packages/template-audiogram"
 		},
 		{
+			"path": "./packages/template-prompt-to-video"
+		},
+		{
 			"path": "./packages/template-music-visualization"
 		},
 		{
@@ -232,10 +235,13 @@
 			"path": "./packages/zod-types"
 		},
 		{
-			"path": "./packages/video"
+			"path": "./packages/media"
 		},
 		{
 			"path": "./packages/web-renderer"
+		},
+		{
+			"path": "./packages/rounded-text-box"
 		}
 	]
 }

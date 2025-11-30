@@ -45,6 +45,7 @@ import type {
 	AttachedToTargetEvent,
 	BindingCalledEvent,
 	ConsoleAPICalledEvent,
+	DevtoolsRemoteObject,
 	EntryAddedEvent,
 	SetDeviceMetricsOverrideRequest,
 	StackTrace,
@@ -87,6 +88,54 @@ interface PageEventObject {
 	disposed: undefined;
 }
 
+const format = (
+	eventType: ConsoleMessageType,
+	args: DevtoolsRemoteObject[],
+) => {
+	const previewString = args
+		.filter(
+			(a) => !(a.type === 'symbol' && a.description?.includes(`__remotion_`)),
+		)
+		.map((a) => formatRemoteObject(a))
+		.filter(Boolean)
+		.join(' ');
+
+	let logLevelFromRemotionLog: LogLevel | null = null;
+	let tag: string | null = null;
+
+	for (const a of args) {
+		if (a.type === 'symbol' && a.description?.includes(`__remotion_level_`)) {
+			logLevelFromRemotionLog = a.description
+				?.split('__remotion_level_')?.[1]
+				?.replace(')', '') as LogLevel;
+		}
+		if (a.type === 'symbol' && a.description?.includes(`__remotion_tag_`)) {
+			tag = a.description?.split('__remotion_tag_')?.[1]?.replace(')', '');
+		}
+	}
+
+	const logLevelFromEvent: LogLevel =
+		eventType === 'debug'
+			? 'verbose'
+			: eventType === 'error'
+				? 'error'
+				: eventType === 'warning'
+					? 'warn'
+					: 'verbose';
+
+	return {previewString, logLevelFromRemotionLog, logLevelFromEvent, tag};
+};
+
+export type OnLog = ({
+	logLevel,
+	previewString,
+	tag,
+}: {
+	logLevel: LogLevel;
+	tag: string;
+	previewString: string;
+}) => void;
+
 export class Page extends EventEmitter {
 	id: string;
 	static async _create({
@@ -99,6 +148,7 @@ export class Page extends EventEmitter {
 		indent,
 		pageIndex,
 		onBrowserLog,
+		onLog,
 	}: {
 		client: CDPSession;
 		target: Target;
@@ -109,6 +159,7 @@ export class Page extends EventEmitter {
 		indent: boolean;
 		pageIndex: number;
 		onBrowserLog: null | ((log: BrowserLog) => void);
+		onLog: OnLog;
 	}): Promise<Page> {
 		const page = new Page({
 			client,
@@ -119,6 +170,7 @@ export class Page extends EventEmitter {
 			indent,
 			pageIndex,
 			onBrowserLog,
+			onLog,
 		});
 		await page.#initialize();
 		await page.setViewport(defaultViewport);
@@ -139,6 +191,7 @@ export class Page extends EventEmitter {
 	indent: boolean;
 	pageIndex: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
+	onLog: OnLog;
 
 	constructor({
 		client,
@@ -149,6 +202,7 @@ export class Page extends EventEmitter {
 		indent,
 		pageIndex,
 		onBrowserLog,
+		onLog,
 	}: {
 		client: CDPSession;
 		target: Target;
@@ -158,6 +212,7 @@ export class Page extends EventEmitter {
 		indent: boolean;
 		pageIndex: number;
 		onBrowserLog: null | ((log: BrowserLog) => void);
+		onLog: OnLog;
 	}) {
 		super();
 		this.#client = client;
@@ -171,6 +226,7 @@ export class Page extends EventEmitter {
 		this.indent = indent;
 		this.pageIndex = pageIndex;
 		this.onBrowserLog = onBrowserLog;
+		this.onLog = onLog;
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
 			switch (event.targetInfo.type) {
@@ -208,7 +264,8 @@ export class Page extends EventEmitter {
 	}
 
 	#onConsole = (log: ConsoleMessage) => {
-		const {url, columnNumber, lineNumber} = log.location();
+		const stackTrace = log.stackTrace();
+		const {url, columnNumber, lineNumber} = stackTrace[0] ?? {};
 		const logLevel = this.logLevel;
 		const indent = this.indent;
 
@@ -217,7 +274,7 @@ export class Page extends EventEmitter {
 		}
 
 		this.onBrowserLog?.({
-			stackTrace: log.stackTrace(),
+			stackTrace,
 			text: log.text,
 			type: log.type,
 		});
@@ -243,29 +300,18 @@ export class Page extends EventEmitter {
 				NoReactInternals.DELAY_RENDER_CLEAR_TOKEN,
 			);
 			const tabInfo = `Tab ${this.pageIndex}`;
+
 			const tagInfo = [origPosition?.name, isDelayRenderClear ? null : file]
 				.filter(truthy)
 				.join('@');
-			const tag = [tabInfo, tagInfo].filter(truthy).join(', ');
-			if (log.type === 'error') {
-				Log.error(
-					{
-						logLevel,
-						tag,
-						indent,
-					},
-					log.previewString,
-				);
-			} else {
-				Log.verbose(
-					{
-						logLevel,
-						tag,
-						indent,
-					},
-					isDelayRenderClear ? log.previewString : log.previewString,
-				);
-			}
+			const tag = [tabInfo, log.tag, log.tag ? null : tagInfo]
+				.filter(truthy)
+				.join(', ');
+			this.onLog({
+				logLevel: log.logLevel,
+				tag,
+				previewString: log.previewString,
+			});
 		} else if (log.type === 'error') {
 			if (log.text.includes('Failed to load resource:')) {
 				Log.error(
@@ -337,6 +383,7 @@ export class Page extends EventEmitter {
 	}
 
 	#onTargetCrashed(): void {
+		// This error message is being checked against in is-flaky-error.ts
 		this.emit('error', new Error('Page crashed!'));
 	}
 
@@ -348,13 +395,8 @@ export class Page extends EventEmitter {
 			});
 		}
 
-		const previewString = args
-			? args
-					.map((arg) => {
-						return formatRemoteObject(arg);
-					})
-					.join(', ')
-			: '';
+		const {previewString, logLevelFromRemotionLog, logLevelFromEvent, tag} =
+			format(level, args ?? []);
 
 		if (source !== 'worker') {
 			const message = new ConsoleMessage({
@@ -363,6 +405,8 @@ export class Page extends EventEmitter {
 				args: [],
 				stackTraceLocations: [{url, lineNumber}],
 				previewString,
+				logLevel: logLevelFromRemotionLog ?? logLevelFromEvent,
+				tag,
 			});
 			this.onBrowserLog?.({
 				stackTrace: message.stackTrace(),
@@ -517,10 +561,9 @@ export class Page extends EventEmitter {
 			}
 		}
 
-		const previewString = args
-			.map((a) => formatRemoteObject(a._remoteObject))
-			.filter(Boolean)
-			.join(' ');
+		const {previewString, logLevelFromRemotionLog, logLevelFromEvent, tag} =
+			format(eventType, args.map((a) => a._remoteObject) ?? []);
+		const logLevel = (logLevelFromRemotionLog as LogLevel) ?? logLevelFromEvent;
 
 		const message = new ConsoleMessage({
 			type: eventType,
@@ -528,6 +571,8 @@ export class Page extends EventEmitter {
 			args,
 			stackTraceLocations,
 			previewString,
+			logLevel,
+			tag,
 		});
 		this.#onConsole(message);
 	}

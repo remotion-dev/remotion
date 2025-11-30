@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Farro',
 	importName: 'Farro',
-	version: 'v14',
+	version: 'v15',
 	url: 'https://fonts.googleapis.com/css2?family=Farro:ital,wght@0,300;0,400;0,500;0,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,27 +15,27 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/farro/v14/i7dJIFl3byGNHa3hNK63UENkQQ.woff2',
+					'https://fonts.gstatic.com/s/farro/v15/i7dJIFl3byGNHa3hNK63UENkQQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/farro/v14/i7dJIFl3byGNHa3hNK65UEM.woff2',
+					'https://fonts.gstatic.com/s/farro/v15/i7dJIFl3byGNHa3hNK65UEM.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/farro/v14/i7dEIFl3byGNHaVEFruGcQ.woff2',
+					'https://fonts.gstatic.com/s/farro/v15/i7dEIFl3byGNHaVEFruGcQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/farro/v14/i7dEIFl3byGNHaVKFrs.woff2',
+					'https://fonts.gstatic.com/s/farro/v15/i7dEIFl3byGNHaVKFrs.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/farro/v14/i7dJIFl3byGNHa25Na63UENkQQ.woff2',
+					'https://fonts.gstatic.com/s/farro/v15/i7dJIFl3byGNHa25Na63UENkQQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/farro/v14/i7dJIFl3byGNHa25Na65UEM.woff2',
+					'https://fonts.gstatic.com/s/farro/v15/i7dJIFl3byGNHa25Na65UEM.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/farro/v14/i7dJIFl3byGNHa3xM663UENkQQ.woff2',
+					'https://fonts.gstatic.com/s/farro/v15/i7dJIFl3byGNHa3xM663UENkQQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/farro/v14/i7dJIFl3byGNHa3xM665UEM.woff2',
+					'https://fonts.gstatic.com/s/farro/v15/i7dJIFl3byGNHa3xM665UEM.woff2',
 			},
 		},
 	},

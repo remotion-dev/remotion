@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Taprom',
 	importName: 'Taprom',
-	version: 'v28',
+	version: 'v29',
 	url: 'https://fonts.googleapis.com/css2?family=Taprom:ital,wght@0,400',
 	unicodeRanges: {
 		khmer: 'U+1780-17FF, U+19E0-19FF, U+200C-200D, U+25CC',
@@ -14,9 +14,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				khmer:
-					'https://fonts.gstatic.com/s/taprom/v28/UcCn3F82JHycULb1TyM2y0k.woff2',
+					'https://fonts.gstatic.com/s/taprom/v29/UcCn3F82JHycULb1TyM2y0k.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/taprom/v28/UcCn3F82JHycULb1RCM2.woff2',
+					'https://fonts.gstatic.com/s/taprom/v29/UcCn3F82JHycULb1RCM2.woff2',
 			},
 		},
 	},

@@ -1,8 +1,4 @@
-import type {
-	AudioHTMLAttributes,
-	ComponentType,
-	LazyExoticComponent,
-} from 'react';
+import type {AudioHTMLAttributes} from 'react';
 import React, {
 	createContext,
 	createRef,
@@ -13,8 +9,10 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {CompositionManager} from '../CompositionManagerContext.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
 import {useSingletonAudioContext} from './use-audio-context.js';
@@ -23,7 +21,7 @@ import {useSingletonAudioContext} from './use-audio-context.js';
  * This functionality of Remotion will keep a certain amount
  * of <audio> tags pre-mounted and by default filled with an empty audio track.
  * If the user interacts, the empty audio will be played.
- * If one of Remotions <Audio /> tags get mounted, the audio will not be rendered at this location, but into one of the prerendered audio tags.
+ * If one of Remotions <Html5Audio /> tags get mounted, the audio will not be rendered at this location, but into one of the prerendered audio tags.
  *
  * This helps with autoplay issues on iOS Safari and soon other browsers,
  * which only allow audio playback upon user interaction.
@@ -117,11 +115,8 @@ export const SharedAudioContext = createContext<SharedContext | null>(null);
 export const SharedAudioContextProvider: React.FC<{
 	readonly numberOfAudioTags: number;
 	readonly children: React.ReactNode;
-	readonly component: LazyExoticComponent<
-		ComponentType<Record<string, unknown>>
-	> | null;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
-}> = ({children, numberOfAudioTags, component, audioLatencyHint}) => {
+}> = ({children, numberOfAudioTags, audioLatencyHint}) => {
 	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
@@ -130,6 +125,13 @@ export const SharedAudioContextProvider: React.FC<{
 			'The number of shared audio tags has changed dynamically. Once you have set this property, you cannot change it afterwards.',
 		);
 	}
+
+	const compositionManager = useContext(CompositionManager);
+	const component = compositionManager.compositions.find((c) =>
+		compositionManager.canvasContent?.type === 'composition'
+			? c.id === compositionManager.canvasContent.compositionId
+			: null,
+	);
 
 	const logLevel = useLogLevel();
 	const audioContext = useSingletonAudioContext(logLevel, audioLatencyHint);
@@ -199,7 +201,7 @@ export const SharedAudioContextProvider: React.FC<{
 				throw new Error(
 					`Tried to simultaneously mount ${
 						numberOfAudioTags + 1
-					} <Audio /> tags at the same time. With the current settings, the maximum amount of <Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player/autoplay#using-the-numberofsharedaudiotags-prop for more information on how to increase this limit.`,
+					} <Html5Audio /> tags at the same time. With the current settings, the maximum amount of <Html5Audio /> tags is limited to ${numberOfAudioTags} at the same time. Remotion pre-mounts silent audio tags to help avoid browser autoplay restrictions. See https://remotion.dev/docs/player/autoplay#using-the-numberofsharedaudiotags-prop for more information on how to increase this limit.`,
 				);
 			}
 
@@ -287,6 +289,8 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const mountTime = useMountTime();
 
+	const env = useRemotionEnvironment();
+
 	const playAllAudios = useCallback(() => {
 		refs.forEach((ref) => {
 			const audio = audios.current.find((a) => a.el === ref.ref);
@@ -301,10 +305,11 @@ export const SharedAudioContextProvider: React.FC<{
 				logLevel,
 				mountTime,
 				reason: 'playing all audios',
+				isPlayer: env.isPlayer,
 			});
 		});
 		audioContext?.resume();
-	}, [audioContext, logLevel, mountTime, refs]);
+	}, [audioContext, logLevel, mountTime, refs, env.isPlayer]);
 
 	const value: SharedContext = useMemo(() => {
 		return {

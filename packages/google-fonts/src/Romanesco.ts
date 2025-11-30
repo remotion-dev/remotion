@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Romanesco',
 	importName: 'Romanesco',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Romanesco:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/romanesco/v21/w8gYH2ozQOY7_r_J7mSX1XYKmOo.woff2',
+					'https://fonts.gstatic.com/s/romanesco/v22/w8gYH2ozQOY7_r_J7mSX1XYKmOo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/romanesco/v21/w8gYH2ozQOY7_r_J7mSX23YK.woff2',
+					'https://fonts.gstatic.com/s/romanesco/v22/w8gYH2ozQOY7_r_J7mSX23YK.woff2',
 			},
 		},
 	},

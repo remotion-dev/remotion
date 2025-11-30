@@ -83,11 +83,11 @@ export const Re = () => {
 		},
 		{
 			code: `
-import {Audio} from 'remotion';
+import {Html5Audio} from 'remotion';
 
 export const Re = () => {
   return (
-    <Audio src="hithere" />
+    <Html5Audio src="hithere" />
   );
 }
       `,

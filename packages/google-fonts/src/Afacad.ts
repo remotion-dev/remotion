@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Afacad',
 	importName: 'Afacad',
-	version: 'v2',
+	version: 'v3',
 	url: 'https://fonts.googleapis.com/css2?family=Afacad:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -22,109 +22,109 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwFlOk8yA.woff2',
-				math: 'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJx0lOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwFlOk8yA.woff2',
+				math: 'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJx0lOk8yA.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJxmlOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJxmlOk8yA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwHlOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwHlOk8yA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwGlOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwGlOk8yA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwIlOk.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwIlOk.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwFlOk8yA.woff2',
-				math: 'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJx0lOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwFlOk8yA.woff2',
+				math: 'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJx0lOk8yA.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJxmlOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJxmlOk8yA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwHlOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwHlOk8yA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwGlOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwGlOk8yA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwIlOk.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwIlOk.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwFlOk8yA.woff2',
-				math: 'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJx0lOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwFlOk8yA.woff2',
+				math: 'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJx0lOk8yA.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJxmlOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJxmlOk8yA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwHlOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwHlOk8yA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwGlOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwGlOk8yA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwIlOk.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwIlOk.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwFlOk8yA.woff2',
-				math: 'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJx0lOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwFlOk8yA.woff2',
+				math: 'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJx0lOk8yA.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJxmlOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJxmlOk8yA.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwHlOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwHlOk8yA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwGlOk8yA.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwGlOk8yA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUV8FKMIQOGaw6ahJwIlOk.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUV8FKMIQOGaw6ahJwIlOk.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6ajKwKjO0.woff2',
-				math: 'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6a_awKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6ajKwKjO0.woff2',
+				math: 'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6a_awKjO0.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6a76wKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6a76wKjO0.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6ajqwKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6ajqwKjO0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6aj6wKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6aj6wKjO0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6agawK.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6agawK.woff2',
 			},
 			'500': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6ajKwKjO0.woff2',
-				math: 'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6a_awKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6ajKwKjO0.woff2',
+				math: 'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6a_awKjO0.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6a76wKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6a76wKjO0.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6ajqwKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6ajqwKjO0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6aj6wKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6aj6wKjO0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6agawK.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6agawK.woff2',
 			},
 			'600': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6ajKwKjO0.woff2',
-				math: 'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6a_awKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6ajKwKjO0.woff2',
+				math: 'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6a_awKjO0.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6a76wKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6a76wKjO0.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6ajqwKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6ajqwKjO0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6aj6wKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6aj6wKjO0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6agawK.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6agawK.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6ajKwKjO0.woff2',
-				math: 'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6a_awKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6ajKwKjO0.woff2',
+				math: 'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6a_awKjO0.woff2',
 				symbols:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6a76wKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6a76wKjO0.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6ajqwKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6ajqwKjO0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6aj6wKjO0.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6aj6wKjO0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/afacad/v2/6NUX8FKMIQOGaw6agawK.woff2',
+					'https://fonts.gstatic.com/s/afacad/v3/6NUX8FKMIQOGaw6agawK.woff2',
 			},
 		},
 	},

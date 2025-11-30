@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mansalva',
 	importName: 'Mansalva',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Mansalva:ital,wght@0,400',
 	unicodeRanges: {
 		greek:
@@ -19,13 +19,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				greek:
-					'https://fonts.gstatic.com/s/mansalva/v15/aWB4m0aacbtDfvq5NKlhKY_fdw.woff2',
+					'https://fonts.gstatic.com/s/mansalva/v16/aWB4m0aacbtDfvq5NKlhKY_fdw.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/mansalva/v15/aWB4m0aacbtDfvq5NKltKY_fdw.woff2',
+					'https://fonts.gstatic.com/s/mansalva/v16/aWB4m0aacbtDfvq5NKltKY_fdw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mansalva/v15/aWB4m0aacbtDfvq5NKlsKY_fdw.woff2',
+					'https://fonts.gstatic.com/s/mansalva/v16/aWB4m0aacbtDfvq5NKlsKY_fdw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mansalva/v15/aWB4m0aacbtDfvq5NKliKY8.woff2',
+					'https://fonts.gstatic.com/s/mansalva/v16/aWB4m0aacbtDfvq5NKliKY8.woff2',
 			},
 		},
 	},

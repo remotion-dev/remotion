@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gloock',
 	importName: 'Gloock',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Gloock:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/gloock/v7/Iurb6YFw84WUY4NJhRakNrc.woff2',
+					'https://fonts.gstatic.com/s/gloock/v8/Iurb6YFw84WUY4NJhRakNrc.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/gloock/v7/Iurb6YFw84WUY4NJhhakNrc.woff2',
+					'https://fonts.gstatic.com/s/gloock/v8/Iurb6YFw84WUY4NJhhakNrc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/gloock/v7/Iurb6YFw84WUY4NJiBak.woff2',
+					'https://fonts.gstatic.com/s/gloock/v8/Iurb6YFw84WUY4NJiBak.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Elsie',
 	importName: 'Elsie',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Elsie:ital,wght@0,400;0,900',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/elsie/v25/BCanqZABrez54xYn_MhweA.woff2',
+					'https://fonts.gstatic.com/s/elsie/v26/BCanqZABrez54xYn_MhweA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/elsie/v25/BCanqZABrez54xYp_Mg.woff2',
+					'https://fonts.gstatic.com/s/elsie/v26/BCanqZABrez54xYp_Mg.woff2',
 			},
 			'900': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/elsie/v25/BCaqqZABrez54x6q291BWaUuXQ.woff2',
+					'https://fonts.gstatic.com/s/elsie/v26/BCaqqZABrez54x6q291BWaUuXQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/elsie/v25/BCaqqZABrez54x6q291PWaU.woff2',
+					'https://fonts.gstatic.com/s/elsie/v26/BCaqqZABrez54x6q291PWaU.woff2',
 			},
 		},
 	},

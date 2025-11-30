@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Palanquin',
 	importName: 'Palanquin',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Palanquin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -17,59 +17,59 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				devanagari:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUhlJ90n1fBFg7ceXwUEmtO5LSWZw.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUhlJ90n1fBFg7ceXwUEmtO5LSWZw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUhlJ90n1fBFg7ceXwUEmtB5LSWZw.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUhlJ90n1fBFg7ceXwUEmtB5LSWZw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUhlJ90n1fBFg7ceXwUEmtP5LQ.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUhlJ90n1fBFg7ceXwUEmtP5LQ.woff2',
 			},
 			'200': {
 				devanagari:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwUvnpYwpGrXi0.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwUvnpYwpGrXi0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwUvnpYzZGrXi0.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwUvnpYzZGrXi0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwUvnpYw5Gr.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwUvnpYw5Gr.woff2',
 			},
 			'300': {
 				devanagari:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwU2nlYwpGrXi0.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwU2nlYwpGrXi0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwU2nlYzZGrXi0.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwU2nlYzZGrXi0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwU2nlYw5Gr.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwU2nlYw5Gr.woff2',
 			},
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUnlJ90n1fBFg7ceXwccFtN_LA.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUnlJ90n1fBFg7ceXwccFtN_LA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUnlJ90n1fBFg7ceXwcf1tN_LA.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUnlJ90n1fBFg7ceXwcf1tN_LA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUnlJ90n1fBFg7ceXwccVtN.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUnlJ90n1fBFg7ceXwccVtN.woff2',
 			},
 			'500': {
 				devanagari:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwUgnhYwpGrXi0.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwUgnhYwpGrXi0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwUgnhYzZGrXi0.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwUgnhYzZGrXi0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwUgnhYw5Gr.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwUgnhYw5Gr.woff2',
 			},
 			'600': {
 				devanagari:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwUrn9YwpGrXi0.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwUrn9YwpGrXi0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwUrn9YzZGrXi0.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwUrn9YzZGrXi0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwUrn9Yw5Gr.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwUrn9Yw5Gr.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwUyn5YwpGrXi0.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwUyn5YwpGrXi0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwUyn5YzZGrXi0.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwUyn5YzZGrXi0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/palanquin/v16/9XUilJ90n1fBFg7ceXwUyn5Yw5Gr.woff2',
+					'https://fonts.gstatic.com/s/palanquin/v17/9XUilJ90n1fBFg7ceXwUyn5Yw5Gr.woff2',
 			},
 		},
 	},

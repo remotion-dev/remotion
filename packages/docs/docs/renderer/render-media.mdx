@@ -94,9 +94,9 @@ Specify a single frame (passing a `number`) or a range of frames (passing a tupl
 
 _optional_
 
-A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use (e.g. `50%`), or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
 
-### `metadata`<AvailableFrom v="4.0.216" />
+### `metadata?`<AvailableFrom v="4.0.216" />
 
 _object - optional_
 
@@ -215,7 +215,11 @@ Render a silent audio track if there wouldn't be any otherwise.
 
 _puppeteer.Browser - optional_
 
-An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+
+:::note
+Despite the name, not actually compatible with `puppeteer`, only with [`openBrowser()`](/docs/renderer/open-browser).
+:::
 
 ### `scale?`
 
@@ -441,6 +445,10 @@ Before you use this hack, reach out to the Remotion team on [Discord](https://re
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
 
+### `mediaCacheSizeInBytes?`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
@@ -478,6 +486,10 @@ An option to be used only if implementing a distributed renderer, see [Distribut
 ### `onBrowserDownload?`<AvailableFrom v="4.0.137" />
 
 <Options id="on-browser-download" />
+
+### `apiKey?`<AvailableFrom v="4.0.375"/>
+
+<Options id="api-key" />
 
 ### ~~`parallelism?`~~
 

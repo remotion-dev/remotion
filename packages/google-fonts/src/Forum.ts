@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Forum',
 	importName: 'Forum',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Forum:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -18,13 +18,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/forum/v18/6aey4Ky-Vb8Ew8IcOpIq3g.woff2',
+					'https://fonts.gstatic.com/s/forum/v19/6aey4Ky-Vb8Ew8IcOpIq3g.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/forum/v18/6aey4Ky-Vb8Ew8IVOpIq3g.woff2',
+					'https://fonts.gstatic.com/s/forum/v19/6aey4Ky-Vb8Ew8IVOpIq3g.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/forum/v18/6aey4Ky-Vb8Ew8IfOpIq3g.woff2',
+					'https://fonts.gstatic.com/s/forum/v19/6aey4Ky-Vb8Ew8IfOpIq3g.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/forum/v18/6aey4Ky-Vb8Ew8IROpI.woff2',
+					'https://fonts.gstatic.com/s/forum/v19/6aey4Ky-Vb8Ew8IROpI.woff2',
 			},
 		},
 	},

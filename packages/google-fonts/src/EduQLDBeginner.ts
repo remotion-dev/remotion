@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Edu QLD Beginner',
 	importName: 'EduQLDBeginner',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Edu+QLD+Beginner:ital,wght@0,400;0,500;0,600;0,700',
 	unicodeRanges: {
 		latin:
@@ -13,19 +13,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/eduqldbeginner/v4/AMOKz5iUuHLEMNXyohhc_Y56PR3A299j5g.woff2',
+					'https://fonts.gstatic.com/s/eduqldbeginner/v5/AMOKz5iUuHLEMNXyohhc_Y56PR3A299j5g.woff2',
 			},
 			'500': {
 				latin:
-					'https://fonts.gstatic.com/s/eduqldbeginner/v4/AMOKz5iUuHLEMNXyohhc_Y56PR3A299j5g.woff2',
+					'https://fonts.gstatic.com/s/eduqldbeginner/v5/AMOKz5iUuHLEMNXyohhc_Y56PR3A299j5g.woff2',
 			},
 			'600': {
 				latin:
-					'https://fonts.gstatic.com/s/eduqldbeginner/v4/AMOKz5iUuHLEMNXyohhc_Y56PR3A299j5g.woff2',
+					'https://fonts.gstatic.com/s/eduqldbeginner/v5/AMOKz5iUuHLEMNXyohhc_Y56PR3A299j5g.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/eduqldbeginner/v4/AMOKz5iUuHLEMNXyohhc_Y56PR3A299j5g.woff2',
+					'https://fonts.gstatic.com/s/eduqldbeginner/v5/AMOKz5iUuHLEMNXyohhc_Y56PR3A299j5g.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Nushu',
 	importName: 'NotoSansNushu',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Nushu:ital,wght@0,400',
 	unicodeRanges: {
 		nushu: 'U+2003, U+3000, U+3002, U+4E00, U+FE12, U+16FE1, U+1B170-1B2FB',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				nushu:
-					'https://fonts.gstatic.com/s/notosansnushu/v19/rnCw-xRQ3B7652emAbAe_Ai1IYa1IFoNMrY.woff2',
+					'https://fonts.gstatic.com/s/notosansnushu/v20/rnCw-xRQ3B7652emAbAe_Ai1IYa1IFoNMrY.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansnushu/v19/rnCw-xRQ3B7652emAbAe_Ai1IYa1UVoNMrY.woff2',
+					'https://fonts.gstatic.com/s/notosansnushu/v20/rnCw-xRQ3B7652emAbAe_Ai1IYa1UVoNMrY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansnushu/v19/rnCw-xRQ3B7652emAbAe_Ai1IYa1X1oN.woff2',
+					'https://fonts.gstatic.com/s/notosansnushu/v20/rnCw-xRQ3B7652emAbAe_Ai1IYa1X1oN.woff2',
 			},
 		},
 	},

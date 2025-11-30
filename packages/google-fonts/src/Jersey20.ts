@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Jersey TwoZero',
 	importName: 'Jersey20',
-	version: 'v3',
+	version: 'v4',
 	url: 'https://fonts.googleapis.com/css2?family=Jersey+20:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/jersey20/v3/ZgNRjP1ON6jeW4D12z3spUXrD4k.woff2',
+					'https://fonts.gstatic.com/s/jersey20/v4/ZgNRjP1ON6jeW4D12z3spUXrD4k.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/jersey20/v3/ZgNRjP1ON6jeW4D12z3sq0Xr.woff2',
+					'https://fonts.gstatic.com/s/jersey20/v4/ZgNRjP1ON6jeW4D12z3sq0Xr.woff2',
 			},
 		},
 	},

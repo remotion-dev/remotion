@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Unna',
 	importName: 'Unna',
-	version: 'v24',
+	version: 'v25',
 	url: 'https://fonts.googleapis.com/css2?family=Unna:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,28 +15,28 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/unna/v24/AYCKpXzofN0NOpo7mUnGeFM.woff2',
+					'https://fonts.gstatic.com/s/unna/v25/AYCKpXzofN0NOpo7mUnGeFM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/unna/v24/AYCKpXzofN0NOpo7l0nG.woff2',
+					'https://fonts.gstatic.com/s/unna/v25/AYCKpXzofN0NOpo7l0nG.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/unna/v24/AYCJpXzofN0NOpozLGzTSXJv_vc.woff2',
+					'https://fonts.gstatic.com/s/unna/v25/AYCJpXzofN0NOpozLGzTSXJv_vc.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/unna/v24/AYCJpXzofN0NOpozLGzTR3Jv.woff2',
+					'https://fonts.gstatic.com/s/unna/v25/AYCJpXzofN0NOpozLGzTR3Jv.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/unna/v24/AYCEpXzofN0NOpELlVHC.woff2',
-				latin: 'https://fonts.gstatic.com/s/unna/v24/AYCEpXzofN0NOp8LlQ.woff2',
+					'https://fonts.gstatic.com/s/unna/v25/AYCEpXzofN0NOpELlVHC.woff2',
+				latin: 'https://fonts.gstatic.com/s/unna/v25/AYCEpXzofN0NOp8LlQ.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/unna/v24/AYCLpXzofN0NMiQugGDjRWpr.woff2',
+					'https://fonts.gstatic.com/s/unna/v25/AYCLpXzofN0NMiQugGDjRWpr.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/unna/v24/AYCLpXzofN0NMiQugG7jRQ.woff2',
+					'https://fonts.gstatic.com/s/unna/v25/AYCLpXzofN0NMiQugG7jRQ.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Average Sans',
 	importName: 'AverageSans',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Average+Sans:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/averagesans/v16/1Ptpg8fLXP2dlAXR-HlJJNJ_DNCb_Vo.woff2',
+					'https://fonts.gstatic.com/s/averagesans/v17/1Ptpg8fLXP2dlAXR-HlJJNJ_DNCb_Vo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/averagesans/v16/1Ptpg8fLXP2dlAXR-HlJJNJ_AtCb.woff2',
+					'https://fonts.gstatic.com/s/averagesans/v17/1Ptpg8fLXP2dlAXR-HlJJNJ_AtCb.woff2',
 			},
 		},
 	},

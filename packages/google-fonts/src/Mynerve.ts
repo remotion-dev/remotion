@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mynerve',
 	importName: 'Mynerve',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Mynerve:ital,wght@0,400',
 	unicodeRanges: {
 		greek:
@@ -19,13 +19,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				greek:
-					'https://fonts.gstatic.com/s/mynerve/v7/P5sCzZKPdNjb4jt79CBkiK-u.woff2',
+					'https://fonts.gstatic.com/s/mynerve/v8/P5sCzZKPdNjb4jt79CBkiK-u.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/mynerve/v7/P5sCzZKPdNjb4jt79CxkiK-u.woff2',
+					'https://fonts.gstatic.com/s/mynerve/v8/P5sCzZKPdNjb4jt79CxkiK-u.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mynerve/v7/P5sCzZKPdNjb4jt79C1kiK-u.woff2',
+					'https://fonts.gstatic.com/s/mynerve/v8/P5sCzZKPdNjb4jt79C1kiK-u.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mynerve/v7/P5sCzZKPdNjb4jt79CNkiA.woff2',
+					'https://fonts.gstatic.com/s/mynerve/v8/P5sCzZKPdNjb4jt79CNkiA.woff2',
 			},
 		},
 	},

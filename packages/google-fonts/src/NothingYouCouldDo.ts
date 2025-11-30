@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nothing You Could Do',
 	importName: 'NothingYouCouldDo',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Nothing+You+Could+Do:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/nothingyoucoulddo/v20/oY1B8fbBpaP5OX3DtrRYf_Q2BPB1SnfZb3OOnVs.woff2',
+					'https://fonts.gstatic.com/s/nothingyoucoulddo/v21/oY1B8fbBpaP5OX3DtrRYf_Q2BPB1SnfZb3OOnVs.woff2',
 			},
 		},
 	},

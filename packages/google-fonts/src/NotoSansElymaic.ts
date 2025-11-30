@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Elymaic',
 	importName: 'NotoSansElymaic',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Elymaic:ital,wght@0,400',
 	unicodeRanges: {
 		elymaic: 'U+10FE0-10FF6',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				elymaic:
-					'https://fonts.gstatic.com/s/notosanselymaic/v17/UqyKK9YTJW5liNMhTMqe9vUFP65ZD7C_c8D59zQ.woff2',
+					'https://fonts.gstatic.com/s/notosanselymaic/v18/UqyKK9YTJW5liNMhTMqe9vUFP65ZD7C_c8D59zQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanselymaic/v17/UqyKK9YTJW5liNMhTMqe9vUFP65ZD7AqUuXEzg.woff2',
+					'https://fonts.gstatic.com/s/notosanselymaic/v18/UqyKK9YTJW5liNMhTMqe9vUFP65ZD7AqUuXEzg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanselymaic/v17/UqyKK9YTJW5liNMhTMqe9vUFP65ZD7AkUuU.woff2',
+					'https://fonts.gstatic.com/s/notosanselymaic/v18/UqyKK9YTJW5liNMhTMqe9vUFP65ZD7AkUuU.woff2',
 			},
 		},
 	},

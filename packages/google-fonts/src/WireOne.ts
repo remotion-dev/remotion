@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Wire One',
 	importName: 'WireOne',
-	version: 'v29',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Wire+One:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/wireone/v29/qFdH35Wah5htUhV75VGlU9s.woff2',
+					'https://fonts.gstatic.com/s/wireone/v30/qFdH35Wah5htUhV75VGlU9s.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Akaya Kanadaka',
 	importName: 'AkayaKanadaka',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Akaya+Kanadaka:ital,wght@0,400',
 	unicodeRanges: {
 		kannada:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				kannada:
-					'https://fonts.gstatic.com/s/akayakanadaka/v17/N0bM2S5CPO5oOQqvazoRRb-8-MfMQZRxBQ.woff2',
+					'https://fonts.gstatic.com/s/akayakanadaka/v18/N0bM2S5CPO5oOQqvazoRRb-8-MfMQZRxBQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/akayakanadaka/v17/N0bM2S5CPO5oOQqvazoRRb-8-MfYQZRxBQ.woff2',
+					'https://fonts.gstatic.com/s/akayakanadaka/v18/N0bM2S5CPO5oOQqvazoRRb-8-MfYQZRxBQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/akayakanadaka/v17/N0bM2S5CPO5oOQqvazoRRb-8-MfWQZQ.woff2',
+					'https://fonts.gstatic.com/s/akayakanadaka/v18/N0bM2S5CPO5oOQqvazoRRb-8-MfWQZQ.woff2',
 			},
 		},
 	},

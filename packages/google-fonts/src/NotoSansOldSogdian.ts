@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Old Sogdian',
 	importName: 'NotoSansOldSogdian',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Old+Sogdian:ital,wght@0,400',
 	unicodeRanges: {
 		'old-sogdian': 'U+10F00-10F27',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'old-sogdian':
-					'https://fonts.gstatic.com/s/notosansoldsogdian/v17/3JnjSCH90Gmq2mrzckOBBhFhdrMst48aURtLEMkOPtZ3.woff2',
+					'https://fonts.gstatic.com/s/notosansoldsogdian/v18/3JnjSCH90Gmq2mrzckOBBhFhdrMst48aURtLEMkOPtZ3.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansoldsogdian/v17/3JnjSCH90Gmq2mrzckOBBhFhdrMst48aURtLlOgrA-8.woff2',
+					'https://fonts.gstatic.com/s/notosansoldsogdian/v18/3JnjSCH90Gmq2mrzckOBBhFhdrMst48aURtLlOgrA-8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansoldsogdian/v17/3JnjSCH90Gmq2mrzckOBBhFhdrMst48aURtLmugr.woff2',
+					'https://fonts.gstatic.com/s/notosansoldsogdian/v18/3JnjSCH90Gmq2mrzckOBBhFhdrMst48aURtLmugr.woff2',
 			},
 		},
 	},

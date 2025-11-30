@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Gupter',
 	importName: 'Gupter',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Gupter:ital,wght@0,400;0,500;0,700',
 	unicodeRanges: {
 		latin:
@@ -13,15 +13,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/gupter/v17/2-cm9JNmxJqPO1QkZpy-.woff2',
+					'https://fonts.gstatic.com/s/gupter/v18/2-cm9JNmxJqPO1QkZpy-.woff2',
 			},
 			'500': {
 				latin:
-					'https://fonts.gstatic.com/s/gupter/v17/2-cl9JNmxJqPO1Qslb-rVc74.woff2',
+					'https://fonts.gstatic.com/s/gupter/v18/2-cl9JNmxJqPO1Qslb-rVc74.woff2',
 			},
 			'700': {
 				latin:
-					'https://fonts.gstatic.com/s/gupter/v17/2-cl9JNmxJqPO1Qs3bmrVc74.woff2',
+					'https://fonts.gstatic.com/s/gupter/v18/2-cl9JNmxJqPO1Qs3bmrVc74.woff2',
 			},
 		},
 	},

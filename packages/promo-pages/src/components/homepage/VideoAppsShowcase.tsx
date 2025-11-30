@@ -131,7 +131,11 @@ const VideoAppsShowcase: React.FC = () => {
 					</button>
 				))}
 			</div>
-			<div className={'card flex p-0 overflow-hidden'}>
+			<div
+				className={'card flex p-0 overflow-hidden'}
+				// Prevent this from showing up in search engine results
+				data-nosnippet
+			>
 				<div className={'flex-1 flex flex-col lg:flex-row justify-center'}>
 					<div
 						className={

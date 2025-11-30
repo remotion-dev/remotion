@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Smooch',
 	importName: 'Smooch',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Smooch:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/smooch/v8/o-0LIps4xW8U1xUxhqB-2hU.woff2',
+					'https://fonts.gstatic.com/s/smooch/v9/o-0LIps4xW8U1xUxhqB-2hU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/smooch/v8/o-0LIps4xW8U1xUxh6B-2hU.woff2',
+					'https://fonts.gstatic.com/s/smooch/v9/o-0LIps4xW8U1xUxh6B-2hU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/smooch/v8/o-0LIps4xW8U1xUxiaB-.woff2',
+					'https://fonts.gstatic.com/s/smooch/v9/o-0LIps4xW8U1xUxiaB-.woff2',
 			},
 		},
 	},

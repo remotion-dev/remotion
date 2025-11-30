@@ -13,6 +13,7 @@ RUN yum install -y \
   libdrm \ 
   libXdamage \ 
   libXfixes \ 
+  libxkbcommon \
   dbus-libs \ 
   libXcomposite \ 
   alsa-lib \ 

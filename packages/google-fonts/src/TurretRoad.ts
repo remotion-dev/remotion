@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Turret Road',
 	importName: 'TurretRoad',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Turret+Road:ital,wght@0,200;0,300;0,400;0,500;0,700;0,800',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,39 +15,39 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/turretroad/v10/pxidypMgpcBFjE84Zv-fE0ONEeeCaEx8qw.woff2',
+					'https://fonts.gstatic.com/s/turretroad/v11/pxidypMgpcBFjE84Zv-fE0ONEeeCaEx8qw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/turretroad/v10/pxidypMgpcBFjE84Zv-fE0ONEeeMaEw.woff2',
+					'https://fonts.gstatic.com/s/turretroad/v11/pxidypMgpcBFjE84Zv-fE0ONEeeMaEw.woff2',
 			},
 			'300': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/turretroad/v10/pxidypMgpcBFjE84Zv-fE0PpEueCaEx8qw.woff2',
+					'https://fonts.gstatic.com/s/turretroad/v11/pxidypMgpcBFjE84Zv-fE0PpEueCaEx8qw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/turretroad/v10/pxidypMgpcBFjE84Zv-fE0PpEueMaEw.woff2',
+					'https://fonts.gstatic.com/s/turretroad/v11/pxidypMgpcBFjE84Zv-fE0PpEueMaEw.woff2',
 			},
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/turretroad/v10/pxiAypMgpcBFjE84Zv-fE0tMMPKzSQ.woff2',
+					'https://fonts.gstatic.com/s/turretroad/v11/pxiAypMgpcBFjE84Zv-fE0tMMPKzSQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/turretroad/v10/pxiAypMgpcBFjE84Zv-fE0tCMPI.woff2',
+					'https://fonts.gstatic.com/s/turretroad/v11/pxiAypMgpcBFjE84Zv-fE0tCMPI.woff2',
 			},
 			'500': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/turretroad/v10/pxidypMgpcBFjE84Zv-fE0OxE-eCaEx8qw.woff2',
+					'https://fonts.gstatic.com/s/turretroad/v11/pxidypMgpcBFjE84Zv-fE0OxE-eCaEx8qw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/turretroad/v10/pxidypMgpcBFjE84Zv-fE0OxE-eMaEw.woff2',
+					'https://fonts.gstatic.com/s/turretroad/v11/pxidypMgpcBFjE84Zv-fE0OxE-eMaEw.woff2',
 			},
 			'700': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/turretroad/v10/pxidypMgpcBFjE84Zv-fE0P5FeeCaEx8qw.woff2',
+					'https://fonts.gstatic.com/s/turretroad/v11/pxidypMgpcBFjE84Zv-fE0P5FeeCaEx8qw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/turretroad/v10/pxidypMgpcBFjE84Zv-fE0P5FeeMaEw.woff2',
+					'https://fonts.gstatic.com/s/turretroad/v11/pxidypMgpcBFjE84Zv-fE0P5FeeMaEw.woff2',
 			},
 			'800': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/turretroad/v10/pxidypMgpcBFjE84Zv-fE0PlFueCaEx8qw.woff2',
+					'https://fonts.gstatic.com/s/turretroad/v11/pxidypMgpcBFjE84Zv-fE0PlFueCaEx8qw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/turretroad/v10/pxidypMgpcBFjE84Zv-fE0PlFueMaEw.woff2',
+					'https://fonts.gstatic.com/s/turretroad/v11/pxidypMgpcBFjE84Zv-fE0PlFueMaEw.woff2',
 			},
 		},
 	},

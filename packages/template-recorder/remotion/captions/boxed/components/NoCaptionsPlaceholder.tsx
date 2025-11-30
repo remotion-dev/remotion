@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { AbsoluteFill, getRemotionEnvironment } from "remotion";
+import { AbsoluteFill, useRemotionEnvironment } from "remotion";
 import { MONOSPACE_FONT, REGULAR_FONT } from "../../../../config/fonts";
 import type { Theme } from "../../../../config/themes";
 import { COLORS } from "../../../../config/themes";
@@ -34,7 +34,9 @@ export const NoCaptionsPlaceholder: React.FC<{
     };
   }, [theme]);
 
-  if (getRemotionEnvironment().isRendering) {
+  const env = useRemotionEnvironment();
+
+  if (env.isRendering) {
     return null;
   }
 

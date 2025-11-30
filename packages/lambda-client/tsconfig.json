@@ -2,8 +2,9 @@
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
 		"rootDir": "src",
-		"outDir": "dist"
+		"outDir": "dist/cjs",
+		"emitDeclarationOnly": true
 	},
 	"include": ["src"],
-	"references": [{"path": "../serverless-client"}]
+	"references": [{"path": "../serverless-client"}, {"path": "../renderer"}]
 }

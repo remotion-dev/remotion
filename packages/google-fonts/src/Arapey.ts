@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Arapey',
 	importName: 'Arapey',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Arapey:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		latin:
@@ -13,13 +13,13 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/arapey/v16/-W_9XJn-UDDA2RCKZeofTkY.woff2',
+					'https://fonts.gstatic.com/s/arapey/v17/-W_9XJn-UDDA2RCKZeofTkY.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/arapey/v16/-W__XJn-UDDA2RCKYNod.woff2',
+					'https://fonts.gstatic.com/s/arapey/v17/-W__XJn-UDDA2RCKYNod.woff2',
 			},
 		},
 	},

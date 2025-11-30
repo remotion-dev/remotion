@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Licorice',
 	importName: 'Licorice',
-	version: 'v7',
+	version: 'v8',
 	url: 'https://fonts.googleapis.com/css2?family=Licorice:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/licorice/v7/t5tjIR8TMomTCAyjNn2_jKPQzA.woff2',
+					'https://fonts.gstatic.com/s/licorice/v8/t5tjIR8TMomTCAyjNn2_jKPQzA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/licorice/v7/t5tjIR8TMomTCAyjNn2-jKPQzA.woff2',
+					'https://fonts.gstatic.com/s/licorice/v8/t5tjIR8TMomTCAyjNn2-jKPQzA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/licorice/v7/t5tjIR8TMomTCAyjNn2wjKM.woff2',
+					'https://fonts.gstatic.com/s/licorice/v8/t5tjIR8TMomTCAyjNn2wjKM.woff2',
 			},
 		},
 	},

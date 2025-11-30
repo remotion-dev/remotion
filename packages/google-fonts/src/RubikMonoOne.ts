@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Rubik Mono One',
 	importName: 'RubikMonoOne',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Rubik+Mono+One:ital,wght@0,400',
 	unicodeRanges: {
 		cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				cyrillic:
-					'https://fonts.gstatic.com/s/rubikmonoone/v19/UqyJK8kPP3hjw6ANTdfRk9YSN98zTKUbcw.woff2',
+					'https://fonts.gstatic.com/s/rubikmonoone/v20/UqyJK8kPP3hjw6ANTdfRk9YSN98zTKUbcw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/rubikmonoone/v19/UqyJK8kPP3hjw6ANTdfRk9YSN985TKUbcw.woff2',
+					'https://fonts.gstatic.com/s/rubikmonoone/v20/UqyJK8kPP3hjw6ANTdfRk9YSN985TKUbcw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/rubikmonoone/v19/UqyJK8kPP3hjw6ANTdfRk9YSN983TKU.woff2',
+					'https://fonts.gstatic.com/s/rubikmonoone/v20/UqyJK8kPP3hjw6ANTdfRk9YSN983TKU.woff2',
 			},
 		},
 	},

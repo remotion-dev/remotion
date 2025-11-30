@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Vidaloka',
 	importName: 'Vidaloka',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Vidaloka:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/vidaloka/v18/7cHrv4c3ipenMKlEavs7wH8.woff2',
+					'https://fonts.gstatic.com/s/vidaloka/v19/7cHrv4c3ipenMKlEavs7wH8.woff2',
 			},
 		},
 	},

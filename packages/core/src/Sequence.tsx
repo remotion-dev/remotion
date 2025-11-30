@@ -14,16 +14,14 @@ import {
 	SequenceManager,
 	SequenceVisibilityToggleContext,
 } from './SequenceManager.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {TimelineContext} from './TimelineContext.js';
 import {useNonce} from './nonce.js';
-import {
-	TimelineContext,
-	useTimelinePosition,
-} from './timeline-position-state.js';
+import {useTimelinePosition} from './timeline-position-state.js';
 import {useVideoConfig} from './use-video-config.js';
 
 import {Freeze} from './freeze.js';
 import {useCurrentFrame} from './use-current-frame';
+import {useRemotionEnvironment} from './use-remotion-environment.js';
 
 export type AbsoluteFillLayout = {
 	layout?: 'absolute-fill';
@@ -183,6 +181,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			width: width ?? parentSequence?.width ?? null,
 			premounting,
 			postmounting,
+			premountDisplay: premountDisplay ?? null,
+			postmountDisplay: postmountDisplay ?? null,
 		};
 	}, [
 		cumulatedFrom,
@@ -194,14 +194,18 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		width,
 		premounting,
 		postmounting,
+		premountDisplay,
+		postmountDisplay,
 	]);
 
 	const timelineClipName = useMemo(() => {
 		return name ?? '';
 	}, [name]);
 
+	const env = useRemotionEnvironment();
+
 	useEffect(() => {
-		if (!getRemotionEnvironment().isStudio) {
+		if (!env.isStudio) {
 			return;
 		}
 
@@ -240,6 +244,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		stack,
 		premountDisplay,
 		postmountDisplay,
+		env.isStudio,
 	]);
 
 	// Ceil to support floats
@@ -374,7 +379,8 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SequenceProps
 > = (props, ref) => {
-	if (props.layout !== 'none' && !getRemotionEnvironment().isRendering) {
+	const env = useRemotionEnvironment();
+	if (props.layout !== 'none' && !env.isRendering) {
 		if (props.premountFor || props.postmountFor) {
 			return <PremountedPostmountedSequence {...props} ref={ref} />;
 		}

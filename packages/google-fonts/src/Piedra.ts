@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Piedra',
 	importName: 'Piedra',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Piedra:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/piedra/v26/ke8kOg8aN0Bn7hTelUaGB_M.woff2',
+					'https://fonts.gstatic.com/s/piedra/v27/ke8kOg8aN0Bn7hTelUaGB_M.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/piedra/v26/ke8kOg8aN0Bn7hTem0aG.woff2',
+					'https://fonts.gstatic.com/s/piedra/v27/ke8kOg8aN0Bn7hTem0aG.woff2',
 			},
 		},
 	},

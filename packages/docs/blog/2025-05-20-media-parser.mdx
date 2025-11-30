@@ -8,6 +8,10 @@ author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb9
 image: /img/media-parser.png
 ---
 
+:::note
+Update September 2025: We are phasing out Media Parser and are moving to [Mediabunny](/docs/mediabunny)!
+:::
+
 We're taking video even more seriously with our own multimedia library, designed from the ground up for JavaScript and the web!
 
 <iframe
@@ -38,7 +42,7 @@ import {parseMedia} from '@remotion/media-parser';
 
 // ---cut---
 const result = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   fields: {
     durationInSeconds: true,
     dimensions: true,
@@ -69,7 +73,7 @@ import {parseMedia} from '@remotion/media-parser';
 
 // ---cut---
 const result = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   onVideoTrack: (track) => {
     const videoDecoder = new VideoDecoder({
       output: console.log,
@@ -98,6 +102,10 @@ Media Parser is a foundational library that unlocks many upcoming improvements t
 ### We built the fastest video converter on the web
 
 Try out [remotion.dev/convert](https://remotion.dev/convert), our web video converter powered by Remotion Media Parser and WebCodecs. Because it works offline and the conversion is hardware-accelerated, it is faster than any other web converter we could find!
+
+:::note
+Update, 20th October 2025: We are phasing out Media Parser and are moving to [Mediabunny](/docs/mediabunny)! remotion.dev/convert is now updated to use Mediabunny.
+:::
 
 <img src="/img/converter.webp" alt="Converter" />
 

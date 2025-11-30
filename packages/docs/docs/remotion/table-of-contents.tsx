@@ -58,14 +58,14 @@ export const TableOfContents: React.FC = () => {
 						Render an <code>{'<img>'}</code> tag and wait for it to load
 					</div>
 				</TOCItem>
-				<TOCItem link="/docs/video">
-					<strong>{'<Video>'}</strong>
+				<TOCItem link="/docs/html5-video">
+					<strong>{'<Html5Video>'}</strong>
 					<div>
 						Synchronize a <code>{'<video>'}</code> with Remotion{"'"}s time
 					</div>
 				</TOCItem>
-				<TOCItem link="/docs/audio">
-					<strong>{'<Audio>'}</strong>
+				<TOCItem link="/docs/html5-audio">
+					<strong>{'<Html5Audio>'}</strong>
 					<div>
 						Synchronize <code>{'<audio>'}</code> with Remotion{"'"}s time
 					</div>
@@ -73,7 +73,7 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/offthreadvideo">
 					<strong>{'<OffthreadVideo>'}</strong>
 					<div>
-						Alternative to <code>{'<Video>'}</code>
+						Alternative to <code>{'<Html5Video>'}</code>
 					</div>
 				</TOCItem>
 				<TOCItem link="/docs/animatedimage">

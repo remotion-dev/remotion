@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Sogdian',
 	importName: 'NotoSansSogdian',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Sogdian:ital,wght@0,400',
 	unicodeRanges: {
 		sogdian: 'U+0640, U+200C-200D, U+25CC, U+10F30-10F59',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				sogdian:
-					'https://fonts.gstatic.com/s/notosanssogdian/v16/taiQGn5iC4--qtsfi4Jp6eHPnfxQBr_LNG-6Hg.woff2',
+					'https://fonts.gstatic.com/s/notosanssogdian/v17/taiQGn5iC4--qtsfi4Jp6eHPnfxQBr_LNG-6Hg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosanssogdian/v16/taiQGn5iC4--qtsfi4Jp6eHPnfxQBr-3NG-6Hg.woff2',
+					'https://fonts.gstatic.com/s/notosanssogdian/v17/taiQGn5iC4--qtsfi4Jp6eHPnfxQBr-3NG-6Hg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosanssogdian/v16/taiQGn5iC4--qtsfi4Jp6eHPnfxQBr-5NG8.woff2',
+					'https://fonts.gstatic.com/s/notosanssogdian/v17/taiQGn5iC4--qtsfi4Jp6eHPnfxQBr-5NG8.woff2',
 			},
 		},
 	},

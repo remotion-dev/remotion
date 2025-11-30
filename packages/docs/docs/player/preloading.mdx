@@ -21,9 +21,7 @@ For videos, use [`preloadVideo()`](/docs/preload/preload-video) API, for audio u
 import {preloadAudio, preloadVideo} from '@remotion/preload';
 
 const unpreloadVideo = preloadVideo('https://example.com/video.mp4');
-const unpreloadAudio = preloadAudio(
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-);
+const unpreloadAudio = preloadAudio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
 
 // Later, you can optionally clean up the preload
 unpreloadVideo();
@@ -35,7 +33,7 @@ unpreloadAudio();
 _Available in v3.2.23_
 
 By prefetching, the full media is downloaded and turned into a Blob URL using [`URL.createObjectURL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL).  
-If you pass the original URL into either an [`<Audio>`](/docs/audio), [`<Video>`](/docs/video), [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Img>`](/docs/img) tag and the asset is prefetched, those components will use Blob URL instead.
+If you pass the original URL into either an [`<Audio>`](/docs/media/audio), [`<Video>`](/docs/media/video), [`<OffthreadVideo>`](/docs/offthreadvideo), [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), or [`<Img>`](/docs/img) tag and the asset is prefetched, those components will use Blob URL instead.
 
 ```tsx twoslash
 import {prefetch} from 'remotion';
@@ -76,12 +74,20 @@ free();
     <td>Works with</td>
     <td>All audio and video APIs, images and fonts</td>
     <td>
-      <a href="/docs/audio">
+      <a href="/docs/media/audio">
         <code>{'<Audio/>'}</code>
       </a>
       ,{' '}
-      <a href="/docs/video">
+      <a href="/docs/media/video">
         <code>{'<Video/>'}</code>
+      </a>
+      ,{' '}
+      <a href="/docs/html5-audio">
+        <code>{'<Html5Audio/>'}</code>
+      </a>
+      ,{' '}
+      <a href="/docs/html5-video">
+        <code>{'<Html5Video/>'}</code>
       </a>
       ,{' '}
       <a href="/docs/img">
@@ -102,17 +108,13 @@ free();
   </tr>
   <tr>
     <td>Readiness</td>
-    <td style={{color: 'green'}}>
-      Ready to play when asset is partially loaded
-    </td>
+    <td style={{color: 'green'}}>Ready to play when asset is partially loaded</td>
     <td style={{color: 'red'}}>Asset must be fully fetched</td>
   </tr>
   <tr>
     <td>Reliability</td>
     <td style={{color: 'red'}}>No guarantee, just a signal to the browser</td>
-    <td style={{color: 'green'}}>
-      Guaranteed to be ready, posssible to track progress of loading
-    </td>
+    <td style={{color: 'green'}}>Guaranteed to be ready, posssible to track progress of loading</td>
   </tr>
   <tr>
     <td>Callback</td>

@@ -1,5 +1,5 @@
 import {TransitionSeries} from '@remotion/transitions';
-import {Sequence, Video} from 'remotion';
+import {Html5Video, Sequence} from 'remotion';
 
 // test case: Nested sequences should be considered premounted
 export const PremountOnTransitionSeries = () => {
@@ -11,7 +11,7 @@ export const PremountOnTransitionSeries = () => {
 			<TransitionSeries.Sequence durationInFrames={100} premountFor={150}>
 				<Sequence>
 					<Sequence>
-						<Video src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+						<Html5Video src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
 					</Sequence>
 				</Sequence>
 			</TransitionSeries.Sequence>

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Jacques Francois Shadow',
 	importName: 'JacquesFrancoisShadow',
-	version: 'v26',
+	version: 'v27',
 	url: 'https://fonts.googleapis.com/css2?family=Jacques+Francois+Shadow:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/jacquesfrancoisshadow/v26/KR1FBtOz8PKTMk-kqdkLVrvR0ECFrB6Pin-2_p8Suno.woff2',
+					'https://fonts.gstatic.com/s/jacquesfrancoisshadow/v27/KR1FBtOz8PKTMk-kqdkLVrvR0ECFrB6Pin-2_p8Suno.woff2',
 			},
 		},
 	},

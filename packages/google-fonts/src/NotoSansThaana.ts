@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Sans Thaana',
 	importName: 'NotoSansThaana',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Thaana:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		thaana:
@@ -17,75 +17,75 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				thaana:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
 			},
 			'200': {
 				thaana:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
 			},
 			'300': {
 				thaana:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
 			},
 			'400': {
 				thaana:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
 			},
 			'500': {
 				thaana:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
 			},
 			'600': {
 				thaana:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
 			},
 			'700': {
 				thaana:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
 			},
 			'800': {
 				thaana:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
 			},
 			'900': {
 				thaana:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTs87rBKM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTuM7rBKM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansthaana/v25/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
+					'https://fonts.gstatic.com/s/notosansthaana/v26/C8c44dM-vnz-s-3jaEsxlxHkBH-WTu07rA.woff2',
 			},
 		},
 	},

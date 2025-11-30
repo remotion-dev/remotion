@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Road Rage',
 	importName: 'RoadRage',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Road+Rage:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/roadrage/v8/6NUU8F2fKAOBKjjr4ekfvMwB8dQ.woff2',
+					'https://fonts.gstatic.com/s/roadrage/v9/6NUU8F2fKAOBKjjr4ekfvMwB8dQ.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/roadrage/v8/6NUU8F2fKAOBKjjr4ekfvcwB8dQ.woff2',
+					'https://fonts.gstatic.com/s/roadrage/v9/6NUU8F2fKAOBKjjr4ekfvcwB8dQ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/roadrage/v8/6NUU8F2fKAOBKjjr4ekfs8wB.woff2',
+					'https://fonts.gstatic.com/s/roadrage/v9/6NUU8F2fKAOBKjjr4ekfs8wB.woff2',
 			},
 		},
 	},

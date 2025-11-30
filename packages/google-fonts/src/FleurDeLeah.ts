@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fleur De Leah',
 	importName: 'FleurDeLeah',
-	version: 'v10',
+	version: 'v11',
 	url: 'https://fonts.googleapis.com/css2?family=Fleur+De+Leah:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/fleurdeleah/v10/AYCNpXX7ftYZWLhv9UmPJTMC1v6n4b_G.woff2',
+					'https://fonts.gstatic.com/s/fleurdeleah/v11/AYCNpXX7ftYZWLhv9UmPJTMC1v6n4b_G.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fleurdeleah/v10/AYCNpXX7ftYZWLhv9UmPJTMC1v-n4b_G.woff2',
+					'https://fonts.gstatic.com/s/fleurdeleah/v11/AYCNpXX7ftYZWLhv9UmPJTMC1v-n4b_G.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fleurdeleah/v10/AYCNpXX7ftYZWLhv9UmPJTMC1vGn4Q.woff2',
+					'https://fonts.gstatic.com/s/fleurdeleah/v11/AYCNpXX7ftYZWLhv9UmPJTMC1vGn4Q.woff2',
 			},
 		},
 	},

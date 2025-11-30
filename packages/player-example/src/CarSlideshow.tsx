@@ -1,8 +1,8 @@
 import {createRef, useCallback, useImperativeHandle, useState} from 'react';
 import {
+	Html5Video,
 	Img,
 	Sequence,
-	Video,
 	interpolate,
 	staticFile,
 	useCurrentFrame,
@@ -75,7 +75,7 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 				}}
 			/>
 			<Sequence from={10}>
-				<Video
+				<Html5Video
 					style={{
 						height: 200,
 					}}

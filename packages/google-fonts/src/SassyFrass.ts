@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sassy Frass',
 	importName: 'SassyFrass',
-	version: 'v8',
+	version: 'v9',
 	url: 'https://fonts.googleapis.com/css2?family=Sassy+Frass:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/sassyfrass/v8/LhWhMVrGOe0FLb97BjhsE-9VEtSggw.woff2',
+					'https://fonts.gstatic.com/s/sassyfrass/v9/LhWhMVrGOe0FLb97BjhsE-9VEtSggw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sassyfrass/v8/LhWhMVrGOe0FLb97BjhsE-9UEtSggw.woff2',
+					'https://fonts.gstatic.com/s/sassyfrass/v9/LhWhMVrGOe0FLb97BjhsE-9UEtSggw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sassyfrass/v8/LhWhMVrGOe0FLb97BjhsE-9aEtQ.woff2',
+					'https://fonts.gstatic.com/s/sassyfrass/v9/LhWhMVrGOe0FLb97BjhsE-9aEtQ.woff2',
 			},
 		},
 	},

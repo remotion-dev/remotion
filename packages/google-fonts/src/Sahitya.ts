@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sahitya',
 	importName: 'Sahitya',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Sahitya:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		devanagari:
@@ -15,15 +15,15 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sahitya/v19/6qLAKZkOuhnuqlJAWSEPPhwE.woff2',
+					'https://fonts.gstatic.com/s/sahitya/v20/6qLAKZkOuhnuqlJAWSEPPhwE.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sahitya/v19/6qLAKZkOuhnuqlJAWSAPPg.woff2',
+					'https://fonts.gstatic.com/s/sahitya/v20/6qLAKZkOuhnuqlJAWSAPPg.woff2',
 			},
 			'700': {
 				devanagari:
-					'https://fonts.gstatic.com/s/sahitya/v19/6qLFKZkOuhnuqlJAUZsqKyIlE0vS.woff2',
+					'https://fonts.gstatic.com/s/sahitya/v20/6qLFKZkOuhnuqlJAUZsqKyIlE0vS.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sahitya/v19/6qLFKZkOuhnuqlJAUZsqKyMlEw.woff2',
+					'https://fonts.gstatic.com/s/sahitya/v20/6qLFKZkOuhnuqlJAUZsqKyMlEw.woff2',
 			},
 		},
 	},

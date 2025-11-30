@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Bonbon',
 	importName: 'Bonbon',
-	version: 'v31',
+	version: 'v32',
 	url: 'https://fonts.googleapis.com/css2?family=Bonbon:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/bonbon/v31/0FlVVPeVlFec4eePdzsB.woff2',
+					'https://fonts.gstatic.com/s/bonbon/v32/0FlVVPeVlFec4eePdzsB.woff2',
 			},
 		},
 	},

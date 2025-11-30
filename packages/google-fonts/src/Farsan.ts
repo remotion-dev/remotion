@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Farsan',
 	importName: 'Farsan',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Farsan:ital,wght@0,400',
 	unicodeRanges: {
 		gujarati:
@@ -19,13 +19,13 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				gujarati:
-					'https://fonts.gstatic.com/s/farsan/v23/VEMwRoJ0vY_zsyzKxqWo9DU.woff2',
+					'https://fonts.gstatic.com/s/farsan/v24/VEMwRoJ0vY_zsyzKxqWo9DU.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/farsan/v23/VEMwRoJ0vY_zsyzK0qWo9DU.woff2',
+					'https://fonts.gstatic.com/s/farsan/v24/VEMwRoJ0vY_zsyzK0qWo9DU.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/farsan/v23/VEMwRoJ0vY_zsyzK06Wo9DU.woff2',
+					'https://fonts.gstatic.com/s/farsan/v24/VEMwRoJ0vY_zsyzK06Wo9DU.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/farsan/v23/VEMwRoJ0vY_zsyzK3aWo.woff2',
+					'https://fonts.gstatic.com/s/farsan/v24/VEMwRoJ0vY_zsyzK3aWo.woff2',
 			},
 		},
 	},

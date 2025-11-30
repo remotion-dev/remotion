@@ -186,6 +186,7 @@ export const renderMediaSingleThread = async (
 			puppeteerInstance: undefined,
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
+			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
 			offthreadVideoThreads: body.offthreadVideoThreads,
 			colorSpace: body.colorSpace,
 			repro: false,
@@ -200,6 +201,8 @@ export const renderMediaSingleThread = async (
 			metadata: body.metadata ?? null,
 			hardwareAcceleration: 'disable',
 			chromeMode: 'headless-shell',
+			onLog: RenderInternals.defaultOnLog,
+			apiKey: null,
 		});
 
 		const storage = new Storage();

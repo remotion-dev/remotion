@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Kavivanar',
 	importName: 'Kavivanar',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Kavivanar:ital,wght@0,400',
 	unicodeRanges: {
 		tamil: 'U+0964-0965, U+0B82-0BFA, U+200C-200D, U+20B9, U+25CC',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				tamil:
-					'https://fonts.gstatic.com/s/kavivanar/v21/o-0IIpQgyXYSwhxP7_Jr8zRAW_0.woff2',
+					'https://fonts.gstatic.com/s/kavivanar/v22/o-0IIpQgyXYSwhxP7_Jr8zRAW_0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/kavivanar/v21/o-0IIpQgyXYSwhxP7_Jr6zRAW_0.woff2',
+					'https://fonts.gstatic.com/s/kavivanar/v22/o-0IIpQgyXYSwhxP7_Jr6zRAW_0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/kavivanar/v21/o-0IIpQgyXYSwhxP7_Jr5TRA.woff2',
+					'https://fonts.gstatic.com/s/kavivanar/v22/o-0IIpQgyXYSwhxP7_Jr5TRA.woff2',
 			},
 		},
 	},

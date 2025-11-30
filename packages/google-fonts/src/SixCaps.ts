@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Six Caps',
 	importName: 'SixCaps',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Six+Caps:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/sixcaps/v22/6ae_4KGrU7VR7bNmaYcb_3TqPA.woff2',
+					'https://fonts.gstatic.com/s/sixcaps/v23/6ae_4KGrU7VR7bNmaYcb_3TqPA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/sixcaps/v22/6ae_4KGrU7VR7bNmaYcV_3Q.woff2',
+					'https://fonts.gstatic.com/s/sixcaps/v23/6ae_4KGrU7VR7bNmaYcV_3Q.woff2',
 			},
 		},
 	},

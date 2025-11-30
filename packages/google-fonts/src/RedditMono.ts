@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Reddit Mono',
 	importName: 'RedditMono',
-	version: 'v4',
+	version: 'v5',
 	url: 'https://fonts.googleapis.com/css2?family=Reddit+Mono:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		vietnamese:
@@ -17,67 +17,67 @@ export const getInfo = () => ({
 		normal: {
 			'200': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
 			},
 			'300': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
 			},
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
 			},
 			'500': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
 			},
 			'600': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
 			},
 			'800': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
 			},
 			'900': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rERjtPRw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rFRjtPRw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/redditmono/v4/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
+					'https://fonts.gstatic.com/s/redditmono/v5/oPWL_kRmmu4oQ88oo13o4-rLRjs.woff2',
 			},
 		},
 	},

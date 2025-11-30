@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Nerko One',
 	importName: 'NerkoOne',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Nerko+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/nerkoone/v16/m8JQjfZSc7OXlB3ZMOjDeZRAVmo.woff2',
+					'https://fonts.gstatic.com/s/nerkoone/v17/m8JQjfZSc7OXlB3ZMOjDeZRAVmo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/nerkoone/v16/m8JQjfZSc7OXlB3ZMOjDd5RA.woff2',
+					'https://fonts.gstatic.com/s/nerkoone/v17/m8JQjfZSc7OXlB3ZMOjDd5RA.woff2',
 			},
 		},
 	},

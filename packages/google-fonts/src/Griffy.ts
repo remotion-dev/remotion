@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Griffy',
 	importName: 'Griffy',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Griffy:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/griffy/v22/FwZa7-ox2FQh9kfAQd6F8M0.woff2',
+					'https://fonts.gstatic.com/s/griffy/v23/FwZa7-ox2FQh9kfAQd6F8M0.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/griffy/v22/FwZa7-ox2FQh9kfAT96F.woff2',
+					'https://fonts.gstatic.com/s/griffy/v23/FwZa7-ox2FQh9kfAT96F.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'DM Serif Text',
 	importName: 'DMSerifText',
-	version: 'v12',
+	version: 'v13',
 	url: 'https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/dmseriftext/v12/rnCw-xZa_krGokauCeNq1wWyWfG1UVoNMrY.woff2',
+					'https://fonts.gstatic.com/s/dmseriftext/v13/rnCw-xZa_krGokauCeNq1wWyWfG1UVoNMrY.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/dmseriftext/v12/rnCw-xZa_krGokauCeNq1wWyWfG1X1oN.woff2',
+					'https://fonts.gstatic.com/s/dmseriftext/v13/rnCw-xZa_krGokauCeNq1wWyWfG1X1oN.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/dmseriftext/v12/rnCu-xZa_krGokauCeNq1wWyWfqFXUIJ.woff2',
+					'https://fonts.gstatic.com/s/dmseriftext/v13/rnCu-xZa_krGokauCeNq1wWyWfqFXUIJ.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/dmseriftext/v12/rnCu-xZa_krGokauCeNq1wWyWfSFXQ.woff2',
+					'https://fonts.gstatic.com/s/dmseriftext/v13/rnCu-xZa_krGokauCeNq1wWyWfSFXQ.woff2',
 			},
 		},
 	},

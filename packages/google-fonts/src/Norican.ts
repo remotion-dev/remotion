@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Norican',
 	importName: 'Norican',
-	version: 'v15',
+	version: 'v16',
 	url: 'https://fonts.googleapis.com/css2?family=Norican:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/norican/v15/MwQ2bhXp1eSBqjkPKJtbtVs-.woff2',
+					'https://fonts.gstatic.com/s/norican/v16/MwQ2bhXp1eSBqjkPKJtbtVs-.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/norican/v15/MwQ2bhXp1eSBqjkPKJVbtQ.woff2',
+					'https://fonts.gstatic.com/s/norican/v16/MwQ2bhXp1eSBqjkPKJVbtQ.woff2',
 			},
 		},
 	},

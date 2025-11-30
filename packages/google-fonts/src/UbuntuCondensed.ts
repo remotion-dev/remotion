@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Ubuntu Condensed',
 	importName: 'UbuntuCondensed',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Ubuntu+Condensed:ital,wght@0,400',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -21,17 +21,17 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/ubuntucondensed/v16/u-4k0rCzjgs5J7oXnJcM_0kACGMtT-3fq8Ho.woff2',
+					'https://fonts.gstatic.com/s/ubuntucondensed/v17/u-4k0rCzjgs5J7oXnJcM_0kACGMtT-3fq8Ho.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/ubuntucondensed/v16/u-4k0rCzjgs5J7oXnJcM_0kACGMtT-Tfq8Ho.woff2',
+					'https://fonts.gstatic.com/s/ubuntucondensed/v17/u-4k0rCzjgs5J7oXnJcM_0kACGMtT-Tfq8Ho.woff2',
 				'greek-ext':
-					'https://fonts.gstatic.com/s/ubuntucondensed/v16/u-4k0rCzjgs5J7oXnJcM_0kACGMtT-zfq8Ho.woff2',
+					'https://fonts.gstatic.com/s/ubuntucondensed/v17/u-4k0rCzjgs5J7oXnJcM_0kACGMtT-zfq8Ho.woff2',
 				greek:
-					'https://fonts.gstatic.com/s/ubuntucondensed/v16/u-4k0rCzjgs5J7oXnJcM_0kACGMtT-Pfq8Ho.woff2',
+					'https://fonts.gstatic.com/s/ubuntucondensed/v17/u-4k0rCzjgs5J7oXnJcM_0kACGMtT-Pfq8Ho.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/ubuntucondensed/v16/u-4k0rCzjgs5J7oXnJcM_0kACGMtT-7fq8Ho.woff2',
+					'https://fonts.gstatic.com/s/ubuntucondensed/v17/u-4k0rCzjgs5J7oXnJcM_0kACGMtT-7fq8Ho.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/ubuntucondensed/v16/u-4k0rCzjgs5J7oXnJcM_0kACGMtT-Dfqw.woff2',
+					'https://fonts.gstatic.com/s/ubuntucondensed/v17/u-4k0rCzjgs5J7oXnJcM_0kACGMtT-Dfqw.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Francois One',
 	importName: 'FrancoisOne',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Francois+One:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/francoisone/v21/_Xmr-H4zszafZw3A-KPSZut9zgiRi_Y.woff2',
+					'https://fonts.gstatic.com/s/francoisone/v22/_Xmr-H4zszafZw3A-KPSZut9zgiRi_Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/francoisone/v21/_Xmr-H4zszafZw3A-KPSZut9zwiRi_Y.woff2',
+					'https://fonts.gstatic.com/s/francoisone/v22/_Xmr-H4zszafZw3A-KPSZut9zwiRi_Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/francoisone/v21/_Xmr-H4zszafZw3A-KPSZut9wQiR.woff2',
+					'https://fonts.gstatic.com/s/francoisone/v22/_Xmr-H4zszafZw3A-KPSZut9wQiR.woff2',
 			},
 		},
 	},

@@ -127,7 +127,7 @@ export const EndCard: React.FC<{
 						<div style={{position: 'absolute'}}>
 							<JumpThenDisappear delay={8}>
 								<CallToAction cornerRadius={75}>
-									<AtRemotionButton />
+									<AtRemotionButton progress={1} />
 								</CallToAction>
 							</JumpThenDisappear>
 						</div>

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Manjari',
 	importName: 'Manjari',
-	version: 'v13',
+	version: 'v14',
 	url: 'https://fonts.googleapis.com/css2?family=Manjari:ital,wght@0,100;0,400;0,700',
 	unicodeRanges: {
 		malayalam:
@@ -17,27 +17,27 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				malayalam:
-					'https://fonts.gstatic.com/s/manjari/v13/k3kSo8UPMOBO2w1UdbrYNGHEEaM.woff2',
+					'https://fonts.gstatic.com/s/manjari/v14/k3kSo8UPMOBO2w1UdbrYNGHEEaM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/manjari/v13/k3kSo8UPMOBO2w1UdbrYImHEEaM.woff2',
+					'https://fonts.gstatic.com/s/manjari/v14/k3kSo8UPMOBO2w1UdbrYImHEEaM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/manjari/v13/k3kSo8UPMOBO2w1UdbrYLGHE.woff2',
+					'https://fonts.gstatic.com/s/manjari/v14/k3kSo8UPMOBO2w1UdbrYLGHE.woff2',
 			},
 			'400': {
 				malayalam:
-					'https://fonts.gstatic.com/s/manjari/v13/k3kQo8UPMOBO2w1UfcHoLnnA.woff2',
+					'https://fonts.gstatic.com/s/manjari/v14/k3kQo8UPMOBO2w1UfcHoLnnA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/manjari/v13/k3kQo8UPMOBO2w1UfdfoLnnA.woff2',
+					'https://fonts.gstatic.com/s/manjari/v14/k3kQo8UPMOBO2w1UfdfoLnnA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/manjari/v13/k3kQo8UPMOBO2w1UfdnoLg.woff2',
+					'https://fonts.gstatic.com/s/manjari/v14/k3kQo8UPMOBO2w1UfdnoLg.woff2',
 			},
 			'700': {
 				malayalam:
-					'https://fonts.gstatic.com/s/manjari/v13/k3kVo8UPMOBO2w1UdWLNO17hLJqM.woff2',
+					'https://fonts.gstatic.com/s/manjari/v14/k3kVo8UPMOBO2w1UdWLNO17hLJqM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/manjari/v13/k3kVo8UPMOBO2w1UdWLNO0jhLJqM.woff2',
+					'https://fonts.gstatic.com/s/manjari/v14/k3kVo8UPMOBO2w1UdWLNO0jhLJqM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/manjari/v13/k3kVo8UPMOBO2w1UdWLNO0bhLA.woff2',
+					'https://fonts.gstatic.com/s/manjari/v14/k3kVo8UPMOBO2w1UdWLNO0bhLA.woff2',
 			},
 		},
 	},

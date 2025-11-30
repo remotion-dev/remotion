@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Almarai',
 	importName: 'Almarai',
-	version: 'v18',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Almarai:ital,wght@0,300;0,400;0,700;0,800',
 	unicodeRanges: {
 		arabic:
@@ -15,27 +15,27 @@ export const getInfo = () => ({
 		normal: {
 			'300': {
 				arabic:
-					'https://fonts.gstatic.com/s/almarai/v18/tssoApxBaigK_hnnS_antnqWo572.woff2',
+					'https://fonts.gstatic.com/s/almarai/v19/tssoApxBaigK_hnnS_antnqWo572.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/almarai/v18/tssoApxBaigK_hnnS_antn-Wow.woff2',
+					'https://fonts.gstatic.com/s/almarai/v19/tssoApxBaigK_hnnS_antn-Wow.woff2',
 			},
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/almarai/v18/tsstApxBaigK_hnnQ1iFo0C3.woff2',
+					'https://fonts.gstatic.com/s/almarai/v19/tsstApxBaigK_hnnQ1iFo0C3.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/almarai/v18/tsstApxBaigK_hnnQ12Fow.woff2',
+					'https://fonts.gstatic.com/s/almarai/v19/tsstApxBaigK_hnnQ12Fow.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/almarai/v18/tssoApxBaigK_hnnS-agtnqWo572.woff2',
+					'https://fonts.gstatic.com/s/almarai/v19/tssoApxBaigK_hnnS-agtnqWo572.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/almarai/v18/tssoApxBaigK_hnnS-agtn-Wow.woff2',
+					'https://fonts.gstatic.com/s/almarai/v19/tssoApxBaigK_hnnS-agtn-Wow.woff2',
 			},
 			'800': {
 				arabic:
-					'https://fonts.gstatic.com/s/almarai/v18/tssoApxBaigK_hnnS_qjtnqWo572.woff2',
+					'https://fonts.gstatic.com/s/almarai/v19/tssoApxBaigK_hnnS_qjtnqWo572.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/almarai/v18/tssoApxBaigK_hnnS_qjtn-Wow.woff2',
+					'https://fonts.gstatic.com/s/almarai/v19/tssoApxBaigK_hnnS_qjtn-Wow.woff2',
 			},
 		},
 	},

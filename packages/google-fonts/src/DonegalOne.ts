@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Donegal One',
 	importName: 'DonegalOne',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Donegal+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/donegalone/v21/m8JWjfRYea-ZnFz6fsK9FaRMTm663A.woff2',
+					'https://fonts.gstatic.com/s/donegalone/v22/m8JWjfRYea-ZnFz6fsK9FaRMTm663A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/donegalone/v21/m8JWjfRYea-ZnFz6fsK9FaRCTm4.woff2',
+					'https://fonts.gstatic.com/s/donegalone/v22/m8JWjfRYea-ZnFz6fsK9FaRCTm4.woff2',
 			},
 		},
 	},

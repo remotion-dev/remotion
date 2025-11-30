@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Text Me One',
 	importName: 'TextMeOne',
-	version: 'v25',
+	version: 'v26',
 	url: 'https://fonts.googleapis.com/css2?family=Text+Me+One:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/textmeone/v25/i7dOIFdlayuLUvgoFvHQFVZVYFeCGg.woff2',
+					'https://fonts.gstatic.com/s/textmeone/v26/i7dOIFdlayuLUvgoFvHQFVZVYFeCGg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/textmeone/v25/i7dOIFdlayuLUvgoFvHQFVZbYFc.woff2',
+					'https://fonts.gstatic.com/s/textmeone/v26/i7dOIFdlayuLUvgoFvHQFVZbYFc.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Sue Ellen Francisco',
 	importName: 'SueEllenFrancisco',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Sue+Ellen+Francisco:ital,wght@0,400',
 	unicodeRanges: {
 		latin:
@@ -13,7 +13,7 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				latin:
-					'https://fonts.gstatic.com/s/sueellenfrancisco/v21/wXK3E20CsoJ9j1DDkjHcQ5ZL8xRaxru9no1P2w.woff2',
+					'https://fonts.gstatic.com/s/sueellenfrancisco/v22/wXK3E20CsoJ9j1DDkjHcQ5ZL8xRaxru9no1P2w.woff2',
 			},
 		},
 	},

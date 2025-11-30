@@ -19,7 +19,7 @@ export const formatRemoteObject = (remoteObject: DevtoolsRemoteObject) => {
 			return chalk.gray(`${remoteObject.value}`);
 		}
 
-		return chalk.reset(`${remoteObject.value}`);
+		return `${remoteObject.value}`;
 	}
 
 	if (remoteObject.type === 'number') {
@@ -40,7 +40,7 @@ export const formatRemoteObject = (remoteObject: DevtoolsRemoteObject) => {
 
 	if (remoteObject.type === 'object') {
 		if (remoteObject.subtype === 'null') {
-			return chalk.white(`null`);
+			return `null`;
 		}
 
 		return chalk.reset(`Object`);

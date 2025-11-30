@@ -6,6 +6,10 @@ slug: /webcodecs/get-partial-audio-data
 crumb: '@remotion/webcodecs'
 ---
 
+:::warning
+[We are phasing out Remotion WebCodecs and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
 import {UnstableDisclaimer} from './UnstableDisclaimer';
 
 :::warning
@@ -23,7 +27,7 @@ Extracts audio data from a specific time window of a media file and returns it a
 import {getPartialAudioData} from '@remotion/webcodecs';
 
 const audioData = await getPartialAudioData({
-  src: 'https://parser.media/audio.wav',
+  src: 'https://remotion.media/audio.wav',
   fromSeconds: 10,
   toSeconds: 20,
   channelIndex: 0, // Left channel for stereo audio
@@ -84,7 +88,7 @@ setTimeout(() => controller.abort(), 5000);
 
 try {
   const audioData = await getPartialAudioData({
-    src: 'https://parser.media/audio.wav',
+    src: 'https://remotion.media/audio.wav',
     fromSeconds: 0,
     toSeconds: 30,
     channelIndex: 0,

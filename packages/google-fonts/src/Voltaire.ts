@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Voltaire',
 	importName: 'Voltaire',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Voltaire:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/voltaire/v22/1Pttg8PcRfSblAvGvTogaqRXBA.woff2',
+					'https://fonts.gstatic.com/s/voltaire/v23/1Pttg8PcRfSblAvGvTogaqRXBA.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/voltaire/v22/1Pttg8PcRfSblAvGvTohaqRXBA.woff2',
+					'https://fonts.gstatic.com/s/voltaire/v23/1Pttg8PcRfSblAvGvTohaqRXBA.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/voltaire/v22/1Pttg8PcRfSblAvGvTovaqQ.woff2',
+					'https://fonts.gstatic.com/s/voltaire/v23/1Pttg8PcRfSblAvGvTovaqQ.woff2',
 			},
 		},
 	},

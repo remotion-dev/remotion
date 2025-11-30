@@ -9,10 +9,10 @@ import React, {
 import {SequenceContext} from './SequenceContext.js';
 import type {IsExact} from './audio/props.js';
 import {cancelRender} from './cancel-render.js';
-import {continueRender, delayRender} from './delay-render.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import {usePreload} from './prefetch.js';
 import {useBufferState} from './use-buffer-state.js';
+import {useDelayRender} from './use-delay-render.js';
 
 function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
@@ -139,6 +139,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		[maxRetries, onError, retryIn],
 	);
 
+	const {delayRender, continueRender} = useDelayRender();
+
 	if (typeof window !== 'undefined') {
 		const isPremounting = Boolean(sequenceContext?.premounting);
 		const isPostmounting = Boolean(sequenceContext?.postmounting);
@@ -199,24 +201,20 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			}
 
 			current.src = actualSrc;
-			if (current.complete) {
-				onComplete();
-			} else {
-				current
-					.decode()
-					.then(onComplete)
-					.catch((err) => {
-						// fall back to onload event if decode() fails
-						// eslint-disable-next-line no-console
-						console.warn(err);
+			current
+				.decode()
+				.then(onComplete)
+				.catch((err) => {
+					// fall back to onload event if decode() fails
+					// eslint-disable-next-line no-console
+					console.warn(err);
 
-						if (current.complete) {
-							onComplete();
-						} else {
-							current.addEventListener('load', onComplete);
-						}
-					});
-			}
+					if (current.complete) {
+						onComplete();
+					} else {
+						current.addEventListener('load', onComplete);
+					}
+				});
 
 			// If tag gets unmounted, clear pending handles because image is not going to load
 			return () => {
@@ -234,6 +232,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			isPremounting,
 			isPostmounting,
 			onImageFrame,
+			continueRender,
+			delayRender,
 		]);
 	}
 
@@ -249,6 +249,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			ref={imageRef}
 			crossOrigin={crossOriginValue}
 			onError={didGetError}
+			decoding="sync"
 		/>
 	);
 };

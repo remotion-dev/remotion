@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Philosopher',
 	importName: 'Philosopher',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		'cyrillic-ext':
@@ -20,53 +20,53 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFX2_5QCwIS4_Dhez5jcWBrf0I81-qe.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFX2_5QCwIS4_Dhez5jcWBrf0I81-qe.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFX2_5QCwIS4_Dhez5jcWBrf0s81-qe.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFX2_5QCwIS4_Dhez5jcWBrf0s81-qe.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFX2_5QCwIS4_Dhez5jcWBrf0A81-qe.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFX2_5QCwIS4_Dhez5jcWBrf0A81-qe.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFX2_5QCwIS4_Dhez5jcWBrf0E81-qe.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFX2_5QCwIS4_Dhez5jcWBrf0E81-qe.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFX2_5QCwIS4_Dhez5jcWBrf0881w.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFX2_5QCwIS4_Dhez5jcWBrf0881w.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFK2_5QCwIS4_Dhez5jcWBrd_QZwti_Wo7H.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFK2_5QCwIS4_Dhez5jcWBrd_QZwti_Wo7H.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFK2_5QCwIS4_Dhez5jcWBrd_QZwtG_Wo7H.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFK2_5QCwIS4_Dhez5jcWBrd_QZwtG_Wo7H.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFK2_5QCwIS4_Dhez5jcWBrd_QZwtq_Wo7H.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFK2_5QCwIS4_Dhez5jcWBrd_QZwtq_Wo7H.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFK2_5QCwIS4_Dhez5jcWBrd_QZwtu_Wo7H.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFK2_5QCwIS4_Dhez5jcWBrd_QZwtu_Wo7H.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFK2_5QCwIS4_Dhez5jcWBrd_QZwtW_Wg.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFK2_5QCwIS4_Dhez5jcWBrd_QZwtW_Wg.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFV2_5QCwIS4_Dhez5jcWBjT00k0w.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFV2_5QCwIS4_Dhez5jcWBjT00k0w.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFV2_5QCwIS4_Dhez5jcWBqT00k0w.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFV2_5QCwIS4_Dhez5jcWBqT00k0w.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFV2_5QCwIS4_Dhez5jcWBhT00k0w.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFV2_5QCwIS4_Dhez5jcWBhT00k0w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFV2_5QCwIS4_Dhez5jcWBgT00k0w.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFV2_5QCwIS4_Dhez5jcWBgT00k0w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFV2_5QCwIS4_Dhez5jcWBuT00.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFV2_5QCwIS4_Dhez5jcWBuT00.woff2',
 			},
 			'700': {
 				'cyrillic-ext':
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFI2_5QCwIS4_Dhez5jcWjValgW8tenXg.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFI2_5QCwIS4_Dhez5jcWjValgW8tenXg.woff2',
 				cyrillic:
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFI2_5QCwIS4_Dhez5jcWjValgf8tenXg.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFI2_5QCwIS4_Dhez5jcWjValgf8tenXg.woff2',
 				vietnamese:
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFI2_5QCwIS4_Dhez5jcWjValgU8tenXg.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFI2_5QCwIS4_Dhez5jcWjValgU8tenXg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFI2_5QCwIS4_Dhez5jcWjValgV8tenXg.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFI2_5QCwIS4_Dhez5jcWjValgV8tenXg.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/philosopher/v20/vEFI2_5QCwIS4_Dhez5jcWjValgb8tc.woff2',
+					'https://fonts.gstatic.com/s/philosopher/v21/vEFI2_5QCwIS4_Dhez5jcWjValgb8tc.woff2',
 			},
 		},
 	},

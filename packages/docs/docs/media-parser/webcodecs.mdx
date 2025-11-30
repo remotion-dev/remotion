@@ -7,8 +7,11 @@ slug: /media-parser/webcodecs
 crumb: '@remotion/media-parser'
 ---
 
-[`parseMedia()`](/docs/media-parser/parse-media) is able to extract tracks and samples from audio and video in a format that is suitable for usage with WebCodecs APIs.  
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
 
+[`parseMedia()`](/docs/media-parser/parse-media) is able to extract tracks and samples from audio and video in a format that is suitable for usage with WebCodecs APIs.
 
 ## Minimal example
 
@@ -19,7 +22,7 @@ The following snippet is a basic, non-production ready example of how to use `pa
 import {parseMedia, MediaParserOnAudioTrack, MediaParserOnVideoTrack} from '@remotion/media-parser';
 
 const result = await parseMedia({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   onVideoTrack: ({track}) => {
     const decoder = new VideoDecoder({
       output: console.log,
@@ -34,6 +37,7 @@ const result = await parseMedia({
   },
 });
 ```
+
 ## The importance of queueing
 
 import {WebCodecsQueueing} from './WebCodecsQueueing';
@@ -51,7 +55,6 @@ Since this will cause memory to build up, it will negatively impact the performa
 It makes sense to connect the whole pipeline together and throttle each step so it does not perform faster than the next step.  
 In the example above, six queues are required to be managed, with each one of them malfunctioning causing memory to run away.
 
-
 ## How Remotion helps you work with WebCodecs
 
 Since handling queueing correctly is a challenging task, we offer helpers that help you work with WebCodecs.
@@ -59,10 +62,8 @@ Since handling queueing correctly is a challenging task, we offer helpers that h
 Remotion's primitives are designed to offer you functionality to implement queueing in a sensible way:
 
 - In [`parseMedia()`](/docs/media-parser/parse-media), callbacks are asnychronous, and as long as they don't resolve, the parsing process will not continue.
-- The helper functions [`createAudioDecoder()`](/docs/webcodecs/create-audio-decoder) and [`createVideoDecoder()`](/docs/webcodecs/create-video-decoder) offer you a helper method `waitForQueueToBeLessThan()` which you can await.  
+- The helper functions [`createAudioDecoder()`](/docs/webcodecs/create-audio-decoder) and [`createVideoDecoder()`](/docs/webcodecs/create-video-decoder) offer you a helper method `waitForQueueToBeLessThan()` which you can await.
 - For processing video and audio frames as well as encoding video and audio, we don't offer helpers yet, but hope to do so soon.
-
-
 
 ## Practical considerations
 
@@ -148,8 +149,6 @@ const onAudioTrack: MediaParserOnAudioTrack = async ({track}) => {
 Perform these checks in addition to the previously mentioned ones.
 :::
 
-
-
 ### Error handling
 
 If an error occurs, you get the error in the `error` callback that you passed to the `VideoDecoder` or `AudioDecoder` constructor.  
@@ -179,7 +178,6 @@ const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
 - The same logic goes for `AudioDecoder`.
 - You should still perform the checks previously mentioned, but they are omitted from this example.  
   :::
-
 
 ### Handling rotation
 

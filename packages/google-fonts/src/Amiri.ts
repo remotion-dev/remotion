@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Amiri',
 	importName: 'Amiri',
-	version: 'v27',
+	version: 'v30',
 	url: 'https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700',
 	unicodeRanges: {
 		arabic:
@@ -17,37 +17,37 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/amiri/v27/J7afnpd8CGxBHpUrhLQY66NL.woff2',
+					'https://fonts.gstatic.com/s/amiri/v30/J7afnpd8CGxBHpUrhLQY66NL.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amiri/v27/J7afnpd8CGxBHpUrhL8Y66NL.woff2',
+					'https://fonts.gstatic.com/s/amiri/v30/J7afnpd8CGxBHpUrhL8Y66NL.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amiri/v27/J7afnpd8CGxBHpUrhLEY6w.woff2',
+					'https://fonts.gstatic.com/s/amiri/v30/J7afnpd8CGxBHpUrhLEY6w.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/amiri/v27/J7aanpd8CGxBHpUrjAo9_plqHwAa.woff2',
+					'https://fonts.gstatic.com/s/amiri/v30/J7aanpd8CGxBHpUrjAo9_plqHwAa.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amiri/v27/J7aanpd8CGxBHpUrjAo9_pJqHwAa.woff2',
+					'https://fonts.gstatic.com/s/amiri/v30/J7aanpd8CGxBHpUrjAo9_pJqHwAa.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amiri/v27/J7aanpd8CGxBHpUrjAo9_pxqHw.woff2',
+					'https://fonts.gstatic.com/s/amiri/v30/J7aanpd8CGxBHpUrjAo9_pxqHw.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				arabic:
-					'https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHpUrtLMA7w.woff2',
+					'https://fonts.gstatic.com/s/amiri/v30/J7aRnpd8CGxBHpUrtLMA7w.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHpUgtLMA7w.woff2',
+					'https://fonts.gstatic.com/s/amiri/v30/J7aRnpd8CGxBHpUgtLMA7w.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHpUutLM.woff2',
+					'https://fonts.gstatic.com/s/amiri/v30/J7aRnpd8CGxBHpUutLM.woff2',
 			},
 			'700': {
 				arabic:
-					'https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHp2VkaY6zp5yGw.woff2',
+					'https://fonts.gstatic.com/s/amiri/v30/J7acnpd8CGxBHp2VkaY6zp5yGw.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHp2VkaYxzp5yGw.woff2',
+					'https://fonts.gstatic.com/s/amiri/v30/J7acnpd8CGxBHp2VkaYxzp5yGw.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHp2VkaY_zp4.woff2',
+					'https://fonts.gstatic.com/s/amiri/v30/J7acnpd8CGxBHp2VkaY_zp4.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Oregano',
 	importName: 'Oregano',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Oregano:ital,wght@0,400;1,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,17 +15,17 @@ export const getInfo = () => ({
 		italic: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/oregano/v16/If2KXTPxciS3H4S2oZXlMhHK_yM.woff2',
+					'https://fonts.gstatic.com/s/oregano/v17/If2KXTPxciS3H4S2oZXlMhHK_yM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/oregano/v16/If2KXTPxciS3H4S2oZXlPBHK.woff2',
+					'https://fonts.gstatic.com/s/oregano/v17/If2KXTPxciS3H4S2oZXlPBHK.woff2',
 			},
 		},
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/oregano/v16/If2IXTPxciS3H4S2oZ7VPgnO.woff2',
+					'https://fonts.gstatic.com/s/oregano/v17/If2IXTPxciS3H4S2oZ7VPgnO.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/oregano/v16/If2IXTPxciS3H4S2oZDVPg.woff2',
+					'https://fonts.gstatic.com/s/oregano/v17/If2IXTPxciS3H4S2oZDVPg.woff2',
 			},
 		},
 	},

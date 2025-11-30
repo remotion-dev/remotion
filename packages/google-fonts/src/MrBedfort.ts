@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Mr Bedfort',
 	importName: 'MrBedfort',
-	version: 'v22',
+	version: 'v23',
 	url: 'https://fonts.googleapis.com/css2?family=Mr+Bedfort:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/mrbedfort/v22/MQpR-WCtNZSWAdTMwBicpiO-XKe_.woff2',
+					'https://fonts.gstatic.com/s/mrbedfort/v23/MQpR-WCtNZSWAdTMwBicpiO-XKe_.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/mrbedfort/v22/MQpR-WCtNZSWAdTMwBicpi2-XA.woff2',
+					'https://fonts.gstatic.com/s/mrbedfort/v23/MQpR-WCtNZSWAdTMwBicpi2-XA.woff2',
 			},
 		},
 	},

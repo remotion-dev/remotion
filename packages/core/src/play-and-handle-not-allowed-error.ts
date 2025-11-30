@@ -1,6 +1,5 @@
 import type {RefObject} from 'react';
-import {getRemotionEnvironment} from './get-remotion-environment';
-import type {LogLevel} from './log';
+import {Log, type LogLevel} from './log';
 import {playbackLogging} from './playback-logging';
 
 export const playAndHandleNotAllowedError = ({
@@ -10,6 +9,7 @@ export const playAndHandleNotAllowedError = ({
 	logLevel,
 	mountTime,
 	reason,
+	isPlayer,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement | null>;
 	mediaType: 'audio' | 'video';
@@ -17,6 +17,7 @@ export const playAndHandleNotAllowedError = ({
 	logLevel: LogLevel;
 	mountTime: number;
 	reason: string;
+	isPlayer: boolean;
 }) => {
 	const {current} = mediaRef;
 	if (!current) {
@@ -86,15 +87,19 @@ export const playAndHandleNotAllowedError = ({
 				return;
 			}
 
-			// eslint-disable-next-line no-console
-			console.log(`The video will be muted and we'll retry playing it.`);
-			if (mediaType === 'video' && getRemotionEnvironment().isPlayer) {
-				// eslint-disable-next-line no-console
-				console.log('Use onAutoPlayError() to handle this error yourself.');
-			}
+			if (mediaType === 'video' && isPlayer) {
+				Log.info(
+					{logLevel, tag: '<' + mediaType + '>'},
+					`The video will be muted and we'll retry playing it.`,
+				);
 
-			current.muted = true;
-			current.play();
+				Log.info(
+					{logLevel, tag: '<' + mediaType + '>'},
+					'Use onAutoPlayError() to handle this error yourself.',
+				);
+				current.muted = true;
+				current.play();
+			}
 		}
 	});
 };

@@ -6,17 +6,24 @@ slug: /webcodecs/extract-frames-on-web-worker
 crumb: '@remotion/webcodecs'
 ---
 
+:::warning
+[We are phasing out Remotion WebCodecs and are moving to Mediabunny](/blog/mediabunny)!  
+**We recommend using [Mediabunny for extracting frames](/docs/mediabunny/extract-frames) instead.**
+:::
+
 # extractFramesOnWebWorker()<AvailableFrom v="4.0.330"/>
 
 _Part of the [`@remotion/webcodecs`](/docs/webcodecs) package._
 
 Extracts frames from a video at specific timestamps using [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker).
 
+Since Remotion is migrating to [Mediabunny](https://mediabunny.dev), we recommend using the [Mediabunny-based frame extraction implementation](/docs/mediabunny/extract-frames) for new projects.
+
 ```tsx twoslash title="Extracting frames"
 import {extractFramesOnWebWorker} from '@remotion/webcodecs/worker';
 
 await extractFramesOnWebWorker({
-  src: 'https://parser.media/video.mp4',
+  src: 'https://remotion.media/video.mp4',
   timestampsInSeconds: [0, 1, 2, 3, 4],
   onFrame: (frame) => {
     console.log(frame);
@@ -86,6 +93,7 @@ Default value: `"info"`, which logs only important information.
 
 ## See also
 
+- **[Extracting frames with Mediabunny](/docs/mediabunny/extract-frames)** (recommended)
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/extract-frames.ts)
 - [`@remotion/webcodecs`](/docs/webcodecs)
 - [`parseMedia()`](/docs/media-parser/parse-media)

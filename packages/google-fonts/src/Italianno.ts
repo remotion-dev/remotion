@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Italianno',
 	importName: 'Italianno',
-	version: 'v17',
+	version: 'v18',
 	url: 'https://fonts.googleapis.com/css2?family=Italianno:ital,wght@0,400',
 	unicodeRanges: {
 		vietnamese:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/italianno/v17/dg4n_p3sv6gCJkwzT6RXh5wocwM.woff2',
+					'https://fonts.gstatic.com/s/italianno/v18/dg4n_p3sv6gCJkwzT6RXh5wocwM.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/italianno/v17/dg4n_p3sv6gCJkwzT6RXhpwocwM.woff2',
+					'https://fonts.gstatic.com/s/italianno/v18/dg4n_p3sv6gCJkwzT6RXhpwocwM.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/italianno/v17/dg4n_p3sv6gCJkwzT6RXiJwo.woff2',
+					'https://fonts.gstatic.com/s/italianno/v18/dg4n_p3sv6gCJkwzT6RXiJwo.woff2',
 			},
 		},
 	},

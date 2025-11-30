@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Padauk',
 	importName: 'Padauk',
-	version: 'v16',
+	version: 'v17',
 	url: 'https://fonts.googleapis.com/css2?family=Padauk:ital,wght@0,400;0,700',
 	unicodeRanges: {
 		myanmar:
@@ -17,19 +17,19 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				myanmar:
-					'https://fonts.gstatic.com/s/padauk/v16/RrQRboJg-id7OnbxckXh7Lk.woff2',
+					'https://fonts.gstatic.com/s/padauk/v17/RrQRboJg-id7OnbxckXh7Lk.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/padauk/v16/RrQRboJg-id7OnbxYkXh7Lk.woff2',
+					'https://fonts.gstatic.com/s/padauk/v17/RrQRboJg-id7OnbxYkXh7Lk.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/padauk/v16/RrQRboJg-id7OnbxbEXh.woff2',
+					'https://fonts.gstatic.com/s/padauk/v17/RrQRboJg-id7OnbxbEXh.woff2',
 			},
 			'700': {
 				myanmar:
-					'https://fonts.gstatic.com/s/padauk/v16/RrQSboJg-id7Onb512D0zZhFV4Y.woff2',
+					'https://fonts.gstatic.com/s/padauk/v17/RrQSboJg-id7Onb512D0zZhFV4Y.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/padauk/v16/RrQSboJg-id7Onb512D03ZhFV4Y.woff2',
+					'https://fonts.gstatic.com/s/padauk/v17/RrQSboJg-id7Onb512D03ZhFV4Y.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/padauk/v16/RrQSboJg-id7Onb512D005hF.woff2',
+					'https://fonts.gstatic.com/s/padauk/v17/RrQSboJg-id7Onb512D005hF.woff2',
 			},
 		},
 	},

@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Galada',
 	importName: 'Galada',
-	version: 'v20',
+	version: 'v21',
 	url: 'https://fonts.googleapis.com/css2?family=Galada:ital,wght@0,400',
 	unicodeRanges: {
 		bengali:
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				bengali:
-					'https://fonts.gstatic.com/s/galada/v20/H4cmBXyGmcjXlUXO5yY_0Lo.woff2',
+					'https://fonts.gstatic.com/s/galada/v21/H4cmBXyGmcjXlUXO5yY_0Lo.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/galada/v20/H4cmBXyGmcjXlUXO9SY_.woff2',
+					'https://fonts.gstatic.com/s/galada/v21/H4cmBXyGmcjXlUXO9SY_.woff2',
 			},
 		},
 	},

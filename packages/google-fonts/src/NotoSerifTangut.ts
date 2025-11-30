@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Tangut',
 	importName: 'NotoSerifTangut',
-	version: 'v16',
+	version: 'v19',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Tangut:ital,wght@0,400',
 	unicodeRanges: {
 		tangut:
@@ -17,11 +17,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				tangut:
-					'https://fonts.gstatic.com/s/notoseriftangut/v16/xn76YGc72GKoTvER4Gn3b4m9Ern7El6wVu_A4b0.woff2',
+					'https://fonts.gstatic.com/s/notoseriftangut/v19/xn76YGc72GKoTvER4Gn3b4m9Ern7El6wVu_A4b0.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notoseriftangut/v16/xn76YGc72GKoTvER4Gn3b4m9Ern7El48d8r92A.woff2',
+					'https://fonts.gstatic.com/s/notoseriftangut/v19/xn76YGc72GKoTvER4Gn3b4m9Ern7El48d8r92A.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notoseriftangut/v16/xn76YGc72GKoTvER4Gn3b4m9Ern7El4yd8o.woff2',
+					'https://fonts.gstatic.com/s/notoseriftangut/v19/xn76YGc72GKoTvER4Gn3b4m9Ern7El4yd8o.woff2',
 			},
 		},
 	},

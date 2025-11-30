@@ -36,6 +36,14 @@ We also provide copy-pasteable backend endpoints for Next.js.
 
 Read the [Setup](/docs/editor-starter/setup) and [Dependencies](/docs/editor-starter/dependencies) sections to get a better idea of how to integrate the Editor Starter into your existing project.
 
+## Will the Editor Starter conflict with my existing shadcn/ui theme?
+
+If your project already uses shadcn/ui with custom theme configuration, conflicts are unlikely unless you've made external modifications to your Tailwind theme.
+
+The Editor Starter uses some shadcn components but doesn't include a custom theme implementation. Since the Editor Starter has minimal CSS variables defined, integration should be relatively straightforward.
+
+Potential issues primarily arise only if you've customized Tailwind's theme configuration outside of standard approaches.
+
 ## Feature X is missing, can you add it?
 
 Don't assume that we will add features, even crucial ones, to the Editor Starter that are not listed in the [Features](/docs/editor-starter/features) section.  
@@ -55,6 +63,19 @@ The Editor Starter also has a timeline, but also more features that are good to 
 - Asset uploading and local caching
 - Font Picker
 - Undo Stack
+
+## How can I update the Editor Starter?
+
+By allowing you to customize the entire source code to your needs, we expect that your editor will quickly diverge from our starter, making it hard in general to update the Editor once you have forked it.
+
+If you fork the Editor Starter, you have the option to pull in our upstream changes using the GitHub UI that shows up at the top of your repository main page.
+
+If you copy the Editor Starter into your project, you have to manually compare the changes that we made to the template since the point where you copied the code.
+
+You should only use the Editor Starter if you feel comfortable adopting the whole codebase and be able to maintain it and if you are happy with the feature set that it comes with.  
+Because of this, we only include features we deem are robust, and [documented them all](/docs/editor-starter/features).
+
+We will continously add new features and improvements, so there is never a perfect point in time to start using it.
 
 ## I have bought the Timeline component, can I upgrade to the Editor Starter?
 
@@ -76,6 +97,16 @@ If you want to render on a long-running server, you can modify the architecture 
 
 - Copy the [frontend code](/docs/editor-starter/setup) into your existing project
 - For the [backend routes](/docs/editor-starter/backend-routes), implement them in your long-running server. For how to implement the rendering endpoints, you can take the [Render Server](/templates/render-server) as a reference.
+
+## Can I export the videos generated with the Editor Starter as Remotion compositions?
+
+The Editor Starter previews and renders it's videos using the regular Remotion APIs.  
+The state is stored as a JSON and being fed as [input props](/docs/terminology/input-props) to the [`<Player />`](/docs/player) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+
+So yes, the Editor Starter produces just Remotion compositions and they can also be rendered if they are decoupled from the editor user interface.
+
+The Remotion composition that powers the Editor Starter is located in the `src/remotion` folder of the project.  
+You can also use the [`npx remotion studio`](/docs/cli/studio) and [`npx remotion render`](/docs/cli/studio) commands as usual.
 
 ## Is Remotion launching its own video editor?
 

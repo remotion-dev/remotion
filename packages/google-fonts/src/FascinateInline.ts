@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Fascinate Inline',
 	importName: 'FascinateInline',
-	version: 'v23',
+	version: 'v24',
 	url: 'https://fonts.googleapis.com/css2?family=Fascinate+Inline:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/fascinateinline/v23/jVyR7mzzB3zc-jp6QCAu60poNqIy5gTIfCXx.woff2',
+					'https://fonts.gstatic.com/s/fascinateinline/v24/jVyR7mzzB3zc-jp6QCAu60poNqIy5gTIfCXx.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/fascinateinline/v23/jVyR7mzzB3zc-jp6QCAu60poNqIy5grIfA.woff2',
+					'https://fonts.gstatic.com/s/fascinateinline/v24/jVyR7mzzB3zc-jp6QCAu60poNqIy5grIfA.woff2',
 			},
 		},
 	},

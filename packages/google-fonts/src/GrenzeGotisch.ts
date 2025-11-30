@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Grenze Gotisch',
 	importName: 'GrenzeGotisch',
-	version: 'v19',
+	version: 'v20',
 	url: 'https://fonts.googleapis.com/css2?family=Grenze+Gotisch:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900',
 	unicodeRanges: {
 		vietnamese:
@@ -17,75 +17,75 @@ export const getInfo = () => ({
 		normal: {
 			'100': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
 			},
 			'200': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
 			},
 			'300': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
 			},
 			'400': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
 			},
 			'500': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
 			},
 			'600': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
 			},
 			'700': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
 			},
 			'800': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
 			},
 			'900': {
 				vietnamese:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhCHa-aew.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhDHa-aew.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/grenzegotisch/v19/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
+					'https://fonts.gstatic.com/s/grenzegotisch/v20/Fh4sPjjqNDz1osh_jX9YfjudpDhNHa8.woff2',
 			},
 		},
 	},

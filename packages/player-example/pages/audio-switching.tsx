@@ -1,17 +1,17 @@
 import {Player} from '@remotion/player';
 import React, {useState} from 'react';
-import {Audio, prefetch, staticFile} from 'remotion';
+import {Html5Audio, prefetch, staticFile} from 'remotion';
 
 const Comp1: React.FC<{
 	audioSrc: string;
 }> = ({audioSrc}) => {
-	return <Audio src={audioSrc} />;
+	return <Html5Audio src={audioSrc} />;
 };
 
 const Comp2: React.FC<{
 	audioSrc: string;
 }> = ({audioSrc}) => {
-	return <Audio src={audioSrc} />;
+	return <Html5Audio src={audioSrc} />;
 };
 
 const templateCompositions = {
@@ -37,7 +37,7 @@ export default function ErrorRemake() {
 				<select
 					name="composition"
 					id="composition"
-					onChange={(e: any) => {
+					onChange={(e) => {
 						setActiveCompositionId(e.target.value);
 					}}
 				>
@@ -52,7 +52,7 @@ export default function ErrorRemake() {
 				<select
 					name="audio"
 					id="audio"
-					onChange={(e: any) => {
+					onChange={(e) => {
 						prefetch(e.target.value)
 							.waitUntilDone()
 							.then(() => {
