@@ -1,5 +1,5 @@
-import {parseMedia} from '@remotion/media-parser';
-import {getPartialAudioData} from '@remotion/webcodecs';
+import type {InputAudioTrack} from 'mediabunny';
+import {ALL_FORMATS, Input, InputDisposedError, UrlSource} from 'mediabunny';
 import {
 	useCallback,
 	useEffect,
@@ -10,6 +10,7 @@ import {
 } from 'react';
 import {cancelRender, useDelayRender} from 'remotion';
 import {combineFloat32Arrays} from './combine-float32-arrays';
+import {getPartialAudioData} from './get-partial-audio-data';
 import {isRemoteAsset} from './is-remote-asset';
 import type {MediaUtilsAudioData} from './types';
 
@@ -34,9 +35,11 @@ interface AudioMetadata {
 	sampleRate: number;
 }
 
-const sleep = (ms: number) =>
-	// eslint-disable-next-line no-promise-executor-return
-	new Promise((resolve) => setTimeout(resolve, ms));
+interface AudioUtils {
+	input: Input;
+	track: InputAudioTrack;
+	metadata: AudioMetadata;
+}
 
 export const useWindowedAudioData = ({
 	src,
@@ -46,7 +49,7 @@ export const useWindowedAudioData = ({
 	channelIndex = 0,
 }: UseWindowedAudioDataOptions): UseWindowedAudioDataReturnValue => {
 	const isMounted = useRef(true);
-	const [metadata, setMetadata] = useState<AudioMetadata | null>(null);
+	const [audioUtils, setAudioUtils] = useState<AudioUtils | null>(null);
 	const [waveFormMap, setWaveformMap] = useState({} as WaveformMap);
 	const requests = useRef<Record<string, AbortController | null>>({});
 	const [initialWindowInSeconds] = useState(windowInSeconds);
@@ -70,8 +73,12 @@ export const useWindowedAudioData = ({
 
 			// clear all Float32Array references
 			setWaveformMap({});
+
+			if (audioUtils) {
+				audioUtils.input.dispose();
+			}
 		};
-	}, []);
+	}, [audioUtils]);
 
 	const {delayRender, continueRender} = useDelayRender();
 
@@ -86,45 +93,62 @@ export const useWindowedAudioData = ({
 
 			signal.addEventListener('abort', cont, {once: true});
 
+			const input = new Input({
+				formats: ALL_FORMATS,
+				source: new UrlSource(src),
+			});
+
+			const onAbort = () => {
+				input.dispose();
+			};
+
+			signal.addEventListener('abort', onAbort, {once: true});
+
 			try {
-				const {durationInSeconds, numberOfAudioChannels, sampleRate} =
-					await parseMedia({
-						src,
-						fields: {
-							durationInSeconds: true,
-							numberOfAudioChannels: true,
-							sampleRate: true,
-						},
-					});
+				const durationInSeconds = await input.computeDuration();
 
-				if (!durationInSeconds) {
-					throw new Error('Duration in seconds is null');
+				const audioTrack = await input.getPrimaryAudioTrack();
+
+				if (!audioTrack) {
+					throw new Error('No audio track found');
 				}
 
-				if (!numberOfAudioChannels) {
-					throw new Error('Number of audio channels is null');
+				const canDecode = await audioTrack.canDecode();
+
+				if (!canDecode) {
+					throw new Error('Audio track cannot be decoded');
 				}
 
-				if (!sampleRate) {
-					throw new Error('Sample rate is null');
+				if (channelIndex >= audioTrack.numberOfChannels || channelIndex < 0) {
+					throw new Error(
+						`Invalid channel index ${channelIndex} for audio with ${audioTrack.numberOfChannels} channels`,
+					);
 				}
+
+				const {numberOfChannels, sampleRate} = audioTrack;
 
 				if (isMounted.current) {
-					setMetadata({
-						durationInSeconds,
-						numberOfChannels: numberOfAudioChannels,
-						sampleRate,
+					setAudioUtils({
+						input,
+						track: audioTrack,
+						metadata: {
+							durationInSeconds,
+							numberOfChannels,
+							sampleRate,
+						},
 					});
 				}
 
 				continueRender(handle);
 			} catch (err) {
+				input.dispose();
 				cancelRender(err);
 			} finally {
 				signal.removeEventListener('abort', cont);
+				signal.removeEventListener('abort', onAbort);
 			}
 		},
-		[src, delayRender, continueRender],
+		[src, delayRender, continueRender, channelIndex],
 	);
 
 	useLayoutEffect(() => {
@@ -140,14 +164,14 @@ export const useWindowedAudioData = ({
 	const currentWindowIndex = Math.floor(currentTime / windowInSeconds);
 
 	const windowsToFetch = useMemo(() => {
-		if (!metadata) {
+		if (!audioUtils?.metadata) {
 			return [];
 		}
 
 		const maxWindowIndex = Math.floor(
 			// If an audio is exactly divisible by windowInSeconds, we need to
 			// subtract 0.000000000001 to avoid fetching an extra window.
-			metadata.durationInSeconds / windowInSeconds - 0.000000000001,
+			audioUtils.metadata.durationInSeconds / windowInSeconds - 0.000000000001,
 		);
 
 		// needs to be in order because we rely on the concatenation below
@@ -158,12 +182,12 @@ export const useWindowedAudioData = ({
 		]
 			.filter((i) => i !== null)
 			.filter((i) => i >= 0);
-	}, [currentWindowIndex, metadata, windowInSeconds]);
+	}, [currentWindowIndex, audioUtils?.metadata, windowInSeconds]);
 
 	const fetchAndSetWaveformData = useCallback(
 		async (windowIndex: number) => {
-			if (!metadata) {
-				throw new Error('Media probe is not loaded yet');
+			if (!audioUtils?.metadata || !audioUtils) {
+				throw new Error('MediaBunny context is not loaded yet');
 			}
 
 			// Cancel any existing request for this window, we don't want to over-fetch
@@ -177,7 +201,7 @@ export const useWindowedAudioData = ({
 
 			// Add a small delay to allow for rapid seeking to settle
 			// this also creates a short window for the signal to be aborted in case of super-rapid seeking
-			await sleep(250);
+			// await sleep(250);
 
 			// Check if we were aborted during the delay
 			if (controller.signal.aborted) {
@@ -189,7 +213,7 @@ export const useWindowedAudioData = ({
 
 			try {
 				const partialWaveData = await getPartialAudioData({
-					src,
+					track: audioUtils.track,
 					fromSeconds,
 					toSeconds,
 					channelIndex,
@@ -224,6 +248,11 @@ export const useWindowedAudioData = ({
 					return;
 				}
 
+				// if it's mediabunny disposed error, don't throw
+				if (err instanceof InputDisposedError) {
+					return;
+				}
+
 				throw err;
 			} finally {
 				// Clean up the request reference
@@ -232,11 +261,11 @@ export const useWindowedAudioData = ({
 				}
 			}
 		},
-		[channelIndex, src, metadata, windowInSeconds, windowsToFetch],
+		[channelIndex, audioUtils, windowInSeconds, windowsToFetch],
 	);
 
 	useEffect(() => {
-		if (!metadata) {
+		if (!audioUtils?.metadata) {
 			return;
 		}
 
@@ -281,7 +310,7 @@ export const useWindowedAudioData = ({
 
 			cancelRender(err);
 		});
-	}, [fetchAndSetWaveformData, metadata, windowsToFetch, waveFormMap]);
+	}, [fetchAndSetWaveformData, audioUtils, windowsToFetch, waveFormMap]);
 
 	// Calculate available windows for reuse
 	const availableWindows = useMemo(() => {
@@ -289,7 +318,7 @@ export const useWindowedAudioData = ({
 	}, [windowsToFetch, waveFormMap]);
 
 	const currentAudioData = useMemo((): MediaUtilsAudioData | null => {
-		if (!metadata) {
+		if (!audioUtils?.metadata) {
 			return null;
 		}
 
@@ -301,13 +330,13 @@ export const useWindowedAudioData = ({
 		const data = combineFloat32Arrays(windows);
 		return {
 			channelWaveforms: [data],
-			durationInSeconds: metadata.durationInSeconds,
+			durationInSeconds: audioUtils.metadata.durationInSeconds,
 			isRemote: isRemoteAsset(src),
 			numberOfChannels: 1,
 			resultId: String(Math.random()),
-			sampleRate: metadata.sampleRate,
+			sampleRate: audioUtils.metadata.sampleRate,
 		};
-	}, [src, waveFormMap, metadata, availableWindows]);
+	}, [src, waveFormMap, audioUtils?.metadata, availableWindows]);
 
 	useLayoutEffect(() => {
 		if (currentAudioData) {
