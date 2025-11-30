@@ -1494,9 +1494,9 @@
       "dependencies": {
         "@remotion/cli": "workspace:*",
         "@remotion/google-fonts": "workspace:*",
-        "@remotion/media-parser": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/zod-types": "workspace:*",
+        "mediabunny": "catalog:",
         "react": "19.0.0",
         "react-dom": "19.0.0",
         "remotion": "workspace:*",
