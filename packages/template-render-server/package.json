@@ -17,7 +17,7 @@
     "@remotion/cli": "workspace:*",
     "@remotion/renderer": "workspace:*",
     "@remotion/zod-types": "workspace:*",
-    "express": "5.1.0",
+    "express": "5.2.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "remotion": "workspace:*",
