@@ -282,6 +282,20 @@ export interface Commands {
 		paramsType: [];
 		returnType: void;
 	};
+	'Emulation.setEmulatedMedia': {
+		paramsType: [
+			{
+				media: 'screen';
+				features: [
+					{
+						name: 'prefers-color-scheme';
+						value: 'dark';
+					},
+				];
+			},
+		];
+		returnType: void;
+	};
 	'Emulation.setDeviceMetricsOverride': {
 		paramsType: [SetDeviceMetricsOverrideRequest];
 		returnType: void;
