@@ -411,7 +411,31 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			},
 		],
 	},
-
+	{
+		title: 'Vibrantsnap - Record Smater, Engage Faster',
+		type: 'mux_video',
+		time: '0',
+		muxId: 'QGqk00IyzHuEBm6hRPMLkl00hgf9zeFWEAeHqStVQ02wiI',
+		description:
+			'Create product demos, training videos, and youtube tutorials with auto layouts, captions, intelligent zoom, and 4K export.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('11-10-2025'),
+		links: [
+			{
+				type: 'video',
+				url: 'https://www.youtube.com/watch?v=_N-vW_eBrUQ',
+			},
+			{
+				type: 'website',
+				url: 'https://vibrantsnap.com/',
+			},
+		],
+		author: {
+			url: 'https://x.com/healsha',
+			name: 'Philippe Tedajo',
+		},
+	},
 	/*
   {
     title: "Exemplary AI - Viral shorts",
