@@ -39,7 +39,7 @@
     "connect": "3.7.0",
     "eslint": "9.19.0",
     "lucide-react": "0.516.0",
-    "mediabunny": "1.24.5",
+    "mediabunny": "1.25.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "tailwind-merge": "1.14.0",
