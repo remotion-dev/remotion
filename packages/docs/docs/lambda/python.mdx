@@ -137,7 +137,13 @@ if not REMOTION_APP_SERVE_URL:
 # Construct client
 client = RemotionClient(region=REMOTION_APP_REGION,
                         serve_url=REMOTION_APP_SERVE_URL,
-                        function_name=REMOTION_APP_FUNCTION_NAME)
+                        function_name=REMOTION_APP_FUNCTION_NAME,
+                        access_key=None, #  deprecated, use session instead
+                        secret_key=None, # deprecated, use session instead
+                        force_path_style=False, # By default False
+                        config=None, # Custom botocore configuration object
+                        session=None, # Pre-configured boto3 Session object (recommended for authentication)
+                        )
 
 # Set render still request
 render_params = RenderStillParams(
@@ -158,6 +164,11 @@ if render_response:
 ```
 
 ## Breaking changes
+
+### 4.0.380
+
+- Added `config` and `session` parameters to `RemotionClient` constructor.
+- Less error repackaging, redirecting more AWS errors directly to the user.
 
 ### 4.0.82
 
