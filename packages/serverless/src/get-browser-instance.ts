@@ -82,11 +82,7 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 	const actualChromiumOptions: ChromiumOptions = {
 		...chromiumOptions,
 		// Override the `null` value, which might come from CLI with swANGLE
-		// If the user specifies `angle`, we also switch to `swangle` because `angle` is not supported on Lambda
-		gl:
-			chromiumOptions.gl === 'angle' || chromiumOptions.gl === null
-				? 'swangle'
-				: chromiumOptions.gl,
+		gl: chromiumOptions.gl ?? 'swangle',
 		enableMultiProcessOnLinux: false,
 	};
 	const configurationString = makeConfigurationString(
