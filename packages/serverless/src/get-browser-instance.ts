@@ -79,8 +79,13 @@ export const getBrowserInstanceImplementation: GetBrowserInstance = async <
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }): Promise<LaunchedBrowser> => {
-	const actualChromiumOptions: ChromiumOptions = {
+	const actualChromiumOptions: Required<ChromiumOptions> = {
 		...chromiumOptions,
+		darkMode: chromiumOptions.darkMode ?? false,
+		disableWebSecurity: chromiumOptions.disableWebSecurity ?? false,
+		headless: chromiumOptions.headless ?? true,
+		userAgent: chromiumOptions.userAgent ?? null,
+		ignoreCertificateErrors: chromiumOptions.ignoreCertificateErrors ?? false,
 		// Override the `null` value, which might come from CLI with swANGLE
 		gl: chromiumOptions.gl ?? 'swangle',
 		enableMultiProcessOnLinux: false,

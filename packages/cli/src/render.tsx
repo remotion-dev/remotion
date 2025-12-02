@@ -44,6 +44,7 @@ const {
 	audioLatencyHintOption,
 	imageSequencePatternOption,
 	mediaCacheSizeInBytesOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -177,14 +178,16 @@ export const render = async (
 	const metadata = metadataOption.getValue({commandLine: parsedCli}).value;
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
+	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
 
-	const chromiumOptions: ChromiumOptions = {
+	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
 		headless,
 		ignoreCertificateErrors,
 		userAgent,
+		darkMode,
 	};
 
 	const audioCodec = audioCodecOption.getValue({commandLine: parsedCli}).value;

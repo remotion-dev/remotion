@@ -26,6 +26,7 @@ const {
 	offthreadVideoThreadsOption,
 	audioLatencyHintOption,
 	mediaCacheSizeInBytesOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -126,14 +127,16 @@ export const still = async (
 	const audioLatencyHint = audioLatencyHintOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
 
-	const chromiumOptions: ChromiumOptions = {
+	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
 		headless,
 		ignoreCertificateErrors,
 		userAgent,
+		darkMode,
 	};
 
 	await renderStillFlow({

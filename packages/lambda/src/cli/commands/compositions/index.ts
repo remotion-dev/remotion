@@ -21,6 +21,7 @@ const {
 	glOption,
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 export const compositionsCommand = async ({
@@ -70,14 +71,18 @@ export const compositionsCommand = async ({
 	const headless = headlessOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const darkMode = darkModeOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
-	const chromiumOptions: ChromiumOptions = {
+	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
 		headless,
 		ignoreCertificateErrors,
 		userAgent,
+		darkMode,
 	};
 
 	const region = getAwsRegion();

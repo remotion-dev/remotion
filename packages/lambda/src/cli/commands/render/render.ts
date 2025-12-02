@@ -55,6 +55,7 @@ const {
 	preferLosslessOption,
 	metadataOption,
 	mediaCacheSizeInBytesOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async ({
@@ -179,14 +180,18 @@ export const renderCommand = async ({
 	const metadata = metadataOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const darkMode = darkModeOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
-	const chromiumOptions: ChromiumOptions = {
+	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
 		headless,
 		ignoreCertificateErrors,
 		userAgent,
+		darkMode,
 	};
 
 	let composition: string = args[1];
