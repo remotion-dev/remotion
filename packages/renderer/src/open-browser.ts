@@ -38,6 +38,7 @@ export type ChromiumOptions = {
 	gl?: OpenGlRenderer | null;
 	userAgent?: string | null;
 	enableMultiProcessOnLinux?: boolean;
+	darkMode?: boolean;
 } & OnlyV4Options;
 
 const featuresToEnable = (option?: OpenGlRenderer | null) => {
@@ -209,6 +210,7 @@ export const internalOpenBrowser = async ({
 					? '--headless=new'
 					: '--headless=old'
 				: null,
+			chromiumOptions.darkMode ? '--force-dark-mode' : null,
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			...customGlRenderer,

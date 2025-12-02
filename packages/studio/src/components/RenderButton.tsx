@@ -93,6 +93,7 @@ export const RenderButton: React.FC = () => {
 			defaultConfigurationAudioCodec: defaults.audioCodec as AudioCodec | null,
 			initialEnvVariables: window.process.env as Record<string, string>,
 			initialDisableWebSecurity: defaults.disableWebSecurity,
+			initialDarkMode: defaults.darkMode,
 			initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
 			initialHeadless: defaults.headless,
 			initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,

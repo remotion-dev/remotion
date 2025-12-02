@@ -127,6 +127,7 @@ const {
 	audioLatencyHintOption,
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -247,6 +248,11 @@ declare global {
 		 * Default: true
 		 */
 		readonly setChromiumHeadlessMode: (should: boolean) => void;
+		/**
+		 * Set whether to use dark mode for Chrome.
+		 * Default: false
+		 */
+		readonly setChromiumDarkMode: (should: boolean) => void;
 		/**
 		 * Set the OpenGL rendering backend for Chrome. Possible values: 'egl', 'angle', 'swiftshader', 'swangle', 'vulkan' and 'angle-egl'.
 		 * Default: 'swangle' in Lambda, null elsewhere.
@@ -639,6 +645,7 @@ export const Config: FlatConfig = {
 	setDotEnvLocation,
 	setConcurrency,
 	setChromiumMultiProcessOnLinux: enableMultiprocessOnLinuxOption.setConfig,
+	setChromiumDarkMode: darkModeOption.setConfig,
 	setQuality: () => {
 		throw new Error(
 			'setQuality() has been renamed - use setJpegQuality() instead.',

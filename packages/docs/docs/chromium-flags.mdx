@@ -131,6 +131,18 @@ In [`getCompositions()`](/docs/renderer/get-compositions#chromiumoptions), [`ren
 
 Pass [`--user-agent`](/docs/cli) in one of the following commands: [`remotion render`](/docs/cli/render), [`remotion compositions`](/docs/cli/compositions), [`remotion still`](/docs/cli/still), [`remotion lambda render`](/docs/lambda/cli/render), [`remotion lambda still`](/docs/lambda/cli/still), [`remotion lambda compositions`](/docs/lambda/cli/compositions).
 
+## `--dark-mode`<AvailableFrom v="4.0.381"/>
+
+<Options id="dark-mode" />
+
+### Via Node.JS APIs
+
+In [`getCompositions()`](/docs/renderer/get-compositions#chromiumoptions), [`renderStill()`](/docs/renderer/render-still#darkmode), [`renderMedia()`](/docs/renderer/render-media#darkmode), [`renderFrames()`](/docs/renderer/render-frames#darkmode), [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#darkmode), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#darkmode) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#chromiumoptions), you can pass [`chromiumOptions.darkMode`](/docs/renderer/render-still#darkmode).
+
+### Via CLI flag
+
+Pass [`--dark-mode`](/docs/cli) in one of the following commands: [`remotion render`](/docs/cli/render), [`remotion compositions`](/docs/cli/compositions), [`remotion still`](/docs/cli/still), [`remotion lambda render`](/docs/lambda/cli/render), [`remotion lambda still`](/docs/lambda/cli/still), [`remotion lambda compositions`](/docs/lambda/cli/compositions).
+
 ## Need more flags?
 
 Open a [GitHub issue](https://github.com/remotion-dev/remotion/issues/new?assignees=&labels=&template=feature_request.md&title=) to request it.
