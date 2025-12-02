@@ -24,7 +24,7 @@
 	"author": "Jonny Burger <jonny@remotion.dev>, Pramod Kumar <pramodkumar.damam73@gmail.com>",
 	"license": "MIT",
 	"dependencies": {
-		"@modelcontextprotocol/sdk": "1.5.0",
+		"@modelcontextprotocol/sdk": "1.24.0",
 		"zod": "3.24.2"
 	},
 	"peerDependencies": {},
