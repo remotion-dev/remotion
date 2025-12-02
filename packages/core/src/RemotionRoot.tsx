@@ -1,4 +1,6 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
+import type {AnyComposition} from './CompositionManager.js';
+import {CompositionManager} from './CompositionManagerContext.js';
 import {EditorPropsProvider} from './EditorProps.js';
 import {SequenceManagerProvider} from './SequenceManager.js';
 import {TimelineContextProvider} from './TimelineContext.js';
@@ -72,6 +74,16 @@ export const RemotionRootContexts: React.FC<{
 		return {logLevel, mountTime: Date.now()};
 	}, [logLevel]);
 
+	const compositionManager = useContext(CompositionManager);
+
+	const composition = useMemo((): AnyComposition | undefined => {
+		return compositionManager.compositions.find((c) =>
+			compositionManager.canvasContent?.type === 'composition'
+				? c.id === compositionManager.canvasContent.compositionId
+				: false,
+		);
+	}, [compositionManager.compositions, compositionManager.canvasContent]);
+
 	return (
 		<LogLevelContext.Provider value={logging}>
 			<NonceContext.Provider value={nonceContext}>
@@ -87,6 +99,7 @@ export const RemotionRootContexts: React.FC<{
 										<SharedAudioContextProvider
 											numberOfAudioTags={numberOfAudioTags}
 											audioLatencyHint={audioLatencyHint}
+											component={composition?.component ?? null}
 										>
 											<DurationsContextProvider>
 												<BufferingProvider>{children}</BufferingProvider>

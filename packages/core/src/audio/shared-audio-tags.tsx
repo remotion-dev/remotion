@@ -1,4 +1,8 @@
-import type {AudioHTMLAttributes} from 'react';
+import type {
+	AudioHTMLAttributes,
+	ComponentType,
+	LazyExoticComponent,
+} from 'react';
 import React, {
 	createContext,
 	createRef,
@@ -9,7 +13,6 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {CompositionManager} from '../CompositionManagerContext.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
@@ -116,7 +119,11 @@ export const SharedAudioContextProvider: React.FC<{
 	readonly numberOfAudioTags: number;
 	readonly children: React.ReactNode;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
-}> = ({children, numberOfAudioTags, audioLatencyHint}) => {
+	readonly component:
+		| LazyExoticComponent<ComponentType<Record<string, unknown>>>
+		| ComponentType<Record<string, unknown>>
+		| null;
+}> = ({children, numberOfAudioTags, audioLatencyHint, component}) => {
 	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
@@ -125,13 +132,6 @@ export const SharedAudioContextProvider: React.FC<{
 			'The number of shared audio tags has changed dynamically. Once you have set this property, you cannot change it afterwards.',
 		);
 	}
-
-	const compositionManager = useContext(CompositionManager);
-	const component = compositionManager.compositions.find((c) =>
-		compositionManager.canvasContent?.type === 'composition'
-			? c.id === compositionManager.canvasContent.compositionId
-			: null,
-	);
 
 	const logLevel = useLogLevel();
 	const audioContext = useSingletonAudioContext(logLevel, audioLatencyHint);
