@@ -11,7 +11,8 @@ export const darkModeOption = {
 	cliFlag,
 	description: () => (
 		<>
-			Whether Chromium should pretend to be in dark mode. Default is{' '}
+			Whether Chromium should pretend to be in dark mode by emulating the media
+			feature 'prefers-color-scheme: dark'. Default is{' '}
 			<code>{String(DEFAULT_VALUE)}</code>.
 		</>
 	),

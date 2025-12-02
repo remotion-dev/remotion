@@ -210,7 +210,6 @@ export const internalOpenBrowser = async ({
 					? '--headless=new'
 					: '--headless=old'
 				: null,
-			chromiumOptions.darkMode ? '--force-dark-mode' : null,
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			...customGlRenderer,
