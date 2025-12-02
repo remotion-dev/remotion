@@ -436,6 +436,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				toneFrequency={toneFrequency}
 				audioStreamIndex={audioStreamIndex}
 				pauseWhenBuffering={fallbackHtml5AudioProps?.pauseWhenBuffering}
+				crossOrigin={fallbackHtml5AudioProps?.crossOrigin}
 				{...fallbackHtml5AudioProps}
 			/>
 		);
