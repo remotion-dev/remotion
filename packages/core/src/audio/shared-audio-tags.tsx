@@ -127,11 +127,10 @@ export const SharedAudioContextProvider: React.FC<{
 	}
 
 	const compositionManager = useContext(CompositionManager);
-	const component = compositionManager.compositions.find((c) =>
+	const compositionId =
 		compositionManager.canvasContent?.type === 'composition'
-			? c.id === compositionManager.canvasContent.compositionId
-			: null,
-	);
+			? compositionManager.canvasContent.compositionId
+			: null;
 
 	const logLevel = useLogLevel();
 	const audioContext = useSingletonAudioContext(logLevel, audioLatencyHint);
@@ -347,7 +346,7 @@ export const SharedAudioContextProvider: React.FC<{
 		return () => {
 			resetAudio();
 		};
-	}, [component, resetAudio]);
+	}, [compositionId, resetAudio]);
 
 	return (
 		<SharedAudioContext.Provider value={value}>
