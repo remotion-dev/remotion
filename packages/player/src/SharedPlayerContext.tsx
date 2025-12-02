@@ -152,6 +152,7 @@ export const SharedPlayerContexts: React.FC<{
 											<Internals.SharedAudioContextProvider
 												numberOfAudioTags={numberOfSharedAudioTags}
 												audioLatencyHint={audioLatencyHint}
+												component={component}
 											>
 												<Internals.BufferingProvider>
 													{children}
