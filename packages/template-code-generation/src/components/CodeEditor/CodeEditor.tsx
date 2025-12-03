@@ -50,7 +50,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const monacoRef = useRef<Monaco | null>(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const isStreamingRef = useRef(isStreaming);
-  const decorationsRef = useRef<string[]>([]);
+  const decorationsRef = useRef<editor.IEditorDecorationsCollection | null>(
+    null,
+  );
   const [showReadOnlyToast, setShowReadOnlyToast] = React.useState(false);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -117,10 +119,13 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       });
     }
 
-    decorationsRef.current = editorRef.current.deltaDecorations(
-      decorationsRef.current,
-      decorations,
-    );
+    // Use the modern createDecorationsCollection API
+    if (decorationsRef.current) {
+      decorationsRef.current.set(decorations);
+    } else {
+      decorationsRef.current =
+        editorRef.current.createDecorationsCollection(decorations);
+    }
   };
 
   const handleEditorMount = (
