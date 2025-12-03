@@ -8,6 +8,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useApiKeyContext } from "@/context/ApiKeyContext";
 
 const MODELS = [
   { id: "gpt-5-mini", name: "GPT-5 Mini" },
@@ -24,13 +31,14 @@ interface PromptInputProps {
 }
 
 export function PromptInput({ onCodeGenerated, onStreamingChange }: PromptInputProps) {
+  const { apiKey, hasApiKey, isLoaded } = useApiKeyContext();
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState<ModelId>("gpt-5-mini");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!prompt.trim() || isLoading) return;
+    if (!prompt.trim() || isLoading || !hasApiKey) return;
 
     setIsLoading(true);
     onStreamingChange?.(true);
@@ -38,7 +46,7 @@ export function PromptInput({ onCodeGenerated, onStreamingChange }: PromptInputP
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, model }),
+        body: JSON.stringify({ prompt, model, apiKey }),
       });
 
       if (!response.ok) {
@@ -117,24 +125,37 @@ export function PromptInput({ onCodeGenerated, onStreamingChange }: PromptInputP
             ))}
           </SelectContent>
         </Select>
-        <button
-          type="submit"
-          disabled={isLoading || !prompt.trim()}
-          className="px-4 py-2 rounded border-none bg-indigo-500 text-white text-sm font-medium cursor-pointer font-sans transition-colors hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center gap-1"
-        >
-          {isLoading ? (
-            "Generating..."
-          ) : (
-            <>
-              <span>Generate</span>
-              <span className="flex items-center gap-0.5 text-[10px] text-indigo-200/70">
-                <kbd className="px-0.5 bg-indigo-600/40 rounded font-mono">⌘</kbd>
-                <span>+</span>
-                <kbd className="px-0.5 bg-indigo-600/40 rounded font-mono">Enter</kbd>
-              </span>
-            </>
-          )}
-        </button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="w-full">
+                <button
+                  type="submit"
+                  disabled={isLoading || !prompt.trim() || !hasApiKey}
+                  className="w-full px-4 py-2 rounded border-none bg-indigo-500 text-white text-sm font-medium cursor-pointer font-sans transition-colors hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center gap-1"
+                >
+                  {isLoading ? (
+                    "Generating..."
+                  ) : (
+                    <>
+                      <span>Generate</span>
+                      <span className="flex items-center gap-0.5 text-[10px] text-indigo-200/70">
+                        <kbd className="px-0.5 bg-indigo-600/40 rounded font-mono">⌘</kbd>
+                        <span>+</span>
+                        <kbd className="px-0.5 bg-indigo-600/40 rounded font-mono">Enter</kbd>
+                      </span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </TooltipTrigger>
+            {!hasApiKey && isLoaded && (
+              <TooltipContent>
+                <p>Add your OpenAI API key in Settings to enable generation</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </form>
   );

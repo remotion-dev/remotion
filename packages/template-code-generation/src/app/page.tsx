@@ -6,6 +6,7 @@ import { ExampleSelector } from "../components/ExampleSelector";
 import { CodeEditor } from "../components/CodeEditor";
 import { AnimationPlayer } from "../components/AnimationPlayer";
 import { PromptInput } from "../components/PromptInput";
+import { SettingsModal } from "../components/SettingsModal";
 import { examples, RemotionExample } from "../templates";
 import { useAnimationState } from "../hooks/useAnimationState";
 
@@ -101,39 +102,13 @@ const Home: NextPage = () => {
           <div className="text-xl font-bold text-white font-sans">
             Remotion Playground
           </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-[#888] font-sans">
-                Duration (frames):
-              </span>
-              <input
-                type="number"
-                min={1}
-                max={1000}
-                value={durationInFrames}
-                onChange={(e) =>
-                  setDurationInFrames(
-                    Math.max(1, parseInt(e.target.value) || 1),
-                  )
-                }
-                className="w-20 px-3 py-1.5 rounded border border-[#333] bg-[#1a1a1a] text-white text-sm font-sans"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-[#888] font-sans">FPS:</span>
-              <input
-                type="number"
-                min={1}
-                max={60}
-                value={fps}
-                onChange={(e) =>
-                  setFps(
-                    Math.max(1, Math.min(60, parseInt(e.target.value) || 30)),
-                  )
-                }
-                className="w-20 px-3 py-1.5 rounded border border-[#333] bg-[#1a1a1a] text-white text-sm font-sans"
-              />
-            </div>
+          <div className="flex items-center gap-2">
+            <SettingsModal
+              durationInFrames={durationInFrames}
+              onDurationChange={setDurationInFrames}
+              fps={fps}
+              onFpsChange={setFps}
+            />
             <button
               className="px-4 py-2 rounded border-none bg-indigo-500 text-white text-sm font-medium cursor-pointer font-sans transition-colors hover:bg-indigo-600"
               onClick={() => setIsEditorOpen(!isEditorOpen)}

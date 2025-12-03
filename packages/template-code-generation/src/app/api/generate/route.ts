@@ -1,5 +1,5 @@
 import { streamText } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI } from "@ai-sdk/openai";
 
 const SYSTEM_PROMPT = `
 You are an expert in generating React components for Remotion animations.
@@ -93,15 +93,46 @@ return (
 `;
 
 export async function POST(req: Request) {
-  const { prompt, model = "gpt-4o" } = await req.json();
+  const { prompt, model = "gpt-5-mini", apiKey } = await req.json();
 
-  const result = streamText({
-    model: openai(model),
-    system: SYSTEM_PROMPT,
-    prompt,
-  });
+  if (!apiKey) {
+    return new Response(JSON.stringify({ error: "API key is required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
-  console.log("Generating React component with prompt:", prompt, "model:", model);
+  if (!apiKey.startsWith("sk-")) {
+    return new Response(JSON.stringify({ error: "Invalid API key format" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
-  return result.toTextStreamResponse();
+  const openai = createOpenAI({ apiKey });
+
+  try {
+    const result = streamText({
+      model: openai(model),
+      system: SYSTEM_PROMPT,
+      prompt,
+    });
+
+    console.log(
+      "Generating React component with prompt:",
+      prompt,
+      "model:",
+      model,
+    );
+
+    return result.toTextStreamResponse();
+  } catch (error) {
+    console.error("Error generating code:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Failed to generate code. Please check your API key.",
+      }),
+      { status: 500, headers: { "Content-Type": "application/json" } },
+    );
+  }
 }
