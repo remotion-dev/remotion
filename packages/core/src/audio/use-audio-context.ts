@@ -41,7 +41,7 @@ export const useSingletonAudioContext = (
 			latencyHint,
 			// By default, this can end up being 44100Hz.
 			// Playing a 48000Hz file in a 44100Hz context, such as https://remotion.media/video.mp4 in a @remotion/media tag
-			// we observe some issues that seem to go away when we set the sample rate to 48000 with EarLink Buds bluetooth headphones.
+			// we observe some issues that seem to go away when we set the sample rate to 48000 with Sony LinkBuds Bluetooth headphones.
 			sampleRate: 48000,
 		});
 	}, [logLevel, latencyHint, env.isRendering]);
