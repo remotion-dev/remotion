@@ -16,6 +16,7 @@ export const getHashOfDomain = async (): Promise<string | null> => {
 	try {
 		const hashBuffer = await crypto.subtle.digest(
 			'SHA-256',
+			// @ts-expect-error
 			new TextEncoder().encode(window.location.hostname),
 		);
 
