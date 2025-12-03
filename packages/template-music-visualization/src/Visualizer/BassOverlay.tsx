@@ -25,7 +25,7 @@ export const BassOverlay: React.FC<BassOverlayProps> = ({
   }
 
   const values = visualizeAudio({
-    audioData: audioData,
+    audioData,
     fps,
     frame,
     optimizeFor: "speed",

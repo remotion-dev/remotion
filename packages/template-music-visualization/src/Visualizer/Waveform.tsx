@@ -82,7 +82,7 @@ export const Waveform: React.FC<WaveformProps> = ({
   const waveform = visualizeAudioWaveform({
     fps,
     frame,
-    audioData: audioData,
+    audioData,
     numberOfSamples,
     windowInSeconds: windowInSeconds,
     channel: 0,
