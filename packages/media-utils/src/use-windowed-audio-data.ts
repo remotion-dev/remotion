@@ -63,7 +63,6 @@ export const useWindowedAudioData = ({
 		return () => {
 			isMounted.current = false;
 
-			// abort all pending requests
 			Object.values(requests.current).forEach((controller) => {
 				if (controller) {
 					controller.abort();
@@ -71,7 +70,6 @@ export const useWindowedAudioData = ({
 			});
 			requests.current = {};
 
-			// clear all Float32Array references
 			setWaveformMap({});
 
 			if (audioUtils) {
@@ -199,11 +197,6 @@ export const useWindowedAudioData = ({
 			const controller = new AbortController();
 			requests.current[windowIndex] = controller;
 
-			// Add a small delay to allow for rapid seeking to settle
-			// this also creates a short window for the signal to be aborted in case of super-rapid seeking
-			// await sleep(250);
-
-			// Check if we were aborted during the delay
 			if (controller.signal.aborted) {
 				return;
 			}
@@ -220,7 +213,6 @@ export const useWindowedAudioData = ({
 					signal: controller.signal,
 				});
 
-				// Only update if we still have a valid controller (not aborted)
 				if (!controller.signal.aborted) {
 					setWaveformMap((prev) => {
 						const entries = Object.keys(prev);
@@ -229,7 +221,7 @@ export const useWindowedAudioData = ({
 						);
 						return {
 							...prev,
-							// Delete windows that are not needed anymore
+
 							...windowsToClear.reduce(
 								(acc, key) => {
 									acc[key] = null;
@@ -237,25 +229,22 @@ export const useWindowedAudioData = ({
 								},
 								{} as Record<string, null>,
 							),
-							// Add the new window
+
 							[windowIndex]: partialWaveData,
 						};
 					});
 				}
 			} catch (err) {
-				// If the request was aborted, don't throw
 				if (controller.signal.aborted) {
 					return;
 				}
 
-				// if it's mediabunny disposed error, don't throw
 				if (err instanceof InputDisposedError) {
 					return;
 				}
 
 				throw err;
 			} finally {
-				// Clean up the request reference
 				if (requests.current[windowIndex] === controller) {
 					requests.current[windowIndex] = null;
 				}
