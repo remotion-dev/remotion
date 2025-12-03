@@ -101,7 +101,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         options: {
           isWholeLine: true,
           className: "readonly-line",
-          glyphMarginClassName: "readonly-glyph",
         },
       });
     }
@@ -114,7 +113,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         options: {
           isWholeLine: true,
           className: "readonly-line",
-          glyphMarginClassName: "readonly-glyph",
         },
       });
     }
@@ -283,8 +281,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   };
 
   return (
-    <div className="w-[600px] h-full flex flex-col bg-[#1e1e1e] border-l border-[#2a2a2a]">
-      <EditorHeader filename="MyAnimation.tsx" code={displayCode} />
+    <div className="flex-2 h-full flex flex-col">
+      <h2 className="text-sm font-medium text-[#888] mb-3">Remotion Code</h2>
+      <div className="flex-1 flex flex-col bg-[#1e1e1e] rounded-lg overflow-hidden">
+        <EditorHeader filename="MyAnimation.tsx" code={displayCode} />
       <style>{EDITOR_STYLES}</style>
       <div className="flex-1 overflow-hidden relative">
         <StreamingOverlay visible={isStreaming} />
@@ -305,9 +305,12 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             tabSize: 2,
             wordWrap: "on",
             padding: { top: 16 },
-            glyphMargin: true,
+            glyphMargin: false,
+            lineNumbersMinChars: 3,
+            folding: false,
           }}
         />
+      </div>
       </div>
     </div>
   );

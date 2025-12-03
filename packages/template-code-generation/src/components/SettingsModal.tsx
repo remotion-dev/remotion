@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Settings, Eye, EyeOff, ExternalLink } from "lucide-react";
 import { useApiKeyContext } from "@/context/ApiKeyContext";
+import { Button } from "@/components/ui/button";
 
 interface SettingsModalProps {
   durationInFrames: number;
@@ -54,12 +55,10 @@ export function SettingsModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button
-          className="px-3 py-2 rounded border-none bg-[#1a1a1a] text-white text-sm font-medium cursor-pointer font-sans transition-colors hover:bg-[#2a2a2a] flex items-center gap-2 border border-[#333]"
-          aria-label="Settings"
-        >
+        <Button variant="outline">
           <Settings className="w-4 h-4" />
-        </button>
+          Settings
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] bg-[#1a1a1a] border-[#333] text-white">
         <DialogHeader>
@@ -100,7 +99,7 @@ export function SettingsModal({
                   value={fps}
                   onChange={(e) =>
                     onFpsChange(
-                      Math.max(1, Math.min(60, parseInt(e.target.value) || 30))
+                      Math.max(1, Math.min(60, parseInt(e.target.value) || 30)),
                     )
                   }
                   className="w-full px-3 py-2 rounded border border-[#333] bg-[#0f0f0f] text-white text-sm font-sans focus:outline-none focus:border-indigo-500"
@@ -108,7 +107,8 @@ export function SettingsModal({
               </div>
             </div>
             <p className="text-xs text-[#666]">
-              Video length: {(durationInFrames / fps).toFixed(2)}s ({durationInFrames} frames / {fps} FPS)
+              Video length: {(durationInFrames / fps).toFixed(2)}s (
+              {durationInFrames} frames / {fps} FPS)
             </p>
           </div>
 
@@ -144,7 +144,8 @@ export function SettingsModal({
               </p>
             )}
             <p className="text-xs text-[#666]">
-              Your API key is stored locally in your browser and only sent to OpenAI for generation requests.
+              Your API key is stored locally in your browser and only sent to
+              OpenAI for generation requests.
             </p>
             <a
               href="https://platform.openai.com/api-keys"
@@ -159,27 +160,24 @@ export function SettingsModal({
         </div>
         <DialogFooter className="flex gap-2 sm:justify-between">
           {hasApiKey && (
-            <button
+            <Button
               onClick={handleClear}
-              className="px-4 py-2 rounded border-none bg-red-600 text-white text-sm font-medium cursor-pointer font-sans transition-colors hover:bg-red-700 mr-auto"
+              variant="destructive"
+              className="mr-auto"
             >
               Clear Key
-            </button>
+            </Button>
           )}
           <div className="flex gap-2">
-            <button
-              onClick={() => setOpen(false)}
-              className="px-4 py-2 rounded border border-[#333] bg-transparent text-white text-sm font-medium cursor-pointer font-sans transition-colors hover:bg-[#2a2a2a]"
-            >
+            <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleSave}
               disabled={!inputValue.trim() || !isValidFormat}
-              className="px-4 py-2 rounded border-none bg-indigo-500 text-white text-sm font-medium cursor-pointer font-sans transition-colors hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Save
-            </button>
+            </Button>
           </div>
         </DialogFooter>
       </DialogContent>

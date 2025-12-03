@@ -22,6 +22,7 @@
     "@monaco-editor/react": "^4.7.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@remotion/bundler": "workspace:*",
     "@remotion/cli": "workspace:*",

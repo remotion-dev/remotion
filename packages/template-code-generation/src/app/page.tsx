@@ -2,22 +2,19 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import type { NextPage } from "next";
-import { ExampleSelector } from "../components/ExampleSelector";
+import Image from "next/image";
 import { CodeEditor } from "../components/CodeEditor";
 import { AnimationPlayer } from "../components/AnimationPlayer";
 import { PromptInput } from "../components/PromptInput";
 import { SettingsModal } from "../components/SettingsModal";
-import { examples, RemotionExample } from "../templates";
+import { examples } from "../templates";
 import { useAnimationState } from "../hooks/useAnimationState";
 
 const Home: NextPage = () => {
-  const [selectedExample, setSelectedExample] =
-    useState<RemotionExample | null>(examples[0] || null);
   const [durationInFrames, setDurationInFrames] = useState(
     examples[0]?.durationInFrames || 150,
   );
   const [fps, setFps] = useState(examples[0]?.fps || 30);
-  const [isEditorOpen, setIsEditorOpen] = useState(true);
   const [isStreaming, setIsStreaming] = useState(false);
 
   const { code, Component, error, isCompiling, setCode, compileCode } =
@@ -65,22 +62,6 @@ const Home: NextPage = () => {
     [setCode, compileCode],
   );
 
-  const handleExampleSelect = useCallback(
-    (example: RemotionExample) => {
-      setSelectedExample(example);
-      setCode(example.code);
-      setDurationInFrames(example.durationInFrames);
-      setFps(example.fps);
-
-      // Immediately compile the example code
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-      compileCode(example.code);
-    },
-    [setCode, compileCode],
-  );
-
   // Cleanup debounce on unmount
   useEffect(() => {
     return () => {
@@ -92,33 +73,28 @@ const Home: NextPage = () => {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0a0a0a]">
-      <ExampleSelector
-        selectedExampleId={selectedExample?.id || null}
-        onSelectExample={handleExampleSelect}
-      />
-
-      <div className="flex-1 flex flex-col min-w-0">
-        <div className="flex justify-between items-center px-6 py-3 bg-[#0f0f0f] border-b border-[#2a2a2a]">
-          <div className="text-xl font-bold text-white font-sans">
-            Remotion Playground
+      <div className="flex-1 flex flex-col min-w-0 py-8 px-12 rounded-md gap-8">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <Image src="/logo.png" alt="Remotion" width={32} height={32} />
+            <span className="text-xl font-bold text-white font-sans">
+              Remotion Code Generation
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <SettingsModal
-              durationInFrames={durationInFrames}
-              onDurationChange={setDurationInFrames}
-              fps={fps}
-              onFpsChange={setFps}
-            />
-            <button
-              className="px-4 py-2 rounded border-none bg-indigo-500 text-white text-sm font-medium cursor-pointer font-sans transition-colors hover:bg-indigo-600"
-              onClick={() => setIsEditorOpen(!isEditorOpen)}
-            >
-              {isEditorOpen ? "Hide Editor" : "Show Editor"}
-            </button>
-          </div>
+          <SettingsModal
+            durationInFrames={durationInFrames}
+            onDurationChange={setDurationInFrames}
+            fps={fps}
+            onFpsChange={setFps}
+          />
         </div>
 
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden gap-8">
+          <CodeEditor
+            code={code}
+            onChange={handleCodeChange}
+            isStreaming={isStreaming}
+          />
           <AnimationPlayer
             Component={Component}
             durationInFrames={durationInFrames}
@@ -126,14 +102,6 @@ const Home: NextPage = () => {
             isCompiling={isCompiling}
             error={error}
           />
-
-          {isEditorOpen && (
-            <CodeEditor
-              code={code}
-              onChange={handleCodeChange}
-              isStreaming={isStreaming}
-            />
-          )}
         </div>
 
         <PromptInput

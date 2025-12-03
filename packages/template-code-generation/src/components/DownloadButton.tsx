@@ -1,6 +1,6 @@
 import React from "react";
 import { State } from "../helpers/use-rendering";
-import { Button } from "./Button";
+import { Button } from "@/components/ui/button";
 
 const Megabytes: React.FC<{
   sizeInBytes: number;
@@ -28,7 +28,7 @@ export const DownloadButton: React.FC<{
 
   return (
     <div className="flex gap-geist-quarter">
-      <Button secondary onClick={undo}>
+      <Button variant="secondary" onClick={undo}>
         <UndoIcon></UndoIcon>
       </Button>
       <a href={state.url}>

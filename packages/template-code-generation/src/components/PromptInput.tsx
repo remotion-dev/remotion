@@ -30,7 +30,10 @@ interface PromptInputProps {
   onStreamingChange?: (isStreaming: boolean) => void;
 }
 
-export function PromptInput({ onCodeGenerated, onStreamingChange }: PromptInputProps) {
+export function PromptInput({
+  onCodeGenerated,
+  onStreamingChange,
+}: PromptInputProps) {
   const { apiKey, hasApiKey, isLoaded } = useApiKeyContext();
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState<ModelId>("gpt-5-mini");
@@ -94,14 +97,19 @@ export function PromptInput({ onCodeGenerated, onStreamingChange }: PromptInputP
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 p-4 bg-[#1a1a1a] border-t border-[#2a2a2a]">
+    <div className="flex flex-col gap-2">
+      <h2 className="text-sm font-medium text-[#888]">Prompt</h2>
+      <form
+        onSubmit={handleSubmit}
+        className="flex gap-2 p-4 bg-[#1a1a1a] rounded-md"
+      >
       <textarea
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Describe your animation... (e.g., 'A bouncing ball')"
         rows={3}
-        className="flex-1 px-4 py-2 rounded border border-[#333] bg-[#0f0f0f] text-white text-sm font-sans placeholder:text-[#666] focus:outline-none focus:border-indigo-500 resize-none min-h-[4.5rem] max-h-[9rem]"
+        className="flex-1 px-4 py-2 rounded-lg border border-[#333] bg-[#0f0f0f] text-white text-sm font-sans placeholder:text-[#666] focus:outline-none focus:border-[#555] resize-none min-h-[4.5rem] max-h-[9rem]"
         disabled={isLoading}
       />
       <div className="flex flex-col gap-2">
@@ -110,7 +118,7 @@ export function PromptInput({ onCodeGenerated, onStreamingChange }: PromptInputP
           onValueChange={(value) => setModel(value as ModelId)}
           disabled={isLoading}
         >
-          <SelectTrigger className="w-[140px] bg-[#0f0f0f] border-[#333] text-white">
+          <SelectTrigger className="w-[160px] bg-[#0f0f0f] border-[#333] text-white">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-[#1a1a1a] border-[#333]">
@@ -140,9 +148,13 @@ export function PromptInput({ onCodeGenerated, onStreamingChange }: PromptInputP
                     <>
                       <span>Generate</span>
                       <span className="flex items-center gap-0.5 text-[10px] text-indigo-200/70">
-                        <kbd className="px-0.5 bg-indigo-600/40 rounded font-mono">⌘</kbd>
+                        <kbd className="px-0.5 bg-indigo-600/40 rounded font-mono">
+                          ⌘
+                        </kbd>
                         <span>+</span>
-                        <kbd className="px-0.5 bg-indigo-600/40 rounded font-mono">Enter</kbd>
+                        <kbd className="px-0.5 bg-indigo-600/40 rounded font-mono">
+                          Enter
+                        </kbd>
                       </span>
                     </>
                   )}
@@ -157,6 +169,7 @@ export function PromptInput({ onCodeGenerated, onStreamingChange }: PromptInputP
           </Tooltip>
         </TooltipProvider>
       </div>
-    </form>
+      </form>
+    </div>
   );
 }

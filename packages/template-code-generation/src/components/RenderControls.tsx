@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Button } from "./Button";
+import { Button } from "@/components/ui/button";
 import { InputContainer } from "./Container";
 import { DownloadButton } from "./DownloadButton";
 import { ErrorComp } from "./Error";
