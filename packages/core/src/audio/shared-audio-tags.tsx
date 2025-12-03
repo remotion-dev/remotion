@@ -1,14 +1,9 @@
-import type {
-	AudioHTMLAttributes,
-	ComponentType,
-	LazyExoticComponent,
-} from 'react';
+import type {AudioHTMLAttributes} from 'react';
 import React, {
 	createContext,
 	createRef,
 	useCallback,
 	useContext,
-	useEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -119,11 +114,7 @@ export const SharedAudioContextProvider: React.FC<{
 	readonly numberOfAudioTags: number;
 	readonly children: React.ReactNode;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
-	readonly component:
-		| LazyExoticComponent<ComponentType<Record<string, unknown>>>
-		| ComponentType<Record<string, unknown>>
-		| null;
-}> = ({children, numberOfAudioTags, audioLatencyHint, component}) => {
+}> = ({children, numberOfAudioTags, audioLatencyHint}) => {
 	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
@@ -328,26 +319,6 @@ export const SharedAudioContextProvider: React.FC<{
 		updateAudio,
 		audioContext,
 	]);
-
-	// Fixing a bug: In React, if a component is unmounted using useInsertionEffect, then
-	// the cleanup function does sometimes not work properly. That is why when we
-	// are changing the composition, we reset the audio state.
-
-	// TODO: Possibly this does not save the problem completely, since the
-	// if an audio tag that is inside a sequence will also not be removed
-	// from the shared audios.
-
-	const resetAudio = useCallback(() => {
-		takenAudios.current = new Array(numberOfAudioTags).fill(false);
-		audios.current = [];
-		rerenderAudios();
-	}, [numberOfAudioTags, rerenderAudios]);
-
-	useEffect(() => {
-		return () => {
-			resetAudio();
-		};
-	}, [component, resetAudio]);
 
 	return (
 		<SharedAudioContext.Provider value={value}>
