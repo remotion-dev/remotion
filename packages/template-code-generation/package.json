@@ -29,6 +29,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.555.0",
     "monaco-editor": "^0.55.1",
+    "monaco-jsx-syntax-highlight": "^1.2.2",
     "next": "16.0.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
