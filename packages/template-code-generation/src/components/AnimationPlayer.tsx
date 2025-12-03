@@ -1,7 +1,22 @@
 "use client";
 
 import React from "react";
-import { Player } from "@remotion/player";
+import { Player, type ErrorFallback } from "@remotion/player";
+
+const renderErrorFallback: ErrorFallback = ({ error }) => {
+  return (
+    <div className="w-full h-full flex justify-center items-center bg-[#2a1a1a] p-10">
+      <div className="text-center max-w-[80%]">
+        <div className="text-[#dc2626] text-3xl font-bold mb-4 font-sans">
+          Runtime Error
+        </div>
+        <div className="text-[#f87171] text-xl font-mono whitespace-pre-wrap break-words">
+          {error.message || "An error occurred while rendering"}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface AnimationPlayerProps {
   Component: React.FC | null;
@@ -57,6 +72,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
     <div className="flex-1 flex flex-col justify-center items-center p-6 bg-[#0a0a0a] min-w-0">
       <div className="w-full max-w-[800px] aspect-video rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
         <Player
+          key={Component.toString()}
           component={Component}
           durationInFrames={durationInFrames}
           fps={fps}
@@ -69,6 +85,9 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
           controls
           autoPlay
           loop
+          errorFallback={renderErrorFallback}
+          spaceKeyToPlayOrPause={false}
+          clickToPlay={false}
         />
       </div>
     </div>
