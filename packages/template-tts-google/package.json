@@ -18,7 +18,7 @@
     "eslint": "9.19.0",
     "prettier": "3.6.0",
     "tsx": "4.19.3",
-    "typescript": "5.8.2"
+    "typescript": "5.9.3"
   },
   "dependencies": {
     "@google-cloud/text-to-speech": "4.2.1",
