@@ -38,7 +38,7 @@
     "prettier": "3.6.0",
     "prompts": "^2.4.2",
     "tsx": "^4.20.6",
-    "typescript": "5.8.2",
+    "typescript": "5.9.3",
     "uuid": "^13.0.0",
     "yargs": "^18.0.0",
     "zod-to-json-schema": "^3.24.6"
