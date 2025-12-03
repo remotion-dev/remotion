@@ -82,12 +82,12 @@ export const Component = () => {
   return <Video src={src} />;
 };
 
-export const NewVideoComp = () => {
-  return <Composition component={Component} id="NewVideo" calculateMetadata={calculateMetadataFn} />;
+export const VideoFromFileComp = () => {
+  return <Composition component={Component} id="VideoFromFile" calculateMetadata={calculateMetadataFn} />;
 };
 
 // In Root.tsx:
-// <NewVideoComp />
+// <VideoFromFileComp />
 ```
 
 [This](https://github.com/remotion-dev/remotion/blob/main/packages/example/public/bigbuckbunny.mp4) is the video file used.
