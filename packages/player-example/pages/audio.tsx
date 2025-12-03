@@ -24,7 +24,7 @@ const Page: React.FC = () => {
 				compositionWidth={1920}
 				compositionHeight={1080}
 				fps={30}
-				durationInFrames={100}
+				durationInFrames={1200}
 				acknowledgeRemotionLicense
 				controls
 				style={{
