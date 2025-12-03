@@ -17,7 +17,7 @@
 		"prepublishOnly": "bun build.ts && bun ensure-version-match.js"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
-	"license": "MIT",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"@aws-sdk/s3-request-presigner": "catalog:",
 		"@aws-sdk/middleware-flexible-checksums": "catalog:",
