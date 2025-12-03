@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import fs from 'node:fs';
+import {readdir, stat} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {Log} from './log';
@@ -8,6 +9,7 @@ import prompts from './prompts';
 import {isTmpFlagSelected} from './select-template';
 import type {Template} from './templates';
 import {validateName} from './validate-name';
+import {yesOrNo} from './yesno';
 
 function assertValidName(folderName: string) {
 	const validation = validateName(folderName);
@@ -53,6 +55,7 @@ export const resolveProjectRoot = async (options?: {
 	}
 
 	let projectName = '';
+	let directlyCreateInCurrentDir = false;
 
 	// If a directory argument was provided, use it directly
 	if (options?.directoryArgument) {
@@ -67,23 +70,43 @@ export const resolveProjectRoot = async (options?: {
 		}
 
 		try {
-			const {answer} = await prompts({
-				type: 'text',
-				name: 'answer',
-				message: 'Directory to create your project',
-				initial: 'my-video',
-				validate: (name) => {
-					const validation = validateName(path.basename(path.resolve(name)));
-					if (typeof validation === 'string') {
-						return 'Invalid project name: ' + validation;
-					}
+			const currentMs = Date.now();
+			const hour = 60 * 60 * 1000;
+			const dirCreateMs = (await stat(process.cwd())).ctimeMs;
+			const fileCount = (await readdir(process.cwd())).length;
+			if (fileCount === 0 && currentMs - dirCreateMs < hour) {
+				Log.info(
+					chalk.yellowBright(
+						'We detected that this folder was recently created. Do you want to place the project here or in a new subfolder?',
+					),
+				);
+				directlyCreateInCurrentDir = await yesOrNo({
+					question: 'create project here ?',
+					defaultValue: true,
+				});
+			}
 
-					return true;
-				},
-			});
+			if (directlyCreateInCurrentDir) {
+				projectName = process.cwd();
+			} else {
+				const {answer} = await prompts({
+					type: 'text',
+					name: 'answer',
+					message: 'Directory to create your project',
+					initial: 'my-video',
+					validate: (name) => {
+						const validation = validateName(path.basename(path.resolve(name)));
+						if (typeof validation === 'string') {
+							return 'Invalid project name: ' + validation;
+						}
 
-			if (typeof answer === 'string') {
-				projectName = answer.trim();
+						return true;
+					},
+				});
+
+				if (typeof answer === 'string') {
+					projectName = answer.trim();
+				}
 			}
 		} catch (error) {
 			// Handle the aborted message in a custom way.
@@ -96,9 +119,11 @@ export const resolveProjectRoot = async (options?: {
 	const projectRoot = path.resolve(projectName);
 	const folderName = path.basename(projectRoot);
 
-	assertValidName(folderName);
-
-	mkdirp(projectRoot);
+	if (!directlyCreateInCurrentDir) {
+		// if a folder is already created, no point of checking if it's valid
+		assertValidName(folderName);
+		mkdirp(projectRoot);
+	}
 
 	if (assertFolderEmptyAsync(projectRoot).exists) {
 		return resolveProjectRoot(options);
