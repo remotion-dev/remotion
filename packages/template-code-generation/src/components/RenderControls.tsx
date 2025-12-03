@@ -1,12 +1,10 @@
 import { z } from "zod";
-import { AlignEnd } from "./AlignEnd";
 import { Button } from "./Button";
 import { InputContainer } from "./Container";
 import { DownloadButton } from "./DownloadButton";
 import { ErrorComp } from "./Error";
 import { Input } from "./Input";
 import { ProgressBar } from "./ProgressBar";
-import { Spacing } from "./Spacing";
 import { COMP_NAME, CompositionProps } from "../../types/constants";
 import { useRendering } from "../helpers/use-rendering";
 
@@ -22,14 +20,13 @@ export const RenderControls: React.FC<{
       {state.status === "init" ||
       state.status === "invoking" ||
       state.status === "error" ? (
-        <>
+        <div className="flex flex-col gap-geist-quarter">
           <Input
             disabled={state.status === "invoking"}
             setText={setText}
             text={text}
-          ></Input>
-          <Spacing></Spacing>
-          <AlignEnd>
+          />
+          <div className="self-end">
             <Button
               disabled={state.status === "invoking"}
               loading={state.status === "invoking"}
@@ -37,22 +34,21 @@ export const RenderControls: React.FC<{
             >
               Render video
             </Button>
-          </AlignEnd>
+          </div>
           {state.status === "error" ? (
-            <ErrorComp message={state.error.message}></ErrorComp>
+            <ErrorComp message={state.error.message} />
           ) : null}
-        </>
+        </div>
       ) : null}
       {state.status === "rendering" || state.status === "done" ? (
-        <>
+        <div className="flex flex-col gap-geist-quarter">
           <ProgressBar
             progress={state.status === "rendering" ? state.progress : 1}
           />
-          <Spacing></Spacing>
-          <AlignEnd>
-            <DownloadButton undo={undo} state={state}></DownloadButton>
-          </AlignEnd>
-        </>
+          <div className="self-end">
+            <DownloadButton undo={undo} state={state} />
+          </div>
+        </div>
       ) : null}
     </InputContainer>
   );

@@ -1,6 +1,5 @@
 import React, { forwardRef } from "react";
-import { Spacing } from "./Spacing";
-import { Spinner } from "./Spinner";
+import { Spinner } from "./ui/spinner";
 import { cn } from "../lib/utils";
 
 const ButtonForward: React.ForwardRefRenderFunction<
@@ -25,12 +24,7 @@ const ButtonForward: React.ForwardRefRenderFunction<
       onClick={onClick}
       disabled={disabled}
     >
-      {loading && (
-        <>
-          <Spinner size={20}></Spinner>
-          <Spacing></Spacing>
-        </>
-      )}
+      {loading && <Spinner className="mr-geist-quarter size-5" />}
       {children}
     </button>
   );

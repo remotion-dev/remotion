@@ -1,7 +1,6 @@
 import React from "react";
 import { State } from "../helpers/use-rendering";
 import { Button } from "./Button";
-import { Spacing } from "./Spacing";
 
 const Megabytes: React.FC<{
   sizeInBytes: number;
@@ -28,16 +27,16 @@ export const DownloadButton: React.FC<{
   }
 
   return (
-    <div className="flex">
+    <div className="flex gap-geist-quarter">
       <Button secondary onClick={undo}>
         <UndoIcon></UndoIcon>
       </Button>
-      <Spacing></Spacing>
       <a href={state.url}>
         <Button>
           Download video
-          <Spacing></Spacing>
-          <Megabytes sizeInBytes={state.size}></Megabytes>
+          <span className="ml-geist-quarter">
+            <Megabytes sizeInBytes={state.size} />
+          </span>
         </Button>
       </a>
     </div>
