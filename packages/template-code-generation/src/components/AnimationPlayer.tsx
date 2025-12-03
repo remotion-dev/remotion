@@ -94,6 +94,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
             style={{
               width: "100%",
               height: "100%",
+              backgroundColor: "white",
             }}
             controls
             autoPlay
