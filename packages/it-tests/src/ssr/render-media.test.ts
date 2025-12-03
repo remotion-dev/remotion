@@ -4,40 +4,44 @@ import {existsSync} from 'fs';
 import os from 'os';
 import path from 'path';
 
-test('Render video with browser instance open', async () => {
-	const puppeteerInstance = await openBrowser('chrome');
-	const compositions = await getCompositions(
-		'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
-		{
-			puppeteerInstance,
-			inputProps: {},
-		},
-	);
-
-	const reactSvg = compositions.find((c) => c.id === 'react-svg');
-
-	if (!reactSvg) {
-		throw new Error('not found');
-	}
-
-	const tmpDir = os.tmpdir();
-
-	const outPath = path.join(tmpDir, 'out.mp4');
-
-	await renderMedia({
-		outputLocation: outPath,
-		codec: 'h264',
-		serveUrl:
+test(
+	'Render video with browser instance open',
+	async () => {
+		const puppeteerInstance = await openBrowser('chrome');
+		const compositions = await getCompositions(
 			'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
-		composition: reactSvg,
-		frameRange: [0, 2],
-		puppeteerInstance,
-		metadata: {Author: 'Lunar'},
-		logLevel: 'error',
-	});
-	await puppeteerInstance.close({silent: false});
-	expect(existsSync(outPath)).toBe(true);
-});
+			{
+				puppeteerInstance,
+				inputProps: {},
+			},
+		);
+
+		const reactSvg = compositions.find((c) => c.id === 'react-svg');
+
+		if (!reactSvg) {
+			throw new Error('not found');
+		}
+
+		const tmpDir = os.tmpdir();
+
+		const outPath = path.join(tmpDir, 'out.mp4');
+
+		await renderMedia({
+			outputLocation: outPath,
+			codec: 'h264',
+			serveUrl:
+				'https://661808694cad562ef2f35be7--incomparable-dasik-a4482b.netlify.app/',
+			composition: reactSvg,
+			frameRange: [0, 2],
+			puppeteerInstance,
+			metadata: {Author: 'Lunar'},
+			logLevel: 'error',
+		});
+		await puppeteerInstance.close({silent: false});
+		expect(existsSync(outPath)).toBe(true);
+	},
+	{retry: 2},
+);
 
 test('Render video with browser instance not open', async () => {
 	const compositions = await getCompositions(
