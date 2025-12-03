@@ -13,7 +13,7 @@ export const createFileStorage = async (filename: string) => {
     await writable.write({
       type: "write",
       position: written,
-      data: data,
+      data: data as Blob,
     });
     written += data instanceof Blob ? data.size : data.byteLength;
   };
