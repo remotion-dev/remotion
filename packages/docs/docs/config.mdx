@@ -214,6 +214,17 @@ Config.setChromiumDisableWebSecurity(true);
 
 The [command line flag](/docs/cli/render#--disable-web-security) `--disable-web-security` will take precedence over this option.
 
+## `setChromiumDarkMode()`<AvailableFrom v="4.0.381" />
+
+<Options id="dark-mode" />
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+// ---cut---
+Config.setChromiumDarkMode(true);
+```
+
 ## `setChromiumIgnoreCertificateErrors()`<AvailableFrom v="2.6.5" />
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored during rendering.

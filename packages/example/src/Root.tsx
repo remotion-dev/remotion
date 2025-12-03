@@ -24,6 +24,7 @@ import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
+import {DarkModeTest} from './DarkModeTest';
 import {DecoderDemo} from './DecoderDemo';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {EmojiTestbed} from './Emoji';
@@ -903,6 +904,12 @@ export const Index: React.FC = () => {
 				<Still
 					id="watch-static"
 					component={WatchStaticDemo}
+					width={1080}
+					height={1080}
+				/>
+				<Still
+					id="dark-mode-test"
+					component={DarkModeTest}
 					width={1080}
 					height={1080}
 				/>

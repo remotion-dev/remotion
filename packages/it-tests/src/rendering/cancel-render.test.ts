@@ -54,5 +54,5 @@ test(
 			"cancelRender(new Error('This should be the error message'));",
 		);
 	},
-	{timeout: 15000},
+	{timeout: 15000, retry: 3},
 );

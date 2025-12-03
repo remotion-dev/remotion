@@ -33,6 +33,7 @@ const {
 	audioCodecOption,
 	publicPathOption,
 	audioLatencyHintOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -44,6 +45,7 @@ export type CommandLineOptions = {
 	['bundle-cache']: string;
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
+	[darkModeOption.cliFlag]: TypeOfOption<typeof darkModeOption>;
 	['disable-web-security']: string;
 	['every-nth-frame']: number;
 	[numberOfGifLoopsOption.cliFlag]: TypeOfOption<typeof numberOfGifLoopsOption>;
@@ -133,6 +135,10 @@ export const parseCommandLine = () => {
 
 	if (parsedCli['ignore-certificate-errors']) {
 		Config.setChromiumIgnoreCertificateErrors(true);
+	}
+
+	if (parsedCli[darkModeOption.cliFlag]) {
+		Config.setChromiumDarkMode(parsedCli[darkModeOption.cliFlag]);
 	}
 
 	if (parsedCli['user-agent']) {

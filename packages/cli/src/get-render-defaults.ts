@@ -30,6 +30,7 @@ const {
 	hardwareAccelerationOption,
 	chromeModeOption,
 	mediaCacheSizeInBytesOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (): RenderDefaults => {
@@ -121,6 +122,9 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const videoImageFormat = ConfigInternals.getUserPreferredVideoImageFormat();
 	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
 	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
+	const darkMode = darkModeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const userAgent = ConfigInternals.getChromiumUserAgent();
 	const metadata = ConfigInternals.getMetadata();
 
@@ -128,6 +132,7 @@ export const getRenderDefaults = (): RenderDefaults => {
 	const minConcurrency = RenderInternals.getMinConcurrency();
 
 	return {
+		darkMode,
 		jpegQuality: defaultJpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		scale: defaultScale ?? 1,
 		logLevel,

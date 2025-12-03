@@ -54,6 +54,7 @@ export const Modals: React.FC<{
 				modalContextType.type === 'server-render' && (
 					<RenderModalWithLoader
 						initialFrame={modalContextType.initialFrame}
+						initialDarkMode={modalContextType.initialDarkMode}
 						compositionId={modalContextType.compositionId}
 						initialVideoImageFormat={modalContextType.initialVideoImageFormat}
 						initialJpegQuality={modalContextType.initialJpegQuality}

@@ -45,6 +45,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
+			initialDarkMode: job.chromiumOptions.darkMode,
 			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				job.serializedInputPropsWithCustomSchema,
 			),
@@ -98,6 +99,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
+			initialDarkMode: job.chromiumOptions.darkMode,
 			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				job.serializedInputPropsWithCustomSchema,
 			),
@@ -154,6 +156,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
+			initialDarkMode: job.chromiumOptions.darkMode,
 			defaultProps: NoReactInternals.deserializeJSONWithSpecialTypes(
 				job.serializedInputPropsWithCustomSchema,
 			),

@@ -34,6 +34,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
 	mediaCacheSizeInBytesOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 const {
@@ -100,13 +101,15 @@ export const stillCommand = async ({
 	const headless = headlessOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const chromiumOptions: ChromiumOptions = {
+	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
+	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
 		headless,
 		ignoreCertificateErrors,
 		userAgent,
+		darkMode,
 	};
 
 	const timeoutInMilliseconds = delayRenderTimeoutInMillisecondsOption.getValue(
