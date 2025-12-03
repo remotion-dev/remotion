@@ -235,7 +235,12 @@ const InnerComposition = <
 
 	const resolved = useResolvedVideoConfig(id);
 
-	if (environment.isStudio && video && video.component === lazy) {
+	if (
+		environment.isStudio &&
+		video &&
+		video.component === lazy &&
+		video.id === id
+	) {
 		const Comp = lazy;
 		if (
 			resolved === null ||
@@ -260,7 +265,12 @@ const InnerComposition = <
 		);
 	}
 
-	if (environment.isRendering && video && video.component === lazy) {
+	if (
+		environment.isRendering &&
+		video &&
+		video.component === lazy &&
+		video.id === id
+	) {
 		const Comp = lazy;
 		if (
 			resolved === null ||
