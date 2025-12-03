@@ -1,6 +1,11 @@
 {
   "name": "template-code-generation",
-  "version": "0.1.0",
+  "version": "4.0.379",
+  "description": "AI-powered code generation template for Remotion",
+  "repository": {
+    "url": "https://github.com/remotion-dev/remotion/tree/main/packages/template-code-generation"
+  },
+  "homepage": "https://www.remotion.dev",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
