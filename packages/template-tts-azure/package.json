@@ -31,7 +31,7 @@
     "eslint": "9.19.0",
     "prettier": "3.6.0",
     "tsx": "4.19.3",
-    "typescript": "5.8.2",
+    "typescript": "5.9.3",
     "zod": "3.22.3"
   }
 }

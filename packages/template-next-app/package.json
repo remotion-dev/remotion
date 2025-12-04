@@ -39,7 +39,7 @@
     "@typescript-eslint/eslint-plugin": "8.46.0",
     "@typescript-eslint/parser": "8.46.0",
     "eslint-config-next": "15.1.6",
-    "typescript": "5.8.2",
+    "typescript": "5.9.3",
     "typescript-eslint": "8.46.0",
     "prettier": "3.6.0",
     "@eslint/eslintrc": "3.1.0"

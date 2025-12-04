@@ -26,12 +26,14 @@ const createContent: MediaParserInternalTypes['CreateContent'] = async ({
 	let writPromise = Promise.resolve();
 
 	const write = async (arr: Uint8Array) => {
+		// @ts-expect-error
 		await writable.write(arr);
 		written += arr.byteLength;
 	};
 
 	const updateDataAt = async (position: number, data: Uint8Array) => {
 		await writable.seek(position);
+		// @ts-expect-error
 		await writable.write(data);
 		await writable.seek(written);
 	};
