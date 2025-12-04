@@ -18,15 +18,19 @@ export const makeCrop = ({
 		: dimensions!.height - cropRect.top;
 
 	// Round down to nearest even number if codec is avc or hevc
+	let left = cropRect.left;
+	let top = cropRect.top;
 	if (videoCodec === 'avc' || videoCodec === 'hevc') {
 		width = Math.floor(width / 2) * 2;
 		height = Math.floor(height / 2) * 2;
+		left = Math.floor(left / 2) * 2;
+		top = Math.floor(top / 2) * 2;
 	}
 
 	return {
 		width,
 		height,
-		left: cropRect.left,
-		top: cropRect.top,
+		left,
+		top,
 	};
 };
