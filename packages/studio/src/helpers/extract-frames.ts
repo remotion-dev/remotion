@@ -73,6 +73,7 @@ export async function extractFrames({
 
 		for await (const videoSample of sink.samplesAtTimestamps(timestamps)) {
 			if (signal?.aborted) {
+				videoSample?.close();
 				break;
 			}
 

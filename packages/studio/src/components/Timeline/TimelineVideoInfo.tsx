@@ -409,6 +409,8 @@ export const TimelineVideoInfo: React.FC<{
 					segmentDuration: toSeconds - fromSeconds,
 					fromSeconds,
 				});
+
+				sample.close();
 			},
 			signal: controller.signal,
 		})
