@@ -2,6 +2,15 @@
 
 import { useState } from "react";
 import {
+  ArrowUp,
+  Type,
+  MessageCircle,
+  Hash,
+  BarChart3,
+  Disc,
+  type LucideIcon,
+} from "lucide-react";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -17,7 +26,15 @@ import {
 import { useApiKeyContext } from "@/context/ApiKeyContext";
 import { examplePrompts } from "@/data/examplePrompts";
 
-const MODELS = [
+const iconMap: Record<string, LucideIcon> = {
+  Type,
+  MessageCircle,
+  Hash,
+  BarChart3,
+  Disc,
+};
+
+export const MODELS = [
   { id: "gpt-5-mini", name: "GPT-5 Mini" },
   { id: "gpt-5.1-codex", name: "GPT-5.1 Codex" },
   { id: "gpt-5.1:none", name: "GPT-5.1 (No Reasoning)" },
@@ -26,7 +43,7 @@ const MODELS = [
   { id: "gpt-5.1:high", name: "GPT-5.1 (High Reasoning)" },
 ] as const;
 
-type ModelId = (typeof MODELS)[number]["id"];
+export type ModelId = (typeof MODELS)[number]["id"];
 
 export type StreamPhase = "idle" | "reasoning" | "generating";
 
@@ -34,16 +51,27 @@ interface PromptInputProps {
   onCodeGenerated: (code: string) => void;
   onStreamingChange?: (isStreaming: boolean) => void;
   onStreamPhaseChange?: (phase: StreamPhase) => void;
+  variant?: "landing" | "editor";
+  prompt?: string;
+  onPromptChange?: (prompt: string) => void;
 }
 
 export function PromptInput({
   onCodeGenerated,
   onStreamingChange,
   onStreamPhaseChange,
+  variant = "editor",
+  prompt: controlledPrompt,
+  onPromptChange,
 }: PromptInputProps) {
   const { apiKey, hasApiKey, isLoaded } = useApiKeyContext();
-  const [prompt, setPrompt] = useState("");
+  const [uncontrolledPrompt, setUncontrolledPrompt] = useState("");
   const [model, setModel] = useState<ModelId>("gpt-5.1:low");
+
+  // Support both controlled and uncontrolled modes
+  const prompt =
+    controlledPrompt !== undefined ? controlledPrompt : uncontrolledPrompt;
+  const setPrompt = onPromptChange || setUncontrolledPrompt;
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -129,30 +157,48 @@ export function PromptInput({
     }
   };
 
+  const isLanding = variant === "landing";
+
   return (
-    <div className="flex flex-col gap-2">
-      <h2 className="text-sm font-medium text-[#888]">Prompt</h2>
+    <div
+      className={
+        isLanding
+          ? "flex flex-col items-center justify-center flex-1 px-4"
+          : "flex flex-col gap-2"
+      }
+    >
+      {isLanding && (
+        <h1 className="text-5xl font-bold text-white mb-10 text-center">
+          What do you want to create?
+        </h1>
+      )}
+
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-3 p-4 bg-[#1a1a1a] rounded-md"
+        className={isLanding ? "w-full max-w-3xl" : ""}
       >
-        <div className="flex gap-2">
+        <div className="bg-[#1a1a1a] rounded-xl border border-[#333] p-4">
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Describe your animation... (e.g., 'A bouncing ball')"
-            className="flex-1 px-4 py-2 rounded-lg border border-[#333] bg-[#0f0f0f] text-white text-sm font-sans placeholder:text-[#666] focus:outline-none focus:border-[#555] resize-none min-h-[4.5rem] max-h-[200px] overflow-y-auto"
+            placeholder="Describe your animation..."
+            className={`w-full bg-transparent text-white placeholder:text-[#666] focus:outline-none resize-none overflow-y-auto ${
+              isLanding
+                ? "text-base min-h-[60px] max-h-[200px]"
+                : "text-sm min-h-[40px] max-h-[150px]"
+            }`}
             style={{ fieldSizing: "content" } as React.CSSProperties}
             disabled={isLoading}
           />
-          <div className="flex flex-col gap-2">
+
+          <div className="flex justify-between items-center mt-3 pt-3 border-t border-[#333]">
             <Select
               value={model}
               onValueChange={(value) => setModel(value as ModelId)}
               disabled={isLoading}
             >
-              <SelectTrigger className="w-[160px] bg-[#0f0f0f] border-[#333] text-white">
+              <SelectTrigger className="w-auto bg-transparent border-none text-[#888] hover:text-white transition-colors">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-[#1a1a1a] border-[#333]">
@@ -167,33 +213,17 @@ export function PromptInput({
                 ))}
               </SelectContent>
             </Select>
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="w-full">
-                    <button
-                      type="submit"
-                      disabled={isLoading || !prompt.trim() || !hasApiKey}
-                      className="w-full px-4 py-2 rounded border-none bg-indigo-500 text-white text-sm font-medium cursor-pointer font-sans transition-colors hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center gap-1"
-                    >
-                      {isLoading ? (
-                        "Generating..."
-                      ) : (
-                        <>
-                          <span>Generate</span>
-                          <span className="flex items-center gap-0.5 text-[10px] text-indigo-200/70">
-                            <kbd className="px-0.5 bg-indigo-600/40 rounded font-mono">
-                              ⌘
-                            </kbd>
-                            <span>+</span>
-                            <kbd className="px-0.5 bg-indigo-600/40 rounded font-mono">
-                              Enter
-                            </kbd>
-                          </span>
-                        </>
-                      )}
-                    </button>
-                  </div>
+                  <button
+                    type="submit"
+                    disabled={isLoading || !prompt.trim() || !hasApiKey}
+                    className="p-2 rounded-lg bg-white text-black hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    <ArrowUp className="w-5 h-5" />
+                  </button>
                 </TooltipTrigger>
                 {!hasApiKey && isLoaded && (
                   <TooltipContent>
@@ -206,22 +236,31 @@ export function PromptInput({
             </TooltipProvider>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-[#666]">Try these:</span>
-          {examplePrompts.map((example) => (
-            <button
-              key={example.id}
-              type="button"
-              onClick={() => setPrompt(example.prompt)}
-              style={{
-                borderColor: `${example.color}40`,
-                color: example.color,
-              }}
-              className="px-2 py-1 text-xs rounded-full bg-[#252525] border hover:brightness-125 transition-all"
-            >
-              {example.headline}
-            </button>
-          ))}
+
+        <div
+          className={`flex flex-wrap items-center gap-1.5 mt-3 ${
+            isLanding ? "justify-center mt-6 gap-2" : ""
+          }`}
+        >
+          <span className="text-[#666] text-xs mr-1">Try</span>
+          {examplePrompts.map((example) => {
+            const Icon = iconMap[example.icon];
+            return (
+              <button
+                key={example.id}
+                type="button"
+                onClick={() => setPrompt(example.prompt)}
+                style={{
+                  borderColor: `${example.color}40`,
+                  color: example.color,
+                }}
+                className={`rounded-full bg-[#1a1a1a] border hover:brightness-125 transition-all flex items-center gap-1 px-1.5 py-0.5 text-[11px]`}
+              >
+                {Icon && <Icon className={isLanding ? "w-3 h-3" : "w-3 h-3"} />}
+                {example.headline}
+              </button>
+            );
+          })}
         </div>
       </form>
     </div>

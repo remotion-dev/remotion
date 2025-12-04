@@ -17,6 +17,8 @@ const Home: NextPage = () => {
   const [fps, setFps] = useState(examples[0]?.fps || 30);
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamPhase, setStreamPhase] = useState<StreamPhase>("idle");
+  const [hasStartedGeneration, setHasStartedGeneration] = useState(false);
+  const [prompt, setPrompt] = useState("");
 
   const { code, Component, error, isCompiling, setCode, compileCode } =
     useAnimationState(examples[0]?.code || "");
@@ -72,6 +74,39 @@ const Home: NextPage = () => {
     };
   }, []);
 
+  const handleStreamingChange = useCallback(
+    (streaming: boolean) => {
+      setIsStreaming(streaming);
+      if (streaming && !hasStartedGeneration) {
+        setHasStartedGeneration(true);
+      }
+    },
+    [hasStartedGeneration],
+  );
+
+  if (!hasStartedGeneration) {
+    return (
+      <div className="h-screen w-screen bg-[#0a0a0a] flex flex-col">
+        <div className="flex items-center py-6 px-12">
+          <div className="flex items-center gap-3">
+            <Image src="/logo.png" alt="Remotion" width={32} height={32} />
+            <span className="text-xl font-bold text-white font-sans">
+              Remotion Code Generation
+            </span>
+          </div>
+        </div>
+        <PromptInput
+          variant="landing"
+          onCodeGenerated={handleCodeChange}
+          onStreamingChange={handleStreamingChange}
+          onStreamPhaseChange={setStreamPhase}
+          prompt={prompt}
+          onPromptChange={setPrompt}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#0a0a0a]">
       <div className="flex-1 flex flex-col min-w-0 py-8 px-12 rounded-md gap-8">
@@ -108,8 +143,10 @@ const Home: NextPage = () => {
 
         <PromptInput
           onCodeGenerated={handleCodeChange}
-          onStreamingChange={setIsStreaming}
+          onStreamingChange={handleStreamingChange}
           onStreamPhaseChange={setStreamPhase}
+          prompt={prompt}
+          onPromptChange={setPrompt}
         />
       </div>
     </div>
