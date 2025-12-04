@@ -20,16 +20,9 @@ LAYOUT RULES:
 - Ensure diagrams span edge-to-edge with appropriate padding (e.g., padding: 40px)
 - Never constrain diagrams to a small centered box - maximize the visual space
 
-COLOR PALETTE RULES (CRITICAL):
-- Use AT MOST 4 distinct colors in the entire animation
-- Define these colors as constants at the top of the component
-- Reuse these colors consistently throughout all elements
-- Create a cohesive, harmonious color scheme
-- Example:
-  const COLOR_PRIMARY = "#ff6b6b";
-  const COLOR_SECONDARY = "#4ecdc4";
-  const COLOR_ACCENT = "#ffe66d";
-  const COLOR_BACKGROUND = "#1a1a2e";
+COLOR RULES:
+- Keep colors minimal (2-4 colors max) and define them as constants at the top
+- Example: const COLOR_TEXT = "#000000"; const COLOR_HIGHLIGHT = "#A7C7E7";
 
 TEXT CONTENT RULES (CRITICAL):
 - ALL text strings that appear in the animation MUST be defined as constants at the top
@@ -51,45 +44,289 @@ ANIMATION TIMING RULES:
   const ELEMENT_DELAY = 5;      // Delay between elements in frames
   const ROTATION_SPEED = 180;   // Degrees of rotation
 
-Example response:
+ADDITIONAL CONSTANTS TO DEFINE:
+- Typography: FONT_SIZE, FONT_WEIGHT, LETTER_SPACING
+- Layout: ROW_GAP, PADDING, BORDER_RADIUS, MAX_WIDTH_PERCENT
+- Spring physics: BOUNCE_DAMPING, BOUNCE_MASS, BOUNCE_STIFFNESS
+- Derived timing: Calculate from other constants (e.g., MSG2_START = MSG1_START + DURATION + DELAY)
+- Responsive: Use Math.max(minValue, Math.round(width * percentage)) for responsive sizing
+
+ANIMATION QUALITY RULES (CRITICAL):
+- PREFER spring() over interpolate() for organic, natural motion
+- Use spring() for: entrances, bounces, highlights, scaling, any "snappy" movement
+- Use interpolate() only for: linear progress bars, opacity fades, or when exact timing control is needed
+- Example: const entrance = spring({fps, frame: frame - START_DELAY, config: {damping: 200, stiffness: 120}, durationInFrames: 20});
+
+LAYERING & CROSSFADE TECHNIQUES:
+- For text that changes appearance (e.g., gets highlighted), use TWO overlapping layers that crossfade
+- Never abruptly switch styles - always transition smoothly
+
+PACING & DRAMATIC TIMING:
+- Add intentional PAUSES between animation phases for dramatic effect
+- Use delays like WAIT_AFTER_X_SECONDS for natural pacing
+- Example: const PAUSE_FRAMES = Math.round(fps * 1.0); // 1 second pause
+
+CONTAINER ANIMATIONS:
+- Add subtle entrance animations to the entire container (e.g., scale from 0.98 to 1.0 with spring)
+
+TYPEWRITER EFFECTS (CRITICAL):
+- For typewriter/typing animations, use string slicing: typedText = FULL_TEXT.slice(0, typedChars)
+- NEVER render all characters with varying opacity - this breaks cursor positioning
+- The cursor must appear immediately after the last typed character
+- Simple pattern: <span>{typedText}</span><span style={{opacity: caretOpacity}}>{CARET}</span>
+---
+EXAMPLE 1: Typewriter with highlight (advanced)
+
+Prompt: "Text with typewriter effect, pause mid-sentence, then highlight a word"
 
 /*
- * A simple animated greeting with a title that fades in smoothly.
- * The text uses spring physics for a natural, bouncy appearance.
+ * Typewriter with blinking cursor, dramatic pause, spring-based highlight, and layer crossfade.
  */
-
 const frame = useCurrentFrame();
-// Color palette - max 4 colors
-const COLOR_BACKGROUND = "#0f0f23";
-const COLOR_PRIMARY = "#ff6b6b";
-const COLOR_SECONDARY = "#4ecdc4";
-const COLOR_ACCENT = "#ffe66d";
+const {fps} = useVideoConfig();
 
-// Text content - all strings as constants
-const TITLE_TEXT = "Hello World";
-const SUBTITLE_TEXT = "Welcome to the animation";
+const COLOR_TEXT = "#000000";
+const COLOR_HIGHLIGHT = "#A7C7E7";
 
-// Animation timing
-const ANIMATION_SPEED = 1.0;
-const FADE_IN_DURATION = 20;
-const TITLE_DELAY = 10;
+const FULL_TEXT = "From prompt to motion graphics. This is Veloce.";
+const HIGHLIGHT_WORD = "Veloce";
+const CARET_SYMBOL = "▌";
+const SPLIT_AFTER = " This is Veloce."; // Phrase to delay before typing
 
-// Apply speed multiplier to frame
-const adjustedFrame = frame * ANIMATION_SPEED;
+const FONT_SIZE = 72;
+const FONT_WEIGHT = 700;
+const CHAR_FRAMES = 2;
+const CURSOR_BLINK_FRAMES = 16;
+const HIGHLIGHT_DELAY = 6;
+const HIGHLIGHT_WIPE_DURATION = 18;
+const CROSSFADE_DURATION = 8;
+const WAIT_AFTER_PRE_SECONDS = 1; // Dramatic pause mid-sentence
 
-const titleOpacity = interpolate(
-  adjustedFrame,
-  [TITLE_DELAY, TITLE_DELAY + FADE_IN_DURATION],
-  [0, 1],
-  { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-);
+const WAIT_AFTER_PRE_FRAMES = Math.round(fps * WAIT_AFTER_PRE_SECONDS);
+const f = frame;
+
+// Split point for pause
+const splitIndex = FULL_TEXT.indexOf(SPLIT_AFTER);
+const preLen = splitIndex >= 0 ? splitIndex : FULL_TEXT.length;
+const postLen = FULL_TEXT.length - preLen;
+
+// Typewriter with pause
+let typedChars = 0;
+if (f < preLen * CHAR_FRAMES) {
+  typedChars = Math.floor(f / CHAR_FRAMES);
+} else if (f < preLen * CHAR_FRAMES + WAIT_AFTER_PRE_FRAMES) {
+  typedChars = preLen;
+} else {
+  const postPhase = f - preLen * CHAR_FRAMES - WAIT_AFTER_PRE_FRAMES;
+  typedChars = Math.min(FULL_TEXT.length, preLen + Math.floor(postPhase / CHAR_FRAMES));
+}
+const typedText = FULL_TEXT.slice(0, typedChars);
+const typingDone = typedChars >= FULL_TEXT.length;
+
+// Caret blink (smooth)
+const caretOpacity = !typingDone
+  ? interpolate(f % CURSOR_BLINK_FRAMES, [0, CURSOR_BLINK_FRAMES / 2, CURSOR_BLINK_FRAMES], [1, 0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})
+  : 0;
+
+// Highlight segmentation
+const highlightIndex = FULL_TEXT.indexOf(HIGHLIGHT_WORD);
+const hasHighlight = highlightIndex >= 0;
+const preText = hasHighlight ? FULL_TEXT.slice(0, highlightIndex) : FULL_TEXT;
+const postText = hasHighlight ? FULL_TEXT.slice(highlightIndex + HIGHLIGHT_WORD.length) : "";
+
+// Timing
+const typeEnd = preLen * CHAR_FRAMES + WAIT_AFTER_PRE_FRAMES + postLen * CHAR_FRAMES;
+const highlightStart = typeEnd + HIGHLIGHT_DELAY;
+
+const typedOpacity = interpolate(f, [highlightStart - CROSSFADE_DURATION, highlightStart + CROSSFADE_DURATION], [1, 0], {extrapolateLeft: "clamp", extrapolateRight: "clamp"});
+const finalOpacity = interpolate(f, [highlightStart, highlightStart + CROSSFADE_DURATION], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"});
+
+// Container entrance with spring
+const entrance = spring({fps, frame: f, config: {damping: 200, stiffness: 120}, durationInFrames: 20});
+const containerScale = interpolate(entrance, [0, 1], [0.98, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"});
+
+// Highlight with spring (smoother than interpolate)
+const highlightProgress = spring({fps, frame: f - highlightStart, config: {damping: 200, stiffness: 180}, durationInFrames: HIGHLIGHT_WIPE_DURATION});
+const highlightScaleX = Math.max(0, Math.min(1, highlightProgress));
 
 return (
-  <AbsoluteFill style={{backgroundColor: COLOR_BACKGROUND}}>
-    <div style={{color: COLOR_PRIMARY, fontSize: 48, opacity: titleOpacity}}>{TITLE_TEXT}</div>
-    <div style={{color: COLOR_SECONDARY, fontSize: 32}}>{SUBTITLE_TEXT}</div>
+  <AbsoluteFill style={{display: "flex", alignItems: "center", justifyContent: "center", transform: \`scale(\${containerScale})\`}}>
+    <div style={{position: "relative"}}>
+      {/* Typing layer */}
+      <div style={{color: COLOR_TEXT, fontSize: FONT_SIZE, fontWeight: FONT_WEIGHT, lineHeight: 1.15, whiteSpace: "pre-wrap", opacity: typedOpacity}}>
+        <span>{typedText}</span>
+        <span style={{opacity: caretOpacity}}>{CARET_SYMBOL}</span>
+      </div>
+      {/* Final layer with highlight */}
+      <div style={{position: "absolute", inset: 0, color: COLOR_TEXT, fontSize: FONT_SIZE, fontWeight: FONT_WEIGHT, lineHeight: 1.15, whiteSpace: "pre-wrap", opacity: finalOpacity}}>
+        {hasHighlight ? (
+          <>
+            <span>{preText}</span>
+            <span style={{position: "relative", display: "inline-block"}}>
+              <span style={{
+                position: "absolute", left: 0, right: 0, top: "50%", height: "1.05em",
+                transform: \`translateY(-50%) scaleX(\${highlightScaleX})\`,
+                transformOrigin: "left center", backgroundColor: COLOR_HIGHLIGHT, borderRadius: "0.18em", zIndex: 0
+              }} />
+              <span style={{position: "relative", zIndex: 1}}>{HIGHLIGHT_WORD}</span>
+            </span>
+            <span>{postText}</span>
+          </>
+        ) : (
+          <span>{FULL_TEXT}</span>
+        )}
+      </div>
+    </div>
   </AbsoluteFill>
+);
+---
+EXAMPLE 2: Chat bubbles
+
+Prompt: "WhatsApp-style chat with messages appearing one by one"
+
+/*
+ * Chat conversation with bubbles sliding in with spring animation.
+ */
+const frame = useCurrentFrame();
+const {fps, width, height} = useVideoConfig();
+
+const COLOR_BACKGROUND = "#0b141a";
+const COLOR_SENT = "#1f8a70";
+const COLOR_RECEIVED = "#202c33";
+const COLOR_TEXT = "#e9edef";
+
+const MSG_1 = "Hey, how are you?";
+const MSG_2 = "Great, thanks!";
+const MSG_3 = "Want to grab coffee?";
+
+const FONT_SIZE = 44;
+const FADE_DURATION = 18;
+const STAGGER_DELAY = 38;
+const SLIDE_DISTANCE = 40;
+const BOUNCE_DAMPING = 12;
+const BOUNCE_STIFFNESS = 170;
+const BUBBLE_RADIUS = 18;
+const BUBBLE_PADDING_X = 24;
+const BUBBLE_PADDING_Y = 18;
+const ROW_GAP = 22;
+const MAX_WIDTH_PERCENT = 72;
+
+// Derived timing
+const MSG1_START = 0;
+const MSG2_START = MSG1_START + FADE_DURATION + STAGGER_DELAY;
+const MSG3_START = MSG2_START + FADE_DURATION + STAGGER_DELAY;
+
+// Helper component for repeated bubbles
+const MessageRow = ({text, align, start}) => {
+  const local = frame - start;
+  const opacity = interpolate(local, [0, FADE_DURATION], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"});
+  const bounce = spring({frame: Math.max(0, local), fps, damping: BOUNCE_DAMPING, stiffness: BOUNCE_STIFFNESS});
+  const scale = interpolate(bounce, [0, 1], [0.98, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"});
+  const xFrom = align === "right" ? SLIDE_DISTANCE : -SLIDE_DISTANCE;
+  const tx = interpolate(opacity, [0, 1], [xFrom, 0], {extrapolateLeft: "clamp", extrapolateRight: "clamp"});
+  const bubbleBg = align === "right" ? COLOR_SENT : COLOR_RECEIVED;
+
+  return (
+    <div style={{width: "100%", display: "flex", justifyContent: align === "right" ? "flex-end" : "flex-start", marginTop: ROW_GAP}}>
+      <div style={{
+        maxWidth: \`\${MAX_WIDTH_PERCENT}%\`,
+        backgroundColor: bubbleBg,
+        color: COLOR_TEXT,
+        padding: \`\${BUBBLE_PADDING_Y}px \${BUBBLE_PADDING_X}px\`,
+        borderRadius: BUBBLE_RADIUS,
+        fontSize: FONT_SIZE,
+        opacity,
+        transform: \`translateX(\${tx}px) scale(\${scale})\`,
+        transformOrigin: align === "right" ? "100% 100%" : "0% 100%"
+      }}>
+        {text}
+      </div>
+    </div>
+  );
 };
+
+return (
+  <AbsoluteFill style={{
+    backgroundColor: COLOR_BACKGROUND,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+    padding: Math.max(36, Math.round(width * 0.04))
+  }}>
+    <div style={{flex: 1}} />
+    <MessageRow text={MSG_1} align="left" start={MSG1_START} />
+    <MessageRow text={MSG_2} align="right" start={MSG2_START} />
+    <MessageRow text={MSG_3} align="left" start={MSG3_START} />
+    <div style={{height: Math.max(20, Math.round(height * 0.02))}} />
+  </AbsoluteFill>
+);
+
+---
+
+EXAMPLE 3: Rotating word carousel
+
+Prompt: "Text that dissolves between different words"
+
+/*
+ * Prefix text with rotating words that crossfade with blur.
+ */
+const frame = useCurrentFrame();
+
+const COLOR_TEXT = "#7b92c1";
+const PREFIX = "Created for";
+const WORDS = ["Creators", "Marketers", "Developers", "Everyone"];
+
+const PREFIX_FONT_SIZE = 80;
+const WORD_FONT_SIZE = 80;
+const PREFIX_WEIGHT = 300;
+const WORD_WEIGHT = 700;
+const WORD_GAP = 20;
+const HOLD_DURATION = 32;
+const FLIP_DURATION = 18;
+const BLUR_AMOUNT = 6;
+
+const perStep = HOLD_DURATION + FLIP_DURATION;
+const totalSteps = WORDS.length;
+const currentStep = Math.floor(frame / perStep) % totalSteps;
+const nextStep = (currentStep + 1) % totalSteps;
+const phase = frame % perStep;
+const isFlipping = phase >= HOLD_DURATION;
+const flipProgress = isFlipping ? (phase - HOLD_DURATION) / FLIP_DURATION : 0;
+
+const outOpacity = interpolate(flipProgress, [0, 1], [1, 0], {extrapolateLeft: "clamp", extrapolateRight: "clamp"});
+const inOpacity = interpolate(flipProgress, [0, 1], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"});
+const outBlur = interpolate(flipProgress, [0, 1], [0, BLUR_AMOUNT], {extrapolateLeft: "clamp", extrapolateRight: "clamp"});
+const inBlur = interpolate(flipProgress, [0, 1], [BLUR_AMOUNT, 0], {extrapolateLeft: "clamp", extrapolateRight: "clamp"});
+
+// Find longest word for stable width
+const longestWord = WORDS.reduce((a, b) => a.length >= b.length ? a : b, WORDS[0]);
+
+return (
+  <AbsoluteFill style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+    <div style={{display: "flex", alignItems: "baseline", gap: WORD_GAP, color: COLOR_TEXT}}>
+      <div style={{fontSize: PREFIX_FONT_SIZE, fontWeight: PREFIX_WEIGHT}}>{PREFIX}</div>
+      <div style={{position: "relative", fontSize: WORD_FONT_SIZE, fontWeight: WORD_WEIGHT}}>
+        {/* Invisible width keeper */}
+        <div style={{visibility: "hidden"}}>{longestWord}</div>
+        {/* Current word (fades out during flip) */}
+        {!isFlipping && (
+          <div style={{position: "absolute", left: 0, top: 0}}>{WORDS[currentStep]}</div>
+        )}
+        {/* Crossfade during flip */}
+        {isFlipping && (
+          <>
+            <div style={{position: "absolute", left: 0, top: 0, opacity: outOpacity, filter: \`blur(\${outBlur}px)\`}}>
+              {WORDS[currentStep]}
+            </div>
+            <div style={{position: "absolute", left: 0, top: 0, opacity: inOpacity, filter: \`blur(\${inBlur}px)\`}}>
+              {WORDS[nextStep]}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  </AbsoluteFill>
+);
 `;
 
 export async function POST(req: Request) {
@@ -109,20 +346,31 @@ export async function POST(req: Request) {
     });
   }
 
+  // Parse model ID - format can be "model-name" or "model-name:reasoning_effort"
+  const [modelName, reasoningEffort] = model.split(":");
+
   const openai = createOpenAI({ apiKey });
 
   try {
     const result = streamText({
-      model: openai(model),
+      model: openai(modelName),
       system: SYSTEM_PROMPT,
       prompt,
+      ...(reasoningEffort && {
+        providerOptions: {
+          openai: {
+            reasoningEffort: reasoningEffort,
+          },
+        },
+      }),
     });
 
     console.log(
       "Generating React component with prompt:",
       prompt,
       "model:",
-      model,
+      modelName,
+      reasoningEffort ? `reasoning_effort: ${reasoningEffort}` : "",
     );
 
     return result.toTextStreamResponse();

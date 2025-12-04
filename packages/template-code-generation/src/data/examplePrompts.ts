@@ -2,19 +2,16 @@ export const examplePrompts = [
   {
     id: "text-typewriter",
     headline: "Typewriter text",
-    prompt: `
-Generate the text "Hello world" with world in yellow highlighting. Do not render any background. That words should be shown next to each other and rendered in black
+    prompt: `Generate the text "Hello world" with world in yellow highlighting. Do not render any background. That words should be shown next to each other and rendered in black
 
-Animation: Let the words fade in from left to right and then highlight "world" yellow. Mimic a typewriter effect for the text appearance with a blinking cursor at the end of the text.
-      `,
+Animation: Let the words fade in from left to right and then highlight "world" yellow. Mimic a typewriter effect for the text appearance with a blinking cursor at the end of the text.`,
     color: "#fdba74",
   },
   {
     id: "chat-bubbles",
     headline: "Chat messages",
     prompt: `WhatsApp-style chat bubbles that appear one by one with a bouncy spring animation, alternating between sent and received messages.
-Use green for sent messages and gray for received messages. Position them on left and right sides respectively.
-      `,
+Use green for sent messages and gray for received messages. Position them on left and right sides respectively.`,
     color: "#86efac",
   },
   {
@@ -29,7 +26,7 @@ Show all metrics at the same time, use this color #fde047. Focus on no overlaps 
     id: "bar-chart",
     headline: "Bar chart",
     prompt: `An animated histogram with the gold price for the following data:
-      {
+{
   "title": "Gold Price 2024",
   "unit": "USD per troy ounce",
   "data": [
@@ -46,9 +43,7 @@ Show all metrics at the same time, use this color #fde047. Focus on no overlaps 
     { "month": "Nov", "price": 2672 },
     { "month": "Dec", "price": 2650 }
   ]
-}
-
-      `,
+}`,
     color: "#a5b4fc",
   },
   {

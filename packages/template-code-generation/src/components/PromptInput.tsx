@@ -20,8 +20,10 @@ import { examplePrompts } from "@/data/examplePrompts";
 const MODELS = [
   { id: "gpt-5-mini", name: "GPT-5 Mini" },
   { id: "gpt-5.1-codex", name: "GPT-5.1 Codex" },
-  { id: "gpt-5.1-codex-mini", name: "GPT-5.1 Codex Mini" },
-  { id: "gpt-5.1", name: "GPT-5.1" },
+  { id: "gpt-5.1:none", name: "GPT-5.1 (No Reasoning)" },
+  { id: "gpt-5.1:low", name: "GPT-5.1 (Low Reasoning)" },
+  { id: "gpt-5.1:medium", name: "GPT-5.1 (Medium Reasoning)" },
+  { id: "gpt-5.1:high", name: "GPT-5.1 (High Reasoning)" },
 ] as const;
 
 type ModelId = (typeof MODELS)[number]["id"];
@@ -37,7 +39,7 @@ export function PromptInput({
 }: PromptInputProps) {
   const { apiKey, hasApiKey, isLoaded } = useApiKeyContext();
   const [prompt, setPrompt] = useState("");
-  const [model, setModel] = useState<ModelId>("gpt-5-mini");
+  const [model, setModel] = useState<ModelId>("gpt-5.1:low");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
