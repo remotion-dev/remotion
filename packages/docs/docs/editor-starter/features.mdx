@@ -240,6 +240,12 @@ Feature flag: [`FEATURE_DIMENSIONS_CONTROL`](https://github.com/search?q=repo%3A
 
 Allows setting the width and height of the item.
 
+### Cropping controls
+
+Feature flag: [`FEATURE_CROP_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_CROP_CONTROL&type=code)
+
+Allows setting the [crop values](/docs/editor-starter/cropping) of the item.
+
 ### Keep Aspect ratio control
 
 Feature flag: [`FEATURE_KEEP_ASPECT_RATIO_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_KEEP_ASPECT_RATIO_CONTROL&type=code)
@@ -386,6 +392,24 @@ Feature flag: [`FEATURE_CAPTIONS_HIGHLIGHT_COLOR_CONTROL`](https://github.com/se
 
 A control allowing to set the color of the currently spoken word in a caption page.
 
+### Text background
+
+Feature flag: [`FEATURE_TEXT_BACKGROUND_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_TEXT_BACKGROUND_CONTROL&type=code)
+
+A control allowing to set the background color of a text item.
+
+### Text background horizontal padding
+
+Feature flag: [`FEATURE_TEXT_BACKGROUND_HORIZONTAL_PADDING_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_TEXT_BACKGROUND_HORIZONTAL_PADDING_CONTROL&type=code)
+
+A control allowing to set the horizontal padding of the background of a text item.
+
+### Text background border radius
+
+Feature flag: [`FEATURE_TEXT_BACKGROUND_BORDER_RADIUS_CONTROL`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_TEXT_BACKGROUND_BORDER_RADIUS_CONTROL&type=code)
+
+A control allowing to set the border radius of the background of a text item.
+
 ## Playback
 
 ### Play / Pause button
@@ -509,6 +533,24 @@ Feature flags: [`FEATURE_BRING_TO_FRONT`](https://github.com/search?q=repo%3Arem
 
 Right-clicking on an item shows a menu with options to bring the item to front or send it to back.
 
+## Cropping
+
+Feature flag: [`FEATURE_CROPPING`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_CROPPING&type=code)
+
+Enables [cropping](/docs/editor-starter/cropping) functionality.
+
+### Double-click to crop
+
+Feature flag: [`FEATURE_DOUBLE_CLICK_TO_CROP`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_DOUBLE_CLICK_TO_CROP&type=code)
+
+By double-clicking an item that is croppable on the canvas, [Crop Mode](/docs/editor-starter/cropping#crop-mode) is activated, replacing resize handles with crop handles.
+
+### Crop backgrounds
+
+Feature flag: [`FEATURE_CROP_BACKGROUNDS`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_CROP_BACKGROUNDS&type=code)
+
+When in [Crop Mode](/docs/editor-starter/cropping#crop-mode), the full uncropped item is shown in the background with reduced opacity, to help the user visualize the cutout area.
+
 ## Behaviors
 
 ### Cut, copy, paste, duplicate items
@@ -589,6 +631,15 @@ Enables UI for [rendering](/docs/editor-starter/rendering) the current compositi
 Feature flag: [`FEATURE_RENDERING_CODEC_SELECTOR`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_RENDERING_CODEC_SELECTOR&type=code)
 
 Allows selecting the codec (MP4 / WebM) for rendering.
+
+## Media
+
+### Enable new Media tags
+
+Feature flag: [`FEATURE_NEW_MEDIA_TAGS`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_NEW_MEDIA_TAGS&type=code)
+
+Enables the new [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) tags.  
+Leads to smoother playback and faster rendering, [but may have some rough edges](https://github.com/remotion-dev/remotion/issues/5650).
 
 ## Keyboard shortcuts
 

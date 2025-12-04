@@ -20,6 +20,7 @@ export const BooleanFlags = [
 	'yes',
 	'y',
 	'disable-web-security',
+	BrowserSafeApis.options.darkModeOption.cliFlag,
 	'ignore-certificate-errors',
 	'disable-headless',
 	'disable-keyboard-shortcuts',

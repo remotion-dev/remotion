@@ -74,6 +74,7 @@ export const getWaveAudioDecoder = ({
 			data.byteLength / bytesPerSample / config.numberOfChannels;
 
 		const audioData = new AudioData({
+			// @ts-expect-error
 			data,
 			format: sampleFormat === 's16' ? 's16' : 's32',
 			numberOfChannels: config.numberOfChannels,

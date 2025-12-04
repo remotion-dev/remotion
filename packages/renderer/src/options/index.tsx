@@ -7,6 +7,7 @@ import {chromeModeOption} from './chrome-mode';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {enableCrossSiteIsolationOption} from './cross-site-isolation';
+import {darkModeOption} from './dark-mode';
 import {deleteAfterOption} from './delete-after';
 import {disableGitSourceOption} from './disable-git-source';
 import {disallowParallelEncodingOption} from './disallow-parallel-encoding';
@@ -93,6 +94,7 @@ export const allOptions = {
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
 	mediaCacheSizeInBytesOption,
+	darkModeOption,
 };
 
 export type AvailableOptions = keyof typeof allOptions;

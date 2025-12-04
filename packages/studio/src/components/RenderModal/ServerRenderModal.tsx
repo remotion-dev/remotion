@@ -167,6 +167,7 @@ type RenderModalProps = {
 	readonly initialIgnoreCertificateErrors: boolean;
 	readonly initialOffthreadVideoCacheSizeInBytes: number | null;
 	readonly initialMediaCacheSizeInBytes: number | null;
+	readonly initialDarkMode: boolean;
 	readonly initialHeadless: boolean;
 	readonly initialColorSpace: ColorSpace;
 	readonly initialEncodingMaxRate: string | null;
@@ -223,6 +224,7 @@ const RenderModal: React.FC<
 	initialEncodingMaxRate,
 	initialOffthreadVideoThreads,
 	initialMediaCacheSizeInBytes,
+	initialDarkMode,
 	initialUserAgent,
 	defaultProps,
 	inFrameMark,
@@ -357,6 +359,7 @@ const RenderModal: React.FC<
 		useState<boolean>(() => initialIgnoreCertificateErrors);
 	const [multiProcessOnLinux, setChromiumMultiProcessOnLinux] =
 		useState<boolean>(() => initialMultiProcessOnLinux);
+	const [darkMode, setDarkMode] = useState<boolean>(() => initialDarkMode);
 	const [openGlOption, setOpenGlOption] = useState<UiOpenGlOptions>(
 		() => initialGl ?? 'default',
 	);
@@ -378,6 +381,7 @@ const RenderModal: React.FC<
 			userAgent:
 				userAgent === null ? null : userAgent.trim() === '' ? null : userAgent,
 			enableMultiProcessOnLinux: multiProcessOnLinux,
+			darkMode,
 		};
 	}, [
 		headless,
@@ -386,6 +390,7 @@ const RenderModal: React.FC<
 		openGlOption,
 		userAgent,
 		multiProcessOnLinux,
+		darkMode,
 	]);
 
 	const [outName, setOutName] = useState(() => initialOutName);
@@ -1421,6 +1426,8 @@ const RenderModal: React.FC<
 							setHardwareAcceleration={setHardwareAcceleration}
 							chromeModeOption={chromeMode}
 							setChromeModeOption={setChromeMode}
+							darkMode={darkMode}
+							setDarkMode={setDarkMode}
 						/>
 					)}
 				</div>

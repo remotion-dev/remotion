@@ -44,6 +44,7 @@ export type EditorState = {
   selectedItems: string[];
   textItemEditing: string | null;
   textItemHoverPreview: TextItemHoverPreview | null;
+  itemSelectedForCrop: string | null;
   renderingTasks: RenderingTask[];
   captioningTasks: CaptioningTask[];
   initialized: boolean;
@@ -64,6 +65,7 @@ export type EditorState = {
 - `selectedItems`: An array of item IDs that are currently selected.
 - `textItemEditing`: The ID of the text item that is currently being edited, if there is one.
 - `textItemHoverPreview`: Preview updates of a text item (for example if a font is hovered in the font picker, the text will render temporarily with the font hovered).
+- `itemSelectedForCrop`: The ID of the item that is currently in [Crop Mode](/docs/editor-starter/cropping#crop-mode), if there is one.
 - `renderingTasks`: The state of the rendering process.
 - `captioningTasks`: The state of captioning process.
 - `initialized`: Whether the editor has been initialized, if not initialized, canvas will not be visible.

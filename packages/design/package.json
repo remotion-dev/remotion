@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/design",
-	"version": "4.0.376",
+	"version": "4.0.382",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -36,7 +36,8 @@
 		"eslint": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"tailwindcss": "4.1.10",
+		"tailwindcss": "4.1.1",
+		"@tailwindcss/cli": "4.1.1",
 		"tailwind-merge": "^2.6.0",
 		"bun-plugin-tailwind": "0.1.2"
 	},
@@ -53,7 +54,7 @@
 		},
 		"./package.json": "./package.json",
 		"./register": "./index.css",
-		"./tailwind.css": "./dist/esm/index.css"
+		"./tailwind.css": "./dist/tailwind.css"
 	},
 	"description": "Design system",
 	"homepage": "https://www.remotion.dev/design"

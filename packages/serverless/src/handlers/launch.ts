@@ -71,10 +71,20 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const startedDate = Date.now();
 
+	const chromiumParams = {...params.chromiumOptions};
+
+	if (params.chromiumOptions.gl === 'angle') {
+		RenderInternals.Log.warn(
+			{indent: false, logLevel: params.logLevel},
+			'gl=angle is not supported in Lambda. Changing to gl=swangle instead.',
+		);
+		chromiumParams.gl = 'swangle';
+	}
+
 	const browserInstance = insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
-		chromiumOptions: params.chromiumOptions,
+		chromiumOptions: chromiumParams,
 		providerSpecifics,
 		insideFunctionSpecifics,
 	});

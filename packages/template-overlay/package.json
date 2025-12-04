@@ -12,17 +12,17 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
-    "@types/react": "19.0.0",
+    "@types/react": "19.2.7",
     "@types/web": "0.0.166",
     "eslint": "9.19.0",
     "prettier": "3.6.0",
-    "typescript": "5.8.2"
+    "typescript": "5.9.3"
   },
   "dependencies": {
     "@remotion/cli": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
     "remotion": "workspace:*"
   },
   "private": true

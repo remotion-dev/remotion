@@ -30,6 +30,10 @@ test('Extract accuracy over 100 frames with playback rate 1.75', async () => {
 			throw new Error(`Unknown container format at frame ${i}`);
 		}
 
+		if (audio === 'network-error') {
+			throw new Error(`Network error at frame ${i}`);
+		}
+
 		assert(audio);
 		assert(audio.data);
 

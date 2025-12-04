@@ -3801,6 +3801,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./KeaniaOne') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Kedebideri',
+		importName: 'Kedebideri',
+		load: () => import('./Kedebideri') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Kelly Slab',
 		importName: 'KellySlab',
 		load: () => import('./KellySlab') as Promise<GoogleFont>,
@@ -7565,6 +7570,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Schoolbell',
 		importName: 'Schoolbell',
 		load: () => import('./Schoolbell') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Science Gothic',
+		importName: 'ScienceGothic',
+		load: () => import('./ScienceGothic') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Scope One',

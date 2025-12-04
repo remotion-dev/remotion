@@ -9,6 +9,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 	Switch,
+	Textarea,
 } from '@remotion/design';
 import {useCallback, useState} from 'react';
 import {ManageTeamMembers} from './ManageTeamMembers';
@@ -139,6 +140,10 @@ export const DesignPage: React.FC = () => {
 				<br />
 				<h2 className="text-brand">&lt;Input /&gt;</h2>
 				<Input placeholder="Enter your email" />
+				<br />
+				<br />
+				<h2 className="text-brand">&lt;Textarea /&gt;</h2>
+				<Textarea placeholder="Enter your message" />
 				<br />
 				<br />
 				<br />

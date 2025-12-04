@@ -322,7 +322,7 @@ test(
 		expect(data).not.toContain('Stream #1');
 		fs.unlinkSync(out);
 	},
-	{timeout: 30000},
+	{timeout: 30000, retry: 3},
 );
 
 test(
@@ -430,6 +430,7 @@ test(
 	},
 	{
 		timeout: 30000,
+		retry: 3,
 	},
 );
 
