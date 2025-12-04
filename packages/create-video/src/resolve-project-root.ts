@@ -9,7 +9,6 @@ import prompts from './prompts';
 import {isTmpFlagSelected} from './select-template';
 import type {Template} from './templates';
 import {validateName} from './validate-name';
-import {yesOrNo} from './yesno';
 
 function assertValidName(folderName: string) {
 	const validation = validateName(folderName);
@@ -73,17 +72,12 @@ export const resolveProjectRoot = async (options?: {
 			const currentMs = Date.now();
 			const hour = 60 * 60 * 1000;
 			const dirCreateMs = (await stat(process.cwd())).ctimeMs;
-			const fileCount = (await readdir(process.cwd())).length;
+			const fileList = await readdir(process.cwd());
+			const fileCount = fileList.filter((f) => !f.startsWith('.')).length;
+
 			if (fileCount === 0 && currentMs - dirCreateMs < hour) {
-				Log.info(
-					chalk.yellowBright(
-						'We detected that this folder was recently created. Do you want to place the project here or in a new subfolder?',
-					),
-				);
-				directlyCreateInCurrentDir = await yesOrNo({
-					question: 'create project here ?',
-					defaultValue: true,
-				});
+				// User seems to have created a new directory which is empty, and cd'd into it. Let's create the project here!
+				directlyCreateInCurrentDir = true;
 			}
 
 			if (directlyCreateInCurrentDir) {
