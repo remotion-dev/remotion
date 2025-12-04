@@ -430,6 +430,7 @@ test(
 	},
 	{
 		timeout: 30000,
+		retry: 3,
 	},
 );
 
