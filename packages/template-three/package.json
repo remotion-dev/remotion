@@ -16,15 +16,15 @@
     "@remotion/media-utils": "workspace:*",
     "@remotion/three": "workspace:*",
     "@remotion/zod-types": "workspace:*",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
     "remotion": "workspace:*",
     "three": "0.178.0",
     "zod": "3.22.3"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
-    "@types/react": "19.0.0",
+    "@types/react": "19.2.7",
     "@types/three": "0.170.0",
     "@types/web": "0.0.166",
     "eslint": "9.19.0",
