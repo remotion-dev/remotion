@@ -373,7 +373,9 @@ export async function POST(req: Request) {
       reasoningEffort ? `reasoning_effort: ${reasoningEffort}` : "",
     );
 
-    return result.toTextStreamResponse();
+    return result.toUIMessageStreamResponse({
+      sendReasoning: true,
+    });
   } catch (error) {
     console.error("Error generating code:", error);
     return new Response(

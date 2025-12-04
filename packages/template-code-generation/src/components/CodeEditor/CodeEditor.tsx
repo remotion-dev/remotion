@@ -24,10 +24,13 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ),
 });
 
+type StreamPhase = "idle" | "reasoning" | "generating";
+
 interface CodeEditorProps {
   code: string;
   onChange: (value: string) => void;
   isStreaming?: boolean;
+  streamPhase?: StreamPhase;
 }
 
 const WRAPPER_PREFIX = `import * as Remotion from 'remotion';
@@ -46,6 +49,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   code,
   onChange,
   isStreaming = false,
+  streamPhase = "idle",
 }) => {
   const monacoRef = useRef<Monaco | null>(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
@@ -287,7 +291,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         <EditorHeader filename="MyAnimation.tsx" code={displayCode} />
       <style>{EDITOR_STYLES}</style>
       <div className="flex-1 overflow-hidden relative">
-        <StreamingOverlay visible={isStreaming} />
+        <StreamingOverlay
+          visible={isStreaming}
+          message={streamPhase === "reasoning" ? "Thinking..." : "Generating code..."}
+        />
         <ReadOnlyToast visible={showReadOnlyToast} />
         <MonacoEditor
           height="100%"

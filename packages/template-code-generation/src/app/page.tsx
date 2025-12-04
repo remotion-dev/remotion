@@ -5,7 +5,7 @@ import type { NextPage } from "next";
 import Image from "next/image";
 import { CodeEditor } from "../components/CodeEditor";
 import { AnimationPlayer } from "../components/AnimationPlayer";
-import { PromptInput } from "../components/PromptInput";
+import { PromptInput, type StreamPhase } from "../components/PromptInput";
 import { SettingsModal } from "../components/SettingsModal";
 import { examples } from "../templates";
 import { useAnimationState } from "../hooks/useAnimationState";
@@ -16,6 +16,7 @@ const Home: NextPage = () => {
   );
   const [fps, setFps] = useState(examples[0]?.fps || 30);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [streamPhase, setStreamPhase] = useState<StreamPhase>("idle");
 
   const { code, Component, error, isCompiling, setCode, compileCode } =
     useAnimationState(examples[0]?.code || "");
@@ -94,6 +95,7 @@ const Home: NextPage = () => {
             code={code}
             onChange={handleCodeChange}
             isStreaming={isStreaming}
+            streamPhase={streamPhase}
           />
           <AnimationPlayer
             Component={Component}
@@ -107,6 +109,7 @@ const Home: NextPage = () => {
         <PromptInput
           onCodeGenerated={handleCodeChange}
           onStreamingChange={setIsStreaming}
+          onStreamPhaseChange={setStreamPhase}
         />
       </div>
     </div>

@@ -28,14 +28,18 @@ const MODELS = [
 
 type ModelId = (typeof MODELS)[number]["id"];
 
+export type StreamPhase = "idle" | "reasoning" | "generating";
+
 interface PromptInputProps {
   onCodeGenerated: (code: string) => void;
   onStreamingChange?: (isStreaming: boolean) => void;
+  onStreamPhaseChange?: (phase: StreamPhase) => void;
 }
 
 export function PromptInput({
   onCodeGenerated,
   onStreamingChange,
+  onStreamPhaseChange,
 }: PromptInputProps) {
   const { apiKey, hasApiKey, isLoaded } = useApiKeyContext();
   const [prompt, setPrompt] = useState("");
@@ -48,6 +52,7 @@ export function PromptInput({
 
     setIsLoading(true);
     onStreamingChange?.(true);
+    onStreamPhaseChange?.("reasoning");
     try {
       const response = await fetch("/api/generate", {
         method: "POST",
@@ -66,28 +71,53 @@ export function PromptInput({
 
       const decoder = new TextDecoder();
       let accumulatedText = "";
+      let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        accumulatedText += decoder.decode(value, { stream: true });
+        buffer += decoder.decode(value, { stream: true });
 
-        // Strip markdown code block markers and show raw code during streaming
-        let codeToShow = accumulatedText;
+        // Parse SSE events from the buffer
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || ""; // Keep incomplete line in buffer
 
-        // Remove opening code fence (```tsx, ```jsx, ```, etc.)
-        codeToShow = codeToShow.replace(/^```(?:tsx?|jsx?)?\n?/, "");
-        // Remove closing code fence if present
-        codeToShow = codeToShow.replace(/\n?```\s*$/, "");
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6); // Remove "data: " prefix
 
-        onCodeGenerated(codeToShow.trim());
+          if (data === "[DONE]") continue;
+
+          try {
+            const event = JSON.parse(data);
+
+            // Track phase changes
+            if (event.type === "reasoning-start") {
+              onStreamPhaseChange?.("reasoning");
+            } else if (event.type === "text-start") {
+              onStreamPhaseChange?.("generating");
+            } else if (event.type === "text-delta") {
+              accumulatedText += event.delta;
+
+              // Strip markdown code block markers and show raw code during streaming
+              let codeToShow = accumulatedText;
+              codeToShow = codeToShow.replace(/^```(?:tsx?|jsx?)?\n?/, "");
+              codeToShow = codeToShow.replace(/\n?```\s*$/, "");
+
+              onCodeGenerated(codeToShow.trim());
+            }
+          } catch {
+            // Ignore parse errors for malformed JSON
+          }
+        }
       }
     } catch (error) {
       console.error("Error generating code:", error);
     } finally {
       setIsLoading(false);
       onStreamingChange?.(false);
+      onStreamPhaseChange?.("idle");
     }
   };
 
