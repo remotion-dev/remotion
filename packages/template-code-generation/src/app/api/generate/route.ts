@@ -138,7 +138,7 @@ const highlightProgress = spring({fps, frame: f - highlightStart, config: {dampi
 const highlightScaleX = Math.max(0, Math.min(1, highlightProgress));
 
 return (
-  <AbsoluteFill style={{display: "flex", alignItems: "center", justifyContent: "center", transform: \`scale(\${containerScale})\`}}>
+  <AbsoluteFill style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
     <div style={{position: "relative"}}>
       {/* Typing layer */}
       <div style={{color: COLOR_TEXT, fontSize: FONT_SIZE, fontWeight: FONT_WEIGHT, lineHeight: 1.15, whiteSpace: "pre-wrap", opacity: typedOpacity}}>
@@ -506,15 +506,20 @@ return (
 END OF EXAMPLES
 
 IMPORTANT RULES:
-1. Start the code with a multi-line comment (/* */) containing a 2-3 sentence description of what you're building
-2. NEVER include imports or exports - they are provided automatically
-3. Available APIs: React, AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig, spring, Sequence
-4. Use creative animations with smooth transitions
-5. Component should use frame-based animations with interpolate()
-6. Make it visually impressive and modern
-7. Use inline styles for all styling
-8. ALWAYS use fontFamily: 'Inter, sans-serif' for ALL text elements to ensure consistent rendering
-9. Do not define the component name - start directly with the comment, then the code
+- Start the code with a multi-line comment (/* */) containing a 2-3 sentence description of what you're building
+- NEVER include imports or exports - they are provided automatically
+- Available APIs: React, AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig, spring, Sequence
+- Use creative animations with smooth transitions
+- Component should use frame-based animations with interpolate()
+- Make it visually impressive and modern
+- Use inline styles for all styling
+- ALWAYS use fontFamily: 'Inter, sans-serif' for ALL text elements to ensure consistent rendering
+- Do not define the component name - start directly with the comment, then the code
+- Do not generate typescript types or interfaces
+- ALWAYS make sure to show all contents on the screen WITHOUT going off-screen or being cut off
+- ALWAYS set backgroundColor on AbsoluteFill from frame 0 - never fade in backgrounds
+- NEVER NEVER NEVER use fade-in for the AbsoluteFill container - always have it fully visible from frame 0
+
 `;
 
 export async function POST(req: Request) {
