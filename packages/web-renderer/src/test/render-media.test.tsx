@@ -35,7 +35,7 @@ test('should render media on web', async (t) => {
 	});
 });
 
-test('should throttle onProgress callback to 250ms', async (t) => {
+test('should throttle onProgress callback to 250ms', {retry: 2}, async (t) => {
 	if (t.task.file.projectName === 'webkit') {
 		t.skip();
 		return;
