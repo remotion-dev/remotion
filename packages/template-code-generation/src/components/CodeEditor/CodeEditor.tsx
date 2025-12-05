@@ -65,14 +65,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     isStreamingRef.current = isStreaming;
   }, [isStreaming]);
 
-  // Switch language based on streaming state
-  useEffect(() => {
-    const model = editorRef.current?.getModel();
-    if (model && monacoRef.current) {
-      const language = isStreaming ? "plaintext" : "javascript";
-      monacoRef.current.editor.setModelLanguage(model, language);
-    }
-  }, [isStreaming]);
+  // Derive language from streaming state
+  const editorLanguage = isStreaming ? "plaintext" : "javascript";
 
   // Continuously clear markers while streaming
   useEffect(() => {
@@ -298,7 +292,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         <ReadOnlyToast visible={showReadOnlyToast} />
         <MonacoEditor
           height="100%"
-          defaultLanguage="javascript"
+          language={editorLanguage}
           theme="vs-dark"
           value={displayCode}
           onChange={handleChange}
