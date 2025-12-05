@@ -1,5 +1,5 @@
 import type {ChangeEvent} from 'react';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Card} from './Card';
 import {cn} from './helpers/cn';
 
@@ -53,6 +53,17 @@ export const Counter: React.FC<CounterProps> = ({
 	minCount = 0,
 	step = 1,
 }) => {
+	// Local state to track the input value while typing
+	const [inputValue, setInputValue] = useState(String(count));
+	const [isFocused, setIsFocused] = useState(false);
+
+	// Update local input value when count changes from outside (e.g., increment/decrement)
+	useEffect(() => {
+		if (!isFocused) {
+			setInputValue(String(count));
+		}
+	}, [count, isFocused]);
+
 	const decrement = () => {
 		if (count > minCount) {
 			setCount(Math.max(minCount, count - step));
@@ -61,6 +72,29 @@ export const Counter: React.FC<CounterProps> = ({
 
 	const increment = () => {
 		setCount(count + step);
+	};
+
+	const validateAndSetCount = (value: string) => {
+		if (value.trim() === '') {
+			setCount(step === 1 ? 1 : minCount);
+			return;
+		}
+
+		const parsedValue = parseInt(value, 10);
+		if (isNaN(parsedValue)) {
+			setInputValue(String(count));
+			return;
+		}
+
+		const validValue = Math.max(parsedValue, minCount);
+
+		// For steps > 1, round to the nearest valid step
+		if (step > 1) {
+			const roundedValue = Math.round(validValue / step) * step;
+			setCount(Math.max(roundedValue, minCount));
+		} else {
+			setCount(validValue);
+		}
 	};
 
 	return (
@@ -74,23 +108,14 @@ export const Counter: React.FC<CounterProps> = ({
 				}
 				type="number"
 				onClick={(e) => e.currentTarget.select()}
-				value={count}
+				value={inputValue}
 				onChange={(e: ChangeEvent<HTMLInputElement>) => {
-					if (e.target.value.trim() === '') {
-						setCount(step === 1 ? 1 : minCount);
-						return;
-					}
-
-					const inputValue = parseInt(e.target.value, 10);
-					const validValue = Math.max(inputValue, minCount);
-
-					// For steps > 1, round to the nearest valid step
-					if (step > 1) {
-						const roundedValue = Math.round(validValue / step) * step;
-						setCount(Math.max(roundedValue, minCount));
-					} else {
-						setCount(validValue);
-					}
+					setInputValue(e.target.value);
+				}}
+				onFocus={() => setIsFocused(true)}
+				onBlur={() => {
+					setIsFocused(false);
+					validateAndSetCount(inputValue);
 				}}
 			/>
 			<div className="flex flex-col  h-full">
