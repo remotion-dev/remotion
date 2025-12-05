@@ -1,9 +1,8 @@
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { InputContainer } from "./Container";
+import { Input } from "@/components/ui/input";
 import { DownloadButton } from "./DownloadButton";
 import { ErrorComp } from "./Error";
-import { Input } from "./Input";
 import { ProgressBar } from "./ProgressBar";
 import { COMP_NAME, CompositionProps } from "../../types/constants";
 import { useRendering } from "../helpers/use-rendering";
@@ -16,15 +15,15 @@ export const RenderControls: React.FC<{
   const { renderMedia, state, undo } = useRendering(COMP_NAME, inputProps);
 
   return (
-    <InputContainer>
+    <div className="border border-unfocused-border-color p-geist rounded-geist bg-background flex flex-col">
       {state.status === "init" ||
       state.status === "invoking" ||
       state.status === "error" ? (
         <div className="flex flex-col gap-geist-quarter">
           <Input
             disabled={state.status === "invoking"}
-            setText={setText}
-            text={text}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
           />
           <div className="self-end">
             <Button
@@ -50,6 +49,6 @@ export const RenderControls: React.FC<{
           </div>
         </div>
       ) : null}
-    </InputContainer>
+    </div>
   );
 };
