@@ -1,5 +1,12 @@
 import type {InputAudioTrack} from 'mediabunny';
-import {ALL_FORMATS, Input, InputDisposedError, UrlSource} from 'mediabunny';
+import {
+	ALL_FORMATS,
+	Input,
+	InputDisposedError,
+	MATROSKA,
+	UrlSource,
+	WEBM,
+} from 'mediabunny';
 import {
 	useCallback,
 	useEffect,
@@ -8,13 +15,16 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import {cancelRender, useDelayRender} from 'remotion';
+import {cancelRender, Internals, useDelayRender} from 'remotion';
 import {combineFloat32Arrays} from './combine-float32-arrays';
 import {getPartialAudioData} from './get-partial-audio-data';
 import {isRemoteAsset} from './is-remote-asset';
+
 import type {MediaUtilsAudioData} from './types';
 
 type WaveformMap = Record<number, Float32Array>;
+
+const warnedMatroska: Record<string, boolean> = {};
 
 export type UseWindowedAudioDataOptions = {
 	src: string;
@@ -39,6 +49,7 @@ interface AudioUtils {
 	input: Input;
 	track: InputAudioTrack;
 	metadata: AudioMetadata;
+	isMatroska: boolean;
 }
 
 export const useWindowedAudioData = ({
@@ -53,6 +64,7 @@ export const useWindowedAudioData = ({
 	const [waveFormMap, setWaveformMap] = useState({} as WaveformMap);
 	const requests = useRef<Record<string, AbortController | null>>({});
 	const [initialWindowInSeconds] = useState(windowInSeconds);
+
 	if (windowInSeconds !== initialWindowInSeconds) {
 		throw new Error('windowInSeconds cannot be changed dynamically');
 	}
@@ -125,6 +137,9 @@ export const useWindowedAudioData = ({
 
 				const {numberOfChannels, sampleRate} = audioTrack;
 
+				const format = await input.getFormat();
+				const isMatroska = format === MATROSKA || format === WEBM;
+
 				if (isMounted.current) {
 					setAudioUtils({
 						input,
@@ -134,6 +149,7 @@ export const useWindowedAudioData = ({
 							numberOfChannels,
 							sampleRate,
 						},
+						isMatroska,
 					});
 				}
 
@@ -205,12 +221,23 @@ export const useWindowedAudioData = ({
 			const toSeconds = (windowIndex + 1) * windowInSeconds;
 
 			try {
+				const {isMatroska} = audioUtils;
+
+				if (isMatroska && !warnedMatroska[src]) {
+					warnedMatroska[src] = true;
+					Internals.Log.warn(
+						{logLevel: 'info', tag: '@remotion/media-utils'},
+						`[useWindowedAudioData] Matroska/WebM file detected at "${src}".\n\nDue to format limitation, audio decoding must start from the beginning of the file, which may lead to increased memory usage and slower performance for large files. Consider converting the audio to a more suitable format like MP3 or AAC for better performance.`,
+					);
+				}
+
 				const partialWaveData = await getPartialAudioData({
 					track: audioUtils.track,
 					fromSeconds,
 					toSeconds,
 					channelIndex,
 					signal: controller.signal,
+					isMatroska,
 				});
 
 				if (!controller.signal.aborted) {
@@ -250,7 +277,7 @@ export const useWindowedAudioData = ({
 				}
 			}
 		},
-		[channelIndex, audioUtils, windowInSeconds, windowsToFetch],
+		[channelIndex, audioUtils, windowInSeconds, windowsToFetch, src],
 	);
 
 	useEffect(() => {
