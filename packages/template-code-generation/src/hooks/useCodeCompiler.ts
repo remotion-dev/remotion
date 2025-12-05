@@ -11,6 +11,10 @@ import {
   spring,
   Sequence,
 } from "remotion";
+import * as RemotionShapes from "@remotion/shapes";
+import { Lottie } from "@remotion/lottie";
+import { ThreeCanvas } from "@remotion/three";
+import * as THREE from "three";
 
 export interface CompilationResult {
   Component: React.FC | null;
@@ -54,6 +58,10 @@ export function useCodeCompiler() {
       const createComponent = new Function(
         "React",
         "Remotion",
+        "RemotionShapes",
+        "Lottie",
+        "ThreeCanvas",
+        "THREE",
         "AbsoluteFill",
         "interpolate",
         "useCurrentFrame",
@@ -66,6 +74,10 @@ export function useCodeCompiler() {
       const Component = createComponent(
         React,
         Remotion,
+        RemotionShapes,
+        Lottie,
+        ThreeCanvas,
+        THREE,
         AbsoluteFill,
         interpolate,
         useCurrentFrame,

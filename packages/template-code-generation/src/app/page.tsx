@@ -3,8 +3,10 @@
 import { useState } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   ArrowUp,
+  SquareArrowOutUpRight,
   Loader2,
   Type,
   MessageCircle,
@@ -110,7 +112,7 @@ const Home: NextPage = () => {
           </div>
 
           <div className="flex flex-wrap items-center justify-center mt-6 gap-2">
-            <span className="text-[#666] text-xs mr-1">Try</span>
+            <span className="text-[#666] text-xs mr-1">Prompt examples</span>
             {examplePrompts.map((example) => {
               const Icon = iconMap[example.icon];
               return (
@@ -129,6 +131,16 @@ const Home: NextPage = () => {
                 </button>
               );
             })}
+          </div>
+
+          <div className="flex justify-center mt-4">
+            <Link
+              href="/code-examples"
+              className="text-[#555] hover:text-[#888] text-xs transition-colors flex items-center gap-1"
+            >
+              View Code examples
+              <SquareArrowOutUpRight className="w-3 h-3" />
+            </Link>
           </div>
         </form>
       </div>
