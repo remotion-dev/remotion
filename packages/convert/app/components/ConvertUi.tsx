@@ -43,6 +43,7 @@ import {ConvertProgress, convertProgressRef} from './ConvertProgress';
 import {ConvertUiSection} from './ConvertUiSection';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
+import {makeCrop} from './make-crop';
 import {MirrorComponents} from './MirrorComponents';
 import {ResampleUi} from './ResampleUi';
 import {ResizeUi} from './ResizeUi';
@@ -296,16 +297,11 @@ const ConvertUI = ({
 								return flipped;
 							},
 							crop: crop
-								? {
-										width: Number.isFinite(cropRect.width)
-											? cropRect.width
-											: dimensions!.width - cropRect.left,
-										height: Number.isFinite(cropRect.height)
-											? cropRect.height
-											: dimensions!.height - cropRect.top,
-										left: cropRect.left,
-										top: cropRect.top,
-									}
+								? makeCrop({
+										cropRect,
+										dimensions: dimensions!,
+										videoCodec: operation.videoCodec,
+									})
 								: undefined,
 							rotate: userRotation as Rotation,
 							forceTranscode: true,
