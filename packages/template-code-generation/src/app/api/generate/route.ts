@@ -523,20 +523,18 @@ IMPORTANT RULES:
 `;
 
 export async function POST(req: Request) {
-  const { prompt, model = "gpt-5-mini", apiKey } = await req.json();
+  const { prompt, model = "gpt-5-mini" } = await req.json();
+
+  const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: "API key is required" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  if (!apiKey.startsWith("sk-")) {
-    return new Response(JSON.stringify({ error: "Invalid API key format" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: "OPENAI_API_KEY environment variable is not set" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 
   // Parse model ID - format can be "model-name" or "model-name:reasoning_effort"

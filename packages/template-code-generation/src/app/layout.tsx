@@ -1,6 +1,5 @@
 import "../../styles/global.css";
 import { Metadata, Viewport } from "next";
-import { ApiKeyProvider } from "@/context/ApiKeyContext";
 
 export const metadata: Metadata = {
   title: "Remotion and Next.js",
@@ -20,9 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-background">
-        <ApiKeyProvider>{children}</ApiKeyProvider>
-      </body>
+      <body className="bg-background">{children}</body>
     </html>
   );
 }

@@ -18,13 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useApiKeyContext } from "@/context/ApiKeyContext";
 import { examplePrompts } from "@/data/examplePrompts";
 
 const iconMap: Record<string, LucideIcon> = {
@@ -73,7 +66,6 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
     },
     ref,
   ) {
-    const { apiKey, hasApiKey, isLoaded } = useApiKeyContext();
     const [uncontrolledPrompt, setUncontrolledPrompt] = useState("");
     const [model, setModel] = useState<ModelId>("gpt-5.1:low");
 
@@ -84,7 +76,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
     const [isLoading, setIsLoading] = useState(false);
 
     const runGeneration = async () => {
-      if (!prompt.trim() || isLoading || !hasApiKey) return;
+      if (!prompt.trim() || isLoading) return;
 
       setIsLoading(true);
       onStreamingChange?.(true);
@@ -93,7 +85,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
         const response = await fetch("/api/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt, model, apiKey }),
+          body: JSON.stringify({ prompt, model }),
         });
 
         if (!response.ok) {
@@ -232,30 +224,17 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
                 </SelectContent>
               </Select>
 
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="submit"
-                      disabled={isLoading || !prompt.trim() || !hasApiKey}
-                      className="p-2 rounded-lg bg-white text-black hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                    >
-                      {isLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <ArrowUp className="w-5 h-5" />
-                      )}
-                    </button>
-                  </TooltipTrigger>
-                  {!hasApiKey && isLoaded && (
-                    <TooltipContent>
-                      <p>
-                        Add your OpenAI API key in Settings to enable generation
-                      </p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              </TooltipProvider>
+              <button
+                type="submit"
+                disabled={isLoading || !prompt.trim()}
+                className="p-2 rounded-lg bg-white text-black hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <ArrowUp className="w-5 h-5" />
+                )}
+              </button>
             </div>
           </div>
 
@@ -264,7 +243,7 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
               isLanding ? "justify-center mt-6 gap-2" : ""
             }`}
           >
-            <span className="text-[#666] text-xs mr-1">Try</span>
+            <span className="text-[#666] text-xs mr-1">Prompt Examples</span>
             {examplePrompts.map((example) => {
               const Icon = iconMap[example.icon];
               return (
@@ -278,7 +257,9 @@ export const PromptInput = forwardRef<PromptInputRef, PromptInputProps>(
                   }}
                   className={`rounded-full bg-[#1a1a1a] border hover:brightness-125 transition-all flex items-center gap-1 px-1.5 py-0.5 text-[11px]`}
                 >
-                  {Icon && <Icon className={isLanding ? "w-3 h-3" : "w-3 h-3"} />}
+                  {Icon && (
+                    <Icon className={isLanding ? "w-3 h-3" : "w-3 h-3"} />
+                  )}
                   {example.headline}
                 </button>
               );
