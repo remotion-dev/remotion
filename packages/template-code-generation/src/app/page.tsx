@@ -89,7 +89,7 @@ const Home: NextPage = () => {
       <div className="h-screen w-screen bg-[#0a0a0a] flex flex-col">
         <div className="flex items-center py-6 px-12">
           <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="Remotion" width={32} height={32} />
+            <Image src="/logo-white.svg" alt="Remotion" width={32} height={32} />
             <span className="text-xl font-bold text-white font-sans">
               Remotion Code Generation
             </span>
@@ -112,7 +112,7 @@ const Home: NextPage = () => {
       <div className="flex-1 flex flex-col min-w-0 py-8 px-12 rounded-md gap-8">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="Remotion" width={32} height={32} />
+            <Image src="/logo-white.svg" alt="Remotion" width={32} height={32} />
             <span className="text-xl font-bold text-white font-sans">
               Remotion Code Generation
             </span>
