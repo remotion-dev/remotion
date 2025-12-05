@@ -3,7 +3,7 @@ export const examplePrompts = [
     id: "text-typewriter",
     headline: "Typewriter text",
     icon: "Type",
-    prompt: `Generate the text "Hello world" with world in yellow highlighting. Do not render any background. That words should be shown next to each other and rendered in black
+    prompt: `Generate the text "Hello world" with world in yellow highlighting. Black text, white background. That words should be shown next to each other in the center of the screen.
 
 Animation: Let the words fade in from left to right and then highlight "world" yellow. Mimic a typewriter effect for the text appearance with a blinking cursor at the end of the text.`,
     color: "#fdba74",
@@ -57,7 +57,7 @@ Show all metrics at the same time, use this color #fde047. Focus on no overlaps 
     prompt: `Create a DVD-Rom Style animation of this image https://i.pinimg.com/600x/ac/82/57/ac8257e1cfc4e63f5c63f3d4869eb7c4.jpg
 The graphic moves smoothly across the screen in a straight line, bouncing off the edges of the screen whenever it hits a border. Each time it hits a corner or side, it changes direction, creating a continuous floating, ricocheting motion. The speed is steady, the movement is linear, and the object keeps rotating around the screen endlessly, just like the classic DVD logo screensaver.
 
-Change the color on every bounce, no rotation, Make the animation speed very fast.`,
+Change the color on every bounce, no rotation, Make the animation speed fast.`,
     color: "#f9a8d4",
   },
 ] as const;

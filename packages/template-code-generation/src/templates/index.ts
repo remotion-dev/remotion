@@ -20,7 +20,7 @@ export const examples: RemotionExample[] = [
   const frame = Remotion.useCurrentFrame();
   const { fps } = Remotion.useVideoConfig();
 
-  const words = ["Hello", "World", "Remotion", "React"];
+  const words = ["One sec please :)", "Getting started", "with your", "Code Generation"];
   const wordDuration = 60; // frames per word
   const currentWordIndex = Math.floor(frame / wordDuration) % words.length;
   const frameInWord = frame % wordDuration;
