@@ -46,12 +46,15 @@ export class MediaPlayer {
 
 	private playing = false;
 	private loop = false;
+	private loopTransitionPreparedFromMediaTime: number | null = null;
+	private previousUnloopedTime: number = 0;
+
 	private fps: number;
 
 	private trimBefore: number | undefined;
 	private trimAfter: number | undefined;
 
-	private totalDuration: number | undefined;
+	private mediaDurationInSeconds: number | undefined;
 
 	private debugOverlay = false;
 
@@ -192,7 +195,7 @@ export class MediaPlayer {
 				return {type: 'disposed'};
 			}
 
-			this.totalDuration = durationInSeconds;
+			this.mediaDurationInSeconds = durationInSeconds;
 
 			const audioTrack = audioTracks[this.audioStreamIndex] ?? null;
 
@@ -229,7 +232,7 @@ export class MediaPlayer {
 				loop: this.loop,
 				trimBefore: this.trimBefore,
 				trimAfter: this.trimAfter,
-				mediaDurationInSeconds: this.totalDuration,
+				mediaDurationInSeconds: this.mediaDurationInSeconds,
 				fps: this.fps,
 				ifNoMediaDuration: 'infinity',
 				src: this.src,
@@ -303,13 +306,15 @@ export class MediaPlayer {
 	}
 
 	public async seekTo(time: number): Promise<void> {
+		const unloopedTimeInSeconds = time;
+
 		const newTime = getTimeInSeconds({
-			unloopedTimeInSeconds: time,
+			unloopedTimeInSeconds,
 			playbackRate: this.playbackRate,
 			loop: this.loop,
 			trimBefore: this.trimBefore,
 			trimAfter: this.trimAfter,
-			mediaDurationInSeconds: this.totalDuration ?? null,
+			mediaDurationInSeconds: this.mediaDurationInSeconds ?? null,
 			fps: this.fps,
 			ifNoMediaDuration: 'infinity',
 			src: this.src,
@@ -319,29 +324,54 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
+		const didLoopWrap = this.didCrossLoopBoundary(
+			this.previousUnloopedTime,
+			unloopedTimeInSeconds,
+		);
+
+		this.previousUnloopedTime = unloopedTimeInSeconds;
+
+		const shouldPrepareLoopTransition =
+			this.shouldPrepareLoopTransition(newTime);
+
+		if (shouldPrepareLoopTransition) {
+			this.prepareSeamlessLoop(newTime);
+		}
+
 		const nonce = this.nonceManager.createAsyncOperation();
 		await this.seekPromiseChain;
 
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
+		this.seekPromiseChain = this.seekToDoNotCallDirectly(
+			newTime,
+			nonce,
+			didLoopWrap,
+		);
 		await this.seekPromiseChain;
 	}
 
 	public async seekToDoNotCallDirectly(
 		newTime: number,
 		nonce: Nonce,
+		isLoopWrap: boolean,
 	): Promise<void> {
 		if (nonce.isStale()) {
 			return;
 		}
 
 		const currentPlaybackTime = this.getPlaybackTime();
+
 		if (currentPlaybackTime === newTime) {
 			return;
+		}
+
+		if (isLoopWrap) {
+			this.loopTransitionPreparedFromMediaTime = null;
 		}
 
 		await this.videoIteratorManager?.seek({
 			newTime,
 			nonce,
+			isInLoopTransition: isLoopWrap,
 		});
 
 		await this.audioIteratorManager?.seek({
@@ -352,6 +382,7 @@ export class MediaPlayer {
 			getIsPlaying: () => this.playing,
 			scheduleAudioNode: this.scheduleAudioNode,
 			bufferState: this.bufferState,
+			isInLoopTransition: isLoopWrap,
 		});
 	}
 
@@ -362,7 +393,7 @@ export class MediaPlayer {
 			loop: this.loop,
 			trimBefore: this.trimBefore,
 			trimAfter: this.trimAfter,
-			mediaDurationInSeconds: this.totalDuration ?? null,
+			mediaDurationInSeconds: this.mediaDurationInSeconds ?? null,
 			fps: this.fps,
 			ifNoMediaDuration: 'infinity',
 			src: this.src,
@@ -477,6 +508,93 @@ export class MediaPlayer {
 
 	public setLoop(loop: boolean): void {
 		this.loop = loop;
+	}
+
+	private getLoopDuration(): number {
+		if (!this.mediaDurationInSeconds) {
+			return 0;
+		}
+
+		const loopDurationInSeconds =
+			Internals.calculateMediaDuration({
+				trimBefore: this.trimBefore,
+				trimAfter: this.trimAfter,
+				mediaDurationInFrames: this.mediaDurationInSeconds * this.fps,
+				playbackRate: 1,
+			}) / this.fps;
+
+		return loopDurationInSeconds;
+	}
+
+	private shouldPrepareLoopTransition(mediaTime: number): boolean {
+		if (!this.loop || !this.mediaDurationInSeconds) {
+			return false;
+		}
+
+		if (this.loopTransitionPreparedFromMediaTime !== null) {
+			return false;
+		}
+
+		const thresholdInSeconds = 1.0;
+		const loopStartMediaTime = (this.trimBefore ?? 0) / this.fps;
+
+		const loopDuration = this.getLoopDuration();
+
+		const positionInLoop = mediaTime - loopStartMediaTime;
+		const timeUntilEndSec = loopDuration - positionInLoop;
+
+		return timeUntilEndSec <= thresholdInSeconds && timeUntilEndSec > 0;
+	}
+
+	private didCrossLoopBoundary(
+		previousUnloopedTime: number,
+		currentUnloopedTime: number,
+	): boolean {
+		if (!this.loop || !this.mediaDurationInSeconds) {
+			return false;
+		}
+
+		const loopDuration = this.getLoopDuration();
+
+		const previousIteration = Math.floor(
+			(previousUnloopedTime * this.playbackRate) / loopDuration,
+		);
+		const currentIteration = Math.floor(
+			(currentUnloopedTime * this.playbackRate) / loopDuration,
+		);
+
+		return currentIteration > previousIteration;
+	}
+
+	private prepareSeamlessLoop(currentMediaTimeInSeconds: number): void {
+		if (!this.mediaDurationInSeconds) {
+			return;
+		}
+
+		this.loopTransitionPreparedFromMediaTime = currentMediaTimeInSeconds;
+
+		const startTimeInSeconds = getTimeInSeconds({
+			unloopedTimeInSeconds: 0,
+			playbackRate: this.playbackRate,
+			loop: this.loop,
+			trimBefore: this.trimBefore,
+			trimAfter: this.trimAfter,
+			mediaDurationInSeconds: this.mediaDurationInSeconds,
+			fps: this.fps,
+			ifNoMediaDuration: 'infinity',
+			src: this.src,
+		});
+
+		if (startTimeInSeconds === null) {
+			return;
+		}
+
+		this.audioIteratorManager?.prepareLoopTransition({
+			startTimeInSeconds,
+		});
+		this.videoIteratorManager?.prepareLoopTransition({
+			startTime: startTimeInSeconds,
+		});
 	}
 
 	public async dispose(): Promise<void> {

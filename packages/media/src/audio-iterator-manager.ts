@@ -27,6 +27,11 @@ export const audioIteratorManager = ({
 	let audioBufferIterator: AudioIterator | null = null;
 	let audioIteratorsCreated = 0;
 
+	// secondary iterator for pre-warming loop audio
+	let loopTransitionIterator: AudioIterator | null = null;
+	let loopTransitionFirstChunk: WrappedAudioBuffer | null = null;
+	let loopSwapCount = 0;
+
 	const scheduleAudioChunk = ({
 		buffer,
 		mediaTimestamp,
@@ -176,6 +181,7 @@ export const audioIteratorManager = ({
 		getIsPlaying,
 		scheduleAudioNode,
 		bufferState,
+		isInLoopTransition,
 	}: {
 		newTime: number;
 		nonce: Nonce;
@@ -187,6 +193,7 @@ export const audioIteratorManager = ({
 			node: AudioBufferSourceNode,
 			mediaTimestamp: number,
 		) => void;
+		isInLoopTransition: boolean;
 	}) => {
 		if (!audioBufferIterator) {
 			await startAudioIterator({
@@ -225,6 +232,53 @@ export const audioIteratorManager = ({
 			}
 
 			if (audioSatisfyResult.type === 'ended') {
+				if (isInLoopTransition && loopTransitionIterator) {
+					audioBufferIterator?.destroy();
+					// swap the iterator with pre-warmed one
+					audioBufferIterator = loopTransitionIterator;
+					loopTransitionIterator = null;
+					loopSwapCount++;
+
+					if (loopTransitionFirstChunk) {
+						onAudioChunk({
+							getIsPlaying,
+							buffer: loopTransitionFirstChunk,
+							playbackRate,
+							scheduleAudioNode,
+						});
+						loopTransitionFirstChunk = null;
+					}
+
+					for (let i = 0; i < 2; i++) {
+						const result = await audioBufferIterator.getNext();
+
+						if (nonce.isStale()) {
+							return;
+						}
+
+						if (!result.value) {
+							break;
+						}
+
+						onAudioChunk({
+							getIsPlaying,
+							buffer: result.value,
+							playbackRate,
+							scheduleAudioNode,
+						});
+					}
+
+					return;
+				}
+
+				// Audio iterator has ended, but we're seeking to a valid time. This happens when looping - restart the iterator from the new position.
+				await startAudioIterator({
+					nonce,
+					playbackRate,
+					startFromSecond: newTime,
+					getIsPlaying,
+					scheduleAudioNode,
+				});
 				return;
 			}
 
@@ -332,6 +386,7 @@ export const audioIteratorManager = ({
 		},
 		seek,
 		getAudioIteratorsCreated: () => audioIteratorsCreated,
+		getLoopSwapCount: () => loopSwapCount,
 		setMuted: (newMuted: boolean) => {
 			muted = newMuted;
 			gainNode.gain.value = muted ? 0 : currentVolume;
@@ -341,6 +396,31 @@ export const audioIteratorManager = ({
 			gainNode.gain.value = muted ? 0 : currentVolume;
 		},
 		scheduleAudioChunk,
+		prepareLoopTransition: async ({
+			startTimeInSeconds,
+		}: {
+			startTimeInSeconds: number;
+		}) => {
+			loopTransitionIterator?.destroy();
+			loopTransitionFirstChunk = null;
+
+			loopTransitionIterator = makeAudioIterator(audioSink, startTimeInSeconds);
+
+			try {
+				// Pre-warm the decoder by fetching the first chunk
+				// This initializes the AudioDecoder and starts decoding
+				// We store the chunk to schedule it later without losing audio data
+				const result = await loopTransitionIterator.getNext();
+				if (result.value) {
+					loopTransitionFirstChunk = result.value;
+				}
+			} catch (e) {
+				loopTransitionIterator?.destroy();
+				loopTransitionIterator = null;
+				loopTransitionFirstChunk = null;
+				throw e;
+			}
+		},
 	};
 };
 
