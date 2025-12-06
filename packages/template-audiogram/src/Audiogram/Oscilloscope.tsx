@@ -68,7 +68,7 @@ export const Oscilloscope: React.FC<{
   const waveform = visualizeAudioWaveform({
     fps,
     frame: posterized,
-    audioData: audioData,
+    audioData,
     numberOfSamples,
     windowInSeconds: windowInSeconds,
     channel: 0,

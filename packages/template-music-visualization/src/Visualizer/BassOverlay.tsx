@@ -1,4 +1,4 @@
-import { useAudioData, visualizeAudio } from "@remotion/media-utils";
+import { useWindowedAudioData, visualizeAudio } from "@remotion/media-utils";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 
 interface BassOverlayProps {
@@ -10,9 +10,15 @@ export const BassOverlay: React.FC<BassOverlayProps> = ({
   audioSrc,
   color,
 }) => {
-  const audioData = useAudioData(audioSrc);
   const { fps } = useVideoConfig();
   const frame = useCurrentFrame();
+
+  const { audioData, dataOffsetInSeconds } = useWindowedAudioData({
+    src: audioSrc,
+    frame,
+    fps,
+    windowInSeconds: 30,
+  });
 
   if (!audioData) {
     return null;
@@ -24,6 +30,7 @@ export const BassOverlay: React.FC<BassOverlayProps> = ({
     frame,
     optimizeFor: "speed",
     numberOfSamples: 128,
+    dataOffsetInSeconds,
   });
 
   // Get average of low frequencies to determine flash intensity

@@ -1,7 +1,7 @@
 import { Composition, staticFile } from "remotion";
 import { Visualizer } from "./Visualizer/Main";
 import { visualizerCompositionSchema } from "./helpers/schema";
-import { parseMedia } from "@remotion/media-parser";
+import { ALL_FORMATS, Input, UrlSource } from "mediabunny";
 
 const FPS = 30;
 
@@ -35,17 +35,18 @@ export const RemotionRoot: React.FC = () => {
         }}
         // Determine the length of the video based on the duration of the audio file
         calculateMetadata={async ({ props }) => {
-          const { slowDurationInSeconds } = await parseMedia({
-            src: props.audioFileUrl,
-            fields: {
-              slowDurationInSeconds: true,
-            },
-            acknowledgeRemotionLicense: true,
+          const input = new Input({
+            source: new UrlSource(props.audioFileUrl, {
+              getRetryDelay: () => null,
+            }),
+            formats: ALL_FORMATS,
           });
+
+          const durationInSeconds = await input.computeDuration();
 
           return {
             durationInFrames: Math.floor(
-              (slowDurationInSeconds - props.audioOffsetInSeconds) * FPS,
+              (durationInSeconds - props.audioOffsetInSeconds) * FPS,
             ),
             fps: FPS,
           };

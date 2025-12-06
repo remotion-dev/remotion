@@ -2,10 +2,13 @@ import type {BufferIterator} from '../../iterator/buffer-iterator';
 
 export const getBlockSize = (
 	iterator: BufferIterator,
-): number | 'uncommon-u16' | 'uncommon-u8' => {
+): number | 'uncommon-u16' | 'uncommon-u8' | null => {
 	const bits = iterator.getBits(4);
 	if (bits === 0b0000) {
-		throw new Error('Reserved block size');
+		// Probably we are in the wrong spot overall, and just landed on a spot that incidentially hit the syncword.
+		// Don't throw an error, in the parent function just keep reading.
+		// Internal message with repro: https://discord.com/channels/@me/1314232261008162876/1410312296709881988
+		return null;
 	}
 
 	if (bits === 0b0001) {
