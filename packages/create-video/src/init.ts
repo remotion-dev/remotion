@@ -186,7 +186,7 @@ export const init = async () => {
 	Log.info();
 
 	Log.info('Get started by running:');
-	if (cdToFolder.trim() !== '') {
+	if (cdToFolder !== '') {
 		Log.info(' ' + chalk.blue(`cd ${cdToFolder}`));
 	}
 
