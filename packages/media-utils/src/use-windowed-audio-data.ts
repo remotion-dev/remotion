@@ -220,6 +220,14 @@ export const useWindowedAudioData = ({
 			const fromSeconds = windowIndex * windowInSeconds;
 			const toSeconds = (windowIndex + 1) * windowInSeconds;
 
+			// if both fromSeconds and toSeconds are outside of the audio duration, skip fetching
+			if (
+				fromSeconds >= audioUtils.metadata.durationInSeconds ||
+				toSeconds <= 0
+			) {
+				return;
+			}
+
 			try {
 				const {isMatroska} = audioUtils;
 
@@ -367,8 +375,14 @@ export const useWindowedAudioData = ({
 		};
 	}, [currentAudioData, src, delayRender, continueRender]);
 
+	const isBeyondAudioDuration = audioUtils
+		? currentTime >= audioUtils.metadata.durationInSeconds
+		: false;
+
+	const audioData = isBeyondAudioDuration ? null : currentAudioData;
+
 	return {
-		audioData: currentAudioData,
+		audioData,
 		dataOffsetInSeconds:
 			availableWindows.length > 0 ? availableWindows[0] * windowInSeconds : 0,
 	};
