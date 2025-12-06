@@ -357,7 +357,7 @@ export const useWindowedAudioData = ({
 			durationInSeconds: audioUtils.metadata.durationInSeconds,
 			isRemote: isRemoteAsset(src),
 			numberOfChannels: 1,
-			resultId: String(Math.random()),
+			resultId: `${src}-windows-${availableWindows.join(',')}`,
 			sampleRate: audioUtils.metadata.sampleRate,
 		};
 	}, [src, waveFormMap, audioUtils?.metadata, availableWindows]);
