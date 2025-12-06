@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState, useEffect, useMemo, useRef } from "react";
 import * as Babel from "@babel/standalone";
 import React from "react";
 import {
@@ -21,6 +21,27 @@ export interface CompilationResult {
   error: string | null;
 }
 
+// Extract component body from full ES6 code with imports
+function extractComponentBody(code: string): string {
+  // Strip import lines
+  const lines = code.split("\n");
+  const nonImportLines = lines.filter(
+    (line) => !line.trim().startsWith("import ")
+  );
+  const codeWithoutImports = nonImportLines.join("\n");
+
+  // Extract body from "export const MyAnimation = () => { ... };"
+  const match = codeWithoutImports.match(
+    /export\s+const\s+\w+\s*=\s*\(\s*\)\s*=>\s*\{([\s\S]*)\};?\s*$/
+  );
+  if (match) {
+    return match[1].trim();
+  }
+
+  // Fallback: return code as-is (backward compatible with body-only input)
+  return code;
+}
+
 export function useCodeCompiler() {
   const compile = useCallback((code: string): CompilationResult => {
     if (!code.trim()) {
@@ -28,9 +49,11 @@ export function useCodeCompiler() {
     }
 
     try {
+      // Extract component body (handles both full ES6 code and body-only)
+      const componentBody = extractComponentBody(code);
+
       // Wrap the component body in a function BEFORE transpilation
-      // Expected input: just the component body (hooks, variables, and return statement)
-      const wrappedSource = `const DynamicAnimation = () => {\n${code}\n};`;
+      const wrappedSource = `const DynamicAnimation = () => {\n${componentBody}\n};`;
 
       // Transpile JSX/TypeScript to JavaScript using Babel
       const transpiled = Babel.transform(wrappedSource, {
@@ -68,6 +91,26 @@ export function useCodeCompiler() {
         "useVideoConfig",
         "spring",
         "Sequence",
+        "useState",
+        "useEffect",
+        "useMemo",
+        "useRef",
+        "Rect",
+        "Circle",
+        "Triangle",
+        "Star",
+        "Polygon",
+        "Ellipse",
+        "Heart",
+        "Pie",
+        "makeRect",
+        "makeCircle",
+        "makeTriangle",
+        "makeStar",
+        "makePolygon",
+        "makeEllipse",
+        "makeHeart",
+        "makePie",
         wrappedCode,
       );
 
@@ -84,6 +127,26 @@ export function useCodeCompiler() {
         useVideoConfig,
         spring,
         Sequence,
+        useState,
+        useEffect,
+        useMemo,
+        useRef,
+        RemotionShapes.Rect,
+        RemotionShapes.Circle,
+        RemotionShapes.Triangle,
+        RemotionShapes.Star,
+        RemotionShapes.Polygon,
+        RemotionShapes.Ellipse,
+        RemotionShapes.Heart,
+        RemotionShapes.Pie,
+        RemotionShapes.makeRect,
+        RemotionShapes.makeCircle,
+        RemotionShapes.makeTriangle,
+        RemotionShapes.makeStar,
+        RemotionShapes.makePolygon,
+        RemotionShapes.makeEllipse,
+        RemotionShapes.makeHeart,
+        RemotionShapes.makePie,
       );
 
       if (typeof Component !== "function") {

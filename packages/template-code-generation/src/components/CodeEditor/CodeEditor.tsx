@@ -11,7 +11,6 @@ import {
 
 import { EditorHeader } from "./EditorHeader";
 import { StreamingOverlay } from "./StreamingOverlay";
-import { ReadOnlyToast } from "./ReadOnlyToast";
 import { EDITOR_STYLES } from "./styles";
 
 // Monaco must be loaded client-side only
@@ -33,18 +32,6 @@ interface CodeEditorProps {
   streamPhase?: StreamPhase;
 }
 
-const WRAPPER_PREFIX = `import * as Remotion from 'remotion';
-
-export const MyAnimation = () => {
-`;
-
-const WRAPPER_SUFFIX = `
-};`;
-
-// Calculate line counts for wrapper boundaries
-const PREFIX_LINE_COUNT = WRAPPER_PREFIX.split("\n").length - 1;
-const SUFFIX_LINE_COUNT = WRAPPER_SUFFIX.split("\n").length - 1;
-
 export const CodeEditor: React.FC<CodeEditorProps> = ({
   code,
   onChange,
@@ -54,19 +41,14 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const monacoRef = useRef<Monaco | null>(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const isStreamingRef = useRef(isStreaming);
-  const decorationsRef = useRef<editor.IEditorDecorationsCollection | null>(
-    null,
-  );
-  const [showReadOnlyToast, setShowReadOnlyToast] = React.useState(false);
-  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Keep ref in sync with prop and clear markers during streaming
   useEffect(() => {
     isStreamingRef.current = isStreaming;
   }, [isStreaming]);
 
-  // Derive language from streaming state
-  const editorLanguage = isStreaming ? "plaintext" : "javascript";
+  // Use typescript for semantic checking, plaintext during streaming
+  const editorLanguage = isStreaming ? "plaintext" : "typescript";
 
   // Continuously clear markers while streaming
   useEffect(() => {
@@ -86,44 +68,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     return () => clearInterval(interval);
   }, [isStreaming, code]);
 
-  // Apply read-only decorations to prefix and suffix lines
-  const applyReadOnlyDecorations = (totalLines: number) => {
-    if (!editorRef.current || !monacoRef.current) return;
-
-    const decorations: editor.IModelDeltaDecoration[] = [];
-
-    // Prefix lines (lines 1 to PREFIX_LINE_COUNT)
-    for (let i = 1; i <= PREFIX_LINE_COUNT; i++) {
-      decorations.push({
-        range: new monacoRef.current.Range(i, 1, i, 1),
-        options: {
-          isWholeLine: true,
-          className: "readonly-line",
-        },
-      });
-    }
-
-    // Suffix lines (last SUFFIX_LINE_COUNT lines)
-    const suffixStart = totalLines - SUFFIX_LINE_COUNT + 1;
-    for (let i = suffixStart; i <= totalLines; i++) {
-      decorations.push({
-        range: new monacoRef.current.Range(i, 1, i, 1),
-        options: {
-          isWholeLine: true,
-          className: "readonly-line",
-        },
-      });
-    }
-
-    // Use the modern createDecorationsCollection API
-    if (decorationsRef.current) {
-      decorationsRef.current.set(decorations);
-    } else {
-      decorationsRef.current =
-        editorRef.current.createDecorationsCollection(decorations);
-    }
-  };
-
   const handleEditorMount = (
     editorInstance: editor.IStandaloneCodeEditor,
     monaco: Monaco,
@@ -134,84 +78,168 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ts = (monaco.languages as any).typescript;
 
-    // Apply initial decorations
-    const totalLines = (WRAPPER_PREFIX + code + WRAPPER_SUFFIX).split(
-      "\n",
-    ).length;
-    applyReadOnlyDecorations(totalLines);
-
-    // Configure TypeScript compiler options
+    // Configure TypeScript compiler options for JSX support
     ts?.typescriptDefaults?.setCompilerOptions({
       target: ts.ScriptTarget?.ESNext,
       module: ts.ModuleKind?.ESNext,
-      jsx: ts.JsxEmit?.React,
-      jsxFactory: "React.createElement",
+      jsx: ts.JsxEmit?.Preserve,
       allowNonTsExtensions: true,
       strict: false,
       noEmit: true,
       esModuleInterop: true,
+      moduleResolution: ts.ModuleResolutionKind?.NodeJs,
+      skipLibCheck: true,
+    });
+
+    // Enable semantic validation for import checking
+    ts?.typescriptDefaults?.setDiagnosticsOptions({
+      noSemanticValidation: false,
+      noSyntaxValidation: false,
     });
 
     // Add React types so TS understands JSX
     ts?.typescriptDefaults?.addExtraLib(
       `
       declare namespace React {
-        type ReactNode = string | number | boolean | null | undefined | React.ReactElement | React.ReactNode[];
+        type ReactNode = string | number | boolean | null | undefined | ReactElement | ReactNode[];
         interface ReactElement<P = any> { type: any; props: P; key: string | null; }
         type FC<P = {}> = (props: P) => ReactElement | null;
-        type CSSProperties = Record<string, string | number>;
-        interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
+        type CSSProperties = { [key: string]: string | number | undefined };
+        interface HTMLAttributes<T> {
           className?: string;
           style?: CSSProperties;
+          children?: ReactNode;
           [key: string]: any;
         }
-        interface AriaAttributes { [key: string]: any; }
-        interface DOMAttributes<T> { children?: ReactNode; [key: string]: any; }
+        interface SVGAttributes<T> {
+          className?: string;
+          style?: CSSProperties;
+          children?: ReactNode;
+          [key: string]: any;
+        }
         function createElement(type: any, props?: any, ...children: any[]): ReactElement;
+        function useState<T>(initial: T | (() => T)): [T, (value: T | ((prev: T) => T)) => void];
+        function useEffect(effect: () => void | (() => void), deps?: any[]): void;
+        function useCallback<T extends (...args: any[]) => any>(callback: T, deps: any[]): T;
+        function useMemo<T>(factory: () => T, deps: any[]): T;
+        function useRef<T>(initial: T): { current: T };
       }
       declare const React: typeof React;
+      declare namespace JSX {
+        interface Element extends React.ReactElement<any, any> {}
+        interface IntrinsicElements {
+          div: React.HTMLAttributes<HTMLDivElement>;
+          span: React.HTMLAttributes<HTMLSpanElement>;
+          p: React.HTMLAttributes<HTMLParagraphElement>;
+          h1: React.HTMLAttributes<HTMLHeadingElement>;
+          h2: React.HTMLAttributes<HTMLHeadingElement>;
+          h3: React.HTMLAttributes<HTMLHeadingElement>;
+          img: React.HTMLAttributes<HTMLImageElement> & { src?: string; alt?: string };
+          svg: React.SVGAttributes<SVGSVGElement>;
+          path: React.SVGAttributes<SVGPathElement> & { d?: string };
+          circle: React.SVGAttributes<SVGCircleElement> & { cx?: number; cy?: number; r?: number };
+          rect: React.SVGAttributes<SVGRectElement> & { x?: number; y?: number; width?: number; height?: number };
+          polygon: React.SVGAttributes<SVGPolygonElement> & { points?: string };
+          line: React.SVGAttributes<SVGLineElement> & { x1?: number; y1?: number; x2?: number; y2?: number };
+          text: React.SVGAttributes<SVGTextElement> & { x?: number; y?: number };
+          g: React.SVGAttributes<SVGGElement>;
+          defs: React.SVGAttributes<SVGDefsElement>;
+          filter: React.SVGAttributes<SVGFilterElement> & { id?: string };
+          feGaussianBlur: React.SVGAttributes<SVGFEGaussianBlurElement> & { stdDeviation?: number | string; result?: string };
+          feMerge: React.SVGAttributes<SVGFEMergeElement>;
+          feMergeNode: React.SVGAttributes<SVGFEMergeNodeElement> & { in?: string };
+          mesh: any;
+          group: any;
+          ambientLight: any;
+          pointLight: any;
+          sphereGeometry: any;
+          meshStandardMaterial: any;
+          planeGeometry: any;
+          [elemName: string]: any;
+        }
+      }
       `,
       "react.d.ts",
     );
 
-    // Add type declaration for remotion module
+    // Add module declaration for 'react' to allow imports
+    ts?.typescriptDefaults?.addExtraLib(
+      `declare module 'react' {
+        export const useState: typeof React.useState;
+        export const useEffect: typeof React.useEffect;
+        export const useCallback: typeof React.useCallback;
+        export const useMemo: typeof React.useMemo;
+        export const useRef: typeof React.useRef;
+        export default React;
+      }`,
+      "react-module.d.ts",
+    );
+
+    // Add type declarations for all whitelisted libraries
     ts?.typescriptDefaults?.addExtraLib(
       `declare module 'remotion' {
         export const AbsoluteFill: React.FC<React.HTMLAttributes<HTMLDivElement>>;
         export function useCurrentFrame(): number;
         export function useVideoConfig(): { fps: number; durationInFrames: number; width: number; height: number };
         export function interpolate(input: number, inputRange: number[], outputRange: number[], options?: any): number;
-        export function spring(options: { frame: number; fps: number; config?: any }): number;
+        export function spring(options: { frame: number; fps: number; config?: any; durationInFrames?: number }): number;
         export const Sequence: React.FC<{ from?: number; durationInFrames?: number; children: React.ReactNode }>;
       }`,
       "remotion.d.ts",
     );
 
-    // Block editing in protected lines by intercepting model changes
-    const model = editorInstance.getModel();
-    if (model) {
-      let lastValidContent = model.getValue();
-
-      model.onDidChangeContent(() => {
-        const currentContent = model.getValue();
-        const hasValidPrefix = currentContent.startsWith(WRAPPER_PREFIX);
-        const hasValidSuffix = currentContent.endsWith(WRAPPER_SUFFIX);
-
-        if (!hasValidPrefix || !hasValidSuffix) {
-          model.setValue(lastValidContent);
-
-          if (toastTimeoutRef.current) {
-            clearTimeout(toastTimeoutRef.current);
-          }
-          setShowReadOnlyToast(true);
-          toastTimeoutRef.current = setTimeout(() => {
-            setShowReadOnlyToast(false);
-          }, 2000);
-        } else {
-          lastValidContent = currentContent;
+    ts?.typescriptDefaults?.addExtraLib(
+      `declare module '@remotion/shapes' {
+        interface ShapeProps {
+          fill?: string;
+          stroke?: string;
+          strokeWidth?: number;
+          style?: React.CSSProperties;
         }
-      });
-    }
+        export const Rect: React.FC<ShapeProps & { width: number; height: number; cornerRadius?: number }>;
+        export const Circle: React.FC<ShapeProps & { radius: number }>;
+        export const Triangle: React.FC<ShapeProps & { length: number; direction?: 'up' | 'down' | 'left' | 'right' }>;
+        export const Star: React.FC<ShapeProps & { innerRadius: number; outerRadius: number; points?: number }>;
+        export const Polygon: React.FC<ShapeProps & { radius: number; points: number }>;
+        export const Ellipse: React.FC<ShapeProps & { rx: number; ry: number }>;
+      }`,
+      "remotion-shapes.d.ts",
+    );
+
+    ts?.typescriptDefaults?.addExtraLib(
+      `declare module '@remotion/lottie' {
+        export const Lottie: React.FC<{ animationData?: any; src?: string; playbackRate?: number; style?: React.CSSProperties }>;
+      }`,
+      "remotion-lottie.d.ts",
+    );
+
+    ts?.typescriptDefaults?.addExtraLib(
+      `declare module '@remotion/three' {
+        export const ThreeCanvas: React.FC<{
+          children?: any;
+          style?: React.CSSProperties;
+          width?: number;
+          height?: number;
+          camera?: { position?: number[]; fov?: number; near?: number; far?: number; [key: string]: any };
+          orthographic?: boolean;
+          [key: string]: any;
+        }>;
+      }`,
+      "remotion-three.d.ts",
+    );
+
+    ts?.typescriptDefaults?.addExtraLib(
+      `declare module 'three' {
+        export class Vector3 { constructor(x?: number, y?: number, z?: number); x: number; y: number; z: number; }
+        export class Color { constructor(color?: string | number); }
+        export class MeshStandardMaterial { constructor(params?: any); }
+        export class BoxGeometry { constructor(width?: number, height?: number, depth?: number); }
+        export class SphereGeometry { constructor(radius?: number, widthSegments?: number, heightSegments?: number); }
+        export class Mesh { constructor(geometry?: any, material?: any); position: Vector3; rotation: Vector3; }
+        export const DoubleSide: number;
+      }`,
+      "three.d.ts",
+    );
 
     // Override marker setting to suppress during streaming
     const originalSetModelMarkers = monaco.editor.setModelMarkers;
@@ -236,65 +264,28 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     });
   };
 
-  // Wrap the body code with prefix/suffix for display
-  const displayCode = WRAPPER_PREFIX + code + WRAPPER_SUFFIX;
-
-  // Extract body from full code when user edits, restore wrapper if modified
+  // Simple pass-through: code is displayed and edited as-is
   const handleChange = (value: string | undefined) => {
-    if (!value) {
-      onChange("");
-      return;
-    }
-
-    const hasValidPrefix = value.startsWith(WRAPPER_PREFIX);
-    const hasValidSuffix = value.endsWith(WRAPPER_SUFFIX);
-
-    // If wrapper was modified, restore it
-    if (!hasValidPrefix || !hasValidSuffix) {
-      let body = value;
-      if (hasValidPrefix) {
-        body = body.slice(WRAPPER_PREFIX.length);
-      }
-      if (hasValidSuffix) {
-        body = body.slice(0, -WRAPPER_SUFFIX.length);
-      }
-
-      const restoredCode = WRAPPER_PREFIX + body + WRAPPER_SUFFIX;
-      editorRef.current?.setValue(restoredCode);
-
-      const totalLines = restoredCode.split("\n").length;
-      applyReadOnlyDecorations(totalLines);
-
-      onChange(body);
-      return;
-    }
-
-    // Normal case: wrapper intact, extract body
-    const body = value.slice(WRAPPER_PREFIX.length, -WRAPPER_SUFFIX.length);
-
-    const totalLines = value.split("\n").length;
-    applyReadOnlyDecorations(totalLines);
-
-    onChange(body);
+    onChange(value || "");
   };
 
   return (
     <div className="flex-2 h-full flex flex-col">
       <h2 className="text-sm font-medium text-[#888] mb-3">Remotion Code</h2>
       <div className="flex-1 flex flex-col bg-[#1e1e1e] rounded-lg overflow-hidden">
-        <EditorHeader filename="MyAnimation.tsx" code={displayCode} />
+        <EditorHeader filename="MyAnimation.tsx" code={code} />
       <style>{EDITOR_STYLES}</style>
       <div className="flex-1 overflow-hidden relative">
         <StreamingOverlay
           visible={isStreaming}
           message={streamPhase === "reasoning" ? "Thinking..." : "Generating code..."}
         />
-        <ReadOnlyToast visible={showReadOnlyToast} />
         <MonacoEditor
           height="100%"
           language={editorLanguage}
           theme="vs-dark"
-          value={displayCode}
+          path="MyAnimation.tsx"
+          value={code}
           onChange={handleChange}
           onMount={handleEditorMount}
           options={{

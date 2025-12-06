@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useCallback, useMemo, Suspense, useEffect, useRef } from "react";
+import {
+  useState,
+  useCallback,
+  useMemo,
+  Suspense,
+  useEffect,
+  useRef,
+} from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, PanelLeftClose, PanelLeft } from "lucide-react";
@@ -45,7 +52,9 @@ function DemoPageContent() {
       if (example) {
         setCode(example.code);
         compileCode(example.code);
-        router.replace(`/code-examples?example=${exampleId}`, { scroll: false });
+        router.replace(`/code-examples?example=${exampleId}`, {
+          scroll: false,
+        });
       }
     },
     [setCode, compileCode, router],
@@ -59,10 +68,10 @@ function DemoPageContent() {
     [setCode, compileCode],
   );
 
-  const categories = [...new Set(examples.map((e) => e.category))];
+  const categories = Array.from(new Set(examples.map((e) => e.category)));
 
   return (
-    <div className="h-screen w-screen bg-[#0a0a0a] flex flex-col">
+    <div className="h-screen w-screen bg-[#0a0a0a] flex flex-col [&_::-webkit-scrollbar]:w-1.5 [&_::-webkit-scrollbar-track]:bg-transparent [&_::-webkit-scrollbar-thumb]:bg-[#333] [&_::-webkit-scrollbar-thumb]:rounded-full hover:[&_::-webkit-scrollbar-thumb]:bg-[#444]">
       {/* Header with logo */}
       <header className="flex items-center gap-6 py-8 px-12 shrink-0">
         <div className="flex flex-col gap-2">
@@ -83,7 +92,7 @@ function DemoPageContent() {
       <div className="flex-1 flex overflow-hidden px-12">
         {/* Sidebar */}
         <div
-          className={`border-r border-[#222] flex flex-col shrink-0 transition-all duration-300 overflow-hidden ${
+          className={`flex flex-col shrink-0 transition-all duration-300 overflow-hidden ${
             sidebarOpen ? "w-64 mr-8" : "w-0 border-r-0"
           }`}
         >
@@ -101,7 +110,11 @@ function DemoPageContent() {
                     .map((example) => (
                       <button
                         key={example.id}
-                        ref={selectedExample.id === example.id ? selectedButtonRef : null}
+                        ref={
+                          selectedExample.id === example.id
+                            ? selectedButtonRef
+                            : null
+                        }
                         onClick={() => handleExampleSelect(example.id)}
                         className={`w-full text-left p-3 rounded-lg border transition-all ${
                           selectedExample.id === example.id
@@ -109,7 +122,9 @@ function DemoPageContent() {
                             : "border-[#222] bg-[#111] text-gray-400 hover:border-[#333] hover:bg-[#1a1a1a]"
                         }`}
                       >
-                        <div className="font-medium text-sm">{example.name}</div>
+                        <div className="font-medium text-sm">
+                          {example.name}
+                        </div>
                         <div className="text-xs text-[#666] mt-1 line-clamp-2">
                           {example.description}
                         </div>
@@ -139,7 +154,9 @@ function DemoPageContent() {
               <h2 className="text-lg font-semibold text-white">
                 {selectedExample.name}
               </h2>
-              <p className="text-sm text-[#666]">{selectedExample.description}</p>
+              <p className="text-sm text-[#666]">
+                {selectedExample.description}
+              </p>
             </div>
           </div>
 
