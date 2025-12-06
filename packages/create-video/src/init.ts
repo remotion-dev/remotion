@@ -186,7 +186,10 @@ export const init = async () => {
 	Log.info();
 
 	Log.info('Get started by running:');
-	Log.info(' ' + chalk.blue(`cd ${cdToFolder}`));
+	if (cdToFolder.trim() !== '') {
+		Log.info(' ' + chalk.blue(`cd ${cdToFolder}`));
+	}
+
 	Log.info(' ' + chalk.blue(getInstallCommand(pkgManager)));
 	Log.info(' ' + chalk.blue(getDevCommand(pkgManager, selectedTemplate)));
 	Log.info('');
