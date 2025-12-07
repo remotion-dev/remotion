@@ -25,4 +25,4 @@ bun dev
 
 ## License
 
-[Remotion License](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md)
+Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
