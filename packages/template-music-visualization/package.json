@@ -13,10 +13,11 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@remotion/cli": "workspace:*",
-    "@remotion/media-parser": "workspace:*",
+    "@remotion/media": "workspace:*",
     "@remotion/media-utils": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "@remotion/zod-types": "workspace:*",
+    "mediabunny": "catalog:",
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "remotion": "workspace:*",

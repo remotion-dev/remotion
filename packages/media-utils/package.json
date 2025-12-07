@@ -18,7 +18,10 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "workspace:*"
+		"@remotion/media-parser": "workspace:*",
+		"@remotion/webcodecs": "workspace:*",
+		"remotion": "workspace:*",
+		"mediabunny": "catalog:"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

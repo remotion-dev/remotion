@@ -1,4 +1,4 @@
-import { useAudioData, visualizeAudio } from "@remotion/media-utils";
+import { useWindowedAudioData, visualizeAudio } from "@remotion/media-utils";
 import { useCurrentFrame, useVideoConfig } from "remotion";
 import { processFrequencyData } from "../helpers/process-frequency-data";
 
@@ -29,7 +29,12 @@ export const Spectrum: React.FC<{
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const audioData = useAudioData(audioSrc);
+  const { audioData, dataOffsetInSeconds } = useWindowedAudioData({
+    src: audioSrc,
+    frame,
+    fps,
+    windowInSeconds: 30,
+  });
 
   if (!audioData) {
     return <div style={spectrumContainer} />;
@@ -41,6 +46,7 @@ export const Spectrum: React.FC<{
     audioData,
     numberOfSamples,
     optimizeFor: "speed",
+    dataOffsetInSeconds,
   });
 
   const normalizedData = processFrequencyData(

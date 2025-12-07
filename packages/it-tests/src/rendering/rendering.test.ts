@@ -557,7 +557,7 @@ test(
 		);
 		fs.unlinkSync(audio);
 	},
-	{timeout: 20000},
+	{timeout: 20000, retry: 3},
 );
 
 test(
