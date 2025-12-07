@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Html5Audio, Sequence, useVideoConfig } from "remotion";
+import { AbsoluteFill, Sequence, useVideoConfig } from "remotion";
 
 import { Spectrum } from "./Spectrum";
 import { AudiogramCompositionSchemaType } from "../helpers/schema";
