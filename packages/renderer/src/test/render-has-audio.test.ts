@@ -1,11 +1,36 @@
 import {expect, test} from 'bun:test';
 import {makeDownloadMap} from '../assets/download-map';
+import type {RenderAssetInfo} from '../assets/download-map';
 import {getShouldRenderAudio} from '../render-has-audio';
 
-test('getShouldRenderAudio - should return no when muted is true', () => {
+const createMockAssetInfo = (
+	hasAudioAssets: boolean = false,
+): RenderAssetInfo => {
 	const downloadMap = makeDownloadMap();
-	const assetsInfo = {
-		assets: [],
+	return {
+		assets: hasAudioAssets
+			? [
+					{
+						frame: 0,
+						audioAndVideoAssets: [
+							{
+								type: 'audio' as const,
+								src: 'test.mp3',
+								id: 'test',
+								frame: 0,
+								volume: 1,
+								mediaFrame: 0,
+								playbackRate: 1,
+								toneFrequency: 1,
+								audioStartFrame: 0,
+								audioStreamIndex: 0,
+							},
+						],
+						artifactAssets: [],
+						inlineAudioAssets: [],
+					},
+				]
+			: [],
 		chunkLengthInSeconds: 1,
 		downloadMap,
 		firstFrameIndex: 0,
@@ -14,6 +39,10 @@ test('getShouldRenderAudio - should return no when muted is true', () => {
 		trimLeftOffset: 0,
 		trimRightOffset: 0,
 	};
+};
+
+test('getShouldRenderAudio - should return no when muted is true', () => {
+	const assetsInfo = createMockAssetInfo();
 
 	const result = getShouldRenderAudio({
 		assetsInfo,
@@ -26,17 +55,7 @@ test('getShouldRenderAudio - should return no when muted is true', () => {
 });
 
 test('getShouldRenderAudio - should return no when codec does not support audio', () => {
-	const downloadMap = makeDownloadMap();
-	const assetsInfo = {
-		assets: [],
-		chunkLengthInSeconds: 1,
-		downloadMap,
-		firstFrameIndex: 0,
-		forSeamlessAacConcatenation: false,
-		imageSequenceName: '/tmp/test-%d.png',
-		trimLeftOffset: 0,
-		trimRightOffset: 0,
-	};
+	const assetsInfo = createMockAssetInfo();
 
 	const result = getShouldRenderAudio({
 		assetsInfo,
@@ -49,17 +68,7 @@ test('getShouldRenderAudio - should return no when codec does not support audio'
 });
 
 test('getShouldRenderAudio - should return yes when enforceAudioTrack is true', () => {
-	const downloadMap = makeDownloadMap();
-	const assetsInfo = {
-		assets: [],
-		chunkLengthInSeconds: 1,
-		downloadMap,
-		firstFrameIndex: 0,
-		forSeamlessAacConcatenation: false,
-		imageSequenceName: '/tmp/test-%d.png',
-		trimLeftOffset: 0,
-		trimRightOffset: 0,
-	};
+	const assetsInfo = createMockAssetInfo();
 
 	const result = getShouldRenderAudio({
 		assetsInfo,
@@ -83,17 +92,7 @@ test('getShouldRenderAudio - should return maybe when assetsInfo is null', () =>
 });
 
 test('getShouldRenderAudio - should return no when there are no frames', () => {
-	const downloadMap = makeDownloadMap();
-	const assetsInfo = {
-		assets: [],
-		chunkLengthInSeconds: 1,
-		downloadMap,
-		firstFrameIndex: 0,
-		forSeamlessAacConcatenation: false,
-		imageSequenceName: '/tmp/test-%d.png',
-		trimLeftOffset: 0,
-		trimRightOffset: 0,
-	};
+	const assetsInfo = createMockAssetInfo();
 
 	const result = getShouldRenderAudio({
 		assetsInfo,
@@ -106,39 +105,7 @@ test('getShouldRenderAudio - should return no when there are no frames', () => {
 });
 
 test('getShouldRenderAudio - should return yes when there are audio assets', () => {
-	const downloadMap = makeDownloadMap();
-	const assetsInfo = {
-		assets: [
-			{
-				frame: 0,
-				audioAndVideoAssets: [
-					{
-						type: 'audio' as const,
-						src: 'test.mp3',
-						id: 'test',
-						frame: 0,
-						volume: 1,
-						mediaFrame: 0,
-						playbackRate: 1,
-						allowAmplificationDuringRender: false,
-						toneFrequency: 1,
-						audioStartFrame: 0,
-						trimLeft: 0,
-						audioStreamIndex: 0,
-					},
-				],
-				artifactAssets: [],
-				inlineAudioAssets: [],
-			},
-		],
-		chunkLengthInSeconds: 1,
-		downloadMap,
-		firstFrameIndex: 0,
-		forSeamlessAacConcatenation: false,
-		imageSequenceName: '/tmp/test-%d.png',
-		trimLeftOffset: 0,
-		trimRightOffset: 0,
-	};
+	const assetsInfo = createMockAssetInfo(true);
 
 	const result = getShouldRenderAudio({
 		assetsInfo,
