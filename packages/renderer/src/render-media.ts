@@ -59,6 +59,7 @@ import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import type {OnArtifact} from './render-frames';
 import {internalRenderFrames} from './render-frames';
+import {getShouldRenderAudio} from './render-has-audio';
 import {
 	disableRepro,
 	enableRepro,
@@ -741,6 +742,15 @@ const internalRenderMediaRaw = ({
 					ensureOutputDirectory(absoluteOutputLocation);
 				}
 
+				// Determine if audio will actually be rendered to decide on stitch stage
+				const shouldRenderAudio =
+					getShouldRenderAudio({
+						assetsInfo,
+						codec,
+						enforceAudioTrack,
+						muted: disableAudio,
+					}) === 'yes';
+
 				const stitchStart = Date.now();
 				return internalStitchFramesToVideo({
 					width: Math.round(actualWidth),
@@ -757,7 +767,10 @@ const internalRenderMediaRaw = ({
 					crf,
 					assetsInfo,
 					onProgress: (frame: number) => {
-						stitchStage = 'muxing';
+						// Only set to 'muxing' if audio is actually being combined with video
+						if (shouldRenderAudio) {
+							stitchStage = 'muxing';
+						}
 						// With seamless AAC concatenation, the amount of rendered frames
 						// might be longer, so we need to clamp it to avoid progress over 100%
 						if (preEncodedFileLocation) {

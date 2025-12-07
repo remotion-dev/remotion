@@ -276,10 +276,10 @@ import {RenderMediaOnProgress} from '@remotion/renderer';
 
 const onProgress: RenderMediaOnProgress = ({renderedFrames, encodedFrames, encodedDoneIn, renderedDoneIn, stitchStage}) => {
   if (stitchStage === 'encoding') {
-    // First pass, parallel rendering of frames and encoding into video
+    // Rendering frames and encoding into video
     console.log('Encoding...');
   } else if (stitchStage === 'muxing') {
-    // Second pass, adding audio to the video
+    // Combining audio with video (only occurs when audio is present)
     console.log('Muxing audio...');
   }
   // Amount of frames rendered into images
@@ -299,6 +299,8 @@ const onProgress: RenderMediaOnProgress = ({renderedFrames, encodedFrames, encod
 
 :::note
 The `progress` attribute is available from v3.2.17.
+
+The `stitchStage` will be `'encoding'` when rendering and encoding frames into video. It will only be `'muxing'` when audio is actually being combined with video (i.e., when audio is present in the composition and not muted). If no audio is present, `stitchStage` will remain `'encoding'` throughout the entire process.
 :::
 
 ### `onDownload?`
