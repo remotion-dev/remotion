@@ -1,6 +1,7 @@
 import type {LogLevel, LoopVolumeCurveBehavior, VolumeProp} from 'remotion';
 
 export type FallbackHtml5AudioProps = {
+	crossOrigin?: '' | 'anonymous' | 'use-credentials' | undefined;
 	onError?: (err: Error) => void;
 	useWebAudioApi?: boolean;
 	acceptableTimeShiftInSeconds?: number;

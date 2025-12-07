@@ -15,6 +15,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
 	chromeModeOption,
+	darkModeOption,
 } = BrowserSafeApis.options;
 
 export const gpuCommand = async (logLevel: LogLevel) => {
@@ -42,6 +43,7 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 	const chromeMode = chromeModeOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
 
 	const onBrowserDownload = defaultBrowserDownloadProgress({
 		quiet: quietFlagProvided(),
@@ -57,13 +59,14 @@ export const gpuCommand = async (logLevel: LogLevel) => {
 		chromeMode,
 	});
 
-	const chromiumOptions: ChromiumOptions = {
+	const chromiumOptions: Required<ChromiumOptions> = {
 		disableWebSecurity,
 		enableMultiProcessOnLinux,
 		gl,
 		headless,
 		ignoreCertificateErrors,
 		userAgent,
+		darkMode,
 	};
 
 	const statuses = await RenderInternals.getChromiumGpuInformation({

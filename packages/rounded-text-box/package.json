@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/rounded-text-box"
 	},
 	"name": "@remotion/rounded-text-box",
-	"version": "4.0.379",
+	"version": "4.0.382",
 	"description": "Create a TikTok-like multiline text box SVG path with rounded corners",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",

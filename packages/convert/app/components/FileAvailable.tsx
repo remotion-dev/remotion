@@ -43,6 +43,9 @@ export const FileAvailable: React.FC<{
 	useEffect(() => {
 		const fox = new MediaFox({
 			renderer: 'webgl',
+			audioContext: new AudioContext({
+				sampleRate: 48000,
+			}),
 		});
 		setMediaFox(fox);
 

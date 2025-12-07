@@ -21,6 +21,7 @@ export const makeAudioIterator = (
 		buffer: AudioBuffer;
 		timestamp: number;
 	}[] = [];
+	let mostRecentTimestamp = -Infinity;
 
 	const cleanupAudioQueue = () => {
 		for (const node of queuedAudioNodes) {
@@ -46,15 +47,25 @@ export const makeAudioIterator = (
 				type: 'need-to-wait-for-it' as const,
 				waitPromise: async () => {
 					const res = await next;
-
 					return res.value;
 				},
 			};
 		}
 
+		if (result.value) {
+			mostRecentTimestamp = Math.max(
+				mostRecentTimestamp,
+				result.value.timestamp + result.value.duration,
+			);
+			return {
+				type: 'got-buffer' as const,
+				buffer: result.value,
+			};
+		}
+
 		return {
-			type: 'got-buffer-or-end' as const,
-			buffer: result.value ?? null,
+			type: 'got-end' as const,
+			mostRecentTimestamp,
 		};
 	};
 
@@ -74,6 +85,13 @@ export const makeAudioIterator = (
 				type: 'satisfied';
 		  }
 	> => {
+		if (time < startFromSecond) {
+			return {
+				type: 'not-satisfied' as const,
+				reason: `time requested is before the start of the iterator`,
+			};
+		}
+
 		while (true) {
 			const buffer = await getNextOrNullIfNotAvailable(allowWait);
 			if (buffer.type === 'need-to-wait-for-it') {
@@ -83,13 +101,20 @@ export const makeAudioIterator = (
 				};
 			}
 
-			if (buffer.type === 'got-buffer-or-end') {
-				if (buffer.buffer === null) {
+			if (buffer.type === 'got-end') {
+				if (time >= mostRecentTimestamp) {
 					return {
 						type: 'ended' as const,
 					};
 				}
 
+				return {
+					type: 'not-satisfied' as const,
+					reason: `iterator ended before the requested time`,
+				};
+			}
+
+			if (buffer.type === 'got-buffer') {
 				const bufferTimestamp = roundTo4Digits(buffer.buffer.timestamp);
 				const bufferEndTimestamp = roundTo4Digits(
 					buffer.buffer.timestamp + buffer.buffer.duration,
@@ -153,6 +178,13 @@ export const makeAudioIterator = (
 		},
 		getNext: async () => {
 			const next = await iterator.next();
+			if (next.value) {
+				mostRecentTimestamp = Math.max(
+					mostRecentTimestamp,
+					next.value.timestamp + next.value.duration,
+				);
+			}
+
 			return next;
 		},
 		isDestroyed: () => {

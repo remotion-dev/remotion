@@ -4,12 +4,10 @@ import React, {
 	createRef,
 	useCallback,
 	useContext,
-	useEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
-import {CompositionManager} from '../CompositionManagerContext.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playAndHandleNotAllowedError} from '../play-and-handle-not-allowed-error.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
@@ -125,13 +123,6 @@ export const SharedAudioContextProvider: React.FC<{
 			'The number of shared audio tags has changed dynamically. Once you have set this property, you cannot change it afterwards.',
 		);
 	}
-
-	const compositionManager = useContext(CompositionManager);
-	const component = compositionManager.compositions.find((c) =>
-		compositionManager.canvasContent?.type === 'composition'
-			? c.id === compositionManager.canvasContent.compositionId
-			: null,
-	);
 
 	const logLevel = useLogLevel();
 	const audioContext = useSingletonAudioContext(logLevel, audioLatencyHint);
@@ -328,26 +319,6 @@ export const SharedAudioContextProvider: React.FC<{
 		updateAudio,
 		audioContext,
 	]);
-
-	// Fixing a bug: In React, if a component is unmounted using useInsertionEffect, then
-	// the cleanup function does sometimes not work properly. That is why when we
-	// are changing the composition, we reset the audio state.
-
-	// TODO: Possibly this does not save the problem completely, since the
-	// if an audio tag that is inside a sequence will also not be removed
-	// from the shared audios.
-
-	const resetAudio = useCallback(() => {
-		takenAudios.current = new Array(numberOfAudioTags).fill(false);
-		audios.current = [];
-		rerenderAudios();
-	}, [numberOfAudioTags, rerenderAudios]);
-
-	useEffect(() => {
-		return () => {
-			resetAudio();
-		};
-	}, [component, resetAudio]);
 
 	return (
 		<SharedAudioContext.Provider value={value}>

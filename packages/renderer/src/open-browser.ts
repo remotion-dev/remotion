@@ -38,6 +38,7 @@ export type ChromiumOptions = {
 	gl?: OpenGlRenderer | null;
 	userAgent?: string | null;
 	enableMultiProcessOnLinux?: boolean;
+	darkMode?: boolean;
 } & OnlyV4Options;
 
 const featuresToEnable = (option?: OpenGlRenderer | null) => {

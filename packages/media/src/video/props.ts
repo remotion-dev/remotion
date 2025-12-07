@@ -10,6 +10,7 @@ export type FallbackOffthreadVideoProps = {
 	transparent?: boolean;
 	toneMapped?: boolean;
 	onError?: (err: Error) => void;
+	crossOrigin?: '' | 'anonymous' | 'use-credentials' | undefined;
 };
 
 type MandatoryVideoProps = {

@@ -34,6 +34,7 @@ export const makePage = async ({
 	isMainTab,
 	mediaCacheSizeInBytes,
 	onLog,
+	darkMode,
 }: {
 	context: SourceMapGetter;
 	initialFrame: number;
@@ -56,6 +57,7 @@ export const makePage = async ({
 	isMainTab: boolean;
 	mediaCacheSizeInBytes: number | null;
 	onLog: OnLog;
+	darkMode: boolean;
 }) => {
 	const page = await browserReplacer
 		.getBrowser()
@@ -84,6 +86,7 @@ export const makePage = async ({
 		isMainTab,
 		mediaCacheSizeInBytes,
 		initialMemoryAvailable: getAvailableMemory(logLevel),
+		darkMode,
 	});
 
 	await puppeteerEvaluateWithCatch({

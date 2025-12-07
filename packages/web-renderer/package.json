@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/web-renderer"
 	},
 	"name": "@remotion/web-renderer",
-	"version": "4.0.379",
+	"version": "4.0.382",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -23,7 +23,7 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/media": "workspace:*",
-		"@vitejs/plugin-react": "^5.1.0",
+		"@vitejs/plugin-react": "4.1.0",
 		"@vitest/browser-playwright": "4.0.9",
 		"playwright": "1.55.1",
 		"eslint": "catalog:",

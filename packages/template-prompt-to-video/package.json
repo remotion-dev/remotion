@@ -18,8 +18,8 @@
     "@remotion/layout-utils": "workspace:*",
     "@remotion/media": "workspace:*",
     "@remotion/zod-types": "workspace:*",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
     "remotion": "workspace:*",
     "zod": "3.22.3"
   },
@@ -27,7 +27,7 @@
     "@elevenlabs/elevenlabs-js": "^2.20.0",
     "@remotion/eslint-config-flat": "workspace:*",
     "@types/prompts": "^2.4.9",
-    "@types/react": "19.0.0",
+    "@types/react": "19.2.7",
     "@types/uuid": "^11.0.0",
     "@types/web": "0.0.166",
     "@types/yargs": "^17.0.33",
@@ -38,7 +38,7 @@
     "prettier": "3.6.0",
     "prompts": "^2.4.2",
     "tsx": "^4.20.6",
-    "typescript": "5.8.2",
+    "typescript": "5.9.3",
     "uuid": "^13.0.0",
     "yargs": "^18.0.0",
     "zod-to-json-schema": "^3.24.6"

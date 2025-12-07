@@ -62,6 +62,8 @@ export const Probe: React.FC<{
 				bestBrightness.current = differenceToIdeal;
 				videoThumbnailRef.current?.draw(frame);
 			}
+
+			frame.close();
 		},
 		[videoThumbnailRef],
 	);

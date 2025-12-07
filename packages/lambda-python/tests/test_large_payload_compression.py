@@ -1,7 +1,6 @@
 import unittest
-from unittest.mock import patch, MagicMock
-from remotion_lambda.models import RenderMediaParams
-from remotion_lambda.remotionclient import RemotionClient
+from unittest.mock import patch
+from remotion_lambda.remotionclient import RemotionClient, RemotionException
 
 
 class TestLargePayloadCompression(unittest.TestCase):
@@ -100,7 +99,7 @@ class TestLargePayloadCompression(unittest.TestCase):
             'remotionlambda-useast1-def456',
         ]
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(RemotionException) as context:
             self.client._get_or_create_bucket()
 
         error_message = str(context.exception)

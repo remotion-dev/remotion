@@ -597,6 +597,19 @@ export class Page extends EventEmitter {
 		await this.#client.send('Page.bringToFront');
 	}
 
+	async setAutoDarkModeOverride(): Promise<void> {
+		const result = await this.#client.send('Emulation.setEmulatedMedia', {
+			media: 'screen',
+			features: [
+				{
+					name: 'prefers-color-scheme',
+					value: 'dark',
+				},
+			],
+		});
+		console.log(result);
+	}
+
 	evaluate<T extends EvaluateFn>(
 		pageFunction: T,
 		...args: SerializableOrJSHandle[]
