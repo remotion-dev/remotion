@@ -13,6 +13,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@remotion/cli": "workspace:*",
+    "@remotion/media": "workspace:*",
     "@remotion/media-utils": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "@remotion/zod-types": "workspace:*",

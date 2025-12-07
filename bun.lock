@@ -1466,6 +1466,7 @@
       "dependencies": {
         "@remotion/cli": "workspace:*",
         "@remotion/google-fonts": "workspace:*",
+        "@remotion/media": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/zod-types": "workspace:*",
         "mediabunny": "catalog:",
