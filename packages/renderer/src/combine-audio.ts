@@ -13,9 +13,21 @@ import {truthy} from './truthy';
 
 export const durationOf1Frame = (1024 / DEFAULT_SAMPLE_RATE) * 1_000_000;
 
+const roundWithFix = (targetTime: number) => {
+	// We need to round up to 0.49999999999
+	// If we don't have it, can lead to audio imperfection, such as demonstrated in https://github.com/remotion-dev/remotion/issues/6010
+	if (targetTime % 1 > 0.4999999) {
+		return Math.ceil(targetTime);
+	}
+
+	return Math.floor(targetTime);
+};
+
 export const getClosestAlignedTime = (targetTime: number) => {
 	const decimalFramesToTargetTime = (targetTime * 1_000_000) / durationOf1Frame;
-	const nearestFrameIndexForTargetTime = Math.round(decimalFramesToTargetTime);
+	const nearestFrameIndexForTargetTime = roundWithFix(
+		decimalFramesToTargetTime,
+	);
 	return (nearestFrameIndexForTargetTime * durationOf1Frame) / 1_000_000;
 };
 
