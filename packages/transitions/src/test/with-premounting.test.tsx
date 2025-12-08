@@ -22,8 +22,6 @@ const CustomAbsoluteFill = ({
 };
 
 export const PremountFor20251208Component: React.FC = () => {
-	const frame = useCurrentFrame();
-
 	return (
 		<TransitionSeries>
 			<TransitionSeries.Sequence durationInFrames={60} premountFor={30}>
@@ -103,14 +101,12 @@ test('should not regress #5673', () => {
 	expect(outerHTML).toContain('<div>0</div>');
 });
 
-const CurrentFrame: FC<Record<string, unknown>> = (props) => {
+const CurrentFrame: FC<Record<string, unknown>> = () => {
 	const currentFrame = useCurrentFrame();
 	return <div>{currentFrame}</div>;
 };
 
 const BugReport6027 = () => {
-	const absoluteFrame = useCurrentFrame();
-
 	return (
 		<div
 			style={{
