@@ -14,8 +14,9 @@ import {truthy} from './truthy';
 export const durationOf1Frame = (1024 / DEFAULT_SAMPLE_RATE) * 1_000_000;
 
 const roundWithFix = (targetTime: number) => {
-	// We need to round up to 0.49999999999
-	// If we don't have it, can lead to audio imperfection, such as demonstrated in https://github.com/remotion-dev/remotion/issues/6010
+	// Round values where the fractional part is > 0.4999999 up to the next integer,
+	// otherwise round down. This addresses floating-point precision issues that can
+	// lead to audio imperfections, such as demonstrated in https://github.com/remotion-dev/remotion/issues/6010
 	if (targetTime % 1 > 0.4999999) {
 		return Math.ceil(targetTime);
 	}
