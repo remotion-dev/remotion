@@ -83,6 +83,8 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
+	const initialTrimBeforeRef = useRef(trimBefore);
+	const initialTrimAfterRef = useRef(trimAfter);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
 	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
@@ -174,8 +176,8 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 				logLevel,
 				sharedAudioContext: sharedAudioContext.audioContext,
 				loop,
-				trimAfter,
-				trimBefore,
+				trimAfter: initialTrimAfterRef.current,
+				trimBefore: initialTrimBeforeRef.current,
 				fps: videoConfig.fps,
 				playbackRate,
 				audioStreamIndex,
@@ -294,8 +296,6 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 		logLevel,
 		sharedAudioContext,
 		loop,
-		trimAfter,
-		trimBefore,
 		videoConfig.fps,
 		playbackRate,
 		disallowFallbackToOffthreadVideo,
