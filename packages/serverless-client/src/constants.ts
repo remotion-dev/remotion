@@ -116,7 +116,8 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	serveUrl: string;
 	composition: string;
 	framesPerLambda: number | null;
-	concurrency: number | null;
+	// PHP Lambda client will omit the concurrency parameter
+	concurrency: number | null | undefined;
 	inputProps: SerializedInputProps;
 	codec: ServerlessCodec;
 	audioCodec: AudioCodec | null;
