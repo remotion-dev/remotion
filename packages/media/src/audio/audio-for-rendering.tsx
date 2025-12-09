@@ -66,7 +66,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`media-video-${random(
+			`media-audio-${random(
 				src,
 			)}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
 		[
