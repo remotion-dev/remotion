@@ -24,7 +24,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	loopVolumeCurveBehavior,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
-	logLevel,
+	logLevel = window.remotion_logLevel ?? 'info',
 	loop,
 	fallbackHtml5AudioProps,
 	audioStreamIndex,

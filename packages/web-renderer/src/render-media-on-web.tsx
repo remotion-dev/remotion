@@ -3,6 +3,7 @@ import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
 import {handleArtifacts, type OnArtifact} from './artifact';
+import {onlyInlineAudio} from './audio';
 import {createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
 import type {
@@ -277,6 +278,8 @@ const internalRenderMediaOnWeb = async <
 					onArtifact,
 				});
 			}
+
+			onlyInlineAudio(assets);
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
