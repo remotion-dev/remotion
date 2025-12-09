@@ -81,6 +81,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		logLevel ?? window.remotion_logLevel,
 	);
 
+	const audioEnabled = Internals.useAudioEnabled();
+
 	useLayoutEffect(() => {
 		const timestamp = frame / fps;
 		const durationInSeconds = 1 / fps;
@@ -95,7 +97,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		});
 
 		const shouldRenderAudio = (() => {
-			if (!window.remotion_audioEnabled) {
+			if (!audioEnabled) {
 				return false;
 			}
 
@@ -257,6 +259,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		trimBefore,
 		replaceWithHtml5Audio,
 		maxCacheSize,
+		audioEnabled,
 	]);
 
 	if (replaceWithHtml5Audio) {
