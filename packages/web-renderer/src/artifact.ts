@@ -76,24 +76,20 @@ type PreviousArtifact = {
 	filename: string;
 };
 
-export const handleArtifacts = ({
-	ref,
-	onArtifact,
-}: {
-	ref: ArtifactsRef;
-	onArtifact: OnArtifact | null;
-}) => {
+export const handleArtifacts = () => {
 	const previousArtifacts: PreviousArtifact[] = [];
 
 	const handle = async ({
 		imageData,
 		frame,
+		assets: artifactAssets,
+		onArtifact,
 	}: {
 		imageData: Blob | OffscreenCanvas | null;
 		frame: number;
+		assets: TRenderAsset[];
+		onArtifact: OnArtifact | null;
 	}) => {
-		const artifactAssets = ref.current!.collectAssets();
-
 		if (onArtifact) {
 			const artifacts = await onlyArtifact({
 				assets: artifactAssets,

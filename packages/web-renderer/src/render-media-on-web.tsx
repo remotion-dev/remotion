@@ -182,10 +182,7 @@ const internalRenderMediaOnWeb = async <
 			defaultOutName: resolved.defaultOutName,
 		});
 
-	const artifactsHandler = handleArtifacts({
-		ref: collectAssets,
-		onArtifact,
-	});
+	const artifactsHandler = handleArtifacts();
 
 	cleanupFns.push(() => {
 		cleanupScaffold();
@@ -271,7 +268,15 @@ const internalRenderMediaOnWeb = async <
 				height: resolved.height,
 			});
 
-			await artifactsHandler.handle({imageData, frame: i});
+			const assets = collectAssets.current!.collectAssets();
+			if (onArtifact) {
+				await artifactsHandler.handle({
+					imageData,
+					frame: i,
+					assets,
+					onArtifact,
+				});
+			}
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
