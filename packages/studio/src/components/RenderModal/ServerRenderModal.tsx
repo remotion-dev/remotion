@@ -803,7 +803,12 @@ const RenderModal: React.FC<
 			logLevel,
 			codec,
 			concurrency,
-			crf: qualityControlType === 'crf' ? crf : null,
+			crf:
+				qualityControlType === 'crf' &&
+				hardwareAcceleration !== 'if-possible' &&
+				hardwareAcceleration !== 'required'
+					? crf
+					: null,
 			endFrame,
 			startFrame,
 			muted,
