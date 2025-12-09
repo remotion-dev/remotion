@@ -199,10 +199,9 @@ export const audioIteratorManager = ({
 			return;
 		}
 
-		const currentTimeIsAlreadyQueued = isAlreadyQueued(
-			newTime,
-			audioBufferIterator.getQueuedPeriod(),
-		);
+		const queuedPeriod = audioBufferIterator.getQueuedPeriod();
+
+		const currentTimeIsAlreadyQueued = isAlreadyQueued(newTime, queuedPeriod);
 
 		if (!currentTimeIsAlreadyQueued) {
 			const audioSatisfyResult = await audioBufferIterator.tryToSatisfySeek(
@@ -326,7 +325,7 @@ export const audioIteratorManager = ({
 		resumeScheduledAudioChunks,
 		pausePlayback,
 		getAudioBufferIterator: () => audioBufferIterator,
-		destroy: () => {
+		destroyIterator: () => {
 			audioBufferIterator?.destroy();
 			audioBufferIterator = null;
 		},

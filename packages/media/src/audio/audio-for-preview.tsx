@@ -147,15 +147,15 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		trimBefore,
 	});
 
-	const buffering = useContext(Internals.BufferingContextReact);
+	const bufferingContext = useContext(Internals.BufferingContextReact);
 
-	if (!buffering) {
+	if (!bufferingContext) {
 		throw new Error(
 			'useMediaPlayback must be used inside a <BufferingContext>',
 		);
 	}
 
-	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
+	const isPlayerBuffering = Internals.useIsPlayerBuffering(bufferingContext);
 
 	useEffect(() => {
 		if (!sharedAudioContext) return;
@@ -316,6 +316,24 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		}
 	}, [isPlayerBuffering, logLevel, playing]);
 
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setTrimBefore(trimBefore, currentTimeRef.current);
+	}, [trimBefore, mediaPlayerReady]);
+
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setTrimAfter(trimAfter, currentTimeRef.current);
+	}, [trimAfter, mediaPlayerReady]);
+
 	useLayoutEffect(() => {
 		const audioPlayer = mediaPlayerRef.current;
 		if (!audioPlayer || !mediaPlayerReady) return;
@@ -373,24 +391,6 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 
 		audioPlayer.setFps(videoConfig.fps);
 	}, [videoConfig.fps, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setTrimBefore(trimBefore);
-	}, [trimBefore, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setTrimAfter(trimAfter);
-	}, [trimAfter, mediaPlayerReady]);
 
 	useEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

@@ -324,6 +324,24 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 		}
 	}, [isPlayerBuffering, playing, logLevel, mediaPlayerReady]);
 
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setTrimBefore(trimBefore, currentTimeRef.current);
+	}, [trimBefore, mediaPlayerReady]);
+
+	useEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setTrimAfter(trimAfter, currentTimeRef.current);
+	}, [trimAfter, mediaPlayerReady]);
+
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
@@ -427,24 +445,6 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 
 		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
 	}, [onVideoFrame, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setTrimBefore(trimBefore);
-	}, [trimBefore, mediaPlayerReady]);
-
-	useEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setTrimAfter(trimAfter);
-	}, [trimAfter, mediaPlayerReady]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
