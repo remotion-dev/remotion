@@ -27,7 +27,6 @@ export const renderForFrame = (frame: number, markup: React.ReactNode) => {
 					</Internals.TimelineContext.Provider>
 				</Internals.CompositionManager.Provider>
 			</Internals.CanUseRemotionHooksProvider>
-			,
 		</Internals.RemotionEnvironmentContext>,
 	);
 };
