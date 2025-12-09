@@ -30,7 +30,6 @@ export const videoIteratorManager = ({
 	let framesRendered = 0;
 
 	let loopTransitionIterator: VideoIterator | null = null;
-	let loopTransitionFirstFrame: WrappedCanvas | null = null;
 	let loopSwapCount = 0;
 
 	canvas.width = videoTrack.displayWidth;
@@ -101,18 +100,28 @@ export const videoIteratorManager = ({
 		nonce: Nonce;
 		isInLoopTransition?: boolean;
 	}) => {
-		if (
-			isInLoopTransition &&
-			loopTransitionIterator &&
-			loopTransitionFirstFrame
-		) {
+		if (isInLoopTransition && loopTransitionIterator) {
+			videoFrameIterator?.destroy();
 			videoFrameIterator = loopTransitionIterator;
 			loopTransitionIterator = null;
 			loopSwapCount++;
 
-			drawFrame(loopTransitionFirstFrame);
-			loopTransitionFirstFrame = null;
+			const loopPrewarmSatisfyResult =
+				await videoFrameIterator.tryToSatisfySeek(newTime);
 
+			if (loopPrewarmSatisfyResult.type === 'satisfied') {
+				drawFrame(loopPrewarmSatisfyResult.frame);
+				return;
+			}
+
+			if (nonce.isStale()) {
+				return;
+			}
+
+			// fall through to startVideoIterator if couldn't satisfy
+			startVideoIterator(newTime, nonce).catch(() => {
+				// might be stale or disposed
+			});
 			return;
 		}
 
@@ -152,30 +161,25 @@ export const videoIteratorManager = ({
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			videoFrameIterator = null;
 			loopTransitionIterator = null;
-			loopTransitionFirstFrame = null;
 		},
 		getVideoFrameIterator: () => videoFrameIterator,
 		drawFrame,
 		getFramesRendered: () => framesRendered,
 		getLoopSwapCount: () => loopSwapCount,
 		prepareLoopTransition: async ({startTime}: {startTime: number}) => {
-			console.log('preparing loop transition');
 			loopTransitionIterator?.destroy();
-			loopTransitionFirstFrame = null;
 
 			const iterator = createVideoIterator(startTime, canvasSink);
 			loopTransitionIterator = iterator;
 
 			try {
-				const result = await iterator.getNext();
-				console.log('got the first frame!', result);
-				if (result.value) {
-					loopTransitionFirstFrame = result.value;
-				}
+				// Pre-warm the decoder by fetching the first frame
+				// This initializes the VideoDecoder and starts decoding
+				// The frame will be consumed by tryToSatisfySeek when the loop transition occurs
+				await iterator.getNext();
 			} catch (e) {
 				loopTransitionIterator?.destroy();
 				loopTransitionIterator = null;
-				loopTransitionFirstFrame = null;
 				throw e;
 			}
 		},
