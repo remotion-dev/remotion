@@ -91,7 +91,6 @@ export const Freeze: React.FC<FreezeProps> = ({
 
 		return {
 			...sequenceContext,
-			relativeFrom: 0,
 			cumulatedFrom: 0,
 		};
 	}, [sequenceContext, isActive]);

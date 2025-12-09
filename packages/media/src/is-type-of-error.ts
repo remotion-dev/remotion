@@ -17,3 +17,7 @@ export function isNetworkError(error: Error) {
 
 	return false;
 }
+
+export function isUnsupportedConfigurationError(error: Error) {
+	return error.message.includes('Unsupported configuration');
+}

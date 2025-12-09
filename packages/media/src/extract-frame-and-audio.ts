@@ -1,6 +1,6 @@
 import type {LogLevel} from 'remotion';
 import {extractAudio} from './audio-extraction/extract-audio';
-import {isNetworkError} from './is-network-error';
+import {isNetworkError} from './is-type-of-error';
 import {extractFrame} from './video-extraction/extract-frame';
 import type {ExtractFrameViaBroadcastChannelResult} from './video-extraction/extract-frame-via-broadcast-channel';
 import {rotateFrame} from './video-extraction/rotate-frame';
