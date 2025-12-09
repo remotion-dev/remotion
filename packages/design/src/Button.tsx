@@ -46,7 +46,7 @@ export const Button: React.FC<
 				const rect = childNode.getBoundingClientRect();
 				const {borderRadius} = getComputedStyle(childNode);
 
-				const cornerRadius = borderRadius.includes('e+0')
+				const cornerRadius = borderRadius.includes('e')
 					? Infinity
 					: parseInt(borderRadius ?? '0', 10);
 

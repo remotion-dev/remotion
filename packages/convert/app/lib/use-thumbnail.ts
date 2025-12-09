@@ -38,6 +38,7 @@ export const useThumbnailAndWaveform = ({
 				for await (const sample of iterator) {
 					samples++;
 					onVideoThumbnail(sample.toVideoFrame());
+					sample.close();
 
 					if (samples === 60) {
 						iterator.return().catch(() => undefined);

@@ -10,7 +10,7 @@ import {
 	WEBM,
 } from 'mediabunny';
 import type {LogLevel} from 'remotion';
-import {isNetworkError} from '../is-network-error';
+import {isNetworkError} from '../is-type-of-error';
 import {makeKeyframeBank} from './keyframe-bank';
 import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-timestamps';
 

@@ -1,6 +1,6 @@
 import {
   createSmoothSvgPath,
-  useAudioData,
+  useWindowedAudioData,
   visualizeAudioWaveform,
 } from "@remotion/media-utils";
 import React, { useMemo } from "react";
@@ -63,7 +63,12 @@ export const Waveform: React.FC<WaveformProps> = ({
   const { width, fps } = useVideoConfig();
   const frame = useCurrentFrame();
 
-  const audioData = useAudioData(audioSrc);
+  const { audioData, dataOffsetInSeconds } = useWindowedAudioData({
+    src: audioSrc,
+    frame,
+    fps,
+    windowInSeconds: 30,
+  });
 
   const numberOfSamples = useMemo(
     () => calculateNumberOfSamples(windowInSeconds),
@@ -77,10 +82,11 @@ export const Waveform: React.FC<WaveformProps> = ({
   const waveform = visualizeAudioWaveform({
     fps,
     frame,
-    audioData: audioData,
+    audioData,
     numberOfSamples,
     windowInSeconds: windowInSeconds,
     channel: 0,
+    dataOffsetInSeconds,
   });
 
   const p = createSmoothSvgPath({

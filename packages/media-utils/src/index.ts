@@ -6,10 +6,8 @@ export {
 	getAudioDurationInSeconds,
 } from './get-audio-duration-in-seconds';
 export {getImageDimensions} from './get-image-dimensions';
-export {getPartialWaveData} from './get-partial-wave-data';
 export {getVideoMetadata} from './get-video-metadata';
 export {getWaveformPortion} from './get-waveform-portion';
-export {WaveProbe, probeWaveFile} from './probe-wave-file';
 export * from './types';
 export type {
 	AudioData,

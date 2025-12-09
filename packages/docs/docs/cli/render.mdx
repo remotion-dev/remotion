@@ -126,6 +126,10 @@ Sets the output file path, as an alternative to the `output-location` positional
 
 [To set Constant Rate Factor (CRF) of the output](/docs/config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size. This option cannot be set if `--video-bitrate` is set.
 
+:::note
+If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`--video-bitrate`](#--video-bitrate) option instead.
+:::
+
 ### `--browser-executable`<AvailableFrom v="1.5.0" />
 
 [Path to a Chrome executable](/docs/config#setbrowserexecutable). If not specified and Remotion cannot find one, it will download one during rendering.

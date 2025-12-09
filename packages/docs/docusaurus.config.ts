@@ -59,8 +59,6 @@ const config: Config = {
 						{to: '/lambda', label: 'Lambda'},
 						{to: '/docs/editor-starter', label: 'Editor Starter'},
 						{to: '/docs/timeline', label: 'Timeline'},
-						{to: '/docs/media-parser', label: 'Media Parser'},
-						{to: '/docs/webcodecs', label: 'WebCodecs'},
 						{to: '/docs/recorder', label: 'Recorder'},
 					],
 				},

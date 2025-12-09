@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.382",
+	"version": "4.0.383",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -447,15 +447,6 @@
 			],
 			"B612Mono": [
 				"dist/cjs/B612Mono.d.ts"
-			],
-			"BBHSansBartle": [
-				"dist/cjs/BBHSansBartle.d.ts"
-			],
-			"BBHSansBogle": [
-				"dist/cjs/BBHSansBogle.d.ts"
-			],
-			"BBHSansHegarty": [
-				"dist/cjs/BBHSansHegarty.d.ts"
 			],
 			"BIZUDGothic": [
 				"dist/cjs/BIZUDGothic.d.ts"

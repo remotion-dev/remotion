@@ -641,6 +641,10 @@ Config.setCrf(16);
 
 The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence over this option.
 
+:::note
+If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`setVideoBitrate()`](#setvideobitrate) option instead.
+:::
+
 ## `setVideoBitrate()`<AvailableFrom v="3.2.32" />
 
 <Options id="video-bitrate" />

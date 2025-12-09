@@ -12,8 +12,8 @@ const C4_FREQUENCY = 261.63;
 const sampleRate = 44100;
 
 export const OfflineAudioBufferExample: React.FC = () => {
-	const {delayRender, continueRender} = useDelayRender();
-	const [handle] = useState(() => delayRender());
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const [handle] = useState(() => delayRender('Creating offline audio'));
 	const [audioBuffer, setAudioBuffer] = useState<string | null>(null);
 	const {fps, durationInFrames} = useVideoConfig();
 	const lengthInSeconds = durationInFrames / fps;
@@ -39,13 +39,13 @@ export const OfflineAudioBufferExample: React.FC = () => {
 
 		const buffer = await offlineContext.startRendering();
 		setAudioBuffer(audioBufferToDataUrl(buffer));
-
-		continueRender(handle);
-	}, [handle, lengthInSeconds, continueRender]);
+	}, [lengthInSeconds]);
 
 	useEffect(() => {
-		renderAudio();
-	}, [renderAudio]);
+		renderAudio()
+			.then(() => continueRender(handle))
+			.catch((err) => cancelRender(err));
+	}, [continueRender, handle, renderAudio, cancelRender]);
 
 	return (
 		<AbsoluteFill>

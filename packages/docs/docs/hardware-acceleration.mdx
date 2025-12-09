@@ -79,12 +79,14 @@ Config.setHardwareAcceleration('if-possible');
 
 These options are not supported in Remotion Lambda and Cloud Run, because those cloud services do not support hardware acceleration.
 
-## File size
+## Controlling quality using `--video-bitrate`
 
 Note that the file size is significantly larger by default when using hardware acceleration, likely because less compression is applied.  
 We recommend that you use the `--video-bitrate` flag to control the file size.
 
 We find that `--video-bitrate=8M` achieves a similar file size than software encoding when exporting a H.264 Full HD video.
+
+The [`crf` option](/docs/encoding#controlling-quality-using-the-crf-setting) is not compatible with hardware-accelerated encoders. Instead, use the [`--video-bitrate`](/docs/cli/render#--video-bitrate) flag to control the quality and file size of the output video.
 
 ## Tell if hardware acceleration is being used
 
