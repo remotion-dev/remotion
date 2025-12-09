@@ -42,7 +42,7 @@ test('should be able to render 2 audios', async () => {
 			width: 100,
 			height: 100,
 			fps: 30,
-			durationInFrames: 1,
+			durationInFrames: 10,
 			calculateMetadata: null,
 		},
 		logLevel: 'info',

@@ -3,12 +3,10 @@ import type {TRenderAsset} from 'remotion';
 const TARGET_NUMBER_OF_CHANNELS = 2;
 const TARGET_SAMPLE_RATE = 48000;
 
-function mixAudio(waves: Int16Array[]) {
+function mixAudio(waves: Int16Array[], length: number) {
 	if (waves.length === 1) {
 		return waves[0];
 	}
-
-	const {length} = waves[0];
 
 	const mixed = new Int16Array(length);
 
@@ -24,7 +22,6 @@ function mixAudio(waves: Int16Array[]) {
 export const onlyInlineAudio = (assets: TRenderAsset[]): AudioData | null => {
 	const inlineAudio = assets.filter((asset) => asset.type === 'inline-audio');
 
-	let duration: number | null = null;
 	let length: number | null = null;
 	for (const asset of inlineAudio) {
 		if (asset.toneFrequency !== 1) {
@@ -33,32 +30,32 @@ export const onlyInlineAudio = (assets: TRenderAsset[]): AudioData | null => {
 			);
 		}
 
-		if (duration === null) {
-			duration = asset.duration;
-		} else if (duration !== asset.duration) {
-			throw new Error('All inline audio must have the same duration');
-		}
-
 		if (length === null) {
 			length = asset.audio.length;
-		} else if (length !== asset.audio.length) {
+			// 1 frame offset may happen due to rounding, it is safe to truncate the last sample
+		} else if (
+			Math.abs(length - asset.audio.length) > TARGET_NUMBER_OF_CHANNELS
+		) {
 			throw new Error('All inline audio must have the same length');
+		} else {
+			length = Math.min(length, asset.audio.length);
 		}
 	}
 
-	if (duration === null || length === null) {
+	if (length === null) {
 		return null;
 	}
 
 	const mixedAudio = mixAudio(
 		inlineAudio.map((asset) => asset.audio as Int16Array),
+		length,
 	) as Int16Array<ArrayBuffer>;
 
 	return new AudioData({
 		data: mixedAudio,
 		format: 's16',
 		numberOfChannels: TARGET_NUMBER_OF_CHANNELS,
-		numberOfFrames: inlineAudio[0].audio.length / TARGET_NUMBER_OF_CHANNELS,
+		numberOfFrames: length / TARGET_NUMBER_OF_CHANNELS,
 		sampleRate: TARGET_SAMPLE_RATE,
 		timestamp: inlineAudio[0].timestamp,
 	});
