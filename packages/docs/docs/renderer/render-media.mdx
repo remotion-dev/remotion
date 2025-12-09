@@ -279,7 +279,8 @@ const onProgress: RenderMediaOnProgress = ({renderedFrames, encodedFrames, encod
     // Rendering frames and encoding into video
     console.log('Encoding...');
   } else if (stitchStage === 'muxing') {
-    // Combining audio with video (only occurs when audio is present)
+    // If parallel rendering and encoding is being used, a second stage is used to
+    // encode the audio and combine it with the video. This stage does not occur on every render.
     console.log('Muxing audio...');
   }
   // Amount of frames rendered into images
