@@ -488,10 +488,27 @@ const RenderModal: React.FC<
 	const supportsVideoBitrate = BrowserSafeApis.codecSupportsVideoBitrate(codec);
 
 	const supportsBothQualityControls = useMemo(() => {
-		return supportsCrf && supportsVideoBitrate;
-	}, [supportsCrf, supportsVideoBitrate]);
+		return (
+			supportsCrf &&
+			supportsVideoBitrate &&
+			hardwareAcceleration !== 'if-possible' &&
+			hardwareAcceleration !== 'required'
+		);
+	}, [hardwareAcceleration, supportsCrf, supportsVideoBitrate]);
 
 	const qualityControlType = useMemo(() => {
+		// When hardware acceleration is enabled, only bitrate is supported
+		if (
+			hardwareAcceleration === 'if-possible' ||
+			hardwareAcceleration === 'required'
+		) {
+			if (supportsVideoBitrate) {
+				return 'bitrate';
+			}
+
+			return null;
+		}
+
 		if (supportsBothQualityControls) {
 			return preferredQualityControlType;
 		}
@@ -506,6 +523,7 @@ const RenderModal: React.FC<
 
 		return null;
 	}, [
+		hardwareAcceleration,
 		preferredQualityControlType,
 		supportsBothQualityControls,
 		supportsCrf,
