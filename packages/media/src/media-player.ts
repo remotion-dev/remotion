@@ -459,7 +459,7 @@ export class MediaPlayer {
 			loop: this.loop,
 			trimBefore: this.trimBefore,
 			trimAfter: this.trimAfter,
-			mediaDurationInSeconds: this.totalDuration ?? null,
+			mediaDurationInSeconds: this.mediaDurationInSeconds ?? null,
 			fps: this.fps,
 			ifNoMediaDuration: 'infinity',
 			src: this.src,
