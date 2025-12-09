@@ -8,7 +8,7 @@ import {
 import {calculatePlaybackTime} from './calculate-playbacktime';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getTimeInSeconds} from './get-time-in-seconds';
-import {isNetworkError} from './is-network-error';
+import {isNetworkError} from './is-type-of-error';
 import type {Nonce, NonceManager} from './nonce-manager';
 import {makeNonceManager} from './nonce-manager';
 import type {VideoIteratorManager} from './video-iterator-manager';

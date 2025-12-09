@@ -208,7 +208,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					}
 
 					if (window.remotion_isMainTab) {
-						Internals.Log.info(
+						Internals.Log.warn(
 							{logLevel, tag: '@remotion/media'},
 							`Cannot decode ${src}, falling back to <OffthreadVideo>`,
 						);
