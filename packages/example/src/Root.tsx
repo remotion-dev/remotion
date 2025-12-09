@@ -133,6 +133,7 @@ import {EdgeBlur} from './EdgeBlur/EdgeBlur';
 import {Empty} from './Empty';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {NewAudioExample} from './NewAudio/NewAudio';
+import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
 import {LoopedOffthreadRemoteVideo} from './OffthreadRemoteVideo/LoopedOffthreadRemoteVideo';
 import {MultiChannelAudio} from './OffthreadRemoteVideo/MultiChannelAudio';
 import {NewVideoComp} from './OffthreadRemoteVideo/NewRemoteVideo';
@@ -1790,6 +1791,7 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={100}
 			/>
+			<ChangingTrimBeforeValue />
 		</>
 	);
 };
