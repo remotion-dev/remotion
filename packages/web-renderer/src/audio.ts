@@ -1,6 +1,27 @@
 import type {TRenderAsset} from 'remotion';
 
-export const onlyInlineAudio = (assets: TRenderAsset[]) => {
+const TARGET_NUMBER_OF_CHANNELS = 2;
+const TARGET_SAMPLE_RATE = 48000;
+
+function mixAudio(waves: Int16Array[]) {
+	if (waves.length === 1) {
+		return waves[0];
+	}
+
+	const {length} = waves[0];
+
+	const mixed = new Int16Array(length);
+
+	for (let i = 0; i < length; i++) {
+		const sum = waves.reduce((acc, wave) => acc + wave[i], 0);
+		// Clamp to Int16 range
+		mixed[i] = Math.max(-32768, Math.min(32767, sum));
+	}
+
+	return mixed;
+}
+
+export const onlyInlineAudio = (assets: TRenderAsset[]): AudioData | null => {
 	const inlineAudio = assets.filter((asset) => asset.type === 'inline-audio');
 
 	let duration: number | null = null;
@@ -26,6 +47,19 @@ export const onlyInlineAudio = (assets: TRenderAsset[]) => {
 	}
 
 	if (duration === null || length === null) {
-		throw new Error('All inline audio must have a duration and length');
+		return null;
 	}
+
+	const mixedAudio = mixAudio(
+		inlineAudio.map((asset) => asset.audio as Int16Array),
+	) as Int16Array<ArrayBuffer>;
+
+	return new AudioData({
+		data: mixedAudio,
+		format: 's16',
+		numberOfChannels: TARGET_NUMBER_OF_CHANNELS,
+		numberOfFrames: inlineAudio[0].audio.length / TARGET_NUMBER_OF_CHANNELS,
+		sampleRate: TARGET_SAMPLE_RATE,
+		timestamp: inlineAudio[0].timestamp,
+	});
 };

@@ -3,7 +3,7 @@ import {staticFile} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 
-test.only('should not be able to set toneFrequency on web rendering', async () => {
+test('should not be able to set toneFrequency on web rendering', async () => {
 	const Component: React.FC = () => {
 		return <Audio src={staticFile('dialogue.wav')} toneFrequency={0.5} />;
 	};
@@ -25,7 +25,7 @@ test.only('should not be able to set toneFrequency on web rendering', async () =
 	);
 });
 
-test.only('should be able to render 2 audios', async () => {
+test('should be able to render 2 audios', async () => {
 	const Component: React.FC = () => {
 		return (
 			<>

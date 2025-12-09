@@ -214,7 +214,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					registerRenderAsset({
 						type: 'inline-audio',
 						id,
-						audio: Array.from(audio.data),
+						audio: environment.isClientSideRendering
+							? audio.data
+							: Array.from(audio.data),
 						frame: absoluteFrame,
 						timestamp: audio.timestamp,
 						duration: (audio.numberOfFrames / TARGET_SAMPLE_RATE) * 1_000_000,

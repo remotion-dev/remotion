@@ -1,4 +1,12 @@
-import {BufferTarget, Output, VideoSample, VideoSampleSource} from 'mediabunny';
+import {
+	AudioSample,
+	AudioSampleSource,
+	BufferTarget,
+	Output,
+	QUALITY_MEDIUM,
+	VideoSample,
+	VideoSampleSource,
+} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
@@ -237,6 +245,17 @@ const internalRenderMediaOnWeb = async <
 
 		output.addVideoTrack(videoSampleSource);
 
+		const audioSampleSource = new AudioSampleSource({
+			// TODO: Hardcoded
+			codec: 'aac',
+			bitrate: QUALITY_MEDIUM,
+		});
+		cleanupFns.push(() => {
+			audioSampleSource.close();
+		});
+
+		output.addAudioTrack(audioSampleSource);
+
 		await output.start();
 
 		if (signal?.aborted) {
@@ -279,7 +298,8 @@ const internalRenderMediaOnWeb = async <
 				});
 			}
 
-			onlyInlineAudio(assets);
+			// TODO: What if there is no audio? Need to return a nulled audio sample.
+			const audio = onlyInlineAudio(assets);
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
@@ -307,7 +327,14 @@ const internalRenderMediaOnWeb = async <
 				});
 			}
 
+			// TODO: Parallelize?
 			await videoSampleSource.add(new VideoSample(frameToEncode));
+			if (audio) {
+				const audioSample = new AudioSample(audio);
+				await audioSampleSource.add(audioSample);
+				audioSample.close();
+			}
+
 			progress.encodedFrames++;
 			throttledOnProgress?.({...progress});
 
@@ -322,6 +349,7 @@ const internalRenderMediaOnWeb = async <
 		onProgress?.({...progress});
 
 		videoSampleSource.close();
+		audioSampleSource.close();
 		await output.finalize();
 
 		return output.target.buffer as ArrayBuffer;
