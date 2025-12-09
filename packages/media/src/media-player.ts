@@ -417,12 +417,51 @@ export class MediaPlayer {
 		this.audioIteratorManager.setVolume(volume);
 	}
 
-	public setTrimBefore(trimBefore: number | undefined): void {
-		this.trimBefore = trimBefore;
+	private updateAfterTrimChange(unloopedTimeInSeconds: number): void {
+		if (!this.audioIteratorManager && !this.videoIteratorManager) {
+			return;
+		}
+
+		const newMediaTime = getTimeInSeconds({
+			unloopedTimeInSeconds,
+			playbackRate: this.playbackRate,
+			loop: this.loop,
+			trimBefore: this.trimBefore,
+			trimAfter: this.trimAfter,
+			mediaDurationInSeconds: this.totalDuration ?? null,
+			fps: this.fps,
+			ifNoMediaDuration: 'infinity',
+			src: this.src,
+		});
+
+		if (newMediaTime !== null) {
+			this.setPlaybackTime(
+				newMediaTime,
+				this.playbackRate * this.globalPlaybackRate,
+			);
+		}
+
+		// audio iterator will be re-created on next play/seek
+		// video iterator doesn't need to be re-created
+		this.audioIteratorManager?.destroyIterator();
 	}
 
-	public setTrimAfter(trimAfter: number | undefined): void {
+	public setTrimBefore(
+		trimBefore: number | undefined,
+		unloopedTimeInSeconds: number,
+	): void {
+		this.trimBefore = trimBefore;
+
+		this.updateAfterTrimChange(unloopedTimeInSeconds);
+	}
+
+	public setTrimAfter(
+		trimAfter: number | undefined,
+		unloopedTimeInSeconds: number,
+	): void {
 		this.trimAfter = trimAfter;
+
+		this.updateAfterTrimChange(unloopedTimeInSeconds);
 	}
 
 	public setDebugOverlay(debugOverlay: boolean): void {
@@ -494,7 +533,7 @@ export class MediaPlayer {
 		// Mark all async operations as stale
 		this.nonceManager.createAsyncOperation();
 		this.videoIteratorManager?.destroy();
-		this.audioIteratorManager?.destroy();
+		this.audioIteratorManager?.destroyIterator();
 		this.input.dispose();
 	}
 
