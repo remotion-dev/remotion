@@ -280,10 +280,11 @@ import {RenderMediaOnProgress} from '@remotion/renderer';
 
 const onProgress: RenderMediaOnProgress = ({renderedFrames, encodedFrames, encodedDoneIn, renderedDoneIn, stitchStage}) => {
   if (stitchStage === 'encoding') {
-    // First pass, parallel rendering of frames and encoding into video
+    // Rendering frames and encoding into video
     console.log('Encoding...');
   } else if (stitchStage === 'muxing') {
-    // Second pass, adding audio to the video
+    // If parallel rendering and encoding is being used, a second stage is used to
+    // encode the audio and combine it with the video. This stage does not occur on every render.
     console.log('Muxing audio...');
   }
   // Amount of frames rendered into images
