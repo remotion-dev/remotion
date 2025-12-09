@@ -137,6 +137,10 @@ _number | null - optional_
 
 The constant rate factor, controlling the quality. See: [Controlling quality using the CRF setting.](/docs/encoding/#controlling-quality-using-the-crf-setting)
 
+:::note
+If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`videoBitrate`](#videobitrate) option instead.
+:::
+
 ### `bufferSize?`<AvailableFrom v="4.0.78" />
 
 <Options id="buffer-size" />
