@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import type {FC, PropsWithChildren} from 'react';
+import type {PropsWithChildren} from 'react';
 import {
 	AbsoluteFill,
 	Freeze,
@@ -101,7 +101,7 @@ test('should not regress #5673', () => {
 	expect(outerHTML).toContain('<div>0</div>');
 });
 
-const CurrentFrame: FC<Record<string, unknown>> = () => {
+const CurrentFrame = () => {
 	const currentFrame = useCurrentFrame();
 	return <div>{currentFrame}</div>;
 };
@@ -129,7 +129,7 @@ const BugReport6027 = () => {
 				<CurrentFrame />
 				<Freeze frame={0}>
 					{/* this will display current frame 80 (expected 0) */}
-					<CurrentFrame frozenAt={0} />
+					<CurrentFrame />
 				</Freeze>
 			</Sequence>
 			<Sequence layout="none" from={180} durationInFrames={120}>
