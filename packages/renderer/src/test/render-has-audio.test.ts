@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {makeDownloadMap} from '../assets/download-map';
 import type {RenderAssetInfo} from '../assets/download-map';
+import {makeDownloadMap} from '../assets/download-map';
 import {getShouldRenderAudio} from '../render-has-audio';
 
 const createMockAssetInfo = (
