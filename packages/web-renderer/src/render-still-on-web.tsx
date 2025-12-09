@@ -130,7 +130,9 @@ async function internalRenderStillOnWeb<
 		});
 
 		const assets = collectAssets.current!.collectAssets();
-		await artifactsHandler.handle({imageData, frame, assets, onArtifact});
+		if (onArtifact) {
+			await artifactsHandler.handle({imageData, frame, assets, onArtifact});
+		}
 
 		return imageData;
 	} finally {
