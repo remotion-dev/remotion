@@ -17,14 +17,13 @@ const Component: React.FC = () => {
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
+				backgroundColor: 'white',
 			}}
 		>
 			<canvas
 				ref={ref}
 				style={{
-					width: '50%',
-					height: '50%',
-					borderRadius: '10px / 20px',
+					borderRadius: '20px',
 				}}
 				width={100}
 				height={100}
@@ -33,9 +32,9 @@ const Component: React.FC = () => {
 	);
 };
 
-export const borderRadius = {
+export const borderRadiusSimple = {
 	component: Component,
-	id: 'border-radius',
+	id: 'border-radius-simple',
 	width: 200,
 	height: 200,
 	fps: 25,

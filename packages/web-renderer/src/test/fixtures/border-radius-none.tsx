@@ -8,7 +8,7 @@ const Component: React.FC = () => {
 		if (!ref.current) return;
 		const ctx = ref.current.getContext('2d');
 		if (!ctx) return;
-		ctx.fillStyle = 'red';
+		ctx.fillStyle = 'cyan';
 		ctx.fillRect(0, 0, 100, 100);
 	}, []);
 
@@ -17,14 +17,13 @@ const Component: React.FC = () => {
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
+				backgroundColor: 'white',
 			}}
 		>
 			<canvas
 				ref={ref}
 				style={{
-					width: '50%',
-					height: '50%',
-					borderRadius: '10px / 20px',
+					borderRadius: '0px',
 				}}
 				width={100}
 				height={100}
@@ -33,9 +32,9 @@ const Component: React.FC = () => {
 	);
 };
 
-export const borderRadius = {
+export const borderRadiusNone = {
 	component: Component,
-	id: 'border-radius',
+	id: 'border-radius-none',
 	width: 200,
 	height: 200,
 	fps: 25,
