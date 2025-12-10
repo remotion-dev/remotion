@@ -25,6 +25,7 @@ export const PickFile: React.FC<{
 	const onDrop = useCallback(
 		(event: React.DragEvent<HTMLDivElement>) => {
 			event.preventDefault();
+			event.stopPropagation();
 			const file = event.dataTransfer.files[0];
 			if (file) {
 				setSrc({type: 'file', file});
@@ -35,6 +36,7 @@ export const PickFile: React.FC<{
 
 	const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
 		event.preventDefault();
+		event.stopPropagation();
 	}, []);
 
 	return (
