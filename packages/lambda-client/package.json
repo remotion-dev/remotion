@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda-client"
 	},
 	"name": "@remotion/lambda-client",
-	"version": "4.0.383",
+	"version": "4.0.384",
 	"main": "dist/cjs/index.js",
 	"sideEffects": false,
 	"scripts": {
