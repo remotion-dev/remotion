@@ -1365,7 +1365,6 @@ const sidebars: SidebarsConfig = {
 				'contributing/rust',
 				'contributing/presentation',
 				'authoring-packages',
-				'prereleases',
 				'contributing/ineligible',
 			],
 		},
