@@ -60,13 +60,15 @@ const PriceTag: React.FC<{
 };
 
 const SmallPriceTag: React.FC<{
-	readonly children: React.ReactNode;
+	readonly children: string;
 }> = ({children}) => {
+	const shrink = children.length > 6;
 	return (
 		<div
-			className={
-				'fontbrand text-2xl font-medium  w-auto min-w-[80px] text-right shrink-0'
-			}
+			className={cn(
+				'fontbrand text-2xl font-medium w-auto min-w-[100px] text-right shrink-0',
+				shrink ? 'text-lg' : 'text-2xl',
+			)}
 		>
 			{children}
 		</div>
@@ -171,7 +173,8 @@ export const CompanyPricing: React.FC = () => {
 	const totalPrice = useMemo(() => {
 		return Math.max(
 			100,
-			devSeatCount * SEAT_PRICE + (cloudRenders / 1000) * RENDER_UNIT_PRICE,
+			devSeatCount * SEAT_PRICE +
+				Math.ceil(cloudRenders / 1000) * RENDER_UNIT_PRICE,
 		);
 	}, [cloudRenders, devSeatCount]);
 
@@ -203,12 +206,13 @@ export const CompanyPricing: React.FC = () => {
 						count={devSeatCount}
 						setCount={setDevSeatCount}
 						minCount={1}
+						incrementStep={1}
+						step={1}
 					/>
 					<SmallPriceTag>
-						$
-						{new Intl.NumberFormat('en-US', {
+						{`$${new Intl.NumberFormat('en-US', {
 							maximumFractionDigits: 0,
-						}).format(SEAT_PRICE * devSeatCount)}
+						}).format(SEAT_PRICE * devSeatCount)}`}
 					</SmallPriceTag>
 				</div>
 			</div>
@@ -231,13 +235,13 @@ export const CompanyPricing: React.FC = () => {
 						count={cloudRenders}
 						setCount={setCloudRenders}
 						minCount={0}
-						step={1000}
+						step={1}
+						incrementStep={1000}
 					/>
 					<SmallPriceTag>
-						$
-						{new Intl.NumberFormat('en-US', {
+						{`$${new Intl.NumberFormat('en-US', {
 							maximumFractionDigits: 0,
-						}).format((cloudRenders / 1000) * RENDER_UNIT_PRICE)}
+						}).format(Math.ceil(cloudRenders / 1000) * RENDER_UNIT_PRICE)}`}
 					</SmallPriceTag>
 				</div>
 			</div>
