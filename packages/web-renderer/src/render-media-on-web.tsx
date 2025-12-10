@@ -304,7 +304,6 @@ const internalRenderMediaOnWeb = async <
 				});
 			}
 
-			// TODO: What if there is no audio? Need to return a nulled audio sample.
 			const audio = onlyInlineAudio(assets);
 
 			if (signal?.aborted) {
