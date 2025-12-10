@@ -1,31 +1,36 @@
 import type {Composable} from './composable';
 
 export const findCapturableElements = (element: HTMLDivElement) => {
-	const canvasAndSvgElements = element.querySelectorAll('svg,canvas,img');
+	const treeWalker = document.createTreeWalker(
+		element,
+		NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+	);
 
 	const composables: Composable[] = [];
 
-	Array.from(canvasAndSvgElements).forEach((capturableElement) => {
-		if (capturableElement.tagName.toLocaleLowerCase() === 'canvas') {
-			const canvas = capturableElement as HTMLCanvasElement;
+	while (treeWalker.nextNode()) {
+		const node = treeWalker.currentNode;
+		if (node instanceof HTMLCanvasElement) {
 			composables.push({
 				type: 'canvas',
-				element: canvas,
-			});
-		} else if (capturableElement.tagName.toLocaleLowerCase() === 'svg') {
-			const svg = capturableElement as SVGSVGElement;
-			composables.push({
-				type: 'svg',
-				element: svg,
-			});
-		} else if (capturableElement.tagName.toLocaleLowerCase() === 'img') {
-			const img = capturableElement as HTMLImageElement;
-			composables.push({
-				type: 'img',
-				element: img,
+				element: node,
 			});
 		}
-	});
+
+		if (node instanceof SVGSVGElement) {
+			composables.push({
+				type: 'svg',
+				element: node,
+			});
+		}
+
+		if (node instanceof HTMLImageElement) {
+			composables.push({
+				type: 'img',
+				element: node,
+			});
+		}
+	}
 
 	return composables;
 };
