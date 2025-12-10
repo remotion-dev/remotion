@@ -45,6 +45,7 @@ test('should be able to render 2 audios', async () => {
 			durationInFrames: 10,
 			calculateMetadata: null,
 		},
+		frameRange: [0, 1],
 		logLevel: 'info',
 	});
 });
