@@ -3,6 +3,7 @@ import React from 'react';
 import {Composition} from 'remotion';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
 import {borderRadius} from './fixtures/border-radius';
+import {borderRadiusClamped} from './fixtures/border-radius-clamped';
 import {borderRadiusDifferent} from './fixtures/border-radius-different';
 import {borderRadiusElliptical} from './fixtures/border-radius-elliptical';
 import {borderRadiusNone} from './fixtures/border-radius-none';
@@ -43,6 +44,7 @@ export const Root: React.FC = () => {
 			<Composition {...borderRadiusDifferent} />
 			<Composition {...borderRadiusPercentage} />
 			<Composition {...borderRadiusNone} />
+			<Composition {...borderRadiusClamped} />
 		</>
 	);
 };

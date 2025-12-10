@@ -1,6 +1,7 @@
 import {test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {borderRadius} from './fixtures/border-radius';
+import {borderRadiusClamped} from './fixtures/border-radius-clamped';
 import {borderRadiusDifferent} from './fixtures/border-radius-different';
 import {borderRadiusElliptical} from './fixtures/border-radius-elliptical';
 import {borderRadiusNone} from './fixtures/border-radius-none';
@@ -72,4 +73,15 @@ test('should draw image with no border radius', async () => {
 	});
 
 	await testImage({blob, testId: 'draw-border-radius-none'});
+});
+
+test('should clamp border radius that exceeds maximum', async () => {
+	const blob = await renderStillOnWeb({
+		composition: borderRadiusClamped,
+		frame: 0,
+		inputProps: {},
+		imageFormat: 'png',
+	});
+
+	await testImage({blob, testId: 'draw-border-radius-clamped'});
 });

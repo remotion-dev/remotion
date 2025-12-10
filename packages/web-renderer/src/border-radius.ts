@@ -46,6 +46,60 @@ function expandShorthand(values: string[]): [string, string, string, string] {
 	return [values[0], values[1], values[2], values[3]];
 }
 
+function clampBorderRadius({
+	borderRadius,
+	width,
+	height,
+}: {
+	borderRadius: BorderRadiusCorners;
+	width: number;
+	height: number;
+}): BorderRadiusCorners {
+	// According to CSS spec, if the sum of border radii on adjacent corners
+	// exceeds the length of the edge, they should be proportionally reduced
+	const clamped = {
+		topLeft: {...borderRadius.topLeft},
+		topRight: {...borderRadius.topRight},
+		bottomRight: {...borderRadius.bottomRight},
+		bottomLeft: {...borderRadius.bottomLeft},
+	};
+
+	// Check top edge
+	const topSum = clamped.topLeft.horizontal + clamped.topRight.horizontal;
+	if (topSum > width) {
+		const factor = width / topSum;
+		clamped.topLeft.horizontal *= factor;
+		clamped.topRight.horizontal *= factor;
+	}
+
+	// Check right edge
+	const rightSum = clamped.topRight.vertical + clamped.bottomRight.vertical;
+	if (rightSum > height) {
+		const factor = height / rightSum;
+		clamped.topRight.vertical *= factor;
+		clamped.bottomRight.vertical *= factor;
+	}
+
+	// Check bottom edge
+	const bottomSum =
+		clamped.bottomRight.horizontal + clamped.bottomLeft.horizontal;
+	if (bottomSum > width) {
+		const factor = width / bottomSum;
+		clamped.bottomRight.horizontal *= factor;
+		clamped.bottomLeft.horizontal *= factor;
+	}
+
+	// Check left edge
+	const leftSum = clamped.bottomLeft.vertical + clamped.topLeft.vertical;
+	if (leftSum > height) {
+		const factor = height / leftSum;
+		clamped.bottomLeft.vertical *= factor;
+		clamped.topLeft.vertical *= factor;
+	}
+
+	return clamped;
+}
+
 export function parseBorderRadius({
 	borderRadius,
 	width,
@@ -73,24 +127,28 @@ export function parseBorderRadius({
 	const [vTopLeft, vTopRight, vBottomRight, vBottomLeft] =
 		expandShorthand(verticalValues);
 
-	return {
-		topLeft: {
-			horizontal: parseValue({value: hTopLeft, reference: width}),
-			vertical: parseValue({value: vTopLeft, reference: height}),
+	return clampBorderRadius({
+		borderRadius: {
+			topLeft: {
+				horizontal: parseValue({value: hTopLeft, reference: width}),
+				vertical: parseValue({value: vTopLeft, reference: height}),
+			},
+			topRight: {
+				horizontal: parseValue({value: hTopRight, reference: width}),
+				vertical: parseValue({value: vTopRight, reference: height}),
+			},
+			bottomRight: {
+				horizontal: parseValue({value: hBottomRight, reference: width}),
+				vertical: parseValue({value: vBottomRight, reference: height}),
+			},
+			bottomLeft: {
+				horizontal: parseValue({value: hBottomLeft, reference: width}),
+				vertical: parseValue({value: vBottomLeft, reference: height}),
+			},
 		},
-		topRight: {
-			horizontal: parseValue({value: hTopRight, reference: width}),
-			vertical: parseValue({value: vTopRight, reference: height}),
-		},
-		bottomRight: {
-			horizontal: parseValue({value: hBottomRight, reference: width}),
-			vertical: parseValue({value: vBottomRight, reference: height}),
-		},
-		bottomLeft: {
-			horizontal: parseValue({value: hBottomLeft, reference: width}),
-			vertical: parseValue({value: vBottomLeft, reference: height}),
-		},
-	};
+		width,
+		height,
+	});
 }
 
 export function setBorderRadius({
