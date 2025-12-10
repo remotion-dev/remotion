@@ -373,7 +373,6 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		videoEnabled,
 		maxCacheSize,
 		cancelRender,
-		environment,
 	]);
 
 	const classNameValue = useMemo(() => {
