@@ -95,7 +95,7 @@
 			"@types/node": "20.12.14",
 			"@types/web": "0.0.166",
 			"@types/bun": "1.3.3",
-			"mediabunny": "1.25.3",
+			"mediabunny": "1.25.8",
 			"@mediabunny/mp3-encoder": "1.24.5",
 			"next": "16.0.7",
 			"three": "0.178.0",

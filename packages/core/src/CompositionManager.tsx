@@ -118,7 +118,7 @@ export type AudioOrVideoAsset = {
 export type InlineAudioAsset = {
 	type: 'inline-audio';
 	id: string;
-	audio: number[];
+	audio: Int16Array | number[];
 	frame: number;
 	timestamp: number;
 	duration: number;

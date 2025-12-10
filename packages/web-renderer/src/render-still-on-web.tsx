@@ -104,10 +104,7 @@ async function internalRenderStillOnWeb<
 			defaultOutName: resolved.defaultOutName,
 		});
 
-	const artifactsHandler = handleArtifacts({
-		ref: collectAssets,
-		onArtifact,
-	});
+	const artifactsHandler = handleArtifacts();
 
 	try {
 		if (signal?.aborted) {
@@ -132,7 +129,10 @@ async function internalRenderStillOnWeb<
 			imageFormat,
 		});
 
-		await artifactsHandler.handle({imageData, frame});
+		const assets = collectAssets.current!.collectAssets();
+		if (onArtifact) {
+			await artifactsHandler.handle({imageData, frame, assets, onArtifact});
+		}
 
 		return imageData;
 	} finally {
