@@ -1,0 +1,70 @@
+---
+image: /generated/articles-docs-contributing-web-renderer.png
+title: Contributing to client-side rendering
+sidebar_label: Web renderer
+crumb: Contributing
+---
+
+The code for `@remotion/web-renderer` is located in the `packages/web-renderer` folder.  
+Before running any of these commands, do the [main setup](/docs/contributing).
+
+## Developing in watch mode
+
+To develop the web renderer, you can use the watch mode:
+
+```sh title="In ./"
+bun run watchwebrenderer
+```
+
+This will automatically rebuild the package when you make changes to the code.
+
+## Running tests
+
+This package uses test-driven development. Changes are tested using [Vitest Browser Mode](https://vitest.dev/guide/browser/why.html).
+
+First you need to install the browser dependencies:
+
+```sh title="In packages/web-renderer"
+bunx playwright install --with-deps
+```
+
+Then you can run the tests:
+
+```sh
+bun run testwebrenderer
+```
+
+To only run a specific test file, you can specify the file name:
+
+```sh
+bunx vitest src/test/video.test.tsx
+```
+
+To only run a specific test, you can change `test()` to `test.only()`.
+
+To only run the test in a specific browser, you can specify the browser name:
+
+```sh
+bunx vitest --browser chromium
+bunx vitest --browser firefox
+bunx vitest --browser webkit
+```
+
+## Enabling the Studio Render Button
+
+Set the following to `true` in `packages/studio/src/helpers/show-browser-rendering.ts`:
+
+```ts
+export const SHOW_BROWSER_RENDERING = true;
+```
+
+Now, in [`packages/example`](/docs/contributing/#testing-your-changes), and in any template, you will see a "Render on web" button.
+
+Don't commit this, the CI will fail.
+
+Eventually, this flag will be removed and the button will be enabled by default.  
+If this happened and this instruction remains here, please send a PR to remove it :)
+
+## See also
+
+- [Contributing to Remotion](/docs/contributing)

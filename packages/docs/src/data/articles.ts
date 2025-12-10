@@ -1215,6 +1215,15 @@ export const articles = [
 		slug: 'contributing/rust',
 	},
 	{
+		id: 'contributing/web-renderer',
+		title: 'Contributing to client-side rendering',
+		relativePath: 'docs/contributing/web-renderer.mdx',
+		compId: 'articles-docs-contributing-web-renderer',
+		crumb: 'Contributing',
+		noAi: false,
+		slug: 'contributing/web-renderer',
+	},
+	{
 		id: 'cors-issues',
 		title: 'How to debug any CORS issue',
 		relativePath: 'docs/cors-issues.mdx',
@@ -4338,15 +4347,6 @@ export const articles = [
 		crumb: null,
 		noAi: false,
 		slug: 'preload/preload',
-	},
-	{
-		id: 'prereleases',
-		title: 'Testing prereleases',
-		relativePath: 'docs/prereleases.mdx',
-		compId: 'articles-docs-prereleases',
-		crumb: 'Only the brave',
-		noAi: false,
-		slug: 'prereleases',
 	},
 	{
 		id: 'presigned-urls',

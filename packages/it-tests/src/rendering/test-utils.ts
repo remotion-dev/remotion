@@ -149,6 +149,8 @@ async function saveSequenceInTempDir(id: string) {
 			'./build',
 			id,
 			outputPath,
+			'--concurrency',
+			'1',
 			'--image-format',
 			'png',
 			'--sequence',

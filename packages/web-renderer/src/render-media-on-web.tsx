@@ -1,10 +1,18 @@
-import {BufferTarget, Output, VideoSample, VideoSampleSource} from 'mediabunny';
+import {
+	AudioSampleSource,
+	BufferTarget,
+	Output,
+	VideoSampleSource,
+} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
+import {addAudioSample, addVideoSampleAndCloseFrame} from './add-sample';
 import {handleArtifacts, type OnArtifact} from './artifact';
+import {onlyInlineAudio} from './audio';
 import {createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
+import {getDefaultAudioEncodingConfig} from './get-audio-encoding-config';
 import type {
 	WebRendererContainer,
 	WebRendererQuality,
@@ -182,10 +190,7 @@ const internalRenderMediaOnWeb = async <
 			defaultOutName: resolved.defaultOutName,
 		});
 
-	const artifactsHandler = handleArtifacts({
-		ref: collectAssets,
-		onArtifact,
-	});
+	const artifactsHandler = handleArtifacts();
 
 	cleanupFns.push(() => {
 		cleanupScaffold();
@@ -239,6 +244,23 @@ const internalRenderMediaOnWeb = async <
 
 		output.addVideoTrack(videoSampleSource);
 
+		// TODO: Should be able to customize
+		const defaultAudioEncodingConfig = await getDefaultAudioEncodingConfig();
+
+		if (!defaultAudioEncodingConfig) {
+			return Promise.reject(
+				new Error('No default audio encoding config found'),
+			);
+		}
+
+		const audioSampleSource = new AudioSampleSource(defaultAudioEncodingConfig);
+
+		cleanupFns.push(() => {
+			audioSampleSource.close();
+		});
+
+		output.addAudioTrack(audioSampleSource);
+
 		await output.start();
 
 		if (signal?.aborted) {
@@ -271,7 +293,17 @@ const internalRenderMediaOnWeb = async <
 				height: resolved.height,
 			});
 
-			await artifactsHandler.handle({imageData, frame: i});
+			const assets = collectAssets.current!.collectAssets();
+			if (onArtifact) {
+				await artifactsHandler.handle({
+					imageData,
+					frame: i,
+					assets,
+					onArtifact,
+				});
+			}
+
+			const audio = onlyInlineAudio(assets);
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
@@ -299,11 +331,13 @@ const internalRenderMediaOnWeb = async <
 				});
 			}
 
-			await videoSampleSource.add(new VideoSample(frameToEncode));
+			await Promise.all([
+				addVideoSampleAndCloseFrame(frameToEncode, videoSampleSource),
+				audio ? addAudioSample(audio, audioSampleSource) : Promise.resolve(),
+			]);
+
 			progress.encodedFrames++;
 			throttledOnProgress?.({...progress});
-
-			frameToEncode.close();
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
@@ -314,6 +348,7 @@ const internalRenderMediaOnWeb = async <
 		onProgress?.({...progress});
 
 		videoSampleSource.close();
+		audioSampleSource.close();
 		await output.finalize();
 
 		return output.target.buffer as ArrayBuffer;
