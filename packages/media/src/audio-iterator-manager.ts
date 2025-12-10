@@ -181,7 +181,6 @@ export const audioIteratorManager = ({
 		getIsPlaying,
 		scheduleAudioNode,
 		bufferState,
-		isInLoopTransition,
 	}: {
 		newTime: number;
 		nonce: Nonce;
@@ -193,7 +192,6 @@ export const audioIteratorManager = ({
 			node: AudioBufferSourceNode,
 			mediaTimestamp: number,
 		) => void;
-		isInLoopTransition: boolean;
 	}) => {
 		if (!audioBufferIterator) {
 			await startAudioIterator({
@@ -231,7 +229,8 @@ export const audioIteratorManager = ({
 			}
 
 			if (audioSatisfyResult.type === 'ended') {
-				if (isInLoopTransition && loopTransitionIterator) {
+				// current iterator ended - try prewarmed if available
+				if (loopTransitionIterator) {
 					audioBufferIterator?.destroy();
 					// swap the iterator with pre-warmed one
 					audioBufferIterator = loopTransitionIterator;
@@ -282,6 +281,45 @@ export const audioIteratorManager = ({
 			}
 
 			if (audioSatisfyResult.type === 'not-satisfied') {
+				// Current iterator can't satisfy - try prewarmed if available
+				if (loopTransitionIterator) {
+					audioBufferIterator?.destroy();
+					audioBufferIterator = loopTransitionIterator;
+					loopTransitionIterator = null;
+					loopSwapCount++;
+
+					if (loopTransitionFirstChunk) {
+						onAudioChunk({
+							getIsPlaying,
+							buffer: loopTransitionFirstChunk,
+							playbackRate,
+							scheduleAudioNode,
+						});
+						loopTransitionFirstChunk = null;
+					}
+
+					for (let i = 0; i < 2; i++) {
+						const result = await audioBufferIterator.getNext();
+
+						if (nonce.isStale()) {
+							return;
+						}
+
+						if (!result.value) {
+							break;
+						}
+
+						onAudioChunk({
+							getIsPlaying,
+							buffer: result.value,
+							playbackRate,
+							scheduleAudioNode,
+						});
+					}
+
+					return;
+				}
+
 				await startAudioIterator({
 					nonce,
 					playbackRate,
@@ -400,8 +438,10 @@ export const audioIteratorManager = ({
 		}: {
 			startTimeInSeconds: number;
 		}) => {
-			loopTransitionIterator?.destroy();
-			loopTransitionFirstChunk = null;
+			// Idempotent - if we already have a prewarmed iterator, skip
+			if (loopTransitionIterator) {
+				return;
+			}
 
 			loopTransitionIterator = makeAudioIterator(audioSink, startTimeInSeconds);
 

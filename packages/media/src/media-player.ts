@@ -46,8 +46,6 @@ export class MediaPlayer {
 
 	private playing = false;
 	private loop = false;
-	private loopTransitionPreparedFromMediaTime: number | null = null;
-	private previousUnloopedTime: number = 0;
 
 	private fps: number;
 
@@ -306,10 +304,8 @@ export class MediaPlayer {
 	}
 
 	public async seekTo(time: number): Promise<void> {
-		const unloopedTimeInSeconds = time;
-
 		const newTime = getTimeInSeconds({
-			unloopedTimeInSeconds,
+			unloopedTimeInSeconds: time,
 			playbackRate: this.playbackRate,
 			loop: this.loop,
 			trimBefore: this.trimBefore,
@@ -324,35 +320,23 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		const didLoopWrap = this.didCrossLoopBoundary(
-			this.previousUnloopedTime,
-			unloopedTimeInSeconds,
-		);
-
-		this.previousUnloopedTime = unloopedTimeInSeconds;
-
 		const shouldPrepareLoopTransition =
 			this.shouldPrepareLoopTransition(newTime);
 
 		if (shouldPrepareLoopTransition) {
-			this.prepareSeamlessLoop(newTime);
+			this.prepareSeamlessLoop();
 		}
 
 		const nonce = this.nonceManager.createAsyncOperation();
 		await this.seekPromiseChain;
 
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(
-			newTime,
-			nonce,
-			didLoopWrap,
-		);
+		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
 		await this.seekPromiseChain;
 	}
 
 	public async seekToDoNotCallDirectly(
 		newTime: number,
 		nonce: Nonce,
-		isLoopWrap: boolean,
 	): Promise<void> {
 		if (nonce.isStale()) {
 			return;
@@ -364,14 +348,9 @@ export class MediaPlayer {
 			return;
 		}
 
-		if (isLoopWrap) {
-			this.loopTransitionPreparedFromMediaTime = null;
-		}
-
 		await this.videoIteratorManager?.seek({
 			newTime,
 			nonce,
-			isInLoopTransition: isLoopWrap,
 		});
 
 		await this.audioIteratorManager?.seek({
@@ -382,7 +361,6 @@ export class MediaPlayer {
 			getIsPlaying: () => this.playing,
 			scheduleAudioNode: this.scheduleAudioNode,
 			bufferState: this.bufferState,
-			isInLoopTransition: isLoopWrap,
 		});
 	}
 
@@ -570,10 +548,6 @@ export class MediaPlayer {
 			return false;
 		}
 
-		if (this.loopTransitionPreparedFromMediaTime !== null) {
-			return false;
-		}
-
 		const thresholdInSeconds = 1.0;
 		const loopStartMediaTime = (this.trimBefore ?? 0) / this.fps;
 
@@ -585,32 +559,10 @@ export class MediaPlayer {
 		return timeUntilEndSec <= thresholdInSeconds && timeUntilEndSec > 0;
 	}
 
-	private didCrossLoopBoundary(
-		previousUnloopedTime: number,
-		currentUnloopedTime: number,
-	): boolean {
-		if (!this.loop || !this.mediaDurationInSeconds) {
-			return false;
-		}
-
-		const loopDuration = this.getLoopDuration();
-
-		const previousIteration = Math.floor(
-			(previousUnloopedTime * this.playbackRate) / loopDuration,
-		);
-		const currentIteration = Math.floor(
-			(currentUnloopedTime * this.playbackRate) / loopDuration,
-		);
-
-		return currentIteration > previousIteration;
-	}
-
-	private prepareSeamlessLoop(currentMediaTimeInSeconds: number): void {
+	private prepareSeamlessLoop(): void {
 		if (!this.mediaDurationInSeconds) {
 			return;
 		}
-
-		this.loopTransitionPreparedFromMediaTime = currentMediaTimeInSeconds;
 
 		const startTimeInSeconds = getTimeInSeconds({
 			unloopedTimeInSeconds: 0,

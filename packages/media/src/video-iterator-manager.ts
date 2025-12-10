@@ -91,40 +91,7 @@ export const videoIteratorManager = ({
 		drawFrame(frameResult.value);
 	};
 
-	const seek = async ({
-		newTime,
-		nonce,
-		isInLoopTransition = false,
-	}: {
-		newTime: number;
-		nonce: Nonce;
-		isInLoopTransition?: boolean;
-	}) => {
-		if (isInLoopTransition && loopTransitionIterator) {
-			videoFrameIterator?.destroy();
-			videoFrameIterator = loopTransitionIterator;
-			loopTransitionIterator = null;
-			loopSwapCount++;
-
-			const loopPrewarmSatisfyResult =
-				await videoFrameIterator.tryToSatisfySeek(newTime);
-
-			if (loopPrewarmSatisfyResult.type === 'satisfied') {
-				drawFrame(loopPrewarmSatisfyResult.frame);
-				return;
-			}
-
-			if (nonce.isStale()) {
-				return;
-			}
-
-			// fall through to startVideoIterator if couldn't satisfy
-			startVideoIterator(newTime, nonce).catch(() => {
-				// might be stale or disposed
-			});
-			return;
-		}
-
+	const seek = async ({newTime, nonce}: {newTime: number; nonce: Nonce}) => {
 		if (!videoFrameIterator) {
 			return;
 		}
@@ -143,6 +110,20 @@ export const videoIteratorManager = ({
 
 		if (nonce.isStale()) {
 			return;
+		}
+
+		// if cannot satisfy seek, use loop transition iterator if available
+		if (loopTransitionIterator) {
+			videoFrameIterator.destroy();
+			videoFrameIterator = loopTransitionIterator;
+			loopTransitionIterator = null;
+			loopSwapCount++;
+
+			const prewarmResult = await videoFrameIterator.tryToSatisfySeek(newTime);
+			if (prewarmResult.type === 'satisfied') {
+				drawFrame(prewarmResult.frame);
+				return;
+			}
 		}
 
 		// Intentionally not awaited, letting audio start as well
@@ -167,7 +148,10 @@ export const videoIteratorManager = ({
 		getFramesRendered: () => framesRendered,
 		getLoopSwapCount: () => loopSwapCount,
 		prepareLoopTransition: async ({startTime}: {startTime: number}) => {
-			loopTransitionIterator?.destroy();
+			// skip if already created
+			if (loopTransitionIterator) {
+				return;
+			}
 
 			const iterator = createVideoIterator(startTime, canvasSink);
 			loopTransitionIterator = iterator;

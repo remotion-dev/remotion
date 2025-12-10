@@ -58,7 +58,7 @@ test('media player should work', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-		isInLoopTransition: false,
+
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -73,7 +73,7 @@ test('media player should work', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-		isInLoopTransition: false,
+
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -88,7 +88,7 @@ test('media player should work', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-		isInLoopTransition: false,
+
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -131,7 +131,7 @@ test('should not create too many iterators when the audio ends', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-		isInLoopTransition: false,
+
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -145,7 +145,7 @@ test('should not create too many iterators when the audio ends', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-		isInLoopTransition: false,
+
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -159,7 +159,7 @@ test('should not create too many iterators when the audio ends', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-		isInLoopTransition: false,
+
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -198,7 +198,7 @@ test('should create more iterators when seeking ', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-		isInLoopTransition: false,
+
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -212,7 +212,7 @@ test('should create more iterators when seeking ', async () => {
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-		isInLoopTransition: false,
+
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -282,7 +282,7 @@ test('should not schedule duplicate chunks with playbackRate=0.5', async () => {
 			getIsPlaying: () => true,
 			nonce: makeNonceManager().createAsyncOperation(),
 			playbackRate,
-			isInLoopTransition: false,
+
 			bufferState: {
 				delayPlayback: () => ({
 					unblock: () => {},
@@ -321,7 +321,7 @@ test('should schedule audio when looping back to beginning after reaching end', 
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-		isInLoopTransition: false,
+
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -341,7 +341,7 @@ test('should schedule audio when looping back to beginning after reaching end', 
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-		isInLoopTransition: false,
+
 		bufferState: {
 			delayPlayback: () => ({
 				unblock: () => {},
@@ -390,7 +390,6 @@ test('should use pre-warmed iterator when looping with prepareLoopTransition', a
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-		isInLoopTransition: false,
 		bufferState: {
 			delayPlayback: () => ({unblock: () => {}}),
 		},
@@ -408,7 +407,6 @@ test('should use pre-warmed iterator when looping with prepareLoopTransition', a
 		getIsPlaying,
 		nonce: makeNonceManager().createAsyncOperation(),
 		playbackRate,
-		isInLoopTransition: true,
 		bufferState: {
 			delayPlayback: () => ({unblock: () => {}}),
 		},
