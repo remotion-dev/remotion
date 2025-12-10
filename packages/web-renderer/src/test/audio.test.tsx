@@ -25,7 +25,13 @@ test('should not be able to set toneFrequency on web rendering', async () => {
 	);
 });
 
-test('should be able to render 2 audios', async () => {
+test('should be able to render 2 audios', async (t) => {
+	if (t.task.file.projectName === 'chromium') {
+		// Chromium in CI doesn't support video codec decoding in this test environment
+		t.skip();
+		return;
+	}
+
 	const Component: React.FC = () => {
 		return (
 			<>

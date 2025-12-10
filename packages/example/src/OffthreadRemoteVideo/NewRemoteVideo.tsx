@@ -1,4 +1,4 @@
-import {Audio, Video} from '@remotion/media';
+import {Video} from '@remotion/media';
 import {CalculateMetadataFunction, Composition} from 'remotion';
 // https://www.remotion.dev/docs/mediabunny/metadata
 import {getMediaMetadata} from '../get-media-metadata';
@@ -19,12 +19,7 @@ export const calculateMetadataFn: CalculateMetadataFunction<
 };
 
 export const Component = () => {
-	return (
-		<>
-			<Video src={src} />
-			<Audio src={'https://remotion.media/dialogue.wav'} />
-		</>
-	);
+	return <Video src={src} />;
 };
 
 export const NewVideoComp = () => {
