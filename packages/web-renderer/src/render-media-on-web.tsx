@@ -1,14 +1,13 @@
 import {
-	AudioSample,
 	AudioSampleSource,
 	BufferTarget,
 	Output,
-	VideoSample,
 	VideoSampleSource,
 } from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import type {AnyZodObject, z} from 'zod';
+import {addAudioSample, addVideoSampleAndCloseFrame} from './add-sample';
 import {handleArtifacts, type OnArtifact} from './artifact';
 import {onlyInlineAudio} from './audio';
 import {createScaffold} from './create-scaffold';
@@ -332,20 +331,13 @@ const internalRenderMediaOnWeb = async <
 				});
 			}
 
-			// TODO: Parallelize?
-			const sample = new VideoSample(frameToEncode);
-			await videoSampleSource.add(sample);
-			sample.close();
-			if (audio) {
-				const audioSample = new AudioSample(audio);
-				await audioSampleSource.add(audioSample);
-				audioSample.close();
-			}
+			await Promise.all([
+				addVideoSampleAndCloseFrame(frameToEncode, videoSampleSource),
+				audio ? addAudioSample(audio, audioSampleSource) : Promise.resolve(),
+			]);
 
 			progress.encodedFrames++;
 			throttledOnProgress?.({...progress});
-
-			frameToEncode.close();
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
