@@ -333,7 +333,9 @@ const internalRenderMediaOnWeb = async <
 			}
 
 			// TODO: Parallelize?
-			await videoSampleSource.add(new VideoSample(frameToEncode));
+			const sample = new VideoSample(frameToEncode);
+			await videoSampleSource.add(sample);
+			sample.close();
 			if (audio) {
 				const audioSample = new AudioSample(audio);
 				await audioSampleSource.add(audioSample);
