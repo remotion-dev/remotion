@@ -1363,9 +1363,9 @@ const sidebars: SidebarsConfig = {
 				'contributing/formatting',
 				'contributing/bounty',
 				'contributing/rust',
+				'contributing/web-renderer',
 				'contributing/presentation',
 				'authoring-packages',
-				'prereleases',
 				'contributing/ineligible',
 			],
 		},
@@ -1384,22 +1384,11 @@ const sidebars: SidebarsConfig = {
 			className: 'pro-item',
 		},
 		{
-			type: 'category',
+			type: 'link',
+			href: '/docs/timeline',
 			label: 'Timeline',
 			className: 'pro-item',
-			link: {
-				type: 'doc',
-				id: 'timeline/index',
-			},
-			items: [
-				'timeline/demo',
-				'timeline/setup',
-				'timeline/usage',
-				'timeline/faq',
-				'timeline/render',
-			],
 		},
-
 		{
 			type: 'link',
 			href: '/docs/recorder',
@@ -1441,6 +1430,28 @@ const sidebars: SidebarsConfig = {
 				'editor-starter/production-checklist',
 				'editor-starter/features-not-included',
 				'editor-starter/faq',
+			],
+		},
+	],
+	timelineSidebar: [
+		{
+			type: 'link',
+			href: '/docs',
+			label: '← Back to the main docs',
+		},
+		{
+			type: 'category',
+			label: 'Timeline',
+			link: {
+				type: 'doc',
+				id: 'timeline/index',
+			},
+			items: [
+				'timeline/demo',
+				'timeline/setup',
+				'timeline/usage',
+				'timeline/faq',
+				'timeline/render',
 			],
 		},
 	],
