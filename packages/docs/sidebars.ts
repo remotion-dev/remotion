@@ -1363,6 +1363,7 @@ const sidebars: SidebarsConfig = {
 				'contributing/formatting',
 				'contributing/bounty',
 				'contributing/rust',
+				'contributing/web-renderer',
 				'contributing/presentation',
 				'authoring-packages',
 				'contributing/ineligible',
