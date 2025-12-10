@@ -114,7 +114,13 @@ export const DesignPage: React.FC = () => {
 				<Button className="rounded-full bg-brand w-12 h-12" />
 				<div className="h-8" />
 				<h2 className="text-brand">&lt;Counter /&gt;</h2>
-				<Counter count={count} setCount={setCount} minCount={1} step={1} />
+				<Counter
+					count={count}
+					setCount={setCount}
+					minCount={1}
+					step={1}
+					incrementStep={1}
+				/>
 				<br /> <h2 className="text-brand">&lt;Switch /&gt;</h2>
 				<Switch active={active} onToggle={() => setActive((e) => !e)} />
 				<br /> <h2 className="text-brand">&lt;Card /&gt;</h2>
