@@ -3,7 +3,6 @@ import {
 	AudioSampleSource,
 	BufferTarget,
 	Output,
-	QUALITY_MEDIUM,
 	VideoSample,
 	VideoSampleSource,
 } from 'mediabunny';
@@ -14,6 +13,7 @@ import {handleArtifacts, type OnArtifact} from './artifact';
 import {onlyInlineAudio} from './audio';
 import {createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
+import {getDefaultAudioEncodingConfig} from './get-audio-encoding-config';
 import type {
 	WebRendererContainer,
 	WebRendererQuality,
@@ -245,11 +245,17 @@ const internalRenderMediaOnWeb = async <
 
 		output.addVideoTrack(videoSampleSource);
 
-		const audioSampleSource = new AudioSampleSource({
-			// TODO: Hardcoded
-			codec: 'aac',
-			bitrate: QUALITY_MEDIUM,
-		});
+		// TODO: Should be able to customize
+		const defaultAudioEncodingConfig = await getDefaultAudioEncodingConfig();
+
+		if (!defaultAudioEncodingConfig) {
+			return Promise.reject(
+				new Error('No default audio encoding config found'),
+			);
+		}
+
+		const audioSampleSource = new AudioSampleSource(defaultAudioEncodingConfig);
+
 		cleanupFns.push(() => {
 			audioSampleSource.close();
 		});
