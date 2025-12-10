@@ -150,8 +150,6 @@ async function saveSequenceInTempDir(id: string) {
 			id,
 			outputPath,
 			'--image-format',
-			'--concurrency',
-			'1',
 			'png',
 			'--sequence',
 		],
