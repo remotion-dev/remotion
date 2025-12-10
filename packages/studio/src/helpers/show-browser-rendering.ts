@@ -1,1 +1,1 @@
-export const SHOW_BROWSER_RENDERING = true;
+export const SHOW_BROWSER_RENDERING = false;
