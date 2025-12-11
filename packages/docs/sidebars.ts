@@ -1420,6 +1420,7 @@ const sidebars: SidebarsConfig = {
 				'editor-starter/undo-redo',
 				'editor-starter/copy-paste',
 				'editor-starter/cropping',
+				'editor-starter/snapping',
 				'editor-starter/fonts',
 				'editor-starter/asset-uploads',
 				'editor-starter/asset-cleanup',
