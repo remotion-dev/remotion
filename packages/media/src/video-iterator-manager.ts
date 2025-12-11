@@ -118,6 +118,7 @@ export const videoIteratorManager = ({
 			videoFrameIterator = loopTransitionIterator;
 			loopTransitionIterator = null;
 			loopSwapCount++;
+			return;
 		}
 
 		// Intentionally not awaited, letting audio start as well
