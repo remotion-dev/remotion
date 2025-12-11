@@ -1,12 +1,11 @@
 import {loadFonts} from './base';
 
 export const getInfo = () => ({
-	fontFamily: 'Noto Sans Rejang',
-	importName: 'NotoSansRejang',
-	version: 'v23',
-	url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Rejang:ital,wght@0,400',
+	fontFamily: 'Sekuya',
+	importName: 'Sekuya',
+	version: 'v1',
+	url: 'https://fonts.googleapis.com/css2?family=Sekuya:ital,wght@0,400',
 	unicodeRanges: {
-		rejang: 'U+200C-200D, U+25CC, U+A930-A95F',
 		'latin-ext':
 			'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
 		latin:
@@ -15,24 +14,22 @@ export const getInfo = () => ({
 	fonts: {
 		normal: {
 			'400': {
-				rejang:
-					'https://fonts.gstatic.com/s/notosansrejang/v23/Ktk2AKuMeZjqPnXgyqrib7DIogqwB8u9WLZB.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notosansrejang/v23/Ktk2AKuMeZjqPnXgyqrib7DIogqwB4q9WLZB.woff2',
+					'https://fonts.gstatic.com/s/sekuya/v1/fdN_9suEu39Dg3wU0yBerF8.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notosansrejang/v23/Ktk2AKuMeZjqPnXgyqrib7DIogqwB4S9WA.woff2',
+					'https://fonts.gstatic.com/s/sekuya/v1/fdN_9suEu39Dg3wU3SBe.woff2',
 			},
 		},
 	},
-	subsets: ['latin', 'latin-ext', 'rejang'],
+	subsets: ['latin', 'latin-ext'],
 });
 
-export const fontFamily = 'Noto Sans Rejang' as const;
+export const fontFamily = 'Sekuya' as const;
 
 type Variants = {
 	normal: {
 		weights: '400';
-		subsets: 'latin' | 'latin-ext' | 'rejang';
+		subsets: 'latin' | 'latin-ext';
 	};
 };
 

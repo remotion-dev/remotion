@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.384",
+	"version": "4.0.385",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -25,9 +25,6 @@
 	"types": "dist/cjs/index.d.ts",
 	"typesVersions": {
 		">=1.0": {
-			"from-info": [
-				"./dist/cjs/from-info.d.ts"
-			],
 			"ABeeZee": [
 				"dist/cjs/ABeeZee.d.ts"
 			],
@@ -207,6 +204,9 @@
 			],
 			"Amaranth": [
 				"dist/cjs/Amaranth.d.ts"
+			],
+			"Amarna": [
+				"dist/cjs/Amarna.d.ts"
 			],
 			"AmaticSC": [
 				"dist/cjs/AmaticSC.d.ts"
@@ -450,6 +450,15 @@
 			],
 			"B612Mono": [
 				"dist/cjs/B612Mono.d.ts"
+			],
+			"BBHBartle": [
+				"dist/cjs/BBHBartle.d.ts"
+			],
+			"BBHBogle": [
+				"dist/cjs/BBHBogle.d.ts"
+			],
+			"BBHHegarty": [
+				"dist/cjs/BBHHegarty.d.ts"
 			],
 			"BIZUDGothic": [
 				"dist/cjs/BIZUDGothic.d.ts"
@@ -915,6 +924,9 @@
 			],
 			"Caudex": [
 				"dist/cjs/Caudex.d.ts"
+			],
+			"Cause": [
+				"dist/cjs/Cause.d.ts"
 			],
 			"Caveat": [
 				"dist/cjs/Caveat.d.ts"
@@ -1678,6 +1690,9 @@
 			"Geologica": [
 				"dist/cjs/Geologica.d.ts"
 			],
+			"Geom": [
+				"dist/cjs/Geom.d.ts"
+			],
 			"Georama": [
 				"dist/cjs/Georama.d.ts"
 			],
@@ -1737,6 +1752,9 @@
 			],
 			"GolosText": [
 				"dist/cjs/GolosText.d.ts"
+			],
+			"GoogleSans": [
+				"dist/cjs/GoogleSans.d.ts"
 			],
 			"GoogleSansCode": [
 				"dist/cjs/GoogleSansCode.d.ts"
@@ -2523,6 +2541,9 @@
 			],
 			"LifeSavers": [
 				"dist/cjs/LifeSavers.d.ts"
+			],
+			"Lilex": [
+				"dist/cjs/Lilex.d.ts"
 			],
 			"LilitaOne": [
 				"dist/cjs/LilitaOne.d.ts"
@@ -4561,6 +4582,9 @@
 			"SedgwickAveDisplay": [
 				"dist/cjs/SedgwickAveDisplay.d.ts"
 			],
+			"Sekuya": [
+				"dist/cjs/Sekuya.d.ts"
+			],
 			"Sen": [
 				"dist/cjs/Sen.d.ts"
 			],
@@ -5409,6 +5433,9 @@
 			],
 			"ZillaSlabHighlight": [
 				"dist/cjs/ZillaSlabHighlight.d.ts"
+			],
+			"from-info": [
+				"./dist/cjs/from-info.d.ts"
 			]
 		}
 	},
