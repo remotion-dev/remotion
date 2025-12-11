@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/convert",
-	"version": "4.0.385",
+	"version": "4.0.386",
 	"private": true,
 	"sideEffects": false,
 	"type": "module",
