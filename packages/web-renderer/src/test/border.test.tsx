@@ -13,3 +13,9 @@ test('should render border', async () => {
 
 	await testImage({blob, testId: 'border'});
 });
+
+// TODO: Implement different borders for each side
+// https://github.com/remotion-dev/remotion/pull/6060#discussion_r2611487707
+test.todo(
+	'should render border for all sides, https://github.com/remotion-dev/remotion/pull/6060#discussion_r2611487707',
+);
