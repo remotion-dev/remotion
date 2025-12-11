@@ -274,8 +274,8 @@ const internalRenderMediaOnWeb = async <
 
 		const throttledOnProgress = createThrottledProgressCallback(onProgress);
 
-		for (let i = realFrameRange[0]; i <= realFrameRange[1]; i++) {
-			timeUpdater.current?.update(i);
+		for (let frame = realFrameRange[0]; frame <= realFrameRange[1]; frame++) {
+			timeUpdater.current?.update(frame);
 			await waitForReady({
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 				scope: delayRenderScope,
@@ -297,20 +297,20 @@ const internalRenderMediaOnWeb = async <
 			if (onArtifact) {
 				await artifactsHandler.handle({
 					imageData,
-					frame: i,
+					frame,
 					assets,
 					onArtifact,
 				});
 			}
 
-			const audio = onlyInlineAudio(assets);
+			const audio = onlyInlineAudio({assets, fps: resolved.fps, frame});
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
 
 			const timestamp = Math.round(
-				((i - realFrameRange[0]) / resolved.fps) * 1_000_000,
+				((frame - realFrameRange[0]) / resolved.fps) * 1_000_000,
 			);
 			const videoFrame = new VideoFrame(imageData, {
 				timestamp,
