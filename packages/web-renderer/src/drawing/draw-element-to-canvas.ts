@@ -1,5 +1,6 @@
 import {parseBorderRadius, setBorderRadius} from './border-radius';
 import {calculateTransforms} from './calculate-transforms';
+import {drawBorder} from './draw-border';
 import {setOpacity} from './opacity';
 import {setTransform} from './transform';
 import {turnSvgIntoDrawable} from './turn-svg-into-drawable';
@@ -86,6 +87,16 @@ export const drawElementToCanvas = async ({
 			dimensions.height,
 		);
 	}
+
+	drawBorder({
+		ctx: context,
+		x: dimensions.left,
+		y: dimensions.top,
+		width: dimensions.width,
+		height: dimensions.height,
+		borderRadius,
+		computedStyle,
+	});
 
 	finishOpacity();
 	finishBorderRadius();
