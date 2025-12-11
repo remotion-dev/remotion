@@ -1,4 +1,5 @@
 import {build} from 'bun';
+import {mkdirSync, rmdirSync} from 'fs';
 import path from 'path';
 import {Exports, validateExports} from './validate-exports';
 
@@ -112,6 +113,10 @@ export const buildPackage = async ({
 			continue;
 		} else if (action === 'use-tsc') {
 		} else if (action === 'build') {
+			const folder = path.join(process.cwd(), 'dist', format);
+			rmdirSync(folder, {recursive: true});
+			mkdirSync(folder, {recursive: true});
+
 			for (const {path: p, target, splitting} of entrypoints) {
 				const externalFinal = filterExternal(getExternal(external));
 				validateExternal(externalFinal);
@@ -127,9 +132,12 @@ export const buildPackage = async ({
 				for (const file of output.outputs) {
 					const text = await file.text();
 
-					const outputPath = `./${path.join('./dist', format, file.path.replace('.module.', '.'))}`;
+					const outputPath = path.join(
+						folder,
+						file.path.replace('.module.', '.'),
+					);
 
-					await Bun.write(path.join(process.cwd(), outputPath), text);
+					await Bun.write(outputPath, text);
 
 					if (text.includes('jonathanburger')) {
 						throw new Error('Absolute path was included, see ' + outputPath);
