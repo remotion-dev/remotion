@@ -3,6 +3,7 @@ import React from 'react';
 import {Composition} from 'remotion';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
 import {backgroundColor} from './fixtures/background-color';
+import {border} from './fixtures/border';
 import {borderRadius} from './fixtures/border-radius';
 import {borderRadiusClamped} from './fixtures/border-radius-clamped';
 import {borderRadiusDifferent} from './fixtures/border-radius-different';
@@ -55,6 +56,7 @@ export const Root: React.FC = () => {
 			<Composition {...opacityNested} />
 			<Composition {...opacityZero} />
 			<Composition {...backgroundColor} />
+			<Composition {...border} />
 		</>
 	);
 };
