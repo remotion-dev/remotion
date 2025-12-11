@@ -34,6 +34,7 @@ export const onlyInlineAudio = ({
 	if (inlineAudio.length === 0) {
 		return null;
 	}
+
 	const expectedLength = Math.round(
 		(TARGET_NUMBER_OF_CHANNELS * TARGET_SAMPLE_RATE) / fps,
 	);
