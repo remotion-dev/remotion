@@ -275,6 +275,10 @@ const internalRenderMediaOnWeb = async <
 		const throttledOnProgress = createThrottledProgressCallback(onProgress);
 
 		for (let frame = realFrameRange[0]; frame <= realFrameRange[1]; frame++) {
+			if (signal?.aborted) {
+				throw new Error('renderMediaOnWeb() was cancelled');
+			}
+
 			timeUpdater.current?.update(frame);
 			await waitForReady({
 				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
@@ -293,6 +297,10 @@ const internalRenderMediaOnWeb = async <
 				height: resolved.height,
 			});
 
+			if (signal?.aborted) {
+				throw new Error('renderMediaOnWeb() was cancelled');
+			}
+
 			const assets = collectAssets.current!.collectAssets();
 			if (onArtifact) {
 				await artifactsHandler.handle({
@@ -303,11 +311,11 @@ const internalRenderMediaOnWeb = async <
 				});
 			}
 
-			const audio = onlyInlineAudio({assets, fps: resolved.fps, frame});
-
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
+
+			const audio = onlyInlineAudio({assets, fps: resolved.fps, frame});
 
 			const timestamp = Math.round(
 				((frame - realFrameRange[0]) / resolved.fps) * 1_000_000,
@@ -322,6 +330,10 @@ const internalRenderMediaOnWeb = async <
 			let frameToEncode = videoFrame;
 			if (onFrame) {
 				const returnedFrame = await onFrame(videoFrame);
+				if (signal?.aborted) {
+					throw new Error('renderMediaOnWeb() was cancelled');
+				}
+
 				frameToEncode = validateVideoFrame({
 					originalFrame: videoFrame,
 					returnedFrame,

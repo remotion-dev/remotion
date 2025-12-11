@@ -41,6 +41,25 @@ export const MyComponent: React.FC = () => {
 };
 ```
 
+## Supported CSS styles
+
+Only some CSS styles are being supported:
+
+- Positioning and layouting properties, such as `margin`, `left`, `display`, `width`, `height`, `flex`, `flex-direction`.  
+  Remotion is able to obtain the position of the element in the DOM, no matter which CSS properties are used.
+- Transformations, such as `transform`, `rotate`, `scale`, `translate`, `perspective`, `matrix`, `matrix3d`.
+- `border-radius`.
+- `display: none`
+- `style` property on `<svg>` elements is supported, since the browser can capture SVG elements:
+
+```tsx twoslash title="✅ Works: SVG elements can be styled with CSS"
+<svg style={{backgroundColor: 'red'}}>
+  <rect width="100%" height="100%" />
+</svg>
+```
+
+> > > > > > > Stashed changes
+
 ## Uncapturable elements and styles
 
 Every element that is not explicitly supported is unsupported. Some important ones are:

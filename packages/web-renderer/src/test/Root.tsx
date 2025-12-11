@@ -10,6 +10,7 @@ import {borderRadiusNone} from './fixtures/border-radius-none';
 import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
+import {displayNone} from './fixtures/display-none';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
@@ -45,6 +46,7 @@ export const Root: React.FC = () => {
 			<Composition {...borderRadiusPercentage} />
 			<Composition {...borderRadiusNone} />
 			<Composition {...borderRadiusClamped} />
+			<Composition {...displayNone} />
 		</>
 	);
 };
