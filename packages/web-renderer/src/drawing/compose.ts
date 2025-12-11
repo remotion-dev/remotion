@@ -1,5 +1,5 @@
-import type {Composable} from './composable';
-import {composeCanvas} from './compose-canvas';
+import type {Composable} from '../composable';
+import {drawElementToCanvas} from './draw-element-to-canvas';
 
 export const compose = async ({
 	composables,
@@ -17,9 +17,8 @@ export const compose = async ({
 		throw new Error('Could not get context');
 	}
 
-	// TODO: Consider z-index
 	for (const composable of composables) {
-		await composeCanvas(composable.element, context);
+		await drawElementToCanvas(composable.element, context);
 	}
 
 	return canvas;

@@ -1,4 +1,4 @@
-import {compose} from './compose';
+import {compose} from './drawing/compose';
 import {findCapturableElements} from './find-capturable-elements';
 import type {RenderStillOnWebImageFormat} from './render-still-on-web';
 

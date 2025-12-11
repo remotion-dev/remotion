@@ -36,11 +36,18 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 	const toReset: (() => void)[] = [];
 
 	let borderRadius = '';
+	let opacity = 1;
 
 	while (parent) {
 		const computedStyle = getComputedStyle(parent);
 		if (parent === element) {
 			borderRadius = computedStyle.borderRadius;
+		}
+
+		// Multiply opacity values from element and all parents
+		const parentOpacity = computedStyle.opacity;
+		if (parentOpacity && parentOpacity !== '') {
+			opacity *= parseFloat(parentOpacity);
 		}
 
 		if (
@@ -108,5 +115,6 @@ export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
 			width: dimensions.width,
 			height: dimensions.height,
 		}),
+		opacity,
 	};
 };

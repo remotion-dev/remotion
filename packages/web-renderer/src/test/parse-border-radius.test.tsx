@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {parseBorderRadius} from '../border-radius';
+import {parseBorderRadius} from '../drawing/border-radius';
 
 test('should parse single pixel value', () => {
 	const result = parseBorderRadius({
