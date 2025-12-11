@@ -1,4 +1,3 @@
-import type {Composable} from './composable';
 import {drawElementToCanvas} from './drawing/draw-element-to-canvas';
 
 export const compose = async (
@@ -20,24 +19,10 @@ export const compose = async (
 		},
 	);
 
-	const composables: Composable[] = [];
-
 	while (treeWalker.nextNode()) {
 		const node = treeWalker.currentNode;
-
-		if (
-			node instanceof HTMLCanvasElement ||
-			node instanceof SVGSVGElement ||
-			node instanceof HTMLImageElement
-		) {
-			await drawElementToCanvas(node, context);
-
-			composables.push({
-				type: 'element',
-				element: node,
-			});
+		if (node instanceof HTMLElement || node instanceof SVGElement) {
+			await drawElementToCanvas({element: node, context});
 		}
 	}
-
-	return composables;
 };
