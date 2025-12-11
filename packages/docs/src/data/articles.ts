@@ -1503,6 +1503,15 @@ export const articles = [
 		slug: 'editor-starter/setup',
 	},
 	{
+		id: 'snapping',
+		title: 'Snapping in the Editor Starter',
+		relativePath: 'docs/editor-starter/snapping.mdx',
+		compId: 'articles-docs-editor-starter-snapping',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/snapping',
+	},
+	{
 		id: 'state-management',
 		title: 'State management in the Editor Starter',
 		relativePath: 'docs/editor-starter/state-management.mdx',
