@@ -1,13 +1,4 @@
-export type Composable =
-	| {
-			type: 'canvas';
-			element: HTMLCanvasElement;
-	  }
-	| {
-			type: 'svg';
-			element: SVGSVGElement;
-	  }
-	| {
-			type: 'img';
-			element: HTMLImageElement;
-	  };
+export type Composable = {
+	type: 'element';
+	element: HTMLElement | SVGElement;
+};

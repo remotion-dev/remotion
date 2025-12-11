@@ -6,7 +6,8 @@ export const findCapturableElements = (element: HTMLDivElement) => {
 		NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
 		(node) => {
 			if (node instanceof Element) {
-				return getComputedStyle(node).display === 'none'
+				const computedStyle = getComputedStyle(node);
+				return computedStyle.display === 'none'
 					? NodeFilter.FILTER_REJECT
 					: NodeFilter.FILTER_ACCEPT;
 			}
@@ -20,23 +21,13 @@ export const findCapturableElements = (element: HTMLDivElement) => {
 	while (treeWalker.nextNode()) {
 		const node = treeWalker.currentNode;
 
-		if (node instanceof HTMLCanvasElement) {
+		if (
+			node instanceof HTMLCanvasElement ||
+			node instanceof SVGSVGElement ||
+			node instanceof HTMLImageElement
+		) {
 			composables.push({
-				type: 'canvas',
-				element: node,
-			});
-		}
-
-		if (node instanceof SVGSVGElement) {
-			composables.push({
-				type: 'svg',
-				element: node,
-			});
-		}
-
-		if (node instanceof HTMLImageElement) {
-			composables.push({
-				type: 'img',
+				type: 'element',
 				element: node,
 			});
 		}

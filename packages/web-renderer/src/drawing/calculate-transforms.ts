@@ -3,7 +3,7 @@ import {parseTransformOrigin} from './parse-transform-origin';
 
 type Transform = {
 	matrix: DOMMatrix;
-	rect: HTMLElement | SVGSVGElement;
+	rect: HTMLElement | SVGElement;
 	transformOrigin: string;
 	boundingClientRect: DOMRect | null;
 };
@@ -29,9 +29,9 @@ const getGlobalTransformOrigin = (transform: Transform) => {
 	};
 };
 
-export const calculateTransforms = (element: HTMLElement | SVGSVGElement) => {
+export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 	// Compute the cumulative transform by traversing parent nodes
-	let parent: HTMLElement | SVGSVGElement | null = element;
+	let parent: HTMLElement | SVGElement | null = element;
 	const transforms: Transform[] = [];
 	const toReset: (() => void)[] = [];
 

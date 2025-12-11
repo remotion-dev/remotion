@@ -5,9 +5,22 @@ import {setTransform} from './transform';
 import {turnSvgIntoDrawable} from './turn-svg-into-drawable';
 
 export const drawElementToCanvas = async (
-	element: HTMLCanvasElement | HTMLImageElement | SVGSVGElement,
+	element: HTMLElement | SVGElement,
 	context: OffscreenCanvasRenderingContext2D,
 ) => {
+	const drawable =
+		element instanceof SVGSVGElement
+			? await turnSvgIntoDrawable(element)
+			: element instanceof HTMLImageElement
+				? element
+				: element instanceof HTMLCanvasElement
+					? element
+					: null;
+
+	if (drawable === null) {
+		return;
+	}
+
 	const {totalMatrix, reset, dimensions, borderRadius, opacity} =
 		calculateTransforms(element);
 
@@ -15,11 +28,6 @@ export const drawElementToCanvas = async (
 		reset();
 		return;
 	}
-
-	const drawable =
-		element instanceof SVGSVGElement
-			? await turnSvgIntoDrawable(element)
-			: element;
 
 	const finishTransform = setTransform({
 		ctx: context,
