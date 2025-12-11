@@ -19,6 +19,10 @@ export const drawElementToCanvas = async ({
 		return;
 	}
 
+	if (dimensions.width <= 0 || dimensions.height <= 0) {
+		reset();
+		return;
+	}
 	const computedStyle = getComputedStyle(element);
 	const background = computedStyle.backgroundColor;
 	const borderRadius = parseBorderRadius({
