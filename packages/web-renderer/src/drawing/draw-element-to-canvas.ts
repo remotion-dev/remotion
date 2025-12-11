@@ -23,6 +23,7 @@ export const drawElementToCanvas = async ({
 		reset();
 		return;
 	}
+
 	const computedStyle = getComputedStyle(element);
 	const background = computedStyle.backgroundColor;
 	const borderRadius = parseBorderRadius({
@@ -57,7 +58,14 @@ export const drawElementToCanvas = async ({
 					? element
 					: null;
 
-	if (background) {
+	if (
+		background &&
+		background !== 'transparent' &&
+		!(
+			background.startsWith('rgba') &&
+			(background.endsWith(', 0)') || background.endsWith(',0'))
+		)
+	) {
 		const originalFillStyle = context.fillStyle;
 		context.fillStyle = background;
 		context.fillRect(
