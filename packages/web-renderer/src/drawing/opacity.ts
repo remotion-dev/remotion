@@ -6,7 +6,7 @@ export const setOpacity = ({
 	opacity: number;
 }) => {
 	const previousAlpha = ctx.globalAlpha;
-	ctx.globalAlpha = opacity;
+	ctx.globalAlpha = previousAlpha * opacity;
 
 	return () => {
 		ctx.globalAlpha = previousAlpha;
