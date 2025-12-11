@@ -36,7 +36,7 @@ export const videoIteratorManager = ({
 	canvas.height = videoTrack.displayHeight;
 
 	const canvasSink = new CanvasSink(videoTrack, {
-		poolSize: 2,
+		poolSize: 3,
 		fit: 'contain',
 		alpha: true,
 	});
@@ -118,12 +118,6 @@ export const videoIteratorManager = ({
 			videoFrameIterator = loopTransitionIterator;
 			loopTransitionIterator = null;
 			loopSwapCount++;
-
-			const prewarmResult = await videoFrameIterator.tryToSatisfySeek(newTime);
-			if (prewarmResult.type === 'satisfied') {
-				drawFrame(prewarmResult.frame);
-				return;
-			}
 		}
 
 		// Intentionally not awaited, letting audio start as well
@@ -159,7 +153,6 @@ export const videoIteratorManager = ({
 			try {
 				// Pre-warm the decoder by fetching the first frame
 				// This initializes the VideoDecoder and starts decoding
-				// The frame will be consumed by tryToSatisfySeek when the loop transition occurs
 				await iterator.getNext();
 			} catch (e) {
 				loopTransitionIterator?.destroy();
