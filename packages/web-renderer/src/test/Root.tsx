@@ -14,6 +14,9 @@ import {displayNone} from './fixtures/display-none';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
+import {opacityNested} from './fixtures/opacity-nested';
+import {opacitySimple} from './fixtures/opacity-simple';
+import {opacityZero} from './fixtures/opacity-zero';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
@@ -47,6 +50,9 @@ export const Root: React.FC = () => {
 			<Composition {...borderRadiusNone} />
 			<Composition {...borderRadiusClamped} />
 			<Composition {...displayNone} />
+			<Composition {...opacitySimple} />
+			<Composition {...opacityNested} />
+			<Composition {...opacityZero} />
 		</>
 	);
 };

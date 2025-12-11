@@ -17,7 +17,6 @@ export const compose = async ({
 		throw new Error('Could not get context');
 	}
 
-	// TODO: Consider z-index
 	for (const composable of composables) {
 		await composeCanvas(composable.element, context);
 	}
