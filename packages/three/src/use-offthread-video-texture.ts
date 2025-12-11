@@ -1,7 +1,6 @@
 import {useCallback, useLayoutEffect, useMemo, useState} from 'react';
 import {
 	Internals,
-	cancelRender,
 	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
@@ -62,7 +61,7 @@ export const useInnerVideoTexture = ({
 	);
 
 	const [imageTexture, setImageTexture] = useState<Texture | null>(null);
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const fetchTexture = useCallback(() => {
 		const imageTextureHandle = delayRender('fetch offthread video frame', {
@@ -102,6 +101,7 @@ export const useInnerVideoTexture = ({
 		delayRenderTimeoutInMilliseconds,
 		continueRender,
 		delayRender,
+		cancelRender,
 	]);
 
 	useLayoutEffect(() => {
