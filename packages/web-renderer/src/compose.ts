@@ -1,4 +1,5 @@
 import {drawElementToCanvas} from './drawing/draw-element-to-canvas';
+import {drawTextToCanvas} from './drawing/text/draw-text';
 
 export const compose = async (
 	element: HTMLDivElement,
@@ -19,10 +20,19 @@ export const compose = async (
 		},
 	);
 
+	const drawnTextElements: HTMLElement[] = [];
+
 	while (treeWalker.nextNode()) {
 		const node = treeWalker.currentNode;
 		if (node instanceof HTMLElement || node instanceof SVGElement) {
 			await drawElementToCanvas({element: node, context});
+		} else if (node instanceof Text) {
+			if (drawnTextElements.includes(node.parentElement as HTMLElement)) {
+				continue;
+			}
+
+			await drawTextToCanvas(node.parentElement as HTMLElement, context);
+			drawnTextElements.push(node.parentElement as HTMLElement);
 		}
 	}
 };

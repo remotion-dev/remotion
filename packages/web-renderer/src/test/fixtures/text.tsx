@@ -8,16 +8,14 @@ const Component: React.FC = () => {
 				backgroundColor: 'white',
 			}}
 		>
-			<p>
-				<strong>Hello</strong> world
-			</p>
+			<p>Hello world! This is really long, so I think it should wrap?</p>
 		</AbsoluteFill>
 	);
 };
 
-export const simpleRotatedSvg = {
+export const textFixture = {
 	component: Component,
-	id: 'paragraph-with-strong',
+	id: 'text',
 	width: 100,
 	height: 100,
 	fps: 30,

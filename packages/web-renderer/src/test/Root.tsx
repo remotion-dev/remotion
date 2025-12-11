@@ -26,6 +26,7 @@ import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
+import {textFixture} from './fixtures/text';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 
 export const Root: React.FC = () => {
@@ -57,6 +58,7 @@ export const Root: React.FC = () => {
 			<Composition {...opacityZero} />
 			<Composition {...backgroundColor} />
 			<Composition {...border} />
+			<Composition {...textFixture} />
 		</>
 	);
 };
