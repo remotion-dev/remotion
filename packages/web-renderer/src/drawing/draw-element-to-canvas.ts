@@ -1,15 +1,15 @@
 import {setBorderRadius} from './border-radius';
 import {calculateTransforms} from './calculate-transforms';
-import {turnSvgIntoDrawable} from './compose-svg';
-import {setOpacity} from './drawing/opacity';
+import {setOpacity} from './opacity';
 import {setTransform} from './transform';
+import {turnSvgIntoDrawable} from './turn-svg-into-drawable';
 
-export const composeCanvas = async (
-	canvas: HTMLCanvasElement | HTMLImageElement | SVGSVGElement,
+export const drawElementToCanvas = async (
+	element: HTMLCanvasElement | HTMLImageElement | SVGSVGElement,
 	context: OffscreenCanvasRenderingContext2D,
 ) => {
 	const {totalMatrix, reset, dimensions, borderRadius, opacity} =
-		calculateTransforms(canvas);
+		calculateTransforms(element);
 
 	if (opacity === 0) {
 		reset();
@@ -17,9 +17,9 @@ export const composeCanvas = async (
 	}
 
 	const drawable =
-		canvas instanceof SVGSVGElement
-			? await turnSvgIntoDrawable(canvas)
-			: canvas;
+		element instanceof SVGSVGElement
+			? await turnSvgIntoDrawable(element)
+			: element;
 
 	const finishTransform = setTransform({
 		ctx: context,
