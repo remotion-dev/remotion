@@ -94,7 +94,7 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 			<Internals.MaxMediaCacheSizeContext.Provider
 				value={mediaCacheSizeInBytes}
 			>
-				<Internals.RemotionEnvironmentContext
+				<Internals.RemotionEnvironmentContext.Provider
 					value={{
 						isStudio: false,
 						isRendering: true,
@@ -153,16 +153,16 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 									initialFrame={initialFrame}
 									timeUpdater={timeUpdater}
 								>
-									<Internals.CanUseRemotionHooks value>
+									<Internals.CanUseRemotionHooks.Provider value>
 										{/**
 										 * @ts-expect-error	*/}
 										<Component {...resolvedProps} />
-									</Internals.CanUseRemotionHooks>
+									</Internals.CanUseRemotionHooks.Provider>
 								</UpdateTime>
 							</Internals.RenderAssetManagerProvider>
 						</Internals.CompositionManager.Provider>
 					</Internals.DelayRenderContextType.Provider>
-				</Internals.RemotionEnvironmentContext>
+				</Internals.RemotionEnvironmentContext.Provider>
 			</Internals.MaxMediaCacheSizeContext.Provider>,
 		);
 	});
