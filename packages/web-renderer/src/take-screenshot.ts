@@ -1,5 +1,4 @@
-import {compose} from './drawing/compose';
-import {findCapturableElements} from './find-capturable-elements';
+import {compose} from './compose';
 import type {RenderStillOnWebImageFormat} from './render-still-on-web';
 
 export const createFrame = async ({
@@ -11,14 +10,16 @@ export const createFrame = async ({
 	width: number;
 	height: number;
 }) => {
-	const composables = findCapturableElements(div);
-	const composed = await compose({
-		composables,
-		width,
-		height,
-	});
+	const canvas = new OffscreenCanvas(width, height);
+	const context = canvas.getContext('2d');
 
-	return composed;
+	if (!context) {
+		throw new Error('Could not get context');
+	}
+
+	await compose(div, context);
+
+	return canvas;
 };
 
 export const takeScreenshot = async ({

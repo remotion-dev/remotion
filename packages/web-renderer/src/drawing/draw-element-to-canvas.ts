@@ -1,14 +1,17 @@
-import {setBorderRadius} from './border-radius';
+import {parseBorderRadius, setBorderRadius} from './border-radius';
 import {calculateTransforms} from './calculate-transforms';
 import {setOpacity} from './opacity';
 import {setTransform} from './transform';
 import {turnSvgIntoDrawable} from './turn-svg-into-drawable';
 
-export const drawElementToCanvas = async (
-	element: HTMLCanvasElement | HTMLImageElement | SVGSVGElement,
-	context: OffscreenCanvasRenderingContext2D,
-) => {
-	const {totalMatrix, reset, dimensions, borderRadius, opacity} =
+export const drawElementToCanvas = async ({
+	element,
+	context,
+}: {
+	element: HTMLElement | SVGElement;
+	context: OffscreenCanvasRenderingContext2D;
+}) => {
+	const {totalMatrix, reset, dimensions, opacity} =
 		calculateTransforms(element);
 
 	if (opacity === 0) {
@@ -16,10 +19,18 @@ export const drawElementToCanvas = async (
 		return;
 	}
 
-	const drawable =
-		element instanceof SVGSVGElement
-			? await turnSvgIntoDrawable(element)
-			: element;
+	if (dimensions.width <= 0 || dimensions.height <= 0) {
+		reset();
+		return;
+	}
+
+	const computedStyle = getComputedStyle(element);
+	const background = computedStyle.backgroundColor;
+	const borderRadius = parseBorderRadius({
+		borderRadius: computedStyle.borderRadius,
+		width: dimensions.width,
+		height: dimensions.height,
+	});
 
 	const finishTransform = setTransform({
 		ctx: context,
@@ -38,13 +49,43 @@ export const drawElementToCanvas = async (
 		opacity,
 	});
 
-	context.drawImage(
-		drawable,
-		dimensions.left,
-		dimensions.top,
-		dimensions.width,
-		dimensions.height,
-	);
+	const drawable =
+		element instanceof SVGSVGElement
+			? await turnSvgIntoDrawable(element)
+			: element instanceof HTMLImageElement
+				? element
+				: element instanceof HTMLCanvasElement
+					? element
+					: null;
+
+	if (
+		background &&
+		background !== 'transparent' &&
+		!(
+			background.startsWith('rgba') &&
+			(background.endsWith(', 0)') || background.endsWith(',0'))
+		)
+	) {
+		const originalFillStyle = context.fillStyle;
+		context.fillStyle = background;
+		context.fillRect(
+			dimensions.left,
+			dimensions.top,
+			dimensions.width,
+			dimensions.height,
+		);
+		context.fillStyle = originalFillStyle;
+	}
+
+	if (drawable) {
+		context.drawImage(
+			drawable,
+			dimensions.left,
+			dimensions.top,
+			dimensions.width,
+			dimensions.height,
+		);
+	}
 
 	finishOpacity();
 	finishBorderRadius();
