@@ -10,11 +10,10 @@ This feature is not available yet, but we are already writing docs.
 [Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
 :::
 
-Client-side rendering has several limitations to be aware of.
-
 ## Supported element types
 
-Only certain element types can be captured and rendered:
+There is no browser API for capturing the entire viewport.  
+Client-side rendering reconstructs the DOM in a `<canvas>` element, but only certain elements and CSS styles are supported.
 
 - `<canvas>` elements
 - `<svg>` elements
@@ -23,7 +22,7 @@ Only certain element types can be captured and rendered:
 - [`<Video>`](/docs/media/video) elements
 - [`<Gif>`](/docs/gif), [`<AnimatedImage>`](/docs/animatedimage), [`<Lottie>`](/docs/lottie), [`<Rive>`](/docs/rive) elements
 
-You can use HTML elements like `<div>` to influence the layout of the elements, but they will not be captured visually
+You can use HTML elements like `<div>` to influence the layout of the elements, but they will not be captured visually.
 
 ```tsx
 import {AbsoluteFill, Img, staticFile} from 'remotion';
@@ -41,16 +40,42 @@ export const MyComponent: React.FC = () => {
 };
 ```
 
+## Supported CSS styles
+
+Only some CSS styles are being supported:
+
+- Positioning and layouting properties, such as `margin`, `left`, `display`, `width`, `height`, `flex`, `flex-direction`.  
+  Remotion is able to obtain the position of the element in the DOM, no matter which CSS properties are used.
+- Transformations, such as `transform`, `rotate`, `scale`, `translate`, `perspective`, `matrix`, `matrix3d`.
+- `border-radius` is supported.
+- `style` property on `<svg>` elements is supported, since the browser can capture SVG elements:
+
+```tsx twoslash title="✅ Works: SVG elements can be styled with CSS"
+<svg style={{backgroundColor: 'red'}}>
+  <rect width="100%" height="100%" />
+</svg>
+```
+
 ## Uncapturable elements and styles
 
-Every element that is not explicitly supported is unsupported. Some important ones are:
+Every element and style that is not explicitly supported is unsupported. Some important omissions are:
 
 <!-- TODO: Block Html5Video from being used -->
 
+❌ Unsupported elements:
+
 - `<Html5Video>`, `<Html5Audio>` and `<OffthreadVideo>` from the `remotion` package
 - Text elements: `<div>`, `<span>`, `<h1>`, etc.
+- Any other element not listed above.
 
-In addition, CSS styles are not supported, except ones that change the layout of the element, such as `margin`, `left`, `transform`, etc.
+❌ Unsupported styles:
+
+- `background`
+- `color`
+- `opacity`
+- `mask-image` or `clip-path`
+- `z-index`
+- Any other property not listed above.
 
 ```tsx twoslash title="❌ Doesn't work: Cannot capture styles that don't change the layout"
 <canvas style={{backgroundColor: 'red'}} />
@@ -60,20 +85,14 @@ In addition, CSS styles are not supported, except ones that change the layout of
 <canvas style={{position: 'absolute', top: 100, left: 100}} />
 ```
 
-One exception is `<svg>` elements, which can be styled.
-
-```tsx twoslash title="✅ Works: SVG elements can be styled with CSS"
-<svg style={{backgroundColor: 'red'}}>
-  <rect width="100%" height="100%" />
-</svg>
-```
+Over time, we will support more elements and styles. We'll prioritize the most demanded ones.
 
 To get a better understanding of what works and what doesn't, read [how client-side rendering works](/docs/client-side-rendering/how-it-works) under the hood.
 
 ## Z-indexing
 
-Is not implemented and `zIndex` CSS properties are ignored.  
-The rule is: Elements which are further down in the markup last will be on top.
+The CSS property `z-index` is not supported.  
+To control the order of the elements, [order your elements from back to front](/docs/layers).
 
 ```tsx twoslash title="The blue square will be drawn on top of the red square"
 import {AbsoluteFill} from 'remotion';
