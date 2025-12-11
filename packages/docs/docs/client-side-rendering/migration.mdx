@@ -26,6 +26,12 @@ Start using the [`useRemotionEnvironment()`](/docs/use-remotion-environment) hoo
 If you have multiple renders at the same time or another instance of Remotion on the same page, such as a `<Player>`, the [`delayRender()`](/docs/delay-render), [`continueRender()`](/docs/continue-render) and [`cancelRender()`](/docs/cancel-render) functions may conflict.
 
 Start using the [`useDelayRender()`](/docs/use-delay-render) hook instead, which scopes these functions to a composition.
+
 ## Ensure assets are available via CORS
 
 Unlike server-side rendering, where video and audio assets are downloaded in a Node.js process, and where images can be captured even if they are [tainted](https://www.unblu.com/en/docs/latest/knowledge-base/configuration/collaboration-layers/embedded-co-browsing/html-tainted-canvas-limitation.html), in client-side rendering, CORS is enforced and images and canvas may not be tainted.
+
+## Use `@remotion/media`
+
+The only video and audio tags that are supported are [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from `@remotion/media`.  
+Migrate any `Html5Video`, `Html5Audio` and `<OffthreadVideo>` tags to [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio).
