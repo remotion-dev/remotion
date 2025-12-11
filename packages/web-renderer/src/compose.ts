@@ -1,6 +1,10 @@
 import type {Composable} from './composable';
+import {drawElementToCanvas} from './drawing/draw-element-to-canvas';
 
-export const findCapturableElements = (element: HTMLDivElement) => {
+export const compose = async (
+	element: HTMLDivElement,
+	context: OffscreenCanvasRenderingContext2D,
+) => {
 	const treeWalker = document.createTreeWalker(
 		element,
 		NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
@@ -26,6 +30,8 @@ export const findCapturableElements = (element: HTMLDivElement) => {
 			node instanceof SVGSVGElement ||
 			node instanceof HTMLImageElement
 		) {
+			await drawElementToCanvas(node, context);
+
 			composables.push({
 				type: 'element',
 				element: node,

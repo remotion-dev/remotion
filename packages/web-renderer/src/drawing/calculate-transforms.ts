@@ -1,4 +1,3 @@
-import {parseBorderRadius} from './border-radius';
 import {parseTransformOrigin} from './parse-transform-origin';
 
 type Transform = {
@@ -35,14 +34,10 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 	const transforms: Transform[] = [];
 	const toReset: (() => void)[] = [];
 
-	let borderRadius = '';
 	let opacity = 1;
 
 	while (parent) {
 		const computedStyle = getComputedStyle(parent);
-		if (parent === element) {
-			borderRadius = computedStyle.borderRadius;
-		}
 
 		// Multiply opacity values from element and all parents
 		const parentOpacity = computedStyle.opacity;
@@ -110,11 +105,6 @@ export const calculateTransforms = (element: HTMLElement | SVGElement) => {
 			}
 		},
 		nativeTransformOrigin,
-		borderRadius: parseBorderRadius({
-			borderRadius,
-			width: dimensions.width,
-			height: dimensions.height,
-		}),
 		opacity,
 	};
 };
