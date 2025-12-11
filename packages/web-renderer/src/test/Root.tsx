@@ -2,6 +2,13 @@
 import React from 'react';
 import {Composition} from 'remotion';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
+import {borderRadius} from './fixtures/border-radius';
+import {borderRadiusClamped} from './fixtures/border-radius-clamped';
+import {borderRadiusDifferent} from './fixtures/border-radius-different';
+import {borderRadiusElliptical} from './fixtures/border-radius-elliptical';
+import {borderRadiusNone} from './fixtures/border-radius-none';
+import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
+import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
@@ -31,6 +38,13 @@ export const Root: React.FC = () => {
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...flexPositionedScaled} />
+			<Composition {...borderRadius} />
+			<Composition {...borderRadiusSimple} />
+			<Composition {...borderRadiusElliptical} />
+			<Composition {...borderRadiusDifferent} />
+			<Composition {...borderRadiusPercentage} />
+			<Composition {...borderRadiusNone} />
+			<Composition {...borderRadiusClamped} />
 		</>
 	);
 };
