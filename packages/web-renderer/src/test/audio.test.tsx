@@ -9,7 +9,7 @@ test('should not be able to set toneFrequency on web rendering', async () => {
 	};
 
 	await expect(async () => {
-		await renderMediaOnWeb({
+		const result = await renderMediaOnWeb({
 			composition: {
 				component: Component,
 				id: 'audio',
@@ -20,6 +20,7 @@ test('should not be able to set toneFrequency on web rendering', async () => {
 				calculateMetadata: null,
 			},
 		});
+		throw new Error('Did resolve' + JSON.stringify(result));
 	}).rejects.toThrow(
 		'Setting the toneFrequency is not supported yet in web rendering.',
 	);
