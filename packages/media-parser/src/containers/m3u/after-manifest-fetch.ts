@@ -35,7 +35,11 @@ export const afterManifestFetch = async ({
 	canSkipTracks: CanSkipTracksState;
 }) => {
 	const independentSegments = isIndependentSegments(structure);
-	if (!independentSegments) {
+	const streams = getM3uStreams({structure, originalSrc: src, readerInterface});
+
+	// If there are no streams, this is a single media playlist (not a master playlist)
+	// Treat it as the initial URL to iterate over
+	if (!independentSegments || streams === null) {
 		if (!src) {
 			throw new Error('No src');
 		}
@@ -46,11 +50,6 @@ export const afterManifestFetch = async ({
 		});
 
 		return m3uState.setReadyToIterateOverM3u();
-	}
-
-	const streams = getM3uStreams({structure, originalSrc: src, readerInterface});
-	if (streams === null) {
-		throw new Error('No streams found');
 	}
 
 	const selectedPlaylist = await selectStream({streams, fn: selectM3uStreamFn});

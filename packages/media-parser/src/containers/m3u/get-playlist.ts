@@ -24,6 +24,18 @@ export const getAllPlaylists = ({
 		(box) => box.type === 'm3u-playlist',
 	);
 
+	// If no playlists found, this might be a single media playlist (not a master playlist)
+	// Create a synthetic playlist from the structure boxes
+	if (playlists.length === 0) {
+		return [
+			{
+				type: 'm3u-playlist',
+				boxes: structure.boxes,
+				src,
+			},
+		];
+	}
+
 	return playlists;
 };
 
