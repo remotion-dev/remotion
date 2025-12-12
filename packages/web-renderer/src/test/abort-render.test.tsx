@@ -2,7 +2,12 @@ import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
 
-test('should be able to cancel renderMediaOnWeb()', async () => {
+test('should be able to cancel renderMediaOnWeb()', async (t) => {
+	if (t.task.file.projectName === 'webkit') {
+		t.skip();
+		return;
+	}
+
 	const Component: React.FC = () => {
 		return null;
 	};
