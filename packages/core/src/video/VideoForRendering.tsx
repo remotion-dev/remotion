@@ -51,6 +51,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		delayRenderTimeoutInMilliseconds,
 		loopVolumeCurveBehavior,
 		audioStreamIndex,
+		onVideoFrame,
 		...props
 	},
 	ref,
