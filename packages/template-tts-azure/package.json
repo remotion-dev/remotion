@@ -18,8 +18,8 @@
     "@remotion/zod-types": "workspace:*",
     "md5": "2.3.0",
     "microsoft-cognitiveservices-speech-sdk": "1.17.0",
-    "react": "19.2.1",
-    "react-dom": "19.2.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "remotion": "workspace:*"
   },
   "devDependencies": {
