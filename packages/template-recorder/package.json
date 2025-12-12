@@ -61,7 +61,7 @@
     "@types/connect": "3.4.38",
     "@types/web": "0.0.187",
     "@types/webrtc": "0.0.44",
-    "@vitejs/plugin-react": "4.1.0",
+    "@vitejs/plugin-react": "catalog:",
     "prettier": "3.6.0",
     "prettier-plugin-organize-imports": "3.2.3"
   }

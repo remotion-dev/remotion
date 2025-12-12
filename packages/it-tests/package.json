@@ -6,7 +6,7 @@
 	"version": "4.0.386",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"scripts": {
-		"test": " node --test src/node-version/media-parser.mjs && bun test src/rendering --run ",
+		"test": " node --test src/node-version/media-parser.mjs && bun test src/rendering --run",
 		"testssr": "bun test src/ssr src/bundle src/webcodecs src/templates src/monorepo --timeout 40000",
 		"testlambda": "exit 0",
 		"lint": "tsc -d",

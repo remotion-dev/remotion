@@ -102,7 +102,11 @@
 			"@react-three/fiber": "9.2.0",
 			"@types/three": "0.170.0",
 			"openai": "4.67.1",
-			"@types/dom-webcodecs": "0.1.11"
+			"@types/dom-webcodecs": "0.1.11",
+			"@vitejs/plugin-react": "4.1.0",
+			"@vitest/browser-playwright": "4.0.9",
+			"playwright": "1.55.1",
+			"vitest": "4.0.9"
 		}
 	}
 }

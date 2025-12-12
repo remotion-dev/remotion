@@ -34,7 +34,7 @@
 		"eslint": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"vitest": "4.0.9",
+		"vitest": "catalog:",
 		"webdriverio": "9.19.2"
 	},
 	"keywords": [],
