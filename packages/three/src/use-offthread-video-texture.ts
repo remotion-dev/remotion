@@ -136,13 +136,15 @@ export function useOffthreadVideoTexture({
 	const {isRendering, isClientSideRendering} = env;
 
 	if (isClientSideRendering) {
-		throw new Error(
+		// eslint-disable-next-line no-console
+		console.warn(
 			'useOffthreadVideoTexture() cannot be used in client-side rendering.',
 		);
 	}
 
 	if (!isRendering) {
-		throw new Error(
+		// eslint-disable-next-line no-console
+		console.warn(
 			'useOffthreadVideoTexture() can only be used during rendering. Use useRemotionEnvironment().isRendering to render it conditionally.',
 		);
 	}

@@ -44,9 +44,8 @@ export const useVideoTexture = (
 	const {isClientSideRendering} = environment;
 
 	if (isClientSideRendering) {
-		throw new Error(
-			'useVideoTexture() cannot be used in client side rendering.',
-		);
+		// eslint-disable-next-line no-console
+		console.warn('useVideoTexture() cannot be used in client side rendering.');
 	}
 
 	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
