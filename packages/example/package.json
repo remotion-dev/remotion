@@ -101,7 +101,7 @@
 	},
 	"devDependencies": {
 		"prettier-plugin-organize-imports": "3.2.4",
-		"sharp": "0.32.6",
+		"sharp": "catalog:",
 		"@types/dom-webcodecs": "catalog:",
 		"eslint": "catalog:"
 	},

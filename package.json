@@ -99,6 +99,7 @@
 			"@mediabunny/mp3-encoder": "1.24.5",
 			"next": "16.0.10",
 			"three": "0.178.0",
+			"sharp": "0.34.5",
 			"@react-three/fiber": "9.2.0",
 			"@types/three": "0.170.0",
 			"openai": "4.67.1",
