@@ -49,6 +49,6 @@
 		"create-video": "workspace:*",
 		"execa": "5.1.1",
 		"remotion": "workspace:*",
-		"sharp": "0.32.6"
+		"sharp": "catalog:"
 	}
 }
