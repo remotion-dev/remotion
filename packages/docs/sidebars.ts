@@ -842,6 +842,7 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/snippets/freeze-portions',
 				'video-tags',
 				'miscellaneous/snippets/hls',
+				'videos/as-threejs-texture',
 			],
 		},
 		{

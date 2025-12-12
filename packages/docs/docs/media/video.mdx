@@ -254,6 +254,11 @@ Only works in server-side rendering.
 Does not currently work in preview or in [client-side rendering](/docs/client-side-rendering/).
 :::
 
+### `headless?`<AvailableFrom v="4.0.387" />
+
+Does not mount a `<canvas>`, but still allows you to use the [`onVideoFrame`](#onvideoframe) prop.  
+This is useful for [embedding a video as a texture in Three.js](/docs/videos/as-threejs-texture).
+
 ### `fallbackOffthreadVideoProps?`
 
 When a [fallback to `<OffthreadVideo>`](/docs/media/fallback) happens, this prop allows you to pass props to the fallback `<OffthreadVideo>` component.  

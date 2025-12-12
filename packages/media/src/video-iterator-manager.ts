@@ -19,8 +19,8 @@ export const videoIteratorManager = ({
 }: {
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => {unblock: () => void};
-	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D;
-	canvas: OffscreenCanvas | HTMLCanvasElement;
+	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
+	canvas: OffscreenCanvas | HTMLCanvasElement | null;
 	getOnVideoFrameCallback: () => null | ((frame: CanvasImageSource) => void);
 	logLevel: LogLevel;
 	drawDebugOverlay: () => void;
@@ -29,8 +29,10 @@ export const videoIteratorManager = ({
 	let videoFrameIterator: VideoIterator | null = null;
 	let framesRendered = 0;
 
-	canvas.width = videoTrack.displayWidth;
-	canvas.height = videoTrack.displayHeight;
+	if (canvas) {
+		canvas.width = videoTrack.displayWidth;
+		canvas.height = videoTrack.displayHeight;
+	}
 
 	const canvasSink = new CanvasSink(videoTrack, {
 		poolSize: 2,
@@ -39,14 +41,17 @@ export const videoIteratorManager = ({
 	});
 
 	const drawFrame = (frame: WrappedCanvas): void => {
-		context.clearRect(0, 0, canvas.width, canvas.height);
-		context.drawImage(frame.canvas, 0, 0);
+		if (context && canvas) {
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			context.drawImage(frame.canvas, 0, 0);
+		}
+
 		framesRendered++;
 
 		drawDebugOverlay();
 		const callback = getOnVideoFrameCallback();
 		if (callback) {
-			callback(canvas);
+			callback(frame.canvas);
 		}
 
 		Internals.Log.trace(
@@ -121,7 +126,10 @@ export const videoIteratorManager = ({
 		seek,
 		destroy: () => {
 			videoFrameIterator?.destroy();
-			context.clearRect(0, 0, canvas.width, canvas.height);
+			if (context && canvas) {
+				context.clearRect(0, 0, canvas.width, canvas.height);
+			}
+
 			videoFrameIterator = null;
 		},
 		getVideoFrameIterator: () => videoFrameIterator,

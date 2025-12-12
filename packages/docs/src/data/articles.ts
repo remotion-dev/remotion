@@ -6377,6 +6377,15 @@ export const articles = [
 		slug: 'video-uploads',
 	},
 	{
+		id: 'videos/as-threejs-texture',
+		title: 'Using a video as a texture in Three.js',
+		relativePath: 'docs/videos/as-threejs-texture.mdx',
+		compId: 'articles-docs-videos-as-threejs-texture',
+		crumb: 'Videos',
+		noAi: false,
+		slug: 'videos/as-threejs-texture',
+	},
+	{
 		id: 'videos/index',
 		title: 'Embedding videos into Remotion',
 		relativePath: 'docs/videos/index.mdx',
