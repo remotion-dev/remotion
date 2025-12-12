@@ -37,8 +37,10 @@ export const afterManifestFetch = async ({
 	const independentSegments = isIndependentSegments(structure);
 	const streams = getM3uStreams({structure, originalSrc: src, readerInterface});
 
-	// If there are no streams, this is a single media playlist (not a master playlist)
-	// Treat it as the initial URL to iterate over
+	// Handle single media playlists (not master playlists):
+	// 1. If !independentSegments: Old-style single playlist without segment independence
+	// 2. If streams === null: Single media playlist (has EXT-X-INDEPENDENT-SEGMENTS but no EXT-X-STREAM-INF)
+	// Both cases should iterate over the current URL as the media playlist
 	if (!independentSegments || streams === null) {
 		if (!src) {
 			throw new Error('No src');
