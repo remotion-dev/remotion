@@ -166,6 +166,10 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 	}
 
 	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
+	const initialIsPremounting = useRef(isPremounting);
+	const initialIsPostmounting = useRef(isPostmounting);
+	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
+	const initialPlaybackRate = useRef(playbackRate);
 
 	useEffect(() => {
 		if (!sharedAudioContext) return;
@@ -181,13 +185,13 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 				trimAfter: initialTrimAfterRef.current,
 				trimBefore: initialTrimBeforeRef.current,
 				fps: videoConfig.fps,
-				playbackRate,
+				playbackRate: initialPlaybackRate.current,
 				audioStreamIndex,
 				debugOverlay,
 				bufferState: buffer,
-				isPremounting,
-				isPostmounting,
-				globalPlaybackRate,
+				isPremounting: initialIsPremounting.current,
+				isPostmounting: initialIsPostmounting.current,
+				globalPlaybackRate: initialGlobalPlaybackRate.current,
 				onVideoFrameCallback: initialOnVideoFrameRef.current ?? null,
 			});
 
@@ -295,19 +299,15 @@ const VideoForPreviewAssertedShowing: React.FC<VideoForPreviewProps> = ({
 			setShouldFallbackToNativeVideo(false);
 		};
 	}, [
-		preloadedSrc,
-		logLevel,
-		sharedAudioContext,
-		loop,
-		videoConfig.fps,
-		playbackRate,
-		disallowFallbackToOffthreadVideo,
 		audioStreamIndex,
-		debugOverlay,
 		buffer,
-		isPremounting,
-		isPostmounting,
-		globalPlaybackRate,
+		debugOverlay,
+		disallowFallbackToOffthreadVideo,
+		logLevel,
+		loop,
+		preloadedSrc,
+		sharedAudioContext,
+		videoConfig.fps,
 	]);
 
 	const classNameValue = useMemo(() => {
