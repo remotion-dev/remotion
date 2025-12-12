@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import type {Video} from 'remotion';
-import {cancelRender, useCurrentFrame, useDelayRender} from 'remotion';
+import {useCurrentFrame, useDelayRender} from 'remotion';
 // eslint-disable-next-line no-restricted-imports
 import type {VideoTexture} from 'three/src/textures/VideoTexture';
 
@@ -27,7 +27,7 @@ const warnAboutRequestVideoFrameCallback = () => {
 export const useVideoTexture = (
 	videoRef: React.RefObject<HTMLVideoElement | null>,
 ): VideoTexture | null => {
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const [loaded] = useState(() => {
 		if (typeof document === 'undefined') {
 			return 0;
@@ -59,7 +59,7 @@ export const useVideoTexture = (
 			.catch((err) => {
 				cancelRender(err);
 			});
-	}, [loaded, vidText, videoRef, continueRender]);
+	}, [loaded, vidText, videoRef, continueRender, cancelRender]);
 
 	React.useLayoutEffect(() => {
 		if (!videoRef.current) {
