@@ -64,6 +64,10 @@ export async function createScaffold<Props extends Record<string, unknown>>({
 	div.style.width = `${width}px`;
 	div.style.height = `${height}px`;
 	div.style.zIndex = '-9999';
+	div.style.top = '0';
+	div.style.visibility = 'hidden';
+	div.style.left = '0';
+	div.style.pointerEvents = 'none';
 
 	document.body.appendChild(div);
 
