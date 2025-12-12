@@ -18,8 +18,8 @@
     "@remotion/renderer": "workspace:*",
     "@remotion/zod-types": "workspace:*",
     "express": "5.1.0",
-    "react": "19.2.1",
-    "react-dom": "19.2.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "remotion": "workspace:*",
     "zod": "3.22.3"
   },

@@ -16,8 +16,8 @@
     "@remotion/media-utils": "workspace:*",
     "@remotion/three": "workspace:*",
     "@remotion/zod-types": "workspace:*",
-    "react": "19.2.1",
-    "react-dom": "19.2.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "remotion": "workspace:*",
     "three": "0.178.0",
     "zod": "3.22.3"
