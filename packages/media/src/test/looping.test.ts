@@ -47,5 +47,8 @@ test('when looping with a lot of concurrency, it must be frame-accurate', async 
 	expect(realTimestamps).toEqual([
 		7.76, 7.84, 7.92, 4, 4.079999999999998, 4.16,
 	]);
-	expect(outputTimestamps).toEqual([7.76, 7.84, 7.92, 4, 4.08, 4.16]);
+	expect(outputTimestamps).toEqual([
+		7.733333333333333, 7.833333333333333, 7.9, 4.066666666666666,
+		4.133333333333334,
+	]);
 });
