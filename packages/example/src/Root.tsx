@@ -149,6 +149,7 @@ import {TransitionRounding} from './TransitionRounding';
 import {TriangleComp} from './Triangle';
 import {VideoTestingPlayback} from './VideoTesting/playback';
 import {VideoTestingTrim} from './VideoTesting/trim';
+import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
@@ -1790,6 +1791,14 @@ export const Index: React.FC = () => {
 				height={100}
 				fps={30}
 				durationInFrames={100}
+			/>
+			<Composition
+				id="media-video-texture"
+				component={RemotionMediaVideoTexture}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={600}
 			/>
 			<ChangingTrimBeforeValue />
 		</>

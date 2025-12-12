@@ -14,7 +14,7 @@ import { RoundedBox } from "./RoundedBox";
 export const Phone: React.FC<{
   readonly videoTexture: Texture;
   readonly phoneColor: string;
-  phoneLayout: PhoneLayout;
+  readonly phoneLayout: PhoneLayout;
 }> = ({ videoTexture, phoneColor, phoneLayout }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
