@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/react18-tests"
 	},
 	"name": "@remotion/react18-tests",
-	"version": "4.0.386",
+	"version": "4.0.387",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
@@ -37,6 +37,5 @@
 		"react": ">=18.0.0",
 		"react-dom": ">=18.0.0"
 	},
-	"private": true,
-	"description": "React 18 tests for Remotion"
+	"private": true
 }

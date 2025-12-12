@@ -13580,7 +13580,7 @@ export const googleFonts: Font[] = [
 			'vietnamese',
 		],
 		version: 'v16',
-		lastModified: '2025-12-08',
+		lastModified: '2025-12-11',
 		files: {
 			'100':
 				'https://fonts.gstatic.com/s/googlesansflex/v16/t5sJIQcYNIWbFgDgAAzZ34auoVyXkJCOvp3SFWJbN5hF8Ju1x6sKCyp0l9sI40swNJwInycYAJzz0m7kJ4qFQOJBOjLvDSndo0SKMpKSTzwliVdHAy4bxTDHg_ugnAakp8uayc5qU4LBMUM.woff2',
