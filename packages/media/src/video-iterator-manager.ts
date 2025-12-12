@@ -29,11 +29,14 @@ export const videoIteratorManager = ({
 	let videoFrameIterator: VideoIterator | null = null;
 	let framesRendered = 0;
 
+	let loopTransitionIterator: VideoIterator | null = null;
+	let loopSwapCount = 0;
+
 	canvas.width = videoTrack.displayWidth;
 	canvas.height = videoTrack.displayHeight;
 
 	const canvasSink = new CanvasSink(videoTrack, {
-		poolSize: 2,
+		poolSize: 3,
 		fit: 'contain',
 		alpha: true,
 	});
@@ -109,6 +112,15 @@ export const videoIteratorManager = ({
 			return;
 		}
 
+		// if cannot satisfy seek, use loop transition iterator if available
+		if (loopTransitionIterator) {
+			videoFrameIterator.destroy();
+			videoFrameIterator = loopTransitionIterator;
+			loopTransitionIterator = null;
+			loopSwapCount++;
+			return;
+		}
+
 		// Intentionally not awaited, letting audio start as well
 		startVideoIterator(newTime, nonce).catch(() => {
 			// Ignore errors, might be stale or disposed
@@ -121,12 +133,34 @@ export const videoIteratorManager = ({
 		seek,
 		destroy: () => {
 			videoFrameIterator?.destroy();
+			loopTransitionIterator?.destroy();
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			videoFrameIterator = null;
+			loopTransitionIterator = null;
 		},
 		getVideoFrameIterator: () => videoFrameIterator,
 		drawFrame,
 		getFramesRendered: () => framesRendered,
+		getLoopSwapCount: () => loopSwapCount,
+		prepareLoopTransition: async ({startTime}: {startTime: number}) => {
+			// skip if already created
+			if (loopTransitionIterator) {
+				return;
+			}
+
+			const iterator = createVideoIterator(startTime, canvasSink);
+			loopTransitionIterator = iterator;
+
+			try {
+				// Pre-warm the decoder by fetching the first frame
+				// This initializes the VideoDecoder and starts decoding
+				await iterator.getNext();
+			} catch (e) {
+				loopTransitionIterator?.destroy();
+				loopTransitionIterator = null;
+				throw e;
+			}
+		},
 	};
 };
 

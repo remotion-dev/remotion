@@ -46,12 +46,13 @@ export class MediaPlayer {
 
 	private playing = false;
 	private loop = false;
+
 	private fps: number;
 
 	private trimBefore: number | undefined;
 	private trimAfter: number | undefined;
 
-	private totalDuration: number | undefined;
+	private mediaDurationInSeconds: number | undefined;
 
 	private debugOverlay = false;
 
@@ -192,7 +193,7 @@ export class MediaPlayer {
 				return {type: 'disposed'};
 			}
 
-			this.totalDuration = durationInSeconds;
+			this.mediaDurationInSeconds = durationInSeconds;
 
 			const audioTrack = audioTracks[this.audioStreamIndex] ?? null;
 
@@ -229,7 +230,7 @@ export class MediaPlayer {
 				loop: this.loop,
 				trimBefore: this.trimBefore,
 				trimAfter: this.trimAfter,
-				mediaDurationInSeconds: this.totalDuration,
+				mediaDurationInSeconds: this.mediaDurationInSeconds,
 				fps: this.fps,
 				ifNoMediaDuration: 'infinity',
 				src: this.src,
@@ -309,7 +310,7 @@ export class MediaPlayer {
 			loop: this.loop,
 			trimBefore: this.trimBefore,
 			trimAfter: this.trimAfter,
-			mediaDurationInSeconds: this.totalDuration ?? null,
+			mediaDurationInSeconds: this.mediaDurationInSeconds ?? null,
 			fps: this.fps,
 			ifNoMediaDuration: 'infinity',
 			src: this.src,
@@ -317,6 +318,13 @@ export class MediaPlayer {
 
 		if (newTime === null) {
 			throw new Error(`should have asserted that the time is not null`);
+		}
+
+		const shouldPrepareLoopTransition =
+			this.shouldPrepareLoopTransition(newTime);
+
+		if (shouldPrepareLoopTransition) {
+			this.prepareSeamlessLoop();
 		}
 
 		const nonce = this.nonceManager.createAsyncOperation();
@@ -335,6 +343,7 @@ export class MediaPlayer {
 		}
 
 		const currentPlaybackTime = this.getPlaybackTime();
+
 		if (currentPlaybackTime === newTime) {
 			return;
 		}
@@ -362,7 +371,7 @@ export class MediaPlayer {
 			loop: this.loop,
 			trimBefore: this.trimBefore,
 			trimAfter: this.trimAfter,
-			mediaDurationInSeconds: this.totalDuration ?? null,
+			mediaDurationInSeconds: this.mediaDurationInSeconds ?? null,
 			fps: this.fps,
 			ifNoMediaDuration: 'infinity',
 			src: this.src,
@@ -428,7 +437,7 @@ export class MediaPlayer {
 			loop: this.loop,
 			trimBefore: this.trimBefore,
 			trimAfter: this.trimAfter,
-			mediaDurationInSeconds: this.totalDuration ?? null,
+			mediaDurationInSeconds: this.mediaDurationInSeconds ?? null,
 			fps: this.fps,
 			ifNoMediaDuration: 'infinity',
 			src: this.src,
@@ -516,6 +525,67 @@ export class MediaPlayer {
 
 	public setLoop(loop: boolean): void {
 		this.loop = loop;
+	}
+
+	private getLoopDuration(): number {
+		if (!this.mediaDurationInSeconds) {
+			return 0;
+		}
+
+		const loopDurationInSeconds =
+			Internals.calculateMediaDuration({
+				trimBefore: this.trimBefore,
+				trimAfter: this.trimAfter,
+				mediaDurationInFrames: this.mediaDurationInSeconds * this.fps,
+				playbackRate: 1,
+			}) / this.fps;
+
+		return loopDurationInSeconds;
+	}
+
+	private shouldPrepareLoopTransition(mediaTime: number): boolean {
+		if (!this.loop || !this.mediaDurationInSeconds) {
+			return false;
+		}
+
+		const thresholdInSeconds = 1.0;
+		const loopStartMediaTime = (this.trimBefore ?? 0) / this.fps;
+
+		const loopDuration = this.getLoopDuration();
+
+		const positionInLoop = mediaTime - loopStartMediaTime;
+		const timeUntilEndSec = loopDuration - positionInLoop;
+
+		return timeUntilEndSec <= thresholdInSeconds && timeUntilEndSec > 0;
+	}
+
+	private prepareSeamlessLoop(): void {
+		if (!this.mediaDurationInSeconds) {
+			return;
+		}
+
+		const startTimeInSeconds = getTimeInSeconds({
+			unloopedTimeInSeconds: 0,
+			playbackRate: this.playbackRate,
+			loop: this.loop,
+			trimBefore: this.trimBefore,
+			trimAfter: this.trimAfter,
+			mediaDurationInSeconds: this.mediaDurationInSeconds,
+			fps: this.fps,
+			ifNoMediaDuration: 'infinity',
+			src: this.src,
+		});
+
+		if (startTimeInSeconds === null) {
+			return;
+		}
+
+		this.audioIteratorManager?.prepareLoopTransition({
+			startTimeInSeconds,
+		});
+		this.videoIteratorManager?.prepareLoopTransition({
+			startTime: startTimeInSeconds,
+		});
 	}
 
 	public async dispose(): Promise<void> {
