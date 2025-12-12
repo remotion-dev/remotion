@@ -101,6 +101,9 @@ export const studioCommand = async (
 	const keyboardShortcutsEnabled =
 		ConfigInternals.getKeyboardShortcutsEnabled();
 
+	const experimentalClientSideRenderingEnabled =
+		ConfigInternals.getExperimentalClientSideRenderingEnabled();
+
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -130,6 +133,7 @@ export const studioCommand = async (
 		getEnvVariables: () => envVariables,
 		desiredPort,
 		keyboardShortcutsEnabled,
+		experimentalClientSideRenderingEnabled,
 		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
 		relativePublicDir,
